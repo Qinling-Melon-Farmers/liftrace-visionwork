@@ -922,6 +922,7 @@ void LLController::load_params() {
     waypoint_adjust_max_second_threshould = nh_.param("threshould/waypoint_adjust_max_second_threshould", 10);
     land_adjust_max_second_threshould = nh_.param("threshould/land_adjust_max_second_threshould", 10);
     waypoint_skipping_index = nh_.param("waypoint_skipping_index", 3);
+    detect_skip_enable_ = nh_.param("detect_skip_enable", true);
 
     // 目标类别列表：~goal_list 参数（XmlRpc 数组）可选，缺省保持旧行为 {"panzer"}
     {
@@ -1049,7 +1050,9 @@ void LLController::NextPoint() {
     
     // 路点指数加一
     waypoint_now = waypoint_next;
-    if(detect_point_counter >= 3 && waypoint_now < (waypoint_list.size() - waypoint_skipping_index)){
+    // 3 投后是否直接跳过中间航点到降落段（旧设计行为）；detect_skip_enable=false
+    // 时正常顺序推进（走廊等中间航点才会被执行）
+    if(detect_skip_enable_ && detect_point_counter >= 3 && waypoint_now < (waypoint_list.size() - waypoint_skipping_index)){
         waypoint_next = waypoint_list.size() - waypoint_skipping_index;
         std_msgs::Bool stop_detection;
         stop_detection.data = false;

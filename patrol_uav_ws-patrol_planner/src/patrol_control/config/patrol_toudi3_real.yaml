@@ -1,50 +1,60 @@
-# toudi3.world 场地适配的完整比赛路线配置。
+# toudi3.world 场地适配的完整比赛路线配置（含走廊穿越）。
 #
-# 场地几何（toudi2 走廊模型，绝对坐标）：
-#   底部边界 Wall_1:  y=-2.83（长8m，x∈[-4.48,3.52]）
-#   右侧边界 Wall_11: x=3.44（长9.85m）
-#   左边界走廊：Wall_4 x=-4.90 y∈[1.63,6.48]（宽4.85m）
-#   上侧转弯：Wall_14/15/16 在 y≈6.3-7.6
-#   顶部边界：Wall_9/13/20/22 在 y≈7.7-8.9
+# 场地几何（toudi2 走廊模型，2026-08-01 方案 A 改墙后，世界绝对坐标）：
+#   南墙 Wall_1:  y=-2.83（x∈[-4.48,3.52]）
+#   东墙 Wall_11: x=3.44
+#   北墙 Wall_9:  y=6.87（连续 8m 无门）
+#   西通道：Wall_6 内壁 x=-4.335 与 Wall_16 西缘 x=-3.134 之间，宽 1.2m
+#   内部隔断：Wall_15 组合墙 y∈[4.225,4.375]，西段 x∈[-3.134,-1.870] 有半高通廊
+#     （z∈[0.5,1.3] 净高 0.8m 可穿，穿过点 x≈-2.3）
+#   半高障碍：big_box3 顶 1.25m（y∈[2.05,2.85] 区域），>1.3m 可飞越
 #
-# 走廊穿越路线设计：
-#   投递区在场地中部（靶标坐标），完成 4 个投递后
-#   穿越左侧走廊 (x≈-4.9, y 从 2 到 7)，再到右侧返航降落。
-#
-# 标准靶标绝对坐标（toudi3.world 内嵌模型）：
-#   dibao:        (-0.602, -1.041)
-#   qiaoliang:    (-1.903, -0.023)
-#   zhangpeng:    (1.016, 0.256)
-#   zhuangjiache: (-1.589, 3.022)
-#   tanke:        (0.283, 3.856)
-#   H (landing_h): (0, 0)
+# 标准靶标真值（world 内嵌模型绝对坐标）：
+#   dibao→pillbox(-0.602,-1.041)  qiaoliang→bridge(-1.903,-0.023)
+#   zhangpeng→tent(1.016,0.256)   zhuangjiache→panzer(-1.589,3.022)
+#   tanke→tank(0.283,3.856)       H→(0,0)
+
+# 目标类别（sim_helpers 动态 mock 与补丁 A 的 goal_list 匹配）
+goal_list: ["bridge", "panzer", "pillbox", "tent", "tank"]
+
+# 3 投后不跳降落段，顺序推进走廊航点（补丁 B）
+detect_skip_enable: false
 
 waypoints:
   - {x: 0.000, y: 0.000, z: 1.5, yaw: 0.0, pointmode: "Takeoff_point", hover_time: 0.0}
 
-  # 投递点 1-4（标准靶标上方）
-  - {x: -0.602, y: -1.041, z: 1.5, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
-  - {x: 1.016, y: 0.256, z: 1.5, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
-  - {x: -1.589, y: 3.022, z: 1.5, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
-  - {x: -0.602, y: -1.041, z: 1.5, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+  # 投递点 1-3（标准靶上方，对应舵机 1/2/3）
+  # z=1.2 低于树顶 1.5m，树木成为必须绕行的全高障碍（验证避障能力）
+  - {x: -0.602, y: -1.041, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}   # dibao/pillbox
+  - {x: 1.016, y: 0.256, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}   # zhangpeng/tent
+  - {x: -1.589, y: 3.022, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}  # zhuangjiache/panzer
 
-  # 走廊穿越（去程：进入左走廊 x=-4.5 从 y=2 到 y=7）
-  - {x: -4.500, y: 2.000, z: 1.7, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
-  - {x: -4.500, y: 4.000, z: 1.7, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
-  - {x: -4.500, y: 6.000, z: 1.7, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
-  # 走廊出口（y=6.5 在 Wall_13(0.12,7.68) 前方，Fast-Planner 可达）
-  - {x: 0.300, y: 6.500, z: 1.7, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  # 走廊去程：进入西通道（x=-3.7，Wall_6 内壁 -4.335 与 V2 西端 -3.734 之间）
+  - {x: -3.700, y: 3.400, z: 1.5, yaw: 1.5708, pointmode: "Nothing_point", hover_time: 0.0}  # 通道南口
 
-  # 降高通过（走廊出口后）
-  - {x: 1.500, y: 5.000, z: 0.65, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
-  - {x: 1.500, y: 5.000, z: 0.15, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
-  - {x: 1.500, y: 5.000, z: 0.65, yaw: 0.0, pointmode: "Nothing_point", hover_time: 1.0}
+  # 过门段：向东直进门洞（Wall_15 西移后门洞 x∈[-3.27,-1.87]，z 0.65~1.3 可穿）
+  - {x: -2.300, y: 4.000, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}    # 门洞南侧接近
+  - {x: -2.300, y: 4.450, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}    # 穿门洞（z=1.0 在 [0.65,1.3] 内）
 
-  # 回高返航（右侧）
+  # 北区：返回通道，北向到走廊尽头
+  - {x: -3.700, y: 5.300, z: 1.5, yaw: 1.5708, pointmode: "Nothing_point", hover_time: 0.0}  # 回通道北段
+  - {x: -3.700, y: 6.300, z: 1.5, yaw: 1.5708, pointmode: "Nothing_point", hover_time: 0.0}  # 通道北端（距北墙 0.5m）
+
+  # 北区东进（Wall_20/22 门洞带 y∈[5.83,6.73]，x≈0.6 通过）
+  - {x: 0.300, y: 6.260, z: 1.5, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+
+  # 回程：原路返回通道南口
+  - {x: -3.700, y: 6.300, z: 1.5, yaw: -1.5708, pointmode: "Nothing_point", hover_time: 0.0}
+  - {x: -3.700, y: 3.400, z: 1.5, yaw: -1.5708, pointmode: "Nothing_point", hover_time: 0.0}
+
+  # 降高段（移出 Big box 4 包络 x>1.49；z 下限 0.5 防贴地断连）
+  - {x: 2.000, y: 5.000, z: 0.65, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
+  - {x: 2.000, y: 5.000, z: 0.50, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
+  - {x: 2.000, y: 5.000, z: 0.65, yaw: 0.0, pointmode: "Nothing_point", hover_time: 1.0}
+
+  # 返航与降落（H 位于 (0,0)）
   - {x: 2.500, y: 4.000, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
   - {x: 2.000, y: 1.000, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
-
-  # 降落（H 位于 (0,0)）
   - {x: 0.000, y: 0.000, z: 0.8, yaw: 0.0, pointmode: "Land_point", hover_time: 0.0}
 
 waypoint_skipping_index: 4

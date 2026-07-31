@@ -338,7 +338,7 @@
           </surface>
         </collision>
         <visual name='Wall_15_Visual_1'>
-          <pose>0.243127 0 0.25 0 -0 0</pose>
+          <pose>-0.356873 0 0.25 0 -0 0</pose>
           <geometry>
             <box>
               <size>1.26374 0.15 0.5</size>
@@ -365,7 +365,7 @@
               <size>1.26374 0.15 0.5</size>
             </box>
           </geometry>
-          <pose>0.243127 0 0.25 0 -0 0</pose>
+          <pose>-0.356873 0 0.25 0 -0 0</pose>
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
@@ -381,7 +381,7 @@
           </surface>
         </collision>
         <visual name='Wall_15_Visual_2'>
-          <pose>0.643127 0 1.5 0 -0 0</pose>
+          <pose>1.234 0 1.5 0 -0 0</pose>
           <geometry>
             <box>
               <size>0.463745 0.15 2</size>
@@ -408,7 +408,7 @@
               <size>0.463745 0.15 2</size>
             </box>
           </geometry>
-          <pose>0.643127 0 1.5 0 -0 0</pose>
+          <pose>1.234 0 1.5 0 -0 0</pose>
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
@@ -424,7 +424,7 @@
           </surface>
         </collision>
         <visual name='Wall_15_Visual_3'>
-          <pose>0.011255 0 1.9 0 -0 0</pose>
+          <pose>-0.588745 0 1.9 0 -0 0</pose>
           <geometry>
             <box>
               <size>0.8 0.15 1.2</size>
@@ -451,7 +451,7 @@
               <size>0.8 0.15 1.2</size>
             </box>
           </geometry>
-          <pose>0.011255 0 1.9 0 -0 0</pose>
+          <pose>-0.588745 0 1.9 0 -0 0</pose>
           <max_contacts>10</max_contacts>
           <surface>
             <contact>
