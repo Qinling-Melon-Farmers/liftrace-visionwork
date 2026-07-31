@@ -15,6 +15,7 @@
 # ---- 大文件：模型权重 / 数据集 / 压缩包 / 点云 ----
 vision_ws/runs/
 vision_ws/test_data/
+runs/
 *.pt
 *.onnx
 *.zip
