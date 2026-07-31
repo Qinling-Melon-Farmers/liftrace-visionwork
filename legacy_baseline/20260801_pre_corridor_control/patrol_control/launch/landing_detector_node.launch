@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="image_topic" default="/camera/color/image_raw" />
+    <rosparam file="$(find patrol_control)/config/landing_detection_params.yaml" command="load" />
+    <!-- 降落检测节点 - 黑色圆环中带有黑色H -->
+    <node name="landing_detector_node" pkg="patrol_control" type="landing_detector_node" output="screen">
+        <remap from="/camera/color/image_raw" to="$(arg image_topic)" />
+    </node>
+
+    <!-- 可选：同时启动图像话题 -->
+    <!-- 如果需要从bag文件播放图像，可以取消注释以下行 -->
+    <!-- <node name="rosbag_play" pkg="rosbag" type="play" args="path/to/your/bag/file.bag" /> -->
+
+    <!-- 可选：启动rviz查看检测结果 -->
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find patrol_control)/rviz_config/landing_detection.rviz" /> -->
+
+</launch> 

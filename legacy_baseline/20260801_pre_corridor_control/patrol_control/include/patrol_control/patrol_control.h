@@ -179,7 +179,7 @@ private:
     std::vector<Waypoint> waypoint_list;
     geometry_msgs::PoseStamped tank_mark_point;
 
-    std::vector<std::string> goal;  // 默认由构造函数按 ~goal_list 参数填充，缺省 {"panzer"}
+    std::vector<std::string> goal = {"panzer"};
     // 悬停相关变量
     bool flag_hover_started = false;
     bool overtime_drop_flag = false;

@@ -1,0 +1,99 @@
+# toudi3.world 场地适配的完整比赛路线配置。
+#
+# 场地几何（toudi2 走廊模型，绝对坐标）：
+#   底部边界 Wall_1:  y=-2.83（长8m，x∈[-4.48,3.52]）
+#   右侧边界 Wall_11: x=3.44（长9.85m）
+#   左边界走廊：Wall_4 x=-4.90 y∈[1.63,6.48]（宽4.85m）
+#   上侧转弯：Wall_14/15/16 在 y≈6.3-7.6
+#   顶部边界：Wall_9/13/20/22 在 y≈7.7-8.9
+#
+# 走廊穿越路线设计：
+#   投递区在场地中部（靶标坐标），完成 4 个投递后
+#   穿越左侧走廊 (x≈-4.9, y 从 2 到 7)，再到右侧返航降落。
+#
+# 标准靶标绝对坐标（toudi3.world 内嵌模型）：
+#   dibao:        (-0.602, -1.041)
+#   qiaoliang:    (-1.903, -0.023)
+#   zhangpeng:    (1.016, 0.256)
+#   zhuangjiache: (-1.589, 3.022)
+#   tanke:        (0.283, 3.856)
+#   H (landing_h): (0, 0)
+
+waypoints:
+  - {x: 0.000, y: 0.000, z: 1.5, yaw: 0.0, pointmode: "Takeoff_point", hover_time: 0.0}
+
+  # 投递点 1-4（标准靶标上方）
+  - {x: -0.602, y: -1.041, z: 1.5, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+  - {x: 1.016, y: 0.256, z: 1.5, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+  - {x: -1.589, y: 3.022, z: 1.5, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+  - {x: -0.602, y: -1.041, z: 1.5, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+
+  # 走廊穿越（去程：进入左走廊 x=-4.5 从 y=2 到 y=7）
+  - {x: -4.500, y: 2.000, z: 1.7, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  - {x: -4.500, y: 4.000, z: 1.7, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  - {x: -4.500, y: 6.000, z: 1.7, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  # 走廊出口（y=6.5 在 Wall_13(0.12,7.68) 前方，Fast-Planner 可达）
+  - {x: 0.300, y: 6.500, z: 1.7, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+
+  # 降高通过（走廊出口后）
+  - {x: 1.500, y: 5.000, z: 0.65, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
+  - {x: 1.500, y: 5.000, z: 0.15, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
+  - {x: 1.500, y: 5.000, z: 0.65, yaw: 0.0, pointmode: "Nothing_point", hover_time: 1.0}
+
+  # 回高返航（右侧）
+  - {x: 2.500, y: 4.000, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  - {x: 2.000, y: 1.000, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+
+  # 降落（H 位于 (0,0)）
+  - {x: 0.000, y: 0.000, z: 0.8, yaw: 0.0, pointmode: "Land_point", hover_time: 0.0}
+
+waypoint_skipping_index: 4
+land_height: 0.30
+align_height: 1.20
+px4_max_distance: 0.20
+max_yaw_change: 0.20
+
+progressive_descent:
+  enable: true
+  target_height: 0.40
+  intermediate_height: 0.70
+  descent_duration: 5.0
+  final_descent_duration: 2.0
+  min_detection_count: 5
+
+alignment:
+  threshold: 20.0
+  stable_count_threshold: 10
+  timeout: 30.0
+
+threshould:
+  takeoff_threshould: 0.30
+  waypoint_threshould: 0.30
+  aligning_threshould: 0.20
+  landing_threshould: 0.15
+  arrive_yaw_threshould: 0.30
+  times_detect_threshould: 40
+  waypoint_adjust_max_second_threshould: 15
+  land_adjust_max_second_threshould: 10
+  planner_min_pub_threshould: 0.025
+
+switch:
+  flag_planner_px4: 1
+  flag_landing_detect: 1
+  auto_land: 1
+
+drop_system:
+  precision_threshold: 20.0
+  height_threshold: 0.20
+  enable_drop: true
+  descent_stable_duration: 2.0
+
+uav_vision:
+  selected_target_timeout: 1.0
+  drop_offset_timeout: 1.0
+  pixel_to_meter_ratio: 0.0015
+  max_movement_distance: 0.5
+  drop_circle_radius_m: 0.5
+  drop_cross_radius_m: 0.5
+  landing_pad_radius_m: 0.30
+  enable_tank_interrupt: false

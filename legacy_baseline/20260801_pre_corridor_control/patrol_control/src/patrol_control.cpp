@@ -922,21 +922,7 @@ void LLController::load_params() {
     waypoint_adjust_max_second_threshould = nh_.param("threshould/waypoint_adjust_max_second_threshould", 10);
     land_adjust_max_second_threshould = nh_.param("threshould/land_adjust_max_second_threshould", 10);
     waypoint_skipping_index = nh_.param("waypoint_skipping_index", 3);
-
-    // 目标类别列表：~goal_list 参数（XmlRpc 数组）可选，缺省保持旧行为 {"panzer"}
-    {
-        XmlRpc::XmlRpcValue goal_list;
-        if (nh_.getParam("goal_list", goal_list) &&
-            goal_list.getType() == XmlRpc::XmlRpcValue::TypeArray) {
-            for (int i = 0; i < goal_list.size(); ++i) {
-                goal.push_back(static_cast<std::string>(goal_list[i]));
-            }
-            ROS_INFO("[PatrolControl] goal_list loaded: %zu targets", goal.size());
-        } else {
-            goal = {"panzer"};
-        }
-    }
-
+    
     // 参数
     land_height = nh_.param("land_height", 0.3);//降落时调整的固定高度
     px4_max_distance = nh_.param("px4_max_distance", 1.2);
