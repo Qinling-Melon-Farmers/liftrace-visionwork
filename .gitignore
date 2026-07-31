@@ -1,0 +1,42 @@
+# ---- build / catkin 产物 ----
+**/build/
+**/devel/
+**/install/
+**/.catkin_tools/
+**/compile_commands.json
+
+# ---- 日志与录屏 ----
+*.log
+**/.ros/log/
+**/logs/
+*.bag
+*.bag.active
+
+# ---- 大文件：模型权重 / 数据集 / 压缩包 / 点云 ----
+vision_ws/runs/
+vision_ws/test_data/
+*.pt
+*.onnx
+*.zip
+*.tar.gz
+*.pdf
+*.pcd
+实物组数据集/
+opencv-3.4.8.zip/
+*.mp4
+
+# ---- 凭证保护（token 绝不落盘，此处双保险） ----
+*token*
+*.credentials
+.netrc
+.git-credentials
+
+# ---- Python / IDE ----
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+.DS_Store
+
+# ---- 历史无关文件 ----
+Desktop_patrol_uav_ws-patrol_planner/

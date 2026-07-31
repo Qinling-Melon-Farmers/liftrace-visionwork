@@ -1,0 +1,17 @@
+<launch>
+  <!-- YOLO dual-model detector for simulation.
+       Uses conda rl_drone (per AGENTS.md rule 11) and .pt model files.
+       The vision_ws workspace must be sourced before launch. -->
+  <arg name="model1" default="$(find yolov5_detect)/best.pt" />
+  <arg name="model2" default="$(find yolov5_detect)/tank.pt" />
+  <arg name="image_dir" default="$(find yolov5_detect)/scripts/" />
+
+  <param name="/path_of_model1" value="$(arg model1)" />
+  <param name="/path_of_model2" value="$(arg model2)" />
+  <param name="/path_of_image" value="$(arg image_dir)" />
+
+  <node name="yolo_detect" pkg="yolov5_detect" type="yolo_detect.py" output="screen"
+        launch-prefix="bash -c 'source /home/xhj/miniconda3/etc/profile.d/conda.sh &amp;&amp; conda activate rl_drone &amp;&amp; exec python3 -u $0'" />
+
+  <node name="image_process" pkg="yolov5_detect" type="image_process" output="screen" />
+</launch>

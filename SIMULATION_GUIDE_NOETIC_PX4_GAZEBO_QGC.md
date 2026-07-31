@@ -1,0 +1,240 @@
+# 视觉组仿真分层与环境入口（ROS Noetic + PX4 + Gazebo）
+
+更新时间：2026-07-15
+
+## 1. 用途和安全边界
+
+本文帮助视觉组选择正确的仿真入口，并明确每种测试能证明什么。逐终端的 toudi3 操作、GUI 和排障见 [docs/TOUDI3_FULL_SIM_GUI_GUIDE.md](/home/xhj/liftrace/docs/TOUDI3_FULL_SIM_GUI_GUIDE.md)；指标、场景和任务顺序见 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)。
+
+本文所有完整仿真入口只连接 PX4 SITL，不连接真实飞控，不启动 `actuator_pwm`。任何实机解锁、起飞、投递或 PWM 操作均不在本文范围内。
+
+## 2. 当前结论
+
+- 外部仿真底座：`AstraDroneOpen + PX4 SITL + Gazebo Classic + iris_mid360`；
+- 比赛场景：仓库内 `toudi3.world` 与 `patrol_world.launch`；
+- 新视觉人工连通入口：`run_toudi3_full_competition_sim_gui_new.sh`；联合环境使用
+  `toudi3_combined_env.sh`；
+- 确定性软件回归：`uav_vision` 的 map/patrol mock launch；
+- L1 定量入口：`run_toudi3_visual_suite.sh`，复用 world 五类标准靶/H，红十字按场景插入；
+- L2 隔离入口：`uav_vision_eval/toudi3_full_shadow.launch`；隔离契约已通过，10 min 未验收；
+- 旧内部 `patrol_control_sim.launch` 仍受 Fast-Planner 运行时问题影响，不作为视觉验收基线；
+- 当前独立真值、自动评分和 shadow 最小基建已存在，但 30-seed、正式召回/时延阈值和
+  10 min 稳定性仍未通过。
+
+因此新视觉 GUI 仿真仍只算“链路烟测”。定量结论必须来自 `uav_vision_eval` 报告，且
+当前所有推理结果都属于笔记本，不属于 OrangePi 板端。
+
+## 3. 四层验证入口
+
+| 层级 | 当前入口 | 主要检查 | 通过依据 |
+| --- | --- | --- | --- |
+| L0 mock | `phase_d_map_mock.launch`、`phase_d_mock_patrol_regression.launch` | 消息、TF、地图投影、模式和兼容接口 | assertion 退出码 0 |
+| L1 Gazebo 静态真值 | `run_toudi3_visual_suite.sh` | 检测、中心、实例关联、地图误差 | 自动 CSV/JSON/report；正式阈值待全过 |
+| L2 toudi3 shadow 飞行 | `toudi3_full_shadow.launch` | 连续观测、ID、时延、稳定性 | 隔离已验证；固定 seed + 10 min 待完成 |
+| L3 任务闭环 | 待 Search/Mission Manager 接入 | 搜索、接近、恢复、对准证据 | 多场景成功率和零越权 |
+
+实拍视频/rosbag 回放与 OrangePi RKNN 分别是域差和部署门禁，不属于 Gazebo 的替代品。
+
+## 4. 环境准备
+
+### 4.1 Windows 进入 WSL
+
+```powershell
+wsl -d Ubuntu-20.04
+```
+
+以下命令默认在 WSL Ubuntu 终端运行：
+
+```bash
+source /opt/ros/noetic/setup.bash
+export PROJECT_ROOT=/home/xhj/liftrace
+export VISION_WS=$PROJECT_ROOT/vision_ws
+export UAV_WS=$PROJECT_ROOT/patrol_uav_ws-patrol_planner
+export PX4_ROOT=/home/xhj/PX4-Autopilot
+```
+
+### 4.2 一次性资产检查
+
+```bash
+test -f "$UAV_WS/toudi3.world" && echo world_ok
+test -x "$PX4_ROOT/build/px4_sitl_default/bin/px4" && echo px4_ok
+test -d /home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib && echo astra_plugins_ok
+test -f "$VISION_WS/src/uav_vision/launch/phase_d.launch" && echo vision_ok
+```
+
+### 4.3 编译
+
+视觉工作区：
+
+```bash
+source /opt/ros/noetic/setup.bash
+cd /home/xhj/liftrace/vision_ws
+catkin_make -j1
+```
+
+主集成工作区需要先叠加视觉消息，并清空可能残留的白名单：
+
+```bash
+source /opt/ros/noetic/setup.bash
+source /home/xhj/liftrace/vision_ws/devel/setup.bash
+cd /home/xhj/liftrace/patrol_uav_ws-patrol_planner
+catkin_make -DROS_EDITION=ROS1 -DCATKIN_WHITELIST_PACKAGES="" -j1
+```
+
+## 5. L0：先跑确定性回归
+
+### 5.1 地图投影、记忆和对准
+
+```bash
+source /opt/ros/noetic/setup.bash
+source /home/xhj/liftrace/vision_ws/devel/setup.bash
+roslaunch uav_vision phase_d_map_mock.launch
+```
+
+### 5.2 新视觉与旧主控接口回归
+
+该回归同时依赖两个工作区，使用已验证的联合环境入口：
+
+```bash
+source /home/xhj/liftrace/top_level_scripts/toudi3_combined_env.sh
+liftrace_setup_toudi3_combined_env
+liftrace_assert_toudi3_combined_env
+roslaunch uav_vision phase_d_mock_patrol_regression.launch
+```
+
+验收要求：assertion 节点正常结束且退出码为 0，连续运行 3 次没有偶发失败。mock 通过只说明软件契约成立，不说明真实图像可识别。
+
+推荐统一运行器：
+
+```bash
+/home/xhj/liftrace/top_level_scripts/run_visual_mock_regressions.sh
+```
+
+该脚本除运行 launch 外还检查 assertion 的 PASS marker；原因是 ROS1 `roslaunch` 在 required
+节点以非零码退出时仍可能返回外层 0，不能只看 shell 返回值。
+
+## 6. 外部仿真底座检查
+
+只检查 PX4/Gazebo/MAVROS 时使用：
+
+```bash
+source /opt/ros/noetic/setup.bash
+export PX4_ROOT=/home/xhj/PX4-Autopilot
+export SITL_GAZEBO=$PX4_ROOT/Tools/simulation/gazebo-classic/sitl_gazebo-classic
+export ROS_PACKAGE_PATH=/opt/ros/noetic/share:$ROS_PACKAGE_PATH:$PX4_ROOT:$SITL_GAZEBO
+export GAZEBO_MODEL_PATH=$SITL_GAZEBO/models:${GAZEBO_MODEL_PATH}
+roslaunch px4 astra_example.launch vehicle:=iris_mid360
+```
+
+基础检查：
+
+```bash
+rostopic echo -n 1 /mavros/state
+rostopic echo -n 1 /mavros/local_position/pose
+rostopic echo -n 1 /mavros/local_position/odom
+```
+
+该入口不包含 toudi3 视觉任务，不用于算法评测。
+
+## 7. toudi3 入口选择
+
+| 命令 | 用途 | 重要限制 |
+| --- | --- | --- |
+| `roslaunch patrol_control patrol_world.launch` | 查看 world、飞机和相机 | 不启动完整任务航路 |
+| `run_toudi3_full_competition_sim_headless_old.sh` | 旧链赛程回归 | 不验证新视觉 |
+| `run_toudi3_full_competition_sim_gui_old.sh` | 旧链 GUI 排障 | 不验证新视觉 |
+| `run_toudi3_full_competition_sim_gui_new.sh` | 新视觉 Phase D 连通烟测 | 当前不是 shadow，会和旧主控接线 |
+| `run_toudi3_visual_suite.sh` | 八个固定 L1 场景 | 视觉-only；不启动 PX4/MAVROS/控制/执行机构 |
+
+旧、新完整入口不能同时运行，它们共享 Gazebo、PX4、MAVROS 和全局视觉话题。
+
+### 7.1 新视觉 GUI 烟测
+
+先检查联合环境：
+
+```bash
+rospack find uav_vision
+rospack find patrol_control
+python3 -c "from uav_vision.msg import TargetDetectionArray"
+```
+
+先加载联合环境，三项必须同时通过：
+
+```bash
+source /home/xhj/liftrace/top_level_scripts/toudi3_combined_env.sh
+liftrace_setup_toudi3_combined_env
+liftrace_assert_toudi3_combined_env
+```
+
+GUI 烟测命令：
+
+```bash
+cd /home/xhj/liftrace
+bash ./top_level_scripts/run_toudi3_full_competition_sim_gui_new.sh
+```
+
+另一个 WSL 终端检查：
+
+```bash
+source /home/xhj/liftrace/top_level_scripts/toudi3_combined_env.sh
+liftrace_setup_toudi3_combined_env
+liftrace_assert_toudi3_combined_env
+
+rostopic hz /camera/color/image_raw
+rostopic echo -n 1 /camera/color/camera_info
+rostopic echo -n 1 /uav_vision/detections_resolved
+rostopic echo -n 1 /uav_vision/detections_refined
+rostopic echo -n 1 /uav_vision/detections_mapped
+rostopic echo -n 1 /uav_vision/targets
+rostopic echo -n 1 /uav_vision/drop_ready
+```
+
+检查字段：
+
+- 输入 header 时间是否单调、frame 是否正确；
+- `center_refined` 的来源是否是期望的几何/圆环中心；
+- CameraInfo 和 TF 有效时 `map_valid` 是否成立；
+- `map_point` 和 `map_frame` 是否合理；
+- `selected_target` 是否携带当前观测，而不是仅因回调重发旧记忆；
+- `drop_ready` 是否只在正确 `align_mode` 下出现。
+
+以上均正常仍只代表烟测通过。没有独立真值时，不记录“召回率”“中心误差”“地图误差”等算法结论。
+
+### 7.2 结束仿真
+
+优先在启动终端按 `Ctrl+C`。需要清理当前 toudi3 仿真残留时：
+
+```bash
+/home/xhj/liftrace/top_level_scripts/stop_toudi3_sim.sh
+```
+
+不要在存在其他 ROS 任务时使用宽泛的 `pkill -f`。
+
+## 8. 正式视觉仿真入口与剩余完成定义
+
+当前 L1/L2 最小入口已满足 headless、独立真值、自动记录、失败非零退出和 shadow 输出隔离。
+继续扩为正式 Gate 时必须满足：
+
+- headless 可运行，固定随机 seed；
+- 不启动 `actuator_pwm`；
+- shadow 模式下视觉结果不改变飞行状态；
+- 场景 manifest 记录目标类别、姿态、相机姿态、光照和运动参数；
+- 真值来自 Gazebo model state + CameraInfo + TF，不来自检测器；
+- 自动记录检测、关联、地图点、观测年龄、模式和延迟；
+- 自动生成 `summary.json`、逐样本 CSV 和 `report.md`；
+- Gate 失败时进程退出非零；
+- 同一 seed 可复现同一失败。
+
+V-SIM-00 已通过；首轮指标阈值、30-seed 场景矩阵和任务顺序统一见
+`VISION_2026_ROADMAP.md`。当前笔记本定量结果见
+`docs/VISION_LAPTOP_SIM_BASELINE_20260715.md`。
+
+## 9. 常见误区
+
+- Gazebo 中看到框，不等于召回率达标；
+- topic 有频率，不等于延迟低，必须比较源图像时间戳和输出时间；
+- `map_valid=true` 不等于地图点准确，必须与独立世界真值比较；
+- 目标保存在 memory 中，不等于它仍是当前可控观测；
+- `drop_ready=true` 不等于允许投递；
+- 一条固定航线看到全部已知靶，不等于具备全场自主搜索；
+- 仿真清晰贴图通过，不等于真实光照、模糊、遮挡和 NPU 后处理通过。

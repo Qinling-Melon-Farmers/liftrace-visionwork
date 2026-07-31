@@ -1,0 +1,32 @@
+<launch>
+  <!-- Wrapper that combines the full competition sim with the YOLO detector.
+       Sources: patrol_uav_ws + Visual workspaces. -->
+
+  <arg name="world" default="/home/xhj/liftrace/patrol_uav_ws-patrol_planner/toudi3.world" />
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="mapping_rviz" default="false" />
+  <arg name="start_mapping" default="true" />
+  <arg name="start_visual" default="true" />
+  <arg name="start_arming" default="true" />
+  <arg name="waypoint_mode" default="true" />
+  <arg name="simulation_auto_land" default="true" />
+  <arg name="px4_max_distance" default="0.2" />
+
+  <!-- Main competition chain -->
+  <include file="$(find patrol_control)/launch/patrol_full_competition_sim.launch">
+    <arg name="world" value="$(arg world)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="mapping_rviz" value="$(arg mapping_rviz)" />
+    <arg name="start_mapping" value="$(arg start_mapping)" />
+    <arg name="start_visual" value="$(arg start_visual)" />
+    <arg name="start_arming" value="$(arg start_arming)" />
+    <arg name="waypoint_mode" value="$(arg waypoint_mode)" />
+    <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
+    <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
+  </include>
+
+  <!-- YOLO dual-model detector (conda rl_drone, .pt models) -->
+  <include file="/home/xhj/liftrace/top_level_scripts/yolo_detect_sim.launch" />
+</launch>
