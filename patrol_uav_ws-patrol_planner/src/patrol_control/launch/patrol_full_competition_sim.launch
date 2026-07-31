@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<launch>
+  <!--
+    Full SITL competition-chain entry point.
+
+    This starts the rebuilt toudi3 arena, PX4/Gazebo/MAVROS, the old
+    patrol-control/planner chain, the old visual detectors, and the simulated
+    FAST-LIO + FreeDOM mapping chain.  It is for SITL only.  In particular,
+    uav_arming_node must never be reused by a hardware launch.
+  -->
+  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="vehicle" default="iris_mid360" />
+  <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
+  <arg name="px4_model_root" default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
+  <!-- Backward-compatible injection point for a repository-local simulation
+       vehicle. The historical PX4 model remains the default. -->
+  <arg name="vehicle_sdf" default="$(arg px4_model_root)/$(arg vehicle)/$(arg vehicle).sdf" />
+  <arg name="astra_sim_lib" default="$(optenv ASTRA_SIM_LIB /home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib)" />
+  <arg name="px4_plugin_lib" default="$(arg px4_root)/build/px4_sitl_default/build_gazebo-classic" />
+  <arg name="gazebo_plugin_path" default="$(arg astra_sim_lib):$(arg px4_plugin_lib)" />
+  <!-- AstraDroneOpen's RealSense plugin publishes this topic without the
+       vehicle namespace because its robotNamespace is empty. -->
+  <arg name="camera_image_topic" default="/camera/color/image_raw" />
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="mapping_rviz" default="false" />
+  <arg name="start_mapping" default="true" />
+  <arg name="start_visual" default="true" />
+  <arg name="start_arming" default="true" />
+  <!-- The requested legacy competition flow is direct waypoint mode.  The
+       planner nodes remain started for full-chain compatibility, but they do
+       not own the vehicle setpoint in this mode. -->
+  <arg name="waypoint_mode" default="true" />
+  <!-- Simulation-only completion of the legacy AUTO.LAND branch. -->
+  <arg name="simulation_auto_land" default="true" />
+  <!-- Smaller direct-setpoint step prevents PX4 position-loop overshoot in
+       the CPU-limited WSL SITL; the historical launch default remains 1.0 m. -->
+  <arg name="px4_max_distance" default="0.2" />
+  <!-- SITL-only arrival tolerance for the legacy detect-point state.  It is
+       intentionally wider than the hardware precision value because this
+       CPU-limited world leaves a small steady-state pose error. -->
+  <arg name="aligning_threshold" default="0.20" />
+  <!-- Use a single toudi3 route by default; direct patrol_control users keep
+       the historical patrol_sim.yaml through patrol_control_px4_sim.launch. -->
+  <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_toudi3.yaml" />
+
+  <include file="$(find patrol_control)/launch/patrol_world.launch">
+    <arg name="world" value="$(arg world)" />
+    <arg name="vehicle" value="$(arg vehicle)" />
+    <arg name="sdf" value="$(arg vehicle_sdf)" />
+    <arg name="px4_root" value="$(arg px4_root)" />
+    <arg name="astra_sim_lib" value="$(arg astra_sim_lib)" />
+    <arg name="px4_plugin_lib" value="$(arg px4_plugin_lib)" />
+    <arg name="gazebo_plugin_path" value="$(arg gazebo_plugin_path)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="verbose" value="false" />
+    <arg name="interactive" value="false" />
+    <arg name="start_px4" value="true" />
+  </include>
+
+  <node if="$(arg start_arming)" pkg="patrol_control" type="uav_arming_node"
+        name="uav_arming_node" output="screen" />
+
+  <!-- Old waypoint / landing / drop state machine and its PX4 planner path. -->
+  <include file="$(find patrol_control)/launch/patrol_control_px4_sim.launch">
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="waypoint_mode" value="$(arg waypoint_mode)" />
+    <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
+    <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <arg name="aligning_threshold" value="$(arg aligning_threshold)" />
+    <arg name="waypoint_config" value="$(arg waypoint_config)" />
+  </include>
+
+  <!-- Old visual chain, connected to the SITL RealSense color stream. -->
+  <group if="$(arg start_visual)">
+    <include file="$(find patrol_control)/launch/circle_detection_sim.launch">
+      <arg name="image_topic" value="$(arg camera_image_topic)" />
+      <!-- patrol_control owns this control topic; avoid a competing always-on publisher. -->
+      <arg name="publish_initial_control" value="false" />
+    </include>
+    <include file="$(find patrol_control)/launch/cross_detection.launch">
+      <arg name="image_topic" value="$(arg camera_image_topic)" />
+      <arg name="show_image" value="false" />
+    </include>
+    <include file="$(find patrol_control)/launch/landing_detector_node.launch">
+      <arg name="image_topic" value="$(arg camera_image_topic)" />
+    </include>
+  </group>
+
+  <!-- Simulated MID360 -> FAST-LIO -> FreeDOM mapping chain. -->
+  <group if="$(arg start_mapping)">
+    <include file="$(find fast_lio)/launch/mapping_mid360_sim.launch">
+      <arg name="rviz" value="$(arg mapping_rviz)" />
+    </include>
+  </group>
+</launch>

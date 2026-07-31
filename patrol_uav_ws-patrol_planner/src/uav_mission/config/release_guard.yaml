@@ -1,0 +1,20 @@
+# 释放许可只在短时窗口内成立；所有超时均按拒绝处理。
+evidence_timeout: 0.50       # release_evidence 最大年龄 [s]
+pose_timeout: 0.50           # 飞机位姿最大年龄 [s]
+control_state_timeout: 0.50  # 旧 patrol_control 状态最大年龄 [s]
+permission_lifetime: 0.25   # 单条许可有效期 [s]
+publish_rate: 20.0           # 许可评估频率 [Hz]
+
+# 兼容原 patrol_control 的近地投放条件，同时由任务层再次独立校验。
+min_release_altitude: -0.05  # 本地坐标高度下界 [m]
+max_release_altitude: 0.25   # 本地坐标高度上界 [m]
+payload_slots: 3
+first_payload_slot: 1
+required_control_state: 2    # patrol_control::Aligning；枚举值见原控制头文件
+
+align_mode_topic: /uav_vision/align_mode
+evidence_topic: /uav_vision/release_evidence
+pose_topic: /mavros/local_position/pose
+control_state_topic: /detect/point_class
+permission_topic: /mission/release_permission
+result_topic: /mission/release_result

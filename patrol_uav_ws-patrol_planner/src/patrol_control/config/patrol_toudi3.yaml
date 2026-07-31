@@ -1,0 +1,75 @@
+# toudi3 SITL 的单一路线配置。
+#
+# 坐标来源：patrol_uav_ws-patrol_planner/toudi3.world 中嵌套模型 3 的
+# state 绝对坐标。当前旧 patrol_control 每轮最多按 3 个检测点分配投递
+# 舵机，因此本兼容路线选择 3 个标准靶作为可回放检测点；其余靶仍保留在
+# world 中，可在后续扩展投递状态机时加入。
+#
+# H 降落模型 landing_h 放置在 (0, 0)，与最终 Land_point 对齐。
+
+waypoints:
+  - {x: 0.000, y: 0.000, z: 2.000, yaw: 0.0, pointmode: "Takeoff_point", hover_time: 0.0}
+
+  # standard target 1: dibao, world absolute center (-0.602009, -1.041250)
+  - {x: -0.602, y: -1.041, z: 1.500, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+  # standard target 2: tanke, world absolute center (-1.903100, -0.022730)
+  - {x: -1.903, y: -0.023, z: 1.500, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+  # standard target 3: zhuangjiache, world absolute center (1.015580, 0.256250)
+  - {x: 1.016, y: 0.256, z: 1.500, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+
+  # 旧控制逻辑在完成 3 个检测点后跳转到最后 3 个返航/降落点。
+  - {x: 0.000, y: 0.000, z: 1.500, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
+  - {x: 0.000, y: 0.000, z: 1.000, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  - {x: 0.000, y: 0.000, z: 0.800, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  - {x: 0.000, y: 0.000, z: 0.800, yaw: 0.0, pointmode: "Land_point", hover_time: 0.0}
+
+waypoint_skipping_index: 3
+land_height: 0.30
+align_height: 1.20
+px4_max_distance: 0.20
+max_yaw_change: 0.20
+
+progressive_descent:
+  enable: true
+  target_height: 0.40
+  intermediate_height: 0.70
+  descent_duration: 5.0
+  final_descent_duration: 2.0
+  min_detection_count: 5
+
+alignment:
+  threshold: 20.0
+  stable_count_threshold: 10
+  timeout: 30.0
+
+threshould:
+  takeoff_threshould: 0.30
+  waypoint_threshould: 0.30
+  aligning_threshould: 0.20
+  landing_threshould: 0.15
+  arrive_yaw_threshould: 0.30
+  times_detect_threshould: 40
+  waypoint_adjust_max_second_threshould: 15
+  land_adjust_max_second_threshould: 10
+  planner_min_pub_threshould: 0.025
+
+switch:
+  flag_planner_px4: 1
+  flag_landing_detect: 1
+  auto_land: 1
+
+drop_system:
+  precision_threshold: 20.0
+  height_threshold: 0.20
+  enable_drop: true
+  descent_stable_duration: 2.0
+
+uav_vision:
+  selected_target_timeout: 1.0
+  drop_offset_timeout: 1.0
+  pixel_to_meter_ratio: 0.0015
+  max_movement_distance: 0.5
+  drop_circle_radius_m: 0.5
+  drop_cross_radius_m: 0.5
+  landing_pad_radius_m: 0.30
+  enable_tank_interrupt: false

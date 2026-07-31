@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="image_topic" default="/camera/color/image_raw" />
+    <arg name="show_image" default="true" />
+    <!-- 红色十字检测节点 -->
+    <node pkg="patrol_control" type="simple_cross_detect" name="simple_cross_detect" output="screen">
+        <remap from="/camera/color/image_raw" to="$(arg image_topic)" />
+        <!-- 检测控制参数 -->
+        <param name="cross_detection/enabled" value="true" />
+        <param name="cross_detection/debug" value="true" />
+        <param name="cross_detection/show_image" value="$(arg show_image)" />
+        <param name="cross_detection/max_fps" value="15.0" />
+
+        <!-- 红色十字检测参数 -->
+        <param name="red_cross_detection/enable" value="true" />
+        <param name="red_cross_detection/h_min" value="0" />
+        <param name="red_cross_detection/s_min" value="50" />
+        <param name="red_cross_detection/v_min" value="50" />
+        <param name="red_cross_detection/h_max" value="10" />
+        <param name="red_cross_detection/s_max" value="255" />
+        <param name="red_cross_detection/v_max" value="255" />
+        
+        <!-- 红色十字形状验证参数 -->
+        <param name="red_cross_detection/aspect_ratio_threshold" value="0.6" />
+        <param name="red_cross_detection/min_contour_points" value="20" />
+        <param name="red_cross_detection/area_threshold" value="200.0" />
+        <param name="red_cross_detection/solidity_threshold" value="0.6" />
+
+        <!-- 图像预处理参数 -->
+        <param name="image_preprocessing/enable_gaussian_blur" value="true" />
+        <param name="image_preprocessing/blur_kernel_size" value="5" />
+
+        <!-- 目标中心点参数 -->
+        <param name="detection_control/target_center_x" value="640.0" />
+        <param name="detection_control/target_center_y" value="480.0" />
+
+        <!-- 相机参数 -->
+        <param name="camera/fx" value="479.652738" />
+        <param name="camera/fy" value="482.690306" />
+        <param name="camera/cx" value="657.45208" />
+        <param name="camera/cy" value="364.6207" />
+    </node>
+</launch> 

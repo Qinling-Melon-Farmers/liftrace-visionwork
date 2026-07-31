@@ -1,0 +1,41 @@
+<launch>
+  <!-- Full laptop SITL with the unchanged legacy patrol flow behind a
+       permission-gated, simulation-only mock release endpoint. -->
+  <arg name="gui" default="true" />
+  <arg name="rviz" default="false" />
+  <arg name="start_mapping" default="true" />
+  <arg name="start_arming" default="true" />
+  <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
+  <!-- The new visual-delivery integration matches the real single downward
+       camera + MID360 architecture without modifying the external PX4 model. -->
+  <arg name="vehicle_sdf"
+       default="$(find uav_mission)/models/iris_mid360_downward/model.sdf" />
+  <!-- Simulation calibration for body -> ROS optical frame.  The values are
+       derived from the repository-local vehicle SDF.  A real aircraft must
+       override these with its measured camera extrinsic. -->
+  <arg name="camera_parent_frame" default="body" />
+  <arg name="camera_optical_frame" default="D435i::camera_color_frame" />
+  <arg name="camera_extrinsic_xyz" default="0.1525 0 0.03" />
+  <arg name="camera_extrinsic_quat_xyzw" default="0 1 0 0" />
+  <arg name="audit_report_path" default="/tmp/toudi3_visual_delivery_audit.json" />
+
+  <node pkg="tf2_ros" type="static_transform_publisher"
+        name="downward_camera_extrinsic"
+        args="$(arg camera_extrinsic_xyz) $(arg camera_extrinsic_quat_xyzw) $(arg camera_parent_frame) $(arg camera_optical_frame)" />
+
+  <include file="$(find patrol_control)/launch/toudi3_full_competition_sim_new_vision.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="start_mapping" value="$(arg start_mapping)" />
+    <arg name="start_arming" value="$(arg start_arming)" />
+    <arg name="vision_python" value="$(arg vision_python)" />
+    <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+  </include>
+
+  <include file="$(find uav_mission)/launch/release_guard_sim.launch" />
+
+  <node pkg="uav_mission" type="visual_delivery_audit.py"
+        name="visual_delivery_audit" output="screen">
+    <param name="report_path" value="$(arg audit_report_path)" />
+  </node>
+</launch>
