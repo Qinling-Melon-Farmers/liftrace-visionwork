@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="detect_pkg" type="align.py" name="realsense_node" output="screen"> </node>
+</launch>

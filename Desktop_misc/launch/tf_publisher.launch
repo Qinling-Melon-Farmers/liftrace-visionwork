@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="all_detect_collection" node="base_link2map_tf" name="base_link2map_tf" output="screen"></node>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="camera2base_link" args="0 0 -0.15 0 -0.707 -0.707 0 base_link camera_link" />
+</launch>

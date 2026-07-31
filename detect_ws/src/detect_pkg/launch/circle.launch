@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="detect_pkg" type="circle_detection_node.py" name="circle_detector" output="screen"> </node>
+</launch>
