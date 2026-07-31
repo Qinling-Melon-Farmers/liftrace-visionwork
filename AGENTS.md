@@ -31,6 +31,17 @@
     服务代理和新 launch 复用旧 `patrol_control`，不得借重构之名随意删除、合并或改写旧
     状态机。确有必要修改旧链源码时，先在不参与编译的 `legacy_baseline/<日期>/` 保存原包
     快照、文件清单和 SHA256，再实施最小补丁；禁止用散落 `.bak` 代替可审计快照。
+15. **git 是唯一版本控制，纳入自动工作流。**
+    - 每次改动前先 `git status` 确认工作区；每完成一个可独立验证的改动即提交一次，
+      commit message 用**中文**并遵循 conventional 标记（`feat:`/`fix:`/`docs:`/`chore:`/
+      `refactor:`/`test:`），如 `fix: 走廊航点可达性修正`。
+    - GitHub 凭据只存于 WSL `~/.git-credentials`（chmod 600，credential.helper store），
+      **禁止**把 token 写入仓库内任何文件、commit message、launch/yaml/脚本/日志；
+      `.gitignore` 已含 `*token*`、`*.credentials`、`.git-credentials` 双保险。
+    - `build/`、`devel/`、`install/`、日志、bag、模型权重、数据集等大文件一律不入库
+      （由 `.gitignore` 维护，新增例外需在变更记录说明）。
+    - 变更记录（规则 12）**先于** commit 更新，commit 与文档记录一一对应；
+      每阶段 push 到 origin/main 前确认 `git status` 干净。
 
 ---
 
