@@ -1,0 +1,42 @@
+# target_memory 参数
+
+# 匹配与生命周期
+confirm_frames: 3
+candidate_ttl: 3.0          # 候选超时 [s]
+reject_cooldown: 5.0        # 拒绝冷却 [s]
+match_distance_px: 80.0     # 跨帧匹配最大中心距离 [px]
+map_match_distance_m: 0.5   # 地图坐标跨视角匹配距离 [m]
+map_memory_ttl: 0.0         # 地图候选记忆时长 [s]；0 表示直到 reset
+# Phase D/板端闭环 launch 会覆盖为 true；Phase B/C 纯像素兼容链保持 false
+require_map_for_candidates: false
+selected_max_age: 0.5       # selected_target 最大观测年龄 [s]；长期地图记忆不能绕过
+# 同一地图目标发生类别抖动时，需连续高置信命中并赢得累计置信度投票才切类
+class_switch_confirm_frames: 2
+class_switch_min_confidence: 0.70
+class_switch_vote_ratio: 1.0
+reset_service: /uav_vision/reset_memory
+align_mode_topic: /uav_vision/align_mode
+
+# 视觉中断置信度阈值
+# red_cross（高价值目标，阈值更严）
+cross_class_confidence: 0.70
+cross_geometry_confidence: 0.85
+# 标准目标
+std_class_confidence: 0.60
+std_geometry_confidence: 0.70
+aux_geometry_confidence: 0.85
+
+# 目标优先级权重（越高越优先）
+# 权重 = 0 的类别不会主动触发中断
+priority_red_cross: 10.0
+priority_panzer: 2.5
+priority_pillbox: 1.5
+priority_tent: 1.0
+priority_tank: 5.0        # 赛委会已确认 tank 正式得分权重为 5
+priority_bridge: 2.0
+priority_landing_pad: 0.0   # 降落标识不参与自动选择，由 patrol_control 按状态机使用
+priority_circle: 0.0        # 圆环精修结果不参与自动选择
+
+# 历史冲突抑制开关保留；正式靶标不复用 v3 的 bridge 底座
+suppress_bridge_on_red_cross: true
+suppress_bridge_on_landing_pad: true

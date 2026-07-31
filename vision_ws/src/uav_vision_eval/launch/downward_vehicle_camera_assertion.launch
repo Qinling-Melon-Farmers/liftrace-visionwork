@@ -1,0 +1,43 @@
+<launch>
+  <!-- Regression for the exact D435i roll used by the complete vehicle,
+       without the high-cost MID360/airframe plugins. -->
+  <arg name="px4_root" default="/home/xhj/PX4-Autopilot" />
+  <arg name="px4_model_root"
+       default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
+  <arg name="sdf"
+       default="$(find uav_vision_eval)/models/downward_d435i_test/model.sdf" />
+  <arg name="output_file" default="/tmp/downward_vehicle_camera.png" />
+
+  <include file="$(find patrol_control)/launch/patrol_world.launch">
+    <arg name="start_px4" value="false" />
+    <arg name="gui" value="false" />
+    <arg name="sdf" value="$(arg sdf)" />
+    <arg name="gazebo_model_path"
+         value="$(find uav_vision_eval)/models:$(arg px4_model_root)" />
+    <arg name="x" value="-0.602009" />
+    <arg name="y" value="-1.04125" />
+    <arg name="z" value="1.5" />
+  </include>
+
+  <include file="$(find uav_vision_eval)/launch/ground_truth.launch">
+    <arg name="scenario_file"
+         value="$(find uav_vision_eval)/config/scenarios/existing_targets.yaml" />
+    <arg name="truth_topic" value="/uav_vision_eval/downward_camera_truth" />
+    <arg name="broadcast_camera_tf" value="false" />
+  </include>
+
+  <node pkg="uav_vision_eval" type="image_snapshot.py"
+        name="downward_camera_snapshot" output="screen">
+    <param name="image_topic" value="/camera/color/image_raw" />
+    <param name="output_file" value="$(arg output_file)" />
+  </node>
+
+  <node pkg="uav_vision_eval" type="gazebo_truth_assertion.py"
+        name="downward_camera_truth_assertion" output="screen" required="true">
+    <param name="truth_topic" value="/uav_vision_eval/downward_camera_truth" />
+    <param name="expected_target_id" value="pillbox_1" />
+    <param name="require_fully_in_frame" value="true" />
+    <param name="min_messages" value="5" />
+    <param name="timeout_sec" value="20.0" />
+  </node>
+</launch>

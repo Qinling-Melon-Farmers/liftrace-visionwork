@@ -1,0 +1,46 @@
+<launch>
+  <!-- One-way observer: align_mode may enter from patrol_control; every
+       visual/control/legacy output is remapped away from production topics. -->
+  <arg name="image_topic" default="/camera/color/image_raw" />
+  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="target_detector_launch_prefix" default="" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="enable_debug_image" default="false" />
+  <arg name="map_frame" default="world" />
+  <arg name="ground_z" default="0.0" />
+
+  <group>
+    <remap from="/uav_vision/detections" to="/uav_vision_shadow/detections" />
+    <remap from="/uav_vision/detections_resolved" to="/uav_vision_shadow/detections_resolved" />
+    <remap from="/uav_vision/detections_refined" to="/uav_vision_shadow/detections_refined" />
+    <remap from="/uav_vision/detections_mapped" to="/uav_vision_shadow/detections_mapped" />
+    <remap from="/uav_vision/targets" to="/uav_vision_shadow/targets" />
+    <remap from="/uav_vision/selected_target" to="/uav_vision_shadow/selected_target" />
+    <remap from="/uav_vision/drop_offset" to="/uav_vision_shadow/drop_offset" />
+    <remap from="/uav_vision/drop_ready" to="/uav_vision_shadow/drop_ready" />
+    <remap from="/uav_vision/release_evidence" to="/uav_vision_shadow/release_evidence" />
+    <remap from="/uav_vision/reset_memory" to="/uav_vision_shadow/reset_memory" />
+    <remap from="/uav_vision/perf" to="/uav_vision_shadow/perf" />
+    <remap from="/uav_vision/debug_image" to="/uav_vision_shadow/debug_image" />
+    <remap from="/uav_vision/circle_debug" to="/uav_vision_shadow/circle_debug" />
+    <remap from="/uav_vision/cross_debug" to="/uav_vision_shadow/cross_debug" />
+    <remap from="/uav_vision/landing_debug" to="/uav_vision_shadow/landing_debug" />
+
+    <remap from="/yolo_detect" to="/uav_vision_shadow/legacy/yolo_detect" />
+    <remap from="/detect/waypoint_mark_point" to="/uav_vision_shadow/legacy/waypoint_mark_point" />
+    <remap from="/detect/tank_status" to="/uav_vision_shadow/legacy/tank_status" />
+    <remap from="/detect/cross_mark_point" to="/uav_vision_shadow/legacy/cross_mark_point" />
+    <remap from="/detect/cross_status" to="/uav_vision_shadow/legacy/cross_status" />
+    <remap from="/detect/land_mark_point" to="/uav_vision_shadow/legacy/land_mark_point" />
+
+    <include file="$(find uav_vision)/launch/phase_d.launch">
+      <arg name="image_topic" value="$(arg image_topic)" />
+      <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+      <arg name="target_detector_launch_prefix" value="$(arg target_detector_launch_prefix)" />
+      <arg name="target_model_path" value="$(arg target_model_path)" />
+      <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+      <arg name="map_frame" value="$(arg map_frame)" />
+      <arg name="ground_z" value="$(arg ground_z)" />
+    </include>
+  </group>
+</launch>

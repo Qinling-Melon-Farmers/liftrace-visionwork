@@ -1,0 +1,10 @@
+<launch>
+    <!-- <include file="$(find yolov5_detect)/launch/usb_cam.launch" /> -->
+
+    <param name="/path_of_model1" value="$(find yolov5_detect)/best_rknn_model"/>
+    <param name="/path_of_model2" value="$(find yolov5_detect)/tank_rknn_model"/>
+    <param name="/path_of_image" value="$(find yolov5_detect)/scripts/"/>
+
+    <node name="yolo_detect" pkg="yolov5_detect" type="yolo_detect.py" output="screen"/>
+    <node name="image_process" pkg="yolov5_detect" type="image_process" output="screen"/>
+</launch>

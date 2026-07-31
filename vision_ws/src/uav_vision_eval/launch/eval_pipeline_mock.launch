@@ -1,0 +1,35 @@
+<launch>
+  <arg name="output_dir" default="/tmp/uav_vision_eval/mock_pipeline" />
+  <arg name="scenario_file" default="$(find uav_vision_eval)/config/scenarios/mock_pipeline.yaml" />
+
+  <node pkg="uav_vision_eval" type="sim_ground_truth_projector.py"
+        name="sim_ground_truth_projector" output="screen">
+    <param name="catalog_file" value="$(find uav_vision_eval)/config/sim_target_catalog.yaml" />
+    <param name="scenario_file" value="$(arg scenario_file)" />
+    <param name="image_topic" value="/mock/image" />
+    <param name="camera_info_topic" value="/mock/camera_info" />
+    <param name="link_states_topic" value="/mock/link_states" />
+    <param name="model_states_topic" value="/mock/model_states" />
+    <param name="output_topic" value="/uav_vision_eval/ground_truth" />
+    <param name="camera_pose_is_optical" value="true" />
+  </node>
+
+  <node pkg="uav_vision_eval" type="vision_metrics_recorder.py"
+        name="vision_metrics_recorder" output="screen">
+    <param name="scenario_file" value="$(arg scenario_file)" />
+    <param name="truth_topic" value="/uav_vision_eval/ground_truth" />
+    <param name="detections_topic" value="/mock/detections" />
+    <param name="output_dir" value="$(arg output_dir)" />
+    <param name="min_scored_frames" value="3" />
+    <param name="min_precision" value="1.0" />
+    <param name="min_recall" value="1.0" />
+    <param name="max_mean_pixel_error" value="5.1" />
+    <param name="max_mean_map_error_xy" value="0.023" />
+    <param name="max_p95_latency_ms" value="500.0" />
+    <param name="warmup_frames" value="0" />
+  </node>
+
+  <node pkg="uav_vision_eval" type="mock_eval_inputs.py" name="mock_eval_inputs" output="screen" />
+  <node pkg="uav_vision_eval" type="eval_pipeline_assertion.py"
+        name="eval_pipeline_assertion" output="screen" required="true" />
+</launch>

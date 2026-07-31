@@ -1,0 +1,33 @@
+# landing_detector_node 参数
+# 算法：灰度 → 自适应阈值 → 形态学 → 椭圆拟合
+
+# 预处理
+landing_blur_kernel_size: 5
+
+# 自适应阈值
+landing_adaptive_block_size: 31
+landing_adaptive_c: 10.0
+
+# 形态学
+landing_morphology_kernel_size: 7
+
+# 椭圆质量
+landing_min_contour_points: 15
+landing_aspect_ratio_threshold: 0.85
+landing_radius_min: 15.0
+landing_radius_max: 300.0
+
+# 只有“外圈 + 内部低饱和黑色 H 结构”同时成立才发布 landing_pad。
+landing_enable_h_structure_check: true
+landing_h_inner_scale: 0.78
+landing_h_saturation_max: 90
+landing_h_value_max: 110
+landing_h_open_kernel_size: 5
+landing_h_min_area_ratio: 0.10
+landing_h_max_area_ratio: 0.70
+landing_h_min_aspect_ratio: 0.55
+landing_h_min_solidity: 0.25
+landing_h_max_solidity: 0.80
+landing_h_min_concave_points: 2
+landing_h_defect_depth_ratio: 0.04
+landing_h_max_center_distance_ratio: 0.35

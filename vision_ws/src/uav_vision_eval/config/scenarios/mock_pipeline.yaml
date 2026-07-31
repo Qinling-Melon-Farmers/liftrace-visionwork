@@ -1,0 +1,7 @@
+scenario_id: mock_pipeline
+description: Deterministic optical-frame projection and scoring self-test.
+active_targets: [tent_1]
+score_false_positives: true
+require_fully_in_frame: true
+spawn_red_cross: false
+seed: 0

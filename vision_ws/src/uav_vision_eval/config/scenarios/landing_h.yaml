@@ -1,0 +1,7 @@
+scenario_id: landing_h
+description: The existing H landing marker at the toudi3 world origin.
+active_targets: [landing_h_1]
+score_false_positives: true
+require_fully_in_frame: true
+spawn_red_cross: false
+seed: 4

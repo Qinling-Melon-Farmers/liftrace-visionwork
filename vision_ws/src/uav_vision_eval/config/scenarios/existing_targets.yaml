@@ -1,0 +1,8 @@
+scenario_id: existing_targets
+description: Five existing standard targets plus the H marker in toudi3.world.
+active_targets: [pillbox_1, bridge_1, tank_1, tent_1, panzer_1, landing_h_1]
+score_false_positives: true
+require_fully_in_frame: true
+spawn_red_cross: false
+seed: 1
+

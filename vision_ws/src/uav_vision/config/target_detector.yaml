@@ -1,0 +1,10 @@
+# target_detector 参数 (dev/sim 路径，板端使用 RKNN 替代)
+# 模型必须由 launch 参数或 UAV_VISION_MODEL_PATH 显式提供，避免把开发机路径
+# 固化进交付包。五类 toudi3 目录回归、red_cross、H、背景均使用 merged 模型。
+model_path: ""
+conf_threshold: 0.5
+imgsz: 640
+# 笔记本 dev/sim 使用 RTX GPU；空字符串可回退 Ultralytics 默认设备。
+# OrangePi 不运行本节点，板端使用独立 RKNN/NPU 入口。
+device: 0
+perf_topic: "/uav_vision/perf"

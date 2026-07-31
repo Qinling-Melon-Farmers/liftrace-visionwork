@@ -1,0 +1,36 @@
+<launch>
+  <arg name="gui" default="false" />
+  <arg name="start_vision" default="false" />
+  <arg name="run_truth_assertion" default="false" />
+  <arg name="record_metrics" default="false" />
+  <arg name="output_dir" default="/tmp/uav_vision_eval/landing_h" />
+  <arg name="gate_profile" default="smoke" />
+  <arg name="camera_x" default="0.0" />
+  <arg name="camera_y" default="0.0" />
+  <arg name="camera_z" default="1.8" />
+  <arg name="camera_yaw" default="0.0" />
+  <arg name="evaluation_seed" default="-1" />
+  <!-- LAND_CONFIRM equivalent: operational detections are stage-gated to H. -->
+  <node pkg="uav_vision" type="mock_align_mode_publisher.py"
+        name="landing_eval_align_mode">
+    <param name="mode" value="landing" />
+    <param name="rate" value="5.0" />
+  </node>
+  <include file="$(find uav_vision_eval)/launch/toudi3_static_eval.launch">
+    <arg name="scenario_file" value="$(find uav_vision_eval)/config/scenarios/landing_h.yaml" />
+    <arg name="camera_x" value="$(arg camera_x)" />
+    <arg name="camera_y" value="$(arg camera_y)" />
+    <arg name="camera_z" value="$(arg camera_z)" />
+    <arg name="camera_yaw" value="$(arg camera_yaw)" />
+    <arg name="evaluation_seed" value="$(arg evaluation_seed)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="start_vision" value="$(arg start_vision)" />
+    <arg name="run_truth_assertion" value="$(arg run_truth_assertion)" />
+    <arg name="expected_target_id" value="landing_h_1" />
+    <arg name="record_metrics" value="$(arg record_metrics)" />
+    <arg name="output_dir" value="$(arg output_dir)" />
+    <arg name="gate_profile" value="$(arg gate_profile)" />
+    <arg name="required_scoring_source" value="landing_detector" />
+    <arg name="vision_default_align_mode" value="landing" />
+  </include>
+</launch>

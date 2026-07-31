@@ -1,0 +1,33 @@
+<launch>
+  <arg name="gui" default="false" />
+  <arg name="start_vision" default="false" />
+  <arg name="run_truth_assertion" default="false" />
+  <arg name="record_metrics" default="false" />
+  <arg name="output_dir" default="/tmp/uav_vision_eval/background" />
+  <arg name="gate_profile" default="smoke" />
+  <arg name="camera_x" default="4.2" />
+  <arg name="camera_y" default="-4.2" />
+  <arg name="camera_z" default="2.0" />
+  <arg name="camera_yaw" default="0.0" />
+  <arg name="evaluation_seed" default="-1" />
+  <include file="$(find uav_vision_eval)/launch/toudi3_static_eval.launch">
+    <arg name="scenario_file" value="$(find uav_vision_eval)/config/scenarios/background_only.yaml" />
+    <arg name="camera_x" value="$(arg camera_x)" />
+    <arg name="camera_y" value="$(arg camera_y)" />
+    <arg name="camera_z" value="$(arg camera_z)" />
+    <arg name="camera_yaw" value="$(arg camera_yaw)" />
+    <arg name="evaluation_seed" value="$(arg evaluation_seed)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="start_vision" value="$(arg start_vision)" />
+    <arg name="run_truth_assertion" value="$(arg run_truth_assertion)" />
+    <arg name="expect_no_targets" value="true" />
+    <arg name="record_metrics" value="$(arg record_metrics)" />
+    <arg name="output_dir" value="$(arg output_dir)" />
+    <arg name="gate_profile" value="$(arg gate_profile)" />
+    <arg name="min_precision" value="1.0" />
+    <arg name="min_recall" value="1.0" />
+    <arg name="max_false_positives" value="0" />
+    <arg name="require_pixel_error" value="false" />
+    <arg name="require_map_error" value="false" />
+  </include>
+</launch>

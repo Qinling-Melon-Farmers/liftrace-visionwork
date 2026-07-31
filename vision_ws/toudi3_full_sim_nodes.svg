@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#52606d"/></marker>
+    <style>
+      .title{font:700 28px sans-serif;fill:#17202a}.subtitle{font:16px sans-serif;fill:#52606d}
+      .box{stroke:#34495e;stroke-width:2;rx:12;ry:12}.world{fill:#e8f8f5}.flight{fill:#eaf2ff}.control{fill:#fff3cd}.old{fill:#fce4ec}.new{fill:#e8daef}.map{fill:#e7f5e1}.view{fill:#f1f3f5}
+      .label{font:600 17px sans-serif;fill:#17202a;text-anchor:middle}.small{font:14px sans-serif;fill:#34495e;text-anchor:middle}
+      .edge{stroke:#52606d;stroke-width:2.5;fill:none;marker-end:url(#arrow)}.dashed{stroke-dasharray:9 7}.legend{font:14px sans-serif;fill:#34495e}
+    </style>
+  </defs>
+  <rect width="1800" height="1080" fill="#ffffff"/>
+  <text x="60" y="55" class="title">toudi3 完整竞赛仿真节点总图</text>
+  <text x="60" y="84" class="subtitle">PX4 + Gazebo + MAVROS + 旧控制链；旧视觉链和新视觉链为二选一启动模式</text>
+
+  <rect x="55" y="130" width="300" height="170" class="box world"/>
+  <text x="205" y="165" class="label">Gazebo 仿真世界</text>
+  <text x="205" y="198" class="small">toudi3.world</text>
+  <text x="205" y="224" class="small">iris_mid360 / RealSense</text>
+  <text x="205" y="250" class="small">MID360 PointCloud2</text>
+  <text x="205" y="276" class="small">/camera/color/image_raw</text>
+
+  <rect x="430" y="130" width="280" height="170" class="box flight"/>
+  <text x="570" y="165" class="label">PX4 SITL</text>
+  <text x="570" y="198" class="small">px4 / posix_sitl.launch</text>
+  <text x="570" y="224" class="small">OFFBOARD / AUTO.LAND</text>
+  <text x="570" y="250" class="small">/mavros/state</text>
+  <text x="570" y="276" class="small">local pose / odom</text>
+
+  <rect x="790" y="130" width="280" height="170" class="box flight"/>
+  <text x="930" y="165" class="label">MAVROS</text>
+  <text x="930" y="198" class="small">/mavros/local_position/pose</text>
+  <text x="930" y="224" class="small">/mavros/local_position/odom</text>
+  <text x="930" y="250" class="small">/mavros/setpoint_position/local</text>
+  <text x="930" y="276" class="small">/mavros/set_mode</text>
+
+  <rect x="1150" y="130" width="280" height="170" class="box control"/>
+  <text x="1290" y="165" class="label">旧控制与航点</text>
+  <text x="1290" y="198" class="small">uav_arming_node</text>
+  <text x="1290" y="224" class="small">patrol_control</text>
+  <text x="1290" y="250" class="small">waypoint_generator</text>
+  <text x="1290" y="276" class="small">patrol_sim.yaml</text>
+
+  <rect x="1510" y="130" width="230" height="170" class="box view"/>
+  <text x="1625" y="165" class="label">GUI 观察</text>
+  <text x="1625" y="198" class="small">Gazebo GUI</text>
+  <text x="1625" y="224" class="small">RViz</text>
+  <text x="1625" y="250" class="small">rosgraph / rostopic</text>
+  <text x="1625" y="276" class="small">不启动 actuator_pwm</text>
+
+  <path d="M355 210 L425 210" class="edge"/><path d="M710 210 L785 210" class="edge"/><path d="M1070 210 L1145 210" class="edge"/><path d="M1430 210 L1505 210" class="edge"/>
+
+  <rect x="55" y="390" width="300" height="150" class="box map"/>
+  <text x="205" y="425" class="label">FAST-LIO / FreeDOM</text>
+  <text x="205" y="458" class="small">laserMapping</text>
+  <text x="205" y="484" class="small">freedom</text>
+  <text x="205" y="510" class="small">/cloud_registered</text>
+  <text x="205" y="532" class="small">/freedom/static_pointcloud</text>
+
+  <rect x="430" y="390" width="280" height="150" class="box control"/>
+  <text x="570" y="425" class="label">Fast-Planner</text>
+  <text x="570" y="458" class="small">fast_planner_node</text>
+  <text x="570" y="484" class="small">traj_server</text>
+  <text x="570" y="510" class="small">/planning_vis/trajectory</text>
+  <text x="570" y="532" class="small">/planning/pos_cmd</text>
+
+  <rect x="790" y="390" width="280" height="150" class="box old"/>
+  <text x="930" y="425" class="label">旧视觉链（二选一）</text>
+  <text x="930" y="458" class="small">circle_detector_node</text>
+  <text x="930" y="484" class="small">simple_cross_detect</text>
+  <text x="930" y="510" class="small">landing_detector_node</text>
+  <text x="930" y="532" class="small">/detect/*</text>
+
+  <rect x="1150" y="390" width="280" height="150" class="box new"/>
+  <text x="1290" y="425" class="label">新视觉链（二选一）</text>
+  <text x="1290" y="458" class="small">target_detector / RKNN 入口</text>
+  <text x="1290" y="484" class="small">fusion → refiner</text>
+  <text x="1290" y="510" class="small">map projector → memory</text>
+  <text x="1290" y="532" class="small">drop_aligner → compat</text>
+
+  <rect x="1510" y="390" width="230" height="150" class="box view"/>
+  <text x="1625" y="425" class="label">可视化话题</text>
+  <text x="1625" y="458" class="small">Pose / Marker</text>
+  <text x="1625" y="484" class="small">PointCloud2</text>
+  <text x="1625" y="510" class="small">Image</text>
+  <text x="1625" y="532" class="small">自定义消息用 echo 查看</text>
+
+  <path d="M205 305 L205 385" class="edge"/><path d="M570 305 L570 385" class="edge"/>
+  <path d="M205 305 C205 350 910 350 910 385" class="edge dashed"/>
+  <path d="M205 305 C205 340 1280 340 1280 385" class="edge dashed"/>
+  <path d="M710 465 L785 465" class="edge dashed"/><path d="M1070 465 L1145 465" class="edge dashed"/>
+  <path d="M355 465 C390 465 390 255 425 255" class="edge dashed"/>
+  <path d="M710 465 C820 465 1040 285 1145 255" class="edge dashed"/>
+  <path d="M1430 465 C1500 465 1500 255 1505 255" class="edge"/>
+
+  <rect x="55" y="650" width="1685" height="300" fill="#fafafa" stroke="#d5d8dc" rx="14"/>
+  <text x="85" y="690" class="label" text-anchor="start">关键验证关系</text>
+  <text x="95" y="735" class="legend">1. Gazebo → RealSense/MID360 插件 → 相机与点云；PX4 → MAVROS → 控制状态与位姿。</text>
+  <text x="95" y="775" class="legend">2. 旧链：图像 → circle/cross/landing → patrol_control 旧接口；用于原有航点流程回归。</text>
+  <text x="95" y="815" class="legend">3. 新链：图像 + CameraInfo + TF → detection_fusion → target_refiner → target_map_projector → target_memory。</text>
+  <text x="95" y="855" class="legend">4. `map_valid=false`、TF 缺失或未精修时不得伪造投递世界坐标；`drop_ready` 不是释放命令。</text>
+  <text x="95" y="895" class="legend">5. 旧链与新链用两个脚本分别启动，控制链仍是旧 `patrol_control`，不要同时启动两套视觉节点。</text>
+</svg>

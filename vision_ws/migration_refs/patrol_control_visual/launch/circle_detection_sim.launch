@@ -1,0 +1,50 @@
+<launch>
+    <rosparam file="$(find patrol_control)/config/circle_detection_sim.yaml" command="load" />
+
+    <!-- 圆形检测节点 - 严格检测条件版本 -->
+    <node pkg="patrol_control" type="circle_detector_node" name="circle_detector_node" output="screen">
+        <!-- 加载严格的检测参数 -->
+        
+        <!-- <param name="circle_detection/min_radius" value="3" />
+        <param name="circle_detection/max_radius" value="150" />
+        <param name="circle_detection/param1" value="100.0" />
+        <param name="circle_detection/param2" value="45.0" />
+        <param name="circle_detection/min_dist" value="30" />
+        
+        <param name="quality_assessment/circularity_threshold" value="0.75" />
+        <param name="quality_assessment/aspect_ratio_threshold" value="0.8" />
+        <param name="quality_assessment/contour_area_ratio" value="0.6" />
+        
+        <param name="image_preprocessing/enable_histogram_equalization" value="true" />
+        <param name="image_preprocessing/enable_threshold" value="true" />
+        <param name="image_preprocessing/enable_gaussian_blur" value="true" />
+        <param name="image_preprocessing/blur_kernel_size" value="3" />
+        
+        <param name="detection/enabled" value="true" />
+        <param name="detection/debug" value="true" />
+        <param name="detection_control/show_image" value="false" />
+        <param name="detection_control/max_fps" value="15.0" />
+        
+        <param name="camera/fx" value="479.652738" />
+        <param name="camera/fy" value="482.690306" />
+        <param name="camera/cx" value="657.45208" />
+        <param name="camera/cy" value="364.6207" />
+        <param name="camera/width" value="1280" />
+        <param name="camera/height" value="720" /> -->
+    </node>
+    
+    <!-- 对准控制转换节点 -->
+    <!-- <node pkg="patrol_control" type="alignment_control_calculate" name="alignment_control_calculate" output="screen">
+        <param name="pixel_to_meter_ratio" value="0.001" />
+        <param name="max_movement_distance" value="0.5" />
+        
+        <param name="camera/fx" value="479.652738" />
+        <param name="camera/fy" value="482.690306" />
+        <param name="camera/cx" value="657.45208" />
+        <param name="camera/cy" value="364.6207" />
+    </node> -->
+    
+    <!-- 发布检测控制话题的初始状态 -->
+    <node name="detection_control_publisher" pkg="rostopic" type="rostopic" 
+          args="pub /detect/control std_msgs/Bool 'data: true'" output="screen" />
+</launch> 

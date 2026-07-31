@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<sdf version="1.7">
+  <model name="vision_eval_camera">
+    <static>true</static>
+    <include>
+      <uri>model://D435i</uri>
+      <!-- Same mounting orientation as iris_mid360, without a vehicle. -->
+      <pose>0 0 0 1.5708 0 1.5708</pose>
+    </include>
+  </model>
+</sdf>
+

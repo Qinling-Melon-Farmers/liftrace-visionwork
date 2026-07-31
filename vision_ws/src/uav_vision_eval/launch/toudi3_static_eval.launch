@@ -1,0 +1,152 @@
+<launch>
+  <!-- Visual-only deterministic evaluator: no PX4, MAVROS, patrol control or actuator. -->
+  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="scenario_file" default="$(find uav_vision_eval)/config/scenarios/existing_targets.yaml" />
+  <arg name="spawn_red_cross" default="false" />
+  <arg name="red_cross_x" default="-2.5" />
+  <arg name="red_cross_y" default="-2.5" />
+  <arg name="camera_x" default="1.01558" />
+  <arg name="camera_y" default="0.25625" />
+  <arg name="camera_z" default="2.5" />
+  <!-- Gazebo renders along camera-link +X. Pitch the static model so +X
+       points down; the truth adapter separately converts link to optical. -->
+  <arg name="camera_roll" default="0.0" />
+  <arg name="camera_pitch" default="1.570796326794897" />
+  <arg name="camera_yaw" default="0.0" />
+  <arg name="evaluation_seed" default="-1" />
+  <arg name="gui" default="false" />
+  <arg name="paused" default="false" />
+  <arg name="start_vision" default="false" />
+  <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="run_truth_assertion" default="false" />
+  <arg name="expected_target_id" default="tent_1" />
+  <arg name="expect_no_targets" default="false" />
+  <arg name="record_metrics" default="false" />
+  <arg name="output_dir" default="/tmp/uav_vision_eval/static_eval" />
+  <arg name="gate_profile" default="smoke" />
+  <arg name="min_scored_frames" default="20" />
+  <arg name="min_precision" default="$(eval 0.95 if arg('gate_profile') == 'formal' else 0.5)" />
+  <arg name="min_recall" default="$(eval 0.95 if arg('gate_profile') == 'formal' else 0.5)" />
+  <!-- 5 Hz classifier on a 30 Hz camera corresponds to 0.167 coverage. -->
+  <arg name="min_input_coverage" default="$(eval 0.15 if arg('gate_profile') == 'formal' else 0.05)" />
+  <arg name="max_false_positives" default="$(eval 0 if arg('gate_profile') == 'formal' else 20)" />
+  <arg name="max_mean_pixel_error" default="$(eval 20.0 if arg('gate_profile') == 'formal' else 80.0)" />
+  <arg name="max_p95_pixel_error" default="$(eval 20.0 if arg('gate_profile') == 'formal' else 1000000000.0)" />
+  <arg name="max_mean_map_error_xy" default="$(eval 0.10 if arg('gate_profile') == 'formal' else 0.75)" />
+  <arg name="max_p95_map_error_xy" default="$(eval 0.25 if arg('gate_profile') == 'formal' else 1000000000.0)" />
+  <arg name="max_p95_latency_ms" default="$(eval 200.0 if arg('gate_profile') == 'formal' else 1000.0)" />
+  <arg name="require_pixel_error" default="true" />
+  <arg name="require_map_error" default="true" />
+  <arg name="require_latency" default="true" />
+  <arg name="require_geometry_verified_detections" default="false" />
+  <!-- Score recognition only on frames actually processed by this branch;
+       input coverage remains a separate throughput metric. -->
+  <arg name="required_scoring_source" default="target_detector" />
+  <arg name="vision_default_align_mode" default="disabled" />
+  <arg name="warmup_frames" default="30" />
+  <!-- Merge all Phase-D branch outputs carrying the same source-image stamp. -->
+  <arg name="aggregation_delay_sec" default="0.8" />
+  <arg name="enable_debug_image" default="false" />
+  <arg name="image_topic" default="/camera/color/image_raw" />
+  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
+  <arg name="px4_model_root" default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
+  <arg name="astra_model_root" default="/home/xhj/AstraDroneOpen/simulation/astra_gazebo_models" />
+  <arg name="astra_sim_lib" default="/home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib" />
+
+  <env name="GAZEBO_MODEL_PATH"
+       value="$(find uav_vision_eval)/models:$(arg astra_model_root):$(arg px4_model_root):$(optenv GAZEBO_MODEL_PATH)" />
+  <env name="GAZEBO_PLUGIN_PATH" value="$(arg astra_sim_lib):$(optenv GAZEBO_PLUGIN_PATH)" />
+  <env name="LD_LIBRARY_PATH" value="$(arg astra_sim_lib):$(optenv LD_LIBRARY_PATH)" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)" />
+    <arg name="use_sim_time" value="true" />
+  </include>
+
+  <node pkg="gazebo_ros" type="spawn_model" name="vision_eval_camera_spawn" output="screen"
+        args="-sdf -file $(find uav_vision_eval)/models/vision_eval_camera/model.sdf -model vision_eval_camera -x $(arg camera_x) -y $(arg camera_y) -z $(arg camera_z) -R $(arg camera_roll) -P $(arg camera_pitch) -Y $(arg camera_yaw)" />
+
+  <node if="$(arg spawn_red_cross)" pkg="gazebo_ros" type="spawn_model"
+        name="vision_eval_red_cross_spawn" output="screen"
+        args="-sdf -file $(arg px4_model_root)/red_cross/model.sdf -model red_cross -x $(arg red_cross_x) -y $(arg red_cross_y) -z 0.0" />
+
+  <include file="$(find uav_vision_eval)/launch/ground_truth.launch">
+    <arg name="scenario_file" value="$(arg scenario_file)" />
+    <arg name="image_topic" value="$(arg image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+  </include>
+
+  <group if="$(arg start_vision)">
+    <include file="$(find uav_vision)/launch/phase_d.launch">
+      <arg name="image_topic" value="$(arg image_topic)" />
+      <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+      <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+      <arg name="target_detector_launch_prefix" value="$(arg vision_python)" />
+      <arg name="target_model_path" value="$(arg target_model_path)" />
+      <arg name="map_frame" value="world" />
+      <arg name="ground_z" value="0.0" />
+      <!-- This evaluator's camera model is static. A bounded latest-TF
+           fallback removes callback-order races without weakening moving
+           camera or real-vehicle projection semantics. -->
+      <arg name="allow_latest_tf_fallback" value="true" />
+      <arg name="max_latest_tf_age_sec" value="0.10" />
+      <arg name="default_align_mode" value="$(arg vision_default_align_mode)" />
+    </include>
+  </group>
+
+  <node if="$(arg record_metrics)" pkg="uav_vision_eval" type="vision_metrics_recorder.py"
+        name="vision_metrics_recorder" output="screen">
+    <param name="scenario_file" value="$(arg scenario_file)" />
+    <param name="truth_topic" value="/uav_vision_eval/ground_truth" />
+    <param name="image_topic" value="$(arg image_topic)" />
+    <param name="detections_topic" value="/uav_vision/detections_mapped" />
+    <param name="raw_detections_topic" value="/uav_vision/detections" />
+    <param name="resolved_detections_topic" value="/uav_vision/detections_resolved" />
+    <param name="refined_detections_topic" value="/uav_vision/detections_refined" />
+    <param name="output_dir" value="$(arg output_dir)" />
+    <param name="min_scored_frames" value="$(arg min_scored_frames)" />
+    <param name="min_precision" value="$(arg min_precision)" />
+    <param name="min_recall" value="$(arg min_recall)" />
+    <param name="min_input_coverage" value="$(arg min_input_coverage)" />
+    <param name="max_false_positives" value="$(arg max_false_positives)" />
+    <param name="max_mean_pixel_error" value="$(arg max_mean_pixel_error)" />
+    <param name="max_p95_pixel_error" value="$(arg max_p95_pixel_error)" />
+    <param name="max_mean_map_error_xy" value="$(arg max_mean_map_error_xy)" />
+    <param name="max_p95_map_error_xy" value="$(arg max_p95_map_error_xy)" />
+    <param name="max_p95_latency_ms" value="$(arg max_p95_latency_ms)" />
+    <param name="require_pixel_error" value="$(arg require_pixel_error)" />
+    <param name="require_map_error" value="$(arg require_map_error)" />
+    <param name="require_latency" value="$(arg require_latency)" />
+    <param name="require_geometry_verified_detections"
+           value="$(arg require_geometry_verified_detections)" />
+    <param name="required_scoring_source" value="$(arg required_scoring_source)" />
+    <param name="warmup_frames" value="$(arg warmup_frames)" />
+    <param name="aggregation_delay_sec" value="$(arg aggregation_delay_sec)" />
+    <param name="evaluation_seed" value="$(arg evaluation_seed)" />
+    <param name="gate_profile" value="$(arg gate_profile)" />
+    <param name="camera_x" value="$(arg camera_x)" />
+    <param name="camera_y" value="$(arg camera_y)" />
+    <param name="camera_z" value="$(arg camera_z)" />
+    <param name="camera_roll" value="$(arg camera_roll)" />
+    <param name="camera_pitch" value="$(arg camera_pitch)" />
+    <param name="camera_yaw" value="$(arg camera_yaw)" />
+  </node>
+
+  <node if="$(arg record_metrics)" pkg="uav_vision_eval" type="image_snapshot.py"
+        name="image_snapshot" output="screen">
+    <param name="image_topic" value="$(arg image_topic)" />
+    <param name="output_file" value="$(arg output_dir)/scene.png" />
+  </node>
+
+  <node if="$(arg run_truth_assertion)" pkg="uav_vision_eval" type="gazebo_truth_assertion.py"
+        name="gazebo_truth_assertion" output="screen" required="true">
+    <param name="expected_target_id" value="$(arg expected_target_id)" />
+    <param name="expect_no_targets" value="$(arg expect_no_targets)" />
+    <param name="require_fully_in_frame" value="true" />
+    <param name="timeout_sec" value="30.0" />
+  </node>
+</launch>

@@ -1,0 +1,9 @@
+<launch>
+  <node pkg="uav_vision" type="target_refiner.py" name="target_refiner" output="screen">
+    <rosparam file="$(find uav_vision)/config/target_refiner.yaml" />
+    <param name="input_topic" value="/association_test/input" />
+    <param name="output_topic" value="/association_test/output" />
+  </node>
+  <node pkg="uav_vision_eval" type="target_refiner_association_assertion.py"
+        name="target_refiner_association_assertion" output="screen" required="true" />
+</launch>

@@ -1,0 +1,51 @@
+# Independent truth catalog for the current toudi3.world.
+# Runtime truth uses /gazebo/link_states. fallback_center_world is used only
+# by deterministic mock tests and to audit the world asset.
+world_frame: world
+camera_link_suffix: "D435i::camera_color_frame"
+targets:
+  - target_id: pillbox_1
+    class_name: pillbox
+    gazebo_link_name: "3::dibao::link"
+    gazebo_model_name: "3"
+    local_center_in_model: [-0.169508, -2.35, 0.115]
+    size_m: [1.0, 1.0]
+    fallback_center_world: [-0.602009, -1.04125, 0.115]
+  - target_id: bridge_1
+    class_name: bridge
+    gazebo_link_name: "3::qiaoliang::link"
+    gazebo_model_name: "3"
+    local_center_in_model: [-1.4706, -1.33148, 0.115]
+    size_m: [1.0, 1.0]
+    fallback_center_world: [-1.90310, -0.02273, 0.115]
+  - target_id: tank_1
+    class_name: tank
+    gazebo_link_name: "3::tanke::link"
+    gazebo_model_name: "3"
+    local_center_in_model: [0.715236, 2.5471, 0.115]
+    size_m: [1.0, 1.0]
+    fallback_center_world: [0.282735, 3.85585, 0.115]
+  - target_id: tent_1
+    class_name: tent
+    gazebo_link_name: "3::zhangpeng::link"
+    gazebo_model_name: "3"
+    local_center_in_model: [1.44808, -1.0525, 0.115]
+    size_m: [1.0, 1.0]
+    fallback_center_world: [1.01558, 0.25625, 0.115]
+  - target_id: panzer_1
+    class_name: panzer
+    gazebo_link_name: "3::zhuangjiache::link"
+    gazebo_model_name: "3"
+    local_center_in_model: [-1.15612, 1.71295, 0.115]
+    size_m: [1.0, 1.0]
+    fallback_center_world: [-1.58862, 3.02170, 0.115]
+  - target_id: landing_h_1
+    class_name: landing_pad
+    gazebo_link_name: "landing_h::link"
+    size_m: [1.0, 1.0]
+    fallback_center_world: [0.0, 0.0, 0.0025]
+  - target_id: red_cross_1
+    class_name: red_cross
+    gazebo_link_name: "red_cross::link"
+    size_m: [0.35, 0.35]
+    fallback_center_world: [-2.5, -2.5, 0.0025]

@@ -1,0 +1,43 @@
+# cross_detector_node 参数
+# HSV 红色双区间
+red_s_min: 50
+red_v_min: 50
+red_s_max: 255
+red_v_max: 255
+
+# 形状验证
+cross_aspect_ratio_min: 0.6
+cross_min_contour_points: 20
+cross_area_min: 200.0
+cross_solidity_min: 0.6
+cross_solidity_max: 0.85
+cross_reject_border_clipped: true
+cross_border_margin_px: 3
+
+# 宽松评分（吸收旧 simple_cross_detect 的有效特征）
+cross_enable_relaxed_scoring: true
+cross_relaxed_min_score: 3.0
+cross_relaxed_depth_threshold: 10.0
+cross_relaxed_min_solidity: 0.4
+cross_relaxed_max_solidity: 0.9
+cross_relaxed_min_extent: 0.2
+cross_relaxed_max_extent: 0.75
+cross_relaxed_max_aspect_ratio: 2.0
+cross_relaxed_prefer_aspect_ratio: 1.4
+cross_relaxed_min_cover: 0.3
+cross_relaxed_good_cover: 0.5
+cross_relaxed_min_concave_points: 2
+cross_relaxed_max_concave_points: 6
+cross_relaxed_prefer_concave_points: 4
+
+# 预处理
+enable_gaussian_blur: true
+blur_kernel_size: 5
+
+# 黑色外圈判断
+enable_black_ring_check: false
+black_ring_roi_radius: 80
+
+# 对准参考点
+target_center_x: 640.0
+target_center_y: 480.0

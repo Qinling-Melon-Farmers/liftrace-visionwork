@@ -1,0 +1,16 @@
+<launch>
+  <!-- Phase D + patrol_control mock 回归入口 -->
+  <!-- 验证 red_cross 通过 selected_target 中断主控，并切到 drop_cross。 -->
+
+  <include file="$(find uav_vision)/launch/phase_d_mock_patrol.launch" />
+
+  <node pkg="uav_vision" type="phase_d_assertion.py" name="phase_d_assertion" output="screen" required="true">
+    <param name="timeout" value="8.0" />
+    <param name="expect_target_class" value="red_cross" />
+    <param name="expect_selected_class" value="red_cross" />
+    <param name="expect_align_mode" value="drop_cross" />
+    <param name="expect_yolo_detect" value="Nothing" />
+    <param name="expect_drop_ready" value="true" />
+    <param name="expect_cross_status" value="true" />
+  </node>
+</launch>

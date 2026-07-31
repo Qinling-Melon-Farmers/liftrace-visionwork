@@ -1,0 +1,221 @@
+# uav_vision
+
+更新时间：2026-07-16  
+定位：RoboCup 2026 在线视觉运行包。评测真值、场景和报告代码位于同工作区的
+`uav_vision_eval`，不进入本包实机依赖。OrangePi 已完成独立离线 RKNN 图片/视频回放，
+但 ROS 视觉链、相机接线和稳定性仍未验收。完整模型结果见
+[板端模型完整评测报告](/home/xhj/liftrace/docs/BOARD_MODEL_COMPLETE_EVALUATION_20260716.md)。
+
+面向未改造控制工程的纯视觉交付入口为 `control_handoff_dev.launch` 和
+`control_handoff_board.launch`。两者默认不发布旧 Pose 兼容话题，也不启动任何控制、规划、
+MAVROS 指令或执行机构节点。接口、单目地图点公式和接入要求见
+[控制组联调说明](docs/CONTROL_GROUP_HANDOFF.md)。
+
+## 1. 节点
+
+| 节点 | 职责 | 当前边界 |
+| --- | --- | --- |
+| `target_detector.py` | dev/sim 六分类检测 | PyTorch，只用于本机开发/仿真 |
+| `target_detector_rknn.py` | 板端六分类检测 | 需 OrangePi/RKNN 实测 |
+| `cross_detector_node` | 红十字几何观测 | 负责中心/形状复核，不独占目标决策 |
+| `circle_detector_node` | 蓝色圆环几何观测 | 等比例 letterbox；实拍绝对中心真值仍缺 |
+| `landing_detector_node` | H 外圈 + 内部 H 结构观测 | 仍需扩真实黑圈/H 负样本 |
+| `detection_fusion.py` | 同源时间戳聚合与阶段裁决 | 笔记本仿真等待参数仍需降延迟 |
+| `target_refiner.py` | 全局一对一类别—圆环关联与中心精修 | 未关联标准靶不进入 operational 链 |
+| `target_map_projector.py` | CameraInfo + TF 地面投影 | 固定 Gazebo 有真值；实拍同步 pose 仍缺 |
+| `target_memory.py` | 连续帧确认、物理 stable ID、类别投票、地图融合与新鲜度 | 跨视角正式 Gate 仍待完成 |
+| `drop_aligner.py` | 偏差、`drop_ready` 与结构化释放证据 | 最终许可仍属任务/安全层 |
+| `detect_compat_bridge.py` | 兼容旧 `/detect/*` 和 `/yolo_detect` | 默认不伪造世界点 |
+
+## 2. 处理链与话题
+
+```text
+detectors
+  -> /uav_vision/detections
+  -> detection_fusion
+  -> /uav_vision/detections_resolved
+  -> target_refiner
+  -> /uav_vision/detections_refined
+  -> target_map_projector
+  -> /uav_vision/detections_mapped
+  -> target_memory
+  -> /uav_vision/targets
+  -> /uav_vision/selected_target
+
+/uav_vision/align_mode + selected_target
+  -> drop_aligner
+  -> /uav_vision/drop_offset
+  -> /uav_vision/drop_ready
+  -> /uav_vision/release_evidence
+```
+
+输入默认值来自 `config/default.yaml`：
+
+```text
+image_topic: /camera/image_raw
+camera_info_topic: /camera/camera_info
+odom_topic: /mavros/local_position/odom
+```
+
+toudi3 wrapper 会在 launch 层改为 `/camera/color/image_raw` 和 `/camera/color/camera_info`。不要为某个仿真环境修改源码硬编码。
+
+## 3. 消息语义
+
+### `TargetDetectionArray`
+
+各阶段的检测数组使用同一消息类型。消费者必须看 header、frame、`map_valid`、中心来源和置信度，不能只看类别字符串。
+
+`header.stamp` 始终保留源图像时间；`center_source`、`association_valid`、
+`reject_reason` 和 `transform_age_sec` 说明中心、关联及地图投影是否可用于闭环。
+
+### `TargetCandidateArray` / `selected_target`
+
+`targets` 是候选记忆，`selected_target` 是当前排序建议。地图候选可以长期存在，但
+`selected_target` 和释放证据使用源观测 `last_seen` 执行独立新鲜度门禁；消费者仍不得仅凭
+topic 刚收到就认定目标刚被看到。
+
+当前 `config/target_memory.yaml` 中：
+
+- 像素候选 TTL：3 s；
+- 地图候选 TTL：0（直到 reset）；
+- 地图匹配距离：0.5 m；
+- 候选确认：连续 3 帧；漏检会清零连续计数，但不删除 TTL 内已确认地图记忆；
+- 类别切换：连续 2 帧且置信度不低于 0.70，同时累计置信度投票胜出；
+- Phase D/板端 `require_map_for_candidates=true`，无效或陈旧 TF 不得刷新候选；
+- 类别优先级用于候选排序，权重取自赛委会确认的得分权重：tent=1、pillbox=1.5、bridge=2、panzer=2.5、tank=5、red_cross=10。
+
+### `align_mode`
+
+现有模式：`disabled`、`drop_circle`、`drop_cross`、`landing`。融合和记忆均按当前模式过滤：
+H 只在 `landing`，红十字只在 `drop_cross`，标准靶/圆环只在 `drop_circle` 进入 operational 链。
+
+### `drop_ready`
+
+当前由像素中心偏差、最小置信度和稳定帧数生成，只表示“视觉观测满足当前对准阈值”。它不包含完整目标身份、地图/位姿质量、飞行速度、机构状态或规则互锁，因此不是 `release_permission`。
+
+### `release_evidence`
+
+聚合目标身份、确认状态、几何/中心验证、观测年龄、对准、稳定帧和拒绝原因。它仍是视觉
+证据，不读取飞行速度、机构或规则互锁，也不等于任务/安全层最终 `release_permission`。
+
+## 4. launch
+
+| launch | 用途 |
+| --- | --- |
+| `phase_b.launch` | 早期检测/兼容组合 |
+| `phase_c.launch` | 融合与候选组合 |
+| `phase_d.launch` | dev/sim PyTorch 完整在线链 |
+| `phase_d_board.launch` | RKNN 板端链 |
+| `phase_d_board_perf_mock.launch` | 板端接口/性能 mock |
+| `control_handoff_dev.launch` | 控制组笔记本联调：纯视觉 PT 完整链 |
+| `control_handoff_board.launch` | 控制组 OrangePi 联调：纯视觉 RKNN 完整链 |
+| `phase_d_map_mock.launch` | 地图投影、记忆和对准 assertion |
+| `target_memory_physical_mock.launch` | 类别抖动、连续帧、地图融合和物理 ID assertion |
+| `map_rejection_mock.launch` | 缺 TF 时失败关闭 assertion |
+| `phase_d_mock_patrol.launch` | 新视觉与旧主控 mock 接线 |
+| `phase_d_mock_patrol_regression.launch` | 上述接线的自动 assertion |
+| `phase_d_mode_mock.launch` | align mode 行为测试 |
+| `circle_geometry_mock.launch` | 圆环坐标恢复测试 |
+
+评测场景、真值、自动报告和 shadow 入口位于 `uav_vision_eval`。一键运行当前八个固定视觉
+场景：
+
+```bash
+cd /home/xhj/liftrace
+./top_level_scripts/run_toudi3_visual_suite.sh
+```
+
+该脚本只启动 Gazebo 相机和视觉链，不启动 PX4、MAVROS、旧控制、解锁或执行机构。
+
+dev/sim：
+
+```bash
+source /opt/ros/noetic/setup.bash
+source /home/xhj/liftrace/vision_ws/devel/setup.bash
+roslaunch uav_vision phase_d.launch
+```
+
+板端入口：
+
+```bash
+roslaunch uav_vision control_handoff_board.launch \
+  image_topic:=/your/down_camera/image_raw \
+  camera_info_topic:=/your/down_camera/camera_info \
+  map_frame:=camera_init
+```
+
+板端入口存在不代表 ROS 视觉链已经在 OrangePi 验收；截至 2026-07-16，已完成独立 RKNN
+离线视频和 v5merge 全集评测，尚未完成该 launch 的相机、CameraInfo、TF、ROS topic 和
+10 分钟稳定性验收。旧 standard+tank 已完成全集图片评测，但旧双模型视频因板端整机
+高负载风险暂缓。
+
+板端离线评测约定：原始 MP4 回放不去畸变，实时 `/dev/video0` 查看器才默认使用固定
+1920x1080 `plumb_bob` 内参。当前建议使用 `merged_standard_fp32.rknn`；INT8 产物虽能
+加载但在 v5merge 全集无有效检测，不能作为主模型。
+
+## 5. 最小回归
+
+```bash
+source /opt/ros/noetic/setup.bash
+source /home/xhj/liftrace/vision_ws/devel/setup.bash
+
+roslaunch uav_vision phase_d_map_mock.launch
+source /home/xhj/liftrace/top_level_scripts/toudi3_combined_env.sh
+liftrace_setup_toudi3_combined_env
+liftrace_assert_toudi3_combined_env
+roslaunch uav_vision phase_d_mock_patrol_regression.launch
+
+# 推荐：统一检查 PASS marker，避免 roslaunch 掩盖 required assertion 非零退出
+/home/xhj/liftrace/top_level_scripts/run_visual_mock_regressions.sh
+```
+
+以 required assertion 节点退出码为准。当前 map mock 可在视觉工作区独立运行，patrol
+regression 使用联合环境。任何消息、投影、模式或兼容语义改动都至少重跑相关 mock。
+
+预定的完整 toudi3 新视觉入口：
+
+```bash
+cd /home/xhj/liftrace
+bash ./top_level_scripts/run_toudi3_full_competition_sim_gui_new.sh
+```
+
+GUI 入口仍只算人工连通烟测；定量结论使用 `uav_vision_eval`，只观察联调使用 shadow 入口。
+
+## 6. 已知高优先级缺口
+
+1. 30-seed、10 min shadow 和正式阈值报告尚未完成；
+2. 固定 Gazebo 中部分标准类与红十字召回低于 0.95；代表场景 P95 延迟已降至 200 ms 内；
+3. 实拍圆环回放缺实例/中心人工真值，普通 MP4 也缺同步 CameraInfo/pose；
+4. H/普通黑圈/残圈实拍负样本仍不足；
+5. mission frame 默认已对齐旧 planner 的 `camera_init`，但完整 SITL TF 树仍待验收；
+6. 旧 Pose 兼容接口未完成下线；
+7. PT/ONNX/RKNN 仍有逐框数值差异，尚不能冻结最终部署模型；
+8. 六分类 RKNN 已在 OrangePi 做离线验证，但 ROS 板端链、CameraInfo/TF、10 min 稳定性和
+   压力真值仍未验收；四款 INT8 当前全量 P/R/mAP 为 0。
+9. 当前地图投影是单目射线与固定 `ground_z` 平面求交；不需要深度相机，但尚未接入
+   MID360 局部地面拟合，非平地和错误地面高度必须判为额外风险。
+
+## 7. 下一接口版本方向
+
+现有消息已覆盖源 `header.stamp`、`last_seen`、stable ID、关联、中心来源、TF 年龄和拒绝
+原因；后续只在真实消费者需要时补 `pose_valid/observation_age/stable_duration`，避免重复字段。
+
+视觉已发布 `/uav_vision/release_evidence`；最终 `/mission/release_permission` 由任务/安全层
+拥有。迁移期继续发布 `drop_ready`，但不得直接连接真实舵机。
+
+## 8. 开发约定
+
+- 图像订阅 queue size 为 1；
+- debug image 默认关闭；
+- 所有话题、frame、内参、模型和阈值参数化；
+- OrangePi 不使用 PyTorch 主路径；
+- 修改后运行对应 mock、固定仿真 seed 和实拍回放；
+- 评测数据和报告放 `vision_ws/test_data`，不让评测包成为运行依赖；
+- 每次修改追加根目录 `docs/仿真联调变更记录.md`。
+
+## 9. 设计与验收入口
+
+- 主路线：[../../../VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)
+- 工作区职责：[../../../VISION_WORKSPACE_GUIDE.md](/home/xhj/liftrace/VISION_WORKSPACE_GUIDE.md)
+- 仿真分层：[../../../SIMULATION_GUIDE_NOETIC_PX4_GAZEBO_QGC.md](/home/xhj/liftrace/SIMULATION_GUIDE_NOETIC_PX4_GAZEBO_QGC.md)
+- 迁移 Gate：[../../../VISION_MIGRATION_CHECKLIST.md](/home/xhj/liftrace/VISION_MIGRATION_CHECKLIST.md)

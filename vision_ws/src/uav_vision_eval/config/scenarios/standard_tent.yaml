@@ -1,0 +1,7 @@
+scenario_id: standard_tent
+description: The existing tent target directly below the fixed evaluator camera.
+active_targets: [tent_1]
+score_false_positives: true
+require_fully_in_frame: true
+spawn_red_cross: false
+seed: 1

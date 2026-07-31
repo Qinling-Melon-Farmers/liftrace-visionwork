@@ -1,0 +1,14 @@
+<launch>
+  <!-- Phase D + patrol_control + 内部仿真 联调入口 -->
+  <!-- 注：若内部仿真仍因 fast_planner 历史问题崩溃，该问题不应归因于 uav_vision Phase D 接线。 -->
+
+  <arg name="rviz" default="false" />
+  <arg name="use_board_detector" default="false" />
+
+  <include file="$(find patrol_control)/launch/patrol_control_sim.launch">
+    <arg name="rviz" value="$(arg rviz)" />
+  </include>
+
+  <include unless="$(arg use_board_detector)" file="$(find uav_vision)/launch/phase_d.launch" />
+  <include if="$(arg use_board_detector)" file="$(find uav_vision)/launch/phase_d_board.launch" />
+</launch>

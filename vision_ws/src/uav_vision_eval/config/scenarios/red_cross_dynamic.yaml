@@ -1,0 +1,9 @@
+scenario_id: red_cross_dynamic
+description: Existing world with one test-only red-cross model at a fixed pose.
+active_targets: [red_cross_1]
+score_false_positives: true
+require_fully_in_frame: true
+spawn_red_cross: true
+red_cross_pose: [-2.5, -2.5, 0.0, 0.0]
+seed: 2
+

@@ -1,0 +1,12 @@
+<launch>
+  <node pkg="uav_vision" type="mock_camera_info.py" name="mock_camera_info" />
+  <node pkg="uav_vision" type="mock_ring_image_publisher.py"
+        name="mock_ring_image_publisher" />
+  <node pkg="uav_vision" type="circle_detector_node"
+        name="circle_detector" output="screen">
+    <rosparam file="$(find uav_vision)/config/default.yaml" />
+    <rosparam file="$(find uav_vision)/config/circle_detector.yaml" />
+  </node>
+  <node pkg="uav_vision" type="circle_geometry_assertion.py"
+        name="circle_geometry_assertion" required="true" />
+</launch>

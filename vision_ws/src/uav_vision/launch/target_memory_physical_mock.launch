@@ -1,0 +1,14 @@
+<launch>
+  <node pkg="uav_vision" type="target_memory.py" name="target_memory">
+    <rosparam file="$(find uav_vision)/config/target_memory.yaml" />
+    <param name="detections_topic"
+           value="/uav_vision/detections_memory_test" />
+    <param name="require_map_for_candidates" value="true" />
+    <param name="confirm_frames" value="3" />
+    <param name="class_switch_confirm_frames" value="2" />
+    <param name="class_switch_min_confidence" value="0.70" />
+  </node>
+
+  <node pkg="uav_vision" type="target_memory_physical_assertion.py"
+        name="target_memory_physical_assertion" required="true" />
+</launch>

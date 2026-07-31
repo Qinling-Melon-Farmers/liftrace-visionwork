@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="uav_vision" type="placeholder_node.py" name="uav_vision" output="screen">
+    <rosparam file="$(find uav_vision)/config/default.yaml"/>
+  </node>
+</launch>

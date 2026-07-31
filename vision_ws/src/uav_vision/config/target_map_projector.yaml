@@ -1,0 +1,12 @@
+# target_map_projector 参数
+input_topic: /uav_vision/detections_refined
+output_topic: /uav_vision/detections_mapped
+camera_info_topic: /camera/camera_info
+map_frame: map
+ground_z: 0.0
+ray_z_epsilon: 0.00001
+tf_timeout: 0.05
+# 默认禁止使用非图像时刻 TF。仅固定静态相机评测入口可显式开启；
+# 动态飞行和实机路径必须保持 false。
+allow_latest_tf_fallback: false
+max_latest_tf_age_sec: 0.10

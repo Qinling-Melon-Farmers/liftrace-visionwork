@@ -1,0 +1,12 @@
+# drop_aligner 参数
+align_mode_topic: /uav_vision/align_mode
+default_mode: disabled
+# 真实链路从 CameraInfo 主点取对准参考；无 CameraInfo 的 mock 回退以下参数
+camera_info_topic: /camera/camera_info
+use_camera_info: true
+target_center_x: 640.0
+target_center_y: 480.0
+max_offset_px: 30.0
+stable_frames: 3
+min_confidence: 0.6
+target_max_age: 0.5

@@ -1,0 +1,42 @@
+<launch>
+  <!-- Full guarded laptop SITL plus read-only camera/projection diagnostics.
+       Gazebo truth TF broadcasting is disabled to avoid changing the flight
+       localization or the uav_vision map-projection path. -->
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="start_mapping" default="true" />
+  <arg name="start_arming" default="true" />
+  <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
+  <arg name="output_dir" default="/tmp/uav_vision_eval/visual_delivery_diagnostic" />
+  <arg name="image_topic" default="/camera/color/image_raw" />
+  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+
+  <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="start_mapping" value="$(arg start_mapping)" />
+    <arg name="start_arming" value="$(arg start_arming)" />
+    <arg name="vision_python" value="$(arg vision_python)" />
+    <arg name="audit_report_path" value="$(arg output_dir)/delivery_audit.json" />
+  </include>
+
+  <include file="$(find uav_vision_eval)/launch/ground_truth.launch">
+    <arg name="scenario_file"
+         value="$(find uav_vision_eval)/config/scenarios/existing_targets.yaml" />
+    <arg name="image_topic" value="$(arg image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="truth_topic" value="/uav_vision_eval/flight_ground_truth" />
+    <arg name="broadcast_camera_tf" value="false" />
+  </include>
+
+  <node pkg="uav_vision_eval" type="aligning_scene_recorder.py"
+        name="aligning_scene_recorder" output="screen">
+    <param name="output_dir" value="$(arg output_dir)/aligning_scenes" />
+    <param name="image_topic" value="$(arg image_topic)" />
+    <param name="truth_topic" value="/uav_vision_eval/flight_ground_truth" />
+    <rosparam param="trigger_modes">[drop_circle, drop_cross]</rosparam>
+    <param name="required_control_state" value="2" />
+    <param name="frames_per_episode" value="5" />
+    <param name="min_interval_sec" value="0.5" />
+  </node>
+</launch>

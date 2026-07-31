@@ -1,0 +1,30 @@
+# circle_detector_node 参数
+# HSV 蓝色区间
+circle_h_min: 90
+circle_s_min: 80
+circle_v_min: 80
+circle_h_max: 130
+circle_s_max: 255
+circle_v_max: 255
+
+# 圆形质量
+circle_min_contour_points: 15
+circle_aspect_ratio_threshold: 0.85
+circle_radius_min: 10.0
+circle_radius_max: 300.0
+circle_min_quality: 0.70
+circle_duplicate_center_ratio: 0.45
+circle_max_candidates: 12
+circle_reject_border_clipped: true
+
+# 预处理
+circle_blur_kernel_size: 5
+circle_enable_morphology: true
+circle_morphology_kernel_size: 15
+
+# 图像缩放
+circle_enable_resize: true
+# 保持原图宽高比并 letterbox，禁止把斜视圆环二次拉伸成椭圆。
+circle_preserve_aspect_ratio: true
+circle_resize_width: 640
+circle_resize_height: 512

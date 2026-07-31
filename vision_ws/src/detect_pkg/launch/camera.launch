@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="detect_pkg" type="ros_webcam_pub.py" name="ros_webcam_pub" output="screen"> </node>
+</launch>

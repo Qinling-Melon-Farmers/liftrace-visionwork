@@ -1,0 +1,8 @@
+scenario_id: background_only
+description: A target-free camera view used only to count false positives.
+active_targets: []
+score_false_positives: true
+require_fully_in_frame: false
+spawn_red_cross: false
+seed: 3
+

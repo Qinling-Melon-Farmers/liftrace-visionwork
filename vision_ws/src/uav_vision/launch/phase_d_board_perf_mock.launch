@@ -1,0 +1,27 @@
+<launch>
+  <!-- Phase D board 入口 perf 回归：
+       mock_image -> target_detector_rknn(board launch) -> /uav_vision/perf -->
+
+  <arg name="expect_perf_name" default="uav_vision/target_detector_rknn" />
+  <arg name="expect_perf_backend" default="empty_no_rknnlite" />
+  <arg name="timeout" default="10.0" />
+
+  <node pkg="uav_vision" type="mock_image_publisher.py" name="mock_image_publisher" output="screen">
+    <param name="image_topic" value="/camera/image_raw" />
+    <param name="width" value="32" />
+    <param name="height" value="32" />
+    <param name="encoding" value="bgr8" />
+    <param name="rate" value="5.0" />
+    <param name="fill_value" value="0" />
+  </node>
+
+  <include file="$(find uav_vision)/launch/phase_d_board.launch" />
+
+  <node pkg="uav_vision" type="phase_d_assertion.py" name="phase_d_perf_assertion" output="screen" required="true">
+    <param name="timeout" value="$(arg timeout)" />
+    <param name="expect_perf_name" value="$(arg expect_perf_name)" />
+    <param name="expect_perf_backend" value="$(arg expect_perf_backend)" />
+    <param name="expect_drop_ready" value="ignore" />
+    <param name="expect_cross_status" value="ignore" />
+  </node>
+</launch>

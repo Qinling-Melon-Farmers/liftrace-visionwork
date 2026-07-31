@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="uav_vision" type="circle_detector_node" name="circle_detector" output="screen">
+    <rosparam file="$(find uav_vision)/config/default.yaml"/>
+    <rosparam file="$(find uav_vision)/config/circle_detector.yaml"/>
+  </node>
+</launch>

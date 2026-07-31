@@ -1,0 +1,58 @@
+<launch>
+  <!-- Headless-by-default SITL shadow entry. It contains no actuator_pwm node.
+       Simulated arming is disabled by default; enable it explicitly only when
+       a moving-camera regression is intended. -->
+  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="start_mapping" default="false" />
+  <arg name="start_arming" default="false" />
+  <arg name="camera_image_topic" default="/camera/color/image_raw" />
+  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="enable_debug_image" default="false" />
+  <arg name="scenario_file" default="$(find uav_vision_eval)/config/scenarios/existing_targets.yaml" />
+  <arg name="record_metrics" default="true" />
+  <arg name="output_dir" default="/tmp/uav_vision_eval/toudi3_full_shadow" />
+  <arg name="run_contract_assertion" default="false" />
+
+  <include file="$(find patrol_control)/launch/patrol_full_competition_sim.launch">
+    <arg name="world" value="$(arg world)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="mapping_rviz" value="false" />
+    <arg name="start_mapping" value="$(arg start_mapping)" />
+    <arg name="start_visual" value="false" />
+    <arg name="start_arming" value="$(arg start_arming)" />
+    <arg name="waypoint_mode" value="true" />
+    <arg name="simulation_auto_land" value="true" />
+  </include>
+
+  <include file="$(find uav_vision_eval)/launch/ground_truth.launch">
+    <arg name="scenario_file" value="$(arg scenario_file)" />
+    <arg name="image_topic" value="$(arg camera_image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+  </include>
+
+  <include file="$(find uav_vision_eval)/launch/phase_d_shadow.launch">
+    <arg name="image_topic" value="$(arg camera_image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="target_detector_launch_prefix" value="$(arg vision_python)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+    <arg name="map_frame" value="world" />
+  </include>
+
+  <node if="$(arg record_metrics)" pkg="uav_vision_eval" type="vision_metrics_recorder.py"
+        name="vision_metrics_recorder" output="screen">
+    <param name="scenario_file" value="$(arg scenario_file)" />
+    <param name="truth_topic" value="/uav_vision_eval/ground_truth" />
+    <param name="detections_topic" value="/uav_vision_shadow/detections_mapped" />
+    <param name="output_dir" value="$(arg output_dir)" />
+  </node>
+
+  <node if="$(arg run_contract_assertion)" pkg="uav_vision_eval"
+        type="shadow_contract_assertion.py" name="shadow_contract_assertion"
+        output="screen" required="true" />
+</launch>

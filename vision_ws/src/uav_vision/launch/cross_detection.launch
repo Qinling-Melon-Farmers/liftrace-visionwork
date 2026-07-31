@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="uav_vision" type="cross_detector_node" name="cross_detector" output="screen">
+    <rosparam file="$(find uav_vision)/config/default.yaml"/>
+    <rosparam file="$(find uav_vision)/config/cross_detector.yaml"/>
+  </node>
+</launch>

@@ -1,0 +1,6 @@
+# target_refiner 参数
+input_topic: /uav_vision/detections_resolved
+output_topic: /uav_vision/detections_refined
+roi_margin_px: 40.0
+max_center_distance_ratio: 1.25
+min_ring_quality: 0.70
