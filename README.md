@@ -93,7 +93,7 @@ detections
 | 释放安全边界回归 | `run_release_guard_regression.sh` | 纯 mock；证明许可、槽位和防重放，不证明飞行闭环 |
 | 新视觉+旧控制受控投放 SITL | `uav_mission/toudi3_visual_delivery_guarded.launch` | raw 端为 mock；完整三投尚待验收 |
 
-完整环境和入口判断见 [SIMULATION_GUIDE_NOETIC_PX4_GAZEBO_QGC.md](/home/xhj/liftrace/SIMULATION_GUIDE_NOETIC_PX4_GAZEBO_QGC.md)，逐步操作见 [docs/TOUDI3_FULL_SIM_GUI_GUIDE.md](/home/xhj/liftrace/docs/TOUDI3_FULL_SIM_GUI_GUIDE.md)。
+完整环境和入口判断见 [SIMULATION_GUIDE_NOETIC_PX4_GAZEBO_QGC.md](/home/xhj/liftrace/SIMULATION_GUIDE_NOETIC_PX4_GAZEBO_QGC.md)，逐步操作见 [docs/TOUDI3_FULL_SIM_GUI_GUIDE.md](/home/xhj/liftrace/docs/TOUDI3_FULL_SIM_GUI_GUIDE.md)。原 2025 链窄门阻塞、航点语义和派生 world 方案见 [docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md](/home/xhj/liftrace/docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md)。
 
 ## 6. 安全边界
 
@@ -114,7 +114,8 @@ detections
 7. [VISION_MIGRATION_CHECKLIST.md](/home/xhj/liftrace/VISION_MIGRATION_CHECKLIST.md)：迁移 Gate；
 8. [VISION_2026_ORANGEPI5PLUS_EXECUTION_PLAN.md](/home/xhj/liftrace/VISION_2026_ORANGEPI5PLUS_EXECUTION_PLAN.md)：板端部署；
 9. [docs/仿真联调变更记录.md](/home/xhj/liftrace/docs/仿真联调变更记录.md)：最近变更和验证证据。
-10. [docs/VISION_LAPTOP_SIM_BASELINE_20260715.md](/home/xhj/liftrace/docs/VISION_LAPTOP_SIM_BASELINE_20260715.md)：当前笔记本定量基线与局限。
+10. [docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md](/home/xhj/liftrace/docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md)：旧链完整赛程阻塞与 world 改造 Gate。
+11. [docs/VISION_LAPTOP_SIM_BASELINE_20260715.md](/home/xhj/liftrace/docs/VISION_LAPTOP_SIM_BASELINE_20260715.md)：当前笔记本定量基线与局限。
 
 ## 8. 历史与专题文档
 

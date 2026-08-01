@@ -1,10 +1,10 @@
 # 视觉组仿真分层与环境入口（ROS Noetic + PX4 + Gazebo）
 
-更新时间：2026-07-15
+更新时间：2026-08-02
 
 ## 1. 用途和安全边界
 
-本文帮助视觉组选择正确的仿真入口，并明确每种测试能证明什么。逐终端的 toudi3 操作、GUI 和排障见 [docs/TOUDI3_FULL_SIM_GUI_GUIDE.md](/home/xhj/liftrace/docs/TOUDI3_FULL_SIM_GUI_GUIDE.md)；指标、场景和任务顺序见 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)。
+本文帮助视觉组选择正确的仿真入口，并明确每种测试能证明什么。逐终端的 toudi3 操作、GUI 和排障见 [docs/TOUDI3_FULL_SIM_GUI_GUIDE.md](/home/xhj/liftrace/docs/TOUDI3_FULL_SIM_GUI_GUIDE.md)；指标、场景和任务顺序见 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)。原 2025 链完整赛程的窄门阻塞和 world 分级改造见 [docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md](/home/xhj/liftrace/docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md)。
 
 本文所有完整仿真入口只连接 PX4 SITL，不连接真实飞控，不启动 `actuator_pwm`。任何实机解锁、起飞、投递或 PWM 操作均不在本文范围内。
 
@@ -18,6 +18,8 @@
 - L1 定量入口：`run_toudi3_visual_suite.sh`，复用 world 五类标准靶/H，红十字按场景插入；
 - L2 隔离入口：`uav_vision_eval/toudi3_full_shadow.launch`；隔离契约已通过，10 min 未验收；
 - 旧内部 `patrol_control_sim.launch` 仍受 Fast-Planner 运行时问题影响，不作为视觉验收基线；
+- 原 2025 外部 SITL 链已完成自动起飞和三次软件 mock 投递，但原始 0.8 m 门洞穿越、
+  北区巡航、返航和降落尚未完成；当前直达航点模式不等于在线避障；
 - 当前独立真值、自动评分和 shadow 最小基建已存在，但 30-seed、正式召回/时延阈值和
   10 min 稳定性仍未通过。
 
@@ -147,6 +149,22 @@ rostopic echo -n 1 /mavros/local_position/odom
 | `run_toudi3_visual_suite.sh` | 八个固定 L1 场景 | 视觉-only；不启动 PX4/MAVROS/控制/执行机构 |
 
 旧、新完整入口不能同时运行，它们共享 Gazebo、PX4、MAVROS 和全局视觉话题。
+
+### 7.0 旧链完整赛程必须按 Gate 拆分
+
+旧链排障不再用“一次跑全场”判断所有问题：
+
+1. R0：定点悬停 10 min，先保证 `/clock`、PX4 heartbeat 和 odom 连续；
+2. R1：原始主厅完成起飞、3 次 mock 投递、返航和降落；
+3. R2：1.2 m 派生开发门，直达模式双向通过；
+4. R3：1.2 m 开发门，Fast-Planner 拥有控制权并双向通过；
+5. R4：回归 0.8 m 原始门；
+6. R5：再组合成旧完整链；
+7. R6：最后接新视觉检测、地图记忆、候选接近和 guarded 三投。
+
+R2 使用 `waypoint_mode=true`，只证明控制/几何；R3/R4 使用
+`waypoint_mode=false`，才检查 planner。视觉组可在这些 Gate 上做 shadow 记录，但旧链
+是否穿门不计入视觉算法完成度。
 
 ### 7.1 新视觉 GUI 烟测
 

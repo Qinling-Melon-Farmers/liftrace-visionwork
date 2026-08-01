@@ -1,6 +1,6 @@
 # toudi3 完整仿真与 GUI 傻瓜式指南
 
-更新时间：2026-07-15
+更新时间：2026-08-02
 适用范围：WSL2 Ubuntu 20.04、ROS Noetic、PX4 SITL、Gazebo Classic、RViz
 
 本文只启动仿真软件，不启动 `actuator_pwm`，不连接真实飞控，不执行真实舵机投递。
@@ -12,6 +12,11 @@
 L0-L3 验收层级、首轮阈值和当前结果见
 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md) 与
 [VISION_LAPTOP_SIM_BASELINE_20260715.md](/home/xhj/liftrace/docs/VISION_LAPTOP_SIM_BASELINE_20260715.md)。
+
+原 2025 链完整赛程目前仍处于分层排障：自动起飞和三次软件 mock 投递已完成，原始
+0.8 m Wall_15 门洞穿越尚未完成。最新证据、航点语义问题、planner 所有权和 world
+派生规则见
+[2025原始链完整仿真阻塞与WORLD改造方案_20260802.md](/home/xhj/liftrace/docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md)。
 
 ## 0. 推荐方式：进入 WSL 后使用 Linux 原生命令
 
@@ -58,6 +63,16 @@ cd /home/xhj/liftrace
 如果 Gazebo 中有飞机但 `/mavros/setpoint_position/local` 没有持续消息，说明只启动了
 world 入口，尚未启动控制链。完整仿真必须使用第二行入口，或手动另起
 `patrol_control_px4_sim.launch`。
+
+还必须区分两种控制所有权：
+
+| 参数 | 实际控制方式 | 能证明什么 |
+| --- | --- | --- |
+| `waypoint_mode=true` / `flag_planner_px4=true` | 旧控制直接向 MAVROS 发插值航点 | 状态机和预设路径可执行 |
+| `waypoint_mode=false` / `flag_planner_px4=false` | 旧控制发 `/fastplanner/goal`，轨迹链给 MAVROS | Fast-Planner 在线规划/避障 |
+
+不要因为 `fast_planner_node` 已启动就认定 planner 正在控制飞机。必须同时核对参数、目标
+话题和最终 setpoint 发布者。
 
 ## 1. 两条启动路径
 
@@ -146,18 +161,20 @@ catkin_make -DROS_EDITION=ROS1 -j1
 | 靶标 | world 中心（m） | 路线用途 |
 | --- | --- | --- |
 | `dibao` | `(-0.602, -1.041)` | 第 1 个 Detect_point |
-| `tanke` | `(-1.903, -0.023)` | 第 2 个 Detect_point |
-| `zhuangjiache` | `(1.016, 0.256)` | 第 3 个 Detect_point |
-| `qiaoliang` | `(1.184, 3.155)` | 已在场景中，当前旧三舵机兼容路线未访问 |
-| `zhangpeng` | `(0.283, 3.856)` | 已在场景中，当前旧三舵机兼容路线未访问 |
+| `qiaoliang` | `(-1.903, -0.023)` | 可作为第 2 个 Detect_point |
+| `zhangpeng` | `(1.016, 0.256)` | 可作为第 3 个 Detect_point |
+| `zhuangjiache` | `(-1.589, 3.022)` | 已在场景中，三舵机基线不再追加为第 4 次投递 |
+| `tanke` | `(0.283, 3.856)` | 已在场景中，可作为普通观察点或后续候选 |
 | `landing_h` | `(0, 0)` | 最终 Land_point |
 
 `landing_h` 当前按 1×1 m 水平贴图板实现；规则书明确了降落区和 H 形状，但未给出
 H 贴纸的独立尺寸，因此这是仿真工程假设，不应当当作正式规则尺寸。
 
-旧 `patrol_control` 在完成 3 个检测点后会根据 `waypoint_skipping_index=3` 跳到
-最后 3 个返航/降落点；这是旧控制逻辑的限制，不是 world 坐标计算错误。若要访问
-全部标准靶，需要后续扩展投递计数、舵机映射和跳点策略，不能只继续往 YAML 里追加点。
+旧 `patrol_control` 只有 Servo 1～3。完成 3 个检测点后是否跳转由
+`detect_skip_enable` 和 `waypoint_skipping_index` 共同决定。关闭跳转可以继续执行普通
+走廊航点，但不能把第 4 个点继续写成 `Detect_point`：最新运行已证实它会下降并调用
+Servo 4，随后报错、等待超时。需要观察更多靶标时，将其写成普通观察点，由新视觉候选
+记忆负责记录。
 
 启动后用以下命令确认实际参数已加载：
 
@@ -171,6 +188,44 @@ rostopic hz /mavros/setpoint_position/local
 预期结果：`/waypoints` 只显示 toudi3 专用路线的 8 个点，
 `/switch/flag_planner_px4` 为 `1`，setpoint 持续发布。若仍看到 51 个点，说明使用了
 旧的 `patrol_control_px4_sim.launch` 默认入口，而不是完整 toudi3 入口。
+
+### 2.2 real.yaml 和派生 world 必须显式传入
+
+`run_toudi3_full_competition_sim.sh` 与旧的 `launch_toudi3_full_sim.sh` 当前没有把
+`patrol_toudi3_real.yaml` 固定传给 launch，默认仍是 `patrol_toudi3.yaml`。执行完整路线
+专项时，不要只看文件编辑状态；启动后必须以 `/waypoints` 为准。
+
+手动启动示例（仅 PX4 SITL）：
+
+```bash
+source /opt/ros/noetic/setup.bash
+source /home/xhj/liftrace/vision_ws/devel/setup.bash
+source /home/xhj/liftrace/patrol_uav_ws-patrol_planner/devel/setup.bash
+roslaunch patrol_control patrol_full_competition_sim.launch \
+  world:=/home/xhj/liftrace/patrol_uav_ws-patrol_planner/toudi3.world \
+  waypoint_config:=/home/xhj/liftrace/patrol_uav_ws-patrol_planner/src/patrol_control/config/patrol_toudi3_real.yaml \
+  waypoint_mode:=true start_visual:=false gui:=true rviz:=true
+```
+
+需要软件类别、圆环和 Servo mock 时，在另一个已加载 ROS 环境的终端启动：
+
+```bash
+python3 /home/xhj/liftrace/top_level_scripts/sim_helpers.py
+```
+
+此时关闭旧视觉节点，避免 mock 与旧检测器竞争同一全局话题。这两条命令会启动仿真自动
+解锁和纯软件投递，只能用于 SITL；不会启动 `actuator_pwm`。若选择派生开发 world，同时
+替换 `world:=...`，并在报告中记录文件 SHA256。
+
+### 2.3 原始门与开发门的用途
+
+- 原始 `toudi3.world` 保持不变，Wall_15 门洞宽 0.8 m，用于最终规则对照；
+- 先建立 1.2 m 派生开发门，隔离验证定位、planner、控制和双向穿越；
+- 开发门通过不能冒充原始门通过；
+- Gazebo 中开启 “Show Collisions”，分别保存俯视、门正视和侧视截图；
+- 门区专项先关闭视觉和投递，不要每轮先跑完整三投。
+
+详细尺寸预算和 Gate 顺序见阻塞专题文档。
 
 ## 3. 无 GUI 旧链完整赛程回归（先做这个）
 

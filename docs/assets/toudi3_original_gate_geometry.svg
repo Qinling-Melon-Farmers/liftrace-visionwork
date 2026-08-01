@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <defs>
+    <style>
+      .title { font: 700 30px sans-serif; fill: #172033; }
+      .h2 { font: 700 22px sans-serif; fill: #172033; }
+      .label { font: 18px sans-serif; fill: #26344d; }
+      .walllabel { font: 18px sans-serif; fill: #f8fafc; }
+      .small { font: 15px sans-serif; fill: #506079; }
+      .wall { fill: #596579; stroke: #26344d; stroke-width: 2; }
+      .open { fill: #e9f7ef; stroke: #2f855a; stroke-width: 3; stroke-dasharray: 8 5; }
+      .uav { fill: #ffcc80; stroke: #c05621; stroke-width: 3; }
+      .axis { stroke: #64748b; stroke-width: 2; marker-end: url(#arrow); }
+      .dim { stroke: #2563eb; stroke-width: 2; marker-start: url(#arrow2); marker-end: url(#arrow); }
+      .guide { stroke: #94a3b8; stroke-width: 1.5; stroke-dasharray: 6 5; }
+      .warn { fill: #fff4e5; stroke: #dd6b20; stroke-width: 2; }
+      .ok { fill: #e9f7ef; stroke: #2f855a; stroke-width: 2; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow2" markerWidth="10" markerHeight="10" refX="1" refY="3" orient="auto">
+      <path d="M9,0 L9,6 L0,3 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="720" fill="#f8fafc"/>
+  <text x="48" y="48" class="title">toudi3 原始 Wall_15 门洞与仿真无人机包络</text>
+  <text x="48" y="78" class="small">数据来自当前 world 几何与 PX4 iris.sdf 碰撞体；示意图不替代 Gazebo 接触检测</text>
+
+  <text x="48" y="125" class="h2">俯视：沿 y 方向穿门，横向为 x</text>
+  <line x1="70" y1="360" x2="70" y2="170" class="axis"/>
+  <text x="80" y="184" class="label">+y 飞行方向</text>
+
+  <rect x="110" y="230" width="140" height="100" class="wall"/>
+  <rect x="550" y="230" width="80" height="100" class="wall"/>
+  <rect x="250" y="230" width="300" height="100" class="open"/>
+  <text x="273" y="219" class="label">原始门洞 x=[-3.280,-2.480]</text>
+  <text x="353" y="278" class="h2">0.800 m</text>
+
+  <line x1="250" y1="190" x2="550" y2="190" class="dim"/>
+  <text x="338" y="181" class="label">门宽 0.800 m</text>
+
+  <rect x="303" y="255" width="194" height="190" rx="16" class="uav"/>
+  <line x1="400" y1="445" x2="400" y2="190" class="guide"/>
+  <text x="276" y="474" class="label">yaw=0° 横向碰撞包络约 0.516 m</text>
+  <line x1="303" y1="500" x2="497" y2="500" class="dim"/>
+  <text x="269" y="527" class="small">理论横向余量：(0.800-0.516)/2 ≈ 0.142 m/侧</text>
+
+  <rect x="90" y="560" width="470" height="105" rx="10" class="warn"/>
+  <text x="112" y="590" class="h2">航向偏转风险</text>
+  <text x="112" y="620" class="label">iris 另一方向包络约 0.696 m；接近横门方向时</text>
+  <text x="112" y="648" class="label">理论余量降至约 0.052 m/侧，跟踪误差即可碰撞。</text>
+
+  <text x="650" y="125" class="h2">侧视：门洞垂直开口</text>
+  <line x1="680" y1="480" x2="680" y2="155" class="axis"/>
+  <text x="690" y="170" class="label">+z</text>
+  <rect x="760" y="385" width="330" height="95" class="wall"/>
+  <rect x="760" y="225" width="330" height="160" class="open"/>
+  <rect x="760" y="135" width="330" height="90" class="wall"/>
+  <text x="814" y="212" class="walllabel">上沿 z=1.30 m</text>
+  <text x="814" y="412" class="walllabel">下沿 z=0.50 m</text>
+  <line x1="730" y1="225" x2="730" y2="385" class="dim"/>
+  <text x="704" y="315" class="label" transform="rotate(-90 704 315)">原始净高 0.800 m</text>
+  <rect x="825" y="273" width="200" height="42" rx="12" class="uav"/>
+  <line x1="760" y1="295" x2="1090" y2="295" class="guide"/>
+  <text x="850" y="340" class="label">建议中心高度约 z=0.90～1.00 m</text>
+
+  <rect x="650" y="560" width="500" height="105" rx="10" class="ok"/>
+  <text x="672" y="590" class="h2">派生开发 world 建议</text>
+  <text x="672" y="620" class="label">先用 1.20 m 门宽验证规划/定位/控制，再回归 0.80 m 原始门。</text>
+  <text x="672" y="648" class="small">开发门宽须由实测包络与误差预算计算，不能把加宽结果冒充规则场景通过。</text>
+</svg>

@@ -34,6 +34,11 @@
    时延优化服从于“能发现、能记住、能接近、能重捕获、不会错误投放”的业务目标；
 7. PT/ONNX 与 RKNN 离线部署门禁已有首轮结果：两款 FP32 RKNN 可运行，四款 INT8 RKNN
    在 v5merge 全集上零有效检测；OrangePi ROS 视觉链和稳定性验收仍未完成。
+8. 当前并行核查原 2025 完整飞行载体：自动起飞和三次软件 mock 投递已完成，但原始
+   0.8 m 门洞穿越、北区巡航、返航和降落尚未完成。该项是控制/规划/仿真联合前置，
+   不计入视觉算法完成度；直达航点通过也不能替代 Fast-Planner 避障验收。分层 Gate 和
+   world 派生规则见
+   [2025原始链完整仿真阻塞与WORLD改造方案_20260802.md](/home/xhj/liftrace/docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md)。
 
 现有 `toudi3.world` 五类标准靶和 H 已直接用于固定真值场景，红十字按评测场景插入；
 `uav_vision_eval` 已能自动生成 CSV/JSON/report，shadow 输出也已隔离。当前仍不能宣称完整
@@ -210,6 +215,9 @@ Gazebo / 实机相机 / rosbag
 | L1 Gazebo 真值场景 | 静态/预设相机位姿、已知靶标姿态 | 检测、中心、关联和地图投影的可量化误差 | 真实域泛化 |
 | L2 shadow 飞行 | 固定航线飞行，视觉只观察不控制 | 运动模糊、连续观测、跨视角 ID、延迟和十分钟稳定性 | 自主搜索或精投闭环 |
 | L3 任务闭环仿真 | Search Manager 接近/恢复，执行机构为 mock | 搜索发现、阶段门控、对准和释放证据时序 | 实物落点和板端 NPU 性能 |
+
+原 2025 链的 R0～R5 是提供稳定飞行载体的联合前置，不替代上述视觉 L0～L3；视觉可在
+R0～R5 中以 shadow 方式采集长期观测，但不得把 mock 靶标/Servo 结果计入视觉召回或闭环。
 
 实拍 rosbag/视频回放是横跨 L1-L3 的域差门禁；OrangePi RKNN 是部署门禁。二者都不能被 Gazebo 替代。
 
@@ -420,6 +428,7 @@ V-SIM-00 至 V-SIM-03 已交付：
 | `VISION_2026_ROADMAP.md` | 架构、任务顺序、验收 Gate | **是，唯一来源** |
 | `SIMULATION_GUIDE_NOETIC_PX4_GAZEBO_QGC.md` | 仿真分层、环境和入口选择 | 否 |
 | `docs/TOUDI3_FULL_SIM_GUI_GUIDE.md` | toudi3 逐步操作与排障 | 否 |
+| `docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md` | 原 2025 链阻塞证据、world 派生规则和 R0～R6 Gate | 否 |
 | `VISION_WORKSPACE_GUIDE.md` | 工作区和代码归属 | 否 |
 | `VISION_MIGRATION_CHECKLIST.md` | 迁移/发布 Gate 清单 | 只记录通过状态 |
 | `VISION_2026_ORANGEPI5PLUS_EXECUTION_PLAN.md` | RKNN/板端部署门禁 | 只维护部署任务 |
