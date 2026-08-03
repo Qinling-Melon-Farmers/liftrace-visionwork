@@ -1,60 +1,59 @@
-# toudi3.world 场地适配的完整比赛路线配置（含走廊穿越）。
+# toudi3.world（原始几何）完整比赛航线——参照板端 patrol_real.yaml 流程结构
+# （4 投递 + 走廊穿越 + 降高机动 + 降落）。
 #
-# 场地几何（toudi2 走廊模型，2026-08-01 方案 A 改墙后，世界绝对坐标）：
-#   南墙 Wall_1:  y=-2.83（x∈[-4.48,3.52]）
-#   东墙 Wall_11: x=3.44
-#   北墙 Wall_9:  y=6.87（连续 8m 无门）
-#   西通道：Wall_6 内壁 x=-4.335 与 Wall_16 西缘 x=-3.134 之间，宽 1.2m
-#   内部隔断：Wall_15 组合墙 y∈[4.225,4.375]，西段 x∈[-3.134,-1.870] 有半高通廊
-#     （z∈[0.5,1.3] 净高 0.8m 可穿，穿过点 x≈-2.3）
-#   半高障碍：big_box3 顶 1.25m（y∈[2.05,2.85] 区域），>1.3m 可飞越
-#
-# 标准靶标真值（world 内嵌模型绝对坐标）：
-#   dibao→pillbox(-0.602,-1.041)  qiaoliang→bridge(-1.903,-0.023)
-#   zhangpeng→tent(1.016,0.256)   zhuangjiache→panzer(-1.589,3.022)
-#   tanke→tank(0.283,3.856)       H→(0,0)
+# toudi3.world 原始几何（compute_free_waypoints.py 实测）：
+#   场地：x∈[-4.485,3.515]、y∈[-2.905,6.945]，四面围场
+#   Wall_15 横墙 y∈[4.225,4.375]，门洞 x∈[-3.280,-2.480]（宽 0.8m，
+#     z∈[0.65,1.3] 可穿，净高 0.65m）——走廊穿越唯一通道
+#   Wall_13 横墙 y∈[5.575,5.725]（北区东侧封死）、Wall_16 纵墙
+#     x∈[-3.744,-3.594]（北区西侧）、Wall_20/22 门框（深 0.15m 不可穿）
+#   半高障碍：big_box3/big_box3_0/Big box 4（顶 1.25m，z>1.3 可飞越）
+#   树 4 棵（高 1.5m，z<1.5 需水平绕行）
+# 标准靶真值：dibao→pillbox(-0.602,-1.041) qiaoliang→bridge(-1.903,-0.023)
+#   zhangpeng→tent(1.016,0.256) zhuangjiache→panzer(-1.589,3.022)
+#   tanke→tank(0.283,3.856)  H→(0,0)
 
 # 目标类别（sim_helpers 动态 mock 与补丁 A 的 goal_list 匹配）
 goal_list: ["bridge", "panzer", "pillbox", "tent", "tank"]
 
-# 3 投后不跳降落段，顺序推进走廊航点（补丁 B）
+# 4 投后不跳降落段，顺序推进走廊航点（补丁 B）
 detect_skip_enable: false
 
 waypoints:
   - {x: 0.000, y: 0.000, z: 1.5, yaw: 0.0, pointmode: "Takeoff_point", hover_time: 0.0}
 
-  # 投递点 1-3（标准靶上方，对应舵机 1/2/3）
-  # z=1.2 低于树顶 1.5m，树木成为必须绕行的全高障碍（验证避障能力）
-  - {x: -0.602, y: -1.041, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}   # dibao/pillbox
-  - {x: 1.016, y: 0.256, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}   # zhangpeng/tent
-  - {x: -1.589, y: 3.022, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}  # zhuangjiache/panzer
+  # 投递点 1-4（z=1.2 低于树顶 1.5，树成为绕行障碍；第 4 点 servo_id=4
+  # 超出 3 舵机上限不投递，与板端 patrol_real.yaml 行为一致）
+  - {x: -0.602, y: -1.041, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}   # dibao/pillbox servo1
+  - {x: -1.903, y: -0.023, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}   # qiaoliang/bridge servo2
+  - {x: 1.016, y: 0.256, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}    # zhangpeng/tent servo3
+  - {x: -1.589, y: 3.022, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}   # zhuangjiache/panzer servo4(不投递)
 
-  # 走廊去程：进入西通道（x=-3.7，Wall_6 内壁 -4.335 与 V2 西端 -3.734 之间）
-  - {x: -3.700, y: 3.400, z: 1.5, yaw: 1.5708, pointmode: "Nothing_point", hover_time: 0.0}  # 通道南口
+  # 投递 3→4 之间绕树过渡（树 (0.16,1.31) 在直线上，水平绕行）
+  - {x: 0.500, y: 2.000, z: 1.2, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
 
-  # 过门段：向东直进门洞（Wall_15 西移后门洞 x∈[-3.27,-1.87]，z 0.65~1.3 可穿）
-  - {x: -2.300, y: 4.000, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}    # 门洞南侧接近
-  - {x: -2.300, y: 4.450, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}    # 穿门洞（z=1.0 在 [0.65,1.3] 内）
+  # 走廊去程：门洞穿越（x=-2.88 门洞中心，z=1.0 ∈ [0.65,1.3]）
+  - {x: -2.880, y: 4.000, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}   # 门洞南侧
+  - {x: -2.880, y: 4.450, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}   # 穿门洞
 
-  # 北区：返回通道，北向到走廊尽头
-  - {x: -3.700, y: 5.300, z: 1.5, yaw: 1.5708, pointmode: "Nothing_point", hover_time: 0.0}  # 回通道北段
-  - {x: -3.700, y: 6.300, z: 1.5, yaw: 1.5708, pointmode: "Nothing_point", hover_time: 0.0}  # 通道北端（距北墙 0.5m）
+  # 北区（Wall_15 北 / Wall_13 南 / Wall_16 东，y∈[4.375,5.575]）
+  - {x: -3.200, y: 5.000, z: 1.5, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}   # 北区西
+  - {x: 0.300, y: 5.200, z: 1.5, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}   # 北区中（Big box 4 南侧）
+  - {x: 2.500, y: 5.200, z: 1.5, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}   # 北区东
 
-  # 北区东进（Wall_20/22 门洞带 y∈[5.83,6.73]，x≈0.6 通过）
-  - {x: 0.300, y: 6.260, z: 1.5, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  # 回程：绕 Big box 4 北侧 → 门洞北 → 穿回主厅
+  - {x: 0.000, y: 5.400, z: 1.5, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}   # 绕 Big box 4 北
+  - {x: -2.880, y: 4.600, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}  # 门洞北侧
+  - {x: -2.880, y: 4.450, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}  # 穿门洞回
+  - {x: -2.880, y: 4.000, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}  # 主厅
 
-  # 回程：原路返回通道南口
-  - {x: -3.700, y: 6.300, z: 1.5, yaw: -1.5708, pointmode: "Nothing_point", hover_time: 0.0}
-  - {x: -3.700, y: 3.400, z: 1.5, yaw: -1.5708, pointmode: "Nothing_point", hover_time: 0.0}
-
-  # 降高段（移出 Big box 4 包络 x>1.49；z 下限 0.5 防贴地断连）
-  - {x: 2.000, y: 5.000, z: 0.65, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
-  - {x: 2.000, y: 5.000, z: 0.50, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
-  - {x: 2.000, y: 5.000, z: 0.65, yaw: 0.0, pointmode: "Nothing_point", hover_time: 1.0}
+  # 降高机动（参照 patrol_real 0.65→0.15→0.65 结构；z 下限 0.15 贴地验证）
+  - {x: 0.500, y: 2.500, z: 0.65, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
+  - {x: 0.500, y: 2.500, z: 0.15, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
+  - {x: 0.500, y: 2.500, z: 0.65, yaw: 0.0, pointmode: "Nothing_point", hover_time: 1.0}
 
   # 返航与降落（H 位于 (0,0)）
-  - {x: 2.500, y: 4.000, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
-  - {x: 2.000, y: 1.000, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  - {x: 1.000, y: 2.500, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
   - {x: 0.000, y: 0.000, z: 0.8, yaw: 0.0, pointmode: "Land_point", hover_time: 0.0}
 
 waypoint_skipping_index: 4
