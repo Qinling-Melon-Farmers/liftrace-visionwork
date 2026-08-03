@@ -30,6 +30,16 @@ if [ -f "${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/devel/setup.bash" ]; then
 fi
 set -u
 
+# ---- PX4 + Gazebo 环境（与 launch_toudi3_full_sim.sh 一致，可在调用前覆盖） ----
+export PX4_ROOT="${PX4_ROOT:-/home/xhj/PX4-Autopilot}"
+export PX4_GAZEBO="${PX4_GAZEBO:-${PX4_ROOT}/Tools/simulation/gazebo-classic/sitl_gazebo-classic}"
+export ASTRA_LIB="${ASTRA_LIB:-/home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib}"
+export PX4_BUILD="${PX4_BUILD:-${PX4_ROOT}/build/px4_sitl_default/build_gazebo-classic}"
+export ROS_PACKAGE_PATH="/opt/ros/noetic/share:${PX4_ROOT}:${PX4_GAZEBO}:${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/src:${PROJECT_ROOT}/vision_ws/src${ROS_PACKAGE_PATH:+:${ROS_PACKAGE_PATH}}"
+export GAZEBO_MODEL_PATH="${PX4_GAZEBO}/models${GAZEBO_MODEL_PATH:+:${GAZEBO_MODEL_PATH}}"
+export GAZEBO_PLUGIN_PATH="${ASTRA_LIB}:${PX4_BUILD}${GAZEBO_PLUGIN_PATH:+:${GAZEBO_PLUGIN_PATH}}"
+export LD_LIBRARY_PATH="${ASTRA_LIB}:${PX4_BUILD}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+
 SCENE="${1:-sim}"
 shift
 
