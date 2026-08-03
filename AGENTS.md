@@ -42,6 +42,13 @@
       （由 `.gitignore` 维护，新增例外需在变更记录说明）。
     - 变更记录（规则 12）**先于** commit 更新，commit 与文档记录一一对应；
       每阶段 push 到 origin/main 前确认 `git status` 干净。
+16. **仿真必须走统一 run 目录规范。** 每次仿真启动用
+    `top_level_scripts/sim_run.sh <场景名> roslaunch ...`，它自动生成
+    `logs/<场景名>_<时间>/`（含 run.log、manifest.yaml、screenrecord.mp4、
+    roslog 归档、timeline.txt）；收尾由脚本内自动执行（ffmpeg SIGINT 优雅
+    停止写 moov、校验录屏、归档 `~/.ros/log/latest/`）。禁止再直接
+    `roslaunch ... > /tmp/xxx.log &` 裸跑；手动强杀仿真用
+    `stop_toudi3_sim.sh`（TERM 后 KILL）。录屏不可用时 `SIM_NO_RECORD=1`。
 
 ---
 
