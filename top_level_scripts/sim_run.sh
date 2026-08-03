@@ -17,6 +17,19 @@ SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOGS_DIR="${PROJECT_ROOT}/logs"
 
+# ---- source ROS 环境（可被调用者预先覆盖；setup 脚本与 nounset 不兼容，临时关闭） ----
+set +u
+if [ -z "${ROS_DISTRO:-}" ] && [ -f /opt/ros/noetic/setup.bash ]; then
+  source /opt/ros/noetic/setup.bash
+fi
+if [ -f "${PROJECT_ROOT}/vision_ws/devel/setup.bash" ]; then
+  source "${PROJECT_ROOT}/vision_ws/devel/setup.bash"
+fi
+if [ -f "${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/devel/setup.bash" ]; then
+  source "${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/devel/setup.bash"
+fi
+set -u
+
 SCENE="${1:-sim}"
 shift
 
@@ -42,6 +55,15 @@ RECORD_MP4="${RUN_DIR}/screenrecord.mp4"
   printf '  %s\n' "$@" | sed 's/ /=/; s/ / /' | head -20
 } > "${MANIFEST}"
 
+# ---- sim_helpers（可选：SIM_HELPERS=1 启动，旧链 mock 用） ----
+HELPER_PID=""
+if [ "${SIM_HELPERS:-0}" = "1" ]; then
+  python3 "${SCRIPT_DIR}/sim_helpers.py" >> "${RUN_LOG}" 2>&1 &
+  HELPER_PID=$!
+  echo "helper_pid: ${HELPER_PID}" >> "${MANIFEST}"
+  sleep 2
+fi
+
 # ---- ffmpeg 录屏（可选：SIM_NO_RECORD=1 关闭） ----
 FFMPEG_PID=""
 if [ "${SIM_NO_RECORD:-0}" != "1" ]; then
@@ -65,9 +87,15 @@ echo "" | tee -a "${RUN_LOG}"
 echo "Main cmd exited: ${EXIT_CODE}" | tee -a "${RUN_LOG}"
 
 # ---- 优雅收尾 ----
-echo "ffmpeg_pid: ${FFMPEG_PID}" >> "${MANIFEST}"
 echo "exit_code: ${EXIT_CODE}" >> "${MANIFEST}"
 echo "end_time: $(date -Iseconds)" >> "${MANIFEST}"
+
+# 停 sim_helpers
+if [ -n "${HELPER_PID}" ]; then
+  kill "${HELPER_PID}" 2>/dev/null
+  sleep 1
+  kill -9 "${HELPER_PID}" 2>/dev/null
+fi
 
 if [ -n "${FFMPEG_PID}" ]; then
   # SIGINT 让 ffmpeg 写 moov atom
