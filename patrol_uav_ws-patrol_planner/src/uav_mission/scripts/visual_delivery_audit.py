@@ -44,6 +44,8 @@ class VisualDeliveryAudit:
         self._align_mode = "disabled"
         self._pose_z = None
         self._evidence = None
+        self._locked_evidence = None
+        self._permission_evidence = None
         self._permission = None
         self._selected_target = None
         self._last_signatures = {}
@@ -61,6 +63,9 @@ class VisualDeliveryAudit:
                          self._on_selected_target, queue_size=4)
         rospy.Subscriber("/uav_vision/release_evidence", ReleaseEvidence,
                          self._on_evidence, queue_size=4)
+        rospy.Subscriber("/mission/release_commitment_evidence",
+                         ReleaseEvidence,
+                         self._on_commitment_evidence, queue_size=4)
         rospy.Subscriber("/mission/release_permission", ReleasePermission,
                          self._on_permission, queue_size=8)
         rospy.Subscriber("/uav_mission/mock_raw_servo_calls", UInt8,
@@ -133,6 +138,7 @@ class VisualDeliveryAudit:
     def _evidence_dict(msg):
         return {
             "stamp": msg.header.stamp.to_sec(),
+            "stamp_nsec": int(msg.header.stamp.to_nsec()),
             "align_mode": msg.align_mode,
             "target_id": int(msg.target_id),
             "target_class": msg.target_class,
@@ -149,6 +155,18 @@ class VisualDeliveryAudit:
         with self._lock:
             self._evidence = self._evidence_dict(msg)
 
+    def _on_commitment_evidence(self, msg):
+        with self._lock:
+            self._locked_evidence = self._evidence_dict(msg)
+            signature = (
+                self._locked_evidence["align_mode"],
+                self._locked_evidence["target_id"],
+                self._locked_evidence["stamp_nsec"],
+            )
+            self._record_change(
+                "release_evidence_lock", signature,
+                self._locked_evidence)
+
     @staticmethod
     def _permission_dict(msg):
         return {
@@ -159,12 +177,20 @@ class VisualDeliveryAudit:
             "target_id": int(msg.target_id),
             "target_class": msg.target_class,
             "reason": msg.reason,
+            "evidence_stamp": msg.evidence_stamp.to_sec(),
+            "evidence_stamp_nsec": int(msg.evidence_stamp.to_nsec()),
             "valid_until": msg.valid_until.to_sec(),
         }
 
     def _on_permission(self, msg):
         with self._lock:
             self._permission = self._permission_dict(msg)
+            if (self._locked_evidence is not None and
+                    self._locked_evidence["stamp_nsec"] ==
+                    self._permission["evidence_stamp_nsec"]):
+                self._permission_evidence = dict(self._locked_evidence)
+            else:
+                self._permission_evidence = None
             signature = (
                 self._permission["permitted"],
                 self._permission["payload_slot"],
@@ -181,6 +207,8 @@ class VisualDeliveryAudit:
             "pose_z": self._pose_z,
             "selected_target": self._selected_target,
             "release_evidence": self._evidence,
+            "locked_release_evidence": self._locked_evidence,
+            "permission_release_evidence": self._permission_evidence,
             "release_permission": self._permission,
         }
 
@@ -240,10 +268,14 @@ class VisualDeliveryAudit:
             pose_z = context["pose_z"]
             if pose_z is None or not self._min_altitude <= pose_z <= self._max_altitude:
                 return False, "altitude_invalid_slot_%d" % slot
-            evidence = context["release_evidence"]
             permission = context["release_permission"]
+            evidence = context["permission_release_evidence"]
+            if evidence is None:
+                evidence = context["release_evidence"]
             if evidence is None or not evidence["evidence_valid"]:
-                return False, "evidence_invalid_slot_%d" % slot
+                evidence = context["locked_release_evidence"]
+            if evidence is None or not evidence["evidence_valid"]:
+                return False, "evidence_lock_missing_slot_%d" % slot
             if evidence["stable_frames"] < self._min_stable_frames:
                 return False, "evidence_unstable_slot_%d" % slot
             if permission is None or not permission["permitted"]:
@@ -253,6 +285,8 @@ class VisualDeliveryAudit:
             if (permission["target_id"] != evidence["target_id"] or
                     permission["align_mode"] != evidence["align_mode"]):
                 return False, "permission_evidence_mismatch_slot_%d" % slot
+            if permission["evidence_stamp_nsec"] != evidence["stamp_nsec"]:
+                return False, "permission_evidence_stamp_mismatch_slot_%d" % slot
             target_keys.append((permission["align_mode"],
                                 permission["target_id"]))
         if len(set(target_keys)) != len(target_keys):
@@ -278,7 +312,7 @@ class VisualDeliveryAudit:
 
     def _report(self):
         return {
-            "schema_version": 1,
+            "schema_version": 2,
             "status": self._status,
             "failure_reason": self._failure_reason,
             "required_slots": self._required_slots,

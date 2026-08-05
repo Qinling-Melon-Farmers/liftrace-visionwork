@@ -110,6 +110,7 @@ private:
     ros::Subscriber selected_target_sub_;
     ros::Subscriber drop_offset_sub_;
     ros::Subscriber drop_ready_sub_;
+    ros::Subscriber mission_release_permission_sub_;
     // 舵机控制发布器
     ros::Publisher servo1_pub_;
     ros::Publisher servo2_pub_;
@@ -184,6 +185,11 @@ private:
 
     std::vector<std::string> goal;  // 默认由构造函数按 ~goal_list 参数填充，缺省 {"panzer"}
     bool detect_skip_enable_ = true;  // 3 投后是否跳降落段；false 时顺序推进走廊航点
+    // Legacy mode follows the selected vision class.  New-vision fixed-drop
+    // mode keeps the configured class set stable while the aircraft moves
+    // through waypoints, so a global candidate switch cannot rewrite it.
+    bool update_goal_from_selected_target_ = true;
+    bool require_vision_release_permission_ = false;
     // 悬停相关变量
     bool flag_hover_started = false;
     bool overtime_drop_flag = false;
@@ -258,9 +264,15 @@ private:
     bool uav_drop_ready_ = false;
     ros::Time latest_drop_ready_time_;
     std::string latest_drop_ready_reason_;
+    bool mission_release_permission_active_ = false;
+    ros::Time latest_mission_release_permission_time_;
+    std::string mission_release_permission_topic_ =
+        "/mission/release_permission_active";
     double selected_target_timeout_ = 1.0;
     double drop_offset_timeout_ = 1.0;
+    double mission_release_permission_timeout_ = 0.25;
     double pixel_to_meter_ratio_ = 0.0015;
+    std::array<double, 4> pixel_to_body_matrix_{{0.0, -1.0, -1.0, 0.0}};
     double max_alignment_move_distance_ = 0.5;
     double drop_circle_radius_m_ = 0.5;
     double drop_cross_radius_m_ = 0.5;
@@ -292,6 +304,8 @@ private:
     bool classMatchesGoal(const std::string& class_name) const;
     bool hasFreshSelectedTarget() const;
     bool hasFreshDropOffset() const;
+    bool hasFreshMissionReleasePermission() const;
+    DropReleaseGate currentDropReleaseGate() const;
     void clearUavVisionAlignmentState();
     void updateGoalFromSelectedTarget(const std::string& class_name);
     void projectDropOffsetToTarget(const uav_vision::DropOffset& msg);
@@ -342,6 +356,8 @@ private:
     void selectedTargetCallback(const uav_vision::TargetCandidate::ConstPtr& msg);
     void dropOffsetCallback(const uav_vision::DropOffset::ConstPtr& msg);
     void dropReadyCallback(const uav_vision::DropReady::ConstPtr& msg);
+    void missionReleasePermissionCallback(
+        const std_msgs::Bool::ConstPtr& msg);
     // void landMarkCallback(const geometry_msgs::PoseStamped& msg);
 };  
 }

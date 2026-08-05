@@ -66,6 +66,17 @@ class ReleaseGuardAssertion:
         msg.evidence_valid = True
         return msg
 
+    @classmethod
+    def _stale_evidence(cls, target_id, mode="drop_circle",
+                        target_class="circle"):
+        msg = cls._evidence(target_id, mode, target_class)
+        msg.observation_fresh = False
+        msg.observation_age_sec = 1.0
+        msg.aligned = False
+        msg.evidence_valid = False
+        msg.rejection_reasons = ["stale_observation"]
+        return msg
+
     @staticmethod
     def _pose(z):
         msg = PoseStamped()
@@ -172,23 +183,26 @@ class ReleaseGuardAssertion:
             raise AssertionError("unexpected raw calls after slot 2: %r" %
                                  self._raw_calls)
 
-        # 7. Evidence expires even while pose and old control state stay fresh.
-        self._publish("drop_circle", target_id=2, z=0.10, duration=0.10)
+        # 7. Stable visual evidence locks the target at alignment height.
+        # During final descent the target may leave the camera field of view;
+        # stale observations must not erase the bounded mission commitment.
+        self._publish("drop_circle", target_id=2, z=1.0, duration=0.35)
+        self._wait_permission(False, slot=3,
+                              reason="release_altitude_invalid")
         stale_deadline = rospy.Time.now() + rospy.Duration(0.8)
         rate = rospy.Rate(30)
         while rospy.Time.now() < stale_deadline:
             self._mode_pub.publish(String(data="drop_circle"))
             self._control_state_pub.publish(Int8(data=2))
             self._pose_pub.publish(self._pose(0.10))
+            self._evidence_pub.publish(
+                self._stale_evidence(2, "drop_circle", "circle"))
             rate.sleep()
-        self._wait_permission(False, slot=3,
-                              reason="stale_release_evidence")
-        self._call(3, False)
-
-        # 8. Fresh evidence permits final slot; payload is then exhausted.
-        self._publish("drop_circle", target_id=2, z=0.10)
-        self._wait_permission(True, slot=3)
+        self._wait_permission(True, slot=3,
+                              reason="permission_granted_from_commitment")
         self._call(3, True)
+
+        # 8. The committed slot is consumed exactly once.
         rospy.sleep(0.3)
         self._wait_permission(False, reason="payload_exhausted")
         self._call(3, False)
