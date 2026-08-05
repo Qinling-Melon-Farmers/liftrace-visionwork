@@ -55,7 +55,7 @@ drop_system:
   height_threshold: 0.20
   enable_drop: true
   descent_stable_duration: 2.0
-  slot_offsets: [[-0.07, 0.0], [0.0, -0.07], [0.0, 0.07]]
+  slot_offsets: [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]
   dynamic_slot_offsets: [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]
 
 uav_vision:
