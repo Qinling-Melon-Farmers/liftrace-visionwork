@@ -24,6 +24,7 @@
   <arg name="simulation_auto_land" default="true" />
   <arg name="px4_max_distance" default="0.2" />
   <arg name="enable_debug_image" default="true" />
+  <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_toudi3_new_vision.yaml" />
 
   <include file="$(find patrol_control)/launch/patrol_full_competition_sim.launch">
     <arg name="world" value="$(arg world)" />
@@ -41,6 +42,7 @@
     <arg name="waypoint_mode" value="$(arg waypoint_mode)" />
     <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
     <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <arg name="waypoint_config" value="$(arg waypoint_config)" />
   </include>
 
   <include file="$(find uav_vision)/launch/phase_d.launch">
