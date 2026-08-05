@@ -64,6 +64,25 @@ class NewVisionConfigTest(unittest.TestCase):
         self.assertIn("release_permission_timeout: 0.20", config)
         self.assertGreaterEqual(source.count("canRequestDrop("), 3)
 
+    def test_new_vision_launch_passes_camera_model_and_map_parameters(self):
+        launch = LAUNCH.read_text(encoding="utf-8")
+        for arg in (
+            'name="camera_image_topic"',
+            'name="camera_info_topic"',
+            'name="target_model_path"',
+            'name="map_frame"',
+            'name="enable_debug_image"',
+            'name="drop_stable_frames"',
+            'name="waypoint_config"',
+        ):
+            self.assertIn(arg, launch)
+        for arg in (
+            'arg name="camera_info_topic" value="$(arg camera_info_topic)"',
+            'arg name="target_model_path" value="$(arg target_model_path)"',
+            'arg name="map_frame" value="$(arg map_frame)"',
+        ):
+            self.assertIn(arg, launch)
+
     def test_new_vision_limits_planner_map_without_changing_legacy_defaults(self):
         new_vision_launch = LAUNCH.read_text(encoding="utf-8")
         full_launch = FULL_LAUNCH.read_text(encoding="utf-8")

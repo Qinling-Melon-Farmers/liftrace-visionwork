@@ -1,0 +1,43 @@
+<launch>
+  <!-- Full SITL Gate for the PT-backed new visual chain.  No sim_helpers and
+       no legacy visual detector nodes are started by this launch. -->
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="start_mapping" default="true" />
+  <arg name="start_arming" default="true" />
+  <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
+  <arg name="camera_image_topic" default="/camera/color/image_raw" />
+  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="map_frame" default="camera_init" />
+  <arg name="ground_z" default="0.0" />
+  <arg name="drop_stable_frames" default="5" />
+  <arg name="enable_debug_image" default="false" />
+  <arg name="wall_timeout" default="1800.0" />
+  <arg name="audit_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/visual_delivery_audit.json" />
+  <arg name="gate_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+
+  <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="start_mapping" value="$(arg start_mapping)" />
+    <arg name="start_arming" value="$(arg start_arming)" />
+    <arg name="vision_python" value="$(arg vision_python)" />
+    <arg name="camera_image_topic" value="$(arg camera_image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="map_frame" value="$(arg map_frame)" />
+    <arg name="ground_z" value="$(arg ground_z)" />
+    <arg name="drop_stable_frames" value="$(arg drop_stable_frames)" />
+    <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+    <arg name="audit_report_path" value="$(arg audit_report_path)" />
+  </include>
+
+  <node pkg="uav_mission" type="newvision_fixed3_assertion.py"
+        name="newvision_fixed3_assertion" output="screen" required="true">
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg gate_report_path)" />
+  </node>
+</launch>
