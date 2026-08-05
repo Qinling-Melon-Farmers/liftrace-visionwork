@@ -17,6 +17,11 @@ SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOGS_DIR="${PROJECT_ROOT}/logs"
 
+# WSL may inherit Windows Anaconda paths even when invoked non-interactively.
+# Keep ROS command wrappers on the Ubuntu system Python before sourcing overlays.
+export PATH="/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+unset PYTHONHOME PYTHONPATH
+
 # ---- source ROS 环境（可被调用者预先覆盖；setup 脚本与 nounset 不兼容，临时关闭） ----
 set +u
 if [ -z "${ROS_DISTRO:-}" ] && [ -f /opt/ros/noetic/setup.bash ]; then
