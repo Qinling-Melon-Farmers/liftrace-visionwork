@@ -2,9 +2,11 @@
   <!-- Dedicated planner launch for PX4/Gazebo simulation.
        Do NOT include the internal quadrotor simulator; PX4+Gazebo handle drone physics. -->
 
-  <arg name="map_size_x" value="100.0"/>
-  <arg name="map_size_y" value="100.0"/>
-  <arg name="map_size_z" value="50.0"/>
+  <!-- Keep the historical defaults while allowing bounded arena launches to
+       override the voxel map without duplicating this planner entry point. -->
+  <arg name="map_size_x" default="100.0"/>
+  <arg name="map_size_y" default="100.0"/>
+  <arg name="map_size_z" default="50.0"/>
 
   <arg name="odom_topic" value="/mavros/local_position/odom" />
 

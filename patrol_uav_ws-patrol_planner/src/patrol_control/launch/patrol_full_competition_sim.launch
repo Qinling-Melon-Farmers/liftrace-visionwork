@@ -36,6 +36,11 @@
   <!-- Smaller direct-setpoint step prevents PX4 position-loop overshoot in
        the CPU-limited WSL SITL; the historical launch default remains 1.0 m. -->
   <arg name="px4_max_distance" default="0.2" />
+  <!-- Legacy callers retain the historical planning volume.  Arena-specific
+       launches may override it without changing the shared planner launch. -->
+  <arg name="planner_map_size_x" default="100.0" />
+  <arg name="planner_map_size_y" default="100.0" />
+  <arg name="planner_map_size_z" default="50.0" />
   <!-- SITL-only arrival tolerance for the legacy detect-point state.  It is
        intentionally wider than the hardware precision value because this
        CPU-limited world leaves a small steady-state pose error. -->
@@ -67,6 +72,9 @@
     <arg name="waypoint_mode" value="$(arg waypoint_mode)" />
     <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
     <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <arg name="planner_map_size_x" value="$(arg planner_map_size_x)" />
+    <arg name="planner_map_size_y" value="$(arg planner_map_size_y)" />
+    <arg name="planner_map_size_z" value="$(arg planner_map_size_z)" />
     <arg name="aligning_threshold" value="$(arg aligning_threshold)" />
     <arg name="waypoint_config" value="$(arg waypoint_config)" />
   </include>

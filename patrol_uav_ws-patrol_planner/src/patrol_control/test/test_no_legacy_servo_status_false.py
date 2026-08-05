@@ -20,6 +20,7 @@ def test_new_vision_config_uses_zero_slot_offsets():
     zero_offsets = [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]
     assert config["drop_system"]["slot_offsets"] == zero_offsets
     assert config["drop_system"]["dynamic_slot_offsets"] == zero_offsets
+    assert config["switch"]["flag_planner_px4"] == 0
 
     launch = (Path(__file__).resolve().parents[1] /
               "launch" / "toudi3_full_competition_sim_new_vision.launch").read_text(

@@ -23,6 +23,12 @@
   <arg name="waypoint_mode" default="true" />
   <arg name="simulation_auto_land" default="true" />
   <arg name="px4_max_distance" default="0.2" />
+  <!-- The 10 m arena only needs a bounded local planning map.  Keeping the
+       historical 100 x 100 x 50 m grid would allocate tens of millions of
+       voxels at 0.1 m resolution and can trigger the WSL OOM killer. -->
+  <arg name="planner_map_size_x" default="14.0" />
+  <arg name="planner_map_size_y" default="14.0" />
+  <arg name="planner_map_size_z" default="6.0" />
   <arg name="enable_debug_image" default="true" />
   <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_toudi3_new_vision.yaml" />
 
@@ -42,6 +48,9 @@
     <arg name="waypoint_mode" value="$(arg waypoint_mode)" />
     <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
     <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <arg name="planner_map_size_x" value="$(arg planner_map_size_x)" />
+    <arg name="planner_map_size_y" value="$(arg planner_map_size_y)" />
+    <arg name="planner_map_size_z" value="$(arg planner_map_size_z)" />
     <arg name="waypoint_config" value="$(arg waypoint_config)" />
   </include>
 
