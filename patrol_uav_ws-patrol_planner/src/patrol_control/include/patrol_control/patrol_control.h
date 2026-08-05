@@ -1,6 +1,9 @@
 #ifndef _LL_CONTROLLER_NEW_H_
 #define _LL_CONTROLLER_NEW_H_
 
+#include "patrol_control/drop_action.h"
+
+#include <array>
 #include <map>
 #include <mavros_msgs/SetMode.h>
 #include <ros/ros.h>
@@ -273,6 +276,10 @@ private:
     bool ignore_servo_complete = false;                 // 忽略舵机完成信号标志  
     int count_cross_detect = 0;                         // 十字检测次数
     double dynamic_height = 0.2;
+    std::array<std::array<double, 2>, 3> drop_slot_offsets_{{
+        {{-0.07, 0.0}}, {{0.0, -0.07}}, {{0.0, 0.07}}}};
+    std::array<std::array<double, 2>, 3> dynamic_drop_slot_offsets_{{
+        {{-0.10, 0.0}}, {{0.0, -0.10}}, {{0.0, 0.10}}}};
 
     //设置投递时间决定标志位
     bool drop_time_flag = false;
@@ -300,7 +307,8 @@ private:
     bool DynamicProcess();
     
     // 投递相关函数
-    void executeDropAction(int servo_id);      // 执行投递动作
+    DropActionResult executeDropAction(int servo_id);  // 执行投递动作
+    void applyDropSlotOffset(int servo_id, bool dynamic_target);
     bool checkDropCondition();                 // 检查投递条件
     void alignmentFeedbackCallback(const geometry_msgs::Point::ConstPtr& msg); // 对准反馈回调
     void resetDropState();                     // 重置投递状态

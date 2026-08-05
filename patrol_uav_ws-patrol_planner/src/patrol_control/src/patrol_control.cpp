@@ -42,6 +42,46 @@ Eigen::Vector4f adjust_target_position;
 
 namespace patrol_control {
 
+namespace {
+
+bool readNumber(const XmlRpc::XmlRpcValue& value, double* output) {
+    if (value.getType() == XmlRpc::XmlRpcValue::TypeDouble) {
+        *output = static_cast<double>(value);
+        return true;
+    }
+    if (value.getType() == XmlRpc::XmlRpcValue::TypeInt) {
+        *output = static_cast<int>(value);
+        return true;
+    }
+    return false;
+}
+
+bool loadSlotOffsets(ros::NodeHandle& nh, const std::string& param_name,
+                     std::array<std::array<double, 2>, 3>* offsets) {
+    XmlRpc::XmlRpcValue value;
+    if (!nh.getParam(param_name, value)) {
+        return true;
+    }
+    if (value.getType() != XmlRpc::XmlRpcValue::TypeArray || value.size() != 3) {
+        ROS_ERROR("[DropSystem] %s must contain three [x, y] pairs",
+                  param_name.c_str());
+        return false;
+    }
+    for (int slot = 0; slot < 3; ++slot) {
+        if (value[slot].getType() != XmlRpc::XmlRpcValue::TypeArray ||
+            value[slot].size() != 2 ||
+            !readNumber(value[slot][0], &(*offsets)[slot][0]) ||
+            !readNumber(value[slot][1], &(*offsets)[slot][1])) {
+            ROS_ERROR("[DropSystem] %s slot %d must be numeric [x, y]",
+                      param_name.c_str(), slot + 1);
+            return false;
+        }
+    }
+    return true;
+}
+
+}  // namespace
+
 LLController::LLController(ros::NodeHandle nh):nh_(nh) {   
     initializeNode();
     
@@ -950,6 +990,9 @@ void LLController::load_params() {
     drop_height_threshold = nh_.param("drop_system/height_threshold", 0.2);
     drop_enabled = nh_.param("drop_system/enable_drop", true);
     descent_stable_duration = nh_.param("drop_system/descent_stable_duration", 2.0);
+    loadSlotOffsets(nh_, "drop_system/slot_offsets", &drop_slot_offsets_);
+    loadSlotOffsets(nh_, "drop_system/dynamic_slot_offsets",
+                    &dynamic_drop_slot_offsets_);
     selected_target_timeout_ = nh_.param("uav_vision/selected_target_timeout", 1.0);
     drop_offset_timeout_ = nh_.param("uav_vision/drop_offset_timeout", 1.0);
     pixel_to_meter_ratio_ = nh_.param("uav_vision/pixel_to_meter_ratio", 0.0015);
@@ -963,6 +1006,11 @@ void LLController::load_params() {
     ROS_INFO("\033[32m[DropSystem] Precision threshold: %.1f px\033[0m", drop_precision_threshold);
     ROS_INFO("\033[32m[DropSystem] Height threshold: %.3f m (not used)\033[0m", drop_height_threshold);
     ROS_INFO("\033[32m[DropSystem] Descent stable duration: %.1f s\033[0m", descent_stable_duration);
+    for (int slot = 0; slot < 3; ++slot) {
+        ROS_INFO("[DropSystem] slot %d offsets standard=(%.3f, %.3f) dynamic=(%.3f, %.3f)",
+                 slot + 1, drop_slot_offsets_[slot][0], drop_slot_offsets_[slot][1],
+                 dynamic_drop_slot_offsets_[slot][0], dynamic_drop_slot_offsets_[slot][1]);
+    }
     ROS_INFO("\033[36m[UavVision] selected_target_timeout: %.2f s, drop_offset_timeout: %.2f s\033[0m",
              selected_target_timeout_, drop_offset_timeout_);
     ROS_INFO("\033[36m[UavVision] pixel_to_meter_ratio: %.4f, max_alignment_move_distance: %.2f\033[0m",
@@ -1256,22 +1304,7 @@ bool LLController::DynamicProcess()
                 adjust_target_position[1] = waypoint_temp.pose.position.y;
                 align_height = 0.10;
                 adjust_target_position[3] = tf::getYaw(waypoint_temp.pose.orientation);
-                switch(detect_point_counter){
-                    case 0:{
-                        adjust_target_position[0] = waypoint_temp.pose.position.x - 0.1;
-                        break;
-                    }
-                    case 1:{
-                        adjust_target_position[1] = waypoint_temp.pose.position.y - 0.1;
-                        break;
-                    }
-                    case 2:{
-                        adjust_target_position[1] = waypoint_temp.pose.position.y + 0.1;
-                        break;
-                    }
-                    default:
-                        break;
-                }
+                applyDropSlotOffset(servo_id, true);
                 double ttt = distance3d(uav_pose.pose.position.x,uav_pose.pose.position.y,uav_pose.pose.position.z,waypoint_temp.pose.position.x,waypoint_temp.pose.position.y,0.1);
                 ROS_INFO("\033[32m[CrossDetectionDone] should_drop: %d, drop_complete: %d, uav_pose.pose.position.z: %.2f\033[0m", should_drop, drop_complete, uav_pose.pose.position.z);
                 if(uav_pose.pose.position.z <= 0.17 && ttt <= 0.15 && !drop_complete)
@@ -1283,18 +1316,21 @@ bool LLController::DynamicProcess()
                 if (should_drop && !drop_complete) {
                     // 执行投递动作 - 按顺序使用舵机
                     ignore_servo_complete = false;  //FF 开始接受舵机完F成信号
-                    executeDropAction(servo_id);
-                    // align_height = 0.15;
-                    //ros::Duration(2.0).sleep();
-                    // 标记当前检测点已完成投递
-                    drop_complete = true;
-                    drop_completed[detect_point_counter] = true;
-                    
+                    const DropActionResult result = executeDropAction(servo_id);
+                    if (dropActionSucceeded(result)) {
+                        drop_complete = true;
+                        if (detect_point_counter >= 0 &&
+                            detect_point_counter < static_cast<int>(drop_completed.size())) {
+                            drop_completed[detect_point_counter] = true;
+                        }
+                    }
                     should_drop = false;
-                    // 更新检测点计数器
-                    // detect_point_counter++;
-                    //
-                    ROS_INFO("\033[32m[CrossDetectionDone] detect_point_counter incremented to: %d\033[0m", detect_point_counter);
+                    if (!drop_complete) {
+                        ROS_WARN_THROTTLE(1.0,
+                            "[DynamicProcess] Drop slot %d not acknowledged; retrying while conditions remain valid",
+                            servo_id);
+                        return false;
+                    }
                 } else if (should_drop && drop_complete) {
                     ROS_INFO_THROTTLE(1.0, "\033[33m[CrossDetectionDone] Drop already completed for detect point %d, waiting for next cycle\033[0m", detect_point_counter);
                 } else {
@@ -1323,8 +1359,8 @@ bool LLController::DynamicProcess()
                     return false;
                 }
                 else{
-                    
-                    ROS_INFO("\033[33m[CrossDetectionDone] Landing completed, BUT servo status false. ");
+                    ROS_WARN_THROTTLE(1.0,
+                        "[CrossDetectionDone] Awaiting positive Servo ACK; release remains blocked");
                     return false;  // 未能够完成舵机任务
                 }
             }
@@ -1563,22 +1599,7 @@ bool LLController::WayPointDetectDone()
             adjust_target_position[1] = waypoint_temp.pose.position.y;
             align_height = 0.10;
             adjust_target_position[3] = tf::getYaw(waypoint_temp.pose.orientation);
-            switch(detect_point_counter){
-                case 0:{
-                    adjust_target_position[0] = waypoint_temp.pose.position.x - 0.07;
-                    break;
-                }
-                case 1:{
-                    adjust_target_position[1] = waypoint_temp.pose.position.y - 0.07;
-                    break;
-                }
-                case 2:{
-                    adjust_target_position[1] = waypoint_temp.pose.position.y + 0.07;
-                    break;
-                }
-                default:
-                    break;
-            }
+            applyDropSlotOffset(servo_id, false);
             ROS_INFO("\033[32m[CrossDetectionDone] should_drop: %d, drop_complete: %d, uav_pose.pose.position.z: %.2f\033[0m", should_drop, drop_complete, uav_pose.pose.position.z);
             ROS_INFO("dis %f",dis_to_next_position);
             ROS_INFO("waypoint temp %f %f",waypoint_temp.pose.position.x,waypoint_temp.pose.position.y);
@@ -1596,18 +1617,21 @@ bool LLController::WayPointDetectDone()
                 // 执行投递动作 - 按顺序使用舵机
                 // drop_time_flag = false;
                 ignore_servo_complete = false;  // 开始接受舵机完成信号
-                executeDropAction(servo_id);
-                // align_height = 0.30;
-                //ros::Duration(2.0).sleep();
-                // 标记当前检测点已完成投递
-                drop_complete = true;
-                drop_completed[detect_point_counter] = true;
-                
+                const DropActionResult result = executeDropAction(servo_id);
+                if (dropActionSucceeded(result)) {
+                    drop_complete = true;
+                    if (detect_point_counter >= 0 &&
+                        detect_point_counter < static_cast<int>(drop_completed.size())) {
+                        drop_completed[detect_point_counter] = true;
+                    }
+                }
                 should_drop = false;
-                // 更新检测点计数器
-                // detect_point_counter++;
-                //
-                ROS_INFO("\033[32m[WayPointDetectDone] detect_point_counter incremented to: %d\033[0m", detect_point_counter);
+                if (!drop_complete) {
+                    ROS_WARN_THROTTLE(1.0,
+                        "[WayPointDetectDone] Drop slot %d not acknowledged; retrying while conditions remain valid",
+                        servo_id);
+                    return false;
+                }
             } else if (should_drop && drop_complete) {
                 ROS_INFO_THROTTLE(1.0, "\033[33m[WayPointDetectDone] Drop already completed for detect point %d, waiting for next cycle\033[0m", detect_point_counter);
             } else {
@@ -1644,8 +1668,8 @@ bool LLController::WayPointDetectDone()
                 return false;
             }
             else{
-                
-                ROS_INFO("\033[33m[WayPointDetectDone] Landing completed, BUT servo status false. ");
+                ROS_WARN_THROTTLE(1.0,
+                    "[WayPointDetectDone] Awaiting positive Servo ACK; release remains blocked");
                 return false;  // 未能够完成舵机任务
             }
         }
@@ -1662,7 +1686,7 @@ bool LLController::WayPointDetectDone()
         // down_flag = true;
         align_ok = false;  // 重置对准状态
         servo_complete.data = false;
-        stopDropAction(servo_id-1);
+        stopDropAction(servo_id);
         align_height = 1.2;
         ROS_INFO("\033[33m[WayPointDetectDone] Time up, servo_complete.data: %d\033[0m", servo_complete.data);
         ROS_INFO("\033[32m[WayPointDetectDone] Detection completed for waypoint %d, all flags reset\033[0m", waypoint_next);
@@ -1953,17 +1977,45 @@ void LLController::publishAlignMode(const std::string& mode)
         ROS_INFO("[AlignMode] -> %s", current_align_mode_.c_str());
     }
 }
-void LLController::executeDropAction(int servo_id) {
+void LLController::applyDropSlotOffset(int servo_id, bool dynamic_target) {
     if (servo_id < 1 || servo_id > 3) {
-        ROS_ERROR("\033[31m[DropSystem] Invalid servo ID: %d\033[0m", servo_id);
+        ROS_ERROR("[DropSystem] Cannot apply offset for invalid servo ID: %d",
+                  servo_id);
         return;
     }
+    const auto& offsets = dynamic_target ? dynamic_drop_slot_offsets_
+                                         : drop_slot_offsets_;
+    adjust_target_position[0] += offsets[servo_id - 1][0];
+    adjust_target_position[1] += offsets[servo_id - 1][1];
+}
+
+DropActionResult LLController::executeDropAction(int servo_id) {
+    servo_complete.data = false;
     patrol_control::Servo srv;
     srv.request.req = servo_id;
 
-    if(servo_client.call(srv)){
-        servo_complete.data = srv.response.res;
-        ROS_INFO("\033[32m[DropSystem] Drop action %d completed successfully\033[0m", servo_id);
+    const bool service_call_ok = servo_id >= 1 && servo_id <= 3 &&
+                                 servo_client.call(srv);
+    const DropActionResult result = classifyDropAction(
+        servo_id, service_call_ok, service_call_ok && srv.response.res);
+    servo_complete.data = dropActionSucceeded(result);
+
+    switch (result) {
+        case DropActionResult::kSuccess:
+            ROS_INFO("\033[32m[DropSystem] Drop action %d received positive Servo ACK\033[0m",
+                     servo_id);
+            break;
+        case DropActionResult::kInvalidServoId:
+            ROS_ERROR("\033[31m[DropSystem] Invalid servo ID: %d\033[0m", servo_id);
+            break;
+        case DropActionResult::kServiceCallFailed:
+            ROS_ERROR("\033[31m[DropSystem] Servo service call failed for slot %d\033[0m",
+                      servo_id);
+            break;
+        case DropActionResult::kRejected:
+            ROS_WARN("\033[33m[DropSystem] Servo request rejected for slot %d\033[0m",
+                     servo_id);
+            break;
     }
     // // 创建投递控制消息
     // std_msgs::Bool drop_msg;
@@ -1999,7 +2051,7 @@ void LLController::executeDropAction(int servo_id) {
     //     servo_pub->publish(drop_msg);
     //     ros::Duration(0.1).sleep();  // 间隔100ms
     // }
-    
+    return result;
 }
 void LLController::stopDropAction(int servo_id) {
    
@@ -2187,22 +2239,7 @@ bool LLController::CrossDetectionDone() {
             adjust_target_position[1] = waypoint_temp.pose.position.y;
             align_height = 0.10;
             adjust_target_position[3] = tf::getYaw(waypoint_temp.pose.orientation);
-            switch(detect_point_counter){
-                case 0:{
-                    adjust_target_position[0] = waypoint_temp.pose.position.x - 0.1;
-                    break;
-                }
-                case 1:{
-                    adjust_target_position[1] = waypoint_temp.pose.position.y - 0.1;
-                    break;
-                }
-                case 2:{
-                    adjust_target_position[1] = waypoint_temp.pose.position.y + 0.1;
-                    break;
-                }
-                default:
-                    break;
-            }
+            applyDropSlotOffset(servo_id, true);
             double ttt = distance3d(uav_pose.pose.position.x,uav_pose.pose.position.y,uav_pose.pose.position.z,waypoint_temp.pose.position.x,waypoint_temp.pose.position.y,0.1);
             ROS_INFO("\033[32m[CrossDetectionDone] should_drop: %d, drop_complete: %d, uav_pose.pose.position.z: %.2f\033[0m", should_drop, drop_complete, uav_pose.pose.position.z);
             if(uav_pose.pose.position.z <= 0.17 && ttt <= 0.15 && !drop_complete)
@@ -2214,18 +2251,21 @@ bool LLController::CrossDetectionDone() {
             if (should_drop && !drop_complete) {
                 // 执行投递动作 - 按顺序使用舵机
                 ignore_servo_complete = false;  //FF 开始接受舵机完F成信号
-                executeDropAction(servo_id);
-                // align_height = 0.15;
-                //ros::Duration(2.0).sleep();
-                // 标记当前检测点已完成投递
-                drop_complete = true;
-                // drop_completed[detect_point_counter] = true;
-                
+                const DropActionResult result = executeDropAction(servo_id);
+                if (dropActionSucceeded(result)) {
+                    drop_complete = true;
+                    if (detect_point_counter >= 0 &&
+                        detect_point_counter < static_cast<int>(drop_completed.size())) {
+                        drop_completed[detect_point_counter] = true;
+                    }
+                }
                 should_drop = false;
-                // 更新检测点计数器
-                // detect_point_counter++;
-                //
-                ROS_INFO("\033[32m[CrossDetectionDone] detect_point_counter incremented to: %d\033[0m", detect_point_counter);
+                if (!drop_complete) {
+                    ROS_WARN_THROTTLE(1.0,
+                        "[CrossDetectionDone] Drop slot %d not acknowledged; retrying while conditions remain valid",
+                        servo_id);
+                    return false;
+                }
             } else if (should_drop && drop_complete) {
                 ROS_INFO_THROTTLE(1.0, "\033[33m[CrossDetectionDone] Drop already completed for detect point %d, waiting for next cycle\033[0m", detect_point_counter);
             } else {
@@ -2251,8 +2291,8 @@ bool LLController::CrossDetectionDone() {
                 return false;
             }
             else{
-                
-                ROS_INFO("\033[33m[CrossDetectionDone] Landing completed, BUT servo status false. ");
+                ROS_WARN_THROTTLE(1.0,
+                    "[CrossDetectionDone] Awaiting positive Servo ACK; release remains blocked");
                 return false;  // 未能够完成舵机任务
             }
         }
@@ -2260,32 +2300,9 @@ bool LLController::CrossDetectionDone() {
         return false;
     }
     else{
-        
-        ROS_INFO("[Crossdetectiondone]overtime : %.2f",elapsed_time);
-        // 时间超时，清理状态并返回主任务
-        // stopDropAction(servo_id-1);
-        if(!overtime_drop_flag){
-            executeDropAction(servo_id);
-            overtime_drop_flag = true;
-        }
-        if(servo_complete.data){
-                ROS_INFO("\033[33m[CrossDetectionDone] servo_complete.data: %d\033[0m", servo_complete.data);
-                down_flag = false;
-                align_height = 1.15;
-                if(uav_pose.pose.position.z >= 0.95){
-                    // stopDropAction(servo_id-1);
-                    resetDropState();   // 重置投递状态
-                    cleanupAfterCrossDrop();  // 彻底清理十字投递状态
-                    cross_mission_completed = false;
-                    detect_point_counter++;
-                    cross_drop_completed = true;
-                    cross_mission_completed = true;  // 标记十字任务完成
-                    ROS_INFO("\033[32m[CrossDetectionDone] Cross drop completed successfully, returning to main mission\033[0m");
-                    return true;
-                }
-                ROS_INFO("\033[33m[CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: %.2f  uav_z : %.2f\033[0m", align_height, uav_pose.pose.position.z);
-                return false;
-        }
+        ROS_WARN_THROTTLE(1.0,
+            "[CrossDetectionDone] Alignment timed out after %.2f s; release remains blocked without a positive Servo ACK",
+            elapsed_time);
         return false;
     }
     return false;

@@ -31,6 +31,8 @@ catkin_install_python(PROGRAMS
   scripts/mock_raw_servo_server.py
   scripts/release_guard_assertion.py
   scripts/visual_delivery_audit.py
+  scripts/fixed_drop_evidence_mock.py
+  scripts/fixed_three_drop_assertion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
