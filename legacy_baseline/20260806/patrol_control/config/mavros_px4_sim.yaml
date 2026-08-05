@@ -1,0 +1,52 @@
+# Minimal valid MAVROS SITL configuration.
+# The distro px4_config.yaml on this machine contains a non-YAML `//` comment,
+# so the toudi3 launch uses this project-local equivalent. Missing plugin
+# options intentionally fall back to MAVROS defaults.
+conn:
+  heartbeat_rate: 1.0
+  timeout: 10.0
+  timesync_rate: 10.0
+  system_time_rate: 1.0
+
+sys:
+  min_voltage: 10.0
+  disable_diag: false
+
+local_position:
+  frame_id: "map"
+  tf:
+    send: false
+    frame_id: "map"
+    child_frame_id: "base_link"
+    send_fcu: false
+
+global_position:
+  frame_id: "map"
+  child_frame_id: "base_link"
+  use_relative_alt: true
+  tf:
+    send: true
+    frame_id: "map"
+    global_frame_id: "earth"
+    child_frame_id: "base_link"
+
+setpoint_position:
+  tf:
+    listen: false
+    frame_id: "map"
+    child_frame_id: "target_position"
+    rate_limit: 50.0
+  mav_frame: LOCAL_NED
+
+setpoint_velocity:
+  mav_frame: LOCAL_NED
+
+imu:
+  frame_id: "base_link"
+
+mission:
+  pull_after_gcs: true
+  use_mission_item_int: true
+
+camera:
+  frame_id: "base_link"

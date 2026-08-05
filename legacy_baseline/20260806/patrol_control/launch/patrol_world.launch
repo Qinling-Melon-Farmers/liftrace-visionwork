@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<launch>
+  <!--
+    Competition-style world launcher.
+
+    The world contains the static arena and target boards.  The aircraft is
+    spawned separately by PX4's posix_sitl.launch, so this file deliberately
+    keeps world and vehicle arguments independent.
+  -->
+  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="vehicle" default="iris_mid360" />
+  <!-- Override px4_root when PX4 is not installed at the local default. -->
+  <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
+  <arg name="px4_model_root" default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
+  <arg name="sdf" default="$(arg px4_model_root)/$(arg vehicle)/$(arg vehicle).sdf" />
+  <arg name="gazebo_model_path" default="$(arg px4_model_root)" />
+  <arg name="astra_sim_lib" default="$(optenv ASTRA_SIM_LIB /home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib)" />
+  <arg name="px4_plugin_lib" default="$(arg px4_root)/build/px4_sitl_default/build_gazebo-classic" />
+  <arg name="gazebo_plugin_path" default="$(arg astra_sim_lib):$(arg px4_plugin_lib)" />
+
+  <arg name="x" default="0.0" />
+  <arg name="y" default="0.0" />
+  <arg name="z" default="0.06" />
+  <arg name="R" default="0.0" />
+  <arg name="P" default="0.0" />
+  <arg name="Y" default="0.0" />
+
+  <arg name="gui" default="true" />
+  <arg name="paused" default="false" />
+  <arg name="verbose" default="false" />
+  <arg name="interactive" default="false" />
+  <arg name="start_px4" default="true" />
+  <arg name="fcu_url" default="udp://:14540@localhost:14557" />
+  <arg name="respawn_mavros" default="false" />
+  <arg name="spawn_delay" default="0.0" />
+  <arg name="spawn_retry_delay" default="2.0" />
+  <arg name="spawn_retries" default="4" />
+
+  <!-- Add target model/material directories with gazebo_model_path:=... when available. -->
+  <env name="GAZEBO_MODEL_PATH" value="$(arg gazebo_model_path)" />
+  <!-- PX4's vehicle plugins and AstraDroneOpen's MID360/RealSense plugins are
+       built in different workspaces on this development machine. -->
+  <env name="GAZEBO_PLUGIN_PATH" value="$(arg gazebo_plugin_path)" />
+  <env name="LD_LIBRARY_PATH" value="$(arg gazebo_plugin_path):$(optenv LD_LIBRARY_PATH)" />
+
+  <!-- Full SITL mode: PX4 owns the vehicle spawn and Gazebo world startup. -->
+  <group if="$(arg start_px4)">
+    <include file="$(find patrol_control)/launch/px4_toudi3_sitl.launch">
+      <arg name="x" value="$(arg x)" />
+      <arg name="y" value="$(arg y)" />
+      <arg name="z" value="$(arg z)" />
+      <arg name="R" value="$(arg R)" />
+      <arg name="P" value="$(arg P)" />
+      <arg name="Y" value="$(arg Y)" />
+      <arg name="world" value="$(arg world)" />
+      <arg name="vehicle" value="$(arg vehicle)" />
+      <arg name="sdf" value="$(arg sdf)" />
+      <arg name="gui" value="$(arg gui)" />
+      <arg name="verbose" value="$(arg verbose)" />
+      <arg name="paused" value="$(arg paused)" />
+      <arg name="interactive" value="$(arg interactive)" />
+      <arg name="spawn_delay" value="$(arg spawn_delay)" />
+      <arg name="spawn_retry_delay" value="$(arg spawn_retry_delay)" />
+      <arg name="spawn_retries" value="$(arg spawn_retries)" />
+    </include>
+
+    <include file="$(find patrol_control)/launch/mavros_px4_sim.launch">
+      <arg name="gcs_url" value="" />
+      <arg name="fcu_url" value="$(arg fcu_url)" />
+      <arg name="respawn_mavros" value="$(arg respawn_mavros)" />
+    </include>
+  </group>
+
+  <!-- World/model-only mode: useful for checking the scene when PX4 is unavailable. -->
+  <group unless="$(arg start_px4)">
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+      <arg name="world_name" value="$(arg world)" />
+      <arg name="gui" value="$(arg gui)" />
+      <arg name="verbose" value="$(arg verbose)" />
+      <arg name="paused" value="$(arg paused)" />
+    </include>
+    <node
+      name="vehicle_spawn"
+      pkg="patrol_control"
+      type="spawn_model_delayed.py"
+      output="screen"
+      args="--delay $(arg spawn_delay) --retry-delay $(arg spawn_retry_delay) --retries $(arg spawn_retries) -sdf -file $(arg sdf) -model $(arg vehicle) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg Y)" />
+  </group>
+</launch>
