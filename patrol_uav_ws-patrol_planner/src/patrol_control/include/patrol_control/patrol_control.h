@@ -19,6 +19,7 @@
 #include <uav_vision/DropOffset.h>
 #include <uav_vision/DropReady.h>
 #include <uav_vision/TargetCandidate.h>
+#include <patrol_control/MissionCommand.h>
 #include <Eigen/Core>
 #include <cmath>  // 引入 math 库，使用 sqrt 函数
 #include <vector>
@@ -111,6 +112,7 @@ private:
     ros::Subscriber drop_offset_sub_;
     ros::Subscriber drop_ready_sub_;
     ros::Subscriber mission_release_permission_sub_;
+    ros::Subscriber mission_command_sub_;
     // 舵机控制发布器
     ros::Publisher servo1_pub_;
     ros::Publisher servo2_pub_;
@@ -125,6 +127,7 @@ private:
 
     std::vector<std::vector<double>> dynamic_point_list;
     geometry_msgs::PoseStamped mavros_point_cmd, planner_cmd, patrol_cmd, waypoint_mark_point, land_mark;
+    ros::Time latest_planner_cmd_time_;
     bool flag_planner_px4 = 1 ;
     bool landig_mark = 0;
     bool debug = 0 ;
@@ -190,6 +193,10 @@ private:
     // through waypoints, so a global candidate switch cannot rewrite it.
     bool update_goal_from_selected_target_ = true;
     bool require_vision_release_permission_ = false;
+    bool external_mission_mode_ = false;
+    std::string mission_command_topic_ = "/mission/command";
+    double external_planner_cmd_timeout_ = 0.5;
+    double external_planner_start_max_distance_ = 0.6;
     // 悬停相关变量
     bool flag_hover_started = false;
     bool overtime_drop_flag = false;
@@ -305,12 +312,14 @@ private:
     bool hasFreshSelectedTarget() const;
     bool hasFreshDropOffset() const;
     bool hasFreshMissionReleasePermission() const;
+    bool hasValidExternalPlannerCommand() const;
     DropReleaseGate currentDropReleaseGate() const;
     void clearUavVisionAlignmentState();
     void updateGoalFromSelectedTarget(const std::string& class_name);
     void projectDropOffsetToTarget(const uav_vision::DropOffset& msg);
     void patrol();
     void pub_goal(geometry_msgs::PoseStamped goal_msg);
+    void externalMissionTick();
     
     void Lock();
     void CallLand();
@@ -359,6 +368,8 @@ private:
     void missionReleasePermissionCallback(
         const std_msgs::Bool::ConstPtr& msg);
     // void landMarkCallback(const geometry_msgs::PoseStamped& msg);
+    void missionCommandCallback(
+        const patrol_control::MissionCommand::ConstPtr& msg);
 };  
 }
 #endif

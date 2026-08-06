@@ -27,6 +27,7 @@
   <arg name="start_mapping" default="true" />
   <arg name="start_arming" default="true" />
   <arg name="waypoint_mode" default="true" />
+  <arg name="external_mission_mode" default="false" />
   <arg name="simulation_auto_land" default="true" />
   <arg name="px4_max_distance" default="0.2" />
   <!-- The 10 m arena only needs a bounded local planning map.  Keeping the
@@ -52,6 +53,7 @@
     <arg name="start_visual" value="false" />
     <arg name="start_arming" value="$(arg start_arming)" />
     <arg name="waypoint_mode" value="$(arg waypoint_mode)" />
+    <arg name="external_mission_mode" value="$(arg external_mission_mode)" />
     <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
     <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
     <arg name="planner_map_size_x" value="$(arg planner_map_size_x)" />

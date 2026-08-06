@@ -12,6 +12,7 @@
 
   <depend>geometry_msgs</depend>
   <depend>patrol_control</depend>
+  <depend>rosgraph</depend>
   <depend>rospy</depend>
   <depend>std_msgs</depend>
   <depend>uav_vision</depend>

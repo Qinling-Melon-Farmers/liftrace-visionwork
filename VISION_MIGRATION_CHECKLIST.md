@@ -1,6 +1,6 @@
 # 视觉迁移与发布 Gate
 
-更新时间：2026-07-16
+更新时间：2026-08-07
 
 本文件只记录 2025 旧视觉链迁移到 `uav_vision` 的通过状态，不维护任务优先级。执行顺序和指标见 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)。
 
@@ -60,6 +60,9 @@
 - [x] `/mission/release_permission`、顺序载荷、防重放、最终下降投递承诺和旧 Servo 安全
   代理已通过固定路线完整 SITL；许可绑定 `Aligning=2`，三投 JSON 审计 PASS。速度/机构
   状态互锁与 Mission Manager 上下文属于后续外部任务模式/实机阶段。
+- [x] 默认关闭的外部任务模式已接入 `MissionCommand`；单候选完成接近、对准、guarded
+  ACK 和恢复，外部模式下 Mission Manager 是 `/fastplanner/goal` 唯一发布者；默认旧路线
+  回归保持由 `patrol_control` 发布。
 
 ## Gate M5：旧接口兼容
 
@@ -77,6 +80,8 @@
 - [x] 统一 overlay/环境脚本通过 `rospack`、消息 import 和 launch 解析；
 - [x] 新视觉 headless shadow 入口存在且全局控制/执行输出受保护；
 - [x] `newvision_fixed3` 无 GUI Gate 完成三类地图候选和三次受许可 mock ACK，零重复/越权；
+- [x] `external_candidate` 与 `legacy_mode_regression` 无 GUI Gate 均通过，分别验证外部闭环
+  和默认旧路线兼容；
 - [x] 仿真真值来自 target catalog、Gazebo/model state、CameraInfo/TF，不依赖检测输出；
 - [x] 五类标准靶、红十字、H、背景固定场景与自动 recorder/report 已落地；
 - [x] L0 圆环坐标、全局关联、记忆新鲜度、地图/释放证据连续 3 次通过；

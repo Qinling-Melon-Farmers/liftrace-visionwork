@@ -5,6 +5,8 @@
   <arg name="rviz" default="false" />
   <arg name="start_mapping" default="true" />
   <arg name="start_arming" default="true" />
+  <arg name="external_mission_mode" default="false" />
+  <arg name="waypoint_mode" default="true" />
   <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
   <arg name="camera_image_topic" default="/camera/color/image_raw" />
   <arg name="camera_info_topic" default="/camera/color/camera_info" />
@@ -38,6 +40,8 @@
     <arg name="rviz" value="$(arg rviz)" />
     <arg name="start_mapping" value="$(arg start_mapping)" />
     <arg name="start_arming" value="$(arg start_arming)" />
+    <arg name="external_mission_mode" value="$(arg external_mission_mode)" />
+    <arg name="waypoint_mode" value="$(arg waypoint_mode)" />
     <arg name="vision_python" value="$(arg vision_python)" />
     <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
     <arg name="camera_image_topic" value="$(arg camera_image_topic)" />

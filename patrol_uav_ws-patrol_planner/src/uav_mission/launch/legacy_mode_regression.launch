@@ -1,0 +1,29 @@
+<launch>
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="wall_timeout" default="600.0" />
+  <arg name="gate_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+
+  <include file="$(find patrol_control)/launch/patrol_full_competition_sim.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="start_visual" value="false" />
+    <arg name="start_mapping" value="true" />
+    <arg name="start_arming" value="true" />
+    <arg name="waypoint_mode" value="false" />
+    <arg name="external_mission_mode" value="false" />
+    <arg name="planner_map_size_x" value="14.0" />
+    <arg name="planner_map_size_y" value="14.0" />
+    <arg name="planner_map_size_z" value="6.0" />
+    <arg name="waypoint_config"
+         value="$(find patrol_control)/config/patrol_toudi3_new_vision.yaml" />
+  </include>
+
+  <node pkg="uav_mission" type="legacy_mode_assertion.py"
+        name="legacy_mode_assertion" output="screen" required="true">
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg gate_report_path)" />
+    <rosparam param="expected_first_goal">[-0.602, -1.041, 1.5]</rosparam>
+  </node>
+</launch>

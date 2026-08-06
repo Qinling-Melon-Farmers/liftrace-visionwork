@@ -35,6 +35,9 @@ catkin_install_python(PROGRAMS
   scripts/fixed_drop_evidence_mock.py
   scripts/fixed_three_drop_assertion.py
   scripts/newvision_fixed3_assertion.py
+  scripts/external_candidate_manager.py
+  scripts/external_candidate_assertion.py
+  scripts/legacy_mode_assertion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

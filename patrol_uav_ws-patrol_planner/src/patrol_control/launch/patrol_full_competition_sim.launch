@@ -31,6 +31,7 @@
        planner nodes remain started for full-chain compatibility, but they do
        not own the vehicle setpoint in this mode. -->
   <arg name="waypoint_mode" default="true" />
+  <arg name="external_mission_mode" default="false" />
   <!-- Simulation-only completion of the legacy AUTO.LAND branch. -->
   <arg name="simulation_auto_land" default="true" />
   <!-- Smaller direct-setpoint step prevents PX4 position-loop overshoot in
@@ -70,6 +71,7 @@
   <include file="$(find patrol_control)/launch/patrol_control_px4_sim.launch">
     <arg name="rviz" value="$(arg rviz)" />
     <arg name="waypoint_mode" value="$(arg waypoint_mode)" />
+    <arg name="external_mission_mode" value="$(arg external_mission_mode)" />
     <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
     <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
     <arg name="planner_map_size_x" value="$(arg planner_map_size_x)" />

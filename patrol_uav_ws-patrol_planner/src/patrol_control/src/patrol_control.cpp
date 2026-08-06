@@ -124,7 +124,12 @@ void LLController::initializeNode() {
     land_mark_sub_ = nh_.subscribe("/detect/land_mark_point", 1,&LLController::landMarkCallback, this);
     //send goal to planner
     //setplanner_goal_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/planner_planner/goal_position", 1);
-    setplanner_goal_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/fastplanner/goal", 1);
+    if (!external_mission_mode_) {
+        setplanner_goal_pub_ =
+            nh_.advertise<geometry_msgs::PoseStamped>("/fastplanner/goal", 1);
+    } else {
+        ROS_INFO("[PatrolControl] External mission mode active; planner goal publisher disabled");
+    }
     servo_complete_sub_ = nh_.subscribe("/servo/complete", 1,&LLController::servoCompleteCallback, this);
     class_control_pub_ = nh_.advertise<std_msgs::Bool>("/detect/class_control", 1);
     tank_control_pub_ = nh_.advertise<std_msgs::Bool>("/detect/tank_control",1);
@@ -166,6 +171,8 @@ void LLController::initializeNode() {
     mission_release_permission_sub_ = nh_.subscribe(
         mission_release_permission_topic_, 1,
         &LLController::missionReleasePermissionCallback, this);
+    mission_command_sub_ = nh_.subscribe(
+        mission_command_topic_, 4, &LLController::missionCommandCallback, this);
     
     // 初始化投递相关变量
     detect_point_counter = 0;
@@ -220,12 +227,42 @@ void LLController::positionCallback(const geometry_msgs::PoseStamped& msg) {
 
         if((uav_newest_position - takeoff_point).norm() < takeoff_threshould){
             flag_takeoff_done = 1;
-            NextPoint();
+            if (!external_mission_mode_) {
+                NextPoint();
+            } else {
+                ROS_INFO("[PatrolControl] Takeoff complete; waiting for external mission commands");
+            }
             Drone_mode = Run_point;}
     }
-    else{
-        // run point
-        patrol();}
+    else {
+        if (external_mission_mode_) {
+            externalMissionTick();
+        } else {
+            patrol();
+        }
+    }
+}
+
+void LLController::externalMissionTick() {
+    if (Drone_mode != Aligning) {
+        return;
+    }
+
+    std_msgs::Bool detect_enable_msg;
+    detect_enable_msg.data = true;
+    detect_control_pub_.publish(detect_enable_msg);
+    align_ok = true;
+    patrol_cmd.pose.position.x = adjust_target_position[0];
+    patrol_cmd.pose.position.y = adjust_target_position[1];
+    patrol_cmd.pose.position.z = align_height;
+    patrol_cmd.pose.orientation = waypoint_mark_point.pose.orientation;
+
+    if (WayPointDetectDone()) {
+        detect_enable_msg.data = false;
+        detect_control_pub_.publish(detect_enable_msg);
+        Drone_mode = Run_point;
+        ROS_INFO("[PatrolControl] External ALIGN completed; waiting for RESUME command");
+    }
 }
 void LLController::patrol(){
     geometry_msgs::PoseStamped next_position_msg;
@@ -513,6 +550,7 @@ void LLController::patrol(){
 void LLController::plannercmdCallback(const geometry_msgs::PoseStamped& msg) {
     have_planner_cmd = true;
     planner_cmd = msg;
+    latest_planner_cmd_time_ = ros::Time::now();
 }
 
 void LLController::TankStatusCallback(const geometry_msgs::PoseStamped& msg){
@@ -552,6 +590,56 @@ bool isQuaternionNormalized(const geometry_msgs::Quaternion& q, double tolerance
 {
     double norm = std::sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
     return std::abs(norm - 1.0) < tolerance;
+}
+
+bool LLController::hasValidExternalPlannerCommand() const {
+    if (!have_planner_cmd) {
+        ROS_WARN_THROTTLE(1.0, "[ExternalPlanner] no planner command received");
+        return false;
+    }
+    const double age =
+        (ros::Time::now() - latest_planner_cmd_time_).toSec();
+    if (age > external_planner_cmd_timeout_) {
+        ROS_WARN_THROTTLE(
+            1.0, "[ExternalPlanner] stale command age=%.3f limit=%.3f",
+            age, external_planner_cmd_timeout_);
+        return false;
+    }
+    const geometry_msgs::Point& position = planner_cmd.pose.position;
+    if (!std::isfinite(position.x) || !std::isfinite(position.y) ||
+        !std::isfinite(position.z) || position.z <= 0.05) {
+        ROS_WARN_THROTTLE(
+            1.0, "[ExternalPlanner] invalid command position=(%.3f, %.3f, %.3f)",
+            position.x, position.y, position.z);
+        return false;
+    }
+    if (!isQuaternionNormalized(planner_cmd.pose.orientation, 1e-3)) {
+        ROS_WARN_THROTTLE(1.0, "[ExternalPlanner] invalid command quaternion");
+        return false;
+    }
+    const double dx = position.x - uav_pose.pose.position.x;
+    const double dy = position.y - uav_pose.pose.position.y;
+    const double dz = position.z - uav_pose.pose.position.z;
+    const double distance_sq = dx * dx + dy * dy + dz * dz;
+    const double max_distance_sq = external_planner_start_max_distance_ * external_planner_start_max_distance_;
+    if (distance_sq > max_distance_sq) {
+        ROS_WARN_THROTTLE(
+            1.0,
+            "[ExternalPlanner] command too far distance=%.3f limit=%.3f "
+            "current=(%.3f, %.3f, %.3f) command=(%.3f, %.3f, %.3f)",
+            std::sqrt(distance_sq), external_planner_start_max_distance_,
+            uav_pose.pose.position.x, uav_pose.pose.position.y,
+            uav_pose.pose.position.z, position.x, position.y, position.z);
+        return false;
+    }
+    ROS_INFO_THROTTLE(
+        1.0,
+        "[ExternalPlanner] accepted current=(%.3f, %.3f, %.3f) "
+        "command=(%.3f, %.3f, %.3f) distance=%.3f",
+        uav_pose.pose.position.x, uav_pose.pose.position.y,
+        uav_pose.pose.position.z, position.x, position.y, position.z,
+        std::sqrt(distance_sq));
+    return true;
 }
 void LLController::servoMarkyCallback(const std_msgs::Bool& msg) {
     servo_marky = msg;
@@ -595,6 +683,16 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
             adjust_target_position[1] = uav_pose.pose.position.y;
             adjust_target_position[2] = uav_pose.pose.position.z;
             detect_control_pub_.publish(detect_enable_msg_temp);
+            if (external_mission_mode_) {
+                if (!flag_planner_px4) {
+                    if (hasValidExternalPlannerCommand()) mavros_point_cmd = planner_cmd;
+                    else mavros_point_cmd = last_mavros_point_cmd;
+                } else {
+                    mavros_point_cmd = patrol_cmd;
+                }
+                ROS_INFO_THROTTLE(5, "[PatrolControl] Forwarding external planner trajectory");
+                break;
+            }
             if (current_task_type == MAIN_MISSION) {
                 if (hasFreshSelectedTarget()) {
                     if (latest_selected_target_.class_name == "red_cross" &&
@@ -947,7 +1045,7 @@ void LLController::CallLand() {
 // 读取launch文件设置的若干个航路点参数
 void LLController::load_params() {
     // 开关
-    flag_planner_px4 = nh_.param("switch/flag_planner_px4", 1);
+    flag_planner_px4 = nh_.param("switch/flag_planner_px4", true);
     flag_landing_detect = nh_.param("switch/flag_landing_detect", 1);
     auto_land = nh_.param("switch/auto_land", false);
     simulation_auto_land = nh_.param("simulation/enable_auto_land", false);
@@ -970,8 +1068,15 @@ void LLController::load_params() {
         nh_.param("uav_vision/update_goal_from_selected_target", true);
     require_vision_release_permission_ =
         nh_.param("uav_vision/require_release_permission", false);
+    external_mission_mode_ = nh_.param("external_mission_mode", false);
+    mission_command_topic_ = nh_.param<std::string>(
+        "mission_command_topic", "/mission/command");
+    external_planner_cmd_timeout_ =
+        nh_.param("external_planner_cmd_timeout", 0.5);
 
     // 目标类别列表：~goal_list 参数（XmlRpc 数组）可选，缺省保持旧行为 {"panzer"}
+    external_planner_start_max_distance_ =
+        nh_.param("external_planner_start_max_distance", 0.6);
     {
         XmlRpc::XmlRpcValue goal_list;
         if (nh_.getParam("goal_list", goal_list) &&
@@ -1053,6 +1158,9 @@ void LLController::load_params() {
              update_goal_from_selected_target_ ? "true" : "false");
     ROS_INFO("[UavVision] require_release_permission: %s",
              require_vision_release_permission_ ? "true" : "false");
+    ROS_INFO("[PatrolControl] external_mission_mode: %s command_topic=%s",
+             external_mission_mode_ ? "true" : "false",
+             mission_command_topic_.c_str());
     
     nh_.getParam("/debug", debug);
 
@@ -1099,6 +1207,11 @@ void LLController::load_params() {
 }
 
 void LLController::pub_goal(geometry_msgs::PoseStamped goal_msg){
+    if (external_mission_mode_) {
+        ROS_WARN_THROTTLE(5.0,
+            "[PatrolControl] Ignoring legacy planner goal in external mission mode");
+        return;
+    }
     goal_msg.header.frame_id="camera_init";
     goal_msg.header.stamp = ros::Time::now();
 
@@ -1125,6 +1238,11 @@ void LLController::pub_goal(geometry_msgs::PoseStamped goal_msg){
 }
 
 void LLController::NextPoint() {
+    if (external_mission_mode_) {
+        ROS_WARN_THROTTLE(5.0,
+            "[PatrolControl] NextPoint disabled in external mission mode");
+        return;
+    }
     // 只在主任务中调用
     if (current_task_type != MAIN_MISSION) {
         ROS_WARN("\033[33m[NextPoint] Called during cross mission, ignoring!\033[0m");
@@ -2040,6 +2158,80 @@ void LLController::missionReleasePermissionCallback(
     ROS_INFO_THROTTLE(
         1.0, "[UavVision] mission release permission=%s",
         mission_release_permission_active_ ? "true" : "false");
+}
+
+void LLController::missionCommandCallback(
+    const patrol_control::MissionCommand::ConstPtr& msg)
+{
+    if (!external_mission_mode_) {
+        ROS_WARN_THROTTLE(
+            5.0, "[PatrolControl] Ignoring mission command while legacy mode is active");
+        return;
+    }
+    if (!flag_takeoff_done) {
+        ROS_WARN_THROTTLE(
+            2.0, "[PatrolControl] Ignoring mission command before takeoff completes");
+        return;
+    }
+
+    switch (msg->command) {
+        case patrol_control::MissionCommand::SEARCH:
+        case patrol_control::MissionCommand::APPROACH:
+        case patrol_control::MissionCommand::RESUME:
+        case patrol_control::MissionCommand::RETURN_HOME:
+            if (msg->command == patrol_control::MissionCommand::RESUME) {
+                resetDetectionState();
+            }
+            current_task_type = MAIN_MISSION;
+            Point_mode = Nothing_point;
+            Drone_mode = Run_point;
+            align_ok = false;
+            ROS_INFO("[PatrolControl] External command=%u target=%u class=%s",
+                     msg->command, msg->target_id, msg->target_class.c_str());
+            break;
+
+        case patrol_control::MissionCommand::ALIGN:
+            resetDetectionState();
+            current_task_type = MAIN_MISSION;
+            Point_mode = Detect_point;
+            Drone_mode = Aligning;
+            goal.clear();
+            if (!msg->target_class.empty()) {
+                goal.push_back(msg->target_class);
+            }
+            waypoint_mark_point = msg->goal;
+            waypoint_mark_point.header.frame_id = "camera_init";
+            waypoint_mark_point.pose.position.z = align_height;
+            if (!isQuaternionNormalized(waypoint_mark_point.pose.orientation)) {
+                waypoint_mark_point.pose.orientation =
+                    tf::createQuaternionMsgFromYaw(0.0);
+            }
+            adjust_target_position[0] = waypoint_mark_point.pose.position.x;
+            adjust_target_position[1] = waypoint_mark_point.pose.position.y;
+            adjust_target_position[2] = align_height;
+            adjust_target_position[3] =
+                tf::getYaw(waypoint_mark_point.pose.orientation);
+            have_waypoint_mark = true;
+            align_ok = true;
+            ROS_INFO("[PatrolControl] External ALIGN target=%u class=%s at (%.2f, %.2f)",
+                     msg->target_id, msg->target_class.c_str(),
+                     adjust_target_position[0], adjust_target_position[1]);
+            break;
+
+        case patrol_control::MissionCommand::LAND:
+            adjust_target_position[0] = msg->goal.pose.position.x;
+            adjust_target_position[1] = msg->goal.pose.position.y;
+            adjust_target_position[2] = msg->goal.pose.position.z;
+            patrol_cmd = msg->goal;
+            Drone_mode = Land;
+            ROS_INFO("[PatrolControl] External LAND command accepted");
+            break;
+
+        default:
+            ROS_ERROR("[PatrolControl] Unknown external mission command: %u",
+                      msg->command);
+            break;
+    }
 }
 
 std::string LLController::desiredAlignMode() const

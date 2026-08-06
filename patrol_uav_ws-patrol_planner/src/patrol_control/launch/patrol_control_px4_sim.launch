@@ -4,6 +4,7 @@
     <!-- 0 keeps the historical Fast-Planner route; 1 sends the loaded
          patrol_sim.yaml waypoints directly to MAVROS. -->
     <arg name="waypoint_mode" default="false" />
+    <arg name="external_mission_mode" default="false" />
     <arg name="simulation_auto_land" default="false" />
     <arg name="px4_max_distance" default="1.0" />
     <arg name="planner_map_size_x" default="100.0" />
@@ -18,6 +19,7 @@
     <rosparam param="debug">true</rosparam>
     <rosparam file="$(arg waypoint_config)" />
     <param name="switch/flag_planner_px4" value="$(arg waypoint_mode)" />
+    <param name="external_mission_mode" value="$(arg external_mission_mode)" />
     <param name="simulation/enable_auto_land" value="$(arg simulation_auto_land)" />
     <param name="px4_max_distance" value="$(arg px4_max_distance)" />
     <param name="threshould/aligning_threshould" value="$(arg aligning_threshold)" />
