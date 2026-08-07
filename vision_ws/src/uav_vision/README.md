@@ -1,6 +1,6 @@
 # uav_vision
 
-更新时间：2026-07-16  
+更新时间：2026-08-07
 定位：RoboCup 2026 在线视觉运行包。评测真值、场景和报告代码位于同工作区的
 `uav_vision_eval`，不进入本包实机依赖。OrangePi 已完成独立离线 RKNN 图片/视频回放，
 但 ROS 视觉链、相机接线和稳定性仍未验收。完整模型结果见
@@ -10,6 +10,10 @@
 `control_handoff_board.launch`。两者默认不发布旧 Pose 兼容话题，也不启动任何控制、规划、
 MAVROS 指令或执行机构节点。接口、单目地图点公式和接入要求见
 [控制组联调说明](docs/CONTROL_GROUP_HANDOFF.md)。
+
+面向导航组的候选字段、话题契约和阶段 4 参考实现边界见
+[导航组接口说明](docs/NAVIGATION_GROUP_HANDOFF.md)。视觉包不发布 planner goal；ZIP 中
+可选的 coverage 参考代码不进入视觉工作区编译，采用方式由导航组决定。
 
 ## 1. 节点
 
@@ -187,7 +191,7 @@ GUI 入口仍只算人工连通烟测；定量结论使用 `uav_vision_eval`，�
 2. 固定 Gazebo 中部分标准类与红十字召回低于 0.95；代表场景 P95 延迟已降至 200 ms 内；
 3. 实拍圆环回放缺实例/中心人工真值，普通 MP4 也缺同步 CameraInfo/pose；
 4. H/普通黑圈/残圈实拍负样本仍不足；
-5. mission frame 默认已对齐旧 planner 的 `camera_init`，但完整 SITL TF 树仍待验收；
+5. 笔记本完整 SITL 已用 MAVROS 位姿核对 `camera_init` TF；真实 LIO/相机外参仍待验收；
 6. 旧 Pose 兼容接口未完成下线；
 7. PT/ONNX/RKNN 仍有逐框数值差异，尚不能冻结最终部署模型；
 8. 六分类 RKNN 已在 OrangePi 做离线验证，但 ROS 板端链、CameraInfo/TF、10 min 稳定性和

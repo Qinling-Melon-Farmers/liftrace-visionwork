@@ -1,9 +1,14 @@
-# uav_vision 控制组联调说明
+# uav_vision 控制/导航组联调说明
 
-交付版本：`20260717-alpha1`  
+交付版本：`20260807-beta1`
 包版本：`uav_vision 0.2.1`  
 边界：只包含视觉运行链、消息、参数、模型和视觉 mock；不包含控制、规划、任务仲裁、
 MAVROS 指令、舵机服务或执行机构代码。
+
+阶段 4 使用的 `MissionCommand`、coverage manager 和导航 launch 是为验证接口而建立的参考
+实现，不属于视觉正式 API。beta1 ZIP 将其放在 `reference_integration/`，与可编译的
+`vision_ws/src/uav_vision` 隔离；导航组可自主决定是否采用。导航接口的当前说明见
+`NAVIGATION_GROUP_HANDOFF.md`。
 
 ## 1. 新视觉链路
 
@@ -27,6 +32,10 @@ bridge, panzer, pillbox, tent, tank, red_cross
 
 标准靶必须与同帧蓝色圆环完成一对一关联才可进入 operational 候选。红十字使用自身
 几何中心；H 需要外圈与内部结构，并且只在 `landing` 阶段进入 operational 链。
+
+视觉正式发布目标观测和候选，不发布 `/fastplanner/goal`。覆盖路线、候选任务终态、目标
+接近、不可达处理、恢复搜索和返航属于视觉消费者；本交付不规定消费者的节点名称或内部
+状态机。
 
 ## 2. 单目相机如何计算地图点
 
@@ -74,7 +83,7 @@ transform_age_sec=<图像时间与实际 TF 时间差>
 - 近水平射线、交点在相机后方、缺 CameraInfo、缺 TF 或 TF 过旧均 fail-closed；
 - `allow_latest_tf_fallback=false` 是交付默认值，不用最新 TF 冒充图像时刻位姿。
 
-## 3. 控制组必须提供的输入
+## 3. 导航/控制侧必须提供的输入
 
 | 输入 | 类型 | 契约 |
 |---|---|---|
@@ -87,7 +96,7 @@ transform_age_sec=<图像时间与实际 TF 时间差>
 控制组拥有任务阶段、导航目标、飞行速度/高度、释放许可和执行机构；视觉包不会发布飞行
 指令，也不会调用舵机。
 
-## 4. 控制组建议消费的输出
+## 4. 导航/控制侧建议消费的输出
 
 ### `/uav_vision/targets`
 
@@ -185,10 +194,12 @@ ZIP 包含：
 - 六分类 metadata；
 - 本说明、模型评测摘要和 SHA256 清单；
 - 视觉 L0 mock/assertion。
+- 隔离的 `reference_integration/` 阶段 4 消息、coverage 策略和 launch 参考；该目录不参与
+  视觉包编译，不能从 ZIP 直接独立运行。
 
 ZIP 明确不包含：
 
-- `patrol_control`、`uav_mission`、`actuator_pwm`；
+- 可运行的 `patrol_control`、`uav_mission`、`actuator_pwm` 包；
 - PX4/MAVROS 控制、Fast-Planner、任务状态机或释放代理；
 - 历史 `Visual/detect_ws/yolov5_detect` 包；
 - 数据集、bag、视频、build/devel、日志或 Python cache；
@@ -197,7 +208,9 @@ ZIP 明确不包含：
 ## 7. 已验证与未验证
 
 已验证：视觉 L0 圆环、实例关联、新鲜度、物理 stable ID、无效 TF 拒绝、地图投影和释放
-证据；完整 toudi3/SITL 中能够产生 `camera_init` 地图候选；FP32 RKNN 板端离线有效。
+证据；完整 toudi3/SITL 在靶标区域完成 12/12 覆盖、五类五 ID、权重队列和安全返航；
+FP32 RKNN 板端离线有效。阶段 4 使用参考 manager 驱动导航不代表该 manager 已转为视觉
+正式交付或导航组必须复用。
 
-未验证：控制组原始工程直接接入、地图候选驱动飞机闭环、跨视角 30-seed、10 分钟 ROS
-板端稳定性、真实相机内外参归属、三次仿真投递和任何实机动作。
+未验证：搜索后的末端对准误差收敛、跨视角 30-seed、10 分钟 ROS 板端稳定性、真实相机
+内外参归属、权重三投和任何实机动作。
