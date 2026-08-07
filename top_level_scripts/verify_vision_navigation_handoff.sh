@@ -42,6 +42,7 @@ reference_root="${bundle_root}/reference_integration"
 
 required=(
   "README_FIRST.md"
+  "INSTALL_AND_SIMULATION.md"
   "SOURCE_REVISION.txt"
   "MANIFEST.sha256"
   "vision_ws/src/uav_vision/package.xml"
@@ -90,6 +91,11 @@ fi
 if ! rg -q '仅供参考|参考实现' "${reference_root}/README.md" "${bundle_root}/README_FIRST.md"; then
   echo "[导航交付验证] 缺少参考实现边界说明" >&2
   exit 10
+fi
+if ! rg -q '完整 toudi3.*ZIP.*不支持|ZIP 单独不支持' \
+    "${bundle_root}/README_FIRST.md" "${bundle_root}/INSTALL_AND_SIMULATION.md"; then
+  echo "[导航交付验证] 缺少完整仿真的额外依赖边界" >&2
+  exit 11
 fi
 
 (cd "${bundle_root}" && sha256sum -c MANIFEST.sha256)

@@ -63,6 +63,8 @@ install -m 0644 "${board_model}" "${package_root}/models/merged_standard_fp32.rk
 install -m 0644 "${metadata}" "${package_root}/models/merged_standard_6cls_metadata.yaml"
 install -m 0644 "${project_root}/docs/VISION_NAVIGATION_HANDOFF_20260807.md" \
   "${bundle_root}/README_FIRST.md"
+install -m 0644 "${project_root}/docs/VISION_NAVIGATION_INSTALL_AND_SIMULATION_20260807.md" \
+  "${bundle_root}/INSTALL_AND_SIMULATION.md"
 
 mkdir -p "${reference_root}/msg" "${reference_root}/config" \
   "${reference_root}/launch" "${reference_root}/scripts"

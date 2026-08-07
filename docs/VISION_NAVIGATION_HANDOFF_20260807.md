@@ -18,6 +18,22 @@
 包内不包含可运行的 `patrol_control`、`uav_mission`、Fast-Planner、PX4/MAVROS、舵机服务
 或真实执行机构实现。
 
+### 接收方只有板端原始工程时
+
+推荐先把原始工程复制到导航组自己的笔记本，用包内 PT 模型完成视觉、导航和整机仿真，
+通过后再上 OrangePi 切换 FP32 RKNN。导航代码应只依赖 ROS 消息和话题，不区分推理后端。
+
+| 能力 | 当前支持情况 |
+| --- | --- |
+| 独立编译/启动纯视觉链 | 支持，需板端已有 ROS/OpenCV/RKNNLite 和正确相机输入 |
+| 原导航工程订阅视觉消息 | 支持，需按 overlay 或纯话题方式接入 |
+| 视觉 mock | 支持，不需要 PX4/Gazebo |
+| 接入已有仿真相机 | 条件支持，仿真必须提供 Image/CameraInfo/TF |
+| 完整 toudi3 阶段 4 SITL | ZIP 单独不支持，需完整开发机功能分支和 PX4/Gazebo 资产 |
+
+解压目录位置、Catkin overlay、板端 RKNN、话题/TF 检查、视觉 mock 和完整 SITL 依赖见
+同级 `INSTALL_AND_SIMULATION.md`。
+
 ## 2. 包内内容
 
 ```text
@@ -38,6 +54,7 @@ reference_integration/               阶段 4 参考实现，不参与视觉包�
   coverage_navigation.launch
 
 evidence/                            阶段 4 与既有模型评测摘要
+INSTALL_AND_SIMULATION.md            原工程接入、板端运行与仿真依赖
 SOURCE_REVISION.txt                  打包源码版本
 MANIFEST.sha256                      ZIP 内文件校验
 ```

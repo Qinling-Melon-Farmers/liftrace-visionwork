@@ -4,6 +4,13 @@
 包版本：`uav_vision 0.2.1`
 边界：视觉只输出观测、地图候选、记忆和像素对准证据，不输出飞行或执行机构命令。
 
+接收方只有板端原始工程时，先阅读 ZIP 根目录 `INSTALL_AND_SIMULATION.md`。该文档说明
+`vision_ws` 与原工程的位置关系、Catkin overlay、板端 RKNN 启动、话题/TF 检查、视觉
+mock 以及完整 toudi3 仿真为什么需要额外开发机功能分支。
+
+推荐导航组先在自己的笔记本使用 PT 入口完成整机仿真，冻结 ROS 接口后再上板切换 RKNN；
+导航消费者不应直接依赖 PyTorch 或 RKNNLite。
+
 ## 1. 运行链
 
 ```text
