@@ -16,6 +16,11 @@
   <arg name="allow_latest_tf_fallback" default="false" />
   <arg name="max_latest_tf_age_sec" default="0.10" />
   <arg name="drop_stable_frames" default="5" />
+  <arg name="planner_max_vel" default="3.0" />
+  <arg name="planner_max_acc" default="2.0" />
+  <arg name="planner_obstacles_inflation" default="0.15" />
+  <arg name="planner_clearance_threshold" default="0.20" />
+  <arg name="px4_max_distance" default="0.2" />
   <arg name="enable_debug_image" default="false" />
   <!-- The new visual-delivery integration matches the real single downward
        camera + MID360 architecture without modifying the external PX4 model. -->
@@ -24,7 +29,8 @@
   <!-- Simulation calibration for body -> ROS optical frame.  The values are
        derived from the repository-local vehicle SDF.  A real aircraft must
        override these with its measured camera extrinsic. -->
-  <arg name="camera_parent_frame" default="body" />
+  <arg name="camera_pose_topic" default="/mavros/local_position/pose" />
+  <arg name="camera_parent_frame" default="vision_body" />
   <arg name="camera_optical_frame" default="D435i::camera_color_frame" />
   <arg name="camera_extrinsic_xyz" default="0.1525 0 0.03" />
   <arg name="camera_extrinsic_quat_xyzw" default="0 1 0 0" />
@@ -34,6 +40,13 @@
   <node pkg="tf2_ros" type="static_transform_publisher"
         name="downward_camera_extrinsic"
         args="$(arg camera_extrinsic_xyz) $(arg camera_extrinsic_quat_xyzw) $(arg camera_parent_frame) $(arg camera_optical_frame)" />
+
+  <node pkg="uav_mission" type="pose_tf_broadcaster.py"
+        name="vision_pose_tf" output="screen">
+    <param name="pose_topic" value="$(arg camera_pose_topic)" />
+    <param name="parent_frame" value="$(arg map_frame)" />
+    <param name="child_frame" value="$(arg camera_parent_frame)" />
+  </node>
 
   <include file="$(find patrol_control)/launch/toudi3_full_competition_sim_new_vision.launch">
     <arg name="gui" value="$(arg gui)" />
@@ -52,6 +65,11 @@
     <arg name="allow_latest_tf_fallback" value="$(arg allow_latest_tf_fallback)" />
     <arg name="max_latest_tf_age_sec" value="$(arg max_latest_tf_age_sec)" />
     <arg name="drop_stable_frames" value="$(arg drop_stable_frames)" />
+    <arg name="planner_max_vel" value="$(arg planner_max_vel)" />
+    <arg name="planner_max_acc" value="$(arg planner_max_acc)" />
+    <arg name="planner_obstacles_inflation" value="$(arg planner_obstacles_inflation)" />
+    <arg name="planner_clearance_threshold" value="$(arg planner_clearance_threshold)" />
+    <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
     <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
   </include>
 

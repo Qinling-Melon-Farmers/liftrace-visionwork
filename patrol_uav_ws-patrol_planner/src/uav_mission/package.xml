@@ -14,7 +14,9 @@
   <depend>patrol_control</depend>
   <depend>rosgraph</depend>
   <depend>rospy</depend>
+  <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
+  <depend>tf2_ros</depend>
   <depend>uav_vision</depend>
 
   <exec_depend>message_runtime</exec_depend>

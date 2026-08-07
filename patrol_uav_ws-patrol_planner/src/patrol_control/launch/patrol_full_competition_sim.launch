@@ -42,6 +42,10 @@
   <arg name="planner_map_size_x" default="100.0" />
   <arg name="planner_map_size_y" default="100.0" />
   <arg name="planner_map_size_z" default="50.0" />
+  <arg name="planner_max_vel" default="3.0" />
+  <arg name="planner_max_acc" default="2.0" />
+  <arg name="planner_obstacles_inflation" default="0.15" />
+  <arg name="planner_clearance_threshold" default="0.20" />
   <!-- SITL-only arrival tolerance for the legacy detect-point state.  It is
        intentionally wider than the hardware precision value because this
        CPU-limited world leaves a small steady-state pose error. -->
@@ -77,6 +81,10 @@
     <arg name="planner_map_size_x" value="$(arg planner_map_size_x)" />
     <arg name="planner_map_size_y" value="$(arg planner_map_size_y)" />
     <arg name="planner_map_size_z" value="$(arg planner_map_size_z)" />
+    <arg name="planner_max_vel" value="$(arg planner_max_vel)" />
+    <arg name="planner_max_acc" value="$(arg planner_max_acc)" />
+    <arg name="planner_obstacles_inflation" value="$(arg planner_obstacles_inflation)" />
+    <arg name="planner_clearance_threshold" value="$(arg planner_clearance_threshold)" />
     <arg name="aligning_threshold" value="$(arg aligning_threshold)" />
     <arg name="waypoint_config" value="$(arg waypoint_config)" />
   </include>

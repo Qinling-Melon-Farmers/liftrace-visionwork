@@ -7,6 +7,10 @@
   <arg name="map_size_x" default="100.0"/>
   <arg name="map_size_y" default="100.0"/>
   <arg name="map_size_z" default="50.0"/>
+  <arg name="max_vel" default="3.0"/>
+  <arg name="max_acc" default="2.0"/>
+  <arg name="obstacles_inflation" default="0.15"/>
+  <arg name="clearance_threshold" default="0.20"/>
 
   <arg name="odom_topic" value="/mavros/local_position/odom" />
 
@@ -25,8 +29,10 @@
     <arg name="fx" value="387.229248046875"/>
     <arg name="fy" value="387.229248046875"/>
 
-    <arg name="max_vel" value="3.0" />
-    <arg name="max_acc" value="2.0" />
+    <arg name="max_vel" value="$(arg max_vel)" />
+    <arg name="max_acc" value="$(arg max_acc)" />
+    <arg name="obstacles_inflation" value="$(arg obstacles_inflation)" />
+    <arg name="clearance_threshold" value="$(arg clearance_threshold)" />
 
     <arg name="flight_type" value="1" />
     <arg name="point_num" value="2" />

@@ -10,6 +10,10 @@
     <arg name="planner_map_size_x" default="100.0" />
     <arg name="planner_map_size_y" default="100.0" />
     <arg name="planner_map_size_z" default="50.0" />
+    <arg name="planner_max_vel" default="3.0" />
+    <arg name="planner_max_acc" default="2.0" />
+    <arg name="planner_obstacles_inflation" default="0.15" />
+    <arg name="planner_clearance_threshold" default="0.20" />
     <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_sim.yaml" />
     <!-- Keep the historical 5 cm precision default.  The full toudi3 SITL
          entry overrides this with a slightly wider tolerance because the
@@ -33,6 +37,10 @@
         <arg name="map_size_x" value="$(arg planner_map_size_x)" />
         <arg name="map_size_y" value="$(arg planner_map_size_y)" />
         <arg name="map_size_z" value="$(arg planner_map_size_z)" />
+        <arg name="max_vel" value="$(arg planner_max_vel)" />
+        <arg name="max_acc" value="$(arg planner_max_acc)" />
+        <arg name="obstacles_inflation" value="$(arg planner_obstacles_inflation)" />
+        <arg name="clearance_threshold" value="$(arg planner_clearance_threshold)" />
     </include>
 
     <group if="$(arg rviz)">

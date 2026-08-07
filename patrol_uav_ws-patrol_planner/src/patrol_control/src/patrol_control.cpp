@@ -2219,9 +2219,15 @@ void LLController::missionCommandCallback(
             break;
 
         case patrol_control::MissionCommand::LAND:
+            resetDetectionState();
+            current_task_type = MAIN_MISSION;
+            Point_mode = Land_point;
             adjust_target_position[0] = msg->goal.pose.position.x;
             adjust_target_position[1] = msg->goal.pose.position.y;
             adjust_target_position[2] = msg->goal.pose.position.z;
+            adjust_target_position[3] =
+                isQuaternionNormalized(msg->goal.pose.orientation) ?
+                tf::getYaw(msg->goal.pose.orientation) : 0.0;
             patrol_cmd = msg->goal;
             Drone_mode = Land;
             ROS_INFO("[PatrolControl] External LAND command accepted");

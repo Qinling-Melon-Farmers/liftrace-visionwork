@@ -6,7 +6,9 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   patrol_control
   rospy
+  sensor_msgs
   std_msgs
+  tf2_ros
   uav_vision
 )
 
@@ -22,7 +24,7 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS geometry_msgs message_runtime patrol_control rospy std_msgs uav_vision
+  CATKIN_DEPENDS geometry_msgs message_runtime patrol_control rospy sensor_msgs std_msgs tf2_ros uav_vision
 )
 
 catkin_install_python(PROGRAMS
@@ -38,7 +40,14 @@ catkin_install_python(PROGRAMS
   scripts/external_candidate_manager.py
   scripts/external_candidate_assertion.py
   scripts/legacy_mode_assertion.py
+  scripts/coverage_search_manager.py
+  scripts/coverage_navigation_assertion.py
+  scripts/pose_tf_broadcaster.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(FILES scripts/coverage_policy.py
+  DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )
 
 install(DIRECTORY config launch models

@@ -82,6 +82,9 @@
 - [x] `newvision_fixed3` 无 GUI Gate 完成三类地图候选和三次受许可 mock ACK，零重复/越权；
 - [x] `external_candidate` 与 `legacy_mode_regression` 无 GUI Gate 均通过，分别验证外部闭环
   和默认旧路线兼容；
+- [x] `target_area_navigation` 无 GUI Gate 完成靶标区域 12/12 非真值坐标覆盖、五类五个
+  stable ID、安全返航、零碰撞/越界/Servo；北区走廊避障不属于本轮 Gate；
+- [ ] `coverage_r6` 完成按权重三次 guarded mock 投递、恢复、返航和降落；
 - [x] 仿真真值来自 target catalog、Gazebo/model state、CameraInfo/TF，不依赖检测输出；
 - [x] 五类标准靶、红十字、H、背景固定场景与自动 recorder/report 已落地；
 - [x] L0 圆环坐标、全局关联、记忆新鲜度、地图/释放证据连续 3 次通过；

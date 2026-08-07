@@ -153,6 +153,59 @@ class CandidateRecord:
         self._update_map(det)
         self._advance_state(confirm_frames)
 
+    def merge_from(self, other):
+        """Merge a converged duplicate without inventing extra hit streaks."""
+        if self.map_valid and other.map_valid:
+            total_weight = self.map_weight + other.map_weight
+            if total_weight > 0.0:
+                self.map_point = Point(
+                    (self.map_point.x * self.map_weight +
+                     other.map_point.x * other.map_weight) / total_weight,
+                    (self.map_point.y * self.map_weight +
+                     other.map_point.y * other.map_weight) / total_weight,
+                    (self.map_point.z * self.map_weight +
+                     other.map_point.z * other.map_weight) / total_weight)
+                self.map_quality = (
+                    self.map_quality * self.map_weight +
+                    other.map_quality * other.map_weight) / total_weight
+                self.map_weight = total_weight
+
+        for class_name, vote in other.class_votes.items():
+            self.class_votes[class_name] = \
+                self.class_votes.get(class_name, 0.0) + vote
+        for class_name, confidence in other.class_max_confidence.items():
+            self.class_max_confidence[class_name] = max(
+                self.class_max_confidence.get(class_name, 0.0), confidence)
+        standard_votes = {
+            name: vote for name, vote in self.class_votes.items()
+            if name in STANDARD_CLASSES}
+        if standard_votes:
+            self.class_name = max(
+                standard_votes, key=lambda name: (
+                    standard_votes[name],
+                    self.class_max_confidence.get(name, 0.0)))
+            self.class_confidence = self.class_max_confidence[
+                self.class_name]
+
+        if other.last_seen.to_sec() > self.last_seen.to_sec():
+            self.roi = other.roi
+            self.center_px = other.center_px
+            self.last_center = other.last_center
+            self.center_refined = other.center_refined
+            self.center_source = other.center_source
+            self.association_valid = other.association_valid
+            self.reject_reason = other.reject_reason
+            self.transform_age_sec = other.transform_age_sec
+        self.first_seen = min(self.first_seen, other.first_seen)
+        self.last_seen = max(self.last_seen, other.last_seen)
+        self.observe_count = max(self.observe_count, other.observe_count)
+        self.consecutive_observe_count = max(
+            self.consecutive_observe_count,
+            other.consecutive_observe_count)
+        self.geometry_confidence = max(
+            self.geometry_confidence, other.geometry_confidence)
+        self.state = max(self.state, other.state)
+
     def _advance_state(self, confirm_frames):
         if self.state == ST_REJECTED or self.state == ST_EXPIRED:
             return
@@ -218,6 +271,8 @@ class TargetMemory:
         self._reject_cooldown = rospy.get_param("~reject_cooldown", 5.0)
         self._match_distance_px = rospy.get_param("~match_distance_px", 80.0)
         self._map_match_distance_m = rospy.get_param("~map_match_distance_m", 0.5)
+        self._map_merge_distance_m = rospy.get_param(
+            "~map_merge_distance_m", 0.6)
         self._map_memory_ttl = rospy.get_param("~map_memory_ttl", 0.0)
         self._require_map_for_candidates = bool(
             rospy.get_param("~require_map_for_candidates", False))
@@ -347,6 +402,8 @@ class TargetMemory:
             if cid is not None:
                 matched_ids.add(cid)
 
+        self._merge_spatial_duplicates(matched_ids)
+
         # 老化未匹配的候选
         stale = []
         for cid, cand in self._candidates.items():
@@ -364,6 +421,46 @@ class TargetMemory:
 
         self._cleanup_rejects(now)
         self._publish(now)
+
+    def _merge_spatial_duplicates(self, matched_ids):
+        """Collapse mapped standard records that converge to one location."""
+        changed = True
+        while changed:
+            changed = False
+            ids = sorted(self._candidates)
+            for left_index, left_id in enumerate(ids):
+                if left_id not in self._candidates:
+                    continue
+                left = self._candidates[left_id]
+                if (left.class_name not in STANDARD_CLASSES or
+                        not left.map_valid):
+                    continue
+                for right_id in ids[left_index + 1:]:
+                    if right_id not in self._candidates:
+                        continue
+                    right = self._candidates[right_id]
+                    if (right.class_name not in STANDARD_CLASSES or
+                            not right.map_valid or
+                            right.map_frame != left.map_frame):
+                        continue
+                    distance = (
+                        (left.map_point.x - right.map_point.x) ** 2 +
+                        (left.map_point.y - right.map_point.y) ** 2 +
+                        (left.map_point.z - right.map_point.z) ** 2) ** 0.5
+                    if distance > self._map_merge_distance_m:
+                        continue
+                    left.merge_from(right)
+                    if right_id in matched_ids:
+                        matched_ids.add(left_id)
+                    matched_ids.discard(right_id)
+                    del self._candidates[right_id]
+                    rospy.loginfo(
+                        "[TargetMemory] merged duplicate id=%u into id=%u distance=%.3f",
+                        right_id, left_id, distance)
+                    changed = True
+                    break
+                if changed:
+                    break
 
     # ------------------------------------------------------------------
     def _pass_threshold(self, det):
