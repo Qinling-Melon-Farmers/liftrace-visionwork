@@ -12,6 +12,15 @@ if [[ ! -f "${zip_path}" ]]; then
   exit 2
 fi
 
+zip_dir="${zip_path%/*}"
+zip_file="${zip_path##*/}"
+if [[ "${zip_dir}" == "${zip_path}" ]]; then
+  zip_dir="."
+fi
+if [[ -f "${zip_path}.sha256" ]]; then
+  (cd "${zip_dir}" && sha256sum -c "${zip_file}.sha256")
+fi
+
 tmp_root="$(mktemp -d /tmp/uav_vision_navigation_verify.XXXXXX)"
 cleanup() {
   case "${tmp_root}" in

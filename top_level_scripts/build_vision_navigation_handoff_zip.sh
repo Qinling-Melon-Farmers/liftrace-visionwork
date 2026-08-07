@@ -114,7 +114,7 @@ fi
 tmp_zip="${stage_parent}/${bundle_name}.zip"
 (cd "${stage_parent}" && zip -qr "${tmp_zip}" "${bundle_name}")
 install -m 0644 "${tmp_zip}" "${zip_path}"
-sha256sum "${zip_path}" > "${zip_path}.sha256"
+(cd "${output_dir}" && sha256sum "${bundle_name}.zip" > "${bundle_name}.zip.sha256")
 
 echo "[导航交付打包] 已生成：${zip_path}"
 echo "[导航交付打包] ZIP 校验：${zip_path}.sha256"
