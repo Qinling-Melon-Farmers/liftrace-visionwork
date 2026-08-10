@@ -26,6 +26,7 @@ def bench_model(video, model_path, tank_path=None, max_frames=300, warmup=5):
     infer_times = []
     total_times = []
     det_counts = []
+    class_hist = {}
     frame_idx = 0
     measured = 0
 
@@ -42,12 +43,18 @@ def bench_model(video, model_path, tank_path=None, max_frames=300, warmup=5):
         det = 0
         if r and r[0].boxes is not None:
             det += len(r[0].boxes)
+            for cid in r[0].boxes.cls.cpu().numpy().astype(int):
+                name = model.names[int(cid)]
+                class_hist[name] = class_hist.get(name, 0) + 1
         if tank is not None:
             t0t = time.perf_counter()
             rt = tank.predict(frame, verbose=False, conf=0.25)
             t_infer += time.perf_counter() - t0t
             if rt and rt[0].boxes is not None:
                 det += len(rt[0].boxes)
+                for cid in rt[0].boxes.cls.cpu().numpy().astype(int):
+                    name = tank.names[int(cid)]
+                    class_hist[name] = class_hist.get(name, 0) + 1
 
         t_total = time.perf_counter() - t0
         if frame_idx > warmup:
@@ -77,6 +84,7 @@ def bench_model(video, model_path, tank_path=None, max_frames=300, warmup=5):
         "total_ms": stats(total_times),
         "median_detections": statistics.median(det_counts) if det_counts else 0,
         "throughput_fps": 1000.0 / stats(total_times)["p50"] if total_times else 0,
+        "class_hist": class_hist,
     }
 
 
