@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+"""Gate target-area search, weighted three-drop delivery and landing."""
+
+import json
+import os
+import sys
+import time
+
+import rosgraph
+import rospy
+from std_msgs.msg import String, UInt8
+
+from uav_mission.msg import ReleaseResult
+from uav_vision.msg import TargetCandidateArray
+
+
+STANDARD_CLASSES = ("tent", "pillbox", "bridge", "panzer", "tank")
+EXPECTED_DELIVERY_CLASSES = ("tank", "panzer", "bridge")
+EXPECTED_SLOTS = (1, 2, 3)
+
+
+class CoverageR6Assertion:
+    def __init__(self):
+        rospy.init_node("coverage_r6_assertion")
+        self._deadline = time.monotonic() + float(
+            rospy.get_param("~wall_timeout", 3000.0))
+        self._report_path = rospy.get_param(
+            "~report_path",
+            os.path.join(os.environ.get("SIM_RUN_DIR", "/tmp"),
+                         "gate_status.json"))
+        self._manager = None
+        self._candidate_ids = {}
+        self._raw_calls = []
+        self._successes = []
+        self._denied = []
+        self._audit_status = "WAITING"
+        self._goal_publishers = set()
+        self._unexpected_publishers = set()
+        self._max_publishers = 0
+        self._master = rosgraph.Master(rospy.get_name())
+
+        rospy.Subscriber("/mission/coverage_status", String,
+                         self._on_manager, queue_size=4)
+        rospy.Subscriber("/uav_vision/targets", TargetCandidateArray,
+                         self._on_targets, queue_size=4)
+        rospy.Subscriber("/uav_mission/mock_raw_servo_calls", UInt8,
+                         self._on_raw, queue_size=8)
+        rospy.Subscriber("/mission/release_result", ReleaseResult,
+                         self._on_result, queue_size=12)
+        rospy.Subscriber("/mission/visual_delivery_audit_status", String,
+                         self._on_audit, queue_size=2)
+        self._write("RUNNING", "waiting")
+
+    @staticmethod
+    def _fresh(candidate):
+        if candidate.last_seen.to_sec() <= 0.0:
+            return False
+        age = max(0.0, (rospy.Time.now() - candidate.last_seen).to_sec())
+        return age <= 0.5
+
+    def _on_manager(self, msg):
+        try:
+            self._manager = json.loads(msg.data)
+        except (TypeError, ValueError):
+            self._manager = {"status": "FAIL", "reason": "invalid_json"}
+
+    def _on_targets(self, msg):
+        for candidate in msg.targets:
+            if candidate.class_name not in STANDARD_CLASSES:
+                continue
+            if (candidate.state < 2 or not candidate.map_valid or
+                    candidate.map_frame != "camera_init" or
+                    not candidate.association_valid or
+                    candidate.reject_reason or not self._fresh(candidate)):
+                continue
+            self._candidate_ids[candidate.class_name] = int(candidate.id)
+
+    def _on_raw(self, msg):
+        self._raw_calls.append(int(msg.data))
+
+    def _on_result(self, msg):
+        record = {
+            "slot": int(msg.payload_slot),
+            "success": bool(msg.success),
+            "target_id": int(msg.target_id),
+            "target_class": msg.target_class,
+            "reason": msg.reason,
+        }
+        if msg.success:
+            self._successes.append(record)
+        else:
+            self._denied.append(record)
+
+    def _on_audit(self, msg):
+        self._audit_status = msg.data.strip()
+
+    def _sample_publishers(self):
+        for topic, nodes in self._master.getSystemState()[0]:
+            if topic != "/fastplanner/goal":
+                continue
+            self._max_publishers = max(self._max_publishers, len(nodes))
+            self._goal_publishers.update(nodes)
+            self._unexpected_publishers.update(
+                node for node in nodes
+                if node != "/coverage_search_manager")
+            return
+
+    def _payload(self, status, reason):
+        return {
+            "gate": "coverage_r6",
+            "status": status,
+            "reason": reason,
+            "manager": self._manager,
+            "candidate_ids": self._candidate_ids,
+            "raw_calls": self._raw_calls,
+            "successes": self._successes,
+            "denied_results": self._denied,
+            "audit_status": self._audit_status,
+            "goal_publishers": sorted(self._goal_publishers),
+            "unexpected_goal_publishers": sorted(
+                self._unexpected_publishers),
+            "max_goal_publishers": self._max_publishers,
+        }
+
+    def _write(self, status, reason):
+        directory = os.path.dirname(self._report_path) or "."
+        os.makedirs(directory, exist_ok=True)
+        temporary = self._report_path + ".tmp"
+        with open(temporary, "w", encoding="utf-8") as handle:
+            json.dump(self._payload(status, reason), handle,
+                      indent=2, sort_keys=True)
+            handle.write("\n")
+        os.replace(temporary, self._report_path)
+
+    def _final_checks(self):
+        manager = self._manager
+        discovered = manager.get("discovered", [])
+        discovered_classes = {item.get("class") for item in discovered}
+        discovered_ids = {item.get("id") for item in discovered}
+        selected = manager.get("selection_sequence", [])[:3]
+        delivered = manager.get("delivered", [])
+        selected_classes = [item.get("class") for item in selected]
+        delivered_classes = [item.get("class") for item in delivered]
+        delivered_ids = [item.get("id") for item in delivered]
+        delivered_slots = [item.get("slot") for item in delivered]
+        success_slots = [item["slot"] for item in self._successes]
+        success_ids = [item["target_id"] for item in self._successes]
+        commands = manager.get("command_sequence", [])
+        return [
+            manager.get("reason") == "three_deliveries_landed",
+            manager.get("state") == "COMPLETE",
+            set(STANDARD_CLASSES).issubset(discovered_classes),
+            len(discovered) == len(STANDARD_CLASSES),
+            len(discovered_ids) == len(STANDARD_CLASSES),
+            selected_classes == list(EXPECTED_DELIVERY_CLASSES),
+            delivered_classes == list(EXPECTED_DELIVERY_CLASSES),
+            len(delivered_ids) == 3 and len(set(delivered_ids)) == 3,
+            delivered_slots == list(EXPECTED_SLOTS),
+            self._raw_calls == list(EXPECTED_SLOTS),
+            success_slots == list(EXPECTED_SLOTS),
+            len(success_ids) == 3 and len(set(success_ids)) == 3,
+            not self._denied,
+            self._audit_status == "PASS",
+            manager.get("collision_count") == 0,
+            manager.get("boundary_violations") == 0,
+            manager.get("mission_elapsed", 601.0) <= 600.0,
+            manager.get("execute_candidates") is True,
+            manager.get("collect_before_delivery") is True,
+            manager.get("final_land") is True,
+            commands.count(1) == 3,
+            commands.count(2) == 3,
+            commands.count(3) == 3,
+            4 in commands and 5 in commands,
+            "/coverage_search_manager" in self._goal_publishers,
+            not self._unexpected_publishers,
+            self._max_publishers <= 1,
+        ]
+
+    def run(self):
+        rate = rospy.Rate(5)
+        while not rospy.is_shutdown():
+            self._sample_publishers()
+            if self._unexpected_publishers or self._max_publishers > 1:
+                self._write("FAIL", "planner_goal_not_exclusive")
+                return 1
+            if self._raw_calls != list(EXPECTED_SLOTS[:len(self._raw_calls)]):
+                self._write("FAIL", "raw_slot_order")
+                return 1
+            if self._denied:
+                self._write("FAIL", "release_denied")
+                return 1
+            if self._manager is not None and self._manager.get("status") in (
+                    "PASS", "FAIL"):
+                if self._manager.get("status") != "PASS":
+                    self._write(
+                        "FAIL", "manager_%s" %
+                        self._manager.get("reason", "failed"))
+                    return 1
+                if not all(self._final_checks()):
+                    self._write("FAIL", "coverage_r6_contract_failed")
+                    return 1
+                self._write("PASS", "weighted_three_drop_landed")
+                rospy.loginfo("[CoverageR6Gate] PASS")
+                return 0
+            if time.monotonic() >= self._deadline:
+                self._write("FAIL", "wall_timeout")
+                return 1
+            rate.sleep()
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(CoverageR6Assertion().run())

@@ -42,6 +42,7 @@ catkin_install_python(PROGRAMS
   scripts/legacy_mode_assertion.py
   scripts/coverage_search_manager.py
   scripts/coverage_navigation_assertion.py
+  scripts/coverage_r6_assertion.py
   scripts/pose_tf_broadcaster.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
