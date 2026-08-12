@@ -36,6 +36,9 @@ navigation:
 
 candidate:
   semantic_match_distance: 0.75
+  # 语义图案 ID 与近地 circle ID 不同；ACK 时飞机必须仍在语义候选邻域内。
+  release_attribution_distance: 0.75
+  alignment_timeout: 90.0
 
 navigation_only: true
 execute_candidates: false

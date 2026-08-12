@@ -204,6 +204,31 @@ class CoveragePolicyTest(unittest.TestCase):
         self.assertIn("Point_mode = Land_point;", land_case)
         self.assertIn("Drone_mode = Land;", land_case)
 
+    def test_external_align_preserves_manager_candidate_map_point(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        source = (package_dir.parent / "patrol_control" / "src" /
+                  "patrol_control.cpp").read_text(encoding="utf-8")
+        detect_init = source.split(
+            "bool LLController::WayPointDetectDone()", 1)[1].split(
+                "// ROS_INFO(\"dis_tooooo", 1)[0]
+        self.assertIn("if (external_mission_mode_)", detect_init)
+        self.assertIn("waypoint_temp.pose = waypoint_mark_point.pose;",
+                      detect_init)
+        external_branch = detect_init.split(
+            "if (external_mission_mode_)", 1)[1].split("} else {", 1)[0]
+        self.assertNotIn("waypoint_list[waypoint_next]", external_branch)
+
+    def test_release_attribution_uses_circle_and_candidate_neighborhood(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        source = (package_dir / "scripts" /
+                  "coverage_search_manager.py").read_text(encoding="utf-8")
+        matcher = source.split(
+            "def _release_matches_candidate", 1)[1].split(
+                "def _finish_candidate", 1)[0]
+        self.assertIn('target_class != "circle"', matcher)
+        self.assertIn("release_attribution_distance", matcher)
+        self.assertNotIn("selected_target.id", matcher)
+
     def test_sim_visual_tf_uses_mavros_mission_pose(self):
         package_dir = Path(__file__).resolve().parents[1]
         root = ET.parse(str(

@@ -85,6 +85,10 @@ class CoverageSearchManager:
             rospy.get_param("~navigation/landing_timeout", 90.0))
         self._semantic_match_distance = float(
             rospy.get_param("~candidate/semantic_match_distance", 0.75))
+        self._release_attribution_distance = float(
+            rospy.get_param("~candidate/release_attribution_distance", 0.75))
+        self._alignment_timeout = float(
+            rospy.get_param("~candidate/alignment_timeout", 90.0))
         self._search_timeout = float(rospy.get_param("~search_timeout", 540.0))
         self._mission_timeout = float(
             rospy.get_param("~mission_timeout", 600.0))
@@ -400,23 +404,23 @@ class CoverageSearchManager:
 
     def _release_matches_candidate(self):
         if (self._release_result is None or self._current_candidate is None or
-                self._selected_target is None):
+                self._pose is None):
             return False, "missing_release_identity_context"
         expected_slot = len(self._delivered) + 1
         if int(self._release_result.payload_slot) != expected_slot:
             return False, "unexpected_release_slot"
-        if (self._selected_target.id != self._current_candidate.target_id or
-                self._selected_target.class_name !=
-                self._current_candidate.class_name):
-            return False, "selected_semantic_target_mismatch"
-        if (not self._selected_target.map_valid or
-                self._selected_target.map_frame != self._frame):
-            return False, "selected_semantic_map_invalid"
+        # 任务候选是标准图案语义 ID；近地精对准和安全释放证据是该靶外圈的
+        # circle ID。两者不应强行要求同 ID/同类别。ACK 归因使用顺序槽、
+        # drop_circle 证据，以及飞机仍在已锁定语义地图点邻域三重约束。
+        if (self._release_result.align_mode != "drop_circle" or
+                self._release_result.target_class != "circle"):
+            return False, "release_evidence_not_circle"
+        position = self._pose.pose.position
         map_distance = math.hypot(
-            self._selected_target.map_point.x - self._current_candidate.x,
-            self._selected_target.map_point.y - self._current_candidate.y)
-        if map_distance > self._semantic_match_distance:
-            return False, "selected_semantic_map_mismatch"
+            position.x - self._current_candidate.x,
+            position.y - self._current_candidate.y)
+        if map_distance > self._release_attribution_distance:
+            return False, "release_outside_candidate_neighborhood"
         return True, "release_identity_matched"
 
     def _finish_candidate(self, success, reason):
@@ -556,6 +560,9 @@ class CoverageSearchManager:
             "collect_before_delivery": self._collect_before_delivery,
             "final_land": self._final_land,
             "required_deliveries": self._required_deliveries,
+            "alignment_timeout": self._alignment_timeout,
+            "release_attribution_distance":
+                self._release_attribution_distance,
         }
 
     def run(self):
@@ -665,8 +672,10 @@ class CoverageSearchManager:
                         self._finish_candidate(
                             False, "release_denied_%s" %
                             self._release_result.reason)
-                elif now - self._align_started_at >= 60.0:
-                    self._finish_candidate(False, "alignment_timeout_60s")
+                elif now - self._align_started_at >= self._alignment_timeout:
+                    self._finish_candidate(
+                        False, "alignment_timeout_%.0fs" %
+                        self._alignment_timeout)
 
             elif self._state == "RELEASE_RECOVERY":
                 recovered = (

@@ -1073,8 +1073,6 @@ void LLController::load_params() {
         "mission_command_topic", "/mission/command");
     external_planner_cmd_timeout_ =
         nh_.param("external_planner_cmd_timeout", 0.5);
-    external_alignment_timeout_sec_ =
-        nh_.param("external_alignment_timeout", 75.0);
 
     // 目标类别列表：~goal_list 参数（XmlRpc 数组）可选，缺省保持旧行为 {"panzer"}
     external_planner_start_max_distance_ =
@@ -1163,8 +1161,6 @@ void LLController::load_params() {
     ROS_INFO("[PatrolControl] external_mission_mode: %s command_topic=%s",
              external_mission_mode_ ? "true" : "false",
              mission_command_topic_.c_str());
-    ROS_INFO("[PatrolControl] external_alignment_timeout: %.1f s",
-             external_alignment_timeout_sec_);
     
     nh_.getParam("/debug", debug);
 
@@ -1666,20 +1662,13 @@ bool LLController::WayPointDetectDone()
         count_aligning = 0;
         drop_complete = false;
         align_ok = false;
-        // 外部 Mission Manager 已在 MissionCommand::ALIGN 中写入语义候选地图点。
-        // 这里若仍用旧 waypoint_list 覆盖，第三个及后续候选会飞回固定检测点。
-        // 旧固定航线模式保持原行为不变。
-        if (external_mission_mode_) {
-            waypoint_temp.pose = waypoint_mark_point.pose;
-            align_ok = have_waypoint_mark;
-        } else {
-            adjust_target_position[0] = waypoint_list[waypoint_next].x;
-            adjust_target_position[1] = waypoint_list[waypoint_next].y;
-            waypoint_temp.pose.position.x = waypoint_list[waypoint_next].x;
-            waypoint_temp.pose.position.y = waypoint_list[waypoint_next].y;
-            waypoint_mark_point.pose.position.x = waypoint_list[waypoint_next].x;
-            waypoint_mark_point.pose.position.y = waypoint_list[waypoint_next].y;
-        }
+        // down_flag = true;
+        adjust_target_position[0] = waypoint_list[waypoint_next].x;
+        adjust_target_position[1] = waypoint_list[waypoint_next].y;
+        waypoint_temp.pose.position.x = waypoint_list[waypoint_next].x;
+        waypoint_temp.pose.position.y = waypoint_list[waypoint_next].y;
+        waypoint_mark_point.pose.position.x = waypoint_list[waypoint_next].x;
+        waypoint_mark_point.pose.position.y = waypoint_list[waypoint_next].y;
         ROS_INFO("\033[34m[WayPointDetectDone] Starting detection alignment for waypoint %d, resetting all flags\033[0m", waypoint_next);
     }
 
@@ -1750,8 +1739,7 @@ bool LLController::WayPointDetectDone()
         time_threshould = 4;
     }
     else{
-        time_threshould = external_mission_mode_
-            ? external_alignment_timeout_sec_ : 45.0;
+        time_threshould = 45;
     }
     int servo_id = detect_point_counter + 1;
     if (elapsed_time <= time_threshould) {

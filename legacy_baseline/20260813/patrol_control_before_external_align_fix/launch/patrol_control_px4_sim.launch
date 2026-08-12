@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="rviz" default="true" />
+    <!-- 0 keeps the historical Fast-Planner route; 1 sends the loaded
+         patrol_sim.yaml waypoints directly to MAVROS. -->
+    <arg name="waypoint_mode" default="false" />
+    <arg name="external_mission_mode" default="false" />
+    <arg name="simulation_auto_land" default="false" />
+    <arg name="px4_max_distance" default="1.0" />
+    <arg name="planner_map_size_x" default="100.0" />
+    <arg name="planner_map_size_y" default="100.0" />
+    <arg name="planner_map_size_z" default="50.0" />
+    <arg name="planner_max_vel" default="3.0" />
+    <arg name="planner_max_acc" default="2.0" />
+    <arg name="planner_obstacles_inflation" default="0.15" />
+    <arg name="planner_clearance_threshold" default="0.20" />
+    <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_sim.yaml" />
+    <!-- Keep the historical 5 cm precision default.  The full toudi3 SITL
+         entry overrides this with a slightly wider tolerance because the
+         WSL Gazebo/PX4 pose loop does not settle exactly at the setpoint. -->
+    <arg name="aligning_threshold" default="0.05" />
+
+    <rosparam param="debug">true</rosparam>
+    <rosparam file="$(arg waypoint_config)" />
+    <param name="switch/flag_planner_px4" value="$(arg waypoint_mode)" />
+    <param name="external_mission_mode" value="$(arg external_mission_mode)" />
+    <param name="simulation/enable_auto_land" value="$(arg simulation_auto_land)" />
+    <param name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <param name="threshould/aligning_threshould" value="$(arg aligning_threshold)" />
+    <node pkg="patrol_control" type="patrol_control" name="patrol_control" output="screen">
+        <!-- PX4 模式下 odom 直接来自 MAVROS，无需 remap -->
+        <remap from="/detect/waypoint_mark" to="/detect/waypoint_mark"/>
+        <remap from="/detect/land_mark" to="/detect/land_mark"/>
+    </node>
+
+    <include file="$(find plan_manage)/launch/patrol_planner_px4_sim.launch">
+        <arg name="map_size_x" value="$(arg planner_map_size_x)" />
+        <arg name="map_size_y" value="$(arg planner_map_size_y)" />
+        <arg name="map_size_z" value="$(arg planner_map_size_z)" />
+        <arg name="max_vel" value="$(arg planner_max_vel)" />
+        <arg name="max_acc" value="$(arg planner_max_acc)" />
+        <arg name="obstacles_inflation" value="$(arg planner_obstacles_inflation)" />
+        <arg name="clearance_threshold" value="$(arg planner_clearance_threshold)" />
+    </include>
+
+    <group if="$(arg rviz)">
+        <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find patrol_control)/rviz_config/patrol_pc.rviz" />
+    </group>
+</launch>

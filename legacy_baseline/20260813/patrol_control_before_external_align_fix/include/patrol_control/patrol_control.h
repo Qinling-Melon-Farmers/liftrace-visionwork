@@ -197,7 +197,6 @@ private:
     std::string mission_command_topic_ = "/mission/command";
     double external_planner_cmd_timeout_ = 0.5;
     double external_planner_start_max_distance_ = 0.6;
-    double external_alignment_timeout_sec_ = 75.0;
     // 悬停相关变量
     bool flag_hover_started = false;
     bool overtime_drop_flag = false;

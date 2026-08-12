@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Local copy of PX4's posix_sitl.launch with a delayed model spawn.
+       The delay is needed only because toudi3.world is heavy; PX4/Gazebo
+       behavior and all original arguments remain unchanged. -->
+  <arg name="x" default="0" />
+  <arg name="y" default="0" />
+  <arg name="z" default="0" />
+  <arg name="R" default="0" />
+  <arg name="P" default="0" />
+  <arg name="Y" default="0" />
+  <arg name="vehicle" default="iris" />
+  <arg name="world" default="$(find mavlink_sitl_gazebo)/worlds/empty.world" />
+  <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg vehicle)/$(arg vehicle).sdf" />
+  <arg name="gui" default="true" />
+  <arg name="debug" default="false" />
+  <arg name="verbose" default="false" />
+  <arg name="paused" default="false" />
+  <arg name="respawn_gazebo" default="false" />
+  <arg name="interactive" default="true" />
+  <arg name="spawn_delay" default="0.0" />
+  <arg name="spawn_retry_delay" default="2.0" />
+  <arg name="spawn_retries" default="4" />
+
+  <env name="PX4_SIM_MODEL" value="gazebo-classic_$(arg vehicle)" />
+  <arg unless="$(arg interactive)" name="px4_command_arg1" value="-d" />
+  <arg if="$(arg interactive)" name="px4_command_arg1" value="" />
+
+  <node name="sitl" pkg="px4" type="px4" output="screen" required="true"
+        args="$(find px4)/build/px4_sitl_default/etc -s etc/init.d-posix/rcS $(arg px4_command_arg1)" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="world_name" value="$(arg world)" />
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="verbose" value="$(arg verbose)" />
+    <arg name="paused" value="$(arg paused)" />
+    <arg name="respawn_gazebo" value="$(arg respawn_gazebo)" />
+  </include>
+
+  <node name="$(anon vehicle_spawn)" pkg="patrol_control"
+        type="spawn_model_delayed.py" output="screen"
+        args="--delay $(arg spawn_delay) --retry-delay $(arg spawn_retry_delay) --retries $(arg spawn_retries) -sdf -file $(arg sdf) -model $(arg vehicle) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg Y)" />
+</launch>
