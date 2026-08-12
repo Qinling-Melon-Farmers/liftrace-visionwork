@@ -1311,7 +1311,7 @@
             <script>
               <uri>model://landing_h/materials/scripts/</uri>
               <uri>model://landing_h/materials/textures/</uri>
-              <name>Toudi3/LandingHCorrected</name>
+              <name>Mark/LandingH</name>
             </script>
           </material>
           <cast_shadows>1</cast_shadows>
@@ -1593,7 +1593,7 @@
             <script>
               <uri>model://landing_h/materials/scripts/</uri>
               <uri>model://landing_h/materials/textures/</uri>
-              <name>Toudi3/LandingHCorrected</name>
+              <name>Mark/LandingH</name>
             </script>
           </material>
           <cast_shadows>1</cast_shadows>
