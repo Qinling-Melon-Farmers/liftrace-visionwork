@@ -4,8 +4,14 @@
   <arg name="wall_timeout" default="600.0" />
   <arg name="gate_report_path"
        default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+  <!-- 该 Gate 专门复现历史链，显式锁回旧场景与旧 PX4 SDF。 -->
+  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="vehicle_sdf"
+       default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris_mid360/iris_mid360.sdf" />
 
   <include file="$(find patrol_control)/launch/patrol_full_competition_sim.launch">
+    <arg name="world" value="$(arg world)" />
+    <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="rviz" value="$(arg rviz)" />
     <arg name="start_visual" value="false" />

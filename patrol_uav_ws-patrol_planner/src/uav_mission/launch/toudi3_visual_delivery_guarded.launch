@@ -7,9 +7,12 @@
   <arg name="start_arming" default="true" />
   <arg name="external_mission_mode" default="false" />
   <arg name="waypoint_mode" default="true" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi4_copy.world" />
+  <arg name="waypoint_config"
+       default="$(find patrol_control)/config/patrol_toudi4_new_vision.yaml" />
   <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
-  <arg name="camera_image_topic" default="/camera/color/image_raw" />
-  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="camera_image_topic" default="/downward_camera/image_raw" />
+  <arg name="camera_info_topic" default="/downward_camera/camera_info" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="map_frame" default="camera_init" />
   <arg name="ground_z" default="0.0" />
@@ -22,18 +25,17 @@
   <arg name="planner_clearance_threshold" default="0.20" />
   <arg name="px4_max_distance" default="0.2" />
   <arg name="enable_debug_image" default="false" />
-  <!-- The new visual-delivery integration matches the real single downward
-       camera + MID360 architecture without modifying the external PX4 model. -->
+  <!-- PX4 仍使用 iris_mid360 autostart，Gazebo 机架改用仓库内单下视相机模型。 -->
   <arg name="vehicle_sdf"
-       default="$(find uav_mission)/models/iris_mid360_downward/model.sdf" />
+       default="$(find patrol_control)/models/iris_mid360_downward_camera/model.sdf" />
   <!-- Simulation calibration for body -> ROS optical frame.  The values are
        derived from the repository-local vehicle SDF.  A real aircraft must
        override these with its measured camera extrinsic. -->
   <arg name="camera_pose_topic" default="/mavros/local_position/pose" />
   <arg name="camera_parent_frame" default="vision_body" />
-  <arg name="camera_optical_frame" default="D435i::camera_color_frame" />
-  <arg name="camera_extrinsic_xyz" default="0.1525 0 0.03" />
-  <arg name="camera_extrinsic_quat_xyzw" default="0 1 0 0" />
+  <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
+  <arg name="camera_extrinsic_xyz" default="0 0 -0.05" />
+  <arg name="camera_extrinsic_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
   <arg name="audit_report_path"
        default="$(optenv SIM_RUN_DIR /tmp)/visual_delivery_audit.json" />
 
@@ -49,6 +51,7 @@
   </node>
 
   <include file="$(find patrol_control)/launch/toudi3_full_competition_sim_new_vision.launch">
+    <arg name="world" value="$(arg world)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="rviz" value="$(arg rviz)" />
     <arg name="start_mapping" value="$(arg start_mapping)" />
@@ -57,6 +60,7 @@
     <arg name="waypoint_mode" value="$(arg waypoint_mode)" />
     <arg name="vision_python" value="$(arg vision_python)" />
     <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+    <arg name="waypoint_config" value="$(arg waypoint_config)" />
     <arg name="camera_image_topic" value="$(arg camera_image_topic)" />
     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
     <arg name="target_model_path" value="$(arg target_model_path)" />

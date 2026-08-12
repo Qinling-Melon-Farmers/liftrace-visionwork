@@ -1,0 +1,47 @@
+# toudi4_copy.world 中央靶区覆盖搜索策略；不包含任何靶标坐标。
+mission_frame: camera_init
+
+field:
+  min_x: -5.0
+  max_x: 5.0
+  min_y: -5.0
+  max_y: 5.0
+
+# 覆盖标准靶所在中央区域；北侧走廊仍由后续穿越任务单独处理。
+search_region:
+  min_x: -2.5
+  max_x: 1.5
+  min_y: -1.5
+  max_y: 4.5
+
+coverage:
+  safety_margin: 0.5
+  tracking_reserve: 0.0
+  spacing: 1.0
+  height: 2.0
+  dwell_time: 2.0
+
+navigation:
+  takeoff_height: 1.7
+  map_ready_timeout: 60.0
+  map_max_age: 2.0
+  arrival_radius: 0.40
+  progress_epsilon: 0.10
+  endpoint_clearance: 0.35
+  endpoint_max_adjustment: 1.0
+  collision_clearance: 0.10
+  recovery_height: 0.95
+  landing_height: 0.15
+  landing_timeout: 90.0
+
+candidate:
+  semantic_match_distance: 0.75
+
+navigation_only: true
+execute_candidates: false
+collect_before_delivery: true
+final_land: false
+required_deliveries: 3
+require_north: false
+search_timeout: 540.0
+mission_timeout: 600.0

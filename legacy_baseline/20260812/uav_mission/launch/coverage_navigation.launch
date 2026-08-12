@@ -1,0 +1,45 @@
+<launch>
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="wall_timeout" default="3000.0" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="manager_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/coverage_status.json" />
+  <arg name="gate_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+
+  <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="external_mission_mode" value="true" />
+    <arg name="waypoint_mode" value="false" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="planner_max_vel" value="1.5" />
+    <arg name="planner_max_acc" value="1.0" />
+    <arg name="planner_obstacles_inflation" value="0.30" />
+    <arg name="planner_clearance_threshold" value="0.35" />
+    <arg name="px4_max_distance" value="0.2" />
+  </include>
+
+  <node pkg="uav_mission" type="coverage_search_manager.py"
+        name="coverage_search_manager" output="screen">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/coverage_toudi3.yaml" />
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg manager_report_path)" />
+    <param name="gate_name" value="target_area_navigation" />
+  </node>
+
+  <node pkg="uav_mission" type="coverage_navigation_assertion.py"
+        name="coverage_navigation_assertion" output="screen" required="true">
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg gate_report_path)" />
+    <param name="gate_name" value="target_area_navigation" />
+    <param name="expected_route_total" value="12" />
+    <param name="min_visited" value="9" />
+    <param name="require_north" value="false" />
+    <rosparam param="required_discovered_classes">
+      [tent, pillbox, bridge, panzer, tank]
+    </rosparam>
+  </node>
+</launch>

@@ -27,7 +27,9 @@ detections
 
 - 已有确定性 mock、联合 overlay、`uav_vision_eval` 独立真值/自动报告和 headless shadow；
 - `AstraDroneOpen + PX4 SITL + Gazebo Classic + iris_mid360` 可作为外部仿真底座；
-- `toudi3.world` 的五类标准靶、H 和独立红十字模型已恢复；
+- 当前统一仿真默认使用根目录 `toudi4_copy.world`，并加载从
+  `iris_mid360_downward_camera.zip` 提取的单下视相机 + MID360 机架；
+- `toudi3.world` 及其旧航点/旧机架入口继续保留，用于历史回归；
 - 已有旧视觉链完整入口，以及新 `uav_vision` Phase D、固定视觉 suite 和 shadow 入口；
 - 主集成工作区新增 `uav_mission`：任务层释放许可、受控旧 `/Servo` 代理、
   `/legacy/Servo_raw` 仿真 mock、旧控制 `Aligning` 状态互锁、三投 JSON 事件审计和顺序三槽

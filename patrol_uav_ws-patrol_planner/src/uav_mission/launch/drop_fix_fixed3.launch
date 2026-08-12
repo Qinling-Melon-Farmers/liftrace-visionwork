@@ -4,8 +4,13 @@
   <arg name="rviz" default="false" />
   <arg name="waypoint_config"
        default="$(find patrol_control)/config/patrol_toudi3_r1.yaml" />
+  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="vehicle_sdf"
+       default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris_mid360/iris_mid360.sdf" />
 
   <include file="$(find patrol_control)/launch/patrol_full_competition_sim.launch">
+    <arg name="world" value="$(arg world)" />
+    <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="rviz" value="$(arg rviz)" />
     <arg name="mapping_rviz" value="false" />

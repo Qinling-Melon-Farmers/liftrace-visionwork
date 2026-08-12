@@ -6,8 +6,8 @@
   <arg name="record_metrics" default="false" />
   <arg name="output_dir" default="/tmp/uav_vision_eval/standard_target" />
   <arg name="gate_profile" default="smoke" />
-  <arg name="camera_x" default="1.01558" />
-  <arg name="camera_y" default="0.25625" />
+  <arg name="camera_x" default="1.27572" />
+  <arg name="camera_y" default="0.581612" />
   <arg name="camera_z" default="1.5" />
   <arg name="camera_yaw" default="0.0" />
   <arg name="evaluation_seed" default="-1" />

@@ -64,7 +64,8 @@ liftrace_setup_toudi3_combined_env() {
   export VISION_PYTHON="${vision_python}"
   # 仓库内仿真显式选择开发模型；uav_vision 运行包本身不再保存开发机绝对路径。
   export UAV_VISION_MODEL_PATH="${UAV_VISION_MODEL_PATH:-${vision_ws}/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt}"
-  export TOUDI3_WORLD="${TOUDI3_WORLD:-${uav_ws}/toudi3.world}"
+  # 保留 TOUDI3_WORLD 变量名兼容旧脚本，但默认场景已切换为 toudi4。
+  export TOUDI3_WORLD="${TOUDI3_WORLD:-${project_root}/toudi4_copy.world}"
 
   export PATH="/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   export ROS_PACKAGE_PATH="${px4_root}:${sitl_gazebo}:${ROS_PACKAGE_PATH:-}"

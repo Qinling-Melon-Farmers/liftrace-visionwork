@@ -72,9 +72,10 @@
 - `uav_mission` 已新增 `ReleasePermission/ReleaseResult`、任务层许可仲裁、受控旧 Servo 代理
   和纯软件 raw Servo mock；确定性回归已验证旧控制非 Aligning 拒绝、三槽顺序、过期、
   错槽、重放与重复目标拒绝；`visual_delivery_audit.py` 可记录完整事件链并自动判定三投；
-- 已建立仓库内 `iris_mid360_downward` 集成模型：只保留单个下视 D435i 并保留 MID360；原
-  PX4 外部双相机 `iris_mid360` 未修改。独立投影视场回归在真实 `toudi3.world` 中 5/5
-  通过；仿真外参取自该 SDF，旧工程写死外参只登记为实机复标候选，未覆盖仿真值；
+- 当前默认仿真已切换到仓库内 `iris_mid360_downward_camera` 集成模型：单个下视 RGB
+  相机并保留 MID360；PX4 autostart 仍使用 `iris_mid360`。独立投影视场回归已同步到
+  `toudi4_copy.world`，此前 toudi3 结果保留作历史基线；仿真外参取自当前 SDF，旧工程
+  写死外参只登记为实机复标候选；
 - 完整飞行链补齐 `camera_init -> D435i::camera_color_frame` 后，`detections_mapped`、地图
   `targets` 和 `selected_target` 已可产生；`drop_aligner` 已先按观测新鲜度过滤再排序，
   确定性回归通过；

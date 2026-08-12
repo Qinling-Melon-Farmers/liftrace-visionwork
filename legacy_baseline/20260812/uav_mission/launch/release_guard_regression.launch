@@ -1,0 +1,11 @@
+<launch>
+  <include file="$(find uav_mission)/launch/release_guard_sim.launch" />
+
+  <node pkg="uav_mission" type="visual_delivery_audit.py"
+        name="visual_delivery_audit" output="screen">
+    <param name="report_path" value="/tmp/vcl02_release_guard_audit.json" />
+  </node>
+
+  <node pkg="uav_mission" type="release_guard_assertion.py"
+        name="release_guard_assertion" output="screen" required="true" />
+</launch>

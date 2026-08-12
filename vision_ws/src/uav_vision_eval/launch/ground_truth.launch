@@ -1,5 +1,6 @@
 <launch>
-  <arg name="catalog_file" default="$(find uav_vision_eval)/config/sim_target_catalog.yaml" />
+  <arg name="catalog_file"
+       default="$(find uav_vision_eval)/config/sim_target_catalog_toudi4.yaml" />
   <arg name="scenario_file" default="$(find uav_vision_eval)/config/scenarios/existing_targets.yaml" />
   <arg name="image_topic" default="/camera/color/image_raw" />
   <arg name="camera_info_topic" default="/camera/color/camera_info" />

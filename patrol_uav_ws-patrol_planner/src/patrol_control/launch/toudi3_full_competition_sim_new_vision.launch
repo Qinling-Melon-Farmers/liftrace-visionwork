@@ -5,15 +5,16 @@
        detector nodes are disabled to avoid duplicate node names and duplicate
        image processing.  The compatibility bridge publishes only semantic
        legacy status by default; it does not fabricate world-frame poses. -->
-  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi4_copy.world" />
   <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
   <arg name="vehicle" default="iris_mid360" />
   <arg name="px4_model_root" default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
-  <arg name="vehicle_sdf" default="$(arg px4_model_root)/$(arg vehicle)/$(arg vehicle).sdf" />
+  <arg name="vehicle_sdf"
+       default="$(find patrol_control)/models/iris_mid360_downward_camera/model.sdf" />
   <arg name="astra_sim_lib" default="$(optenv ASTRA_SIM_LIB /home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib)" />
   <arg name="px4_plugin_lib" default="$(arg px4_root)/build/px4_sitl_default/build_gazebo-classic" />
-  <arg name="camera_image_topic" default="/camera/color/image_raw" />
-  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="camera_image_topic" default="/downward_camera/image_raw" />
+  <arg name="camera_info_topic" default="/downward_camera/camera_info" />
   <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="map_frame" default="camera_init" />
@@ -41,7 +42,7 @@
   <arg name="planner_obstacles_inflation" default="0.15" />
   <arg name="planner_clearance_threshold" default="0.20" />
   <arg name="enable_debug_image" default="true" />
-  <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_toudi3_new_vision.yaml" />
+  <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_toudi4_new_vision.yaml" />
 
   <include file="$(find patrol_control)/launch/patrol_full_competition_sim.launch">
     <arg name="world" value="$(arg world)" />

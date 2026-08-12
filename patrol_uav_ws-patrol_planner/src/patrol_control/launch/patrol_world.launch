@@ -7,12 +7,13 @@
     spawned separately by PX4's posix_sitl.launch, so this file deliberately
     keeps world and vehicle arguments independent.
   -->
-  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi4_copy.world" />
   <arg name="vehicle" default="iris_mid360" />
   <!-- Override px4_root when PX4 is not installed at the local default. -->
   <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
   <arg name="px4_model_root" default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
-  <arg name="sdf" default="$(arg px4_model_root)/$(arg vehicle)/$(arg vehicle).sdf" />
+  <arg name="sdf"
+       default="$(find patrol_control)/models/iris_mid360_downward_camera/model.sdf" />
   <arg name="gazebo_model_path" default="$(arg px4_model_root)" />
   <arg name="astra_sim_lib" default="$(optenv ASTRA_SIM_LIB /home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib)" />
   <arg name="px4_plugin_lib" default="$(arg px4_root)/build/px4_sitl_default/build_gazebo-classic" />

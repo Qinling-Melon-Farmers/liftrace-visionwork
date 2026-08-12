@@ -1,0 +1,40 @@
+# toudi4_copy.world 独立真值目录。
+# 运行时从 /gazebo/link_states 读取顶层模型 link；fallback 仅用于确定性 mock。
+world_frame: world
+camera_link_suffix: "downward_camera_link"
+targets:
+  - target_id: pillbox_1
+    class_name: pillbox
+    gazebo_link_name: "dibao::link"
+    size_m: [1.0, 1.0]
+    fallback_center_world: [-0.57481, 0.520346, 0.0025]
+  - target_id: bridge_1
+    class_name: bridge
+    gazebo_link_name: "qiaoliang::link"
+    size_m: [1.0, 1.0]
+    fallback_center_world: [-2.09331, 0.70456, 0.0025]
+  - target_id: tank_1
+    class_name: tank
+    gazebo_link_name: "tanke::link"
+    size_m: [1.0, 1.0]
+    fallback_center_world: [0.282735, 3.85585, 0.0025]
+  - target_id: tent_1
+    class_name: tent
+    gazebo_link_name: "zhangpeng::link"
+    size_m: [1.0, 1.0]
+    fallback_center_world: [1.27572, 0.581612, 0.0025]
+  - target_id: panzer_1
+    class_name: panzer
+    gazebo_link_name: "zhuangjiache::link"
+    size_m: [1.0, 1.0]
+    fallback_center_world: [-1.47375, 3.62133, 0.0025]
+  - target_id: landing_h_1
+    class_name: landing_pad
+    gazebo_link_name: "landing_h::link"
+    size_m: [1.0, 1.0]
+    fallback_center_world: [-0.493412, -1.77269, 0.0025]
+  - target_id: red_cross_1
+    class_name: red_cross
+    gazebo_link_name: "red_cross::link"
+    size_m: [0.35, 0.35]
+    fallback_center_world: [-2.5, -2.5, 0.0025]

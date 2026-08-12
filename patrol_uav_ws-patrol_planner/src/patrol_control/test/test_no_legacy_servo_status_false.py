@@ -15,7 +15,7 @@ def test_legacy_servo_status_false_text_is_absent():
 
 def test_new_vision_config_uses_zero_slot_offsets():
     config_path = (Path(__file__).resolve().parents[1] /
-                   "config" / "patrol_toudi3_new_vision.yaml")
+                   "config" / "patrol_toudi4_new_vision.yaml")
     config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
     zero_offsets = [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]
     assert config["drop_system"]["slot_offsets"] == zero_offsets
@@ -25,7 +25,7 @@ def test_new_vision_config_uses_zero_slot_offsets():
     launch = (Path(__file__).resolve().parents[1] /
               "launch" / "toudi3_full_competition_sim_new_vision.launch").read_text(
                   encoding="utf-8")
-    assert "patrol_toudi3_new_vision.yaml" in launch
+    assert "patrol_toudi4_new_vision.yaml" in launch
 
 
 if __name__ == "__main__":

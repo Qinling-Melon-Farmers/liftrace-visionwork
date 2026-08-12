@@ -20,5 +20,5 @@ source /opt/ros/noetic/setup.bash
 source "${project_root}/vision_ws/devel/setup.bash"
 set -u
 
-image_topic="${VISUAL_GUI_IMAGE_TOPIC:-/camera/color/image_raw}"
+image_topic="${VISUAL_GUI_IMAGE_TOPIC:-/downward_camera/image_raw}"
 exec rosrun rqt_image_view rqt_image_view "${image_topic}"

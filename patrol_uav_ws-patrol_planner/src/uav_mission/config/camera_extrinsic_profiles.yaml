@@ -14,6 +14,17 @@ sim_iris_mid360_downward:
   source: uav_mission/models/iris_mid360_downward/model.sdf
   note: "ROS optical frame composed from the D435i SDF mount and color-frame rotation."
 
+sim_iris_mid360_downward_camera:
+  status: configured_for_toudi4_pending_gui_smoke
+  parent_frame: body
+  child_frame: downward_camera_optical_frame
+  translation_xyz_m: [0.0, 0.0, -0.05]
+  quaternion_xyzw: [-0.70710678, 0.70710678, 0.0, 0.0]
+  source: patrol_control/models/iris_mid360_downward_camera/model.sdf
+  note: >-
+    由 ZIP 内 +90 度 pitch 的 Gazebo camera link 与标准 ROS optical
+    frame 旋转组合得到；实机必须使用实测外参覆盖。
+
 legacy_2025_primary_camera_link:
   status: candidate_requires_real_recalibration
   parent_frame: base_link

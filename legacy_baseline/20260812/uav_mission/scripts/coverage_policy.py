@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+"""Pure policy helpers for coverage navigation and candidate scheduling."""
+
+from dataclasses import dataclass
+import math
+
+
+RULE_WEIGHTS = {
+    "tent": 1.0,
+    "pillbox": 1.5,
+    "bridge": 2.0,
+    "panzer": 2.5,
+    "tank": 5.0,
+}
+
+
+@dataclass(frozen=True)
+class CoveragePoint:
+    index: int
+    row: int
+    x: float
+    y: float
+    z: float
+
+
+@dataclass(frozen=True)
+class CandidateData:
+    target_id: int
+    class_name: str
+    confidence: float
+    first_seen: float
+    last_seen: float
+    state: int
+    map_valid: bool
+    map_frame: str
+    association_valid: bool
+    reject_reason: str
+    x: float
+    y: float
+
+
+def generate_serpentine(min_x, max_x, min_y, max_y, safety_margin,
+                        spacing, height):
+    if min_x >= max_x or min_y >= max_y:
+        raise ValueError("field bounds must have positive area")
+    if safety_margin < 0.0 or spacing <= 0.0 or height <= 0.0:
+        raise ValueError("margin, spacing and height must be valid")
+    safe_min_x = min_x + safety_margin
+    safe_max_x = max_x - safety_margin
+    safe_min_y = min_y + safety_margin
+    safe_max_y = max_y - safety_margin
+    if safe_min_x >= safe_max_x or safe_min_y >= safe_max_y:
+        raise ValueError("safety margin consumes field")
+
+    rows = []
+    y = safe_min_y
+    while y <= safe_max_y + 1e-9:
+        rows.append(min(y, safe_max_y))
+        y += spacing
+    if safe_max_y - rows[-1] > 1e-6:
+        rows.append(safe_max_y)
+
+    points = []
+    for row, row_y in enumerate(rows):
+        endpoints = ((safe_min_x, safe_max_x) if row % 2 == 0
+                     else (safe_max_x, safe_min_x))
+        for x in endpoints:
+            points.append(CoveragePoint(
+                index=len(points), row=row, x=x, y=row_y, z=height))
+    return points
+
+
+def select_serpentine_entry(points, start_x, start_y):
+    """Choose the nearest of four equivalent full serpentine routes."""
+    if not points:
+        return []
+    center_x = 0.5 * (min(point.x for point in points) +
+                      max(point.x for point in points))
+    mirrored = [CoveragePoint(
+        index=point.index,
+        row=point.row,
+        x=2.0 * center_x - point.x,
+        y=point.y,
+        z=point.z) for point in points]
+    variants = [points, mirrored, list(reversed(points)),
+                list(reversed(mirrored))]
+    selected = min(variants, key=lambda route: (
+        math.hypot(route[0].x - start_x, route[0].y - start_y),
+        variants.index(route)))
+    return [CoveragePoint(
+        index=index,
+        row=index // 2,
+        x=point.x,
+        y=point.y,
+        z=point.z) for index, point in enumerate(selected)]
+
+
+def point_inside_safe_bounds(point, bounds, safety_margin):
+    min_x, max_x, min_y, max_y = bounds
+    return (
+        min_x + safety_margin <= point[0] <= max_x - safety_margin and
+        min_y + safety_margin <= point[1] <= max_y - safety_margin
+    )
+
+
+def _clear(point, occupied, clearance, vertical_tolerance):
+    clearance_sq = clearance * clearance
+    for obstacle in occupied:
+        if abs(obstacle[2] - point[2]) > vertical_tolerance:
+            continue
+        dx = obstacle[0] - point[0]
+        dy = obstacle[1] - point[1]
+        if dx * dx + dy * dy < clearance_sq:
+            return False
+    return True
+
+
+def resolve_safe_waypoint(point, occupied, bounds, safety_margin,
+                          clearance=0.35, vertical_tolerance=0.5,
+                          search_step=0.25, max_adjustment=1.0):
+    """Return the nearest known-clear endpoint, or None if none is found."""
+    point = tuple(float(value) for value in point)
+    if (point_inside_safe_bounds(point, bounds, safety_margin) and
+            _clear(point, occupied, clearance, vertical_tolerance)):
+        return point
+
+    candidates = []
+    steps = int(math.ceil(max_adjustment / search_step))
+    for dx_step in range(-steps, steps + 1):
+        for dy_step in range(-steps, steps + 1):
+            if dx_step == 0 and dy_step == 0:
+                continue
+            dx = dx_step * search_step
+            dy = dy_step * search_step
+            distance = math.hypot(dx, dy)
+            if distance > max_adjustment + 1e-9:
+                continue
+            candidate = (point[0] + dx, point[1] + dy, point[2])
+            candidates.append((distance, candidate))
+    for _, candidate in sorted(candidates, key=lambda item: item[0]):
+        if (point_inside_safe_bounds(candidate, bounds, safety_margin) and
+                _clear(candidate, occupied, clearance, vertical_tolerance)):
+            return candidate
+    return None
+
+
+def candidate_valid(candidate, now, mission_frame="camera_init",
+                    max_age=0.5):
+    age = max(0.0, now - candidate.last_seen)
+    return (
+        candidate.class_name in RULE_WEIGHTS and
+        candidate.state >= 2 and
+        candidate.map_valid and
+        candidate.map_frame == mission_frame and
+        candidate.association_valid and
+        not candidate.reject_reason and
+        age <= max_age
+    )
+
+
+def candidate_rank(candidate):
+    return (
+        -RULE_WEIGHTS[candidate.class_name],
+        -candidate.confidence,
+        candidate.first_seen,
+        candidate.target_id,
+    )
+
+
+class CandidateQueue:
+    def __init__(self):
+        self._pending = {}
+        self._terminal_ids = set()
+
+    @property
+    def terminal_ids(self):
+        return set(self._terminal_ids)
+
+    @property
+    def pending(self):
+        return sorted(
+            (candidate for target_id, candidate in self._pending.items()
+             if target_id not in self._terminal_ids),
+            key=candidate_rank)
+
+    def update(self, candidates, now, mission_frame="camera_init",
+               max_age=0.5):
+        for candidate in candidates:
+            if candidate.target_id in self._terminal_ids:
+                continue
+            if candidate_valid(candidate, now, mission_frame, max_age):
+                self._pending[candidate.target_id] = candidate
+
+    def retain(self, target_ids):
+        active_ids = {int(target_id) for target_id in target_ids}
+        for target_id in list(self._pending):
+            if target_id not in active_ids:
+                self._pending.pop(target_id, None)
+
+    def pop(self):
+        available = self.pending
+        if not available:
+            return None
+        selected = sorted(available, key=candidate_rank)[0]
+        self._pending.pop(selected.target_id, None)
+        return selected
+
+    def mark_terminal(self, target_id):
+        self._terminal_ids.add(int(target_id))
+        self._pending.pop(int(target_id), None)
+
+
+class GoalRetryPolicy:
+    def __init__(self, retry_interval=5.0, unreachable_timeout=20.0,
+                 max_retries=2):
+        self.retry_interval = float(retry_interval)
+        self.unreachable_timeout = float(unreachable_timeout)
+        self.max_retries = int(max_retries)
+        self.started_at = None
+        self.last_publish_at = None
+        self.retries = 0
+
+    def start(self, now):
+        self.started_at = float(now)
+        self.last_publish_at = float(now)
+        self.retries = 0
+
+    def note_progress(self, now):
+        if self.started_at is None:
+            raise RuntimeError("goal policy has not started")
+        self.started_at = float(now)
+        self.last_publish_at = float(now)
+
+    def decision(self, now):
+        if self.started_at is None:
+            raise RuntimeError("goal policy has not started")
+        now = float(now)
+        if now - self.started_at >= self.unreachable_timeout:
+            return "timeout"
+        if (self.retries < self.max_retries and
+                now - self.last_publish_at >= self.retry_interval):
+            self.retries += 1
+            self.last_publish_at = now
+            return "retry"
+        return "wait"

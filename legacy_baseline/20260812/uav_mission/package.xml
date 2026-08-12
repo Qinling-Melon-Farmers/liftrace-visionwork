@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>uav_mission</name>
+  <version>0.1.0</version>
+  <description>Mission and safety interfaces for visual target delivery.</description>
+
+  <maintainer email="uav@todo.todo">uav</maintainer>
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>message_generation</build_depend>
+
+  <depend>geometry_msgs</depend>
+  <depend>patrol_control</depend>
+  <depend>rosgraph</depend>
+  <depend>rospy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>uav_vision</depend>
+
+  <exec_depend>message_runtime</exec_depend>
+</package>

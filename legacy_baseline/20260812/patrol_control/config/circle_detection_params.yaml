@@ -1,0 +1,104 @@
+# 圆形和红色十字检测参数配置文件
+# 适用于patrol_control包的circle_detector_node
+
+# 基本检测参数
+circle_detection:
+  min_radius: 50.0          # 最小半径（像素）
+  max_radius: 450.0         # 最大半径（像素）
+
+# 蓝色圆形色彩分割参数
+color_segmentation:
+  enable: true              # 启用色彩分割
+  h_min: 70                 # 色调最小值（蓝绿色）
+  h_max: 150                # 色调最大值
+  s_min: 20                 # 饱和度最小值
+  s_max: 255                # 饱和度最大值
+  v_min: 30                 # 明度最小值
+  v_max: 255                # 明度最大值
+
+# 红色十字检测参数
+red_cross_detection:
+  enable: true              # 启用红色十字检测
+  h_min: 0      # 红色色调最小值
+  h_max: 10     # 扩大到15（原来是10）
+  s_min: 190     # 降低饱和度阈值（原来是120 70）
+  s_max: 255
+  v_min: 190     # 降低明度阈值（原来是70 30）
+  v_max: 255
+  
+  # 红色十字形状验证参数
+  aspect_ratio_threshold: 0.4    # 降低长宽比要求 0.3
+  min_contour_points: 10         # 降低最小轮廓点数 10 
+  area_threshold: 1700.0          # 降低面积阈值 50 
+  solidity_threshold: 0.65        # 降低实体度要求 0.4 
+
+# 蓝色圆形质量评估参数
+quality_assessment:
+  min_contour_points: 15         # 最小轮廓点数
+  aspect_ratio_threshold: 0.7    # 长宽比阈值（圆形应该接近1）
+  circularity_threshold: 0.5     # 圆形度阈值（4π*面积/周长²）
+  contour_area_ratio: 0.4        # 轮廓面积与椭圆面积比
+
+# 图像预处理参数
+image_preprocessing:
+  enable_gaussian_blur: true        # 启用高斯模糊
+  blur_kernel_size: 5               # 高斯模糊核大小
+  morphology_kernel_size: 101
+  enable_histogram_equalization: false  # 禁用直方图均衡化（可能影响颜色检测）
+  enable_threshold: false           # 禁用额外阈值处理
+
+# 检测控制参数
+detection:
+  enabled: true             # 启用检测
+  debug: true               # 启用调试模式（显示详细日志）
+  
+detection_control:
+  show_image: true          # 显示检测结果图像
+  max_fps: 30.0             # 最大帧率
+  target_center_x: 320.0    # 目标中心X坐标（图像中心）
+  target_center_y: 240.0    # 目标中心Y坐标（图像中心）
+  scale_factor: 0.0008      # 缩放因子
+
+# 红色十字检测参数
+red_cross_detection:
+  enable: true             # 默认关闭，需要时通过launch文件启用
+  h_min: 0                  # 红色色调最小值
+  s_min: 120                # 红色饱和度最小值
+  v_min: 70                 # 红色明度最小值
+  h_max: 10                 # 红色色调最大值
+  s_max: 255                # 红色饱和度最大值
+  v_max: 255                # 红色明度最大值
+
+# 红色十字检测参数
+red_cross_detection:
+  enable: true             # 默认关闭，需要时通过launch文件启用
+  h_min: 0                  # 红色色调最小值
+  s_min: 120                # 红色饱和度最小值
+  v_min: 70                 # 红色明度最小值
+  h_max: 10                 # 红色色调最大值
+  s_max: 255                # 红色饱和度最大值
+  v_max: 255                # 红色明度最大值
+
+# 十字检测控制参数
+cross_detection:
+  pixel_offset_scale: 0.0008  # 像素偏差缩放系数，用于将像素偏差转换为实际距离
+
+# 相机内参（需要根据实际相机标定结果调整）
+camera:
+  fx: 479.652738            # 焦距x
+  fy: 482.690306            # 焦距y
+  cx: 657.45208             # 主点x
+  cy: 364.6207              # 主点y
+  width: 640               # 图像宽度
+  height: 480               # 图像高度
+
+# 检测优先级说明：
+# 1. 如果启用红色十字检测且检测到红色十字，优先输出红色十字结果
+# 2. 如果没有检测到红色十字，则尝试检测蓝色圆形
+# 3. 检测结果通过/detect/pixel_offset和/detect/status话题发布
+
+# HSV颜色空间说明：
+# H (色调): 0-180 (OpenCV中H值范围是0-179)
+# S (饱和度): 0-255
+# V (明度): 0-255
+# 红色在HSV中有两个范围：[0,10] 和 [170,180] 

@@ -146,7 +146,7 @@ class CoveragePolicyTest(unittest.TestCase):
     def test_coverage_runtime_has_no_target_coordinate_inputs(self):
         package_dir = Path(__file__).resolve().parents[1]
         runtime_text = "\n".join([
-            (package_dir / "config" / "coverage_toudi3.yaml").read_text(),
+            (package_dir / "config" / "coverage_toudi4.yaml").read_text(),
             (package_dir / "scripts" /
              "coverage_search_manager.py").read_text(),
         ]).lower()

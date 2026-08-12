@@ -24,7 +24,7 @@
   <node pkg="uav_mission" type="coverage_search_manager.py"
         name="coverage_search_manager" output="screen">
     <rosparam command="load"
-              file="$(find uav_mission)/config/coverage_toudi3.yaml" />
+              file="$(find uav_mission)/config/coverage_toudi4.yaml" />
     <param name="wall_timeout" value="$(arg wall_timeout)" />
     <param name="report_path" value="$(arg manager_report_path)" />
     <param name="gate_name" value="coverage_r6" />
