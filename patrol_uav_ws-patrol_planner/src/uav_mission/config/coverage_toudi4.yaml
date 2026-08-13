@@ -48,6 +48,9 @@ candidate:
   capture_timeout: 20.0
   capture_fresh_age: 1.0
   capture_radius: 0.75
+  # 规划器在接近高度上空约 2.2m 悬停，沉降余量放宽到 0.30m 避免误超时
+  capture_settle_height_margin: 0.30
+  capture_settle_duration: 2.0
 
 # 高权重中断投递：队列头部权重达到阈值即中断搜索先行投递（red_cross=10、tank=5），
 # 投完从被中断端点恢复搜索；其余候选仍按“搜索完全场后直飞投递”。
