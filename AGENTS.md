@@ -466,10 +466,12 @@ src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_sim.launch
 
 ### 7.3 当前主要卡点
 
-1. 主线已推进到 V-CL-04（toudi4 覆盖搜索 + 按权重三次 guarded 投递）：V-CL-02/03
-   已通过；V-CL-04 的 R6 Gate 已实跑两轮（2026-08-12/13），语义投递链已修通
-   （tank/panzer 两投闭环），剩余阻塞是 bridge 第三投（桥体附近下降穿地 + 视觉
-   证据断链）与返航降落验收，详见 `docs/仿真联调变更记录.md` 尾部条目。
+1. 视觉任务闭环已打通：V-CL-02 固定三投、V-CL-03 外部单候选通过；V-CL-04 覆盖
+   搜索三投闭环实跑（v2：12/12 覆盖、tank/panzer/bridge 3/3、0 碰撞、377.6 s 降落，
+   Gate 断言已按全程事实修复）；V-CL-05 高权重中断投递 + red_cross 统一入队 +
+   随机红十字摆放已落地，中断机制实跑验证（vcl05b：tank 中断→恢复搜索、pillbox
+   端到端投出）。剩余阻断：Fast-Planner 低空下降/返航可达性波动（规划组）、
+   H 视觉降落与北区走廊 Gate（联合）、30-seed/实拍真值/板端 ROS 链（量化/部署组）。
 2. 30-seed、10 min 和延迟继续记录，但不再阻塞 V-CL；搜索阶段统一 P95 `<=200 ms`
    后移，陈旧数据、持续积压和错误释放仍是硬失败。
 3. 实拍圆环 letterbox 回放自洽关联率 58.80%，但缺人工实例/中心真值和同步 pose，
