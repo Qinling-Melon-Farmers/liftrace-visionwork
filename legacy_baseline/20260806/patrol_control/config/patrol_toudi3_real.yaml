@@ -1,0 +1,108 @@
+# toudi3.world（原始几何）完整比赛航线——参照板端 patrol_real.yaml 流程结构
+# （4 投递 + 走廊穿越 + 降高机动 + 降落）。
+#
+# toudi3.world 原始几何（compute_free_waypoints.py 实测）：
+#   场地：x∈[-4.485,3.515]、y∈[-2.905,6.945]，四面围场
+#   Wall_15 横墙 y∈[4.225,4.375]，门洞 x∈[-3.280,-2.480]（宽 0.8m，
+#     z∈[0.65,1.3] 可穿，净高 0.65m）——走廊穿越唯一通道
+#   Wall_13 横墙 y∈[5.575,5.725]（北区东侧封死）、Wall_16 纵墙
+#     x∈[-3.744,-3.594]（北区西侧）、Wall_20/22 门框（深 0.15m 不可穿）
+#   半高障碍：big_box3/big_box3_0/Big box 4（顶 1.25m，z>1.3 可飞越）
+#   树 4 棵（高 1.5m，z<1.5 需水平绕行）
+# 标准靶真值：dibao→pillbox(-0.602,-1.041) qiaoliang→bridge(-1.903,-0.023)
+#   zhangpeng→tent(1.016,0.256) zhuangjiache→panzer(-1.589,3.022)
+#   tanke→tank(0.283,3.856)  H→(0,0)
+
+# 目标类别（sim_helpers 动态 mock 与补丁 A 的 goal_list 匹配）
+goal_list: ["bridge", "panzer", "pillbox", "tent", "tank"]
+
+# 4 投后不跳降落段，顺序推进走廊航点（补丁 B）
+detect_skip_enable: false
+
+waypoints:
+  - {x: 0.000, y: 0.000, z: 1.5, yaw: 0.0, pointmode: "Takeoff_point", hover_time: 0.0}
+
+  # 投递点 1-4（z=1.2 低于树顶 1.5，树成为绕行障碍；第 4 点 servo_id=4
+  # 超出 3 舵机上限不投递，与板端 patrol_real.yaml 行为一致）
+  - {x: -0.602, y: -1.041, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}   # dibao/pillbox servo1
+  - {x: -1.903, y: -0.023, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}   # qiaoliang/bridge servo2
+  - {x: 1.016, y: 0.256, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}    # zhangpeng/tent servo3
+  - {x: -1.589, y: 3.022, z: 1.2, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}   # zhuangjiache/panzer servo4(不投递)
+
+  # 投递 3→4 之间绕树过渡（树 (0.16,1.31) 在直线上，水平绕行）
+  - {x: 0.500, y: 2.000, z: 1.2, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+
+  # 走廊去程：门洞穿越（x=-2.88 门洞中心，z=1.0 ∈ [0.65,1.3]）
+  - {x: -2.880, y: 4.000, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}   # 门洞南侧
+  - {x: -2.880, y: 4.450, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}   # 穿门洞
+
+  # 北区（Wall_15 北 / Wall_13 南 / Wall_16 东，y∈[4.375,5.575]）
+  - {x: -3.200, y: 5.000, z: 1.5, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}   # 北区西
+  - {x: 0.300, y: 5.200, z: 1.5, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}   # 北区中（Big box 4 南侧）
+  - {x: 2.500, y: 5.200, z: 1.5, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}   # 北区东
+
+  # 回程：绕 Big box 4 北侧 → 门洞北 → 穿回主厅
+  - {x: 0.000, y: 5.400, z: 1.5, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}   # 绕 Big box 4 北
+  - {x: -2.880, y: 4.600, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}  # 门洞北侧
+  - {x: -2.880, y: 4.450, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}  # 穿门洞回
+  - {x: -2.880, y: 4.000, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}  # 主厅
+
+  # 降高机动（参照 patrol_real 0.65→0.15→0.65 结构；z 下限 0.15 贴地验证）
+  - {x: 0.500, y: 2.500, z: 0.65, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
+  - {x: 0.500, y: 2.500, z: 0.15, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
+  - {x: 0.500, y: 2.500, z: 0.65, yaw: 0.0, pointmode: "Nothing_point", hover_time: 1.0}
+
+  # 返航与降落（H 位于 (0,0)）
+  - {x: 1.000, y: 2.500, z: 1.0, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  - {x: 0.000, y: 0.000, z: 0.8, yaw: 0.0, pointmode: "Land_point", hover_time: 0.0}
+
+waypoint_skipping_index: 4
+land_height: 0.30
+align_height: 1.20
+px4_max_distance: 0.20
+max_yaw_change: 0.20
+
+progressive_descent:
+  enable: true
+  target_height: 0.40
+  intermediate_height: 0.70
+  descent_duration: 5.0
+  final_descent_duration: 2.0
+  min_detection_count: 5
+
+alignment:
+  threshold: 20.0
+  stable_count_threshold: 10
+  timeout: 30.0
+
+threshould:
+  takeoff_threshould: 0.30
+  waypoint_threshould: 0.30
+  aligning_threshould: 0.20
+  landing_threshould: 0.15
+  arrive_yaw_threshould: 0.30
+  times_detect_threshould: 40
+  waypoint_adjust_max_second_threshould: 15
+  land_adjust_max_second_threshould: 10
+  planner_min_pub_threshould: 0.025
+
+switch:
+  flag_planner_px4: 1
+  flag_landing_detect: 1
+  auto_land: 1
+
+drop_system:
+  precision_threshold: 20.0
+  height_threshold: 0.20
+  enable_drop: true
+  descent_stable_duration: 2.0
+
+uav_vision:
+  selected_target_timeout: 1.0
+  drop_offset_timeout: 1.0
+  pixel_to_meter_ratio: 0.0015
+  max_movement_distance: 0.5
+  drop_circle_radius_m: 0.5
+  drop_cross_radius_m: 0.5
+  landing_pad_radius_m: 0.30
+  enable_tank_interrupt: false

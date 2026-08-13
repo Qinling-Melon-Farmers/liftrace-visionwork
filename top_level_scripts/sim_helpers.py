@@ -18,6 +18,7 @@ Parameters (all ~):
   servo_mock_enable  bool (default: true; disable in guarded-chain runs)
 """
 import math
+import os
 
 import rospy
 import std_msgs.msg
@@ -43,6 +44,10 @@ class SimHelpers:
         self.class_reference = pnh.get("class_reference", "setpoint")
         self.circle_mode = pnh.get("circle_mode", "setpoint")
         self.servo_mock_enable = bool(pnh.get("servo_mock_enable", True))
+        servo_env = os.environ.get("SIM_HELPERS_SERVO_MOCK_ENABLE")
+        if servo_env is not None:
+            self.servo_mock_enable = servo_env.strip().lower() not in (
+                "0", "false", "no", "off")
 
         # 目标真值表：支持 ~target_table 覆盖
         table = pnh.get("target_table", None)

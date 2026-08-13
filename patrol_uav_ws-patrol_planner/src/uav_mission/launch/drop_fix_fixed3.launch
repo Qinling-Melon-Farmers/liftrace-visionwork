@@ -1,0 +1,29 @@
+<launch>
+  <!-- PX4/Gazebo SITL only. Legacy patrol_control performs all Servo calls. -->
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="waypoint_config"
+       default="$(find patrol_control)/config/patrol_toudi3_r1.yaml" />
+
+  <include file="$(find patrol_control)/launch/patrol_full_competition_sim.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="mapping_rviz" value="false" />
+    <arg name="start_mapping" value="false" />
+    <arg name="start_visual" value="false" />
+    <arg name="start_arming" value="true" />
+    <arg name="waypoint_mode" value="true" />
+    <arg name="simulation_auto_land" value="true" />
+    <arg name="px4_max_distance" value="0.2" />
+    <arg name="waypoint_config" value="$(arg waypoint_config)" />
+  </include>
+
+  <include file="$(find uav_mission)/launch/release_guard_sim.launch" />
+
+  <node pkg="uav_mission" type="fixed_drop_evidence_mock.py"
+        name="fixed_drop_evidence_mock" output="screen" />
+  <node pkg="uav_mission" type="fixed_three_drop_assertion.py"
+        name="fixed_three_drop_assertion" output="screen" required="true">
+    <param name="wall_timeout" value="600.0" />
+  </node>
+</launch>

@@ -17,6 +17,7 @@
   <arg name="allow_latest_tf_fallback" default="false" />
   <arg name="max_latest_tf_age_sec" default="0.10" />
   <arg name="default_align_mode" default="disabled" />
+  <arg name="drop_stable_frames" default="3" />
   <arg name="start_legacy_compat" default="true" />
 
   <!-- 标准目标检测 (YOLO, dev/sim only) -->
@@ -87,6 +88,7 @@
   <node pkg="uav_vision" type="drop_aligner.py" name="drop_aligner" output="screen">
     <rosparam file="$(find uav_vision)/config/drop_aligner.yaml"/>
     <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <param name="stable_frames" value="$(arg drop_stable_frames)" />
   </node>
 
   <!-- 旧接口兼容桥 -->

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Full toudi3 SITL with the new uav_vision Phase-D chain.
+       The legacy control/planner chain remains active, but legacy visual
+       detector nodes are disabled to avoid duplicate node names and duplicate
+       image processing.  The compatibility bridge publishes only semantic
+       legacy status by default; it does not fabricate world-frame poses. -->
+  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
+  <arg name="vehicle" default="iris_mid360" />
+  <arg name="px4_model_root" default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
+  <arg name="vehicle_sdf" default="$(arg px4_model_root)/$(arg vehicle)/$(arg vehicle).sdf" />
+  <arg name="astra_sim_lib" default="$(optenv ASTRA_SIM_LIB /home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib)" />
+  <arg name="px4_plugin_lib" default="$(arg px4_root)/build/px4_sitl_default/build_gazebo-classic" />
+  <arg name="camera_image_topic" default="/camera/color/image_raw" />
+  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
+  <arg name="gui" default="true" />
+  <arg name="rviz" default="true" />
+  <arg name="mapping_rviz" default="false" />
+  <arg name="start_mapping" default="true" />
+  <arg name="start_arming" default="true" />
+  <arg name="waypoint_mode" default="true" />
+  <arg name="simulation_auto_land" default="true" />
+  <arg name="px4_max_distance" default="0.2" />
+  <arg name="enable_debug_image" default="true" />
+
+  <include file="$(find patrol_control)/launch/patrol_full_competition_sim.launch">
+    <arg name="world" value="$(arg world)" />
+    <arg name="px4_root" value="$(arg px4_root)" />
+    <arg name="vehicle" value="$(arg vehicle)" />
+    <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+    <arg name="astra_sim_lib" value="$(arg astra_sim_lib)" />
+    <arg name="px4_plugin_lib" value="$(arg px4_plugin_lib)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="mapping_rviz" value="$(arg mapping_rviz)" />
+    <arg name="start_mapping" value="$(arg start_mapping)" />
+    <arg name="start_visual" value="false" />
+    <arg name="start_arming" value="$(arg start_arming)" />
+    <arg name="waypoint_mode" value="$(arg waypoint_mode)" />
+    <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
+    <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
+  </include>
+
+  <include file="$(find uav_vision)/launch/phase_d.launch">
+    <arg name="image_topic" value="$(arg camera_image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="target_detector_launch_prefix" value="$(arg vision_python)" />
+    <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+  </include>
+</launch>

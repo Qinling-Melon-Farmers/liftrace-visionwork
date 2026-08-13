@@ -63,6 +63,9 @@ drop_system:
   height_threshold: 0.20
   enable_drop: true
   descent_stable_duration: 2.0
+  # Legacy toudi3 fixed-drop compensation, in metres: [x, y] per slot.
+  slot_offsets: [[-0.07, 0.0], [0.0, -0.07], [0.0, 0.07]]
+  dynamic_slot_offsets: [[-0.10, 0.0], [0.0, -0.10], [0.0, 0.10]]
 
 uav_vision:
   selected_target_timeout: 1.0

@@ -15,6 +15,12 @@
   <arg name="camera_image_topic" default="/camera/color/image_raw" />
   <arg name="camera_info_topic" default="/camera/color/camera_info" />
   <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="map_frame" default="camera_init" />
+  <arg name="ground_z" default="0.0" />
+  <arg name="allow_latest_tf_fallback" default="false" />
+  <arg name="max_latest_tf_age_sec" default="0.10" />
+  <arg name="drop_stable_frames" default="5" />
   <arg name="gui" default="true" />
   <arg name="rviz" default="true" />
   <arg name="mapping_rviz" default="false" />
@@ -23,7 +29,14 @@
   <arg name="waypoint_mode" default="true" />
   <arg name="simulation_auto_land" default="true" />
   <arg name="px4_max_distance" default="0.2" />
+  <!-- The 10 m arena only needs a bounded local planning map.  Keeping the
+       historical 100 x 100 x 50 m grid would allocate tens of millions of
+       voxels at 0.1 m resolution and can trigger the WSL OOM killer. -->
+  <arg name="planner_map_size_x" default="14.0" />
+  <arg name="planner_map_size_y" default="14.0" />
+  <arg name="planner_map_size_z" default="6.0" />
   <arg name="enable_debug_image" default="true" />
+  <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_toudi3_new_vision.yaml" />
 
   <include file="$(find patrol_control)/launch/patrol_full_competition_sim.launch">
     <arg name="world" value="$(arg world)" />
@@ -41,12 +54,22 @@
     <arg name="waypoint_mode" value="$(arg waypoint_mode)" />
     <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
     <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <arg name="planner_map_size_x" value="$(arg planner_map_size_x)" />
+    <arg name="planner_map_size_y" value="$(arg planner_map_size_y)" />
+    <arg name="planner_map_size_z" value="$(arg planner_map_size_z)" />
+    <arg name="waypoint_config" value="$(arg waypoint_config)" />
   </include>
 
   <include file="$(find uav_vision)/launch/phase_d.launch">
     <arg name="image_topic" value="$(arg camera_image_topic)" />
     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
     <arg name="target_detector_launch_prefix" value="$(arg vision_python)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
     <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+    <arg name="map_frame" value="$(arg map_frame)" />
+    <arg name="ground_z" value="$(arg ground_z)" />
+    <arg name="allow_latest_tf_fallback" value="$(arg allow_latest_tf_fallback)" />
+    <arg name="max_latest_tf_age_sec" value="$(arg max_latest_tf_age_sec)" />
+    <arg name="drop_stable_frames" value="$(arg drop_stable_frames)" />
   </include>
 </launch>

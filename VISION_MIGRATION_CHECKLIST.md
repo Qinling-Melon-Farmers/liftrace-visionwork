@@ -51,16 +51,15 @@
 
 - [x] `/uav_vision/align_mode` 已存在；
 - [x] `drop_aligner` 已输出 `drop_offset/drop_ready`；
-- [~] 旧主控已订阅新接口；
+- [x] 旧主控已订阅新视觉候选、偏差、对准和短时任务许可；
 - [~] `disabled/drop_circle/drop_cross/landing` 模式有回归；任务层完整阶段矩阵待联调；
 - [x] H 在非 `landing` 阶段不能进入 operational 候选；
 - [x] `red_cross` 与 H 按当前 align mode 过滤；
 - [x] `drop_ready` 明确只表示视觉对准，不表示动作许可；
 - [x] `/uav_vision/release_evidence` 已实现身份、结构、新鲜度、稳定帧和拒绝原因；
-- [~] 任务/安全层第一版 `/mission/release_permission`、顺序载荷、防重放和旧 Servo 安全
-  代理已实现并通过 mock 回归；许可已显式绑定旧控制 `Aligning=2`，三投事件 JSON 审计
-  通过 mock。完整 SITL 已恢复地图 `selected_target`，当前缺口是控制侧未以其 `map_point`
-  完成稳定导航/对准闭环；仍缺三投、速度/机构状态互锁与 Mission Manager 上下文。
+- [x] `/mission/release_permission`、顺序载荷、防重放、最终下降投递承诺和旧 Servo 安全
+  代理已通过固定路线完整 SITL；许可绑定 `Aligning=2`，三投 JSON 审计 PASS。速度/机构
+  状态互锁与 Mission Manager 上下文属于后续外部任务模式/实机阶段。
 
 ## Gate M5：旧接口兼容
 
@@ -77,6 +76,7 @@
 - [x] 新视觉 toudi3 GUI launch/脚本和联合环境入口可解析；GUI 仍只作人工烟测；
 - [x] 统一 overlay/环境脚本通过 `rospack`、消息 import 和 launch 解析；
 - [x] 新视觉 headless shadow 入口存在且全局控制/执行输出受保护；
+- [x] `newvision_fixed3` 无 GUI Gate 完成三类地图候选和三次受许可 mock ACK，零重复/越权；
 - [x] 仿真真值来自 target catalog、Gazebo/model state、CameraInfo/TF，不依赖检测输出；
 - [x] 五类标准靶、红十字、H、背景固定场景与自动 recorder/report 已落地；
 - [x] L0 圆环坐标、全局关联、记忆新鲜度、地图/释放证据连续 3 次通过；

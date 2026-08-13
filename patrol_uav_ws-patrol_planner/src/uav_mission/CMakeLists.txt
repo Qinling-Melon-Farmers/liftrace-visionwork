@@ -27,10 +27,14 @@ catkin_package(
 
 catkin_install_python(PROGRAMS
   scripts/release_permission_arbiter.py
+  scripts/release_commitment.py
   scripts/guarded_servo_proxy.py
   scripts/mock_raw_servo_server.py
   scripts/release_guard_assertion.py
   scripts/visual_delivery_audit.py
+  scripts/fixed_drop_evidence_mock.py
+  scripts/fixed_three_drop_assertion.py
+  scripts/newvision_fixed3_assertion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

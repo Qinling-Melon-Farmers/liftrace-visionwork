@@ -17,6 +17,11 @@ SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOGS_DIR="${PROJECT_ROOT}/logs"
 
+# WSL may inherit Windows Anaconda paths even when invoked non-interactively.
+# Keep ROS command wrappers on the Ubuntu system Python before sourcing overlays.
+export PATH="/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+unset PYTHONHOME PYTHONPATH
+
 # ---- source ROS 环境（可被调用者预先覆盖；setup 脚本与 nounset 不兼容，临时关闭） ----
 set +u
 if [ -z "${ROS_DISTRO:-}" ] && [ -f /opt/ros/noetic/setup.bash ]; then
@@ -46,6 +51,8 @@ shift
 TS="$(date +%Y%m%d_%H%M%S)"
 RUN_DIR="${LOGS_DIR}/${SCENE}_${TS}"
 mkdir -p "${RUN_DIR}"
+# Allow launch files to place machine-readable reports beside run.log.
+export SIM_RUN_DIR="${RUN_DIR}"
 
 MANIFEST="${RUN_DIR}/manifest.yaml"
 RUN_LOG="${RUN_DIR}/run.log"
@@ -92,6 +99,18 @@ echo "" | tee -a "${RUN_LOG}"
 # ---- 前台运行 roslaunch ----
 "$@" >> "${RUN_LOG}" 2>&1
 EXIT_CODE=$?
+
+# A Gate assertion may stop roslaunch through required="true" while
+# roslaunch itself still exits zero.  Prefer the structured Gate result when
+# present so manifest.yaml reflects the actual acceptance outcome.
+GATE_STATUS_FILE="${RUN_DIR}/gate_status.json"
+if [ -f "${GATE_STATUS_FILE}" ]; then
+  GATE_STATUS="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("status", ""))' "${GATE_STATUS_FILE}" 2>/dev/null || true)"
+  echo "Gate status: ${GATE_STATUS:-UNKNOWN}" | tee -a "${RUN_LOG}"
+  if [ "${GATE_STATUS}" != "PASS" ]; then
+    EXIT_CODE=1
+  fi
+fi
 
 echo "" | tee -a "${RUN_LOG}"
 echo "Main cmd exited: ${EXIT_CODE}" | tee -a "${RUN_LOG}"
