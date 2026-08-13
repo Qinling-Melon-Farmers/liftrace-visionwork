@@ -257,10 +257,7 @@ void LLController::externalMissionTick() {
     patrol_cmd.pose.position.z = align_height;
     patrol_cmd.pose.orientation = waypoint_mark_point.pose.orientation;
 
-    const bool align_done =
-        (current_task_type == CROSS_MISSION) ? CrossDetectionDone()
-                                             : WayPointDetectDone();
-    if (align_done) {
+    if (WayPointDetectDone()) {
         detect_enable_msg.data = false;
         detect_control_pub_.publish(detect_enable_msg);
         Drone_mode = Run_point;
@@ -2207,10 +2204,7 @@ void LLController::missionCommandCallback(
 
         case patrol_control::MissionCommand::ALIGN:
             resetDetectionState();
-            // 随机投放区红十字与标准靶共用同一使命层队列，仅按目标类别选择
-            // 对齐状态机分支（十字走 CrossDetectionDone，其余走圆环流程）。
-            current_task_type = (msg->target_class == "red_cross")
-                ? CROSS_MISSION : MAIN_MISSION;
+            current_task_type = MAIN_MISSION;
             Point_mode = Detect_point;
             Drone_mode = Aligning;
             goal.clear();

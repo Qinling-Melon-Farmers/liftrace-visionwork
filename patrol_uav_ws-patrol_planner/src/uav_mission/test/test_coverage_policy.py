@@ -8,11 +8,15 @@ import yaml
 from coverage_policy import (
     CandidateData,
     CandidateQueue,
+    CaptureEvidence,
     GoalRetryPolicy,
     accumulate_run_facts,
     candidate_rank,
     candidate_valid,
+    capture_evidence_matches,
+    expected_delivery_classes,
     generate_serpentine,
+    interrupt_eligible,
     point_inside_safe_bounds,
     resolve_safe_waypoint,
     select_serpentine_entry,
@@ -125,6 +129,30 @@ class CoveragePolicyTest(unittest.TestCase):
             [queue.pop().class_name for _ in classes],
             ["tank", "panzer", "bridge", "pillbox", "tent"])
 
+    def test_standard_target_capture_requires_blue_circle(self):
+        candidate = CandidateData(
+            1, "tank", 0.9, 1.0, 10.0, 2, True, "camera_init",
+            True, "", 1.0, 2.0)
+        red_cross = CaptureEvidence("red_cross", 1.0, 2.0, 10.0, 0.9)
+        circle = CaptureEvidence("circle", 1.1, 2.0, 10.0, 0.9)
+        self.assertFalse(capture_evidence_matches(
+            candidate, [red_cross], 10.2, 1.0, 0.75))
+        self.assertTrue(capture_evidence_matches(
+            candidate, [circle], 10.2, 1.0, 0.75))
+
+    def test_red_cross_capture_uses_own_geometry_not_circle(self):
+        candidate = CandidateData(
+            2, "red_cross", 0.9, 1.0, 10.0, 2, True, "camera_init",
+            True, "", 1.0, 2.0)
+        circle = CaptureEvidence("circle", 1.0, 2.0, 10.0, 0.9)
+        red_cross = CaptureEvidence("red_cross", 1.1, 2.0, 10.0, 0.9)
+        self.assertFalse(capture_evidence_matches(
+            candidate, [circle], 10.2, 1.0, 0.75))
+        self.assertTrue(capture_evidence_matches(
+            candidate, [red_cross], 10.2, 1.0, 0.75))
+        self.assertFalse(capture_evidence_matches(
+            candidate, [red_cross], 11.2, 1.0, 0.75))
+
     def test_goal_retry_and_timeout(self):
         policy = GoalRetryPolicy(
             retry_interval=5.0, unreachable_timeout=20.0, max_retries=2)
@@ -236,14 +264,18 @@ class CoveragePolicyTest(unittest.TestCase):
             "if (external_mission_mode_)", 1)[1].split("} else {", 1)[0]
         self.assertNotIn("waypoint_list[waypoint_next]", external_branch)
 
-    def test_release_attribution_uses_circle_and_candidate_neighborhood(self):
+    def test_release_attribution_uses_mode_specific_geometry(self):
         package_dir = Path(__file__).resolve().parents[1]
         source = (package_dir / "scripts" /
                   "coverage_search_manager.py").read_text(encoding="utf-8")
         matcher = source.split(
             "def _release_matches_candidate", 1)[1].split(
                 "def _finish_candidate", 1)[0]
-        self.assertIn('target_class != "circle"', matcher)
+        # 标准靶释放证据来自蓝环；红十字释放证据来自红十字自身几何。
+        self.assertIn('release_mode == "drop_circle" and release_class == "circle"',
+                      matcher)
+        self.assertIn('release_mode == "drop_cross"', matcher)
+        self.assertIn('release_class == "red_cross"', matcher)
         self.assertIn("release_attribution_distance", matcher)
         self.assertNotIn("selected_target.id", matcher)
 
@@ -328,6 +360,67 @@ class AccumulateRunFactsTest(unittest.TestCase):
         self.assertEqual(by_class["tank"], 5)
         self.assertEqual(ids, {1, 5})
         self.assertEqual(selection, [(1, "tank"), (5, "tank")])
+
+
+def _candidate(target_id, class_name):
+    return CandidateData(
+        target_id=target_id, class_name=class_name, confidence=0.9,
+        first_seen=1.0, last_seen=2.0, state=2, map_valid=True,
+        map_frame="camera_init", association_valid=True,
+        reject_reason="", x=0.0, y=0.0)
+
+
+class InterruptPolicyTest(unittest.TestCase):
+    def test_interrupt_requires_top_weight_above_threshold(self):
+        pending = [_candidate(1, "tank")]
+        self.assertTrue(interrupt_eligible(pending, 4.0))
+        self.assertFalse(interrupt_eligible(pending, 5.5))
+
+    def test_interrupt_ignores_lower_weights_even_if_first(self):
+        pending = [_candidate(1, "panzer")]
+        self.assertFalse(interrupt_eligible(pending, 4.0))
+
+    def test_interrupt_with_red_cross_first(self):
+        pending = [_candidate(2, "red_cross"), _candidate(1, "tank")]
+        self.assertTrue(interrupt_eligible(pending, 4.0))
+        self.assertTrue(interrupt_eligible(pending, 9.9))
+        self.assertFalse(interrupt_eligible(pending, 10.5))
+
+    def test_interrupt_empty_queue(self):
+        self.assertFalse(interrupt_eligible([], 4.0))
+
+
+class ExpectedDeliveryClassesTest(unittest.TestCase):
+    def test_weight_order_with_red_cross(self):
+        by_class = {
+            "tank": 7, "bridge": 2, "pillbox": 0, "tent": 5,
+            "panzer": 9, "red_cross": 11,
+        }
+        self.assertEqual(
+            expected_delivery_classes(by_class),
+            ["red_cross", "tank", "panzer"])
+
+    def test_weight_order_without_red_cross(self):
+        by_class = {
+            "tank": 7, "bridge": 2, "pillbox": 0, "tent": 5, "panzer": 9,
+        }
+        self.assertEqual(
+            expected_delivery_classes(by_class),
+            ["tank", "panzer", "bridge"])
+
+
+class RedCrossAccumulationTest(unittest.TestCase):
+    def test_red_cross_is_accumulated_as_discovery_fact(self):
+        by_class, ids, selection = {}, set(), []
+        accumulate_run_facts(by_class, ids, selection, {
+            "discovered": [
+                {"class": "red_cross", "id": 3},
+                {"class": "tank", "id": 7},
+            ],
+            "selection_sequence": [],
+        })
+        self.assertEqual(by_class["red_cross"], 3)
+        self.assertEqual(ids, {3, 7})
 
 
 if __name__ == "__main__":

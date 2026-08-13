@@ -6,6 +6,12 @@ import os
 import sys
 import time
 
+# catkin devel 下节点经 relay 执行时 __file__ 指向源码，但 sys.path[0] 是 relay
+# 目录；先插入源码目录，保证 from coverage_policy import ... 命中真实模块。
+_SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+
 import rosgraph
 import rospy
 from std_msgs.msg import String, UInt8
@@ -13,9 +19,12 @@ from std_msgs.msg import String, UInt8
 from uav_mission.msg import ReleaseResult
 from uav_vision.msg import TargetCandidateArray
 
-from coverage_policy import STANDARD_CLASSES, accumulate_run_facts
+from coverage_policy import (
+    STANDARD_CLASSES,
+    accumulate_run_facts,
+    expected_delivery_classes,
+)
 
-EXPECTED_DELIVERY_CLASSES = ("tank", "panzer", "bridge")
 EXPECTED_SLOTS = (1, 2, 3)
 
 
@@ -28,6 +37,10 @@ class CoverageR6Assertion:
             "~report_path",
             os.path.join(os.environ.get("SIM_RUN_DIR", "/tmp"),
                          "gate_status.json"))
+        self._red_cross_truth_path = rospy.get_param(
+            "~red_cross_truth_path",
+            os.path.join(os.environ.get("SIM_RUN_DIR", "/tmp"),
+                         "red_cross_truth.yaml"))
         self._manager = None
         self._candidate_ids = {}
         # 发现/选择属于全程事实：按每个状态快照累计合并，避免最终快照受
@@ -147,24 +160,31 @@ class CoverageR6Assertion:
         # 发现/选择使用全程累计事实；其余检查使用最终状态快照。
         discovered_classes = set(self._discovered_by_class)
         discovered_ids = set(self._discovered_ids)
-        selected = [class_name for _target_id, class_name in
-                    self._selection_accum[:3]]
+        selected_classes = [
+            class_name for _target_id, class_name in
+            self._selection_accum[:3]]
         delivered = manager.get("delivered", [])
-        selected_classes = [item.get("class") for item in selected]
         delivered_classes = [item.get("class") for item in delivered]
         delivered_ids = [item.get("id") for item in delivered]
         delivered_slots = [item.get("slot") for item in delivered]
         success_slots = [item["slot"] for item in self._successes]
         success_ids = [item["target_id"] for item in self._successes]
         commands = manager.get("command_sequence", [])
+        # 动态期望：按已发现候选权重排序的 top-3（随机十字被发现则期望第一投为十字）。
+        expected_classes = expected_delivery_classes(
+            self._discovered_by_class)
+        # 随机十字摆放成功（真值文件存在）才要求发现十字；未摆放不检查。
+        red_cross_required = (
+            "red_cross" in discovered_classes
+            if os.path.exists(self._red_cross_truth_path) else True)
         return [
             manager.get("reason") == "three_deliveries_landed",
             manager.get("state") == "COMPLETE",
             set(STANDARD_CLASSES).issubset(discovered_classes),
-            len(discovered) == len(STANDARD_CLASSES),
-            len(discovered_ids) == len(STANDARD_CLASSES),
-            selected_classes == list(EXPECTED_DELIVERY_CLASSES),
-            delivered_classes == list(EXPECTED_DELIVERY_CLASSES),
+            red_cross_required,
+            len(discovered_ids) >= len(STANDARD_CLASSES),
+            selected_classes == expected_classes,
+            delivered_classes == expected_classes,
             len(delivered_ids) == 3 and len(set(delivered_ids)) == 3,
             delivered_slots == list(EXPECTED_SLOTS),
             self._raw_calls == list(EXPECTED_SLOTS),

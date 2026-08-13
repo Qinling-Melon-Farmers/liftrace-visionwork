@@ -11,9 +11,14 @@ RULE_WEIGHTS = {
     "bridge": 2.0,
     "panzer": 2.5,
     "tank": 5.0,
+    # 随机投放区红十字：与标准靶共用同一候选队列，仅权重更高（面积小是唯一差异，
+    # 不需要独立任务模式；内部 drop_cross 只是对准几何来源不同）。
+    "red_cross": 10.0,
 }
 
 STANDARD_CLASSES = ("tent", "pillbox", "bridge", "panzer", "tank")
+# Gate 的“发现完整”口径：五类标准靶 + （摆放时）红十字。
+DISCOVERY_CLASSES = STANDARD_CLASSES + ("red_cross",)
 
 
 def accumulate_run_facts(discovered_by_class, discovered_ids,
@@ -27,7 +32,7 @@ def accumulate_run_facts(discovered_by_class, discovered_ids,
     for item in payload.get("discovered") or []:
         class_name = item.get("class")
         target_id = item.get("id")
-        if class_name in STANDARD_CLASSES and target_id is not None:
+        if class_name in DISCOVERY_CLASSES and target_id is not None:
             discovered_by_class[class_name] = int(target_id)
             discovered_ids.add(int(target_id))
     for item in payload.get("selection_sequence") or []:
@@ -61,6 +66,37 @@ class CandidateData:
     reject_reason: str
     x: float
     y: float
+
+
+@dataclass(frozen=True)
+class CaptureEvidence:
+    class_name: str
+    x: float
+    y: float
+    last_seen: float
+    confidence: float
+
+
+def expected_capture_class(candidate_class):
+    """Return the near-field geometry required before entering ALIGN."""
+    return "red_cross" if candidate_class == "red_cross" else "circle"
+
+
+def capture_evidence_matches(candidate, evidence, now, max_age, radius):
+    """Match fresh near-field evidence to the selected semantic candidate."""
+    if candidate is None:
+        return False
+    expected_class = expected_capture_class(candidate.class_name)
+    for observation in evidence:
+        if observation.class_name != expected_class:
+            continue
+        if (observation.last_seen <= 0.0 or
+                now - observation.last_seen > max_age):
+            continue
+        if math.hypot(observation.x - candidate.x,
+                      observation.y - candidate.y) <= radius:
+            return True
+    return False
 
 
 def generate_serpentine(min_x, max_x, min_y, max_y, safety_margin,
@@ -189,6 +225,23 @@ def candidate_rank(candidate):
         candidate.first_seen,
         candidate.target_id,
     )
+
+
+def interrupt_eligible(pending, min_weight):
+    """队列头部候选权重达到阈值时允许中断搜索先行投递。"""
+    if not pending:
+        return False
+    top = pending[0]
+    weight = RULE_WEIGHTS.get(top.class_name, 0.0)
+    return weight >= float(min_weight)
+
+
+def expected_delivery_classes(discovered_by_class, count=3):
+    """按已发现候选的规则权重动态给出期望投递序列（权重降序，同权重按 ID）。"""
+    ranked = sorted(
+        discovered_by_class.items(),
+        key=lambda item: (-RULE_WEIGHTS.get(item[0], 0.0), item[1]))
+    return [class_name for class_name, _target_id in ranked[:count]]
 
 
 class CandidateQueue:
