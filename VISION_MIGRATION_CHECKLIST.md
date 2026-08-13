@@ -1,6 +1,6 @@
 # 视觉迁移与发布 Gate
 
-更新时间：2026-08-07
+更新时间：2026-08-13
 
 本文件只记录 2025 旧视觉链迁移到 `uav_vision` 的通过状态，不维护任务优先级。执行顺序和指标见 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)。
 
@@ -87,6 +87,10 @@
 - [~] `coverage_r6` 按权重三次 guarded mock 投递已实跑 3/3（tank/panzer/bridge，
   `logs/toudi4_coverage_r6_v2_20260813_221737/`，0 碰撞、0 越界、377.6 s 降落）；
   Gate 断言已按全程累计事实修复，待一次干净复跑确认 PASS（规划器可达性波动外置）；
+- [~] V-CL-05 搜索-投递策略：高权重中断投递（red_cross=10/tank=5 发现即中断搜索、
+  投完恢复，`logs/toudi4_coverage_r6_vcl05b_20260813_234314/` 中断机制与 pillbox
+  端到端投递已验证）、red_cross 统一入队（无独立任务模式）、随机红十字摆放（真值
+  仅落盘）与动态期望 Gate 已落地；随机十字独立发现/投递与沉降门控待复跑验收；
 - [x] 仿真真值来自 target catalog、Gazebo/model state、CameraInfo/TF，不依赖检测输出；
 - [x] 五类标准靶、红十字、H、背景固定场景与自动 recorder/report 已落地；
 - [x] L0 圆环坐标、全局关联、记忆新鲜度、地图/释放证据连续 3 次通过；
