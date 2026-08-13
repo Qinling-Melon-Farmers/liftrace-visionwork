@@ -6,6 +6,12 @@ import os
 import sys
 import time
 
+# catkin devel 下节点经 relay 执行时 __file__ 指向源码，但 sys.path[0] 是 relay
+# 目录；先插入源码目录，保证 from coverage_policy import ... 命中真实模块。
+_SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+
 import rosgraph
 import rospy
 from std_msgs.msg import String, UInt8
