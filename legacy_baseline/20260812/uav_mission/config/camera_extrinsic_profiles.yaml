@@ -1,0 +1,46 @@
+# Camera extrinsic evidence inventory for the visual-delivery chain.
+#
+# These profiles are deliberately not selected by application source code.
+# Simulation launch files must use the SDF-matched profile.  A real-aircraft
+# launch must select a measured/verified profile and keep the camera driver's
+# optical-frame TF in the same tree.
+
+sim_iris_mid360_downward:
+  status: verified_in_toudi3_sim
+  parent_frame: body
+  child_frame: "D435i::camera_color_frame"
+  translation_xyz_m: [0.1525, 0.0, 0.03]
+  quaternion_xyzw: [0.0, 1.0, 0.0, 0.0]
+  source: uav_mission/models/iris_mid360_downward/model.sdf
+  note: "ROS optical frame composed from the D435i SDF mount and color-frame rotation."
+
+legacy_2025_primary_camera_link:
+  status: candidate_requires_real_recalibration
+  parent_frame: base_link
+  child_frame: camera_link
+  translation_xyz_m: [0.0, 0.0, -0.15]
+  quaternion_xyzw: [-0.707, 0.707, 0.0, 0.0]
+  source: patrol_control/launch/circle_detection.launch
+  note: >-
+    This is the transform used by the 2025 top-level vision startup.  It ends
+    at camera_link rather than an optical frame; retain the camera driver's
+    camera_link-to-optical transform or compose it before using image_geometry.
+
+legacy_2025_alternates_not_selected:
+  status: conflicting_historical_evidence
+  entries:
+    - quaternion_xyzw: [0.0, 1.0, 0.0, 0.0]
+      source: patrol_control/launch/circle_detection.launch (commented entry)
+    - quaternion_xyzw: [0.0, -0.707, -0.707, 0.0]
+      source: Desktop_misc/launch/tf_publisher.launch
+  note: "Do not choose either alternate without identifying the matching camera mount and image rotation."
+
+legacy_camera_info_warning:
+  status: inconsistent_historical_evidence
+  active_capture_request: [1280, 1024]
+  camera_sdk_yaml_dimensions: [640, 480]
+  old_circle_node_generated_dimensions: [1280, 1024]
+  note: >-
+    The old circle node generated its own intrinsics and projected at
+    best_ellipse.center * 2.  Reuse the physical extrinsic as a calibration
+    seed only; always consume the live CameraInfo in the new chain.

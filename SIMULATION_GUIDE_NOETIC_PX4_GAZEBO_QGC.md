@@ -11,7 +11,9 @@
 ## 2. 当前结论
 
 - 外部仿真底座：`AstraDroneOpen + PX4 SITL + Gazebo Classic + iris_mid360`；
-- 比赛场景：仓库内 `toudi3.world` 与 `patrol_world.launch`；
+- 当前比赛场景：仓库根目录 `toudi4_copy.world` 与 `patrol_world.launch`；
+- 当前机架：`patrol_control/models/iris_mid360_downward_camera/model.sdf`，
+  相机话题为 `/downward_camera/image_raw`、`/downward_camera/camera_info`；
 - 新视觉人工连通入口：`run_toudi3_full_competition_sim_gui_new.sh`；联合环境使用
   `toudi3_combined_env.sh`；
 - 确定性软件回归：`uav_vision` 的 map/patrol mock launch；
@@ -58,7 +60,7 @@ export PX4_ROOT=/home/xhj/PX4-Autopilot
 ### 4.2 一次性资产检查
 
 ```bash
-test -f "$UAV_WS/toudi3.world" && echo world_ok
+test -f "$PROJECT_ROOT/toudi4_copy.world" && echo world_ok
 test -x "$PX4_ROOT/build/px4_sitl_default/bin/px4" && echo px4_ok
 test -d /home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib && echo astra_plugins_ok
 test -f "$VISION_WS/src/uav_vision/launch/phase_d.launch" && echo vision_ok
@@ -198,7 +200,7 @@ source /home/xhj/liftrace/top_level_scripts/toudi3_combined_env.sh
 liftrace_setup_toudi3_combined_env
 liftrace_assert_toudi3_combined_env
 
-rostopic hz /camera/color/image_raw
+rostopic hz /downward_camera/image_raw
 rostopic echo -n 1 /camera/color/camera_info
 rostopic echo -n 1 /uav_vision/detections_resolved
 rostopic echo -n 1 /uav_vision/detections_refined

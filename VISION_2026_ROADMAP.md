@@ -1,6 +1,6 @@
 # 2026 视觉组主路线与仿真验收方案
 
-更新时间：2026-08-06
+更新时间：2026-08-13
 状态：**当前唯一任务优先级来源（Single Source of Truth）**
 
 本文回答四件事：视觉组现在做到哪里、目标架构是什么、下一步具体做什么、如何用仿真证明算法有效。其他文档只负责环境操作、接口细节、部署或历史证据；若“下一步”表述冲突，以本文为准。
@@ -28,16 +28,29 @@
    累计投票抑制 tent/panzer 单帧抖动；
 5. V-CL-02 已通过完整无 GUI toudi3/SITL：新视觉动态确认 `tent/pillbox/bridge` 三类地图
    候选，旧固定路线完成三次受许可 guarded mock ACK，零重复、零越权；通过日志为
-   `logs/newvision_fixed3_20260806_062124/`。阶段 3 外部任务模式按用户要求暂不启动；
-6. 圆环关联、地图新鲜度、H 结构门控和 `release_evidence` 继续按闭环失败证据修正；召回和
+   `logs/newvision_fixed3_20260806_062124/`；
+6. V-CL-03 已通过完整无 GUI toudi3/SITL：默认关闭的外部任务模式保留旧路线，Mission
+   Manager 独占 `/fastplanner/goal`，单个新视觉候选完成接近、对准、受控投递和恢复；通过
+   日志为 `logs/external_candidate_20260807_041914/`，默认旧模式回归为
+   `logs/legacy_mode_regression_20260807_042403/`；
+7. V-CL-04 的靶标区域覆盖导航 Gate 已通过：12 个非靶标坐标蛇形端点全部到达，五类标准
+   靶恰好形成五个物理 ID，完成安全返航且零碰撞、零越界、零释放；通过日志为
+   `logs/target_area_navigation_20260807_190817/`。按当前范围，北区走廊避障不计入本 Gate；
+8. 圆环关联、地图新鲜度、H 结构门控和 `release_evidence` 继续按闭环失败证据修正；召回和
    时延优化服从于“能发现、能记住、能接近、能重捕获、不会错误投放”的业务目标；
-7. PT/ONNX 与 RKNN 离线部署门禁已有首轮结果：两款 FP32 RKNN 可运行，四款 INT8 RKNN
+9. PT/ONNX 与 RKNN 离线部署门禁已有首轮结果：两款 FP32 RKNN 可运行，四款 INT8 RKNN
    在 v5merge 全集上零有效检测；OrangePi ROS 视觉链和稳定性验收仍未完成。
-8. 当前并行核查原 2025 完整飞行载体：自动起飞和三次软件 mock 投递已完成，但原始
+10. 当前并行核查原 2025 完整飞行载体：自动起飞和三次软件 mock 投递已完成，但原始
    0.8 m 门洞穿越、北区巡航、返航和降落尚未完成。该项是控制/规划/仿真联合前置，
    不计入视觉算法完成度；直达航点通过也不能替代 Fast-Planner 避障验收。分层 Gate 和
    world 派生规则见
    [2025原始链完整仿真阻塞与WORLD改造方案_20260802.md](/home/xhj/liftrace/docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md)。
+11. toudi4 上已完成两轮无固定靶标坐标 Coverage R6 实跑：修正后复跑发现五类五 ID，
+    按 tank→panzer→bridge 权重排序，完成 tank/panzer 两次安全 mock 投递，0 碰撞、
+    0 越界；bridge 近地证据超时，pillbox/tent 接近不可达，因此 V-CL-04 仍为部分完成。
+    证据见 `logs/toudi4_coverage_r6_retry_20260813_003915/`。
+12. 当前 `toudi4_copy.world` 缺少旧 0.8 m 门洞的 `Wall_15` 及北区侧墙 `Wall_16`，
+    不能通过空场直飞代替走廊验收；H 模型存在，但 H 视觉许可降落仍未验收。
 
 现有 `toudi3.world` 五类标准靶和 H 已直接用于固定真值场景，红十字按评测场景插入；
 `uav_vision_eval` 已能自动生成 CSV/JSON/report，shadow 输出也已隔离。当前仍不能宣称完整
@@ -65,9 +78,10 @@
 - `uav_mission` 已新增 `ReleasePermission/ReleaseResult`、任务层许可仲裁、受控旧 Servo 代理
   和纯软件 raw Servo mock；确定性回归已验证旧控制非 Aligning 拒绝、三槽顺序、过期、
   错槽、重放与重复目标拒绝；`visual_delivery_audit.py` 可记录完整事件链并自动判定三投；
-- 已建立仓库内 `iris_mid360_downward` 集成模型：只保留单个下视 D435i 并保留 MID360；原
-  PX4 外部双相机 `iris_mid360` 未修改。独立投影视场回归在真实 `toudi3.world` 中 5/5
-  通过；仿真外参取自该 SDF，旧工程写死外参只登记为实机复标候选，未覆盖仿真值；
+- 当前默认仿真已切换到仓库内 `iris_mid360_downward_camera` 集成模型：单个下视 RGB
+  相机并保留 MID360；PX4 autostart 仍使用 `iris_mid360`。独立投影视场回归已同步到
+  `toudi4_copy.world`，此前 toudi3 结果保留作历史基线；仿真外参取自当前 SDF，旧工程
+  写死外参只登记为实机复标候选；
 - 完整飞行链补齐 `camera_init -> D435i::camera_color_frame` 后，`detections_mapped`、地图
   `targets` 和 `selected_target` 已可产生；`drop_aligner` 已先按观测新鲜度过滤再排序，
   确定性回归通过；
@@ -84,10 +98,10 @@
 
 ### 2.2 不能误判为完成
 
-- 旧控制仍是固定航点巡航加机会式中断，没有全场自主搜索；
-- `selected_target` 对标准目标已能在完整 SITL 中产生地图候选，但旧主控没有根据其
-  `map_point` 自动接近、横向对准或恢复搜索；现有 `/detect/waypoint_mark_point` 像素兼容
-  输出不能冒充旧主控要求的地图坐标，因此默认关闭；
+- 旧控制默认仍是固定航点巡航；参数化外部任务模式和单候选闭环已通过，但尚未完成全场
+  覆盖航线、障碍净空、候选队列、恢复索引和三目标任务；
+- `selected_target.map_point` 已由独立 Mission Manager 完成单候选接近、横向对准、投递和
+  恢复；现有 `/detect/waypoint_mark_point` 像素兼容输出仍不能冒充地图坐标；
 - `drop_ready` 仍只是兼容观测；结构化 `release_evidence` 已实现，任务层第一版
   `release_permission` 和旧 Servo 安全代理已落地；最新完整 SITL 中旧控制两次进入
   `Aligning/drop_circle`，新视觉已产生地图候选，对准失败主要前移为
@@ -365,10 +379,14 @@ shadow 模式必须满足：
 1. `V-CL-00B`：接口/L0 已完成，下一步在完整 SITL 核对 `camera_init` 与实际 TF 树；
 2. `V-CL-01`：L0 已完成，后续在运动相机/跨视角场景量化重复 ID；
 3. `V-CL-02`：已完成；三个固定检测点均完成视觉证据、任务许可、受控 Servo 和 mock ACK；
-4. `V-CL-03`：旧控制增加独立外部任务模式，Mission Manager 独占 `/fastplanner/goal`；
-5. `V-CL-04`：非靶标坐标覆盖航线完成发现、接近、重捕获、投放、恢复和三目标排队。
+4. `V-CL-03`：已完成；旧控制增加独立外部任务模式，Mission Manager 独占
+   `/fastplanner/goal`，单候选完成接近、对准、投放和恢复；
+5. `V-CL-04`：靶标区域的非靶标坐标覆盖导航已完成；toudi4 权重队列实跑已到
+   五类五 ID 和两次投递，但第三目标近地再识别/接近失败，三投、H 降落仍未通过。
 
-阶段 2 完成后按用户要求暂停；`V-CL-03`、`V-CL-04` 尚未启动。
+当前主线仍是 `V-CL-04` 完整闭环：不再放宽超时，先对 bridge 进入 ALIGN 前后的
+图像、circle refine 拒绝原因、TF 年龄和地图落点偏差做定点回放，再复跑权重三投。北区
+走廊独立成 Gate；当前 toudi4 缺门洞实体，须先恢复 world collision，不允许把空场通过写成避障通过。
 
 L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜索阶段统一 P95 `<=200 ms`
 暂不作为阻塞。建立投递承诺时的视觉证据必须新鲜（默认最大年龄 `0.5 s`）；最终释放
@@ -392,8 +410,8 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 接口完成/集成待验收 | 10 | V-CL-00B | 统一 mission frame 与地图坐标契约 | L0 已拒绝无效 TF；完整 SITL 核对 `camera_init` TF 与导航点一致性 |
 | L0 完成/跨视角待验收 | 11 | V-CL-01 | 物理目标 stable ID 与类别时序投票 | 连续帧/置信度/投票回归通过；待运动相机量化重复 ID |
 | 已完成 | 12 | V-CL-02 | 新视觉 + 旧控制固定三投 | `newvision_fixed3_20260806_062124` 三类候选、三次 permission→mock ACK、审计 PASS |
-| 暂停 | 13 | V-CL-03 | 外部任务模式复用 Fast-Planner | 用户要求阶段 2 后暂停；恢复时先验单一目标所有权和地图目标到达误差 `<=0.4 m` |
-| 待推进 | 14 | V-CL-04 | 覆盖搜索、候选队列和恢复 | 连续 3 seed 完成 3/3 mock 投放，无重复、无碰撞、`<=10 min` 仿真时 |
+| 已完成 | 13 | V-CL-03 | 外部任务模式复用 Fast-Planner | `external_candidate_20260807_041914` 单候选接近→对准→ACK→恢复，唯一 goal 发布者；默认旧路线回归 PASS |
+| 部分完成/三投待验收 | 14 | V-CL-04 | 覆盖搜索、候选队列和恢复 | toudi4 R6 已五类五 ID、tank/panzer 2/3 投递、0 碰撞、0 越界；下一步修复 bridge 近地证据/候选可达性并复跑 3/3 |
 | 后置量化 | 15 | V-SIM-04 | 30-seed L1/L2 与阶段性能 | 不阻塞 V-CL；闭环稳定后按失败阶段收紧召回、误差和延迟 |
 | 待真值 | 16 | V-REAL-01 | 实拍回放域差复核 | 标注圆环实例/中心/H/红十字，采集同步 CameraInfo/pose |
 | 离线部分完成/ROS待验收 | 17 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | FP32 RKNN 离线有效；待修 PT/ONNX 差异并完成板端 ROS 相机/TF、5-10 Hz 和 10 min Gate |

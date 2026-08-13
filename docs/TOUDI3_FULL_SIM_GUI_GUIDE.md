@@ -1,5 +1,11 @@
 # toudi3 完整仿真与 GUI 傻瓜式指南
 
+> 当前默认仿真已在 2026-08-12 切换为 `toudi4_copy.world` 和
+> `iris_mid360_downward_camera` 单下视相机机架。本页主体保留为 toudi3 历史回归
+> 手册；当前入口、话题和标定以
+> [TOUDI4仿真机架与世界切换说明_20260812.md](TOUDI4仿真机架与世界切换说明_20260812.md)
+> 为准。
+
 更新时间：2026-08-02
 适用范围：WSL2 Ubuntu 20.04、ROS Noetic、PX4 SITL、Gazebo Classic、RViz
 
@@ -104,7 +110,7 @@ tent 压力位姿，可用 `VISUAL_GUI_CAMERA_X/Y/Z/YAW` 环境变量覆盖。�
 ./top_level_scripts/run_toudi3_visual_viewer_safe.sh
 ```
 
-默认显示 `/camera/color/image_raw`。可在 `rqt_image_view` 下拉框切换到
+默认显示 `/downward_camera/image_raw`。可在 `rqt_image_view` 下拉框切换到
 `/uav_vision/circle_debug`、`/uav_vision/cross_debug` 等调试图；也可通过
 `VISUAL_GUI_IMAGE_TOPIC` 指定初始话题。
 

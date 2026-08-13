@@ -2,7 +2,7 @@
   <!-- Wrapper that combines the full competition sim with the YOLO detector.
        Sources: patrol_uav_ws + Visual workspaces. -->
 
-  <arg name="world" default="/home/xhj/liftrace/patrol_uav_ws-patrol_planner/toudi3.world" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi4_copy.world" />
   <arg name="gui" default="false" />
   <arg name="rviz" default="false" />
   <arg name="mapping_rviz" default="false" />

@@ -1,0 +1,9 @@
+<launch>
+  <!-- Simulation-only release path: permission gate -> raw mock Servo. -->
+  <include file="$(find uav_mission)/launch/release_guard.launch" />
+
+  <node pkg="uav_mission" type="mock_raw_servo_server.py"
+        name="mock_raw_servo_server" output="screen">
+    <param name="service_name" value="/legacy/Servo_raw" />
+  </node>
+</launch>

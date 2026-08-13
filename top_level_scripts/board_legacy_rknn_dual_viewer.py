@@ -14,6 +14,10 @@
 视频文件按原始像素回放，不做相机去畸变；这与离线视频评测口径一致。
 默认 ``--conf 0.001`` 是为了保留旧 RKNN 输出中极低分的诊断候选。正式
 P/R/mAP 仍按 ``conf=0.25`` 计算，低分候选不能视为有效识别。
+
+板端实测（2026-08-10, toolkit 2.3.2 转出的旧链模型）：best-rk3588.rknn /
+tank-rk3588.rknn 的输入要求 uint8 0-255（RGB），若按新链的 float32 0-1
+喂入，输出全为 ~0.001 噪声、零检测。因此回放评测需加 ``--u8-input``。
 """
 import argparse
 import json
@@ -84,8 +88,24 @@ def percentile(values, p):
     return float(np.percentile(np.asarray(values, dtype=np.float64), p)) if values else None
 
 
-def infer_model(runtime, frame, names, conf_threshold):
-    tensor, ratio, left, top = viewer.letterbox(frame)
+def letterbox_u8(frame):
+    """旧链 RKNN 模型输入：letterbox 640 + RGB uint8 0-255（不加 /255）。"""
+    h, w = frame.shape[:2]
+    r = min(viewer.IMGSZ / w, viewer.IMGSZ / h)
+    nw, nh = round(w * r), round(h * r)
+    resized = cv2.resize(frame, (nw, nh), interpolation=cv2.INTER_LINEAR)
+    canvas = np.full((viewer.IMGSZ, viewer.IMGSZ, 3), 114, dtype=np.uint8)
+    top, left = (viewer.IMGSZ - nh) // 2, (viewer.IMGSZ - nw) // 2
+    canvas[top:top + nh, left:left + nw] = resized
+    rgb = cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB)
+    return rgb[None, ...], r, left, top
+
+
+def infer_model(runtime, frame, names, conf_threshold, u8_input=False):
+    if u8_input:
+        tensor, ratio, left, top = letterbox_u8(frame)
+    else:
+        tensor, ratio, left, top = viewer.letterbox(frame)
     started = time.perf_counter()
     outputs = runtime.inference(inputs=[tensor])
     infer_ms = (time.perf_counter() - started) * 1000.0
@@ -187,10 +207,10 @@ def run_video(args):
             sampled += 1
             total_started = time.perf_counter()
             standard_dets, std_infer, std_post = infer_model(
-                standard_rt, frame, STANDARD_NAMES, args.conf,
+                standard_rt, frame, STANDARD_NAMES, args.conf, u8_input=args.u8_input,
             )
             tank_dets, tank_infer, tank_post = infer_model(
-                tank_rt, frame, TANK_NAMES, args.conf,
+                tank_rt, frame, TANK_NAMES, args.conf, u8_input=args.u8_input,
             )
             detections = combine_detections(standard_dets, tank_dets)
             total_ms = (time.perf_counter() - total_started) * 1000.0
@@ -274,7 +294,7 @@ def run_video(args):
             "raw_video_undistortion": False,
             "letterbox": 640,
             "rgb": True,
-            "float32_0_1": True,
+            "u8_0_255_input": args.u8_input,
         },
         "threshold": {"video_display_conf": args.conf, "official_metric_conf": 0.25, "iou": 0.5},
         "input": {"width": width, "height": height, "fps": source_fps},
@@ -323,6 +343,8 @@ def parse_args(argv=None):
     parser.add_argument("--conf", type=float, default=0.001)
     parser.add_argument("--show", action="store_true")
     parser.add_argument("--no-window", action="store_true")
+    parser.add_argument("--u8-input", action="store_true",
+                        help="旧链 RKNN 输入为 uint8 0-255（板端实测要求，否则零检测）")
     return parser.parse_args(argv)
 
 

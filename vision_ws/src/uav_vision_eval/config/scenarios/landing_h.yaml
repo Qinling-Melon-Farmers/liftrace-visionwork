@@ -1,5 +1,5 @@
 scenario_id: landing_h
-description: The existing H landing marker at the toudi3 world origin.
+description: toudi4_copy.world 中的主 H 降落标记。
 active_targets: [landing_h_1]
 score_false_positives: true
 require_fully_in_frame: true

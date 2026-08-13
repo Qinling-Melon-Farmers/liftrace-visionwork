@@ -11,7 +11,8 @@ source "${SCRIPT_DIR}/toudi3_combined_env.sh"
 liftrace_setup_toudi3_combined_env
 liftrace_assert_toudi3_combined_env
 
-exec roslaunch patrol_control toudi3_full_competition_sim_new_vision.launch \
+exec "${SCRIPT_DIR}/sim_run.sh" toudi4_new_vision_gui \
+  roslaunch patrol_control toudi3_full_competition_sim_new_vision.launch \
   world:="${TOUDI3_WORLD}" \
   px4_root:="${PX4_ROOT}" \
   astra_sim_lib:="${ASTRA_SIM_LIB}" \

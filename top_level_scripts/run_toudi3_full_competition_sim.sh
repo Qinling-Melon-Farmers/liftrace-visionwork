@@ -17,7 +17,7 @@ UAV_WS="${UAV_WS:-${PROJECT_ROOT}/patrol_uav_ws-patrol_planner}"
 PX4_ROOT="${PX4_ROOT:-/home/xhj/PX4-Autopilot}"
 ASTRA_SIM_LIB="${ASTRA_SIM_LIB:-/home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib}"
 PX4_PLUGIN_LIB="${PX4_PLUGIN_LIB:-${PX4_ROOT}/build/px4_sitl_default/build_gazebo-classic}"
-WORLD="${TOUDI3_WORLD:-${UAV_WS}/toudi3.world}"
+WORLD="${TOUDI3_WORLD:-${PROJECT_ROOT}/toudi4_copy.world}"
 TOUDI3_GUI="${TOUDI3_GUI:-false}"
 TOUDI3_RVIZ="${TOUDI3_RVIZ:-false}"
 TOUDI3_MAPPING_RVIZ="${TOUDI3_MAPPING_RVIZ:-false}"
@@ -40,7 +40,8 @@ export GAZEBO_MODEL_PATH="${PX4_ROOT}/Tools/simulation/gazebo-classic/sitl_gazeb
 export GAZEBO_PLUGIN_PATH="${ASTRA_SIM_LIB}:${PX4_PLUGIN_LIB}:${GAZEBO_PLUGIN_PATH:-}"
 export LD_LIBRARY_PATH="${ASTRA_SIM_LIB}:${PX4_PLUGIN_LIB}:${LD_LIBRARY_PATH:-}"
 
-exec roslaunch patrol_control patrol_full_competition_sim.launch \
+exec "${PROJECT_ROOT}/top_level_scripts/sim_run.sh" toudi4_full_competition \
+  roslaunch patrol_control patrol_full_competition_sim.launch \
   world:="${WORLD}" \
   px4_root:="${PX4_ROOT}" \
   astra_sim_lib:="${ASTRA_SIM_LIB}" \

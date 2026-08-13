@@ -1,0 +1,54 @@
+# toudi4_copy.world 中央靶区覆盖搜索策略；不包含任何靶标坐标。
+mission_frame: camera_init
+
+# Gazebo 主 H world=(-0.493412,-1.772690) 是新 spawn 点。PX4/MAVROS/camera_init
+# 在此建立本地 (0,0)；下列边界由原 world 坐标整体平移得到，
+# 仍不包含任何靶标坐标。
+
+field:
+  min_x: -3.992
+  max_x: 4.008
+  min_y: -1.132
+  max_y: 8.718
+
+# 覆盖标准靶所在中央区域；北侧走廊仍由后续穿越任务单独处理。
+search_region:
+  min_x: -2.007
+  max_x: 1.993
+  min_y: 0.273
+  max_y: 6.273
+
+coverage:
+  safety_margin: 0.5
+  tracking_reserve: 0.0
+  spacing: 1.0
+  height: 2.0
+  dwell_time: 2.0
+
+navigation:
+  takeoff_height: 1.7
+  map_ready_timeout: 60.0
+  map_max_age: 2.0
+  arrival_radius: 0.40
+  progress_epsilon: 0.10
+  endpoint_clearance: 0.35
+  endpoint_max_adjustment: 1.0
+  collision_clearance: 0.10
+  recovery_height: 0.95
+  landing_height: 0.15
+  landing_timeout: 90.0
+
+candidate:
+  semantic_match_distance: 0.75
+  # 语义图案 ID 与近地 circle ID 不同；ACK 时飞机必须仍在语义候选邻域内。
+  release_attribution_distance: 0.75
+  alignment_timeout: 90.0
+
+navigation_only: true
+execute_candidates: false
+collect_before_delivery: true
+final_land: false
+required_deliveries: 3
+require_north: false
+search_timeout: 540.0
+mission_timeout: 600.0

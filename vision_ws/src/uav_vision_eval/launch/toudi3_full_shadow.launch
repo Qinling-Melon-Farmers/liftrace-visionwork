@@ -2,13 +2,16 @@
   <!-- Headless-by-default SITL shadow entry. It contains no actuator_pwm node.
        Simulated arming is disabled by default; enable it explicitly only when
        a moving-camera regression is intended. -->
-  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi4_copy.world" />
   <arg name="gui" default="false" />
   <arg name="rviz" default="false" />
   <arg name="start_mapping" default="false" />
   <arg name="start_arming" default="false" />
-  <arg name="camera_image_topic" default="/camera/color/image_raw" />
-  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="camera_image_topic" default="/downward_camera/image_raw" />
+  <arg name="camera_info_topic" default="/downward_camera/camera_info" />
+  <arg name="truth_catalog"
+       default="$(find uav_vision_eval)/config/sim_target_catalog_toudi4.yaml" />
+  <arg name="camera_link_suffix" default="downward_camera_link" />
   <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="enable_debug_image" default="false" />
@@ -30,9 +33,11 @@
   </include>
 
   <include file="$(find uav_vision_eval)/launch/ground_truth.launch">
+    <arg name="catalog_file" value="$(arg truth_catalog)" />
     <arg name="scenario_file" value="$(arg scenario_file)" />
     <arg name="image_topic" value="$(arg camera_image_topic)" />
     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="camera_link_suffix" value="$(arg camera_link_suffix)" />
   </include>
 
   <include file="$(find uav_vision_eval)/launch/phase_d_shadow.launch">

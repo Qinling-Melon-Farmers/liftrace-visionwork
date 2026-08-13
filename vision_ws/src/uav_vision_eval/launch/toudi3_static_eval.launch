@@ -1,12 +1,14 @@
 <launch>
   <!-- Visual-only deterministic evaluator: no PX4, MAVROS, patrol control or actuator. -->
-  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi4_copy.world" />
+  <arg name="truth_catalog"
+       default="$(find uav_vision_eval)/config/sim_target_catalog_toudi4.yaml" />
   <arg name="scenario_file" default="$(find uav_vision_eval)/config/scenarios/existing_targets.yaml" />
   <arg name="spawn_red_cross" default="false" />
   <arg name="red_cross_x" default="-2.5" />
   <arg name="red_cross_y" default="-2.5" />
-  <arg name="camera_x" default="1.01558" />
-  <arg name="camera_y" default="0.25625" />
+  <arg name="camera_x" default="1.27572" />
+  <arg name="camera_y" default="0.581612" />
   <arg name="camera_z" default="2.5" />
   <!-- Gazebo renders along camera-link +X. Pitch the static model so +X
        points down; the truth adapter separately converts link to optical. -->
@@ -75,6 +77,7 @@
         args="-sdf -file $(arg px4_model_root)/red_cross/model.sdf -model red_cross -x $(arg red_cross_x) -y $(arg red_cross_y) -z 0.0" />
 
   <include file="$(find uav_vision_eval)/launch/ground_truth.launch">
+    <arg name="catalog_file" value="$(arg truth_catalog)" />
     <arg name="scenario_file" value="$(arg scenario_file)" />
     <arg name="image_topic" value="$(arg image_topic)" />
     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />

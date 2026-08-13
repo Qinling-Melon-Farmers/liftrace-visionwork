@@ -135,6 +135,18 @@ class PhysicalMemoryAssertion:
         assert len(targets) == 2, \
             "pixel fallback merged spatially separate mapped targets"
 
+    def _assert_converged_map_duplicates_merge_to_oldest_id(self):
+        self._reset_memory()
+        first = self._publish([self._detection("pillbox", 0.93, 0.0)])
+        first_id = self._standard_targets(first)[0].id
+        split = self._publish([self._detection("pillbox", 0.93, 0.8)])
+        assert len(self._standard_targets(split)) == 2
+        self._publish([self._detection("pillbox", 0.93, 0.45)])
+        merged = self._publish([self._detection("pillbox", 0.93, 0.40)])
+        targets = self._standard_targets(merged)
+        assert len(targets) == 1, "converged physical duplicates were retained"
+        assert targets[0].id == first_id, "oldest stable ID was not retained"
+
     def run(self):
         rospy.wait_for_service("/uav_vision/reset_memory", timeout=5.0)
         deadline = rospy.Time.now() + rospy.Duration(5.0)
@@ -145,6 +157,7 @@ class PhysicalMemoryAssertion:
         self._assert_class_flicker_keeps_physical_id()
         self._assert_miss_resets_confirmation_streak()
         self._assert_map_separates_same_pixel_targets()
+        self._assert_converged_map_duplicates_merge_to_oldest_id()
         rospy.loginfo("V-CL physical target memory PASS")
 
 

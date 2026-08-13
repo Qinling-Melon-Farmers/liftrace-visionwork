@@ -14,12 +14,15 @@
     <arg name="sdf" value="$(arg sdf)" />
     <arg name="gazebo_model_path"
          value="$(find uav_vision_eval)/models:$(arg px4_model_root)" />
-    <arg name="x" value="-0.602009" />
-    <arg name="y" value="-1.04125" />
+    <arg name="x" value="-0.57481" />
+    <arg name="y" value="0.520346" />
     <arg name="z" value="1.5" />
   </include>
 
   <include file="$(find uav_vision_eval)/launch/ground_truth.launch">
+    <arg name="catalog_file"
+         value="$(find uav_vision_eval)/config/sim_target_catalog_toudi4.yaml" />
+    <arg name="camera_link_suffix" value="D435i::camera_color_frame" />
     <arg name="scenario_file"
          value="$(find uav_vision_eval)/config/scenarios/existing_targets.yaml" />
     <arg name="truth_topic" value="/uav_vision_eval/downward_camera_truth" />

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<sdf version="1.5">
+  <!-- V-CL-02 integration-only vehicle: one calibrated downward camera and
+       MID360, matching the intended physical sensor layout.  The original
+       PX4 iris_mid360 model remains untouched for legacy comparison. -->
+  <model name="iris_mid360">
+    <include>
+      <uri>model://iris</uri>
+    </include>
+
+    <include>
+      <uri>model://mid360</uri>
+      <pose>0 0 0.08 0 0 0</pose>
+    </include>
+    <joint name="mid360_joint" type="revolute">
+      <child>mid360::lidar_link</child>
+      <parent>iris::base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit><upper>0</upper><lower>0</lower></limit>
+      </axis>
+    </joint>
+
+    <!-- The D435i color sensor views along camera_link +Z after its internal
+         color-frame rotation. Roll pi maps that axis to vehicle -Z. -->
+    <include>
+      <uri>model://D435i</uri>
+      <pose>0.12 0 0.03 3.141592653589793 0 0</pose>
+    </include>
+    <joint name="realsense_camera_joint" type="fixed">
+      <child>D435i::camera_link</child>
+      <parent>iris::base_link</parent>
+    </joint>
+
+  </model>
+</sdf>

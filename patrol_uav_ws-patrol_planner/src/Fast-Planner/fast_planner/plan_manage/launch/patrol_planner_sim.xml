@@ -15,6 +15,8 @@
 
   <arg name="max_vel"/>
   <arg name="max_acc"/>
+  <arg name="obstacles_inflation"/>
+  <arg name="clearance_threshold"/>
 
   <arg name="point_num"/>
   <arg name="point0_x"/>
@@ -63,7 +65,7 @@
     <param name="sdf_map/local_update_range_x"  value="8.5" /> 
     <param name="sdf_map/local_update_range_y"  value="8.5" /> 
     <param name="sdf_map/local_update_range_z"  value="20.5" /> 
-    <param name="sdf_map/obstacles_inflation"     value="0.15" /> 
+    <param name="sdf_map/obstacles_inflation" value="$(arg obstacles_inflation)" />
     <param name="sdf_map/obstacles_inflation_up"     value="0.1" />  <!-- 往上膨胀距离 -->
     <param name="sdf_map/obstacles_inflation_down"     value="0.06" /> <!-- 往下膨胀距离 -->
 
@@ -106,7 +108,7 @@
     <param name="manager/max_jerk" value="4" type="double"/>
     <param name="manager/dynamic_environment" value="0" type="int"/>
     <param name="manager/local_segment_length" value="6.0" type="double"/>
-    <param name="manager/clearance_threshold" value="0.2" type="double"/>
+    <param name="manager/clearance_threshold" value="$(arg clearance_threshold)" type="double"/>
     <param name="manager/control_points_distance" value="0.5" type="double"/>
 
     <param name="manager/use_geometric_path" value="false" type="bool"/>

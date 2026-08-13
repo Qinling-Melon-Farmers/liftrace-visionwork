@@ -1,0 +1,34 @@
+<launch>
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="wall_timeout" default="1200.0" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="manager_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/external_candidate_status.json" />
+  <arg name="gate_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+
+  <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="external_mission_mode" value="true" />
+    <arg name="waypoint_mode" value="false" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+  </include>
+
+  <node pkg="uav_mission" type="external_candidate_manager.py"
+        name="external_candidate_manager" output="screen">
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg manager_report_path)" />
+    <param name="mission_frame" value="camera_init" />
+    <param name="takeoff_height" value="1.7" />
+    <param name="approach_height" value="1.5" />
+    <param name="approach_radius" value="0.30" />
+  </node>
+
+  <node pkg="uav_mission" type="external_candidate_assertion.py"
+        name="external_candidate_assertion" output="screen" required="true">
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg gate_report_path)" />
+  </node>
+</launch>

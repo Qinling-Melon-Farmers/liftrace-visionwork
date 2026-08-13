@@ -1,0 +1,6 @@
+# 统一自研代码与文本文件为 LF，消除 Windows autocrlf 警告与假阳性
+* text=auto eol=lf
+
+# 上游原样拷入的第三方库，行尾保持原样，避免污染与上游 diff 对比
+patrol_uav_ws-patrol_planner/src/tool/** -text
+patrol_uav_ws-patrol_planner/src/FAST_LIO/** -text

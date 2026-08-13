@@ -1,0 +1,38 @@
+<launch>
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="wall_timeout" default="600.0" />
+  <arg name="gate_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+  <!-- 该 Gate 专门复现历史链，显式锁回旧场景与旧 PX4 SDF。 -->
+  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="vehicle_sdf"
+       default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris_mid360/iris_mid360.sdf" />
+
+  <include file="$(find patrol_control)/launch/patrol_full_competition_sim.launch">
+    <arg name="world" value="$(arg world)" />
+    <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+    <arg name="spawn_x" value="0.0" />
+    <arg name="spawn_y" value="0.0" />
+    <arg name="spawn_z" value="0.06" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="start_visual" value="false" />
+    <arg name="start_mapping" value="true" />
+    <arg name="start_arming" value="true" />
+    <arg name="waypoint_mode" value="false" />
+    <arg name="external_mission_mode" value="false" />
+    <arg name="planner_map_size_x" value="14.0" />
+    <arg name="planner_map_size_y" value="14.0" />
+    <arg name="planner_map_size_z" value="6.0" />
+    <arg name="waypoint_config"
+         value="$(find patrol_control)/config/patrol_toudi3_new_vision.yaml" />
+  </include>
+
+  <node pkg="uav_mission" type="legacy_mode_assertion.py"
+        name="legacy_mode_assertion" output="screen" required="true">
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg gate_report_path)" />
+    <rosparam param="expected_first_goal">[-0.602, -1.041, 1.5]</rosparam>
+  </node>
+</launch>

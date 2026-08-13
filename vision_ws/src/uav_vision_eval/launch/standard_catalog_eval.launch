@@ -1,8 +1,8 @@
 <launch>
   <!-- Parameterized top-down view for each standard target already in toudi3. -->
   <arg name="target_id" default="tent_1" />
-  <arg name="camera_x" default="1.01558" />
-  <arg name="camera_y" default="0.25625" />
+  <arg name="camera_x" default="1.27572" />
+  <arg name="camera_y" default="0.581612" />
   <arg name="camera_z" default="1.5" />
   <arg name="camera_yaw" default="0.0" />
   <arg name="evaluation_seed" default="-1" />

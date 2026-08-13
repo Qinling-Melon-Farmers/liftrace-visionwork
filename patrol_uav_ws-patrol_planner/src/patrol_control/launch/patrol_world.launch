@@ -7,19 +7,23 @@
     spawned separately by PX4's posix_sitl.launch, so this file deliberately
     keeps world and vehicle arguments independent.
   -->
-  <arg name="world" default="$(find patrol_control)/../../toudi3.world" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi4_copy.world" />
   <arg name="vehicle" default="iris_mid360" />
   <!-- Override px4_root when PX4 is not installed at the local default. -->
   <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
   <arg name="px4_model_root" default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
-  <arg name="sdf" default="$(arg px4_model_root)/$(arg vehicle)/$(arg vehicle).sdf" />
+  <arg name="sdf"
+       default="$(find patrol_control)/models/iris_mid360_downward_camera/model.sdf" />
   <arg name="gazebo_model_path" default="$(arg px4_model_root)" />
   <arg name="astra_sim_lib" default="$(optenv ASTRA_SIM_LIB /home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib)" />
   <arg name="px4_plugin_lib" default="$(arg px4_root)/build/px4_sitl_default/build_gazebo-classic" />
   <arg name="gazebo_plugin_path" default="$(arg astra_sim_lib):$(arg px4_plugin_lib)" />
 
-  <arg name="x" default="0.0" />
-  <arg name="y" default="0.0" />
+  <!-- toudi4 默认从主 H 上生成。PX4/MAVROS 本地原点会随 spawn
+       建立，因此任务返航点仍是本地 (0,0)。历史 toudi3 Gate 必须显式
+       覆盖为 x:=0 y:=0。 -->
+  <arg name="x" default="-0.493412" />
+  <arg name="y" default="-1.772690" />
   <arg name="z" default="0.06" />
   <arg name="R" default="0.0" />
   <arg name="P" default="0.0" />

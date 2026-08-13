@@ -5,7 +5,8 @@ confirm_frames: 3
 candidate_ttl: 3.0          # 候选超时 [s]
 reject_cooldown: 5.0        # 拒绝冷却 [s]
 match_distance_px: 80.0     # 跨帧匹配最大中心距离 [px]
-map_match_distance_m: 0.5   # 地图坐标跨视角匹配距离 [m]
+map_match_distance_m: 0.7   # 地图坐标跨视角匹配距离 [m]；覆盖 toudi4 首轮最大约 0.65m 投影漂移
+map_merge_distance_m: 0.7   # 已有记录融合后收敛到此距离内时合并 stable ID [m]
 map_memory_ttl: 0.0         # 地图候选记忆时长 [s]；0 表示直到 reset
 # Phase D/板端闭环 launch 会覆盖为 true；Phase B/C 纯像素兼容链保持 false
 require_map_for_candidates: false

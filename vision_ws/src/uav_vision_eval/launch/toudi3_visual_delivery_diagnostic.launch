@@ -8,8 +8,8 @@
   <arg name="start_arming" default="true" />
   <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
   <arg name="output_dir" default="/tmp/uav_vision_eval/visual_delivery_diagnostic" />
-  <arg name="image_topic" default="/camera/color/image_raw" />
-  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="image_topic" default="/downward_camera/image_raw" />
+  <arg name="camera_info_topic" default="/downward_camera/camera_info" />
 
   <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
     <arg name="gui" value="$(arg gui)" />
@@ -17,14 +17,19 @@
     <arg name="start_mapping" value="$(arg start_mapping)" />
     <arg name="start_arming" value="$(arg start_arming)" />
     <arg name="vision_python" value="$(arg vision_python)" />
+    <arg name="camera_image_topic" value="$(arg image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
     <arg name="audit_report_path" value="$(arg output_dir)/delivery_audit.json" />
   </include>
 
   <include file="$(find uav_vision_eval)/launch/ground_truth.launch">
+    <arg name="catalog_file"
+         value="$(find uav_vision_eval)/config/sim_target_catalog_toudi4.yaml" />
     <arg name="scenario_file"
          value="$(find uav_vision_eval)/config/scenarios/existing_targets.yaml" />
     <arg name="image_topic" value="$(arg image_topic)" />
     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="camera_link_suffix" value="downward_camera_link" />
     <arg name="truth_topic" value="/uav_vision_eval/flight_ground_truth" />
     <arg name="broadcast_camera_tf" value="false" />
   </include>
