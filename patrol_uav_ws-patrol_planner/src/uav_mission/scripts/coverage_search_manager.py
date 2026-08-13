@@ -100,6 +100,14 @@ class CoverageSearchManager:
             rospy.get_param(
                 "~candidate/capture_radius",
                 self._release_attribution_distance))
+        # 中断投递时飞机可能仍在航段中途（高度未回落到接近高度）：进入 ALIGN
+        # 前要求飞机沉降到接近高度并稳定一段时间，避免旧控制在未沉降状态下
+        # 以极慢速度下降导致外部对准超时。
+        self._capture_settle_height_margin = float(
+            rospy.get_param("~candidate/capture_settle_height_margin", 0.15))
+        self._capture_settle_duration = float(
+            rospy.get_param("~candidate/capture_settle_duration", 2.0))
+        self._settled_since = None
         # 高权重中断投递：队列头部权重达到阈值时，搜索阶段立即中断执行投递，
         # 投完从 _resume_index 恢复搜索（red_cross=10、tank=5 触发）。
         self._interrupt_enabled = bool(
@@ -501,10 +509,28 @@ class CoverageSearchManager:
             "coverage_complete_insufficient_candidates",
             mission_success=False)
 
+    def _aircraft_settled(self, now):
+        if self._pose is None:
+            self._settled_since = None
+            return False
+        height_ok = (
+            self._pose.pose.position.z <=
+            self._height + self._capture_settle_height_margin)
+        if height_ok and self._distance(self._active_goal) <= \
+                self._arrival_radius + 0.10:
+            if self._settled_since is None:
+                self._settled_since = now
+        else:
+            self._settled_since = None
+        return (self._settled_since is not None and
+                now - self._settled_since >= self._capture_settle_duration)
+
     def _capture_satisfied(self):
         if self._current_candidate is None:
             return False
         now = self._now()
+        if not self._aircraft_settled(now):
+            return False
         for x, y, last_seen, _confidence in self._circles:
             if last_seen <= 0.0 or now - last_seen > self._capture_fresh_age:
                 continue
@@ -541,6 +567,7 @@ class CoverageSearchManager:
             return False
         self._current_candidate = candidate
         self._capture_observations = []
+        self._settled_since = None
         self._resume_index = self._coverage_index
         self._selection_sequence.append(self._candidate_record(candidate))
         goal = self._pose_goal(candidate.x, candidate.y, self._height)
@@ -637,6 +664,8 @@ class CoverageSearchManager:
             "required_deliveries": self._required_deliveries,
             "alignment_timeout": self._alignment_timeout,
             "capture_timeout": self._capture_timeout,
+            "capture_settle_height_margin": self._capture_settle_height_margin,
+            "capture_settle_duration": self._capture_settle_duration,
             "capture_observations": list(self._capture_observations),
             "interrupt_enabled": self._interrupt_enabled,
             "interrupt_min_weight": self._interrupt_min_weight,
