@@ -68,6 +68,37 @@ class CandidateData:
     y: float
 
 
+@dataclass(frozen=True)
+class CaptureEvidence:
+    class_name: str
+    x: float
+    y: float
+    last_seen: float
+    confidence: float
+
+
+def expected_capture_class(candidate_class):
+    """Return the near-field geometry required before entering ALIGN."""
+    return "red_cross" if candidate_class == "red_cross" else "circle"
+
+
+def capture_evidence_matches(candidate, evidence, now, max_age, radius):
+    """Match fresh near-field evidence to the selected semantic candidate."""
+    if candidate is None:
+        return False
+    expected_class = expected_capture_class(candidate.class_name)
+    for observation in evidence:
+        if observation.class_name != expected_class:
+            continue
+        if (observation.last_seen <= 0.0 or
+                now - observation.last_seen > max_age):
+            continue
+        if math.hypot(observation.x - candidate.x,
+                      observation.y - candidate.y) <= radius:
+            return True
+    return False
+
+
 def generate_serpentine(min_x, max_x, min_y, max_y, safety_margin,
                         spacing, height):
     if min_x >= max_x or min_y >= max_y:

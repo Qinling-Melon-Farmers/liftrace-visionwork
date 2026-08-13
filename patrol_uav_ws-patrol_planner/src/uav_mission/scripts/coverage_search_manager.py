@@ -20,8 +20,11 @@ from std_msgs.msg import Int8, String
 from coverage_policy import (
     CandidateData,
     CandidateQueue,
+    CaptureEvidence,
     GoalRetryPolicy,
     RULE_WEIGHTS,
+    capture_evidence_matches,
+    expected_capture_class,
     generate_serpentine,
     interrupt_eligible,
     resolve_safe_waypoint,
@@ -90,8 +93,8 @@ class CoverageSearchManager:
             rospy.get_param("~candidate/release_attribution_distance", 0.75))
         self._alignment_timeout = float(
             rospy.get_param("~candidate/alignment_timeout", 90.0))
-        # 近地圆环证据高位捕获：下降到释放高度前，先在接近高度确认圆环可见，
-        # 避免旧控制盲降（bridge 第三投对齐阶段无任何 circle 证据仍下降至负高度）。
+        # 近场几何证据高位捕获：标准投放区要求蓝色 circle；随机投放区没有蓝环，
+        # 要求新鲜 red_cross 自身几何中心。外围黑环不作为 circle 使用。
         self._capture_timeout = float(
             rospy.get_param("~candidate/capture_timeout", 20.0))
         self._capture_fresh_age = float(
@@ -168,7 +171,7 @@ class CoverageSearchManager:
         self._align_started_at = None
         self._capture_started_at = None
         self._capture_observations = []
-        self._circles = []
+        self._capture_evidence = []
         self._interruptions = 0
         self._interrupted_at_index = []
         self._search_active_sec = 0.0
@@ -310,16 +313,26 @@ class CoverageSearchManager:
             if target_id not in active_ids:
                 self._discovered.pop(target_id, None)
         self._candidate_queue.update(candidates, now, self._frame, 0.5)
-        circles = []
+        capture_evidence = []
         for target in msg.targets:
-            if (target.class_name == "circle" and int(target.state) >= 2 and
-                    bool(target.map_valid) and
-                    target.last_seen.to_sec() > 0.0):
-                circles.append((
-                    float(target.map_point.x), float(target.map_point.y),
-                    target.last_seen.to_sec(),
-                    float(target.geometry_confidence)))
-        self._circles = circles
+            if target.class_name not in ("circle", "red_cross"):
+                continue
+            if (int(target.state) < 2 or not bool(target.map_valid) or
+                    target.map_frame != self._frame or
+                    not bool(target.association_valid) or
+                    target.reject_reason or target.last_seen.to_sec() <= 0.0):
+                continue
+            if (target.class_name == "red_cross" and
+                    (not bool(target.center_refined) or
+                     target.center_source != "red_cross_geometry")):
+                continue
+            capture_evidence.append(CaptureEvidence(
+                class_name=target.class_name,
+                x=float(target.map_point.x),
+                y=float(target.map_point.y),
+                last_seen=target.last_seen.to_sec(),
+                confidence=float(target.geometry_confidence)))
+        self._capture_evidence = capture_evidence
         for candidate in self._candidate_queue.pending:
             self._discovered[candidate.target_id] = {
                 "id": candidate.target_id,
@@ -531,30 +544,30 @@ class CoverageSearchManager:
         now = self._now()
         if not self._aircraft_settled(now):
             return False
-        for x, y, last_seen, _confidence in self._circles:
-            if last_seen <= 0.0 or now - last_seen > self._capture_fresh_age:
-                continue
-            if math.hypot(x - self._current_candidate.x,
-                          y - self._current_candidate.y) <= self._capture_radius:
-                return True
-        return False
+        return capture_evidence_matches(
+            self._current_candidate, self._capture_evidence, now,
+            self._capture_fresh_age, self._capture_radius)
 
     def _record_capture_observation(self):
         if self._current_candidate is None:
             return
         now = self._now()
-        for x, y, last_seen, confidence in self._circles:
-            if last_seen <= 0.0:
+        expected_class = expected_capture_class(
+            self._current_candidate.class_name)
+        for evidence in self._capture_evidence:
+            if (evidence.class_name != expected_class or
+                    evidence.last_seen <= 0.0):
                 continue
             self._capture_observations.append({
-                "x": x,
-                "y": y,
-                "last_seen": last_seen,
-                "age": max(0.0, now - last_seen),
-                "confidence": confidence,
+                "class": evidence.class_name,
+                "x": evidence.x,
+                "y": evidence.y,
+                "last_seen": evidence.last_seen,
+                "age": max(0.0, now - evidence.last_seen),
+                "confidence": evidence.confidence,
                 "distance_to_candidate": math.hypot(
-                    x - self._current_candidate.x,
-                    y - self._current_candidate.y),
+                    evidence.x - self._current_candidate.x,
+                    evidence.y - self._current_candidate.y),
             })
 
     def _maybe_start_candidate(self, force=False):
@@ -776,8 +789,11 @@ class CoverageSearchManager:
                     else:
                         self._capture_started_at = now
                         self._state = "CANDIDATE_CAPTURE"
+                        evidence_class = expected_capture_class(
+                            self._current_candidate.class_name)
                         self._publish_status(
-                            "RUNNING", "candidate_capture_waiting_circle")
+                            "RUNNING", "candidate_capture_waiting_%s" %
+                            evidence_class)
                 elif result == "timeout":
                     self._finish_candidate(False, "approach_unreachable_20s")
 
@@ -791,8 +807,10 @@ class CoverageSearchManager:
                     self._align_started_at = now
                     self._publish_status("RUNNING", "candidate_align")
                 elif now - self._capture_started_at >= self._capture_timeout:
+                    evidence_class = expected_capture_class(
+                        self._current_candidate.class_name)
                     self._finish_candidate(
-                        False, "capture_timeout_no_circle")
+                        False, "capture_timeout_no_%s" % evidence_class)
 
             elif self._state == "ALIGN":
                 if self._release_result is not None:

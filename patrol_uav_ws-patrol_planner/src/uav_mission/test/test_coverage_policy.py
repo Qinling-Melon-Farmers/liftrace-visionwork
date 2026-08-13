@@ -8,10 +8,12 @@ import yaml
 from coverage_policy import (
     CandidateData,
     CandidateQueue,
+    CaptureEvidence,
     GoalRetryPolicy,
     accumulate_run_facts,
     candidate_rank,
     candidate_valid,
+    capture_evidence_matches,
     expected_delivery_classes,
     generate_serpentine,
     interrupt_eligible,
@@ -127,6 +129,30 @@ class CoveragePolicyTest(unittest.TestCase):
             [queue.pop().class_name for _ in classes],
             ["tank", "panzer", "bridge", "pillbox", "tent"])
 
+    def test_standard_target_capture_requires_blue_circle(self):
+        candidate = CandidateData(
+            1, "tank", 0.9, 1.0, 10.0, 2, True, "camera_init",
+            True, "", 1.0, 2.0)
+        red_cross = CaptureEvidence("red_cross", 1.0, 2.0, 10.0, 0.9)
+        circle = CaptureEvidence("circle", 1.1, 2.0, 10.0, 0.9)
+        self.assertFalse(capture_evidence_matches(
+            candidate, [red_cross], 10.2, 1.0, 0.75))
+        self.assertTrue(capture_evidence_matches(
+            candidate, [circle], 10.2, 1.0, 0.75))
+
+    def test_red_cross_capture_uses_own_geometry_not_circle(self):
+        candidate = CandidateData(
+            2, "red_cross", 0.9, 1.0, 10.0, 2, True, "camera_init",
+            True, "", 1.0, 2.0)
+        circle = CaptureEvidence("circle", 1.0, 2.0, 10.0, 0.9)
+        red_cross = CaptureEvidence("red_cross", 1.1, 2.0, 10.0, 0.9)
+        self.assertFalse(capture_evidence_matches(
+            candidate, [circle], 10.2, 1.0, 0.75))
+        self.assertTrue(capture_evidence_matches(
+            candidate, [red_cross], 10.2, 1.0, 0.75))
+        self.assertFalse(capture_evidence_matches(
+            candidate, [red_cross], 11.2, 1.0, 0.75))
+
     def test_goal_retry_and_timeout(self):
         policy = GoalRetryPolicy(
             retry_interval=5.0, unreachable_timeout=20.0, max_retries=2)
@@ -238,14 +264,14 @@ class CoveragePolicyTest(unittest.TestCase):
             "if (external_mission_mode_)", 1)[1].split("} else {", 1)[0]
         self.assertNotIn("waypoint_list[waypoint_next]", external_branch)
 
-    def test_release_attribution_uses_circle_and_candidate_neighborhood(self):
+    def test_release_attribution_uses_mode_specific_geometry(self):
         package_dir = Path(__file__).resolve().parents[1]
         source = (package_dir / "scripts" /
                   "coverage_search_manager.py").read_text(encoding="utf-8")
         matcher = source.split(
             "def _release_matches_candidate", 1)[1].split(
                 "def _finish_candidate", 1)[0]
-        # ??????drop_circle?circle ? drop_cross?red_cross ???
+        # 标准靶释放证据来自蓝环；红十字释放证据来自红十字自身几何。
         self.assertIn('release_mode == "drop_circle" and release_class == "circle"',
                       matcher)
         self.assertIn('release_mode == "drop_cross"', matcher)
