@@ -13,6 +13,30 @@ RULE_WEIGHTS = {
     "tank": 5.0,
 }
 
+STANDARD_CLASSES = ("tent", "pillbox", "bridge", "panzer", "tank")
+
+
+def accumulate_run_facts(discovered_by_class, discovered_ids,
+                         selection_accum, payload):
+    """Merge discovered/selection facts from a manager status payload.
+
+    发现/选择属于全程事实，不随最终快照变化：任务成功后 align_mode 会切到
+    landing，target_memory 按模式过滤会清空最终快照里的标准靶，因此 Gate 必须
+    按每个状态快照累计，而不是只看最后一个。三个参数就地更新并返回。
+    """
+    for item in payload.get("discovered") or []:
+        class_name = item.get("class")
+        target_id = item.get("id")
+        if class_name in STANDARD_CLASSES and target_id is not None:
+            discovered_by_class[class_name] = int(target_id)
+            discovered_ids.add(int(target_id))
+    for item in payload.get("selection_sequence") or []:
+        key = (item.get("id"), item.get("class"))
+        if not any(existing[0] == key[0] and existing[1] == key[1]
+                   for existing in selection_accum):
+            selection_accum.append(key)
+    return discovered_by_class, discovered_ids, selection_accum
+
 
 @dataclass(frozen=True)
 class CoveragePoint:

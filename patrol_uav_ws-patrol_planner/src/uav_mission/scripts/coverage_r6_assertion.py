@@ -13,8 +13,8 @@ from std_msgs.msg import String, UInt8
 from uav_mission.msg import ReleaseResult
 from uav_vision.msg import TargetCandidateArray
 
+from coverage_policy import STANDARD_CLASSES, accumulate_run_facts
 
-STANDARD_CLASSES = ("tent", "pillbox", "bridge", "panzer", "tank")
 EXPECTED_DELIVERY_CLASSES = ("tank", "panzer", "bridge")
 EXPECTED_SLOTS = (1, 2, 3)
 
@@ -30,6 +30,11 @@ class CoverageR6Assertion:
                          "gate_status.json"))
         self._manager = None
         self._candidate_ids = {}
+        # 发现/选择属于全程事实：按每个状态快照累计合并，避免最终快照受
+        # landing 模式过滤影响而丢失历史发现证据。
+        self._discovered_by_class = {}
+        self._discovered_ids = set()
+        self._selection_accum = []
         self._raw_calls = []
         self._successes = []
         self._denied = []
@@ -60,9 +65,14 @@ class CoverageR6Assertion:
 
     def _on_manager(self, msg):
         try:
-            self._manager = json.loads(msg.data)
+            payload = json.loads(msg.data)
         except (TypeError, ValueError):
             self._manager = {"status": "FAIL", "reason": "invalid_json"}
+            return
+        self._manager = payload
+        accumulate_run_facts(
+            self._discovered_by_class, self._discovered_ids,
+            self._selection_accum, payload)
 
     def _on_targets(self, msg):
         for candidate in msg.targets:
@@ -134,10 +144,11 @@ class CoverageR6Assertion:
 
     def _final_checks(self):
         manager = self._manager
-        discovered = manager.get("discovered", [])
-        discovered_classes = {item.get("class") for item in discovered}
-        discovered_ids = {item.get("id") for item in discovered}
-        selected = manager.get("selection_sequence", [])[:3]
+        # 发现/选择使用全程累计事实；其余检查使用最终状态快照。
+        discovered_classes = set(self._discovered_by_class)
+        discovered_ids = set(self._discovered_ids)
+        selected = [class_name for _target_id, class_name in
+                    self._selection_accum[:3]]
         delivered = manager.get("delivered", [])
         selected_classes = [item.get("class") for item in selected]
         delivered_classes = [item.get("class") for item in delivered]

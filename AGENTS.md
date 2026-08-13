@@ -27,6 +27,7 @@
     - **正确做法：所有需要操作 WSL 文件系统或执行 ROS/PX4 命令时，必须用 `wsl -e bash -c '...'`**，其中 `-e` 标志禁止 Windows PATH 污染。
     - **文件访问工具（Read / Write / Edit / Glob / Grep）** 使用 `\\wsl.localhost\Ubuntu-20.04\...` 前缀访问 WSL 文件系统。
     - **脚本内（`.sh` 文件）** 避免使用 `dirname` 外部命令，改用 bash 内置参数展开：`${BASH_SOURCE[0]%/*}` 获取脚本所在目录。
+    - **编码边界（Windows→WSL argv）**：Windows 侧 pwsh 以系统 ANSI/GBK 编码把参数传给 `wsl.exe`，WSL 内 bash 按 UTF-8 解析，命令行内联中文会乱码/丢字。commit message 与含中文的文件内容一律先写 UTF-8 文件再消费：中文提交用 `top_level_scripts/git_commit_cn.sh <消息文件> [git add 路径...]`（自动去 BOM/统一 LF，内部走 `git commit -F`）；文件级中文替换用 python 读 UTF-8 文件改写。禁止在 `wsl -e bash -c '...'` 内联中文。
 14. **保留旧任务/投递链原貌。** 新视觉闭环优先通过独立 Mission Manager、接口适配器、
     服务代理和新 launch 复用旧 `patrol_control`，不得借重构之名随意删除、合并或改写旧
     状态机。确有必要修改旧链源码时，先在不参与编译的 `legacy_baseline/<日期>/` 保存原包
@@ -34,7 +35,8 @@
 15. **git 是唯一版本控制，纳入自动工作流。**
     - 每次改动前先 `git status` 确认工作区；每完成一个可独立验证的改动即提交一次，
       commit message 用**中文**并遵循 conventional 标记（`feat:`/`fix:`/`docs:`/`chore:`/
-      `refactor:`/`test:`），如 `fix: 走廊航点可达性修正`。
+      `refactor:`/`test:`），如 `fix: 走廊航点可达性修正`；中文消息必须经 UTF-8 文件 + `git commit -F`
+      提交（编码边界见规则 13，禁止命令行内联中文）。
     - GitHub 凭据只存于 WSL `~/.git-credentials`（chmod 600，credential.helper store），
       **禁止**把 token 写入仓库内任何文件、commit message、launch/yaml/脚本/日志；
       `.gitignore` 已含 `*token*`、`*.credentials`、`.git-credentials` 双保险。
