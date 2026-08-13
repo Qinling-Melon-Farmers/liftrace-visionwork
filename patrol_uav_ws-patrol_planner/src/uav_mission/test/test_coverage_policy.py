@@ -9,6 +9,7 @@ from coverage_policy import (
     CandidateData,
     CandidateQueue,
     GoalRetryPolicy,
+    accumulate_run_facts,
     candidate_rank,
     candidate_valid,
     generate_serpentine,
@@ -263,6 +264,70 @@ class CoveragePolicyTest(unittest.TestCase):
         self.assertEqual(params["parent_frame"], "$(arg map_frame)")
         self.assertEqual(params["child_frame"],
                          "$(arg camera_parent_frame)")
+
+
+class AccumulateRunFactsTest(unittest.TestCase):
+    def test_merges_facts_across_snapshots_and_keeps_early_data(self):
+        by_class, ids, selection = {}, set(), []
+        accumulate_run_facts(by_class, ids, selection, {
+            "discovered": [
+                {"class": "tank", "id": 14},
+                {"class": "bridge", "id": 4},
+            ],
+            "selection_sequence": [
+                {"class": "tank", "id": 14},
+            ],
+        })
+        accumulate_run_facts(by_class, ids, selection, {
+            "discovered": [
+                {"class": "pillbox", "id": 0},
+            ],
+            "selection_sequence": [
+                {"class": "tank", "id": 14},
+                {"class": "pillbox", "id": 0},
+            ],
+        })
+        # ???????landing ????????????????
+        accumulate_run_facts(by_class, ids, selection, {
+            "discovered": [],
+            "selection_sequence": [],
+        })
+        self.assertEqual(by_class["tank"], 14)
+        self.assertEqual(by_class["bridge"], 4)
+        self.assertEqual(by_class["pillbox"], 0)
+        self.assertEqual(ids, {14, 4, 0})
+        self.assertEqual(selection, [(14, "tank"), (0, "pillbox")])
+
+    def test_ignores_non_standard_classes_and_invalid_ids(self):
+        by_class, ids, selection = {}, set(), []
+        accumulate_run_facts(by_class, ids, selection, {
+            "discovered": [
+                {"class": "tank", "id": 7},
+                {"class": "circle", "id": 99},
+                {"class": "landing_pad", "id": 3},
+                {"class": "bridge", "id": None},
+            ],
+            "selection_sequence": [],
+        })
+        self.assertEqual(set(by_class), {"tank"})
+        self.assertEqual(by_class["tank"], 7)
+        self.assertEqual(ids, {7})
+        self.assertEqual(selection, [])
+
+    def test_latest_id_wins_and_selection_dedupes(self):
+        by_class, ids, selection = {}, set(), []
+        accumulate_run_facts(by_class, ids, selection, {
+            "discovered": [{"class": "tank", "id": 1}],
+            "selection_sequence": [{"class": "tank", "id": 1}],
+        })
+        accumulate_run_facts(by_class, ids, selection, {
+            "discovered": [{"class": "tank", "id": 5}],
+            "selection_sequence": [{"class": "tank", "id": 1},
+                                   {"class": "tank", "id": 5}],
+        })
+        self.assertEqual(by_class["tank"], 5)
+        self.assertEqual(ids, {1, 5})
+        self.assertEqual(selection, [(1, "tank"), (5, "tank")])
 
 
 if __name__ == "__main__":

@@ -13,8 +13,8 @@ from std_msgs.msg import String, UInt8
 from uav_mission.msg import ReleaseResult
 from uav_vision.msg import TargetCandidateArray
 
+from coverage_policy import STANDARD_CLASSES, accumulate_run_facts
 
-STANDARD_CLASSES = ("tent", "pillbox", "bridge", "panzer", "tank")
 EXPECTED_DELIVERY_CLASSES = ("tank", "panzer", "bridge")
 EXPECTED_SLOTS = (1, 2, 3)
 
@@ -70,17 +70,9 @@ class CoverageR6Assertion:
             self._manager = {"status": "FAIL", "reason": "invalid_json"}
             return
         self._manager = payload
-        for item in payload.get("discovered", []) or []:
-            class_name = item.get("class")
-            target_id = item.get("id")
-            if class_name in STANDARD_CLASSES and target_id is not None:
-                self._discovered_by_class[class_name] = int(target_id)
-                self._discovered_ids.add(int(target_id))
-        for item in payload.get("selection_sequence", []) or []:
-            key = (item.get("id"), item.get("class"))
-            if not any(existing[0] == key[0] and existing[1] == key[1]
-                       for existing in self._selection_accum):
-                self._selection_accum.append(key)
+        accumulate_run_facts(
+            self._discovered_by_class, self._discovered_ids,
+            self._selection_accum, payload)
 
     def _on_targets(self, msg):
         for candidate in msg.targets:
