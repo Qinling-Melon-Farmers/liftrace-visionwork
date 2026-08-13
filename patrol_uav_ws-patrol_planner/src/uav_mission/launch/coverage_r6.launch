@@ -7,10 +7,13 @@
        default="$(optenv SIM_RUN_DIR /tmp)/coverage_status.json" />
   <arg name="gate_report_path"
        default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+  <arg name="enable_debug_image" default="false" />
+  <arg name="record_debug" default="false" />
 
   <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
     <arg name="gui" value="$(arg gui)" />
     <arg name="rviz" value="$(arg rviz)" />
+    <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
     <arg name="external_mission_mode" value="true" />
     <arg name="waypoint_mode" value="false" />
     <arg name="target_model_path" value="$(arg target_model_path)" />
@@ -40,4 +43,16 @@
     <param name="wall_timeout" value="$(arg wall_timeout)" />
     <param name="report_path" value="$(arg gate_report_path)" />
   </node>
+
+  <!-- 可选的 debug 视觉录制（默认关闭）：录制原始下视图像与各检测器 debug 图，
+       供失败复盘（如 bridge 近地 circle 断链）。-->
+  <node if="$(arg record_debug)" pkg="rosbag" type="record"
+        name="debug_visual_recorder" output="screen"
+        args="--lz4 --split --size=2048 --duration=610
+              -o $(optenv SIM_RUN_DIR /tmp)/debug_visual
+              /downward_camera/image_raw
+              /uav_vision/circle_debug
+              /uav_vision/landing_debug
+              /uav_vision/cross_debug
+              /uav_vision/debug_image" />
 </launch>
