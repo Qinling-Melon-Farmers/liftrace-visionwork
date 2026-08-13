@@ -51,11 +51,25 @@ class NewVisionConfigTest(unittest.TestCase):
 
     def test_toudi4_launch_defaults_are_consistent(self):
         launch = LAUNCH.read_text(encoding="utf-8")
+        full_launch = FULL_LAUNCH.read_text(encoding="utf-8")
         self.assertIn("toudi4_copy.world", launch)
         self.assertIn("iris_mid360_downward_camera/model.sdf", launch)
         self.assertIn('default="/downward_camera/image_raw"', launch)
         self.assertIn('default="/downward_camera/camera_info"', launch)
         self.assertIn("patrol_toudi4_new_vision.yaml", launch)
+        for text in (launch, full_launch):
+            self.assertIn('name="spawn_x" default="-0.493412"', text)
+            self.assertIn('name="spawn_y" default="-1.772690"', text)
+
+    def test_toudi4_waypoints_are_local_to_main_h(self):
+        parsed = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
+        points = parsed["waypoints"]
+        self.assertEqual(
+            [(point["x"], point["y"]) for point in points[:4]],
+            [(0.0, 0.0), (-0.081, 2.293),
+             (-1.6, 2.477), (1.769, 2.354)],
+        )
+        self.assertEqual((points[-1]["x"], points[-1]["y"]), (0.0, 0.0))
 
     def test_new_vision_requires_fresh_mission_release_permission(self):
         source = CONTROL_CPP.read_text(encoding="utf-8")

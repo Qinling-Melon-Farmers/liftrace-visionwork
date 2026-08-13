@@ -1,18 +1,22 @@
 # toudi4_copy.world 中央靶区覆盖搜索策略；不包含任何靶标坐标。
 mission_frame: camera_init
 
+# Gazebo 主 H world=(-0.493412,-1.772690) 是新 spawn 点。PX4/MAVROS/camera_init
+# 在此建立本地 (0,0)；下列边界由原 world 坐标整体平移得到，
+# 仍不包含任何靶标坐标。
+
 field:
-  min_x: -5.0
-  max_x: 5.0
-  min_y: -5.0
-  max_y: 5.0
+  min_x: -3.992
+  max_x: 4.008
+  min_y: -1.132
+  max_y: 8.718
 
 # 覆盖标准靶所在中央区域；北侧走廊仍由后续穿越任务单独处理。
 search_region:
-  min_x: -2.5
-  max_x: 1.5
-  min_y: -1.5
-  max_y: 4.5
+  min_x: -2.007
+  max_x: 1.993
+  min_y: 0.273
+  max_y: 6.273
 
 coverage:
   safety_margin: 0.5

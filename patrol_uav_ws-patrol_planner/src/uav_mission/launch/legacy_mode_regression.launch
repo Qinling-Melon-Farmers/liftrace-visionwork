@@ -12,6 +12,9 @@
   <include file="$(find patrol_control)/launch/patrol_full_competition_sim.launch">
     <arg name="world" value="$(arg world)" />
     <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+    <arg name="spawn_x" value="0.0" />
+    <arg name="spawn_y" value="0.0" />
+    <arg name="spawn_z" value="0.06" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="rviz" value="$(arg rviz)" />
     <arg name="start_visual" value="false" />

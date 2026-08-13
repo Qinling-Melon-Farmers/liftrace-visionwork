@@ -3,6 +3,8 @@ from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
 
+import yaml
+
 from coverage_policy import (
     CandidateData,
     CandidateQueue,
@@ -157,6 +159,21 @@ class CoveragePolicyTest(unittest.TestCase):
         )
         for token in forbidden:
             self.assertNotIn(token, runtime_text)
+
+    def test_toudi4_coverage_bounds_are_local_to_main_h(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        config = yaml.safe_load(
+            (package_dir / "config" / "coverage_toudi4.yaml").read_text())
+        self.assertEqual(
+            config["field"],
+            {"min_x": -3.992, "max_x": 4.008,
+             "min_y": -1.132, "max_y": 8.718},
+        )
+        self.assertEqual(
+            config["search_region"],
+            {"min_x": -2.007, "max_x": 1.993,
+             "min_y": 0.273, "max_y": 6.273},
+        )
 
     def test_coverage_safety_overrides_preserve_planner_defaults(self):
         package_dir = Path(__file__).resolve().parents[1]

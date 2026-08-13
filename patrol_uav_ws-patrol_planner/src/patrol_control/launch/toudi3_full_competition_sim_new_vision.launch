@@ -15,6 +15,9 @@
   <arg name="px4_plugin_lib" default="$(arg px4_root)/build/px4_sitl_default/build_gazebo-classic" />
   <arg name="camera_image_topic" default="/downward_camera/image_raw" />
   <arg name="camera_info_topic" default="/downward_camera/camera_info" />
+  <arg name="spawn_x" default="-0.493412" />
+  <arg name="spawn_y" default="-1.772690" />
+  <arg name="spawn_z" default="0.06" />
   <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="map_frame" default="camera_init" />
@@ -51,6 +54,9 @@
     <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
     <arg name="astra_sim_lib" value="$(arg astra_sim_lib)" />
     <arg name="px4_plugin_lib" value="$(arg px4_plugin_lib)" />
+    <arg name="spawn_x" value="$(arg spawn_x)" />
+    <arg name="spawn_y" value="$(arg spawn_y)" />
+    <arg name="spawn_z" value="$(arg spawn_z)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="rviz" value="$(arg rviz)" />
     <arg name="mapping_rviz" value="$(arg mapping_rviz)" />

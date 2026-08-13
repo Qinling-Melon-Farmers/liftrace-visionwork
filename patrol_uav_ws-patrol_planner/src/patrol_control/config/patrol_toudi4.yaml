@@ -1,17 +1,18 @@
 # toudi4_copy.world 的旧视觉/旧控制固定三投兼容路线。
 #
-# 本文件只替换场景坐标，不改旧 patrol_control 状态机。三个检测点分别位于
-# dibao、qiaoliang、zhangpeng 上方，最终降落点对应主 landing_h。
+# 本文件只替换场景坐标，不改旧 patrol_control 状态机。飞机从主 H
+# world=(-0.493412,-1.772690) 生成后，MAVROS/camera_init 本地原点为 H。
+# 下列坐标均是 local = world - main_H，最终降落回到本地 (0,0)。
 
 waypoints:
   - {x: 0.000, y: 0.000, z: 2.000, yaw: 0.0, pointmode: "Takeoff_point", hover_time: 0.0}
-  - {x: -0.575, y: 0.520, z: 1.500, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
-  - {x: -2.093, y: 0.705, z: 1.500, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
-  - {x: 1.276, y: 0.582, z: 1.500, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
-  - {x: -0.493, y: -1.773, z: 1.500, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
-  - {x: -0.493, y: -1.773, z: 1.000, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
-  - {x: -0.493, y: -1.773, z: 0.800, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
-  - {x: -0.493, y: -1.773, z: 0.800, yaw: 0.0, pointmode: "Land_point", hover_time: 0.0}
+  - {x: -0.081, y: 2.293, z: 1.500, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+  - {x: -1.600, y: 2.477, z: 1.500, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+  - {x: 1.769, y: 2.354, z: 1.500, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+  - {x: 0.000, y: 0.000, z: 1.500, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
+  - {x: 0.000, y: 0.000, z: 1.000, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  - {x: 0.000, y: 0.000, z: 0.800, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  - {x: 0.000, y: 0.000, z: 0.800, yaw: 0.0, pointmode: "Land_point", hover_time: 0.0}
 
 waypoint_skipping_index: 3
 land_height: 0.30
