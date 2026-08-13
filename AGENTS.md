@@ -367,6 +367,8 @@ SAM、YOLOv8/YOLO11 大模型直接上板端实时路径
 
 以下内容来自前序开发会话，应作为后续接力基础，但仍需以当前仓库实际文件为准重新核验。
 
+**本节为历史快照：任务优先级与 Gate 状态一律以 `VISION_2026_ROADMAP.md` 为准（唯一任务来源），本节仅保留前序会话的过程性记录。最新进展见 `docs/仿真联调变更记录.md` 尾部条目。**
+
 ### 7.1 已完成
 
 1. 已从香橙派 `orangepi@192.168.3.15` 拷回机载项目，并上移到 `/home/xhj/liftrace`。
@@ -383,16 +385,21 @@ SAM、YOLOv8/YOLO11 大模型直接上板端实时路径
    - `vision_ws/src/detect_pkg`
    - `vision_ws/src/camera_sdk`
    - `vision_ws/migration_refs/patrol_control_visual`
-4. `toudi3.world` 的五类标准靶材质、`red_cross`、`landing_h` 模型和仓库内 `patrol_world.launch` 已重建；旧链专用路线在 `patrol_control/config/patrol_toudi3.yaml`，完整资产状态见 `TOUDI3_SIM_ASSET_CHECKLIST.md`，完整操作见 `docs/TOUDI3_FULL_SIM_GUI_GUIDE.md`。
+4. `toudi3.world` 的五类标准靶材质、`red_cross`、`landing_h` 模型和仓库内 `patrol_world.launch` 已重建；旧链专用路线在 `patrol_control/config/patrol_toudi3.yaml`，完整资产状态见 `TOUDI3_SIM_ASSET_CHECKLIST.md`，完整操作见 `docs/TOUDI3_FULL_SIM_GUI_GUIDE.md`。2026-08-12 起默认仿真世界已切换为 `toudi4_copy.world` + 单下视相机机架（见 `docs/TOUDI4仿真机架与世界切换说明_20260812.md`），toudi3 保留作历史回归。
 5. 本机上级目录存在 `AstraDroneOpen`，作为 PX4/Gazebo 仿真底座；PX4 中已有 `iris_mid360` 和 `mid360` 模型，并存在 `astra_example.launch`。
 6. 前序会话中主工作区曾经修到可以编译通过，但后续 agent 必须重新执行验证，不可直接假定当前环境一定一致。
 7. V-SIM-00～03 最小基建已落地：联合 overlay、`uav_vision_eval` 独立真值/报告和
    headless shadow 均已有自动验证；固定场景直接复用 world 现有标准靶/H，红十字按场景插入。
 8. 当前所有模型推理、Gazebo 识别和视频回放都运行在笔记本 WSL2/RTX；统一六分类链
-   尚未在 OrangePi 上运行，任何 agent 不得把笔记本结果写成板端结果。
+   已于 2026-08-10 在 OrangePi 5 Plus 以 FP32 RKNN 离线实测（16fps，五路对比推荐
+   `merged_standard_fp32.rknn`，详见 `docs/板端推理性能对比报告_20260810.md`），但
+   板端 ROS 实时视觉链（CameraInfo/TF 接线、10 min 稳定性）仍未验收。任何 agent
+   不得把笔记本结果写成板端结果。
 9. `uav_mission` 已建立第一版任务层释放许可、旧 `/Servo` 安全代理和 raw mock；确定性
-   回归已验证顺序三槽、错槽、过期、重放及重复目标拒绝。旧 `patrol_control`、
-   `actuator_pwm` 源码和 `Servo.srv` 未改，完整旧控制三投 SITL 尚未完成。
+   回归已验证顺序三槽、错槽、过期、重放及重复目标拒绝。旧控制三投 SITL（V-CL-02）
+   已于 2026-08-06 通过（新视觉+旧控制固定三投 PASS）。2026-08-13（0869c37）对
+   `patrol_control` 打了外部任务模式最小补丁（修复前快照存于
+   `legacy_baseline/20260813/`）；`actuator_pwm` 与 `Servo.srv` 仍保持未改。
 10. V-CL-00B/01 的 L0 已落地：Phase D/板端以 `camera_init` 为默认 mission frame，消息
     显式携带中心来源、关联、TF 年龄和拒绝原因；无效 TF 不进入候选；物理地图 ID 使用
     连续帧、置信度和类别投票，地图点使用质量加权融合。完整 SITL/跨视角仍待验收。
@@ -422,8 +429,10 @@ src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_sim.launch
 
 ### 7.3 当前主要卡点
 
-1. 当前正式主线是 V-CL-02：在完整 SITL 核对 `camera_init` TF 后，完成新视觉+旧控制
-   固定三投，再进入 Fast-Planner 候选接近、覆盖搜索和恢复。
+1. 主线已推进到 V-CL-04（toudi4 覆盖搜索 + 按权重三次 guarded 投递）：V-CL-02/03
+   已通过；V-CL-04 的 R6 Gate 已实跑两轮（2026-08-12/13），语义投递链已修通
+   （tank/panzer 两投闭环），剩余阻塞是 bridge 第三投（桥体附近下降穿地 + 视觉
+   证据断链）与返航降落验收，详见 `docs/仿真联调变更记录.md` 尾部条目。
 2. 30-seed、10 min 和延迟继续记录，但不再阻塞 V-CL；搜索阶段统一 P95 `<=200 ms`
    后移，陈旧数据、持续积压和错误释放仍是硬失败。
 3. 实拍圆环 letterbox 回放自洽关联率 58.80%，但缺人工实例/中心真值和同步 pose，
@@ -431,7 +440,8 @@ src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_sim.launch
 4. 地图新鲜度/stable ID/reset 已有 mock 和固定场景，仍缺 30-seed 跨视角与实拍同步位姿。
 5. H 内部结构和阶段门控已实现，仍缺真实 H、普通黑圈、残圈负样本 Gate。
 6. `release_evidence` 已实现；任务层第一版 `release_permission` 和旧 Servo 安全代理已通过
-   mock 回归，仍缺完整旧控制三投 SITL 和更多飞行/机构互锁。
+   mock 回归；旧控制三投 SITL 已通过（见 7.1-9），剩余为更多飞行/机构互锁与
+   toudi4 三投完整验收。
 7. 旧控制没有全场自主搜索。Search/Mission Manager 属于控制/规划组，视觉组交付候选、地图点、质量、年龄和拒绝原因。
 8. 内部仿真的 Fast-Planner 锁异常和四元数问题仍在，但不作为视觉仿真评测基建的前置阻塞；LIO/Planner 当前不替换。
 
