@@ -91,6 +91,10 @@
     - **合并前检查清单**：`git status` 干净；相关 Gate/断言有 PASS 或实跑记录
       （变更记录引用 logs 路径）；无 token/大文件入库；变更记录条目已存在且
       先于合并。
+    - **合并后打 tag**：每次 `--no-ff` 合并回 `main` 后立即打 annotated tag 并
+      推送远端，便于复盘定位节点。Gate 合并用 `gate/<Gate-ID>-<简述>`（如
+      `gate/vcl04-r6-bridge`），非 Gate 合并用 `chore/<简述>`；tag 消息写清该
+      合并对应的 Gate/通过证据（按规则 15 的 UTF-8 文件方式，禁止命令行内联中文）。
 
 ---
 
