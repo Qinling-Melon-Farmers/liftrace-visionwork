@@ -12,6 +12,7 @@ import time
 import rospy
 from gazebo_msgs.msg import ModelStates
 from gazebo_msgs.srv import SpawnModel
+from geometry_msgs.msg import Pose
 
 TRUTH_FILE = "red_cross_truth.yaml"
 
@@ -93,8 +94,13 @@ class RandomRedCrossSpawner:
             return 1
 
         x, y, yaw = pose
-        response = spawn(self._model_name, sdf, "", (x, y, 0.02),
-                         (0.0, 0.0, math.sin(yaw / 2.0), math.cos(yaw / 2.0)))
+        initial_pose = Pose()
+        initial_pose.position.x = x
+        initial_pose.position.y = y
+        initial_pose.position.z = 0.02
+        initial_pose.orientation.z = math.sin(yaw / 2.0)
+        initial_pose.orientation.w = math.cos(yaw / 2.0)
+        response = spawn(self._model_name, sdf, "", initial_pose, "")
         if not response.success:
             rospy.logerr("spawn failed: %s", response.status_message)
             return 1
