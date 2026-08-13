@@ -49,6 +49,12 @@ candidate:
   capture_fresh_age: 1.0
   capture_radius: 0.75
 
+# 高权重中断投递：队列头部权重达到阈值即中断搜索先行投递（red_cross=10、tank=5），
+# 投完从被中断端点恢复搜索；其余候选仍按“搜索完全场后直飞投递”。
+interrupt:
+  enabled: true
+  min_weight: 4.0
+
 navigation_only: true
 execute_candidates: false
 collect_before_delivery: true

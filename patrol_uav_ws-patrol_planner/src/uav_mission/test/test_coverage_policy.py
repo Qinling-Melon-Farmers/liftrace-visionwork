@@ -12,7 +12,9 @@ from coverage_policy import (
     accumulate_run_facts,
     candidate_rank,
     candidate_valid,
+    expected_delivery_classes,
     generate_serpentine,
+    interrupt_eligible,
     point_inside_safe_bounds,
     resolve_safe_waypoint,
     select_serpentine_entry,
@@ -243,7 +245,11 @@ class CoveragePolicyTest(unittest.TestCase):
         matcher = source.split(
             "def _release_matches_candidate", 1)[1].split(
                 "def _finish_candidate", 1)[0]
-        self.assertIn('target_class != "circle"', matcher)
+        # ??????drop_circle?circle ? drop_cross?red_cross ???
+        self.assertIn('release_mode == "drop_circle" and release_class == "circle"',
+                      matcher)
+        self.assertIn('release_mode == "drop_cross"', matcher)
+        self.assertIn('release_class == "red_cross"', matcher)
         self.assertIn("release_attribution_distance", matcher)
         self.assertNotIn("selected_target.id", matcher)
 
@@ -328,6 +334,67 @@ class AccumulateRunFactsTest(unittest.TestCase):
         self.assertEqual(by_class["tank"], 5)
         self.assertEqual(ids, {1, 5})
         self.assertEqual(selection, [(1, "tank"), (5, "tank")])
+
+
+def _candidate(target_id, class_name):
+    return CandidateData(
+        target_id=target_id, class_name=class_name, confidence=0.9,
+        first_seen=1.0, last_seen=2.0, state=2, map_valid=True,
+        map_frame="camera_init", association_valid=True,
+        reject_reason="", x=0.0, y=0.0)
+
+
+class InterruptPolicyTest(unittest.TestCase):
+    def test_interrupt_requires_top_weight_above_threshold(self):
+        pending = [_candidate(1, "tank")]
+        self.assertTrue(interrupt_eligible(pending, 4.0))
+        self.assertFalse(interrupt_eligible(pending, 5.5))
+
+    def test_interrupt_ignores_lower_weights_even_if_first(self):
+        pending = [_candidate(1, "panzer")]
+        self.assertFalse(interrupt_eligible(pending, 4.0))
+
+    def test_interrupt_with_red_cross_first(self):
+        pending = [_candidate(2, "red_cross"), _candidate(1, "tank")]
+        self.assertTrue(interrupt_eligible(pending, 4.0))
+        self.assertTrue(interrupt_eligible(pending, 9.9))
+        self.assertFalse(interrupt_eligible(pending, 10.5))
+
+    def test_interrupt_empty_queue(self):
+        self.assertFalse(interrupt_eligible([], 4.0))
+
+
+class ExpectedDeliveryClassesTest(unittest.TestCase):
+    def test_weight_order_with_red_cross(self):
+        by_class = {
+            "tank": 7, "bridge": 2, "pillbox": 0, "tent": 5,
+            "panzer": 9, "red_cross": 11,
+        }
+        self.assertEqual(
+            expected_delivery_classes(by_class),
+            ["red_cross", "tank", "panzer"])
+
+    def test_weight_order_without_red_cross(self):
+        by_class = {
+            "tank": 7, "bridge": 2, "pillbox": 0, "tent": 5, "panzer": 9,
+        }
+        self.assertEqual(
+            expected_delivery_classes(by_class),
+            ["tank", "panzer", "bridge"])
+
+
+class RedCrossAccumulationTest(unittest.TestCase):
+    def test_red_cross_is_accumulated_as_discovery_fact(self):
+        by_class, ids, selection = {}, set(), []
+        accumulate_run_facts(by_class, ids, selection, {
+            "discovered": [
+                {"class": "red_cross", "id": 3},
+                {"class": "tank", "id": 7},
+            ],
+            "selection_sequence": [],
+        })
+        self.assertEqual(by_class["red_cross"], 3)
+        self.assertEqual(ids, {3, 7})
 
 
 if __name__ == "__main__":

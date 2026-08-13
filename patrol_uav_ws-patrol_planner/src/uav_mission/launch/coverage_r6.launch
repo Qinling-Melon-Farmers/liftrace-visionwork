@@ -9,6 +9,8 @@
        default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
   <arg name="enable_debug_image" default="false" />
   <arg name="record_debug" default="false" />
+  <arg name="spawn_red_cross" default="true" />
+  <arg name="red_cross_seed" default="0" />
 
   <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
     <arg name="gui" value="$(arg gui)" />
@@ -42,6 +44,18 @@
         name="coverage_r6_assertion" output="screen" required="true">
     <param name="wall_timeout" value="$(arg wall_timeout)" />
     <param name="report_path" value="$(arg gate_report_path)" />
+    <param name="red_cross_truth_path"
+           value="$(optenv SIM_RUN_DIR /tmp)/red_cross_truth.yaml" />
+  </node>
+
+  <!-- 随机投放区红十字：启动时在搜索区域内随机摆放（避开既有模型），
+       真值只落盘供复盘，不进入控制链。 -->
+  <node if="$(arg spawn_red_cross)" pkg="uav_mission"
+        type="random_red_cross_spawner.py" name="random_red_cross_spawner"
+        output="screen">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/coverage_toudi4.yaml" />
+    <param name="seed" value="$(arg red_cross_seed)" />
   </node>
 
   <!-- 可选的 debug 视觉录制（默认关闭）：录制原始下视图像与各检测器 debug 图，

@@ -23,6 +23,7 @@ from coverage_policy import (
     GoalRetryPolicy,
     RULE_WEIGHTS,
     generate_serpentine,
+    interrupt_eligible,
     resolve_safe_waypoint,
     select_serpentine_entry,
 )
@@ -99,6 +100,12 @@ class CoverageSearchManager:
             rospy.get_param(
                 "~candidate/capture_radius",
                 self._release_attribution_distance))
+        # 高权重中断投递：队列头部权重达到阈值时，搜索阶段立即中断执行投递，
+        # 投完从 _resume_index 恢复搜索（red_cross=10、tank=5 触发）。
+        self._interrupt_enabled = bool(
+            rospy.get_param("~interrupt/enabled", True))
+        self._interrupt_min_weight = float(
+            rospy.get_param("~interrupt/min_weight", 4.0))
         self._search_timeout = float(rospy.get_param("~search_timeout", 540.0))
         self._mission_timeout = float(
             rospy.get_param("~mission_timeout", 600.0))
@@ -154,6 +161,10 @@ class CoverageSearchManager:
         self._capture_started_at = None
         self._capture_observations = []
         self._circles = []
+        self._interruptions = 0
+        self._interrupted_at_index = []
+        self._search_active_sec = 0.0
+        self._last_tick_at = None
         self._recovery_started_at = None
         self._landing_started_at = None
 
@@ -440,8 +451,13 @@ class CoverageSearchManager:
         # 任务候选是标准图案语义 ID；近地精对准和安全释放证据是该靶外圈的
         # circle ID。两者不应强行要求同 ID/同类别。ACK 归因使用顺序槽、
         # drop_circle 证据，以及飞机仍在已锁定语义地图点邻域三重约束。
-        if (self._release_result.align_mode != "drop_circle" or
-                self._release_result.target_class != "circle"):
+        release_mode = self._release_result.align_mode
+        release_class = self._release_result.target_class
+        valid_pair = (
+            (release_mode == "drop_circle" and release_class == "circle") or
+            (release_mode == "drop_cross" and
+             release_class == "red_cross"))
+        if not valid_pair:
             return False, "release_evidence_not_circle"
         position = self._pose.pose.position
         map_distance = math.hypot(
@@ -622,6 +638,11 @@ class CoverageSearchManager:
             "alignment_timeout": self._alignment_timeout,
             "capture_timeout": self._capture_timeout,
             "capture_observations": list(self._capture_observations),
+            "interrupt_enabled": self._interrupt_enabled,
+            "interrupt_min_weight": self._interrupt_min_weight,
+            "interruptions": self._interruptions,
+            "interrupted_at_index": list(self._interrupted_at_index),
+            "search_active_sec": self._search_active_sec,
             "release_attribution_distance":
                 self._release_attribution_distance,
         }
@@ -634,6 +655,11 @@ class CoverageSearchManager:
                 return 1
 
             now = self._now()
+            if self._last_tick_at is not None:
+                if self._state in ("SEARCH", "CANDIDATE_APPROACH"):
+                    self._search_active_sec += max(
+                        0.0, now - self._last_tick_at)
+            self._last_tick_at = now
             if (self._mission_started_at is not None and
                     now - self._mission_started_at >= self._mission_timeout and
                     self._state not in ("WAIT_TAKEOFF", "COMPLETE")):
@@ -641,7 +667,7 @@ class CoverageSearchManager:
                 self._publish_status("FAIL", "mission_timeout")
                 return 1
             if (self._mission_started_at is not None and
-                    now - self._mission_started_at >= self._search_timeout and
+                    self._search_active_sec >= self._search_timeout and
                     self._state in ("SEARCH", "CANDIDATE_APPROACH")):
                 self._begin_return("search_timeout", navigation_pass=False)
 
@@ -655,6 +681,7 @@ class CoverageSearchManager:
                       time.monotonic() - self._ready_since >= 2.0):
                     self._select_route()
                     self._mission_started_at = now
+                    self._search_active_sec = 0.0
                     self._start_coverage_point()
                 elif (ready and self._map_wait_started_at is not None and
                       time.monotonic() - self._map_wait_started_at >=
@@ -666,6 +693,16 @@ class CoverageSearchManager:
                     self._map_wait_started_at = None
 
             elif self._state == "SEARCH":
+                if (self._execute_candidates and self._interrupt_enabled and
+                        interrupt_eligible(
+                            self._candidate_queue.pending,
+                            self._interrupt_min_weight)):
+                    if self._maybe_start_candidate(force=True):
+                        self._interruptions += 1
+                        if self._active_nominal is not None:
+                            self._interrupted_at_index.append(
+                                self._active_nominal.index)
+                        continue
                 if self._maybe_start_candidate():
                     pass
                 else:
