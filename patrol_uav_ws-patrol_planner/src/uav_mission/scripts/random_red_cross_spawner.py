@@ -25,8 +25,10 @@ class RandomRedCrossSpawner:
         self._min_y = float(rospy.get_param("~search_region/min_y", 0.5))
         self._max_y = float(rospy.get_param("~search_region/max_y", 6.0))
         self._margin = float(rospy.get_param("~margin", 0.6))
-        self._min_clearance = float(rospy.get_param("~min_clearance", 1.2))
-        self._max_attempts = int(rospy.get_param("~max_attempts", 200))
+        # 净空指红十字中心到其他模型的最小距离；搜索区内标准靶/树木较密，
+        # 1.2 m 会导致采样几乎无解，0.6 m 已保证 0.35 m 靶不与其他板重叠。
+        self._min_clearance = float(rospy.get_param("~min_clearance", 0.6))
+        self._max_attempts = int(rospy.get_param("~max_attempts", 1000))
         self._seed = int(rospy.get_param("~seed", 0))
         self._model_sdf_path = rospy.get_param(
             "~model_sdf",
