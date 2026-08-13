@@ -43,6 +43,11 @@ candidate:
   # 语义图案 ID 与近地 circle ID 不同；ACK 时飞机必须仍在语义候选邻域内。
   release_attribution_distance: 0.75
   alignment_timeout: 90.0
+  # 下降到释放高度前先在接近高度捕获圆环证据（避免盲降）：
+  # 超时未捕获则按 capture_timeout_no_circle 快速失败并记录观测。
+  capture_timeout: 20.0
+  capture_fresh_age: 1.0
+  capture_radius: 0.75
 
 navigation_only: true
 execute_candidates: false

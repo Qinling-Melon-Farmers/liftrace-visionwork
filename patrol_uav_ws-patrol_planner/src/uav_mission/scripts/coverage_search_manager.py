@@ -89,6 +89,16 @@ class CoverageSearchManager:
             rospy.get_param("~candidate/release_attribution_distance", 0.75))
         self._alignment_timeout = float(
             rospy.get_param("~candidate/alignment_timeout", 90.0))
+        # 近地圆环证据高位捕获：下降到释放高度前，先在接近高度确认圆环可见，
+        # 避免旧控制盲降（bridge 第三投对齐阶段无任何 circle 证据仍下降至负高度）。
+        self._capture_timeout = float(
+            rospy.get_param("~candidate/capture_timeout", 20.0))
+        self._capture_fresh_age = float(
+            rospy.get_param("~candidate/capture_fresh_age", 1.0))
+        self._capture_radius = float(
+            rospy.get_param(
+                "~candidate/capture_radius",
+                self._release_attribution_distance))
         self._search_timeout = float(rospy.get_param("~search_timeout", 540.0))
         self._mission_timeout = float(
             rospy.get_param("~mission_timeout", 600.0))
@@ -141,6 +151,9 @@ class CoverageSearchManager:
         self._discovered = {}
         self._resume_index = 0
         self._align_started_at = None
+        self._capture_started_at = None
+        self._capture_observations = []
+        self._circles = []
         self._recovery_started_at = None
         self._landing_started_at = None
 
@@ -273,6 +286,16 @@ class CoverageSearchManager:
             if target_id not in active_ids:
                 self._discovered.pop(target_id, None)
         self._candidate_queue.update(candidates, now, self._frame, 0.5)
+        circles = []
+        for target in msg.targets:
+            if (target.class_name == "circle" and int(target.state) >= 2 and
+                    bool(target.map_valid) and
+                    target.last_seen.to_sec() > 0.0):
+                circles.append((
+                    float(target.map_point.x), float(target.map_point.y),
+                    target.last_seen.to_sec(),
+                    float(target.geometry_confidence)))
+        self._circles = circles
         for candidate in self._candidate_queue.pending:
             self._discovered[candidate.target_id] = {
                 "id": candidate.target_id,
@@ -457,6 +480,36 @@ class CoverageSearchManager:
             "coverage_complete_insufficient_candidates",
             mission_success=False)
 
+    def _capture_satisfied(self):
+        if self._current_candidate is None:
+            return False
+        now = self._now()
+        for x, y, last_seen, _confidence in self._circles:
+            if last_seen <= 0.0 or now - last_seen > self._capture_fresh_age:
+                continue
+            if math.hypot(x - self._current_candidate.x,
+                          y - self._current_candidate.y) <= self._capture_radius:
+                return True
+        return False
+
+    def _record_capture_observation(self):
+        if self._current_candidate is None:
+            return
+        now = self._now()
+        for x, y, last_seen, confidence in self._circles:
+            if last_seen <= 0.0:
+                continue
+            self._capture_observations.append({
+                "x": x,
+                "y": y,
+                "last_seen": last_seen,
+                "age": max(0.0, now - last_seen),
+                "confidence": confidence,
+                "distance_to_candidate": math.hypot(
+                    x - self._current_candidate.x,
+                    y - self._current_candidate.y),
+            })
+
     def _maybe_start_candidate(self, force=False):
         if (not self._execute_candidates or
                 len(self._delivered) >= self._required_deliveries or
@@ -466,6 +519,7 @@ class CoverageSearchManager:
         if candidate is None:
             return False
         self._current_candidate = candidate
+        self._capture_observations = []
         self._resume_index = self._coverage_index
         self._selection_sequence.append(self._candidate_record(candidate))
         goal = self._pose_goal(candidate.x, candidate.y, self._height)
@@ -561,6 +615,8 @@ class CoverageSearchManager:
             "final_land": self._final_land,
             "required_deliveries": self._required_deliveries,
             "alignment_timeout": self._alignment_timeout,
+            "capture_timeout": self._capture_timeout,
+            "capture_observations": list(self._capture_observations),
             "release_attribution_distance":
                 self._release_attribution_distance,
         }
@@ -638,14 +694,34 @@ class CoverageSearchManager:
             elif self._state == "CANDIDATE_APPROACH":
                 result = self._tick_goal()
                 if result == "arrived":
+                    self._capture_observations = []
+                    if self._capture_satisfied():
+                        self._publish_command(
+                            MissionCommand.ALIGN, self._active_goal,
+                            self._current_candidate)
+                        self._state = "ALIGN"
+                        self._align_started_at = now
+                        self._publish_status("RUNNING", "candidate_align")
+                    else:
+                        self._capture_started_at = now
+                        self._state = "CANDIDATE_CAPTURE"
+                        self._publish_status(
+                            "RUNNING", "candidate_capture_waiting_circle")
+                elif result == "timeout":
+                    self._finish_candidate(False, "approach_unreachable_20s")
+
+            elif self._state == "CANDIDATE_CAPTURE":
+                self._record_capture_observation()
+                if self._capture_satisfied():
                     self._publish_command(
                         MissionCommand.ALIGN, self._active_goal,
                         self._current_candidate)
                     self._state = "ALIGN"
                     self._align_started_at = now
                     self._publish_status("RUNNING", "candidate_align")
-                elif result == "timeout":
-                    self._finish_candidate(False, "approach_unreachable_20s")
+                elif now - self._capture_started_at >= self._capture_timeout:
+                    self._finish_candidate(
+                        False, "capture_timeout_no_circle")
 
             elif self._state == "ALIGN":
                 if self._release_result is not None:
