@@ -41,7 +41,7 @@
     - `build/`、`devel/`、`install/`、日志、bag、模型权重、数据集等大文件一律不入库
       （由 `.gitignore` 维护，新增例外需在变更记录说明）。
     - 变更记录（规则 12）**先于** commit 更新，commit 与文档记录一一对应；
-      每阶段 push 到 origin/main 前确认 `git status` 干净。
+      每阶段 push 前确认 `git status` 干净；`main` 只经合并进入（规则 18）。
 16. **仿真必须走统一 run 目录规范。** 每次仿真启动用
     `top_level_scripts/sim_run.sh <场景名> roslaunch ...`，它自动生成
     `logs/<场景名>_<时间>/`（含 run.log、manifest.yaml、screenrecord.mp4、
@@ -58,6 +58,37 @@
       不检查与开发无关的敏感信息。专注：能编译、能仿真、能飞、能投递。
     - 安全底线仅保留：token/凭据不入仓库（规则 15）、不执行实机危险动作
       （规则 3）、仿真与实机分离（规则 4）。
+18. **多人协作分支策略（2-4 人小团队 + agent 辅助）。**
+    - **主干模型**：`main` 是唯一验收基线，只接受经过实跑验证的内容；任何成员
+      不得直接 push `main`，必须走 feature 分支合并（GitHub PR 或本地
+      `git merge --no-ff`，保留分叉痕迹；禁止 squash 与 fast-forward）。
+    - **分支命名**：沿用现有语义风格，两种均可：
+      `feat/<语义主题>-<简述>`（如 `feat/external-mission-coverage`、
+      `feat/new-vision-coverage-search`），或带 ROADMAP 阶段编号
+      `feat/<阶段号>-<简述>`（如 `feat/vcl04-r6-bridge`、`feat/vsim04-stability`）；
+      阶段号必须引用 `VISION_2026_ROADMAP.md` 中的既有编号（V-CL/V-SIM/V-ALG/
+      V-DEPLOY/R 系列）。
+    - **分支生命周期**：从最新 `main` 拉出 → 小步提交并 push 同名远程分支 →
+      实跑验证（`logs/<场景>_<时间>/` + `gate_status.json`）→ 合并回 `main`
+      （--no-ff）→ 分支保留不删除（供溯源），分支负责人确认无后续工作后自行清理。
+      一个分支只承载一个 Gate/里程碑，禁止长期分支积压。
+    - **并发分治**：按包划分所有权，避免两人同时改同一处：视觉链
+      `vision_ws/src/uav_vision*`（视觉组）、任务/控制链
+      `patrol_uav_ws-patrol_planner/src/uav_mission` 与 `patrol_control`
+      （控制/规划组）、`top_level_scripts` 与板端工具（板端组）。跨组改动
+      （话题/消息/接口）须先在变更记录或组间对齐，接口变更分支优先合并。
+    - **共享文档冲突约定**：`docs/仿真联调变更记录.md` 与 `AGENTS.md` 是多分支
+      追加型共享文件。合并冲突时**双方条目都保留**、按日期排序，不得覆盖他人
+      条目；修改 AGENTS.md 规则条款必须在变更记录说明动机。
+    - **仿真资源独占**：SITL 实跑按规则 16 走 `sim_run.sh`；同机禁止多套
+      roscore（规则 12）；多人实跑以 `logs/` 目录时间为序排队，开跑前先检查
+      他人最近的 run 目录，避免端口/资源争用。
+    - **agent 使用边界**：agent 可代成员完成提交（遵守规则 15 的 commit 规范）；
+      但**合并 main、推送 main、删除分支必须由人工确认后执行**；agent 不得自行
+      决定跨组接口变更。
+    - **合并前检查清单**：`git status` 干净；相关 Gate/断言有 PASS 或实跑记录
+      （变更记录引用 logs 路径）；无 token/大文件入库；变更记录条目已存在且
+      先于合并。
 
 ---
 
