@@ -8,14 +8,18 @@ find_package(catkin REQUIRED COMPONENTS
   message_filters
   message_generation
   rospy
+  rosgraph
   sensor_msgs
   std_msgs
+  std_srvs
   tf2_ros
   uav_vision
 )
 
 add_message_files(
   FILES
+  AuxProjection.msg
+  AuxProjectionArray.msg
   SimTarget.msg
   SimTargetArray.msg
 )
@@ -35,13 +39,26 @@ catkin_package(
     message_filters
     message_runtime
     rospy
+    rosgraph
     sensor_msgs
     std_msgs
+    std_srvs
     tf2_ros
     uav_vision
 )
 
 catkin_install_python(PROGRAMS
+  scripts/aux_candidate_memory.py
+  scripts/aux_camera_extrinsic_tf.py
+  scripts/aux_coarse_projector.py
+  scripts/generate_oblique_vehicle_sdf.py
+  scripts/oblique_geometry.py
+  scripts/oblique_vehicle_camera_assertion.py
+  scripts/run_oblique_fixed_matrix.py
+  scripts/aux_projection_assertion.py
+  scripts/aux_projection_mock_inputs.py
+  scripts/aux_projection_metrics_recorder.py
+  scripts/aux_shadow_recorder.py
   scripts/gazebo_camera_tf.py
   scripts/sim_ground_truth_projector.py
   scripts/vision_metrics_recorder.py
@@ -56,6 +73,12 @@ catkin_install_python(PROGRAMS
   scripts/aligning_capture_gate_assertion.py
   scripts/target_memory_freshness_assertion.py
   scripts/target_refiner_association_assertion.py
+  scripts/timed_shutdown.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(PROGRAMS
+  scripts/run_oblique_coverage_shadow.sh
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

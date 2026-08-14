@@ -1,0 +1,25 @@
+<launch>
+  <!-- 启动未解锁的 PX4 SITL 以正常驱动动态机架；不启动任务、规划、控制或执行机构。 -->
+  <arg name="vehicle_sdf" />
+  <arg name="gui" default="false" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi4_copy.world" />
+  <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
+  <arg name="px4_model_root"
+       default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
+
+  <include file="$(find patrol_control)/launch/patrol_world.launch">
+    <arg name="world" value="$(arg world)" />
+    <arg name="start_px4" value="true" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="sdf" value="$(arg vehicle_sdf)" />
+    <arg name="gazebo_model_path" value="$(arg px4_model_root)" />
+    <arg name="x" value="-0.493412" />
+    <arg name="y" value="-1.772690" />
+    <arg name="z" value="0.06" />
+  </include>
+
+  <node pkg="uav_vision_eval" type="oblique_vehicle_camera_assertion.py"
+        name="oblique_vehicle_camera_assertion" output="screen" required="true">
+    <param name="report_path" value="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+  </node>
+</launch>

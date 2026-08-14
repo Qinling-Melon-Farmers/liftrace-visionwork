@@ -1,0 +1,70 @@
+<launch>
+  <!-- L2：当前覆盖航线照常运行；辅助视觉始终只观察，不接入任务或导航输入。 -->
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="start_arming" default="false" />
+  <arg name="start_mapping" default="true" />
+  <arg name="wall_timeout" default="700.0" />
+  <arg name="projection_mode" default="mono" />
+  <arg name="aux_angle_deg" default="55" />
+  <arg name="vehicle_sdf" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="manager_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/coverage_status.json" />
+
+  <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="start_arming" value="$(arg start_arming)" />
+    <arg name="start_mapping" value="$(arg start_mapping)" />
+    <arg name="external_mission_mode" value="true" />
+    <arg name="waypoint_mode" value="false" />
+    <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+  </include>
+
+  <!-- toudi3_visual_delivery_guarded 已发布 camera_init -> vision_body。 -->
+  <node pkg="uav_vision_eval" type="aux_camera_extrinsic_tf.py"
+        name="aux_camera_extrinsic_tf" output="screen">
+    <param name="parent_frame" value="vision_body" />
+    <param name="child_frame" value="aux_camera_optical_frame" />
+    <rosparam param="xyz">[0.12, 0.0, 0.0]</rosparam>
+    <param name="depression_angle_deg" value="$(arg aux_angle_deg)" />
+  </node>
+
+  <include file="$(find uav_vision_eval)/launch/oblique_aux_chain.launch">
+    <arg name="image_topic" value="/aux_camera/image_raw" />
+    <arg name="camera_info_topic" value="/aux_camera/camera_info" />
+    <arg name="depth_topic" value="/aux_camera/depth/image_raw" />
+    <arg name="projection_mode" value="$(arg projection_mode)" />
+    <arg name="map_frame" value="camera_init" />
+    <arg name="ground_z" value="0.0" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+  </include>
+
+  <!-- 复用现有导航链，仅执行覆盖/返航/降落，不执行候选投递。 -->
+  <node pkg="uav_mission" type="coverage_search_manager.py"
+        name="oblique_shadow_coverage_manager" output="screen">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/coverage_toudi4.yaml" />
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg manager_report_path)" />
+    <param name="gate_name" value="oblique_aux_shadow_route" />
+    <param name="navigation_only" value="true" />
+    <param name="execute_candidates" value="false" />
+    <param name="collect_before_delivery" value="false" />
+    <param name="final_land" value="true" />
+    <param name="require_north" value="false" />
+  </node>
+
+  <node pkg="uav_vision_eval" type="aux_shadow_recorder.py"
+        name="aux_shadow_recorder" output="screen" required="true">
+    <param name="target_catalog"
+           value="$(find uav_vision_eval)/config/sim_target_catalog_toudi4.yaml" />
+    <param name="aux_topic" value="/uav_vision/aux/detections_mapped" />
+    <param name="downward_topic" value="/uav_vision/detections_mapped" />
+    <param name="wall_timeout_sec" value="$(arg wall_timeout)" />
+    <param name="output_dir" value="$(optenv SIM_RUN_DIR /tmp)" />
+    <rosparam param="camera_init_world_offset">[-0.493412, -1.772690, 0.0]</rosparam>
+  </node>
+</launch>

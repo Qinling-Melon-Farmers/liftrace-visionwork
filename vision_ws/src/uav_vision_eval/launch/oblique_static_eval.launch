@@ -1,0 +1,120 @@
+<launch>
+  <!-- L1 固定姿态：无 PX4、MAVROS、任务、规划、控制或执行机构。 -->
+  <arg name="world" default="$(find patrol_control)/../../../toudi4_copy.world" />
+  <arg name="truth_catalog"
+       default="$(find uav_vision_eval)/config/sim_target_catalog_toudi4.yaml" />
+  <arg name="scenario_file"
+       default="$(find uav_vision_eval)/config/scenarios/existing_targets.yaml" />
+  <arg name="camera_x" default="0.0" />
+  <arg name="camera_y" default="0.0" />
+  <arg name="camera_z" default="2.0" />
+  <arg name="camera_pitch_rad" default="0.959931088597" />
+  <arg name="camera_yaw_rad" default="0.0" />
+  <arg name="projection_mode" default="mono" />
+  <arg name="spawn_red_cross" default="false" />
+  <arg name="red_cross_x" default="-2.5" />
+  <arg name="red_cross_y" default="-2.5" />
+  <arg name="gui" default="false" />
+  <arg name="vision_python"
+       default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="output_dir" default="$(optenv SIM_RUN_DIR /tmp)/metrics" />
+  <arg name="wall_timeout_sec" default="40.0" />
+  <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
+  <arg name="px4_model_root"
+       default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
+
+  <env name="GAZEBO_MODEL_PATH"
+       value="$(find uav_vision_eval)/models:$(arg px4_model_root):$(optenv GAZEBO_MODEL_PATH)" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="false" />
+    <arg name="use_sim_time" value="true" />
+  </include>
+
+  <node pkg="gazebo_ros" type="spawn_model" name="oblique_eval_camera_spawn"
+        output="screen"
+        args="-sdf -file $(find uav_vision_eval)/models/oblique_eval_camera/model.sdf
+              -model oblique_eval_camera
+              -x $(arg camera_x) -y $(arg camera_y) -z $(arg camera_z)
+              -P $(arg camera_pitch_rad) -Y $(arg camera_yaw_rad)" />
+
+  <node if="$(arg spawn_red_cross)" pkg="gazebo_ros" type="spawn_model"
+        name="oblique_eval_red_cross_spawn" output="screen"
+        args="-sdf -file $(arg px4_model_root)/red_cross/model.sdf
+              -model red_cross -x $(arg red_cross_x) -y $(arg red_cross_y) -z 0.0" />
+
+  <include file="$(find uav_vision_eval)/launch/ground_truth.launch">
+    <arg name="catalog_file" value="$(arg truth_catalog)" />
+    <arg name="scenario_file" value="$(arg scenario_file)" />
+    <arg name="image_topic" value="/aux_camera/image_raw" />
+    <arg name="camera_info_topic" value="/aux_camera/camera_info" />
+    <arg name="camera_link_suffix" value="aux_eval_camera_link" />
+    <arg name="truth_topic" value="/uav_vision_eval/aux_ground_truth" />
+    <arg name="world_frame" value="world" />
+    <arg name="camera_pose_is_optical" value="false" />
+  </include>
+
+  <include file="$(find uav_vision_eval)/launch/oblique_aux_chain.launch">
+    <arg name="image_topic" value="/aux_camera/image_raw" />
+    <arg name="camera_info_topic" value="/aux_camera/camera_info" />
+    <arg name="depth_topic" value="/aux_camera/depth/image_raw" />
+    <arg name="projection_mode" value="$(arg projection_mode)" />
+    <arg name="map_frame" value="world" />
+    <arg name="ground_z" value="0.0" />
+    <arg name="vision_python" value="$(arg vision_python)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <!-- 静态 Gazebo TF 允许 bounded latest fallback 消除回调先后竞态。 -->
+    <arg name="allow_latest_tf_fallback" value="true" />
+    <!-- 固定相机位姿不会随时间变化；放宽只用于消除低速推理与 TF 回调相位差。 -->
+    <arg name="max_latest_tf_age_sec" value="5.0" />
+  </include>
+
+  <node pkg="uav_vision_eval" type="vision_metrics_recorder.py"
+        name="oblique_vision_metrics_recorder" output="screen">
+    <param name="scenario_file" value="$(arg scenario_file)" />
+    <param name="truth_topic" value="/uav_vision_eval/aux_ground_truth" />
+    <param name="image_topic" value="/aux_camera/image_raw" />
+    <param name="detections_topic" value="/uav_vision/aux/detections_mapped" />
+    <param name="raw_detections_topic" value="/uav_vision/aux/detections" />
+    <param name="resolved_detections_topic" value="/uav_vision/aux/detections" />
+    <param name="refined_detections_topic" value="/uav_vision/aux/detections" />
+    <param name="output_dir" value="$(arg output_dir)" />
+    <param name="required_scoring_source" value="target_detector" />
+    <param name="require_geometry_verified_detections" value="false" />
+    <param name="warmup_frames" value="10" />
+    <param name="aggregation_delay_sec" value="0.10" />
+    <!-- 单 case 只记录原始量；正式阈值由矩阵聚合器统一判定。 -->
+    <param name="min_scored_frames" value="1" />
+    <param name="min_precision" value="0.0" />
+    <param name="min_recall" value="0.0" />
+    <param name="min_input_coverage" value="0.0" />
+    <param name="require_pixel_error" value="false" />
+    <param name="require_map_error" value="false" />
+    <param name="require_latency" value="false" />
+    <param name="camera_x" value="$(arg camera_x)" />
+    <param name="camera_y" value="$(arg camera_y)" />
+    <param name="camera_z" value="$(arg camera_z)" />
+    <param name="camera_pitch" value="$(arg camera_pitch_rad)" />
+    <param name="camera_yaw" value="$(arg camera_yaw_rad)" />
+  </node>
+
+  <node pkg="uav_vision_eval" type="image_snapshot.py"
+        name="oblique_image_snapshot" output="screen">
+    <param name="image_topic" value="/aux_camera/image_raw" />
+    <param name="output_file" value="$(arg output_dir)/scene.png" />
+  </node>
+
+  <node pkg="uav_vision_eval" type="aux_projection_metrics_recorder.py"
+        name="aux_projection_metrics_recorder" output="screen">
+    <param name="topic" value="/uav_vision/aux/projection_diagnostics" />
+    <param name="output_path" value="$(arg output_dir)/projection_summary.json" />
+  </node>
+
+  <node pkg="uav_vision_eval" type="timed_shutdown.py"
+        name="oblique_timed_shutdown" output="screen" required="true">
+    <param name="wall_timeout_sec" value="$(arg wall_timeout_sec)" />
+  </node>
+</launch>

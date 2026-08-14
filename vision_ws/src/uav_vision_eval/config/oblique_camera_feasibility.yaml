@@ -1,0 +1,38 @@
+# 斜下辅助相机可行性原型。全部话题与阈值均限于 /uav_vision/aux。
+projection_mode: mono                 # mono 或 depth，由 launch 覆盖
+map_frame: camera_init
+ground_z: 0.0                         # 靶标所在平面 [m]
+min_class_confidence: 0.35
+ray_z_epsilon: 0.08                   # 地图系单位射线 |z| 过小时拒绝
+max_ground_range_m: 12.0
+field_min_x: -5.5
+field_max_x: 5.5
+field_min_y: -5.5
+field_max_y: 5.5
+tf_timeout: 0.05
+allow_latest_tf_fallback: false
+max_latest_tf_age_sec: 0.10
+
+depth_roi_scale: 0.35                 # 检测框中央 ROI 边长比例
+depth_scale_16u: 0.001                # 16UC1 毫米转米
+min_depth_m: 0.20
+max_depth_m: 10.0
+min_depth_valid_fraction: 0.25
+max_depth_mad_m: 0.50                 # ROI 深度中值绝对偏差上限 [m]
+max_depth_age_sec: 0.12
+max_depth_ground_residual_m: 0.75
+fallback_to_mono: true
+
+# 粗略误差模型只用于原型排序和 Gate 解释，不替代标定后的协方差。
+mono_uncertainty_base_m: 0.15
+mono_uncertainty_per_meter: 0.08
+ground_height_uncertainty_m: 0.05
+depth_uncertainty_base_m: 0.05
+depth_mad_scale: 1.5
+depth_bbox_scale: 0.25
+quality_uncertainty_scale_m: 1.0
+
+confirm_frames: 2
+min_map_quality: 0.10
+match_distance_m: 1.0
+candidate_ttl_sec: 5.0

@@ -13,12 +13,13 @@
   <depend>message_generation</depend>
   <depend>message_runtime</depend>
   <depend>rospy</depend>
+  <depend>rosgraph</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
   <depend>tf2_ros</depend>
   <depend>uav_vision</depend>
   <exec_depend>gazebo_ros</exec_depend>
   <exec_depend>patrol_control</exec_depend>
   <exec_depend>uav_mission</exec_depend>
-  <exec_depend>rosgraph</exec_depend>
 </package>

@@ -1,0 +1,51 @@
+<launch>
+  <!-- L0：不启动 Gazebo、PX4、控制、规划或执行机构。 -->
+  <arg name="report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+
+  <node pkg="uav_vision_eval" type="aux_projection_mock_inputs.py"
+        name="mock_aux_inputs" output="screen" />
+
+  <node pkg="uav_vision_eval" type="aux_coarse_projector.py"
+        name="aux_mono_projector" output="screen">
+    <rosparam file="$(find uav_vision_eval)/config/oblique_camera_feasibility.yaml" />
+    <param name="projection_mode" value="mono" />
+    <param name="input_topic" value="/mock/aux/detections" />
+    <param name="output_topic" value="/mock/aux/mono_mapped" />
+    <param name="diagnostics_topic" value="/mock/aux/mono_diagnostics" />
+    <param name="camera_info_topic" value="/mock/aux/camera_info" />
+    <param name="map_frame" value="world" />
+    <param name="field_min_x" value="-5.5" />
+    <param name="field_max_x" value="5.5" />
+    <param name="field_min_y" value="-5.5" />
+    <param name="field_max_y" value="5.5" />
+  </node>
+
+  <node pkg="uav_vision_eval" type="aux_coarse_projector.py"
+        name="aux_depth_projector" output="screen">
+    <rosparam file="$(find uav_vision_eval)/config/oblique_camera_feasibility.yaml" />
+    <param name="projection_mode" value="depth" />
+    <param name="input_topic" value="/mock/aux/detections" />
+    <param name="output_topic" value="/mock/aux/depth_mapped" />
+    <param name="diagnostics_topic" value="/mock/aux/depth_diagnostics" />
+    <param name="camera_info_topic" value="/mock/aux/camera_info" />
+    <param name="depth_topic" value="/mock/aux/depth" />
+    <param name="map_frame" value="world" />
+    <param name="field_min_x" value="-5.5" />
+    <param name="field_max_x" value="5.5" />
+    <param name="field_min_y" value="-5.5" />
+    <param name="field_max_y" value="5.5" />
+  </node>
+
+  <node pkg="uav_vision_eval" type="aux_candidate_memory.py"
+        name="aux_candidate_memory" output="screen">
+    <rosparam file="$(find uav_vision_eval)/config/oblique_camera_feasibility.yaml" />
+    <param name="input_topic" value="/mock/aux/mono_mapped" />
+    <param name="output_topic" value="/uav_vision/aux/targets" />
+  </node>
+
+  <node pkg="uav_vision_eval" type="aux_projection_assertion.py"
+        name="aux_projection_assertion" output="screen" required="true">
+    <param name="report_path" value="$(arg report_path)" />
+  </node>
+</launch>
