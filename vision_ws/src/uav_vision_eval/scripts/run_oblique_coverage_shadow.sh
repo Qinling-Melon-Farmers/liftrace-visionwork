@@ -2,7 +2,7 @@
 # 生成派生机架后，经统一 sim_run.sh 运行覆盖航线 shadow。
 set -euo pipefail
 
-SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+SCRIPT_DIR="$(cd "${BASH_SOURCE[0]%/*}" && pwd)"
 PACKAGE_DIR="${SCRIPT_DIR%/*}"
 PROJECT_ROOT="${PACKAGE_DIR%/vision_ws/src/uav_vision_eval}"
 
@@ -25,7 +25,8 @@ set -u
 base_sdf="${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/src/patrol_control/models/iris_mid360_downward_camera/model.sdf"
 derived_sdf="/tmp/iris_mid360_downward_aux_camera_${angle}_$$.sdf"
 python3 "${SCRIPT_DIR}/generate_oblique_vehicle_sdf.py" \
-  --base-sdf "${base_sdf}" --output "${derived_sdf}" --angle-deg "${angle}"
+  --base-sdf "${base_sdf}" --output "${derived_sdf}" --angle-deg "${angle}" \
+  --sensor-mode "${mode}"
 
 cleanup() {
   rm -f "${derived_sdf}"
@@ -33,7 +34,11 @@ cleanup() {
 trap cleanup EXIT
 
 scene="oblique_shadow_${mode}_${angle}deg"
+if [[ "${gui}" == "false" ]]; then
+  export SIM_NO_RECORD=1
+fi
 bash "${PROJECT_ROOT}/top_level_scripts/sim_run.sh" "${scene}" \
   roslaunch uav_vision_eval oblique_coverage_shadow.launch \
   gui:="${gui}" start_arming:=true projection_mode:="${mode}" \
-  aux_angle_deg:="${angle}" vehicle_sdf:="${derived_sdf}"
+  aux_angle_deg:="${angle}" enable_aux:=true \
+  evaluation_mode:=aux_shadow vehicle_sdf:="${derived_sdf}"

@@ -5,8 +5,13 @@
   <arg name="start_arming" default="false" />
   <arg name="start_mapping" default="true" />
   <arg name="wall_timeout" default="700.0" />
+  <arg name="recorder_wall_timeout" default="730.0" />
   <arg name="projection_mode" default="mono" />
   <arg name="aux_angle_deg" default="55" />
+  <arg name="enable_aux" default="true" />
+  <arg name="evaluation_mode" default="aux_shadow" />
+  <arg name="coverage_dwell_time" default="0.0" />
+  <arg name="final_land" default="false" />
   <arg name="vehicle_sdf" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="manager_report_path"
@@ -24,23 +29,25 @@
   </include>
 
   <!-- toudi3_visual_delivery_guarded 已发布 camera_init -> vision_body。 -->
-  <node pkg="uav_vision_eval" type="aux_camera_extrinsic_tf.py"
-        name="aux_camera_extrinsic_tf" output="screen">
-    <param name="parent_frame" value="vision_body" />
-    <param name="child_frame" value="aux_camera_optical_frame" />
-    <rosparam param="xyz">[0.12, 0.0, 0.0]</rosparam>
-    <param name="depression_angle_deg" value="$(arg aux_angle_deg)" />
-  </node>
+  <group if="$(arg enable_aux)">
+    <node pkg="uav_vision_eval" type="aux_camera_extrinsic_tf.py"
+          name="aux_camera_extrinsic_tf" output="screen">
+      <param name="parent_frame" value="vision_body" />
+      <param name="child_frame" value="aux_camera_optical_frame" />
+      <rosparam param="xyz">[0.12, 0.0, 0.0]</rosparam>
+      <param name="depression_angle_deg" value="$(arg aux_angle_deg)" />
+    </node>
 
-  <include file="$(find uav_vision_eval)/launch/oblique_aux_chain.launch">
-    <arg name="image_topic" value="/aux_camera/image_raw" />
-    <arg name="camera_info_topic" value="/aux_camera/camera_info" />
-    <arg name="depth_topic" value="/aux_camera/depth/image_raw" />
-    <arg name="projection_mode" value="$(arg projection_mode)" />
-    <arg name="map_frame" value="camera_init" />
-    <arg name="ground_z" value="0.0" />
-    <arg name="target_model_path" value="$(arg target_model_path)" />
-  </include>
+    <include file="$(find uav_vision_eval)/launch/oblique_aux_chain.launch">
+      <arg name="image_topic" value="/aux_camera/image_raw" />
+      <arg name="camera_info_topic" value="/aux_camera/camera_info" />
+      <arg name="depth_topic" value="/aux_camera/depth/image_raw" />
+      <arg name="projection_mode" value="$(arg projection_mode)" />
+      <arg name="map_frame" value="camera_init" />
+      <arg name="ground_z" value="0.0" />
+      <arg name="target_model_path" value="$(arg target_model_path)" />
+    </include>
+  </group>
 
   <!-- 复用现有导航链，仅执行覆盖/返航/降落，不执行候选投递。 -->
   <node pkg="uav_mission" type="coverage_search_manager.py"
@@ -50,10 +57,11 @@
     <param name="wall_timeout" value="$(arg wall_timeout)" />
     <param name="report_path" value="$(arg manager_report_path)" />
     <param name="gate_name" value="oblique_aux_shadow_route" />
+    <param name="coverage/dwell_time" value="$(arg coverage_dwell_time)" />
     <param name="navigation_only" value="true" />
     <param name="execute_candidates" value="false" />
     <param name="collect_before_delivery" value="false" />
-    <param name="final_land" value="true" />
+    <param name="final_land" value="$(arg final_land)" />
     <param name="require_north" value="false" />
   </node>
 
@@ -63,8 +71,12 @@
            value="$(find uav_vision_eval)/config/sim_target_catalog_toudi4.yaml" />
     <param name="aux_topic" value="/uav_vision/aux/detections_mapped" />
     <param name="downward_topic" value="/uav_vision/detections_mapped" />
-    <param name="wall_timeout_sec" value="$(arg wall_timeout)" />
+    <param name="evaluation_mode" value="$(arg evaluation_mode)" />
+    <param name="wall_timeout_sec" value="$(arg recorder_wall_timeout)" />
     <param name="output_dir" value="$(optenv SIM_RUN_DIR /tmp)" />
+    <rosparam param="required_classes">
+      [bridge, panzer, pillbox, tent, tank]
+    </rosparam>
     <rosparam param="camera_init_world_offset">[-0.493412, -1.772690, 0.0]</rosparam>
   </node>
 </launch>

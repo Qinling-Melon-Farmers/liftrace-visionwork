@@ -1,4 +1,4 @@
-    <!-- 由 generate_oblique_vehicle_sdf.py 注入基线机架；不要手工复制下视链。 -->
+    <!-- 单目评测使用轻量 RGB 插件；避免把未使用的深度图和点云开销计入单目路线。 -->
     <link name="aux_camera_link">
       <pose>0.12 0 0.00 0 {pitch_rad} 0</pose>
       <inertial>
@@ -15,7 +15,7 @@
           <diffuse>0.12 0.12 0.12 1</diffuse>
         </material>
       </visual>
-      <sensor name="aux_camera" type="depth">
+      <sensor name="aux_camera" type="camera">
         <always_on>true</always_on>
         <update_rate>20</update_rate>
         <visualize>false</visualize>
@@ -26,21 +26,16 @@
           </image>
           <clip><near>0.10</near><far>12.0</far></clip>
         </camera>
-        <plugin name="aux_camera_controller" filename="libgazebo_ros_openni_kinect.so">
+        <plugin name="aux_camera_controller" filename="libgazebo_ros_camera.so">
           <robotNamespace>/</robotNamespace>
           <cameraName>aux_camera</cameraName>
           <alwaysOn>true</alwaysOn><updateRate>20</updateRate>
           <imageTopicName>image_raw</imageTopicName>
           <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-          <depthImageTopicName>depth/image_raw</depthImageTopicName>
-          <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
-          <pointCloudTopicName>depth/points</pointCloudTopicName>
           <frameName>aux_camera_optical_frame</frameName>
-          <pointCloudCutoff>0.20</pointCloudCutoff>
-          <pointCloudCutoffMax>10.0</pointCloudCutoffMax>
-          <distortion_k1>0</distortion_k1><distortion_k2>0</distortion_k2>
-          <distortion_k3>0</distortion_k3><distortion_t1>0</distortion_t1>
-          <distortion_t2>0</distortion_t2>
+          <distortionK1>0</distortionK1><distortionK2>0</distortionK2>
+          <distortionK3>0</distortionK3><distortionT1>0</distortionT1>
+          <distortionT2>0</distortionT2>
         </plugin>
       </sensor>
     </link>

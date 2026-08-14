@@ -16,15 +16,23 @@ def main():
     parser.add_argument("--output", required=True)
     parser.add_argument("--angle-deg", required=True, type=float)
     parser.add_argument(
+        "--sensor-mode", choices=("mono", "depth"), default="depth",
+        help="mono 使用轻量 RGB 插件；depth 使用 RGB-D/点云插件")
+    parser.add_argument(
         "--fragment",
-        default=str(Path(os.path.realpath(__file__)).parents[1] /
-                    "models/iris_mid360_downward_aux_camera/aux_camera_fragment.sdf.inc"))
+        default="")
     args = parser.parse_args()
 
     if not any(abs(args.angle_deg - value) < 1.0e-6 for value in ALLOWED_ANGLES):
         parser.error("angle-deg must be one of 45, 55, 60")
     base_path = Path(args.base_sdf).resolve()
-    fragment_path = Path(args.fragment).resolve()
+    model_dir = (Path(os.path.realpath(__file__)).parents[1] /
+                 "models/iris_mid360_downward_aux_camera")
+    fragment_path = Path(
+        args.fragment or str(model_dir / (
+            "aux_camera_fragment_rgb.sdf.inc"
+            if args.sensor_mode == "mono" else
+            "aux_camera_fragment.sdf.inc"))).resolve()
     output_path = Path(args.output).resolve()
     base = base_path.read_text(encoding="utf-8")
     if base.count("</model>") != 1:

@@ -19,6 +19,7 @@
   <depend>std_srvs</depend>
   <depend>tf2_ros</depend>
   <depend>uav_vision</depend>
+  <exec_depend>topic_tools</exec_depend>
   <exec_depend>gazebo_ros</exec_depend>
   <exec_depend>patrol_control</exec_depend>
   <exec_depend>uav_mission</exec_depend>

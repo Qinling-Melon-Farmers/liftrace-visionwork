@@ -11,6 +11,13 @@
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="allow_latest_tf_fallback" default="false" />
   <arg name="max_latest_tf_age_sec" default="0.10" />
+  <arg name="inference_rate_hz" default="5.0" />
+
+  <!-- 仿真辅助链按搜索阶段目标频率节流，避免把 20 Hz 第二路 PyTorch 常开
+       误当成板端调度方案；下视生产链不受影响。 -->
+  <node pkg="topic_tools" type="throttle" name="aux_image_throttle"
+        args="messages $(arg image_topic) $(arg inference_rate_hz) /uav_vision/aux/image_throttled"
+        output="screen" />
 
   <group>
     <remap from="/uav_vision/detections" to="/uav_vision/aux/detections" />
@@ -20,7 +27,7 @@
           name="aux_target_detector" output="screen"
           launch-prefix="$(arg vision_python)">
       <rosparam file="$(find uav_vision)/config/target_detector.yaml" />
-      <param name="image_topic" value="$(arg image_topic)" />
+      <param name="image_topic" value="/uav_vision/aux/image_throttled" />
       <param name="model_path" value="$(arg target_model_path)" />
       <param name="perf_topic" value="/uav_vision/aux/perf" />
     </node>

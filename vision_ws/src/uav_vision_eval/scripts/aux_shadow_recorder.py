@@ -18,6 +18,7 @@ from uav_vision.msg import TargetDetectionArray
 
 
 STANDARD_CLASSES = {"bridge", "panzer", "pillbox", "tent", "tank"}
+DEFAULT_REQUIRED_CLASSES = ("bridge", "panzer", "pillbox", "tent", "tank")
 FORBIDDEN_TOPICS = {
     "/fastplanner/goal", "/Servo", "/legacy/Servo_raw",
     "/mission/release_permission", "/uav_vision/selected_target",
@@ -57,6 +58,12 @@ class Recorder:
             "~pose_topic", "/mavros/local_position/pose")
         self._status_topic = rospy.get_param(
             "~coverage_status_topic", "/mission/coverage_status")
+        self._evaluation_mode = rospy.get_param(
+            "~evaluation_mode", "aux_shadow")
+        if self._evaluation_mode not in ("baseline", "aux_shadow"):
+            raise ValueError("evaluation_mode must be baseline or aux_shadow")
+        self._required_classes = tuple(sorted(set(rospy.get_param(
+            "~required_classes", list(DEFAULT_REQUIRED_CLASSES)))))
         self._world_offset = [float(value) for value in rospy.get_param(
             "~camera_init_world_offset", [-0.493412, -1.772690, 0.0])]
         self._min_aux_confidence = float(
@@ -76,6 +83,7 @@ class Recorder:
         self._aux_first = {}
         self._down_first = {}
         self._started = time.monotonic()
+        self._mission_start_stamp = None
         self._terminal_status = None
         self._terminal_at = None
         self._finished = False
@@ -116,6 +124,10 @@ class Recorder:
         return None
 
     def _record(self, storage, message, min_confidence):
+        # 起飞和等待建图阶段的偶然观察不计入搜索耗时。覆盖 manager 首次发布
+        # mission_elapsed 后才建立统一的搜索起点。
+        if self._mission_start_stamp is None:
+            return
         pose_world = self._pose_world()
         for detection in message.detections:
             class_name = detection.class_name
@@ -129,6 +141,8 @@ class Recorder:
             truth = self._truth[class_name]
             storage[class_name] = {
                 "stamp": self._stamp(message),
+                "elapsed_from_search_start_sec": max(
+                    0.0, self._stamp(message) - self._mission_start_stamp),
                 "map_point_world": point,
                 "map_error_xy_m": math.hypot(
                     point[0] - truth[0], point[1] - truth[1]),
@@ -152,6 +166,10 @@ class Recorder:
             payload = json.loads(message.data)
         except (TypeError, ValueError):
             return
+        mission_elapsed = payload.get("mission_elapsed")
+        if mission_elapsed is not None and self._mission_start_stamp is None:
+            self._mission_start_stamp = (
+                rospy.Time.now().to_sec() - float(mission_elapsed))
         if payload.get("status") in ("PASS", "FAIL"):
             self._terminal_status = payload
             self._terminal_at = time.monotonic()
@@ -168,6 +186,35 @@ class Recorder:
                 if node.startswith(AUX_PREFIXES):
                     violations.append({"topic": topic, "node": node})
         return violations
+
+    def _channel_metrics(self, observations):
+        required = {
+            class_name: observations[class_name]
+            for class_name in self._required_classes
+            if class_name in observations
+        }
+        elapsed = sorted(
+            item["elapsed_from_search_start_sec"]
+            for item in required.values())
+        errors = [item["map_error_xy_m"] for item in required.values()]
+        missing = sorted(set(self._required_classes) - set(required))
+        return {
+            "required_classes": list(self._required_classes),
+            "detected_classes": sorted(required),
+            "missing_classes": missing,
+            "distinct_required_targets": len(required),
+            "required_coverage_rate": (
+                len(required) / float(len(self._required_classes))
+                if self._required_classes else 1.0),
+            "all_required_detected": not missing,
+            "time_to_first_required_sec": elapsed[0] if elapsed else None,
+            "time_to_three_required_sec": (
+                elapsed[2] if len(elapsed) >= 3 else None),
+            "time_to_all_required_sec": (
+                elapsed[-1]
+                if len(elapsed) == len(self._required_classes) else None),
+            "p90_map_error_xy_m": percentile(errors, 0.90),
+        }
 
     def _finalize(self, reason):
         if self._finished:
@@ -214,18 +261,28 @@ class Recorder:
         violations = self._aux_forbidden_publishers()
         route_pass = (self._terminal_status is not None and
                       self._terminal_status.get("status") == "PASS")
-        checks = {
+        downward_metrics = self._channel_metrics(self._down_first)
+        auxiliary_metrics = self._channel_metrics(self._aux_first)
+        common_checks = {
             "route_completed": route_pass,
+            "downward_all_required_detected":
+                downward_metrics["all_required_detected"],
+            "no_aux_control_publishers": not violations,
+        }
+        auxiliary_checks = {
             "two_targets_earlier": len(earlier) >= 2,
             "lead_gain": ((median_distance is not None and median_distance >= 1.5) or
                           (median_time is not None and median_time >= 1.0)),
             "coarse_map_p90": p90_error is not None and p90_error <= 0.80,
             "handoff_success": handoff_rate >= 0.80,
-            "no_aux_control_publishers": not violations,
         }
+        checks = dict(common_checks)
+        if self._evaluation_mode == "aux_shadow":
+            checks.update(auxiliary_checks)
         status = "PASS" if all(checks.values()) else "FAIL"
         payload = {
-            "gate": "oblique_aux_coverage_shadow",
+            "gate": "oblique_%s_coverage" % self._evaluation_mode,
+            "evaluation_mode": self._evaluation_mode,
             "status": status,
             "reason": reason,
             "checks": checks,
@@ -238,6 +295,17 @@ class Recorder:
                 "median_lead_distance_m": median_distance,
                 "p90_aux_map_error_xy_m": p90_error,
                 "handoff_success_rate": handoff_rate,
+                "route_mission_elapsed_sec": (
+                    None if self._terminal_status is None else
+                    self._terminal_status.get("mission_elapsed")),
+                "route_search_active_sec": (
+                    None if self._terminal_status is None else
+                    self._terminal_status.get("search_active_sec")),
+                "wall_elapsed_sec": time.monotonic() - self._started,
+            },
+            "channels": {
+                "downward": downward_metrics,
+                "auxiliary": auxiliary_metrics,
             },
             "pairs": pairs,
             "auxiliary_first": self._aux_first,

@@ -49,12 +49,16 @@ catkin_package(
 
 catkin_install_python(PROGRAMS
   scripts/aux_candidate_memory.py
+  scripts/aux_blue_static_assertion.py
   scripts/aux_camera_extrinsic_tf.py
   scripts/aux_coarse_projector.py
+  scripts/aux_guided_search_manager.py
   scripts/generate_oblique_vehicle_sdf.py
   scripts/oblique_geometry.py
   scripts/oblique_vehicle_camera_assertion.py
   scripts/run_oblique_fixed_matrix.py
+  scripts/run_oblique_guided_ab.py
+  scripts/run_oblique_search_ab.py
   scripts/aux_projection_assertion.py
   scripts/aux_projection_mock_inputs.py
   scripts/aux_projection_metrics_recorder.py
@@ -79,6 +83,8 @@ catkin_install_python(PROGRAMS
 
 install(PROGRAMS
   scripts/run_oblique_coverage_shadow.sh
+  scripts/run_oblique_guided_ab.sh
+  scripts/run_oblique_search_ab.sh
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
