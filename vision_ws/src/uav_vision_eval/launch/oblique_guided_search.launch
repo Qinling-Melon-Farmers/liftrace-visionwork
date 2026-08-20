@@ -8,6 +8,10 @@
   <arg name="start_mapping" default="true" />
   <arg name="wall_timeout" default="1200.0" />
   <arg name="aux_angle_deg" default="55" />
+  <arg name="aux_trigger_count" default="5" />
+  <arg name="aux_min_approach_count" default="2" />
+  <arg name="handoff_match_distance_m" default="1.0" />
+  <arg name="handoff_max_age_sec" default="0.75" />
   <arg name="vehicle_sdf" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="report_path"
@@ -53,8 +57,15 @@
     <param name="report_path" value="$(arg report_path)" />
     <param name="required_target_count" value="5" />
     <rosparam param="guided/sparse_row_indices">[2, 5]</rosparam>
-    <param name="guided/aux_trigger_count" value="5" />
-    <param name="guided/aux_min_approach_count" value="2" />
+    <param name="guided/aux_trigger_count" value="$(arg aux_trigger_count)" />
+    <param name="guided/aux_min_approach_count"
+           value="$(arg aux_min_approach_count)" />
     <param name="guided/downward_verify_dwell_sec" value="2.0" />
+    <!-- 交接只接受当前粗候选附近、且复核阶段新产生的下视确认。 -->
+    <param name="guided/handoff_match_distance_m"
+           value="$(arg handoff_match_distance_m)" />
+    <param name="guided/handoff_max_age_sec"
+           value="$(arg handoff_max_age_sec)" />
+    <param name="guided/handoff_preverify_grace_sec" value="0.20" />
   </node>
 </launch>

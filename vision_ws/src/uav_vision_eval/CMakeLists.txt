@@ -16,6 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
   uav_vision
 )
 
+catkin_python_setup()
+
 add_message_files(
   FILES
   AuxProjection.msg
@@ -30,6 +32,10 @@ generate_messages(
   sensor_msgs
   std_msgs
 )
+
+if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(test/test_aux_search_policy.py)
+endif()
 
 catkin_package(
   CATKIN_DEPENDS

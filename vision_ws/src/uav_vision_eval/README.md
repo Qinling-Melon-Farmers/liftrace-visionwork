@@ -23,6 +23,9 @@
 `/uav_vision/selected_target` 或旧 `/detect/*`。唯一例外是
 `aux_guided_search_manager.py`：它是 `uav_vision_eval` 内的临时导航外挂，只在主动 A/B
 launch 中独占 `/fastplanner/goal`，用于测量实际路线收益，不属于视觉组生产交付接口。
+该外挂现已记录 `DETECTED/APPROACHING/VERIFYING/CONFIRMED/REJECTED` 生命周期；只有当前
+粗候选附近、复核阶段新产生且未过期的下视目标才能完成交接。公共 `TargetCandidate` 消息
+保持未改，来源和状态先在隔离报告中验证。
 
 推荐生产路线不是双 YOLO 常开，而是一个常驻 RKNN/YOLO 实例按
 `AUX_SEARCH -> APPROACH -> DOWNWARD_VERIFY -> DROP_ALIGN` 阶段切换输入源。OpenCV 蓝环
@@ -38,4 +41,6 @@ bash vision_ws/src/uav_vision_eval/scripts/run_oblique_guided_ab.sh --repeats 3
 
 当前固定坐标首轮辅助搜索时间缩短 47.5%、路径缩短 40.2%，但第二次辅助运行受 planner
 不可达影响而 FAIL，因此只能判定“有显著潜力，稳定性未通过”。详细证据和全随机下一 Gate
-见设计文档。
+见设计文档。2026-08-20 的强制交接轮完成 2/2 辅助→下视确认（0.110/0.313 m）并在
+fallback 后找齐五类；整体仅因返航阶段规划器内存/重规划失败撞墙钟而 FAIL。后续报告会将
+辅助交接、搜索完成、返航和释放安全拆成独立子 Gate。

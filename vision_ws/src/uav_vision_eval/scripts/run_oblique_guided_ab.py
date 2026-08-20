@@ -72,6 +72,8 @@ def summarize(cases):
     path_lengths = [float(report["path_length_m"]) for report in terminal
                     if report.get("path_length_m") is not None]
     requested = len(cases)
+    candidate_states = [
+        report.get("aux_candidate_state_counts", {}) for report in terminal]
     return {
         "requested_runs": requested,
         "valid_reports": len(terminal),
@@ -88,6 +90,23 @@ def summarize(cases):
         "fallback_rate": (
             sum(bool(report.get("fallback_used")) for report in terminal) /
             float(len(terminal)) if terminal else 0.0),
+        "mean_fallback_count": (
+            sum(int(report.get(
+                "fallback_count", bool(report.get("fallback_used"))))
+                for report in terminal) / float(len(terminal))
+            if terminal else 0.0),
+        "mean_goal_progress_timeout_count": (
+            sum(int(report.get("goal_progress_timeout_count", 0))
+                for report in terminal) / float(len(terminal))
+            if terminal else 0.0),
+        "mean_aux_confirmed_count": (
+            sum(int(states.get("CONFIRMED", 0))
+                for states in candidate_states) / float(len(terminal))
+            if terminal else 0.0),
+        "mean_aux_rejected_count": (
+            sum(int(states.get("REJECTED", 0))
+                for states in candidate_states) / float(len(terminal))
+            if terminal else 0.0),
         "median_aux_candidate_count": median([
             int(report.get("aux_candidate_count", 0)) for report in terminal]),
     }
@@ -160,22 +179,28 @@ def write_report(output_dir, payload):
         "基线以走完原 12 点覆盖作为搜索完成；辅助策略以斜下蓝环形成粗候选、"
         "抵近并由下视链确认五类作为搜索完成。两者均返航但不执行投递和降落。",
         "",
-        "| 条件 | 成功率 | 平均下视确认数 | 搜索耗时中位数 | 搜索耗时标准差 | 路径中位数 | 墙钟中位数 | fallback 率 |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
-        "| 原 12 点全覆盖 | {:.1%} | {:.2f} | {} | {} | {} | {} | {:.1%} |".format(
+        "| 条件 | 成功率 | 平均下视确认数 | 搜索耗时中位数 | 搜索耗时标准差 | 路径中位数 | 墙钟中位数 | fallback 率 | 辅助交接确认/拒绝 | 目标无进展超时 |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| 原 12 点全覆盖 | {:.1%} | {:.2f} | {} | {} | {} | {} | {:.1%} | {:.2f}/{:.2f} | {:.2f} |".format(
             baseline["success_rate"], baseline["mean_downward_confirmed"],
             fmt(baseline["median_search_elapsed_sec"], " s"),
             fmt(baseline["std_search_elapsed_sec"], " s"),
             fmt(baseline["median_path_length_m"], " m"),
             fmt(baseline["median_wall_elapsed_sec"], " s"),
-            baseline["fallback_rate"]),
-        "| 55° OpenCV 蓝环引导 | {:.1%} | {:.2f} | {} | {} | {} | {} | {:.1%} |".format(
+            baseline["fallback_rate"],
+            baseline["mean_aux_confirmed_count"],
+            baseline["mean_aux_rejected_count"],
+            baseline["mean_goal_progress_timeout_count"]),
+        "| 55° OpenCV 蓝环引导 | {:.1%} | {:.2f} | {} | {} | {} | {} | {:.1%} | {:.2f}/{:.2f} | {:.2f} |".format(
             guided["success_rate"], guided["mean_downward_confirmed"],
             fmt(guided["median_search_elapsed_sec"], " s"),
             fmt(guided["std_search_elapsed_sec"], " s"),
             fmt(guided["median_path_length_m"], " m"),
             fmt(guided["median_wall_elapsed_sec"], " s"),
-            guided["fallback_rate"]),
+            guided["fallback_rate"],
+            guided["mean_aux_confirmed_count"],
+            guided["mean_aux_rejected_count"],
+            guided["mean_goal_progress_timeout_count"]),
         "",
         "成功配对的搜索节省中位数：`{}`；相对缩短：`{}`；路径节省：`{}`。".format(
             fmt(paired["median_search_saving_sec"], " s"),

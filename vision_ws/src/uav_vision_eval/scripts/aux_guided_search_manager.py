@@ -17,6 +17,15 @@ from patrol_control.msg import MissionCommand
 from uav_mission.msg import ReleaseResult
 from uav_vision.msg import TargetCandidateArray
 
+from uav_vision_eval.aux_search_policy import (
+    AuxCandidateBook,
+    SOURCE_AUX_CV,
+    STATUS_CONFIRMED,
+    STATUS_REJECTED,
+    fresh_spatial_match,
+    handoff_gate_status,
+)
+
 
 UAV_MISSION_SCRIPTS = os.path.join(
     rospkg.RosPack().get_path("uav_mission"), "scripts")
@@ -65,6 +74,8 @@ class AuxGuidedSearchManager:
             rospy.get_param("~navigation/map_max_age", 2.0))
         self._aux_match_distance = float(
             rospy.get_param("~guided/aux_match_distance_m", 0.80))
+        self._aux_source = rospy.get_param(
+            "~guided/aux_source", SOURCE_AUX_CV)
         self._aux_min_quality = float(
             rospy.get_param("~guided/aux_min_map_quality", 0.10))
         self._aux_trigger_count = int(
@@ -73,6 +84,12 @@ class AuxGuidedSearchManager:
             rospy.get_param("~guided/aux_min_approach_count", 2))
         self._verify_dwell = float(
             rospy.get_param("~guided/downward_verify_dwell_sec", 2.0))
+        self._handoff_match_distance = float(rospy.get_param(
+            "~guided/handoff_match_distance_m", 1.0))
+        self._handoff_max_age = float(rospy.get_param(
+            "~guided/handoff_max_age_sec", 0.75))
+        self._handoff_preverify_grace = float(rospy.get_param(
+            "~guided/handoff_preverify_grace_sec", 0.20))
         self._sparse_rows = {
             int(value) for value in rospy.get_param(
                 "~guided/sparse_row_indices", [2, 5])}
@@ -105,9 +122,10 @@ class AuxGuidedSearchManager:
         self._goal_policy = GoalRetryPolicy(
             retry_interval=5.0, unreachable_timeout=25.0, max_retries=3)
         self._dwell_started_at = None
-        self._aux_candidates = []
+        self._candidate_book = AuxCandidateBook(self._aux_match_distance)
         self._aux_route = []
         self._aux_route_index = 0
+        self._active_aux_candidate = None
         self._downward_confirmed = {}
         self._visited = []
         self._skipped = []
@@ -117,6 +135,8 @@ class AuxGuidedSearchManager:
         self._raw_calls = []
         self._release_results = []
         self._fallback_used = False
+        self._fallback_count = 0
+        self._goal_progress_timeout_count = 0
         self._aux_triggered = False
         self._terminal = False
 
@@ -197,17 +217,31 @@ class AuxGuidedSearchManager:
             if not self._valid_downward(target):
                 continue
             class_name = target.class_name
-            if class_name in self._downward_confirmed:
+            last_seen = target.last_seen.to_sec()
+            if last_seen <= 0.0:
+                last_seen = message.header.stamp.to_sec()
+            if last_seen <= 0.0:
+                last_seen = self._now()
+            previous = self._downward_confirmed.get(class_name)
+            if previous is not None and \
+                    last_seen < previous["last_seen_sec"]:
                 continue
             self._downward_confirmed[class_name] = {
                 "id": int(target.id),
                 "class_name": class_name,
-                "map_point": [float(target.map_point.x),
-                              float(target.map_point.y)],
+                "x": float(target.map_point.x),
+                "y": float(target.map_point.y),
+                "map_point": [
+                    float(target.map_point.x), float(target.map_point.y)],
                 "confidence": float(target.class_confidence),
-                "elapsed_sec": self._mission_elapsed(),
+                "first_elapsed_sec": (
+                    self._mission_elapsed() if previous is None else
+                    previous["first_elapsed_sec"]),
+                "last_elapsed_sec": self._mission_elapsed(),
+                "last_seen_sec": last_seen,
             }
-            self._write("RUNNING", "downward_confirmed_%s" % class_name)
+            if previous is None:
+                self._write("RUNNING", "downward_confirmed_%s" % class_name)
 
     def _valid_aux(self, target):
         return (
@@ -227,28 +261,20 @@ class AuxGuidedSearchManager:
             if not (self._search_bounds[0] <= x <= self._search_bounds[1] and
                     self._search_bounds[2] <= y <= self._search_bounds[3]):
                 continue
-            match = None
-            for candidate in self._aux_candidates:
-                if math.hypot(candidate["x"] - x, candidate["y"] - y) <= \
-                        self._aux_match_distance:
-                    match = candidate
-                    break
-            quality = max(float(target.map_quality), 0.01)
-            if match is None:
-                self._aux_candidates.append({
-                    "x": x, "y": y, "weight": quality,
-                    "quality": float(target.map_quality),
-                    "first_elapsed_sec": self._mission_elapsed(),
-                    "observations": 1,
-                })
-            else:
-                total = match["weight"] + quality
-                match["x"] = (match["x"] * match["weight"] + x * quality) / total
-                match["y"] = (match["y"] * match["weight"] + y * quality) / total
-                match["weight"] = total
-                match["quality"] = max(
-                    match["quality"], float(target.map_quality))
-                match["observations"] += 1
+            stamp = target.last_seen.to_sec()
+            if stamp <= 0.0:
+                stamp = message.header.stamp.to_sec()
+            if stamp <= 0.0:
+                stamp = self._now()
+            self._candidate_book.observe(
+                source_id=target.id,
+                x=x,
+                y=y,
+                confidence=target.class_confidence,
+                map_quality=target.map_quality,
+                stamp_sec=stamp,
+                source=self._aux_source,
+                class_hint=target.class_name)
 
     def _map_ready(self):
         return (
@@ -344,26 +370,16 @@ class AuxGuidedSearchManager:
             self._route_phase, point.index))
 
     def _build_aux_route(self):
-        remaining = [dict(candidate) for candidate in self._aux_candidates]
         if self._pose is None:
-            return remaining
-        x = float(self._pose.pose.position.x)
-        y = float(self._pose.pose.position.y)
-        ordered = []
-        while remaining:
-            selected = min(
-                remaining, key=lambda item: math.hypot(item["x"] - x,
-                                                       item["y"] - y))
-            remaining.remove(selected)
-            ordered.append(selected)
-            x, y = selected["x"], selected["y"]
-        return ordered
+            return self._candidate_book.visit_order(0.0, 0.0)
+        return self._candidate_book.visit_order(
+            self._pose.pose.position.x, self._pose.pose.position.y)
 
     def _start_aux_approach_or_fallback(self, reason):
         if len(self._downward_confirmed) >= self._required_count:
             self._complete_search("all_targets_downward_confirmed")
             return
-        if len(self._aux_candidates) >= self._aux_min_approach_count:
+        if len(self._candidate_book.records) >= self._aux_min_approach_count:
             self._aux_triggered = True
             self._aux_route = self._build_aux_route()
             self._aux_route_index = 0
@@ -377,18 +393,27 @@ class AuxGuidedSearchManager:
             self._complete_search("all_targets_downward_confirmed")
             return
         if self._aux_route_index >= len(self._aux_route):
+            self._active_aux_candidate = None
             self._start_fallback("aux_candidates_exhausted")
             return
         candidate = self._aux_route[self._aux_route_index]
-        goal = self._goal(candidate["x"], candidate["y"], self._height)
+        if candidate.status in (STATUS_CONFIRMED, STATUS_REJECTED):
+            self._aux_route_index += 1
+            self._start_next_aux_goal("skip_terminal_aux_candidate")
+            return
+        self._active_aux_candidate = candidate
+        candidate.start_approach(self._now())
+        goal = self._goal(candidate.x, candidate.y, self._height)
         self._start_goal(
             goal, MissionCommand.APPROACH,
-            self._aux_route_index + 1, "blue_ring")
+            candidate.id, candidate.class_hint)
         self._state = "AUX_APPROACH"
         self._write("RUNNING", reason)
 
     def _start_fallback(self, reason):
         self._fallback_used = True
+        self._fallback_count += 1
+        self._active_aux_candidate = None
         visited_xy = [(item["x"], item["y"]) for item in self._visited]
         self._active_route = [
             point for point in self._full_route
@@ -412,6 +437,15 @@ class AuxGuidedSearchManager:
             None if self._search_completed_at is None or
             self._mission_started_at is None else
             max(0.0, self._search_completed_at - self._mission_started_at))
+        search_passed = (
+            self._search_completed_at is not None and
+            len(self._downward_confirmed) >= self._required_count)
+        returned_home = (
+            status == "PASS" and reason == "search_complete_returned_home")
+        candidate_state_counts = self._candidate_book.state_counts()
+        handoff_terminal = (
+            candidate_state_counts["CONFIRMED"] +
+            candidate_state_counts["REJECTED"])
         return {
             "gate": "oblique_guided_search_%s" % self._strategy,
             "status": status,
@@ -428,15 +462,24 @@ class AuxGuidedSearchManager:
             "route_index": self._route_index,
             "visited": list(self._visited),
             "skipped": list(self._skipped),
-            "aux_candidate_count": len(self._aux_candidates),
+            "aux_candidate_count": len(self._candidate_book.records),
+            "aux_candidate_state_counts": candidate_state_counts,
+            "aux_handoff_success_rate": (
+                None if handoff_terminal == 0 else
+                candidate_state_counts["CONFIRMED"] /
+                float(handoff_terminal)),
             "aux_candidates": [
-                {key: value for key, value in candidate.items()
-                 if key != "weight"}
-                for candidate in self._aux_candidates],
+                candidate.to_dict()
+                for candidate in self._candidate_book.records],
             "aux_triggered": self._aux_triggered,
             "aux_approach_total": len(self._aux_route),
             "aux_approach_index": self._aux_route_index,
+            "active_aux_candidate_id": (
+                None if self._active_aux_candidate is None else
+                self._active_aux_candidate.id),
             "fallback_used": self._fallback_used,
+            "fallback_count": self._fallback_count,
+            "goal_progress_timeout_count": self._goal_progress_timeout_count,
             "downward_confirmed_count": len(self._downward_confirmed),
             "downward_confirmed": dict(sorted(
                 self._downward_confirmed.items())),
@@ -446,6 +489,20 @@ class AuxGuidedSearchManager:
             "map_ready": self._map_ready(),
             "raw_servo_calls": list(self._raw_calls),
             "release_results": list(self._release_results),
+            "subgates": {
+                "aux_handoff": handoff_gate_status(
+                    self._candidate_book.records, self._aux_triggered),
+                "search_complete": (
+                    "PASS" if search_passed else
+                    "FAIL" if status == "FAIL" else "PENDING"),
+                "return_home": (
+                    "PASS" if returned_home else
+                    "FAIL" if search_passed and status == "FAIL" else
+                    "NOT_REACHED" if status == "FAIL" else "PENDING"),
+                "release_safety": (
+                    "PASS" if not self._raw_calls and
+                    not self._release_results else "FAIL"),
+            },
         }
 
     def _write(self, status, reason):
@@ -502,7 +559,8 @@ class AuxGuidedSearchManager:
             elif self._state == "SCAN":
                 if (self._strategy == "guided" and
                         self._route_phase == "sparse_scan" and
-                        len(self._aux_candidates) >= self._aux_trigger_count):
+                        len(self._candidate_book.records) >=
+                        self._aux_trigger_count):
                     self._start_aux_approach_or_fallback(
                         "aux_trigger_count_reached")
                 else:
@@ -512,10 +570,11 @@ class AuxGuidedSearchManager:
                         self._dwell_started_at = now
                     elif result == "timeout":
                         point = self._active_route[self._route_index]
+                        self._goal_progress_timeout_count += 1
                         self._skipped.append({
                             "phase": self._route_phase,
                             "index": int(point.index),
-                            "reason": "planner_unreachable_25s",
+                            "reason": "goal_progress_timeout_25s",
                         })
                         self._route_index += 1
                         self._start_next_route_goal()
@@ -534,22 +593,53 @@ class AuxGuidedSearchManager:
             elif self._state == "AUX_APPROACH":
                 result = self._tick_goal()
                 if result == "arrived":
+                    if self._active_aux_candidate is None or not \
+                            self._active_aux_candidate.start_verify(now):
+                        return self._finish(
+                            "FAIL", "invalid_aux_candidate_transition")
                     self._state = "AUX_VERIFY"
                     self._dwell_started_at = now
                     self._write("RUNNING", "downward_verify")
                 elif result == "timeout":
+                    self._goal_progress_timeout_count += 1
+                    if self._active_aux_candidate is not None:
+                        self._active_aux_candidate.reject(
+                            now, "goal_progress_timeout_25s")
                     self._skipped.append({
                         "phase": "aux_approach",
                         "index": self._aux_route_index,
-                        "reason": "planner_unreachable_25s",
+                        "candidate_id": (
+                            None if self._active_aux_candidate is None else
+                            self._active_aux_candidate.id),
+                        "reason": "goal_progress_timeout_25s",
                     })
                     self._aux_route_index += 1
                     self._start_next_aux_goal("aux_approach_timeout")
 
             elif self._state == "AUX_VERIFY":
-                if len(self._downward_confirmed) >= self._required_count:
-                    self._complete_search("all_targets_downward_confirmed")
+                match = fresh_spatial_match(
+                    self._active_aux_candidate,
+                    self._downward_confirmed.values(),
+                    now_sec=now,
+                    max_distance_m=self._handoff_match_distance,
+                    max_age_sec=self._handoff_max_age,
+                    preverify_grace_sec=self._handoff_preverify_grace)
+                if match is not None:
+                    distance, target = match
+                    self._active_aux_candidate.confirm(
+                        now, target["id"], target["class_name"], distance)
+                    self._write(
+                        "RUNNING", "downward_handoff_confirmed_%s" %
+                        target["class_name"])
+                    if len(self._downward_confirmed) >= self._required_count:
+                        self._complete_search("all_targets_downward_confirmed")
+                    else:
+                        self._aux_route_index += 1
+                        self._start_next_aux_goal()
                 elif now - self._dwell_started_at >= self._verify_dwell:
+                    if self._active_aux_candidate is not None:
+                        self._active_aux_candidate.reject(
+                            now, "downward_verify_timeout")
                     self._aux_route_index += 1
                     self._start_next_aux_goal()
 
@@ -567,7 +657,9 @@ class AuxGuidedSearchManager:
                     return self._finish(
                         "FAIL", "returned_home_missing_downward_targets")
                 if result == "timeout":
-                    return self._finish("FAIL", "return_home_unreachable_25s")
+                    self._goal_progress_timeout_count += 1
+                    return self._finish(
+                        "FAIL", "return_home_progress_timeout_25s")
 
             rate.sleep()
         return 1
