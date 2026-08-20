@@ -122,6 +122,34 @@ class AuxSearchPolicyTest(unittest.TestCase):
                 semantic.records, {"red_cross", "tank"}, 0),
             (True, "semantic_interrupt_red_cross"))
 
+    def test_cross_source_observation_upgrades_anonymous_hint(self):
+        book = AuxCandidateBook(0.8)
+        anonymous = book.observe(
+            1, 1.0, 2.0, 0.70, 0.70, 1.0,
+            source="AUX_CV", class_hint="circle",
+            position_uncertainty_m=0.80)
+        semantic = book.observe(
+            9, 1.2, 2.0, 0.85, 0.80, 1.2,
+            source="AUX_YOLO", class_hint="red_cross",
+            position_uncertainty_m=0.55)
+
+        self.assertIs(anonymous, semantic)
+        self.assertEqual(semantic.id, 1)
+        self.assertEqual(semantic.source, "AUX_YOLO")
+        self.assertEqual(semantic.class_hint, "red_cross")
+        self.assertEqual(semantic.sources, {"AUX_CV", "AUX_YOLO"})
+        self.assertAlmostEqual(semantic.position_uncertainty_m, 0.55)
+
+        repeated_cv = book.observe(
+            2, 1.1, 2.0, 0.75, 0.75, 1.3,
+            source="AUX_CV", class_hint="circle",
+            position_uncertainty_m=0.70)
+        self.assertIs(repeated_cv, semantic)
+        self.assertEqual(repeated_cv.source, "AUX_YOLO")
+        self.assertEqual(repeated_cv.source_id, 9)
+        self.assertEqual(
+            repeated_cv.source_ids, {"AUX_CV": 2, "AUX_YOLO": 9})
+
 
 if __name__ == "__main__":
     unittest.main()

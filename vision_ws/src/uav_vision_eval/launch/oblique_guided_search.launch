@@ -45,6 +45,14 @@
       <arg name="ground_z" value="0.0" />
       <arg name="processing_rate_hz" value="10.0" />
     </include>
+
+    <include file="$(find uav_vision_eval)/launch/aux_proposal_provider.launch">
+      <arg name="enable_cv" value="true" />
+      <arg name="enable_yolo" value="false" />
+      <arg name="cv_input_topic" value="/uav_vision/aux/blue_targets" />
+      <arg name="output_topic" value="/uav_vision/aux/proposals" />
+      <arg name="expected_frame" value="camera_init" />
+    </include>
   </group>
 
   <!-- 评测外挂独占 /fastplanner/goal；不启动旧 coverage_search_manager。 -->
@@ -63,6 +71,8 @@
     <rosparam param="guided/interrupt_class_hints">[red_cross, tank]</rosparam>
     <param name="guided/aux_min_approach_count"
            value="$(arg aux_min_approach_count)" />
+    <param name="guided/aux_proposal_topic"
+           value="/uav_vision/aux/proposals" />
     <param name="guided/downward_verify_dwell_sec" value="2.0" />
     <!-- 交接只接受当前粗候选附近、且复核阶段新产生的下视确认。 -->
     <param name="guided/handoff_match_distance_m"

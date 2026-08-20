@@ -9,6 +9,8 @@
 - `launch/oblique_static_eval.launch`：45°/55°/60°固定姿态 L1；
 - `launch/oblique_coverage_shadow.launch`：复用现有覆盖航线的双相机观察模式；
 - `launch/oblique_aux_blue_chain.launch`：斜下 RGB 的 OpenCV 蓝环匿名粗发现；
+- `launch/aux_proposal_provider.launch`：统一 OpenCV/未来 YOLO 的辅助粗候选来源；
+- `launch/aux_proposal_provider_l0.launch`：双来源 mock、拒绝原因和零控制输出 L0；
 - `launch/oblique_guided_search.launch`：评测专用主动 A/B，可比较原 12 点覆盖与粗候选裁路；
 - `scripts/run_oblique_fixed_matrix.py`：固定姿态 smoke/full 矩阵；
 - `scripts/run_oblique_coverage_shadow.sh`：生成派生机架并启动 SITL shadow；
@@ -25,7 +27,9 @@
 launch 中独占 `/fastplanner/goal`，用于测量实际路线收益，不属于视觉组生产交付接口。
 该外挂现已记录 `DETECTED/APPROACHING/VERIFYING/CONFIRMED/REJECTED` 生命周期；只有当前
 粗候选附近、复核阶段新产生且未过期的下视目标才能完成交接。公共 `TargetCandidate` 消息
-保持未改，来源和状态先在隔离报告中验证。
+保持未改，来源和状态先在隔离报告中验证。`AuxProposal` 是 `uav_vision_eval` 本地消息，
+显式携带 `AUX_CV/AUX_YOLO`、语义提示、粗地图点、时间、不确定度代理、有效性和拒绝原因；
+正式跨组消息仍需导航/控制组确认后再冻结。
 
 推荐生产路线不是双 YOLO 常开，而是一个常驻 RKNN/YOLO 实例按
 `AUX_SEARCH -> APPROACH -> DOWNWARD_VERIFY -> DROP_ALIGN` 阶段切换输入源。OpenCV 蓝环
@@ -44,3 +48,11 @@ bash vision_ws/src/uav_vision_eval/scripts/run_oblique_guided_ab.sh --repeats 3
 均 3/3 PASS；guided 相对 12 点覆盖节省中位 36.0 s（21.0%）和 11.91 m，但三轮辅助
 激活率均为 0，收益只能归因于四点稀疏路线，不能归因于第二相机。报告已自动记录辅助
 激活率和收益归因，并拆分交接、搜索、返航、释放安全子 Gate。
+
+2026-08-20 Step 2 Provider L0：
+`logs/aux_proposal_provider_l0_20260820_180048/` 为 PASS，同时接受
+`AUX_CV/circle` 和 `AUX_YOLO/red_cross` mock，低置信候选按
+`confidence_below_threshold` 拒绝，禁止话题发布者为 0。接入 guided 的功能回归
+`logs/oblique_aux_provider_guided_smoke_20260820_180347/` 也为 PASS：下视找齐五类，
+CV 候选与 tank 以 0.187 m 完成交接，搜索仿真时间 98.099 s、路径 22.094 m、无目标
+进度超时、零释放并安全返航。墙钟 460.189 s 只反映本机仿真实时率，不作为算法性能数据。

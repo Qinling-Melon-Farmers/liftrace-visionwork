@@ -62,8 +62,11 @@
     按任务阶段切换斜下/下视输入”，不要求双模型常开；下视链仍是类别、精地图点和投递
     证据唯一权威。固定世界三轮新策略 A/B 已 3/3 PASS：guided 中位搜索时间/路径较 12 点
     覆盖缩短 21.0%/11.91 m，但辅助激活率为 0，收益只能归因于四点稀疏覆盖，不能归因于
-    辅助相机。Step 1 据此冻结“匿名蓝环只入队、red_cross/tank 语义候选才抢占”；下一
-    Gate 进入 Aux Proposal Provider，再依次做辅助 YOLO、单 YOLO 切源和全随机全靶标。
+    辅助相机。Step 1 据此冻结“匿名蓝环只入队、red_cross/tank 语义候选才抢占”。Step 2
+    已实现隔离的 Aux Proposal Provider：OpenCV/未来 YOLO 候选统一携带来源、语义提示、
+    粗地图点、不确定度代理、时间和拒绝原因；双来源 mock L0 与零控制输出契约 PASS，接入
+    guided 后完成五类搜索、1 次 CV→下视 tank 交接和安全返航。下一 Gate 为真实辅助 YOLO
+    粗发现，再推进单 YOLO 切源和全随机全靶标。
 
 现有 `toudi3.world` 五类标准靶和 H 已直接用于固定真值场景，红十字按评测场景插入；
 `uav_vision_eval` 已能自动生成 CSV/JSON/report，shadow 输出也已隔离。当前仍不能宣称完整
@@ -426,7 +429,7 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 已完成 | 13 | V-CL-03 | 外部任务模式复用 Fast-Planner | `external_candidate_20260807_041914` 单候选接近→对准→ACK→恢复，唯一 goal 发布者；默认旧路线回归 PASS |
 | 部分完成/待干净复跑 | 14 | V-CL-04 | 覆盖搜索、候选队列和恢复 | 2026-08-13 实跑（`toudi4_coverage_r6_v2_20260813_221737`）已 12/12 覆盖、五类五 ID、tank/panzer/bridge 3/3 投递、0 碰撞、0 越界、377.6s 降落；Gate 断言已按全程累计事实修复，剩一次干净复跑确认 PASS（规划器可达性波动外置，不阻塞视觉闭环） |
 | 部分完成/待干净复跑 | 15 | V-CL-05 | 搜索-投递策略：高权重中断 + red_cross 统一 | 中断机制已实跑（tank 提前执行并恢复搜索、覆盖 12/12），pillbox 端到端投出，tank/panzer 证据锁定但低空下降受规划器波动影响超时；red_cross 统一入队、随机摆放入口与动态期望 Gate 已落地。剩余完成定义：按规则场地全随机布设（4 个 1 m 标准靶 + 1 个 0.35 m 红十字全部随机摆放、H 固定为起降点，真值仅落盘），随机十字独立发现/投递 + 沉降门控验证（规划器失败只记录不迭代） |
-| Step 1 固定世界收口/辅助收益未证明 | 16 | V-EXP-01 | 斜下辅助相机搜索可行性 | 候选五态与新鲜空间交接已实现，强制轮 2/2 交接；默认策略三轮 3/3 PASS，但辅助激活率为 0，21% 节时属于稀疏路线收益。冻结匿名蓝环只入队，下一 Gate 按 `aux_camera_single_yolo_roadmap.md` 实现 Aux Proposal Provider，再推进辅助 YOLO、单 YOLO 切源和全随机全靶标 Gate |
+| Step 2 Provider L0 完成/辅助收益未证明 | 16 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1 候选五态、新鲜空间交接和三轮默认策略已收口；Step 2 Aux Proposal Provider 双来源归一化、拒绝原因、质量不确定度代理和零控制输出 L0 PASS，guided 集成轮完成五类、1 次 CV→tank 下视交接并返航。真实辅助 YOLO 尚未接入，21% 固定世界节时仍只属于稀疏路线；下一 Gate 做辅助 YOLO 与红十字语义粗发现 |
 | 后置量化 | 17 | V-SIM-04 | 30-seed L1/L2 与阶段性能 | 不阻塞 V-CL；闭环稳定后按失败阶段收紧召回、误差和延迟 |
 | 待真值 | 18 | V-REAL-01 | 实拍回放域差复核 | 标注圆环实例/中心/H/红十字，采集同步 CameraInfo/pose |
 | 离线部分完成/ROS待验收 | 19 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | FP32 RKNN 离线有效；待修 PT/ONNX 差异并完成板端 ROS 相机/TF、5-10 Hz 和 10 min Gate |

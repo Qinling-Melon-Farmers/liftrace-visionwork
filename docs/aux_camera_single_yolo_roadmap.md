@@ -303,6 +303,29 @@ uncertainty
 * YOLO产生；
 * 其他算法产生。
 
+## 2026-08-20 落地状态
+
+Step 2 已在 `feat/oblique-aux-proposal-provider` 堆叠分支完成隔离实现：
+
+* 新增 `uav_vision_eval/AuxProposalArray` 本地消息，统一携带 `source`、`class_hint`、
+  `map_point`、`confidence`、`map_quality`、`position_uncertainty_m`、源时间和拒绝原因；
+* `aux_proposal_provider.py` 同时支持 `AUX_CV` 与 `AUX_YOLO` 输入，按来源配置类别、
+  置信度、地图质量、frame 和新鲜度门槛；
+* 当前不确定度为显式标记的 `map_quality_proxy`，不能冒充真实协方差；后续投影器输出
+  可关联时再替换；
+* Candidate Memory 可把同一地图近邻的 CV 匿名候选与 YOLO 语义候选合并为同一 stable ID，
+  并升级 `circle` 为具体语义提示；
+* Provider 只发布 `/uav_vision/aux/proposals` 与状态诊断，不发布导航、投递或旧接口。
+
+确定性双来源 L0：`logs/aux_proposal_provider_l0_20260820_180048/` PASS，验证了
+`AUX_CV/circle`、`AUX_YOLO/red_cross`、低置信拒绝和零控制输出。guided 集成回归：
+`logs/oblique_aux_provider_guided_smoke_20260820_180347/` PASS，五类全部由下视确认，
+一个 CV 候选与 tank 完成 0.187 m 交接，无目标进度超时、零释放并安全返航。
+
+至此 Step 2 的接口抽象和 L0 完成；本轮 YOLO 只使用 mock 输入，不能写成辅助 YOLO 已经
+接入。下一阶段严格进入 Step 3：复用六分类模型做斜视数据/推理 Gate，首先验证
+`red_cross/tank` 语义粗候选能否真实产生，再谈单 YOLO 双输入调度。
+
 ---
 
 # 5. 第三阶段：辅助相机加入YOLO粗检测

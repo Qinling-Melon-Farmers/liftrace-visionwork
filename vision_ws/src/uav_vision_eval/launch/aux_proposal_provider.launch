@@ -1,0 +1,25 @@
+<launch>
+  <!-- 只做候选归一化；不得在此 launch 中加入导航、控制或投递节点。 -->
+  <arg name="enable_cv" default="true" />
+  <arg name="enable_yolo" default="false" />
+  <arg name="cv_input_topic" default="/uav_vision/aux/blue_targets" />
+  <arg name="yolo_input_topic" default="/uav_vision/aux/yolo_targets" />
+  <arg name="output_topic" default="/uav_vision/aux/proposals" />
+  <arg name="expected_frame" default="camera_init" />
+  <arg name="max_age_sec" default="1.0" />
+
+  <node pkg="uav_vision_eval" type="aux_proposal_provider.py"
+        name="aux_proposal_provider" output="screen">
+    <param name="output_topic" value="$(arg output_topic)" />
+    <param name="expected_frame" value="$(arg expected_frame)" />
+    <param name="max_age_sec" value="$(arg max_age_sec)" />
+    <param name="cv/enabled" value="$(arg enable_cv)" />
+    <param name="cv/input_topic" value="$(arg cv_input_topic)" />
+    <rosparam param="cv/accepted_classes">[circle]</rosparam>
+    <param name="yolo/enabled" value="$(arg enable_yolo)" />
+    <param name="yolo/input_topic" value="$(arg yolo_input_topic)" />
+    <rosparam param="yolo/accepted_classes">
+      [bridge, panzer, pillbox, tent, tank, red_cross]
+    </rosparam>
+  </node>
+</launch>

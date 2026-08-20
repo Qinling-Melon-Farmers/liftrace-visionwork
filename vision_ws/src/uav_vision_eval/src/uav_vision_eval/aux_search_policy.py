@@ -24,16 +24,20 @@ class AuxCandidateRecord:
     """一个按地图邻近关系聚类的辅助粗候选。"""
 
     def __init__(self, candidate_id, source_id, x, y, confidence,
-                 map_quality, stamp_sec, source, class_hint):
+                 map_quality, stamp_sec, source, class_hint,
+                 position_uncertainty_m):
         self.id = int(candidate_id)
         self.source_id = int(source_id)
+        self.source_ids = {str(source): int(source_id)}
         self.x = float(x)
         self.y = float(y)
         self.weight = max(float(map_quality), 0.01)
         self.confidence = float(confidence)
         self.map_quality = float(map_quality)
         self.source = str(source)
+        self.sources = {str(source)}
         self.class_hint = str(class_hint)
+        self.position_uncertainty_m = float(position_uncertainty_m)
         self.first_seen_sec = float(stamp_sec)
         self.last_seen_sec = float(stamp_sec)
         self.observations = 1
@@ -46,7 +50,9 @@ class AuxCandidateRecord:
         self.confirmed_class = ""
         self.confirmed_distance_m = None
 
-    def update(self, x, y, confidence, map_quality, stamp_sec, source_id):
+    def update(self, x, y, confidence, map_quality, stamp_sec, source_id,
+               source, class_hint, position_uncertainty_m):
+        previous_confidence = self.confidence
         quality = max(float(map_quality), 0.01)
         total = self.weight + quality
         self.x = (self.x * self.weight + float(x) * quality) / total
@@ -55,7 +61,20 @@ class AuxCandidateRecord:
         self.confidence = max(self.confidence, float(confidence))
         self.map_quality = max(self.map_quality, float(map_quality))
         self.last_seen_sec = max(self.last_seen_sec, float(stamp_sec))
-        self.source_id = int(source_id)
+        incoming_source = str(source)
+        self.sources.add(incoming_source)
+        self.source_ids[incoming_source] = int(source_id)
+        if (str(class_hint) != "circle" and
+                (self.class_hint == "circle" or
+                 float(confidence) >= previous_confidence)):
+            self.source = incoming_source
+            self.source_id = int(source_id)
+            self.class_hint = str(class_hint)
+        elif incoming_source == self.source:
+            self.source_id = int(source_id)
+        self.position_uncertainty_m = min(
+            self.position_uncertainty_m,
+            float(position_uncertainty_m))
         self.observations += 1
 
     def start_approach(self, stamp_sec):
@@ -95,12 +114,15 @@ class AuxCandidateRecord:
         return {
             "id": self.id,
             "source_id": self.source_id,
+            "source_ids": dict(sorted(self.source_ids.items())),
             "source": self.source,
+            "sources": sorted(self.sources),
             "class_hint": self.class_hint,
             "x": self.x,
             "y": self.y,
             "confidence": self.confidence,
             "map_quality": self.map_quality,
+            "position_uncertainty_m": self.position_uncertainty_m,
             "first_seen_sec": self.first_seen_sec,
             "last_seen_sec": self.last_seen_sec,
             "observations": self.observations,
@@ -128,7 +150,8 @@ class AuxCandidateBook:
         return tuple(self._records)
 
     def observe(self, source_id, x, y, confidence, map_quality, stamp_sec,
-                source=SOURCE_AUX_CV, class_hint="circle"):
+                source=SOURCE_AUX_CV, class_hint="circle",
+                position_uncertainty_m=1.0):
         match = None
         for record in self._records:
             distance = math.hypot(record.x - float(x), record.y - float(y))
@@ -138,11 +161,13 @@ class AuxCandidateBook:
         if match is None:
             match = AuxCandidateRecord(
                 self._next_id, source_id, x, y, confidence, map_quality,
-                stamp_sec, source, class_hint)
+                stamp_sec, source, class_hint, position_uncertainty_m)
             self._next_id += 1
             self._records.append(match)
         else:
-            match.update(x, y, confidence, map_quality, stamp_sec, source_id)
+            match.update(
+                x, y, confidence, map_quality, stamp_sec, source_id,
+                source, class_hint, position_uncertainty_m)
         return match
 
     def visit_order(self, start_x, start_y):

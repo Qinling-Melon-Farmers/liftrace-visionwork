@@ -20,6 +20,8 @@ catkin_python_setup()
 
 add_message_files(
   FILES
+  AuxProposal.msg
+  AuxProposalArray.msg
   AuxProjection.msg
   AuxProjectionArray.msg
   SimTarget.msg
@@ -34,6 +36,7 @@ generate_messages(
 )
 
 if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(test/test_aux_proposal_policy.py)
   catkin_add_nosetests(test/test_aux_search_policy.py)
 endif()
 
@@ -54,6 +57,9 @@ catkin_package(
 )
 
 catkin_install_python(PROGRAMS
+  scripts/aux_proposal_assertion.py
+  scripts/aux_proposal_mock_inputs.py
+  scripts/aux_proposal_provider.py
   scripts/aux_candidate_memory.py
   scripts/aux_blue_static_assertion.py
   scripts/aux_camera_extrinsic_tf.py

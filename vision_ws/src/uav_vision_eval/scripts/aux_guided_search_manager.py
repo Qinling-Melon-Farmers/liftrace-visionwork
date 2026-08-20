@@ -19,13 +19,13 @@ from uav_vision.msg import TargetCandidateArray
 
 from uav_vision_eval.aux_search_policy import (
     AuxCandidateBook,
-    SOURCE_AUX_CV,
     STATUS_CONFIRMED,
     STATUS_REJECTED,
     fresh_spatial_match,
     handoff_gate_status,
     sparse_scan_interrupt_decision,
 )
+from uav_vision_eval.msg import AuxProposalArray
 
 
 UAV_MISSION_SCRIPTS = os.path.join(
@@ -75,8 +75,8 @@ class AuxGuidedSearchManager:
             rospy.get_param("~navigation/map_max_age", 2.0))
         self._aux_match_distance = float(
             rospy.get_param("~guided/aux_match_distance_m", 0.80))
-        self._aux_source = rospy.get_param(
-            "~guided/aux_source", SOURCE_AUX_CV)
+        self._aux_proposal_topic = rospy.get_param(
+            "~guided/aux_proposal_topic", "/uav_vision/aux/proposals")
         self._aux_min_quality = float(
             rospy.get_param("~guided/aux_min_map_quality", 0.10))
         self._anonymous_interrupt_count = int(rospy.get_param(
@@ -160,8 +160,8 @@ class AuxGuidedSearchManager:
                          self._on_map, queue_size=1)
         rospy.Subscriber("/uav_vision/targets", TargetCandidateArray,
                          self._on_downward_targets, queue_size=2)
-        rospy.Subscriber("/uav_vision/aux/blue_targets", TargetCandidateArray,
-                         self._on_aux_targets, queue_size=2)
+        rospy.Subscriber(self._aux_proposal_topic, AuxProposalArray,
+                         self._on_aux_proposals, queue_size=2)
         rospy.Subscriber("/uav_mission/mock_raw_servo_calls", UInt8,
                          self._on_raw_call, queue_size=4)
         rospy.Subscriber("/mission/release_result", ReleaseResult,
@@ -248,38 +248,38 @@ class AuxGuidedSearchManager:
             if previous is None:
                 self._write("RUNNING", "downward_confirmed_%s" % class_name)
 
-    def _valid_aux(self, target):
+    def _valid_aux(self, proposal):
         return (
-            self._strategy == "guided" and target.class_name == "circle" and
-            target.state >= 2 and target.map_valid and
-            target.map_frame == self._frame and
-            target.map_quality >= self._aux_min_quality)
+            self._strategy == "guided" and proposal.valid and
+            proposal.state >= 2 and proposal.map_frame == self._frame and
+            proposal.map_quality >= self._aux_min_quality)
 
-    def _on_aux_targets(self, message):
+    def _on_aux_proposals(self, message):
         if self._mission_started_at is None:
             return
-        for target in message.targets:
-            if not self._valid_aux(target):
+        for proposal in message.proposals:
+            if not self._valid_aux(proposal):
                 continue
-            x = float(target.map_point.x)
-            y = float(target.map_point.y)
+            x = float(proposal.map_point.x)
+            y = float(proposal.map_point.y)
             if not (self._search_bounds[0] <= x <= self._search_bounds[1] and
                     self._search_bounds[2] <= y <= self._search_bounds[3]):
                 continue
-            stamp = target.last_seen.to_sec()
+            stamp = proposal.last_seen.to_sec()
             if stamp <= 0.0:
                 stamp = message.header.stamp.to_sec()
             if stamp <= 0.0:
                 stamp = self._now()
             self._candidate_book.observe(
-                source_id=target.id,
+                source_id=proposal.source_id,
                 x=x,
                 y=y,
-                confidence=target.class_confidence,
-                map_quality=target.map_quality,
+                confidence=proposal.confidence,
+                map_quality=proposal.map_quality,
                 stamp_sec=stamp,
-                source=self._aux_source,
-                class_hint=target.class_name)
+                source=proposal.source,
+                class_hint=proposal.class_hint,
+                position_uncertainty_m=proposal.position_uncertainty_m)
 
     def _map_ready(self):
         return (
@@ -483,6 +483,7 @@ class AuxGuidedSearchManager:
                 "semantic_classes": sorted(self._interrupt_class_hints),
                 "anonymous_interrupt_count": self._anonymous_interrupt_count,
             },
+            "aux_proposal_topic": self._aux_proposal_topic,
             "aux_approach_total": len(self._aux_route),
             "aux_approach_index": self._aux_route_index,
             "active_aux_candidate_id": (

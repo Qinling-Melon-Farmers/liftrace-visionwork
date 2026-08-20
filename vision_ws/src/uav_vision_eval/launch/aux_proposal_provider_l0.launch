@@ -1,0 +1,21 @@
+<launch>
+  <!-- L0：确定性双来源 mock + Provider；不启动 PX4、规划、控制或投递。 -->
+  <arg name="report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+
+  <node pkg="uav_vision_eval" type="aux_proposal_mock_inputs.py"
+        name="aux_proposal_mock_inputs" output="screen" />
+
+  <include file="$(find uav_vision_eval)/launch/aux_proposal_provider.launch">
+    <arg name="enable_cv" value="true" />
+    <arg name="enable_yolo" value="true" />
+    <arg name="cv_input_topic" value="/mock/aux/cv_targets" />
+    <arg name="yolo_input_topic" value="/mock/aux/yolo_targets" />
+    <arg name="expected_frame" value="camera_init" />
+  </include>
+
+  <node pkg="uav_vision_eval" type="aux_proposal_assertion.py"
+        name="aux_proposal_assertion" output="screen" required="true">
+    <param name="report_path" value="$(arg report_path)" />
+  </node>
+</launch>
