@@ -18,6 +18,7 @@ from uav_vision_eval.aux_search_policy import (  # noqa: E402
     STATUS_VERIFYING,
     fresh_spatial_match,
     handoff_gate_status,
+    sparse_scan_interrupt_decision,
 )
 
 
@@ -97,6 +98,29 @@ class AuxSearchPolicyTest(unittest.TestCase):
         rejected.start_approach(3.4)
         rejected.reject(3.5, "downward_verify_timeout")
         self.assertEqual(handoff_gate_status(book.records, True), "FAIL")
+
+    def test_anonymous_candidates_queue_but_semantic_high_value_interrupts(self):
+        book = AuxCandidateBook(0.8)
+        book.observe(1, 0.0, 0.0, 0.8, 0.8, 1.0,
+                     class_hint="circle")
+        book.observe(2, 2.0, 0.0, 0.8, 0.8, 1.0,
+                     class_hint="circle")
+        self.assertEqual(
+            sparse_scan_interrupt_decision(
+                book.records, {"red_cross", "tank"}, 0),
+            (False, "queue_only"))
+        self.assertEqual(
+            sparse_scan_interrupt_decision(
+                book.records, {"red_cross", "tank"}, 2),
+            (True, "anonymous_interrupt_count_2"))
+
+        semantic = AuxCandidateBook(0.8)
+        semantic.observe(3, 1.0, 1.0, 0.9, 0.8, 2.0,
+                         source="AUX_YOLO", class_hint="red_cross")
+        self.assertEqual(
+            sparse_scan_interrupt_decision(
+                semantic.records, {"red_cross", "tank"}, 0),
+            (True, "semantic_interrupt_red_cross"))
 
 
 if __name__ == "__main__":

@@ -90,6 +90,9 @@ def summarize(cases):
         "fallback_rate": (
             sum(bool(report.get("fallback_used")) for report in terminal) /
             float(len(terminal)) if terminal else 0.0),
+        "aux_activation_rate": (
+            sum(bool(report.get("aux_triggered")) for report in terminal) /
+            float(len(terminal)) if terminal else 0.0),
         "mean_fallback_count": (
             sum(int(report.get(
                 "fallback_count", bool(report.get("fallback_used"))))
@@ -176,27 +179,29 @@ def write_report(output_dir, payload):
             payload["status"], payload["repeats"],
             payload["evidence_level"]),
         "",
-        "基线以走完原 12 点覆盖作为搜索完成；辅助策略以斜下蓝环形成粗候选、"
-        "抵近并由下视链确认五类作为搜索完成。两者均返航但不执行投递和降落。",
+        "基线走原 12 点覆盖；guided 先走四点稀疏扫描，仅在仍缺目标时才访问斜下蓝环"
+        "粗候选。两者均由下视链确认五类并返航，不执行投递和降落。",
         "",
-        "| 条件 | 成功率 | 平均下视确认数 | 搜索耗时中位数 | 搜索耗时标准差 | 路径中位数 | 墙钟中位数 | fallback 率 | 辅助交接确认/拒绝 | 目标无进展超时 |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
-        "| 原 12 点全覆盖 | {:.1%} | {:.2f} | {} | {} | {} | {} | {:.1%} | {:.2f}/{:.2f} | {:.2f} |".format(
+        "| 条件 | 成功率 | 平均下视确认数 | 搜索耗时中位数 | 搜索耗时标准差 | 路径中位数 | 墙钟中位数 | 辅助激活率 | fallback 率 | 辅助交接确认/拒绝 | 目标无进展超时 |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| 原 12 点全覆盖 | {:.1%} | {:.2f} | {} | {} | {} | {} | {:.1%} | {:.1%} | {:.2f}/{:.2f} | {:.2f} |".format(
             baseline["success_rate"], baseline["mean_downward_confirmed"],
             fmt(baseline["median_search_elapsed_sec"], " s"),
             fmt(baseline["std_search_elapsed_sec"], " s"),
             fmt(baseline["median_path_length_m"], " m"),
             fmt(baseline["median_wall_elapsed_sec"], " s"),
+            baseline["aux_activation_rate"],
             baseline["fallback_rate"],
             baseline["mean_aux_confirmed_count"],
             baseline["mean_aux_rejected_count"],
             baseline["mean_goal_progress_timeout_count"]),
-        "| 55° OpenCV 蓝环引导 | {:.1%} | {:.2f} | {} | {} | {} | {} | {:.1%} | {:.2f}/{:.2f} | {:.2f} |".format(
+        "| 55° 稀疏扫描 + OpenCV 候选兜底 | {:.1%} | {:.2f} | {} | {} | {} | {} | {:.1%} | {:.1%} | {:.2f}/{:.2f} | {:.2f} |".format(
             guided["success_rate"], guided["mean_downward_confirmed"],
             fmt(guided["median_search_elapsed_sec"], " s"),
             fmt(guided["std_search_elapsed_sec"], " s"),
             fmt(guided["median_path_length_m"], " m"),
             fmt(guided["median_wall_elapsed_sec"], " s"),
+            guided["aux_activation_rate"],
             guided["fallback_rate"],
             guided["mean_aux_confirmed_count"],
             guided["mean_aux_rejected_count"],
@@ -207,6 +212,12 @@ def write_report(output_dir, payload):
             ("N/A" if paired["median_search_reduction_rate"] is None else
              "{:.1%}".format(paired["median_search_reduction_rate"])),
             fmt(paired["median_path_saving_m"], " m")),
+        "",
+        "收益归因：`{}`。{}".format(
+            payload["benefit_attribution"],
+            ("本轮辅助访问激活率为 0，节省只能归因于稀疏覆盖路线，不能归因于辅助相机。"
+             if payload["benefit_attribution"] == "sparse_route_only" else
+             "至少一轮实际激活了辅助访问，仍需结合逐轮交接结果解释收益。")),
         "",
         "OpenCV 蓝环只回答“这里像标准投放区”，不能给出 tent/tank 等图案类别，"
         "也不能覆盖只有黑色外环的红十字；类别和最终地图点仍由下视生产链确认。",
@@ -229,6 +240,12 @@ def persist_summary(output_dir, cases, args):
         len(case["report"].get("release_results", []))
         for case in cases if case.get("report"))
     comparison_complete = complete_reports == 2 * args.repeats
+    baseline_summary = summarize(baseline_cases)
+    guided_summary = summarize(guided_cases)
+    benefit_attribution = (
+        "sparse_route_only"
+        if guided_summary["aux_activation_rate"] == 0.0 else
+        "mixed_sparse_and_aux")
     payload = {
         "status": (
             "COMPARISON_COMPLETE" if comparison_complete else "INCOMPLETE"),
@@ -238,10 +255,18 @@ def persist_summary(output_dir, cases, args):
         "repeats": args.repeats,
         "angle_deg": args.angle,
         "auxiliary_algorithm": "opencv_hsv_blue_ellipse",
-        "conditions": {
-            "baseline": summarize(baseline_cases),
-            "guided_opencv_blue": summarize(guided_cases),
+        "interrupt_policy": {
+            "semantic_classes": ["red_cross", "tank"],
+            "anonymous_interrupt_count": args.anonymous_interrupt_count,
+            "anonymous_behavior": (
+                "queue_only" if args.anonymous_interrupt_count == 0 else
+                "interrupt_at_count"),
         },
+        "conditions": {
+            "baseline": baseline_summary,
+            "guided_opencv_blue": guided_summary,
+        },
+        "benefit_attribution": benefit_attribution,
         "paired": paired_comparison(baseline_cases, guided_cases),
         "release_violation_count": release_violations,
         "cases": [{key: value for key, value in case.items()
@@ -267,7 +292,7 @@ def wait_for_ros_shutdown(timeout_sec=12.0):
 
 
 def run_case(project_root, logs_dir, model_path, vehicle_sdf, strategy,
-             angle, run_index, wall_timeout):
+             angle, run_index, wall_timeout, anonymous_interrupt_count):
     scene = "oblique_guided_ab_{}_r{:02d}".format(strategy, run_index)
     command = [
         "bash", str(project_root / "top_level_scripts/sim_run.sh"), scene,
@@ -277,6 +302,8 @@ def run_case(project_root, logs_dir, model_path, vehicle_sdf, strategy,
         "enable_aux:=" + ("true" if strategy == "guided" else "false"),
         "wall_timeout:={:.1f}".format(wall_timeout),
         "aux_angle_deg:={}".format(angle),
+        "anonymous_interrupt_count:={}".format(
+            anonymous_interrupt_count),
         "vehicle_sdf:=" + str(vehicle_sdf),
         "target_model_path:=" + str(model_path),
     ]
@@ -301,6 +328,9 @@ def main():
     parser.add_argument("--angle", type=int, choices=(45, 55, 60), default=55)
     parser.add_argument("--wall-timeout", type=float, default=1000.0)
     parser.add_argument(
+        "--anonymous-interrupt-count", type=int, default=0,
+        help="匿名蓝环达到该数量时中断；0 表示只入队，默认推荐")
+    parser.add_argument(
         "--seed-baseline-run", default="",
         help="已完成的基线 run 目录；需与 --seed-guided-run 同时提供")
     parser.add_argument(
@@ -312,6 +342,8 @@ def main():
     args = parser.parse_args()
     if args.repeats < 1:
         parser.error("repeats must be at least 1")
+    if args.anonymous_interrupt_count < 0:
+        parser.error("anonymous interrupt count cannot be negative")
     if bool(args.seed_baseline_run) != bool(args.seed_guided_run):
         parser.error("both seed run directories must be provided together")
 
@@ -380,7 +412,8 @@ def main():
                 case = run_case(
                     project_root, logs_dir, model_path,
                     base_sdf if strategy == "baseline" else derived_sdf,
-                    strategy, args.angle, run_index, args.wall_timeout)
+                    strategy, args.angle, run_index, args.wall_timeout,
+                    args.anonymous_interrupt_count)
                 cases.append(case)
                 (output_dir / "cases.json").write_text(
                     json.dumps(cases, ensure_ascii=False, indent=2,

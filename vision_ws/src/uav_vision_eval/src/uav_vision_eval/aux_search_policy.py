@@ -207,3 +207,20 @@ def handoff_gate_status(records, triggered, min_success_rate=0.80):
     if terminal == 0:
         return "PENDING"
     return "PASS" if confirmed / float(terminal) >= min_success_rate else "FAIL"
+
+
+def sparse_scan_interrupt_decision(records, interrupt_class_hints,
+                                   anonymous_interrupt_count=0):
+    """决定是否在稀疏扫描中途抢占；匿名候选默认只入队。"""
+    active = [record for record in records
+              if record.status == STATUS_DETECTED]
+    semantic_classes = set(interrupt_class_hints)
+    semantic = [record for record in active
+                if record.class_hint in semantic_classes]
+    if semantic:
+        selected = min(semantic, key=lambda record: record.id)
+        return True, "semantic_interrupt_%s" % selected.class_hint
+    threshold = max(0, int(anonymous_interrupt_count))
+    if threshold > 0 and len(active) >= threshold:
+        return True, "anonymous_interrupt_count_%d" % threshold
+    return False, "queue_only"

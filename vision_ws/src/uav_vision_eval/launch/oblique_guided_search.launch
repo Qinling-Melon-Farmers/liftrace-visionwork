@@ -8,7 +8,8 @@
   <arg name="start_mapping" default="true" />
   <arg name="wall_timeout" default="1200.0" />
   <arg name="aux_angle_deg" default="55" />
-  <arg name="aux_trigger_count" default="5" />
+  <!-- 0 表示匿名蓝环只入队；语义 red_cross/tank 仍可中断。 -->
+  <arg name="anonymous_interrupt_count" default="0" />
   <arg name="aux_min_approach_count" default="2" />
   <arg name="handoff_match_distance_m" default="1.0" />
   <arg name="handoff_max_age_sec" default="0.75" />
@@ -57,7 +58,9 @@
     <param name="report_path" value="$(arg report_path)" />
     <param name="required_target_count" value="5" />
     <rosparam param="guided/sparse_row_indices">[2, 5]</rosparam>
-    <param name="guided/aux_trigger_count" value="$(arg aux_trigger_count)" />
+    <param name="guided/anonymous_interrupt_count"
+           value="$(arg anonymous_interrupt_count)" />
+    <rosparam param="guided/interrupt_class_hints">[red_cross, tank]</rosparam>
     <param name="guided/aux_min_approach_count"
            value="$(arg aux_min_approach_count)" />
     <param name="guided/downward_verify_dwell_sec" value="2.0" />

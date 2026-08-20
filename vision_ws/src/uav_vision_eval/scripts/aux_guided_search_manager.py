@@ -24,6 +24,7 @@ from uav_vision_eval.aux_search_policy import (
     STATUS_REJECTED,
     fresh_spatial_match,
     handoff_gate_status,
+    sparse_scan_interrupt_decision,
 )
 
 
@@ -78,8 +79,11 @@ class AuxGuidedSearchManager:
             "~guided/aux_source", SOURCE_AUX_CV)
         self._aux_min_quality = float(
             rospy.get_param("~guided/aux_min_map_quality", 0.10))
-        self._aux_trigger_count = int(
-            rospy.get_param("~guided/aux_trigger_count", 5))
+        self._anonymous_interrupt_count = int(rospy.get_param(
+            "~guided/anonymous_interrupt_count", 0))
+        self._interrupt_class_hints = {
+            str(value) for value in rospy.get_param(
+                "~guided/interrupt_class_hints", ["red_cross", "tank"])}
         self._aux_min_approach_count = int(
             rospy.get_param("~guided/aux_min_approach_count", 2))
         self._verify_dwell = float(
@@ -138,6 +142,7 @@ class AuxGuidedSearchManager:
         self._fallback_count = 0
         self._goal_progress_timeout_count = 0
         self._aux_triggered = False
+        self._aux_activation_reason = ""
         self._terminal = False
 
         self._goal_pub = rospy.Publisher(
@@ -381,6 +386,7 @@ class AuxGuidedSearchManager:
             return
         if len(self._candidate_book.records) >= self._aux_min_approach_count:
             self._aux_triggered = True
+            self._aux_activation_reason = reason
             self._aux_route = self._build_aux_route()
             self._aux_route_index = 0
             self._state = "AUX_APPROACH"
@@ -472,6 +478,11 @@ class AuxGuidedSearchManager:
                 candidate.to_dict()
                 for candidate in self._candidate_book.records],
             "aux_triggered": self._aux_triggered,
+            "aux_activation_reason": self._aux_activation_reason,
+            "aux_interrupt_policy": {
+                "semantic_classes": sorted(self._interrupt_class_hints),
+                "anonymous_interrupt_count": self._anonymous_interrupt_count,
+            },
             "aux_approach_total": len(self._aux_route),
             "aux_approach_index": self._aux_route_index,
             "active_aux_candidate_id": (
@@ -557,12 +568,15 @@ class AuxGuidedSearchManager:
                     self._map_wait_started_at = None
 
             elif self._state == "SCAN":
+                interrupt, interrupt_reason = \
+                    sparse_scan_interrupt_decision(
+                        self._candidate_book.records,
+                        self._interrupt_class_hints,
+                        self._anonymous_interrupt_count)
                 if (self._strategy == "guided" and
-                        self._route_phase == "sparse_scan" and
-                        len(self._candidate_book.records) >=
-                        self._aux_trigger_count):
+                        self._route_phase == "sparse_scan" and interrupt):
                     self._start_aux_approach_or_fallback(
-                        "aux_trigger_count_reached")
+                        interrupt_reason)
                 else:
                     result = self._tick_goal()
                     if result == "arrived":
