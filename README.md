@@ -1,6 +1,6 @@
 # RoboCup 无人机投递工程（2025 基线 → 2026 视觉升级）
 
-更新时间：2026-08-13
+更新时间：2026-08-23
 
 ## 1. 项目定位
 
@@ -29,6 +29,9 @@ detections
 - `AstraDroneOpen + PX4 SITL + Gazebo Classic + iris_mid360` 可作为外部仿真底座；
 - 当前统一仿真默认使用根目录 `toudi4_copy.world`，并加载从
   `iris_mid360_downward_camera.zip` 提取的单下视相机 + MID360 机架；
+- 斜下辅助相机 `V-EXP-01` 已冻结且从未合入 `main`；生产与比赛准备只维护单个下视 RGB
+  相机。实验分支和日志完整保留，冻结结论见
+  [VEXP01辅助相机探索冻结说明_20260823.md](/home/xhj/liftrace/docs/VEXP01辅助相机探索冻结说明_20260823.md)；
 - `toudi3.world` 及其旧航点/旧机架入口继续保留，用于历史回归；
 - 已有旧视觉链完整入口，以及新 `uav_vision` Phase D、固定视觉 suite 和 shadow 入口；
 - 主集成工作区 `uav_mission` 已建立任务层释放许可、受控旧 `/Servo` 代理、
@@ -64,10 +67,12 @@ detections
 视觉任务闭环已打通（V-CL-02 固定三投 → V-CL-03 外部单候选 → V-CL-04 覆盖搜索
 权重三投 3/3 → V-CL-05 高权重中断 + red_cross 统一），当前里程碑：
 
-1. 拿到一次 Fast-Planner 正常轮次的 V-CL-04/V-CL-05 干净复跑与 Gate PASS（含随机
-   红十字独立发现/投递）；
-2. H 视觉降落 Gate 与北区走廊 Gate 独立验收；
-3. 闭环稳定后按失败阶段收紧 30-seed、召回、延迟与板端（V-SIM-04/V-REAL-01/V-DEPLOY-01）。
+1. 用单下视相机完成 4 个标准靶 + 1 个红十字全随机布设的发现、记忆、权重排队、中断/
+   恢复和三次投递；搜索阶段红十字允许疑似候选抵近，投递前仍严格复核；
+2. 完成运动相机 stable ID/地图误差 Gate、H 视觉降落和实拍人工真值；北区走廊由联合 Gate
+   独立验收；
+3. 闭环稳定后完成单下视 30-seed、10 min 和 OrangePi ROS 相机/TF/RKNN
+   （V-SIM-04/V-REAL-01/V-DEPLOY-01）。
 
 第一周的具体任务和验收阈值见 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)。
 
