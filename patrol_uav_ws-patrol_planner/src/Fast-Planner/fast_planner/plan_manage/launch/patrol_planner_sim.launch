@@ -9,9 +9,11 @@
   </node> -->
   
   <!-- size of map, change the size in x, y, z according to your application -->
-  <arg name="map_size_x" value="100.0"/>
-  <arg name="map_size_y" value="100.0"/>
-  <arg name="map_size_z" value="50.0"/>
+  <arg name="map_size_x" value="20.0"/>
+  <arg name="map_size_y" value="20.0"/>
+  <arg name="map_size_z" value="5.0"/>
+  <arg name="obstacles_inflation" value="0.25"/>
+  <arg name="clearance_threshold" value="0.20"/>
 
   <!-- topic of your odometry such as VIO or LIO -->
   <arg name="odom_topic" value="/state_ukf/odom" />
@@ -46,6 +48,8 @@
     <!-- maximum velocity and acceleration the drone will reach -->
     <arg name="max_vel" value="3.0" />
     <arg name="max_acc" value="2.0" />
+    <arg name="obstacles_inflation" value="$(arg obstacles_inflation)" />
+    <arg name="clearance_threshold" value="$(arg clearance_threshold)" />
 
     <!-- 1: use 2D Nav Goal to select goal  -->
     <!-- 2: use global waypoints below  -->

@@ -16,7 +16,7 @@
     <arg name="target_model_path" value="$(arg target_model_path)" />
     <arg name="planner_max_vel" value="1.5" />
     <arg name="planner_max_acc" value="1.0" />
-    <arg name="planner_obstacles_inflation" value="0.30" />
+    <arg name="planner_obstacles_inflation" value="0.25" />
     <arg name="planner_clearance_threshold" value="0.35" />
     <arg name="px4_max_distance" value="0.2" />
   </include>

@@ -1,6 +1,6 @@
 # 视觉组仿真分层与环境入口（ROS Noetic + PX4 + Gazebo）
 
-更新时间：2026-08-02
+更新时间：2026-08-23
 
 ## 1. 用途和安全边界
 
@@ -28,6 +28,29 @@
 因此新视觉 GUI 仿真仍只算“链路烟测”。定量结论必须来自 `uav_vision_eval` 报告，且
 当前所有推理结果都属于笔记本，不属于 OrangePi 板端。
 
+### 2.1 Fast-Planner 仿真地图参数
+
+面向 `10 m × 10 m × 4 m` 比赛场地，正式 PX4/Gazebo 和内部仿真入口统一使用以下
+SDF 参数；这些值只修改仿真配置，`patrol_planner_real.xml` 的实机膨胀参数保持原样：
+
+| 参数 | 仿真值 | 含义 |
+| --- | ---: | --- |
+| `sdf_map/map_size_x` | 20.0 m | 以 `camera_init` 为中心，x 方向约覆盖 ±10 m |
+| `sdf_map/map_size_y` | 20.0 m | 以 `camera_init` 为中心，y 方向约覆盖 ±10 m |
+| `sdf_map/map_size_z` | 5.0 m | 从 `ground_height=-0.2 m` 覆盖至约 4.8 m |
+| `sdf_map/obstacles_inflation` | 0.25 m | 水平膨胀 |
+| `sdf_map/obstacles_inflation_up` | 0.20 m | 向上膨胀 |
+| `sdf_map/obstacles_inflation_down` | 0.10 m | 向下膨胀 |
+
+分辨率为 `0.1 m` 时，仓库原正式仿真默认 `100 × 100 × 50 m` 对应约 5 亿体素；
+`20 × 20 × 5 m` 对应约 200 万体素，体素数减少 250 倍。实际进程内存还包含 ESDF、
+占据概率、膨胀缓存和规划器其他数组，不能仅凭体素数承诺固定 RSS；需以一次 headless
+实跑测量为准。2026-08-23 的 planner-only 15 s headless 烟测记录到进程族最大 RSS
+`184064 kB`（约 180 MiB），但该数值不包含 PX4、Gazebo、MAVROS、视觉推理和完整任务链。
+
+`uav_mission/launch/legacy_mode_regression.launch` 的 `14 × 14 × 6 m` 是历史回归显式覆盖，
+`topo_replan.launch` 是独立拓扑算法示例，均不代表正式比赛仿真默认值。
+
 ## 3. 四层验证入口
 
 | 层级 | 当前入口 | 主要检查 | 通过依据 |
@@ -35,7 +58,7 @@
 | L0 mock | `phase_d_map_mock.launch`、`phase_d_mock_patrol_regression.launch` | 消息、TF、地图投影、模式和兼容接口 | assertion 退出码 0 |
 | L1 Gazebo 静态真值 | `run_toudi3_visual_suite.sh` | 检测、中心、实例关联、地图误差 | 自动 CSV/JSON/report；正式阈值待全过 |
 | L2 toudi3 shadow 飞行 | `toudi3_full_shadow.launch` | 连续观测、ID、时延、稳定性 | 隔离已验证；固定 seed + 10 min 待完成 |
-| L3 任务闭环 | 待 Search/Mission Manager 接入 | 搜索、接近、恢复、对准证据 | 多场景成功率和零越权 |
+| L3 任务闭环 | `coverage_r6.launch` + Mission Manager | 搜索、接近、恢复、对准证据 | 已有固定场景三投；全随机五靶待验收 |
 
 实拍视频/rosbag 回放与 OrangePi RKNN 分别是域差和部署门禁，不属于 Gazebo 的替代品。
 

@@ -40,14 +40,13 @@
   <!-- Smaller direct-setpoint step prevents PX4 position-loop overshoot in
        the CPU-limited WSL SITL; the historical launch default remains 1.0 m. -->
   <arg name="px4_max_distance" default="0.2" />
-  <!-- Legacy callers retain the historical planning volume.  Arena-specific
-       launches may override it without changing the shared planner launch. -->
-  <arg name="planner_map_size_x" default="100.0" />
-  <arg name="planner_map_size_y" default="100.0" />
-  <arg name="planner_map_size_z" default="50.0" />
+  <!-- 赛场为 10 m × 10 m × 4 m；20 m × 20 m × 5 m 保留边界余量并显著降低体素内存。 -->
+  <arg name="planner_map_size_x" default="20.0" />
+  <arg name="planner_map_size_y" default="20.0" />
+  <arg name="planner_map_size_z" default="5.0" />
   <arg name="planner_max_vel" default="3.0" />
   <arg name="planner_max_acc" default="2.0" />
-  <arg name="planner_obstacles_inflation" default="0.15" />
+  <arg name="planner_obstacles_inflation" default="0.25" />
   <arg name="planner_clearance_threshold" default="0.20" />
   <!-- SITL-only arrival tolerance for the legacy detect-point state.  It is
        intentionally wider than the hardware precision value because this

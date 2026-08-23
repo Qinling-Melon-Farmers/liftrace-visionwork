@@ -64,10 +64,10 @@
     <param name="sdf_map/map_size_z"   value="$(arg map_size_z_)" /> 
     <param name="sdf_map/local_update_range_x"  value="8.5" /> 
     <param name="sdf_map/local_update_range_y"  value="8.5" /> 
-    <param name="sdf_map/local_update_range_z"  value="20.5" /> 
+    <param name="sdf_map/local_update_range_z"  value="4.5" />
     <param name="sdf_map/obstacles_inflation" value="$(arg obstacles_inflation)" />
-    <param name="sdf_map/obstacles_inflation_up"     value="0.1" />  <!-- 往上膨胀距离 -->
-    <param name="sdf_map/obstacles_inflation_down"     value="0.06" /> <!-- 往下膨胀距离 -->
+    <param name="sdf_map/obstacles_inflation_up"     value="0.2" />  <!-- 往上膨胀距离 -->
+    <param name="sdf_map/obstacles_inflation_down"     value="0.1" /> <!-- 往下膨胀距离 -->
 
     <param name="sdf_map/local_bound_inflate"    value="0.0"/>
     <param name="sdf_map/local_map_margin" value="50"/>

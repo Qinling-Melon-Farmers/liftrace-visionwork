@@ -3,6 +3,7 @@
 
 from pathlib import Path
 import unittest
+import xml.etree.ElementTree as ET
 
 import yaml
 
@@ -14,6 +15,9 @@ LAUNCH = ROOT / "src/patrol_control/launch/toudi3_full_competition_sim_new_visio
 FULL_LAUNCH = ROOT / "src/patrol_control/launch/patrol_full_competition_sim.launch"
 CONTROL_LAUNCH = ROOT / "src/patrol_control/launch/patrol_control_px4_sim.launch"
 PLANNER_LAUNCH = ROOT / "src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_px4_sim.launch"
+INTERNAL_PLANNER_LAUNCH = ROOT / "src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_sim.launch"
+PLANNER_SIM_XML = ROOT / "src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_sim.xml"
+PLANNER_REAL_XML = ROOT / "src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_real.xml"
 
 
 class NewVisionConfigTest(unittest.TestCase):
@@ -105,34 +109,29 @@ class NewVisionConfigTest(unittest.TestCase):
         ):
             self.assertIn(arg, launch)
 
-    def test_new_vision_limits_planner_map_without_changing_legacy_defaults(self):
+    def test_simulation_planner_uses_bounded_arena_map_profile(self):
         new_vision_launch = LAUNCH.read_text(encoding="utf-8")
         full_launch = FULL_LAUNCH.read_text(encoding="utf-8")
         control_launch = CONTROL_LAUNCH.read_text(encoding="utf-8")
 
-        for name, value in (
-            ("planner_map_size_x", "14.0"),
-            ("planner_map_size_y", "14.0"),
-            ("planner_map_size_z", "6.0"),
-        ):
-            self.assertIn(
-                f'<arg name="{name}" default="{value}" />',
-                new_vision_launch,
-            )
-            self.assertIn(
-                f'<arg name="{name}" value="$(arg {name})" />',
-                new_vision_launch,
-            )
-
-        for launch in (full_launch, control_launch):
+        for launch in (new_vision_launch, full_launch, control_launch):
             for name, value in (
-                    ("planner_map_size_x", "100.0"),
-                    ("planner_map_size_y", "100.0"),
-                    ("planner_map_size_z", "50.0")):
+                    ("planner_map_size_x", "20.0"),
+                    ("planner_map_size_y", "20.0"),
+                    ("planner_map_size_z", "5.0")):
                 self.assertIn(
                     f'<arg name="{name}" default="{value}" />',
                     launch,
                 )
+
+        for name in (
+                "planner_map_size_x",
+                "planner_map_size_y",
+                "planner_map_size_z"):
+            self.assertIn(
+                f'<arg name="{name}" value="$(arg {name})" />',
+                new_vision_launch,
+            )
 
         for name in (
                 "planner_map_size_x",
@@ -151,11 +150,58 @@ class NewVisionConfigTest(unittest.TestCase):
             )
 
         planner_launch = PLANNER_LAUNCH.read_text(encoding="utf-8")
-        for axis, value in (("x", "100.0"), ("y", "100.0"), ("z", "50.0")):
+        for axis, value in (("x", "20.0"), ("y", "20.0"), ("z", "5.0")):
             self.assertIn(
                 f'<arg name="map_size_{axis}" default="{value}"/>',
                 planner_launch,
             )
+        self.assertIn(
+            '<arg name="obstacles_inflation" default="0.25"/>',
+            planner_launch,
+        )
+
+    def test_simulation_inflation_profile_is_complete_and_real_is_unchanged(self):
+        sim_root = ET.parse(str(PLANNER_SIM_XML)).getroot()
+        sim_node = sim_root.find("node")
+        self.assertIsNotNone(sim_node)
+        sim_params = {param.attrib["name"]: param.attrib.get("value")
+                      for param in sim_node.findall("param")}
+        self.assertEqual(
+            sim_params["sdf_map/obstacles_inflation"],
+            "$(arg obstacles_inflation)",
+        )
+        self.assertEqual(sim_params["sdf_map/obstacles_inflation_up"], "0.2")
+        self.assertEqual(sim_params["sdf_map/obstacles_inflation_down"], "0.1")
+        self.assertEqual(sim_params["sdf_map/local_update_range_z"], "4.5")
+
+        internal_root = ET.parse(str(INTERNAL_PLANNER_LAUNCH)).getroot()
+        internal_args = {arg.attrib["name"]: arg.attrib.get("value")
+                         for arg in internal_root.findall("arg")}
+        self.assertEqual(internal_args["map_size_x"], "20.0")
+        self.assertEqual(internal_args["map_size_y"], "20.0")
+        self.assertEqual(internal_args["map_size_z"], "5.0")
+        self.assertEqual(internal_args["obstacles_inflation"], "0.25")
+        include = internal_root.find("include")
+        self.assertIsNotNone(include)
+        passed_args = {arg.attrib["name"]: arg.attrib.get("value")
+                       for arg in include.findall("arg")}
+        self.assertEqual(
+            passed_args["obstacles_inflation"],
+            "$(arg obstacles_inflation)",
+        )
+        self.assertEqual(
+            passed_args["clearance_threshold"],
+            "$(arg clearance_threshold)",
+        )
+
+        real_root = ET.parse(str(PLANNER_REAL_XML)).getroot()
+        real_node = real_root.find("node")
+        self.assertIsNotNone(real_node)
+        real_params = {param.attrib["name"]: param.attrib.get("value")
+                       for param in real_node.findall("param")}
+        self.assertEqual(real_params["sdf_map/obstacles_inflation"], "0.21")
+        self.assertEqual(real_params["sdf_map/obstacles_inflation_up"], "0.14")
+        self.assertEqual(real_params["sdf_map/obstacles_inflation_down"], "0.14")
 
 
 if __name__ == "__main__":
