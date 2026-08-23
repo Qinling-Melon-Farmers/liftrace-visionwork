@@ -34,15 +34,13 @@
   <arg name="external_mission_mode" default="false" />
   <arg name="simulation_auto_land" default="true" />
   <arg name="px4_max_distance" default="0.2" />
-  <!-- The 10 m arena only needs a bounded local planning map.  Keeping the
-       historical 100 x 100 x 50 m grid would allocate tens of millions of
-       voxels at 0.1 m resolution and can trigger the WSL OOM killer. -->
-  <arg name="planner_map_size_x" default="14.0" />
-  <arg name="planner_map_size_y" default="14.0" />
-  <arg name="planner_map_size_z" default="6.0" />
+  <!-- 20 × 20 × 5 m 覆盖 10 × 10 × 4 m 赛场，并把 0.1 m 体素量限制在约 200 万。 -->
+  <arg name="planner_map_size_x" default="20.0" />
+  <arg name="planner_map_size_y" default="20.0" />
+  <arg name="planner_map_size_z" default="5.0" />
   <arg name="planner_max_vel" default="3.0" />
   <arg name="planner_max_acc" default="2.0" />
-  <arg name="planner_obstacles_inflation" default="0.15" />
+  <arg name="planner_obstacles_inflation" default="0.25" />
   <arg name="planner_clearance_threshold" default="0.20" />
   <arg name="enable_debug_image" default="true" />
   <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_toudi4_new_vision.yaml" />

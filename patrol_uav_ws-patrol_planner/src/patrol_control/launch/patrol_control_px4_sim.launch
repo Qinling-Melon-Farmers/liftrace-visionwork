@@ -7,12 +7,12 @@
     <arg name="external_mission_mode" default="false" />
     <arg name="simulation_auto_land" default="false" />
     <arg name="px4_max_distance" default="1.0" />
-    <arg name="planner_map_size_x" default="100.0" />
-    <arg name="planner_map_size_y" default="100.0" />
-    <arg name="planner_map_size_z" default="50.0" />
+    <arg name="planner_map_size_x" default="20.0" />
+    <arg name="planner_map_size_y" default="20.0" />
+    <arg name="planner_map_size_z" default="5.0" />
     <arg name="planner_max_vel" default="3.0" />
     <arg name="planner_max_acc" default="2.0" />
-    <arg name="planner_obstacles_inflation" default="0.15" />
+    <arg name="planner_obstacles_inflation" default="0.25" />
     <arg name="planner_clearance_threshold" default="0.20" />
     <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_sim.yaml" />
     <!-- Keep the historical 5 cm precision default.  The full toudi3 SITL

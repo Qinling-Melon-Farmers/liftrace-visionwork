@@ -214,7 +214,10 @@ class CoveragePolicyTest(unittest.TestCase):
                     for arg in planner_root.findall("arg")}
         self.assertEqual(defaults["max_vel"], "3.0")
         self.assertEqual(defaults["max_acc"], "2.0")
-        self.assertEqual(defaults["obstacles_inflation"], "0.15")
+        self.assertEqual(defaults["map_size_x"], "20.0")
+        self.assertEqual(defaults["map_size_y"], "20.0")
+        self.assertEqual(defaults["map_size_z"], "5.0")
+        self.assertEqual(defaults["obstacles_inflation"], "0.25")
         self.assertEqual(defaults["clearance_threshold"], "0.20")
 
         coverage_root = ET.parse(str(
@@ -224,7 +227,7 @@ class CoveragePolicyTest(unittest.TestCase):
                      for arg in include.findall("arg")}
         self.assertEqual(overrides["planner_max_vel"], "1.5")
         self.assertEqual(overrides["planner_max_acc"], "1.0")
-        self.assertEqual(overrides["planner_obstacles_inflation"], "0.30")
+        self.assertEqual(overrides["planner_obstacles_inflation"], "0.25")
         self.assertEqual(overrides["planner_clearance_threshold"], "0.35")
         self.assertEqual(overrides["px4_max_distance"], "0.2")
 
