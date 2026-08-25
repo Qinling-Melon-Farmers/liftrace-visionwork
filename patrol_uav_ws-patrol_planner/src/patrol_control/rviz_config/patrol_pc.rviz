@@ -345,6 +345,18 @@ Visualization Manager:
           Value: false
       Enabled: true
       Name: Mapping
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /downward_camera/image_raw
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Downward Camera
+      Normalize Range: true
+      Queue Size: 1
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 255; 253; 224

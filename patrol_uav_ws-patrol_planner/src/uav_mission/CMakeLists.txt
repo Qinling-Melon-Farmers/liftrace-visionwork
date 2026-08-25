@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   uav_vision
 )
 
+catkin_python_setup()
+
 add_message_files(
   FILES
   ReleasePermission.msg
@@ -45,6 +47,9 @@ catkin_install_python(PROGRAMS
   scripts/coverage_r6_assertion.py
   scripts/random_red_cross_spawner.py
   scripts/pose_tf_broadcaster.py
+  scripts/target_search_manager_py.py
+  scripts/navigation_visual_delivery_adapter.py
+  scripts/target_search_delivery_assertion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

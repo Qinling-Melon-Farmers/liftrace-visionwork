@@ -1,6 +1,6 @@
 # RoboCup 无人机投递工程（2025 基线 → 2026 视觉升级）
 
-更新时间：2026-08-23
+更新时间：2026-08-26
 
 ## 1. 项目定位
 
@@ -42,6 +42,10 @@ detections
   12/12 覆盖、五类五 ID、tank/panzer/bridge 按权重 3/3 投递、0 碰撞、0 越界、
   377.6 s 降落；V-CL-05 高权重中断投递（red_cross=10/tank=5 发现即中断搜索、投完
   恢复）、red_cross 统一入队与随机红十字摆放已落地并实跑验证中断机制；
+- 已将导航组 `liftrace-controlwork@5144aa8` 的原始 Python 搜索 manager/策略接入当前
+  单下视新视觉链，导航源码保持原逻辑，外围适配器承接旧控制 ALIGN 与 guarded mock
+  投递。2026-08-26 headless 在 600 s 内完成 tent/bridge 两投，第三投因任务超时未完成；
+  当前只能判定“跨组主链接通”，不能判定完整比赛任务 PASS；
 - 笔记本 dev/sim 已使用 `merged_standard` 六分类模型；已有实拍回放、压力集和 ONNX
   候选，当前不缺“再训练一个模型”；
 - 笔记本 dev/sim 视觉链已运行；OrangePi 已完成统一六分类 FP32 RKNN 离线图片、视频和
@@ -49,6 +53,8 @@ detections
 
 ### 尚未完成
 
+- 导航组 manager 当前只消费实时 `selected_target`，没有持久候选队列、全局权重重排、
+  失败冷却重试或剩余时间调度；最新 600 s 联调只到 9/16 覆盖和 2/3 投递；
 - V-CL-04/V-CL-05 的 Gate PASS 尚缺一次 Fast-Planner 正常轮次的干净复跑（低空下降
   速率与返航可达性波动属规划侧，外置处理，不阻塞视觉业务闭环）；
 - H 视觉降落 Gate（landing 阶段 + H 结构证据 + 落地）未验收；北区走廊 Gate 因
@@ -67,8 +73,9 @@ detections
 视觉任务闭环已打通（V-CL-02 固定三投 → V-CL-03 外部单候选 → V-CL-04 覆盖搜索
 权重三投 3/3 → V-CL-05 高权重中断 + red_cross 统一），当前里程碑：
 
-1. 用单下视相机完成 4 个标准靶 + 1 个红十字全随机布设的发现、记忆、权重排队、中断/
-   恢复和三次投递；搜索阶段红十字允许疑似候选抵近，投递前仍严格复核；
+1. 在不修改导航组已验证 manager 源码的前提下，先由双方冻结“实时中断候选 + 持久地图
+   候选队列 + 投递结果/重试”接口；600 s 内完成三投、返航和落地，再扩到 4 个标准靶 +
+   1 个红十字全随机布设；
 2. 完成运动相机 stable ID/地图误差 Gate、H 视觉降落和实拍人工真值；北区走廊由联合 Gate
    独立验收；
 3. 闭环稳定后完成单下视 30-seed、10 min 和 OrangePi ROS 相机/TF/RKNN
@@ -103,6 +110,7 @@ detections
 | headless shadow | `uav_vision_eval/toudi3_full_shadow.launch` | 只观察隔离；10 min Gate 待完成 |
 | 释放安全边界回归 | `run_release_guard_regression.sh` | 纯 mock；证明许可、槽位和防重放，不证明飞行闭环 |
 | 新视觉+旧控制受控投放 SITL | `uav_mission/toudi3_visual_delivery_guarded.launch` | raw 端为 mock；三投已实跑 3/3（v2 日志），Gate 待干净复跑 |
+| 导航组 manager + 新视觉完整任务 | `uav_mission/navigation_search_delivery_toudi4.launch` | 2026-08-26 为 2/3 投递、600 s 超时；用于跨组联调，尚非 PASS |
 
 完整环境和入口判断见 [SIMULATION_GUIDE_NOETIC_PX4_GAZEBO_QGC.md](/home/xhj/liftrace/SIMULATION_GUIDE_NOETIC_PX4_GAZEBO_QGC.md)，逐步操作见 [docs/TOUDI3_FULL_SIM_GUI_GUIDE.md](/home/xhj/liftrace/docs/TOUDI3_FULL_SIM_GUI_GUIDE.md)。原 2025 链窄门阻塞、航点语义和派生 world 方案见 [docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md](/home/xhj/liftrace/docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md)。
 
@@ -125,8 +133,9 @@ detections
 7. [VISION_MIGRATION_CHECKLIST.md](/home/xhj/liftrace/VISION_MIGRATION_CHECKLIST.md)：迁移 Gate；
 8. [VISION_2026_ORANGEPI5PLUS_EXECUTION_PLAN.md](/home/xhj/liftrace/VISION_2026_ORANGEPI5PLUS_EXECUTION_PLAN.md)：板端部署；
 9. [docs/仿真联调变更记录.md](/home/xhj/liftrace/docs/仿真联调变更记录.md)：最近变更和验证证据。
-10. [docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md](/home/xhj/liftrace/docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md)：旧链完整赛程阻塞与 world 改造 Gate。
-11. [docs/VISION_LAPTOP_SIM_BASELINE_20260715.md](/home/xhj/liftrace/docs/VISION_LAPTOP_SIM_BASELINE_20260715.md)：当前笔记本定量基线与局限。
+10. [docs/导航组任务链与新视觉联调HANDOFF_20260826.md](/home/xhj/liftrace/docs/导航组任务链与新视觉联调HANDOFF_20260826.md)：导航组源码边界、候选语义、headless 结果和接续任务。
+11. [docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md](/home/xhj/liftrace/docs/2025原始链完整仿真阻塞与WORLD改造方案_20260802.md)：旧链完整赛程阻塞与 world 改造 Gate。
+12. [docs/VISION_LAPTOP_SIM_BASELINE_20260715.md](/home/xhj/liftrace/docs/VISION_LAPTOP_SIM_BASELINE_20260715.md)：当前笔记本定量基线与局限。
 
 ## 8. 历史与专题文档
 

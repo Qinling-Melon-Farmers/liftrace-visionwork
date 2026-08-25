@@ -1,0 +1,89 @@
+<launch>
+  <!-- 导航组覆盖任务 + 单下视新视觉 + 旧控制精对准 + 安全软件投递闭环。 -->
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="wall_timeout" default="1800.0" />
+  <!-- 只约束外围适配器；导航组原节点仍按其自身到达判据推进。 -->
+  <arg name="navigation_stall_timeout" default="120.0" />
+  <arg name="navigation_progress_epsilon" default="0.03" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="enable_debug_image" default="false" />
+  <arg name="spawn_red_cross" default="true" />
+  <arg name="red_cross_seed" default="0" />
+  <arg name="record_debug" default="false" />
+  <arg name="manager_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/target_search_status.json" />
+  <arg name="gate_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+
+  <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+    <arg name="external_mission_mode" value="true" />
+    <arg name="waypoint_mode" value="false" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <!-- 与导航组已跑搜索参数一致，仅作用于本仿真入口。 -->
+    <arg name="planner_max_vel" value="1.0" />
+    <arg name="planner_max_acc" value="1.0" />
+    <arg name="planner_obstacles_inflation" value="0.25" />
+    <arg name="planner_clearance_threshold" value="0.35" />
+    <arg name="px4_max_distance" value="0.2" />
+  </include>
+
+  <!-- 适配器先启动并缓存原始目标；导航组节点随后保持上游源码原样运行。 -->
+  <node pkg="uav_mission" type="navigation_visual_delivery_adapter.py"
+        name="navigation_visual_delivery_adapter" output="screen">
+    <!-- 导航组 world 坐标边界减去主 H spawn world=(-0.493412,-1.772690)，
+         仅在集成 launch 做坐标系换算，不修改其 sim.yaml。 -->
+    <param name="search/min_x" value="-3.106588" />
+    <param name="search/max_x" value="3.093412" />
+    <param name="search/min_y" value="-0.227310" />
+    <param name="search/max_y" value="7.772690" />
+    <param name="search/lane_spacing" value="1.2" />
+    <param name="search/altitude" value="2.2" />
+    <param name="target/approach_altitude" value="1.2" />
+    <param name="navigation/stall_timeout"
+           value="$(arg navigation_stall_timeout)" />
+    <param name="navigation/return_stall_timeout"
+           value="$(arg navigation_stall_timeout)" />
+    <param name="navigation/progress_epsilon"
+           value="$(arg navigation_progress_epsilon)" />
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg manager_report_path)" />
+  </node>
+
+  <node pkg="uav_mission" type="target_search_manager_py.py"
+        name="target_search_manager_py" output="screen">
+    <rosparam command="load" file="$(find uav_mission)/config/sim.yaml" />
+    <param name="search/min_x" value="-3.106588" />
+    <param name="search/max_x" value="3.093412" />
+    <param name="search/min_y" value="-0.227310" />
+    <param name="search/max_y" value="7.772690" />
+    <remap from="/fastplanner/goal" to="/navigation/goal_raw" />
+  </node>
+
+  <node pkg="uav_mission" type="target_search_delivery_assertion.py"
+        name="target_search_delivery_assertion" output="screen"
+        required="true">
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg gate_report_path)" />
+  </node>
+
+  <!-- 红十字真值只写入 run 目录，不进入任务或控制话题。 -->
+  <node if="$(arg spawn_red_cross)" pkg="uav_mission"
+        type="random_red_cross_spawner.py" name="random_red_cross_spawner"
+        output="screen">
+    <rosparam command="load" file="$(find uav_mission)/config/coverage_toudi4.yaml" />
+    <param name="seed" value="$(arg red_cross_seed)" />
+  </node>
+
+  <node if="$(arg record_debug)" pkg="rosbag" type="record"
+        name="navigation_search_debug_recorder" output="screen"
+        args="--lz4 --split --size=2048 --duration=610
+              -o $(optenv SIM_RUN_DIR /tmp)/navigation_search_debug
+              /downward_camera/image_raw
+              /uav_vision/circle_debug
+              /uav_vision/cross_debug
+              /uav_vision/debug_image" />
+</launch>

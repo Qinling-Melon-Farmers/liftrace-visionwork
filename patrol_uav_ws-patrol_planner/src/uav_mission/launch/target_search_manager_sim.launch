@@ -1,0 +1,16 @@
+<launch>
+  <arg name="goal_topic" default="/fastplanner/goal" />
+  <arg name="pose_topic" default="/mavros/local_position/pose" />
+  <arg name="target_topic" default="/uav_vision/selected_target" />
+
+  <node pkg="uav_mission"
+        type="target_search_manager_py.py"
+        name="target_search_manager_py"
+        output="screen">
+    <rosparam command="load" file="$(find uav_mission)/config/sim.yaml" />
+
+    <remap from="/fastplanner/goal" to="$(arg goal_topic)" />
+    <remap from="/mavros/local_position/pose" to="$(arg pose_topic)" />
+    <remap from="/uav_vision/selected_target" to="$(arg target_topic)" />
+  </node>
+</launch>

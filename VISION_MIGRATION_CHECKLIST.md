@@ -1,6 +1,6 @@
 # 视觉迁移与发布 Gate
 
-更新时间：2026-08-13
+更新时间：2026-08-26
 
 本文件只记录 2025 旧视觉链迁移到 `uav_vision` 的通过状态，不维护任务优先级。执行顺序和指标见 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)。
 
@@ -63,6 +63,10 @@
 - [x] 默认关闭的外部任务模式已接入 `MissionCommand`；单候选完成接近、对准、guarded
   ACK 和恢复，外部模式下 Mission Manager 是 `/fastplanner/goal` 唯一发布者；默认旧路线
   回归保持由 `patrol_control` 发布。
+- [~] 导航组 `liftrace-controlwork@5144aa8` 原始 Python manager/策略已通过外围适配器接入；
+  manager 独占 `/navigation/goal_raw`，适配器独占 `/fastplanner/goal`。当前 manager 只对
+  当前新鲜 `selected_target` 做合法性/新 ID 准入，尚无持久全局权重队列、失败重试和
+  剩余时间调度。
 
 ## Gate M5：旧接口兼容
 
@@ -91,6 +95,11 @@
   投完恢复，`logs/toudi4_coverage_r6_vcl05b_20260813_234314/` 中断机制与 pillbox
   端到端投递已验证）、red_cross 统一入队（无独立任务模式）、随机红十字摆放（真值
   仅落盘）与动态期望 Gate 已落地；随机十字独立发现/投递与沉降门控待复跑验收；
+- [~] V-CL-06 导航组 manager 联调：
+  `logs/navigation_upstream_visual_delivery_headless_model_20260826_023411/` 使用 7.14
+  `merged_standard` 模型，600 s 到达 9/16 覆盖点，发现 pillbox/tent/bridge，tent/bridge
+  完成槽 1/2 guarded mock 投递，pillbox 因 capture timeout 安全拒绝；第三投、返航和
+  降落未完成，Gate 为 `mission_timeout`，不得标记 PASS；
 - [x] 仿真真值来自 target catalog、Gazebo/model state、CameraInfo/TF，不依赖检测输出；
 - [x] 五类标准靶、红十字、H、背景固定场景与自动 recorder/report 已落地；
 - [x] L0 圆环坐标、全局关联、记忆新鲜度、地图/释放证据连续 3 次通过；
