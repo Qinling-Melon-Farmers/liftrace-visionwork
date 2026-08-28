@@ -55,6 +55,13 @@ class RandomFieldSpawner:
             "~model_dir",
             "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/"
             "sitl_gazebo-classic/models")
+        # 坐标系换算：search_region 与 manager/覆盖航线同为 mission_frame（局部）
+        # 坐标，而 SpawnModel 接收 Gazebo 世界坐标。局部 = 世界 - H 世界位姿
+        # （spawn 处 EKF 原点，yaw≈0 纯平移），故 世界 = 局部 + H 世界位姿。
+        # 2026-08-29 smoke2 实测标定：local = world + (0.493, 1.773)，与
+        # toudi4 主 H world=(-0.493412,-1.77269) 一致。
+        self._offset_x = float(rospy.get_param("~spawn_offset/x", 0.0))
+        self._offset_y = float(rospy.get_param("~spawn_offset/y", 0.0))
         # 标准靶类目列表（逗号分隔）；默认为 r2026 profile 的四类标准靶。
         self._standard_classes = [
             class_name.strip() for class_name in
@@ -103,13 +110,15 @@ class RandomFieldSpawner:
         return True
 
     def _sample(self, clearance, occupied):
+        """在局部系搜索域内采样；净空在世界系检查（与 model_states 同系）。"""
         for _attempt in range(self._max_attempts):
-            x = self._rng.uniform(self._min_x + self._margin,
-                                  self._max_x - self._margin)
-            y = self._rng.uniform(self._min_y + self._margin,
-                                  self._max_y - self._margin)
-            if self._clear(x, y, clearance, occupied):
-                return x, y
+            lx = self._rng.uniform(self._min_x + self._margin,
+                                   self._max_x - self._margin)
+            ly = self._rng.uniform(self._min_y + self._margin,
+                                   self._max_y - self._margin)
+            if self._clear(lx + self._offset_x, ly + self._offset_y,
+                           clearance, occupied):
+                return lx, ly
         return None
 
     def run(self):
@@ -117,6 +126,7 @@ class RandomFieldSpawner:
         if spawn is None:
             return 1
         occupied = self._collect_models()
+        # 净空检查同样在世界系进行：已采样点回填世界坐标。
         placements = []
 
         plan = [(class_name, CLASS_MODEL_NAMES[class_name],
@@ -138,11 +148,13 @@ class RandomFieldSpawner:
                     "no clear pose for %s after %d attempts",
                     class_name, self._max_attempts)
                 return 1
-            x, y = pose
+            lx, ly = pose
+            wx = lx + self._offset_x
+            wy = ly + self._offset_y
             yaw = self._rng.uniform(-math.pi, math.pi)
             initial_pose = Pose()
-            initial_pose.position.x = x
-            initial_pose.position.y = y
+            initial_pose.position.x = wx
+            initial_pose.position.y = wy
             initial_pose.position.z = 0.02
             initial_pose.orientation.z = math.sin(yaw / 2.0)
             initial_pose.orientation.w = math.cos(yaw / 2.0)
@@ -154,22 +166,29 @@ class RandomFieldSpawner:
                 rospy.logerr("spawn %s failed: %s",
                              class_name, response.status_message)
                 return 1
-            occupied.append((spawned_name, x, y, clearance))
+            occupied.append((spawned_name, wx, wy, clearance))
             placements.append({
                 "class": class_name,
                 "model": spawned_name,
                 "source": model_name,
-                "x": round(x, 4),
-                "y": round(y, 4),
+                "x": round(lx, 4),
+                "y": round(ly, 4),
+                "world_x": round(wx, 4),
+                "world_y": round(wy, 4),
                 "yaw": round(yaw, 4),
             })
-            rospy.loginfo("spawned %s at (%.3f, %.3f) yaw=%.3f",
-                          class_name, x, y, yaw)
+            rospy.loginfo("spawned %s local=(%.3f, %.3f) world=(%.3f, %.3f)"
+                          " yaw=%.3f", class_name, lx, ly, wx, wy, yaw)
 
         truth_path = os.path.join(self._run_dir, TRUTH_FILE)
         with open(truth_path, "w", encoding="utf-8") as handle:
             handle.write("# 随机场地摆放真值（仅复盘，不进入控制链）\n")
+            handle.write("# x/y 为 mission_frame 局部坐标（与覆盖航线/发现地图点\n")
+            handle.write("# 同系），world_x/world_y 为 Gazebo 世界坐标。\n")
             handle.write("seed: %d\n" % self._seed)
+            handle.write("spawn_offset:\n")
+            handle.write("  x: %.4f\n" % self._offset_x)
+            handle.write("  y: %.4f\n" % self._offset_y)
             handle.write("search_region:\n")
             handle.write("  min_x: %.4f\n" % self._min_x)
             handle.write("  max_x: %.4f\n" % self._max_x)
@@ -182,6 +201,8 @@ class RandomFieldSpawner:
                 handle.write("    source: %s\n" % item["source"])
                 handle.write("    x: %.4f\n" % item["x"])
                 handle.write("    y: %.4f\n" % item["y"])
+                handle.write("    world_x: %.4f\n" % item["world_x"])
+                handle.write("    world_y: %.4f\n" % item["world_y"])
                 handle.write("    yaw: %.4f\n" % item["yaw"])
 
         cross = next((item for item in placements

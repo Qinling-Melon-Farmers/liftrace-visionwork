@@ -56,6 +56,9 @@
     <rosparam command="load"
               file="$(find uav_mission)/config/coverage_toudi4.yaml" />
     <param name="seed" value="$(arg red_cross_seed)" />
+    <!-- 局部->世界换算：起飞 H 的 Gazebo 世界位姿（toudi4 主 H）。 -->
+    <param name="spawn_offset/x" value="-0.493412" />
+    <param name="spawn_offset/y" value="-1.772690" />
   </node>
 
   <!-- 可选的 debug 视觉录制（默认关闭）：录制原始下视图像与各检测器 debug 图，
