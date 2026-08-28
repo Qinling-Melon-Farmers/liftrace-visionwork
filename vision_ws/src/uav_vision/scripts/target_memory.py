@@ -302,10 +302,11 @@ class TargetMemory:
         }
 
         # ---- 视觉中断阈值 ----
-        # red_cross 的识别权威在 YOLO（class conf），几何通道职责是中心精修；
-        # 分数门槛只防退化几何（在线 2.0m 斜视角实测约 0.770，0.85 会整段拦截）。
-        self._cross_conf = rospy.get_param("~cross_class_confidence", 0.70)
-        self._cross_geom = rospy.get_param("~cross_geometry_confidence", 0.75)
+        # red_cross：识别权威在 YOLO（在线同帧 0.89-0.96），类别门槛从严 0.80；
+        # 几何通道职责是中心精修，分数门槛只防退化几何，与标准靶一致取 0.70
+        # （在线 2.0m 斜视角实测约 0.770，原 0.85 会整段拦截）。
+        self._cross_conf = rospy.get_param("~cross_class_confidence", 0.80)
+        self._cross_geom = rospy.get_param("~cross_geometry_confidence", 0.70)
         self._std_conf = rospy.get_param("~std_class_confidence", 0.60)
         self._std_geom = rospy.get_param("~std_geometry_confidence", 0.70)
         self._aux_geom = rospy.get_param("~aux_geometry_confidence", 0.85)
