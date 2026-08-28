@@ -19,9 +19,12 @@ reset_service: /uav_vision/reset_memory
 align_mode_topic: /uav_vision/align_mode
 
 # 视觉中断置信度阈值
-# red_cross（高价值目标，阈值更严）
+# red_cross：识别权威在 YOLO（在线实测同帧 conf 0.956/0.964）；几何通道职责是
+# 中心精修（geometry_verified 已含形状校验），分数门槛只防退化几何。
+# 2026-08-29 smoke3c 实测：2.0m 高度斜视角下 cross_detector 分数约 0.770，
+# 0.85 门槛导致 12s 连续可见期一次都未确认（YOLO+几何同帧触发仍被拦）。
 cross_class_confidence: 0.70
-cross_geometry_confidence: 0.85
+cross_geometry_confidence: 0.75
 # 标准目标
 std_class_confidence: 0.60
 std_geometry_confidence: 0.70
