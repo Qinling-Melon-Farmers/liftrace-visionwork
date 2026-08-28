@@ -44,6 +44,7 @@ catkin_install_python(PROGRAMS
   scripts/coverage_navigation_assertion.py
   scripts/coverage_r6_assertion.py
   scripts/random_red_cross_spawner.py
+  scripts/random_field_spawner.py
   scripts/pose_tf_broadcaster.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

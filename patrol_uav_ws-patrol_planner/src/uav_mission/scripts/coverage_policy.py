@@ -20,6 +20,25 @@ STANDARD_CLASSES = ("tent", "pillbox", "bridge", "panzer", "tank")
 # Gate 的“发现完整”口径：五类标准靶 + （摆放时）红十字。
 DISCOVERY_CLASSES = STANDARD_CLASSES + ("red_cross",)
 
+# 类目 profile：任务队列允许调度的标准靶集合。
+# - full：五类标准靶（含 tank），对应历史固定场（toudi4）口径，回归基线；
+# - r2026：2026 规则书场地只设 4 个 1m 标准投放区（无 tank），随机红十字另计。
+#   profile 只约束标准靶准入；red_cross 始终允许入队（发现与否由真值/搜索决定）。
+CLASS_PROFILES = {
+    "full": STANDARD_CLASSES,
+    "r2026": ("tent", "pillbox", "bridge", "panzer"),
+}
+
+
+def profile_standard_classes(profile):
+    """按名称取 profile 的标准靶集合；未知名称回退 full 保持历史口径。"""
+    return CLASS_PROFILES.get(profile, CLASS_PROFILES["full"])
+
+
+def profile_allowed_classes(profile):
+    """任务队列允许调度的类目：profile 标准靶 + 随机投放区红十字。"""
+    return tuple(profile_standard_classes(profile)) + ("red_cross",)
+
 
 def accumulate_run_facts(discovered_by_class, discovered_ids,
                          selection_accum, payload):
@@ -205,10 +224,12 @@ def resolve_safe_waypoint(point, occupied, bounds, safety_margin,
 
 
 def candidate_valid(candidate, now, mission_frame="camera_init",
-                    max_age=0.5):
+                    max_age=0.5, allowed_classes=None):
     age = max(0.0, now - candidate.last_seen)
     return (
         candidate.class_name in RULE_WEIGHTS and
+        (allowed_classes is None or
+         candidate.class_name in allowed_classes) and
         candidate.state >= 2 and
         candidate.map_valid and
         candidate.map_frame == mission_frame and
@@ -261,11 +282,12 @@ class CandidateQueue:
             key=candidate_rank)
 
     def update(self, candidates, now, mission_frame="camera_init",
-               max_age=0.5):
+               max_age=0.5, allowed_classes=None):
         for candidate in candidates:
             if candidate.target_id in self._terminal_ids:
                 continue
-            if candidate_valid(candidate, now, mission_frame, max_age):
+            if candidate_valid(candidate, now, mission_frame, max_age,
+                               allowed_classes):
                 self._pending[candidate.target_id] = candidate
 
     def retain(self, target_ids):

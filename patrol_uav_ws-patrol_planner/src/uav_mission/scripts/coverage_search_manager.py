@@ -27,6 +27,7 @@ from coverage_policy import (
     expected_capture_class,
     generate_serpentine,
     interrupt_eligible,
+    profile_allowed_classes,
     resolve_safe_waypoint,
     select_serpentine_entry,
 )
@@ -131,6 +132,11 @@ class CoverageSearchManager:
             os.path.join(os.environ.get("SIM_RUN_DIR", "/tmp"),
                          "coverage_status.json"))
         self._gate_name = rospy.get_param("~gate_name", "coverage_navigation")
+        # 类目 profile：full=五类标准靶（历史回归口径）；r2026=规则书四类标准靶
+        # （无 tank）+ 随机红十字。profile 外的标准靶候选不进入任务队列，
+        # 防止假阳性语义抢占权重排序与中断阈值。
+        self._class_profile = rospy.get_param("~class_profile", "full")
+        self._allowed_classes = profile_allowed_classes(self._class_profile)
 
         self._canonical_route = generate_serpentine(
             *self._search_bounds, self._margin, self._spacing, self._height)
@@ -307,12 +313,13 @@ class CoverageSearchManager:
             ))
         active_ids = {
             candidate.target_id for candidate in candidates
-            if candidate.class_name in RULE_WEIGHTS}
+            if candidate.class_name in self._allowed_classes}
         self._candidate_queue.retain(active_ids)
         for target_id in list(self._discovered):
             if target_id not in active_ids:
                 self._discovered.pop(target_id, None)
-        self._candidate_queue.update(candidates, now, self._frame, 0.5)
+        self._candidate_queue.update(
+            candidates, now, self._frame, 0.5, self._allowed_classes)
         capture_evidence = []
         for target in msg.targets:
             if target.class_name not in ("circle", "red_cross"):
@@ -631,6 +638,8 @@ class CoverageSearchManager:
             "mission_elapsed": (
                 None if self._mission_started_at is None else
                 max(0.0, self._now() - self._mission_started_at)),
+            "class_profile": self._class_profile,
+            "allowed_classes": list(self._allowed_classes),
             "arena_bounds": list(self._bounds),
             "search_region": list(self._search_bounds),
             "route_total": len(self._route),
