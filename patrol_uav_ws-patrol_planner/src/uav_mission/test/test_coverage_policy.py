@@ -267,6 +267,35 @@ class CoveragePolicyTest(unittest.TestCase):
                        for item in manager.findall("remap")}
         self.assertIn(("/fastplanner/goal", "/navigation/goal_raw"),
                       goal_remaps)
+        includes = root.findall("include")
+        guarded = next(item for item in includes
+                       if "toudi3_visual_delivery_guarded.launch" in
+                       item.attrib.get("file", ""))
+        include_args = {item.attrib.get("name"): item.attrib.get("value")
+                        for item in guarded.findall("arg")}
+        self.assertEqual(include_args.get("class_profile"),
+                         "$(arg class_profile)")
+        launch_args = {item.attrib.get("name"): item.attrib.get("default")
+                       for item in root.findall("arg")}
+        self.assertEqual(launch_args.get("nav_feature_profile"), "baseline")
+        self.assertIn("px4_model_root",
+                      launch_args.get("random_model_roots", ""))
+
+    def test_guarded_launch_preserves_full_profile_by_default(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        root = ET.parse(str(
+            package_dir / "launch" /
+            "toudi3_visual_delivery_guarded.launch")).getroot()
+        args = {item.attrib.get("name"): item.attrib.get("default")
+                for item in root.findall("arg")}
+        self.assertEqual(args.get("class_profile"), "full")
+        wrapped = next(item for item in root.findall("include")
+                       if "toudi3_full_competition_sim_new_vision.launch" in
+                       item.attrib.get("file", ""))
+        wrapped_args = {item.attrib.get("name"): item.attrib.get("value")
+                        for item in wrapped.findall("arg")}
+        self.assertEqual(wrapped_args.get("class_profile"),
+                         "$(arg class_profile)")
 
     def test_candidate_valid_respects_allowed_classes(self):
         base = dict(

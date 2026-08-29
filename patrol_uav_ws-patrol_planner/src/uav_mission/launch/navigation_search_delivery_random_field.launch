@@ -9,12 +9,18 @@
   <arg name="record_debug" default="false" />
   <arg name="world" default="$(find patrol_control)/../../../toudi3_random.world" />
   <arg name="class_profile" default="r2026" />
+  <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
+  <arg name="px4_model_root"
+       default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
+  <arg name="astra_model_root"
+       default="$(optenv ASTRA_MODEL_ROOT /home/xhj/AstraDroneOpen/simulation/astra_gazebo_models)" />
   <arg name="field_seed" default="11" />
   <arg name="standard_classes" default="tent,pillbox,bridge,panzer" />
   <arg name="nav_feature_profile" default="baseline" />
-  <arg name="random_model_roots" default="$(optenv GAZEBO_MODEL_PATH)" />
+  <arg name="random_model_roots"
+       default="$(arg px4_model_root):$(arg astra_model_root):$(optenv GAZEBO_MODEL_PATH)" />
   <arg name="anchor_model_roots"
-       default="$(optenv GAZEBO_MODEL_PATH):$(optenv HOME)/.gazebo/models" />
+       default="$(arg px4_model_root):$(arg astra_model_root):$(optenv HOME)/.gazebo/models:$(optenv GAZEBO_MODEL_PATH)" />
   <arg name="manager_report_path"
        default="$(optenv SIM_RUN_DIR /tmp)/target_search_status.json" />
   <arg name="gate_report_path"
@@ -28,6 +34,7 @@
     <arg name="waypoint_mode" value="false" />
     <arg name="world" value="$(arg world)" />
     <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="class_profile" value="$(arg class_profile)" />
     <arg name="planner_max_vel" value="1.0" />
     <arg name="planner_max_acc" value="1.0" />
     <arg name="planner_obstacles_inflation" value="0.25" />
@@ -79,6 +86,8 @@
               file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
     <param name="class_profile" value="$(arg class_profile)" />
     <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <param name="require_field_ready" value="true" />
+    <param name="require_anchor_ready" value="true" />
     <param name="field/max_z" value="4.0" />
     <param name="search/min_x" value="-3.106588" />
     <param name="search/max_x" value="3.093412" />

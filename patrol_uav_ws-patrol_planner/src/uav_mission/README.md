@@ -37,3 +37,22 @@ target_search_manager_py.py
 
 当前正式模型必须通过 `UAV_VISION_MODEL_PATH` 或 launch 参数传入；空路径会进入发布空检测
 的 dev/sim 兼容模式，不能作为识别实跑。
+
+## V-CL-06 全随机场正式入口
+
+`navigation_search_delivery_random_field.launch` 以导航上游 manager
+`liftrace-controlwork@5144aa8` 为冻结源，使用外围 profile selector 和 adapter 接入
+全随机场；地图实验 `a68925d` 只通过 `nav_feature_profile` A/B，不代表 manager 更新。
+正式 Gate 必须要求结构化报告存在，baseline 首轮命令为：
+
+```bash
+SIM_NO_RECORD=1 SIM_REQUIRE_GATE=1 \
+top_level_scripts/sim_run.sh vcl06_random_seed11_baseline \
+roslaunch uav_mission navigation_search_delivery_random_field.launch \
+field_seed:=11 class_profile:=r2026 nav_feature_profile:=baseline \
+enable_debug_image:=false record_debug:=false
+```
+
+缺少或无法解析 `gate_status.json`、状态不是 `PASS`，统一入口都返回非零。候选
+`a68925d` 只在同 seed 的 30 秒预检与 90 秒固定路线 A/B 达标后再用于 600 秒 Gate；
+未达标时默认保持 `baseline`。

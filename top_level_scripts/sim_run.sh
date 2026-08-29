@@ -57,6 +57,7 @@ export SIM_RUN_DIR="${RUN_DIR}"
 MANIFEST="${RUN_DIR}/manifest.yaml"
 RUN_LOG="${RUN_DIR}/run.log"
 RECORD_MP4="${RUN_DIR}/screenrecord.mp4"
+REQUIRE_GATE="${SIM_REQUIRE_GATE:-0}"
 
 # ---- manifest 头部 ----
 {
@@ -70,6 +71,7 @@ RECORD_MP4="${RUN_DIR}/screenrecord.mp4"
   printf '  - %s\n' "$@" | sed 's/ - /"\n  - "/g'
   echo "roslaunch_args:"
   printf '  %s\n' "$@" | sed 's/ /=/; s/ / /' | head -20
+  echo "require_gate: ${REQUIRE_GATE}"
 } > "${MANIFEST}"
 
 # ---- sim_helpers（可选：SIM_HELPERS=1 启动，旧链 mock 用） ----
@@ -110,6 +112,9 @@ if [ -f "${GATE_STATUS_FILE}" ]; then
   if [ "${GATE_STATUS}" != "PASS" ]; then
     EXIT_CODE=1
   fi
+elif [ "${REQUIRE_GATE}" = "1" ]; then
+  echo "Gate status: MISSING (SIM_REQUIRE_GATE=1)" | tee -a "${RUN_LOG}"
+  EXIT_CODE=1
 fi
 
 echo "" | tee -a "${RUN_LOG}"

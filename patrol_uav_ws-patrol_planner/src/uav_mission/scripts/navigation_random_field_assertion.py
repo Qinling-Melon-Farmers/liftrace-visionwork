@@ -83,6 +83,7 @@ class NavigationRandomFieldAssertion:
 
     def _strict_confirmed(self, target):
         point = target.map_point
+        now = rospy.Time.now().to_sec()
         return (
             target.class_name in self._allowed and
             int(target.state) == 2 and
@@ -90,6 +91,7 @@ class NavigationRandomFieldAssertion:
             target.map_valid and target.map_frame == "camera_init" and
             target.association_valid and not target.reject_reason and
             target.last_seen.to_sec() > 0.0 and
+            max(0.0, now - target.last_seen.to_sec()) <= 0.5 and
             all(math.isfinite(value) for value in
                 (point.x, point.y, point.z))
         )
@@ -160,6 +162,9 @@ class NavigationRandomFieldAssertion:
         max_altitude = manager.get("max_altitude")
         checks = {
             "manager_pass": manager.get("status") == "PASS",
+            "mission_within_600_sec": (
+                manager.get("mission_elapsed") is not None and
+                float(manager.get("mission_elapsed")) <= 600.0 + 1e-6),
             "field_ready": self._ready(self._field_status, self._profile),
             "anchor_ready": self._ready(
                 self._anchor_status, self._nav_feature_profile),

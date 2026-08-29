@@ -45,7 +45,7 @@ class NavigationVisualDeliveryAdapter:
     def __init__(self):
         rospy.init_node("navigation_visual_delivery_adapter")
         self._frame = rospy.get_param("~mission_frame", "camera_init")
-        self._class_profile = rospy.get_param("~class_profile", "r2026")
+        self._class_profile = rospy.get_param("~class_profile", "full")
         self._allowed_classes = profile_allowed_classes(self._class_profile)
         self._selected_max_age = float(
             rospy.get_param("~target/selected_max_age", 0.5))
@@ -95,9 +95,9 @@ class NavigationVisualDeliveryAdapter:
         self._collision_clearance = float(
             rospy.get_param("~navigation/collision_clearance", 0.10))
         self._require_field_ready = bool(
-            rospy.get_param("~require_field_ready", True))
+            rospy.get_param("~require_field_ready", False))
         self._require_anchor_ready = bool(
-            rospy.get_param("~require_anchor_ready", True))
+            rospy.get_param("~require_anchor_ready", False))
         self._nav_feature_profile = rospy.get_param(
             "~nav_feature_profile", "baseline")
         self._report_path = rospy.get_param(
@@ -353,7 +353,9 @@ class NavigationVisualDeliveryAdapter:
         for target in msg.targets:
             if target.class_name not in ("circle", "red_cross"):
                 continue
-            if (target.state != 2 or not target.map_valid or
+            if (target.state != 2 or
+                    target.consecutive_observe_count < 3 or
+                    not target.map_valid or
                     target.map_frame != self._frame or
                     not target.association_valid or target.reject_reason):
                 continue
@@ -632,11 +634,15 @@ class NavigationVisualDeliveryAdapter:
         })
         self._last_event_state = self._state
         payload = self._payload(status, reason)
-        self._status_pub.publish(String(data=json.dumps(payload, sort_keys=True)))
         os.makedirs(os.path.dirname(self._report_path) or ".", exist_ok=True)
-        with open(self._report_path, "w", encoding="utf-8") as handle:
+        temporary = self._report_path + ".tmp"
+        with open(temporary, "w", encoding="utf-8") as handle:
             json.dump(payload, handle, indent=2, sort_keys=True)
             handle.write("\n")
+        os.replace(temporary, self._report_path)
+        # Publish terminal/nonterminal state only after its durable snapshot is
+        # visible, so a required Gate cannot race the artifact check.
+        self._status_pub.publish(String(data=json.dumps(payload, sort_keys=True)))
 
     def _finish(self, success, reason):
         self._state = "COMPLETE"

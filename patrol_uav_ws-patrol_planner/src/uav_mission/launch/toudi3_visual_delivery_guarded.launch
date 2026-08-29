@@ -19,6 +19,7 @@
   <arg name="allow_latest_tf_fallback" default="false" />
   <arg name="max_latest_tf_age_sec" default="0.10" />
   <arg name="drop_stable_frames" default="5" />
+  <arg name="class_profile" default="full" />
   <arg name="planner_max_vel" default="3.0" />
   <arg name="planner_max_acc" default="2.0" />
   <arg name="planner_obstacles_inflation" default="0.25" />
@@ -69,6 +70,7 @@
     <arg name="allow_latest_tf_fallback" value="$(arg allow_latest_tf_fallback)" />
     <arg name="max_latest_tf_age_sec" value="$(arg max_latest_tf_age_sec)" />
     <arg name="drop_stable_frames" value="$(arg drop_stable_frames)" />
+    <arg name="class_profile" value="$(arg class_profile)" />
     <arg name="planner_max_vel" value="$(arg planner_max_vel)" />
     <arg name="planner_max_acc" value="$(arg planner_max_acc)" />
     <arg name="planner_obstacles_inflation" value="$(arg planner_obstacles_inflation)" />
