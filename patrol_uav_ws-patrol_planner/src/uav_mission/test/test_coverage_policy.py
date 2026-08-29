@@ -364,6 +364,14 @@ class CoveragePolicyTest(unittest.TestCase):
         self.assertFalse(active)
         self.assertEqual(increment, 0)
 
+    def test_contact_monitor_serializes_callback_and_heartbeat_writes(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        source = (package_dir / "scripts" /
+                  "gazebo_contact_monitor.py").read_text(encoding="utf-8")
+        self.assertIn("self._lock = threading.RLock()", source)
+        self.assertGreaterEqual(source.count("with self._lock:"), 2)
+        self.assertIn('temporary = self._status_path + ".tmp"', source)
+
     def test_random_field_spawner_resolves_sibling_policy_when_installed(self):
         package_dir = Path(__file__).resolve().parents[1]
         source = (package_dir / "scripts" /

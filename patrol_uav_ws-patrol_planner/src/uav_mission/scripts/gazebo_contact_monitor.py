@@ -4,6 +4,7 @@
 import json
 import os
 import sys
+import threading
 import time
 
 import rospy
@@ -36,6 +37,7 @@ class GazeboContactMonitor:
         self._active_pairs = []
         self._events = []
         self._last_message_wall = None
+        self._lock = threading.RLock()
         self._publisher = rospy.Publisher(
             self._status_topic, String, queue_size=1, latch=True)
         rospy.Subscriber(
@@ -43,25 +45,27 @@ class GazeboContactMonitor:
         self._publish()
 
     def _on_contacts(self, message):
-        pairs = relevant_contact_pairs(
-            ((state.collision1_name, state.collision2_name)
-             for state in message.states),
-            self._ignored)
-        active, increment = contact_episode_transition(self._active, pairs)
-        self._ready = True
-        self._sample_count += 1
-        self._last_message_wall = time.monotonic()
-        if increment:
-            self._actual_collision_count += increment
-            self._events.append({
-                "sequence": self._actual_collision_count,
-                "ros_stamp": message.header.stamp.to_sec(),
-                "wall_time": time.time(),
-                "pairs": [list(pair) for pair in pairs],
-            })
-        self._active = active
-        self._active_pairs = pairs
-        self._publish()
+        with self._lock:
+            pairs = relevant_contact_pairs(
+                ((state.collision1_name, state.collision2_name)
+                 for state in message.states),
+                self._ignored)
+            active, increment = contact_episode_transition(
+                self._active, pairs)
+            self._ready = True
+            self._sample_count += 1
+            self._last_message_wall = time.monotonic()
+            if increment:
+                self._actual_collision_count += increment
+                self._events.append({
+                    "sequence": self._actual_collision_count,
+                    "ros_stamp": message.header.stamp.to_sec(),
+                    "wall_time": time.time(),
+                    "pairs": [list(pair) for pair in pairs],
+                })
+            self._active = active
+            self._active_pairs = pairs
+            self._publish()
 
     def _payload(self):
         age = (None if self._last_message_wall is None else
@@ -83,14 +87,17 @@ class GazeboContactMonitor:
         }
 
     def _publish(self):
-        payload = self._payload()
-        os.makedirs(os.path.dirname(self._status_path) or ".", exist_ok=True)
-        temporary = self._status_path + ".tmp"
-        with open(temporary, "w", encoding="utf-8") as handle:
-            json.dump(payload, handle, indent=2, sort_keys=True)
-            handle.write("\n")
-        os.replace(temporary, self._status_path)
-        self._publisher.publish(String(data=json.dumps(payload, sort_keys=True)))
+        with self._lock:
+            payload = self._payload()
+            os.makedirs(
+                os.path.dirname(self._status_path) or ".", exist_ok=True)
+            temporary = self._status_path + ".tmp"
+            with open(temporary, "w", encoding="utf-8") as handle:
+                json.dump(payload, handle, indent=2, sort_keys=True)
+                handle.write("\n")
+            os.replace(temporary, self._status_path)
+            self._publisher.publish(String(
+                data=json.dumps(payload, sort_keys=True)))
 
     def run(self):
         rate = rospy.Rate(2)
