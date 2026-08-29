@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import random
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
@@ -310,6 +311,40 @@ class CoveragePolicyTest(unittest.TestCase):
             for item in walls]
         self.assertFalse(footprint_clear(
             -2.0, 3.70, STANDARD_FOOTPRINT_RADIUS, occupied, gap=0.15))
+
+    def test_seed11_random_field_has_complete_safe_layout(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        config = yaml.safe_load((
+            package_dir / "config" / "coverage_toudi3_random.yaml"
+        ).read_text(encoding="utf-8"))
+        occupied = [
+            Footprint("Big box 4", 0.889746, 5.11312, 0.722),
+            Footprint("big_box3", -3.7447, 2.44619, 0.722),
+            Footprint("big_box3_0", -3.77494, 0.23346, 0.722),
+            Footprint("Big box 4_0", 2.72457, 1.53079, 0.722),
+            Footprint("vehicle", -0.493412, -1.772690, 0.55),
+        ]
+        occupied.extend(Footprint(
+            str(item["name"]), float(item["world_x"]),
+            float(item["world_y"]), float(item["radius"]))
+            for item in config["static_exclusions"])
+        search = config["search_region"]
+        field = config["field"]
+        targets = [(name, STANDARD_FOOTPRINT_RADIUS) for name in (
+            "tent", "pillbox", "bridge", "panzer")]
+        targets.append(("red_cross", RED_CROSS_FOOTPRINT_RADIUS))
+        layout = plan_footprint_layout(
+            random.Random(11), targets, occupied,
+            (search["min_x"], search["max_x"],
+             search["min_y"], search["max_y"]),
+            (field["min_x"], field["max_x"],
+             field["min_y"], field["max_y"]),
+            float(config["spawn"]["boundary_margin"]),
+            float(config["spawn"]["pair_gap"]),
+            -0.493412, -1.772690, 4000,
+            int(config["spawn"]["layout_attempts"]))
+        self.assertIsNotNone(layout)
+        self.assertEqual(len(layout), 5)
 
     def test_contact_policy_filters_ground_and_debounces_episodes(self):
         pairs = relevant_contact_pairs([
