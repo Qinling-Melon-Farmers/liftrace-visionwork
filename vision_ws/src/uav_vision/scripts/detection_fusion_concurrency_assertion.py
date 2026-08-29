@@ -9,7 +9,7 @@ import rospy
 
 from uav_vision.msg import TargetDetection
 
-from detection_fusion import DetectionFusion
+from uav_vision.detection_fusion import DetectionFusion
 
 
 class PausingOrderedDict(OrderedDict):

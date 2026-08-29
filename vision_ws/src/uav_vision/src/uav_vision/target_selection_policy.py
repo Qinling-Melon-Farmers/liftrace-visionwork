@@ -12,6 +12,15 @@ CLASS_PROFILES = {
     }),
 }
 
+REQUIRED_DETECTION_SOURCES = {
+    "disabled": frozenset({
+        "target_detector", "circle_detector", "cross_detector",
+    }),
+    "drop_circle": frozenset({"target_detector", "circle_detector"}),
+    "drop_cross": frozenset({"target_detector", "cross_detector"}),
+    "landing": frozenset({"landing_detector"}),
+}
+
 
 def resolve_class_profile(profile_name):
     """Return the allowed selectable classes or fail closed on unknown input."""
@@ -21,6 +30,48 @@ def resolve_class_profile(profile_name):
             "unsupported class_profile={!r}; expected one of {}".format(
                 profile_name, ", ".join(sorted(CLASS_PROFILES))))
     return normalized, CLASS_PROFILES[normalized]
+
+
+def detection_sources_complete(align_mode, completed_sources,
+                               require_metadata=True):
+    """Return whether a fusion output is a complete observation frame.
+
+    Geometry branches run faster than the queue-size-one classifier and the
+    fusion node intentionally emits timed-out partial buckets for diagnostics.
+    Those buckets are not evidence that a tracked target was missed and must
+    not advance or reset a consecutive-observation streak.
+    """
+    mode = str(align_mode).strip()
+    if mode not in REQUIRED_DETECTION_SOURCES:
+        mode = "disabled"
+    completed = {
+        str(source).strip() for source in completed_sources
+        if str(source).strip()
+    }
+    if not completed:
+        return not bool(require_metadata)
+    return REQUIRED_DETECTION_SOURCES[mode].issubset(completed)
+
+
+def detection_stamp_after_reset(source_stamp, reset_cutoff):
+    """Fail closed for detections that cannot be newer than a memory reset.
+
+    A zero reset cutoff means no reset has happened yet, so legacy unstamped
+    inputs remain accepted at startup.  Once a reset establishes a cutoff,
+    detections must carry a finite, positive source stamp strictly newer than
+    that cutoff; this prevents messages already queued before the reset from
+    repopulating the next trial.
+    """
+    try:
+        source_sec = _seconds(source_stamp)
+        cutoff_sec = _seconds(reset_cutoff)
+    except (TypeError, ValueError, OverflowError):
+        return False
+    if not math.isfinite(source_sec) or not math.isfinite(cutoff_sec):
+        return False
+    if cutoff_sec <= 0.0:
+        return source_sec >= 0.0
+    return source_sec > cutoff_sec
 
 
 def _seconds(value):

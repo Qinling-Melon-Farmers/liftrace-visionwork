@@ -10,6 +10,8 @@
 - /uav_vision/targets        — 所有活跃候选 (TargetCandidateArray)
 - /uav_vision/selected_target — 最高优先级已确认目标 (TargetCandidate)
 """
+import threading
+
 import rospy
 from geometry_msgs.msg import Point
 from std_msgs.msg import String
@@ -19,6 +21,8 @@ from uav_vision.msg import (TargetDetection, TargetDetectionArray,
 from sensor_msgs.msg import RegionOfInterest
 from uav_vision.target_selection_policy import (
     choose_selected_candidate,
+    detection_stamp_after_reset,
+    detection_sources_complete,
     resolve_class_profile,
 )
 
@@ -275,6 +279,7 @@ class CandidateRecord:
 class TargetMemory:
     def __init__(self):
         rospy.init_node("target_memory")
+        self._state_lock = threading.RLock()
         self._detections_topic = rospy.get_param("~detections_topic", "/uav_vision/detections")
 
         # 发布
@@ -294,6 +299,8 @@ class TargetMemory:
         self._map_memory_ttl = rospy.get_param("~map_memory_ttl", 0.0)
         self._require_map_for_candidates = bool(
             rospy.get_param("~require_map_for_candidates", False))
+        self._require_complete_detection_sources = bool(rospy.get_param(
+            "~require_complete_detection_sources", False))
         self._selected_max_age = float(rospy.get_param("~selected_max_age", 0.5))
         self._class_profile, self._selectable_classes = resolve_class_profile(
             rospy.get_param("~class_profile", "full"))
@@ -337,6 +344,7 @@ class TargetMemory:
         self._candidates = {}        # id → CandidateRecord
         self._next_id = 0
         self._rejected = {}          # (class_name, roi_hash) → reject_time
+        self._reset_cutoff = rospy.Time(0)
 
         # 订阅
         rospy.Subscriber(self._detections_topic, TargetDetectionArray,
@@ -357,6 +365,8 @@ class TargetMemory:
                       self._map_match_distance_m, self._map_memory_ttl)
         rospy.loginfo("  require_map_for_candidates=%s",
                       self._require_map_for_candidates)
+        rospy.loginfo("  require_complete_detection_sources=%s",
+                      self._require_complete_detection_sources)
         rospy.loginfo("  class_profile=%s selectable_classes=%s",
                       self._class_profile,
                       ",".join(sorted(self._selectable_classes)))
@@ -373,11 +383,12 @@ class TargetMemory:
 
     # ------------------------------------------------------------------
     def _on_align_mode(self, message):
-        mode = message.data.strip()
-        new_mode = mode if mode in VALID_ALIGN_MODES else "disabled"
-        if new_mode != self._align_mode:
-            self._align_mode = new_mode
-            self._publish(rospy.Time.now())
+        with self._state_lock:
+            mode = message.data.strip()
+            new_mode = mode if mode in VALID_ALIGN_MODES else "disabled"
+            if new_mode != self._align_mode:
+                self._align_mode = new_mode
+                self._publish(rospy.Time.now())
 
     def _allowed_in_current_mode(self, class_name):
         if self._align_mode == "landing":
@@ -390,6 +401,25 @@ class TargetMemory:
 
     # ------------------------------------------------------------------
     def _on_detections(self, msg):
+        with self._state_lock:
+            self._process_detections_locked(msg)
+
+    def _process_detections_locked(self, msg):
+        if not detection_sources_complete(
+                self._align_mode, msg.completed_sources,
+                self._require_complete_detection_sources):
+            rospy.logwarn_throttle(
+                2.0,
+                "[TargetMemory] ignore incomplete fusion frame mode=%s sources=%s",
+                self._align_mode, ",".join(msg.completed_sources))
+            return
+        if not detection_stamp_after_reset(
+                msg.header.stamp, self._reset_cutoff):
+            rospy.logwarn_throttle(
+                2.0,
+                "[TargetMemory] ignore pre-reset/unstamped detection stamp=%.6f cutoff=%.6f",
+                msg.header.stamp.to_sec(), self._reset_cutoff.to_sec())
+            return
         now = msg.header.stamp if msg.header.stamp.to_sec() > 0 else rospy.Time.now()
         # Reset before matching so duplicate merging cannot copy a previous
         # frame's valid projection into the current observation state.
@@ -587,11 +617,15 @@ class TargetMemory:
         return cid
 
     def _on_reset(self, _request):
-        self._candidates.clear()
-        self._rejected.clear()
-        self._next_id = 0
-        self._publish_empty()
-        rospy.loginfo("[TargetMemory] memory reset")
+        with self._state_lock:
+            self._reset_cutoff = rospy.Time.now()
+            self._candidates.clear()
+            self._rejected.clear()
+            self._next_id = 0
+            self._publish_empty()
+            rospy.loginfo(
+                "[TargetMemory] memory reset cutoff=%.6f",
+                self._reset_cutoff.to_sec())
         return EmptyResponse()
 
     def _add_rejected(self, cand, now):
@@ -640,16 +674,17 @@ class TargetMemory:
     # ------------------------------------------------------------------
     def debug_dump(self):
         """返回当前候选表的可读摘要。"""
-        lines = []
-        for cid, cand in sorted(self._candidates.items()):
-            lines.append(
-                f"  [{cid}] {cand.class_name}  state={STATE_NAMES[cand.state]}  "
-                f"obs={cand.observe_count} streak={cand.consecutive_observe_count}  "
-                f"conf={cand.class_confidence:.2f}  "
-                f"geom={cand.geometry_confidence:.2f}  "
-                f"age={(rospy.Time.now() - cand.last_seen).to_sec():.1f}s"
-            )
-        return "\n".join(lines) if lines else "  (empty)"
+        with self._state_lock:
+            lines = []
+            for cid, cand in sorted(self._candidates.items()):
+                lines.append(
+                    f"  [{cid}] {cand.class_name}  state={STATE_NAMES[cand.state]}  "
+                    f"obs={cand.observe_count} streak={cand.consecutive_observe_count}  "
+                    f"conf={cand.class_confidence:.2f}  "
+                    f"geom={cand.geometry_confidence:.2f}  "
+                    f"age={(rospy.Time.now() - cand.last_seen).to_sec():.1f}s"
+                )
+            return "\n".join(lines) if lines else "  (empty)"
 
 
 def main():

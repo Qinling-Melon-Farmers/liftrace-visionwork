@@ -8,6 +8,8 @@ from types import SimpleNamespace
 from uav_vision.target_selection_policy import (
     candidate_is_currently_selectable,
     choose_selected_candidate,
+    detection_stamp_after_reset,
+    detection_sources_complete,
     resolve_class_profile,
 )
 
@@ -51,6 +53,35 @@ def main():
         raise AssertionError("unknown profile did not fail closed")
     except ValueError:
         pass
+
+    complete_search = [
+        "target_detector", "circle_detector", "cross_detector",
+    ]
+    assert detection_sources_complete(
+        "disabled", complete_search, require_metadata=True)
+    assert detection_sources_complete(
+        "disabled", complete_search + ["landing_detector"],
+        require_metadata=True)
+    assert not detection_sources_complete(
+        "disabled", ["circle_detector", "cross_detector"],
+        require_metadata=True)
+    assert detection_sources_complete(
+        "drop_cross", ["target_detector", "cross_detector"],
+        require_metadata=True)
+    assert not detection_sources_complete(
+        "drop_cross", ["cross_detector"], require_metadata=True)
+    assert detection_sources_complete(
+        "landing", ["landing_detector"], require_metadata=True)
+    assert not detection_sources_complete(
+        "disabled", [], require_metadata=True)
+    assert detection_sources_complete(
+        "disabled", [], require_metadata=False)
+    assert detection_stamp_after_reset(0.0, 0.0)
+    assert detection_stamp_after_reset(10.1, 10.0)
+    assert not detection_stamp_after_reset(10.0, 10.0)
+    assert not detection_stamp_after_reset(9.9, 10.0)
+    assert not detection_stamp_after_reset(0.0, 10.0)
+    assert not detection_stamp_after_reset(float("nan"), 10.0)
 
     tank = _candidate("tank", id=1)
     panzer = _candidate("panzer", id=2)

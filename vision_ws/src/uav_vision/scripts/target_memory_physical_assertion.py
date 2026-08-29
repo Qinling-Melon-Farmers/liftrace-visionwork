@@ -30,6 +30,9 @@ PRIORITIES = {
     "tank": 5.0,
     "red_cross": 10.0,
 }
+COMPLETE_SEARCH_SOURCES = [
+    "target_detector", "circle_detector", "cross_detector",
+]
 
 
 class PhysicalMemoryAssertion:
@@ -87,17 +90,36 @@ class PhysicalMemoryAssertion:
         det.map_quality = 0.90
         return det
 
-    def _publish(self, detections):
+    @staticmethod
+    def _message(detections, completed_sources=None):
         message = TargetDetectionArray()
         message.header.stamp = rospy.Time.now()
         message.header.frame_id = "camera"
         message.source = "memory_regression"
+        message.completed_sources = list(
+            COMPLETE_SEARCH_SOURCES if completed_sources is None
+            else completed_sources)
         for detection in detections:
             detection.header = message.header
         message.detections = detections
+        return message
+
+    def _publish(self, detections, completed_sources=None,
+                 expect_output=True):
+        message = self._message(detections, completed_sources)
         with self._condition:
             self._latest = None
         self._pub.publish(message)
+        if not expect_output:
+            deadline = rospy.Time.now() + rospy.Duration(0.25)
+            with self._condition:
+                while self._latest is None and not rospy.is_shutdown():
+                    remaining = (deadline - rospy.Time.now()).to_sec()
+                    if remaining <= 0.0:
+                        return None
+                    self._condition.wait(min(remaining, 0.05))
+                raise AssertionError(
+                    "target_memory published for an incomplete fusion frame")
         deadline = rospy.Time.now() + rospy.Duration(1.0)
         with self._condition:
             while self._latest is None and not rospy.is_shutdown():
@@ -154,6 +176,58 @@ class PhysicalMemoryAssertion:
         assert target.state == CONFIRMED_STATE, \
             "three new consecutive observations did not confirm target"
         assert target.consecutive_observe_count == 3
+
+    def _assert_partial_fusion_does_not_reset_streak(self):
+        self._reset_memory()
+        self._publish([self._detection("panzer", 0.93, 1.0)])
+        observing = self._publish([
+            self._detection("panzer", 0.93, 1.0)])
+        target = self._standard_targets(observing)[0]
+        assert target.consecutive_observe_count == 2
+        self._publish(
+            [], completed_sources=["circle_detector", "cross_detector"],
+            expect_output=False)
+        confirmed = self._publish([
+            self._detection("panzer", 0.93, 1.0)])
+        target = self._standard_targets(confirmed)[0]
+        assert target.state == CONFIRMED_STATE, \
+            "aux-only partial fusion frame reset a valid hit streak"
+        assert target.consecutive_observe_count == 3
+        assert target.observe_count == 3, \
+            "partial fusion frame advanced the observation count"
+
+    def _assert_concurrent_reset_isolates_queued_frames(self):
+        self._reset_memory()
+        publisher_errors = []
+
+        def flood_detections():
+            try:
+                for index in range(120):
+                    self._pub.publish(self._message([
+                        self._detection(
+                            "panzer", 0.93, 1.0 + 0.001 * index)]))
+                    rospy.sleep(0.001)
+            except Exception as error:  # propagate thread failures
+                publisher_errors.append(error)
+
+        publisher = threading.Thread(target=flood_detections)
+        publisher.start()
+        for _ in range(24):
+            self._reset()
+            rospy.sleep(0.002)
+        publisher.join(timeout=3.0)
+        assert not publisher.is_alive(), "detection publisher thread hung"
+        assert not publisher_errors, "detection publisher failed: %r" % (
+            publisher_errors,)
+
+        # All queued messages now predate this final cutoff.  The service's
+        # empty publication must remain the final state after callbacks drain.
+        self._reset()
+        rospy.sleep(0.35)
+        with self._condition:
+            latest = self._latest
+        assert latest is not None and not latest.targets, \
+            "a pre-reset queued frame repopulated target memory"
 
     def _assert_map_separates_same_pixel_targets(self):
         self._reset_memory()
@@ -249,6 +323,8 @@ class PhysicalMemoryAssertion:
             rospy.sleep(0.05)
         self._assert_class_flicker_keeps_physical_id()
         self._assert_miss_resets_confirmation_streak()
+        self._assert_partial_fusion_does_not_reset_streak()
+        self._assert_concurrent_reset_isolates_queued_frames()
         self._assert_map_separates_same_pixel_targets()
         self._assert_converged_map_duplicates_merge_to_oldest_id()
         self._assert_current_map_validity_does_not_erase_memory()
