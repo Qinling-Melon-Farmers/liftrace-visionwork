@@ -100,7 +100,6 @@ class PlannerAnchorSpawner:
 
     def _spawn(self, anchors):
         if not anchors:
-            self._model_states(30.0)
             return {}
         if not self._model_roots:
             raise ValueError("model_roots is empty for non-baseline profile")
@@ -129,6 +128,8 @@ class PlannerAnchorSpawner:
         return expected
 
     def _verify(self, expected):
+        if not expected:
+            return
         deadline = time.monotonic() + self._verify_timeout
         while time.monotonic() < deadline and not rospy.is_shutdown():
             states = self._model_states(min(

@@ -389,6 +389,23 @@ class CoveragePolicyTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_anchor_profile("unknown", config["profiles"])
 
+    def test_baseline_anchor_profile_never_waits_for_gazebo(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        source = (package_dir / "scripts" /
+                  "planner_anchor_spawner.py").read_text(encoding="utf-8")
+        self.assertIn(
+            "def _spawn(self, anchors):\n"
+            "        if not anchors:\n"
+            "            return {}",
+            source)
+        self.assertIn(
+            "def _verify(self, expected):\n"
+            "        if not expected:\n"
+            "            return",
+            source)
+        self.assertNotIn(
+            "if not anchors:\n            self._model_states", source)
+
     def test_anchor_model_resolver_honors_model_config_filename(self):
         with tempfile.TemporaryDirectory() as root:
             model_dir = Path(root) / "radio_tower"
