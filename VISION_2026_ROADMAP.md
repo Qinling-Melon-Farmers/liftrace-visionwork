@@ -460,7 +460,7 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 部分完成/待干净复跑 | 15 | V-CL-05 | 搜索-投递策略：高权重中断 + red_cross 统一 | 中断机制已实跑（tank 提前执行并恢复搜索、覆盖 12/12），pillbox 端到端投出，tank/panzer 证据锁定但低空下降受规划器波动影响超时；red_cross 统一入队、随机摆放入口与动态期望 Gate 已落地。剩余完成定义：按规则场地全随机布设（4 个 1 m 标准靶 + 1 个 0.35 m 红十字全部随机摆放、H 固定为起降点，真值仅落盘），类目/profile 驱动允许集合与 Gate（本届 profile 排除 tank），随机十字独立发现/投递 + 沉降门控验证（规划器失败只记录不迭代） |
 | 接口/预检与 A/B 工具已落地，Gate FAIL | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 上游 manager `5144aa8` 保持原逻辑，raw/planner goal 所有权与双 READY/SEARCH 门控已收紧；地图实验 `a68925d` 默认关闭。30 s 基础设施预检与 90 s 固定路线 A/B 尚未实跑，首轮 600 s 仍为 9/16 覆盖、2/3 投递后超时。下一步先跑 seed=11 baseline/candidate A/B，再由导航组实现持久全局权重、失败重试和时间调度；同 seed 600 s 三投+返航+落地才 PASS |
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
-| 最小矩阵已量化/待性能修复 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | `vsim04_seed11_20260829_192515` 已 23/23、六产物、无 infrastructure gap，终态 MEASURED；P_confirm=P_selected=9/23=0.3913，P95 processing=184.4 ms、P95 exposure=0.399 s、map-invalid=26.34%、map-unavailable=46.37%、TF failure=0、地图误差 P95=0.0777 m、接收 FPS=15.90。失败集中在全部 3.6 m 静态、全部 red_cross 和除 1.8 m/0.5 m/s 外的动态项；先按此修召回/当前地图准入，再决定 30-seed/10 min，不把 MEASURED 等同算法达标 |
+| 最小矩阵已量化/待性能修复 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | 当前合并态 `vsim04_seed11_current_20260829_195506` 已 23/23、六产物、无 infrastructure gap，终态 MEASURED；P_confirm=P_selected=13/23=0.5652，P95 processing=123.0 ms、P95 exposure=0.430 s、map-invalid=24.67%、map-unavailable=36.43%、TF failure=0、地图误差 P95=0.0789 m、接收 FPS=15.64。相对旧阈值/旧 partial 语义的 9/23 基线增加 4 项；剩余失败集中在四类标准靶全部 3.6 m、panzer 动态 3.0 m，以及 red_cross 静态 1.2/3.6 m 和动态 1.8 m。先收敛检测连续性/高空投影，再决定 30-seed/10 min，不把 MEASURED 等同算法达标 |
 | 待真值 | 19 | V-REAL-01 | 实拍回放域差复核 | 标注圆环实例/中心/H/红十字，采集同步 CameraInfo/pose |
 | 离线部分完成/ROS待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | FP32 RKNN 离线有效；待完成单下视 ROS 相机/TF、5–10 Hz 和 10 min Gate |
 
@@ -482,8 +482,10 @@ V-SIM-04 最小框架固定使用 `r2026`（tent/pillbox/bridge/panzer/red_cross
 `seed=11`。一次“完整入画到离开”定义为一个 trial；`P_confirm` 必须满足 target memory
 当前完整准入，`P_selected` 必须关联同一 stable ID。visual-only 的 `P_interrupt` 明确为
 `null`，不得由 selected 代替；导航实际接受事件在 V-CL-06 联合报告中另行评分。
-`vsim04_seed11_20260829_192515` 已完成 23/23 并通过终态/产物完整性校验，证明评测链可用；
-但确认/选择仅 9/23，红十字、高空和较快动态目标仍是明确性能缺口，不能把 `MEASURED`
+当前合并态 `vsim04_seed11_current_20260829_195506` 已完成 23/23 并通过终态/产物完整性校验，
+证明评测链可用；确认/选择由旧配置 9/23 提升为 13/23，但四类标准靶 3.6 m、高位 panzer
+动态和部分 red_cross 尺度仍是明确性能缺口。red_cross 失败项已有有效检测/地图帧却无法形成
+三次连续准入，应优先检查双路重叠与完整空帧间断，而不是放宽地图门槛。不能把 `MEASURED`
 写成算法 Gate PASS，也不应在这些失败收敛前直接扩 30-seed。
 
 ## 9. 暂不推进

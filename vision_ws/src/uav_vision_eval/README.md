@@ -75,6 +75,7 @@ bash top_level_scripts/sim_run.sh vsim04_seed11 \
 `roslaunch` 在 required runner 失败后正常关停并返回 0，统一入口仍会返回非零。
 
 入口只启动 Gazebo、评测相机、视觉链、真值、recorder 和 trial runner；不会启动 PX4、
-MAVROS、旧控制、`actuator_pwm` 或真实投递。有效基线
-`logs/vsim04_seed11_20260829_192515/` 已完成 23/23 并写出 `MEASURED`；P_confirm/P_selected
-均为 9/23。该终态只表示运行与产物有效，不代表红十字、高空和动态召回已经达标。
+MAVROS、旧控制、`actuator_pwm` 或真实投递。当前合并态证据
+`logs/vsim04_seed11_current_20260829_195506/` 已完成 23/23 并写出 `MEASURED`；
+P_confirm/P_selected 均为 13/23。该终态只表示运行与产物有效，不代表红十字、高空和动态
+召回已经达标；合并前 `logs/vsim04_seed11_20260829_192515/` 的 9/23 仅保留作旧阈值基线。
