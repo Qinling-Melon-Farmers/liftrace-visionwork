@@ -11,6 +11,9 @@ map_memory_ttl: 0.0         # 地图候选记忆时长 [s]；0 表示直到 rese
 # Phase D/板端闭环 launch 会覆盖为 true；Phase B/C 纯像素兼容链保持 false
 require_map_for_candidates: false
 selected_max_age: 0.5       # selected_target 最大观测年龄 [s]；长期地图记忆不能绕过
+# full 保留全部六类资产；r2026 暂不允许 tank 主动进入 selected_target。
+# 未知 profile 会使 target_memory 非零退出，禁止静默回退。
+class_profile: full
 # 同一地图目标发生类别抖动时，需连续高置信命中并赢得累计置信度投票才切类
 class_switch_confirm_frames: 2
 class_switch_min_confidence: 0.70

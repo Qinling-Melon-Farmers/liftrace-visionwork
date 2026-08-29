@@ -20,6 +20,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
+catkin_python_setup()
+
 add_message_files(
   FILES
   TargetDetection.msg
@@ -104,6 +106,7 @@ catkin_install_python(PROGRAMS
   scripts/detection_fusion.py
   scripts/detect_compat_bridge.py
   scripts/drop_aligner.py
+  scripts/target_selection_policy_assertion.py
   scripts/target_memory.py
   scripts/target_refiner.py
   scripts/target_map_projector.py

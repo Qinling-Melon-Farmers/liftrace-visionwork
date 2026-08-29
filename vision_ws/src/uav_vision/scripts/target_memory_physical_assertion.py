@@ -53,6 +53,9 @@ class PhysicalMemoryAssertion:
             x_offset=500, y_offset=340, width=280, height=280)
         det.center_px = Point(640.0, 480.0, 0.0)
         det.center_refined = True
+        det.center_source = "circle_geometry"
+        det.association_valid = True
+        det.reject_reason = ""
         det.map_valid = True
         det.map_point = Point(map_x, 2.0, 0.0)
         det.map_frame = "map"

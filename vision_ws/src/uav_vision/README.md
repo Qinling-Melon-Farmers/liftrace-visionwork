@@ -84,9 +84,13 @@ topic 刚收到就认定目标刚被看到。
 - 地图候选 TTL：0（直到 reset）；
 - 地图匹配距离：0.5 m；
 - 候选确认：连续 3 帧；漏检会清零连续计数，但不删除 TTL 内已确认地图记忆；
+- `CONFIRMED` 保持为长期记忆状态；`selected_target` 仍要求当前连续 3 帧、地图/关联有效、
+  无拒绝原因且观测年龄不超过 0.5 s；
 - 类别切换：连续 2 帧且置信度不低于 0.70，同时累计置信度投票胜出；
 - Phase D/板端 `require_map_for_candidates=true`，无效或陈旧 TF 不得刷新候选；
 - 类别优先级用于候选排序，权重取自赛委会确认的得分权重：tent=1、pillbox=1.5、bridge=2、panzer=2.5、tank=5、red_cross=10。
+- `class_profile=full` 保留六分类兼容；`class_profile=r2026` 保留 tank 诊断记忆但禁止其发布为
+  `selected_target`。未知 profile 会令节点非零退出。
 
 ### `align_mode`
 

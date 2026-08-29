@@ -17,6 +17,10 @@ from std_srvs.srv import Empty, EmptyResponse
 from uav_vision.msg import (TargetDetection, TargetDetectionArray,
                              TargetCandidate, TargetCandidateArray)
 from sensor_msgs.msg import RegionOfInterest
+from uav_vision.target_selection_policy import (
+    choose_selected_candidate,
+    resolve_class_profile,
+)
 
 # 候选状态
 (ST_DETECTED, ST_OBSERVING, ST_CONFIRMED, ST_REJECTED, ST_EXPIRED) = range(5)
@@ -277,6 +281,8 @@ class TargetMemory:
         self._require_map_for_candidates = bool(
             rospy.get_param("~require_map_for_candidates", False))
         self._selected_max_age = float(rospy.get_param("~selected_max_age", 0.5))
+        self._class_profile, self._selectable_classes = resolve_class_profile(
+            rospy.get_param("~class_profile", "full"))
         self._class_switch_confirm_frames = max(
             1, int(rospy.get_param("~class_switch_confirm_frames", 2)))
         self._class_switch_min_confidence = float(
@@ -334,6 +340,9 @@ class TargetMemory:
                       self._map_match_distance_m, self._map_memory_ttl)
         rospy.loginfo("  require_map_for_candidates=%s",
                       self._require_map_for_candidates)
+        rospy.loginfo("  class_profile=%s selectable_classes=%s",
+                      self._class_profile,
+                      ",".join(sorted(self._selectable_classes)))
         rospy.loginfo("  class_switch=%d consecutive frames min_conf=%.2f vote_ratio=%.2f",
                       self._class_switch_confirm_frames,
                       self._class_switch_min_confidence,
@@ -588,16 +597,11 @@ class TargetMemory:
                          reverse=True)
         self._targets_pub.publish(arr)
 
-        # 选最优已确认目标（跳过 priority <= 0 的类别）
-        best = None
-        for t in arr.targets:
-            observation_age = max(0.0, (now - t.last_seen).to_sec())
-            if (t.state >= ST_CONFIRMED and
-                    observation_age <= self._selected_max_age and
-                    self._priority.get(t.class_name, 0) > 0):
-                if best is None or self._priority.get(t.class_name, 0) > \
-                   self._priority.get(best.class_name, 0):
-                    best = t
+        # CONFIRMED 是长期记忆状态；selected 还必须满足当前连续命中、
+        # 地图/关联/拒绝/年龄和比赛 profile 的完整准入条件。
+        best = choose_selected_candidate(
+            arr.targets, now, self._confirm_frames, self._selected_max_age,
+            self._priority, self._selectable_classes, ST_CONFIRMED)
         if best is not None:
             self._selected_pub.publish(best)
 

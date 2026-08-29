@@ -35,6 +35,9 @@ class FreshnessAssertion:
         detection.geometry_confidence = 0.9
         detection.geometry_verified = True
         detection.center_refined = True
+        detection.center_source = "circle_geometry"
+        detection.association_valid = True
+        detection.reject_reason = ""
         detection.center_px.x = 320.0
         detection.center_px.y = 240.0
         detection.roi.x_offset = 280
