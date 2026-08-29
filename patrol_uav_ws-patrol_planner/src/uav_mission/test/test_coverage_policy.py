@@ -214,6 +214,15 @@ class CoveragePolicyTest(unittest.TestCase):
             validate_standard_classes(
                 ("tent", "tent"), ("tent", "bridge"))
 
+    def test_random_field_spawner_resolves_sibling_policy_when_installed(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        source = (package_dir / "scripts" /
+                  "random_field_spawner.py").read_text(encoding="utf-8")
+        path_setup = source.index("sys.path.insert(0, SCRIPT_DIR)")
+        policy_import = source.index(
+            "from coverage_policy import profile_standard_classes")
+        self.assertLess(path_setup, policy_import)
+
     def test_planner_anchor_profiles_are_explicit_and_baseline_empty(self):
         package_dir = Path(__file__).resolve().parents[1]
         config = yaml.safe_load((

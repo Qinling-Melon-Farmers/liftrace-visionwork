@@ -13,6 +13,10 @@ import random
 import sys
 import time
 
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
+
 import rospy
 from gazebo_msgs.msg import ModelStates
 from gazebo_msgs.srv import SpawnModel
