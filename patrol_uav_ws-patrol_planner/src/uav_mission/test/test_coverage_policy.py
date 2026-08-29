@@ -577,6 +577,9 @@ class CoveragePolicyTest(unittest.TestCase):
         self.assertIn('"dropout_check_counts"', source)
         self.assertIn('"dropout_events"', source)
         self.assertIn("_record_readiness_dropout(checks)", source)
+        self.assertIn('"stream_wall_ages"', source)
+        self.assertIn('"missing_required_publishers"', source)
+        self.assertIn('"required_publisher_snapshot"', source)
         self.assertNotIn("route_progress_observed", source)
         self.assertIn("time.sleep(0.1)", source)
         observer = (package_dir / "scripts" /

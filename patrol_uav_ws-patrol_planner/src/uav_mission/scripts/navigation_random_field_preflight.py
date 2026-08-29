@@ -345,6 +345,9 @@ class NavigationRandomFieldPreflight:
             self._finite_number(age) and 0.0 <= float(age) <= 1.0)
 
     def _required_publishers_present(self):
+        return not self._missing_required_publishers()
+
+    def _required_publisher_snapshot(self):
         required = (
             self._image_topic,
             self._camera_info_topic,
@@ -357,7 +360,25 @@ class NavigationRandomFieldPreflight:
             "/mission/gazebo_contact_status",
             "/mission/target_search_status",
         )
-        return all(self._publisher_snapshot.get(topic) for topic in required)
+        return {
+            topic: list(self._publisher_snapshot.get(topic, []))
+            for topic in required
+        }
+
+    def _missing_required_publishers(self):
+        return sorted(
+            topic for topic, nodes in
+            self._required_publisher_snapshot().items() if not nodes)
+
+    def _stream_wall_ages(self):
+        now = time.monotonic()
+        keys = ("image", "camera_info", "pose", "map", "model_states",
+                "field", "anchor", "contact", "adapter")
+        return {
+            key: (None if self._last_message_wall.get(key) is None else
+                  max(0.0, now - self._last_message_wall[key]))
+            for key in keys
+        }
 
     def _artifacts_present(self):
         names = (
@@ -511,6 +532,13 @@ class NavigationRandomFieldPreflight:
             "readiness_dropouts": self._readiness_dropouts,
             "dropout_check_counts": dict(self._dropout_check_counts),
             "dropout_events": list(self._dropout_events),
+            "stream_wall_ages": self._stream_wall_ages(),
+            "message_age_limit_sec": self._message_age_limit,
+            "field_anchor_map_age_limit_sec": 2.0,
+            "required_publisher_snapshot": (
+                self._required_publisher_snapshot()),
+            "missing_required_publishers": (
+                self._missing_required_publishers()),
             "planner_goal_publishers": sorted(self._goal_publishers),
             "raw_goal_publishers": sorted(self._raw_goal_publishers),
             "nodes_seen": sorted(self._nodes_seen),
