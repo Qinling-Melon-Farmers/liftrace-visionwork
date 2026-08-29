@@ -1,0 +1,58 @@
+<launch>
+  <!-- Infrastructure-only 30 s check.  Candidate delivery and the 600 s
+       assertion are disabled so route completion is not a preflight fact. -->
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi3_random.world" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="class_profile" default="r2026" />
+  <arg name="field_seed" default="11" />
+  <arg name="nav_feature_profile" default="baseline" />
+  <arg name="camera_image_topic" default="/downward_camera/image_raw" />
+  <arg name="camera_info_topic" default="/downward_camera/camera_info" />
+  <arg name="mission_frame" default="camera_init" />
+  <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
+  <arg name="duration_sec" default="30.0" />
+  <arg name="startup_timeout_sec" default="180.0" />
+  <arg name="gate_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+
+  <include file="$(find uav_mission)/launch/navigation_search_delivery_random_field.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="world" value="$(arg world)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="class_profile" value="$(arg class_profile)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <arg name="camera_image_topic" value="$(arg camera_image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="mission_frame" value="$(arg mission_frame)" />
+    <arg name="camera_optical_frame" value="$(arg camera_optical_frame)" />
+    <arg name="enable_debug_image" value="false" />
+    <arg name="record_debug" value="false" />
+    <arg name="enable_candidate_selector" value="false" />
+    <arg name="start_hard_gate" value="false" />
+    <arg name="wall_timeout" value="300.0" />
+  </include>
+
+  <node pkg="uav_mission" type="navigation_random_field_preflight.py"
+        name="navigation_random_field_preflight" output="screen"
+        required="true">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+    <param name="duration_sec" value="$(arg duration_sec)" />
+    <param name="startup_timeout_sec" value="$(arg startup_timeout_sec)" />
+    <param name="world" value="$(arg world)" />
+    <param name="target_model_path" value="$(arg target_model_path)" />
+    <param name="class_profile" value="$(arg class_profile)" />
+    <param name="field_seed" value="$(arg field_seed)" />
+    <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <param name="image_topic" value="$(arg camera_image_topic)" />
+    <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <param name="mission_frame" value="$(arg mission_frame)" />
+    <param name="camera_optical_frame" value="$(arg camera_optical_frame)" />
+    <rosparam param="allowed_classes">[tent, pillbox, bridge, panzer, red_cross]</rosparam>
+    <param name="report_path" value="$(arg gate_report_path)" />
+  </node>
+</launch>

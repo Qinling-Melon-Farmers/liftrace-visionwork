@@ -56,3 +56,29 @@ enable_debug_image:=false record_debug:=false
 缺少或无法解析 `gate_status.json`、状态不是 `PASS`，统一入口都返回非零。候选
 `a68925d` 只在同 seed 的 30 秒预检与 90 秒固定路线 A/B 达标后再用于 600 秒 Gate；
 未达标时默认保持 `baseline`。
+
+30 秒预检不要求路线到点或完成投递，只检查随机场 footprint/真值、anchor、模型文件、
+CameraInfo、`camera_init -> camera optical frame` TF、图像/地图/pose/ModelStates、实际接触
+监测和 raw/planner goal 发布者所有权。单次 baseline 预检可运行：
+
+```bash
+SIM_NO_RECORD=1 SIM_REQUIRE_GATE=1 \
+top_level_scripts/sim_run.sh vcl06_preflight_seed11_baseline \
+roslaunch uav_mission navigation_random_field_preflight.launch \
+field_seed:=11 class_profile:=r2026 nav_feature_profile:=baseline \
+target_model_path:="$UAV_VISION_MODEL_PATH" gui:=false rviz:=false
+```
+
+完整 A/B 入口按 `baseline 预检 -> baseline 90 s -> a68925d 预检 -> a68925d 90 s -> 比较`
+顺序执行，每一段都走独立 `sim_run.sh` run 目录：
+
+```bash
+export UAV_VISION_MODEL_PATH=/absolute/path/to/model.pt
+bash top_level_scripts/run_navigation_ab.sh
+```
+
+90 秒样本关闭 candidate selector，实际执行导航组固定搜索路线，并记录 pose 最大断流、
+场界、高度漂移、规划响应/失败、实际接触和共同路线进度墙钟。比较器要求 seed/world/真值/
+模型/路线一致，双方 0 碰撞/越界且高度不超过 4 m；候选至少改善规划失败或高度漂移之一，
+共同进度墙钟退化不超过 10%。`promote_candidate=true` 只是报告事实，不会自动修改默认值；
+设置 `a68925d` 为默认仍须独立审查提交。

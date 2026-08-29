@@ -10,6 +10,7 @@ from uav_mission.contact_policy import (
     contact_episode_transition,
     relevant_contact_pairs,
 )
+from uav_mission.navigation_ab_policy import compare_navigation_ab
 
 from coverage_policy import (
     CandidateData,
@@ -390,6 +391,133 @@ class CoveragePolicyTest(unittest.TestCase):
                           for item in adapter.findall("param")}
         self.assertEqual(adapter_params.get("require_contact_monitor"),
                          "true")
+
+    @staticmethod
+    def _ab_metrics(nav_profile, arrivals, failures, drift):
+        return {
+            "status": "PASS",
+            "assets_ready": True,
+            "field_seed": 11,
+            "class_profile": "r2026",
+            "nav_feature_profile": nav_profile,
+            "world": "/same/world",
+            "target_model_path": "/same/model",
+            "truth_targets": [{"class": "tent", "x": 1.0, "y": 2.0}],
+            "route_spec": [[0.0, 0.0, 2.2], [1.0, 0.0, 2.2]],
+            "arrival_wall_times": arrivals,
+            "planning_failure_count": failures,
+            "height_drift_rms": drift,
+            "pose_max_gap_wall": 0.1,
+            "max_altitude": 2.5,
+            "actual_collision_count": 0,
+            "boundary_violation_count": 0,
+            "invalid_pose_count": 0,
+            "unexpected_goal_count": 0,
+            "planner_goal_publishers": [
+                "/navigation_visual_delivery_adapter"],
+            "raw_goal_publishers": ["/target_search_manager_py"],
+        }
+
+    def test_navigation_ab_accepts_safe_same_identity_improvement(self):
+        baseline = self._ab_metrics("baseline", [30.0, 70.0], 2, 0.20)
+        candidate = self._ab_metrics("a68925d", [31.0, 75.0], 1, 0.20)
+        report = compare_navigation_ab(baseline, candidate)
+        self.assertEqual(report["status"], "PASS")
+        self.assertTrue(report["promote_candidate"])
+        self.assertTrue(report["checks"][
+            "wall_time_regression_le_10pct"])
+
+    def test_navigation_ab_rejects_regression_missing_metric_and_mismatch(self):
+        baseline = self._ab_metrics("baseline", [30.0, 60.0], 0, 0.20)
+        candidate = self._ab_metrics("a68925d", [35.0, 70.0], 0, None)
+        candidate["field_seed"] = 12
+        report = compare_navigation_ab(baseline, candidate)
+        self.assertEqual(report["status"], "FAIL")
+        self.assertFalse(report["promote_candidate"])
+        self.assertFalse(report["checks"][
+            "same_seed_world_truth_model_route"])
+        self.assertFalse(report["checks"][
+            "wall_time_regression_le_10pct"])
+        self.assertFalse(report["checks"][
+            "planning_failure_or_height_improved"])
+
+    def test_preflight_and_ab_launches_disable_delivery_and_hard_gate(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        formal = ET.parse(str(
+            package_dir / "launch" /
+            "navigation_search_delivery_random_field.launch")).getroot()
+        formal_args = {item.attrib.get("name"): item.attrib.get("default")
+                       for item in formal.findall("arg")}
+        self.assertEqual(formal_args.get("enable_candidate_selector"), "true")
+        self.assertEqual(formal_args.get("start_hard_gate"), "true")
+        selector = next(node for node in formal.findall("node")
+                        if node.attrib.get("type") ==
+                        "profile_candidate_selector.py")
+        hard_gate = next(node for node in formal.findall("node")
+                         if node.attrib.get("type") ==
+                         "navigation_random_field_assertion.py")
+        self.assertEqual(selector.attrib.get("if"),
+                         "$(arg enable_candidate_selector)")
+        self.assertEqual(hard_gate.attrib.get("if"),
+                         "$(arg start_hard_gate)")
+
+        expectations = (
+            ("navigation_random_field_preflight.launch",
+             "navigation_random_field_preflight.py", "30.0"),
+            ("navigation_random_field_ab.launch",
+             "navigation_ab_observer.py", "90.0"),
+        )
+        for launch_name, assertion_type, duration in expectations:
+            root = ET.parse(str(package_dir / "launch" / launch_name)).getroot()
+            args = {item.attrib.get("name"): item.attrib.get("default")
+                    for item in root.findall("arg")}
+            self.assertEqual(args.get("duration_sec"), duration)
+            include = root.find("include")
+            include_args = {
+                item.attrib.get("name"): item.attrib.get("value")
+                for item in include.findall("arg")}
+            self.assertEqual(include_args.get("enable_candidate_selector"),
+                             "false")
+            self.assertEqual(include_args.get("start_hard_gate"), "false")
+            self.assertEqual(include_args.get("enable_debug_image"), "false")
+            node = next(item for item in root.findall("node")
+                        if item.attrib.get("type") == assertion_type)
+            self.assertEqual(node.attrib.get("required"), "true")
+
+    def test_preflight_checks_camera_tf_geometry_and_topic_ownership(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        source = (package_dir / "scripts" /
+                  "navigation_random_field_preflight.py").read_text(
+                      encoding="utf-8")
+        self.assertIn("CameraInfo", source)
+        self.assertIn("lookup_transform", source)
+        self.assertIn('"truth_footprints"', source)
+        self.assertIn('"truth_models_match_gazebo"', source)
+        self.assertIn('"adapter_only_planner_goal"', source)
+        self.assertIn('"navigation_manager_only_raw_goal"', source)
+        self.assertIn('"inside_field_bounds"', source)
+        self.assertNotIn("route_progress_observed", source)
+        self.assertIn("time.sleep(0.1)", source)
+        observer = (package_dir / "scripts" /
+                    "navigation_ab_observer.py").read_text(encoding="utf-8")
+        self.assertIn('"boundary_violation_count"', observer)
+        self.assertIn('"unexpected_goal_count"', observer)
+        self.assertIn("time.sleep(0.1)", observer)
+
+    def test_navigation_ab_runner_is_ordered_and_never_promotes_default(self):
+        package_dir = Path(__file__).resolve().parents[4]
+        source = (package_dir / "top_level_scripts" /
+                  "run_navigation_ab.sh").read_text(encoding="utf-8")
+        self.assertIn("sim_run.sh", source)
+        self.assertLess(source.index("run_preflight baseline"),
+                        source.index("run_preflight a68925d"))
+        self.assertLess(source.index("run_sample baseline"),
+                        source.index("run_sample a68925d"))
+        self.assertIn("navigation_ab_compare.py", source)
+        self.assertIn('python3 "${AB_COMPARE}"', source)
+        self.assertNotIn("rosrun", source)
+        self.assertNotIn("git commit", source)
+        self.assertNotIn("planner_anchor_profiles.yaml", source)
 
     def test_sim_vehicle_declares_bumper_contact_sensor(self):
         package_dir = Path(__file__).resolve().parents[2]

@@ -21,6 +21,8 @@ class NavigationRandomFieldAssertion:
         self._deadline = time.monotonic() + float(
             rospy.get_param("~wall_timeout", 1800.0))
         self._profile = rospy.get_param("~class_profile", "r2026")
+        self._mission_frame = rospy.get_param(
+            "~mission_frame", "camera_init")
         self._nav_feature_profile = rospy.get_param(
             "~nav_feature_profile", "baseline")
         self._allowed = tuple(rospy.get_param(
@@ -107,7 +109,7 @@ class NavigationRandomFieldAssertion:
             target.class_name in self._allowed and
             int(target.state) == 2 and
             int(target.consecutive_observe_count) >= 3 and
-            target.map_valid and target.map_frame == "camera_init" and
+            target.map_valid and target.map_frame == self._mission_frame and
             target.association_valid and not target.reject_reason and
             last_seen > 0.0 and
             0.0 <= age <= 0.5 and

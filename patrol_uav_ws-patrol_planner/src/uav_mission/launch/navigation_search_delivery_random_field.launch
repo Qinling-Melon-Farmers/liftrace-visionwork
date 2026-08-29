@@ -7,7 +7,13 @@
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="enable_debug_image" default="false" />
   <arg name="record_debug" default="false" />
+  <arg name="enable_candidate_selector" default="true" />
+  <arg name="start_hard_gate" default="true" />
   <arg name="world" default="$(find patrol_control)/../../../toudi3_random.world" />
+  <arg name="camera_image_topic" default="/downward_camera/image_raw" />
+  <arg name="camera_info_topic" default="/downward_camera/camera_info" />
+  <arg name="mission_frame" default="camera_init" />
+  <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
   <arg name="class_profile" default="r2026" />
   <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
   <arg name="px4_model_root"
@@ -33,6 +39,10 @@
     <arg name="external_mission_mode" value="true" />
     <arg name="waypoint_mode" value="false" />
     <arg name="world" value="$(arg world)" />
+    <arg name="camera_image_topic" value="$(arg camera_image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="map_frame" value="$(arg mission_frame)" />
+    <arg name="camera_optical_frame" value="$(arg camera_optical_frame)" />
     <arg name="target_model_path" value="$(arg target_model_path)" />
     <arg name="class_profile" value="$(arg class_profile)" />
     <arg name="planner_max_vel" value="1.0" />
@@ -75,11 +85,13 @@
     <rosparam param="ignored_collision_patterns">[ground_plane]</rosparam>
   </node>
 
-  <node pkg="uav_mission" type="profile_candidate_selector.py"
+  <node if="$(arg enable_candidate_selector)"
+        pkg="uav_mission" type="profile_candidate_selector.py"
         name="profile_candidate_selector" output="screen">
     <rosparam command="load"
               file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
     <param name="class_profile" value="$(arg class_profile)" />
+    <param name="mission_frame" value="$(arg mission_frame)" />
     <param name="require_field_ready" value="true" />
     <param name="require_adapter_candidate_accepting" value="true" />
     <param name="adapter_status_topic"
@@ -97,6 +109,7 @@
     <rosparam command="load"
               file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
     <param name="class_profile" value="$(arg class_profile)" />
+    <param name="mission_frame" value="$(arg mission_frame)" />
     <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
     <param name="require_field_ready" value="true" />
     <param name="require_anchor_ready" value="true" />
@@ -134,11 +147,13 @@
            to="/mission/profile_selected_target" />
   </node>
 
-  <node pkg="uav_mission" type="navigation_random_field_assertion.py"
+  <node if="$(arg start_hard_gate)"
+        pkg="uav_mission" type="navigation_random_field_assertion.py"
         name="navigation_random_field_assertion" output="screen"
         required="true">
     <param name="wall_timeout" value="$(arg wall_timeout)" />
     <param name="class_profile" value="$(arg class_profile)" />
+    <param name="mission_frame" value="$(arg mission_frame)" />
     <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
     <rosparam param="allowed_classes">[tent, pillbox, bridge, panzer, red_cross]</rosparam>
     <param name="report_path" value="$(arg gate_report_path)" />

@@ -55,6 +55,9 @@ catkin_install_python(PROGRAMS
   scripts/planner_anchor_spawner.py
   scripts/navigation_random_field_assertion.py
   scripts/gazebo_contact_monitor.py
+  scripts/navigation_random_field_preflight.py
+  scripts/navigation_ab_observer.py
+  scripts/navigation_ab_compare.py
   scripts/target_search_delivery_assertion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
