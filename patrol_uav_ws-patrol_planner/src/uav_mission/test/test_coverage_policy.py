@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 
@@ -12,6 +13,7 @@ from coverage_policy import (
     GoalRetryPolicy,
     SelectorCandidate,
     accumulate_run_facts,
+    build_command_event,
     candidate_rank,
     candidate_valid,
     capture_evidence_matches,
@@ -33,6 +35,10 @@ from uav_mission.random_field_policy import (
     footprint_inside_bounds,
     validate_seed,
     validate_standard_classes,
+)
+from uav_mission.planner_anchor_policy import (
+    resolve_model_sdf,
+    validate_anchor_profile,
 )
 
 
@@ -162,6 +168,14 @@ class CoveragePolicyTest(unittest.TestCase):
             bounds=(-3.0, 3.0, -1.0, 7.0))
         self.assertEqual(selected.target_id, cross.target_id)
 
+    def test_command_event_records_actual_search_to_approach(self):
+        event = build_command_event(
+            7, 12.5, 1, "SEARCH", "APPROACH", 42, "panzer")
+        self.assertEqual(event["sequence"], 7)
+        self.assertEqual(event["from_state"], "SEARCH")
+        self.assertEqual(event["to_state"], "APPROACH")
+        self.assertEqual(event["target_id"], 42)
+
     def test_selector_rejects_nonfinite_out_of_bounds_and_high_z(self):
         base = dict(
             confidence=0.9, last_seen=10.0, state=2,
@@ -199,6 +213,60 @@ class CoveragePolicyTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_standard_classes(
                 ("tent", "tent"), ("tent", "bridge"))
+
+    def test_planner_anchor_profiles_are_explicit_and_baseline_empty(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        config = yaml.safe_load((
+            package_dir / "config" / "planner_anchor_profiles.yaml"
+        ).read_text())
+        baseline = validate_anchor_profile("baseline", config["profiles"])
+        candidate = validate_anchor_profile(
+            "a68925d", config["profiles"])
+        self.assertEqual(baseline["anchors"], [])
+        self.assertFalse(baseline["external_feature_dependency"])
+        self.assertEqual(len(candidate["anchors"]), 9)
+        self.assertTrue(candidate["external_feature_dependency"])
+        self.assertIn("a68925d", candidate["source_revision"])
+        with self.assertRaises(ValueError):
+            validate_anchor_profile("unknown", config["profiles"])
+
+    def test_anchor_model_resolver_honors_model_config_filename(self):
+        with tempfile.TemporaryDirectory() as root:
+            model_dir = Path(root) / "radio_tower"
+            model_dir.mkdir()
+            (model_dir / "model.config").write_text(
+                "<model><sdf version='1.6'>radio_tower.sdf</sdf></model>")
+            expected = model_dir / "radio_tower.sdf"
+            expected.write_text("<sdf version='1.6'/>")
+            self.assertEqual(
+                resolve_model_sdf("radio_tower", [root]), str(expected))
+
+    def test_formal_random_launch_has_one_manager_and_profile_remaps(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        root = ET.parse(str(
+            package_dir / "launch" /
+            "navigation_search_delivery_random_field.launch")).getroot()
+        nodes = root.findall("node")
+        node_types = [node.attrib.get("type") for node in nodes]
+        self.assertEqual(node_types.count("target_search_manager_py.py"), 1)
+        self.assertEqual(
+            node_types.count("navigation_visual_delivery_adapter.py"), 1)
+        self.assertNotIn("coverage_search_manager.py", node_types)
+        manager = next(node for node in nodes
+                       if node.attrib.get("type") ==
+                       "target_search_manager_py.py")
+        adapter = next(node for node in nodes
+                       if node.attrib.get("type") ==
+                       "navigation_visual_delivery_adapter.py")
+        for node in (manager, adapter):
+            remaps = {(item.attrib.get("from"), item.attrib.get("to"))
+                      for item in node.findall("remap")}
+            self.assertIn(("/uav_vision/selected_target",
+                           "/mission/profile_selected_target"), remaps)
+        goal_remaps = {(item.attrib.get("from"), item.attrib.get("to"))
+                       for item in manager.findall("remap")}
+        self.assertIn(("/fastplanner/goal", "/navigation/goal_raw"),
+                      goal_remaps)
 
     def test_candidate_valid_respects_allowed_classes(self):
         base = dict(

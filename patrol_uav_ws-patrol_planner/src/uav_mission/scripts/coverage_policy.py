@@ -318,6 +318,20 @@ def select_current_candidate(candidates, now, mission_frame="camera_init",
     ))
 
 
+def build_command_event(sequence, stamp, command, from_state, to_state,
+                        target_id=None, target_class=""):
+    """Build the stable status schema for an actual adapter command event."""
+    return {
+        "sequence": int(sequence),
+        "stamp": float(stamp),
+        "command": int(command),
+        "target_id": target_id,
+        "target_class": target_class,
+        "from_state": from_state,
+        "to_state": to_state,
+    }
+
+
 def interrupt_eligible(pending, min_weight):
     """队列头部候选权重达到阈值时允许中断搜索先行投递。"""
     if not pending:

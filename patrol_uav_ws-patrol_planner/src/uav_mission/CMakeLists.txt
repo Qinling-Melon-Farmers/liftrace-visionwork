@@ -51,6 +51,8 @@ catkin_install_python(PROGRAMS
   scripts/target_search_manager_py.py
   scripts/navigation_visual_delivery_adapter.py
   scripts/profile_candidate_selector.py
+  scripts/planner_anchor_spawner.py
+  scripts/navigation_random_field_assertion.py
   scripts/target_search_delivery_assertion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
