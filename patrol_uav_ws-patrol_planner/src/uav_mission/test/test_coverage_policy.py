@@ -312,7 +312,7 @@ class CoveragePolicyTest(unittest.TestCase):
         self.assertFalse(footprint_clear(
             -2.0, 3.70, STANDARD_FOOTPRINT_RADIUS, occupied, gap=0.15))
 
-    def test_seed11_random_field_has_complete_safe_layout(self):
+    def test_seed1_to_30_random_field_has_complete_safe_layout(self):
         package_dir = Path(__file__).resolve().parents[1]
         config = yaml.safe_load((
             package_dir / "config" / "coverage_toudi3_random.yaml"
@@ -333,18 +333,19 @@ class CoveragePolicyTest(unittest.TestCase):
         targets = [(name, STANDARD_FOOTPRINT_RADIUS) for name in (
             "tent", "pillbox", "bridge", "panzer")]
         targets.append(("red_cross", RED_CROSS_FOOTPRINT_RADIUS))
-        layout = plan_footprint_layout(
-            random.Random(11), targets, occupied,
-            (search["min_x"], search["max_x"],
-             search["min_y"], search["max_y"]),
-            (field["min_x"], field["max_x"],
-             field["min_y"], field["max_y"]),
-            float(config["spawn"]["boundary_margin"]),
-            float(config["spawn"]["pair_gap"]),
-            -0.493412, -1.772690, 4000,
-            int(config["spawn"]["layout_attempts"]))
-        self.assertIsNotNone(layout)
-        self.assertEqual(len(layout), 5)
+        for seed in range(1, 31):
+            layout = plan_footprint_layout(
+                random.Random(seed), targets, occupied,
+                (search["min_x"], search["max_x"],
+                 search["min_y"], search["max_y"]),
+                (field["min_x"], field["max_x"],
+                 field["min_y"], field["max_y"]),
+                float(config["spawn"]["boundary_margin"]),
+                float(config["spawn"]["pair_gap"]),
+                -0.493412, -1.772690, 4000,
+                int(config["spawn"]["layout_attempts"]))
+            self.assertIsNotNone(layout, "seed=%d" % seed)
+            self.assertEqual(len(layout), 5, "seed=%d" % seed)
 
     def test_contact_policy_filters_ground_and_debounces_episodes(self):
         pairs = relevant_contact_pairs([

@@ -27,10 +27,12 @@ static_model_radii:
   big_box3_0: 0.722
   "Big box 4_0": 0.722
 static_exclusions:
-  - {name: nested_tree_0, world_x: -1.713091, world_y: 1.061375, radius: 0.55}
-  - {name: nested_tree_1, world_x: -0.730275, world_y: 0.180850, radius: 0.55}
-  - {name: nested_tree_2, world_x: 0.162569, world_y: 1.311355, radius: 0.55}
-  - {name: nested_tree_3, world_x: 1.183719, world_y: 3.155350, radius: 0.55}
+  # juniper collision mesh 最大平面半径约 0.3174 m（DAE node 0.0254 × SDF 0.2）；
+  # 0.40 m 已含约 8 cm 模型余量，且 footprint_clear 还会额外叠加 0.15 m pair_gap。
+  - {name: nested_tree_0, world_x: -1.713091, world_y: 1.061375, radius: 0.40}
+  - {name: nested_tree_1, world_x: -0.730275, world_y: 0.180850, radius: 0.40}
+  - {name: nested_tree_2, world_x: 0.162569, world_y: 1.311355, radius: 0.40}
+  - {name: nested_tree_3, world_x: 1.183719, world_y: 3.155350, radius: 0.40}
   # toudi2 is one compound parent model, so Wall_15 collisions are invisible
   # in ModelStates.  These transformed world-frame circles conservatively
   # enclose its four box collisions near the target-region upper-left edge.
@@ -48,13 +50,11 @@ field:
   min_y: -1.132
   max_y: 8.718
 
-# 覆盖投递区中央区域（随机靶标仅在此区域内摆放）；在完整板面、树/箱体/墙体
-# 与 0.15 m 净空约束下，原 world x[-2.5,1.5] 最多只能容纳 3 个标准靶，故横向
-# 各扩 0.5 m 至 world x[-3.0,2.0]。扩展后仍位于 field 边界内，北侧走廊由后续
-# 穿越任务单独处理。
+# 覆盖投递区中央区域（随机靶标仅在此区域内摆放）；北侧走廊由后续穿越任务
+# 单独处理。
 search_region:
-  min_x: -2.507
-  max_x: 2.493
+  min_x: -2.007
+  max_x: 1.993
   min_y: 0.273
   max_y: 6.273
 
