@@ -8,6 +8,20 @@ mission_frame: camera_init
 # 标准靶候选（如 tank 假阳性）不进入任务队列。
 class_profile: r2026
 
+# 随机摆放采用完整板面外接圆，而不是模型中心点距离。4 棵树位于复合模型
+# `3` 内，Gazebo ModelStates 只暴露父模型，故在此显式列出世界系 footprint。
+spawn:
+  boundary_margin: 0.10
+  pair_gap: 0.15
+  static_model_radius: 0.55
+  verification_tolerance: 0.05
+  verification_timeout: 20.0
+static_exclusions:
+  - {name: nested_tree_0, world_x: -1.713091, world_y: 1.061375, radius: 0.55}
+  - {name: nested_tree_1, world_x: -0.730275, world_y: 0.180850, radius: 0.55}
+  - {name: nested_tree_2, world_x: 0.162569, world_y: 1.311355, radius: 0.55}
+  - {name: nested_tree_3, world_x: 1.183719, world_y: 3.155350, radius: 0.55}
+
 # 起飞 H 与 toudi4 主 H 同位：world=(-0.493412,-1.772690)，spawn 局部 (0,0)。
 # PX4/MAVROS/camera_init 在此建立本地原点；下列边界为投递区/场地在该局部系
 # 下的范围（toudi3 原覆盖区 x[-2.5,1.5] y[-1.5,4.5] 平移 +0.493/+1.773 得到）。

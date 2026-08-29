@@ -10,6 +10,7 @@ from coverage_policy import (
     CandidateQueue,
     CaptureEvidence,
     GoalRetryPolicy,
+    SelectorCandidate,
     accumulate_run_facts,
     candidate_rank,
     candidate_valid,
@@ -21,7 +22,17 @@ from coverage_policy import (
     profile_allowed_classes,
     profile_standard_classes,
     resolve_safe_waypoint,
+    select_current_candidate,
     select_serpentine_entry,
+)
+from uav_mission.random_field_policy import (
+    Footprint,
+    RED_CROSS_FOOTPRINT_RADIUS,
+    STANDARD_FOOTPRINT_RADIUS,
+    footprint_clear,
+    footprint_inside_bounds,
+    validate_seed,
+    validate_standard_classes,
 )
 
 
@@ -123,16 +134,71 @@ class CoveragePolicyTest(unittest.TestCase):
         self.assertEqual(
             profile_standard_classes("r2026"),
             ("tent", "pillbox", "bridge", "panzer"))
-        # 未知 profile 名称回退 full，保持历史固定场口径。
-        self.assertEqual(
-            profile_standard_classes("unknown"),
-            profile_standard_classes("full"))
+        with self.assertRaises(ValueError):
+            profile_standard_classes("unknown")
         # r2026 队列允许集合 = 四类标准靶 + 随机红十字；tank 始终排除。
         self.assertEqual(
             profile_allowed_classes("r2026"),
             ("tent", "pillbox", "bridge", "panzer", "red_cross"))
         self.assertNotIn("tank", profile_allowed_classes("r2026"))
         self.assertIn("tank", profile_allowed_classes("full"))
+
+    def test_selector_requires_current_streak_and_profile(self):
+        base = dict(
+            confidence=0.9, last_seen=10.0, state=2,
+            consecutive_observe_count=3, map_valid=True,
+            map_frame="camera_init", association_valid=True,
+            reject_reason="", x=0.0, y=1.0, z=0.0)
+        panzer = SelectorCandidate(1, "panzer", **base)
+        cross = SelectorCandidate(2, "red_cross", **base)
+        tank = SelectorCandidate(3, "tank", **base)
+        stale = SelectorCandidate(4, "bridge",
+                                  **dict(base, last_seen=9.0))
+        broken_streak = SelectorCandidate(
+            5, "bridge", **dict(base, consecutive_observe_count=0))
+        selected = select_current_candidate(
+            [panzer, cross, tank, stale, broken_streak], 10.2,
+            allowed_classes=profile_allowed_classes("r2026"),
+            bounds=(-3.0, 3.0, -1.0, 7.0))
+        self.assertEqual(selected.target_id, cross.target_id)
+
+    def test_selector_rejects_nonfinite_out_of_bounds_and_high_z(self):
+        base = dict(
+            confidence=0.9, last_seen=10.0, state=2,
+            consecutive_observe_count=3, map_valid=True,
+            map_frame="camera_init", association_valid=True,
+            reject_reason="", x=0.0, y=1.0, z=0.0)
+        candidates = [
+            SelectorCandidate(1, "panzer", **dict(base, x=float("nan"))),
+            SelectorCandidate(2, "bridge", **dict(base, y=9.0)),
+            SelectorCandidate(3, "tent", **dict(base, z=4.1)),
+            SelectorCandidate(4, "pillbox", **dict(base, state=3)),
+        ]
+        self.assertIsNone(select_current_candidate(
+            candidates, 10.1,
+            allowed_classes=profile_allowed_classes("r2026"),
+            bounds=(-3.0, 3.0, -1.0, 7.0), max_z=4.0))
+
+    def test_random_field_policy_uses_full_footprints(self):
+        self.assertGreater(STANDARD_FOOTPRINT_RADIUS, 0.70)
+        self.assertGreater(RED_CROSS_FOOTPRINT_RADIUS, 0.24)
+        occupied = [Footprint("first", 0.0, 0.0,
+                              STANDARD_FOOTPRINT_RADIUS)]
+        self.assertFalse(footprint_clear(
+            1.2, 0.0, STANDARD_FOOTPRINT_RADIUS, occupied, gap=0.15))
+        self.assertTrue(footprint_clear(
+            1.7, 0.0, STANDARD_FOOTPRINT_RADIUS, occupied, gap=0.15))
+        self.assertFalse(footprint_inside_bounds(
+            -1.5, 0.0, STANDARD_FOOTPRINT_RADIUS,
+            (-2.0, 2.0, -2.0, 2.0), margin=0.1))
+        self.assertTrue(footprint_inside_bounds(
+            0.0, 0.0, STANDARD_FOOTPRINT_RADIUS,
+            (-2.0, 2.0, -2.0, 2.0), margin=0.1))
+        with self.assertRaises(ValueError):
+            validate_seed(0)
+        with self.assertRaises(ValueError):
+            validate_standard_classes(
+                ("tent", "tent"), ("tent", "bridge"))
 
     def test_candidate_valid_respects_allowed_classes(self):
         base = dict(

@@ -13,9 +13,10 @@
   <arg name="enable_debug_image" default="false" />
   <arg name="record_debug" default="false" />
   <arg name="world" default="$(find patrol_control)/../../../toudi3_random.world" />
-  <!-- 随机摆放：seed>0 固定随机可复现；seed<=0 系统随机。 -->
-  <arg name="field_seed" default="0" />
+  <!-- Gate 只接受固定正 seed，禁止把不可复现的 seed=0 写入真值。 -->
+  <arg name="field_seed" default="11" />
   <arg name="standard_classes" default="panzer,bridge,pillbox,tent" />
+  <arg name="model_roots" default="$(optenv GAZEBO_MODEL_PATH)" />
 
   <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
     <arg name="gui" value="$(arg gui)" />
@@ -65,6 +66,7 @@
               file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
     <param name="seed" value="$(arg field_seed)" />
     <param name="standard_classes" value="$(arg standard_classes)" />
+    <param name="model_roots" value="$(arg model_roots)" />
     <!-- 局部->世界换算：起飞 H 的 Gazebo 世界位姿（与 toudi4 主 H 同位）。 -->
     <param name="spawn_offset/x" value="-0.493412" />
     <param name="spawn_offset/y" value="-1.772690" />

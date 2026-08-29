@@ -50,6 +50,7 @@ catkin_install_python(PROGRAMS
   scripts/pose_tf_broadcaster.py
   scripts/target_search_manager_py.py
   scripts/navigation_visual_delivery_adapter.py
+  scripts/profile_candidate_selector.py
   scripts/target_search_delivery_assertion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

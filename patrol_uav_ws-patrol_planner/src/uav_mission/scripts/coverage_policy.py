@@ -31,8 +31,12 @@ CLASS_PROFILES = {
 
 
 def profile_standard_classes(profile):
-    """按名称取 profile 的标准靶集合；未知名称回退 full 保持历史口径。"""
-    return CLASS_PROFILES.get(profile, CLASS_PROFILES["full"])
+    """按名称取 profile 的标准靶集合；未知名称必须显式失败。"""
+    if profile not in CLASS_PROFILES:
+        raise ValueError(
+            "unknown class profile %r (expected one of: %s)" %
+            (profile, ", ".join(sorted(CLASS_PROFILES))))
+    return CLASS_PROFILES[profile]
 
 
 def profile_allowed_classes(profile):
@@ -85,6 +89,24 @@ class CandidateData:
     reject_reason: str
     x: float
     y: float
+
+
+@dataclass(frozen=True)
+class SelectorCandidate:
+    """Current-frame facts required before publishing a manager candidate."""
+    target_id: int
+    class_name: str
+    confidence: float
+    last_seen: float
+    state: int
+    consecutive_observe_count: int
+    map_valid: bool
+    map_frame: str
+    association_valid: bool
+    reject_reason: str
+    x: float
+    y: float
+    z: float
 
 
 @dataclass(frozen=True)
@@ -230,7 +252,7 @@ def candidate_valid(candidate, now, mission_frame="camera_init",
         candidate.class_name in RULE_WEIGHTS and
         (allowed_classes is None or
          candidate.class_name in allowed_classes) and
-        candidate.state >= 2 and
+        candidate.state == 2 and
         candidate.map_valid and
         candidate.map_frame == mission_frame and
         candidate.association_valid and
@@ -246,6 +268,54 @@ def candidate_rank(candidate):
         candidate.first_seen,
         candidate.target_id,
     )
+
+
+def selector_candidate_valid(candidate, now, mission_frame="camera_init",
+                             max_age=0.5, min_streak=3,
+                             allowed_classes=None, bounds=None,
+                             max_z=4.0):
+    """Strictly gate a live TargetCandidate before manager publication."""
+    coordinates = (candidate.x, candidate.y, candidate.z)
+    if not all(math.isfinite(value) for value in coordinates):
+        return False
+    if bounds is not None:
+        min_x, max_x, min_y, max_y = bounds
+        if not (min_x <= candidate.x <= max_x and
+                min_y <= candidate.y <= max_y):
+            return False
+    age = max(0.0, now - candidate.last_seen)
+    return (
+        candidate.class_name in RULE_WEIGHTS and
+        (allowed_classes is None or
+         candidate.class_name in allowed_classes) and
+        candidate.state == 2 and
+        candidate.consecutive_observe_count >= int(min_streak) and
+        candidate.map_valid and
+        candidate.map_frame == mission_frame and
+        candidate.association_valid and
+        not candidate.reject_reason and
+        candidate.last_seen > 0.0 and
+        age <= max_age and
+        candidate.z <= max_z
+    )
+
+
+def select_current_candidate(candidates, now, mission_frame="camera_init",
+                             max_age=0.5, min_streak=3,
+                             allowed_classes=None, bounds=None,
+                             max_z=4.0):
+    """Select one current valid candidate without retaining scheduling state."""
+    valid = [candidate for candidate in candidates
+             if selector_candidate_valid(
+                 candidate, now, mission_frame, max_age, min_streak,
+                 allowed_classes, bounds, max_z)]
+    if not valid:
+        return None
+    return min(valid, key=lambda item: (
+        -RULE_WEIGHTS[item.class_name],
+        -item.confidence,
+        item.target_id,
+    ))
 
 
 def interrupt_eligible(pending, min_weight):
