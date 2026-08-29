@@ -97,6 +97,8 @@ class SelectorCandidate:
     target_id: int
     class_name: str
     confidence: float
+    geometry_confidence: float
+    map_quality: float
     last_seen: float
     state: int
     consecutive_observe_count: int
@@ -247,9 +249,11 @@ def resolve_safe_waypoint(point, occupied, bounds, safety_margin,
 
 def candidate_valid(candidate, now, mission_frame="camera_init",
                     max_age=0.5, allowed_classes=None):
-    age = max(0.0, now - candidate.last_seen)
+    age = now - candidate.last_seen
     return (
         candidate.class_name in RULE_WEIGHTS and
+        math.isfinite(candidate.confidence) and
+        math.isfinite(candidate.last_seen) and
         (allowed_classes is None or
          candidate.class_name in allowed_classes) and
         candidate.state == 2 and
@@ -257,7 +261,7 @@ def candidate_valid(candidate, now, mission_frame="camera_init",
         candidate.map_frame == mission_frame and
         candidate.association_valid and
         not candidate.reject_reason and
-        age <= max_age
+        0.0 <= age <= max_age
     )
 
 
@@ -275,15 +279,18 @@ def selector_candidate_valid(candidate, now, mission_frame="camera_init",
                              allowed_classes=None, bounds=None,
                              max_z=4.0):
     """Strictly gate a live TargetCandidate before manager publication."""
-    coordinates = (candidate.x, candidate.y, candidate.z)
-    if not all(math.isfinite(value) for value in coordinates):
+    numeric_facts = (
+        candidate.x, candidate.y, candidate.z, candidate.confidence,
+        candidate.geometry_confidence, candidate.map_quality,
+        candidate.last_seen)
+    if not all(math.isfinite(value) for value in numeric_facts):
         return False
     if bounds is not None:
         min_x, max_x, min_y, max_y = bounds
         if not (min_x <= candidate.x <= max_x and
                 min_y <= candidate.y <= max_y):
             return False
-    age = max(0.0, now - candidate.last_seen)
+    age = now - candidate.last_seen
     return (
         candidate.class_name in RULE_WEIGHTS and
         (allowed_classes is None or
@@ -295,8 +302,26 @@ def selector_candidate_valid(candidate, now, mission_frame="camera_init",
         candidate.association_valid and
         not candidate.reject_reason and
         candidate.last_seen > 0.0 and
-        age <= max_age and
+        0.0 <= age <= max_age and
         candidate.z <= max_z
+    )
+
+
+def adapter_candidate_accepting(status, profile):
+    """Return whether the adapter currently permits manager interruption.
+
+    The selector uses this stateless predicate so message arrival order cannot
+    make a field-only READY status leak candidates into an unready manager.
+    """
+    return bool(
+        status and
+        status.get("status") == "RUNNING" and
+        status.get("state") == "SEARCH" and
+        status.get("class_profile") == profile and
+        status.get("field_ready") is True and
+        status.get("anchor_ready") is True and
+        status.get("operational_ready") is True and
+        status.get("candidate_accepting") is True
     )
 
 

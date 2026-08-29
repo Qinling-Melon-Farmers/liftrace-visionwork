@@ -17,6 +17,7 @@ import rospy
 
 from coverage_policy import (
     SelectorCandidate,
+    adapter_candidate_accepting,
     profile_allowed_classes,
     select_current_candidate,
 )
@@ -39,6 +40,8 @@ class ProfileCandidateSelector:
         self._target_max_z = float(rospy.get_param("~target_max_z", 4.0))
         self._require_field_ready = bool(
             rospy.get_param("~require_field_ready", True))
+        self._require_adapter_accepting = bool(
+            rospy.get_param("~require_adapter_candidate_accepting", True))
         self._bounds = (
             float(rospy.get_param("~field/min_x", -3.992)),
             float(rospy.get_param("~field/max_x", 4.008)),
@@ -51,6 +54,9 @@ class ProfileCandidateSelector:
         self._field_reason = (
             "field_ready_not_required" if self._field_ready
             else "waiting_for_field_ready")
+        self._adapter_status_seen = False
+        self._adapter_accepting = not self._require_adapter_accepting
+        self._adapter_state = None
         self._selected_count = 0
         self._tank_rejected_count = 0
         self._invalid_rejected_count = 0
@@ -71,15 +77,35 @@ class ProfileCandidateSelector:
                 rospy.get_param(
                     "~field_status_topic", "/mission/random_field_status"),
                 String, self._on_field_status, queue_size=1)
+        if self._require_adapter_accepting:
+            rospy.Subscriber(
+                rospy.get_param(
+                    "~adapter_status_topic",
+                    "/mission/target_search_status"),
+                String, self._on_adapter_status, queue_size=2)
         self._publish_status()
 
     def _publish_status(self):
+        if not self._field_ready:
+            reason = self._field_reason
+        elif self._require_adapter_accepting and not self._adapter_status_seen:
+            reason = "waiting_for_adapter_status"
+        elif not self._adapter_accepting:
+            reason = "adapter_not_accepting_%s" % str(
+                self._adapter_state or "unknown").lower()
+        else:
+            reason = "candidate_publication_enabled"
         payload = {
             "component": "profile_candidate_selector",
             "ready": self._field_ready,
-            "reason": self._field_reason,
+            "reason": reason,
             "profile": self._profile,
             "allowed_classes": list(self._allowed),
+            "adapter_status_seen": self._adapter_status_seen,
+            "adapter_state": self._adapter_state,
+            "adapter_candidate_accepting": self._adapter_accepting,
+            "publishing_enabled": (
+                self._field_ready and self._adapter_accepting),
             "selected_count": self._selected_count,
             "tank_rejected_count": self._tank_rejected_count,
             "invalid_rejected_count": self._invalid_rejected_count,
@@ -108,12 +134,29 @@ class ProfileCandidateSelector:
                 "status", "not_ready").lower()
         self._publish_status()
 
+    def _on_adapter_status(self, message):
+        try:
+            payload = json.loads(message.data)
+        except (TypeError, ValueError):
+            self._adapter_status_seen = True
+            self._adapter_accepting = False
+            self._adapter_state = "INVALID_JSON"
+            self._publish_status()
+            return
+        self._adapter_status_seen = True
+        self._adapter_state = payload.get("state")
+        self._adapter_accepting = adapter_candidate_accepting(
+            payload, self._profile)
+        self._publish_status()
+
     @staticmethod
     def _facts(target):
         return SelectorCandidate(
             target_id=int(target.id),
             class_name=target.class_name,
             confidence=float(target.class_confidence),
+            geometry_confidence=float(target.geometry_confidence),
+            map_quality=float(target.map_quality),
             last_seen=target.last_seen.to_sec(),
             state=int(target.state),
             consecutive_observe_count=int(
@@ -128,7 +171,7 @@ class ProfileCandidateSelector:
         )
 
     def _on_targets(self, message):
-        if not self._field_ready:
+        if not self._field_ready or not self._adapter_accepting:
             self._publish_status()
             return
         by_id = {int(target.id): target for target in message.targets}

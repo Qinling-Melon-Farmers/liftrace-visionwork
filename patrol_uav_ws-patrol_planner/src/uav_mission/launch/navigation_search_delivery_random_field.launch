@@ -72,6 +72,9 @@
               file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
     <param name="class_profile" value="$(arg class_profile)" />
     <param name="require_field_ready" value="true" />
+    <param name="require_adapter_candidate_accepting" value="true" />
+    <param name="adapter_status_topic"
+           value="/mission/target_search_status" />
     <param name="min_streak" value="3" />
     <param name="max_age" value="0.5" />
     <param name="target_max_z" value="4.0" />

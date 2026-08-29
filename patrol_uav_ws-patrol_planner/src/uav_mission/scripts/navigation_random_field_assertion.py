@@ -34,6 +34,8 @@ class NavigationRandomFieldAssertion:
         self._field_status = None
         self._anchor_status = None
         self._selector_status = None
+        self._adapter_accepting_seen = False
+        self._selector_accepting_seen = False
         self._confirmed_ids = set()
         self._profile_selected_ids = set()
         self._profile_selected_classes = []
@@ -69,6 +71,8 @@ class NavigationRandomFieldAssertion:
 
     def _on_manager(self, message):
         payload = self._decode(message)
+        if payload is not None and payload.get("candidate_accepting"):
+            self._adapter_accepting_seen = True
         if payload is not None and payload.get("status") in ("PASS", "FAIL"):
             self._terminal = payload
 
@@ -80,20 +84,27 @@ class NavigationRandomFieldAssertion:
 
     def _on_selector(self, message):
         self._selector_status = self._decode(message)
+        if (self._selector_status is not None and
+                self._selector_status.get("publishing_enabled")):
+            self._selector_accepting_seen = True
 
     def _strict_confirmed(self, target):
         point = target.map_point
         now = rospy.Time.now().to_sec()
+        last_seen = target.last_seen.to_sec()
+        age = now - last_seen
         return (
             target.class_name in self._allowed and
             int(target.state) == 2 and
             int(target.consecutive_observe_count) >= 3 and
             target.map_valid and target.map_frame == "camera_init" and
             target.association_valid and not target.reject_reason and
-            target.last_seen.to_sec() > 0.0 and
-            max(0.0, now - target.last_seen.to_sec()) <= 0.5 and
+            last_seen > 0.0 and
+            0.0 <= age <= 0.5 and
             all(math.isfinite(value) for value in
-                (point.x, point.y, point.z))
+                (point.x, point.y, point.z, last_seen,
+                 target.class_confidence, target.geometry_confidence,
+                 target.map_quality))
         )
 
     def _on_targets(self, message):
@@ -162,9 +173,12 @@ class NavigationRandomFieldAssertion:
         max_altitude = manager.get("max_altitude")
         checks = {
             "manager_pass": manager.get("status") == "PASS",
-            "mission_within_600_sec": (
-                manager.get("mission_elapsed") is not None and
-                float(manager.get("mission_elapsed")) <= 600.0 + 1e-6),
+            "mission_ros_within_600_sec": (
+                manager.get("mission_elapsed_ros") is not None and
+                float(manager.get("mission_elapsed_ros")) <= 600.0 + 1e-6),
+            "mission_wall_within_600_sec": (
+                manager.get("mission_elapsed_wall") is not None and
+                float(manager.get("mission_elapsed_wall")) <= 600.0 + 1e-6),
             "field_ready": self._ready(self._field_status, self._profile),
             "anchor_ready": self._ready(
                 self._anchor_status, self._nav_feature_profile),
@@ -173,7 +187,8 @@ class NavigationRandomFieldAssertion:
                 self._selector_status.get("ready") and
                 self._selector_status.get("profile") == self._profile and
                 tuple(self._selector_status.get("allowed_classes") or []) ==
-                self._allowed),
+                self._allowed and self._adapter_accepting_seen and
+                self._selector_accepting_seen),
             "profile_contract": (
                 manager.get("class_profile") == self._profile and
                 tuple(manager.get("allowed_classes") or []) == self._allowed),

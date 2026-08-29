@@ -13,6 +13,7 @@ from coverage_policy import (
     GoalRetryPolicy,
     SelectorCandidate,
     accumulate_run_facts,
+    adapter_candidate_accepting,
     build_command_event,
     candidate_rank,
     candidate_valid,
@@ -151,7 +152,8 @@ class CoveragePolicyTest(unittest.TestCase):
 
     def test_selector_requires_current_streak_and_profile(self):
         base = dict(
-            confidence=0.9, last_seen=10.0, state=2,
+            confidence=0.9, geometry_confidence=0.8, map_quality=0.7,
+            last_seen=10.0, state=2,
             consecutive_observe_count=3, map_valid=True,
             map_frame="camera_init", association_valid=True,
             reject_reason="", x=0.0, y=1.0, z=0.0)
@@ -178,7 +180,8 @@ class CoveragePolicyTest(unittest.TestCase):
 
     def test_selector_rejects_nonfinite_out_of_bounds_and_high_z(self):
         base = dict(
-            confidence=0.9, last_seen=10.0, state=2,
+            confidence=0.9, geometry_confidence=0.8, map_quality=0.7,
+            last_seen=10.0, state=2,
             consecutive_observe_count=3, map_valid=True,
             map_frame="camera_init", association_valid=True,
             reject_reason="", x=0.0, y=1.0, z=0.0)
@@ -192,6 +195,49 @@ class CoveragePolicyTest(unittest.TestCase):
             candidates, 10.1,
             allowed_classes=profile_allowed_classes("r2026"),
             bounds=(-3.0, 3.0, -1.0, 7.0), max_z=4.0))
+
+    def test_selector_rejects_future_stamp_and_nonfinite_quality(self):
+        base = dict(
+            confidence=0.9, geometry_confidence=0.8, map_quality=0.7,
+            last_seen=10.0, state=2, consecutive_observe_count=3,
+            map_valid=True, map_frame="camera_init", association_valid=True,
+            reject_reason="", x=0.0, y=1.0, z=0.0)
+        candidates = [
+            SelectorCandidate(1, "panzer", **dict(base, last_seen=10.2)),
+            SelectorCandidate(
+                2, "bridge", **dict(base, confidence=float("nan"))),
+            SelectorCandidate(
+                3, "pillbox", **dict(base, map_quality=float("inf"))),
+            SelectorCandidate(
+                4, "tent", **dict(base,
+                                  geometry_confidence=float("nan"))),
+        ]
+        self.assertIsNone(select_current_candidate(
+            candidates, 10.1,
+            allowed_classes=profile_allowed_classes("r2026"),
+            bounds=(-3.0, 3.0, -1.0, 7.0)))
+
+    def test_adapter_candidate_gate_is_closed_for_out_of_order_startup(self):
+        profile = "r2026"
+        waiting = {
+            "status": "RUNNING", "state": "WAIT_TAKEOFF",
+            "class_profile": profile, "field_ready": True,
+            "anchor_ready": False, "operational_ready": False,
+            "candidate_accepting": False,
+        }
+        search_unready = dict(
+            waiting, state="SEARCH", anchor_ready=True,
+            candidate_accepting=True)
+        search_ready = dict(
+            search_unready, operational_ready=True)
+        approach = dict(
+            search_ready, state="APPROACH", candidate_accepting=False)
+        self.assertFalse(adapter_candidate_accepting(None, profile))
+        self.assertFalse(adapter_candidate_accepting(waiting, profile))
+        self.assertFalse(adapter_candidate_accepting(search_unready, profile))
+        self.assertTrue(adapter_candidate_accepting(search_ready, profile))
+        self.assertFalse(adapter_candidate_accepting(approach, profile))
+        self.assertFalse(adapter_candidate_accepting(search_ready, "full"))
 
     def test_random_field_policy_uses_full_footprints(self):
         self.assertGreater(STANDARD_FOOTPRINT_RADIUS, 0.70)
@@ -289,6 +335,30 @@ class CoveragePolicyTest(unittest.TestCase):
         self.assertEqual(launch_args.get("nav_feature_profile"), "baseline")
         self.assertIn("px4_model_root",
                       launch_args.get("random_model_roots", ""))
+        selector = next(node for node in nodes
+                        if node.attrib.get("type") ==
+                        "profile_candidate_selector.py")
+        selector_params = {item.attrib.get("name"): item.attrib.get("value")
+                           for item in selector.findall("param")}
+        self.assertEqual(
+            selector_params.get("require_adapter_candidate_accepting"),
+            "true")
+
+    def test_adapter_fails_closed_when_upstream_approach_stalls(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        source = (package_dir / "scripts" /
+                  "navigation_visual_delivery_adapter.py").read_text(
+                      encoding="utf-8")
+        approach_block = source.split(
+            'elif self._state == "APPROACH":', 1)[1].split(
+                'elif self._state == "CAPTURE":', 1)[0]
+        self.assertIn(
+            "upstream_manager_approach_unreachable_no_result_interface",
+            approach_block)
+        self.assertNotIn("_resume_search", approach_block)
+        self.assertIn('"candidate_accepting": self._candidate_accepting()',
+                      source)
+        self.assertIn('"mission_elapsed_wall":', source)
 
     def test_guarded_launch_preserves_full_profile_by_default(self):
         package_dir = Path(__file__).resolve().parents[1]

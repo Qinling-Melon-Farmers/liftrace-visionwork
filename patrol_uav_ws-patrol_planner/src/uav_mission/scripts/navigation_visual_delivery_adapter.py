@@ -111,6 +111,8 @@ class NavigationVisualDeliveryAdapter:
         self._map_stamp = None
         self._ready_since = None
         self._started_at = None
+        self._started_wall_at = None
+        self._mission_activity_reason = None
         self._raw_goal = None
         self._active_goal = None
         self._buffered_search_goal = None
@@ -158,6 +160,9 @@ class NavigationVisualDeliveryAdapter:
         self._status_events = []
         self._command_events = []
         self._selection_events = []
+        self._last_status = "RUNNING"
+        self._last_reason = "initializing"
+        self._last_heartbeat_wall = 0.0
 
         self._goal_pub = rospy.Publisher(
             "/fastplanner/goal", PoseStamped, queue_size=1)
@@ -197,6 +202,8 @@ class NavigationVisualDeliveryAdapter:
     def _on_pose(self, msg):
         self._pose = msg
         p = msg.pose.position
+        if p.z > max(0.10, self._landing_height + 0.05):
+            self._mark_mission_activity("liftoff_pose")
         self._max_abs_x = max(self._max_abs_x, abs(p.x))
         self._max_abs_y = max(self._max_abs_y, abs(p.y))
         self._max_altitude = max(self._max_altitude, float(p.z))
@@ -296,16 +303,20 @@ class NavigationVisualDeliveryAdapter:
     def _selected_live(self, msg):
         now = self._now()
         point = msg.map_point
+        last_seen = msg.last_seen.to_sec()
+        age = now - last_seen
         return (
             msg.class_name in self._allowed_classes and
             int(msg.state) == 2 and
             int(msg.consecutive_observe_count) >= 3 and
             msg.map_valid and msg.map_frame == self._frame and
             msg.association_valid and not msg.reject_reason and
-            msg.last_seen.to_sec() > 0.0 and
-            max(0.0, now - msg.last_seen.to_sec()) <= self._selected_max_age and
+            last_seen > 0.0 and
+            0.0 <= age <= self._selected_max_age and
             all(math.isfinite(value) for value in
-                (point.x, point.y, point.z)) and
+                (point.x, point.y, point.z, last_seen,
+                 msg.class_confidence, msg.geometry_confidence,
+                 msg.map_quality)) and
             self._field[0] <= point.x <= self._field[1] and
             self._field[2] <= point.y <= self._field[3] and
             point.z <= self._max_height_limit
@@ -350,6 +361,7 @@ class NavigationVisualDeliveryAdapter:
 
     def _on_targets(self, msg):
         evidence = []
+        now = self._now()
         for target in msg.targets:
             if target.class_name not in ("circle", "red_cross"):
                 continue
@@ -363,9 +375,19 @@ class NavigationVisualDeliveryAdapter:
                     (not target.center_refined or
                      target.center_source != "red_cross_geometry")):
                 continue
+            last_seen = target.last_seen.to_sec()
+            age = now - last_seen
+            numeric_facts = (
+                target.map_point.x, target.map_point.y, target.map_point.z,
+                target.class_confidence, target.geometry_confidence,
+                target.map_quality, last_seen)
+            if (not all(math.isfinite(value) for value in numeric_facts) or
+                    last_seen <= 0.0 or
+                    not 0.0 <= age <= self._capture_age):
+                continue
             evidence.append((target.class_name, float(target.map_point.x),
                              float(target.map_point.y),
-                             target.last_seen.to_sec()))
+                             last_seen))
         self._capture_evidence = evidence
 
     def _on_release(self, msg):
@@ -381,6 +403,7 @@ class NavigationVisualDeliveryAdapter:
         return None
 
     def _on_raw_goal(self, msg):
+        self._mark_mission_activity("navigation_raw_goal")
         self._raw_goal = msg
         self._raw_goal_received_at = self._now()
         route_index = self._route_index(msg)
@@ -493,7 +516,8 @@ class NavigationVisualDeliveryAdapter:
                     "red_cross" else "circle")
         now = self._now()
         for class_name, x, y, stamp in self._capture_evidence:
-            if (class_name == expected and now - stamp <= self._capture_age and
+            age = now - stamp
+            if (class_name == expected and 0.0 <= age <= self._capture_age and
                     math.hypot(x - self._current_candidate.x,
                                y - self._current_candidate.y) <= self._capture_radius):
                 return True
@@ -558,7 +582,10 @@ class NavigationVisualDeliveryAdapter:
                 "last_seen": candidate.last_seen}
 
     def _map_ready(self):
-        return self._map_stamp is not None and self._now() - self._map_stamp <= 2.0
+        if self._map_stamp is None or not math.isfinite(self._map_stamp):
+            return False
+        age = self._now() - self._map_stamp
+        return 0.0 <= age <= 2.0
 
     def _operational_ready(self):
         return (
@@ -568,12 +595,34 @@ class NavigationVisualDeliveryAdapter:
             self._map_ready()
         )
 
+    def _candidate_accepting(self):
+        return self._state == "SEARCH" and self._operational_ready()
+
+    def _mark_mission_activity(self, reason):
+        if self._started_at is not None:
+            return
+        self._started_at = self._now()
+        self._started_wall_at = time.monotonic()
+        self._mission_activity_reason = reason
+
+    def _mission_elapsed_ros(self):
+        if self._started_at is None:
+            return None
+        return max(0.0, self._now() - self._started_at)
+
+    def _mission_elapsed_wall(self):
+        if self._started_wall_at is None:
+            return None
+        return max(0.0, time.monotonic() - self._started_wall_at)
+
     def _payload(self, status, reason):
         return {
             "gate": "navigation_search_visual_delivery",
             "status": status, "reason": reason, "state": self._state,
-            "mission_elapsed": (None if self._started_at is None else
-                                self._now() - self._started_at),
+            "mission_elapsed": self._mission_elapsed_ros(),
+            "mission_elapsed_ros": self._mission_elapsed_ros(),
+            "mission_elapsed_wall": self._mission_elapsed_wall(),
+            "mission_activity_reason": self._mission_activity_reason,
             "class_profile": self._class_profile,
             "allowed_classes": list(self._allowed_classes),
             "nav_feature_profile": self._nav_feature_profile,
@@ -581,6 +630,8 @@ class NavigationVisualDeliveryAdapter:
             "field_status": self._field_status,
             "anchor_ready": self._anchor_ready,
             "anchor_status": self._anchor_status,
+            "operational_ready": self._operational_ready(),
+            "candidate_accepting": self._candidate_accepting(),
             "route_source": "liftrace-controlwork@5144aa8/unmodified",
             "map_experiment_source": (
                 "liftrace-controlwork@a68925d15293e5510e2b4351c6b3d9bc5aa136ab"),
@@ -619,6 +670,8 @@ class NavigationVisualDeliveryAdapter:
         }
 
     def _publish_status(self, status, reason):
+        self._last_status = status
+        self._last_reason = reason
         previous_state = self._last_event_state
         self._event_sequence += 1
         self._status_events.append({
@@ -633,7 +686,9 @@ class NavigationVisualDeliveryAdapter:
             "profile": self._class_profile,
         })
         self._last_event_state = self._state
-        payload = self._payload(status, reason)
+        self._write_and_publish(self._payload(status, reason))
+
+    def _write_and_publish(self, payload):
         os.makedirs(os.path.dirname(self._report_path) or ".", exist_ok=True)
         temporary = self._report_path + ".tmp"
         with open(temporary, "w", encoding="utf-8") as handle:
@@ -644,6 +699,14 @@ class NavigationVisualDeliveryAdapter:
         # visible, so a required Gate cannot race the artifact check.
         self._status_pub.publish(String(data=json.dumps(payload, sort_keys=True)))
 
+    def _publish_heartbeat(self):
+        now = time.monotonic()
+        if now - self._last_heartbeat_wall < 0.5:
+            return
+        self._last_heartbeat_wall = now
+        self._write_and_publish(self._payload(
+            self._last_status, self._last_reason))
+
     def _finish(self, success, reason):
         self._state = "COMPLETE"
         self._publish_status("PASS" if success else "FAIL", reason)
@@ -653,14 +716,19 @@ class NavigationVisualDeliveryAdapter:
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             now = self._now()
+            self._publish_heartbeat()
             if time.monotonic() >= self._wall_deadline:
                 return self._finish(False, "wall_timeout")
             if self._field_failed:
                 return self._finish(False, "random_field_failed")
             if self._anchor_failed:
                 return self._finish(False, "planner_anchor_failed")
-            if self._started_at is not None and now - self._started_at >= self._mission_timeout:
-                return self._finish(False, "mission_timeout")
+            elapsed_ros = self._mission_elapsed_ros()
+            elapsed_wall = self._mission_elapsed_wall()
+            if elapsed_ros is not None and elapsed_ros >= self._mission_timeout:
+                return self._finish(False, "mission_ros_timeout")
+            if elapsed_wall is not None and elapsed_wall >= self._mission_timeout:
+                return self._finish(False, "mission_wall_timeout")
 
             if self._state == "WAIT_TAKEOFF":
                 ready = (self._operational_ready() and
@@ -668,7 +736,6 @@ class NavigationVisualDeliveryAdapter:
                 if ready and self._ready_since is None:
                     self._ready_since = time.monotonic()
                 elif ready and time.monotonic() - self._ready_since >= 2.0:
-                    self._started_at = now
                     self._forward_search(
                         self._buffered_search_goal, MissionCommand.SEARCH)
                 elif not ready:
@@ -700,7 +767,9 @@ class NavigationVisualDeliveryAdapter:
                     self._capture_started_at = now
                     self._publish_status("RUNNING", "candidate_capture")
                 elif self._goal_stalled(self._navigation_stall_timeout):
-                    self._resume_search(False, "approach_unreachable")
+                    return self._finish(
+                        False,
+                        "upstream_manager_approach_unreachable_no_result_interface")
 
             elif self._state == "CAPTURE":
                 if self._capture_ok():
