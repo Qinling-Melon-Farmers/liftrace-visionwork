@@ -71,8 +71,11 @@
 15. 2026-08-29 已把 V-CL-06 正式链切到可复现 `toudi3_random.world`：导航 manager 仍冻结
     为 `5144aa8`，地图实验 `a68925d` 仅作为可切换场外 anchor profile。r2026 保留 tank
     资产和 full 回归但不准入 tank；双 READY + operational SEARCH 门控、实际 Gazebo contact、
-    raw/filtered tank 审计、首个任务活动双时钟和 30 秒预检/90 秒固定路线 A/B 工具已落地。
-    这些是静态与离线测试结果，尚无 30/90/600 秒新实跑，默认仍为 baseline，V-CL-06 仍 FAIL。
+    raw/filtered tank 审计、首个任务活动双时钟和 30 秒预检/90 秒固定路线 A/B 已实跑。
+    baseline 30 秒预检 PASS；同 seed 的 baseline 90 秒因最大高度 4.798 m FAIL，`a68925d`
+    90 秒虽以最大高度 3.254 m PASS 并把高度 RMS 漂移从 1.106 m 降到 0.513 m，但共同进度
+    耗时退化 19.43%，超过 10%，比较器 `promote_candidate=false`。默认仍为 baseline，未跑
+    600 秒，V-CL-06 继续 FAIL 并将高度/耗时与持久队列/重试/时序缺口回流导航组。
 
 现有 `toudi3.world` 五类标准靶和 H 已直接用于固定真值场景，红十字按评测场景插入；
 `uav_vision_eval` 已能自动生成 CSV/JSON/report，shadow 输出也已隔离。当前仍不能宣称完整
@@ -426,9 +429,10 @@ V-CL-02～05 接入并形成闭环证据，因此 10 min 不再作为接入前�
    抢占候选队列。规划器失败独立记录，不通过恢复辅助相机或更换 LIO/planner 绕开。
 7. `V-CL-06`：迁移到导航组搜索 manager。保持上游源码不变，由外围适配器接入起飞门控、
    新视觉 CAPTURE、旧控制 ALIGN 和 guarded release；首轮 600 s 完成 2/3 投递后超时。
-   当前已有 seed=11 的 30 秒基础设施预检和 baseline/a68925d 90 秒固定路线 A/B 入口，但尚未
-   实跑；候选必须在同 world/seed/真值/模型/路线下安全且改善规划失败或高度漂移，耗时退化
-   不超过 10%，否则保持 baseline。下一完成定义仍是双方冻结“实时中断候选/持久地图队列/
+   seed=11 baseline 30 秒基础设施预检已 PASS；baseline/a68925d 90 秒固定路线 A/B 已完成，
+   候选安全且高度漂移改善，但 baseline 不安全、候选共同进度耗时退化 19.43%，不满足 10%
+   上限，故保持 baseline 且不进入 600 秒 Gate。下一完成定义仍是导航组先收敛搜索高度跟踪和
+   耗时，并由双方冻结“实时中断候选/持久地图队列/
    投递结果”接口，再由导航组任务层实现全局权重、失败冷却重试和剩余时间调度；同一
    headless Gate 在 600 s 内完成三投、返航和落地。视觉组负责候选质量和新鲜度，不在
    `uav_vision` 内实现任务队列。
@@ -458,7 +462,7 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 已完成 | 13 | V-CL-03 | 外部任务模式复用 Fast-Planner | `external_candidate_20260807_041914` 单候选接近→对准→ACK→恢复，唯一 goal 发布者；默认旧路线回归 PASS |
 | 已完成 | 14 | V-CL-04 | 覆盖搜索、候选队列和恢复 | 2026-08-28 干净复跑（`toudi4_coverage_r6_vcl04_rerun2_20260828_222644`，main@7a0b612）任务侧全指标达标：12/12 覆盖、五类五 ID、三投槽序 [1,2,3]、0 碰撞、0 越界、405.5s 三投+返航+落地；Gate 27 项断言仅 4 项同源失败，均由 tank 一次 Fast-Planner 下降段异常（穿透 align_height 1.20m 至 0.1–0.3m 悬停 + No Effective Points）连锁造成，同场 3/3 投递证明对准链健康；经用户裁定按规划器波动外置口径视为通过（动态期望断言与中断失败的口径缺口移交 V-CL-05/06 收敛） |
 | 部分完成/待干净复跑 | 15 | V-CL-05 | 搜索-投递策略：高权重中断 + red_cross 统一 | 中断机制已实跑（tank 提前执行并恢复搜索、覆盖 12/12），pillbox 端到端投出，tank/panzer 证据锁定但低空下降受规划器波动影响超时；red_cross 统一入队、随机摆放入口与动态期望 Gate 已落地。剩余完成定义：按规则场地全随机布设（4 个 1 m 标准靶 + 1 个 0.35 m 红十字全部随机摆放、H 固定为起降点，真值仅落盘），类目/profile 驱动允许集合与 Gate（本届 profile 排除 tank），随机十字独立发现/投递 + 沉降门控验证（规划器失败只记录不迭代） |
-| 接口/预检与 A/B 工具已落地，Gate FAIL | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 上游 manager `5144aa8` 保持原逻辑，raw/planner goal 所有权与双 READY/SEARCH 门控已收紧；地图实验 `a68925d` 默认关闭。30 s 基础设施预检与 90 s 固定路线 A/B 尚未实跑，首轮 600 s 仍为 9/16 覆盖、2/3 投递后超时。下一步先跑 seed=11 baseline/candidate A/B，再由导航组实现持久全局权重、失败重试和时间调度；同 seed 600 s 三投+返航+落地才 PASS |
+| 30 s PASS/A-B 已测不推广，Gate FAIL | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 上游 manager `5144aa8` 保持原逻辑，raw/planner goal 所有权与 READY/SEARCH/contact 门控通过；seed=11 baseline 30 s PASS。90 s baseline 最大高度 4.798 m FAIL；`a68925d` 最大高度 3.254 m、漂移改善但共同进度慢 19.43%，比较 FAIL，保持 baseline 且不跑 600 s。导航组下一步收敛高度/耗时并实现持久全局权重、失败重试和剩余时间调度；同 seed 600 s 三投+返航+落地才 PASS |
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
 | 最小矩阵已量化/待性能修复 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | 当前合并态 `vsim04_seed11_current_20260829_195506` 已 23/23、六产物、无 infrastructure gap，终态 MEASURED；P_confirm=P_selected=13/23=0.5652，P95 processing=123.0 ms、P95 exposure=0.430 s、map-invalid=24.67%、map-unavailable=36.43%、TF failure=0、地图误差 P95=0.0789 m、接收 FPS=15.64。相对旧阈值/旧 partial 语义的 9/23 基线增加 4 项；剩余失败集中在四类标准靶全部 3.6 m、panzer 动态 3.0 m，以及 red_cross 静态 1.2/3.6 m 和动态 1.8 m。先收敛检测连续性/高空投影，再决定 30-seed/10 min，不把 MEASURED 等同算法达标 |
 | 待真值 | 19 | V-REAL-01 | 实拍回放域差复核 | 标注圆环实例/中心/H/红十字，采集同步 CameraInfo/pose |
