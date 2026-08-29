@@ -580,6 +580,11 @@ class CoveragePolicyTest(unittest.TestCase):
         self.assertIn('"stream_wall_ages"', source)
         self.assertIn('"missing_required_publishers"', source)
         self.assertIn('"required_publisher_snapshot"', source)
+        self.assertIn(
+            '"latched_barriers_freshness_exempt": ["field", "anchor"]',
+            source)
+        self.assertNotIn(
+            '"model_states", "field", "anchor", "contact"', source)
         self.assertNotIn("route_progress_observed", source)
         self.assertIn("time.sleep(0.1)", source)
         observer = (package_dir / "scripts" /

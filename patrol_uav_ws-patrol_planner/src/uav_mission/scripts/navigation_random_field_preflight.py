@@ -396,9 +396,12 @@ class NavigationRandomFieldPreflight:
         field = self._field_status or {}
         adapter = self._adapter_status or {}
         truth_checks = self._truth_contract()
+        # field/anchor are immutable latched barriers, not live streams.
+        # Their READY payload and publisher ownership are checked separately;
+        # wall freshness would incorrectly fail when Gazebo runs slower than
+        # real time and their ROS-time heartbeat stretches past two seconds.
         live_keys = ("image", "camera_info", "pose", "map",
-                     "model_states", "field", "anchor", "contact",
-                     "adapter")
+                     "model_states", "contact", "adapter")
         checks = {
             "world_present": os.path.isfile(self._world),
             "target_model_present": os.path.isfile(self._target_model_path),
@@ -534,7 +537,8 @@ class NavigationRandomFieldPreflight:
             "dropout_events": list(self._dropout_events),
             "stream_wall_ages": self._stream_wall_ages(),
             "message_age_limit_sec": self._message_age_limit,
-            "field_anchor_map_age_limit_sec": 2.0,
+            "map_age_limit_sec": 2.0,
+            "latched_barriers_freshness_exempt": ["field", "anchor"],
             "required_publisher_snapshot": (
                 self._required_publisher_snapshot()),
             "missing_required_publishers": (
