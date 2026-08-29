@@ -1,0 +1,8 @@
+scenario_id: vsim04_r2026_targets
+description: V-SIM-04 单会话四类标准靶加红十字真值集合，不含 tank。
+active_targets: [tent_1, pillbox_1, bridge_1, panzer_1, red_cross_1]
+score_false_positives: true
+require_fully_in_frame: true
+spawn_red_cross: true
+red_cross_pose: [-2.5, -2.5, 0.0, 0.0]
+seed: 11

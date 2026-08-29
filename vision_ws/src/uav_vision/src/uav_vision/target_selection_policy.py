@@ -33,7 +33,7 @@ def candidate_is_currently_selectable(candidate, now, confirm_frames,
         return False
     if float(priorities.get(candidate.class_name, 0.0)) <= 0.0:
         return False
-    if int(candidate.state) < int(confirmed_state):
+    if int(candidate.state) != int(confirmed_state):
         return False
     if int(candidate.consecutive_observe_count) < int(confirm_frames):
         return False

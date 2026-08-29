@@ -1,6 +1,6 @@
 # RoboCup 无人机投递工程（2025 基线 → 2026 视觉升级）
 
-更新时间：2026-08-23
+更新时间：2026-08-29
 
 ## 1. 项目定位
 
@@ -26,6 +26,8 @@ detections
 ```
 
 - 已有确定性 mock、联合 overlay、`uav_vision_eval` 独立真值/自动报告和 headless shadow；
+- V-SIM-04 已建立 `seed=11` 的 15 静态 + 8 动态单会话最小框架、P_confirm/P_selected
+  事件语义和六类标准产物；当前仅通过 dry-run/schema 与定向构建，尚未完成 23 trial 实跑；
 - `AstraDroneOpen + PX4 SITL + Gazebo Classic + iris_mid360` 可作为外部仿真底座；
 - 当前统一仿真默认使用根目录 `toudi4_copy.world`，并加载从
   `iris_mid360_downward_camera.zip` 提取的单下视相机 + MID360 机架；

@@ -57,6 +57,8 @@ def main():
         [panzer, tank], 10.0, 3, 0.5, PRIORITIES, r2026) is panzer
 
     invalid_variants = [
+        _candidate(state=3),
+        _candidate(state=4),
         _candidate(consecutive_observe_count=0),
         _candidate(map_valid=False),
         _candidate(association_valid=False),

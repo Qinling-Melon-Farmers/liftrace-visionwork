@@ -1,0 +1,34 @@
+schema_version: 1
+evaluation_id: V-SIM-04
+seed: 11
+class_profile: r2026
+expected_trial_count: 23
+
+# toudi4_copy.world anchors; red_cross is spawned once for the whole session.
+target_anchors:
+  tent: {target_id: tent_1, xyz: [1.27572, 0.581612, 0.0025]}
+  pillbox: {target_id: pillbox_1, xyz: [-0.57481, 0.520346, 0.0025]}
+  bridge: {target_id: bridge_1, xyz: [-2.09331, 0.70456, 0.0025]}
+  panzer: {target_id: panzer_1, xyz: [-1.47375, 3.62133, 0.0025]}
+  red_cross: {target_id: red_cross_1, xyz: [-2.5, -2.5, 0.0025]}
+
+static:
+  classes: [tent, pillbox, bridge, panzer, red_cross]
+  heights_m: [1.2, 2.4, 3.6]
+  center_dwell_sec: 2.0
+
+dynamic:
+  classes: [panzer, red_cross]
+  heights_m: [1.8, 3.0]
+  speeds_mps: [0.5, 1.5]
+  path_half_length_m: 3.5
+  update_rate_hz: 20.0
+
+runner:
+  camera_model: vision_eval_camera
+  camera_rpy: [0.0, 1.570796326794897, 0.0]
+  offscreen_offset_m: 3.5
+  pretrial_settle_sec: 0.5
+  posttrial_settle_sec: 1.2  # 覆盖 Phase-D 0.8 s 缺分支兜底与 recorder 回调余量
+  reset_service: /uav_vision/reset_memory
+  trial_event_topic: /uav_vision_eval/vsim04/trial_event
