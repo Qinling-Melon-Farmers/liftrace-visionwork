@@ -128,6 +128,8 @@ class VSim04TrialRecorder:
         self._mapped_seen = False
         self._last_mapped_receipt = None
         self._last_mapped_completed_sources = []
+        self._partial_mapped_frame_count = 0
+        self._last_partial_mapped_sources = []
         self._targets_seen = False
         self._last_targets_receipt = None
         self._last_truth_source_stamp = None
@@ -968,17 +970,20 @@ class VSim04TrialRecorder:
         receipt = time.monotonic()
         with self._lock:
             completed_sources = sorted(set(message.completed_sources))
-            self._last_mapped_completed_sources = completed_sources
             sources_complete = completed_sources_cover(
                 self._required_completed_sources, completed_sources)
             if not sources_complete:
-                if self._active:
-                    self._record_infra_gap_locked(
-                        "mapped_completed_sources_missing", None,
-                        {"required": sorted(self._required_completed_sources),
-                         "completed": completed_sources,
-                         "source_stamp": self._stamp_sec(message)})
+                # The lightweight geometry detectors run on every image while
+                # target_detector deliberately uses queue_size=1 and may skip
+                # source frames under load.  A timed-out auxiliary-only fusion
+                # bucket is therefore expected and must not invalidate a
+                # trial.  Only complete buckets advance the mapped heartbeat
+                # and output watermark; losing those for heartbeat_timeout_sec
+                # remains a hard infrastructure failure.
+                self._partial_mapped_frame_count += 1
+                self._last_partial_mapped_sources = completed_sources
                 return
+            self._last_mapped_completed_sources = completed_sources
             self._note_receipt_gap_locked(
                 "mapped_detections_heartbeat",
                 self._last_mapped_receipt, receipt)
@@ -1203,6 +1208,10 @@ class VSim04TrialRecorder:
                 "image_source_fps": self._actual_source_fps_locked(),
                 "last_mapped_completed_sources": list(
                     self._last_mapped_completed_sources),
+                "partial_mapped_frame_count": int(
+                    self._partial_mapped_frame_count),
+                "last_partial_mapped_sources": list(
+                    self._last_partial_mapped_sources),
             }
             frames = copy.deepcopy(list(self._frames.values()))
             events = copy.deepcopy(self._events)

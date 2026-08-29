@@ -7,6 +7,7 @@
 /uav_vision/detections_resolved，供 target_memory / compat_bridge 使用。
 """
 from collections import OrderedDict
+import threading
 
 import rospy
 from std_msgs.msg import String
@@ -48,6 +49,9 @@ class DetectionFusion:
         default_mode = rospy.get_param("~default_align_mode", "disabled")
         self._align_mode = (
             default_mode if default_mode in VALID_ALIGN_MODES else "disabled")
+        # rospy 的 subscriber 与 Timer 回调运行在不同线程；两个回调都会访问聚合桶，
+        # 必须用同一把锁保护字典的遍历和修改，避免迭代期间插入/弹出桶。
+        self._state_lock = threading.RLock()
         self._buckets = OrderedDict()
         self._flushed_keys = OrderedDict()
 
@@ -71,14 +75,21 @@ class DetectionFusion:
 
     def _on_align_mode(self, message):
         mode = message.data.strip()
-        self._align_mode = mode if mode in VALID_ALIGN_MODES else "disabled"
+        with self._state_lock:
+            self._align_mode = mode if mode in VALID_ALIGN_MODES else "disabled"
 
     def _allowed_in_current_mode(self, class_name):
-        if self._align_mode == "landing":
+        with self._state_lock:
+            align_mode = self._align_mode
+        return self._allowed_in_mode(class_name, align_mode)
+
+    @staticmethod
+    def _allowed_in_mode(class_name, align_mode):
+        if align_mode == "landing":
             return class_name == "landing_pad"
-        if self._align_mode == "drop_cross":
+        if align_mode == "drop_cross":
             return class_name == "red_cross"
-        if self._align_mode == "drop_circle":
+        if align_mode == "drop_circle":
             return class_name == "circle" or class_name in STANDARD_CLASSES
         # disabled 表示搜索/观察阶段：保留标准靶、红十字和圆环证据，但 H 在降落阶段前
         # 不得进入可操作链路。
@@ -92,47 +103,59 @@ class DetectionFusion:
 
     def _on_detections(self, msg):
         key = self._stamp_key(msg)
-        if key in self._flushed_keys:
-            return
-        stamp = msg.header.stamp if msg.header.stamp.to_sec() > 0 else rospy.Time.now()
-        bucket = self._buckets.get(key)
-        bucket_key = key
-        if bucket is None and msg.source:
-            candidates = []
-            for candidate_key, candidate in self._buckets.items():
-                if msg.source in candidate["sources"]:
-                    continue
-                delta = abs((candidate["stamp"] - stamp).to_sec())
-                if delta <= self._source_sync_slop:
-                    candidates.append((delta, candidate_key, candidate))
-            if candidates:
-                _delta, bucket_key, bucket = min(candidates, key=lambda item: item[0])
-        if bucket is None:
-            bucket = {
-                "header": msg.header,
-                "stamp": stamp,
-                "received_at": rospy.Time.now(),
-                "detections": [],
-                "sources": set(),
-                "member_keys": {key},
-            }
-            self._buckets[bucket_key] = bucket
-        else:
-            bucket["member_keys"].add(key)
-            # 标准靶/红十字的类别判断属于分类器图像帧；仅降落模式属于降落检测器图像帧。
-            if msg.source == "target_detector" or (
-                    self._align_mode == "landing" and
-                    msg.source == "landing_detector"):
-                bucket["header"] = msg.header
-                bucket["stamp"] = stamp
+        bucket_to_publish = None
+        publish_mode = None
+        with self._state_lock:
+            if key in self._flushed_keys:
+                return
+            stamp = (
+                msg.header.stamp
+                if msg.header.stamp.to_sec() > 0 else rospy.Time.now()
+            )
+            bucket = self._buckets.get(key)
+            bucket_key = key
+            if bucket is None and msg.source:
+                candidates = []
+                for candidate_key, candidate in self._buckets.items():
+                    if msg.source in candidate["sources"]:
+                        continue
+                    delta = abs((candidate["stamp"] - stamp).to_sec())
+                    if delta <= self._source_sync_slop:
+                        candidates.append((delta, candidate_key, candidate))
+                if candidates:
+                    _delta, bucket_key, bucket = min(
+                        candidates, key=lambda item: item[0])
+            if bucket is None:
+                bucket = {
+                    "header": msg.header,
+                    "stamp": stamp,
+                    "received_at": rospy.Time.now(),
+                    "detections": [],
+                    "sources": set(),
+                    "member_keys": {key},
+                }
+                self._buckets[bucket_key] = bucket
+            else:
+                bucket["member_keys"].add(key)
+                # 标准靶/红十字的类别判断属于分类器图像帧；仅降落模式属于降落检测器图像帧。
+                if msg.source == "target_detector" or (
+                        self._align_mode == "landing" and
+                        msg.source == "landing_detector"):
+                    bucket["header"] = msg.header
+                    bucket["stamp"] = stamp
 
-        bucket["detections"].extend(msg.detections)
-        if msg.source:
-            bucket["sources"].add(msg.source)
-        if self._early_flush_complete_evidence and self._bucket_complete(bucket):
-            self._buckets.pop(bucket_key, None)
-            self._publish_bucket(bucket)
-            self._mark_flushed(bucket, rospy.Time.now())
+            bucket["detections"].extend(msg.detections)
+            if msg.source:
+                bucket["sources"].add(msg.source)
+            if (self._early_flush_complete_evidence and
+                    self._bucket_complete(bucket)):
+                self._buckets.pop(bucket_key, None)
+                self._mark_flushed(bucket, rospy.Time.now())
+                bucket_to_publish = bucket
+                publish_mode = self._align_mode
+
+        if bucket_to_publish is not None:
+            self._publish_bucket(bucket_to_publish, publish_mode)
 
     def _mark_flushed(self, bucket, now):
         for member_key in bucket["member_keys"]:
@@ -153,29 +176,38 @@ class DetectionFusion:
         return required.issubset(bucket["sources"])
 
     def _flush_ready(self, _event):
-        if not self._buckets:
-            return
-
         now = rospy.Time.now()
-        expired_flushed = [
-            key for key, flushed_at in self._flushed_keys.items()
-            if (now - flushed_at).to_sec() > 5.0
-        ]
-        for key in expired_flushed:
-            self._flushed_keys.pop(key, None)
-        ready_keys = []
-        for key, bucket in self._buckets.items():
-            age = (now - bucket["received_at"]).to_sec()
-            if age >= self._flush_delay:
-                ready_keys.append(key)
+        ready_buckets = []
+        with self._state_lock:
+            if not self._buckets:
+                return
 
-        for key in ready_keys:
-            bucket = self._buckets.pop(key, None)
-            if bucket is not None:
-                self._publish_bucket(bucket)
-                self._mark_flushed(bucket, now)
+            expired_flushed = [
+                key for key, flushed_at in self._flushed_keys.items()
+                if (now - flushed_at).to_sec() > 5.0
+            ]
+            for key in expired_flushed:
+                self._flushed_keys.pop(key, None)
+            ready_keys = []
+            for key, bucket in self._buckets.items():
+                age = (now - bucket["received_at"]).to_sec()
+                if age >= self._flush_delay:
+                    ready_keys.append(key)
 
-    def _publish_bucket(self, bucket):
+            for key in ready_keys:
+                bucket = self._buckets.pop(key, None)
+                if bucket is not None:
+                    self._mark_flushed(bucket, now)
+                    ready_buckets.append((bucket, self._align_mode))
+
+        # publish 可能触发序列化和 ROS transport；共享状态已完成原子转移，避免阻塞输入回调。
+        for bucket, align_mode in ready_buckets:
+            self._publish_bucket(bucket, align_mode)
+
+    def _publish_bucket(self, bucket, align_mode=None):
+        if align_mode is None:
+            with self._state_lock:
+                align_mode = self._align_mode
         detections = list(bucket["detections"])
         if self._require_red_cross_dual_confirmation:
             geometry_crosses = [
@@ -215,7 +247,7 @@ class DetectionFusion:
         out.source = "detection_fusion"
         out.completed_sources = sorted(bucket["sources"])
         for det in detections:
-            if not self._allowed_in_current_mode(det.class_name):
+            if not self._allowed_in_mode(det.class_name, align_mode):
                 continue
             if suppress_bridge and det.class_name == "bridge":
                 continue

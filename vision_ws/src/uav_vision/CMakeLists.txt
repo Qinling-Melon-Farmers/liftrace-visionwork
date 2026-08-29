@@ -104,6 +104,7 @@ add_dependencies(landing_detector_node
 catkin_install_python(PROGRAMS
   scripts/placeholder_node.py
   scripts/detection_fusion.py
+  scripts/detection_fusion_concurrency_assertion.py
   scripts/detect_compat_bridge.py
   scripts/drop_aligner.py
   scripts/target_selection_policy_assertion.py

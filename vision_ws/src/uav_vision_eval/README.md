@@ -33,6 +33,9 @@ Gazebo 与 memory reset。每个 trial 内持续监控这些心跳，任何超�
 targets/perf 的源时间 watermark 越过离场帧并完成短 quiet drain，runner 收到 recorder 完成
 握手后才进入下一项；握手预算由 drain/quiet/status/write margin 同源推导。Gazebo/reset 服务
 调用、`/clock` 停滞和过慢 ROS 时间均有 monotonic 截止时间，abort 也等待 recorder 写盘 ACK。
+分类器采用 `queue_size=1`，负载下允许跳过部分相机帧；因此仅含几何分支的 partial fusion
+bucket 会计入 manifest 诊断并退出评分，但不会冒充完整 heartbeat。只有含上述三个正式分支的
+complete bucket 才能推进 mapped heartbeat 和离场 watermark，complete bucket 超时仍硬失败。
 缺任一链路不会开跑。最后只有
 23/23 trial 均真实进入并离开完整入画窗口、六项产物齐全且 manifest 关键值非空时才写
 `MEASURED`；部分运行写 `INCOMPLETE/INVALID`，runner 非零退出。
@@ -68,6 +71,8 @@ bash top_level_scripts/sim_run.sh vsim04_seed11 \
 
 正式 `output_dir` 默认取 `$SIM_RUN_DIR/vsim04`，由 `sim_run.sh` 一并归档；没有该环境变量时
 才回退 `/tmp/vsim04`。
+`sim_run.sh` 对 `vsim04*` 场景还会二次检查六项产物和 `summary.status=MEASURED`；即使
+`roslaunch` 在 required runner 失败后正常关停并返回 0，统一入口仍会返回非零。
 
 入口只启动 Gazebo、评测相机、视觉链、真值、recorder 和 trial runner；不会启动 PX4、
 MAVROS、旧控制、`actuator_pwm` 或真实投递。完整 23 trial 尚需在独占仿真窗口实跑验收。

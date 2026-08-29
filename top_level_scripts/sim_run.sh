@@ -112,6 +112,33 @@ if [ -f "${GATE_STATUS_FILE}" ]; then
   fi
 fi
 
+# V-SIM-04 的 required runner 失败会让 roslaunch 触发正常关停，roslaunch 本身仍可能
+# 返回 0。对该场景必须以评测终态和六项产物为准，避免 INVALID 被误报为成功运行。
+case "${SCENE}" in
+  vsim04*)
+    VSIM04_DIR="${RUN_DIR}/vsim04"
+    VSIM04_SUMMARY="${VSIM04_DIR}/summary.json"
+    VSIM04_STATUS=""
+    VSIM04_ARTIFACTS="manifest.json frames.csv events.csv summary.json report.md vision_search_performance.csv"
+    VSIM04_MISSING=""
+    for artifact in ${VSIM04_ARTIFACTS}; do
+      if [ ! -f "${VSIM04_DIR}/${artifact}" ]; then
+        VSIM04_MISSING="${VSIM04_MISSING} ${artifact}"
+      fi
+    done
+    if [ -f "${VSIM04_SUMMARY}" ]; then
+      VSIM04_STATUS="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("status", ""))' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+    fi
+    echo "V-SIM-04 status: ${VSIM04_STATUS:-MISSING}" | tee -a "${RUN_LOG}"
+    if [ -n "${VSIM04_MISSING}" ]; then
+      echo "V-SIM-04 missing artifacts:${VSIM04_MISSING}" | tee -a "${RUN_LOG}"
+    fi
+    if [ "${VSIM04_STATUS}" != "MEASURED" ] || [ -n "${VSIM04_MISSING}" ]; then
+      EXIT_CODE=1
+    fi
+    ;;
+esac
+
 echo "" | tee -a "${RUN_LOG}"
 echo "Main cmd exited: ${EXIT_CODE}" | tee -a "${RUN_LOG}"
 
