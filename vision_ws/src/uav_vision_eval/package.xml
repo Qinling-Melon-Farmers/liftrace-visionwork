@@ -6,6 +6,7 @@
   <maintainer email="devnull@example.com">vision-team</maintainer>
   <license>Proprietary</license>
   <buildtool_depend>catkin</buildtool_depend>
+  <depend>diagnostic_msgs</depend>
   <depend>gazebo_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>image_geometry</depend>
@@ -15,6 +16,7 @@
   <depend>rospy</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
   <depend>tf2_ros</depend>
   <depend>uav_vision</depend>
   <exec_depend>gazebo_ros</exec_depend>

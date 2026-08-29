@@ -15,6 +15,7 @@
   <arg name="allow_latest_tf_fallback" default="false" />
   <arg name="max_latest_tf_age_sec" default="0.10" />
   <arg name="default_align_mode" default="disabled" />
+  <arg name="class_profile" default="full" />
   <arg name="enable_debug_image" default="false" />
   <arg name="start_legacy_compat" default="true" />
 
@@ -88,6 +89,7 @@
     <rosparam file="$(find uav_vision)/config/target_memory.yaml" />
     <param name="detections_topic" value="/uav_vision/detections_mapped" />
     <param name="require_map_for_candidates" value="true" />
+    <param name="class_profile" value="$(arg class_profile)" />
   </node>
 
   <node pkg="uav_vision" type="drop_aligner.py"

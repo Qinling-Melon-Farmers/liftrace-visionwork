@@ -20,6 +20,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
+catkin_python_setup()
+
 add_message_files(
   FILES
   TargetDetection.msg
@@ -102,8 +104,10 @@ add_dependencies(landing_detector_node
 catkin_install_python(PROGRAMS
   scripts/placeholder_node.py
   scripts/detection_fusion.py
+  scripts/detection_fusion_concurrency_assertion.py
   scripts/detect_compat_bridge.py
   scripts/drop_aligner.py
+  scripts/target_selection_policy_assertion.py
   scripts/target_memory.py
   scripts/target_refiner.py
   scripts/target_map_projector.py

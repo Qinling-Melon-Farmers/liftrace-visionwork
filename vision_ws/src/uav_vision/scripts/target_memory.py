@@ -17,6 +17,10 @@ from std_srvs.srv import Empty, EmptyResponse
 from uav_vision.msg import (TargetDetection, TargetDetectionArray,
                              TargetCandidate, TargetCandidateArray)
 from sensor_msgs.msg import RegionOfInterest
+from uav_vision.target_selection_policy import (
+    choose_selected_candidate,
+    resolve_class_profile,
+)
 
 # 候选状态
 (ST_DETECTED, ST_OBSERVING, ST_CONFIRMED, ST_REJECTED, ST_EXPIRED) = range(5)
@@ -32,7 +36,8 @@ class CandidateRecord:
                  'consecutive_observe_count', 'first_seen', 'last_seen',
                  'last_center', 'center_refined', 'center_source',
                  'association_valid', 'reject_reason', 'map_valid',
-                 'map_point', 'map_frame', 'map_quality', 'map_weight',
+                 'current_map_valid', 'map_point', 'map_frame',
+                 'map_quality', 'map_weight',
                  'transform_age_sec', 'class_votes', 'class_max_confidence',
                  'pending_class', 'pending_class_count')
 
@@ -53,7 +58,11 @@ class CandidateRecord:
         self.center_source = det.center_source
         self.association_valid = det.association_valid
         self.reject_reason = det.reject_reason
+        # map_valid below describes the sticky fused map memory used for
+        # physical identity.  Selection must instead use whether the current
+        # observation produced a valid map projection.
         self.map_valid = det.map_valid
+        self.current_map_valid = det.map_valid
         self.map_point = Point(det.map_point.x, det.map_point.y, det.map_point.z)
         self.map_frame = det.map_frame
         self.map_quality = det.map_quality
@@ -150,11 +159,17 @@ class CandidateRecord:
         self.association_valid = det.association_valid
         self.reject_reason = det.reject_reason
         self.transform_age_sec = det.transform_age_sec
+        self.current_map_valid = det.map_valid
         self._update_map(det)
         self._advance_state(confirm_frames)
 
     def merge_from(self, other):
         """Merge a converged duplicate without inventing extra hit streaks."""
+        # All records are reset to not-current before each detection frame.
+        # Thus OR keeps a valid projection produced by either duplicate in
+        # this frame, without reviving a merely historical valid map point.
+        self.current_map_valid = (
+            self.current_map_valid or other.current_map_valid)
         if self.map_valid and other.map_valid:
             total_weight = self.map_weight + other.map_weight
             if total_weight > 0.0:
@@ -216,6 +231,7 @@ class CandidateRecord:
 
     def mark_missed(self):
         self.consecutive_observe_count = 0
+        self.current_map_valid = False
         if self.state != ST_CONFIRMED:
             self.state = ST_DETECTED
 
@@ -241,7 +257,9 @@ class CandidateRecord:
         msg.center_source = self.center_source
         msg.association_valid = self.association_valid
         msg.reject_reason = self.reject_reason
-        msg.map_valid = self.map_valid
+        # Keep publishing the fused historical point for stable identity and
+        # diagnostics, but admission sees only current-frame map validity.
+        msg.map_valid = self.current_map_valid
         msg.map_point = self.map_point
         msg.map_frame = self.map_frame
         msg.map_quality = self.map_quality
@@ -277,6 +295,8 @@ class TargetMemory:
         self._require_map_for_candidates = bool(
             rospy.get_param("~require_map_for_candidates", False))
         self._selected_max_age = float(rospy.get_param("~selected_max_age", 0.5))
+        self._class_profile, self._selectable_classes = resolve_class_profile(
+            rospy.get_param("~class_profile", "full"))
         self._class_switch_confirm_frames = max(
             1, int(rospy.get_param("~class_switch_confirm_frames", 2)))
         self._class_switch_min_confidence = float(
@@ -337,6 +357,9 @@ class TargetMemory:
                       self._map_match_distance_m, self._map_memory_ttl)
         rospy.loginfo("  require_map_for_candidates=%s",
                       self._require_map_for_candidates)
+        rospy.loginfo("  class_profile=%s selectable_classes=%s",
+                      self._class_profile,
+                      ",".join(sorted(self._selectable_classes)))
         rospy.loginfo("  class_switch=%d consecutive frames min_conf=%.2f vote_ratio=%.2f",
                       self._class_switch_confirm_frames,
                       self._class_switch_min_confidence,
@@ -368,6 +391,10 @@ class TargetMemory:
     # ------------------------------------------------------------------
     def _on_detections(self, msg):
         now = msg.header.stamp if msg.header.stamp.to_sec() > 0 else rospy.Time.now()
+        # Reset before matching so duplicate merging cannot copy a previous
+        # frame's valid projection into the current observation state.
+        for candidate in self._candidates.values():
+            candidate.current_map_valid = False
         frame_has_red_cross = any(
             det.class_name == "red_cross" and
             det.geometry_verified and
@@ -591,16 +618,11 @@ class TargetMemory:
                          reverse=True)
         self._targets_pub.publish(arr)
 
-        # 选最优已确认目标（跳过 priority <= 0 的类别）
-        best = None
-        for t in arr.targets:
-            observation_age = max(0.0, (now - t.last_seen).to_sec())
-            if (t.state >= ST_CONFIRMED and
-                    observation_age <= self._selected_max_age and
-                    self._priority.get(t.class_name, 0) > 0):
-                if best is None or self._priority.get(t.class_name, 0) > \
-                   self._priority.get(best.class_name, 0):
-                    best = t
+        # CONFIRMED 是长期记忆状态；selected 还必须满足当前连续命中、
+        # 地图/关联/拒绝/年龄和比赛 profile 的完整准入条件。
+        best = choose_selected_candidate(
+            arr.targets, now, self._confirm_frames, self._selected_max_age,
+            self._priority, self._selectable_classes, ST_CONFIRMED)
         if best is not None:
             self._selected_pub.publish(best)
 

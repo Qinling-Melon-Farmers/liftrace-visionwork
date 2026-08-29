@@ -17,10 +17,10 @@
   <arg name="allow_latest_tf_fallback" default="false" />
   <arg name="max_latest_tf_age_sec" default="0.10" />
   <arg name="default_align_mode" default="disabled" />
-  <arg name="drop_stable_frames" default="3" />
-  <arg name="start_legacy_compat" default="true" />
   <!-- full preserves historical assets; r2026 excludes tank from candidates. -->
   <arg name="class_profile" default="full" />
+  <arg name="drop_stable_frames" default="3" />
+  <arg name="start_legacy_compat" default="true" />
 
   <!-- 标准目标检测 (YOLO, dev/sim only) -->
   <node pkg="uav_vision" type="target_detector.py" name="target_detector"

@@ -10,6 +10,7 @@ bool center_refined
 string center_source
 bool association_valid
 string reject_reason
+# 仅表示当前观测是否成功投影；false 时 map_point/map_frame 可保留历史融合诊断值
 bool map_valid
 geometry_msgs/Point map_point
 string map_frame

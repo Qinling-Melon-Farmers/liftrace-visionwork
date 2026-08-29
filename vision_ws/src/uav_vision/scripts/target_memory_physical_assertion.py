@@ -9,14 +9,27 @@ from sensor_msgs.msg import RegionOfInterest
 from std_srvs.srv import Empty
 
 from uav_vision.msg import (
+    TargetCandidate,
     TargetCandidateArray,
     TargetDetection,
     TargetDetectionArray,
+)
+from uav_vision.target_selection_policy import (
+    choose_selected_candidate,
+    resolve_class_profile,
 )
 
 
 STANDARD_CLASSES = {"bridge", "panzer", "pillbox", "tent", "tank"}
 CONFIRMED_STATE = 2
+PRIORITIES = {
+    "tent": 1.0,
+    "pillbox": 1.5,
+    "bridge": 2.0,
+    "panzer": 2.5,
+    "tank": 5.0,
+    "red_cross": 10.0,
+}
 
 
 class PhysicalMemoryAssertion:
@@ -29,10 +42,17 @@ class PhysicalMemoryAssertion:
         )
         self._condition = threading.Condition()
         self._latest = None
+        self._selected = []
         rospy.Subscriber(
             "/uav_vision/targets",
             TargetCandidateArray,
             self._on_targets,
+            queue_size=8,
+        )
+        rospy.Subscriber(
+            "/uav_vision/selected_target",
+            TargetCandidate,
+            self._on_selected,
             queue_size=8,
         )
         self._reset = rospy.ServiceProxy("/uav_vision/reset_memory", Empty)
@@ -40,6 +60,11 @@ class PhysicalMemoryAssertion:
     def _on_targets(self, message):
         with self._condition:
             self._latest = message
+            self._condition.notify_all()
+
+    def _on_selected(self, message):
+        with self._condition:
+            self._selected.append(message)
             self._condition.notify_all()
 
     @staticmethod
@@ -53,6 +78,9 @@ class PhysicalMemoryAssertion:
             x_offset=500, y_offset=340, width=280, height=280)
         det.center_px = Point(640.0, 480.0, 0.0)
         det.center_refined = True
+        det.center_source = "circle_geometry"
+        det.association_valid = True
+        det.reject_reason = ""
         det.map_valid = True
         det.map_point = Point(map_x, 2.0, 0.0)
         det.map_frame = "map"
@@ -147,6 +175,71 @@ class PhysicalMemoryAssertion:
         assert len(targets) == 1, "converged physical duplicates were retained"
         assert targets[0].id == first_id, "oldest stable ID was not retained"
 
+    def _assert_current_map_validity_does_not_erase_memory(self):
+        self._reset_memory()
+        for _ in range(3):
+            confirmed = self._publish([
+                self._detection("panzer", 0.93, 1.25)])
+        target = self._standard_targets(confirmed)[0]
+        stable_id = target.id
+        historical_x = target.map_point.x
+        assert target.state == CONFIRMED_STATE and target.map_valid
+
+        invalid = self._detection("panzer", 0.93, 99.0)
+        invalid.map_valid = False
+        invalid.map_frame = ""
+        after_invalid = self._publish([invalid])
+        target = self._standard_targets(after_invalid)[0]
+        assert target.id == stable_id, "invalid projection replaced stable ID"
+        assert target.state == CONFIRMED_STATE, \
+            "sticky CONFIRMED memory was lost after invalid projection"
+        assert not target.map_valid, \
+            "historical map validity leaked into the current observation"
+        assert abs(target.map_point.x - historical_x) < 1e-6, \
+            "invalid projection erased the fused historical map point"
+        _, allowed_classes = resolve_class_profile("full")
+        assert choose_selected_candidate(
+            after_invalid.targets, after_invalid.header.stamp, 3, 0.5,
+            PRIORITIES, allowed_classes, CONFIRMED_STATE) is None, \
+            "current-map-invalid sticky candidate remained selectable"
+
+        after_miss = self._publish([])
+        target = self._standard_targets(after_miss)[0]
+        assert not target.map_valid, \
+            "missed candidate reported a current valid map projection"
+        assert abs(target.map_point.x - historical_x) < 1e-6, \
+            "miss erased the fused historical map point"
+
+        for _ in range(3):
+            recovered = self._publish([
+                self._detection("panzer", 0.93, 1.25)])
+        target = self._standard_targets(recovered)[0]
+        assert target.id == stable_id and target.map_valid, \
+            "valid current projection did not recover the stable candidate"
+        selected = choose_selected_candidate(
+            recovered.targets, recovered.header.stamp, 3, 0.5,
+            PRIORITIES, allowed_classes, CONFIRMED_STATE)
+        assert selected is not None and selected.id == stable_id, \
+            "reconfirmed current-map-valid candidate was not selectable"
+
+    def _assert_raw_selected_rejects_missing_map_frame(self):
+        self._reset_memory()
+        with self._condition:
+            self._selected = []
+        for _ in range(3):
+            invalid = self._detection("panzer", 0.93, 1.5)
+            invalid.map_frame = ""
+            targets = self._publish([invalid])
+        candidates = self._standard_targets(targets)
+        assert len(candidates) == 1 and candidates[0].state == CONFIRMED_STATE
+        assert candidates[0].map_valid, \
+            "test precondition did not preserve current map_valid"
+        rospy.sleep(0.1)
+        with self._condition:
+            selected = list(self._selected)
+        assert not selected, \
+            "target_memory published raw selected with an empty map_frame"
+
     def run(self):
         rospy.wait_for_service("/uav_vision/reset_memory", timeout=5.0)
         deadline = rospy.Time.now() + rospy.Duration(5.0)
@@ -158,6 +251,8 @@ class PhysicalMemoryAssertion:
         self._assert_miss_resets_confirmation_streak()
         self._assert_map_separates_same_pixel_targets()
         self._assert_converged_map_duplicates_merge_to_oldest_id()
+        self._assert_current_map_validity_does_not_erase_memory()
+        self._assert_raw_selected_rejects_missing_map_frame()
         rospy.loginfo("V-CL physical target memory PASS")
 
 

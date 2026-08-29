@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(uav_vision_eval)
 
 find_package(catkin REQUIRED COMPONENTS
+  diagnostic_msgs
   gazebo_msgs
   geometry_msgs
   image_geometry
@@ -10,9 +11,12 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
+  std_srvs
   tf2_ros
   uav_vision
 )
+
+catkin_python_setup()
 
 add_message_files(
   FILES
@@ -29,6 +33,7 @@ generate_messages(
 
 catkin_package(
   CATKIN_DEPENDS
+    diagnostic_msgs
     gazebo_msgs
     geometry_msgs
     image_geometry
@@ -37,6 +42,7 @@ catkin_package(
     rospy
     sensor_msgs
     std_msgs
+    std_srvs
     tf2_ros
     uav_vision
 )
@@ -56,9 +62,17 @@ catkin_install_python(PROGRAMS
   scripts/aligning_capture_gate_assertion.py
   scripts/target_memory_freshness_assertion.py
   scripts/target_refiner_association_assertion.py
+  scripts/vsim04_dry_run.py
+  scripts/vsim04_metrics_assertion.py
+  scripts/vsim04_trial_recorder.py
+  scripts/vsim04_trial_runner.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 install(DIRECTORY config launch models
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(FILES README.md
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
