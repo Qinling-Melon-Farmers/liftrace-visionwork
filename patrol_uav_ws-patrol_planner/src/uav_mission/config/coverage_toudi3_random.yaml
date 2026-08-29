@@ -1,0 +1,76 @@
+# V-CL-05 全随机场地（toudi3_random.world）覆盖搜索策略；不包含任何靶标坐标。
+# 场地形态按 2026 规则书：投递区内 4 个 1m 标准投放区 + 1 个 0.35m 随机红十字
+# 均由 random_field_spawner 启动时随机摆放（真值只落盘）；北部走廊（含 0.8m
+# 门洞 Wall_15）与双 H 坐标视为赛会给定值，走廊穿越由后续 Gate 单独处理。
+mission_frame: camera_init
+
+# 类目 profile：r2026 = 四类标准靶（无 tank）+ 随机红十字。profile 外的
+# 标准靶候选（如 tank 假阳性）不进入任务队列。
+class_profile: r2026
+
+# 起飞 H 与 toudi4 主 H 同位：world=(-0.493412,-1.772690)，spawn 局部 (0,0)。
+# PX4/MAVROS/camera_init 在此建立本地原点；下列边界为投递区/场地在该局部系
+# 下的范围（toudi3 原覆盖区 x[-2.5,1.5] y[-1.5,4.5] 平移 +0.493/+1.773 得到）。
+field:
+  min_x: -3.992
+  max_x: 4.008
+  min_y: -1.132
+  max_y: 8.718
+
+# 覆盖投递区中央区域（随机靶标仅在此区域内摆放）；北侧走廊由后续穿越任务
+# 单独处理。
+search_region:
+  min_x: -2.007
+  max_x: 1.993
+  min_y: 0.273
+  max_y: 6.273
+
+coverage:
+  safety_margin: 0.5
+  tracking_reserve: 0.0
+  spacing: 1.0
+  height: 2.0
+  dwell_time: 2.0
+
+navigation:
+  takeoff_height: 1.7
+  map_ready_timeout: 60.0
+  map_max_age: 2.0
+  arrival_radius: 0.40
+  progress_epsilon: 0.10
+  endpoint_clearance: 0.35
+  endpoint_max_adjustment: 1.0
+  collision_clearance: 0.10
+  recovery_height: 0.95
+  landing_height: 0.15
+  landing_timeout: 90.0
+
+candidate:
+  semantic_match_distance: 0.75
+  # 语义图案 ID 与近地 circle ID 不同；ACK 时飞机必须仍在语义候选邻域内。
+  release_attribution_distance: 0.75
+  alignment_timeout: 90.0
+  # 下降到释放高度前先捕获近场几何证据（避免盲降）：标准靶要求蓝色 circle；
+  # 红十字要求其自身红十字几何中心，外围黑环不按蓝环处理。
+  capture_timeout: 20.0
+  capture_fresh_age: 1.0
+  capture_radius: 0.75
+  # 规划器在接近高度上空约 2.2m 悬停，沉降余量放宽到 0.30m 避免误超时
+  capture_settle_height_margin: 0.30
+  capture_settle_duration: 2.0
+
+# 高权重中断投递：r2026 下队列权重序为 red_cross=10 > panzer=2.5 > bridge=2.0
+# > pillbox=1.5 > tent=1.0；min_weight=4.0 意味着只有随机红十字会中断搜索
+# 先行投递，投完从被中断端点恢复搜索。
+interrupt:
+  enabled: true
+  min_weight: 4.0
+
+navigation_only: true
+execute_candidates: false
+collect_before_delivery: true
+final_land: false
+required_deliveries: 3
+require_north: false
+search_timeout: 540.0
+mission_timeout: 600.0

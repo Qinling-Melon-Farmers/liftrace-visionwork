@@ -37,6 +37,12 @@ class RandomRedCrossSpawner:
         self._model_name = rospy.get_param("~model_name", "red_cross_random")
         self._run_dir = os.environ.get("SIM_RUN_DIR", "/tmp")
         self._rng = random.Random(self._seed if self._seed > 0 else None)
+        # 坐标系换算（2026-08-29 smoke2 实测标定）：search_region 为 mission_frame
+        # 局部坐标，SpawnModel 接收 Gazebo 世界坐标；局部 = 世界 - H 世界位姿，
+        # 故 世界 = 局部 + spawn_offset（起飞 H 的世界位姿，yaw≈0 纯平移）。
+        # 未配置 offset（默认 0）时保持旧入口行为不变。
+        self._offset_x = float(rospy.get_param("~spawn_offset/x", 0.0))
+        self._offset_y = float(rospy.get_param("~spawn_offset/y", 0.0))
 
     def _collect_models(self, timeout=30.0):
         models = []
@@ -79,23 +85,25 @@ class RandomRedCrossSpawner:
         while pose is None and attempts < self._max_attempts and \
                 not rospy.is_shutdown():
             attempts += 1
-            x = self._rng.uniform(self._min_x + self._margin,
-                                  self._max_x - self._margin)
-            y = self._rng.uniform(self._min_y + self._margin,
-                                  self._max_y - self._margin)
+            lx = self._rng.uniform(self._min_x + self._margin,
+                                   self._max_x - self._margin)
+            ly = self._rng.uniform(self._min_y + self._margin,
+                                   self._max_y - self._margin)
             yaw = self._rng.uniform(-math.pi, math.pi)
+            wx = lx + self._offset_x
+            wy = ly + self._offset_y
             clear = True
             for _name, mx, my in models:
-                if math.hypot(x - mx, y - my) < self._min_clearance:
+                if math.hypot(wx - mx, wy - my) < self._min_clearance:
                     clear = False
                     break
             if clear:
-                pose = (x, y, yaw)
+                pose = (lx, ly, wx, wy, yaw)
         if pose is None:
             rospy.logerr("no clear pose found after %d attempts", attempts)
             return 1
 
-        x, y, yaw = pose
+        lx, ly, x, y, yaw = pose
         initial_pose = Pose()
         initial_pose.position.x = x
         initial_pose.position.y = y
@@ -110,13 +118,15 @@ class RandomRedCrossSpawner:
         truth = os.path.join(self._run_dir, TRUTH_FILE)
         with open(truth, "w") as handle:
             handle.write("# 随机红十字摆放真值（仅复盘，不进入控制链）\n")
+            handle.write("# x/y 为 Gazebo 世界坐标；局部坐标 = x/y - spawn_offset\n")
             handle.write("model: %s\n" % self._model_name)
             handle.write("x: %.4f\n" % x)
             handle.write("y: %.4f\n" % y)
             handle.write("yaw: %.4f\n" % yaw)
             handle.write("seed: %d\n" % self._seed)
-        rospy.loginfo("red_cross spawned at (%.3f, %.3f) yaw=%.3f truth=%s",
-                      x, y, yaw, truth)
+        rospy.loginfo(
+            "red_cross spawned local=(%.3f, %.3f) world=(%.3f, %.3f)"
+            " yaw=%.3f truth=%s", lx, ly, x, y, yaw, truth)
         return 0
 
 

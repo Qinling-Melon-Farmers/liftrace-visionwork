@@ -20,9 +20,9 @@ from uav_mission.msg import ReleaseResult
 from uav_vision.msg import TargetCandidateArray
 
 from coverage_policy import (
-    STANDARD_CLASSES,
     accumulate_run_facts,
     expected_delivery_classes,
+    profile_standard_classes,
 )
 
 EXPECTED_SLOTS = (1, 2, 3)
@@ -41,6 +41,10 @@ class CoverageR6Assertion:
             "~red_cross_truth_path",
             os.path.join(os.environ.get("SIM_RUN_DIR", "/tmp"),
                          "red_cross_truth.yaml"))
+        # 类目 profile 与 manager 保持一致：full=五类（历史回归），
+        # r2026=规则书四类标准靶（无 tank）。“发现完整”按 profile 集合判定。
+        self._class_profile = rospy.get_param("~class_profile", "full")
+        self._standard_classes = profile_standard_classes(self._class_profile)
         self._manager = None
         self._candidate_ids = {}
         # 发现/选择属于全程事实：按每个状态快照累计合并，避免最终快照受
@@ -89,7 +93,7 @@ class CoverageR6Assertion:
 
     def _on_targets(self, msg):
         for candidate in msg.targets:
-            if candidate.class_name not in STANDARD_CLASSES:
+            if candidate.class_name not in self._standard_classes:
                 continue
             if (candidate.state < 2 or not candidate.map_valid or
                     candidate.map_frame != "camera_init" or
@@ -133,6 +137,8 @@ class CoverageR6Assertion:
             "gate": "coverage_r6",
             "status": status,
             "reason": reason,
+            "class_profile": self._class_profile,
+            "standard_classes": list(self._standard_classes),
             "manager": self._manager,
             "candidate_ids": self._candidate_ids,
             "raw_calls": self._raw_calls,
@@ -180,9 +186,9 @@ class CoverageR6Assertion:
         return [
             manager.get("reason") == "three_deliveries_landed",
             manager.get("state") == "COMPLETE",
-            set(STANDARD_CLASSES).issubset(discovered_classes),
+            set(self._standard_classes).issubset(discovered_classes),
             red_cross_required,
-            len(discovered_ids) >= len(STANDARD_CLASSES),
+            len(discovered_ids) >= len(self._standard_classes),
             selected_classes == expected_classes,
             delivered_classes == expected_classes,
             len(delivered_ids) == 3 and len(set(delivered_ids)) == 3,

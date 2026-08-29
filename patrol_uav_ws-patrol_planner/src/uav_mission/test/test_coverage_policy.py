@@ -18,6 +18,8 @@ from coverage_policy import (
     generate_serpentine,
     interrupt_eligible,
     point_inside_safe_bounds,
+    profile_allowed_classes,
+    profile_standard_classes,
     resolve_safe_waypoint,
     select_serpentine_entry,
 )
@@ -113,6 +115,71 @@ class CoveragePolicyTest(unittest.TestCase):
         queue.retain([tent.target_id])
         self.assertEqual(queue.pop().target_id, tent.target_id)
         self.assertIsNone(queue.pop())
+
+    def test_class_profiles_define_r2026_without_tank(self):
+        self.assertEqual(
+            profile_standard_classes("full"),
+            ("tent", "pillbox", "bridge", "panzer", "tank"))
+        self.assertEqual(
+            profile_standard_classes("r2026"),
+            ("tent", "pillbox", "bridge", "panzer"))
+        # 未知 profile 名称回退 full，保持历史固定场口径。
+        self.assertEqual(
+            profile_standard_classes("unknown"),
+            profile_standard_classes("full"))
+        # r2026 队列允许集合 = 四类标准靶 + 随机红十字；tank 始终排除。
+        self.assertEqual(
+            profile_allowed_classes("r2026"),
+            ("tent", "pillbox", "bridge", "panzer", "red_cross"))
+        self.assertNotIn("tank", profile_allowed_classes("r2026"))
+        self.assertIn("tank", profile_allowed_classes("full"))
+
+    def test_candidate_valid_respects_allowed_classes(self):
+        base = dict(
+            first_seen=8.0, last_seen=10.0, state=2, map_valid=True,
+            map_frame="camera_init", association_valid=True,
+            reject_reason="", x=1.0, y=2.0)
+        tank = CandidateData(2, "tank", 0.60, **base)
+        cross = CandidateData(5, "red_cross", 0.90, **base)
+        allowed = profile_allowed_classes("r2026")
+        self.assertTrue(candidate_valid(tank, 10.4))
+        self.assertFalse(
+            candidate_valid(tank, 10.4, allowed_classes=allowed))
+        self.assertTrue(
+            candidate_valid(cross, 10.4, allowed_classes=allowed))
+
+    def test_queue_update_drops_disallowed_semantic_candidates(self):
+        base = dict(
+            confidence=0.9, first_seen=1.0, last_seen=10.0, state=2,
+            map_valid=True, map_frame="camera_init", association_valid=True,
+            reject_reason="", x=0.0, y=0.0)
+        tank = CandidateData(2, "tank", **base)
+        panzer = CandidateData(3, "panzer", **base)
+        queue = CandidateQueue()
+        queue.update([tank, panzer], 10.0,
+                     allowed_classes=profile_allowed_classes("r2026"))
+        self.assertEqual(queue.pop().class_name, "panzer")
+        self.assertIsNone(queue.pop())
+
+    def test_expected_delivery_classes_follows_profile_discovery(self):
+        base = dict(
+            confidence=0.9, first_seen=1.0, last_seen=10.0, state=2,
+            map_valid=True, map_frame="camera_init", association_valid=True,
+            reject_reason="", x=0.0, y=0.0)
+        queue = CandidateQueue()
+        candidates = [
+            CandidateData(index, class_name, **base)
+            for index, class_name in enumerate(
+                ("tent", "pillbox", "bridge", "panzer", "red_cross"))
+        ]
+        queue.update(candidates, 10.0,
+                     allowed_classes=profile_allowed_classes("r2026"))
+        discovered = {
+            candidate.class_name: candidate.target_id
+            for candidate in candidates}
+        self.assertEqual(
+            expected_delivery_classes(discovered),
+            ["red_cross", "panzer", "bridge"])
 
     def test_all_classes_are_popped_in_rule_weight_order(self):
         base = dict(

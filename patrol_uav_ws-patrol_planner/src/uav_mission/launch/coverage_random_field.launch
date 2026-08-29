@@ -1,4 +1,7 @@
 <launch>
+  <!-- V-CL-05 全随机场地 Gate 入口：toudi3_random.world（规则书场地结构，
+       投递区无固定靶标）+ random_field_spawner 随机摆放 4 标准靶与红十字 +
+       r2026 类目 profile（无 tank）。走廊与双 H 坐标视为赛会给定值。 -->
   <arg name="gui" default="false" />
   <arg name="rviz" default="false" />
   <arg name="wall_timeout" default="3000.0" />
@@ -9,8 +12,10 @@
        default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
   <arg name="enable_debug_image" default="false" />
   <arg name="record_debug" default="false" />
-  <arg name="spawn_red_cross" default="true" />
-  <arg name="red_cross_seed" default="0" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi3_random.world" />
+  <!-- 随机摆放：seed>0 固定随机可复现；seed<=0 系统随机。 -->
+  <arg name="field_seed" default="0" />
+  <arg name="standard_classes" default="panzer,bridge,pillbox,tent" />
 
   <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
     <arg name="gui" value="$(arg gui)" />
@@ -18,6 +23,7 @@
     <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
     <arg name="external_mission_mode" value="true" />
     <arg name="waypoint_mode" value="false" />
+    <arg name="world" value="$(arg world)" />
     <arg name="target_model_path" value="$(arg target_model_path)" />
     <arg name="planner_max_vel" value="1.5" />
     <arg name="planner_max_acc" value="1.0" />
@@ -29,10 +35,10 @@
   <node pkg="uav_mission" type="coverage_search_manager.py"
         name="coverage_search_manager" output="screen">
     <rosparam command="load"
-              file="$(find uav_mission)/config/coverage_toudi4.yaml" />
+              file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
     <param name="wall_timeout" value="$(arg wall_timeout)" />
     <param name="report_path" value="$(arg manager_report_path)" />
-    <param name="gate_name" value="coverage_r6" />
+    <param name="gate_name" value="coverage_random_field" />
     <param name="navigation_only" value="false" />
     <param name="execute_candidates" value="true" />
     <param name="collect_before_delivery" value="true" />
@@ -44,25 +50,27 @@
         name="coverage_r6_assertion" output="screen" required="true">
     <param name="wall_timeout" value="$(arg wall_timeout)" />
     <param name="report_path" value="$(arg gate_report_path)" />
+    <param name="class_profile" value="r2026" />
     <param name="red_cross_truth_path"
            value="$(optenv SIM_RUN_DIR /tmp)/red_cross_truth.yaml" />
   </node>
 
-  <!-- 随机投放区红十字：启动时在搜索区域内随机摆放（避开既有模型），
-       真值只落盘供复盘，不进入控制链。 -->
-  <node if="$(arg spawn_red_cross)" pkg="uav_mission"
-        type="random_red_cross_spawner.py" name="random_red_cross_spawner"
-        output="screen">
+  <!-- 全随机场地摆放：标准靶（1m 板）与红十字统一随机，避开既有模型并保证
+       两两净空；真值落盘 random_field_truth.yaml（另写 red_cross_truth.yaml
+       兼容断言的“摆放即要求发现”门控），不进入控制链。摆放失败会写 run.log
+       报错并以空场收场，评审以 random_field_truth.yaml 存在为准。 -->
+  <node pkg="uav_mission" type="random_field_spawner.py"
+        name="random_field_spawner" output="screen">
     <rosparam command="load"
-              file="$(find uav_mission)/config/coverage_toudi4.yaml" />
-    <param name="seed" value="$(arg red_cross_seed)" />
-    <!-- 局部->世界换算：起飞 H 的 Gazebo 世界位姿（toudi4 主 H）。 -->
+              file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+    <param name="seed" value="$(arg field_seed)" />
+    <param name="standard_classes" value="$(arg standard_classes)" />
+    <!-- 局部->世界换算：起飞 H 的 Gazebo 世界位姿（与 toudi4 主 H 同位）。 -->
     <param name="spawn_offset/x" value="-0.493412" />
     <param name="spawn_offset/y" value="-1.772690" />
   </node>
 
-  <!-- 可选的 debug 视觉录制（默认关闭）：录制原始下视图像与各检测器 debug 图，
-       供失败复盘（如 bridge 近地 circle 断链）。-->
+  <!-- 可选的 debug 视觉录制（默认关闭）：录制原始下视图像与各检测器 debug 图。 -->
   <node if="$(arg record_debug)" pkg="rosbag" type="record"
         name="debug_visual_recorder" output="screen"
         args="--lz4 --split --size=2048 --duration=610
