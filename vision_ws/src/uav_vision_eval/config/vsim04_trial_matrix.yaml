@@ -4,7 +4,8 @@ seed: 11
 class_profile: r2026
 expected_trial_count: 23
 
-# toudi4_copy.world anchors; red_cross is spawned once for the whole session.
+# toudi4_copy.world anchors; all five targets coexist as a clutter evaluation,
+# and frames.csv records every fully-in-frame class. red_cross is spawned once.
 target_anchors:
   tent: {target_id: tent_1, xyz: [1.27572, 0.581612, 0.0025]}
   pillbox: {target_id: pillbox_1, xyz: [-0.57481, 0.520346, 0.0025]}

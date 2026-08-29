@@ -2,6 +2,7 @@
 """Deterministic regression for profile and current-selection admission."""
 
 import sys
+import math
 from types import SimpleNamespace
 
 from uav_vision.target_selection_policy import (
@@ -32,6 +33,8 @@ def _candidate(class_name="panzer", **overrides):
         "map_valid": True,
         "association_valid": True,
         "reject_reason": "",
+        "map_point": SimpleNamespace(x=1.0, y=2.0, z=0.0),
+        "map_frame": "camera_init",
         "last_seen": 9.8,
     }
     values.update(overrides)
@@ -64,12 +67,32 @@ def main():
         _candidate(association_valid=False),
         _candidate(reject_reason="association_invalid"),
         _candidate(last_seen=9.0),
+        _candidate(last_seen=10.01),
+        _candidate(last_seen=float("nan")),
+        _candidate(last_seen=float("inf")),
+        _candidate(class_confidence=float("nan")),
+        _candidate(class_confidence=float("inf")),
+        _candidate(map_quality=float("nan")),
+        _candidate(map_quality=float("inf")),
+        _candidate(map_point=SimpleNamespace(
+            x=float("nan"), y=2.0, z=0.0)),
+        _candidate(map_point=SimpleNamespace(
+            x=1.0, y=float("inf"), z=0.0)),
+        _candidate(map_frame=""),
     ]
     for candidate in invalid_variants:
         assert not candidate_is_currently_selectable(
             candidate, 10.0, 3, 0.5, PRIORITIES, r2026)
     assert candidate_is_currently_selectable(
         _candidate(), 10.0, 3, 0.5, PRIORITIES, r2026)
+    assert not candidate_is_currently_selectable(
+        _candidate(), float("nan"), 3, 0.5, PRIORITIES, r2026)
+    assert not candidate_is_currently_selectable(
+        _candidate(), 10.0, 3, float("inf"), PRIORITIES, r2026)
+    invalid_priorities = dict(PRIORITIES)
+    invalid_priorities["panzer"] = math.nan
+    assert not candidate_is_currently_selectable(
+        _candidate(), 10.0, 3, 0.5, invalid_priorities, r2026)
     print("V-CL target selection profile/current-admission PASS")
 
 

@@ -72,14 +72,21 @@ class FreshnessAssertion:
             return 6
         stale_deadline = self.last_detection_time + rospy.Duration(0.45)
         late_selections = [stamp for stamp in self.selected_times if stamp > stale_deadline]
-        memory_persisted = self.latest_targets is not None and any(
-            target.class_name == "tent" and target.map_valid
-            for target in self.latest_targets.targets
-        )
-        if late_selections or not memory_persisted:
+        persisted_targets = [
+            target for target in (self.latest_targets.targets
+                                  if self.latest_targets is not None else [])
+            if target.class_name == "tent" and target.state == 2 and
+            target.map_frame == "world" and
+            abs(target.map_point.x - 1.0) < 1.0e-6 and
+            abs(target.map_point.y - 2.0) < 1.0e-6]
+        memory_persisted = bool(persisted_targets)
+        current_map_invalid = bool(persisted_targets) and all(
+            not target.map_valid for target in persisted_targets)
+        if late_selections or not memory_persisted or not current_map_invalid:
             rospy.logerr(
-                "freshness assertion failed: late_selected=%d memory_persisted=%s",
-                len(late_selections), memory_persisted,
+                "freshness assertion failed: late_selected=%d "
+                "memory_persisted=%s current_map_invalid=%s",
+                len(late_selections), memory_persisted, current_map_invalid,
             )
             return 6
         rospy.loginfo("V-ALG target-memory freshness PASS")

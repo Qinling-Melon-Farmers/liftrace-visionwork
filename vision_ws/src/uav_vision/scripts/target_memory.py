@@ -36,7 +36,8 @@ class CandidateRecord:
                  'consecutive_observe_count', 'first_seen', 'last_seen',
                  'last_center', 'center_refined', 'center_source',
                  'association_valid', 'reject_reason', 'map_valid',
-                 'map_point', 'map_frame', 'map_quality', 'map_weight',
+                 'current_map_valid', 'map_point', 'map_frame',
+                 'map_quality', 'map_weight',
                  'transform_age_sec', 'class_votes', 'class_max_confidence',
                  'pending_class', 'pending_class_count')
 
@@ -57,7 +58,11 @@ class CandidateRecord:
         self.center_source = det.center_source
         self.association_valid = det.association_valid
         self.reject_reason = det.reject_reason
+        # map_valid below describes the sticky fused map memory used for
+        # physical identity.  Selection must instead use whether the current
+        # observation produced a valid map projection.
         self.map_valid = det.map_valid
+        self.current_map_valid = det.map_valid
         self.map_point = Point(det.map_point.x, det.map_point.y, det.map_point.z)
         self.map_frame = det.map_frame
         self.map_quality = det.map_quality
@@ -154,11 +159,17 @@ class CandidateRecord:
         self.association_valid = det.association_valid
         self.reject_reason = det.reject_reason
         self.transform_age_sec = det.transform_age_sec
+        self.current_map_valid = det.map_valid
         self._update_map(det)
         self._advance_state(confirm_frames)
 
     def merge_from(self, other):
         """Merge a converged duplicate without inventing extra hit streaks."""
+        # All records are reset to not-current before each detection frame.
+        # Thus OR keeps a valid projection produced by either duplicate in
+        # this frame, without reviving a merely historical valid map point.
+        self.current_map_valid = (
+            self.current_map_valid or other.current_map_valid)
         if self.map_valid and other.map_valid:
             total_weight = self.map_weight + other.map_weight
             if total_weight > 0.0:
@@ -220,6 +231,7 @@ class CandidateRecord:
 
     def mark_missed(self):
         self.consecutive_observe_count = 0
+        self.current_map_valid = False
         if self.state != ST_CONFIRMED:
             self.state = ST_DETECTED
 
@@ -245,7 +257,9 @@ class CandidateRecord:
         msg.center_source = self.center_source
         msg.association_valid = self.association_valid
         msg.reject_reason = self.reject_reason
-        msg.map_valid = self.map_valid
+        # Keep publishing the fused historical point for stable identity and
+        # diagnostics, but admission sees only current-frame map validity.
+        msg.map_valid = self.current_map_valid
         msg.map_point = self.map_point
         msg.map_frame = self.map_frame
         msg.map_quality = self.map_quality
@@ -374,6 +388,10 @@ class TargetMemory:
     # ------------------------------------------------------------------
     def _on_detections(self, msg):
         now = msg.header.stamp if msg.header.stamp.to_sec() > 0 else rospy.Time.now()
+        # Reset before matching so duplicate merging cannot copy a previous
+        # frame's valid projection into the current observation state.
+        for candidate in self._candidates.values():
+            candidate.current_map_valid = False
         frame_has_red_cross = any(
             det.class_name == "red_cross" and
             det.geometry_verified and

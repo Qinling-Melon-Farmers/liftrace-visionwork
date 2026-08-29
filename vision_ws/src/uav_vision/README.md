@@ -85,7 +85,10 @@ topic 刚收到就认定目标刚被看到。
 - 地图匹配距离：0.5 m；
 - 候选确认：连续 3 帧；漏检会清零连续计数，但不删除 TTL 内已确认地图记忆；
 - `CONFIRMED` 保持为长期记忆状态；`selected_target` 仍要求当前连续 3 帧、地图/关联有效、
-  无拒绝原因且观测年龄不超过 0.5 s；
+  无拒绝原因且观测年龄满足 `0 <= age <= 0.5 s`；未来时间戳、非有限置信度/地图质量/坐标
+  和空 map frame 均 fail-closed，不进入 selected；
+- stable ID、融合地图点和地图质量继续作为历史诊断记忆保留，但候选消息的 `map_valid`
+  只表示当前帧投影有效；漏检或当前投影失败时不得借历史地图继续 selected；
 - 类别切换：连续 2 帧且置信度不低于 0.70，同时累计置信度投票胜出；
 - Phase D/板端 `require_map_for_candidates=true`，无效或陈旧 TF 不得刷新候选；
 - 类别优先级用于候选排序，权重取自赛委会确认的得分权重：tent=1、pillbox=1.5、bridge=2、panzer=2.5、tank=5、red_cross=10。

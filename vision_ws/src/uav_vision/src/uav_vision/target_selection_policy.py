@@ -1,5 +1,7 @@
 """Pure target-selection admission policy shared by target_memory and tests."""
 
+import math
+
 
 CLASS_PROFILES = {
     "full": frozenset({
@@ -25,24 +27,62 @@ def _seconds(value):
     return float(value.to_sec()) if hasattr(value, "to_sec") else float(value)
 
 
+def _finite(value):
+    try:
+        return math.isfinite(float(value))
+    except (TypeError, ValueError, OverflowError):
+        return False
+
+
+def _finite_point(point):
+    return all(_finite(getattr(point, axis, None)) for axis in ("x", "y", "z"))
+
+
 def candidate_is_currently_selectable(candidate, now, confirm_frames,
                                       selected_max_age, priorities,
                                       allowed_classes, confirmed_state=2):
     """Check current admission without changing the candidate's sticky state."""
-    if candidate.class_name not in allowed_classes:
+    try:
+        class_name = str(candidate.class_name)
+        now_sec = _seconds(now)
+        last_seen_sec = _seconds(candidate.last_seen)
+        maximum_age = float(selected_max_age)
+        priority = float(priorities.get(class_name, 0.0))
+        state = int(candidate.state)
+        observe_count = int(candidate.consecutive_observe_count)
+        required_observe_count = int(confirm_frames)
+        required_state = int(confirmed_state)
+        candidate_id = int(candidate.id)
+        map_valid = bool(candidate.map_valid)
+        association_valid = bool(candidate.association_valid)
+        reject_reason = str(candidate.reject_reason).strip()
+        class_confidence = candidate.class_confidence
+        map_quality = candidate.map_quality
+        map_point = candidate.map_point
+        map_frame = str(candidate.map_frame).strip()
+        class_allowed = class_name in allowed_classes
+    except (AttributeError, TypeError, ValueError, OverflowError):
         return False
-    if float(priorities.get(candidate.class_name, 0.0)) <= 0.0:
+    if not class_allowed or candidate_id < 0:
         return False
-    if int(candidate.state) != int(confirmed_state):
+    if not math.isfinite(priority) or priority <= 0.0:
         return False
-    if int(candidate.consecutive_observe_count) < int(confirm_frames):
+    if state != required_state:
         return False
-    if not bool(candidate.map_valid) or not bool(candidate.association_valid):
+    if required_observe_count < 1 or observe_count < required_observe_count:
         return False
-    if str(candidate.reject_reason).strip():
+    if not map_valid or not association_valid:
         return False
-    observation_age = max(0.0, _seconds(now) - _seconds(candidate.last_seen))
-    return observation_age <= float(selected_max_age)
+    if reject_reason:
+        return False
+    if (not math.isfinite(now_sec) or not math.isfinite(last_seen_sec) or
+            not math.isfinite(maximum_age) or maximum_age < 0.0):
+        return False
+    if (not _finite(class_confidence) or not _finite(map_quality) or
+            not _finite_point(map_point) or not map_frame):
+        return False
+    observation_age = now_sec - last_seen_sec
+    return 0.0 <= observation_age <= maximum_age
 
 
 def choose_selected_candidate(candidates, now, confirm_frames,

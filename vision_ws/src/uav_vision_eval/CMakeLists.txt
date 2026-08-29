@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(uav_vision_eval)
 
 find_package(catkin REQUIRED COMPONENTS
+  diagnostic_msgs
   gazebo_msgs
   geometry_msgs
   image_geometry
@@ -32,6 +33,7 @@ generate_messages(
 
 catkin_package(
   CATKIN_DEPENDS
+    diagnostic_msgs
     gazebo_msgs
     geometry_msgs
     image_geometry

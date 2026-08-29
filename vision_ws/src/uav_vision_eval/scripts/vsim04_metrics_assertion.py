@@ -7,13 +7,20 @@ import os
 import shutil
 import sys
 import tempfile
+import time
 
 from uav_vision_eval.vsim04_metrics import (
     REQUIRED_ARTIFACTS,
+    completed_sources_cover,
+    call_with_monotonic_deadline,
+    correlate_admission_events,
+    detector_diagnostic_errors,
+    handshake_timeout_is_safe,
     dry_run_artifacts,
     load_trial_matrix,
     planned_trial_result,
     summarize_trial_results,
+    watermarks_cover_source_stamp,
 )
 
 
@@ -48,12 +55,126 @@ def main():
     measured_summary = summarize_trial_results(
         [measured], "unit", actual_fps=20.0)
     measured_result = measured_summary["trials"][0]
+    assert measured_summary["status"] == "INCOMPLETE"
     assert measured_summary["metrics"]["p_confirm"] == 1.0
     assert measured_summary["metrics"]["p_selected"] == 1.0
     assert measured_summary["metrics"]["p_interrupt"] is None
     assert abs(measured_result["map_invalid_rate"] - 0.25) < 1.0e-9
     assert abs(measured_result["map_unavailable_rate"] - 0.4) < 1.0e-9
     assert abs(measured_result["tf_failure_rate"] - 0.25) < 1.0e-9
+    assert abs(measured_summary["metrics"]["map_invalid_rate"] - 0.25) < 1.0e-9
+    assert abs(measured_summary["metrics"]["map_unavailable_rate"] - 0.4) < 1.0e-9
+    assert abs(measured_summary["metrics"]["tf_failure_rate"] - 0.25) < 1.0e-9
+    assert measured_summary["metric_denominators"]["map_error_samples"] == 3
+
+    terminal_results = []
+    for trial in trials:
+        result = planned_trial_result(trial)
+        result.update({
+            "status": "completed",
+            "p_confirm": False,
+            "p_selected": False,
+            "entered_fully_in_frame": True,
+            "left_fully_in_frame": True,
+            "eligible_frames": 1,
+        })
+        if trial["kind"] == "dynamic":
+            result.update({
+                "expected_duration_sec": 2.0,
+                "actual_duration_sec": 2.01,
+                "actual_speed_mps": trial["speed_mps"],
+            })
+        terminal_results.append(result)
+    terminal_summary = summarize_trial_results(
+        terminal_results, "unit", actual_fps=30.0,
+        terminal_context={"run_complete": True,
+                          "expected_trial_count": 23,
+                          "validation_errors": [],
+                          "actual_image_source_fps": 30.0})
+    assert terminal_summary["status"] == "MEASURED"
+    assert terminal_summary["metrics"]["actual_image_source_fps"] == 30.0
+    invalid_summary = summarize_trial_results(
+        terminal_results[:-1], "unit", actual_fps=30.0,
+        terminal_context={"run_complete": True,
+                          "expected_trial_count": 23,
+                          "validation_errors": ["completed_trials_22/23"]})
+    assert invalid_summary["status"] == "INVALID"
+    spoofed_22_summary = summarize_trial_results(
+        terminal_results[:-1], "unit", actual_fps=30.0,
+        terminal_context={"run_complete": True,
+                          "expected_trial_count": 22,
+                          "validation_errors": []})
+    assert spoofed_22_summary["status"] == "INVALID"
+    missing_leave = [dict(result) for result in terminal_results]
+    missing_leave[0]["left_fully_in_frame"] = False
+    missing_leave_summary = summarize_trial_results(
+        missing_leave, "unit", actual_fps=30.0,
+        terminal_context={"run_complete": True,
+                          "expected_trial_count": 23,
+                          "validation_errors": []})
+    assert missing_leave_summary["status"] == "INVALID"
+
+    # selected may arrive at the recorder before /targets because ROS does not
+    # order different topic connections.  Correlation must use ID + two clocks,
+    # not callback order.  Events received after leave remain failures.
+    window = {
+        "enter_source_stamp": 1.0,
+        "leave_source_stamp": 3.0,
+        "leave_receipt_monotonic": 30.0,
+    }
+    candidates = [
+        {"source_stamp": 2.0, "stamp_key": 200, "receipt_monotonic": 20.0,
+         "stable_id": 7},
+        {"source_stamp": 2.5, "stamp_key": 250, "receipt_monotonic": 31.0,
+         "stable_id": 8},
+    ]
+    selected_first = [
+        {"source_stamp": 2.0, "stamp_key": 200, "receipt_monotonic": 19.0,
+         "stable_id": 7},
+    ]
+    correlated = correlate_admission_events(
+        candidates, selected_first, window, {200: 10.0})
+    assert correlated["p_confirm"] and correlated["p_selected"]
+    assert correlated["stable_id"] == 7
+    assert abs(correlated["confirmation_exposure_sec"] - 1.0) < 1.0e-9
+    assert abs(correlated["confirmation_processing_ms"] - 10000.0) < 1.0e-9
+    image_after_candidate = correlate_admission_events(
+        candidates[:1], selected_first, window, {200: 21.0})
+    assert image_after_candidate["p_confirm"]
+    assert image_after_candidate["confirmation_processing_ms"] == 0.0
+    assert image_after_candidate["processing_receipt_reordered"]
+    watermarks = {
+        "image": 3.1, "truth": 3.0, "mapped": 3.2,
+        "targets": 3.0, "perf": 3.3,
+    }
+    assert watermarks_cover_source_stamp(watermarks, 3.0)
+    watermarks["targets"] = 2.99
+    assert not watermarks_cover_source_stamp(watermarks, 3.0)
+    assert not watermarks_cover_source_stamp(watermarks, None)
+    assert not detector_diagnostic_errors(
+        0, {"backend": "ultralytics", "model_path": "/tmp/model.pt"},
+        "ultralytics", "/tmp/model.pt")
+    assert detector_diagnostic_errors(
+        1, {"backend": "empty", "model_path": "/tmp/other.pt"},
+        "ultralytics", "/tmp/model.pt") == [
+            "diagnostic_level_1", "backend_empty", "model_path_mismatch"]
+    required_sources = {
+        "target_detector", "circle_detector", "cross_detector"}
+    assert completed_sources_cover(
+        required_sources,
+        ["cross_detector", "target_detector", "circle_detector"])
+    assert not completed_sources_cover(
+        required_sources, ["cross_detector", "circle_detector"])
+    assert call_with_monotonic_deadline(
+        lambda: 7, 0.5, "unit_service") == 7
+    try:
+        call_with_monotonic_deadline(
+            lambda: time.sleep(0.05), 0.01, "stalled_service")
+        raise AssertionError("blocking service call did not time out")
+    except TimeoutError:
+        pass
+    assert handshake_timeout_is_safe(16.0, 10.0, 0.25, 0.25, 5.0)
+    assert not handshake_timeout_is_safe(15.5, 10.0, 0.25, 0.25, 5.0)
 
     output_dir = tempfile.mkdtemp(prefix="vsim04_schema_")
     try:
@@ -64,6 +185,7 @@ def main():
         })
         assert summary["trial_count"] == 23
         assert summary["completed_trial_count"] == 0
+        assert summary["status"] == "DRY_RUN"
         assert summary["metrics"]["p_interrupt"] is None
         for artifact in REQUIRED_ARTIFACTS:
             assert os.path.isfile(os.path.join(output_dir, artifact)), artifact
