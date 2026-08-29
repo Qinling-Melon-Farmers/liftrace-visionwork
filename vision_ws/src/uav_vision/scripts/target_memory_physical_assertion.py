@@ -91,9 +91,9 @@ class PhysicalMemoryAssertion:
         return det
 
     @staticmethod
-    def _message(detections, completed_sources=None):
+    def _message(detections, completed_sources=None, stamp=None):
         message = TargetDetectionArray()
-        message.header.stamp = rospy.Time.now()
+        message.header.stamp = rospy.Time.now() if stamp is None else stamp
         message.header.frame_id = "camera"
         message.source = "memory_regression"
         message.completed_sources = list(
@@ -105,8 +105,8 @@ class PhysicalMemoryAssertion:
         return message
 
     def _publish(self, detections, completed_sources=None,
-                 expect_output=True):
-        message = self._message(detections, completed_sources)
+                 expect_output=True, stamp=None):
+        message = self._message(detections, completed_sources, stamp)
         with self._condition:
             self._latest = None
         self._pub.publish(message)
@@ -229,6 +229,20 @@ class PhysicalMemoryAssertion:
         assert latest is not None and not latest.targets, \
             "a pre-reset queued frame repopulated target memory"
 
+    def _assert_known_pre_reset_stamp_is_rejected(self):
+        old_stamp = rospy.Time.now()
+        rospy.sleep(0.02)
+        self._reset_memory()
+        self._publish(
+            [self._detection("panzer", 0.93, 1.0)],
+            stamp=old_stamp, expect_output=False)
+        current = self._publish([
+            self._detection("panzer", 0.93, 1.0)])
+        targets = self._standard_targets(current)
+        assert len(targets) == 1
+        assert targets[0].observe_count == 1, \
+            "known pre-reset message repopulated the new epoch"
+
     def _assert_map_separates_same_pixel_targets(self):
         self._reset_memory()
         self._publish([self._detection("panzer", 0.93, 0.0)])
@@ -325,6 +339,7 @@ class PhysicalMemoryAssertion:
         self._assert_miss_resets_confirmation_streak()
         self._assert_partial_fusion_does_not_reset_streak()
         self._assert_concurrent_reset_isolates_queued_frames()
+        self._assert_known_pre_reset_stamp_is_rejected()
         self._assert_map_separates_same_pixel_targets()
         self._assert_converged_map_duplicates_merge_to_oldest_id()
         self._assert_current_map_validity_does_not_erase_memory()

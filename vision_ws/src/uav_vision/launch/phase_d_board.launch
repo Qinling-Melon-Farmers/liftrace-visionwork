@@ -90,6 +90,7 @@
     <param name="detections_topic" value="/uav_vision/detections_mapped" />
     <param name="require_map_for_candidates" value="true" />
     <param name="require_complete_detection_sources" value="true" />
+    <param name="default_align_mode" value="$(arg default_align_mode)" />
     <param name="class_profile" value="$(arg class_profile)" />
   </node>
 

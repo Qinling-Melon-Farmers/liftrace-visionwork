@@ -21,8 +21,8 @@ from uav_vision.msg import (TargetDetection, TargetDetectionArray,
 from sensor_msgs.msg import RegionOfInterest
 from uav_vision.target_selection_policy import (
     choose_selected_candidate,
+    detection_frame_is_usable,
     detection_stamp_after_reset,
-    detection_sources_complete,
     resolve_class_profile,
 )
 
@@ -314,7 +314,11 @@ class TargetMemory:
             "~reset_service", "/uav_vision/reset_memory")
         self._align_mode_topic = rospy.get_param(
             "~align_mode_topic", "/uav_vision/align_mode")
-        self._align_mode = "disabled"
+        default_align_mode = str(rospy.get_param(
+            "~default_align_mode", "disabled")).strip()
+        self._align_mode = (
+            default_align_mode
+            if default_align_mode in VALID_ALIGN_MODES else "disabled")
 
         # ---- 优先级权重 ----
         self._priority = {
@@ -344,7 +348,7 @@ class TargetMemory:
         self._candidates = {}        # id → CandidateRecord
         self._next_id = 0
         self._rejected = {}          # (class_name, roi_hash) → reject_time
-        self._reset_cutoff = rospy.Time(0)
+        self._reset_cutoff = None
 
         # 订阅
         rospy.Subscriber(self._detections_topic, TargetDetectionArray,
@@ -405,7 +409,7 @@ class TargetMemory:
             self._process_detections_locked(msg)
 
     def _process_detections_locked(self, msg):
-        if not detection_sources_complete(
+        if not detection_frame_is_usable(
                 self._align_mode, msg.completed_sources,
                 self._require_complete_detection_sources):
             rospy.logwarn_throttle(
@@ -418,7 +422,9 @@ class TargetMemory:
             rospy.logwarn_throttle(
                 2.0,
                 "[TargetMemory] ignore pre-reset/unstamped detection stamp=%.6f cutoff=%.6f",
-                msg.header.stamp.to_sec(), self._reset_cutoff.to_sec())
+                msg.header.stamp.to_sec(),
+                self._reset_cutoff.to_sec()
+                if self._reset_cutoff is not None else -1.0)
             return
         now = msg.header.stamp if msg.header.stamp.to_sec() > 0 else rospy.Time.now()
         # Reset before matching so duplicate merging cannot copy a previous

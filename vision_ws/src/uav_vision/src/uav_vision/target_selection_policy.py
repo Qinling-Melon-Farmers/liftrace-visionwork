@@ -53,25 +53,39 @@ def detection_sources_complete(align_mode, completed_sources,
     return REQUIRED_DETECTION_SOURCES[mode].issubset(completed)
 
 
+def detection_frame_is_usable(align_mode, completed_sources,
+                              require_complete_sources):
+    """Apply strict fusion-source admission only on formal closed loops."""
+    if not bool(require_complete_sources):
+        return True
+    return detection_sources_complete(
+        align_mode, completed_sources, require_metadata=True)
+
+
 def detection_stamp_after_reset(source_stamp, reset_cutoff):
     """Fail closed for detections that cannot be newer than a memory reset.
 
-    A zero reset cutoff means no reset has happened yet, so legacy unstamped
-    inputs remain accepted at startup.  Once a reset establishes a cutoff,
+    ``None`` means no reset has happened yet, so legacy unstamped inputs remain
+    accepted at startup.  Once a reset establishes a cutoff (including zero),
     detections must carry a finite, positive source stamp strictly newer than
     that cutoff; this prevents messages already queued before the reset from
     repopulating the next trial.
     """
     try:
         source_sec = _seconds(source_stamp)
+    except (TypeError, ValueError, OverflowError):
+        return False
+    if not math.isfinite(source_sec):
+        return False
+    if reset_cutoff is None:
+        return source_sec >= 0.0
+    try:
         cutoff_sec = _seconds(reset_cutoff)
     except (TypeError, ValueError, OverflowError):
         return False
-    if not math.isfinite(source_sec) or not math.isfinite(cutoff_sec):
+    if not math.isfinite(cutoff_sec):
         return False
-    if cutoff_sec <= 0.0:
-        return source_sec >= 0.0
-    return source_sec > cutoff_sec
+    return source_sec > max(cutoff_sec, 0.0)
 
 
 def _seconds(value):

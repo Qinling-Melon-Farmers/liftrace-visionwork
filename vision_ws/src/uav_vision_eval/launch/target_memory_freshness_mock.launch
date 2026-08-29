@@ -6,6 +6,7 @@
     <param name="candidate_ttl" value="0.3" />
     <param name="map_memory_ttl" value="0.0" />
     <param name="selected_max_age" value="0.3" />
+    <param name="require_complete_detection_sources" value="true" />
   </node>
   <node pkg="uav_vision_eval" type="target_memory_freshness_assertion.py"
         name="target_memory_freshness_assertion" output="screen" required="true" />

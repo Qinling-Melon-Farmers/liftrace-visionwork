@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from uav_vision.target_selection_policy import (
     candidate_is_currently_selectable,
     choose_selected_candidate,
+    detection_frame_is_usable,
     detection_stamp_after_reset,
     detection_sources_complete,
     resolve_class_profile,
@@ -72,11 +73,25 @@ def main():
         "drop_cross", ["cross_detector"], require_metadata=True)
     assert detection_sources_complete(
         "landing", ["landing_detector"], require_metadata=True)
+    assert detection_sources_complete(
+        "drop_circle", ["target_detector", "circle_detector"],
+        require_metadata=True)
+    assert not detection_sources_complete(
+        "drop_circle", ["target_detector"], require_metadata=True)
+    assert not detection_sources_complete(
+        "unknown", ["target_detector", "circle_detector"],
+        require_metadata=True)
     assert not detection_sources_complete(
         "disabled", [], require_metadata=True)
     assert detection_sources_complete(
         "disabled", [], require_metadata=False)
-    assert detection_stamp_after_reset(0.0, 0.0)
+    assert detection_frame_is_usable(
+        "disabled", ["circle_detector", "cross_detector"], False)
+    assert not detection_frame_is_usable(
+        "disabled", ["circle_detector", "cross_detector"], True)
+    assert detection_stamp_after_reset(0.0, None)
+    assert detection_stamp_after_reset(0.1, 0.0)
+    assert not detection_stamp_after_reset(0.0, 0.0)
     assert detection_stamp_after_reset(10.1, 10.0)
     assert not detection_stamp_after_reset(10.0, 10.0)
     assert not detection_stamp_after_reset(9.9, 10.0)

@@ -60,6 +60,10 @@ class FreshnessAssertion:
             message = TargetDetectionArray()
             message.header.stamp = stamp
             message.header.frame_id = "camera"
+            message.source = "freshness_assertion"
+            message.completed_sources = [
+                "target_detector", "circle_detector", "cross_detector",
+            ]
             if index < 5:
                 message.detections = [self._detection(stamp)]
                 self.last_detection_time = stamp
