@@ -24,7 +24,9 @@ latest_run_dir() {
   local scene="$1"
   local matches=()
   shopt -s nullglob
-  matches=("${PROJECT_ROOT}/logs/${scene}_"*)
+  # A valid sim_run suffix starts with the numeric timestamp.  Exclude
+  # similarly-prefixed manual retry/final/diagnostic scene names.
+  matches=("${PROJECT_ROOT}/logs/${scene}_"[0-9]*)
   shopt -u nullglob
   if [ "${#matches[@]}" -eq 0 ]; then
     return 1
@@ -35,22 +37,28 @@ latest_run_dir() {
 run_preflight() {
   local profile="$1"
   local scene="vcl06_preflight_seed${FIELD_SEED}_${profile}"
-  SIM_NO_RECORD=1 SIM_REQUIRE_GATE=1 bash "${SIM_RUN}" "${scene}" \
-    roslaunch uav_mission navigation_random_field_preflight.launch \
-    world:="${WORLD}" target_model_path:="${TARGET_MODEL_PATH}" \
-    field_seed:="${FIELD_SEED}" class_profile:="${CLASS_PROFILE}" \
-    nav_feature_profile:="${profile}" gui:=false rviz:=false >&2
+  if ! SIM_NO_RECORD=1 SIM_REQUIRE_GATE=1 bash "${SIM_RUN}" "${scene}" \
+      roslaunch uav_mission navigation_random_field_preflight.launch \
+      world:="${WORLD}" target_model_path:="${TARGET_MODEL_PATH}" \
+      field_seed:="${FIELD_SEED}" class_profile:="${CLASS_PROFILE}" \
+      nav_feature_profile:="${profile}" gui:=false rviz:=false >&2; then
+    echo "navigation preflight failed for profile ${profile}" >&2
+    return 1
+  fi
   latest_run_dir "${scene}"
 }
 
 run_sample() {
   local profile="$1"
   local scene="vcl06_ab90_seed${FIELD_SEED}_${profile}"
-  SIM_NO_RECORD=1 SIM_REQUIRE_GATE=1 bash "${SIM_RUN}" "${scene}" \
-    roslaunch uav_mission navigation_random_field_ab.launch \
-    world:="${WORLD}" target_model_path:="${TARGET_MODEL_PATH}" \
-    field_seed:="${FIELD_SEED}" class_profile:="${CLASS_PROFILE}" \
-    nav_feature_profile:="${profile}" gui:=false rviz:=false >&2
+  if ! SIM_NO_RECORD=1 SIM_REQUIRE_GATE=1 bash "${SIM_RUN}" "${scene}" \
+      roslaunch uav_mission navigation_random_field_ab.launch \
+      world:="${WORLD}" target_model_path:="${TARGET_MODEL_PATH}" \
+      field_seed:="${FIELD_SEED}" class_profile:="${CLASS_PROFILE}" \
+      nav_feature_profile:="${profile}" gui:=false rviz:=false >&2; then
+    echo "navigation A/B sample failed for profile ${profile}" >&2
+    return 1
+  fi
   latest_run_dir "${scene}"
 }
 
