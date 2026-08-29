@@ -95,6 +95,7 @@
   <exec_depend>message_generation</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>uav_vision</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

@@ -98,6 +98,8 @@ class NavigationVisualDeliveryAdapter:
             rospy.get_param("~require_field_ready", False))
         self._require_anchor_ready = bool(
             rospy.get_param("~require_anchor_ready", False))
+        self._require_contact_monitor = bool(
+            rospy.get_param("~require_contact_monitor", False))
         self._nav_feature_profile = rospy.get_param(
             "~nav_feature_profile", "baseline")
         self._report_path = rospy.get_param(
@@ -155,6 +157,9 @@ class NavigationVisualDeliveryAdapter:
         self._anchor_ready = not self._require_anchor_ready
         self._anchor_status = None
         self._anchor_failed = False
+        self._contact_ready = not self._require_contact_monitor
+        self._contact_status = None
+        self._actual_collision_count = 0
         self._event_sequence = 0
         self._last_event_state = None
         self._status_events = []
@@ -194,6 +199,12 @@ class NavigationVisualDeliveryAdapter:
                 rospy.get_param(
                     "~anchor_status_topic", "/mission/planner_anchor_status"),
                 String, self._on_anchor_status, queue_size=1)
+        if self._require_contact_monitor:
+            rospy.Subscriber(
+                rospy.get_param(
+                    "~contact_status_topic",
+                    "/mission/gazebo_contact_status"),
+                String, self._on_contact_status, queue_size=2)
         self._publish_status("RUNNING", "waiting_for_takeoff")
 
     def _now(self):
@@ -292,6 +303,22 @@ class NavigationVisualDeliveryAdapter:
             payload.get("ready") and payload.get("status") == "READY" and
             same_profile)
         self._anchor_failed = payload.get("status") == "FAIL"
+
+    def _on_contact_status(self, msg):
+        try:
+            payload = json.loads(msg.data)
+        except (TypeError, ValueError):
+            self._contact_ready = False
+            self._contact_status = {"status": "INVALID_JSON"}
+            return
+        self._contact_status = payload
+        sample_age = payload.get("last_sample_wall_age")
+        self._contact_ready = bool(
+            payload.get("ready") and payload.get("status") == "READY" and
+            sample_age is not None and math.isfinite(float(sample_age)) and
+            0.0 <= float(sample_age) <= 1.0)
+        self._actual_collision_count = int(
+            payload.get("actual_collision_count", 0))
 
     @staticmethod
     def _candidate(msg):
@@ -589,7 +616,7 @@ class NavigationVisualDeliveryAdapter:
 
     def _operational_ready(self):
         return (
-            self._field_ready and self._anchor_ready and
+            self._field_ready and self._anchor_ready and self._contact_ready and
             self._pose is not None and self._control_state == 1 and
             self._pose.pose.position.z >= self._takeoff_height and
             self._map_ready()
@@ -630,6 +657,9 @@ class NavigationVisualDeliveryAdapter:
             "field_status": self._field_status,
             "anchor_ready": self._anchor_ready,
             "anchor_status": self._anchor_status,
+            "contact_monitor_ready": self._contact_ready,
+            "contact_status": self._contact_status,
+            "actual_collision_count": self._actual_collision_count,
             "operational_ready": self._operational_ready(),
             "candidate_accepting": self._candidate_accepting(),
             "route_source": "liftrace-controlwork@5144aa8/unmodified",
@@ -654,9 +684,9 @@ class NavigationVisualDeliveryAdapter:
             "max_altitude": (None if self._max_altitude == float("-inf")
                              else self._max_altitude),
             "max_height_limit": self._max_height_limit,
-            "minimum_clearance": self._minimum_clearance,
-            "collision_count": self._collision_count,
-            "collision_events": list(self._collision_events),
+            "pointcloud_minimum_clearance": self._minimum_clearance,
+            "pointcloud_proximity_event_count": self._collision_count,
+            "pointcloud_proximity_events": list(self._collision_events),
             "current_candidate": (
                 None if self._current_candidate is None
                 else self._candidate_record(self._current_candidate)),

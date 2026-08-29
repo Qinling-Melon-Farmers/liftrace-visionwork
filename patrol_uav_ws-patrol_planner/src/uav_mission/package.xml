@@ -11,6 +11,7 @@
   <build_depend>message_generation</build_depend>
 
   <depend>geometry_msgs</depend>
+  <depend>gazebo_msgs</depend>
   <depend>patrol_control</depend>
   <depend>rosgraph</depend>
   <depend>rospy</depend>
@@ -20,4 +21,5 @@
   <depend>uav_vision</depend>
 
   <exec_depend>message_runtime</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
 </package>

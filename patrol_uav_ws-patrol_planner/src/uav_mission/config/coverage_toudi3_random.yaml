@@ -16,11 +16,26 @@ spawn:
   static_model_radius: 0.55
   verification_tolerance: 0.05
   verification_timeout: 20.0
+# ModelStates only exposes top-level model poses.  Use conservative per-model
+# ground-plane radii for boxes whose 1.2 x 0.8 m collision is larger than the
+# historical generic obstacle radius (half diagonal = 0.7211 m).
+static_model_radii:
+  "Big box 4": 0.722
+  big_box3: 0.722
+  big_box3_0: 0.722
+  "Big box 4_0": 0.722
 static_exclusions:
   - {name: nested_tree_0, world_x: -1.713091, world_y: 1.061375, radius: 0.55}
   - {name: nested_tree_1, world_x: -0.730275, world_y: 0.180850, radius: 0.55}
   - {name: nested_tree_2, world_x: 0.162569, world_y: 1.311355, radius: 0.55}
   - {name: nested_tree_3, world_x: 1.183719, world_y: 3.155350, radius: 0.55}
+  # toudi2 is one compound parent model, so Wall_15 collisions are invisible
+  # in ModelStates.  These transformed world-frame circles conservatively
+  # enclose its four box collisions near the target-region upper-left edge.
+  - {name: toudi2_wall15_0, world_x: -2.236987, world_y: 4.299580, radius: 0.255}
+  - {name: toudi2_wall15_1, world_x: -3.111987, world_y: 4.299580, radius: 0.637}
+  - {name: toudi2_wall15_2, world_x: -3.511987, world_y: 4.299580, radius: 0.244}
+  - {name: toudi2_wall15_3, world_x: -2.880115, world_y: 4.299580, radius: 0.407}
 
 # 起飞 H 与 toudi4 主 H 同位：world=(-0.493412,-1.772690)，spawn 局部 (0,0)。
 # PX4/MAVROS/camera_init 在此建立本地原点；下列边界为投递区/场地在该局部系

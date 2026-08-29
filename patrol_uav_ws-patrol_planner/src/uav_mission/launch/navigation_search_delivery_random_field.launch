@@ -66,6 +66,15 @@
     <param name="model_roots" value="$(arg anchor_model_roots)" />
   </node>
 
+  <!-- Ground-truth collision source from the simulation-only vehicle bumper.
+       Point-cloud clearance remains a separate proximity diagnostic. -->
+  <node pkg="uav_mission" type="gazebo_contact_monitor.py"
+        name="gazebo_contact_monitor" output="screen">
+    <param name="raw_topic" value="/mission/uav_contacts_raw" />
+    <param name="status_topic" value="/mission/gazebo_contact_status" />
+    <rosparam param="ignored_collision_patterns">[ground_plane]</rosparam>
+  </node>
+
   <node pkg="uav_mission" type="profile_candidate_selector.py"
         name="profile_candidate_selector" output="screen">
     <rosparam command="load"
@@ -91,6 +100,9 @@
     <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
     <param name="require_field_ready" value="true" />
     <param name="require_anchor_ready" value="true" />
+    <param name="require_contact_monitor" value="true" />
+    <param name="contact_status_topic"
+           value="/mission/gazebo_contact_status" />
     <param name="field/max_z" value="4.0" />
     <param name="search/min_x" value="-3.106588" />
     <param name="search/max_x" value="3.093412" />
@@ -138,6 +150,8 @@
               -o $(optenv SIM_RUN_DIR /tmp)/navigation_random_debug
               /mission/random_field_status
               /mission/planner_anchor_status
+              /mission/gazebo_contact_status
+              /mission/uav_contacts_raw
               /mission/profile_selector_status
               /mission/profile_selected_target
               /mission/command

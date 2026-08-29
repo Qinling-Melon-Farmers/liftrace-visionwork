@@ -113,6 +113,8 @@ class RandomFieldSpawner:
             "~ignore_model_names", "ground_plane,sun,toudi2,3")
         self._ignore_model_names = {
             item.strip() for item in raw_ignore.split(",") if item.strip()}
+        self._static_model_radii = rospy.get_param(
+            "~static_model_radii", {})
         self._static_exclusions = rospy.get_param("~static_exclusions", [])
         self._rng = None
         self._publish_status()
@@ -154,6 +156,15 @@ class RandomFieldSpawner:
             raise ValueError("spawn margins/radii/attempts are invalid")
         if not self._model_roots:
             raise ValueError("model_roots is empty; pass GAZEBO_MODEL_PATH")
+        normalized_radii = {}
+        for name, raw_radius in self._static_model_radii.items():
+            radius = float(raw_radius)
+            if not math.isfinite(radius) or radius < 0.0:
+                raise ValueError(
+                    "static model radius must be finite and nonnegative: %s" %
+                    name)
+            normalized_radii[str(name)] = radius
+        self._static_model_radii = normalized_radii
         for item in self._static_exclusions:
             for key in ("name", "world_x", "world_y", "radius"):
                 if key not in item:
@@ -171,7 +182,10 @@ class RandomFieldSpawner:
             profile=self._profile, seed=self._seed,
             allowed_classes=list(self._standard_classes) +
             (["red_cross"] if self._spawn_red_cross else []),
-            model_roots=self._model_roots)
+            model_roots=self._model_roots,
+            static_model_radii=self._static_model_radii,
+            compound_exclusions=[
+                str(item["name"]) for item in self._static_exclusions])
 
     def _collect_models(self, timeout=30.0):
         try:
@@ -206,7 +220,8 @@ class RandomFieldSpawner:
                 continue
             occupied.append(Footprint(
                 name, float(pose.position.x), float(pose.position.y),
-                self._static_model_radius))
+                self._static_model_radii.get(
+                    name, self._static_model_radius)))
         for item in self._static_exclusions:
             occupied.append(Footprint(
                 str(item["name"]), float(item["world_x"]),
@@ -322,7 +337,8 @@ class RandomFieldSpawner:
                          RED_CROSS_FOOTPRINT_RADIUS))
         self._set_status(
             "SPAWNING", "placing_models",
-            expected_models=["random_%s" % item[0] for item in plan])
+            expected_models=["random_%s" % item[0] for item in plan],
+            occupied_footprint_count=len(occupied))
 
         placements = []
         expected = {}

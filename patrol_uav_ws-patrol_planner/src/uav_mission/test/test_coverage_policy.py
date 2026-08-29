@@ -6,6 +6,11 @@ import xml.etree.ElementTree as ET
 
 import yaml
 
+from uav_mission.contact_policy import (
+    contact_episode_transition,
+    relevant_contact_pairs,
+)
+
 from coverage_policy import (
     CandidateData,
     CandidateQueue,
@@ -260,6 +265,43 @@ class CoveragePolicyTest(unittest.TestCase):
             validate_standard_classes(
                 ("tent", "tent"), ("tent", "bridge"))
 
+    def test_random_field_config_covers_boxes_and_compound_wall(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        config = yaml.safe_load((
+            package_dir / "config" / "coverage_toudi3_random.yaml"
+        ).read_text(encoding="utf-8"))
+        box_radius = (0.6 ** 2 + 0.4 ** 2) ** 0.5
+        self.assertTrue(all(
+            float(config["static_model_radii"][name]) >= box_radius
+            for name in ("Big box 4", "big_box3", "big_box3_0",
+                         "Big box 4_0")))
+        walls = [item for item in config["static_exclusions"]
+                 if item["name"].startswith("toudi2_wall15_")]
+        self.assertEqual(len(walls), 4)
+        occupied = [Footprint(
+            item["name"], float(item["world_x"]),
+            float(item["world_y"]), float(item["radius"]))
+            for item in walls]
+        self.assertFalse(footprint_clear(
+            -2.0, 3.70, STANDARD_FOOTPRINT_RADIUS, occupied, gap=0.15))
+
+    def test_contact_policy_filters_ground_and_debounces_episodes(self):
+        pairs = relevant_contact_pairs([
+            ("iris::guard", "ground_plane::link::collision"),
+            ("iris::guard", "toudi2::Wall_15::collision"),
+            ("toudi2::Wall_15::collision", "iris::guard"),
+        ], ["ground_plane"])
+        self.assertEqual(pairs, [(
+            "iris::guard", "toudi2::Wall_15::collision")])
+        active, increment = contact_episode_transition(False, pairs)
+        self.assertTrue(active)
+        self.assertEqual(increment, 1)
+        active, increment = contact_episode_transition(active, pairs)
+        self.assertEqual(increment, 0)
+        active, increment = contact_episode_transition(active, [])
+        self.assertFalse(active)
+        self.assertEqual(increment, 0)
+
     def test_random_field_spawner_resolves_sibling_policy_when_installed(self):
         package_dir = Path(__file__).resolve().parents[1]
         source = (package_dir / "scripts" /
@@ -343,6 +385,47 @@ class CoveragePolicyTest(unittest.TestCase):
         self.assertEqual(
             selector_params.get("require_adapter_candidate_accepting"),
             "true")
+        self.assertIn("gazebo_contact_monitor.py", node_types)
+        adapter_params = {item.attrib.get("name"): item.attrib.get("value")
+                          for item in adapter.findall("param")}
+        self.assertEqual(adapter_params.get("require_contact_monitor"),
+                         "true")
+
+    def test_sim_vehicle_declares_bumper_contact_sensor(self):
+        package_dir = Path(__file__).resolve().parents[2]
+        model_path = (
+            package_dir / "patrol_control" / "models" /
+            "iris_mid360_downward_camera" / "model.sdf")
+        root = ET.parse(str(model_path)).getroot()
+        sensors = root.findall(".//sensor")
+        contact = next(sensor for sensor in sensors
+                       if sensor.attrib.get("name") ==
+                       "competition_contact_sensor")
+        self.assertEqual(contact.attrib.get("type"), "contact")
+        plugin = contact.find("plugin")
+        self.assertEqual(plugin.attrib.get("filename"),
+                         "libgazebo_ros_bumper.so")
+        self.assertEqual(plugin.findtext("bumperTopicName"),
+                         "/mission/uav_contacts_raw")
+
+        mission_manifest = ET.parse(str(
+            package_dir / "uav_mission" / "package.xml")).getroot()
+        dependencies = [element.text for element in mission_manifest
+                        if element.tag in ("depend", "exec_depend")]
+        self.assertIn("gazebo_msgs", dependencies)
+        self.assertIn("gazebo_plugins", dependencies)
+
+    def test_formal_gate_uses_contact_fact_and_audits_raw_selection(self):
+        package_dir = Path(__file__).resolve().parents[1]
+        source = (package_dir / "scripts" /
+                  "navigation_random_field_assertion.py").read_text(
+                      encoding="utf-8")
+        self.assertIn('"/mission/gazebo_contact_status"', source)
+        self.assertIn('"zero_actual_collisions"', source)
+        self.assertIn('"/uav_vision/selected_target"', source)
+        self.assertIn('"tank" not in self._raw_selected_classes', source)
+        self.assertNotIn(
+            '"zero_collisions": manager.get("collision_count")', source)
 
     def test_adapter_fails_closed_when_upstream_approach_stalls(self):
         package_dir = Path(__file__).resolve().parents[1]

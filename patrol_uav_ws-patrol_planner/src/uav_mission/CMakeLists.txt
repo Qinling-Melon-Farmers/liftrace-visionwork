@@ -3,6 +3,7 @@ project(uav_mission)
 
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  gazebo_msgs
   message_generation
   patrol_control
   rospy
@@ -26,7 +27,7 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS geometry_msgs message_runtime patrol_control rospy sensor_msgs std_msgs tf2_ros uav_vision
+  CATKIN_DEPENDS gazebo_msgs geometry_msgs message_runtime patrol_control rospy sensor_msgs std_msgs tf2_ros uav_vision
 )
 
 catkin_install_python(PROGRAMS
@@ -53,6 +54,7 @@ catkin_install_python(PROGRAMS
   scripts/profile_candidate_selector.py
   scripts/planner_anchor_spawner.py
   scripts/navigation_random_field_assertion.py
+  scripts/gazebo_contact_monitor.py
   scripts/target_search_delivery_assertion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

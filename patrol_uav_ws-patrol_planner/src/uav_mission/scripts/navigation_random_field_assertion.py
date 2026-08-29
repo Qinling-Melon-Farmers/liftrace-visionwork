@@ -34,17 +34,20 @@ class NavigationRandomFieldAssertion:
         self._field_status = None
         self._anchor_status = None
         self._selector_status = None
+        self._contact_status = None
         self._adapter_accepting_seen = False
         self._selector_accepting_seen = False
         self._confirmed_ids = set()
         self._profile_selected_ids = set()
         self._profile_selected_classes = []
+        self._raw_selected_classes = []
         self._approach_ids = set()
         self._accepted_classes = []
         self._nodes_seen = set()
         self._goal_publishers = set()
         self._raw_goal_publishers = set()
         self._selected_publishers = set()
+        self._contact_status_publishers = set()
         self._master = rosgraph.Master(rospy.get_name())
 
         rospy.Subscriber("/mission/target_search_status", String,
@@ -55,10 +58,14 @@ class NavigationRandomFieldAssertion:
                          self._on_anchor, queue_size=2)
         rospy.Subscriber("/mission/profile_selector_status", String,
                          self._on_selector, queue_size=2)
+        rospy.Subscriber("/mission/gazebo_contact_status", String,
+                         self._on_contact, queue_size=4)
         rospy.Subscriber("/uav_vision/targets", TargetCandidateArray,
                          self._on_targets, queue_size=2)
         rospy.Subscriber("/mission/profile_selected_target", TargetCandidate,
                          self._on_selected, queue_size=10)
+        rospy.Subscriber("/uav_vision/selected_target", TargetCandidate,
+                         self._on_raw_selected, queue_size=10)
         rospy.Subscriber("/mission/command", MissionCommand,
                          self._on_command, queue_size=20)
 
@@ -88,6 +95,9 @@ class NavigationRandomFieldAssertion:
                 self._selector_status.get("publishing_enabled")):
             self._selector_accepting_seen = True
 
+    def _on_contact(self, message):
+        self._contact_status = self._decode(message)
+
     def _strict_confirmed(self, target):
         point = target.map_point
         now = rospy.Time.now().to_sec()
@@ -116,6 +126,9 @@ class NavigationRandomFieldAssertion:
         self._profile_selected_ids.add(int(message.id))
         self._profile_selected_classes.append(message.class_name)
 
+    def _on_raw_selected(self, message):
+        self._raw_selected_classes.append(message.class_name)
+
     def _on_command(self, message):
         if int(message.command) == int(MissionCommand.APPROACH):
             self._approach_ids.add(int(message.target_id))
@@ -135,6 +148,8 @@ class NavigationRandomFieldAssertion:
                 self._raw_goal_publishers.update(nodes)
             elif topic == "/mission/profile_selected_target":
                 self._selected_publishers.update(nodes)
+            elif topic == "/mission/gazebo_contact_status":
+                self._contact_status_publishers.update(nodes)
 
     @staticmethod
     def _ready(status, profile):
@@ -148,6 +163,7 @@ class NavigationRandomFieldAssertion:
             "red_cross_truth.yaml",
             "random_field_status.json",
             "planner_anchor_status.json",
+            "gazebo_contact_status.json",
             "target_search_status.json",
         )
         return all(os.path.isfile(os.path.join(self._run_dir, name))
@@ -202,6 +218,7 @@ class NavigationRandomFieldAssertion:
                 target_id in approach_transitions
                 for target_id in delivered_ids),
             "tank_never_selected_or_accepted": (
+                "tank" not in self._raw_selected_classes and
                 "tank" not in self._profile_selected_classes and
                 "tank" not in self._accepted_classes and
                 "tank" not in delivered_classes),
@@ -211,7 +228,21 @@ class NavigationRandomFieldAssertion:
                 int(MissionCommand.LAND) in
                 (manager.get("command_sequence") or [])),
             "inside_field_bounds": manager.get("boundary_violations") == 0,
-            "zero_collisions": manager.get("collision_count") == 0,
+            "contact_monitor_ready": bool(
+                self._contact_status and
+                self._contact_status.get("ready") and
+                self._contact_status.get("status") == "READY" and
+                int(self._contact_status.get("sample_count", 0)) > 0 and
+                self._contact_status.get("last_sample_wall_age") is not None and
+                0.0 <= float(self._contact_status.get(
+                    "last_sample_wall_age")) <= 1.0 and
+                self._contact_status_publishers == {
+                    "/gazebo_contact_monitor"}),
+            "zero_actual_collisions": bool(
+                self._contact_status and
+                int(self._contact_status.get(
+                    "actual_collision_count", -1)) == 0 and
+                int(manager.get("actual_collision_count", -1)) == 0),
             "max_height": (
                 max_altitude is not None and
                 float(max_altitude) <= 4.0 + 1e-6),
@@ -248,6 +279,9 @@ class NavigationRandomFieldAssertion:
             "goal_publishers_seen": sorted(self._goal_publishers),
             "raw_goal_publishers_seen": sorted(self._raw_goal_publishers),
             "selected_publishers_seen": sorted(self._selected_publishers),
+            "contact_status_publishers_seen": sorted(
+                self._contact_status_publishers),
+            "raw_selected_classes": list(self._raw_selected_classes),
             "nodes_seen": sorted(self._nodes_seen),
         }
 
