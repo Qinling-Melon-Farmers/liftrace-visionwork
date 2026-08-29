@@ -28,8 +28,7 @@ from uav_mission.random_field_policy import (
     Footprint,
     RED_CROSS_FOOTPRINT_RADIUS,
     STANDARD_FOOTPRINT_RADIUS,
-    footprint_clear,
-    footprint_inside_bounds,
+    plan_footprint_layout,
     validate_bounds,
     validate_seed,
     validate_standard_classes,
@@ -87,6 +86,8 @@ class RandomFieldSpawner:
         self._static_model_radius = float(
             rospy.get_param("~spawn/static_model_radius", 0.55))
         self._max_attempts = int(rospy.get_param("~max_attempts", 4000))
+        self._layout_attempts = int(rospy.get_param(
+            "~spawn/layout_attempts", 64))
         self._verification_tolerance = float(
             rospy.get_param("~spawn/verification_tolerance", 0.05))
         self._verification_timeout = float(
@@ -152,7 +153,8 @@ class RandomFieldSpawner:
         self._standard_classes = validate_standard_classes(
             self._standard_classes, required)
         if (self._boundary_margin < 0.0 or self._pair_gap < 0.0 or
-                self._static_model_radius < 0.0 or self._max_attempts <= 0):
+                self._static_model_radius < 0.0 or self._max_attempts <= 0 or
+                self._layout_attempts <= 0):
             raise ValueError("spawn margins/radii/attempts are invalid")
         if not self._model_roots:
             raise ValueError("model_roots is empty; pass GAZEBO_MODEL_PATH")
@@ -182,6 +184,7 @@ class RandomFieldSpawner:
             profile=self._profile, seed=self._seed,
             allowed_classes=list(self._standard_classes) +
             (["red_cross"] if self._spawn_red_cross else []),
+            layout_attempts=self._layout_attempts,
             model_roots=self._model_roots,
             static_model_radii=self._static_model_radii,
             compound_exclusions=[
@@ -227,25 +230,6 @@ class RandomFieldSpawner:
                 str(item["name"]), float(item["world_x"]),
                 float(item["world_y"]), float(item["radius"])))
         return occupied
-
-    def _sample(self, radius, occupied):
-        for _attempt in range(self._max_attempts):
-            lx = self._rng.uniform(
-                self._search_bounds[0], self._search_bounds[1])
-            ly = self._rng.uniform(
-                self._search_bounds[2], self._search_bounds[3])
-            if not footprint_inside_bounds(
-                    lx, ly, radius, self._search_bounds,
-                    self._boundary_margin):
-                continue
-            if not footprint_inside_bounds(
-                    lx, ly, radius, self._field_bounds,
-                    self._boundary_margin):
-                continue
-            wx, wy = lx + self._offset_x, ly + self._offset_y
-            if footprint_clear(wx, wy, radius, occupied, self._pair_gap):
-                return lx, ly
-        return None
 
     def _verify_spawned(self, expected):
         deadline = time.monotonic() + self._verification_timeout
@@ -340,16 +324,27 @@ class RandomFieldSpawner:
             expected_models=["random_%s" % item[0] for item in plan],
             occupied_footprint_count=len(occupied))
 
+        layout = plan_footprint_layout(
+            self._rng,
+            [(class_name, radius)
+             for class_name, _model_name, radius in plan],
+            occupied, self._search_bounds, self._field_bounds,
+            self._boundary_margin, self._pair_gap,
+            self._offset_x, self._offset_y,
+            self._max_attempts, self._layout_attempts)
+        if layout is None:
+            raise RuntimeError(
+                "no footprint-safe full layout after %d restarts "
+                "(%d attempts per target)" %
+                (self._layout_attempts, self._max_attempts))
+
         placements = []
         expected = {}
-        for class_name, model_name, radius in plan:
+        for (class_name, model_name, radius), (
+                planned_class, lx, ly) in zip(plan, layout):
+            if planned_class != class_name:
+                raise RuntimeError("planned class order changed unexpectedly")
             sdf_path = self._resolve_model_sdf(model_name)
-            sample = self._sample(radius, occupied)
-            if sample is None:
-                raise RuntimeError(
-                    "no footprint-safe pose for %s after %d attempts" %
-                    (class_name, self._max_attempts))
-            lx, ly = sample
             wx, wy = lx + self._offset_x, ly + self._offset_y
             yaw = self._rng.uniform(-math.pi, math.pi)
             initial_pose = Pose()
@@ -367,7 +362,6 @@ class RandomFieldSpawner:
                 raise RuntimeError(
                     "spawn %s failed: %s" %
                     (class_name, response.status_message))
-            occupied.append(Footprint(spawned_name, wx, wy, radius))
             expected[spawned_name] = (wx, wy)
             placements.append({
                 "class": class_name,

@@ -13,6 +13,8 @@ class_profile: r2026
 spawn:
   boundary_margin: 0.10
   pair_gap: 0.15
+  # 先在内存中规划完整 5 靶布局；顺序贪心遇到后段死路时整套重采样，Gazebo 不留半成品。
+  layout_attempts: 64
   static_model_radius: 0.55
   verification_tolerance: 0.05
   verification_timeout: 20.0

@@ -60,3 +60,57 @@ def footprint_clear(x, y, radius, occupied, gap=0.0):
         if math.hypot(x - item.x, y - item.y) < required:
             return False
     return True
+
+
+def plan_footprint_layout(rng, targets, occupied, search_bounds,
+                          field_bounds, boundary_margin=0.0, pair_gap=0.0,
+                          offset_x=0.0, offset_y=0.0,
+                          attempts_per_target=4000, layout_attempts=64):
+    """Sample a complete layout, restarting instead of keeping a dead end.
+
+    Sequential rejection sampling can place early targets so that a later
+    target has no free pose even though a valid full layout exists.  This
+    helper plans every footprint before Gazebo mutation and deterministically
+    restarts the whole layout using the same seeded RNG when that happens.
+    """
+    attempts_per_target = int(attempts_per_target)
+    layout_attempts = int(layout_attempts)
+    if attempts_per_target <= 0 or layout_attempts <= 0:
+        raise ValueError("layout attempt limits must be positive")
+    target_specs = [(str(name), float(radius)) for name, radius in targets]
+    if any(not math.isfinite(radius) or radius < 0.0
+           for _name, radius in target_specs):
+        raise ValueError("target footprint radii must be finite and nonnegative")
+
+    for _layout_index in range(layout_attempts):
+        trial_occupied = list(occupied)
+        planned = []
+        for name, radius in target_specs:
+            sample = None
+            for _attempt in range(attempts_per_target):
+                local_x = rng.uniform(search_bounds[0], search_bounds[1])
+                local_y = rng.uniform(search_bounds[2], search_bounds[3])
+                if not footprint_inside_bounds(
+                        local_x, local_y, radius, search_bounds,
+                        boundary_margin):
+                    continue
+                if not footprint_inside_bounds(
+                        local_x, local_y, radius, field_bounds,
+                        boundary_margin):
+                    continue
+                world_x = local_x + float(offset_x)
+                world_y = local_y + float(offset_y)
+                if footprint_clear(
+                        world_x, world_y, radius, trial_occupied, pair_gap):
+                    sample = (local_x, local_y)
+                    break
+            if sample is None:
+                break
+            local_x, local_y = sample
+            planned.append((name, local_x, local_y))
+            trial_occupied.append(Footprint(
+                name, local_x + float(offset_x),
+                local_y + float(offset_y), radius))
+        if len(planned) == len(target_specs):
+            return planned
+    return None

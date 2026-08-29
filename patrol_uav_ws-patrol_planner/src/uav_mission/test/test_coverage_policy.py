@@ -40,6 +40,7 @@ from uav_mission.random_field_policy import (
     STANDARD_FOOTPRINT_RADIUS,
     footprint_clear,
     footprint_inside_bounds,
+    plan_footprint_layout,
     validate_seed,
     validate_standard_classes,
 )
@@ -265,6 +266,30 @@ class CoveragePolicyTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_standard_classes(
                 ("tent", "tent"), ("tent", "bridge"))
+
+    def test_random_field_layout_restarts_after_greedy_dead_end(self):
+        class SequenceRng:
+            def __init__(self, values):
+                self._values = iter(values)
+
+            def uniform(self, _lower, _upper):
+                return next(self._values)
+
+        # First layout puts A in the middle; both attempts for B collide.
+        # The second full-layout attempt moves A aside and fits both targets.
+        rng = SequenceRng([
+            2.0, 1.0,
+            2.5, 1.0,
+            1.5, 1.0,
+            0.5, 0.5,
+            3.5, 1.5,
+        ])
+        layout = plan_footprint_layout(
+            rng, [("a", 0.4), ("b", 0.4)], [],
+            (0.0, 4.0, 0.0, 2.0), (0.0, 4.0, 0.0, 2.0),
+            attempts_per_target=2, layout_attempts=2, pair_gap=0.1)
+        self.assertEqual(layout, [
+            ("a", 0.5, 0.5), ("b", 3.5, 1.5)])
 
     def test_random_field_config_covers_boxes_and_compound_wall(self):
         package_dir = Path(__file__).resolve().parents[1]
