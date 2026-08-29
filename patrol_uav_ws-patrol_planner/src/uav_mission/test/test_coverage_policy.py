@@ -574,6 +574,9 @@ class CoveragePolicyTest(unittest.TestCase):
         self.assertIn('"adapter_only_planner_goal"', source)
         self.assertIn('"navigation_manager_only_raw_goal"', source)
         self.assertIn('"inside_field_bounds"', source)
+        self.assertIn('"dropout_check_counts"', source)
+        self.assertIn('"dropout_events"', source)
+        self.assertIn("_record_readiness_dropout(checks)", source)
         self.assertNotIn("route_progress_observed", source)
         self.assertIn("time.sleep(0.1)", source)
         observer = (package_dir / "scripts" /

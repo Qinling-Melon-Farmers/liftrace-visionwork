@@ -92,6 +92,9 @@ class NavigationRandomFieldPreflight:
         self._invalid_pose_count = 0
         self._max_altitude_seen = float("-inf")
         self._readiness_dropouts = 0
+        self._dropout_check_counts = {}
+        self._dropout_events = []
+        self._last_dropout_signature = None
         self._measurement_started_wall = None
         self._measurement_started_ros = None
         self._startup_deadline = time.monotonic() + self._startup_timeout
@@ -423,6 +426,26 @@ class NavigationRandomFieldPreflight:
         self._measurement_started_ros = rospy.Time.now().to_sec()
         self._last_pose_wall = self._measurement_started_wall
 
+    def _record_readiness_dropout(self, checks):
+        failed = tuple(sorted(
+            name for name, passed in checks.items() if not passed))
+        self._readiness_dropouts += 1
+        for name in failed:
+            self._dropout_check_counts[name] = (
+                self._dropout_check_counts.get(name, 0) + 1)
+        if (failed != self._last_dropout_signature and
+                len(self._dropout_events) < 64):
+            self._dropout_events.append({
+                "wall_elapsed": max(
+                    0.0, time.monotonic() -
+                    self._measurement_started_wall),
+                "ros_elapsed": max(
+                    0.0, rospy.Time.now().to_sec() -
+                    self._measurement_started_ros),
+                "failed_checks": list(failed),
+            })
+        self._last_dropout_signature = failed
+
     @staticmethod
     def _atomic_write(path, payload):
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
@@ -486,6 +509,8 @@ class NavigationRandomFieldPreflight:
             "max_altitude": (None if self._max_altitude_seen == float("-inf")
                              else self._max_altitude_seen),
             "readiness_dropouts": self._readiness_dropouts,
+            "dropout_check_counts": dict(self._dropout_check_counts),
+            "dropout_events": list(self._dropout_events),
             "planner_goal_publishers": sorted(self._goal_publishers),
             "raw_goal_publishers": sorted(self._raw_goal_publishers),
             "nodes_seen": sorted(self._nodes_seen),
@@ -501,7 +526,8 @@ class NavigationRandomFieldPreflight:
             now = time.monotonic()
             self._sample_graph()
             self._sample_tf()
-            ready = all(self._checks().values())
+            checks = self._checks()
+            ready = all(checks.values())
             if self._measurement_started_wall is None:
                 if ready:
                     self._start_measurement()
@@ -509,7 +535,9 @@ class NavigationRandomFieldPreflight:
                     return self._finish("startup_timeout")
             else:
                 if not ready:
-                    self._readiness_dropouts += 1
+                    self._record_readiness_dropout(checks)
+                else:
+                    self._last_dropout_signature = None
                 if now - self._measurement_started_wall >= self._duration:
                     return self._finish("preflight_contract_failed")
             # /clock may stop while Gazebo initializes or pauses; the
