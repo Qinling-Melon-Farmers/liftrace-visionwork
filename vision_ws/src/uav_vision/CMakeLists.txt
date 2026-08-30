@@ -80,6 +80,7 @@ add_dependencies(cross_detector_node
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
   add_rostest(test/cross_geometry_regression.test)
+  add_rostest(test/landing_mode_gate.test)
 endif()
 
 # ---- circle_detector_node ----
@@ -131,6 +132,7 @@ catkin_install_python(PROGRAMS
   scripts/map_rejection_assertion.py
   scripts/circle_geometry_assertion.py
   scripts/cross_geometry_regression_assertion.py
+  scripts/landing_mode_gate_assertion.py
   scripts/drop_aligner_freshness_assertion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

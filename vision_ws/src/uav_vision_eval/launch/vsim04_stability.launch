@@ -24,6 +24,9 @@
   <arg name="gui" default="false" />
   <arg name="paused" default="false" />
   <arg name="start_vision" default="true" />
+  <!-- Default stays off for the search Gate; true measures the production
+       landing node's align-mode idle path without enabling H processing. -->
+  <arg name="start_landing_detector" default="false" />
   <arg name="vision_python"
        default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
@@ -94,7 +97,7 @@
       <arg name="max_latest_tf_age_sec" value="0.10" />
       <arg name="class_profile" value="$(arg class_profile)" />
       <arg name="enable_debug_image" value="false" />
-      <arg name="start_landing_detector" value="false" />
+      <arg name="start_landing_detector" value="$(arg start_landing_detector)" />
       <arg name="start_legacy_compat" value="false" />
     </include>
   </group>

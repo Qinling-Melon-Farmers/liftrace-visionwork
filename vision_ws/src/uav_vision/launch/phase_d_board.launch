@@ -57,6 +57,7 @@
     <rosparam file="$(find uav_vision)/config/landing_detector.yaml" />
     <param name="image_topic" value="$(arg image_topic)" />
     <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <param name="default_align_mode" value="$(arg default_align_mode)" />
     <param name="enable_debug_image" value="$(arg enable_debug_image)" />
   </node>
 

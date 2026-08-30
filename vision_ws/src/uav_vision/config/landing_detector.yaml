@@ -1,6 +1,11 @@
 # landing_detector_node 参数
 # 算法：灰度 → 自适应阈值 → 形态学 → 椭圆拟合
 
+# 搜索/投递阶段不发布、不执行全图 H 处理；进入 landing 模式后恢复。
+align_mode_topic: /uav_vision/align_mode
+default_align_mode: disabled
+process_only_in_landing_mode: true
+
 # 预处理
 landing_blur_kernel_size: 5
 

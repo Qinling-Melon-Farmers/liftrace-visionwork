@@ -1,8 +1,10 @@
 #pragma once
 
 #include <ros/ros.h>
+#include <atomic>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/CameraInfo.h>
+#include <std_msgs/String.h>
 #include <image_transport/image_transport.h>
 #include <image_geometry/pinhole_camera_model.h>
 #include <cv_bridge/cv_bridge.h>
@@ -20,6 +22,7 @@ private:
   void loadParameters();
   void imageCallback(const sensor_msgs::ImageConstPtr &msg);
   void cameraInfoCallback(const sensor_msgs::CameraInfoConstPtr &msg);
+  void alignModeCallback(const std_msgs::StringConstPtr &msg);
 
   bool detectLandingPad(const cv::Mat &image,
                         cv::Point2f &center, float &radius,
@@ -41,6 +44,7 @@ private:
   image_transport::ImageTransport it_;
   image_transport::Subscriber image_sub_;
   ros::Subscriber camera_info_sub_;
+  ros::Subscriber align_mode_sub_;
   ros::Publisher detections_pub_;
   image_transport::Publisher debug_pub_;
 
@@ -49,6 +53,10 @@ private:
   // 参数
   std::string image_topic_;
   std::string camera_info_topic_;
+  std::string align_mode_topic_;
+  std::string default_align_mode_;
+  bool process_only_in_landing_mode_;
+  std::atomic<bool> landing_mode_active_{false};
   bool enable_debug_image_;
   std::string debug_image_topic_;
 

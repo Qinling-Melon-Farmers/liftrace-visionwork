@@ -1,0 +1,15 @@
+<launch>
+  <node pkg="uav_vision" type="landing_detector_node"
+        name="landing_detector" output="screen" required="true">
+    <rosparam file="$(find uav_vision)/config/landing_detector.yaml" />
+    <param name="image_topic" value="/landing_gate/image" />
+    <param name="camera_info_topic" value="/landing_gate/camera_info" />
+    <param name="align_mode_topic" value="/landing_gate/align_mode" />
+    <param name="default_align_mode" value="disabled" />
+    <param name="process_only_in_landing_mode" value="true" />
+    <param name="enable_debug_image" value="true" />
+    <param name="debug_image_topic" value="/landing_gate/debug" />
+  </node>
+  <test test-name="landing_mode_gate" pkg="uav_vision"
+        type="landing_mode_gate_assertion.py" time-limit="20.0" />
+</launch>
