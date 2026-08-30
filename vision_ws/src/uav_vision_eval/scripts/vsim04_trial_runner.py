@@ -294,9 +294,28 @@ class VSim04TrialRunner:
         return sampling_start
 
     def _call_service_with_deadline(self, name, proxy, *args):
-        return call_with_monotonic_deadline(
-            lambda: proxy(*args), self._service_call_timeout,
-            "{}_service".format(name), rospy.is_shutdown)
+        def invoke():
+            try:
+                return proxy(*args)
+            except rospy.ServiceException as first_error:
+                # The runner only uses this helper for idempotent camera-pose
+                # and memory-reset calls. A single ROS transport reconnect
+                # must not discard an otherwise valid long operating surface.
+                if rospy.is_shutdown():
+                    raise
+                rospy.logwarn(
+                    "V-SIM-04 %s service transport retry: %s",
+                    name, first_error)
+                time.sleep(0.05)
+                return proxy(*args)
+
+        try:
+            return call_with_monotonic_deadline(
+                invoke, self._service_call_timeout,
+                "{}_service".format(name), rospy.is_shutdown)
+        except Exception as error:
+            raise RuntimeError(
+                "{} service call failed: {}".format(name, error)) from error
 
     def _set_camera(self, x, y, z):
         state = ModelState()
