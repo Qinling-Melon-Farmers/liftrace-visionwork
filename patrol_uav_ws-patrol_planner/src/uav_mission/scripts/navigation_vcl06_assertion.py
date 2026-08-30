@@ -538,6 +538,9 @@ class Vcl06GateReducer:
         land_decisions = [self.decisions[key] for key in self.land_success]
         mission_ids = {item.mission_id for item in self.decisions.values()}
         committed_mission_ids = {item.mission_id for item in committed}
+        three_release_commits = (
+            len(committed_keys) == 3 and len(target_instances) == 3 and
+            slots == [1, 2, 3] and len(committed_mission_ids) == 1)
         first_issued = min(
             (item.issued_ns for item in self.decisions.values()), default=None)
         return_issued = min(
@@ -593,18 +596,18 @@ class Vcl06GateReducer:
             "single_planner_goal_publisher": (
                 self.planner_goal_publishers ==
                 (self.expected_goal_publisher,)),
-            "three_release_commits": (
-                len(committed_keys) == 3 and len(target_instances) == 3 and
-                slots == [1, 2, 3] and
-                len(committed_mission_ids) == 1),
+            "three_release_commits": three_release_commits,
             "three_recovery_successes": (
                 len(self.recovery_success) == 3 and
                 committed_keys == self.recovery_success),
             "three_capture_started": (
+                three_release_commits and
                 committed_keys.issubset(self.capture_started)),
             "real_approach_commands": (
+                three_release_commits and
                 committed_keys.issubset(bound_commands)),
             "committed_targets_were_selected": (
+                three_release_commits and
                 target_instances.issubset(self.selected_instances)),
             "return_home_success": len(self.return_success) == 1,
             "land_success": len(self.land_success) == 1,

@@ -263,6 +263,10 @@ class Vcl06GateReducerTest(unittest.TestCase):
         self.assertEqual(report["status"], "FAIL")
         self.assertIn("wall_timeout", report["errors"])
         self.assertIn("required_statuses_seen", report["failed_checks"])
+        for check in (
+                "three_capture_started", "real_approach_commands",
+                "committed_targets_were_selected"):
+            self.assertFalse(report["checks"][check])
 
     def test_retry_approach_command_binds_by_decision_sequence(self):
         reducer = MODULE.Vcl06GateReducer()

@@ -10,6 +10,8 @@ selection, retry, payload-slot allocation or mission scheduling.
 from dataclasses import dataclass
 import json
 import math
+import os
+import sys
 import threading
 import uuid
 
@@ -37,6 +39,9 @@ from uav_vision.msg import (
     AlignmentTargetContext, ReleaseEvidenceContext, TargetCandidateArray,
 )
 
+_SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
 from release_commitment import strict_context_source
 
 
