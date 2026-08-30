@@ -33,6 +33,10 @@ FRAME_FIELDS = [
     "refined_reject_reason", "detection_present",
     "mapped_class_confidence", "mapped_geometry_confidence", "map_valid",
     "transform_failure", "reject_reason", "map_error_xy",
+    "detector_inference_ms", "detector_processing_ms",
+    "detector_callback_start_monotonic_sec",
+    "detector_callback_end_monotonic_sec",
+    "detector_perf_receipt_monotonic_sec",
     "current_confirmed", "current_selected", "stable_id",
 ]
 EVENT_FIELDS = [
@@ -43,7 +47,11 @@ PERFORMANCE_FIELDS = [
     "trial_id", "kind", "class_name", "height_m", "speed_mps", "status",
     "p_confirm", "p_selected", "p_interrupt", "stable_id",
     "confirmation_exposure_sec", "confirmation_processing_ms",
-    "processing_receipt_reordered",
+    "confirmation_pipeline_ms", "processing_receipt_reordered",
+    "stage_trace_enabled", "complete_mapped_frames",
+    "partial_only_mapped_frames", "complete_mapped_rate",
+    "partial_source_sets", "p95_detector_inference_ms",
+    "p95_detector_processing_ms",
     "eligible_frames", "raw_class_frames", "raw_geometry_frames",
     "resolved_frames", "refined_frames", "geometry_verified_frames",
     "association_valid_frames", "center_refined_frames",
@@ -183,7 +191,17 @@ def planned_trial_result(trial):
         "stable_id": None,
         "confirmation_exposure_sec": None,
         "confirmation_processing_ms": None,
+        "confirmation_pipeline_ms": None,
         "processing_receipt_reordered": False,
+        "stage_trace_enabled": True,
+        "complete_mapped_frames": 0,
+        "partial_only_mapped_frames": 0,
+        "complete_mapped_rate": None,
+        "partial_source_sets": "{}",
+        "detector_inference_ms_samples": [],
+        "detector_processing_ms_samples": [],
+        "p95_detector_inference_ms": None,
+        "p95_detector_processing_ms": None,
         "eligible_frames": 0,
         "raw_class_frames": 0,
         "raw_geometry_frames": 0,
@@ -223,6 +241,10 @@ def finalize_trial_result(result):
     valid = int(result.get("map_valid_frames", 0))
     tf_failures = int(result.get("tf_failure_frames", 0))
     errors = [float(value) for value in result.pop("map_errors_xy", [])]
+    detector_inference = [float(value) for value in result.pop(
+        "detector_inference_ms_samples", [])]
+    detector_processing = [float(value) for value in result.pop(
+        "detector_processing_ms_samples", [])]
     result["map_invalid_rate"] = (
         max(0, detected - valid) / float(detected) if detected else None)
     result["map_unavailable_rate"] = (
@@ -232,6 +254,15 @@ def finalize_trial_result(result):
     result["mean_map_error_xy"] = statistics.mean(errors) if errors else None
     result["p95_map_error_xy"] = percentile(errors, 95)
     result["map_error_sample_count"] = len(errors)
+    result["p95_detector_inference_ms"] = percentile(
+        detector_inference, 95)
+    result["p95_detector_processing_ms"] = percentile(
+        detector_processing, 95)
+    mapped_buckets = (
+        int(result.get("complete_mapped_frames", 0)) +
+        int(result.get("partial_only_mapped_frames", 0)))
+    result["complete_mapped_rate"] = _ratio(
+        int(result.get("complete_mapped_frames", 0)), mapped_buckets)
     result.pop("tf_failure_frames", None)
     result["failure_stage"] = classify_failure_stage(result)
     return result
@@ -243,6 +274,8 @@ def classify_failure_stage(result):
         return ""
     if int(result.get("eligible_frames", 0)) <= 0:
         return "truth_visibility"
+    if not bool(result.get("stage_trace_enabled", True)):
+        return "stage_trace_disabled"
     if int(result.get("raw_class_frames", 0)) <= 0:
         return "raw_classifier"
     if int(result.get("raw_geometry_frames", 0)) <= 0:
@@ -374,7 +407,7 @@ def event_inside_trial_window(event, result):
 
 
 def correlate_admission_events(candidate_events, selected_events, result,
-                               image_receipts):
+                               image_receipts, detector_callback_starts=None):
     """Join cross-topic events without depending on ROS callback order."""
     output = {
         "p_confirm": False,
@@ -382,6 +415,7 @@ def correlate_admission_events(candidate_events, selected_events, result,
         "stable_id": None,
         "confirmation_exposure_sec": None,
         "confirmation_processing_ms": None,
+        "confirmation_pipeline_ms": None,
         "processing_receipt_reordered": False,
     }
     confirms = [event for event in candidate_events
@@ -400,6 +434,12 @@ def correlate_admission_events(candidate_events, selected_events, result,
         delta = confirmation["receipt_monotonic"] - image_receipt
         output["processing_receipt_reordered"] = delta < 0.0
         output["confirmation_processing_ms"] = max(0.0, delta) * 1000.0
+    detector_start = (detector_callback_starts or {}).get(
+        confirmation["stamp_key"])
+    if detector_start is not None:
+        delta = confirmation["receipt_monotonic"] - detector_start
+        if math.isfinite(delta) and delta >= 0.0:
+            output["confirmation_pipeline_ms"] = delta * 1000.0
     output["p_selected"] = any(
         event["stable_id"] == output["stable_id"] and
         event_inside_trial_window(event, result)
@@ -418,6 +458,23 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
     confirmation_processing = [
         result["confirmation_processing_ms"] for result in completed
         if result.get("confirmation_processing_ms") is not None]
+    confirmation_pipeline = [
+        result["confirmation_pipeline_ms"] for result in completed
+        if result.get("confirmation_pipeline_ms") is not None]
+    detector_inference = [
+        float(value) for result in results
+        if result.get("status") == "completed"
+        for value in result.get("detector_inference_ms_samples", [])]
+    detector_processing = [
+        float(value) for result in results
+        if result.get("status") == "completed"
+        for value in result.get("detector_processing_ms_samples", [])]
+    complete_mapped_frames = sum(
+        int(result.get("complete_mapped_frames", 0)) for result in completed)
+    partial_only_mapped_frames = sum(
+        int(result.get("partial_only_mapped_frames", 0))
+        for result in completed)
+    mapped_bucket_frames = complete_mapped_frames + partial_only_mapped_frames
     raw_map_errors = [
         float(value) for result in results
         if result.get("status") == "completed"
@@ -513,6 +570,14 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
                 confirmation_exposure, 95),
             "p95_confirmation_processing_ms": percentile(
                 confirmation_processing, 95),
+            "p95_confirmation_pipeline_ms": percentile(
+                confirmation_pipeline, 95),
+            "p95_detector_inference_ms": percentile(
+                detector_inference, 95),
+            "p95_detector_processing_ms": percentile(
+                detector_processing, 95),
+            "complete_mapped_rate": _ratio(
+                complete_mapped_frames, mapped_bucket_frames),
             "map_invalid_rate": _ratio(
                 max(0, detection_frames - map_valid_frames),
                 detection_frames),
@@ -536,6 +601,11 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
             "map_error_samples": len(raw_map_errors),
             "confirmation_exposure_samples": len(confirmation_exposure),
             "confirmation_processing_samples": len(confirmation_processing),
+            "confirmation_pipeline_samples": len(confirmation_pipeline),
+            "detector_inference_samples": len(detector_inference),
+            "detector_processing_samples": len(detector_processing),
+            "complete_mapped_frames": complete_mapped_frames,
+            "partial_only_mapped_frames": partial_only_mapped_frames,
             "processing_receipt_reordered_samples": sum(
                 bool(result.get("processing_receipt_reordered"))
                 for result in completed),
@@ -556,6 +626,13 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
             "confirmation_processing_ms": (
                 "monotonic recorder receipt of confirmation minus receipt of "
                 "the image at candidate last_seen"),
+            "confirmation_pipeline_ms": (
+                "same-host monotonic confirmation receipt minus detector "
+                "callback start embedded for the same source stamp"),
+            "complete_mapped_rate": (
+                "unique active-trial mapped source stamps completed by all "
+                "required detector branches divided by complete plus "
+                "partial-only unique stamps"),
             "map_invalid_rate": (
                 "mapped detection frames without a valid map point divided by "
                 "matching detection frames"),
@@ -624,6 +701,16 @@ def _report(summary):
             metrics["failure_stage_counts"]),
         "- P95 processing latency: `{}` ms".format(
             metrics["p95_confirmation_processing_ms"]),
+        "- P95 same-host pipeline latency: `{}` ms".format(
+            metrics["p95_confirmation_pipeline_ms"]),
+        "- Detector inference/processing P95: `{}` / `{}` ms".format(
+            metrics["p95_detector_inference_ms"],
+            metrics["p95_detector_processing_ms"]),
+        "- Complete mapped rate: `{}` ({}/{})".format(
+            metrics["complete_mapped_rate"],
+            denominators["complete_mapped_frames"],
+            denominators["complete_mapped_frames"] +
+            denominators["partial_only_mapped_frames"]),
         "- Median/P95 exposure: `{}` / `{}` s".format(
             metrics["median_confirmation_exposure_sec"],
             metrics["p95_confirmation_exposure_sec"]),

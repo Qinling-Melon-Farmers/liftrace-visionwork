@@ -125,6 +125,9 @@ def main():
         "eligible_frames": 10,
     })
     assert classify_failure_stage(failure) == "raw_classifier"
+    failure["stage_trace_enabled"] = False
+    assert classify_failure_stage(failure) == "stage_trace_disabled"
+    failure["stage_trace_enabled"] = True
     failure["raw_class_frames"] = 8
     assert classify_failure_stage(failure) == "raw_geometry"
     failure["raw_geometry_frames"] = 8
@@ -153,6 +156,10 @@ def main():
             "entered_fully_in_frame": True,
             "left_fully_in_frame": True,
             "eligible_frames": 1,
+            "complete_mapped_frames": 1,
+            "partial_only_mapped_frames": 1,
+            "detector_inference_ms_samples": [10.0, 20.0],
+            "detector_processing_ms_samples": [12.0, 24.0],
         })
         if trial["kind"] == "dynamic":
             result.update({
@@ -170,6 +177,9 @@ def main():
     assert terminal_summary["status"] == "MEASURED"
     assert terminal_summary["evaluation_scope"] == "full"
     assert terminal_summary["metrics"]["actual_image_source_fps"] == 30.0
+    assert terminal_summary["metrics"]["complete_mapped_rate"] == 0.5
+    assert terminal_summary["metrics"]["p95_detector_inference_ms"] == 20.0
+    assert terminal_summary["metrics"]["p95_detector_processing_ms"] == 24.0
     invalid_summary = summarize_trial_results(
         terminal_results[:-1], "unit", actual_fps=30.0,
         terminal_context={"run_complete": True,
@@ -218,11 +228,12 @@ def main():
          "stable_id": 7},
     ]
     correlated = correlate_admission_events(
-        candidates, selected_first, window, {200: 10.0})
+        candidates, selected_first, window, {200: 10.0}, {200: 15.0})
     assert correlated["p_confirm"] and correlated["p_selected"]
     assert correlated["stable_id"] == 7
     assert abs(correlated["confirmation_exposure_sec"] - 1.0) < 1.0e-9
     assert abs(correlated["confirmation_processing_ms"] - 10000.0) < 1.0e-9
+    assert abs(correlated["confirmation_pipeline_ms"] - 5000.0) < 1.0e-9
     image_after_candidate = correlate_admission_events(
         candidates[:1], selected_first, window, {200: 21.0})
     assert image_after_candidate["p_confirm"]

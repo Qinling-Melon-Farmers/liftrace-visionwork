@@ -54,8 +54,9 @@ class TargetDetector:
                           self._device if self._device != "" else "ultralytics_default",
                           list(self._class_names.values()))
 
-    def _publish_perf(self, header, detections_count, total_ms, inference_ms):
-        now = time.perf_counter()
+    def _publish_perf(self, header, detections_count, total_ms, inference_ms,
+                      callback_start, callback_end):
+        now = callback_end
         if self._last_frame_time is not None:
             dt = max(now - self._last_frame_time, 1e-6)
             inst_fps = 1.0 / dt
@@ -82,6 +83,10 @@ class TargetDetector:
             KeyValue("processing_ms", f"{total_ms:.3f}"),
             KeyValue("inference_ms", f"{inference_ms:.3f}"),
             KeyValue("fps_ema", f"{self._fps_ema:.3f}"),
+            KeyValue("callback_start_monotonic_sec",
+                     f"{callback_start:.9f}"),
+            KeyValue("callback_end_monotonic_sec",
+                     f"{callback_end:.9f}"),
         ]
         msg = DiagnosticArray()
         msg.header = header
@@ -128,7 +133,7 @@ class TargetDetector:
         return image.copy()
 
     def _on_image(self, msg):
-        t0 = time.perf_counter()
+        t0 = time.monotonic()
         try:
             img = self._image_to_bgr(msg)
         except Exception as e:
@@ -142,11 +147,13 @@ class TargetDetector:
 
         if self._model is None:
             self._detections_pub.publish(arr)
-            total_ms = (time.perf_counter() - t0) * 1000.0
-            self._publish_perf(msg.header, 0, total_ms, 0.0)
+            callback_end = time.monotonic()
+            total_ms = (callback_end - t0) * 1000.0
+            self._publish_perf(
+                msg.header, 0, total_ms, 0.0, t0, callback_end)
             return
 
-        t_infer = time.perf_counter()
+        t_infer = time.monotonic()
         predict_kwargs = {
             "imgsz": self._imgsz,
             "conf": self._conf_threshold,
@@ -155,7 +162,7 @@ class TargetDetector:
         if self._device != "":
             predict_kwargs["device"] = self._device
         results = self._model.predict(img, **predict_kwargs)
-        infer_ms = (time.perf_counter() - t_infer) * 1000.0
+        infer_ms = (time.monotonic() - t_infer) * 1000.0
 
         if results and results[0].boxes is not None:
             boxes = results[0].boxes
@@ -186,8 +193,11 @@ class TargetDetector:
                 arr.detections.append(det)
 
         self._detections_pub.publish(arr)
-        total_ms = (time.perf_counter() - t0) * 1000.0
-        self._publish_perf(msg.header, len(arr.detections), total_ms, infer_ms)
+        callback_end = time.monotonic()
+        total_ms = (callback_end - t0) * 1000.0
+        self._publish_perf(
+            msg.header, len(arr.detections), total_ms, infer_ms,
+            t0, callback_end)
 
 
 def main():

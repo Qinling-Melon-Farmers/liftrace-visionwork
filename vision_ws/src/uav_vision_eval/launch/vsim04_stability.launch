@@ -30,6 +30,9 @@
   <arg name="output_drain_timeout_sec" default="10.0" />
   <arg name="output_quiet_sec" default="0.25" />
   <arg name="recorder_status_period_sec" default="0.25" />
+  <!-- Formal runs keep full per-stage trace. Set false only for controlled
+       diagnostic A/B of recorder overhead. -->
+  <arg name="enable_stage_trace" default="true" />
   <arg name="handshake_write_margin_sec" default="5.0" />
   <arg name="image_topic" default="/camera/color/image_raw" />
   <arg name="camera_info_topic" default="/camera/color/camera_info" />
@@ -126,6 +129,7 @@
     <param name="output_quiet_sec" value="$(arg output_quiet_sec)" />
     <param name="status_period_sec"
            value="$(arg recorder_status_period_sec)" />
+    <param name="enable_stage_trace" value="$(arg enable_stage_trace)" />
   </node>
 
   <node pkg="uav_vision_eval" type="vsim04_trial_runner.py"

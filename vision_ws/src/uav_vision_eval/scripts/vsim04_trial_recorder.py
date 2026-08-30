@@ -8,7 +8,7 @@ import os
 import re
 import threading
 import time
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 
 import rospy
 import yaml
@@ -123,6 +123,7 @@ class VSim04TrialRecorder:
         self._candidate_events = {trial_id: [] for trial_id in self._trial_specs}
         self._selected_events = {trial_id: [] for trial_id in self._trial_specs}
         self._image_receipts = OrderedDict()
+        self._detector_callback_starts = OrderedDict()
         self._image_stamps = set()
         self._last_image_stamp = None
         self._last_image_receipt = None
@@ -138,6 +139,7 @@ class VSim04TrialRecorder:
         self._last_mapped_completed_sources = []
         self._partial_mapped_frame_count = 0
         self._last_partial_mapped_sources = []
+        self._mapped_bucket_status = {}
         self._targets_seen = False
         self._last_targets_receipt = None
         self._last_truth_source_stamp = None
@@ -157,6 +159,8 @@ class VSim04TrialRecorder:
                 ["target_detector", "circle_detector", "cross_detector"])
             if str(value).strip()
         }
+        self._enable_stage_trace = bool(rospy.get_param(
+            "~enable_stage_trace", True))
         self._heartbeat_timeout = float(rospy.get_param(
             "~heartbeat_timeout_sec", 2.0))
         self._output_drain_timeout = float(rospy.get_param(
@@ -252,6 +256,7 @@ class VSim04TrialRecorder:
             "vision_pipeline": {
                 "required_mapped_completed_sources": sorted(
                     self._required_completed_sources),
+                "stage_trace_enabled": self._enable_stage_trace,
             },
             "topics": {
                 "trial_event": rospy.get_param(
@@ -298,15 +303,18 @@ class VSim04TrialRecorder:
         rospy.Subscriber(
             self._manifest["topics"]["detections_mapped"],
             TargetDetectionArray, self._on_detections, queue_size=40)
-        rospy.Subscriber(
-            self._manifest["topics"]["detections_raw"],
-            TargetDetectionArray, self._on_raw_detections, queue_size=40)
-        rospy.Subscriber(
-            self._manifest["topics"]["detections_resolved"],
-            TargetDetectionArray, self._on_resolved_detections, queue_size=40)
-        rospy.Subscriber(
-            self._manifest["topics"]["detections_refined"],
-            TargetDetectionArray, self._on_refined_detections, queue_size=40)
+        if self._enable_stage_trace:
+            rospy.Subscriber(
+                self._manifest["topics"]["detections_raw"],
+                TargetDetectionArray, self._on_raw_detections, queue_size=40)
+            rospy.Subscriber(
+                self._manifest["topics"]["detections_resolved"],
+                TargetDetectionArray, self._on_resolved_detections,
+                queue_size=40)
+            rospy.Subscriber(
+                self._manifest["topics"]["detections_refined"],
+                TargetDetectionArray, self._on_refined_detections,
+                queue_size=40)
         rospy.Subscriber(
             self._manifest["topics"]["targets"], TargetCandidateArray,
             self._on_targets, queue_size=40)
@@ -508,6 +516,11 @@ class VSim04TrialRecorder:
                 "transform_failure": False,
                 "reject_reason": "",
                 "map_error_xy": "",
+                "detector_inference_ms": "",
+                "detector_processing_ms": "",
+                "detector_callback_start_monotonic_sec": "",
+                "detector_callback_end_monotonic_sec": "",
+                "detector_perf_receipt_monotonic_sec": "",
                 "current_confirmed": False,
                 "current_selected": False,
                 "stable_id": "",
@@ -730,6 +743,13 @@ class VSim04TrialRecorder:
             "stable_id": None,
             "confirmation_exposure_sec": None,
             "confirmation_processing_ms": None,
+            "confirmation_pipeline_ms": None,
+            "stage_trace_enabled": self._enable_stage_trace,
+            "complete_mapped_frames": 0,
+            "partial_only_mapped_frames": 0,
+            "partial_source_sets": "{}",
+            "detector_inference_ms_samples": [],
+            "detector_processing_ms_samples": [],
             "eligible_frames": 0,
             **{field: 0 for field in STAGE_COUNT_FIELDS},
             "detection_frames": 0,
@@ -863,13 +883,35 @@ class VSim04TrialRecorder:
         result["map_valid_frames"] = len(map_valid)
         result["tf_failure_frames"] = len(tf_failures)
         result["map_errors_xy"] = errors
+        result["detector_inference_ms_samples"] = [
+            float(row["detector_inference_ms"]) for row in eligible
+            if row["detector_inference_ms"] != ""]
+        result["detector_processing_ms_samples"] = [
+            float(row["detector_processing_ms"]) for row in eligible
+            if row["detector_processing_ms"] != ""]
+        buckets = [
+            value for (row_trial, _stamp), value
+            in self._mapped_bucket_status.items()
+            if row_trial == trial_id]
+        result["complete_mapped_frames"] = sum(
+            bool(value["complete"]) for value in buckets)
+        partial_only = [value for value in buckets
+                        if not value["complete"] and
+                        value["partial_source_sets"]]
+        result["partial_only_mapped_frames"] = len(partial_only)
+        source_sets = Counter(
+            "+".join(source_set) if source_set else "empty"
+            for value in partial_only
+            for source_set in value["partial_source_sets"])
+        result["partial_source_sets"] = json.dumps(
+            dict(sorted(source_sets.items())), sort_keys=True)
 
     def _derive_admission_metrics_locked(self, trial_id):
         result = self._results[trial_id]
         result.update(correlate_admission_events(
             self._candidate_events[trial_id],
             self._selected_events[trial_id], result,
-            self._image_receipts))
+            self._image_receipts, self._detector_callback_starts))
 
     def _on_image(self, message):
         receipt = time.monotonic()
@@ -940,6 +982,32 @@ class VSim04TrialRecorder:
             expected_model)
         source_stamp = self._stamp_sec(message)
         with self._lock:
+            stamp_key = self._stamp_key(message)
+            callback_start = self._finite_diagnostic_value(
+                values, "callback_start_monotonic_sec")
+            callback_end = self._finite_diagnostic_value(
+                values, "callback_end_monotonic_sec")
+            detector_inference = self._finite_diagnostic_value(
+                values, "inference_ms")
+            detector_processing = self._finite_diagnostic_value(
+                values, "processing_ms")
+            if callback_start is not None:
+                self._detector_callback_starts[stamp_key] = callback_start
+                while len(self._detector_callback_starts) > 4000:
+                    self._detector_callback_starts.popitem(last=False)
+            if self._active:
+                frame = self._frame_locked(stamp_key, source_stamp)
+                frame["detector_inference_ms"] = (
+                    "" if detector_inference is None else
+                    detector_inference)
+                frame["detector_processing_ms"] = (
+                    "" if detector_processing is None else
+                    detector_processing)
+                frame["detector_callback_start_monotonic_sec"] = (
+                    "" if callback_start is None else callback_start)
+                frame["detector_callback_end_monotonic_sec"] = (
+                    "" if callback_end is None else callback_end)
+                frame["detector_perf_receipt_monotonic_sec"] = receipt
             self._note_receipt_gap_locked(
                 "target_detector_diagnostic_heartbeat",
                 self._last_perf_receipt, receipt)
@@ -965,6 +1033,14 @@ class VSim04TrialRecorder:
                     "target_detector_diagnostic_not_ok", None,
                     {"validation_errors": reasons,
                      "diagnostic": copy.deepcopy(self._perf_status)})
+
+    @staticmethod
+    def _finite_diagnostic_value(values, key):
+        try:
+            value = float(values.get(key, ""))
+        except (TypeError, ValueError, OverflowError):
+            return None
+        return value if math.isfinite(value) else None
 
     def _on_truth(self, message):
         receipt = time.monotonic()
@@ -1142,6 +1218,17 @@ class VSim04TrialRecorder:
             completed_sources = sorted(set(message.completed_sources))
             sources_complete = completed_sources_cover(
                 self._required_completed_sources, completed_sources)
+            if self._active:
+                bucket_key = (self._active, self._stamp_key(message))
+                bucket = self._mapped_bucket_status.setdefault(bucket_key, {
+                    "complete": False,
+                    "partial_source_sets": set(),
+                })
+                if sources_complete:
+                    bucket["complete"] = True
+                else:
+                    bucket["partial_source_sets"].add(
+                        tuple(completed_sources))
             if not sources_complete:
                 # The lightweight geometry detectors run on every image while
                 # target_detector deliberately uses queue_size=1 and may skip
@@ -1338,6 +1425,10 @@ class VSim04TrialRecorder:
                     result.get("confirmation_processing_ms") is None):
                 errors.append("{}:confirmation_processing_missing".format(
                     trial_id))
+            if (result.get("p_confirm") and
+                    result.get("confirmation_pipeline_ms") is None):
+                errors.append("{}:confirmation_pipeline_missing".format(
+                    trial_id))
             for field in ("expected_duration_sec", "actual_duration_sec"):
                 value = result.get(field)
                 if (value is None or not math.isfinite(float(value)) or
@@ -1390,6 +1481,15 @@ class VSim04TrialRecorder:
                     self._partial_mapped_frame_count),
                 "last_partial_mapped_sources": list(
                     self._last_partial_mapped_sources),
+                "active_trial_mapped_buckets": {
+                    "complete": sum(
+                        bool(value["complete"])
+                        for value in self._mapped_bucket_status.values()),
+                    "partial_only": sum(
+                        not value["complete"] and
+                        bool(value["partial_source_sets"])
+                        for value in self._mapped_bucket_status.values()),
+                },
             }
             frames = copy.deepcopy(list(self._frames.values()))
             events = copy.deepcopy(self._events)
