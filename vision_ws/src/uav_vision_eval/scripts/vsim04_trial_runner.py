@@ -288,7 +288,9 @@ class VSim04TrialRunner:
             "update_rate_hz": update_rate,
             "steps": steps,
             "start_x": start_x,
+            "start_y": y,
             "finish_x": finish_x,
+            "finish_y": y,
         }
 
     def _wait_for_event_subscriber(self, deadline):
