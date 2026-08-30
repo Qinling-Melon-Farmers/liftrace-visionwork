@@ -3,6 +3,7 @@
 
 import csv
 import json
+import math
 import os
 import shutil
 import sys
@@ -12,15 +13,19 @@ import time
 from uav_vision_eval.vsim04_metrics import (
     REQUIRED_ARTIFACTS,
     FRAME_FIELDS,
+    PERFORMANCE_FIELDS,
+    annotate_motion_frames,
     classify_failure_stage,
     completed_sources_cover,
     call_with_monotonic_deadline,
     correlate_admission_events,
+    decorate_performance_rows,
     detector_diagnostic_errors,
     handshake_timeout_is_safe,
     dry_run_artifacts,
     load_trial_matrix,
     planned_trial_result,
+    quaternion_yaw,
     select_trial_matrix,
     summarize_trial_results,
     watermarks_cover_source_stamp,
@@ -32,6 +37,23 @@ import rospy
 
 
 def main():
+    assert {
+        "camera_pose_valid", "camera_pose_source_stamp",
+        "camera_pose_age_sec", "camera_position_x_m",
+        "camera_position_y_m", "camera_position_z_m", "camera_yaw_rad",
+        "camera_pose_invalid_reason", "motion_delta_valid",
+        "actual_linear_speed_mps", "actual_yaw_rate_radps",
+        "motion_invalid_reason", "path_lateral_offset_m",
+        "path_lateral_offset_normalized", "path_lateral_invalid_reason",
+    }.issubset(set(FRAME_FIELDS))
+    assert PERFORMANCE_FIELDS.index("actual_speed_mps") < \
+        PERFORMANCE_FIELDS.index("class_group_completed_trials")
+    assert quaternion_yaw(0.0, 0.0, 0.0, 1.0) == 0.0
+    assert quaternion_yaw(0.0, 0.0, 0.0, 0.0) is None
+    half_yaw = 0.5 * 1.2
+    assert abs(quaternion_yaw(
+        0.0, 0.0, math.sin(half_yaw), math.cos(half_yaw)) - 1.2) < 1.0e-9
+
     history = StampedPoseBuffer(max_length=3)
     for stamp_sec, x_value in ((1.0, 1.0), (2.0, 2.0), (4.0, 4.0)):
         pose = PoseStamped()
@@ -51,6 +73,60 @@ def main():
     assert history.add(reset_pose)
     selected, _age_sec = history.at_or_before(rospy.Time.from_sec(3.0))
     assert selected is not None and selected.pose.position.x == 0.25
+
+    def motion_row(stamp, x_value=None, y_value=None, z_value=None,
+                   yaw_value=None):
+        valid = all(value is not None for value in (
+            x_value, y_value, z_value, yaw_value))
+        return {
+            "stamp": stamp,
+            "camera_pose_valid": valid,
+            "camera_pose_source_stamp": stamp if valid else "",
+            "camera_position_x_m": "" if x_value is None else x_value,
+            "camera_position_y_m": "" if y_value is None else y_value,
+            "camera_position_z_m": "" if z_value is None else z_value,
+            "camera_yaw_rad": "" if yaw_value is None else yaw_value,
+        }
+
+    motion_rows = [
+        motion_row(1.0, 0.0, 1.0, 2.0, 3.0),
+        motion_row(3.0, 3.0, 5.0, 2.0, -3.0),
+        motion_row(4.0),
+        motion_row(2.5, 1.0, 2.0, 2.0, -3.1),
+        motion_row(5.0, 6.0, 9.0, 2.0, -2.8),
+    ]
+    motion = annotate_motion_frames(motion_rows, "dynamic", {
+        "start_x": 0.0, "start_y": 0.0,
+        "finish_x": 10.0, "finish_y": 0.0,
+    })
+    assert motion_rows[0]["actual_linear_speed_mps"] == ""
+    assert motion_rows[0]["motion_invalid_reason"] == "first_valid_pose"
+    assert abs(motion_rows[0]["path_lateral_offset_normalized"] - 0.1) < 1.0e-9
+    assert abs(motion_rows[1]["actual_linear_speed_mps"] - 2.5) < 1.0e-9
+    expected_yaw_rate = (2.0 * math.pi - 6.0) / 2.0
+    assert abs(motion_rows[1]["actual_yaw_rate_radps"] -
+               expected_yaw_rate) < 1.0e-9
+    assert not motion_rows[2]["motion_delta_valid"]
+    assert motion_rows[2]["motion_invalid_reason"] == \
+        "camera_pose_missing_or_invalid"
+    assert motion_rows[3]["motion_invalid_reason"] == "non_monotonic_stamp"
+    assert motion_rows[3]["actual_linear_speed_mps"] == ""
+    assert abs(motion_rows[4]["actual_linear_speed_mps"] - 2.5) < 1.0e-9
+    assert motion["camera_pose_frame_count"] == 4
+    assert motion["motion_sample_count"] == 2
+    assert motion["lateral_offset_sample_count"] == 4
+    assert abs(motion["mean_actual_linear_speed_mps"] - 2.5) < 1.0e-9
+
+    static_row = motion_row(1.0, 0.0, 0.0, 2.0, 0.0)
+    static_motion = annotate_motion_frames(
+        [static_row], "static", {})
+    assert static_row["actual_linear_speed_mps"] == ""
+    assert static_row["actual_yaw_rate_radps"] == ""
+    assert static_row["path_lateral_offset_normalized"] == ""
+    assert static_row["motion_invalid_reason"] == "static_trial"
+    assert static_motion["motion_sample_count"] == 0
+    assert static_motion["lateral_offset_sample_count"] == 0
+
     default_matrix = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "config", "vsim04_trial_matrix.yaml")
@@ -190,6 +266,11 @@ def main():
                 "expected_duration_sec": 2.0,
                 "actual_duration_sec": 2.01,
                 "actual_speed_mps": trial["speed_mps"],
+                "camera_pose_frame_count": 3,
+                "actual_linear_speed_mps_samples": [
+                    trial["speed_mps"], trial["speed_mps"]],
+                "actual_yaw_rate_radps_samples": [0.0, -0.1],
+                "normalized_lateral_offset_samples": [0.01, -0.02],
             })
         terminal_results.append(result)
     terminal_summary = summarize_trial_results(
@@ -204,6 +285,33 @@ def main():
     assert terminal_summary["metrics"]["complete_mapped_rate"] == 0.5
     assert terminal_summary["metrics"]["p95_detector_inference_ms"] == 20.0
     assert terminal_summary["metrics"]["p95_detector_processing_ms"] == 24.0
+    speed_groups = {
+        group["value"]: group
+        for group in terminal_summary["breakdowns"]["by_speed_mps"]}
+    assert set(speed_groups) == {None, 0.5, 1.5}
+    assert speed_groups[None]["label"] == "static"
+    assert speed_groups[0.5]["completed_trial_count"] == 4
+    assert speed_groups[0.5]["motion_sample_count"] == 8
+    assert abs(speed_groups[0.5]["mean_actual_linear_speed_mps"] -
+               0.5) < 1.0e-9
+    assert abs(speed_groups[1.5]["p95_abs_normalized_lateral_offset"] -
+               0.02) < 1.0e-9
+    class_groups = {
+        group["value"]: group
+        for group in terminal_summary["breakdowns"]["by_class"]}
+    assert class_groups["panzer"]["completed_trial_count"] == 7
+    height_groups = {
+        group["value"]: group
+        for group in terminal_summary["breakdowns"]["by_height_m"]}
+    assert height_groups[1.8]["completed_trial_count"] == 4
+    performance_rows = decorate_performance_rows(
+        terminal_summary["trials"], terminal_summary["breakdowns"])
+    dynamic_half = next(
+        row for row in performance_rows
+        if row["kind"] == "dynamic" and row["speed_mps"] == 0.5)
+    assert dynamic_half["speed_group_completed_trials"] == 4
+    assert abs(dynamic_half["speed_group_mean_actual_linear_speed_mps"] -
+               0.5) < 1.0e-9
     invalid_summary = summarize_trial_results(
         terminal_results[:-1], "unit", actual_fps=30.0,
         terminal_context={"run_complete": True,
@@ -320,9 +428,19 @@ def main():
             assert len(list(csv.DictReader(stream))) == 23
         with open(os.path.join(output_dir, "vision_search_performance.csv"),
                   "r", encoding="utf-8") as stream:
-            rows = list(csv.DictReader(stream))
+            performance_reader = csv.DictReader(stream)
+            assert performance_reader.fieldnames == PERFORMANCE_FIELDS
+            rows = list(performance_reader)
         assert len(rows) == 23
         assert all(row["p_interrupt"] == "" for row in rows)
+        assert all(row["class_group_completed_trials"] == "0"
+                   for row in rows)
+        with open(os.path.join(output_dir, "report.md"),
+                  "r", encoding="utf-8") as stream:
+            report = stream.read()
+        assert "## Breakdown by class" in report
+        assert "## Breakdown by height" in report
+        assert "## Breakdown by requested speed" in report
         with open(os.path.join(output_dir, "frames.csv"),
                   "r", encoding="utf-8") as stream:
             frame_reader = csv.DictReader(stream)

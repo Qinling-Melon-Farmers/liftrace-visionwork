@@ -49,6 +49,7 @@
   <arg name="handshake_write_margin_sec" default="5.0" />
   <arg name="image_topic" default="/camera/color/image_raw" />
   <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="camera_pose_topic" default="/uav_vision_eval/camera_pose" />
   <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
   <arg name="px4_model_root"
        default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
@@ -83,6 +84,7 @@
     <arg name="scenario_file" value="$(arg scenario_file)" />
     <arg name="image_topic" value="$(arg image_topic)" />
     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="camera_pose_topic" value="$(arg camera_pose_topic)" />
   </include>
 
   <group if="$(arg start_vision)">
@@ -124,6 +126,9 @@
     <param name="navigation_revision" value="$(arg navigation_revision)" />
     <param name="image_topic" value="$(arg image_topic)" />
     <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <param name="camera_pose_topic" value="$(arg camera_pose_topic)" />
+    <param name="camera_pose_frame" value="world" />
+    <param name="camera_pose_history_length" value="4096" />
     <param name="raw_detections_topic" value="/uav_vision/detections" />
     <param name="resolved_detections_topic"
            value="/uav_vision/detections_resolved" />

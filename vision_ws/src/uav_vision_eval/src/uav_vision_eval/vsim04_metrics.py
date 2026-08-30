@@ -24,6 +24,13 @@ STAGE_COUNT_FIELDS = (
 FRAME_FIELDS = [
     "trial_id", "stamp", "target_id", "class_name", "fully_in_frame",
     "center_in_frame", "co_visible_classes",
+    "camera_pose_valid", "camera_pose_source_stamp",
+    "camera_pose_age_sec", "camera_position_x_m", "camera_position_y_m",
+    "camera_position_z_m", "camera_yaw_rad", "camera_pose_invalid_reason",
+    "motion_delta_valid", "actual_linear_speed_mps",
+    "actual_yaw_rate_radps", "motion_invalid_reason",
+    "path_lateral_offset_m", "path_lateral_offset_normalized",
+    "path_lateral_invalid_reason",
     "raw_class_present", "raw_geometry_present",
     "raw_class_confidence", "raw_geometry_confidence",
     "resolved_present", "resolved_class_confidence",
@@ -61,6 +68,21 @@ PERFORMANCE_FIELDS = [
     "entered_fully_in_frame", "left_fully_in_frame",
     "expected_duration_sec", "actual_duration_sec", "expected_speed_mps",
     "actual_speed_mps",
+    "camera_pose_frame_count", "motion_sample_count",
+    "lateral_offset_sample_count", "mean_actual_linear_speed_mps",
+    "p95_actual_linear_speed_mps", "mean_abs_actual_yaw_rate_radps",
+    "p95_abs_actual_yaw_rate_radps",
+    "mean_abs_normalized_lateral_offset",
+    "p95_abs_normalized_lateral_offset",
+    "class_group_completed_trials", "class_group_p_confirm",
+    "class_group_p_selected", "class_group_mean_actual_linear_speed_mps",
+    "class_group_p95_abs_normalized_lateral_offset",
+    "height_group_completed_trials", "height_group_p_confirm",
+    "height_group_p_selected", "height_group_mean_actual_linear_speed_mps",
+    "height_group_p95_abs_normalized_lateral_offset",
+    "speed_group_completed_trials", "speed_group_p_confirm",
+    "speed_group_p_selected", "speed_group_mean_actual_linear_speed_mps",
+    "speed_group_p95_abs_normalized_lateral_offset",
 ]
 REQUIRED_ARTIFACTS = (
     "manifest.json", "frames.csv", "events.csv", "summary.json",
@@ -213,6 +235,173 @@ def percentile(values, percentile_value):
             values[upper] * (position - lower))
 
 
+def quaternion_yaw(x_value, y_value, z_value, w_value):
+    """Return finite ZYX yaw in radians, or None for an invalid quaternion."""
+    try:
+        values = [float(value) for value in (
+            x_value, y_value, z_value, w_value)]
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if not all(math.isfinite(value) for value in values):
+        return None
+    norm = math.sqrt(sum(value * value for value in values))
+    if norm <= 1.0e-12:
+        return None
+    x_value, y_value, z_value, w_value = [
+        value / norm for value in values]
+    sin_yaw = 2.0 * (w_value * z_value + x_value * y_value)
+    cos_yaw = 1.0 - 2.0 * (
+        y_value * y_value + z_value * z_value)
+    yaw = math.atan2(sin_yaw, cos_yaw)
+    return yaw if math.isfinite(yaw) else None
+
+
+def _shortest_angle_delta(current, previous):
+    return math.atan2(
+        math.sin(float(current) - float(previous)),
+        math.cos(float(current) - float(previous)))
+
+
+def _finite_frame_value(row, field):
+    try:
+        value = float(row.get(field, ""))
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return value if math.isfinite(value) else None
+
+
+def _dynamic_path(trajectory):
+    try:
+        start_x = float(trajectory["start_x"])
+        start_y = float(trajectory["start_y"])
+        finish_x = float(trajectory["finish_x"])
+        finish_y = float(trajectory["finish_y"])
+    except (KeyError, TypeError, ValueError, OverflowError):
+        return None
+    values = (start_x, start_y, finish_x, finish_y)
+    if not all(math.isfinite(value) for value in values):
+        return None
+    dx_value = finish_x - start_x
+    dy_value = finish_y - start_y
+    length = math.hypot(dx_value, dy_value)
+    if length <= 1.0e-9:
+        return None
+    return start_x, start_y, dx_value, dy_value, length
+
+
+def annotate_motion_frames(frame_rows, trial_kind, trajectory):
+    """Annotate rows with fail-closed motion telemetry.
+
+    Linear speed is the 3-D distance between adjacent valid pose samples
+    divided by their strictly positive pose-source-stamp delta.  Yaw rate uses the
+    shortest signed ZYX-yaw delta.  The signed lateral offset is the horizontal
+    cross-track distance to the planned start-to-finish line; its normalized
+    value divides that distance by the planned path length.  Static trials do
+    not have a motion path, and their speed/yaw/lateral cells stay empty.
+    """
+    is_dynamic = str(trial_kind) == "dynamic"
+    path = _dynamic_path(trajectory) if is_dynamic else None
+    previous = None
+    linear_samples = []
+    yaw_rate_samples = []
+    lateral_samples = []
+    pose_count = 0
+    for row in frame_rows:
+        row.update({
+            "motion_delta_valid": False,
+            "actual_linear_speed_mps": "",
+            "actual_yaw_rate_radps": "",
+            "motion_invalid_reason": "",
+            "path_lateral_offset_m": "",
+            "path_lateral_offset_normalized": "",
+            "path_lateral_invalid_reason": "",
+        })
+        image_stamp = _finite_frame_value(row, "stamp")
+        pose_stamp = _finite_frame_value(row, "camera_pose_source_stamp")
+        position = tuple(_finite_frame_value(row, field) for field in (
+            "camera_position_x_m", "camera_position_y_m",
+            "camera_position_z_m"))
+        yaw = _finite_frame_value(row, "camera_yaw_rad")
+        pose_valid = bool(row.get("camera_pose_valid"))
+        pose_valid = bool(
+            pose_valid and image_stamp is not None and pose_stamp is not None and
+            pose_stamp <= image_stamp and yaw is not None and
+            all(value is not None for value in position))
+        if not pose_valid:
+            row["camera_pose_valid"] = False
+            if not str(row.get("camera_pose_invalid_reason", "")).strip():
+                row["camera_pose_invalid_reason"] = (
+                    "camera_pose_fields_invalid")
+            row["motion_invalid_reason"] = "camera_pose_missing_or_invalid"
+            row["path_lateral_invalid_reason"] = (
+                "static_trial" if not is_dynamic else
+                "camera_pose_missing_or_invalid")
+            continue
+        pose_count += 1
+
+        if not is_dynamic:
+            row["motion_invalid_reason"] = "static_trial"
+            row["path_lateral_invalid_reason"] = "static_trial"
+            continue
+
+        if path is None:
+            row["path_lateral_invalid_reason"] = "dynamic_path_invalid"
+        else:
+            start_x, start_y, dx_value, dy_value, path_length = path
+            cross_track_m = (
+                dx_value * (position[1] - start_y) -
+                dy_value * (position[0] - start_x)) / path_length
+            normalized = cross_track_m / path_length
+            row["path_lateral_offset_m"] = cross_track_m
+            row["path_lateral_offset_normalized"] = normalized
+            lateral_samples.append(normalized)
+
+        current = (pose_stamp, position, yaw)
+        if previous is None:
+            row["motion_invalid_reason"] = "first_valid_pose"
+            previous = current
+            continue
+        delta_sec = pose_stamp - previous[0]
+        if not math.isfinite(delta_sec) or delta_sec <= 0.0:
+            row["motion_invalid_reason"] = "non_monotonic_stamp"
+            continue
+        distance = math.sqrt(sum(
+            (position[index] - previous[1][index]) ** 2
+            for index in range(3)))
+        linear_speed = distance / delta_sec
+        yaw_rate = _shortest_angle_delta(yaw, previous[2]) / delta_sec
+        if not all(math.isfinite(value) for value in (
+                linear_speed, yaw_rate)):
+            row["motion_invalid_reason"] = "motion_delta_nonfinite"
+            continue
+        row["motion_delta_valid"] = True
+        row["actual_linear_speed_mps"] = linear_speed
+        row["actual_yaw_rate_radps"] = yaw_rate
+        linear_samples.append(linear_speed)
+        yaw_rate_samples.append(yaw_rate)
+        previous = current
+
+    abs_yaw_rates = [abs(value) for value in yaw_rate_samples]
+    abs_lateral = [abs(value) for value in lateral_samples]
+    return {
+        "camera_pose_frame_count": pose_count,
+        "motion_sample_count": len(linear_samples),
+        "lateral_offset_sample_count": len(lateral_samples),
+        "actual_linear_speed_mps_samples": linear_samples,
+        "actual_yaw_rate_radps_samples": yaw_rate_samples,
+        "normalized_lateral_offset_samples": lateral_samples,
+        "mean_actual_linear_speed_mps": (
+            statistics.mean(linear_samples) if linear_samples else None),
+        "p95_actual_linear_speed_mps": percentile(linear_samples, 95),
+        "mean_abs_actual_yaw_rate_radps": (
+            statistics.mean(abs_yaw_rates) if abs_yaw_rates else None),
+        "p95_abs_actual_yaw_rate_radps": percentile(abs_yaw_rates, 95),
+        "mean_abs_normalized_lateral_offset": (
+            statistics.mean(abs_lateral) if abs_lateral else None),
+        "p95_abs_normalized_lateral_offset": percentile(abs_lateral, 95),
+    }
+
+
 def planned_trial_result(trial):
     result = dict(trial)
     result.update({
@@ -262,6 +451,18 @@ def planned_trial_result(trial):
         "actual_duration_sec": None,
         "expected_speed_mps": None,
         "actual_speed_mps": None,
+        "camera_pose_frame_count": 0,
+        "motion_sample_count": 0,
+        "lateral_offset_sample_count": 0,
+        "actual_linear_speed_mps_samples": [],
+        "actual_yaw_rate_radps_samples": [],
+        "normalized_lateral_offset_samples": [],
+        "mean_actual_linear_speed_mps": None,
+        "p95_actual_linear_speed_mps": None,
+        "mean_abs_actual_yaw_rate_radps": None,
+        "p95_abs_actual_yaw_rate_radps": None,
+        "mean_abs_normalized_lateral_offset": None,
+        "p95_abs_normalized_lateral_offset": None,
     })
     return result
 
@@ -277,6 +478,12 @@ def finalize_trial_result(result):
         "detector_inference_ms_samples", [])]
     detector_processing = [float(value) for value in result.pop(
         "detector_processing_ms_samples", [])]
+    linear_speed = [float(value) for value in result.pop(
+        "actual_linear_speed_mps_samples", [])]
+    yaw_rate = [float(value) for value in result.pop(
+        "actual_yaw_rate_radps_samples", [])]
+    lateral_offset = [float(value) for value in result.pop(
+        "normalized_lateral_offset_samples", [])]
     result["map_invalid_rate"] = (
         max(0, detected - valid) / float(detected) if detected else None)
     result["map_unavailable_rate"] = (
@@ -290,6 +497,23 @@ def finalize_trial_result(result):
         detector_inference, 95)
     result["p95_detector_processing_ms"] = percentile(
         detector_processing, 95)
+    result["camera_pose_frame_count"] = int(result.get(
+        "camera_pose_frame_count", 0))
+    result["motion_sample_count"] = len(linear_speed)
+    result["lateral_offset_sample_count"] = len(lateral_offset)
+    result["mean_actual_linear_speed_mps"] = (
+        statistics.mean(linear_speed) if linear_speed else None)
+    result["p95_actual_linear_speed_mps"] = percentile(linear_speed, 95)
+    absolute_yaw_rate = [abs(value) for value in yaw_rate]
+    result["mean_abs_actual_yaw_rate_radps"] = (
+        statistics.mean(absolute_yaw_rate) if absolute_yaw_rate else None)
+    result["p95_abs_actual_yaw_rate_radps"] = percentile(
+        absolute_yaw_rate, 95)
+    absolute_lateral = [abs(value) for value in lateral_offset]
+    result["mean_abs_normalized_lateral_offset"] = (
+        statistics.mean(absolute_lateral) if absolute_lateral else None)
+    result["p95_abs_normalized_lateral_offset"] = percentile(
+        absolute_lateral, 95)
     mapped_buckets = (
         int(result.get("complete_mapped_frames", 0)) +
         int(result.get("partial_only_mapped_frames", 0)))
@@ -479,9 +703,153 @@ def correlate_admission_events(candidate_events, selected_events, result,
     return output
 
 
+def _group_value(result, field):
+    value = result.get(field)
+    if field in {"height_m", "speed_mps"} and value is not None:
+        try:
+            numeric = float(value)
+        except (TypeError, ValueError, OverflowError):
+            return None
+        return numeric if math.isfinite(numeric) else None
+    return str(value) if field == "class_name" else value
+
+
+def _group_label(field, value):
+    if field == "class_name":
+        return str(value)
+    if field == "height_m":
+        return "{:.3g} m".format(float(value))
+    if value is None:
+        return "static"
+    return "{:.3g} m/s".format(float(value))
+
+
+def _group_sort_key(value):
+    if value is None:
+        return (0, 0.0)
+    if isinstance(value, (int, float)):
+        return (1, float(value))
+    return (1, str(value))
+
+
+def _finite_samples(result, field):
+    samples = []
+    for value in result.get(field, []):
+        try:
+            value = float(value)
+        except (TypeError, ValueError, OverflowError):
+            continue
+        if math.isfinite(value):
+            samples.append(value)
+    return samples
+
+
+def build_metric_breakdowns(results):
+    """Aggregate completed trials by class, height and requested speed."""
+    dimensions = (
+        ("by_class", "class_name"),
+        ("by_height_m", "height_m"),
+        ("by_speed_mps", "speed_mps"),
+    )
+    breakdowns = {}
+    for output_name, field in dimensions:
+        values = sorted(
+            {_group_value(result, field) for result in results},
+            key=_group_sort_key)
+        groups = []
+        for value in values:
+            members = [result for result in results
+                       if _group_value(result, field) == value]
+            completed = [result for result in members
+                         if result.get("status") == "completed"]
+            linear = [sample for result in completed
+                      for sample in _finite_samples(
+                          result, "actual_linear_speed_mps_samples")]
+            yaw_rate = [abs(sample) for result in completed
+                        for sample in _finite_samples(
+                            result, "actual_yaw_rate_radps_samples")]
+            lateral = [abs(sample) for result in completed
+                       for sample in _finite_samples(
+                           result, "normalized_lateral_offset_samples")]
+            map_errors = [sample for result in completed
+                          for sample in _finite_samples(
+                              result, "map_errors_xy")]
+            groups.append({
+                "dimension": field,
+                "value": value,
+                "label": _group_label(field, value),
+                "trial_count": len(members),
+                "completed_trial_count": len(completed),
+                "p_confirm": (
+                    sum(bool(result.get("p_confirm"))
+                        for result in completed) / float(len(completed))
+                    if completed else None),
+                "p_selected": (
+                    sum(bool(result.get("p_selected"))
+                        for result in completed) / float(len(completed))
+                    if completed else None),
+                "eligible_frames": sum(
+                    int(result.get("eligible_frames", 0))
+                    for result in completed),
+                "camera_pose_frame_count": sum(
+                    int(result.get("camera_pose_frame_count", 0))
+                    for result in completed),
+                "motion_sample_count": len(linear),
+                "lateral_offset_sample_count": len(lateral),
+                "mean_actual_linear_speed_mps": (
+                    statistics.mean(linear) if linear else None),
+                "p95_actual_linear_speed_mps": percentile(linear, 95),
+                "mean_abs_actual_yaw_rate_radps": (
+                    statistics.mean(yaw_rate) if yaw_rate else None),
+                "p95_abs_actual_yaw_rate_radps": percentile(yaw_rate, 95),
+                "mean_abs_normalized_lateral_offset": (
+                    statistics.mean(lateral) if lateral else None),
+                "p95_abs_normalized_lateral_offset": percentile(
+                    lateral, 95),
+                "mean_map_error_xy": (
+                    statistics.mean(map_errors) if map_errors else None),
+                "p95_map_error_xy": percentile(map_errors, 95),
+                "map_error_sample_count": len(map_errors),
+            })
+        breakdowns[output_name] = groups
+    return breakdowns
+
+
+def decorate_performance_rows(rows, breakdowns):
+    """Append repeated group metrics without adding aggregate CSV rows."""
+    lookup = {}
+    for output_name, field, prefix in (
+            ("by_class", "class_name", "class_group"),
+            ("by_height_m", "height_m", "height_group"),
+            ("by_speed_mps", "speed_mps", "speed_group")):
+        lookup[field] = {
+            group["value"]: (prefix, group)
+            for group in breakdowns.get(output_name, [])
+        }
+    decorated = []
+    for source in rows:
+        row = dict(source)
+        for field in ("class_name", "height_m", "speed_mps"):
+            prefix_group = lookup[field].get(_group_value(row, field))
+            if prefix_group is None:
+                continue
+            prefix, group = prefix_group
+            row[prefix + "_completed_trials"] = group[
+                "completed_trial_count"]
+            row[prefix + "_p_confirm"] = group["p_confirm"]
+            row[prefix + "_p_selected"] = group["p_selected"]
+            row[prefix + "_mean_actual_linear_speed_mps"] = group[
+                "mean_actual_linear_speed_mps"]
+            row[prefix + "_p95_abs_normalized_lateral_offset"] = group[
+                "p95_abs_normalized_lateral_offset"]
+        decorated.append(row)
+    return decorated
+
+
 def summarize_trial_results(results, run_mode, actual_fps=None,
                             terminal_context=None):
     finalized = [finalize_trial_result(result) for result in results]
+    breakdowns = build_metric_breakdowns(results)
     completed = [result for result in finalized
                  if result.get("status") == "completed"]
     confirmation_exposure = [
@@ -511,6 +879,21 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         float(value) for result in results
         if result.get("status") == "completed"
         for value in result.get("map_errors_xy", [])]
+    linear_speed = [
+        value for result in results
+        if result.get("status") == "completed"
+        for value in _finite_samples(
+            result, "actual_linear_speed_mps_samples")]
+    yaw_rate = [
+        abs(value) for result in results
+        if result.get("status") == "completed"
+        for value in _finite_samples(
+            result, "actual_yaw_rate_radps_samples")]
+    lateral_offset = [
+        abs(value) for result in results
+        if result.get("status") == "completed"
+        for value in _finite_samples(
+            result, "normalized_lateral_offset_samples")]
     eligible_frames = sum(int(result.get("eligible_frames", 0))
                           for result in completed)
     stage_frame_counts = {
@@ -622,6 +1005,17 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
             "actual_image_fps": actual_fps,
             "actual_image_source_fps": (terminal_context or {}).get(
                 "actual_image_source_fps"),
+            "mean_actual_linear_speed_mps": (
+                statistics.mean(linear_speed) if linear_speed else None),
+            "p95_actual_linear_speed_mps": percentile(linear_speed, 95),
+            "mean_abs_actual_yaw_rate_radps": (
+                statistics.mean(yaw_rate) if yaw_rate else None),
+            "p95_abs_actual_yaw_rate_radps": percentile(yaw_rate, 95),
+            "mean_abs_normalized_lateral_offset": (
+                statistics.mean(lateral_offset)
+                if lateral_offset else None),
+            "p95_abs_normalized_lateral_offset": percentile(
+                lateral_offset, 95),
         },
         "metric_denominators": {
             "completed_trials": len(completed),
@@ -641,6 +1035,12 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
             "processing_receipt_reordered_samples": sum(
                 bool(result.get("processing_receipt_reordered"))
                 for result in completed),
+            "camera_pose_frames": sum(
+                int(result.get("camera_pose_frame_count", 0))
+                for result in completed),
+            "motion_samples": len(linear_speed),
+            "yaw_rate_samples": len(yaw_rate),
+            "lateral_offset_samples": len(lateral_offset),
         },
         "definitions": {
             "p_confirm": (
@@ -674,7 +1074,30 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
             "stage_frame_rates": (
                 "per-stage presence on eligible truth frames; these are "
                 "diagnostic frame coverages, not independent probabilities"),
+            "camera_pose": (
+                "world-frame camera position and ZYX yaw from the latest "
+                "stamped Gazebo camera pose not newer than the image stamp; "
+                "camera_pose_age_sec is image stamp minus pose stamp"),
+            "actual_linear_speed_mps": (
+                "3-D camera displacement divided by the strictly positive "
+                "matched pose-source-stamp delta between adjacent valid "
+                "dynamic samples; repeated zero-order-held pose stamps, "
+                "static, first-valid, missing-pose and non-monotonic samples "
+                "are blank with motion_invalid_reason"),
+            "actual_yaw_rate_radps": (
+                "shortest signed ZYX-yaw delta divided by the same dynamic "
+                "sample interval"),
+            "path_lateral_offset_normalized": (
+                "signed horizontal cross-track distance from the planned "
+                "dynamic start-to-finish line divided by that line length; "
+                "dimensionless, positive on the path-left side, and blank "
+                "for static/invalid paths or missing poses"),
+            "breakdowns": (
+                "completed-trial and exact frame-sample aggregates grouped "
+                "independently by class_name, height_m and requested "
+                "speed_mps; the null speed group denotes static trials"),
         },
+        "breakdowns": breakdowns,
         "trials": finalized,
     }
 
@@ -708,6 +1131,26 @@ def _write_csv(path, fields, rows):
             os.unlink(temporary)
 
 
+def _breakdown_report(title, rows):
+    lines = [
+        "## {}".format(title),
+        "",
+        "| Value | Completed/total | P_confirm | P_selected | Mean speed "
+        "(m/s) | P95 speed (m/s) | P95 abs lateral ratio |",
+        "|---|---:|---:|---:|---:|---:|---:|",
+    ]
+    for row in rows:
+        lines.append(
+            "| {} | {}/{} | {} | {} | {} | {} | {} |".format(
+                row["label"], row["completed_trial_count"],
+                row["trial_count"], row["p_confirm"], row["p_selected"],
+                row["mean_actual_linear_speed_mps"],
+                row["p95_actual_linear_speed_mps"],
+                row["p95_abs_normalized_lateral_offset"]))
+    lines.append("")
+    return lines
+
+
 def _report(summary):
     metrics = summary["metrics"]
     denominators = summary["metric_denominators"]
@@ -716,7 +1159,7 @@ def _report(summary):
         "PASS" if summary["status"] == "MEASURED" else
         summary["status"] + (
             ": " + "; ".join(validation) if validation else ""))
-    return "\n".join([
+    lines = [
         "# V-SIM-04 Vision Search Performance",
         "",
         "- Run mode: `{}`".format(summary["run_mode"]),
@@ -767,6 +1210,19 @@ def _report(summary):
             metrics["actual_image_source_fps"]),
         "- Processing receipt reorder samples: `{}`".format(
             denominators["processing_receipt_reordered_samples"]),
+        "- Camera pose/motion/lateral samples: `{}` / `{}` / `{}`".format(
+            denominators["camera_pose_frames"],
+            denominators["motion_samples"],
+            denominators["lateral_offset_samples"]),
+        "- Mean/P95 actual linear speed: `{}` / `{}` m/s".format(
+            metrics["mean_actual_linear_speed_mps"],
+            metrics["p95_actual_linear_speed_mps"]),
+        "- Mean/P95 absolute yaw rate: `{}` / `{}` rad/s".format(
+            metrics["mean_abs_actual_yaw_rate_radps"],
+            metrics["p95_abs_actual_yaw_rate_radps"]),
+        "- Mean/P95 absolute normalized lateral offset: `{}` / `{}`".format(
+            metrics["mean_abs_normalized_lateral_offset"],
+            metrics["p95_abs_normalized_lateral_offset"]),
         "- Terminal validation: `{}`".format(
             validation_label),
         "",
@@ -781,7 +1237,16 @@ def _report(summary):
         "A dry run validates only matrix and artifact schemas; a diagnostic "
         "subset isolates failures. Neither is a Gate PASS.",
         "",
-    ])
+    ]
+    breakdowns = summary.get("breakdowns", {})
+    lines.extend(_breakdown_report(
+        "Breakdown by class", breakdowns.get("by_class", [])))
+    lines.extend(_breakdown_report(
+        "Breakdown by height", breakdowns.get("by_height_m", [])))
+    lines.extend(_breakdown_report(
+        "Breakdown by requested speed",
+        breakdowns.get("by_speed_mps", [])))
+    return "\n".join(lines)
 
 
 def write_artifacts(output_dir, manifest, frame_rows, event_rows, results,
@@ -808,7 +1273,8 @@ def write_artifacts(output_dir, manifest, frame_rows, event_rows, results,
     _write_csv(os.path.join(output_dir, "frames.csv"), FRAME_FIELDS, frame_rows)
     _write_csv(os.path.join(output_dir, "events.csv"), EVENT_FIELDS, event_rows)
     _atomic_json(os.path.join(output_dir, "summary.json"), summary)
-    performance_rows = [finalize_trial_result(result) for result in results]
+    performance_rows = decorate_performance_rows(
+        summary["trials"], summary.get("breakdowns", {}))
     _write_csv(
         os.path.join(output_dir, "vision_search_performance.csv"),
         PERFORMANCE_FIELDS, performance_rows)

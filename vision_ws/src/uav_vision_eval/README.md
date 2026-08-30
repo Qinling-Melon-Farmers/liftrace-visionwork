@@ -19,11 +19,20 @@
 - `confirmation_exposure_sec` 使用图像/仿真源时间；`confirmation_processing_ms` 使用
   monotonic 墙钟；若 recorder 的图像回调晚于候选回调则显式记录 receipt reorder 并把该样本
   作为 0 ms 下界，不再因跨话题回调顺序丢样本。地图无效、TF 失败和地图误差分别报告。
+- `frames.csv` 的相机位置和 ZYX yaw 使用与真值投影相同的 stamped pose 零阶保持规则：取不晚于
+  图像时间戳的最近位姿并记录 pose 来源时间与年龄。动态线速度为相邻有效 pose 的三维位移除以
+  严格递增的 pose 来源时间差，yaw 角速度使用最短有符号角差；静态、首个有效 pose、缺 pose、
+  重复或倒退时间戳均保留空值并写明原因，不以 `0` 冒充样本。
+- 动态横向偏移是相机在水平面相对计划起终点直线的有符号垂距；归一化值再除以整段计划路径
+  长度，为无量纲量，路径左侧为正。静态、无效路径和缺 pose 时保持空值。
 
 每次运行固定输出：`manifest.json`、`frames.csv`、`events.csv`、`summary.json`、
 `report.md`、`vision_search_performance.csv`。manifest 记录 profile、world、模型、阈值、
 CameraInfo、相机模型/RPY、内嵌场景/真值模型/anchor catalog、外参来源、视觉/导航 revision、
 轨迹期望/实测时长与速度，以及 monotonic 接收 FPS 和图像源/仿真时间 FPS。
+`summary.json` 与 `report.md` 同时按类别、高度和请求速度给出分层统计；
+`vision_search_performance.csv` 仍保持一 trial 一行、原字段顺序不变，仅在尾部追加当前 trial
+所属三类分组的统计列，便于直接比较 `sparse30` 各层结果。
 
 recorder 先以 latched JSON 状态等待 CameraInfo、连续图像、完整真值、mapped detections、
 targets 心跳，以及 `/uav_vision/perf` 中 detector 的 `OK`、backend 和模型路径一致；runner

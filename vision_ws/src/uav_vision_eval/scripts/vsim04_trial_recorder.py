@@ -13,6 +13,7 @@ from collections import Counter, OrderedDict
 import rospy
 import yaml
 from diagnostic_msgs.msg import DiagnosticArray
+from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import CameraInfo, Image
 from std_msgs.msg import String
 
@@ -30,15 +31,18 @@ from uav_vision_eval.vsim04_metrics import (
     REQUIRED_ARTIFACTS,
     STAGE_COUNT_FIELDS,
     STANDARD_CLASSES,
+    annotate_motion_frames,
     completed_sources_cover,
     correlate_admission_events,
     detector_diagnostic_errors,
     load_trial_matrix,
     planned_trial_result,
+    quaternion_yaw,
     select_trial_matrix,
     watermarks_cover_source_stamp,
     write_artifacts,
 )
+from uav_vision_eval.stamped_pose_buffer import StampedPoseBuffer
 
 
 UNKNOWN_VALUES = {"", "unknown", "unspecified", "none", "null"}
@@ -171,6 +175,11 @@ class VSim04TrialRecorder:
         self._status_period = float(rospy.get_param(
             "~status_period_sec", 0.25))
         self._actual_trajectories = {}
+        self._camera_pose_frame = str(rospy.get_param(
+            "~camera_pose_frame", "world")).strip()
+        self._camera_pose_buffer = StampedPoseBuffer(rospy.get_param(
+            "~camera_pose_history_length", 4096))
+        self._camera_pose_samples = {}
         self._infra_gaps = []
         self._infra_gap_keys = set()
         self._pending_trial_end = None
@@ -228,6 +237,8 @@ class VSim04TrialRecorder:
                     "~camera_model", self._matrix.get("runner", {}).get(
                         "camera_model", "vision_eval_camera")),
                 "rpy": camera_rpy,
+                "pose_frame": self._camera_pose_frame,
+                "pose_matching": "latest_at_or_before_image_stamp",
             },
             "extrinsic": {
                 "profile": rospy.get_param("~extrinsic_profile", ""),
@@ -287,6 +298,9 @@ class VSim04TrialRecorder:
                     "~image_topic", "/camera/color/image_raw"),
                 "camera_info": rospy.get_param(
                     "~camera_info_topic", "/camera/color/camera_info"),
+                "camera_pose": rospy.get_param(
+                    "~camera_pose_topic",
+                    "/uav_vision_eval/camera_pose"),
                 "perf": rospy.get_param(
                     "~perf_topic", "/uav_vision/perf"),
             },
@@ -331,6 +345,9 @@ class VSim04TrialRecorder:
         rospy.Subscriber(
             self._manifest["topics"]["camera_info"], CameraInfo,
             self._on_camera_info, queue_size=1)
+        rospy.Subscriber(
+            self._manifest["topics"]["camera_pose"], PoseStamped,
+            self._on_camera_pose, queue_size=40)
         rospy.Subscriber(
             self._manifest["topics"]["perf"], DiagnosticArray,
             self._on_perf, queue_size=10)
@@ -416,6 +433,8 @@ class VSim04TrialRecorder:
         camera = self._manifest["camera"]
         if not str(camera["model_name"]).strip():
             errors.append("camera_model_missing")
+        if not str(camera["pose_frame"]).strip():
+            errors.append("camera_pose_frame_missing")
         if (len(camera["rpy"]) != 3 or
                 not all(math.isfinite(value) for value in camera["rpy"])):
             errors.append("camera_rpy_invalid")
@@ -486,6 +505,66 @@ class VSim04TrialRecorder:
     def _result_locked(self):
         return self._results[self._active] if self._active else None
 
+    @staticmethod
+    def _pose_values_finite(pose):
+        return all(math.isfinite(float(value)) for value in (
+            pose.position.x, pose.position.y, pose.position.z,
+            pose.orientation.x, pose.orientation.y,
+            pose.orientation.z, pose.orientation.w))
+
+    def _camera_pose_sample_locked(self, stamp_key):
+        existing = self._camera_pose_samples.get(stamp_key)
+        if existing and existing.get("camera_pose_valid"):
+            return existing
+        stamp = rospy.Time(
+            secs=int(stamp_key // 1000000000),
+            nsecs=int(stamp_key % 1000000000))
+        message, age_sec = self._camera_pose_buffer.at_or_before(stamp)
+        sample = {
+            "camera_pose_valid": False,
+            "camera_pose_source_stamp": "",
+            "camera_pose_age_sec": "",
+            "camera_position_x_m": "",
+            "camera_position_y_m": "",
+            "camera_position_z_m": "",
+            "camera_yaw_rad": "",
+            "camera_pose_invalid_reason": "camera_pose_missing",
+        }
+        if message is None:
+            self._camera_pose_samples[stamp_key] = sample
+            return sample
+        if message.header.frame_id != self._camera_pose_frame:
+            sample["camera_pose_invalid_reason"] = "camera_pose_frame_mismatch"
+            self._camera_pose_samples[stamp_key] = sample
+            return sample
+        if not self._pose_values_finite(message.pose):
+            sample["camera_pose_invalid_reason"] = "camera_pose_nonfinite"
+            self._camera_pose_samples[stamp_key] = sample
+            return sample
+        yaw = quaternion_yaw(
+            message.pose.orientation.x, message.pose.orientation.y,
+            message.pose.orientation.z, message.pose.orientation.w)
+        if yaw is None or age_sec is None or not math.isfinite(age_sec):
+            sample["camera_pose_invalid_reason"] = "camera_pose_invalid"
+            self._camera_pose_samples[stamp_key] = sample
+            return sample
+        sample.update({
+            "camera_pose_valid": True,
+            "camera_pose_source_stamp": "{:.9f}".format(
+                message.header.stamp.to_sec()),
+            "camera_pose_age_sec": float(age_sec),
+            "camera_position_x_m": float(message.pose.position.x),
+            "camera_position_y_m": float(message.pose.position.y),
+            "camera_position_z_m": float(message.pose.position.z),
+            "camera_yaw_rad": yaw,
+            "camera_pose_invalid_reason": "",
+        })
+        self._camera_pose_samples[stamp_key] = sample
+        return sample
+
+    def _apply_camera_pose_locked(self, frame, stamp_key):
+        frame.update(self._camera_pose_sample_locked(stamp_key))
+
     def _frame_locked(self, stamp_key, stamp_sec):
         key = (self._active, stamp_key)
         if key not in self._frames:
@@ -499,6 +578,21 @@ class VSim04TrialRecorder:
                 "fully_in_frame": False,
                 "center_in_frame": False,
                 "co_visible_classes": "",
+                "camera_pose_valid": False,
+                "camera_pose_source_stamp": "",
+                "camera_pose_age_sec": "",
+                "camera_position_x_m": "",
+                "camera_position_y_m": "",
+                "camera_position_z_m": "",
+                "camera_yaw_rad": "",
+                "camera_pose_invalid_reason": "camera_pose_missing",
+                "motion_delta_valid": False,
+                "actual_linear_speed_mps": "",
+                "actual_yaw_rate_radps": "",
+                "motion_invalid_reason": "not_derived",
+                "path_lateral_offset_m": "",
+                "path_lateral_offset_normalized": "",
+                "path_lateral_invalid_reason": "not_derived",
                 "raw_class_present": False,
                 "raw_geometry_present": False,
                 "raw_class_confidence": "",
@@ -529,6 +623,7 @@ class VSim04TrialRecorder:
                 "current_selected": False,
                 "stable_id": "",
             }
+        self._apply_camera_pose_locked(self._frames[key], stamp_key)
         return self._frames[key]
 
     def _add_event_locked(self, event, source_stamp=None, stable_id=None,
@@ -770,6 +865,18 @@ class VSim04TrialRecorder:
             "actual_duration_sec": None,
             "expected_speed_mps": None,
             "actual_speed_mps": None,
+            "camera_pose_frame_count": 0,
+            "motion_sample_count": 0,
+            "lateral_offset_sample_count": 0,
+            "actual_linear_speed_mps_samples": [],
+            "actual_yaw_rate_radps_samples": [],
+            "normalized_lateral_offset_samples": [],
+            "mean_actual_linear_speed_mps": None,
+            "p95_actual_linear_speed_mps": None,
+            "mean_abs_actual_yaw_rate_radps": None,
+            "p95_abs_actual_yaw_rate_radps": None,
+            "mean_abs_normalized_lateral_offset": None,
+            "p95_abs_normalized_lateral_offset": None,
         })
         self._add_event_locked("trial_start", details=source_event)
 
@@ -862,8 +969,12 @@ class VSim04TrialRecorder:
         self._active = None
 
     def _derive_frame_metrics_locked(self, trial_id):
-        rows = [row for (row_trial, _stamp), row in self._frames.items()
-                if row_trial == trial_id]
+        rows = []
+        for (row_trial, stamp_key), row in self._frames.items():
+            if row_trial != trial_id:
+                continue
+            self._apply_camera_pose_locked(row, stamp_key)
+            rows.append(row)
         eligible = [row for row in rows if row["fully_in_frame"]]
         stage_row_fields = {
             "raw_class_frames": "raw_class_present",
@@ -880,6 +991,9 @@ class VSim04TrialRecorder:
         errors = [float(row["map_error_xy"]) for row in eligible
                   if row["map_error_xy"] != ""]
         result = self._results[trial_id]
+        result.update(annotate_motion_frames(
+            rows, result["kind"],
+            self._actual_trajectories.get(trial_id, {})))
         result["eligible_frames"] = len(eligible)
         for result_field, row_field in stage_row_fields.items():
             result[result_field] = sum(bool(row[row_field]) for row in eligible)
@@ -917,6 +1031,15 @@ class VSim04TrialRecorder:
             self._selected_events[trial_id], result,
             self._image_receipts, self._detector_callback_starts))
 
+    def _on_camera_pose(self, message):
+        if message.header.frame_id != self._camera_pose_frame:
+            rospy.logerr_throttle(
+                5.0, "V-SIM-04 camera pose frame mismatch: %s",
+                message.header.frame_id)
+            return
+        with self._lock:
+            self._camera_pose_buffer.add(message)
+
     def _on_image(self, message):
         receipt = time.monotonic()
         with self._lock:
@@ -939,6 +1062,9 @@ class VSim04TrialRecorder:
                 self._consecutive_images = 1
             self._last_image_stamp = stamp_key
             self._last_image_receipt = receipt
+            key = (self._active, stamp_key)
+            if self._active and key in self._frames:
+                self._apply_camera_pose_locked(self._frames[key], stamp_key)
             self._note_pending_output_locked(stamp_sec, receipt)
             while len(self._image_receipts) > 4000:
                 self._image_receipts.popitem(last=False)
@@ -1444,6 +1570,15 @@ class VSim04TrialRecorder:
                     if (value is None or not math.isfinite(float(value)) or
                             float(value) <= 0.0):
                         errors.append("{}:{}_invalid".format(trial_id, field))
+                if int(result.get("camera_pose_frame_count", 0)) <= 0:
+                    errors.append("{}:camera_pose_frames_missing".format(
+                        trial_id))
+                if int(result.get("motion_sample_count", 0)) <= 0:
+                    errors.append("{}:motion_samples_missing".format(
+                        trial_id))
+                if int(result.get("lateral_offset_sample_count", 0)) <= 0:
+                    errors.append("{}:lateral_offset_samples_missing".format(
+                        trial_id))
         if self._camera_info is None:
             errors.append("camera_info_missing")
         elif not self._camera_info_valid(self._camera_info):
@@ -1479,6 +1614,11 @@ class VSim04TrialRecorder:
                 "infrastructure_gaps": copy.deepcopy(self._infra_gaps),
                 "image_receipt_fps": self._actual_fps_locked(),
                 "image_source_fps": self._actual_source_fps_locked(),
+                "camera_pose_matched_frame_stamps": sum(
+                    bool(sample.get("camera_pose_valid"))
+                    for sample in self._camera_pose_samples.values()),
+                "camera_pose_matching":
+                    "latest_at_or_before_image_stamp",
                 "last_mapped_completed_sources": list(
                     self._last_mapped_completed_sources),
                 "partial_mapped_frame_count": int(
