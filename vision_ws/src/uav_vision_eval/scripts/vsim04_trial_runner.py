@@ -447,10 +447,17 @@ class VSim04TrialRunner:
                     if status is not None:
                         if status.get("finalized"):
                             return
+                        abort_event_seq = status.get("abort_event_seq")
                         if (status.get("state") == "FAIL" and
-                                int(status.get("abort_event_seq", -1)) ==
-                                int(payload["event_seq"])):
-                            return
+                                abort_event_seq is not None):
+                            try:
+                                if (int(abort_event_seq) ==
+                                        int(payload["event_seq"])):
+                                    return
+                            except (TypeError, ValueError, OverflowError):
+                                # A malformed or not-yet-populated ACK must not
+                                # hide the original preflight/trial failure.
+                                pass
                     remaining = deadline - time.monotonic()
                     if remaining <= 0.0 or rospy.is_shutdown():
                         rospy.logerr(
