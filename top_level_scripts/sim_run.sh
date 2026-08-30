@@ -59,11 +59,53 @@ RUN_LOG="${RUN_DIR}/run.log"
 RECORD_MP4="${RUN_DIR}/screenrecord.mp4"
 REQUIRE_GATE="${SIM_REQUIRE_GATE:-0}"
 VSIM04_CAPTURE_REQUESTED=0
+VSIM04_CAPTURE_SUBDIR="failure_capture"
+VSIM04_OUTPUT_OVERRIDE=0
 for RUN_ARGUMENT in "$@"; do
   case "${RUN_ARGUMENT}" in
-    enable_failure_capture:=true) VSIM04_CAPTURE_REQUESTED=1 ;;
+    enable_failure_capture:=*)
+      VSIM04_CAPTURE_VALUE="${RUN_ARGUMENT#enable_failure_capture:=}"
+      case "${VSIM04_CAPTURE_VALUE}" in
+        true|True|TRUE|1) VSIM04_CAPTURE_REQUESTED=1 ;;
+        false|False|FALSE|0) VSIM04_CAPTURE_REQUESTED=0 ;;
+      esac
+      ;;
+    failure_capture_output_dir:=*)
+      VSIM04_CAPTURE_SUBDIR="${RUN_ARGUMENT#failure_capture_output_dir:=}"
+      ;;
+    output_dir:=*) VSIM04_OUTPUT_OVERRIDE=1 ;;
   esac
 done
+case "${SCENE}" in
+  vsim04*)
+    if [ "${VSIM04_OUTPUT_OVERRIDE}" = "1" ]; then
+      echo "sim_run owns V-SIM-04 output_dir inside SIM_RUN_DIR" >&2
+      exit 2
+    fi
+    ;;
+esac
+if [ "${VSIM04_CAPTURE_REQUESTED}" = "1" ]; then
+  VSIM04_CAPTURE_SUBDIR_VALID=1
+  case "${VSIM04_CAPTURE_SUBDIR}" in
+    ""|/*|*\\*) VSIM04_CAPTURE_SUBDIR_VALID=0 ;;
+  esac
+  OLD_IFS="${IFS}"
+  IFS=/
+  read -r -a VSIM04_CAPTURE_PARTS <<< "${VSIM04_CAPTURE_SUBDIR}"
+  IFS="${OLD_IFS}"
+  for VSIM04_CAPTURE_PART in "${VSIM04_CAPTURE_PARTS[@]}"; do
+    if [ -z "${VSIM04_CAPTURE_PART}" ] || \
+       [ "${VSIM04_CAPTURE_PART}" = "." ] || \
+       [ "${VSIM04_CAPTURE_PART}" = ".." ] || \
+       [[ ! "${VSIM04_CAPTURE_PART}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+      VSIM04_CAPTURE_SUBDIR_VALID=0
+    fi
+  done
+  if [ "${VSIM04_CAPTURE_SUBDIR_VALID}" != "1" ]; then
+    echo "invalid run-relative failure_capture_output_dir: ${VSIM04_CAPTURE_SUBDIR}" >&2
+    exit 2
+  fi
+fi
 
 # ---- manifest 头部 ----
 {
@@ -152,7 +194,8 @@ case "${SCENE}" in
       EXIT_CODE=1
     fi
     if [ "${VSIM04_CAPTURE_REQUESTED}" = "1" ]; then
-      VSIM04_CAPTURE_MANIFEST="${VSIM04_DIR}/failure_capture/dataset_manifest.json"
+      VSIM04_CAPTURE_DIR="${VSIM04_DIR}/${VSIM04_CAPTURE_SUBDIR}"
+      VSIM04_CAPTURE_MANIFEST="${VSIM04_CAPTURE_DIR}/dataset_manifest.json"
       VSIM04_CAPTURE_STATUS=""
       if [ -f "${VSIM04_CAPTURE_MANIFEST}" ]; then
         VSIM04_CAPTURE_STATUS="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("status", ""))' "${VSIM04_CAPTURE_MANIFEST}" 2>/dev/null || true)"
@@ -160,6 +203,14 @@ case "${SCENE}" in
       echo "V-SIM-04 capture status: ${VSIM04_CAPTURE_STATUS:-MISSING} (expected DIAGNOSTIC)" | tee -a "${RUN_LOG}"
       if [ "${VSIM04_CAPTURE_STATUS}" != "DIAGNOSTIC" ]; then
         EXIT_CODE=1
+      fi
+      VSIM04_CAPTURE_CHECKER="${PROJECT_ROOT}/vision_ws/src/uav_vision_eval/scripts/vsim04_failure_capture_manifest_check.py"
+      if ! PYTHONPATH="${PROJECT_ROOT}/vision_ws/src/uav_vision_eval/src${PYTHONPATH:+:${PYTHONPATH}}" \
+          python3 "${VSIM04_CAPTURE_CHECKER}" "${VSIM04_CAPTURE_MANIFEST}"; then
+        echo "V-SIM-04 capture manifest/files validation: FAIL" | tee -a "${RUN_LOG}"
+        EXIT_CODE=1
+      else
+        echo "V-SIM-04 capture manifest/files validation: PASS" | tee -a "${RUN_LOG}"
       fi
     fi
     ;;

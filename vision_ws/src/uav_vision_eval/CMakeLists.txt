@@ -71,8 +71,16 @@ catkin_install_python(PROGRAMS
   scripts/vsim04_trial_runner.py
   scripts/vsim04_failure_capture.py
   scripts/vsim04_failure_capture_assertion.py
+  scripts/vsim04_failure_capture_manifest_check.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(
+    scripts/vsim04_failure_capture_assertion.py
+    DEPENDENCIES ${PROJECT_NAME}_generate_messages_py
+  )
+endif()
 
 install(DIRECTORY config launch models
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
