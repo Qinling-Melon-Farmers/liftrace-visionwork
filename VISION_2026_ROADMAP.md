@@ -1,6 +1,6 @@
 # 2026 视觉组主路线与仿真验收方案
 
-更新时间：2026-08-29
+更新时间：2026-08-30
 状态：**当前唯一任务优先级来源（Single Source of Truth）**
 
 本文回答四件事：视觉组现在做到哪里、目标架构是什么、下一步具体做什么、如何用仿真证明算法有效。其他文档只负责环境操作、接口细节、部署或历史证据；若“下一步”表述冲突，以本文为准。
@@ -76,11 +76,17 @@
     90 秒虽以最大高度 3.254 m PASS 并把高度 RMS 漂移从 1.106 m 降到 0.513 m，但共同进度
     耗时退化 19.43%，超过 10%，比较器 `promote_candidate=false`。默认仍为 baseline，未跑
     600 秒，V-CL-06 继续 FAIL 并将高度/耗时与持久队列/重试/时序缺口回流导航组。
+16. 2026-08-30 在独立 `feat/vsim04-performance-surface` 修复红十字双证据置信度所有权和
+    高空薄蓝环 morphology 尺度，并落地 raw→resolved→refined→mapped→memory 逐帧断点及
+    diagnostic trial selector。正式 seed11 结果从 13/23 提升到 20/23；但本次完整运行的处理
+    P95 为 816.9 ms、地图误差 P95 为 0.602 m，且高速 panzer 单项出现一败两胜。由于代码、
+    recorder 字段和运行负载同时变化，性能异常仍需受控复跑归因；当前先收敛长会话，不扩
+    30 seed，不推进新相机内参。
 
 现有 `toudi3.world` 五类标准靶和 H 已直接用于固定真值场景，红十字按评测场景插入；
 `uav_vision_eval` 已能自动生成 CSV/JSON/report，shadow 输出也已隔离。当前仍不能宣称完整
-视觉 Gate 通过：尚缺 30-seed/10 min 回归，红十字和部分标准类召回低于 0.95，笔记本
-正式召回仍未达标，30-seed/10 min 未完成，实拍圆环缺人工真值。
+视觉 Gate 通过：固定矩阵仍有 3 个失败项，完整运行的吞吐/地图误差异常尚未完成受控归因，
+30-seed/10 min 未开始，实拍圆环也仍缺人工真值。
 
 ## 2. 当前事实基线
 
@@ -464,7 +470,7 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 部分完成/待干净复跑 | 15 | V-CL-05 | 搜索-投递策略：高权重中断 + red_cross 统一 | 中断机制已实跑（tank 提前执行并恢复搜索、覆盖 12/12），pillbox 端到端投出，tank/panzer 证据锁定但低空下降受规划器波动影响超时；red_cross 统一入队、随机摆放入口与动态期望 Gate 已落地。剩余完成定义：按规则场地全随机布设（4 个 1 m 标准靶 + 1 个 0.35 m 红十字全部随机摆放、H 固定为起降点，真值仅落盘），类目/profile 驱动允许集合与 Gate（本届 profile 排除 tank），随机十字独立发现/投递 + 沉降门控验证（规划器失败只记录不迭代） |
 | 30 s PASS/A-B 已测不推广，Gate FAIL | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 上游 manager `5144aa8` 保持原逻辑，raw/planner goal 所有权与 READY/SEARCH/contact 门控通过；seed=11 baseline 30 s PASS。90 s baseline 最大高度 4.798 m FAIL；`a68925d` 最大高度 3.254 m、漂移改善但共同进度慢 19.43%，比较 FAIL，保持 baseline 且不跑 600 s。导航组下一步收敛高度/耗时并实现持久全局权重、失败重试和剩余时间调度；同 seed 600 s 三投+返航+落地才 PASS |
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
-| 最小矩阵已量化/待性能修复 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | 当前合并态 `vsim04_seed11_current_20260829_195506` 已 23/23、六产物、无 infrastructure gap，终态 MEASURED；P_confirm=P_selected=13/23=0.5652，P95 processing=123.0 ms、P95 exposure=0.430 s、map-invalid=24.67%、map-unavailable=36.43%、TF failure=0、地图误差 P95=0.0789 m、接收 FPS=15.64。相对旧阈值/旧 partial 语义的 9/23 基线增加 4 项；剩余失败集中在四类标准靶全部 3.6 m、panzer 动态 3.0 m，以及 red_cross 静态 1.2/3.6 m 和动态 1.8 m。先收敛检测连续性/高空投影，再决定 30-seed/10 min，不把 MEASURED 等同算法达标 |
+| 首轮性能修复生效/长会话稳定性待收敛 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | `vsim04_seed11_algofix_20260830_192604` 已 23/23、六产物、终态 MEASURED；P_confirm=P_selected=20/23=0.8696。旧 10 个失败中 8 个恢复，当前首阻断为 pillbox 3.6 m raw classifier、red_cross 3.6 m memory admission，以及高速 panzer 一次 raw geometry 短窗口失败；后者两次定向复测均通过。长会话 P95 processing=816.9 ms、地图误差 P95=0.602 m、TF failure=1.53%，尚未达标。先收敛吞吐/partial fusion/动态地图误差，再补静态 1.8/3.0 m；不把 MEASURED 或 20/23 写成算法 Gate PASS，不直接扩 30-seed |
 | 待真值 | 19 | V-REAL-01 | 实拍回放域差复核 | 标注圆环实例/中心/H/红十字，采集同步 CameraInfo/pose |
 | 离线部分完成/ROS待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | FP32 RKNN 离线有效；待完成单下视 ROS 相机/TF、5–10 Hz 和 10 min Gate |
 
@@ -486,11 +492,16 @@ V-SIM-04 最小框架固定使用 `r2026`（tent/pillbox/bridge/panzer/red_cross
 `seed=11`。一次“完整入画到离开”定义为一个 trial；`P_confirm` 必须满足 target memory
 当前完整准入，`P_selected` 必须关联同一 stable ID。visual-only 的 `P_interrupt` 明确为
 `null`，不得由 selected 代替；导航实际接受事件在 V-CL-06 联合报告中另行评分。
-当前合并态 `vsim04_seed11_current_20260829_195506` 已完成 23/23 并通过终态/产物完整性校验，
-证明评测链可用；确认/选择由旧配置 9/23 提升为 13/23，但四类标准靶 3.6 m、高位 panzer
-动态和部分 red_cross 尺度仍是明确性能缺口。red_cross 失败项已有有效检测/地图帧却无法形成
-三次连续准入，应优先检查双路重叠与完整空帧间断，而不是放宽地图门槛。不能把 `MEASURED`
-写成算法 Gate PASS，也不应在这些失败收敛前直接扩 30-seed。
+最新正式证据 `vsim04_seed11_algofix_20260830_192604` 完成 23/23 并通过终态/产物完整性
+校验；红十字双证据语义和薄蓝环尺度修复使确认/选择从 13/23 提升到 20/23。逐帧断点已将
+剩余失败分成 raw classifier、raw geometry 和 target memory admission，算法变更后可通过
+diagnostic selector 只重放相关项。当前不能只看成功数：长会话处理 P95 从历史 123.0 ms
+升到 816.9 ms、地图误差 P95 从 0.0789 m 升到 0.602 m，高速 panzer 同条件一败两胜；该
+对比还混入 recorder 字段和运行负载变化，必须受控复跑后归因。因此下一 Gate 是先恢复完整
+会话吞吐、融合完整帧和动态地图误差稳定性，再补静态 1.8/3.0 m
+形成 25 格；完整 100 格速度表改为稀疏筛选导航工作域，不在这些问题收敛前扩 30-seed。
+详细合理性评估与序贯计划见
+[导航算法要求合理性评估与V-SIM-04序贯计划_20260830.md](docs/导航算法要求合理性评估与V-SIM-04序贯计划_20260830.md)。
 
 ## 9. 暂不推进
 
