@@ -6,6 +6,7 @@
 /uav_vision/detections_resolved，供 target_memory / compat_bridge 使用。
 """
 from collections import OrderedDict
+import copy
 import threading
 
 import rospy
@@ -208,25 +209,7 @@ class DetectionFusion:
                 align_mode = self._align_mode
         detections = list(bucket["detections"])
         if self._require_red_cross_dual_confirmation:
-            geometry_crosses = [
-                detection for detection in detections
-                if detection.class_name == "red_cross" and
-                detection.geometry_verified and detection.center_refined
-            ]
-            classifier_crosses = [
-                detection for detection in detections
-                if detection.class_name == "red_cross" and
-                not detection.geometry_verified
-            ]
-            confirmed_geometry = [
-                geometry for geometry in geometry_crosses
-                if any(self._overlaps(geometry, classifier)
-                       for classifier in classifier_crosses)
-            ]
-            detections = [
-                detection for detection in detections
-                if detection.class_name != "red_cross"
-            ] + confirmed_geometry
+            detections = self._confirm_red_crosses(detections)
         if self._deduplicate_same_class:
             detections = self._deduplicate(detections)
         suppress_bridge = False
@@ -251,6 +234,43 @@ class DetectionFusion:
                 continue
             out.detections.append(det)
         self._publisher.publish(out)
+
+    def _confirm_red_crosses(self, detections):
+        """Fuse classifier confidence with an overlapping geometry result.
+
+        The cross detector owns the refined center and geometry score, while
+        target_detector owns the class score.  Keeping the geometry message
+        unchanged after dual confirmation incorrectly reused its geometry
+        score as class confidence and could block target_memory even when the
+        classifier evidence was strong.
+        """
+        geometry_crosses = [
+            detection for detection in detections
+            if detection.class_name == "red_cross" and
+            detection.geometry_verified and detection.center_refined
+        ]
+        classifier_crosses = [
+            detection for detection in detections
+            if detection.class_name == "red_cross" and
+            not detection.geometry_verified
+        ]
+        confirmed = []
+        for geometry in geometry_crosses:
+            matches = [
+                classifier for classifier in classifier_crosses
+                if self._overlaps(geometry, classifier)
+            ]
+            if not matches:
+                continue
+            classifier = max(
+                matches, key=lambda item: float(item.class_confidence))
+            fused = copy.deepcopy(geometry)
+            fused.class_confidence = classifier.class_confidence
+            confirmed.append(fused)
+        return [
+            detection for detection in detections
+            if detection.class_name != "red_cross"
+        ] + confirmed
 
     @staticmethod
     def _roi(det):

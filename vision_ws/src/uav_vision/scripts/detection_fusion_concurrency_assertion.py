@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic regression for detection_fusion bucket/timer concurrency."""
+"""Deterministic regressions for detection_fusion concurrency and evidence."""
 
 from collections import OrderedDict
 from types import SimpleNamespace
@@ -93,6 +93,26 @@ def _message(stamp):
         source="",
         detections=[],
     )
+
+
+def _red_cross(class_confidence, geometry_confidence, geometry_verified,
+               x_offset=100, y_offset=120):
+    detection = TargetDetection()
+    detection.class_name = "red_cross"
+    detection.class_confidence = class_confidence
+    detection.geometry_confidence = geometry_confidence
+    detection.geometry_verified = geometry_verified
+    detection.center_refined = geometry_verified
+    detection.center_source = (
+        "red_cross_geometry" if geometry_verified else "bbox")
+    detection.association_valid = geometry_verified
+    detection.roi.x_offset = x_offset
+    detection.roi.y_offset = y_offset
+    detection.roi.width = 80
+    detection.roi.height = 80
+    detection.center_px.x = x_offset + 40
+    detection.center_px.y = y_offset + 40
+    return detection
 
 
 def main():
@@ -218,7 +238,30 @@ def main():
     )
     assert len(published_messages) == 1
     assert [item.class_name for item in published_messages[0].detections] == ["tent"]
-    print("detection_fusion OrderedDict concurrency PASS")
+
+    # Dual confirmation must preserve geometry ownership of the refined center
+    # while carrying the independent classifier score into target_memory.
+    evidence_fusion = DetectionFusion.__new__(DetectionFusion)
+    evidence_fusion._dedup_iou_threshold = 0.30
+    evidence_fusion._dedup_center_ratio = 0.35
+    geometry = _red_cross(0.74, 0.74, True)
+    classifier = _red_cross(0.95, 0.0, False)
+    confirmed = evidence_fusion._confirm_red_crosses(
+        [geometry, classifier])
+    assert len(confirmed) == 1, confirmed
+    fused = confirmed[0]
+    assert abs(fused.class_confidence - 0.95) < 1e-6
+    assert abs(fused.geometry_confidence - 0.74) < 1e-6
+    assert fused.geometry_verified and fused.center_refined
+    assert fused.center_source == "red_cross_geometry"
+    assert fused.center_px.x == geometry.center_px.x
+    assert geometry.class_confidence == 0.74, (
+        "fusion mutated the source geometry message")
+
+    non_overlapping = _red_cross(0.99, 0.0, False, 400, 400)
+    assert not evidence_fusion._confirm_red_crosses(
+        [geometry, non_overlapping])
+    print("detection_fusion concurrency/evidence PASS")
 
 
 if __name__ == "__main__":
