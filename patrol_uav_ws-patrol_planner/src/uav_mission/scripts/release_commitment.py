@@ -11,6 +11,104 @@ MODE_TARGET_CLASS = {
 }
 
 
+def _seconds(value):
+    return float(value.to_sec()) if hasattr(value, "to_sec") else float(value)
+
+
+def _stamp_key(value):
+    if hasattr(value, "secs") and hasattr(value, "nsecs"):
+        return int(value.secs), int(value.nsecs)
+    seconds = _seconds(value)
+    whole = int(math.floor(seconds))
+    return whole, int(round((seconds - whole) * 1_000_000_000.0))
+
+
+def strict_context_source(context, now, maximum_age, class_profile,
+                          align_mode, payload_slot):
+    """Return semantic release identity from one valid context wrapper.
+
+    ``ReleaseEvidence`` identifies the observed geometry (for example a blue
+    circle), while the mission queue owns the semantic target (for example a
+    tent).  Strict mode accepts the geometry only through the already-frozen
+    ``ReleaseEvidenceContext`` and returns the semantic identity for the
+    permission/result path.
+    """
+
+    if context is None:
+        return False, "release_evidence_context_missing", None
+    try:
+        evidence = context.evidence
+        now_sec = _seconds(now)
+        evidence_stamp = _seconds(evidence.header.stamp)
+        context_stamp = _seconds(context.context_header.stamp)
+        deadline = _seconds(context.deadline)
+        max_age = float(maximum_age)
+        if not all(math.isfinite(value) for value in (
+                now_sec, evidence_stamp, context_stamp, deadline, max_age)):
+            return False, "release_evidence_context_time_invalid", None
+        if (max_age < 0.0 or evidence_stamp <= 0.0 or
+                context_stamp <= 0.0):
+            return False, "release_evidence_context_unstamped", None
+        if (now_sec - evidence_stamp < 0.0 or
+                now_sec - context_stamp < 0.0):
+            return False, "release_evidence_context_from_future", None
+        if (now_sec - evidence_stamp > max_age or
+                now_sec - context_stamp > max_age):
+            return False, "release_evidence_context_stale", None
+        if deadline <= now_sec:
+            return False, "release_evidence_context_deadline", None
+        if (not context.context_valid or not context.context_active or
+                not context.has_semantic_target or
+                not context.semantic_geometry_match):
+            return False, "release_evidence_context_invalid", None
+        if (context.context_schema_version != 1 or
+                not str(context.context_source).strip() or
+                not str(context.mission_id).strip() or
+                int(context.decision_seq) <= 0):
+            return False, "release_evidence_context_fence_invalid", None
+        if (str(context.class_profile) != str(class_profile) or
+                str(context.align_mode) != str(align_mode) or
+                int(context.command) != 2 or
+                int(context.payload_slot) != int(payload_slot)):
+            return False, "release_evidence_context_fence_mismatch", None
+        if (not evidence.evidence_valid or not evidence.aligned or
+                str(evidence.align_mode) != str(align_mode) or
+                not context.geometry_target_present or
+                not context.geometry_map_valid):
+            return False, "release_evidence_context_geometry_invalid", None
+        if (int(evidence.target_id) != int(context.geometry_target_id) or
+                str(evidence.target_class) !=
+                str(context.geometry_target_class)):
+            return False, "release_evidence_context_geometry_mismatch", None
+
+        semantic_class = str(context.semantic_target_class).strip()
+        geometry_class = str(context.geometry_target_class).strip()
+        if align_mode == "drop_cross":
+            if semantic_class != "red_cross" or geometry_class != "red_cross":
+                return False, "release_evidence_context_class_mismatch", None
+            if (int(context.semantic_target_id) !=
+                    int(context.geometry_target_id) or
+                    _stamp_key(context.semantic_target_first_seen) !=
+                    _stamp_key(context.geometry_target_first_seen)):
+                return False, "release_evidence_context_identity_mismatch", None
+        elif align_mode == "drop_circle":
+            if not semantic_class or semantic_class == "red_cross" or \
+                    geometry_class != "circle":
+                return False, "release_evidence_context_class_mismatch", None
+        else:
+            return False, "release_evidence_context_mode_invalid", None
+    except (AttributeError, TypeError, ValueError, OverflowError):
+        return False, "release_evidence_context_malformed", None
+
+    return True, "permission_granted", {
+        "target_id": int(context.semantic_target_id),
+        "target_class": semantic_class,
+        "geometry_target_class": geometry_class,
+        "evidence_stamp": evidence.header.stamp,
+        "stable_frames": int(evidence.stable_frames),
+    }
+
+
 @dataclass(frozen=True)
 class ReleaseCommitment:
     align_mode: str
@@ -40,7 +138,9 @@ class ReleaseCommitmentPolicy:
             return None
         mode = evidence.get("align_mode", "")
         expected_class = MODE_TARGET_CLASS.get(mode)
-        if expected_class is None or evidence.get("target_class") != expected_class:
+        geometry_class = evidence.get(
+            "geometry_target_class", evidence.get("target_class"))
+        if expected_class is None or geometry_class != expected_class:
             return None
         if int(control_state) != self._required_control_state or pose is None:
             return None

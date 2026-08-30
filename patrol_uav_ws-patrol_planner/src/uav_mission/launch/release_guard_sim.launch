@@ -1,6 +1,17 @@
 <launch>
   <!-- Simulation-only release path: permission gate -> raw mock Servo. -->
-  <include file="$(find uav_mission)/launch/release_guard.launch" />
+  <arg name="require_evidence_context" default="false" />
+  <arg name="class_profile" default="r2026" />
+  <arg name="evidence_context_topic"
+       default="/uav_vision/release_evidence_context" />
+
+  <include file="$(find uav_mission)/launch/release_guard.launch">
+    <arg name="require_evidence_context"
+         value="$(arg require_evidence_context)" />
+    <arg name="class_profile" value="$(arg class_profile)" />
+    <arg name="evidence_context_topic"
+         value="$(arg evidence_context_topic)" />
+  </include>
 
   <node pkg="uav_mission" type="mock_raw_servo_server.py"
         name="mock_raw_servo_server" output="screen">
