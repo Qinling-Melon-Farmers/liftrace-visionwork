@@ -38,8 +38,11 @@
    `logs/target_area_navigation_20260807_190817/`。按当前范围，北区走廊避障不计入本 Gate；
 8. 圆环关联、地图新鲜度、H 结构门控和 `release_evidence` 继续按闭环失败证据修正；召回和
    时延优化服从于“能发现、能记住、能接近、能重捕获、不会错误投放”的业务目标；
-9. PT/ONNX 与 RKNN 离线部署门禁已有首轮结果：两款 FP32 RKNN 可运行，四款 INT8 RKNN
-   在 v5merge 全集上零有效检测；OrangePi ROS 视觉链和稳定性验收仍未完成。
+9. 笔记本 PT/ONNX 导出一致性已在统一 `640x640` fixed-letterbox 输入下通过：12 张覆盖
+   标准靶、红十字、H 与纯背景的样本共 19 个框，缺失/新增均为 0，最低 IoU
+   0.999999；旧“不一致”由 PT 动态矩形与固定形状 ONNX 接收了不同输入几何导致。两款
+   FP32 RKNN 可离线运行，四款 INT8 RKNN 在 v5merge 全集上零有效检测；OrangePi 上的
+   逐样本 RKNN 对照、ROS 视觉链和稳定性验收仍未完成。
 10. 当前并行核查原 2025 完整飞行载体：自动起飞和三次软件 mock 投递已完成，但原始
    0.8 m 门洞穿越、北区巡航、返航和降落尚未完成。该项是控制/规划/仿真联合前置，
    不计入视觉算法完成度；直达航点通过也不能替代 Fast-Planner 避障验收。分层 Gate 和
@@ -470,9 +473,9 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 部分完成/待干净复跑 | 15 | V-CL-05 | 搜索-投递策略：高权重中断 + red_cross 统一 | 中断机制已实跑（tank 提前执行并恢复搜索、覆盖 12/12），pillbox 端到端投出，tank/panzer 证据锁定但低空下降受规划器波动影响超时；red_cross 统一入队、随机摆放入口与动态期望 Gate 已落地。剩余完成定义：按规则场地全随机布设（4 个 1 m 标准靶 + 1 个 0.35 m 红十字全部随机摆放、H 固定为起降点，真值仅落盘），类目/profile 驱动允许集合与 Gate（本届 profile 排除 tank），随机十字独立发现/投递 + 沉降门控验证（规划器失败只记录不迭代） |
 | 30 s PASS/A-B 已测不推广，Gate FAIL | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 上游 manager `5144aa8` 保持原逻辑，raw/planner goal 所有权与 READY/SEARCH/contact 门控通过；seed=11 baseline 30 s PASS。90 s baseline 最大高度 4.798 m FAIL；`a68925d` 最大高度 3.254 m、漂移改善但共同进度慢 19.43%，比较 FAIL，保持 baseline 且不跑 600 s。导航组下一步收敛高度/耗时并实现持久全局权重、失败重试和剩余时间调度；同 seed 600 s 三投+返航+落地才 PASS |
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
-| 首轮性能修复生效/长会话稳定性待收敛 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | `vsim04_seed11_algofix_20260830_192604` 已 23/23、六产物、终态 MEASURED；P_confirm=P_selected=20/23=0.8696。旧 10 个失败中 8 个恢复，当前首阻断为 pillbox 3.6 m raw classifier、red_cross 3.6 m memory admission，以及高速 panzer 一次 raw geometry 短窗口失败；后者两次定向复测均通过。长会话 P95 processing=816.9 ms、地图误差 P95=0.602 m、TF failure=1.53%，尚未达标。先收敛吞吐/partial fusion/动态地图误差，再补静态 1.8/3.0 m；不把 MEASURED 或 20/23 写成算法 Gate PASS，不直接扩 30-seed |
+| 首轮性能修复生效/长会话稳定性待收敛 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | `vsim04_seed11_algofix_20260830_192604` 已 23/23、六产物、终态 MEASURED；P_confirm=P_selected=20/23=0.8696。red_cross 3.6 m 定向复测已通过，当前算法首阻断为 pillbox 3.6 m raw classifier；高速 panzer 两次定向复测均通过。长会话旧证据 P95 processing=816.9 ms、地图误差 P95=0.602 m、TF failure=1.53%，尚未达标。schema-v2 已增加全类别硬审计、动态位姿遥测、实际产物核验和诊断采集；须在修复采样时序与运动窗口后重跑 operating surface，再决定 30-seed，不把 MEASURED/DIAGNOSTIC_ONLY 写成算法 Gate PASS |
 | 待真值 | 19 | V-REAL-01 | 实拍回放域差复核 | 标注圆环实例/中心/H/红十字，采集同步 CameraInfo/pose |
-| 离线部分完成/ROS待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | FP32 RKNN 离线有效；待完成单下视 ROS 相机/TF、5–10 Hz 和 10 min Gate |
+| 笔记本 PT/ONNX 已通过/板端 ROS 待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | 同 fixed-letterbox 的 12 图 PT/ONNX Gate 已通过；FP32 RKNN 离线有效，待完成同样本 PT→ONNX→RKNN 逐框对照、单下视 ROS 相机/TF、5–10 Hz 和 10 min Gate |
 
 ### 8.1 已完成的最小交付与当前入口
 

@@ -114,11 +114,18 @@ vision_ws/test_data/real_target_ring_map_eval_merged_letterbox_20260715_stride4/
 
 ## 5. PT/ONNX 笔记本一致性
 
-`compare_yolo_backends.py` 对五类标准场景、红十字、H 和背景共 8 张图进行逐框比较。
-当前 merged PT 与现有 ONNX 的结果为：8 个框成功匹配、1 个 PT 框缺失、1 个 ONNX
-额外框，最小 IoU 0.954、最大置信度差 0.536、最大框坐标差 2.92 px，判定不通过。
-重新从同一 PT 导出临时 ONNX 后结果相同，说明不是仓库 ONNX 陈旧，而是负样本边界上的
-后端/后处理差异仍需定位。该检查仍是笔记本导出一致性，不是 RKNN 一致性。
+历史 8 图检查曾记录 8 个框匹配、PT 缺失 1 个、ONNX 新增 1 个，最小 IoU 0.954、最大
+置信度差 0.536。2026-08-30 复核确认该结论混入了不同预处理：PT 后端使用动态矩形输入，
+固定形状 ONNX 使用方形 letterbox，比较的并非同一输入张量几何。该历史结果保留用于说明
+`backend-native` 的风险，不再作为导出数值不一致证据。
+
+`compare_yolo_backends.py` 现默认先生成同一 `640x640` fixed-letterbox 图像，再将完全相同
+的几何输入交给两种后端；也支持重复 `--source` 形成聚合 Gate，并落盘未匹配框和双方置信度。
+覆盖标准靶诊断采集 9 图、red_cross、landing H 和纯背景共 12 图的受控复测结果为：19 个框
+全部匹配，缺失/新增均为 0，最低/平均 IoU 为 0.9999991/0.9999997，最大置信度差
+`5.19e-6`，最大框坐标差 `6.11e-5 px`，判定通过。相同手工 letterbox 的原始 PT/ONNX
+输出张量也数值接近（最大绝对差约 `9.46e-4`）。该结论只关闭笔记本 PT→ONNX 导出一致性，
+不是 RKNN、NPU 性能或 OrangePi ROS 链验收。
 
 ## 6. 下一阶段可执行任务
 
@@ -129,6 +136,7 @@ vision_ws/test_data/real_target_ring_map_eval_merged_letterbox_20260715_stride4/
 3. 从实拍视频抽取并人工标注代表帧圆环中心、目标实例和负样本，计算真正的关联召回、
    错配率与精修前后中心误差；普通 MP4 无法补出地图误差，后续采集需同步 CameraInfo
    与 pose/TF；
-4. 定位 PT/ONNX 在 H 等负样本边缘的类别和置信度差异，通过后再冻结 ONNX；
-5. 获得 OrangePi 和匹配相机后，才执行六分类 RKNN 转换、逐样本 PT→ONNX→RKNN 对照、
+4. 用独立 held-out 实拍/仿真样本扩充 fixed-letterbox PT/ONNX 回归，禁止退回不同后端各自
+   预处理后再比较；
+5. 获得 OrangePi 和匹配相机后，执行同样本 PT→ONNX→RKNN 逐框对照、
    5-10 Hz 性能和 10 min 稳定性验收。上板前不宣称机载可运行。

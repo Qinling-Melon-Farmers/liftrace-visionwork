@@ -200,7 +200,8 @@ GUI 入口仍只算人工连通烟测；定量结论使用 `uav_vision_eval`，�
 4. H/普通黑圈/残圈实拍负样本仍不足；
 5. 笔记本完整 SITL 已用 MAVROS 位姿核对 `camera_init` TF；真实 LIO/相机外参仍待验收；
 6. 旧 Pose 兼容接口未完成下线；
-7. PT/ONNX/RKNN 仍有逐框数值差异，尚不能冻结最终部署模型；
+7. 笔记本 PT/ONNX 已在相同 fixed-letterbox 输入的 12 图/19 框 Gate 通过；RKNN 仍需用
+   同一批输入做逐框对照，尚不能据此冻结最终板端部署模型；
 8. 六分类 RKNN 已在 OrangePi 做离线验证，但 ROS 板端链、CameraInfo/TF、10 min 稳定性和
    压力真值仍未验收；四款 INT8 当前全量 P/R/mAP 为 0。
 9. 当前地图投影是单目射线与固定 `ground_z` 平面求交；不需要深度相机，但尚未接入
