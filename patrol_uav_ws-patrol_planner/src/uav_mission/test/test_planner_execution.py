@@ -145,4 +145,33 @@ class PlannerMotionExecutorTest(unittest.TestCase):
             decision(issued=BASE, deadline=BASE+1), BASE+1)
         self.assertFalse(out.accepted)
 
+    def test_configurable_frame_orientation_and_planner_progress_events(self):
+        executor = PlannerMotionExecutor(PlannerMotionConfig(mission_frame="map"))
+        item = replace(decision(), goal=MotionGoal(
+            "map", 1.0, 2.0, 2.2, 0.0, 0.0, 1.0, 1.0))
+        dispatched = executor.submit_decision(item, BASE)
+        self.assertTrue(dispatched.accepted, dispatched.reason)
+        self.assertAlmostEqual(dispatched.planner_goal.goal.qz, 2 ** -0.5)
+        planner_goal = dispatched.planner_goal.goal
+        sequenced = SequencedMotionGoal(8, planner_goal)
+        accepted = executor.apply_planner_status(PlannerStatusEvent(
+            1, 8, "ACCEPTED", BASE+1, sequenced, sequenced, 0.0, 0, ""),
+            BASE+1)
+        self.assertEqual((accepted.events[0].status, accepted.events[0].stage),
+                         ("STARTED", "PLANNER"))
+        planning = executor.apply_planner_status(PlannerStatusEvent(
+            2, 8, "PLANNING", BASE+2, sequenced, sequenced, 0.0, 1, ""),
+            BASE+2)
+        self.assertEqual(planning.events, ())
+        failed = executor.apply_planner_status(PlannerStatusEvent(
+            3, 8, "FAILED_ATTEMPT", BASE+3, sequenced, sequenced, 0.0, 1, ""),
+            BASE+3)
+        self.assertEqual(failed.events[0].status, "PROGRESS")
+        ready = executor.apply_planner_status(PlannerStatusEvent(
+            4, 8, "TRAJECTORY_READY", BASE+4, sequenced, sequenced, 0.0, 1, ""),
+            BASE+4)
+        self.assertEqual(ready.events[0].status, "PROGRESS")
+        with self.assertRaises(ValueError):
+            MotionGoal("map", 1.0, 2.0, 2.2, 0.0, 0.0, 0.0, 0.0)
+
 if __name__ == "__main__": unittest.main()

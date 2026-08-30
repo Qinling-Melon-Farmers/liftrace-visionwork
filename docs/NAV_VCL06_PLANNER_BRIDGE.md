@@ -31,6 +31,8 @@ cancel/hold、目标事务或降落链已经具备。
 - 只有当前目标先后见到 `ACCEPTED`、`TRAJECTORY_READY`、`TRAJECTORY_FINISHED`，且同
   mission frame 的新鲜 odom 对 effective goal 同时满足 3D 距离、速度和连续驻留，才产生
   motion success。
+- planner `ACCEPTED` 映射为 `STARTED/PLANNER`；`TRAJECTORY_READY` 与
+  `FAILED_ATTEMPT` 映射为非终态 `PROGRESS/PLANNER`，timer 不周期制造结果事件。
 - SEARCH、RESUME、RETURN_HOME 到达产生终态 `SUCCEEDED/PLANNER`。
 - APPROACH 到达只产生非终态 `PROGRESS/PLANNER` 和 `TARGET_TRANSACTION` handoff；绝不伪造
   payload commit 或目标成功。
@@ -49,10 +51,14 @@ live goal 开关只供明确配置的规划运动联调使用。
 
 - raw decision 是 latched；bridge 晚启动可接收任意有效当前 decision。bridge 只保留当前
   decision、当前/待取消 goal 与最近 planner event，不维护无界任务历史。
-- 到达证据的 odom `header.frame_id` 必须实际等于 `camera_init`。MAVROS/仿真里程计若不是
-  该 frame，必须先接显式坐标转换节点，不能只 remap 话题名。
+- mission frame 由 `execution/mission_frame` 参数唯一决定且必须非空；decision、planner
+  telemetry 与 odom 必须一致。若实际里程计不是所配 frame，必须先接显式坐标转换节点。
+- goal 接受任意有限非零四元数并规范化，发布 planner goal 时保留该姿态，不要求逐位等于
+  identity。
 - `PlannerStatus.event_seq` 没有 planner 进程实例 ID；回退或未知旧 goal telemetry 会被忽略，
   但当前 goal 的同序号内容冲突会生成当前 action 的 typed FAILED；后续新 decision 仍可执行。
+- 单条 malformed 输入只记录并忽略；只有内部 goal/result 发布合同不一致等非输入异常才关闭
+  bridge 输出。
 
 ## 导航—视觉对齐边界
 

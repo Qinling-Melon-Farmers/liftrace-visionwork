@@ -126,6 +126,19 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
                 self.source,
             )
 
+    def test_malformed_input_recovers_and_orientation_is_preserved(self):
+        handler = self.source[
+            self.source.index("def _handle_callback_exception"):
+            self.source.index("def _on_decision")]
+        self.assertIn("isinstance(error, ValueError)", handler)
+        self.assertIn("ignored malformed", handler)
+        self.assertLess(handler.index("return"),
+                        handler.index("self._adapter_faulted = True"))
+        self.assertNotIn("identity_orientation", self.source)
+        for component in ("decision.goal.qx", "decision.goal.qy",
+                          "decision.goal.qz", "decision.goal.qw"):
+            self.assertIn(component, self.source)
+
 
 if __name__ == "__main__":
     unittest.main()

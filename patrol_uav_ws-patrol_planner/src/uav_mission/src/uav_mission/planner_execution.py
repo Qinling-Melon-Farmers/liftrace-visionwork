@@ -58,6 +58,10 @@ class MotionGoal:
     x: float
     y: float
     z: float
+    qx: float = 0.0
+    qy: float = 0.0
+    qz: float = 0.0
+    qw: float = 1.0
 
     def __post_init__(self):
         if not isinstance(self.frame_id, str) or not self.frame_id.strip():
@@ -65,6 +69,13 @@ class MotionGoal:
         object.__setattr__(self, "x", _finite("goal x", self.x))
         object.__setattr__(self, "y", _finite("goal y", self.y))
         object.__setattr__(self, "z", _finite("goal z", self.z))
+        quaternion = [_finite("goal quaternion", value) for value in
+                      (self.qx, self.qy, self.qz, self.qw)]
+        norm = math.sqrt(sum(value * value for value in quaternion))
+        if norm <= 1e-9:
+            raise ValueError("goal orientation must be a valid quaternion")
+        for name, value in zip(("qx", "qy", "qz", "qw"), quaternion):
+            object.__setattr__(self, name, value / norm)
 
 
 @dataclass(frozen=True)
@@ -229,8 +240,9 @@ class PlannerMotionConfig:
     def __post_init__(self):
         if not isinstance(self.executor_id, str) or not self.executor_id.strip():
             raise ValueError("executor_id must not be empty")
-        if self.mission_frame != "camera_init":
-            raise ValueError("mission_frame must remain camera_init")
+        if (not isinstance(self.mission_frame, str) or
+                not self.mission_frame.strip()):
+            raise ValueError("mission_frame must not be empty")
         max_z = _finite("max_z_m", self.max_z_m)
         if max_z <= 0.0 or max_z > 4.0:
             raise ValueError("max_z_m exceeds the competition limit")
@@ -651,7 +663,9 @@ class PlannerMotionExecutor:
                 return self._fail_closed("planner_accepted_out_of_order")
             state.planner_accepted = True
             state.effective_goal = effective.goal
-            return self._outcome(True, "planner_goal_accepted")
+            return self._outcome(True, "planner_goal_accepted", events=(
+                self._result(state, int(now_ns), "STARTED", "PLANNER",
+                             False, False, "planner_goal_accepted"),))
         if not state.planner_accepted:
             return self._fail_closed("planner_status_before_accepted")
         if state.trajectory_finished:
@@ -678,9 +692,14 @@ class PlannerMotionExecutor:
             return self._outcome(True, "planner_replanning")
         if status == "TRAJECTORY_READY":
             state.trajectory_ready = True
-            return self._outcome(True, "planner_trajectory_ready")
+            return self._outcome(True, "planner_trajectory_ready", events=(
+                self._result(state, int(now_ns), "PROGRESS", "PLANNER",
+                             False, False, "planner_trajectory_ready"),))
         if status == "FAILED_ATTEMPT":
-            return self._outcome(True, "planner_attempt_failed_nonterminal")
+            return self._outcome(True, "planner_attempt_failed_nonterminal",
+                events=(self._result(
+                    state, int(now_ns), "PROGRESS", "PLANNER", False, False,
+                    "planner_attempt_failed_nonterminal"),))
         if status == "TRAJECTORY_FINISHED":
             if not state.trajectory_ready:
                 return self._fail_closed("trajectory_finished_without_ready")

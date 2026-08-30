@@ -110,16 +110,6 @@ def _seconds_to_ns(name, value, allow_zero=False):
     return int(round(value * 1_000_000_000))
 
 
-def _identity_orientation(pose):
-    orientation = pose.orientation
-    return (
-        float(orientation.x) == 0.0 and
-        float(orientation.y) == 0.0 and
-        float(orientation.z) == 0.0 and
-        float(orientation.w) == 1.0
-    )
-
-
 class NavigationPlannerBridge:
     """Serialize ROS callbacks around one deterministic motion executor."""
 
@@ -235,8 +225,6 @@ class NavigationPlannerBridge:
             raise ValueError("nested goal stamp mismatch")
         if stamped.header.frame_id != self._mission_frame:
             raise ValueError("nested goal frame mismatch")
-        if not _identity_orientation(stamped.pose):
-            raise ValueError("raw goal orientation must be identity")
 
     @staticmethod
     def _targetless_fields_are_zero(message):
@@ -281,7 +269,11 @@ class NavigationPlannerBridge:
             position = message.goal.pose.position
             motion_goal = MotionGoal(
                 message.goal.header.frame_id,
-                position.x, position.y, position.z)
+                position.x, position.y, position.z,
+                message.goal.pose.orientation.x,
+                message.goal.pose.orientation.y,
+                message.goal.pose.orientation.z,
+                message.goal.pose.orientation.w)
 
         target = None
         if expects_target:
@@ -315,13 +307,14 @@ class NavigationPlannerBridge:
             raise ValueError("planner nested goal frame mismatch")
         if _stamp_to_ns(stamped.header.stamp) <= 0:
             raise ValueError("planner nested goal stamp must be positive")
-        if not _identity_orientation(stamped.pose):
-            raise ValueError("planner nested goal orientation changed")
         position = stamped.pose.position
+        orientation = stamped.pose.orientation
         return SequencedMotionGoal(
             goal_seq,
             MotionGoal(stamped.header.frame_id,
-                       position.x, position.y, position.z),
+                       position.x, position.y, position.z,
+                       orientation.x, orientation.y,
+                       orientation.z, orientation.w),
         )
 
     def _planner_status_from_message(self, message):
@@ -382,7 +375,10 @@ class NavigationPlannerBridge:
         message.pose.position.x = decision.goal.x
         message.pose.position.y = decision.goal.y
         message.pose.position.z = decision.goal.z
-        message.pose.orientation.w = 1.0
+        message.pose.orientation.x = decision.goal.qx
+        message.pose.orientation.y = decision.goal.qy
+        message.pose.orientation.z = decision.goal.qz
+        message.pose.orientation.w = decision.goal.qw
         self._goal_pub.publish(message)
 
     def _result_message(self, event):
@@ -432,6 +428,12 @@ class NavigationPlannerBridge:
         self._last_reason = outcome.reason
 
     def _handle_callback_exception(self, source, error):
+        if isinstance(error, ValueError):
+            self._last_reason = "ignored_%s:%s" % (source, error)
+            rospy.logwarn("VCL06 planner bridge ignored malformed %s: %s",
+                          source, error)
+            self._publish_status(force=True)
+            return
         self._adapter_faulted = True
         self._adapter_fault_reason = "%s:%s" % (source, error)
         self._output_enabled = False
