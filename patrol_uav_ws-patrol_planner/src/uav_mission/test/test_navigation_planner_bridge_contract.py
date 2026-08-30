@@ -43,13 +43,14 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
                 "/planning/replan", "mavros", "arming"):
             self.assertNotIn(forbidden, self.source)
 
-    def test_live_planner_topic_is_hard_blocked(self):
+    def test_live_planner_topic_requires_explicit_acknowledgement(self):
         self.assertIn(
             'LIVE_PLANNER_GOAL_TOPIC = "/fastplanner/goal"', self.source)
         self.assertIn(
-            'return False, "live_goal_output_blocked_without_cancel_hold_ack"',
+            'return False, "live_goal_output_not_acknowledged"',
             self.source)
-        self.assertIn('"live_goal_output_supported": False', self.source)
+        self.assertIn('return True, "live_planner_output_enabled"', self.source)
+        self.assertIn('"live_goal_output_supported": True', self.source)
         self.assertIn("DIAGNOSTIC_ONLY_INTENTS", self.source)
         self.assertIn("CANCEL_PLANNER_GOAL", self.source)
         self.assertIn("START_TARGET_TRANSACTION", self.source)
@@ -84,19 +85,15 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
             'raise ValueError("ALIGN requires the target transaction executor")',
             self.source)
 
-    def test_r2026_limits_are_exact_and_tank_is_absent(self):
+    def test_motion_limits_do_not_duplicate_profile_policy(self):
         execution = self.config["execution"]
         self.assertFalse(execution["enabled"])
         self.assertFalse(execution["allow_live_goal_output"])
         self.assertEqual(execution["mission_frame"], "camera_init")
-        self.assertEqual(execution["class_profile"], "r2026")
         self.assertEqual(execution["max_goal_z"], 4.0)
-        self.assertEqual(execution["payload_slots"], 3)
-        self.assertEqual(
-            execution["allowed_target_classes"],
-            ["tent", "pillbox", "bridge", "panzer", "red_cross"],
-        )
-        self.assertNotIn("tank", execution["allowed_target_classes"])
+        self.assertNotIn("class_profile", execution)
+        self.assertNotIn("payload_slots", execution)
+        self.assertNotIn("allowed_target_classes", execution)
         self.assertEqual(execution["effective_goal_max_offset"], 1.10)
         self.assertEqual(execution["planner_accept_timeout"], 2.0)
 
@@ -107,8 +104,6 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
         }
         self.assertEqual(arguments["execution_enabled"], "false")
         self.assertEqual(arguments["allow_live_goal_output"], "false")
-        self.assertEqual(arguments["kino_planner_confirmed"], "false")
-        self.assertEqual(arguments["manual_target_confirmed"], "false")
         self.assertEqual(
             arguments["planner_goal_topic"],
             "/navigation/fastplanner_goal",

@@ -7,27 +7,27 @@
 `NavigationResult`。它不包含 Servo、PWM、解锁、释放或降落实现，也不把
 `TRAJECTORY_FINISHED` 直接当作到达。
 
-默认 launch 同时设置：
+默认 launch 设置：
 
 - `execution_enabled=false`；
 - planner goal 隔离输出为 `/navigation/fastplanner_goal`；
 - `allow_live_goal_output=false`；
-- kino planner 与 manual-target 两项人工确认均为 `false`。
 
-因此默认启动不会向 `/fastplanner/goal` 发布。本版即使显式打开执行、live 输出以及 kino
-planner（`planner=1`）/manual target（`flight_type=1`）确认，只要解析后的目标话题是
-`/fastplanner/goal`，仍会硬关闭输出且不创建该 publisher。当前只允许向隔离话题
-`/navigation/fastplanner_goal` 做合同级联调；本轮没有启动该输出。
+因此默认启动不会发布规划目标。只有同时显式设置 `execution_enabled=true` 与
+`allow_live_goal_output=true`，并把目标话题配置为 `/fastplanner/goal` 时才创建 live publisher；
+隔离话题仍可用于合同级联调。启用 live 输出只表示允许发布规划目标，不代表
+cancel/hold、目标事务或降落链已经具备。
 
 ## Fencing 与到达证据
 
-- 冷启动只接受 `decision_seq=1` 的 SEARCH；同任务后续序号必须连续。
+- 冷启动接受任意仍在 deadline 内的当前 decision，支持 manager latched 决策后的晚启动；
+  同 mission 的旧序号只作为 stale 忽略，不要求 bridge 观察到中间所有序号。
 - raw decision 的 `decision_seq` 原样复制到 planner goal `header.seq`；不生成第二套目标序号。
 - planner goal 成功发布后，才发布同一 executor 的非终态 `ACCEPTED/DISPATCH`，使 Mission
   Manager 尽早冻结唯一 `executor_id`；目标阶段后续结果也必须由同一协调器代理。
 - decision receipt 与 source stamp 均采用排他 deadline；等于 deadline 即过期。
-- 旧 decision、旧 goal telemetry 和幂等重复均无副作用；同序号内容冲突、planner event
-  回退或未知 goal 表示所有权丢失并 fail-closed。
+- 旧 decision、未知旧 goal telemetry、planner event 回退和幂等重复均无副作用；仅当前
+  decision/goal 的身份或生命周期冲突才 fail-closed。
 - 只有当前目标先后见到 `ACCEPTED`、`TRAJECTORY_READY`、`TRAJECTORY_FINISHED`，且同
   mission frame 的新鲜 odom 对 effective goal 同时满足 3D 距离、速度和连续驻留，才产生
   motion success。
@@ -39,24 +39,21 @@ planner（`planner=1`）/manual target（`flight_type=1`）确认，只要解析
 
 ## 尚未解除的 live Gate
 
-Fast-Planner 当前没有带 ACK 的 cancel/hold 接口。`planning/replan` 只截短轨迹时长，轨迹
-服务器仍持续发布 setpoint，不能作为安全停止。因此在补齐 planner cancel + traj_server
-hold/stop ACK、单一 target-stage 协调器和 landing executor 前，本分支不能表述为可飞闭环，
-也不得 ACK ABORT，更不得接真实 `/fastplanner/goal`。planner status 又没有进程实例 ID，
-活动期 `event_seq` 回退只能闭锁。
+Fast-Planner 当前没有通用的带 ACK hold/stop 接口。`planning/replan` 只截短轨迹时长，轨迹
+服务器仍可能继续发布 setpoint。因此在补齐 planner hold/stop ACK、单一 target-stage
+协调器和 landing executor 前，本分支不能表述为完整可飞闭环，也不得 ACK ABORT。
+live goal 开关只供明确配置的规划运动联调使用。
 
 这也是默认关闭 live 输出的原因，而不是启动便利性选项。
 
 ## 运行顺序与重启限制
 
-- bridge 必须在 `/navigation/start_mission` 前启动并在本次任务内常驻。raw decision 是
-  latched；晚启动或中途重启若首次看到 `decision_seq > 1`，会按冷启动 fence 闭锁。
-- 当前一个 bridge 进程只承载一个 mission，不接受下一任务重新从 `decision_seq=1` 开始；
-  第二次任务需重启 bridge，后续再用显式 mission reset/epoch 合同替代。
+- raw decision 是 latched；bridge 晚启动可接收任意有效当前 decision。bridge 只保留当前
+  decision、当前/待取消 goal 与最近 planner event，不维护无界任务历史。
 - 到达证据的 odom `header.frame_id` 必须实际等于 `camera_init`。MAVROS/仿真里程计若不是
   该 frame，必须先接显式坐标转换节点，不能只 remap 话题名。
-- `PlannerStatus.event_seq` 没有 planner 进程实例 ID；活动任务中 planner 重启导致序号回退
-  时，bridge 会永久闭锁，这是当前预期的 fail-safe 行为。
+- `PlannerStatus.event_seq` 没有 planner 进程实例 ID；回退或未知旧 goal telemetry 会被忽略，
+  但当前 goal 的同序号内容冲突仍会闭锁当前执行。
 
 ## 导航—视觉对齐边界
 

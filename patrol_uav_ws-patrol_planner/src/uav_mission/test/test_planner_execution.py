@@ -149,14 +149,12 @@ class PlannerMotionExecutorTest(unittest.TestCase):
         last_stamp = first_stamp + 100_000_000
         return executor.apply_odom(odom(last_stamp), last_stamp)
 
-    def test_cold_start_accepts_only_search_sequence_one(self):
+    def test_cold_start_accepts_current_valid_decision(self):
         executor = self.make_executor()
-        rejected = executor.submit_decision(
-            decision(seq=2, command="APPROACH"), BASE)
-        self.assertFalse(rejected.accepted)
-        self.assertEqual(rejected.reason, "cold_start_requires_search_seq1")
-        self.assertEqual([item.kind for item in rejected.intents], [ABORT_SAFE])
-        self.assertEqual(rejected.events, ())
+        accepted = executor.submit_decision(
+            decision(seq=42, command="APPROACH"), BASE)
+        self.assertTrue(accepted.accepted, accepted.reason)
+        self.assertEqual(accepted.intents[0].decision_seq, 42)
 
     def test_decision_is_continuous_idempotent_and_conflict_detecting(self):
         executor = self.make_executor()
@@ -176,18 +174,17 @@ class PlannerMotionExecutorTest(unittest.TestCase):
         self.assertEqual(conflict.events[0].status, "FAILED")
         self.assertEqual(conflict.intents[0].kind, ABORT_SAFE)
 
-    def test_decision_gap_fails_closed(self):
+    def test_decision_gap_is_allowed(self):
         executor = self.make_executor()
         self.submit_search(executor)
         outcome = executor.submit_decision(
             decision(seq=3, command="APPROACH", issued_ns=BASE + 1),
             BASE + 1,
         )
-        self.assertFalse(outcome.accepted)
-        self.assertEqual(outcome.reason, "decision_sequence_discontinuous")
-        self.assertEqual(outcome.intents[0].kind, ABORT_SAFE)
+        self.assertTrue(outcome.accepted, outcome.reason)
+        self.assertEqual(outcome.intents[0].decision_seq, 3)
 
-    def test_only_approach_or_return_may_replace_active_search(self):
+    def test_new_manager_decision_replaces_active_motion(self):
         executor = self.make_executor()
         self.submit_search(executor)
         approach = decision(
@@ -207,7 +204,7 @@ class PlannerMotionExecutorTest(unittest.TestCase):
 
         other = self.make_executor()
         self.submit_search(other)
-        forbidden = other.submit_decision(
+        replacement = other.submit_decision(
             decision(
                 seq=2,
                 command="RESUME",
@@ -216,9 +213,8 @@ class PlannerMotionExecutorTest(unittest.TestCase):
             ),
             BASE + 1,
         )
-        self.assertFalse(forbidden.accepted)
-        self.assertEqual(
-            forbidden.reason, "active_decision_replacement_forbidden")
+        self.assertTrue(replacement.accepted, replacement.reason)
+        self.assertEqual(replacement.intents[0].kind, PUBLISH_PLANNER_GOAL)
 
     def test_return_home_may_replace_active_resume(self):
         executor = self.make_executor()
@@ -383,7 +379,7 @@ class PlannerMotionExecutorTest(unittest.TestCase):
         self.assertEqual(conflict.reason, "planner_event_sequence_conflict")
         self.assertEqual(conflict.intents[0].kind, ABORT_SAFE)
 
-    def test_planner_event_rollback_fails_closed(self):
+    def test_stale_planner_event_is_ignored(self):
         executor = self.make_executor()
         self.submit_search(executor)
         executor.apply_planner_status(
@@ -391,18 +387,17 @@ class PlannerMotionExecutorTest(unittest.TestCase):
         rolled_back = executor.apply_planner_status(
             planner(1, 1, "PLANNING", BASE + 2), BASE + 2)
         self.assertFalse(rolled_back.accepted)
-        self.assertEqual(
-            rolled_back.reason, "planner_event_sequence_rollback")
-        self.assertEqual(rolled_back.intents[0].kind, ABORT_SAFE)
+        self.assertEqual(rolled_back.reason, "stale_planner_event_ignored")
+        self.assertFalse(rolled_back.snapshot.faulted)
 
-    def test_unknown_planner_goal_fails_closed(self):
+    def test_unknown_planner_goal_is_ignored(self):
         executor = self.make_executor()
         self.submit_search(executor)
         unknown = executor.apply_planner_status(
             planner(1, 99, "ACCEPTED", BASE + 1), BASE + 1)
         self.assertFalse(unknown.accepted)
-        self.assertEqual(unknown.reason, "planner_event_unknown_goal")
-        self.assertEqual(unknown.intents[0].kind, ABORT_SAFE)
+        self.assertEqual(unknown.reason, "foreign_planner_goal_ignored")
+        self.assertFalse(unknown.snapshot.faulted)
 
     def test_finished_without_accepted_and_ready_fails_closed(self):
         executor = self.make_executor()
@@ -664,12 +659,8 @@ class PlannerMotionExecutorTest(unittest.TestCase):
             odom(BASE + 160_000_000, x=1.5), BASE + 160_000_000)
         self.assertEqual(arrived.reason, "motion_succeeded")
 
-    def test_submit_enforces_competition_contract(self):
+    def test_submit_enforces_motion_contract_not_profile_policy(self):
         first_decision_cases = (
-            (
-                replace(decision(), class_profile="legacy"),
-                "decision_profile_mismatch",
-            ),
             (
                 replace(decision(), goal=goal(frame="map")),
                 "decision_goal_frame_mismatch",
@@ -689,39 +680,10 @@ class PlannerMotionExecutorTest(unittest.TestCase):
                 self.assertFalse(outcome.accepted)
                 self.assertEqual(outcome.reason, expected_reason)
 
-        for invalid_target, expected_reason in (
-            (target(class_name="tank"), "decision_target_class_excluded"),
-            (replace(target(), payload_slot=4),
-             "decision_payload_slot_invalid"),
-        ):
-            with self.subTest(expected_reason=expected_reason):
-                executor = self.make_executor()
-                self.submit_search(executor)
-                invalid = decision(
-                    seq=2,
-                    command="APPROACH",
-                    issued_ns=BASE + 1,
-                    target_identity=invalid_target,
-                )
-                outcome = executor.submit_decision(invalid, BASE + 1)
-                self.assertFalse(outcome.accepted)
-                self.assertEqual(outcome.reason, expected_reason)
-        self.assertEqual(
-            set(self.make_executor().config.allowed_target_classes),
-            {"tent", "pillbox", "bridge", "panzer", "red_cross"},
-        )
-        self.assertNotIn(
-            "tank", self.make_executor().config.allowed_target_classes)
-        with self.assertRaises(ValueError):
-            self.make_executor(
-                allowed_target_classes=(
-                    "tent", "pillbox", "bridge", "panzer", "tank",
-                    "red_cross",
-                ))
-        with self.assertRaises(ValueError):
-            self.make_executor(profile="legacy")
-        with self.assertRaises(ValueError):
-            self.make_executor(payload_slots=4)
+        executor = self.make_executor()
+        accepted = executor.submit_decision(
+            replace(decision(seq=17), class_profile="future"), BASE)
+        self.assertTrue(accepted.accepted, accepted.reason)
 
     def test_new_sequence_atomically_retires_expired_old_decision(self):
         executor = self.make_executor()

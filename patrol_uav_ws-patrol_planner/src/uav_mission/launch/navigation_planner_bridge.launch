@@ -1,8 +1,6 @@
 <launch>
   <arg name="execution_enabled" default="false" />
   <arg name="allow_live_goal_output" default="false" />
-  <arg name="kino_planner_confirmed" default="false" />
-  <arg name="manual_target_confirmed" default="false" />
 
   <arg name="decision_topic" default="/navigation/mission_command_raw" />
   <arg name="result_topic" default="/navigation/mission_result" />
@@ -21,10 +19,6 @@
       <param name="execution/enabled" value="$(arg execution_enabled)" />
       <param name="execution/allow_live_goal_output"
              value="$(arg allow_live_goal_output)" />
-      <param name="readiness/kino_planner_confirmed"
-             value="$(arg kino_planner_confirmed)" />
-      <param name="readiness/manual_target_confirmed"
-             value="$(arg manual_target_confirmed)" />
 
       <remap from="mission_command_raw" to="$(arg decision_topic)" />
       <remap from="mission_result" to="$(arg result_topic)" />

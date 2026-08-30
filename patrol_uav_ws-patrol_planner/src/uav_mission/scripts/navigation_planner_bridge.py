@@ -37,9 +37,6 @@ from uav_mission.planner_execution import (
 
 
 LIVE_PLANNER_GOAL_TOPIC = "/fastplanner/goal"
-R2026_TARGET_CLASSES = (
-    "tent", "pillbox", "bridge", "panzer", "red_cross",
-)
 MOTION_COMMANDS = frozenset((
     "SEARCH", "RESUME", "APPROACH", "RETURN_HOME",
 ))
@@ -149,24 +146,15 @@ class NavigationPlannerBridge:
             "~execution/enabled", False)
         self._allow_live_goal_output = rospy.get_param(
             "~execution/allow_live_goal_output", False)
-        self._kino_confirmed = rospy.get_param(
-            "~readiness/kino_planner_confirmed", False)
-        self._manual_target_confirmed = rospy.get_param(
-            "~readiness/manual_target_confirmed", False)
         for name, value in (
                 ("execution/enabled", self._execution_requested),
                 ("execution/allow_live_goal_output",
-                 self._allow_live_goal_output),
-                ("readiness/kino_planner_confirmed", self._kino_confirmed),
-                ("readiness/manual_target_confirmed",
-                 self._manual_target_confirmed)):
+                 self._allow_live_goal_output)):
             if not isinstance(value, bool):
                 raise ValueError("%s must be boolean" % name)
 
         self._mission_frame = str(rospy.get_param(
             "~execution/mission_frame", "camera_init"))
-        self._profile = str(rospy.get_param(
-            "~execution/class_profile", "r2026"))
         self._tick_hz = float(rospy.get_param(
             "~execution/tick_hz", 20.0))
         if not math.isfinite(self._tick_hz) or self._tick_hz <= 0.0:
@@ -177,18 +165,11 @@ class NavigationPlannerBridge:
         if not prefix.strip():
             raise ValueError("executor_id_prefix must not be empty")
         executor_id = "%s-%s" % (prefix, uuid.uuid4().hex)
-        allowed_classes = tuple(rospy.get_param(
-            "~execution/allowed_target_classes",
-            list(R2026_TARGET_CLASSES)))
         config = PlannerMotionConfig(
             executor_id=executor_id,
             mission_frame=self._mission_frame,
-            profile=self._profile,
             max_z_m=float(rospy.get_param(
                 "~execution/max_goal_z", 4.0)),
-            allowed_target_classes=allowed_classes,
-            payload_slots=int(rospy.get_param(
-                "~execution/payload_slots", 3)),
             source_future_tolerance_ns=_seconds_to_ns(
                 "source_future_tolerance",
                 rospy.get_param(
@@ -219,7 +200,7 @@ class NavigationPlannerBridge:
         self._output_enabled, self._gate_reason = self._evaluate_output_gate()
 
         self._goal_pub = None
-        if self._planner_goal_topic != LIVE_PLANNER_GOAL_TOPIC:
+        if self._output_enabled:
             self._goal_pub = rospy.Publisher(
                 "planner_goal", PoseStamped, queue_size=1)
         self._result_pub = rospy.Publisher(
@@ -246,15 +227,11 @@ class NavigationPlannerBridge:
     def _evaluate_output_gate(self):
         if not self._execution_requested:
             return False, "execution_disabled_by_default"
-        if not self._kino_confirmed:
-            return False, "kino_planner_not_confirmed"
-        if not self._manual_target_confirmed:
-            return False, "manual_target_not_confirmed"
         if self._planner_goal_topic == LIVE_PLANNER_GOAL_TOPIC:
             if not self._allow_live_goal_output:
                 return False, "live_goal_output_not_acknowledged"
-            return False, "live_goal_output_blocked_without_cancel_hold_ack"
-        return True, "isolated_planner_output_enabled"
+            return True, "live_planner_output_enabled"
+        return True, "configured_planner_output_enabled"
 
     def _now_ns(self):
         value = _stamp_to_ns(rospy.Time.now())
@@ -550,7 +527,7 @@ class NavigationPlannerBridge:
             "output_enabled": self._output_enabled,
             "gate_reason": self._gate_reason,
             "allow_live_goal_output": self._allow_live_goal_output,
-            "live_goal_output_supported": False,
+            "live_goal_output_supported": True,
             "planner_goal_topic": self._planner_goal_topic,
             "executor_id": self._executor_id,
             "last_reason": self._last_reason,

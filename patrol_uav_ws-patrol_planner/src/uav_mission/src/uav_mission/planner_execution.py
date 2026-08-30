@@ -24,10 +24,6 @@ EXTERNAL_COMMANDS = frozenset(("LAND", "ABORT", "HOLD"))
 REJECTED_COMMANDS = frozenset(("ALIGN",))
 KNOWN_COMMANDS = MOTION_COMMANDS | EXTERNAL_COMMANDS | REJECTED_COMMANDS
 
-R2026_TARGET_CLASSES = (
-    "tent", "pillbox", "bridge", "panzer", "red_cross",
-)
-
 PLANNER_STATUSES = (
     "ACCEPTED",
     "PLANNING",
@@ -228,10 +224,7 @@ class OdomSample:
 class PlannerMotionConfig:
     executor_id: str = "navigation_planner_executor"
     mission_frame: str = "camera_init"
-    profile: str = "r2026"
     max_z_m: float = 4.0
-    allowed_target_classes: Tuple[str, ...] = R2026_TARGET_CLASSES
-    payload_slots: int = 3
     source_future_tolerance_ns: int = 100_000_000
     planner_accept_timeout_ns: int = 2_000_000_000
     max_effective_goal_offset_m: float = 1.10
@@ -246,22 +239,10 @@ class PlannerMotionConfig:
             raise ValueError("executor_id must not be empty")
         if self.mission_frame != "camera_init":
             raise ValueError("mission_frame must remain camera_init")
-        if self.profile != "r2026":
-            raise ValueError("profile must remain r2026")
         max_z = _finite("max_z_m", self.max_z_m)
         if max_z <= 0.0 or max_z > 4.0:
             raise ValueError("max_z_m exceeds the competition limit")
         object.__setattr__(self, "max_z_m", max_z)
-        if (not isinstance(self.allowed_target_classes, (tuple, list)) or
-                set(self.allowed_target_classes) != set(R2026_TARGET_CLASSES) or
-                len(self.allowed_target_classes) != len(R2026_TARGET_CLASSES)):
-            raise ValueError("allowed_target_classes must be the exact r2026 set")
-        object.__setattr__(
-            self, "allowed_target_classes", tuple(self.allowed_target_classes))
-        payload_slots = _integer("payload_slots", self.payload_slots, 1)
-        if payload_slots != 3:
-            raise ValueError("payload_slots must remain three")
-        object.__setattr__(self, "payload_slots", payload_slots)
         object.__setattr__(self, "source_future_tolerance_ns", _integer(
             "source_future_tolerance_ns", self.source_future_tolerance_ns, 0))
         object.__setattr__(self, "planner_accept_timeout_ns", _integer(
@@ -373,10 +354,9 @@ class PlannerMotionExecutor:
             raise TypeError("config must be PlannerMotionConfig")
         self.config = config
         self._mission_id = ""
-        self._class_profile = ""
-        self._decisions: Dict[int, MotionDecision] = {}
+        self._last_decision: Optional[MotionDecision] = None
         self._goals: Dict[int, _GoalLifecycle] = {}
-        self._planner_events: Dict[int, PlannerStatusEvent] = {}
+        self._last_planner_event: Optional[PlannerStatusEvent] = None
         self._last_decision_seq = 0
         self._last_planner_event_seq = 0
         self._executor_event_seq = 0
@@ -566,8 +546,6 @@ class PlannerMotionExecutor:
             self, decision: MotionDecision) -> Optional[str]:
         if decision.command == "ALIGN":
             return "align_not_owned_by_motion_executor"
-        if decision.class_profile != self.config.profile:
-            return "decision_profile_mismatch"
         goal = decision.goal
         if goal is not None:
             if goal.frame_id != self.config.mission_frame:
@@ -575,11 +553,6 @@ class PlannerMotionExecutor:
             if goal.z < 0.0 or goal.z > self.config.max_z_m:
                 return "decision_goal_height_invalid"
         target = decision.target
-        if target is not None:
-            if target.class_name not in self.config.allowed_target_classes:
-                return "decision_target_class_excluded"
-            if target.payload_slot > self.config.payload_slots:
-                return "decision_payload_slot_invalid"
         return None
 
     def submit_decision(self, decision: MotionDecision,
@@ -594,8 +567,10 @@ class PlannerMotionExecutor:
         if invalid_now is not None:
             return invalid_now
 
-        prior = self._decisions.get(decision.decision_seq)
-        if prior is not None:
+        prior = self._last_decision
+        if (prior is not None and
+                prior.mission_id == decision.mission_id and
+                prior.decision_seq == decision.decision_seq):
             if prior == decision:
                 expired = self._expire_if_due(int(now_ns))
                 if expired is not None:
@@ -610,42 +585,19 @@ class PlannerMotionExecutor:
         if contract_error is not None:
             return self._fail_closed(contract_error)
 
-        if self._last_decision_seq == 0:
-            if decision.decision_seq != 1 or decision.command != "SEARCH":
-                return self._fail_closed("cold_start_requires_search_seq1")
-            self._mission_id = decision.mission_id
-            self._class_profile = decision.class_profile
-        else:
-            expected = self._last_decision_seq + 1
-            if decision.decision_seq != expected:
-                return self._fail_closed("decision_sequence_discontinuous")
-            if (decision.mission_id != self._mission_id or
-                    decision.class_profile != self._class_profile):
-                return self._fail_closed("decision_mission_identity_changed")
+        if (prior is not None and prior.mission_id == decision.mission_id and
+                decision.decision_seq < prior.decision_seq):
+            return self._outcome(False, "stale_decision_ignored")
         if int(now_ns) < decision.issued_at_ns:
             return self._fail_closed("decision_from_future")
         if int(now_ns) >= decision.deadline_ns:
             return self._fail_closed("decision_received_after_deadline")
 
         active = self._active
-        pending = (active is not None and not active.terminal and
-                   not active.handed_off and
-                   int(now_ns) < active.decision.deadline_ns and
-                   (active.planner_accepted or
-                    int(now_ns) < active.dispatch_ns +
-                    self.config.planner_accept_timeout_ns))
-        if pending:
-            allowed_replacement = (
-                active.decision.command in ("SEARCH", "RESUME") and
-                decision.command in ("APPROACH", "RETURN_HOME")
-            )
-            if (decision.command not in ("ABORT", "HOLD") and
-                    not allowed_replacement):
-                return self._fail_closed("active_decision_replacement_forbidden")
         replacement_requires_cancel = (
             active is not None and
-            active.decision.command in ("SEARCH", "RESUME") and
-            decision.command in ("APPROACH", "RETURN_HOME") and
+            active.decision.command in MOTION_COMMANDS and
+            active.decision.decision_seq != decision.decision_seq and
             not active.trajectory_finished
         )
         if replacement_requires_cancel:
@@ -657,11 +609,19 @@ class PlannerMotionExecutor:
         if decision.command in EXTERNAL_COMMANDS:
             state.handed_off = True
         self._active = state
-        self._decisions[decision.decision_seq] = decision
+        self._mission_id = decision.mission_id
+        self._last_decision = decision
         self._last_decision_seq = decision.decision_seq
 
         if decision.command in MOTION_COMMANDS:
             self._goals[decision.decision_seq] = state
+            keep = {decision.decision_seq}
+            if self._awaiting_cancel_goal_seq:
+                keep.add(self._awaiting_cancel_goal_seq)
+            self._goals = {
+                seq: goal_state for seq, goal_state in self._goals.items()
+                if seq in keep
+            }
             accepted_event = self._result(
                 state,
                 int(now_ns),
@@ -697,20 +657,20 @@ class PlannerMotionExecutor:
         if prepared is not None:
             return prepared
 
-        prior = self._planner_events.get(event.event_seq)
-        if prior is not None:
+        prior = self._last_planner_event
+        if prior is not None and prior.event_seq == event.event_seq:
             if prior == event:
                 return self._outcome(True, "planner_event_idempotent")
             return self._fail_closed("planner_event_sequence_conflict")
         if event.event_seq <= self._last_planner_event_seq:
-            return self._fail_closed("planner_event_sequence_rollback")
+            return self._outcome(False, "stale_planner_event_ignored")
         if (event.stamp_ns > int(now_ns) +
                 self.config.source_future_tolerance_ns):
             return self._fail_closed("planner_event_from_future")
 
         state = self._goals.get(event.goal_seq)
         if state is None:
-            return self._fail_closed("planner_event_unknown_goal")
+            return self._outcome(False, "foreign_planner_goal_ignored")
         if event.stamp_ns < state.dispatch_ns:
             return self._fail_closed("planner_event_precedes_dispatch")
         requested = event.requested_goal
@@ -734,7 +694,7 @@ class PlannerMotionExecutor:
         if effective_offset > self.config.max_effective_goal_offset_m:
             return self._fail_closed("planner_effective_goal_offset_exceeded")
 
-        self._planner_events[event.event_seq] = event
+        self._last_planner_event = event
         self._last_planner_event_seq = event.event_seq
         if state.retired:
             if (event.goal_seq == self._awaiting_cancel_goal_seq and
