@@ -119,6 +119,7 @@ detections
 | 新视觉 GUI 连通烟测 | `run_toudi3_full_competition_sim_gui_new.sh` | 只作人工烟测 |
 | 固定 Gazebo 真值回归 | `run_toudi3_visual_suite.sh` | 当前笔记本 L1 基线，不代表板端 |
 | V-SIM-04 formal23/operating surface | `uav_vision_eval/vsim04_stability.launch`、`run_vsim04_surface.sh` | formal 当前为 `NOT_GATED`；diagnostic 不得冒充 Gate PASS |
+| V-SIM-04 camera-only 10 min | `uav_vision_eval/vsim04_camera_soak.launch` | 默认 600 s；短时成功只标 `SMOKE_ONLY`，不代表 600 s PASS |
 | headless shadow | `uav_vision_eval/toudi3_full_shadow.launch` | 只观察隔离；10 min Gate 待完成 |
 | 释放安全边界回归 | `run_release_guard_regression.sh` | 纯 mock；证明许可、槽位和防重放，不证明飞行闭环 |
 | 新视觉+旧控制受控投放 SITL | `uav_mission/toudi3_visual_delivery_guarded.launch` | raw 端为 mock；固定路线三投和 release guard 回归已通过 |

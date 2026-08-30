@@ -231,3 +231,42 @@ python3 vision_ws/src/uav_vision_eval/scripts/vsim04_repeat_aggregate.py \
   --output-dir /tmp/vsim04-repeat-aggregate \
   logs/<run-1> logs/<run-2> logs/<run-3>
 ```
+
+## 600 秒 camera-only 稳定性入口
+
+`vsim04_camera_soak.launch` 复用 V-SIM-04 的单 Gazebo、评测相机、独立真值和正式 Phase-D
+视觉链，但不启动 PX4、MAVROS、导航/control 或 actuator。相机以固定高度沿场内确定性椭圆
+循环，每圈只产生一次新的 `soak_loop_NNNN` ID；运行期间不反复 reset memory，避免把长时间
+记忆与积压问题切碎成短 trial。
+
+入口默认以 monotonic 墙钟连续运行 600 秒；ROS 源时间只驱动可复现路线，并继续执行倒退和
+停滞硬检查。入口还自动检查：有效且全程不变的 CameraInfo 快照、预期 ROS 进程、image/truth/camera pose/
+complete-mapped/targets/detector perf 心跳、各流源时间单调、最大心跳间隔、输入与完整映射
+吞吐、连续窗口 partial-only 和源时间积压趋势，以及 selected 的年龄、连续帧、地图、关联、
+拒绝原因与 r2026 profile。任何 tank/禁用类/陈旧或不满足当前准入的 selected 都硬失败。
+`P_interrupt` 固定为 `null`，不订阅也不伪造导航接受事件。
+
+必须通过统一入口启动：
+
+```bash
+SIM_NO_RECORD=1 \
+VSIM04_VISION_REVISION=<vision_commit> \
+VSIM04_NAVIGATION_REVISION=<navigation_commit> \
+UAV_VISION_MODEL_PATH=<best.pt> \
+bash top_level_scripts/sim_run.sh vsim04_soak600_seed11 \
+  roslaunch uav_vision_eval vsim04_camera_soak.launch gui:=false
+```
+
+调试时可传 `duration_sec:=20`，但成功结果只写
+`status=SOAK_MEASURED + qualification_status=SMOKE_ONLY + soak_600s_pass=false`，不得作为
+600 秒 PASS。只有请求且 monotonic 墙钟实际跑满至少 600 秒、全程无终态错误时才写
+`qualification_status=SOAK_600S_MEASURED` 和 `soak_600s_pass=true`。运行固定输出同名六产物；
+缺产物、墙钟未跑满、CameraInfo 无效/变化、进程/心跳/源时间/吞吐/积压/partial/selected
+审计失败均非零退出。manifest 保存 width/height、distortion_model、K/D/R/P 和 frame_id；
+CameraInfo 是启动准入与固定 profile，不作为周期心跳。
+
+无 Gazebo 的纯函数回归：
+
+```bash
+python3 vision_ws/src/uav_vision_eval/scripts/vsim04_soak_assertion.py
+```

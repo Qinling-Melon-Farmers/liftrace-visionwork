@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   image_geometry
   message_filters
   message_generation
+  rosnode
   rospy
   sensor_msgs
   std_msgs
@@ -41,6 +42,7 @@ catkin_package(
     image_geometry
     message_filters
     message_runtime
+    rosnode
     rospy
     sensor_msgs
     std_msgs
@@ -69,6 +71,8 @@ catkin_install_python(PROGRAMS
   scripts/vsim04_metrics_assertion.py
   scripts/vsim04_trial_recorder.py
   scripts/vsim04_trial_runner.py
+  scripts/vsim04_camera_soak.py
+  scripts/vsim04_soak_assertion.py
   scripts/vsim04_failure_capture.py
   scripts/vsim04_failure_capture_assertion.py
   scripts/vsim04_failure_capture_manifest_check.py
@@ -86,6 +90,7 @@ if(CATKIN_ENABLE_TESTING)
     scripts/vsim04_repeat_runs_assertion.py
     DEPENDENCIES ${PROJECT_NAME}_generate_messages_py
   )
+  catkin_add_nosetests(scripts/vsim04_soak_assertion.py)
 endif()
 
 install(DIRECTORY config launch models
