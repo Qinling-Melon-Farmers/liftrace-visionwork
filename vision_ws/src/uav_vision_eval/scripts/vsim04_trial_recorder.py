@@ -38,6 +38,7 @@ from uav_vision_eval.vsim04_metrics import (
     correlate_admission_events,
     detector_diagnostic_errors,
     load_trial_matrix,
+    motion_frame_sort_key,
     planned_trial_result,
     quaternion_yaw,
     select_trial_matrix,
@@ -1678,6 +1679,13 @@ class VSim04TrialRecorder:
                 },
             }
             frames = copy.deepcopy(list(self._frames.values()))
+            trial_order = {
+                trial_id: index
+                for index, trial_id in enumerate(self._trial_specs)
+            }
+            frames.sort(key=lambda row: (
+                trial_order.get(row.get("trial_id"), len(trial_order)),
+                motion_frame_sort_key(row)))
             events = copy.deepcopy(self._events)
             results = copy.deepcopy(list(self._results.values()))
             actual_fps = self._actual_fps_locked()
