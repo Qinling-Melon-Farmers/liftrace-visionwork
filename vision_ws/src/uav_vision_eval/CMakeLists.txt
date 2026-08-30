@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(uav_vision_eval)
 
 find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
   diagnostic_msgs
   gazebo_msgs
   geometry_msgs
@@ -33,6 +34,7 @@ generate_messages(
 
 catkin_package(
   CATKIN_DEPENDS
+    cv_bridge
     diagnostic_msgs
     gazebo_msgs
     geometry_msgs
@@ -67,6 +69,8 @@ catkin_install_python(PROGRAMS
   scripts/vsim04_metrics_assertion.py
   scripts/vsim04_trial_recorder.py
   scripts/vsim04_trial_runner.py
+  scripts/vsim04_failure_capture.py
+  scripts/vsim04_failure_capture_assertion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

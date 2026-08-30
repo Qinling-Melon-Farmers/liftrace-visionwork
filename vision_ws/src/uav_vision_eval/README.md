@@ -74,6 +74,28 @@ bash top_level_scripts/sim_run.sh vsim04_seed11 \
 `sim_run.sh` 对 `vsim04*` 场景还会二次检查六项产物和 `summary.status=MEASURED`；即使
 `roslaunch` 在 required runner 失败后正常关停并返回 0，统一入口仍会返回非零。
 
+### 失败 trial 原始帧采集
+
+采集器默认不启动，因此正式 23 项运行没有额外图像订阅或写盘负载。只有 diagnostic
+selector 非空时才能显式启用，例如为 `static_pillbox_h3p6` 保存最多 30 帧：
+
+```bash
+SIM_NO_RECORD=1 \
+VSIM04_VISION_REVISION=<vision_commit> \
+VSIM04_NAVIGATION_REVISION=<navigation_commit> \
+UAV_VISION_MODEL_PATH=<best.pt> \
+bash top_level_scripts/sim_run.sh vsim04_diag_pillbox_capture \
+  roslaunch uav_vision_eval vsim04_stability.launch gui:=false \
+  trial_selector:=static_pillbox_h3p6 \
+  enable_failure_capture:=true failure_capture_max_frames:=30
+```
+
+输出位于该 run 的 `vsim04/failure_capture/`：无叠加的 lossless PNG、同名逐帧 JSON 和
+`dataset_manifest.json`。逐帧记录包含 trial/class/height、精确 ROS stamp、真值 ROI、
+CameraInfo 与源图编码；原图和真值只接受 `(secs,nsecs)` 完全一致的配对。selector 为空、
+上限非法、CameraInfo 不匹配，或选中 trial 未产生任何有效配对时均 fail closed。该数据只
+标记为 `sim-small-target` 诊断输入，不得当作实拍数据或直接触发训练/阈值修改。
+
 入口只启动 Gazebo、评测相机、视觉链、真值、recorder 和 trial runner；不会启动 PX4、
 MAVROS、旧控制、`actuator_pwm` 或真实投递。当前合并态证据
 `logs/vsim04_seed11_current_20260829_195506/` 已完成 23/23 并写出 `MEASURED`；
