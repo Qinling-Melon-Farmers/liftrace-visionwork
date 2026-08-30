@@ -30,8 +30,9 @@ cross_relaxed_min_concave_points: 2
 cross_relaxed_max_concave_points: 6
 cross_relaxed_prefer_concave_points: 4
 
-# strict/relaxed 共用的连续几何质量。模板 IoU 拒绝方块、圆、条和 X，
-# 双轴对称性拒绝 T/L、断裂等单侧形状；二者只约束几何检测，不改变 memory 0.70 门槛。
+# strict/relaxed 共用的连续几何质量。多角度等比模板 IoU 拒绝方块、圆、
+# 条和细臂 X，四重旋转对称性拒绝 T/L、断裂等单侧形状；二者只约束
+# 几何检测，不改变 target memory 0.70 门槛。
 cross_shape_min_template_iou: 0.70
 cross_shape_min_symmetry: 0.72
 cross_shape_min_concave_points: 3

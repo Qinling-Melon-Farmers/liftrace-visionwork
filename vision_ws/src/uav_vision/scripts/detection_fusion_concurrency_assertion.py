@@ -244,19 +244,25 @@ def main():
     evidence_fusion = DetectionFusion.__new__(DetectionFusion)
     evidence_fusion._dedup_iou_threshold = 0.30
     evidence_fusion._dedup_center_ratio = 0.35
-    geometry = _red_cross(0.74, 0.74, True)
-    classifier = _red_cross(0.95, 0.0, False)
-    confirmed = evidence_fusion._confirm_red_crosses(
-        [geometry, classifier])
-    assert len(confirmed) == 1, confirmed
-    fused = confirmed[0]
-    assert abs(fused.class_confidence - 0.95) < 1e-6
-    assert abs(fused.geometry_confidence - 0.74) < 1e-6
-    assert fused.geometry_verified and fused.center_refined
-    assert fused.center_source == "red_cross_geometry"
-    assert fused.center_px.x == geometry.center_px.x
-    assert geometry.class_confidence == 0.74, (
-        "fusion mutated the source geometry message")
+    # Multi-yaw geometry produces a continuous quality rather than a special
+    # orientation flag.  Exercise the complete admitted range, including the
+    # unchanged target-memory boundary, so fusion cannot quantize or overwrite
+    # the score when the detector becomes orientation invariant.
+    for geometry_quality in (0.70, 0.83, 1.0):
+        geometry = _red_cross(
+            geometry_quality, geometry_quality, True)
+        classifier = _red_cross(0.95, 0.0, False)
+        confirmed = evidence_fusion._confirm_red_crosses(
+            [geometry, classifier])
+        assert len(confirmed) == 1, confirmed
+        fused = confirmed[0]
+        assert abs(fused.class_confidence - 0.95) < 1e-6
+        assert abs(fused.geometry_confidence - geometry_quality) < 1e-6
+        assert fused.geometry_verified and fused.center_refined
+        assert fused.center_source == "red_cross_geometry"
+        assert fused.center_px.x == geometry.center_px.x
+        assert geometry.class_confidence == geometry_quality, (
+            "fusion mutated the source geometry message")
 
     non_overlapping = _red_cross(0.99, 0.0, False, 400, 400)
     assert not evidence_fusion._confirm_red_crosses(
