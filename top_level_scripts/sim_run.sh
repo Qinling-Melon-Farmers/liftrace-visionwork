@@ -124,6 +124,10 @@ case "${SCENE}" in
     VSIM04_DIR="${RUN_DIR}/vsim04"
     VSIM04_SUMMARY="${VSIM04_DIR}/summary.json"
     VSIM04_STATUS=""
+    VSIM04_EXPECTED_STATUS="MEASURED"
+    case "${SCENE}" in
+      vsim04_diag*) VSIM04_EXPECTED_STATUS="DIAGNOSTIC" ;;
+    esac
     VSIM04_ARTIFACTS="manifest.json frames.csv events.csv summary.json report.md vision_search_performance.csv"
     VSIM04_MISSING=""
     for artifact in ${VSIM04_ARTIFACTS}; do
@@ -134,11 +138,11 @@ case "${SCENE}" in
     if [ -f "${VSIM04_SUMMARY}" ]; then
       VSIM04_STATUS="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("status", ""))' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
     fi
-    echo "V-SIM-04 status: ${VSIM04_STATUS:-MISSING}" | tee -a "${RUN_LOG}"
+    echo "V-SIM-04 status: ${VSIM04_STATUS:-MISSING} (expected ${VSIM04_EXPECTED_STATUS})" | tee -a "${RUN_LOG}"
     if [ -n "${VSIM04_MISSING}" ]; then
       echo "V-SIM-04 missing artifacts:${VSIM04_MISSING}" | tee -a "${RUN_LOG}"
     fi
-    if [ "${VSIM04_STATUS}" != "MEASURED" ] || [ -n "${VSIM04_MISSING}" ]; then
+    if [ "${VSIM04_STATUS}" != "${VSIM04_EXPECTED_STATUS}" ] || [ -n "${VSIM04_MISSING}" ]; then
       EXIT_CODE=1
     fi
     ;;
