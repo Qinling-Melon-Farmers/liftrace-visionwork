@@ -123,3 +123,20 @@ profiles:
 
 它们只用于记录来源，不在原文中追加回复或决策。后续阶段回复、接口裁定和 Gate 证据必须
 另建文档，避免把集成侧结论伪装成上游原始要求。
+
+## 7. 2026-08-31 执行桥同步状态
+
+导航 PR #6 当前为 Draft，HEAD `3864a7c`。其四个 planner bridge 提交已在视觉集成分支等价
+导入为 `98cb587/83e796b/c7c1d8f/933eb78`；本仓后续只把既有
+`MissionCommand/AlignmentTargetContext/ReleaseEvidenceContext/ReleaseResult` 接入同一个
+executor，并增加正式 launch 与只读 Gate。
+
+接口集合保持不变：没有新增 msg/srv/action、legacy/deprecated schema、第二 planner-goal
+adapter 或并行任务 manager。正式图中 clean manager 是唯一 raw decision 发布者，
+`/navigation/planner_bridge` 是 `/fastplanner/goal` 唯一发布者。PR Conversation 仍引用旧
+`c12ee0c`/13 commits 和永久禁止 live goal 的描述，导航组应更新文字，而不是为旧描述添加
+第三个开关或兼容分支。
+
+首轮硬 Gate 已运行但因 manager `map_missing` 未产生 decision；合同软件面和唯一发布者成立，
+不等于 `P_interrupt`、三投、返航或落地 PASS。地图 readiness 必须由导航/建图链提供真实、
+新鲜、`camera_init` frame 的 `/freedom/static_pointcloud`，不得由视觉伪造或放宽合同绕过。

@@ -4,8 +4,11 @@
 
 本分支把导航任务层的 `NavigationDecision` 转成单一 planner motion 生命周期，并把
 `plan_manage/PlannerStatus + nav_msgs/Odometry` 归约成同一 executor 的
-`NavigationResult`。它不包含 Servo、PWM、解锁、释放或降落实现，也不把
-`TRAJECTORY_FINISHED` 直接当作到达。
+`NavigationResult`。当前集成继续在这一个 executor 内协调既有
+`MissionCommand/AlignmentTargetContext/ReleaseEvidenceContext/ReleaseResult`，形成
+APPROACH→CAPTURE→ALIGNMENT→RELEASE→RECOVERY 与 LAND 的事实回流；bridge 本身仍不调用
+Servo/PWM、不解锁、不分配槽位、不实现任务队列或重试，也不把 `TRAJECTORY_FINISHED`
+直接当作到达。
 
 默认 launch 设置：
 
@@ -15,8 +18,8 @@
 
 因此默认启动不会发布规划目标。只有同时显式设置 `execution_enabled=true` 与
 `allow_live_goal_output=true`，并把目标话题配置为 `/fastplanner/goal` 时才创建 live publisher；
-隔离话题仍可用于合同级联调。启用 live 输出只表示允许发布规划目标，不代表
-cancel/hold、目标事务或降落链已经具备。
+隔离话题仍可用于合同级联调。正式 `navigation_search_delivery_vcl06.launch` 才同时打开这两个
+开关、绑定 `/fastplanner/goal` 并启用 strict 目标事务；默认 bridge launch 仍保持安全关闭。
 
 ## Fencing 与到达证据
 
@@ -34,18 +37,24 @@ cancel/hold、目标事务或降落链已经具备。
 - planner `ACCEPTED` 映射为 `STARTED/PLANNER`；`TRAJECTORY_READY` 与
   `FAILED_ATTEMPT` 映射为非终态 `PROGRESS/PLANNER`，timer 不周期制造结果事件。
 - SEARCH、RESUME、RETURN_HOME 到达产生终态 `SUCCEEDED/PLANNER`。
-- APPROACH 到达只产生非终态 `PROGRESS/PLANNER` 和 `TARGET_TRANSACTION` handoff；绝不伪造
-  payload commit 或目标成功。
-- LAND/HOLD/ABORT 只报告明确 handoff 状态，不模拟执行、不发布替代 planner goal。
+- APPROACH 到达先产生非终态 `PROGRESS/PLANNER`，随后只有旧控制实际进入目标阶段、strict
+  视觉上下文与 guarded release ACK 依次成立，才按 CAPTURE→ALIGNMENT→RELEASE→RECOVERY
+  回流；payload commit 只认既有 `ReleaseResult` 的成功 ACK。
+- LAND 使用返航完成后的新鲜同 frame odom 冻结落点，等待旧控制 Land、水平/高度/速度 dwell
+  与 MAVROS `ON_GROUND` 后才成功。ABORT 通过同一 planner publisher 发当前位姿 goal 并等待
+  typed planner 结果；没有可靠契约的 HOLD 明确 REJECTED，不另造 stop 接口。
 
-## 尚未解除的 live Gate
+## 当前 live Gate
 
-Fast-Planner 当前没有通用的带 ACK hold/stop 接口。`planning/replan` 只截短轨迹时长，轨迹
-服务器仍可能继续发布 setpoint。因此在补齐 planner hold/stop ACK、单一 target-stage
-协调器和 landing executor 前，本分支不能表述为完整可飞闭环，也不得 ACK ABORT。
-live goal 开关只供明确配置的规划运动联调使用。
+单一 target transaction、LAND 和 ABORT 已收进现有 bridge，HOLD 明确拒绝；没有增加第二
+executor、compat adapter 或新消息类型。2026-08-31 的 ROS 实跑确认正式图只有
+`/navigation/planner_bridge` 发布 `/fastplanner/goal`，bridge 健康、随机场/anchor/contact
+READY，0 碰撞、0 越界、0 超高。
 
-这也是默认关闭 live 输出的原因，而不是启动便利性选项。
+联合 Gate 仍未通过：manager 在升空后持续 `map_missing`，未收到
+`/freedom/static_pointcloud`，所以没有产生任何 decision/result，也没有真实
+`P_interrupt`。当前阻断是导航/建图输入而非 bridge 接口；不得关闭 require-map、放宽新鲜度
+或增加视觉地图代理绕开。默认关闭 live 输出仍是独立启动 bridge 的安全边界。
 
 ## 运行顺序与重启限制
 
@@ -67,8 +76,8 @@ live goal 开关只供明确配置的规划运动联调使用。
 `has_target` 区分“目标 0”和“无目标”。感知模型可以保留额外类别，但正式 `r2026` 决策
 只允许 `tent/pillbox/bridge/panzer/red_cross`，不含 `tank`。
 
-末端接口尚未对齐：当前 `ReleaseEvidence` 缺少冻结实例的 `first_seen` 与精确 observation
-stamp，`drop_aligner` 也未消费导航选定的完整目标键。因此它不能直接转成 payload commit。
-后续单一 target-transaction coordinator 必须以 `NavigationDecision` 为唯一目标上下文，
-代理 CAPTURE/ALIGNMENT/RELEASE/RECOVERY，并沿用本 bridge 的同一 `executor_id` 与全局递增
-`event_seq`。
+末端接口已通过既有 `AlignmentTargetContext` 与 `ReleaseEvidenceContext` 对齐：
+`NavigationDecision` 是唯一语义目标上下文，strict 模式核对 decision、attempt、slot、profile、
+语义—几何身份、map validity 与 observation stamp；最终 payload commit 仍只来自 guarded
+`ReleaseResult` ACK。所有阶段沿用同一 `executor_id` 与全局递增 `event_seq`，没有让
+selected 代替 `P_interrupt`，也没有复制 arbiter 的准入策略。

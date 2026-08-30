@@ -40,6 +40,30 @@ target_search_manager_py.py
 
 ## V-CL-06 全随机场正式入口
 
+### 当前 clean manager + 单执行 bridge 入口
+
+`navigation_search_delivery_vcl06.launch` 是当前正式联调入口，固定使用 `r2026`、非零
+`field_seed=11`、`baseline` 和 `toudi3_random.world`。它只启动一个
+`navigation_mission_manager` 与一个 `navigation_planner_bridge`；旧 coverage/search manager、
+profile selector 和 `navigation_visual_delivery_adapter` 不在该图中。bridge 是
+`/fastplanner/goal` 唯一发布者，并在同一 executor 内归约 planner、CAPTURE/ALIGNMENT/RELEASE/
+RECOVERY 与 LAND 事实；没有新增跨组消息或第二套任务策略。
+
+```bash
+SIM_NO_RECORD=1 SIM_REQUIRE_GATE=1 \
+top_level_scripts/sim_run.sh vcl06_typed_seed11 \
+roslaunch uav_mission navigation_search_delivery_vcl06.launch \
+gui:=false rviz:=false start_hard_gate:=true record_debug:=true
+```
+
+`gate_status.json` 是唯一 PASS/FAIL 判据。2026-08-31 的 45 秒启动预检已使随机场、truth、
+anchor、接触监视和全部运行节点 READY；首轮硬 Gate 仍因 manager 未收到
+`/freedom/static_pointcloud` 而 `wall_timeout/map_missing`，没有 decision 或真实
+`P_interrupt`。不得通过关闭 `require_map`、放宽地图新鲜度或视觉伪造地图绕过；修复仿真
+LiDAR→FAST-LIO→FreeDOM 后原样重跑。
+
+### 历史冻结 manager 与地图 A/B 入口
+
 `navigation_search_delivery_random_field.launch` 以导航上游 manager
 `liftrace-controlwork@5144aa8` 为冻结源，使用外围 profile selector 和 adapter 接入
 全随机场；地图实验 `a68925d` 只通过 `nav_feature_profile` A/B，不代表 manager 更新。
@@ -85,8 +109,8 @@ bash top_level_scripts/run_navigation_ab.sh
 
 ## 新 VCL06 manager 的一次性启动 gate
 
-`navigation_mission_start_gate.launch` 是供后续 execution bridge include 的安全边界，
-默认 `enabled:=false`。它本身既不启动 manager，也不发布 planner goal 或执行机构命令；
+`navigation_mission_start_gate.launch` 是可复用的启动安全边界，当前正式 VCL06 入口已 include，
+独立使用时默认 `enabled:=false`。它本身既不启动 manager，也不发布 planner goal 或执行机构命令；
 只有显式 `enabled:=true` 且以下 latched 合同同时成立，才会调用一次
 `/navigation/start_mission`：
 
@@ -102,10 +126,10 @@ manager 仍独立执行 pose/map readiness 的第二道门；启动 gate 不订�
 指数退避；第一次成功后永久闭锁。观测状态为 latched JSON
 `/navigation/mission_start_gate_status`，其中 `service_call_count=0` 是 READY 前的硬约束。
 
-当前 `navigation_search_delivery_random_field.launch` 仍启动冻结的旧
-`target_search_manager_py.py`，因此没有把新 manager/gate 塞入该入口。待 execution bridge
-接好 `NavigationDecision/NavigationResult` 后，应在新的 VCL06 launch 中分别 include
-`navigation_mission_manager.launch` 与本 gate，并显式传入：
+`navigation_search_delivery_random_field.launch` 继续保留冻结的旧
+`target_search_manager_py.py`，不把新旧 manager 混在同一入口。新 manager、start gate 与
+execution bridge 已由 `navigation_search_delivery_vcl06.launch` 显式组合；下面的 include
+仍是其他受控入口复用 start gate 时的最小接线：
 
 ```xml
 <include file="$(find uav_mission)/launch/navigation_mission_start_gate.launch">

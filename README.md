@@ -52,6 +52,10 @@ detections
   投递。2026-08-26 的 600 s 两投是历史接通证据；当前正式随机场 baseline 30 s 预检 PASS，
   baseline/`a68925d` 90 s A/B 因高度与同进度耗时合同未同时满足而 FAIL，保持 baseline 且
   尚未进入 600 s Gate。`a68925d` 只含地图实验资产，不代表 manager 已更新；
+- clean manager/runtime、typed decision/result、单一 planner/target-transaction bridge、
+  一次性 start gate 与正式只读硬 Gate 已进入 V-CL-06 feature 分支；45 秒 ROS 启动预检
+  READY，实跑确认正式图只有 `/navigation/planner_bridge` 发布 `/fastplanner/goal`，未新增
+  msg/srv/action 或第二 executor；
 - 笔记本 dev/sim 已使用 `merged_standard` 六分类模型；已有实拍回放、压力集和 ONNX
   候选，当前不缺“再训练一个模型”；
 - 笔记本 dev/sim 视觉链已运行；OrangePi 已完成统一六分类 FP32 RKNN 离线图片、视频和
@@ -59,11 +63,12 @@ detections
 
 ### 尚未完成
 
-- 导航组 manager 当前只消费实时 `selected_target`，没有持久候选队列、全局权重重排、
-  失败冷却重试或剩余时间调度；已有 600 s 历史联调只到 9/16 覆盖和 2/3 投递，当前随机场
-  因 90 s A/B 未通过而尚未启动新的 600 s；
-- V-CL-05/V-CL-06 尚未完成全随机三投、返航和落地；导航持久队列、失败重试、剩余时间
-  调度以及高度/耗时收敛仍待导航组上游实现；
+- clean manager 已实现持久候选队列、权重调度、有限冷却重试、三槽和 510/600 s 时限；这些
+  能力已通过纯测试，但首轮正式硬 Gate 被仿真 `/freedom/static_pointcloud` 缺失阻断，
+  manager 未产生 decision，不能写成联合链 PASS；
+- V-CL-05/V-CL-06 尚未完成全随机三投、返航和落地；先由导航/建图侧恢复
+  LiDAR→FAST-LIO→FreeDOM 的有效新鲜地图并通过 90 秒 typed smoke。历史地图 A/B 仍 FAIL，
+  不关闭 require-map、不放宽地图年龄，也不在视觉 adapter 复制地图/队列/重试；
 - H 固定 Gazebo 正例已得到 458 TP、0 FP/FN，landing-active 纯背景 511 帧为 0 FP；完整
   H 视觉降落 Gate（landing 阶段 + H 结构证据 + 落地）仍未验收，北区走廊 Gate 因
   toudi4 缺门洞实体未立；随机红十字摆放的独立发现/投递待复跑验收；
@@ -86,8 +91,9 @@ detections
 1. 保持 640 默认输入，先对 pillbox 3.6 m 和 sparse30 的五个
    `target_memory_admission` 边界做受控尺度/重复性复核；1280 单项虽然恢复 pillbox 的
    P_confirm，但误选 bridge、P_selected=0 且 processing P95=449.3 ms，当前不推广；
-2. 在不修改导航组已验证 manager 源码的前提下，由双方冻结“实时中断候选 + 持久地图
-   候选队列 + 投递结果/重试”接口；600 s 内完成三投、返航和落地；
+2. 保持现有 typed contract、单 manager/单 bridge/单 planner-goal publisher，先恢复仿真
+   新鲜地图并取得同一 stable ID 的 selected→decision→实际 APPROACH/target-stage 证据；
+   A/B 安全合同通过后再在 600 s 内完成三投、返航和落地；
 3. 完成运动相机 stable ID/地图误差 Gate、H 视觉降落和实拍人工真值；闭环稳定后再完成
    单下视 30-seed、10 min 和 OrangePi ROS 相机/TF/RKNN
    （V-SIM-04/V-REAL-01/V-DEPLOY-01）。
