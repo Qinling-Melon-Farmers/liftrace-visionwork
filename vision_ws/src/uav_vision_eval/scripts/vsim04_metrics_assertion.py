@@ -514,9 +514,14 @@ def main():
         assert summary["completeness"]["status"] == "DRY_RUN"
         assert summary["performance_verdict"]["status"] == "NOT_EVALUATED"
         assert summary["artifact_completeness"]["complete"]
+        assert set(summary["artifact_completeness"]["present"]) == set(
+            REQUIRED_ARTIFACTS)
+        assert summary["artifact_completeness"]["missing"] == []
         assert summary["metrics"]["p_interrupt"] is None
         for artifact in REQUIRED_ARTIFACTS:
-            assert os.path.isfile(os.path.join(output_dir, artifact)), artifact
+            artifact_path = os.path.join(output_dir, artifact)
+            assert os.path.isfile(artifact_path), artifact
+            assert os.path.getsize(artifact_path) > 0, artifact
         with open(os.path.join(output_dir, "manifest.json"),
                   "r", encoding="utf-8") as stream:
             manifest = json.load(stream)
@@ -550,6 +555,11 @@ def main():
                   "r", encoding="utf-8") as stream:
             frame_reader = csv.DictReader(stream)
             assert frame_reader.fieldnames == FRAME_FIELDS
+        with open(os.path.join(output_dir, "summary.json"),
+                  "r", encoding="utf-8") as stream:
+            persisted_summary = json.load(stream)
+        assert persisted_summary["artifact_completeness"] == summary[
+            "artifact_completeness"]
     finally:
         shutil.rmtree(output_dir)
 

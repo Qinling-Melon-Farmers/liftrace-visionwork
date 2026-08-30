@@ -1387,6 +1387,20 @@ def _write_csv(path, fields, rows):
             os.unlink(temporary)
 
 
+def _artifact_inventory(output_dir):
+    present = sorted(
+        name for name in REQUIRED_ARTIFACTS
+        if os.path.isfile(os.path.join(output_dir, name)) and
+        os.path.getsize(os.path.join(output_dir, name)) > 0)
+    missing = sorted(set(REQUIRED_ARTIFACTS) - set(present))
+    return {
+        "required": list(REQUIRED_ARTIFACTS),
+        "present": present,
+        "missing": missing,
+        "complete": not missing,
+    }
+
+
 def _breakdown_report(title, rows):
     lines = [
         "## {}".format(title),
@@ -1570,7 +1584,7 @@ def write_artifacts(output_dir, manifest, frame_rows, event_rows, results,
         row.update({
             "measurement_completeness_status": summary[
                 "completeness"]["status"],
-            "artifact_set_complete": True,
+            "artifact_set_complete": False,
             "performance_verdict": summary["performance_verdict"]["status"],
             "performance_hard_failure": summary["performance_verdict"][
                 "hard_failure"],
@@ -1608,6 +1622,10 @@ def write_artifacts(output_dir, manifest, frame_rows, event_rows, results,
     _write_csv(
         os.path.join(output_dir, "vision_search_performance.csv"),
         PERFORMANCE_FIELDS, performance_rows)
+    # Write provisional summary/report first, then derive completeness from the
+    # actual non-empty files.  This avoids declaring the writer's own outputs
+    # complete before they exist on disk.
+    _atomic_json(os.path.join(output_dir, "summary.json"), summary)
     report_path = os.path.join(output_dir, "report.md")
     temporary = "{}.tmp.{}.{}".format(
         report_path, os.getpid(), uuid.uuid4().hex)
@@ -1618,20 +1636,13 @@ def write_artifacts(output_dir, manifest, frame_rows, event_rows, results,
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
-    present = sorted(name for name in REQUIRED_ARTIFACTS
-                     if os.path.isfile(os.path.join(output_dir, name)))
-    # summary.json is intentionally committed last and is part of this atomic
-    # write transaction, so include it in the final inventory before writing.
-    if "summary.json" not in present:
-        present.append("summary.json")
-        present.sort()
-    missing = sorted(set(REQUIRED_ARTIFACTS) - set(present))
-    summary["artifact_completeness"] = {
-        "required": list(REQUIRED_ARTIFACTS),
-        "present": present,
-        "missing": missing,
-        "complete": not missing,
-    }
+    summary["artifact_completeness"] = _artifact_inventory(output_dir)
+    for row in performance_rows:
+        row["artifact_set_complete"] = summary[
+            "artifact_completeness"]["complete"]
+    _write_csv(
+        os.path.join(output_dir, "vision_search_performance.csv"),
+        PERFORMANCE_FIELDS, performance_rows)
     _atomic_json(os.path.join(output_dir, "summary.json"), summary)
     # Refresh the human report with the final artifact inventory.
     try:
@@ -1641,6 +1652,22 @@ def write_artifacts(output_dir, manifest, frame_rows, event_rows, results,
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
+    final_inventory = _artifact_inventory(output_dir)
+    if final_inventory != summary["artifact_completeness"]:
+        summary["artifact_completeness"] = final_inventory
+        for row in performance_rows:
+            row["artifact_set_complete"] = final_inventory["complete"]
+        _write_csv(
+            os.path.join(output_dir, "vision_search_performance.csv"),
+            PERFORMANCE_FIELDS, performance_rows)
+        _atomic_json(os.path.join(output_dir, "summary.json"), summary)
+        try:
+            with open(temporary, "w", encoding="utf-8") as stream:
+                stream.write(_report(summary))
+            os.replace(temporary, report_path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
     return summary
 
 
