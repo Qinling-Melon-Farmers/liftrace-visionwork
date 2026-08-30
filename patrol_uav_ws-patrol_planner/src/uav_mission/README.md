@@ -82,3 +82,36 @@ bash top_level_scripts/run_navigation_ab.sh
 模型/路线一致，双方 0 碰撞/越界且高度不超过 4 m；候选至少改善规划失败或高度漂移之一，
 共同进度墙钟退化不超过 10%。`promote_candidate=true` 只是报告事实，不会自动修改默认值；
 设置 `a68925d` 为默认仍须独立审查提交。
+
+## 新 VCL06 manager 的一次性启动 gate
+
+`navigation_mission_start_gate.launch` 是供后续 execution bridge include 的安全边界，
+默认 `enabled:=false`。它本身既不启动 manager，也不发布 planner goal 或执行机构命令；
+只有显式 `enabled:=true` 且以下 latched 合同同时成立，才会调用一次
+`/navigation/start_mission`：
+
+- random field 为 `READY/ready=true`，seed/profile 与 `11/r2026` 一致；
+- `tent/pillbox/bridge/panzer/red_cross` 五个 target 的 expected/spawned/verified 清单一致，
+  footprint 已验证，`random_field_truth.yaml` 位于本 run 目录并能解析出同一 seed/profile、
+  五类与正 footprint；
+- planner anchor 的 READY profile 与 `nav_feature_profile` 一致，三份模型清单一致；
+- 新 `navigation_mission_manager.py` 状态为 `IDLE` 且 profile 为 `r2026`。
+
+manager 仍独立执行 pose/map readiness 的第二道门；启动 gate 不订阅 pose/map，也不复制其
+新鲜度策略。服务尚未注册或 manager 因自身 readiness 拒绝时，gate 使用 0.5--5 s 有界
+指数退避；第一次成功后永久闭锁。观测状态为 latched JSON
+`/navigation/mission_start_gate_status`，其中 `service_call_count=0` 是 READY 前的硬约束。
+
+当前 `navigation_search_delivery_random_field.launch` 仍启动冻结的旧
+`target_search_manager_py.py`，因此没有把新 manager/gate 塞入该入口。待 execution bridge
+接好 `NavigationDecision/NavigationResult` 后，应在新的 VCL06 launch 中分别 include
+`navigation_mission_manager.launch` 与本 gate，并显式传入：
+
+```xml
+<include file="$(find uav_mission)/launch/navigation_mission_start_gate.launch">
+  <arg name="enabled" value="true" />
+  <arg name="field_seed" value="$(arg field_seed)" />
+  <arg name="class_profile" value="r2026" />
+  <arg name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+</include>
+```
