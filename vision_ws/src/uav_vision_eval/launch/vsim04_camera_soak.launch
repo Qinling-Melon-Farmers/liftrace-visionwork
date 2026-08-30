@@ -44,12 +44,20 @@
     <arg name="use_sim_time" value="true" />
   </include>
 
-  <node pkg="gazebo_ros" type="spawn_model" name="vsim04_camera_spawn"
-        output="screen"
-        args="-sdf -file $(find uav_vision_eval)/models/vision_eval_camera/model.sdf -model vision_eval_camera -x 2.6 -y 0.5 -z 2.4 -P 1.570796326794897" />
-  <node pkg="gazebo_ros" type="spawn_model" name="vsim04_red_cross_spawn"
-        output="screen"
-        args="-sdf -file $(arg px4_model_root)/red_cross/model.sdf -model red_cross -x -2.5 -y -2.5 -z 0.0" />
+  <node pkg="uav_vision_eval" type="vsim04_soak_model_spawner.py"
+        name="vsim04_soak_model_spawner" output="screen">
+    <param name="camera_model_name" value="vision_eval_camera" />
+    <param name="camera_sdf_file"
+           value="$(find uav_vision_eval)/models/vision_eval_camera/model.sdf" />
+    <rosparam param="camera_pose">[2.6, 0.5, 2.4, 0.0, 1.570796326794897, 0.0]</rosparam>
+    <param name="red_cross_model_name" value="red_cross" />
+    <param name="red_cross_sdf_file"
+           value="$(arg px4_model_root)/red_cross/model.sdf" />
+    <rosparam param="red_cross_pose">[-2.5, -2.5, 0.0, 0.0, 0.0, 0.0]</rosparam>
+    <param name="startup_timeout_sec" value="45.0" />
+    <param name="service_call_timeout_sec" value="5.0" />
+    <param name="ready_topic" value="/uav_vision_eval/soak_models_ready" />
+  </node>
 
   <include file="$(find uav_vision_eval)/launch/ground_truth.launch">
     <arg name="catalog_file" value="$(arg truth_catalog)" />
@@ -102,7 +110,8 @@
     <param name="perf_topic" value="/uav_vision/perf" />
     <param name="expected_perf_name" value="uav_vision/target_detector" />
     <rosparam param="required_completed_sources">[target_detector, circle_detector, cross_detector]</rosparam>
-    <rosparam param="expected_nodes">[/gazebo, /gazebo_camera_pose_stamper, /gazebo_camera_tf, /sim_ground_truth_projector, /target_detector, /cross_detector, /circle_detector, /detection_fusion, /target_refiner, /target_map_projector, /target_memory, /drop_aligner, /vsim04_camera_soak]</rosparam>
+    <rosparam param="expected_nodes">[/gazebo, /vsim04_soak_model_spawner, /gazebo_camera_pose_stamper, /gazebo_camera_tf, /sim_ground_truth_projector, /target_detector, /cross_detector, /circle_detector, /detection_fusion, /target_refiner, /target_map_projector, /target_memory, /drop_aligner, /vsim04_camera_soak]</rosparam>
+    <param name="models_ready_topic" value="/uav_vision_eval/soak_models_ready" />
     <param name="confirm_frames" value="3" />
     <param name="selected_max_age_sec" value="0.5" />
     <param name="node_check_period_sec" value="5.0" />

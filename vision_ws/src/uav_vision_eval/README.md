@@ -255,7 +255,9 @@ python3 vision_ws/src/uav_vision_eval/scripts/vsim04_repeat_aggregate.py \
 `vsim04_camera_soak.launch` 复用 V-SIM-04 的单 Gazebo、评测相机、独立真值和正式 Phase-D
 视觉链，但不启动 PX4、MAVROS、导航/control 或 actuator。相机以固定高度沿场内确定性椭圆
 循环，每圈只产生一次新的 `soak_loop_NNNN` ID；运行期间不反复 reset memory，避免把长时间
-记忆与积压问题切碎成短 trial。
+记忆与积压问题切碎成短 trial。camera 与 red-cross 不再由两个并发 `spawn_model` 进程碰运气，
+而是由单节点串行调用 Gazebo、逐个核验 model state 后发布 latched ready；runner 未收到 ready
+时禁止设置相机位姿或进入预热。
 
 入口默认以 monotonic 墙钟连续运行 600 秒；ROS 源时间只驱动可复现路线，并继续执行倒退和
 停滞硬检查。预热阶段先等完整流水线和真值，再执行一次 post-warm-up reset、等待全流新鲜，

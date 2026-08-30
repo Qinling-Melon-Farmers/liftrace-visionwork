@@ -19,6 +19,7 @@ from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import SetModelState
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import CameraInfo, Image
+from std_msgs.msg import Bool
 from std_srvs.srv import Empty
 
 from uav_vision.msg import TargetCandidate, TargetCandidateArray
@@ -225,6 +226,7 @@ class VSim04CameraSoak:
         self._truth_fully_in_frame_messages = 0
         self._latest_perf_errors = ["detector_diagnostic_missing"]
         self._pre_epoch_ignored = {}
+        self._models_ready = False
         self._last_loop_id = ""
         self._started_ros_sec = None
         self._started_wall = None
@@ -269,6 +271,9 @@ class VSim04CameraSoak:
 
     def _subscribe(self):
         rospy.Subscriber(rospy.get_param(
+            "~models_ready_topic", "/uav_vision_eval/soak_models_ready"),
+            Bool, self._on_models_ready, queue_size=1)
+        rospy.Subscriber(rospy.get_param(
             "~image_topic", "/camera/color/image_raw"),
             Image, self._on_image, queue_size=1)
         rospy.Subscriber(rospy.get_param(
@@ -292,6 +297,11 @@ class VSim04CameraSoak:
         rospy.Subscriber(rospy.get_param(
             "~perf_topic", "/uav_vision/perf"),
             DiagnosticArray, self._on_perf, queue_size=10)
+
+    def _on_models_ready(self, message):
+        if bool(message.data):
+            with self._lock:
+                self._models_ready = True
 
     @staticmethod
     def _stamp(message):
@@ -594,6 +604,15 @@ class VSim04CameraSoak:
                 ",".join(self._camera_pose_errors_locked(
                     self._last_pose, time.monotonic())[0]) or "ready"))
 
+    def _wait_for_models_ready(self):
+        deadline = time.monotonic() + self._config["startup_timeout_sec"]
+        while not rospy.is_shutdown() and time.monotonic() < deadline:
+            with self._lock:
+                if self._models_ready:
+                    return
+            time.sleep(0.05)
+        raise RuntimeError("sequential Gazebo model spawn did not become ready")
+
     def _record_frame_locked(self, pose, wall_elapsed, source_elapsed,
                              now_wall):
         actual_elapsed = max(wall_elapsed, 1.0e-9)
@@ -638,6 +657,7 @@ class VSim04CameraSoak:
         timeout = self._config["startup_timeout_sec"]
         rospy.wait_for_service(self._set_state_name, timeout=timeout)
         rospy.wait_for_service(self._reset_name, timeout=timeout)
+        self._wait_for_models_ready()
         initial_pose = route_pose(0.0, self._config)
         self._set_camera_initial(initial_pose)
         self._wait_for_startup()

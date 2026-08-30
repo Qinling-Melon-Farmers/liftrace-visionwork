@@ -72,6 +72,7 @@ catkin_install_python(PROGRAMS
   scripts/vsim04_trial_recorder.py
   scripts/vsim04_trial_runner.py
   scripts/vsim04_camera_soak.py
+  scripts/vsim04_soak_model_spawner.py
   scripts/vsim04_soak_assertion.py
   scripts/vsim04_failure_capture.py
   scripts/vsim04_failure_capture_assertion.py
