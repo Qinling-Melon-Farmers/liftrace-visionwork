@@ -17,7 +17,7 @@ REQUIRED_ARTIFACTS = (
 TERMINAL_MEASUREMENT_STATUSES = {"MEASURED", "DIAGNOSTIC"}
 
 
-def _bounded_scene_token(value, max_length=48, always_hash=False):
+def bounded_scene_token(value, max_length=48, always_hash=False):
     """Return a readable bounded token with a hash preserving uniqueness."""
     if int(max_length) < 10:
         raise ValueError("scene token max_length must be at least 10")
@@ -28,6 +28,35 @@ def _bounded_scene_token(value, max_length=48, always_hash=False):
     digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:8]
     prefix_length = int(max_length) - len(digest) - 1
     return "{}-{}".format(token[:prefix_length].rstrip("-"), digest)
+
+
+def resolve_batch_output(project_root, batch_id, requested_output=""):
+    """Resolve a bounded batch token and a run-local aggregate directory."""
+    project_root = os.path.realpath(os.path.abspath(project_root))
+    logs_root = os.path.realpath(os.path.join(project_root, "logs"))
+    batch_token = bounded_scene_token(
+        batch_id, max_length=48, always_hash=True)
+    if requested_output:
+        output_dir = os.path.realpath(os.path.abspath(requested_output))
+    else:
+        output_dir = os.path.realpath(os.path.join(
+            logs_root, "vsim04_repeat_aggregate_" + batch_token))
+    try:
+        inside_logs = os.path.commonpath([logs_root, output_dir]) == logs_root
+    except ValueError:
+        inside_logs = False
+    if not inside_logs or output_dir == logs_root:
+        raise ValueError("repeat output_dir must stay inside project/logs")
+    return batch_token, output_dir
+
+
+def create_new_batch_output(output_dir):
+    """Create a batch directory exactly once; never reuse existing evidence."""
+    try:
+        os.makedirs(output_dir, exist_ok=False)
+    except FileExistsError as error:
+        raise ValueError(
+            "repeat batch output already exists: " + output_dir) from error
 
 
 def build_repeat_commands(project_root, repeats, trial_selector, matrix,
@@ -48,11 +77,11 @@ def build_repeat_commands(project_root, repeats, trial_selector, matrix,
     root = os.path.abspath(project_root)
     matrix = os.path.abspath(matrix)
     model_path = os.path.abspath(model_path)
-    batch = _bounded_scene_token(
+    batch = bounded_scene_token(
         batch_id or datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ"))
     # A comma-separated selector can contain many boundary IDs. Always attach
     # a digest so two equally truncated readable prefixes cannot collide.
-    selector_token = _bounded_scene_token(
+    selector_token = bounded_scene_token(
         trial_selector, max_length=48, always_hash=True)
     commands = []
     for repeat_index in range(1, int(repeats) + 1):
@@ -86,9 +115,22 @@ def build_repeat_commands(project_root, repeats, trial_selector, matrix,
     return commands
 
 
-def execute_repeat_commands(commands, project_root, dry_run=False):
+def _scene_run_dirs(logs_dir, scene):
+    prefix = scene + "_"
+    if not os.path.isdir(logs_dir):
+        return set()
+    return {
+        os.path.realpath(os.path.join(logs_dir, name))
+        for name in os.listdir(logs_dir)
+        if name.startswith(prefix) and
+        os.path.isdir(os.path.join(logs_dir, name))
+    }
+
+
+def execute_repeat_commands(commands, project_root, dry_run=False,
+                            on_result=None, results=None):
     """Execute every command, continuing after failures to preserve evidence."""
-    results = []
+    results = [] if results is None else results
     logs_dir = os.path.join(os.path.abspath(project_root), "logs")
     for item in commands:
         command = list(item["command"])
@@ -97,17 +139,68 @@ def execute_repeat_commands(commands, project_root, dry_run=False):
             continue
         env = os.environ.copy()
         env.update(item["environment"])
-        completed = subprocess.run(command, cwd=project_root, env=env,
-                                   check=False)
-        prefix = item["scene"] + "_"
-        candidates = [
-            os.path.join(logs_dir, name) for name in os.listdir(logs_dir)
-            if name.startswith(prefix) and
-            os.path.isdir(os.path.join(logs_dir, name))
-        ] if os.path.isdir(logs_dir) else []
-        run_dir = max(candidates, key=os.path.getmtime) if candidates else None
+        before = _scene_run_dirs(logs_dir, item["scene"])
+        interrupted = None
+        execution_error = ""
+        try:
+            completed = subprocess.run(
+                command, cwd=project_root, env=env, check=False)
+            exit_code = int(completed.returncode)
+        except KeyboardInterrupt as error:
+            exit_code = 130
+            interrupted = error
+            execution_error = "keyboard_interrupt"
+        except OSError as error:
+            exit_code = 127
+            execution_error = "subprocess_error:" + str(error)
+        after = _scene_run_dirs(logs_dir, item["scene"])
+        created = sorted(after - before)
+        binding_error = ""
+        if len(created) == 1:
+            run_dir = created[0]
+        else:
+            run_dir = None
+            binding_error = "new_run_dir_count:{}".format(len(created))
+        result = dict(
+            item, exit_code=exit_code, run_dir=run_dir,
+            binding_error=binding_error, execution_error=execution_error)
+        results.append(result)
+        if on_result is not None:
+            on_result(result, list(results))
+        if interrupted is not None:
+            raise interrupted
+    return results
+
+
+def atomic_write_json(path, payload):
+    """Atomically replace a JSON checkpoint in its destination directory."""
+    parent = os.path.dirname(os.path.abspath(path))
+    os.makedirs(parent, exist_ok=True)
+    temporary = path + ".tmp.{}".format(os.getpid())
+    try:
+        with open(temporary, "w", encoding="utf-8") as stream:
+            json.dump(payload, stream, ensure_ascii=False, indent=2,
+                      sort_keys=True)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def append_unfinished_results(commands, results, interruption_error=""):
+    """Append fail-closed placeholders for repeats that never returned."""
+    completed_indexes = {int(result["repeat_index"]) for result in results}
+    for item in commands:
+        if int(item["repeat_index"]) in completed_indexes:
+            continue
         results.append(dict(
-            item, exit_code=int(completed.returncode), run_dir=run_dir))
+            item, exit_code=130 if interruption_error else 127, run_dir=None,
+            binding_error="run_not_executed",
+            execution_error=interruption_error or "run_not_executed",
+            state="UNFINISHED"))
     return results
 
 
@@ -141,7 +234,45 @@ def _percentile(values, percentile=0.95):
     return values[lower] * (1.0 - weight) + values[upper] * weight
 
 
-def _inspect_run(run_dir, source_index, execution_exit_code=None):
+def _manifest_configuration(manifest):
+    if not isinstance(manifest, dict):
+        raise ValueError("manifest root is not an object")
+    revisions = manifest.get("revisions", {})
+    model = manifest.get("model", {})
+    thresholds = manifest.get("thresholds", {})
+    design = manifest.get("evaluation_design", {})
+    for name, value in (
+            ("revisions", revisions), ("model", model),
+            ("thresholds", thresholds), ("evaluation_design", design)):
+        if not isinstance(value, dict):
+            raise ValueError(name + " is not an object")
+    selector = design.get("trial_selector", [])
+    if not isinstance(selector, list):
+        raise ValueError("trial_selector is not an array")
+    model_path = str(model.get("path", "")).strip()
+    matrix_file = str(manifest.get("matrix_file", "")).strip()
+    configuration = {
+        "vision_revision": str(revisions.get("vision", "")).strip(),
+        "navigation_revision": str(revisions.get("navigation", "")).strip(),
+        "model_path": os.path.realpath(model_path) if model_path else "",
+        "imgsz": _integer(thresholds.get("detector_imgsz")),
+        "class_profile": str(manifest.get("class_profile", "")).strip(),
+        "matrix_file": os.path.realpath(matrix_file) if matrix_file else "",
+        "seed": _integer(manifest.get("seed")),
+        "trial_selector": [str(value).strip() for value in selector],
+    }
+    if (not configuration["vision_revision"] or
+            not configuration["navigation_revision"] or
+            not configuration["model_path"] or configuration["imgsz"] <= 0 or
+            not configuration["class_profile"] or
+            not configuration["matrix_file"] or configuration["seed"] <= 0 or
+            any(not value for value in configuration["trial_selector"])):
+        raise ValueError("manifest repeat configuration is incomplete")
+    return configuration
+
+
+def _inspect_run(run_dir, source_index, execution_exit_code=None,
+                 binding_error="", execution_error=""):
     record = {
         "source_index": source_index,
         "run_dir": os.path.abspath(run_dir),
@@ -152,16 +283,33 @@ def _inspect_run(run_dir, source_index, execution_exit_code=None):
         "artifact_complete": False,
         "measurement_terminal": False,
         "metrics_eligible": False,
+        "measurement_eligible": False,
+        "source_pass_eligible": False,
+        "configuration_consistent": True,
+        "trial_set_consistent": True,
+        "configuration": None,
         "source_verdict": "FAIL",
         "errors": [],
+        "measurement_errors": [],
+        "verdict_errors": [],
         "trials": [],
         "processing_p95_ms": None,
         "map_p95_m": None,
     }
+    if binding_error:
+        record["measurement_errors"].append(str(binding_error))
+    if execution_error:
+        record["verdict_errors"].append(str(execution_error))
+    if execution_exit_code is not None and int(execution_exit_code) != 0:
+        record["verdict_errors"].append(
+            "sim_run_exit_nonzero:{}".format(int(execution_exit_code)))
     vsim_dir = os.path.join(record["run_dir"], "vsim04")
     if not os.path.isdir(record["run_dir"]):
-        record["errors"].append("run_dir_missing")
+        record["measurement_errors"].append("run_dir_missing")
         record["missing_artifacts"] = list(REQUIRED_ARTIFACTS)
+        record["errors"] = (
+            list(record["measurement_errors"]) +
+            list(record["verdict_errors"]))
         return record
     missing = [name for name in REQUIRED_ARTIFACTS
                if not os.path.isfile(os.path.join(vsim_dir, name))]
@@ -169,35 +317,54 @@ def _inspect_run(run_dir, source_index, execution_exit_code=None):
     record["artifact_complete"] = not missing
     summary_path = os.path.join(vsim_dir, "summary.json")
     if not os.path.isfile(summary_path):
-        record["errors"].append("summary_missing")
+        record["measurement_errors"].append("summary_missing")
+        record["errors"] = (
+            list(record["measurement_errors"]) +
+            list(record["verdict_errors"]))
         return record
     try:
         with open(summary_path, "r", encoding="utf-8") as stream:
             summary = json.load(stream)
     except (OSError, ValueError) as error:
-        record["errors"].append("summary_invalid:" + str(error))
+        record["measurement_errors"].append("summary_invalid:" + str(error))
+        record["errors"] = (
+            list(record["measurement_errors"]) +
+            list(record["verdict_errors"]))
         return record
     if not isinstance(summary, dict):
-        record["errors"].append("summary_root_not_object")
+        record["measurement_errors"].append("summary_root_not_object")
+        record["errors"] = (
+            list(record["measurement_errors"]) +
+            list(record["verdict_errors"]))
         return record
+
+    manifest_path = os.path.join(vsim_dir, "manifest.json")
+    try:
+        with open(manifest_path, "r", encoding="utf-8") as stream:
+            record["configuration"] = _manifest_configuration(
+                json.load(stream))
+    except (OSError, ValueError) as error:
+        record["measurement_errors"].append(
+            "manifest_configuration_invalid:" + str(error))
 
     record["summary_status"] = str(summary.get("status", "")) or "MISSING"
     performance = summary.get("performance_verdict", {})
     if not isinstance(performance, dict):
         performance = {}
-        record["errors"].append("performance_verdict_not_object")
+        record["measurement_errors"].append(
+            "performance_verdict_not_object")
     record["performance_verdict"] = str(
         performance.get("status", "")) or "MISSING"
     completeness = summary.get("completeness", {})
     if not isinstance(completeness, dict):
         completeness = {}
-        record["errors"].append("completeness_not_object")
+        record["measurement_errors"].append("completeness_not_object")
     trial_count = _integer(summary.get("trial_count"))
     completed_trial_count = _integer(summary.get("completed_trial_count"))
     trials = summary.get("trials", [])
     if not isinstance(trials, list):
         trials = []
-        record["errors"].append("trials_not_array")
+        record["measurement_errors"].append("trials_not_array")
     valid_trials = [trial for trial in trials if isinstance(trial, dict)]
     trial_ids = [str(trial.get("trial_id", "")).strip()
                  for trial in valid_trials]
@@ -217,78 +384,123 @@ def _inspect_run(run_dir, source_index, execution_exit_code=None):
         not completeness.get("validation_errors")
     )
     if summary.get("evaluation_id") != "V-SIM-04":
-        record["errors"].append("evaluation_id_invalid")
+        record["measurement_errors"].append("evaluation_id_invalid")
         record["measurement_terminal"] = False
     if not record["artifact_complete"]:
-        record["errors"].append("artifact_set_incomplete")
+        record["measurement_errors"].append("artifact_set_incomplete")
     if not record["measurement_terminal"]:
-        record["errors"].append("measurement_not_terminal")
+        record["measurement_errors"].append("measurement_not_terminal")
     if performance.get("hard_failure") is True:
-        record["errors"].append("performance_hard_failure")
-    if execution_exit_code is not None and int(execution_exit_code) != 0:
-        record["errors"].append(
-            "sim_run_exit_nonzero:{}".format(int(execution_exit_code)))
-
+        record["verdict_errors"].append("performance_hard_failure")
     metrics = summary.get("metrics", {})
     if not isinstance(metrics, dict):
         metrics = {}
-        record["errors"].append("metrics_not_object")
+        record["measurement_errors"].append("metrics_not_object")
     record["processing_p95_ms"] = _finite_number(
         metrics.get("p95_confirmation_processing_ms"))
     record["map_p95_m"] = _finite_number(metrics.get("p95_map_error_xy"))
     record["trials"] = valid_trials
     if any(trial.get("p_interrupt") is not None
            for trial in record["trials"] if isinstance(trial, dict)):
-        record["errors"].append("p_interrupt_not_null_in_visual_only_run")
-    record["metrics_eligible"] = (
+        record["measurement_errors"].append(
+            "p_interrupt_not_null_in_visual_only_run")
+    record["measurement_eligible"] = (
         record["artifact_complete"] and record["measurement_terminal"] and
-        not record["errors"])
-    if (record["metrics_eligible"] and
+        not record["measurement_errors"])
+    record["metrics_eligible"] = record["measurement_eligible"]
+    record["source_pass_eligible"] = (
+        record["measurement_eligible"] and not record["verdict_errors"])
+    record["errors"] = (
+        list(record["measurement_errors"]) + list(record["verdict_errors"]))
+    if (record["source_pass_eligible"] and
             record["summary_status"] == "MEASURED" and
             record["performance_verdict"] == "PASS" and
             performance.get("is_gate_pass") is True and
             performance.get("hard_failure") is not True):
         record["source_verdict"] = "PASS"
-    elif (record["metrics_eligible"] and
+    elif (record["source_pass_eligible"] and
           record["performance_verdict"] == "DIAGNOSTIC_ONLY"):
         record["source_verdict"] = "DIAGNOSTIC_ONLY"
-    elif record["metrics_eligible"]:
+    elif record["source_pass_eligible"]:
         record["source_verdict"] = record["performance_verdict"]
     return record
 
 
-def aggregate_repeat_runs(run_dirs, execution_exit_codes=None):
+def aggregate_repeat_runs(run_dirs, execution_exit_codes=None,
+                          binding_errors=None, execution_errors=None,
+                          expected_configuration=None):
     """Aggregate run directories without weakening source run verdicts."""
     if execution_exit_codes is None:
         execution_exit_codes = [None] * len(run_dirs)
     if len(execution_exit_codes) != len(run_dirs):
         raise ValueError("execution_exit_codes must match run_dirs")
-    sources = [_inspect_run(path, index + 1, execution_exit_codes[index])
+    binding_errors = binding_errors or [""] * len(run_dirs)
+    execution_errors = execution_errors or [""] * len(run_dirs)
+    if (len(binding_errors) != len(run_dirs) or
+            len(execution_errors) != len(run_dirs)):
+        raise ValueError("run error lists must match run_dirs")
+    sources = [_inspect_run(
+        path, index + 1, execution_exit_codes[index], binding_errors[index],
+        execution_errors[index])
                for index, path in enumerate(run_dirs)]
     seen_run_dirs = set()
     for source in sources:
         if source["run_dir"] in seen_run_dirs:
-            source["errors"].append("duplicate_run_dir")
+            source["measurement_errors"].append("duplicate_run_dir")
+            source["errors"] = (
+                list(source["measurement_errors"]) +
+                list(source["verdict_errors"]))
+            source["measurement_eligible"] = False
             source["metrics_eligible"] = False
+            source["source_pass_eligible"] = False
             source["source_verdict"] = "FAIL"
         seen_run_dirs.add(source["run_dir"])
-    expected_trial_ids = None
+    measured_configurations = {
+        json.dumps(source["configuration"], sort_keys=True)
+        for source in sources
+        if source["measurement_eligible"] and source["configuration"] is not None
+    }
+    expected_serialized = (json.dumps(expected_configuration, sort_keys=True)
+                           if expected_configuration is not None else None)
+    configuration_mismatch = len(measured_configurations) > 1
+    if (expected_serialized is not None and measured_configurations and
+            measured_configurations != {expected_serialized}):
+        configuration_mismatch = True
+    if configuration_mismatch:
+        for source in sources:
+            if source["measurement_eligible"]:
+                source["configuration_consistent"] = False
+                source["source_pass_eligible"] = False
+                source["source_verdict"] = "FAIL"
+                source["verdict_errors"].append("configuration_mismatch")
+                source["errors"] = (
+                    list(source["measurement_errors"]) +
+                    list(source["verdict_errors"]))
+    trial_sets = {
+        tuple(sorted(str(trial.get("trial_id", "")).strip()
+                     for trial in source["trials"]))
+        for source in sources if source["measurement_eligible"]
+    }
+    if len(trial_sets) > 1:
+        for source in sources:
+            if source["measurement_eligible"]:
+                source["trial_set_consistent"] = False
+                source["source_pass_eligible"] = False
+                source["source_verdict"] = "FAIL"
+                source["verdict_errors"].append("trial_set_mismatch")
+                source["errors"] = (
+                    list(source["measurement_errors"]) +
+                    list(source["verdict_errors"]))
     for source in sources:
-        if not source["metrics_eligible"]:
-            continue
-        source_trial_ids = {
-            str(trial.get("trial_id", "")).strip()
-            for trial in source["trials"]
-        }
-        if expected_trial_ids is None:
-            expected_trial_ids = source_trial_ids
-        elif source_trial_ids != expected_trial_ids:
-            source["errors"].append("trial_set_mismatch")
-            source["metrics_eligible"] = False
-            source["source_verdict"] = "FAIL"
+        source["metrics_eligible"] = (
+            source["measurement_eligible"] and
+            source["configuration_consistent"] and
+            source["trial_set_consistent"])
     by_trial = {}
     for source in sources:
-        if not source["metrics_eligible"]:
+        if (not source["measurement_eligible"] or
+                not source["configuration_consistent"] or
+                not source["trial_set_consistent"]):
             continue
         for trial in source["trials"]:
             trial_id = str(trial.get("trial_id", "")).strip()
@@ -349,6 +561,10 @@ def aggregate_repeat_runs(run_dirs, execution_exit_codes=None):
 
     all_pass = bool(sources) and all(
         source["source_verdict"] == "PASS" for source in sources)
+    configuration_verified = (
+        bool(measured_configurations) and not configuration_mismatch and
+        (expected_serialized is None or
+         measured_configurations == {expected_serialized}))
     return {
         "schema_version": 1,
         "evaluation_id": "V-SIM-04-repeat-aggregate",
@@ -356,11 +572,26 @@ def aggregate_repeat_runs(run_dirs, execution_exit_codes=None):
         "is_gate_pass": all_pass,
         "source_run_count": len(sources),
         "source_runs": sources,
+        "configuration_consistent": not configuration_mismatch,
+        "configuration_verified": configuration_verified,
+        "expected_configuration": expected_configuration,
+        "seeds": sorted({
+            source["configuration"]["seed"] for source in sources
+            if source["configuration"] is not None
+        }),
         "trials": [by_trial[key] for key in sorted(by_trial)],
+        "repeats_are_multi_seed": False,
         "definitions": {
             "source_verdict": (
                 "PASS requires MEASURED, complete six-artifact set, terminal "
                 "measurement, and performance PASS; DIAGNOSTIC_ONLY is not PASS."),
+            "measurement_eligible": (
+                "The six-artifact schema and terminal trial measurement are "
+                "complete. Performance or sim_run failure does not erase "
+                "these diagnostic samples."),
+            "source_pass_eligible": (
+                "Measurement is eligible and no execution, hard-performance, "
+                "configuration, or trial-set error blocks verdict evaluation."),
             "p_interrupt": (
                 "Always null in visual-only repeats; navigation acceptance is "
                 "required to measure SEARCH-to-APPROACH interruption."),
@@ -369,6 +600,10 @@ def aggregate_repeat_runs(run_dirs, execution_exit_codes=None):
                 "containing the trial."),
             "map_p95_samples_m": (
                 "Per-trial p95_map_error_xy values across source runs."),
+            "seed": (
+                "A fixed matrix/design identifier. Repeats reuse the same "
+                "seed and are runtime repeats, not independent multi-seed "
+                "samples."),
         },
     }
 
@@ -408,14 +643,23 @@ def write_aggregate_outputs(aggregate, output_dir):
         stream.write("- 总判定：`{}`\n".format(aggregate["status"]))
         stream.write("- 源 run 数：{}\n".format(
             aggregate["source_run_count"]))
+        stream.write("- 配置元组已核验：`{}`\n".format(
+            aggregate["configuration_verified"]))
+        stream.write("- repeats 是否为多 seed：`false`\n")
         stream.write("- `P_interrupt`：`null`（visual-only）\n\n")
         stream.write("## 源 run 判定\n\n")
-        stream.write("| # | verdict | summary | performance | run |\n")
-        stream.write("|---:|---|---|---|---|\n")
+        stream.write("| # | verdict | measured | summary | performance | "
+                     "seed | vision/nav | run |\n")
+        stream.write("|---:|---|---|---|---|---:|---|---|\n")
         for source in aggregate["source_runs"]:
-            stream.write("| {} | {} | {} | {} | `{}` |\n".format(
+            configuration = source.get("configuration") or {}
+            stream.write("| {} | {} | {} | {} | {} | {} | `{}/{}` | `{}` |\n".format(
                 source["source_index"], source["source_verdict"],
+                source["measurement_eligible"],
                 source["summary_status"], source["performance_verdict"],
+                configuration.get("seed"),
+                configuration.get("vision_revision", ""),
+                configuration.get("navigation_revision", ""),
                 source["run_dir"]))
         stream.write("\n## Trial 聚合\n\n")
         stream.write("| trial | completed/runs | P_confirm | P_selected | "
