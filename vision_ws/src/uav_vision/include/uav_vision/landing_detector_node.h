@@ -66,6 +66,7 @@ private:
   int morphology_kernel_size_;
   int min_contour_points_;
   double aspect_ratio_threshold_;
+  double min_ellipse_fill_ratio_;
   double radius_min_;
   double radius_max_;
   bool enable_h_structure_check_;

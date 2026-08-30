@@ -19,6 +19,8 @@ landing_morphology_kernel_size: 7
 # 椭圆质量
 landing_min_contour_points: 15
 landing_aspect_ratio_threshold: 0.85
+# 外圈轮廓面积 / 拟合椭圆面积；拒绝仅靠残弧拟合出的“完整圆环”。
+landing_min_ellipse_fill_ratio: 0.70
 landing_radius_min: 15.0
 landing_radius_max: 300.0
 

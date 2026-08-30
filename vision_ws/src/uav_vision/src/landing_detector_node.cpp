@@ -44,6 +44,7 @@ void LandingDetectorNode::loadParameters()
   nh_.param("landing_morphology_kernel_size", morphology_kernel_size_, 7);
   nh_.param("landing_min_contour_points", min_contour_points_, 15);
   nh_.param("landing_aspect_ratio_threshold", aspect_ratio_threshold_, 0.85);
+  nh_.param("landing_min_ellipse_fill_ratio", min_ellipse_fill_ratio_, 0.70);
   nh_.param("landing_radius_min", radius_min_, 15.0);
   nh_.param("landing_radius_max", radius_max_, 300.0);
   nh_.param("landing_enable_h_structure_check", enable_h_structure_check_, true);
@@ -200,6 +201,10 @@ bool LandingDetectorNode::detectLandingPad(
 
     double ar = std::min(w, h) / std::max(w, h);
     if (ar < aspect_ratio_threshold_) continue;
+
+    const double ellipse_area = CV_PI * w * h * 0.25;
+    const double ellipse_fill_ratio = area / std::max(ellipse_area, 1.0);
+    if (ellipse_fill_ratio < min_ellipse_fill_ratio_) continue;
 
     double r = (w + h) / 4.0;
     if (r < radius_min_ || r > radius_max_) continue;
