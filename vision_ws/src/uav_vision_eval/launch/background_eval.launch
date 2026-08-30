@@ -10,6 +10,8 @@
   <arg name="camera_z" default="2.0" />
   <arg name="camera_yaw" default="0.0" />
   <arg name="evaluation_seed" default="-1" />
+  <arg name="required_scoring_source" default="target_detector" />
+  <arg name="vision_default_align_mode" default="disabled" />
   <include file="$(find uav_vision_eval)/launch/toudi3_static_eval.launch">
     <arg name="scenario_file" value="$(find uav_vision_eval)/config/scenarios/background_only.yaml" />
     <arg name="camera_x" value="$(arg camera_x)" />
@@ -29,5 +31,7 @@
     <arg name="max_false_positives" value="0" />
     <arg name="require_pixel_error" value="false" />
     <arg name="require_map_error" value="false" />
+    <arg name="required_scoring_source" value="$(arg required_scoring_source)" />
+    <arg name="vision_default_align_mode" value="$(arg vision_default_align_mode)" />
   </include>
 </launch>

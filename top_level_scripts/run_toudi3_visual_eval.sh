@@ -79,6 +79,16 @@ case "${scenario}" in
     camera_y="${camera_y:--4.2}"
     camera_z="${camera_z:-2.0}"
     ;;
+  background_landing)
+    launch_file="background_eval.launch"
+    extra_args+=(
+      required_scoring_source:=landing_detector
+      vision_default_align_mode:=landing
+    )
+    camera_x="${camera_x:-4.2}"
+    camera_y="${camera_y:--4.2}"
+    camera_z="${camera_z:-2.0}"
+    ;;
   landing_h)
     launch_file="landing_h_eval.launch"
     camera_x="${camera_x:--0.493412}"
