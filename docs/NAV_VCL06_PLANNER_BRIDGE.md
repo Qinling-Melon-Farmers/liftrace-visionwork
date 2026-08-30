@@ -2,7 +2,7 @@
 
 ## 当前交付边界
 
-本分支把导航任务层的 `NavigationDecision` 转成可审计的 planner motion intent，并把
+本分支把导航任务层的 `NavigationDecision` 转成单一 planner motion 生命周期，并把
 `plan_manage/PlannerStatus + nav_msgs/Odometry` 归约成同一 executor 的
 `NavigationResult`。它不包含 Servo、PWM、解锁、释放或降落实现，也不把
 `TRAJECTORY_FINISHED` 直接当作到达。
@@ -27,15 +27,14 @@ cancel/hold、目标事务或降落链已经具备。
   Manager 尽早冻结唯一 `executor_id`；目标阶段后续结果也必须由同一协调器代理。
 - decision receipt 与 source stamp 均采用排他 deadline；等于 deadline 即过期。
 - 旧 decision、未知旧 goal telemetry、planner event 回退和幂等重复均无副作用；仅当前
-  decision/goal 的身份或生命周期冲突才 fail-closed。
+  当前 decision/goal 的身份或生命周期冲突只终止当前 action，不锁死 bridge 进程。
 - 只有当前目标先后见到 `ACCEPTED`、`TRAJECTORY_READY`、`TRAJECTORY_FINISHED`，且同
   mission frame 的新鲜 odom 对 effective goal 同时满足 3D 距离、速度和连续驻留，才产生
   motion success。
 - SEARCH、RESUME、RETURN_HOME 到达产生终态 `SUCCEEDED/PLANNER`。
-- APPROACH 到达只产生非终态 `PROGRESS/PLANNER` 和 target-transaction intent；绝不伪造
+- APPROACH 到达只产生非终态 `PROGRESS/PLANNER` 和 `TARGET_TRANSACTION` handoff；绝不伪造
   payload commit 或目标成功。
-- LAND 只产生 landing intent；ABORT/HOLD 只产生 safety-stop intent，不发布替代 planner
-  goal。
+- LAND/HOLD/ABORT 只报告明确 handoff 状态，不模拟执行、不发布替代 planner goal。
 
 ## 尚未解除的 live Gate
 
@@ -53,7 +52,7 @@ live goal 开关只供明确配置的规划运动联调使用。
 - 到达证据的 odom `header.frame_id` 必须实际等于 `camera_init`。MAVROS/仿真里程计若不是
   该 frame，必须先接显式坐标转换节点，不能只 remap 话题名。
 - `PlannerStatus.event_seq` 没有 planner 进程实例 ID；回退或未知旧 goal telemetry 会被忽略，
-  但当前 goal 的同序号内容冲突仍会闭锁当前执行。
+  但当前 goal 的同序号内容冲突会生成当前 action 的 typed FAILED；后续新 decision 仍可执行。
 
 ## 导航—视觉对齐边界
 

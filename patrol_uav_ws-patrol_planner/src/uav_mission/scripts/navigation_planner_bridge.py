@@ -20,18 +20,13 @@ from std_msgs.msg import String
 
 from uav_mission.msg import NavigationDecision, NavigationResult
 from uav_mission.planner_execution import (
-    ABORT_SAFE,
-    CANCEL_PLANNER_GOAL,
-    LAND_EXTERNAL,
     MotionDecision,
     MotionGoal,
     OdomSample,
-    PUBLISH_PLANNER_GOAL,
     PlannerMotionConfig,
     PlannerMotionExecutor,
     PlannerStatusEvent,
     SequencedMotionGoal,
-    START_TARGET_TRANSACTION,
     TargetIdentity,
 )
 
@@ -39,12 +34,6 @@ from uav_mission.planner_execution import (
 LIVE_PLANNER_GOAL_TOPIC = "/fastplanner/goal"
 MOTION_COMMANDS = frozenset((
     "SEARCH", "RESUME", "APPROACH", "RETURN_HOME",
-))
-DIAGNOSTIC_ONLY_INTENTS = frozenset((
-    CANCEL_PLANNER_GOAL,
-    START_TARGET_TRANSACTION,
-    LAND_EXTERNAL,
-    ABORT_SAFE,
 ))
 COMMAND_NAMES = {
     NavigationDecision.SEARCH: "SEARCH",
@@ -379,22 +368,20 @@ class NavigationPlannerBridge:
             vz=velocity.z,
         )
 
-    def _publish_planner_goal(self, intent, decision):
+    def _publish_planner_goal(self, decision):
         if not self._output_enabled:
             raise RuntimeError("planner output gate is closed")
         if self._goal_pub is None:
             raise RuntimeError("live planner publisher is not advertised")
-        if intent.decision_seq != decision.decision_seq:
-            raise RuntimeError("planner intent identity mismatch")
-        if intent.goal is None:
+        if decision.goal is None:
             raise RuntimeError("planner intent has no goal")
         message = PoseStamped()
         message.header.seq = int(decision.decision_seq)
         message.header.stamp = _ns_to_stamp(decision.issued_at_ns)
-        message.header.frame_id = intent.goal.frame_id
-        message.pose.position.x = intent.goal.x
-        message.pose.position.y = intent.goal.y
-        message.pose.position.z = intent.goal.z
+        message.header.frame_id = decision.goal.frame_id
+        message.pose.position.x = decision.goal.x
+        message.pose.position.y = decision.goal.y
+        message.pose.position.z = decision.goal.z
         message.pose.orientation.w = 1.0
         self._goal_pub.publish(message)
 
@@ -427,23 +414,15 @@ class NavigationPlannerBridge:
         return message
 
     def _apply_outcome(self, outcome, submitted_decision=None):
-        goal_published = False
-        diagnostics = []
-        for intent in outcome.intents:
-            if intent.kind == PUBLISH_PLANNER_GOAL:
-                if submitted_decision is None:
-                    raise RuntimeError("goal intent lacks submitted decision")
-                self._publish_planner_goal(intent, submitted_decision)
-                goal_published = True
-            elif intent.kind in DIAGNOSTIC_ONLY_INTENTS:
-                diagnostics.append({
-                    "kind": intent.kind,
-                    "decision_seq": intent.decision_seq,
-                    "reason": intent.reason,
-                })
-            else:
-                raise RuntimeError("unknown executor intent: %s" % intent.kind)
-        self._last_diagnostic_intents = diagnostics
+        goal_published = outcome.planner_goal is not None
+        if goal_published:
+            if submitted_decision != outcome.planner_goal:
+                raise RuntimeError("planner goal identity mismatch")
+            self._publish_planner_goal(outcome.planner_goal)
+        self._last_diagnostic_intents = ([{
+            "handoff": outcome.handoff,
+            "reason": outcome.reason,
+        }] if outcome.handoff else [])
 
         for event in outcome.events:
             if (event.status == "ACCEPTED" and event.stage == "DISPATCH" and
@@ -451,9 +430,6 @@ class NavigationPlannerBridge:
                 raise RuntimeError("dispatch acceptance precedes goal publish")
             self._result_pub.publish(self._result_message(event))
         self._last_reason = outcome.reason
-        if outcome.snapshot.faulted:
-            self._output_enabled = False
-            self._gate_reason = outcome.snapshot.fault_reason
 
     def _handle_callback_exception(self, source, error):
         self._adapter_faulted = True

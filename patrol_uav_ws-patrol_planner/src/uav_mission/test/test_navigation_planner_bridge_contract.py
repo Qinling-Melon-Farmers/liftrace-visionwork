@@ -51,11 +51,8 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
             self.source)
         self.assertIn('return True, "live_planner_output_enabled"', self.source)
         self.assertIn('"live_goal_output_supported": True', self.source)
-        self.assertIn("DIAGNOSTIC_ONLY_INTENTS", self.source)
-        self.assertIn("CANCEL_PLANNER_GOAL", self.source)
-        self.assertIn("START_TARGET_TRANSACTION", self.source)
-        self.assertIn("LAND_EXTERNAL", self.source)
-        self.assertIn("ABORT_SAFE", self.source)
+        self.assertIn("outcome.handoff", self.source)
+        self.assertNotIn("DIAGNOSTIC_ONLY_INTENTS", self.source)
 
     def test_goal_is_published_before_dispatch_acceptance(self):
         apply_start = self.source.index("def _apply_outcome")

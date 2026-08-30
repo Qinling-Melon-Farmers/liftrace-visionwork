@@ -1,9 +1,8 @@
 """Deterministic, ROS-free execution policy for navigation motion decisions.
 
-The class in this module deliberately stops at intent generation.  A ROS
-adapter may translate ``PUBLISH_PLANNER_GOAL`` into ``/fastplanner/goal`` and
-may hand ``LAND_EXTERNAL``/``ABORT_SAFE``/``START_TARGET_TRANSACTION`` to
-separate, safety-reviewed executors.  This module never imports ROS and never
+The class in this module deliberately stops at planner motion. A ROS adapter
+publishes its selected goal and exposes LAND/HOLD/ABORT/target-stage handoff
+states to separate executors. This module never imports ROS and never
 operates a flight mode, payload mechanism or actuator.
 
 All clocks and source stamps are integer nanoseconds.  Decision identity is
@@ -34,13 +33,6 @@ PLANNER_STATUSES = (
     "CANCELLED",
 )
 _PLANNER_STATUS_BY_VALUE = dict(enumerate(PLANNER_STATUSES))
-
-PUBLISH_PLANNER_GOAL = "PUBLISH_PLANNER_GOAL"
-CANCEL_PLANNER_GOAL = "CANCEL_PLANNER_GOAL"
-START_TARGET_TRANSACTION = "START_TARGET_TRANSACTION"
-LAND_EXTERNAL = "LAND_EXTERNAL"
-ABORT_SAFE = "ABORT_SAFE"
-
 
 def _integer(name: str, value: int, minimum: int = 0) -> int:
     if isinstance(value, bool) or not isinstance(value, Integral):
@@ -268,17 +260,6 @@ class PlannerMotionConfig:
 
 
 @dataclass(frozen=True)
-class MotionIntent:
-    kind: str
-    mission_id: str
-    decision_seq: int
-    command: str
-    reason: str
-    goal: Optional[MotionGoal] = None
-    target: Optional[TargetIdentity] = None
-
-
-@dataclass(frozen=True)
 class ExecutionEvent:
     mission_id: str
     executor_id: str
@@ -324,9 +305,10 @@ class ExecutorSnapshot:
 class ExecutorOutcome:
     accepted: bool
     reason: str
-    intents: Tuple[MotionIntent, ...]
     events: Tuple[ExecutionEvent, ...]
     snapshot: ExecutorSnapshot
+    planner_goal: Optional[MotionDecision] = None
+    handoff: str = ""
 
 
 @dataclass
@@ -347,7 +329,7 @@ class _GoalLifecycle:
 
 
 class PlannerMotionExecutor:
-    """Reduce decisions, planner facts and odometry into safe intents/results."""
+    """Reduce one active motion, planner facts and odometry into results."""
 
     def __init__(self, config: PlannerMotionConfig = PlannerMotionConfig()):
         if not isinstance(config, PlannerMotionConfig):
@@ -364,14 +346,12 @@ class PlannerMotionExecutor:
         self._last_odom: Optional[OdomSample] = None
         self._active: Optional[_GoalLifecycle] = None
         self._awaiting_cancel_goal_seq = 0
-        self._faulted = False
-        self._fault_reason = ""
 
     def snapshot(self) -> ExecutorSnapshot:
         active = self._active
         return ExecutorSnapshot(
-            faulted=self._faulted,
-            fault_reason=self._fault_reason,
+            faulted=False,
+            fault_reason="",
             mission_id=self._mission_id,
             last_decision_seq=self._last_decision_seq,
             active_decision_seq=(active.decision.decision_seq if active else 0),
@@ -388,26 +368,16 @@ class PlannerMotionExecutor:
         )
 
     def _outcome(self, accepted: bool, reason: str,
-                 intents: Tuple[MotionIntent, ...] = (),
-                 events: Tuple[ExecutionEvent, ...] = ()) -> ExecutorOutcome:
+                 events: Tuple[ExecutionEvent, ...] = (),
+                 planner_goal: Optional[MotionDecision] = None,
+                 handoff: str = "") -> ExecutorOutcome:
         return ExecutorOutcome(
             accepted=accepted,
             reason=reason,
-            intents=tuple(intents),
             events=tuple(events),
             snapshot=self.snapshot(),
-        )
-
-    def _intent(self, kind: str, decision: Optional[MotionDecision],
-                reason: str) -> MotionIntent:
-        return MotionIntent(
-            kind=kind,
-            mission_id=(decision.mission_id if decision else self._mission_id),
-            decision_seq=(decision.decision_seq if decision else 0),
-            command=(decision.command if decision else "ABORT"),
-            reason=reason,
-            goal=(decision.goal if decision else None),
-            target=(decision.target if decision else None),
+            planner_goal=planner_goal,
+            handoff=handoff,
         )
 
     def _result(self, state: _GoalLifecycle, now_ns: int, status: str,
@@ -449,10 +419,6 @@ class PlannerMotionExecutor:
         return None
 
     def _fail_closed(self, reason: str) -> ExecutorOutcome:
-        if self._faulted:
-            return self._outcome(False, self._fault_reason)
-        self._faulted = True
-        self._fault_reason = reason
         events = ()
         active = self._active
         if (active is not None and not active.terminal and
@@ -468,13 +434,8 @@ class PlannerMotionExecutor:
                 False,
                 reason,
             ),)
-        return self._outcome(
-            False,
-            reason,
-            intents=(self._intent(ABORT_SAFE, active.decision if active else None,
-                                  reason),),
-            events=events,
-        )
+        return self._outcome(False, reason, events=events,
+                             handoff="STOP_REQUIRED" if active else "")
 
     def _expire_if_due(self, now_ns: int) -> Optional[ExecutorOutcome]:
         active = self._active
@@ -493,14 +454,8 @@ class PlannerMotionExecutor:
             active.decision.command in ("SEARCH", "RESUME", "APPROACH"),
             "decision_deadline_reached",
         )
-        return self._outcome(
-            True,
-            "decision_timed_out",
-            intents=(self._intent(
-                CANCEL_PLANNER_GOAL, active.decision,
-                "decision_deadline_reached"),),
-            events=(event,),
-        )
+        return self._outcome(True, "decision_timed_out", events=(event,),
+                             handoff="CANCEL_REQUIRED")
 
     def _expire_acceptance_if_due(
             self, now_ns: int) -> Optional[ExecutorOutcome]:
@@ -522,18 +477,10 @@ class PlannerMotionExecutor:
             active.decision.command in ("SEARCH", "RESUME", "APPROACH"),
             "planner_accept_timeout",
         )
-        return self._outcome(
-            True,
-            "planner_accept_timed_out",
-            intents=(self._intent(
-                CANCEL_PLANNER_GOAL, active.decision,
-                "planner_accept_timeout"),),
-            events=(event,),
-        )
+        return self._outcome(True, "planner_accept_timed_out", events=(event,),
+                             handoff="CANCEL_REQUIRED")
 
     def _prepare(self, now_ns: int) -> Optional[ExecutorOutcome]:
-        if self._faulted:
-            return self._outcome(False, self._fault_reason)
         invalid = self._validate_now(now_ns)
         if invalid is not None:
             return invalid
@@ -561,8 +508,6 @@ class PlannerMotionExecutor:
 
         if not isinstance(decision, MotionDecision):
             raise TypeError("decision must be MotionDecision")
-        if self._faulted:
-            return self._outcome(False, self._fault_reason)
         invalid_now = self._validate_now(now_ns)
         if invalid_now is not None:
             return invalid_now
@@ -631,21 +576,11 @@ class PlannerMotionExecutor:
                 False,
                 "planner_goal_dispatched",
             )
-            return self._outcome(
-                True,
-                "planner_goal_intent",
-                intents=(self._intent(
-                    PUBLISH_PLANNER_GOAL, decision,
-                    "accepted_navigation_decision"),),
-                events=(accepted_event,),
-            )
-        intent_kind = LAND_EXTERNAL if decision.command == "LAND" else ABORT_SAFE
-        return self._outcome(
-            True,
-            "external_command_intent",
-            intents=(self._intent(
-                intent_kind, decision, "external_executor_required"),),
-        )
+            return self._outcome(True, "planner_goal_intent",
+                                 events=(accepted_event,),
+                                 planner_goal=decision)
+        return self._outcome(True, "external_command_handoff",
+                             handoff=decision.command)
 
     def apply_planner_status(self, event: PlannerStatusEvent,
                              now_ns: int) -> ExecutorOutcome:
@@ -776,15 +711,8 @@ class PlannerMotionExecutor:
                 False,
                 "approach_arrival_confirmed",
             )
-            return self._outcome(
-                True,
-                "target_transaction_intent",
-                intents=(self._intent(
-                    START_TARGET_TRANSACTION,
-                    decision,
-                    "approach_arrival_confirmed"),),
-                events=(event,),
-            )
+            return self._outcome(True, "target_transaction_handoff",
+                                 events=(event,), handoff="TARGET_TRANSACTION")
         state.terminal = True
         state.retired = True
         event = self._result(
@@ -888,21 +816,15 @@ class PlannerMotionExecutor:
 
 
 __all__ = [
-    "ABORT_SAFE",
-    "CANCEL_PLANNER_GOAL",
     "ExecutionEvent",
     "ExecutorOutcome",
     "ExecutorSnapshot",
-    "LAND_EXTERNAL",
     "MotionDecision",
     "MotionGoal",
-    "MotionIntent",
     "OdomSample",
-    "PUBLISH_PLANNER_GOAL",
     "PlannerMotionConfig",
     "PlannerMotionExecutor",
     "PlannerStatusEvent",
     "SequencedMotionGoal",
-    "START_TARGET_TRANSACTION",
     "TargetIdentity",
 ]
