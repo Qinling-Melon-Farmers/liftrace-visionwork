@@ -176,3 +176,58 @@ MAVROS、旧控制、`actuator_pwm` 或真实投递。历史合并态
 上述 formal/static/sparse 均为单 seed 一次覆盖，不能据此估计概率；visual-only 的
 P_interrupt 仍为 `null`。当前先对 raw classifier/target-memory admission 边界做重复和尺度归因，
 再执行 10 min，采用门槛冻结前不扩 30-seed。
+
+## 边界点独立重复与跨 run 聚合
+
+`run_vsim04_repeats.sh` 用于重复验证单个边界 trial。每次重复都单独调用
+`top_level_scripts/sim_run.sh`，使用唯一 scene 名并等待该 Gazebo 会话结束后再启动下一次；
+不会在一个 Gazebo 会话内伪造重复样本。模型路径、矩阵、输入尺寸和视觉/导航 revision 都必须
+显式给出。wrapper 自行 source `/opt/ros/noetic/setup.bash` 和当前 worktree 的
+`vision_ws/devel/setup.bash`，调用者不需要预先 source；若当前 worktree 尚未完成视觉工作区
+编译、overlay 不存在，wrapper 会在启动任何仿真前明确非零退出。先执行：
+
+```bash
+source /opt/ros/noetic/setup.bash
+cd vision_ws
+catkin_make -DCATKIN_WHITELIST_PACKAGES=uav_vision\;uav_vision_eval -j1
+cd ..
+```
+
+然后运行：
+
+```bash
+bash top_level_scripts/run_vsim04_repeats.sh \
+  --repeats 3 \
+  --trial-selector static_pillbox_h3p6 \
+  --matrix vision_ws/src/uav_vision_eval/config/vsim04_operating_surface_matrix.yaml \
+  --imgsz 640 \
+  --model-path <best.pt> \
+  --vision-revision <vision_commit> \
+  --navigation-revision <navigation_commit>
+```
+
+先加 `--dry-run` 可只打印三条完整命令、独立 scene 和环境元数据，不启动 ROS/Gazebo。实际执行
+会尽量完成全部 repeats，即使中间一次失败也保留其 run，再输出：
+
+逗号分隔的多 trial selector 会先生成可读短前缀，再限制为 48 字符并附加 8 位 SHA-256
+短哈希；因此 6 个以上边界 ID 不会把 scene/path 无界拉长，截断前缀相同的 selector 也不会
+静默生成同名 scene。
+
+- `repeat_summary.json`：每个源 run 的六产物、测量终态和算法 verdict，以及逐 trial 聚合；
+- `repeat_trials.csv`：完成数、P_confirm/P_selected、failure_stage 分布、processing/map P95 样本；
+- `repeat_report.md`：便于组间 review 的 Markdown 摘要。
+
+聚合层再次检查六项产物、`run_complete`、完成 trial 数和视觉-only 的
+`P_interrupt=null`。只有所有源 run 都为正式 `MEASURED + PASS` 时总判定才是 PASS；
+`DIAGNOSTIC_ONLY`、`NOT_GATED`、缺产物及非终态均不会被命令成功掩盖，聚合命令返回非零。
+因此单 trial diagnostic 重复即使测量完整，预期总判定仍是 FAIL/DIAGNOSTIC_ONLY，而不是 Gate
+PASS。
+
+已有 run 也可在不启动 Gazebo 的情况下重新聚合：
+
+```bash
+PYTHONPATH=vision_ws/src/uav_vision_eval/src \
+python3 vision_ws/src/uav_vision_eval/scripts/vsim04_repeat_aggregate.py \
+  --output-dir /tmp/vsim04-repeat-aggregate \
+  logs/<run-1> logs/<run-2> logs/<run-3>
+```
