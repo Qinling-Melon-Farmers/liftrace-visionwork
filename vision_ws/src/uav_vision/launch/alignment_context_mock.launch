@@ -1,0 +1,23 @@
+<launch>
+  <arg name="run_assertion" default="true" />
+
+  <node pkg="uav_vision" type="drop_aligner.py"
+        name="alignment_context_drop_aligner" output="screen">
+    <param name="default_mode" value="drop_circle" />
+    <param name="use_camera_info" value="false" />
+    <param name="target_center_x" value="320.0" />
+    <param name="target_center_y" value="240.0" />
+    <param name="max_offset_px" value="30.0" />
+    <param name="stable_frames" value="3" />
+    <param name="target_max_age" value="0.5" />
+    <param name="class_profile" value="r2026" />
+    <param name="require_alignment_context" value="true" />
+    <param name="alignment_context_max_age" value="0.25" />
+    <param name="alignment_context_watchdog_rate" value="20.0" />
+    <rosparam param="allowed_alignment_commands">[2]</rosparam>
+  </node>
+
+  <node if="$(arg run_assertion)" pkg="uav_vision"
+        type="alignment_context_assertion.py"
+        name="alignment_context_assertion" output="screen" required="true" />
+</launch>

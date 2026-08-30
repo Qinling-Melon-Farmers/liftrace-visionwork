@@ -47,10 +47,12 @@ detectors
   -> /uav_vision/selected_target
 
 /uav_vision/align_mode + selected_target
+  + /uav_vision/alignment_target_context (VCL06 strict mode, optional)
   -> drop_aligner
   -> /uav_vision/drop_offset
   -> /uav_vision/drop_ready
   -> /uav_vision/release_evidence
+  -> /uav_vision/release_evidence_context
 ```
 
 输入默认值来自 `config/default.yaml`：
@@ -110,6 +112,22 @@ H 只在 `landing`，红十字只在 `drop_cross`，标准靶/圆环只在 `drop
 聚合目标身份、确认状态、几何/中心验证、观测年龄、对准、稳定帧和拒绝原因。它仍是视觉
 证据，不读取飞行速度、机构或规则互锁，也不等于任务/安全层最终 `release_permission`。
 
+### `AlignmentTargetContext` / `ReleaseEvidenceContext`
+
+VCL06 coordinator 可发布不依赖 `uav_mission` 的冻结上下文。其 command 常量与
+`NavigationDecision v1` 同值，完整围栏为
+`mission_id + decision_seq + semantic_target_id + semantic_target_first_seen + attempt + payload_slot`；
+`has_target` 显式区分无目标与合法 `target_id=0`。默认 `require_alignment_context=false`，旧
+`/uav_vision/release_evidence` 的类型、topic 和行为不变；正式接线显式开启 strict 后，缺失、
+失鲜、错误 profile/command、deadline 到达或冻结字段变化都会清零稳定帧并 fail-closed。
+strict watchdog 不依赖目标数组继续到达；目标流中断后，即使 coordinator 仍续租 context，当前
+几何观测超龄也会主动发布无效证据并撤销 `drop_ready`，context 失鲜/deadline 到达同样处理。
+
+标准投放区的语义候选 ID 与蓝环几何 ID 不要求相同，必须使用冻结语义 `target_pose` 与当前
+圆环地图点做同 frame 距离关联；红十字按 `id + first_seen` 精确实例关联。
+`ReleaseEvidenceContext` 内嵌旧证据并回显 context source/header、decision/语义身份、实际几何
+身份、地图位姿、关联距离与 `context_valid/context_reason`，供导航/安全层做可审计关联。
+
 ## 4. launch
 
 | launch | 用途 |
@@ -128,6 +146,7 @@ H 只在 `landing`，红十字只在 `drop_cross`，标准靶/圆环只在 `drop
 | `phase_d_mock_patrol_regression.launch` | 上述接线的自动 assertion |
 | `phase_d_mode_mock.launch` | align mode 行为测试 |
 | `circle_geometry_mock.launch` | 圆环坐标恢复测试 |
+| `alignment_context_mock.launch` | VCL06 冻结上下文、围栏、租约和几何身份 assertion |
 
 评测场景、真值、自动报告和 shadow 入口位于 `uav_vision_eval`。一键运行当前八个固定视觉
 场景：
