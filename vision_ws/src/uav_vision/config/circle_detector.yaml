@@ -20,7 +20,8 @@ circle_reject_border_clipped: true
 # 预处理
 circle_blur_kernel_size: 5
 circle_enable_morphology: true
-circle_morphology_kernel_size: 15
+# 640x512 输入下 3.0-3.6 m 标准靶蓝环约 10 px 厚；15 px 开运算会清空薄环。
+circle_morphology_kernel_size: 7
 
 # 图像缩放
 circle_enable_resize: true

@@ -17,10 +17,10 @@ class CircleGeometryAssertion:
     def _on_detections(self, msg):
         circles = sorted([d for d in msg.detections if d.class_name == "circle"],
                          key=lambda d: d.center_px.x)
-        if len(circles) < 2:
+        if len(circles) < 3:
             return
-        expected = [(320.0, 300.0), (960.0, 700.0)]
-        for det, (ex, ey) in zip(circles[:2], expected):
+        expected = [(320.0, 300.0), (640.0, 256.0), (960.0, 700.0)]
+        for det, (ex, ey) in zip(circles[:3], expected):
             if abs(det.center_px.x - ex) > 12.0 or abs(det.center_px.y - ey) > 12.0:
                 rospy.logerr("[CircleGeometryAssertion] bad center got=(%.1f,%.1f) expected=(%.1f,%.1f)",
                              det.center_px.x, det.center_px.y, ex, ey)
@@ -32,12 +32,20 @@ class CircleGeometryAssertion:
                 self.exit_code = 6
                 rospy.signal_shutdown("circle metadata regression failed")
                 return
+        thin_ring_radius = circles[1].center_px.z
+        if not 100.0 <= thin_ring_radius <= 145.0:
+            rospy.logerr(
+                "[CircleGeometryAssertion] bad thin-ring radius %.1f",
+                thin_ring_radius)
+            self.exit_code = 6
+            rospy.signal_shutdown("thin-ring scale regression failed")
+            return
         rospy.loginfo("[CircleGeometryAssertion] success circles=%d", len(circles))
         self.exit_code = 0
         rospy.signal_shutdown("circle geometry regression passed")
 
     def _on_timeout(self, _event):
-        rospy.logerr("[CircleGeometryAssertion] timeout waiting for two circles")
+        rospy.logerr("[CircleGeometryAssertion] timeout waiting for three circles")
         self.exit_code = 6
         rospy.signal_shutdown("circle geometry regression timeout")
 
