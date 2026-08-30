@@ -213,6 +213,18 @@ bash top_level_scripts/run_vsim04_repeats.sh \
 短哈希；因此 6 个以上边界 ID 不会把 scene/path 无界拉长，截断前缀相同的 selector 也不会
 静默生成同名 scene。
 
+runner 会在启动首个 Gazebo 前实际加载 matrix，并按正式 `select_trial_matrix()` 合同拒绝未知、
+重复或空 selector；视觉/导航 revision 也必须是 7～40 位 git SHA。`batch-id` 同样经过有界净化，
+默认及显式 `--output-dir` 解析后都必须位于当前 worktree 的 `logs/` 内。已有批次目录默认拒绝，
+避免覆盖上一次聚合；需要重跑时使用新的 batch ID。
+
+每次 `sim_run.sh` 启动前后分别记录对应 scene 的目录集合，只接受集合差中唯一的新 run，不再按
+mtime 猜测。批次目录中的 `batch_checkpoint.json` 在启动前及每个 repeat 结束后原子更新；若
+runner 收到中断或编排异常，会为尚未执行项写失败占位，仍对已完成项生成聚合，并把 checkpoint
+中的对应 repeat 标成 `UNFINISHED`、将批次终态写成 `INTERRUPTED`。当前未实现自动 `--resume`
+和编排层单 run 墙钟超时；中断后可按 checkpoint 中的 run 路径使用独立聚合 CLI 恢复报告，
+后续再补自动续跑。
+
 - `repeat_summary.json`：每个源 run 的六产物、测量终态和算法 verdict，以及逐 trial 聚合；
 - `repeat_trials.csv`：完成数、P_confirm/P_selected、failure_stage 分布、processing/map P95 样本；
 - `repeat_report.md`：便于组间 review 的 Markdown 摘要。
@@ -222,6 +234,12 @@ bash top_level_scripts/run_vsim04_repeats.sh \
 `DIAGNOSTIC_ONLY`、`NOT_GATED`、缺产物及非终态均不会被命令成功掩盖，聚合命令返回非零。
 因此单 trial diagnostic 重复即使测量完整，预期总判定仍是 FAIL/DIAGNOSTIC_ONLY，而不是 Gate
 PASS。
+
+`measurement_eligible` 与 `source_pass_eligible` 分开：六产物和测量终态完整、但算法硬失败或
+`sim_run` 非零的 diagnostic 仍保留 trial 指标，同时源 verdict 与总判定保持 FAIL。聚合还从每个
+`manifest.json` 核对视觉/导航 revision、模型路径、imgsz、profile、matrix、seed 和 selector；
+配置元组不一致不得合并为 PASS。这里的 repeats 始终复用 matrix 中同一个固定 seed，只衡量相同
+设计点的运行时波动，不是多 seed 独立样本，报告会显式写 `repeats_are_multi_seed=false`。
 
 已有 run 也可在不启动 Gazebo 的情况下重新聚合：
 
