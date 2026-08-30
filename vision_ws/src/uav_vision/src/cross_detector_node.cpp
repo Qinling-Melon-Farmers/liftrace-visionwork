@@ -1,5 +1,8 @@
 #include <uav_vision/cross_detector_node.h>
 
+#include <algorithm>
+#include <cmath>
+
 namespace uav_vision {
 
 CrossDetectorNode::CrossDetectorNode(const ros::NodeHandle &nh)
@@ -57,6 +60,9 @@ void CrossDetectorNode::loadParameters()
   nh_.param("cross_relaxed_min_concave_points", cross_relaxed_min_concave_points_, 2);
   nh_.param("cross_relaxed_max_concave_points", cross_relaxed_max_concave_points_, 6);
   nh_.param("cross_relaxed_prefer_concave_points", cross_relaxed_prefer_concave_points_, 4);
+  nh_.param("cross_shape_min_template_iou", cross_shape_min_template_iou_, 0.70);
+  nh_.param("cross_shape_min_symmetry", cross_shape_min_symmetry_, 0.72);
+  nh_.param("cross_shape_min_concave_points", cross_shape_min_concave_points_, 3);
 
   // 预处理
   nh_.param("enable_gaussian_blur", enable_gaussian_blur_, true);
@@ -252,27 +258,16 @@ bool CrossDetectorNode::detectRedCross(
                                         candidate_quality);
     }
     if (valid) {
+      valid = evaluateCrossGeometry(contour, center, contour_area,
+                                    candidate_quality);
+    }
+    if (valid) {
       if (contour_area > best_area) {
         best_area = contour_area;
         best_center = center;
         found = true;
 
-        if (!candidate_quality.empty()) {
-          quality_params = candidate_quality;
-        } else {
-          quality_params.clear();
-          quality_params.push_back(area);
-          quality_params.push_back(static_cast<double>(contour.size()));
-
-          cv::Rect br = cv::boundingRect(contour);
-          double ar = std::min(br.width, br.height) /
-                      static_cast<double>(std::max(br.width, br.height));
-          quality_params.push_back(ar);
-
-          double solidity = calculateSolidity(contour);
-          quality_params.push_back(solidity);
-          quality_params.push_back(static_cast<double>(std::max(0.0, std::min(1.0, solidity))));
-        }
+        quality_params = candidate_quality;
       }
     }
   }
@@ -283,6 +278,142 @@ bool CrossDetectorNode::detectRedCross(
     return true;
   }
   return false;
+}
+
+bool CrossDetectorNode::evaluateCrossGeometry(
+    const std::vector<cv::Point> &contour,
+    cv::Point2f &center,
+    double &area,
+    std::vector<double> &quality_params) const
+{
+  const cv::Rect br = cv::boundingRect(contour);
+  if (br.width <= 0 || br.height <= 0) return false;
+
+  const cv::Moments moments = cv::moments(contour);
+  if (moments.m00 <= 0.0) return false;
+  center.x = static_cast<float>(moments.m10 / moments.m00);
+  center.y = static_cast<float>(moments.m01 / moments.m00);
+  area = moments.m00;
+
+  cv::Mat local_mask = cv::Mat::zeros(br.height, br.width, CV_8UC1);
+  std::vector<std::vector<cv::Point>> shifted(1);
+  shifted[0].reserve(contour.size());
+  for (const auto &point : contour) {
+    shifted[0].push_back(cv::Point(point.x - br.x, point.y - br.y));
+  }
+  cv::drawContours(local_mask, shifted, -1, cv::Scalar(255), cv::FILLED);
+
+  cv::Mat normalized_mask;
+  cv::resize(local_mask, normalized_mask, cv::Size(64, 64), 0.0, 0.0,
+             cv::INTER_NEAREST);
+  const double template_iou = calculateTemplateIou(normalized_mask);
+  const double symmetry = calculateSymmetry(normalized_mask);
+  const int concave_points = countNormalizedConcavePoints(normalized_mask);
+  if (template_iou < cross_shape_min_template_iou_ ||
+      symmetry < cross_shape_min_symmetry_ ||
+      concave_points < cross_shape_min_concave_points_) {
+    return false;
+  }
+
+  const double solidity = calculateSolidity(contour);
+  const double solidity_score = std::max(
+      0.0, 1.0 - std::abs(solidity - 0.70) / 0.35);
+  const double quality = std::max(0.0, std::min(
+      1.0, 0.65 * template_iou + 0.25 * symmetry +
+               0.10 * solidity_score));
+  const double aspect = static_cast<double>(std::min(br.width, br.height)) /
+                        static_cast<double>(std::max(br.width, br.height));
+  const double extent = static_cast<double>(area) /
+                        static_cast<double>(br.width * br.height);
+  double horizontal_cover = 0.0;
+  double vertical_cover = 0.0;
+  calculateCenterCoverage(local_mask, contour, horizontal_cover,
+                          vertical_cover);
+
+  quality_params.clear();
+  quality_params.push_back(area);
+  quality_params.push_back(static_cast<double>(contour.size()));
+  quality_params.push_back(aspect);
+  quality_params.push_back(solidity);
+  quality_params.push_back(quality);
+  quality_params.push_back(extent);
+  quality_params.push_back(horizontal_cover);
+  quality_params.push_back(vertical_cover);
+  quality_params.push_back(static_cast<double>(concave_points));
+  quality_params.push_back(template_iou);
+  quality_params.push_back(symmetry);
+  return true;
+}
+
+double CrossDetectorNode::calculateTemplateIou(
+    const cv::Mat &normalized_mask) const
+{
+  double best_iou = 0.0;
+  for (int thickness = 12; thickness <= 28; thickness += 2) {
+    cv::Mat cross_template = cv::Mat::zeros(64, 64, CV_8UC1);
+    const int low = (64 - thickness) / 2;
+    const int high = low + thickness;
+    cv::rectangle(cross_template, cv::Point(0, low), cv::Point(63, high - 1),
+                  cv::Scalar(255), cv::FILLED);
+    cv::rectangle(cross_template, cv::Point(low, 0), cv::Point(high - 1, 63),
+                  cv::Scalar(255), cv::FILLED);
+
+    cv::Mat intersection;
+    cv::Mat union_mask;
+    cv::bitwise_and(normalized_mask, cross_template, intersection);
+    cv::bitwise_or(normalized_mask, cross_template, union_mask);
+    const int union_pixels = cv::countNonZero(union_mask);
+    if (union_pixels > 0) {
+      best_iou = std::max(
+          best_iou,
+          static_cast<double>(cv::countNonZero(intersection)) / union_pixels);
+    }
+  }
+  return best_iou;
+}
+
+double CrossDetectorNode::calculateSymmetry(
+    const cv::Mat &normalized_mask) const
+{
+  auto overlap = [&normalized_mask](int flip_code) {
+    cv::Mat flipped;
+    cv::flip(normalized_mask, flipped, flip_code);
+    cv::Mat intersection;
+    cv::Mat union_mask;
+    cv::bitwise_and(normalized_mask, flipped, intersection);
+    cv::bitwise_or(normalized_mask, flipped, union_mask);
+    const int union_pixels = cv::countNonZero(union_mask);
+    return union_pixels > 0
+               ? static_cast<double>(cv::countNonZero(intersection)) /
+                     union_pixels
+               : 0.0;
+  };
+  return 0.5 * (overlap(0) + overlap(1));
+}
+
+int CrossDetectorNode::countNormalizedConcavePoints(
+    const cv::Mat &normalized_mask) const
+{
+  std::vector<std::vector<cv::Point>> contours;
+  cv::findContours(normalized_mask.clone(), contours, cv::RETR_EXTERNAL,
+                   cv::CHAIN_APPROX_SIMPLE);
+  if (contours.empty()) return 0;
+  const auto largest = std::max_element(
+      contours.begin(), contours.end(),
+      [](const std::vector<cv::Point> &left,
+         const std::vector<cv::Point> &right) {
+        return cv::contourArea(left) < cv::contourArea(right);
+      });
+  std::vector<int> hull_indices;
+  cv::convexHull(*largest, hull_indices, false);
+  if (hull_indices.size() < 3) return 0;
+  std::vector<cv::Vec4i> defects;
+  cv::convexityDefects(*largest, hull_indices, defects);
+  int count = 0;
+  for (const auto &defect : defects) {
+    if (defect[3] / 256.0 >= 4.0) ++count;
+  }
+  return count;
 }
 
 bool CrossDetectorNode::validateCrossShapeRelaxed(
@@ -405,7 +536,7 @@ bool CrossDetectorNode::isCrossLikeShape(const std::vector<cv::Point> &contour)
   return top && bot && left && right;
 }
 
-double CrossDetectorNode::calculateSolidity(const std::vector<cv::Point> &contour)
+double CrossDetectorNode::calculateSolidity(const std::vector<cv::Point> &contour) const
 {
   double ca = cv::contourArea(contour);
   std::vector<cv::Point> hull;

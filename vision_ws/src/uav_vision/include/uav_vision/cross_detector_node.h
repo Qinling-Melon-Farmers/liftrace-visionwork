@@ -38,9 +38,16 @@ private:
                                  cv::Point2f &center,
                                  double &area,
                                  std::vector<double> &quality_params);
+  bool evaluateCrossGeometry(const std::vector<cv::Point> &contour,
+                             cv::Point2f &center,
+                             double &area,
+                             std::vector<double> &quality_params) const;
+  double calculateTemplateIou(const cv::Mat &normalized_mask) const;
+  double calculateSymmetry(const cv::Mat &normalized_mask) const;
+  int countNormalizedConcavePoints(const cv::Mat &normalized_mask) const;
 
   bool isCrossLikeShape(const std::vector<cv::Point> &contour);
-  double calculateSolidity(const std::vector<cv::Point> &contour);
+  double calculateSolidity(const std::vector<cv::Point> &contour) const;
   double calculateExtent(const std::vector<cv::Point> &contour) const;
   int countConcavePoints(const std::vector<cv::Point> &contour) const;
   void calculateCenterCoverage(const cv::Mat &mask,
@@ -106,6 +113,9 @@ private:
   int cross_relaxed_min_concave_points_;
   int cross_relaxed_max_concave_points_;
   int cross_relaxed_prefer_concave_points_;
+  double cross_shape_min_template_iou_;
+  double cross_shape_min_symmetry_;
+  int cross_shape_min_concave_points_;
 
   // 预处理
   bool enable_gaussian_blur_;

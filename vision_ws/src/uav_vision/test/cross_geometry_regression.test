@@ -1,0 +1,18 @@
+<launch>
+  <arg name="image_topic" default="/cross_test/image" />
+  <arg name="camera_info_topic" default="/cross_test/camera_info" />
+
+  <node pkg="uav_vision" type="cross_detector_node"
+        name="cross_geometry_regression_detector" output="screen">
+    <rosparam file="$(find uav_vision)/config/cross_detector.yaml" />
+    <param name="image_topic" value="$(arg image_topic)" />
+    <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <param name="enable_debug_image" value="false" />
+  </node>
+
+  <test pkg="uav_vision" type="cross_geometry_regression_assertion.py"
+        test-name="cross_geometry_regression" time-limit="30.0">
+    <param name="image_topic" value="$(arg image_topic)" />
+    <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+  </test>
+</launch>
