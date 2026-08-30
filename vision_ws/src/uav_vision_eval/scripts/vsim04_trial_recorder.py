@@ -202,6 +202,8 @@ class VSim04TrialRecorder:
                 "selected_max_age_sec": self._selected_max_age,
                 "detector_class_confidence": rospy.get_param(
                     "/target_detector/conf_threshold", None),
+                "detector_imgsz": rospy.get_param(
+                    "/target_detector/imgsz", None),
                 "standard_class_confidence": rospy.get_param(
                     "/target_memory/std_class_confidence", None),
                 "standard_geometry_confidence": rospy.get_param(

@@ -27,7 +27,7 @@ class TargetDetector:
         self._model_path = rospy.get_param("~model_path", "")
         self._conf_threshold = rospy.get_param("~conf_threshold", 0.5)
         self._image_topic = rospy.get_param("~image_topic", "/camera/image_raw")
-        self._imgsz = rospy.get_param("~imgsz", 640)
+        self._imgsz = int(rospy.get_param("~imgsz", 640))
         self._device = rospy.get_param("~device", "")
         self._perf_topic = rospy.get_param("~perf_topic", "/uav_vision/perf")
 
@@ -78,6 +78,7 @@ class TargetDetector:
             KeyValue("image_topic", self._image_topic),
             KeyValue("model_path", self._model_path),
             KeyValue("device", str(self._device)),
+            KeyValue("imgsz", str(self._imgsz)),
             KeyValue("frames", str(self._frames)),
             KeyValue("detections", str(int(detections_count))),
             KeyValue("processing_ms", f"{total_ms:.3f}"),

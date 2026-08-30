@@ -27,6 +27,8 @@
   <arg name="vision_python"
        default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <!-- Dev/sim diagnostic override only; formal and board contracts stay 640. -->
+  <arg name="target_detector_imgsz" default="640" />
   <arg name="vision_revision" default="$(optenv VSIM04_VISION_REVISION unknown)" />
   <arg name="navigation_revision"
        default="$(optenv VSIM04_NAVIGATION_REVISION unknown)" />
@@ -85,6 +87,7 @@
       <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
       <arg name="target_detector_launch_prefix" value="$(arg vision_python)" />
       <arg name="target_model_path" value="$(arg target_model_path)" />
+      <arg name="target_detector_imgsz" value="$(arg target_detector_imgsz)" />
       <arg name="map_frame" value="world" />
       <arg name="ground_z" value="0.0" />
       <arg name="allow_latest_tf_fallback" value="true" />
