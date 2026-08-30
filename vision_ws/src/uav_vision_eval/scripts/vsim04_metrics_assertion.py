@@ -80,47 +80,95 @@ def main():
     assert selected is not None and selected.pose.position.x == 0.25
 
     def motion_row(stamp, x_value=None, y_value=None, z_value=None,
-                   yaw_value=None):
+                   yaw_value=None, pose_stamp=None):
         valid = all(value is not None for value in (
             x_value, y_value, z_value, yaw_value))
+        if valid and pose_stamp is None:
+            pose_stamp = stamp
         return {
             "stamp": stamp,
             "camera_pose_valid": valid,
-            "camera_pose_source_stamp": stamp if valid else "",
+            "camera_pose_source_stamp": pose_stamp if valid else "",
             "camera_position_x_m": "" if x_value is None else x_value,
             "camera_position_y_m": "" if y_value is None else y_value,
             "camera_position_z_m": "" if z_value is None else z_value,
             "camera_yaw_rad": "" if yaw_value is None else yaw_value,
         }
 
+    reset_prestart = motion_row(1.1, 10.0, 0.1, 2.0, 3.0, 1.0)
+    start_row = motion_row(2.1, 0.0, 0.1, 2.0, 3.0, 2.0)
+    normal_row = motion_row(3.1, 1.0, 0.1, 2.0, -3.0, 3.0)
+    missing_row = motion_row(3.5)
+    zero_row = motion_row(4.1, 1.0, 0.1, 2.0, -3.0, 4.0)
+    duplicate_row = motion_row(4.2, 1.0, 0.1, 2.0, -3.0, 4.0)
+    finish_row = motion_row(5.1, 2.0, 0.1, 2.0, -2.8, 5.0)
+    postfinish_row = motion_row(6.1, 10.0, 0.1, 2.0, -2.8, 6.0)
+    # Deliberately model cross-topic callback order, not source-time order.
     motion_rows = [
-        motion_row(1.0, 0.0, 1.0, 2.0, 3.0),
-        motion_row(3.0, 3.0, 5.0, 2.0, -3.0),
-        motion_row(4.0),
-        motion_row(2.5, 1.0, 2.0, 2.0, -3.1),
-        motion_row(5.0, 6.0, 9.0, 2.0, -2.8),
+        finish_row, reset_prestart, zero_row, missing_row, start_row,
+        postfinish_row, normal_row, duplicate_row,
     ]
     motion = annotate_motion_frames(motion_rows, "dynamic", {
         "start_x": 0.0, "start_y": 0.0,
         "finish_x": 10.0, "finish_y": 0.0,
+        "expected_speed_mps": 1.0, "update_rate_hz": 10.0,
+        "steps": 10, "motion_start_source_stamp": 2.0,
+        "motion_end_source_stamp": 5.0,
     })
-    assert motion_rows[0]["actual_linear_speed_mps"] == ""
-    assert motion_rows[0]["motion_invalid_reason"] == "first_valid_pose"
-    assert abs(motion_rows[0]["path_lateral_offset_normalized"] - 0.1) < 1.0e-9
-    assert abs(motion_rows[1]["actual_linear_speed_mps"] - 2.5) < 1.0e-9
-    expected_yaw_rate = (2.0 * math.pi - 6.0) / 2.0
-    assert abs(motion_rows[1]["actual_yaw_rate_radps"] -
+    assert reset_prestart["actual_linear_speed_mps"] == ""
+    assert reset_prestart["motion_invalid_reason"] == \
+        "trajectory_reset_prestart"
+    assert reset_prestart["path_lateral_offset_normalized"] == ""
+    assert start_row["motion_invalid_reason"] == "first_valid_pose"
+    assert abs(start_row["path_lateral_offset_normalized"] - 0.01) < 1.0e-9
+    assert abs(normal_row["actual_linear_speed_mps"] - 1.0) < 1.0e-9
+    expected_yaw_rate = 2.0 * math.pi - 6.0
+    assert abs(normal_row["actual_yaw_rate_radps"] -
                expected_yaw_rate) < 1.0e-9
-    assert not motion_rows[2]["motion_delta_valid"]
-    assert motion_rows[2]["motion_invalid_reason"] == \
+    assert not missing_row["motion_delta_valid"]
+    assert missing_row["motion_invalid_reason"] == \
         "camera_pose_missing_or_invalid"
-    assert motion_rows[3]["motion_invalid_reason"] == "non_monotonic_stamp"
-    assert motion_rows[3]["actual_linear_speed_mps"] == ""
-    assert abs(motion_rows[4]["actual_linear_speed_mps"] - 2.5) < 1.0e-9
-    assert motion["camera_pose_frame_count"] == 4
-    assert motion["motion_sample_count"] == 2
-    assert motion["lateral_offset_sample_count"] == 4
-    assert abs(motion["mean_actual_linear_speed_mps"] - 2.5) < 1.0e-9
+    assert zero_row["motion_delta_valid"]
+    assert zero_row["actual_linear_speed_mps"] == 0.0
+    assert zero_row["actual_yaw_rate_radps"] == 0.0
+    assert duplicate_row["motion_invalid_reason"] == "duplicate_pose_stamp"
+    assert duplicate_row["actual_linear_speed_mps"] == ""
+    assert abs(finish_row["actual_linear_speed_mps"] - 1.0) < 1.0e-9
+    assert postfinish_row["motion_invalid_reason"] == "trajectory_complete"
+    assert postfinish_row["actual_linear_speed_mps"] == ""
+    assert motion["camera_pose_frame_count"] == 7
+    assert motion["motion_sample_count"] == 3
+    assert motion["lateral_offset_sample_count"] == 5
+    assert abs(motion["mean_actual_linear_speed_mps"] - (2.0 / 3.0)) < 1.0e-9
+
+    reset_start = motion_row(2.1, 0.0, 0.0, 2.0, 0.0, 2.0)
+    reset_progress = motion_row(3.1, 5.0, 0.0, 2.0, 0.0, 3.0)
+    reset_jump = motion_row(4.1, 0.0, 0.0, 2.0, 0.0, 4.0)
+    reset_after = motion_row(5.1, 1.0, 0.0, 2.0, 0.0, 5.0)
+    reset_motion = annotate_motion_frames([
+        reset_after, reset_jump, reset_start, reset_progress,
+    ], "dynamic", {
+        "start_x": 0.0, "start_y": 0.0,
+        "finish_x": 10.0, "finish_y": 0.0,
+        "expected_speed_mps": 1.0, "update_rate_hz": 10.0,
+        "steps": 10, "motion_start_source_stamp": 2.0,
+        "motion_end_source_stamp": 5.0,
+    })
+    assert reset_jump["motion_invalid_reason"] == "trajectory_reset_jump"
+    assert reset_jump["actual_linear_speed_mps"] == ""
+    assert reset_after["motion_delta_valid"]
+    assert abs(reset_after["actual_linear_speed_mps"] - 1.0) < 1.0e-9
+    assert reset_motion["motion_sample_count"] == 2
+
+    invalid_window_row = motion_row(1.0, 0.0, 0.0, 2.0, 0.0)
+    invalid_window = annotate_motion_frames(
+        [invalid_window_row], "dynamic", {
+            "start_x": 0.0, "start_y": 0.0,
+            "finish_x": 10.0, "finish_y": 0.0,
+        })
+    assert invalid_window_row["motion_invalid_reason"] == \
+        "dynamic_motion_window_invalid"
+    assert invalid_window["motion_sample_count"] == 0
 
     static_row = motion_row(1.0, 0.0, 0.0, 2.0, 0.0)
     static_motion = annotate_motion_frames(

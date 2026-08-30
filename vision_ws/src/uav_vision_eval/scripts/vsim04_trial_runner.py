@@ -257,6 +257,10 @@ class VSim04TrialRunner:
         expected_duration = distance / speed
         steps = max(1, int(math.ceil(expected_duration * update_rate)))
         self._set_camera(start_x, y, z + trial["height_m"])
+        # SetModelState is intentionally discontinuous.  Keep one command
+        # period outside the motion window so stamped LinkStates can settle at
+        # the planned start before frame-to-frame telemetry begins.
+        self._sleep_ros_duration(1.0 / update_rate)
         start_time = rospy.Time.now()
         wall_deadline = (
             time.monotonic() +
@@ -275,10 +279,13 @@ class VSim04TrialRunner:
         if time.monotonic() >= wall_deadline:
             raise RuntimeError(
                 "dynamic trajectory exceeded total wall-clock budget")
+        end_time = rospy.Time.now()
         actual_duration = max(
-            0.0, (rospy.Time.now() - start_time).to_sec())
+            0.0, (end_time - start_time).to_sec())
         return {
             "mode": "absolute_ros_time_linear",
+            "motion_start_source_stamp": start_time.to_sec(),
+            "motion_end_source_stamp": end_time.to_sec(),
             "expected_duration_sec": expected_duration,
             "actual_duration_sec": actual_duration,
             "distance_m": distance,

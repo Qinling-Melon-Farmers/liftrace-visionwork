@@ -505,6 +505,22 @@ def _finite_frame_value(row, field):
     return value if math.isfinite(value) else None
 
 
+def motion_frame_sort_key(row):
+    """Return a deterministic source-time-first order for one trial's rows."""
+    image_stamp = _finite_frame_value(row, "stamp")
+    pose_stamp = _finite_frame_value(row, "camera_pose_source_stamp")
+    source_or_image = pose_stamp if pose_stamp is not None else image_stamp
+    return (
+        source_or_image is None,
+        0.0 if source_or_image is None else source_or_image,
+        image_stamp is None,
+        0.0 if image_stamp is None else image_stamp,
+        str(row.get("target_id", "")),
+        str(row.get("class_name", "")),
+        str(row.get("stable_id", "")),
+    )
+
+
 def _dynamic_path(trajectory):
     try:
         start_x = float(trajectory["start_x"])
@@ -524,24 +540,74 @@ def _dynamic_path(trajectory):
     return start_x, start_y, dx_value, dy_value, length
 
 
+def _dynamic_trajectory_window(trajectory):
+    try:
+        start_stamp = float(trajectory["motion_start_source_stamp"])
+        end_stamp = float(trajectory["motion_end_source_stamp"])
+    except (KeyError, TypeError, ValueError, OverflowError):
+        return None
+    if (not math.isfinite(start_stamp) or not math.isfinite(end_stamp) or
+            end_stamp < start_stamp):
+        return None
+    return start_stamp, end_stamp
+
+
+def _path_progress_m(path, position):
+    start_x, start_y, dx_value, dy_value, path_length = path
+    return (
+        (position[0] - start_x) * dx_value +
+        (position[1] - start_y) * dy_value) / path_length
+
+
+def _reset_regression_tolerance_m(trajectory, path_length):
+    try:
+        steps = int(trajectory.get("steps", 0))
+    except (TypeError, ValueError, OverflowError):
+        steps = 0
+    planned_step_m = path_length / steps if steps > 0 else 0.0
+    return max(0.25, 2.0 * planned_step_m)
+
+
+def _trajectory_start_tolerance_m(trajectory):
+    try:
+        speed_mps = float(trajectory.get("expected_speed_mps", 0.0))
+        update_rate_hz = float(trajectory.get("update_rate_hz", 0.0))
+    except (TypeError, ValueError, OverflowError):
+        return 0.05
+    if (not math.isfinite(speed_mps) or not math.isfinite(update_rate_hz) or
+            speed_mps < 0.0 or update_rate_hz <= 0.0):
+        return 0.05
+    return max(0.05, 1.5 * speed_mps / update_rate_hz)
+
+
 def annotate_motion_frames(frame_rows, trial_kind, trajectory):
     """Annotate rows with fail-closed motion telemetry.
 
-    Linear speed is the 3-D distance between adjacent valid pose samples
-    divided by their strictly positive pose-source-stamp delta.  Yaw rate uses the
-    shortest signed ZYX-yaw delta.  The signed lateral offset is the horizontal
-    cross-track distance to the planned start-to-finish line; its normalized
-    value divides that distance by the planned path length.  Static trials do
-    not have a motion path, and their speed/yaw/lateral cells stay empty.
+    Rows are processed in deterministic matched-pose-source/image time order,
+    independent of callback arrival order.  Linear speed is the 3-D distance
+    between adjacent valid in-window pose samples divided by their strictly
+    positive pose-source-stamp delta.  Yaw rate uses the shortest signed
+    ZYX-yaw delta.  The signed lateral offset is the horizontal cross-track
+    distance to the planned start-to-finish line; its normalized value divides
+    that distance by the planned path length.  Dynamic pre-start resets,
+    post-finish samples and backwards reset jumps do not enter motion samples.
+    Static trials do not have a motion path, and their speed/yaw/lateral cells
+    stay empty.
     """
     is_dynamic = str(trial_kind) == "dynamic"
     path = _dynamic_path(trajectory) if is_dynamic else None
+    trajectory_window = (
+        _dynamic_trajectory_window(trajectory) if is_dynamic else None)
+    reset_tolerance_m = (
+        _reset_regression_tolerance_m(trajectory, path[4])
+        if path is not None else None)
+    start_tolerance_m = _trajectory_start_tolerance_m(trajectory)
     previous = None
     linear_samples = []
     yaw_rate_samples = []
     lateral_samples = []
     pose_count = 0
-    for row in frame_rows:
+    for row in sorted(frame_rows, key=motion_frame_sort_key):
         row.update({
             "motion_delta_valid": False,
             "actual_linear_speed_mps": "",
@@ -579,8 +645,25 @@ def annotate_motion_frames(frame_rows, trial_kind, trajectory):
             row["path_lateral_invalid_reason"] = "static_trial"
             continue
 
+        if trajectory_window is None:
+            row["motion_invalid_reason"] = "dynamic_motion_window_invalid"
+            row["path_lateral_invalid_reason"] = (
+                "dynamic_motion_window_invalid")
+            continue
+        window_start, window_end = trajectory_window
+        if pose_stamp < window_start:
+            row["motion_invalid_reason"] = "trajectory_reset_prestart"
+            row["path_lateral_invalid_reason"] = (
+                "trajectory_reset_prestart")
+            continue
+        if pose_stamp > window_end:
+            row["motion_invalid_reason"] = "trajectory_complete"
+            row["path_lateral_invalid_reason"] = "trajectory_complete"
+            continue
+
         if path is None:
             row["path_lateral_invalid_reason"] = "dynamic_path_invalid"
+            progress_m = None
         else:
             start_x, start_y, dx_value, dy_value, path_length = path
             cross_track_m = (
@@ -590,15 +673,35 @@ def annotate_motion_frames(frame_rows, trial_kind, trajectory):
             row["path_lateral_offset_m"] = cross_track_m
             row["path_lateral_offset_normalized"] = normalized
             lateral_samples.append(normalized)
+            progress_m = _path_progress_m(path, position)
 
-        current = (pose_stamp, position, yaw)
+        current = (pose_stamp, position, yaw, progress_m)
         if previous is None:
+            if path is not None and math.hypot(
+                    position[0] - path[0],
+                    position[1] - path[1]) > start_tolerance_m:
+                row["path_lateral_offset_m"] = ""
+                row["path_lateral_offset_normalized"] = ""
+                lateral_samples.pop()
+                row["motion_invalid_reason"] = (
+                    "trajectory_start_pose_not_ready")
+                row["path_lateral_invalid_reason"] = (
+                    "trajectory_start_pose_not_ready")
+                continue
             row["motion_invalid_reason"] = "first_valid_pose"
             previous = current
             continue
         delta_sec = pose_stamp - previous[0]
-        if not math.isfinite(delta_sec) or delta_sec <= 0.0:
+        if not math.isfinite(delta_sec) or delta_sec < 0.0:
             row["motion_invalid_reason"] = "non_monotonic_stamp"
+            continue
+        if delta_sec == 0.0:
+            row["motion_invalid_reason"] = "duplicate_pose_stamp"
+            continue
+        if (progress_m is not None and previous[3] is not None and
+                progress_m < previous[3] - reset_tolerance_m):
+            row["motion_invalid_reason"] = "trajectory_reset_jump"
+            previous = current
             continue
         distance = math.sqrt(sum(
             (position[index] - previous[1][index]) ** 2
@@ -1334,12 +1437,23 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
                 "world-frame camera position and ZYX yaw from the latest "
                 "stamped Gazebo camera pose not newer than the image stamp; "
                 "camera_pose_age_sec is image stamp minus pose stamp"),
+            "motion_window": (
+                "runner ROS/source-time interval after the discontinuous "
+                "path-start reset and before trajectory completion; dynamic "
+                "telemetry is fail-closed when this interval is invalid"),
+            "actual_speed_mps": (
+                "route-level distance divided by runner elapsed ROS time; "
+                "this achieved whole-trajectory average remains separate "
+                "from the frame-delta speed distribution"),
             "actual_linear_speed_mps": (
                 "3-D camera displacement divided by the strictly positive "
-                "matched pose-source-stamp delta between adjacent valid "
-                "dynamic samples; repeated zero-order-held pose stamps, "
-                "static, first-valid, missing-pose and non-monotonic samples "
-                "are blank with motion_invalid_reason"),
+                "matched pose-source-stamp delta between deterministically "
+                "time-sorted adjacent valid in-window dynamic samples; real "
+                "zero displacement remains a valid zero, while duplicate "
+                "pose stamps, reset/prestart, reset jumps, post-finish, "
+                "static, first-valid and missing-pose samples are blank with "
+                "motion_invalid_reason; mean/P95 are unweighted frame-delta "
+                "distribution diagnostics, not route-level average speed"),
             "actual_yaw_rate_radps": (
                 "shortest signed ZYX-yaw delta divided by the same dynamic "
                 "sample interval"),
@@ -1347,7 +1461,8 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
                 "signed horizontal cross-track distance from the planned "
                 "dynamic start-to-finish line divided by that line length; "
                 "dimensionless, positive on the path-left side, and blank "
-                "for static/invalid paths or missing poses"),
+                "outside the motion window and for static/invalid paths or "
+                "missing poses"),
             "breakdowns": (
                 "completed-trial and exact frame-sample aggregates grouped "
                 "independently by class_name, height_m and requested "
@@ -1405,8 +1520,9 @@ def _breakdown_report(title, rows):
     lines = [
         "## {}".format(title),
         "",
-        "| Value | Completed/total | P_confirm | P_selected | Mean speed "
-        "(m/s) | P95 speed (m/s) | P95 abs lateral ratio |",
+        "| Value | Completed/total | P_confirm | P_selected | Unweighted "
+        "frame-delta mean speed (m/s) | Frame-delta P95 speed (m/s) | "
+        "P95 abs lateral ratio |",
         "|---|---:|---:|---:|---:|---:|---:|",
     ]
     for row in rows:
@@ -1496,7 +1612,8 @@ def _report(summary):
             denominators["camera_pose_frames"],
             denominators["motion_samples"],
             denominators["lateral_offset_samples"]),
-        "- Mean/P95 actual linear speed: `{}` / `{}` m/s".format(
+        "- Unweighted frame-delta mean/P95 linear speed: `{}` / `{}` "
+        "m/s".format(
             metrics["mean_actual_linear_speed_mps"],
             metrics["p95_actual_linear_speed_mps"]),
         "- Mean/P95 absolute yaw rate: `{}` / `{}` rad/s".format(
