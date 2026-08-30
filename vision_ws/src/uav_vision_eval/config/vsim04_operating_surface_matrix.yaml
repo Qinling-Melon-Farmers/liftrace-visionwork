@@ -4,6 +4,21 @@ seed: 11
 class_profile: r2026
 expected_trial_count: 85
 
+# Keep the diagnostic surface on the same frozen performance contract. Named
+# slices remain DIAGNOSTIC_ONLY regardless of their metric values.
+performance_contract:
+  contract_id: vsim04-roadmap-20260830
+  sources:
+    - VISION_2026_ROADMAP.md#V-SIM-04
+    - docs/VISION_LAPTOP_SIM_BASELINE_20260715.md
+  thresholds:
+    max_p95_confirmation_processing_ms: 200.0
+    max_p95_map_error_xy_m: 0.25
+  unfrozen_thresholds:
+    - min_p_confirm
+    - min_p_selected
+    - max_tf_failure_rate
+
 # Extended deterministic design. Named slices are diagnostic coverage sets;
 # they never replace the formal 23-trial MEASURED run.
 target_anchors:
