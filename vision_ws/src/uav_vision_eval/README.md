@@ -132,11 +132,20 @@ bash top_level_scripts/sim_run.sh vsim04_diag_pillbox_capture \
 采集可由非空 `trial_selector` 或命名 `trial_slice` 启用，二者严格互斥。多个 trial 共用
 总帧数上限，预算按 trial 顺序确定性均分（余数分给靠前 trial），且总上限至少等于 trial
 数；每个 trial 的样本按图像源时间覆盖预计时长：单样本位于 45%，多样本覆盖 0%～90%，
-动态时长按 `2*path_half_length/speed` 计算。逐 trial 配额未填满、CameraInfo 首个 profile
-非法或中途发生 frame/尺寸/内参/畸变变化、任一声明 PNG/JSON 缺失、manifest 未
+动态时长和目标中心时刻使用 runner 实际裁剪后的路径计算。启用采集后，runner 必须先等
+CameraInfo 与一组 exact-stamp 图像/真值使采集器 READY；每个 trial 又通过独立 control
+话题预告未来的 source-time `sampling_start`，收到 ACK 后才开始运动，recorder 的正式
+trial event 契约不受影响。首个可投影帧作为可见窗口入口，动态出口由实际目标中心时刻
+镜像并受轨迹末端约束，因此 0%/45%/90% 不再在低高度首帧处挤在一起。非末端 fallback
+样本默认最大迟到 `0.25 s`，超限立即失败；末端 fallback 会显式标记且只允许最后一个
+样本豁免迟到上限。
+
+逐 trial 配额未填满、CameraInfo 首个 profile 非法或中途发生 frame/尺寸/内参/畸变变化、
+任一声明 PNG/JSON 缺失、manifest 未
 `run_complete`，均 fail closed 并使 `sim_run.sh` 非零。CameraInfo 在固定仿真相机中按
 latched profile 使用，不要求其 header stamp 与每帧图像相同，但 frame_id、尺寸、有限且
-正的 fx/fy 必须与图像契约一致。该数据只标记为 `sim-small-target` 诊断输入，不得当作实拍
+正的 fx/fy 必须与图像契约一致。新握手、实际路径窗口和迟到字段使用 capture schema v3；
+旧 schema v2 产物不会被新 checker 冒充通过。该数据只标记为 `sim-small-target` 诊断输入，不得当作实拍
 数据或未经独立验证直接触发阈值/正式模型切换。
 
 入口只启动 Gazebo、评测相机、视觉链、真值、recorder 和 trial runner；不会启动 PX4、

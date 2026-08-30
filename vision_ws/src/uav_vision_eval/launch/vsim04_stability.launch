@@ -11,6 +11,12 @@
        unless explicitly enabled, so formal runs have zero added subscribers. -->
   <arg name="enable_failure_capture" default="false" />
   <arg name="failure_capture_max_frames" default="30" />
+  <arg name="failure_capture_max_lateness_sec" default="0.25" />
+  <arg name="failure_capture_start_lead_sec" default="1.0" />
+  <arg name="failure_capture_status_topic"
+       default="/uav_vision_eval/vsim04/failure_capture/status" />
+  <arg name="failure_capture_control_topic"
+       default="/uav_vision_eval/vsim04/failure_capture/control" />
   <arg name="scenario_file"
        default="$(find uav_vision_eval)/config/scenarios/vsim04_r2026_targets.yaml" />
   <arg name="truth_catalog"
@@ -161,6 +167,14 @@
     <param name="camera_model" value="vision_eval_camera" />
     <param name="status_topic" value="$(arg status_topic)" />
     <param name="trial_event_topic" value="$(arg trial_event_topic)" />
+    <param name="require_capture_ready"
+           value="$(arg enable_failure_capture)" />
+    <param name="capture_status_topic"
+           value="$(arg failure_capture_status_topic)" />
+    <param name="capture_control_topic"
+           value="$(arg failure_capture_control_topic)" />
+    <param name="capture_sampling_start_lead_sec"
+           value="$(arg failure_capture_start_lead_sec)" />
     <rosparam param="camera_rpy">[0.0, 1.570796326794897, 0.0]</rosparam>
     <param name="clock_stall_timeout_sec" value="2.0" />
     <param name="service_call_timeout_sec" value="5.0" />
@@ -187,6 +201,12 @@
     <param name="trial_selector" value="$(arg trial_selector)" />
     <param name="trial_slice" value="$(arg trial_slice)" />
     <param name="max_frames" value="$(arg failure_capture_max_frames)" />
+    <param name="max_sampling_lateness_sec"
+           value="$(arg failure_capture_max_lateness_sec)" />
+    <param name="capture_status_topic"
+           value="$(arg failure_capture_status_topic)" />
+    <param name="capture_control_topic"
+           value="$(arg failure_capture_control_topic)" />
     <param name="output_dir" value="$(arg failure_capture_output_dir)" />
     <param name="output_root" value="$(arg output_dir)" />
     <param name="image_topic" value="$(arg image_topic)" />

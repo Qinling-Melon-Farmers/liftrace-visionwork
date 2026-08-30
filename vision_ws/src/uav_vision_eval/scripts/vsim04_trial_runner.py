@@ -14,6 +14,7 @@ from gazebo_msgs.srv import SetModelState
 from std_msgs.msg import String
 from std_srvs.srv import Empty
 
+from uav_vision_eval.failure_capture import validate_capture_status
 from uav_vision_eval.vsim04_metrics import (
     call_with_monotonic_deadline,
     handshake_timeout_is_safe,
@@ -43,6 +44,8 @@ class VSim04TrialRunner:
             rospy.get_param("~trial_selector", ""),
             rospy.get_param("~trial_slice", ""))
         self._evaluation_scope = self._matrix["evaluation_scope"]
+        self._selected_trial_ids = [
+            trial["trial_id"] for trial in self._matrix["trials"]]
         runner = self._matrix.get("runner", {})
         self._camera_model = rospy.get_param(
             "~camera_model", runner.get("camera_model", "vision_eval_camera"))
@@ -54,6 +57,25 @@ class VSim04TrialRunner:
                 "trial_event_topic", "/uav_vision_eval/vsim04/trial_event"))
         self._status_topic = rospy.get_param(
             "~status_topic", "/uav_vision_eval/vsim04/status")
+        self._require_capture_ready = bool(rospy.get_param(
+            "~require_capture_ready", False))
+        self._capture_status_topic = rospy.get_param(
+            "~capture_status_topic",
+            "/uav_vision_eval/vsim04/failure_capture/status")
+        self._capture_control_topic = rospy.get_param(
+            "~capture_control_topic",
+            "/uav_vision_eval/vsim04/failure_capture/control")
+        self._capture_sampling_start_lead = float(rospy.get_param(
+            "~capture_sampling_start_lead_sec", 1.0))
+        if self._require_capture_ready:
+            capture_topics = [
+                rospy.resolve_name(value) for value in (
+                    self._event_topic, self._status_topic,
+                    self._capture_status_topic,
+                    self._capture_control_topic)]
+            if len(capture_topics) != len(set(capture_topics)):
+                raise ValueError(
+                    "recorder/capture event and status topics must be distinct")
         self._offscreen_offset = float(runner.get(
             "offscreen_offset_m", 3.5))
         self._pretrial_settle = float(runner.get(
@@ -103,7 +125,9 @@ class VSim04TrialRunner:
                 ("handshake_write_margin_sec",
                  self._handshake_write_margin),
                 ("trial_handshake_timeout_sec",
-                 self._trial_handshake_timeout)):
+                 self._trial_handshake_timeout),
+                ("capture_sampling_start_lead_sec",
+                 self._capture_sampling_start_lead)):
             if not math.isfinite(value) or value <= 0.0:
                 raise ValueError("{} must be positive".format(name))
         handshake_floor = (
@@ -118,8 +142,11 @@ class VSim04TrialRunner:
                 "quiet, status period, and write margin ({:.2f}s)".format(
                     handshake_floor))
         self._event_seq = 0
+        self._capture_event_seq = 0
         self._publisher = rospy.Publisher(
             self._event_topic, String, queue_size=40, latch=True)
+        self._capture_control_publisher = rospy.Publisher(
+            self._capture_control_topic, String, queue_size=4, latch=True)
         self._set_state_service_name = rospy.get_param(
             "~set_model_state_service", "/gazebo/set_model_state")
         self._set_state = rospy.ServiceProxy(
@@ -127,8 +154,14 @@ class VSim04TrialRunner:
         self._reset = rospy.ServiceProxy(self._reset_service_name, Empty)
         self._status_condition = threading.Condition()
         self._recorder_status = None
+        self._capture_status_condition = threading.Condition()
+        self._capture_status = None
         rospy.Subscriber(
             self._status_topic, String, self._on_status, queue_size=10)
+        if self._require_capture_ready:
+            rospy.Subscriber(
+                self._capture_status_topic, String,
+                self._on_capture_status, queue_size=10)
 
     def _on_status(self, message):
         try:
@@ -140,6 +173,82 @@ class VSim04TrialRunner:
                 self._status_condition.notify_all()
         except (TypeError, ValueError):
             rospy.logwarn_throttle(5.0, "invalid V-SIM-04 recorder status")
+
+    def _on_capture_status(self, message):
+        try:
+            status = validate_capture_status(
+                json.loads(message.data), self._selected_trial_ids)
+            with self._capture_status_condition:
+                self._capture_status = status
+                self._capture_status_condition.notify_all()
+        except (TypeError, ValueError):
+            rospy.logwarn_throttle(
+                5.0, "invalid V-SIM-04 failure capture status")
+
+    def _wait_for_capture_status(self, predicate, deadline, description):
+        if not self._require_capture_ready:
+            return
+        with self._capture_status_condition:
+            while True:
+                status = self._capture_status
+                if status is not None:
+                    if status.get("state") == "FAIL":
+                        raise RuntimeError(
+                            "failure capture failed: {}".format(
+                                status.get("error", "unknown")))
+                    if predicate(status):
+                        return
+                remaining = deadline - time.monotonic()
+                if remaining <= 0.0 or rospy.is_shutdown():
+                    raise RuntimeError(
+                        "failure capture handshake timeout: " + description)
+                self._capture_status_condition.wait(min(remaining, 0.25))
+
+    def _wait_for_capture_ready(self, deadline):
+        self._wait_for_capture_status(
+            lambda status: (
+                status.get("state") == "READY" and status.get("ready") is True
+                and int(status.get("completed_trial_count", -1)) == 0),
+            deadline, "startup ready")
+
+    def _wait_for_capture_trial_start(self, trial_id, event_seq):
+        self._wait_for_capture_status(
+            lambda status: (
+                status.get("state") == "RUNNING" and
+                status.get("active_trial") == trial_id and
+                status.get("active_event") == "trial_start" and
+                int(status.get("active_event_seq", -1)) == int(event_seq)),
+            time.monotonic() + self._trial_handshake_timeout,
+            "trial_start {}".format(trial_id))
+
+    def _wait_for_capture_sampling_start(self, trial_id, event_seq):
+        self._wait_for_capture_status(
+            lambda status: (
+                status.get("state") == "RUNNING" and
+                status.get("active_trial") == trial_id and
+                status.get("active_event") == "sampling_start" and
+                int(status.get("active_event_seq", -1)) == int(event_seq)),
+            time.monotonic() + self._trial_handshake_timeout,
+            "sampling_start {}".format(trial_id))
+
+    def _wait_for_capture_trial_end(self, completed_count):
+        self._wait_for_capture_status(
+            lambda status: (
+                status.get("state") == "READY" and
+                not status.get("active_trial") and
+                int(status.get("completed_trial_count", -1)) >=
+                int(completed_count)),
+            time.monotonic() + self._trial_handshake_timeout,
+            "trial_end {}".format(completed_count))
+
+    def _wait_for_capture_final(self, timeout):
+        self._wait_for_capture_status(
+            lambda status: (
+                status.get("state") == "FINALIZED" and
+                status.get("run_complete") is True and
+                int(status.get("completed_trial_count", -1)) ==
+                len(self._selected_trial_ids)),
+            time.monotonic() + float(timeout), "run_complete")
 
     def _publish_event(self, event, trial=None, **details):
         self._event_seq += 1
@@ -156,6 +265,33 @@ class VSim04TrialRunner:
         self._publisher.publish(String(data=json.dumps(
             payload, sort_keys=True)))
         return payload
+
+    def _arm_capture_sampling(self, trial, trajectory):
+        if not self._require_capture_ready:
+            return None
+        sampling_start = rospy.Time.now() + rospy.Duration(
+            self._capture_sampling_start_lead)
+        self._capture_event_seq += 1
+        event = {
+            "event": "sampling_start",
+            "event_seq": self._capture_event_seq,
+            "stamp": rospy.Time.now().to_sec(),
+            "monotonic_sec": time.monotonic(),
+            "trial_id": trial["trial_id"],
+            "sampling_start_stamp_sec": sampling_start.to_sec(),
+            "sampling_expected_duration_sec":
+                trajectory["expected_duration_sec"],
+            "sampling_target_center_offset_sec": trajectory.get(
+                "target_center_offset_sec"),
+        }
+        self._capture_control_publisher.publish(String(data=json.dumps(
+            event, sort_keys=True)))
+        self._wait_for_capture_sampling_start(
+            trial["trial_id"], event["event_seq"])
+        if rospy.Time.now() >= sampling_start:
+            raise RuntimeError(
+                "failure capture sampling_start ACK missed source-time lead")
+        return sampling_start
 
     def _call_service_with_deadline(self, name, proxy, *args):
         return call_with_monotonic_deadline(
@@ -228,8 +364,10 @@ class VSim04TrialRunner:
         self._sleep_until_ros(
             rospy.Time.now() + rospy.Duration(duration_sec))
 
-    def _run_static(self, trial):
+    def _run_static(self, trial, sampling_start=None):
         x, y, z = self._anchor(trial)
+        if sampling_start is not None:
+            self._sleep_until_ros(sampling_start)
         self._set_camera(x, y, z + trial["height_m"])
         start = rospy.Time.now()
         expected = float(self._matrix["static"].get(
@@ -245,7 +383,7 @@ class VSim04TrialRunner:
             "actual_speed_mps": None,
         }
 
-    def _run_dynamic(self, trial):
+    def _dynamic_trajectory_plan(self, trial):
         x, y, z = self._anchor(trial)
         config = self._matrix["dynamic"]
         half_length = float(config.get("path_half_length_m", 3.5))
@@ -256,12 +394,44 @@ class VSim04TrialRunner:
         distance = max(0.0, finish_x - start_x)
         expected_duration = distance / speed
         steps = max(1, int(math.ceil(expected_duration * update_rate)))
-        self._set_camera(start_x, y, z + trial["height_m"])
-        # SetModelState is intentionally discontinuous.  Keep one command
-        # period outside the motion window so stamped LinkStates can settle at
-        # the planned start before frame-to-frame telemetry begins.
-        self._sleep_ros_duration(1.0 / update_rate)
-        start_time = rospy.Time.now()
+        target_center_offset = (x - start_x) / speed
+        if (distance <= 0.0 or expected_duration <= 0.0 or
+                target_center_offset <= 0.0 or
+                target_center_offset >= expected_duration):
+            raise RuntimeError("dynamic trajectory geometry is invalid")
+        return {
+            "mode": "absolute_ros_time_linear",
+            "expected_duration_sec": expected_duration,
+            "distance_m": distance,
+            "expected_speed_mps": speed,
+            "update_rate_hz": update_rate,
+            "steps": steps,
+            "start_x": start_x,
+            "start_y": y,
+            "finish_x": finish_x,
+            "finish_y": y,
+            "target_center_offset_sec": target_center_offset,
+            "camera_z": z + trial["height_m"],
+        }
+
+    def _run_dynamic(self, trial, trajectory, sampling_start=None):
+        update_rate = trajectory["update_rate_hz"]
+        if sampling_start is None:
+            # SetModelState is intentionally discontinuous. Keep one command
+            # period outside the motion window so stamped LinkStates can
+            # settle at the planned start before telemetry begins.
+            self._sleep_ros_duration(1.0 / update_rate)
+            start_time = rospy.Time.now()
+        else:
+            start_time = sampling_start
+            self._sleep_until_ros(sampling_start)
+        expected_duration = trajectory["expected_duration_sec"]
+        speed = trajectory["expected_speed_mps"]
+        distance = trajectory["distance_m"]
+        steps = trajectory["steps"]
+        start_x = trajectory["start_x"]
+        finish_x = trajectory["finish_x"]
+        y = trajectory["start_y"]
         wall_deadline = (
             time.monotonic() +
             expected_duration * self._ros_wait_wall_factor +
@@ -275,30 +445,23 @@ class VSim04TrialRunner:
             self._sleep_until_ros(target_time, wall_deadline)
             self._set_camera(
                 start_x + fraction * distance, y,
-                z + trial["height_m"])
+                trajectory["camera_z"])
         if time.monotonic() >= wall_deadline:
             raise RuntimeError(
                 "dynamic trajectory exceeded total wall-clock budget")
         end_time = rospy.Time.now()
         actual_duration = max(
             0.0, (end_time - start_time).to_sec())
-        return {
-            "mode": "absolute_ros_time_linear",
+        result = dict(trajectory)
+        result.pop("camera_z")
+        result.update({
             "motion_start_source_stamp": start_time.to_sec(),
             "motion_end_source_stamp": end_time.to_sec(),
-            "expected_duration_sec": expected_duration,
             "actual_duration_sec": actual_duration,
-            "distance_m": distance,
-            "expected_speed_mps": speed,
             "actual_speed_mps": (
                 distance / actual_duration if actual_duration > 0.0 else None),
-            "update_rate_hz": update_rate,
-            "steps": steps,
-            "start_x": start_x,
-            "start_y": y,
-            "finish_x": finish_x,
-            "finish_y": y,
-        }
+        })
+        return result
 
     def _wait_for_event_subscriber(self, deadline):
         while self._publisher.get_num_connections() == 0:
@@ -401,6 +564,7 @@ class VSim04TrialRunner:
                     last_error))
 
         self._wait_for_recorder_ready(deadline)
+        self._wait_for_capture_ready(deadline)
         self._sleep_ros_duration(float(rospy.get_param(
             "~startup_settle_sec", 0.5)))
 
@@ -409,13 +573,30 @@ class VSim04TrialRunner:
             self._sleep_ros_duration(self._pretrial_settle)
             self._call_service_with_deadline(
                 "reset_memory", self._reset)
-            self._publish_event("trial_start", trial)
+            start_event = self._publish_event("trial_start", trial)
             self._wait_for_trial_status(
                 trial["trial_id"], None, self._trial_handshake_timeout)
+            self._wait_for_capture_trial_start(
+                trial["trial_id"], start_event["event_seq"])
             if trial["kind"] == "static":
-                trajectory = self._run_static(trial)
+                sampling_contract = {
+                    "expected_duration_sec": float(
+                        self._matrix["static"].get(
+                            "center_dwell_sec", 2.0)),
+                }
+                sampling_start = self._arm_capture_sampling(
+                    trial, sampling_contract)
+                trajectory = self._run_static(trial, sampling_start)
             else:
-                trajectory = self._run_dynamic(trial)
+                sampling_contract = self._dynamic_trajectory_plan(trial)
+                self._set_camera(
+                    sampling_contract["start_x"],
+                    sampling_contract["start_y"],
+                    sampling_contract["camera_z"])
+                sampling_start = self._arm_capture_sampling(
+                    trial, sampling_contract)
+                trajectory = self._run_dynamic(
+                    trial, sampling_contract, sampling_start)
             self._set_camera(*self._offscreen(trial))
             self._sleep_ros_duration(self._posttrial_settle)
             self._publish_event(
@@ -423,10 +604,13 @@ class VSim04TrialRunner:
             self._wait_for_trial_status(
                 trial["trial_id"], trial_index,
                 self._trial_handshake_timeout)
+            self._wait_for_capture_trial_end(trial_index)
 
         self._publish_event(
             "run_complete", trial_count=len(self._matrix["trials"]))
         self._wait_for_recorder_final(float(rospy.get_param(
+            "~finalization_timeout_sec", 30.0)))
+        self._wait_for_capture_final(float(rospy.get_param(
             "~finalization_timeout_sec", 30.0)))
         rospy.loginfo(
             "V-SIM-04 trial runner complete and validated (%s, %d trials)",
