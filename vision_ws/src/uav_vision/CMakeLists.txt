@@ -77,6 +77,11 @@ add_dependencies(cross_detector_node
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  add_rostest(test/cross_geometry_regression.test)
+endif()
+
 # ---- circle_detector_node ----
 add_executable(circle_detector_node
   src/circle_detector_node.cpp
@@ -125,6 +130,7 @@ catkin_install_python(PROGRAMS
   scripts/target_memory_physical_assertion.py
   scripts/map_rejection_assertion.py
   scripts/circle_geometry_assertion.py
+  scripts/cross_geometry_regression_assertion.py
   scripts/drop_aligner_freshness_assertion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
