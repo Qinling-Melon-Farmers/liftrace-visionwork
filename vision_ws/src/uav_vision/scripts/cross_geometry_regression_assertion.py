@@ -44,17 +44,31 @@ class CrossGeometryRegressionAssertion:
         cv2.rectangle(image, (cx - arm, cy - half),
                       (cx + arm, cy + half), (0, 0, 255), -1)
 
+    @classmethod
+    def _rotated_plus(cls, angle_deg, outer, thickness):
+        image = cls._blank()
+        cls._plus(image, outer=outer, thickness=thickness)
+        transform = cv2.getRotationMatrix2D((320, 256), angle_deg, 1.0)
+        return cv2.warpAffine(
+            image, transform, (image.shape[1], image.shape[0]),
+            flags=cv2.INTER_NEAREST,
+            borderMode=cv2.BORDER_CONSTANT,
+            borderValue=(0, 0, 0))
+
     def _cases(self):
         cases = []
 
-        normal = self._blank()
-        self._plus(normal)
-        cases.append(("positive_standard", normal, True))
-
-        high_altitude = self._blank()
-        # 0.35 m 靶在约 3.6 m、fx~500 px 时的约 49 px 尺度。
-        self._plus(high_altitude, outer=50, thickness=16)
-        cases.append(("positive_3p6m_scale", high_altitude, True))
+        # 覆盖相机/目标 yaw 的离散角度，并在每个角度同时覆盖标准尺度和
+        # 0.35 m 靶在约 3.6 m、fx~500 px 时的约 49 px 小尺度。
+        for angle_deg in (0, 15, 30, 45, 60, 75, 90):
+            cases.append((
+                "positive_yaw_{:02d}_scale96".format(angle_deg),
+                self._rotated_plus(angle_deg, outer=96, thickness=30),
+                True))
+            cases.append((
+                "positive_yaw_{:02d}_scale50".format(angle_deg),
+                self._rotated_plus(angle_deg, outer=50, thickness=16),
+                True))
 
         square = self._blank()
         cv2.rectangle(square, (285, 221), (355, 291), (0, 0, 255), -1)
@@ -78,10 +92,12 @@ class CrossGeometryRegressionAssertion:
         cv2.rectangle(ell, (285, 281), (380, 305), (0, 0, 255), -1)
         cases.append(("negative_l", ell, False))
 
-        diagonal = self._blank()
-        cv2.line(diagonal, (275, 211), (365, 301), (0, 0, 255), 19)
-        cv2.line(diagonal, (365, 211), (275, 301), (0, 0, 255), 19)
-        cases.append(("negative_x", diagonal, False))
+        thin_x = self._blank()
+        # 45° 等比正十字本质上就是 X，不能再将它当负样本。这个负样本用
+        # 约 8% 的细臂宽度，与正靶约 31% 的等比臂宽在几何上可分。
+        cv2.line(thin_x, (275, 211), (365, 301), (0, 0, 255), 8)
+        cv2.line(thin_x, (365, 211), (275, 301), (0, 0, 255), 8)
+        cases.append(("negative_thin_x", thin_x, False))
 
         broken = self._blank()
         cv2.rectangle(broken, (270, 246), (304, 266), (0, 0, 255), -1)

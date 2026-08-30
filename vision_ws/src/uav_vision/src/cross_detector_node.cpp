@@ -348,16 +348,55 @@ bool CrossDetectorNode::evaluateCrossGeometry(
 double CrossDetectorNode::calculateTemplateIou(
     const cv::Mat &normalized_mask) const
 {
-  double best_iou = 0.0;
-  for (int thickness = 12; thickness <= 28; thickness += 2) {
-    cv::Mat cross_template = cv::Mat::zeros(64, 64, CV_8UC1);
-    const int low = (64 - thickness) / 2;
-    const int high = low + thickness;
-    cv::rectangle(cross_template, cv::Point(0, low), cv::Point(63, high - 1),
-                  cv::Scalar(255), cv::FILLED);
-    cv::rectangle(cross_template, cv::Point(low, 0), cv::Point(high - 1, 63),
-                  cv::Scalar(255), cv::FILLED);
+  // The target may rotate with either camera yaw or target placement.  A
+  // single axis-aligned template incorrectly treats a valid 45-degree plus as
+  // an "X".  Build the deterministic template bank once, crop every rotated
+  // template to its own support and normalize it exactly like the observed
+  // contour.  Five-degree spacing bounds the residual orientation mismatch to
+  // 2.5 degrees while keeping the per-frame work to small binary IoUs.
+  static const std::vector<cv::Mat> templates = []() {
+    std::vector<cv::Mat> result;
+    constexpr int canvas_size = 96;
+    constexpr int outer_size = 64;
+    constexpr int normalized_size = 64;
+    const int center = canvas_size / 2;
+    const int outer_low = center - outer_size / 2;
+    for (int thickness = 12; thickness <= 28; thickness += 2) {
+      cv::Mat canonical = cv::Mat::zeros(
+          canvas_size, canvas_size, CV_8UC1);
+      const int arm_low = center - thickness / 2;
+      cv::rectangle(canonical,
+                    cv::Rect(outer_low, arm_low, outer_size, thickness),
+                    cv::Scalar(255), cv::FILLED);
+      cv::rectangle(canonical,
+                    cv::Rect(arm_low, outer_low, thickness, outer_size),
+                    cv::Scalar(255), cv::FILLED);
 
+      for (int angle_deg = 0; angle_deg <= 90; angle_deg += 5) {
+        cv::Mat rotated;
+        const cv::Mat transform = cv::getRotationMatrix2D(
+            cv::Point2f((canvas_size - 1) * 0.5f,
+                        (canvas_size - 1) * 0.5f),
+            static_cast<double>(angle_deg), 1.0);
+        cv::warpAffine(canonical, rotated, transform, canonical.size(),
+                       cv::INTER_NEAREST, cv::BORDER_CONSTANT,
+                       cv::Scalar(0));
+        std::vector<cv::Point> support;
+        cv::findNonZero(rotated, support);
+        if (support.empty()) continue;
+        const cv::Rect support_box = cv::boundingRect(support);
+        cv::Mat normalized;
+        cv::resize(rotated(support_box), normalized,
+                   cv::Size(normalized_size, normalized_size), 0.0, 0.0,
+                   cv::INTER_NEAREST);
+        result.push_back(normalized);
+      }
+    }
+    return result;
+  }();
+
+  double best_iou = 0.0;
+  for (const auto &cross_template : templates) {
     cv::Mat intersection;
     cv::Mat union_mask;
     cv::bitwise_and(normalized_mask, cross_template, intersection);
@@ -375,20 +414,25 @@ double CrossDetectorNode::calculateTemplateIou(
 double CrossDetectorNode::calculateSymmetry(
     const cv::Mat &normalized_mask) const
 {
-  auto overlap = [&normalized_mask](int flip_code) {
-    cv::Mat flipped;
-    cv::flip(normalized_mask, flipped, flip_code);
+  // An equal-arm plus has four-fold rotational symmetry at every yaw.  Image
+  // horizontal/vertical reflection is only valid at special angles and was
+  // therefore an orientation-dependent rejection criterion.
+  auto overlap = [&normalized_mask](int rotate_code) {
+    cv::Mat rotated;
+    cv::rotate(normalized_mask, rotated, rotate_code);
     cv::Mat intersection;
     cv::Mat union_mask;
-    cv::bitwise_and(normalized_mask, flipped, intersection);
-    cv::bitwise_or(normalized_mask, flipped, union_mask);
+    cv::bitwise_and(normalized_mask, rotated, intersection);
+    cv::bitwise_or(normalized_mask, rotated, union_mask);
     const int union_pixels = cv::countNonZero(union_mask);
     return union_pixels > 0
                ? static_cast<double>(cv::countNonZero(intersection)) /
                      union_pixels
                : 0.0;
   };
-  return 0.5 * (overlap(0) + overlap(1));
+  return (overlap(cv::ROTATE_90_CLOCKWISE) +
+          overlap(cv::ROTATE_180) +
+          overlap(cv::ROTATE_90_COUNTERCLOCKWISE)) / 3.0;
 }
 
 int CrossDetectorNode::countNormalizedConcavePoints(
