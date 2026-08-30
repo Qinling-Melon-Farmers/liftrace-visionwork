@@ -18,10 +18,13 @@ arena_limit_m: 4.8
 # bad 10 s windows are a sustained throughput/backlog/partial failure.
 startup_timeout_sec: 45.0
 service_call_timeout_sec: 5.0
+node_check_timeout_sec: 2.0
 heartbeat_timeout_sec: 3.0
 health_window_sec: 10.0
 bucket_settle_sec: 0.5
 max_source_lag_sec: 1.0
+max_camera_pose_age_sec: 0.5
+max_camera_pose_error_m: 0.25
 min_input_fps: 5.0
 min_complete_mapped_fps: 1.0
 max_partial_only_ratio: 0.8

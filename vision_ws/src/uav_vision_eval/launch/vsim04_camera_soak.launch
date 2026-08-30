@@ -105,7 +105,7 @@
     <rosparam param="expected_nodes">[/gazebo, /gazebo_camera_pose_stamper, /gazebo_camera_tf, /sim_ground_truth_projector, /target_detector, /cross_detector, /circle_detector, /detection_fusion, /target_refiner, /target_map_projector, /target_memory, /drop_aligner, /vsim04_camera_soak]</rosparam>
     <param name="confirm_frames" value="3" />
     <param name="selected_max_age_sec" value="0.5" />
-    <param name="node_check_period_sec" value="1.0" />
+    <param name="node_check_period_sec" value="5.0" />
     <param name="frame_record_period_sec" value="1.0" />
     <param name="clock_stall_timeout_sec" value="3.0" />
   </node>

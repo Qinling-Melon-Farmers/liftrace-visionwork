@@ -240,10 +240,16 @@ python3 vision_ws/src/uav_vision_eval/scripts/vsim04_repeat_aggregate.py \
 记忆与积压问题切碎成短 trial。
 
 入口默认以 monotonic 墙钟连续运行 600 秒；ROS 源时间只驱动可复现路线，并继续执行倒退和
-停滞硬检查。入口还自动检查：有效且全程不变的 CameraInfo 快照、预期 ROS 进程、image/truth/camera pose/
+停滞硬检查。预热阶段先等完整流水线和真值，再执行一次 post-warm-up reset、等待全流新鲜，
+随后在正式计时前再次 reset；正式计数、memory、selected 和 rolling window 均不含预热样本。
+相机循环位姿通过 latest-only Gazebo set-state topic 发布，不再为每帧创建 service 线程；报告同时
+记录命令位姿和 Gazebo camera link 实际位姿，并对实际跟随误差和年龄 fail closed。入口还自动检查：
+有效且全程不变的 CameraInfo 快照、场景中全部目标的真值存在且 `pose_valid`、预期 ROS 进程、image/truth/camera pose/
 complete-mapped/targets/detector perf 心跳、各流源时间单调、最大心跳间隔、输入与完整映射
 吞吐、连续窗口 partial-only 和源时间积压趋势，以及 selected 的年龄、连续帧、地图、关联、
 拒绝原因与 r2026 profile。任何 tank/禁用类/陈旧或不满足当前准入的 selected 都硬失败。
+终态额外要求每个 required stream、有效真值和实际相机位姿在正式计时 epoch 内至少出现一次，
+不能只复用 reset 前缓存。
 `P_interrupt` 固定为 `null`，不订阅也不伪造导航接受事件。
 
 必须通过统一入口启动：
@@ -257,13 +263,17 @@ bash top_level_scripts/sim_run.sh vsim04_soak600_seed11 \
   roslaunch uav_vision_eval vsim04_camera_soak.launch gui:=false
 ```
 
-调试时可传 `duration_sec:=20`，但成功结果只写
+调试时必须使用 `vsim04_soak_smoke*` scene（例如
+`vsim04_soak_smoke35_seed11`）并传 `duration_sec:=35`；成功结果只写
 `status=SOAK_MEASURED + qualification_status=SMOKE_ONLY + soak_600s_pass=false`，不得作为
 600 秒 PASS。只有请求且 monotonic 墙钟实际跑满至少 600 秒、全程无终态错误时才写
 `qualification_status=SOAK_600S_MEASURED` 和 `soak_600s_pass=true`。运行固定输出同名六产物；
 缺产物、墙钟未跑满、CameraInfo 无效/变化、进程/心跳/源时间/吞吐/积压/partial/selected
 审计失败均非零退出。manifest 保存 width/height、distortion_model、K/D/R/P 和 frame_id；
-CameraInfo 是启动准入与固定 profile，不作为周期心跳。
+CameraInfo 是启动准入与固定 profile，不作为周期心跳。`sim_run.sh` 会按 scene 严格匹配
+`SMOKE_ONLY` 或 `SOAK_600S_MEASURED`，并额外核验 `artifact_set_complete=true`、空 errors、
+`P_interrupt=null` 和实际墙钟；`vsim04_soak600*` 搭配短 duration 会明确失败。终态先冻结回调并
+生成快照，`summary.json` 最后一次性落盘，避免半套产物被误收为成功。
 
 无 Gazebo 的纯函数回归：
 

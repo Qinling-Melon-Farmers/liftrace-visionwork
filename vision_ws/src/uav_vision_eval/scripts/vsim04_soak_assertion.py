@@ -13,9 +13,12 @@ if SOURCE_ROOT not in sys.path:
 
 from uav_vision_eval.vsim04_soak import (  # noqa: E402
     SoakAccounting,
+    camera_pose_tracking_errors,
     camera_info_snapshot,
+    measurement_presence_errors,
     route_pose,
     selected_candidate_errors,
+    truth_catalog_errors,
     validate_soak_config,
 )
 
@@ -35,8 +38,11 @@ def config(duration=600.0):
         "heartbeat_timeout_sec": 3.0,
         "startup_timeout_sec": 45.0,
         "service_call_timeout_sec": 5.0,
+        "node_check_timeout_sec": 2.0,
         "bucket_settle_sec": 0.5,
         "max_source_lag_sec": 1.0,
+        "max_camera_pose_age_sec": 0.5,
+        "max_camera_pose_error_m": 0.25,
         "min_input_fps": 5.0,
         "min_complete_mapped_fps": 1.0,
         "max_partial_only_ratio": 0.8,
@@ -72,6 +78,36 @@ def assert_soak_contract():
     assert first["trial_id"] != second["trial_id"]
     assert abs(first["x"] - second["x"]) < 1.0e-9
 
+    actual_pose = {
+        "receipt_monotonic": 9.8, "x": first["x"] + 0.05,
+        "y": first["y"], "z": first["z"],
+    }
+    pose_errors, pose_age, pose_error = camera_pose_tracking_errors(
+        actual_pose, first, 10.0, 0.5, 0.25)
+    assert pose_errors == []
+    assert abs(pose_age - 0.2) < 1.0e-9
+    assert abs(pose_error - 0.05) < 1.0e-9
+    assert "camera_pose_tracking_error" in camera_pose_tracking_errors(
+        actual_pose, first, 10.0, 0.5, 0.01)[0]
+
+    truth = [
+        {"target_id": "tent_1", "pose_valid": True},
+        {"target_id": "pillbox_1", "pose_valid": True},
+    ]
+    assert truth_catalog_errors(
+        "scenario", truth, "scenario", {"tent_1", "pillbox_1"}) == []
+    truth[1]["pose_valid"] = False
+    assert "truth_pose_invalid:pillbox_1" in truth_catalog_errors(
+        "scenario", truth, "scenario", {"tent_1", "pillbox_1"})
+
+    presence = measurement_presence_errors(
+        ("image", "truth"), {"image": 1, "truth": 0}, 0, 0)
+    assert "measurement_stream_missing:truth" in presence
+    assert "measurement_truth_valid_missing" in presence
+    assert "measurement_actual_camera_pose_missing" in presence
+    assert measurement_presence_errors(
+        ("image", "truth"), {"image": 1, "truth": 1}, 1, 1) == []
+
     camera_info = SimpleNamespace(
         header=SimpleNamespace(frame_id="camera_color_optical_frame"),
         width=640, height=480, distortion_model="plumb_bob",
@@ -91,6 +127,16 @@ def assert_soak_contract():
 
     required = ("image", "truth", "mapped_complete", "targets", "perf",
                 "camera_pose")
+    warm = SoakAccounting(cfg, required)
+    warm.note_stream("image", 1.0, 1.0)
+    warm.note_mapped(1.0, 1.0, True, 1.1)
+    warm.add_error("warmup_only")
+    warm.begin_measurement(2.0)
+    assert warm.counts["image"] == 0
+    assert warm.complete_mapped_frames == 0
+    assert warm.errors == []
+    assert warm.last_receipt["image"] == 1.0
+
     healthy = SoakAccounting(cfg, required)
     healthy.start(0.0)
     for window in range(3):

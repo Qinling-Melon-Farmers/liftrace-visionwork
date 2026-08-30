@@ -31,7 +31,8 @@ def validate_soak_config(config):
         "health_window_sec", "heartbeat_timeout_sec",
         "startup_timeout_sec", "bucket_settle_sec", "max_source_lag_sec",
         "min_input_fps", "min_complete_mapped_fps",
-        "service_call_timeout_sec",
+        "service_call_timeout_sec", "node_check_timeout_sec",
+        "max_camera_pose_age_sec", "max_camera_pose_error_m",
     )
     for name in positive:
         result[name] = finite_positive(result.get(name), name)
@@ -83,6 +84,79 @@ def route_pose(elapsed_sec, config):
               float(config["route_radius_y_m"]) * math.sin(phase)),
         "z": float(config["route_height_m"]),
     }
+
+
+def camera_pose_tracking_errors(actual_pose, commanded_pose, now_monotonic,
+                                max_age_sec, max_error_m):
+    """Validate a stamped actual camera pose against the current command."""
+    if not actual_pose:
+        return ["camera_pose_missing"], None, None
+    try:
+        age = float(now_monotonic) - float(
+            actual_pose["receipt_monotonic"])
+        deltas = [
+            float(actual_pose[axis]) - float(commanded_pose[axis])
+            for axis in ("x", "y", "z")
+        ]
+        error = math.sqrt(sum(delta * delta for delta in deltas))
+    except (KeyError, TypeError, ValueError, OverflowError):
+        return ["camera_pose_invalid"], None, None
+    if not math.isfinite(age) or not math.isfinite(error) or age < 0.0:
+        return ["camera_pose_invalid"], age, error
+    errors = []
+    if age > float(max_age_sec):
+        errors.append("camera_pose_stale")
+    if error > float(max_error_m):
+        errors.append("camera_pose_tracking_error")
+    return errors, age, error
+
+
+def truth_catalog_errors(scenario_id, target_records,
+                         expected_scenario_id, expected_target_ids):
+    """Require the exact configured target set and a valid pose for each."""
+    records = [dict(record) for record in target_records]
+    identifiers = [str(record.get("target_id", "")).strip()
+                   for record in records]
+    actual = {value for value in identifiers if value}
+    expected = {str(value).strip() for value in expected_target_ids
+                if str(value).strip()}
+    errors = []
+    if str(scenario_id).strip() != str(expected_scenario_id).strip():
+        errors.append("truth_scenario_mismatch")
+    duplicates = sorted({value for value in identifiers
+                         if value and identifiers.count(value) > 1})
+    missing = sorted(expected - actual)
+    unexpected = sorted(actual - expected)
+    invalid = sorted(
+        str(record.get("target_id", "")).strip()
+        for record in records
+        if str(record.get("target_id", "")).strip() in expected and
+        not bool(record.get("pose_valid", False)))
+    if duplicates:
+        errors.append("truth_targets_duplicate:" + ",".join(duplicates))
+    if missing:
+        errors.append("truth_targets_missing:" + ",".join(missing))
+    if unexpected:
+        errors.append("truth_targets_unexpected:" + ",".join(unexpected))
+    if invalid:
+        errors.append("truth_pose_invalid:" + ",".join(invalid))
+    return errors
+
+
+def measurement_presence_errors(required_streams, counts,
+                                truth_valid_messages,
+                                actual_camera_pose_samples):
+    """Prove required evidence arrived after the measured epoch began."""
+    errors = [
+        "measurement_stream_missing:" + str(name)
+        for name in required_streams
+        if int(counts.get(name, 0)) <= 0
+    ]
+    if int(truth_valid_messages) <= 0:
+        errors.append("measurement_truth_valid_missing")
+    if int(actual_camera_pose_samples) <= 0:
+        errors.append("measurement_actual_camera_pose_missing")
+    return errors
 
 
 def selected_candidate_errors(record, now_source_sec, allowed_classes,
@@ -182,6 +256,32 @@ class SoakAccounting:
         self.started_monotonic = float(monotonic_sec)
         self._window_started = float(monotonic_sec)
         self._window_counts = self._count_snapshot()
+
+    def begin_measurement(self, monotonic_sec):
+        """Clear warm-up measurements while preserving fresh stream baselines.
+
+        Startup admission deliberately receives messages before the measured
+        interval.  Their latest receipt and source stamps remain useful for
+        detecting the first post-start gap/regression, but their counts,
+        mapped buckets, errors and rolling windows must not enter the soak.
+        """
+        self.max_heartbeat_gap = {
+            name: 0.0 for name in self.required_streams}
+        self.counts = {name: 0 for name in self.required_streams}
+        self.errors = []
+        self._error_set = set()
+        self._mapped_buckets = {}
+        self.complete_mapped_frames = 0
+        self.partial_only_mapped_frames = 0
+        self._bad_streaks = {
+            "input_throughput": 0,
+            "complete_mapped_throughput": 0,
+            "partial_only_trend": 0,
+            "source_backlog": 0,
+        }
+        self._window_max_source_lag = 0.0
+        self.windows = []
+        self.start(monotonic_sec)
 
     def _count_snapshot(self):
         return {
