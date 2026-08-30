@@ -224,6 +224,7 @@ class VSim04CameraSoak:
         self._truth_projection_valid_messages = 0
         self._truth_fully_in_frame_messages = 0
         self._latest_perf_errors = ["detector_diagnostic_missing"]
+        self._pre_epoch_ignored = {}
         self._last_loop_id = ""
         self._started_ros_sec = None
         self._started_wall = None
@@ -300,8 +301,20 @@ class VSim04CameraSoak:
         with self._lock:
             if not self._accept_callbacks:
                 return
+            stamp = self._stamp(message)
+            if self._pre_epoch_locked(name, stamp):
+                return
             self._accounting.note_stream(
-                name, time.monotonic(), self._stamp(message))
+                name, time.monotonic(), stamp)
+
+    def _pre_epoch_locked(self, name, source_stamp):
+        if (self._measurement_active and
+                self._started_ros_sec is not None and
+                float(source_stamp) + 1.0e-9 < self._started_ros_sec):
+            self._pre_epoch_ignored[name] = (
+                self._pre_epoch_ignored.get(name, 0) + 1)
+            return True
+        return False
 
     def _on_image(self, message):
         self._note("image", message)
@@ -316,6 +329,8 @@ class VSim04CameraSoak:
             self._expected_scenario_id, self._expected_target_ids)
         with self._lock:
             if not self._accept_callbacks:
+                return
+            if self._pre_epoch_locked("truth", self._stamp(message)):
                 return
             self._accounting.note_stream(
                 "truth", receipt, self._stamp(message))
@@ -338,6 +353,8 @@ class VSim04CameraSoak:
         receipt = time.monotonic()
         with self._lock:
             if not self._accept_callbacks:
+                return
+            if self._pre_epoch_locked("camera_pose", self._stamp(message)):
                 return
             self._accounting.note_stream(
                 "camera_pose", receipt, self._stamp(message))
@@ -390,6 +407,8 @@ class VSim04CameraSoak:
         with self._lock:
             if not self._accept_callbacks:
                 return
+            if self._pre_epoch_locked("perf", self._stamp(message)):
+                return
             self._latest_perf_errors = list(errors)
             if self._measurement_active:
                 for reason in errors:
@@ -404,6 +423,8 @@ class VSim04CameraSoak:
             self._required_sources, message.completed_sources)
         with self._lock:
             if not self._accept_callbacks:
+                return
+            if self._pre_epoch_locked("mapped", stamp):
                 return
             self._accounting.note_mapped(
                 time.monotonic(), stamp, complete,
@@ -654,6 +675,7 @@ class VSim04CameraSoak:
             self._actual_camera_pose_samples = 0
             self._max_camera_pose_error_m = 0.0
             self._max_camera_orientation_drift_rad = 0.0
+            self._pre_epoch_ignored = {}
             self._last_loop_id = ""
             self._measurement_active = True
             self._add_event_locked(
@@ -826,6 +848,7 @@ class VSim04CameraSoak:
                     self._truth_projection_valid_messages),
                 "truth_fully_in_frame_messages": (
                     self._truth_fully_in_frame_messages),
+                "pre_epoch_ignored": dict(self._pre_epoch_ignored),
                 "unique_trial_ids": sorted({
                     row["trial_id"] for row in self._frames}),
             })
@@ -889,6 +912,9 @@ class VSim04CameraSoak:
                     summary["input_fps"], summary["complete_mapped_fps"]),
                 "- Partial-only mapped stamps: `{}`".format(
                     summary["partial_only_mapped_frames"]),
+                "- Derived source reorder counts: `{}`".format(
+                    json.dumps(summary["source_reorder_counts"],
+                               sort_keys=True)),
                 "- Actual pose samples/max tracking error: `{}` / `{:.4f}` m".format(
                     self._actual_camera_pose_samples,
                     self._max_camera_pose_error_m),
@@ -900,6 +926,8 @@ class VSim04CameraSoak:
                 "- Truth projection/fully-in-frame messages: `{}` / `{}`".format(
                     self._truth_projection_valid_messages,
                     self._truth_fully_in_frame_messages),
+                "- Pre-epoch derived messages ignored: `{}`".format(
+                    json.dumps(self._pre_epoch_ignored, sort_keys=True)),
                 "- tank/disallowed/stale selected: `{}` / `{}` / `{}`".format(
                     self._tank_selected_count, self._disallowed_selected_count,
                     self._stale_selected_count),

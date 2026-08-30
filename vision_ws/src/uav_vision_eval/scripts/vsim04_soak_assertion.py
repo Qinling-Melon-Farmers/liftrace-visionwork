@@ -148,6 +148,7 @@ def assert_soak_contract():
     assert warm.complete_mapped_frames == 0
     assert warm.errors == []
     assert warm.last_receipt["image"] == 1.0
+    assert warm.last_source_stamp == {}
 
     healthy = SoakAccounting(cfg, required)
     healthy.start(0.0)
@@ -168,6 +169,13 @@ def assert_soak_contract():
     regressed.note_stream("image", 1.0, 2.0)
     regressed.note_stream("image", 2.0, 1.0)
     assert "image_source_time_regressed" in regressed.errors
+
+    mapped_reordered = SoakAccounting(cfg, required)
+    mapped_reordered.note_mapped(1.0, 2.0, True, 2.1)
+    mapped_reordered.note_mapped(2.0, 1.0, True, 2.1)
+    assert mapped_reordered.errors == []
+    assert mapped_reordered.source_reorder_counts["mapped"] == 1
+    assert mapped_reordered.source_reorder_counts["mapped_complete"] == 1
 
     heartbeat_gap = SoakAccounting(cfg, required)
     heartbeat_gap.start(0.0)

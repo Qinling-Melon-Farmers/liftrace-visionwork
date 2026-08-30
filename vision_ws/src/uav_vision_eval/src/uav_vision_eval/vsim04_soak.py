@@ -260,6 +260,8 @@ class SoakAccounting:
         self.required_streams = tuple(sorted(set(required_streams)))
         self.started_monotonic = None
         self.last_source_stamp = {}
+        self.source_reorder_counts = {
+            name: 0 for name in self.required_streams}
         self.last_receipt = {}
         self.max_heartbeat_gap = {name: 0.0 for name in self.required_streams}
         self.counts = {name: 0 for name in self.required_streams}
@@ -294,13 +296,17 @@ class SoakAccounting:
         """Clear warm-up measurements while preserving fresh stream baselines.
 
         Startup admission deliberately receives messages before the measured
-        interval.  Their latest receipt and source stamps remain useful for
-        detecting the first post-start gap/regression, but their counts,
-        mapped buckets, errors and rolling windows must not enter the soak.
+        interval.  Latest receipt times remain useful for detecting the first
+        post-start heartbeat gap, but source stamps and all measurement
+        counters must restart at the measured epoch because delayed pre-reset
+        derived messages are filtered by the runner.
         """
         self.max_heartbeat_gap = {
             name: 0.0 for name in self.required_streams}
         self.counts = {name: 0 for name in self.required_streams}
+        self.last_source_stamp = {}
+        self.source_reorder_counts = {
+            name: 0 for name in self.required_streams}
         self.errors = []
         self._error_set = set()
         self._mapped_buckets = {}
@@ -323,7 +329,8 @@ class SoakAccounting:
             "partial": int(self.partial_only_mapped_frames),
         }
 
-    def note_stream(self, name, receipt_monotonic, source_stamp=None):
+    def note_stream(self, name, receipt_monotonic, source_stamp=None,
+                    source_order_required=True):
         receipt = float(receipt_monotonic)
         previous_receipt = self.last_receipt.get(name)
         if previous_receipt is not None:
@@ -344,12 +351,21 @@ class SoakAccounting:
             return
         previous_stamp = self.last_source_stamp.get(name)
         if previous_stamp is not None and stamp + 1.0e-9 < previous_stamp:
-            self.add_error("{}_source_time_regressed".format(name))
-        self.last_source_stamp[name] = stamp
+            self.source_reorder_counts[name] = (
+                self.source_reorder_counts.get(name, 0) + 1)
+            if source_order_required:
+                self.add_error("{}_source_time_regressed".format(name))
+        self.last_source_stamp[name] = max(
+            stamp, previous_stamp if previous_stamp is not None else stamp)
 
     def note_mapped(self, receipt_monotonic, source_stamp, complete,
                     source_now_sec=None):
-        self.note_stream("mapped", receipt_monotonic, source_stamp)
+        # Fusion branches may finish in a different receipt order.  Image,
+        # truth and camera-pose streams still enforce source monotonicity;
+        # mapped reorder is counted and bounded by source-lag/backlog checks.
+        self.note_stream(
+            "mapped", receipt_monotonic, source_stamp,
+            source_order_required=False)
         key = round(float(source_stamp), 9)
         bucket = self._mapped_buckets.setdefault(key, {
             "last_receipt": float(receipt_monotonic),
@@ -358,7 +374,9 @@ class SoakAccounting:
         bucket["last_receipt"] = float(receipt_monotonic)
         bucket["complete"] = bucket["complete"] or bool(complete)
         if complete:
-            self.note_stream("mapped_complete", receipt_monotonic, source_stamp)
+            self.note_stream(
+                "mapped_complete", receipt_monotonic, source_stamp,
+                source_order_required=False)
             if source_now_sec is not None:
                 lag = max(0.0, float(source_now_sec) - float(source_stamp))
                 self._window_max_source_lag = max(
@@ -468,6 +486,7 @@ class SoakAccounting:
             "input_fps": self.counts.get("image", 0) / elapsed,
             "complete_mapped_fps": self.complete_mapped_frames / elapsed,
             "max_heartbeat_gap_sec": dict(self.max_heartbeat_gap),
+            "source_reorder_counts": dict(self.source_reorder_counts),
             "health_windows": list(self.windows),
             "p_interrupt": None,
         }
