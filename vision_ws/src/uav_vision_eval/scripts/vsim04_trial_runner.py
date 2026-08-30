@@ -40,7 +40,8 @@ class VSim04TrialRunner:
         self._matrix_path = os.path.abspath(rospy.get_param("~matrix_file"))
         self._matrix = select_trial_matrix(
             load_trial_matrix(self._matrix_path),
-            rospy.get_param("~trial_selector", ""))
+            rospy.get_param("~trial_selector", ""),
+            rospy.get_param("~trial_slice", ""))
         self._evaluation_scope = self._matrix["evaluation_scope"]
         runner = self._matrix.get("runner", {})
         self._camera_model = rospy.get_param(

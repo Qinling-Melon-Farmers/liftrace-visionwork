@@ -63,6 +63,30 @@ def main():
     assert {trial["class_name"] for trial in trials} == {
         "tent", "pillbox", "bridge", "panzer", "red_cross"}
     assert all(trial["class_name"] != "tank" for trial in trials)
+    surface_path = os.path.join(
+        os.path.dirname(matrix_path), "vsim04_operating_surface_matrix.yaml")
+    surface = load_trial_matrix(surface_path)
+    assert len(surface["trials"]) == 85
+    static25 = select_trial_matrix(surface, "", "static25")
+    sparse30 = select_trial_matrix(surface, "", "sparse30")
+    assert static25["evaluation_scope"] == "diagnostic"
+    assert static25["trial_slice"] == "static25"
+    assert len(static25["trials"]) == 25
+    assert all(trial["kind"] == "static" for trial in static25["trials"])
+    assert len(sparse30["trials"]) == 30
+    assert all(trial["kind"] == "dynamic" for trial in sparse30["trials"])
+    assert {trial["class_name"] for trial in sparse30["trials"]} == {
+        "tent", "pillbox", "bridge", "panzer", "red_cross"}
+    try:
+        select_trial_matrix(surface, "static_tent_h1p2", "static25")
+        raise AssertionError("selector and slice were accepted together")
+    except ValueError:
+        pass
+    try:
+        select_trial_matrix(surface, "", "missing_slice")
+        raise AssertionError("unknown trial slice was accepted")
+    except ValueError:
+        pass
     selected_ids = [trials[1]["trial_id"], trials[-1]["trial_id"]]
     diagnostic_matrix = select_trial_matrix(matrix, ",".join(selected_ids))
     assert diagnostic_matrix["evaluation_scope"] == "diagnostic"

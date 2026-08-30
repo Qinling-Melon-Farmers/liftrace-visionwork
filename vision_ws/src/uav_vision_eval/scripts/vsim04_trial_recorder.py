@@ -53,7 +53,8 @@ class VSim04TrialRecorder:
         self._matrix_path = os.path.abspath(rospy.get_param("~matrix_file"))
         self._matrix = select_trial_matrix(
             load_trial_matrix(self._matrix_path),
-            rospy.get_param("~trial_selector", ""))
+            rospy.get_param("~trial_selector", ""),
+            rospy.get_param("~trial_slice", ""))
         self._evaluation_scope = self._matrix["evaluation_scope"]
         self._expected_trial_count = len(self._matrix["trials"])
         self._scenario_path = os.path.abspath(rospy.get_param(
@@ -245,6 +246,7 @@ class VSim04TrialRecorder:
             "evaluation_design": {
                 "scope": self._evaluation_scope,
                 "trial_selector": list(self._matrix["trial_selector"]),
+                "trial_slice": self._matrix.get("trial_slice", ""),
                 "all_targets_coexist": True,
                 "mode": "clutter",
                 "score_false_positives": bool(

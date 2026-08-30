@@ -6,6 +6,7 @@
   <!-- Empty means the formal 23-trial run. A comma-separated subset is
        diagnostic-only and can never produce a MEASURED Gate result. -->
   <arg name="trial_selector" default="" />
+  <arg name="trial_slice" default="" />
   <arg name="scenario_file"
        default="$(find uav_vision_eval)/config/scenarios/vsim04_r2026_targets.yaml" />
   <arg name="truth_catalog"
@@ -93,6 +94,7 @@
         name="vsim04_trial_recorder" output="screen" required="true">
     <param name="matrix_file" value="$(arg matrix_file)" />
     <param name="trial_selector" value="$(arg trial_selector)" />
+    <param name="trial_slice" value="$(arg trial_slice)" />
     <param name="scenario_file" value="$(arg scenario_file)" />
     <param name="target_catalog_file" value="$(arg truth_catalog)" />
     <param name="output_dir" value="$(arg output_dir)" />
@@ -137,6 +139,7 @@
         name="vsim04_trial_runner" output="screen" required="true">
     <param name="matrix_file" value="$(arg matrix_file)" />
     <param name="trial_selector" value="$(arg trial_selector)" />
+    <param name="trial_slice" value="$(arg trial_slice)" />
     <param name="camera_model" value="vision_eval_camera" />
     <param name="status_topic" value="$(arg status_topic)" />
     <param name="trial_event_topic" value="$(arg trial_event_topic)" />

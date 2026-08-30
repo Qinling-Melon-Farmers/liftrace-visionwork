@@ -103,12 +103,42 @@ def load_trial_matrix(path):
     if missing:
         raise ValueError("missing target anchors: {}".format(",".join(missing)))
     matrix["trials"] = trials
+    trial_ids = {trial["trial_id"] for trial in trials}
+    slices = matrix.get("trial_slices", {})
+    if slices is None:
+        slices = {}
+    if not isinstance(slices, dict):
+        raise ValueError("trial_slices must be a mapping")
+    for slice_name, identifiers in slices.items():
+        if not str(slice_name).strip() or not isinstance(identifiers, list):
+            raise ValueError("trial slice names and values must be non-empty lists")
+        values = [str(value).strip() for value in identifiers]
+        if not values or any(not value for value in values):
+            raise ValueError("trial slice {} is empty or invalid".format(
+                slice_name))
+        if len(values) != len(set(values)):
+            raise ValueError("trial slice {} contains duplicates".format(
+                slice_name))
+        unknown = sorted(set(values) - trial_ids)
+        if unknown:
+            raise ValueError("trial slice {} has unknown IDs: {}".format(
+                slice_name, ",".join(unknown)))
+        slices[slice_name] = values
+    matrix["trial_slices"] = slices
     return matrix
 
 
-def select_trial_matrix(matrix, selector):
+def select_trial_matrix(matrix, selector, slice_name=""):
     """Select an ordered diagnostic subset without weakening the full Gate."""
     selected_matrix = copy.deepcopy(matrix)
+    slice_name = str(slice_name or "").strip()
+    if slice_name and str(selector or "").strip():
+        raise ValueError("trial_selector and trial_slice are mutually exclusive")
+    if slice_name:
+        slices = selected_matrix.get("trial_slices", {})
+        if slice_name not in slices:
+            raise ValueError("unknown diagnostic trial slice: " + slice_name)
+        selector = slices[slice_name]
     if isinstance(selector, (list, tuple)):
         identifiers = [str(value).strip() for value in selector
                        if str(value).strip()]
@@ -118,6 +148,7 @@ def select_trial_matrix(matrix, selector):
     if not identifiers:
         selected_matrix["evaluation_scope"] = "full"
         selected_matrix["trial_selector"] = []
+        selected_matrix["trial_slice"] = ""
         return selected_matrix
     if len(identifiers) != len(set(identifiers)):
         raise ValueError("trial selector contains duplicate identifiers")
@@ -134,6 +165,7 @@ def select_trial_matrix(matrix, selector):
     selected_matrix["expected_trial_count"] = len(identifiers)
     selected_matrix["evaluation_scope"] = "diagnostic"
     selected_matrix["trial_selector"] = identifiers
+    selected_matrix["trial_slice"] = slice_name
     return selected_matrix
 
 

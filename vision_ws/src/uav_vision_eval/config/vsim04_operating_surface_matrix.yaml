@@ -1,0 +1,94 @@
+schema_version: 1
+evaluation_id: V-SIM-04
+seed: 11
+class_profile: r2026
+expected_trial_count: 85
+
+# Extended deterministic design. Named slices are diagnostic coverage sets;
+# they never replace the formal 23-trial MEASURED run.
+target_anchors:
+  tent: {target_id: tent_1, xyz: [1.27572, 0.581612, 0.0025]}
+  pillbox: {target_id: pillbox_1, xyz: [-0.57481, 0.520346, 0.0025]}
+  bridge: {target_id: bridge_1, xyz: [-2.09331, 0.70456, 0.0025]}
+  panzer: {target_id: panzer_1, xyz: [-1.47375, 3.62133, 0.0025]}
+  red_cross: {target_id: red_cross_1, xyz: [-2.5, -2.5, 0.0025]}
+
+static:
+  classes: [tent, pillbox, bridge, panzer, red_cross]
+  heights_m: [1.2, 1.8, 2.4, 3.0, 3.6]
+  center_dwell_sec: 2.0
+
+dynamic:
+  classes: [tent, pillbox, bridge, panzer, red_cross]
+  heights_m: [1.2, 2.4, 3.6]
+  speeds_mps: [0.5, 1.0, 1.5, 2.0]
+  path_half_length_m: 3.5
+  update_rate_hz: 20.0
+
+trial_slices:
+  static25:
+    - static_tent_h1p2
+    - static_tent_h1p8
+    - static_tent_h2p4
+    - static_tent_h3p0
+    - static_tent_h3p6
+    - static_pillbox_h1p2
+    - static_pillbox_h1p8
+    - static_pillbox_h2p4
+    - static_pillbox_h3p0
+    - static_pillbox_h3p6
+    - static_bridge_h1p2
+    - static_bridge_h1p8
+    - static_bridge_h2p4
+    - static_bridge_h3p0
+    - static_bridge_h3p6
+    - static_panzer_h1p2
+    - static_panzer_h1p8
+    - static_panzer_h2p4
+    - static_panzer_h3p0
+    - static_panzer_h3p6
+    - static_red_cross_h1p2
+    - static_red_cross_h1p8
+    - static_red_cross_h2p4
+    - static_red_cross_h3p0
+    - static_red_cross_h3p6
+  sparse30:
+    - dynamic_tent_h1p2_v0p5
+    - dynamic_tent_h1p2_v2p0
+    - dynamic_tent_h3p6_v0p5
+    - dynamic_tent_h3p6_v2p0
+    - dynamic_tent_h2p4_v1p0
+    - dynamic_tent_h2p4_v1p5
+    - dynamic_pillbox_h1p2_v0p5
+    - dynamic_pillbox_h1p2_v2p0
+    - dynamic_pillbox_h3p6_v0p5
+    - dynamic_pillbox_h3p6_v2p0
+    - dynamic_pillbox_h2p4_v1p0
+    - dynamic_pillbox_h2p4_v1p5
+    - dynamic_bridge_h1p2_v0p5
+    - dynamic_bridge_h1p2_v2p0
+    - dynamic_bridge_h3p6_v0p5
+    - dynamic_bridge_h3p6_v2p0
+    - dynamic_bridge_h2p4_v1p0
+    - dynamic_bridge_h2p4_v1p5
+    - dynamic_panzer_h1p2_v0p5
+    - dynamic_panzer_h1p2_v2p0
+    - dynamic_panzer_h3p6_v0p5
+    - dynamic_panzer_h3p6_v2p0
+    - dynamic_panzer_h2p4_v1p0
+    - dynamic_panzer_h2p4_v1p5
+    - dynamic_red_cross_h1p2_v0p5
+    - dynamic_red_cross_h1p2_v2p0
+    - dynamic_red_cross_h3p6_v0p5
+    - dynamic_red_cross_h3p6_v2p0
+    - dynamic_red_cross_h2p4_v1p0
+    - dynamic_red_cross_h2p4_v1p5
+
+runner:
+  camera_model: vision_eval_camera
+  camera_rpy: [0.0, 1.570796326794897, 0.0]
+  offscreen_offset_m: 3.5
+  pretrial_settle_sec: 0.5
+  posttrial_settle_sec: 1.2
+  reset_service: /uav_vision/reset_memory
+  trial_event_topic: /uav_vision_eval/vsim04/trial_event
