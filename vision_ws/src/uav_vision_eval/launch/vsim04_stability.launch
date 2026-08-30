@@ -101,6 +101,12 @@
     <param name="navigation_revision" value="$(arg navigation_revision)" />
     <param name="image_topic" value="$(arg image_topic)" />
     <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <param name="raw_detections_topic" value="/uav_vision/detections" />
+    <param name="resolved_detections_topic"
+           value="/uav_vision/detections_resolved" />
+    <param name="refined_detections_topic"
+           value="/uav_vision/detections_refined" />
+    <param name="detections_topic" value="/uav_vision/detections_mapped" />
     <param name="confirm_frames" value="3" />
     <param name="selected_max_age" value="0.5" />
     <param name="allow_latest_tf_fallback" value="true" />

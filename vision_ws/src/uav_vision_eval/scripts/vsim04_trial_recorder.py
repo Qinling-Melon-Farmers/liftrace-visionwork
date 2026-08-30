@@ -28,6 +28,8 @@ from uav_vision.target_selection_policy import (
 from uav_vision_eval.msg import SimTargetArray
 from uav_vision_eval.vsim04_metrics import (
     REQUIRED_ARTIFACTS,
+    STAGE_COUNT_FIELDS,
+    STANDARD_CLASSES,
     completed_sources_cover,
     correlate_admission_events,
     detector_diagnostic_errors,
@@ -252,6 +254,14 @@ class VSim04TrialRecorder:
                     "~truth_topic", "/uav_vision_eval/ground_truth"),
                 "detections_mapped": rospy.get_param(
                     "~detections_topic", "/uav_vision/detections_mapped"),
+                "detections_raw": rospy.get_param(
+                    "~raw_detections_topic", "/uav_vision/detections"),
+                "detections_resolved": rospy.get_param(
+                    "~resolved_detections_topic",
+                    "/uav_vision/detections_resolved"),
+                "detections_refined": rospy.get_param(
+                    "~refined_detections_topic",
+                    "/uav_vision/detections_refined"),
                 "targets": rospy.get_param(
                     "~targets_topic", "/uav_vision/targets"),
                 "selected_target": rospy.get_param(
@@ -280,6 +290,15 @@ class VSim04TrialRecorder:
         rospy.Subscriber(
             self._manifest["topics"]["detections_mapped"],
             TargetDetectionArray, self._on_detections, queue_size=40)
+        rospy.Subscriber(
+            self._manifest["topics"]["detections_raw"],
+            TargetDetectionArray, self._on_raw_detections, queue_size=40)
+        rospy.Subscriber(
+            self._manifest["topics"]["detections_resolved"],
+            TargetDetectionArray, self._on_resolved_detections, queue_size=40)
+        rospy.Subscriber(
+            self._manifest["topics"]["detections_refined"],
+            TargetDetectionArray, self._on_refined_detections, queue_size=40)
         rospy.Subscriber(
             self._manifest["topics"]["targets"], TargetCandidateArray,
             self._on_targets, queue_size=40)
@@ -457,7 +476,23 @@ class VSim04TrialRecorder:
                 "fully_in_frame": False,
                 "center_in_frame": False,
                 "co_visible_classes": "",
+                "raw_class_present": False,
+                "raw_geometry_present": False,
+                "raw_class_confidence": "",
+                "raw_geometry_confidence": "",
+                "resolved_present": False,
+                "resolved_class_confidence": "",
+                "resolved_geometry_confidence": "",
+                "refined_present": False,
+                "geometry_verified": False,
+                "center_refined": False,
+                "association_valid": False,
+                "refined_class_confidence": "",
+                "refined_geometry_confidence": "",
+                "refined_reject_reason": "",
                 "detection_present": False,
+                "mapped_class_confidence": "",
+                "mapped_geometry_confidence": "",
                 "map_valid": False,
                 "transform_failure": False,
                 "reject_reason": "",
@@ -684,6 +719,7 @@ class VSim04TrialRecorder:
             "confirmation_exposure_sec": None,
             "confirmation_processing_ms": None,
             "eligible_frames": 0,
+            **{field: 0 for field in STAGE_COUNT_FIELDS},
             "detection_frames": 0,
             "map_valid_frames": 0,
             "tf_failure_frames": 0,
@@ -793,6 +829,15 @@ class VSim04TrialRecorder:
         rows = [row for (row_trial, _stamp), row in self._frames.items()
                 if row_trial == trial_id]
         eligible = [row for row in rows if row["fully_in_frame"]]
+        stage_row_fields = {
+            "raw_class_frames": "raw_class_present",
+            "raw_geometry_frames": "raw_geometry_present",
+            "resolved_frames": "resolved_present",
+            "refined_frames": "refined_present",
+            "geometry_verified_frames": "geometry_verified",
+            "association_valid_frames": "association_valid",
+            "center_refined_frames": "center_refined",
+        }
         detected = [row for row in eligible if row["detection_present"]]
         map_valid = [row for row in eligible if row["map_valid"]]
         tf_failures = [row for row in detected if row["transform_failure"]]
@@ -800,6 +845,8 @@ class VSim04TrialRecorder:
                   if row["map_error_xy"] != ""]
         result = self._results[trial_id]
         result["eligible_frames"] = len(eligible)
+        for result_field, row_field in stage_row_fields.items():
+            result[result_field] = sum(bool(row[row_field]) for row in eligible)
         result["detection_frames"] = len(detected)
         result["map_valid_frames"] = len(map_valid)
         result["tf_failure_frames"] = len(tf_failures)
@@ -966,6 +1013,117 @@ class VSim04TrialRecorder:
         value = str(reason).lower()
         return "transform" in value or value.startswith("tf_")
 
+    @staticmethod
+    def _best_detection(detections):
+        if not detections:
+            return None
+        return max(detections, key=lambda detection: (
+            int(bool(detection.association_valid)),
+            int(bool(detection.geometry_verified)),
+            int(bool(detection.center_refined)),
+            float(detection.geometry_confidence),
+            float(detection.class_confidence),
+        ))
+
+    @staticmethod
+    def _max_confidence(detections, field):
+        values = [float(getattr(detection, field))
+                  for detection in detections
+                  if math.isfinite(float(getattr(detection, field)))]
+        return max(values) if values else ""
+
+    def _on_raw_detections(self, message):
+        with self._lock:
+            if not self._active:
+                return
+            frame = self._frame_locked(
+                self._stamp_key(message), self._stamp_sec(message))
+            expected_class = self._trial_specs[self._active]["class_name"]
+            if message.source == "target_detector":
+                classifiers = [
+                    detection for detection in message.detections
+                    if detection.class_name == expected_class
+                ]
+                if classifiers:
+                    frame["raw_class_present"] = True
+                    confidence = self._max_confidence(
+                        classifiers, "class_confidence")
+                    if confidence != "":
+                        previous = frame["raw_class_confidence"]
+                        frame["raw_class_confidence"] = (
+                            confidence if previous == "" else
+                            max(previous, confidence))
+            geometry = []
+            if (expected_class in STANDARD_CLASSES and
+                    message.source == "circle_detector"):
+                geometry = [
+                    detection for detection in message.detections
+                    if detection.class_name == "circle" and
+                    detection.geometry_verified
+                ]
+            elif (expected_class == "red_cross" and
+                  message.source == "cross_detector"):
+                geometry = [
+                    detection for detection in message.detections
+                    if detection.class_name == "red_cross" and
+                    detection.geometry_verified
+                ]
+            if geometry:
+                frame["raw_geometry_present"] = True
+                confidence = self._max_confidence(
+                    geometry, "geometry_confidence")
+                if confidence != "":
+                    previous = frame["raw_geometry_confidence"]
+                    frame["raw_geometry_confidence"] = (
+                        confidence if previous == "" else
+                        max(previous, confidence))
+
+    def _on_resolved_detections(self, message):
+        with self._lock:
+            if not self._active:
+                return
+            frame = self._frame_locked(
+                self._stamp_key(message), self._stamp_sec(message))
+            expected_class = self._trial_specs[self._active]["class_name"]
+            detections = [
+                detection for detection in message.detections
+                if detection.class_name == expected_class
+            ]
+            if not detections:
+                return
+            frame["resolved_present"] = True
+            frame["resolved_class_confidence"] = self._max_confidence(
+                detections, "class_confidence")
+            frame["resolved_geometry_confidence"] = self._max_confidence(
+                detections, "geometry_confidence")
+
+    def _on_refined_detections(self, message):
+        with self._lock:
+            if not self._active:
+                return
+            frame = self._frame_locked(
+                self._stamp_key(message), self._stamp_sec(message))
+            expected_class = self._trial_specs[self._active]["class_name"]
+            detections = [
+                detection for detection in message.detections
+                if detection.class_name == expected_class
+            ]
+            best = self._best_detection(detections)
+            if best is None:
+                return
+            frame["refined_present"] = True
+            frame["geometry_verified"] = bool(best.geometry_verified)
+            frame["center_refined"] = bool(best.center_refined)
+            frame["association_valid"] = bool(best.association_valid)
+            frame["refined_class_confidence"] = float(
+                best.class_confidence)
+            frame["refined_geometry_confidence"] = float(
+                best.geometry_confidence)
+            frame["refined_reject_reason"] = ";".join(sorted({
+                detection.reject_reason for detection in detections
+                if detection.reject_reason
+            }))
+
     def _on_detections(self, message):
         receipt = time.monotonic()
         with self._lock:
@@ -1003,6 +1161,11 @@ class VSim04TrialRecorder:
             if not detections:
                 return
             frame["detection_present"] = True
+            best = self._best_detection(detections)
+            frame["mapped_class_confidence"] = float(
+                best.class_confidence)
+            frame["mapped_geometry_confidence"] = float(
+                best.geometry_confidence)
             reasons = sorted({detection.reject_reason
                               for detection in detections
                               if detection.reject_reason})

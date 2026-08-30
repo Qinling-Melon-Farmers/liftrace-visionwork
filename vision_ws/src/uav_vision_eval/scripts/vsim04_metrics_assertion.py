@@ -11,6 +11,8 @@ import time
 
 from uav_vision_eval.vsim04_metrics import (
     REQUIRED_ARTIFACTS,
+    FRAME_FIELDS,
+    classify_failure_stage,
     completed_sources_cover,
     call_with_monotonic_deadline,
     correlate_admission_events,
@@ -45,6 +47,13 @@ def main():
         "p_selected": True,
         "p_interrupt": None,
         "eligible_frames": 10,
+        "raw_class_frames": 9,
+        "raw_geometry_frames": 8,
+        "resolved_frames": 8,
+        "refined_frames": 8,
+        "geometry_verified_frames": 7,
+        "association_valid_frames": 7,
+        "center_refined_frames": 7,
         "detection_frames": 8,
         "map_valid_frames": 6,
         "tf_failure_frames": 2,
@@ -66,6 +75,34 @@ def main():
     assert abs(measured_summary["metrics"]["map_unavailable_rate"] - 0.4) < 1.0e-9
     assert abs(measured_summary["metrics"]["tf_failure_rate"] - 0.25) < 1.0e-9
     assert measured_summary["metric_denominators"]["map_error_samples"] == 3
+    assert measured_summary["metric_denominators"]["raw_class_frames"] == 9
+    assert abs(
+        measured_summary["metrics"]["stage_frame_rates"]["raw_class_rate"] -
+        0.9) < 1.0e-9
+
+    failure = planned_trial_result(trials[0])
+    failure.update({
+        "status": "completed", "p_confirm": False,
+        "eligible_frames": 10,
+    })
+    assert classify_failure_stage(failure) == "raw_classifier"
+    failure["raw_class_frames"] = 8
+    assert classify_failure_stage(failure) == "raw_geometry"
+    failure["raw_geometry_frames"] = 8
+    assert classify_failure_stage(failure) == "detection_fusion"
+    failure["resolved_frames"] = 8
+    assert classify_failure_stage(failure) == "target_refiner"
+    failure["refined_frames"] = 8
+    assert classify_failure_stage(failure) == "geometry_association"
+    failure["association_valid_frames"] = 7
+    assert classify_failure_stage(failure) == "geometry_refinement"
+    failure["geometry_verified_frames"] = 7
+    failure["center_refined_frames"] = 7
+    assert classify_failure_stage(failure) == "map_projector_input"
+    failure["detection_frames"] = 7
+    assert classify_failure_stage(failure) == "map_projection"
+    failure["map_valid_frames"] = 7
+    assert classify_failure_stage(failure) == "target_memory_admission"
 
     terminal_results = []
     for trial in trials:
@@ -203,6 +240,10 @@ def main():
             rows = list(csv.DictReader(stream))
         assert len(rows) == 23
         assert all(row["p_interrupt"] == "" for row in rows)
+        with open(os.path.join(output_dir, "frames.csv"),
+                  "r", encoding="utf-8") as stream:
+            frame_reader = csv.DictReader(stream)
+            assert frame_reader.fieldnames == FRAME_FIELDS
     finally:
         shutil.rmtree(output_dir)
     print("V-SIM-04 matrix/artifact schema PASS")

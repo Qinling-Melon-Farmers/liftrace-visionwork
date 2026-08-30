@@ -14,9 +14,23 @@ import yaml
 from uav_vision.target_selection_policy import resolve_class_profile
 
 
+STANDARD_CLASSES = {"bridge", "panzer", "pillbox", "tent", "tank"}
+STAGE_COUNT_FIELDS = (
+    "raw_class_frames", "raw_geometry_frames", "resolved_frames",
+    "refined_frames", "geometry_verified_frames",
+    "association_valid_frames", "center_refined_frames",
+)
 FRAME_FIELDS = [
     "trial_id", "stamp", "target_id", "class_name", "fully_in_frame",
-    "center_in_frame", "co_visible_classes", "detection_present", "map_valid",
+    "center_in_frame", "co_visible_classes",
+    "raw_class_present", "raw_geometry_present",
+    "raw_class_confidence", "raw_geometry_confidence",
+    "resolved_present", "resolved_class_confidence",
+    "resolved_geometry_confidence", "refined_present",
+    "geometry_verified", "center_refined", "association_valid",
+    "refined_class_confidence", "refined_geometry_confidence",
+    "refined_reject_reason", "detection_present",
+    "mapped_class_confidence", "mapped_geometry_confidence", "map_valid",
     "transform_failure", "reject_reason", "map_error_xy",
     "current_confirmed", "current_selected", "stable_id",
 ]
@@ -29,7 +43,10 @@ PERFORMANCE_FIELDS = [
     "p_confirm", "p_selected", "p_interrupt", "stable_id",
     "confirmation_exposure_sec", "confirmation_processing_ms",
     "processing_receipt_reordered",
-    "eligible_frames", "detection_frames", "map_valid_frames",
+    "eligible_frames", "raw_class_frames", "raw_geometry_frames",
+    "resolved_frames", "refined_frames", "geometry_verified_frames",
+    "association_valid_frames", "center_refined_frames",
+    "detection_frames", "map_valid_frames", "failure_stage",
     "map_invalid_rate", "map_unavailable_rate", "tf_failure_rate",
     "mean_map_error_xy", "p95_map_error_xy", "map_error_sample_count",
     "entered_fully_in_frame", "left_fully_in_frame",
@@ -136,8 +153,16 @@ def planned_trial_result(trial):
         "confirmation_processing_ms": None,
         "processing_receipt_reordered": False,
         "eligible_frames": 0,
+        "raw_class_frames": 0,
+        "raw_geometry_frames": 0,
+        "resolved_frames": 0,
+        "refined_frames": 0,
+        "geometry_verified_frames": 0,
+        "association_valid_frames": 0,
+        "center_refined_frames": 0,
         "detection_frames": 0,
         "map_valid_frames": 0,
+        "failure_stage": "",
         "map_invalid_rate": None,
         "map_unavailable_rate": None,
         "tf_failure_rate": None,
@@ -176,7 +201,36 @@ def finalize_trial_result(result):
     result["p95_map_error_xy"] = percentile(errors, 95)
     result["map_error_sample_count"] = len(errors)
     result.pop("tf_failure_frames", None)
+    result["failure_stage"] = classify_failure_stage(result)
     return result
+
+
+def classify_failure_stage(result):
+    """Return the first pipeline stage that blocked trial confirmation."""
+    if result.get("status") != "completed" or result.get("p_confirm"):
+        return ""
+    if int(result.get("eligible_frames", 0)) <= 0:
+        return "truth_visibility"
+    if int(result.get("raw_class_frames", 0)) <= 0:
+        return "raw_classifier"
+    if int(result.get("raw_geometry_frames", 0)) <= 0:
+        return "raw_geometry"
+    if int(result.get("resolved_frames", 0)) <= 0:
+        return "detection_fusion"
+    if int(result.get("refined_frames", 0)) <= 0:
+        return "target_refiner"
+    class_name = str(result.get("class_name", ""))
+    if (class_name in STANDARD_CLASSES and
+            int(result.get("association_valid_frames", 0)) <= 0):
+        return "geometry_association"
+    if (int(result.get("geometry_verified_frames", 0)) <= 0 or
+            int(result.get("center_refined_frames", 0)) <= 0):
+        return "geometry_refinement"
+    if int(result.get("detection_frames", 0)) <= 0:
+        return "map_projector_input"
+    if int(result.get("map_valid_frames", 0)) <= 0:
+        return "map_projection"
+    return "target_memory_admission"
 
 
 def _ratio(numerator, denominator):
@@ -338,6 +392,10 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         for value in result.get("map_errors_xy", [])]
     eligible_frames = sum(int(result.get("eligible_frames", 0))
                           for result in completed)
+    stage_frame_counts = {
+        field: sum(int(result.get(field, 0)) for result in completed)
+        for field in STAGE_COUNT_FIELDS
+    }
     detection_frames = sum(int(result.get("detection_frames", 0))
                            for result in completed)
     map_valid_frames = sum(int(result.get("map_valid_frames", 0))
@@ -375,6 +433,13 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         status = "INCOMPLETE"
     else:
         status = "INVALID" if validation_errors else "MEASURED"
+    failure_stage_counts = {
+        stage: sum(result.get("failure_stage") == stage
+                   for result in completed)
+        for stage in sorted({result.get("failure_stage")
+                             for result in completed
+                             if result.get("failure_stage")})
+    }
     return {
         "schema_version": 1,
         "evaluation_id": "V-SIM-04",
@@ -392,6 +457,12 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
                 float(len(completed)) if completed else None),
             "p_interrupt": None,
             "p_interrupt_reason": "visual_only_no_navigation_acceptance_event",
+            "stage_frame_rates": {
+                field.replace("_frames", "_rate"): _ratio(
+                    count, eligible_frames)
+                for field, count in stage_frame_counts.items()
+            },
+            "failure_stage_counts": failure_stage_counts,
             "median_confirmation_exposure_sec": (
                 statistics.median(confirmation_exposure)
                 if confirmation_exposure else None),
@@ -415,6 +486,7 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         "metric_denominators": {
             "completed_trials": len(completed),
             "eligible_frames": eligible_frames,
+            **stage_frame_counts,
             "detection_frames": detection_frames,
             "map_valid_frames": map_valid_frames,
             "tf_failure_frames": tf_failure_frames,
@@ -447,6 +519,9 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
             "map_unavailable_rate": (
                 "eligible truth frames without a valid map observation divided "
                 "by eligible truth frames"),
+            "stage_frame_rates": (
+                "per-stage presence on eligible truth frames; these are "
+                "diagnostic frame coverages, not independent probabilities"),
         },
         "trials": finalized,
     }
@@ -498,6 +573,11 @@ def _report(summary):
         "- P_confirm: `{}`".format(metrics["p_confirm"]),
         "- P_selected: `{}`".format(metrics["p_selected"]),
         "- P_interrupt: `null` (visual-only; navigation acceptance is absent)",
+        "- Stage frame rates (raw class/raw geometry/resolved/refined/"
+        "geometry/association/center): `{}`".format(
+            metrics["stage_frame_rates"]),
+        "- Failed trial first-blocking stages: `{}`".format(
+            metrics["failure_stage_counts"]),
         "- P95 processing latency: `{}` ms".format(
             metrics["p95_confirmation_processing_ms"]),
         "- Median/P95 exposure: `{}` / `{}` s".format(
