@@ -15,6 +15,9 @@
        the same zero-order-held pose for each image timestamp. -->
   <arg name="use_stamped_camera_pose" default="true" />
   <arg name="camera_pose_topic" default="/uav_vision_eval/camera_pose" />
+  <!-- 0 preserves the unthrottled historical behavior. Long-running evals
+       may cap this latest-state stream above their image/route rates. -->
+  <arg name="camera_pose_publish_rate_hz" default="0.0" />
 
   <node if="$(arg use_stamped_camera_pose)" pkg="uav_vision_eval"
         type="gazebo_camera_pose_stamper.py"
@@ -23,6 +26,8 @@
     <param name="camera_link_suffix" value="$(arg camera_link_suffix)" />
     <param name="link_states_topic" value="$(arg link_states_topic)" />
     <param name="output_topic" value="$(arg camera_pose_topic)" />
+    <param name="max_publish_rate_hz"
+           value="$(arg camera_pose_publish_rate_hz)" />
   </node>
 
   <node pkg="uav_vision_eval" type="sim_ground_truth_projector.py"

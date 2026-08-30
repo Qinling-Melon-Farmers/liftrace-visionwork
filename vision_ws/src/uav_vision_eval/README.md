@@ -297,6 +297,11 @@ CameraInfo 是启动准入与固定 profile，不作为周期心跳。`sim_run.s
 `P_interrupt=null` 和实际墙钟；`vsim04_soak600*` 搭配短 duration 会明确失败。终态先冻结回调并
 生成快照，`summary.json` 最后一次性落盘，避免半套产物被误收为成功。
 
+soak 入口把 Gazebo `LinkStates` 派生的最新相机位姿限到 20 Hz、发布和订阅队列均为 1；该频率
+高于 10 Hz 路线与相机评测所需频率，并写入 manifest。通用 `ground_truth.launch` 默认仍为 0
+（不限频），不会改变既有矩阵入口。限频只移除冗余评测回调，不放宽图像/真值/位姿心跳、实际
+pose 误差、完整映射吞吐或 selected 准入门槛。
+
 无 Gazebo 的纯函数回归：
 
 ```bash

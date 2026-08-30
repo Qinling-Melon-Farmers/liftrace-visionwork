@@ -159,6 +159,12 @@ class VSim04CameraSoak:
             "~camera_rpy", [0.0, math.pi / 2.0, 0.0])]
         if len(self._rpy) != 3 or not all(math.isfinite(v) for v in self._rpy):
             raise ValueError("camera_rpy must contain three finite values")
+        self._camera_pose_publish_rate_hz = float(rospy.get_param(
+            "~camera_pose_publish_rate_hz", 0.0))
+        if (not math.isfinite(self._camera_pose_publish_rate_hz) or
+                self._camera_pose_publish_rate_hz <= 0.0):
+            raise ValueError(
+                "camera_pose_publish_rate_hz must be finite and positive")
         self._profile, self._allowed_classes = resolve_class_profile(
             rospy.get_param("~class_profile", "r2026"))
         if self._profile != "r2026":
@@ -284,7 +290,7 @@ class VSim04CameraSoak:
             SimTargetArray, self._on_truth, queue_size=2)
         rospy.Subscriber(rospy.get_param(
             "~camera_pose_topic", "/uav_vision_eval/camera_pose"),
-            PoseStamped, self._on_camera_pose, queue_size=10)
+            PoseStamped, self._on_camera_pose, queue_size=1)
         rospy.Subscriber(rospy.get_param(
             "~mapped_topic", "/uav_vision/detections_mapped"),
             TargetDetectionArray, self._on_mapped, queue_size=20)
@@ -834,6 +840,7 @@ class VSim04CameraSoak:
             "camera": {
                 "model_name": self._camera_model,
                 "rpy": list(self._rpy),
+                "pose_publish_rate_hz": self._camera_pose_publish_rate_hz,
                 "camera_info": self._camera_info,
             },
             "extrinsic": {
