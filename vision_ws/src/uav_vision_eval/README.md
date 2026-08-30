@@ -74,6 +74,18 @@ bash top_level_scripts/sim_run.sh vsim04_seed11 \
 `sim_run.sh` 对 `vsim04*` 场景还会二次检查六项产物和 `summary.status=MEASURED`；即使
 `roslaunch` 在 required runner 失败后正常关停并返回 0，统一入口仍会返回非零。
 
+扩展运营域矩阵可通过命名切片顺序执行。第一个参数固定为 `static25` 或 `sparse30`，其后
+参数会显式透传给 `roslaunch`；不含 `:=` 的参数、未知 launch 参数以及试图覆盖
+`matrix_file`/`trial_slice`/`trial_selector` 都会非零失败，不会静默忽略：
+
+```bash
+UAV_VISION_MODEL_PATH=<best.pt> \
+VSIM04_NAVIGATION_REVISION=<navigation_commit> \
+bash top_level_scripts/run_vsim04_surface.sh sparse30 \
+  enable_failure_capture:=true failure_capture_max_frames:=30 \
+  failure_capture_output_dir:=pillbox_surface
+```
+
 ### 失败 trial 原始帧采集
 
 采集器默认不启动，因此正式 23 项运行没有额外图像订阅或写盘负载。只有 diagnostic
@@ -91,12 +103,21 @@ bash top_level_scripts/sim_run.sh vsim04_diag_pillbox_capture \
 ```
 
 输出位于该 run 的 `vsim04/failure_capture/`：无叠加的 lossless PNG、同名逐帧 JSON 和
-`dataset_manifest.json`。逐帧记录包含 trial/class/height、精确 ROS stamp、真值 ROI、
-CameraInfo 与源图编码；原图和真值只接受 `(secs,nsecs)` 完全一致的配对。selector 为空、
-上限非法、CameraInfo 不匹配，或选中 trial 未产生任何有效配对时均 fail closed。该数据只
-标记为 `sim-small-target` 诊断输入，不得当作实拍数据或直接触发训练/阈值修改。多个 selector
-共用一个总帧数上限，预算按 trial 顺序确定性均分（余数分给靠前 trial），且总上限必须至少
-等于 trial 数；采集 manifest 非 `DIAGNOSTIC` 时 `sim_run.sh` 必须返回非零。
+`dataset_manifest.json`。`failure_capture_output_dir` 可改为 run 内的相对子目录；绝对路径、
+`..` 逃逸和非法路径片段都会被 launch 链与统一入口拒绝。逐帧图片统一以 `bgr8` 保存，JSON
+同时记录 `source_encoding`/`saved_encoding`、active truth 以及同帧全部完整入画的
+`scene_targets`，防止转 YOLO 标签时把共视靶标误当背景。原图和真值只接受
+`(secs,nsecs)` 完全一致的配对。
+
+采集可由非空 `trial_selector` 或命名 `trial_slice` 启用，二者严格互斥。多个 trial 共用
+总帧数上限，预算按 trial 顺序确定性均分（余数分给靠前 trial），且总上限至少等于 trial
+数；每个 trial 的样本按图像源时间覆盖预计时长：单样本位于 45%，多样本覆盖 0%～90%，
+动态时长按 `2*path_half_length/speed` 计算。逐 trial 配额未填满、CameraInfo 首个 profile
+非法或中途发生 frame/尺寸/内参/畸变变化、任一声明 PNG/JSON 缺失、manifest 未
+`run_complete`，均 fail closed 并使 `sim_run.sh` 非零。CameraInfo 在固定仿真相机中按
+latched profile 使用，不要求其 header stamp 与每帧图像相同，但 frame_id、尺寸、有限且
+正的 fx/fy 必须与图像契约一致。该数据只标记为 `sim-small-target` 诊断输入，不得当作实拍
+数据或未经独立验证直接触发阈值/正式模型切换。
 
 入口只启动 Gazebo、评测相机、视觉链、真值、recorder 和 trial runner；不会启动 PX4、
 MAVROS、旧控制、`actuator_pwm` 或真实投递。当前合并态证据

@@ -2,6 +2,7 @@
 """Capture bounded raw frames for explicitly selected V-SIM diagnostics."""
 
 import json
+import math
 import os
 import threading
 
@@ -12,11 +13,16 @@ from sensor_msgs.msg import CameraInfo, Image
 from std_msgs.msg import String
 
 from uav_vision_eval.failure_capture import (
+    CAPTURE_DATASET_KIND,
     CAPTURE_SCHEMA_VERSION,
     ExactStampPairBuffer,
     allocate_trial_quotas,
     build_frame_record,
+    freeze_camera_info_profile,
+    resolve_capture_output_dir,
+    sampling_plan,
     select_truth_target,
+    stamp_key,
     validate_capture_config,
 )
 from uav_vision_eval.msg import SimTargetArray
@@ -33,24 +39,32 @@ class VSim04FailureCapture:
         self._bridge = CvBridge()
         self._enabled = bool(rospy.get_param("~enabled", False))
         self._selector = str(rospy.get_param("~trial_selector", "")).strip()
+        self._slice = str(rospy.get_param("~trial_slice", "")).strip()
         self._max_frames = int(rospy.get_param("~max_frames", 30))
         output_value = str(rospy.get_param("~output_dir", "")).strip()
+        output_root = str(rospy.get_param("~output_root", "")).strip()
         validate_capture_config(
-            self._enabled, self._selector, self._max_frames,
+            self._enabled, self._selector, self._slice, self._max_frames,
             output_value)
-        self._output_dir = os.path.abspath(os.path.expanduser(output_value))
+        self._output_dir = resolve_capture_output_dir(
+            output_root, output_value)
         if not self._enabled:
             raise ValueError("disabled capture node must not be launched")
 
         matrix_path = os.path.abspath(rospy.get_param("~matrix_file"))
         selected = select_trial_matrix(
-            load_trial_matrix(matrix_path), self._selector)
+            load_trial_matrix(matrix_path), self._selector, self._slice)
         if selected.get("evaluation_scope") != "diagnostic":
             raise ValueError("failure capture is diagnostic-only")
         self._trials = {
             trial["trial_id"]: trial for trial in selected["trials"]}
         self._trial_quotas = allocate_trial_quotas(
             self._trials.keys(), self._max_frames)
+        self._sampling_plans = {
+            trial_id: sampling_plan(
+                selected, trial, self._trial_quotas[trial_id])
+            for trial_id, trial in self._trials.items()
+        }
         self._target_ids = {
             class_name: anchor["target_id"]
             for class_name, anchor in selected["target_anchors"].items()
@@ -58,7 +72,13 @@ class VSim04FailureCapture:
         self._pair_buffer = ExactStampPairBuffer(int(rospy.get_param(
             "~max_pending_pairs", 64)))
         self._camera_info = None
+        self._camera_profile = None
+        self._last_image = None
         self._active_trial = None
+        self._trial_start_stamp_sec = None
+        self._latest_eligible_pair = None
+        self._captured_stamps = {
+            trial_id: set() for trial_id in self._trials}
         self._captured = 0
         self._trial_counts = {trial_id: 0 for trial_id in self._trials}
         self._records = []
@@ -88,16 +108,28 @@ class VSim04FailureCapture:
         rospy.on_shutdown(self._write_manifest)
 
     def _fail(self, error):
-        if self._fatal_error:
-            return
-        self._fatal_error = str(error)
+        with self._lock:
+            if self._fatal_error:
+                return
+            self._fatal_error = str(error)
         rospy.logfatal("V-SIM failure capture failed closed: %s", error)
-        self._write_manifest()
-        rospy.signal_shutdown(self._fatal_error)
+        try:
+            self._write_manifest()
+        except Exception as manifest_error:
+            rospy.logerr(
+                "failure capture could not persist FAIL manifest: %s",
+                manifest_error)
+        finally:
+            rospy.signal_shutdown(self._fatal_error)
 
     def _on_camera_info(self, message):
-        with self._lock:
-            self._camera_info = message
+        try:
+            with self._lock:
+                self._camera_profile = freeze_camera_info_profile(
+                    self._camera_profile, message, self._last_image)
+                self._camera_info = message
+        except Exception as error:
+            self._fail(error)
 
     def _on_event(self, message):
         try:
@@ -106,24 +138,47 @@ class VSim04FailureCapture:
             trial_id = payload.get("trial_id", "")
             with self._lock:
                 if event == "trial_start":
+                    if self._active_trial is not None:
+                        raise RuntimeError("overlapping failure capture trials")
+                    if trial_id not in self._trials:
+                        raise RuntimeError(
+                            "unknown selected trial: {}".format(trial_id))
+                    trial_start = float(payload.get("stamp"))
+                    if not math.isfinite(trial_start) or trial_start < 0.0:
+                        raise RuntimeError("invalid trial_start source stamp")
                     self._pair_buffer.clear()
-                    self._active_trial = self._trials.get(trial_id)
+                    self._active_trial = self._trials[trial_id]
+                    self._trial_start_stamp_sec = trial_start
+                    self._latest_eligible_pair = None
                 elif event == "trial_end" and self._active_trial is not None:
                     if self._active_trial["trial_id"] == trial_id:
-                        if self._trial_counts[trial_id] == 0:
+                        self._capture_trial_end_fallback()
+                        if (self._trial_counts[trial_id] !=
+                                self._trial_quotas[trial_id]):
                             raise RuntimeError(
-                                "selected trial produced no exact-stamp "
-                                "truth/image capture: {}".format(trial_id))
+                                "selected trial capture quota incomplete: "
+                                "{} count={} quota={}".format(
+                                    trial_id,
+                                    self._trial_counts[trial_id],
+                                    self._trial_quotas[trial_id]))
                         self._active_trial = None
+                        self._trial_start_stamp_sec = None
+                        self._latest_eligible_pair = None
                         self._pair_buffer.clear()
                 elif event == "run_abort":
                     raise RuntimeError(
                         "V-SIM run aborted: {}".format(
                             payload.get("error", "unknown")))
                 elif event == "run_complete":
-                    if any(count == 0 for count in self._trial_counts.values()):
+                    if self._active_trial is not None:
                         raise RuntimeError(
-                            "one or more selected trials produced no capture")
+                            "run_complete received during active trial")
+                    if self._trial_counts != dict(self._trial_quotas):
+                        raise RuntimeError(
+                            "one or more selected trials missed capture quota")
+                    if self._captured != self._max_frames:
+                        raise RuntimeError(
+                            "captured frame total does not match max_frames")
                     self._active_trial = None
                     self._pair_buffer.clear()
                     self._run_complete = True
@@ -134,11 +189,15 @@ class VSim04FailureCapture:
     def _on_image(self, message):
         try:
             with self._lock:
+                self._last_image = message
+                if self._camera_info is not None:
+                    freeze_camera_info_profile(
+                        self._camera_profile, self._camera_info, message)
                 if not self._active_trial_has_budget():
                     return
                 pair = self._pair_buffer.add_image(message)
                 if pair is not None:
-                    self._capture_pair(*pair)
+                    self._consider_pair(*pair)
         except Exception as error:
             self._fail(error)
 
@@ -149,7 +208,7 @@ class VSim04FailureCapture:
                     return
                 pair = self._pair_buffer.add_truth(message)
                 if pair is not None:
-                    self._capture_pair(*pair)
+                    self._consider_pair(*pair)
         except Exception as error:
             self._fail(error)
 
@@ -168,7 +227,12 @@ class VSim04FailureCapture:
         trial_id = trial["trial_id"]
         return self._trial_counts[trial_id] < self._trial_quotas[trial_id]
 
-    def _capture_pair(self, image, truth):
+    @staticmethod
+    def _source_stamp_sec(message):
+        secs, nsecs = stamp_key(message)
+        return float(secs) + float(nsecs) * 1.0e-9
+
+    def _consider_pair(self, image, truth):
         if self._camera_info is None:
             return
         trial = self._active_trial
@@ -179,26 +243,66 @@ class VSim04FailureCapture:
             self._target_ids.get(trial["class_name"], ""))
         if target is None:
             return
+        elapsed = self._source_stamp_sec(image) - self._trial_start_stamp_sec
+        if elapsed < 0.0:
+            return
+        self._latest_eligible_pair = (image, truth, target, elapsed)
+        trial_id = trial["trial_id"]
+        sample_index = self._trial_counts[trial_id]
+        plan = self._sampling_plans[trial_id]
+        if elapsed + 1.0e-6 < plan["sample_offsets_sec"][sample_index]:
+            return
+        self._capture_pair(image, truth, target, elapsed, False)
+
+    def _capture_trial_end_fallback(self):
+        trial = self._active_trial
+        if trial is None or not self._active_trial_has_budget():
+            return
+        latest = self._latest_eligible_pair
+        if latest is None:
+            return
+        if stamp_key(latest[0]) in self._captured_stamps[trial["trial_id"]]:
+            return
+        self._capture_pair(*latest, used_trial_end_fallback=True)
+
+    def _capture_pair(self, image, truth, target, elapsed,
+                      used_trial_end_fallback=False):
+        trial = self._active_trial
+        trial_id = trial["trial_id"]
+        if stamp_key(image) in self._captured_stamps[trial_id]:
+            raise RuntimeError("duplicate source stamp selected for capture")
         capture_index = self._captured + 1
         stem = "{:04d}_{}_{}_{:09d}".format(
             capture_index, trial["trial_id"],
             int(image.header.stamp.secs), int(image.header.stamp.nsecs))
         image_name = stem + ".png"
+        metadata_name = stem + ".json"
         image_path = os.path.join(self._output_dir, image_name)
         temporary_image_path = image_path + ".tmp.png"
+        plan = self._sampling_plans[trial_id]
+        sample_index = self._trial_counts[trial_id]
         record = build_frame_record(
             trial, image, truth, target, self._camera_info,
-            image_name, capture_index)
+            image_name, metadata_name, capture_index, {
+                "policy": plan["policy"],
+                "sample_index": sample_index,
+                "planned_fraction": plan["sample_fractions"][sample_index],
+                "planned_offset_sec": plan["sample_offsets_sec"][sample_index],
+                "actual_offset_sec": elapsed,
+                "expected_duration_sec": plan["expected_duration_sec"],
+                "used_trial_end_fallback": used_trial_end_fallback,
+            })
         cv_image = self._bridge.imgmsg_to_cv2(
-            image, desired_encoding="passthrough")
+            image, desired_encoding="bgr8")
         if not cv2.imwrite(temporary_image_path, cv_image):
             raise IOError("cv2.imwrite failed: {}".format(image_path))
         os.replace(temporary_image_path, image_path)
-        self._atomic_json(os.path.join(
-            self._output_dir, stem + ".json"), record)
+        self._atomic_json(
+            os.path.join(self._output_dir, metadata_name), record)
         self._records.append(record)
         self._captured = capture_index
-        self._trial_counts[trial["trial_id"]] += 1
+        self._trial_counts[trial_id] += 1
+        self._captured_stamps[trial_id].add(stamp_key(image))
         self._write_manifest()
 
     def _write_manifest(self):
@@ -207,13 +311,19 @@ class VSim04FailureCapture:
                 return
             payload = {
                 "schema_version": CAPTURE_SCHEMA_VERSION,
-                "dataset_kind": "sim-small-target",
+                "dataset_kind": CAPTURE_DATASET_KIND,
                 "status": (
                     "FAIL" if self._fatal_error else
                     "DIAGNOSTIC" if self._run_complete else "INCOMPLETE"),
                 "error": self._fatal_error,
                 "run_complete": self._run_complete,
                 "trial_selector": self._selector,
+                "trial_slice": self._slice,
+                "selected_trial_ids": list(self._trials),
+                "sampling_policy": (
+                    "source-stamp deterministic; singleton=45%, "
+                    "multi-sample=0..90% expected duration"),
+                "sampling_plans": self._sampling_plans,
                 "max_frames": self._max_frames,
                 "captured_frames": self._captured,
                 "trial_counts": dict(self._trial_counts),
