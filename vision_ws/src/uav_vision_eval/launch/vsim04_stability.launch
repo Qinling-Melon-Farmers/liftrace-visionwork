@@ -7,6 +7,10 @@
        diagnostic-only and can never produce a MEASURED Gate result. -->
   <arg name="trial_selector" default="" />
   <arg name="trial_slice" default="" />
+  <!-- Diagnostic-only raw-frame capture. It is absent from the process graph
+       unless explicitly enabled, so formal runs have zero added subscribers. -->
+  <arg name="enable_failure_capture" default="false" />
+  <arg name="failure_capture_max_frames" default="30" />
   <arg name="scenario_file"
        default="$(find uav_vision_eval)/config/scenarios/vsim04_r2026_targets.yaml" />
   <arg name="truth_catalog"
@@ -14,6 +18,8 @@
   <arg name="trial_event_topic"
        default="/uav_vision_eval/vsim04/trial_event" />
   <arg name="output_dir" default="$(optenv SIM_RUN_DIR /tmp)/vsim04" />
+  <arg name="failure_capture_output_dir"
+       default="$(arg output_dir)/failure_capture" />
   <arg name="class_profile" default="r2026" />
   <arg name="gui" default="false" />
   <arg name="paused" default="false" />
@@ -159,5 +165,20 @@
            value="$(arg handshake_write_margin_sec)" />
     <param name="trial_handshake_timeout_sec"
            value="$(eval float(arg('output_drain_timeout_sec')) + float(arg('output_quiet_sec')) + float(arg('recorder_status_period_sec')) + float(arg('handshake_write_margin_sec')) + 0.5)" />
+  </node>
+
+  <node if="$(arg enable_failure_capture)" pkg="uav_vision_eval"
+        type="vsim04_failure_capture.py" name="vsim04_failure_capture"
+        output="screen" required="true">
+    <param name="enabled" value="true" />
+    <param name="matrix_file" value="$(arg matrix_file)" />
+    <param name="trial_selector" value="$(arg trial_selector)" />
+    <param name="max_frames" value="$(arg failure_capture_max_frames)" />
+    <param name="output_dir" value="$(arg failure_capture_output_dir)" />
+    <param name="image_topic" value="$(arg image_topic)" />
+    <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <param name="truth_topic" value="/uav_vision_eval/ground_truth" />
+    <param name="trial_event_topic" value="$(arg trial_event_topic)" />
+    <param name="max_pending_pairs" value="64" />
   </node>
 </launch>
