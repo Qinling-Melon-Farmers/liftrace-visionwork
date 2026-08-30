@@ -148,8 +148,11 @@ class DropAligner:
                 frozen_key = ("malformed",)
             if (self._alignment_context is None or
                     frozen_key != self._alignment_context_frozen_key):
-                self._clear_stability()
-                self._last_context_watchdog_reason = None
+                # Optional mode is a byte-compatible diagnostic tap: receiving
+                # or replacing context must not perturb the legacy streak.
+                if self._require_alignment_context:
+                    self._clear_stability()
+                    self._last_context_watchdog_reason = None
                 rospy.loginfo(
                     "[DropAligner] alignment context fence changed "
                     "mission=%s decision=%u target=%u attempt=%u slot=%u",

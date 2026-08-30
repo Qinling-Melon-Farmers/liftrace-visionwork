@@ -20,23 +20,28 @@ CONFIRMED = 2
 
 class AlignmentContextAssertion:
     def __init__(self):
+        self._topic_prefix = rospy.get_param(
+            "~topic_prefix", "/uav_vision").rstrip("/")
         self._condition = threading.Condition()
         self._evidence = None
         self._wrapped = None
         self._wrapped_count = 0
         self._mode_pub = rospy.Publisher(
-            "/uav_vision/align_mode", String, queue_size=1, latch=True)
+            self._topic("align_mode"), String, queue_size=1, latch=True)
         self._context_pub = rospy.Publisher(
-            "/uav_vision/alignment_target_context",
+            self._topic("alignment_target_context"),
             AlignmentTargetContext, queue_size=1, latch=True)
         self._targets_pub = rospy.Publisher(
-            "/uav_vision/targets", TargetCandidateArray, queue_size=1)
+            self._topic("targets"), TargetCandidateArray, queue_size=1)
         rospy.Subscriber(
-            "/uav_vision/release_evidence", ReleaseEvidence,
+            self._topic("release_evidence"), ReleaseEvidence,
             self._on_evidence, queue_size=10)
         rospy.Subscriber(
-            "/uav_vision/release_evidence_context", ReleaseEvidenceContext,
+            self._topic("release_evidence_context"), ReleaseEvidenceContext,
             self._on_wrapped, queue_size=10)
+
+    def _topic(self, suffix):
+        return self._topic_prefix + "/" + suffix
 
     def _on_evidence(self, message):
         with self._condition:
@@ -151,9 +156,10 @@ class AlignmentContextAssertion:
                 if wrapped else None))
 
     def _single(self, context, target, predicate):
-        context.header.stamp = rospy.Time.now()
-        self._context_pub.publish(context)
-        rospy.sleep(0.08)
+        if context is not None:
+            context.header.stamp = rospy.Time.now()
+            self._context_pub.publish(context)
+            rospy.sleep(0.08)
         with self._condition:
             start_count = self._wrapped_count
         self._publish_target(target)
@@ -189,7 +195,7 @@ class AlignmentContextAssertion:
             rate.sleep()
         raise AssertionError("geometry watchdog assertion timed out")
 
-    def run(self):
+    def run_strict(self):
         self._wait_connections()
         self._mode_pub.publish(String(data="drop_circle"))
         rospy.sleep(0.1)
@@ -317,11 +323,58 @@ class AlignmentContextAssertion:
             "profile, lease and geometry identity")
         return 0
 
+    def run_optional(self):
+        self._wait_connections()
+        self._mode_pub.publish(String(data="drop_circle"))
+        rospy.sleep(0.1)
+        first_seen = rospy.Time.now() - rospy.Duration(2.0)
+        circle = self._target(42, "circle", first_seen)
+
+        first = self._single(
+            None, circle, lambda msg: msg.evidence.stable_frames == 1)
+        assert not first.evidence.evidence_valid
+        second = self._single(
+            None, circle, lambda msg: msg.evidence.stable_frames == 2)
+        assert not second.evidence.evidence_valid
+
+        initial_context = self._context(
+            100, "drop_circle", "tent", 0, first_seen)
+        third = self._single(
+            initial_context, circle,
+            lambda msg: (msg.decision_seq == 100 and
+                         msg.evidence.stable_frames == 3))
+        assert third.evidence.evidence_valid
+
+        off_center = self._target(42, "circle", first_seen)
+        off_center.center_px.x = 400.0
+        reset = self._single(
+            None, off_center, lambda msg: msg.evidence.stable_frames == 0)
+        assert not reset.evidence.evidence_valid
+        self._single(None, circle, lambda msg: msg.evidence.stable_frames == 1)
+        self._single(None, circle, lambda msg: msg.evidence.stable_frames == 2)
+
+        changed_context = self._context(
+            101, "drop_circle", "tent", 0, first_seen)
+        third_after_change = self._single(
+            changed_context, circle,
+            lambda msg: (msg.decision_seq == 101 and
+                         msg.evidence.stable_frames == 3))
+        assert third_after_change.evidence.evidence_valid
+
+        rospy.loginfo(
+            "[AlignmentContextAssertion] PASS optional context preserves "
+            "legacy stability timing")
+        return 0
+
 
 class AlignmentContextRostest(unittest.TestCase):
-    def test_strict_alignment_context(self):
+    def test_alignment_context(self):
         try:
-            result = AlignmentContextAssertion().run()
+            runner = AlignmentContextAssertion()
+            if rospy.get_param("~test_mode", "strict") == "optional":
+                result = runner.run_optional()
+            else:
+                result = runner.run_strict()
         except (AssertionError, RuntimeError) as error:
             self.fail(str(error))
         self.assertEqual(result, 0)

@@ -85,6 +85,7 @@ if(CATKIN_ENABLE_TESTING)
   add_rostest(test/cross_geometry_regression.test)
   add_rostest(test/landing_mode_gate.test)
   add_rostest(test/alignment_context.test)
+  add_rostest(test/alignment_context_optional.test)
 endif()
 
 # ---- circle_detector_node ----
