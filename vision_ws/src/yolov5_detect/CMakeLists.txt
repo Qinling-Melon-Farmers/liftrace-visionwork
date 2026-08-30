@@ -131,6 +131,7 @@ include_directories(
 
 add_executable(image_process src/image_process.cpp)
 target_link_libraries(image_process ${catkin_LIBRARIES})
+add_dependencies(image_process ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
 ## Declare a C++ library
