@@ -301,6 +301,8 @@ soak 入口把 Gazebo `LinkStates` 派生的最新相机位姿限到 20 Hz、发
 高于 10 Hz 路线与相机评测所需频率，并写入 manifest。通用 `ground_truth.launch` 默认仍为 0
 （不限频），不会改变既有矩阵入口。限频只移除冗余评测回调，不放宽图像/真值/位姿心跳、实际
 pose 误差、完整映射吞吐或 selected 准入门槛。
+`selected_target` 同样按最新状态使用 queue 1，并在 events 中记录接收源时间、`last_seen` 和实际
+年龄；因此评测器不会把自己队列中已被新消息替代的历史 selected 当成当前导航输入。
 
 无 Gazebo 的纯函数回归：
 

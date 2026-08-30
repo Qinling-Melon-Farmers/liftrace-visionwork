@@ -299,7 +299,7 @@ class VSim04CameraSoak:
             TargetCandidateArray, self._on_targets, queue_size=5)
         rospy.Subscriber(rospy.get_param(
             "~selected_topic", "/uav_vision/selected_target"),
-            TargetCandidate, self._on_selected, queue_size=10)
+            TargetCandidate, self._on_selected, queue_size=1)
         rospy.Subscriber(rospy.get_param(
             "~perf_topic", "/uav_vision/perf"),
             DiagnosticArray, self._on_perf, queue_size=10)
@@ -457,6 +457,10 @@ class VSim04CameraSoak:
             "reject_reason": message.reject_reason,
         }
         now_source = rospy.Time.now().to_sec()
+        try:
+            selected_age_sec = now_source - float(record["last_seen_sec"])
+        except (TypeError, ValueError, OverflowError):
+            selected_age_sec = None
         errors = selected_candidate_errors(
             record, now_source, self._allowed_classes,
             self._confirm_frames, self._selected_max_age)
@@ -482,6 +486,9 @@ class VSim04CameraSoak:
                 details={
                     "stable_id": int(message.id),
                     "class_name": message.class_name,
+                    "last_seen_sec": record["last_seen_sec"],
+                    "receipt_source_sec": now_source,
+                    "selected_age_sec": selected_age_sec,
                     "validation_errors": errors,
                 })
 
