@@ -94,7 +94,9 @@ bash top_level_scripts/sim_run.sh vsim04_diag_pillbox_capture \
 `dataset_manifest.json`。逐帧记录包含 trial/class/height、精确 ROS stamp、真值 ROI、
 CameraInfo 与源图编码；原图和真值只接受 `(secs,nsecs)` 完全一致的配对。selector 为空、
 上限非法、CameraInfo 不匹配，或选中 trial 未产生任何有效配对时均 fail closed。该数据只
-标记为 `sim-small-target` 诊断输入，不得当作实拍数据或直接触发训练/阈值修改。
+标记为 `sim-small-target` 诊断输入，不得当作实拍数据或直接触发训练/阈值修改。多个 selector
+共用一个总帧数上限，预算按 trial 顺序确定性均分（余数分给靠前 trial），且总上限必须至少
+等于 trial 数；采集 manifest 非 `DIAGNOSTIC` 时 `sim_run.sh` 必须返回非零。
 
 入口只启动 Gazebo、评测相机、视觉链、真值、recorder 和 trial runner；不会启动 PX4、
 MAVROS、旧控制、`actuator_pwm` 或真实投递。当前合并态证据

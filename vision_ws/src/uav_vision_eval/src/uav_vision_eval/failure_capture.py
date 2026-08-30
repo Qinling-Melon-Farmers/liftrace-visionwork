@@ -30,6 +30,23 @@ def validate_capture_config(enabled, trial_selector, max_frames, output_dir):
         raise ValueError("failure capture output_dir must be non-empty")
 
 
+def allocate_trial_quotas(trial_ids, max_frames):
+    """Split one bounded capture budget across ordered selected trials."""
+    identifiers = [str(trial_id).strip() for trial_id in trial_ids]
+    if not identifiers or any(not trial_id for trial_id in identifiers):
+        raise ValueError("capture trial IDs must be non-empty")
+    if len(identifiers) != len(set(identifiers)):
+        raise ValueError("capture trial IDs must be unique")
+    total = int(max_frames)
+    if total < len(identifiers):
+        raise ValueError(
+            "failure capture max_frames must cover every selected trial")
+    base, remainder = divmod(total, len(identifiers))
+    return OrderedDict(
+        (trial_id, base + (1 if index < remainder else 0))
+        for index, trial_id in enumerate(identifiers))
+
+
 class ExactStampPairBuffer:
     """Pair image and truth messages only when their header stamps are equal."""
 

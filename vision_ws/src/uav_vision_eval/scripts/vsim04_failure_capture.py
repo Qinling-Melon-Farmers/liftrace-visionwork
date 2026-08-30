@@ -14,6 +14,7 @@ from std_msgs.msg import String
 from uav_vision_eval.failure_capture import (
     CAPTURE_SCHEMA_VERSION,
     ExactStampPairBuffer,
+    allocate_trial_quotas,
     build_frame_record,
     select_truth_target,
     validate_capture_config,
@@ -48,6 +49,8 @@ class VSim04FailureCapture:
             raise ValueError("failure capture is diagnostic-only")
         self._trials = {
             trial["trial_id"]: trial for trial in selected["trials"]}
+        self._trial_quotas = allocate_trial_quotas(
+            self._trials.keys(), self._max_frames)
         self._target_ids = {
             class_name: anchor["target_id"]
             for class_name, anchor in selected["target_anchors"].items()
@@ -131,7 +134,7 @@ class VSim04FailureCapture:
     def _on_image(self, message):
         try:
             with self._lock:
-                if self._active_trial is None or self._captured >= self._max_frames:
+                if not self._active_trial_has_budget():
                     return
                 pair = self._pair_buffer.add_image(message)
                 if pair is not None:
@@ -142,7 +145,7 @@ class VSim04FailureCapture:
     def _on_truth(self, message):
         try:
             with self._lock:
-                if self._active_trial is None or self._captured >= self._max_frames:
+                if not self._active_trial_has_budget():
                     return
                 pair = self._pair_buffer.add_truth(message)
                 if pair is not None:
@@ -158,11 +161,18 @@ class VSim04FailureCapture:
             stream.write("\n")
         os.replace(temporary, path)
 
+    def _active_trial_has_budget(self):
+        trial = self._active_trial
+        if trial is None or self._captured >= self._max_frames:
+            return False
+        trial_id = trial["trial_id"]
+        return self._trial_counts[trial_id] < self._trial_quotas[trial_id]
+
     def _capture_pair(self, image, truth):
         if self._camera_info is None:
             return
         trial = self._active_trial
-        if trial is None or self._captured >= self._max_frames:
+        if not self._active_trial_has_budget():
             return
         target = select_truth_target(
             truth, trial["class_name"],
@@ -207,6 +217,7 @@ class VSim04FailureCapture:
                 "max_frames": self._max_frames,
                 "captured_frames": self._captured,
                 "trial_counts": dict(self._trial_counts),
+                "trial_quotas": dict(self._trial_quotas),
                 "records": self._records,
             }
             self._atomic_json(
@@ -215,11 +226,14 @@ class VSim04FailureCapture:
 
 
 def main():
+    node = None
     try:
-        VSim04FailureCapture()
+        node = VSim04FailureCapture()
         rospy.spin()
     except Exception as error:
         rospy.logfatal("V-SIM failure capture startup failed: %s", error)
+        return 8
+    if node is not None and node._fatal_error:
         return 8
     return 0
 

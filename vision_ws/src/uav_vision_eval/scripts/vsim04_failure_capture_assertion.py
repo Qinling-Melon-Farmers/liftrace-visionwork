@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 from uav_vision_eval.failure_capture import (
     ExactStampPairBuffer,
+    allocate_trial_quotas,
     build_frame_record,
     select_truth_target,
     validate_capture_config,
@@ -41,6 +42,16 @@ def main():
             pass
     validate_capture_config(
         True, "static_pillbox_h3p6", 3, "/tmp/out")
+    assert dict(allocate_trial_quotas(["a", "b"], 5)) == {
+        "a": 3, "b": 2}
+    assert dict(allocate_trial_quotas(["a", "b", "c"], 3)) == {
+        "a": 1, "b": 1, "c": 1}
+    for identifiers, total in ((["a", "b"], 1), (["a", "a"], 2)):
+        try:
+            allocate_trial_quotas(identifiers, total)
+            raise AssertionError("unsafe capture quota was accepted")
+        except ValueError:
+            pass
 
     image = ns(header=header(12, 34), width=640, height=480,
                encoding="bgr8", step=1920)

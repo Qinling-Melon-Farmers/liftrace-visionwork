@@ -58,6 +58,12 @@ MANIFEST="${RUN_DIR}/manifest.yaml"
 RUN_LOG="${RUN_DIR}/run.log"
 RECORD_MP4="${RUN_DIR}/screenrecord.mp4"
 REQUIRE_GATE="${SIM_REQUIRE_GATE:-0}"
+VSIM04_CAPTURE_REQUESTED=0
+for RUN_ARGUMENT in "$@"; do
+  case "${RUN_ARGUMENT}" in
+    enable_failure_capture:=true) VSIM04_CAPTURE_REQUESTED=1 ;;
+  esac
+done
 
 # ---- manifest 头部 ----
 {
@@ -144,6 +150,17 @@ case "${SCENE}" in
     fi
     if [ "${VSIM04_STATUS}" != "${VSIM04_EXPECTED_STATUS}" ] || [ -n "${VSIM04_MISSING}" ]; then
       EXIT_CODE=1
+    fi
+    if [ "${VSIM04_CAPTURE_REQUESTED}" = "1" ]; then
+      VSIM04_CAPTURE_MANIFEST="${VSIM04_DIR}/failure_capture/dataset_manifest.json"
+      VSIM04_CAPTURE_STATUS=""
+      if [ -f "${VSIM04_CAPTURE_MANIFEST}" ]; then
+        VSIM04_CAPTURE_STATUS="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("status", ""))' "${VSIM04_CAPTURE_MANIFEST}" 2>/dev/null || true)"
+      fi
+      echo "V-SIM-04 capture status: ${VSIM04_CAPTURE_STATUS:-MISSING} (expected DIAGNOSTIC)" | tee -a "${RUN_LOG}"
+      if [ "${VSIM04_CAPTURE_STATUS}" != "DIAGNOSTIC" ]; then
+        EXIT_CODE=1
+      fi
     fi
     ;;
 esac
