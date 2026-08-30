@@ -94,6 +94,12 @@ PERFORMANCE_FIELDS = [
     "disallowed_selected_observations", "unique_selected_targets",
     "policy_rejected_selected_observations",
     "tank_confirmed_observations", "tank_selected_observations",
+    # Historical columns above are append-only.  Navigation metrics stay at
+    # the tail so existing CSV readers keep their positional contract.
+    "navigation_metrics_mode", "navigation_target_stage_capability",
+    "navigation_metrics_reason", "p_decision", "p_dispatch",
+    "p_planner_arrival", "p_interrupt_reason",
+    "navigation_binding_keys", "navigation_validation_errors",
 ]
 REQUIRED_ARTIFACTS = (
     "manifest.json", "frames.csv", "events.csv", "summary.json",
@@ -102,6 +108,459 @@ REQUIRED_ARTIFACTS = (
 EXPECTED_TRIAL_COUNT = 23
 CONFIRMED_STATE = 2
 AUDIT_EVENT_KINDS = ("confirmed", "selected")
+NAVIGATION_METRICS_MODES = (
+    "visual_only", "typed_contract", "target_stage")
+NAVIGATION_SCHEMA_VERSION = 1
+NAVIGATION_APPROACH_COMMAND = 1
+NAVIGATION_VALID_COMMANDS = frozenset(range(8))
+NAVIGATION_VALID_STATUSES = frozenset(range(8))
+NAVIGATION_VALID_STAGES = frozenset(range(7))
+NAVIGATION_ACCEPTED_STATUS = 0
+NAVIGATION_STARTED_STATUS = 1
+NAVIGATION_PROGRESS_STATUS = 2
+NAVIGATION_DISPATCH_STAGE = 0
+NAVIGATION_PLANNER_STAGE = 1
+NAVIGATION_CAPTURE_STAGE = 2
+VISUAL_ONLY_INTERRUPT_REASON = "visual_only_no_navigation_acceptance_event"
+
+
+def navigation_metrics_metadata(mode):
+    """Return the frozen capability declaration for one evaluation mode."""
+    normalized = str(mode or "visual_only").strip().lower()
+    if normalized not in NAVIGATION_METRICS_MODES:
+        raise ValueError(
+            "navigation_metrics_mode must be one of {}".format(
+                ",".join(NAVIGATION_METRICS_MODES)))
+    capability = normalized == "target_stage"
+    reasons = {
+        "visual_only": "navigation_topics_not_subscribed",
+        "typed_contract": (
+            "typed_navigation_contract_without_target_stage_capability"),
+        "target_stage": "typed_target_stage_capability_enabled",
+    }
+    return {
+        "mode": normalized,
+        "target_stage_capability": capability,
+        "reason": reasons[normalized],
+    }
+
+
+def navigation_drain_ready(now_monotonic, requested_monotonic,
+                           last_receipt_monotonic, quiet_sec, timeout_sec):
+    """Return ``(ready, timed_out)`` for the typed final callback drain."""
+    values = (now_monotonic, requested_monotonic, quiet_sec, timeout_sec)
+    try:
+        now, requested, quiet, timeout = [float(value) for value in values]
+        last_receipt = (requested if last_receipt_monotonic is None else
+                        float(last_receipt_monotonic))
+    except (TypeError, ValueError, OverflowError):
+        return False, False
+    if (not all(math.isfinite(value) for value in
+                (now, requested, last_receipt, quiet, timeout)) or
+            quiet <= 0.0 or timeout <= 0.0 or timeout < quiet or
+            now < requested):
+        return False, False
+    timed_out = now - requested >= timeout
+    quiet_reached = now - max(requested, last_receipt) >= quiet
+    return quiet_reached or timed_out, timed_out
+
+
+def _navigation_int(record, field, minimum=None):
+    value = record.get(field)
+    if isinstance(value, bool):
+        raise ValueError(field + "_invalid")
+    if isinstance(value, float) and (
+            not math.isfinite(value) or not value.is_integer()):
+        raise ValueError(field + "_invalid")
+    try:
+        value = int(value)
+    except (TypeError, ValueError, OverflowError) as error:
+        raise ValueError(field + "_invalid") from error
+    if minimum is not None and value < minimum:
+        raise ValueError(field + "_invalid")
+    return value
+
+
+def _navigation_text(record, field):
+    value = str(record.get(field, "")).strip()
+    if not value:
+        raise ValueError(field + "_missing")
+    return value
+
+
+def _navigation_bool(record, field):
+    value = record.get(field)
+    if not isinstance(value, bool):
+        raise ValueError(field + "_invalid")
+    return value
+
+
+def _navigation_target_key(record):
+    """Return the exact cross-process target/action binding key."""
+    return (
+        _navigation_text(record, "mission_id"),
+        _navigation_int(record, "decision_seq", 1),
+        # uint32 zero is a valid target identity; has_target carries presence.
+        _navigation_int(record, "target_id", 0),
+        _navigation_int(record, "target_first_seen_ns", 1),
+        _navigation_int(record, "attempt", 1),
+        _navigation_int(record, "payload_slot", 1),
+    )
+
+
+def _navigation_wire_fingerprint(record, kind):
+    ignored = {"receipt_monotonic", "trial_id_at_receipt"}
+    if kind == "decision":
+        fields = (
+            "schema_version", "mission_id", "decision_seq",
+            "header_seq", "header_stamp_ns", "header_frame_id",
+            "deadline_ns", "command", "class_profile", "has_goal",
+            "has_target", "target_id", "target_first_seen_ns",
+            "target_observation_stamp_ns", "target_class", "attempt",
+            "payload_slot", "goal_stamp_ns", "goal_frame_id", "goal_x",
+            "goal_y", "goal_z", "goal_qx", "goal_qy", "goal_qz",
+            "goal_qw", "reason")
+    else:
+        fields = (
+            "schema_version", "mission_id", "executor_id", "event_seq",
+            "decision_seq", "header_seq", "header_stamp_ns",
+            "header_frame_id", "command", "status",
+            "stage", "terminal", "retryable", "payload_committed",
+            "has_target", "target_id", "target_first_seen_ns",
+            "target_class", "attempt", "payload_slot", "reason",
+            "evidence_source")
+    return tuple((field, copy.deepcopy(record.get(field)))
+                 for field in fields if field not in ignored)
+
+
+def _navigation_record_label(record, kind):
+    mission = str(record.get("mission_id", "") or "missing")
+    if kind == "decision":
+        sequence = record.get("decision_seq", "invalid")
+        return "decision:{}:{}".format(mission, sequence)
+    executor = str(record.get("executor_id", "") or "missing")
+    sequence = record.get("event_seq", "invalid")
+    return "result:{}:{}:{}".format(mission, executor, sequence)
+
+
+def _navigation_decision_error(record, class_profile, allowed_classes):
+    try:
+        if _navigation_int(record, "schema_version") != \
+                NAVIGATION_SCHEMA_VERSION:
+            return "schema_version_mismatch"
+        _navigation_text(record, "mission_id")
+        _navigation_int(record, "decision_seq", 1)
+        issued_ns = _navigation_int(record, "header_stamp_ns", 1)
+        deadline_ns = _navigation_int(record, "deadline_ns", 1)
+        if deadline_ns <= issued_ns:
+            return "deadline_not_after_decision"
+        command = _navigation_int(record, "command")
+        if command not in NAVIGATION_VALID_COMMANDS:
+            return "command_invalid"
+        profile = _navigation_text(record, "class_profile")
+        if profile != str(class_profile):
+            return "profile_mismatch"
+        _navigation_bool(record, "has_goal")
+        has_target = _navigation_bool(record, "has_target")
+        if command == NAVIGATION_APPROACH_COMMAND:
+            if not has_target:
+                return "approach_target_missing"
+            _navigation_target_key(record)
+            observation_ns = _navigation_int(
+                record, "target_observation_stamp_ns", 1)
+            first_seen_ns = _navigation_int(
+                record, "target_first_seen_ns", 1)
+            if observation_ns < first_seen_ns:
+                return "target_observation_precedes_first_seen"
+            if observation_ns > issued_ns:
+                return "target_observation_after_decision"
+            target_class = _navigation_text(record, "target_class")
+            if allowed_classes and target_class not in set(allowed_classes):
+                return "target_class_disallowed_by_profile"
+        return ""
+    except ValueError as error:
+        return str(error)
+
+
+def _navigation_result_error(record):
+    try:
+        if _navigation_int(record, "schema_version") != \
+                NAVIGATION_SCHEMA_VERSION:
+            return "schema_version_mismatch"
+        _navigation_text(record, "mission_id")
+        _navigation_text(record, "executor_id")
+        _navigation_int(record, "event_seq", 1)
+        _navigation_int(record, "decision_seq", 1)
+        _navigation_int(record, "header_stamp_ns", 1)
+        command = _navigation_int(record, "command")
+        if command not in NAVIGATION_VALID_COMMANDS:
+            return "command_invalid"
+        if _navigation_int(record, "status") not in NAVIGATION_VALID_STATUSES:
+            return "status_invalid"
+        if _navigation_int(record, "stage") not in NAVIGATION_VALID_STAGES:
+            return "stage_invalid"
+        _navigation_bool(record, "terminal")
+        _navigation_bool(record, "retryable")
+        _navigation_bool(record, "payload_committed")
+        has_target = _navigation_bool(record, "has_target")
+        if command == NAVIGATION_APPROACH_COMMAND:
+            if not has_target:
+                return "approach_target_missing"
+            _navigation_target_key(record)
+            _navigation_text(record, "target_class")
+        return ""
+    except ValueError as error:
+        return str(error)
+
+
+def _deduplicate_navigation_records(records, kind):
+    """Deduplicate retransmissions and reject identity/event-seq conflicts."""
+    unique = []
+    errors = []
+    duplicates = 0
+    identities = {}
+    highest_result_seq = {}
+    for raw in records or []:
+        record = copy.deepcopy(dict(raw))
+        label = _navigation_record_label(record, kind)
+        try:
+            if kind == "decision":
+                identity = (
+                    _navigation_text(record, "mission_id"),
+                    _navigation_int(record, "decision_seq", 1))
+            else:
+                identity = (
+                    _navigation_text(record, "mission_id"),
+                    _navigation_text(record, "executor_id"),
+                    _navigation_int(record, "event_seq", 1))
+        except ValueError:
+            # The schema validator below emits the precise field error.  Keep
+            # malformed records distinct so they cannot hide one another.
+            unique.append(record)
+            continue
+        fingerprint = _navigation_wire_fingerprint(record, kind)
+        previous = identities.get(identity)
+        if previous is not None:
+            if previous == fingerprint:
+                duplicates += 1
+            else:
+                errors.append(label + ":" + (
+                    "decision_identity_conflict" if kind == "decision" else
+                    "event_seq_conflict"))
+            continue
+        identities[identity] = fingerprint
+        if kind == "result":
+            stream = identity[:2]
+            sequence = identity[2]
+            previous_seq = highest_result_seq.get(stream)
+            if previous_seq is not None and sequence < previous_seq:
+                errors.append(label + ":event_seq_out_of_order")
+                continue
+            highest_result_seq[stream] = max(
+                sequence, previous_seq if previous_seq is not None else 0)
+        unique.append(record)
+    return unique, errors, duplicates
+
+
+def correlate_navigation_events(trials, decision_records, result_records,
+                                mode="visual_only", class_profile="",
+                                allowed_classes=None):
+    """Validate typed navigation events and backfill completed visual trials.
+
+    A result is usable only after an exact
+    mission/decision/target/first-seen/attempt/slot join.  The function is
+    deliberately ROS-free and independent of callback order, so a result that
+    arrives after ``trial_end`` can still update that trial at snapshot time.
+    """
+    metadata = navigation_metrics_metadata(mode)
+    updated = [copy.deepcopy(result) for result in (trials or [])]
+    for result in updated:
+        result.update({
+            "navigation_metrics_mode": metadata["mode"],
+            "navigation_target_stage_capability": metadata[
+                "target_stage_capability"],
+            "navigation_metrics_reason": metadata["reason"],
+            "p_decision": None,
+            "p_dispatch": None,
+            "p_planner_arrival": None,
+            "p_interrupt": None,
+            "p_interrupt_reason": (
+                VISUAL_ONLY_INTERRUPT_REASON
+                if metadata["mode"] == "visual_only" else
+                metadata["reason"]),
+            "navigation_binding_keys": "[]",
+            "navigation_validation_errors": "[]",
+        })
+    if metadata["mode"] == "visual_only":
+        return {
+            **metadata,
+            "trials": updated,
+            "validation_errors": [],
+            "decision_event_count": 0,
+            "result_event_count": 0,
+            "deduplicated_decision_count": 0,
+            "deduplicated_result_count": 0,
+            "matched_result_count": 0,
+        }
+
+    allowed = set(str(value) for value in (allowed_classes or []))
+    profile_errors = []
+    if not allowed:
+        try:
+            resolved_profile, resolved_allowed = resolve_class_profile(
+                class_profile)
+            if resolved_profile != str(class_profile).strip().lower():
+                profile_errors.append("navigation_profile_normalization_error")
+            allowed = set(resolved_allowed)
+        except ValueError:
+            profile_errors.append("navigation_profile_allowlist_unavailable")
+    decisions, errors, duplicate_decisions = \
+        _deduplicate_navigation_records(decision_records, "decision")
+    errors.extend(profile_errors)
+    navigation_results, result_identity_errors, duplicate_results = \
+        _deduplicate_navigation_records(result_records, "result")
+    errors.extend(result_identity_errors)
+
+    valid_decisions = {}
+    valid_approach = []
+    for decision in decisions:
+        label = _navigation_record_label(decision, "decision")
+        error = _navigation_decision_error(
+            decision, class_profile, allowed)
+        if error:
+            errors.append(label + ":" + error)
+            continue
+        identity = (str(decision["mission_id"]), int(decision["decision_seq"]))
+        valid_decisions[identity] = decision
+        if int(decision["command"]) == NAVIGATION_APPROACH_COMMAND:
+            valid_approach.append(decision)
+
+    matched_results = []
+    for event in navigation_results:
+        label = _navigation_record_label(event, "result")
+        error = _navigation_result_error(event)
+        if error:
+            errors.append(label + ":" + error)
+            continue
+        identity = (str(event["mission_id"]), int(event["decision_seq"]))
+        decision = valid_decisions.get(identity)
+        if decision is None:
+            errors.append(label + ":decision_missing_or_invalid")
+            continue
+        if int(event["command"]) != int(decision["command"]):
+            errors.append(label + ":command_mismatch")
+            continue
+        if bool(event.get("has_target")) != bool(
+                decision.get("has_target")):
+            errors.append(label + ":target_flag_mismatch")
+            continue
+        if bool(decision.get("has_target")):
+            try:
+                exact_key = _navigation_target_key(event)
+                decision_key = _navigation_target_key(decision)
+            except ValueError as validation_error:
+                errors.append(label + ":" + str(validation_error))
+                continue
+            if exact_key != decision_key:
+                errors.append(label + ":full_binding_key_mismatch")
+                continue
+            if str(event.get("target_class", "")) != str(
+                    decision.get("target_class", "")):
+                errors.append(label + ":target_class_mismatch")
+                continue
+        event_stamp = int(event["header_stamp_ns"])
+        if event_stamp < int(decision["header_stamp_ns"]):
+            errors.append(label + ":result_precedes_decision")
+            continue
+        # The navigation core treats deadline as an exclusive action lease:
+        # no dispatch, planner-arrival, or target-stage milestone after this
+        # boundary may contribute to evaluation.
+        if event_stamp >= int(decision["deadline_ns"]):
+            error = (
+                "dispatch_at_or_after_deadline"
+                if int(event["status"]) == NAVIGATION_ACCEPTED_STATUS and
+                int(event["stage"]) == NAVIGATION_DISPATCH_STAGE else
+                "result_at_or_after_deadline")
+            errors.append(label + ":" + error)
+            continue
+        matched_results.append((decision, event))
+
+    errors = sorted(set(errors))
+    navigation_errors_json = json.dumps(errors, sort_keys=True)
+    for trial in updated:
+        if trial.get("status") != "completed":
+            continue
+        trial["navigation_validation_errors"] = navigation_errors_json
+        trial["p_decision"] = False
+        trial["p_dispatch"] = False
+        trial["p_planner_arrival"] = False
+        if metadata["target_stage_capability"]:
+            trial["p_interrupt"] = False
+            trial["p_interrupt_reason"] = \
+                "matching_started_capture_event_absent"
+        selected_id = trial.get("stable_id")
+        selected_first_seen = trial.get("selected_target_first_seen_ns")
+        selected_observation_stamps = {
+            int(value) for value in
+            (trial.get("selected_target_observation_stamps_ns") or [])
+            if isinstance(value, int) and not isinstance(value, bool) and
+            value > 0
+        }
+        if (not trial.get("p_selected") or selected_id is None or
+                selected_first_seen is None or
+                not selected_observation_stamps):
+            continue
+        binding_decisions = [
+            decision for decision in valid_approach
+            if int(decision.get("target_id", -1)) == int(selected_id) and
+            int(decision.get("target_first_seen_ns", -1)) ==
+            int(selected_first_seen) and
+            int(decision.get("target_observation_stamp_ns", -1)) in
+            selected_observation_stamps and
+            str(decision.get("target_class", "")) ==
+            str(trial.get("class_name", ""))
+        ]
+        if not binding_decisions:
+            continue
+        trial["p_decision"] = True
+        keys = sorted({_navigation_target_key(item)
+                       for item in binding_decisions})
+        trial["navigation_binding_keys"] = json.dumps(
+            [list(item) for item in keys], sort_keys=True)
+        binding_key_set = set(keys)
+        events = [
+            (decision, event) for decision, event in matched_results
+            if _navigation_target_key(decision) in binding_key_set
+        ]
+        trial["p_dispatch"] = any(
+            int(event["status"]) == NAVIGATION_ACCEPTED_STATUS and
+            int(event["stage"]) == NAVIGATION_DISPATCH_STAGE and
+            int(event["header_stamp_ns"]) < int(decision["deadline_ns"])
+            for decision, event in events)
+        trial["p_planner_arrival"] = any(
+            int(event["status"]) == NAVIGATION_PROGRESS_STATUS and
+            int(event["stage"]) == NAVIGATION_PLANNER_STAGE and
+            str(event.get("reason", "")) ==
+            "approach_arrival_confirmed"
+            for _decision, event in events)
+        if metadata["target_stage_capability"]:
+            trial["p_interrupt"] = any(
+                int(event["status"]) == NAVIGATION_STARTED_STATUS and
+                int(event["stage"]) == NAVIGATION_CAPTURE_STAGE
+                for _decision, event in events)
+            if trial["p_interrupt"]:
+                trial["p_interrupt_reason"] = \
+                    "matching_started_capture_event_observed"
+    return {
+        **metadata,
+        "trials": updated,
+        "validation_errors": errors,
+        "decision_event_count": len(decisions),
+        "result_event_count": len(navigation_results),
+        "deduplicated_decision_count": duplicate_decisions,
+        "deduplicated_result_count": duplicate_results,
+        "matched_result_count": len(matched_results),
+    }
 
 
 def candidate_audit_observation(event_kind, class_name, stable_id,
@@ -773,7 +1232,18 @@ def planned_trial_result(trial):
         "p_confirm": None,
         "p_selected": None,
         "p_interrupt": None,
+        "p_decision": None,
+        "p_dispatch": None,
+        "p_planner_arrival": None,
+        "p_interrupt_reason": VISUAL_ONLY_INTERRUPT_REASON,
+        "navigation_metrics_mode": "visual_only",
+        "navigation_target_stage_capability": False,
+        "navigation_metrics_reason": "navigation_topics_not_subscribed",
+        "navigation_binding_keys": "[]",
+        "navigation_validation_errors": "[]",
         "stable_id": None,
+        "selected_target_first_seen_ns": None,
+        "selected_target_observation_stamps_ns": [],
         "confirmation_exposure_sec": None,
         "confirmation_processing_ms": None,
         "confirmation_pipeline_ms": None,
@@ -1033,6 +1503,8 @@ def correlate_admission_events(candidate_events, selected_events, result,
         "p_confirm": False,
         "p_selected": False,
         "stable_id": None,
+        "selected_target_first_seen_ns": None,
+        "selected_target_observation_stamps_ns": [],
         "confirmation_exposure_sec": None,
         "confirmation_processing_ms": None,
         "confirmation_pipeline_ms": None,
@@ -1060,10 +1532,28 @@ def correlate_admission_events(candidate_events, selected_events, result,
         delta = confirmation["receipt_monotonic"] - detector_start
         if math.isfinite(delta) and delta >= 0.0:
             output["confirmation_pipeline_ms"] = delta * 1000.0
-    output["p_selected"] = any(
-        event["stable_id"] == output["stable_id"] and
-        event_inside_trial_window(event, result)
-        for event in selected_events)
+    matching_selected = [
+        event for event in selected_events
+        if event["stable_id"] == output["stable_id"] and
+        event_inside_trial_window(event, result)]
+    output["p_selected"] = bool(matching_selected)
+    if matching_selected:
+        selected = min(matching_selected, key=lambda event: (
+            event["receipt_monotonic"], event["source_stamp"]))
+        first_seen_ns = selected.get("target_first_seen_ns")
+        if first_seen_ns is not None:
+            try:
+                first_seen_ns = int(first_seen_ns)
+            except (TypeError, ValueError, OverflowError):
+                first_seen_ns = None
+        output["selected_target_first_seen_ns"] = first_seen_ns
+        output["selected_target_observation_stamps_ns"] = sorted({
+            int(event["stamp_key"])
+            for event in matching_selected
+            if event.get("stamp_key") is not None and
+            first_seen_ns is not None and
+            int(event.get("target_first_seen_ns", -1)) == first_seen_ns
+        })
     return output
 
 
@@ -1213,6 +1703,14 @@ def decorate_performance_rows(rows, breakdowns):
 def summarize_trial_results(results, run_mode, actual_fps=None,
                             terminal_context=None):
     terminal_context = dict(terminal_context or {})
+    navigation_audit = correlate_navigation_events(
+        results,
+        terminal_context.get("navigation_decision_records", []),
+        terminal_context.get("navigation_result_records", []),
+        terminal_context.get("navigation_metrics_mode", "visual_only"),
+        terminal_context.get("class_profile", ""),
+        terminal_context.get("allowed_classes", []))
+    results = navigation_audit["trials"]
     finalized = [finalize_trial_result(result) for result in results]
     breakdowns = build_metric_breakdowns(results)
     completed = [result for result in finalized
@@ -1276,6 +1774,9 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
     terminal_complete = terminal_context.get("run_complete", False)
     evaluation_scope = str(terminal_context.get("evaluation_scope", "full"))
     if terminal_complete:
+        validation_errors.extend(
+            "navigation_contract:" + error
+            for error in navigation_audit["validation_errors"])
         expected_count = terminal_context.get(
             "expected_trial_count", EXPECTED_TRIAL_COUNT)
         if evaluation_scope not in {"full", "diagnostic"}:
@@ -1317,6 +1818,9 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
                              for result in completed
                              if result.get("failure_stage")})
     }
+    navigation_enabled = navigation_audit["mode"] != "visual_only"
+    target_stage_capability = navigation_audit[
+        "target_stage_capability"]
     metrics = {
         "p_confirm": (
             sum(bool(result.get("p_confirm")) for result in completed) /
@@ -1324,8 +1828,26 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         "p_selected": (
             sum(bool(result.get("p_selected")) for result in completed) /
             float(len(completed)) if completed else None),
-        "p_interrupt": None,
-        "p_interrupt_reason": "visual_only_no_navigation_acceptance_event",
+        "p_decision": (
+            sum(bool(result.get("p_decision")) for result in completed) /
+            float(len(completed))
+            if navigation_enabled and completed else None),
+        "p_dispatch": (
+            sum(bool(result.get("p_dispatch")) for result in completed) /
+            float(len(completed))
+            if navigation_enabled and completed else None),
+        "p_planner_arrival": (
+            sum(bool(result.get("p_planner_arrival"))
+                for result in completed) / float(len(completed))
+            if navigation_enabled and completed else None),
+        "p_interrupt": (
+            sum(bool(result.get("p_interrupt")) for result in completed) /
+            float(len(completed))
+            if target_stage_capability and completed else None),
+        "p_interrupt_reason": (
+            VISUAL_ONLY_INTERRUPT_REASON
+            if navigation_audit["mode"] == "visual_only" else
+            navigation_audit["reason"]),
         "stage_frame_rates": {
             field.replace("_frames", "_rate"): _ratio(
                 count, eligible_frames)
@@ -1395,6 +1917,11 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         "completeness": completeness,
         "performance_verdict": performance_verdict,
         "candidate_audit": audit,
+        "navigation_metrics": {
+            key: copy.deepcopy(value)
+            for key, value in navigation_audit.items()
+            if key != "trials"
+        },
         "artifact_completeness": {
             "required": list(REQUIRED_ARTIFACTS),
             "present": [],
@@ -1404,6 +1931,10 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         "metrics": metrics,
         "metric_denominators": {
             "completed_trials": len(completed),
+            "navigation_metric_trials": (
+                len(completed) if navigation_enabled else 0),
+            "target_stage_metric_trials": (
+                len(completed) if target_stage_capability else 0),
             "eligible_frames": eligible_frames,
             **stage_frame_counts,
             "detection_frames": detection_frames,
@@ -1434,9 +1965,20 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
             "p_selected": (
                 "the same stable_id confirmed in the trial is published on "
                 "selected_target before leaving"),
+            "p_decision": (
+                "a schema/profile/deadline-valid APPROACH decision binds the "
+                "selected target by mission_id, decision_seq, target_id, "
+                "target_first_seen, attempt and payload_slot"),
+            "p_dispatch": (
+                "an exact-key NavigationResult reports ACCEPTED/DISPATCH; "
+                "selected or decision evidence cannot substitute it"),
+            "p_planner_arrival": (
+                "an exact-key NavigationResult reports PROGRESS/PLANNER with "
+                "reason approach_arrival_confirmed"),
             "p_interrupt": (
-                "null in visual-only runs; requires navigation adapter "
-                "SEARCH-to-APPROACH acceptance"),
+                "true only in target_stage mode after an exact-key "
+                "STARTED/CAPTURE result; null in visual_only and "
+                "typed_contract modes"),
             "confirmation_exposure_sec": (
                 "candidate last_seen source stamp minus first fully-in-frame "
                 "truth stamp"),
@@ -1563,6 +2105,10 @@ def _breakdown_report(title, rows):
     return lines
 
 
+def _report_scalar(value):
+    return "null" if value is None else str(value)
+
+
 def _report(summary):
     metrics = summary["metrics"]
     denominators = summary["metric_denominators"]
@@ -1571,11 +2117,16 @@ def _report(summary):
     artifacts = summary["artifact_completeness"]
     verdict = summary["performance_verdict"]
     audit = summary["candidate_audit"]
+    navigation = summary["navigation_metrics"]
     lines = [
         "# V-SIM-04 Vision Search Performance",
         "",
         "- Run mode: `{}`".format(summary["run_mode"]),
         "- Evaluation scope: `{}`".format(summary["evaluation_scope"]),
+        "- Navigation metrics mode: `{}`".format(navigation["mode"]),
+        "- Target-stage capability: `{}`".format(
+            navigation["target_stage_capability"]),
+        "- Navigation metrics reason: `{}`".format(navigation["reason"]),
         "- Artifact set complete: `{}` (missing: `{}`)".format(
             artifacts["complete"], artifacts["missing"]),
         "- Measurement completeness: `{}`".format(
@@ -1590,9 +2141,22 @@ def _report(summary):
             verdict["hard_failure_reasons"]),
         "- Completed trials: `{}/{}`".format(
             summary["completed_trial_count"], summary["trial_count"]),
-        "- P_confirm: `{}`".format(metrics["p_confirm"]),
-        "- P_selected: `{}`".format(metrics["p_selected"]),
-        "- P_interrupt: `null` (visual-only; navigation acceptance is absent)",
+        "- P_confirm: `{}`".format(_report_scalar(metrics["p_confirm"])),
+        "- P_selected: `{}`".format(_report_scalar(metrics["p_selected"])),
+        "- P_decision: `{}`".format(_report_scalar(metrics["p_decision"])),
+        "- P_dispatch: `{}`".format(_report_scalar(metrics["p_dispatch"])),
+        "- P_planner_arrival: `{}`".format(
+            _report_scalar(metrics["p_planner_arrival"])),
+        "- P_interrupt: `{}` (reason: `{}`)".format(
+            _report_scalar(metrics["p_interrupt"]),
+            metrics["p_interrupt_reason"]),
+        "- Typed decision/result events: `{}` / `{}`; exact-key matched "
+        "results: `{}`".format(
+            navigation["decision_event_count"],
+            navigation["result_event_count"],
+            navigation["matched_result_count"]),
+        "- Navigation contract validation errors: `{}`".format(
+            navigation["validation_errors"]),
         "- Stage frame rates (raw class/raw geometry/resolved/refined/"
         "geometry/association/center): `{}`".format(
             metrics["stage_frame_rates"]),
@@ -1671,6 +2235,11 @@ def _report(summary):
         "P_selected requires the same stable ID. Exposure time uses ROS/image "
         "stamps; processing time uses a monotonic wall clock. Map-invalid and "
         "TF-failure rates are reported separately from map error.",
+        "P_decision, P_dispatch and P_planner_arrival require independent "
+        "typed evidence joined by the complete navigation action key. None of "
+        "selected, decision, dispatch or planner arrival substitutes for "
+        "P_interrupt. P_interrupt is null unless target_stage capability was "
+        "explicitly enabled, then requires STARTED/CAPTURE on that exact key.",
         "",
         "MEASURED means that the formal trial set and artifacts are complete; "
         "it is not an algorithm PASS. A dry run validates only matrix and "
@@ -1709,6 +2278,32 @@ def write_artifacts(output_dir, manifest, frame_rows, event_rows, results,
         "evaluation_scope", manifest.get("evaluation_scope", "full"))
     manifest["actual_image_fps"] = actual_fps
     manifest["actual_image_source_fps"] = actual_source_fps
+    navigation_metadata = navigation_metrics_metadata(
+        terminal_context.get("navigation_metrics_mode", "visual_only"))
+    manifest["navigation_metrics"] = {
+        **navigation_metadata,
+        "decision_topic": terminal_context.get(
+            "navigation_decision_topic", ""),
+        "result_topic": terminal_context.get(
+            "navigation_result_topic", ""),
+        "decision_schema_version": NAVIGATION_SCHEMA_VERSION,
+        "result_schema_version": NAVIGATION_SCHEMA_VERSION,
+        "exact_binding_key": [
+            "mission_id", "decision_seq", "target_id",
+            "target_first_seen", "attempt", "payload_slot"],
+        "decision_event_count": summary["navigation_metrics"][
+            "decision_event_count"],
+        "result_event_count": summary["navigation_metrics"][
+            "result_event_count"],
+        "matched_result_count": summary["navigation_metrics"][
+            "matched_result_count"],
+        "deduplicated_decision_count": summary["navigation_metrics"][
+            "deduplicated_decision_count"],
+        "deduplicated_result_count": summary["navigation_metrics"][
+            "deduplicated_result_count"],
+        "validation_errors": copy.deepcopy(
+            summary["navigation_metrics"]["validation_errors"]),
+    }
     manifest["terminal_validation"] = {
         key: copy.deepcopy(terminal_context.get(key)) for key in (
             "run_complete", "expected_trial_count", "evaluation_scope",

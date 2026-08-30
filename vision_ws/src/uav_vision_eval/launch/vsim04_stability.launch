@@ -42,6 +42,18 @@
   <arg name="vision_revision" default="$(optenv VSIM04_VISION_REVISION unknown)" />
   <arg name="navigation_revision"
        default="$(optenv VSIM04_NAVIGATION_REVISION unknown)" />
+  <!-- visual_only keeps the historical process graph. typed_contract records
+       decision/dispatch/arrival while P_interrupt remains null. target_stage
+       additionally enables STARTED/CAPTURE as the sole P_interrupt evidence. -->
+  <arg name="navigation_metrics_mode" default="visual_only" />
+  <arg name="navigation_decision_topic"
+       default="/navigation/mission_command_raw" />
+  <arg name="navigation_result_topic"
+       default="/navigation/mission_result" />
+  <!-- Typed modes keep the final snapshot open for bounded late-result
+       callbacks. visual_only preserves the historical immediate finalization. -->
+  <arg name="navigation_late_result_quiet_sec" default="0.5" />
+  <arg name="navigation_late_result_timeout_sec" default="3.0" />
   <arg name="extrinsic_profile" default="vision_eval_camera_d435i" />
   <arg name="extrinsic_source"
        default="$(find uav_vision_eval)/models/vision_eval_camera/model.sdf" />
@@ -130,6 +142,16 @@
     <param name="extrinsic_source" value="$(arg extrinsic_source)" />
     <param name="vision_revision" value="$(arg vision_revision)" />
     <param name="navigation_revision" value="$(arg navigation_revision)" />
+    <param name="navigation_metrics_mode"
+           value="$(arg navigation_metrics_mode)" />
+    <param name="navigation_decision_topic"
+           value="$(arg navigation_decision_topic)" />
+    <param name="navigation_result_topic"
+           value="$(arg navigation_result_topic)" />
+    <param name="navigation_late_result_quiet_sec"
+           value="$(arg navigation_late_result_quiet_sec)" />
+    <param name="navigation_late_result_timeout_sec"
+           value="$(arg navigation_late_result_timeout_sec)" />
     <param name="image_topic" value="$(arg image_topic)" />
     <param name="camera_info_topic" value="$(arg camera_info_topic)" />
     <param name="camera_pose_topic" value="$(arg camera_pose_topic)" />
@@ -190,7 +212,7 @@
     <param name="handshake_write_margin_sec"
            value="$(arg handshake_write_margin_sec)" />
     <param name="trial_handshake_timeout_sec"
-           value="$(eval float(arg('output_drain_timeout_sec')) + float(arg('output_quiet_sec')) + float(arg('recorder_status_period_sec')) + float(arg('handshake_write_margin_sec')) + 0.5)" />
+           value="$(eval float(arg('output_drain_timeout_sec')) + float(arg('output_quiet_sec')) + float(arg('navigation_late_result_timeout_sec')) + float(arg('recorder_status_period_sec')) + float(arg('handshake_write_margin_sec')) + 0.5)" />
   </node>
 
   <node if="$(arg enable_failure_capture)" pkg="uav_vision_eval"

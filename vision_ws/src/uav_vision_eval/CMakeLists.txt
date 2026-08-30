@@ -69,6 +69,7 @@ catkin_install_python(PROGRAMS
   scripts/target_refiner_association_assertion.py
   scripts/vsim04_dry_run.py
   scripts/vsim04_metrics_assertion.py
+  scripts/vsim04_navigation_metrics_assertion.py
   scripts/vsim04_trial_recorder.py
   scripts/vsim04_trial_runner.py
   scripts/vsim04_camera_soak.py
@@ -92,6 +93,10 @@ if(CATKIN_ENABLE_TESTING)
     DEPENDENCIES ${PROJECT_NAME}_generate_messages_py
   )
   catkin_add_nosetests(scripts/vsim04_soak_assertion.py)
+  catkin_add_nosetests(
+    scripts/vsim04_navigation_metrics_assertion.py
+    DEPENDENCIES ${PROJECT_NAME}_generate_messages_py
+  )
 endif()
 
 install(DIRECTORY config launch models
