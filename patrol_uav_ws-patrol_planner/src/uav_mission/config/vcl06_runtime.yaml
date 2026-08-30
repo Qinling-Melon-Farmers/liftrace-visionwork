@@ -1,0 +1,48 @@
+# VCL06 navigation Mission Manager runtime defaults.
+# The node is manual-start only and publishes navigation-owned raw decisions;
+# it never publishes planner goals or actuator commands.
+
+profile:
+  name: r2026
+
+mission:
+  frame: camera_init
+  candidate_max_age: 0.5
+  transform_max_age: 0.5
+  min_streak: 3
+  max_target_z: 4.0
+  max_attempts: 2
+  retry_cooldown: 20.0
+  timeout: 600.0
+  forced_return_at: 510.0
+  return_land_reserve: 90.0
+  delivery_reserve_per_slot: 60.0
+  path_factor: 1.5
+  nominal_speed: 1.0
+  decision_guard: 15.0
+  approach_altitude: 1.2
+  return_altitude: 2.2
+  target_action_timeout: 90.0
+  motion_action_timeout: 60.0
+  landing_action_timeout: 90.0
+  result_future_tolerance: 0.1
+  home_xy: [0.0, 0.0]
+
+search:
+  min_x: -3.6
+  max_x: 2.6
+  min_y: -2.0
+  max_y: 6.0
+  lane_spacing: 1.2
+  altitude: 2.2
+  route_revision: toudi4-copy-r1
+  max_failures_per_waypoint: 2
+
+readiness:
+  pose_max_age: 0.5
+  map_max_age: 2.0
+  require_map: true
+
+runtime:
+  tick_hz: 10.0
+  mission_id_prefix: vcl06

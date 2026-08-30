@@ -27,6 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   Bspline.msg
+  PlannerStatus.msg
   )
   
 # Generate added messages and services with any dependencies listed here
@@ -39,8 +40,7 @@ generate_messages(
 # catkin_package(CATKIN_DEPENDS message_runtime)
 catkin_package(
  INCLUDE_DIRS include
- LIBRARIES plan_manage
- CATKIN_DEPENDS plan_env path_searching bspline bspline_opt traj_utils message_runtime
+ CATKIN_DEPENDS roscpp std_msgs geometry_msgs plan_env path_searching bspline bspline_opt traj_utils message_runtime
 #  DEPENDS system_lib
 )
 
@@ -62,9 +62,16 @@ add_executable(fast_planner_node
 target_link_libraries(fast_planner_node 
   ${catkin_LIBRARIES}
   )
+add_dependencies(fast_planner_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(traj_server src/traj_server.cpp)
 target_link_libraries(traj_server ${catkin_LIBRARIES})
 add_dependencies(traj_server ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
-
+if(CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(planner_status_schema_test test/planner_status_schema_test.cpp)
+  if(TARGET planner_status_schema_test)
+    add_dependencies(planner_status_schema_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+    target_link_libraries(planner_status_schema_test ${catkin_LIBRARIES})
+  endif()
+endif()

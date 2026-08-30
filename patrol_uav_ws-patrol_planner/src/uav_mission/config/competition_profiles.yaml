@@ -1,0 +1,14 @@
+# Navigation-side competition class profiles.
+#
+# `r2026` is the currently frozen competition profile.  No competition
+# profile records `tank` until the teams provide a newer verified profile.
+profiles:
+  r2026:
+    classes:
+      tent: 1.0
+      pillbox: 1.5
+      bridge: 2.0
+      panzer: 2.5
+      red_cross: 10.0
+    interrupt_top_k: 3
+    required_deliveries: 3
