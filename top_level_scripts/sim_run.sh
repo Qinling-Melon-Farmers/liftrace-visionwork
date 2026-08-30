@@ -188,9 +188,16 @@ case "${SCENE}" in
     VSIM04_STATUS=""
     VSIM04_PERFORMANCE_VERDICT=""
     VSIM04_PERFORMANCE_HARD_FAILURE=""
+    VSIM04_QUALIFICATION=""
+    VSIM04_SOAK_600S_PASS=""
+    VSIM04_IS_SOAK=0
     VSIM04_EXPECTED_STATUS="MEASURED"
     case "${SCENE}" in
       vsim04_diag*) VSIM04_EXPECTED_STATUS="DIAGNOSTIC" ;;
+      vsim04_soak*)
+        VSIM04_EXPECTED_STATUS="SOAK_MEASURED"
+        VSIM04_IS_SOAK=1
+        ;;
     esac
     VSIM04_ARTIFACTS="manifest.json frames.csv events.csv summary.json report.md vision_search_performance.csv"
     VSIM04_MISSING=""
@@ -203,23 +210,36 @@ case "${SCENE}" in
       VSIM04_STATUS="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("status", ""))' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
       VSIM04_PERFORMANCE_VERDICT="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("performance_verdict", {}).get("status", ""))' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
       VSIM04_PERFORMANCE_HARD_FAILURE="$(python3 -c 'import json,sys; print(str(json.load(open(sys.argv[1], encoding="utf-8")).get("performance_verdict", {}).get("hard_failure", False)).lower())' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_QUALIFICATION="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("qualification_status", ""))' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_SOAK_600S_PASS="$(python3 -c 'import json,sys; print(str(json.load(open(sys.argv[1], encoding="utf-8")).get("soak_600s_pass", False)).lower())' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
     fi
     echo "V-SIM-04 status: ${VSIM04_STATUS:-MISSING} (expected ${VSIM04_EXPECTED_STATUS})" | tee -a "${RUN_LOG}"
     echo "V-SIM-04 performance verdict: ${VSIM04_PERFORMANCE_VERDICT:-MISSING} (hard_failure=${VSIM04_PERFORMANCE_HARD_FAILURE:-unknown})" | tee -a "${RUN_LOG}"
+    if [ "${VSIM04_IS_SOAK}" = "1" ]; then
+      echo "V-SIM-04 soak qualification: ${VSIM04_QUALIFICATION:-MISSING} (600s_pass=${VSIM04_SOAK_600S_PASS:-false})" | tee -a "${RUN_LOG}"
+    fi
     if [ -n "${VSIM04_MISSING}" ]; then
       echo "V-SIM-04 missing artifacts:${VSIM04_MISSING}" | tee -a "${RUN_LOG}"
     fi
     if [ "${VSIM04_STATUS}" != "${VSIM04_EXPECTED_STATUS}" ] || [ -n "${VSIM04_MISSING}" ]; then
       EXIT_CODE=1
     fi
-    if [ "${VSIM04_PERFORMANCE_HARD_FAILURE}" = "true" ]; then
+    if [ "${VSIM04_IS_SOAK}" != "1" ] && \
+       [ "${VSIM04_PERFORMANCE_HARD_FAILURE}" = "true" ]; then
       EXIT_CODE=1
     fi
-    if [ "${VSIM04_EXPECTED_STATUS}" = "MEASURED" ] && \
+    if [ "${VSIM04_IS_SOAK}" = "1" ] && \
+       [ "${VSIM04_QUALIFICATION}" != "SMOKE_ONLY" ] && \
+       [ "${VSIM04_QUALIFICATION}" != "SOAK_600S_MEASURED" ]; then
+      EXIT_CODE=1
+    fi
+    if [ "${VSIM04_IS_SOAK}" != "1" ] && \
+       [ "${VSIM04_EXPECTED_STATUS}" = "MEASURED" ] && \
        [ "${VSIM04_PERFORMANCE_VERDICT}" != "PASS" ]; then
       EXIT_CODE=1
     fi
-    if [ "${VSIM04_EXPECTED_STATUS}" = "DIAGNOSTIC" ] && \
+    if [ "${VSIM04_IS_SOAK}" != "1" ] && \
+       [ "${VSIM04_EXPECTED_STATUS}" = "DIAGNOSTIC" ] && \
        [ "${VSIM04_PERFORMANCE_VERDICT}" != "DIAGNOSTIC_ONLY" ]; then
       EXIT_CODE=1
     fi

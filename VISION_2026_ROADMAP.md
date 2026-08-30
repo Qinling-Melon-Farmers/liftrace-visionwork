@@ -483,7 +483,7 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 部分完成/待干净复跑 | 15 | V-CL-05 | 搜索-投递策略：高权重中断 + red_cross 统一 | 中断机制已实跑（tank 提前执行并恢复搜索、覆盖 12/12），pillbox 端到端投出，tank/panzer 证据锁定但低空下降受规划器波动影响超时；red_cross 统一入队、随机摆放入口与动态期望 Gate 已落地。剩余完成定义：按规则场地全随机布设（4 个 1 m 标准靶 + 1 个 0.35 m 红十字全部随机摆放、H 固定为起降点，真值仅落盘），类目/profile 驱动允许集合与 Gate（本届 profile 排除 tank），随机十字独立发现/投递 + 沉降门控验证（规划器失败只记录不迭代） |
 | 30 s PASS/A-B 已测不推广，Gate FAIL | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 上游 manager `5144aa8` 保持原逻辑，raw/planner goal 所有权与 READY/SEARCH/contact 门控通过；seed=11 baseline 30 s PASS。90 s baseline 最大高度 4.798 m FAIL；`a68925d` 最大高度 3.254 m、漂移改善但共同进度慢 19.43%，比较 FAIL，保持 baseline 且不跑 600 s。导航组下一步收敛高度/耗时并实现持久全局权重、失败重试和剩余时间调度；同 seed 600 s 三投+返航+落地才 PASS |
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
-| operating surface 首轮完成/采用门槛待冻结 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | formal23 为 22/23，processing/map P95=195.3 ms/0.0792 m、TF=0；static25 为 24/25；sparse30 为 25/30，processing/map P95=153.9 ms/0.1103 m、TF=0，motion/lateral=4045/4075，终态错误=0。正式与 diagnostic、测量完整性与算法 verdict 已分层，全类别硬审计和 capture schema-v3 已实跑；五个 sparse 失败均为 target_memory_admission。1280 在 pillbox 3.6 m 恢复 P_confirm 但误选 bridge、P_selected=0、P95=449.3 ms，保持 640 默认。当前 `NOT_GATED`，先做边界重复/尺度归因和 10 min，再决定 30-seed |
+| operating surface 首轮完成/10 min 入口已实现待实跑 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | formal23 为 22/23，processing/map P95=195.3 ms/0.0792 m、TF=0；static25 为 24/25；sparse30 为 25/30，processing/map P95=153.9 ms/0.1103 m、TF=0，motion/lateral=4045/4075，终态错误=0。正式与 diagnostic、测量完整性与算法 verdict 已分层，全类别硬审计和 capture schema-v3 已实跑；五个 sparse 失败均为 target_memory_admission。camera-only 600 s 入口已具备进程/心跳/源时间/吞吐/积压/partial/selected fail-closed 审计，但尚未实跑，不得写成 10 min PASS。1280 在 pillbox 3.6 m 恢复 P_confirm 但误选 bridge、P_selected=0、P95=449.3 ms，保持 640 默认。当前 `NOT_GATED`，先做 10 min 与边界重复/尺度归因，再决定 30-seed |
 | 待真值 | 19 | V-REAL-01 | 实拍回放域差复核 | 标注圆环实例/中心/H/红十字，采集同步 CameraInfo/pose |
 | 笔记本 PT/ONNX 已通过/板端 ROS 待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | 同 fixed-letterbox 的 12 图 PT/ONNX Gate 已通过；FP32 RKNN 离线有效，待完成同样本 PT→ONNX→RKNN 逐框对照、单下视 ROS 相机/TF、5–10 Hz 和 10 min Gate |
 
@@ -521,6 +521,12 @@ pillbox 3/3 trial、9/9 帧，最大非 fallback 迟到 0.0544 s，无 fallback�
 3.6 m 单项只恢复 P_confirm，因共视 bridge 被选中而 P_selected=0，且 processing P95=449.3 ms
 超过 200 ms，故继续保持 640 默认。下一 Gate 是对 raw classifier/admission 边界做受控重复和
 尺度归因，再运行 10 min；完整速度表继续采用稀疏筛选，不在门槛冻结前扩 30-seed。
+10 min 使用独立 `vsim04_camera_soak.launch`：以 monotonic 墙钟判定 600 秒资格，相机在同一
+Gazebo 中按 ROS 源时间沿确定性循环路线连续运行，逐圈 ID 不重复且不反复 reset memory；
+manifest 固定保存有效 CameraInfo；自动审计 ROS 进程与视觉链心跳、源时间单调、
+最大 heartbeat gap、输入/complete-mapped 吞吐、持续积压和 partial-only 趋势、陈旧 selected
+与 r2026 禁用类/tank selected=0。输出与 V-SIM-04 相同的六个文件，visual-only
+`P_interrupt=null`。短时调试只可标 `SMOKE_ONLY`；本条尚无 600 秒实跑证据。
 详细合理性评估与序贯计划见
 [导航算法要求合理性评估与V-SIM-04序贯计划_20260830.md](docs/导航算法要求合理性评估与V-SIM-04序贯计划_20260830.md)。
 

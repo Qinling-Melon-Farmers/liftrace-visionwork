@@ -15,6 +15,7 @@
   <depend>message_generation</depend>
   <depend>message_runtime</depend>
   <depend>rospy</depend>
+  <depend>rosnode</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
