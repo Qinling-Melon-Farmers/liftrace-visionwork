@@ -11,6 +11,19 @@
   <arg name="camera_link_suffix" default="D435i::camera_color_frame" />
   <arg name="broadcast_camera_tf" default="true" />
   <arg name="camera_pose_is_optical" default="false" />
+  <!-- LinkStates has no Header. Stamp it once, then make TF and truth select
+       the same zero-order-held pose for each image timestamp. -->
+  <arg name="use_stamped_camera_pose" default="true" />
+  <arg name="camera_pose_topic" default="/uav_vision_eval/camera_pose" />
+
+  <node if="$(arg use_stamped_camera_pose)" pkg="uav_vision_eval"
+        type="gazebo_camera_pose_stamper.py"
+        name="gazebo_camera_pose_stamper" output="screen">
+    <param name="world_frame" value="$(arg world_frame)" />
+    <param name="camera_link_suffix" value="$(arg camera_link_suffix)" />
+    <param name="link_states_topic" value="$(arg link_states_topic)" />
+    <param name="output_topic" value="$(arg camera_pose_topic)" />
+  </node>
 
   <node pkg="uav_vision_eval" type="sim_ground_truth_projector.py"
         name="sim_ground_truth_projector" output="screen">
@@ -24,6 +37,8 @@
     <param name="camera_link_suffix" value="$(arg camera_link_suffix)" />
     <param name="allow_fallback_pose" value="false" />
     <param name="camera_pose_is_optical" value="$(arg camera_pose_is_optical)" />
+    <param name="use_stamped_camera_pose" value="$(arg use_stamped_camera_pose)" />
+    <param name="camera_pose_topic" value="$(arg camera_pose_topic)" />
   </node>
 
   <node if="$(arg broadcast_camera_tf)" pkg="uav_vision_eval" type="gazebo_camera_tf.py"
@@ -33,5 +48,7 @@
     <param name="link_states_topic" value="$(arg link_states_topic)" />
     <param name="image_topic" value="$(arg image_topic)" />
     <param name="camera_pose_is_optical" value="$(arg camera_pose_is_optical)" />
+    <param name="use_stamped_camera_pose" value="$(arg use_stamped_camera_pose)" />
+    <param name="camera_pose_topic" value="$(arg camera_pose_topic)" />
   </node>
 </launch>

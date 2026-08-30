@@ -11,11 +11,12 @@ import math
 import rospy
 import yaml
 from gazebo_msgs.msg import LinkStates, ModelStates
-from geometry_msgs.msg import Point, Pose
+from geometry_msgs.msg import Point, Pose, PoseStamped
 from image_geometry import PinholeCameraModel
 from sensor_msgs.msg import Image, CameraInfo, RegionOfInterest
 
 from uav_vision_eval.msg import SimTarget, SimTargetArray
+from uav_vision_eval.stamped_pose_buffer import StampedPoseBuffer
 
 
 def _rotate(quaternion, vector):
@@ -65,10 +66,14 @@ class GroundTruthProjector:
         )
         self.allow_fallback_pose = rospy.get_param("~allow_fallback_pose", False)
         self.camera_pose_is_optical = rospy.get_param("~camera_pose_is_optical", False)
+        self.use_stamped_camera_pose = rospy.get_param(
+            "~use_stamped_camera_pose", False)
         self.model = PinholeCameraModel()
         self.camera_info = None
         self.link_poses = {}
         self.model_poses = {}
+        self.camera_pose_buffer = StampedPoseBuffer(rospy.get_param(
+            "~pose_history_length", 512))
 
         output_topic = rospy.get_param("~output_topic", "/uav_vision_eval/ground_truth")
         self.publisher = rospy.Publisher(output_topic, SimTargetArray, queue_size=1)
@@ -84,6 +89,11 @@ class GroundTruthProjector:
             self._link_states_callback,
             queue_size=1,
         )
+        if self.use_stamped_camera_pose:
+            rospy.Subscriber(
+                rospy.get_param(
+                    "~camera_pose_topic", "/uav_vision_eval/camera_pose"),
+                PoseStamped, self._camera_pose_callback, queue_size=40)
         rospy.Subscriber(
             rospy.get_param("~model_states_topic", "/gazebo/model_states"),
             ModelStates,
@@ -104,6 +114,13 @@ class GroundTruthProjector:
     def _link_states_callback(self, message):
         self.link_poses = dict(zip(message.name, message.pose))
 
+    def _camera_pose_callback(self, message):
+        if message.header.frame_id != self.world_frame:
+            rospy.logerr_throttle(
+                5.0, "uav_vision_eval: stamped camera pose frame mismatch")
+            return
+        self.camera_pose_buffer.add(message)
+
     def _model_states_callback(self, message):
         self.model_poses = dict(zip(message.name, message.pose))
 
@@ -115,7 +132,13 @@ class GroundTruthProjector:
         matches = [(name, pose) for name, pose in poses.items() if name.endswith(suffix)]
         return matches[0] if len(matches) == 1 else (None, None)
 
-    def _camera_pose(self):
+    def _camera_pose(self, image_stamp=None):
+        if self.use_stamped_camera_pose:
+            stamped_pose, _age_sec = self.camera_pose_buffer.at_or_before(
+                image_stamp)
+            if stamped_pose is None:
+                return None, None
+            return "stamped_camera_pose", stamped_pose.pose
         matches = [
             (name, pose) for name, pose in self.link_poses.items()
             if name.endswith(self.camera_link_suffix)
@@ -243,7 +266,7 @@ class GroundTruthProjector:
             rospy.logwarn_throttle(5.0, "uav_vision_eval: waiting for CameraInfo")
             self.publisher.publish(output)
             return
-        _, camera_pose = self._camera_pose()
+        _, camera_pose = self._camera_pose(image.header.stamp)
         if camera_pose is None:
             rospy.logwarn_throttle(5.0, "uav_vision_eval: camera link is absent or ambiguous")
             self.publisher.publish(output)

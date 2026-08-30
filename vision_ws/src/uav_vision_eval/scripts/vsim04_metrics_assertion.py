@@ -25,9 +25,32 @@ from uav_vision_eval.vsim04_metrics import (
     summarize_trial_results,
     watermarks_cover_source_stamp,
 )
+from uav_vision_eval.stamped_pose_buffer import StampedPoseBuffer
+
+from geometry_msgs.msg import PoseStamped
+import rospy
 
 
 def main():
+    history = StampedPoseBuffer(max_length=3)
+    for stamp_sec, x_value in ((1.0, 1.0), (2.0, 2.0), (4.0, 4.0)):
+        pose = PoseStamped()
+        pose.header.stamp = rospy.Time.from_sec(stamp_sec)
+        pose.header.frame_id = "world"
+        pose.pose.position.x = x_value
+        assert history.add(pose)
+    selected, age_sec = history.at_or_before(rospy.Time.from_sec(3.0))
+    assert selected is not None and selected.pose.position.x == 2.0
+    assert abs(age_sec - 1.0) < 1.0e-9
+    missing, missing_age = history.at_or_before(rospy.Time.from_sec(0.5))
+    assert missing is None and missing_age is None
+    reset_pose = PoseStamped()
+    reset_pose.header.stamp = rospy.Time.from_sec(0.25)
+    reset_pose.header.frame_id = "world"
+    reset_pose.pose.position.x = 0.25
+    assert history.add(reset_pose)
+    selected, _age_sec = history.at_or_before(rospy.Time.from_sec(3.0))
+    assert selected is not None and selected.pose.position.x == 0.25
     default_matrix = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "config", "vsim04_trial_matrix.yaml")
