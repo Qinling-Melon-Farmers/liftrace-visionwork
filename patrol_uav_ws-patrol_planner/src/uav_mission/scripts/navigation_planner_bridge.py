@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Fenced ROS adapter between VCL06 decisions and Fast-Planner telemetry.
+"""Single fenced executor for VCL06 planner and delivery decisions.
 
-The adapter is deliberately unable to drive the live /fastplanner/goal topic.
-The current planner has no acknowledged cancel/hold path, so this revision only
-supports an isolated goal topic for contract and integration verification.
-Payload, landing, hold and abort intents remain diagnostic-only.
+Live planner output remains disabled by default and requires an explicit launch
+acknowledgement.  The same node forwards the existing ``MissionCommand`` and
+alignment-context interfaces after an APPROACH arrives; it does not own target
+selection, retry, payload-slot allocation or mission scheduling.
 """
 
+from dataclasses import dataclass
 import json
 import math
 import threading
@@ -14,11 +15,14 @@ import uuid
 
 import rospy
 from geometry_msgs.msg import PoseStamped
+from mavros_msgs.msg import ExtendedState
 from nav_msgs.msg import Odometry
 from plan_manage.msg import PlannerStatus
-from std_msgs.msg import String
+from std_msgs.msg import Int8, String
 
+from patrol_control.msg import MissionCommand
 from uav_mission.msg import NavigationDecision, NavigationResult
+from uav_mission.msg import ReleaseResult
 from uav_mission.planner_execution import (
     MotionDecision,
     MotionGoal,
@@ -29,6 +33,11 @@ from uav_mission.planner_execution import (
     SequencedMotionGoal,
     TargetIdentity,
 )
+from uav_vision.msg import (
+    AlignmentTargetContext, ReleaseEvidenceContext, TargetCandidateArray,
+)
+
+from release_commitment import strict_context_source
 
 
 LIVE_PLANNER_GOAL_TOPIC = "/fastplanner/goal"
@@ -54,6 +63,14 @@ COMMAND_VALUES = {
     "LAND": NavigationResult.LAND,
     "HOLD": NavigationResult.HOLD,
     "ABORT": NavigationResult.ABORT,
+}
+MISSION_COMMAND_VALUES = {
+    "SEARCH": MissionCommand.SEARCH,
+    "APPROACH": MissionCommand.APPROACH,
+    "ALIGN": MissionCommand.ALIGN,
+    "RESUME": MissionCommand.RESUME,
+    "RETURN_HOME": MissionCommand.RETURN_HOME,
+    "LAND": MissionCommand.LAND,
 }
 STATUS_VALUES = {
     "ACCEPTED": NavigationResult.ACCEPTED,
@@ -83,6 +100,38 @@ PLANNER_STATUS_NAMES = {
     PlannerStatus.FAILED_ATTEMPT: "FAILED_ATTEMPT",
     PlannerStatus.CANCELLED: "CANCELLED",
 }
+
+
+@dataclass(frozen=True)
+class SemanticTargetPose:
+    frame_id: str
+    x: float
+    y: float
+    z: float
+    last_seen_ns: int
+
+
+@dataclass
+class TargetTransaction:
+    decision: MotionDecision
+    phase: str = "APPROACHING"
+    target_pose: object = None
+    align_mode: str = ""
+    strict_evidence_stamp_ns: int = 0
+    release_execution_id: int = 0
+    release_ack_ns: int = 0
+    recovery_dwell_start_ns: int = 0
+    recovery_last_odom_ns: int = 0
+
+
+@dataclass
+class LandingTransaction:
+    decision: MotionDecision
+    target_pose: SemanticTargetPose
+    command_sent_ns: int
+    started: bool = False
+    dwell_start_ns: int = 0
+    last_odom_ns: int = 0
 
 
 def _stamp_to_ns(stamp):
@@ -138,6 +187,41 @@ class NavigationPlannerBridge:
             "~execution/tick_hz", 20.0))
         if not math.isfinite(self._tick_hz) or self._tick_hz <= 0.0:
             raise ValueError("execution/tick_hz must be finite and positive")
+        self._capture_max_age_ns = _seconds_to_ns(
+            "target/capture_max_age",
+            rospy.get_param("~target/capture_max_age", 1.0))
+        self._context_max_age = float(rospy.get_param(
+            "~target/context_max_age", 0.5))
+        self._association_distance = float(rospy.get_param(
+            "~target/max_association_distance", 0.8))
+        self._recovery_height = float(rospy.get_param(
+            "~target/recovery_height", 0.95))
+        self._recovery_speed = float(rospy.get_param(
+            "~target/recovery_speed", 0.25))
+        self._recovery_dwell_ns = _seconds_to_ns(
+            "target/recovery_dwell",
+            rospy.get_param("~target/recovery_dwell", 0.5))
+        self._landing_height = float(rospy.get_param(
+            "~landing/height", 0.05))
+        self._landing_speed = float(rospy.get_param(
+            "~landing/speed", 0.15))
+        self._landing_radius = float(rospy.get_param(
+            "~landing/radius", 0.25))
+        self._landing_dwell_ns = _seconds_to_ns(
+            "landing/dwell", rospy.get_param("~landing/dwell", 1.0))
+        for name, value in (
+                ("target/context_max_age", self._context_max_age),
+                ("target/max_association_distance",
+                 self._association_distance),
+                ("target/recovery_height", self._recovery_height),
+                ("target/recovery_speed", self._recovery_speed),
+                ("landing/height", self._landing_height),
+                ("landing/speed", self._landing_speed),
+                ("landing/radius", self._landing_radius)):
+            if not math.isfinite(value) or value < 0.0:
+                raise ValueError("%s must be finite and non-negative" % name)
+        if self._association_distance == 0.0 or self._landing_radius == 0.0:
+            raise ValueError("association and landing radii must be positive")
 
         prefix = str(rospy.get_param(
             "~execution/executor_id_prefix", "vcl06-planner-bridge"))
@@ -174,8 +258,23 @@ class NavigationPlannerBridge:
         )
         self._executor = PlannerMotionExecutor(config)
         self._executor_id = executor_id
+        self._latest_candidates = ()
+        self._transaction = None
+        self._landing = None
+        self._last_odom = None
+        self._control_state = None
+        self._control_state_receipt_ns = 0
+        self._align_mode = "disabled"
+        self._align_mode_receipt_ns = 0
+        self._landed_state = ExtendedState.LANDED_STATE_UNDEFINED
+        self._landed_state_receipt_ns = 0
 
         self._planner_goal_topic = rospy.resolve_name("planner_goal")
+        if (self._execution_requested and self._allow_live_goal_output and
+                self._planner_goal_topic == LIVE_PLANNER_GOAL_TOPIC and
+                self._mission_frame != "camera_init"):
+            raise ValueError(
+                "live patrol_control execution requires camera_init frame")
         self._output_enabled, self._gate_reason = self._evaluate_output_gate()
 
         self._goal_pub = None
@@ -186,6 +285,11 @@ class NavigationPlannerBridge:
             "mission_result", NavigationResult, queue_size=20)
         self._status_pub = rospy.Publisher(
             "bridge_status", String, queue_size=1, latch=True)
+        self._mission_command_pub = rospy.Publisher(
+            "mission_command", MissionCommand, queue_size=4)
+        self._alignment_context_pub = rospy.Publisher(
+            "alignment_target_context", AlignmentTargetContext,
+            queue_size=1, latch=True)
 
         self._decision_sub = rospy.Subscriber(
             "mission_command_raw", NavigationDecision,
@@ -195,6 +299,21 @@ class NavigationPlannerBridge:
             self._on_planner_status, queue_size=20)
         self._odom_sub = rospy.Subscriber(
             "odom", Odometry, self._on_odom, queue_size=1)
+        self._targets_sub = rospy.Subscriber(
+            "targets", TargetCandidateArray, self._on_targets, queue_size=1)
+        self._evidence_context_sub = rospy.Subscriber(
+            "release_evidence_context", ReleaseEvidenceContext,
+            self._on_release_evidence_context, queue_size=2)
+        self._release_result_sub = rospy.Subscriber(
+            "release_result", ReleaseResult,
+            self._on_release_result, queue_size=4)
+        self._control_state_sub = rospy.Subscriber(
+            "control_state", Int8, self._on_control_state, queue_size=2)
+        self._align_mode_sub = rospy.Subscriber(
+            "align_mode", String, self._on_align_mode, queue_size=2)
+        self._landed_state_sub = rospy.Subscriber(
+            "landed_state", ExtendedState,
+            self._on_landed_state, queue_size=2)
         self._timer = rospy.Timer(
             rospy.Duration.from_sec(1.0 / self._tick_hz), self._on_timer)
         self._last_reason = self._gate_reason
@@ -381,6 +500,214 @@ class NavigationPlannerBridge:
         message.pose.orientation.w = decision.goal.qw
         self._goal_pub.publish(message)
 
+    def _mission_command_message(self, decision, command_name,
+                                 target_pose=None):
+        command = MISSION_COMMAND_VALUES.get(command_name)
+        if command is None:
+            raise ValueError("command has no patrol_control handoff")
+        now = rospy.Time.now()
+        message = MissionCommand()
+        message.header.seq = int(decision.decision_seq)
+        message.header.stamp = now
+        message.header.frame_id = self._mission_frame
+        message.command = command
+        target = decision.target
+        if target is not None:
+            message.target_id = int(target.target_id)
+            message.target_class = target.class_name
+        message.goal.header.seq = int(decision.decision_seq)
+        message.goal.header.stamp = now
+        message.goal.header.frame_id = self._mission_frame
+        message.goal.pose.orientation.w = 1.0
+        if decision.goal is not None:
+            message.goal.pose.position.x = decision.goal.x
+            message.goal.pose.position.y = decision.goal.y
+            message.goal.pose.position.z = decision.goal.z
+            message.goal.pose.orientation.x = decision.goal.qx
+            message.goal.pose.orientation.y = decision.goal.qy
+            message.goal.pose.orientation.z = decision.goal.qz
+            message.goal.pose.orientation.w = decision.goal.qw
+        if target_pose is not None:
+            message.goal.pose.position.x = target_pose.x
+            message.goal.pose.position.y = target_pose.y
+            message.goal.pose.position.z = target_pose.z
+        return message
+
+    def _publish_mission_command(self, decision, command_name,
+                                 target_pose=None):
+        self._mission_command_pub.publish(self._mission_command_message(
+            decision, command_name, target_pose=target_pose))
+
+    def _matching_target_pose(self, now_ns):
+        transaction = self._transaction
+        if transaction is None:
+            return None
+        target = transaction.decision.target
+        if target is None:
+            return None
+        matches = []
+        for candidate in self._latest_candidates:
+            try:
+                first_seen_ns = _stamp_to_ns(candidate.first_seen)
+                last_seen_ns = _stamp_to_ns(candidate.last_seen)
+                point = candidate.map_point
+                coordinates = (
+                    float(point.x), float(point.y), float(point.z))
+                if (
+                    int(candidate.id) != target.target_id or
+                    first_seen_ns != target.first_seen_ns or
+                    str(candidate.class_name) != target.class_name or
+                    not bool(candidate.map_valid) or
+                    not bool(candidate.association_valid) or
+                    bool(str(candidate.reject_reason).strip()) or
+                    int(candidate.state) < 2 or
+                    str(candidate.map_frame) != self._mission_frame or
+                    last_seen_ns < target.observation_ns or
+                    now_ns - last_seen_ns > self._capture_max_age_ns or
+                    last_seen_ns > now_ns +
+                    self._executor.config.source_future_tolerance_ns or
+                    not all(math.isfinite(value) for value in coordinates)
+                ):
+                    continue
+                matches.append(SemanticTargetPose(
+                    frame_id=str(candidate.map_frame),
+                    x=coordinates[0], y=coordinates[1], z=coordinates[2],
+                    last_seen_ns=last_seen_ns,
+                ))
+            except (AttributeError, TypeError, ValueError, OverflowError):
+                continue
+        return max(matches, key=lambda item: item.last_seen_ns) \
+            if matches else None
+
+    def _alignment_context_message(self, active, now_ns):
+        transaction = self._transaction
+        if transaction is None or transaction.target_pose is None:
+            raise RuntimeError("alignment context has no frozen target pose")
+        decision = transaction.decision
+        target = decision.target
+        pose = transaction.target_pose
+        message = AlignmentTargetContext()
+        message.header.seq = int(decision.decision_seq)
+        message.header.stamp = _ns_to_stamp(now_ns)
+        message.header.frame_id = self._mission_frame
+        message.source = self._executor_id
+        message.schema_version = AlignmentTargetContext.SCHEMA_VERSION
+        message.active = bool(active)
+        message.mission_id = decision.mission_id
+        message.decision_seq = int(decision.decision_seq)
+        message.deadline = _ns_to_stamp(decision.deadline_ns)
+        message.command = AlignmentTargetContext.ALIGN
+        message.class_profile = decision.class_profile
+        message.align_mode = transaction.align_mode
+        message.has_target = True
+        message.semantic_target_id = int(target.target_id)
+        message.semantic_target_first_seen = _ns_to_stamp(
+            target.first_seen_ns)
+        message.target_observation_stamp = _ns_to_stamp(
+            target.observation_ns)
+        message.semantic_target_class = target.class_name
+        message.attempt = int(target.attempt)
+        message.payload_slot = int(target.payload_slot)
+        message.target_pose.header.seq = int(decision.decision_seq)
+        message.target_pose.header.stamp = _ns_to_stamp(pose.last_seen_ns)
+        message.target_pose.header.frame_id = pose.frame_id
+        message.target_pose.pose.position.x = pose.x
+        message.target_pose.pose.position.y = pose.y
+        message.target_pose.pose.position.z = pose.z
+        message.target_pose.pose.orientation.w = 1.0
+        message.max_association_distance_m = self._association_distance
+        return message
+
+    def _publish_alignment_context(self, active, now_ns=None):
+        now_ns = self._now_ns() if now_ns is None else int(now_ns)
+        self._alignment_context_pub.publish(
+            self._alignment_context_message(active, now_ns))
+
+    def _clear_handoffs(self):
+        transaction = self._transaction
+        if transaction is not None and transaction.target_pose is not None:
+            self._publish_alignment_context(False)
+        self._transaction = None
+        self._landing = None
+
+    def _report_target_stage(self, status, stage, now_ns, terminal=False,
+                             retryable=False, payload_committed=False,
+                             reason="", evidence_source=
+                             "target_transaction_executor"):
+        transaction = self._transaction
+        if transaction is None:
+            raise RuntimeError("target transaction is not active")
+        outcome = self._executor.report_target_stage(
+            transaction.decision.decision_seq,
+            now_ns,
+            status,
+            stage,
+            terminal=terminal,
+            retryable=retryable,
+            payload_committed=payload_committed,
+            reason=reason,
+            evidence_source=evidence_source,
+        )
+        if not outcome.accepted:
+            raise RuntimeError(outcome.reason)
+        self._apply_outcome(outcome)
+
+    def _begin_target_capture(self, now_ns):
+        transaction = self._transaction
+        if transaction is None or transaction.phase != "APPROACHING":
+            raise RuntimeError("APPROACH handoff has no active transaction")
+        transaction.phase = "CAPTURE"
+        self._try_begin_alignment(now_ns)
+
+    def _try_begin_alignment(self, now_ns):
+        transaction = self._transaction
+        if transaction is None or transaction.phase != "CAPTURE":
+            return
+        target_pose = self._matching_target_pose(now_ns)
+        if target_pose is None:
+            return
+        transaction.target_pose = target_pose
+        transaction.align_mode = (
+            "drop_cross" if transaction.decision.target.class_name ==
+            "red_cross" else "drop_circle")
+        transaction.phase = "ALIGN_COMMAND_SENT"
+        self._publish_alignment_context(True, now_ns)
+        self._publish_mission_command(
+            transaction.decision, "ALIGN", target_pose=target_pose)
+
+    def _strict_context_matches(self, context, now):
+        transaction = self._transaction
+        if transaction is None or transaction.phase != "ALIGNMENT":
+            return False
+        decision = transaction.decision
+        target = decision.target
+        valid, _, source = strict_context_source(
+            context,
+            now,
+            self._context_max_age,
+            decision.class_profile,
+            transaction.align_mode,
+            target.payload_slot,
+        )
+        if not valid:
+            return False
+        return (
+            str(context.context_source) == self._executor_id and
+            str(context.mission_id) == decision.mission_id and
+            int(context.decision_seq) == decision.decision_seq and
+            _stamp_to_ns(context.deadline) == decision.deadline_ns and
+            int(context.semantic_target_id) == target.target_id and
+            _stamp_to_ns(context.semantic_target_first_seen) ==
+            target.first_seen_ns and
+            _stamp_to_ns(context.target_observation_stamp) ==
+            target.observation_ns and
+            str(context.semantic_target_class) == target.class_name and
+            int(context.attempt) == target.attempt and
+            int(context.payload_slot) == target.payload_slot and
+            int(source["target_id"]) == target.target_id and
+            str(source["target_class"]) == target.class_name
+        )
+
     def _result_message(self, event):
         message = NavigationResult()
         message.header.seq = int(event.event_seq)
@@ -427,6 +754,194 @@ class NavigationPlannerBridge:
             self._result_pub.publish(self._result_message(event))
         self._last_reason = outcome.reason
 
+    def _start_decision_handoff(self, decision, outcome, now_ns):
+        if outcome.planner_goal is not None:
+            self._clear_handoffs()
+            if decision.command == "APPROACH":
+                self._transaction = TargetTransaction(decision=decision)
+            self._publish_mission_command(decision, decision.command)
+            return
+        if not outcome.handoff:
+            return
+        self._clear_handoffs()
+        if outcome.handoff == "LAND":
+            sample = self._last_odom
+            fresh = (
+                sample is not None and
+                sample.frame_id == self._mission_frame and
+                0 <= now_ns - sample.stamp_ns <=
+                self._executor.config.odom_max_age_ns
+            )
+            if not fresh:
+                rejected = self._executor.report_landing(
+                    decision.decision_seq,
+                    now_ns,
+                    "REJECTED",
+                    True,
+                    "landing_target_odom_unavailable",
+                )
+                if not rejected.accepted:
+                    raise RuntimeError(rejected.reason)
+                self._apply_outcome(rejected)
+                return
+            target_pose = SemanticTargetPose(
+                frame_id=self._mission_frame,
+                x=sample.x,
+                y=sample.y,
+                z=0.0,
+                last_seen_ns=sample.stamp_ns,
+            )
+            self._landing = LandingTransaction(
+                decision=decision,
+                target_pose=target_pose,
+                command_sent_ns=now_ns,
+            )
+            self._publish_mission_command(
+                decision, "LAND", target_pose=target_pose)
+
+    def _update_recovery(self, sample, now_ns):
+        transaction = self._transaction
+        if transaction is None or transaction.phase != "RECOVERY":
+            return
+        speed = math.sqrt(sample.vx ** 2 + sample.vy ** 2 + sample.vz ** 2)
+        fresh = (
+            sample.frame_id == self._mission_frame and
+            0 <= now_ns - sample.stamp_ns <=
+            self._executor.config.odom_max_age_ns)
+        qualified = (
+            fresh and sample.z >= self._recovery_height and
+            speed <= self._recovery_speed and self._control_state == 1 and
+            self._align_mode == "disabled" and
+            self._control_state_receipt_ns >= transaction.release_ack_ns and
+            self._align_mode_receipt_ns >= transaction.release_ack_ns and
+            now_ns - self._control_state_receipt_ns <=
+            self._executor.config.odom_max_age_ns and
+            now_ns - self._align_mode_receipt_ns <=
+            self._executor.config.odom_max_age_ns)
+        if not qualified:
+            transaction.recovery_dwell_start_ns = 0
+            transaction.recovery_last_odom_ns = 0
+            return
+        if (transaction.recovery_last_odom_ns and
+                sample.stamp_ns - transaction.recovery_last_odom_ns >
+                self._executor.config.odom_max_age_ns):
+            transaction.recovery_dwell_start_ns = 0
+        if transaction.recovery_dwell_start_ns == 0:
+            transaction.recovery_dwell_start_ns = sample.stamp_ns
+        transaction.recovery_last_odom_ns = sample.stamp_ns
+        if (sample.stamp_ns - transaction.recovery_dwell_start_ns <
+                self._recovery_dwell_ns):
+            return
+        self._report_target_stage(
+            "SUCCEEDED", "RECOVERY", now_ns,
+            terminal=True,
+            reason="release_recovery_confirmed",
+            evidence_source="patrol_control_recovery",
+        )
+        transaction.phase = "TERMINAL"
+
+    def _update_landing(self, sample, now_ns):
+        landing = self._landing
+        if landing is None or not landing.started:
+            return
+        target = landing.target_pose
+        speed = math.sqrt(sample.vx ** 2 + sample.vy ** 2 + sample.vz ** 2)
+        horizontal_error = math.hypot(
+            sample.x - target.x, sample.y - target.y)
+        fresh = (
+            sample.frame_id == self._mission_frame and
+            0 <= now_ns - sample.stamp_ns <=
+            self._executor.config.odom_max_age_ns)
+        control_accepted = (
+            self._control_state == 3 and
+            self._control_state_receipt_ns >= landing.command_sent_ns and
+            now_ns - self._control_state_receipt_ns <=
+            self._executor.config.odom_max_age_ns)
+        landed = (
+            self._landed_state == ExtendedState.LANDED_STATE_ON_GROUND and
+            self._landed_state_receipt_ns >= landing.command_sent_ns and
+            now_ns - self._landed_state_receipt_ns <=
+            self._executor.config.odom_max_age_ns)
+        if not (fresh and control_accepted and landed and
+                horizontal_error <= self._landing_radius and
+                sample.z <= self._landing_height and
+                speed <= self._landing_speed):
+            landing.dwell_start_ns = 0
+            landing.last_odom_ns = 0
+            return
+        if (landing.last_odom_ns and
+                sample.stamp_ns - landing.last_odom_ns >
+                self._executor.config.odom_max_age_ns):
+            landing.dwell_start_ns = 0
+        if landing.dwell_start_ns == 0:
+            landing.dwell_start_ns = sample.stamp_ns
+        landing.last_odom_ns = sample.stamp_ns
+        if (sample.stamp_ns - landing.dwell_start_ns <
+                self._landing_dwell_ns):
+            return
+        outcome = self._executor.report_landing(
+            landing.decision.decision_seq,
+            now_ns,
+            "SUCCEEDED",
+            True,
+            "landed_state_and_settle_confirmed",
+        )
+        if not outcome.accepted:
+            raise RuntimeError(outcome.reason)
+        self._apply_outcome(outcome)
+        self._landing = None
+
+    def _expire_handoff_if_due(self, now_ns):
+        transaction = self._transaction
+        snapshot = self._executor.snapshot()
+        if (transaction is not None and
+                snapshot.active_handed_off and
+                snapshot.active_decision_seq ==
+                transaction.decision.decision_seq and
+                transaction.phase not in ("TERMINAL", "EXPIRED") and
+                now_ns >= transaction.decision.deadline_ns):
+            if transaction.phase == "RECOVERY":
+                stage = "RECOVERY"
+                retryable = False
+                reason = "recovery_deadline_reached"
+            elif (transaction.phase == "ALIGNMENT" and
+                  transaction.strict_evidence_stamp_ns > 0):
+                stage = "RELEASE"
+                retryable = False
+                reason = "release_result_deadline_reached"
+            elif transaction.phase == "ALIGNMENT":
+                stage = "ALIGNMENT"
+                retryable = True
+                reason = "alignment_evidence_deadline_reached"
+            else:
+                stage = "CAPTURE"
+                retryable = True
+                reason = "target_capture_deadline_reached"
+            self._report_target_stage(
+                "TIMED_OUT", stage, now_ns,
+                terminal=True,
+                retryable=retryable,
+                reason=reason,
+            )
+            transaction.phase = "EXPIRED"
+            if transaction.target_pose is not None:
+                self._publish_alignment_context(False, now_ns)
+
+        landing = self._landing
+        if (landing is not None and
+                now_ns >= landing.decision.deadline_ns):
+            outcome = self._executor.report_landing(
+                landing.decision.decision_seq,
+                now_ns,
+                "TIMED_OUT",
+                True,
+                "landing_deadline_reached",
+            )
+            if not outcome.accepted:
+                raise RuntimeError(outcome.reason)
+            self._apply_outcome(outcome)
+            self._landing = None
+
     def _handle_callback_exception(self, source, error):
         if isinstance(error, ValueError):
             self._last_reason = "ignored_%s:%s" % (source, error)
@@ -434,6 +949,14 @@ class NavigationPlannerBridge:
                           source, error)
             self._publish_status(force=True)
             return
+        try:
+            if (self._transaction is not None and
+                    self._transaction.target_pose is not None):
+                self._publish_alignment_context(False)
+        except Exception:  # pylint: disable=broad-except
+            pass
+        self._transaction = None
+        self._landing = None
         self._adapter_faulted = True
         self._adapter_fault_reason = "%s:%s" % (source, error)
         self._output_enabled = False
@@ -456,6 +979,8 @@ class NavigationPlannerBridge:
                     outcome,
                     submitted_decision=(decision if outcome.accepted else None),
                 )
+                if outcome.accepted:
+                    self._start_decision_handoff(decision, outcome, now_ns)
                 self._publish_status(force=True)
             except Exception as error:  # pylint: disable=broad-except
                 self._handle_callback_exception("decision", error)
@@ -480,18 +1005,173 @@ class NavigationPlannerBridge:
                 return
             try:
                 now_ns = self._now_ns()
-                outcome = self._executor.apply_odom(
-                    self._odom_from_message(message), now_ns)
+                sample = self._odom_from_message(message)
+                self._last_odom = sample
+                outcome = self._executor.apply_odom(sample, now_ns)
                 self._apply_outcome(outcome)
+                if outcome.handoff == "TARGET_TRANSACTION":
+                    self._begin_target_capture(now_ns)
+                self._update_recovery(sample, now_ns)
+                self._update_landing(sample, now_ns)
             except Exception as error:  # pylint: disable=broad-except
                 self._handle_callback_exception("odom", error)
+
+    def _on_targets(self, message):
+        with self._lock:
+            try:
+                self._latest_candidates = tuple(message.targets)
+                if self._output_enabled:
+                    self._try_begin_alignment(self._now_ns())
+            except Exception as error:  # pylint: disable=broad-except
+                self._handle_callback_exception("targets", error)
+
+    def _on_release_evidence_context(self, message):
+        with self._lock:
+            try:
+                if not self._output_enabled:
+                    return
+                now = rospy.Time.now()
+                self._expire_handoff_if_due(_stamp_to_ns(now))
+                if not self._strict_context_matches(message, now):
+                    return
+                transaction = self._transaction
+                evidence_stamp_ns = _stamp_to_ns(message.evidence.header.stamp)
+                first_valid = transaction.strict_evidence_stamp_ns == 0
+                transaction.strict_evidence_stamp_ns = max(
+                    transaction.strict_evidence_stamp_ns,
+                    evidence_stamp_ns,
+                )
+                if first_valid:
+                    self._report_target_stage(
+                        "STARTED", "ALIGNMENT", _stamp_to_ns(now),
+                        reason="strict_alignment_context_valid",
+                        evidence_source="uav_vision_release_context",
+                    )
+            except Exception as error:  # pylint: disable=broad-except
+                self._handle_callback_exception("release_context", error)
+
+    def _on_release_result(self, message):
+        with self._lock:
+            try:
+                if not self._output_enabled:
+                    return
+                now_ns = self._now_ns()
+                self._expire_handoff_if_due(now_ns)
+                transaction = self._transaction
+                if (transaction is None or
+                        transaction.phase not in ("ALIGNMENT", "EXPIRED") or
+                        transaction.strict_evidence_stamp_ns <= 0):
+                    return
+                decision = transaction.decision
+                target = decision.target
+                result_stamp_ns = _stamp_to_ns(message.header.stamp)
+                execution_id = int(message.execution_id)
+                if (
+                    execution_id <= 0 or
+                    execution_id == transaction.release_execution_id or
+                    result_stamp_ns < transaction.strict_evidence_stamp_ns or
+                    int(message.payload_slot) != target.payload_slot or
+                    str(message.align_mode) != transaction.align_mode or
+                    int(message.target_id) != target.target_id or
+                    str(message.target_class) != target.class_name
+                ):
+                    return
+                transaction.release_execution_id = execution_id
+                source = "guarded_servo_proxy:%d" % execution_id
+                if bool(message.success):
+                    self._report_target_stage(
+                        "PROGRESS", "RELEASE", now_ns,
+                        payload_committed=True,
+                        reason="release_ack_success",
+                        evidence_source=source,
+                    )
+                    self._publish_alignment_context(False, now_ns)
+                    if transaction.phase == "EXPIRED":
+                        transaction.phase = "TERMINAL"
+                        return
+                    transaction.phase = "RECOVERY"
+                    transaction.release_ack_ns = now_ns
+                    transaction.recovery_dwell_start_ns = 0
+                    transaction.recovery_last_odom_ns = 0
+                else:
+                    if transaction.phase == "EXPIRED":
+                        return
+                    self._report_target_stage(
+                        "FAILED", "RELEASE", now_ns,
+                        terminal=True,
+                        reason=("release_ack_failed:%s" %
+                                (message.reason or "unknown")),
+                        evidence_source=source,
+                    )
+                    transaction.phase = "TERMINAL"
+                    self._publish_alignment_context(False, now_ns)
+            except Exception as error:  # pylint: disable=broad-except
+                self._handle_callback_exception("release_result", error)
+
+    def _on_control_state(self, message):
+        with self._lock:
+            try:
+                now_ns = self._now_ns()
+                self._expire_handoff_if_due(now_ns)
+                self._control_state = int(message.data)
+                self._control_state_receipt_ns = now_ns
+                transaction = self._transaction
+                if (transaction is not None and
+                        transaction.phase == "ALIGN_COMMAND_SENT" and
+                        self._control_state == 2):
+                    self._report_target_stage(
+                        "STARTED", "CAPTURE", now_ns,
+                        reason="patrol_control_alignment_accepted",
+                        evidence_source="patrol_control_state",
+                    )
+                    transaction.phase = "ALIGNMENT"
+                landing = self._landing
+                if (landing is not None and not landing.started and
+                        self._control_state == 3 and
+                        now_ns >= landing.command_sent_ns):
+                    outcome = self._executor.report_landing(
+                        landing.decision.decision_seq,
+                        now_ns,
+                        "STARTED",
+                        False,
+                        "patrol_control_landing_accepted",
+                    )
+                    if not outcome.accepted:
+                        raise RuntimeError(outcome.reason)
+                    self._apply_outcome(outcome)
+                    landing.started = True
+            except Exception as error:  # pylint: disable=broad-except
+                self._handle_callback_exception("control_state", error)
+
+    def _on_align_mode(self, message):
+        with self._lock:
+            try:
+                self._align_mode = str(message.data).strip()
+                self._align_mode_receipt_ns = self._now_ns()
+            except Exception as error:  # pylint: disable=broad-except
+                self._handle_callback_exception("align_mode", error)
+
+    def _on_landed_state(self, message):
+        with self._lock:
+            try:
+                self._landed_state = int(message.landed_state)
+                self._landed_state_receipt_ns = self._now_ns()
+            except Exception as error:  # pylint: disable=broad-except
+                self._handle_callback_exception("landed_state", error)
 
     def _on_timer(self, _event):
         with self._lock:
             try:
                 if self._output_enabled:
-                    outcome = self._executor.tick(self._now_ns())
+                    now_ns = self._now_ns()
+                    outcome = self._executor.tick(now_ns)
                     self._apply_outcome(outcome)
+                    self._expire_handoff_if_due(now_ns)
+                    self._try_begin_alignment(now_ns)
+                    if (self._transaction is not None and
+                            self._transaction.phase in (
+                                "ALIGN_COMMAND_SENT", "ALIGNMENT")):
+                        self._publish_alignment_context(True, now_ns)
                 self._publish_status()
             except Exception as error:  # pylint: disable=broad-except
                 self._handle_callback_exception("timer", error)
@@ -510,6 +1190,20 @@ class NavigationPlannerBridge:
             "executor_id": self._executor_id,
             "last_reason": self._last_reason,
             "diagnostic_only_intents": self._last_diagnostic_intents,
+            "target_transaction": {
+                "decision_seq": (
+                    self._transaction.decision.decision_seq
+                    if self._transaction is not None else 0),
+                "phase": (
+                    self._transaction.phase
+                    if self._transaction is not None else "IDLE"),
+                "strict_context_observed": bool(
+                    self._transaction is not None and
+                    self._transaction.strict_evidence_stamp_ns > 0),
+            },
+            "landing_decision_seq": (
+                self._landing.decision.decision_seq
+                if self._landing is not None else 0),
             "executor": {
                 "faulted": snapshot.faulted,
                 "fault_reason": snapshot.fault_reason,

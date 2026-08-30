@@ -1,6 +1,7 @@
 <launch>
   <arg name="execution_enabled" default="false" />
   <arg name="allow_live_goal_output" default="false" />
+  <arg name="required" default="false" />
 
   <arg name="decision_topic" default="/navigation/mission_command_raw" />
   <arg name="result_topic" default="/navigation/mission_result" />
@@ -8,12 +9,23 @@
   <arg name="planner_status_topic" default="/planning/goal_status" />
   <arg name="odom_topic" default="/Odometry" />
   <arg name="status_topic" default="/navigation/planner_bridge_status" />
+  <arg name="mission_command_topic" default="/mission/command" />
+  <arg name="targets_topic" default="/uav_vision/targets" />
+  <arg name="alignment_context_topic"
+       default="/uav_vision/alignment_target_context" />
+  <arg name="release_evidence_context_topic"
+       default="/uav_vision/release_evidence_context" />
+  <arg name="release_result_topic" default="/mission/release_result" />
+  <arg name="control_state_topic" default="/detect/point_class" />
+  <arg name="align_mode_topic" default="/uav_vision/align_mode" />
+  <arg name="landed_state_topic" default="/mavros/extended_state" />
 
   <group ns="navigation">
     <node pkg="uav_mission"
           type="navigation_planner_bridge.py"
           name="planner_bridge"
-          output="screen">
+          output="screen"
+          required="$(arg required)">
       <rosparam command="load"
                 file="$(find uav_mission)/config/vcl06_planner_bridge.yaml" />
       <param name="execution/enabled" value="$(arg execution_enabled)" />
@@ -26,6 +38,16 @@
       <remap from="planner_status" to="$(arg planner_status_topic)" />
       <remap from="odom" to="$(arg odom_topic)" />
       <remap from="bridge_status" to="$(arg status_topic)" />
+      <remap from="mission_command" to="$(arg mission_command_topic)" />
+      <remap from="targets" to="$(arg targets_topic)" />
+      <remap from="alignment_target_context"
+             to="$(arg alignment_context_topic)" />
+      <remap from="release_evidence_context"
+             to="$(arg release_evidence_context_topic)" />
+      <remap from="release_result" to="$(arg release_result_topic)" />
+      <remap from="control_state" to="$(arg control_state_topic)" />
+      <remap from="align_mode" to="$(arg align_mode_topic)" />
+      <remap from="landed_state" to="$(arg landed_state_topic)" />
     </node>
   </group>
 </launch>

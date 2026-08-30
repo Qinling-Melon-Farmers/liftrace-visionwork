@@ -12,6 +12,7 @@
 
   <depend>gazebo_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>mavros_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>patrol_control</depend>
   <depend>plan_manage</depend>

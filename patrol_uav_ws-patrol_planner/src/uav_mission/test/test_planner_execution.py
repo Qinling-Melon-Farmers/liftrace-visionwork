@@ -121,6 +121,107 @@ class PlannerMotionExecutorTest(unittest.TestCase):
         self.assertEqual(out.events[0].status, "PROGRESS")
         self.assertFalse(out.events[0].terminal)
 
+    def test_target_handoff_reuses_planner_result_sequence(self):
+        executor = self.make(); self.dispatch(executor, decision(8, "APPROACH"))
+        finished = self.finish(executor)
+        executor.apply_odom(odom(finished+10), finished+10)
+        handoff_time = finished + 100_000_010
+        handoff = executor.apply_odom(odom(handoff_time), handoff_time)
+
+        capture = executor.report_target_stage(
+            8, handoff_time+1, "STARTED", "CAPTURE",
+            reason="semantic_target_recaptured")
+        alignment = executor.report_target_stage(
+            8, handoff_time+2, "STARTED", "ALIGNMENT",
+            reason="strict_alignment_context_valid")
+        release = executor.report_target_stage(
+            8, handoff_time+3, "PROGRESS", "RELEASE",
+            payload_committed=True, reason="release_ack_success",
+            evidence_source="guarded_servo_proxy:4")
+        recovery = executor.report_target_stage(
+            8, handoff_time+4, "SUCCEEDED", "RECOVERY", terminal=True,
+            reason="recovery_confirmed")
+
+        events = [handoff.events[0], capture.events[0], alignment.events[0],
+                  release.events[0], recovery.events[0]]
+        self.assertEqual(
+            [event.event_seq for event in events],
+            list(range(events[0].event_seq, events[0].event_seq+5)))
+        self.assertTrue(release.events[0].payload_committed)
+        self.assertFalse(recovery.events[0].payload_committed)
+        self.assertTrue(recovery.events[0].terminal)
+        self.assertFalse(executor.report_target_stage(
+            8, handoff_time+5, "PROGRESS", "ALIGNMENT",
+            reason="late_progress").accepted)
+
+    def test_target_success_requires_release_commit(self):
+        executor = self.make(); self.dispatch(executor, decision(8, "APPROACH"))
+        finished = self.finish(executor)
+        executor.apply_odom(odom(finished+10), finished+10)
+        handoff_time = finished + 100_000_010
+        executor.apply_odom(odom(handoff_time), handoff_time)
+        outcome = executor.report_target_stage(
+            8, handoff_time+1, "SUCCEEDED", "RECOVERY", terminal=True,
+            reason="recovery_confirmed")
+        self.assertFalse(outcome.accepted)
+        self.assertEqual(outcome.reason, "target_success_without_commit")
+
+    def test_release_timeout_allows_one_exact_late_commit(self):
+        executor = self.make(); self.dispatch(executor, decision(8, "APPROACH"))
+        finished = self.finish(executor)
+        executor.apply_odom(odom(finished+10), finished+10)
+        handoff_time = finished + 100_000_010
+        executor.apply_odom(odom(handoff_time), handoff_time)
+        timed_out = executor.report_target_stage(
+            8, BASE+5*NSEC, "TIMED_OUT", "RELEASE", terminal=True,
+            reason="release_result_deadline_reached")
+        self.assertTrue(timed_out.accepted, timed_out.reason)
+        self.assertTrue(timed_out.events[0].terminal)
+        self.assertFalse(timed_out.events[0].retryable)
+
+        committed = executor.report_target_stage(
+            8, BASE+5*NSEC+1, "PROGRESS", "RELEASE",
+            payload_committed=True, reason="release_ack_success",
+            evidence_source="guarded_servo_proxy:1")
+        self.assertTrue(committed.accepted, committed.reason)
+        self.assertTrue(committed.events[0].payload_committed)
+        self.assertEqual(committed.events[0].event_seq,
+                         timed_out.events[0].event_seq+1)
+        duplicate = executor.report_target_stage(
+            8, BASE+5*NSEC+2, "PROGRESS", "RELEASE",
+            payload_committed=True, reason="release_ack_success",
+            evidence_source="guarded_servo_proxy:1")
+        self.assertFalse(duplicate.accepted)
+
+    def test_other_target_timeout_does_not_allow_late_commit(self):
+        executor = self.make(); self.dispatch(executor, decision(8, "APPROACH"))
+        finished = self.finish(executor)
+        executor.apply_odom(odom(finished+10), finished+10)
+        handoff_time = finished + 100_000_010
+        executor.apply_odom(odom(handoff_time), handoff_time)
+        timed_out = executor.report_target_stage(
+            8, BASE+5*NSEC, "TIMED_OUT", "CAPTURE", terminal=True,
+            retryable=True, reason="target_capture_deadline_reached")
+        self.assertTrue(timed_out.accepted, timed_out.reason)
+        late = executor.report_target_stage(
+            8, BASE+5*NSEC+1, "PROGRESS", "RELEASE",
+            payload_committed=True, reason="release_ack_success",
+            evidence_source="guarded_servo_proxy:1")
+        self.assertFalse(late.accepted)
+
+    def test_landing_handoff_reports_observed_terminal(self):
+        executor = self.make()
+        handoff = executor.submit_decision(decision(9, "LAND"), BASE)
+        self.assertEqual(handoff.handoff, "LAND")
+        started = executor.report_landing(
+            9, BASE+1, "STARTED", False, "landing_command_forwarded")
+        landed = executor.report_landing(
+            9, BASE+2, "SUCCEEDED", True, "landing_settle_confirmed")
+        self.assertEqual(started.events[0].stage, "LANDING")
+        self.assertEqual(landed.events[0].event_seq,
+                         started.events[0].event_seq+1)
+        self.assertTrue(landed.events[0].terminal)
+
     def test_deadlines_emit_typed_timeout(self):
         executor = self.make(); self.dispatch(executor, decision(deadline=BASE+100))
         out = executor.tick(BASE+100)

@@ -92,5 +92,7 @@
   <node pkg="uav_mission" type="visual_delivery_audit.py"
         name="visual_delivery_audit" output="screen">
     <param name="report_path" value="$(arg audit_report_path)" />
+    <param name="require_evidence_context"
+           value="$(arg require_release_evidence_context)" />
   </node>
 </launch>

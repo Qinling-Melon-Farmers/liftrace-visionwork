@@ -17,3 +17,21 @@ execution:
   arrival_dwell: 0.50
   effective_goal_max_offset: 1.10
   tick_hz: 20.0
+
+# These parameters only describe observations for the active decision. Queue,
+# retry, slot allocation and mission deadlines remain in navigation_mission_manager.
+target:
+  capture_max_age: 1.0
+  context_max_age: 0.5
+  max_association_distance: 0.8
+  recovery_height: 0.95
+  recovery_speed: 0.25
+  recovery_dwell: 0.5
+
+landing:
+  # patrol_control requests disarm at z <= 0.02 m; success additionally
+  # requires a fresh MAVROS ON_GROUND state and this horizontal radius.
+  height: 0.05
+  speed: 0.15
+  radius: 0.25
+  dwell: 1.0

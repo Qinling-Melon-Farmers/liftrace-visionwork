@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   gazebo_msgs
   geometry_msgs
   message_generation
+  mavros_msgs
   nav_msgs
   patrol_control
   plan_manage
@@ -38,6 +39,7 @@ catkin_package(
     gazebo_msgs
     geometry_msgs
     message_runtime
+    mavros_msgs
     nav_msgs
     patrol_control
     plan_manage
@@ -103,4 +105,5 @@ if(CATKIN_ENABLE_TESTING)
   catkin_add_nosetests(test/test_planner_execution.py)
   catkin_add_nosetests(test/test_planner_mission_contract.py)
   catkin_add_nosetests(test/test_navigation_planner_bridge_contract.py)
+  catkin_add_nosetests(test/test_visual_delivery_audit_policy.py)
 endif()

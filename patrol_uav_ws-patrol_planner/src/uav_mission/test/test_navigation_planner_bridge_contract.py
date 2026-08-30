@@ -37,11 +37,15 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
                     isinstance(node.args[1], ast.Name)):
                 publisher_types.add(node.args[1].id)
         self.assertEqual(
-            publisher_types, {"PoseStamped", "NavigationResult", "String"})
+            publisher_types,
+            {"PoseStamped", "NavigationResult", "String",
+             "MissionCommand", "AlignmentTargetContext"})
         for forbidden in (
                 "Servo", "actuator_pwm", "rospy.ServiceProxy",
-                "/planning/replan", "mavros", "arming"):
+                "/planning/replan", "/mavros/cmd/arming"):
             self.assertNotIn(forbidden, self.source)
+        self.assertIn("ExtendedState", self.source)
+        self.assertNotIn("from mavros_msgs.msg import State", self.source)
 
     def test_live_planner_topic_requires_explicit_acknowledgement(self):
         self.assertIn(
@@ -109,18 +113,23 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
             arguments["planner_goal_topic"], "/fastplanner/goal")
 
     def test_ros_dependencies_are_declared(self):
-        for dependency_kind in (
-                "build_depend", "build_export_depend", "exec_depend"):
-            dependencies = {
-                item.text for item in self.package.findall(dependency_kind)
-            }
-            self.assertIn("nav_msgs", dependencies)
-            self.assertIn("plan_manage", dependencies)
+        dependencies = {
+            item.text for kind in (
+                "depend", "build_depend", "build_export_depend",
+                "exec_depend")
+            for item in self.package.findall(kind)
+        }
+        self.assertIn("nav_msgs", dependencies)
+        self.assertIn("mavros_msgs", dependencies)
+        self.assertIn("plan_manage", dependencies)
 
     def test_all_callbacks_fail_closed(self):
         self.assertIn("threading.RLock()", self.source)
         self.assertIn("def _handle_callback_exception", self.source)
-        for source in ("decision", "planner_status", "odom", "timer"):
+        for source in (
+                "decision", "planner_status", "odom", "targets",
+                "release_context", "release_result", "control_state",
+                "align_mode", "landed_state", "timer"):
             self.assertIn(
                 '_handle_callback_exception("%s"' % source,
                 self.source,
@@ -138,6 +147,46 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
         for component in ("decision.goal.qx", "decision.goal.qy",
                           "decision.goal.qz", "decision.goal.qw"):
             self.assertIn(component, self.source)
+
+    def test_target_transaction_reuses_existing_contracts(self):
+        for token in (
+                "TargetCandidateArray", "AlignmentTargetContext",
+                "ReleaseEvidenceContext", "ReleaseResult", "MissionCommand",
+                "strict_context_source", "report_target_stage"):
+            self.assertIn(token, self.source)
+        self.assertNotIn("TargetTransactionResult", self.source)
+        self.assertNotIn("_target_event_seq", self.source)
+        self.assertIn("point = candidate.map_point", self.source)
+        self.assertIn("target_pose=target_pose", self.source)
+        self.assertNotIn("rospy.ServiceProxy", self.source)
+
+    def test_handoffs_require_observed_control_and_deadlines(self):
+        self.assertIn('transaction.phase = "ALIGN_COMMAND_SENT"', self.source)
+        self.assertIn('transaction.phase == "ALIGN_COMMAND_SENT"', self.source)
+        self.assertIn('self._control_state == 2', self.source)
+        self.assertIn("def _expire_handoff_if_due", self.source)
+        self.assertIn('reason = "release_result_deadline_reached"',
+                      self.source)
+        self.assertIn('reason = "recovery_deadline_reached"', self.source)
+        self.assertIn('"landing_deadline_reached"', self.source)
+
+    def test_land_uses_current_pose_and_explicit_landed_fact(self):
+        self.assertIn("sample = self._last_odom", self.source)
+        self.assertIn("x=sample.x", self.source)
+        self.assertIn("y=sample.y", self.source)
+        self.assertIn('z=0.0', self.source)
+        self.assertIn("horizontal_error <= self._landing_radius", self.source)
+        self.assertIn("ExtendedState.LANDED_STATE_ON_GROUND", self.source)
+        self.assertIn("self._control_state == 3", self.source)
+        self.assertIn(
+            '"live patrol_control execution requires camera_init frame"',
+            self.source)
+
+    def test_release_result_deduplication_is_transaction_local(self):
+        self.assertIn("release_execution_id: int = 0", self.source)
+        self.assertIn(
+            "execution_id == transaction.release_execution_id", self.source)
+        self.assertNotIn("_last_release_execution_id", self.source)
 
 
 if __name__ == "__main__":
