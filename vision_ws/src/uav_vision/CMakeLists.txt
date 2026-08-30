@@ -31,6 +31,8 @@ add_message_files(
   DropOffset.msg
   DropReady.msg
   ReleaseEvidence.msg
+  AlignmentTargetContext.msg
+  ReleaseEvidenceContext.msg
 )
 
 generate_messages(
@@ -79,8 +81,10 @@ add_dependencies(cross_detector_node
 
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
+  catkin_add_nosetests(test/test_alignment_context_policy.py)
   add_rostest(test/cross_geometry_regression.test)
   add_rostest(test/landing_mode_gate.test)
+  add_rostest(test/alignment_context.test)
 endif()
 
 # ---- circle_detector_node ----
@@ -134,6 +138,7 @@ catkin_install_python(PROGRAMS
   scripts/cross_geometry_regression_assertion.py
   scripts/landing_mode_gate_assertion.py
   scripts/drop_aligner_freshness_assertion.py
+  scripts/alignment_context_assertion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

@@ -93,6 +93,31 @@ profile 审计；真正的立即中断提案是 selector 发布的 `/mission/pro
 前者只表示视觉像素对准，后者提供目标身份、几何、观测年龄、稳定帧和拒绝原因；二者都
 不是释放许可。
 
+### `/uav_vision/alignment_target_context` 与上下文证据
+
+导航 coordinator 在 ALIGN decision 内应以 `uav_vision/AlignmentTargetContext` 周期续租同一
+冻结上下文。消息不依赖 `uav_mission`，但 `uint8 command` 与 `NavigationDecision v1` 同值；
+默认只接受 `ALIGN=2`。必须填入 `source/header.stamp`、排他 `deadline`、profile、align mode、
+`mission_id + decision_seq + semantic_target_id + first_seen + attempt + payload_slot`、目标观测时间
+和地图 `target_pose`。`has_target=true` 时 `semantic_target_id=0` 完全合法。
+
+正式链应给 `drop_aligner` 设置 `require_alignment_context=true` 并按配置周期刷新
+`header.stamp`，但不得在同一 decision 内修改冻结字段。strict 模式下：
+
+- 上下文缺失、失鲜、inactive、错误 schema/source/profile/command/mode 或 deadline 到达即拒绝；
+- r2026 语义目标不准入 tank；full 仍保留 tank 兼容；
+- 标准靶按同 frame 地图距离把语义目标绑定到圆环几何实例，二者 ID 不要求相等；
+- red_cross 按 `id + first_seen` 精确匹配，防止 stable ID 重用；
+- decision/fence、冻结内容或实际几何实例变化时稳定帧从零重新累计。
+
+strict watchdog 独立于目标消息流；即使 coordinator 仍续租，几何观测超龄也会主动撤销 ready，
+context 失鲜或 deadline 到达同样 fail-closed。因此 coordinator 必须持续续租，但仅续租不能替代
+新的视觉观测，也不能依赖 latched 单发消息。
+
+视觉继续发布旧 `/uav_vision/release_evidence`，同时在
+`/uav_vision/release_evidence_context` 内嵌旧证据并回显 coordinator header/source、完整 decision/
+语义/几何身份、关联距离及 `context_valid/context_reason`。最终释放许可仍由任务/安全层产生。
+
 ## 4. stable ID 和地图记忆
 
 - 地图候选默认保留到 `/uav_vision/reset_memory`；

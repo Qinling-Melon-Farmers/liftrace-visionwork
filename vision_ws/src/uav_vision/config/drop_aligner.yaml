@@ -10,3 +10,15 @@ max_offset_px: 30.0
 stable_frames: 3
 min_confidence: 0.6
 target_max_age: 0.5
+
+# 默认关闭，保持旧 release_evidence/drop_ready 行为与 ROS1 MD5/topic 不变。
+# VCL06 coordinator 接线完成后显式设 true，并以固定频率续租同一冻结上下文。
+require_alignment_context: false
+alignment_context_topic: /uav_vision/alignment_target_context
+release_evidence_context_topic: /uav_vision/release_evidence_context
+alignment_context_max_age: 0.5
+alignment_context_watchdog_rate: 20.0
+class_profile: full
+# 与 NavigationDecision v1 同值；默认只接受 ALIGN=2。若联调确需 APPROACH 过渡，
+# 由正式 launch 显式改为 [1, 2]，不得在源码隐式放宽。
+allowed_alignment_commands: [2]
