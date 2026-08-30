@@ -838,6 +838,11 @@ class VSim04CameraSoak:
 
     def _write_artifacts(self):
         with self._lock:
+            if self._started_wall is None:
+                # Startup failures may have accumulated warm-up callbacks.
+                # They are not measured evidence and must not produce absurd
+                # FPS values against a zero-duration interval.
+                self._accounting.begin_measurement(time.monotonic())
             if not self._accounting_finalized:
                 self._accounting.evaluate(time.monotonic(), force=True)
                 self._accounting_finalized = True
@@ -851,6 +856,7 @@ class VSim04CameraSoak:
             summary.update({
                 "schema_version": 1,
                 "evaluation_id": "V-SIM-04-SOAK",
+                "measurement_started": self._started_wall is not None,
                 "artifact_set_complete": False,
                 "selected_observations": self._selected_count,
                 "tank_selected_observations": self._tank_selected_count,

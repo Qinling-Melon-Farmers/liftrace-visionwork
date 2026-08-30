@@ -7,7 +7,7 @@ import sys
 import time
 
 import rospy
-from gazebo_msgs.srv import GetModelState, SpawnModel
+from gazebo_msgs.srv import GetModelState, GetWorldProperties, SpawnModel
 from geometry_msgs.msg import Pose
 from std_msgs.msg import Bool
 
@@ -57,8 +57,12 @@ class SequentialSoakModelSpawner:
             "~spawn_service", "/gazebo/spawn_sdf_model")
         self._state_name = rospy.get_param(
             "~get_state_service", "/gazebo/get_model_state")
+        self._world_name = rospy.get_param(
+            "~get_world_properties_service", "/gazebo/get_world_properties")
         self._spawn = rospy.ServiceProxy(self._spawn_name, SpawnModel)
         self._get_state = rospy.ServiceProxy(self._state_name, GetModelState)
+        self._get_world = rospy.ServiceProxy(
+            self._world_name, GetWorldProperties)
         self._ready = rospy.Publisher(
             rospy.get_param(
                 "~ready_topic", "/uav_vision_eval/soak_models_ready"),
@@ -100,32 +104,56 @@ class SequentialSoakModelSpawner:
             model_xml = stream.read()
         deadline = time.monotonic() + self._startup_timeout
         last_error = ""
+        if self._exists(model_name):
+            return
+        # A timed-out Gazebo spawn request cannot be cancelled.  Submit it
+        # exactly once; a retry could create ``model_name_0`` while the first
+        # worker is still completing inside Gazebo.
+        try:
+            response = call_with_monotonic_deadline(
+                lambda: self._spawn(
+                    model_name, model_xml, "", initial_pose, "world"),
+                self._startup_timeout, "spawn_" + model_name,
+                rospy.is_shutdown)
+            if response.success:
+                return
+            last_error = str(response.status_message)
+        except Exception as error:
+            last_error = str(error)
         while not rospy.is_shutdown() and time.monotonic() < deadline:
             if self._exists(model_name):
                 return
-            try:
-                response = self._call(
-                    "spawn_" + model_name,
-                    lambda: self._spawn(
-                        model_name, model_xml, "", initial_pose, "world"))
-                if response.success or self._exists(model_name):
-                    return
-                last_error = str(response.status_message)
-            except Exception as error:
-                last_error = str(error)
             time.sleep(0.25)
         raise RuntimeError(
             "failed to spawn {}: {}".format(model_name, last_error))
+
+    def _verify_unique_world_models(self):
+        response = self._call("get_world_properties", self._get_world)
+        if not response.success:
+            raise RuntimeError(
+                "get_world_properties failed: " + response.status_message)
+        world_names = {str(value) for value in response.model_names}
+        for model_name, _path, _pose_value in self._models:
+            matching = sorted(
+                value for value in world_names
+                if value == model_name or value.startswith(model_name + "_"))
+            if matching != [model_name]:
+                raise RuntimeError(
+                    "model uniqueness failed for {}: {}".format(
+                        model_name, ",".join(matching)))
 
     def run(self):
         rospy.wait_for_service(
             self._spawn_name, timeout=self._startup_timeout)
         rospy.wait_for_service(
             self._state_name, timeout=self._startup_timeout)
+        rospy.wait_for_service(
+            self._world_name, timeout=self._startup_timeout)
         for model in self._models:
             self._spawn_one(*model)
         if not all(self._exists(model[0]) for model in self._models):
             raise RuntimeError("spawned model verification failed")
+        self._verify_unique_world_models()
         self._ready.publish(Bool(data=True))
         rospy.loginfo(
             "V-SIM-04 soak models ready: %s",
