@@ -4,6 +4,9 @@
 包版本：`uav_vision 0.2.1`
 边界：视觉只输出观测、地图候选、记忆和像素对准证据，不输出飞行或执行机构命令。
 
+> 版本阅读规则：本文保留 `20260807-beta1` 作为历史交付标识；对正式任务链、
+> profile、实测结论或导航职责的表述如有冲突，**2026-08-30 补充优先于旧 beta1**。
+
 接收方只有板端原始工程时，先阅读 ZIP 根目录 `INSTALL_AND_SIMULATION.md`。该文档说明
 `vision_ws` 与原工程的位置关系、Catkin overlay、板端 RKNN 启动、话题/TF 检查、视觉
 mock 以及完整 toudi3 仿真为什么需要额外开发机功能分支。
@@ -24,6 +27,22 @@ Image + CameraInfo + TF + align_mode
 ```
 
 标准目标必须完成同帧类别与蓝环一对一关联，且地图投影有效，才能进入 operational 候选。
+
+正式 `r2026` 任务链不直接消费视觉原始排序，当前单一所有权数据流为：
+
+```text
+/uav_vision/targets
+  -> profile_candidate_selector
+  -> /mission/profile_selected_target
+  -> target_search_manager_py
+  -> /navigation/goal_raw
+  -> navigation_visual_delivery_adapter
+  -> /fastplanner/goal
+```
+
+manager 只发布 raw goal，adapter 是正式链唯一 `/fastplanner/goal` 发布者。
+`/uav_vision/selected_target` 只用于视觉侧 `P_selected` 统计和“是否绕过 profile”审计，
+不是正式 `r2026` 任务入口，不得绕过 `profile_candidate_selector` 直接触发 manager。
 
 ## 2. 输入接口
 
@@ -62,7 +81,8 @@ tank=5, panzer=2.5, bridge=2, pillbox=1.5, tent=1
 ```
 
 导航消费者可以结合可达性、任务终态、剩余时间和自身规则改选目标。该话题不是规划目标，
-`uav_vision` 不发布 `/fastplanner/goal`。
+`uav_vision` 不发布 `/fastplanner/goal`。在正式 `r2026` 链中，该话题只作视觉统计与绕过
+profile 审计；真正的立即中断提案是 selector 发布的 `/mission/profile_selected_target`。
 
 ### `/uav_vision/drop_offset`
 
@@ -81,11 +101,12 @@ tank=5, panzer=2.5, bridge=2, pillbox=1.5, tent=1
 - 目标成功、失败或不可达后的任务终态由消费者维护，视觉不会代替任务层删除目标；
 - 缺 CameraInfo、无效关联、缺 TF 或 TF 过旧时地图候选失败关闭。
 
-## 5. 参考导航代码
+## 5. 历史参考导航代码
 
 ZIP 根目录 `reference_integration/` 包含阶段 4 使用的消息草案、候选策略和 coverage manager。
 它们依赖主工程中的 `patrol_control/uav_mission/Fast-Planner`，不在视觉工作区参与编译，也不
-能从交付 ZIP 直接运行。它们只用于展示以下已验证行为：
+能从交付 ZIP 直接运行。它们只是旧 coverage manager 的历史回归参考，用于展示以下曾经
+验证过的行为：
 
 - 非靶标坐标蛇形覆盖；
 - 候选有效性过滤和规则权重排序；
@@ -95,6 +116,11 @@ ZIP 根目录 `reference_integration/` 包含阶段 4 使用的消息草案、�
 
 导航组可以选择复用、改写或完全不用这些参考文件。视觉正式接口仅为本文件列出的 ROS
 输入、输出、消息字段和服务。
+
+特别注意：上述“权重队列、delivered/failed 去重、规划重试和不可达后恢复”不是
+`manager@5144aa8` 的当前能力。正式 manager 目前仍缺 accepted/result/retry 回流、持久候选
+队列和剩余时间调度；不得用本节的历史 coverage manager 清单宣称这些任务层缺口
+已由导航上游完成。
 
 ## 6. 已验证与限制
 
