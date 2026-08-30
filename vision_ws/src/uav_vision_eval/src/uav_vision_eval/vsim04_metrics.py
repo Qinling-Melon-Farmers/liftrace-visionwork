@@ -568,16 +568,39 @@ def _reset_regression_tolerance_m(trajectory, path_length):
     return max(0.25, 2.0 * planned_step_m)
 
 
-def _trajectory_start_tolerance_m(trajectory):
+def _trajectory_start_reference(trajectory, path, pose_stamp, window_start):
+    """Return the expected first-pose XY and a fail-closed sampling slack."""
+    start_x, start_y, dx_value, dy_value, path_length = path
     try:
         speed_mps = float(trajectory.get("expected_speed_mps", 0.0))
-        update_rate_hz = float(trajectory.get("update_rate_hz", 0.0))
+        elapsed_sec = float(pose_stamp) - float(window_start)
     except (TypeError, ValueError, OverflowError):
-        return 0.05
-    if (not math.isfinite(speed_mps) or not math.isfinite(update_rate_hz) or
-            speed_mps < 0.0 or update_rate_hz <= 0.0):
-        return 0.05
-    return max(0.05, 1.5 * speed_mps / update_rate_hz)
+        return start_x, start_y, 0.05
+    if (not math.isfinite(speed_mps) or not math.isfinite(elapsed_sec) or
+            speed_mps < 0.0 or elapsed_sec < 0.0):
+        return start_x, start_y, 0.05
+
+    expected_progress_m = min(path_length, speed_mps * elapsed_sec)
+    reference_x = start_x + dx_value * expected_progress_m / path_length
+    reference_y = start_y + dy_value * expected_progress_m / path_length
+
+    planned_step_m = None
+    try:
+        update_rate_hz = float(trajectory.get("update_rate_hz", 0.0))
+        if math.isfinite(update_rate_hz) and update_rate_hz > 0.0:
+            planned_step_m = speed_mps / update_rate_hz
+    except (TypeError, ValueError, OverflowError):
+        pass
+    if planned_step_m is None:
+        try:
+            steps = int(trajectory.get("steps", 0))
+            if steps > 0:
+                planned_step_m = path_length / steps
+        except (TypeError, ValueError, OverflowError):
+            pass
+    sampling_slack_m = max(
+        0.05, 1.5 * (planned_step_m if planned_step_m is not None else 0.0))
+    return reference_x, reference_y, sampling_slack_m
 
 
 def annotate_motion_frames(frame_rows, trial_kind, trajectory):
@@ -601,7 +624,6 @@ def annotate_motion_frames(frame_rows, trial_kind, trajectory):
     reset_tolerance_m = (
         _reset_regression_tolerance_m(trajectory, path[4])
         if path is not None else None)
-    start_tolerance_m = _trajectory_start_tolerance_m(trajectory)
     previous = None
     linear_samples = []
     yaw_rate_samples = []
@@ -677,17 +699,21 @@ def annotate_motion_frames(frame_rows, trial_kind, trajectory):
 
         current = (pose_stamp, position, yaw, progress_m)
         if previous is None:
-            if path is not None and math.hypot(
-                    position[0] - path[0],
-                    position[1] - path[1]) > start_tolerance_m:
-                row["path_lateral_offset_m"] = ""
-                row["path_lateral_offset_normalized"] = ""
-                lateral_samples.pop()
-                row["motion_invalid_reason"] = (
-                    "trajectory_start_pose_not_ready")
-                row["path_lateral_invalid_reason"] = (
-                    "trajectory_start_pose_not_ready")
-                continue
+            if path is not None:
+                reference_x, reference_y, start_tolerance_m = (
+                    _trajectory_start_reference(
+                        trajectory, path, pose_stamp, window_start))
+                if math.hypot(
+                        position[0] - reference_x,
+                        position[1] - reference_y) > start_tolerance_m:
+                    row["path_lateral_offset_m"] = ""
+                    row["path_lateral_offset_normalized"] = ""
+                    lateral_samples.pop()
+                    row["motion_invalid_reason"] = (
+                        "trajectory_start_pose_not_ready")
+                    row["path_lateral_invalid_reason"] = (
+                        "trajectory_start_pose_not_ready")
+                    continue
             row["motion_invalid_reason"] = "first_valid_pose"
             previous = current
             continue

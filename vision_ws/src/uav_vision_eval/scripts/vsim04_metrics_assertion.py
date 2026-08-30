@@ -160,6 +160,57 @@ def main():
     assert abs(reset_after["actual_linear_speed_mps"] - 1.0) < 1.0e-9
     assert reset_motion["motion_sample_count"] == 2
 
+    # The first camera/pose sample may arrive after the trajectory has already
+    # advanced.  Accept progress consistent with source-time elapsed, but keep
+    # rejecting a stale/offscreen reset pose at the same timestamp.
+    delayed_start = motion_row(2.8, 0.15, 0.0, 2.0, 0.0, 2.3)
+    delayed_after = motion_row(3.0, 0.25, 0.0, 2.0, 0.0, 2.5)
+    delayed_motion = annotate_motion_frames(
+        [delayed_after, delayed_start], "dynamic", {
+            "start_x": 0.0, "start_y": 0.0,
+            "finish_x": 10.0, "finish_y": 0.0,
+            "expected_speed_mps": 0.5, "update_rate_hz": 20.0,
+            "steps": 200, "motion_start_source_stamp": 2.0,
+            "motion_end_source_stamp": 22.0,
+        })
+    assert delayed_start["motion_invalid_reason"] == "first_valid_pose"
+    assert delayed_after["motion_delta_valid"]
+    assert abs(delayed_after["actual_linear_speed_mps"] - 0.5) < 1.0e-9
+    assert delayed_motion["motion_sample_count"] == 1
+
+    offscreen_start = motion_row(2.8, 7.0, 7.0, 2.0, 0.0, 2.3)
+    recovered_start = motion_row(3.0, 0.25, 0.0, 2.0, 0.0, 2.5)
+    recovered_after = motion_row(3.2, 0.35, 0.0, 2.0, 0.0, 2.7)
+    offscreen_motion = annotate_motion_frames(
+        [recovered_after, offscreen_start, recovered_start], "dynamic", {
+            "start_x": 0.0, "start_y": 0.0,
+            "finish_x": 10.0, "finish_y": 0.0,
+            "expected_speed_mps": 0.5, "update_rate_hz": 20.0,
+            "steps": 200, "motion_start_source_stamp": 2.0,
+            "motion_end_source_stamp": 22.0,
+        })
+    assert offscreen_start["motion_invalid_reason"] == \
+        "trajectory_start_pose_not_ready"
+    assert offscreen_start["path_lateral_offset_normalized"] == ""
+    assert recovered_start["motion_invalid_reason"] == "first_valid_pose"
+    assert recovered_after["motion_delta_valid"]
+    assert abs(recovered_after["actual_linear_speed_mps"] - 0.5) < 1.0e-9
+    assert offscreen_motion["motion_sample_count"] == 1
+    assert offscreen_motion["lateral_offset_sample_count"] == 2
+
+    stalled_start = motion_row(3.0, 0.0, 0.0, 2.0, 0.0, 2.5)
+    stalled_motion = annotate_motion_frames(
+        [stalled_start], "dynamic", {
+            "start_x": 0.0, "start_y": 0.0,
+            "finish_x": 10.0, "finish_y": 0.0,
+            "expected_speed_mps": 0.5, "update_rate_hz": 20.0,
+            "steps": 200, "motion_start_source_stamp": 2.0,
+            "motion_end_source_stamp": 22.0,
+        })
+    assert stalled_start["motion_invalid_reason"] == \
+        "trajectory_start_pose_not_ready"
+    assert stalled_motion["motion_sample_count"] == 0
+
     invalid_window_row = motion_row(1.0, 0.0, 0.0, 2.0, 0.0)
     invalid_window = annotate_motion_frames(
         [invalid_window_row], "dynamic", {
