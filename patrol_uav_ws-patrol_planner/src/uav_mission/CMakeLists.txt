@@ -64,6 +64,7 @@ catkin_install_python(PROGRAMS
   scripts/random_field_spawner.py
   scripts/pose_tf_broadcaster.py
   scripts/navigation_mission_manager.py
+  scripts/navigation_mission_start_gate.py
   scripts/target_search_manager_py.py
   scripts/navigation_visual_delivery_adapter.py
   scripts/profile_candidate_selector.py
@@ -91,4 +92,5 @@ if(CATKIN_ENABLE_TESTING)
   catkin_add_nosetests(test/test_mission_core.py)
   catkin_add_nosetests(test/test_mission_runtime.py)
   catkin_add_nosetests(test/test_navigation_manager_contract.py)
+  catkin_add_nosetests(test/test_mission_start_gate.py)
 endif()
