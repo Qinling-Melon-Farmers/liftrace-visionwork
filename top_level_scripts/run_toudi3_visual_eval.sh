@@ -81,8 +81,8 @@ case "${scenario}" in
     ;;
   landing_h)
     launch_file="landing_h_eval.launch"
-    camera_x="${camera_x:-0.0}"
-    camera_y="${camera_y:-0.0}"
+    camera_x="${camera_x:--0.493412}"
+    camera_y="${camera_y:--1.77269}"
     camera_z="${camera_z:-1.8}"
     ;;
   *)
