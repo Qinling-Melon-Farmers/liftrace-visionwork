@@ -148,8 +148,31 @@ latched profile 使用，不要求其 header stamp 与每帧图像相同，但 f
 旧 schema v2 产物不会被新 checker 冒充通过。该数据只标记为 `sim-small-target` 诊断输入，不得当作实拍
 数据或未经独立验证直接触发阈值/正式模型切换。
 
+schema-v3 实跑 `vsim04_diag_pillbox_multih_v3_seed11_20260830_215821` 完成 pillbox 三高度
+3/3 trial、9/9 帧，最大非 fallback 迟到 0.0544 s 且无 trial-end fallback；转换结果为
+train 6/val 3，并强制 `training_ready=false`。该证据只证明采集和转换合同，不证明数据量足以
+训练或模型泛化已经改善。
+
 入口只启动 Gazebo、评测相机、视觉链、真值、recorder 和 trial runner；不会启动 PX4、
-MAVROS、旧控制、`actuator_pwm` 或真实投递。当前合并态证据
-`logs/vsim04_seed11_current_20260829_195506/` 已完成 23/23 并写出 `MEASURED`；
-P_confirm/P_selected 均为 13/23。该终态只表示运行与产物有效，不代表红十字、高空和动态
-召回已经达标；合并前 `logs/vsim04_seed11_20260829_192515/` 的 9/23 仅保留作旧阈值基线。
+MAVROS、旧控制、`actuator_pwm` 或真实投递。历史合并态
+`logs/vsim04_seed11_current_20260829_195506/` 的 13/23 和更早 9/23 继续保留作阈值基线；
+当前证据为：
+
+- `logs/vsim04_formal23_latest_seed11_20260830_220302/`：23/23、六产物完整，
+  P_confirm=P_selected=22/23；processing P95=195.3 ms、地图 P95=0.0792 m、TF failure=0，
+  唯一失败为 `static_pillbox_h3p6/raw_classifier`。终态为 `MEASURED`，性能 verdict 为
+  `NOT_GATED`；
+- `logs/vsim04_diag_static25_seed11_20260830_220647/`：25/25，P_confirm=P_selected=24/25，
+  1.8/3.0 m 五类全通过，唯一失败仍为 pillbox 3.6 m；
+- `logs/vsim04_diag_sparse30_retry3_seed11_20260830_223136/`：30/30，
+  P_confirm=P_selected=25/30，processing P95=153.9 ms、地图 P95=0.1103 m、TF failure=0，
+  motion/lateral 有效样本分别为 4045/4075，terminal errors=0。五个失败均为
+  `target_memory_admission`：pillbox h1.2/v2、h3.6/v0.5、h3.6/v2，bridge h1.2/v2 和
+  panzer h1.2/v2；tank/disallowed/policy-rejected selected 均为 0；
+- `logs/vsim04_diag_pillbox_h3p6_1280_rerun1_seed11_20260830_223958/`：1280 输入使 pillbox
+  3.6 m 达到 P_confirm=1，但共视 bridge 被 selected，故 P_selected=0；processing
+  P95=449.3 ms，超过 200 ms。该 A/B 不推广，默认继续使用 640。
+
+上述 formal/static/sparse 均为单 seed 一次覆盖，不能据此估计概率；visual-only 的
+P_interrupt 仍为 `null`。当前先对 raw classifier/target-memory admission 边界做重复和尺度归因，
+再执行 10 min，采用门槛冻结前不扩 30-seed。

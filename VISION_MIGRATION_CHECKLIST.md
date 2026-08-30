@@ -1,6 +1,6 @@
 # 视觉迁移与发布 Gate
 
-更新时间：2026-08-26
+更新时间：2026-08-30
 
 本文件只记录 2025 旧视觉链迁移到 `uav_vision` 的通过状态，不维护任务优先级。执行顺序和指标见 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)。
 
@@ -21,8 +21,9 @@
 - [x] 红十字几何检测进入统一 detections；
 - [x] 蓝色圆环检测进入统一 detections；
 - [x] landing/H 外圈检测进入统一 detections；
-- [x] H 外圈 + 内部结构验证与 `landing` 阶段门控已有固定 Gazebo 回归；
-- [~] 纯背景固定场景 0 FP；残圈、普通黑圈和实拍负样本仍待扩充。
+- [x] H 外圈 + 内部结构验证与 `landing` 阶段门控已有固定 Gazebo 回归；正例 458 TP、
+  0 FP/FN，landing-active 纯背景 511 帧 0 FP；
+- [~] 固定正例/背景负例已通过；残圈、普通黑圈、实拍负样本和完整视觉降落 Gate 仍待扩充。
 
 ## Gate M2：融合与实例语义
 
@@ -88,9 +89,9 @@
   和默认旧路线兼容；
 - [x] `target_area_navigation` 无 GUI Gate 完成靶标区域 12/12 非真值坐标覆盖、五类五个
   stable ID、安全返航、零碰撞/越界/Servo；北区走廊避障不属于本轮 Gate；
-- [~] `coverage_r6` 按权重三次 guarded mock 投递已实跑 3/3（tank/panzer/bridge，
-  `logs/toudi4_coverage_r6_v2_20260813_221737/`，0 碰撞、0 越界、377.6 s 降落）；
-  Gate 断言已按全程累计事实修复，待一次干净复跑确认 PASS（规划器可达性波动外置）；
+- [x] `coverage_r6` 按权重三次 guarded mock 投递已实跑 3/3；2026-08-13 v2 的
+  tank/panzer/bridge、0 碰撞/越界、377.6 s 历史证据保留，2026-08-28
+  `toudi4_coverage_r6_vcl04_rerun2_20260828_222644` 已按规划器波动外置口径关闭 V-CL-04；
 - [~] V-CL-05 搜索-投递策略：高权重中断投递（red_cross=10/tank=5 发现即中断搜索、
   投完恢复，`logs/toudi4_coverage_r6_vcl05b_20260813_234314/` 中断机制与 pillbox
   端到端投递已验证）、red_cross 统一入队（无独立任务模式）、随机红十字摆放（真值
@@ -99,11 +100,18 @@
   `logs/navigation_upstream_visual_delivery_headless_model_20260826_023411/` 使用 7.14
   `merged_standard` 模型，600 s 到达 9/16 覆盖点，发现 pillbox/tent/bridge，tent/bridge
   完成槽 1/2 guarded mock 投递，pillbox 因 capture timeout 安全拒绝；第三投、返航和
-  降落未完成，Gate 为 `mission_timeout`，不得标记 PASS；
+  降落未完成，Gate 为 `mission_timeout`，不得标记 PASS。当前正式随机场 baseline 30 s
+  预检 PASS，baseline/`a68925d` 90 s A/B 比较 FAIL，保持 baseline，尚未进入新的 600 s Gate；
 - [x] 仿真真值来自 target catalog、Gazebo/model state、CameraInfo/TF，不依赖检测输出；
 - [x] 五类标准靶、红十字、H、背景固定场景与自动 recorder/report 已落地；
 - [x] L0 圆环坐标、全局关联、记忆新鲜度、地图/释放证据连续 3 次通过；
-- [~] L1 已有首版基线；部分召回率和 P95 延迟未达到主路线 Gate；
+- [~] V-SIM-04 L1 operating surface 首轮完成：formal23 为 22/23，static25 为 24/25，
+  sparse30 为 25/30；formal/sparse processing P95=195.3/153.9 ms，地图 P95=0.0792/0.1103 m，
+  TF failure=0。测量完整但采用门槛未冻结，结论仍为 `NOT_GATED`；
+- [x] 全类别 hard audit、动态 pose/速度/yaw/横偏遥测、实际产物核验和 failure capture
+  schema-v3 已通过 mock 与真实 diagnostic；r2026 下 tank/disallowed/policy-rejected selected=0；
+- [~] pillbox 3.6 m 的 1280 diagnostic 恢复 P_confirm，但共视 bridge 被 selected、
+  P_selected=0 且 processing P95=449.3 ms，超过 200 ms；保持 640 默认，不推广 1280；
 - [ ] L2 10 min 无崩溃、积压或时间戳异常；
 - [ ] 30-seed 报告已归档。
 
@@ -111,7 +119,8 @@
 
 - [x] 六分类模型已有实拍回放和独立压力集；
 - [~] 圆环实拍等比例回放已建立，但缺人工中心/实例真值；H/地图同步真值仍缺；
-- [ ] ONNX 与 PyTorch 前后处理数值一致性达标（8 图对照仍有 1 missing/1 extra）；
+- [x] 笔记本 ONNX 与 PyTorch 在同一 `640x640` fixed-letterbox 的 12 图、19 框上数值一致：
+  missing/extra=0、最低 IoU=0.9999991；该项不代表 RKNN 或板端 ROS 验收；
 - [ ] RKNN 与 ONNX 精度差异有逐样本报告；
 - [ ] OrangePi 搜索阶段达到 5-10 Hz；
 - [ ] OrangePi 10 min 无队列积压、内存持续增长或节点崩溃；
