@@ -30,6 +30,15 @@ def resolve_audit_evidence(evidence, evidence_context,
     geometry_evidence = evidence_context.get("evidence")
     if geometry_evidence is None:
         return None, "evidence_lock_missing"
+    if (not evidence_context.get("semantic_geometry_match", False) or
+            not evidence_context.get("geometry_target_present", False) or
+            not evidence_context.get("geometry_map_valid", False)):
+        return None, "evidence_context_geometry_invalid"
+    if (evidence_context.get("geometry_target_id") !=
+            geometry_evidence.get("target_id") or
+            evidence_context.get("geometry_target_class", "") !=
+            geometry_evidence.get("target_class", "")):
+        return None, "evidence_context_geometry_mismatch"
     align_mode = evidence_context.get("align_mode", "")
     if geometry_evidence.get("align_mode", "") != align_mode:
         return None, "evidence_context_geometry_mismatch"

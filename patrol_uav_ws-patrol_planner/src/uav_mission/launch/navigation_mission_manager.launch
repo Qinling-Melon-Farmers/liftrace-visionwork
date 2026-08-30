@@ -1,6 +1,8 @@
 <launch>
   <arg name="profile_path"
        default="$(find uav_mission)/config/competition_profiles.yaml" />
+  <arg name="runtime_config"
+       default="$(find uav_mission)/config/vcl06_runtime.yaml" />
   <arg name="candidate_topic" default="/uav_vision/targets" />
   <arg name="pose_topic" default="/mavros/local_position/pose" />
   <arg name="map_topic" default="/freedom/static_pointcloud" />
@@ -14,7 +16,7 @@
           name="mission_manager"
           output="screen">
       <rosparam command="load"
-                file="$(find uav_mission)/config/vcl06_runtime.yaml" />
+                file="$(arg runtime_config)" />
       <param name="profile/path" value="$(arg profile_path)" />
 
       <remap from="candidates" to="$(arg candidate_topic)" />

@@ -33,6 +33,11 @@ def strict_context():
         "align_mode": "drop_circle",
         "semantic_target_id": 7,
         "semantic_target_class": "tent",
+        "geometry_target_present": True,
+        "geometry_target_id": 42,
+        "geometry_target_class": "circle",
+        "geometry_map_valid": True,
+        "semantic_geometry_match": True,
         "evidence": geometry_evidence(),
     }
 
@@ -87,6 +92,33 @@ class VisualDeliveryAuditPolicyTest(unittest.TestCase):
         view, reason = resolve_audit_evidence(None, context, True)
         self.assertIsNone(view)
         self.assertEqual(reason, "evidence_context_invalid")
+
+    def test_strict_mode_rejects_invalid_geometry_fences(self):
+        for field in (
+                "semantic_geometry_match",
+                "geometry_target_present",
+                "geometry_map_valid"):
+            with self.subTest(field=field):
+                context = strict_context()
+                context[field] = False
+                view, reason = resolve_audit_evidence(
+                    None, context, True)
+                self.assertIsNone(view)
+                self.assertEqual(
+                    reason, "evidence_context_geometry_invalid")
+
+    def test_strict_mode_rejects_geometry_identity_mismatch(self):
+        for field, value in (
+                ("geometry_target_id", 99),
+                ("geometry_target_class", "red_cross")):
+            with self.subTest(field=field):
+                context = strict_context()
+                context[field] = value
+                view, reason = resolve_audit_evidence(
+                    None, context, True)
+                self.assertIsNone(view)
+                self.assertEqual(
+                    reason, "evidence_context_geometry_mismatch")
 
     def test_guarded_launch_forwards_existing_strict_flag_to_audit(self):
         root = ET.parse(str(GUARDED_LAUNCH)).getroot()

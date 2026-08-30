@@ -41,7 +41,7 @@ from release_commitment import strict_context_source
 
 
 LIVE_PLANNER_GOAL_TOPIC = "/fastplanner/goal"
-MOTION_COMMANDS = frozenset((
+WIRE_GOAL_COMMANDS = frozenset((
     "SEARCH", "RESUME", "APPROACH", "RETURN_HOME",
 ))
 COMMAND_NAMES = {
@@ -260,6 +260,7 @@ class NavigationPlannerBridge:
         self._executor_id = executor_id
         self._latest_candidates = ()
         self._transaction = None
+        self._pending_release = None
         self._landing = None
         self._last_odom = None
         self._control_state = None
@@ -356,7 +357,7 @@ class NavigationPlannerBridge:
             int(message.payload_slot) == 0
         )
 
-    def _decision_from_message(self, message):
+    def _decision_from_message(self, message, now_ns):
         if int(message.schema_version) != NavigationDecision.SCHEMA_VERSION:
             raise ValueError("navigation decision schema mismatch")
         decision_seq = int(message.decision_seq)
@@ -373,10 +374,12 @@ class NavigationPlannerBridge:
             raise ValueError("unknown navigation decision command")
         if command == "ALIGN":
             raise ValueError("ALIGN requires the target transaction executor")
+        if command == "HOLD":
+            raise ValueError("HOLD is not supported by the planner bridge")
         self._validate_pose_contract(
             message.goal, decision_seq, issued_ns)
 
-        expects_goal = command in MOTION_COMMANDS
+        expects_goal = command in WIRE_GOAL_COMMANDS
         expects_target = command == "APPROACH"
         if bool(message.has_goal) != expects_goal:
             raise ValueError("decision goal flag does not match command")
@@ -393,6 +396,17 @@ class NavigationPlannerBridge:
                 message.goal.pose.orientation.y,
                 message.goal.pose.orientation.z,
                 message.goal.pose.orientation.w)
+        elif command == "ABORT":
+            sample = self._last_odom
+            fresh = (
+                sample is not None and
+                sample.frame_id == self._mission_frame and
+                0 <= int(now_ns) - sample.stamp_ns <=
+                self._executor.config.odom_max_age_ns)
+            if not fresh:
+                raise RuntimeError("abort_hold_odom_unavailable")
+            motion_goal = MotionGoal(
+                self._mission_frame, sample.x, sample.y, sample.z)
 
         target = None
         if expects_target:
@@ -627,14 +641,23 @@ class NavigationPlannerBridge:
         transaction = self._transaction
         if transaction is not None and transaction.target_pose is not None:
             self._publish_alignment_context(False)
+        if (transaction is not None and transaction.phase == "EXPIRED" and
+                transaction.strict_evidence_stamp_ns > 0 and
+                transaction.release_execution_id == 0):
+            if (self._pending_release is not None and
+                    self._pending_release.decision.decision_seq !=
+                    transaction.decision.decision_seq):
+                raise RuntimeError("pending_release_fence_conflict")
+            self._pending_release = transaction
         self._transaction = None
         self._landing = None
 
     def _report_target_stage(self, status, stage, now_ns, terminal=False,
                              retryable=False, payload_committed=False,
                              reason="", evidence_source=
-                             "target_transaction_executor"):
-        transaction = self._transaction
+                             "target_transaction_executor",
+                             transaction=None):
+        transaction = self._transaction if transaction is None else transaction
         if transaction is None:
             raise RuntimeError("target transaction is not active")
         outcome = self._executor.report_target_stage(
@@ -677,7 +700,8 @@ class NavigationPlannerBridge:
 
     def _strict_context_matches(self, context, now):
         transaction = self._transaction
-        if transaction is None or transaction.phase != "ALIGNMENT":
+        if (transaction is None or transaction.phase not in
+                ("ALIGN_COMMAND_SENT", "ALIGNMENT")):
             return False
         decision = transaction.decision
         target = decision.target
@@ -707,6 +731,52 @@ class NavigationPlannerBridge:
             int(source["target_id"]) == target.target_id and
             str(source["target_class"]) == target.class_name
         )
+
+    def _mark_alignment_started(self, transaction, now_ns,
+                                reason, evidence_source):
+        """Record observed alignment acceptance in deterministic order."""
+
+        if transaction.phase != "ALIGN_COMMAND_SENT":
+            return
+        self._report_target_stage(
+            "STARTED", "CAPTURE", now_ns,
+            reason=reason,
+            evidence_source=evidence_source,
+            transaction=transaction,
+        )
+        transaction.phase = "ALIGNMENT"
+        if transaction.strict_evidence_stamp_ns > 0:
+            self._report_target_stage(
+                "STARTED", "ALIGNMENT", now_ns,
+                reason="strict_alignment_context_valid",
+                evidence_source="uav_vision_release_context",
+                transaction=transaction,
+            )
+
+    @staticmethod
+    def _release_result_matches(transaction, message):
+        if (transaction is None or
+                transaction.phase not in (
+                    "ALIGN_COMMAND_SENT", "ALIGNMENT", "EXPIRED") or
+                transaction.strict_evidence_stamp_ns <= 0):
+            return False
+        target = transaction.decision.target
+        result_stamp_ns = _stamp_to_ns(message.header.stamp)
+        return (
+            int(message.execution_id) > 0 and
+            int(message.execution_id) != transaction.release_execution_id and
+            result_stamp_ns >= transaction.strict_evidence_stamp_ns and
+            int(message.payload_slot) == target.payload_slot and
+            str(message.align_mode) == transaction.align_mode and
+            int(message.target_id) == target.target_id and
+            str(message.target_class) == target.class_name
+        )
+
+    def _release_result_transaction(self, message):
+        for transaction in (self._transaction, self._pending_release):
+            if self._release_result_matches(transaction, message):
+                return transaction
+        return None
 
     def _result_message(self, event):
         message = NavigationResult()
@@ -759,7 +829,8 @@ class NavigationPlannerBridge:
             self._clear_handoffs()
             if decision.command == "APPROACH":
                 self._transaction = TargetTransaction(decision=decision)
-            self._publish_mission_command(decision, decision.command)
+            if decision.command in MISSION_COMMAND_VALUES:
+                self._publish_mission_command(decision, decision.command)
             return
         if not outcome.handoff:
             return
@@ -904,7 +975,8 @@ class NavigationPlannerBridge:
                 stage = "RECOVERY"
                 retryable = False
                 reason = "recovery_deadline_reached"
-            elif (transaction.phase == "ALIGNMENT" and
+            elif (transaction.phase in (
+                    "ALIGN_COMMAND_SENT", "ALIGNMENT") and
                   transaction.strict_evidence_stamp_ns > 0):
                 stage = "RELEASE"
                 retryable = False
@@ -973,7 +1045,7 @@ class NavigationPlannerBridge:
                 return
             try:
                 now_ns = self._now_ns()
-                decision = self._decision_from_message(message)
+                decision = self._decision_from_message(message, now_ns)
                 outcome = self._executor.submit_decision(decision, now_ns)
                 self._apply_outcome(
                     outcome,
@@ -1041,7 +1113,7 @@ class NavigationPlannerBridge:
                     transaction.strict_evidence_stamp_ns,
                     evidence_stamp_ns,
                 )
-                if first_valid:
+                if first_valid and transaction.phase == "ALIGNMENT":
                     self._report_target_stage(
                         "STARTED", "ALIGNMENT", _stamp_to_ns(now),
                         reason="strict_alignment_context_valid",
@@ -1057,25 +1129,19 @@ class NavigationPlannerBridge:
                     return
                 now_ns = self._now_ns()
                 self._expire_handoff_if_due(now_ns)
-                transaction = self._transaction
-                if (transaction is None or
-                        transaction.phase not in ("ALIGNMENT", "EXPIRED") or
-                        transaction.strict_evidence_stamp_ns <= 0):
+                transaction = self._release_result_transaction(message)
+                if transaction is None:
                     return
-                decision = transaction.decision
-                target = decision.target
-                result_stamp_ns = _stamp_to_ns(message.header.stamp)
                 execution_id = int(message.execution_id)
-                if (
-                    execution_id <= 0 or
-                    execution_id == transaction.release_execution_id or
-                    result_stamp_ns < transaction.strict_evidence_stamp_ns or
-                    int(message.payload_slot) != target.payload_slot or
-                    str(message.align_mode) != transaction.align_mode or
-                    int(message.target_id) != target.target_id or
-                    str(message.target_class) != target.class_name
-                ):
-                    return
+                if transaction.phase == "ALIGN_COMMAND_SENT":
+                    # A guarded release ACK is stronger evidence that the
+                    # already-published ALIGN command was accepted than the
+                    # relative callback ordering of two ROS topics.
+                    self._mark_alignment_started(
+                        transaction, now_ns,
+                        "alignment_accepted_before_release_ack",
+                        "guarded_servo_proxy",
+                    )
                 transaction.release_execution_id = execution_id
                 source = "guarded_servo_proxy:%d" % execution_id
                 if bool(message.success):
@@ -1084,7 +1150,12 @@ class NavigationPlannerBridge:
                         payload_committed=True,
                         reason="release_ack_success",
                         evidence_source=source,
+                        transaction=transaction,
                     )
+                    if transaction is self._pending_release:
+                        transaction.phase = "TERMINAL"
+                        self._pending_release = None
+                        return
                     self._publish_alignment_context(False, now_ns)
                     if transaction.phase == "EXPIRED":
                         transaction.phase = "TERMINAL"
@@ -1094,7 +1165,12 @@ class NavigationPlannerBridge:
                     transaction.recovery_dwell_start_ns = 0
                     transaction.recovery_last_odom_ns = 0
                 else:
+                    if transaction is self._pending_release:
+                        transaction.phase = "TERMINAL"
+                        self._pending_release = None
+                        return
                     if transaction.phase == "EXPIRED":
+                        transaction.phase = "TERMINAL"
                         return
                     self._report_target_stage(
                         "FAILED", "RELEASE", now_ns,
@@ -1119,12 +1195,11 @@ class NavigationPlannerBridge:
                 if (transaction is not None and
                         transaction.phase == "ALIGN_COMMAND_SENT" and
                         self._control_state == 2):
-                    self._report_target_stage(
-                        "STARTED", "CAPTURE", now_ns,
-                        reason="patrol_control_alignment_accepted",
-                        evidence_source="patrol_control_state",
+                    self._mark_alignment_started(
+                        transaction, now_ns,
+                        "patrol_control_alignment_accepted",
+                        "patrol_control_state",
                     )
-                    transaction.phase = "ALIGNMENT"
                 landing = self._landing
                 if (landing is not None and not landing.started and
                         self._control_state == 3 and

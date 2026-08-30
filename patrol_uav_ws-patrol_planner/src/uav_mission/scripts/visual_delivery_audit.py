@@ -193,6 +193,7 @@ class VisualDeliveryAudit:
             "geometry_target_present": bool(msg.geometry_target_present),
             "geometry_target_id": int(msg.geometry_target_id),
             "geometry_target_class": msg.geometry_target_class,
+            "geometry_map_valid": bool(msg.geometry_map_valid),
             "semantic_geometry_match": bool(msg.semantic_geometry_match),
             "evidence": cls._evidence_dict(msg.evidence),
         }

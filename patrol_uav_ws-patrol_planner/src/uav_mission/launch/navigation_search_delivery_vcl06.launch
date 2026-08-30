@@ -1,0 +1,163 @@
+<launch>
+  <!-- Formal VCL06 integration chain.  The navigation manager is the only
+       mission-policy owner and navigation_planner_bridge is the only
+       /fastplanner/goal publisher.  Legacy adapters/managers are deliberately
+       not included. -->
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="start_arming" default="true" />
+  <arg name="start_hard_gate" default="true" />
+  <arg name="gate_wall_timeout" default="900.0" />
+  <arg name="record_debug" default="false" />
+
+  <arg name="world"
+       default="$(find patrol_control)/../../../toudi3_random.world" />
+  <arg name="camera_optical_frame"
+       default="downward_camera_optical_frame" />
+  <arg name="camera_image_topic" default="/downward_camera/image_raw" />
+  <arg name="camera_info_topic" default="/downward_camera/camera_info" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="enable_debug_image" default="false" />
+
+  <arg name="class_profile" default="r2026" />
+  <arg name="field_seed" default="11" />
+  <arg name="standard_classes" default="tent,pillbox,bridge,panzer" />
+  <arg name="nav_feature_profile" default="baseline" />
+  <arg name="runtime_config"
+       default="$(find uav_mission)/config/vcl06_random_field_runtime.yaml" />
+  <arg name="run_dir" default="$(optenv SIM_RUN_DIR /tmp)" />
+  <arg name="gate_report_path" default="$(arg run_dir)/gate_status.json" />
+
+  <arg name="px4_root"
+       default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
+  <arg name="px4_model_root"
+       default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
+  <arg name="astra_model_root"
+       default="$(optenv ASTRA_MODEL_ROOT /home/xhj/AstraDroneOpen/simulation/astra_gazebo_models)" />
+  <arg name="random_model_roots"
+       default="$(arg px4_model_root):$(arg astra_model_root):$(optenv GAZEBO_MODEL_PATH)" />
+  <arg name="anchor_model_roots"
+       default="$(arg px4_model_root):$(arg astra_model_root):$(optenv HOME)/.gazebo/models:$(optenv GAZEBO_MODEL_PATH)" />
+
+  <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="start_arming" value="$(arg start_arming)" />
+    <arg name="external_mission_mode" value="true" />
+    <arg name="waypoint_mode" value="false" />
+    <arg name="world" value="$(arg world)" />
+    <arg name="camera_image_topic" value="$(arg camera_image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="map_frame" value="camera_init" />
+    <arg name="camera_optical_frame" value="$(arg camera_optical_frame)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="class_profile" value="$(arg class_profile)" />
+    <arg name="require_alignment_context" value="true" />
+    <arg name="require_release_evidence_context" value="true" />
+    <arg name="planner_max_vel" value="1.0" />
+    <arg name="planner_max_acc" value="1.0" />
+    <arg name="planner_obstacles_inflation" value="0.25" />
+    <arg name="planner_clearance_threshold" value="0.35" />
+    <arg name="px4_max_distance" value="0.2" />
+    <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+  </include>
+
+  <node pkg="uav_mission" type="random_field_spawner.py"
+        name="random_field_spawner" output="screen">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+    <param name="class_profile" value="$(arg class_profile)" />
+    <param name="seed" value="$(arg field_seed)" />
+    <param name="standard_classes" value="$(arg standard_classes)" />
+    <param name="model_roots" value="$(arg random_model_roots)" />
+    <param name="spawn_offset/x" value="-0.493412" />
+    <param name="spawn_offset/y" value="-1.772690" />
+  </node>
+
+  <node pkg="uav_mission" type="planner_anchor_spawner.py"
+        name="planner_anchor_spawner" output="screen">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/planner_anchor_profiles.yaml" />
+    <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <param name="model_roots" value="$(arg anchor_model_roots)" />
+  </node>
+
+  <node pkg="uav_mission" type="gazebo_contact_monitor.py"
+        name="gazebo_contact_monitor" output="screen">
+    <param name="raw_topic" value="/mission/uav_contacts_raw" />
+    <param name="status_topic" value="/mission/gazebo_contact_status" />
+    <rosparam param="ignored_collision_patterns">[ground_plane]</rosparam>
+  </node>
+
+  <include file="$(find uav_mission)/launch/navigation_mission_manager.launch">
+    <arg name="runtime_config" value="$(arg runtime_config)" />
+    <arg name="candidate_topic" value="/uav_vision/targets" />
+    <arg name="pose_topic" value="/mavros/local_position/pose" />
+    <arg name="map_topic" value="/freedom/static_pointcloud" />
+    <arg name="result_topic" value="/navigation/mission_result" />
+    <arg name="decision_topic" value="/navigation/mission_command_raw" />
+    <arg name="status_topic" value="/navigation/mission_status" />
+  </include>
+
+  <include file="$(find uav_mission)/launch/navigation_planner_bridge.launch">
+    <arg name="execution_enabled" value="true" />
+    <arg name="allow_live_goal_output" value="true" />
+    <arg name="required" value="true" />
+    <arg name="planner_goal_topic" value="/fastplanner/goal" />
+    <arg name="planner_status_topic" value="/planning/goal_status" />
+    <arg name="odom_topic" value="/mavros/local_position/odom" />
+  </include>
+
+  <include file="$(find uav_mission)/launch/navigation_mission_start_gate.launch">
+    <arg name="enabled" value="true" />
+    <arg name="class_profile" value="$(arg class_profile)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <arg name="run_dir" value="$(arg run_dir)" />
+    <arg name="expected_truth_path"
+         value="$(arg run_dir)/random_field_truth.yaml" />
+  </include>
+
+  <node if="$(arg start_hard_gate)"
+        pkg="uav_mission"
+        type="navigation_vcl06_assertion.py"
+        name="navigation_vcl06_assertion"
+        output="screen"
+        required="true">
+    <param name="report_path" value="$(arg gate_report_path)" />
+    <param name="wall_timeout" value="$(arg gate_wall_timeout)" />
+    <param name="class_profile" value="$(arg class_profile)" />
+    <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <param name="mission_frame" value="camera_init" />
+    <param name="planner_goal_topic" value="/fastplanner/goal" />
+    <param name="expected_planner_goal_publisher"
+           value="/navigation/planner_bridge" />
+    <param name="field/min_x" value="-3.992" />
+    <param name="field/max_x" value="4.008" />
+    <param name="field/min_y" value="-1.132" />
+    <param name="field/max_y" value="8.718" />
+    <param name="max_height" value="4.0" />
+    <param name="max_mission_sec" value="600.0" />
+    <param name="forced_return_sec" value="510.0" />
+  </node>
+
+  <node if="$(arg record_debug)" pkg="rosbag" type="record"
+        name="navigation_vcl06_debug_recorder" output="screen"
+        args="--lz4 --split --size=1024 --duration=610
+              -o $(arg run_dir)/navigation_vcl06_debug
+              /navigation/mission_command_raw
+              /navigation/mission_result
+              /navigation/mission_status
+              /navigation/planner_bridge_status
+              /navigation/mission_start_gate_status
+              /uav_vision/selected_target
+              /mavros/local_position/pose
+              /planning/goal_status
+              /mission/command
+              /mission/release_result
+              /uav_vision/alignment_target_context
+              /uav_vision/release_evidence_context
+              /mission/random_field_status
+              /mission/planner_anchor_status
+              /mission/gazebo_contact_status" />
+</launch>

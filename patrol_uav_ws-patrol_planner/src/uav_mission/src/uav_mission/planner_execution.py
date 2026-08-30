@@ -18,10 +18,10 @@ from typing import Dict, Optional, Tuple
 
 
 MOTION_COMMANDS = frozenset((
-    "SEARCH", "RESUME", "APPROACH", "RETURN_HOME",
+    "SEARCH", "RESUME", "APPROACH", "RETURN_HOME", "ABORT",
 ))
-EXTERNAL_COMMANDS = frozenset(("LAND", "ABORT", "HOLD"))
-REJECTED_COMMANDS = frozenset(("ALIGN",))
+EXTERNAL_COMMANDS = frozenset(("LAND",))
+REJECTED_COMMANDS = frozenset(("ALIGN", "HOLD"))
 KNOWN_COMMANDS = MOTION_COMMANDS | EXTERNAL_COMMANDS | REJECTED_COMMANDS
 
 PLANNER_STATUSES = (
@@ -360,6 +360,10 @@ class PlannerMotionExecutor:
         self._last_now_ns = 0
         self._last_odom: Optional[OdomSample] = None
         self._active: Optional[_GoalLifecycle] = None
+        # At most one physically uncertain release may outlive the active
+        # navigation action.  This is a fact-reconciliation fence, not a
+        # retry/history queue.
+        self._pending_release: Optional[_GoalLifecycle] = None
         self._awaiting_cancel_goal_seq = 0
 
     def snapshot(self) -> ExecutorSnapshot:
@@ -510,6 +514,8 @@ class PlannerMotionExecutor:
             self, decision: MotionDecision) -> Optional[str]:
         if decision.command == "ALIGN":
             return "align_not_owned_by_motion_executor"
+        if decision.command == "HOLD":
+            return "hold_not_supported"
         goal = decision.goal
         if goal is not None:
             if goal.frame_id != self.config.mission_frame:
@@ -564,6 +570,12 @@ class PlannerMotionExecutor:
         )
         if replacement_requires_cancel:
             self._awaiting_cancel_goal_seq = active.decision.decision_seq
+        if (active is not None and active.late_payload_commit_allowed and
+                not active.payload_committed):
+            if (self._pending_release is not None and
+                    self._pending_release is not active):
+                return self._fail_closed("pending_release_fence_conflict")
+            self._pending_release = active
         if active is not None:
             active.retired = True
 
@@ -771,6 +783,12 @@ class PlannerMotionExecutor:
             return invalid_now
         state = self._active
         if (state is None or state.decision.command != "APPROACH" or
+                state.decision.decision_seq != int(decision_seq)):
+            pending = self._pending_release
+            if (pending is not None and
+                    pending.decision.decision_seq == int(decision_seq)):
+                state = pending
+        if (state is None or state.decision.command != "APPROACH" or
                 state.decision.decision_seq != int(decision_seq) or
                 not state.handed_off):
             return self._outcome(False, "target_transaction_not_active")
@@ -804,6 +822,8 @@ class PlannerMotionExecutor:
                 return self._outcome(False, "payload_commit_shape_invalid")
             state.payload_committed = True
             state.late_payload_commit_allowed = False
+            if self._pending_release is state:
+                self._pending_release = None
         elif terminal:
             if status not in (
                     "SUCCEEDED", "FAILED", "REJECTED", "CANCELLED",

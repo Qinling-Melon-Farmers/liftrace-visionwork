@@ -74,6 +74,7 @@ catkin_install_python(PROGRAMS
   scripts/navigation_mission_manager.py
   scripts/navigation_mission_start_gate.py
   scripts/navigation_planner_bridge.py
+  scripts/navigation_vcl06_assertion.py
   scripts/target_search_manager_py.py
   scripts/navigation_visual_delivery_adapter.py
   scripts/profile_candidate_selector.py
@@ -105,5 +106,6 @@ if(CATKIN_ENABLE_TESTING)
   catkin_add_nosetests(test/test_planner_execution.py)
   catkin_add_nosetests(test/test_planner_mission_contract.py)
   catkin_add_nosetests(test/test_navigation_planner_bridge_contract.py)
+  catkin_add_nosetests(test/test_navigation_vcl06_assertion.py)
   catkin_add_nosetests(test/test_visual_delivery_audit_policy.py)
 endif()

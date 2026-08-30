@@ -169,6 +169,13 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
                       self.source)
         self.assertIn('reason = "recovery_deadline_reached"', self.source)
         self.assertIn('"landing_deadline_reached"', self.source)
+        self.assertIn("def _mark_alignment_started", self.source)
+        self.assertIn("alignment_accepted_before_release_ack", self.source)
+
+    def test_abort_reuses_planner_goal_and_hold_is_not_advertised(self):
+        self.assertIn('elif command == "ABORT"', self.source)
+        self.assertIn('raise ValueError("HOLD is not supported', self.source)
+        self.assertNotIn('"ABORT": MissionCommand.', self.source)
 
     def test_land_uses_current_pose_and_explicit_landed_fact(self):
         self.assertIn("sample = self._last_odom", self.source)
@@ -185,8 +192,11 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
     def test_release_result_deduplication_is_transaction_local(self):
         self.assertIn("release_execution_id: int = 0", self.source)
         self.assertIn(
-            "execution_id == transaction.release_execution_id", self.source)
+            "int(message.execution_id) != transaction.release_execution_id",
+            self.source)
         self.assertNotIn("_last_release_execution_id", self.source)
+        self.assertIn("self._pending_release = None", self.source)
+        self.assertIn("pending_release_fence_conflict", self.source)
 
 
 if __name__ == "__main__":

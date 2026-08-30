@@ -15,7 +15,8 @@ def target():
     return TargetIdentity(0, 900*NSEC, 999*NSEC, "bridge", 1, 2)
 
 def decision(seq=8, command="SEARCH", issued=BASE, deadline=None):
-    motion = command in ("SEARCH", "RESUME", "APPROACH", "RETURN_HOME")
+    motion = command in (
+        "SEARCH", "RESUME", "APPROACH", "RETURN_HOME", "ABORT")
     return MotionDecision("mission", seq, issued, deadline or issued+5*NSEC,
         command, "r2026", goal() if motion else None,
         target() if command == "APPROACH" else None)
@@ -209,6 +210,33 @@ class PlannerMotionExecutorTest(unittest.TestCase):
             evidence_source="guarded_servo_proxy:1")
         self.assertFalse(late.accepted)
 
+    def test_late_release_commit_survives_one_replacement(self):
+        executor = self.make(); self.dispatch(executor, decision(8, "APPROACH"))
+        finished = self.finish(executor)
+        executor.apply_odom(odom(finished+10), finished+10)
+        handoff_time = finished + 100_000_010
+        executor.apply_odom(odom(handoff_time), handoff_time)
+        timed_out = executor.report_target_stage(
+            8, BASE+5*NSEC, "TIMED_OUT", "RELEASE", terminal=True,
+            reason="release_result_deadline_reached")
+        self.assertTrue(timed_out.accepted, timed_out.reason)
+
+        replacement_time = BASE + 5*NSEC + 1
+        replacement = decision(
+            20, "SEARCH", replacement_time, replacement_time+5*NSEC)
+        self.dispatch(executor, replacement, replacement_time)
+        committed = executor.report_target_stage(
+            8, replacement_time+1, "PROGRESS", "RELEASE",
+            payload_committed=True, reason="release_ack_success",
+            evidence_source="guarded_servo_proxy:2")
+        self.assertTrue(committed.accepted, committed.reason)
+        self.assertTrue(committed.events[0].payload_committed)
+        self.assertEqual(committed.events[0].decision_seq, 8)
+        self.assertFalse(executor.report_target_stage(
+            8, replacement_time+2, "PROGRESS", "RELEASE",
+            payload_committed=True, reason="release_ack_success",
+            evidence_source="guarded_servo_proxy:2").accepted)
+
     def test_landing_handoff_reports_observed_terminal(self):
         executor = self.make()
         handoff = executor.submit_decision(decision(9, "LAND"), BASE)
@@ -231,12 +259,28 @@ class PlannerMotionExecutorTest(unittest.TestCase):
         self.assertEqual(executor.tick(BASE+2*NSEC).reason,
                          "planner_accept_timed_out")
 
-    def test_external_commands_are_handoff_only(self):
-        for command in ("LAND", "HOLD", "ABORT"):
-            out = self.make().submit_decision(decision(command=command), BASE)
-            self.assertEqual(out.handoff, command)
-            self.assertIsNone(out.planner_goal)
-            self.assertEqual(out.events, ())
+    def test_land_is_handoff_and_hold_is_rejected(self):
+        out = self.make().submit_decision(decision(command="LAND"), BASE)
+        self.assertEqual(out.handoff, "LAND")
+        self.assertIsNone(out.planner_goal)
+        self.assertEqual(out.events, ())
+        rejected = self.make().submit_decision(
+            decision(command="HOLD"), BASE)
+        self.assertFalse(rejected.accepted)
+        self.assertEqual(rejected.reason, "hold_not_supported")
+
+    def test_abort_is_a_typed_hold_motion(self):
+        executor = self.make()
+        item = decision(command="ABORT")
+        dispatched = self.dispatch(executor, item)
+        self.assertEqual(dispatched.planner_goal.command, "ABORT")
+        finished = self.finish(executor)
+        executor.apply_odom(odom(finished+10), finished+10)
+        stopped = executor.apply_odom(
+            odom(finished+100_000_010), finished+100_000_010)
+        self.assertEqual(stopped.events[0].command, "ABORT")
+        self.assertEqual(stopped.events[0].status, "SUCCEEDED")
+        self.assertTrue(stopped.events[0].terminal)
 
     def test_motion_contract(self):
         for item in (replace(decision(), goal=goal(frame="map")),
