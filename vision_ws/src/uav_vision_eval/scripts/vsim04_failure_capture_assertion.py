@@ -12,17 +12,22 @@ from uav_vision_eval.failure_capture import (
     CAPTURE_DATASET_KIND,
     CAPTURE_SCHEMA_VERSION,
     ExactStampPairBuffer,
+    align_sampling_plan,
     allocate_trial_quotas,
+    build_capture_status,
     build_frame_record,
+    configure_sampling_plan,
     freeze_camera_info_profile,
     resolve_capture_output_dir,
     rgb8_sentinel_to_bgr8,
     sampling_offsets,
     sampling_plan,
+    sampling_timing,
     scene_targets,
     select_truth_target,
     validate_capture_config,
     validate_capture_manifest,
+    validate_capture_status,
 )
 from uav_vision_eval.vsim04_metrics import select_trial_matrix
 
@@ -77,6 +82,14 @@ def main():
         expect_value_error(
             lambda: resolve_capture_output_dir("", "capture"),
             "empty capture output root was accepted")
+        outside = tempfile.mkdtemp()
+        try:
+            os.symlink(outside, os.path.join(temporary, "redirect"))
+            expect_value_error(
+                lambda: resolve_capture_output_dir(temporary, "redirect/run"),
+                "symlinked capture output escaped its run root")
+        finally:
+            os.rmdir(outside)
 
     selection_matrix = {
         "trials": [
@@ -106,10 +119,76 @@ def main():
         {"kind": "dynamic", "speed_mps": 2.0}, 3)
     assert dynamic_plan["expected_duration_sec"] == 3.5
     assert dynamic_plan["sample_fractions"] == [0.0, 0.45, 0.9]
+    assert dynamic_plan["sample_offsets_sec"] == []
+    dynamic_plan = align_sampling_plan(dynamic_plan, 1.5)
+    assert all(math.isclose(actual, expected) for actual, expected in zip(
+        dynamic_plan["sample_offsets_sec"], [1.5, 1.725, 1.95]))
+    # Regression for the real h1.2 run: the first eligible frame arrived at
+    # 3.0 s. The old full-path plan captured 3.0/3.16 s back-to-back because
+    # 45% was anchored at 3.15 s; the visible-window plan stays separated.
+    low_plan = align_sampling_plan(sampling_plan(
+        {"dynamic": {"path_half_length_m": 3.5}},
+        {"kind": "dynamic", "speed_mps": 1.0}, 3), 3.0)
+    assert all(math.isclose(actual, expected) for actual, expected in zip(
+        low_plan["sample_offsets_sec"], [3.0, 3.45, 3.9]))
+    assert low_plan["sample_offsets_sec"][1] - low_plan[
+        "sample_offsets_sec"][0] >= 0.4
     static_plan = sampling_plan(
         {"static": {"center_dwell_sec": 2.0}},
         {"kind": "static"}, 2)
-    assert static_plan["sample_offsets_sec"] == [0.0, 1.8]
+    static_plan = align_sampling_plan(static_plan, 0.1)
+    assert all(math.isclose(actual, expected) for actual, expected in zip(
+        static_plan["sample_offsets_sec"], [0.1, 1.9]))
+    clipped_plan = configure_sampling_plan(sampling_plan(
+        {"dynamic": {"path_half_length_m": 3.5}},
+        {"kind": "dynamic", "speed_mps": 1.0}, 3),
+        5.8, 2.3, 100.0)
+    clipped_plan = align_sampling_plan(clipped_plan, 1.0)
+    assert all(math.isclose(actual, expected) for actual, expected in zip(
+        clipped_plan["sample_offsets_sec"], [1.0, 2.17, 3.34]))
+    expect_value_error(
+        lambda: align_sampling_plan(sampling_plan(
+            {"dynamic": {"path_half_length_m": 3.5}},
+            {"kind": "dynamic", "speed_mps": 1.0}, 3), 3.5),
+        "late first-visible frame produced an invalid sampling window")
+    timing = sampling_timing(3.46, 3.45, 0.25)
+    assert abs(timing["sampling_lateness_sec"] - 0.01) < 1.0e-9
+    assert timing["lateness_limit_applies"] is True
+    assert timing["lateness_within_limit"] is True
+    expect_value_error(
+        lambda: sampling_timing(3.8, 3.45, 0.25),
+        "over-late non-fallback sample was accepted")
+    fallback_timing = sampling_timing(3.8, 3.9, 0.25, True)
+    assert fallback_timing["lateness_limit_applies"] is False
+    assert fallback_timing["lateness_within_limit"] is None
+
+    capture_status = build_capture_status(
+        ["trial_a", "trial_b"], "READY", ready=True)
+    assert validate_capture_status(
+        capture_status, ["trial_a", "trial_b"])["ready"] is True
+    running_status = build_capture_status(
+        ["trial_a", "trial_b"], "RUNNING", ready=True,
+        active_trial="trial_a", active_event="sampling_start",
+        active_event_seq=7)
+    assert validate_capture_status(
+        running_status, ["trial_a", "trial_b"])[
+            "active_event_seq"] == 7
+    expect_value_error(
+        lambda: validate_capture_status(
+            capture_status, ["trial_b", "trial_a"]),
+        "capture status with a different trial order was accepted")
+    broken_status = copy.deepcopy(capture_status)
+    broken_status["schema_version"] += 1
+    expect_value_error(
+        lambda: validate_capture_status(
+            broken_status, ["trial_a", "trial_b"]),
+        "capture status with an unknown schema was accepted")
+    incoherent_status = copy.deepcopy(capture_status)
+    incoherent_status["active_trial"] = "trial_a"
+    expect_value_error(
+        lambda: validate_capture_status(
+            incoherent_status, ["trial_a", "trial_b"]),
+        "incoherent READY capture status was accepted")
 
     image = ns(header=header(12, 34), width=640, height=480,
                encoding="rgb8", step=1920)
@@ -199,15 +278,31 @@ def main():
         "trial_id": "static_pillbox_h3p6", "kind": "static",
         "class_name": "pillbox", "height_m": 3.6,
     }
+    manifest_plan = configure_sampling_plan(sampling_plan(
+        {"static": {"center_dwell_sec": 2.0}}, trial, 1),
+        2.0, None, 11.0)
+    manifest_plan = align_sampling_plan(manifest_plan, 0.1)
+    planned_offset = manifest_plan["sample_offsets_sec"][0]
+    source_offset = 12.0 + 34.0e-9 - 11.0
+    record_timing = sampling_timing(
+        source_offset, planned_offset, 0.25)
     record = build_frame_record(
         trial, image, truth, target, info, "frame.png", "frame.json", 1,
         {
-            "policy": static_plan["policy"],
+            "policy": manifest_plan["policy"],
             "sample_index": 0,
-            "planned_fraction": 0.0,
-            "planned_offset_sec": 0.0,
-            "actual_offset_sec": 0.02,
-            "expected_duration_sec": 2.0,
+            "planned_fraction": manifest_plan["sample_fractions"][0],
+            "planned_offset_sec": planned_offset,
+            "actual_offset_sec": source_offset,
+            "expected_duration_sec":
+                manifest_plan["expected_duration_sec"],
+            "sampling_start_stamp_sec":
+                manifest_plan["sampling_start_stamp_sec"],
+            "window_start_offset_sec":
+                manifest_plan["window_start_offset_sec"],
+            "window_duration_sec": manifest_plan["window_duration_sec"],
+            **record_timing,
+            "used_trial_end_fallback": False,
         })
     assert record["schema_version"] == CAPTURE_SCHEMA_VERSION
     assert record["dataset_kind"] == CAPTURE_DATASET_KIND
@@ -239,6 +334,16 @@ def main():
             "dataset_kind": CAPTURE_DATASET_KIND,
             "status": "DIAGNOSTIC",
             "run_complete": True,
+            "selected_trial_ids": [trial["trial_id"]],
+            "sampling_plans": {trial["trial_id"]: manifest_plan},
+            "max_sampling_lateness_sec": 0.25,
+            "readiness": {
+                "camera_profile_frozen": True,
+                "exact_pair_observed": True,
+                "ready_before_first_trial": True,
+                "ready_pair_stamp": {"secs": 10, "nsecs": 900},
+                "sampling_started_trial_ids": [trial["trial_id"]],
+            },
             "max_frames": 1,
             "captured_frames": 1,
             "trial_counts": {trial["trial_id"]: 1},
@@ -256,6 +361,47 @@ def main():
         expect_value_error(
             lambda: validate_capture_manifest(wrong_quota, output_dir),
             "capture manifest with unmet quota was accepted")
+        missing_ready = copy.deepcopy(manifest)
+        missing_ready["readiness"]["ready_before_first_trial"] = False
+        expect_value_error(
+            lambda: validate_capture_manifest(missing_ready, output_dir),
+            "capture manifest without pre-trial readiness was accepted")
+        missing_sampling_ack = copy.deepcopy(manifest)
+        missing_sampling_ack["readiness"][
+            "sampling_started_trial_ids"] = []
+        expect_value_error(
+            lambda: validate_capture_manifest(
+                missing_sampling_ack, output_dir),
+            "capture manifest without sampling_start ACK was accepted")
+        late_sample = copy.deepcopy(manifest)
+        late_sampling = late_sample["records"][0]["sampling"]
+        late_sampling["actual_offset_sec"] = (
+            late_sampling["planned_offset_sec"] + 0.3)
+        late_sampling["sampling_lateness_sec"] = 0.3
+        expect_value_error(
+            lambda: validate_capture_manifest(late_sample, output_dir),
+            "capture manifest with an over-late sample was accepted")
+        wrong_source_offset = copy.deepcopy(manifest)
+        wrong_sampling = wrong_source_offset["records"][0]["sampling"]
+        wrong_sampling["actual_offset_sec"] += 0.01
+        wrong_sampling["sampling_lateness_sec"] += 0.01
+        expect_value_error(
+            lambda: validate_capture_manifest(
+                wrong_source_offset, output_dir),
+            "capture offset detached from its source stamp was accepted")
+        wrong_window = copy.deepcopy(manifest)
+        wrong_window["sampling_plans"][trial["trial_id"]][
+            "window_duration_sec"] = 1.5
+        expect_value_error(
+            lambda: validate_capture_manifest(wrong_window, output_dir),
+            "capture manifest with false window geometry was accepted")
+        nondeterministic_plan = copy.deepcopy(manifest)
+        nondeterministic_plan["sampling_plans"][trial["trial_id"]][
+            "sample_fractions"] = [0.0]
+        expect_value_error(
+            lambda: validate_capture_manifest(
+                nondeterministic_plan, output_dir),
+            "capture manifest with a non-deterministic fraction was accepted")
         bad_schema = copy.deepcopy(manifest)
         bad_schema["records"][0].pop("scene_targets")
         expect_value_error(
