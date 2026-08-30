@@ -9,7 +9,9 @@
 
 当前不需要更换 LIO 或局部规划算法，也不需要继续无目标地扩数据和训练模型。桌面 PT、板端
 离线 RKNN 和实拍视频回放已有证据，但尚未完成 OrangePi 上的 ROS 视觉链、10 分钟稳定性和
-机载 CameraInfo/TF 接线验收。视觉组的主线是：
+机载 CameraInfo/TF 接线验收。用户已在仓外完成新相机内参标定；当前等待标定 YAML、原始
+标定图片及采集参数后做独立复核和 ROS 接入，不能把“已求出内参”等同于 CameraInfo/TF、
+外参或板端验收。视觉组的主线是：
 
 板端模型、图片指标、PT 对照和视频资产的单一汇总见
 [BOARD_MODEL_COMPLETE_EVALUATION_20260716.md](/home/xhj/liftrace/docs/BOARD_MODEL_COMPLETE_EVALUATION_20260716.md)。
@@ -103,6 +105,19 @@
     seed=11 独立重复三次已完成，聚合目录为
     `logs/vsim04_repeat_aggregate_boundary6-seed11-r3-final-307ac5c4/`；2.0 m/s 与 3.6 m
     均显示明显失败/波动，默认 640 保持，暂不承诺它们为通用运营域。
+19. V-CL-06 的导航任务缺口已进一步收口。外部导航远程仍为
+    `main@a68925d15293e5510e2b4351c6b3d9bc5aa136ab`；本地 clean 导航来源分别为任务
+    manager/runtime `a65a616f209bfc7dd4d788ebb36609589cea5418` 与 planner telemetry
+    `022b7636b1661304ce2d47e9368c392adc67997d`，以导入基线 `7dd2c49` 进入当前合并态
+    `db80dfd`。持久候选队列、有限冷却重试、三槽、510 秒硬返航、600 秒任务上限和 typed
+    `NavigationDecision/NavigationResult` 已实现并通过纯测试；随机场一次性 start gate、
+    `AlignmentTargetContext/ReleaseEvidenceContext` 和类型化 V-SIM 评测也已合入，且全部默认
+    关闭或保持旧模式。当前缺口不再是任务策略源码，而是尚未合入 live execution bridge：
+    还没有由新 decision 实际产生 `/fastplanner/goal`、planner/target-stage `STARTED` 回流、
+    真实 `P_interrupt`，也没有新合并态的 90 秒 smoke 和 600 秒三投 Gate。
+20. 顶层 20 项任务按严格状态统计为 **9 项闭合、10 项开放、1 项冻结**。开放项中严格视觉
+    主责为 5 项；若把 H 结构/降落联合 Gate 计入视觉参与面，则为 6 项。其余开放项主要是
+    V-CL-00B/01/05/06 的联合接线、导航执行和整机验收，不能计成视觉算法欠账。
 
 现有 `toudi3.world` 五类标准靶和 H 已直接用于固定真值场景，红十字按评测场景插入；
 `uav_vision_eval` 已能自动生成 CSV/JSON/report，shadow 输出也已隔离。H 固定 Gazebo 正例
@@ -154,9 +169,9 @@
 ### 2.2 不能误判为完成
 
 - 旧控制默认仍是固定航点巡航；参数化外部任务模式和单候选闭环已通过，临时 manager
-  曾完成覆盖权重三投；导航组新 manager 已完成覆盖、候选接近和索引恢复接线，2026-08-26
-  的历史 600 s 只完成两投。当前随机场因 90 s A/B 未通过未启动新的 600 s，且上游仍无
-  持久全局候选队列、失败重试和剩余时间调度；
+  曾完成覆盖权重三投；2026-08-26 的旧 manager 历史 600 s 只完成两投。当前本地 clean
+  导航任务核心已经实现持久队列、有限重试、三槽与 510/600 s 调度并通过纯测试，但 live
+  execution bridge 未合入；因此新核心尚未实际驱动 planner，也没有新的 90/600 s 联合证据；
 - `selected_target.map_point` 已由独立 Mission Manager 完成单候选接近、横向对准、投递和
   恢复；现有 `/detect/waypoint_mark_point` 像素兼容输出仍不能冒充地图坐标；
 - `drop_ready` 仍只是兼容观测；结构化 `release_evidence`、任务层第一版
@@ -459,15 +474,14 @@ RKNN、真实新相机与 V-CL-06 联合 600 秒仍分别保留为未验收项�
    投递前严格复核，完成目标记忆、权重排队、中断/恢复和三次投递”。需同步把任务层允许
    类目和 Gate 期望集合改为场景/profile 可配置；本届无 tank 的 profile 不允许 tank 假阳性
    抢占候选队列。规划器失败独立记录，不通过恢复辅助相机或更换 LIO/planner 绕开。
-7. `V-CL-06`：迁移到导航组搜索 manager。保持上游源码不变，由外围适配器接入起飞门控、
-   新视觉 CAPTURE、旧控制 ALIGN 和 guarded release；首轮 600 s 完成 2/3 投递后超时。
-   seed=11 baseline 30 秒基础设施预检已 PASS；baseline/a68925d 90 秒固定路线 A/B 已完成，
-   候选安全且高度漂移改善，但 baseline 不安全、候选共同进度耗时退化 19.43%，不满足 10%
-   上限，故保持 baseline 且不进入 600 秒 Gate。下一完成定义仍是导航组先收敛搜索高度跟踪和
-   耗时，并由双方冻结“实时中断候选/持久地图队列/
-   投递结果”接口，再由导航组任务层实现全局权重、失败冷却重试和剩余时间调度；同一
-   headless Gate 在 600 s 内完成三投、返航和落地。视觉组负责候选质量和新鲜度，不在
-   `uav_vision` 内实现任务队列。
+7. `V-CL-06`：旧 manager 的 seed=11 baseline 30 秒预检 PASS；baseline/a68925d 90 秒 A/B
+   因高度超限/共同进度耗时退化 19.43% 而不推广。此后本地 clean 导航任务核心已补齐持久
+   队列、有限重试、三槽和 510/600 s 调度，并冻结 typed decision/result；本分支又合入
+   一次性 start gate、视觉冻结对准上下文和 typed evaluator。下一完成定义已从“补任务策略”
+   改为：审核并合入 live execution bridge，保证新 manager 是唯一 raw decision 发布者、
+   bridge 是唯一 planner goal 发布者；用 target-stage `STARTED/CAPTURE` 形成真实
+   `P_interrupt`，先通过新合并态 90 秒 smoke，再在 600 秒内完成三投、返航和落地。视觉组
+   负责候选质量和新鲜度，不在 `uav_vision` 或旧 adapter 内复制任务队列。
 
 L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜索阶段统一 P95 `<=200 ms`
 暂不作为阻塞。建立投递承诺时的视觉证据必须新鲜（默认最大年龄 `0.5 s`）；最终释放
@@ -494,11 +508,11 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 已完成 | 13 | V-CL-03 | 外部任务模式复用 Fast-Planner | `external_candidate_20260807_041914` 单候选接近→对准→ACK→恢复，唯一 goal 发布者；默认旧路线回归 PASS |
 | 已完成 | 14 | V-CL-04 | 覆盖搜索、候选队列和恢复 | 2026-08-28 干净复跑（`toudi4_coverage_r6_vcl04_rerun2_20260828_222644`，main@7a0b612）任务侧全指标达标：12/12 覆盖、五类五 ID、三投槽序 [1,2,3]、0 碰撞、0 越界、405.5s 三投+返航+落地；Gate 27 项断言仅 4 项同源失败，均由 tank 一次 Fast-Planner 下降段异常（穿透 align_height 1.20m 至 0.1–0.3m 悬停 + No Effective Points）连锁造成，同场 3/3 投递证明对准链健康；经用户裁定按规划器波动外置口径视为通过（动态期望断言与中断失败的口径缺口移交 V-CL-05/06 收敛） |
 | 部分完成/待干净复跑 | 15 | V-CL-05 | 搜索-投递策略：高权重中断 + red_cross 统一 | 中断机制已实跑（tank 提前执行并恢复搜索、覆盖 12/12），pillbox 端到端投出，tank/panzer 证据锁定但低空下降受规划器波动影响超时；red_cross 统一入队、随机摆放入口与动态期望 Gate 已落地。剩余完成定义：按规则场地全随机布设（4 个 1 m 标准靶 + 1 个 0.35 m 红十字全部随机摆放、H 固定为起降点，真值仅落盘），类目/profile 驱动允许集合与 Gate（本届 profile 排除 tank），随机十字独立发现/投递 + 沉降门控验证（规划器失败只记录不迭代） |
-| 30 s PASS/A-B 已测不推广，Gate FAIL | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 上游 manager `5144aa8` 保持原逻辑，raw/planner goal 所有权与 READY/SEARCH/contact 门控通过；seed=11 baseline 30 s PASS。90 s baseline 最大高度 4.798 m FAIL；`a68925d` 最大高度 3.254 m、漂移改善但共同进度慢 19.43%，比较 FAIL，保持 baseline 且不跑 600 s。导航组下一步收敛高度/耗时并实现持久全局权重、失败重试和剩余时间调度；同 seed 600 s 三投+返航+落地才 PASS |
+| 任务核心/合同已合入，live bridge 与 Gate 待验收 | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 外部远程仍为 `a68925d`；本地 clean manager/runtime `a65a616` + telemetry `022b763` 已由 `7dd2c49` 导入并进入 `db80dfd` 合并态。持久队列、有限重试、三槽、510/600 s、typed contract、start gate、对准上下文和 typed eval 均已有纯测证据，旧消息 MD5/默认路径保持。尚缺 live execution bridge、真实 `/fastplanner/goal`、target-stage `STARTED`、`P_interrupt` 以及新合并态 90/600 s Gate；历史 A/B 仍不推广 `a68925d` |
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
 | camera-only 10 min PASS/性能域仍部分完成 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | formal23 22/23、static25 24/25、sparse30 25/30 的历史证据继续有效；本轮算法/模型/阈值未变，未为工具链改动重复支付三套矩阵。`vsim04_soak600b_seed11_20260831_011055` 已以 wall 600.024 s、输入/完整 mapped 15.019/13.336 FPS、六产物完整、errors=[] 关闭笔记本/Gazebo camera-only 10 min；`P_interrupt=null`。六个边界点固定 seed 各重复 3 次：bridge/panzer 低空 2 m/s 均 0/3，pillbox 低空 2 m/s 2/3、高空 0.5 m/s 1/3、高空 2 m/s 0/3，静态 pillbox 3.6 m 0/3。故 2 m/s 不作通用工作点、3.6 m 不承诺，默认 640 保持；V-CL-06、板端和 30-seed 仍未关闭 |
-| 待真值 | 19 | V-REAL-01 | 实拍回放域差复核 | 标注圆环实例/中心/H/红十字，采集同步 CameraInfo/pose |
-| 笔记本 PT/ONNX 已通过/板端 ROS 待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | 同 fixed-letterbox 的 12 图 PT/ONNX Gate 已通过；FP32 RKNN 离线有效，待完成同样本 PT→ONNX→RKNN 逐框对照、单下视 ROS 相机/TF、5–10 Hz 和 10 min Gate |
+| 待真值/内参文件待验收 | 19 | V-REAL-01 | 实拍回放域差复核 | 用户已在仓外完成新相机内参标定；待收到 YAML、标定图片与采集参数后独立复核并接入。仍需标注圆环实例/中心/H/红十字，采集同步 CameraInfo/pose；安装外参另行标定 |
+| 笔记本 PT/ONNX 已通过/板端 ROS 待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | 同 fixed-letterbox 的 12 图 PT/ONNX Gate 已通过；FP32 RKNN 离线有效。新相机内参已在仓外求解但文件未验收/接线；仍待同样本 PT→ONNX→RKNN 逐框对照、单下视 ROS CameraInfo/TF、外参、5–10 Hz 和 10 min Gate |
 
 ### 8.1 已完成的最小交付与当前入口
 

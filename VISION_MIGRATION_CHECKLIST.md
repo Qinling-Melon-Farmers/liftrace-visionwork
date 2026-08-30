@@ -64,10 +64,15 @@
 - [x] 默认关闭的外部任务模式已接入 `MissionCommand`；单候选完成接近、对准、guarded
   ACK 和恢复，外部模式下 Mission Manager 是 `/fastplanner/goal` 唯一发布者；默认旧路线
   回归保持由 `patrol_control` 发布。
-- [~] 导航组 `liftrace-controlwork@5144aa8` 原始 Python manager/策略已通过外围适配器接入；
-  manager 独占 `/navigation/goal_raw`，适配器独占 `/fastplanner/goal`。当前 manager 只对
-  当前新鲜 `selected_target` 做合法性/新 ID 准入，尚无持久全局权重队列、失败重试和
-  剩余时间调度。
+- [x] 本地 clean 导航任务核心已从 manager/runtime `a65a616` 与 planner telemetry `022b763`
+  导入：持久候选队列、有限冷却重试、三槽、510 秒硬返航、600 秒任务上限和 typed
+  `NavigationDecision/NavigationResult` 已实现并通过纯测试；外部导航远程仍停在地图实验
+  `a68925d`，两类来源不混写；
+- [x] 随机场一次性 start gate、`AlignmentTargetContext/ReleaseEvidenceContext` 与 typed
+  V-SIM evaluator 已合入；功能默认关闭，旧 `ReleaseEvidence` MD5 和默认运行路径保持；
+- [~] 新 manager 的 live execution bridge 尚未合入：typed decision 还没有在本合并态实际
+  转换为 `/fastplanner/goal`，planner/target-stage `STARTED`、真实 `P_interrupt`、90 秒 smoke
+  与 600 秒三投 Gate 均未验收。历史旧 manager + adapter 链证据只作回归，不代表新核心实跑。
 
 ## Gate M5：旧接口兼容
 
@@ -101,7 +106,10 @@
   `merged_standard` 模型，600 s 到达 9/16 覆盖点，发现 pillbox/tent/bridge，tent/bridge
   完成槽 1/2 guarded mock 投递，pillbox 因 capture timeout 安全拒绝；第三投、返航和
   降落未完成，Gate 为 `mission_timeout`，不得标记 PASS。当前正式随机场 baseline 30 s
-  预检 PASS，baseline/`a68925d` 90 s A/B 比较 FAIL，保持 baseline，尚未进入新的 600 s Gate；
+  预检 PASS，baseline/`a68925d` 90 s A/B 比较 FAIL，保持 baseline，尚未进入新的 600 s Gate。
+  此后本地 clean 任务核心/typed contract 已在 `7dd2c49` 导入，并与 start gate、视觉冻结上下文、
+  typed evaluator 合并至 `db80dfd`；纯测试通过，但 live bridge、真实 planner goal 和
+  target-stage 事件仍缺，故 Gate 状态不变；
 - [x] 仿真真值来自 target catalog、Gazebo/model state、CameraInfo/TF，不依赖检测输出；
 - [x] 五类标准靶、红十字、H、背景固定场景与自动 recorder/report 已落地；
 - [x] L0 圆环坐标、全局关联、记忆新鲜度、地图/释放证据连续 3 次通过；
@@ -126,6 +134,9 @@
 ## Gate M7：实拍与板端
 
 - [x] 六分类模型已有实拍回放和独立压力集；
+- [~] 用户已在仓外完成新相机内参标定；等待标定 YAML、原始图片、棋盘/ChArUco 规格、运行
+  分辨率及采集设置后复核重投影误差并生成/验收 ROS CameraInfo。当前不表示已经接线或通过；
+- [ ] 新相机安装外参、CameraInfo ROS 话题/时间戳与 optical→body→mission TF 已联合验收；
 - [~] 圆环实拍等比例回放已建立，但缺人工中心/实例真值；H/地图同步真值仍缺；
 - [x] 笔记本 ONNX 与 PyTorch 在同一 `640x640` fixed-letterbox 的 12 图、19 框上数值一致：
   missing/extra=0、最低 IoU=0.9999991；该项不代表 RKNN 或板端 ROS 验收；

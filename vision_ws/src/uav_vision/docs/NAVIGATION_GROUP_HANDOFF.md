@@ -5,7 +5,8 @@
 边界：视觉只输出观测、地图候选、记忆和像素对准证据，不输出飞行或执行机构命令。
 
 > 版本阅读规则：本文保留 `20260807-beta1` 作为历史交付标识；对正式任务链、
-> profile、实测结论或导航职责的表述如有冲突，**2026-08-30 补充优先于旧 beta1**。
+> profile、实测结论或导航职责的表述如有冲突，**第 11 节 2026-08-31 合并态补充优先于
+> 旧 beta1 与第 7～10 节阶段快照**。
 
 接收方只有板端原始工程时，先阅读 ZIP 根目录 `INSTALL_AND_SIMULATION.md`。该文档说明
 `vision_ws` 与原工程的位置关系、Catkin overlay、板端 RKNN 启动、话题/TF 检查、视觉
@@ -142,10 +143,11 @@ ZIP 根目录 `reference_integration/` 包含阶段 4 使用的消息草案、�
 导航组可以选择复用、改写或完全不用这些参考文件。视觉正式接口仅为本文件列出的 ROS
 输入、输出、消息字段和服务。
 
-特别注意：上述“权重队列、delivered/failed 去重、规划重试和不可达后恢复”不是
-`manager@5144aa8` 的当前能力。正式 manager 目前仍缺 accepted/result/retry 回流、持久候选
-队列和剩余时间调度；不得用本节的历史 coverage manager 清单宣称这些任务层缺口
-已由导航上游完成。
+特别注意：上述清单不是旧 `manager@5144aa8` 的能力；但截至 2026-08-31，本地 clean 导航
+任务核心已在独立来源 `a65a616` 实现持久队列、typed result reducer、有限重试、三槽和
+510/600 s 调度，并与 planner telemetry `022b763` 一起导入当前联动历史。该实现仍不是外部
+远程 `a68925d` 的内容，也尚未通过 live execution bridge 驱动 planner。不得再把任务核心写成
+“未实现”，也不得反向把纯测试写成联合飞行闭环。
 
 ## 6. 已验证与限制
 
@@ -200,9 +202,10 @@ ZIP 根目录 `reference_integration/` 包含阶段 4 使用的消息草案、�
 相邻目标下仅靠空间距离反推。持久队列、重试与剩余时间调度属导航/任务层，
 不在视觉 adapter 中复制实现。
 
-截至 2026-08-30 再次 fetch，导航远程 `main` 仍为 `a68925d`（仅地图实验），正式
-manager 仍为 `5144aa8`，上述任务生命周期尚未交付。V-CL-06 A/B 仍 FAIL，
-`a68925d` 不推广，600 s 三投 Gate 尚未启动。
+本节描述的是 2026-08-30 外部远程快照：导航远程 `main` 为 `a68925d`（仅地图实验），
+旧运行 manager 为 `5144aa8`。2026-08-31 后本地 clean 任务核心已实现上述生命周期并通过
+纯测试，最新边界见第 11 节；V-CL-06 A/B 仍 FAIL，`a68925d` 不推广，600 s 三投 Gate
+尚未启动。
 
 ## 10. 2026-08-31 可消费工作域与稳定性更新
 
@@ -225,9 +228,38 @@ FAIL 是诊断语义，不是编排失败，也不是多 seed 统计。
 补多 seed 和横偏。视觉算法、模型、阈值本轮未变，formal23/static25/sparse30 不重跑，
 引用时保留原 revision。
 
-截至 2026-08-31，导航远程仍仅
-`main@a68925d15293e5510e2b4351c6b3d9bc5aa136ab`、无 branch/tag，manager 仍为
-`5144aa8f536bdcd214aea2f39ada558383b3bcb0`；联动分支 `8255aa4` 已是当前性能分支
-HEAD 的祖先。accepted/result/retry、持久队列和剩余时间调度仍未交付，V-CL-06 A/B 仍 FAIL，
-导航 600 秒三投未启动。下一联合测试必须等导航 feature revision 补齐这些生命周期事件后
-再测真实 `P_interrupt`；`P_selected` 仍不得代替接受或中断。
+截至 2026-08-31，外部导航远程仍仅
+`main@a68925d15293e5510e2b4351c6b3d9bc5aa136ab`、无 branch/tag，旧运行 manager 来源仍为
+`5144aa8f536bdcd214aea2f39ada558383b3bcb0`。本地 clean 任务核心已补齐
+accepted/result reducer、持久队列、有限重试和剩余时间调度并通过纯测试；但 live execution
+bridge 尚未合入，因此 V-CL-06 A/B 仍 FAIL、导航 600 秒三投未启动。下一联合测试应先接入
+typed bridge 与 planner/target-stage 事件，再测真实 `P_interrupt`；`P_selected` 仍不得代替
+接受或中断。
+
+## 11. 2026-08-31 V-CL-06 当前合并态
+
+来源必须按三层记录：
+
+- 外部导航远程：`main@a68925d15293e5510e2b4351c6b3d9bc5aa136ab`，仍只是地图实验；
+- 本地 clean 导航实现：manager/runtime
+  `a65a616f209bfc7dd4d788ebb36609589cea5418`，planner telemetry
+  `022b7636b1661304ce2d47e9368c392adc67997d`；
+- 本视觉集成仓：导入基线 `7dd2c49acf8eb6f8a58a333195b77096810ad285`，合入一次性
+  start gate、冻结对准上下文与 typed evaluator 后为
+  `db80dfd6d22f31ab682d02ebb39a52a1e082384e`。
+
+已实现且有纯测试证据：按 stable ID/first_seen 的持久队列、profile 准入、权重排序、有限
+冷却重试、三槽、510 秒硬返航、600 秒任务上限、typed `NavigationDecision/NavigationResult`
+及 planner `goal_seq` 遥测合同；随机场 READY/truth/anchor/manager-IDLE 一次性 start gate；
+`AlignmentTargetContext/ReleaseEvidenceContext` 严格上下文；V-SIM 的
+`visual_only|typed_contract|target_stage` 分层评分。新增功能默认关闭或保持 visual-only，旧
+`ReleaseEvidence` MD5 为 `07fbec53d6c6a8bdc19fddf37c081d04`，旧默认链不变。
+
+尚未完成的是 live execution 层：当前分支没有合入 bridge，故新 manager decision 尚未实际
+产生 `/fastplanner/goal`，也没有 planner/target-stage `STARTED/CAPTURE` 回流。真实
+`P_dispatch/P_planner_arrival/P_interrupt`、新合并态 90 秒 smoke 和 600 秒三投/返航/落地
+Gate 均保持未验收；不得把 typed-contract 单测或旧 adapter 证据替代它们。
+
+相机侧最新状态为：用户已在仓外完成新相机内参标定，等待 YAML、原始标定图片、标定板规格、
+运行分辨率及采集设置后由视觉组复核并接入 CameraInfo。安装外参、CameraInfo ROS 话题/时间戳、
+OrangePi 和实拍真值仍未闭合。
