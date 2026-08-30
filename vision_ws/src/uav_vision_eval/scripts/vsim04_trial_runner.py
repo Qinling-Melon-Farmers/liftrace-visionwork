@@ -18,6 +18,7 @@ from uav_vision_eval.vsim04_metrics import (
     call_with_monotonic_deadline,
     handshake_timeout_is_safe,
     load_trial_matrix,
+    select_trial_matrix,
 )
 
 
@@ -37,7 +38,10 @@ class VSim04TrialRunner:
     def __init__(self):
         rospy.init_node("vsim04_trial_runner")
         self._matrix_path = os.path.abspath(rospy.get_param("~matrix_file"))
-        self._matrix = load_trial_matrix(self._matrix_path)
+        self._matrix = select_trial_matrix(
+            load_trial_matrix(self._matrix_path),
+            rospy.get_param("~trial_selector", ""))
+        self._evaluation_scope = self._matrix["evaluation_scope"]
         runner = self._matrix.get("runner", {})
         self._camera_model = rospy.get_param(
             "~camera_model", runner.get("camera_model", "vision_eval_camera"))
@@ -78,8 +82,8 @@ class VSim04TrialRunner:
             "~handshake_write_margin_sec", 5.0))
         self._trial_handshake_timeout = float(rospy.get_param(
             "~trial_handshake_timeout_sec", 16.0))
-        if len(self._matrix["trials"]) != 23:
-            raise ValueError("V-SIM-04 runner requires exactly 23 trials")
+        if not self._matrix["trials"]:
+            raise ValueError("V-SIM-04 runner requires at least one trial")
         if (len(self._rpy) != 3 or
                 not all(math.isfinite(value) for value in self._rpy)):
             raise ValueError("camera_rpy must contain three finite values")
@@ -342,8 +346,11 @@ class VSim04TrialRunner:
             while True:
                 status = self._recorder_status
                 if status is not None and status.get("state") == "FINALIZED":
+                    expected_status = (
+                        "MEASURED" if self._evaluation_scope == "full" else
+                        "DIAGNOSTIC")
                     if (status.get("success") and
-                            status.get("summary_status") == "MEASURED" and
+                            status.get("summary_status") == expected_status and
                             int(status.get("completed_trial_count", 0)) ==
                             int(status.get("expected_trial_count", -1))):
                         return
@@ -411,8 +418,9 @@ class VSim04TrialRunner:
             "run_complete", trial_count=len(self._matrix["trials"]))
         self._wait_for_recorder_final(float(rospy.get_param(
             "~finalization_timeout_sec", 30.0)))
-        rospy.loginfo("V-SIM-04 trial runner complete and validated (%d trials)",
-                      len(self._matrix["trials"]))
+        rospy.loginfo(
+            "V-SIM-04 trial runner complete and validated (%s, %d trials)",
+            self._evaluation_scope, len(self._matrix["trials"]))
 
     def abort(self, error):
         try:

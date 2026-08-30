@@ -21,6 +21,7 @@ from uav_vision_eval.vsim04_metrics import (
     dry_run_artifacts,
     load_trial_matrix,
     planned_trial_result,
+    select_trial_matrix,
     summarize_trial_results,
     watermarks_cover_source_stamp,
 )
@@ -39,6 +40,21 @@ def main():
     assert {trial["class_name"] for trial in trials} == {
         "tent", "pillbox", "bridge", "panzer", "red_cross"}
     assert all(trial["class_name"] != "tank" for trial in trials)
+    selected_ids = [trials[1]["trial_id"], trials[-1]["trial_id"]]
+    diagnostic_matrix = select_trial_matrix(matrix, ",".join(selected_ids))
+    assert diagnostic_matrix["evaluation_scope"] == "diagnostic"
+    assert [trial["trial_id"] for trial in diagnostic_matrix["trials"]] == selected_ids
+    assert len(matrix["trials"]) == 23, "selector mutated the formal matrix"
+    try:
+        select_trial_matrix(matrix, [selected_ids[0], selected_ids[0]])
+        raise AssertionError("duplicate trial selector was accepted")
+    except ValueError:
+        pass
+    try:
+        select_trial_matrix(matrix, "missing_trial")
+        raise AssertionError("unknown trial selector was accepted")
+    except ValueError:
+        pass
 
     measured = planned_trial_result(trials[0])
     measured.update({
@@ -129,6 +145,7 @@ def main():
                           "validation_errors": [],
                           "actual_image_source_fps": 30.0})
     assert terminal_summary["status"] == "MEASURED"
+    assert terminal_summary["evaluation_scope"] == "full"
     assert terminal_summary["metrics"]["actual_image_source_fps"] == 30.0
     invalid_summary = summarize_trial_results(
         terminal_results[:-1], "unit", actual_fps=30.0,
@@ -150,6 +167,14 @@ def main():
                           "expected_trial_count": 23,
                           "validation_errors": []})
     assert missing_leave_summary["status"] == "INVALID"
+    diagnostic_summary = summarize_trial_results(
+        terminal_results[:2], "unit", actual_fps=30.0,
+        terminal_context={"run_complete": True,
+                          "expected_trial_count": 2,
+                          "evaluation_scope": "diagnostic",
+                          "validation_errors": []})
+    assert diagnostic_summary["status"] == "DIAGNOSTIC"
+    assert diagnostic_summary["completed_trial_count"] == 2
 
     # selected may arrive at the recorder before /targets because ROS does not
     # order different topic connections.  Correlation must use ID + two clocks,

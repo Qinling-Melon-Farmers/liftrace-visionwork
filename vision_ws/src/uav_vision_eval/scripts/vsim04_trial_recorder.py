@@ -35,6 +35,7 @@ from uav_vision_eval.vsim04_metrics import (
     detector_diagnostic_errors,
     load_trial_matrix,
     planned_trial_result,
+    select_trial_matrix,
     watermarks_cover_source_stamp,
     write_artifacts,
 )
@@ -50,7 +51,11 @@ class VSim04TrialRecorder:
         self._lock = threading.RLock()
         self._write_lock = threading.Lock()
         self._matrix_path = os.path.abspath(rospy.get_param("~matrix_file"))
-        self._matrix = load_trial_matrix(self._matrix_path)
+        self._matrix = select_trial_matrix(
+            load_trial_matrix(self._matrix_path),
+            rospy.get_param("~trial_selector", ""))
+        self._evaluation_scope = self._matrix["evaluation_scope"]
+        self._expected_trial_count = len(self._matrix["trials"])
         self._scenario_path = os.path.abspath(rospy.get_param(
             "~scenario_file"))
         with open(self._scenario_path, "r", encoding="utf-8") as stream:
@@ -104,7 +109,8 @@ class VSim04TrialRecorder:
         self._abort_event_seq = None
         self._terminal_context = {
             "run_complete": False,
-            "expected_trial_count": EXPECTED_TRIAL_COUNT,
+            "expected_trial_count": self._expected_trial_count,
+            "evaluation_scope": self._evaluation_scope,
             "validation_errors": [],
         }
 
@@ -233,6 +239,8 @@ class VSim04TrialRecorder:
                 "actual_trials": {},
             },
             "evaluation_design": {
+                "scope": self._evaluation_scope,
+                "trial_selector": list(self._matrix["trial_selector"]),
                 "all_targets_coexist": True,
                 "mode": "clutter",
                 "score_false_positives": bool(
@@ -358,9 +366,12 @@ class VSim04TrialRecorder:
         if (not self._target_catalog_path or
                 not os.path.isfile(self._target_catalog_path)):
             errors.append("target_catalog_file_missing_or_not_file")
-        if len(self._results) != EXPECTED_TRIAL_COUNT:
+        if (self._evaluation_scope == "full" and
+                len(self._results) != EXPECTED_TRIAL_COUNT):
             errors.append("trial_count_{}/{}".format(
                 len(self._results), EXPECTED_TRIAL_COUNT))
+        elif len(self._results) <= 0:
+            errors.append("diagnostic_trial_count_must_be_positive")
         active_targets = set(self._scenario.get("active_targets", []))
         if active_targets != self._expected_target_ids:
             errors.append("scenario_active_targets_do_not_match_matrix")
@@ -626,7 +637,7 @@ class VSim04TrialRecorder:
             "completed_trial_count": sum(
                 result.get("status") == "completed"
                 for result in self._results.values()),
-            "expected_trial_count": EXPECTED_TRIAL_COUNT,
+            "expected_trial_count": self._expected_trial_count,
             "infra_gap_count": len(self._infra_gaps),
             "pending_trial_end": bool(self._pending_trial_end),
             "abort_event_seq": self._abort_event_seq,
@@ -675,7 +686,8 @@ class VSim04TrialRecorder:
                     self._pending_trial_end = None
                     self._terminal_context = {
                         "run_complete": False,
-                        "expected_trial_count": EXPECTED_TRIAL_COUNT,
+                        "expected_trial_count": self._expected_trial_count,
+                        "evaluation_scope": self._evaluation_scope,
                         "validation_errors": [self._fatal_error],
                     }
                     write_after = True
@@ -1304,9 +1316,12 @@ class VSim04TrialRecorder:
             errors.append("run_complete_event_missing")
         completed = [result for result in self._results.values()
                      if result.get("status") == "completed"]
-        if len(self._results) != EXPECTED_TRIAL_COUNT:
+        if len(self._results) != self._expected_trial_count:
             errors.append("trial_count_{}/{}".format(
-                len(self._results), EXPECTED_TRIAL_COUNT))
+                len(self._results), self._expected_trial_count))
+        if (self._evaluation_scope == "full" and
+                self._expected_trial_count != EXPECTED_TRIAL_COUNT):
+            errors.append("full_trial_count_must_be_23")
         if len(completed) != len(self._results):
             errors.append("completed_trials_{}/{}".format(
                 len(completed), len(self._results)))
@@ -1407,7 +1422,8 @@ class VSim04TrialRecorder:
             errors = self._terminal_errors_locked()
             context = {
                 "run_complete": True,
-                "expected_trial_count": EXPECTED_TRIAL_COUNT,
+                "expected_trial_count": self._expected_trial_count,
+                "evaluation_scope": self._evaluation_scope,
                 "validation_errors": list(errors),
             }
             self._terminal_context = copy.deepcopy(context)
@@ -1422,7 +1438,10 @@ class VSim04TrialRecorder:
             with self._lock:
                 self._terminal_context = copy.deepcopy(context)
             summary = self._write_artifacts_safe(context)
-        success = bool(summary and summary.get("status") == "MEASURED" and
+        expected_status = (
+            "MEASURED" if self._evaluation_scope == "full" else
+            "DIAGNOSTIC")
+        success = bool(summary and summary.get("status") == expected_status and
                        not context["validation_errors"])
         if not success and not context["validation_errors"]:
             context["validation_errors"] = [
@@ -1438,7 +1457,10 @@ class VSim04TrialRecorder:
             if not success and not self._fatal_error:
                 self._fatal_error = "terminal_validation_failed"
         if success:
-            rospy.loginfo("V-SIM-04 recorder finalized MEASURED (23/23)")
+            rospy.loginfo(
+                "V-SIM-04 recorder finalized %s (%d/%d)",
+                expected_status, len(self._results),
+                self._expected_trial_count)
         else:
             rospy.logerr("V-SIM-04 recorder finalization failed: %s",
                          "; ".join(context["validation_errors"]))

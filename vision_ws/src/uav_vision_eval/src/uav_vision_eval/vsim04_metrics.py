@@ -1,6 +1,7 @@
 """V-SIM-04 trial schema, aggregation, and artifact writers."""
 
 import csv
+import copy
 import json
 import math
 import os
@@ -95,6 +96,37 @@ def load_trial_matrix(path):
         raise ValueError("missing target anchors: {}".format(",".join(missing)))
     matrix["trials"] = trials
     return matrix
+
+
+def select_trial_matrix(matrix, selector):
+    """Select an ordered diagnostic subset without weakening the full Gate."""
+    selected_matrix = copy.deepcopy(matrix)
+    if isinstance(selector, (list, tuple)):
+        identifiers = [str(value).strip() for value in selector
+                       if str(value).strip()]
+    else:
+        identifiers = [value.strip() for value in str(selector or "").split(",")
+                       if value.strip()]
+    if not identifiers:
+        selected_matrix["evaluation_scope"] = "full"
+        selected_matrix["trial_selector"] = []
+        return selected_matrix
+    if len(identifiers) != len(set(identifiers)):
+        raise ValueError("trial selector contains duplicate identifiers")
+    trials_by_id = {
+        trial["trial_id"]: trial for trial in selected_matrix["trials"]
+    }
+    unknown = [identifier for identifier in identifiers
+               if identifier not in trials_by_id]
+    if unknown:
+        raise ValueError("unknown diagnostic trial identifiers: " +
+                         ",".join(unknown))
+    selected_matrix["trials"] = [trials_by_id[identifier]
+                                  for identifier in identifiers]
+    selected_matrix["expected_trial_count"] = len(identifiers)
+    selected_matrix["evaluation_scope"] = "diagnostic"
+    selected_matrix["trial_selector"] = identifiers
+    return selected_matrix
 
 
 def expand_trial_matrix(matrix):
@@ -406,11 +438,18 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
     validation_errors = list(
         (terminal_context or {}).get("validation_errors", []))
     terminal_complete = (terminal_context or {}).get("run_complete", False)
+    evaluation_scope = str(
+        (terminal_context or {}).get("evaluation_scope", "full"))
     if terminal_complete:
         expected_count = (terminal_context or {}).get(
             "expected_trial_count", EXPECTED_TRIAL_COUNT)
-        if int(expected_count) != EXPECTED_TRIAL_COUNT:
+        if evaluation_scope not in {"full", "diagnostic"}:
+            validation_errors.append("evaluation_scope_invalid")
+        if (evaluation_scope == "full" and
+                int(expected_count) != EXPECTED_TRIAL_COUNT):
             validation_errors.append("expected_trial_count_must_be_23")
+        if int(expected_count) <= 0:
+            validation_errors.append("expected_trial_count_must_be_positive")
         if len(finalized) != int(expected_count):
             validation_errors.append("trial_count_{}/{}".format(
                 len(finalized), int(expected_count)))
@@ -432,7 +471,10 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
     elif not terminal_complete:
         status = "INCOMPLETE"
     else:
-        status = "INVALID" if validation_errors else "MEASURED"
+        status = (
+            "INVALID" if validation_errors else
+            "DIAGNOSTIC" if evaluation_scope == "diagnostic" else
+            "MEASURED")
     failure_stage_counts = {
         stage: sum(result.get("failure_stage") == stage
                    for result in completed)
@@ -444,6 +486,7 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         "schema_version": 1,
         "evaluation_id": "V-SIM-04",
         "run_mode": run_mode,
+        "evaluation_scope": evaluation_scope,
         "status": status,
         "trial_count": len(finalized),
         "completed_trial_count": len(completed),
@@ -568,6 +611,7 @@ def _report(summary):
         "# V-SIM-04 Vision Search Performance",
         "",
         "- Run mode: `{}`".format(summary["run_mode"]),
+        "- Evaluation scope: `{}`".format(summary["evaluation_scope"]),
         "- Completed trials: `{}/{}`".format(
             summary["completed_trial_count"], summary["trial_count"]),
         "- P_confirm: `{}`".format(metrics["p_confirm"]),
@@ -615,7 +659,8 @@ def _report(summary):
         "stamps; processing time uses a monotonic wall clock. Map-invalid and "
         "TF-failure rates are reported separately from map error.",
         "",
-        "A dry run validates only matrix and artifact schemas; it is not a Gate PASS.",
+        "A dry run validates only matrix and artifact schemas; a diagnostic "
+        "subset isolates failures. Neither is a Gate PASS.",
         "",
     ])
 
@@ -634,6 +679,8 @@ def write_artifacts(output_dir, manifest, frame_rows, event_rows, results,
     manifest["schema_version"] = 1
     manifest["evaluation_id"] = "V-SIM-04"
     manifest["run_mode"] = run_mode
+    manifest["evaluation_scope"] = terminal_context.get(
+        "evaluation_scope", manifest.get("evaluation_scope", "full"))
     manifest["actual_image_fps"] = actual_fps
     manifest["actual_image_source_fps"] = actual_source_fps
     manifest["terminal_validation"] = terminal_context or {
