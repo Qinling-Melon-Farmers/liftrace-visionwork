@@ -75,6 +75,7 @@
 
   <node pkg="uav_vision" type="target_refiner.py" name="target_refiner" output="screen">
     <rosparam file="$(find uav_vision)/config/target_refiner.yaml"/>
+    <param name="class_profile" value="$(arg class_profile)" />
   </node>
 
   <node pkg="uav_vision" type="target_map_projector.py" name="target_map_projector" output="screen">

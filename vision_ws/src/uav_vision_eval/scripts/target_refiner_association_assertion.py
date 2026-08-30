@@ -34,12 +34,19 @@ class AssociationAssertion:
         targets = {item.class_name: item for item in message.detections}
         tent = targets.get("tent")
         panzer = targets.get("panzer")
-        if tent is None or panzer is None:
+        tank = targets.get("tank")
+        pillbox = targets.get("pillbox")
+        if any(item is None for item in (tent, panzer, tank, pillbox)):
             return
         self.passed = (
             tent.center_refined and panzer.center_refined and
             abs(tent.center_px.x - 60.0) < 0.01 and
-            abs(panzer.center_px.x - 135.0) < 0.01
+            abs(panzer.center_px.x - 135.0) < 0.01 and
+            pillbox.center_refined and
+            abs(pillbox.center_px.x - 420.0) < 0.01 and
+            not tank.center_refined and
+            not tank.association_valid and
+            tank.reject_reason == "class_profile_disallowed"
         )
 
     def run(self):
@@ -51,8 +58,13 @@ class AssociationAssertion:
             message.detections = [
                 self._detection(stamp, "tent", 100.0),
                 self._detection(stamp, "panzer", 140.0),
+                # Put the disallowed class first so the old global greedy
+                # matcher would steal the shared ring from pillbox.
+                self._detection(stamp, "tank", 420.0),
+                self._detection(stamp, "pillbox", 420.0),
                 self._detection(stamp, "circle", 135.0, 80.0),
                 self._detection(stamp, "circle", 60.0, 80.0),
+                self._detection(stamp, "circle", 420.0, 80.0),
             ]
             self.publisher.publish(message)
             time.sleep(0.1)

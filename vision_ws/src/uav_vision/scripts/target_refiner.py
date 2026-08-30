@@ -11,6 +11,7 @@ import math
 import rospy
 
 from uav_vision.msg import TargetDetection, TargetDetectionArray
+from uav_vision.target_selection_policy import resolve_class_profile
 
 
 STANDARD_CLASSES = {"bridge", "panzer", "pillbox", "tent", "tank"}
@@ -36,13 +37,20 @@ class TargetRefiner:
         self._max_center_distance_ratio = float(
             rospy.get_param("~max_center_distance_ratio", 1.25))
         self._min_ring_quality = float(rospy.get_param("~min_ring_quality", 0.70))
+        self._class_profile, selectable_classes = resolve_class_profile(
+            rospy.get_param("~class_profile", "full"))
+        self._selectable_standard_classes = (
+            STANDARD_CLASSES.intersection(selectable_classes))
 
         self._pub = rospy.Publisher(self._output_topic,
                                     TargetDetectionArray, queue_size=2)
         rospy.Subscriber(self._input_topic, TargetDetectionArray,
                          self._on_detections, queue_size=4)
-        rospy.loginfo("[TargetRefiner] ready input=%s output=%s margin=%.1fpx",
-                      self._input_topic, self._output_topic, self._roi_margin_px)
+        rospy.loginfo(
+            "[TargetRefiner] ready input=%s output=%s margin=%.1fpx profile=%s selectable_standard=%s",
+            self._input_topic, self._output_topic, self._roi_margin_px,
+            self._class_profile,
+            ",".join(sorted(self._selectable_standard_classes)))
 
     def _association_score(self, target, circle):
         circle_in_target = _center_in_roi(circle, self._roi_margin_px)
@@ -70,7 +78,7 @@ class TargetRefiner:
                    d.geometry_confidence >= self._min_ring_quality]
         target_indices = [
             index for index, detection in enumerate(msg.detections)
-            if detection.class_name in STANDARD_CLASSES
+            if detection.class_name in self._selectable_standard_classes
         ]
         pair_scores = []
         for target_index in target_indices:
@@ -106,7 +114,10 @@ class TargetRefiner:
             refined.center_refined = False
             refined.center_source = "bbox"
             refined.association_valid = False
-            refined.reject_reason = "circle_association_missing"
+            refined.reject_reason = (
+                "class_profile_disallowed"
+                if det.class_name not in self._selectable_standard_classes
+                else "circle_association_missing")
             refined.map_valid = False
             refined.map_frame = ""
             refined.map_quality = 0.0

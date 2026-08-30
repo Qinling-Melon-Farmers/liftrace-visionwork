@@ -3,6 +3,7 @@
     <rosparam file="$(find uav_vision)/config/target_refiner.yaml" />
     <param name="input_topic" value="/association_test/input" />
     <param name="output_topic" value="/association_test/output" />
+    <param name="class_profile" value="r2026" />
   </node>
   <node pkg="uav_vision_eval" type="target_refiner_association_assertion.py"
         name="target_refiner_association_assertion" output="screen" required="true" />

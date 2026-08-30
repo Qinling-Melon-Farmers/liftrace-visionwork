@@ -4,3 +4,5 @@ output_topic: /uav_vision/detections_refined
 roi_margin_px: 40.0
 max_center_distance_ratio: 1.25
 min_ring_quality: 0.70
+# full 保留历史五类；r2026 仍输出 tank 诊断框，但禁止其抢占允许类的蓝环关联。
+class_profile: full

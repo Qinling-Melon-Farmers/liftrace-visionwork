@@ -25,7 +25,7 @@ MAVROS 指令或执行机构节点。接口、单目地图点公式和接入要�
 | `circle_detector_node` | 蓝色圆环几何观测 | 等比例 letterbox；实拍绝对中心真值仍缺 |
 | `landing_detector_node` | H 外圈 + 内部 H 结构观测 | 仍需扩真实黑圈/H 负样本 |
 | `detection_fusion.py` | 同源时间戳聚合与阶段裁决 | 笔记本仿真等待参数仍需降延迟 |
-| `target_refiner.py` | 全局一对一类别—圆环关联与中心精修 | 未关联标准靶不进入 operational 链 |
+| `target_refiner.py` | profile 感知的全局一对一类别—圆环关联与中心精修 | 未关联标准靶不进入 operational 链；禁用类不消耗蓝环 |
 | `target_map_projector.py` | CameraInfo + TF 地面投影 | 固定 Gazebo 有真值；实拍同步 pose 仍缺 |
 | `target_memory.py` | 连续帧确认、物理 stable ID、类别投票、地图融合与新鲜度 | 跨视角正式 Gate 仍待完成 |
 | `drop_aligner.py` | 偏差、`drop_ready` 与结构化释放证据 | 最终许可仍属任务/安全层 |
@@ -93,7 +93,8 @@ topic 刚收到就认定目标刚被看到。
 - Phase D/板端 `require_map_for_candidates=true`，无效或陈旧 TF 不得刷新候选；
 - 类别优先级用于候选排序，权重取自赛委会确认的得分权重：tent=1、pillbox=1.5、bridge=2、panzer=2.5、tank=5、red_cross=10。
 - `class_profile=full` 保留六分类兼容；`class_profile=r2026` 保留 tank 诊断记忆但禁止其发布为
-  `selected_target`。未知 profile 会令节点非零退出。
+  `selected_target`。同一 profile 也下传 `target_refiner`：tank 原始框继续保留诊断，但不能抢占
+  tent/pillbox/bridge/panzer 的蓝环关联。未知 profile 会令节点非零退出。
 
 ### `align_mode`
 
