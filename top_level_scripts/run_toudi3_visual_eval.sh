@@ -4,7 +4,7 @@ set -euo pipefail
 # Bounded visual-only evaluation. No PX4, MAVROS, patrol_control or actuator
 # is launched by any of the three supported scene launch files.
 
-script_dir="${BASH_SOURCE[0]%/*}"
+script_dir=$(cd -- "${BASH_SOURCE[0]%/*}" && pwd -P)
 project_root="${script_dir%/*}"
 scenario="${1:-standard}"
 duration_sec="${2:-20}"
@@ -99,7 +99,12 @@ if [[ "${gate_profile}" != "smoke" && "${gate_profile}" != "formal" ]]; then
   exit 64
 fi
 
-output_dir="${3:-/tmp/uav_vision_eval/${scenario}_$(date +%Y%m%d_%H%M%S)}"
+if [[ -n "${SIM_RUN_DIR:-}" ]]; then
+  default_output_dir="${SIM_RUN_DIR}/visual_eval"
+else
+  default_output_dir="/tmp/uav_vision_eval/${scenario}_$(date +%Y%m%d_%H%M%S)"
+fi
+output_dir="${3:-${default_output_dir}}"
 mkdir -p "${output_dir}/roslog"
 
 # shellcheck disable=SC1091
