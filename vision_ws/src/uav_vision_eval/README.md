@@ -7,7 +7,9 @@
 - 动态：`panzer/red_cross × {1.8, 3.0} m × {0.5, 1.5} m/s`，共 8 个；
 - 当前 `class_profile=r2026` 不含 tank；tank 资产继续由 `full` profile 和历史回归保留。
 - 五类靶在同一世界中共存，属于 clutter 评测；`frames.csv` 记录每帧共同完整入画类别。
-  seed=11 最小矩阵暂不评分 false positive，不能据此报告 FP 指标。
+  recorder 额外记录所有类别的 CONFIRMED/selected 观测及 stable ID；unexpected/禁用类
+  分开汇总。禁用类 confirmed 只作为误检诊断，任何禁用类 selected（包括 r2026 tank）
+  以及任何不满足当前连续帧/地图/关联/年龄/拒绝原因合同的 selected 都是硬失败。
 
 ## 指标语义
 
@@ -33,6 +35,11 @@ CameraInfo、相机模型/RPY、内嵌场景/真值模型/anchor catalog、外�
 `summary.json` 与 `report.md` 同时按类别、高度和请求速度给出分层统计；
 `vision_search_performance.csv` 仍保持一 trial 一行、原字段顺序不变，仅在尾部追加当前 trial
 所属三类分组的统计列，便于直接比较 `sparse30` 各层结果。
+`summary.json`/report/性能 CSV 明确分开 artifact set、trial measurement completeness 和
+algorithm performance verdict：`MEASURED` 只表示正式测量完整，不等于性能 PASS。当前只按
+已冻结合同检查处理 P95 `<=200 ms` 和地图误差 P95 `<=0.25 m`；P_confirm、P_selected 与
+TF failure 门槛未冻结时写 `NOT_GATED`，不得自行补阈值。diagnostic 子集固定写
+`DIAGNOSTIC_ONLY`，不能成为 Gate PASS。
 
 recorder 先以 latched JSON 状态等待 CameraInfo、连续图像、完整真值、mapped detections、
 targets 心跳，以及 `/uav_vision/perf` 中 detector 的 `OK`、backend 和模型路径一致；runner
@@ -80,8 +87,12 @@ bash top_level_scripts/sim_run.sh vsim04_seed11 \
 
 正式 `output_dir` 默认取 `$SIM_RUN_DIR/vsim04`，由 `sim_run.sh` 一并归档；没有该环境变量时
 才回退 `/tmp/vsim04`。
-`sim_run.sh` 对 `vsim04*` 场景还会二次检查六项产物和 `summary.status=MEASURED`；即使
-`roslaunch` 在 required runner 失败后正常关停并返回 0，统一入口仍会返回非零。
+`sim_run.sh` 对 `vsim04*` 场景还会二次检查六项产物、`summary.status=MEASURED` 和
+`performance_verdict.hard_failure=false`；即使 `roslaunch` 在 required runner 失败后正常
+关停并返回 0，统一入口仍会对缺产物、完整性错误和禁用类 selected 返回非零。普通性能
+FAIL 仍保留完整测量产物，但 formal 入口返回非零；diagnostic 只有
+`DIAGNOSTIC_ONLY` 且无硬失败时返回零。由于当前三项门槛未冻结，formal 即使已知阈值通过
+也会以 `NOT_GATED` 非零结束，避免把命令成功冒充算法 Gate PASS。
 
 扩展运营域矩阵可通过命名切片顺序执行。第一个参数固定为 `static25` 或 `sparse30`，其后
 参数会显式透传给 `roslaunch`；不含 `:=` 的参数、未知 launch 参数以及试图覆盖

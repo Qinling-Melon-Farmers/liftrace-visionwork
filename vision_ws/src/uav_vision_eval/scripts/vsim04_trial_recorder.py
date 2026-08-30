@@ -32,6 +32,8 @@ from uav_vision_eval.vsim04_metrics import (
     STAGE_COUNT_FIELDS,
     STANDARD_CLASSES,
     annotate_motion_frames,
+    CONFIRMED_STATE,
+    candidate_audit_observation,
     completed_sources_cover,
     correlate_admission_events,
     detector_diagnostic_errors,
@@ -127,6 +129,7 @@ class VSim04TrialRecorder:
         self._mapped_points = {}
         self._candidate_events = {trial_id: [] for trial_id in self._trial_specs}
         self._selected_events = {trial_id: [] for trial_id in self._trial_specs}
+        self._candidate_audit_observations = []
         self._image_receipts = OrderedDict()
         self._detector_callback_starts = OrderedDict()
         self._image_stamps = set()
@@ -266,8 +269,11 @@ class VSim04TrialRecorder:
                     self._scenario.get("score_false_positives", False)),
                 "note": (
                     "The seed-11 minimum matrix records co-visible classes; "
-                    "false positives are not scored in this round."),
+                    "every confirmed/selected class is audited even when it "
+                    "does not contribute to the expected-class trial score."),
             },
+            "performance_contract": copy.deepcopy(
+                self._matrix.get("performance_contract", {})),
             "vision_pipeline": {
                 "required_mapped_completed_sources": sorted(
                     self._required_completed_sources),
@@ -627,7 +633,8 @@ class VSim04TrialRecorder:
         return self._frames[key]
 
     def _add_event_locked(self, event, source_stamp=None, stable_id=None,
-                          details=None, receipt_monotonic=None):
+                          details=None, receipt_monotonic=None,
+                          class_name=None):
         self._event_seq += 1
         spec = self._trial_specs.get(self._active, {})
         self._events.append({
@@ -640,7 +647,8 @@ class VSim04TrialRecorder:
             "monotonic_sec": "{:.9f}".format(
                 receipt_monotonic if receipt_monotonic is not None
                 else time.monotonic()),
-            "class_name": spec.get("class_name", ""),
+            "class_name": (spec.get("class_name", "") if class_name is None
+                           else str(class_name)),
             "stable_id": "" if stable_id is None else int(stable_id),
             "details": json.dumps(details or {}, sort_keys=True),
         })
@@ -1432,6 +1440,26 @@ class VSim04TrialRecorder:
             math.hypot(point[0] - truth[0], point[1] - truth[1])
             for point in mapped)
 
+    def _audit_candidate_locked(self, event_kind, candidate, now, receipt):
+        expected_class = (
+            self._trial_specs[self._active]["class_name"]
+            if self._active else "")
+        policy_selectable = candidate_is_currently_selectable(
+            candidate, now, self._confirm_frames, self._selected_max_age,
+            self._priorities, self._allowed_classes)
+        source_stamp = candidate.last_seen.to_sec()
+        record = candidate_audit_observation(
+            event_kind, candidate.class_name, candidate.id, expected_class,
+            self._allowed_classes, state=candidate.state,
+            policy_selectable=policy_selectable,
+            trial_id=self._active or "", source_stamp=source_stamp)
+        self._candidate_audit_observations.append(record)
+        self._add_event_locked(
+            "candidate_{}_audit".format(event_kind), source_stamp,
+            candidate.id, details=record, receipt_monotonic=receipt,
+            class_name=candidate.class_name)
+        return record
+
     def _on_targets(self, message):
         receipt = time.monotonic()
         with self._lock:
@@ -1442,6 +1470,10 @@ class VSim04TrialRecorder:
             self._last_targets_source_stamp = self._stamp_sec(message)
             self._note_pending_output_locked(
                 self._last_targets_source_stamp, receipt)
+            for candidate in message.targets:
+                if int(candidate.state) == CONFIRMED_STATE:
+                    self._audit_candidate_locked(
+                        "confirmed", candidate, message.header.stamp, receipt)
             if not self._active:
                 return
             expected_class = self._trial_specs[self._active]["class_name"]
@@ -1479,8 +1511,19 @@ class VSim04TrialRecorder:
     def _on_selected(self, candidate):
         receipt = time.monotonic()
         with self._lock:
-            if (not self._active or candidate.class_name !=
-                    self._trial_specs[self._active]["class_name"]):
+            audit = self._audit_candidate_locked(
+                "selected", candidate, candidate.header.stamp, receipt)
+            if audit["disallowed_by_profile"]:
+                rospy.logerr_throttle(
+                    1.0,
+                    "V-SIM-04 hard failure: profile %s published selected %s id=%s",
+                    self._profile, candidate.class_name, candidate.id)
+            if not self._active:
+                return
+            self._note_pending_output_locked(
+                candidate.last_seen.to_sec(), receipt)
+            if candidate.class_name != self._trial_specs[
+                    self._active]["class_name"]:
                 return
             if not candidate_is_currently_selectable(
                     candidate, candidate.header.stamp,
@@ -1497,7 +1540,6 @@ class VSim04TrialRecorder:
                 "receipt_monotonic": receipt,
                 "stable_id": int(candidate.id),
             }
-            self._note_pending_output_locked(event["source_stamp"], receipt)
             self._selected_events[self._active].append(event)
             frame = self._frame_locked(
                 event["stamp_key"], event["source_stamp"])
@@ -1643,6 +1685,12 @@ class VSim04TrialRecorder:
             context = copy.deepcopy(
                 terminal_context if terminal_context is not None
                 else self._terminal_context)
+            context["class_profile"] = self._profile
+            context["allowed_classes"] = sorted(self._allowed_classes)
+            context["candidate_audit_observations"] = copy.deepcopy(
+                self._candidate_audit_observations)
+            context["performance_contract"] = copy.deepcopy(
+                self._matrix.get("performance_contract", {}))
         return (manifest, frames, events, results, actual_fps,
                 actual_source_fps, context)
 
@@ -1685,9 +1733,14 @@ class VSim04TrialRecorder:
         expected_status = (
             "MEASURED" if self._evaluation_scope == "full" else
             "DIAGNOSTIC")
-        success = bool(summary and summary.get("status") == expected_status and
-                       not context["validation_errors"])
-        if not success and not context["validation_errors"]:
+        measurement_success = bool(
+            summary and summary.get("status") == expected_status and
+            not context["validation_errors"])
+        hard_performance_failure = bool(
+            summary and summary.get("performance_verdict", {}).get(
+                "hard_failure"))
+        success = measurement_success and not hard_performance_failure
+        if not measurement_success and not context["validation_errors"]:
             context["validation_errors"] = [
                 self._fatal_error or "recorder_finalization_failed"]
             with self._lock:
@@ -1699,7 +1752,13 @@ class VSim04TrialRecorder:
             self._final_summary_status = (
                 summary.get("status", "INVALID") if summary else "INVALID")
             if not success and not self._fatal_error:
-                self._fatal_error = "terminal_validation_failed"
+                if hard_performance_failure:
+                    reasons = summary["performance_verdict"].get(
+                        "hard_failure_reasons", [])
+                    self._fatal_error = "performance_hard_failure:" + ",".join(
+                        reasons)
+                else:
+                    self._fatal_error = "terminal_validation_failed"
         if success:
             rospy.loginfo(
                 "V-SIM-04 recorder finalized %s (%d/%d)",
@@ -1707,7 +1766,8 @@ class VSim04TrialRecorder:
                 self._expected_trial_count)
         else:
             rospy.logerr("V-SIM-04 recorder finalization failed: %s",
-                         "; ".join(context["validation_errors"]))
+                         "; ".join(context["validation_errors"]) or
+                         self._fatal_error or "unknown")
         self._publish_status()
 
     def _on_timer(self, _event):

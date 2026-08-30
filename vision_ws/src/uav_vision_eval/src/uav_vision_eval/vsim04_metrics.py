@@ -52,6 +52,10 @@ EVENT_FIELDS = [
 ]
 PERFORMANCE_FIELDS = [
     "trial_id", "kind", "class_name", "height_m", "speed_mps", "status",
+    "measurement_completeness_status", "artifact_set_complete",
+    "performance_verdict",
+    "performance_hard_failure", "performance_failure_reasons",
+    "performance_metric_failure_reasons",
     "p_confirm", "p_selected", "p_interrupt", "stable_id",
     "confirmation_exposure_sec", "confirmation_processing_ms",
     "confirmation_pipeline_ms", "processing_receipt_reordered",
@@ -83,12 +87,225 @@ PERFORMANCE_FIELDS = [
     "speed_group_completed_trials", "speed_group_p_confirm",
     "speed_group_p_selected", "speed_group_mean_actual_linear_speed_mps",
     "speed_group_p95_abs_normalized_lateral_offset",
+    "confirmed_observations", "unexpected_confirmed_observations",
+    "disallowed_confirmed_observations", "unique_confirmed_targets",
+    "policy_rejected_confirmed_observations",
+    "selected_observations", "unexpected_selected_observations",
+    "disallowed_selected_observations", "unique_selected_targets",
+    "policy_rejected_selected_observations",
+    "tank_confirmed_observations", "tank_selected_observations",
 ]
 REQUIRED_ARTIFACTS = (
     "manifest.json", "frames.csv", "events.csv", "summary.json",
     "report.md", "vision_search_performance.csv",
 )
 EXPECTED_TRIAL_COUNT = 23
+CONFIRMED_STATE = 2
+AUDIT_EVENT_KINDS = ("confirmed", "selected")
+
+
+def candidate_audit_observation(event_kind, class_name, stable_id,
+                                expected_class, allowed_classes,
+                                state=None, policy_selectable=False,
+                                trial_id="", source_stamp=None):
+    """Build one JSON-safe audit observation without filtering by class.
+
+    ``confirmed`` means the sticky target-memory state is CONFIRMED.  It does
+    not imply that the current observation is selectable.  ``selected`` is
+    recorded exactly as published, including malformed or disallowed values.
+    """
+    event_kind = str(event_kind).strip().lower()
+    if event_kind not in AUDIT_EVENT_KINDS:
+        raise ValueError("unsupported candidate audit event: " + event_kind)
+    class_name = str(class_name).strip()
+    expected_class = str(expected_class or "").strip()
+    try:
+        stable_id = int(stable_id)
+    except (TypeError, ValueError, OverflowError):
+        stable_id = -1
+    allowed = class_name in {str(value) for value in allowed_classes}
+    return {
+        "event_kind": event_kind,
+        "trial_id": str(trial_id or ""),
+        "class_name": class_name,
+        "stable_id": stable_id,
+        "state": None if state is None else int(state),
+        "expected_class": expected_class,
+        "unexpected": bool(expected_class and class_name != expected_class),
+        "allowed_by_profile": allowed,
+        "disallowed_by_profile": not allowed,
+        "policy_selectable": bool(policy_selectable),
+        "source_stamp": source_stamp,
+    }
+
+
+def candidate_audit_summary(observations, class_profile=""):
+    """Aggregate all confirmed/selected observations and unique identities."""
+    records = [dict(record) for record in (observations or [])]
+    summary = {
+        "class_profile": str(class_profile or ""),
+        "observation_count": len(records),
+        "unscoped_observation_count": sum(
+            not str(record.get("trial_id", "")) for record in records),
+        "by_class": {},
+        "trials": {},
+    }
+
+    def aggregate(subset):
+        values = {}
+        for event_kind in AUDIT_EVENT_KINDS:
+            matching = [record for record in subset
+                        if record.get("event_kind") == event_kind]
+            unique = sorted({
+                "{}:{}".format(record.get("class_name", ""),
+                               int(record.get("stable_id", -1)))
+                for record in matching
+            })
+            values[event_kind] = {
+                "observations": len(matching),
+                "unexpected_observations": sum(
+                    bool(record.get("unexpected")) for record in matching),
+                "disallowed_observations": sum(
+                    bool(record.get("disallowed_by_profile"))
+                    for record in matching),
+                "policy_rejected_observations": sum(
+                    not bool(record.get("policy_selectable"))
+                    for record in matching),
+                "tank_observations": sum(
+                    record.get("class_name") == "tank" for record in matching),
+                "unique_targets": unique,
+                "unique_target_count": len(unique),
+            }
+        return values
+
+    summary.update(aggregate(records))
+    classes = sorted({str(record.get("class_name", "")) for record in records
+                      if str(record.get("class_name", ""))})
+    summary["by_class"] = {
+        class_name: aggregate([
+            record for record in records
+            if record.get("class_name") == class_name
+        ]) for class_name in classes
+    }
+    trial_ids = sorted({str(record.get("trial_id", "")) for record in records
+                        if str(record.get("trial_id", ""))})
+    summary["trials"] = {
+        trial_id: aggregate([
+            record for record in records
+            if record.get("trial_id") == trial_id
+        ]) for trial_id in trial_ids
+    }
+    return summary
+
+
+def evaluate_performance_verdict(metrics, completeness_status,
+                                 evaluation_scope, candidate_audit,
+                                 contract=None):
+    """Evaluate only thresholds that an input contract explicitly freezes."""
+    contract = copy.deepcopy(contract or {})
+    thresholds = dict(contract.get("thresholds", {}))
+    unfrozen = sorted({str(value) for value in
+                       contract.get("unfrozen_thresholds", [])
+                       if str(value).strip()})
+    checks = []
+    failures = []
+    hard_failures = []
+
+    metric_specs = {
+        "max_p95_confirmation_processing_ms": (
+            "p95_confirmation_processing_ms", "max"),
+        "max_p95_map_error_xy_m": ("p95_map_error_xy", "max"),
+        "max_tf_failure_rate": ("tf_failure_rate", "max"),
+        "min_p_confirm": ("p_confirm", "min"),
+        "min_p_selected": ("p_selected", "min"),
+    }
+    for threshold_name, threshold_value in sorted(thresholds.items()):
+        if threshold_name not in metric_specs:
+            failures.append("unsupported_threshold:" + threshold_name)
+            continue
+        metric_name, operator = metric_specs[threshold_name]
+        actual = metrics.get(metric_name)
+        try:
+            threshold_value = float(threshold_value)
+            valid_threshold = math.isfinite(threshold_value)
+        except (TypeError, ValueError, OverflowError):
+            valid_threshold = False
+        passed = False
+        if not valid_threshold:
+            reason = "invalid_threshold:" + threshold_name
+        elif actual is None:
+            reason = "metric_missing:" + metric_name
+        else:
+            actual = float(actual)
+            passed = (actual <= threshold_value if operator == "max" else
+                      actual >= threshold_value)
+            reason = "" if passed else "threshold_failed:{}:{}:{}".format(
+                metric_name, actual, threshold_value)
+        checks.append({
+            "threshold": threshold_name,
+            "metric": metric_name,
+            "operator": operator,
+            "limit": threshold_value,
+            "actual": actual,
+            "passed": passed,
+            "failure_reason": reason,
+        })
+        if reason:
+            failures.append(reason)
+
+    selected = candidate_audit.get("selected", {})
+    disallowed_selected = int(selected.get("disallowed_observations", 0))
+    tank_selected = int(selected.get("tank_observations", 0))
+    policy_rejected_selected = int(
+        selected.get("policy_rejected_observations", 0))
+    if disallowed_selected:
+        hard_failures.append(
+            "disallowed_selected_observations:{}".format(disallowed_selected))
+    if str(candidate_audit.get("class_profile", "")) == "r2026" and tank_selected:
+        hard_failures.append(
+            "r2026_tank_selected_observations:{}".format(tank_selected))
+    if policy_rejected_selected:
+        hard_failures.append(
+            "selected_rejected_by_current_policy_observations:{}".format(
+                policy_rejected_selected))
+
+    eligible_statuses = {"MEASURED", "DIAGNOSTIC"}
+    if completeness_status not in eligible_statuses:
+        status = "NOT_EVALUATED"
+        reasons = ["measurement_not_complete:" + str(completeness_status)]
+    elif hard_failures:
+        status = "FAIL"
+        reasons = sorted(set(hard_failures + failures))
+    elif evaluation_scope == "diagnostic":
+        status = "DIAGNOSTIC_ONLY"
+        reasons = ["diagnostic_subset_not_gate"]
+    elif failures:
+        status = "FAIL"
+        reasons = sorted(set(failures))
+    elif not contract:
+        status = "NOT_GATED"
+        reasons = ["performance_contract_missing"]
+    elif unfrozen:
+        status = "NOT_GATED"
+        reasons = ["threshold_unfrozen:" + name for name in unfrozen]
+    else:
+        status = "PASS"
+        reasons = []
+    return {
+        "status": status,
+        "is_gate_pass": status == "PASS",
+        "hard_failure": bool(hard_failures),
+        "hard_failure_reasons": sorted(set(hard_failures)),
+        "failure_reasons": reasons,
+        "metric_failure_reasons": sorted(set(failures)),
+        "contract_id": str(contract.get("contract_id", "")),
+        "contract_sources": list(contract.get("sources", [])),
+        "threshold_checks": checks,
+        "unfrozen_thresholds": unfrozen,
+        "meaning": (
+            "Algorithm verdict; independent from artifact and measurement "
+            "completeness. Diagnostic subsets are never Gate PASS."),
+    }
 
 
 def _height_token(value):
@@ -109,6 +326,24 @@ def load_trial_matrix(path):
         raise ValueError("V-SIM-04 seed must be a fixed positive integer")
     profile_name, allowed = resolve_class_profile(matrix.get("class_profile", ""))
     matrix["class_profile"] = profile_name
+    contract = matrix.get("performance_contract", {})
+    if not isinstance(contract, dict):
+        raise ValueError("performance_contract must be a mapping")
+    thresholds = contract.get("thresholds", {})
+    if not isinstance(thresholds, dict):
+        raise ValueError("performance_contract thresholds must be a mapping")
+    for name, value in thresholds.items():
+        try:
+            valid = math.isfinite(float(value)) and float(value) >= 0.0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+            raise ValueError("invalid performance threshold: " + str(name))
+    unfrozen = contract.get("unfrozen_thresholds", [])
+    if not isinstance(unfrozen, list) or any(
+            not str(value).strip() for value in unfrozen):
+        raise ValueError(
+            "performance_contract unfrozen_thresholds must be a list")
     trials = expand_trial_matrix(matrix)
     forbidden = sorted({trial["class_name"] for trial in trials} - set(allowed))
     if forbidden:
@@ -848,6 +1083,7 @@ def decorate_performance_rows(rows, breakdowns):
 
 def summarize_trial_results(results, run_mode, actual_fps=None,
                             terminal_context=None):
+    terminal_context = dict(terminal_context or {})
     finalized = [finalize_trial_result(result) for result in results]
     breakdowns = build_metric_breakdowns(results)
     completed = [result for result in finalized
@@ -907,13 +1143,11 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
     tf_failure_frames = sum(int(result.get("tf_failure_frames", 0))
                             for result in results
                             if result.get("status") == "completed")
-    validation_errors = list(
-        (terminal_context or {}).get("validation_errors", []))
-    terminal_complete = (terminal_context or {}).get("run_complete", False)
-    evaluation_scope = str(
-        (terminal_context or {}).get("evaluation_scope", "full"))
+    validation_errors = list(terminal_context.get("validation_errors", []))
+    terminal_complete = terminal_context.get("run_complete", False)
+    evaluation_scope = str(terminal_context.get("evaluation_scope", "full"))
     if terminal_complete:
-        expected_count = (terminal_context or {}).get(
+        expected_count = terminal_context.get(
             "expected_trial_count", EXPECTED_TRIAL_COUNT)
         if evaluation_scope not in {"full", "diagnostic"}:
             validation_errors.append("evaluation_scope_invalid")
@@ -954,6 +1188,72 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
                              for result in completed
                              if result.get("failure_stage")})
     }
+    metrics = {
+        "p_confirm": (
+            sum(bool(result.get("p_confirm")) for result in completed) /
+            float(len(completed)) if completed else None),
+        "p_selected": (
+            sum(bool(result.get("p_selected")) for result in completed) /
+            float(len(completed)) if completed else None),
+        "p_interrupt": None,
+        "p_interrupt_reason": "visual_only_no_navigation_acceptance_event",
+        "stage_frame_rates": {
+            field.replace("_frames", "_rate"): _ratio(
+                count, eligible_frames)
+            for field, count in stage_frame_counts.items()
+        },
+        "failure_stage_counts": failure_stage_counts,
+        "median_confirmation_exposure_sec": (
+            statistics.median(confirmation_exposure)
+            if confirmation_exposure else None),
+        "p95_confirmation_exposure_sec": percentile(
+            confirmation_exposure, 95),
+        "p95_confirmation_processing_ms": percentile(
+            confirmation_processing, 95),
+        "p95_confirmation_pipeline_ms": percentile(
+            confirmation_pipeline, 95),
+        "p95_detector_inference_ms": percentile(detector_inference, 95),
+        "p95_detector_processing_ms": percentile(detector_processing, 95),
+        "complete_mapped_rate": _ratio(
+            complete_mapped_frames, mapped_bucket_frames),
+        "map_invalid_rate": _ratio(
+            max(0, detection_frames - map_valid_frames), detection_frames),
+        "map_unavailable_rate": _ratio(
+            max(0, eligible_frames - map_valid_frames), eligible_frames),
+        "tf_failure_rate": _ratio(tf_failure_frames, detection_frames),
+        "mean_map_error_xy": (
+            statistics.mean(raw_map_errors) if raw_map_errors else None),
+        "p95_map_error_xy": percentile(raw_map_errors, 95),
+        "actual_image_fps": actual_fps,
+        "actual_image_source_fps": terminal_context.get(
+            "actual_image_source_fps"),
+        "mean_actual_linear_speed_mps": (
+            statistics.mean(linear_speed) if linear_speed else None),
+        "p95_actual_linear_speed_mps": percentile(linear_speed, 95),
+        "mean_abs_actual_yaw_rate_radps": (
+            statistics.mean(yaw_rate) if yaw_rate else None),
+        "p95_abs_actual_yaw_rate_radps": percentile(yaw_rate, 95),
+        "mean_abs_normalized_lateral_offset": (
+            statistics.mean(lateral_offset) if lateral_offset else None),
+        "p95_abs_normalized_lateral_offset": percentile(
+            lateral_offset, 95),
+    }
+    audit = candidate_audit_summary(
+        terminal_context.get("candidate_audit_observations", []),
+        terminal_context.get("class_profile", ""))
+    performance_verdict = evaluate_performance_verdict(
+        metrics, status, evaluation_scope, audit,
+        terminal_context.get("performance_contract"))
+    completeness = {
+        "status": status,
+        "run_complete": bool(terminal_complete),
+        "trial_count": len(finalized),
+        "completed_trial_count": len(completed),
+        "validation_errors": validation_errors,
+        "meaning": (
+            "Artifact/schema and trial measurement completeness only; "
+            "MEASURED is not an algorithm performance PASS."),
+    }
     return {
         "schema_version": 1,
         "evaluation_id": "V-SIM-04",
@@ -963,60 +1263,16 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         "trial_count": len(finalized),
         "completed_trial_count": len(completed),
         "validation_errors": validation_errors,
-        "metrics": {
-            "p_confirm": (
-                sum(bool(result.get("p_confirm")) for result in completed) /
-                float(len(completed)) if completed else None),
-            "p_selected": (
-                sum(bool(result.get("p_selected")) for result in completed) /
-                float(len(completed)) if completed else None),
-            "p_interrupt": None,
-            "p_interrupt_reason": "visual_only_no_navigation_acceptance_event",
-            "stage_frame_rates": {
-                field.replace("_frames", "_rate"): _ratio(
-                    count, eligible_frames)
-                for field, count in stage_frame_counts.items()
-            },
-            "failure_stage_counts": failure_stage_counts,
-            "median_confirmation_exposure_sec": (
-                statistics.median(confirmation_exposure)
-                if confirmation_exposure else None),
-            "p95_confirmation_exposure_sec": percentile(
-                confirmation_exposure, 95),
-            "p95_confirmation_processing_ms": percentile(
-                confirmation_processing, 95),
-            "p95_confirmation_pipeline_ms": percentile(
-                confirmation_pipeline, 95),
-            "p95_detector_inference_ms": percentile(
-                detector_inference, 95),
-            "p95_detector_processing_ms": percentile(
-                detector_processing, 95),
-            "complete_mapped_rate": _ratio(
-                complete_mapped_frames, mapped_bucket_frames),
-            "map_invalid_rate": _ratio(
-                max(0, detection_frames - map_valid_frames),
-                detection_frames),
-            "map_unavailable_rate": _ratio(
-                max(0, eligible_frames - map_valid_frames), eligible_frames),
-            "tf_failure_rate": _ratio(tf_failure_frames, detection_frames),
-            "mean_map_error_xy": (
-                statistics.mean(raw_map_errors) if raw_map_errors else None),
-            "p95_map_error_xy": percentile(raw_map_errors, 95),
-            "actual_image_fps": actual_fps,
-            "actual_image_source_fps": (terminal_context or {}).get(
-                "actual_image_source_fps"),
-            "mean_actual_linear_speed_mps": (
-                statistics.mean(linear_speed) if linear_speed else None),
-            "p95_actual_linear_speed_mps": percentile(linear_speed, 95),
-            "mean_abs_actual_yaw_rate_radps": (
-                statistics.mean(yaw_rate) if yaw_rate else None),
-            "p95_abs_actual_yaw_rate_radps": percentile(yaw_rate, 95),
-            "mean_abs_normalized_lateral_offset": (
-                statistics.mean(lateral_offset)
-                if lateral_offset else None),
-            "p95_abs_normalized_lateral_offset": percentile(
-                lateral_offset, 95),
+        "completeness": completeness,
+        "performance_verdict": performance_verdict,
+        "candidate_audit": audit,
+        "artifact_completeness": {
+            "required": list(REQUIRED_ARTIFACTS),
+            "present": [],
+            "missing": list(REQUIRED_ARTIFACTS),
+            "complete": False,
         },
+        "metrics": metrics,
         "metric_denominators": {
             "completed_trials": len(completed),
             "eligible_frames": eligible_frames,
@@ -1155,15 +1411,27 @@ def _report(summary):
     metrics = summary["metrics"]
     denominators = summary["metric_denominators"]
     validation = summary.get("validation_errors", [])
-    validation_label = (
-        "PASS" if summary["status"] == "MEASURED" else
-        summary["status"] + (
-            ": " + "; ".join(validation) if validation else ""))
+    completeness = summary["completeness"]
+    artifacts = summary["artifact_completeness"]
+    verdict = summary["performance_verdict"]
+    audit = summary["candidate_audit"]
     lines = [
         "# V-SIM-04 Vision Search Performance",
         "",
         "- Run mode: `{}`".format(summary["run_mode"]),
         "- Evaluation scope: `{}`".format(summary["evaluation_scope"]),
+        "- Artifact set complete: `{}` (missing: `{}`)".format(
+            artifacts["complete"], artifacts["missing"]),
+        "- Measurement completeness: `{}`".format(
+            completeness["status"]),
+        "- Algorithm performance verdict: `{}` (Gate PASS: `{}`)".format(
+            verdict["status"], verdict["is_gate_pass"]),
+        "- Performance verdict reasons: `{}`".format(
+            verdict["failure_reasons"]),
+        "- Frozen-threshold findings: `{}`".format(
+            verdict["metric_failure_reasons"]),
+        "- Performance hard failures: `{}`".format(
+            verdict["hard_failure_reasons"]),
         "- Completed trials: `{}/{}`".format(
             summary["completed_trial_count"], summary["trial_count"]),
         "- P_confirm: `{}`".format(metrics["p_confirm"]),
@@ -1223,8 +1491,21 @@ def _report(summary):
         "- Mean/P95 absolute normalized lateral offset: `{}` / `{}`".format(
             metrics["mean_abs_normalized_lateral_offset"],
             metrics["p95_abs_normalized_lateral_offset"]),
-        "- Terminal validation: `{}`".format(
-            validation_label),
+        "- Confirmed audit (all/unexpected/disallowed/policy-rejected/tank): "
+        "`{}/{}/{}/{}/{}`".format(
+            audit["confirmed"]["observations"],
+            audit["confirmed"]["unexpected_observations"],
+            audit["confirmed"]["disallowed_observations"],
+            audit["confirmed"]["policy_rejected_observations"],
+            audit["confirmed"]["tank_observations"]),
+        "- Selected audit (all/unexpected/disallowed/policy-rejected/tank): "
+        "`{}/{}/{}/{}/{}`".format(
+            audit["selected"]["observations"],
+            audit["selected"]["unexpected_observations"],
+            audit["selected"]["disallowed_observations"],
+            audit["selected"]["policy_rejected_observations"],
+            audit["selected"]["tank_observations"]),
+        "- Terminal validation errors: `{}`".format(validation),
         "",
         "## Semantics",
         "",
@@ -1234,8 +1515,12 @@ def _report(summary):
         "stamps; processing time uses a monotonic wall clock. Map-invalid and "
         "TF-failure rates are reported separately from map error.",
         "",
-        "A dry run validates only matrix and artifact schemas; a diagnostic "
-        "subset isolates failures. Neither is a Gate PASS.",
+        "MEASURED means that the formal trial set and artifacts are complete; "
+        "it is not an algorithm PASS. A dry run validates only matrix and "
+        "artifact schemas; a diagnostic subset isolates failures. Neither is "
+        "a Gate PASS. Confirmed/selected audit counts include every class "
+        "published during the session; r2026 tank selection and every other "
+        "profile-disallowed selection are hard failures.",
         "",
     ]
     breakdowns = summary.get("breakdowns", {})
@@ -1267,20 +1552,88 @@ def write_artifacts(output_dir, manifest, frame_rows, event_rows, results,
         "evaluation_scope", manifest.get("evaluation_scope", "full"))
     manifest["actual_image_fps"] = actual_fps
     manifest["actual_image_source_fps"] = actual_source_fps
-    manifest["terminal_validation"] = terminal_context or {
-        "run_complete": False, "validation_errors": []}
+    manifest["terminal_validation"] = {
+        key: copy.deepcopy(terminal_context.get(key)) for key in (
+            "run_complete", "expected_trial_count", "evaluation_scope",
+            "validation_errors") if key in terminal_context
+    }
     _atomic_json(os.path.join(output_dir, "manifest.json"), manifest)
     _write_csv(os.path.join(output_dir, "frames.csv"), FRAME_FIELDS, frame_rows)
     _write_csv(os.path.join(output_dir, "events.csv"), EVENT_FIELDS, event_rows)
-    _atomic_json(os.path.join(output_dir, "summary.json"), summary)
+    audit_trials = summary["candidate_audit"]["trials"]
+    performance_rows = []
+    for result in summary["trials"]:
+        row = dict(result)
+        trial_audit = audit_trials.get(result.get("trial_id", ""), {})
+        confirmed = trial_audit.get("confirmed", {})
+        selected = trial_audit.get("selected", {})
+        row.update({
+            "measurement_completeness_status": summary[
+                "completeness"]["status"],
+            "artifact_set_complete": True,
+            "performance_verdict": summary["performance_verdict"]["status"],
+            "performance_hard_failure": summary["performance_verdict"][
+                "hard_failure"],
+            "performance_failure_reasons": json.dumps(
+                summary["performance_verdict"]["failure_reasons"],
+                sort_keys=True),
+            "performance_metric_failure_reasons": json.dumps(
+                summary["performance_verdict"]["metric_failure_reasons"],
+                sort_keys=True),
+            "confirmed_observations": confirmed.get("observations", 0),
+            "unexpected_confirmed_observations": confirmed.get(
+                "unexpected_observations", 0),
+            "disallowed_confirmed_observations": confirmed.get(
+                "disallowed_observations", 0),
+            "policy_rejected_confirmed_observations": confirmed.get(
+                "policy_rejected_observations", 0),
+            "unique_confirmed_targets": confirmed.get(
+                "unique_target_count", 0),
+            "selected_observations": selected.get("observations", 0),
+            "unexpected_selected_observations": selected.get(
+                "unexpected_observations", 0),
+            "disallowed_selected_observations": selected.get(
+                "disallowed_observations", 0),
+            "policy_rejected_selected_observations": selected.get(
+                "policy_rejected_observations", 0),
+            "unique_selected_targets": selected.get("unique_target_count", 0),
+            "tank_confirmed_observations": confirmed.get(
+                "tank_observations", 0),
+            "tank_selected_observations": selected.get(
+                "tank_observations", 0),
+        })
+        performance_rows.append(row)
     performance_rows = decorate_performance_rows(
-        summary["trials"], summary.get("breakdowns", {}))
+        performance_rows, summary.get("breakdowns", {}))
     _write_csv(
         os.path.join(output_dir, "vision_search_performance.csv"),
         PERFORMANCE_FIELDS, performance_rows)
     report_path = os.path.join(output_dir, "report.md")
     temporary = "{}.tmp.{}.{}".format(
         report_path, os.getpid(), uuid.uuid4().hex)
+    try:
+        with open(temporary, "w", encoding="utf-8") as stream:
+            stream.write(_report(summary))
+        os.replace(temporary, report_path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+    present = sorted(name for name in REQUIRED_ARTIFACTS
+                     if os.path.isfile(os.path.join(output_dir, name)))
+    # summary.json is intentionally committed last and is part of this atomic
+    # write transaction, so include it in the final inventory before writing.
+    if "summary.json" not in present:
+        present.append("summary.json")
+        present.sort()
+    missing = sorted(set(REQUIRED_ARTIFACTS) - set(present))
+    summary["artifact_completeness"] = {
+        "required": list(REQUIRED_ARTIFACTS),
+        "present": present,
+        "missing": missing,
+        "complete": not missing,
+    }
+    _atomic_json(os.path.join(output_dir, "summary.json"), summary)
+    # Refresh the human report with the final artifact inventory.
     try:
         with open(temporary, "w", encoding="utf-8") as stream:
             stream.write(_report(summary))
@@ -1312,6 +1665,16 @@ def dry_run_artifacts(matrix_path, output_dir, metadata=None):
         "camera_info": (metadata or {}).get("camera_info"),
         "extrinsic_profile": (metadata or {}).get("extrinsic_profile", ""),
         "revisions": (metadata or {}).get("revisions", {}),
+        "performance_contract": copy.deepcopy(
+            matrix.get("performance_contract", {})),
     }
     return write_artifacts(
-        output_dir, manifest, [], events, results, "dry_run", None)
+        output_dir, manifest, [], events, results, "dry_run", None,
+        terminal_context={
+            "run_complete": False,
+            "evaluation_scope": "full",
+            "expected_trial_count": len(matrix["trials"]),
+            "validation_errors": [],
+            "class_profile": matrix["class_profile"],
+            "performance_contract": matrix.get("performance_contract", {}),
+        })

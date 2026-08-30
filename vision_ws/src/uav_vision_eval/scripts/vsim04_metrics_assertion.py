@@ -9,18 +9,22 @@ import shutil
 import sys
 import tempfile
 import time
+import traceback
 
 from uav_vision_eval.vsim04_metrics import (
     REQUIRED_ARTIFACTS,
     FRAME_FIELDS,
     PERFORMANCE_FIELDS,
     annotate_motion_frames,
+    candidate_audit_observation,
+    candidate_audit_summary,
     classify_failure_stage,
     completed_sources_cover,
     call_with_monotonic_deadline,
     correlate_admission_events,
     decorate_performance_rows,
     detector_diagnostic_errors,
+    evaluate_performance_verdict,
     handshake_timeout_is_safe,
     dry_run_artifacts,
     load_trial_matrix,
@@ -29,6 +33,7 @@ from uav_vision_eval.vsim04_metrics import (
     select_trial_matrix,
     summarize_trial_results,
     watermarks_cover_source_stamp,
+    write_artifacts,
 )
 from uav_vision_eval.stamped_pose_buffer import StampedPoseBuffer
 
@@ -278,8 +283,14 @@ def main():
         terminal_context={"run_complete": True,
                           "expected_trial_count": 23,
                           "validation_errors": [],
+                          "class_profile": "r2026",
+                          "performance_contract": matrix[
+                              "performance_contract"],
                           "actual_image_source_fps": 30.0})
     assert terminal_summary["status"] == "MEASURED"
+    assert terminal_summary["completeness"]["status"] == "MEASURED"
+    assert terminal_summary["performance_verdict"]["status"] == "FAIL"
+    assert not terminal_summary["performance_verdict"]["is_gate_pass"]
     assert terminal_summary["evaluation_scope"] == "full"
     assert terminal_summary["metrics"]["actual_image_source_fps"] == 30.0
     assert terminal_summary["metrics"]["complete_mapped_rate"] == 0.5
@@ -337,9 +348,95 @@ def main():
         terminal_context={"run_complete": True,
                           "expected_trial_count": 2,
                           "evaluation_scope": "diagnostic",
-                          "validation_errors": []})
+                          "validation_errors": [],
+                          "class_profile": "r2026",
+                          "performance_contract": matrix[
+                              "performance_contract"]})
     assert diagnostic_summary["status"] == "DIAGNOSTIC"
     assert diagnostic_summary["completed_trial_count"] == 2
+    assert diagnostic_summary["performance_verdict"]["status"] == (
+        "DIAGNOSTIC_ONLY")
+    assert diagnostic_summary["performance_verdict"]["failure_reasons"] == [
+        "diagnostic_subset_not_gate"]
+    assert diagnostic_summary["performance_verdict"][
+        "metric_failure_reasons"]
+
+    audit_observations = [
+        candidate_audit_observation(
+            "confirmed", "tent", 1, "tent",
+            {"tent", "panzer", "red_cross"}, state=2,
+            policy_selectable=True, trial_id=trials[0]["trial_id"]),
+        candidate_audit_observation(
+            "confirmed", "panzer", 2, "tent",
+            {"tent", "panzer", "red_cross"}, state=2,
+            policy_selectable=True, trial_id=trials[0]["trial_id"]),
+        candidate_audit_observation(
+            "confirmed", "tank", 3, "tent",
+            {"tent", "panzer", "red_cross"}, state=2,
+            policy_selectable=False, trial_id=trials[0]["trial_id"]),
+        candidate_audit_observation(
+            "selected", "panzer", 2, "tent",
+            {"tent", "panzer", "red_cross"}, state=2,
+            policy_selectable=True, trial_id=trials[0]["trial_id"]),
+        candidate_audit_observation(
+            "selected", "tent", 4, "tent",
+            {"tent", "panzer", "red_cross"}, state=2,
+            policy_selectable=False, trial_id=trials[0]["trial_id"]),
+        candidate_audit_observation(
+            "selected", "tank", 3, "",
+            {"tent", "panzer", "red_cross"}, state=2,
+            policy_selectable=False, trial_id=""),
+    ]
+    audit = candidate_audit_summary(audit_observations, "r2026")
+    assert audit["confirmed"]["observations"] == 3
+    assert audit["confirmed"]["unexpected_observations"] == 2
+    assert audit["confirmed"]["disallowed_observations"] == 1
+    assert audit["confirmed"]["tank_observations"] == 1
+    assert audit["selected"]["observations"] == 3
+    assert audit["selected"]["unexpected_observations"] == 1
+    assert audit["selected"]["disallowed_observations"] == 1
+    assert audit["selected"]["tank_observations"] == 1
+    assert audit["selected"]["policy_rejected_observations"] == 2
+    assert audit["unscoped_observation_count"] == 1
+    assert audit["trials"][trials[0]["trial_id"]]["selected"][
+        "unexpected_observations"] == 1
+
+    contract = matrix["performance_contract"]
+    hard_verdict = evaluate_performance_verdict(
+        {"p_confirm": 1.0, "p_selected": 1.0,
+         "p95_confirmation_processing_ms": 100.0,
+         "p95_map_error_xy": 0.1, "tf_failure_rate": 0.0},
+        "MEASURED", "full", audit, contract)
+    assert hard_verdict["status"] == "FAIL"
+    assert hard_verdict["hard_failure"]
+    assert any(reason.startswith("disallowed_selected_observations:")
+               for reason in hard_verdict["hard_failure_reasons"])
+    assert any(reason.startswith("r2026_tank_selected_observations:")
+               for reason in hard_verdict["hard_failure_reasons"])
+    assert any(reason.startswith(
+        "selected_rejected_by_current_policy_observations:")
+        for reason in hard_verdict["hard_failure_reasons"])
+
+    clean_audit = candidate_audit_summary([], "r2026")
+    not_gated = evaluate_performance_verdict(
+        {"p_confirm": 1.0, "p_selected": 1.0,
+         "p95_confirmation_processing_ms": 100.0,
+         "p95_map_error_xy": 0.1, "tf_failure_rate": 0.0},
+        "MEASURED", "full", clean_audit, contract)
+    assert not_gated["status"] == "NOT_GATED"
+    assert not not_gated["is_gate_pass"]
+    assert sorted(not_gated["failure_reasons"]) == [
+        "threshold_unfrozen:max_tf_failure_rate",
+        "threshold_unfrozen:min_p_confirm",
+        "threshold_unfrozen:min_p_selected",
+    ]
+    diagnostic_hard = evaluate_performance_verdict(
+        {}, "DIAGNOSTIC", "diagnostic", audit, contract)
+    assert diagnostic_hard["status"] == "FAIL"
+    assert diagnostic_hard["hard_failure"]
+    incomplete_verdict = evaluate_performance_verdict(
+        {}, "INCOMPLETE", "full", clean_audit, contract)
+    assert incomplete_verdict["status"] == "NOT_EVALUATED"
 
     # selected may arrive at the recorder before /targets because ROS does not
     # order different topic connections.  Correlation must use ID + two clocks,
@@ -414,6 +511,9 @@ def main():
         assert summary["trial_count"] == 23
         assert summary["completed_trial_count"] == 0
         assert summary["status"] == "DRY_RUN"
+        assert summary["completeness"]["status"] == "DRY_RUN"
+        assert summary["performance_verdict"]["status"] == "NOT_EVALUATED"
+        assert summary["artifact_completeness"]["complete"]
         assert summary["metrics"]["p_interrupt"] is None
         for artifact in REQUIRED_ARTIFACTS:
             assert os.path.isfile(os.path.join(output_dir, artifact)), artifact
@@ -441,12 +541,71 @@ def main():
         assert "## Breakdown by class" in report
         assert "## Breakdown by height" in report
         assert "## Breakdown by requested speed" in report
+        assert all(row["measurement_completeness_status"] == "DRY_RUN"
+                   for row in rows)
+        assert all(row["artifact_set_complete"] == "True" for row in rows)
+        assert all(row["performance_verdict"] == "NOT_EVALUATED"
+                   for row in rows)
         with open(os.path.join(output_dir, "frames.csv"),
                   "r", encoding="utf-8") as stream:
             frame_reader = csv.DictReader(stream)
             assert frame_reader.fieldnames == FRAME_FIELDS
     finally:
         shutil.rmtree(output_dir)
+
+    audit_output = tempfile.mkdtemp(prefix="vsim04_audit_schema_")
+    try:
+        audit_result = planned_trial_result(trials[0])
+        audit_result.update({
+            "status": "completed",
+            "p_confirm": True,
+            "p_selected": False,
+            "entered_fully_in_frame": True,
+            "left_fully_in_frame": True,
+            "eligible_frames": 1,
+            "detection_frames": 1,
+            "map_valid_frames": 1,
+            "map_errors_xy": [0.1],
+            "confirmation_processing_ms": 100.0,
+        })
+        audit_summary = write_artifacts(
+            audit_output, {"class_profile": "r2026"}, [], [],
+            [audit_result], "unit", actual_fps=20.0,
+            terminal_context={
+                "run_complete": True,
+                "evaluation_scope": "diagnostic",
+                "expected_trial_count": 1,
+                "validation_errors": [],
+                "class_profile": "r2026",
+                "candidate_audit_observations": audit_observations,
+                "performance_contract": contract,
+            }, actual_source_fps=20.0)
+        assert audit_summary["status"] == "DIAGNOSTIC"
+        assert audit_summary["performance_verdict"]["status"] == "FAIL"
+        assert audit_summary["candidate_audit"]["selected"][
+            "disallowed_observations"] == 1
+        with open(os.path.join(
+                audit_output, "vision_search_performance.csv"),
+                "r", encoding="utf-8") as stream:
+            audit_rows = list(csv.DictReader(stream))
+        assert len(audit_rows) == 1
+        assert audit_rows[0]["unexpected_confirmed_observations"] == "2"
+        assert audit_rows[0]["disallowed_confirmed_observations"] == "1"
+        assert audit_rows[0]["unexpected_selected_observations"] == "1"
+        # The tank selection was deliberately emitted outside the trial and
+        # remains visible in the run-level summary/hard verdict, not this row.
+        assert audit_rows[0]["disallowed_selected_observations"] == "0"
+        assert audit_rows[0][
+            "policy_rejected_selected_observations"] == "1"
+        assert audit_rows[0]["performance_hard_failure"] == "True"
+        assert audit_rows[0]["performance_metric_failure_reasons"] == "[]"
+        with open(os.path.join(audit_output, "report.md"),
+                  "r", encoding="utf-8") as stream:
+            report = stream.read()
+        assert "Measurement completeness: `DIAGNOSTIC`" in report
+        assert "Algorithm performance verdict: `FAIL`" in report
+    finally:
+        shutil.rmtree(audit_output)
     print("V-SIM-04 matrix/artifact schema PASS")
 
 
@@ -456,4 +615,5 @@ if __name__ == "__main__":
     except Exception as error:
         print("V-SIM-04 matrix/artifact schema FAIL: {}".format(error),
               file=sys.stderr)
+        traceback.print_exc()
         sys.exit(1)

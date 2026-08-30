@@ -186,6 +186,8 @@ case "${SCENE}" in
     VSIM04_DIR="${RUN_DIR}/vsim04"
     VSIM04_SUMMARY="${VSIM04_DIR}/summary.json"
     VSIM04_STATUS=""
+    VSIM04_PERFORMANCE_VERDICT=""
+    VSIM04_PERFORMANCE_HARD_FAILURE=""
     VSIM04_EXPECTED_STATUS="MEASURED"
     case "${SCENE}" in
       vsim04_diag*) VSIM04_EXPECTED_STATUS="DIAGNOSTIC" ;;
@@ -199,12 +201,26 @@ case "${SCENE}" in
     done
     if [ -f "${VSIM04_SUMMARY}" ]; then
       VSIM04_STATUS="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("status", ""))' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_PERFORMANCE_VERDICT="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("performance_verdict", {}).get("status", ""))' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_PERFORMANCE_HARD_FAILURE="$(python3 -c 'import json,sys; print(str(json.load(open(sys.argv[1], encoding="utf-8")).get("performance_verdict", {}).get("hard_failure", False)).lower())' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
     fi
     echo "V-SIM-04 status: ${VSIM04_STATUS:-MISSING} (expected ${VSIM04_EXPECTED_STATUS})" | tee -a "${RUN_LOG}"
+    echo "V-SIM-04 performance verdict: ${VSIM04_PERFORMANCE_VERDICT:-MISSING} (hard_failure=${VSIM04_PERFORMANCE_HARD_FAILURE:-unknown})" | tee -a "${RUN_LOG}"
     if [ -n "${VSIM04_MISSING}" ]; then
       echo "V-SIM-04 missing artifacts:${VSIM04_MISSING}" | tee -a "${RUN_LOG}"
     fi
     if [ "${VSIM04_STATUS}" != "${VSIM04_EXPECTED_STATUS}" ] || [ -n "${VSIM04_MISSING}" ]; then
+      EXIT_CODE=1
+    fi
+    if [ "${VSIM04_PERFORMANCE_HARD_FAILURE}" = "true" ]; then
+      EXIT_CODE=1
+    fi
+    if [ "${VSIM04_EXPECTED_STATUS}" = "MEASURED" ] && \
+       [ "${VSIM04_PERFORMANCE_VERDICT}" != "PASS" ]; then
+      EXIT_CODE=1
+    fi
+    if [ "${VSIM04_EXPECTED_STATUS}" = "DIAGNOSTIC" ] && \
+       [ "${VSIM04_PERFORMANCE_VERDICT}" != "DIAGNOSTIC_ONLY" ]; then
       EXIT_CODE=1
     fi
     if [ "${VSIM04_CAPTURE_REQUESTED}" = "1" ]; then
