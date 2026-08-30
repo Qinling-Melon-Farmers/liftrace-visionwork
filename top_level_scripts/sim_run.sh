@@ -16,6 +16,18 @@ set -u
 SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOGS_DIR="${PROJECT_ROOT}/logs"
+export PROJECT_ROOT
+export VISION_WS="${VISION_WS:-${PROJECT_ROOT}/vision_ws}"
+if [ -z "${UAV_WS:-}" ]; then
+  if [ -f "${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/devel/setup.bash" ]; then
+    export UAV_WS="${PROJECT_ROOT}/patrol_uav_ws-patrol_planner"
+  else
+    # A git worktree normally has no copied build/devel products.  Reuse the
+    # integration workspace only as a compiled underlay; source packages below
+    # are still forced to this worktree.
+    export UAV_WS="${LIFTRACE_INTEGRATION_WS:-/home/xhj/liftrace/patrol_uav_ws-patrol_planner}"
+  fi
+fi
 
 # WSL may inherit Windows Anaconda paths even when invoked non-interactively.
 # Keep ROS command wrappers on the Ubuntu system Python before sourcing overlays.
@@ -27,11 +39,13 @@ set +u
 if [ -z "${ROS_DISTRO:-}" ] && [ -f /opt/ros/noetic/setup.bash ]; then
   source /opt/ros/noetic/setup.bash
 fi
-if [ -f "${PROJECT_ROOT}/vision_ws/devel/setup.bash" ]; then
-  source "${PROJECT_ROOT}/vision_ws/devel/setup.bash"
+if [ -f "${UAV_WS}/devel/setup.bash" ]; then
+  source "${UAV_WS}/devel/setup.bash"
 fi
-if [ -f "${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/devel/setup.bash" ]; then
-  source "${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/devel/setup.bash"
+if [ -f "${VISION_WS}/devel/setup.bash" ]; then
+  # Keep the compiled integration workspace available, but make the current
+  # feature worktree the highest-priority visual overlay.
+  source "${VISION_WS}/devel/setup.bash" --extend
 fi
 set -u
 

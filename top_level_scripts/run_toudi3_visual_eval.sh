@@ -6,6 +6,15 @@ set -euo pipefail
 
 script_dir=$(cd -- "${BASH_SOURCE[0]%/*}" && pwd -P)
 project_root="${script_dir%/*}"
+export PROJECT_ROOT="${PROJECT_ROOT:-${project_root}}"
+export VISION_WS="${VISION_WS:-${project_root}/vision_ws}"
+if [[ -z "${UAV_WS:-}" ]]; then
+  if [[ -f "${project_root}/patrol_uav_ws-patrol_planner/devel/setup.bash" ]]; then
+    export UAV_WS="${project_root}/patrol_uav_ws-patrol_planner"
+  else
+    export UAV_WS="${LIFTRACE_INTEGRATION_WS:-/home/xhj/liftrace/patrol_uav_ws-patrol_planner}"
+  fi
+fi
 scenario="${1:-standard}"
 duration_sec="${2:-20}"
 gate_profile="${4:-smoke}"
