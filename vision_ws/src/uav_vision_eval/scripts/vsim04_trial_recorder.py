@@ -31,6 +31,7 @@ from uav_vision_eval.vsim04_metrics import (
     REQUIRED_ARTIFACTS,
     STAGE_COUNT_FIELDS,
     STANDARD_CLASSES,
+    VISUAL_ONLY_INTERRUPT_REASON,
     annotate_motion_frames,
     CONFIRMED_STATE,
     candidate_audit_observation,
@@ -39,6 +40,8 @@ from uav_vision_eval.vsim04_metrics import (
     detector_diagnostic_errors,
     load_trial_matrix,
     motion_frame_sort_key,
+    navigation_metrics_metadata,
+    navigation_drain_ready,
     planned_trial_result,
     quaternion_yaw,
     select_trial_matrix,
@@ -125,6 +128,8 @@ class VSim04TrialRecorder:
         self._event_seq = 0
         self._status_seq = 0
         self._events = []
+        self._navigation_decisions = []
+        self._navigation_results = []
         self._frames = OrderedDict()
         self._truth_centers = {}
         self._mapped_points = {}
@@ -187,6 +192,26 @@ class VSim04TrialRecorder:
         self._infra_gaps = []
         self._infra_gap_keys = set()
         self._pending_trial_end = None
+        self._navigation_metrics = navigation_metrics_metadata(
+            rospy.get_param("~navigation_metrics_mode", "visual_only"))
+        self._navigation_decision_topic = str(rospy.get_param(
+            "~navigation_decision_topic",
+            "/navigation/mission_command_raw")).strip()
+        self._navigation_result_topic = str(rospy.get_param(
+            "~navigation_result_topic",
+            "/navigation/mission_result")).strip()
+        self._navigation_late_result_quiet_sec = float(rospy.get_param(
+            "~navigation_late_result_quiet_sec", 0.5))
+        self._navigation_late_result_timeout_sec = float(rospy.get_param(
+            "~navigation_late_result_timeout_sec", 3.0))
+        self._last_navigation_receipt = None
+        self._pending_navigation_finalize = None
+        self._navigation_callbacks_frozen = False
+        if self._navigation_metrics["mode"] != "visual_only" and (
+                not self._navigation_decision_topic or
+                not self._navigation_result_topic):
+            raise ValueError(
+                "typed navigation metrics require both navigation topics")
 
         model_value = str(rospy.get_param("~model_path", "")).strip()
         model_path = (os.path.abspath(os.path.expanduser(model_value))
@@ -232,6 +257,10 @@ class VSim04TrialRecorder:
                 "heartbeat_timeout_sec": self._heartbeat_timeout,
                 "output_drain_timeout_sec": self._output_drain_timeout,
                 "output_quiet_sec": self._output_quiet_sec,
+                "navigation_late_result_quiet_sec":
+                    self._navigation_late_result_quiet_sec,
+                "navigation_late_result_timeout_sec":
+                    self._navigation_late_result_timeout_sec,
                 "status_period_sec": self._status_period,
                 "priorities": dict(self._priorities),
             },
@@ -280,6 +309,13 @@ class VSim04TrialRecorder:
                     self._required_completed_sources),
                 "stage_trace_enabled": self._enable_stage_trace,
             },
+            "navigation_metrics": {
+                **copy.deepcopy(self._navigation_metrics),
+                "exact_binding_key": [
+                    "mission_id", "decision_seq", "target_id",
+                    "target_first_seen", "attempt", "payload_slot"],
+                "trial_binding_field": "target_observation_stamp",
+            },
             "topics": {
                 "trial_event": rospy.get_param(
                     "~trial_event_topic",
@@ -310,6 +346,8 @@ class VSim04TrialRecorder:
                     "/uav_vision_eval/camera_pose"),
                 "perf": rospy.get_param(
                     "~perf_topic", "/uav_vision/perf"),
+                "navigation_decision": self._navigation_decision_topic,
+                "navigation_result": self._navigation_result_topic,
             },
         }
         static_errors = self._static_manifest_errors()
@@ -358,6 +396,20 @@ class VSim04TrialRecorder:
         rospy.Subscriber(
             self._manifest["topics"]["perf"], DiagnosticArray,
             self._on_perf, queue_size=10)
+        if self._navigation_metrics["mode"] != "visual_only":
+            try:
+                from uav_mission.msg import (  # pylint: disable=import-outside-toplevel
+                    NavigationDecision, NavigationResult)
+            except ImportError as error:
+                raise RuntimeError(
+                    "typed navigation metrics require uav_mission messages"
+                ) from error
+            rospy.Subscriber(
+                self._navigation_decision_topic, NavigationDecision,
+                self._on_navigation_decision, queue_size=40)
+            rospy.Subscriber(
+                self._navigation_result_topic, NavigationResult,
+                self._on_navigation_result, queue_size=40)
         self._timer = rospy.Timer(
             rospy.Duration(self._status_period), self._on_timer)
         rospy.on_shutdown(self._on_shutdown)
@@ -464,7 +516,8 @@ class VSim04TrialRecorder:
                 "standard_geometry_confidence", "cross_class_confidence",
                 "cross_geometry_confidence", "max_latest_tf_age_sec",
                 "heartbeat_timeout_sec", "output_drain_timeout_sec",
-                "output_quiet_sec", "status_period_sec"):
+                "output_quiet_sec", "navigation_late_result_quiet_sec",
+                "navigation_late_result_timeout_sec", "status_period_sec"):
             value = thresholds.get(name)
             try:
                 valid = value is not None and math.isfinite(float(value))
@@ -478,10 +531,16 @@ class VSim04TrialRecorder:
             errors.append("threshold_selected_max_age_sec_out_of_range")
         if float(thresholds.get("heartbeat_timeout_sec", 0.0) or 0.0) <= 0.0:
             errors.append("threshold_heartbeat_timeout_sec_out_of_range")
-        for name in ("output_drain_timeout_sec", "output_quiet_sec",
-                     "status_period_sec"):
+        for name in (
+                "output_drain_timeout_sec", "output_quiet_sec",
+                "navigation_late_result_quiet_sec",
+                "navigation_late_result_timeout_sec", "status_period_sec"):
             if float(thresholds.get(name, 0.0) or 0.0) <= 0.0:
                 errors.append("threshold_{}_out_of_range".format(name))
+        if (self._navigation_late_result_timeout_sec <
+                self._navigation_late_result_quiet_sec):
+            errors.append(
+                "threshold_navigation_late_result_timeout_before_quiet")
         for name in (
                 "detector_class_confidence", "standard_class_confidence",
                 "standard_geometry_confidence", "cross_class_confidence",
@@ -761,6 +820,8 @@ class VSim04TrialRecorder:
             "expected_trial_count": self._expected_trial_count,
             "infra_gap_count": len(self._infra_gaps),
             "pending_trial_end": bool(self._pending_trial_end),
+            "pending_navigation_finalize": bool(
+                self._pending_navigation_finalize),
             "abort_event_seq": self._abort_event_seq,
             "stamp": rospy.Time.now().to_sec(),
             "monotonic_sec": time.monotonic(),
@@ -794,7 +855,16 @@ class VSim04TrialRecorder:
                         raise RuntimeError("run_complete while trial is active")
                     self._run_complete = True
                     self._add_event_locked("run_complete", details=event)
-                    finalize_after = True
+                    if self._navigation_metrics["mode"] == "visual_only":
+                        self._navigation_callbacks_frozen = True
+                        finalize_after = True
+                    else:
+                        requested = time.monotonic()
+                        self._pending_navigation_finalize = {
+                            "requested_monotonic": requested,
+                            "last_receipt_at_request":
+                                self._last_navigation_receipt,
+                        }
                 elif event_name == "run_abort":
                     aborted_trial = self._active
                     if aborted_trial:
@@ -848,7 +918,22 @@ class VSim04TrialRecorder:
             "p_confirm": False,
             "p_selected": False,
             "p_interrupt": None,
+            "p_decision": None,
+            "p_dispatch": None,
+            "p_planner_arrival": None,
+            "p_interrupt_reason": (
+                VISUAL_ONLY_INTERRUPT_REASON
+                if self._navigation_metrics["mode"] == "visual_only" else
+                self._navigation_metrics["reason"]),
+            "navigation_metrics_mode": self._navigation_metrics["mode"],
+            "navigation_target_stage_capability": self._navigation_metrics[
+                "target_stage_capability"],
+            "navigation_metrics_reason": self._navigation_metrics["reason"],
+            "navigation_binding_keys": "[]",
+            "navigation_validation_errors": "[]",
             "stable_id": None,
+            "selected_target_first_seen_ns": None,
+            "selected_target_observation_stamps_ns": [],
             "confirmation_exposure_sec": None,
             "confirmation_processing_ms": None,
             "confirmation_pipeline_ms": None,
@@ -1491,6 +1576,7 @@ class VSim04TrialRecorder:
                     "stamp_key": candidate.last_seen.to_nsec(),
                     "receipt_monotonic": receipt,
                     "stable_id": int(candidate.id),
+                    "target_first_seen_ns": candidate.first_seen.to_nsec(),
                 }
                 self._candidate_events[self._active].append(event)
                 frame = self._frame_locked(
@@ -1540,6 +1626,7 @@ class VSim04TrialRecorder:
                 "stamp_key": candidate.last_seen.to_nsec(),
                 "receipt_monotonic": receipt,
                 "stable_id": int(candidate.id),
+                "target_first_seen_ns": candidate.first_seen.to_nsec(),
             }
             self._selected_events[self._active].append(event)
             frame = self._frame_locked(
@@ -1548,7 +1635,100 @@ class VSim04TrialRecorder:
             frame["stable_id"] = int(candidate.id)
             self._add_event_locked(
                 "candidate_selected_observed", event["source_stamp"],
-                candidate.id, receipt_monotonic=receipt)
+                candidate.id, receipt_monotonic=receipt,
+                details={
+                    "target_first_seen_ns": candidate.first_seen.to_nsec(),
+                })
+
+    def _on_navigation_decision(self, message):
+        receipt = time.monotonic()
+        record = {
+            "schema_version": int(message.schema_version),
+            "mission_id": str(message.mission_id),
+            "decision_seq": int(message.decision_seq),
+            "header_seq": int(message.header.seq),
+            "header_stamp_ns": message.header.stamp.to_nsec(),
+            "header_frame_id": str(message.header.frame_id),
+            "deadline_ns": message.deadline.to_nsec(),
+            "command": int(message.command),
+            "class_profile": str(message.class_profile),
+            "has_goal": bool(message.has_goal),
+            "has_target": bool(message.has_target),
+            "target_id": int(message.target_id),
+            "target_first_seen_ns": message.target_first_seen.to_nsec(),
+            "target_observation_stamp_ns":
+                message.target_observation_stamp.to_nsec(),
+            "target_class": str(message.target_class),
+            "attempt": int(message.attempt),
+            "payload_slot": int(message.payload_slot),
+            "goal_stamp_ns": message.goal.header.stamp.to_nsec(),
+            "goal_frame_id": str(message.goal.header.frame_id),
+            "goal_x": float(message.goal.pose.position.x),
+            "goal_y": float(message.goal.pose.position.y),
+            "goal_z": float(message.goal.pose.position.z),
+            "goal_qx": float(message.goal.pose.orientation.x),
+            "goal_qy": float(message.goal.pose.orientation.y),
+            "goal_qz": float(message.goal.pose.orientation.z),
+            "goal_qw": float(message.goal.pose.orientation.w),
+            "reason": str(message.reason),
+            "receipt_monotonic": receipt,
+        }
+        with self._lock:
+            if self._finalized or self._navigation_callbacks_frozen:
+                return
+            self._last_navigation_receipt = receipt
+            record["trial_id_at_receipt"] = self._active or ""
+            self._navigation_decisions.append(record)
+            self._note_pending_output_locked(
+                message.header.stamp.to_sec(), receipt)
+            self._add_event_locked(
+                "navigation_decision_observed",
+                message.header.stamp.to_sec(),
+                message.target_id if message.has_target else None,
+                details=record, receipt_monotonic=receipt,
+                class_name=message.target_class if message.has_target else "")
+
+    def _on_navigation_result(self, message):
+        receipt = time.monotonic()
+        record = {
+            "schema_version": int(message.schema_version),
+            "mission_id": str(message.mission_id),
+            "executor_id": str(message.executor_id),
+            "event_seq": int(message.event_seq),
+            "decision_seq": int(message.decision_seq),
+            "header_seq": int(message.header.seq),
+            "header_stamp_ns": message.header.stamp.to_nsec(),
+            "header_frame_id": str(message.header.frame_id),
+            "command": int(message.command),
+            "status": int(message.status),
+            "stage": int(message.stage),
+            "terminal": bool(message.terminal),
+            "retryable": bool(message.retryable),
+            "payload_committed": bool(message.payload_committed),
+            "has_target": bool(message.has_target),
+            "target_id": int(message.target_id),
+            "target_first_seen_ns": message.target_first_seen.to_nsec(),
+            "target_class": str(message.target_class),
+            "attempt": int(message.attempt),
+            "payload_slot": int(message.payload_slot),
+            "reason": str(message.reason),
+            "evidence_source": str(message.evidence_source),
+            "receipt_monotonic": receipt,
+        }
+        with self._lock:
+            if self._finalized or self._navigation_callbacks_frozen:
+                return
+            self._last_navigation_receipt = receipt
+            record["trial_id_at_receipt"] = self._active or ""
+            self._navigation_results.append(record)
+            self._note_pending_output_locked(
+                message.header.stamp.to_sec(), receipt)
+            self._add_event_locked(
+                "navigation_result_observed",
+                message.header.stamp.to_sec(),
+                message.target_id if message.has_target else None,
+                details=record, receipt_monotonic=receipt,
+                class_name=message.target_class if message.has_target else "")
 
     def _actual_fps_locked(self):
         duration = (
@@ -1699,6 +1879,16 @@ class VSim04TrialRecorder:
                 self._candidate_audit_observations)
             context["performance_contract"] = copy.deepcopy(
                 self._matrix.get("performance_contract", {}))
+            context["navigation_metrics_mode"] = self._navigation_metrics[
+                "mode"]
+            context["navigation_decision_topic"] = \
+                self._navigation_decision_topic
+            context["navigation_result_topic"] = \
+                self._navigation_result_topic
+            context["navigation_decision_records"] = copy.deepcopy(
+                self._navigation_decisions)
+            context["navigation_result_records"] = copy.deepcopy(
+                self._navigation_results)
         return (manifest, frames, events, results, actual_fps,
                 actual_source_fps, context)
 
@@ -1708,7 +1898,9 @@ class VSim04TrialRecorder:
             try:
                 return write_artifacts(
                     self._output_dir, snapshot[0], snapshot[1], snapshot[2],
-                    snapshot[3], "ros_visual_only", snapshot[4], snapshot[6],
+                    snapshot[3], "ros_{}".format(
+                        self._navigation_metrics["mode"]),
+                    snapshot[4], snapshot[6],
                     snapshot[5])
             except Exception as error:
                 with self._lock:
@@ -1719,6 +1911,9 @@ class VSim04TrialRecorder:
 
     def _finalize_run(self):
         with self._lock:
+            if self._finalized:
+                return
+            self._navigation_callbacks_frozen = True
             errors = self._terminal_errors_locked()
             context = {
                 "run_complete": True,
@@ -1780,14 +1975,44 @@ class VSim04TrialRecorder:
 
     def _on_timer(self, _event):
         write_after = False
+        finalize_after = False
         with self._lock:
             self._record_current_missing_locked()
             write_after = self._maybe_finish_pending_locked()
+            finalize_after = self._maybe_finish_navigation_finalize_locked()
         if write_after:
             self._write_artifacts_safe()
+        if finalize_after:
+            self._finalize_run()
         self._publish_status()
 
+    def _maybe_finish_navigation_finalize_locked(self):
+        pending = self._pending_navigation_finalize
+        if pending is None:
+            return False
+        now = time.monotonic()
+        ready, timed_out = navigation_drain_ready(
+            now, pending["requested_monotonic"],
+            self._last_navigation_receipt,
+            self._navigation_late_result_quiet_sec,
+            self._navigation_late_result_timeout_sec)
+        if not ready:
+            return False
+        self._navigation_callbacks_frozen = True
+        self._pending_navigation_finalize = None
+        self._add_event_locked(
+            "navigation_late_result_drain_complete",
+            details={
+                "timed_out": timed_out,
+                "elapsed_sec": now - pending["requested_monotonic"],
+                "decision_event_count": len(self._navigation_decisions),
+                "result_event_count": len(self._navigation_results),
+            })
+        return True
+
     def _on_shutdown(self):
+        with self._lock:
+            self._navigation_callbacks_frozen = True
         self._write_artifacts_safe()
 
 

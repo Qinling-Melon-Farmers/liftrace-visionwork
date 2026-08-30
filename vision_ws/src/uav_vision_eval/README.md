@@ -16,8 +16,14 @@
 - `P_confirm`：目标从完整入画到离开期间，`/targets` 出现满足当前连续帧、地图、关联、
   拒绝原因、年龄和 profile 完整准入的候选；
 - `P_selected`：上述同一个 stable ID 在离开前发布到 `/selected_target`；
-- `P_interrupt`：visual-only 固定为 `null`，只有导航 adapter 实际接受同 ID 并发生
-  `SEARCH→APPROACH` 才能评分，不能用 selected 代替；
+- `P_decision`：同一 selected 物理目标出现 schema/profile/deadline 合法的 typed
+  `APPROACH` decision，且 decision 的 target observation stamp 必须属于该 trial 内实际
+  selected 观测；`P_dispatch` 另需同一完整键的 `ACCEPTED/DISPATCH`；
+  `P_planner_arrival` 另需 `PROGRESS/PLANNER + reason=approach_arrival_confirmed`。
+  三种执行证据都必须严格早于 decision 的排他 deadline；
+- `P_interrupt`：`visual_only` 和 `typed_contract` 固定为 `null`；只有显式启用
+  `target_stage` capability 后，同一完整键的 `STARTED/CAPTURE` 才能置 true。
+  selected、decision、dispatch、planner arrival 均不得替代该事件；
 - `confirmation_exposure_sec` 使用图像/仿真源时间；`confirmation_processing_ms` 使用
   monotonic 墙钟；若 recorder 的图像回调晚于候选回调则显式记录 receipt reorder 并把该样本
   作为 0 ms 下界，不再因跨话题回调顺序丢样本。地图无效、TF 失败和地图误差分别报告。
@@ -33,8 +39,8 @@
 CameraInfo、相机模型/RPY、内嵌场景/真值模型/anchor catalog、外参来源、视觉/导航 revision、
 轨迹期望/实测时长与速度，以及 monotonic 接收 FPS 和图像源/仿真时间 FPS。
 `summary.json` 与 `report.md` 同时按类别、高度和请求速度给出分层统计；
-`vision_search_performance.csv` 仍保持一 trial 一行、原字段顺序不变，仅在尾部追加当前 trial
-所属三类分组的统计列，便于直接比较 `sparse30` 各层结果。
+`vision_search_performance.csv` 仍保持一 trial 一行；历史字段顺序不变，所有导航指标也只在
+尾部追加。分组统计便于直接比较 `sparse30` 各层结果。
 `summary.json`/report/性能 CSV 明确分开 artifact set、trial measurement completeness 和
 algorithm performance verdict：`MEASURED` 只表示正式测量完整，不等于性能 PASS。当前只按
 已冻结合同检查处理 P95 `<=200 ms` 和地图误差 P95 `<=0.25 m`；P_confirm、P_selected 与
@@ -56,6 +62,31 @@ complete bucket 才能推进 mapped heartbeat 和离场 watermark，complete buc
 23/23 trial 均真实进入并离开完整入画窗口、六项产物齐全且 manifest 关键值非空时才写
 `MEASURED`；部分运行写 `INCOMPLETE/INVALID`，runner 非零退出。
 
+### 可选 typed 导航事件
+
+`vsim04_stability.launch` 的 `navigation_metrics_mode` 支持：
+
+- `visual_only`（默认）：不导入导航消息、不订阅导航话题，历史进程图和 CSV 兼容；
+- `typed_contract`：订阅 `/navigation/mission_command_raw` 的
+  `uav_mission/NavigationDecision` 与 `/navigation/mission_result` 的
+  `uav_mission/NavigationResult`，记录 decision/dispatch/planner arrival，仍令
+  `P_interrupt=null`；
+- `target_stage`：在 typed 合同之上声明 executor 能提供 target-stage，只有
+  `STARTED/CAPTURE` 可形成 `P_interrupt`。
+
+decision 与 result 必须按
+`mission_id + decision_seq + target_id + target_first_seen + attempt + payload_slot`
+完整关联（`target_id=0` 合法，是否有目标由 `has_target` 决定）。相同 wire event 重传会
+幂等去重；相同 decision identity 的不同内容、相同 executor `event_seq` 的不同内容和乱序
+都会记为合同错误且乱序事件不参与评分。deadline 是导航 core 的排他 action lease：
+dispatch、planner arrival、capture 任一事件时间达到或越过 deadline 都不计对应指标；晚到的
+payload committed 事实未来可单独记录，但不得替代这三项。recorder 在生成每次 snapshot 时重新
+做纯函数关联；typed 模式收到 `run_complete` 后还会等待有界 quiet/timeout late-result drain，
+随后在锁内冻结导航回调再生成终态快照。因此 trial 结束后的 result 可回填原 trial，同时
+target observation stamp 防止同一 stable ID 跨高度/速度 trial 重复计分。`visual_only` 继续
+立即终态化，并保留历史 `P_interrupt` reason token。manifest、summary、report 均写明 mode、
+target-stage capability 和原因。
+
 ## 无 Gazebo schema 验证
 
 在仓库根目录执行：
@@ -68,6 +99,8 @@ source /home/xhj/liftrace/vision_ws/devel/setup.bash
 python vision_ws/src/uav_vision_eval/scripts/vsim04_dry_run.py \
   --matrix vision_ws/src/uav_vision_eval/config/vsim04_trial_matrix.yaml \
   --output-dir /tmp/uav_vision_eval/vsim04_dry_run
+
+python vision_ws/src/uav_vision_eval/scripts/vsim04_navigation_metrics_assertion.py
 ```
 
 dry-run 只证明矩阵为 15+8 且六类产物 schema 可生成，报告明确不是 Gate PASS。

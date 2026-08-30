@@ -53,6 +53,12 @@ def main():
     }.issubset(set(FRAME_FIELDS))
     assert PERFORMANCE_FIELDS.index("actual_speed_mps") < \
         PERFORMANCE_FIELDS.index("class_group_completed_trials")
+    assert PERFORMANCE_FIELDS[-9:] == [
+        "navigation_metrics_mode", "navigation_target_stage_capability",
+        "navigation_metrics_reason", "p_decision", "p_dispatch",
+        "p_planner_arrival", "p_interrupt_reason",
+        "navigation_binding_keys", "navigation_validation_errors",
+    ]
     assert quaternion_yaw(0.0, 0.0, 0.0, 1.0) == 0.0
     assert quaternion_yaw(0.0, 0.0, 0.0, 0.0) is None
     half_yaw = 0.5 * 1.2
@@ -617,6 +623,12 @@ def main():
             REQUIRED_ARTIFACTS)
         assert summary["artifact_completeness"]["missing"] == []
         assert summary["metrics"]["p_interrupt"] is None
+        assert summary["metrics"]["p_decision"] is None
+        assert summary["metrics"]["p_dispatch"] is None
+        assert summary["metrics"]["p_planner_arrival"] is None
+        assert summary["navigation_metrics"]["mode"] == "visual_only"
+        assert not summary["navigation_metrics"][
+            "target_stage_capability"]
         for artifact in REQUIRED_ARTIFACTS:
             artifact_path = os.path.join(output_dir, artifact)
             assert os.path.isfile(artifact_path), artifact
@@ -626,6 +638,7 @@ def main():
             manifest = json.load(stream)
         assert manifest["seed"] == 11
         assert manifest["class_profile"] == "r2026"
+        assert manifest["navigation_metrics"]["mode"] == "visual_only"
         assert len(manifest["trials"]) == 23
         with open(os.path.join(output_dir, "events.csv"),
                   "r", encoding="utf-8") as stream:
@@ -645,6 +658,8 @@ def main():
         assert "## Breakdown by class" in report
         assert "## Breakdown by height" in report
         assert "## Breakdown by requested speed" in report
+        assert "- P_decision: `null`" in report
+        assert "- P_interrupt: `null`" in report
         assert all(row["measurement_completeness_status"] == "DRY_RUN"
                    for row in rows)
         assert all(row["artifact_set_complete"] == "True" for row in rows)
