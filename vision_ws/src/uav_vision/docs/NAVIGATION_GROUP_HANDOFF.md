@@ -103,3 +103,52 @@ ZIP 根目录 `reference_integration/` 包含阶段 4 使用的消息草案、�
 
 尚未验收：搜索后的末端对准误差收敛、三次投递、30-seed、OrangePi ROS 相机/TF 和实机。
 仿真结果不能描述为 RKNN 板端验收。
+
+## 7. 2026-08-30 profile 与候选准入补充
+
+导航消费者必须同时记录 `class_profile`：
+
+- `full` 保留 `tank/tent/pillbox/bridge/panzer/red_cross` 资产和历史回归；
+- `r2026` 只准入 `tent/pillbox/bridge/panzer/red_cross`；
+- tank 的资产、权重和 raw 误检诊断不删除，但 `r2026` refiner 不让 tank 消耗蓝环
+  一对一关联，其 `association_valid=false`、拒绝原因为
+  `class_profile_disallowed`；
+- `r2026` operational selected/accepted 中 tank 必须为 0，但 raw 诊断中出现 tank
+  不等于资产或分类表应删除。
+
+该 profile 修正不会生成模型未检出的类别。相同 seed、默认 640 的
+`pillbox@3.6 m` 复跑仍为 `raw_classifier`、`P_confirm=P_selected=0`，因此不得
+将该改动描述成高空 pillbox 召回修复，也不改默认 640 工作点。
+
+## 8. 当前 V-SIM-04 交付边界
+
+13/23 和 20/23 是 2026-08-29/30 的阶段快照。当前补充运行为：
+
+- formal seed=11：23/23 完整，`P_confirm=P_selected=22/23`，终态
+  `MEASURED/NOT_GATED`；
+- static diagnostic：25/25 完整，`P_confirm=P_selected=24/25`；
+- sparse-speed diagnostic：30/30 完整，`P_confirm=P_selected=25/30`。
+
+三组均为 visual-only，`P_interrupt=null`。`P_selected` 不是导航接受，更不是任务中断。
+导航只能在同一 stable ID 已 accepted、adapter 实际 `SEARCH→APPROACH`、并发布
+`MissionCommand.APPROACH` 时计数。这些单 seed 结果在采用门槛与有效重复数冻结前，
+不是比赛漏失概率或联合 Gate PASS。
+
+## 9. 导航任务层需要返回的最小合同
+
+视觉输出是观测和提案，导航/任务层必须对同一 stable ID 返回可重放的生命周期：
+
+1. `candidate_accepted` 和 `approach_started`；
+2. 分阶段 `result`，区分抵近不可达、捕获/对准超时、释放拒绝和投递成功；
+3. `retry_scheduled/retry_exhausted`，包含 retryable、attempt 和冷却终点；
+4. 持久队列摘要，区分 `pending/cooldown/executing/terminal`；
+5. 剩余时间、第三投优先、停止覆盖、返航余量和超时终止决策。
+
+每个 accepted/result/retry 事件至少携带 event sequence、stable ID、class、profile、
+前后状态、reason、attempt 和 source stamp。导航决策必须显式携带 stable ID，不得在
+相邻目标下仅靠空间距离反推。持久队列、重试与剩余时间调度属导航/任务层，
+不在视觉 adapter 中复制实现。
+
+截至 2026-08-30 再次 fetch，导航远程 `main` 仍为 `a68925d`（仅地图实验），正式
+manager 仍为 `5144aa8`，上述任务生命周期尚未交付。V-CL-06 A/B 仍 FAIL，
+`a68925d` 不推广，600 s 三投 Gate 尚未启动。
