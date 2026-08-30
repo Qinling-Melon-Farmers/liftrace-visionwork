@@ -1,6 +1,6 @@
 # 视觉迁移与发布 Gate
 
-更新时间：2026-08-30
+更新时间：2026-08-31
 
 本文件只记录 2025 旧视觉链迁移到 `uav_vision` 的通过状态，不维护任务优先级。执行顺序和指标见 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)。
 
@@ -112,7 +112,15 @@
   schema-v3 已通过 mock 与真实 diagnostic；r2026 下 tank/disallowed/policy-rejected selected=0；
 - [~] pillbox 3.6 m 的 1280 diagnostic 恢复 P_confirm，但共视 bridge 被 selected、
   P_selected=0 且 processing P95=449.3 ms，超过 200 ms；保持 640 默认，不推广 1280；
-- [ ] L2 10 min 无崩溃、积压或时间戳异常；
+- [x] L2 laptop/Gazebo camera-only 10 min：
+  `logs/vsim04_soak600b_seed11_20260831_011055/` 连续 wall 600.024 s，六产物完整、errors=[]，
+  输入/完整 mapped 15.019/13.336 FPS，59 个完整健康窗口坏 streak 均为 0，tank/disallowed/stale
+  selected 为 0，`P_interrupt=null`；该项只覆盖合成 D435i + 笔记本 Ultralytics，不覆盖
+  OrangePi/RKNN、新实物相机、随机场或导航/控制链；
+- [~] 六个已知边界点已用固定 seed=11 独立重复三次，三次编排均 exit 0、配置一致并完整收口；
+  bridge/panzer 低空 2 m/s 均 0/3，pillbox 低空 2 m/s 2/3、高空 0.5 m/s 1/3、高空
+  2 m/s 0/3，静态 pillbox 3.6 m 0/3。重复聚合总 FAIL 是 `DIAGNOSTIC_ONLY` 语义，非编排
+  失败；结果不支持把 2 m/s 或 3.6 m 承诺为通用工作点；
 - [ ] 30-seed 报告已归档。
 
 ## Gate M7：实拍与板端

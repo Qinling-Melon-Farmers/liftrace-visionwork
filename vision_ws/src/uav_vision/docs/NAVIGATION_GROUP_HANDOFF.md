@@ -178,3 +178,31 @@ ZIP 根目录 `reference_integration/` 包含阶段 4 使用的消息草案、�
 截至 2026-08-30 再次 fetch，导航远程 `main` 仍为 `a68925d`（仅地图实验），正式
 manager 仍为 `5144aa8`，上述任务生命周期尚未交付。V-CL-06 A/B 仍 FAIL，
 `a68925d` 不推广，600 s 三投 Gate 尚未启动。
+
+## 10. 2026-08-31 可消费工作域与稳定性更新
+
+视觉侧最新稳定性证据是
+`logs/vsim04_soak600b_seed11_20260831_011055/`：vision
+`8b3b88cd321469e3b61b6127ec2574d770848109`，wall/source 600.024/564.863 s，输入/完整
+mapped 15.019/13.336 FPS，六产物完整、errors=[]。`P_interrupt=null`；该入口没有启动
+导航、控制或执行机构。它只覆盖固定五目标、不含 tank 的 Gazebo 合成 D435i + 笔记本
+Ultralytics，不是 OrangePi/RKNN、新实物相机、随机场或联合三投证据。run 名含 seed11，
+但 soak manifest 没有 seed 字段；tank selected=0 只说明这条路线未选中 tank。
+
+六个边界 trial 在同 revision、同固定 seed=11 下各独立重复三次，聚合为
+`logs/vsim04_repeat_aggregate_boundary6-seed11-r3-final-307ac5c4/`。bridge/panzer 低空
+2 m/s 均 0/3；pillbox 低空 2 m/s 2/3；pillbox 3.6 m 在 0.5/2.0 m/s 分别 1/3、0/3；
+静态 pillbox 3.6 m 0/3。三次源 run 均 exit 0、配置一致、完整 `DIAGNOSTIC_ONLY`；聚合
+FAIL 是诊断语义，不是编排失败，也不是多 seed 统计。
+
+导航消费建议据此收紧：默认 imgsz=640 不变，不把 2 m/s 作为所有类别通用搜索速度，不把
+3.6 m 作为当前保证识别航高；先冻结更保守航高/航速及 capture 半径，再请求视觉在其邻域
+补多 seed 和横偏。视觉算法、模型、阈值本轮未变，formal23/static25/sparse30 不重跑，
+引用时保留原 revision。
+
+截至 2026-08-31，导航远程仍仅
+`main@a68925d15293e5510e2b4351c6b3d9bc5aa136ab`、无 branch/tag，manager 仍为
+`5144aa8f536bdcd214aea2f39ada558383b3bcb0`；联动分支 `8255aa4` 已是当前性能分支
+HEAD 的祖先。accepted/result/retry、持久队列和剩余时间调度仍未交付，V-CL-06 A/B 仍 FAIL，
+导航 600 秒三投未启动。下一联合测试必须等导航 feature revision 补齐这些生命周期事件后
+再测真实 `P_interrupt`；`P_selected` 仍不得代替接受或中断。

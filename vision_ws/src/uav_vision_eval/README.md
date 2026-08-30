@@ -174,8 +174,8 @@ MAVROS、旧控制、`actuator_pwm` 或真实投递。历史合并态
   P95=449.3 ms，超过 200 ms。该 A/B 不推广，默认继续使用 640。
 
 上述 formal/static/sparse 均为单 seed 一次覆盖，不能据此估计概率；visual-only 的
-P_interrupt 仍为 `null`。当前先对 raw classifier/target-memory admission 边界做重复和尺度归因，
-再执行 10 min，采用门槛冻结前不扩 30-seed。
+P_interrupt 仍为 `null`。2026-08-31 已完成 raw classifier/target-memory admission 六个边界点
+固定 seed 重复和 camera-only 10 min，结果见本文末尾；采用门槛冻结前仍不扩 30-seed。
 
 ## 边界点独立重复与跨 run 聚合
 
@@ -309,3 +309,55 @@ pose 误差、完整映射吞吐或 selected 准入门槛。
 ```bash
 python3 vision_ws/src/uav_vision_eval/scripts/vsim04_soak_assertion.py
 ```
+
+## 2026-08-31 最终实跑证据与适用边界
+
+### Camera-only 600 秒
+
+正式 run 为：
+
+```text
+logs/vsim04_soak600b_seed11_20260831_011055/
+```
+
+- 视觉 revision：`8b3b88cd321469e3b61b6127ec2574d770848109`；导航来源字段仍冻结为
+  `5144aa8f536bdcd214aea2f39ada558383b3bcb0`，但本入口没有启动导航；
+- `SOAK_600S_MEASURED`、wall 600.024 s、ROS source 564.863 s、六产物非空、
+  `artifact_set_complete=true`、`errors=[]`、`P_interrupt=null`；
+- 输入 9012 帧（15.019 FPS），complete mapped 8002 帧（13.336 FPS），partial bucket 1003；
+- 59 个完整 10 s 健康窗口：input 9.906–19.549 FPS、complete mapped 7.730–17.969 FPS、
+  最大 lag 0.207–0.587 s、partial 比例 2.312%–24.837%，四类坏窗口 streak 始终为 0；
+- 各必需流最大 heartbeat gap 为 0.1346–0.4478 s；实际相机位姿 10289 条，最大路线跟随误差
+  0.0782 m、相对起始姿态漂移 0；有效真值 9010 条、有效投影 3668 条、完整入画 1756 条；
+- selected 共记录 1702 次（panzer 756、red_cross 942、tent 4），这里是状态重复发布次数，
+  不是 1702 个独立目标；最大 selected age 0.467 s，tank/disallowed/stale selected 均为 0。
+
+该 PASS 只关闭“固定五目标、不含 tank、Gazebo 合成 D435i、笔记本 Ultralytics 的 camera-only
+视觉链 10 min”项。run 名含 `seed11`，但 soak manifest 没有 seed 字段，场景也不是随机场；
+tank=0 只说明本路线没有选中 tank。它不证明 OrangePi/RKNN、新实物相机、导航接受、
+`SEARCH→APPROACH`、三投、返航或落地，不能写成 V-CL-06 PASS。
+
+### 六个边界点三次独立重复
+
+聚合目录：
+
+```text
+logs/vsim04_repeat_aggregate_boundary6-seed11-r3-final-307ac5c4/
+```
+
+三次源 run 均 `exit_code=0`、六产物与 terminal measurement 完整、配置一致，源 verdict 均为
+`DIAGNOSTIC_ONLY`。聚合的 `is_gate_pass=false` 是预期诊断语义，不是 wrapper、Gazebo 或产物
+编排失败。三次重复始终复用 matrix 的固定 `seed=11`，`repeats_are_multi_seed=false`。
+
+| 边界 trial | `P_confirm/P_selected` 成功次数 | 当前结论 |
+| --- | ---: | --- |
+| `dynamic_bridge_h1p2_v2p0` | 0/3 | 低空 2 m/s 不准入 |
+| `dynamic_panzer_h1p2_v2p0` | 0/3 | 低空 2 m/s 不准入；一轮 map P95 0.305 m |
+| `dynamic_pillbox_h1p2_v2p0` | 2/3 | 存在运行波动，不能承诺稳定工作点 |
+| `dynamic_pillbox_h3p6_v0p5` | 1/3 | 高空低速仍不稳定 |
+| `dynamic_pillbox_h3p6_v2p0` | 0/3 | 高空高速不可采用 |
+| `static_pillbox_h3p6` | 0/3 | 三次均停在 `raw_classifier` |
+
+因此当前默认继续使用 imgsz 640，不把 2 m/s 作为跨类别通用速度，也不承诺 3.6 m 工作域。
+本轮只改评测/稳定性工具，算法、模型和阈值没有变化，所以没有重跑
+`formal23/static25/sparse30`；引用这些历史结果时必须同时保留其原运行目录和 revision 边界。
