@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert a validated V-SIM-04 schema-v2 capture into a YOLO dataset.
+"""Convert a validated V-SIM-04 schema-v3 capture into a YOLO dataset.
 
 The converter groups splits by trial, never by frame, and labels the union of
 the active truth target and every fully visible co-scene target.  Classes not
@@ -60,8 +60,8 @@ def detector_classes(metadata_path):
 
 def validate_capture(payload, capture_root):
     validate_capture_manifest(payload, str(capture_root))
-    if payload.get("schema_version") != 2:
-        raise ValueError("capture manifest schema_version must be 2")
+    if payload.get("schema_version") != 3:
+        raise ValueError("capture manifest schema_version must be 3")
     if payload.get("dataset_kind") != "sim-small-target":
         raise ValueError("unexpected capture dataset_kind")
     if payload.get("status") != "DIAGNOSTIC":
