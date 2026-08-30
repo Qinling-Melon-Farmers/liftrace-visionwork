@@ -33,6 +33,7 @@ def validate_soak_config(config):
         "min_input_fps", "min_complete_mapped_fps",
         "service_call_timeout_sec", "node_check_timeout_sec",
         "max_camera_pose_age_sec", "max_camera_pose_error_m",
+        "max_camera_orientation_drift_rad",
     )
     for name in positive:
         result[name] = finite_positive(result.get(name), name)
@@ -111,6 +112,32 @@ def camera_pose_tracking_errors(actual_pose, commanded_pose, now_monotonic,
     return errors, age, error
 
 
+def camera_orientation_drift_errors(actual_quaternion,
+                                    baseline_quaternion,
+                                    max_drift_rad):
+    """Measure sign-invariant quaternion drift from the admitted baseline."""
+    try:
+        actual = [float(value) for value in actual_quaternion]
+        baseline = [float(value) for value in baseline_quaternion]
+    except (TypeError, ValueError, OverflowError):
+        return ["camera_orientation_invalid"], None
+    if (len(actual) != 4 or len(baseline) != 4 or
+            not all(math.isfinite(value) for value in actual + baseline)):
+        return ["camera_orientation_invalid"], None
+    actual_norm = math.sqrt(sum(value * value for value in actual))
+    baseline_norm = math.sqrt(sum(value * value for value in baseline))
+    if actual_norm <= 1.0e-9 or baseline_norm <= 1.0e-9:
+        return ["camera_orientation_invalid"], None
+    dot = abs(sum(a * b for a, b in zip(actual, baseline)) /
+              (actual_norm * baseline_norm))
+    dot = min(1.0, max(-1.0, dot))
+    drift = 2.0 * math.acos(dot)
+    errors = []
+    if drift > float(max_drift_rad):
+        errors.append("camera_orientation_drift")
+    return errors, drift
+
+
 def truth_catalog_errors(scenario_id, target_records,
                          expected_scenario_id, expected_target_ids):
     """Require the exact configured target set and a valid pose for each."""
@@ -145,7 +172,9 @@ def truth_catalog_errors(scenario_id, target_records,
 
 def measurement_presence_errors(required_streams, counts,
                                 truth_valid_messages,
-                                actual_camera_pose_samples):
+                                actual_camera_pose_samples,
+                                truth_projection_valid_messages=0,
+                                truth_fully_in_frame_messages=0):
     """Prove required evidence arrived after the measured epoch began."""
     errors = [
         "measurement_stream_missing:" + str(name)
@@ -156,6 +185,10 @@ def measurement_presence_errors(required_streams, counts,
         errors.append("measurement_truth_valid_missing")
     if int(actual_camera_pose_samples) <= 0:
         errors.append("measurement_actual_camera_pose_missing")
+    if int(truth_projection_valid_messages) <= 0:
+        errors.append("measurement_truth_projection_missing")
+    if int(truth_fully_in_frame_messages) <= 0:
+        errors.append("measurement_truth_fully_in_frame_missing")
     return errors
 
 

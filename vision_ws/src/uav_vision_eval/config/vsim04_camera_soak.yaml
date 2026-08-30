@@ -25,6 +25,7 @@ bucket_settle_sec: 0.5
 max_source_lag_sec: 1.0
 max_camera_pose_age_sec: 0.5
 max_camera_pose_error_m: 0.25
+max_camera_orientation_drift_rad: 0.05
 min_input_fps: 5.0
 min_complete_mapped_fps: 1.0
 max_partial_only_ratio: 0.8

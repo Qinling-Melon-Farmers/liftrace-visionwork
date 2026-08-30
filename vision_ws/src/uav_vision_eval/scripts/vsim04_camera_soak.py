@@ -33,6 +33,7 @@ from uav_vision_eval.vsim04_metrics import (
 from uav_vision_eval.vsim04_soak import (
     REQUIRED_SOAK_ARTIFACTS,
     SoakAccounting,
+    camera_orientation_drift_errors,
     camera_pose_tracking_errors,
     camera_info_snapshot,
     measurement_presence_errors,
@@ -95,7 +96,8 @@ class VSim04CameraSoak:
         "monotonic_sec",
         "command_camera_x_m", "command_camera_y_m", "command_camera_z_m",
         "actual_camera_x_m", "actual_camera_y_m", "actual_camera_z_m",
-        "camera_pose_age_sec", "camera_pose_error_m", "image_count",
+        "camera_pose_age_sec", "camera_pose_error_m",
+        "camera_orientation_drift_rad", "image_count",
         "complete_mapped_frames", "partial_only_mapped_frames",
         "input_fps", "complete_mapped_fps", "selected_count",
         "tank_selected_count", "disallowed_selected_count",
@@ -113,8 +115,10 @@ class VSim04CameraSoak:
         "partial_only_mapped_frames", "selected_observations",
         "tank_selected_observations", "disallowed_selected_observations",
         "stale_selected_observations", "actual_camera_pose_samples",
-        "max_camera_pose_error_m", "truth_valid_messages",
-        "truth_invalid_messages", "p_interrupt", "failure_reasons",
+        "max_camera_pose_error_m", "max_camera_orientation_drift_rad",
+        "truth_valid_messages",
+        "truth_invalid_messages", "truth_projection_valid_messages",
+        "truth_fully_in_frame_messages", "p_interrupt", "failure_reasons",
     )
 
     def __init__(self):
@@ -133,6 +137,7 @@ class VSim04CameraSoak:
                 "min_partial_samples", "bad_windows_to_fail",
                 "service_call_timeout_sec", "node_check_timeout_sec",
                 "max_camera_pose_age_sec", "max_camera_pose_error_m",
+                "max_camera_orientation_drift_rad",
             )
         })
         self._output_dir = os.path.abspath(rospy.get_param("~output_dir"))
@@ -210,10 +215,14 @@ class VSim04CameraSoak:
         self._actual_camera_pose = None
         self._actual_camera_pose_samples = 0
         self._max_camera_pose_error_m = 0.0
+        self._baseline_camera_orientation = None
+        self._max_camera_orientation_drift_rad = 0.0
         self._camera_info = None
         self._truth_errors = ["truth_missing"]
         self._truth_valid_messages = 0
         self._truth_invalid_messages = 0
+        self._truth_projection_valid_messages = 0
+        self._truth_fully_in_frame_messages = 0
         self._latest_perf_errors = ["detector_diagnostic_missing"]
         self._last_loop_id = ""
         self._started_ros_sec = None
@@ -318,6 +327,12 @@ class VSim04CameraSoak:
                         self._accounting.add_error(reason)
                 else:
                     self._truth_valid_messages += 1
+                    if any(bool(target.projection_valid)
+                           for target in message.targets):
+                        self._truth_projection_valid_messages += 1
+                    if any(bool(target.fully_in_frame)
+                           for target in message.targets):
+                        self._truth_fully_in_frame_messages += 1
 
     def _on_camera_pose(self, message):
         receipt = time.monotonic()
@@ -332,6 +347,12 @@ class VSim04CameraSoak:
                 "x": float(message.pose.position.x),
                 "y": float(message.pose.position.y),
                 "z": float(message.pose.position.z),
+                "quaternion": (
+                    float(message.pose.orientation.x),
+                    float(message.pose.orientation.y),
+                    float(message.pose.orientation.z),
+                    float(message.pose.orientation.w),
+                ),
             }
             if self._measurement_active:
                 self._actual_camera_pose_samples += 1
@@ -478,14 +499,36 @@ class VSim04CameraSoak:
         return sorted(self._expected_nodes - live)
 
     def _camera_pose_errors_locked(self, commanded_pose, now_monotonic):
+        comparison_pose = commanded_pose
+        if (self._actual_camera_pose is not None and
+                self._started_ros_sec is not None and
+                self._actual_camera_pose["source_stamp"] >=
+                self._started_ros_sec):
+            comparison_pose = route_pose(
+                self._actual_camera_pose["source_stamp"] -
+                self._started_ros_sec, self._config)
         errors, age, error = camera_pose_tracking_errors(
-            self._actual_camera_pose, commanded_pose, now_monotonic,
+            self._actual_camera_pose, comparison_pose, now_monotonic,
             self._config["max_camera_pose_age_sec"],
             self._config["max_camera_pose_error_m"])
         if error is not None and math.isfinite(error):
             self._max_camera_pose_error_m = max(
                 self._max_camera_pose_error_m, error)
-        return errors, age, error
+        orientation_drift = None
+        if (self._actual_camera_pose is not None and
+                self._baseline_camera_orientation is not None):
+            orientation_errors, orientation_drift = (
+                camera_orientation_drift_errors(
+                    self._actual_camera_pose["quaternion"],
+                    self._baseline_camera_orientation,
+                    self._config["max_camera_orientation_drift_rad"]))
+            errors.extend(orientation_errors)
+            if (orientation_drift is not None and
+                    math.isfinite(orientation_drift)):
+                self._max_camera_orientation_drift_rad = max(
+                    self._max_camera_orientation_drift_rad,
+                    orientation_drift)
+        return errors, age, error, orientation_drift
 
     def _wait_for_startup(self, minimum_receipt=None):
         deadline = time.monotonic() + self._config["startup_timeout_sec"]
@@ -505,8 +548,10 @@ class VSim04CameraSoak:
                 camera_info_missing = self._camera_info is None
                 truth_errors = list(self._truth_errors)
                 perf_errors = list(self._latest_perf_errors)
-                pose_errors, _age, _error = self._camera_pose_errors_locked(
+                pose_errors, _age, _error, _orientation = (
+                    self._camera_pose_errors_locked(
                     self._last_pose, now)
+                )
             if (not missing_nodes and not missing_streams and
                     not camera_info_missing and not truth_errors and
                     not perf_errors and not pose_errors):
@@ -533,8 +578,8 @@ class VSim04CameraSoak:
         actual_elapsed = max(wall_elapsed, 1.0e-9)
         maximum_gap = max(
             self._accounting.max_heartbeat_gap.values() or [0.0])
-        pose_errors, pose_age, pose_error = self._camera_pose_errors_locked(
-            pose, now_wall)
+        pose_errors, pose_age, pose_error, orientation_drift = (
+            self._camera_pose_errors_locked(pose, now_wall))
         actual = self._actual_camera_pose or {}
         self._frames.append({
             "trial_id": pose["trial_id"],
@@ -550,6 +595,8 @@ class VSim04CameraSoak:
             "actual_camera_z_m": actual.get("z", ""),
             "camera_pose_age_sec": "" if pose_age is None else pose_age,
             "camera_pose_error_m": "" if pose_error is None else pose_error,
+            "camera_orientation_drift_rad": (
+                "" if orientation_drift is None else orientation_drift),
             "image_count": self._accounting.counts.get("image", 0),
             "complete_mapped_frames": self._accounting.complete_mapped_frames,
             "partial_only_mapped_frames": (
@@ -573,6 +620,9 @@ class VSim04CameraSoak:
         initial_pose = route_pose(0.0, self._config)
         self._set_camera_initial(initial_pose)
         self._wait_for_startup()
+        with self._lock:
+            self._baseline_camera_orientation = tuple(
+                self._actual_camera_pose["quaternion"])
 
         # Admit fresh post-warm-up traffic, then reset once more immediately
         # before the measured epoch so pre-confirmed target memory cannot leak
@@ -599,8 +649,11 @@ class VSim04CameraSoak:
             self._stale_selected_count = 0
             self._truth_valid_messages = 0
             self._truth_invalid_messages = 0
+            self._truth_projection_valid_messages = 0
+            self._truth_fully_in_frame_messages = 0
             self._actual_camera_pose_samples = 0
             self._max_camera_pose_error_m = 0.0
+            self._max_camera_orientation_drift_rad = 0.0
             self._last_loop_id = ""
             self._measurement_active = True
             self._add_event_locked(
@@ -684,7 +737,9 @@ class VSim04CameraSoak:
             for reason in measurement_presence_errors(
                     self.REQUIRED_STREAMS, self._accounting.counts,
                     self._truth_valid_messages,
-                    self._actual_camera_pose_samples):
+                    self._actual_camera_pose_samples,
+                    self._truth_projection_valid_messages,
+                    self._truth_fully_in_frame_messages):
                 self._accounting.add_error(reason)
             if (self._config["duration_sec"] >= 600.0 and
                     self._actual_source_duration_sec <
@@ -763,8 +818,14 @@ class VSim04CameraSoak:
                 "actual_camera_pose_samples": (
                     self._actual_camera_pose_samples),
                 "max_camera_pose_error_m": self._max_camera_pose_error_m,
+                "max_camera_orientation_drift_rad": (
+                    self._max_camera_orientation_drift_rad),
                 "truth_valid_messages": self._truth_valid_messages,
                 "truth_invalid_messages": self._truth_invalid_messages,
+                "truth_projection_valid_messages": (
+                    self._truth_projection_valid_messages),
+                "truth_fully_in_frame_messages": (
+                    self._truth_fully_in_frame_messages),
                 "unique_trial_ids": sorted({
                     row["trial_id"] for row in self._frames}),
             })
@@ -800,8 +861,14 @@ class VSim04CameraSoak:
                 "actual_camera_pose_samples": (
                     self._actual_camera_pose_samples),
                 "max_camera_pose_error_m": self._max_camera_pose_error_m,
+                "max_camera_orientation_drift_rad": (
+                    self._max_camera_orientation_drift_rad),
                 "truth_valid_messages": self._truth_valid_messages,
                 "truth_invalid_messages": self._truth_invalid_messages,
+                "truth_projection_valid_messages": (
+                    self._truth_projection_valid_messages),
+                "truth_fully_in_frame_messages": (
+                    self._truth_fully_in_frame_messages),
                 "p_interrupt": "",
                 "failure_reasons": json.dumps(summary["errors"]),
             }]
@@ -825,9 +892,14 @@ class VSim04CameraSoak:
                 "- Actual pose samples/max tracking error: `{}` / `{:.4f}` m".format(
                     self._actual_camera_pose_samples,
                     self._max_camera_pose_error_m),
+                "- Maximum camera orientation drift: `{:.6f}` rad".format(
+                    self._max_camera_orientation_drift_rad),
                 "- Valid/invalid truth messages: `{}` / `{}`".format(
                     self._truth_valid_messages,
                     self._truth_invalid_messages),
+                "- Truth projection/fully-in-frame messages: `{}` / `{}`".format(
+                    self._truth_projection_valid_messages,
+                    self._truth_fully_in_frame_messages),
                 "- tank/disallowed/stale selected: `{}` / `{}` / `{}`".format(
                     self._tank_selected_count, self._disallowed_selected_count,
                     self._stale_selected_count),

@@ -13,6 +13,7 @@ if SOURCE_ROOT not in sys.path:
 
 from uav_vision_eval.vsim04_soak import (  # noqa: E402
     SoakAccounting,
+    camera_orientation_drift_errors,
     camera_pose_tracking_errors,
     camera_info_snapshot,
     measurement_presence_errors,
@@ -43,6 +44,7 @@ def config(duration=600.0):
         "max_source_lag_sec": 1.0,
         "max_camera_pose_age_sec": 0.5,
         "max_camera_pose_error_m": 0.25,
+        "max_camera_orientation_drift_rad": 0.05,
         "min_input_fps": 5.0,
         "min_complete_mapped_fps": 1.0,
         "max_partial_only_ratio": 0.8,
@@ -89,6 +91,13 @@ def assert_soak_contract():
     assert abs(pose_error - 0.05) < 1.0e-9
     assert "camera_pose_tracking_error" in camera_pose_tracking_errors(
         actual_pose, first, 10.0, 0.5, 0.01)[0]
+    orientation_errors, orientation_drift = camera_orientation_drift_errors(
+        (0.0, 0.0, 0.0, 1.0), (0.0, 0.0, 0.0, -1.0), 0.05)
+    assert orientation_errors == []
+    assert abs(orientation_drift) < 1.0e-9
+    assert "camera_orientation_drift" in camera_orientation_drift_errors(
+        (0.0, 0.0, 0.1, 0.994987437),
+        (0.0, 0.0, 0.0, 1.0), 0.05)[0]
 
     truth = [
         {"target_id": "tent_1", "pose_valid": True},
@@ -105,8 +114,11 @@ def assert_soak_contract():
     assert "measurement_stream_missing:truth" in presence
     assert "measurement_truth_valid_missing" in presence
     assert "measurement_actual_camera_pose_missing" in presence
+    assert "measurement_truth_projection_missing" in presence
+    assert "measurement_truth_fully_in_frame_missing" in presence
     assert measurement_presence_errors(
-        ("image", "truth"), {"image": 1, "truth": 1}, 1, 1) == []
+        ("image", "truth"), {"image": 1, "truth": 1}, 1, 1,
+        1, 1) == []
 
     camera_info = SimpleNamespace(
         header=SimpleNamespace(frame_id="camera_color_optical_frame"),

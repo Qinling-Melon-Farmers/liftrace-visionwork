@@ -261,8 +261,9 @@ python3 vision_ws/src/uav_vision_eval/scripts/vsim04_repeat_aggregate.py \
 停滞硬检查。预热阶段先等完整流水线和真值，再执行一次 post-warm-up reset、等待全流新鲜，
 随后在正式计时前再次 reset；正式计数、memory、selected 和 rolling window 均不含预热样本。
 相机循环位姿通过 latest-only Gazebo set-state topic 发布，不再为每帧创建 service 线程；报告同时
-记录命令位姿和 Gazebo camera link 实际位姿，并对实际跟随误差和年龄 fail closed。入口还自动检查：
-有效且全程不变的 CameraInfo 快照、场景中全部目标的真值存在且 `pose_valid`、预期 ROS 进程、image/truth/camera pose/
+记录命令位姿和 Gazebo camera link 实际位姿，按实际 pose 的 ROS 时间对齐路线命令，并对实际
+跟随误差、年龄和相机姿态相对启动基线的漂移 fail closed。入口还自动检查：有效且全程不变的
+CameraInfo 快照、场景中全部目标的真值存在且 `pose_valid`、测量期至少一次有效投影和完整入画、预期 ROS 进程、image/truth/camera pose/
 complete-mapped/targets/detector perf 心跳、各流源时间单调、最大心跳间隔、输入与完整映射
 吞吐、连续窗口 partial-only 和源时间积压趋势，以及 selected 的年龄、连续帧、地图、关联、
 拒绝原因与 r2026 profile。任何 tank/禁用类/陈旧或不满足当前准入的 selected 都硬失败。
