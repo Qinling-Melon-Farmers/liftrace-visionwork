@@ -12,8 +12,11 @@
 
   <depend>gazebo_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>patrol_control</depend>
+  <depend>plan_manage</depend>
   <depend>rosgraph</depend>
+  <depend>roscpp</depend>
   <depend>rospy</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>

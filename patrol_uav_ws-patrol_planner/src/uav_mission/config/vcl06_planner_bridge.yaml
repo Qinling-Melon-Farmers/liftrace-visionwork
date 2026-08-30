@@ -1,0 +1,33 @@
+# VCL06 fenced planner bridge defaults.
+# Output is disabled by default. Enabling a live /fastplanner/goal remap also
+# requires an explicit live-output acknowledgement in the launch arguments.
+
+execution:
+  enabled: false
+  allow_live_goal_output: false
+  executor_id_prefix: vcl06-planner-bridge
+  mission_frame: camera_init
+  class_profile: r2026
+  max_goal_z: 4.0
+  payload_slots: 3
+  allowed_target_classes:
+    - tent
+    - pillbox
+    - bridge
+    - panzer
+    - red_cross
+  planner_accept_timeout: 2.0
+  max_planning_attempts: 20
+  source_future_tolerance: 0.1
+  odom_max_age: 0.5
+  arrival_position_tolerance: 0.30
+  arrival_speed_tolerance: 0.20
+  arrival_dwell: 0.50
+  effective_goal_max_offset: 1.10
+  tick_hz: 20.0
+
+readiness:
+  # These acknowledgements must only be enabled after checking the running
+  # Fast-Planner launch. The bridge supports kino planner + manual target.
+  kino_planner_confirmed: false
+  manual_target_confirmed: false

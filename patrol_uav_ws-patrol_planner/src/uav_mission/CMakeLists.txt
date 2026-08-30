@@ -5,7 +5,10 @@ find_package(catkin REQUIRED COMPONENTS
   gazebo_msgs
   geometry_msgs
   message_generation
+  nav_msgs
   patrol_control
+  plan_manage
+  roscpp
   rospy
   sensor_msgs
   std_msgs
@@ -35,7 +38,10 @@ catkin_package(
     gazebo_msgs
     geometry_msgs
     message_runtime
+    nav_msgs
     patrol_control
+    plan_manage
+    roscpp
     rospy
     sensor_msgs
     std_msgs
@@ -65,6 +71,7 @@ catkin_install_python(PROGRAMS
   scripts/pose_tf_broadcaster.py
   scripts/navigation_mission_manager.py
   scripts/navigation_mission_start_gate.py
+  scripts/navigation_planner_bridge.py
   scripts/target_search_manager_py.py
   scripts/navigation_visual_delivery_adapter.py
   scripts/profile_candidate_selector.py
@@ -93,4 +100,7 @@ if(CATKIN_ENABLE_TESTING)
   catkin_add_nosetests(test/test_mission_runtime.py)
   catkin_add_nosetests(test/test_navigation_manager_contract.py)
   catkin_add_nosetests(test/test_mission_start_gate.py)
+  catkin_add_nosetests(test/test_planner_execution.py)
+  catkin_add_nosetests(test/test_planner_mission_contract.py)
+  catkin_add_nosetests(test/test_navigation_planner_bridge_contract.py)
 endif()
