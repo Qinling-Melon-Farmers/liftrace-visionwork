@@ -569,8 +569,13 @@ class VSim04CameraSoak:
             now = time.monotonic()
             if now >= next_node_check:
                 missing_nodes = self._missing_nodes()
-                next_node_check = now + 1.0
+                next_node_check = time.monotonic() + 1.0
             with self._lock:
+                # Callback receipt timestamps are captured before they take this
+                # lock.  Sample the health clock only after taking the same lock
+                # so a concurrently admitted callback cannot appear to arrive
+                # in the future.
+                health_wall = time.monotonic()
                 missing_streams = [
                     name for name in self.REQUIRED_STREAMS
                     if name not in self._accounting.last_receipt or
@@ -581,7 +586,7 @@ class VSim04CameraSoak:
                 perf_errors = list(self._latest_perf_errors)
                 pose_errors, _age, _error, _orientation = (
                     self._camera_pose_errors_locked(
-                    self._last_pose, now)
+                    self._last_pose, health_wall)
                 )
             if (not missing_nodes and not missing_streams and
                     not camera_info_missing and not truth_errors and
@@ -724,8 +729,10 @@ class VSim04CameraSoak:
             missing_nodes = None
             if now_wall >= next_node_check:
                 missing_nodes = self._missing_nodes()
-                next_node_check = now_wall + self._node_check_period
+                next_node_check = (
+                    time.monotonic() + self._node_check_period)
             with self._lock:
+                health_wall = time.monotonic()
                 if pose["trial_id"] != self._last_loop_id:
                     self._last_loop_id = pose["trial_id"]
                     self._add_event_locked(
@@ -735,20 +742,20 @@ class VSim04CameraSoak:
                     if missing_nodes:
                         self._accounting.add_error(
                             "process_missing:" + ",".join(missing_nodes))
-                    for reason in self._accounting.heartbeat_errors(now_wall):
+                    for reason in self._accounting.heartbeat_errors(health_wall):
                         self._accounting.add_error(reason)
                     for reason in self._camera_pose_errors_locked(
-                            pose, now_wall)[0]:
+                            pose, health_wall)[0]:
                         self._accounting.add_error(reason)
                     for reason in self._truth_errors:
                         self._accounting.add_error(reason)
                     for reason in self._latest_perf_errors:
                         self._accounting.add_error(
                             "detector_diagnostic:" + reason)
-                    self._accounting.evaluate(now_wall)
+                    self._accounting.evaluate(health_wall)
                 if now_wall >= next_frame:
                     self._record_frame_locked(
-                        pose, wall_elapsed, source_elapsed, now_wall)
+                        pose, wall_elapsed, source_elapsed, health_wall)
                     next_frame = now_wall + self._frame_period
                 if self._accounting.errors:
                     raise RuntimeError(self._accounting.errors[0])
@@ -758,11 +765,11 @@ class VSim04CameraSoak:
                 self._actual_wall_duration_sec < self._config["duration_sec"]):
             raise RuntimeError("ROS shutdown before requested duration")
 
-        final_wall = time.monotonic()
         final_nodes = self._missing_nodes()
         final_pose = route_pose(
             self._actual_source_duration_sec, self._config)
         with self._lock:
+            final_wall = time.monotonic()
             if final_nodes:
                 self._accounting.add_error(
                     "process_missing:" + ",".join(final_nodes))
