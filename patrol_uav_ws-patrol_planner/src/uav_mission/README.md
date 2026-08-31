@@ -35,8 +35,8 @@ target_search_manager_py.py
 候选选择时生效。它不是持久全局队列，失败目标也不会自动重试。接口、headless 结果和
 接续任务见 `docs/导航组任务链与新视觉联调HANDOFF_20260826.md`。
 
-当前正式模型必须通过 `UAV_VISION_MODEL_PATH` 或 launch 参数传入；空路径会进入发布空检测
-的 dev/sim 兼容模式，不能作为识别实跑。
+当前正式模型必须通过 `UAV_VISION_MODEL_PATH` 或 launch 参数传入；空路径、文件不存在或
+runtime 不可用会使 required detector 快速失败，不再发布伪健康的持续空检测。
 
 ## V-CL-06 全随机场正式入口
 
@@ -50,9 +50,11 @@ profile selector 和 `navigation_visual_delivery_adapter` 不在该图中。brid
 RECOVERY 与 LAND 事实；没有新增跨组消息或第二套任务策略。
 
 ```bash
+export UAV_VISION_MODEL_PATH=/absolute/path/to/model.pt
 SIM_NO_RECORD=1 SIM_REQUIRE_GATE=1 \
 top_level_scripts/sim_run.sh vcl06_typed_seed11 \
 roslaunch uav_mission navigation_search_delivery_vcl06.launch \
+target_model_path:="$UAV_VISION_MODEL_PATH" \
 gui:=false rviz:=false start_hard_gate:=true record_debug:=true
 ```
 
