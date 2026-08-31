@@ -60,6 +60,9 @@ detections
   候选，当前不缺“再训练一个模型”；
 - 笔记本 dev/sim 视觉链已运行；OrangePi 已完成统一六分类 FP32 RKNN 离线图片、视频和
   短时实时相机烟测，但尚未运行带 CameraInfo/TF 的完整 ROS 视觉链。
+- 新相机 1280×720 OpenCV 标定结果已入库并转换为 ROS CameraInfo profile，数值复核合理；
+  实物相机帧/时间戳、安装外参和板端 10 分钟仍待验收。完整视觉入口缺 PT/RKNN 模型或
+  运行时时会立即退出，不再以 completed 空检测维持伪健康链路。
 
 ### 尚未完成
 
@@ -75,7 +78,8 @@ detections
 - 最新 formal23 的 red_cross 7/7，但 pillbox 3.6 m 仍受 raw classifier 阻断；static25 为
   24/25，sparse30 为 25/30，尚未冻结把覆盖率换算为概率 Gate 的重复次数和采用阈值；
 - 尚未完成当前 operational chain 的 30-seed 和 10 min shadow 稳定性回归；
-- 实拍圆环回放自洽关联率 58.80%，缺人工实例/中心真值和同步 pose；
+- `real_target.mp4` 已完成整段模型/完整链回放、板端抽样和人工审片；圆环 58.80% 是算法
+  内部自洽关联率，仍缺独立人工实例/中心真值和同步 pose；
 - H 结构已实现并通过固定 Gazebo 正例/背景负例，仍缺实拍 H、普通黑圈和残圈负样本；
 - 笔记本 PT/ONNX 已在同一 `640x640` fixed-letterbox 的 12 图、19 框上通过，missing/extra=0、
   最低 IoU=0.9999991；FP32 RKNN 已有离线证据，OrangePi ROS
