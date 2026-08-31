@@ -58,11 +58,14 @@ target_model_path:="$UAV_VISION_MODEL_PATH" \
 gui:=false rviz:=false start_hard_gate:=true record_debug:=true
 ```
 
-`gate_status.json` 是唯一 PASS/FAIL 判据。2026-08-31 的 45 秒启动预检已使随机场、truth、
-anchor、接触监视和全部运行节点 READY；首轮硬 Gate 仍因 manager 未收到
-`/freedom/static_pointcloud` 而 `wall_timeout/map_missing`，没有 decision 或真实
-`P_interrupt`。不得通过关闭 `require_map`、放宽地图新鲜度或视觉伪造地图绕过；修复仿真
-LiDAR→FAST-LIO→FreeDOM 后原样重跑。
+`gate_status.json` 是唯一 PASS/FAIL 判据。2026-08-31 的地图预检
+`logs/vcl06_map_guard_fix_preflight3_20260831_124042/` 已实测 `/livox/lidar`、
+`/cloud_registered_body`、`/freedom/static_pointcloud` 非空，width 分别为 20000、约 7900、
+约 5600；静态地图为 `camera_init`、非零时间戳并持续约 10 Hz。接触环避开 MID360 浅俯视束后，
+`logs/vcl06_map_guard_fix_gate90_v3_20260831_125136/gate_status.json` 不再出现
+`map_missing/map_stale`，位姿约 30 Hz、地图约 10 Hz、合同错误/碰撞/越界为 0，并产生 3 个
+decision、5 个 result。该轮仍因 90 秒 `wall_timeout` FAIL，未选中目标或进入 APPROACH、投递、
+返航、LAND，`P_interrupt` 仍为空；不得把地图 readiness 通过写成完整任务 PASS。
 
 ### 历史冻结 manager 与地图 A/B 入口
 

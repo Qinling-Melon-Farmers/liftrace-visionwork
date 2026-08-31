@@ -107,20 +107,23 @@
     seed=11 独立重复三次已完成，聚合目录为
     `logs/vsim04_repeat_aggregate_boundary6-seed11-r3-final-307ac5c4/`；2.0 m/s 与 3.6 m
     均显示明显失败/波动，默认 640 保持，暂不承诺它们为通用运营域。
-19. V-CL-06 的软件执行面已收口。导航 PR #6 当前 Draft HEAD 为 `3864a7c`，其单一 planner
-    bridge 四提交已等价导入为 `98cb587/83e796b/c7c1d8f/933eb78`；目标事务与 LAND 继续在同一
+19. V-CL-06 的软件执行面已收口。导航 PR #6 已转为 Ready，当前 HEAD 为 `d95377c`；其单一
+    planner bridge 四个代码提交（截至 `3864a7c`）已等价导入为
+    `98cb587/83e796b/c7c1d8f/933eb78`，目标事务与 LAND 继续在同一
     bridge 内由 `e2df599` 补齐，正式随机场入口和只读硬 Gate 位于 `09d16a8`。没有新增
     msg/srv/action 或第二个 executor，正式图只有 clean manager 和该 bridge，且
-    `/fastplanner/goal` 唯一发布者实跑成立。45 秒启动预检
-    `logs/vcl06_overlay_preflight2_20260831_060405/` 已使随机场、truth、anchor、接触监视和运行
-    节点全部 READY；首轮硬 Gate
-    `logs/vcl06_typed_smoke90_r2_20260831_060512/gate_status.json` 仍为 FAIL：manager 在升空后因
-    `/freedom/static_pointcloud` 未到达而持续 `map_missing`，120 秒墙钟内 decision/result 均为
-    0，故 `P_interrupt`、三投、返航和落地仍未验收。复核同时发现该旧 run 未传
-    `UAV_VISION_MODEL_PATH`，detector 当时持续发布空数组；`75b093d` 已删除 PT/RKNN 无模型
-    空检测降级，并将完整链 detector 标为 required，之后缺模型会立即结束 launch。该地图阻断
-    不得靠关闭 require-map、放宽新鲜度或视觉 adapter 伪造输入绕过；历史 A/B 仍 FAIL，
-    baseline 默认不等于已通过推广 Gate。
+    `/fastplanner/goal` 唯一发布者实跑成立。首轮 R2 同时存在 `map_missing` 和未传
+    `UAV_VISION_MODEL_PATH` 两个历史问题；`75b093d` 已删除 PT/RKNN 无模型空检测降级，并将
+    完整链 detector 标为 required，之后缺模型会立即结束 launch。仿真
+    LiDAR→FAST-LIO→FreeDOM 也已恢复：预检
+    `logs/vcl06_map_guard_fix_preflight3_20260831_124042/` 实测三段点云 width 分别为
+    20000、约 7900、约 5600，静态地图为 `camera_init`、非零时间戳并持续约 10 Hz。修正接触环
+    遮挡浅俯视束后，90 秒 Gate
+    `logs/vcl06_map_guard_fix_gate90_v3_20260831_125136/gate_status.json` 不再出现
+    `map_missing/map_stale`，位姿约 30 Hz、地图约 10 Hz、合同错误/碰撞/越界均为 0；但仍因
+    `wall_timeout` FAIL，仅有 3 个 decision、5 个 result，未选中目标或进入 APPROACH/投递/返航/
+    LAND，因此 `P_interrupt` 仍为空且不能宣称整链 PASS。历史 A/B 仍 FAIL，baseline 默认不等于
+    已通过推广 Gate。
 20. 顶层 20 项任务按严格状态统计为 **9 项闭合、10 项开放、1 项冻结**。开放项中严格视觉
     主责为 5 项；若把 H 结构/降落联合 Gate 计入视觉参与面，则为 6 项。其余开放项主要是
     V-CL-00B/01/05/06 的联合接线、导航执行和整机验收，不能计成视觉算法欠账。
@@ -486,11 +489,12 @@ RKNN、真实新相机与 V-CL-06 联合 600 秒仍分别保留为未验收项�
 7. `V-CL-06`：旧 manager 的 seed=11 baseline 30 秒预检 PASS；baseline/a68925d 90 秒 A/B
    因高度超限/共同进度耗时退化 19.43% 而不推广。clean 任务核心、typed contract、单一 live
    bridge、一次性 start gate、strict 视觉上下文、同 executor 目标事务/LAND 和只读硬 Gate
-   均已进入当前 feature 分支；静态测试、完整编译及 45 秒 ROS 启动预检通过。首轮硬 Gate 已
-   实跑但 manager 被仿真地图 `map_missing` 阻断，未产生 decision，因此仍为 FAIL。下一完成
-   定义是导航/建图侧恢复带有效时间戳且持续发布的 `/freedom/static_pointcloud`，原样重跑
-   90 秒并取得同一 stable ID 的 selected→decision→实际 APPROACH/target-stage 证据；历史
-   A/B 安全合同满足后才运行 600 秒三投、返航和落地。视觉组不复制地图、队列或重试策略。
+   均已进入当前 feature 分支；静态测试、完整编译及 ROS 启动预检通过。仿真
+   LiDAR→FAST-LIO→FreeDOM 的 XYZ 解析、自遮挡和地图时间戳已修复，90 秒 Gate 实测地图约
+   10 Hz、位姿约 30 Hz且没有地图/合同/碰撞/越界中止；该轮仍因墙钟超时 FAIL，只有
+   SEARCH/RESUME decision/result，未形成同一 stable ID 的 selected→decision→实际
+   APPROACH/target-stage。下一完成定义是先取得该目标事务证据，再在历史 A/B 安全合同满足后
+   运行 600 秒三投、返航和落地。视觉组不复制地图、队列或重试策略。
 
 L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜索阶段统一 P95 `<=200 ms`
 暂不作为阻塞。建立投递承诺时的视觉证据必须新鲜（默认最大年龄 `0.5 s`）；最终释放
@@ -517,7 +521,7 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 已完成 | 13 | V-CL-03 | 外部任务模式复用 Fast-Planner | `external_candidate_20260807_041914` 单候选接近→对准→ACK→恢复，唯一 goal 发布者；默认旧路线回归 PASS |
 | 已完成 | 14 | V-CL-04 | 覆盖搜索、候选队列和恢复 | 2026-08-28 干净复跑（`toudi4_coverage_r6_vcl04_rerun2_20260828_222644`，main@7a0b612）任务侧全指标达标：12/12 覆盖、五类五 ID、三投槽序 [1,2,3]、0 碰撞、0 越界、405.5s 三投+返航+落地；Gate 27 项断言仅 4 项同源失败，均由 tank 一次 Fast-Planner 下降段异常（穿透 align_height 1.20m 至 0.1–0.3m 悬停 + No Effective Points）连锁造成，同场 3/3 投递证明对准链健康；经用户裁定按规划器波动外置口径视为通过（动态期望断言与中断失败的口径缺口移交 V-CL-05/06 收敛） |
 | 部分完成/待干净复跑 | 15 | V-CL-05 | 搜索-投递策略：高权重中断 + red_cross 统一 | 中断机制已实跑（tank 提前执行并恢复搜索、覆盖 12/12），pillbox 端到端投出，tank/panzer 证据锁定但低空下降受规划器波动影响超时；red_cross 统一入队、随机摆放入口与动态期望 Gate 已落地。剩余完成定义：按规则场地全随机布设（4 个 1 m 标准靶 + 1 个 0.35 m 红十字全部随机摆放、H 固定为起降点，真值仅落盘），类目/profile 驱动允许集合与 Gate（本届 profile 排除 tank），随机十字独立发现/投递 + 沉降门控验证（规划器失败只记录不迭代） |
-| 执行软件面完成/运行被地图阻断 | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 导航 PR #6@`3864a7c` 的单 bridge 已完整导入，目标事务/LAND、正式随机场入口与只读 Gate 已收口；无新增 msg/srv/action/第二 executor，实跑确认 `/navigation/planner_bridge` 是唯一 goal 发布者。45 秒启动预检 READY；首轮硬 Gate 因 manager 持续 `map_missing` 而 wall-timeout，decision/result=0、`P_interrupt=null`。先恢复 LiDAR→FAST-LIO→FreeDOM 的有效新鲜地图，再原样重跑 90 秒；历史 A/B 仍 FAIL，不推广 `a68925d`，不启动 600 秒 Gate |
+| 地图链已恢复/目标事务待验收 | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 导航 PR #6 已 Ready（HEAD `d95377c`），单 bridge、目标事务/LAND、正式随机场入口与只读 Gate 已收口；无新增 msg/srv/action/第二 executor，`/navigation/planner_bridge` 是唯一 goal 发布者。LiDAR→FAST-LIO→FreeDOM 已持续输出 `camera_init` 新鲜地图；90 秒 Gate v3 地图约 10 Hz、位姿约 30 Hz、合同错误/碰撞/越界为 0，并产生 3 decision/5 result，但仍因 `wall_timeout` FAIL，未选中目标、未 APPROACH/投递/返航/LAND，`P_interrupt=null`。先取得真实 target-stage，再决定 600 秒 Gate；历史 A/B 仍 FAIL，不推广 `a68925d` |
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
 | camera-only 10 min PASS/性能域仍部分完成 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | formal23 22/23、static25 24/25、sparse30 25/30 的历史证据继续有效；本轮算法/模型/阈值未变，未为工具链改动重复支付三套矩阵。`vsim04_soak600b_seed11_20260831_011055` 已以 wall 600.024 s、输入/完整 mapped 15.019/13.336 FPS、六产物完整、errors=[] 关闭笔记本/Gazebo camera-only 10 min；`P_interrupt=null`。六个边界点固定 seed 各重复 3 次：bridge/panzer 低空 2 m/s 均 0/3，pillbox 低空 2 m/s 2/3、高空 0.5 m/s 1/3、高空 2 m/s 0/3，静态 pillbox 3.6 m 0/3。故 2 m/s 不作通用工作点、3.6 m 不承诺，默认 640 保持；V-CL-06、板端和 30-seed 仍未关闭 |
 | 实拍功能回放完成/人工定量待完成 | 19 | V-REAL-01 | 实拍回放域差复核 | `real_target.mp4` 的整段模型/视觉链回放、板端抽样和人工审片已完成；58.80% 是自洽关联率，不是人工真值召回。新相机 1280×720 YAML 已作为权威内参入库并转换 ROS profile，不再要求采集材料复核；仍待圆环实例/中心/H/红十字人工标注，以及带同步 CameraInfo/pose 的新相机采集；安装外参另行实标 |

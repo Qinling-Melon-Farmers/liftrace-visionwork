@@ -108,8 +108,11 @@
   降落未完成，Gate 为 `mission_timeout`，不得标记 PASS。当前正式随机场 baseline 30 s
   预检 PASS，baseline/`a68925d` 90 s A/B 比较 FAIL，保持 baseline，尚未进入新的 600 s Gate。
   此后本地 clean 任务核心/typed contract 已在 `7dd2c49` 导入，并与 start gate、视觉冻结上下文、
-  typed evaluator 合并至 `db80dfd`；纯测试通过，但 live bridge、真实 planner goal 和
-  target-stage 事件仍缺，故 Gate 状态不变；
+  typed evaluator 合并至 `db80dfd`；导航 PR #6 已更新到 `d95377c`、Open/Ready，单一 live
+  planner bridge 与真实 `/fastplanner/goal` 已接入。仿真 LiDAR→FAST-LIO→FreeDOM 地图链也已
+  恢复，最新 90 秒 Gate v3 全程无 `map_missing`/`map_stale`，但仍以 `wall_timeout` FAIL：只有
+  3 个 decision/5 个 result，selected、APPROACH、同一 stable ID target-stage、三投、返航和
+  LAND 均未成立，`start_gate_started_once=false`；因此暂不启动 600 秒 Gate；
 - [x] 仿真真值来自 target catalog、Gazebo/model state、CameraInfo/TF，不依赖检测输出；
 - [x] 五类标准靶、红十字、H、背景固定场景与自动 recorder/report 已落地；
 - [x] L0 圆环坐标、全局关联、记忆新鲜度、地图/释放证据连续 3 次通过；
