@@ -4,7 +4,7 @@
 设计目标：
 - 优先使用显式配置的 unified 6-class RKNN
 - 历史 split assets 仅在调用方显式提供路径时启用
-- 当前环境无 RKNNLite / 无模型 / 无法解码时，退化为空检测，不打崩 launch
+- 当前环境无 RKNNLite 或没有可用模型时启动失败，不发布伪完成空检测
 
 说明：
 - 本节点不依赖 PyTorch / ultralytics 运行时
@@ -371,11 +371,10 @@ class TargetDetectorRKNN:
             rospy.loginfo("[TargetDetectorRKNN] split RKNN assets selected (std + tank)")
         else:
             if RKNNLite is None:
-                rospy.logwarn("[TargetDetectorRKNN] RKNNLite not installed in current ROS python; "
-                              "publishing empty detections for board launch compatibility")
+                raise RuntimeError(
+                    "RKNNLite is unavailable in the board ROS Python")
             else:
-                rospy.logwarn("[TargetDetectorRKNN] no usable RKNN runtime/model found; "
-                              "publishing empty detections")
+                raise RuntimeError("no usable RKNN runtime/model found")
 
     def _empty_publish(self, header):
         arr = TargetDetectionArray()
@@ -395,9 +394,7 @@ class TargetDetectorRKNN:
             return "rknn_unified"
         if self._std.available() or self._tank.available():
             return "rknn_split"
-        if RKNNLite is None:
-            return "empty_no_rknnlite"
-        return "empty_no_runtime"
+        return "unavailable"
 
     def _publish_perf(self, header, detections_count, total_ms, inference_ms):
         now = time.perf_counter()

@@ -8,7 +8,7 @@
   <arg name="image_topic" default="/camera/image_raw" />
   <arg name="camera_info_topic" default="/camera/camera_info" />
   <arg name="target_detector_launch_prefix" default="" />
-  <!-- 可选的开发/仿真模型覆盖；为空时使用 config/target_detector.yaml。 -->
+  <!-- 开发/仿真模型必须显式提供；为空或文件不存在时 detector 立即失败。 -->
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="target_detector_imgsz" default="640" />
   <arg name="enable_debug_image" default="false" />
@@ -33,7 +33,8 @@
 
   <!-- 标准目标检测 (YOLO, dev/sim only) -->
   <node pkg="uav_vision" type="target_detector.py" name="target_detector"
-        output="screen" launch-prefix="$(arg target_detector_launch_prefix)">
+        output="screen" required="true"
+        launch-prefix="$(arg target_detector_launch_prefix)">
     <rosparam file="$(find uav_vision)/config/default.yaml"/>
     <rosparam file="$(find uav_vision)/config/target_detector.yaml"/>
     <param name="image_topic" value="$(arg image_topic)" />

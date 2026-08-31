@@ -12,6 +12,7 @@ from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from sensor_msgs.msg import Image
 from uav_vision.msg import TargetDetection, TargetDetectionArray
 from sensor_msgs.msg import RegionOfInterest
+from uav_vision.model_contract import require_local_model_file
 
 try:
     from ultralytics import YOLO
@@ -24,15 +25,19 @@ class TargetDetector:
         rospy.init_node("target_detector")
 
         # 模型选择由 launch/yaml 层负责，使源码可在不同笔记本工作区和未来部署设备间移植。
-        self._model_path = rospy.get_param("~model_path", "")
+        self._model_path = require_local_model_file(
+            rospy.get_param("~model_path", ""), "ultralytics")
         self._conf_threshold = rospy.get_param("~conf_threshold", 0.5)
         self._image_topic = rospy.get_param("~image_topic", "/camera/image_raw")
         self._imgsz = int(rospy.get_param("~imgsz", 640))
         self._device = rospy.get_param("~device", "")
         self._perf_topic = rospy.get_param("~perf_topic", "/uav_vision/perf")
 
-        self._model = YOLO(self._model_path) if YOLO is not None and self._model_path else None
-        self._class_names = self._model.names if self._model is not None else {}
+        if YOLO is None:
+            raise RuntimeError(
+                "ultralytics runtime is unavailable in the vision Python")
+        self._model = YOLO(self._model_path)
+        self._class_names = self._model.names
         self._frames = 0
         self._last_frame_time = None
         self._fps_ema = 0.0
@@ -44,15 +49,10 @@ class TargetDetector:
                                             self._on_image, queue_size=1,
                                             buff_size=2**24)
 
-        if self._model is None:
-            rospy.logwarn("[TargetDetector] model unavailable (ultralytics=%s model_path=%r); "
-                          "publishing empty detections for dev/sim launch compatibility",
-                          YOLO is not None, self._model_path)
-        else:
-            rospy.loginfo("[TargetDetector] ready  model=%s  conf=%.2f  device=%s  classes=%s",
-                          self._model_path, self._conf_threshold,
-                          self._device if self._device != "" else "ultralytics_default",
-                          list(self._class_names.values()))
+        rospy.loginfo("[TargetDetector] ready  model=%s  conf=%.2f  device=%s  classes=%s",
+                      self._model_path, self._conf_threshold,
+                      self._device if self._device != "" else "ultralytics_default",
+                      list(self._class_names.values()))
 
     def _publish_perf(self, header, detections_count, total_ms, inference_ms,
                       callback_start, callback_end):
@@ -70,11 +70,10 @@ class TargetDetector:
         status = DiagnosticStatus()
         status.name = "uav_vision/target_detector"
         status.hardware_id = "dev_sim"
-        degraded = self._model is None
-        status.level = DiagnosticStatus.WARN if degraded else DiagnosticStatus.OK
-        status.message = "ultralytics_missing" if degraded else "ok"
+        status.level = DiagnosticStatus.OK
+        status.message = "ok"
         status.values = [
-            KeyValue("backend", "ultralytics" if self._model is not None else "empty"),
+            KeyValue("backend", "ultralytics"),
             KeyValue("image_topic", self._image_topic),
             KeyValue("model_path", self._model_path),
             KeyValue("device", str(self._device)),
@@ -145,14 +144,6 @@ class TargetDetector:
         arr.header = msg.header
         arr.source = "target_detector"
         arr.completed_sources = [arr.source]
-
-        if self._model is None:
-            self._detections_pub.publish(arr)
-            callback_end = time.monotonic()
-            total_ms = (callback_end - t0) * 1000.0
-            self._publish_perf(
-                msg.header, 0, total_ms, 0.0, t0, callback_end)
-            return
 
         t_infer = time.monotonic()
         predict_kwargs = {

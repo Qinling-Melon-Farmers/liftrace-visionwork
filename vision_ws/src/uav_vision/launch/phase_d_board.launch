@@ -25,7 +25,7 @@
   <arg name="start_legacy_compat" default="true" />
 
   <node pkg="uav_vision" type="target_detector_rknn.py"
-        name="target_detector_rknn" output="screen">
+        name="target_detector_rknn" output="screen" required="true">
     <rosparam file="$(find uav_vision)/config/default.yaml" />
     <rosparam file="$(find uav_vision)/config/target_detector_rknn.yaml" />
     <param name="image_topic" value="$(arg image_topic)" />

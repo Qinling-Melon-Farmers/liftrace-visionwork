@@ -82,6 +82,7 @@ add_dependencies(cross_detector_node
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
   catkin_add_nosetests(test/test_alignment_context_policy.py)
+  catkin_add_nosetests(test/test_detector_model_contract.py)
   add_rostest(test/cross_geometry_regression.test)
   add_rostest(test/landing_mode_gate.test)
   add_rostest(test/alignment_context.test)
