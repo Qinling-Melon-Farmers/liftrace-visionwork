@@ -1,6 +1,6 @@
 # ROS CameraInfo profile converted from /vision_ws/calibration.yaml.
-# Source calibration: 1280x720, 9x6 inner corners, square_size=24 (source
-# unit not recorded), RMS reprojection error 0.2687378124 px.
+# Source calibration: 1280x720, RMS reprojection error 0.2687378124 px.
+# Runtime uses the supplied K/D without re-solving the calibration.
 # Keep the camera output at exactly 1280x720. Do not scale this profile to
 # another stream size and do not apply pixel rotation without recalibration.
 image_width: 1280

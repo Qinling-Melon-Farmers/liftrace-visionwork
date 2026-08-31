@@ -10,9 +10,10 @@
 当前不需要更换 LIO 或局部规划算法，也不需要继续无目标地扩数据和训练模型。桌面 PT、板端
 离线 RKNN 和实拍视频回放已有证据，但尚未完成 OrangePi 上的 ROS 视觉链、10 分钟稳定性和
 机载 CameraInfo/TF 接线验收。用户已提供新相机 1280×720 标定 YAML；原始 OpenCV K/D 已
-入库并无损转换成 ROS CameraInfo profile，RMS 重投影误差 0.26874 px，数值复核合理。当前
-仍等待原始标定图片、方格单位、对焦/旋转等采集参数，并需实测相机输出、安装外参和板端
-话题，不能把“YAML 已接入”写成 CameraInfo/TF、外参或板端验收。视觉组的主线是：
+入库并无损转换成 ROS CameraInfo profile，RMS 重投影误差 0.26874 px。本项目接受该 YAML
+作为当前内参权威输入，不再要求标定原图、方格单位、对焦或拍摄旋转记录，也不安排独立
+复核标定正确性。仍需验收实际相机输出、安装外参和板端话题；这些是运行接线，不是内参
+复核，不能把“YAML 已接入”写成 CameraInfo/TF、外参或板端验收。视觉组的主线是：
 
 板端模型、图片指标、PT 对照和视频资产的单一汇总见
 [BOARD_MODEL_COMPLETE_EVALUATION_20260716.md](/home/xhj/liftrace/docs/BOARD_MODEL_COMPLETE_EVALUATION_20260716.md)。
@@ -519,7 +520,7 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 执行软件面完成/运行被地图阻断 | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 导航 PR #6@`3864a7c` 的单 bridge 已完整导入，目标事务/LAND、正式随机场入口与只读 Gate 已收口；无新增 msg/srv/action/第二 executor，实跑确认 `/navigation/planner_bridge` 是唯一 goal 发布者。45 秒启动预检 READY；首轮硬 Gate 因 manager 持续 `map_missing` 而 wall-timeout，decision/result=0、`P_interrupt=null`。先恢复 LiDAR→FAST-LIO→FreeDOM 的有效新鲜地图，再原样重跑 90 秒；历史 A/B 仍 FAIL，不推广 `a68925d`，不启动 600 秒 Gate |
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
 | camera-only 10 min PASS/性能域仍部分完成 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | formal23 22/23、static25 24/25、sparse30 25/30 的历史证据继续有效；本轮算法/模型/阈值未变，未为工具链改动重复支付三套矩阵。`vsim04_soak600b_seed11_20260831_011055` 已以 wall 600.024 s、输入/完整 mapped 15.019/13.336 FPS、六产物完整、errors=[] 关闭笔记本/Gazebo camera-only 10 min；`P_interrupt=null`。六个边界点固定 seed 各重复 3 次：bridge/panzer 低空 2 m/s 均 0/3，pillbox 低空 2 m/s 2/3、高空 0.5 m/s 1/3、高空 2 m/s 0/3，静态 pillbox 3.6 m 0/3。故 2 m/s 不作通用工作点、3.6 m 不承诺，默认 640 保持；V-CL-06、板端和 30-seed 仍未关闭 |
-| 实拍功能回放完成/人工定量待完成 | 19 | V-REAL-01 | 实拍回放域差复核 | `real_target.mp4` 的整段模型/视觉链回放、板端抽样和人工审片已完成；58.80% 是自洽关联率，不是人工真值召回。新相机 1280×720 YAML 已入库并转换 ROS profile；仍待标定原图/采集参数复核、圆环实例/中心/H/红十字人工标注，以及带同步 CameraInfo/pose 的新相机采集；安装外参另行实标 |
+| 实拍功能回放完成/人工定量待完成 | 19 | V-REAL-01 | 实拍回放域差复核 | `real_target.mp4` 的整段模型/视觉链回放、板端抽样和人工审片已完成；58.80% 是自洽关联率，不是人工真值召回。新相机 1280×720 YAML 已作为权威内参入库并转换 ROS profile，不再要求采集材料复核；仍待圆环实例/中心/H/红十字人工标注，以及带同步 CameraInfo/pose 的新相机采集；安装外参另行实标 |
 | 笔记本 PT/ONNX 已通过/板端 ROS 待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | 同 fixed-letterbox 的 12 图 PT/ONNX Gate 已通过；FP32 RKNN 离线有效。新相机 ROS profile 和 1280×720 fail-closed 启动入口已存在；仍待实物相机帧/CameraInfo/TF、安装外参、同样本 PT→ONNX→RKNN 逐框对照、5–10 Hz 和 10 min Gate |
 
 ### 8.1 已完成的最小交付与当前入口
