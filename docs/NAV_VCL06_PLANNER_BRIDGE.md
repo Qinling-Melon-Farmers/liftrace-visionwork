@@ -51,10 +51,12 @@ executor、compat adapter 或新消息类型。2026-08-31 的 ROS 实跑确认�
 `/navigation/planner_bridge` 发布 `/fastplanner/goal`，bridge 健康、随机场/anchor/contact
 READY，0 碰撞、0 越界、0 超高。
 
-联合 Gate 仍未通过：manager 在升空后持续 `map_missing`，未收到
-`/freedom/static_pointcloud`，所以没有产生任何 decision/result，也没有真实
-`P_interrupt`。当前阻断是导航/建图输入而非 bridge 接口；不得关闭 require-map、放宽新鲜度
-或增加视觉地图代理绕开。默认关闭 live 输出仍是独立启动 bridge 的安全边界。
+联合 Gate 仍未通过，但地图阻断已经关闭。地图预检实测 `/livox/lidar`、
+`/cloud_registered_body`、`/freedom/static_pointcloud` 三段非空，最终 90 秒 Gate 中地图约
+10 Hz、位姿约 30 Hz，manager 已产生 3 个 decision 和 5 个 result，且没有
+`map_missing/map_stale`、合同错误、碰撞或越界。该轮仍因 `wall_timeout` FAIL，未选中目标或产生
+APPROACH/target-stage，因此没有真实 `P_interrupt`、投递、返航或 LAND。默认关闭 live 输出仍是
+独立启动 bridge 的安全边界；地图合同也继续保持 require-map 与新鲜度硬约束。
 
 ## 运行顺序与重启限制
 

@@ -53,9 +53,9 @@ detections
   baseline/`a68925d` 90 s A/B 因高度与同进度耗时合同未同时满足而 FAIL，保持 baseline 且
   尚未进入 600 s Gate。`a68925d` 只含地图实验资产，不代表 manager 已更新；
 - clean manager/runtime、typed decision/result、单一 planner/target-transaction bridge、
-  一次性 start gate 与正式只读硬 Gate 已进入 V-CL-06 feature 分支；45 秒 ROS 启动预检
-  READY，实跑确认正式图只有 `/navigation/planner_bridge` 发布 `/fastplanner/goal`，未新增
-  msg/srv/action 或第二 executor；
+  一次性 start gate 与正式只读硬 Gate 已进入 V-CL-06 feature 分支；导航 PR #6 已更新到
+  `d95377c` 并转为 Open/Ready。实跑确认正式图只有 `/navigation/planner_bridge` 发布
+  `/fastplanner/goal`，未新增 msg/srv/action 或第二 executor；
 - 笔记本 dev/sim 已使用 `merged_standard` 六分类模型；已有实拍回放、压力集和 ONNX
   候选，当前不缺“再训练一个模型”；
 - 笔记本 dev/sim 视觉链已运行；OrangePi 已完成统一六分类 FP32 RKNN 离线图片、视频和
@@ -67,11 +67,13 @@ detections
 ### 尚未完成
 
 - clean manager 已实现持久候选队列、权重调度、有限冷却重试、三槽和 510/600 s 时限；这些
-  能力已通过纯测试，但首轮正式硬 Gate 被仿真 `/freedom/static_pointcloud` 缺失阻断，
-  manager 未产生 decision，不能写成联合链 PASS；
-- V-CL-05/V-CL-06 尚未完成全随机三投、返航和落地；先由导航/建图侧恢复
-  LiDAR→FAST-LIO→FreeDOM 的有效新鲜地图并通过 90 秒 typed smoke。历史地图 A/B 仍 FAIL，
-  不关闭 require-map、不放宽地图年龄，也不在视觉 adapter 复制地图/队列/重试；
+  能力已通过纯测试。仿真 LiDAR→FAST-LIO→FreeDOM 地图链现已恢复，`preflight3` 三段点云
+  非空且静态地图带 `camera_init`/非零时间戳；最新 90 秒 Gate v3 全程无 `map_missing` 或
+  `map_stale`，但仍以 `wall_timeout` FAIL；
+- V-CL-05/V-CL-06 尚未完成全随机三投、返航和落地。Gate v3 只有 3 个 decision/5 个 result，
+  未形成 selected→APPROACH→同 stable ID target transaction，且
+  `start_gate_started_once=false`；当前优先定位任务推进，不关闭 require-map、不放宽地图年龄，
+  也不在视觉 adapter 复制地图/队列/重试，90 秒目标事务成立前不启动 600 秒 Gate；
 - H 固定 Gazebo 正例已得到 458 TP、0 FP/FN，landing-active 纯背景 511 帧为 0 FP；完整
   H 视觉降落 Gate（landing 阶段 + H 结构证据 + 落地）仍未验收，北区走廊 Gate 因
   toudi4 缺门洞实体未立；随机红十字摆放的独立发现/投递待复跑验收；

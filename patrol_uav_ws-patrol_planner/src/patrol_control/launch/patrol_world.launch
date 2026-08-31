@@ -14,7 +14,8 @@
   <arg name="px4_model_root" default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
   <arg name="sdf"
        default="$(find patrol_control)/models/iris_mid360_downward_camera/model.sdf" />
-  <arg name="gazebo_model_path" default="$(arg px4_model_root)" />
+  <arg name="gazebo_model_path"
+       default="$(find patrol_control)/models:$(arg px4_model_root):$(optenv GAZEBO_MODEL_PATH)" />
   <arg name="astra_sim_lib" default="$(optenv ASTRA_SIM_LIB /home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib)" />
   <arg name="px4_plugin_lib" default="$(arg px4_root)/build/px4_sitl_default/build_gazebo-classic" />
   <arg name="gazebo_plugin_path" default="$(arg astra_sim_lib):$(arg px4_plugin_lib)" />

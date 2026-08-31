@@ -19,12 +19,13 @@
       <parent>iris::base_link</parent>
     </joint>
 
-    <!-- Simulation-only prop-guard contact envelope.  The bumper plugin emits
-         actual Gazebo contact states; it does not arm, move, or actuate the
-         vehicle.  Ground clearance keeps normal takeoff/landing off the
-         obstacle-collision channel. -->
+    <!-- Simulation-only prop-guard contact envelope.  The complete ring is
+         above the MID360 ray origin (z=0.13 in the parent model), so its
+         shallow downward rays cannot self-hit the guard during takeoff.  The
+         bumper plugin still emits actual Gazebo contact states; it does not
+         arm, move, or actuate the vehicle. -->
     <link name="competition_contact_link">
-      <pose>0 0 0.13 0 0 0</pose>
+      <pose>0 0 0.20 0 0 0</pose>
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -35,10 +36,10 @@
       </inertial>
       <collision name="competition_guard_collision">
         <geometry>
-          <cylinder>
-            <radius>0.30</radius>
-            <length>0.10</length>
-          </cylinder>
+          <mesh>
+            <uri>model://iris_mid360_downward_camera/meshes/competition_guard_ring.obj</uri>
+            <scale>1 1 1</scale>
+          </mesh>
         </geometry>
         <max_contacts>20</max_contacts>
       </collision>

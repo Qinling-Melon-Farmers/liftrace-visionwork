@@ -668,6 +668,7 @@ void Visualizer::visualize_static_pointcloud(const MRMap& map)
 
     pcl::toROSMsg(pointcloud,pointcloud_msg);
     pointcloud_msg.header.frame_id = map_tf_frame;
+    pointcloud_msg.header.stamp = ros::Time::now();
 
     static_pointcloud_pub.publish(pointcloud_msg);
 }

@@ -263,3 +263,22 @@ Gate 均保持未验收；不得把 typed-contract 单测或旧 adapter 证据�
 相机侧最新状态为：用户已在仓外完成新相机内参标定，等待 YAML、原始标定图片、标定板规格、
 运行分辨率及采集设置后由视觉组复核并接入 CameraInfo。安装外参、CameraInfo ROS 话题/时间戳、
 OrangePi 和实拍真值仍未闭合。
+
+## 12. 2026-08-31 PR #6 Ready 与地图阻断解除
+
+本节覆盖上文第 231～261 行的历史状态。导航 PR #6 当前为 Open/Ready，HEAD 为 `d95377c`；
+其边界保持为运动执行桥，不包含视觉集成层的 target transaction、LAND、stop ACK 或系统地图
+Gate，也尚未合并 `main`。当前视觉集成分支已实际接入单一 planner bridge，正式图只有
+`/navigation/planner_bridge` 发布 `/fastplanner/goal`。
+
+仿真地图根因已定位并修复：Gazebo MID360 的 XYZ 点型改走仿真专用解析，传感器碰撞保护环移到
+射线原点上方且保留接触包络，FreeDOM 静态地图补齐当前时间戳。`preflight3` 的原始、配准和静态
+点云分别约为 20000/7900/5600 点，静态地图为 `camera_init`、非零时间戳、约 10 Hz。最新
+`vcl06_map_guard_fix_gate90_v3_20260831_125136` 中地图约 10 Hz、pose 约 30 Hz，合同错误、碰撞、
+越界和超高均为 0，运行中不再出现 `map_missing`/`map_stale`。
+
+V-CL-06 整体仍未通过：Gate v3 以 `wall_timeout` FAIL，仅有 3 个 decision/5 个 result，未产生
+selected、APPROACH 或同一 stable ID target transaction，投递、返航、LAND 也未成立；
+`start_gate_started_once=false` 仍需核对 evaluator 的订阅/锁存时序，`P_interrupt` 保持 `null`。
+下一联合 P0 是沿 manager candidate→decision→bridge result 路径定位目标为何未进入事务；90 秒
+目标事务 Gate 通过前不启动 600 秒三投。
