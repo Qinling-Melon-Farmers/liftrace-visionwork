@@ -62,7 +62,8 @@ def parse_video_devices(devices_param):
         rospy.logwarn(f"无效的视频设备参数格式: {devices_param}，使用默认值")
         return DEFAULT_VIDEO_DEVICES
 
-def open_camera(video_devices, frame_width, frame_height, fourcc, device_index=0):
+def open_camera(video_devices, frame_width, frame_height, capture_fps, fourcc,
+                device_index=0):
     """尝试打开摄像头设备"""
     for i in range(device_index, len(video_devices)):
         device = video_devices[i]
@@ -75,7 +76,19 @@ def open_camera(video_devices, frame_width, frame_height, fourcc, device_index=0
                 cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*fourcc))
                 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
                 cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
-                rospy.loginfo(f"成功打开摄像头: {device} ({frame_width}x{frame_height}, {fourcc})")
+                cap.set(cv2.CAP_PROP_FPS, capture_fps)
+                actual_width = int(round(cap.get(cv2.CAP_PROP_FRAME_WIDTH)))
+                actual_height = int(round(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+                actual_fps = float(cap.get(cv2.CAP_PROP_FPS))
+                actual_fourcc = int(cap.get(cv2.CAP_PROP_FOURCC))
+                actual_fourcc_text = "".join(
+                    chr((actual_fourcc >> (8 * offset)) & 0xFF)
+                    for offset in range(4))
+                rospy.loginfo(
+                    "成功打开摄像头: %s; 请求=%dx%d@%.2f %s; 协商=%dx%d@%.2f %s",
+                    device, frame_width, frame_height, capture_fps, fourcc,
+                    actual_width, actual_height, actual_fps,
+                    actual_fourcc_text)
                 return cap, i  # 返回摄像头对象和当前设备索引
             else:
                 rospy.logwarn(f"无法打开设备: {device}")
@@ -113,6 +126,7 @@ def publish_camera_feed():
     frame_height = rospy.get_param('~frame_height', 1080)
     fourcc = rospy.get_param('~fourcc', 'MJPG')
     publish_rate = rospy.get_param('~publish_rate', 100)
+    capture_fps = float(rospy.get_param('~capture_fps', publish_rate))
     frame_id = str(rospy.get_param('~frame_id', '')).strip()
     
     # 新增旋转角度参数
@@ -151,6 +165,7 @@ def publish_camera_feed():
     rospy.loginfo(f"  旋转角度: {rotation_angle}度")
     rospy.loginfo(f"  光学坐标系: {frame_id or '<from camera YAML>'}")
     rospy.loginfo(f"  发布频率: {publish_rate} Hz")
+    rospy.loginfo(f"  请求采集频率: {capture_fps} Hz")
     rospy.loginfo(f"  图像保存: {'启用' if save_images else '禁用'}")
     if save_images:
         rospy.loginfo(f"  保存频率: {save_frequency} Hz")
@@ -203,7 +218,8 @@ def publish_camera_feed():
     last_frame_time = time.time()
     
     # 初始尝试打开摄像头
-    cap, current_device_index = open_camera(video_devices, frame_width, frame_height, fourcc)
+    cap, current_device_index = open_camera(
+        video_devices, frame_width, frame_height, capture_fps, fourcc)
     if cap is None:
         rospy.logerr("所有摄像头设备均无法打开，请检查连接")
         return
@@ -225,7 +241,9 @@ def publish_camera_feed():
                     cap = None
             
             # 尝试重新打开摄像头
-            cap, current_device_index = open_camera(video_devices, frame_width, frame_height, fourcc, current_device_index)
+            cap, current_device_index = open_camera(
+                video_devices, frame_width, frame_height, capture_fps,
+                fourcc, current_device_index)
             if cap is None:
                 if retry_count < max_retries:
                     rospy.logwarn(f"重新连接失败，将在 {retry_delay} 秒后重试 ({retry_count+1}/{max_retries})")

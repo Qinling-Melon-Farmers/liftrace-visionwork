@@ -1,0 +1,134 @@
+<launch>
+  <!-- Pixel-only offline replay.  This launch never starts TF/map projection,
+       target memory, planner/control, MAVROS, PX4, or an actuator. -->
+  <arg name="video_path" default="" />
+  <arg name="output_video" default="" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="vision_python"
+       default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
+  <arg name="target_detector_imgsz" default="640" />
+  <arg name="class_profile" default="r2026" />
+  <arg name="max_frames" default="0" />
+  <arg name="overwrite" default="false" />
+  <!-- Keep the decoder's raw pixel coordinates.  real_target.mp4 contains
+       rotation metadata; enabling this would rotate 2560x1080 into 1080x2560. -->
+  <arg name="orientation_auto" default="false" />
+  <arg name="startup_timeout_sec" default="120.0" />
+  <arg name="frame_timeout_sec" default="60.0" />
+
+  <arg name="image_topic" default="/uav_vision/video_replay/image_raw" />
+  <arg name="camera_info_topic"
+       default="/uav_vision/video_replay/camera_info" />
+  <arg name="raw_topic"
+       default="/uav_vision/video_replay/detections_raw" />
+  <arg name="resolved_search_topic"
+       default="/uav_vision/video_replay/detections_resolved_search" />
+  <arg name="resolved_landing_topic"
+       default="/uav_vision/video_replay/detections_resolved_landing" />
+  <arg name="refined_topic"
+       default="/uav_vision/video_replay/detections_refined" />
+
+  <group ns="uav_vision_video_replay">
+    <node pkg="uav_vision" type="target_detector.py"
+          name="target_detector" output="screen" required="true"
+          launch-prefix="$(arg vision_python)">
+      <rosparam file="$(find uav_vision)/config/default.yaml" />
+      <rosparam file="$(find uav_vision)/config/target_detector.yaml" />
+      <param name="image_topic" value="$(arg image_topic)" />
+      <param name="model_path" value="$(arg target_model_path)" />
+      <param name="imgsz" value="$(arg target_detector_imgsz)" />
+      <remap from="/uav_vision/detections" to="$(arg raw_topic)" />
+    </node>
+
+    <node pkg="uav_vision" type="cross_detector_node"
+          name="cross_detector" output="screen" required="true">
+      <rosparam file="$(find uav_vision)/config/default.yaml" />
+      <rosparam file="$(find uav_vision)/config/cross_detector.yaml" />
+      <param name="image_topic" value="$(arg image_topic)" />
+      <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+      <param name="enable_debug_image" value="false" />
+      <remap from="/uav_vision/detections" to="$(arg raw_topic)" />
+    </node>
+
+    <node pkg="uav_vision" type="circle_detector_node"
+          name="circle_detector" output="screen" required="true">
+      <rosparam file="$(find uav_vision)/config/default.yaml" />
+      <rosparam file="$(find uav_vision)/config/circle_detector.yaml" />
+      <param name="image_topic" value="$(arg image_topic)" />
+      <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+      <param name="enable_debug_image" value="false" />
+      <remap from="/uav_vision/detections" to="$(arg raw_topic)" />
+    </node>
+
+    <node pkg="uav_vision" type="landing_detector_node"
+          name="landing_detector" output="screen" required="true">
+      <rosparam file="$(find uav_vision)/config/default.yaml" />
+      <rosparam file="$(find uav_vision)/config/landing_detector.yaml" />
+      <param name="image_topic" value="$(arg image_topic)" />
+      <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+      <!-- Replay observes landing geometry on every frame.  The independent
+           landing-mode fusion below still applies the production stage gate. -->
+      <param name="process_only_in_landing_mode" value="false" />
+      <param name="enable_debug_image" value="false" />
+      <remap from="/uav_vision/detections" to="$(arg raw_topic)" />
+    </node>
+
+    <!-- Search/observation and landing are deliberately separate fusion
+         views; no synthetic mode is added to the production fusion node. -->
+    <node pkg="uav_vision" type="detection_fusion.py"
+          name="search_detection_fusion" output="screen" required="true">
+      <rosparam file="$(find uav_vision)/config/detection_fusion.yaml" />
+      <param name="input_topic" value="$(arg raw_topic)" />
+      <param name="output_topic" value="$(arg resolved_search_topic)" />
+      <param name="align_mode_topic"
+             value="/uav_vision/video_replay/search_align_mode" />
+      <param name="default_align_mode" value="disabled" />
+    </node>
+
+    <node pkg="uav_vision" type="detection_fusion.py"
+          name="landing_detection_fusion" output="screen" required="true">
+      <rosparam file="$(find uav_vision)/config/detection_fusion.yaml" />
+      <param name="input_topic" value="$(arg raw_topic)" />
+      <param name="output_topic" value="$(arg resolved_landing_topic)" />
+      <param name="align_mode_topic"
+             value="/uav_vision/video_replay/landing_align_mode" />
+      <param name="default_align_mode" value="landing" />
+    </node>
+
+    <node pkg="uav_vision" type="target_refiner.py"
+          name="target_refiner" output="screen" required="true">
+      <rosparam file="$(find uav_vision)/config/target_refiner.yaml" />
+      <param name="input_topic" value="$(arg resolved_search_topic)" />
+      <param name="output_topic" value="$(arg refined_topic)" />
+      <param name="class_profile" value="$(arg class_profile)" />
+    </node>
+
+    <node pkg="uav_vision" type="video_annotation_recorder.py"
+          name="video_annotation_recorder" output="screen"
+          launch-prefix="$(arg vision_python)">
+      <param name="output_video" value="$(arg output_video)" />
+      <param name="overwrite" value="$(arg overwrite)" />
+      <param name="image_topic" value="$(arg image_topic)" />
+      <param name="raw_topic" value="$(arg raw_topic)" />
+      <param name="resolved_search_topic"
+             value="$(arg resolved_search_topic)" />
+      <param name="resolved_landing_topic"
+             value="$(arg resolved_landing_topic)" />
+      <param name="refined_topic" value="$(arg refined_topic)" />
+    </node>
+
+    <!-- Start the publisher last.  It also waits for all five image
+         subscribers and for CameraInfo subscribers before frame zero. -->
+    <node pkg="uav_vision" type="video_replay_publisher.py"
+          name="video_replay_publisher" output="screen" required="true"
+          launch-prefix="$(arg vision_python)">
+      <param name="video_path" value="$(arg video_path)" />
+      <param name="image_topic" value="$(arg image_topic)" />
+      <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+      <param name="max_frames" value="$(arg max_frames)" />
+      <param name="orientation_auto" value="$(arg orientation_auto)" />
+      <param name="startup_timeout_sec" value="$(arg startup_timeout_sec)" />
+      <param name="frame_timeout_sec" value="$(arg frame_timeout_sec)" />
+    </node>
+  </group>
+</launch>

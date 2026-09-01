@@ -1,34 +1,28 @@
 #!/usr/bin/env python3
-"""从香橙派拉取文件到本地（pexpect scp 带密码，密码不落盘）。
+"""Fetch one OrangePi path without storing a password in source."""
 
-用法: python3 ssh_board_fetch.py <板端路径> <本地路径>
-"""
 import sys
-import pexpect
 
-HOST = "orangepi@192.168.3.15"
-PASSWORD = "orangepi"
+from ssh_pexpect_auth import board_host, spawn_and_wait
 
 
-def fetch(remote_path, local_path, timeout=300):
-    child = pexpect.spawn(
-        f"scp -o StrictHostKeyChecking=no -o ConnectTimeout=8 "
-        f"{HOST}:{remote_path} {local_path}",
-        encoding="utf-8", timeout=timeout)
+def main():
+    if len(sys.argv) != 3:
+        print("usage: ssh_board_fetch.py REMOTE_PATH LOCAL_PATH", file=sys.stderr)
+        return 2
+    arguments = [
+        "-o", "StrictHostKeyChecking=accept-new",
+        "-o", "ConnectTimeout=10",
+        board_host() + ":" + sys.argv[1], sys.argv[2],
+    ]
     try:
-        idx = child.expect([r"[Pp]assword:", pexpect.EOF, pexpect.TIMEOUT])
-        if idx == 0:
-            child.sendline(PASSWORD)
-            child.expect(pexpect.EOF, timeout=timeout)
-        print(child.before)
-    except pexpect.TIMEOUT:
-        print("TIMEOUT:", child.before[-2000:] if child.before else "")
-    finally:
-        child.close()
+        code, output = spawn_and_wait("scp", arguments, 600)
+    except TimeoutError as error:
+        print("fetch timeout: %s" % error, file=sys.stderr)
+        return 1
+    sys.stdout.write(output)
+    return code
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("usage: ssh_board_fetch.py <remote_path> <local_path>")
-        sys.exit(1)
-    fetch(sys.argv[1], sys.argv[2])
+    raise SystemExit(main())
