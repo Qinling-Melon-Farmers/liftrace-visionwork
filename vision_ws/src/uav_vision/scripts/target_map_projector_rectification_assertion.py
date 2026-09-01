@@ -36,7 +36,7 @@ class _TfBuffer:
         return transform
 
 
-def _project(rectify_input_pixels):
+def _project(rectify_input_pixels, camera_has_distortion=True):
     projector = TargetMapProjector.__new__(TargetMapProjector)
     projector._camera_ready = True
     projector._camera_model = _CameraModel()
@@ -48,6 +48,7 @@ def _project(rectify_input_pixels):
     projector._allow_latest_tf_fallback = False
     projector._max_latest_tf_age = 0.1
     projector._rectify_input_pixels = rectify_input_pixels
+    projector._camera_has_distortion = camera_has_distortion
 
     detection = TargetDetection()
     detection.center_refined = True
@@ -69,6 +70,10 @@ def main():
     rectified_model = _project(False)
     assert rectified_model.rectified is None
     assert rectified_model.projected == (800.0, 420.0)
+
+    zero_distortion_model = _project(True, camera_has_distortion=False)
+    assert zero_distortion_model.rectified is None
+    assert zero_distortion_model.projected == (800.0, 420.0)
     print("target_map_projector rectification PASS")
     return 0
 
