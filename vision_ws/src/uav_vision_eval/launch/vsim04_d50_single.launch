@@ -3,9 +3,7 @@
        through the production pixel/Phase-D chain and established recorder. -->
   <arg name="matrix_file"
        default="$(find uav_vision_eval)/config/vsim04_trajectory_d50_matrix.yaml" />
-  <!-- Selection is owned by run_vsim04_d50.sh.  Keeping both defaults empty
-       prevents a named slice from colliding with an implicit single trial. -->
-  <arg name="trial_selector" default="" />
+  <arg name="trial_selector" default="d_single_01" />
   <arg name="trial_slice" default="" />
   <arg name="world" default="$(find patrol_control)/../../../toudi4_copy.world" />
   <arg name="scenario_file"

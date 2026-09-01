@@ -11,7 +11,6 @@ fi
 
 case "${SELECTION}" in
   supported)
-    SELECTION_ARGUMENTS=("trial_selector:=" "trial_slice:=single_smoke_supported")
     SCENE_TOKEN="supported"
     ;;
   d_single_[0-9][0-9])
@@ -20,7 +19,6 @@ case "${SELECTION}" in
       echo "D50 single trial must be in d_single_01..d_single_40" >&2
       exit 2
     fi
-    SELECTION_ARGUMENTS=("trial_selector:=${SELECTION}" "trial_slice:=")
     SCENE_TOKEN="${SELECTION}"
     ;;
   *)
@@ -44,16 +42,25 @@ for LAUNCH_ARGUMENT in "$@"; do
 done
 
 MATRIX_FILE="${PROJECT_ROOT}/vision_ws/src/uav_vision_eval/config/vsim04_trajectory_d50_matrix.yaml"
-if [ "${SELECTION}" != "supported" ]; then
-  VISION_PYTHON_BIN="${VISION_PYTHON:-/home/xhj/miniconda3/envs/rl_drone/bin/python}"
-  if [ ! -x "${VISION_PYTHON_BIN}" ]; then
-    echo "VISION_PYTHON is not executable: ${VISION_PYTHON_BIN}" >&2
+VISION_PYTHON_BIN="${VISION_PYTHON:-/home/xhj/miniconda3/envs/rl_drone/bin/python}"
+if [ ! -x "${VISION_PYTHON_BIN}" ]; then
+  echo "VISION_PYTHON is not executable: ${VISION_PYTHON_BIN}" >&2
+  exit 2
+fi
+D50_PYTHONPATH="${PROJECT_ROOT}/vision_ws/src/uav_vision/src:${PROJECT_ROOT}/vision_ws/src/uav_vision_eval/src"
+SUPPORTED_TRIALS="$(PYTHONPATH="${D50_PYTHONPATH}" "${VISION_PYTHON_BIN}" \
+  "${PROJECT_ROOT}/vision_ws/src/uav_vision_eval/scripts/vsim04_d50_dry_run.py" \
+  --matrix "${MATRIX_FILE}" --list-runtime-supported)"
+
+if [ "${SELECTION}" = "supported" ]; then
+  mapfile -t SUPPORTED_TRIAL_IDS <<< "${SUPPORTED_TRIALS}"
+  SUPPORTED_SELECTOR="$(IFS=,; echo "${SUPPORTED_TRIAL_IDS[*]}")"
+  if [ -z "${SUPPORTED_SELECTOR}" ]; then
+    echo "D50 runtime-supported trial list is empty" >&2
     exit 2
   fi
-  D50_PYTHONPATH="${PROJECT_ROOT}/vision_ws/src/uav_vision/src:${PROJECT_ROOT}/vision_ws/src/uav_vision_eval/src"
-  SUPPORTED_TRIALS="$(PYTHONPATH="${D50_PYTHONPATH}" "${VISION_PYTHON_BIN}" \
-    "${PROJECT_ROOT}/vision_ws/src/uav_vision_eval/scripts/vsim04_d50_dry_run.py" \
-    --matrix "${MATRIX_FILE}" --list-runtime-supported)"
+  SELECTION_ARGUMENTS=("trial_selector:=${SUPPORTED_SELECTOR}")
+else
   SELECTION_SUPPORTED=0
   while IFS= read -r SUPPORTED_TRIAL; do
     if [ "${SUPPORTED_TRIAL}" = "${SELECTION}" ]; then
@@ -64,6 +71,7 @@ if [ "${SELECTION}" != "supported" ]; then
     echo "D50 trial is NOT_RUN by the current framing/arena contract: ${SELECTION}" >&2
     exit 2
   fi
+  SELECTION_ARGUMENTS=("trial_selector:=${SELECTION}")
 fi
 
 MODEL_PATH="${UAV_VISION_MODEL_PATH:?set UAV_VISION_MODEL_PATH to the dev/sim .pt model}"

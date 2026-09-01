@@ -19,6 +19,7 @@ runs/
 *.pt
 *.onnx
 *.zip
+*.zip.sha256
 *.tar.gz
 *.pdf
 *.pcd
