@@ -941,6 +941,107 @@ class MissionCoreTest(unittest.TestCase):
         self.assertEqual(next_action.reason, "required_deliveries_complete")
         self.assertEqual(core.phase, MissionPhase.RETURN_HOME)
 
+    def test_three_commits_follow_configured_route_before_land(self):
+        route = (
+            GoalSnapshot("camera_init", -2.0, 6.0, 1.0),
+            GoalSnapshot("camera_init", 0.0, 8.0, 1.2),
+            GoalSnapshot("camera_init", 3.0, 8.0, 0.75),
+        )
+        core = self.make_core(MissionConfig(
+            post_delivery_route=route,
+            post_delivery_route_revision="three-door-test-r1",
+            landing_xy=(3.0, 8.0),
+        ))
+        event_seq = 1
+        for index, class_name in enumerate(
+                ("bridge", "panzer", "red_cross"), start=1):
+            action = self.dispatch(
+                core,
+                candidate(index, class_name, now=100.0 + index),
+                now=100.0 + index,
+            )
+            next_action = self.finish_delivery(core, action, event_seq)
+            event_seq += 2
+
+        self.assertEqual(core.phase, MissionPhase.POST_DELIVERY_ROUTE)
+        for route_index, expected in enumerate(route):
+            with self.subTest(route_index=route_index):
+                self.assertEqual(next_action.command, "RETURN_HOME")
+                self.assertEqual(next_action.goal, expected)
+                self.assertIn(
+                    "post_delivery_route:%d/%d" %
+                    (route_index + 1, len(route)),
+                    next_action.reason,
+                )
+                accepted, reason, following = core.apply_result(
+                    result_for(
+                        next_action,
+                        event_seq,
+                        status="SUCCEEDED",
+                        stage="PLANNER",
+                        terminal=True,
+                        reason="route_point_reached",
+                    ),
+                    next_action.issued_at + 0.2,
+                )
+                self.assertTrue(accepted, reason)
+                event_seq += 1
+                next_action = following
+
+        self.assertEqual(next_action.command, "LAND")
+        self.assertEqual(next_action.reason, "post_delivery_route_complete")
+        self.assertEqual(core.post_delivery_route_index, len(route))
+        self.assertEqual(core.phase, MissionPhase.LAND)
+
+    def test_post_delivery_route_failure_aborts_without_skipping_to_land(self):
+        route = (
+            GoalSnapshot("camera_init", -2.0, 6.0, 1.0),
+            GoalSnapshot("camera_init", 3.0, 8.0, 0.75),
+        )
+        core = self.make_core(MissionConfig(
+            post_delivery_route=route,
+            post_delivery_route_revision="route-failure-test-r1",
+            landing_xy=(3.0, 8.0),
+        ))
+        event_seq = 1
+        for index, class_name in enumerate(
+                ("bridge", "panzer", "red_cross"), start=1):
+            action = self.dispatch(
+                core,
+                candidate(index, class_name, now=100.0 + index),
+                now=100.0 + index,
+            )
+            route_action = self.finish_delivery(core, action, event_seq)
+            event_seq += 2
+        accepted, reason, abort = core.apply_result(
+            result_for(
+                route_action,
+                event_seq,
+                status="FAILED",
+                stage="PLANNER",
+                terminal=True,
+                reason="door_unreachable",
+            ),
+            route_action.issued_at + 0.2,
+        )
+        self.assertTrue(accepted, reason)
+        self.assertEqual(reason, "return_home_failed")
+        self.assertEqual(abort.command, "ABORT")
+        self.assertEqual(core.phase, MissionPhase.ABORTED)
+
+    def test_forced_return_bypasses_optional_post_delivery_route(self):
+        core = self.make_core(MissionConfig(
+            post_delivery_route=(
+                GoalSnapshot("camera_init", 3.0, 8.0, 0.75),),
+            post_delivery_route_revision="optional-route-test-r1",
+            landing_xy=(3.0, 8.0),
+        ))
+        action = core.choose(610.0, (1.0, 1.0))
+        self.assertEqual(action.command, "RETURN_HOME")
+        self.assertEqual(action.goal.x, 0.0)
+        self.assertEqual(action.goal.y, 0.0)
+        self.assertEqual(core.phase, MissionPhase.RETURN_HOME)
+
     def test_executor_change_and_target_identity_mismatch_fail_closed(self):
         core = self.make_core()
         action = self.dispatch(core, candidate())
@@ -1035,6 +1136,15 @@ class MissionCoreTest(unittest.TestCase):
             {"max_attempts": 2.0},
             {"decision_guard": "15"},
             {"home_xy": "12"},
+            {"landing_xy": "12"},
+            {"post_delivery_route_revision": " "},
+            {"post_delivery_route": [[0.0, 0.0, 1.0]]},
+            {"post_delivery_route": (
+                GoalSnapshot("map", 0.0, 0.0, 1.0),)},
+            {"post_delivery_route": (
+                GoalSnapshot("camera_init", 1.0, 1.0, 1.0),),
+             "landing_xy": (0.0, 0.0),
+             "landing_anchor_tolerance": 0.1},
         )
         for values in invalid_configs:
             with self.subTest(values=values):

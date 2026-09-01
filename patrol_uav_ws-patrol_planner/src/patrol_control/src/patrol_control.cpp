@@ -16,6 +16,7 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h" 
 #include <yaml-cpp/yaml.h>
 #include <algorithm>
+#include <stdexcept>
 #include <vector>
  
 int times_detect = 0;  
@@ -265,6 +266,10 @@ void LLController::publishControlReady(bool ready) {
 }
 
 void LLController::externalMissionTick() {
+    if (Drone_mode == Land) {
+        externalLandingTick();
+        return;
+    }
     if (Drone_mode != Aligning) {
         return;
     }
@@ -286,6 +291,152 @@ void LLController::externalMissionTick() {
         detect_control_pub_.publish(detect_enable_msg);
         Drone_mode = Run_point;
         ROS_INFO("[PatrolControl] External ALIGN completed; waiting for RESUME command");
+    }
+}
+
+bool LLController::externalLandingMarkFresh(const ros::Time& now) const {
+    if (!have_land_mark || external_landing_last_mark_stamp_.isZero() ||
+        external_landing_last_mark_receipt_.isZero()) {
+        return false;
+    }
+    const double source_age =
+        (now - external_landing_last_mark_stamp_).toSec();
+    const double receipt_age =
+        (now - external_landing_last_mark_receipt_).toSec();
+    return source_age >= 0.0 && receipt_age >= 0.0 &&
+           source_age <= external_landing_mark_max_age_sec_ &&
+           receipt_age <= external_landing_mark_max_age_sec_;
+}
+
+void LLController::clearExternalLandingState(bool disable_detector) {
+    external_landing_active_ = false;
+    external_landing_new_mark_ = false;
+    external_landing_alignment_complete_ = false;
+    external_landing_auto_land_requested_ = false;
+    external_landing_stable_count_ = 0;
+    external_landing_started_at_ = ros::Time(0);
+    external_landing_command_stamp_ = ros::Time(0);
+    external_landing_last_mark_stamp_ = ros::Time(0);
+    external_landing_last_mark_receipt_ = ros::Time(0);
+    external_landing_last_auto_land_attempt_ = ros::Time(0);
+    have_land_mark = false;
+    flag_land = false;
+
+    if (disable_detector) {
+        std_msgs::Bool landing_enable;
+        landing_enable.data = false;
+        landing_detect_control_pub_.publish(landing_enable);
+    }
+}
+
+void LLController::failExternalLanding(const std::string& reason) {
+    clearExternalLandingState(true);
+
+    patrol_cmd = uav_pose;
+    patrol_cmd.header.frame_id = external_landing_frame_;
+    mavros_point_cmd = patrol_cmd;
+    last_mavros_point_cmd = patrol_cmd;
+    have_planner_cmd = false;
+    Point_mode = Nothing_point;
+    Drone_mode = Run_point;
+    ROS_ERROR("[ExternalLanding] failed closed and holding position: %s",
+              reason.c_str());
+}
+
+void LLController::externalLandingTick() {
+    if (!external_landing_active_) {
+        failExternalLanding("landing_state_not_initialized");
+        return;
+    }
+
+    std_msgs::Bool landing_enable;
+    landing_enable.data = true;
+    landing_detect_control_pub_.publish(landing_enable);
+
+    const ros::Time now = ros::Time::now();
+    if (flag_land) {
+        patrol_cmd.pose.position.x = external_landing_aligned_goal_.pose.position.x;
+        patrol_cmd.pose.position.y = external_landing_aligned_goal_.pose.position.y;
+        patrol_cmd.pose.position.z = land_height;
+        patrol_cmd.pose.orientation = external_landing_goal_.pose.orientation;
+        return;
+    }
+    if ((now - external_landing_started_at_).toSec() >
+        external_landing_timeout_sec_) {
+        failExternalLanding("h_alignment_or_auto_land_timeout");
+        return;
+    }
+
+    const bool mark_fresh = externalLandingMarkFresh(now);
+    if (!mark_fresh) {
+        external_landing_stable_count_ = 0;
+        external_landing_alignment_complete_ = false;
+    }
+
+    if (mark_fresh && external_landing_new_mark_) {
+        const double horizontal_error = std::hypot(
+            uav_pose.pose.position.x - land_mark_point.pose.position.x,
+            uav_pose.pose.position.y - land_mark_point.pose.position.y);
+        if (horizontal_error <= external_landing_alignment_tolerance_) {
+            ++external_landing_stable_count_;
+        } else {
+            external_landing_stable_count_ = 0;
+        }
+        external_landing_new_mark_ = false;
+        if (external_landing_stable_count_ >=
+            external_landing_stable_frames_) {
+            external_landing_alignment_complete_ = true;
+            external_landing_aligned_goal_ = land_mark_point;
+            external_landing_aligned_goal_.pose.position.z = land_height;
+            external_landing_aligned_goal_.pose.orientation =
+                external_landing_goal_.pose.orientation;
+            ROS_INFO("[ExternalLanding] fresh H alignment completed with %d frames",
+                     external_landing_stable_count_);
+        }
+    }
+
+    const geometry_msgs::PoseStamped& target =
+        external_landing_alignment_complete_
+            ? external_landing_aligned_goal_
+            : (mark_fresh ? land_mark_point : external_landing_goal_);
+    adjust_target_position[0] = target.pose.position.x;
+    adjust_target_position[1] = target.pose.position.y;
+    adjust_target_position[2] = external_landing_alignment_complete_
+        ? land_height : external_landing_capture_height_;
+    adjust_target_position[3] =
+        tf::getYaw(external_landing_goal_.pose.orientation);
+    patrol_cmd.header.frame_id = external_landing_frame_;
+    patrol_cmd.pose.position.x = adjust_target_position[0];
+    patrol_cmd.pose.position.y = adjust_target_position[1];
+    patrol_cmd.pose.position.z = adjust_target_position[2];
+    patrol_cmd.pose.orientation = external_landing_goal_.pose.orientation;
+
+    if (!external_landing_alignment_complete_) {
+        ROS_INFO_THROTTLE(
+            1.0,
+            "[ExternalLanding] waiting for fresh H alignment %d/%d",
+            external_landing_stable_count_, external_landing_stable_frames_);
+        return;
+    }
+
+    const double horizontal_error = std::hypot(
+        uav_pose.pose.position.x - external_landing_aligned_goal_.pose.position.x,
+        uav_pose.pose.position.y - external_landing_aligned_goal_.pose.position.y);
+    if (uav_pose.pose.position.z <= external_landing_auto_land_height_ &&
+        horizontal_error <= external_landing_alignment_tolerance_) {
+        if (!(simulation_auto_land && auto_land)) {
+            ROS_ERROR_THROTTLE(
+                2.0,
+                "[ExternalLanding] AUTO.LAND blocked: explicit simulation gate is not enabled");
+            return;
+        }
+        if (external_landing_last_auto_land_attempt_.isZero() ||
+            (now - external_landing_last_auto_land_attempt_).toSec() >=
+                external_landing_auto_land_retry_sec_) {
+            external_landing_last_auto_land_attempt_ = now;
+            CallLand();
+            external_landing_auto_land_requested_ = flag_land;
+        }
     }
 }
 void LLController::patrol(){
@@ -604,10 +755,45 @@ void LLController::crossMarkCallback(const geometry_msgs::PoseStamped& msg) {
 
 void LLController::landMarkCallback(const geometry_msgs::PoseStamped& msg)
 {
+    if (external_mission_mode_) {
+        if (!external_landing_active_ || Drone_mode != Land) {
+            return;
+        }
+        const ros::Time now = ros::Time::now();
+        const double source_age = (now - msg.header.stamp).toSec();
+        const bool coordinates_valid =
+            std::isfinite(msg.pose.position.x) &&
+            std::isfinite(msg.pose.position.y) &&
+            std::isfinite(msg.pose.position.z);
+        const double anchor_error = std::hypot(
+            msg.pose.position.x - external_landing_goal_.pose.position.x,
+            msg.pose.position.y - external_landing_goal_.pose.position.y);
+        if (msg.header.frame_id != external_landing_frame_ ||
+            msg.header.stamp.isZero() || source_age < 0.0 ||
+            source_age > external_landing_mark_max_age_sec_ ||
+            msg.header.stamp <= external_landing_command_stamp_ ||
+            (!external_landing_last_mark_stamp_.isZero() &&
+             msg.header.stamp <= external_landing_last_mark_stamp_) ||
+            !coordinates_valid ||
+            anchor_error > external_landing_max_mark_offset_) {
+            ROS_WARN_THROTTLE(
+                1.0,
+                "[ExternalLanding] rejected H mark frame=%s age=%.3f anchor_error=%.3f",
+                msg.header.frame_id.c_str(), source_age, anchor_error);
+            return;
+        }
+        land_mark_point = msg;
+        have_land_mark = true;
+        external_landing_new_mark_ = true;
+        external_landing_last_mark_stamp_ = msg.header.stamp;
+        external_landing_last_mark_receipt_ = now;
+        ROS_INFO_THROTTLE(
+            1.0, "[ExternalLanding] accepted fresh H mark at %.3f %.3f",
+            msg.pose.position.x, msg.pose.position.y);
+        return;
+    }
     have_land_mark = true;
-    land_mark_point.pose.position.x = msg.pose.position.x;
-    land_mark_point.pose.position.y = msg.pose.position.y;
-   // land_mark_point.pose.position.z = align_height;
+    land_mark_point = msg;
     ROS_INFO("[landmarkCallback] cross_mark_point: %.2f, %.2f, %.2f", land_mark_point.pose.position.x, land_mark_point.pose.position.y, land_mark_point.pose.position.z);    
 }
 bool isQuaternionNormalized(const geometry_msgs::Quaternion& q, double tolerance = 1e-6)
@@ -1018,7 +1204,11 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     // std::cout<<"mavros_point_cmd.pose.position.x, mavros_point_cmd.pose.position.y, mavros_point_cmd.pose.position.z = "<<mavros_point_cmd.pose.position.x<<", "<<mavros_point_cmd.pose.position.y<<", "<<mavros_point_cmd.pose.position.z<<std::endl;
     last_mavros_point_cmd = mavros_point_cmd;
     // 判断是否已经降落，降落成功就锁桨
-    if(Drone_mode == Land && uav_pose.pose.position.z <= 0.02){
+    // External SITL landing delegates disarm to PX4 AUTO.LAND and verifies it
+    // through MAVROS.  The legacy height-only force-disarm path is unsafe for
+    // that contract because a bad local-z sample could stop motors in flight.
+    if(!external_mission_mode_ && Drone_mode == Land &&
+       uav_pose.pose.position.z <= 0.02){
         // 禁用降落检测
         std_msgs::Bool landing_detect_disable_msg;
         landing_detect_disable_msg.data = false;
@@ -1048,13 +1238,23 @@ void LLController::CallLand() {
     if (simulation_auto_land && auto_land) {
         mavros_msgs::SetMode auto_land_mode;
         auto_land_mode.request.custom_mode = "AUTO.LAND";
-        if (set_mode_client.call(auto_land_mode) && auto_land_mode.response.mode_sent) {
+        const bool mode_accepted =
+            set_mode_client.call(auto_land_mode) &&
+            auto_land_mode.response.mode_sent;
+        if (mode_accepted) {
             ROS_INFO("[PatrolControl] Simulation AUTO.LAND mode enabled");
         } else {
             ROS_WARN("[PatrolControl] Simulation AUTO.LAND request failed; keeping safe landing setpoint");
         }
         // Do not publish the historical -1 m setpoint in this simulation path.
         align_height = land_height;
+        if (external_mission_mode_ && !mode_accepted) {
+            // External mission completion is observed through MAVROS landed
+            // state.  A rejected mode request must remain retryable instead
+            // of pretending that the landing handoff succeeded.
+            flag_land = false;
+            return;
+        }
     } else {
         if(!flag_landing_detect){
             adjust_target_position[0] = waypoint_temp.pose.position.x;
@@ -1123,6 +1323,37 @@ void LLController::load_params() {
     px4_max_distance = nh_.param("px4_max_distance", 1.2);
     max_yaw_change = nh_.param("max_yaw_change", 0.3);
     align_height = nh_.param("align_height", 1.0);
+    external_landing_frame_ = nh_.param<std::string>(
+        "external_landing/frame", "camera_init");
+    external_landing_capture_height_ = nh_.param(
+        "external_landing/capture_height", 0.75);
+    external_landing_timeout_sec_ = nh_.param(
+        "external_landing/timeout_sec", 75.0);
+    external_landing_mark_max_age_sec_ = nh_.param(
+        "external_landing/mark_max_age_sec", 0.5);
+    external_landing_alignment_tolerance_ = nh_.param(
+        "external_landing/alignment_tolerance", 0.08);
+    external_landing_max_mark_offset_ = nh_.param(
+        "external_landing/max_mark_offset", 0.60);
+    external_landing_auto_land_height_ = nh_.param(
+        "external_landing/auto_land_height", 0.40);
+    external_landing_auto_land_retry_sec_ = nh_.param(
+        "external_landing/auto_land_retry_sec", 1.0);
+    external_landing_stable_frames_ = nh_.param(
+        "external_landing/stable_frames", 10);
+    if (external_landing_frame_.empty() || land_height <= 0.0 ||
+        external_landing_capture_height_ <= external_landing_auto_land_height_ ||
+        external_landing_auto_land_height_ < land_height ||
+        external_landing_timeout_sec_ <= 0.0 ||
+        external_landing_mark_max_age_sec_ <= 0.0 ||
+        external_landing_alignment_tolerance_ <= 0.0 ||
+        external_landing_max_mark_offset_ <
+            external_landing_alignment_tolerance_ ||
+        external_landing_auto_land_retry_sec_ <= 0.0 ||
+        external_landing_stable_frames_ <= 0) {
+        ROS_FATAL("[ExternalLanding] invalid fail-closed landing parameters");
+        throw std::invalid_argument("invalid external_landing parameters");
+    }
     
     // 投递系统参数
     drop_precision_threshold = nh_.param("drop_system/precision_threshold", 20.0);
@@ -1193,6 +1424,14 @@ void LLController::load_params() {
              control_ready_topic_.c_str());
     ROS_INFO("[PatrolControl] external_alignment_timeout: %.1f s",
              external_alignment_timeout_sec_);
+    ROS_INFO(
+        "[ExternalLanding] frame=%s capture=%.2f handoff=%.2f land=%.2f "
+        "tol=%.2f mark_age=%.2f stable=%d timeout=%.1f",
+        external_landing_frame_.c_str(), external_landing_capture_height_,
+        external_landing_auto_land_height_, land_height,
+        external_landing_alignment_tolerance_,
+        external_landing_mark_max_age_sec_, external_landing_stable_frames_,
+        external_landing_timeout_sec_);
     
     nh_.getParam("/debug", debug);
 
@@ -2102,6 +2341,13 @@ void LLController::projectDropOffsetToTarget(const uav_vision::DropOffset& msg)
     if (current_align_mode_ == "disabled") {
         return;
     }
+    if (external_mission_mode_ && external_landing_active_) {
+        // External landing accepts only map-frame landing_pad observations
+        // that passed landMarkCallback's timestamp/freshness/anchor checks.
+        // The pixel-offset compatibility path must never overwrite that
+        // validated snapshot.
+        return;
+    }
 
     const double pixel_error_x = msg.dx_px;
     const double pixel_error_y = msg.dy_px;
@@ -2219,6 +2465,12 @@ void LLController::missionCommandCallback(
         case patrol_control::MissionCommand::APPROACH:
         case patrol_control::MissionCommand::RESUME:
         case patrol_control::MissionCommand::RETURN_HOME:
+            if (external_landing_auto_land_requested_) {
+                ROS_ERROR(
+                    "[ExternalLanding] refusing navigation command after AUTO.LAND handoff");
+                return;
+            }
+            clearExternalLandingState(true);
             if (msg->command == patrol_control::MissionCommand::RESUME) {
                 resetDetectionState();
             }
@@ -2231,6 +2483,12 @@ void LLController::missionCommandCallback(
             break;
 
         case patrol_control::MissionCommand::ALIGN:
+            if (external_landing_auto_land_requested_) {
+                ROS_ERROR(
+                    "[ExternalLanding] refusing ALIGN after AUTO.LAND handoff");
+                return;
+            }
+            clearExternalLandingState(true);
             resetDetectionState();
             // 随机投放区红十字与标准靶共用同一使命层队列，仅按目标类别选择
             // 对齐状态机分支（十字走 CrossDetectionDone，其余走圆环流程）。
@@ -2261,20 +2519,68 @@ void LLController::missionCommandCallback(
                      adjust_target_position[0], adjust_target_position[1]);
             break;
 
-        case patrol_control::MissionCommand::LAND:
+        case patrol_control::MissionCommand::LAND: {
+            if (external_landing_active_) {
+                ROS_WARN_THROTTLE(
+                    2.0, "[ExternalLanding] duplicate LAND command ignored");
+                return;
+            }
             resetDetectionState();
+            if (msg->goal.header.frame_id != external_landing_frame_ ||
+                !std::isfinite(msg->goal.pose.position.x) ||
+                !std::isfinite(msg->goal.pose.position.y) ||
+                std::hypot(
+                    msg->goal.pose.position.x - uav_pose.pose.position.x,
+                    msg->goal.pose.position.y - uav_pose.pose.position.y) >
+                    external_planner_start_max_distance_) {
+                ROS_ERROR(
+                    "[ExternalLanding] rejected LAND goal frame=%s at (%.3f, %.3f)",
+                    msg->goal.header.frame_id.c_str(),
+                    msg->goal.pose.position.x,
+                    msg->goal.pose.position.y);
+                break;
+            }
             current_task_type = MAIN_MISSION;
             Point_mode = Land_point;
-            adjust_target_position[0] = msg->goal.pose.position.x;
-            adjust_target_position[1] = msg->goal.pose.position.y;
-            adjust_target_position[2] = msg->goal.pose.position.z;
+            external_landing_goal_ = msg->goal;
+            external_landing_goal_.header.frame_id = external_landing_frame_;
+            external_landing_goal_.pose.position.z =
+                external_landing_capture_height_;
+            if (!isQuaternionNormalized(
+                    external_landing_goal_.pose.orientation)) {
+                external_landing_goal_.pose.orientation =
+                    tf::createQuaternionMsgFromYaw(0.0);
+            }
+            external_landing_aligned_goal_ = external_landing_goal_;
+            external_landing_active_ = true;
+            external_landing_new_mark_ = false;
+            external_landing_alignment_complete_ = false;
+            external_landing_auto_land_requested_ = false;
+            external_landing_stable_count_ = 0;
+            external_landing_started_at_ = ros::Time::now();
+            external_landing_command_stamp_ = external_landing_started_at_;
+            external_landing_last_mark_stamp_ = ros::Time(0);
+            external_landing_last_mark_receipt_ = ros::Time(0);
+            external_landing_last_auto_land_attempt_ = ros::Time(0);
+            have_land_mark = false;
+            flag_land = false;
+            align_height = external_landing_capture_height_;
+            adjust_target_position[0] =
+                external_landing_goal_.pose.position.x;
+            adjust_target_position[1] =
+                external_landing_goal_.pose.position.y;
+            adjust_target_position[2] = external_landing_capture_height_;
             adjust_target_position[3] =
-                isQuaternionNormalized(msg->goal.pose.orientation) ?
-                tf::getYaw(msg->goal.pose.orientation) : 0.0;
-            patrol_cmd = msg->goal;
+                tf::getYaw(external_landing_goal_.pose.orientation);
+            patrol_cmd = external_landing_goal_;
+            std_msgs::Bool landing_enable;
+            landing_enable.data = true;
+            landing_detect_control_pub_.publish(landing_enable);
             Drone_mode = Land;
-            ROS_INFO("[PatrolControl] External LAND command accepted");
+            ROS_INFO(
+                "[PatrolControl] External LAND command accepted; awaiting fresh H evidence");
             break;
+        }
 
         default:
             ROS_ERROR("[PatrolControl] Unknown external mission command: %u",

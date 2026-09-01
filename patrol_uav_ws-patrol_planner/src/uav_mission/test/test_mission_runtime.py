@@ -7,6 +7,8 @@ import unittest
 from uav_mission.coverage_route import CoverageRoute
 from uav_mission.mission_core import (
     CandidateSnapshot,
+    GoalSnapshot,
+    MissionConfig,
     MissionCore,
     MissionPhase,
     ResultEvent,
@@ -142,6 +144,30 @@ class MissionRuntimeTest(unittest.TestCase):
             snapshot.route_active_decision_seq, action.decision_seq)
         self.assertEqual(snapshot.route_index, 0)
         self.assertEqual(snapshot.active_command, "SEARCH")
+
+    def test_snapshot_exposes_post_delivery_route_cursor(self):
+        config = MissionConfig(
+            post_delivery_route=(
+                GoalSnapshot("camera_init", -2.0, 6.0, 1.0),
+                GoalSnapshot("camera_init", 3.0, 8.0, 0.75),
+            ),
+            post_delivery_route_revision="three-door-runtime-r1",
+            landing_xy=(3.0, 8.0),
+        )
+        runtime = MissionRuntime(
+            MissionCore(profile(), config),
+            CoverageRoute((Waypoint(0.0, 0.0, 2.2),),
+                          "test-route-r1", 2),
+        )
+        self.start(runtime)
+        snapshot = runtime.snapshot()
+        self.assertEqual(
+            snapshot.post_delivery_route_revision,
+            "three-door-runtime-r1",
+        )
+        self.assertEqual(snapshot.post_delivery_route_index, 0)
+        self.assertEqual(snapshot.post_delivery_route_size, 2)
+        self.assertFalse(snapshot.post_delivery_route_complete)
 
     def test_high_weight_interrupt_resumes_same_waypoint(self):
         runtime = self.make_runtime()

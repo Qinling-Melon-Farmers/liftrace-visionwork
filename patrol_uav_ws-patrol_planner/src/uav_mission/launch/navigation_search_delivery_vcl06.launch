@@ -125,6 +125,7 @@
         name="navigation_vcl06_assertion"
         output="screen"
         required="true">
+    <rosparam command="load" file="$(arg runtime_config)" />
     <param name="report_path" value="$(arg gate_report_path)" />
     <param name="startup_wall_timeout"
            value="$(arg gate_startup_wall_timeout)" />
@@ -135,13 +136,17 @@
     <param name="planner_goal_topic" value="/fastplanner/goal" />
     <param name="expected_planner_goal_publisher"
            value="/navigation/planner_bridge" />
+    <param name="landing_mark_topic" value="/detect/land_mark_point" />
+    <param name="landing_mark_max_age" value="0.5" />
+    <param name="align_mode_topic" value="/uav_vision/align_mode" />
+    <param name="extended_state_topic" value="/mavros/extended_state" />
+    <param name="vehicle_state_topic" value="/mavros/state" />
     <param name="field/min_x" value="-3.992" />
     <param name="field/max_x" value="4.008" />
     <param name="field/min_y" value="-1.132" />
     <param name="field/max_y" value="8.718" />
     <param name="max_height" value="4.0" />
     <param name="max_mission_sec" value="600.0" />
-    <param name="forced_return_sec" value="510.0" />
   </node>
 
   <node if="$(arg record_debug)" pkg="rosbag" type="record"
@@ -160,6 +165,10 @@
               /mission/release_result
               /uav_vision/alignment_target_context
               /uav_vision/release_evidence_context
+              /uav_vision/align_mode
+              /detect/land_mark_point
+              /mavros/extended_state
+              /mavros/state
               /mission/random_field_status
               /mission/planner_anchor_status
               /mission/gazebo_contact_status" />

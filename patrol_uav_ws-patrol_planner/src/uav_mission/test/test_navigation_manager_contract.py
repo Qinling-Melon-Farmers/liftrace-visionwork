@@ -13,6 +13,7 @@ PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = PACKAGE_ROOT / "scripts" / "navigation_mission_manager.py"
 LAUNCH = PACKAGE_ROOT / "launch" / "navigation_mission_manager.launch"
 CONFIG = PACKAGE_ROOT / "config" / "vcl06_runtime.yaml"
+FORMAL_CONFIG = PACKAGE_ROOT / "config" / "vcl06_random_field_runtime.yaml"
 PACKAGE_XML = PACKAGE_ROOT / "package.xml"
 
 
@@ -22,6 +23,8 @@ class NavigationManagerContractTest(unittest.TestCase):
         cls.source = SCRIPT.read_text(encoding="utf-8")
         cls.tree = ast.parse(cls.source)
         cls.config = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
+        cls.formal_config = yaml.safe_load(
+            FORMAL_CONFIG.read_text(encoding="utf-8"))
         cls.launch = ET.parse(str(LAUNCH)).getroot()
         cls.package = ET.parse(str(PACKAGE_XML)).getroot()
 
@@ -65,6 +68,25 @@ class NavigationManagerContractTest(unittest.TestCase):
         self.assertEqual(mission["approach_altitude"], 1.2)
         self.assertEqual(mission["return_altitude"], 2.2)
         self.assertNotIn("classes", self.config)
+
+    def test_formal_runtime_has_ordered_three_door_route_to_final_h(self):
+        mission = self.formal_config["mission"]
+        route = mission["post_delivery_route"]
+        self.assertEqual(mission["frame"], "camera_init")
+        self.assertEqual(mission["forced_return_at"], 420.0)
+        self.assertEqual(mission["return_land_reserve"], 180.0)
+        self.assertEqual(
+            mission["post_delivery_route_revision"],
+            "toudi3-random-three-door-h-r1",
+        )
+        self.assertEqual(len(route), 11)
+        self.assertEqual(route[1], [-2.386703, 6.072270, 1.0])
+        self.assertEqual(route[5], [-0.112003, 8.053133, 1.2])
+        self.assertEqual(route[8], [2.123022, 8.009650, 1.2])
+        self.assertEqual(route[-1][:2], mission["landing_xy"])
+        self.assertLessEqual(max(point[2] for point in route), 4.0)
+        self.assertIn("GoalSnapshot", self.source)
+        self.assertIn("post_delivery_route_index", self.source)
 
     def test_launch_exposes_only_contract_topics(self):
         nodes = self.launch.findall(".//node")

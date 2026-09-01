@@ -201,6 +201,27 @@ private:
     double external_planner_cmd_timeout_ = 0.5;
     double external_planner_start_max_distance_ = 0.6;
     double external_alignment_timeout_sec_ = 75.0;
+    std::string external_landing_frame_ = "camera_init";
+    double external_landing_capture_height_ = 0.75;
+    double external_landing_timeout_sec_ = 75.0;
+    double external_landing_mark_max_age_sec_ = 0.5;
+    double external_landing_alignment_tolerance_ = 0.08;
+    double external_landing_max_mark_offset_ = 0.60;
+    double external_landing_auto_land_height_ = 0.40;
+    double external_landing_auto_land_retry_sec_ = 1.0;
+    int external_landing_stable_frames_ = 10;
+    bool external_landing_active_ = false;
+    bool external_landing_new_mark_ = false;
+    bool external_landing_alignment_complete_ = false;
+    bool external_landing_auto_land_requested_ = false;
+    int external_landing_stable_count_ = 0;
+    geometry_msgs::PoseStamped external_landing_goal_;
+    geometry_msgs::PoseStamped external_landing_aligned_goal_;
+    ros::Time external_landing_started_at_;
+    ros::Time external_landing_command_stamp_;
+    ros::Time external_landing_last_mark_stamp_;
+    ros::Time external_landing_last_mark_receipt_;
+    ros::Time external_landing_last_auto_land_attempt_;
     // 悬停相关变量
     bool flag_hover_started = false;
     bool overtime_drop_flag = false;
@@ -325,6 +346,10 @@ private:
     void patrol();
     void pub_goal(geometry_msgs::PoseStamped goal_msg);
     void externalMissionTick();
+    void clearExternalLandingState(bool disable_detector);
+    void externalLandingTick();
+    void failExternalLanding(const std::string& reason);
+    bool externalLandingMarkFresh(const ros::Time& now) const;
     
     void Lock();
     void CallLand();

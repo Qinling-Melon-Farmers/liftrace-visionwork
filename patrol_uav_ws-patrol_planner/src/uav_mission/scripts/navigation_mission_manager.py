@@ -3,6 +3,7 @@
 
 import json
 import math
+from numbers import Real
 import threading
 
 import rospy
@@ -15,6 +16,7 @@ from uav_vision.msg import TargetCandidateArray
 from uav_mission.coverage_route import CoverageRoute
 from uav_mission.mission_core import (
     CandidateSnapshot,
+    GoalSnapshot,
     MissionConfig,
     MissionCore,
     MissionPhase,
@@ -153,9 +155,23 @@ class NavigationMissionManager:
             raise ValueError("runtime/mission_id_prefix must not be empty")
 
     def _mission_config(self):
+        mission_frame = rospy.get_param("~mission/frame", "camera_init")
+        route_values = rospy.get_param(
+            "~mission/post_delivery_route", [])
+        if not isinstance(route_values, (list, tuple)):
+            raise ValueError("mission/post_delivery_route must be a list")
+        post_delivery_route = []
+        for index, point in enumerate(route_values):
+            if (not isinstance(point, (list, tuple)) or len(point) != 3 or
+                    any(isinstance(value, bool) or not isinstance(value, Real)
+                        for value in point)):
+                raise ValueError(
+                    "mission/post_delivery_route[%d] must be [x,y,z]" %
+                    index)
+            post_delivery_route.append(GoalSnapshot(
+                mission_frame, *(float(value) for value in point)))
         return MissionConfig(
-            mission_frame=rospy.get_param(
-                "~mission/frame", "camera_init"),
+            mission_frame=mission_frame,
             candidate_max_age=rospy.get_param(
                 "~mission/candidate_max_age", 0.5),
             transform_max_age=rospy.get_param(
@@ -188,6 +204,13 @@ class NavigationMissionManager:
             result_future_tolerance=rospy.get_param(
                 "~mission/result_future_tolerance", 0.1),
             home_xy=rospy.get_param("~mission/home_xy", [0.0, 0.0]),
+            post_delivery_route=tuple(post_delivery_route),
+            post_delivery_route_revision=rospy.get_param(
+                "~mission/post_delivery_route_revision", "direct-home-v1"),
+            landing_xy=rospy.get_param(
+                "~mission/landing_xy", [0.0, 0.0]),
+            landing_anchor_tolerance=rospy.get_param(
+                "~mission/landing_anchor_tolerance", 0.15),
         )
 
     def _new_runtime(self):
@@ -546,6 +569,14 @@ class NavigationMissionManager:
                 "route_complete": snapshot.route_complete,
                 "route_active_decision_seq":
                     snapshot.route_active_decision_seq,
+                "post_delivery_route_revision":
+                    snapshot.post_delivery_route_revision,
+                "post_delivery_route_index":
+                    snapshot.post_delivery_route_index,
+                "post_delivery_route_size":
+                    snapshot.post_delivery_route_size,
+                "post_delivery_route_complete":
+                    snapshot.post_delivery_route_complete,
                 "committed_slots": snapshot.committed_slots,
                 "mission_failed": snapshot.mission_failed,
                 "slot_status": [slot.status.value for slot in core.slots],

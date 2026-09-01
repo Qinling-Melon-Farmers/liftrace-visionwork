@@ -13,8 +13,9 @@ mission:
   max_attempts: 2
   retry_cooldown: 20.0
   timeout: 600.0
-  forced_return_at: 510.0
-  return_land_reserve: 90.0
+  # Reserve three-door transit plus H alignment inside the 10 min limit.
+  forced_return_at: 420.0
+  return_land_reserve: 180.0
   delivery_reserve_per_slot: 60.0
   path_factor: 1.5
   nominal_speed: 1.0
@@ -26,6 +27,59 @@ mission:
   landing_action_timeout: 90.0
   result_future_tolerance: 0.1
   home_xy: [0.0, 0.0]
+  # All points are camera_init coordinates derived from toudi3_random.world.
+  # The route first crosses the low Wall_15 opening south-to-north, then the
+  # Wall_20 and Wall_22 scoring doors west-to-east, and ends above the final H.
+  post_delivery_route_revision: toudi3-random-three-door-h-r1
+  landing_xy: [3.274292, 8.057220]
+  landing_anchor_tolerance: 0.05
+  post_delivery_route:
+    - [-2.386703, 5.672270, 1.00]  # Wall_15 south approach
+    - [-2.386703, 6.072270, 1.00]  # Wall_15 opening center
+    - [-2.386703, 6.472270, 1.00]  # Wall_15 north clear
+    - [-2.386703, 7.652690, 1.20]  # north corridor entry
+    - [-0.512003, 8.053133, 1.20]  # Wall_20 west approach
+    - [-0.112003, 8.053133, 1.20]  # Wall_20 opening center
+    - [ 0.287997, 8.053133, 1.20]  # Wall_20 east clear
+    - [ 1.723022, 8.009650, 1.20]  # Wall_22 west approach
+    - [ 2.123022, 8.009650, 1.20]  # Wall_22 opening center
+    - [ 2.523022, 8.009650, 1.20]  # Wall_22 east clear
+    - [ 3.274292, 8.057220, 0.75]  # final landing_h_clone capture
+
+# Read-only Gate geometry.  route_indices are one-based and arm each crossing
+# only for the center/clear legs, so repositioning from the third target does
+# not count as an early or reverse door traversal.
+post_delivery_gate:
+  goal_tolerance: 0.18
+  final_h_tolerance: 0.35
+  doors:
+    - name: Wall_15
+      axis: y
+      coordinate: 6.072270
+      direction: positive
+      route_indices: [2, 3]
+      lateral_min: -2.786588
+      lateral_max: -1.986588
+      z_min: 0.50
+      z_max: 1.30
+    - name: Wall_20
+      axis: x
+      coordinate: -0.112003
+      direction: positive
+      route_indices: [6, 7]
+      lateral_min: 7.602690
+      lateral_max: 8.502690
+      z_min: 0.00
+      z_max: 2.00
+    - name: Wall_22
+      axis: x
+      coordinate: 2.123022
+      direction: positive
+      route_indices: [9, 10]
+      lateral_min: 7.559690
+      lateral_max: 8.459690
+      z_min: 0.00
+      z_max: 2.00
 
 # Bounds reuse the existing VCL05 random-field coverage envelope.  They stay
 # about 0.9 m inside the field border and do not reuse the toudi4 y=-2 endpoint.

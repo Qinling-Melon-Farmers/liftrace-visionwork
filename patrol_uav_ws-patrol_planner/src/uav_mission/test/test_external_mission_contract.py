@@ -3,6 +3,8 @@ import pathlib
 import unittest
 import xml.etree.ElementTree as ET
 
+import yaml
+
 
 PACKAGE = pathlib.Path(__file__).resolve().parents[1]
 WORKSPACE_SRC = PACKAGE.parent
@@ -93,6 +95,49 @@ class ExternalMissionContractTest(unittest.TestCase):
                    "external_candidate_manager.py").read_text(encoding="utf-8")
         self.assertEqual(manager.count(
             'rospy.Publisher(\n            "/fastplanner/goal"'), 1)
+
+    def test_external_landing_is_fresh_h_gated_and_fails_closed(self):
+        header = (PATROL / "include" / "patrol_control" /
+                  "patrol_control.h").read_text(encoding="utf-8")
+        source = (PATROL / "src" / "patrol_control.cpp").read_text(
+            encoding="utf-8")
+        self.assertIn("externalLandingMarkFresh", header)
+        self.assertIn("externalLandingTick", header)
+        self.assertIn("clearExternalLandingState", header)
+        self.assertIn("msg.header.stamp <= external_landing_command_stamp_",
+                      source)
+        self.assertIn("source_age > external_landing_mark_max_age_sec_",
+                      source)
+        self.assertIn("anchor_error > external_landing_max_mark_offset_",
+                      source)
+        self.assertIn("external_landing_stable_frames_", source)
+        self.assertIn("h_alignment_or_auto_land_timeout", source)
+        self.assertIn("failed closed and holding position", source)
+        self.assertIn("if (external_mission_mode_ && !mode_accepted)", source)
+        self.assertIn("flag_land = false;", source)
+        self.assertIn("duplicate LAND command ignored", source)
+        self.assertIn(
+            "if (external_mission_mode_ && external_landing_active_)",
+            source)
+        self.assertIn(
+            "if(!external_mission_mode_ && Drone_mode == Land", source)
+
+    def test_formal_configs_define_external_h_landing_contract(self):
+        for filename in ("patrol_toudi3_new_vision.yaml",
+                         "patrol_toudi4_new_vision.yaml"):
+            with self.subTest(filename=filename):
+                config = yaml.safe_load(
+                    (PATROL / "config" / filename).read_text(
+                        encoding="utf-8"))
+                landing = config["external_landing"]
+                self.assertEqual(landing["frame"], "camera_init")
+                self.assertGreater(landing["capture_height"],
+                                   landing["auto_land_height"])
+                self.assertGreaterEqual(landing["auto_land_height"],
+                                        config["land_height"])
+                self.assertLessEqual(landing["mark_max_age_sec"], 0.5)
+                self.assertGreaterEqual(landing["stable_frames"], 1)
+                self.assertGreater(landing["timeout_sec"], 0.0)
 
 
 if __name__ == "__main__":

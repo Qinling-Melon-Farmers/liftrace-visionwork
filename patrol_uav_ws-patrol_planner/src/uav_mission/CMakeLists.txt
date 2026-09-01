@@ -99,6 +99,7 @@ install(DIRECTORY config launch models
 if(CATKIN_ENABLE_TESTING)
   catkin_add_nosetests(test/test_contract_profile.py)
   catkin_add_nosetests(test/test_coverage_route.py)
+  catkin_add_nosetests(test/test_external_mission_contract.py)
   catkin_add_nosetests(test/test_mission_core.py)
   catkin_add_nosetests(test/test_mission_runtime.py)
   catkin_add_nosetests(test/test_navigation_manager_contract.py)

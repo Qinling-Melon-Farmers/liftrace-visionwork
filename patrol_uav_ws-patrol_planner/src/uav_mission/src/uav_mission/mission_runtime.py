@@ -34,6 +34,10 @@ class RuntimeSnapshot:
     route_size: int
     route_complete: bool
     route_active_decision_seq: int
+    post_delivery_route_revision: str
+    post_delivery_route_index: int
+    post_delivery_route_size: int
+    post_delivery_route_complete: bool
     active_decision_seq: int
     active_command: str
     active_deadline_at: float
@@ -137,6 +141,16 @@ class MissionRuntime:
             route_complete=self.route.is_complete,
             route_active_decision_seq=(
                 route_active.decision_seq if route_active else 0),
+            post_delivery_route_revision=(
+                self.core.config.post_delivery_route_revision),
+            post_delivery_route_index=(
+                self.core.post_delivery_route_index),
+            post_delivery_route_size=len(
+                self.core.config.post_delivery_route),
+            post_delivery_route_complete=(
+                not self.core.config.post_delivery_route or
+                self.core.post_delivery_route_index >=
+                len(self.core.config.post_delivery_route)),
             active_decision_seq=(active.decision_seq if active else 0),
             active_command=(active.command if active else ""),
             active_deadline_at=(active.deadline_at if active else 0.0),

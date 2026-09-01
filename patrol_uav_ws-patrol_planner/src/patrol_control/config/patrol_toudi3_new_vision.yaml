@@ -24,6 +24,18 @@ align_height: 1.20
 px4_max_distance: 0.20
 max_yaw_change: 0.20
 
+# 外部 Mission Manager 终局 H 对齐参数；旧固定航线状态机不使用这组状态。
+external_landing:
+  frame: camera_init
+  capture_height: 0.75
+  auto_land_height: 0.40
+  alignment_tolerance: 0.08
+  max_mark_offset: 0.60
+  mark_max_age_sec: 0.50
+  stable_frames: 10
+  auto_land_retry_sec: 1.0
+  timeout_sec: 75.0
+
 progressive_descent:
   enable: true
   target_height: 0.40
