@@ -33,6 +33,7 @@ from uav_vision_eval.vsim04_metrics import (
     STANDARD_CLASSES,
     VISUAL_ONLY_INTERRUPT_REASON,
     annotate_motion_frames,
+    annotate_target_lateral_frames,
     CONFIRMED_STATE,
     candidate_audit_observation,
     completed_sources_cover,
@@ -67,6 +68,8 @@ class VSim04TrialRecorder:
             rospy.get_param("~trial_slice", ""))
         self._evaluation_scope = self._matrix["evaluation_scope"]
         self._expected_trial_count = len(self._matrix["trials"])
+        self._formal_expected_trial_count = int(self._matrix.get(
+            "formal_expected_trial_count", self._expected_trial_count))
         self._scenario_path = os.path.abspath(rospy.get_param(
             "~scenario_file"))
         with open(self._scenario_path, "r", encoding="utf-8") as stream:
@@ -121,6 +124,7 @@ class VSim04TrialRecorder:
         self._terminal_context = {
             "run_complete": False,
             "expected_trial_count": self._expected_trial_count,
+            "formal_expected_trial_count": self._formal_expected_trial_count,
             "evaluation_scope": self._evaluation_scope,
             "validation_errors": [],
         }
@@ -287,9 +291,16 @@ class VSim04TrialRecorder:
                 "configuration": copy.deepcopy(self._matrix.get("runner", {})),
                 "dynamic_configuration": copy.deepcopy(
                     self._matrix.get("dynamic", {})),
+                "d50_configuration": {
+                    "matrix_kind": self._matrix.get("matrix_kind", ""),
+                    "camera": copy.deepcopy(self._matrix.get("camera", {})),
+                    "motion": copy.deepcopy(self._matrix.get("motion", {})),
+                },
                 "actual_trials": {},
             },
             "evaluation_design": {
+                "design_id": str(self._matrix.get(
+                    "design_id", "formal23")),
                 "scope": self._evaluation_scope,
                 "trial_selector": list(self._matrix["trial_selector"]),
                 "trial_slice": self._matrix.get("trial_slice", ""),
@@ -455,9 +466,9 @@ class VSim04TrialRecorder:
                 not os.path.isfile(self._target_catalog_path)):
             errors.append("target_catalog_file_missing_or_not_file")
         if (self._evaluation_scope == "full" and
-                len(self._results) != EXPECTED_TRIAL_COUNT):
+                len(self._results) != self._formal_expected_trial_count):
             errors.append("trial_count_{}/{}".format(
-                len(self._results), EXPECTED_TRIAL_COUNT))
+                len(self._results), self._formal_expected_trial_count))
         elif len(self._results) <= 0:
             errors.append("diagnostic_trial_count_must_be_positive")
         active_targets = set(self._scenario.get("active_targets", []))
@@ -659,6 +670,21 @@ class VSim04TrialRecorder:
                 "path_lateral_offset_m": "",
                 "path_lateral_offset_normalized": "",
                 "path_lateral_invalid_reason": "not_derived",
+                "visibility_profile": str(spec.get(
+                    "visibility_profile", "full")),
+                "visibility_eligible": False,
+                "projection_valid": False,
+                "truth_world_x_m": "",
+                "truth_world_y_m": "",
+                "truth_pixel_u": "",
+                "truth_pixel_v": "",
+                "target_path_lateral_offset_m": "",
+                "target_pixel_offset_x_normalized": "",
+                "target_pixel_offset_y_normalized": "",
+                "design_kind": spec.get("design_kind", ""),
+                "relative_angle_deg": spec.get("relative_angle_deg", ""),
+                "motion_profile": spec.get("motion_profile", ""),
+                "framing": spec.get("framing", ""),
                 "raw_class_present": False,
                 "raw_geometry_present": False,
                 "raw_class_confidence": "",
@@ -878,6 +904,8 @@ class VSim04TrialRecorder:
                     self._terminal_context = {
                         "run_complete": False,
                         "expected_trial_count": self._expected_trial_count,
+                        "formal_expected_trial_count":
+                            self._formal_expected_trial_count,
                         "evaluation_scope": self._evaluation_scope,
                         "validation_errors": [self._fatal_error],
                     }
@@ -913,10 +941,14 @@ class VSim04TrialRecorder:
             raise RuntimeError("trial repeated: " + trial_id)
         self._active = trial_id
         result = self._results[trial_id]
+        partial_visibility = (
+            str(result.get("visibility_profile", "full")) == "partial")
         result.update({
             "status": "running",
-            "p_confirm": False,
-            "p_selected": False,
+            "p_confirm": None if partial_visibility else False,
+            "p_selected": None if partial_visibility else False,
+            "p_confirm_visibility": False,
+            "p_selected_visibility": False,
             "p_interrupt": None,
             "p_decision": None,
             "p_dispatch": None,
@@ -951,6 +983,8 @@ class VSim04TrialRecorder:
             "map_errors_xy": [],
             "entered_fully_in_frame": False,
             "left_fully_in_frame": False,
+            "entered_visibility_window": False,
+            "left_visibility_window": False,
             "enter_source_stamp": None,
             "leave_source_stamp": None,
             "enter_receipt_monotonic": None,
@@ -971,6 +1005,13 @@ class VSim04TrialRecorder:
             "p95_abs_actual_yaw_rate_radps": None,
             "mean_abs_normalized_lateral_offset": None,
             "p95_abs_normalized_lateral_offset": None,
+            "target_lateral_sample_count": 0,
+            "target_path_lateral_offset_m_samples": [],
+            "target_pixel_offset_x_normalized_samples": [],
+            "mean_target_path_lateral_offset_m": None,
+            "p95_abs_target_path_lateral_offset_m": None,
+            "mean_target_pixel_offset_x_normalized": None,
+            "p95_abs_target_pixel_offset_x_normalized": None,
         })
         self._add_event_locked("trial_start", details=source_event)
 
@@ -1051,6 +1092,15 @@ class VSim04TrialRecorder:
         result["actual_duration_sec"] = trajectory.get("actual_duration_sec")
         result["expected_speed_mps"] = trajectory.get("expected_speed_mps")
         result["actual_speed_mps"] = trajectory.get("actual_speed_mps")
+        for field in (
+                "lateral_bin", "visibility_profile",
+                "requested_target_path_lateral_offset_m",
+                "requested_pixel_offset_x_normalized",
+                "design_kind", "relative_angle_deg", "motion_profile",
+                "framing", "relative_angle_measurement",
+                "planned_sample_count", "expected_primary_target_id"):
+            if field in trajectory:
+                result[field] = trajectory[field]
         self._actual_trajectories[trial_id] = copy.deepcopy(trajectory)
         self._derive_frame_metrics_locked(trial_id)
         self._derive_admission_metrics_locked(trial_id)
@@ -1069,7 +1119,7 @@ class VSim04TrialRecorder:
                 continue
             self._apply_camera_pose_locked(row, stamp_key)
             rows.append(row)
-        eligible = [row for row in rows if row["fully_in_frame"]]
+        eligible = [row for row in rows if row["visibility_eligible"]]
         stage_row_fields = {
             "raw_class_frames": "raw_class_present",
             "raw_geometry_frames": "raw_geometry_present",
@@ -1088,6 +1138,8 @@ class VSim04TrialRecorder:
         result.update(annotate_motion_frames(
             rows, result["kind"],
             self._actual_trajectories.get(trial_id, {})))
+        result.update(annotate_target_lateral_frames(
+            rows, self._actual_trajectories.get(trial_id, {})))
         result["eligible_frames"] = len(eligible)
         for result_field, row_field in stage_row_fields.items():
             result[result_field] = sum(bool(row[row_field]) for row in eligible)
@@ -1294,6 +1346,30 @@ class VSim04TrialRecorder:
             frame = self._frame_locked(stamp_key, stamp_sec)
             frame["fully_in_frame"] = bool(target.fully_in_frame)
             frame["center_in_frame"] = bool(target.center_in_frame)
+            frame["projection_valid"] = bool(target.projection_valid)
+            frame["truth_world_x_m"] = float(target.world_center.x)
+            frame["truth_world_y_m"] = float(target.world_center.y)
+            if target.projection_valid:
+                frame["truth_pixel_u"] = float(target.pixel_center.x)
+                frame["truth_pixel_v"] = float(target.pixel_center.y)
+                if self._camera_info_valid(self._camera_info):
+                    half_width = float(self._camera_info["width"]) / 2.0
+                    half_height = float(self._camera_info["height"]) / 2.0
+                    frame["target_pixel_offset_x_normalized"] = (
+                        (float(target.pixel_center.x) -
+                         float(self._camera_info["K"][2])) / half_width)
+                    frame["target_pixel_offset_y_normalized"] = (
+                        (float(target.pixel_center.y) -
+                         float(self._camera_info["K"][5])) / half_height)
+            visibility_profile = str(spec.get(
+                "visibility_profile", "full"))
+            visibility_eligible = (
+                bool(target.fully_in_frame)
+                if visibility_profile != "partial" else
+                bool(target.projection_valid and target.center_in_frame and
+                     not target.fully_in_frame))
+            frame["visibility_profile"] = visibility_profile
+            frame["visibility_eligible"] = visibility_eligible
             frame["co_visible_classes"] = ";".join(sorted({
                 item.class_name for item in message.targets
                 if item.fully_in_frame}))
@@ -1303,8 +1379,6 @@ class VSim04TrialRecorder:
             result = self._result_locked()
             if target.fully_in_frame and not result["entered_fully_in_frame"]:
                 result["entered_fully_in_frame"] = True
-                result["enter_source_stamp"] = stamp_sec
-                result["enter_receipt_monotonic"] = receipt
                 self._add_event_locked(
                     "target_entered_fully_in_frame", stamp_sec,
                     receipt_monotonic=receipt,
@@ -1314,11 +1388,31 @@ class VSim04TrialRecorder:
                   result["entered_fully_in_frame"] and
                   not result["left_fully_in_frame"]):
                 result["left_fully_in_frame"] = True
-                result["leave_source_stamp"] = stamp_sec
-                result["leave_receipt_monotonic"] = receipt
                 self._add_event_locked(
                     "target_left_fully_in_frame", stamp_sec,
                     receipt_monotonic=receipt)
+            if (visibility_eligible and
+                    not result["entered_visibility_window"]):
+                result["entered_visibility_window"] = True
+                result["enter_source_stamp"] = stamp_sec
+                result["enter_receipt_monotonic"] = receipt
+                self._add_event_locked(
+                    "target_entered_visibility_window", stamp_sec,
+                    receipt_monotonic=receipt,
+                    details={
+                        "visibility_profile": visibility_profile,
+                        "fully_in_frame": bool(target.fully_in_frame),
+                    })
+            elif (not visibility_eligible and
+                  result["entered_visibility_window"] and
+                  not result["left_visibility_window"]):
+                result["left_visibility_window"] = True
+                result["leave_source_stamp"] = stamp_sec
+                result["leave_receipt_monotonic"] = receipt
+                self._add_event_locked(
+                    "target_left_visibility_window", stamp_sec,
+                    receipt_monotonic=receipt,
+                    details={"visibility_profile": visibility_profile})
 
     @staticmethod
     def _is_transform_failure(reason):
@@ -1760,25 +1854,28 @@ class VSim04TrialRecorder:
             errors.append("trial_count_{}/{}".format(
                 len(self._results), self._expected_trial_count))
         if (self._evaluation_scope == "full" and
-                self._expected_trial_count != EXPECTED_TRIAL_COUNT):
-            errors.append("full_trial_count_must_be_23")
+                self._expected_trial_count !=
+                self._formal_expected_trial_count):
+            errors.append("full_trial_count_must_match_formal_design")
         if len(completed) != len(self._results):
             errors.append("completed_trials_{}/{}".format(
                 len(completed), len(self._results)))
         for trial_id, result in self._results.items():
             if result.get("status") != "completed":
                 continue
-            if not result.get("entered_fully_in_frame"):
-                errors.append("{}:never_entered_fully_in_frame".format(trial_id))
-            if not result.get("left_fully_in_frame"):
-                errors.append("{}:never_left_fully_in_frame".format(trial_id))
+            if not result.get("entered_visibility_window"):
+                errors.append(
+                    "{}:never_entered_visibility_window".format(trial_id))
+            if not result.get("left_visibility_window"):
+                errors.append(
+                    "{}:never_left_visibility_window".format(trial_id))
             if int(result.get("eligible_frames", 0)) <= 0:
                 errors.append("{}:no_eligible_frames".format(trial_id))
-            if (result.get("p_confirm") and
+            if (result.get("p_confirm_visibility") and
                     result.get("confirmation_processing_ms") is None):
                 errors.append("{}:confirmation_processing_missing".format(
                     trial_id))
-            if (result.get("p_confirm") and
+            if (result.get("p_confirm_visibility") and
                     result.get("confirmation_pipeline_ms") is None):
                 errors.append("{}:confirmation_pipeline_missing".format(
                     trial_id))
@@ -1802,6 +1899,10 @@ class VSim04TrialRecorder:
                 if int(result.get("lateral_offset_sample_count", 0)) <= 0:
                     errors.append("{}:lateral_offset_samples_missing".format(
                         trial_id))
+                if (result.get("lateral_bin") and
+                        int(result.get("target_lateral_sample_count", 0)) <= 0):
+                    errors.append(
+                        "{}:target_lateral_samples_missing".format(trial_id))
         if self._camera_info is None:
             errors.append("camera_info_missing")
         elif not self._camera_info_valid(self._camera_info):
@@ -1918,6 +2019,8 @@ class VSim04TrialRecorder:
             context = {
                 "run_complete": True,
                 "expected_trial_count": self._expected_trial_count,
+                "formal_expected_trial_count":
+                    self._formal_expected_trial_count,
                 "evaluation_scope": self._evaluation_scope,
                 "validation_errors": list(errors),
             }

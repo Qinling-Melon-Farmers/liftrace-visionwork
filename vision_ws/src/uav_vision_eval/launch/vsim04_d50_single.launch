@@ -1,0 +1,43 @@
+<launch>
+  <!-- D50 remains diagnostic-only. This entry runs only single_pairwise trials
+       through the production pixel/Phase-D chain and established recorder. -->
+  <arg name="matrix_file"
+       default="$(find uav_vision_eval)/config/vsim04_trajectory_d50_matrix.yaml" />
+  <arg name="trial_selector" default="d_single_01" />
+  <arg name="trial_slice" default="" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi4_copy.world" />
+  <arg name="scenario_file"
+       default="$(find uav_vision_eval)/config/scenarios/vsim04_r2026_targets.yaml" />
+  <arg name="truth_catalog"
+       default="$(find uav_vision_eval)/config/sim_target_catalog_toudi4.yaml" />
+  <arg name="output_dir" default="$(optenv SIM_RUN_DIR /tmp)/vsim04" />
+  <arg name="gui" default="false" />
+  <arg name="paused" default="false" />
+  <arg name="start_vision" default="true" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="target_detector_imgsz" default="640" />
+  <arg name="vision_python"
+       default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
+  <arg name="enable_failure_capture" default="false" />
+  <arg name="navigation_metrics_mode" default="visual_only" />
+
+  <include file="$(find uav_vision_eval)/launch/vsim04_stability.launch">
+    <arg name="matrix_file" value="$(arg matrix_file)" />
+    <arg name="trial_selector" value="$(arg trial_selector)" />
+    <arg name="trial_slice" value="$(arg trial_slice)" />
+    <arg name="trial_runner_type" value="vsim04_d50_runner.py" />
+    <arg name="world" value="$(arg world)" />
+    <arg name="scenario_file" value="$(arg scenario_file)" />
+    <arg name="truth_catalog" value="$(arg truth_catalog)" />
+    <arg name="output_dir" value="$(arg output_dir)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)" />
+    <arg name="start_vision" value="$(arg start_vision)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="target_detector_imgsz" value="$(arg target_detector_imgsz)" />
+    <arg name="vision_python" value="$(arg vision_python)" />
+    <arg name="enable_failure_capture" value="$(arg enable_failure_capture)" />
+    <arg name="navigation_metrics_mode"
+         value="$(arg navigation_metrics_mode)" />
+  </include>
+</launch>

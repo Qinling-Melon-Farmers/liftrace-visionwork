@@ -23,6 +23,8 @@
        default="$(find uav_vision_eval)/config/sim_target_catalog_toudi4.yaml" />
   <arg name="trial_event_topic"
        default="/uav_vision_eval/vsim04/trial_event" />
+  <!-- Thin trajectory adapters may reuse the same recorder and handshake. -->
+  <arg name="trial_runner_type" default="vsim04_trial_runner.py" />
   <arg name="output_dir" default="$(optenv SIM_RUN_DIR /tmp)/vsim04" />
   <!-- Run-relative subdirectory only; the capture node rejects absolute paths
        and parent traversal so diagnostics cannot escape the V-SIM run. -->
@@ -137,7 +139,6 @@
     <param name="model_backend" value="ultralytics" />
     <param name="world_file" value="$(arg world)" />
     <param name="camera_model" value="vision_eval_camera" />
-    <rosparam param="camera_rpy">[0.0, 1.570796326794897, 0.0]</rosparam>
     <param name="extrinsic_profile" value="$(arg extrinsic_profile)" />
     <param name="extrinsic_source" value="$(arg extrinsic_source)" />
     <param name="vision_revision" value="$(arg vision_revision)" />
@@ -181,7 +182,7 @@
     <param name="enable_stage_trace" value="$(arg enable_stage_trace)" />
   </node>
 
-  <node pkg="uav_vision_eval" type="vsim04_trial_runner.py"
+  <node pkg="uav_vision_eval" type="$(arg trial_runner_type)"
         name="vsim04_trial_runner" output="screen" required="true">
     <param name="matrix_file" value="$(arg matrix_file)" />
     <param name="trial_selector" value="$(arg trial_selector)" />
@@ -197,7 +198,6 @@
            value="$(arg failure_capture_control_topic)" />
     <param name="capture_sampling_start_lead_sec"
            value="$(arg failure_capture_start_lead_sec)" />
-    <rosparam param="camera_rpy">[0.0, 1.570796326794897, 0.0]</rosparam>
     <param name="clock_stall_timeout_sec" value="2.0" />
     <param name="service_call_timeout_sec" value="5.0" />
     <param name="ros_wait_wall_factor" value="10.0" />

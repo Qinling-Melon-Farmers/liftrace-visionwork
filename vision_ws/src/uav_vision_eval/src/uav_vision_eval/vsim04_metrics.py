@@ -45,6 +45,16 @@ FRAME_FIELDS = [
     "detector_callback_end_monotonic_sec",
     "detector_perf_receipt_monotonic_sec",
     "current_confirmed", "current_selected", "stable_id",
+    # C25 fields are append-only.  path_lateral_* above remains the camera's
+    # tracking error; these fields describe the physical target relative to
+    # the planned flight line and to the calibrated image principal point.
+    "visibility_profile", "visibility_eligible", "projection_valid",
+    "truth_world_x_m", "truth_world_y_m", "truth_pixel_u",
+    "truth_pixel_v", "target_path_lateral_offset_m",
+    "target_pixel_offset_x_normalized", "target_pixel_offset_y_normalized",
+    # D50 trial factors. The measured camera pose remains the source of motion;
+    # these columns identify the requested operating-surface cell.
+    "design_kind", "relative_angle_deg", "motion_profile", "framing",
 ]
 EVENT_FIELDS = [
     "event_seq", "trial_id", "event", "source_stamp", "monotonic_sec",
@@ -94,18 +104,42 @@ PERFORMANCE_FIELDS = [
     "disallowed_selected_observations", "unique_selected_targets",
     "policy_rejected_selected_observations",
     "tank_confirmed_observations", "tank_selected_observations",
-    # Historical columns above are append-only.  Navigation metrics stay at
-    # the tail so existing CSV readers keep their positional contract.
+    # Historical columns above are append-only.  Keep the navigation metrics
+    # contiguous and in their frozen order so existing positional readers can
+    # still locate that block before ignoring a newer tail.
     "navigation_metrics_mode", "navigation_target_stage_capability",
     "navigation_metrics_reason", "p_decision", "p_dispatch",
     "p_planner_arrival", "p_interrupt_reason",
     "navigation_binding_keys", "navigation_validation_errors",
+    # C25 visibility/lateral columns are appended after the frozen navigation
+    # surface so older readers can ignore an unknown tail safely.
+    "lateral_bin", "visibility_profile", "p_confirm_visibility",
+    "p_selected_visibility", "entered_visibility_window",
+    "left_visibility_window", "requested_target_path_lateral_offset_m",
+    "requested_pixel_offset_x_normalized",
+    "target_lateral_sample_count", "mean_target_path_lateral_offset_m",
+    "p95_abs_target_path_lateral_offset_m",
+    "mean_target_pixel_offset_x_normalized",
+    "p95_abs_target_pixel_offset_x_normalized",
+    "lateral_group_completed_trials", "lateral_group_p_confirm",
+    "lateral_group_p_selected", "lateral_group_p_confirm_visibility",
+    "lateral_group_p_selected_visibility",
+    "lateral_group_mean_target_path_lateral_offset_m",
+    "lateral_group_mean_target_pixel_offset_x_normalized",
+    # D50 diagnostic factors and the actual pose-sequence contract.
+    "design_kind", "relative_angle_deg", "motion_profile", "framing",
+    "relative_angle_measurement", "planned_sample_count",
+    "expected_primary_target_id",
 ]
 REQUIRED_ARTIFACTS = (
     "manifest.json", "frames.csv", "events.csv", "summary.json",
     "report.md", "vision_search_performance.csv",
 )
 EXPECTED_TRIAL_COUNT = 23
+FORMAL_DESIGN_COUNTS = {
+    "formal23": 23,
+    "C25-lateral-offset": 25,
+}
 CONFIRMED_STATE = 2
 AUDIT_EVENT_KINDS = ("confirmed", "selected")
 NAVIGATION_METRICS_MODES = (
@@ -778,6 +812,13 @@ def _speed_token(value):
 def load_trial_matrix(path):
     with open(path, "r", encoding="utf-8") as stream:
         matrix = yaml.safe_load(stream)
+    if isinstance(matrix, dict) and matrix.get("matrix_kind") == \
+            "vsim04_d50_trajectory_association":
+        # D50 owns its explicit pairwise/directed schema. Keep one thin loader
+        # hook here so it can reuse the established recorder without copying a
+        # second metrics stack.
+        from uav_vision_eval.vsim04_d_matrix import load_d50_runtime_matrix
+        return load_d50_runtime_matrix(path)
     if not isinstance(matrix, dict) or matrix.get("evaluation_id") != "V-SIM-04":
         raise ValueError("matrix evaluation_id must be V-SIM-04")
     seed = int(matrix.get("seed", 0))
@@ -819,6 +860,22 @@ def load_trial_matrix(path):
     if missing:
         raise ValueError("missing target anchors: {}".format(",".join(missing)))
     matrix["trials"] = trials
+    # Only frozen, named designs may report a full MEASURED run. An ad-hoc
+    # matrix remains useful for diagnostics, but its self-declared count must
+    # not silently redefine the formal surface.
+    design_id = str(matrix.get("design_id", "")).strip()
+    formal_count = FORMAL_DESIGN_COUNTS.get(design_id)
+    if formal_count is None:
+        matrix["diagnostic_only"] = True
+        matrix["formal_expected_trial_count"] = expected
+    else:
+        if expected != formal_count:
+            raise ValueError(
+                "formal design {} must contain {} trials".format(
+                    design_id, formal_count))
+        matrix["diagnostic_only"] = bool(
+            matrix.get("diagnostic_only", False))
+        matrix["formal_expected_trial_count"] = formal_count
     trial_ids = {trial["trial_id"] for trial in trials}
     slices = matrix.get("trial_slices", {})
     if slices is None:
@@ -862,7 +919,9 @@ def select_trial_matrix(matrix, selector, slice_name=""):
         identifiers = [value.strip() for value in str(selector or "").split(",")
                        if value.strip()]
     if not identifiers:
-        selected_matrix["evaluation_scope"] = "full"
+        selected_matrix["evaluation_scope"] = (
+            "diagnostic" if selected_matrix.get("diagnostic_only") else
+            "full")
         selected_matrix["trial_selector"] = []
         selected_matrix["trial_slice"] = ""
         return selected_matrix
@@ -911,6 +970,78 @@ def expand_trial_matrix(matrix):
                     "height_m": float(height),
                     "speed_mps": float(speed),
                 })
+    lateral = matrix.get("lateral", {})
+    if lateral:
+        try:
+            height = float(lateral["height_m"])
+            speed = float(lateral["speed_mps"])
+            horizontal_fov = float(lateral["horizontal_fov_rad"])
+        except (KeyError, TypeError, ValueError, OverflowError) as error:
+            raise ValueError("lateral matrix scalar is invalid") from error
+        if (not all(math.isfinite(value) for value in
+                    (height, speed, horizontal_fov)) or
+                height <= 0.0 or speed <= 0.0 or
+                not 0.0 < horizontal_fov < math.pi):
+            raise ValueError("lateral matrix scalar is out of range")
+        widths = lateral.get("target_width_m", {})
+        bins = lateral.get("bins", [])
+        if not isinstance(widths, dict) or not isinstance(bins, list) or not bins:
+            raise ValueError("lateral target widths and bins are required")
+        bin_ids = []
+        for definition in bins:
+            if not isinstance(definition, dict):
+                raise ValueError("lateral bin must be a mapping")
+            bin_id = str(definition.get("id", "")).strip()
+            profile = str(definition.get(
+                "visibility_profile", "full")).strip().lower()
+            try:
+                side = int(definition.get("side", 0))
+            except (TypeError, ValueError, OverflowError) as error:
+                raise ValueError("lateral bin side is invalid") from error
+            if not bin_id or profile not in {"full", "partial"} or \
+                    side not in {-1, 0, 1}:
+                raise ValueError("lateral bin contract is invalid")
+            if side == 0 and bin_id != "center":
+                raise ValueError("only center may use lateral side zero")
+            if profile == "partial" and side == 0:
+                raise ValueError("partial lateral bin requires a side")
+            bin_ids.append(bin_id)
+        if len(bin_ids) != len(set(bin_ids)):
+            raise ValueError("lateral bins contain duplicate identifiers")
+        for class_name in lateral.get("classes", []):
+            class_name = str(class_name)
+            try:
+                width = float(widths[class_name])
+            except (KeyError, TypeError, ValueError, OverflowError) as error:
+                raise ValueError(
+                    "lateral target width missing: " + class_name) from error
+            if not math.isfinite(width) or width <= 0.0:
+                raise ValueError(
+                    "lateral target width invalid: " + class_name)
+            for definition in bins:
+                bin_id = str(definition["id"]).strip()
+                trial = {
+                    "trial_id": "lateral_{}_{}".format(
+                        class_name, bin_id),
+                    # Keep the existing dynamic capture/telemetry contract;
+                    # lateral_bin selects the generalized trajectory planner.
+                    "kind": "dynamic",
+                    "class_name": class_name,
+                    "height_m": height,
+                    "speed_mps": speed,
+                    "lateral_bin": bin_id,
+                    "visibility_profile": str(definition.get(
+                        "visibility_profile", "full")).strip().lower(),
+                    "lateral_side": int(definition.get("side", 0)),
+                    "target_width_m": width,
+                }
+                if "full_visible_fraction" in definition:
+                    trial["full_visible_fraction"] = float(
+                        definition["full_visible_fraction"])
+                if "partial_clip_fraction" in definition:
+                    trial["partial_clip_fraction"] = float(
+                        definition["partial_clip_fraction"])
+                trials.append(trial)
     identifiers = [trial["trial_id"] for trial in trials]
     if len(identifiers) != len(set(identifiers)):
         raise ValueError("matrix contains duplicate trial identifiers")
@@ -1225,12 +1356,66 @@ def annotate_motion_frames(frame_rows, trial_kind, trajectory):
     }
 
 
+def annotate_target_lateral_frames(frame_rows, trajectory):
+    """Annotate independent C25 target-to-track and image offsets.
+
+    Unlike ``path_lateral_offset_*`` (camera tracking error), the signed metre
+    value here measures the truth target centre against the planned horizontal
+    start-to-finish line.  Pixel offsets are produced by the truth projector
+    and CameraInfo, not inferred from the requested bin.
+    """
+    path = _dynamic_path(trajectory)
+    metre_samples = []
+    pixel_samples = []
+    if path is None:
+        return {
+            "target_lateral_sample_count": 0,
+            "target_path_lateral_offset_m_samples": [],
+            "target_pixel_offset_x_normalized_samples": [],
+            "mean_target_path_lateral_offset_m": None,
+            "p95_abs_target_path_lateral_offset_m": None,
+            "mean_target_pixel_offset_x_normalized": None,
+            "p95_abs_target_pixel_offset_x_normalized": None,
+        }
+    start_x, start_y, dx_value, dy_value, path_length = path
+    for row in frame_rows:
+        target_x = _finite_frame_value(row, "truth_world_x_m")
+        target_y = _finite_frame_value(row, "truth_world_y_m")
+        pixel_offset = _finite_frame_value(
+            row, "target_pixel_offset_x_normalized")
+        if target_x is not None and target_y is not None:
+            cross_track = (
+                dx_value * (target_y - start_y) -
+                dy_value * (target_x - start_x)) / path_length
+            if math.isfinite(cross_track):
+                row["target_path_lateral_offset_m"] = cross_track
+                if bool(row.get("visibility_eligible")):
+                    metre_samples.append(cross_track)
+        if pixel_offset is not None and bool(row.get("visibility_eligible")):
+            pixel_samples.append(pixel_offset)
+    return {
+        "target_lateral_sample_count": len(metre_samples),
+        "target_path_lateral_offset_m_samples": metre_samples,
+        "target_pixel_offset_x_normalized_samples": pixel_samples,
+        "mean_target_path_lateral_offset_m": (
+            statistics.mean(metre_samples) if metre_samples else None),
+        "p95_abs_target_path_lateral_offset_m": percentile(
+            [abs(value) for value in metre_samples], 95),
+        "mean_target_pixel_offset_x_normalized": (
+            statistics.mean(pixel_samples) if pixel_samples else None),
+        "p95_abs_target_pixel_offset_x_normalized": percentile(
+            [abs(value) for value in pixel_samples], 95),
+    }
+
+
 def planned_trial_result(trial):
     result = dict(trial)
     result.update({
         "status": "planned",
         "p_confirm": None,
         "p_selected": None,
+        "p_confirm_visibility": None,
+        "p_selected_visibility": None,
         "p_interrupt": None,
         "p_decision": None,
         "p_dispatch": None,
@@ -1277,6 +1462,8 @@ def planned_trial_result(trial):
         "map_error_sample_count": 0,
         "entered_fully_in_frame": False,
         "left_fully_in_frame": False,
+        "entered_visibility_window": False,
+        "left_visibility_window": False,
         "enter_source_stamp": None,
         "leave_source_stamp": None,
         "enter_receipt_monotonic": None,
@@ -1297,6 +1484,13 @@ def planned_trial_result(trial):
         "p95_abs_actual_yaw_rate_radps": None,
         "mean_abs_normalized_lateral_offset": None,
         "p95_abs_normalized_lateral_offset": None,
+        "target_lateral_sample_count": 0,
+        "target_path_lateral_offset_m_samples": [],
+        "target_pixel_offset_x_normalized_samples": [],
+        "mean_target_path_lateral_offset_m": None,
+        "p95_abs_target_path_lateral_offset_m": None,
+        "mean_target_pixel_offset_x_normalized": None,
+        "p95_abs_target_pixel_offset_x_normalized": None,
     })
     return result
 
@@ -1318,6 +1512,10 @@ def finalize_trial_result(result):
         "actual_yaw_rate_radps_samples", [])]
     lateral_offset = [float(value) for value in result.pop(
         "normalized_lateral_offset_samples", [])]
+    target_lateral = [float(value) for value in result.pop(
+        "target_path_lateral_offset_m_samples", [])]
+    target_pixel = [float(value) for value in result.pop(
+        "target_pixel_offset_x_normalized_samples", [])]
     result["map_invalid_rate"] = (
         max(0, detected - valid) / float(detected) if detected else None)
     result["map_unavailable_rate"] = (
@@ -1348,6 +1546,15 @@ def finalize_trial_result(result):
         statistics.mean(absolute_lateral) if absolute_lateral else None)
     result["p95_abs_normalized_lateral_offset"] = percentile(
         absolute_lateral, 95)
+    result["target_lateral_sample_count"] = len(target_lateral)
+    result["mean_target_path_lateral_offset_m"] = (
+        statistics.mean(target_lateral) if target_lateral else None)
+    result["p95_abs_target_path_lateral_offset_m"] = percentile(
+        [abs(value) for value in target_lateral], 95)
+    result["mean_target_pixel_offset_x_normalized"] = (
+        statistics.mean(target_pixel) if target_pixel else None)
+    result["p95_abs_target_pixel_offset_x_normalized"] = percentile(
+        [abs(value) for value in target_pixel], 95)
     mapped_buckets = (
         int(result.get("complete_mapped_frames", 0)) +
         int(result.get("partial_only_mapped_frames", 0)))
@@ -1360,7 +1567,8 @@ def finalize_trial_result(result):
 
 def classify_failure_stage(result):
     """Return the first pipeline stage that blocked trial confirmation."""
-    if result.get("status") != "completed" or result.get("p_confirm"):
+    if (result.get("status") != "completed" or
+            result.get("p_confirm_visibility") or result.get("p_confirm")):
         return ""
     if int(result.get("eligible_frames", 0)) <= 0:
         return "truth_visibility"
@@ -1500,8 +1708,12 @@ def correlate_admission_events(candidate_events, selected_events, result,
                                image_receipts, detector_callback_starts=None):
     """Join cross-topic events without depending on ROS callback order."""
     output = {
-        "p_confirm": False,
-        "p_selected": False,
+        "p_confirm": (None if result.get("visibility_profile") == "partial"
+                       else False),
+        "p_selected": (None if result.get("visibility_profile") == "partial"
+                        else False),
+        "p_confirm_visibility": False,
+        "p_selected_visibility": False,
         "stable_id": None,
         "selected_target_first_seen_ns": None,
         "selected_target_observation_stamps_ns": [],
@@ -1517,7 +1729,9 @@ def correlate_admission_events(candidate_events, selected_events, result,
     confirmation = min(confirms, key=lambda event: (
         event["receipt_monotonic"], event["source_stamp"],
         event["stable_id"]))
-    output["p_confirm"] = True
+    output["p_confirm_visibility"] = True
+    if result.get("visibility_profile") != "partial":
+        output["p_confirm"] = True
     output["stable_id"] = confirmation["stable_id"]
     output["confirmation_exposure_sec"] = max(
         0.0, confirmation["source_stamp"] - result["enter_source_stamp"])
@@ -1536,7 +1750,9 @@ def correlate_admission_events(candidate_events, selected_events, result,
         event for event in selected_events
         if event["stable_id"] == output["stable_id"] and
         event_inside_trial_window(event, result)]
-    output["p_selected"] = bool(matching_selected)
+    output["p_selected_visibility"] = bool(matching_selected)
+    if result.get("visibility_profile") != "partial":
+        output["p_selected"] = bool(matching_selected)
     if matching_selected:
         selected = min(matching_selected, key=lambda event: (
             event["receipt_monotonic"], event["source_stamp"]))
@@ -1565,11 +1781,12 @@ def _group_value(result, field):
         except (TypeError, ValueError, OverflowError):
             return None
         return numeric if math.isfinite(numeric) else None
-    return str(value) if field == "class_name" else value
+    return str(value) if field in {
+        "class_name", "lateral_bin", "visibility_profile"} else value
 
 
 def _group_label(field, value):
-    if field == "class_name":
+    if field in {"class_name", "lateral_bin", "visibility_profile"}:
         return str(value)
     if field == "height_m":
         return "{:.3g} m".format(float(value))
@@ -1604,6 +1821,7 @@ def build_metric_breakdowns(results):
         ("by_class", "class_name"),
         ("by_height_m", "height_m"),
         ("by_speed_mps", "speed_mps"),
+        ("by_lateral_bin", "lateral_bin"),
     )
     breakdowns = {}
     for output_name, field in dimensions:
@@ -1628,6 +1846,18 @@ def build_metric_breakdowns(results):
             map_errors = [sample for result in completed
                           for sample in _finite_samples(
                               result, "map_errors_xy")]
+            target_lateral = [sample for result in completed
+                              for sample in _finite_samples(
+                                  result,
+                                  "target_path_lateral_offset_m_samples")]
+            target_pixel = [sample for result in completed
+                            for sample in _finite_samples(
+                                result,
+                                "target_pixel_offset_x_normalized_samples")]
+            confirm_members = [result for result in completed
+                               if result.get("p_confirm") is not None]
+            selected_members = [result for result in completed
+                                if result.get("p_selected") is not None]
             groups.append({
                 "dimension": field,
                 "value": value,
@@ -1636,10 +1866,19 @@ def build_metric_breakdowns(results):
                 "completed_trial_count": len(completed),
                 "p_confirm": (
                     sum(bool(result.get("p_confirm"))
-                        for result in completed) / float(len(completed))
-                    if completed else None),
+                        for result in confirm_members) /
+                    float(len(confirm_members)) if confirm_members else None),
                 "p_selected": (
                     sum(bool(result.get("p_selected"))
+                        for result in selected_members) /
+                    float(len(selected_members))
+                    if selected_members else None),
+                "p_confirm_visibility": (
+                    sum(bool(result.get("p_confirm_visibility"))
+                        for result in completed) / float(len(completed))
+                    if completed else None),
+                "p_selected_visibility": (
+                    sum(bool(result.get("p_selected_visibility"))
                         for result in completed) / float(len(completed))
                     if completed else None),
                 "eligible_frames": sum(
@@ -1664,6 +1903,16 @@ def build_metric_breakdowns(results):
                     statistics.mean(map_errors) if map_errors else None),
                 "p95_map_error_xy": percentile(map_errors, 95),
                 "map_error_sample_count": len(map_errors),
+                "target_lateral_sample_count": len(target_lateral),
+                "mean_target_path_lateral_offset_m": (
+                    statistics.mean(target_lateral)
+                    if target_lateral else None),
+                "p95_abs_target_path_lateral_offset_m": percentile(
+                    [abs(sample) for sample in target_lateral], 95),
+                "mean_target_pixel_offset_x_normalized": (
+                    statistics.mean(target_pixel) if target_pixel else None),
+                "p95_abs_target_pixel_offset_x_normalized": percentile(
+                    [abs(sample) for sample in target_pixel], 95),
             })
         breakdowns[output_name] = groups
     return breakdowns
@@ -1675,7 +1924,8 @@ def decorate_performance_rows(rows, breakdowns):
     for output_name, field, prefix in (
             ("by_class", "class_name", "class_group"),
             ("by_height_m", "height_m", "height_group"),
-            ("by_speed_mps", "speed_mps", "speed_group")):
+            ("by_speed_mps", "speed_mps", "speed_group"),
+            ("by_lateral_bin", "lateral_bin", "lateral_group")):
         lookup[field] = {
             group["value"]: (prefix, group)
             for group in breakdowns.get(output_name, [])
@@ -1683,7 +1933,8 @@ def decorate_performance_rows(rows, breakdowns):
     decorated = []
     for source in rows:
         row = dict(source)
-        for field in ("class_name", "height_m", "speed_mps"):
+        for field in ("class_name", "height_m", "speed_mps",
+                      "lateral_bin"):
             prefix_group = lookup[field].get(_group_value(row, field))
             if prefix_group is None:
                 continue
@@ -1696,6 +1947,15 @@ def decorate_performance_rows(rows, breakdowns):
                 "mean_actual_linear_speed_mps"]
             row[prefix + "_p95_abs_normalized_lateral_offset"] = group[
                 "p95_abs_normalized_lateral_offset"]
+            if prefix == "lateral_group":
+                row["lateral_group_p_confirm_visibility"] = group[
+                    "p_confirm_visibility"]
+                row["lateral_group_p_selected_visibility"] = group[
+                    "p_selected_visibility"]
+                row["lateral_group_mean_target_path_lateral_offset_m"] = group[
+                    "mean_target_path_lateral_offset_m"]
+                row["lateral_group_mean_target_pixel_offset_x_normalized"] = group[
+                    "mean_target_pixel_offset_x_normalized"]
         decorated.append(row)
     return decorated
 
@@ -1757,6 +2017,16 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         if result.get("status") == "completed"
         for value in _finite_samples(
             result, "normalized_lateral_offset_samples")]
+    target_lateral = [
+        value for result in results
+        if result.get("status") == "completed"
+        for value in _finite_samples(
+            result, "target_path_lateral_offset_m_samples")]
+    target_pixel = [
+        value for result in results
+        if result.get("status") == "completed"
+        for value in _finite_samples(
+            result, "target_pixel_offset_x_normalized_samples")]
     eligible_frames = sum(int(result.get("eligible_frames", 0))
                           for result in completed)
     stage_frame_counts = {
@@ -1779,11 +2049,14 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
             for error in navigation_audit["validation_errors"])
         expected_count = terminal_context.get(
             "expected_trial_count", EXPECTED_TRIAL_COUNT)
+        formal_expected_count = terminal_context.get(
+            "formal_expected_trial_count", EXPECTED_TRIAL_COUNT)
         if evaluation_scope not in {"full", "diagnostic"}:
             validation_errors.append("evaluation_scope_invalid")
         if (evaluation_scope == "full" and
-                int(expected_count) != EXPECTED_TRIAL_COUNT):
-            validation_errors.append("expected_trial_count_must_be_23")
+                int(expected_count) != int(formal_expected_count)):
+            validation_errors.append(
+                "expected_trial_count_must_match_formal_design")
         if int(expected_count) <= 0:
             validation_errors.append("expected_trial_count_must_be_positive")
         if len(finalized) != int(expected_count):
@@ -1793,13 +2066,23 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
             validation_errors.append("completed_trials_{}/{}".format(
                 len(completed), len(finalized)))
         for result in completed:
-            if not result.get("entered_fully_in_frame"):
+            visibility_profile = str(
+                result.get("visibility_profile") or "full")
+            entered_visibility = bool(
+                result.get("entered_visibility_window") or
+                (visibility_profile != "partial" and
+                 result.get("entered_fully_in_frame")))
+            left_visibility = bool(
+                result.get("left_visibility_window") or
+                (visibility_profile != "partial" and
+                 result.get("left_fully_in_frame")))
+            if not entered_visibility:
                 validation_errors.append(
-                    "{}:never_entered_fully_in_frame".format(
+                    "{}:never_entered_visibility_window".format(
                         result.get("trial_id", "unknown")))
-            if not result.get("left_fully_in_frame"):
+            if not left_visibility:
                 validation_errors.append(
-                    "{}:never_left_fully_in_frame".format(
+                    "{}:never_left_visibility_window".format(
                         result.get("trial_id", "unknown")))
         validation_errors = sorted(set(validation_errors))
     if run_mode == "dry_run":
@@ -1821,13 +2104,25 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
     navigation_enabled = navigation_audit["mode"] != "visual_only"
     target_stage_capability = navigation_audit[
         "target_stage_capability"]
+    confirm_trials = [result for result in completed
+                      if result.get("p_confirm") is not None]
+    selected_trials = [result for result in completed
+                       if result.get("p_selected") is not None]
     metrics = {
         "p_confirm": (
-            sum(bool(result.get("p_confirm")) for result in completed) /
-            float(len(completed)) if completed else None),
+            sum(bool(result.get("p_confirm")) for result in confirm_trials) /
+            float(len(confirm_trials)) if confirm_trials else None),
         "p_selected": (
-            sum(bool(result.get("p_selected")) for result in completed) /
-            float(len(completed)) if completed else None),
+            sum(bool(result.get("p_selected")) for result in selected_trials) /
+            float(len(selected_trials)) if selected_trials else None),
+        "p_confirm_visibility": (
+            sum(bool(result.get("p_confirm_visibility"))
+                for result in completed) / float(len(completed))
+            if completed else None),
+        "p_selected_visibility": (
+            sum(bool(result.get("p_selected_visibility"))
+                for result in completed) / float(len(completed))
+            if completed else None),
         "p_decision": (
             sum(bool(result.get("p_decision")) for result in completed) /
             float(len(completed))
@@ -1888,6 +2183,14 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
             statistics.mean(lateral_offset) if lateral_offset else None),
         "p95_abs_normalized_lateral_offset": percentile(
             lateral_offset, 95),
+        "mean_target_path_lateral_offset_m": (
+            statistics.mean(target_lateral) if target_lateral else None),
+        "p95_abs_target_path_lateral_offset_m": percentile(
+            [abs(value) for value in target_lateral], 95),
+        "mean_target_pixel_offset_x_normalized": (
+            statistics.mean(target_pixel) if target_pixel else None),
+        "p95_abs_target_pixel_offset_x_normalized": percentile(
+            [abs(value) for value in target_pixel], 95),
     }
     audit = candidate_audit_summary(
         terminal_context.get("candidate_audit_observations", []),
@@ -1931,6 +2234,8 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         "metrics": metrics,
         "metric_denominators": {
             "completed_trials": len(completed),
+            "fully_visible_metric_trials": len(confirm_trials),
+            "visibility_metric_trials": len(completed),
             "navigation_metric_trials": (
                 len(completed) if navigation_enabled else 0),
             "target_stage_metric_trials": (
@@ -1957,11 +2262,18 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
             "motion_samples": len(linear_speed),
             "yaw_rate_samples": len(yaw_rate),
             "lateral_offset_samples": len(lateral_offset),
+            "target_lateral_samples": len(target_lateral),
+            "target_pixel_offset_samples": len(target_pixel),
         },
         "definitions": {
             "p_confirm": (
                 "trial reaches current full candidate admission before the "
-                "target leaves the fully-in-frame window"),
+                "target leaves the fully-in-frame window; null for a partial "
+                "visibility profile"),
+            "p_confirm_visibility": (
+                "candidate admission inside the trial's declared truth "
+                "visibility window; partial trials use projection-valid, "
+                "center-in-frame and not-fully-in-frame truth"),
             "p_selected": (
                 "the same stable_id confirmed in the trial is published on "
                 "selected_target before leaving"),
@@ -2031,6 +2343,14 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
                 "dimensionless, positive on the path-left side, and blank "
                 "outside the motion window and for static/invalid paths or "
                 "missing poses"),
+            "target_path_lateral_offset_m": (
+                "signed independent-truth target-centre cross-track distance "
+                "to the planned start-to-finish line; this is not camera "
+                "path tracking error"),
+            "target_pixel_offset_x_normalized": (
+                "truth projected pixel u minus CameraInfo principal point, "
+                "divided by image half-width; requested bin values never "
+                "substitute this measured quantity"),
             "breakdowns": (
                 "completed-trial and exact frame-sample aggregates grouped "
                 "independently by class_name, height_m and requested "
@@ -2090,17 +2410,22 @@ def _breakdown_report(title, rows):
         "",
         "| Value | Completed/total | P_confirm | P_selected | Unweighted "
         "frame-delta mean speed (m/s) | Frame-delta P95 speed (m/s) | "
-        "P95 abs lateral ratio |",
-        "|---|---:|---:|---:|---:|---:|---:|",
+        "P95 abs path-error ratio | Visibility confirm/selected | "
+        "Mean target cross-track (m) | Mean pixel half-frame offset |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in rows:
         lines.append(
-            "| {} | {}/{} | {} | {} | {} | {} | {} |".format(
+            "| {} | {}/{} | {} | {} | {} | {} | {} | {}/{} | {} | {} |".format(
                 row["label"], row["completed_trial_count"],
                 row["trial_count"], row["p_confirm"], row["p_selected"],
                 row["mean_actual_linear_speed_mps"],
                 row["p95_actual_linear_speed_mps"],
-                row["p95_abs_normalized_lateral_offset"]))
+                row["p95_abs_normalized_lateral_offset"],
+                row["p_confirm_visibility"],
+                row["p_selected_visibility"],
+                row["mean_target_path_lateral_offset_m"],
+                row["mean_target_pixel_offset_x_normalized"]))
     lines.append("")
     return lines
 
@@ -2143,6 +2468,9 @@ def _report(summary):
             summary["completed_trial_count"], summary["trial_count"]),
         "- P_confirm: `{}`".format(_report_scalar(metrics["p_confirm"])),
         "- P_selected: `{}`".format(_report_scalar(metrics["p_selected"])),
+        "- Visibility-window P_confirm/P_selected: `{}` / `{}`".format(
+            _report_scalar(metrics["p_confirm_visibility"]),
+            _report_scalar(metrics["p_selected_visibility"])),
         "- P_decision: `{}`".format(_report_scalar(metrics["p_decision"])),
         "- P_dispatch: `{}`".format(_report_scalar(metrics["p_dispatch"])),
         "- P_planner_arrival: `{}`".format(
@@ -2212,6 +2540,12 @@ def _report(summary):
         "- Mean/P95 absolute normalized lateral offset: `{}` / `{}`".format(
             metrics["mean_abs_normalized_lateral_offset"],
             metrics["p95_abs_normalized_lateral_offset"]),
+        "- Target cross-track mean/P95 absolute: `{}` / `{}` m".format(
+            metrics["mean_target_path_lateral_offset_m"],
+            metrics["p95_abs_target_path_lateral_offset_m"]),
+        "- Truth pixel half-frame offset mean/P95 absolute: `{}` / `{}`".format(
+            metrics["mean_target_pixel_offset_x_normalized"],
+            metrics["p95_abs_target_pixel_offset_x_normalized"]),
         "- Confirmed audit (all/unexpected/disallowed/policy-rejected/tank): "
         "`{}/{}/{}/{}/{}`".format(
             audit["confirmed"]["observations"],
@@ -2257,6 +2591,12 @@ def _report(summary):
     lines.extend(_breakdown_report(
         "Breakdown by requested speed",
         breakdowns.get("by_speed_mps", [])))
+    if any(group.get("value") is not None
+           for group in breakdowns.get("by_lateral_bin", [])):
+        lines.extend(_breakdown_report(
+            "Breakdown by lateral bin",
+            [group for group in breakdowns.get("by_lateral_bin", [])
+             if group.get("value") is not None]))
     return "\n".join(lines)
 
 

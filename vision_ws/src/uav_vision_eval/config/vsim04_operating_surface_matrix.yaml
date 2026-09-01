@@ -1,5 +1,7 @@
 schema_version: 1
 evaluation_id: V-SIM-04
+design_id: operating-surface-85
+diagnostic_only: true
 seed: 11
 class_profile: r2026
 expected_trial_count: 85
