@@ -124,6 +124,7 @@ private:
     ros::Subscriber cross_status_sub_;
     ros::Publisher cross_control_pub_;
     ros::Publisher class_control_pub_;
+    ros::Publisher control_ready_pub_;
 
     std::vector<std::vector<double>> dynamic_point_list;
     geometry_msgs::PoseStamped mavros_point_cmd, planner_cmd, patrol_cmd, waypoint_mark_point, land_mark;
@@ -194,6 +195,8 @@ private:
     bool update_goal_from_selected_target_ = true;
     bool require_vision_release_permission_ = false;
     bool external_mission_mode_ = false;
+    bool control_ready_latched_ = false;
+    std::string control_ready_topic_ = "/mission/control_ready";
     std::string mission_command_topic_ = "/mission/command";
     double external_planner_cmd_timeout_ = 0.5;
     double external_planner_start_max_distance_ = 0.6;
@@ -308,6 +311,7 @@ private:
     ros::Publisher point_class_pub_;
     std::string current_align_mode_ = "disabled";
     void publishAlignMode(const std::string& mode);
+    void publishControlReady(bool ready);
     std::string desiredAlignMode() const;
     bool classMatchesGoal(const std::string& class_name) const;
     bool hasFreshSelectedTarget() const;

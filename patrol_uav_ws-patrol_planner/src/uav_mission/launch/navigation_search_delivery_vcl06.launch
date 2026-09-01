@@ -7,6 +7,7 @@
   <arg name="rviz" default="false" />
   <arg name="start_arming" default="true" />
   <arg name="start_hard_gate" default="true" />
+  <arg name="gate_startup_wall_timeout" default="180.0" />
   <arg name="gate_wall_timeout" default="900.0" />
   <arg name="record_debug" default="false" />
 
@@ -125,6 +126,8 @@
         output="screen"
         required="true">
     <param name="report_path" value="$(arg gate_report_path)" />
+    <param name="startup_wall_timeout"
+           value="$(arg gate_startup_wall_timeout)" />
     <param name="wall_timeout" value="$(arg gate_wall_timeout)" />
     <param name="class_profile" value="$(arg class_profile)" />
     <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />

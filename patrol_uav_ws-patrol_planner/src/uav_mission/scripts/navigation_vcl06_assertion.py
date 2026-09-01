@@ -577,7 +577,7 @@ class Vcl06GateReducer:
             "start_gate_started_once": (
                 start_gate.get("status") == "STARTED" and
                 start_gate.get("started_latched") is True and
-                _int_or(start_gate.get("service_call_count"), -1) == 1),
+                _int_or(start_gate.get("service_success_count"), -1) == 1),
             "field_ready": (
                 self._ready_status(field, self.profile) and
                 field.get("footprint_valid") is True and
@@ -659,14 +659,15 @@ class Vcl06GateReducer:
         }
         return checks, metrics
 
-    def report(self, timed_out=False):
+    def report(self, timeout_reason=""):
         checks, metrics = self._checks()
         errors = list(self.errors)
-        if timed_out and "wall_timeout" not in errors:
-            errors.append("wall_timeout")
+        timeout_reason = str(timeout_reason)
+        if timeout_reason and timeout_reason not in errors:
+            errors.append(timeout_reason)
         hard_failure = bool(errors)
         complete = all(checks.values())
-        status = "FAIL" if hard_failure or timed_out else (
+        status = "FAIL" if hard_failure else (
             "PASS" if complete else "WAITING")
         failed_checks = sorted(name for name, value in checks.items()
                                if not value)
@@ -703,8 +704,16 @@ class NavigationVcl06AssertionNode:
         self._lock = threading.RLock()
         self._finished = False
         self.exit_code = 1
-        self._started_wall = time.monotonic()
+        self._assertion_started_wall = time.monotonic()
+        self._mission_started_wall = None
+        self._startup_wall_timeout = float(rospy.get_param(
+            "~startup_wall_timeout", 180.0))
         self._wall_timeout = float(rospy.get_param("~wall_timeout", 650.0))
+        for name, value in (
+                ("startup_wall_timeout", self._startup_wall_timeout),
+                ("wall_timeout", self._wall_timeout)):
+            if not math.isfinite(value) or value <= 0.0:
+                raise ValueError("%s must be finite and positive" % name)
         self._planner_goal_topic = rospy.get_param(
             "~planner_goal_topic", "/fastplanner/goal")
         self._expected_goal_publisher = rospy.get_param(
@@ -820,8 +829,10 @@ class NavigationVcl06AssertionNode:
 
     def _on_decision(self, message):
         with self._lock:
+            receipt_wall = time.monotonic()
+            self._latch_mission_start(receipt_wall)
             self.reducer.observe_decision(
-                self._decision_dict(message), time.monotonic())
+                self._decision_dict(message), receipt_wall)
             self._check_terminal()
 
     def _on_result(self, message):
@@ -841,14 +852,36 @@ class NavigationVcl06AssertionNode:
     def _status_callback(self, name):
         def callback(message):
             with self._lock:
+                receipt_wall = time.monotonic()
                 try:
                     payload = json.loads(message.data)
                 except (TypeError, ValueError):
                     self.reducer._error("invalid_%s_json" % name)
                 else:
+                    if (name == "start_gate" and
+                            payload.get("status") == "STARTED"):
+                        self._latch_mission_start(receipt_wall)
                     self.reducer.observe_status(name, payload)
                 self._check_terminal()
         return callback
+
+    def _latch_mission_start(self, receipt_wall=None):
+        if self._mission_started_wall is not None:
+            return
+        if receipt_wall is None:
+            receipt_wall = time.monotonic()
+        self._mission_started_wall = float(receipt_wall)
+
+    def _timeout_reason(self, now_wall):
+        now_wall = float(now_wall)
+        if self._mission_started_wall is None:
+            if (now_wall - self._assertion_started_wall >=
+                    self._startup_wall_timeout):
+                return "startup_wall_timeout"
+            return ""
+        if now_wall - self._mission_started_wall >= self._wall_timeout:
+            return "mission_wall_timeout"
+        return ""
 
     def _on_pose(self, message):
         with self._lock:
@@ -874,9 +907,8 @@ class NavigationVcl06AssertionNode:
                 self.reducer.observe_planner_goal_publishers(nodes)
             except rosgraph.MasterError:
                 pass
-            timed_out = (time.monotonic() - self._started_wall >=
-                         self._wall_timeout)
-            self._check_terminal(timed_out=timed_out)
+            timeout_reason = self._timeout_reason(time.monotonic())
+            self._check_terminal(timeout_reason=timeout_reason)
 
     def _write_report(self, report):
         directory = os.path.dirname(os.path.abspath(self._report_path))
@@ -895,10 +927,10 @@ class NavigationVcl06AssertionNode:
             if os.path.exists(temporary_path):
                 os.unlink(temporary_path)
 
-    def _check_terminal(self, timed_out=False):
+    def _check_terminal(self, timeout_reason=""):
         if self._finished:
             return
-        report = self.reducer.report(timed_out=timed_out)
+        report = self.reducer.report(timeout_reason=timeout_reason)
         if report["status"] == "WAITING":
             return
         self._finished = True

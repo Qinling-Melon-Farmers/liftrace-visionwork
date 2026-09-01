@@ -86,6 +86,15 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
             'raise ValueError("ALIGN requires the target transaction executor")',
             self.source)
 
+    def test_planner_event_sequence_is_not_coupled_to_transport_header(self):
+        parser = self.source[
+            self.source.index("def _planner_status_from_message"):
+            self.source.index("def _odom_from_message")]
+        self.assertIn("event_seq = int(message.event_seq)", parser)
+        self.assertIn("event_seq=event_seq", parser)
+        self.assertNotIn("message.header.seq", parser)
+        self.assertNotIn("planner event header sequence mismatch", self.source)
+
     def test_motion_limits_do_not_duplicate_profile_policy(self):
         execution = self.config["execution"]
         self.assertFalse(execution["enabled"])

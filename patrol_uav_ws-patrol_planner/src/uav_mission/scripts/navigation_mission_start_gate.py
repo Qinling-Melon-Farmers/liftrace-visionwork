@@ -8,7 +8,7 @@ import threading
 import time
 
 import rospy
-from std_msgs.msg import String
+from std_msgs.msg import Bool, String
 from std_srvs.srv import Trigger
 import yaml
 
@@ -27,6 +27,8 @@ class NavigationMissionStartGateNode:
             "~status_topic", "/navigation/mission_start_gate_status")
         self._start_service_name = rospy.get_param(
             "~start_service", "/navigation/start_mission")
+        self._control_ready_topic = rospy.get_param(
+            "~control_ready_topic", "/mission/control_ready")
         self._service_probe_timeout = float(
             rospy.get_param("~service_probe_timeout", 0.05))
         self._tick_hz = float(rospy.get_param("~tick_hz", 5.0))
@@ -72,6 +74,9 @@ class NavigationMissionStartGateNode:
             rospy.get_param(
                 "~manager_status_topic", "/navigation/mission_status"),
             String, self._on_manager, queue_size=1)
+        rospy.Subscriber(
+            self._control_ready_topic,
+            Bool, self._on_control_ready, queue_size=1)
         self._timer = rospy.Timer(
             rospy.Duration.from_sec(1.0 / self._tick_hz), self._on_timer)
         self._refresh_truth()
@@ -131,12 +136,18 @@ class NavigationMissionStartGateNode:
             self._gate.update_manager(self._decode(message))
             self._publish(force=True)
 
+    def _on_control_ready(self, message):
+        with self._lock:
+            self._gate.update_control_ready(message.data)
+            self._publish(force=True)
+
     def _publish(self, force=False):
         now = time.monotonic()
         payload = self._gate.status(now)
         payload.update({
             "start_service": self._start_service_name,
             "status_topic": self._status_topic,
+            "control_ready_topic": self._control_ready_topic,
             "runtime_error": self._runtime_error,
             "updated_wall_time": time.time(),
         })

@@ -111,6 +111,10 @@ void LLController::initializeNode() {
     uav_pose.pose.orientation.z = 0.0;
     uav_pose.pose.orientation.w = 1.0;
 
+    control_ready_pub_ =
+        nh_.advertise<std_msgs::Bool>(control_ready_topic_, 1, true);
+    publishControlReady(false);
+
     // 订阅无人机当前位置
     pose_sub_ = nh_.subscribe("/mavros/local_position/pose", 1,&LLController::positionCallback, this);
     fastplanner_cmd_sub_ = nh_.subscribe("/fastplanner/setpoint_position/local", 1,&LLController::plannercmdCallback, this);
@@ -232,7 +236,11 @@ void LLController::positionCallback(const geometry_msgs::PoseStamped& msg) {
             } else {
                 ROS_INFO("[PatrolControl] Takeoff complete; waiting for external mission commands");
             }
-            Drone_mode = Run_point;}
+            Drone_mode = Run_point;
+            if (external_mission_mode_) {
+                publishControlReady(true);
+            }
+        }
     }
     else {
         if (external_mission_mode_) {
@@ -241,6 +249,19 @@ void LLController::positionCallback(const geometry_msgs::PoseStamped& msg) {
             patrol();
         }
     }
+}
+
+void LLController::publishControlReady(bool ready) {
+    if (control_ready_latched_ && !ready) {
+        ROS_WARN_THROTTLE(
+            5.0,
+            "[PatrolControl] Ignoring attempt to clear latched control readiness");
+        return;
+    }
+    control_ready_latched_ = control_ready_latched_ || ready;
+    std_msgs::Bool message;
+    message.data = control_ready_latched_;
+    control_ready_pub_.publish(message);
 }
 
 void LLController::externalMissionTick() {
@@ -1072,6 +1093,8 @@ void LLController::load_params() {
     require_vision_release_permission_ =
         nh_.param("uav_vision/require_release_permission", false);
     external_mission_mode_ = nh_.param("external_mission_mode", false);
+    control_ready_topic_ = nh_.param<std::string>(
+        "control_ready_topic", "/mission/control_ready");
     mission_command_topic_ = nh_.param<std::string>(
         "mission_command_topic", "/mission/command");
     external_planner_cmd_timeout_ =
@@ -1166,6 +1189,8 @@ void LLController::load_params() {
     ROS_INFO("[PatrolControl] external_mission_mode: %s command_topic=%s",
              external_mission_mode_ ? "true" : "false",
              mission_command_topic_.c_str());
+    ROS_INFO("[PatrolControl] control_ready_topic: %s",
+             control_ready_topic_.c_str());
     ROS_INFO("[PatrolControl] external_alignment_timeout: %.1f s",
              external_alignment_timeout_sec_);
     

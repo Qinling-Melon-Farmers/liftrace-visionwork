@@ -2,10 +2,12 @@
 
 import ast
 import importlib.util
+import json
 from pathlib import Path
 import sys
 from types import SimpleNamespace
 import unittest
+from unittest import mock
 import xml.etree.ElementTree as ET
 
 import yaml
@@ -94,7 +96,7 @@ def ready_statuses(reducer):
     })
     reducer.observe_status("start_gate", {
         "status": "STARTED", "started_latched": True,
-        "service_call_count": 1,
+        "service_call_count": 3, "service_success_count": 1,
     })
     reducer.observe_status("manager", {
         "phase": "COMPLETE", "mission_failed": False,
@@ -259,14 +261,84 @@ class Vcl06GateReducerTest(unittest.TestCase):
 
     def test_timeout_writes_explicit_failure_reason(self):
         reducer = MODULE.Vcl06GateReducer()
-        report = reducer.report(timed_out=True)
+        report = reducer.report(timeout_reason="startup_wall_timeout")
         self.assertEqual(report["status"], "FAIL")
-        self.assertIn("wall_timeout", report["errors"])
+        self.assertIn("startup_wall_timeout", report["errors"])
         self.assertIn("required_statuses_seen", report["failed_checks"])
         for check in (
                 "three_capture_started", "real_approach_commands",
                 "committed_targets_were_selected"):
             self.assertFalse(report["checks"][check])
+
+        report = reducer.report(timeout_reason="mission_wall_timeout")
+        self.assertEqual(report["status"], "FAIL")
+        self.assertIn("mission_wall_timeout", report["errors"])
+
+    def test_start_gate_counts_one_success_not_one_attempt(self):
+        reducer = build_passing_reducer()
+        report = reducer.report()
+        self.assertTrue(report["checks"]["start_gate_started_once"])
+
+        reducer.statuses["start_gate"]["service_success_count"] = 2
+        report = reducer.report()
+        self.assertFalse(report["checks"]["start_gate_started_once"])
+
+    def test_ros_shell_uses_separate_startup_and_mission_timeouts(self):
+        node = MODULE.NavigationVcl06AssertionNode.__new__(
+            MODULE.NavigationVcl06AssertionNode)
+        node._assertion_started_wall = 100.0
+        node._mission_started_wall = None
+        node._startup_wall_timeout = 180.0
+        node._wall_timeout = 900.0
+
+        self.assertEqual(node._timeout_reason(279.999), "")
+        self.assertEqual(node._timeout_reason(280.0),
+                         "startup_wall_timeout")
+
+        node._latch_mission_start(250.0)
+        self.assertEqual(node._timeout_reason(1149.999), "")
+        self.assertEqual(node._timeout_reason(1150.0),
+                         "mission_wall_timeout")
+        node._latch_mission_start(500.0)
+        self.assertEqual(node._mission_started_wall, 250.0)
+
+    def test_ros_shell_latches_start_from_started_or_first_decision(self):
+        class Recorder:
+            def __init__(self):
+                self.statuses = []
+                self.decisions = []
+
+            def observe_status(self, name, payload):
+                self.statuses.append((name, payload))
+
+            def observe_decision(self, payload, receipt_wall):
+                self.decisions.append((payload, receipt_wall))
+
+            @staticmethod
+            def _error(_reason):
+                raise AssertionError("unexpected JSON error")
+
+        node = MODULE.NavigationVcl06AssertionNode.__new__(
+            MODULE.NavigationVcl06AssertionNode)
+        node._lock = MODULE.threading.RLock()
+        node._mission_started_wall = None
+        node.reducer = Recorder()
+        node._check_terminal = lambda **_kwargs: None
+
+        with mock.patch.object(MODULE.time, "monotonic",
+                               return_value=42.0):
+            node._status_callback("start_gate")(SimpleNamespace(
+                data=json.dumps({"status": "STARTED"})))
+        self.assertEqual(node._mission_started_wall, 42.0)
+
+        node._mission_started_wall = None
+        node._decision_dict = lambda _message: {"decision_seq": 1}
+        with mock.patch.object(MODULE.time, "monotonic",
+                               return_value=43.0):
+            node._on_decision(SimpleNamespace())
+        self.assertEqual(node._mission_started_wall, 43.0)
+        self.assertEqual(node.reducer.decisions,
+                         [({"decision_seq": 1}, 43.0)])
 
     def test_retry_approach_command_binds_by_decision_sequence(self):
         reducer = MODULE.Vcl06GateReducer()
@@ -393,11 +465,16 @@ class Vcl06GateReducerTest(unittest.TestCase):
         self.assertEqual(gate.attrib.get("if"), "$(arg start_hard_gate)")
         params = {item.attrib["name"]: item.attrib.get("value")
                   for item in gate.findall("param")}
+        self.assertEqual(params["startup_wall_timeout"],
+                         "$(arg gate_startup_wall_timeout)")
+        self.assertEqual(params["wall_timeout"],
+                         "$(arg gate_wall_timeout)")
         self.assertEqual(params["planner_goal_topic"], "/fastplanner/goal")
         self.assertEqual(params["expected_planner_goal_publisher"],
                          "/navigation/planner_bridge")
         arguments = {item.attrib["name"]: item.attrib.get("default")
                      for item in root.findall("arg")}
+        self.assertEqual(arguments["gate_startup_wall_timeout"], "180.0")
         self.assertNotIn("mission_frame", arguments)
         self.assertEqual(arguments["class_profile"], "r2026")
         self.assertEqual(arguments["field_seed"], "11")

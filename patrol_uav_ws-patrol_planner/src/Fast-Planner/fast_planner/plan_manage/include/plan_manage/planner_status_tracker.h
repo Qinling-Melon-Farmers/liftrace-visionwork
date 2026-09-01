@@ -104,7 +104,8 @@ private:
     msg.header.stamp     = stamp;
     msg.header.frame_id  = effective_goal_.header.frame_id;
     msg.event_seq        = ++event_seq_;
-    msg.header.seq       = static_cast<uint32_t>(msg.event_seq);
+    // roscpp owns the top-level Header.seq and rewrites it when publishing.
+    // Keep mission ordering and deduplication on the explicit event_seq field.
     msg.goal_seq         = goal_seq_;
     msg.status           = status;
     msg.planning_attempt = planning_attempt_;

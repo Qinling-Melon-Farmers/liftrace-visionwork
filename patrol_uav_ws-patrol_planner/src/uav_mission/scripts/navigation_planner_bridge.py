@@ -456,9 +456,10 @@ class NavigationPlannerBridge:
         )
 
     def _planner_status_from_message(self, message):
+        # roscpp rewrites a top-level Header.seq with its publication counter.
+        # The explicit event_seq is the planner-owned ordering/deduplication
+        # contract and therefore must not be coupled to that transport field.
         event_seq = int(message.event_seq)
-        if int(message.header.seq) != event_seq:
-            raise ValueError("planner event header sequence mismatch")
         if message.header.frame_id != self._mission_frame:
             raise ValueError("planner status frame mismatch")
         goal_seq = int(message.goal_seq)

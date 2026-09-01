@@ -19,6 +19,8 @@
 
 - `goal_seq` 原样取自 `/fastplanner/goal` 的 `PoseStamped.header.seq`。
 - `event_seq` 是当前 planner 进程内单调递增的遥测事件序号；进程重启后从 1 开始。
+- 顶层 `header.seq` 是 roscpp 管理的发布传输序号，发布时会被重写，不要求与
+  `event_seq` 相等，也不得用于任务层排序或去重。
 - `planning_attempt` 在每个新目标到来时清零，每次真实调用 kinodynamic replan 前递增。
 - `requested_goal` 保存收到的目标；`effective_goal` 反映 preset 解析或避障调整后的目标。
 - `distance_to_goal` 使用最新 odom 到 `effective_goal` 的欧氏距离；尚无 odom 时为 NaN。

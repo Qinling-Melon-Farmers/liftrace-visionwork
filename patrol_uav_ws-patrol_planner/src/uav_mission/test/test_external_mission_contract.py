@@ -56,6 +56,29 @@ class ExternalMissionContractTest(unittest.TestCase):
         self.assertEqual(source.count(
             'advertise<geometry_msgs::PoseStamped>("/fastplanner/goal"'), 1)
 
+    def test_control_readiness_is_latched_after_takeoff(self):
+        header = (PATROL / "include" / "patrol_control" /
+                  "patrol_control.h").read_text(encoding="utf-8")
+        source = (PATROL / "src" / "patrol_control.cpp").read_text(
+            encoding="utf-8")
+        self.assertIn("ros::Publisher control_ready_pub_", header)
+        self.assertIn("bool control_ready_latched_ = false", header)
+        self.assertIn('control_ready_topic_ = "/mission/control_ready"',
+                      header)
+        self.assertIn(
+            "advertise<std_msgs::Bool>(control_ready_topic_, 1, true)",
+            source)
+        self.assertIn("publishControlReady(false)", source)
+        self.assertIn("flag_takeoff_done = 1", source)
+        self.assertIn("publishControlReady(true)", source)
+        self.assertLess(
+            source.index("flag_takeoff_done = 1"),
+            source.index("publishControlReady(true)"))
+        ready_window = source[
+            source.index("flag_takeoff_done = 1"):
+            source.index("void LLController::publishControlReady")]
+        self.assertIn("if (external_mission_mode_)", ready_window)
+
     def test_external_gate_enables_mode_and_manager_owns_goal(self):
         launch = ET.parse(str(PACKAGE / "launch" /
                               "external_candidate.launch")).getroot()
