@@ -377,9 +377,6 @@ class TargetDetectorRKNN:
         self._detections_pub = rospy.Publisher("/uav_vision/detections",
                                                TargetDetectionArray, queue_size=1)
         self._perf_pub = rospy.Publisher(self._perf_topic, DiagnosticArray, queue_size=1)
-        self._image_sub = rospy.Subscriber(self._image_topic, Image,
-                                           self._on_image, queue_size=1,
-                                           buff_size=2**24)
 
         self._unified = _RknnHandle(self._model_path, self._metadata_path, "unified")
         self._std = _RknnHandle(self._std_model_path, self._std_metadata_path, "standard")
@@ -399,6 +396,13 @@ class TargetDetectorRKNN:
                     "RKNNLite is unavailable in the board ROS Python")
             else:
                 raise RuntimeError("no usable RKNN runtime/model found")
+
+        # Advertise the image subscription only after every callback-visible
+        # runtime handle and counter is ready. A replay publisher can emit its
+        # first frame synchronously as soon as it observes this subscriber.
+        self._image_sub = rospy.Subscriber(self._image_topic, Image,
+                                           self._on_image, queue_size=1,
+                                           buff_size=2**24)
 
     def _empty_publish(self, header):
         arr = TargetDetectionArray()
