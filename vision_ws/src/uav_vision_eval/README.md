@@ -127,7 +127,8 @@ FAIL 仍保留完整测量产物，但 formal 入口返回非零；diagnostic �
 `DIAGNOSTIC_ONLY` 且无硬失败时返回零。由于当前三项门槛未冻结，formal 即使已知阈值通过
 也会以 `NOT_GATED` 非零结束，避免把命令成功冒充算法 Gate PASS。
 
-扩展运营域矩阵可通过命名切片顺序执行。第一个参数固定为 `static25` 或 `sparse30`，其后
+扩展运营域矩阵可通过命名切片顺序执行。第一个参数固定为 `static25`、`sparse30`、
+完整 B 类析因曲面 `b100` 或横向偏移矩阵 `c25`，其后
 参数会显式透传给 `roslaunch`；不含 `:=` 的参数、未知 launch 参数以及试图覆盖
 `matrix_file`/`trial_slice`/`trial_selector` 都会非零失败，不会静默忽略：
 
@@ -138,6 +139,9 @@ bash top_level_scripts/run_vsim04_surface.sh sparse30 \
   enable_failure_capture:=true failure_capture_max_frames:=30 \
   failure_capture_output_dir:=pillbox_surface
 ```
+
+`b100` 固定展开为五类 × 五高度 × 四速度共 100 个动态 trial；它和其他命名切片均保持
+`DIAGNOSTIC_ONLY`，不会替代 formal23，也不能被单次高分误写为联合任务 Gate。
 
 ### 失败 trial 原始帧采集
 

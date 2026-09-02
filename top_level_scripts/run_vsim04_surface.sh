@@ -4,11 +4,11 @@ set -euo pipefail
 
 SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-SLICE="${1:?usage: run_vsim04_surface.sh static25|sparse30|c25 [name:=value ...]}"
+SLICE="${1:?usage: run_vsim04_surface.sh static25|sparse30|b100|c25 [name:=value ...]}"
 shift
 
 case "${SLICE}" in
-  static25|sparse30|c25) ;;
+  static25|sparse30|b100|c25) ;;
   *)
     echo "unknown V-SIM-04 surface slice: ${SLICE}" >&2
     exit 2

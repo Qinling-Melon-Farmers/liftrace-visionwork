@@ -1,10 +1,10 @@
 schema_version: 1
 evaluation_id: V-SIM-04
-design_id: operating-surface-85
+design_id: operating-surface-125
 diagnostic_only: true
 seed: 11
 class_profile: r2026
-expected_trial_count: 85
+expected_trial_count: 125
 
 # Keep the diagnostic surface on the same frozen performance contract. Named
 # slices remain DIAGNOSTIC_ONLY regardless of their metric values.
@@ -37,7 +37,7 @@ static:
 
 dynamic:
   classes: [tent, pillbox, bridge, panzer, red_cross]
-  heights_m: [1.2, 2.4, 3.6]
+  heights_m: [1.2, 1.8, 2.4, 3.0, 3.6]
   speeds_mps: [0.5, 1.0, 1.5, 2.0]
   path_half_length_m: 3.5
   update_rate_hz: 20.0
@@ -100,6 +100,108 @@ trial_slices:
     - dynamic_red_cross_h3p6_v2p0
     - dynamic_red_cross_h2p4_v1p0
     - dynamic_red_cross_h2p4_v1p5
+  # Requirement B full factorial: 5 classes x 5 heights x 4 speeds.
+  b100:
+    - dynamic_tent_h1p2_v0p5
+    - dynamic_tent_h1p2_v1p0
+    - dynamic_tent_h1p2_v1p5
+    - dynamic_tent_h1p2_v2p0
+    - dynamic_tent_h1p8_v0p5
+    - dynamic_tent_h1p8_v1p0
+    - dynamic_tent_h1p8_v1p5
+    - dynamic_tent_h1p8_v2p0
+    - dynamic_tent_h2p4_v0p5
+    - dynamic_tent_h2p4_v1p0
+    - dynamic_tent_h2p4_v1p5
+    - dynamic_tent_h2p4_v2p0
+    - dynamic_tent_h3p0_v0p5
+    - dynamic_tent_h3p0_v1p0
+    - dynamic_tent_h3p0_v1p5
+    - dynamic_tent_h3p0_v2p0
+    - dynamic_tent_h3p6_v0p5
+    - dynamic_tent_h3p6_v1p0
+    - dynamic_tent_h3p6_v1p5
+    - dynamic_tent_h3p6_v2p0
+    - dynamic_pillbox_h1p2_v0p5
+    - dynamic_pillbox_h1p2_v1p0
+    - dynamic_pillbox_h1p2_v1p5
+    - dynamic_pillbox_h1p2_v2p0
+    - dynamic_pillbox_h1p8_v0p5
+    - dynamic_pillbox_h1p8_v1p0
+    - dynamic_pillbox_h1p8_v1p5
+    - dynamic_pillbox_h1p8_v2p0
+    - dynamic_pillbox_h2p4_v0p5
+    - dynamic_pillbox_h2p4_v1p0
+    - dynamic_pillbox_h2p4_v1p5
+    - dynamic_pillbox_h2p4_v2p0
+    - dynamic_pillbox_h3p0_v0p5
+    - dynamic_pillbox_h3p0_v1p0
+    - dynamic_pillbox_h3p0_v1p5
+    - dynamic_pillbox_h3p0_v2p0
+    - dynamic_pillbox_h3p6_v0p5
+    - dynamic_pillbox_h3p6_v1p0
+    - dynamic_pillbox_h3p6_v1p5
+    - dynamic_pillbox_h3p6_v2p0
+    - dynamic_bridge_h1p2_v0p5
+    - dynamic_bridge_h1p2_v1p0
+    - dynamic_bridge_h1p2_v1p5
+    - dynamic_bridge_h1p2_v2p0
+    - dynamic_bridge_h1p8_v0p5
+    - dynamic_bridge_h1p8_v1p0
+    - dynamic_bridge_h1p8_v1p5
+    - dynamic_bridge_h1p8_v2p0
+    - dynamic_bridge_h2p4_v0p5
+    - dynamic_bridge_h2p4_v1p0
+    - dynamic_bridge_h2p4_v1p5
+    - dynamic_bridge_h2p4_v2p0
+    - dynamic_bridge_h3p0_v0p5
+    - dynamic_bridge_h3p0_v1p0
+    - dynamic_bridge_h3p0_v1p5
+    - dynamic_bridge_h3p0_v2p0
+    - dynamic_bridge_h3p6_v0p5
+    - dynamic_bridge_h3p6_v1p0
+    - dynamic_bridge_h3p6_v1p5
+    - dynamic_bridge_h3p6_v2p0
+    - dynamic_panzer_h1p2_v0p5
+    - dynamic_panzer_h1p2_v1p0
+    - dynamic_panzer_h1p2_v1p5
+    - dynamic_panzer_h1p2_v2p0
+    - dynamic_panzer_h1p8_v0p5
+    - dynamic_panzer_h1p8_v1p0
+    - dynamic_panzer_h1p8_v1p5
+    - dynamic_panzer_h1p8_v2p0
+    - dynamic_panzer_h2p4_v0p5
+    - dynamic_panzer_h2p4_v1p0
+    - dynamic_panzer_h2p4_v1p5
+    - dynamic_panzer_h2p4_v2p0
+    - dynamic_panzer_h3p0_v0p5
+    - dynamic_panzer_h3p0_v1p0
+    - dynamic_panzer_h3p0_v1p5
+    - dynamic_panzer_h3p0_v2p0
+    - dynamic_panzer_h3p6_v0p5
+    - dynamic_panzer_h3p6_v1p0
+    - dynamic_panzer_h3p6_v1p5
+    - dynamic_panzer_h3p6_v2p0
+    - dynamic_red_cross_h1p2_v0p5
+    - dynamic_red_cross_h1p2_v1p0
+    - dynamic_red_cross_h1p2_v1p5
+    - dynamic_red_cross_h1p2_v2p0
+    - dynamic_red_cross_h1p8_v0p5
+    - dynamic_red_cross_h1p8_v1p0
+    - dynamic_red_cross_h1p8_v1p5
+    - dynamic_red_cross_h1p8_v2p0
+    - dynamic_red_cross_h2p4_v0p5
+    - dynamic_red_cross_h2p4_v1p0
+    - dynamic_red_cross_h2p4_v1p5
+    - dynamic_red_cross_h2p4_v2p0
+    - dynamic_red_cross_h3p0_v0p5
+    - dynamic_red_cross_h3p0_v1p0
+    - dynamic_red_cross_h3p0_v1p5
+    - dynamic_red_cross_h3p0_v2p0
+    - dynamic_red_cross_h3p6_v0p5
+    - dynamic_red_cross_h3p6_v1p0
+    - dynamic_red_cross_h3p6_v1p5
+    - dynamic_red_cross_h3p6_v2p0
 
 runner:
   camera_model: vision_eval_camera
