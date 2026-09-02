@@ -100,6 +100,12 @@
     pillbox 3.6 m 单项恢复 P_confirm，却误选共视 bridge、P_selected=0 且 processing
     P95=449.3 ms，超过 200 ms，故继续保持 640 默认，不推广 1280。新相机 1280×720 内参已由
     用户标定并接入 CameraInfo profile，不再属于 V-SIM-04 算法欠项。
+    2026-09-02 已在单一视觉 revision `1e48c22` 上补齐并运行完整 B100（五类×五高度×四速度），
+    100/100 trial 完成，`P_confirm=P_selected=0.83`、地图误差 P95=0.2035 m、
+    processing P95=448.2 ms；17 个失败首阻断均为 `target_memory_admission`。因此 B 不再是
+    “仅覆盖 38/100”，但终态仍为 `DIAGNOSTIC_ONLY`：处理延迟未通过 200 ms 冻结阈值，且
+    仍是单 seed。暂行保守工作域为约 2.4–3.0 m、优先不高于 1.0 m/s；历史 formal23/
+    sparse30 只作 revision 对照，不与 B100 拼接。
 18. V-SIM-04 的笔记本/Gazebo camera-only 600 秒稳定性已通过：
     `logs/vsim04_soak600b_seed11_20260831_011055/` 在视觉 revision
     `8b3b88cd321469e3b61b6127ec2574d770848109` 上连续运行 wall 600.024 s，六产物完整、
@@ -141,8 +147,9 @@
 得到 458 TP、0 FP/FN，landing-active 纯背景 511 帧为 0 FP，但仍缺真实 H、普通黑圈/残圈和
 完整降落 Gate。当前仍不能宣称完整视觉 Gate 通过：formal23/static25/sparse30 只是一次覆盖，
 六点重复也只复用固定 seed；采用门槛和多 seed 次数尚未冻结，30-seed 未开始，实拍圆环仍缺
-人工定量真值。`real_target.mp4` 已完成 4623 帧模型推理、完整视觉链回放、OrangePi RKNN
-抽样和人工审片，应计为“实拍域功能回归已完成”；缺的是独立于预测输出的实例/类别/中心标注
+人工定量真值。`real_target.mp4` 已在 OrangePi revision `59c74b6` 以正式
+ROS→RKNN→OpenCV/fusion/refiner→fail-closed map projector→recorder 链完成 4622/4622 帧，
+另有离线 4623 帧模型推理和人工审片，应计为“实拍域功能回归已完成”；缺的是独立于预测输出的实例/类别/中心标注
 及同步 CameraInfo/pose，因此 58.80% 只能称自洽关联率。已关闭的 10 min 包括
 laptop/Gazebo camera-only 与 OrangePi 新相机像素/RKNN ROS 链；后者不外推为安装外参、
 有效地图点、带靶真实场景或联合导航通过。
@@ -535,9 +542,9 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 部分完成/待干净复跑 | 15 | V-CL-05 | 搜索-投递策略：高权重中断 + red_cross 统一 | 中断机制已实跑（tank 提前执行并恢复搜索、覆盖 12/12），pillbox 端到端投出，tank/panzer 证据锁定但低空下降受规划器波动影响超时；red_cross 统一入队、随机摆放入口与动态期望 Gate 已落地。剩余完成定义：按规则场地全随机布设（4 个 1 m 标准靶 + 1 个 0.35 m 红十字全部随机摆放、H 固定为起降点，真值仅落盘），类目/profile 驱动允许集合与 Gate（本届 profile 排除 tank），随机十字独立发现/投递 + 沉降门控验证（规划器失败只记录不迭代） |
 | 地图链已恢复/目标事务待验收 | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 导航 PR #6 已 Ready（HEAD `d95377c`），单 bridge、目标事务/LAND、正式随机场入口与只读 Gate 已收口；无新增 msg/srv/action/第二 executor，`/navigation/planner_bridge` 是唯一 goal 发布者。LiDAR→FAST-LIO→FreeDOM 已持续输出 `camera_init` 新鲜地图；90 秒 Gate v3 地图约 10 Hz、位姿约 30 Hz、合同错误/碰撞/越界为 0，并产生 3 decision/5 result，但仍因 `wall_timeout` FAIL，未选中目标、未 APPROACH/投递/返航/LAND，`P_interrupt=null`。先取得真实 target-stage，再决定 600 秒 Gate；历史 A/B 仍 FAIL，不推广 `a68925d` |
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
-| camera-only 10 min PASS/性能域仍部分完成 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | formal23 22/23、static25 24/25、sparse30 25/30 的历史证据继续有效，视觉 B 仅覆盖 38/100 个唯一高度×速度×类别条件。C25 修复后 25/25、完整入画 confirm/selected=15/15、13/15，`NOT_GATED`；D50 supported16 为 16/16 confirm/selected，`DIAGNOSTIC_ONLY`，其余 34 项 `NOT_RUN`。`vsim04_soak600b_seed11_20260831_011055` 已以 wall 600.024 s、输入/完整 mapped 15.019/13.336 FPS、六产物完整、errors=[] 关闭笔记本/Gazebo camera-only 10 min；`P_interrupt=null`。故 2 m/s 不作通用工作点、3.6 m 不承诺，默认 640 保持；V-CL-06、multi-target 和 30-seed 仍未关闭，OrangePi 像素链另在 V-DEPLOY-01 部分通过 |
-| 实拍功能回放完成/人工定量待完成 | 19 | V-REAL-01 | 实拍回放域差复核 | `real_target.mp4` 的整段模型/视觉链回放、板端抽样和人工审片已完成；58.80% 是自洽关联率，不是人工真值召回。新相机 1280×720 YAML 已作为权威内参入库并转换 ROS profile，不再要求采集材料复核；仍待圆环实例/中心/H/红十字人工标注，以及带同步 CameraInfo/pose 的新相机采集；安装外参另行实标 |
-| 板端像素链与 10 min PASS/地图 TF 待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | 同 fixed-letterbox 的 12 图 PT/ONNX Gate 已通过；FP32 RKNN 离线有效。OrangePi 新相机在视觉 revision `abc5103` 以 1280×720 持续发布 Image+CameraInfo，统一 FP32 RKNN ROS 链无人触碰连续 600 秒 PASS：raw/info 29.164/29.163 Hz、RKNN 13.705 Hz、处理 P95 73.478 ms，新增 USB 日志/节点崩溃/禁用节点均为 0。后 213 秒 NPU 为 100%@1 GHz、视觉约 3.66 核、最高 69.307 °C且 cooling=0；当前无安装外参，mapped 按合同保持无效。仍待安装外参与 `optical→body→mission` TF、带靶实景有效地图投影/同步 pose、同样本 PT→ONNX→RKNN 逐框对照及导航/LIO 并发资源复测；详见 `docs/OrangePi板端视觉性能报告_20260902.md` |
+| camera-only 10 min PASS/B100 完成但性能未过 Gate | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | static25 24/25；同 revision B100 已 100/100 完成，confirm/selected=83/100、地图误差 P95=0.2035 m，但 processing P95=448.2 ms 超过 200 ms，故为 `DIAGNOSTIC_ONLY`。C25 修复后 25/25、完整入画 confirm/selected=15/15、13/15，`NOT_GATED`；D50 supported16 为 16/16 confirm/selected，其余 34 项 `NOT_RUN`。`vsim04_soak600b_seed11_20260831_011055` 已关闭笔记本/Gazebo camera-only 10 min；所有 visual-only `P_interrupt=null`。暂行采用约 2.4–3.0 m、优先 ≤1.0 m/s，仍不把 2 m/s/3.6 m 设为通用工作点；V-CL-06、multi-target 和 30-seed 未关闭 |
+| 实拍功能回放完成/人工定量待完成 | 19 | V-REAL-01 | 实拍回放域差复核 | `real_target.mp4` 已在 OrangePi revision `59c74b6` 经正式 ROS+RKNN+OpenCV 全链完成 4622/4622 帧：perf 4622、mapped 5135 且全部因无 TF 保持 invalid、禁用节点/日志错误为 0；原始全帧标注视频已拉回。58.80% 仍只是历史自洽关联率，不是人工真值召回；仍待圆环实例/中心/H/红十字人工标注和带同步 pose 的新相机采集，安装外参另行实标 |
+| 板端像素链与 10 min PASS/地图 TF 待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | OrangePi 新相机在 `abc5103` 完成无人触碰 600 秒 PASS：raw/info 29.164/29.163 Hz、RKNN 13.705 Hz、处理 P95 73.478 ms，USB/节点/禁用节点错误均为 0；后 213 秒 NPU 100%@1 GHz、视觉约 3.66 核、最高 69.307 °C且 cooling=0。全视频冷启动暴露并在 `59c74b6` 根治订阅初始化竞态，冷启动 10/10 后完整 4622 帧 processing P95=79.924 ms、inference P95=57.694 ms。当前无安装外参，mapped 按合同保持无效；仍待 `optical→body→mission` TF、带靶实景有效地图投影/同步 pose 和导航/LIO 并发资源复测；详见 `docs/OrangePi板端视觉性能报告_20260902.md` |
 
 ### 8.1 已完成的最小交付与当前入口
 
