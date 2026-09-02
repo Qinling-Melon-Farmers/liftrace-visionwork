@@ -404,16 +404,87 @@ class VSim04TrialRunner:
 
     def _dynamic_trajectory_plan(self, trial):
         x, y, z = self._anchor(trial)
-        config = self._matrix["dynamic"]
+        is_lateral = bool(trial.get("lateral_bin"))
+        config = self._matrix["lateral"] if is_lateral else self._matrix["dynamic"]
         half_length = float(config.get("path_half_length_m", 3.5))
         update_rate = float(config.get("update_rate_hz", 20.0))
         speed = float(trial["speed_mps"])
-        start_x = max(-self._arena_limit, x - half_length)
-        finish_x = min(self._arena_limit, x + half_length)
-        distance = max(0.0, finish_x - start_x)
+        requested_offset_m = 0.0
+        requested_pixel_offset = 0.0
+        if is_lateral:
+            horizontal_fov = float(config["horizontal_fov_rad"])
+            target_width = float(trial["target_width_m"])
+            half_ground_span = float(trial["height_m"]) * math.tan(
+                horizontal_fov / 2.0)
+            full_visible_span = half_ground_span - target_width / 2.0
+            if full_visible_span <= 0.0:
+                raise RuntimeError(
+                    "target does not fit inside C25 horizontal field")
+            side = int(trial["lateral_side"])
+            if trial["visibility_profile"] == "partial":
+                clip_fraction = float(trial.get(
+                    "partial_clip_fraction", 0.25))
+                if not 0.0 < clip_fraction < 0.5:
+                    raise RuntimeError(
+                        "C25 partial_clip_fraction must be in (0,0.5)")
+                magnitude = (
+                    full_visible_span + clip_fraction * target_width)
+            else:
+                fraction = float(trial.get("full_visible_fraction", 0.0))
+                if not 0.0 <= fraction <= 1.0:
+                    raise RuntimeError(
+                        "C25 full_visible_fraction must be in [0,1]")
+                magnitude = fraction * full_visible_span
+            requested_offset_m = side * magnitude
+            requested_pixel_offset = (
+                requested_offset_m / half_ground_span)
+            pixel_axis = [float(value) for value in config.get(
+                "pixel_x_world_xy", [0.0, -1.0])]
+            direction = [float(value) for value in config.get(
+                "path_direction_xy", [1.0, 0.0])]
+            if len(pixel_axis) != 2 or len(direction) != 2:
+                raise RuntimeError("C25 path axes must contain two values")
+            pixel_norm = math.hypot(*pixel_axis)
+            direction_norm = math.hypot(*direction)
+            if pixel_norm <= 1.0e-9 or direction_norm <= 1.0e-9:
+                raise RuntimeError("C25 path axes must be non-zero")
+            pixel_axis = [value / pixel_norm for value in pixel_axis]
+            direction = [value / direction_norm for value in direction]
+            if abs(pixel_axis[0] * direction[0] +
+                   pixel_axis[1] * direction[1]) > 1.0e-6:
+                raise RuntimeError("C25 path and pixel axes must be orthogonal")
+            center_x = x - pixel_axis[0] * requested_offset_m
+            center_y = y - pixel_axis[1] * requested_offset_m
+            lower_t, upper_t = -half_length, half_length
+            for center, component in zip(
+                    (center_x, center_y), direction):
+                if abs(component) <= 1.0e-12:
+                    if not -self._arena_limit <= center <= self._arena_limit:
+                        raise RuntimeError("C25 path centre is outside arena")
+                    continue
+                bounds = sorted((
+                    (-self._arena_limit - center) / component,
+                    (self._arena_limit - center) / component))
+                lower_t = max(lower_t, bounds[0])
+                upper_t = min(upper_t, bounds[1])
+            if not lower_t < 0.0 < upper_t:
+                raise RuntimeError(
+                    "C25 clipped path does not cross target abeam point")
+            start_x = center_x + direction[0] * lower_t
+            start_y = center_y + direction[1] * lower_t
+            finish_x = center_x + direction[0] * upper_t
+            finish_y = center_y + direction[1] * upper_t
+            target_center_distance = -lower_t
+        else:
+            start_x = max(-self._arena_limit, x - half_length)
+            start_y = y
+            finish_x = min(self._arena_limit, x + half_length)
+            finish_y = y
+            target_center_distance = x - start_x
+        distance = math.hypot(finish_x - start_x, finish_y - start_y)
         expected_duration = distance / speed
         steps = max(1, int(math.ceil(expected_duration * update_rate)))
-        target_center_offset = (x - start_x) / speed
+        target_center_offset = target_center_distance / speed
         if (distance <= 0.0 or expected_duration <= 0.0 or
                 target_center_offset <= 0.0 or
                 target_center_offset >= expected_duration):
@@ -426,11 +497,15 @@ class VSim04TrialRunner:
             "update_rate_hz": update_rate,
             "steps": steps,
             "start_x": start_x,
-            "start_y": y,
+            "start_y": start_y,
             "finish_x": finish_x,
-            "finish_y": y,
+            "finish_y": finish_y,
             "target_center_offset_sec": target_center_offset,
             "camera_z": z + trial["height_m"],
+            "lateral_bin": trial.get("lateral_bin"),
+            "visibility_profile": trial.get("visibility_profile", "full"),
+            "requested_target_path_lateral_offset_m": requested_offset_m,
+            "requested_pixel_offset_x_normalized": requested_pixel_offset,
         }
 
     def _run_dynamic(self, trial, trajectory, sampling_start=None):
@@ -450,7 +525,8 @@ class VSim04TrialRunner:
         steps = trajectory["steps"]
         start_x = trajectory["start_x"]
         finish_x = trajectory["finish_x"]
-        y = trajectory["start_y"]
+        start_y = trajectory["start_y"]
+        finish_y = trajectory["finish_y"]
         wall_deadline = (
             time.monotonic() +
             expected_duration * self._ros_wait_wall_factor +
@@ -463,7 +539,8 @@ class VSim04TrialRunner:
                 expected_duration * fraction)
             self._sleep_until_ros(target_time, wall_deadline)
             self._set_camera(
-                start_x + fraction * distance, y,
+                start_x + fraction * (finish_x - start_x),
+                start_y + fraction * (finish_y - start_y),
                 trajectory["camera_z"])
         if time.monotonic() >= wall_deadline:
             raise RuntimeError(
@@ -481,6 +558,17 @@ class VSim04TrialRunner:
                 distance / actual_duration if actual_duration > 0.0 else None),
         })
         return result
+
+    def _set_trajectory_start(self, trial, trajectory):
+        """Place the first dynamic pose before capture/sample handshakes.
+
+        The default preserves the historical XYZ + configured-RPY behavior.
+        Trajectory adapters may override this one hook when their orientation
+        is part of the measured operating-surface contract.
+        """
+        self._set_camera(
+            trajectory["start_x"], trajectory["start_y"],
+            trajectory["camera_z"])
 
     def _wait_for_event_subscriber(self, deadline):
         while self._publisher.get_num_connections() == 0:
@@ -608,10 +696,7 @@ class VSim04TrialRunner:
                 trajectory = self._run_static(trial, sampling_start)
             else:
                 sampling_contract = self._dynamic_trajectory_plan(trial)
-                self._set_camera(
-                    sampling_contract["start_x"],
-                    sampling_contract["start_y"],
-                    sampling_contract["camera_z"])
+                self._set_trajectory_start(trial, sampling_contract)
                 sampling_start = self._arm_capture_sampling(
                     trial, sampling_contract)
                 trajectory = self._run_dynamic(

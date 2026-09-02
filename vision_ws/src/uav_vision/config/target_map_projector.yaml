@@ -2,6 +2,9 @@
 input_topic: /uav_vision/detections_refined
 output_topic: /uav_vision/detections_mapped
 camera_info_topic: /camera/camera_info
+# /camera/image_raw 上的像素仍含镜头畸变；投影射线前先按同帧
+# CameraInfo 纠正。若入口已切到 image_rect，必须显式设为 false。
+rectify_input_pixels: true
 map_frame: map
 ground_z: 0.0
 ray_z_epsilon: 0.00001

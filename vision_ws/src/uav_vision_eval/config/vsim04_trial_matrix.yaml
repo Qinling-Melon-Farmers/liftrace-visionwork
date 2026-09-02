@@ -1,5 +1,6 @@
 schema_version: 1
 evaluation_id: V-SIM-04
+design_id: formal23
 seed: 11
 class_profile: r2026
 expected_trial_count: 23

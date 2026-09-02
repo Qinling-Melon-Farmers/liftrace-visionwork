@@ -4,11 +4,11 @@ set -euo pipefail
 
 SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-SLICE="${1:?usage: run_vsim04_surface.sh static25|sparse30 [name:=value ...]}"
+SLICE="${1:?usage: run_vsim04_surface.sh static25|sparse30|c25 [name:=value ...]}"
 shift
 
 case "${SLICE}" in
-  static25|sparse30) ;;
+  static25|sparse30|c25) ;;
   *)
     echo "unknown V-SIM-04 surface slice: ${SLICE}" >&2
     exit 2
@@ -41,9 +41,16 @@ export VSIM04_VISION_REVISION="${VSIM04_VISION_REVISION:-$(git -C "${PROJECT_ROO
 export VSIM04_NAVIGATION_REVISION="${VSIM04_NAVIGATION_REVISION:?set VSIM04_NAVIGATION_REVISION}"
 export SIM_NO_RECORD="${SIM_NO_RECORD:-1}"
 
-MATRIX_FILE="${PROJECT_ROOT}/vision_ws/src/uav_vision_eval/config/vsim04_operating_surface_matrix.yaml"
-SCENE="vsim04_diag_${SLICE}_seed11"
-
-bash "${SCRIPT_DIR}/sim_run.sh" "${SCENE}" \
-  roslaunch uav_vision_eval vsim04_stability.launch \
-  gui:=false matrix_file:="${MATRIX_FILE}" trial_slice:="${SLICE}" "$@"
+if [ "${SLICE}" = "c25" ]; then
+  MATRIX_FILE="${PROJECT_ROOT}/vision_ws/src/uav_vision_eval/config/vsim04_lateral_c25_matrix.yaml"
+  SCENE="vsim04_c25_seed11"
+  bash "${SCRIPT_DIR}/sim_run.sh" "${SCENE}" \
+    roslaunch uav_vision_eval vsim04_stability.launch \
+    gui:=false matrix_file:="${MATRIX_FILE}" "$@"
+else
+  MATRIX_FILE="${PROJECT_ROOT}/vision_ws/src/uav_vision_eval/config/vsim04_operating_surface_matrix.yaml"
+  SCENE="vsim04_diag_${SLICE}_seed11"
+  bash "${SCRIPT_DIR}/sim_run.sh" "${SCENE}" \
+    roslaunch uav_vision_eval vsim04_stability.launch \
+    gui:=false matrix_file:="${MATRIX_FILE}" trial_slice:="${SLICE}" "$@"
+fi

@@ -58,11 +58,13 @@ detections
   `/fastplanner/goal`，未新增 msg/srv/action 或第二 executor；
 - 笔记本 dev/sim 已使用 `merged_standard` 六分类模型；已有实拍回放、压力集和 ONNX
   候选，当前不缺“再训练一个模型”；
-- 笔记本 dev/sim 视觉链已运行；OrangePi 已完成统一六分类 FP32 RKNN 离线图片、视频和
-  短时实时相机烟测，但尚未运行带 CameraInfo/TF 的完整 ROS 视觉链。
+- 笔记本 dev/sim 视觉链已运行；OrangePi 已完成统一六分类 FP32 RKNN 离线图片、视频、
+  新相机 Image+CameraInfo+ROS 完整像素链和无人触碰 600 秒稳定性，raw/RKNN 为
+  29.164/13.705 Hz、处理 P95 73.478 ms；完整报告见
+  [OrangePi板端视觉性能报告_20260902.md](/home/xhj/liftrace/docs/OrangePi板端视觉性能报告_20260902.md)。
 - 新相机 1280×720 OpenCV 标定结果已入库并转换为 ROS CameraInfo profile，数值复核合理；
-  实物相机帧/时间戳、安装外参和板端 10 分钟仍待验收。完整视觉入口缺 PT/RKNN 模型或
-  运行时时会立即退出，不再以 completed 空检测维持伪健康链路。
+  实物帧/时间戳/CameraInfo 与板端 10 分钟已验收，安装外参和有效地图 TF 仍待完成。完整
+  视觉入口缺 PT/RKNN 模型或运行时时会立即退出，不再以 completed 空检测维持伪健康链路。
 
 ### 尚未完成
 
@@ -79,13 +81,14 @@ detections
   toudi4 缺门洞实体未立；随机红十字摆放的独立发现/投递待复跑验收；
 - 最新 formal23 的 red_cross 7/7，但 pillbox 3.6 m 仍受 raw classifier 阻断；static25 为
   24/25，sparse30 为 25/30，尚未冻结把覆盖率换算为概率 Gate 的重复次数和采用阈值；
-- 尚未完成当前 operational chain 的 30-seed 和 10 min shadow 稳定性回归；
+- 尚未完成当前 operational chain 的 30-seed；laptop/Gazebo camera-only 与 OrangePi
+  新相机/RKNN 像素链的独立 10 min 已通过，但不能替代导航联合 600 秒；
 - `real_target.mp4` 已完成整段模型/完整链回放、板端抽样和人工审片；圆环 58.80% 是算法
   内部自洽关联率，仍缺独立人工实例/中心真值和同步 pose；
 - H 结构已实现并通过固定 Gazebo 正例/背景负例，仍缺实拍 H、普通黑圈和残圈负样本；
 - 笔记本 PT/ONNX 已在同一 `640x640` fixed-letterbox 的 12 图、19 框上通过，missing/extra=0、
-  最低 IoU=0.9999991；FP32 RKNN 已有离线证据，OrangePi ROS
-  相机/TF 与 10 min 稳定性未验收，INT8 当前零有效检测；
+  最低 IoU=0.9999991；FP32 RKNN 已有离线与板端 ROS 600 秒证据，安装外参/有效地图 TF、
+  同样本 PT→ONNX→RKNN 逐框对照仍未完成，INT8 当前零有效检测；
 - `drop_ready`/`release_evidence` 不是最终动作许可；`/mission/release_permission`
   仲裁已落地并在实跑三投中实际放行。
 
@@ -101,7 +104,7 @@ detections
    新鲜地图并取得同一 stable ID 的 selected→decision→实际 APPROACH/target-stage 证据；
    A/B 安全合同通过后再在 600 s 内完成三投、返航和落地；
 3. 完成运动相机 stable ID/地图误差 Gate、H 视觉降落和实拍人工真值；闭环稳定后再完成
-   单下视 30-seed、10 min 和 OrangePi ROS 相机/TF/RKNN
+   单下视 30-seed、OrangePi 安装外参/有效地图 TF，以及与导航/LIO 同时运行的资源复测
    （V-SIM-04/V-REAL-01/V-DEPLOY-01）。
 
 第一周的具体任务和验收阈值见 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)。

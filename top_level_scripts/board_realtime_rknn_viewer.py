@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """OrangePi 5 Plus 板载显示器实时 RKNN 推理查看器/视频评测器。
 
-- 相机: /dev/video0 (HD USB Camera, MJPG 1920x1080@30)
+- 相机、分辨率、帧率和标定 YAML 均由命令行指定
 - 模型: 默认 merged_standard_fp32.rknn (六分类, RKNNLite 单核)
 - 预处理: 畸变校正 + letterbox 640 + RGB + f32/255
 - 仅做显示与推理, 不涉及任何执行机构/ROS 话题
@@ -20,37 +20,72 @@
 import argparse
 import json
 import os
+from pathlib import Path
 import sys
 import time
 
 import cv2
 import numpy as np
+import yaml
 
 try:
     from rknnlite.api import RKNNLite
 except ImportError:  # 允许本机只运行离线契约测试
     RKNNLite = None
 
-DEFAULT_MODEL = "/home/orangepi/liftrace_board_eval_20260716/models/merged_standard_fp32.rknn"
+DEFAULT_MODEL = os.environ.get(
+    "UAV_VISION_RKNN_MODEL_PATH",
+    str(Path(__file__).resolve().parents[1] /
+        "vision_ws/src/uav_vision/models/merged_standard_fp32.rknn"))
 NAMES = ["bridge", "panzer", "pillbox", "tent", "tank", "red_cross"]
 COLORS = [(255, 128, 0), (0, 200, 255), (0, 255, 0), (255, 0, 255), (0, 128, 255), (0, 0, 255)]
 CONF_THRES = 0.5
 IOU_THRES = 0.45
 IMGSZ = 640
-CAM_DEV = 0
-CAM_W, CAM_H, CAM_FPS = 1920, 1080, 30
+CAM_DEV = "/dev/video0"
+CAM_W, CAM_H, CAM_FPS = 1280, 720, 30.0
 WINDOW = "liftrace RKNN realtime"
 
-# 来源: /home/orangepi/detect_ws/src/camera_sdk/param/camera_param.yaml
-# 这是板端 HD USB Camera 在 1920x1080 输出下的实测 plumb_bob 标定。
-# 视频若不是该分辨率，会按输出尺寸缩放 K；畸变系数 D 不变。
-CALIBRATION_SOURCE = "detect_ws/src/camera_sdk/param/camera_param.yaml"
-CALIBRATION_WIDTH, CALIBRATION_HEIGHT = 1920, 1080
+# 默认使用本仓新相机 1280x720 标定；可用 --calibration 覆盖。
+DEFAULT_CALIBRATION = str(
+    Path(__file__).resolve().parents[1] /
+    "vision_ws/src/camera_sdk/param/calibration_1280x720.yaml")
+CALIBRATION_SOURCE = DEFAULT_CALIBRATION
+CALIBRATION_WIDTH, CALIBRATION_HEIGHT = 1280, 720
 CAMERA_K = np.array(
-    [[581.2568, 0.0, 1043.5], [0.0, 580.9240, 513.0979], [0.0, 0.0, 1.0]],
+    [[725.3510059644434, 0.0, 631.67186313702575],
+     [0.0, 723.34035628450874, 397.56638133116269],
+     [0.0, 0.0, 1.0]],
     dtype=np.float32,
 )
-CAMERA_D = np.array([0.0349, -0.0426, 0.0, 0.0, 0.0076], dtype=np.float32)
+CAMERA_D = np.array(
+    [0.0058668600963917095, 0.017910549546758369,
+     -0.0010064115869294274, 0.0014715593681005204,
+     -0.026485100937585344], dtype=np.float32)
+
+
+def load_calibration(path):
+    """Load one ROS CameraInfo YAML without re-solving or rescaling it."""
+    with open(path, "r", encoding="utf-8") as handle:
+        profile = yaml.safe_load(handle) or {}
+    width = int(profile["image_width"])
+    height = int(profile["image_height"])
+    matrix = np.asarray(
+        profile["camera_matrix"]["data"], dtype=np.float32).reshape(3, 3)
+    distortion = np.asarray(
+        profile["distortion_coefficients"]["data"],
+        dtype=np.float32).reshape(-1)
+    if width <= 0 or height <= 0 or distortion.size < 4:
+        raise ValueError("invalid camera calibration: %s" % path)
+    return width, height, matrix, distortion
+
+
+def configure_calibration(path):
+    global CALIBRATION_SOURCE, CALIBRATION_WIDTH, CALIBRATION_HEIGHT
+    global CAMERA_K, CAMERA_D
+    (CALIBRATION_WIDTH, CALIBRATION_HEIGHT,
+     CAMERA_K, CAMERA_D) = load_calibration(path)
+    CALIBRATION_SOURCE = os.path.abspath(path)
 
 
 def letterbox(frame):
@@ -66,11 +101,15 @@ def letterbox(frame):
     return tensor, r, left, top
 
 
-def build_undistort_maps(width, height):
-    """Build maps for the actual capture size from the fixed 1920x1080 K/D."""
+def build_undistort_maps(width, height, allow_scale=False):
+    """Build maps from the loaded profile; live capture requires exact size."""
     width, height = int(width), int(height)
     if width <= 0 or height <= 0:
         raise ValueError("invalid image size %sx%s" % (width, height))
+    if (width, height) != (CALIBRATION_WIDTH, CALIBRATION_HEIGHT) and not allow_scale:
+        raise ValueError(
+            "capture %dx%d does not match calibration %dx%d" %
+            (width, height, CALIBRATION_WIDTH, CALIBRATION_HEIGHT))
     sx = float(width) / CALIBRATION_WIDTH
     sy = float(height) / CALIBRATION_HEIGHT
     scaled_k = CAMERA_K.copy()
@@ -181,36 +220,55 @@ def annotate(frame, dets, fps_ema=None, timing=None):
 
 def run_camera(rt, args):
 
-    cap = cv2.VideoCapture(CAM_DEV, cv2.CAP_V4L2)
-    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, CAM_W)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CAM_H)
-    cap.set(cv2.CAP_PROP_FPS, CAM_FPS)
+    cap = cv2.VideoCapture(args.camera, cv2.CAP_V4L2)
+    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*args.fourcc))
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, args.camera_width)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, args.camera_height)
+    cap.set(cv2.CAP_PROP_FPS, args.camera_fps)
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     if not cap.isOpened():
-        print("FATAL: camera open failed /dev/video%d" % CAM_DEV, flush=True)
+        print("FATAL: camera open failed %s" % args.camera, flush=True)
         return 1
-    actual_w = int(round(cap.get(3))) or CAM_W
-    actual_h = int(round(cap.get(4))) or CAM_H
-    print("CAMERA_READY %dx%d@%s" % (actual_w, actual_h, cap.get(5)), flush=True)
+    ok, first_frame = cap.read()
+    if not ok or first_frame is None:
+        print("FATAL: first camera frame unavailable %s" % args.camera,
+              flush=True)
+        cap.release()
+        return 1
+    actual_h, actual_w = first_frame.shape[:2]
+    if (actual_w, actual_h) != (args.camera_width, args.camera_height):
+        print(
+            "FATAL: first frame %dx%d does not match requested %dx%d" %
+            (actual_w, actual_h, args.camera_width, args.camera_height),
+            flush=True)
+        cap.release()
+        return 1
+    actual_fps = float(cap.get(5))
     if not args.apply_rectify:
         map1 = map2 = None
     else:
         map1, map2, _ = build_undistort_maps(actual_w, actual_h)
         print("CALIBRATION_READY source=%s size=%dx%d" %
               (CALIBRATION_SOURCE, actual_w, actual_h), flush=True)
+    print("CAMERA_READY device=%s %dx%d@%s" %
+          (args.camera, actual_w, actual_h, actual_fps), flush=True)
 
     cv2.namedWindow(WINDOW, cv2.WINDOW_NORMAL)
     cv2.resizeWindow(WINDOW, 1280, 720)
 
     fps_ema, last = None, time.perf_counter()
     frames = 0
+    pending_frame = first_frame
     while True:
-        ok, frame = cap.read()
-        if not ok:
-            print("WARN: frame grab failed", flush=True)
-            time.sleep(0.05)
-            continue
+        if pending_frame is not None:
+            frame = pending_frame
+            pending_frame = None
+        else:
+            ok, frame = cap.read()
+            if not ok:
+                print("WARN: frame grab failed", flush=True)
+                time.sleep(0.05)
+                continue
         frame, dets, timing = process_frame(frame, rt, map1, map2)
 
         now = time.perf_counter()
@@ -272,7 +330,8 @@ def run_video(rt, args):
         if width == 0:
             height, width = frame.shape[:2]
             if args.apply_rectify:
-                map1, map2, new_k = build_undistort_maps(width, height)
+                map1, map2, new_k = build_undistort_maps(
+                    width, height, allow_scale=True)
                 print("CALIBRATION_READY source=%s decoded=%dx%d" %
                       (CALIBRATION_SOURCE, width, height), flush=True)
             if args.output_video:
@@ -376,6 +435,14 @@ def parse_args(argv):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("model", nargs="?", default=DEFAULT_MODEL,
                         help="RKNN model path (default: %(default)s)")
+    parser.add_argument("--camera", default=CAM_DEV,
+                        help="V4L2 device path; prefer /dev/v4l/by-id/... path")
+    parser.add_argument("--camera-width", type=int, default=CAM_W)
+    parser.add_argument("--camera-height", type=int, default=CAM_H)
+    parser.add_argument("--camera-fps", type=float, default=CAM_FPS)
+    parser.add_argument("--fourcc", default="MJPG")
+    parser.add_argument("--calibration", default=DEFAULT_CALIBRATION,
+                        help="ROS CameraInfo YAML for live undistortion")
     parser.add_argument("--video", help="run a sampled video benchmark instead of camera")
     parser.add_argument("--json", help="write benchmark JSON report")
     parser.add_argument("--output-video", help="write annotated sampled video")
@@ -393,11 +460,20 @@ def parse_args(argv):
 
 def main(argv=None):
     args = parse_args(sys.argv[1:] if argv is None else argv)
+    if len(args.fourcc) != 4:
+        raise SystemExit("--fourcc must contain exactly four characters")
     if args.video and args.no_rectify and args.rectify_video:
         raise SystemExit("--no-rectify and --rectify-video are mutually exclusive")
     # File replay stays in the original pixel coordinate system by default;
     # only live camera input uses the fixed calibration automatically.
     args.apply_rectify = (not args.no_rectify) and (not args.video or args.rectify_video)
+    if args.apply_rectify:
+        try:
+            configure_calibration(args.calibration)
+        except (OSError, KeyError, TypeError, ValueError) as error:
+            print("FATAL: calibration load failed %s: %s" %
+                  (args.calibration, error), flush=True)
+            return 2
     if args.video and args.no_window:
         args.show = False
     elif args.video and not args.show:

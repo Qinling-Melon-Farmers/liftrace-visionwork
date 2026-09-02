@@ -14,6 +14,7 @@
   <arg name="ground_z" default="0.0" />
   <arg name="allow_latest_tf_fallback" default="false" />
   <arg name="max_latest_tf_age_sec" default="0.10" />
+  <arg name="rectify_input_pixels" default="true" />
   <arg name="default_align_mode" default="disabled" />
   <arg name="class_profile" default="full" />
   <arg name="require_alignment_context" default="false" />
@@ -89,6 +90,7 @@
     <param name="ground_z" value="$(arg ground_z)" />
     <param name="allow_latest_tf_fallback" value="$(arg allow_latest_tf_fallback)" />
     <param name="max_latest_tf_age_sec" value="$(arg max_latest_tf_age_sec)" />
+    <param name="rectify_input_pixels" value="$(arg rectify_input_pixels)" />
   </node>
 
   <node pkg="uav_vision" type="target_memory.py"

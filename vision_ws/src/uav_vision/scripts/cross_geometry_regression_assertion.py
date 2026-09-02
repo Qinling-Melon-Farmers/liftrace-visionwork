@@ -22,6 +22,7 @@ class CrossGeometryRegressionAssertion:
         self._condition = threading.Condition()
         self._stamp = None
         self._response = None
+        self._debug_response = None
         self._image_pub = rospy.Publisher(
             self._image_topic, Image, queue_size=1)
         self._camera_pub = rospy.Publisher(
@@ -29,6 +30,9 @@ class CrossGeometryRegressionAssertion:
         self._sub = rospy.Subscriber(
             "/uav_vision/detections", TargetDetectionArray,
             self._on_detections, queue_size=8)
+        self._debug_sub = rospy.Subscriber(
+            "/uav_vision/cross_debug", Image,
+            self._on_debug, queue_size=2)
 
     @staticmethod
     def _blank():
@@ -136,6 +140,50 @@ class CrossGeometryRegressionAssertion:
             self._response = msg
             self._condition.notify_all()
 
+    def _on_debug(self, msg):
+        with self._condition:
+            if self._stamp is None or msg.header.stamp != self._stamp:
+                return
+            self._debug_response = msg
+            self._condition.notify_all()
+
+    def _assert_camera_info_debug_reference(self):
+        image = self._blank()
+        message = Image()
+        message.header.frame_id = "cross_test_camera"
+        message.height, message.width = image.shape[:2]
+        message.encoding = "bgr8"
+        message.is_bigendian = False
+        message.step = message.width * 3
+        message.data = image.tobytes()
+
+        deadline = time.monotonic() + self._timeout
+        response = None
+        while not rospy.is_shutdown() and time.monotonic() < deadline:
+            with self._condition:
+                self._stamp = rospy.Time.now()
+                self._response = None
+                self._debug_response = None
+                message.header.stamp = self._stamp
+                self._image_pub.publish(message)
+                self._condition.wait_for(
+                    lambda: self._debug_response is not None,
+                    timeout=0.15)
+                response = self._debug_response
+            if response is not None:
+                break
+        if response is None:
+            raise AssertionError("cross debug response timeout")
+        pixels = np.frombuffer(response.data, dtype=np.uint8)
+        pixels = pixels.reshape(response.height, response.step)
+        pixels = pixels[:, :response.width * 3].reshape(
+            response.height, response.width, 3)
+        # CameraInfo K publishes principal point (320, 256).  The binary debug
+        # image draws its alignment reference as a white filled circle.
+        if not np.all(pixels[256, 320] >= 250):
+            raise AssertionError(
+                "cross debug reference did not follow CameraInfo principal point")
+
     def _run_case(self, name, image, expected_positive):
         message = Image()
         message.header.frame_id = "cross_test_camera"
@@ -201,6 +249,8 @@ class CrossGeometryRegressionAssertion:
         for _ in range(3):
             self._publish_camera_info()
             rospy.sleep(0.05)
+
+        self._assert_camera_info_debug_reference()
 
         for name, image, expected_positive in self._cases():
             self._run_case(name, image, expected_positive)

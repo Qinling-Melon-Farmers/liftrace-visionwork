@@ -16,6 +16,7 @@ from uav_vision_eval.vsim04_metrics import (
     FRAME_FIELDS,
     PERFORMANCE_FIELDS,
     annotate_motion_frames,
+    annotate_target_lateral_frames,
     candidate_audit_observation,
     candidate_audit_summary,
     classify_failure_stage,
@@ -36,6 +37,7 @@ from uav_vision_eval.vsim04_metrics import (
     write_artifacts,
 )
 from uav_vision_eval.stamped_pose_buffer import StampedPoseBuffer
+from vsim04_trial_runner import VSim04TrialRunner
 
 from geometry_msgs.msg import PoseStamped
 import rospy
@@ -53,12 +55,35 @@ def main():
     }.issubset(set(FRAME_FIELDS))
     assert PERFORMANCE_FIELDS.index("actual_speed_mps") < \
         PERFORMANCE_FIELDS.index("class_group_completed_trials")
-    assert PERFORMANCE_FIELDS[-9:] == [
+    navigation_fields = [
         "navigation_metrics_mode", "navigation_target_stage_capability",
         "navigation_metrics_reason", "p_decision", "p_dispatch",
         "p_planner_arrival", "p_interrupt_reason",
         "navigation_binding_keys", "navigation_validation_errors",
     ]
+    navigation_start = PERFORMANCE_FIELDS.index(navigation_fields[0])
+    assert PERFORMANCE_FIELDS[
+        navigation_start:navigation_start + len(navigation_fields)] == \
+        navigation_fields
+    assert {
+        "visibility_profile", "visibility_eligible", "projection_valid",
+        "truth_world_x_m", "truth_world_y_m", "truth_pixel_u",
+        "truth_pixel_v", "target_path_lateral_offset_m",
+        "target_pixel_offset_x_normalized",
+        "target_pixel_offset_y_normalized",
+    }.issubset(set(FRAME_FIELDS))
+    assert {
+        "lateral_bin", "visibility_profile", "p_confirm_visibility",
+        "p_selected_visibility", "entered_visibility_window",
+        "left_visibility_window",
+        "requested_target_path_lateral_offset_m",
+        "requested_pixel_offset_x_normalized",
+        "target_lateral_sample_count",
+        "mean_target_path_lateral_offset_m",
+        "mean_target_pixel_offset_x_normalized",
+        "lateral_group_completed_trials",
+        "lateral_group_p_confirm_visibility",
+    }.issubset(set(PERFORMANCE_FIELDS))
     assert quaternion_yaw(0.0, 0.0, 0.0, 1.0) == 0.0
     assert quaternion_yaw(0.0, 0.0, 0.0, 0.0) is None
     half_yaw = 0.5 * 1.2
@@ -237,12 +262,40 @@ def main():
     assert static_motion["motion_sample_count"] == 0
     assert static_motion["lateral_offset_sample_count"] == 0
 
+    target_left = {
+        "truth_world_x_m": 1.25,
+        "truth_world_y_m": 0.0,
+        "target_pixel_offset_x_normalized": 0.6,
+        "visibility_eligible": True,
+    }
+    target_hidden = {
+        "truth_world_x_m": 1.25,
+        "truth_world_y_m": 0.0,
+        "target_pixel_offset_x_normalized": 0.6,
+        "visibility_eligible": False,
+    }
+    target_lateral = annotate_target_lateral_frames(
+        [target_hidden, target_left], {
+            "start_x": 0.0, "start_y": 2.0,
+            "finish_x": 0.0, "finish_y": -2.0,
+        })
+    assert abs(target_left["target_path_lateral_offset_m"] - 1.25) < 1.0e-9
+    assert abs(target_hidden["target_path_lateral_offset_m"] - 1.25) < 1.0e-9
+    assert target_lateral["target_lateral_sample_count"] == 1
+    assert target_lateral["target_path_lateral_offset_m_samples"] == [1.25]
+    assert target_lateral["target_pixel_offset_x_normalized_samples"] == [0.6]
+    assert abs(target_lateral[
+        "mean_target_pixel_offset_x_normalized"] - 0.6) < 1.0e-9
+
     default_matrix = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "config", "vsim04_trial_matrix.yaml")
     matrix_path = os.environ.get("VSIM04_MATRIX", default_matrix)
     matrix = load_trial_matrix(matrix_path)
     trials = matrix["trials"]
+    assert matrix["design_id"] == "formal23"
+    assert matrix["formal_expected_trial_count"] == 23
+    assert select_trial_matrix(matrix, "")["evaluation_scope"] == "full"
     assert len(trials) == 23
     assert sum(trial["kind"] == "static" for trial in trials) == 15
     assert sum(trial["kind"] == "dynamic" for trial in trials) == 8
@@ -253,6 +306,8 @@ def main():
         os.path.dirname(matrix_path), "vsim04_operating_surface_matrix.yaml")
     surface = load_trial_matrix(surface_path)
     assert len(surface["trials"]) == 85
+    assert surface["diagnostic_only"] is True
+    assert select_trial_matrix(surface, "")["evaluation_scope"] == "diagnostic"
     static25 = select_trial_matrix(surface, "", "static25")
     sparse30 = select_trial_matrix(surface, "", "sparse30")
     assert static25["evaluation_scope"] == "diagnostic"
@@ -263,6 +318,63 @@ def main():
     assert all(trial["kind"] == "dynamic" for trial in sparse30["trials"])
     assert {trial["class_name"] for trial in sparse30["trials"]} == {
         "tent", "pillbox", "bridge", "panzer", "red_cross"}
+    c25_path = os.path.join(
+        os.path.dirname(matrix_path), "vsim04_lateral_c25_matrix.yaml")
+    c25 = load_trial_matrix(c25_path)
+    c25_trials = c25["trials"]
+    assert c25["formal_expected_trial_count"] == 25
+    assert c25["design_id"] == "C25-lateral-offset"
+    assert len(c25_trials) == 25
+    assert all(trial["kind"] == "dynamic" for trial in c25_trials)
+    assert all(trial["height_m"] == 2.4 for trial in c25_trials)
+    assert all(trial["speed_mps"] == 1.0 for trial in c25_trials)
+    assert {trial["class_name"] for trial in c25_trials} == {
+        "tent", "pillbox", "bridge", "panzer", "red_cross"}
+    assert {trial["lateral_bin"] for trial in c25_trials} == {
+        "center", "left75", "right75", "left_partial",
+        "right_partial"}
+    assert all(sum(
+        trial["class_name"] == class_name for trial in c25_trials) == 5
+        for class_name in {trial["class_name"] for trial in c25_trials})
+    assert all(
+        trial["visibility_profile"] == (
+            "partial" if trial["lateral_bin"].endswith("partial") else
+            "full")
+        for trial in c25_trials)
+    planner = VSim04TrialRunner.__new__(VSim04TrialRunner)
+    planner._matrix = c25
+    planner._arena_limit = 4.8
+    planner._anchor = lambda trial: tuple(
+        c25["target_anchors"][trial["class_name"]]["xyz"])
+    c25_plans = {
+        trial["trial_id"]: planner._dynamic_trajectory_plan(trial)
+        for trial in c25_trials}
+    assert all(plan["start_y"] > plan["finish_y"]
+               for plan in c25_plans.values())
+    assert all(-4.8 <= coordinate <= 4.8
+               for plan in c25_plans.values()
+               for coordinate in (
+                   plan["start_x"], plan["start_y"],
+                   plan["finish_x"], plan["finish_y"]))
+    for trial in c25_trials:
+        plan = c25_plans[trial["trial_id"]]
+        assert plan["visibility_profile"] == trial["visibility_profile"]
+        requested = plan["requested_target_path_lateral_offset_m"]
+        if trial["lateral_side"] == 0:
+            assert requested == 0.0
+        else:
+            assert math.copysign(1.0, requested) == math.copysign(
+                1.0, float(trial["lateral_side"]))
+        anchor = c25["target_anchors"][trial["class_name"]]["xyz"]
+        measured = annotate_target_lateral_frames([{
+            "truth_world_x_m": anchor[0],
+            "truth_world_y_m": anchor[1],
+            "target_pixel_offset_x_normalized":
+                plan["requested_pixel_offset_x_normalized"],
+            "visibility_eligible": True,
+        }], plan)
+        assert abs(measured["mean_target_path_lateral_offset_m"] -
+                   requested) < 1.0e-9
     try:
         select_trial_matrix(surface, "static_tent_h1p2", "static25")
         raise AssertionError("selector and slice were accepted together")
@@ -428,6 +540,57 @@ def main():
     assert dynamic_half["speed_group_completed_trials"] == 4
     assert abs(dynamic_half["speed_group_mean_actual_linear_speed_mps"] -
                0.5) < 1.0e-9
+
+    c25_results = []
+    for trial in c25_trials:
+        result = planned_trial_result(trial)
+        is_partial = trial["visibility_profile"] == "partial"
+        signed_offset = float(trial["lateral_side"])
+        result.update({
+            "status": "completed",
+            "p_confirm": None if is_partial else True,
+            "p_selected": None if is_partial else True,
+            "p_confirm_visibility": True,
+            "p_selected_visibility": True,
+            "entered_visibility_window": True,
+            "left_visibility_window": True,
+            "entered_fully_in_frame": not is_partial,
+            "left_fully_in_frame": not is_partial,
+            "eligible_frames": 1,
+            "target_lateral_sample_count": 1,
+            "target_path_lateral_offset_m_samples": [signed_offset],
+            "target_pixel_offset_x_normalized_samples": [
+                0.5 * signed_offset],
+        })
+        c25_results.append(result)
+    c25_summary = summarize_trial_results(
+        c25_results, "unit", actual_fps=30.0,
+        terminal_context={
+            "run_complete": True,
+            "expected_trial_count": 25,
+            "formal_expected_trial_count": 25,
+            "validation_errors": [],
+            "class_profile": "r2026",
+            "performance_contract": c25["performance_contract"],
+        })
+    assert c25_summary["status"] == "MEASURED"
+    assert c25_summary["completed_trial_count"] == 25
+    assert c25_summary["metric_denominators"][
+        "fully_visible_metric_trials"] == 15
+    assert c25_summary["metric_denominators"][
+        "visibility_metric_trials"] == 25
+    assert c25_summary["metrics"]["p_confirm"] == 1.0
+    assert c25_summary["metrics"]["p_confirm_visibility"] == 1.0
+    lateral_groups = {
+        group["value"]: group
+        for group in c25_summary["breakdowns"]["by_lateral_bin"]}
+    assert set(lateral_groups) == {
+        "center", "left75", "right75", "left_partial",
+        "right_partial"}
+    assert all(group["completed_trial_count"] == 5
+               for group in lateral_groups.values())
+    assert lateral_groups["left_partial"]["p_confirm"] is None
+    assert lateral_groups["left_partial"]["p_confirm_visibility"] == 1.0
     invalid_summary = summarize_trial_results(
         terminal_results[:-1], "unit", actual_fps=30.0,
         terminal_context={"run_complete": True,
@@ -573,6 +736,14 @@ def main():
     assert image_after_candidate["p_confirm"]
     assert image_after_candidate["confirmation_processing_ms"] == 0.0
     assert image_after_candidate["processing_receipt_reordered"]
+    partial_window = dict(window)
+    partial_window["visibility_profile"] = "partial"
+    partial_correlated = correlate_admission_events(
+        candidates[:1], selected_first, partial_window, {200: 10.0})
+    assert partial_correlated["p_confirm"] is None
+    assert partial_correlated["p_selected"] is None
+    assert partial_correlated["p_confirm_visibility"]
+    assert partial_correlated["p_selected_visibility"]
     watermarks = {
         "image": 3.1, "truth": 3.0, "mapped": 3.2,
         "targets": 3.0, "perf": 3.3,
@@ -676,6 +847,35 @@ def main():
             "artifact_completeness"]
     finally:
         shutil.rmtree(output_dir)
+
+    c25_output = tempfile.mkdtemp(prefix="vsim04_c25_schema_")
+    try:
+        c25_dry = dry_run_artifacts(c25_path, c25_output, metadata={
+            "revisions": {"vision": "test", "navigation": "test"},
+        })
+        assert c25_dry["trial_count"] == 25
+        assert c25_dry["status"] == "DRY_RUN"
+        assert c25_dry["metric_denominators"][
+            "fully_visible_metric_trials"] == 0
+        assert {trial["lateral_bin"] for trial in c25_dry["trials"]} == {
+            "center", "left75", "right75", "left_partial",
+            "right_partial"}
+        with open(os.path.join(c25_output, "report.md"),
+                  "r", encoding="utf-8") as stream:
+            c25_report = stream.read()
+        assert "## Breakdown by lateral bin" in c25_report
+        with open(os.path.join(
+                c25_output, "vision_search_performance.csv"),
+                "r", encoding="utf-8") as stream:
+            c25_rows = list(csv.DictReader(stream))
+        assert len(c25_rows) == 25
+        partial_rows = [row for row in c25_rows
+                        if row["visibility_profile"] == "partial"]
+        assert len(partial_rows) == 10
+        assert all(row["p_confirm"] == "" for row in partial_rows)
+        assert all(row["p_confirm_visibility"] == "" for row in partial_rows)
+    finally:
+        shutil.rmtree(c25_output)
 
     audit_output = tempfile.mkdtemp(prefix="vsim04_audit_schema_")
     try:

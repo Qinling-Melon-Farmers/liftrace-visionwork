@@ -1,0 +1,246 @@
+schema_version: 1
+evaluation_id: V-SIM-04
+matrix_kind: vsim04_d50_trajectory_association
+seed: 11
+class_profile: r2026
+expected_trial_count: 50
+
+# D50 is a directed diagnostic surface, not a replacement for formal23.
+# The first 40 cases designate one expected target in the existing five-target
+# clutter field; they are not physically isolated single-model scenes. They
+# form a complete pairwise design over image-relative angle, motion and
+# framing. The last 10 cases target additional multi-object identity failures.
+defaults:
+  height_m: 2.4
+  nominal_speed_mps: 1.0
+
+target_anchors:
+  tent:
+    target_id: tent_1
+    xyz: [1.27572, 0.581612, 0.0025]
+    size_m: [1.0, 1.0]
+    priority_weight: 1.0
+  pillbox:
+    target_id: pillbox_1
+    xyz: [-0.57481, 0.520346, 0.0025]
+    size_m: [1.0, 1.0]
+    priority_weight: 1.5
+  bridge:
+    target_id: bridge_1
+    xyz: [-2.09331, 0.70456, 0.0025]
+    size_m: [1.0, 1.0]
+    priority_weight: 2.0
+  panzer:
+    target_id: panzer_1
+    xyz: [-1.47375, 3.62133, 0.0025]
+    size_m: [1.0, 1.0]
+    priority_weight: 2.5
+  red_cross:
+    target_id: red_cross_1
+    xyz: [-2.5, -2.5, 0.0025]
+    size_m: [0.35, 0.35]
+    priority_weight: 10.0
+
+camera:
+  # Gazebo evaluation-camera model basis: +X optical, -Y image-right,
+  # -Z image-down.  World optical is frozen downward for this matrix.
+  optical_axis_world: [0.0, 0.0, -1.0]
+  target_heading_world: [1.0, 0.0, 0.0]
+  # D435i camera_color_frame origin is 0.0325 m along the model optical axis.
+  optical_center_offset_m: 0.0325
+  intrinsics:
+    width: 640
+    height: 480
+    # D435i Gazebo color sensor freezes horizontal_fov=1.211 rad. With square
+    # pixels this gives f=width/(2*tan(HFOV/2))=462.266337 px.
+    horizontal_fov_rad: 1.211
+    fx: 462.2663372707335
+    fy: 462.2663372707335
+  # Target center in units of half image width/height at trajectory midpoint.
+  # partial intentionally lies beyond the image edge.
+  framing_offsets_half_frame:
+    center: [0.0, 0.0]
+    quadrant: [0.45, -0.45]
+    edge: [0.88, 0.0]
+    partial: [1.12, 0.0]
+
+motion:
+  path_length_m: 4.0
+  sample_rate_hz: 20.0
+  turn_heading_change_deg: 90.0
+  # constant and turn use uniform source-time progress. accel_decel uses the
+  # cubic smoothstep 3u^2-2u^3, preserving 1.0 m/s mean speed.
+
+single_target_pairwise:
+  rows:
+    # yaw=0: constant covers all framing; the remaining rows close motion pairs.
+    - {trial_id: d_single_01, class_name: tent, relative_angle_deg: 0, motion_profile: constant, framing: center}
+    - {trial_id: d_single_02, class_name: pillbox, relative_angle_deg: 0, motion_profile: constant, framing: quadrant}
+    - {trial_id: d_single_03, class_name: bridge, relative_angle_deg: 0, motion_profile: constant, framing: edge}
+    - {trial_id: d_single_04, class_name: panzer, relative_angle_deg: 0, motion_profile: constant, framing: partial}
+    - {trial_id: d_single_05, class_name: red_cross, relative_angle_deg: 0, motion_profile: accel_decel, framing: center}
+    - {trial_id: d_single_06, class_name: tent, relative_angle_deg: 0, motion_profile: accel_decel, framing: quadrant}
+    - {trial_id: d_single_07, class_name: pillbox, relative_angle_deg: 0, motion_profile: accel_decel, framing: edge}
+    - {trial_id: d_single_08, class_name: bridge, relative_angle_deg: 0, motion_profile: turn, framing: quadrant}
+    - {trial_id: d_single_09, class_name: panzer, relative_angle_deg: 0, motion_profile: turn, framing: edge}
+    - {trial_id: d_single_10, class_name: red_cross, relative_angle_deg: 0, motion_profile: turn, framing: partial}
+
+    # yaw=45: accel_decel covers all framing; turn-center closes yaw=0 omission.
+    - {trial_id: d_single_11, class_name: tent, relative_angle_deg: 45, motion_profile: accel_decel, framing: center}
+    - {trial_id: d_single_12, class_name: pillbox, relative_angle_deg: 45, motion_profile: accel_decel, framing: quadrant}
+    - {trial_id: d_single_13, class_name: bridge, relative_angle_deg: 45, motion_profile: accel_decel, framing: edge}
+    - {trial_id: d_single_14, class_name: panzer, relative_angle_deg: 45, motion_profile: accel_decel, framing: partial}
+    - {trial_id: d_single_15, class_name: red_cross, relative_angle_deg: 45, motion_profile: turn, framing: center}
+    - {trial_id: d_single_16, class_name: tent, relative_angle_deg: 45, motion_profile: turn, framing: quadrant}
+    - {trial_id: d_single_17, class_name: pillbox, relative_angle_deg: 45, motion_profile: turn, framing: edge}
+    - {trial_id: d_single_18, class_name: bridge, relative_angle_deg: 45, motion_profile: constant, framing: center}
+    - {trial_id: d_single_19, class_name: panzer, relative_angle_deg: 45, motion_profile: constant, framing: edge}
+    - {trial_id: d_single_20, class_name: red_cross, relative_angle_deg: 45, motion_profile: constant, framing: partial}
+
+    # yaw=90: turn covers all framing; accel_decel-partial closes remaining pair.
+    - {trial_id: d_single_21, class_name: tent, relative_angle_deg: 90, motion_profile: turn, framing: center}
+    - {trial_id: d_single_22, class_name: pillbox, relative_angle_deg: 90, motion_profile: turn, framing: quadrant}
+    - {trial_id: d_single_23, class_name: bridge, relative_angle_deg: 90, motion_profile: turn, framing: edge}
+    - {trial_id: d_single_24, class_name: panzer, relative_angle_deg: 90, motion_profile: turn, framing: partial}
+    - {trial_id: d_single_25, class_name: red_cross, relative_angle_deg: 90, motion_profile: constant, framing: center}
+    - {trial_id: d_single_26, class_name: tent, relative_angle_deg: 90, motion_profile: constant, framing: quadrant}
+    - {trial_id: d_single_27, class_name: pillbox, relative_angle_deg: 90, motion_profile: constant, framing: edge}
+    - {trial_id: d_single_28, class_name: bridge, relative_angle_deg: 90, motion_profile: accel_decel, framing: quadrant}
+    - {trial_id: d_single_29, class_name: panzer, relative_angle_deg: 90, motion_profile: accel_decel, framing: edge}
+    - {trial_id: d_single_30, class_name: red_cross, relative_angle_deg: 90, motion_profile: accel_decel, framing: partial}
+
+    # yaw=135 supplies a second directed observation of edge/partial behavior.
+    - {trial_id: d_single_31, class_name: tent, relative_angle_deg: 135, motion_profile: constant, framing: center}
+    - {trial_id: d_single_32, class_name: pillbox, relative_angle_deg: 135, motion_profile: constant, framing: quadrant}
+    - {trial_id: d_single_33, class_name: bridge, relative_angle_deg: 135, motion_profile: constant, framing: edge}
+    - {trial_id: d_single_34, class_name: panzer, relative_angle_deg: 135, motion_profile: constant, framing: partial}
+    - {trial_id: d_single_35, class_name: red_cross, relative_angle_deg: 135, motion_profile: accel_decel, framing: center}
+    - {trial_id: d_single_36, class_name: tent, relative_angle_deg: 135, motion_profile: accel_decel, framing: edge}
+    - {trial_id: d_single_37, class_name: pillbox, relative_angle_deg: 135, motion_profile: accel_decel, framing: partial}
+    - {trial_id: d_single_38, class_name: bridge, relative_angle_deg: 135, motion_profile: turn, framing: center}
+    - {trial_id: d_single_39, class_name: panzer, relative_angle_deg: 135, motion_profile: turn, framing: quadrant}
+    - {trial_id: d_single_40, class_name: red_cross, relative_angle_deg: 135, motion_profile: turn, framing: partial}
+
+multi_target_directed:
+  mission_phase: search
+  rows:
+    - trial_id: d_multi_41_same_class_close
+      class_name: tent
+      relative_angle_deg: 0
+      motion_profile: constant
+      framing: center
+      expected_primary_target_id: tent_1
+      truth_targets:
+        - {target_id: tent_1, class_name: tent, offset_xy_m: [0.0, 0.0], eligible: true, priority_weight: 1.0}
+        - {target_id: tent_2, class_name: tent, offset_xy_m: [0.55, 0.0], eligible: true, priority_weight: 1.0}
+      association_contract: &strict_association
+        max_duplicate_stable_ids: 0
+        max_merged_truth_targets: 0
+        max_wrong_associations: 0
+        max_priority_starvation_frames: 3
+        observation_coverage_threshold_status: UNFROZEN_DIAGNOSTIC_ONLY
+        minimum_observation_frames: 4
+        minimum_truth_coverage_frames_per_target: 1
+        require_search_target_selection: true
+        forbid_landing_h_selection: true
+
+    - trial_id: d_multi_42_different_class_close
+      class_name: pillbox
+      relative_angle_deg: 45
+      motion_profile: accel_decel
+      framing: quadrant
+      expected_primary_target_id: pillbox_1
+      truth_targets:
+        - {target_id: pillbox_1, class_name: pillbox, offset_xy_m: [0.0, 0.0], eligible: true, priority_weight: 1.5}
+        - {target_id: tent_2, class_name: tent, offset_xy_m: [0.5, 0.25], eligible: true, priority_weight: 1.0}
+      association_contract: *strict_association
+
+    - trial_id: d_multi_43_red_cross_priority
+      class_name: red_cross
+      relative_angle_deg: 90
+      motion_profile: turn
+      framing: edge
+      expected_primary_target_id: red_cross_1
+      truth_targets:
+        - {target_id: red_cross_1, class_name: red_cross, offset_xy_m: [0.0, 0.0], eligible: true, priority_weight: 10.0}
+        - {target_id: panzer_2, class_name: panzer, offset_xy_m: [-0.7, 0.2], eligible: true, priority_weight: 2.5}
+      association_contract: *strict_association
+
+    - trial_id: d_multi_44_priority_partial
+      class_name: red_cross
+      relative_angle_deg: 135
+      motion_profile: constant
+      framing: partial
+      expected_primary_target_id: red_cross_1
+      truth_targets:
+        - {target_id: red_cross_1, class_name: red_cross, offset_xy_m: [0.0, 0.0], eligible: true, priority_weight: 10.0}
+        - {target_id: panzer_2, class_name: panzer, offset_xy_m: [-0.8, -0.3], eligible: true, priority_weight: 2.5}
+      association_contract: *strict_association
+
+    - trial_id: d_multi_45_same_class_overlap
+      class_name: bridge
+      relative_angle_deg: 0
+      motion_profile: accel_decel
+      framing: edge
+      expected_primary_target_id: bridge_1
+      truth_targets:
+        - {target_id: bridge_1, class_name: bridge, offset_xy_m: [0.0, 0.0], eligible: true, priority_weight: 2.0}
+        - {target_id: bridge_2, class_name: bridge, offset_xy_m: [0.35, 0.2], eligible: true, priority_weight: 2.0}
+      association_contract: *strict_association
+
+    - trial_id: d_multi_46_target_plus_h
+      class_name: tent
+      relative_angle_deg: 45
+      motion_profile: turn
+      framing: center
+      expected_primary_target_id: tent_1
+      truth_targets:
+        - {target_id: tent_1, class_name: tent, offset_xy_m: [0.0, 0.0], eligible: true, priority_weight: 1.0}
+        - {target_id: landing_h_1, class_name: landing_h, offset_xy_m: [0.8, 0.0], eligible: false, priority_weight: 0.0}
+      association_contract: *strict_association
+
+    - trial_id: d_multi_47_red_cross_plus_h
+      class_name: red_cross
+      relative_angle_deg: 90
+      motion_profile: constant
+      framing: quadrant
+      expected_primary_target_id: red_cross_1
+      truth_targets:
+        - {target_id: red_cross_1, class_name: red_cross, offset_xy_m: [0.0, 0.0], eligible: true, priority_weight: 10.0}
+        - {target_id: landing_h_1, class_name: landing_h, offset_xy_m: [0.45, -0.45], eligible: false, priority_weight: 0.0}
+      association_contract: *strict_association
+
+    - trial_id: d_multi_48_two_targets_plus_h
+      class_name: panzer
+      relative_angle_deg: 135
+      motion_profile: accel_decel
+      framing: edge
+      expected_primary_target_id: panzer_1
+      truth_targets:
+        - {target_id: panzer_1, class_name: panzer, offset_xy_m: [0.0, 0.0], eligible: true, priority_weight: 2.5}
+        - {target_id: bridge_2, class_name: bridge, offset_xy_m: [-0.65, 0.15], eligible: true, priority_weight: 2.0}
+        - {target_id: landing_h_1, class_name: landing_h, offset_xy_m: [0.65, -0.2], eligible: false, priority_weight: 0.0}
+      association_contract: *strict_association
+
+    - trial_id: d_multi_49_overlap_with_h
+      class_name: red_cross
+      relative_angle_deg: 0
+      motion_profile: turn
+      framing: partial
+      expected_primary_target_id: red_cross_1
+      truth_targets:
+        - {target_id: red_cross_1, class_name: red_cross, offset_xy_m: [0.0, 0.0], eligible: true, priority_weight: 10.0}
+        - {target_id: pillbox_2, class_name: pillbox, offset_xy_m: [0.3, 0.2], eligible: true, priority_weight: 1.5}
+        - {target_id: landing_h_1, class_name: landing_h, offset_xy_m: [0.55, 0.25], eligible: false, priority_weight: 0.0}
+      association_contract: *strict_association
+
+    - trial_id: d_multi_50_crossing_priority
+      class_name: panzer
+      relative_angle_deg: 45
+      motion_profile: turn
+      framing: quadrant
+      expected_primary_target_id: panzer_1
+      truth_targets:
+        - {target_id: panzer_1, class_name: panzer, offset_xy_m: [0.0, 0.0], eligible: true, priority_weight: 2.5}
+        - {target_id: bridge_2, class_name: bridge, offset_xy_m: [0.75, -0.25], eligible: true, priority_weight: 2.0}
+      association_contract: *strict_association

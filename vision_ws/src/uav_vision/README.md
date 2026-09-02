@@ -147,6 +147,11 @@ strict watchdog 不依赖目标数组继续到达；目标流中断后，即使 
 | `phase_d_mode_mock.launch` | align mode 行为测试 |
 | `circle_geometry_mock.launch` | 圆环坐标恢复测试 |
 | `alignment_context_mock.launch` | VCL06 冻结上下文、围栏、租约和几何身份 assertion |
+| `video_replay_annotation.launch` | MP4 逐帧可靠回放真实 ROS 像素链并生成单一标注视频；不启动地图/选靶/控制 |
+
+真实视频人工审片入口、颜色图例和边界见
+[当前 ROS 像素链 MP4 回放与标注](docs/VIDEO_REPLAY_ANNOTATION.md)。该入口复用正式
+detector/fusion/refiner，不产生地图点、stable ID 或 selected target。
 
 评测场景、真值、自动报告和 shadow 入口位于 `uav_vision_eval`。一键运行当前八个固定视觉
 场景：

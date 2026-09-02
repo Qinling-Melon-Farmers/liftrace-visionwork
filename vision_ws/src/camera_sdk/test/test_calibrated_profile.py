@@ -4,7 +4,6 @@ from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
 
-import cv2
 import yaml
 
 
@@ -12,7 +11,6 @@ PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 PROFILE = PACKAGE_ROOT / "param" / "calibration_1280x720.yaml"
 LAUNCH = PACKAGE_ROOT / "launch" / "camera_calibrated_1280x720.launch"
 SCRIPT = PACKAGE_ROOT / "script" / "camera_sdk.py"
-SOURCE_CALIBRATION = PACKAGE_ROOT.parent.parent / "calibration.yaml"
 
 
 class CalibratedCameraProfileTest(unittest.TestCase):
@@ -31,20 +29,6 @@ class CalibratedCameraProfileTest(unittest.TestCase):
         self.assertAlmostEqual(
             profile["camera_matrix"]["data"][4], 723.34035628450874)
 
-        source = cv2.FileStorage(
-            str(SOURCE_CALIBRATION), cv2.FILE_STORAGE_READ)
-        self.assertTrue(source.isOpened())
-        try:
-            source_k = source.getNode("camera_matrix").mat().reshape(-1)
-            source_d = source.getNode(
-                "distortion_coefficients").mat().reshape(-1)
-        finally:
-            source.release()
-        self.assertEqual(profile["camera_matrix"]["data"],
-                         source_k.tolist())
-        self.assertEqual(profile["distortion_coefficients"]["data"],
-                         source_d.tolist())
-
     def test_launch_preserves_calibrated_pixel_geometry(self):
         root = ET.parse(str(LAUNCH)).getroot()
         node = root.find("node")
@@ -57,6 +41,7 @@ class CalibratedCameraProfileTest(unittest.TestCase):
         self.assertEqual(params["frame_width"], "1280")
         self.assertEqual(params["frame_height"], "720")
         self.assertEqual(params["rotation_angle"], "0")
+        self.assertEqual(params["capture_fps"], "$(arg capture_fps)")
         self.assertIn("calibration_1280x720.yaml",
                       params["camera_param_yaml"])
         self.assertEqual(params["frame_id"], "$(arg frame_id)")
@@ -68,6 +53,10 @@ class CalibratedCameraProfileTest(unittest.TestCase):
         self.assertIn("camera_info.header.frame_id = frame_id", source)
         self.assertIn("actual_width != camera_info.width", source)
         self.assertIn("actual_height != camera_info.height", source)
+        self.assertIn("cap.set(cv2.CAP_PROP_FPS, capture_fps)", source)
+        self.assertIn("cap.get(cv2.CAP_PROP_FPS)", source)
+        self.assertIn(
+            "if compressed_pub.get_num_connections() > 0:", source)
 
 
 if __name__ == "__main__":

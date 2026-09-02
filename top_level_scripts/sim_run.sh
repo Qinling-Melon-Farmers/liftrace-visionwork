@@ -144,10 +144,20 @@ fi
   echo "git_head: $(cd "${PROJECT_ROOT}" && git rev-parse HEAD 2>/dev/null || echo unknown)"
   echo "git_status:"
   (cd "${PROJECT_ROOT}" && git status --short) | sed 's/^/  /'
-  echo "launch_cmd:"
-  printf '  - %s\n' "$@" | sed 's/ - /"\n  - "/g'
-  echo "roslaunch_args:"
-  printf '  %s\n' "$@" | sed 's/ /=/; s/ / /' | head -20
+  python3 - "$@" <<'PY'
+import json
+import sys
+
+arguments = sys.argv[1:]
+print("launch_cmd:")
+for argument in arguments:
+    # A JSON string is also a valid YAML scalar and preserves spaces, quotes
+    # and launch substitutions without handwritten escaping.
+    print("  - " + json.dumps(argument, ensure_ascii=False))
+print("roslaunch_args:")
+for argument in arguments[:20]:
+    print("  - " + json.dumps(argument, ensure_ascii=False))
+PY
   echo "require_gate: ${REQUIRE_GATE}"
 } > "${MANIFEST}"
 

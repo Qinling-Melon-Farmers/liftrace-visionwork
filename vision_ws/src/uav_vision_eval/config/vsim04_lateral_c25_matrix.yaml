@@ -1,0 +1,80 @@
+schema_version: 2
+evaluation_id: V-SIM-04
+design_id: C25-lateral-offset
+seed: 11
+class_profile: r2026
+expected_trial_count: 25
+
+performance_contract:
+  contract_id: vsim04-c25-roadmap-20260902
+  sources:
+    - VISION_2026_ROADMAP.md#V-SIM-04
+    - docs/handoff/original/视觉组需求.md#C-横向偏差实验
+  thresholds:
+    max_p95_confirmation_processing_ms: 200.0
+    max_p95_map_error_xy_m: 0.25
+  unfrozen_thresholds:
+    - min_p_confirm
+    - min_p_selected
+    - max_tf_failure_rate
+
+target_anchors:
+  tent: {target_id: tent_1, xyz: [1.27572, 0.581612, 0.0025]}
+  pillbox: {target_id: pillbox_1, xyz: [-0.57481, 0.520346, 0.0025]}
+  bridge: {target_id: bridge_1, xyz: [-2.09331, 0.70456, 0.0025]}
+  panzer: {target_id: panzer_1, xyz: [-1.47375, 3.62133, 0.0025]}
+  red_cross: {target_id: red_cross_1, xyz: [-2.5, -2.5, 0.0025]}
+
+# C25 keeps h/v fixed and varies the target's signed cross-track position.
+# The 75% bins use 75% of the fully-visible center range, rather than lying
+# about a raw 0.75 half-frame position when a 1 m target would already clip.
+# Partial bins intentionally clip one quarter of the target width while its
+# center remains in frame. Their candidate result is reported under the
+# independent visibility-window metric; fully-in-frame P_confirm stays null.
+lateral:
+  classes: [tent, pillbox, bridge, panzer, red_cross]
+  height_m: 2.4
+  speed_mps: 1.0
+  horizontal_fov_rad: 1.211
+  path_half_length_m: 3.5
+  update_rate_hz: 20.0
+  path_direction_xy: [0.0, -1.0]
+  pixel_x_world_xy: [1.0, 0.0]
+  target_width_m:
+    tent: 1.0
+    pillbox: 1.0
+    bridge: 1.0
+    panzer: 1.0
+    red_cross: 0.35
+  bins:
+    - id: center
+      side: 0
+      visibility_profile: full
+      full_visible_fraction: 0.0
+    - id: left75
+      side: -1
+      visibility_profile: full
+      full_visible_fraction: 0.75
+    - id: right75
+      side: 1
+      visibility_profile: full
+      full_visible_fraction: 0.75
+    - id: left_partial
+      side: -1
+      visibility_profile: partial
+      partial_clip_fraction: 0.25
+    - id: right_partial
+      side: 1
+      visibility_profile: partial
+      partial_clip_fraction: 0.25
+
+runner:
+  camera_model: vision_eval_camera
+  # Rotate the fixed camera about world Z so the image-horizontal direction
+  # maps to world X. All five target anchors then retain both left/right room.
+  camera_rpy: [0.0, 1.570796326794897, 1.570796326794897]
+  offscreen_offset_m: 3.5
+  pretrial_settle_sec: 0.5
+  posttrial_settle_sec: 1.2
+  reset_service: /uav_vision/reset_memory
+  trial_event_topic: /uav_vision_eval/vsim04/trial_event

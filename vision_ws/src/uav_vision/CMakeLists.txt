@@ -83,6 +83,7 @@ if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
   catkin_add_nosetests(test/test_alignment_context_policy.py)
   catkin_add_nosetests(test/test_detector_model_contract.py)
+  catkin_add_nosetests(test/test_video_replay_contract.py)
   add_rostest(test/cross_geometry_regression.test)
   add_rostest(test/landing_mode_gate.test)
   add_rostest(test/alignment_context.test)
@@ -123,6 +124,7 @@ catkin_install_python(PROGRAMS
   scripts/target_memory.py
   scripts/target_refiner.py
   scripts/target_map_projector.py
+  scripts/target_map_projector_rectification_assertion.py
   scripts/target_detector.py
   scripts/target_detector_rknn.py
   scripts/mock_uav_pose.py
@@ -141,6 +143,8 @@ catkin_install_python(PROGRAMS
   scripts/landing_mode_gate_assertion.py
   scripts/drop_aligner_freshness_assertion.py
   scripts/alignment_context_assertion.py
+  scripts/video_replay_publisher.py
+  scripts/video_annotation_recorder.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

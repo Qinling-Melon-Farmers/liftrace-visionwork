@@ -1,40 +1,27 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""用 pexpect 将少量评测脚本复制到 OrangePi；不执行远程命令。"""
-import pexpect
+"""Copy local files to the OrangePi without storing a password in source."""
+
 import sys
 
-
-HOST = "orangepi@192.168.3.15"
-PASSWORD = "orangepi"
+from ssh_pexpect_auth import board_host, spawn_and_wait
 
 
 def main():
     if len(sys.argv) < 3:
         print("usage: ssh_orangepi_copy.py LOCAL... REMOTE_DIR", file=sys.stderr)
         return 2
-    sources = sys.argv[1:-1]
-    remote_dir = sys.argv[-1]
-    child = pexpect.spawn(
-        "scp",
-        ["-o", "StrictHostKeyChecking=no", "-o", "ConnectTimeout=10",
-         *sources, HOST + ":" + remote_dir],
-        timeout=60,
-        encoding="utf-8",
-    )
-    while True:
-        index = child.expect(["[Pp]assword:", pexpect.EOF, pexpect.TIMEOUT])
-        if index == 0:
-            child.sendline(PASSWORD)
-        elif index == 1:
-            break
-        else:
-            print(child.before or "", end="")
-            print("copy timeout", file=sys.stderr)
-            return 1
-    print(child.before or "", end="")
-    child.close()
-    return child.exitstatus if child.exitstatus is not None else 1
+    arguments = [
+        "-o", "StrictHostKeyChecking=accept-new",
+        "-o", "ConnectTimeout=10",
+        *sys.argv[1:-1], board_host() + ":" + sys.argv[-1],
+    ]
+    try:
+        code, output = spawn_and_wait("scp", arguments, 600)
+    except TimeoutError as error:
+        print("copy timeout: %s" % error, file=sys.stderr)
+        return 1
+    sys.stdout.write(output)
+    return code
 
 
 if __name__ == "__main__":
