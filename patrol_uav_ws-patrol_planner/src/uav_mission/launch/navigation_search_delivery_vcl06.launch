@@ -8,8 +8,12 @@
   <arg name="start_arming" default="true" />
   <arg name="start_hard_gate" default="true" />
   <arg name="gate_startup_wall_timeout" default="180.0" />
-  <arg name="gate_wall_timeout" default="900.0" />
+  <!-- Wall time is only a host-performance watchdog.  The competition limit
+       remains mission/max_mission_sec=600 in ROS time.  WSL full-chain runs
+       commonly execute at 0.25-0.35 real time. -->
+  <arg name="gate_wall_timeout" default="2700.0" />
   <arg name="record_debug" default="false" />
+  <arg name="external_planner_max_command_z" default="3.5" />
 
   <arg name="world"
        default="$(find patrol_control)/../../../toudi3_random.world" />
@@ -60,6 +64,8 @@
     <arg name="planner_obstacles_inflation" value="0.25" />
     <arg name="planner_clearance_threshold" value="0.35" />
     <arg name="px4_max_distance" value="0.2" />
+    <arg name="external_planner_max_command_z"
+         value="$(arg external_planner_max_command_z)" />
     <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
   </include>
 
@@ -160,6 +166,8 @@
               /navigation/mission_start_gate_status
               /uav_vision/selected_target
               /mavros/local_position/pose
+              /fastplanner/setpoint_position/local
+              /mavros/setpoint_position/local
               /planning/goal_status
               /mission/command
               /mission/release_result

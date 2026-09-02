@@ -7,8 +7,13 @@ execution:
   allow_live_goal_output: false
   executor_id_prefix: vcl06-planner-bridge
   mission_frame: camera_init
-  max_goal_z: 4.0
+  # Mission goals top out at 2.2 m.  Keep a small operational margin while
+  # the independent patrol_control setpoint guard enforces the 3.5 m hard
+  # execution ceiling below the competition's 4.0 m limit.
+  max_goal_z: 2.5
   planner_accept_timeout: 2.0
+  # Compatibility name: this limits explicit FAILED_ATTEMPT events.  Normal
+  # receding-horizon REPLANNING cycles must not consume the failure budget.
   max_planning_attempts: 20
   source_future_tolerance: 0.1
   odom_max_age: 0.5

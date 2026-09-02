@@ -17,6 +17,8 @@ SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / \
     "navigation_vcl06_assertion.py"
 FORMAL_LAUNCH = Path(__file__).resolve().parents[1] / "launch" / \
     "navigation_search_delivery_vcl06.launch"
+GUARDED_LAUNCH = Path(__file__).resolve().parents[1] / "launch" / \
+    "toudi3_visual_delivery_guarded.launch"
 MAVROS_CONFIG = Path(__file__).resolve().parents[2] / "patrol_control" / \
     "config" / "mavros_px4_sim.yaml"
 RUNTIME_CONFIG = Path(__file__).resolve().parents[1] / "config" / \
@@ -829,6 +831,9 @@ class Vcl06GateReducerTest(unittest.TestCase):
     def test_formal_launch_has_one_policy_and_execution_chain(self):
         root = ET.parse(str(FORMAL_LAUNCH)).getroot()
         source = FORMAL_LAUNCH.read_text(encoding="utf-8")
+        args = {item.attrib["name"]: item.attrib.get("default")
+                for item in root.findall("arg")}
+        self.assertEqual(args["gate_wall_timeout"], "2700.0")
         includes = [item.attrib.get("file", "")
                     for item in root.findall("include")]
         self.assertEqual(sum(
@@ -873,11 +878,15 @@ class Vcl06GateReducerTest(unittest.TestCase):
         self.assertEqual(params["vehicle_state_topic"], "/mavros/state")
         for evidence_topic in (
                 "/detect/land_mark_point", "/uav_vision/align_mode",
-                "/mavros/extended_state", "/mavros/state"):
+                "/mavros/extended_state", "/mavros/state",
+                "/fastplanner/setpoint_position/local",
+                "/mavros/setpoint_position/local"):
             self.assertIn(evidence_topic, source)
         arguments = {item.attrib["name"]: item.attrib.get("default")
                      for item in root.findall("arg")}
         self.assertEqual(arguments["gate_startup_wall_timeout"], "180.0")
+        self.assertEqual(arguments["external_planner_max_command_z"],
+                         "3.5")
         self.assertNotIn("mission_frame", arguments)
         self.assertEqual(arguments["class_profile"], "r2026")
         self.assertEqual(arguments["field_seed"], "11")
@@ -889,7 +898,26 @@ class Vcl06GateReducerTest(unittest.TestCase):
         guarded_args = {item.attrib["name"]: item.attrib.get("value")
                         for item in guarded.findall("arg")}
         self.assertEqual(guarded_args["map_frame"], "camera_init")
+        self.assertEqual(
+            guarded_args["external_planner_max_command_z"],
+            "$(arg external_planner_max_command_z)")
         self.assertEqual(params["mission_frame"], "camera_init")
+
+        guarded_root = ET.parse(str(GUARDED_LAUNCH)).getroot()
+        guarded_defaults = {
+            item.attrib["name"]: item.attrib.get("default")
+            for item in guarded_root.findall("arg")}
+        self.assertEqual(
+            guarded_defaults["external_planner_max_command_z"], "3.5")
+        nested = next(
+            item for item in guarded_root.findall("include")
+            if "toudi3_full_competition_sim_new_vision.launch" in
+            item.attrib.get("file", ""))
+        nested_args = {item.attrib["name"]: item.attrib.get("value")
+                       for item in nested.findall("arg")}
+        self.assertEqual(
+            nested_args["external_planner_max_command_z"],
+            "$(arg external_planner_max_command_z)")
 
     def test_sitl_pose_and_setpoint_use_the_mission_frame(self):
         config = yaml.safe_load(MAVROS_CONFIG.read_text(encoding="utf-8"))

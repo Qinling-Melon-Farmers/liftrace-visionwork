@@ -7,6 +7,7 @@
     <arg name="external_mission_mode" default="false" />
     <arg name="simulation_auto_land" default="false" />
     <arg name="px4_max_distance" default="1.0" />
+    <arg name="external_planner_max_command_z" default="3.5" />
     <arg name="planner_map_size_x" default="20.0" />
     <arg name="planner_map_size_y" default="20.0" />
     <arg name="planner_map_size_z" default="5.0" />
@@ -26,6 +27,8 @@
     <param name="external_mission_mode" value="$(arg external_mission_mode)" />
     <param name="simulation/enable_auto_land" value="$(arg simulation_auto_land)" />
     <param name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <param name="external_planner_max_command_z"
+           value="$(arg external_planner_max_command_z)" />
     <param name="threshould/aligning_threshould" value="$(arg aligning_threshold)" />
     <node pkg="patrol_control" type="patrol_control" name="patrol_control" output="screen">
         <!-- PX4 模式下 odom 直接来自 MAVROS，无需 remap -->

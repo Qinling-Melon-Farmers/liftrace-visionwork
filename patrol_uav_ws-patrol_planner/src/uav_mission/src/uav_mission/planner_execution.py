@@ -330,6 +330,7 @@ class _GoalLifecycle:
     dispatch_ns: int
     effective_goal: Optional[MotionGoal] = None
     planning_attempt: int = 0
+    failed_attempt_count: int = 0
     planner_accepted: bool = False
     trajectory_ready: bool = False
     trajectory_finished: bool = False
@@ -691,8 +692,6 @@ class PlannerMotionExecutor:
             expected_attempt = state.planning_attempt + 1
             if event.planning_attempt != expected_attempt:
                 return self._fail_closed("planner_attempt_not_monotonic")
-            if event.planning_attempt > self.config.max_planning_attempts:
-                return self._fail_closed("planner_attempt_limit_exceeded")
             state.planning_attempt = event.planning_attempt
             state.trajectory_ready = False
             state.dwell_start_ns = 0
@@ -713,6 +712,9 @@ class PlannerMotionExecutor:
                 self._result(state, int(now_ns), "PROGRESS", "PLANNER",
                              False, False, "planner_trajectory_ready"),))
         if status == "FAILED_ATTEMPT":
+            state.failed_attempt_count += 1
+            if state.failed_attempt_count > self.config.max_planning_attempts:
+                return self._fail_closed("planner_attempt_limit_exceeded")
             return self._outcome(True, "planner_attempt_failed_nonterminal",
                 events=(self._result(
                     state, int(now_ns), "PROGRESS", "PLANNER", False, False,

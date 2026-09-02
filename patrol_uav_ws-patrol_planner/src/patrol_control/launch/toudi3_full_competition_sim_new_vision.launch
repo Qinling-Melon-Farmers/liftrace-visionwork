@@ -36,6 +36,7 @@
   <arg name="external_mission_mode" default="false" />
   <arg name="simulation_auto_land" default="true" />
   <arg name="px4_max_distance" default="0.2" />
+  <arg name="external_planner_max_command_z" default="3.5" />
   <!-- 20 × 20 × 5 m 覆盖 10 × 10 × 4 m 赛场，并把 0.1 m 体素量限制在约 200 万。 -->
   <arg name="planner_map_size_x" default="20.0" />
   <arg name="planner_map_size_y" default="20.0" />
@@ -67,6 +68,8 @@
     <arg name="external_mission_mode" value="$(arg external_mission_mode)" />
     <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
     <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <arg name="external_planner_max_command_z"
+         value="$(arg external_planner_max_command_z)" />
     <arg name="planner_map_size_x" value="$(arg planner_map_size_x)" />
     <arg name="planner_map_size_y" value="$(arg planner_map_size_y)" />
     <arg name="planner_map_size_z" value="$(arg planner_map_size_z)" />

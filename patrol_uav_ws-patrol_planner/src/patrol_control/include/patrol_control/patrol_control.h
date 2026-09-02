@@ -200,6 +200,7 @@ private:
     std::string mission_command_topic_ = "/mission/command";
     double external_planner_cmd_timeout_ = 0.5;
     double external_planner_start_max_distance_ = 0.6;
+    double external_planner_max_command_z_ = 3.5;
     double external_alignment_timeout_sec_ = 75.0;
     std::string external_landing_frame_ = "camera_init";
     double external_landing_capture_height_ = 0.75;

@@ -40,6 +40,7 @@
   <!-- Smaller direct-setpoint step prevents PX4 position-loop overshoot in
        the CPU-limited WSL SITL; the historical launch default remains 1.0 m. -->
   <arg name="px4_max_distance" default="0.2" />
+  <arg name="external_planner_max_command_z" default="3.5" />
   <!-- 赛场为 10 m × 10 m × 4 m；20 m × 20 m × 5 m 保留边界余量并显著降低体素内存。 -->
   <arg name="planner_map_size_x" default="20.0" />
   <arg name="planner_map_size_y" default="20.0" />
@@ -82,6 +83,8 @@
     <arg name="external_mission_mode" value="$(arg external_mission_mode)" />
     <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
     <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <arg name="external_planner_max_command_z"
+         value="$(arg external_planner_max_command_z)" />
     <arg name="planner_map_size_x" value="$(arg planner_map_size_x)" />
     <arg name="planner_map_size_y" value="$(arg planner_map_size_y)" />
     <arg name="planner_map_size_z" value="$(arg planner_map_size_z)" />

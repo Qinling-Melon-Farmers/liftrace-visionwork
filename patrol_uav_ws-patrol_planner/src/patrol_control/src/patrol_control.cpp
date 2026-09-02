@@ -895,8 +895,22 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
             detect_control_pub_.publish(detect_enable_msg_temp);
             if (external_mission_mode_) {
                 if (!flag_planner_px4) {
-                    if (hasValidExternalPlannerCommand()) mavros_point_cmd = planner_cmd;
-                    else mavros_point_cmd = last_mavros_point_cmd;
+                    if (hasValidExternalPlannerCommand()) {
+                        mavros_point_cmd = planner_cmd;
+                        if (mavros_point_cmd.pose.position.z >
+                                external_planner_max_command_z_) {
+                            ROS_WARN_THROTTLE(
+                                1.0,
+                                "[ExternalPlanner] capping command height=%.3f "
+                                "to %.3f while preserving horizontal progress",
+                                mavros_point_cmd.pose.position.z,
+                                external_planner_max_command_z_);
+                            mavros_point_cmd.pose.position.z =
+                                external_planner_max_command_z_;
+                        }
+                    } else {
+                        mavros_point_cmd = last_mavros_point_cmd;
+                    }
                 } else {
                     mavros_point_cmd = patrol_cmd;
                 }
@@ -1305,6 +1319,17 @@ void LLController::load_params() {
     // 目标类别列表：~goal_list 参数（XmlRpc 数组）可选，缺省保持旧行为 {"panzer"}
     external_planner_start_max_distance_ =
         nh_.param("external_planner_start_max_distance", 0.6);
+    external_planner_max_command_z_ =
+        nh_.param("external_planner_max_command_z", 3.5);
+    if (!std::isfinite(external_planner_max_command_z_) ||
+        external_planner_max_command_z_ <= 0.05 ||
+        external_planner_max_command_z_ > 4.0) {
+        ROS_ERROR(
+            "[ExternalPlanner] invalid max command z %.3f; using safe "
+            "fallback 3.5 m",
+            external_planner_max_command_z_);
+        external_planner_max_command_z_ = 3.5;
+    }
     {
         XmlRpc::XmlRpcValue goal_list;
         if (nh_.getParam("goal_list", goal_list) &&

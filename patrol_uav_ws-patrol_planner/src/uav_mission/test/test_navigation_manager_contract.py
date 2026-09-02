@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import ast
+import copy
+import math
 from pathlib import Path
 import stat
 import unittest
@@ -88,6 +90,17 @@ class NavigationManagerContractTest(unittest.TestCase):
         self.assertIn("GoalSnapshot", self.source)
         self.assertIn("post_delivery_route_index", self.source)
 
+        search = self.formal_config["search"]
+        self.assertEqual(
+            [search["min_x"], search["max_x"],
+             search["min_y"], search["max_y"]],
+            [-2.007, 1.993, 0.273, 6.273],
+        )
+        self.assertEqual(
+            search["route_revision"],
+            "toudi3-random-spawn-envelope-r2",
+        )
+
     def test_launch_exposes_only_contract_topics(self):
         nodes = self.launch.findall(".//node")
         self.assertEqual(len(nodes), 1)
@@ -106,6 +119,14 @@ class NavigationManagerContractTest(unittest.TestCase):
 
     def test_r2026_readiness_and_callbacks_fail_closed(self):
         self.assertTrue(self.config["readiness"]["require_map"])
+        for config in (self.config, self.formal_config):
+            readiness = config["readiness"]
+            self.assertEqual(readiness["pose_max_age"], 0.5)
+            self.assertEqual(readiness["stamp_future_tolerance"], 0.05)
+        self.assertIn('return "future"', self.source)
+        self.assertIn('return False, "pose_stamp_in_future"', self.source)
+        self.assertIn('return False, "map_stamp_in_future"', self.source)
+        self.assertIn('self._stamp_future_tolerance > 0.1', self.source)
         self.assertIn("r2026 requires map readiness", self.source)
         self.assertIn('return False, "map_empty"', self.source)
         self.assertIn('return False, "map_layout_invalid"', self.source)
@@ -117,6 +138,38 @@ class NavigationManagerContractTest(unittest.TestCase):
                 self.source,
             )
         self.assertNotIn('abort("executor_changed"', self.source)
+
+    def test_readiness_accepts_only_bounded_future_stamp_jitter(self):
+        manager = next(
+            node for node in self.tree.body
+            if isinstance(node, ast.ClassDef) and
+            node.name == "NavigationMissionManager"
+        )
+        function = copy.deepcopy(next(
+            node for node in manager.body
+            if isinstance(node, ast.FunctionDef) and
+            node.name == "_age_state"
+        ))
+        function.decorator_list = []
+        module = ast.fix_missing_locations(
+            ast.Module(body=[function], type_ignores=[]))
+        namespace = {"math": math}
+        exec(compile(module, str(SCRIPT), "exec"), namespace)
+
+        class Stamp:
+            def __init__(self, seconds):
+                self._seconds = seconds
+
+            def to_sec(self):
+                return self._seconds
+
+        age_state = namespace["_age_state"]
+        self.assertEqual(age_state(Stamp(10.001), 10.0, 0.5, 0.05),
+                         "fresh")
+        self.assertEqual(age_state(Stamp(10.051), 10.0, 0.5, 0.05),
+                         "future")
+        self.assertEqual(age_state(Stamp(9.499), 10.0, 0.5, 0.05),
+                         "stale")
 
     def test_runtime_declares_yaml_dependency(self):
         dependencies = {

@@ -41,6 +41,9 @@ search:
 readiness:
   pose_max_age: 0.5
   map_max_age: 2.0
+  # ROS/Gazebo publishers can lead /clock by a few milliseconds.  Accept only
+  # bounded scheduler jitter; genuinely stale samples keep their original cap.
+  stamp_future_tolerance: 0.05
   require_map: true
 
 runtime:

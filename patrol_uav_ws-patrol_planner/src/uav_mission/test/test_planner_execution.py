@@ -319,4 +319,49 @@ class PlannerMotionExecutorTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             MotionGoal("map", 1.0, 2.0, 2.2, 0.0, 0.0, 0.0, 0.0)
 
+    def test_replanning_does_not_consume_failed_attempt_budget(self):
+        executor = PlannerMotionExecutor(PlannerMotionConfig(
+            executor_id="executor-test", max_planning_attempts=2))
+        self.dispatch(executor)
+        sequenced = SequencedMotionGoal(8, goal())
+        accepted = executor.apply_planner_status(PlannerStatusEvent(
+            1, 8, "ACCEPTED", BASE+1, sequenced, sequenced, 0.0, 0, ""),
+            BASE+1)
+        self.assertTrue(accepted.accepted, accepted.reason)
+        for attempt in range(1, 26):
+            outcome = executor.apply_planner_status(PlannerStatusEvent(
+                attempt+1, 8, "REPLANNING", BASE+attempt+1,
+                sequenced, sequenced, 1.0, attempt, ""),
+                BASE+attempt+1)
+            self.assertTrue(outcome.accepted, outcome.reason)
+        self.assertFalse(outcome.snapshot.faulted)
+
+    def test_only_explicit_failed_attempts_consume_budget(self):
+        executor = PlannerMotionExecutor(PlannerMotionConfig(
+            executor_id="executor-test", max_planning_attempts=2))
+        self.dispatch(executor)
+        sequenced = SequencedMotionGoal(8, goal())
+        executor.apply_planner_status(PlannerStatusEvent(
+            1, 8, "ACCEPTED", BASE+1, sequenced, sequenced, 0.0, 0, ""),
+            BASE+1)
+        event_seq = 2
+        for attempt in range(1, 4):
+            planning = executor.apply_planner_status(PlannerStatusEvent(
+                event_seq, 8, "REPLANNING", BASE+event_seq,
+                sequenced, sequenced, 1.0, attempt, ""),
+                BASE+event_seq)
+            self.assertTrue(planning.accepted, planning.reason)
+            event_seq += 1
+            failed = executor.apply_planner_status(PlannerStatusEvent(
+                event_seq, 8, "FAILED_ATTEMPT", BASE+event_seq,
+                sequenced, sequenced, 1.0, attempt, ""),
+                BASE+event_seq)
+            event_seq += 1
+            if attempt <= 2:
+                self.assertTrue(failed.accepted, failed.reason)
+            else:
+                self.assertFalse(failed.accepted)
+                self.assertEqual(
+                    failed.reason, "planner_attempt_limit_exceeded")
+
 if __name__ == "__main__": unittest.main()

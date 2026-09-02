@@ -81,21 +81,25 @@ post_delivery_gate:
       z_min: 0.00
       z_max: 2.00
 
-# Bounds reuse the existing VCL05 random-field coverage envelope.  They stay
-# about 0.9 m inside the field border and do not reuse the toudi4 y=-2 endpoint.
+# Bounds match the static random-target spawn envelope declared in
+# coverage_toudi3_random.yaml.  They are scenario geometry, not per-seed truth,
+# and avoid spending most of the mission outside the only legal target region.
 search:
-  min_x: -3.106588
-  max_x: 3.093412
-  min_y: -0.227310
-  max_y: 7.772690
+  min_x: -2.007
+  max_x: 1.993
+  min_y: 0.273
+  max_y: 6.273
   lane_spacing: 1.2
   altitude: 2.2
-  route_revision: toudi3-random-r1
+  route_revision: toudi3-random-spawn-envelope-r2
   max_failures_per_waypoint: 2
 
 readiness:
   pose_max_age: 0.5
   map_max_age: 2.0
+  # Full-chain load can make a producer stamp lead /clock by a few milliseconds.
+  # This is clock-jitter tolerance, not extra allowance for stale telemetry.
+  stamp_future_tolerance: 0.05
   require_map: true
 
 runtime:

@@ -103,6 +103,9 @@ class NavigationMissionManager:
             rospy.get_param("~readiness/pose_max_age", 0.5))
         self._map_max_age = float(
             rospy.get_param("~readiness/map_max_age", 2.0))
+        self._stamp_future_tolerance = float(
+            rospy.get_param(
+                "~readiness/stamp_future_tolerance", 0.05))
         self._require_map = rospy.get_param("~readiness/require_map", True)
         self._tick_hz = float(rospy.get_param("~runtime/tick_hz", 10.0))
         self._mission_id_prefix = str(
@@ -147,6 +150,11 @@ class NavigationMissionManager:
         for name, value in numeric.items():
             if not math.isfinite(value) or value <= 0.0:
                 raise ValueError("%s must be finite and positive" % name)
+        if (not math.isfinite(self._stamp_future_tolerance) or
+                self._stamp_future_tolerance < 0.0 or
+                self._stamp_future_tolerance > 0.1):
+            raise ValueError(
+                "stamp_future_tolerance must be finite and within [0, 0.1]")
         if not isinstance(self._require_map, bool):
             raise ValueError("readiness/require_map must be boolean")
         if self._profile_name == "r2026" and not self._require_map:
@@ -233,12 +241,18 @@ class NavigationMissionManager:
         return MissionRuntime(MissionCore(profile, config), route)
 
     @staticmethod
-    def _age_is_valid(stamp, now, max_age):
+    def _age_state(stamp, now, max_age, future_tolerance):
         stamp_sec = stamp.to_sec()
         if stamp_sec <= 0.0:
-            return False
+            return "stale"
         age = now - stamp_sec
-        return math.isfinite(age) and 0.0 <= age <= max_age
+        if not math.isfinite(age):
+            return "stale"
+        if age < -future_tolerance:
+            return "future"
+        if age > max_age:
+            return "stale"
+        return "fresh"
 
     def _readiness(self, now):
         if not math.isfinite(now) or now <= 0.0:
@@ -249,8 +263,15 @@ class NavigationMissionManager:
             return False, "pose_missing"
         if self._pose.header.frame_id != config.mission_frame:
             return False, "pose_frame_mismatch"
-        if not self._age_is_valid(
-                self._pose.header.stamp, now, self._pose_max_age):
+        pose_age_state = self._age_state(
+            self._pose.header.stamp,
+            now,
+            self._pose_max_age,
+            self._stamp_future_tolerance,
+        )
+        if pose_age_state == "future":
+            return False, "pose_stamp_in_future"
+        if pose_age_state != "fresh":
             return False, "pose_stale"
         position = self._pose.pose.position
         if not all(math.isfinite(value) for value in
@@ -264,8 +285,15 @@ class NavigationMissionManager:
             return False, "map_missing"
         if self._map.header.frame_id != config.mission_frame:
             return False, "map_frame_mismatch"
-        if not self._age_is_valid(
-                self._map.header.stamp, now, self._map_max_age):
+        map_age_state = self._age_state(
+            self._map.header.stamp,
+            now,
+            self._map_max_age,
+            self._stamp_future_tolerance,
+        )
+        if map_age_state == "future":
+            return False, "map_stamp_in_future"
+        if map_age_state != "fresh":
             return False, "map_stale"
         width = int(self._map.width)
         height = int(self._map.height)

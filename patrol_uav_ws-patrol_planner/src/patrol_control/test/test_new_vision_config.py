@@ -160,6 +160,28 @@ class NewVisionConfigTest(unittest.TestCase):
             planner_launch,
         )
 
+    def test_external_planner_setpoint_height_guard_is_wired_end_to_end(self):
+        source = CONTROL_CPP.read_text(encoding="utf-8")
+        self.assertIn(
+            'nh_.param("external_planner_max_command_z", 3.5)', source)
+        self.assertIn(
+            "mavros_point_cmd.pose.position.z >", source)
+        self.assertIn("capping command height", source)
+        self.assertIn("preserving horizontal progress", source)
+
+        for path in (LAUNCH, FULL_LAUNCH, CONTROL_LAUNCH):
+            launch = path.read_text(encoding="utf-8")
+            self.assertIn(
+                'name="external_planner_max_command_z" default="3.5"',
+                launch)
+        self.assertIn(
+            '<param name="external_planner_max_command_z"',
+            CONTROL_LAUNCH.read_text(encoding="utf-8"))
+        for path in (LAUNCH, FULL_LAUNCH):
+            self.assertIn(
+                'arg name="external_planner_max_command_z"',
+                path.read_text(encoding="utf-8"))
+
     def test_simulation_inflation_profile_is_complete_and_real_is_unchanged(self):
         sim_root = ET.parse(str(PLANNER_SIM_XML)).getroot()
         sim_node = sim_root.find("node")

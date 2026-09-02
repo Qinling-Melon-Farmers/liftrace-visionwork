@@ -100,7 +100,7 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
         self.assertFalse(execution["enabled"])
         self.assertFalse(execution["allow_live_goal_output"])
         self.assertEqual(execution["mission_frame"], "camera_init")
-        self.assertEqual(execution["max_goal_z"], 4.0)
+        self.assertEqual(execution["max_goal_z"], 2.5)
         self.assertNotIn("class_profile", execution)
         self.assertNotIn("payload_slots", execution)
         self.assertNotIn("allowed_target_classes", execution)
