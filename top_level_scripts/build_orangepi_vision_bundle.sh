@@ -46,8 +46,11 @@ BUNDLE_ROOT="${STAGE_PARENT}/${BUNDLE_NAME}"
 mkdir -p "${BUNDLE_ROOT}/vision_ws/src" \
   "${BUNDLE_ROOT}/top_level_scripts" \
   "${BUNDLE_ROOT}/vision_ws/src/uav_vision/models"
-install -m 0644 -L "${PROJECT_ROOT}/vision_ws/src/CMakeLists.txt" \
+# Ubuntu 20.04 coreutils install(1) has no -L option.  Dereference the catkin
+# workspace symlink explicitly so the bundle contains a regular file.
+cp -L -- "${PROJECT_ROOT}/vision_ws/src/CMakeLists.txt" \
   "${BUNDLE_ROOT}/vision_ws/src/CMakeLists.txt"
+chmod 0644 "${BUNDLE_ROOT}/vision_ws/src/CMakeLists.txt"
 rsync -a --exclude __pycache__/ --exclude '*.pyc' --exclude '*.pyo' \
   "${PROJECT_ROOT}/vision_ws/src/uav_vision/" \
   "${BUNDLE_ROOT}/vision_ws/src/uav_vision/"

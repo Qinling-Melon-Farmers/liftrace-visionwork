@@ -81,6 +81,21 @@ void CrossDetectorNode::loadParameters()
 void CrossDetectorNode::cameraInfoCallback(const sensor_msgs::CameraInfoConstPtr &msg)
 {
   camera_model_.fromCameraInfo(*msg);
+  const double principal_x = camera_model_.cx();
+  const double principal_y = camera_model_.cy();
+  if (std::isfinite(principal_x) && std::isfinite(principal_y) &&
+      principal_x >= 0.0 && principal_y >= 0.0 &&
+      principal_x < static_cast<double>(msg->width) &&
+      principal_y < static_cast<double>(msg->height)) {
+    image_center_ = cv::Point2d(principal_x, principal_y);
+    ROS_INFO_ONCE(
+        "[CrossDetector] alignment reference from CameraInfo (%.3f, %.3f)",
+        image_center_.x, image_center_.y);
+  } else {
+    ROS_WARN_THROTTLE(
+        5.0,
+        "[CrossDetector] invalid CameraInfo principal point; keeping parameter fallback");
+  }
 }
 
 // ---------------------------------------------------------------------------
