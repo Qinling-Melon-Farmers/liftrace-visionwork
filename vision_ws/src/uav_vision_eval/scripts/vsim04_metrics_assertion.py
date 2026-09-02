@@ -305,11 +305,13 @@ def main():
     surface_path = os.path.join(
         os.path.dirname(matrix_path), "vsim04_operating_surface_matrix.yaml")
     surface = load_trial_matrix(surface_path)
-    assert len(surface["trials"]) == 85
+    assert surface["design_id"] == "operating-surface-125"
+    assert len(surface["trials"]) == 125
     assert surface["diagnostic_only"] is True
     assert select_trial_matrix(surface, "")["evaluation_scope"] == "diagnostic"
     static25 = select_trial_matrix(surface, "", "static25")
     sparse30 = select_trial_matrix(surface, "", "sparse30")
+    b100 = select_trial_matrix(surface, "", "b100")
     assert static25["evaluation_scope"] == "diagnostic"
     assert static25["trial_slice"] == "static25"
     assert len(static25["trials"]) == 25
@@ -318,6 +320,18 @@ def main():
     assert all(trial["kind"] == "dynamic" for trial in sparse30["trials"])
     assert {trial["class_name"] for trial in sparse30["trials"]} == {
         "tent", "pillbox", "bridge", "panzer", "red_cross"}
+    assert len(b100["trials"]) == 100
+    assert all(trial["kind"] == "dynamic" for trial in b100["trials"])
+    assert {trial["class_name"] for trial in b100["trials"]} == {
+        "tent", "pillbox", "bridge", "panzer", "red_cross"}
+    assert {trial["height_m"] for trial in b100["trials"]} == {
+        1.2, 1.8, 2.4, 3.0, 3.6}
+    assert {trial["speed_mps"] for trial in b100["trials"]} == {
+        0.5, 1.0, 1.5, 2.0}
+    assert len({
+        (trial["class_name"], trial["height_m"], trial["speed_mps"])
+        for trial in b100["trials"]
+    }) == 100
     c25_path = os.path.join(
         os.path.dirname(matrix_path), "vsim04_lateral_c25_matrix.yaml")
     c25 = load_trial_matrix(c25_path)

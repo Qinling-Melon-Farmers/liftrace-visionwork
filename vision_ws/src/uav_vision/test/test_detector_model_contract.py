@@ -47,6 +47,17 @@ class DetectorModelContractTest(unittest.TestCase):
         self.assertIn("no usable RKNN runtime/model found", rknn_source)
         self.assertIn("_restore_standard_logging_levels()", rknn_source)
 
+    def test_rknn_subscribes_only_after_callback_state_is_ready(self):
+        source = RKNN_SCRIPT.read_text(encoding="utf-8")
+        subscriber = source.index("self._image_sub = rospy.Subscriber")
+        self.assertGreater(subscriber, source.index("self._unified = _RknnHandle"))
+        self.assertGreater(subscriber, source.index("self._warned_decode = set()"))
+        self.assertGreater(subscriber, source.index("self._fps_ema = 0.0"))
+        self.assertGreater(
+            subscriber,
+            source.index('raise RuntimeError("no usable RKNN runtime/model found")'),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
