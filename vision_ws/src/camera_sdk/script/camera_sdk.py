@@ -303,18 +303,21 @@ def publish_camera_feed():
             img_msg.header.frame_id = frame_id
             image_pub.publish(img_msg)
             
-            # 发布压缩图像
-            compressed_msg = CompressedImage()
-            compressed_msg.header.stamp = current_rostime
-            compressed_msg.header.frame_id = frame_id
-            compressed_msg.format = "jpeg"
-            # 使用cv2.imencode将图像压缩为JPEG格式
-            ret, compressed_data = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, jpeg_quality])
-            if ret:
-                compressed_msg.data = compressed_data.tobytes()
-                compressed_pub.publish(compressed_msg)
-            else:
-                rospy.logwarn("图像压缩失败")
+            # 压缩图仅在确有订阅者时编码，正式视觉链只消费 raw 图时不承担
+            # 1280x720 JPEG 的固定 CPU 开销。
+            if compressed_pub.get_num_connections() > 0:
+                compressed_msg = CompressedImage()
+                compressed_msg.header.stamp = current_rostime
+                compressed_msg.header.frame_id = frame_id
+                compressed_msg.format = "jpeg"
+                ret, compressed_data = cv2.imencode(
+                    '.jpg', frame,
+                    [cv2.IMWRITE_JPEG_QUALITY, jpeg_quality])
+                if ret:
+                    compressed_msg.data = compressed_data.tobytes()
+                    compressed_pub.publish(compressed_msg)
+                else:
+                    rospy.logwarn("图像压缩失败")
             
             # 发布相机信息
             if camera_info is not None:

@@ -45,6 +45,7 @@ class DetectorModelContractTest(unittest.TestCase):
         self.assertNotIn("empty_no_rknnlite", rknn_source)
         self.assertNotIn("empty_no_runtime", rknn_source)
         self.assertIn("no usable RKNN runtime/model found", rknn_source)
+        self.assertIn("_restore_standard_logging_levels()", rknn_source)
 
 
 if __name__ == "__main__":

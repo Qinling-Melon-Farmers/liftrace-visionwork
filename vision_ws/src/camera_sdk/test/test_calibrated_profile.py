@@ -55,6 +55,8 @@ class CalibratedCameraProfileTest(unittest.TestCase):
         self.assertIn("actual_height != camera_info.height", source)
         self.assertIn("cap.set(cv2.CAP_PROP_FPS, capture_fps)", source)
         self.assertIn("cap.get(cv2.CAP_PROP_FPS)", source)
+        self.assertIn(
+            "if compressed_pub.get_num_connections() > 0:", source)
 
 
 if __name__ == "__main__":
