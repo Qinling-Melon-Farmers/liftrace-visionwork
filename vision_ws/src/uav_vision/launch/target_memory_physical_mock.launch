@@ -4,6 +4,7 @@
     <param name="detections_topic"
            value="/uav_vision/detections_memory_test" />
     <param name="require_map_for_candidates" value="true" />
+    <param name="require_complete_detection_sources" value="true" />
     <param name="confirm_frames" value="3" />
     <param name="class_switch_confirm_frames" value="2" />
     <param name="class_switch_min_confidence" value="0.70" />

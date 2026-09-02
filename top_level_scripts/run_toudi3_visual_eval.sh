@@ -4,8 +4,17 @@ set -euo pipefail
 # Bounded visual-only evaluation. No PX4, MAVROS, patrol_control or actuator
 # is launched by any of the three supported scene launch files.
 
-script_dir="${BASH_SOURCE[0]%/*}"
+script_dir=$(cd -- "${BASH_SOURCE[0]%/*}" && pwd -P)
 project_root="${script_dir%/*}"
+export PROJECT_ROOT="${PROJECT_ROOT:-${project_root}}"
+export VISION_WS="${VISION_WS:-${project_root}/vision_ws}"
+if [[ -z "${UAV_WS:-}" ]]; then
+  if [[ -f "${project_root}/patrol_uav_ws-patrol_planner/devel/setup.bash" ]]; then
+    export UAV_WS="${project_root}/patrol_uav_ws-patrol_planner"
+  else
+    export UAV_WS="${LIFTRACE_INTEGRATION_WS:-/home/xhj/liftrace/patrol_uav_ws-patrol_planner}"
+  fi
+fi
 scenario="${1:-standard}"
 duration_sec="${2:-20}"
 gate_profile="${4:-smoke}"
@@ -70,10 +79,20 @@ case "${scenario}" in
     camera_y="${camera_y:--4.2}"
     camera_z="${camera_z:-2.0}"
     ;;
+  background_landing)
+    launch_file="background_eval.launch"
+    extra_args+=(
+      required_scoring_source:=landing_detector
+      vision_default_align_mode:=landing
+    )
+    camera_x="${camera_x:-4.2}"
+    camera_y="${camera_y:--4.2}"
+    camera_z="${camera_z:-2.0}"
+    ;;
   landing_h)
     launch_file="landing_h_eval.launch"
-    camera_x="${camera_x:-0.0}"
-    camera_y="${camera_y:-0.0}"
+    camera_x="${camera_x:--0.493412}"
+    camera_y="${camera_y:--1.77269}"
     camera_z="${camera_z:-1.8}"
     ;;
   *)
@@ -99,7 +118,12 @@ if [[ "${gate_profile}" != "smoke" && "${gate_profile}" != "formal" ]]; then
   exit 64
 fi
 
-output_dir="${3:-/tmp/uav_vision_eval/${scenario}_$(date +%Y%m%d_%H%M%S)}"
+if [[ -n "${SIM_RUN_DIR:-}" ]]; then
+  default_output_dir="${SIM_RUN_DIR}/visual_eval"
+else
+  default_output_dir="/tmp/uav_vision_eval/${scenario}_$(date +%Y%m%d_%H%M%S)"
+fi
+output_dir="${3:-${default_output_dir}}"
 mkdir -p "${output_dir}/roslog"
 
 # shellcheck disable=SC1091

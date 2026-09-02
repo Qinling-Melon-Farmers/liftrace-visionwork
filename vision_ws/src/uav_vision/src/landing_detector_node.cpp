@@ -11,18 +11,29 @@ LandingDetectorNode::LandingDetectorNode(const ros::NodeHandle &nh)
                              &LandingDetectorNode::imageCallback, this);
   camera_info_sub_ = nh_.subscribe(camera_info_topic_, 1,
                                    &LandingDetectorNode::cameraInfoCallback, this);
+  align_mode_sub_ = nh_.subscribe(align_mode_topic_, 1,
+                                  &LandingDetectorNode::alignModeCallback, this);
 
   detections_pub_ = nh_.advertise<TargetDetectionArray>("/uav_vision/detections", 1);
   debug_pub_ = it_.advertise(debug_image_topic_, 1);
 
-  ROS_INFO("[LandingDetector] ready  image=%s",
-           image_topic_.c_str());
+  ROS_INFO("[LandingDetector] ready  image=%s  landing_mode_gate=%s  active=%s",
+           image_topic_.c_str(),
+           process_only_in_landing_mode_ ? "true" : "false",
+           landing_mode_active_.load() ? "true" : "false");
 }
 
 void LandingDetectorNode::loadParameters()
 {
   nh_.param<std::string>("image_topic", image_topic_, "/camera/image_raw");
   nh_.param<std::string>("camera_info_topic", camera_info_topic_, "/camera/camera_info");
+  nh_.param<std::string>("align_mode_topic", align_mode_topic_,
+                         "/uav_vision/align_mode");
+  nh_.param<std::string>("default_align_mode", default_align_mode_,
+                         "disabled");
+  nh_.param("process_only_in_landing_mode", process_only_in_landing_mode_,
+            true);
+  landing_mode_active_.store(default_align_mode_ == "landing");
   nh_.param("enable_debug_image", enable_debug_image_, false);
   nh_.param<std::string>("debug_image_topic", debug_image_topic_,
                          "/uav_vision/landing_debug");
@@ -33,6 +44,7 @@ void LandingDetectorNode::loadParameters()
   nh_.param("landing_morphology_kernel_size", morphology_kernel_size_, 7);
   nh_.param("landing_min_contour_points", min_contour_points_, 15);
   nh_.param("landing_aspect_ratio_threshold", aspect_ratio_threshold_, 0.85);
+  nh_.param("landing_min_ellipse_fill_ratio", min_ellipse_fill_ratio_, 0.70);
   nh_.param("landing_radius_min", radius_min_, 15.0);
   nh_.param("landing_radius_max", radius_max_, 300.0);
   nh_.param("landing_enable_h_structure_check", enable_h_structure_check_, true);
@@ -56,10 +68,30 @@ void LandingDetectorNode::cameraInfoCallback(
   camera_model_.fromCameraInfo(*msg);
 }
 
+void LandingDetectorNode::alignModeCallback(
+    const std_msgs::StringConstPtr &msg)
+{
+  const bool active = msg->data == "landing";
+  const bool previous = landing_mode_active_.exchange(active);
+  if (active != previous) {
+    ROS_INFO("[LandingDetector] align mode gate -> %s",
+             active ? "landing(active)" : "inactive");
+  }
+}
+
 void LandingDetectorNode::imageCallback(const sensor_msgs::ImageConstPtr &msg)
 {
   if (!camera_model_.initialized()) return;
 
+  if (process_only_in_landing_mode_ && !landing_mode_active_.load()) {
+    return;
+  }
+
+  TargetDetectionArray arr;
+  arr.header.stamp = msg->header.stamp;
+  arr.header.frame_id = msg->header.frame_id;
+  arr.source = "landing_detector";
+  arr.completed_sources.push_back(arr.source);
   cv::Mat image;
   try {
     cv_bridge::CvImagePtr cv_ptr =
@@ -79,12 +111,6 @@ void LandingDetectorNode::imageCallback(const sensor_msgs::ImageConstPtr &msg)
 
   bool found = detectLandingPad(image, center, radius, debug_mask, contours,
                                 quality_metrics, best_bbox);
-
-  TargetDetectionArray arr;
-  arr.header.stamp = msg->header.stamp;
-  arr.header.frame_id = msg->header.frame_id;
-  arr.source = "landing_detector";
-  arr.completed_sources.push_back(arr.source);
 
   if (found) {
     TargetDetection det;
@@ -175,6 +201,10 @@ bool LandingDetectorNode::detectLandingPad(
 
     double ar = std::min(w, h) / std::max(w, h);
     if (ar < aspect_ratio_threshold_) continue;
+
+    const double ellipse_area = CV_PI * w * h * 0.25;
+    const double ellipse_fill_ratio = area / std::max(ellipse_area, 1.0);
+    if (ellipse_fill_ratio < min_ellipse_fill_ratio_) continue;
 
     double r = (w + h) / 4.0;
     if (r < radius_min_ || r > radius_max_) continue;

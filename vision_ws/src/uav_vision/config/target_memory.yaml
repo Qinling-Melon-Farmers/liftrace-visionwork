@@ -10,7 +10,13 @@ map_merge_distance_m: 0.7   # 已有记录融合后收敛到此距离内时合�
 map_memory_ttl: 0.0         # 地图候选记忆时长 [s]；0 表示直到 reset
 # Phase D/板端闭环 launch 会覆盖为 true；Phase B/C 纯像素兼容链保持 false
 require_map_for_candidates: false
+# true 时要求发布者必须携带 completed_sources 且正式分支齐全；false 时完全旁路该门槛。
+# Phase D/板端正式链覆盖为 true，只有 cross/circle 的旧 Phase C 保持兼容。
+require_complete_detection_sources: false
 selected_max_age: 0.5       # selected_target 最大观测年龄 [s]；长期地图记忆不能绕过
+# full 保留全部六类资产；r2026 暂不允许 tank 主动进入 selected_target。
+# 未知 profile 会使 target_memory 非零退出，禁止静默回退。
+class_profile: full
 # 同一地图目标发生类别抖动时，需连续高置信命中并赢得累计置信度投票才切类
 class_switch_confirm_frames: 2
 class_switch_min_confidence: 0.70
@@ -19,9 +25,13 @@ reset_service: /uav_vision/reset_memory
 align_mode_topic: /uav_vision/align_mode
 
 # 视觉中断置信度阈值
-# red_cross（高价值目标，阈值更严）
-cross_class_confidence: 0.70
-cross_geometry_confidence: 0.85
+# red_cross：识别权威在 YOLO（在线同帧实测 conf 0.956/0.964，离线多高度
+# 0.89-0.97），故类别门槛从严（0.80 压误报仍有裕量）；几何通道职责是中心
+# 精修（geometry_verified 已含形状校验），分数门槛只防退化几何，与标准靶
+# 一致取 0.70。2026-08-29 smoke3c 实测：2.0m 高度斜视角 cross_detector 约
+# 0.770，原 0.85 门槛导致 12s 连续可见期一次都未确认。
+cross_class_confidence: 0.80
+cross_geometry_confidence: 0.70
 # 标准目标
 std_class_confidence: 0.60
 std_geometry_confidence: 0.70

@@ -1,0 +1,38 @@
+# 旧 ReleaseEvidence 保持原 MD5，并作为兼容证据原样内嵌。
+std_msgs/Header header
+uav_vision/ReleaseEvidence evidence
+
+# coordinator 上下文与本帧几何实例的关联结果。
+bool context_valid
+string context_reason
+std_msgs/Header context_header
+string context_source
+uint8 context_schema_version
+bool context_active
+string mission_id
+uint32 decision_seq
+time deadline
+uint8 command
+string class_profile
+string align_mode
+
+bool has_semantic_target
+uint32 semantic_target_id
+time semantic_target_first_seen
+time target_observation_stamp
+string semantic_target_class
+uint16 attempt
+uint8 payload_slot
+geometry_msgs/PoseStamped semantic_target_pose
+float32 max_association_distance_m
+
+# 圆环的 geometry_target_id 可与标准靶 semantic_target_id 不同；红十字则精确匹配实例。
+bool geometry_target_present
+uint32 geometry_target_id
+time geometry_target_first_seen
+time geometry_target_last_seen
+string geometry_target_class
+bool geometry_map_valid
+geometry_msgs/PoseStamped geometry_target_pose
+float32 association_distance_m
+bool semantic_geometry_match

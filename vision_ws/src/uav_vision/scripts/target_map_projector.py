@@ -33,9 +33,15 @@ class TargetMapProjector:
             rospy.get_param("~allow_latest_tf_fallback", False))
         self._max_latest_tf_age = float(
             rospy.get_param("~max_latest_tf_age_sec", 0.10))
+        # projectPixelTo3dRay expects rectified pixel coordinates.  The
+        # project camera and board camera publish image_raw, so their refined
+        # centers must be rectified with the matching CameraInfo first.
+        self._rectify_input_pixels = bool(
+            rospy.get_param("~rectify_input_pixels", True))
 
         self._camera_model = PinholeCameraModel()
         self._camera_ready = False
+        self._camera_has_distortion = False
         self._tf_buffer = tf2_ros.Buffer(cache_time=rospy.Duration(30.0))
         self._tf_listener = tf2_ros.TransformListener(self._tf_buffer)
         self._pub = rospy.Publisher(self._output_topic,
@@ -50,6 +56,8 @@ class TargetMapProjector:
 
     def _on_camera_info(self, msg):
         self._camera_model.fromCameraInfo(msg)
+        self._camera_has_distortion = any(
+            abs(float(value)) > 1.0e-12 for value in msg.D)
         self._camera_ready = True
 
     def _invalidate(self, det, reason):
@@ -107,8 +115,10 @@ class TargetMapProjector:
         else:
             # 静态变换的时间戳合法地为零。
             det.transform_age_sec = 0.0
-        ray = self._camera_model.projectPixelTo3dRay(
-            (float(det.center_px.x), float(det.center_px.y)))
+        pixel = (float(det.center_px.x), float(det.center_px.y))
+        if self._rectify_input_pixels and self._camera_has_distortion:
+            pixel = self._camera_model.rectifyPoint(pixel)
+        ray = self._camera_model.projectPixelTo3dRay(pixel)
         origin = PointStamped()
         origin.header.stamp = stamp
         origin.header.frame_id = source_frame

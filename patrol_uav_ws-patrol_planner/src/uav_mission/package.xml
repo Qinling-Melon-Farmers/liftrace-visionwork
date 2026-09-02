@@ -10,14 +10,25 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>message_generation</build_depend>
 
+  <depend>gazebo_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>mavros_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>patrol_control</depend>
+  <depend>plan_manage</depend>
   <depend>rosgraph</depend>
+  <depend>roscpp</depend>
   <depend>rospy</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
   <depend>tf2_ros</depend>
   <depend>uav_vision</depend>
 
+  <exec_depend>gazebo_plugins</exec_depend>
   <exec_depend>message_runtime</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+
+  <test_depend>python3-nose</test_depend>
+  <test_depend>python3-yaml</test_depend>
 </package>

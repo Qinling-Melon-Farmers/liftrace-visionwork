@@ -1,0 +1,30 @@
+<launch>
+  <arg name="profile_path"
+       default="$(find uav_mission)/config/competition_profiles.yaml" />
+  <arg name="runtime_config"
+       default="$(find uav_mission)/config/vcl06_runtime.yaml" />
+  <arg name="candidate_topic" default="/uav_vision/targets" />
+  <arg name="pose_topic" default="/mavros/local_position/pose" />
+  <arg name="map_topic" default="/freedom/static_pointcloud" />
+  <arg name="result_topic" default="/navigation/mission_result" />
+  <arg name="decision_topic" default="/navigation/mission_command_raw" />
+  <arg name="status_topic" default="/navigation/mission_status" />
+
+  <group ns="navigation">
+    <node pkg="uav_mission"
+          type="navigation_mission_manager.py"
+          name="mission_manager"
+          output="screen">
+      <rosparam command="load"
+                file="$(arg runtime_config)" />
+      <param name="profile/path" value="$(arg profile_path)" />
+
+      <remap from="candidates" to="$(arg candidate_topic)" />
+      <remap from="pose" to="$(arg pose_topic)" />
+      <remap from="map" to="$(arg map_topic)" />
+      <remap from="mission_result" to="$(arg result_topic)" />
+      <remap from="mission_command_raw" to="$(arg decision_topic)" />
+      <remap from="mission_status" to="$(arg status_topic)" />
+    </node>
+  </group>
+</launch>

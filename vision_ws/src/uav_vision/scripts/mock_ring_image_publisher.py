@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""发布一张包含两个蓝色圆环的确定性测试图像。"""
+"""发布一张包含两个近距厚环和一个远距薄环的确定性测试图像。"""
 import cv2
 import numpy as np
 import rospy
@@ -18,6 +18,9 @@ class MockRingImagePublisher:
     def spin(self):
         image = np.zeros((self._height, self._width, 3), dtype=np.uint8)
         cv2.circle(image, (320, 300), 150, (255, 0, 0), 28)
+        # 缩放到检测器 640x512 输入后厚度约 10 px，用于覆盖 3.0-3.6 m
+        # 目标的薄环尺度；过大的 morphology kernel 会将其直接开运算清空。
+        cv2.circle(image, (640, 256), 128, (255, 0, 0), 20)
         cv2.circle(image, (960, 700), 210, (255, 0, 0), 32)
         msg = Image()
         msg.header.frame_id = self._frame_id

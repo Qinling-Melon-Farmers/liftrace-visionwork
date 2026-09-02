@@ -1,0 +1,126 @@
+<launch>
+  <!-- Camera-only endurance: one Gazebo, no PX4/control/navigation/actuator. -->
+  <arg name="world" default="$(find patrol_control)/../../../toudi4_copy.world" />
+  <arg name="scenario_file"
+       default="$(find uav_vision_eval)/config/scenarios/vsim04_r2026_targets.yaml" />
+  <arg name="truth_catalog"
+       default="$(find uav_vision_eval)/config/sim_target_catalog_toudi4.yaml" />
+  <arg name="soak_config"
+       default="$(find uav_vision_eval)/config/vsim04_camera_soak.yaml" />
+  <arg name="duration_sec" default="600.0" />
+  <arg name="output_dir" default="$(optenv SIM_RUN_DIR /tmp)/vsim04" />
+  <arg name="gui" default="false" />
+  <arg name="paused" default="false" />
+  <arg name="class_profile" default="r2026" />
+  <arg name="vision_python"
+       default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="target_detector_imgsz" default="640" />
+  <arg name="vision_revision" default="$(optenv VSIM04_VISION_REVISION unknown)" />
+  <arg name="navigation_revision"
+       default="$(optenv VSIM04_NAVIGATION_REVISION unknown)" />
+  <arg name="image_topic" default="/camera/color/image_raw" />
+  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="camera_pose_topic" default="/uav_vision_eval/camera_pose" />
+  <arg name="camera_pose_publish_rate_hz" default="20.0" />
+  <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
+  <arg name="px4_model_root"
+       default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
+  <arg name="astra_model_root"
+       default="/home/xhj/AstraDroneOpen/simulation/astra_gazebo_models" />
+  <arg name="astra_sim_lib"
+       default="/home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib" />
+
+  <env name="GAZEBO_MODEL_PATH"
+       value="$(find uav_vision_eval)/models:$(arg astra_model_root):$(arg px4_model_root):$(optenv GAZEBO_MODEL_PATH)" />
+  <env name="GAZEBO_PLUGIN_PATH"
+       value="$(arg astra_sim_lib):$(optenv GAZEBO_PLUGIN_PATH)" />
+  <env name="LD_LIBRARY_PATH"
+       value="$(arg astra_sim_lib):$(optenv LD_LIBRARY_PATH)" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)" />
+    <arg name="use_sim_time" value="true" />
+  </include>
+
+  <node pkg="uav_vision_eval" type="vsim04_soak_model_spawner.py"
+        name="vsim04_soak_model_spawner" output="screen">
+    <param name="camera_model_name" value="vision_eval_camera" />
+    <param name="camera_sdf_file"
+           value="$(find uav_vision_eval)/models/vision_eval_camera/model.sdf" />
+    <rosparam param="camera_pose">[2.6, 0.5, 2.4, 0.0, 1.570796326794897, 0.0]</rosparam>
+    <param name="red_cross_model_name" value="red_cross" />
+    <param name="red_cross_sdf_file"
+           value="$(arg px4_model_root)/red_cross/model.sdf" />
+    <rosparam param="red_cross_pose">[-2.5, -2.5, 0.0, 0.0, 0.0, 0.0]</rosparam>
+    <param name="startup_timeout_sec" value="45.0" />
+    <param name="service_call_timeout_sec" value="5.0" />
+    <param name="ready_topic" value="/uav_vision_eval/soak_models_ready" />
+  </node>
+
+  <include file="$(find uav_vision_eval)/launch/ground_truth.launch">
+    <arg name="catalog_file" value="$(arg truth_catalog)" />
+    <arg name="scenario_file" value="$(arg scenario_file)" />
+    <arg name="image_topic" value="$(arg image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="camera_pose_topic" value="$(arg camera_pose_topic)" />
+    <arg name="camera_pose_publish_rate_hz"
+         value="$(arg camera_pose_publish_rate_hz)" />
+  </include>
+
+  <include file="$(find uav_vision)/launch/phase_d.launch">
+    <arg name="image_topic" value="$(arg image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="target_detector_launch_prefix" value="$(arg vision_python)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="target_detector_imgsz" value="$(arg target_detector_imgsz)" />
+    <arg name="map_frame" value="world" />
+    <arg name="ground_z" value="0.0" />
+    <arg name="allow_latest_tf_fallback" value="true" />
+    <arg name="max_latest_tf_age_sec" value="0.10" />
+    <arg name="class_profile" value="$(arg class_profile)" />
+    <arg name="enable_debug_image" value="false" />
+    <arg name="start_landing_detector" value="false" />
+    <arg name="start_legacy_compat" value="false" />
+  </include>
+
+  <node pkg="uav_vision_eval" type="vsim04_camera_soak.py"
+        name="vsim04_camera_soak" output="screen" required="true">
+    <rosparam command="load" file="$(arg soak_config)" />
+    <param name="duration_sec" value="$(arg duration_sec)" />
+    <param name="output_dir" value="$(arg output_dir)" />
+    <param name="class_profile" value="$(arg class_profile)" />
+    <param name="model_path" value="$(arg target_model_path)" />
+    <param name="world_file" value="$(arg world)" />
+    <param name="scenario_file" value="$(arg scenario_file)" />
+    <param name="target_catalog_file" value="$(arg truth_catalog)" />
+    <param name="extrinsic_profile" value="vision_eval_camera_d435i" />
+    <param name="extrinsic_source"
+           value="$(find uav_vision_eval)/models/vision_eval_camera/model.sdf" />
+    <param name="vision_revision" value="$(arg vision_revision)" />
+    <param name="navigation_revision" value="$(arg navigation_revision)" />
+    <param name="camera_model" value="vision_eval_camera" />
+    <rosparam param="camera_rpy">[0.0, 1.570796326794897, 0.0]</rosparam>
+    <param name="image_topic" value="$(arg image_topic)" />
+    <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <param name="camera_pose_topic" value="$(arg camera_pose_topic)" />
+    <param name="camera_pose_publish_rate_hz"
+           value="$(arg camera_pose_publish_rate_hz)" />
+    <param name="truth_topic" value="/uav_vision_eval/ground_truth" />
+    <param name="mapped_topic" value="/uav_vision/detections_mapped" />
+    <param name="targets_topic" value="/uav_vision/targets" />
+    <param name="selected_topic" value="/uav_vision/selected_target" />
+    <param name="perf_topic" value="/uav_vision/perf" />
+    <param name="expected_perf_name" value="uav_vision/target_detector" />
+    <rosparam param="required_completed_sources">[target_detector, circle_detector, cross_detector]</rosparam>
+    <rosparam param="expected_nodes">[/gazebo, /vsim04_soak_model_spawner, /gazebo_camera_pose_stamper, /gazebo_camera_tf, /sim_ground_truth_projector, /target_detector, /cross_detector, /circle_detector, /detection_fusion, /target_refiner, /target_map_projector, /target_memory, /drop_aligner, /vsim04_camera_soak]</rosparam>
+    <param name="models_ready_topic" value="/uav_vision_eval/soak_models_ready" />
+    <param name="confirm_frames" value="3" />
+    <param name="selected_max_age_sec" value="0.5" />
+    <param name="node_check_period_sec" value="5.0" />
+    <param name="frame_record_period_sec" value="1.0" />
+    <param name="clock_stall_timeout_sec" value="3.0" />
+  </node>
+</launch>

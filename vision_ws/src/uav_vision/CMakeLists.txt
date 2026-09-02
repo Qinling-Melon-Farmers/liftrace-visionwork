@@ -20,6 +20,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
+catkin_python_setup()
+
 add_message_files(
   FILES
   TargetDetection.msg
@@ -29,6 +31,8 @@ add_message_files(
   DropOffset.msg
   DropReady.msg
   ReleaseEvidence.msg
+  AlignmentTargetContext.msg
+  ReleaseEvidenceContext.msg
 )
 
 generate_messages(
@@ -75,6 +79,17 @@ add_dependencies(cross_detector_node
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  catkin_add_nosetests(test/test_alignment_context_policy.py)
+  catkin_add_nosetests(test/test_detector_model_contract.py)
+  catkin_add_nosetests(test/test_video_replay_contract.py)
+  add_rostest(test/cross_geometry_regression.test)
+  add_rostest(test/landing_mode_gate.test)
+  add_rostest(test/alignment_context.test)
+  add_rostest(test/alignment_context_optional.test)
+endif()
+
 # ---- circle_detector_node ----
 add_executable(circle_detector_node
   src/circle_detector_node.cpp
@@ -102,11 +117,14 @@ add_dependencies(landing_detector_node
 catkin_install_python(PROGRAMS
   scripts/placeholder_node.py
   scripts/detection_fusion.py
+  scripts/detection_fusion_concurrency_assertion.py
   scripts/detect_compat_bridge.py
   scripts/drop_aligner.py
+  scripts/target_selection_policy_assertion.py
   scripts/target_memory.py
   scripts/target_refiner.py
   scripts/target_map_projector.py
+  scripts/target_map_projector_rectification_assertion.py
   scripts/target_detector.py
   scripts/target_detector_rknn.py
   scripts/mock_uav_pose.py
@@ -121,7 +139,12 @@ catkin_install_python(PROGRAMS
   scripts/target_memory_physical_assertion.py
   scripts/map_rejection_assertion.py
   scripts/circle_geometry_assertion.py
+  scripts/cross_geometry_regression_assertion.py
+  scripts/landing_mode_gate_assertion.py
   scripts/drop_aligner_freshness_assertion.py
+  scripts/alignment_context_assertion.py
+  scripts/video_replay_publisher.py
+  scripts/video_annotation_recorder.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

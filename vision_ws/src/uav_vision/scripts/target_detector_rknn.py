@@ -4,12 +4,13 @@
 设计目标：
 - 优先使用显式配置的 unified 6-class RKNN
 - 历史 split assets 仅在调用方显式提供路径时启用
-- 当前环境无 RKNNLite / 无模型 / 无法解码时，退化为空检测，不打崩 launch
+- 当前环境无 RKNNLite 或没有可用模型时启动失败，不发布伪完成空检测
 
 说明：
 - 本节点不依赖 PyTorch / ultralytics 运行时
 - 板端真实推理仍需在 OrangePi 5 Plus 上做最终验证
 """
+import logging
 import os
 import time
 
@@ -23,8 +24,29 @@ from sensor_msgs.msg import Image, RegionOfInterest
 
 from uav_vision.msg import TargetDetection, TargetDetectionArray
 
+
+def _restore_standard_logging_levels():
+    """Undo RKNNLite 2.3.x's process-wide one-letter logging names."""
+    # rknn_log replaces DEBUG/INFO/... with D/I/... during import.  rospy reads
+    # its logging config afterwards and requires the standard names.
+    aliases = (
+        (logging.CRITICAL, "FATAL"),
+        (logging.WARNING, "WARN"),
+    )
+    standard = (
+        (logging.CRITICAL, "CRITICAL"),
+        (logging.ERROR, "ERROR"),
+        (logging.WARNING, "WARNING"),
+        (logging.INFO, "INFO"),
+        (logging.DEBUG, "DEBUG"),
+        (logging.NOTSET, "NOTSET"),
+    )
+    for level, name in aliases + standard:
+        logging.addLevelName(level, name)
+
 try:
     from rknnlite.api import RKNNLite
+    _restore_standard_logging_levels()
 except ImportError:
     RKNNLite = None
 
@@ -287,7 +309,9 @@ class _RknnHandle:
 
         if RKNNLite is None:
             return
-        if not model_path or not os.path.exists(model_path):
+        if not model_path:
+            return
+        if not os.path.exists(model_path):
             rospy.logwarn("[TargetDetectorRKNN] %s model not found: %s",
                           tag, model_path)
             return
@@ -353,9 +377,6 @@ class TargetDetectorRKNN:
         self._detections_pub = rospy.Publisher("/uav_vision/detections",
                                                TargetDetectionArray, queue_size=1)
         self._perf_pub = rospy.Publisher(self._perf_topic, DiagnosticArray, queue_size=1)
-        self._image_sub = rospy.Subscriber(self._image_topic, Image,
-                                           self._on_image, queue_size=1,
-                                           buff_size=2**24)
 
         self._unified = _RknnHandle(self._model_path, self._metadata_path, "unified")
         self._std = _RknnHandle(self._std_model_path, self._std_metadata_path, "standard")
@@ -371,11 +392,17 @@ class TargetDetectorRKNN:
             rospy.loginfo("[TargetDetectorRKNN] split RKNN assets selected (std + tank)")
         else:
             if RKNNLite is None:
-                rospy.logwarn("[TargetDetectorRKNN] RKNNLite not installed in current ROS python; "
-                              "publishing empty detections for board launch compatibility")
+                raise RuntimeError(
+                    "RKNNLite is unavailable in the board ROS Python")
             else:
-                rospy.logwarn("[TargetDetectorRKNN] no usable RKNN runtime/model found; "
-                              "publishing empty detections")
+                raise RuntimeError("no usable RKNN runtime/model found")
+
+        # Advertise the image subscription only after every callback-visible
+        # runtime handle and counter is ready. A replay publisher can emit its
+        # first frame synchronously as soon as it observes this subscriber.
+        self._image_sub = rospy.Subscriber(self._image_topic, Image,
+                                           self._on_image, queue_size=1,
+                                           buff_size=2**24)
 
     def _empty_publish(self, header):
         arr = TargetDetectionArray()
@@ -395,9 +422,7 @@ class TargetDetectorRKNN:
             return "rknn_unified"
         if self._std.available() or self._tank.available():
             return "rknn_split"
-        if RKNNLite is None:
-            return "empty_no_rknnlite"
-        return "empty_no_runtime"
+        return "unavailable"
 
     def _publish_perf(self, header, detections_count, total_ms, inference_ms):
         now = time.perf_counter()
@@ -474,8 +499,9 @@ class TargetDetectorRKNN:
             shapes = [tuple(np.asarray(out).shape) for out in outputs]
             self._warn_once(
                 (handle.tag, "decode"),
-                "[TargetDetectorRKNN] %s outputs not decoded by current generic parser; shapes=%s",
-                handle.tag, shapes,
+                "[TargetDetectorRKNN] %s produced no detections after decode/threshold; "
+                "shapes=%s threshold=%.3f",
+                handle.tag, shapes, self._conf_threshold,
             )
         return detections, infer_ms
 

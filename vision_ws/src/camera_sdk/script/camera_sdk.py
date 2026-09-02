@@ -62,7 +62,8 @@ def parse_video_devices(devices_param):
         rospy.logwarn(f"无效的视频设备参数格式: {devices_param}，使用默认值")
         return DEFAULT_VIDEO_DEVICES
 
-def open_camera(video_devices, frame_width, frame_height, fourcc, device_index=0):
+def open_camera(video_devices, frame_width, frame_height, capture_fps, fourcc,
+                device_index=0):
     """尝试打开摄像头设备"""
     for i in range(device_index, len(video_devices)):
         device = video_devices[i]
@@ -75,7 +76,19 @@ def open_camera(video_devices, frame_width, frame_height, fourcc, device_index=0
                 cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*fourcc))
                 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
                 cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
-                rospy.loginfo(f"成功打开摄像头: {device} ({frame_width}x{frame_height}, {fourcc})")
+                cap.set(cv2.CAP_PROP_FPS, capture_fps)
+                actual_width = int(round(cap.get(cv2.CAP_PROP_FRAME_WIDTH)))
+                actual_height = int(round(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+                actual_fps = float(cap.get(cv2.CAP_PROP_FPS))
+                actual_fourcc = int(cap.get(cv2.CAP_PROP_FOURCC))
+                actual_fourcc_text = "".join(
+                    chr((actual_fourcc >> (8 * offset)) & 0xFF)
+                    for offset in range(4))
+                rospy.loginfo(
+                    "成功打开摄像头: %s; 请求=%dx%d@%.2f %s; 协商=%dx%d@%.2f %s",
+                    device, frame_width, frame_height, capture_fps, fourcc,
+                    actual_width, actual_height, actual_fps,
+                    actual_fourcc_text)
                 return cap, i  # 返回摄像头对象和当前设备索引
             else:
                 rospy.logwarn(f"无法打开设备: {device}")
@@ -113,9 +126,14 @@ def publish_camera_feed():
     frame_height = rospy.get_param('~frame_height', 1080)
     fourcc = rospy.get_param('~fourcc', 'MJPG')
     publish_rate = rospy.get_param('~publish_rate', 100)
+    capture_fps = float(rospy.get_param('~capture_fps', publish_rate))
+    frame_id = str(rospy.get_param('~frame_id', '')).strip()
     
     # 新增旋转角度参数
     rotation_angle = rospy.get_param('~rotation_angle', 0)  # 0, 90, 180, 270
+    if rotation_angle not in (0, 90, 180, 270):
+        rospy.logfatal("rotation_angle must be one of 0, 90, 180, 270")
+        return
     
     # Topic名称参数
     image_topic = rospy.get_param('~image_topic', '/camera/image_raw')
@@ -145,24 +163,42 @@ def publish_camera_feed():
     rospy.loginfo(f"  分辨率: {frame_width}x{frame_height}")
     rospy.loginfo(f"  编码格式: {fourcc}")
     rospy.loginfo(f"  旋转角度: {rotation_angle}度")
+    rospy.loginfo(f"  光学坐标系: {frame_id or '<from camera YAML>'}")
     rospy.loginfo(f"  发布频率: {publish_rate} Hz")
+    rospy.loginfo(f"  请求采集频率: {capture_fps} Hz")
     rospy.loginfo(f"  图像保存: {'启用' if save_images else '禁用'}")
     if save_images:
         rospy.loginfo(f"  保存频率: {save_frequency} Hz")
         rospy.loginfo(f"  保存目录: {save_dir}")
     rospy.loginfo(f"  JPEG质量: {jpeg_quality}")
     
-    # 创建图像发布者
-    image_pub = rospy.Publisher(image_topic, Image, queue_size=1)
-    # 创建压缩图像发布者
-    compressed_pub = rospy.Publisher(compressed_topic, CompressedImage, queue_size=10)
-    # 创建相机信息发布者
-    camera_info_pub = rospy.Publisher(camera_info_topic, CameraInfo, queue_size=10)
-    
     # 加载相机内参
     camera_info = load_camera_info(yaml_path)
     if camera_info is None:
-        rospy.logerr("无法加载相机参数，继续运行但不会发布相机信息")
+        rospy.logfatal("无法加载相机参数，停止相机发布")
+        return
+    if not frame_id:
+        frame_id = str(camera_info.header.frame_id).strip()
+    if not frame_id:
+        rospy.logfatal("frame_id 为空，无法建立 CameraInfo/TF 契约")
+        return
+    output_width = frame_height if rotation_angle in (90, 270) else frame_width
+    output_height = frame_width if rotation_angle in (90, 270) else frame_height
+    if (camera_info.width != output_width or
+            camera_info.height != output_height):
+        rospy.logfatal(
+            "标定分辨率 %dx%d 与发布分辨率 %dx%d 不一致",
+            camera_info.width, camera_info.height,
+            output_width, output_height)
+        return
+    camera_info.header.frame_id = frame_id
+
+    # 创建图像发布者
+    image_pub = rospy.Publisher(image_topic, Image, queue_size=1)
+    compressed_pub = rospy.Publisher(
+        compressed_topic, CompressedImage, queue_size=1)
+    camera_info_pub = rospy.Publisher(
+        camera_info_topic, CameraInfo, queue_size=1)
     
     # 初始化 OpenCV 到 ROS 的转换桥
     bridge = CvBridge()
@@ -182,7 +218,8 @@ def publish_camera_feed():
     last_frame_time = time.time()
     
     # 初始尝试打开摄像头
-    cap, current_device_index = open_camera(video_devices, frame_width, frame_height, fourcc)
+    cap, current_device_index = open_camera(
+        video_devices, frame_width, frame_height, capture_fps, fourcc)
     if cap is None:
         rospy.logerr("所有摄像头设备均无法打开，请检查连接")
         return
@@ -204,7 +241,9 @@ def publish_camera_feed():
                     cap = None
             
             # 尝试重新打开摄像头
-            cap, current_device_index = open_camera(video_devices, frame_width, frame_height, fourcc, current_device_index)
+            cap, current_device_index = open_camera(
+                video_devices, frame_width, frame_height, capture_fps,
+                fourcc, current_device_index)
             if cap is None:
                 if retry_count < max_retries:
                     rospy.logwarn(f"重新连接失败，将在 {retry_delay} 秒后重试 ({retry_count+1}/{max_retries})")
@@ -246,6 +285,14 @@ def publish_camera_feed():
         try:
             # 应用旋转
             frame = rotate_image(frame, rotation_angle)
+            actual_height, actual_width = frame.shape[:2]
+            if (actual_width != camera_info.width or
+                    actual_height != camera_info.height):
+                rospy.logfatal(
+                    "相机实际输出 %dx%d 与标定分辨率 %dx%d 不一致",
+                    actual_width, actual_height,
+                    camera_info.width, camera_info.height)
+                break
             
             # 获取当前时间
             current_rostime = rospy.Time.now()
@@ -253,23 +300,29 @@ def publish_camera_feed():
             # 发布原始图像
             img_msg = bridge.cv2_to_imgmsg(frame, encoding="bgr8")
             img_msg.header.stamp = current_rostime
+            img_msg.header.frame_id = frame_id
             image_pub.publish(img_msg)
             
-            # 发布压缩图像
-            compressed_msg = CompressedImage()
-            compressed_msg.header.stamp = current_rostime
-            compressed_msg.format = "jpeg"
-            # 使用cv2.imencode将图像压缩为JPEG格式
-            ret, compressed_data = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, jpeg_quality])
-            if ret:
-                compressed_msg.data = compressed_data.tobytes()
-                compressed_pub.publish(compressed_msg)
-            else:
-                rospy.logwarn("图像压缩失败")
+            # 压缩图仅在确有订阅者时编码，正式视觉链只消费 raw 图时不承担
+            # 1280x720 JPEG 的固定 CPU 开销。
+            if compressed_pub.get_num_connections() > 0:
+                compressed_msg = CompressedImage()
+                compressed_msg.header.stamp = current_rostime
+                compressed_msg.header.frame_id = frame_id
+                compressed_msg.format = "jpeg"
+                ret, compressed_data = cv2.imencode(
+                    '.jpg', frame,
+                    [cv2.IMWRITE_JPEG_QUALITY, jpeg_quality])
+                if ret:
+                    compressed_msg.data = compressed_data.tobytes()
+                    compressed_pub.publish(compressed_msg)
+                else:
+                    rospy.logwarn("图像压缩失败")
             
             # 发布相机信息
             if camera_info is not None:
                 camera_info.header.stamp = current_rostime
+                camera_info.header.frame_id = frame_id
                 camera_info_pub.publish(camera_info)
             
             # 图像保存功能

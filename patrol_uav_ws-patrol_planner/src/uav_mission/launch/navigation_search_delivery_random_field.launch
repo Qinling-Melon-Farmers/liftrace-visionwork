@@ -1,0 +1,174 @@
+<launch>
+  <!-- Formal V-CL-06 chain: upstream navigation manager + strict profile
+       selector + single planner-goal adapter on a reproducible random field. -->
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="wall_timeout" default="3000.0" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="enable_debug_image" default="false" />
+  <arg name="record_debug" default="false" />
+  <arg name="enable_candidate_selector" default="true" />
+  <arg name="start_hard_gate" default="true" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi3_random.world" />
+  <arg name="camera_image_topic" default="/downward_camera/image_raw" />
+  <arg name="camera_info_topic" default="/downward_camera/camera_info" />
+  <arg name="mission_frame" default="camera_init" />
+  <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
+  <arg name="class_profile" default="r2026" />
+  <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
+  <arg name="px4_model_root"
+       default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
+  <arg name="astra_model_root"
+       default="$(optenv ASTRA_MODEL_ROOT /home/xhj/AstraDroneOpen/simulation/astra_gazebo_models)" />
+  <arg name="field_seed" default="11" />
+  <arg name="standard_classes" default="tent,pillbox,bridge,panzer" />
+  <arg name="nav_feature_profile" default="baseline" />
+  <arg name="random_model_roots"
+       default="$(arg px4_model_root):$(arg astra_model_root):$(optenv GAZEBO_MODEL_PATH)" />
+  <arg name="anchor_model_roots"
+       default="$(arg px4_model_root):$(arg astra_model_root):$(optenv HOME)/.gazebo/models:$(optenv GAZEBO_MODEL_PATH)" />
+  <arg name="manager_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/target_search_status.json" />
+  <arg name="gate_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+
+  <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+    <arg name="external_mission_mode" value="true" />
+    <arg name="waypoint_mode" value="false" />
+    <arg name="world" value="$(arg world)" />
+    <arg name="camera_image_topic" value="$(arg camera_image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="map_frame" value="$(arg mission_frame)" />
+    <arg name="camera_optical_frame" value="$(arg camera_optical_frame)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="class_profile" value="$(arg class_profile)" />
+    <arg name="planner_max_vel" value="1.0" />
+    <arg name="planner_max_acc" value="1.0" />
+    <arg name="planner_obstacles_inflation" value="0.25" />
+    <arg name="planner_clearance_threshold" value="0.35" />
+    <arg name="px4_max_distance" value="0.2" />
+  </include>
+
+  <!-- READY means all five targets are footprint-safe, visible in
+       ModelStates and their truth has been written atomically. -->
+  <node pkg="uav_mission" type="random_field_spawner.py"
+        name="random_field_spawner" output="screen">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+    <param name="class_profile" value="$(arg class_profile)" />
+    <param name="seed" value="$(arg field_seed)" />
+    <param name="standard_classes" value="$(arg standard_classes)" />
+    <param name="model_roots" value="$(arg random_model_roots)" />
+    <param name="spawn_offset/x" value="-0.493412" />
+    <param name="spawn_offset/y" value="-1.772690" />
+  </node>
+
+  <!-- A/B feature anchors are outside the arena. baseline is intentionally
+       empty and remains default until same-seed A/B passes. -->
+  <node pkg="uav_mission" type="planner_anchor_spawner.py"
+        name="planner_anchor_spawner" output="screen">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/planner_anchor_profiles.yaml" />
+    <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <param name="model_roots" value="$(arg anchor_model_roots)" />
+  </node>
+
+  <!-- Ground-truth collision source from the simulation-only vehicle bumper.
+       Point-cloud clearance remains a separate proximity diagnostic. -->
+  <node pkg="uav_mission" type="gazebo_contact_monitor.py"
+        name="gazebo_contact_monitor" output="screen">
+    <param name="raw_topic" value="/mission/uav_contacts_raw" />
+    <param name="status_topic" value="/mission/gazebo_contact_status" />
+    <rosparam param="ignored_collision_patterns">[ground_plane]</rosparam>
+  </node>
+
+  <node if="$(arg enable_candidate_selector)"
+        pkg="uav_mission" type="profile_candidate_selector.py"
+        name="profile_candidate_selector" output="screen">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+    <param name="class_profile" value="$(arg class_profile)" />
+    <param name="mission_frame" value="$(arg mission_frame)" />
+    <param name="require_field_ready" value="true" />
+    <param name="require_adapter_candidate_accepting" value="true" />
+    <param name="adapter_status_topic"
+           value="/mission/target_search_status" />
+    <param name="min_streak" value="3" />
+    <param name="max_age" value="0.5" />
+    <param name="target_max_z" value="4.0" />
+  </node>
+
+  <!-- Adapter starts first and caches raw goals. It is the only publisher of
+       /fastplanner/goal and will not leave WAIT_TAKEOFF until both barriers,
+       pose/takeoff and the map are ready. -->
+  <node pkg="uav_mission" type="navigation_visual_delivery_adapter.py"
+        name="navigation_visual_delivery_adapter" output="screen">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+    <param name="class_profile" value="$(arg class_profile)" />
+    <param name="mission_frame" value="$(arg mission_frame)" />
+    <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <param name="require_field_ready" value="true" />
+    <param name="require_anchor_ready" value="true" />
+    <param name="require_contact_monitor" value="true" />
+    <param name="contact_status_topic"
+           value="/mission/gazebo_contact_status" />
+    <param name="field/max_z" value="4.0" />
+    <param name="search/min_x" value="-3.106588" />
+    <param name="search/max_x" value="3.093412" />
+    <param name="search/min_y" value="-0.227310" />
+    <param name="search/max_y" value="7.772690" />
+    <param name="search/lane_spacing" value="1.2" />
+    <param name="search/altitude" value="2.2" />
+    <param name="target/approach_altitude" value="1.2" />
+    <param name="target/selected_max_age" value="0.5" />
+    <param name="navigation/stall_timeout" value="120.0" />
+    <param name="navigation/return_stall_timeout" value="120.0" />
+    <param name="navigation/progress_epsilon" value="0.03" />
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg manager_report_path)" />
+    <remap from="/uav_vision/selected_target"
+           to="/mission/profile_selected_target" />
+  </node>
+
+  <!-- Upstream navigation source remains byte-for-byte unchanged. -->
+  <node pkg="uav_mission" type="target_search_manager_py.py"
+        name="target_search_manager_py" output="screen">
+    <rosparam command="load" file="$(find uav_mission)/config/sim.yaml" />
+    <param name="search/min_x" value="-3.106588" />
+    <param name="search/max_x" value="3.093412" />
+    <param name="search/min_y" value="-0.227310" />
+    <param name="search/max_y" value="7.772690" />
+    <remap from="/fastplanner/goal" to="/navigation/goal_raw" />
+    <remap from="/uav_vision/selected_target"
+           to="/mission/profile_selected_target" />
+  </node>
+
+  <node if="$(arg start_hard_gate)"
+        pkg="uav_mission" type="navigation_random_field_assertion.py"
+        name="navigation_random_field_assertion" output="screen"
+        required="true">
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="class_profile" value="$(arg class_profile)" />
+    <param name="mission_frame" value="$(arg mission_frame)" />
+    <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <rosparam param="allowed_classes">[tent, pillbox, bridge, panzer, red_cross]</rosparam>
+    <param name="report_path" value="$(arg gate_report_path)" />
+  </node>
+
+  <node if="$(arg record_debug)" pkg="rosbag" type="record"
+        name="navigation_random_debug_recorder" output="screen"
+        args="--lz4 --split --size=1024 --duration=610
+              -o $(optenv SIM_RUN_DIR /tmp)/navigation_random_debug
+              /mission/random_field_status
+              /mission/planner_anchor_status
+              /mission/gazebo_contact_status
+              /mission/uav_contacts_raw
+              /mission/profile_selector_status
+              /mission/profile_selected_target
+              /mission/command
+              /mission/target_search_status" />
+</launch>

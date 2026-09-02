@@ -5,8 +5,9 @@
   <arg name="record_metrics" default="false" />
   <arg name="output_dir" default="/tmp/uav_vision_eval/landing_h" />
   <arg name="gate_profile" default="smoke" />
-  <arg name="camera_x" default="0.0" />
-  <arg name="camera_y" default="0.0" />
+  <!-- Match landing_h_1 in sim_target_catalog_toudi4.yaml. -->
+  <arg name="camera_x" default="-0.493412" />
+  <arg name="camera_y" default="-1.77269" />
   <arg name="camera_z" default="1.8" />
   <arg name="camera_yaw" default="0.0" />
   <arg name="evaluation_seed" default="-1" />

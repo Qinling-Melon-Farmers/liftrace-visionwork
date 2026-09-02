@@ -20,6 +20,29 @@ STANDARD_CLASSES = ("tent", "pillbox", "bridge", "panzer", "tank")
 # Gate 的“发现完整”口径：五类标准靶 + （摆放时）红十字。
 DISCOVERY_CLASSES = STANDARD_CLASSES + ("red_cross",)
 
+# 类目 profile：任务队列允许调度的标准靶集合。
+# - full：五类标准靶（含 tank），对应历史固定场（toudi4）口径，回归基线；
+# - r2026：2026 规则书场地只设 4 个 1m 标准投放区（无 tank），随机红十字另计。
+#   profile 只约束标准靶准入；red_cross 始终允许入队（发现与否由真值/搜索决定）。
+CLASS_PROFILES = {
+    "full": STANDARD_CLASSES,
+    "r2026": ("tent", "pillbox", "bridge", "panzer"),
+}
+
+
+def profile_standard_classes(profile):
+    """按名称取 profile 的标准靶集合；未知名称必须显式失败。"""
+    if profile not in CLASS_PROFILES:
+        raise ValueError(
+            "unknown class profile %r (expected one of: %s)" %
+            (profile, ", ".join(sorted(CLASS_PROFILES))))
+    return CLASS_PROFILES[profile]
+
+
+def profile_allowed_classes(profile):
+    """任务队列允许调度的类目：profile 标准靶 + 随机投放区红十字。"""
+    return tuple(profile_standard_classes(profile)) + ("red_cross",)
+
 
 def accumulate_run_facts(discovered_by_class, discovered_ids,
                          selection_accum, payload):
@@ -66,6 +89,26 @@ class CandidateData:
     reject_reason: str
     x: float
     y: float
+
+
+@dataclass(frozen=True)
+class SelectorCandidate:
+    """Current-frame facts required before publishing a manager candidate."""
+    target_id: int
+    class_name: str
+    confidence: float
+    geometry_confidence: float
+    map_quality: float
+    last_seen: float
+    state: int
+    consecutive_observe_count: int
+    map_valid: bool
+    map_frame: str
+    association_valid: bool
+    reject_reason: str
+    x: float
+    y: float
+    z: float
 
 
 @dataclass(frozen=True)
@@ -205,16 +248,20 @@ def resolve_safe_waypoint(point, occupied, bounds, safety_margin,
 
 
 def candidate_valid(candidate, now, mission_frame="camera_init",
-                    max_age=0.5):
-    age = max(0.0, now - candidate.last_seen)
+                    max_age=0.5, allowed_classes=None):
+    age = now - candidate.last_seen
     return (
         candidate.class_name in RULE_WEIGHTS and
-        candidate.state >= 2 and
+        math.isfinite(candidate.confidence) and
+        math.isfinite(candidate.last_seen) and
+        (allowed_classes is None or
+         candidate.class_name in allowed_classes) and
+        candidate.state == 2 and
         candidate.map_valid and
         candidate.map_frame == mission_frame and
         candidate.association_valid and
         not candidate.reject_reason and
-        age <= max_age
+        0.0 <= age <= max_age
     )
 
 
@@ -225,6 +272,89 @@ def candidate_rank(candidate):
         candidate.first_seen,
         candidate.target_id,
     )
+
+
+def selector_candidate_valid(candidate, now, mission_frame="camera_init",
+                             max_age=0.5, min_streak=3,
+                             allowed_classes=None, bounds=None,
+                             max_z=4.0):
+    """Strictly gate a live TargetCandidate before manager publication."""
+    numeric_facts = (
+        candidate.x, candidate.y, candidate.z, candidate.confidence,
+        candidate.geometry_confidence, candidate.map_quality,
+        candidate.last_seen)
+    if not all(math.isfinite(value) for value in numeric_facts):
+        return False
+    if bounds is not None:
+        min_x, max_x, min_y, max_y = bounds
+        if not (min_x <= candidate.x <= max_x and
+                min_y <= candidate.y <= max_y):
+            return False
+    age = now - candidate.last_seen
+    return (
+        candidate.class_name in RULE_WEIGHTS and
+        (allowed_classes is None or
+         candidate.class_name in allowed_classes) and
+        candidate.state == 2 and
+        candidate.consecutive_observe_count >= int(min_streak) and
+        candidate.map_valid and
+        candidate.map_frame == mission_frame and
+        candidate.association_valid and
+        not candidate.reject_reason and
+        candidate.last_seen > 0.0 and
+        0.0 <= age <= max_age and
+        candidate.z <= max_z
+    )
+
+
+def adapter_candidate_accepting(status, profile):
+    """Return whether the adapter currently permits manager interruption.
+
+    The selector uses this stateless predicate so message arrival order cannot
+    make a field-only READY status leak candidates into an unready manager.
+    """
+    return bool(
+        status and
+        status.get("status") == "RUNNING" and
+        status.get("state") == "SEARCH" and
+        status.get("class_profile") == profile and
+        status.get("field_ready") is True and
+        status.get("anchor_ready") is True and
+        status.get("operational_ready") is True and
+        status.get("candidate_accepting") is True
+    )
+
+
+def select_current_candidate(candidates, now, mission_frame="camera_init",
+                             max_age=0.5, min_streak=3,
+                             allowed_classes=None, bounds=None,
+                             max_z=4.0):
+    """Select one current valid candidate without retaining scheduling state."""
+    valid = [candidate for candidate in candidates
+             if selector_candidate_valid(
+                 candidate, now, mission_frame, max_age, min_streak,
+                 allowed_classes, bounds, max_z)]
+    if not valid:
+        return None
+    return min(valid, key=lambda item: (
+        -RULE_WEIGHTS[item.class_name],
+        -item.confidence,
+        item.target_id,
+    ))
+
+
+def build_command_event(sequence, stamp, command, from_state, to_state,
+                        target_id=None, target_class=""):
+    """Build the stable status schema for an actual adapter command event."""
+    return {
+        "sequence": int(sequence),
+        "stamp": float(stamp),
+        "command": int(command),
+        "target_id": target_id,
+        "target_class": target_class,
+        "from_state": from_state,
+        "to_state": to_state,
+    }
 
 
 def interrupt_eligible(pending, min_weight):
@@ -261,11 +391,12 @@ class CandidateQueue:
             key=candidate_rank)
 
     def update(self, candidates, now, mission_frame="camera_init",
-               max_age=0.5):
+               max_age=0.5, allowed_classes=None):
         for candidate in candidates:
             if candidate.target_id in self._terminal_ids:
                 continue
-            if candidate_valid(candidate, now, mission_frame, max_age):
+            if candidate_valid(candidate, now, mission_frame, max_age,
+                               allowed_classes):
                 self._pending[candidate.target_id] = candidate
 
     def retain(self, target_ids):

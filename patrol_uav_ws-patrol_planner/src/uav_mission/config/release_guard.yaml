@@ -22,3 +22,8 @@ control_state_topic: /detect/point_class
 permission_topic: /mission/release_permission
 permission_state_topic: /mission/release_permission_active
 result_topic: /mission/release_result
+
+# 正式 VCL06 显式开启；旧 VCL05/固定三投入口保持裸 ReleaseEvidence 行为。
+require_evidence_context: false
+evidence_context_topic: /uav_vision/release_evidence_context
+class_profile: r2026

@@ -44,11 +44,14 @@ liftrace_setup_toudi3_combined_env() {
   unset PYTHONHOME
   # shellcheck disable=SC1091
   source /opt/ros/noetic/setup.bash
-  # A correctly built patrol overlay records vision_ws as an underlay.  Source
-  # only the top-level workspace so catkin composes all generated-message,
-  # Python, library, pkg-config, and package paths consistently.
+  # Source the compiled integration workspace first, then explicitly extend it
+  # with the requested visual workspace.  This is essential in git worktrees:
+  # the reusable patrol devel may remember the baseline vision_ws, while the
+  # launch and executables must come from the feature worktree under test.
   # shellcheck disable=SC1090
   source "${uav_ws}/devel/setup.bash"
+  # shellcheck disable=SC1090
+  source "${vision_ws}/devel/setup.bash" --extend
 
   if [[ "${had_nounset}" -eq 1 ]]; then
     set -u

@@ -4,8 +4,10 @@
 import rospy
 import tf2_ros
 from gazebo_msgs.msg import LinkStates
-from geometry_msgs.msg import TransformStamped
+from geometry_msgs.msg import PoseStamped, TransformStamped
 from sensor_msgs.msg import Image
+
+from uav_vision_eval.stamped_pose_buffer import StampedPoseBuffer
 
 
 def _multiply(left, right):
@@ -25,15 +27,22 @@ class GazeboCameraTf:
         self.camera_link_suffix = rospy.get_param("~camera_link_suffix", "D435i::camera_color_frame")
         self.child_frame_override = rospy.get_param("~child_frame", "")
         self.camera_pose_is_optical = rospy.get_param("~camera_pose_is_optical", False)
+        self.use_stamped_camera_pose = rospy.get_param(
+            "~use_stamped_camera_pose", False)
         self.pose = None
         self.link_name = ""
+        self.pose_buffer = StampedPoseBuffer(rospy.get_param(
+            "~pose_history_length", 512))
         self.broadcaster = tf2_ros.TransformBroadcaster()
-        rospy.Subscriber(
-            rospy.get_param("~link_states_topic", "/gazebo/link_states"),
-            LinkStates,
-            self._link_states_callback,
-            queue_size=1,
-        )
+        if self.use_stamped_camera_pose:
+            rospy.Subscriber(
+                rospy.get_param(
+                    "~camera_pose_topic", "/uav_vision_eval/camera_pose"),
+                PoseStamped, self._camera_pose_callback, queue_size=40)
+        else:
+            rospy.Subscriber(
+                rospy.get_param("~link_states_topic", "/gazebo/link_states"),
+                LinkStates, self._link_states_callback, queue_size=1)
         rospy.Subscriber(
             rospy.get_param("~image_topic", "/camera/color/image_raw"),
             Image,
@@ -51,20 +60,32 @@ class GazeboCameraTf:
         else:
             self.pose = None
 
+    def _camera_pose_callback(self, message):
+        if message.header.frame_id != self.world_frame:
+            rospy.logerr_throttle(
+                5.0, "uav_vision_eval: stamped camera pose frame mismatch")
+            return
+        self.pose_buffer.add(message)
+
     def _image_callback(self, image):
-        if self.pose is None:
+        pose = self.pose
+        if self.use_stamped_camera_pose:
+            stamped_pose, _age_sec = self.pose_buffer.at_or_before(
+                image.header.stamp)
+            pose = stamped_pose.pose if stamped_pose is not None else None
+        if pose is None:
             rospy.logwarn_throttle(5.0, "uav_vision_eval: no unique Gazebo camera pose for TF")
             return
         transform = TransformStamped()
         transform.header.stamp = image.header.stamp
         transform.header.frame_id = self.world_frame
         transform.child_frame_id = self.child_frame_override or image.header.frame_id
-        transform.transform.translation.x = self.pose.position.x
-        transform.transform.translation.y = self.pose.position.y
-        transform.transform.translation.z = self.pose.position.z
+        transform.transform.translation.x = pose.position.x
+        transform.transform.translation.y = pose.position.y
+        transform.transform.translation.z = pose.position.z
         raw = (
-            self.pose.orientation.x, self.pose.orientation.y,
-            self.pose.orientation.z, self.pose.orientation.w,
+            pose.orientation.x, pose.orientation.y,
+            pose.orientation.z, pose.orientation.w,
         )
         # camera_link -> optical: RPY(-pi/2, 0, -pi/2).
         optical = raw if self.camera_pose_is_optical else _multiply(

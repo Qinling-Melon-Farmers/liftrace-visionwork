@@ -8,24 +8,38 @@
   <arg name="image_topic" default="/camera/image_raw" />
   <arg name="camera_info_topic" default="/camera/camera_info" />
   <arg name="target_detector_launch_prefix" default="" />
-  <!-- 可选的开发/仿真模型覆盖；为空时使用 config/target_detector.yaml。 -->
+  <!-- 开发/仿真模型必须显式提供；为空或文件不存在时 detector 立即失败。 -->
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="target_detector_imgsz" default="640" />
   <arg name="enable_debug_image" default="false" />
   <!-- 旧 Fast-Planner 使用 camera_init 作为任务坐标系；使用 world 真值的评测器会覆盖该参数。 -->
   <arg name="map_frame" default="camera_init" />
   <arg name="ground_z" default="0.0" />
   <arg name="allow_latest_tf_fallback" default="false" />
   <arg name="max_latest_tf_age_sec" default="0.10" />
+  <arg name="rectify_input_pixels" default="true" />
   <arg name="default_align_mode" default="disabled" />
+  <!-- full preserves historical assets; r2026 excludes tank from candidates. -->
+  <arg name="class_profile" default="full" />
+  <arg name="require_alignment_context" default="false" />
+  <arg name="alignment_context_topic"
+       default="/uav_vision/alignment_target_context" />
+  <arg name="release_evidence_context_topic"
+       default="/uav_vision/release_evidence_context" />
   <arg name="drop_stable_frames" default="3" />
   <arg name="start_legacy_compat" default="true" />
+  <!-- H detector is needed only for landing-mode workflows. Search-only
+       evaluation may disable it to avoid an unrelated full-frame CPU path. -->
+  <arg name="start_landing_detector" default="true" />
 
   <!-- 标准目标检测 (YOLO, dev/sim only) -->
   <node pkg="uav_vision" type="target_detector.py" name="target_detector"
-        output="screen" launch-prefix="$(arg target_detector_launch_prefix)">
+        output="screen" required="true"
+        launch-prefix="$(arg target_detector_launch_prefix)">
     <rosparam file="$(find uav_vision)/config/default.yaml"/>
     <rosparam file="$(find uav_vision)/config/target_detector.yaml"/>
     <param name="image_topic" value="$(arg image_topic)" />
+    <param name="imgsz" value="$(arg target_detector_imgsz)" />
     <param if="$(eval arg('target_model_path') != '')"
            name="model_path" value="$(arg target_model_path)" />
   </node>
@@ -50,13 +64,16 @@
   </node>
 
   <!-- 降落标识检测 -->
-  <node pkg="uav_vision" type="landing_detector_node" name="landing_detector" output="screen">
-    <rosparam file="$(find uav_vision)/config/default.yaml"/>
-    <rosparam file="$(find uav_vision)/config/landing_detector.yaml"/>
-    <param name="image_topic" value="$(arg image_topic)" />
-    <param name="camera_info_topic" value="$(arg camera_info_topic)" />
-    <param name="enable_debug_image" value="$(arg enable_debug_image)" />
-  </node>
+  <group if="$(arg start_landing_detector)">
+    <node pkg="uav_vision" type="landing_detector_node" name="landing_detector" output="screen">
+      <rosparam file="$(find uav_vision)/config/default.yaml"/>
+      <rosparam file="$(find uav_vision)/config/landing_detector.yaml"/>
+      <param name="image_topic" value="$(arg image_topic)" />
+      <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+      <param name="default_align_mode" value="$(arg default_align_mode)" />
+      <param name="enable_debug_image" value="$(arg enable_debug_image)" />
+    </node>
+  </group>
 
   <node pkg="uav_vision" type="detection_fusion.py" name="detection_fusion" output="screen">
     <rosparam file="$(find uav_vision)/config/detection_fusion.yaml"/>
@@ -65,6 +82,7 @@
 
   <node pkg="uav_vision" type="target_refiner.py" name="target_refiner" output="screen">
     <rosparam file="$(find uav_vision)/config/target_refiner.yaml"/>
+    <param name="class_profile" value="$(arg class_profile)" />
   </node>
 
   <node pkg="uav_vision" type="target_map_projector.py" name="target_map_projector" output="screen">
@@ -75,6 +93,7 @@
     <param name="ground_z" value="$(arg ground_z)" />
     <param name="allow_latest_tf_fallback" value="$(arg allow_latest_tf_fallback)" />
     <param name="max_latest_tf_age_sec" value="$(arg max_latest_tf_age_sec)" />
+    <param name="rectify_input_pixels" value="$(arg rectify_input_pixels)" />
   </node>
 
   <!-- 候选记忆 -->
@@ -82,6 +101,9 @@
     <rosparam file="$(find uav_vision)/config/target_memory.yaml"/>
     <param name="detections_topic" value="/uav_vision/detections_mapped"/>
     <param name="require_map_for_candidates" value="true" />
+    <param name="require_complete_detection_sources" value="true" />
+    <param name="default_align_mode" value="$(arg default_align_mode)" />
+    <param name="class_profile" value="$(arg class_profile)" />
   </node>
 
   <!-- 投递对准 -->
@@ -89,6 +111,13 @@
     <rosparam file="$(find uav_vision)/config/drop_aligner.yaml"/>
     <param name="camera_info_topic" value="$(arg camera_info_topic)" />
     <param name="stable_frames" value="$(arg drop_stable_frames)" />
+    <param name="class_profile" value="$(arg class_profile)" />
+    <param name="require_alignment_context"
+           value="$(arg require_alignment_context)" />
+    <param name="alignment_context_topic"
+           value="$(arg alignment_context_topic)" />
+    <param name="release_evidence_context_topic"
+           value="$(arg release_evidence_context_topic)" />
   </node>
 
   <!-- 旧接口兼容桥 -->

@@ -28,21 +28,43 @@
  *  @date 5-16-2025
  */
 
-#include <tf/tf.h>
+#include <limits>
+
 #include <plan_manage/kino_replan_fsm.h>
+#include <tf/tf.h>
 
 namespace fast_planner {
+
+void KinoReplanFSM::updateEffectiveGoal() {
+  geometry_msgs::PoseStamped effective_goal = goal_status_tracker_.effectiveGoal();
+  effective_goal.pose.position.x = end_pt_(0);
+  effective_goal.pose.position.y = end_pt_(1);
+  effective_goal.pose.position.z = end_pt_(2);
+  goal_status_tracker_.updateEffectiveGoal(effective_goal);
+}
+
+double KinoReplanFSM::currentGoalDistance() const {
+  return have_odom_ ? (end_pt_ - odom_pos_).norm()
+                    : std::numeric_limits<double>::quiet_NaN();
+}
+
+void KinoReplanFSM::publishGoalStatus(const plan_manage::PlannerStatus& msg) {
+  goal_status_pub_.publish(msg);
+}
 
 void KinoReplanFSM::init(ros::NodeHandle& nh) {
   current_wp_  = 0;
   exec_state_  = FSM_EXEC_STATE::INIT;
+  trigger_     = false;
   have_target_ = false;
   have_odom_   = false;
+  goal_status_tracker_.reset();
 
   /*  fsm param  */
   nh.param("fsm/flight_type", target_type_, -1);
   nh.param("fsm/thresh_replan", replan_thresh_, -1.0);
   nh.param("fsm/thresh_no_replan", no_replan_thresh_, -1.0);
+  nh.param<std::string>("goal_status_topic", goal_status_topic_, "/planning/goal_status");
 
   nh.param("fsm/waypoint_num", waypoint_num_, -1);
   for (int i = 0; i < waypoint_num_; i++) {
@@ -67,10 +89,14 @@ void KinoReplanFSM::init(ros::NodeHandle& nh) {
   replan_pub_  = nh.advertise<std_msgs::Empty>("/planning/replan", 10);
   new_pub_     = nh.advertise<std_msgs::Empty>("/planning/new", 10);
   bspline_pub_ = nh.advertise<plan_manage::Bspline>("/planning/bspline", 10);
+  goal_status_pub_ = nh.advertise<plan_manage::PlannerStatus>(goal_status_topic_, 10);
 }
 
 void KinoReplanFSM::waypointCallback(const geometry_msgs::PoseStamped msg) {
   if (msg.pose.position.z <= -0.5) return;
+
+  double cancelled_distance = std::numeric_limits<double>::quiet_NaN();
+  if (goal_status_tracker_.active()) cancelled_distance = currentGoalDistance();
 
   cout << "Triggered!" << endl;
   trigger_ = true;
@@ -90,8 +116,17 @@ void KinoReplanFSM::waypointCallback(const geometry_msgs::PoseStamped msg) {
   if (std::isnan(yaw)) yaw = 0.0;
   end_vel_ << 0.1 * cos(yaw), 0.1 * sin(yaw), 0.0;
 
+  geometry_msgs::PoseStamped effective_goal = msg;
+  effective_goal.pose.position.x = end_pt_(0);
+  effective_goal.pose.position.y = end_pt_(1);
+  effective_goal.pose.position.z = end_pt_(2);
+
   visualization_->drawGoal(end_pt_, 0.3, Eigen::Vector4d(1, 0, 0, 1.0));
   have_target_ = true;
+  const std::vector<plan_manage::PlannerStatus> status_events =
+      goal_status_tracker_.replaceGoal(msg, effective_goal, ros::Time::now(), cancelled_distance,
+                                       currentGoalDistance());
+  for (const auto& status_event : status_events) publishGoalStatus(status_event);
 
   if (exec_state_ == WAIT_TARGET)
     changeFSMExecState(GEN_NEW_TRAJ, "TRIG");
@@ -170,10 +205,21 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
       start_yaw_(0)         = atan2(rot_x(1), rot_x(0));
       start_yaw_(1) = start_yaw_(2) = 0.0;
 
+      const bool first_attempt = goal_status_tracker_.planningAttempt() == 0;
+      publishGoalStatus(goal_status_tracker_.beginAttempt(
+          plan_manage::PlannerStatus::PLANNING,
+          first_attempt ? "new_trajectory_attempt" : "new_trajectory_retry", ros::Time::now(),
+          currentGoalDistance()));
       bool success = callKinodynamicReplan();
       if (success) {
+        publishGoalStatus(goal_status_tracker_.record(plan_manage::PlannerStatus::TRAJECTORY_READY,
+                                                      "new_trajectory_ready", ros::Time::now(),
+                                                      currentGoalDistance()));
         changeFSMExecState(EXEC_TRAJ, "FSM");
       } else {
+        publishGoalStatus(goal_status_tracker_.record(plan_manage::PlannerStatus::FAILED_ATTEMPT,
+                                                      "new_trajectory_attempt_failed",
+                                                      ros::Time::now(), currentGoalDistance()));
         // have_target_ = false;
         // changeFSMExecState(WAIT_TARGET, "FSM");
         changeFSMExecState(GEN_NEW_TRAJ, "FSM");
@@ -192,6 +238,8 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
 
       /* && (end_pt_ - pos).norm() < 0.5 */
       if (t_cur > info->duration_ - 1e-2) {
+        publishGoalStatus(goal_status_tracker_.finish("local_trajectory_duration_reached",
+                                                      ros::Time::now(), currentGoalDistance()));
         have_target_ = false;
         changeFSMExecState(WAIT_TARGET, "FSM");
         return;
@@ -240,10 +288,19 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
       std_msgs::Empty replan_msg;
       replan_pub_.publish(replan_msg);
 
+      publishGoalStatus(goal_status_tracker_.beginAttempt(
+          plan_manage::PlannerStatus::REPLANNING, "trajectory_replan_attempt", ros::Time::now(),
+          currentGoalDistance()));
       bool success = callKinodynamicReplan();
       if (success) {
+        publishGoalStatus(goal_status_tracker_.record(plan_manage::PlannerStatus::TRAJECTORY_READY,
+                                                      "replanned_trajectory_ready", ros::Time::now(),
+                                                      currentGoalDistance()));
         changeFSMExecState(EXEC_TRAJ, "FSM");
       } else {
+        publishGoalStatus(goal_status_tracker_.record(plan_manage::PlannerStatus::FAILED_ATTEMPT,
+                                                      "trajectory_replan_attempt_failed",
+                                                      ros::Time::now(), currentGoalDistance()));
         changeFSMExecState(GEN_NEW_TRAJ, "FSM");
       }
       break;
@@ -294,6 +351,7 @@ void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
         end_pt_ = goal;
         end_vel_.setZero();
         have_target_ = true;
+        updateEffectiveGoal();
 
         if (exec_state_ == EXEC_TRAJ) {
           changeFSMExecState(REPLAN_TRAJ, "SAFETY");

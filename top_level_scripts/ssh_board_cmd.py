@@ -1,76 +1,46 @@
 #!/usr/bin/env python3
-"""SSH 到香橙派执行只读命令（pexpect 带密码，密码不落盘）。
+"""SSH command/upload/download helper for the OrangePi lab session."""
 
-用法: python3 ssh_board_cmd.py "<远程命令>"
-安全: 仅执行传入命令；密码仅存于本进程内存。
-"""
+import os
 import sys
-import pexpect
 
-HOST = "orangepi@192.168.3.15"
-PASSWORD = "orangepi"
+from ssh_pexpect_auth import board_host, spawn_and_wait, ssh_arguments
 
 
-def run(cmd, timeout=60):
-    child = pexpect.spawn(
-        f"ssh -o StrictHostKeyChecking=no -o ConnectTimeout=8 {HOST} "
-        f'"{cmd}"',
-        encoding="utf-8", timeout=timeout)
+def _run(program, arguments, timeout):
     try:
-        idx = child.expect([r"[Pp]assword:", pexpect.EOF, pexpect.TIMEOUT])
-        if idx == 0:
-            child.sendline(PASSWORD)
-            child.expect(pexpect.EOF, timeout=timeout)
-        print(child.before)
-    except pexpect.TIMEOUT:
-        print("TIMEOUT:", child.before[-2000:] if child.before else "")
-    finally:
-        child.close()
+        code, output = spawn_and_wait(program, arguments, timeout)
+    except TimeoutError as error:
+        print("timeout: %s" % error, file=sys.stderr)
+        return 1
+    sys.stdout.write(output)
+    return code
 
 
-def upload(local_path, remote_path, timeout=600):
-    """scp 上传本地文件到板端（pexpect 带密码）。"""
-    child = pexpect.spawn(
-        f"scp -o StrictHostKeyChecking=no -o ConnectTimeout=8 "
-        f"{local_path} {HOST}:{remote_path}",
-        encoding="utf-8", timeout=timeout)
-    try:
-        idx = child.expect([r"[Pp]assword:", pexpect.EOF, pexpect.TIMEOUT])
-        if idx == 0:
-            child.sendline(PASSWORD)
-            child.expect(pexpect.EOF, timeout=timeout)
-        print(child.before)
-    except pexpect.TIMEOUT:
-        print("TIMEOUT:", child.before[-2000:] if child.before else "")
-    finally:
-        child.close()
-
-
-def download(remote_path, local_path, timeout=600):
-    """scp 从板端下载文件到本地。"""
-    child = pexpect.spawn(
-        f"scp -o StrictHostKeyChecking=no -o ConnectTimeout=8 "
-        f"{HOST}:{remote_path} {local_path}",
-        encoding="utf-8", timeout=timeout)
-    try:
-        idx = child.expect([r"[Pp]assword:", pexpect.EOF, pexpect.TIMEOUT])
-        if idx == 0:
-            child.sendline(PASSWORD)
-            child.expect(pexpect.EOF, timeout=timeout)
-        print(child.before)
-    except pexpect.TIMEOUT:
-        print("TIMEOUT:", child.before[-2000:] if child.before else "")
-    finally:
-        child.close()
+def main():
+    timeout = int(os.environ.get("ORANGEPI_SSH_TIMEOUT", "60"))
+    if len(sys.argv) < 2:
+        print(
+            "usage: ssh_board_cmd.py '<remote cmd>' | "
+            "--upload LOCAL REMOTE | --download REMOTE LOCAL",
+            file=sys.stderr)
+        return 2
+    if sys.argv[1] == "--upload" and len(sys.argv) == 4:
+        return _run("scp", [
+            "-o", "StrictHostKeyChecking=accept-new",
+            "-o", "ConnectTimeout=10", sys.argv[2],
+            board_host() + ":" + sys.argv[3]], max(timeout, 600))
+    if sys.argv[1] == "--download" and len(sys.argv) == 4:
+        return _run("scp", [
+            "-o", "StrictHostKeyChecking=accept-new",
+            "-o", "ConnectTimeout=10",
+            board_host() + ":" + sys.argv[2], sys.argv[3]],
+            max(timeout, 600))
+    if sys.argv[1].startswith("--"):
+        print("invalid ssh_board_cmd arguments", file=sys.stderr)
+        return 2
+    return _run("ssh", ssh_arguments(" ".join(sys.argv[1:])), timeout)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("usage: ssh_board_cmd.py '<remote cmd>' | --upload <local> <remote> | --download <remote> <local>")
-        sys.exit(1)
-    if sys.argv[1] == "--upload":
-        upload(sys.argv[2], sys.argv[3])
-    elif sys.argv[1] == "--download":
-        download(sys.argv[2], sys.argv[3])
-    else:
-        run(sys.argv[1])
+    raise SystemExit(main())

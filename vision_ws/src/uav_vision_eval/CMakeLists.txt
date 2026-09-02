@@ -2,17 +2,23 @@ cmake_minimum_required(VERSION 3.0.2)
 project(uav_vision_eval)
 
 find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
+  diagnostic_msgs
   gazebo_msgs
   geometry_msgs
   image_geometry
   message_filters
   message_generation
+  rosnode
   rospy
   sensor_msgs
   std_msgs
+  std_srvs
   tf2_ros
   uav_vision
 )
+
+catkin_python_setup()
 
 add_message_files(
   FILES
@@ -29,19 +35,24 @@ generate_messages(
 
 catkin_package(
   CATKIN_DEPENDS
+    cv_bridge
+    diagnostic_msgs
     gazebo_msgs
     geometry_msgs
     image_geometry
     message_filters
     message_runtime
+    rosnode
     rospy
     sensor_msgs
     std_msgs
+    std_srvs
     tf2_ros
     uav_vision
 )
 
 catkin_install_python(PROGRAMS
+  scripts/gazebo_camera_pose_stamper.py
   scripts/gazebo_camera_tf.py
   scripts/sim_ground_truth_projector.py
   scripts/vision_metrics_recorder.py
@@ -56,9 +67,45 @@ catkin_install_python(PROGRAMS
   scripts/aligning_capture_gate_assertion.py
   scripts/target_memory_freshness_assertion.py
   scripts/target_refiner_association_assertion.py
+  scripts/vsim04_dry_run.py
+  scripts/vsim04_d50_dry_run.py
+  scripts/vsim04_d50_runner.py
+  scripts/vsim04_metrics_assertion.py
+  scripts/vsim04_navigation_metrics_assertion.py
+  scripts/vsim04_trial_recorder.py
+  scripts/vsim04_trial_runner.py
+  scripts/vsim04_camera_soak.py
+  scripts/vsim04_soak_model_spawner.py
+  scripts/vsim04_soak_assertion.py
+  scripts/vsim04_failure_capture.py
+  scripts/vsim04_failure_capture_assertion.py
+  scripts/vsim04_failure_capture_manifest_check.py
+  scripts/vsim04_repeat_runner.py
+  scripts/vsim04_repeat_aggregate.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(
+    scripts/vsim04_failure_capture_assertion.py
+    DEPENDENCIES ${PROJECT_NAME}_generate_messages_py
+  )
+  catkin_add_nosetests(
+    scripts/vsim04_repeat_runs_assertion.py
+    DEPENDENCIES ${PROJECT_NAME}_generate_messages_py
+  )
+  catkin_add_nosetests(scripts/vsim04_soak_assertion.py)
+  catkin_add_nosetests(
+    scripts/vsim04_navigation_metrics_assertion.py
+    DEPENDENCIES ${PROJECT_NAME}_generate_messages_py
+  )
+  catkin_add_nosetests(test/test_vsim04_d_matrix.py)
+endif()
+
 install(DIRECTORY config launch models
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(FILES README.md
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

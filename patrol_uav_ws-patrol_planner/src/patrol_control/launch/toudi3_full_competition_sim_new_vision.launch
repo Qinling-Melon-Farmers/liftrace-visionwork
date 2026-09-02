@@ -25,6 +25,8 @@
   <arg name="allow_latest_tf_fallback" default="false" />
   <arg name="max_latest_tf_age_sec" default="0.10" />
   <arg name="drop_stable_frames" default="5" />
+  <arg name="class_profile" default="full" />
+  <arg name="require_alignment_context" default="false" />
   <arg name="gui" default="true" />
   <arg name="rviz" default="true" />
   <arg name="mapping_rviz" default="false" />
@@ -86,5 +88,8 @@
     <arg name="allow_latest_tf_fallback" value="$(arg allow_latest_tf_fallback)" />
     <arg name="max_latest_tf_age_sec" value="$(arg max_latest_tf_age_sec)" />
     <arg name="drop_stable_frames" value="$(arg drop_stable_frames)" />
+    <arg name="class_profile" value="$(arg class_profile)" />
+    <arg name="require_alignment_context"
+         value="$(arg require_alignment_context)" />
   </include>
 </launch>

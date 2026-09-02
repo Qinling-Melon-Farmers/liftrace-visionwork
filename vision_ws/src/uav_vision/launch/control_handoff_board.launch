@@ -11,7 +11,9 @@
   <arg name="ground_z" default="0.0" />
   <arg name="allow_latest_tf_fallback" default="false" />
   <arg name="max_latest_tf_age_sec" default="0.10" />
+  <arg name="rectify_input_pixels" default="true" />
   <arg name="default_align_mode" default="disabled" />
+  <arg name="class_profile" default="full" />
   <arg name="enable_debug_image" default="false" />
   <arg name="start_legacy_compat" default="false" />
 
@@ -24,7 +26,9 @@
     <arg name="ground_z" value="$(arg ground_z)" />
     <arg name="allow_latest_tf_fallback" value="$(arg allow_latest_tf_fallback)" />
     <arg name="max_latest_tf_age_sec" value="$(arg max_latest_tf_age_sec)" />
+    <arg name="rectify_input_pixels" value="$(arg rectify_input_pixels)" />
     <arg name="default_align_mode" value="$(arg default_align_mode)" />
+    <arg name="class_profile" value="$(arg class_profile)" />
     <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
     <arg name="start_legacy_compat" value="$(arg start_legacy_compat)" />
   </include>

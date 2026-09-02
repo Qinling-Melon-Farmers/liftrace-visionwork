@@ -1,0 +1,53 @@
+<launch>
+  <!-- One 90 s fixed-route sample.  Visual selection is disabled, leaving the
+       unchanged navigation manager route as the only source under test. -->
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi3_random.world" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="class_profile" default="r2026" />
+  <arg name="field_seed" default="11" />
+  <arg name="nav_feature_profile" default="baseline" />
+  <arg name="duration_sec" default="90.0" />
+  <arg name="startup_timeout_sec" default="180.0" />
+  <arg name="metrics_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/ab_metrics.json" />
+  <arg name="gate_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+
+  <include file="$(find uav_mission)/launch/navigation_search_delivery_random_field.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="world" value="$(arg world)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="class_profile" value="$(arg class_profile)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <arg name="enable_debug_image" value="false" />
+    <arg name="record_debug" value="false" />
+    <arg name="enable_candidate_selector" value="false" />
+    <arg name="start_hard_gate" value="false" />
+    <arg name="wall_timeout" value="360.0" />
+  </include>
+
+  <node pkg="uav_mission" type="navigation_ab_observer.py"
+        name="navigation_ab_observer" output="screen" required="true">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+    <param name="duration_sec" value="$(arg duration_sec)" />
+    <param name="startup_timeout_sec" value="$(arg startup_timeout_sec)" />
+    <param name="world" value="$(arg world)" />
+    <param name="target_model_path" value="$(arg target_model_path)" />
+    <param name="class_profile" value="$(arg class_profile)" />
+    <param name="field_seed" value="$(arg field_seed)" />
+    <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <param name="search/min_x" value="-3.106588" />
+    <param name="search/max_x" value="3.093412" />
+    <param name="search/min_y" value="-0.227310" />
+    <param name="search/max_y" value="7.772690" />
+    <param name="search/lane_spacing" value="1.2" />
+    <param name="search_altitude" value="2.2" />
+    <param name="metrics_path" value="$(arg metrics_path)" />
+    <param name="gate_path" value="$(arg gate_report_path)" />
+  </node>
+</launch>

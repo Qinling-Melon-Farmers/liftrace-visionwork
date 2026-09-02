@@ -1,6 +1,11 @@
 # landing_detector_node 参数
 # 算法：灰度 → 自适应阈值 → 形态学 → 椭圆拟合
 
+# 搜索/投递阶段不发布、不执行全图 H 处理；进入 landing 模式后恢复。
+align_mode_topic: /uav_vision/align_mode
+default_align_mode: disabled
+process_only_in_landing_mode: true
+
 # 预处理
 landing_blur_kernel_size: 5
 
@@ -14,6 +19,8 @@ landing_morphology_kernel_size: 7
 # 椭圆质量
 landing_min_contour_points: 15
 landing_aspect_ratio_threshold: 0.85
+# 外圈轮廓面积 / 拟合椭圆面积；拒绝仅靠残弧拟合出的“完整圆环”。
+landing_min_ellipse_fill_ratio: 0.70
 landing_radius_min: 15.0
 landing_radius_max: 300.0
 

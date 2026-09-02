@@ -41,6 +41,8 @@
 #include <plan_env/obj_predictor.h>
 #include <plan_env/sdf_map.h>
 #include <plan_manage/Bspline.h>
+#include <plan_manage/PlannerStatus.h>
+#include <plan_manage/planner_status_tracker.h>
 #include <plan_manage/planner_manager.h>
 #include <traj_utils/planning_visualization.h>
 
@@ -85,6 +87,7 @@ private:
   double no_replan_thresh_, replan_thresh_;
   double waypoints_[50][3];
   int waypoint_num_;
+  std::string goal_status_topic_;
 
   /* planning data */
   bool trigger_, have_target_, have_odom_;
@@ -97,11 +100,14 @@ private:
   Eigen::Vector3d end_pt_, end_vel_;                              // target state
   int current_wp_;
 
+  /* goal telemetry (does not participate in planner decisions) */
+  PlannerStatusTracker goal_status_tracker_;
+
   /* ROS utils */
   ros::NodeHandle node_;
   ros::Timer exec_timer_, safety_timer_, vis_timer_, test_something_timer_;
   ros::Subscriber waypoint_sub_, odom_sub_;
-  ros::Publisher replan_pub_, new_pub_, bspline_pub_;
+  ros::Publisher replan_pub_, new_pub_, bspline_pub_, goal_status_pub_;
 
   /* helper functions */
   bool callKinodynamicReplan();        // front-end and back-end method
@@ -109,6 +115,9 @@ private:
                                        // optimization; 1: new, 2: replan
   void changeFSMExecState(FSM_EXEC_STATE new_state, string pos_call);
   void printFSMExecState();
+  void updateEffectiveGoal();
+  double currentGoalDistance() const;
+  void publishGoalStatus(const plan_manage::PlannerStatus& msg);
 
   /* ROS functions */
   void execFSMCallback(const ros::TimerEvent& e);

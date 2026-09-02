@@ -1,0 +1,33 @@
+# V-SIM-04 camera-only endurance defaults. Duration uses monotonic wall time;
+# /clock remains the deterministic route time base and is checked for stalls
+# and regression. A short duration is smoke-only.
+duration_sec: 600.0
+
+# Deterministic ellipse inside the 10 m x 10 m arena.  Each completed or
+# partial loop receives a monotonically increasing soak_loop_NNNN trial ID.
+route_period_sec: 40.0
+route_update_rate_hz: 10.0
+route_center_x_m: -0.6
+route_center_y_m: 0.5
+route_radius_x_m: 3.2
+route_radius_y_m: 3.0
+route_height_m: 2.4
+arena_limit_m: 4.8
+
+# Fail-closed health accounting.  Transient load is allowed; three consecutive
+# bad 10 s windows are a sustained throughput/backlog/partial failure.
+startup_timeout_sec: 45.0
+service_call_timeout_sec: 5.0
+node_check_timeout_sec: 2.0
+heartbeat_timeout_sec: 3.0
+health_window_sec: 10.0
+bucket_settle_sec: 0.5
+max_source_lag_sec: 1.0
+max_camera_pose_age_sec: 0.5
+max_camera_pose_error_m: 0.25
+max_camera_orientation_drift_rad: 0.05
+min_input_fps: 5.0
+min_complete_mapped_fps: 1.0
+max_partial_only_ratio: 0.8
+min_partial_samples: 5
+bad_windows_to_fail: 3

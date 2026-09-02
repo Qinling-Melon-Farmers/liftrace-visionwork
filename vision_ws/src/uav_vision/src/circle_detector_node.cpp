@@ -51,7 +51,7 @@ void CircularDetectorNode::loadParameters()
   // 预处理
   nh_.param("circle_blur_kernel_size", blur_kernel_size_, 5);
   nh_.param("circle_enable_morphology", enable_morphology_, true);
-  nh_.param("circle_morphology_kernel_size", morphology_kernel_size_, 15);
+  nh_.param("circle_morphology_kernel_size", morphology_kernel_size_, 7);
 
   // 缩放
   nh_.param("circle_enable_resize", enable_resize_, false);

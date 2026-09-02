@@ -1,6 +1,6 @@
 # 视觉迁移与发布 Gate
 
-更新时间：2026-08-13
+更新时间：2026-08-31
 
 本文件只记录 2025 旧视觉链迁移到 `uav_vision` 的通过状态，不维护任务优先级。执行顺序和指标见 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)。
 
@@ -21,8 +21,9 @@
 - [x] 红十字几何检测进入统一 detections；
 - [x] 蓝色圆环检测进入统一 detections；
 - [x] landing/H 外圈检测进入统一 detections；
-- [x] H 外圈 + 内部结构验证与 `landing` 阶段门控已有固定 Gazebo 回归；
-- [~] 纯背景固定场景 0 FP；残圈、普通黑圈和实拍负样本仍待扩充。
+- [x] H 外圈 + 内部结构验证与 `landing` 阶段门控已有固定 Gazebo 回归；正例 458 TP、
+  0 FP/FN，landing-active 纯背景 511 帧 0 FP；
+- [~] 固定正例/背景负例已通过；残圈、普通黑圈、实拍负样本和完整视觉降落 Gate 仍待扩充。
 
 ## Gate M2：融合与实例语义
 
@@ -63,6 +64,15 @@
 - [x] 默认关闭的外部任务模式已接入 `MissionCommand`；单候选完成接近、对准、guarded
   ACK 和恢复，外部模式下 Mission Manager 是 `/fastplanner/goal` 唯一发布者；默认旧路线
   回归保持由 `patrol_control` 发布。
+- [x] 本地 clean 导航任务核心已从 manager/runtime `a65a616` 与 planner telemetry `022b763`
+  导入：持久候选队列、有限冷却重试、三槽、510 秒硬返航、600 秒任务上限和 typed
+  `NavigationDecision/NavigationResult` 已实现并通过纯测试；外部导航远程仍停在地图实验
+  `a68925d`，两类来源不混写；
+- [x] 随机场一次性 start gate、`AlignmentTargetContext/ReleaseEvidenceContext` 与 typed
+  V-SIM evaluator 已合入；功能默认关闭，旧 `ReleaseEvidence` MD5 和默认运行路径保持；
+- [~] 新 manager 的 live execution bridge 尚未合入：typed decision 还没有在本合并态实际
+  转换为 `/fastplanner/goal`，planner/target-stage `STARTED`、真实 `P_interrupt`、90 秒 smoke
+  与 600 秒三投 Gate 均未验收。历史旧 manager + adapter 链证据只作回归，不代表新核心实跑。
 
 ## Gate M5：旧接口兼容
 
@@ -84,25 +94,58 @@
   和默认旧路线兼容；
 - [x] `target_area_navigation` 无 GUI Gate 完成靶标区域 12/12 非真值坐标覆盖、五类五个
   stable ID、安全返航、零碰撞/越界/Servo；北区走廊避障不属于本轮 Gate；
-- [~] `coverage_r6` 按权重三次 guarded mock 投递已实跑 3/3（tank/panzer/bridge，
-  `logs/toudi4_coverage_r6_v2_20260813_221737/`，0 碰撞、0 越界、377.6 s 降落）；
-  Gate 断言已按全程累计事实修复，待一次干净复跑确认 PASS（规划器可达性波动外置）；
+- [x] `coverage_r6` 按权重三次 guarded mock 投递已实跑 3/3；2026-08-13 v2 的
+  tank/panzer/bridge、0 碰撞/越界、377.6 s 历史证据保留，2026-08-28
+  `toudi4_coverage_r6_vcl04_rerun2_20260828_222644` 已按规划器波动外置口径关闭 V-CL-04；
 - [~] V-CL-05 搜索-投递策略：高权重中断投递（red_cross=10/tank=5 发现即中断搜索、
   投完恢复，`logs/toudi4_coverage_r6_vcl05b_20260813_234314/` 中断机制与 pillbox
   端到端投递已验证）、red_cross 统一入队（无独立任务模式）、随机红十字摆放（真值
   仅落盘）与动态期望 Gate 已落地；随机十字独立发现/投递与沉降门控待复跑验收；
+- [~] V-CL-06 导航组 manager 联调：
+  `logs/navigation_upstream_visual_delivery_headless_model_20260826_023411/` 使用 7.14
+  `merged_standard` 模型，600 s 到达 9/16 覆盖点，发现 pillbox/tent/bridge，tent/bridge
+  完成槽 1/2 guarded mock 投递，pillbox 因 capture timeout 安全拒绝；第三投、返航和
+  降落未完成，Gate 为 `mission_timeout`，不得标记 PASS。当前正式随机场 baseline 30 s
+  预检 PASS，baseline/`a68925d` 90 s A/B 比较 FAIL，保持 baseline，尚未进入新的 600 s Gate。
+  此后本地 clean 任务核心/typed contract 已在 `7dd2c49` 导入，并与 start gate、视觉冻结上下文、
+  typed evaluator 合并至 `db80dfd`；导航 PR #6 已更新到 `d95377c`、Open/Ready，单一 live
+  planner bridge 与真实 `/fastplanner/goal` 已接入。仿真 LiDAR→FAST-LIO→FreeDOM 地图链也已
+  恢复，最新 90 秒 Gate v3 全程无 `map_missing`/`map_stale`，但仍以 `wall_timeout` FAIL：只有
+  3 个 decision/5 个 result，selected、APPROACH、同一 stable ID target-stage、三投、返航和
+  LAND 均未成立，`start_gate_started_once=false`；因此暂不启动 600 秒 Gate；
 - [x] 仿真真值来自 target catalog、Gazebo/model state、CameraInfo/TF，不依赖检测输出；
 - [x] 五类标准靶、红十字、H、背景固定场景与自动 recorder/report 已落地；
 - [x] L0 圆环坐标、全局关联、记忆新鲜度、地图/释放证据连续 3 次通过；
-- [~] L1 已有首版基线；部分召回率和 P95 延迟未达到主路线 Gate；
-- [ ] L2 10 min 无崩溃、积压或时间戳异常；
+- [~] V-SIM-04 L1 operating surface 首轮完成：formal23 为 22/23，static25 为 24/25，
+  sparse30 为 25/30；formal/sparse processing P95=195.3/153.9 ms，地图 P95=0.0792/0.1103 m，
+  TF failure=0。测量完整但采用门槛未冻结，结论仍为 `NOT_GATED`；
+- [x] 全类别 hard audit、动态 pose/速度/yaw/横偏遥测、实际产物核验和 failure capture
+  schema-v3 已通过 mock 与真实 diagnostic；r2026 下 tank/disallowed/policy-rejected selected=0；
+- [~] pillbox 3.6 m 的 1280 diagnostic 恢复 P_confirm，但共视 bridge 被 selected、
+  P_selected=0 且 processing P95=449.3 ms，超过 200 ms；保持 640 默认，不推广 1280；
+- [x] L2 laptop/Gazebo camera-only 10 min：
+  `logs/vsim04_soak600b_seed11_20260831_011055/` 连续 wall 600.024 s，六产物完整、errors=[]，
+  输入/完整 mapped 15.019/13.336 FPS，59 个完整健康窗口坏 streak 均为 0，tank/disallowed/stale
+  selected 为 0，`P_interrupt=null`；该项只覆盖合成 D435i + 笔记本 Ultralytics，不覆盖
+  OrangePi/RKNN、新实物相机、随机场或导航/控制链；
+- [~] 六个已知边界点已用固定 seed=11 独立重复三次，三次编排均 exit 0、配置一致并完整收口；
+  bridge/panzer 低空 2 m/s 均 0/3，pillbox 低空 2 m/s 2/3、高空 0.5 m/s 1/3、高空
+  2 m/s 0/3，静态 pillbox 3.6 m 0/3。重复聚合总 FAIL 是 `DIAGNOSTIC_ONLY` 语义，非编排
+  失败；结果不支持把 2 m/s 或 3.6 m 承诺为通用工作点；
 - [ ] 30-seed 报告已归档。
 
 ## Gate M7：实拍与板端
 
 - [x] 六分类模型已有实拍回放和独立压力集；
-- [~] 圆环实拍等比例回放已建立，但缺人工中心/实例真值；H/地图同步真值仍缺；
-- [ ] ONNX 与 PyTorch 前后处理数值一致性达标（8 图对照仍有 1 missing/1 extra）；
+- [x] 用户已提供新相机 1280×720 OpenCV 标定 YAML；K/D 已作为当前权威内参入库并转换为
+  ROS CameraInfo profile，RMS=0.26874 px，格式测试通过；本轮不要求标定原图、方格单位、
+  对焦或拍摄旋转记录，也不做独立标定正确性复核；
+- [ ] 实物相机实际输出为 1280×720，Image 与 CameraInfo 的时间戳/frame 一致且持续发布；
+- [ ] 新相机安装外参、CameraInfo ROS 话题/时间戳与 optical→body→mission TF 已联合验收；
+- [~] `real_target.mp4` 已完成整段模型/完整链回放、板端抽样和人工审片；圆环 58.80% 为
+  算法内部自洽关联率。仍缺独立人工中心/实例真值；H 与同步 pose/地图真值仍缺；
+- [x] 笔记本 ONNX 与 PyTorch 在同一 `640x640` fixed-letterbox 的 12 图、19 框上数值一致：
+  missing/extra=0、最低 IoU=0.9999991；该项不代表 RKNN 或板端 ROS 验收；
 - [ ] RKNN 与 ONNX 精度差异有逐样本报告；
 - [ ] OrangePi 搜索阶段达到 5-10 Hz；
 - [ ] OrangePi 10 min 无队列积压、内存持续增长或节点崩溃；

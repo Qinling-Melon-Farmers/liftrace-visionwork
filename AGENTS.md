@@ -247,6 +247,47 @@ vision_ws/migration_refs/patrol_control_visual/  # 从 patrol_control 抽取出�
 
 `migration_refs` 只作为参考，不要直接放进 `src/` 编译。
 
+### 3.3 代码仓库、链路来源与回流方向
+
+本目录是**视觉组主仓兼整机集成仓**，并不表示目录内所有导航、控制和第三方代码都由
+视觉组维护。后续接手者必须先按下表确认 source of truth，再决定改动应提交到哪个仓库：
+
+| 链路/资产 | 权威来源 | 当前本地位置或集成落点 | 维护归属与改动去向 |
+| --- | --- | --- | --- |
+| 视觉组主仓、完整集成基线 | `https://github.com/Qinling-Melon-Farmers/liftrace-visionwork.git` | `/home/xhj/liftrace`，Git remote `origin` | 视觉链、视觉接口、项目专用仿真资产、集成适配器和文档在本仓 feature 分支开发；验证后由人工确认合并 `main` |
+| 导航组开发仓 | `https://github.com/sakelier/liftrace-controlwork.git` | 只读参考 clone `/home/xhj/liftrace-controlwork-nav`；经确认的成果集成到 `patrol_uav_ws-patrol_planner/` | 2026 搜索/任务 manager、候选策略及导航组后续规划改动以该仓为准；应先在导航组仓 feature 分支修改和验证，再记录 branch/commit 同步到本集成仓，禁止在本仓悄悄形成导航组源码分叉 |
+| 2025 机载旧链基线 | 香橙派机载电脑拷回的工程；当前未登记独立权威远端 | `patrol_uav_ws-patrol_planner/`、`Desktop_patrol_uav_ws-patrol_planner/`、`Visual/`、`detect_ws/` 等 | 作为历史兼容和回归基线保留；旧 `patrol_control`、`actuator_pwm` 等修改遵守规则 14，并由控制/规划组确认去向 |
+| PX4 SITL/飞控依赖 | `https://github.com/PX4/PX4-Autopilot.git` | `/home/xhj/PX4-Autopilot`，位于本仓外 | 保持独立仓库；不要把 PX4 源码复制进视觉主仓。确需修改时在其独立分支维护，并在集成文档记录 revision |
+| AstraDroneOpen 仿真底座 | `https://gitee.com/lulese/AstraDroneOpen.git` | `/home/xhj/AstraDroneOpen`，位于本仓外 | 通用底座修改留在独立仓；本项目派生的 `toudi4_copy.world`、单下视机架和模型资产留在视觉主仓并记录来源 |
+| ROS Noetic/MAVROS/Gazebo 等系统依赖 | Ubuntu/ROS 系统包与本机安装 | `/opt/ros/noetic` 及系统路径 | 不纳入项目 Git；版本或安装变更写入环境/仿真文档 |
+| 仿真日志、bag、模型权重和数据集 | 运行或训练生成物 | `logs/`、训练输出目录及外部数据目录 | 不进入 Git；通过 run 目录、报告或单独 ZIP 交接，仓库只提交可复现配置和结果摘要 |
+
+当前完整联调链的代码来源关系为：
+
+```text
+PX4/Gazebo/Astra（外部依赖与仿真底座）
+  -> MAVROS
+  -> FAST_LIO -> FreeDOM -> Fast-Planner（2025 集成基线，后续导航组主责）
+  -> 导航组 Search/Mission Manager（liftrace-controlwork）
+  -> 本仓集成适配器 -> 旧 patrol_control / 安全投递代理
+
+单下视相机
+  -> uav_vision 检测/精修/地图投影/记忆/对准（liftrace-visionwork）
+  -> ROS 消息接口交给导航 manager 和旧控制兼容层
+```
+
+跨仓同步必须遵守以下规则：
+
+1. 同步前记录来源仓库 URL、branch 和 commit；只迁移已确认的文件，不用整目录覆盖。
+2. 导航组拥有的 `uav_mission` manager/策略、Fast-Planner 和任务调度改动，优先回到
+   `liftrace-controlwork` 的 feature 分支；本仓只集成明确 revision，并把视觉—导航胶水与
+   Gate 保持在可辨识的外围文件中。
+3. `uav_vision` 的正式实现和消息契约以 `liftrace-visionwork` 为准；导航仓应通过 ROS
+   接口消费，若需复制联调版本必须记录来源 revision，不得在两仓分别演进同名视觉源码。
+4. 跨组公共接口变更先形成书面约定，并在两个仓库各自的变更记录/说明中互相引用；不得由
+   agent 单方面推送另一个组的 `main`。
+5. 仓库 URL 可以写入文档，token、credential 和带凭据 URL 仍严格按规则 15 禁止入库。
+
 ---
 
 ## 4. 2026 规则驱动的技术重点

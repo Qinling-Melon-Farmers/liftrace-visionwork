@@ -1,0 +1,85 @@
+<launch>
+  <!-- V-CL-05 全随机场地 Gate 入口：toudi3_random.world（规则书场地结构，
+       投递区无固定靶标）+ random_field_spawner 随机摆放 4 标准靶与红十字 +
+       r2026 类目 profile（无 tank）。走廊与双 H 坐标视为赛会给定值。 -->
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="wall_timeout" default="3000.0" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="manager_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/coverage_status.json" />
+  <arg name="gate_report_path"
+       default="$(optenv SIM_RUN_DIR /tmp)/gate_status.json" />
+  <arg name="enable_debug_image" default="false" />
+  <arg name="record_debug" default="false" />
+  <arg name="world" default="$(find patrol_control)/../../../toudi3_random.world" />
+  <!-- Gate 只接受固定正 seed，禁止把不可复现的 seed=0 写入真值。 -->
+  <arg name="field_seed" default="11" />
+  <arg name="standard_classes" default="panzer,bridge,pillbox,tent" />
+  <arg name="model_roots" default="$(optenv GAZEBO_MODEL_PATH)" />
+
+  <include file="$(find uav_mission)/launch/toudi3_visual_delivery_guarded.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+    <arg name="external_mission_mode" value="true" />
+    <arg name="waypoint_mode" value="false" />
+    <arg name="world" value="$(arg world)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="planner_max_vel" value="1.5" />
+    <arg name="planner_max_acc" value="1.0" />
+    <arg name="planner_obstacles_inflation" value="0.25" />
+    <arg name="planner_clearance_threshold" value="0.35" />
+    <arg name="px4_max_distance" value="0.2" />
+  </include>
+
+  <node pkg="uav_mission" type="coverage_search_manager.py"
+        name="coverage_search_manager" output="screen">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg manager_report_path)" />
+    <param name="gate_name" value="coverage_random_field" />
+    <param name="navigation_only" value="false" />
+    <param name="execute_candidates" value="true" />
+    <param name="collect_before_delivery" value="true" />
+    <param name="final_land" value="true" />
+    <param name="require_north" value="false" />
+  </node>
+
+  <node pkg="uav_mission" type="coverage_r6_assertion.py"
+        name="coverage_r6_assertion" output="screen" required="true">
+    <param name="wall_timeout" value="$(arg wall_timeout)" />
+    <param name="report_path" value="$(arg gate_report_path)" />
+    <param name="class_profile" value="r2026" />
+    <param name="red_cross_truth_path"
+           value="$(optenv SIM_RUN_DIR /tmp)/red_cross_truth.yaml" />
+  </node>
+
+  <!-- 全随机场地摆放：标准靶（1m 板）与红十字统一随机，避开既有模型并保证
+       两两净空；真值落盘 random_field_truth.yaml（另写 red_cross_truth.yaml
+       兼容断言的“摆放即要求发现”门控），不进入控制链。摆放失败会写 run.log
+       报错并以空场收场，评审以 random_field_truth.yaml 存在为准。 -->
+  <node pkg="uav_mission" type="random_field_spawner.py"
+        name="random_field_spawner" output="screen">
+    <rosparam command="load"
+              file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+    <param name="seed" value="$(arg field_seed)" />
+    <param name="standard_classes" value="$(arg standard_classes)" />
+    <param name="model_roots" value="$(arg model_roots)" />
+    <!-- 局部->世界换算：起飞 H 的 Gazebo 世界位姿（与 toudi4 主 H 同位）。 -->
+    <param name="spawn_offset/x" value="-0.493412" />
+    <param name="spawn_offset/y" value="-1.772690" />
+  </node>
+
+  <!-- 可选的 debug 视觉录制（默认关闭）：录制原始下视图像与各检测器 debug 图。 -->
+  <node if="$(arg record_debug)" pkg="rosbag" type="record"
+        name="debug_visual_recorder" output="screen"
+        args="--lz4 --split --size=2048 --duration=610
+              -o $(optenv SIM_RUN_DIR /tmp)/debug_visual
+              /downward_camera/image_raw
+              /uav_vision/circle_debug
+              /uav_vision/landing_debug
+              /uav_vision/cross_debug
+              /uav_vision/debug_image" />
+</launch>

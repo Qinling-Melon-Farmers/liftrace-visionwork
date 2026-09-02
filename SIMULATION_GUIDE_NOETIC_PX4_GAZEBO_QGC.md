@@ -1,6 +1,6 @@
 # 视觉组仿真分层与环境入口（ROS Noetic + PX4 + Gazebo）
 
-更新时间：2026-08-23
+更新时间：2026-08-26
 
 ## 1. 用途和安全边界
 
@@ -24,6 +24,9 @@
   北区巡航、返航和降落尚未完成；当前直达航点模式不等于在线避障；
 - 当前独立真值、自动评分和 shadow 最小基建已存在，但 30-seed、正式召回/时延阈值和
   10 min 稳定性仍未通过。
+- 导航组 `liftrace-controlwork@5144aa8` 的搜索 manager 已接入
+  `navigation_search_delivery_toudi4.launch`；2026-08-26 headless 完成两投后在 600 s
+  超时，属于 L3 联调入口，尚未通过三投/返航/落地 Gate。
 
 因此新视觉 GUI 仿真仍只算“链路烟测”。定量结论必须来自 `uav_vision_eval` 报告，且
 当前所有推理结果都属于笔记本，不属于 OrangePi 板端。
@@ -58,7 +61,7 @@ SDF 参数；这些值只修改仿真配置，`patrol_planner_real.xml` 的实�
 | L0 mock | `phase_d_map_mock.launch`、`phase_d_mock_patrol_regression.launch` | 消息、TF、地图投影、模式和兼容接口 | assertion 退出码 0 |
 | L1 Gazebo 静态真值 | `run_toudi3_visual_suite.sh` | 检测、中心、实例关联、地图误差 | 自动 CSV/JSON/report；正式阈值待全过 |
 | L2 toudi3 shadow 飞行 | `toudi3_full_shadow.launch` | 连续观测、ID、时延、稳定性 | 隔离已验证；固定 seed + 10 min 待完成 |
-| L3 任务闭环 | `coverage_r6.launch` + Mission Manager | 搜索、接近、恢复、对准证据 | 已有固定场景三投；全随机五靶待验收 |
+| L3 任务闭环 | `coverage_r6.launch`（历史临时 manager）；`navigation_search_delivery_toudi4.launch`（导航组 manager） | 搜索、接近、恢复、对准证据 | 临时 manager 有三投证据；导航组 manager 当前 2/3、600 s 超时 |
 
 实拍视频/rosbag 回放与 OrangePi RKNN 分别是域差和部署门禁，不属于 Gazebo 的替代品。
 
@@ -252,6 +255,32 @@ rostopic echo -n 1 /uav_vision/drop_ready
 ```
 
 不要在存在其他 ROS 任务时使用宽泛的 `pkill -f`。
+
+### 7.3 导航组 manager + 新视觉 headless 联调
+
+该入口使用导航组原始 manager 生成覆盖/候选抵近目标，外围适配器承接现有视觉和旧控制
+投递链。必须显式提供模型；空路径会启动“发布空检测”的开发兼容模式。
+
+```bash
+cd /home/xhj/liftrace
+export UAV_VISION_MODEL_PATH=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt
+SIM_NO_RECORD=1 bash top_level_scripts/sim_run.sh \
+  navigation_upstream_visual_delivery_headless \
+  roslaunch uav_mission navigation_search_delivery_toudi4.launch \
+  gui:=false rviz:=false enable_debug_image:=false \
+  spawn_red_cross:=true red_cross_seed:=0
+```
+
+必须检查 run 目录中的：
+
+- `target_search_status.json`：覆盖索引、候选、失败原因、投递槽位和任务终态；
+- `gate_status.json`：raw/planner goal 所有权、旧 manager 缺席和三投断言；
+- `red_cross_truth.yaml`：只用于复盘，不能进入任务；
+- `roslog/target_search_manager_py-*.log`：导航组原状态转换和实际三维到达误差。
+
+当前已知基线是 `navigation_upstream_visual_delivery_headless_model_20260826_023411`：600 s
+到 9/16、tent/bridge 两投成功、pillbox capture timeout、第三投未完成。GUI 必须等同一
+headless Gate 三投/返航/落地通过后再开；2026-08-26 用户已明确暂缓 GUI 二轮。
 
 ## 8. 正式视觉仿真入口与剩余完成定义
 

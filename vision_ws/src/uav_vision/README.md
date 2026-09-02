@@ -25,7 +25,7 @@ MAVROS 指令或执行机构节点。接口、单目地图点公式和接入要�
 | `circle_detector_node` | 蓝色圆环几何观测 | 等比例 letterbox；实拍绝对中心真值仍缺 |
 | `landing_detector_node` | H 外圈 + 内部 H 结构观测 | 仍需扩真实黑圈/H 负样本 |
 | `detection_fusion.py` | 同源时间戳聚合与阶段裁决 | 笔记本仿真等待参数仍需降延迟 |
-| `target_refiner.py` | 全局一对一类别—圆环关联与中心精修 | 未关联标准靶不进入 operational 链 |
+| `target_refiner.py` | profile 感知的全局一对一类别—圆环关联与中心精修 | 未关联标准靶不进入 operational 链；禁用类不消耗蓝环 |
 | `target_map_projector.py` | CameraInfo + TF 地面投影 | 固定 Gazebo 有真值；实拍同步 pose 仍缺 |
 | `target_memory.py` | 连续帧确认、物理 stable ID、类别投票、地图融合与新鲜度 | 跨视角正式 Gate 仍待完成 |
 | `drop_aligner.py` | 偏差、`drop_ready` 与结构化释放证据 | 最终许可仍属任务/安全层 |
@@ -47,10 +47,12 @@ detectors
   -> /uav_vision/selected_target
 
 /uav_vision/align_mode + selected_target
+  + /uav_vision/alignment_target_context (VCL06 strict mode, optional)
   -> drop_aligner
   -> /uav_vision/drop_offset
   -> /uav_vision/drop_ready
   -> /uav_vision/release_evidence
+  -> /uav_vision/release_evidence_context
 ```
 
 输入默认值来自 `config/default.yaml`：
@@ -84,9 +86,17 @@ topic 刚收到就认定目标刚被看到。
 - 地图候选 TTL：0（直到 reset）；
 - 地图匹配距离：0.5 m；
 - 候选确认：连续 3 帧；漏检会清零连续计数，但不删除 TTL 内已确认地图记忆；
+- `CONFIRMED` 保持为长期记忆状态；`selected_target` 仍要求当前连续 3 帧、地图/关联有效、
+  无拒绝原因且观测年龄满足 `0 <= age <= 0.5 s`；未来时间戳、非有限置信度/地图质量/坐标
+  和空 map frame 均 fail-closed，不进入 selected；
+- stable ID、融合地图点和地图质量继续作为历史诊断记忆保留，但候选消息的 `map_valid`
+  只表示当前帧投影有效；漏检或当前投影失败时不得借历史地图继续 selected；
 - 类别切换：连续 2 帧且置信度不低于 0.70，同时累计置信度投票胜出；
 - Phase D/板端 `require_map_for_candidates=true`，无效或陈旧 TF 不得刷新候选；
 - 类别优先级用于候选排序，权重取自赛委会确认的得分权重：tent=1、pillbox=1.5、bridge=2、panzer=2.5、tank=5、red_cross=10。
+- `class_profile=full` 保留六分类兼容；`class_profile=r2026` 保留 tank 诊断记忆但禁止其发布为
+  `selected_target`。同一 profile 也下传 `target_refiner`：tank 原始框继续保留诊断，但不能抢占
+  tent/pillbox/bridge/panzer 的蓝环关联。未知 profile 会令节点非零退出。
 
 ### `align_mode`
 
@@ -101,6 +111,22 @@ H 只在 `landing`，红十字只在 `drop_cross`，标准靶/圆环只在 `drop
 
 聚合目标身份、确认状态、几何/中心验证、观测年龄、对准、稳定帧和拒绝原因。它仍是视觉
 证据，不读取飞行速度、机构或规则互锁，也不等于任务/安全层最终 `release_permission`。
+
+### `AlignmentTargetContext` / `ReleaseEvidenceContext`
+
+VCL06 coordinator 可发布不依赖 `uav_mission` 的冻结上下文。其 command 常量与
+`NavigationDecision v1` 同值，完整围栏为
+`mission_id + decision_seq + semantic_target_id + semantic_target_first_seen + attempt + payload_slot`；
+`has_target` 显式区分无目标与合法 `target_id=0`。默认 `require_alignment_context=false`，旧
+`/uav_vision/release_evidence` 的类型、topic 和行为不变；正式接线显式开启 strict 后，缺失、
+失鲜、错误 profile/command、deadline 到达或冻结字段变化都会清零稳定帧并 fail-closed。
+strict watchdog 不依赖目标数组继续到达；目标流中断后，即使 coordinator 仍续租 context，当前
+几何观测超龄也会主动发布无效证据并撤销 `drop_ready`，context 失鲜/deadline 到达同样处理。
+
+标准投放区的语义候选 ID 与蓝环几何 ID 不要求相同，必须使用冻结语义 `target_pose` 与当前
+圆环地图点做同 frame 距离关联；红十字按 `id + first_seen` 精确实例关联。
+`ReleaseEvidenceContext` 内嵌旧证据并回显 context source/header、decision/语义身份、实际几何
+身份、地图位姿、关联距离与 `context_valid/context_reason`，供导航/安全层做可审计关联。
 
 ## 4. launch
 
@@ -120,6 +146,12 @@ H 只在 `landing`，红十字只在 `drop_cross`，标准靶/圆环只在 `drop
 | `phase_d_mock_patrol_regression.launch` | 上述接线的自动 assertion |
 | `phase_d_mode_mock.launch` | align mode 行为测试 |
 | `circle_geometry_mock.launch` | 圆环坐标恢复测试 |
+| `alignment_context_mock.launch` | VCL06 冻结上下文、围栏、租约和几何身份 assertion |
+| `video_replay_annotation.launch` | MP4 逐帧可靠回放真实 ROS 像素链并生成单一标注视频；不启动地图/选靶/控制 |
+
+真实视频人工审片入口、颜色图例和边界见
+[当前 ROS 像素链 MP4 回放与标注](docs/VIDEO_REPLAY_ANNOTATION.md)。该入口复用正式
+detector/fusion/refiner，不产生地图点、stable ID 或 selected target。
 
 评测场景、真值、自动报告和 shadow 入口位于 `uav_vision_eval`。一键运行当前八个固定视觉
 场景：
@@ -193,7 +225,8 @@ GUI 入口仍只算人工连通烟测；定量结论使用 `uav_vision_eval`，�
 4. H/普通黑圈/残圈实拍负样本仍不足；
 5. 笔记本完整 SITL 已用 MAVROS 位姿核对 `camera_init` TF；真实 LIO/相机外参仍待验收；
 6. 旧 Pose 兼容接口未完成下线；
-7. PT/ONNX/RKNN 仍有逐框数值差异，尚不能冻结最终部署模型；
+7. 笔记本 PT/ONNX 已在相同 fixed-letterbox 输入的 12 图/19 框 Gate 通过；RKNN 仍需用
+   同一批输入做逐框对照，尚不能据此冻结最终板端部署模型；
 8. 六分类 RKNN 已在 OrangePi 做离线验证，但 ROS 板端链、CameraInfo/TF、10 min 稳定性和
    压力真值仍未验收；四款 INT8 当前全量 P/R/mAP 为 0。
 9. 当前地图投影是单目射线与固定 `ground_z` 平面求交；不需要深度相机，但尚未接入

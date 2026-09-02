@@ -16,6 +16,19 @@ set -u
 SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOGS_DIR="${PROJECT_ROOT}/logs"
+export PROJECT_ROOT
+export VISION_WS="${VISION_WS:-${PROJECT_ROOT}/vision_ws}"
+INTEGRATION_WS="${LIFTRACE_INTEGRATION_WS:-/home/xhj/liftrace/patrol_uav_ws-patrol_planner}"
+if [ -z "${UAV_WS:-}" ]; then
+  if [ -f "${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/devel/setup.bash" ]; then
+    export UAV_WS="${PROJECT_ROOT}/patrol_uav_ws-patrol_planner"
+  else
+    # A git worktree normally has no copied build/devel products.  Reuse the
+    # integration workspace only as a compiled underlay; source packages below
+    # are still forced to this worktree.
+    export UAV_WS="${INTEGRATION_WS}"
+  fi
+fi
 
 # WSL may inherit Windows Anaconda paths even when invoked non-interactively.
 # Keep ROS command wrappers on the Ubuntu system Python before sourcing overlays.
@@ -27,11 +40,27 @@ set +u
 if [ -z "${ROS_DISTRO:-}" ] && [ -f /opt/ros/noetic/setup.bash ]; then
   source /opt/ros/noetic/setup.bash
 fi
-if [ -f "${PROJECT_ROOT}/vision_ws/devel/setup.bash" ]; then
-  source "${PROJECT_ROOT}/vision_ws/devel/setup.bash"
+INTEGRATION_UNDERLAY_SOURCED=0
+if [ "${UAV_WS}" = "${PROJECT_ROOT}/patrol_uav_ws-patrol_planner" ] && \
+   [ "${UAV_WS}" != "${INTEGRATION_WS}" ] && \
+   [ -f "${INTEGRATION_WS}/devel/setup.bash" ]; then
+  # A feature worktree may contain only a targeted catkin build.  Keep the
+  # integration workspace underneath it so unchanged runtime executables and
+  # generated interfaces remain available without copying build products.
+  source "${INTEGRATION_WS}/devel/setup.bash"
+  INTEGRATION_UNDERLAY_SOURCED=1
 fi
-if [ -f "${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/devel/setup.bash" ]; then
-  source "${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/devel/setup.bash"
+if [ -f "${UAV_WS}/devel/setup.bash" ]; then
+  if [ "${INTEGRATION_UNDERLAY_SOURCED}" = "1" ]; then
+    source "${UAV_WS}/devel/setup.bash" --extend
+  else
+    source "${UAV_WS}/devel/setup.bash"
+  fi
+fi
+if [ -f "${VISION_WS}/devel/setup.bash" ]; then
+  # Keep the compiled integration workspace available, but make the current
+  # feature worktree the highest-priority visual overlay.
+  source "${VISION_WS}/devel/setup.bash" --extend
 fi
 set -u
 
@@ -57,6 +86,55 @@ export SIM_RUN_DIR="${RUN_DIR}"
 MANIFEST="${RUN_DIR}/manifest.yaml"
 RUN_LOG="${RUN_DIR}/run.log"
 RECORD_MP4="${RUN_DIR}/screenrecord.mp4"
+REQUIRE_GATE="${SIM_REQUIRE_GATE:-0}"
+VSIM04_CAPTURE_REQUESTED=0
+VSIM04_CAPTURE_SUBDIR="failure_capture"
+VSIM04_OUTPUT_OVERRIDE=0
+for RUN_ARGUMENT in "$@"; do
+  case "${RUN_ARGUMENT}" in
+    enable_failure_capture:=*)
+      VSIM04_CAPTURE_VALUE="${RUN_ARGUMENT#enable_failure_capture:=}"
+      case "${VSIM04_CAPTURE_VALUE}" in
+        true|True|TRUE|1) VSIM04_CAPTURE_REQUESTED=1 ;;
+        false|False|FALSE|0) VSIM04_CAPTURE_REQUESTED=0 ;;
+      esac
+      ;;
+    failure_capture_output_dir:=*)
+      VSIM04_CAPTURE_SUBDIR="${RUN_ARGUMENT#failure_capture_output_dir:=}"
+      ;;
+    output_dir:=*) VSIM04_OUTPUT_OVERRIDE=1 ;;
+  esac
+done
+case "${SCENE}" in
+  vsim04*)
+    if [ "${VSIM04_OUTPUT_OVERRIDE}" = "1" ]; then
+      echo "sim_run owns V-SIM-04 output_dir inside SIM_RUN_DIR" >&2
+      exit 2
+    fi
+    ;;
+esac
+if [ "${VSIM04_CAPTURE_REQUESTED}" = "1" ]; then
+  VSIM04_CAPTURE_SUBDIR_VALID=1
+  case "${VSIM04_CAPTURE_SUBDIR}" in
+    ""|/*|*\\*) VSIM04_CAPTURE_SUBDIR_VALID=0 ;;
+  esac
+  OLD_IFS="${IFS}"
+  IFS=/
+  read -r -a VSIM04_CAPTURE_PARTS <<< "${VSIM04_CAPTURE_SUBDIR}"
+  IFS="${OLD_IFS}"
+  for VSIM04_CAPTURE_PART in "${VSIM04_CAPTURE_PARTS[@]}"; do
+    if [ -z "${VSIM04_CAPTURE_PART}" ] || \
+       [ "${VSIM04_CAPTURE_PART}" = "." ] || \
+       [ "${VSIM04_CAPTURE_PART}" = ".." ] || \
+       [[ ! "${VSIM04_CAPTURE_PART}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+      VSIM04_CAPTURE_SUBDIR_VALID=0
+    fi
+  done
+  if [ "${VSIM04_CAPTURE_SUBDIR_VALID}" != "1" ]; then
+    echo "invalid run-relative failure_capture_output_dir: ${VSIM04_CAPTURE_SUBDIR}" >&2
+    exit 2
+  fi
+fi
 
 # ---- manifest 头部 ----
 {
@@ -66,10 +144,21 @@ RECORD_MP4="${RUN_DIR}/screenrecord.mp4"
   echo "git_head: $(cd "${PROJECT_ROOT}" && git rev-parse HEAD 2>/dev/null || echo unknown)"
   echo "git_status:"
   (cd "${PROJECT_ROOT}" && git status --short) | sed 's/^/  /'
-  echo "launch_cmd:"
-  printf '  - %s\n' "$@" | sed 's/ - /"\n  - "/g'
-  echo "roslaunch_args:"
-  printf '  %s\n' "$@" | sed 's/ /=/; s/ / /' | head -20
+  python3 - "$@" <<'PY'
+import json
+import sys
+
+arguments = sys.argv[1:]
+print("launch_cmd:")
+for argument in arguments:
+    # A JSON string is also a valid YAML scalar and preserves spaces, quotes
+    # and launch substitutions without handwritten escaping.
+    print("  - " + json.dumps(argument, ensure_ascii=False))
+print("roslaunch_args:")
+for argument in arguments[:20]:
+    print("  - " + json.dumps(argument, ensure_ascii=False))
+PY
+  echo "require_gate: ${REQUIRE_GATE}"
 } > "${MANIFEST}"
 
 # ---- sim_helpers（可选：SIM_HELPERS=1 启动，旧链 mock 用） ----
@@ -110,7 +199,135 @@ if [ -f "${GATE_STATUS_FILE}" ]; then
   if [ "${GATE_STATUS}" != "PASS" ]; then
     EXIT_CODE=1
   fi
+elif [ "${REQUIRE_GATE}" = "1" ]; then
+  echo "Gate status: MISSING (SIM_REQUIRE_GATE=1)" | tee -a "${RUN_LOG}"
+  EXIT_CODE=1
 fi
+
+# V-SIM-04 的 required runner 失败会让 roslaunch 触发正常关停，roslaunch 本身仍可能
+# 返回 0。对该场景必须以评测终态和六项产物为准，避免 INVALID 被误报为成功运行。
+case "${SCENE}" in
+  vsim04*)
+    VSIM04_DIR="${RUN_DIR}/vsim04"
+    VSIM04_SUMMARY="${VSIM04_DIR}/summary.json"
+    VSIM04_STATUS=""
+    VSIM04_PERFORMANCE_VERDICT=""
+    VSIM04_PERFORMANCE_HARD_FAILURE=""
+    VSIM04_QUALIFICATION=""
+    VSIM04_SOAK_600S_PASS=""
+    VSIM04_ARTIFACT_SET_COMPLETE=""
+    VSIM04_ERROR_COUNT=""
+    VSIM04_P_INTERRUPT=""
+    VSIM04_REQUESTED_GE_600=""
+    VSIM04_REQUESTED_LT_600=""
+    VSIM04_ACTUAL_GE_600=""
+    VSIM04_EXPECTED_QUALIFICATION=""
+    VSIM04_IS_SOAK=0
+    VSIM04_EXPECTED_STATUS="MEASURED"
+    case "${SCENE}" in
+      vsim04_diag*) VSIM04_EXPECTED_STATUS="DIAGNOSTIC" ;;
+      vsim04_soak_smoke*)
+        VSIM04_EXPECTED_STATUS="SOAK_MEASURED"
+        VSIM04_IS_SOAK=1
+        VSIM04_EXPECTED_QUALIFICATION="SMOKE_ONLY"
+        ;;
+      vsim04_soak600*)
+        VSIM04_EXPECTED_STATUS="SOAK_MEASURED"
+        VSIM04_IS_SOAK=1
+        VSIM04_EXPECTED_QUALIFICATION="SOAK_600S_MEASURED"
+        ;;
+      vsim04_soak*)
+        VSIM04_EXPECTED_STATUS="SOAK_MEASURED"
+        VSIM04_IS_SOAK=1
+        VSIM04_EXPECTED_QUALIFICATION="INVALID_SCENE_NAME"
+        ;;
+    esac
+    VSIM04_ARTIFACTS="manifest.json frames.csv events.csv summary.json report.md vision_search_performance.csv"
+    VSIM04_MISSING=""
+    for artifact in ${VSIM04_ARTIFACTS}; do
+      if [ ! -s "${VSIM04_DIR}/${artifact}" ]; then
+        VSIM04_MISSING="${VSIM04_MISSING} ${artifact}"
+      fi
+    done
+    if [ -f "${VSIM04_SUMMARY}" ]; then
+      VSIM04_STATUS="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("status", ""))' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_PERFORMANCE_VERDICT="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("performance_verdict", {}).get("status", ""))' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_PERFORMANCE_HARD_FAILURE="$(python3 -c 'import json,sys; print(str(json.load(open(sys.argv[1], encoding="utf-8")).get("performance_verdict", {}).get("hard_failure", False)).lower())' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_QUALIFICATION="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("qualification_status", ""))' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_SOAK_600S_PASS="$(python3 -c 'import json,sys; print(str(json.load(open(sys.argv[1], encoding="utf-8")).get("soak_600s_pass", False)).lower())' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_ARTIFACT_SET_COMPLETE="$(python3 -c 'import json,sys; print(str(json.load(open(sys.argv[1], encoding="utf-8")).get("artifact_set_complete", False)).lower())' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_ERROR_COUNT="$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1], encoding="utf-8")).get("errors", [])))' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_P_INTERRUPT="$(python3 -c 'import json,sys; value=json.load(open(sys.argv[1], encoding="utf-8")).get("p_interrupt", "missing"); print("null" if value is None else value)' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_REQUESTED_GE_600="$(python3 -c 'import json,sys; print(str(float(json.load(open(sys.argv[1], encoding="utf-8")).get("requested_duration_sec", -1)) >= 600.0).lower())' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_REQUESTED_LT_600="$(python3 -c 'import json,sys; print(str(0.0 < float(json.load(open(sys.argv[1], encoding="utf-8")).get("requested_duration_sec", -1)) < 600.0).lower())' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+      VSIM04_ACTUAL_GE_600="$(python3 -c 'import json,sys; print(str(float(json.load(open(sys.argv[1], encoding="utf-8")).get("actual_wall_duration_sec", -1)) >= 600.0).lower())' "${VSIM04_SUMMARY}" 2>/dev/null || true)"
+    fi
+    echo "V-SIM-04 status: ${VSIM04_STATUS:-MISSING} (expected ${VSIM04_EXPECTED_STATUS})" | tee -a "${RUN_LOG}"
+    echo "V-SIM-04 performance verdict: ${VSIM04_PERFORMANCE_VERDICT:-MISSING} (hard_failure=${VSIM04_PERFORMANCE_HARD_FAILURE:-unknown})" | tee -a "${RUN_LOG}"
+    if [ "${VSIM04_IS_SOAK}" = "1" ]; then
+      echo "V-SIM-04 soak qualification: ${VSIM04_QUALIFICATION:-MISSING} (expected ${VSIM04_EXPECTED_QUALIFICATION:-MISSING}, 600s_pass=${VSIM04_SOAK_600S_PASS:-false}, artifacts=${VSIM04_ARTIFACT_SET_COMPLETE:-false}, errors=${VSIM04_ERROR_COUNT:-unknown}, P_interrupt=${VSIM04_P_INTERRUPT:-missing})" | tee -a "${RUN_LOG}"
+    fi
+    if [ -n "${VSIM04_MISSING}" ]; then
+      echo "V-SIM-04 missing artifacts:${VSIM04_MISSING}" | tee -a "${RUN_LOG}"
+    fi
+    if [ "${VSIM04_STATUS}" != "${VSIM04_EXPECTED_STATUS}" ] || [ -n "${VSIM04_MISSING}" ]; then
+      EXIT_CODE=1
+    fi
+    if [ "${VSIM04_IS_SOAK}" != "1" ] && \
+       [ "${VSIM04_PERFORMANCE_HARD_FAILURE}" = "true" ]; then
+      EXIT_CODE=1
+    fi
+    if [ "${VSIM04_IS_SOAK}" = "1" ]; then
+      if [ "${VSIM04_ARTIFACT_SET_COMPLETE}" != "true" ] || \
+         [ "${VSIM04_ERROR_COUNT}" != "0" ] || \
+         [ "${VSIM04_P_INTERRUPT}" != "null" ] || \
+         [ "${VSIM04_QUALIFICATION}" != "${VSIM04_EXPECTED_QUALIFICATION}" ]; then
+        EXIT_CODE=1
+      fi
+      if [ "${VSIM04_EXPECTED_QUALIFICATION}" = "SMOKE_ONLY" ] && \
+         { [ "${VSIM04_SOAK_600S_PASS}" != "false" ] || \
+           [ "${VSIM04_REQUESTED_LT_600}" != "true" ]; }; then
+        EXIT_CODE=1
+      fi
+      if [ "${VSIM04_EXPECTED_QUALIFICATION}" = "SOAK_600S_MEASURED" ] && \
+         { [ "${VSIM04_SOAK_600S_PASS}" != "true" ] || \
+           [ "${VSIM04_REQUESTED_GE_600}" != "true" ] || \
+           [ "${VSIM04_ACTUAL_GE_600}" != "true" ]; }; then
+        EXIT_CODE=1
+      fi
+    fi
+    if [ "${VSIM04_IS_SOAK}" != "1" ] && \
+       [ "${VSIM04_EXPECTED_STATUS}" = "MEASURED" ] && \
+       [ "${VSIM04_PERFORMANCE_VERDICT}" != "PASS" ]; then
+      EXIT_CODE=1
+    fi
+    if [ "${VSIM04_IS_SOAK}" != "1" ] && \
+       [ "${VSIM04_EXPECTED_STATUS}" = "DIAGNOSTIC" ] && \
+       [ "${VSIM04_PERFORMANCE_VERDICT}" != "DIAGNOSTIC_ONLY" ]; then
+      EXIT_CODE=1
+    fi
+    if [ "${VSIM04_CAPTURE_REQUESTED}" = "1" ]; then
+      VSIM04_CAPTURE_DIR="${VSIM04_DIR}/${VSIM04_CAPTURE_SUBDIR}"
+      VSIM04_CAPTURE_MANIFEST="${VSIM04_CAPTURE_DIR}/dataset_manifest.json"
+      VSIM04_CAPTURE_STATUS=""
+      if [ -f "${VSIM04_CAPTURE_MANIFEST}" ]; then
+        VSIM04_CAPTURE_STATUS="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("status", ""))' "${VSIM04_CAPTURE_MANIFEST}" 2>/dev/null || true)"
+      fi
+      echo "V-SIM-04 capture status: ${VSIM04_CAPTURE_STATUS:-MISSING} (expected DIAGNOSTIC)" | tee -a "${RUN_LOG}"
+      if [ "${VSIM04_CAPTURE_STATUS}" != "DIAGNOSTIC" ]; then
+        EXIT_CODE=1
+      fi
+      VSIM04_CAPTURE_CHECKER="${PROJECT_ROOT}/vision_ws/src/uav_vision_eval/scripts/vsim04_failure_capture_manifest_check.py"
+      if ! PYTHONPATH="${PROJECT_ROOT}/vision_ws/src/uav_vision_eval/src${PYTHONPATH:+:${PYTHONPATH}}" \
+          python3 "${VSIM04_CAPTURE_CHECKER}" "${VSIM04_CAPTURE_MANIFEST}"; then
+        echo "V-SIM-04 capture manifest/files validation: FAIL" | tee -a "${RUN_LOG}"
+        EXIT_CODE=1
+      else
+        echo "V-SIM-04 capture manifest/files validation: PASS" | tee -a "${RUN_LOG}"
+      fi
+    fi
+    ;;
+esac
 
 echo "" | tee -a "${RUN_LOG}"
 echo "Main cmd exited: ${EXIT_CODE}" | tee -a "${RUN_LOG}"

@@ -13,12 +13,14 @@ from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Bool, Int8, String
 
 from uav_mission.msg import ReleasePermission, ReleaseResult
-from uav_vision.msg import ReleaseEvidence
+from uav_vision.msg import ReleaseEvidence, ReleaseEvidenceContext
 
 _SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 if _SCRIPT_DIR not in sys.path:
     sys.path.insert(0, _SCRIPT_DIR)
-from release_commitment import MODE_TARGET_CLASS, ReleaseCommitmentPolicy
+from release_commitment import (
+    MODE_TARGET_CLASS, ReleaseCommitmentPolicy, strict_context_source,
+)
 
 
 class ReleasePermissionArbiter:
@@ -44,9 +46,16 @@ class ReleasePermissionArbiter:
             rospy.get_param("~commitment_timeout", 30.0))
         self._commitment_max_drift = float(
             rospy.get_param("~commitment_max_drift", 0.20))
+        self._require_evidence_context = bool(
+            rospy.get_param("~require_evidence_context", False))
+        self._class_profile = str(
+            rospy.get_param("~class_profile", "r2026"))
 
         evidence_topic = rospy.get_param(
             "~evidence_topic", "/uav_vision/release_evidence")
+        evidence_context_topic = rospy.get_param(
+            "~evidence_context_topic",
+            "/uav_vision/release_evidence_context")
         commitment_evidence_topic = rospy.get_param(
             "~commitment_evidence_topic",
             "/mission/release_commitment_evidence")
@@ -65,6 +74,7 @@ class ReleasePermissionArbiter:
             "~result_topic", "/mission/release_result")
 
         self._evidence = None
+        self._evidence_context = None
         self._align_mode = "disabled"
         self._pose = None
         self._control_state = None
@@ -85,8 +95,13 @@ class ReleasePermissionArbiter:
             queue_size=1, latch=True)
         self._permission_state_pub = rospy.Publisher(
             permission_state_topic, Bool, queue_size=1, latch=True)
-        rospy.Subscriber(evidence_topic, ReleaseEvidence,
-                         self._on_evidence, queue_size=2)
+        if self._require_evidence_context:
+            rospy.Subscriber(
+                evidence_context_topic, ReleaseEvidenceContext,
+                self._on_evidence_context, queue_size=2)
+        else:
+            rospy.Subscriber(evidence_topic, ReleaseEvidence,
+                             self._on_evidence, queue_size=2)
         rospy.Subscriber(align_mode_topic, String,
                          self._on_align_mode, queue_size=2)
         rospy.Subscriber(pose_topic, PoseStamped,
@@ -103,15 +118,22 @@ class ReleasePermissionArbiter:
         rospy.loginfo(
             "[ReleaseArbiter] ready slots=%d..%d evidence_timeout=%.2fs "
             "pose_timeout=%.2fs control_state=%d timeout=%.2fs "
-            "altitude=[%.2f, %.2f]m commitment=%.1fs drift=%.2fm",
+            "altitude=[%.2f, %.2f]m commitment=%.1fs drift=%.2fm "
+            "strict_context=%s",
             self._next_slot, self._payload_slots,
             self._evidence_timeout, self._pose_timeout,
             self._required_control_state, self._control_state_timeout,
             self._min_altitude, self._max_altitude,
-            self._commitment_timeout, self._commitment_max_drift)
+            self._commitment_timeout, self._commitment_max_drift,
+            self._require_evidence_context)
 
     def _on_evidence(self, msg):
         self._evidence = msg
+        self._maybe_establish_commitment()
+
+    def _on_evidence_context(self, msg):
+        self._evidence_context = msg
+        self._evidence = msg.evidence
         self._maybe_establish_commitment()
 
     def _on_align_mode(self, msg):
@@ -168,6 +190,9 @@ class ReleasePermissionArbiter:
                 self._align_mode not in MODE_TARGET_CLASS):
             return
         now = rospy.Time.now()
+        evidence_valid, _, source = self._current_evidence_source(now)
+        if not evidence_valid:
+            return
         evidence_fresh = (
             self._stamp_age(now, self._evidence.header.stamp) <=
             self._evidence_timeout)
@@ -177,16 +202,15 @@ class ReleasePermissionArbiter:
         control_state_fresh = (
             self._stamp_age(now, self._control_state_stamp) <=
             self._control_state_timeout)
-        if self._evidence.align_mode != self._align_mode:
-            return
         evidence = {
-            "evidence_valid": bool(self._evidence.evidence_valid),
+            "evidence_valid": True,
             "align_mode": self._evidence.align_mode,
-            "target_id": int(self._evidence.target_id),
-            "target_class": self._evidence.target_class,
+            "target_id": source["target_id"],
+            "target_class": source["target_class"],
+            "geometry_target_class": source["geometry_target_class"],
             "stable_frames": int(self._evidence.stable_frames),
             "evidence_stamp_nsec": int(
-                self._evidence.header.stamp.to_nsec()),
+                source["evidence_stamp"].to_nsec()),
         }
         commitment = self._commitment_policy.observe(
             now=now.to_sec(),
@@ -213,6 +237,15 @@ class ReleasePermissionArbiter:
     def _current_evidence_source(self, now):
         if self._evidence is None:
             return False, "no_release_evidence", None
+        if self._require_evidence_context:
+            return strict_context_source(
+                self._evidence_context,
+                now,
+                self._evidence_timeout,
+                self._class_profile,
+                self._align_mode,
+                self._next_slot,
+            )
         evidence_age = self._stamp_age(now, self._evidence.header.stamp)
         if evidence_age > self._evidence_timeout:
             return False, "stale_release_evidence", None
@@ -226,7 +259,9 @@ class ReleasePermissionArbiter:
         return True, "permission_granted", {
             "target_id": int(self._evidence.target_id),
             "target_class": self._evidence.target_class,
+            "geometry_target_class": self._evidence.target_class,
             "evidence_stamp": self._evidence.header.stamp,
+            "stable_frames": int(self._evidence.stable_frames),
         }
 
     def _commitment_source(self):
@@ -236,6 +271,8 @@ class ReleasePermissionArbiter:
         return {
             "target_id": self._commitment.target_id,
             "target_class": self._commitment.target_class,
+            "geometry_target_class": MODE_TARGET_CLASS[
+                self._commitment.align_mode],
             "evidence_stamp": rospy.Time(
                 stamp_nsec // 1000000000,
                 stamp_nsec % 1000000000),
