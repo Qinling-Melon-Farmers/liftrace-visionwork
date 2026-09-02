@@ -1,9 +1,15 @@
 <launch>
-  <!-- Pixel-only offline replay.  This launch never starts TF/map projection,
-       target memory, planner/control, MAVROS, PX4, or an actuator. -->
+  <!-- Offline replay.  The default PT mode preserves the historical
+       pixel-only path.  RKNN mode additionally observes perf and runs the
+       projector without any TF, so every map result must fail closed. -->
   <arg name="video_path" default="" />
   <arg name="output_video" default="" />
+  <arg name="detector_backend" default="pt" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="rknn_model_path"
+       default="$(find uav_vision)/models/merged_standard_fp32.rknn" />
+  <arg name="rknn_metadata_path"
+       default="$(find uav_vision)/config/merged_standard_6cls_metadata.yaml" />
   <arg name="vision_python"
        default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
   <arg name="target_detector_imgsz" default="640" />
@@ -27,18 +33,37 @@
        default="/uav_vision/video_replay/detections_resolved_landing" />
   <arg name="refined_topic"
        default="/uav_vision/video_replay/detections_refined" />
+  <arg name="mapped_topic"
+       default="/uav_vision/video_replay/detections_mapped" />
+  <arg name="perf_topic" default="/uav_vision/video_replay/perf" />
 
   <group ns="uav_vision_video_replay">
-    <node pkg="uav_vision" type="target_detector.py"
-          name="target_detector" output="screen" required="true"
-          launch-prefix="$(arg vision_python)">
-      <rosparam file="$(find uav_vision)/config/default.yaml" />
-      <rosparam file="$(find uav_vision)/config/target_detector.yaml" />
-      <param name="image_topic" value="$(arg image_topic)" />
-      <param name="model_path" value="$(arg target_model_path)" />
-      <param name="imgsz" value="$(arg target_detector_imgsz)" />
-      <remap from="/uav_vision/detections" to="$(arg raw_topic)" />
-    </node>
+    <group if="$(eval arg('detector_backend') == 'pt')">
+      <node pkg="uav_vision" type="target_detector.py"
+            name="target_detector" output="screen" required="true"
+            launch-prefix="$(arg vision_python)">
+        <rosparam file="$(find uav_vision)/config/default.yaml" />
+        <rosparam file="$(find uav_vision)/config/target_detector.yaml" />
+        <param name="image_topic" value="$(arg image_topic)" />
+        <param name="model_path" value="$(arg target_model_path)" />
+        <param name="imgsz" value="$(arg target_detector_imgsz)" />
+        <remap from="/uav_vision/detections" to="$(arg raw_topic)" />
+      </node>
+    </group>
+
+    <group if="$(eval arg('detector_backend') == 'rknn')">
+      <node pkg="uav_vision" type="target_detector_rknn.py"
+            name="target_detector_rknn" output="screen" required="true">
+        <rosparam file="$(find uav_vision)/config/default.yaml" />
+        <rosparam file="$(find uav_vision)/config/target_detector_rknn.yaml" />
+        <param name="image_topic" value="$(arg image_topic)" />
+        <param name="model_path" value="$(arg rknn_model_path)" />
+        <param name="metadata_path" value="$(arg rknn_metadata_path)" />
+        <param name="imgsz" value="$(arg target_detector_imgsz)" />
+        <param name="perf_topic" value="$(arg perf_topic)" />
+        <remap from="/uav_vision/detections" to="$(arg raw_topic)" />
+      </node>
+    </group>
 
     <node pkg="uav_vision" type="cross_detector_node"
           name="cross_detector" output="screen" required="true">
@@ -103,6 +128,21 @@
       <param name="class_profile" value="$(arg class_profile)" />
     </node>
 
+    <!-- Deliberately no TF publisher.  The unique map frame prevents an
+         unrelated ROS session from making file replay look map-valid. -->
+    <group if="$(eval arg('detector_backend') == 'rknn')">
+      <node pkg="uav_vision" type="target_map_projector.py"
+            name="target_map_projector" output="screen" required="true">
+        <rosparam file="$(find uav_vision)/config/default.yaml" />
+        <rosparam file="$(find uav_vision)/config/target_map_projector.yaml" />
+        <param name="input_topic" value="$(arg refined_topic)" />
+        <param name="output_topic" value="$(arg mapped_topic)" />
+        <param name="camera_info_topic" value="$(arg camera_info_topic)" />
+        <param name="map_frame" value="video_replay_unavailable_map" />
+        <param name="allow_latest_tf_fallback" value="false" />
+      </node>
+    </group>
+
     <node pkg="uav_vision" type="video_annotation_recorder.py"
           name="video_annotation_recorder" output="screen"
           launch-prefix="$(arg vision_python)">
@@ -115,6 +155,15 @@
       <param name="resolved_landing_topic"
              value="$(arg resolved_landing_topic)" />
       <param name="refined_topic" value="$(arg refined_topic)" />
+      <param name="mapped_topic" value="$(arg mapped_topic)" />
+      <param name="perf_topic" value="$(arg perf_topic)" />
+      <param name="require_mapped_perf"
+             value="$(eval arg('detector_backend') == 'rknn')" />
+      <param name="require_map_fail_closed"
+             value="$(eval arg('detector_backend') == 'rknn')" />
+      <param name="expected_perf_name"
+             value="uav_vision/target_detector_rknn" />
+      <param name="expected_perf_backend" value="rknn_unified" />
     </node>
 
     <!-- Start the publisher last.  It also waits for all five image
@@ -129,6 +178,10 @@
       <param name="orientation_auto" value="$(arg orientation_auto)" />
       <param name="startup_timeout_sec" value="$(arg startup_timeout_sec)" />
       <param name="frame_timeout_sec" value="$(arg frame_timeout_sec)" />
+      <param name="min_camera_info_subscribers"
+             value="$(eval 4 if arg('detector_backend') == 'rknn' else 3)" />
+      <param name="map_projection_mode"
+             value="$(eval 'fail_closed_no_tf' if arg('detector_backend') == 'rknn' else 'disabled')" />
     </node>
   </group>
 </launch>

@@ -37,7 +37,12 @@
 unzip orangepi_vision_camera_20260902.zip
 cd orangepi_vision_camera_20260902/vision_ws
 source /opt/ros/noetic/setup.bash
-catkin_make
+# 板端 /usr/local 还保留历史 OpenCV 3.4；ROS Noetic 的 cv_bridge 使用系统
+# OpenCV 4.2，必须显式选择同一 ABI，避免把 3.4/4.2 同时链接进视觉节点。
+catkin_make \
+  -DOpenCV_DIR=/usr/lib/aarch64-linux-gnu/cmake/opencv4 \
+  -DCMAKE_BUILD_TYPE=Release \
+  -j4 -l4
 source devel/setup.bash
 roslaunch uav_vision board_camera_vision.launch \
   video_devices:=/dev/v4l/by-id/<camera-id> \

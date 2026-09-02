@@ -51,11 +51,18 @@ class VideoReplayPublisher:
         self._max_frames = int(rospy.get_param("~max_frames", 0))
         self._orientation_auto = bool(
             rospy.get_param("~orientation_auto", False))
+        self._map_projection_mode = str(
+            rospy.get_param("~map_projection_mode", "disabled"))
 
         if not self._video_path or not os.path.isfile(self._video_path):
             raise RuntimeError("video_path is not a readable file: %s" % self._video_path)
         if self._max_frames < 0:
             raise RuntimeError("max_frames must be zero or positive")
+        if self._map_projection_mode not in (
+                "disabled", "fail_closed_no_tf"):
+            raise RuntimeError(
+                "unsupported map_projection_mode: %s" %
+                self._map_projection_mode)
 
         self._condition = threading.Condition()
         self._last_frame_done = -1
@@ -202,7 +209,9 @@ class VideoReplayPublisher:
             "reported_frame_count": reported_frames,
             "orientation_auto": self._orientation_auto,
             "camera_info_semantics": "pixel_chain_initialization_only_not_calibrated",
-            "map_projection": False,
+            "map_projection": self._map_projection_mode != "disabled",
+            "map_projection_mode": self._map_projection_mode,
+            "map_valid_expected": False,
             "selected_target": False,
         }
         self._metadata_pub.publish(String(data=json.dumps(metadata, sort_keys=True)))
