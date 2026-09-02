@@ -66,7 +66,7 @@ class TargetSearchManager:
             self.arrival_threshold,
             self.hold_duration,
         )
-        
+
         # 状态
         self.mission_state = MissionState.SEARCH
 
@@ -76,7 +76,7 @@ class TargetSearchManager:
                     PoseStamped,
                     queue_size=1
                 )
-        
+
         rospy.sleep(1.0)
         # 发布目标点
         waypoint = self.search_policy.current_waypoint
@@ -101,7 +101,7 @@ class TargetSearchManager:
             rospy.Duration(0.1),
             self.mission_timer_callback
         )
-        
+
     def pose_callback(self, msg):
         self.current_pose = msg
         rospy.loginfo_throttle(
@@ -121,7 +121,7 @@ class TargetSearchManager:
 
         if distance <= self.arrival_threshold and not self.goal_reached:
             self.goal_reached = True
-            
+
             if self.mission_state == MissionState.SEARCH:
                 self.advance_to_next_point()
             elif self.mission_state == MissionState.APPROACH:
@@ -131,21 +131,19 @@ class TargetSearchManager:
                 # 到地方，开始计时
                 rospy.loginfo("Target reached, holding")
 
-                
-
     def target_callback(self, msg):
         if self.mission_state != MissionState.SEARCH:
             return
 
         if not self.candidate_policy.accept(msg):
-            return 
+            return
 
         self.search_context = SearchContext(
             waypoint_index=self.search_policy.current_index,
             interrupted_goal=self.search_policy.current_waypoint,
             search_altitude=self.search_policy.altitude
         )
-         
+
         self.selected_target = msg
 
         rospy.loginfo(
@@ -230,7 +228,7 @@ class TargetSearchManager:
         if self.search_context is None:
             rospy.logwarn("Cannot resume search: no saved search context")
             return
-        
+
         self.mission_state = MissionState.RESUME_SEARCH
         waypoint = self.search_policy.restore(self.search_context.waypoint_index)
 
@@ -262,7 +260,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()    
-
-
-    
+    main()
