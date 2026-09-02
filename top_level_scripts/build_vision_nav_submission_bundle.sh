@@ -162,6 +162,12 @@ if ! "${PYTHON_BIN}" -c 'import yaml' >/dev/null 2>&1; then
   exit 2
 fi
 
+if [ -n "$(git -C "${PROJECT_ROOT}" status --porcelain --untracked-files=no)" ]; then
+  echo "tracked worktree changes exist; commit them before building a handoff package" >&2
+  exit 2
+fi
+SOURCE_REVISION="$(git -C "${PROJECT_ROOT}" rev-parse HEAD)"
+
 case "${OUTPUT}" in
   *.zip) ;;
   *)
@@ -393,6 +399,8 @@ mkdir -p \
   "${BUNDLE_ROOT}/06_camera" \
   "${BUNDLE_ROOT}/07_VCL06_CONTEXT" \
   "${BUNDLE_ROOT}/08_model"
+
+printf '%s\n' "${SOURCE_REVISION}" > "${BUNDLE_ROOT}/SOURCE_REVISION.txt"
 
 copy_required_file \
   "${PROJECT_ROOT}/docs/handoff/视觉组给导航组_HANDOFF_20260902.md" \
@@ -715,6 +723,9 @@ Start at the package-root \`HANDOFF.md\`, then use \`evidence_index.csv\` to
 locate the authoritative run. The package is derived from the navigation
 group's \`视觉组需求.md\` and keeps historical/diagnostic runs separate from
 current results.
+
+\`SOURCE_REVISION.txt\` records the exact clean Git revision used to build
+this archive. The builder refuses tracked worktree changes.
 
 ## Evidence mapping
 
