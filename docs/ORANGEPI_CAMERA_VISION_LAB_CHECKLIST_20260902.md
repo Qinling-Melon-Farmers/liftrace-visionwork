@@ -29,7 +29,8 @@
 5. 单独运行板载 RKNN 查看器，确认真实相机画面、六分类框、置信度、推理耗时与板载显示。
 6. 启动统一视觉入口，检查 detections、resolved/refined/mapped、perf 和 debug image；
    没有安装外参/TF 时，mapped 必须明确无效，不得伪造地图点。
-7. 补齐相机安装外参后，再做地图点和 10 分钟 CPU/NPU/RSS/温度稳定性 Gate。
+7. 无安装外参时先完成 Image+CameraInfo+RKNN 的 10 分钟资源/心跳稳定性，mapped 必须保持
+   无效；补齐安装外参后，再做有效地图点与 `optical→body→mission` TF Gate。
 
 统一入口：
 
@@ -62,6 +63,29 @@ python3 top_level_scripts/board_realtime_rknn_viewer.py \
   --calibration vision_ws/src/camera_sdk/param/calibration_1280x720.yaml \
   vision_ws/src/uav_vision/models/merged_standard_fp32.rknn
 ```
+
+## 2026-09-02 现场结果
+
+- 受测视觉 revision：`abc5103bcd0d4c8d3331f64d9f3bf0cce1bab177`。
+- 新相机严格发布 `1280×720 bgr8` Image 和同 stamp/frame 的 CameraInfo；K/D 与当前
+  `calibration_1280x720.yaml` 一致。
+- 无人触碰清洁复跑 wall 601 秒：raw/info 为 17,498/17,499 条、29.164/29.163 Hz；统一
+  RKNN 为 8,223 条、13.705 Hz，processing P50/P95 `62.186/73.478 ms`，inference
+  P50/P95 `54.684/63.894 ms`。
+- `errors=[]`、`forbidden_nodes=[]`、新增 USB/UVC 内核日志 0 B；roslaunch/rosmaster
+  60/60 个健康采样存活。无安装外参，本轮没有有效 mapped 检测。
+- 后 213 秒旁路：NPU 22/22 个点均为 100%@1 GHz，10 个视觉节点 CPU 均值求和约
+  3.66 核，RSS 均值求和约 952.5 MiB（含共享页重复，非 USS）；最高温度 69.307 °C，
+  所有可见 cooling state 均为 0。
+- 冻结 revision 的 15 秒 compressed 回归同时得到 raw/info/JPEG 438/439/439 条、约
+  29.17 Hz，438 组三话题同 stamp，确认按需 JPEG 没有破坏远程显示入口。
+- 首轮 600 秒的人为碰线造成一次真实 USB disconnect，节点约 2.81 秒后自动重开；该轮只
+  作为故障恢复证据，不作为清洁稳定性 PASS。
+
+完整指标、边界和证据索引见
+[OrangePi板端视觉性能报告_20260902.md](/home/xhj/liftrace/docs/OrangePi板端视觉性能报告_20260902.md)。
+现场相机主要朝顶棚且没有安装外参；上述结果只关闭设备、CameraInfo、RKNN 像素链和板端
+10 分钟稳定性，不关闭实景识别精度、地图定位、联合导航或飞行。
 
 ## 通过条件
 

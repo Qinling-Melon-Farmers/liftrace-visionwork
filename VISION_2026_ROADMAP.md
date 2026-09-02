@@ -1,6 +1,6 @@
 # 2026 视觉组主路线与仿真验收方案
 
-更新时间：2026-08-31
+更新时间：2026-09-02
 状态：**当前唯一任务优先级来源（Single Source of Truth）**
 
 本文回答四件事：视觉组现在做到哪里、目标架构是什么、下一步具体做什么、如何用仿真证明算法有效。其他文档只负责环境操作、接口细节、部署或历史证据；若“下一步”表述冲突，以本文为准。
@@ -8,12 +8,13 @@
 ## 1. 一页结论
 
 当前不需要更换 LIO 或局部规划算法，也不需要继续无目标地扩数据和训练模型。桌面 PT、板端
-离线 RKNN 和实拍视频回放已有证据，但尚未完成 OrangePi 上的 ROS 视觉链、10 分钟稳定性和
-机载 CameraInfo/TF 接线验收。用户已提供新相机 1280×720 标定 YAML；原始 OpenCV K/D 已
-入库并无损转换成 ROS CameraInfo profile，RMS 重投影误差 0.26874 px。本项目接受该 YAML
+离线/ROS RKNN 和实拍视频回放已有证据；OrangePi 新相机的 1280×720 Image+CameraInfo+
+统一 RKNN ROS 像素链及 600 秒稳定性已经通过。用户已提供新相机 1280×720 标定 YAML；
+原始 OpenCV K/D 已入库并无损转换成 ROS CameraInfo profile，RMS 重投影误差 0.26874 px。本项目接受该 YAML
 作为当前内参权威输入，不再要求标定原图、方格单位、对焦或拍摄旋转记录，也不安排独立
-复核标定正确性。仍需验收实际相机输出、安装外参和板端话题；这些是运行接线，不是内参
-复核，不能把“YAML 已接入”写成 CameraInfo/TF、外参或板端验收。视觉组的主线是：
+复核标定正确性。仍未完成安装外参、`optical→body→mission` TF、带目标实景的有效地图投影
+和同步 pose 验收；这些是运行接线，不是内参复核，不能把板端像素链 PASS 外推为外参、地图
+定位或联合导航 PASS。视觉组的主线是：
 
 板端模型、图片指标、PT 对照和视频资产的单一汇总见
 [BOARD_MODEL_COMPLETE_EVALUATION_20260716.md](/home/xhj/liftrace/docs/BOARD_MODEL_COMPLETE_EVALUATION_20260716.md)。
@@ -45,8 +46,9 @@
 9. 笔记本 PT/ONNX 导出一致性已在统一 `640x640` fixed-letterbox 输入下通过：12 张覆盖
    标准靶、红十字、H 与纯背景的样本共 19 个框，缺失/新增均为 0，最低 IoU
    0.999999；旧“不一致”由 PT 动态矩形与固定形状 ONNX 接收了不同输入几何导致。两款
-   FP32 RKNN 可离线运行，四款 INT8 RKNN 在 v5merge 全集上零有效检测；OrangePi 上的
-   逐样本 RKNN 对照、ROS 视觉链和稳定性验收仍未完成。
+   FP32 RKNN 可离线运行，四款 INT8 RKNN 在 v5merge 全集上零有效检测；OrangePi 新相机
+   Image+CameraInfo+统一 FP32 RKNN ROS 链和 600 秒稳定性已通过，逐样本 RKNN 对照、安装
+   外参/TF 和有效地图投影仍未验收。
 10. 当前并行核查原 2025 完整飞行载体：自动起飞和三次软件 mock 投递已完成，但原始
    0.8 m 门洞穿越、北区巡航、返航和降落尚未完成。该项是控制/规划/仿真联合前置，
    不计入视觉算法完成度；直达航点通过也不能替代 Fast-Planner 避障验收。分层 Gate 和
@@ -141,8 +143,9 @@
 六点重复也只复用固定 seed；采用门槛和多 seed 次数尚未冻结，30-seed 未开始，实拍圆环仍缺
 人工定量真值。`real_target.mp4` 已完成 4623 帧模型推理、完整视觉链回放、OrangePi RKNN
 抽样和人工审片，应计为“实拍域功能回归已完成”；缺的是独立于预测输出的实例/类别/中心标注
-及同步 CameraInfo/pose，因此 58.80% 只能称自洽关联率。已关闭的 10 min 仅限
-laptop/Gazebo camera-only 链，不外推到板端或联合导航。
+及同步 CameraInfo/pose，因此 58.80% 只能称自洽关联率。已关闭的 10 min 包括
+laptop/Gazebo camera-only 与 OrangePi 新相机像素/RKNN ROS 链；后者不外推为安装外参、
+有效地图点、带靶真实场景或联合导航通过。
 
 ## 2. 当前事实基线
 
@@ -182,7 +185,8 @@ laptop/Gazebo camera-only 链，不外推到板端或联合导航。
 - `toudi3.world` 已包含五类标准靶和 H，红十字模型可独立插入；
 - 笔记本 dev/sim 默认六分类模型已选 `merged_standard`；现有 ONNX 可加载，板端已用
   `merged_standard_fp32.rknn`、`region_focus_aug_fp32.rknn` 做离线视频与 v5merge 全集评测；
-  板端运行库仍有 Toolkit 2.3.2 与 `librknnrt 1.5.2` 版本警告，不能据此宣称机载部署 Gate 已通过。
+  板端运行库仍有 Toolkit 2.3.2 与 `librknnrt 1.5.2` 版本警告；统一模型已完成 ROS 600 秒
+  稳定运行，板端像素链 Gate 部分通过，地图/TF 与实景定位仍开放。
 
 ### 2.2 不能误判为完成
 
@@ -441,7 +445,8 @@ bash ./top_level_scripts/run_toudi3_full_competition_sim_gui_new.sh
 
 当前 suite 覆盖五类标准靶、红十字、H 和背景，并复用 world 现有资产。旧固定 suite 的
 30-seed 矩阵和聚合器已有首轮历史运行；当前 operational V-SIM-04 的 30-seed 尚未开始，
-不得混写。Laptop/Gazebo camera-only 10 min 已执行完成；OrangePi 与导航联合稳定性仍未完成。
+不得混写。Laptop/Gazebo camera-only 与 OrangePi 新相机像素/RKNN ROS 的 10 min 均已完成；
+导航联合稳定性、板端安装外参/TF 仍未完成。
 V-SIM-04 继续按失败阶段序贯量化，不阻塞当前 V-CL 主线。
 
 正式阈值可用第三个参数启用：
@@ -450,7 +455,7 @@ V-SIM-04 继续按失败阶段序贯量化，不阻塞当前 V-CL 主线。
 ./top_level_scripts/run_toudi3_visual_suite.sh 22 /tmp/uav_vision_eval/formal_suite formal
 ```
 
-### 7.4 Gate D：shadow 飞行（camera-only 10 min 已验收，联合/板端仍待验收）
+### 7.4 Gate D：shadow 飞行（laptop camera-only 10 min 已验收，联合导航仍待验收；板端见 V-DEPLOY-01）
 
 shadow 模式必须满足：
 
@@ -464,7 +469,8 @@ shadow 模式必须满足：
 固定五目标（不含 tank）的 camera-only 600 秒视觉稳定性。该 run 的 ROS source 仅推进
 564.863 s，资格按 monotonic wall 600.024 s 判定；它验证长期候选记忆、陈旧数据、队列积压
 和错误 selected 的视觉侧 fail-closed，不包含导航接受、任务队列、投递、返航或落地。OrangePi
-RKNN、真实新相机与 V-CL-06 联合 600 秒仍分别保留为未验收项。
+新相机+RKNN ROS 像素链另有独立 600 秒 PASS；因无安装外参，有检测而缺 TF 的视频回放
+按合同保持 mapped 无效。V-CL-06 联合 600 秒仍未验收。
 
 ### 7.5 Gate E：视觉任务闭环（当前主线）
 
@@ -529,9 +535,9 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 部分完成/待干净复跑 | 15 | V-CL-05 | 搜索-投递策略：高权重中断 + red_cross 统一 | 中断机制已实跑（tank 提前执行并恢复搜索、覆盖 12/12），pillbox 端到端投出，tank/panzer 证据锁定但低空下降受规划器波动影响超时；red_cross 统一入队、随机摆放入口与动态期望 Gate 已落地。剩余完成定义：按规则场地全随机布设（4 个 1 m 标准靶 + 1 个 0.35 m 红十字全部随机摆放、H 固定为起降点，真值仅落盘），类目/profile 驱动允许集合与 Gate（本届 profile 排除 tank），随机十字独立发现/投递 + 沉降门控验证（规划器失败只记录不迭代） |
 | 地图链已恢复/目标事务待验收 | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 导航 PR #6 已 Ready（HEAD `d95377c`），单 bridge、目标事务/LAND、正式随机场入口与只读 Gate 已收口；无新增 msg/srv/action/第二 executor，`/navigation/planner_bridge` 是唯一 goal 发布者。LiDAR→FAST-LIO→FreeDOM 已持续输出 `camera_init` 新鲜地图；90 秒 Gate v3 地图约 10 Hz、位姿约 30 Hz、合同错误/碰撞/越界为 0，并产生 3 decision/5 result，但仍因 `wall_timeout` FAIL，未选中目标、未 APPROACH/投递/返航/LAND，`P_interrupt=null`。先取得真实 target-stage，再决定 600 秒 Gate；历史 A/B 仍 FAIL，不推广 `a68925d` |
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
-| camera-only 10 min PASS/性能域仍部分完成 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | formal23 22/23、static25 24/25、sparse30 25/30 的历史证据继续有效，视觉 B 仅覆盖 38/100 个唯一高度×速度×类别条件。C25 修复后 25/25、完整入画 confirm/selected=15/15、13/15，`NOT_GATED`；D50 supported16 为 16/16 confirm/selected，`DIAGNOSTIC_ONLY`，其余 34 项 `NOT_RUN`。`vsim04_soak600b_seed11_20260831_011055` 已以 wall 600.024 s、输入/完整 mapped 15.019/13.336 FPS、六产物完整、errors=[] 关闭笔记本/Gazebo camera-only 10 min；`P_interrupt=null`。故 2 m/s 不作通用工作点、3.6 m 不承诺，默认 640 保持；V-CL-06、multi-target、板端和 30-seed 仍未关闭 |
+| camera-only 10 min PASS/性能域仍部分完成 | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | formal23 22/23、static25 24/25、sparse30 25/30 的历史证据继续有效，视觉 B 仅覆盖 38/100 个唯一高度×速度×类别条件。C25 修复后 25/25、完整入画 confirm/selected=15/15、13/15，`NOT_GATED`；D50 supported16 为 16/16 confirm/selected，`DIAGNOSTIC_ONLY`，其余 34 项 `NOT_RUN`。`vsim04_soak600b_seed11_20260831_011055` 已以 wall 600.024 s、输入/完整 mapped 15.019/13.336 FPS、六产物完整、errors=[] 关闭笔记本/Gazebo camera-only 10 min；`P_interrupt=null`。故 2 m/s 不作通用工作点、3.6 m 不承诺，默认 640 保持；V-CL-06、multi-target 和 30-seed 仍未关闭，OrangePi 像素链另在 V-DEPLOY-01 部分通过 |
 | 实拍功能回放完成/人工定量待完成 | 19 | V-REAL-01 | 实拍回放域差复核 | `real_target.mp4` 的整段模型/视觉链回放、板端抽样和人工审片已完成；58.80% 是自洽关联率，不是人工真值召回。新相机 1280×720 YAML 已作为权威内参入库并转换 ROS profile，不再要求采集材料复核；仍待圆环实例/中心/H/红十字人工标注，以及带同步 CameraInfo/pose 的新相机采集；安装外参另行实标 |
-| 笔记本 PT/ONNX 已通过/板端 ROS 待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | 同 fixed-letterbox 的 12 图 PT/ONNX Gate 已通过；FP32 RKNN 离线有效。新相机 ROS profile 和 1280×720 fail-closed 启动入口已存在；仍待实物相机帧/CameraInfo/TF、安装外参、同样本 PT→ONNX→RKNN 逐框对照、5–10 Hz 和 10 min Gate |
+| 板端像素链与 10 min PASS/地图 TF 待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | 同 fixed-letterbox 的 12 图 PT/ONNX Gate 已通过；FP32 RKNN 离线有效。OrangePi 新相机在视觉 revision `abc5103` 以 1280×720 持续发布 Image+CameraInfo，统一 FP32 RKNN ROS 链无人触碰连续 600 秒 PASS：raw/info 29.164/29.163 Hz、RKNN 13.705 Hz、处理 P95 73.478 ms，新增 USB 日志/节点崩溃/禁用节点均为 0。后 213 秒 NPU 为 100%@1 GHz、视觉约 3.66 核、最高 69.307 °C且 cooling=0；当前无安装外参，mapped 按合同保持无效。仍待安装外参与 `optical→body→mission` TF、带靶实景有效地图投影/同步 pose、同样本 PT→ONNX→RKNN 逐框对照及导航/LIO 并发资源复测；详见 `docs/OrangePi板端视觉性能报告_20260902.md` |
 
 ### 8.1 已完成的最小交付与当前入口
 
