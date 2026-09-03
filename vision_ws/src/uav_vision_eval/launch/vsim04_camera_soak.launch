@@ -19,8 +19,9 @@
   <arg name="vision_revision" default="$(optenv VSIM04_VISION_REVISION unknown)" />
   <arg name="navigation_revision"
        default="$(optenv VSIM04_NAVIGATION_REVISION unknown)" />
-  <arg name="image_topic" default="/camera/color/image_raw" />
-  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="image_topic" default="/camera/image_raw" />
+  <arg name="camera_info_topic" default="/camera/camera_info" />
+  <arg name="camera_link_suffix" default="KS2A543::camera_link" />
   <arg name="camera_pose_topic" default="/uav_vision_eval/camera_pose" />
   <arg name="camera_pose_publish_rate_hz" default="20.0" />
   <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
@@ -66,6 +67,7 @@
     <arg name="image_topic" value="$(arg image_topic)" />
     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
     <arg name="camera_pose_topic" value="$(arg camera_pose_topic)" />
+    <arg name="camera_link_suffix" value="$(arg camera_link_suffix)" />
     <arg name="camera_pose_publish_rate_hz"
          value="$(arg camera_pose_publish_rate_hz)" />
   </include>
@@ -96,7 +98,7 @@
     <param name="world_file" value="$(arg world)" />
     <param name="scenario_file" value="$(arg scenario_file)" />
     <param name="target_catalog_file" value="$(arg truth_catalog)" />
-    <param name="extrinsic_profile" value="vision_eval_camera_d435i" />
+    <param name="extrinsic_profile" value="vision_eval_camera_ks2a543" />
     <param name="extrinsic_source"
            value="$(find uav_vision_eval)/models/vision_eval_camera/model.sdf" />
     <param name="vision_revision" value="$(arg vision_revision)" />

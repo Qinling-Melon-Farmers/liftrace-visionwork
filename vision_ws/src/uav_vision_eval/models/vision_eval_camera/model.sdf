@@ -3,10 +3,12 @@
   <model name="vision_eval_camera">
     <static>true</static>
     <include>
-      <uri>model://D435i</uri>
-      <!-- Same mounting orientation as iris_mid360, without a vehicle. -->
+      <!-- Match the installed aircraft camera stream. Historical D435i
+           fixtures remain recoverable from Git, not as a runtime profile. -->
+      <uri>model://KS2A543_color_only</uri>
+      <name>KS2A543</name>
+      <!-- Preserve the established downward evaluation-camera orientation. -->
       <pose>0 0 0 1.5708 0 1.5708</pose>
     </include>
   </model>
 </sdf>
-

@@ -398,3 +398,24 @@ logs/vsim04_repeat_aggregate_boundary6-seed11-r3-final-307ac5c4/
 因此当前默认继续使用 imgsz 640，不把 2 m/s 作为跨类别通用速度，也不承诺 3.6 m 工作域。
 本轮只改评测/稳定性工具，算法、模型和阈值没有变化，所以没有重跑
 `formal23/static25/sparse30`；引用这些历史结果时必须同时保留其原运行目录和 revision 边界。
+
+## 2026-09-04 实装相机候选夹具
+
+`feat/vsim04-ks2a543-camera-baseline` 将独立评测相机收敛为实装 KS2A543 的单彩色流：
+`1280x720@30`、`/camera/image_raw`、`/camera/camera_info`、
+`downward_camera_optical_frame`，并使用已接受标定的水平视场和畸变。它不加载历史 D435i 的
+深度、双红外或 IMU，也不提供 D435i 运行 selector；历史数据由其 Git revision 复现。
+
+受控结果：
+
+- 单动态 red_cross：1/1 confirm/selected，地图误差 P95 `0.0670 m`；
+- 代表 10 格：10/10 trial 完成，8/10 confirm/selected，detector processing P95
+  `139.1 ms`，但两格缺 `confirmation_processing` 精确 source-stamp 对表，终态 INVALID；
+- formal23：23/23 trial 完成，22/23 confirm/selected，detector/pipeline/process P95
+  `117.0/152.5/222.9 ms`，地图误差 P95 `0.2038 m`；一格 process 对表缺样，终态 INVALID。
+
+因此该夹具当前用于真实性和 B100 根因评审，不是 main 的已验收默认值。Gazebo Classic 插件
+只支持单一焦距，仿真 K 使用 `fx=fy=725.351 px`，与实机 `fy=723.340 px` 相差约 0.28%；
+不要为这一近似增加 CameraInfo relay。外参测量与 B100 拆解分别见
+`docs/实装相机与安装外参测量标准_20260904.md` 和
+`docs/视觉工程精简与B100延迟复盘_20260904.md`。

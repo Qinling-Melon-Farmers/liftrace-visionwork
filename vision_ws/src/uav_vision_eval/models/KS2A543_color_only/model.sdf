@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="KS2A543_color_only">
+    <!-- The standalone V-SIM camera moves this link directly. Its orientation
+         preserves the established Gazebo camera-link convention; ROS images
+         use the real-aircraft optical frame name from the board launch. -->
+    <link name="camera_link">
+      <pose>0 0 0 3.14 -1.57 1.57</pose>
+      <inertial>
+        <mass>0.0015</mass>
+        <inertia>
+          <ixx>1e-06</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1e-06</iyy>
+          <iyz>0</iyz>
+          <izz>1e-06</izz>
+        </inertia>
+      </inertial>
+      <sensor name="color" type="camera">
+        <always_on>true</always_on>
+        <update_rate>30</update_rate>
+        <visualize>false</visualize>
+        <camera name="color">
+          <!-- 2*atan(1280/(2*fx)), fx=725.3510059644434 px. -->
+          <horizontal_fov>1.44593453190313</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>RGB_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <!-- Gazebo renders the accepted plumb-bob coefficients instead of
+               merely advertising them in CameraInfo. -->
+          <distortion>
+            <k1>0.0058668600963917095</k1>
+            <k2>0.017910549546758369</k2>
+            <p1>-0.0010064115869294274</p1>
+            <p2>0.0014715593681005204</p2>
+            <k3>-0.026485100937585344</k3>
+            <center>0.4934936430758014 0.5521755296266148</center>
+          </distortion>
+        </camera>
+        <plugin name="color_camera_controller"
+                filename="libgazebo_ros_camera.so">
+          <robotNamespace>/</robotNamespace>
+          <cameraName>camera</cameraName>
+          <imageTopicName>image_raw</imageTopicName>
+          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+          <frameName>downward_camera_optical_frame</frameName>
+          <alwaysOn>true</alwaysOn>
+          <updateRate>30</updateRate>
+          <CxPrime>631.67186313702575</CxPrime>
+          <Cx>631.67186313702575</Cx>
+          <Cy>397.56638133116269</Cy>
+          <hackBaseline>0.0</hackBaseline>
+          <focalLength>725.3510059644434</focalLength>
+          <distortionK1>0.0058668600963917095</distortionK1>
+          <distortionK2>0.017910549546758369</distortionK2>
+          <distortionK3>-0.026485100937585344</distortionK3>
+          <distortionT1>-0.0010064115869294274</distortionT1>
+          <distortionT2>0.0014715593681005204</distortionT2>
+          <autoDistortion>true</autoDistortion>
+          <borderCrop>false</borderCrop>
+        </plugin>
+      </sensor>
+    </link>
+  </model>
+</sdf>

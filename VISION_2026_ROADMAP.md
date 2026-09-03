@@ -106,6 +106,14 @@
     “仅覆盖 38/100”，但终态仍为 `DIAGNOSTIC_ONLY`：处理延迟未通过 200 ms 冻结阈值，且
     仍是单 seed。暂行保守工作域为约 2.4–3.0 m、优先不高于 1.0 m/s；历史 formal23/
     sparse30 只作 revision 对照，不与 B100 拼接。
+    2026-09-04 对 448.2 ms 做受控拆解：同模型离开 ROS/Gazebo 后在 RTX 上对实拍 100 帧的
+    推理/总耗时 P95 仅 15.13/15.23 ms；完整 D435i 代表 10 格的 process/pipeline 分别为
+    291.9/94.6 ms，关闭 trace 后反而为 326.7/138.8 ms；仅保留 D435i 彩色传感器后 detector
+    processing P95 从 92.1 降至 68.8 ms。故 448.2 ms 的主因是宿主仿真源降速、无用传感器
+    渲染和 recorder 跨 subscriber 排队，而非 YOLO 固定推理时间或 stage trace。实装 KS2A543
+    候选夹具 formal23 完成 23/23、确认 22/23、detector/pipeline P95=117.0/152.5 ms、地图误差
+    P95=0.2038 m，但源/实收仅 12.17/11.08 FPS、process P95=222.9 ms 且一格 exact-stamp
+    缺样，终态 INVALID；在指标/吞吐收敛前只保留 feature 评审，不替换 main 的历史基线。
 18. V-SIM-04 的笔记本/Gazebo camera-only 600 秒稳定性已通过：
     `logs/vsim04_soak600b_seed11_20260831_011055/` 在视觉 revision
     `8b3b88cd321469e3b61b6127ec2574d770848109` 上连续运行 wall 600.024 s，六产物完整、
