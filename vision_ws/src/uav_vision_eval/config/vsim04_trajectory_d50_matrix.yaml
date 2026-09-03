@@ -42,20 +42,22 @@ target_anchors:
     priority_weight: 10.0
 
 camera:
-  # Gazebo evaluation-camera model basis: +X optical, -Y image-right,
-  # -Z image-down.  World optical is frozen downward for this matrix.
+  # KS2A543 evaluation-camera model basis: +X optical, -Y image-right,
+  # -Z image-down. World optical is frozen downward for this matrix.
   optical_axis_world: [0.0, 0.0, -1.0]
   target_heading_world: [1.0, 0.0, 0.0]
-  # D435i camera_color_frame origin is 0.0325 m along the model optical axis.
-  optical_center_offset_m: 0.0325
+  # The color sensor and movable camera link share one origin in the
+  # KS2A543_color_only fixture.
+  optical_center_offset_m: 0.0
   intrinsics:
-    width: 640
-    height: 480
-    # D435i Gazebo color sensor freezes horizontal_fov=1.211 rad. With square
-    # pixels this gives f=width/(2*tan(HFOV/2))=462.266337 px.
-    horizontal_fov_rad: 1.211
-    fx: 462.2663372707335
-    fy: 462.2663372707335
+    width: 1280
+    height: 720
+    # Installed-camera calibration. Gazebo Classic exposes one focal length,
+    # therefore this fixture uses fx=fy=725.351 px; the real fy=723.340 px
+    # remains authoritative on the aircraft.
+    horizontal_fov_rad: 1.44593453190313
+    fx: 725.3510059644434
+    fy: 725.3510059644434
   # Target center in units of half image width/height at trajectory midpoint.
   # partial intentionally lies beyond the image edge.
   framing_offsets_half_frame:

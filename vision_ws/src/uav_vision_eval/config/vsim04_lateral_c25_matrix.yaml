@@ -6,7 +6,7 @@ class_profile: r2026
 expected_trial_count: 25
 
 performance_contract:
-  contract_id: vsim04-c25-roadmap-20260902
+  contract_id: vsim04-c25-ks2a543-20260904
   sources:
     - VISION_2026_ROADMAP.md#V-SIM-04
     - docs/handoff/original/视觉组需求.md#C-横向偏差实验
@@ -35,7 +35,10 @@ lateral:
   classes: [tent, pillbox, bridge, panzer, red_cross]
   height_m: 2.4
   speed_mps: 1.0
-  horizontal_fov_rad: 1.211
+  # Installed-camera calibration: 2*atan(1280/(2*725.3510059644434)).
+  # This materially changes the metre offsets represented by the normalized
+  # bins, so D435i C25 results must not be reused for this matrix revision.
+  horizontal_fov_rad: 1.44593453190313
   path_half_length_m: 3.5
   update_rate_hz: 20.0
   path_direction_xy: [0.0, -1.0]
