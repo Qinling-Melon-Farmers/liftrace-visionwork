@@ -121,7 +121,8 @@
     center/quadrant 单目标工况已 16/16 完成并全部 confirm/selected，覆盖四个相对方向和
     constant/accel_decel/turn，角速度 P95=0.5853 rad/s；D 仍为 `DIAGNOSTIC_ONLY`，其余
     edge/partial/panzer/multi-target 34 项保持 `NOT_RUN`。
-19. V-CL-06 的软件执行面已收口。导航 PR #6 已转为 Ready，当前 HEAD 为 `d95377c`；其单一
+19. V-CL-06 的软件执行面已收口并随 PR #3 合入视觉 `main@1094db5`。导航 PR #6 当前 HEAD
+    为 `d95377c`；其单一
     planner bridge 四个代码提交（截至 `3864a7c`）已等价导入为
     `98cb587/83e796b/c7c1d8f/933eb78`，目标事务与 LAND 继续在同一
     bridge 内由 `e2df599` 补齐，正式随机场入口和只读硬 Gate 位于 `09d16a8`。没有新增
@@ -198,9 +199,9 @@ laptop/Gazebo camera-only 与 OrangePi 新相机像素/RKNN ROS 链；后者不�
 ### 2.2 不能误判为完成
 
 - 旧控制默认仍是固定航点巡航；参数化外部任务模式和单候选闭环已通过，临时 manager
-  曾完成覆盖权重三投；2026-08-26 的旧 manager 历史 600 s 只完成两投。当前本地 clean
-  导航任务核心已经实现持久队列、有限重试、三槽与 510/600 s 调度并通过纯测试，但 live
-  execution bridge 未合入；因此新核心尚未实际驱动 planner，也没有新的 90/600 s 联合证据；
+  曾完成覆盖权重三投；2026-08-26 的旧 manager 历史 600 s 只完成两投。当前 clean 导航
+  任务核心、持久队列、有限重试、三槽、510/600 s 调度和唯一 live execution bridge 已合入
+  `main` 并通过纯测试，但正式链尚未取得 selected→APPROACH→target-stage 的 90/600 s 联合证据；
 - `selected_target.map_point` 已由独立 Mission Manager 完成单候选接近、横向对准、投递和
   恢复；现有 `/detect/waypoint_mark_point` 像素兼容输出仍不能冒充地图坐标；
 - `drop_ready` 仍只是兼容观测；结构化 `release_evidence`、任务层第一版
@@ -220,6 +221,19 @@ laptop/Gazebo camera-only 与 OrangePi 新相机像素/RKNN ROS 链；后者不�
   不能当泛化精度，正式模型比较仍以独立 val 232 张和压力集为主。
 - 板端原始视频回放默认关闭去畸变；固定内参只用于 `/dev/video0` 实时相机，避免将视频元数据
   旋转/相机标定差异混入 PT↔RKNN 性能比较。
+
+### 2.3 导航组轻量策略仿真上游
+
+导航组新增纯 Python 任务级仓库 [liftrace-sim](https://github.com/sakelier/liftrace-sim)，本次
+核对 `main@18f6ee8`。它以 V-SIM-04 B100/C25/D16 表为视觉输入，快速比较搜索高度、速度、
+航带、Cue 中断、载荷预留和投递策略；输出供 `liftrace-controlwork/uav_mission` 选择候选，
+不作为新的 ROS 执行栈。
+
+该仓库当前仍包含目标分布、服务时间、复核/投递概率等假设，且穿门、降落和完整避障计分未
+建模，因此只能压缩策略搜索空间，不能替代 Gazebo/SITL Gate。视觉 `main@1094db5` 由此进入
+功能冻结、整机 SITL 优先阶段：默认不再新增消息、节点、executor 或兼容层；只有联合实跑断点
+证明现有能力不足时才做最小修订。完整边界见
+[导航组轻量策略仿真上游_20260902.md](docs/导航组轻量策略仿真上游_20260902.md)。
 
 ## 3. 视觉组业务边界
 
