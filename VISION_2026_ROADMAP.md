@@ -107,13 +107,12 @@
     仍是单 seed。暂行保守工作域为约 2.4–3.0 m、优先不高于 1.0 m/s；历史 formal23/
     sparse30 只作 revision 对照，不与 B100 拼接。
     2026-09-04 对 448.2 ms 做受控拆解：同模型离开 ROS/Gazebo 后在 RTX 上对实拍 100 帧的
-    推理/总耗时 P95 仅 15.13/15.23 ms；完整 D435i 代表 10 格的 process/pipeline 分别为
-    291.9/94.6 ms，关闭 trace 后反而为 326.7/138.8 ms；仅保留 D435i 彩色传感器后 detector
-    processing P95 从 92.1 降至 68.8 ms。故 448.2 ms 的主因是宿主仿真源降速、无用传感器
-    渲染和 recorder 跨 subscriber 排队，而非 YOLO 固定推理时间或 stage trace。实装 KS2A543
-    候选夹具 formal23 完成 23/23、确认 22/23、detector/pipeline P95=117.0/152.5 ms、地图误差
-    P95=0.2038 m，但源/实收仅 12.17/11.08 FPS、process P95=222.9 ms 且一格 exact-stamp
-    缺样，终态 INVALID；在指标/吞吐收敛前只保留 feature 评审，不替换 main 的历史基线。
+    推理/总耗时 P95 仅 15.13/15.23 ms；单彩色夹具也显著降低 detector processing。最终确认
+    旧 `confirmation_processing` 是 recorder 图像/候选两个独立 subscriber 的排队诊断，不能
+    作为检测链起点；合同指标已改为同 source stamp 的 detector callback start→candidate receipt。
+    修复后 KS2A543 B100 完成 100/100，confirm/selected=87/86，合同 pipeline/detector process
+    P95=182.0/145.7 ms、地图误差 P95=0.2035 m、TF failure=0，终态错误/硬失败为 0。旧 448.2 ms
+    不再是算法时延结论；新 B100 仍是单 seed `DIAGNOSTIC_ONLY`，不是联合 Gate PASS。
 18. V-SIM-04 的笔记本/Gazebo camera-only 600 秒稳定性已通过：
     `logs/vsim04_soak600b_seed11_20260831_011055/` 在视觉 revision
     `8b3b88cd321469e3b61b6127ec2574d770848109` 上连续运行 wall 600.024 s，六产物完整、
@@ -152,10 +151,12 @@
     V-CL-00B/01/05/06 的联合接线、导航执行和整机验收，不能计成视觉算法欠账。
 21. 2026-09-04 确认新数据来自 KS2A543 相机模型而非新 YOLO 权重；0714 `merged_standard`
     权重保持不变。由于分辨率、视场、畸变和有效处理频率均已改变，历史 D435i A/B/C/D 只作
-    对照。当前决策为有效性修复后完整重跑 A25/B100/C25，D 先跑 KS2A543 readiness 允许的
-    11 项，再补观察窗口/轨迹和 multi-target 真值。导航轻量仓本地修正
-    `feat/ks2a543-vision-baseline@6b070f5` 已停用旧 B100 查表并通过 49 项单测；因上游权限
-    返回 403，远端 `main` 仍为 `18f6ee8`，不得描述成已经更新。
+    对照。评测有效性已修复并完成 A25/B100/C25 与 readiness 允许的 D11：A=23/25、
+    B confirm/selected=87/86、C 完整入画=15/15 与 12/15、D=11/11；四批 TF failure=0，
+    六件套与终态校验完整，所有 visual-only `P_interrupt=null`。D 其余 39 项仍按 20 个观察
+    窗口、7 个完整入画/离画预检、2 个场界轨迹和 10 个 multi-target/H 真值缺口保持 NOT_RUN。
+    导航轻量仓本地 `feat/ks2a543-vision-baseline@6b070f5` 已停用旧表；新 B100 已具备导入条件，
+    但上游权限仍需复核，不能把本地增量描述成远端 `main` 已更新。
 
 现有 `toudi3.world` 五类标准靶和 H 已直接用于固定真值场景，红十字按评测场景插入；
 `uav_vision_eval` 已能自动生成 CSV/JSON/report，shadow 输出也已隔离。H 固定 Gazebo 正例
@@ -571,7 +572,7 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 部分完成/待干净复跑 | 15 | V-CL-05 | 搜索-投递策略：高权重中断 + red_cross 统一 | 中断机制已实跑（tank 提前执行并恢复搜索、覆盖 12/12），pillbox 端到端投出，tank/panzer 证据锁定但低空下降受规划器波动影响超时；red_cross 统一入队、随机摆放入口与动态期望 Gate 已落地。剩余完成定义：按规则场地全随机布设（4 个 1 m 标准靶 + 1 个 0.35 m 红十字全部随机摆放、H 固定为起降点，真值仅落盘），类目/profile 驱动允许集合与 Gate（本届 profile 排除 tank），随机十字独立发现/投递 + 沉降门控验证（规划器失败只记录不迭代） |
 | 地图链已恢复/目标事务待验收 | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | 导航 PR #6 已 Ready（HEAD `d95377c`），单 bridge、目标事务/LAND、正式随机场入口与只读 Gate 已收口；无新增 msg/srv/action/第二 executor，`/navigation/planner_bridge` 是唯一 goal 发布者。LiDAR→FAST-LIO→FreeDOM 已持续输出 `camera_init` 新鲜地图；90 秒 Gate v3 地图约 10 Hz、位姿约 30 Hz、合同错误/碰撞/越界为 0，并产生 3 decision/5 result，但仍因 `wall_timeout` FAIL，未选中目标、未 APPROACH/投递/返航/LAND，`P_interrupt=null`。先取得真实 target-stage，再决定 600 秒 Gate；历史 A/B 仍 FAIL，不推广 `a68925d` |
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
-| 历史 camera-only 10 min PASS/KS2A543 A-D 待重验证 | 18 | V-SIM-04 | L1/L2 阶段性能与后续关键点多 seed | D435i static25/B100/C25/D16 均保留为历史对照，不再冻结当前导航参数。KS2A543 formal23 完成 23/23、confirm/selected=22/23，但 source/receipt=12.17/11.08 FPS、processing P95=222.9 ms 且一格 exact-stamp 缺样，整 run `INVALID`。先修评测有效性，再完整跑 A25/B100/C25；D50 当前仅 11 项 readiness 可直接实跑，其余按观察窗口、轨迹边界和 multi-target 真值分批补齐。所有 visual-only `P_interrupt=null`，最终仍由 V-CL-06 给出 |
+| camera-only 10 min PASS/KS2A543 当前 A-D 已测 | 18 | V-SIM-04 | L1/L2 阶段性能与后续关键点多 seed | D435i A/B/C/D 只作历史对照。KS2A543 已在有效评测合同上完成 A25/B100/C25/D11：A=23/25，B=87/100 confirm、86/100 selected，C 完整入画=15/15、12/15，D=11/11；TF failure=0。A/B/D 为 `DIAGNOSTIC_ONLY`，C 为 `MEASURED/NOT_GATED`；D39、多 seed、整机负载与真实 `P_interrupt` 仍开放，最终联合结论由 V-CL-06 给出 |
 | 实拍功能回放完成/人工定量待完成 | 19 | V-REAL-01 | 实拍回放域差复核 | `real_target.mp4` 已在 OrangePi revision `59c74b6` 经正式 ROS+RKNN+OpenCV 全链完成 4622/4622 帧：perf 4622、mapped 5135 且全部因无 TF 保持 invalid、禁用节点/日志错误为 0；原始全帧标注视频已拉回。58.80% 仍只是历史自洽关联率，不是人工真值召回；仍待圆环实例/中心/H/红十字人工标注和带同步 pose 的新相机采集，安装外参另行实标 |
 | 板端像素链与 10 min PASS/地图 TF 待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | OrangePi 新相机在 `abc5103` 完成无人触碰 600 秒 PASS：raw/info 29.164/29.163 Hz、RKNN 13.705 Hz、处理 P95 73.478 ms，USB/节点/禁用节点错误均为 0；后 213 秒 NPU 100%@1 GHz、视觉约 3.66 核、最高 69.307 °C且 cooling=0。全视频冷启动暴露并在 `59c74b6` 根治订阅初始化竞态，冷启动 10/10 后完整 4622 帧 processing P95=79.924 ms、inference P95=57.694 ms。当前无安装外参，mapped 按合同保持无效；仍待 `optical→body→mission` TF、带靶实景有效地图投影/同步 pose 和导航/LIO 并发资源复测；详见 `docs/OrangePi板端视觉性能报告_20260902.md` |
 
@@ -621,12 +622,24 @@ D50 的可执行 16 项已在
 下的 expected-target 诊断，不提供定向 multi-target 错误关联/ID 合并/重复断言；因此终态保持
 `DIAGNOSTIC_ONLY`，另外 34 个 edge/partial/panzer/multi-target 设计仍为 `NOT_RUN`。
 
-上述 A/B/C/D 均绑定历史 D435i `640×480`、`horizontal_fov=1.211 rad`，不能作为当前
-KS2A543 相机的性能表。新相机继续使用同一 0714 `merged_standard` 权重，但
-`1280×720`、约 `82.85°` 水平视场、畸变和板端有效检测频率改变了目标像素尺度与连续可见
-帧数。当前重验证顺序冻结为：先解决 exact-stamp/吞吐有效性，再完整运行 A25、B100、C25；
-D50 先运行当前 readiness 允许的 11 个 single case，其余按观察窗口、轨迹和多目标真值缺口
-分批落地。详见
+上述旧 A/B/C/D 均绑定 D435i `640×480`、`horizontal_fov=1.211 rad`，只作历史对照。新相机
+继续使用同一 0714 `merged_standard` 权重，但 `1280×720`、约 `82.85°` 水平视场、畸变和
+有效检测频率改变了目标像素尺度与连续可见帧数。2026-09-04 已在修复 exact-stamp、动态采样和
+终态水位后的合同上完成当前可测范围：
+
+- A25 `vsim04_diag_static25_seed11_20260904_140501`：25/25，confirm/selected=23/25，
+  pipeline/map P95=164.813 ms/0.203769 m；pillbox 3.0/3.6 m raw classifier 失败；
+- B100 `vsim04_diag_b100_seed11_20260904_140800`：100/100，confirm/selected=87/86，
+  pipeline/detector process/map P95=181.990 ms/145.724 ms/0.203484 m；
+- C25 `vsim04_c25_seed11_20260904_135946`：25/25，完整入画 confirm/selected=15/15、12/15，
+  pipeline/map P95=158.690 ms/0.216720 m；
+- D11 `vsim04_diag_d50_supported_seed11_20260904_144351`：11/11 全部 confirm/selected，
+  运动/横向样本 792/811，轨迹误差 P95=0，pipeline/map P95=265.232 ms/0.152282 m。
+
+四批六件套完整、TF failure=0、终态错误/硬失败为 0。A/B/D 仍是 `DIAGNOSTIC_ONLY`，C 是
+`MEASURED/NOT_GATED`，所有 visual-only `P_interrupt=null`。导航首轮可采用约 2.4 m、
+`<=1.0 m/s` 的 B100 五类 10/10 selected 子集；C 的左右不对称和 D 的 265 ms pipeline 需在
+整机负载下复核。D 其余 39 项继续按可测性缺口分批落地。详见
 [KS2A543相机基线下ABCD重验证决策_20260904.md](docs/KS2A543相机基线下ABCD重验证决策_20260904.md)。
 
 10 min 使用独立 `vsim04_camera_soak.launch`：以 monotonic 墙钟判定 600 秒资格，相机在同一

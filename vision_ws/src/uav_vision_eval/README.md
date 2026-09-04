@@ -415,8 +415,20 @@ logs/vsim04_repeat_aggregate_boundary6-seed11-r3-final-307ac5c4/
 - formal23：23/23 trial 完成，22/23 confirm/selected，detector/pipeline/process P95
   `117.0/152.5/222.9 ms`，地图误差 P95 `0.2038 m`；一格 process 对表缺样，终态 INVALID。
 
-因此该夹具当前用于真实性和 B100 根因评审，不是 main 的已验收默认值。Gazebo Classic 插件
-只支持单一焦距，仿真 K 使用 `fx=fy=725.351 px`，与实机 `fy=723.340 px` 相差约 0.28%；
-不要为这一近似增加 CameraInfo relay。外参测量与 B100 拆解分别见
+上述先导 run 已由时戳配对和终态合同修复后的全量结果取代。Gazebo Classic 插件只支持单一
+焦距，仿真 K 使用 `fx=fy=725.351 px`，与实机 `fy=723.340 px` 相差约 0.28%；不要为这一近似
+增加 CameraInfo relay。外参测量与 B100 拆解分别见
 `docs/实装相机与安装外参测量标准_20260904.md` 和
 `docs/视觉工程精简与B100延迟复盘_20260904.md`。
+
+最终 KS2A543 单 seed 运行：
+
+| 面 | Run | 完成 | confirm/selected | pipeline / detector process P95 | map P95 | 状态 |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| A25 | `vsim04_diag_static25_seed11_20260904_140501` | 25/25 | 23/25、23/25 | 164.813 / 97.783 ms | 0.203769 m | `DIAGNOSTIC_ONLY` |
+| B100 | `vsim04_diag_b100_seed11_20260904_140800` | 100/100 | 87/86 | 181.990 / 145.724 ms | 0.203484 m | `DIAGNOSTIC_ONLY` |
+| C25 | `vsim04_c25_seed11_20260904_135946` | 25/25 | 15/12（完整入画 15 项） | 158.690 / 96.467 ms | 0.216720 m | `MEASURED/NOT_GATED` |
+| D11 | `vsim04_diag_d50_supported_seed11_20260904_144351` | 11/11 | 11/11 | 265.232 / 72.576 ms | 0.152282 m | `DIAGNOSTIC_ONLY` |
+
+D runner 会在内部 trial 事件附带紧凑规划 XY 序列，使 turn 的首帧和横向误差按圆弧而非起终点
+弦线核对；这不是新 ROS 话题或跨组接口。所有表仍是 visual-only，`P_interrupt=null`。

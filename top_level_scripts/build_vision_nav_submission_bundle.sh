@@ -5,21 +5,15 @@ set -euo pipefail
 SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-DEFAULT_OUTPUT="${PROJECT_ROOT}/deliverables/liftrace_vision_to_navigation_handoff_20260902_v2.zip"
-DEFAULT_PERFORMANCE_LOGS="/home/xhj/liftrace-worktrees/vsim04-performance/logs"
+DEFAULT_OUTPUT="${PROJECT_ROOT}/deliverables/liftrace_vision_to_navigation_handoff_20260904_v3.zip"
 
 OUTPUT="${DEFAULT_OUTPUT}"
-FORMAL23_RUN="${DEFAULT_PERFORMANCE_LOGS}/vsim04_formal23_latest_seed11_20260830_220302"
-STATIC25_RUN="${DEFAULT_PERFORMANCE_LOGS}/vsim04_diag_static25_seed11_20260830_220647"
-B100_RUN="${PROJECT_ROOT}/logs/vsim04_diag_b100_seed11_20260902_174132"
-SPARSE30_HISTORY_RUN="${DEFAULT_PERFORMANCE_LOGS}/vsim04_diag_sparse30_retry3_seed11_20260830_223136"
-C_FAILURE_RUN="${PROJECT_ROOT}/logs/vsim04_c25_seed11_20260902_015235"
-C_FIXED_RUN="${PROJECT_ROOT}/logs/vsim04_c25_seed11_20260902_020233"
-D_SINGLE_RUN="${PROJECT_ROOT}/logs/vsim04_diag_d50_d_single_01_seed11_20260902_020734"
-D_SUPPORTED_RUN="${PROJECT_ROOT}/logs/vsim04_diag_d50_supported_seed11_20260902_021311"
+STATIC25_RUN="${PROJECT_ROOT}/logs/vsim04_diag_static25_seed11_20260904_140501"
+B100_RUN="${PROJECT_ROOT}/logs/vsim04_diag_b100_seed11_20260904_140800"
+C_FIXED_RUN="${PROJECT_ROOT}/logs/vsim04_c25_seed11_20260904_135946"
+D_SUPPORTED_RUN="${PROJECT_ROOT}/logs/vsim04_diag_d50_supported_seed11_20260904_144351"
 D_DESIGN_DIR=""
 MODEL_PATH="/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt"
-BOARD_FULL_RUN="${PROJECT_ROOT}/logs/orangepi_camera_lab_20260902/ros_rknn_video_full_4622_59c74b6"
 VCL06_GATE_RUN="/home/xhj/liftrace-worktrees/vcl06-local-full-mission/logs/vcl06_full_chain_r9_20260902_171808"
 PYTHON_BIN="/home/xhj/miniconda3/envs/rl_drone/bin/python"
 FORCE=0
@@ -30,24 +24,20 @@ Usage: build_vision_nav_submission_bundle.sh [options]
 
 Options:
   --output PATH                 Output ZIP path.
-  --formal23-run DIR            Formal23 A/B evidence run.
   --static25-run DIR            A static-height evidence run.
   --b100-run DIR                B full 5x5x4 height/speed evidence run.
-  --c-failure-run DIR           First C25 failed run.
-  --c-fixed-run DIR             C25 post-fix run.
+  --c-fixed-run DIR             Current C25 run.
   --d-design-dir DIR            Existing D50 dry-run artifact directory.
                                  Omit to regenerate it deterministically.
-  --d-single-run DIR            D50 single-trial Gazebo run.
   --d-supported-run DIR         D50 supported-slice Gazebo run.
   --model PATH                  Dev/sim model copied into the bundle.
-  --board-full-run DIR          Complete board ROS/RKNN/OpenCV replay result.
   --vcl06-gate-run DIR          Latest joint Gate context (informational).
   --python PATH                 Python with PyYAML for validation/dry-run.
   --force                       Replace an existing ZIP and outer checksum.
   -h, --help                    Show this help.
 
 The bundle intentionally excludes roslog/, screen recordings, bags, build
-products, caches and the annotated MP4. Every included ROS run must contain
+products, caches and large videos. Every included ROS run must contain
 the six V-SIM-04 artifacts. Invalid historical outer manifests are preserved
 as manifest_legacy.txt and accompanied by a parseable manifest.yaml wrapper.
 EOF
@@ -67,11 +57,6 @@ while [ "$#" -gt 0 ]; do
       OUTPUT="$2"
       shift 2
       ;;
-    --formal23-run)
-      need_value "$@"
-      FORMAL23_RUN="$2"
-      shift 2
-      ;;
     --static25-run)
       need_value "$@"
       STATIC25_RUN="$2"
@@ -80,11 +65,6 @@ while [ "$#" -gt 0 ]; do
     --b100-run)
       need_value "$@"
       B100_RUN="$2"
-      shift 2
-      ;;
-    --c-failure-run)
-      need_value "$@"
-      C_FAILURE_RUN="$2"
       shift 2
       ;;
     --c-fixed-run)
@@ -97,11 +77,6 @@ while [ "$#" -gt 0 ]; do
       D_DESIGN_DIR="$2"
       shift 2
       ;;
-    --d-single-run)
-      need_value "$@"
-      D_SINGLE_RUN="$2"
-      shift 2
-      ;;
     --d-supported-run)
       need_value "$@"
       D_SUPPORTED_RUN="$2"
@@ -110,11 +85,6 @@ while [ "$#" -gt 0 ]; do
     --model)
       need_value "$@"
       MODEL_PATH="$2"
-      shift 2
-      ;;
-    --board-full-run)
-      need_value "$@"
-      BOARD_FULL_RUN="$2"
       shift 2
       ;;
     --vcl06-gate-run)
@@ -142,10 +112,6 @@ while [ "$#" -gt 0 ]; do
       ;;
   esac
 done
-
-BOARD_VIDEO_PATH="${BOARD_FULL_RUN}/real_target_rknn_ros_opencv_full_4622.mp4"
-BOARD_REVIEW_VIDEO_PATH="${BOARD_FULL_RUN}/real_target_rknn_ros_opencv_full_4622_h264_review.mp4"
-BOARD_SUMMARY_PATH="${BOARD_FULL_RUN}/summary.json"
 
 for command_name in awk find install mktemp realpath sha256sum sort xargs zip unzip; do
   if ! command -v "${command_name}" >/dev/null 2>&1; then
@@ -359,16 +325,6 @@ copy_required_file() {
   install -D -m 0644 "${source_path}" "${destination_path}"
 }
 
-copy_existing_file() {
-  local source_path="$1"
-  local destination_path="$2"
-  if [ ! -f "${source_path}" ]; then
-    echo "required file is missing: ${source_path}" >&2
-    exit 2
-  fi
-  install -D -m 0644 "${source_path}" "${destination_path}"
-}
-
 STAGE_PARENT="$(mktemp -d /tmp/liftrace_vision_nav_bundle.XXXXXX)"
 cleanup() {
   case "${STAGE_PARENT:-}" in
@@ -390,8 +346,7 @@ mkdir -p \
   "${BUNDLE_ROOT}/00_README" \
   "${BUNDLE_ROOT}/01_docs" \
   "${BUNDLE_ROOT}/02_VSIM04" \
-  "${BUNDLE_ROOT}/03_BOARD_EVIDENCE/full_ros_video" \
-  "${BUNDLE_ROOT}/03_BOARD_EVIDENCE/usb_ros_600s" \
+  "${BUNDLE_ROOT}/03_BOARD_EVIDENCE" \
   "${BUNDLE_ROOT}/05_reproduce/config" \
   "${BUNDLE_ROOT}/05_reproduce/launch" \
   "${BUNDLE_ROOT}/05_reproduce/scripts" \
@@ -420,24 +375,21 @@ copy_required_file \
 copy_required_file \
   "${PROJECT_ROOT}/docs/V-SIM-04仿真实验数据与分支移交索引_20260831.md" \
   "${BUNDLE_ROOT}/01_docs/历史_V-SIM-04仿真实验数据与分支移交索引_20260831.md"
+copy_required_file \
+  "${PROJECT_ROOT}/docs/KS2A543相机基线下ABCD重验证决策_20260904.md" \
+  "${BUNDLE_ROOT}/01_docs/KS2A543相机基线下ABCD重验证决策_20260904.md"
+copy_required_file \
+  "${PROJECT_ROOT}/docs/视觉工程精简与B100延迟复盘_20260904.md" \
+  "${BUNDLE_ROOT}/01_docs/视觉工程精简与B100延迟复盘_20260904.md"
 
 copy_required_run "static25 A" "${STATIC25_RUN}" \
   "${BUNDLE_ROOT}/02_VSIM04/A_static25_seed11"
 copy_required_run "B100 full surface" "${B100_RUN}" \
   "${BUNDLE_ROOT}/02_VSIM04/B_full100_seed11"
 copy_required_run "C25 post-fix" "${C_FIXED_RUN}" \
-  "${BUNDLE_ROOT}/02_VSIM04/C_post_fix_seed11"
+  "${BUNDLE_ROOT}/02_VSIM04/C_full25_seed11"
 copy_required_run "D50 supported slice" "${D_SUPPORTED_RUN}" \
-  "${BUNDLE_ROOT}/02_VSIM04/D_supported16_seed11"
-
-copy_required_run "formal23 A/B history" "${FORMAL23_RUN}" \
-  "${BUNDLE_ROOT}/02_VSIM04/history/AB_formal23_seed11"
-copy_required_run "sparse30 B history" "${SPARSE30_HISTORY_RUN}" \
-  "${BUNDLE_ROOT}/02_VSIM04/history/B_sparse30_seed11"
-copy_required_run "C25 first failure" "${C_FAILURE_RUN}" \
-  "${BUNDLE_ROOT}/02_VSIM04/diagnostics/C_first_failure_seed11"
-copy_required_run "D50 single" "${D_SINGLE_RUN}" \
-  "${BUNDLE_ROOT}/02_VSIM04/diagnostics/D_single_seed11"
+  "${BUNDLE_ROOT}/02_VSIM04/D_supported11_seed11"
 
 D_DESIGN_DEST="${BUNDLE_ROOT}/02_VSIM04/D_design"
 mkdir -p "${D_DESIGN_DEST}"
@@ -503,72 +455,6 @@ copy_required_file \
   "${PROJECT_ROOT}/docs/OrangePi板端视觉性能报告_20260902.md" \
   "${BUNDLE_ROOT}/03_BOARD_EVIDENCE/OrangePi板端视觉性能报告_20260902.md"
 copy_required_file \
-  "${PROJECT_ROOT}/logs/orangepi_camera_lab_20260902/live_camera_ros_600s_abc5103_rerun1/summary.json" \
-  "${BUNDLE_ROOT}/03_BOARD_EVIDENCE/usb_ros_600s/summary.json"
-
-for board_artifact in \
-  summary.json run.log input_ffprobe.json output_ffprobe.json \
-  perf_summary.json perf.csv nodes.log mapped_sample.yaml frame_38s.jpg \
-  h264_review_ffprobe.json; do
-  copy_required_file \
-    "${BOARD_FULL_RUN}/${board_artifact}" \
-    "${BUNDLE_ROOT}/03_BOARD_EVIDENCE/full_ros_video/${board_artifact}"
-done
-copy_existing_file \
-  "${BOARD_FULL_RUN}/forbidden_nodes.txt" \
-  "${BUNDLE_ROOT}/03_BOARD_EVIDENCE/full_ros_video/forbidden_nodes.txt"
-require_file "${BOARD_VIDEO_PATH}"
-require_file "${BOARD_REVIEW_VIDEO_PATH}"
-"${PYTHON_BIN}" - \
-  "${BOARD_SUMMARY_PATH}" "${BOARD_VIDEO_PATH}" \
-  "${BOARD_FULL_RUN}/h264_review_ffprobe.json" "${BOARD_REVIEW_VIDEO_PATH}" <<'PY'
-import json
-import os
-import sys
-
-summary_path, video_path, review_probe_path, review_video_path = sys.argv[1:]
-with open(summary_path, "r", encoding="utf-8") as stream:
-    summary = json.load(stream)
-expected = int(summary.get("source_expected_frames", 0))
-annotated = int(summary.get("annotated_frames", -1))
-if summary.get("result") != "PASS":
-    raise SystemExit("board full replay did not PASS")
-if expected != 4622 or annotated != expected:
-    raise SystemExit("board full replay frame count is incomplete")
-if int(summary.get("perf_messages", 0)) != expected:
-    raise SystemExit("board full replay perf count is incomplete")
-mapped = int(summary.get("mapped_messages", 0))
-invalid_mapped = int(summary.get("invalid_mapped_messages", -1))
-if mapped <= 0 or invalid_mapped != mapped:
-    raise SystemExit("board full replay mapped results did not all fail closed")
-if not summary.get("map_fail_closed"):
-    raise SystemExit("board full replay map projection did not fail closed")
-if os.path.getsize(video_path) <= 1024:
-    raise SystemExit("board full replay MP4 is empty")
-with open(review_probe_path, "r", encoding="utf-8") as stream:
-    review_probe = json.load(stream)
-review_streams = review_probe.get("streams", [])
-if len(review_streams) != 1 or int(review_streams[0].get("nb_frames", 0)) != expected:
-    raise SystemExit("H.264 review copy frame count is incomplete")
-if os.path.getsize(review_video_path) <= 1024:
-    raise SystemExit("H.264 review copy is empty")
-PY
-{
-  echo "# Complete board ROS/RKNN/OpenCV annotated video"
-  echo
-  echo "The MP4 is intentionally transferred beside the ZIP instead of inside it."
-  echo
-  echo "- sender path: \`${BOARD_VIDEO_PATH}\`"
-  echo "- original-full-chain filename: \`${BOARD_VIDEO_PATH##*/}\`"
-  echo "- original-full-chain size_bytes: \`$(wc -c < "${BOARD_VIDEO_PATH}")\`"
-  echo "- group-review filename: \`${BOARD_REVIEW_VIDEO_PATH##*/}\`"
-  echo "- group-review size_bytes: \`$(wc -c < "${BOARD_REVIEW_VIDEO_PATH}")\`"
-  echo "- both files: 4622 frames; the review copy is H.264 CRF 22"
-  echo "- metrics: \`summary.json\` and \`perf_summary.json\` in this directory"
-  echo "- boundary: no synchronized pose or installed camera extrinsic; map output must remain invalid"
-} > "${BUNDLE_ROOT}/03_BOARD_EVIDENCE/full_ros_video/VIDEO_TRANSFER_README.md"
-
-copy_required_file \
   "${PROJECT_ROOT}/docs/当前问题与责任边界.md" \
   "${BUNDLE_ROOT}/07_VCL06_CONTEXT/当前问题与责任边界.md"
 copy_required_file \
@@ -586,21 +472,21 @@ install -m 0644 "${MODEL_PATH}" "${BUNDLE_ROOT}/08_model/best.pt"
 
 "${PYTHON_BIN}" - \
   "${STATIC25_RUN}" "${B100_RUN}" "${C_FIXED_RUN}" "${D_SUPPORTED_RUN}" \
-  "${BOARD_SUMMARY_PATH}" "${VCL06_GATE_RUN}/gate_status.json" \
+  "${VCL06_GATE_RUN}/gate_status.json" \
   "${BUNDLE_ROOT}/evidence_index.csv" <<'PY'
 import csv
 import json
 import os
 import sys
 
-a_run, b_run, c_run, d_run, board_summary_path, gate_path, output = sys.argv[1:]
+a_run, b_run, c_run, d_run, gate_path, output = sys.argv[1:]
 fields = [
     "evidence_id", "requirement", "domain", "source_run",
     "vision_revision", "navigation_revision", "profile", "seed",
     "planned_trials", "completed_trials", "measurement_status",
     "performance_status", "p_confirm", "p_selected",
     "p_confirm_visibility", "p_selected_visibility", "p_interrupt",
-    "processing_p95_ms", "map_error_p95_m", "artifact_complete",
+    "pipeline_p95_ms", "map_error_p95_m", "artifact_complete",
     "package_path", "boundary",
 ]
 
@@ -636,8 +522,8 @@ def run_row(evidence_id, requirement, run, package_path, boundary):
         "p_confirm_visibility": metrics.get("p_confirm_visibility", ""),
         "p_selected_visibility": metrics.get("p_selected_visibility", ""),
         "p_interrupt": metrics.get("p_interrupt", ""),
-        "processing_p95_ms": metrics.get(
-            "p95_confirmation_processing_ms", ""),
+        "pipeline_p95_ms": metrics.get(
+            "p95_confirmation_pipeline_ms", ""),
         "map_error_p95_m": metrics.get("p95_map_error_xy", ""),
         "artifact_complete": artifact.get(
             "complete", summary.get("artifact_set_complete", "")),
@@ -652,43 +538,27 @@ rows = [
     run_row("B_FULL100", "B", b_run,
             "02_VSIM04/B_full100_seed11",
             "full 5x5x4 surface on one revision; diagnostic only; P_interrupt=null"),
-    run_row("C25_POST_FIX", "C", c_run,
-            "02_VSIM04/C_post_fix_seed11",
+    run_row("C_FULL25", "C", c_run,
+            "02_VSIM04/C_full25_seed11",
             "full-frame and visibility denominators differ; P_interrupt=null"),
-    run_row("D_SUPPORTED16", "D", d_run,
-            "02_VSIM04/D_supported16_seed11",
+    run_row("D_SUPPORTED11", "D", d_run,
+            "02_VSIM04/D_supported11_seed11",
             "only runner-supported center/quadrant single-target trials"),
 ]
 rows.append({
-    "evidence_id": "D34_NOT_RUN",
+    "evidence_id": "D39_NOT_RUN",
     "requirement": "D",
     "domain": "DESIGN_ONLY",
     "source_run": "vsim04_trajectory_d50_matrix.yaml",
     "profile": "r2026",
     "seed": 11,
-    "planned_trials": 34,
+    "planned_trials": 39,
     "completed_trials": 0,
     "measurement_status": "NOT_RUN",
     "performance_status": "NOT_RUN",
     "artifact_complete": False,
     "package_path": "02_VSIM04/D_design",
-    "boundary": "24 single trials fail readiness; multi10 lacks second-target/H truth infrastructure",
-})
-board = load(board_summary_path)
-rows.append({
-    "evidence_id": "BOARD_REAL_FULL_ROS_VIDEO",
-    "requirement": "V-REAL-01",
-    "domain": "ORANGEPI_VIDEO_REPLAY",
-    "source_run": os.path.basename(os.path.dirname(board_summary_path)),
-    "vision_revision": board.get("vision_revision", ""),
-    "profile": "r2026",
-    "planned_trials": board.get("source_expected_frames", ""),
-    "completed_trials": board.get("annotated_frames", ""),
-    "measurement_status": "FUNCTIONAL_REPLAY_ONLY",
-    "performance_status": board.get("result", ""),
-    "artifact_complete": board.get("result") == "PASS",
-    "package_path": "03_BOARD_EVIDENCE/full_ros_video",
-    "boundary": "ROS+RKNN+OpenCV; no manual truth, synchronized pose, or installed extrinsic",
+    "boundary": "20 clipped-window; 7 visibility-preflight; 2 arena; multi10 lacks second-target/H truth",
 })
 gate = load(gate_path)
 rows.append({
@@ -731,13 +601,11 @@ this archive. The builder refuses tracked worktree changes.
 
 - Requirement A: \`02_VSIM04/A_static25_seed11\`.
 - Requirement B: \`02_VSIM04/B_full100_seed11\`, one revision, 100/100 cells.
-  Historical formal23/sparse30 are under \`02_VSIM04/history/\` and must not
-  be spliced into the current surface.
-- Requirement C: the post-fix run is the current result. The first failed run
-  is retained only under \`02_VSIM04/diagnostics/\` to explain the corrected
-  zero-distortion CameraInfo path; it must not be counted as current C data.
-- Requirement D: the frozen D50 design and the completed supported 16/16
-  single-target slice. The other 34 designs remain explicit \`NOT_RUN\`.
+  Historical formal23/sparse30 are intentionally excluded and must not be
+  spliced into the current surface.
+- Requirement C: \`02_VSIM04/C_full25_seed11\`, 25/25 current-camera trials.
+- Requirement D: the frozen D50 design and completed supported 11/11
+  single-target slice. The other 39 designs remain explicit \`NOT_RUN\`.
 - Visual-only \`P_interrupt\` remains null unless independent navigation
   acceptance/APPROACH evidence exists; selected_target is not a substitute.
 
@@ -748,25 +616,16 @@ the visual requirement's A/B surface and is intentionally not relabelled here.
 
 - static25: \`${STATIC25_RUN}\`
 - B100: \`${B100_RUN}\`
-- C first failure: \`${C_FAILURE_RUN}\`
-- C post-fix: \`${C_FIXED_RUN}\`
-- D single: \`${D_SINGLE_RUN}\`
+- C25: \`${C_FIXED_RUN}\`
 - D supported: \`${D_SUPPORTED_RUN}\`
-- board full ROS video result: \`${BOARD_FULL_RUN}\`
 - latest VCL06 context: \`${VCL06_GATE_RUN}\`
 - model: \`${MODEL_PATH}\`
 
-## Annotated real-video output
+## Board evidence
 
-The annotated MP4 is intentionally excluded to keep the structured transfer
-small. Its sender-side path is:
-
-\`${BOARD_REVIEW_VIDEO_PATH}\`
-
-The original full-frame file remains at \`${BOARD_VIDEO_PATH}\`. The builder
-verified 4622 annotated/perf frames, all mapped results fail-closed, and 4622
-frames in both MP4 files. Transfer the H.264 review copy separately; it is a functional review artifact without manual
-truth, synchronized pose or an installed camera extrinsic.
+The package includes the accepted OrangePi performance report, camera
+calibration and launch configuration. Large annotated videos and their removed
+run directories are not duplicated in this A/B/C/D update archive.
 
 ## Integrity and exclusions
 
@@ -795,5 +654,5 @@ install -m 0644 "${TMP_ZIP}" "${OUTPUT}"
 echo "VISION_NAV_SUBMISSION_BUNDLE PASS"
 echo "zip: ${OUTPUT}"
 echo "checksum: ${OUTPUT}.sha256"
-echo "D supported: INCLUDED_16_OF_16"
-echo "annotated MP4s: verified and excluded (${BOARD_VIDEO_PATH}; ${BOARD_REVIEW_VIDEO_PATH})"
+echo "D supported: INCLUDED_11_OF_11"
+echo "large annotated MP4s: excluded from this A/B/C/D update archive"
