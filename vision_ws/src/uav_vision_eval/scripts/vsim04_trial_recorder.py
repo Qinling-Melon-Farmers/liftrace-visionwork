@@ -46,6 +46,7 @@ from uav_vision_eval.vsim04_metrics import (
     planned_trial_result,
     quaternion_yaw,
     select_trial_matrix,
+    trial_output_drain_boundary,
     watermarks_cover_source_stamp,
     write_artifacts,
 )
@@ -776,11 +777,11 @@ class VSim04TrialRecorder:
     def _note_pending_output_locked(self, source_stamp, receipt):
         if self._pending_trial_end is None:
             return
-        result = self._result_locked()
-        leave_stamp = result.get("leave_source_stamp") if result else None
-        if (leave_stamp is not None and source_stamp is not None and
+        output_boundary = self._pending_trial_end.get(
+            "output_boundary_stamp")
+        if (output_boundary is not None and source_stamp is not None and
                 math.isfinite(float(source_stamp)) and
-                float(source_stamp) <= float(leave_stamp)):
+                float(source_stamp) <= float(output_boundary)):
             self._pending_trial_end["last_relevant_receipt"] = receipt
 
     def _readiness_missing_locked(self):
@@ -1021,12 +1022,16 @@ class VSim04TrialRecorder:
         if self._pending_trial_end is not None:
             raise RuntimeError("trial_end already pending: " + trial_id)
         self._record_current_missing_locked()
+        output_boundary, output_boundary_kind = trial_output_drain_boundary(
+            self._result_locked(), source_event)
         self._pending_trial_end = {
             "trial_id": trial_id,
             "source_event": copy.deepcopy(source_event),
             "requested_monotonic": time.monotonic(),
             "watermarks_ready_monotonic": None,
             "last_relevant_receipt": time.monotonic(),
+            "output_boundary_stamp": output_boundary,
+            "output_boundary_kind": output_boundary_kind,
         }
         self._add_event_locked(
             "trial_end_requested", details={
@@ -1035,6 +1040,8 @@ class VSim04TrialRecorder:
                     "image", "truth", "mapped_detections", "targets",
                     "target_detector_diagnostic",
                 ],
+                "output_boundary_stamp": output_boundary,
+                "output_boundary_kind": output_boundary_kind,
             })
 
     def _output_watermarks_locked(self):
@@ -1052,17 +1059,20 @@ class VSim04TrialRecorder:
         if self._pending_trial_end is None:
             return False
         pending = self._pending_trial_end
-        result = self._result_locked()
-        leave_stamp = result.get("leave_source_stamp") if result else None
+        output_boundary = pending["output_boundary_stamp"]
         watermarks = self._output_watermarks_locked()
-        ready = watermarks_cover_source_stamp(watermarks, leave_stamp)
+        ready = watermarks_cover_source_stamp(watermarks, output_boundary)
         now = time.monotonic()
         if ready:
             if pending["watermarks_ready_monotonic"] is None:
                 pending["watermarks_ready_monotonic"] = now
                 self._add_event_locked(
-                    "output_watermarks_reached", leave_stamp,
-                    details={"watermarks": watermarks})
+                    "output_watermarks_reached", output_boundary,
+                    details={
+                        "watermarks": watermarks,
+                        "output_boundary_kind":
+                            pending["output_boundary_kind"],
+                    })
             quiet_since = max(
                 pending["watermarks_ready_monotonic"],
                 pending["last_relevant_receipt"])
@@ -1076,7 +1086,8 @@ class VSim04TrialRecorder:
             self._record_infra_gap_locked(
                 "output_watermark_timeout",
                 now - pending["requested_monotonic"],
-                {"leave_source_stamp": leave_stamp,
+                {"output_boundary_stamp": output_boundary,
+                 "output_boundary_kind": pending["output_boundary_kind"],
                  "watermarks": watermarks})
             self._fatal_error = "output_watermark_timeout:{}".format(
                 pending["trial_id"])

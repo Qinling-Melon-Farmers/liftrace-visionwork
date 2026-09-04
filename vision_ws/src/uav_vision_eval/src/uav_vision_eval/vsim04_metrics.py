@@ -1614,6 +1614,31 @@ def watermarks_cover_source_stamp(watermarks, source_stamp):
                 for value in values))
 
 
+def trial_output_drain_boundary(result, source_event):
+    """Choose a finite source-time boundary for draining one trial.
+
+    A valid visibility leave is the closest boundary to the metric window. If
+    a discretely driven simulation never samples that window, the runner's
+    trial-end stamp still lets every output drain and lets terminal validation
+    report the missing enter/leave as a design-invalid trial instead of
+    deadlocking the entire matrix.
+    """
+    candidates = (
+        ("visibility_leave", (result or {}).get("leave_source_stamp")),
+        ("trial_end", (source_event or {}).get("stamp")),
+        ("motion_end", (source_event or {}).get(
+            "trajectory", {}).get("motion_end_source_stamp")),
+    )
+    for kind, candidate in candidates:
+        try:
+            value = float(candidate)
+        except (TypeError, ValueError, OverflowError):
+            continue
+        if math.isfinite(value):
+            return value, kind
+    return None, "unavailable"
+
+
 def completed_sources_cover(required_sources, completed_sources):
     """Require every formal detector branch to reach the mapped output."""
     required = {str(value).strip() for value in required_sources

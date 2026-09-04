@@ -33,6 +33,7 @@ from uav_vision_eval.vsim04_metrics import (
     quaternion_yaw,
     select_trial_matrix,
     summarize_trial_results,
+    trial_output_drain_boundary,
     watermarks_cover_source_stamp,
     write_artifacts,
 )
@@ -328,6 +329,7 @@ def main():
         1.2, 1.8, 2.4, 3.0, 3.6}
     assert {trial["speed_mps"] for trial in b100["trials"]} == {
         0.5, 1.0, 1.5, 2.0}
+    assert surface["dynamic"]["update_rate_hz"] == 60.0
     assert len({
         (trial["class_name"], trial["height_m"], trial["speed_mps"])
         for trial in b100["trials"]
@@ -773,6 +775,19 @@ def main():
     watermarks["targets"] = 2.99
     assert not watermarks_cover_source_stamp(watermarks, 3.0)
     assert not watermarks_cover_source_stamp(watermarks, None)
+    boundary, kind = trial_output_drain_boundary(
+        {"leave_source_stamp": 4.0}, {"stamp": 5.0})
+    assert boundary == 4.0 and kind == "visibility_leave"
+    boundary, kind = trial_output_drain_boundary(
+        {"leave_source_stamp": None}, {
+            "stamp": 5.0,
+            "trajectory": {"motion_end_source_stamp": 4.5},
+        })
+    assert boundary == 5.0 and kind == "trial_end"
+    boundary, kind = trial_output_drain_boundary(
+        {}, {"trajectory": {"motion_end_source_stamp": 4.5}})
+    assert boundary == 4.5 and kind == "motion_end"
+    assert trial_output_drain_boundary({}, {}) == (None, "unavailable")
     assert not detector_diagnostic_errors(
         0, {"backend": "ultralytics", "model_path": "/tmp/model.pt"},
         "ultralytics", "/tmp/model.pt")

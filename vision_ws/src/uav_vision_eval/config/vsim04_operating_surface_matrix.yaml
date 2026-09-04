@@ -9,7 +9,7 @@ expected_trial_count: 125
 # Keep the diagnostic surface on the same frozen performance contract. Named
 # slices remain DIAGNOSTIC_ONLY regardless of their metric values.
 performance_contract:
-  contract_id: vsim04-ks2a543-pipeline-20260904
+  contract_id: vsim04-ks2a543-pipeline-60hz-20260904
   sources:
     - VISION_2026_ROADMAP.md#V-SIM-04
     - docs/VISION_LAPTOP_SIM_BASELINE_20260715.md
@@ -40,7 +40,11 @@ dynamic:
   heights_m: [1.2, 1.8, 2.4, 3.0, 3.6]
   speeds_mps: [0.5, 1.0, 1.5, 2.0]
   path_half_length_m: 3.5
-  update_rate_hz: 20.0
+  # Drive the Gazebo pose at twice the installed camera rate. At 20 Hz the
+  # low-altitude bridge's narrow fully-visible interval could fall entirely
+  # between two 30 FPS image samples, which measured teleport aliasing rather
+  # than the requested continuous flight speed.
+  update_rate_hz: 60.0
 
 trial_slices:
   static25:
