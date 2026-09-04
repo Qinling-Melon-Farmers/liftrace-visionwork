@@ -5,7 +5,7 @@ set -euo pipefail
 SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-DEFAULT_OUTPUT="${PROJECT_ROOT}/deliverables/liftrace_vision_to_navigation_handoff_20260904_v3.zip"
+DEFAULT_OUTPUT="${PROJECT_ROOT}/deliverables/liftrace_vision_to_navigation_handoff_20260904_v4.zip"
 
 OUTPUT="${DEFAULT_OUTPUT}"
 STATIC25_RUN="${PROJECT_ROOT}/logs/vsim04_diag_static25_seed11_20260904_140501"
@@ -14,7 +14,7 @@ C_FIXED_RUN="${PROJECT_ROOT}/logs/vsim04_c25_seed11_20260904_135946"
 D_SUPPORTED_RUN="${PROJECT_ROOT}/logs/vsim04_diag_d50_supported_seed11_20260904_144351"
 D_DESIGN_DIR=""
 MODEL_PATH="/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt"
-VCL06_GATE_RUN="/home/xhj/liftrace-worktrees/vcl06-local-full-mission/logs/vcl06_full_chain_r9_20260902_171808"
+VCL06_GATE_RUN="/home/xhj/liftrace/logs/vcl06_p0_seed11_r11_20260904_030218"
 PYTHON_BIN="/home/xhj/miniconda3/envs/rl_drone/bin/python"
 FORCE=0
 
@@ -569,7 +569,7 @@ rows.append({
     "requirement": "V-CL-06",
     "domain": "JOINT_SIM",
     "source_run": os.path.basename(os.path.dirname(gate_path)),
-    "navigation_revision": "49dd9dc+dirty-runtime",
+    "navigation_revision": "919e438",
     "profile": "r2026",
     "seed": 11,
     "planned_trials": 1,
@@ -578,7 +578,7 @@ rows.append({
     "performance_status": gate.get("status", ""),
     "artifact_complete": True,
     "package_path": "07_VCL06_CONTEXT/latest_gate_status.json",
-    "boundary": "informational dirty-worktree run; reason={}".format(
+    "boundary": "three-delivery subchain PASS; full Gate FAIL at post-delivery route 2; top-level run manifest does not freeze both repo revisions; reason={}".format(
         gate.get("reason", "")),
 })
 
