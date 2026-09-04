@@ -196,6 +196,9 @@ class VSim04TrialRecorder:
         self._camera_pose_samples = {}
         self._infra_gaps = []
         self._infra_gap_keys = set()
+        self._candidate_audit_keys = set()
+        self._candidate_event_keys = set()
+        self._selected_event_keys = set()
         self._pending_trial_end = None
         self._navigation_metrics = navigation_metrics_metadata(
             rospy.get_param("~navigation_metrics_mode", "visual_only"))
@@ -392,13 +395,13 @@ class VSim04TrialRecorder:
                 queue_size=40)
         rospy.Subscriber(
             self._manifest["topics"]["targets"], TargetCandidateArray,
-            self._on_targets, queue_size=40)
+            self._on_targets, queue_size=1)
         rospy.Subscriber(
             self._manifest["topics"]["selected_target"], TargetCandidate,
-            self._on_selected, queue_size=40)
+            self._on_selected, queue_size=1)
         rospy.Subscriber(
             self._manifest["topics"]["image"], Image,
-            self._on_image, queue_size=40)
+            self._on_image, queue_size=1)
         rospy.Subscriber(
             self._manifest["topics"]["camera_info"], CameraInfo,
             self._on_camera_info, queue_size=1)
@@ -1644,11 +1647,18 @@ class VSim04TrialRecorder:
             self._allowed_classes, state=candidate.state,
             policy_selectable=policy_selectable,
             trial_id=self._active or "", source_stamp=source_stamp)
-        self._candidate_audit_observations.append(record)
-        self._add_event_locked(
-            "candidate_{}_audit".format(event_kind), source_stamp,
-            candidate.id, details=record, receipt_monotonic=receipt,
-            class_name=candidate.class_name)
+        audit_key = (
+            self._active or "", str(event_kind), int(candidate.id),
+            candidate.last_seen.to_nsec(), str(candidate.class_name),
+            int(candidate.state), bool(policy_selectable),
+        )
+        if audit_key not in self._candidate_audit_keys:
+            self._candidate_audit_keys.add(audit_key)
+            self._candidate_audit_observations.append(record)
+            self._add_event_locked(
+                "candidate_{}_audit".format(event_kind), source_stamp,
+                candidate.id, details=record, receipt_monotonic=receipt,
+                class_name=candidate.class_name)
         return record
 
     def _on_targets(self, message):
@@ -1683,22 +1693,30 @@ class VSim04TrialRecorder:
                     "stable_id": int(candidate.id),
                     "target_first_seen_ns": candidate.first_seen.to_nsec(),
                 }
-                self._candidate_events[self._active].append(event)
+                event_key = (
+                    self._active, int(candidate.id),
+                    candidate.last_seen.to_nsec())
+                first_observation = event_key not in self._candidate_event_keys
+                if first_observation:
+                    self._candidate_event_keys.add(event_key)
+                    self._candidate_events[self._active].append(event)
                 frame = self._frame_locked(
                     event["stamp_key"], event["source_stamp"])
                 frame["current_confirmed"] = True
                 frame["stable_id"] = int(candidate.id)
-                self._add_event_locked(
-                    "candidate_currently_admissible",
-                    event["source_stamp"], candidate.id,
-                    receipt_monotonic=receipt,
-                    details={
-                        "consecutive_observe_count": int(
-                            candidate.consecutive_observe_count),
-                        "map_valid": bool(candidate.map_valid),
-                        "association_valid": bool(candidate.association_valid),
-                        "reject_reason": candidate.reject_reason,
-                    })
+                if first_observation:
+                    self._add_event_locked(
+                        "candidate_currently_admissible",
+                        event["source_stamp"], candidate.id,
+                        receipt_monotonic=receipt,
+                        details={
+                            "consecutive_observe_count": int(
+                                candidate.consecutive_observe_count),
+                            "map_valid": bool(candidate.map_valid),
+                            "association_valid": bool(
+                                candidate.association_valid),
+                            "reject_reason": candidate.reject_reason,
+                        })
 
     def _on_selected(self, candidate):
         receipt = time.monotonic()
@@ -1733,17 +1751,24 @@ class VSim04TrialRecorder:
                 "stable_id": int(candidate.id),
                 "target_first_seen_ns": candidate.first_seen.to_nsec(),
             }
-            self._selected_events[self._active].append(event)
+            event_key = (
+                self._active, int(candidate.id), candidate.last_seen.to_nsec())
+            first_observation = event_key not in self._selected_event_keys
+            if first_observation:
+                self._selected_event_keys.add(event_key)
+                self._selected_events[self._active].append(event)
             frame = self._frame_locked(
                 event["stamp_key"], event["source_stamp"])
             frame["current_selected"] = True
             frame["stable_id"] = int(candidate.id)
-            self._add_event_locked(
-                "candidate_selected_observed", event["source_stamp"],
-                candidate.id, receipt_monotonic=receipt,
-                details={
-                    "target_first_seen_ns": candidate.first_seen.to_nsec(),
-                })
+            if first_observation:
+                self._add_event_locked(
+                    "candidate_selected_observed", event["source_stamp"],
+                    candidate.id, receipt_monotonic=receipt,
+                    details={
+                        "target_first_seen_ns":
+                            candidate.first_seen.to_nsec(),
+                    })
 
     def _on_navigation_decision(self, message):
         receipt = time.monotonic()
