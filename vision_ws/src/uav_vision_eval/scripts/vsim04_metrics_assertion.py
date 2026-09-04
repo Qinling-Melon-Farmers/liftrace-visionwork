@@ -360,6 +360,14 @@ def main():
     planner = VSim04TrialRunner.__new__(VSim04TrialRunner)
     planner._matrix = c25
     planner._arena_limit = 4.8
+    planner._camera_model = "vision_eval_camera"
+    planner._rpy = [0.0, math.pi / 2.0, 0.0]
+    camera_state = planner._camera_state(1.0, 2.0, 3.0)
+    assert camera_state.model_name == "vision_eval_camera"
+    assert camera_state.reference_frame == "world"
+    assert camera_state.pose.position.x == 1.0
+    assert camera_state.pose.position.y == 2.0
+    assert camera_state.pose.position.z == 3.0
     planner._anchor = lambda trial: tuple(
         c25["target_anchors"][trial["class_name"]]["xyz"])
     c25_plans = {

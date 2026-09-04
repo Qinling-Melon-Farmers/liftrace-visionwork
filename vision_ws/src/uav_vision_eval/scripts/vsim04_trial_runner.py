@@ -149,6 +149,10 @@ class VSim04TrialRunner:
             self._capture_control_topic, String, queue_size=4, latch=True)
         self._set_state_service_name = rospy.get_param(
             "~set_model_state_service", "/gazebo/set_model_state")
+        self._set_state_topic_name = rospy.get_param(
+            "~set_model_state_topic", "/gazebo/set_model_state")
+        self._set_state_publisher = rospy.Publisher(
+            self._set_state_topic_name, ModelState, queue_size=1)
         self._set_state = rospy.ServiceProxy(
             self._set_state_service_name, SetModelState)
         self._reset = rospy.ServiceProxy(self._reset_service_name, Empty)
@@ -317,7 +321,7 @@ class VSim04TrialRunner:
             raise RuntimeError(
                 "{} service call failed: {}".format(name, error)) from error
 
-    def _set_camera(self, x, y, z):
+    def _camera_state(self, x, y, z):
         state = ModelState()
         state.model_name = self._camera_model
         state.reference_frame = "world"
@@ -329,11 +333,18 @@ class VSim04TrialRunner:
         state.pose.orientation.y = quaternion[1]
         state.pose.orientation.z = quaternion[2]
         state.pose.orientation.w = quaternion[3]
+        return state
+
+    def _set_camera(self, x, y, z):
+        state = self._camera_state(x, y, z)
         response = self._call_service_with_deadline(
             "set_model_state", self._set_state, state)
         if not response.success:
             raise RuntimeError("set_model_state failed: " +
                                response.status_message)
+
+    def _publish_camera(self, x, y, z):
+        self._set_state_publisher.publish(self._camera_state(x, y, z))
 
     def _anchor(self, trial):
         values = self._matrix["target_anchors"][trial["class_name"]]["xyz"]
@@ -538,7 +549,7 @@ class VSim04TrialRunner:
             target_time = start_time + rospy.Duration(
                 expected_duration * fraction)
             self._sleep_until_ros(target_time, wall_deadline)
-            self._set_camera(
+            self._publish_camera(
                 start_x + fraction * (finish_x - start_x),
                 start_y + fraction * (finish_y - start_y),
                 trajectory["camera_z"])
@@ -548,6 +559,9 @@ class VSim04TrialRunner:
         end_time = rospy.Time.now()
         actual_duration = max(
             0.0, (end_time - start_time).to_sec())
+        # Give the final asynchronous pose one command period to reach Gazebo
+        # before the caller moves the camera to its offscreen settle pose.
+        self._sleep_ros_duration(1.0 / update_rate)
         result = dict(trajectory)
         result.pop("camera_z")
         result.update({

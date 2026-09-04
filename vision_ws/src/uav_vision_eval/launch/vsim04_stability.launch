@@ -71,6 +71,7 @@
   <arg name="camera_info_topic" default="/camera/camera_info" />
   <arg name="camera_link_suffix" default="KS2A543::camera_link" />
   <arg name="camera_pose_topic" default="/uav_vision_eval/camera_pose" />
+  <arg name="set_model_state_topic" default="/gazebo/set_model_state" />
   <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
   <arg name="px4_model_root"
        default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
@@ -190,6 +191,7 @@
     <param name="trial_selector" value="$(arg trial_selector)" />
     <param name="trial_slice" value="$(arg trial_slice)" />
     <param name="camera_model" value="vision_eval_camera" />
+    <param name="set_model_state_topic" value="$(arg set_model_state_topic)" />
     <param name="status_topic" value="$(arg status_topic)" />
     <param name="trial_event_topic" value="$(arg trial_event_topic)" />
     <param name="require_capture_ready"
