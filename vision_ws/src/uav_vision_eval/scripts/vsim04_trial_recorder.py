@@ -767,7 +767,11 @@ class VSim04TrialRecorder:
             receipt_monotonic=gap["monotonic_sec"])
 
     def _note_receipt_gap_locked(self, chain, previous, current):
-        if (self._active and previous is not None and
+        result = self._result_locked()
+        observation_active = (
+            result and result.get("entered_visibility_window") and
+            not result.get("left_visibility_window"))
+        if (observation_active and previous is not None and
                 current - previous > self._heartbeat_timeout):
             self._record_infra_gap_locked(
                 chain, current - previous,
@@ -777,7 +781,8 @@ class VSim04TrialRecorder:
         if not self._active:
             return
         result = self._result_locked()
-        if result.get("left_visibility_window"):
+        if (not result.get("entered_visibility_window") or
+                result.get("left_visibility_window")):
             return
         for missing in self._readiness_missing_locked():
             self._record_infra_gap_locked(
