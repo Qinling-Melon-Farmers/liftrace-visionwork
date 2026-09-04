@@ -776,6 +776,9 @@ class VSim04TrialRecorder:
     def _record_current_missing_locked(self):
         if not self._active:
             return
+        result = self._result_locked()
+        if result.get("left_visibility_window"):
+            return
         for missing in self._readiness_missing_locked():
             self._record_infra_gap_locked(
                 missing, None,
