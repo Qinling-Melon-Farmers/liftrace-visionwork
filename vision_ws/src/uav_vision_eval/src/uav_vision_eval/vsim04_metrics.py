@@ -828,6 +828,11 @@ def load_trial_matrix(path):
         raise ValueError("V-SIM-04 seed must be a fixed positive integer")
     profile_name, allowed = resolve_class_profile(matrix.get("class_profile", ""))
     matrix["class_profile"] = profile_name
+    visibility_policy = str(matrix.get(
+        "dynamic_zero_visibility_policy", "invalid")).strip().lower()
+    if visibility_policy not in {"invalid", "count_as_failure"}:
+        raise ValueError("dynamic_zero_visibility_policy is invalid")
+    matrix["dynamic_zero_visibility_policy"] = visibility_policy
     contract = matrix.get("performance_contract", {})
     if not isinstance(contract, dict):
         raise ValueError("performance_contract must be a mapping")
@@ -2092,7 +2097,12 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         if len(completed) != len(finalized):
             validation_errors.append("completed_trials_{}/{}".format(
                 len(completed), len(finalized)))
+        dynamic_zero_visibility_policy = str(terminal_context.get(
+            "dynamic_zero_visibility_policy", "invalid"))
         for result in completed:
+            count_sampling_miss = (
+                dynamic_zero_visibility_policy == "count_as_failure" and
+                result.get("kind") == "dynamic")
             visibility_profile = str(
                 result.get("visibility_profile") or "full")
             entered_visibility = bool(
@@ -2103,11 +2113,11 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
                 result.get("left_visibility_window") or
                 (visibility_profile != "partial" and
                  result.get("left_fully_in_frame")))
-            if not entered_visibility:
+            if not entered_visibility and not count_sampling_miss:
                 validation_errors.append(
                     "{}:never_entered_visibility_window".format(
                         result.get("trial_id", "unknown")))
-            if not left_visibility:
+            if not left_visibility and not count_sampling_miss:
                 validation_errors.append(
                     "{}:never_left_visibility_window".format(
                         result.get("trial_id", "unknown")))

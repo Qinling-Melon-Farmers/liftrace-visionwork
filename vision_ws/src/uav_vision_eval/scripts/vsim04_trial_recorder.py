@@ -68,6 +68,8 @@ class VSim04TrialRecorder:
             rospy.get_param("~trial_selector", ""),
             rospy.get_param("~trial_slice", ""))
         self._evaluation_scope = self._matrix["evaluation_scope"]
+        self._dynamic_zero_visibility_policy = self._matrix[
+            "dynamic_zero_visibility_policy"]
         self._expected_trial_count = len(self._matrix["trials"])
         self._formal_expected_trial_count = int(self._matrix.get(
             "formal_expected_trial_count", self._expected_trial_count))
@@ -308,6 +310,8 @@ class VSim04TrialRecorder:
                 "scope": self._evaluation_scope,
                 "trial_selector": list(self._matrix["trial_selector"]),
                 "trial_slice": self._matrix.get("trial_slice", ""),
+                "dynamic_zero_visibility_policy":
+                    self._dynamic_zero_visibility_policy,
                 "all_targets_coexist": True,
                 "mode": "clutter",
                 "score_false_positives": bool(
@@ -1899,13 +1903,19 @@ class VSim04TrialRecorder:
         for trial_id, result in self._results.items():
             if result.get("status") != "completed":
                 continue
-            if not result.get("entered_visibility_window"):
+            count_sampling_miss = (
+                self._dynamic_zero_visibility_policy ==
+                "count_as_failure" and result.get("kind") == "dynamic")
+            if (not result.get("entered_visibility_window") and
+                    not count_sampling_miss):
                 errors.append(
                     "{}:never_entered_visibility_window".format(trial_id))
-            if not result.get("left_visibility_window"):
+            if (not result.get("left_visibility_window") and
+                    not count_sampling_miss):
                 errors.append(
                     "{}:never_left_visibility_window".format(trial_id))
-            if int(result.get("eligible_frames", 0)) <= 0:
+            if (int(result.get("eligible_frames", 0)) <= 0 and
+                    not count_sampling_miss):
                 errors.append("{}:no_eligible_frames".format(trial_id))
             if (result.get("p_confirm_visibility") and
                     result.get("confirmation_pipeline_ms") is None):
@@ -2012,6 +2022,8 @@ class VSim04TrialRecorder:
                 self._candidate_audit_observations)
             context["performance_contract"] = copy.deepcopy(
                 self._matrix.get("performance_contract", {}))
+            context["dynamic_zero_visibility_policy"] = \
+                self._dynamic_zero_visibility_policy
             context["navigation_metrics_mode"] = self._navigation_metrics[
                 "mode"]
             context["navigation_decision_topic"] = \
@@ -2054,6 +2066,8 @@ class VSim04TrialRecorder:
                 "formal_expected_trial_count":
                     self._formal_expected_trial_count,
                 "evaluation_scope": self._evaluation_scope,
+                "dynamic_zero_visibility_policy":
+                    self._dynamic_zero_visibility_policy,
                 "validation_errors": list(errors),
             }
             self._terminal_context = copy.deepcopy(context)

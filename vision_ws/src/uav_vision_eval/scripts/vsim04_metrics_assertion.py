@@ -295,6 +295,7 @@ def main():
     matrix = load_trial_matrix(matrix_path)
     trials = matrix["trials"]
     assert matrix["design_id"] == "formal23"
+    assert matrix["dynamic_zero_visibility_policy"] == "invalid"
     assert matrix["formal_expected_trial_count"] == 23
     assert select_trial_matrix(matrix, "")["evaluation_scope"] == "full"
     assert len(trials) == 23
@@ -307,6 +308,7 @@ def main():
         os.path.dirname(matrix_path), "vsim04_operating_surface_matrix.yaml")
     surface = load_trial_matrix(surface_path)
     assert surface["design_id"] == "operating-surface-125"
+    assert surface["dynamic_zero_visibility_policy"] == "count_as_failure"
     assert len(surface["trials"]) == 125
     assert surface["diagnostic_only"] is True
     assert select_trial_matrix(surface, "")["evaluation_scope"] == "diagnostic"
@@ -565,6 +567,48 @@ def main():
     assert dynamic_half["speed_group_completed_trials"] == 4
     assert abs(dynamic_half["speed_group_mean_actual_linear_speed_mps"] -
                0.5) < 1.0e-9
+
+    dynamic_spec = next(trial for trial in trials
+                        if trial["kind"] == "dynamic")
+    sampling_miss = planned_trial_result(dynamic_spec)
+    sampling_miss.update({
+        "status": "completed",
+        "p_confirm": False,
+        "p_selected": False,
+        "eligible_frames": 0,
+        "entered_visibility_window": False,
+        "left_visibility_window": False,
+    })
+    sampling_failure_summary = summarize_trial_results(
+        [sampling_miss], "unit", actual_fps=13.0,
+        terminal_context={
+            "run_complete": True,
+            "expected_trial_count": 1,
+            "formal_expected_trial_count": 23,
+            "evaluation_scope": "diagnostic",
+            "dynamic_zero_visibility_policy": "count_as_failure",
+            "validation_errors": [],
+            "class_profile": "r2026",
+            "performance_contract": {},
+        })
+    assert sampling_failure_summary["status"] == "DIAGNOSTIC"
+    assert sampling_failure_summary["metrics"]["p_confirm"] == 0.0
+    assert sampling_failure_summary["metrics"]["failure_stage_counts"] == {
+        "truth_visibility": 1}
+    strict_sampling_summary = summarize_trial_results(
+        [sampling_miss], "unit", actual_fps=13.0,
+        terminal_context={
+            "run_complete": True,
+            "expected_trial_count": 1,
+            "formal_expected_trial_count": 23,
+            "evaluation_scope": "diagnostic",
+            "validation_errors": [],
+            "class_profile": "r2026",
+            "performance_contract": {},
+        })
+    assert strict_sampling_summary["status"] == "INVALID"
+    assert any("never_entered_visibility_window" in error
+               for error in strict_sampling_summary["validation_errors"])
 
     c25_results = []
     for trial in c25_trials:
