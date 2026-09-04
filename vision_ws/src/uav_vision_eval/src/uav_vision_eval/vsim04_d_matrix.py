@@ -464,6 +464,7 @@ def load_d50_runtime_matrix(path):
     }
     matrix["formal_expected_trial_count"] = 50
     matrix["diagnostic_only"] = True
+    matrix["dynamic_zero_visibility_policy"] = "invalid"
     matrix["design_id"] = "vsim04-d50-trajectory-association"
     matrix["performance_contract"] = {
         "contract_id": "vsim04-d50-diagnostic",
