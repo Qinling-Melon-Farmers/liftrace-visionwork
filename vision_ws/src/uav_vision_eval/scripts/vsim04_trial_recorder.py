@@ -55,6 +55,10 @@ from uav_vision_eval.stamped_pose_buffer import StampedPoseBuffer
 
 UNKNOWN_VALUES = {"", "unknown", "unspecified", "none", "null"}
 EXPECTED_TRIAL_COUNT = 23
+OUTPUT_DRAIN_GUARDED_CHAINS = frozenset({
+    "mapped_detections_heartbeat",
+    "targets_heartbeat",
+})
 
 
 class VSim04TrialRecorder:
@@ -767,6 +771,8 @@ class VSim04TrialRecorder:
             receipt_monotonic=gap["monotonic_sec"])
 
     def _note_receipt_gap_locked(self, chain, previous, current):
+        if chain in OUTPUT_DRAIN_GUARDED_CHAINS:
+            return
         result = self._result_locked()
         observation_active = (
             result and result.get("entered_visibility_window") and
@@ -785,6 +791,8 @@ class VSim04TrialRecorder:
                 result.get("left_visibility_window")):
             return
         for missing in self._readiness_missing_locked():
+            if missing in OUTPUT_DRAIN_GUARDED_CHAINS:
+                continue
             self._record_infra_gap_locked(
                 missing, None,
                 {"heartbeat_timeout_sec": self._heartbeat_timeout})
