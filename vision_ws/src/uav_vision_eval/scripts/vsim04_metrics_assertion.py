@@ -435,6 +435,7 @@ def main():
         "map_errors_xy": [0.05, 0.10, 0.20],
         "confirmation_exposure_sec": 0.4,
         "confirmation_processing_ms": 35.0,
+        "confirmation_pipeline_ms": 30.0,
     })
     measured_summary = summarize_trial_results(
         [measured], "unit", actual_fps=20.0)
@@ -686,7 +687,7 @@ def main():
     contract = matrix["performance_contract"]
     hard_verdict = evaluate_performance_verdict(
         {"p_confirm": 1.0, "p_selected": 1.0,
-         "p95_confirmation_processing_ms": 100.0,
+         "p95_confirmation_pipeline_ms": 100.0,
          "p95_map_error_xy": 0.1, "tf_failure_rate": 0.0},
         "MEASURED", "full", audit, contract)
     assert hard_verdict["status"] == "FAIL"
@@ -702,7 +703,7 @@ def main():
     clean_audit = candidate_audit_summary([], "r2026")
     not_gated = evaluate_performance_verdict(
         {"p_confirm": 1.0, "p_selected": 1.0,
-         "p95_confirmation_processing_ms": 100.0,
+         "p95_confirmation_pipeline_ms": 100.0,
          "p95_map_error_xy": 0.1, "tf_failure_rate": 0.0},
         "MEASURED", "full", clean_audit, contract)
     assert not_gated["status"] == "NOT_GATED"
@@ -745,9 +746,15 @@ def main():
     assert abs(correlated["confirmation_exposure_sec"] - 1.0) < 1.0e-9
     assert abs(correlated["confirmation_processing_ms"] - 10000.0) < 1.0e-9
     assert abs(correlated["confirmation_pipeline_ms"] - 5000.0) < 1.0e-9
+    missing_observer_image = correlate_admission_events(
+        candidates[:1], selected_first, window, {}, {200: 15.0})
+    assert missing_observer_image["p_confirm"]
+    assert missing_observer_image["confirmation_processing_ms"] is None
+    assert abs(
+        missing_observer_image["confirmation_pipeline_ms"] - 5000.0
+    ) < 1.0e-9
     image_after_candidate = correlate_admission_events(
-        candidates[:1], selected_first, window, {200: 21.0})
-    assert image_after_candidate["p_confirm"]
+        candidates[:1], selected_first, window, {200: 21.0}, {200: 15.0})
     assert image_after_candidate["confirmation_processing_ms"] == 0.0
     assert image_after_candidate["processing_receipt_reordered"]
     partial_window = dict(window)
@@ -905,6 +912,7 @@ def main():
             "map_valid_frames": 1,
             "map_errors_xy": [0.1],
             "confirmation_processing_ms": 100.0,
+            "confirmation_pipeline_ms": 90.0,
         })
         audit_summary = write_artifacts(
             audit_output, {"class_profile": "r2026"}, [], [],

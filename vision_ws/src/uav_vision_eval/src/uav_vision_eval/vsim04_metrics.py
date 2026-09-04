@@ -707,6 +707,8 @@ def evaluate_performance_verdict(metrics, completeness_status,
     metric_specs = {
         "max_p95_confirmation_processing_ms": (
             "p95_confirmation_processing_ms", "max"),
+        "max_p95_confirmation_pipeline_ms": (
+            "p95_confirmation_pipeline_ms", "max"),
         "max_p95_map_error_xy_m": ("p95_map_error_xy", "max"),
         "max_tf_failure_rate": ("tf_failure_rate", "max"),
         "min_p_confirm": ("p_confirm", "min"),
@@ -2296,10 +2298,13 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
                 "truth stamp"),
             "confirmation_processing_ms": (
                 "monotonic recorder receipt of confirmation minus receipt of "
-                "the image at candidate last_seen"),
+                "the image at candidate last_seen; independent-subscriber "
+                "transport diagnostic and optional when that subscriber "
+                "skips the detector-processed frame"),
             "confirmation_pipeline_ms": (
                 "same-host monotonic confirmation receipt minus detector "
-                "callback start embedded for the same source stamp"),
+                "callback start embedded for the same source stamp; canonical "
+                "end-to-end latency and performance-contract metric"),
             "complete_mapped_rate": (
                 "unique active-trial mapped source stamps completed by all "
                 "required detector branches divided by complete plus "
@@ -2490,9 +2495,9 @@ def _report(summary):
             metrics["stage_frame_rates"]),
         "- Failed trial first-blocking stages: `{}`".format(
             metrics["failure_stage_counts"]),
-        "- P95 processing latency: `{}` ms".format(
+        "- P95 recorder-observed transport latency (diagnostic): `{}` ms".format(
             metrics["p95_confirmation_processing_ms"]),
-        "- P95 same-host pipeline latency: `{}` ms".format(
+        "- P95 same-host end-to-end latency (contract metric): `{}` ms".format(
             metrics["p95_confirmation_pipeline_ms"]),
         "- Detector inference/processing P95: `{}` / `{}` ms".format(
             metrics["p95_detector_inference_ms"],

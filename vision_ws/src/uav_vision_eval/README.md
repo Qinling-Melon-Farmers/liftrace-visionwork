@@ -43,7 +43,8 @@ CameraInfo、相机模型/RPY、内嵌场景/真值模型/anchor catalog、外�
 尾部追加。分组统计便于直接比较 `sparse30` 各层结果。
 `summary.json`/report/性能 CSV 明确分开 artifact set、trial measurement completeness 和
 algorithm performance verdict：`MEASURED` 只表示正式测量完整，不等于性能 PASS。当前只按
-已冻结合同检查处理 P95 `<=200 ms` 和地图误差 P95 `<=0.25 m`；P_confirm、P_selected 与
+已冻结合同检查同 source stamp 的 detector callback-start 到候选接收 P95 `<=200 ms`，以及
+地图误差 P95 `<=0.25 m`；独立 recorder 图像订阅得到的 receipt-to-receipt 时延只作传输诊断；P_confirm、P_selected 与
 TF failure 门槛未冻结时写 `NOT_GATED`，不得自行补阈值。diagnostic 子集固定写
 `DIAGNOSTIC_ONLY`，不能成为 Gate PASS。
 

@@ -1872,10 +1872,6 @@ class VSim04TrialRecorder:
             if int(result.get("eligible_frames", 0)) <= 0:
                 errors.append("{}:no_eligible_frames".format(trial_id))
             if (result.get("p_confirm_visibility") and
-                    result.get("confirmation_processing_ms") is None):
-                errors.append("{}:confirmation_processing_missing".format(
-                    trial_id))
-            if (result.get("p_confirm_visibility") and
                     result.get("confirmation_pipeline_ms") is None):
                 errors.append("{}:confirmation_pipeline_missing".format(
                     trial_id))
