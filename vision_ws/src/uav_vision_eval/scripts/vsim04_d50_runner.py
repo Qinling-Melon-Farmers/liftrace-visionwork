@@ -48,7 +48,7 @@ class VSim04D50Runner(VSim04TrialRunner):
                 "D50 selection contains NOT_RUN trials: {}".format(
                     ",".join(not_ready)))
 
-    def _set_camera_pose_sample(self, sample):
+    def _camera_pose_sample_state(self, sample):
         state = ModelState()
         state.model_name = self._camera_model
         state.reference_frame = "world"
@@ -59,12 +59,20 @@ class VSim04D50Runner(VSim04TrialRunner):
         state.pose.orientation.y = float(sample["orientation_y"])
         state.pose.orientation.z = float(sample["orientation_z"])
         state.pose.orientation.w = float(sample["orientation_w"])
+        return state
+
+    def _set_camera_pose_sample(self, sample):
+        state = self._camera_pose_sample_state(sample)
         response = self._call_service_with_deadline(
             "set_model_state", self._set_state, state)
         if not response.success:
             raise RuntimeError(
                 "set_model_state D50 pose failed: " +
                 response.status_message)
+
+    def _publish_camera_pose_sample(self, sample):
+        self._set_state_publisher.publish(
+            self._camera_pose_sample_state(sample))
 
     def _dynamic_trajectory_plan(self, trial):
         generated = generate_d50_pose_samples(self._matrix, trial)
@@ -95,6 +103,14 @@ class VSim04D50Runner(VSim04TrialRunner):
             "camera_z": float(first["position_z_m"]),
             "target_center_offset_sec": duration / 2.0,
             "pose_samples": samples,
+            # The recorder needs the designed curve, rather than only its
+            # start/end chord, to validate delayed telemetry frames and
+            # compute path tracking error for turn trials.
+            "planned_path_xy_samples": [
+                [float(sample["source_time_offset_sec"]),
+                 float(sample["position_x_m"]),
+                 float(sample["position_y_m"])]
+                for sample in samples],
             "planned_sample_count": len(samples),
             "design_kind": trial["design_kind"],
             "relative_angle_deg": float(trial["relative_angle_deg"]),
@@ -133,12 +149,15 @@ class VSim04D50Runner(VSim04TrialRunner):
             target_time = start_time + rospy.Duration(
                 float(sample["source_time_offset_sec"]))
             self._sleep_until_ros(target_time, wall_deadline)
-            self._set_camera_pose_sample(sample)
+            self._publish_camera_pose_sample(sample)
         if time.monotonic() >= wall_deadline:
             raise RuntimeError("D50 trajectory exceeded wall-clock budget")
 
         end_time = rospy.Time.now()
         actual_duration = max(0.0, (end_time - start_time).to_sec())
+        # Let Gazebo consume the final asynchronous pose before the base
+        # runner parks the model offscreen through the service path.
+        self._sleep_ros_duration(1.0 / update_rate)
         result = {
             key: value for key, value in trajectory.items()
             if key not in {"pose_samples", "camera_z"}

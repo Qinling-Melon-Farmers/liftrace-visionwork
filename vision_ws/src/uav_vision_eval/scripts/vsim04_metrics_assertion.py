@@ -210,6 +210,28 @@ def main():
     assert abs(delayed_after["actual_linear_speed_mps"] - 0.5) < 1.0e-9
     assert delayed_motion["motion_sample_count"] == 1
 
+    # A turn trajectory must be checked against its time-indexed curve, not
+    # the straight chord between start and finish. The first observed pose is
+    # deliberately delayed by half a second.
+    curved_start = motion_row(10.6, 0.5, 0.0, 2.0, 0.0, 10.5)
+    curved_after = motion_row(11.6, 1.0, 0.5, 2.0, 0.2, 11.5)
+    curved_motion = annotate_motion_frames(
+        [curved_after, curved_start], "dynamic", {
+            "start_x": 0.0, "start_y": 0.0,
+            "finish_x": 1.0, "finish_y": 1.0,
+            "expected_speed_mps": 1.0, "update_rate_hz": 1.0,
+            "steps": 2, "motion_start_source_stamp": 10.0,
+            "motion_end_source_stamp": 12.0,
+            "planned_path_xy_samples": [
+                [0.0, 0.0, 0.0], [1.0, 1.0, 0.0],
+                [2.0, 1.0, 1.0]],
+        })
+    assert curved_start["motion_invalid_reason"] == "first_valid_pose"
+    assert curved_after["motion_delta_valid"]
+    assert curved_motion["motion_sample_count"] == 1
+    assert curved_motion["lateral_offset_sample_count"] == 2
+    assert curved_motion["p95_abs_normalized_lateral_offset"] < 1.0e-12
+
     offscreen_start = motion_row(2.8, 7.0, 7.0, 2.0, 0.0, 2.3)
     recovered_start = motion_row(3.0, 0.25, 0.0, 2.0, 0.0, 2.5)
     recovered_after = motion_row(3.2, 0.35, 0.0, 2.0, 0.0, 2.7)
