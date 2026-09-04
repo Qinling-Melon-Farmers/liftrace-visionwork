@@ -381,6 +381,9 @@ copy_required_file \
 copy_required_file \
   "${PROJECT_ROOT}/docs/视觉工程精简与B100延迟复盘_20260904.md" \
   "${BUNDLE_ROOT}/01_docs/视觉工程精简与B100延迟复盘_20260904.md"
+copy_required_file \
+  "${PROJECT_ROOT}/docs/导航组轻量策略仿真上游_20260902.md" \
+  "${BUNDLE_ROOT}/01_docs/导航组轻量策略仿真上游_20260902.md"
 
 copy_required_run "static25 A" "${STATIC25_RUN}" \
   "${BUNDLE_ROOT}/02_VSIM04/A_static25_seed11"

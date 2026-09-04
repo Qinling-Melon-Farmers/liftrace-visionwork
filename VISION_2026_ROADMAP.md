@@ -155,8 +155,9 @@
     B confirm/selected=87/86、C 完整入画=15/15 与 12/15、D=11/11；四批 TF failure=0，
     六件套与终态校验完整，所有 visual-only `P_interrupt=null`。D 其余 39 项仍按 20 个观察
     窗口、7 个完整入画/离画预检、2 个场界轨迹和 10 个 multi-target/H 真值缺口保持 NOT_RUN。
-    导航轻量仓本地 `feat/ks2a543-vision-baseline@6b070f5` 已停用旧表；新 B100 已具备导入条件，
-    但上游权限仍需复核，不能把本地增量描述成远端 `main` 已更新。
+    导航轻量仓本地 `feat/ks2a543-vision-baseline@ee5d2bd` 已导入新 B100、归档 C25/D11，
+    并完成 120 点搜索曲面和 36 点阈值扫描；上游 push 仍因权限 403 被拒，不能把本地增量
+    描述成远端 `main` 已更新。
 
 现有 `toudi3.world` 五类标准靶和 H 已直接用于固定真值场景，红十字按评测场景插入；
 `uav_vision_eval` 已能自动生成 CSV/JSON/report，shadow 输出也已隔离。H 固定 Gazebo 正例
@@ -241,9 +242,10 @@ laptop/Gazebo camera-only 与 OrangePi 新相机像素/RKNN ROS 链；后者不�
 
 导航组新增纯 Python 任务级仓库 [liftrace-sim](https://github.com/sakelier/liftrace-sim)，本次
 核对上游仍为 `main@18f6ee8`。它可快速比较搜索高度、速度、航带、Cue 中断、载荷预留和投递
-策略；输出供 `liftrace-controlwork/uav_mission` 选择候选，不作为新的 ROS 执行栈。仓内虽归档
-V-SIM-04 B100/C25/D16，当前策略代码实际只消费 B 表；该表属于旧 D435i 相机口径，KS2A543
-新 B100 到位前已在本机修正提交 `6b070f5` 中停用。
+策略；输出供 `liftrace-controlwork/uav_mission` 选择候选，不作为新的 ROS 执行栈。本机
+`feat/ks2a543-vision-baseline@ee5d2bd` 已导入 KS2A543 B100/C25/D11；策略仍只消费 B 表，
+C/D 仅归档，未扩展运行时接口。完整扫描的保守候选为约 2.4 m、1.0 m/s；动态阈值
+`p=0.70, gamma=0.50` 仅是含假设任务模型中的未启用候选。
 
 该仓库当前仍包含目标分布、服务时间、复核/投递概率等假设，且穿门、降落和完整避障计分未
 建模，因此只能压缩策略搜索空间，不能替代 Gazebo/SITL Gate。视觉 `main@1094db5` 由此进入
