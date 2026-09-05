@@ -162,19 +162,21 @@ PASS。视觉组的主线是：
     `429.875 s`。原 `gate_status.json` 唯一失败是把慢速 WSL/Gazebo 的
     `1761.101 s` 主机墙钟误作比赛 600 s；LAND 全阶段实际只用 `32.73 s`。当前结论为
     “业务/安全事实通过、Gate 形式口径待修”，不覆盖原始 FAIL，也不为改标签重复跑同一轮。
-    r41 报告已追加到视觉候选 `56f0667`；视觉远端 main 尚缺该分支的 22 个提交及外参
-    `f0b1b8b` 的 2 个提交。导航口径修订已 clean 推送为 `6c59e17`，上游 main 尚缺完整任务
-    分支的 38 个提交。最终优先冻结双仓候选、按已通过链生成一次持久化完整 Gate 证据，再由
-    人工合并和开展板端整机资源验收；超出基线的接口减法以后续第 23 条为准。详细顺序见
+    视觉运行代码候选已收口为 `9324745`：通过 `8dd996f` 非快进合入外参 `f0b1b8b`，并令 typed
+    Phase D 默认关闭 legacy bridge；视觉远端 main 尚缺该候选的 30 个提交。导航远端 feature
+    为 `49ce16c`（领先上游 main 39 个提交），其中 `6c59e17` 已修正计时/审计口径；typed H、
+    bridge 关闭和视觉副本删除仍是未提交的导航工作树改动。最终先冻结导航 clean revision，再
+    生成一次持久化完整 Gate 证据，最后由人工合并和开展板端整机资源验收。详细顺序见
     [双仓最终交付与实机部署收口计划](docs/双仓最终交付与实机部署收口计划_20260905.md)。
 23. 2026-09-05 部署前复核以视觉组已完成的 worktree 清理为新基线：当前 WSL 工程树和既有
     归档中未找到 r41 的完整结构化 run，只保留报告和部分 ROS 日志，因此最终双仓 revision 必须再生成一次并
     持久化完整 Gate 证据。`f0b1b8b` 当前实际运行外参是 `body/-0.16 m`，MID360 到相机
     `-0.21 m` 只是机械测量元数据，待命名 frame 和 TF 链在 Stage B 验证后才可成为运行 profile。
-    r41 的 H 控制仍依赖 `detect_compat_bridge -> /detect/land_mark_point`；首个部署基线保留这条
-    已通过适配，typed H、导航仓视觉副本物理删除、轻量策略替换和 MJPEG/运动模糊专项均后移，
-    不再向最终唯一整场 Gate 引入未经验证的跨仓改动。本轮又移除了两个可重建视觉 checkout，
-    分支引用和约 12 MiB 旧 Gate 资料均保留。
+    r41 的 H 控制曾依赖 `detect_compat_bridge -> /detect/land_mark_point`。最终候选改为直接消费
+    已有 `/uav_vision/detections_mapped` 的 typed H，并同步关闭 bridge、删除导航仓视觉副本；
+    不新增消息或兼容模式。视觉侧默认旧话题和无效订阅已在 `9324745` 清理，导航侧仍待 clean
+    commit 和静态联合验证。轻量策略替换、MJPEG/运动模糊专项继续后移，不与最终唯一整场 Gate
+    混跑。本轮又移除了两个可重建视觉 checkout，分支引用和约 12 MiB 旧 Gate 资料均保留。
 
 现有 `toudi3.world` 五类标准靶和 H 已直接用于固定真值场景，红十字按评测场景插入；
 `uav_vision_eval` 已能自动生成 CSV/JSON/report，shadow 输出也已隔离。H 固定 Gazebo 正例
@@ -562,8 +564,10 @@ shadow 模式必须满足：
    三槽 release commit、三次恢复、9 段返航、三门、H 对齐和 LAND；最高 `3.696886 m`，
    碰撞/越界/超高/未知结果均为 0，任务时钟 `429.875 s`。原 Gate 唯一失败是把
    `1761.101 s` 慢速主机墙钟当作比赛时限；`6c59e17` 已修正 evaluator 并 clean 推送。
-   下一完成定义是合并两仓 feature、收口 typed H/外参/视觉副本，再在最终 revision 上只跑一轮交付
-   Gate；不在视觉侧复制策略。baseline/a68925d 历史 A/B 仍不满足推广条件。
+   视觉 `9324745` 已合入外参并默认关闭 legacy bridge；导航 `49ce16c` 后的 typed H/视觉副本
+   删除仍未提交。下一完成定义是导航形成 clean revision、联合静态验证单一源码/话题/权威节点，
+   再在最终 revision 上只跑一轮交付 Gate；不在视觉侧复制策略。baseline/a68925d 历史 A/B 仍
+   不满足推广条件。
 
 L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜索阶段统一 P95 `<=200 ms`
 暂不作为阻塞。建立投递承诺时的视觉证据必须新鲜（默认最大年龄 `0.5 s`）；最终释放
@@ -590,7 +594,7 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 已完成 | 13 | V-CL-03 | 外部任务模式复用 Fast-Planner | `external_candidate_20260807_041914` 单候选接近→对准→ACK→恢复，唯一 goal 发布者；默认旧路线回归 PASS |
 | 已完成 | 14 | V-CL-04 | 覆盖搜索、候选队列和恢复 | 2026-08-28 干净复跑（`toudi4_coverage_r6_vcl04_rerun2_20260828_222644`，main@7a0b612）任务侧全指标达标：12/12 覆盖、五类五 ID、三投槽序 [1,2,3]、0 碰撞、0 越界、405.5s 三投+返航+落地；Gate 27 项断言仅 4 项同源失败，均由 tank 一次 Fast-Planner 下降段异常（穿透 align_height 1.20m 至 0.1–0.3m 悬停 + No Effective Points）连锁造成，同场 3/3 投递证明对准链健康；经用户裁定按规划器波动外置口径视为通过（动态期望断言与中断失败的口径缺口移交 V-CL-05/06 收敛） |
 | 已完成（由 r11 子 Gate 覆盖） | 15 | V-CL-05 | 搜索-投递策略：高权重中断 + red_cross 统一 | `vcl06_p0_seed11_r11_20260904_030218` 在 r2026 随机场完成 panzer/bridge/red_cross 三个不同 stable ID 的权重中断、同目标接近、三槽投递和恢复 3/3；red_cross 独立发现并投出，tank selected/accepted=0，投递审计 PASS。该项关闭不等于后续三门/H/LAND 通过 |
-| 功能闭环通过/待合并交付 | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | r41 使用视觉 `8e53bd0`、导航 `3557215` 和 KS2A543：三目标/三槽/三恢复、9 段、Wall_15/20/22、H、AUTO.LAND、ON_GROUND、disarm 全部完成；0 碰撞/越界/超高，最高 3.696886 m，任务时钟 429.875 s。原 Gate 唯一 FAIL 为慢速 WSL 墙钟 1761.101 s 被误作比赛 600 s；导航 `6c59e17` 已修 evaluator、离线重判 PASS 并推送，原始报告保持不改 |
+| 功能闭环通过/接口减法待最终 Gate | 16 | V-CL-06 | 导航组 manager + 新视觉正式任务链接入 | r41 使用视觉 `8e53bd0`、导航 `3557215` 和 KS2A543 完成三投、三门、H、LAND，任务时钟 429.875 s；历史形式 FAIL 仅为误用 1761.101 s 主机墙钟。视觉运行候选 `9324745` 已收口外参/默认旧话题；导航远端 `49ce16c` 尚不含在制 typed H/视觉副本删除。待导航 clean commit 后联合静态验证并只跑一次最终 Gate |
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
 | camera-only 10 min PASS/KS2A543 当前 A-D 已测 | 18 | V-SIM-04 | L1/L2 阶段性能与后续关键点多 seed | D435i A/B/C/D 只作历史对照。KS2A543 已在有效评测合同上完成 A25/B100/C25/D11：A=23/25，B=87/100 confirm、86/100 selected，C 完整入画=15/15、12/15，D=11/11；TF failure=0。A/B/D 为 `DIAGNOSTIC_ONLY`，C 为 `MEASURED/NOT_GATED`；D39、多 seed、整机负载与真实 `P_interrupt` 仍开放，最终联合结论由 V-CL-06 给出 |
 | 实拍功能回放完成/人工定量待完成 | 19 | V-REAL-01 | 实拍回放域差复核 | `real_target.mp4` 已在 OrangePi revision `59c74b6` 经正式 ROS+RKNN+OpenCV 全链完成 4622/4622 帧：perf 4622、mapped 5135 且全部因无 TF 保持 invalid、禁用节点/日志错误为 0；原始全帧标注视频已拉回。58.80% 仍只是历史自洽关联率，不是人工真值召回；仍待圆环实例/中心/H/红十字人工标注和带同步 pose 的新相机采集；机械安装平移已取得，完整 TF 另行验收 |
