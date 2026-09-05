@@ -28,9 +28,9 @@
    同 `downward_camera_optical_frame`、分辨率严格为 1280×720。
 5. 单独运行板载 RKNN 查看器，确认真实相机画面、六分类框、置信度、推理耗时与板载显示。
 6. 启动统一视觉入口，检查 detections、resolved/refined/mapped、perf 和 debug image；
-   没有安装外参/TF 时，mapped 必须明确无效，不得伪造地图点。
-7. 无安装外参时先完成 Image+CameraInfo+RKNN 的 10 分钟资源/心跳稳定性，mapped 必须保持
-   无效；补齐安装外参后，再做有效地图点与 `optical→body→mission` TF Gate。
+   TF 链不完整时，mapped 必须明确无效，不得伪造地图点。
+7. Image+CameraInfo+RKNN 的 10 分钟资源/心跳稳定性已先行完成；2026-09-05 机械平移接线
+   后，再做有效地图点与 `optical→body→mission` TF Gate。
 
 统一入口：
 
@@ -50,6 +50,12 @@ roslaunch uav_vision board_camera_vision.launch \
   model_path:=$(pwd)/src/uav_vision/models/merged_standard_fp32.rknn \
   enable_debug_image:=true
 ```
+
+默认外参为当前可连通链路的 `body → downward_camera_optical_frame`，平移
+`[0,0,-0.16] m`；雷达 IMU 到相机的主机械测量是正下方 `0.20 m`，不能把它直接填给
+当前由飞控 IMU 驱动的 `body`。若上层整机 launch 已发布同一 TF，追加
+`publish_camera_extrinsic:=false`。详见
+[2026 实机安装外参基线](/home/xhj/liftrace/docs/2026实机相机与投递机构安装外参基线_20260905.md)。
 
 板载直接显示入口：
 
@@ -84,8 +90,9 @@ python3 top_level_scripts/board_realtime_rknn_viewer.py \
 
 完整指标、边界和证据索引见
 [OrangePi板端视觉性能报告_20260902.md](/home/xhj/liftrace/docs/OrangePi板端视觉性能报告_20260902.md)。
-现场相机主要朝顶棚且没有安装外参；上述结果只关闭设备、CameraInfo、RKNN 像素链和板端
-10 分钟稳定性，不关闭实景识别精度、地图定位、联合导航或飞行。
+现场测试时相机主要朝顶棚且尚未取得安装外参；上述结果只关闭设备、CameraInfo、RKNN
+像素链和板端 10 分钟稳定性。2026-09-05 已取得并配置机械平移，但尚未在完整
+`camera_init → body → optical` 树上验证，仍不关闭实景识别精度、地图定位、联合导航或飞行。
 
 ## 通过条件
 
