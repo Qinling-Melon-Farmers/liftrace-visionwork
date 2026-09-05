@@ -23,7 +23,8 @@
   <arg name="release_evidence_context_topic"
        default="/uav_vision/release_evidence_context" />
   <arg name="enable_debug_image" default="false" />
-  <arg name="start_legacy_compat" default="true" />
+  <!-- Typed board output is authoritative. Legacy wrappers must opt in explicitly. -->
+  <arg name="start_legacy_compat" default="false" />
 
   <node pkg="uav_vision" type="target_detector_rknn.py"
         name="target_detector_rknn" output="screen" required="true">

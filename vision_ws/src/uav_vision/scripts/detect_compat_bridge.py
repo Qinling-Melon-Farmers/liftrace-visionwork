@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""detect_compat_bridge: 订阅 uav_vision 新接口，转发到 patrol_control 旧话题。
+"""将 uav_vision 输出转成 patrol_control 的历史视觉话题。
+
+本节点只供旧路线和显式 legacy 回归使用；正式 external 任务链应直接消费 typed 视觉接口，
+并在 launch 层不启动本节点。
 
 旧话题消息类型（与 patrol_control.cpp 实际订阅一致）：
   /yolo_detect           → std_msgs::String       (单个类别名，与 goal[] 逐一比较)
@@ -12,17 +15,17 @@
 注意：新链路的 `drop_offset` / `detections.center_px` 是图像域结果，不等价于旧世界系 Pose。
 因此这些像素 Pose 兼容输出默认关闭，仅在显式 `publish_pixel_pose_compat:=true` 时用于临时调试。
 
-2026 起补充：`detections_mapped` 的 `map_point` 是真实地图坐标。本节点按旧链语义恢复：
+`detections_mapped` 的 `map_point` 是真实地图坐标。本节点按旧链语义恢复：
   - `/detect/control` 为 true 时，把当前可见圆环的地图点发布到 `/detect/waypoint_mark_point`；
   - `/detect/landing_control` 为 true 时，把 H 的地图点发布到 `/detect/land_mark_point`。
-两者默认开启（`publish_circle_mark_compat` / `publish_landing_mark_compat`），
-且只发布 `map_valid` 的地图点，不把像素伪装成世界坐标。
+且只发布 `map_valid` 的地图点，不把像素伪装成世界坐标。本节点不订阅
+`/uav_vision/drop_ready`，因为该消息没有任何对应的旧接口输出。
 """
 import rospy
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import String, Bool
 
-from uav_vision.msg import TargetDetectionArray, DropOffset, DropReady
+from uav_vision.msg import TargetDetectionArray, DropOffset
 
 STANDARD_TARGET_CLASSES = {"bridge", "panzer", "pillbox", "tent", "tank"}
 
@@ -41,15 +44,13 @@ class DetectCompatBridge:
 
         self._detect_control = False
         self._landing_control = False
-        self._latest = None  # (header, best_circle_map, best_landing_map)
+        self._latest = None  # (best_circle_map, best_landing_map)
 
         # 订阅新接口
         rospy.Subscriber(self._detections_topic, TargetDetectionArray,
                          self._on_detections)
         rospy.Subscriber("/uav_vision/drop_offset", DropOffset,
                          self._on_drop_offset)
-        rospy.Subscriber("/uav_vision/drop_ready", DropReady,
-                         self._on_drop_ready)
         # 旧控制自己的检测开关，镜像旧检测器语义
         rospy.Subscriber("/detect/control", Bool, self._on_detect_control)
         rospy.Subscriber("/detect/landing_control", Bool, self._on_landing_control)
@@ -103,7 +104,7 @@ class DetectCompatBridge:
         """按旧控制开关发布圆环/H 的地图点（仅 map_valid 检测）。"""
         if self._latest is None:
             return
-        header, circle_det, landing_det = self._latest
+        circle_det, landing_det = self._latest
         if (self._publish_circle_mark_compat and self._detect_control and
                 circle_det is not None):
             pose = PoseStamped()
@@ -167,7 +168,7 @@ class DetectCompatBridge:
         # 记录最新地图点候选，供控制开关触发时发布
         circle_det = self._best_mapped(msg.detections, "circle")
         landing_det = self._best_mapped(msg.detections, "landing_pad")
-        self._latest = (msg.header, circle_det, landing_det)
+        self._latest = (circle_det, landing_det)
         self._publish_map_marks()
 
         # /yolo_detect — std_msgs::String
@@ -223,9 +224,6 @@ class DetectCompatBridge:
         pose.pose.position.z = msg.radius_px
         pose.pose.orientation.w = msg.quality
         self._waypoint_pub.publish(pose)
-
-    def _on_drop_ready(self, msg):
-        pass  # 旧接口无对应话题，预留
 
 
 def main():

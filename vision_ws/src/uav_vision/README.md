@@ -30,7 +30,7 @@ MAVROS 指令或执行机构节点。接口、单目地图点公式和接入要�
 | `target_map_projector.py` | CameraInfo + TF 地面投影 | 固定 Gazebo 有真值；实拍同步 pose 仍缺 |
 | `target_memory.py` | 连续帧确认、物理 stable ID、类别投票、地图融合与新鲜度 | 跨视角正式 Gate 仍待完成 |
 | `drop_aligner.py` | 偏差、`drop_ready` 与结构化释放证据 | 最终许可仍属任务/安全层 |
-| `detect_compat_bridge.py` | 兼容旧 `/detect/*` 和 `/yolo_detect` | 默认不伪造世界点 |
+| `detect_compat_bridge.py` | 旧 `/detect/*` 与 `/yolo_detect` 回归兼容 | 只供 legacy launch，正式 external 链不启动 |
 
 ## 2. 处理链与话题
 
@@ -55,6 +55,11 @@ detectors
   -> /uav_vision/release_evidence
   -> /uav_vision/release_evidence_context
 ```
+
+`detect_compat_bridge.py` 作为完整旧接口适配器保留给 legacy 回归；它不再订阅没有旧接口映射的
+`/uav_vision/drop_ready`。`phase_d.launch` 和 `phase_d_board.launch` 默认关闭该桥，只有
+`phase_d_patrol_internal.launch` 等旧链包装器显式启用。正式 external 链直接消费 typed 视觉输出，
+不在视觉侧增加 H-only 模式或第二套消息。
 
 输入默认值来自 `config/default.yaml`：
 
@@ -227,7 +232,8 @@ GUI 入口仍只算人工连通烟测；定量结论使用 `uav_vision_eval`，�
 4. H/普通黑圈/残圈实拍负样本仍不足；
 5. 笔记本完整 SITL 已用 MAVROS 位姿核对 `camera_init` TF；实机安装平移已配置，真实
    LIO 下的完整 TF、下视旋转和有效地图投影仍待验收；
-6. 旧 Pose 兼容接口未完成下线；
+6. 视觉兼容桥已收口为 legacy-only 并移除无效 `drop_ready` 订阅；正式 VCL06 关闭兼容桥、直接
+   消费 typed H 的导航侧改动仍须提交并通过最终联合 Gate；
 7. 笔记本 PT/ONNX 已在相同 fixed-letterbox 输入的 12 图/19 框 Gate 通过；RKNN 仍需用
    同一批输入做逐框对照，尚不能据此冻结最终板端部署模型；
 8. 六分类 FP32 RKNN 的 OrangePi ROS 像素链与 600 秒稳定性已通过；安装 TF 的机械平移
