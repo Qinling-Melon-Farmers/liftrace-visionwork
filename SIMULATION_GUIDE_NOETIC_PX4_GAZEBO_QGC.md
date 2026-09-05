@@ -256,6 +256,16 @@ rostopic echo -n 1 /uav_vision/drop_ready
 
 不要在存在其他 ROS 任务时使用宽泛的 `pkill -f`。
 
+停止后或启动前，统一使用只读脚本核查本机仿真进程：
+
+```bash
+/home/xhj/liftrace/top_level_scripts/check_sim_processes.sh
+```
+
+脚本只会逐个执行 `pgrep -x`，发现残留时列出精确进程名和 PID 并返回非零。禁止在
+Windows→WSL 命令中临时拼写 `pgrep -af 'roscore|gzserver|...'`；跨边界引号丢失会把 `|`
+解释成 shell 管道，反而实际启动待检查的 `gzserver`、`gzclient` 等程序。
+
 ### 7.3 导航组 manager + 新视觉 headless 联调
 
 该入口使用导航组原始 manager 生成覆盖/候选抵近目标，外围适配器承接现有视觉和旧控制

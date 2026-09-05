@@ -105,6 +105,10 @@
       shell profile、launch、脚本默认值或长期环境。
     - `sim_run.sh` 必须先取得本机互斥锁并确认不存在 `roscore/rosmaster/rosout/roslaunch/gzserver/
       gzclient/px4/mavros_node/rviz` 残留；任一存在时拒绝启动，不得叠加第二套仿真。
+    - 手工核查仿真残留必须调用 `top_level_scripts/check_sim_processes.sh`，或逐个使用
+      `pgrep -x <精确进程名>`。禁止在 Windows→WSL 命令中使用 `pgrep -af 'a|b|...'`、未受保护的
+      `|` 进程名组合或等价写法；宿主侧引号一旦丢失，shell 会把它解释成管道并实际执行
+      `gzserver`、`gzclient` 等命令。进程核查必须保持只读，不能以“检查”为名调用仿真程序。
     - 正常结束、Gate FAIL、命令失败、超时、`HUP/INT/TERM` 中断都必须执行同一收尾 trap：停止辅助
       进程和录屏、调用 `stop_toudi3_sim.sh`，并以精确进程名复查零残留。清理复查失败时整轮返回
       非零并报告残留 PID，不能在尚有 `gzserver` 时宣布仿真已停止。
