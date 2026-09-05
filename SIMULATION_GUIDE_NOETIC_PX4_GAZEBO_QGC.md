@@ -264,12 +264,16 @@ rostopic echo -n 1 /uav_vision/drop_ready
 ```bash
 cd /home/xhj/liftrace
 export UAV_VISION_MODEL_PATH=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt
-SIM_NO_RECORD=1 bash top_level_scripts/sim_run.sh \
+SIM_RUN_AUTHORIZED=1 SIM_NO_RECORD=1 bash top_level_scripts/sim_run.sh \
   navigation_upstream_visual_delivery_headless \
   roslaunch uav_mission navigation_search_delivery_toudi4.launch \
   gui:=false rviz:=false enable_debug_image:=false \
   spawn_red_cross:=true red_cross_seed:=0
 ```
+
+`SIM_RUN_AUTHORIZED=1` 只允许写在本次明确获准的启动命令前，禁止导出为长期环境变量。包装器会拒绝
+已有 ROS/Gazebo/PX4/RViz 进程或第二个 `sim_run.sh`，并在正常结束、失败、超时和信号中断后调用
+`stop_toudi3_sim.sh`；只有清理复查为零残留时才算完成收尾。
 
 必须检查 run 目录中的：
 
