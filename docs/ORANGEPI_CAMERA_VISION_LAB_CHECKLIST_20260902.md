@@ -52,7 +52,7 @@ roslaunch uav_vision board_camera_vision.launch \
 ```
 
 默认外参为当前可连通链路的 `body → downward_camera_optical_frame`，平移
-`[0,0,-0.16] m`；雷达 IMU 到相机的主机械测量是正下方 `0.20 m`，不能把它直接填给
+`[0,0,-0.16] m`；雷达 IMU 到相机的主机械测量是正下方 `0.21 m`，不能把它直接填给
 当前由飞控 IMU 驱动的 `body`。若上层整机 launch 已发布同一 TF，追加
 `publish_camera_extrinsic:=false`。详见
 [2026 实机安装外参基线](/home/xhj/liftrace/docs/2026实机相机与投递机构安装外参基线_20260905.md)。

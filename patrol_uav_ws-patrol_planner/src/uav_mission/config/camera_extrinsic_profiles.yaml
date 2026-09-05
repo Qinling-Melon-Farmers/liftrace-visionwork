@@ -34,16 +34,16 @@ real_2026_ks2a543_body_runtime:
   source: mechanical_group_report_2026-09-05
   measurement:
     primary_reference: mid360_imu_datum
-    mid360_imu_to_camera_center_xyz_m: [0.0, 0.0, -0.20]
+    mid360_imu_to_camera_center_xyz_m: [0.0, 0.0, -0.21]
     flight_controller_box_reference_to_camera_center_xyz_m: [0.0, 0.0, -0.16]
     collinear_xy_assumption: true
   note: >-
     机械组建议以雷达 IMU 为测量基准，并确认可按正下方处理；群聊中的
-    “约 21 cm”是近似汇报，本 profile 采用项目负责人给出的 0.20 m 正式值。
+    “约 21 cm”经项目负责人确认作为正式值，本 profile 采用 0.21 m。
     当前 FAST-LIO 的 body 由 /mavros/imu/data（飞控 IMU）驱动，所以暂按飞控盒
     口径使用 body 到相机的 -0.16 m；该口头数据尚未区分盒体表面与内部 IMU 原点。
     只有在雷达 IMU frame 已命名并接入同一 TF 树后，
-    才能使用雷达基准的 -0.20 m。旋转沿用下视安装约定，仍待静止实机 TF 验证。
+    才能使用雷达基准的 -0.21 m。旋转沿用下视安装约定，仍待静止实机 TF 验证。
 
 legacy_2025_primary_camera_link:
   status: candidate_requires_real_recalibration

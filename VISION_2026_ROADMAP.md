@@ -13,7 +13,7 @@
 原始 OpenCV K/D 已入库并无损转换成 ROS CameraInfo profile，RMS 重投影误差 0.26874 px。本项目接受该 YAML
 作为当前内参权威输入，不再要求标定原图、方格单位、对焦或拍摄旋转记录，也不安排独立
 复核标定正确性。2026-09-05 已取得机械安装平移：相机在雷达 IMU/飞控基准正下方
-`0.20/0.16 m`，板端入口已按当前 FAST-LIO 的 `body` 配置 `z=-0.16 m`；仍未完成下视旋转
+`0.21/0.16 m`，板端入口已按当前 FAST-LIO 的 `body` 配置 `z=-0.16 m`；仍未完成下视旋转
 实机核验、完整 `optical→body→mission` TF、带目标实景的有效地图投影和同步 pose 验收。
 这些是运行接线，不是内参复核，不能把板端像素链 PASS 外推为外参、地图定位或联合导航
 PASS。视觉组的主线是：
@@ -560,7 +560,7 @@ L3 初期只把陈旧数据、队列积压和错误释放作为硬失败；搜�
 | 已冻结 | 17 | V-EXP-01 | 斜下辅助相机搜索可行性 | Step 1–2 原型与接口证据保留在 feature 分支；不再实现辅助 YOLO、单 runtime 双输入或双相机随机世界 A/B，恢复须有单下视无法满足比赛时限的量化证据 |
 | camera-only 10 min PASS/B100 完成但性能未过 Gate | 18 | V-SIM-04 | L1/L2 阶段性能与后续 30-seed | static25 24/25；同 revision B100 已 100/100 完成，confirm/selected=83/100、地图误差 P95=0.2035 m，但 processing P95=448.2 ms 超过 200 ms，故为 `DIAGNOSTIC_ONLY`。C25 修复后 25/25、完整入画 confirm/selected=15/15、13/15，`NOT_GATED`；D50 supported16 为 16/16 confirm/selected，其余 34 项 `NOT_RUN`。`vsim04_soak600b_seed11_20260831_011055` 已关闭笔记本/Gazebo camera-only 10 min；所有 visual-only `P_interrupt=null`。暂行采用约 2.4–3.0 m、优先 ≤1.0 m/s，仍不把 2 m/s/3.6 m 设为通用工作点；V-CL-06、multi-target 和 30-seed 未关闭 |
 | 实拍功能回放完成/人工定量待完成 | 19 | V-REAL-01 | 实拍回放域差复核 | `real_target.mp4` 已在 OrangePi revision `59c74b6` 经正式 ROS+RKNN+OpenCV 全链完成 4622/4622 帧：perf 4622、mapped 5135 且全部因无 TF 保持 invalid、禁用节点/日志错误为 0；原始全帧标注视频已拉回。58.80% 仍只是历史自洽关联率，不是人工真值召回；仍待圆环实例/中心/H/红十字人工标注和带同步 pose 的新相机采集；机械安装平移已取得，完整 TF 另行验收 |
-| 板端像素链与 10 min PASS/机械平移已接线/地图 TF 待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | OrangePi 新相机在 `abc5103` 完成无人触碰 600 秒 PASS：raw/info 29.164/29.163 Hz、RKNN 13.705 Hz、处理 P95 73.478 ms，USB/节点/禁用节点错误均为 0；后 213 秒 NPU 100%@1 GHz、视觉约 3.66 核、最高 69.307 °C且 cooling=0。全视频冷启动暴露并在 `59c74b6` 根治订阅初始化竞态，冷启动 10/10 后完整 4622 帧 processing P95=79.924 ms、inference P95=57.694 ms。2026-09-05 已按机械汇报配置 `body→optical z=-0.16 m`，雷达 IMU 主基准为正下方 0.20 m；仍待下视旋转与 `optical→body→mission` 完整 TF、带靶实景有效地图投影/同步 pose 和导航/LIO 并发资源复测；详见 `docs/OrangePi板端视觉性能报告_20260902.md` 与安装外参基线文档 |
+| 板端像素链与 10 min PASS/机械平移已接线/地图 TF 待验收 | 20 | V-DEPLOY-01 | PT/ONNX/RKNN 与 OrangePi 验收 | OrangePi 新相机在 `abc5103` 完成无人触碰 600 秒 PASS：raw/info 29.164/29.163 Hz、RKNN 13.705 Hz、处理 P95 73.478 ms，USB/节点/禁用节点错误均为 0；后 213 秒 NPU 100%@1 GHz、视觉约 3.66 核、最高 69.307 °C且 cooling=0。全视频冷启动暴露并在 `59c74b6` 根治订阅初始化竞态，冷启动 10/10 后完整 4622 帧 processing P95=79.924 ms、inference P95=57.694 ms。2026-09-05 已按机械汇报配置 `body→optical z=-0.16 m`，雷达 IMU 主基准为正下方 0.21 m；仍待下视旋转与 `optical→body→mission` 完整 TF、带靶实景有效地图投影/同步 pose 和导航/LIO 并发资源复测；详见 `docs/OrangePi板端视觉性能报告_20260902.md` 与安装外参基线文档 |
 
 ### 8.1 已完成的最小交付与当前入口
 

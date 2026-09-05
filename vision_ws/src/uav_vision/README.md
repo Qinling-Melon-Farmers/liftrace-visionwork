@@ -183,7 +183,7 @@ roslaunch uav_vision board_camera_vision.launch \
 
 该入口默认发布 `body → downward_camera_optical_frame`：平移 `[0,0,-0.16] m` 来自
 2026-09-05 机械安装汇报，旋转沿用单下视光学帧约定。雷达 IMU 到相机的主机械测量为
-正下方 `0.20 m`，但当前 FAST-LIO 的 `body` 来自飞控 IMU，二者不得混填。若整机顶层已
+正下方 `0.21 m`，但当前 FAST-LIO 的 `body` 来自飞控 IMU，二者不得混填。若整机顶层已
 发布同一 TF，使用 `publish_camera_extrinsic:=false`。详细基准和待验收边界见
 [2026 实机安装外参基线](/home/xhj/liftrace/docs/2026实机相机与投递机构安装外参基线_20260905.md)。
 
