@@ -162,14 +162,23 @@
     “业务/安全事实通过、Gate 形式口径待修”，不覆盖原始 FAIL，也不为改标签重复跑同一轮。
     r41 报告已追加到视觉候选 `56f0667`；视觉远端 main 尚缺该分支的 22 个提交及外参
     `f0b1b8b` 的 2 个提交。导航口径修订已 clean 推送为 `6c59e17`，上游 main 尚缺完整任务
-    分支的 38 个提交。最终优先做双仓合并、单一外参/源码/旧接口收口和板端
-    整机资源验收，详细顺序见
+    分支的 38 个提交。最终优先冻结双仓候选、按已通过链生成一次持久化完整 Gate 证据，再由
+    人工合并和开展板端整机资源验收；超出基线的接口减法以后续第 23 条为准。详细顺序见
     [双仓最终交付与实机部署收口计划](docs/双仓最终交付与实机部署收口计划_20260905.md)。
+23. 2026-09-05 部署前复核以视觉组已完成的 worktree 清理为新基线：当前 WSL 工程树和既有
+    归档中未找到 r41 的完整结构化 run，只保留报告和部分 ROS 日志，因此最终双仓 revision 必须再生成一次并
+    持久化完整 Gate 证据。`f0b1b8b` 当前实际运行外参是 `body/-0.16 m`，MID360 到相机
+    `-0.21 m` 只是机械测量元数据，待命名 frame 和 TF 链在 Stage B 验证后才可成为运行 profile。
+    r41 的 H 控制仍依赖 `detect_compat_bridge -> /detect/land_mark_point`；首个部署基线保留这条
+    已通过适配，typed H、导航仓视觉副本物理删除、轻量策略替换和 MJPEG/运动模糊专项均后移，
+    不再向最终唯一整场 Gate 引入未经验证的跨仓改动。本轮又移除了两个可重建视觉 checkout，
+    分支引用和约 12 MiB 旧 Gate 资料均保留。
 
 现有 `toudi3.world` 五类标准靶和 H 已直接用于固定真值场景，红十字按评测场景插入；
 `uav_vision_eval` 已能自动生成 CSV/JSON/report，shadow 输出也已隔离。H 固定 Gazebo 正例
-得到 458 TP、0 FP/FN，landing-active 纯背景 511 帧为 0 FP，但仍缺真实 H、普通黑圈/残圈和
-完整降落 Gate。当前仍不能宣称完整视觉 Gate 通过：formal23/static25/sparse30 只是一次覆盖，
+得到 458 TP、0 FP/FN，landing-active 纯背景 511 帧为 0 FP，r41 SITL 已完成 H 对齐与降落；
+仍缺真实 H、普通黑圈/残圈和实机完整降落 Gate。当前仍不能宣称完整视觉 Gate 通过：
+formal23/static25/sparse30 只是一次覆盖，
 六点重复也只复用固定 seed；采用门槛和多 seed 次数尚未冻结，30-seed 未开始，实拍圆环仍缺
 人工定量真值。`real_target.mp4` 已在 OrangePi revision `59c74b6` 以正式
 ROS→RKNN→OpenCV/fusion/refiner→fail-closed map projector→recorder 链完成 4622/4622 帧，
