@@ -283,7 +283,9 @@ SIM_RUN_AUTHORIZED=1 SIM_NO_RECORD=1 bash top_level_scripts/sim_run.sh \
 
 `SIM_RUN_AUTHORIZED=1` 只允许写在本次明确获准的启动命令前，禁止导出为长期环境变量。包装器会拒绝
 已有 ROS/Gazebo/PX4/RViz 进程或第二个 `sim_run.sh`，并在正常结束、失败、超时和信号中断后调用
-`stop_toudi3_sim.sh`；只有清理复查为零残留时才算完成收尾。
+`stop_toudi3_sim.sh`；只有清理复查为零残留时才算完成收尾。跨仓联合时只需显式传入 `UAV_WS` 和
+`VISION_WS`；包装器据此构造源码 overlay，并在 `uav_mission` 或 `uav_vision` 实际解析到旧根仓时
+启动前拒绝。不要再手写整条 `ROS_PACKAGE_PATH`。
 
 必须检查 run 目录中的：
 

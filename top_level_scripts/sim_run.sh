@@ -104,10 +104,53 @@ export PX4_ROOT="${PX4_ROOT:-/home/xhj/PX4-Autopilot}"
 export PX4_GAZEBO="${PX4_GAZEBO:-${PX4_ROOT}/Tools/simulation/gazebo-classic/sitl_gazebo-classic}"
 export ASTRA_LIB="${ASTRA_LIB:-/home/xhj/AstraDroneOpen/simulation/sim_workspace/devel/lib}"
 export PX4_BUILD="${PX4_BUILD:-${PX4_ROOT}/build/px4_sitl_default/build_gazebo-classic}"
-export ROS_PACKAGE_PATH="/opt/ros/noetic/share:${PX4_ROOT}:${PX4_GAZEBO}:${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/src:${PROJECT_ROOT}/vision_ws/src${ROS_PACKAGE_PATH:+:${ROS_PACKAGE_PATH}}"
+UAV_SOURCE_ROOT="${UAV_WS}/src"
+VISION_SOURCE_ROOT="${VISION_WS}/src"
+if [ ! -d "${UAV_SOURCE_ROOT}" ]; then
+  echo "Refusing to start simulation: UAV_WS has no src directory: ${UAV_WS}" >&2
+  exit 66
+fi
+if [ ! -d "${VISION_SOURCE_ROOT}" ]; then
+  echo "Refusing to start simulation: VISION_WS has no src directory: ${VISION_WS}" >&2
+  exit 66
+fi
+# UAV_WS and VISION_WS are the caller-selected source authorities.  Do not
+# prepend PROJECT_ROOT copies here: doing so silently mixes an old root tree
+# into a feature-worktree run even after the matching devel spaces are sourced.
+export ROS_PACKAGE_PATH="${VISION_SOURCE_ROOT}:${UAV_SOURCE_ROOT}:/opt/ros/noetic/share:${PX4_ROOT}:${PX4_GAZEBO}${ROS_PACKAGE_PATH:+:${ROS_PACKAGE_PATH}}"
 export GAZEBO_MODEL_PATH="${PX4_GAZEBO}/models${GAZEBO_MODEL_PATH:+:${GAZEBO_MODEL_PATH}}"
 export GAZEBO_PLUGIN_PATH="${ASTRA_LIB}:${PX4_BUILD}${GAZEBO_PLUGIN_PATH:+:${GAZEBO_PLUGIN_PATH}}"
 export LD_LIBRARY_PATH="${ASTRA_LIB}:${PX4_BUILD}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+
+RESOLVED_UAV_MISSION="not_present"
+RESOLVED_UAV_VISION="not_present"
+verify_package_owner() {
+  local package_name="$1"
+  local expected_path="$2"
+  local resolved_path=""
+  local canonical_expected=""
+  local canonical_resolved=""
+
+  resolved_path="$(rospack find "${package_name}" 2>/dev/null || true)"
+  if [ -z "${resolved_path}" ]; then
+    echo "Refusing to start simulation: rospack cannot resolve ${package_name}." >&2
+    exit 66
+  fi
+  canonical_expected="$(cd "${expected_path}" && pwd -P)"
+  canonical_resolved="$(cd "${resolved_path}" && pwd -P)"
+  if [ "${canonical_resolved}" != "${canonical_expected}" ]; then
+    echo "Refusing to start simulation: ${package_name} resolved to ${canonical_resolved}; expected ${canonical_expected}." >&2
+    exit 66
+  fi
+  printf '%s' "${canonical_resolved}"
+}
+
+if [ -d "${UAV_SOURCE_ROOT}/uav_mission" ]; then
+  RESOLVED_UAV_MISSION="$(verify_package_owner uav_mission "${UAV_SOURCE_ROOT}/uav_mission")"
+fi
+if [ -d "${VISION_SOURCE_ROOT}/uav_vision" ]; then
+  RESOLVED_UAV_VISION="$(verify_package_owner uav_vision "${VISION_SOURCE_ROOT}/uav_vision")"
+fi
 
 SCENE="${1:-sim}"
 shift
@@ -236,6 +279,16 @@ fi
   echo "git_head: $(cd "${PROJECT_ROOT}" && git rev-parse HEAD 2>/dev/null || echo unknown)"
   echo "git_status:"
   (cd "${PROJECT_ROOT}" && git status --short) | sed 's/^/  /'
+  echo "uav_ws: ${UAV_WS}"
+  echo "uav_git_head: $(git -C "${UAV_WS}" rev-parse HEAD 2>/dev/null || echo unknown)"
+  echo "uav_git_status:"
+  git -C "${UAV_WS}" status --short 2>/dev/null | sed 's/^/  /'
+  echo "vision_ws: ${VISION_WS}"
+  echo "vision_git_head: $(git -C "${VISION_WS}" rev-parse HEAD 2>/dev/null || echo unknown)"
+  echo "vision_git_status:"
+  git -C "${VISION_WS}" status --short 2>/dev/null | sed 's/^/  /'
+  echo "resolved_uav_mission: ${RESOLVED_UAV_MISSION}"
+  echo "resolved_uav_vision: ${RESOLVED_UAV_VISION}"
   python3 - "$@" <<'PY'
 import json
 import sys

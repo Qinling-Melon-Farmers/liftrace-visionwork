@@ -105,6 +105,9 @@
       shell profile、launch、脚本默认值或长期环境。
     - `sim_run.sh` 必须先取得本机互斥锁并确认不存在 `roscore/rosmaster/rosout/roslaunch/gzserver/
       gzclient/px4/mavros_node/rviz` 残留；任一存在时拒绝启动，不得叠加第二套仿真。
+    - 联合工作树运行时，调用者显式传入的 `UAV_WS` 与 `VISION_WS` 是唯一源码 overlay 权威；
+      `sim_run.sh` 必须拒绝 `uav_mission`/`uav_vision` 解析到其他根仓或旧工作树，并在 manifest
+      记录双仓 HEAD、工作区状态及实际包路径。不得再用手写整条 `ROS_PACKAGE_PATH` 修补包顺序。
     - 手工核查仿真残留必须调用 `top_level_scripts/check_sim_processes.sh`，或逐个使用
       `pgrep -x <精确进程名>`。禁止在 Windows→WSL 命令中使用 `pgrep -af 'a|b|...'`、未受保护的
       `|` 进程名组合或等价写法；宿主侧引号一旦丢失，shell 会把它解释成管道并实际执行
