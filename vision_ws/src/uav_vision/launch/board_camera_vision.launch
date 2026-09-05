@@ -5,6 +5,13 @@
   <arg name="capture_fps" default="30" />
   <arg name="publish_rate" default="30" />
   <arg name="frame_id" default="downward_camera_optical_frame" />
+  <!-- 2026 实机机械基线：当前 FAST-LIO 的 body 来自飞控 IMU；暂按机械组
+       “飞控盒到相机正下方 0.16 m”的工程口径接线。若整机顶层已发布同一 TF，关闭本节点。 -->
+  <arg name="publish_camera_extrinsic" default="true" />
+  <arg name="camera_parent_frame" default="body" />
+  <arg name="camera_extrinsic_xyz" default="0 0 -0.16" />
+  <arg name="camera_extrinsic_quat_xyzw"
+       default="-0.70710678 0.70710678 0 0" />
   <arg name="model_path"
        default="$(find uav_vision)/models/merged_standard_fp32.rknn" />
   <arg name="metadata_path"
@@ -20,6 +27,12 @@
     <arg name="publish_rate" value="$(arg publish_rate)" />
     <arg name="frame_id" value="$(arg frame_id)" />
   </include>
+
+  <group if="$(arg publish_camera_extrinsic)">
+    <node pkg="tf2_ros" type="static_transform_publisher"
+          name="aircraft_camera_extrinsic"
+          args="$(arg camera_extrinsic_xyz) $(arg camera_extrinsic_quat_xyzw) $(arg camera_parent_frame) $(arg frame_id)" />
+  </group>
 
   <include file="$(find uav_vision)/launch/control_handoff_board.launch">
     <arg name="image_topic" value="/camera/image_raw" />

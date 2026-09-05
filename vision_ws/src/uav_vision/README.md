@@ -1,9 +1,10 @@
 # uav_vision
 
-更新时间：2026-08-07
+更新时间：2026-09-05
 定位：RoboCup 2026 在线视觉运行包。评测真值、场景和报告代码位于同工作区的
-`uav_vision_eval`，不进入本包实机依赖。OrangePi 已完成独立离线 RKNN 图片/视频回放，
-但 ROS 视觉链、相机接线和稳定性仍未验收。完整模型结果见
+`uav_vision_eval`，不进入本包实机依赖。OrangePi 已完成新相机、CameraInfo、统一 RKNN
+ROS 像素链、完整视频回放和 600 秒稳定性验收；2026 安装平移已写入板端入口，仍待整机
+TF、有效地图投影和导航/LIO 并发验收。完整模型结果见
 [板端模型完整评测报告](/home/xhj/liftrace/docs/BOARD_MODEL_COMPLETE_EVALUATION_20260716.md)。
 
 面向未改造控制工程的纯视觉交付入口为 `control_handoff_dev.launch` 和
@@ -139,6 +140,7 @@ strict watchdog 不依赖目标数组继续到达；目标流中断后，即使 
 | `phase_d_board_perf_mock.launch` | 板端接口/性能 mock |
 | `control_handoff_dev.launch` | 控制组笔记本联调：纯视觉 PT 完整链 |
 | `control_handoff_board.launch` | 控制组 OrangePi 联调：纯视觉 RKNN 完整链 |
+| `board_camera_vision.launch` | OrangePi 新相机 + CameraInfo + RKNN + 可关闭的 2026 相机静态外参 |
 | `phase_d_map_mock.launch` | 地图投影、记忆和对准 assertion |
 | `target_memory_physical_mock.launch` | 类别抖动、连续帧、地图融合和物理 ID assertion |
 | `map_rejection_mock.launch` | 缺 TF 时失败关闭 assertion |
@@ -171,23 +173,23 @@ source /home/xhj/liftrace/vision_ws/devel/setup.bash
 roslaunch uav_vision phase_d.launch
 ```
 
-板端入口：
+板端整机视觉入口：
 
 ```bash
-roslaunch uav_vision control_handoff_board.launch \
-  image_topic:=/your/down_camera/image_raw \
-  camera_info_topic:=/your/down_camera/camera_info \
-  map_frame:=camera_init
+roslaunch uav_vision board_camera_vision.launch \
+  video_devices:=/dev/v4l/by-id/<camera-id> \
+  model_path:=/absolute/path/merged_standard_fp32.rknn
 ```
 
-板端入口存在不代表 ROS 视觉链已经在 OrangePi 验收；截至 2026-07-16，已完成独立 RKNN
-离线视频和 v5merge 全集评测，尚未完成该 launch 的相机、CameraInfo、TF、ROS topic 和
-10 分钟稳定性验收。旧 standard+tank 已完成全集图片评测，但旧双模型视频因板端整机
-高负载风险暂缓。
+该入口默认发布 `body → downward_camera_optical_frame`：平移 `[0,0,-0.16] m` 来自
+2026-09-05 机械安装汇报，旋转沿用单下视光学帧约定。雷达 IMU 到相机的主机械测量为
+正下方 `0.21 m`，但当前 FAST-LIO 的 `body` 来自飞控 IMU，二者不得混填。若整机顶层已
+发布同一 TF，使用 `publish_camera_extrinsic:=false`。详细基准和待验收边界见
+[2026 实机安装外参基线](/home/xhj/liftrace/docs/2026实机相机与投递机构安装外参基线_20260905.md)。
 
-板端离线评测约定：原始 MP4 回放不去畸变，实时 `/dev/video0` 查看器才默认使用固定
-1920x1080 `plumb_bob` 内参。当前建议使用 `merged_standard_fp32.rknn`；INT8 产物虽能
-加载但在 v5merge 全集无有效检测，不能作为主模型。
+板端离线评测约定：历史原始 MP4 回放不凭空附加新相机内参；实时相机入口默认使用当前
+1280×720 `plumb_bob` 标定 profile。当前建议使用 `merged_standard_fp32.rknn`；INT8 产物
+虽能加载但在 v5merge 全集无有效检测，不能作为主模型。
 
 ## 5. 最小回归
 
@@ -223,12 +225,13 @@ GUI 入口仍只算人工连通烟测；定量结论使用 `uav_vision_eval`，�
 2. 固定 Gazebo 中部分标准类与红十字召回低于 0.95；代表场景 P95 延迟已降至 200 ms 内；
 3. 实拍圆环回放缺实例/中心人工真值，普通 MP4 也缺同步 CameraInfo/pose；
 4. H/普通黑圈/残圈实拍负样本仍不足；
-5. 笔记本完整 SITL 已用 MAVROS 位姿核对 `camera_init` TF；真实 LIO/相机外参仍待验收；
+5. 笔记本完整 SITL 已用 MAVROS 位姿核对 `camera_init` TF；实机安装平移已配置，真实
+   LIO 下的完整 TF、下视旋转和有效地图投影仍待验收；
 6. 旧 Pose 兼容接口未完成下线；
 7. 笔记本 PT/ONNX 已在相同 fixed-letterbox 输入的 12 图/19 框 Gate 通过；RKNN 仍需用
    同一批输入做逐框对照，尚不能据此冻结最终板端部署模型；
-8. 六分类 RKNN 已在 OrangePi 做离线验证，但 ROS 板端链、CameraInfo/TF、10 min 稳定性和
-   压力真值仍未验收；四款 INT8 当前全量 P/R/mAP 为 0。
+8. 六分类 FP32 RKNN 的 OrangePi ROS 像素链与 600 秒稳定性已通过；安装 TF 的机械平移
+   已接线，仍缺与真实 LIO/导航并发的地图投影验收；四款 INT8 当前全量 P/R/mAP 为 0。
 9. 当前地图投影是单目射线与固定 `ground_z` 平面求交；不需要深度相机，但尚未接入
    MID360 局部地面拟合，非平地和错误地面高度必须判为额外风险。
 

@@ -13,6 +13,7 @@ PT_SCRIPT = PACKAGE_ROOT / "scripts" / "target_detector.py"
 RKNN_SCRIPT = PACKAGE_ROOT / "scripts" / "target_detector_rknn.py"
 PT_LAUNCH = PACKAGE_ROOT / "launch" / "phase_d.launch"
 RKNN_LAUNCH = PACKAGE_ROOT / "launch" / "phase_d_board.launch"
+BOARD_CAMERA_LAUNCH = PACKAGE_ROOT / "launch" / "board_camera_vision.launch"
 
 
 class DetectorModelContractTest(unittest.TestCase):
@@ -56,6 +57,33 @@ class DetectorModelContractTest(unittest.TestCase):
         self.assertGreater(
             subscriber,
             source.index('raise RuntimeError("no usable RKNN runtime/model found")'),
+        )
+
+    def test_board_camera_launch_uses_2026_mechanical_extrinsic(self):
+        root = ET.parse(str(BOARD_CAMERA_LAUNCH)).getroot()
+        args = {
+            item.attrib["name"]: item.attrib.get("default")
+            for item in root.findall("arg")
+        }
+        self.assertEqual(args["publish_camera_extrinsic"], "true")
+        self.assertEqual(args["camera_parent_frame"], "body")
+        self.assertEqual(args["camera_extrinsic_xyz"], "0 0 -0.16")
+        self.assertEqual(
+            args["camera_extrinsic_quat_xyzw"],
+            "-0.70710678 0.70710678 0 0",
+        )
+
+        node = next(
+            item for item in root.findall(".//node")
+            if item.attrib.get("name") == "aircraft_camera_extrinsic"
+        )
+        self.assertEqual(node.attrib.get("pkg"), "tf2_ros")
+        self.assertEqual(node.attrib.get("type"), "static_transform_publisher")
+        self.assertEqual(
+            node.attrib.get("args"),
+            "$(arg camera_extrinsic_xyz) "
+            "$(arg camera_extrinsic_quat_xyzw) "
+            "$(arg camera_parent_frame) $(arg frame_id)",
         )
 
 
