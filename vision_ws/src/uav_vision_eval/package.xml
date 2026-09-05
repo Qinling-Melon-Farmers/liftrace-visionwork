@@ -26,4 +26,7 @@
   <exec_depend>patrol_control</exec_depend>
   <exec_depend>uav_mission</exec_depend>
   <exec_depend>rosgraph</exec_depend>
+  <exec_depend>rostopic</exec_depend>
+  <exec_depend>graphviz</exec_depend>
+  <exec_depend>rqt_graph</exec_depend>
 </package>

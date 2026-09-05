@@ -82,6 +82,7 @@ catkin_install_python(PROGRAMS
   scripts/vsim04_failure_capture_manifest_check.py
   scripts/vsim04_repeat_runner.py
   scripts/vsim04_repeat_aggregate.py
+  scripts/ros_topology_snapshot.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

@@ -432,3 +432,21 @@ logs/vsim04_repeat_aggregate_boundary6-seed11-r3-final-307ac5c4/
 
 D runner 会在内部 trial 事件附带紧凑规划 XY 序列，使 turn 的首帧和横向误差按圆弧而非起终点
 弦线核对；这不是新 ROS 话题或跨组接口。所有表仍是 visual-only，`P_interrupt=null`。
+
+## 整机 ROS 拓扑快照
+
+正式联合 launch 稳定后可从 ROS Master 采集实际注册关系：
+
+```bash
+rosrun uav_vision_eval ros_topology_snapshot.py \
+  --output-dir /tmp/vcl06_ros_topology \
+  --fail-on-audit
+```
+
+工具同时保存 `rosnode list`、`rostopic list -v` 原始输出；主图调用 rqt_graph 的
+`node_node`（界面中的 `Nodes only`）后端，椭圆表示节点、带话题名的有向边表示
+publisher→subscriber。工具同时输出核心链和全量链两张 Nodes-only 图，并保留 CSV/JSON
+结构化关系，不另造一套图语义。接口审计只允许正式链保留仍有生产者与消费者的
+`/detect/point_class`；legacy 视觉桥、旧 coverage manager 和旧 `/detect/*` 控制/结果话题
+必须退出正式 VCL06 入口。`/Servo -> /legacy/Servo_raw` 作为投递许可保护链单独核对，不视为
+冗余桥接；已被服务 ACK 取代的 `/control1~3`、`/servo/complete` 则作为旧执行话题残留核对。
