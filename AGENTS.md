@@ -44,8 +44,8 @@
       （由 `.gitignore` 维护，新增例外需在变更记录说明）。
     - 变更记录（规则 12）**先于** commit 更新，commit 与文档记录一一对应；
       每阶段 push 前确认 `git status` 干净；`main` 只经合并进入（规则 18）。
-16. **仿真必须走统一 run 目录规范。** 每次仿真启动用
-    `top_level_scripts/sim_run.sh <场景名> roslaunch ...`，它自动生成
+16. **仿真必须走统一 run 目录规范。** 每次经当前用户请求明确授权的仿真启动用
+    `SIM_RUN_AUTHORIZED=1 top_level_scripts/sim_run.sh <场景名> roslaunch ...`，它自动生成
     `logs/<场景名>_<时间>/`（含 run.log、manifest.yaml、screenrecord.mp4、
     roslog 归档、timeline.txt）；收尾由脚本内自动执行（ffmpeg SIGINT 优雅
     停止写 moov、校验录屏、归档 `~/.ros/log/latest/`）。禁止再直接
@@ -95,6 +95,21 @@
       推送远端，便于复盘定位节点。Gate 合并用 `gate/<Gate-ID>-<简述>`（如
       `gate/vcl04-r6-bridge`），非 Gate 合并用 `chore/<简述>`；tag 消息写清该
       合并对应的 Gate/通过证据（按规则 15 的 UTF-8 文件方式，禁止命令行内联中文）。
+19. **仿真启动必须显式授权、单实例且强制收尾。** `gzserver`、PX4、ROS 和 RViz 属于同一套
+    本机独占仿真资源，agent 必须遵守以下运行边界：
+    - 只有用户在**当前请求**中明确要求“启动、运行、重跑或继续某轮仿真”才构成授权；“恢复并继续”、
+      “修复后提交”、“查看/诊断/汇报”及历史请求均不授权自动续跑。停止仿真后，除非收到新的明确
+      启动请求，不得因自动 continuation、恢复会话或验证代码而再次设置 `SIM_RUN_AUTHORIZED=1`。
+    - 禁止直接运行 `roslaunch`、`gzserver`、PX4 SITL 或绕开包装器设置后台进程。获授权后也只能在
+      单条命令上临时设置 `SIM_RUN_AUTHORIZED=1` 并调用规则 16 的 `sim_run.sh`；不得把该变量写入
+      shell profile、launch、脚本默认值或长期环境。
+    - `sim_run.sh` 必须先取得本机互斥锁并确认不存在 `roscore/rosmaster/rosout/roslaunch/gzserver/
+      gzclient/px4/mavros_node/rviz` 残留；任一存在时拒绝启动，不得叠加第二套仿真。
+    - 正常结束、Gate FAIL、命令失败、超时、`HUP/INT/TERM` 中断都必须执行同一收尾 trap：停止辅助
+      进程和录屏、调用 `stop_toudi3_sim.sh`，并以精确进程名复查零残留。清理复查失败时整轮返回
+      非零并报告残留 PID，不能在尚有 `gzserver` 时宣布仿真已停止。
+    - 同一 FAIL 不得无分析连续重跑。先从现有 run 目录确定首个失败阶段；只有代码/配置发生相关
+      改动，或用户明确要求测量同版本波动时，才允许下一轮。汇报和文档验收只读取既有产物。
 
 ---
 
