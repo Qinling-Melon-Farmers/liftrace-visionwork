@@ -1,0 +1,10 @@
+{
+  "formal_runs": 1,
+  "last_ros_clock_sec": 0.0,
+  "armed_seen": false,
+  "state_samples": 11,
+  "gate": "FAIL",
+  "reason": "startup_wall_timeout",
+  "new_waypoints_executed": false,
+  "cleanup": "PASS"
+}
