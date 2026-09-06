@@ -1,0 +1,127 @@
+[
+  {
+    "path": "/home/xhj/liftrace-artifacts/r2026_r54_both_attempts.tar.gz",
+    "bytes": 2274025650,
+    "reason": "R54 full raw archive already uploaded; original run directories retained"
+  },
+  {
+    "path": "/home/xhj/liftrace-artifacts/r2026_r54_both_attempts.tar.gz.part-00",
+    "bytes": 1073741824,
+    "reason": "R54 full raw archive already uploaded; original run directories retained"
+  },
+  {
+    "path": "/home/xhj/liftrace-artifacts/r2026_r54_both_attempts.tar.gz.part-01",
+    "bytes": 1073741824,
+    "reason": "R54 full raw archive already uploaded; original run directories retained"
+  },
+  {
+    "path": "/home/xhj/liftrace-artifacts/r2026_r54_both_attempts.tar.gz.part-02",
+    "bytes": 126542002,
+    "reason": "R54 full raw archive already uploaded; original run directories retained"
+  },
+  {
+    "path": "/home/xhj/liftrace/logs/toudi3_random_field_smoke2_20260829_011651",
+    "bytes": 2259650751,
+    "entries": 4,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace/logs/toudi3_random_field_smoke3b_20260829_021044",
+    "bytes": 242491427,
+    "entries": 2,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace/logs/toudi3_random_field_smoke3c_20260829_022051",
+    "bytes": 1034790451,
+    "entries": 2,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace/logs/toudi3_random_field_smoke4_20260829_032157",
+    "bytes": 3565008311,
+    "entries": 4,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace/logs/toudi4_coverage_r6_v3_20260813_224011",
+    "bytes": 2739367686,
+    "entries": 3,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace/logs/toudi4_coverage_r6_vcl04_rerun2_20260828_222644",
+    "bytes": 4054135425,
+    "entries": 4,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace/logs/toudi4_coverage_r6_vcl04_rerun_20260828_220809",
+    "bytes": 1320439323,
+    "entries": 2,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace/logs/toudi4_coverage_r6_vcl05b_20260813_234314",
+    "bytes": 3918867016,
+    "entries": 4,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace/logs/toudi4_coverage_r6_vcl05d_20260814_005027",
+    "bytes": 2756322754,
+    "entries": 4,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace/logs/toudi4_coverage_r6_vcl05e_20260814_011723",
+    "bytes": 3542294321,
+    "entries": 4,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r52_full_20260906_213503",
+    "bytes": 9335162985,
+    "entries": 12,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r53_full_20260906_221720",
+    "bytes": 5629511657,
+    "entries": 11,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace-worktrees/vdeploy-final-closeout-plan/logs/vcl06_horizontal_r49_full_lio_20260906_201924",
+    "bytes": 389263485,
+    "entries": 2,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace-worktrees/vdeploy-final-closeout-plan/logs/vcl06_horizontal_r50_full_fused_20260906_203252",
+    "bytes": 385154681,
+    "entries": 2,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace-worktrees/vdeploy-final-closeout-plan/logs/vcl06_horizontal_r51_full_baro_20260906_204726",
+    "bytes": 834447293,
+    "entries": 3,
+    "reason": "superseded failed or interrupted run; small top-level summaries retained"
+  },
+  {
+    "path": "/home/xhj/liftrace-artifacts/r2026_r53_full_run.tar.gz",
+    "bytes": 2323810946,
+    "reason": "superseded R53 full archive and duplicate parts; previously published release retained"
+  },
+  {
+    "path": "/home/xhj/liftrace-artifacts/r2026_r53_full_run.tar.gz.part-01",
+    "bytes": 750946946,
+    "reason": "superseded R53 full archive and duplicate parts; previously published release retained"
+  },
+  {
+    "path": "/home/xhj/liftrace-artifacts/r2026_r53_full_run.tar.gz.part-00",
+    "bytes": 1572864000,
+    "reason": "superseded R53 full archive and duplicate parts; previously published release retained"
+  }
+]
