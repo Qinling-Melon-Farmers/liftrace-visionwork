@@ -1,0 +1,24 @@
+# R53 收尾：三投完成，门前超时
+
+- 实跑源码：整机分支 `133e512`，启动时工作区干净；导航来源 `987b57c`，视觉来源 `1b328c1`。
+- 本轮完成 panzer、red_cross、bridge 三投，释放提交 3/3、搜索恢复 3/3；零碰撞、零越界、零超高，实体最高 1.753 m。
+- 整场 **FAIL**：第二个后段航点（第一门前接近点）90 s 超时。目标 (-2.386703, 5.67227, 0.75)，在 ROS 181.030 s 开始规划，228.945 s 才生成曲线（47.915 s）；随后远距离绕行并再次重规划，271.035 s 任务中止。尚未穿门或完成 H 降落。
+- `contract_errors_zero=false` 对应 manager_failed / manager_aborted；无错配结果，不能把整场 Gate 写成接口全 PASS。
+- 收尾脚本返回 1，进程清理 PASS，ROS/Gazebo/PX4/MAVROS/RViz 零残留。
+- 用户明确要求本轮后不论成败结束任务；已停止继续修复与实跑。main 未合并，未创建验收 PASS tag。main 集成功能分支只作为待验收准备，精简整机分支保留。
+
+## 拓扑图
+
+- [交互阅读版](../../topology/r53/index.html)：23 个飞行链节点，可缩放、拖动和点击突出相邻连线。
+- [阅读版 SVG](../../topology/r53/rqt_graph_nodes_only_flight.svg)、[全量原图 SVG](../../topology/r53/rqt_graph_nodes_only_full.svg)。DOT 文件同目录，可继续编辑。
+- 全量原图在本轮 ROS Master 活跃期间，由已安装的 rqt_graph `RosGraphDotcodeGenerator`、`NODE_NODE_GRAPH` 模式实际生成。
+- 阅读版保留原图中的实际发布/订阅关系，过滤记录、评测、临时观测节点和公共 TF/时钟/日志边，合并同向话题标签。椭圆均为节点，线中文字均为 ROS 话题，箭头从发布者指向订阅者；没有把服务或 MAVLink 连接伪造成话题边。
+- 原始 `ros_system_state.json` 同时保留话题类型、发布者、订阅者及服务提供者；全量图保留 TF 等支持链。图来自 SITL，不代表实机驱动已验收。
+
+## 原始记录
+
+- 本机统一目录：`logs/r2026_integrated_r53_full_20260906_221720/`。
+- 6 个已正常关闭的 bag，总计 5,551,961,169 字节；包含联合导航、视觉、相机、点云、任务和评测话题。另含 manifest、Gate、原始 ROS 日志、PX4 日志、相机快照、拓扑和规划事件摘要。
+- [远端归档](https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/tag/sim/r2026-r53-closeout)：本轮失败复盘资料，标记为预发布，不能作为比赛通过记录。大日志不进入 Git。
+
+后续若重新授权开发，应先解决门前短距离垂向接近触发长时间搜路和无效绕行的问题，再做连续整场验证。目前只能确认本轮三投成功，不能宣称稳定三投或整场已稳定。

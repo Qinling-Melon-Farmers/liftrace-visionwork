@@ -1,0 +1,449 @@
+{
+  "bag_files": [
+    "navigation_vcl06_debug_2026-09-06-22-17-51_0.bag",
+    "navigation_vcl06_debug_2026-09-06-22-20-03_1.bag",
+    "navigation_vcl06_debug_2026-09-06-22-22-13_2.bag",
+    "navigation_vcl06_debug_2026-09-06-22-24-19_3.bag",
+    "navigation_vcl06_debug_2026-09-06-22-26-23_4.bag",
+    "navigation_vcl06_debug_2026-09-06-22-31-03_5.bag"
+  ],
+  "bag_bytes": 5551961169,
+  "planner_counts": [
+    {
+      "seq": 1,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 1,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 1,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 1,
+      "reason": "superseded_by_new_goal",
+      "count": 1
+    },
+    {
+      "seq": 2,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 2,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 2,
+      "reason": "replanned_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 2,
+      "reason": "trajectory_replan_attempt",
+      "count": 1
+    },
+    {
+      "seq": 3,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 3,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 3,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 3,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 4,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 4,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 4,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 4,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 5,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 5,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 5,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 5,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 6,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 6,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 6,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 6,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 7,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 7,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 7,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 7,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 8,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 8,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 8,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 8,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 9,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 9,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 9,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 9,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 10,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 10,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 10,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 10,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 11,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 11,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 11,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 11,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 12,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 12,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 12,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 12,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 13,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 13,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 13,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 13,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 14,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 14,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 14,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 14,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 15,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 15,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 15,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 15,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 16,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 16,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 16,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 16,
+      "reason": "superseded_by_new_goal",
+      "count": 1
+    },
+    {
+      "seq": 17,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 17,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 17,
+      "reason": "replanned_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 17,
+      "reason": "trajectory_replan_attempt",
+      "count": 1
+    },
+    {
+      "seq": 18,
+      "reason": "goal_reached_after_local_trajectory",
+      "count": 1
+    },
+    {
+      "seq": 18,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 18,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 18,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 19,
+      "reason": "goal_received",
+      "count": 1
+    },
+    {
+      "seq": 19,
+      "reason": "new_trajectory_attempt",
+      "count": 1
+    },
+    {
+      "seq": 19,
+      "reason": "new_trajectory_ready",
+      "count": 1
+    },
+    {
+      "seq": 19,
+      "reason": "trajectory_replan_attempt",
+      "count": 1
+    }
+  ],
+  "door_approach_events": [
+    {
+      "time": 181.03,
+      "reason": "goal_received"
+    },
+    {
+      "time": 181.03,
+      "reason": "new_trajectory_attempt"
+    },
+    {
+      "time": 228.945,
+      "reason": "new_trajectory_ready"
+    },
+    {
+      "time": 230.133,
+      "reason": "trajectory_replan_attempt"
+    }
+  ],
+  "release_results": [
+    {
+      "time": 35.333,
+      "message": "header: \n  seq: 9\n  stamp: \n    secs: 35\n    nsecs: 330000000\n  frame_id: \"camera_init\"\nschema_version: 1\nmission_id: \"vcl06-random-28-058000000-1\"\nexecutor_id: \"vcl06-planner-bridge-9e096d2e26cc4ab58ebf39e85dd4db5b\"\nevent_seq: 9\ndecision_seq: 2\ncommand: 1\nstatus: 1\nstage: 3\nterminal: False\nretryable: False\npayload_committed: False\nhas_target: True\ntarget_id: 0\ntarget_first_seen: \n  secs: 30\n  nsecs: 481000000\ntarget_class: \"panzer\"\nattempt: 1\npayload_slot: 1\nreason: \"strict_alignment_context_valid\"\nevidence_source: \"uav_vision_release_context\""
+    },
+    {
+      "time": 39.548,
+      "message": "header: \n  seq: 10\n  stamp: \n    secs: 39\n    nsecs: 544000000\n  frame_id: \"camera_init\"\nschema_version: 1\nmission_id: \"vcl06-random-28-058000000-1\"\nexecutor_id: \"vcl06-planner-bridge-9e096d2e26cc4ab58ebf39e85dd4db5b\"\nevent_seq: 10\ndecision_seq: 2\ncommand: 1\nstatus: 2\nstage: 4\nterminal: False\nretryable: False\npayload_committed: True\nhas_target: True\ntarget_id: 0\ntarget_first_seen: \n  secs: 30\n  nsecs: 481000000\ntarget_class: \"panzer\"\nattempt: 1\npayload_slot: 1\nreason: \"release_ack_success\"\nevidence_source: \"guarded_servo_proxy:1\""
+    },
+    {
+      "time": 41.829,
+      "message": "header: \n  seq: 11\n  stamp: \n    secs: 41\n    nsecs: 827000000\n  frame_id: \"camera_init\"\nschema_version: 1\nmission_id: \"vcl06-random-28-058000000-1\"\nexecutor_id: \"vcl06-planner-bridge-9e096d2e26cc4ab58ebf39e85dd4db5b\"\nevent_seq: 11\ndecision_seq: 2\ncommand: 1\nstatus: 3\nstage: 5\nterminal: True\nretryable: False\npayload_committed: False\nhas_target: True\ntarget_id: 0\ntarget_first_seen: \n  secs: 30\n  nsecs: 481000000\ntarget_class: \"panzer\"\nattempt: 1\npayload_slot: 1\nreason: \"release_recovery_confirmed\"\nevidence_source: \"patrol_control_recovery\""
+    },
+    {
+      "time": 141.351,
+      "message": "header: \n  seq: 56\n  stamp: \n    secs: 141\n    nsecs: 347000000\n  frame_id: \"camera_init\"\nschema_version: 1\nmission_id: \"vcl06-random-28-058000000-1\"\nexecutor_id: \"vcl06-planner-bridge-9e096d2e26cc4ab58ebf39e85dd4db5b\"\nevent_seq: 56\ndecision_seq: 13\ncommand: 1\nstatus: 1\nstage: 3\nterminal: False\nretryable: False\npayload_committed: False\nhas_target: True\ntarget_id: 4\ntarget_first_seen: \n  secs: 136\n  nsecs: 629000000\ntarget_class: \"red_cross\"\nattempt: 1\npayload_slot: 2\nreason: \"strict_alignment_context_valid\"\nevidence_source: \"uav_vision_release_context\""
+    },
+    {
+      "time": 145.837,
+      "message": "header: \n  seq: 57\n  stamp: \n    secs: 145\n    nsecs: 837000000\n  frame_id: \"camera_init\"\nschema_version: 1\nmission_id: \"vcl06-random-28-058000000-1\"\nexecutor_id: \"vcl06-planner-bridge-9e096d2e26cc4ab58ebf39e85dd4db5b\"\nevent_seq: 57\ndecision_seq: 13\ncommand: 1\nstatus: 2\nstage: 4\nterminal: False\nretryable: False\npayload_committed: True\nhas_target: True\ntarget_id: 4\ntarget_first_seen: \n  secs: 136\n  nsecs: 629000000\ntarget_class: \"red_cross\"\nattempt: 1\npayload_slot: 2\nreason: \"release_ack_success\"\nevidence_source: \"guarded_servo_proxy:2\""
+    },
+    {
+      "time": 148.127,
+      "message": "header: \n  seq: 58\n  stamp: \n    secs: 148\n    nsecs: 126000000\n  frame_id: \"camera_init\"\nschema_version: 1\nmission_id: \"vcl06-random-28-058000000-1\"\nexecutor_id: \"vcl06-planner-bridge-9e096d2e26cc4ab58ebf39e85dd4db5b\"\nevent_seq: 58\ndecision_seq: 13\ncommand: 1\nstatus: 3\nstage: 5\nterminal: True\nretryable: False\npayload_committed: False\nhas_target: True\ntarget_id: 4\ntarget_first_seen: \n  secs: 136\n  nsecs: 629000000\ntarget_class: \"red_cross\"\nattempt: 1\npayload_slot: 2\nreason: \"release_recovery_confirmed\"\nevidence_source: \"patrol_control_recovery\""
+    },
+    {
+      "time": 168.825,
+      "message": "header: \n  seq: 75\n  stamp: \n    secs: 168\n    nsecs: 825000000\n  frame_id: \"camera_init\"\nschema_version: 1\nmission_id: \"vcl06-random-28-058000000-1\"\nexecutor_id: \"vcl06-planner-bridge-9e096d2e26cc4ab58ebf39e85dd4db5b\"\nevent_seq: 75\ndecision_seq: 17\ncommand: 1\nstatus: 1\nstage: 3\nterminal: False\nretryable: False\npayload_committed: False\nhas_target: True\ntarget_id: 7\ntarget_first_seen: \n  secs: 165\n  nsecs: 587000000\ntarget_class: \"bridge\"\nattempt: 1\npayload_slot: 3\nreason: \"strict_alignment_context_valid\"\nevidence_source: \"uav_vision_release_context\""
+    },
+    {
+      "time": 172.636,
+      "message": "header: \n  seq: 76\n  stamp: \n    secs: 172\n    nsecs: 636000000\n  frame_id: \"camera_init\"\nschema_version: 1\nmission_id: \"vcl06-random-28-058000000-1\"\nexecutor_id: \"vcl06-planner-bridge-9e096d2e26cc4ab58ebf39e85dd4db5b\"\nevent_seq: 76\ndecision_seq: 17\ncommand: 1\nstatus: 2\nstage: 4\nterminal: False\nretryable: False\npayload_committed: True\nhas_target: True\ntarget_id: 7\ntarget_first_seen: \n  secs: 165\n  nsecs: 587000000\ntarget_class: \"bridge\"\nattempt: 1\npayload_slot: 3\nreason: \"release_ack_success\"\nevidence_source: \"guarded_servo_proxy:3\""
+    },
+    {
+      "time": 174.965,
+      "message": "header: \n  seq: 77\n  stamp: \n    secs: 174\n    nsecs: 959000000\n  frame_id: \"camera_init\"\nschema_version: 1\nmission_id: \"vcl06-random-28-058000000-1\"\nexecutor_id: \"vcl06-planner-bridge-9e096d2e26cc4ab58ebf39e85dd4db5b\"\nevent_seq: 77\ndecision_seq: 17\ncommand: 1\nstatus: 3\nstage: 5\nterminal: True\nretryable: False\npayload_committed: False\nhas_target: True\ntarget_id: 7\ntarget_first_seen: \n  secs: 165\n  nsecs: 587000000\ntarget_class: \"bridge\"\nattempt: 1\npayload_slot: 3\nreason: \"release_recovery_confirmed\"\nevidence_source: \"patrol_control_recovery\""
+    }
+  ]
+}
