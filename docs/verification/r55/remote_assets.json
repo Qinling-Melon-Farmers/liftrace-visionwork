@@ -1,0 +1,32 @@
+{
+  "release": "https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/tag/sim/r2026-r55-bounded-corridor",
+  "assets": [
+    {
+      "name": "r2026_r55_full_run.tar.gz.part00",
+      "size": 1073741824,
+      "url": "https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/download/sim/r2026-r55-bounded-corridor/r2026_r55_full_run.tar.gz.part00"
+    },
+    {
+      "name": "r2026_r55_full_run.tar.gz.part01",
+      "size": 1073741824,
+      "url": "https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/download/sim/r2026-r55-bounded-corridor/r2026_r55_full_run.tar.gz.part01"
+    },
+    {
+      "name": "r2026_r55_full_run.tar.gz.part02",
+      "size": 445346074,
+      "url": "https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/download/sim/r2026-r55-bounded-corridor/r2026_r55_full_run.tar.gz.part02"
+    },
+    {
+      "name": "r55_nodes_only_and_report.zip",
+      "size": 5750218,
+      "url": "https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/download/sim/r2026-r55-bounded-corridor/r55_nodes_only_and_report.zip"
+    },
+    {
+      "name": "README_R55.md",
+      "size": 1938,
+      "url": "https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/download/sim/r2026-r55-bounded-corridor/README_R55.md"
+    }
+  ],
+  "run_commit": "fe9e720e781eee4aaa09c622181aec7a21ca48d9",
+  "status": "INCOMPLETE"
+}

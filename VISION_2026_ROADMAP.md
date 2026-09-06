@@ -10,3 +10,8 @@
 算法已经有历史完整闭环成功记录，但新配置只有自身实跑通过后才能成为 main 验收基线。具体证据见 [VALIDATION](docs/VALIDATION.md)。
 
 R54 离线根因已确认至门柱膨胀占据目标、无进展 horizon 曲线放行及同步搜索阻塞更新；后续走廊模式方案见 [诊断](docs/verification/r54/DIAGNOSIS.md)，尚未应用运行修复或验证。
+
+
+## 2026-09-07 R55 单轮收口
+
+门洞地图与有界搜索修复后，三投、11 航段和三门已完成，零碰撞；H 降落等待期间宿主盘耗尽，整场 INCOMPLETE。当前剩余为有效录图下的 H 降落验收及整场最终 Gate；main 尚未合并。详见 [R55 报告](docs/verification/r55/REPORT.md)。本轮已结束，不自动重跑。
