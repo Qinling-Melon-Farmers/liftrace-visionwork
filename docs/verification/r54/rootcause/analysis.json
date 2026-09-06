@@ -1,0 +1,652 @@
+{
+  "snapshots": [
+    {
+      "file": "snapshot_164.69.npz",
+      "pose": [
+        -2.3936538696289062,
+        5.178551197052002,
+        0.7969508767127991
+      ],
+      "start_occupied": false,
+      "goal_occupied": true,
+      "line_first_occupied": [
+        -2.3877108760961914,
+        5.600680773572541,
+        0.7568078771233558
+      ],
+      "goal_inflation_contributors": [
+        [
+          -2.020369291305542,
+          5.959906101226807,
+          0.6042019128799438
+        ],
+        [
+          -2.002342462539673,
+          5.969030380249023,
+          0.7600080370903015
+        ],
+        [
+          -2.010550022125244,
+          5.9672465324401855,
+          0.8942428827285767
+        ],
+        [
+          -2.014233350753784,
+          5.9655442237854,
+          0.9558911323547363
+        ],
+        [
+          -2.0127358436584473,
+          5.966296195983887,
+          1.004992127418518
+        ]
+      ],
+      "goal_horizontal_column_contributors": [],
+      "height_profile": [
+        {
+          "z": 0.55,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.65,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.75,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.85,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.95,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.05,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.15,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.25,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.35,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.45,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        }
+      ]
+    },
+    {
+      "file": "snapshot_170.00.npz",
+      "pose": [
+        -2.379230260848999,
+        5.170055389404297,
+        0.7847219109535217
+      ],
+      "start_occupied": false,
+      "goal_occupied": true,
+      "line_first_occupied": [
+        -2.3856568165188596,
+        5.601959954516602,
+        0.754861067533493
+      ],
+      "goal_inflation_contributors": [
+        [
+          -2.020369291305542,
+          5.959906101226807,
+          0.6042019128799438
+        ],
+        [
+          -2.002342462539673,
+          5.969030380249023,
+          0.7600080370903015
+        ],
+        [
+          -2.010550022125244,
+          5.9672465324401855,
+          0.8942428827285767
+        ],
+        [
+          -2.014233350753784,
+          5.9655442237854,
+          0.9558911323547363
+        ],
+        [
+          -2.0127358436584473,
+          5.966296195983887,
+          1.004992127418518
+        ]
+      ],
+      "goal_horizontal_column_contributors": [],
+      "height_profile": [
+        {
+          "z": 0.55,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.65,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.75,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.85,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.95,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.05,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.15,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.25,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.35,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.45,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        }
+      ]
+    },
+    {
+      "file": "snapshot_200.00.npz",
+      "pose": [
+        -2.3706634044647217,
+        5.189488887786865,
+        0.7599945664405823
+      ],
+      "start_occupied": false,
+      "goal_occupied": true,
+      "line_first_occupied": [
+        -2.3843772586473846,
+        5.602266738729096,
+        0.7514492121338844
+      ],
+      "goal_inflation_contributors": [
+        [
+          -2.020369291305542,
+          5.959906101226807,
+          0.6042019128799438
+        ],
+        [
+          -2.002342462539673,
+          5.969030380249023,
+          0.7600080370903015
+        ],
+        [
+          -2.010550022125244,
+          5.9672465324401855,
+          0.8942428827285767
+        ],
+        [
+          -2.014233350753784,
+          5.9655442237854,
+          0.9558911323547363
+        ],
+        [
+          -2.0127358436584473,
+          5.966296195983887,
+          1.004992127418518
+        ]
+      ],
+      "goal_horizontal_column_contributors": [],
+      "height_profile": [
+        {
+          "z": 0.55,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.65,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.75,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.85,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.95,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.05,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.15,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.25,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.35,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.45,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        }
+      ]
+    },
+    {
+      "file": "snapshot_201.35.npz",
+      "pose": [
+        -2.3837316036224365,
+        5.216259956359863,
+        0.7636821269989014
+      ],
+      "start_occupied": false,
+      "goal_occupied": true,
+      "line_first_occupied": [
+        -2.3862424335614776,
+        5.601588443235779,
+        0.7521207296848297
+      ],
+      "goal_inflation_contributors": [
+        [
+          -2.020369291305542,
+          5.959906101226807,
+          0.6042019128799438
+        ],
+        [
+          -2.002342462539673,
+          5.969030380249023,
+          0.7600080370903015
+        ],
+        [
+          -2.010550022125244,
+          5.9672465324401855,
+          0.8942428827285767
+        ],
+        [
+          -2.014233350753784,
+          5.9655442237854,
+          0.9558911323547363
+        ],
+        [
+          -2.0127358436584473,
+          5.966296195983887,
+          1.004992127418518
+        ]
+      ],
+      "goal_horizontal_column_contributors": [],
+      "height_profile": [
+        {
+          "z": 0.55,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.65,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.75,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.85,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.95,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.05,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.15,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.25,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.35,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.45,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        }
+      ]
+    },
+    {
+      "file": "snapshot_202.50.npz",
+      "pose": [
+        -2.2098381519317627,
+        5.2325439453125,
+        0.7559603452682495
+      ],
+      "start_occupied": false,
+      "goal_occupied": true,
+      "line_first_occupied": [
+        -2.358404624309082,
+        5.60191383125,
+        0.7509536552429199
+      ],
+      "goal_inflation_contributors": [
+        [
+          -2.020369291305542,
+          5.959906101226807,
+          0.6042019128799438
+        ],
+        [
+          -2.002342462539673,
+          5.969030380249023,
+          0.7600080370903015
+        ],
+        [
+          -2.010550022125244,
+          5.9672465324401855,
+          0.8942428827285767
+        ],
+        [
+          -2.014233350753784,
+          5.9655442237854,
+          0.9558911323547363
+        ],
+        [
+          -2.0127358436584473,
+          5.966296195983887,
+          1.004992127418518
+        ]
+      ],
+      "goal_horizontal_column_contributors": [],
+      "height_profile": [
+        {
+          "z": 0.55,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.65,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.75,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.85,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.95,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.05,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.15,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.25,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.35,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.45,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        }
+      ]
+    },
+    {
+      "file": "snapshot_236.40.npz",
+      "pose": [
+        2.7679293155670166,
+        0.49151909351348877,
+        0.7840606570243835
+      ],
+      "start_occupied": false,
+      "goal_occupied": true,
+      "line_first_occupied": [
+        0.8607153588072205,
+        2.408396928913498,
+        0.7714582139253616
+      ],
+      "goal_inflation_contributors": [
+        [
+          -2.020369291305542,
+          5.959906101226807,
+          0.6042019128799438
+        ],
+        [
+          -2.002342462539673,
+          5.969030380249023,
+          0.7600080370903015
+        ],
+        [
+          -2.010550022125244,
+          5.9672465324401855,
+          0.8942428827285767
+        ],
+        [
+          -2.014233350753784,
+          5.9655442237854,
+          0.9558911323547363
+        ],
+        [
+          -2.0127358436584473,
+          5.966296195983887,
+          1.004992127418518
+        ]
+      ],
+      "goal_horizontal_column_contributors": [],
+      "height_profile": [
+        {
+          "z": 0.55,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.65,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.75,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.85,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 0.95,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.05,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.15,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.25,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.35,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        },
+        {
+          "z": 1.45,
+          "approach_occupied": true,
+          "door_center_occupied": true
+        }
+      ]
+    }
+  ],
+  "splines": [
+    {
+      "bag_time": 160.243,
+      "traj_id": 17,
+      "duration": 1.521541110294025,
+      "start": [
+        -2.379417896270752,
+        4.701972007751465,
+        1.4199833869934082
+      ],
+      "end": [
+        -2.3867029999999994,
+        4.672269999999999,
+        1.0499999999999998
+      ],
+      "distance_from_start_to_end": 0.37124518670540124,
+      "endpoint_distance_to_requested_goal": 1.0440306508910557,
+      "min_distance_to_requested_goal": 1.0440306508910557,
+      "arc_length": 0.3826479051336079
+    },
+    {
+      "bag_time": 162.134,
+      "traj_id": 18,
+      "duration": 1.7691888069851134,
+      "start": [
+        -2.368075847625733,
+        4.702614307403565,
+        1.1096363067626955
+      ],
+      "end": [
+        -2.386703,
+        5.17227,
+        0.75
+      ],
+      "distance_from_start_to_end": 0.5918291252850967,
+      "endpoint_distance_to_requested_goal": 0.5,
+      "min_distance_to_requested_goal": 0.5,
+      "arc_length": 0.5974810772725037
+    },
+    {
+      "bag_time": 201.278,
+      "traj_id": 19,
+      "duration": 9.897689768146833,
+      "start": [
+        -2.3936288356781006,
+        5.18134593963623,
+        0.7962833642959594
+      ],
+      "end": [
+        2.7744240939710303,
+        0.4820784791882129,
+        0.7423826599887144
+      ],
+      "distance_from_start_to_end": 6.985326838051698,
+      "endpoint_distance_to_requested_goal": 7.319520402778946,
+      "min_distance_to_requested_goal": 0.4126120898255702,
+      "arc_length": 7.671815180743971
+    },
+    {
+      "bag_time": 236.328,
+      "traj_id": 20,
+      "duration": 22.663927929135678,
+      "start": [
+        -2.2010738849639893,
+        5.232677459716797,
+        0.7561191320419309
+      ],
+      "end": [
+        2.874940759989685,
+        0.45281651117849153,
+        0.7534002070490428
+      ],
+      "distance_from_start_to_end": 6.97230254332805,
+      "endpoint_distance_to_requested_goal": 7.41131576310289,
+      "min_distance_to_requested_goal": 0.4772182033395611,
+      "arc_length": 7.524302115233285
+    }
+  ]
+}

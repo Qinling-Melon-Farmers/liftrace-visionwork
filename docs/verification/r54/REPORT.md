@@ -55,3 +55,6 @@
 - [同轮原始日志与 bag 归档](https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/tag/sim/r2026-r54-guided-entry)，为失败记录预发布，不是验收通过标签。
 
 两次正式启动均通过统一包装器收尾并确认零残留。本次复跑后只做离线提取、文档和推送，未继续修改算法或重启仿真。main 保持原验收基线；本任务至此收口。
+
+
+后续只读分析：[门前失败根因与走廊模式方案](DIAGNOSIS.md)。本轮运行结果保持 FAIL，未追加实跑。

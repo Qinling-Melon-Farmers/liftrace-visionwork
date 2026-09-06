@@ -1,0 +1,262 @@
+{
+  "snapshots": [
+    {
+      "requested_time": 164.69,
+      "topics": {
+        "pose": {
+          "time": 164.685,
+          "frame": "camera_init",
+          "shape": [
+            3
+          ]
+        },
+        "occupancy_inflate": {
+          "time": 164.685,
+          "frame": "camera_init",
+          "shape": [
+            223171,
+            3
+          ]
+        },
+        "static_pointcloud": {
+          "time": 164.685,
+          "frame": "camera_init",
+          "shape": [
+            28352,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "requested_time": 170.0,
+      "topics": {
+        "pose": {
+          "time": 169.986,
+          "frame": "camera_init",
+          "shape": [
+            3
+          ]
+        },
+        "occupancy_inflate": {
+          "time": 164.685,
+          "frame": "camera_init",
+          "shape": [
+            223171,
+            3
+          ]
+        },
+        "static_pointcloud": {
+          "time": 169.94,
+          "frame": "camera_init",
+          "shape": [
+            28683,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "requested_time": 200.0,
+      "topics": {
+        "pose": {
+          "time": 199.979,
+          "frame": "camera_init",
+          "shape": [
+            3
+          ]
+        },
+        "occupancy_inflate": {
+          "time": 164.685,
+          "frame": "camera_init",
+          "shape": [
+            223171,
+            3
+          ]
+        },
+        "static_pointcloud": {
+          "time": 199.929,
+          "frame": "camera_init",
+          "shape": [
+            28826,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "requested_time": 201.35,
+      "topics": {
+        "pose": {
+          "time": 201.345,
+          "frame": "camera_init",
+          "shape": [
+            3
+          ]
+        },
+        "occupancy_inflate": {
+          "time": 201.344,
+          "frame": "camera_init",
+          "shape": [
+            223158,
+            3
+          ]
+        },
+        "static_pointcloud": {
+          "time": 201.344,
+          "frame": "camera_init",
+          "shape": [
+            28872,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "requested_time": 202.5,
+      "topics": {
+        "pose": {
+          "time": 202.482,
+          "frame": "camera_init",
+          "shape": [
+            3
+          ]
+        },
+        "occupancy_inflate": {
+          "time": 202.451,
+          "frame": "camera_init",
+          "shape": [
+            222871,
+            3
+          ]
+        },
+        "static_pointcloud": {
+          "time": 202.407,
+          "frame": "camera_init",
+          "shape": [
+            28858,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "requested_time": 236.4,
+      "topics": {
+        "pose": {
+          "time": 236.367,
+          "frame": "camera_init",
+          "shape": [
+            3
+          ]
+        },
+        "occupancy_inflate": {
+          "time": 202.546,
+          "frame": "camera_init",
+          "shape": [
+            222871,
+            3
+          ]
+        },
+        "static_pointcloud": {
+          "time": 236.328,
+          "frame": "camera_init",
+          "shape": [
+            28992,
+            3
+          ]
+        }
+      }
+    }
+  ],
+  "gaps": {
+    "/sdf_map/occupancy_inflate": [
+      {
+        "from": 164.685,
+        "to": 201.344,
+        "seconds": 36.65899999999999
+      },
+      {
+        "from": 202.546,
+        "to": 236.41,
+        "seconds": 33.864000000000004
+      },
+      {
+        "from": 236.41,
+        "to": 236.867,
+        "seconds": 0.45699999999999363
+      },
+      {
+        "from": 201.344,
+        "to": 201.773,
+        "seconds": 0.42900000000000205
+      }
+    ],
+    "/freedom/static_pointcloud": [
+      {
+        "from": 231.659,
+        "to": 231.864,
+        "seconds": 0.2050000000000125
+      },
+      {
+        "from": 230.553,
+        "to": 230.756,
+        "seconds": 0.20300000000000296
+      },
+      {
+        "from": 215.306,
+        "to": 215.49,
+        "seconds": 0.1839999999999975
+      },
+      {
+        "from": 164.504,
+        "to": 164.685,
+        "seconds": 0.1810000000000116
+      }
+    ],
+    "/mavros/local_position/pose": [
+      {
+        "from": 189.359,
+        "to": 189.421,
+        "seconds": 0.0619999999999834
+      },
+      {
+        "from": 166.429,
+        "to": 166.489,
+        "seconds": 0.060000000000002274
+      },
+      {
+        "from": 190.261,
+        "to": 190.321,
+        "seconds": 0.060000000000002274
+      },
+      {
+        "from": 210.994,
+        "to": 211.053,
+        "seconds": 0.0589999999999975
+      }
+    ]
+  },
+  "goal19_statuses": [
+    {
+      "bag_time": 164.741,
+      "message": "header: \n  seq: 74\n  stamp: \n    secs: 164\n    nsecs: 741000000\n  frame_id: \"camera_init\"\nevent_seq: 75\ngoal_seq: 19\nstatus: 0\nplanning_attempt: 0\nrequested_goal: \n  header: \n    seq: 19\n    stamp: \n      secs: 164\n      nsecs: 691000000\n    frame_id: \"camera_init\"\n  pose: \n    position: \n      x: -2.386703\n      y: 5.67227\n      z: 0.75\n    orientation: \n      x: 0.0\n      y: 0.0\n      z: 0.0\n      w: 1.0\neffective_goal: \n  header: \n    seq: 19\n    stamp: \n      secs: 164\n      nsecs: 691000000\n    frame_id: \"camera_init\"\n  pose: \n    position: \n      x: -2.386703\n      y: 5.67227\n      z: 0.75\n    orientation: \n      x: 0.0\n      y: 0.0\n      z: 0.0\n      w: 1.0\ndistance_to_goal: 0.4931496223809187\nreason: \"goal_received\""
+    },
+    {
+      "bag_time": 164.741,
+      "message": "header: \n  seq: 75\n  stamp: \n    secs: 164\n    nsecs: 741000000\n  frame_id: \"camera_init\"\nevent_seq: 76\ngoal_seq: 19\nstatus: 1\nplanning_attempt: 1\nrequested_goal: \n  header: \n    seq: 19\n    stamp: \n      secs: 164\n      nsecs: 691000000\n    frame_id: \"camera_init\"\n  pose: \n    position: \n      x: -2.386703\n      y: 5.67227\n      z: 0.75\n    orientation: \n      x: 0.0\n      y: 0.0\n      z: 0.0\n      w: 1.0\neffective_goal: \n  header: \n    seq: 19\n    stamp: \n      secs: 164\n      nsecs: 691000000\n    frame_id: \"camera_init\"\n  pose: \n    position: \n      x: -2.386703\n      y: 5.67227\n      z: 0.75\n    orientation: \n      x: 0.0\n      y: 0.0\n      z: 0.0\n      w: 1.0\ndistance_to_goal: 0.4931496223809187\nreason: \"new_trajectory_attempt\""
+    },
+    {
+      "bag_time": 201.293,
+      "message": "header: \n  seq: 76\n  stamp: \n    secs: 201\n    nsecs: 290000000\n  frame_id: \"camera_init\"\nevent_seq: 77\ngoal_seq: 19\nstatus: 2\nplanning_attempt: 1\nrequested_goal: \n  header: \n    seq: 19\n    stamp: \n      secs: 164\n      nsecs: 691000000\n    frame_id: \"camera_init\"\n  pose: \n    position: \n      x: -2.386703\n      y: 5.67227\n      z: 0.75\n    orientation: \n      x: 0.0\n      y: 0.0\n      z: 0.0\n      w: 1.0\neffective_goal: \n  header: \n    seq: 19\n    stamp: \n      secs: 164\n      nsecs: 691000000\n    frame_id: \"camera_init\"\n  pose: \n    position: \n      x: -2.386703\n      y: 5.67227\n      z: 0.75\n    orientation: \n      x: 0.0\n      y: 0.0\n      z: 0.0\n      w: 1.0\ndistance_to_goal: 0.4931496223809187\nreason: \"new_trajectory_ready\""
+    },
+    {
+      "bag_time": 202.546,
+      "message": "header: \n  seq: 77\n  stamp: \n    secs: 202\n    nsecs: 546000000\n  frame_id: \"camera_init\"\nevent_seq: 78\ngoal_seq: 19\nstatus: 3\nplanning_attempt: 2\nrequested_goal: \n  header: \n    seq: 19\n    stamp: \n      secs: 164\n      nsecs: 691000000\n    frame_id: \"camera_init\"\n  pose: \n    position: \n      x: -2.386703\n      y: 5.67227\n      z: 0.75\n    orientation: \n      x: 0.0\n      y: 0.0\n      z: 0.0\n      w: 1.0\neffective_goal: \n  header: \n    seq: 19\n    stamp: \n      secs: 164\n      nsecs: 691000000\n    frame_id: \"camera_init\"\n  pose: \n    position: \n      x: -2.386703\n      y: 5.67227\n      z: 0.75\n    orientation: \n      x: 0.0\n      y: 0.0\n      z: 0.0\n      w: 1.0\ndistance_to_goal: 0.4772182033395611\nreason: \"trajectory_replan_attempt\""
+    },
+    {
+      "bag_time": 236.332,
+      "message": "header: \n  seq: 78\n  stamp: \n    secs: 236\n    nsecs: 332000000\n  frame_id: \"camera_init\"\nevent_seq: 79\ngoal_seq: 19\nstatus: 2\nplanning_attempt: 2\nrequested_goal: \n  header: \n    seq: 19\n    stamp: \n      secs: 164\n      nsecs: 691000000\n    frame_id: \"camera_init\"\n  pose: \n    position: \n      x: -2.386703\n      y: 5.67227\n      z: 0.75\n    orientation: \n      x: 0.0\n      y: 0.0\n      z: 0.0\n      w: 1.0\neffective_goal: \n  header: \n    seq: 19\n    stamp: \n      secs: 164\n      nsecs: 691000000\n    frame_id: \"camera_init\"\n  pose: \n    position: \n      x: -2.386703\n      y: 5.67227\n      z: 0.75\n    orientation: \n      x: 0.0\n      y: 0.0\n      z: 0.0\n      w: 1.0\ndistance_to_goal: 0.4772182033395611\nreason: \"replanned_trajectory_ready\""
+    }
+  ]
+}
