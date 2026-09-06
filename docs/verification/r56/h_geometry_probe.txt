@@ -1,0 +1,3 @@
+/mnt/e/LiftraceArtifacts/r56/analytical_h_body_075.png found=0 radius=0 expected=0
+/mnt/e/LiftraceArtifacts/r56/analytical_h_body_096.png found=0 radius=0 expected=0
+/mnt/e/LiftraceArtifacts/r56/analytical_h_body_160.png found=1 radius=240.465 expected=1

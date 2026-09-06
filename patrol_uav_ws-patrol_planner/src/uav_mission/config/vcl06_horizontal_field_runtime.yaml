@@ -36,7 +36,7 @@ mission:
   # All points are camera_init coordinates derived from r2026 horizontal field.
   # The route first crosses the low Wall_15 opening south-to-north, then the
   # Wall_20 and Wall_22 scoring doors west-to-east, and ends above the final H.
-  post_delivery_route_revision: r2026-horizontal-three-door-h-r2-low-entry
+  post_delivery_route_revision: r2026-horizontal-three-door-h-r3-h-capture
   landing_xy: [3.274292, 8.057220]
   landing_anchor_tolerance: 0.05
   post_delivery_route:
@@ -54,7 +54,7 @@ mission:
     - [ 0.287997, 8.053133, 1.20]  # Wall_20 east clear
     - [ 1.723022, 8.009650, 1.20]  # Wall_22 west approach
     - [ 2.523022, 8.009650, 1.20]  # Wall_22 east clear
-    - [ 3.274292, 8.057220, 0.75]  # final landing_h_clone capture
+    - [ 3.274292, 8.057220, 1.60]  # final landing_h_clone capture
 
 # Read-only Gate geometry.  route_indices are one-based and arm each crossing
 # only for the center/clear legs, so repositioning from the third target does

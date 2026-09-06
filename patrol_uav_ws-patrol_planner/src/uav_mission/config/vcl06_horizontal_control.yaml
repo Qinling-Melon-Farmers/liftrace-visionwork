@@ -18,7 +18,8 @@ external_landing:
   frame: camera_init
   # 正式链直接消费视觉 typed map detection；旧 PoseStamped 仅留 legacy 模式。
   detections_topic: /uav_vision/detections_mapped
-  capture_height: 0.75
+  # 1 m H + installed camera: acquire the complete ring before descent.
+  capture_height: 1.60
   auto_land_height: 0.40
   alignment_tolerance: 0.08
   max_mark_offset: 0.60
