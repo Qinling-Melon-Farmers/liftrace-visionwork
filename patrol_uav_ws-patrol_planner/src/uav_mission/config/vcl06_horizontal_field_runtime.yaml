@@ -36,18 +36,19 @@ mission:
   # All points are camera_init coordinates derived from r2026 horizontal field.
   # The route first crosses the low Wall_15 opening south-to-north, then the
   # Wall_20 and Wall_22 scoring doors west-to-east, and ends above the final H.
-  post_delivery_route_revision: r2026-horizontal-three-door-h-r1
+  post_delivery_route_revision: r2026-horizontal-three-door-h-r2-low-entry
   landing_xy: [3.274292, 8.057220]
   landing_anchor_tolerance: 0.05
   post_delivery_route:
-    # Remain below the tree tops; map columns require horizontal avoidance.
-    - [-2.386703, 4.672270, 1.40]  # south approach staging
-    # Do not stop on a wall plane: the occupancy grid can mark the plane voxel
-    # occupied even when the continuous vehicle path fits through the opening.
-    # Keep the r20/r26 proven brackets around the 2025 competition waypoints;
-    # planner convergence is fixed in the FSM instead of retuning route data.
-    - [-2.386703, 5.672270, 0.75]  # Wall_15 south approach, guard above body
-    - [-2.386703, 6.472270, 0.75]  # Wall_15 north clear
+    # Adapt the successful centreline/brackets to the 1.4 m search profile.
+    # Lower outside the wall inflation, then refresh the doorway view before
+    # asking the planner to enter the narrow opening. All points use the same
+    # planner and normal arrival criteria; no dwell or alternate command path.
+    - [-2.386703, 4.672270, 1.40]  # south staging, horizontal tree avoidance
+    - [-2.386703, 4.672270, 1.05]  # lower while clear of the entrance
+    - [-2.386703, 5.172270, 0.75]  # low observation/centreline alignment
+    - [-2.386703, 5.672270, 0.75]  # proven south bracket, new guard height
+    - [-2.386703, 6.672270, 0.75]  # clear another 0.2 m before climbing
     - [-2.386703, 7.652690, 1.20]  # north corridor entry
     - [-0.512003, 8.053133, 1.20]  # Wall_20 west approach
     - [ 0.287997, 8.053133, 1.20]  # Wall_20 east clear
@@ -66,7 +67,7 @@ post_delivery_gate:
       axis: y
       coordinate: 6.072270
       direction: positive
-      route_indices: [3]
+      route_indices: [5]
       lateral_min: -2.786588
       lateral_max: -1.986588
       z_min: 0.50
@@ -75,7 +76,7 @@ post_delivery_gate:
       axis: x
       coordinate: -0.112003
       direction: positive
-      route_indices: [6]
+      route_indices: [8]
       lateral_min: 7.602690
       lateral_max: 8.502690
       z_min: 0.00
@@ -84,7 +85,7 @@ post_delivery_gate:
       axis: x
       coordinate: 2.123022
       direction: positive
-      route_indices: [8]
+      route_indices: [10]
       lateral_min: 7.559690
       lateral_max: 8.459690
       z_min: 0.00
