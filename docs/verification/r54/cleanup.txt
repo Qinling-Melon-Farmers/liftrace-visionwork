@@ -1,11 +1,11 @@
 ===== SIM RUN: r2026_integrated_r54_guided_entry =====
-Run dir: /home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r54_guided_entry_20260907_023929
-Start: Mon Sep  7 02:39:29 CST 2026
+Run dir: /home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r54_guided_entry_20260907_025104
+Start: Mon Sep  7 02:51:04 CST 2026
 
 Gate status: FAIL
 
 Main cmd exited: 1
 ===== SIM RUN DONE: r2026_integrated_r54_guided_entry =====
-Run dir: /home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r54_guided_entry_20260907_023929
+Run dir: /home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r54_guided_entry_20260907_025104
 Exit code: 1
 SITL cleanup verification: PASS (no local ROS/Gazebo/PX4/RViz process remains)
