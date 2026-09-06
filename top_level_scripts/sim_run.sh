@@ -55,7 +55,10 @@ fi
 
 SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-LOGS_DIR="${PROJECT_ROOT}/logs"
+LOGS_DIR="${SIM_LOGS_DIR:-${PROJECT_ROOT}/logs}"
+if ! bash "${SCRIPT_DIR}/check_sim_storage.sh" "${LOGS_DIR}"; then
+  exit 73
+fi
 export PROJECT_ROOT
 export VISION_WS="${VISION_WS:-${PROJECT_ROOT}/vision_ws}"
 export UAV_WS="${UAV_WS:-${PROJECT_ROOT}/patrol_uav_ws-patrol_planner}"

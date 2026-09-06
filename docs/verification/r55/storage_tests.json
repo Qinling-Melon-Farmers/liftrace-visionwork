@@ -1,0 +1,17 @@
+[
+  {
+    "name": "wsl_requires_host_drive",
+    "returncode": 64,
+    "output": "WSL needs SIM_STORAGE_GUARD_PATH set to the host drive containing its VHDX (for example /mnt/f).\nThe free capacity inside ext4 does not measure host disk space.\n"
+  },
+  {
+    "name": "current_f_drive_rejected",
+    "returncode": 73,
+    "output": "Storage preflight: /mnt/e/LiftraceArtifacts/r55 available=56032653312 bytes required=21474836480 bytes\nStorage preflight: /mnt/f available=5898756096 bytes required=21474836480 bytes\nInsufficient storage for full recording. Free space or select another logs drive before starting.\n"
+  },
+  {
+    "name": "native_logs_capacity",
+    "returncode": 0,
+    "output": "Storage preflight: /mnt/e/LiftraceArtifacts/r55 available=56032653312 bytes required=21474836480 bytes\nStorage preflight: /mnt/e/LiftraceArtifacts/r55 available=56032653312 bytes required=21474836480 bytes\n"
+  }
+]

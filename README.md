@@ -17,11 +17,12 @@
 
 ```bash
 top_level_scripts/build_competition.sh
+SIM_STORAGE_GUARD_PATH=/mnt/f SIM_LOGS_DIR=/mnt/e/LiftraceRuns \
 UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_NO_RECORD=1 SIM_RUN_AUTHORIZED=1 \
   top_level_scripts/run_competition_sim.sh
 ```
 
-权重单独提供，不放进 git。`SIM_NO_RECORD=1` 用于没有桌面录屏能力的环境。运行自动生成 `logs/<场景>_<时间>/`，保存 Gate、manifest、任务时间线和 ROS 日志，并在成功、失败或中断时停止本轮全部仿真进程。
+示例中的 F/E 盘为本机 WSL 宿主盘和日志盘；异机按实际位置配置，原生 Linux 可省略宿主盘参数。权重单独提供，不放进 git。`SIM_NO_RECORD=1` 用于没有桌面录屏能力的环境。运行自动生成 `logs/<场景>_<时间>/`，保存 Gate、manifest、任务时间线和 ROS 日志，并在成功、失败或中断时停止本轮全部仿真进程。
 
 流程为自动起飞、低空搜索、候选接近/升高取景、下降投递、恢复搜索、三投后走廊穿门、H 对准与自主降落。当前不启用槽位偏差补偿。
 
