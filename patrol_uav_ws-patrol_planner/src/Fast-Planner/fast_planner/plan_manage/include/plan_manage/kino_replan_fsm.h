@@ -44,6 +44,7 @@
 #include <plan_manage/PlannerStatus.h>
 #include <plan_manage/planner_status_tracker.h>
 #include <plan_manage/planner_manager.h>
+#include <plan_manage/trajectory_progress.h>
 #include <traj_utils/planning_visualization.h>
 
 using std::vector;
@@ -85,6 +86,8 @@ private:
   /* parameters */
   int target_type_;  // 1 mannual select, 2 hard code
   double no_replan_thresh_, replan_thresh_;
+  double tracking_replan_distance_, min_replan_interval_;
+  bool allow_goal_adjustment_;
   double waypoints_[50][3];
   int waypoint_num_;
   std::string goal_status_topic_;
@@ -99,6 +102,7 @@ private:
   Eigen::Vector3d start_pt_, start_vel_, start_acc_, start_yaw_;  // start state
   Eigen::Vector3d end_pt_, end_vel_;                              // target state
   int current_wp_;
+  ros::Time next_planning_attempt_;
 
   /* goal telemetry (does not participate in planner decisions) */
   PlannerStatusTracker goal_status_tracker_;

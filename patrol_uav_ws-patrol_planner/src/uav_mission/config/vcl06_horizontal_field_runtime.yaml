@@ -1,0 +1,116 @@
+# VCL06 runtime for r2026 horizontal field.  This file changes only geometry and
+# timing inputs; queue, retry and payload-slot behavior remains in MissionCore.
+
+profile:
+  name: r2026
+
+mission:
+  frame: camera_init
+  candidate_max_age: 0.5
+  transform_max_age: 0.5
+  min_streak: 3
+  max_target_z: 4.0
+  max_attempts: 2
+  retry_cooldown: 20.0
+  timeout: 600.0
+  # Reserve three-door transit plus H alignment inside the 10 min limit.
+  forced_return_at: 420.0
+  return_land_reserve: 180.0
+  delivery_reserve_per_slot: 60.0
+  path_factor: 1.5
+  nominal_speed: 0.5
+  decision_guard: 15.0
+  approach_altitude: 1.60
+  return_altitude: 1.40
+  # r17 的 KS2A543 实跑中，复杂地图接近 + 低空视觉对准在 90 s 截止后约
+  # 1 s 才满足释放高度；给完整目标事务保留适度调度余量，但不放宽证据或 Gate。
+  target_action_timeout: 120.0
+  # r33 的首个走廊航段已使用 55.8 s；r37b 从第三靶离场时因实体靶体
+  # 绕障先爬升后下降，60 s 时仍在持续收敛。统一留 90 s 运动 lease，
+  # 但继续服从 420 s 强制返航与 600 s 整场硬限。
+  motion_action_timeout: 90.0
+  # LAND 是最终阶段，只服从从任务开始计的 600 s 全场时限；不再额外
+  # 设置会把正常 H 对齐/下降误判成“需要重捕”的短事务超时。
+  result_future_tolerance: 0.1
+  home_xy: [0.0, 0.0]
+  # All points are camera_init coordinates derived from r2026 horizontal field.
+  # The route first crosses the low Wall_15 opening south-to-north, then the
+  # Wall_20 and Wall_22 scoring doors west-to-east, and ends above the final H.
+  post_delivery_route_revision: r2026-horizontal-three-door-h-r1
+  landing_xy: [3.274292, 8.057220]
+  landing_anchor_tolerance: 0.05
+  post_delivery_route:
+    # Remain below the tree tops; map columns require horizontal avoidance.
+    - [-2.386703, 4.672270, 1.40]  # south approach staging
+    # Do not stop on a wall plane: the occupancy grid can mark the plane voxel
+    # occupied even when the continuous vehicle path fits through the opening.
+    # Keep the r20/r26 proven brackets around the 2025 competition waypoints;
+    # planner convergence is fixed in the FSM instead of retuning route data.
+    - [-2.386703, 5.672270, 0.75]  # Wall_15 south approach, guard above body
+    - [-2.386703, 6.472270, 0.75]  # Wall_15 north clear
+    - [-2.386703, 7.652690, 1.20]  # north corridor entry
+    - [-0.512003, 8.053133, 1.20]  # Wall_20 west approach
+    - [ 0.287997, 8.053133, 1.20]  # Wall_20 east clear
+    - [ 1.723022, 8.009650, 1.20]  # Wall_22 west approach
+    - [ 2.523022, 8.009650, 1.20]  # Wall_22 east clear
+    - [ 3.274292, 8.057220, 0.75]  # final landing_h_clone capture
+
+# Read-only Gate geometry.  route_indices are one-based and arm each crossing
+# only for the center/clear legs, so repositioning from the third target does
+# not count as an early or reverse door traversal.
+post_delivery_gate:
+  goal_tolerance: 0.18
+  final_h_tolerance: 0.35
+  doors:
+    - name: Wall_15
+      axis: y
+      coordinate: 6.072270
+      direction: positive
+      route_indices: [3]
+      lateral_min: -2.786588
+      lateral_max: -1.986588
+      z_min: 0.50
+      z_max: 1.30
+    - name: Wall_20
+      axis: x
+      coordinate: -0.112003
+      direction: positive
+      route_indices: [6]
+      lateral_min: 7.602690
+      lateral_max: 8.502690
+      z_min: 0.00
+      z_max: 2.00
+    - name: Wall_22
+      axis: x
+      coordinate: 2.123022
+      direction: positive
+      route_indices: [8]
+      lateral_min: 7.559690
+      lateral_max: 8.459690
+      z_min: 0.00
+      z_max: 2.00
+
+# Bounds match the static random-target spawn envelope declared in
+# coverage_toudi3_random.yaml.  They are scenario geometry, not per-seed truth,
+# and avoid spending most of the mission outside the only legal target region.
+search:
+  min_x: -2.007
+  max_x: 1.993
+  min_y: 0.273
+  max_y: 6.273
+  lane_spacing: 0.70
+  altitude: 1.40
+  route_revision: r2026-installed-camera-070m-lanes-r1
+  max_failures_per_waypoint: 2
+
+readiness:
+  pose_max_age: 0.5
+  map_max_age: 2.0
+  # Full-chain load can make a producer stamp lead /clock by a few milliseconds.
+  # This is clock-jitter tolerance, not extra allowance for stale telemetry.
+  stamp_future_tolerance: 0.05
+  require_map: true
+
+runtime:
+  tick_hz: 10.0
+  mission_id_prefix: vcl06-random

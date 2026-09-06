@@ -7,11 +7,30 @@
   <arg name="rviz" default="false" />
   <arg name="start_arming" default="true" />
   <arg name="start_hard_gate" default="true" />
-  <arg name="gate_wall_timeout" default="900.0" />
+  <arg name="gate_startup_wall_timeout" default="180.0" />
+  <!-- Wall time is only a host-performance watchdog.  The competition limit
+       remains mission/max_mission_sec=600 in ROS time.  WSL full-chain runs
+       commonly execute at 0.25-0.35 real time. -->
+  <arg name="gate_wall_timeout" default="2700.0" />
   <arg name="record_debug" default="false" />
+  <arg name="external_planner_max_command_z" default="3.5" />
+  <arg name="search_altitude" default="2.4" />
+  <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_toudi4_new_vision.yaml" />
+  <arg name="field_config" default="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+  <arg name="camera_extrinsic_xyz" default="0 0 -0.05" />
+  <arg name="planner_max_vel" default="1.0" />
+  <arg name="planner_obstacles_inflation" default="0.20" />
+  <arg name="planner_clearance_threshold" default="0.20" />
+  <arg name="px4_max_distance" default="0.2" />
+  <!-- full is the competition path. post_delivery is an explicit segmented
+       validation entry and must be paired with the matching Gate scope. -->
+  <arg name="mission_start_mode" default="full" />
+  <arg name="gate_scope" default="full" />
 
   <arg name="world"
        default="$(find patrol_control)/../../../toudi3_random.world" />
+  <arg name="vehicle_sdf"
+       default="$(find patrol_control)/models/iris_mid360_downward_camera/model_ks2a543.sdf" />
   <arg name="camera_optical_frame"
        default="downward_camera_optical_frame" />
   <arg name="camera_image_topic" default="/downward_camera/image_raw" />
@@ -43,9 +62,14 @@
     <arg name="gui" value="$(arg gui)" />
     <arg name="rviz" value="$(arg rviz)" />
     <arg name="start_arming" value="$(arg start_arming)" />
+    <arg name="start_waypoint_generator" value="false" />
+    <arg name="enable_static_pointcloud_viz" value="false" />
     <arg name="external_mission_mode" value="true" />
     <arg name="waypoint_mode" value="false" />
     <arg name="world" value="$(arg world)" />
+    <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+    <arg name="waypoint_config" value="$(arg waypoint_config)" />
+    <arg name="camera_extrinsic_xyz" value="$(arg camera_extrinsic_xyz)" />
     <arg name="camera_image_topic" value="$(arg camera_image_topic)" />
     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
     <arg name="map_frame" value="camera_init" />
@@ -54,18 +78,24 @@
     <arg name="class_profile" value="$(arg class_profile)" />
     <arg name="require_alignment_context" value="true" />
     <arg name="require_release_evidence_context" value="true" />
-    <arg name="planner_max_vel" value="1.0" />
+    <arg name="start_legacy_compat" value="false" />
+    <arg name="planner_max_vel" value="$(arg planner_max_vel)" />
     <arg name="planner_max_acc" value="1.0" />
-    <arg name="planner_obstacles_inflation" value="0.25" />
-    <arg name="planner_clearance_threshold" value="0.35" />
-    <arg name="px4_max_distance" value="0.2" />
+    <!-- A 0.8 m scoring opening is represented on a 0.1 m voxel grid.  Two
+         inflated cells plus the physical Gazebo contact envelope preserve a
+         measurable corridor while the contact Gate still rejects collision. -->
+    <arg name="planner_obstacles_inflation" value="$(arg planner_obstacles_inflation)" />
+    <arg name="planner_clearance_threshold" value="$(arg planner_clearance_threshold)" />
+    <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <arg name="external_planner_max_command_z"
+         value="$(arg external_planner_max_command_z)" />
     <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
   </include>
 
   <node pkg="uav_mission" type="random_field_spawner.py"
         name="random_field_spawner" output="screen">
     <rosparam command="load"
-              file="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+              file="$(arg field_config)" />
     <param name="class_profile" value="$(arg class_profile)" />
     <param name="seed" value="$(arg field_seed)" />
     <param name="standard_classes" value="$(arg standard_classes)" />
@@ -91,6 +121,8 @@
 
   <include file="$(find uav_mission)/launch/navigation_mission_manager.launch">
     <arg name="runtime_config" value="$(arg runtime_config)" />
+    <arg name="search_altitude" value="$(arg search_altitude)" />
+    <arg name="start_mode" value="$(arg mission_start_mode)" />
     <arg name="candidate_topic" value="/uav_vision/targets" />
     <arg name="pose_topic" value="/mavros/local_position/pose" />
     <arg name="map_topic" value="/freedom/static_pointcloud" />
@@ -124,21 +156,30 @@
         name="navigation_vcl06_assertion"
         output="screen"
         required="true">
+    <rosparam command="load" file="$(arg runtime_config)" />
     <param name="report_path" value="$(arg gate_report_path)" />
+    <param name="startup_wall_timeout"
+           value="$(arg gate_startup_wall_timeout)" />
     <param name="wall_timeout" value="$(arg gate_wall_timeout)" />
     <param name="class_profile" value="$(arg class_profile)" />
     <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <param name="gate_scope" value="$(arg gate_scope)" />
     <param name="mission_frame" value="camera_init" />
     <param name="planner_goal_topic" value="/fastplanner/goal" />
     <param name="expected_planner_goal_publisher"
            value="/navigation/planner_bridge" />
+    <param name="landing_detections_topic"
+           value="/uav_vision/detections_mapped" />
+    <param name="landing_mark_max_age" value="0.5" />
+    <param name="align_mode_topic" value="/uav_vision/align_mode" />
+    <param name="extended_state_topic" value="/mavros/extended_state" />
+    <param name="vehicle_state_topic" value="/mavros/state" />
     <param name="field/min_x" value="-3.992" />
     <param name="field/max_x" value="4.008" />
     <param name="field/min_y" value="-1.132" />
     <param name="field/max_y" value="8.718" />
     <param name="max_height" value="4.0" />
     <param name="max_mission_sec" value="600.0" />
-    <param name="forced_return_sec" value="510.0" />
   </node>
 
   <node if="$(arg record_debug)" pkg="rosbag" type="record"
@@ -152,11 +193,37 @@
               /navigation/mission_start_gate_status
               /uav_vision/selected_target
               /mavros/local_position/pose
+              /mavros/local_position/odom
+              /fastplanner/setpoint_position/local
+              /mavros/setpoint_position/local
               /planning/goal_status
+              /planning/bspline
+              /downward_camera/camera_info
+              /downward_camera/image_raw/compressed
+              /tf_static
+              /gazebo/model_states
+              /Odometry
+              /freedom/static_pointcloud
+              /sdf_map/occupancy_inflate
+              /mavros/vision_pose/pose
+              /mavros/imu/data
+              /livox/imu
+              /livox/lidar
+              /tf
               /mission/command
+              /mission/release_permission
+              /mission/release_permission_active
+              /mission/release_commitment_evidence
               /mission/release_result
+              /uav_vision/drop_ready
+              /uav_vision/drop_offset
               /uav_vision/alignment_target_context
               /uav_vision/release_evidence_context
+              /uav_vision/detections_mapped
+              /uav_vision/align_mode
+              /detect/point_class
+              /mavros/extended_state
+              /mavros/state
               /mission/random_field_status
               /mission/planner_anchor_status
               /mission/gazebo_contact_status" />

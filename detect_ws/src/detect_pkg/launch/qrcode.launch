@@ -1,3 +1,0 @@
-<launch>
-    <node pkg="detect_pkg" type="qrcode_node.py" name="qrcode_node" output="screen"> </node>
-</launch>

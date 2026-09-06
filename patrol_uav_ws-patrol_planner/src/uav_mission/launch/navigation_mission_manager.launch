@@ -9,6 +9,8 @@
   <arg name="result_topic" default="/navigation/mission_result" />
   <arg name="decision_topic" default="/navigation/mission_command_raw" />
   <arg name="status_topic" default="/navigation/mission_status" />
+  <arg name="search_altitude" default="2.2" />
+  <arg name="start_mode" default="full" />
 
   <group ns="navigation">
     <node pkg="uav_mission"
@@ -18,6 +20,8 @@
       <rosparam command="load"
                 file="$(arg runtime_config)" />
       <param name="profile/path" value="$(arg profile_path)" />
+      <param name="search/altitude" value="$(arg search_altitude)" />
+      <param name="runtime/start_mode" value="$(arg start_mode)" />
 
       <remap from="candidates" to="$(arg candidate_topic)" />
       <remap from="pose" to="$(arg pose_topic)" />

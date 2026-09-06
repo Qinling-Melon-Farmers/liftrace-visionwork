@@ -42,6 +42,30 @@ inline bool canRequestDrop(bool require_mission_permission,
             gate.mission_permission_fresh);
 }
 
+// External missions delegate the physical release decision to the mission
+// release arbiter.  The legacy controller geometry remains available only for
+// standalone legacy routes; requiring both gates created a narrow overlap that
+// could reject an otherwise valid external release permission.
+inline bool dropReleaseReady(bool external_mission_mode,
+                             bool legacy_geometry_ready,
+                             bool require_mission_permission,
+                             const DropReleaseGate& gate) {
+    if (external_mission_mode) {
+        return require_mission_permission &&
+               gate.mission_permission_active &&
+               gate.mission_permission_fresh;
+    }
+    return legacy_geometry_ready &&
+           canRequestDrop(require_mission_permission, gate);
+}
+
+inline bool alignmentWindowOpen(bool external_mission_mode,
+                                double elapsed_seconds,
+                                double legacy_timeout_seconds) {
+    return external_mission_mode ||
+           elapsed_seconds <= legacy_timeout_seconds;
+}
+
 inline std::array<double, 2> projectPixelOffsetToBody(
     double dx_px, double dy_px, double pixel_to_meter_ratio,
     const std::array<double, 4>& pixel_to_body_matrix) {

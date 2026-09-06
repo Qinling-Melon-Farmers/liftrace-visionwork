@@ -1,0 +1,91 @@
+<launch>
+  <!-- Application entry. Device drivers supply the listed ROS inputs.
+       No simulator, arming helper, mock actuator or PX4 parameter writer. -->
+  <arg name="model_path" />
+  <arg name="image_topic" default="/camera/image_raw" />
+  <arg name="camera_info_topic" default="/camera/camera_info" />
+  <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
+  <arg name="map_frame" default="camera_init" />
+  <arg name="ground_z" default="0.0" />
+  <arg name="runtime_config" default="$(find uav_mission)/config/vcl06_horizontal_field_runtime.yaml" />
+  <arg name="control_config" default="$(find uav_mission)/config/vcl06_horizontal_control.yaml" />
+  <arg name="lio_config" default="$(find uav_mission)/config/mid360_hardware.yaml" />
+  <arg name="body_to_imu_xyz" default="0 0 0.12412" />
+  <arg name="imu_to_camera_z" default="-0.21" />
+  <arg name="camera_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
+  <arg name="raw_servo_service" default="/legacy/Servo_raw" />
+  <arg name="enable_debug_image" default="false" />
+
+  <rosparam file="$(arg lio_config)" />
+  <param name="feature_extract_enable" value="false" />
+  <param name="point_filter_num" value="3" />
+  <param name="max_iteration" value="3" />
+  <param name="filter_size_surf" value="0.15" />
+  <param name="filter_size_map" value="0.15" />
+  <param name="cube_side_length" value="1000.0" />
+  <param name="runtime_pos_log_enable" value="false" />
+  <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen" />
+  <include file="$(find freedom)/launch/run_freedom_mid360.launch">
+    <arg name="enable_static_pointcloud_viz" value="false" />
+  </include>
+  <param name="/freedom/sensor_tf_frame" value="mapping_imu" />
+  <param name="/freedom/map_tf_frame" value="$(arg map_frame)" />
+  <node pkg="uav_mission" type="lio_external_pose.py" name="lio_external_pose" output="screen">
+    <param name="frame" value="$(arg map_frame)" />
+    <rosparam param="imu_to_body_xyz" subst_value="true">$(eval [-float(v) for v in arg('body_to_imu_xyz').split()])</rosparam>
+  </node>
+  <node pkg="uav_mission" type="pose_tf_broadcaster.py" name="vision_pose_tf" output="screen">
+    <param name="pose_topic" value="/mavros/local_position/pose" />
+    <param name="parent_frame" value="$(arg map_frame)" />
+    <param name="child_frame" value="vision_body" />
+  </node>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="mapping_imu_extrinsic"
+        args="$(arg body_to_imu_xyz) 0 0 0 1 vision_body mapping_imu" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="downward_camera_extrinsic"
+        args="0 0 $(arg imu_to_camera_z) $(arg camera_quat_xyzw) mapping_imu $(arg camera_optical_frame)" />
+
+  <include file="$(find uav_vision)/launch/phase_d_board.launch">
+    <arg name="model_path" value="$(arg model_path)" />
+    <arg name="image_topic" value="$(arg image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="map_frame" value="$(arg map_frame)" />
+    <arg name="ground_z" value="$(arg ground_z)" />
+    <arg name="class_profile" value="r2026" />
+    <arg name="require_alignment_context" value="true" />
+    <arg name="start_legacy_compat" value="false" />
+    <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+  </include>
+  <!-- This shared file contains only control and planner nodes. -->
+  <include file="$(find patrol_control)/launch/patrol_control_px4_sim.launch">
+    <arg name="rviz" value="false" />
+    <arg name="waypoint_mode" value="false" />
+    <arg name="external_mission_mode" value="true" />
+    <arg name="simulation_auto_land" value="false" />
+    <arg name="start_waypoint_generator" value="false" />
+    <arg name="waypoint_config" value="$(arg control_config)" />
+    <arg name="planner_max_vel" value="1.0" />
+    <arg name="planner_max_acc" value="1.0" />
+    <arg name="planner_obstacles_inflation" value="0.30" />
+    <arg name="planner_clearance_threshold" value="0.025" />
+    <arg name="px4_max_distance" value="0.40" />
+    <arg name="external_planner_max_command_z" value="2.30" />
+  </include>
+  <rosparam ns="/fast_planner_node" file="$(find uav_mission)/config/horizontal_planner.yaml" />
+  <include file="$(find uav_mission)/launch/navigation_mission_manager.launch">
+    <arg name="runtime_config" value="$(arg runtime_config)" />
+    <arg name="search_altitude" value="1.40" />
+  </include>
+  <include file="$(find uav_mission)/launch/navigation_planner_bridge.launch">
+    <arg name="execution_enabled" value="true" />
+    <arg name="allow_live_goal_output" value="true" />
+    <arg name="required" value="true" />
+    <arg name="planner_goal_topic" value="/fastplanner/goal" />
+    <arg name="planner_status_topic" value="/planning/goal_status" />
+    <arg name="odom_topic" value="/mavros/local_position/odom" />
+  </include>
+  <include file="$(find uav_mission)/launch/release_guard.launch">
+    <arg name="raw_service_name" value="$(arg raw_servo_service)" />
+    <arg name="require_evidence_context" value="true" />
+    <arg name="class_profile" value="r2026" />
+  </include>
+</launch>

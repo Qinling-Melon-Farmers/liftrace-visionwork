@@ -42,3 +42,6 @@ __pycache__/
 
 # ---- 历史无关文件 ----
 Desktop_patrol_uav_ws-patrol_planner/
+
+# Generated catkin workspace marker
+**/.catkin_workspace

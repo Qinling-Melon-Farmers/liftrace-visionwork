@@ -69,6 +69,7 @@ target_link_libraries(traj_server ${catkin_LIBRARIES})
 add_dependencies(traj_server ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 if(CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(trajectory_progress_test test/trajectory_progress_test.cpp)
   catkin_add_gtest(planner_status_schema_test test/planner_status_schema_test.cpp)
   if(TARGET planner_status_schema_test)
     add_dependencies(planner_status_schema_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

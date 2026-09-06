@@ -71,7 +71,7 @@ class PlannerMissionContractTest(unittest.TestCase):
         )
         executor = PlannerMotionExecutor(PlannerMotionConfig(
             executor_id="planner-contract-executor",
-            planner_accept_timeout_ns=2 * NSEC,
+            planner_accept_timeout_ns=5 * NSEC,
         ))
         decision = MotionDecision(
             mission_id=core.mission_id,
@@ -103,7 +103,7 @@ class PlannerMissionContractTest(unittest.TestCase):
         self.assertEqual(reason, "progress_recorded")
         self.assertIsNone(next_action)
 
-        timeout_time = start + 2.0
+        timeout_time = start + 5.0
         timeout = executor.tick(int(timeout_time * NSEC))
         self.assertEqual(len(timeout.events), 1)
         timeout_event = timeout.events[0]

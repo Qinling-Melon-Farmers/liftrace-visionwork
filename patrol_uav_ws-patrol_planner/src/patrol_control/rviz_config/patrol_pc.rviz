@@ -218,7 +218,7 @@ Visualization Manager:
           Size (Pixels): 3
           Size (m): 0.029999999329447746
           Style: Squares
-          Topic: /freedom/static_pointcloud
+          Topic: /freedom/static_pointcloud_viz
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
@@ -345,18 +345,46 @@ Visualization Manager:
           Value: false
       Enabled: true
       Name: Mapping
-    - Class: rviz/Image
+    - Class: rviz/Group
+      Displays:
+        - Class: rviz/Image
+          Enabled: true
+          Image Topic: /downward_camera/image_raw
+          Max Value: 1
+          Median window: 5
+          Min Value: 0
+          Name: KS2A543 raw
+          Normalize Range: true
+          Queue Size: 1
+          Transport Hint: raw
+          Unreliable: false
+          Value: true
+        - Class: rviz/Image
+          Enabled: true
+          Image Topic: /uav_vision/debug_image
+          Max Value: 1
+          Median window: 5
+          Min Value: 0
+          Name: cross and landing debug
+          Normalize Range: true
+          Queue Size: 1
+          Transport Hint: raw
+          Unreliable: false
+          Value: true
+        - Class: rviz/Image
+          Enabled: true
+          Image Topic: /uav_vision/circle_debug
+          Max Value: 1
+          Median window: 5
+          Min Value: 0
+          Name: circle debug
+          Normalize Range: true
+          Queue Size: 1
+          Transport Hint: raw
+          Unreliable: false
+          Value: true
       Enabled: true
-      Image Topic: /downward_camera/image_raw
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Downward Camera
-      Normalize Range: true
-      Queue Size: 1
-      Transport Hint: raw
-      Unreliable: false
-      Value: true
+      Name: Vision
   Enabled: true
   Global Options:
     Background Color: 255; 253; 224

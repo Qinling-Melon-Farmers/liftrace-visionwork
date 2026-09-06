@@ -58,45 +58,14 @@ PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOGS_DIR="${PROJECT_ROOT}/logs"
 export PROJECT_ROOT
 export VISION_WS="${VISION_WS:-${PROJECT_ROOT}/vision_ws}"
-INTEGRATION_WS="${LIFTRACE_INTEGRATION_WS:-/home/xhj/liftrace/patrol_uav_ws-patrol_planner}"
-if [ -z "${UAV_WS:-}" ]; then
-  if [ -f "${PROJECT_ROOT}/patrol_uav_ws-patrol_planner/devel/setup.bash" ]; then
-    export UAV_WS="${PROJECT_ROOT}/patrol_uav_ws-patrol_planner"
-  else
-    # A git worktree normally has no copied build/devel products.  Reuse the
-    # integration workspace only as a compiled underlay; source packages below
-    # are still forced to this worktree.
-    export UAV_WS="${INTEGRATION_WS}"
-  fi
-fi
+export UAV_WS="${UAV_WS:-${PROJECT_ROOT}/patrol_uav_ws-patrol_planner}"
 
-# ---- source ROS 环境（可被调用者预先覆盖；setup 脚本与 nounset 不兼容，临时关闭） ----
+# The competition branch builds both workspaces locally. Never fall back to
+# executables from an unrelated development checkout.
 set +u
-if [ -z "${ROS_DISTRO:-}" ] && [ -f /opt/ros/noetic/setup.bash ]; then
-  source /opt/ros/noetic/setup.bash
-fi
-INTEGRATION_UNDERLAY_SOURCED=0
-if [ "${UAV_WS}" = "${PROJECT_ROOT}/patrol_uav_ws-patrol_planner" ] && \
-   [ "${UAV_WS}" != "${INTEGRATION_WS}" ] && \
-   [ -f "${INTEGRATION_WS}/devel/setup.bash" ]; then
-  # A feature worktree may contain only a targeted catkin build.  Keep the
-  # integration workspace underneath it so unchanged runtime executables and
-  # generated interfaces remain available without copying build products.
-  source "${INTEGRATION_WS}/devel/setup.bash"
-  INTEGRATION_UNDERLAY_SOURCED=1
-fi
-if [ -f "${UAV_WS}/devel/setup.bash" ]; then
-  if [ "${INTEGRATION_UNDERLAY_SOURCED}" = "1" ]; then
-    source "${UAV_WS}/devel/setup.bash" --extend
-  else
-    source "${UAV_WS}/devel/setup.bash"
-  fi
-fi
-if [ -f "${VISION_WS}/devel/setup.bash" ]; then
-  # Keep the compiled integration workspace available, but make the current
-  # feature worktree the highest-priority visual overlay.
-  source "${VISION_WS}/devel/setup.bash" --extend
-fi
+source /opt/ros/noetic/setup.bash
+source "${VISION_WS}/devel/setup.bash"
+source "${UAV_WS}/devel/setup.bash" --extend
 set -u
 
 # ---- PX4 + Gazebo 环境（与 launch_toudi3_full_sim.sh 一致，可在调用前覆盖） ----

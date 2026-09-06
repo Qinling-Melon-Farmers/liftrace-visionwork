@@ -2,6 +2,9 @@
 <!-- Launch file for Livox MID360 LiDAR -->
 
 	<arg name="rviz" default="false" />
+	<arg name="enable_static_pointcloud_viz" default="true" />
+	<arg name="static_pointcloud_viz_config"
+		 default="$(find freedom)/config/static_pointcloud_viz.yaml" />
 
 	<rosparam command="load" file="$(find fast_lio)/config/mid360.yaml" />
 
@@ -15,7 +18,10 @@
     <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen" /> 
 
 	<!-- freedom to mapping -->
-	<include file="$(find freedom)/launch/run_freedom_mid360.launch" />
+	<include file="$(find freedom)/launch/run_freedom_mid360.launch">
+		<arg name="enable_static_pointcloud_viz" value="$(arg enable_static_pointcloud_viz)" />
+		<arg name="static_pointcloud_viz_config" value="$(arg static_pointcloud_viz_config)" />
+	</include>
 
 	<group if="$(arg rviz)">
 	<node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find fast_lio)/rviz_cfg/loam_livox.rviz" />

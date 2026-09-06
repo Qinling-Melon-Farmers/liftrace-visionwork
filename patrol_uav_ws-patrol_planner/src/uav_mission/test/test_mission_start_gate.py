@@ -86,7 +86,7 @@ class MissionStartPolicyTest(unittest.TestCase):
 
     def evaluate(self):
         return MissionStartPolicy(self.config).evaluate(
-            self.field, self.truth, True, self.anchor, self.manager)
+            self.field, self.truth, True, self.anchor, self.manager, True)
 
     def test_exact_r2026_contract_is_ready(self):
         result = self.evaluate()
@@ -124,7 +124,7 @@ class MissionStartPolicyTest(unittest.TestCase):
         self.assertEqual(self.evaluate().reason, "truth_path_mismatch")
         self.field["truth_path"] = self.truth_path
         result = MissionStartPolicy(self.config).evaluate(
-            self.field, self.truth, False, self.anchor, self.manager)
+            self.field, self.truth, False, self.anchor, self.manager, True)
         self.assertEqual(result.reason, "truth_not_durable")
         self.truth["targets"][0]["model"] = "random_tank"
         self.assertEqual(
@@ -151,6 +151,12 @@ class MissionStartPolicyTest(unittest.TestCase):
         self.manager["profile"] = "r2026"
         self.manager["phase"] = "SEARCH"
         self.assertEqual(self.evaluate().reason, "manager_not_idle")
+
+    def test_control_must_report_takeoff_complete(self):
+        result = MissionStartPolicy(self.config).evaluate(
+            self.field, self.truth, True, self.anchor, self.manager, False)
+        self.assertFalse(result.ready)
+        self.assertEqual(result.reason, "control_not_ready")
 
     def test_invalid_json_sentinel_fails_closed(self):
         self.field = {"_decode_error": "JSONDecodeError"}
@@ -181,6 +187,7 @@ class MissionStartStateMachineTest(unittest.TestCase):
         gate.update_field(self.field, self.truth, True)
         gate.update_anchor(self.anchor)
         gate.update_manager(self.manager)
+        gate.update_control_ready(True)
         return gate
 
     def test_disabled_and_pre_ready_gate_never_calls_service(self):
@@ -201,6 +208,7 @@ class MissionStartStateMachineTest(unittest.TestCase):
         self.assertTrue(gate.begin_service_call(10.0))
         self.assertEqual(gate.service_call_count, 1)
         gate.complete_service_call(10.1, True, "vcl06-1")
+        self.assertEqual(gate.service_success_count, 1)
         gate.update_manager({"phase": "IDLE", "profile": "r2026"})
         gate.update_field({"status": "FAIL"}, None, False)
         self.assertFalse(gate.begin_service_call(999.0))
@@ -208,6 +216,8 @@ class MissionStartStateMachineTest(unittest.TestCase):
         status = gate.status(999.0)
         self.assertEqual(status["status"], "STARTED")
         self.assertTrue(status["started_latched"])
+        self.assertTrue(status["control_ready"])
+        self.assertEqual(status["service_success_count"], 1)
 
     def test_manager_active_prevents_calls_without_changing_count(self):
         gate = self.ready_gate()
@@ -232,8 +242,18 @@ class MissionStartStateMachineTest(unittest.TestCase):
         gate.complete_service_call(3.5, False, "map_stale")
         self.assertAlmostEqual(gate.next_retry_at, 5.5)
         self.assertEqual(gate.service_call_count, 3)
+        self.assertEqual(gate.service_success_count, 0)
         self.assertEqual(gate.service_unavailable_count, 1)
         self.assertEqual(gate.service_rejection_count, 3)
+
+    def test_ready_inputs_wait_for_latched_control_readiness(self):
+        gate = self.ready_gate()
+        gate.update_control_ready(False)
+        self.assertFalse(gate.begin_service_call(0.0))
+        self.assertEqual(gate.status(0.0)["reason"], "control_not_ready")
+        self.assertEqual(gate.service_call_count, 0)
+        gate.update_control_ready(True)
+        self.assertTrue(gate.begin_service_call(0.0))
 
 
 class NavigationMissionStartGateContractTest(unittest.TestCase):
@@ -247,6 +267,7 @@ class NavigationMissionStartGateContractTest(unittest.TestCase):
         self.assertIn("/mission/random_field_status", source)
         self.assertIn("/mission/planner_anchor_status", source)
         self.assertIn("/navigation/mission_status", source)
+        self.assertIn("/mission/control_ready", source)
         self.assertIn("/navigation/start_mission", source)
         for forbidden in (
                 "PoseStamped", "PointCloud2", "/mavros/",
@@ -259,6 +280,8 @@ class NavigationMissionStartGateContractTest(unittest.TestCase):
             item.attrib["name"]: item.attrib.get("default")
             for item in root.findall("arg")}
         self.assertEqual(arguments["enabled"], "false")
+        self.assertEqual(
+            arguments["control_ready_topic"], "/mission/control_ready")
         nodes = root.findall(".//node")
         self.assertEqual(len(nodes), 1)
         self.assertEqual(

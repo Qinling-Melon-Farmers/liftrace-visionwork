@@ -1,0 +1,16 @@
+fsm/allow_goal_adjustment: false
+fsm/tracking_replan_distance: 0.45
+fsm/min_replan_interval: 0.75
+sdf_map/virtual_ceil_height: 2.30
+# Inflate an overhead obstacle DOWN for the guard above the body; inflate
+# a floor obstacle UP for the undercarriage. These are not interchangeable.
+sdf_map/obstacles_inflation_up: 0.10
+sdf_map/obstacles_inflation_down: 0.30
+sdf_map/horizontal_avoidance/enabled: true
+sdf_map/horizontal_avoidance/min_x: -2.1
+sdf_map/horizontal_avoidance/max_x: 2.1
+sdf_map/horizontal_avoidance/min_y: 0.2
+sdf_map/horizontal_avoidance/max_y: 5.5
+sdf_map/horizontal_avoidance/obstacle_min_z: 0.40
+sdf_map/horizontal_avoidance/floor_z: 0.10
+optimization/dist0: 0.10

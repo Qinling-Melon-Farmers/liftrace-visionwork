@@ -20,6 +20,7 @@
        default="/mission/planner_anchor_status" />
   <arg name="manager_status_topic"
        default="/navigation/mission_status" />
+  <arg name="control_ready_topic" default="/mission/control_ready" />
   <arg name="start_service" default="/navigation/start_mission" />
   <arg name="status_topic"
        default="/navigation/mission_start_gate_status" />
@@ -41,6 +42,7 @@
     <param name="field_status_topic" value="$(arg field_status_topic)" />
     <param name="anchor_status_topic" value="$(arg anchor_status_topic)" />
     <param name="manager_status_topic" value="$(arg manager_status_topic)" />
+    <param name="control_ready_topic" value="$(arg control_ready_topic)" />
     <param name="start_service" value="$(arg start_service)" />
     <param name="status_topic" value="$(arg status_topic)" />
     <param name="service_probe_timeout"

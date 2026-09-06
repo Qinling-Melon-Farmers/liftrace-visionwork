@@ -27,15 +27,19 @@
   <arg name="drop_stable_frames" default="5" />
   <arg name="class_profile" default="full" />
   <arg name="require_alignment_context" default="false" />
+  <arg name="start_legacy_compat" default="true" />
   <arg name="gui" default="true" />
   <arg name="rviz" default="true" />
   <arg name="mapping_rviz" default="false" />
   <arg name="start_mapping" default="true" />
   <arg name="start_arming" default="true" />
+  <arg name="start_waypoint_generator" default="true" />
+  <arg name="enable_static_pointcloud_viz" default="true" />
   <arg name="waypoint_mode" default="true" />
   <arg name="external_mission_mode" default="false" />
   <arg name="simulation_auto_land" default="true" />
   <arg name="px4_max_distance" default="0.2" />
+  <arg name="external_planner_max_command_z" default="3.5" />
   <!-- 20 × 20 × 5 m 覆盖 10 × 10 × 4 m 赛场，并把 0.1 m 体素量限制在约 200 万。 -->
   <arg name="planner_map_size_x" default="20.0" />
   <arg name="planner_map_size_y" default="20.0" />
@@ -61,12 +65,16 @@
     <arg name="rviz" value="$(arg rviz)" />
     <arg name="mapping_rviz" value="$(arg mapping_rviz)" />
     <arg name="start_mapping" value="$(arg start_mapping)" />
-    <arg name="start_visual" value="false" />
     <arg name="start_arming" value="$(arg start_arming)" />
+    <arg name="start_waypoint_generator" value="$(arg start_waypoint_generator)" />
+    <arg name="enable_static_pointcloud_viz"
+         value="$(arg enable_static_pointcloud_viz)" />
     <arg name="waypoint_mode" value="$(arg waypoint_mode)" />
     <arg name="external_mission_mode" value="$(arg external_mission_mode)" />
     <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
     <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <arg name="external_planner_max_command_z"
+         value="$(arg external_planner_max_command_z)" />
     <arg name="planner_map_size_x" value="$(arg planner_map_size_x)" />
     <arg name="planner_map_size_y" value="$(arg planner_map_size_y)" />
     <arg name="planner_map_size_z" value="$(arg planner_map_size_z)" />
@@ -91,5 +99,6 @@
     <arg name="class_profile" value="$(arg class_profile)" />
     <arg name="require_alignment_context"
          value="$(arg require_alignment_context)" />
+    <arg name="start_legacy_compat" value="$(arg start_legacy_compat)" />
   </include>
 </launch>

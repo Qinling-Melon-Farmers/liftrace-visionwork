@@ -52,6 +52,7 @@
   <build_depend>geometry_msgs</build_depend>
   <build_depend>mavros</build_depend>
   <build_depend>mavros_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
@@ -59,14 +60,14 @@
   <build_depend>sensor_msgs</build_depend>
   <build_depend>cv_bridge</build_depend>
   <build_depend>image_transport</build_depend>
-  <build_depend>image_geometry</build_depend>
+  <build_depend>message_generation</build_depend>
   <build_depend>tf2_ros</build_depend>
   <build_depend>tf2_geometry_msgs</build_depend>
-  <build_depend>message_generation</build_depend>
   <build_depend>uav_vision</build_depend>
   <build_export_depend>geometry_msgs</build_export_depend>
   <build_export_depend>mavros</build_export_depend>
   <build_export_depend>mavros_msgs</build_export_depend>
+  <build_export_depend>nav_msgs</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
@@ -74,14 +75,13 @@
   <build_export_depend>sensor_msgs</build_export_depend>
   <build_export_depend>cv_bridge</build_export_depend>
   <build_export_depend>image_transport</build_export_depend>
-  <build_export_depend>image_geometry</build_export_depend>
   <build_export_depend>tf2_ros</build_export_depend>
   <build_export_depend>tf2_geometry_msgs</build_export_depend>
   <build_export_depend>uav_vision</build_export_depend>
-  <!-- <build_export_depend>message_generation</build_export_depend> -->
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>mavros</exec_depend>
   <exec_depend>mavros_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
@@ -89,13 +89,16 @@
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>cv_bridge</exec_depend>
   <exec_depend>image_transport</exec_depend>
-  <exec_depend>image_geometry</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>tf2_geometry_msgs</exec_depend>
-  <exec_depend>message_generation</exec_depend>
-  <exec_depend>message_runtime</exec_depend>
   <exec_depend>uav_vision</exec_depend>
   <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>fast_lio</exec_depend>
+  <exec_depend>plan_manage</exec_depend>
+  <test_depend>python3-nose</test_depend>
+  <test_depend>python3-yaml</test_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

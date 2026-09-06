@@ -3,7 +3,8 @@
   <!--
     Complete PX4/Gazebo vehicle used by the VCL06 full-chain Gate.
     The airframe and contact envelope are inherited from model.sdf.
-    Camera optical center: body z=-0.16 m; MID360 IMU: body z=+0.05 m.
+    Camera optical center: body z=-0.08588 m; MID360 IMU: body z=+0.12412 m.
+    User-confirmed IMU-to-camera vertical separation: 0.21 m.
     Sensor offsets inside the included MID360 model are accounted for.  Camera intrinsics/distortion reproduce the
     KS2A543 baseline delivered by vision commit 6743099.
   -->
@@ -14,7 +15,9 @@
 
     <include>
       <uri>model://mid360</uri>
-      <pose>0.011 0.02329 0.00588 0 0 0</pose>
+      <!-- Keep the ray origin above the iris box (top z=.055), so the
+           MID360's downward scan sector can see the floor past the chassis. -->
+      <pose>0.011 0.02329 0.08 0 0 0</pose>
     </include>
     <joint name="mid360_joint" type="fixed">
       <child>mid360::lidar_link</child>
@@ -63,7 +66,7 @@
     <!-- Installed body-to-camera mounting transform.  Gazebo
          camera sensors look along local +X; +90 degrees about Y points down. -->
     <link name="downward_camera_link">
-      <pose>0 0 -0.16 0 1.57079632679 0</pose>
+      <pose>0 0 -0.08588 0 1.57079632679 0</pose>
       <inertial>
         <mass>0.015</mass>
         <inertia>

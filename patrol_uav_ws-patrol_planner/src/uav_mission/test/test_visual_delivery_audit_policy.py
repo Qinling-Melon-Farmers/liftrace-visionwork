@@ -12,6 +12,7 @@ from uav_mission.visual_delivery_audit_policy import (
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 GUARDED_LAUNCH = PACKAGE_ROOT / "launch" / \
     "toudi3_visual_delivery_guarded.launch"
+AUDIT_SCRIPT = PACKAGE_ROOT / "scripts" / "visual_delivery_audit.py"
 
 
 def geometry_evidence(target_id=42, stable_frames=5):
@@ -129,6 +130,14 @@ class VisualDeliveryAuditPolicyTest(unittest.TestCase):
         self.assertEqual(
             params["require_evidence_context"],
             "$(arg require_release_evidence_context)")
+
+    def test_audit_does_not_duplicate_release_guard_altitude_policy(self):
+        source = AUDIT_SCRIPT.read_text(encoding="utf-8")
+        self.assertNotIn("min_release_altitude", source)
+        self.assertNotIn("max_release_altitude", source)
+        self.assertNotIn("altitude_invalid_slot", source)
+        self.assertIn('permission is None or not permission["permitted"]',
+                      source)
 
 
 if __name__ == "__main__":

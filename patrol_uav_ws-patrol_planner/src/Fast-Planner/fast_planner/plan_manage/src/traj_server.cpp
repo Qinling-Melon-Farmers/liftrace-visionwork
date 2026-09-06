@@ -38,6 +38,7 @@
 #include <cmath>
 #include <algorithm>
 #include <tf/tf.h>
+#include <plan_manage/trajectory_progress.h>
 
 ros::Publisher cmd_vis_pub, pos_cmd_pub, traj_pub;
 double yaw_goal, current_yaw, max_distance = 3.0, target_dist = 0.2;
@@ -60,6 +61,9 @@ vector<NonUniformBspline> traj_;
 double traj_duration_;
 ros::Time start_time_;
 int traj_id_;
+double execution_time_ = 0.0;
+bool trajectory_interrupted_ = false;
+Eigen::Vector3d stop_position_ = Eigen::Vector3d::Zero();
 
 // yaw control
 double last_yaw_;
@@ -175,16 +179,17 @@ void bsplineCallback(plan_manage::BsplineConstPtr msg) {
   traj_.push_back(yaw_traj.getDerivative());
 
   traj_duration_ = traj_[0].getTimeSum();
+  execution_time_ = 0.0;
+  trajectory_interrupted_ = false;
 
   receive_traj_ = true;
 }
 
 void replanCallback(std_msgs::Empty msg) {
-  /* reset duration */
-  const double time_out = 0.01;
-  ros::Time time_now = ros::Time::now();
-  double t_stop = (time_now - start_time_).toSec() + time_out;
-  traj_duration_ = min(t_stop, traj_duration_);
+  // This notification is reserved for an unsafe current curve. Ordinary
+  // replanning keeps the old safe curve until a validated replacement arrives.
+  trajectory_interrupted_ = true;
+  stop_position_ = odom_pos_;
 }
 
 void newCallback(std_msgs::Empty msg) {
@@ -276,38 +281,28 @@ void cmdCallback(const ros::TimerEvent& e) {
   if (!receive_traj_) return;
   std::pair<double, double> yaw_yawdot(0, 0);
 
-  double step = 0.02;
-
-  double t_min = 0.0;
-  double t_max = traj_duration_;
-
-  double best_t = t_max;  // 默认选最后一个时间点
-  Eigen::Vector3d goal_pos = traj_[0].evaluateDeBoorT(t_max);  // 默认目标点
-  double max_valid_t = -1.0;
-
-  for (double t = t_min + step; t <= t_max; t += step) {
-    Eigen::Vector3d cur_pos = traj_[0].evaluateDeBoorT(t);
-    double dist = (cur_pos - odom_pos_).norm();
-    
-    if (dist - target_dist < 0.01) {
-      // 更新为时间更大的点
-      if (t > max_valid_t) {
-        max_valid_t = t;
-        best_t = t;
-        goal_pos = cur_pos;
-      }
-    }
-  }
-
-  // fallback：若全段都未满足距离，则仍使用终点
-  if (max_valid_t < 0.0) {
-    best_t = traj_duration_;
-    goal_pos = traj_[0].evaluateDeBoorT(best_t);
-  }
+  const auto position = [](double t) -> Eigen::Vector3d {
+    return traj_[0].evaluateDeBoorT(t);
+  };
+  execution_time_ = fast_planner::projectProgress(
+      position, odom_pos_, execution_time_, traj_duration_);
+  const double best_t = fast_planner::boundedLookahead(
+      position, odom_pos_, execution_time_, traj_duration_, target_dist);
 
   Eigen::Vector3d pos = traj_[0].evaluateDeBoorT(best_t);
   Eigen::Vector3d vel = traj_[1].evaluateDeBoorT(best_t);
   Eigen::Vector3d acc = traj_[2].evaluateDeBoorT(best_t);
+  if (trajectory_interrupted_) {
+    pos = stop_position_;
+    vel.setZero();
+    acc.setZero();
+  } else if ((pos - odom_pos_).norm() > target_dist + 0.05) {
+    // Lost path tracking must not jump to a distant endpoint. The FSM
+    // replans from measured state while the controller holds locally.
+    pos = odom_pos_;
+    vel.setZero();
+    acc.setZero();
+  }
 
   double interpolated_yaw = interpolateYaw(current_yaw, yaw_goal, (goal_pos_ - odom_pos_).norm(), max_distance);
   // std::cout << "Interpolated Yaw: " << interpolated_yaw << std::endl;
