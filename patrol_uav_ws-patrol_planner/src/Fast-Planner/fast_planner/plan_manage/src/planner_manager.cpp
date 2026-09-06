@@ -242,17 +242,35 @@ bool FastPlannerManager::kinodynamicReplan(Eigen::Vector3d start_pt, Eigen::Vect
 
   // save planned results
 
-  // Optimization and time allocation can move the searched curve. Check the
-  // final curve before replacing the last safe trajectory, including limits
-  // represented in the point-cloud map (ceiling and horizontal avoidance).
-  for (double t = 0.0; t <= pos.getTimeSum() + 0.02; t += 0.02) {
-    Eigen::Vector3d point = pos.evaluateDeBoorT(std::min(t, pos.getTimeSum()));
-    if (!point.allFinite() ||
-        edt_environment_->sdf_map_->getInflateOccupancy(point) != 0 ||
-        edt_environment_->evaluateCoarseEDT(point, -1.0) < pp_.clearance_) {
-      ROS_WARN_THROTTLE(1.0, "optimized trajectory violates clearance");
+  // Optimization is optional when its output loses a feasible searched
+  // curve. Both candidates use the same complete clearance check.
+  Eigen::Vector3d rejected_point = Eigen::Vector3d::Zero();
+  const auto is_clear = [this, &rejected_point](NonUniformBspline& curve) {
+    for (double t = 0.0; t <= curve.getTimeSum() + 0.02; t += 0.02) {
+      Eigen::Vector3d point = curve.evaluateDeBoorT(std::min(t, curve.getTimeSum()));
+      if (!point.allFinite() ||
+          edt_environment_->sdf_map_->getInflateOccupancy(point) != 0 ||
+          edt_environment_->evaluateCoarseEDT(point, -1.0) < pp_.clearance_) {
+        rejected_point = point;
+        return false;
+      }
+    }
+    return true;
+  };
+  if (!is_clear(pos)) {
+    const Eigen::Vector3d optimized_rejection = rejected_point;
+    init.setPhysicalLimits(pp_.max_vel_, pp_.max_acc_);
+    const double initial_ratio = std::max(1.0, init.checkRatio() * 1.02);
+    init.setKnot(init.getKnot() * initial_ratio);
+    if (!is_clear(init)) {
+      ROS_WARN_THROTTLE(1.0,
+          "both fitted curves violate clearance: optimized=(%.3f,%.3f,%.3f), initial=(%.3f,%.3f,%.3f)",
+          optimized_rejection.x(), optimized_rejection.y(), optimized_rejection.z(),
+          rejected_point.x(), rejected_point.y(), rejected_point.z());
       return false;
     }
+    pos = init;
+    ROS_WARN_THROTTLE(1.0, "keeping validated initial curve after unsafe optimization");
   }
   local_data_.start_time_ = ros::Time::now();
   local_data_.execution_time_ = 0.0;

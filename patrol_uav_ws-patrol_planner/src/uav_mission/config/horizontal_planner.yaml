@@ -13,4 +13,6 @@ sdf_map/horizontal_avoidance/min_y: 0.2
 sdf_map/horizontal_avoidance/max_y: 5.5
 sdf_map/horizontal_avoidance/obstacle_min_z: 0.40
 sdf_map/horizontal_avoidance/floor_z: 0.10
+# Fit narrow turns with 20 cm controls on the 10 cm occupancy grid.
+manager/control_points_distance: 0.20
 optimization/dist0: 0.10

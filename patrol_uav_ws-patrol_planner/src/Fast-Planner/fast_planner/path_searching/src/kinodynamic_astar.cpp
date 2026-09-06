@@ -185,9 +185,12 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
         Eigen::Vector3d pos;
         Eigen::Matrix<double, 6, 1> xt;
         bool is_occ = false;
-        for (int k = 1; k <= check_num_; ++k)
+        // A fixed five checks skipped entire 10 cm voxels on long primitives.
+        // Use the same temporal resolution as the final trajectory validator.
+        const int checks = std::max(check_num_, static_cast<int>(std::ceil(tau / 0.02)));
+        for (int k = 1; k <= checks; ++k)
         {
-          double dt = tau * double(k) / double(check_num_);
+          double dt = tau * double(k) / double(checks);
           stateTransit(cur_state, xt, um, dt);
           pos = xt.head(3);
           if (edt_environment_->sdf_map_->getInflateOccupancy(pos) != 0 )
