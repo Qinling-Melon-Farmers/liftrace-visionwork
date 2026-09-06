@@ -156,13 +156,16 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
   // use odometry and point cloud
 
   indep_cloud_sub_ =
-      node_.subscribe<sensor_msgs::PointCloud2>("/sdf_map/cloud", 10, &SDFMap::cloudCallback, this);
+      node_.subscribe<sensor_msgs::PointCloud2>("/sdf_map/cloud", 1, &SDFMap::cloudCallback, this);
   indep_odom_sub_ =
-      node_.subscribe<nav_msgs::Odometry>("/sdf_map/odom", 10, &SDFMap::odomCallback, this);
+      node_.subscribe<nav_msgs::Odometry>("/sdf_map/odom", 1, &SDFMap::odomCallback, this);
 
   occ_timer_ = node_.createTimer(ros::Duration(0.05), &SDFMap::updateOccupancyCallback, this);
   esdf_timer_ = node_.createTimer(ros::Duration(0.05), &SDFMap::updateESDFCallback, this);
-  vis_timer_ = node_.createTimer(ros::Duration(0.05), &SDFMap::visCallback, this);
+  double visualization_rate;
+  node_.param("sdf_map/visualization_rate", visualization_rate, 20.0);
+  vis_timer_ = node_.createTimer(ros::Duration(1.0 / std::max(0.1, visualization_rate)),
+                                 &SDFMap::visCallback, this);
 
   map_pub_ = node_.advertise<sensor_msgs::PointCloud2>("/sdf_map/occupancy", 10);
   map_inf_pub_ = node_.advertise<sensor_msgs::PointCloud2>("/sdf_map/occupancy_inflate", 10);
@@ -920,36 +923,31 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
     if (fabs(devi(0)) < mp_.local_update_range_(0) && fabs(devi(1)) < mp_.local_update_range_(1) &&
         fabs(devi(2)) < mp_.local_update_range_(2)) {
 
-      /* inflate the point */
-      for (int x = -inf_step; x <= inf_step; ++x)
-        for (int y = -inf_step; y <= inf_step; ++y)
-          for (int z = -inf_step_z_down; z <= inf_step_z_up; ++z) {
-
-            p3d_inf(0) = pt.x + x * mp_.resolution_;
-            p3d_inf(1) = pt.y + y * mp_.resolution_;
-            p3d_inf(2) = pt.z + z * mp_.resolution_;
-
-            max_x = max(max_x, p3d_inf(0));
-            max_y = max(max_y, p3d_inf(1));
-            max_z = max(max_z, p3d_inf(2));
-
-            min_x = min(min_x, p3d_inf(0));
-            min_y = min(min_y, p3d_inf(1));
-            min_z = min(min_z, p3d_inf(2));
-
-            posToIndex(p3d_inf, inf_pt);
-
-            if (!isInMap(inf_pt)) continue;
-
-            int idx_inf = toAddress(inf_pt);
-
-            md_.occupancy_buffer_inflate_[idx_inf] = 1;
-            if (mp_.horizontal_avoidance_ && pt.z >= mp_.horizontal_obstacle_min_z_ &&
-                pt.x >= mp_.horizontal_min_x_ && pt.x <= mp_.horizontal_max_x_ &&
-                pt.y >= mp_.horizontal_min_y_ && pt.y <= mp_.horizontal_max_y_) {
-              horizontal_columns[inf_pt(0) * mp_.map_voxel_num_(1) + inf_pt(1)] = 1;
-            }
-          }
+      // Quantize each source point once, then fill contiguous Z spans. This
+      // is the same box inflation in voxel coordinates, without recomputing
+      // world coordinates for every occupied voxel on the finer grid.
+      Eigen::Vector3i center;
+      posToIndex(p3d, center);
+      min_x = min(min_x, pt.x - inf_step * mp_.resolution_);
+      min_y = min(min_y, pt.y - inf_step * mp_.resolution_);
+      min_z = min(min_z, pt.z - inf_step_z_down * mp_.resolution_);
+      max_x = max(max_x, pt.x + inf_step * mp_.resolution_);
+      max_y = max(max_y, pt.y + inf_step * mp_.resolution_);
+      max_z = max(max_z, pt.z + inf_step_z_up * mp_.resolution_);
+      int low_z = std::max(0, center.z() - inf_step_z_down);
+      int high_z = std::min(mp_.map_voxel_num_.z() - 1, center.z() + inf_step_z_up);
+      const bool column = mp_.horizontal_avoidance_ && pt.z >= mp_.horizontal_obstacle_min_z_ &&
+          pt.x >= mp_.horizontal_min_x_ && pt.x <= mp_.horizontal_max_x_ &&
+          pt.y >= mp_.horizontal_min_y_ && pt.y <= mp_.horizontal_max_y_;
+      if (low_z > high_z) continue;
+      for (int x = std::max(0, center.x() - inf_step);
+           x <= std::min(mp_.map_voxel_num_.x() - 1, center.x() + inf_step); ++x)
+        for (int y = std::max(0, center.y() - inf_step);
+             y <= std::min(mp_.map_voxel_num_.y() - 1, center.y() + inf_step); ++y) {
+          std::fill(md_.occupancy_buffer_inflate_.begin() + toAddress(x,y,low_z),
+                    md_.occupancy_buffer_inflate_.begin() + toAddress(x,y,high_z) + 1, 1);
+          if (column) horizontal_columns[x * mp_.map_voxel_num_.y() + y] = 1;
+        }
     }
   }
 

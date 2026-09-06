@@ -23,6 +23,7 @@
 
 #include <path_searching/kinodynamic_astar.h>
 #include <sstream>
+#include <chrono>
 #include <plan_env/sdf_map.h>
 
 using namespace std;
@@ -41,6 +42,18 @@ KinodynamicAstar::~KinodynamicAstar()
 int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, Eigen::Vector3d start_a,
                              Eigen::Vector3d end_pt, Eigen::Vector3d end_v, bool init, bool dynamic, double time_start)
 {
+  const auto search_started = std::chrono::steady_clock::now();
+  const auto timed_out = [&]() {
+    return std::chrono::duration<double>(std::chrono::steady_clock::now() - search_started).count()
+        >= max_search_time_;
+  };
+  // An occupied endpoint cannot become a valid local trajectory by searching
+  // farther away. Return to the callback queue so the next cloud can refresh it.
+  if (edt_environment_->sdf_map_->getInflateOccupancy(end_pt) != 0) {
+    ROS_WARN_THROTTLE(1.0, "kinodynamic goal occupied or outside map");
+    return NO_PATH;
+  }
+  const double goal_distance = (end_pt - start_pt).norm();
   start_vel_ = start_v;
   start_acc_ = start_a;
 
@@ -82,6 +95,10 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
 
   while (!open_set_.empty())
   {
+    if (timed_out()) {
+      ROS_WARN_THROTTLE(1.0, "kinodynamic search reached wall-time budget");
+      return NO_PATH;
+    }
     cur_node = open_set_.top();
 
     // Terminate?
@@ -95,14 +112,18 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
     // A failed short connector is not proof that the goal is unreachable.
     // Continue expanding around the obstruction, including when the start
     // already lies in the near-goal voxel band.
-    if (near_end) {
+    // Door approach/crossing goals already come from the mission route FSM.
+    // Try the complete connector before expanding a lattice; it still uses
+    // the same inflated map and the manager's full spline validation.
+    if (near_end || (cur_node->parent == NULL && goal_distance <= direct_shot_distance_)) {
       estimateHeuristic(cur_node->state, end_state, time_to_goal);
       if (computeShotTraj(cur_node->state, end_state, time_to_goal)) {
         retrievePath(cur_node);
         return REACH_END;
       }
     }
-    if (reach_horizon) {
+    if (reach_horizon && goal_distance > horizon_ &&
+        (cur_node->state.head(3) - end_pt).norm() + min_horizon_progress_ < goal_distance) {
       retrievePath(cur_node);
       return REACH_HORIZON;
     }
@@ -144,6 +165,7 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
     for (int i = 0; i < inputs.size(); ++i)
       for (int j = 0; j < durations.size(); ++j)
       {
+        if (timed_out()) return NO_PATH;
         um = inputs[i];
         double tau = durations[j];
         stateTransit(cur_state, pro_state, um, tau);
@@ -318,6 +340,10 @@ void KinodynamicAstar::setParam(ros::NodeHandle& nh)
   nh.param("search/w_time", w_time_, -1.0);
   nh.param("search/w_z", w_z_, -1.0);
   nh.param("search/horizon", horizon_, -1.0);
+  nh.param("search/max_search_time", max_search_time_, 0.25);
+  nh.param("search/min_horizon_progress", min_horizon_progress_, 0.20);
+  nh.param("search/direct_shot_distance", direct_shot_distance_, 2.0);
+  max_search_time_ = std::max(0.001, max_search_time_);
   nh.param("search/resolution_astar", resolution_, -1.0);
   nh.param("search/time_resolution", time_resolution_, -1.0);
   nh.param("search/search_time_resolution", search_time_res, -1.0);
@@ -393,6 +419,7 @@ bool KinodynamicAstar::computeShotTraj(Eigen::VectorXd state1, Eigen::VectorXd s
   const Vector3d v1 = state2.segment(3, 3);
   const Vector3d dv = v1 - v0;
   double t_d = time_to_goal;
+  if (!std::isfinite(t_d) || t_d <= 1e-6) return false;
   MatrixXd coef(3, 4);
   end_vel_ = v1;
 
