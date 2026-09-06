@@ -56,20 +56,20 @@
     <param name="fsm/waypoint2_y" value="$(arg point2_y)" type="double"/>
     <param name="fsm/waypoint2_z" value="$(arg point2_z)" type="double"/>
 
-    <param name="sdf_map/resolution"      value="0.07" /> 
+    <param name="sdf_map/resolution"      value="0.10" />
     <param name="sdf_map/map_size_x"   value="$(arg map_size_x_)" /> 
     <param name="sdf_map/map_size_y"   value="$(arg map_size_y_)" /> 
     <param name="sdf_map/map_size_z"   value="$(arg map_size_z_)" /> 
-    <param name="sdf_map/local_update_range_x"  value="4.0" /> 
-    <param name="sdf_map/local_update_range_y"  value="4.0" /> 
-    <param name="sdf_map/local_update_range_z"  value="2.5" /> 
-    <param name="sdf_map/obstacles_inflation"     value="0.21" /> 
-    <param name="sdf_map/obstacles_inflation_up"     value="0.14" />  <!-- 往上膨胀距离 -->
-    <param name="sdf_map/obstacles_inflation_down"     value="0.14" /> <!-- 往下膨胀距离 -->
+    <param name="sdf_map/local_update_range_x"  value="6.5" />
+    <param name="sdf_map/local_update_range_y"  value="6.5" />
+    <param name="sdf_map/local_update_range_z"  value="5.0" />
+    <param name="sdf_map/obstacles_inflation"     value="0.25" />
+    <param name="sdf_map/obstacles_inflation_up"     value="0.2" />  <!-- 往上膨胀距离 -->
+    <param name="sdf_map/obstacles_inflation_down"     value="0.1" /> <!-- 往下膨胀距离 -->
 
     <param name="sdf_map/local_bound_inflate"    value="0.0"/>
     <param name="sdf_map/local_map_margin" value="50"/>
-    <param name="sdf_map/ground_height"        value="0.0"/>
+    <param name="sdf_map/ground_height"        value="-0.2"/>
     <!-- camera parameter -->
     <param name="sdf_map/cx" value="$(arg cx)"/>
     <param name="sdf_map/cy" value="$(arg cy)"/>
@@ -119,13 +119,13 @@
 
     <param name="search/search_time_resolution" value="0.45" type="double"/><!-- 搜索时间分辨率 -->
     <param name="search/search_acc_resolution" value="0.25" type="double"/><!-- 搜索加速度分辨率 -->
-    <param name="search/horizon" value="4.0" type="double"/>
+    <param name="search/horizon" value="5.0" type="double"/>
 
     <param name="search/init_max_tau" value="0.8" type="double"/>
     <param name="search/max_vel" value="$(arg max_vel)" type="double"/>
     <param name="search/max_acc" value="$(arg max_acc)" type="double"/>
     <param name="search/w_time" value="10.0" type="double"/>
-    <param name="search/w_z" value="750.0" type="double"/>
+    <param name="search/w_z" value="250.0" type="double"/>
     <param name="search/lambda_heu" value="5.0" type="double"/>
     <param name="search/resolution_astar" value="0.1" type="double"/>
     <param name="search/time_resolution" value="0.3" type="double"/>

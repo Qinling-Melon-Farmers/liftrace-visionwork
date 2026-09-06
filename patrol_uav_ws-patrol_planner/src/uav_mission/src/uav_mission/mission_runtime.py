@@ -34,6 +34,10 @@ class RuntimeSnapshot:
     route_size: int
     route_complete: bool
     route_active_decision_seq: int
+    post_delivery_route_revision: str
+    post_delivery_route_index: int
+    post_delivery_route_size: int
+    post_delivery_route_complete: bool
     active_decision_seq: int
     active_command: str
     active_deadline_at: float
@@ -137,6 +141,16 @@ class MissionRuntime:
             route_complete=self.route.is_complete,
             route_active_decision_seq=(
                 route_active.decision_seq if route_active else 0),
+            post_delivery_route_revision=(
+                self.core.config.post_delivery_route_revision),
+            post_delivery_route_index=(
+                self.core.post_delivery_route_index),
+            post_delivery_route_size=len(
+                self.core.config.post_delivery_route),
+            post_delivery_route_complete=(
+                not self.core.config.post_delivery_route or
+                self.core.post_delivery_route_index >=
+                len(self.core.config.post_delivery_route)),
             active_decision_seq=(active.decision_seq if active else 0),
             active_command=(active.command if active else ""),
             active_deadline_at=(active.deadline_at if active else 0.0),
@@ -300,6 +314,27 @@ class MissionRuntime:
             self.core.start(mission_id, now)
             self._started = True
             return self._dispatch_route("SEARCH", "coverage_start", now)
+
+    def start_post_delivery_validation(
+            self, mission_id: str, now: float, current_xy
+            ) -> RuntimeOutcome:
+        """Start an isolated corridor-to-LAND integration stage.
+
+        Coverage and payload accounting are intentionally left untouched; a
+        scope-aware assertion must be used for this stage so its result can
+        never be reported as a complete three-delivery mission.
+        """
+
+        with self._lock:
+            if self._started:
+                raise RuntimeError("mission runtime has already started")
+            now = self._validate_now(now)
+            self._set_current_xy(current_xy)
+            action = self.core.start_post_delivery_validation(
+                mission_id, now)
+            self._started = True
+            return self._outcome(
+                True, "post_delivery_validation_started", action=action)
 
     def ingest(self, candidates: Sequence[CandidateSnapshot],
                now: float) -> RuntimeOutcome:

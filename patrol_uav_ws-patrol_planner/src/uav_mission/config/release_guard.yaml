@@ -4,12 +4,12 @@ pose_timeout: 0.50           # 飞机位姿最大年龄 [s]
 control_state_timeout: 0.50  # 旧 patrol_control 状态最大年龄 [s]
 permission_lifetime: 0.25   # 单条许可有效期 [s]
 publish_rate: 20.0           # 许可评估频率 [Hz]
-commitment_timeout: 45.0      # 稳定对准后最终下降承诺最长保持 [s]；覆盖旧控制 70 帧稳定+下降
+commitment_timeout: 45.0      # 仅旧无上下文入口的看门狗；VCL06 直接服从 Manager decision deadline
 commitment_max_drift: 0.20    # 承诺锁定点允许的水平漂移 [m]
 
 # 兼容原 patrol_control 的近地投放条件，同时由任务层再次独立校验。
 min_release_altitude: -0.05  # 本地坐标高度下界 [m]
-max_release_altitude: 0.25   # 本地坐标高度上界 [m]
+max_release_altitude: 0.30   # 本地坐标高度上界 [m]；覆盖近地控制约 5 cm 周期波动
 payload_slots: 3
 first_payload_slot: 1
 required_control_state: 2    # patrol_control::Aligning；枚举值见原控制头文件

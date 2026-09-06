@@ -1,9 +1,57 @@
 # uav_mission
 
-任务/安全层最小包。当前第一项职责是把视觉释放证据与原有投递服务隔离：
+导航任务、规划执行和投递安全层。正式 VCL06 入口为：
 
 ```text
-/uav_vision/release_evidence + align_mode + UAV pose
+navigation_search_delivery_vcl06.launch
+  -> random_field_spawner + planner_anchor_spawner
+  -> navigation_mission_start_gate
+  -> navigation_mission_manager（唯一任务策略）
+  -> navigation_planner_bridge（唯一 /fastplanner/goal 发布者）
+  -> patrol_control 外部任务模式
+  -> guarded release / mock Servo
+```
+
+该入口实现起飞完成后启动、覆盖搜索、候选中断、同 stable ID 的
+APPROACH/CAPTURE/ALIGN/RELEASE/RECOVERY 事务、三次投递、三门走廊路线和最终 H 降落。
+旧 `coverage_search_manager.py`、视觉侧临时 manager 和
+`navigation_visual_delivery_adapter.py` 均不在正式图中。
+
+为隔离前段搜索/投递波动，提供只用于 SITL 联调的后段入口：
+
+```text
+navigation_post_delivery_vcl06.launch
+  -> MissionCore post_delivery 显式启动模式（payload commit 仍为 0）
+  -> 同一版本化走廊路线、Fast-Planner、H 视觉和 LAND executor
+  -> gate_scope=post_delivery 专用断言
+```
+
+该 Gate 只验收“走廊首段 → 三门 → H 新鲜证据 → 对齐 → 落地并上锁”，并拒绝任何
+APPROACH/投递动作；其 PASS 不能替代正式入口的三投整场 PASS。正式入口的
+`mission_start_mode` 和 `gate_scope` 默认值均为 `full`。
+
+## 比赛 profile
+
+正式 profile 固定为 `r2026`：
+
+```text
+red_cross=10.0
+panzer=2.5
+bridge=2.0
+pillbox=1.5
+tent=1.0
+interrupt_top_k=3
+```
+
+因此 red_cross、panzer、bridge 都可中断搜索。tank 不进入比赛候选/投递队列。
+`coverage_toudi3_random.yaml` 的历史文件名仅为 launch 兼容，内容只负责随机场生成几何；
+搜索、权重和中断策略只由 `competition_profiles.yaml`、
+`vcl06_random_field_runtime.yaml` 和 MissionCore 管理。
+
+## 投递边界
+
+```text
+/uav_vision/release_evidence + frozen context + align mode + UAV pose
   -> release_permission_arbiter
   -> /mission/release_permission
   -> guarded_servo_proxy (/Servo)
@@ -11,136 +59,43 @@
   -> /mission/release_result
 ```
 
-`patrol_control` 仍调用原来的 `/Servo`，顺序槽位 `1/2/3` 和服务返回值语义不变。
-原始 `actuator_pwm` 不在本包内启动。实机迁移时必须把原始服务重映射到
-`/legacy/Servo_raw`，并让网关独占 `/Servo`；没有许可节点时应保持 fail-closed。
+`patrol_control` 仍调用 `/Servo`，顺序槽位 `1/2/3` 和服务返回语义保持兼容。
+仿真使用 `release_guard_sim.launch` 的纯软件 mock；本包不启动真实 `actuator_pwm`、PWM 或舵机。
 
-仿真使用 `release_guard_sim.launch`，其 raw 端是纯软件 mock，不访问 PWM。
+## 视觉运行依赖
 
-## 导航组搜索 manager 集成
-
-导航组 `liftrace-controlwork@5144aa8` 的 Python manager 和纯策略模块已经作为原始基线接入：
+导航仓不再复制或维护 `uav_vision` 源码。构建导航工作区前必须先 source 视觉组的
+devel/install；正式任务链使用下列视觉消息：
 
 ```text
-target_search_manager_py.py
-  -> search_policy / candidate_policy / search_types
-  -> /navigation/goal_raw（集成 launch 中由 remap 得到）
+uav_vision/TargetDetectionArray
+uav_vision/TargetCandidate
+uav_vision/DropOffset
+uav_vision/DropReady
+uav_vision/AlignmentTargetContext
+uav_vision/ReleaseEvidenceContext
 ```
 
-`navigation_search_delivery_toudi4.launch` 不修改导航组状态机，而是在外围启动
-`navigation_visual_delivery_adapter.py`，由适配器独占 `/fastplanner/goal`，并把新视觉候选接到
-既有 ALIGN/释放安全链。旧临时 `coverage_search_manager` 不在该入口启动。
+正式 external launch 直接消费 `/uav_vision/detections_mapped` 中经过几何验证的
+`landing_pad`，并以 `start_legacy_compat:=false` 关闭旧 `/detect/*` 视觉桥；legacy launch
+仍默认保留兼容桥。当前精确双仓基线、overlay 顺序和最终 Gate 条件见仓库根目录
+`docs/NAVIGATION_FINAL_BASELINE_HANDOFF_20260905.md`。
 
-当前候选策略只保证地图点合法和 ID 未接受；类别权重只在视觉 `target_memory` 对当前新鲜
-候选选择时生效。它不是持久全局队列，失败目标也不会自动重试。接口、headless 结果和
-接续任务见 `docs/导航组任务链与新视觉联调HANDOFF_20260826.md`。
+## 轻量策略仿真
 
-当前正式模型必须通过 `UAV_VISION_MODEL_PATH` 或 launch 参数传入；空路径、文件不存在或
-runtime 不可用会使 required detector 快速失败，不再发布伪健康的持续空检测。
+导航组另设纯 Python 仓 `https://github.com/sakelier/liftrace-sim.git`，用于批量设计和比较牛耕搜索、
+障碍/A*、Cue 中断、有限载荷投递及动态阈值策略。它不属于本 ROS 工作区，也不进入正式 launch；
+其参数只能作为本仓 feature 分支的候选输入，仍须经过 ROS/PX4/Gazebo 完整 Gate 验证。记录时版本为
+`main@18f6ee8`，详细模型边界见 HANDOFF 第 12 节。
 
-## V-CL-06 全随机场正式入口
+## 当前验收边界
 
-### 当前 clean manager + 单执行 bridge 入口
+`r41` 已在视觉 `8e53bd0` + 导航 `3557215`、KS2A543、seed 11 上完成三投、三恢复、
+三门、H、AUTO.LAND、落地和解除武装，ROS 任务时钟 `429.875 s`。后继收口候选修正了计时
+口径并去除正式链旧视觉桥，但精确最终候选仍须在两个仓库收口后只运行一次完整 Gate；不得把
+分阶段或旧 revision 的 PASS 自动继承给新组合。
 
-`navigation_search_delivery_vcl06.launch` 是当前正式联调入口，固定使用 `r2026`、非零
-`field_seed=11`、`baseline` 和 `toudi3_random.world`。它只启动一个
-`navigation_mission_manager` 与一个 `navigation_planner_bridge`；旧 coverage/search manager、
-profile selector 和 `navigation_visual_delivery_adapter` 不在该图中。bridge 是
-`/fastplanner/goal` 唯一发布者，并在同一 executor 内归约 planner、CAPTURE/ALIGNMENT/RELEASE/
-RECOVERY 与 LAND 事实；没有新增跨组消息或第二套任务策略。
-
-```bash
-export UAV_VISION_MODEL_PATH=/absolute/path/to/model.pt
-SIM_NO_RECORD=1 SIM_REQUIRE_GATE=1 \
-top_level_scripts/sim_run.sh vcl06_typed_seed11 \
-roslaunch uav_mission navigation_search_delivery_vcl06.launch \
-target_model_path:="$UAV_VISION_MODEL_PATH" \
-gui:=false rviz:=false start_hard_gate:=true record_debug:=true
-```
-
-`gate_status.json` 是唯一 PASS/FAIL 判据。2026-08-31 的地图预检
-`logs/vcl06_map_guard_fix_preflight3_20260831_124042/` 已实测 `/livox/lidar`、
-`/cloud_registered_body`、`/freedom/static_pointcloud` 非空，width 分别为 20000、约 7900、
-约 5600；静态地图为 `camera_init`、非零时间戳并持续约 10 Hz。接触环避开 MID360 浅俯视束后，
-`logs/vcl06_map_guard_fix_gate90_v3_20260831_125136/gate_status.json` 不再出现
-`map_missing/map_stale`，位姿约 30 Hz、地图约 10 Hz、合同错误/碰撞/越界为 0，并产生 3 个
-decision、5 个 result。该轮仍因 90 秒 `wall_timeout` FAIL，未选中目标或进入 APPROACH、投递、
-返航、LAND，`P_interrupt` 仍为空；不得把地图 readiness 通过写成完整任务 PASS。
-
-### 历史冻结 manager 与地图 A/B 入口
-
-`navigation_search_delivery_random_field.launch` 以导航上游 manager
-`liftrace-controlwork@5144aa8` 为冻结源，使用外围 profile selector 和 adapter 接入
-全随机场；地图实验 `a68925d` 只通过 `nav_feature_profile` A/B，不代表 manager 更新。
-正式 Gate 必须要求结构化报告存在，baseline 首轮命令为：
-
-```bash
-SIM_NO_RECORD=1 SIM_REQUIRE_GATE=1 \
-top_level_scripts/sim_run.sh vcl06_random_seed11_baseline \
-roslaunch uav_mission navigation_search_delivery_random_field.launch \
-field_seed:=11 class_profile:=r2026 nav_feature_profile:=baseline \
-enable_debug_image:=false record_debug:=false
-```
-
-缺少或无法解析 `gate_status.json`、状态不是 `PASS`，统一入口都返回非零。候选
-`a68925d` 只在同 seed 的 30 秒预检与 90 秒固定路线 A/B 达标后再用于 600 秒 Gate；
-未达标时默认保持 `baseline`。
-
-30 秒预检不要求路线到点或完成投递，只检查随机场 footprint/真值、anchor、模型文件、
-CameraInfo、`camera_init -> camera optical frame` TF、图像/地图/pose/ModelStates、实际接触
-监测和 raw/planner goal 发布者所有权。单次 baseline 预检可运行：
-
-```bash
-SIM_NO_RECORD=1 SIM_REQUIRE_GATE=1 \
-top_level_scripts/sim_run.sh vcl06_preflight_seed11_baseline \
-roslaunch uav_mission navigation_random_field_preflight.launch \
-field_seed:=11 class_profile:=r2026 nav_feature_profile:=baseline \
-target_model_path:="$UAV_VISION_MODEL_PATH" gui:=false rviz:=false
-```
-
-完整 A/B 入口按 `baseline 预检 -> baseline 90 s -> a68925d 预检 -> a68925d 90 s -> 比较`
-顺序执行，每一段都走独立 `sim_run.sh` run 目录：
-
-```bash
-export UAV_VISION_MODEL_PATH=/absolute/path/to/model.pt
-bash top_level_scripts/run_navigation_ab.sh
-```
-
-90 秒样本关闭 candidate selector，实际执行导航组固定搜索路线，并记录 pose 最大断流、
-场界、高度漂移、规划响应/失败、实际接触和共同路线进度墙钟。比较器要求 seed/world/真值/
-模型/路线一致，双方 0 碰撞/越界且高度不超过 4 m；候选至少改善规划失败或高度漂移之一，
-共同进度墙钟退化不超过 10%。`promote_candidate=true` 只是报告事实，不会自动修改默认值；
-设置 `a68925d` 为默认仍须独立审查提交。
-
-## 新 VCL06 manager 的一次性启动 gate
-
-`navigation_mission_start_gate.launch` 是可复用的启动安全边界，当前正式 VCL06 入口已 include，
-独立使用时默认 `enabled:=false`。它本身既不启动 manager，也不发布 planner goal 或执行机构命令；
-只有显式 `enabled:=true` 且以下 latched 合同同时成立，才会调用一次
-`/navigation/start_mission`：
-
-- random field 为 `READY/ready=true`，seed/profile 与 `11/r2026` 一致；
-- `tent/pillbox/bridge/panzer/red_cross` 五个 target 的 expected/spawned/verified 清单一致，
-  footprint 已验证，`random_field_truth.yaml` 位于本 run 目录并能解析出同一 seed/profile、
-  五类与正 footprint；
-- planner anchor 的 READY profile 与 `nav_feature_profile` 一致，三份模型清单一致；
-- 新 `navigation_mission_manager.py` 状态为 `IDLE` 且 profile 为 `r2026`。
-
-manager 仍独立执行 pose/map readiness 的第二道门；启动 gate 不订阅 pose/map，也不复制其
-新鲜度策略。服务尚未注册或 manager 因自身 readiness 拒绝时，gate 使用 0.5--5 s 有界
-指数退避；第一次成功后永久闭锁。观测状态为 latched JSON
-`/navigation/mission_start_gate_status`，其中 `service_call_count=0` 是 READY 前的硬约束。
-
-`navigation_search_delivery_random_field.launch` 继续保留冻结的旧
-`target_search_manager_py.py`，不把新旧 manager 混在同一入口。新 manager、start gate 与
-execution bridge 已由 `navigation_search_delivery_vcl06.launch` 显式组合；下面的 include
-仍是其他受控入口复用 start gate 时的最小接线：
-
-```xml
-<include file="$(find uav_mission)/launch/navigation_mission_start_gate.launch">
-  <arg name="enabled" value="true" />
-  <arg name="field_seed" value="$(arg field_seed)" />
-  <arg name="class_profile" value="r2026" />
-  <arg name="nav_feature_profile" value="$(arg nav_feature_profile)" />
-</include>
-```
+上述结果不是全工作区构建 PASS。全量 Catkin 配置仍会报告仓内 `tool/cv_bridge/src` 缺少
+`CMakeLists.txt`，以及 `local_sensing` 的 `cmake_modules` 依赖在当前环境不可用；这两项属于独立的
+仓级构建缺口，不影响本任务链四包的定向验证结论。跟踪见导航上游 Issue #9：
+`https://github.com/sakelier/liftrace-controlwork/issues/9`。

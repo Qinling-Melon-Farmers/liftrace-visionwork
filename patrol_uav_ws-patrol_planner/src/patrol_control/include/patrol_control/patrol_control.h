@@ -19,6 +19,7 @@
 #include <uav_vision/DropOffset.h>
 #include <uav_vision/DropReady.h>
 #include <uav_vision/TargetCandidate.h>
+#include <uav_vision/TargetDetectionArray.h>
 #include <patrol_control/MissionCommand.h>
 #include <Eigen/Core>
 #include <cmath>  // 引入 math 库，使用 sqrt 函数
@@ -47,7 +48,7 @@ public:
     ~LLController();
     void initializeNode();
     void load_params();
-    
+
     inline Eigen::Vector3f toEigen(const geometry_msgs::Point& p) {
         Eigen::Vector3f ev3(p.x, p.y, p.z);
         return ev3;
@@ -69,7 +70,7 @@ public:
         else {return Nothing_point; std::cout<<"ERROR Pointmode"<<std::endl;}  // 默认返回 Nothing_point
     }
 
-    
+
 private:
     struct Waypoint
     {
@@ -113,17 +114,19 @@ private:
     ros::Subscriber drop_ready_sub_;
     ros::Subscriber mission_release_permission_sub_;
     ros::Subscriber mission_command_sub_;
+    ros::Subscriber landing_detections_sub_;
     // 舵机控制发布器
     ros::Publisher servo1_pub_;
     ros::Publisher servo2_pub_;
     ros::Publisher servo3_pub_;
-    
+
     // 十字检测相关订阅者和发布者
     ros::Subscriber cross_pixel_offset_sub_;
     ros::Subscriber cross_center_sub_;
     ros::Subscriber cross_status_sub_;
     ros::Publisher cross_control_pub_;
     ros::Publisher class_control_pub_;
+    ros::Publisher control_ready_pub_;
 
     std::vector<std::vector<double>> dynamic_point_list;
     geometry_msgs::PoseStamped mavros_point_cmd, planner_cmd, patrol_cmd, waypoint_mark_point, land_mark;
@@ -194,10 +197,35 @@ private:
     bool update_goal_from_selected_target_ = true;
     bool require_vision_release_permission_ = false;
     bool external_mission_mode_ = false;
+    bool control_ready_latched_ = false;
+    std::string control_ready_topic_ = "/mission/control_ready";
     std::string mission_command_topic_ = "/mission/command";
+    std::string external_landing_detections_topic_ =
+        "/uav_vision/detections_mapped";
     double external_planner_cmd_timeout_ = 0.5;
     double external_planner_start_max_distance_ = 0.6;
-    double external_alignment_timeout_sec_ = 75.0;
+    double external_planner_max_command_z_ = 3.5;
+    std::string external_landing_frame_ = "camera_init";
+    double external_landing_capture_height_ = 0.75;
+    double external_landing_watchdog_timeout_sec_ = 120.0;
+    double external_landing_mark_max_age_sec_ = 0.5;
+    double external_landing_alignment_tolerance_ = 0.08;
+    double external_landing_max_mark_offset_ = 0.60;
+    double external_landing_auto_land_height_ = 0.40;
+    double external_landing_auto_land_retry_sec_ = 1.0;
+    int external_landing_stable_frames_ = 10;
+    bool external_landing_active_ = false;
+    bool external_landing_new_mark_ = false;
+    bool external_landing_alignment_complete_ = false;
+    bool external_landing_auto_land_requested_ = false;
+    int external_landing_stable_count_ = 0;
+    geometry_msgs::PoseStamped external_landing_goal_;
+    geometry_msgs::PoseStamped external_landing_aligned_goal_;
+    ros::Time external_landing_started_at_;
+    ros::Time external_landing_command_stamp_;
+    ros::Time external_landing_last_mark_stamp_;
+    ros::Time external_landing_last_mark_receipt_;
+    ros::Time external_landing_last_auto_land_attempt_;
     // 悬停相关变量
     bool flag_hover_started = false;
     bool overtime_drop_flag = false;
@@ -212,12 +240,16 @@ private:
     std::vector<bool> drop_completed;      // 记录每个检测点是否已完成投递
     bool drop_condition_met = false;       // 投递条件是否满足
     double drop_precision_threshold = 20.0; // 投递精度阈值（像素）
-    double drop_height_threshold = 0.2;     // 投递高度阈值（米）
+    double drop_height_threshold = 0.2;     // 旧链投递高度阈值（米）
+    double drop_position_threshold_ = 0.15; // 旧链投递三维距离阈值（米）
+    double drop_release_setpoint_height_ = 0.10; // 投递下降目标高度（米）
+    double external_recovery_height_ = 0.95; // 外部投递恢复交接高度（米）
+    double external_alignment_capture_height_ = 1.2; // Retain configured align_height across deliveries.
     bool drop_enabled = true;               // 投递功能是否启用
     bool cross_mark = true;
     bool tank_mark = true;
     bool min_distance_flag = false;
-    
+
     // 对准精度监控
     double current_pixel_error = 1000.0;   // 当前像素误差
     ros::Subscriber alignment_feedback_sub_; // 订阅对准反馈信息
@@ -225,7 +257,7 @@ private:
     std_msgs::String class_;
 
     double min_distance = 100.0;
-    
+
     // 渐进降高状态监控
     bool descent_completed = false;         // 渐进降高是否完成
     double final_target_height = 0.0;      // 最终目标高度
@@ -243,7 +275,7 @@ private:
     bool cross_detection_active_ = false;    // 十字检测是否激活
     bool cross_found_ = false;               // 是否检测到十字
     bool cross_triggered_alignment_ = false; // 是否是由十字检测触发的对准模式
-    
+
     // 任务状态管理变量
     TaskType current_task_type = MAIN_MISSION;           // 当前任务类型
     Dronemode main_mission_mode = Run_point;             // 保存主任务状态
@@ -286,14 +318,14 @@ private:
     double drop_cross_radius_m_ = 0.5;
     double landing_pad_radius_m_ = 0.3;
     bool enable_selected_tank_interrupt_ = false;
-    
+
     // 检测状态管理变量
     bool first_call = true;                             // 首次调用标志
     bool drop_complete = false;                         // 投递完成标志
     bool down_flag = true;                              // 下降标志
     ros::Time detection_start_time;                     // 检测开始时间
     int times_detect = 0;                               // 检测次数
-    bool ignore_servo_complete = false;                 // 忽略舵机完成信号标志  
+    bool ignore_servo_complete = false;                 // 忽略舵机完成信号标志
     int count_cross_detect = 0;                         // 十字检测次数
     double dynamic_height = 0.2;
     std::array<std::array<double, 2>, 3> drop_slot_offsets_{{
@@ -308,6 +340,9 @@ private:
     ros::Publisher point_class_pub_;
     std::string current_align_mode_ = "disabled";
     void publishAlignMode(const std::string& mode);
+    void publishControlReady(bool ready);
+    void publishLegacyVisionControl(ros::Publisher& publisher,
+                                    const std_msgs::Bool& message);
     std::string desiredAlignMode() const;
     bool classMatchesGoal(const std::string& class_name) const;
     bool hasFreshSelectedTarget() const;
@@ -321,28 +356,32 @@ private:
     void patrol();
     void pub_goal(geometry_msgs::PoseStamped goal_msg);
     void externalMissionTick();
-    
+    void clearExternalLandingState(bool disable_detector);
+    void externalLandingTick();
+    void failExternalLanding(const std::string& reason);
+    bool externalLandingMarkFresh(const ros::Time& now) const;
+
     void Lock();
     void CallLand();
     void NextPoint();
-    
+
     bool WayPointDetectDone();
     bool LandDetectDone();
     bool DynamicProcess();
-    
+
     // 投递相关函数
     DropActionResult executeDropAction(int servo_id);  // 执行投递动作
     void applyDropSlotOffset(int servo_id, bool dynamic_target);
     bool checkDropCondition();                 // 检查投递条件
     void alignmentFeedbackCallback(const geometry_msgs::Point::ConstPtr& msg); // 对准反馈回调
     void resetDropState();                     // 重置投递状态
-    
+
     // 十字检测相关函数
     void crossPixelOffsetCallback(const geometry_msgs::Point::ConstPtr& msg);  // 十字像素偏差回调
     void crossCenterCallback(const geometry_msgs::Point::ConstPtr& msg);       // 十字中心回调
     void crossStatusCallback(const std_msgs::Bool::ConstPtr& msg);             // 十字检测状态回调
     void enableCrossDetection(bool enable);                                    // 启用/禁用十字检测
-    
+
     // 新增任务管理函数
     bool CrossDetectionDone();                             // 十字检测任务完成判断
     void setupCrossDetectionPoint();                       // 设置十字检测点
@@ -358,6 +397,8 @@ private:
     void cmdCallback(const ros::TimerEvent& event);
     void waypointMarkCallback(const geometry_msgs::PoseStamped& msg);
     void landMarkCallback(const geometry_msgs::PoseStamped& msg);
+    void landingDetectionsCallback(
+        const uav_vision::TargetDetectionArray::ConstPtr& msg);
     void crossStateCallback(const std_msgs::Bool::ConstPtr& msg);
     void mavrosLocalPositionCallback(const geometry_msgs::PoseStamped& msg);
     void servoMarkyCallback(const std_msgs::Bool& msg);
@@ -371,6 +412,6 @@ private:
     // void landMarkCallback(const geometry_msgs::PoseStamped& msg);
     void missionCommandCallback(
         const patrol_control::MissionCommand::ConstPtr& msg);
-};  
+};
 }
 #endif

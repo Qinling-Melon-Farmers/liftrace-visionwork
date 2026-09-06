@@ -30,13 +30,13 @@ class SearchPolicy:
 
     def _validate_parameters(self):
         values = (
-            self.min_x,
-            self.min_y,
-            self.max_x,
-            self.max_y,
+            self.min_x ,
+            self.min_y ,
+            self.max_x ,
+            self.max_y ,
             self.lane_spacing,
             self.altitude
-        )
+            )
 
         if not all(math.isfinite(value) for value in values):
             raise ValueError("Search parameters must be finite")
@@ -103,13 +103,15 @@ class SearchPolicy:
             return 1.0
 
         ratio = self._current_index / len(self._waypoints)
+
         return min(ratio, 1.0)
 
     def advance(self):
         if self._current_index < len(self._waypoints):
             self._current_index += 1
             return self.current_waypoint
-        return None
+        else:
+            return None
 
     def restore(self, index):
         if not isinstance(index, int):
@@ -121,3 +123,5 @@ class SearchPolicy:
 
         self._current_index = index
         return self.current_waypoint
+        # 要是index == N，那么就意味着飞向第N点（从0开始计数），
+        # 意味着完成了N个航点，此时会返回None

@@ -19,7 +19,10 @@ _SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 if _SCRIPT_DIR not in sys.path:
     sys.path.insert(0, _SCRIPT_DIR)
 from release_commitment import (
-    MODE_TARGET_CLASS, ReleaseCommitmentPolicy, strict_context_source,
+    MODE_TARGET_CLASS, ReleaseCommitmentPolicy,
+    commitment_context_rejection_is_terminal,
+    commitment_matches_fence, commitment_rejection_is_terminal,
+    strict_commitment_fence, strict_context_source,
 )
 
 
@@ -118,7 +121,7 @@ class ReleasePermissionArbiter:
         rospy.loginfo(
             "[ReleaseArbiter] ready slots=%d..%d evidence_timeout=%.2fs "
             "pose_timeout=%.2fs control_state=%d timeout=%.2fs "
-            "altitude=[%.2f, %.2f]m commitment=%.1fs drift=%.2fm "
+            "altitude=[%.2f, %.2f]m legacy_commitment=%.1fs drift=%.2fm "
             "strict_context=%s",
             self._next_slot, self._payload_slots,
             self._evidence_timeout, self._pose_timeout,
@@ -212,6 +215,18 @@ class ReleasePermissionArbiter:
             "evidence_stamp_nsec": int(
                 source["evidence_stamp"].to_nsec()),
         }
+        if self._require_evidence_context:
+            fence_valid, _, fence = strict_commitment_fence(
+                self._evidence_context,
+                now,
+                self._evidence_timeout,
+                self._class_profile,
+                self._align_mode,
+                self._next_slot,
+            )
+            if not fence_valid:
+                return
+            evidence.update(fence)
         commitment = self._commitment_policy.observe(
             now=now.to_sec(),
             evidence=evidence,
@@ -299,6 +314,23 @@ class ReleasePermissionArbiter:
         current_valid, current_reason, source = \
             self._current_evidence_source(now)
         grant_reason = current_reason
+        if self._require_evidence_context and self._commitment is not None:
+            fence_valid, fence_reason, fence = strict_commitment_fence(
+                self._evidence_context,
+                now,
+                self._evidence_timeout,
+                self._class_profile,
+                self._align_mode,
+                self._next_slot,
+            )
+            if not fence_valid:
+                if commitment_context_rejection_is_terminal(fence_reason):
+                    self._commitment = None
+                return False, fence_reason, None
+            if not commitment_matches_fence(self._commitment, fence):
+                self._commitment = None
+                if not current_valid:
+                    return False, "commitment_context_fence_changed", None
         if current_valid and self._commitment is not None:
             current_target_key = (
                 self._align_mode, source["target_id"])
@@ -321,10 +353,11 @@ class ReleasePermissionArbiter:
                     current_evidence_valid=False,
                 )
             if not commitment_valid:
-                if self._commitment is not None:
+                if (self._commitment is not None and
+                        commitment_rejection_is_terminal(
+                            commitment_reason)):
                     self._commitment = None
-                    return False, commitment_reason, None
-                return False, current_reason, None
+                return False, commitment_reason, None
             grant_reason = commitment_reason
             source = self._commitment_source()
 

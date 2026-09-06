@@ -7,6 +7,8 @@ import unittest
 from uav_mission.coverage_route import CoverageRoute
 from uav_mission.mission_core import (
     CandidateSnapshot,
+    GoalSnapshot,
+    MissionConfig,
     MissionCore,
     MissionPhase,
     ResultEvent,
@@ -142,6 +144,91 @@ class MissionRuntimeTest(unittest.TestCase):
             snapshot.route_active_decision_seq, action.decision_seq)
         self.assertEqual(snapshot.route_index, 0)
         self.assertEqual(snapshot.active_command, "SEARCH")
+
+    def test_snapshot_exposes_post_delivery_route_cursor(self):
+        config = MissionConfig(
+            post_delivery_route=(
+                GoalSnapshot("camera_init", -2.0, 6.0, 1.0),
+                GoalSnapshot("camera_init", 3.0, 8.0, 0.75),
+            ),
+            post_delivery_route_revision="three-door-runtime-r1",
+            landing_xy=(3.0, 8.0),
+        )
+        runtime = MissionRuntime(
+            MissionCore(profile(), config),
+            CoverageRoute((Waypoint(0.0, 0.0, 2.2),),
+                          "test-route-r1", 2),
+        )
+        self.start(runtime)
+        snapshot = runtime.snapshot()
+        self.assertEqual(
+            snapshot.post_delivery_route_revision,
+            "three-door-runtime-r1",
+        )
+        self.assertEqual(snapshot.post_delivery_route_index, 0)
+        self.assertEqual(snapshot.post_delivery_route_size, 2)
+        self.assertFalse(snapshot.post_delivery_route_complete)
+
+    def test_post_delivery_validation_starts_route_without_fake_commits(self):
+        config = MissionConfig(
+            post_delivery_route=(
+                GoalSnapshot("camera_init", -2.0, 6.0, 1.0),
+                GoalSnapshot("camera_init", 3.0, 8.0, 0.75),
+            ),
+            post_delivery_route_revision="stage-route-r1",
+            landing_xy=(3.0, 8.0),
+        )
+        runtime = MissionRuntime(
+            MissionCore(profile(), config),
+            CoverageRoute((Waypoint(0.0, 0.0, 2.2),),
+                          "unused-coverage-r1", 2),
+        )
+
+        started = runtime.start_post_delivery_validation(
+            "mission-runtime", 100.0, (0.0, 0.0))
+
+        self.assertTrue(started.accepted, started.reason)
+        self.assertEqual(started.reason,
+                         "post_delivery_validation_started")
+        self.assertEqual(started.action.command, "RETURN_HOME")
+        self.assertIn("stage_validation_start", started.action.reason)
+        self.assertEqual(started.snapshot.phase,
+                         MissionPhase.POST_DELIVERY_ROUTE)
+        self.assertEqual(started.snapshot.committed_slots, 0)
+        self.assertEqual(
+            [slot.status for slot in runtime.core.slots],
+            [SlotStatus.FREE, SlotStatus.FREE, SlotStatus.FREE])
+        self.assertEqual(runtime.route.current_index, 0)
+        self.assertIsNone(runtime.route.active)
+
+        second = runtime.apply_result(
+            result_for(
+                started.action, 1, status="SUCCEEDED", stage="PLANNER",
+                terminal=True, reason="waypoint_reached"),
+            101.0, (-2.0, 6.0))
+        self.assertEqual(second.action.command, "RETURN_HOME")
+        self.assertIn("segment_complete", second.action.reason)
+
+        land = runtime.apply_result(
+            result_for(
+                second.action, 2, status="SUCCEEDED", stage="PLANNER",
+                terminal=True, reason="waypoint_reached"),
+            102.0, (3.0, 8.0))
+        self.assertEqual(land.action.command, "LAND")
+        complete = runtime.apply_result(
+            result_for(
+                land.action, 3, status="SUCCEEDED", stage="LANDING",
+                terminal=True, reason="landed"),
+            103.0, (3.0, 8.0))
+        self.assertEqual(complete.snapshot.phase, MissionPhase.COMPLETE)
+        self.assertEqual(complete.snapshot.committed_slots, 0)
+
+    def test_post_delivery_validation_requires_configured_route(self):
+        runtime = self.make_runtime()
+        with self.assertRaisesRegex(
+                RuntimeError, "requires a configured route"):
+            runtime.start_post_delivery_validation(
+                "mission-runtime", 100.0, (0.0, 0.0))
 
     def test_high_weight_interrupt_resumes_same_waypoint(self):
         runtime = self.make_runtime()

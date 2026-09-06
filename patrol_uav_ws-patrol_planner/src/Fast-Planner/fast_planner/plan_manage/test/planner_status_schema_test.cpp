@@ -4,6 +4,7 @@
 #include <plan_manage/PlannerStatus.h>
 #include <plan_manage/planner_status_tracker.h>
 
+#include <limits>
 #include <vector>
 
 namespace {
@@ -29,9 +30,9 @@ TEST(PlannerStatusSchema, StatusValuesRemainStable) {
   EXPECT_EQ(6u, plan_manage::PlannerStatus::CANCELLED);
 }
 
-TEST(PlannerStatusSchema, CorrelationAndGoalsSurviveSerialization) {
+TEST(PlannerStatusSchema, ExplicitCorrelationAndTransportHeaderSurviveSerialization) {
   plan_manage::PlannerStatus source;
-  source.header.seq                = 9;
+  source.header.seq                = 3;
   source.event_seq                 = 9;
   source.goal_seq                  = 42;
   source.status                    = plan_manage::PlannerStatus::REPLANNING;
@@ -52,6 +53,7 @@ TEST(PlannerStatusSchema, CorrelationAndGoalsSurviveSerialization) {
   ros::serialization::IStream input(buffer.data(), length);
   ros::serialization::deserialize(input, restored);
 
+  EXPECT_EQ(source.header.seq, restored.header.seq);
   EXPECT_EQ(source.event_seq, restored.event_seq);
   EXPECT_EQ(source.goal_seq, restored.goal_seq);
   EXPECT_EQ(source.status, restored.status);
@@ -73,20 +75,25 @@ TEST(PlannerStatusTracker, ReplacementCancelsOldGoalBeforeAcceptingNewGoal) {
       tracker.replaceGoal(makeGoal(41, 1.0), makeGoal(41, 1.25), first_stamp, 0.0, 2.0);
   ASSERT_EQ(1u, first.size());
   EXPECT_EQ(plan_manage::PlannerStatus::ACCEPTED, first[0].status);
+  EXPECT_EQ(1u, first[0].event_seq);
+  EXPECT_EQ(0u, first[0].header.seq);
   EXPECT_EQ(41u, first[0].goal_seq);
   EXPECT_EQ(0u, first[0].planning_attempt);
 
   const plan_manage::PlannerStatus attempt = tracker.beginAttempt(
       plan_manage::PlannerStatus::PLANNING, "new_trajectory_attempt", ros::Time(11, 0), 1.5);
+  EXPECT_EQ(2u, attempt.event_seq);
   EXPECT_EQ(1u, attempt.planning_attempt);
 
   const std::vector<plan_manage::PlannerStatus> replacement =
       tracker.replaceGoal(makeGoal(42, 2.0), makeGoal(42, 2.25), ros::Time(12, 0), 1.25, 3.0);
   ASSERT_EQ(2u, replacement.size());
   EXPECT_EQ(plan_manage::PlannerStatus::CANCELLED, replacement[0].status);
+  EXPECT_EQ(3u, replacement[0].event_seq);
   EXPECT_EQ(41u, replacement[0].goal_seq);
   EXPECT_EQ(1u, replacement[0].planning_attempt);
   EXPECT_EQ(plan_manage::PlannerStatus::ACCEPTED, replacement[1].status);
+  EXPECT_EQ(4u, replacement[1].event_seq);
   EXPECT_EQ(42u, replacement[1].goal_seq);
   EXPECT_EQ(0u, replacement[1].planning_attempt);
   EXPECT_LT(replacement[0].event_seq, replacement[1].event_seq);
@@ -96,6 +103,7 @@ TEST(PlannerStatusTracker, ReplacementCancelsOldGoalBeforeAcceptingNewGoal) {
   const plan_manage::PlannerStatus replacement_attempt = tracker.beginAttempt(
       plan_manage::PlannerStatus::REPLANNING, "trajectory_replan_attempt", ros::Time(13, 0),
       2.5);
+  EXPECT_EQ(5u, replacement_attempt.event_seq);
   EXPECT_EQ(42u, replacement_attempt.goal_seq);
   EXPECT_EQ(1u, replacement_attempt.planning_attempt);
 }
@@ -124,6 +132,23 @@ TEST(PlannerStatusTracker, EffectiveAdjustmentKeepsSequenceAndFinishClosesActive
   ASSERT_EQ(1u, next.size());
   EXPECT_EQ(plan_manage::PlannerStatus::ACCEPTED, next[0].status);
   EXPECT_EQ(74u, next[0].goal_seq);
+}
+
+TEST(PlannerStatusTracker, CompletionRequiresActiveFiniteDistanceWithinThreshold) {
+  fast_planner::PlannerStatusTracker tracker;
+  tracker.replaceGoal(makeGoal(81, 1.0), makeGoal(81, 1.0),
+                      ros::Time(30, 0), 0.0, 1.0);
+
+  EXPECT_FALSE(tracker.canFinishWithin(0.329, 0.1));
+  EXPECT_TRUE(tracker.canFinishWithin(0.1, 0.1));
+  EXPECT_FALSE(tracker.canFinishWithin(
+      std::numeric_limits<double>::quiet_NaN(), 0.1));
+  EXPECT_FALSE(tracker.canFinishWithin(
+      std::numeric_limits<double>::infinity(), 0.1));
+  EXPECT_FALSE(tracker.canFinishWithin(0.05, -1.0));
+
+  tracker.finish("goal_reached_after_local_trajectory", ros::Time(31, 0), 0.1);
+  EXPECT_FALSE(tracker.canFinishWithin(0.0, 0.1));
 }
 
 int main(int argc, char** argv) {

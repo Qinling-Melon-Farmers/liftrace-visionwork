@@ -64,6 +64,14 @@ target_link_libraries( freedom_node
     ${cv_bridge_LIBRARIES}
 )
 
+add_executable( static_pointcloud_viz_node
+  src/static_pointcloud_viz_node.cpp
+)
+target_link_libraries( static_pointcloud_viz_node
+    ${catkin_LIBRARIES}
+    ${PCL_LIBRARIES}
+)
+
 add_executable( ground_truth_generate
   src/evaluate_tools/ground_truth_generate.cpp
 )
@@ -79,3 +87,15 @@ target_link_libraries( static_map_evaluate
     ${catkin_LIBRARIES} 
     ${PCL_LIBRARIES}
 )
+
+if(CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(freedom_visualization_utils_test
+    test/visualization_utils_test.cpp
+  )
+  if(TARGET freedom_visualization_utils_test)
+    target_link_libraries(freedom_visualization_utils_test
+      ${catkin_LIBRARIES}
+      ${PCL_LIBRARIES}
+    )
+  endif()
+endif()

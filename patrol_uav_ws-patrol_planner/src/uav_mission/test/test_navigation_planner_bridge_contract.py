@@ -12,7 +12,10 @@ import yaml
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = PACKAGE_ROOT / "scripts" / "navigation_planner_bridge.py"
 LAUNCH = PACKAGE_ROOT / "launch" / "navigation_planner_bridge.launch"
+MISSION_LAUNCH = (
+    PACKAGE_ROOT / "launch" / "navigation_search_delivery_vcl06.launch")
 CONFIG = PACKAGE_ROOT / "config" / "vcl06_planner_bridge.yaml"
+FORMAL_RUNTIME = PACKAGE_ROOT / "config" / "vcl06_random_field_runtime.yaml"
 PACKAGE_XML = PACKAGE_ROOT / "package.xml"
 
 
@@ -22,7 +25,10 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
         cls.source = SCRIPT.read_text(encoding="utf-8")
         cls.tree = ast.parse(cls.source)
         cls.config = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
+        cls.formal_runtime = yaml.safe_load(
+            FORMAL_RUNTIME.read_text(encoding="utf-8"))
         cls.launch = ET.parse(str(LAUNCH)).getroot()
+        cls.mission_launch = ET.parse(str(MISSION_LAUNCH)).getroot()
         cls.package = ET.parse(str(PACKAGE_XML)).getroot()
 
     def test_script_has_only_fenced_output_types(self):
@@ -73,7 +79,7 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
 
     def test_raw_decision_and_planner_identity_are_checked(self):
         for token in (
-                "message.header.seq", "message.decision_seq",
+                "message.decision_seq",
                 "nested goal sequence mismatch", "nested goal stamp mismatch",
                 "decision goal flag does not match command",
                 "decision target flag does not match command",
@@ -85,18 +91,47 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
         self.assertIn(
             'raise ValueError("ALIGN requires the target transaction executor")',
             self.source)
+        decision_parser = self.source[
+            self.source.index("def _decision_from_message"):
+            self.source.index("def _sequenced_goal_from_status")]
+        self.assertNotIn("message.header.seq", decision_parser)
+
+    def test_planner_event_sequence_is_not_coupled_to_transport_header(self):
+        parser = self.source[
+            self.source.index("def _planner_status_from_message"):
+            self.source.index("def _odom_from_message")]
+        self.assertIn("event_seq = int(message.event_seq)", parser)
+        self.assertIn("event_seq=event_seq", parser)
+        self.assertNotIn("message.header.seq", parser)
+        self.assertNotIn("planner event header sequence mismatch", self.source)
 
     def test_motion_limits_do_not_duplicate_profile_policy(self):
         execution = self.config["execution"]
         self.assertFalse(execution["enabled"])
         self.assertFalse(execution["allow_live_goal_output"])
         self.assertEqual(execution["mission_frame"], "camera_init")
-        self.assertEqual(execution["max_goal_z"], 4.0)
+        self.assertEqual(execution["max_goal_z"], 2.5)
         self.assertNotIn("class_profile", execution)
         self.assertNotIn("payload_slots", execution)
         self.assertNotIn("allowed_target_classes", execution)
-        self.assertEqual(execution["effective_goal_max_offset"], 1.10)
-        self.assertEqual(execution["planner_accept_timeout"], 2.0)
+        self.assertEqual(execution["effective_goal_max_offset"], 0.35)
+        self.assertEqual(execution["planner_accept_timeout"], 5.0)
+        self.assertEqual(execution["arrival_position_tolerance"], 0.18)
+        self.assertEqual(
+            execution["arrival_position_tolerance"],
+            self.formal_runtime["post_delivery_gate"]["goal_tolerance"],
+        )
+        self.assertEqual(
+            execution["approach_arrival_position_tolerance"], 0.35)
+
+    def test_planner_generation_uses_preserved_stamp_not_transport_sequence(self):
+        parser = self.source[
+            self.source.index("def _planner_status_from_message"):
+            self.source.index("def _odom_from_message")]
+        self.assertIn("transport_goal_seq = int(message.goal_seq)", parser)
+        self.assertIn("resolve_goal_seq_by_stamp", parser)
+        self.assertIn("requested_stamp_ns", parser)
+        self.assertIn("foreign_planner_goal_stamp_ignored", self.source)
 
     def test_launch_defaults_to_disabled_isolated_output(self):
         arguments = {
@@ -172,6 +207,35 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
         self.assertIn("def _mark_alignment_started", self.source)
         self.assertIn("alignment_accepted_before_release_ack", self.source)
 
+    def test_terminal_state_confirmation_uses_position_dwell(self):
+        target = self.config["target"]
+        landing = self.config["landing"]
+        self.assertEqual(target["recovery_settle_radius"], 0.15)
+        self.assertEqual(landing["settle_radius"], 0.15)
+        self.assertNotIn("recovery_speed", target)
+        self.assertNotIn("speed", landing)
+        self.assertIn("PositionSettleWindow", self.source)
+        self.assertNotIn("self._recovery_speed", self.source)
+        self.assertNotIn("self._landing_speed", self.source)
+        self.assertIn('"control_state_predates_release"', self.source)
+        self.assertIn('"landed_state_predates_land_command"', self.source)
+        self.assertIn('"recovery_settle"', self.source)
+        self.assertIn('"landing_settle"', self.source)
+        self.assertNotIn(
+            "now_ns - self._control_state_receipt_ns", self.source)
+        self.assertNotIn(
+            "now_ns - self._align_mode_receipt_ns", self.source)
+        self.assertNotIn(
+            "now_ns - self._landed_state_receipt_ns", self.source)
+
+    def test_debug_recording_includes_odom_used_by_terminal_gates(self):
+        recorder = next(
+            node for node in self.mission_launch.findall("node")
+            if node.attrib.get("name") == "navigation_vcl06_debug_recorder")
+        self.assertIn(
+            "/mavros/local_position/odom", recorder.attrib["args"])
+        self.assertIn("/detect/point_class", recorder.attrib["args"])
+
     def test_abort_reuses_planner_goal_and_hold_is_not_advertised(self):
         self.assertIn('elif command == "ABORT"', self.source)
         self.assertIn('raise ValueError("HOLD is not supported', self.source)
@@ -182,7 +246,7 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
         self.assertIn("x=sample.x", self.source)
         self.assertIn("y=sample.y", self.source)
         self.assertIn('z=0.0', self.source)
-        self.assertIn("horizontal_error <= self._landing_radius", self.source)
+        self.assertIn("horizontal_error > self._landing_radius", self.source)
         self.assertIn("ExtendedState.LANDED_STATE_ON_GROUND", self.source)
         self.assertIn("self._control_state == 3", self.source)
         self.assertIn(

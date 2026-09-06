@@ -64,6 +64,9 @@ void KinoReplanFSM::init(ros::NodeHandle& nh) {
   nh.param("fsm/flight_type", target_type_, -1);
   nh.param("fsm/thresh_replan", replan_thresh_, -1.0);
   nh.param("fsm/thresh_no_replan", no_replan_thresh_, -1.0);
+  nh.param("fsm/tracking_replan_distance", tracking_replan_distance_, 0.45);
+  nh.param("fsm/min_replan_interval", min_replan_interval_, 0.75);
+  nh.param("fsm/allow_goal_adjustment", allow_goal_adjustment_, true);
   nh.param<std::string>("goal_status_topic", goal_status_topic_, "/planning/goal_status");
 
   nh.param("fsm/waypoint_num", waypoint_num_, -1);
@@ -111,10 +114,11 @@ void KinoReplanFSM::waypointCallback(const geometry_msgs::PoseStamped msg) {
     current_wp_ = (current_wp_ + 1) % waypoint_num_;
   }
 
-  // 计算终端速度，模长为 0.1，方向为收到的 yaw 角方向
-  double yaw = tf::getYaw(msg.pose.orientation);
-  if (std::isnan(yaw)) yaw = 0.0;
-  end_vel_ << 0.1 * cos(yaw), 0.1 * sin(yaw), 0.0;
+  // PoseStamped carries vehicle attitude, not a translational velocity
+  // contract.  A discrete mission goal must therefore end at rest; deriving
+  // +x motion from the default identity quaternion bends narrow-door paths.
+  end_vel_.setZero();
+  next_planning_attempt_ = ros::Time(0);
 
   geometry_msgs::PoseStamped effective_goal = msg;
   effective_goal.pose.position.x = end_pt_(0);
@@ -197,6 +201,7 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
     }
 
     case GEN_NEW_TRAJ: {
+      if (ros::Time::now() < next_planning_attempt_) return;
       start_pt_  = odom_pos_;
       start_vel_ = odom_vel_;
       start_acc_.setZero();
@@ -231,50 +236,44 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
       /* determine if need to replan */
       LocalTrajData* info     = &planner_manager_->local_data_;
       ros::Time      time_now = ros::Time::now();
-      double         t_cur    = (time_now - info->start_time_).toSec();
-      t_cur                   = min(info->duration_, t_cur);
-
-      Eigen::Vector3d pos = info->position_traj_.evaluateDeBoorT(t_cur);
-
-      /* && (end_pt_ - pos).norm() < 0.5 */
-      if (t_cur > info->duration_ - 1e-2) {
-        publishGoalStatus(goal_status_tracker_.finish("local_trajectory_duration_reached",
-                                                      ros::Time::now(), currentGoalDistance()));
+      const auto position = [info](double t) -> Eigen::Vector3d {
+        return info->position_traj_.evaluateDeBoorT(t);
+      };
+      info->execution_time_ = projectProgress(
+          position, odom_pos_, info->execution_time_, info->duration_);
+      const double goal_distance = currentGoalDistance();
+      if (goal_status_tracker_.canFinishWithin(goal_distance, no_replan_thresh_)) {
+        publishGoalStatus(goal_status_tracker_.finish(
+            "goal_reached_after_local_trajectory", ros::Time::now(), goal_distance));
         have_target_ = false;
         changeFSMExecState(WAIT_TARGET, "FSM");
         return;
 
-      } else if ((end_pt_ - pos).norm() < no_replan_thresh_) {
-        // cout << "near end" << endl;
-        return;
-
-      } else if ((info->start_pos_ - pos).norm() < replan_thresh_) {
-        // cout << "near start" << endl;
-        return;
-
-      } else {
+      }
+      const double tracking_error = (position(info->execution_time_) - odom_pos_).norm();
+      const bool partial = (position(info->duration_) - end_pt_).norm() > no_replan_thresh_;
+      const bool exhausted = info->execution_time_ >= info->duration_ - 0.03;
+      // A safe complete curve is worth following. Rebuilding it every 0.2 m
+      // repeatedly restarts acceleration without adding useful map coverage.
+      if (tracking_error > tracking_replan_distance_ || exhausted ||
+          (partial && (odom_pos_ - info->start_pos_).norm() >= replan_thresh_ &&
+           (time_now - info->start_time_).toSec() >= min_replan_interval_)) {
         changeFSMExecState(REPLAN_TRAJ, "FSM");
       }
       break;
     }
 
     case REPLAN_TRAJ: {
+      if (ros::Time::now() < next_planning_attempt_) return;
       LocalTrajData* info     = &planner_manager_->local_data_;
-      ros::Time      time_now = ros::Time::now();
-      double         t_cur    = (time_now - info->start_time_).toSec();
-
       start_pt_  = odom_pos_;
-      // start_vel_ = odom_vel_;
-      start_acc_.setZero();  // 或者通过滤波器估计
-
-      // 计算 odom_vel_ 的模长
-      double vel_magnitude = odom_vel_.norm();
-
-      // 如果速度为零，则保持零向量，否则调整模长为 0.1
-      if (vel_magnitude > 1e-6) {
-          start_vel_ = odom_vel_ * (0.1 / vel_magnitude);
-      } else {
-          start_vel_.setZero();
+      start_vel_ = odom_vel_;
+      start_acc_.setZero();
+      if (info->duration_ > 0.0 && info->execution_time_ < info->duration_) {
+        const Eigen::Vector3d reference_velocity =
+            info->velocity_traj_.evaluateDeBoorT(info->execution_time_);
+        if ((reference_velocity - odom_vel_).norm() < 0.25)
+          start_acc_ = info->acceleration_traj_.evaluateDeBoorT(info->execution_time_);
       }
 
       // 提取yaw角
@@ -284,9 +283,6 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
       start_yaw_(0) = yaw;
       start_yaw_(1) = 0.0;  // 如果没有估计可设为0
       start_yaw_(2) = 0.0;  // 同上
-
-      std_msgs::Empty replan_msg;
-      replan_pub_.publish(replan_msg);
 
       publishGoalStatus(goal_status_tracker_.beginAttempt(
           plan_manage::PlannerStatus::REPLANNING, "trajectory_replan_attempt", ros::Time::now(),
@@ -311,7 +307,7 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
 void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
   LocalTrajData* info = &planner_manager_->local_data_;
 
-  if (have_target_) {
+  if (have_target_ && allow_goal_adjustment_) {
     auto edt_env = planner_manager_->edt_environment_;
 
     double dist = planner_manager_->pp_.dynamic_ ?
@@ -375,6 +371,7 @@ void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
     if (!safe) {
       // cout << "current traj in collision." << endl;
       ROS_WARN("current traj in collision.");
+      replan_pub_.publish(std_msgs::Empty());
       changeFSMExecState(REPLAN_TRAJ, "SAFETY");
     }
   }
@@ -383,6 +380,8 @@ void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
 bool KinoReplanFSM::callKinodynamicReplan() {
   bool plan_success =
       planner_manager_->kinodynamicReplan(start_pt_, start_vel_, start_acc_, end_pt_, end_vel_);
+  next_planning_attempt_ = plan_success ? ros::Time(0) :
+      ros::Time::now() + ros::Duration(min_replan_interval_);
 
   if (plan_success) {
 

@@ -23,6 +23,24 @@ align_height: 1.20
 px4_max_distance: 0.20
 max_yaw_change: 0.20
 
+# 外部 Mission Manager 的终局降落合同。仅在正式 SITL 的
+# simulation/enable_auto_land=true 且 switch/auto_land=1 时请求 AUTO.LAND；
+# H 证据必须来自 camera_init、晚于 LAND 命令并持续满足新鲜度与稳定帧数。
+external_landing:
+  frame: camera_init
+  # 正式链直接消费视觉 typed map detection；旧 PoseStamped 仅留 legacy 模式。
+  detections_topic: /uav_vision/detections_mapped
+  capture_height: 0.75
+  auto_land_height: 0.40
+  alignment_tolerance: 0.08
+  max_mark_offset: 0.60
+  mark_max_age_sec: 0.50
+  stable_frames: 10
+  auto_land_retry_sec: 1.0
+  # 本项只处理控制进程失联；LAND 业务阶段只服从任务开始后 600 s
+  # 的全场时限，不再另设“重捕”事务截止。
+  watchdog_timeout_sec: 120.0
+
 progressive_descent:
   enable: true
   target_height: 0.40
@@ -50,11 +68,15 @@ threshould:
 switch:
   flag_planner_px4: 0
   flag_landing_detect: 1
-  auto_land: 1
+  # patrol_control reads this parameter as bool; use a YAML boolean so ROS
+  # does not reject the XmlRpc integer and silently fall back to false.
+  auto_land: true
 
 drop_system:
   precision_threshold: 20.0
   height_threshold: 0.20
+  position_threshold: 0.15
+  release_setpoint_height: 0.10
   enable_drop: true
   descent_stable_duration: 2.0
   slot_offsets: [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]
@@ -65,6 +87,7 @@ uav_vision:
   require_release_permission: true
   release_permission_state_topic: /mission/release_permission_active
   release_permission_timeout: 0.20
+  recovery_height: 0.95
   selected_target_timeout: 1.0
   drop_offset_timeout: 1.0
   pixel_to_meter_ratio: 0.0015

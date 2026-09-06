@@ -313,7 +313,7 @@ void Visualizer::visualize_map_removal_result(const MRMap& map)
     
     if(static_pointcloud_pub.getNumSubscribers()>0)
         visualize_static_pointcloud(map);
-    
+
     if(raycast_map_range_pub.getNumSubscribers()>0)
         visualize_raycast_map_range(map);
 

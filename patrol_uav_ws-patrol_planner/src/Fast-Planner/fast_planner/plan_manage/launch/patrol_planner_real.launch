@@ -1,6 +1,6 @@
 <launch>
   <!-- 添加静态TF转换，将camera_tf连接到base_link -->
-  <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="camera_to_base_link" args="0 0 0 0 0 0 camera_tf base_link" /> -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="camera_to_base_link" args="0 0 0 0 0 0 camera_tf base_link" />
   
   <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="bodyTocamera_tf" args="0.09 0 0.04 0 0 0 /body /camera_tf" /> -->
   <!-- 从tf转到odom -->
@@ -82,7 +82,7 @@
     <!-- yaw角调节开始距离 -->
     <param name="traj_server/adjust_distance_yaw" value="4" type="double"/>
     <!-- 发送目标点的预瞄距离 -->
-    <param name="traj_server/target_dist" value="0.6" type="double"/>
+    <param name="traj_server/target_dist" value="0.4" type="double"/>
   </node>
 
   <node pkg="waypoint_generator" name="waypoint_generator" type="waypoint_generator" output="screen">

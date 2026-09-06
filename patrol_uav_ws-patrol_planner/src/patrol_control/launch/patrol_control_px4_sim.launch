@@ -7,6 +7,7 @@
     <arg name="external_mission_mode" default="false" />
     <arg name="simulation_auto_land" default="false" />
     <arg name="px4_max_distance" default="1.0" />
+    <arg name="external_planner_max_command_z" default="3.5" />
     <arg name="planner_map_size_x" default="20.0" />
     <arg name="planner_map_size_y" default="20.0" />
     <arg name="planner_map_size_z" default="5.0" />
@@ -14,6 +15,7 @@
     <arg name="planner_max_acc" default="2.0" />
     <arg name="planner_obstacles_inflation" default="0.25" />
     <arg name="planner_clearance_threshold" default="0.20" />
+    <arg name="start_waypoint_generator" default="true" />
     <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_sim.yaml" />
     <!-- Keep the historical 5 cm precision default.  The full toudi3 SITL
          entry overrides this with a slightly wider tolerance because the
@@ -26,6 +28,8 @@
     <param name="external_mission_mode" value="$(arg external_mission_mode)" />
     <param name="simulation/enable_auto_land" value="$(arg simulation_auto_land)" />
     <param name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <param name="external_planner_max_command_z"
+           value="$(arg external_planner_max_command_z)" />
     <param name="threshould/aligning_threshould" value="$(arg aligning_threshold)" />
     <node pkg="patrol_control" type="patrol_control" name="patrol_control" output="screen">
         <!-- PX4 模式下 odom 直接来自 MAVROS，无需 remap -->
@@ -41,6 +45,7 @@
         <arg name="max_acc" value="$(arg planner_max_acc)" />
         <arg name="obstacles_inflation" value="$(arg planner_obstacles_inflation)" />
         <arg name="clearance_threshold" value="$(arg planner_clearance_threshold)" />
+        <arg name="start_waypoint_generator" value="$(arg start_waypoint_generator)" />
     </include>
 
     <group if="$(arg rviz)">

@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   mavros
   mavros_msgs
+  nav_msgs
   roscpp
   rospy
   std_msgs
@@ -18,17 +19,16 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   cv_bridge
   image_transport
-  image_geometry
+  message_generation
   tf2_ros
   tf2_geometry_msgs
-  message_generation
   uav_vision
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(yaml-cpp REQUIRED)
-find_package(OpenCV 4.2 REQUIRED)
+find_package(OpenCV REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -118,7 +118,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES patrol_control
-  CATKIN_DEPENDS geometry_msgs mavros mavros_msgs roscpp rospy std_msgs tf message_runtime uav_vision
+  CATKIN_DEPENDS geometry_msgs mavros mavros_msgs message_runtime nav_msgs roscpp rospy std_msgs tf uav_vision
 #  DEPENDS system_lib
 )
 
@@ -143,38 +143,12 @@ add_executable(patrol_control src/patrol_control.cpp src/node/patrol_control_nod
 add_dependencies(patrol_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(patrol_control yaml-cpp ${catkin_LIBRARIES})
 
-# Simulation-only arming/OFFBOARD helper.  It is intentionally not included
-# by the normal hardware launch files.
+# Simulation-only arming/OFFBOARD helper. It is not included by hardware
+# launch files.
 add_executable(uav_arming_node src/uav_arming_node.cpp)
 add_dependencies(uav_arming_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(uav_arming_node ${catkin_LIBRARIES})
 
-# 添加圆形检测节点
-add_executable(circle_detector_node src/circle_detector_node.cpp)
-add_dependencies(circle_detector_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(circle_detector_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-
-# 添加对准控制转换节点
-# add_executable(alignment_control_calculate src/alignment_control_calculate.cpp)
-# add_dependencies(alignment_control_calculate ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# target_link_libraries(alignment_control_calculate ${catkin_LIBRARIES})
-
-# 添加十字检测节点
-add_executable(cross_detector_node src/cross_detector_node.cpp)
-add_dependencies(cross_detector_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(cross_detector_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-
-add_executable(landing_detector_node src/landing_detector_node.cpp)
-add_dependencies(landing_detector_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(landing_detector_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-
-add_executable(base_link2map_tf src/base_link2map_tf.cpp)
-add_dependencies(base_link2map_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(base_link2map_tf ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-
-add_executable(simple_cross_detect src/simple_cross_detect.cpp)
-add_dependencies(simple_cross_detect ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(simple_cross_detect ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 #############
 ## Install ##
@@ -186,6 +160,7 @@ target_link_libraries(simple_cross_detect ${catkin_LIBRARIES} ${OpenCV_LIBRARIES
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
+  scripts/px4_sitl_start.py
   scripts/odom_to_pose_relay.py
   scripts/spawn_model_delayed.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -232,6 +207,10 @@ catkin_add_gtest(${PROJECT_NAME}-drop-action-test test/test_drop_action.cpp)
 if(TARGET ${PROJECT_NAME}-drop-action-test)
   target_link_libraries(${PROJECT_NAME}-drop-action-test ${catkin_LIBRARIES})
 endif()
+
+catkin_add_nosetests(test/test_no_legacy_servo_status_false.py)
+catkin_add_nosetests(test/test_new_vision_config.py)
+catkin_add_nosetests(test/test_px4_sitl_start.py)
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)

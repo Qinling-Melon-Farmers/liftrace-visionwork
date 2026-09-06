@@ -14,6 +14,8 @@
 #include <utility>
 #include "plan_env/edt_environment.h"
 
+class KinodynamicSearchFixture;
+
 namespace fast_planner {
 // #define REACH_HORIZON 1
 // #define REACH_END 2
@@ -102,6 +104,7 @@ class NodeHashTable {
 };
 
 class KinodynamicAstar {
+  friend class ::KinodynamicSearchFixture;
  private:
   /* ---------- main data structure ---------- */
   vector<PathNodePtr> path_node_pool_;

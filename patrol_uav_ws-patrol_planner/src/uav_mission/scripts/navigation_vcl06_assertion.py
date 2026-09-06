@@ -12,6 +12,7 @@ from dataclasses import asdict, dataclass
 import json
 import math
 import os
+import re
 import sys
 import tempfile
 import threading
@@ -21,15 +22,18 @@ try:  # Keep the reducer importable by system-Python unit tests.
     import rosgraph
     import rospy
     from geometry_msgs.msg import PoseStamped
+    from gazebo_msgs.msg import ModelStates
+    from mavros_msgs.msg import ExtendedState, State
     from std_msgs.msg import String
     from patrol_control.msg import MissionCommand
     from uav_mission.msg import NavigationDecision, NavigationResult
-    from uav_vision.msg import TargetCandidate
+    from uav_vision.msg import TargetCandidate, TargetDetectionArray
 except ImportError:  # pragma: no cover - exercised by pure import environments.
     rosgraph = None
     rospy = None
-    PoseStamped = String = MissionCommand = None
+    PoseStamped = ExtendedState = State = String = MissionCommand = None
     NavigationDecision = NavigationResult = TargetCandidate = None
+    TargetDetectionArray = None
 
 
 SCHEMA_VERSION = 1
@@ -59,15 +63,38 @@ ALIGNMENT = 3
 RELEASE = 4
 RECOVERY = 5
 LANDING = 6
+LANDED_STATE_ON_GROUND = 1
 
 COMMANDS = frozenset((SEARCH, APPROACH, ALIGN, RESUME, RETURN_HOME,
                       LAND, HOLD, ABORT))
 SUCCESS_STATUSES = frozenset((ACCEPTED, STARTED, PROGRESS, SUCCEEDED))
+EXPECTED_DOOR_ORDER = ("Wall_15", "Wall_20", "Wall_22")
+POST_DELIVERY_REASON = re.compile(
+    r"^post_delivery_route:([1-9]\d*)/([1-9]\d*):([^:]+):(.+)$")
+
+
 def _finite(value):
     try:
         return math.isfinite(float(value))
     except (TypeError, ValueError):
         return False
+
+
+def _best_landing_map_detection(message):
+    """Return the strongest verified, mapped H detection in one frame."""
+    best = None
+    best_confidence = -1.0
+    for detection in message.detections:
+        confidence = detection.geometry_confidence
+        if (detection.class_name != "landing_pad" or
+                not detection.map_valid or
+                not detection.geometry_verified or
+                not _finite(confidence) or
+                float(confidence) <= best_confidence):
+            continue
+        best = detection
+        best_confidence = float(confidence)
+    return best
 
 
 def _positive_int(value):
@@ -87,6 +114,12 @@ class DecisionFence:
     decision_seq: int
     command: int
     class_profile: str
+    has_goal: bool
+    goal_frame: str
+    goal_x: float
+    goal_y: float
+    goal_z: float
+    reason: str
     has_target: bool
     target_id: int
     target_first_seen_ns: int
@@ -140,6 +173,88 @@ class ApproachCommand:
     stamp_ns: int
 
 
+@dataclass(frozen=True)
+class DoorGate:
+    name: str
+    axis: str
+    coordinate: float
+    direction: str
+    route_indices: tuple
+    lateral_min: float
+    lateral_max: float
+    z_min: float
+    z_max: float
+
+
+def _normalize_route(route):
+    if not isinstance(route, (list, tuple)):
+        raise ValueError("post_delivery_route must be a list")
+    result = []
+    for index, point in enumerate(route):
+        if (not isinstance(point, (list, tuple)) or len(point) != 3 or
+                not all(_finite(value) for value in point)):
+            raise ValueError(
+                "post_delivery_route[%d] must contain finite xyz" % index)
+        result.append(tuple(float(value) for value in point))
+    return tuple(result)
+
+
+def _normalize_doors(doors, route_size):
+    if not isinstance(doors, (list, tuple)):
+        raise ValueError("post_delivery_gate/doors must be a list")
+    result = []
+    occupied_indices = set()
+    for index, value in enumerate(doors):
+        if not isinstance(value, dict):
+            raise ValueError("door[%d] must be a mapping" % index)
+        required = (
+            "name", "axis", "coordinate", "direction", "route_indices",
+            "lateral_min", "lateral_max", "z_min", "z_max")
+        if any(name not in value for name in required):
+            raise ValueError("door[%d] fields missing" % index)
+        name = str(value["name"])
+        axis = str(value["axis"])
+        direction = str(value["direction"])
+        route_indices = value["route_indices"]
+        numeric = (
+            value["coordinate"], value["lateral_min"],
+            value["lateral_max"], value["z_min"], value["z_max"])
+        if not name or axis not in ("x", "y"):
+            raise ValueError("door[%d] identity invalid" % index)
+        if direction not in ("positive", "negative"):
+            raise ValueError("door[%d] direction invalid" % index)
+        if (not isinstance(route_indices, (list, tuple)) or
+                not route_indices or
+                any(not _positive_int(item) for item in route_indices)):
+            raise ValueError("door[%d] route_indices invalid" % index)
+        route_indices = tuple(int(item) for item in route_indices)
+        if route_size and any(item > route_size for item in route_indices):
+            raise ValueError("door[%d] route index out of range" % index)
+        if occupied_indices.intersection(route_indices):
+            raise ValueError("door route_indices overlap")
+        occupied_indices.update(route_indices)
+        if not all(_finite(item) for item in numeric):
+            raise ValueError("door[%d] geometry non-finite" % index)
+        coordinate, lateral_min, lateral_max, z_min, z_max = (
+            float(item) for item in numeric)
+        if lateral_min >= lateral_max or z_min >= z_max:
+            raise ValueError("door[%d] opening bounds invalid" % index)
+        result.append(DoorGate(
+            name=name,
+            axis=axis,
+            coordinate=coordinate,
+            direction=direction,
+            route_indices=route_indices,
+            lateral_min=lateral_min,
+            lateral_max=lateral_max,
+            z_min=z_min,
+            z_max=z_max,
+        ))
+    if result and tuple(item.name for item in result) != EXPECTED_DOOR_ORDER:
+        raise ValueError("door order must be Wall_15,Wall_20,Wall_22")
+    return tuple(result)
+
+
 class Vcl06GateReducer:
     """Accumulate observations without making navigation decisions."""
 
@@ -150,10 +265,19 @@ class Vcl06GateReducer:
                  mission_frame="camera_init", field_bounds=None,
                  max_height=4.0, max_mission_sec=600.0,
                  forced_return_sec=510.0,
-                 expected_goal_publisher="/navigation/planner_bridge"):
+                 command_stamp_future_tolerance_sec=0.05,
+                 expected_goal_publisher="/navigation/planner_bridge",
+                 post_delivery_route=(),
+                 post_delivery_route_revision="direct-home-v1",
+                 post_delivery_goal_tolerance=0.18,
+                 post_delivery_doors=(), landing_xy=(0.0, 0.0),
+                 landing_h_tolerance=0.35, gate_scope="full"):
         self.profile = str(profile)
         self.nav_feature_profile = str(nav_feature_profile)
         self.mission_frame = str(mission_frame)
+        self.gate_scope = str(gate_scope).strip()
+        if self.gate_scope not in ("full", "post_delivery"):
+            raise ValueError("gate_scope must be full or post_delivery")
         self.field_bounds = dict(field_bounds or {
             "min_x": -3.992, "max_x": 4.008,
             "min_y": -1.132, "max_y": 8.718,
@@ -161,7 +285,35 @@ class Vcl06GateReducer:
         self.max_height = float(max_height)
         self.max_mission_sec = float(max_mission_sec)
         self.forced_return_sec = float(forced_return_sec)
+        tolerance_sec = float(command_stamp_future_tolerance_sec)
+        if (not _finite(tolerance_sec) or tolerance_sec < 0.0 or
+                tolerance_sec > 1.0):
+            raise ValueError("command stamp future tolerance invalid")
+        self.command_stamp_future_tolerance_ns = int(round(
+            tolerance_sec * 1_000_000_000))
         self.expected_goal_publisher = str(expected_goal_publisher)
+        self.post_delivery_route = _normalize_route(post_delivery_route)
+        self.post_delivery_route_revision = str(
+            post_delivery_route_revision)
+        self.post_delivery_goal_tolerance = float(
+            post_delivery_goal_tolerance)
+        if (not self.post_delivery_route_revision or
+                not _finite(self.post_delivery_goal_tolerance) or
+                self.post_delivery_goal_tolerance <= 0.0):
+            raise ValueError("post-delivery route configuration invalid")
+        self.post_delivery_doors = _normalize_doors(
+            post_delivery_doors, len(self.post_delivery_route))
+        if self.post_delivery_route and not self.post_delivery_doors:
+            raise ValueError("post-delivery route requires door gates")
+        if (not isinstance(landing_xy, (list, tuple)) or
+                len(landing_xy) != 2 or
+                not all(_finite(value) for value in landing_xy)):
+            raise ValueError("landing_xy must contain finite xy")
+        self.landing_xy = tuple(float(value) for value in landing_xy)
+        self.landing_h_tolerance = float(landing_h_tolerance)
+        if (not _finite(self.landing_h_tolerance) or
+                self.landing_h_tolerance <= 0.0):
+            raise ValueError("landing H tolerance must be positive")
 
         self.decisions = {}
         self.results = {}
@@ -186,6 +338,17 @@ class Vcl06GateReducer:
         self.max_observed_height = None
         self.first_decision_receipt_wall = None
         self.land_success_receipt_wall = None
+        self.active_post_delivery_route_index = None
+        self.route_pose_previous = None
+        self.door_crossings = []
+        self.post_delivery_decision_indices = []
+        self.land_decision_issued_ns = None
+        self.land_decision_receipt_wall = None
+        self.valid_landing_h_mark = None
+        self.landing_h_mark_rejections = {}
+        self.landing_align_mode_seen = False
+        self.latest_landed_state = None
+        self.latest_armed = None
 
     def _error(self, reason):
         reason = str(reason)
@@ -196,7 +359,9 @@ class Vcl06GateReducer:
     def _decision_from_dict(value):
         required = (
             "schema_version", "mission_id", "decision_seq", "header_seq",
-            "command", "class_profile", "has_target", "target_id",
+            "command", "class_profile", "has_goal", "goal_frame",
+            "goal_x", "goal_y", "goal_z", "reason", "has_target",
+            "target_id",
             "target_first_seen_ns", "target_class", "attempt",
             "payload_slot", "issued_ns", "deadline_ns")
         if not isinstance(value, dict) or any(name not in value for name in required):
@@ -207,8 +372,6 @@ class Vcl06GateReducer:
             raise ValueError("decision_mission_id_empty")
         if not _positive_int(value["decision_seq"]):
             raise ValueError("decision_sequence_invalid")
-        if value["header_seq"] != value["decision_seq"]:
-            raise ValueError("decision_header_sequence_mismatch")
         if value["command"] not in COMMANDS:
             raise ValueError("decision_command_invalid")
         if not _positive_int(value["issued_ns"]):
@@ -216,6 +379,12 @@ class Vcl06GateReducer:
         if (not _positive_int(value["deadline_ns"]) or
                 value["deadline_ns"] <= value["issued_ns"]):
             raise ValueError("decision_deadline_invalid")
+        has_goal = bool(value["has_goal"])
+        if not all(_finite(value[name]) for name in
+                   ("goal_x", "goal_y", "goal_z")):
+            raise ValueError("decision_goal_non_finite")
+        if has_goal and not value["goal_frame"]:
+            raise ValueError("decision_goal_frame_empty")
         has_target = bool(value["has_target"])
         if has_target != (value["command"] == APPROACH):
             raise ValueError("decision_target_flag_invalid")
@@ -234,6 +403,12 @@ class Vcl06GateReducer:
             decision_seq=int(value["decision_seq"]),
             command=int(value["command"]),
             class_profile=str(value["class_profile"]),
+            has_goal=has_goal,
+            goal_frame=str(value["goal_frame"]),
+            goal_x=float(value["goal_x"]),
+            goal_y=float(value["goal_y"]),
+            goal_z=float(value["goal_z"]),
+            reason=str(value["reason"]),
             has_target=has_target,
             target_id=int(value["target_id"]),
             target_first_seen_ns=int(value["target_first_seen_ns"]),
@@ -243,6 +418,13 @@ class Vcl06GateReducer:
             issued_ns=int(value["issued_ns"]),
             deadline_ns=int(value["deadline_ns"]),
         )
+
+    @staticmethod
+    def _post_delivery_reason_info(reason):
+        match = POST_DELIVERY_REASON.match(str(reason))
+        if match is None:
+            return None
+        return int(match.group(1)), int(match.group(2)), match.group(3)
 
     @staticmethod
     def _result_from_dict(value):
@@ -260,8 +442,6 @@ class Vcl06GateReducer:
             raise ValueError("result_source_identity_empty")
         if not _positive_int(value["event_seq"]):
             raise ValueError("result_event_sequence_invalid")
-        if value["header_seq"] != value["event_seq"]:
-            raise ValueError("result_header_sequence_mismatch")
         if not _positive_int(value["decision_seq"]):
             raise ValueError("result_decision_sequence_invalid")
         if (value["command"] not in COMMANDS or
@@ -316,7 +496,55 @@ class Vcl06GateReducer:
         if previous is not None and previous != decision:
             self._error("decision_identity_conflict")
             return
+        is_new = previous is None
         self.decisions[decision.key] = decision
+        if is_new:
+            if (self.gate_scope == "post_delivery" and
+                    decision.command == APPROACH):
+                self._error("post_delivery_scope_has_approach")
+            reason_info = self._post_delivery_reason_info(decision.reason)
+            if (decision.reason.startswith("post_delivery_route:") and
+                    reason_info is None):
+                self._error("post_delivery_route_reason_invalid")
+            if reason_info is not None:
+                route_index, route_size, route_revision = reason_info
+                if decision.command != RETURN_HOME:
+                    self._error("post_delivery_route_command_invalid")
+                route_identity_matches = (
+                    route_size == len(self.post_delivery_route) and
+                    route_revision == self.post_delivery_route_revision and
+                    1 <= route_index <= len(self.post_delivery_route))
+                if not route_identity_matches:
+                    self._error("post_delivery_route_reason_mismatch")
+                elif not self._route_goal_matches(
+                        decision,
+                        self.post_delivery_route[route_index - 1]):
+                    self._error("post_delivery_route_goal_mismatch")
+                if not route_identity_matches:
+                    self.active_post_delivery_route_index = None
+                else:
+                    self.active_post_delivery_route_index = route_index
+                    self.post_delivery_decision_indices.append(route_index)
+                    if self.post_delivery_decision_indices != list(range(
+                            1,
+                            len(self.post_delivery_decision_indices) + 1)):
+                        self._error("post_delivery_route_sequence_invalid")
+            else:
+                self.active_post_delivery_route_index = None
+            if decision.command == LAND:
+                self.land_decision_issued_ns = decision.issued_ns
+                self.land_decision_receipt_wall = (
+                    float(receipt_wall)
+                    if receipt_wall is not None else None)
+                self.valid_landing_h_mark = None
+                self.landing_h_mark_rejections = {}
+                self.landing_align_mode_seen = False
+                self.latest_landed_state = None
+                self.latest_armed = None
+            if (decision.command == LAND and self.post_delivery_route and
+                    tuple(item["name"] for item in self.door_crossings) !=
+                    tuple(item.name for item in self.post_delivery_doors)):
+                self._error("post_delivery_door_sequence_incomplete")
         if self.first_decision_receipt_wall is None:
             self.first_decision_receipt_wall = (
                 float(receipt_wall) if receipt_wall is not None else None)
@@ -408,6 +636,11 @@ class Vcl06GateReducer:
             if key in self.land_success:
                 self._error("duplicate_land_success")
             self.land_success.add(key)
+            expected_returns = (
+                len(self.post_delivery_route)
+                if self.post_delivery_route else 1)
+            if len(self.return_success) != expected_returns:
+                self._error("return_home_success_count_mismatch")
             if receipt_wall is not None:
                 self.land_success_receipt_wall = float(receipt_wall)
 
@@ -446,8 +679,10 @@ class Vcl06GateReducer:
                 if (decision.target_id != command.target_id or
                         decision.target_class != command.target_class):
                     self._error("mission_command_approach_fence_mismatch")
-                elif not (decision.issued_ns <= command.stamp_ns <
-                          decision.deadline_ns):
+                elif not (
+                        decision.issued_ns -
+                        self.command_stamp_future_tolerance_ns <=
+                        command.stamp_ns < decision.deadline_ns):
                     self._error("mission_command_approach_stamp_out_of_range")
                 else:
                     self.approach_command_bindings[index] = decision.key
@@ -460,6 +695,60 @@ class Vcl06GateReducer:
             (int(target_id), int(target_first_seen_ns)))
         if class_name == "tank":
             self._error("tank_selected")
+
+    def _receipt_is_after_land_decision(self, receipt_wall):
+        if self.land_decision_issued_ns is None:
+            return False
+        if self.land_decision_receipt_wall is None:
+            return receipt_wall is None or _finite(receipt_wall)
+        return (_finite(receipt_wall) and
+                float(receipt_wall) >= self.land_decision_receipt_wall)
+
+    def observe_landing_h_mark(self, x, y, z, frame_id, stamp_ns,
+                               receipt_wall=None, fresh=False):
+        rejection = ""
+        if not self._receipt_is_after_land_decision(receipt_wall):
+            rejection = "before_land_decision"
+        elif (not _positive_int(stamp_ns) or
+              int(stamp_ns) < self.land_decision_issued_ns):
+            rejection = "source_before_land_decision"
+        elif not bool(fresh):
+            rejection = "stale"
+        elif str(frame_id) != self.mission_frame:
+            rejection = "frame_mismatch"
+        elif not all(_finite(value) for value in (x, y, z)):
+            rejection = "non_finite"
+        else:
+            x, y, z = (float(value) for value in (x, y, z))
+            distance = math.hypot(
+                x - self.landing_xy[0], y - self.landing_xy[1])
+            if distance > self.landing_h_tolerance:
+                rejection = "anchor_mismatch"
+            else:
+                self.valid_landing_h_mark = {
+                    "frame_id": str(frame_id),
+                    "stamp_ns": int(stamp_ns),
+                    "x": x,
+                    "y": y,
+                    "z": z,
+                    "anchor_error_m": distance,
+                }
+        if rejection:
+            self.landing_h_mark_rejections[rejection] = (
+                self.landing_h_mark_rejections.get(rejection, 0) + 1)
+
+    def observe_align_mode(self, mode, receipt_wall=None):
+        if (self._receipt_is_after_land_decision(receipt_wall) and
+                str(mode).strip() == "landing"):
+            self.landing_align_mode_seen = True
+
+    def observe_landed_state(self, landed_state, receipt_wall=None):
+        if self._receipt_is_after_land_decision(receipt_wall):
+            self.latest_landed_state = _int_or(landed_state, -1)
+
+    def observe_vehicle_state(self, armed, receipt_wall=None):
+        if self._receipt_is_after_land_decision(receipt_wall):
+            self.latest_armed = bool(armed)
 
     def observe_status(self, name, payload):
         if name not in self.REQUIRED_STATUSES:
@@ -477,6 +766,10 @@ class Vcl06GateReducer:
                 self._error("manager_failed")
             if str(payload.get("phase", "")) == "ABORTED":
                 self._error("manager_aborted")
+            if (payload.get("phase") == "COMPLETE" and
+                    self.post_delivery_route and
+                    not self._manager_route_matches(payload)):
+                self._error("manager_post_delivery_route_mismatch")
         elif name == "start_gate" and status == "DISABLED":
             self._error("start_gate_disabled")
         elif name == "contact":
@@ -517,6 +810,85 @@ class Vcl06GateReducer:
         if z > self.max_height:
             self.height_violations += 1
             self._error("height_limit_violation")
+        route_index = self.active_post_delivery_route_index
+        previous = self.route_pose_previous
+        self.route_pose_previous = (x, y, z, route_index)
+        if route_index is None or previous is None:
+            return
+        previous_xyz = previous[:3]
+        for door in self.post_delivery_doors:
+            if route_index in door.route_indices:
+                self._observe_door_segment(
+                    door, previous_xyz, (x, y, z), route_index)
+
+    def _route_goal_matches(self, decision, expected):
+        if (not decision.has_goal or
+                decision.goal_frame != self.mission_frame):
+            return False
+        error = math.sqrt(
+            (decision.goal_x - expected[0]) ** 2 +
+            (decision.goal_y - expected[1]) ** 2 +
+            (decision.goal_z - expected[2]) ** 2)
+        return error <= self.post_delivery_goal_tolerance
+
+    def _manager_route_matches(self, manager):
+        if not self.post_delivery_route:
+            return True
+        route_size = len(self.post_delivery_route)
+        return (
+            manager.get("post_delivery_route_revision") ==
+            self.post_delivery_route_revision and
+            _int_or(manager.get("post_delivery_route_index"), -1) ==
+            route_size and
+            _int_or(manager.get("post_delivery_route_size"), -1) ==
+            route_size and
+            manager.get("post_delivery_route_complete") is True)
+
+    def _observe_door_segment(self, door, previous, current, route_index):
+        axis_index = 0 if door.axis == "x" else 1
+        lateral_index = 1 - axis_index
+        previous_axis = previous[axis_index]
+        current_axis = current[axis_index]
+        coordinate = door.coordinate
+        positive_crossing = (
+            previous_axis <= coordinate <= current_axis and
+            current_axis > previous_axis)
+        negative_crossing = (
+            current_axis <= coordinate <= previous_axis and
+            current_axis < previous_axis)
+        directed_crossing = (
+            positive_crossing if door.direction == "positive"
+            else negative_crossing)
+        reverse_crossing = (
+            negative_crossing if door.direction == "positive"
+            else positive_crossing)
+        if reverse_crossing:
+            self._error("door_direction_invalid:%s" % door.name)
+            return
+        if not directed_crossing:
+            return
+        ratio = ((coordinate - previous_axis) /
+                 (current_axis - previous_axis))
+        lateral = previous[lateral_index] + ratio * (
+            current[lateral_index] - previous[lateral_index])
+        height = previous[2] + ratio * (current[2] - previous[2])
+        if not door.lateral_min <= lateral <= door.lateral_max:
+            self._error("door_lateral_out_of_bounds:%s" % door.name)
+            return
+        if not door.z_min <= height <= door.z_max:
+            self._error("door_height_out_of_bounds:%s" % door.name)
+            return
+        expected_index = len(self.door_crossings)
+        configured_index = self.post_delivery_doors.index(door)
+        if configured_index != expected_index:
+            self._error("door_crossing_out_of_order:%s" % door.name)
+            return
+        self.door_crossings.append({
+            "name": door.name,
+            "route_index": int(route_index),
+            "lateral": lateral,
+            "z": height,
+        })
 
     def _bound_command_keys(self):
         return set(self.approach_command_bindings.values())
@@ -534,7 +906,9 @@ class Vcl06GateReducer:
         target_instances = {item.target_instance for item in committed}
         slots = sorted(item.payload_slot for item in committed)
         bound_commands = self._bound_command_keys()
-        return_decisions = [self.decisions[key] for key in self.return_success]
+        return_decisions = sorted(
+            (self.decisions[key] for key in self.return_success),
+            key=lambda item: item.decision_seq)
         land_decisions = [self.decisions[key] for key in self.land_success]
         mission_ids = {item.mission_id for item in self.decisions.values()}
         committed_mission_ids = {item.mission_id for item in committed}
@@ -546,7 +920,9 @@ class Vcl06GateReducer:
         return_issued = min(
             (item.issued_ns for item in return_decisions), default=None)
         land_stamp = min((event.stamp_ns for event in self.results.values()
-                          if ((event.mission_id, event.decision_seq) in
+                          if (event.status == SUCCEEDED and event.terminal and
+                              event.stage == LANDING and
+                              (event.mission_id, event.decision_seq) in
                               self.land_success)), default=None)
         mission_ros_sec = None
         if first_issued is not None and land_stamp is not None:
@@ -563,6 +939,38 @@ class Vcl06GateReducer:
         anchor = self.statuses.get("anchor") or {}
         contact = self.statuses.get("contact") or {}
         bridge = self.statuses.get("bridge") or {}
+        expected_return_count = (
+            len(self.post_delivery_route)
+            if self.post_delivery_route else 1)
+        route_sequence_matches = True
+        route_goals_match = True
+        if self.post_delivery_route:
+            route_sequence_matches = (
+                len(return_decisions) == len(self.post_delivery_route) and
+                all(
+                    self._post_delivery_reason_info(item.reason) == (
+                        index,
+                        len(self.post_delivery_route),
+                        self.post_delivery_route_revision,
+                    )
+                    for index, item in enumerate(return_decisions, start=1)))
+            route_goals_match = (
+                len(return_decisions) == len(self.post_delivery_route) and
+                all(self._route_goal_matches(item, expected)
+                    for item, expected in zip(
+                        return_decisions, self.post_delivery_route)))
+        door_names = tuple(item["name"] for item in self.door_crossings)
+        expected_door_names = tuple(
+            item.name for item in self.post_delivery_doors)
+        h_landing_required = bool(self.post_delivery_route)
+        ordered_decisions = sorted(
+            self.decisions.values(), key=lambda item: item.decision_seq)
+        first_decision = ordered_decisions[0] if ordered_decisions else None
+        expected_start_mode = (
+            "post_delivery" if self.gate_scope == "post_delivery"
+            else "full")
+        expected_committed_slots = (
+            0 if self.gate_scope == "post_delivery" else 3)
         checks = {
             "required_statuses_seen": all(
                 name in self.statuses for name in self.REQUIRED_STATUSES),
@@ -570,14 +978,17 @@ class Vcl06GateReducer:
             "manager_complete": (
                 manager.get("phase") == "COMPLETE" and
                 manager.get("mission_failed") is False and
-                _int_or(manager.get("committed_slots"), -1) == 3),
+                _int_or(manager.get("committed_slots"), -1) ==
+                expected_committed_slots and
+                manager.get("start_mode", "full") ==
+                expected_start_mode),
             "manager_identity_matches": (
                 len(mission_ids) == 1 and
                 manager.get("mission_id") in mission_ids),
             "start_gate_started_once": (
                 start_gate.get("status") == "STARTED" and
                 start_gate.get("started_latched") is True and
-                _int_or(start_gate.get("service_call_count"), -1) == 1),
+                _int_or(start_gate.get("service_success_count"), -1) == 1),
             "field_ready": (
                 self._ready_status(field, self.profile) and
                 field.get("footprint_valid") is True and
@@ -596,42 +1007,36 @@ class Vcl06GateReducer:
             "single_planner_goal_publisher": (
                 self.planner_goal_publishers ==
                 (self.expected_goal_publisher,)),
-            "three_release_commits": three_release_commits,
-            "three_recovery_successes": (
-                len(self.recovery_success) == 3 and
-                committed_keys == self.recovery_success),
-            "three_capture_started": (
-                three_release_commits and
-                committed_keys.issubset(self.capture_started)),
-            "real_approach_commands": (
-                three_release_commits and
-                committed_keys.issubset(bound_commands)),
-            "committed_targets_were_selected": (
-                three_release_commits and
-                target_instances.issubset(self.selected_instances)),
-            "return_home_success": len(self.return_success) == 1,
+            "return_home_success": (
+                len(self.return_success) == expected_return_count),
+            "post_delivery_return_sequence": route_sequence_matches,
+            "post_delivery_return_goals": route_goals_match,
+            "manager_post_delivery_route_matches":
+                self._manager_route_matches(manager),
+            "doors_crossed_in_order": (
+                not self.post_delivery_route or
+                door_names == expected_door_names),
+            "landing_h_mark_valid": (
+                not h_landing_required or
+                self.valid_landing_h_mark is not None),
+            "landing_align_mode_seen": (
+                not h_landing_required or
+                self.landing_align_mode_seen),
+            "final_landed_on_ground": (
+                not h_landing_required or
+                self.latest_landed_state == LANDED_STATE_ON_GROUND),
+            "final_vehicle_disarmed": (
+                not h_landing_required or
+                self.latest_armed is False),
             "land_success": len(self.land_success) == 1,
             "return_before_land": (
-                len(return_decisions) == 1 and len(land_decisions) == 1 and
-                return_decisions[0].decision_seq <
+                len(return_decisions) == expected_return_count and
+                len(land_decisions) == 1 and bool(return_decisions) and
+                return_decisions[-1].decision_seq <
                 land_decisions[0].decision_seq),
-            "return_after_deliveries": (
-                len(return_decisions) == 1 and bool(committed) and
-                return_decisions[0].mission_id in committed_mission_ids and
-                return_decisions[0].decision_seq >
-                max(item.decision_seq for item in committed)),
-            "forced_return_within_limit": (
-                first_issued is not None and return_issued is not None and
-                0.0 <= (return_issued - first_issued) / 1e9 <=
-                self.forced_return_sec),
             "mission_ros_within_limit": (
                 mission_ros_sec is not None and
                 0.0 <= mission_ros_sec <= self.max_mission_sec),
-            "mission_wall_within_limit": (
-                mission_wall_sec is not None and
-                0.0 <= mission_wall_sec <= self.max_mission_sec),
-            "tank_selected_zero": "tank" not in self.selected_classes,
-            "tank_accepted_zero": "tank" not in self.accepted_classes,
             "pose_seen": self.pose_samples > 0,
             "zero_boundary_violations": self.boundary_violations == 0,
             "zero_height_violations": self.height_violations == 0,
@@ -640,6 +1045,59 @@ class Vcl06GateReducer:
             "unmatched_results_zero": not self.unmatched_results,
             "contract_errors_zero": not self.errors,
         }
+        if self.gate_scope == "full":
+            checks.update({
+                "three_release_commits": three_release_commits,
+                "three_recovery_successes": (
+                    len(self.recovery_success) == 3 and
+                    committed_keys == self.recovery_success),
+                "three_capture_started": (
+                    three_release_commits and
+                    committed_keys.issubset(self.capture_started)),
+                "real_approach_commands": (
+                    three_release_commits and
+                    committed_keys.issubset(bound_commands)),
+                "committed_targets_were_selected": (
+                    three_release_commits and
+                    target_instances.issubset(self.selected_instances)),
+                "return_after_deliveries": (
+                    len(return_decisions) == expected_return_count and
+                    bool(committed) and
+                    all(item.mission_id in committed_mission_ids
+                        for item in return_decisions) and
+                    return_decisions[0].decision_seq >
+                    max(item.decision_seq for item in committed)),
+                "forced_return_within_limit": (
+                    first_issued is not None and
+                    return_issued is not None and
+                    0.0 <= (return_issued - first_issued) / 1e9 <=
+                    self.forced_return_sec),
+                "tank_selected_zero": (
+                    "tank" not in self.selected_classes),
+                "tank_accepted_zero": (
+                    "tank" not in self.accepted_classes),
+            })
+        else:
+            first_reason = (
+                self._post_delivery_reason_info(first_decision.reason)
+                if first_decision is not None else None)
+            checks.update({
+                "post_delivery_stage_entry": (
+                    first_decision is not None and
+                    first_decision.command == RETURN_HOME and
+                    first_reason == (
+                        1, len(self.post_delivery_route),
+                        self.post_delivery_route_revision) and
+                    first_decision.reason.endswith(
+                        ":stage_validation_start")),
+                "post_delivery_stage_has_no_approach": (
+                    not any(item.command == APPROACH
+                            for item in ordered_decisions) and
+                    not self.release_commits and
+                    not self.recovery_success),
+                "post_delivery_stage_slots_uncommitted": (
+                    _int_or(manager.get("committed_slots"), -1) == 0),
+            })
         metrics = {
             "decision_count": len(self.decisions),
             "result_count": len(self.results),
@@ -656,17 +1114,42 @@ class Vcl06GateReducer:
             "max_observed_height": self.max_observed_height,
             "mission_ros_sec": mission_ros_sec,
             "mission_wall_sec": mission_wall_sec,
+            # Gazebo can run below real time on a loaded WSL host.  Wall time
+            # is diagnostic only; the competition limit is measured on the
+            # ROS/simulation clock.  The ROS shell still has an independent
+            # wall-clock watchdog for a genuinely stuck run.
+            "simulation_realtime_factor": (
+                mission_ros_sec / mission_wall_sec
+                if (mission_ros_sec is not None and
+                    mission_wall_sec is not None and
+                    mission_wall_sec > 0.0) else None),
+            "post_delivery_route_size": len(self.post_delivery_route),
+            "post_delivery_return_success_count": len(return_decisions),
+            "post_delivery_route_revision":
+                self.post_delivery_route_revision,
+            "post_delivery_decision_indices":
+                list(self.post_delivery_decision_indices),
+            "door_crossings": list(self.door_crossings),
+            "landing_xy": list(self.landing_xy),
+            "landing_h_tolerance": self.landing_h_tolerance,
+            "valid_landing_h_mark": self.valid_landing_h_mark,
+            "landing_h_mark_rejections":
+                dict(self.landing_h_mark_rejections),
+            "landing_align_mode_seen": self.landing_align_mode_seen,
+            "latest_landed_state": self.latest_landed_state,
+            "latest_armed": self.latest_armed,
         }
         return checks, metrics
 
-    def report(self, timed_out=False):
+    def report(self, timeout_reason=""):
         checks, metrics = self._checks()
         errors = list(self.errors)
-        if timed_out and "wall_timeout" not in errors:
-            errors.append("wall_timeout")
+        timeout_reason = str(timeout_reason)
+        if timeout_reason and timeout_reason not in errors:
+            errors.append(timeout_reason)
         hard_failure = bool(errors)
         complete = all(checks.values())
-        status = "FAIL" if hard_failure or timed_out else (
+        status = "FAIL" if hard_failure else (
             "PASS" if complete else "WAITING")
         failed_checks = sorted(name for name, value in checks.items()
                                if not value)
@@ -682,6 +1165,7 @@ class Vcl06GateReducer:
             "profile": self.profile,
             "nav_feature_profile": self.nav_feature_profile,
             "mission_frame": self.mission_frame,
+            "gate_scope": self.gate_scope,
             "decision_fences": [
                 asdict(item) for item in sorted(
                     self.decisions.values(),
@@ -703,8 +1187,22 @@ class NavigationVcl06AssertionNode:
         self._lock = threading.RLock()
         self._finished = False
         self.exit_code = 1
-        self._started_wall = time.monotonic()
+        self._assertion_started_wall = time.monotonic()
+        self._mission_started_wall = None
+        self._startup_wall_timeout = float(rospy.get_param(
+            "~startup_wall_timeout", 180.0))
         self._wall_timeout = float(rospy.get_param("~wall_timeout", 650.0))
+        for name, value in (
+                ("startup_wall_timeout", self._startup_wall_timeout),
+                ("wall_timeout", self._wall_timeout)):
+            if not math.isfinite(value) or value <= 0.0:
+                raise ValueError("%s must be finite and positive" % name)
+        self._landing_mark_max_age_sec = float(rospy.get_param(
+            "~landing_mark_max_age", 0.5))
+        if (not math.isfinite(self._landing_mark_max_age_sec) or
+                self._landing_mark_max_age_sec <= 0.0):
+            raise ValueError(
+                "landing_mark_max_age must be finite and positive")
         self._planner_goal_topic = rospy.get_param(
             "~planner_goal_topic", "/fastplanner/goal")
         self._expected_goal_publisher = rospy.get_param(
@@ -714,11 +1212,14 @@ class NavigationVcl06AssertionNode:
         run_dir = os.environ.get("SIM_RUN_DIR", "/tmp")
         self._report_path = rospy.get_param(
             "~report_path", os.path.join(run_dir, "gate_status.json"))
+        mission_frame = rospy.get_param(
+            "~mission/frame",
+            rospy.get_param("~mission_frame", "camera_init"))
         self.reducer = Vcl06GateReducer(
             profile=rospy.get_param("~class_profile", "r2026"),
             nav_feature_profile=rospy.get_param(
                 "~nav_feature_profile", "baseline"),
-            mission_frame=rospy.get_param("~mission_frame", "camera_init"),
+            mission_frame=mission_frame,
             field_bounds={
                 "min_x": float(rospy.get_param("~field/min_x", -3.992)),
                 "max_x": float(rospy.get_param("~field/max_x", 4.008)),
@@ -729,8 +1230,22 @@ class NavigationVcl06AssertionNode:
             max_mission_sec=float(rospy.get_param(
                 "~max_mission_sec", 600.0)),
             forced_return_sec=float(rospy.get_param(
-                "~forced_return_sec", 510.0)),
+                "~mission/forced_return_at", 420.0)),
+            command_stamp_future_tolerance_sec=float(rospy.get_param(
+                "~readiness/stamp_future_tolerance", 0.05)),
             expected_goal_publisher=self._expected_goal_publisher,
+            post_delivery_route=rospy.get_param(
+                "~mission/post_delivery_route", []),
+            post_delivery_route_revision=rospy.get_param(
+                "~mission/post_delivery_route_revision", "direct-home-v1"),
+            post_delivery_goal_tolerance=float(rospy.get_param(
+                "~post_delivery_gate/goal_tolerance", 0.18)),
+            post_delivery_doors=rospy.get_param(
+                "~post_delivery_gate/doors", []),
+            landing_xy=rospy.get_param("~mission/landing_xy", [0.0, 0.0]),
+            landing_h_tolerance=float(rospy.get_param(
+                "~post_delivery_gate/final_h_tolerance", 0.35)),
+            gate_scope=rospy.get_param("~gate_scope", "full"),
         )
 
         topics = {
@@ -757,6 +1272,15 @@ class NavigationVcl06AssertionNode:
                 "~pose_topic", "/mavros/local_position/pose"),
             "selected": rospy.get_param(
                 "~selected_topic", "/uav_vision/selected_target"),
+            "landing_detections": rospy.get_param(
+                "~landing_detections_topic",
+                "/uav_vision/detections_mapped"),
+            "align_mode": rospy.get_param(
+                "~align_mode_topic", "/uav_vision/align_mode"),
+            "extended_state": rospy.get_param(
+                "~extended_state_topic", "/mavros/extended_state"),
+            "vehicle_state": rospy.get_param(
+                "~vehicle_state_topic", "/mavros/state"),
         }
         rospy.Subscriber(topics["decision"], NavigationDecision,
                          self._on_decision, queue_size=20)
@@ -767,10 +1291,25 @@ class NavigationVcl06AssertionNode:
         for name in Vcl06GateReducer.REQUIRED_STATUSES:
             rospy.Subscriber(topics[name], String, self._status_callback(name),
                              queue_size=20)
-        rospy.Subscriber(topics["pose"], PoseStamped,
-                         self._on_pose, queue_size=1)
+        self._truth_model = rospy.get_param("~truth_model", "")
+        self._truth_world_offset = rospy.get_param("~truth_world_offset", [0.0, 0.0, 0.0])
+        self._truth_last_ns = -1
+        if self._truth_model:
+            rospy.Subscriber(rospy.get_param("~truth_topic", "/gazebo/model_states"),
+                             ModelStates, self._on_truth_pose, queue_size=1)
+        else:
+            rospy.Subscriber(topics["pose"], PoseStamped,
+                             self._on_pose, queue_size=1)
         rospy.Subscriber(topics["selected"], TargetCandidate,
                          self._on_selected, queue_size=20)
+        rospy.Subscriber(topics["landing_detections"], TargetDetectionArray,
+                         self._on_landing_detections, queue_size=2)
+        rospy.Subscriber(topics["align_mode"], String,
+                         self._on_align_mode, queue_size=2)
+        rospy.Subscriber(topics["extended_state"], ExtendedState,
+                         self._on_extended_state, queue_size=2)
+        rospy.Subscriber(topics["vehicle_state"], State,
+                         self._on_vehicle_state, queue_size=2)
         self._timer = rospy.Timer(rospy.Duration(0.1), self._on_timer)
 
     @staticmethod
@@ -782,6 +1321,12 @@ class NavigationVcl06AssertionNode:
             "header_seq": int(message.header.seq),
             "command": int(message.command),
             "class_profile": message.class_profile,
+            "has_goal": bool(message.has_goal),
+            "goal_frame": message.goal.header.frame_id,
+            "goal_x": float(message.goal.pose.position.x),
+            "goal_y": float(message.goal.pose.position.y),
+            "goal_z": float(message.goal.pose.position.z),
+            "reason": message.reason,
             "has_target": bool(message.has_target),
             "target_id": int(message.target_id),
             "target_first_seen_ns": _stamp_ns(message.target_first_seen),
@@ -820,8 +1365,10 @@ class NavigationVcl06AssertionNode:
 
     def _on_decision(self, message):
         with self._lock:
+            receipt_wall = time.monotonic()
+            self._latch_mission_start(receipt_wall)
             self.reducer.observe_decision(
-                self._decision_dict(message), time.monotonic())
+                self._decision_dict(message), receipt_wall)
             self._check_terminal()
 
     def _on_result(self, message):
@@ -833,22 +1380,60 @@ class NavigationVcl06AssertionNode:
     def _on_mission_command(self, message):
         with self._lock:
             self.reducer.observe_mission_command(
-                int(message.command), int(message.header.seq),
+                int(message.command), int(message.goal.header.seq),
                 int(message.target_id), message.target_class,
-                _stamp_ns(message.header.stamp))
+                _stamp_ns(message.goal.header.stamp))
             self._check_terminal()
 
     def _status_callback(self, name):
         def callback(message):
             with self._lock:
+                receipt_wall = time.monotonic()
                 try:
                     payload = json.loads(message.data)
                 except (TypeError, ValueError):
                     self.reducer._error("invalid_%s_json" % name)
                 else:
+                    if (name == "start_gate" and
+                            payload.get("status") == "STARTED"):
+                        self._latch_mission_start(receipt_wall)
                     self.reducer.observe_status(name, payload)
                 self._check_terminal()
         return callback
+
+    def _latch_mission_start(self, receipt_wall=None):
+        if self._mission_started_wall is not None:
+            return
+        if receipt_wall is None:
+            receipt_wall = time.monotonic()
+        self._mission_started_wall = float(receipt_wall)
+
+    def _timeout_reason(self, now_wall):
+        now_wall = float(now_wall)
+        if self._mission_started_wall is None:
+            if (now_wall - self._assertion_started_wall >=
+                    self._startup_wall_timeout):
+                return "startup_wall_timeout"
+            return ""
+        if now_wall - self._mission_started_wall >= self._wall_timeout:
+            return "mission_wall_timeout"
+        return ""
+
+    def _on_truth_pose(self, message):
+        now_ns = rospy.Time.now().to_nsec()
+        if now_ns - self._truth_last_ns < 20_000_000:
+            return
+        if self._truth_model not in message.name:
+            return
+        self._truth_last_ns = now_ns
+        position = message.pose[message.name.index(self._truth_model)].position
+        offset = self._truth_world_offset
+        # The scoring geometry uses local XY and physical height above floor.
+        # It must not move with an estimator's drifting origin or height bias.
+        with self._lock:
+            self.reducer.observe_pose(position.x-offset[0], position.y-offset[1],
+                                      position.z-offset[2], self.reducer.mission_frame)
+            self._check_terminal()
 
     def _on_pose(self, message):
         with self._lock:
@@ -865,6 +1450,44 @@ class NavigationVcl06AssertionNode:
                 _stamp_ns(message.first_seen))
             self._check_terminal()
 
+    def _on_landing_detections(self, message):
+        with self._lock:
+            detection = _best_landing_map_detection(message)
+            if detection is None:
+                return
+            receipt_wall = time.monotonic()
+            stamp_ns = _stamp_ns(detection.header.stamp)
+            now_ns = _stamp_ns(rospy.Time.now())
+            age_sec = ((now_ns - stamp_ns) / 1e9
+                       if now_ns >= stamp_ns else -1.0)
+            fresh = (
+                stamp_ns > 0 and
+                0.0 <= age_sec <= self._landing_mark_max_age_sec)
+            position = detection.map_point
+            self.reducer.observe_landing_h_mark(
+                position.x, position.y, position.z,
+                detection.map_frame, stamp_ns,
+                receipt_wall=receipt_wall, fresh=fresh)
+            self._check_terminal()
+
+    def _on_align_mode(self, message):
+        with self._lock:
+            self.reducer.observe_align_mode(
+                message.data, receipt_wall=time.monotonic())
+            self._check_terminal()
+
+    def _on_extended_state(self, message):
+        with self._lock:
+            self.reducer.observe_landed_state(
+                message.landed_state, receipt_wall=time.monotonic())
+            self._check_terminal()
+
+    def _on_vehicle_state(self, message):
+        with self._lock:
+            self.reducer.observe_vehicle_state(
+                message.armed, receipt_wall=time.monotonic())
+            self._check_terminal()
+
     def _on_timer(self, _event):
         with self._lock:
             try:
@@ -874,11 +1497,12 @@ class NavigationVcl06AssertionNode:
                 self.reducer.observe_planner_goal_publishers(nodes)
             except rosgraph.MasterError:
                 pass
-            timed_out = (time.monotonic() - self._started_wall >=
-                         self._wall_timeout)
-            self._check_terminal(timed_out=timed_out)
+            timeout_reason = self._timeout_reason(time.monotonic())
+            self._check_terminal(timeout_reason=timeout_reason)
 
     def _write_report(self, report):
+        report["pose_source"] = ("gazebo_truth" if getattr(self, "_truth_model", "")
+                                 else "mavros_estimate")
         directory = os.path.dirname(os.path.abspath(self._report_path))
         os.makedirs(directory, exist_ok=True)
         descriptor, temporary_path = tempfile.mkstemp(
@@ -895,10 +1519,10 @@ class NavigationVcl06AssertionNode:
             if os.path.exists(temporary_path):
                 os.unlink(temporary_path)
 
-    def _check_terminal(self, timed_out=False):
+    def _check_terminal(self, timeout_reason=""):
         if self._finished:
             return
-        report = self.reducer.report(timed_out=timed_out)
+        report = self.reducer.report(timeout_reason=timeout_reason)
         if report["status"] == "WAITING":
             return
         self._finished = True

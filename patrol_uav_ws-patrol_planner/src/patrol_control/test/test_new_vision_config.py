@@ -11,6 +11,8 @@ import yaml
 ROOT = Path(__file__).resolve().parents[3]
 CONTROL_CPP = ROOT / "src/patrol_control/src/patrol_control.cpp"
 CONFIG = ROOT / "src/patrol_control/config/patrol_toudi4_new_vision.yaml"
+TOUDI3_CONFIG = ROOT / "src/patrol_control/config/patrol_toudi3_new_vision.yaml"
+BRIDGE_CONFIG = ROOT / "src/uav_mission/config/vcl06_planner_bridge.yaml"
 LAUNCH = ROOT / "src/patrol_control/launch/toudi3_full_competition_sim_new_vision.launch"
 FULL_LAUNCH = ROOT / "src/patrol_control/launch/patrol_full_competition_sim.launch"
 CONTROL_LAUNCH = ROOT / "src/patrol_control/launch/patrol_control_px4_sim.launch"
@@ -88,7 +90,32 @@ class NewVisionConfigTest(unittest.TestCase):
             config,
         )
         self.assertIn("release_permission_timeout: 0.20", config)
-        self.assertGreaterEqual(source.count("canRequestDrop("), 3)
+        self.assertGreaterEqual(source.count("dropReleaseReady("), 3)
+        self.assertNotIn("uav_pose.pose.position.z <= 0.17", source)
+        self.assertNotIn("ttt <= 0.15", source)
+
+    def test_external_release_and_recovery_have_one_authority(self):
+        source = CONTROL_CPP.read_text(encoding="utf-8")
+        bridge = yaml.safe_load(BRIDGE_CONFIG.read_text(encoding="utf-8"))
+        for path in (CONFIG, TOUDI3_CONFIG):
+            with self.subTest(path=path.name):
+                config = yaml.safe_load(path.read_text(encoding="utf-8"))
+                drop = config["drop_system"]
+                vision = config["uav_vision"]
+                self.assertEqual(drop["position_threshold"], 0.15)
+                self.assertEqual(drop["release_setpoint_height"], 0.10)
+                self.assertEqual(
+                    vision["recovery_height"],
+                    bridge["target"]["recovery_height"])
+        self.assertNotIn("external_alignment_timeout", source)
+        self.assertIn(
+            'current_align_mode_ == "drop_circle" && uav_drop_ready_',
+            source,
+        )
+        self.assertIn(
+            'current_align_mode_ == "drop_cross" && uav_drop_ready_',
+            source,
+        )
 
     def test_new_vision_launch_passes_camera_model_and_map_parameters(self):
         launch = LAUNCH.read_text(encoding="utf-8")
@@ -160,6 +187,39 @@ class NewVisionConfigTest(unittest.TestCase):
             planner_launch,
         )
 
+    def test_external_planner_setpoint_height_guard_is_wired_end_to_end(self):
+        source = CONTROL_CPP.read_text(encoding="utf-8")
+        self.assertIn(
+            'nh_.param("external_planner_max_command_z", 3.5)', source)
+        self.assertIn(
+            "mavros_point_cmd.pose.position.z >", source)
+        self.assertIn("capping command height", source)
+        self.assertIn("preserving horizontal progress", source)
+        distance_limit = source.index(
+            "if (distance_to_target > px4_max_distance)")
+        final_guard = source.index("enforcing final command height")
+        publish = source.index("mavros_point_cmd_pub.publish")
+        self.assertLess(distance_limit, final_guard)
+        self.assertLess(final_guard, publish)
+        self.assertIn(
+            "mavros_point_cmd.pose.position.z = "
+            "external_planner_max_command_z_",
+            source[final_guard:publish],
+        )
+
+        for path in (LAUNCH, FULL_LAUNCH, CONTROL_LAUNCH):
+            launch = path.read_text(encoding="utf-8")
+            self.assertIn(
+                'name="external_planner_max_command_z" default="3.5"',
+                launch)
+        self.assertIn(
+            '<param name="external_planner_max_command_z"',
+            CONTROL_LAUNCH.read_text(encoding="utf-8"))
+        for path in (LAUNCH, FULL_LAUNCH):
+            self.assertIn(
+                'arg name="external_planner_max_command_z"',
+                path.read_text(encoding="utf-8"))
+
     def test_simulation_inflation_profile_is_complete_and_real_is_unchanged(self):
         sim_root = ET.parse(str(PLANNER_SIM_XML)).getroot()
         sim_node = sim_root.find("node")
@@ -199,9 +259,11 @@ class NewVisionConfigTest(unittest.TestCase):
         self.assertIsNotNone(real_node)
         real_params = {param.attrib["name"]: param.attrib.get("value")
                        for param in real_node.findall("param")}
-        self.assertEqual(real_params["sdf_map/obstacles_inflation"], "0.21")
-        self.assertEqual(real_params["sdf_map/obstacles_inflation_up"], "0.14")
-        self.assertEqual(real_params["sdf_map/obstacles_inflation_down"], "0.14")
+        # This navigation repository keeps its existing real-aircraft profile;
+        # only the bounded simulation profile is changed by this integration.
+        self.assertEqual(real_params["sdf_map/obstacles_inflation"], "0.25")
+        self.assertEqual(real_params["sdf_map/obstacles_inflation_up"], "0.2")
+        self.assertEqual(real_params["sdf_map/obstacles_inflation_down"], "0.1")
 
 
 if __name__ == "__main__":

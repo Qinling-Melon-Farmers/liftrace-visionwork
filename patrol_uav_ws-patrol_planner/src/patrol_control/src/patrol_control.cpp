@@ -13,12 +13,13 @@
 #include <Eigen/Geometry>
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/buffer.h"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h" 
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include <yaml-cpp/yaml.h>
 #include <algorithm>
+#include <stdexcept>
 #include <vector>
- 
-int times_detect = 0;  
+
+int times_detect = 0;
 bool flag_takeoff_done = 0;
 
 // for detect
@@ -82,14 +83,14 @@ bool loadSlotOffsets(ros::NodeHandle& nh, const std::string& param_name,
 
 }  // namespace
 
-LLController::LLController(ros::NodeHandle nh):nh_(nh) {   
+LLController::LLController(ros::NodeHandle nh):nh_(nh) {
     initializeNode();
-    
+
     // 默认禁用圆形检测
     std_msgs::Bool detect_disable_msg;
     detect_disable_msg.data = false;
-    detect_control_pub_.publish(detect_disable_msg);
-    
+    publishLegacyVisionControl(detect_control_pub_, detect_disable_msg);
+
     std::cout << "\033[47;30m ---------------------------------- Start mission ---------------------------------- \033[0m" << std::endl;
 }
 LLController::~LLController(){}
@@ -111,17 +112,42 @@ void LLController::initializeNode() {
     uav_pose.pose.orientation.z = 0.0;
     uav_pose.pose.orientation.w = 1.0;
 
+    control_ready_pub_ =
+        nh_.advertise<std_msgs::Bool>(control_ready_topic_, 1, true);
+    publishControlReady(false);
+
     // 订阅无人机当前位置
     pose_sub_ = nh_.subscribe("/mavros/local_position/pose", 1,&LLController::positionCallback, this);
     fastplanner_cmd_sub_ = nh_.subscribe("/fastplanner/setpoint_position/local", 1,&LLController::plannercmdCallback, this);
     mavros_point_cmd_pub = nh_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local", 50);//px4 直接接收
-    detect_sub_ = nh_.subscribe("/detect/waypoint_mark_point", 1,&LLController::waypointMarkCallback, this);
-    cross_mark_sub_ = nh_.subscribe("/detect/cross_mark_point", 1,&LLController::crossMarkCallback, this);
-    class_sub_ = nh_.subscribe("/yolo_detect", 1,&LLController::ClassCallback, this);
+    if (!external_mission_mode_) {
+        detect_sub_ = nh_.subscribe(
+            "/detect/waypoint_mark_point", 1,
+            &LLController::waypointMarkCallback, this);
+        cross_mark_sub_ = nh_.subscribe(
+            "/detect/cross_mark_point", 1,
+            &LLController::crossMarkCallback, this);
+        class_sub_ = nh_.subscribe(
+            "/yolo_detect", 1, &LLController::ClassCallback, this);
+    }
     land_client = nh_.serviceClient<mavros_msgs::CommandLong>("/mavros/cmd/command");
-    servo_marky_sub_ = nh_.subscribe("/detect/servo_complete", 1,&LLController::servoMarkyCallback, this);
-    servo_status_pub_ = nh_.advertise<std_msgs::Bool>("/detect/servo_status", 1);
-    land_mark_sub_ = nh_.subscribe("/detect/land_mark_point", 1,&LLController::landMarkCallback, this);
+    if (!external_mission_mode_) {
+        servo_marky_sub_ = nh_.subscribe(
+            "/detect/servo_complete", 1,
+            &LLController::servoMarkyCallback, this);
+        servo_status_pub_ =
+            nh_.advertise<std_msgs::Bool>("/detect/servo_status", 1);
+        land_mark_sub_ = nh_.subscribe(
+            "/detect/land_mark_point", 1,
+            &LLController::landMarkCallback, this);
+    } else {
+        landing_detections_sub_ = nh_.subscribe(
+            external_landing_detections_topic_, 2,
+            &LLController::landingDetectionsCallback, this);
+        ROS_INFO(
+            "[PatrolControl] External landing consumes typed detections: %s",
+            external_landing_detections_topic_.c_str());
+    }
     //send goal to planner
     //setplanner_goal_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/planner_planner/goal_position", 1);
     if (!external_mission_mode_) {
@@ -130,40 +156,67 @@ void LLController::initializeNode() {
     } else {
         ROS_INFO("[PatrolControl] External mission mode active; planner goal publisher disabled");
     }
-    servo_complete_sub_ = nh_.subscribe("/servo/complete", 1,&LLController::servoCompleteCallback, this);
-    class_control_pub_ = nh_.advertise<std_msgs::Bool>("/detect/class_control", 1);
-    tank_control_pub_ = nh_.advertise<std_msgs::Bool>("/detect/tank_control",1);
-    tank_status_sub_ = nh_.subscribe("/detect/tank_status", 1,&LLController::TankStatusCallback,this);
+    if (!external_mission_mode_) {
+        servo_complete_sub_ = nh_.subscribe(
+            "/servo/complete", 1,
+            &LLController::servoCompleteCallback, this);
+    }
+    if (!external_mission_mode_) {
+        class_control_pub_ =
+            nh_.advertise<std_msgs::Bool>("/detect/class_control", 1);
+        tank_control_pub_ =
+            nh_.advertise<std_msgs::Bool>("/detect/tank_control", 1);
+        tank_status_sub_ = nh_.subscribe(
+            "/detect/tank_status", 1,
+            &LLController::TankStatusCallback, this);
+    }
     // detection_status_sub_ = nh_.subscribe<const std_msgs::Bool&>("/detect/cross_status", 1,&LLController::CrossStatusCallback, this);
-    // 设置px4工作模式 land 
+    // 设置px4工作模式 land
     set_mode_client = nh_.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
     cmd_timer = nh_.createTimer(ros::Duration(0.05), &LLController::cmdCallback, this);
-    
+
     // 发布检测控制话题
-    detect_control_pub_ = nh_.advertise<std_msgs::Bool>("/detect/control", 1);
+    if (!external_mission_mode_) {
+        detect_control_pub_ =
+            nh_.advertise<std_msgs::Bool>("/detect/control", 1);
+        landing_detect_control_pub_ =
+            nh_.advertise<std_msgs::Bool>("/detect/landing_control", 1);
+        cross_control_pub_ =
+            nh_.advertise<std_msgs::Bool>("/cross/control", 1);
+    }
     point_class_pub_ = nh_.advertise<std_msgs::Int8>("/detect/point_class",1);
-    
-    // 发布降落检测控制话题
-    landing_detect_control_pub_ = nh_.advertise<std_msgs::Bool>("/detect/landing_control", 1);
     align_mode_pub_ = nh_.advertise<std_msgs::String>("/uav_vision/align_mode", 1);
-    
-    // 初始化舵机控制发布器
-    servo1_pub_ = nh_.advertise<std_msgs::Bool>("/control1", 1);
-    servo2_pub_ = nh_.advertise<std_msgs::Bool>("/control2", 1);
-    servo3_pub_ = nh_.advertise<std_msgs::Bool>("/control3", 1);
+
+    // 旧 topic 舵机控制只属于 legacy 入口。external 正式链仅使用
+    // permission-gated /Servo 服务及其同步 ACK。
+    if (!external_mission_mode_) {
+        servo1_pub_ = nh_.advertise<std_msgs::Bool>("/control1", 1);
+        servo2_pub_ = nh_.advertise<std_msgs::Bool>("/control2", 1);
+        servo3_pub_ = nh_.advertise<std_msgs::Bool>("/control3", 1);
+    }
 
     servo_client = nh_.serviceClient<patrol_control::Servo>("Servo");
-    
+
     // 订阅对准反馈话题（从 alignment_control_converter 获取像素偏差）
     // alignment_feedback_sub_ = nh_.subscribe("/detect/pixel_offset", 1, &LLController::alignmentFeedbackCallback, this);
-    
+
     // 十字检测相关订阅者和发布者
     // cross_pixel_offset_sub_ = nh_.subscribe("/detect/cross_pixel_offset", 1, &LLController::crossPixelOffsetCallback, this);
     // cross_center_sub_ = nh_.subscribe("/detect/cross_center", 1, &LLController::crossCenterCallback, this);
-    cross_status_sub_ = nh_.subscribe("/detect/cross_status", 1, &LLController::crossStatusCallback, this);
-    cross_control_pub_ = nh_.advertise<std_msgs::Bool>("/cross/control", 1);
-    selected_target_sub_ = nh_.subscribe("/uav_vision/selected_target", 1,
-                                         &LLController::selectedTargetCallback, this);
+    if (!external_mission_mode_) {
+        cross_status_sub_ = nh_.subscribe(
+            "/detect/cross_status", 1,
+            &LLController::crossStatusCallback, this);
+    }
+    if (!external_mission_mode_) {
+        selected_target_sub_ = nh_.subscribe(
+            "/uav_vision/selected_target", 1,
+            &LLController::selectedTargetCallback, this);
+    } else {
+        ROS_INFO(
+            "[PatrolControl] External mission mode uses only MissionCommand "
+            "for target identity; legacy policy subscriptions are disabled");
+    }
     drop_offset_sub_ = nh_.subscribe("/uav_vision/drop_offset", 1,
                                      &LLController::dropOffsetCallback, this);
     drop_ready_sub_ = nh_.subscribe("/uav_vision/drop_ready", 1,
@@ -173,7 +226,7 @@ void LLController::initializeNode() {
         &LLController::missionReleasePermissionCallback, this);
     mission_command_sub_ = nh_.subscribe(
         mission_command_topic_, 4, &LLController::missionCommandCallback, this);
-    
+
     // 初始化投递相关变量
     detect_point_counter = 0;
     drop_condition_met = false;
@@ -182,14 +235,14 @@ void LLController::initializeNode() {
     final_target_height = 0.0;
     last_target_height_ = 0.0;
     last_check_time_ = ros::Time::now();
-    
+
     ROS_INFO("\033[32m[DropSystem] Drop system initialized with detect_point_counter: %d\033[0m", detect_point_counter);
-    
+
     // 确保drop_enabled已经从参数中加载
     if (!drop_enabled) {
         ROS_WARN("\033[33m[DropSystem] Drop system is disabled in configuration\033[0m");
     }
-    
+
     // 根据配置的航路点数量初始化投递完成状态
     int detect_point_count = 0;
     for (const auto& wp : waypoint_list) {
@@ -232,46 +285,237 @@ void LLController::positionCallback(const geometry_msgs::PoseStamped& msg) {
             } else {
                 ROS_INFO("[PatrolControl] Takeoff complete; waiting for external mission commands");
             }
-            Drone_mode = Run_point;}
-    }
-    else {
-        if (external_mission_mode_) {
-            externalMissionTick();
-        } else {
-            patrol();
+            Drone_mode = Run_point;
+            if (external_mission_mode_) {
+                publishControlReady(true);
+            }
         }
+    }
+    else if (!external_mission_mode_) {
+        patrol();
     }
 }
 
+void LLController::publishControlReady(bool ready) {
+    if (control_ready_latched_ && !ready) {
+        ROS_WARN_THROTTLE(
+            5.0,
+            "[PatrolControl] Ignoring attempt to clear latched control readiness");
+        return;
+    }
+    control_ready_latched_ = control_ready_latched_ || ready;
+    std_msgs::Bool message;
+    message.data = control_ready_latched_;
+    control_ready_pub_.publish(message);
+}
+
+void LLController::publishLegacyVisionControl(
+    ros::Publisher& publisher, const std_msgs::Bool& message) {
+    if (external_mission_mode_) {
+        return;
+    }
+    publisher.publish(message);
+}
+
 void LLController::externalMissionTick() {
+    if (Drone_mode == Land) {
+        externalLandingTick();
+        return;
+    }
     if (Drone_mode != Aligning) {
         return;
     }
 
     std_msgs::Bool detect_enable_msg;
     detect_enable_msg.data = true;
-    detect_control_pub_.publish(detect_enable_msg);
+    publishLegacyVisionControl(detect_control_pub_, detect_enable_msg);
     align_ok = true;
     patrol_cmd.pose.position.x = adjust_target_position[0];
     patrol_cmd.pose.position.y = adjust_target_position[1];
     patrol_cmd.pose.position.z = align_height;
-    patrol_cmd.pose.orientation = waypoint_mark_point.pose.orientation;
+    patrol_cmd.pose.orientation =
+        (current_task_type == CROSS_MISSION)
+            ? cross_mark_point.pose.orientation
+            : waypoint_mark_point.pose.orientation;
 
     const bool align_done =
         (current_task_type == CROSS_MISSION) ? CrossDetectionDone()
                                              : WayPointDetectDone();
     if (align_done) {
         detect_enable_msg.data = false;
-        detect_control_pub_.publish(detect_enable_msg);
+        publishLegacyVisionControl(detect_control_pub_, detect_enable_msg);
+        // Do not resume the still-fresh approach trajectory while Mission
+        // Manager is preparing the next RESUME/RETURN_HOME transaction.
+        // Hold the measured pose until a new planner command arrives.
+        patrol_cmd = uav_pose;
+        patrol_cmd.header.frame_id = "camera_init";
+        mavros_point_cmd = patrol_cmd;
+        last_mavros_point_cmd = patrol_cmd;
+        have_planner_cmd = false;
         Drone_mode = Run_point;
         ROS_INFO("[PatrolControl] External ALIGN completed; waiting for RESUME command");
+    }
+}
+
+bool LLController::externalLandingMarkFresh(const ros::Time& now) const {
+    if (!have_land_mark || external_landing_last_mark_stamp_.isZero() ||
+        external_landing_last_mark_receipt_.isZero()) {
+        return false;
+    }
+    const double source_age =
+        (now - external_landing_last_mark_stamp_).toSec();
+    const double receipt_age =
+        (now - external_landing_last_mark_receipt_).toSec();
+    return source_age >= 0.0 && receipt_age >= 0.0 &&
+           source_age <= external_landing_mark_max_age_sec_ &&
+           receipt_age <= external_landing_mark_max_age_sec_;
+}
+
+void LLController::clearExternalLandingState(bool disable_detector) {
+    external_landing_active_ = false;
+    external_landing_new_mark_ = false;
+    external_landing_alignment_complete_ = false;
+    external_landing_auto_land_requested_ = false;
+    external_landing_stable_count_ = 0;
+    external_landing_started_at_ = ros::Time(0);
+    external_landing_command_stamp_ = ros::Time(0);
+    external_landing_last_mark_stamp_ = ros::Time(0);
+    external_landing_last_mark_receipt_ = ros::Time(0);
+    external_landing_last_auto_land_attempt_ = ros::Time(0);
+    have_land_mark = false;
+    flag_land = false;
+
+    if (disable_detector) {
+        std_msgs::Bool landing_enable;
+        landing_enable.data = false;
+        publishLegacyVisionControl(landing_detect_control_pub_, landing_enable);
+    }
+}
+
+void LLController::failExternalLanding(const std::string& reason) {
+    clearExternalLandingState(true);
+
+    patrol_cmd = uav_pose;
+    patrol_cmd.header.frame_id = external_landing_frame_;
+    mavros_point_cmd = patrol_cmd;
+    last_mavros_point_cmd = patrol_cmd;
+    have_planner_cmd = false;
+    Point_mode = Nothing_point;
+    Drone_mode = Run_point;
+    ROS_ERROR("[ExternalLanding] failed closed and holding position: %s",
+              reason.c_str());
+}
+
+void LLController::externalLandingTick() {
+    if (!external_landing_active_) {
+        failExternalLanding("landing_state_not_initialized");
+        return;
+    }
+
+    std_msgs::Bool landing_enable;
+    landing_enable.data = true;
+    publishLegacyVisionControl(landing_detect_control_pub_, landing_enable);
+
+    const ros::Time now = ros::Time::now();
+    if (flag_land) {
+        patrol_cmd.pose.position.x = external_landing_aligned_goal_.pose.position.x;
+        patrol_cmd.pose.position.y = external_landing_aligned_goal_.pose.position.y;
+        patrol_cmd.pose.position.z = land_height;
+        patrol_cmd.pose.orientation = external_landing_goal_.pose.orientation;
+        return;
+    }
+    if ((now - external_landing_started_at_).toSec() >
+        external_landing_watchdog_timeout_sec_) {
+        failExternalLanding("controller_landing_watchdog_timeout");
+        return;
+    }
+
+    const bool mark_fresh = externalLandingMarkFresh(now);
+    // A short detector gap must not revoke an alignment that already passed
+    // the stable-frame gate.  Reverting to capture height here made the
+    // setpoint alternate between land_height and capture_height whenever the
+    // H detector paused for more than mark_max_age_sec, so the vehicle could
+    // never reach the AUTO.LAND handoff altitude.  Freshness remains mandatory
+    // while acquiring the H; after acquisition the verified map anchor is
+    // latched for the remainder of this LAND transaction.
+    if (!mark_fresh && !external_landing_alignment_complete_) {
+        external_landing_stable_count_ = 0;
+    }
+
+    if (external_landing_new_mark_) {
+        if (mark_fresh && !external_landing_alignment_complete_) {
+            const double horizontal_error = std::hypot(
+                uav_pose.pose.position.x - land_mark_point.pose.position.x,
+                uav_pose.pose.position.y - land_mark_point.pose.position.y);
+            if (horizontal_error <= external_landing_alignment_tolerance_) {
+                ++external_landing_stable_count_;
+            } else {
+                external_landing_stable_count_ = 0;
+            }
+            if (external_landing_stable_count_ >=
+                external_landing_stable_frames_) {
+                external_landing_alignment_complete_ = true;
+                external_landing_aligned_goal_ = land_mark_point;
+                external_landing_aligned_goal_.pose.position.z = land_height;
+                external_landing_aligned_goal_.pose.orientation =
+                    external_landing_goal_.pose.orientation;
+                ROS_INFO(
+                    "[ExternalLanding] fresh H alignment latched with %d frames",
+                    external_landing_stable_count_);
+            }
+        }
+        external_landing_new_mark_ = false;
+    }
+
+    const geometry_msgs::PoseStamped& target =
+        external_landing_alignment_complete_
+            ? external_landing_aligned_goal_
+            : (mark_fresh ? land_mark_point : external_landing_goal_);
+    adjust_target_position[0] = target.pose.position.x;
+    adjust_target_position[1] = target.pose.position.y;
+    adjust_target_position[2] = external_landing_alignment_complete_
+        ? land_height : external_landing_capture_height_;
+    adjust_target_position[3] =
+        tf::getYaw(external_landing_goal_.pose.orientation);
+    patrol_cmd.header.frame_id = external_landing_frame_;
+    patrol_cmd.pose.position.x = adjust_target_position[0];
+    patrol_cmd.pose.position.y = adjust_target_position[1];
+    patrol_cmd.pose.position.z = adjust_target_position[2];
+    patrol_cmd.pose.orientation = external_landing_goal_.pose.orientation;
+
+    if (!external_landing_alignment_complete_) {
+        ROS_INFO_THROTTLE(
+            1.0,
+            "[ExternalLanding] waiting for fresh H alignment %d/%d",
+            external_landing_stable_count_, external_landing_stable_frames_);
+        return;
+    }
+
+    const double horizontal_error = std::hypot(
+        uav_pose.pose.position.x - external_landing_aligned_goal_.pose.position.x,
+        uav_pose.pose.position.y - external_landing_aligned_goal_.pose.position.y);
+    if (uav_pose.pose.position.z <= external_landing_auto_land_height_ &&
+        horizontal_error <= external_landing_alignment_tolerance_) {
+        if (!auto_land) {
+            ROS_ERROR_THROTTLE(
+                2.0,
+                "[ExternalLanding] AUTO.LAND disabled by switch/auto_land");
+            return;
+        }
+        if (external_landing_last_auto_land_attempt_.isZero() ||
+            (now - external_landing_last_auto_land_attempt_).toSec() >=
+                external_landing_auto_land_retry_sec_) {
+            external_landing_last_auto_land_attempt_ = now;
+            CallLand();
+            external_landing_auto_land_requested_ = flag_land;
+        }
     }
 }
 void LLController::patrol(){
     geometry_msgs::PoseStamped next_position_msg;
     float dis_to_next_position = 0;// diostance with next goal
     double yaw;
-    //this flag is to adjust: run waypoint or circle adjust or landing 
+    //this flag is to adjust: run waypoint or circle adjust or landing
     //to select next position
     std_msgs::Int8 point_class_msg;
     point_class_msg.data = Drone_mode;
@@ -282,7 +526,7 @@ void LLController::patrol(){
             detect_enable_msg_temp.data = false;
             detect_control_pub_.publish(detect_enable_msg_temp);
            // landing_detect_control_pub_.publish(detect_enable_msg_temp);
-            dis_to_next_position = distance3d(uav_newest_position[0], uav_newest_position[1], uav_newest_position[2], 
+            dis_to_next_position = distance3d(uav_newest_position[0], uav_newest_position[1], uav_newest_position[2],
             waypoint_list[waypoint_next].x ,waypoint_list[waypoint_next].y, waypoint_list[waypoint_next].z);
 
             next_position_msg.pose.position.x = waypoint_list[waypoint_next].x;
@@ -302,11 +546,11 @@ void LLController::patrol(){
             next_position_msg.pose.position.z = waypoint_list[waypoint_next].z;
             yaw = waypoint_list[waypoint_next].yaw;
             next_position_msg.pose.orientation = tf::createQuaternionMsgFromYaw(yaw);
-            
+
             pub_goal(next_position_msg); //发送目标点给fastplanner或者直接给mavros
             break;
 
-        case Aligning:   // 位置调整 
+        case Aligning:   // 位置调整
             // 计算与目标点的距离
             dis_to_next_position = distance3d(uav_newest_position[0], uav_newest_position[1], uav_newest_position[2],
             adjust_target_position[0],adjust_target_position[1], align_height);
@@ -356,7 +600,7 @@ void LLController::patrol(){
                 if (current_task_type == MAIN_MISSION) {
                     // 无论是否完成十字投递，都可以进行圆环检测
                     ROS_INFO_THROTTLE(5, "\033[34marrive waypoint, and detect... \033[0m ");
-                    
+
                     // 启用圆形检测
                     std_msgs::Bool detect_enable_msg;
                     detect_enable_msg.data = true;
@@ -364,7 +608,7 @@ void LLController::patrol(){
                     detect_control_pub_.publish(detect_enable_msg);
                     class_control_pub_.publish(detect_enable_msg);
                     tank_control_pub_.publish(detect_enable_msg_temp);
-                    
+
                     // 如果已经完成十字投递，确保十字检测系统保持关闭
                     // if (cross_drop_completed) {
                     //     std_msgs::Bool cross_disable_msg;
@@ -378,8 +622,8 @@ void LLController::patrol(){
                         detect_enable_msg.data = true;
                         detect_control_pub_.publish(detect_enable_msg);
                         class_control_pub_.publish(detect_enable_msg_temp);
-                        //class_control_pub_.publish(detect_enable_msg); 
-                        
+                        //class_control_pub_.publish(detect_enable_msg);
+
                     }
                     else{
                         ROS_INFO("\033[32m[PatrolControl] Aligning not ok, wait for next cycle\033[0m");
@@ -391,14 +635,14 @@ void LLController::patrol(){
 
                     Drone_mode= Aligning;
                         // 如果该点调整结束，切到下一个路点
-                        if (WayPointDetectDone()){   
+                        if (WayPointDetectDone()){
                             // 禁用圆形检测
                             std_msgs::Bool detect_disable_msg;
                             detect_disable_msg.data = false;
                             detect_control_pub_.publish(detect_disable_msg);
                             class_control_pub_.publish(detect_disable_msg);
-        
-                            NextPoint(); 
+
+                            NextPoint();
 
                             // adjust_target_position[0] = waypoint_list[waypoint_next].x;
                             // adjust_target_position[1] = waypoint_list[waypoint_next].y;
@@ -414,19 +658,19 @@ void LLController::patrol(){
                             times_detect = 0;
                             have_waypoint_mark = false;
                             Drone_mode= Run_point;
-                        }                   
+                        }
                 }
                 // 移除十字任务处理逻辑，因为它不应该在Detect_point中处理
             break;}
 
             case Nothing_point: {   // 跑点 nothing to do
                 ROS_INFO_THROTTLE(2, "\033[34marrive goal position,and Pure run point.\033[0m ");
-                
+
                 // 确保禁用圆形检测
                 std_msgs::Bool detect_disable_msg;
                 detect_disable_msg.data = false;
                 detect_control_pub_.publish(detect_disable_msg);
-                
+
                 // 检查是否需要悬停
                 if (waypoint_list[waypoint_next].hover_time > 0.0) {
                     // 开始悬停
@@ -451,12 +695,12 @@ void LLController::patrol(){
                     if(flag_landing_detect) {ROS_INFO_THROTTLE(5, "\033[34mArrive landing position, start detect land mark ...\033[0m  ");}
                     else{ROS_INFO_THROTTLE(5, "\033[34mArrive landing position, and not detect. \033[0m");}
                 }
-                
+
                 // 确保禁用圆形检测
                 std_msgs::Bool detect_disable_msg;
                 detect_disable_msg.data = false;
                 detect_control_pub_.publish(detect_disable_msg);
-                
+
                 // 启用降落检测（黑色圆环+H）
                 std_msgs::Bool landing_detect_enable_msg;
                 landing_detect_enable_msg.data = true;
@@ -473,19 +717,19 @@ void LLController::patrol(){
                     times_detect = 0;
                 }
                 // 如果需要检测，让Land模式来处理检测过程，不要在这里调用LandDetectDone()
-                
+
                 break;}
             case Dynamic_point:{
                     // 无论是否完成十字投递，都可以进行圆环检测
                     ROS_INFO_THROTTLE(5, "\033[34marrive waypoint, and detect... \033[0m ");
-                    
+
                     // 启用圆形检测
                     std_msgs::Bool detect_enable_msg;
                     detect_enable_msg.data = true;
                     cross_control_pub_.publish(detect_enable_msg_temp);
                     detect_control_pub_.publish(detect_enable_msg);
                     class_control_pub_.publish(detect_enable_msg_temp);
-                    
+
                     // 如果已经完成十字投递，确保十字检测系统保持关闭
                     // if (cross_drop_completed) {
                     //     std_msgs::Bool cross_disable_msg;
@@ -496,14 +740,14 @@ void LLController::patrol(){
                     detect_control_pub_.publish(detect_enable_msg);
                     Drone_mode= Aligning;
                         // 如果该点调整结束，切到下一个路点
-                        if (DynamicProcess()){   
+                        if (DynamicProcess()){
                             // 禁用圆形检测
                             std_msgs::Bool detect_disable_msg;
                             detect_disable_msg.data = false;
                             detect_control_pub_.publish(detect_disable_msg);
                             class_control_pub_.publish(detect_disable_msg);
-        
-                            NextPoint(); 
+
+                            NextPoint();
 
                             // adjust_target_position[0] = waypoint_list[waypoint_next].x;
                             // adjust_target_position[1] = waypoint_list[waypoint_next].y;
@@ -519,7 +763,7 @@ void LLController::patrol(){
                             times_detect = 0;
                             have_waypoint_mark = false;
                             Drone_mode= Run_point;
-                        }                   
+                        }
                 // 移除十字任务处理逻辑，因为它不应该在Detect_point中处理
                 break;
             }
@@ -528,17 +772,17 @@ void LLController::patrol(){
                 break;
         }
     }
-    
+
     // 悬停时间检查
     if (Drone_mode == Hover && flag_hover_started) {
         ros::Time current_time = ros::Time::now();
         double elapsed_hover_time = (current_time - hover_start_time).toSec();
-        
+
         // 显示悬停进度
         if (debug) {
             ROS_INFO_THROTTLE(1, "\033[33m悬停进度: %.1f/%.1f 秒\033[0m", elapsed_hover_time, current_hover_time);
         }
-        
+
         // 悬停时间到，前往下一个点
         if (elapsed_hover_time >= current_hover_time) {
             ROS_INFO("\033[32m悬停完成，前往下一个点\033[0m");
@@ -557,6 +801,11 @@ void LLController::plannercmdCallback(const geometry_msgs::PoseStamped& msg) {
 }
 
 void LLController::TankStatusCallback(const geometry_msgs::PoseStamped& msg){
+    if (external_mission_mode_) {
+        ROS_DEBUG_THROTTLE(
+            5.0, "[PatrolControl] Ignoring legacy tank mark in external mission mode");
+        return;
+    }
     tank_found_ = true;
     tank_mark_point.pose.position.x = msg.pose.position.x;
     tank_mark_point.pose.position.y = msg.pose.position.y;
@@ -565,6 +814,11 @@ void LLController::TankStatusCallback(const geometry_msgs::PoseStamped& msg){
 }
 
 void LLController::waypointMarkCallback(const geometry_msgs::PoseStamped& msg) {
+    if (external_mission_mode_) {
+        ROS_DEBUG_THROTTLE(
+            5.0, "[PatrolControl] Ignoring legacy waypoint mark in external mission mode");
+        return;
+    }
     have_waypoint_mark = true;
     // waypoint_mark_point = msg;
     waypoint_mark_point.pose.position.x = msg.pose.position.x;
@@ -574,6 +828,11 @@ void LLController::waypointMarkCallback(const geometry_msgs::PoseStamped& msg) {
 }
 
 void LLController::crossMarkCallback(const geometry_msgs::PoseStamped& msg) {
+    if (external_mission_mode_) {
+        ROS_DEBUG_THROTTLE(
+            5.0, "[PatrolControl] Ignoring legacy cross mark in external mission mode");
+        return;
+    }
     have_cross_mark = true;
     cross_mark_point.pose.position.x = msg.pose.position.x;
     cross_mark_point.pose.position.y = msg.pose.position.y;
@@ -581,13 +840,79 @@ void LLController::crossMarkCallback(const geometry_msgs::PoseStamped& msg) {
     ROS_INFO("[crossMarkCallback] cross_mark_point: %.2f, %.2f, %.2f", cross_mark_point.pose.position.x, cross_mark_point.pose.position.y, cross_mark_point.pose.position.z);
 }
 
+void LLController::landingDetectionsCallback(
+    const uav_vision::TargetDetectionArray::ConstPtr& msg)
+{
+    if (!external_mission_mode_) {
+        return;
+    }
+
+    const uav_vision::TargetDetection* best = nullptr;
+    float best_confidence = -1.0F;
+    for (const auto& detection : msg->detections) {
+        if (detection.class_name != "landing_pad" ||
+            !detection.map_valid || !detection.geometry_verified ||
+            !std::isfinite(detection.geometry_confidence) ||
+            detection.geometry_confidence <= best_confidence) {
+            continue;
+        }
+        best = &detection;
+        best_confidence = detection.geometry_confidence;
+    }
+    if (best == nullptr) {
+        return;
+    }
+
+    geometry_msgs::PoseStamped mark;
+    mark.header = best->header;
+    mark.header.frame_id = best->map_frame;
+    mark.pose.position = best->map_point;
+    mark.pose.orientation.w = 1.0;
+    landMarkCallback(mark);
+}
+
 void LLController::landMarkCallback(const geometry_msgs::PoseStamped& msg)
 {
+    if (external_mission_mode_) {
+        if (!external_landing_active_ || Drone_mode != Land) {
+            return;
+        }
+        const ros::Time now = ros::Time::now();
+        const double source_age = (now - msg.header.stamp).toSec();
+        const bool coordinates_valid =
+            std::isfinite(msg.pose.position.x) &&
+            std::isfinite(msg.pose.position.y) &&
+            std::isfinite(msg.pose.position.z);
+        const double anchor_error = std::hypot(
+            msg.pose.position.x - external_landing_goal_.pose.position.x,
+            msg.pose.position.y - external_landing_goal_.pose.position.y);
+        if (msg.header.frame_id != external_landing_frame_ ||
+            msg.header.stamp.isZero() || source_age < 0.0 ||
+            source_age > external_landing_mark_max_age_sec_ ||
+            msg.header.stamp <= external_landing_command_stamp_ ||
+            (!external_landing_last_mark_stamp_.isZero() &&
+             msg.header.stamp <= external_landing_last_mark_stamp_) ||
+            !coordinates_valid ||
+            anchor_error > external_landing_max_mark_offset_) {
+            ROS_WARN_THROTTLE(
+                1.0,
+                "[ExternalLanding] rejected H mark frame=%s age=%.3f anchor_error=%.3f",
+                msg.header.frame_id.c_str(), source_age, anchor_error);
+            return;
+        }
+        land_mark_point = msg;
+        have_land_mark = true;
+        external_landing_new_mark_ = true;
+        external_landing_last_mark_stamp_ = msg.header.stamp;
+        external_landing_last_mark_receipt_ = now;
+        ROS_INFO_THROTTLE(
+            1.0, "[ExternalLanding] accepted fresh H mark at %.3f %.3f",
+            msg.pose.position.x, msg.pose.position.y);
+        return;
+    }
     have_land_mark = true;
-    land_mark_point.pose.position.x = msg.pose.position.x;
-    land_mark_point.pose.position.y = msg.pose.position.y;
-   // land_mark_point.pose.position.z = align_height;
-    ROS_INFO("[landmarkCallback] cross_mark_point: %.2f, %.2f, %.2f", land_mark_point.pose.position.x, land_mark_point.pose.position.y, land_mark_point.pose.position.z);    
+    land_mark_point = msg;
+    ROS_INFO("[landmarkCallback] cross_mark_point: %.2f, %.2f, %.2f", land_mark_point.pose.position.x, land_mark_point.pose.position.y, land_mark_point.pose.position.z);
 }
 bool isQuaternionNormalized(const geometry_msgs::Quaternion& q, double tolerance = 1e-6)
 {
@@ -660,6 +985,13 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
         have_drop_offset_ = false;
         uav_drop_ready_ = false;
     }
+    // External mission state advances from this single 20 Hz control clock.
+    // Pose callbacks only update state; they must not run alignment/release a
+    // second time at the sensor publication rate.
+    if (external_mission_mode_ &&
+        (Drone_mode == Aligning || Drone_mode == Land)) {
+        externalMissionTick();
+    }
     publishAlignMode(desiredAlignMode());
     std_msgs::Int8 point_class_msg;
     point_class_msg.data = Drone_mode;
@@ -668,8 +1000,10 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
         case Takeoff:  // Takeoff
             have_planner_cmd = false;
             detect_enable_msg_temp.data = false;
-            detect_control_pub_.publish(detect_enable_msg_temp);
-            landing_detect_control_pub_.publish(detect_enable_msg_temp);
+            publishLegacyVisionControl(
+                detect_control_pub_, detect_enable_msg_temp);
+            publishLegacyVisionControl(
+                landing_detect_control_pub_, detect_enable_msg_temp);
             mavros_point_cmd.pose.position.x = takeoff_point[0];
             mavros_point_cmd.pose.position.y = takeoff_point[1];
             mavros_point_cmd.pose.position.z = takeoff_point[2];
@@ -685,13 +1019,27 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
             adjust_target_position[0] = uav_pose.pose.position.x;
             adjust_target_position[1] = uav_pose.pose.position.y;
             adjust_target_position[2] = uav_pose.pose.position.z;
-            detect_control_pub_.publish(detect_enable_msg_temp);
+            publishLegacyVisionControl(
+                detect_control_pub_, detect_enable_msg_temp);
             if (external_mission_mode_) {
-                if (!flag_planner_px4) {
-                    if (hasValidExternalPlannerCommand()) mavros_point_cmd = planner_cmd;
-                    else mavros_point_cmd = last_mavros_point_cmd;
+                // The external task chain has exactly one motion source:
+                // Planner Bridge -> Fast-Planner -> planner_cmd.  The 2025
+                // flag_planner_px4 switch remains a legacy-mode option only.
+                if (hasValidExternalPlannerCommand()) {
+                    mavros_point_cmd = planner_cmd;
+                    if (mavros_point_cmd.pose.position.z >
+                            external_planner_max_command_z_) {
+                        ROS_WARN_THROTTLE(
+                            1.0,
+                            "[ExternalPlanner] capping command height=%.3f "
+                            "to %.3f while preserving horizontal progress",
+                            mavros_point_cmd.pose.position.z,
+                            external_planner_max_command_z_);
+                        mavros_point_cmd.pose.position.z =
+                            external_planner_max_command_z_;
+                    }
                 } else {
-                    mavros_point_cmd = patrol_cmd;
+                    mavros_point_cmd = last_mavros_point_cmd;
                 }
                 ROS_INFO_THROTTLE(5, "[PatrolControl] Forwarding external planner trajectory");
                 break;
@@ -765,7 +1113,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                     detect_disable_msg.data = false;
                     detect_control_pub_.publish(detect_disable_msg);
                 }
-                
+
                 // 设置目标为当前航路点
                 if(!flag_planner_px4){
                     patrol_cmd.pose.position.x = uav_pose.pose.position.x;
@@ -776,59 +1124,59 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                 }else{
                     mavros_point_cmd = patrol_cmd;
                 }
-            }            
+            }
             // 2. 检查是否检测到十字（中断主任务）
             if (tank_found_ && current_task_type == MAIN_MISSION && tank_mark && !tank_drop_completed) {
                 ROS_INFO("\033[32m[PatrolControl] TANK detected! Starting TANK mission interrupt sequence\033[0m");
-                
+
                 // 立即禁用十字检测，防止重复触发
                 tank_mark = false;
-                
+
                 // 切换到十字任务
                 current_task_type = TANK_MISSION;
                 Point_temp = Point_mode;
                 Point_mode = Detect_point;
-                
+
                 Drone_mode = Aligning;
                 ROS_INFO("\033[32m[PatrolControl] Cross mission started\033[0m");
             }
             if (cross_found_ && current_task_type == MAIN_MISSION && cross_mark && !cross_drop_completed) {
                 ROS_INFO("\033[32m[PatrolControl] Cross detected! Starting cross mission interrupt sequence\033[0m");
-                
+
                 // 立即禁用十字检测，防止重复触发
                 cross_mark = false;
-                
+
                 // 切换到十字任务
                 current_task_type = CROSS_MISSION;
                 Point_temp = Point_mode;
                 Point_mode = Detect_point;
-                
+
                 Drone_mode = Aligning;
                 ROS_INFO("\033[32m[PatrolControl] Cross mission started\033[0m");
             }
 
-            
+
             // 3. 如果是从十字任务返回，恢复主任务
             if (current_task_type == CROSS_MISSION && cross_mission_completed) {
                 ROS_INFO("\033[33m[PatrolControl] Cross mission completed! Cleaning up and resuming main mission\033[0m");
                 // if()
                 // 使用专门的清理函数
                 cleanupAfterCrossDrop();
-                
+
                 // 彻底禁用所有检测系统，避免冲突
                 std_msgs::Bool detect_disable_msg;
                 detect_disable_msg.data = false;
                 detect_control_pub_.publish(detect_disable_msg);
-                
+
                 // 永久禁用十字检测，关闭画面显示
                 cross_drop_completed = true;
                 cross_mark = false;
                 std_msgs::Bool cross_disable_msg;
                 cross_disable_msg.data = false;
                 cross_control_pub_.publish(cross_disable_msg);
-                
+
                 ROS_INFO("\033[36m[DEBUG] Resuming mission: waypoint_now=%d, waypoint_next=%d\033[0m", waypoint_now, waypoint_next);
-                ROS_INFO("\033[36m[DEBUG] Will continue towards waypoint %d: (%.2f, %.2f, %.2f)\033[0m", 
+                ROS_INFO("\033[36m[DEBUG] Will continue towards waypoint %d: (%.2f, %.2f, %.2f)\033[0m",
                          waypoint_next, waypoint_list[waypoint_next].x, waypoint_list[waypoint_next].y, waypoint_list[waypoint_next].z);
                 ROS_INFO("\033[36m[PatrolControl] All detection systems disabled, cross detection permanently disabled\033[0m");
                 Point_mode = Point_temp;
@@ -842,20 +1190,20 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                 // 使用专门的清理函数
                 cleanupAfterCrossDrop();
                 // tank_mark = false;
-                
+
                 std_msgs::Bool detect_disable_msg;
                 detect_disable_msg.data = false;
                 detect_control_pub_.publish(detect_disable_msg);
-                
+
                 // 永久禁用tank检测，关闭画面显示
                 tank_drop_completed = true;
                 tank_mark = false;
                 std_msgs::Bool tank_disable_msg;
                 tank_disable_msg.data = false;
                 tank_control_pub_.publish(tank_disable_msg);
-                
+
                 ROS_INFO("\033[36m[DEBUG] Resuming mission: waypoint_now=%d, waypoint_next=%d\033[0m", waypoint_now, waypoint_next);
-                ROS_INFO("\033[36m[DEBUG] Will continue towards waypoint %d: (%.2f, %.2f, %.2f)\033[0m", 
+                ROS_INFO("\033[36m[DEBUG] Will continue towards waypoint %d: (%.2f, %.2f, %.2f)\033[0m",
                          waypoint_next, waypoint_list[waypoint_next].x, waypoint_list[waypoint_next].y, waypoint_list[waypoint_next].z);
                 ROS_INFO("\033[36m[PatrolControl] TANKMISSION completed\033[0m");
                 Point_mode = Point_temp;
@@ -863,7 +1211,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                 // 添加一个短暂的延迟，确保所有状态都已清理
                 ros::Duration(0.1).sleep();
             }
-            
+
             ROS_INFO_THROTTLE(5, "Send point to Run_point ");
             break;
         }
@@ -880,11 +1228,16 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
             break;
         }
 
-        case Aligning: { // 位置调整 
+        case Aligning: { // 位置调整
             have_planner_cmd = false;
             mavros_point_cmd = patrol_cmd;
+            if (external_mission_mode_) {
+                ROS_INFO_THROTTLE(
+                    5, "[PatrolControl] Forwarding external alignment setpoint");
+                break;
+            }
             // std::cout<<"mavros_point_cmd.pose.position.x, mavros_point_cmd.pose.position.y, mavros_point_cmd.pose.position.z = "<<mavros_point_cmd.pose.position.x<<", "<<mavros_point_cmd.pose.position.y<<", "<<mavros_point_cmd.pose.position.z<<std::endl;
-            
+
             if (current_task_type == MAIN_MISSION) {
                 // 正常航路点的检测对准（原有逻辑）
                 ROS_INFO_THROTTLE(5, "Send point to Aligning (Main Mission)");
@@ -892,7 +1245,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
             else if (current_task_type == CROSS_MISSION) {
                 // 十字检测的对准投递
                 ROS_INFO_THROTTLE(5, "Send point to Aligning (Cross Mission)");
-                
+
                 // 检查十字检测任务是否完成
                 if (CrossDetectionDone()) {
                     // 十字任务完成，准备返回主任务
@@ -909,7 +1262,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                         Drone_mode = Run_point;  // 返回Run_point，会被上面的逻辑处理
                         Point_mode = Point_temp;
                         // if(detect_point_counter >= 3) Point_mode = Nothing_point;
-                    }                    
+                    }
                     ROS_INFO("\033[32m[PatrolControl] Cross detection and drop completed!\033[0m");
                 }
             }
@@ -936,7 +1289,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                         Drone_mode = Run_point;  // 返回Run_point，会被上面的逻辑处理
                         Point_mode = Point_temp;
                         // if(detect_point_counter >= 3) Point_mode = Nothing_point;
-                    }                    
+                    }
                     ROS_INFO("\033[32m[PatrolControl] tank detection and drop completed!\033[0m");
                 }
             }
@@ -964,6 +1317,21 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
         mavros_point_cmd.pose.position.y = new_pos.y();
         mavros_point_cmd.pose.position.z = new_pos.z();
         ROS_INFO_THROTTLE(2, "Target point adjusted to max distance limit.");
+    }
+
+    // The distance limiter interpolates from the current vehicle pose.  When
+    // the vehicle is already above the configured ceiling, that interpolation
+    // can raise a previously capped planner command above the ceiling again.
+    // Enforce the invariant on the final command sent to MAVROS as well.
+    if (external_mission_mode_ &&
+        mavros_point_cmd.pose.position.z > external_planner_max_command_z_) {
+        ROS_WARN_THROTTLE(
+            1.0,
+            "[ExternalPlanner] enforcing final command height=%.3f to %.3f "
+            "after distance interpolation",
+            mavros_point_cmd.pose.position.z,
+            external_planner_max_command_z_);
+        mavros_point_cmd.pose.position.z = external_planner_max_command_z_;
     }
 
     // 提取当前 yaw 和目标 yaw
@@ -997,7 +1365,11 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     // std::cout<<"mavros_point_cmd.pose.position.x, mavros_point_cmd.pose.position.y, mavros_point_cmd.pose.position.z = "<<mavros_point_cmd.pose.position.x<<", "<<mavros_point_cmd.pose.position.y<<", "<<mavros_point_cmd.pose.position.z<<std::endl;
     last_mavros_point_cmd = mavros_point_cmd;
     // 判断是否已经降落，降落成功就锁桨
-    if(Drone_mode == Land && uav_pose.pose.position.z <= 0.02){
+    // External landing delegates disarm to PX4 AUTO.LAND and verifies it
+    // through MAVROS.  The legacy height-only force-disarm path is unsafe for
+    // that contract because a bad local-z sample could stop motors in flight.
+    if(!external_mission_mode_ && Drone_mode == Land &&
+       uav_pose.pose.position.z <= 0.02){
         // 禁用降落检测
         std_msgs::Bool landing_detect_disable_msg;
         landing_detect_disable_msg.data = false;
@@ -1024,16 +1396,26 @@ void LLController::Lock() {
 }
 
 void LLController::CallLand() {
-    if (simulation_auto_land && auto_land) {
+    if (auto_land && (external_mission_mode_ || simulation_auto_land)) {
         mavros_msgs::SetMode auto_land_mode;
         auto_land_mode.request.custom_mode = "AUTO.LAND";
-        if (set_mode_client.call(auto_land_mode) && auto_land_mode.response.mode_sent) {
-            ROS_INFO("[PatrolControl] Simulation AUTO.LAND mode enabled");
+        const bool mode_accepted =
+            set_mode_client.call(auto_land_mode) &&
+            auto_land_mode.response.mode_sent;
+        if (mode_accepted) {
+            ROS_INFO("[PatrolControl] AUTO.LAND mode enabled");
         } else {
-            ROS_WARN("[PatrolControl] Simulation AUTO.LAND request failed; keeping safe landing setpoint");
+            ROS_WARN("[PatrolControl] AUTO.LAND request failed; keeping landing setpoint");
         }
-        // Do not publish the historical -1 m setpoint in this simulation path.
+        // PX4 controls the final descent; retain the last aligned height setpoint.
         align_height = land_height;
+        if (external_mission_mode_ && !mode_accepted) {
+            // External mission completion is observed through MAVROS landed
+            // state.  A rejected mode request must remain retryable instead
+            // of pretending that the landing handoff succeeded.
+            flag_land = false;
+            return;
+        }
     } else {
         if(!flag_landing_detect){
             adjust_target_position[0] = waypoint_temp.pose.position.x;
@@ -1072,16 +1454,26 @@ void LLController::load_params() {
     require_vision_release_permission_ =
         nh_.param("uav_vision/require_release_permission", false);
     external_mission_mode_ = nh_.param("external_mission_mode", false);
+    control_ready_topic_ = nh_.param<std::string>(
+        "control_ready_topic", "/mission/control_ready");
     mission_command_topic_ = nh_.param<std::string>(
         "mission_command_topic", "/mission/command");
     external_planner_cmd_timeout_ =
         nh_.param("external_planner_cmd_timeout", 0.5);
-    external_alignment_timeout_sec_ =
-        nh_.param("external_alignment_timeout", 75.0);
-
     // 目标类别列表：~goal_list 参数（XmlRpc 数组）可选，缺省保持旧行为 {"panzer"}
     external_planner_start_max_distance_ =
         nh_.param("external_planner_start_max_distance", 0.6);
+    external_planner_max_command_z_ =
+        nh_.param("external_planner_max_command_z", 3.5);
+    if (!std::isfinite(external_planner_max_command_z_) ||
+        external_planner_max_command_z_ <= 0.05 ||
+        external_planner_max_command_z_ > 4.0) {
+        ROS_ERROR(
+            "[ExternalPlanner] invalid max command z %.3f; using safe "
+            "fallback 3.5 m",
+            external_planner_max_command_z_);
+        external_planner_max_command_z_ = 3.5;
+    }
     {
         XmlRpc::XmlRpcValue goal_list;
         if (nh_.getParam("goal_list", goal_list) &&
@@ -1100,11 +1492,53 @@ void LLController::load_params() {
     px4_max_distance = nh_.param("px4_max_distance", 1.2);
     max_yaw_change = nh_.param("max_yaw_change", 0.3);
     align_height = nh_.param("align_height", 1.0);
-    
+    external_alignment_capture_height_ = align_height;
+    external_landing_frame_ = nh_.param<std::string>(
+        "external_landing/frame", "camera_init");
+    external_landing_detections_topic_ = nh_.param<std::string>(
+        "external_landing/detections_topic",
+        "/uav_vision/detections_mapped");
+    external_landing_capture_height_ = nh_.param(
+        "external_landing/capture_height", 0.75);
+    external_landing_watchdog_timeout_sec_ = nh_.param(
+        "external_landing/watchdog_timeout_sec", 120.0);
+    external_landing_mark_max_age_sec_ = nh_.param(
+        "external_landing/mark_max_age_sec", 0.5);
+    external_landing_alignment_tolerance_ = nh_.param(
+        "external_landing/alignment_tolerance", 0.08);
+    external_landing_max_mark_offset_ = nh_.param(
+        "external_landing/max_mark_offset", 0.60);
+    external_landing_auto_land_height_ = nh_.param(
+        "external_landing/auto_land_height", 0.40);
+    external_landing_auto_land_retry_sec_ = nh_.param(
+        "external_landing/auto_land_retry_sec", 1.0);
+    external_landing_stable_frames_ = nh_.param(
+        "external_landing/stable_frames", 10);
+    if (external_landing_frame_.empty() ||
+        (external_mission_mode_ &&
+         external_landing_detections_topic_.empty()) ||
+        land_height <= 0.0 ||
+        external_landing_capture_height_ <= external_landing_auto_land_height_ ||
+        external_landing_auto_land_height_ < land_height ||
+        external_landing_watchdog_timeout_sec_ <= 0.0 ||
+        external_landing_mark_max_age_sec_ <= 0.0 ||
+        external_landing_alignment_tolerance_ <= 0.0 ||
+        external_landing_max_mark_offset_ <
+            external_landing_alignment_tolerance_ ||
+        external_landing_auto_land_retry_sec_ <= 0.0 ||
+        external_landing_stable_frames_ <= 0) {
+        ROS_FATAL("[ExternalLanding] invalid fail-closed landing parameters");
+        throw std::invalid_argument("invalid external_landing parameters");
+    }
+
     // 投递系统参数
     drop_precision_threshold = nh_.param("drop_system/precision_threshold", 20.0);
     dynamic_height = nh_.param("dynamic/ranger_height", 0.20);
     drop_height_threshold = nh_.param("drop_system/height_threshold", 0.2);
+    drop_position_threshold_ = nh_.param(
+        "drop_system/position_threshold", 0.15);
+    drop_release_setpoint_height_ = nh_.param(
+        "drop_system/release_setpoint_height", 0.10);
     drop_enabled = nh_.param("drop_system/enable_drop", true);
     descent_stable_duration = nh_.param("drop_system/descent_stable_duration", 2.0);
     loadSlotOffsets(nh_, "drop_system/slot_offsets", &drop_slot_offsets_);
@@ -1114,6 +1548,8 @@ void LLController::load_params() {
     drop_offset_timeout_ = nh_.param("uav_vision/drop_offset_timeout", 1.0);
     mission_release_permission_timeout_ = nh_.param(
         "uav_vision/release_permission_timeout", 0.25);
+    external_recovery_height_ = nh_.param(
+        "uav_vision/recovery_height", 0.95);
     mission_release_permission_topic_ = nh_.param<std::string>(
         "uav_vision/release_permission_state_topic",
         "/mission/release_permission_active");
@@ -1136,10 +1572,26 @@ void LLController::load_params() {
     drop_cross_radius_m_ = nh_.param("uav_vision/drop_cross_radius_m", 0.5);
     landing_pad_radius_m_ = nh_.param("uav_vision/landing_pad_radius_m", 0.3);
     enable_selected_tank_interrupt_ = nh_.param("uav_vision/enable_tank_interrupt", false);
-    
+
+    if (!std::isfinite(drop_height_threshold) ||
+        !std::isfinite(drop_position_threshold_) ||
+        !std::isfinite(drop_release_setpoint_height_) ||
+        !std::isfinite(external_recovery_height_) ||
+        drop_height_threshold <= 0.0 || drop_height_threshold > 1.0 ||
+        drop_position_threshold_ <= 0.0 || drop_position_threshold_ > 1.0 ||
+        drop_release_setpoint_height_ <= 0.05 ||
+        drop_release_setpoint_height_ > drop_height_threshold ||
+        external_recovery_height_ <= drop_height_threshold ||
+        external_recovery_height_ > align_height) {
+        ROS_FATAL("[DropSystem] invalid release/recovery geometry parameters");
+        throw std::invalid_argument("invalid drop_system geometry parameters");
+    }
+
     ROS_INFO("\033[32m[DropSystem] Drop system enabled: %s\033[0m", drop_enabled ? "true" : "false");
     ROS_INFO("\033[32m[DropSystem] Precision threshold: %.1f px\033[0m", drop_precision_threshold);
-    ROS_INFO("\033[32m[DropSystem] Height threshold: %.3f m (not used)\033[0m", drop_height_threshold);
+    ROS_INFO("\033[32m[DropSystem] Legacy release geometry: z<=%.3f m, distance<=%.3f m; descent setpoint=%.3f m\033[0m",
+             drop_height_threshold, drop_position_threshold_,
+             drop_release_setpoint_height_);
     ROS_INFO("\033[32m[DropSystem] Descent stable duration: %.1f s\033[0m", descent_stable_duration);
     for (int slot = 0; slot < 3; ++slot) {
         ROS_INFO("[DropSystem] slot %d offsets standard=(%.3f, %.3f) dynamic=(%.3f, %.3f)",
@@ -1166,9 +1618,22 @@ void LLController::load_params() {
     ROS_INFO("[PatrolControl] external_mission_mode: %s command_topic=%s",
              external_mission_mode_ ? "true" : "false",
              mission_command_topic_.c_str());
-    ROS_INFO("[PatrolControl] external_alignment_timeout: %.1f s",
-             external_alignment_timeout_sec_);
-    
+    ROS_INFO("[PatrolControl] control_ready_topic: %s",
+             control_ready_topic_.c_str());
+    ROS_INFO("[UavVision] external recovery handoff height: %.2f m",
+             external_recovery_height_);
+    ROS_INFO(
+        "[ExternalLanding] frame=%s detections=%s capture=%.2f "
+        "handoff=%.2f land=%.2f "
+        "tol=%.2f mark_age=%.2f stable=%d controller_watchdog=%.1f",
+        external_landing_frame_.c_str(),
+        external_landing_detections_topic_.c_str(),
+        external_landing_capture_height_,
+        external_landing_auto_land_height_, land_height,
+        external_landing_alignment_tolerance_,
+        external_landing_mark_max_age_sec_, external_landing_stable_frames_,
+        external_landing_watchdog_timeout_sec_);
+
     nh_.getParam("/debug", debug);
 
     // 从 ROS 参数服务器加载 "waypoints" 参数
@@ -1188,7 +1653,7 @@ void LLController::load_params() {
                 wp.z = static_cast<double>(waypoint_list_temp[i]["z"]);
                 wp.yaw = static_cast<double>(waypoint_list_temp[i]["yaw"])*3.1415/180;
                 wp.pointmode = static_cast<std::string>(waypoint_list_temp[i]["pointmode"]);
-                
+
                 // 读取悬停时间，如果没有设置则默认为0
                 if (waypoint_list_temp[i].hasMember("hover_time")) {
                     wp.hover_time = static_cast<double>(waypoint_list_temp[i]["hover_time"]);
@@ -1210,7 +1675,6 @@ void LLController::load_params() {
     takeoff_point[1] = waypoint_list[0].y;
     takeoff_point[2] = waypoint_list[0].z;
     detect_enable_msg_temp.data = false;
-    landing_detect_control_pub_.publish(detect_enable_msg_temp);
 }
 
 void LLController::pub_goal(geometry_msgs::PoseStamped goal_msg){
@@ -1223,7 +1687,7 @@ void LLController::pub_goal(geometry_msgs::PoseStamped goal_msg){
     goal_msg.header.stamp = ros::Time::now();
 
     if(!flag_planner_px4){
-        // 发送目标点，planner_planner将会控制飞机过去     
+        // 发送目标点，planner_planner将会控制飞机过去
         now_pub_point[0] = goal_msg.pose.position.x;
         now_pub_point[1] = goal_msg.pose.position.y;
         now_pub_point[2] = goal_msg.pose.position.z;
@@ -1255,7 +1719,7 @@ void LLController::NextPoint() {
         ROS_WARN("\033[33m[NextPoint] Called during cross mission, ignoring!\033[0m");
         return;
     }
-    
+
     // 路点指数加一
     waypoint_now = waypoint_next;
     // 3 投后是否直接跳过中间航点到降落段（旧设计行为）；detect_skip_enable=false
@@ -1271,13 +1735,13 @@ void LLController::NextPoint() {
     else{
         waypoint_next++ ;
     }
-    
+
     // 确保不超出航路点列表范围
-    if(waypoint_next >= waypoint_list.size()){  
-        waypoint_next = waypoint_list.size() - 1; 
+    if(waypoint_next >= waypoint_list.size()){
+        waypoint_next = waypoint_list.size() - 1;
         ROS_WARN("\033[33m[NextPoint] Reached final waypoint, staying at waypoint %d\033[0m", waypoint_next);
     }
-    
+
     Point_mode = stringToPointmode(waypoint_list[waypoint_next].pointmode);
     // if(detect_point_counter >= 3) Point_mode = Nothing_point;
 
@@ -1296,12 +1760,12 @@ void LLController::NextPoint() {
     waypoint_mark_point.pose.orientation = tf::createQuaternionMsgFromYaw(waypoint_list[waypoint_next].yaw);
 
     align_ok = false;
-    
+
     // 重置检测相关状态
     resetDetectionState();  // 重置所有检测状态
     resetDropState();  // 重置投递状态
     //resetCrossDetectionState();  // 重置十字检测状态
-    
+
     // 到达新航路点后重新启用十字检测（仅在未完成十字投递时）
     if (!cross_drop_completed) {
         cross_mark = true;
@@ -1315,7 +1779,7 @@ void LLController::NextPoint() {
     <<uav_pose.pose.position.y<<", "<<uav_pose.pose.position.z<<std::endl;
     std::cout<<"\033[42;37mNext Point number : "<<waypoint_next<<" ;\n"<<"Next Point Pose: x = "<<waypoint_list[waypoint_next].x<<
     ", y = "<<waypoint_list[waypoint_next].y<<", z = "<<waypoint_list[waypoint_next].z <<" \033[0m"<<std::endl;
-    
+
     // 输出下一个点的模式信息
     std::cout<<"\033[36mNext Point Mode: "<<waypoint_list[waypoint_next].pointmode<<"\033[0m"<<std::endl;
 }
@@ -1325,11 +1789,11 @@ bool LLController::DynamicProcess()
     double output_interval = 0.2; // 每0.2秒输出一次
     bool should_drop = false;
     double dis_to_next_position = 0;
-    
-    
+
+
     // 初始化检测状态
     if(first_call)
-    {   
+    {
         detection_start_time = ros::Time::now();
         have_waypoint_mark = false;
         first_call = false;
@@ -1349,7 +1813,7 @@ bool LLController::DynamicProcess()
     std::cout<<"have_waypoint_mark = "<<have_waypoint_mark<<std::endl;
     // if(have_waypoint_mark){
     //     ROS_INFO("\033[32m[WayPointDetectDone] have_waypoint_mark: true");
-    //     adjust_target_position[0] = waypoint_mark_point.pose.position.x;  
+    //     adjust_target_position[0] = waypoint_mark_point.pose.position.x;
     //     adjust_target_position[1] = waypoint_mark_point.pose.position.y;
     //     adjust_target_position[2] = align_height;
     //     adjust_target_position[3] = tf::getYaw(waypoint_mark_point.pose.orientation);
@@ -1367,7 +1831,7 @@ bool LLController::DynamicProcess()
     //     ROS_DEBUG_THROTTLE(2, "\033[33m[WayPointDetectDone] Waiting for valid target point...\033[0m");
     //     ROS_INFO("\033[32m[WayPointDetectDone] adjust_target_position: %.2f, %.2f", adjust_target_position[0], adjust_target_position[1]);
     // }
-    
+
     // 计算时间进度
     ros::Time current_time = ros::Time::now();
     double elapsed_time = (current_time - detection_start_time).toSec();
@@ -1381,7 +1845,7 @@ bool LLController::DynamicProcess()
     double time_progress = std::min(1.0, elapsed_time / clamped_time_threshould);
 
     // 控制输出频率
-    if ((current_time - last_output_time).toSec() >= output_interval) 
+    if ((current_time - last_output_time).toSec() >= output_interval)
     {
         last_output_time = current_time;
 
@@ -1398,20 +1862,20 @@ bool LLController::DynamicProcess()
         std::string detect_bar = buildProgressBar(detect_progress);
         std::string time_bar = buildProgressBar(time_progress);
 
-        std::cout << "\033[36m[WayPointDetectDone] Alignment Progress: [" << detect_bar << "] " << times_detect << "/" << clamped_detect_threshould 
-                  << " | Time Progress: [" << time_bar << "] " << elapsed_time << "/" << clamped_time_threshould << " sec\033[0m" 
+        std::cout << "\033[36m[WayPointDetectDone] Alignment Progress: [" << detect_bar << "] " << times_detect << "/" << clamped_detect_threshould
+                  << " | Time Progress: [" << time_bar << "] " << elapsed_time << "/" << clamped_time_threshould << " sec\033[0m"
                   << std::endl;
     }
     // ROS_INFO("\033[32m[WayPointDetectDone] align_ok: %d\033[0m", align_ok);
     // 完成条件：检测次数或时间达到阈值
     // waypoint_temp.pose.position.x = waypoint_mark_point.pose.position.x;
     // waypoint_temp.pose.position.y = waypoint_mark_point.pose.position.y;
-    
-    dis_to_next_position = distance3d(uav_pose.pose.position.x, uav_pose.pose.position.y, uav_pose.pose.position.z, 
+
+    dis_to_next_position = distance3d(uav_pose.pose.position.x, uav_pose.pose.position.y, uav_pose.pose.position.z,
                                       waypoint_mark_point.pose.position.x,waypoint_mark_point.pose.position.y,waypoint_mark_point.pose.position.z);
     double time_threshould = 45;
     int servo_id = detect_point_counter + 1;
-    if (elapsed_time <= time_threshould) 
+    if (elapsed_time <= time_threshould)
     {
         // drop_complete 已经在 first_call 中重置，这里不需要额外处理
         //int servo_id = detect_point_counter + 1;
@@ -1433,11 +1897,11 @@ bool LLController::DynamicProcess()
         }
         dynamic_current_time = ros::Time::now();
         float dynamic_time = (dynamic_current_time - dynamic_start_time).toSec();
-        ROS_INFO("[DynamicProcess]distance111 = %.2f",distance3d(uav_pose.pose.position.x, uav_pose.pose.position.y, 0.0, 
+        ROS_INFO("[DynamicProcess]distance111 = %.2f",distance3d(uav_pose.pose.position.x, uav_pose.pose.position.y, 0.0,
                                       waypoint_temp.pose.position.x,waypoint_temp.pose.position.y,0.0));
         ROS_INFO("[DynamicProcess]dynamic_time = %.2f",dynamic_time);
         ROS_INFO("\033[32m[DynamicProcess]waypoint_temp: %.2f, %.2f\033[0m", waypoint_temp.pose.position.x, waypoint_temp.pose.position.y);
-        if(distance3d(uav_pose.pose.position.x, uav_pose.pose.position.y, 0.0, 
+        if(distance3d(uav_pose.pose.position.x, uav_pose.pose.position.y, 0.0,
                                       waypoint_temp.pose.position.x,waypoint_temp.pose.position.y,0.0) <= 0.1){
                                         dynamic_record_activate = true;
                                       }
@@ -1462,25 +1926,28 @@ bool LLController::DynamicProcess()
                 ROS_INFO("\033[32m[CrossDetectionDone]waypoint_temp: %.2f, %.2f\033[0m", waypoint_temp.pose.position.x, waypoint_temp.pose.position.y);
                 adjust_target_position[0] = waypoint_temp.pose.position.x;
                 adjust_target_position[1] = waypoint_temp.pose.position.y;
-                align_height = 0.10;
+                align_height = drop_release_setpoint_height_;
                 adjust_target_position[3] = tf::getYaw(waypoint_temp.pose.orientation);
                 applyDropSlotOffset(servo_id, true);
-                double ttt = distance3d(uav_pose.pose.position.x,uav_pose.pose.position.y,uav_pose.pose.position.z,waypoint_temp.pose.position.x,waypoint_temp.pose.position.y,0.1);
+                double ttt = distance3d(
+                    uav_pose.pose.position.x, uav_pose.pose.position.y,
+                    uav_pose.pose.position.z, waypoint_temp.pose.position.x,
+                    waypoint_temp.pose.position.y,
+                    drop_release_setpoint_height_);
                 ROS_INFO("\033[32m[CrossDetectionDone] should_drop: %d, drop_complete: %d, uav_pose.pose.position.z: %.2f\033[0m", should_drop, drop_complete, uav_pose.pose.position.z);
-                if(uav_pose.pose.position.z <= 0.17 && ttt <= 0.15 && !drop_complete)
-                {
-                    should_drop = true;
-                    ROS_INFO("\033[32m[CrossDetectionDone] height_reach should_drop: true\033[0m");
-                }
-                
+                const bool legacy_geometry_ready =
+                    uav_pose.pose.position.z <= drop_height_threshold &&
+                    ttt <= drop_position_threshold_ && !drop_complete;
                 const DropReleaseGate release_gate = currentDropReleaseGate();
-                const bool release_authorized = canRequestDrop(
+                should_drop = dropReleaseReady(
+                    external_mission_mode_, legacy_geometry_ready,
                     require_vision_release_permission_, release_gate);
-                if (should_drop && !drop_complete && !release_authorized) {
+                if (!drop_complete && !should_drop) {
                     ROS_WARN_THROTTLE(
                         1.0,
-                        "[DynamicProcess] Waiting for mission release permission "
-                        "(active=%s fresh=%s)",
+                        "[DynamicProcess] Waiting for release authority "
+                        "(legacy_geometry=%s permission_active=%s fresh=%s)",
+                        legacy_geometry_ready ? "true" : "false",
                         release_gate.mission_permission_active ? "true" : "false",
                         release_gate.mission_permission_fresh ? "true" : "false");
                     return false;
@@ -1506,19 +1973,21 @@ bool LLController::DynamicProcess()
                 } else if (should_drop && drop_complete) {
                     ROS_INFO_THROTTLE(1.0, "\033[33m[CrossDetectionDone] Drop already completed for detect point %d, waiting for next cycle\033[0m", detect_point_counter);
                 } else {
-                    ROS_WARN_THROTTLE(1.0, "\033[33m[CrossDetectionDone] Height not met or already completed for detect point %d (counter: %d)\033[0m", 
+                    ROS_WARN_THROTTLE(1.0, "\033[33m[CrossDetectionDone] Height not met or already completed for detect point %d (counter: %d)\033[0m",
                             detect_point_counter + 1, detect_point_counter);
-                }            
+                }
                 // 防止重复投递：如果已经投递过，直接跳过
                 if(servo_complete.data){
                     ROS_INFO("\033[33m[CrossDetectionDone] servo_complete.data: %d\033[0m", servo_complete.data);
                     down_flag = false;
                     align_height = 1.15;
-                    if(uav_pose.pose.position.z >= 0.95){
+                    const double recovery_height = external_mission_mode_
+                        ? external_recovery_height_ : 0.95;
+                    if(uav_pose.pose.position.z >= recovery_height){
                         // stopDropAction(servo_id-1);
                         resetDropState();   // 重置投递状态
                         cleanupAfterCrossDrop();  // 彻底清理十字投递状态
-                        // tank_mark = 
+                        // tank_mark =
                         // detect_point_counter++;
                         tank_drop_completed = true;
                         tank_mission_completed = true;  // 标记十字任务完成
@@ -1566,7 +2035,7 @@ bool LLController::DynamicProcess()
             //         }
             //         have_waypoint_mark = false;
             //     }
-                
+
             //     adjust_target_position[0] = (waypoint_mark_point.pose.position.x - uav_pose.pose.position.x) / 4.0 + uav_pose.pose.position.x;
             //     adjust_target_position[1] = (waypoint_mark_point.pose.position.y - uav_pose.pose.position.y) / 4.0 + uav_pose.pose.position.y;
             // }
@@ -1575,7 +2044,7 @@ bool LLController::DynamicProcess()
             //     ROS_INFO("[DynamicProcess]distance_E(s) : %.2f",distance - Edistance);
             //     // ROS_INFO("[DynamicProcess]vector record : %d %.2f %.2f %.2f",dynamic_point_index,dynamic_point_list[dynamic_point_index][0],dynamic_point_list[dynamic_point_index][1],dynamic_point_list[dynamic_point_index][2]);
             //     if(!dynamic_record_activate && distance <= min_distance && Edistance != 0.0){
-                   
+
             //         // ROS_INFO("[DynamicProcess]distance_E(s) : %.2f",dynamic_point_list[dynamic_point_index][0] - dynamic_point_list[dynamic_point_index-1][0]);
             //         if(distance > Edistance - 0.005)
             //         {
@@ -1659,10 +2128,10 @@ bool LLController::WayPointDetectDone()
     double output_interval = 0.2; // 每0.2秒输出一次
     bool should_drop = false;
     double dis_to_next_position = 0;
-    
+
     // 初始化检测状态
     if(first_call)
-    {   
+    {
         detection_start_time = ros::Time::now();
         first_call = false;
         times_detect = 0;
@@ -1690,7 +2159,7 @@ bool LLController::WayPointDetectDone()
     // std::cout<<"have_waypoint_mark = "<<have_waypoint_mark<<std::endl;
     if(have_waypoint_mark){
         ROS_INFO("\033[32m[WayPointDetectDone] have_waypoint_mark: true");
-        adjust_target_position[0] = waypoint_mark_point.pose.position.x;  
+        adjust_target_position[0] = waypoint_mark_point.pose.position.x;
         adjust_target_position[1] = waypoint_mark_point.pose.position.y;
         adjust_target_position[2] = align_height;
         adjust_target_position[3] = tf::getYaw(waypoint_mark_point.pose.orientation);
@@ -1708,7 +2177,7 @@ bool LLController::WayPointDetectDone()
         ROS_DEBUG_THROTTLE(2, "\033[33m[WayPointDetectDone] Waiting for valid target point...\033[0m");
         ROS_INFO("\033[32m[WayPointDetectDone] no valid circle : adjust_target_position: %.2f, %.2f", adjust_target_position[0], adjust_target_position[1]);
     }
-    
+
     // 计算时间进度
     ros::Time current_time = ros::Time::now();
     double elapsed_time = (current_time - detection_start_time).toSec();
@@ -1738,33 +2207,38 @@ bool LLController::WayPointDetectDone()
         std::string detect_bar = buildProgressBar(detect_progress);
         std::string time_bar = buildProgressBar(time_progress);
 
-        std::cout << "\033[36m[WayPointDetectDone] Alignment Progress: [" << detect_bar << "] " << times_detect << "/" << clamped_detect_threshould 
-                  << " | Time Progress: [" << time_bar << "] " << elapsed_time << "/" << clamped_time_threshould << " sec\033[0m" 
+        std::cout << "\033[36m[WayPointDetectDone] Alignment Progress: [" << detect_bar << "] " << times_detect << "/" << clamped_detect_threshould
+                  << " | Time Progress: [" << time_bar << "] " << elapsed_time << "/" << clamped_time_threshould << " sec\033[0m"
                   << std::endl;
     }
     ROS_INFO("\033[32m[WayPointDetectDone] align_ok: %d\033[0m", align_ok);
     // 完成条件：检测次数或时间达到阈值
-    double time_threshould = 0;
+    double legacy_time_threshould = 0;
 
     dis_to_next_position = distance3d(uav_pose.pose.position.x, uav_pose.pose.position.y, uav_pose.pose.position.z,
                                       adjust_target_position[0],adjust_target_position[1],uav_pose.pose.position.z);
     ROS_INFO("error point %f",dis_to_next_position);
     if(!align_ok){
-        time_threshould = 4;
+        legacy_time_threshould = 4;
     }
     else{
-        time_threshould = external_mission_mode_
-            ? external_alignment_timeout_sec_ : 45.0;
+        legacy_time_threshould = 45.0;
     }
     int servo_id = detect_point_counter + 1;
-    if (elapsed_time <= time_threshould) {
+    if (patrol_control::alignmentWindowOpen(
+            external_mission_mode_, elapsed_time,
+            legacy_time_threshould)) {
         // drop_complete 已经在 first_call 中重置，这里不需要额外处理
         //int servo_id = detect_point_counter + 1;
         ROS_INFO("time is effective,dis_to_next: %f",dis_to_next_position);
+        const int required_alignment_samples =
+            external_mission_mode_ ? 1 : 70;
+        const bool alignment_ready = external_mission_mode_
+            ? (current_align_mode_ == "drop_circle" && uav_drop_ready_)
+            : dis_to_next_position <= 0.1;
         if(have_waypoint_mark &&
-           count_aligning < 70 &&
-           align_ok == 1 &&
-           (dis_to_next_position <= 0.1 || (current_align_mode_ == "drop_circle" && uav_drop_ready_))){
+           count_aligning < required_alignment_samples &&
+           align_ok == 1 && alignment_ready){
             ROS_INFO("\033[32m[CrossDetectionDone] dis_to_next_position: %.2f\033[0m", dis_to_next_position);
             count_aligning++;
             // down_flag = true;
@@ -1773,34 +2247,36 @@ bool LLController::WayPointDetectDone()
             waypoint_temp.pose.position.y = waypoint_mark_point.pose.position.y;
             waypoint_temp.pose.orientation = waypoint_mark_point.pose.orientation;
         }
-        if(count_aligning >= 70 && align_ok == 1){
+        if(count_aligning >= required_alignment_samples && align_ok == 1){
             ROS_INFO("\033[32m[CrossDetectionDone]waypoint_temp: %.2f, %.2f\033[0m", waypoint_temp.pose.position.x, waypoint_temp.pose.position.y);
             adjust_target_position[0] = waypoint_temp.pose.position.x;
             adjust_target_position[1] = waypoint_temp.pose.position.y;
-            align_height = 0.10;
+            align_height = drop_release_setpoint_height_;
             adjust_target_position[3] = tf::getYaw(waypoint_temp.pose.orientation);
             applyDropSlotOffset(servo_id, false);
             ROS_INFO("\033[32m[CrossDetectionDone] should_drop: %d, drop_complete: %d, uav_pose.pose.position.z: %.2f\033[0m", should_drop, drop_complete, uav_pose.pose.position.z);
             ROS_INFO("dis %f",dis_to_next_position);
             ROS_INFO("waypoint temp %f %f",waypoint_temp.pose.position.x,waypoint_temp.pose.position.y);
             ROS_INFO("\033[32m[WayPointDetectDone] time_temp : %f  ,should_drop: %d, drop_complete: %d, uav_pose.pose.position.z: %.2f\033[0m",time_temp, should_drop, drop_complete, uav_pose.pose.position.z);
-            double ttt = distance3d(uav_pose.pose.position.x,uav_pose.pose.position.y,uav_pose.pose.position.z,waypoint_temp.pose.position.x,waypoint_temp.pose.position.y,0.1);
+            double ttt = distance3d(
+                uav_pose.pose.position.x, uav_pose.pose.position.y,
+                uav_pose.pose.position.z, waypoint_temp.pose.position.x,
+                waypoint_temp.pose.position.y,
+                drop_release_setpoint_height_);
             ROS_INFO("\033[32m[CrossDetectionDone] should_drop: %d, drop_complete: %d, uav_pose.pose.position.z: %.2f\033[0m", should_drop, drop_complete, uav_pose.pose.position.z);
-            if(uav_pose.pose.position.z <= 0.17 && ttt <= 0.15 && !drop_complete)
-            {
-                should_drop = true;
-                // drop_time_flag = false;
-                ROS_INFO("\033[32m[WayPointDetectDone] height_reach should_drop: true\033[0m");
-            }
-            
+            const bool legacy_geometry_ready =
+                uav_pose.pose.position.z <= drop_height_threshold &&
+                ttt <= drop_position_threshold_ && !drop_complete;
             const DropReleaseGate release_gate = currentDropReleaseGate();
-            const bool release_authorized = canRequestDrop(
+            should_drop = dropReleaseReady(
+                external_mission_mode_, legacy_geometry_ready,
                 require_vision_release_permission_, release_gate);
-            if (should_drop && !drop_complete && !release_authorized) {
+            if (!drop_complete && !should_drop) {
                 ROS_WARN_THROTTLE(
                     1.0,
-                    "[WayPointDetectDone] Waiting for mission release permission "
-                    "(active=%s fresh=%s)",
+                    "[WayPointDetectDone] Waiting for release authority "
+                    "(legacy_geometry=%s permission_active=%s fresh=%s)",
+                    legacy_geometry_ready ? "true" : "false",
                     release_gate.mission_permission_active ? "true" : "false",
                     release_gate.mission_permission_fresh ? "true" : "false");
                 return false;
@@ -1827,7 +2303,7 @@ bool LLController::WayPointDetectDone()
             } else if (should_drop && drop_complete) {
                 ROS_INFO_THROTTLE(1.0, "\033[33m[WayPointDetectDone] Drop already completed for detect point %d, waiting for next cycle\033[0m", detect_point_counter);
             } else {
-                ROS_WARN_THROTTLE(1.0, "\033[33m[WayPointDetectDone] Height not met or already completed for detect point %d (counter: %d)\033[0m", 
+                ROS_WARN_THROTTLE(1.0, "\033[33m[WayPointDetectDone] Height not met or already completed for detect point %d (counter: %d)\033[0m",
                         detect_point_counter + 1, detect_point_counter);
             }
             ROS_INFO("time_temp : %f" , time_temp);
@@ -1836,7 +2312,9 @@ bool LLController::WayPointDetectDone()
                 ROS_INFO("\033[33m[WayPointDetectDone] servo_complete.data: %d\033[0m", servo_complete.data);
                 // down_flag = false;
                 align_height = 1.2;
-                if(uav_pose.pose.position.z >= 1.0){
+                const double recovery_height = external_mission_mode_
+                    ? external_recovery_height_ : 1.0;
+                if(uav_pose.pose.position.z >= recovery_height){
                     first_call = true;  // 重置标志
                     times_detect = 0;
                     should_drop = false;
@@ -1893,11 +2371,11 @@ bool LLController::LandDetectDone()
     static ros::Time last_output_time = ros::Time::now();
     double output_interval = 0.2; // 每0.5秒输出一次
     double dis_to_next_position;
-    dis_to_next_position = distance3d(uav_pose.pose.position.x, uav_pose.pose.position.y, uav_pose.pose.position.z, 
+    dis_to_next_position = distance3d(uav_pose.pose.position.x, uav_pose.pose.position.y, uav_pose.pose.position.z,
                                       adjust_target_position[0], adjust_target_position[1], align_height);
 
     if (first_call)
-    {   
+    {
         start_time = ros::Time::now();
         first_call = false;
         times_detect = 0;
@@ -1951,8 +2429,8 @@ bool LLController::LandDetectDone()
         std::string detect_bar = buildProgressBar(detect_progress);
         std::string time_bar = buildProgressBar(time_progress);
 
-        if(!flag_land)std::cout << "Landing Progress: [" << detect_bar << "] " << times_detect << "/" << clamped_detect_threshould 
-                  << " | Time Progress: [" << time_bar << "] " << elapsed_time << "/" << clamped_time_threshould << " sec" 
+        if(!flag_land)std::cout << "Landing Progress: [" << detect_bar << "] " << times_detect << "/" << clamped_detect_threshould
+                  << " | Time Progress: [" << time_bar << "] " << elapsed_time << "/" << clamped_time_threshould << " sec"
                   << std::endl;
     }
     // 完成条件：检测次数或时间达到阈值
@@ -1990,6 +2468,11 @@ bool LLController::LandDetectDone()
 
 void LLController::ClassCallback(const std_msgs::String& msg)
 {
+    if (external_mission_mode_) {
+        ROS_DEBUG_THROTTLE(
+            5.0, "[PatrolControl] Ignoring legacy class result in external mission mode");
+        return;
+    }
     class_ = msg;
     if (classMatchesGoal(class_.data)) {
         align_ok = true;
@@ -2077,6 +2560,13 @@ void LLController::projectDropOffsetToTarget(const uav_vision::DropOffset& msg)
     if (current_align_mode_ == "disabled") {
         return;
     }
+    if (external_mission_mode_ && external_landing_active_) {
+        // External landing accepts only map-frame landing_pad observations
+        // that passed landMarkCallback's timestamp/freshness/anchor checks.
+        // The pixel-offset compatibility path must never overwrite that
+        // validated snapshot.
+        return;
+    }
 
     const double pixel_error_x = msg.dx_px;
     const double pixel_error_y = msg.dy_px;
@@ -2134,6 +2624,14 @@ void LLController::projectDropOffsetToTarget(const uav_vision::DropOffset& msg)
 
 void LLController::selectedTargetCallback(const uav_vision::TargetCandidate::ConstPtr& msg)
 {
+    if (external_mission_mode_) {
+        // Mission Manager freezes target identity and Planner Bridge owns the
+        // ALIGN handoff. A later global selection must not retarget the
+        // low-level controller while that transaction is in progress.
+        ROS_DEBUG_THROTTLE(
+            5.0, "[PatrolControl] Ignoring policy selection in external mission mode");
+        return;
+    }
     latest_selected_target_ = *msg;
     latest_selected_target_time_ = ros::Time::now();
     have_selected_target_ = true;
@@ -2194,6 +2692,12 @@ void LLController::missionCommandCallback(
         case patrol_control::MissionCommand::APPROACH:
         case patrol_control::MissionCommand::RESUME:
         case patrol_control::MissionCommand::RETURN_HOME:
+            if (external_landing_auto_land_requested_) {
+                ROS_ERROR(
+                    "[ExternalLanding] refusing navigation command after AUTO.LAND handoff");
+                return;
+            }
+            clearExternalLandingState(true);
             if (msg->command == patrol_control::MissionCommand::RESUME) {
                 resetDetectionState();
             }
@@ -2205,8 +2709,17 @@ void LLController::missionCommandCallback(
                      msg->command, msg->target_id, msg->target_class.c_str());
             break;
 
-        case patrol_control::MissionCommand::ALIGN:
+        case patrol_control::MissionCommand::ALIGN: {
+            if (external_landing_auto_land_requested_) {
+                ROS_ERROR(
+                    "[ExternalLanding] refusing ALIGN after AUTO.LAND handoff");
+                return;
+            }
+            clearExternalLandingState(true);
             resetDetectionState();
+            // Recovery changes the working height; every new target starts
+            // from the configured capture height, including the second/third.
+            align_height = external_alignment_capture_height_;
             // 随机投放区红十字与标准靶共用同一使命层队列，仅按目标类别选择
             // 对齐状态机分支（十字走 CrossDetectionDone，其余走圆环流程）。
             current_task_type = (msg->target_class == "red_cross")
@@ -2217,39 +2730,93 @@ void LLController::missionCommandCallback(
             if (!msg->target_class.empty()) {
                 goal.push_back(msg->target_class);
             }
-            waypoint_mark_point = msg->goal;
-            waypoint_mark_point.header.frame_id = "camera_init";
-            waypoint_mark_point.pose.position.z = align_height;
-            if (!isQuaternionNormalized(waypoint_mark_point.pose.orientation)) {
-                waypoint_mark_point.pose.orientation =
+            geometry_msgs::PoseStamped alignment_target = msg->goal;
+            alignment_target.header.frame_id = "camera_init";
+            alignment_target.pose.position.z = align_height;
+            if (!isQuaternionNormalized(alignment_target.pose.orientation)) {
+                alignment_target.pose.orientation =
                     tf::createQuaternionMsgFromYaw(0.0);
             }
-            adjust_target_position[0] = waypoint_mark_point.pose.position.x;
-            adjust_target_position[1] = waypoint_mark_point.pose.position.y;
+            if (current_task_type == CROSS_MISSION) {
+                cross_mark_point = alignment_target;
+                have_cross_mark = true;
+                have_waypoint_mark = false;
+            } else {
+                waypoint_mark_point = alignment_target;
+                have_waypoint_mark = true;
+                have_cross_mark = false;
+            }
+            adjust_target_position[0] = alignment_target.pose.position.x;
+            adjust_target_position[1] = alignment_target.pose.position.y;
             adjust_target_position[2] = align_height;
             adjust_target_position[3] =
-                tf::getYaw(waypoint_mark_point.pose.orientation);
-            have_waypoint_mark = true;
+                tf::getYaw(alignment_target.pose.orientation);
             align_ok = true;
             ROS_INFO("[PatrolControl] External ALIGN target=%u class=%s at (%.2f, %.2f)",
                      msg->target_id, msg->target_class.c_str(),
                      adjust_target_position[0], adjust_target_position[1]);
             break;
+        }
 
-        case patrol_control::MissionCommand::LAND:
+        case patrol_control::MissionCommand::LAND: {
+            if (external_landing_active_) {
+                ROS_WARN_THROTTLE(
+                    2.0, "[ExternalLanding] duplicate LAND command ignored");
+                return;
+            }
             resetDetectionState();
+            if (msg->goal.header.frame_id != external_landing_frame_ ||
+                !std::isfinite(msg->goal.pose.position.x) ||
+                !std::isfinite(msg->goal.pose.position.y) ||
+                std::hypot(
+                    msg->goal.pose.position.x - uav_pose.pose.position.x,
+                    msg->goal.pose.position.y - uav_pose.pose.position.y) >
+                    external_planner_start_max_distance_) {
+                ROS_ERROR(
+                    "[ExternalLanding] rejected LAND goal frame=%s at (%.3f, %.3f)",
+                    msg->goal.header.frame_id.c_str(),
+                    msg->goal.pose.position.x,
+                    msg->goal.pose.position.y);
+                break;
+            }
             current_task_type = MAIN_MISSION;
             Point_mode = Land_point;
-            adjust_target_position[0] = msg->goal.pose.position.x;
-            adjust_target_position[1] = msg->goal.pose.position.y;
-            adjust_target_position[2] = msg->goal.pose.position.z;
+            external_landing_goal_ = msg->goal;
+            external_landing_goal_.header.frame_id = external_landing_frame_;
+            external_landing_goal_.pose.position.z =
+                external_landing_capture_height_;
+            if (!isQuaternionNormalized(
+                    external_landing_goal_.pose.orientation)) {
+                external_landing_goal_.pose.orientation =
+                    tf::createQuaternionMsgFromYaw(0.0);
+            }
+            external_landing_aligned_goal_ = external_landing_goal_;
+            external_landing_active_ = true;
+            external_landing_new_mark_ = false;
+            external_landing_alignment_complete_ = false;
+            external_landing_auto_land_requested_ = false;
+            external_landing_stable_count_ = 0;
+            external_landing_started_at_ = ros::Time::now();
+            external_landing_command_stamp_ = external_landing_started_at_;
+            external_landing_last_mark_stamp_ = ros::Time(0);
+            external_landing_last_mark_receipt_ = ros::Time(0);
+            external_landing_last_auto_land_attempt_ = ros::Time(0);
+            have_land_mark = false;
+            flag_land = false;
+            align_height = external_landing_capture_height_;
+            adjust_target_position[0] =
+                external_landing_goal_.pose.position.x;
+            adjust_target_position[1] =
+                external_landing_goal_.pose.position.y;
+            adjust_target_position[2] = external_landing_capture_height_;
             adjust_target_position[3] =
-                isQuaternionNormalized(msg->goal.pose.orientation) ?
-                tf::getYaw(msg->goal.pose.orientation) : 0.0;
-            patrol_cmd = msg->goal;
+                tf::getYaw(external_landing_goal_.pose.orientation);
+            patrol_cmd = external_landing_goal_;
             Drone_mode = Land;
-            ROS_INFO("[PatrolControl] External LAND command accepted");
+            ROS_INFO(
+                "[PatrolControl] External LAND command accepted; awaiting fresh H evidence");
             break;
+        }
 
         default:
             ROS_ERROR("[PatrolControl] Unknown external mission command: %u",
@@ -2331,11 +2898,11 @@ DropActionResult LLController::executeDropAction(int servo_id) {
     // // 创建投递控制消息
     // std_msgs::Bool drop_msg;
     // drop_msg.data = true;
-    
+
     // // 选择对应的舵机发布器
     // ros::Publisher* servo_pub = nullptr;
     // std::string topic_name;
-    
+
     // switch (servo_id) {
     //     case 1:
     //         servo_pub = &servo1_pub_;
@@ -2353,10 +2920,10 @@ DropActionResult LLController::executeDropAction(int servo_id) {
     //         ROS_ERROR("\033[31m[DropSystem] Invalid servo ID: %d\033[0m", servo_id);
     //         return;
     // }
-    
+
     // ROS_INFO("\033[32m[DropSystem] Executing drop action for servo %d\033[0m", servo_id);
     // ROS_INFO("\033[32m[DropSystem] Publishing to topic: %s\033[0m", topic_name.c_str());
-    
+
     // // 发布投递命令，重复发布几次确保接收
     // for (int i = 0; i < 5; i++) {
     //     servo_pub->publish(drop_msg);
@@ -2365,15 +2932,19 @@ DropActionResult LLController::executeDropAction(int servo_id) {
     return result;
 }
 void LLController::stopDropAction(int servo_id) {
-   
+
+    if (external_mission_mode_) {
+        return;
+    }
+
     // 创建投递控制消息
     std_msgs::Bool drop_msg;
     drop_msg.data = false;
-    
+
     // 选择对应的舵机发布器
     ros::Publisher* servo_pub = nullptr;
     std::string topic_name;
-    
+
     switch (servo_id) {
         case 1:
             servo_pub = &servo1_pub_;
@@ -2392,7 +2963,7 @@ void LLController::stopDropAction(int servo_id) {
             return;
     }
 
-    
+
     // 发布投递命令，重复发布几次确保接收
     for (int i = 0; i < 5; i++) {
         servo_pub->publish(drop_msg);
@@ -2414,7 +2985,7 @@ void LLController::resetDropState() {
 // 十字标志位
 // void LLController::crossPixelOffsetCallback(const geometry_msgs::Point::ConstPtr& msg) {
 //     cross_found_ = true;
-//     ROS_INFO_THROTTLE(1.0, "\033[35m[PatrolControl] Cross pixel offset: (%.1f, %.1f, radius=%.1f)\033[0m", 
+//     ROS_INFO_THROTTLE(1.0, "\033[35m[PatrolControl] Cross pixel offset: (%.1f, %.1f, radius=%.1f)\033[0m",
 //                       msg->x, msg->y, msg->z);
 // }
 void LLController::servoCompleteCallback(const std_msgs::Bool::ConstPtr& msg) {
@@ -2426,11 +2997,16 @@ void LLController::servoCompleteCallback(const std_msgs::Bool::ConstPtr& msg) {
     ROS_INFO("\033[36m[ServoComplete] Received servo complete: %d\033[0m", servo_complete.data);
 }
 void LLController::crossStatusCallback(const std_msgs::Bool::ConstPtr& msg) {
+    if (external_mission_mode_) {
+        ROS_DEBUG_THROTTLE(
+            5.0, "[PatrolControl] Ignoring legacy cross status in external mission mode");
+        return;
+    }
     static bool last_state = false;
     static bool first_call = true;
-    
+
     bool new_state = msg->data;
-    
+
     // 只在状态变化时输出提示
     if (first_call || new_state != last_state) {
         if (new_state) {
@@ -2462,7 +3038,7 @@ bool LLController::CrossDetectionDone() {
     static int cross_detect_times = 0;
     static ros::Time last_output_time = ros::Time::now();
     double output_interval = 0.2; // 每0.2秒输出一次
-    
+
     if (cross_first_call) {
         cross_start_time = ros::Time::now();
         cross_first_call = false;
@@ -2470,10 +3046,10 @@ bool LLController::CrossDetectionDone() {
         count_aligning = 0;
         drop_complete = false;
         down_flag = true;
-        align_height = 1.2;
+        align_height = external_mission_mode_ ? external_alignment_capture_height_ : 1.2;
         ROS_INFO("\033[34m[CrossDetection] Starting cross alignment using alignment_control_converter\033[0m");
     }
-    
+
     if (have_cross_mark) {
         //使用与圆环检测相同的逻辑：接收alignment_control_converter的精确对准结果
         if(cross_mark_point.pose.position.x == last_waypoint_mark.pose.position.x && cross_mark_point.pose.position.y == last_waypoint_mark.pose.position.y || cross_mark_point.pose.position.x == 0 && cross_mark_point.pose.position.y == 0){
@@ -2486,7 +3062,7 @@ bool LLController::CrossDetectionDone() {
         adjust_target_position[1] = cross_mark_point.pose.position.y;
         adjust_target_position[2] = align_height;  // 使用alignment_control_converter计算的高度
         adjust_target_position[3] = tf::getYaw(cross_mark_point.pose.orientation);
-        
+
         cross_detect_times++;
         ROS_INFO("\033[32m[CrossDetection] Received alignment target, detection count: %d\033[0m", cross_detect_times);
     } else {
@@ -2494,19 +3070,19 @@ bool LLController::CrossDetectionDone() {
         // 注意：这里不设置原始航路点，因为我们是在进行十字检测
         ROS_DEBUG_THROTTLE(2, "\033[33m[CrossDetection] Waiting for alignment target from alignment_control_converter...\033[0m");
     }
-    
+
     // 计算时间进度
     ros::Time current_time = ros::Time::now();
     double elapsed_time = (current_time - cross_start_time).toSec();
-    
+
     // 使用与圆环检测相同的阈值参数
     int clamped_detect_threshould = std::max(1, static_cast<int>(times_detect_threshould));
     double clamped_time_threshould = std::max(0.1f, waypoint_adjust_max_second_threshould);
-    
+
     // 计算进度比例 [0, 1]
     double detect_progress = std::min(1.0, static_cast<double>(cross_detect_times) / clamped_detect_threshould);
     double time_progress = std::min(1.0, elapsed_time / clamped_time_threshould);
-    
+
     // 控制输出频率（与圆环检测相同的进度条显示）
     if ((current_time - last_output_time).toSec() >= output_interval) {
         last_output_time = current_time;
@@ -2524,18 +3100,23 @@ bool LLController::CrossDetectionDone() {
         std::string detect_bar = buildProgressBar(detect_progress);
         std::string time_bar = buildProgressBar(time_progress);
 
-        std::cout << "\033[35m[CrossDetection] Alignment Progress: [" << detect_bar << "] " << cross_detect_times << "/" << clamped_detect_threshould 
-                  << " | Time Progress: [" << time_bar << "] " << elapsed_time << "/" << clamped_time_threshould << " sec\033[0m" 
+        std::cout << "\033[35m[CrossDetection] Alignment Progress: [" << detect_bar << "] " << cross_detect_times << "/" << clamped_detect_threshould
+                  << " | Time Progress: [" << time_bar << "] " << elapsed_time << "/" << clamped_time_threshould << " sec\033[0m"
                   << std::endl;
     }
     int servo_id = detect_point_counter + 1;
-    dis_to_next_position = distance3d(uav_pose.pose.position.x, uav_pose.pose.position.y, uav_pose.pose.position.z, 
+    dis_to_next_position = distance3d(uav_pose.pose.position.x, uav_pose.pose.position.y, uav_pose.pose.position.z,
         adjust_target_position[0], adjust_target_position[1],uav_pose.pose.position.z);
     ROS_INFO("[crossdetectiondone]dis_to yes or no %.2f",dis_to_next_position);
-    if (elapsed_time <= 30) {
+    // External missions already have one authoritative action deadline in the
+    // Mission Manager. Keep the historical 30 s limit only for legacy mode.
+    if (patrol_control::alignmentWindowOpen(
+            external_mission_mode_, elapsed_time, 30.0)) {
         if(have_cross_mark &&
-           count_aligning < 50 &&
-           (dis_to_next_position <= 0.07 || (current_align_mode_ == "drop_cross" && uav_drop_ready_))){
+           count_aligning < (external_mission_mode_ ? 1 : 50) &&
+           (external_mission_mode_
+                ? (current_align_mode_ == "drop_cross" && uav_drop_ready_)
+                : dis_to_next_position <= 0.07)){
             ROS_INFO("\033[32m[CrossDetectionDone] dis_to_next_position: %.2f\033[0m", dis_to_next_position);
             count_aligning++;
             down_flag = true;
@@ -2544,29 +3125,32 @@ bool LLController::CrossDetectionDone() {
             waypoint_temp.pose.position.y = cross_mark_point.pose.position.y;
             waypoint_temp.pose.orientation = cross_mark_point.pose.orientation;
         }
-        if(count_aligning >= 50){
+        if(count_aligning >= (external_mission_mode_ ? 1 : 50)){
             ROS_INFO("\033[32m[CrossDetectionDone]waypoint_temp: %.2f, %.2f\033[0m", waypoint_temp.pose.position.x, waypoint_temp.pose.position.y);
             adjust_target_position[0] = waypoint_temp.pose.position.x;
             adjust_target_position[1] = waypoint_temp.pose.position.y;
-            align_height = 0.10;
+            align_height = drop_release_setpoint_height_;
             adjust_target_position[3] = tf::getYaw(waypoint_temp.pose.orientation);
             applyDropSlotOffset(servo_id, true);
-            double ttt = distance3d(uav_pose.pose.position.x,uav_pose.pose.position.y,uav_pose.pose.position.z,waypoint_temp.pose.position.x,waypoint_temp.pose.position.y,0.1);
+            double ttt = distance3d(
+                uav_pose.pose.position.x, uav_pose.pose.position.y,
+                uav_pose.pose.position.z, waypoint_temp.pose.position.x,
+                waypoint_temp.pose.position.y,
+                drop_release_setpoint_height_);
             ROS_INFO("\033[32m[CrossDetectionDone] should_drop: %d, drop_complete: %d, uav_pose.pose.position.z: %.2f\033[0m", should_drop, drop_complete, uav_pose.pose.position.z);
-            if(uav_pose.pose.position.z <= 0.17 && ttt <= 0.15 && !drop_complete)
-            {
-                should_drop = true;
-                ROS_INFO("\033[32m[CrossDetectionDone] height_reach should_drop: true\033[0m");
-            }
-            
+            const bool legacy_geometry_ready =
+                uav_pose.pose.position.z <= drop_height_threshold &&
+                ttt <= drop_position_threshold_ && !drop_complete;
             const DropReleaseGate release_gate = currentDropReleaseGate();
-            const bool release_authorized = canRequestDrop(
+            should_drop = dropReleaseReady(
+                external_mission_mode_, legacy_geometry_ready,
                 require_vision_release_permission_, release_gate);
-            if (should_drop && !drop_complete && !release_authorized) {
+            if (!drop_complete && !should_drop) {
                 ROS_WARN_THROTTLE(
                     1.0,
-                    "[CrossDetectionDone] Waiting for mission release permission "
-                    "(active=%s fresh=%s)",
+                    "[CrossDetectionDone] Waiting for release authority "
+                    "(legacy_geometry=%s permission_active=%s fresh=%s)",
+                    legacy_geometry_ready ? "true" : "false",
                     release_gate.mission_permission_active ? "true" : "false",
                     release_gate.mission_permission_fresh ? "true" : "false");
                 return false;
@@ -2592,15 +3176,17 @@ bool LLController::CrossDetectionDone() {
             } else if (should_drop && drop_complete) {
                 ROS_INFO_THROTTLE(1.0, "\033[33m[CrossDetectionDone] Drop already completed for detect point %d, waiting for next cycle\033[0m", detect_point_counter);
             } else {
-                ROS_WARN_THROTTLE(1.0, "\033[33m[CrossDetectionDone] Height not met or already completed for detect point %d (counter: %d)\033[0m", 
+                ROS_WARN_THROTTLE(1.0, "\033[33m[CrossDetectionDone] Height not met or already completed for detect point %d (counter: %d)\033[0m",
                         detect_point_counter + 1, detect_point_counter);
-            }            
+            }
             // 防止重复投递：如果已经投递过，直接跳过
             if(servo_complete.data){
                 ROS_INFO("\033[33m[CrossDetectionDone] servo_complete.data: %d\033[0m", servo_complete.data);
                 down_flag = false;
                 align_height = 1.15;
-                if(uav_pose.pose.position.z >= 0.95){
+                const double recovery_height = external_mission_mode_
+                    ? external_recovery_height_ : 0.95;
+                if(uav_pose.pose.position.z >= recovery_height){
                     // stopDropAction(servo_id-1);
                     resetDropState();   // 重置投递状态
                     cleanupAfterCrossDrop();  // 彻底清理十字投递状态
@@ -2635,7 +3221,7 @@ void LLController::resetCrossDetectionState() {
     cross_mission_completed = false;
     cross_detection_active_ = false;
     // cross_mark保持状态，由NextPoint控制
-    
+
     ROS_DEBUG("\033[36m[CrossDetection] Cross detection state reset\033[0m");
 }
 
@@ -2651,13 +3237,13 @@ void LLController::resetDetectionState() {
     servo_complete.data = false;  // 重置舵机完成状态
     ignore_servo_complete = true;  // 开始忽略舵机完成信号
     clearUavVisionAlignmentState();
-    
+
     ROS_INFO("\033[32m[DetectionState] All detection flags reset for new waypoint, servo_complete.data: %d\033[0m", servo_complete.data);
 }
 
 void LLController::cleanupAfterCrossDrop() {
     // 彻底清理十字投递后的所有状态，确保后续投递正常
-    
+
     // 重置十字检测相关状态
     cross_found_ = false;
     cross_detection_active_ = false;
@@ -2666,30 +3252,30 @@ void LLController::cleanupAfterCrossDrop() {
     tank_mission_completed = false;
     // tank_mark = false;
     tank_found_ = false;
-    
+
     // 重置投递相关状态
     drop_complete = false;
     servo_complete.data = false;
     ignore_servo_complete = true;  // 开始忽略舵机完成信号
-    
+
     // 重置对准相关状态
     align_ok = false;
     count_aligning = 0;
     have_waypoint_mark = false;
     clearUavVisionAlignmentState();
-    
+
     // 重置检测状态
     first_call = true;
     times_detect = 0;
     down_flag = true;
-    
+
     // 重置任务状态
     current_task_type = MAIN_MISSION;
     mission_interrupted = false;
-    
+
     // 重置高度
     align_height = 1.2;
-    
+
     ROS_INFO("\033[32m[CleanupAfterCrossDrop] All states cleaned up after cross drop, ready for next mission\033[0m");
 }
 

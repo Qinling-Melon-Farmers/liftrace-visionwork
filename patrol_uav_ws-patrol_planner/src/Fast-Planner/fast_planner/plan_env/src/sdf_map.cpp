@@ -66,6 +66,13 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
   node_.param("sdf_map/esdf_slice_height", mp_.esdf_slice_height_, -0.1);
   node_.param("sdf_map/visualization_truncate_height", mp_.visualization_truncate_height_, -0.1);
   node_.param("sdf_map/virtual_ceil_height", mp_.virtual_ceil_height_, -0.1);
+  node_.param("sdf_map/horizontal_avoidance/enabled", mp_.horizontal_avoidance_, false);
+  node_.param("sdf_map/horizontal_avoidance/min_x", mp_.horizontal_min_x_, 0.0);
+  node_.param("sdf_map/horizontal_avoidance/max_x", mp_.horizontal_max_x_, 0.0);
+  node_.param("sdf_map/horizontal_avoidance/min_y", mp_.horizontal_min_y_, 0.0);
+  node_.param("sdf_map/horizontal_avoidance/max_y", mp_.horizontal_max_y_, 0.0);
+  node_.param("sdf_map/horizontal_avoidance/obstacle_min_z", mp_.horizontal_obstacle_min_z_, 0.4);
+  node_.param("sdf_map/horizontal_avoidance/floor_z", mp_.horizontal_floor_z_, 0.1);
 
   node_.param("sdf_map/show_occ_time", mp_.show_occ_time_, false);
   node_.param("sdf_map/show_esdf_time", mp_.show_esdf_time_, false);
@@ -752,12 +759,18 @@ void SDFMap::clearAndInflateLocalMap() {
         }
       }
 
-  // add virtual ceiling to limit flight height
-  if (mp_.virtual_ceil_height_ > -0.5) {
-    int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_);
+  applyFlightCeiling();
+}
+
+void SDFMap::applyFlightCeiling() {
+  if (mp_.virtual_ceil_height_ > 0.0) {
+    const int ceil_id = std::max(0, std::min(mp_.map_voxel_num_(2) - 1,
+        int(floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_))));
+    md_.local_bound_max_(2) = std::max(md_.local_bound_max_(2), ceil_id);
     for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
       for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y) {
-        md_.occupancy_buffer_inflate_[toAddress(x, y, ceil_id)] = 1;
+        for (int z = ceil_id; z <= md_.local_bound_max_(2); ++z)
+          md_.occupancy_buffer_inflate_[toAddress(x, y, z)] = 1;
       }
   }
 }
@@ -893,6 +906,9 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   max_y = mp_.map_min_boundary_(1);
   max_z = mp_.map_min_boundary_(2);
 
+  std::vector<unsigned char> horizontal_columns(
+      mp_.map_voxel_num_(0) * mp_.map_voxel_num_(1), 0);
+
   for (size_t i = 0; i < latest_cloud.points.size(); ++i) {
     pt = latest_cloud.points[i];
     p3d(0) = pt.x, p3d(1) = pt.y, p3d(2) = pt.z;
@@ -928,6 +944,11 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
             int idx_inf = toAddress(inf_pt);
 
             md_.occupancy_buffer_inflate_[idx_inf] = 1;
+            if (mp_.horizontal_avoidance_ && pt.z >= mp_.horizontal_obstacle_min_z_ &&
+                pt.x >= mp_.horizontal_min_x_ && pt.x <= mp_.horizontal_max_x_ &&
+                pt.y >= mp_.horizontal_min_y_ && pt.y <= mp_.horizontal_max_y_) {
+              horizontal_columns[inf_pt(0) * mp_.map_voxel_num_(1) + inf_pt(1)] = 1;
+            }
           }
     }
   }
@@ -948,6 +969,22 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   boundIndex(md_.local_bound_min_);
   boundIndex(md_.local_bound_max_);
 
+  if (mp_.horizontal_avoidance_) {
+    const int low = std::max(0, int(floor((mp_.horizontal_floor_z_ - mp_.map_origin_(2)) *
+                                         mp_.resolution_inv_)));
+    const double top_height = mp_.virtual_ceil_height_ > 0.0 ?
+        mp_.virtual_ceil_height_ : mp_.map_max_boundary_(2);
+    const int high = std::min(mp_.map_voxel_num_(2) - 1,
+        int(ceil((top_height - mp_.map_origin_(2)) * mp_.resolution_inv_)));
+    for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
+      for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y)
+        if (horizontal_columns[x * mp_.map_voxel_num_(1) + y])
+          for (int z = low; z <= high; ++z)
+            md_.occupancy_buffer_inflate_[toAddress(x, y, z)] = 1;
+    md_.local_bound_min_(2) = std::min(md_.local_bound_min_(2), low);
+    md_.local_bound_max_(2) = std::max(md_.local_bound_max_(2), high);
+  }
+  applyFlightCeiling();
   md_.esdf_need_update_ = true;
 }
 
