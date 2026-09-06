@@ -40,16 +40,16 @@
       }
     },
     {
-      "case": "old_symmetric_inflation",
+      "case": "r41_actual_profile",
       "resolution": 0.1,
       "xy_inflation": 0.2,
       "up": 0.2,
-      "down": 0.2,
+      "down": 0.1,
       "occupied_queries": {
         "approach_075": false,
         "door_075": false,
         "approach_090": false,
-        "door_090": true
+        "door_090": false
       }
     }
   ],
