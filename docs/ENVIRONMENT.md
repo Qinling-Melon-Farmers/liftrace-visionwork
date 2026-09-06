@@ -9,3 +9,6 @@
 权重通过 `UAV_VISION_MODEL_PATH` 指定。数据集、模型权重、build/devel、bag、视频及大日志不进入 git；联合实跑的报告与归档索引见 VALIDATION.md。
 
 仿真统一由 `run_competition_sim.sh` 调用 `sim_run.sh`。调用方在获得启动授权后，仅在该命令设置 `SIM_RUN_AUTHORIZED=1`。包装器独占本机 ROS/Gazebo/PX4 资源，并检查启动前与收尾后的进程。无桌面时设置 `SIM_NO_RECORD=1`。不得在另一终端直接再起 roslaunch。
+
+
+WSL 启动前还须检查 VHDX 宿主盘，使用 `SIM_STORAGE_GUARD_PATH`；可用 `SIM_LOGS_DIR` 将 run 目录置于另一磁盘。相机录图与本机示例见 [日志存储说明](verification/r55/RECORDING_FIX.md)。

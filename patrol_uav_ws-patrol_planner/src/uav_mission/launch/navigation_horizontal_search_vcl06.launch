@@ -3,6 +3,7 @@
   <arg name="gui" default="false" />
   <arg name="rviz" default="false" />
   <arg name="record_debug" default="true" />
+  <arg name="record_camera_topic" default="/downward_camera/image_raw" />
   <arg name="field_seed" default="11" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="mission_start_mode" default="full" />
@@ -11,6 +12,7 @@
     <arg name="gui" value="$(arg gui)" />
     <arg name="rviz" value="$(arg rviz)" />
     <arg name="record_debug" value="$(arg record_debug)" />
+    <arg name="record_camera_topic" value="$(arg record_camera_topic)" />
     <arg name="field_seed" value="$(arg field_seed)" />
     <arg name="target_model_path" value="$(arg target_model_path)" />
     <arg name="mission_start_mode" value="$(arg mission_start_mode)" />

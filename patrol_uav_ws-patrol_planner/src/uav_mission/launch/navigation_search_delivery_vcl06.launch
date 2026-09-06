@@ -13,6 +13,7 @@
        commonly execute at 0.25-0.35 real time. -->
   <arg name="gate_wall_timeout" default="2700.0" />
   <arg name="record_debug" default="false" />
+  <arg name="record_camera_topic" default="/downward_camera/image_raw" />
   <arg name="external_planner_max_command_z" default="3.5" />
   <arg name="search_altitude" default="2.4" />
   <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_toudi4_new_vision.yaml" />
@@ -199,7 +200,9 @@
               /planning/goal_status
               /planning/bspline
               /downward_camera/camera_info
-              /downward_camera/image_raw/compressed
+              $(arg record_camera_topic)
+              /uav_vision/detections
+              /fastplanner/goal
               /tf_static
               /gazebo/model_states
               /Odometry
