@@ -88,7 +88,6 @@ private:
   double no_replan_thresh_, replan_thresh_;
   double tracking_replan_distance_, min_replan_interval_;
   bool allow_goal_adjustment_;
-  double goal_adjustment_radius_;
   double waypoints_[50][3];
   int waypoint_num_;
   std::string goal_status_topic_;
@@ -102,7 +101,6 @@ private:
 
   Eigen::Vector3d start_pt_, start_vel_, start_acc_, start_yaw_;  // start state
   Eigen::Vector3d end_pt_, end_vel_;                              // target state
-  Eigen::Vector3d requested_end_pt_;  // immutable anchor for local goal adjustment
   int current_wp_;
   ros::Time next_planning_attempt_;
 

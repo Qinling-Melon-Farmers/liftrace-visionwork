@@ -31,7 +31,6 @@
 #include <limits>
 
 #include <plan_manage/kino_replan_fsm.h>
-#include <plan_manage/goal_adjustment.h>
 #include <tf/tf.h>
 
 namespace fast_planner {
@@ -68,7 +67,6 @@ void KinoReplanFSM::init(ros::NodeHandle& nh) {
   nh.param("fsm/tracking_replan_distance", tracking_replan_distance_, 0.45);
   nh.param("fsm/min_replan_interval", min_replan_interval_, 0.75);
   nh.param("fsm/allow_goal_adjustment", allow_goal_adjustment_, true);
-  nh.param("fsm/goal_adjustment_radius", goal_adjustment_radius_, 1.0);
   nh.param<std::string>("goal_status_topic", goal_status_topic_, "/planning/goal_status");
 
   nh.param("fsm/waypoint_num", waypoint_num_, -1);
@@ -120,7 +118,6 @@ void KinoReplanFSM::waypointCallback(const geometry_msgs::PoseStamped msg) {
   // contract.  A discrete mission goal must therefore end at rest; deriving
   // +x motion from the default identity quaternion bends narrow-door paths.
   end_vel_.setZero();
-  requested_end_pt_ = end_pt_;
   next_planning_attempt_ = ros::Time(0);
 
   geometry_msgs::PoseStamped effective_goal = msg;
@@ -313,39 +310,55 @@ void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
   if (have_target_ && allow_goal_adjustment_) {
     auto edt_env = planner_manager_->edt_environment_;
 
-    const double minimum_clearance = planner_manager_->pp_.clearance_;
-    auto clearance = [&](const Eigen::Vector3d& candidate) {
-      if (!edt_env->sdf_map_->isInMap(candidate) ||
-          edt_env->sdf_map_->getInflateOccupancy(candidate) != 0)
-        return -std::numeric_limits<double>::infinity();
-      Eigen::Vector3d point = candidate;
-      return edt_env->evaluateCoarseEDT(
-          point, planner_manager_->pp_.dynamic_ ? info->duration_ : -1.0);
-    };
+    double dist = planner_manager_->pp_.dynamic_ ?
+        edt_env->evaluateCoarseEDT(end_pt_, info->duration_) :
+        edt_env->evaluateCoarseEDT(end_pt_, -1.0);
 
-    // Use the same clearance as trajectory validation. The old hard-coded
-    // extra 0.20 m beyond the already inflated map cannot fit a 0.80 m gap.
-    // Retain a valid effective goal: do not chase every small map change.
-    const double current_clearance = clearance(end_pt_);
-    if (!std::isfinite(current_clearance) || current_clearance < minimum_clearance) {
+    if (dist <= 0.2) {
+      bool new_goal = false;
+      const double dr = 0.1, dtheta = 30, dz = 0.1;
+      double min_dist_to_target = std::numeric_limits<double>::max();
       Eigen::Vector3d goal;
-      const bool found = nearbyFreeGoal(requested_end_pt_, goal_adjustment_radius_,
-          edt_env->sdf_map_->getResolution(), minimum_clearance, clearance, goal);
-      if (found) {
+
+      for (double r = dr; r <= 1.0 + 1e-3; r += dr) {
+        for (double theta = -90; theta <= 270; theta += dtheta) {
+            double new_x = end_pt_(0) + r * cos(theta / 57.3);
+            double new_y = end_pt_(1) + r * sin(theta / 57.3);
+            double new_z = end_pt_(2);//新点z轴不变
+
+            Eigen::Vector3d new_pt(new_x, new_y, new_z);
+            dist = planner_manager_->pp_.dynamic_ ?
+                edt_env->evaluateCoarseEDT(new_pt, info->duration_) :
+                edt_env->evaluateCoarseEDT(new_pt, -1.0);
+
+            if (dist >= 0.2) {
+              double target_dist = (new_pt - end_pt_).norm();
+              if (target_dist < min_dist_to_target) {
+                min_dist_to_target = target_dist;
+                goal = new_pt;
+                new_goal = true;
+              }
+            }
+        }
+      }
+
+      if (new_goal) {
+        cout << "Goal adjusted, replan." << endl;
         end_pt_ = goal;
         end_vel_.setZero();
+        have_target_ = true;
         updateEffectiveGoal();
-        ROS_INFO_STREAM("Goal adjusted within requested waypoint neighborhood: " << goal.transpose());
-        if (exec_state_ == EXEC_TRAJ) changeFSMExecState(REPLAN_TRAJ, "SAFETY");
-        visualization_->drawGoal(end_pt_, 0.3, Eigen::Vector4d(1, 0, 0, 1.0));
-      } else {
-        ROS_WARN_THROTTLE(2.0, "No collision-free goal within requested waypoint neighborhood");
+
         if (exec_state_ == EXEC_TRAJ) {
-          replan_pub_.publish(std_msgs::Empty());
           changeFSMExecState(REPLAN_TRAJ, "SAFETY");
         }
-        // GEN_NEW_TRAJ already retries on the existing interval. No reset
-        // or repeated cancellation is needed merely because the goal is blocked.
+
+        visualization_->drawGoal(end_pt_, 0.3, Eigen::Vector4d(1, 0, 0, 1.0));
+      } else {
+        cout << "No valid goal found, keep retrying." << endl;
+        changeFSMExecState(REPLAN_TRAJ, "FSM");
+        std_msgs::Empty emt;
+        replan_pub_.publish(emt);
       }
     }
   }

@@ -1,0 +1,5 @@
+{
+  "source": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage",
+  "head": "299c690b2d1a11ab9be4225a7879934075336c2c",
+  "reason": "AGENTS legacy package snapshot before restoring bounded goal adjustment"
+}

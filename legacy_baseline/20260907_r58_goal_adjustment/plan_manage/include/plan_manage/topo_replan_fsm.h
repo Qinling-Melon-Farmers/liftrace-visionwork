@@ -23,8 +23,8 @@
 
 
 
-#ifndef _KINO_REPLAN_FSM_H_
-#define _KINO_REPLAN_FSM_H_
+#ifndef _TOPO_REPLAN_FSM_H_
+#define _TOPO_REPLAN_FSM_H_
 
 #include <Eigen/Eigen>
 #include <algorithm>
@@ -41,39 +41,14 @@
 #include <plan_env/obj_predictor.h>
 #include <plan_env/sdf_map.h>
 #include <plan_manage/Bspline.h>
-#include <plan_manage/PlannerStatus.h>
-#include <plan_manage/planner_status_tracker.h>
 #include <plan_manage/planner_manager.h>
-#include <plan_manage/trajectory_progress.h>
 #include <traj_utils/planning_visualization.h>
 
 using std::vector;
 
 namespace fast_planner {
 
-class Test {
-private:
-  /* data */
-  int test_;
-  std::vector<int> test_vec_;
-  ros::NodeHandle nh_;
-
-public:
-  Test(const int& v) {
-    test_ = v;
-  }
-  Test(ros::NodeHandle& node) {
-    nh_ = node;
-  }
-  ~Test() {
-  }
-  void print() {
-    std::cout << "test: " << test_ << std::endl;
-  }
-};
-
-class KinoReplanFSM {
-
+class TopoReplanFSM {
 private:
   /* ---------- flag ---------- */
   enum FSM_EXEC_STATE { INIT, WAIT_TARGET, GEN_NEW_TRAJ, REPLAN_TRAJ, EXEC_TRAJ, REPLAN_NEW };
@@ -85,57 +60,44 @@ private:
 
   /* parameters */
   int target_type_;  // 1 mannual select, 2 hard code
-  double no_replan_thresh_, replan_thresh_;
-  double tracking_replan_distance_, min_replan_interval_;
-  bool allow_goal_adjustment_;
-  double goal_adjustment_radius_;
+  double replan_distance_threshold_, replan_time_threshold_;
   double waypoints_[50][3];
   int waypoint_num_;
-  std::string goal_status_topic_;
+  bool act_map_;
 
   /* planning data */
-  bool trigger_, have_target_, have_odom_;
+  bool trigger_, have_target_, have_odom_, collide_;
   FSM_EXEC_STATE exec_state_;
 
   Eigen::Vector3d odom_pos_, odom_vel_;  // odometry state
   Eigen::Quaterniond odom_orient_;
 
   Eigen::Vector3d start_pt_, start_vel_, start_acc_, start_yaw_;  // start state
-  Eigen::Vector3d end_pt_, end_vel_;                              // target state
-  Eigen::Vector3d requested_end_pt_;  // immutable anchor for local goal adjustment
+  Eigen::Vector3d target_point_, end_vel_;                        // target state
   int current_wp_;
-  ros::Time next_planning_attempt_;
-
-  /* goal telemetry (does not participate in planner decisions) */
-  PlannerStatusTracker goal_status_tracker_;
 
   /* ROS utils */
   ros::NodeHandle node_;
-  ros::Timer exec_timer_, safety_timer_, vis_timer_, test_something_timer_;
+  ros::Timer exec_timer_, safety_timer_, vis_timer_, frontier_timer_;
   ros::Subscriber waypoint_sub_, odom_sub_;
-  ros::Publisher replan_pub_, new_pub_, bspline_pub_, goal_status_pub_;
+  ros::Publisher replan_pub_, new_pub_, bspline_pub_;
 
   /* helper functions */
-  bool callKinodynamicReplan();        // front-end and back-end method
+  bool callSearchAndOptimization();    // front-end and back-end method
   bool callTopologicalTraj(int step);  // topo path guided gradient-based
                                        // optimization; 1: new, 2: replan
   void changeFSMExecState(FSM_EXEC_STATE new_state, string pos_call);
   void printFSMExecState();
-  void updateEffectiveGoal();
-  double currentGoalDistance() const;
-  void publishGoalStatus(const plan_manage::PlannerStatus& msg);
 
   /* ROS functions */
   void execFSMCallback(const ros::TimerEvent& e);
   void checkCollisionCallback(const ros::TimerEvent& e);
-  void waypointCallback(const geometry_msgs::PoseStamped msg);
+  void waypointCallback(const nav_msgs::PathConstPtr& msg);
   void odometryCallback(const nav_msgs::OdometryConstPtr& msg);
 
 public:
-  KinoReplanFSM(/* args */) {
-  }
-  ~KinoReplanFSM() {
-  }
+  TopoReplanFSM(/* args */) {}
+  ~TopoReplanFSM() {}
 
   void init(ros::NodeHandle& nh);
 
