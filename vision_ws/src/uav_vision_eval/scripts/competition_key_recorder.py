@@ -2,6 +2,7 @@
 """Read-only compact simulation records. No publishers or flight services."""
 import csv
 import json
+import math
 import threading
 import time
 from pathlib import Path
@@ -20,6 +21,8 @@ from std_msgs.msg import String
 
 
 def plain(value):
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
     if isinstance(value, (str, int, float, bool, type(None))):
         return value
     if isinstance(value, (list, tuple)):
@@ -142,12 +145,15 @@ class Recorder:
         if kind == 'decision' and getattr(msg, 'has_goal', False):
             g = msg.goal.pose.position
             self.goal = np.array([g.x, g.y, g.z])
-        if kind == 'planner' and 'FAILED_ATTEMPT' in str(value):
-            goal_id = value.get('goal_id')
-            if self.goal is not None and goal_id not in self.snapshot_goals and self.snapshots < self.max_snapshots:
+        if (kind == 'planner' and hasattr(msg, 'FAILED_ATTEMPT') and
+                msg.status == msg.FAILED_ATTEMPT):
+            goal_id = msg.goal_seq
+            p = msg.requested_goal.pose.position
+            snapshot_goal = np.array([p.x, p.y, p.z])
+            if goal_id not in self.snapshot_goals and self.snapshots < self.max_snapshots:
                 self.snapshot_goals.add(goal_id)
                 self.snapshots += 1
-                threading.Thread(target=self.snapshot, args=(self.snapshots, self.goal.copy()), daemon=True).start()
+                threading.Thread(target=self.snapshot, args=(self.snapshots, snapshot_goal), daemon=True).start()
 
     def snapshot(self, number, goal):
         result = {'goal': goal.tolist(), 'ros_sec': rospy.get_time(), 'clouds': {}}
