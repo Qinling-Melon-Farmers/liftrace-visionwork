@@ -565,6 +565,17 @@ class NavigationMissionManager:
             return
         if action.command not in COMMAND_VALUES:
             raise ValueError("unsupported core command: %s" % action.command)
+        # This is the task owner's existing route cursor, not simulator truth.
+        # Stages are applied before publishing the next goal, after the prior
+        # waypoint has satisfied the normal execution arrival check.
+        if action.command == "RETURN_HOME" and action.reason.startswith("post_delivery_route:"):
+            completed = self._runtime.core.post_delivery_route_index
+            for stage in rospy.get_param("~mission/post_delivery_parameter_stages", []):
+                if completed == int(stage["after_completed_waypoints"]):
+                    for name, value in stage["parameters"].items():
+                        rospy.set_param(name, value)
+                    rospy.loginfo("Flight parameter stage after %d waypoints: %s",
+                                  completed, stage["parameters"])
         message = NavigationDecision()
         message.header.seq = int(action.decision_seq)
         message.header.stamp = rospy.Time.from_sec(action.issued_at)

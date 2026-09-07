@@ -276,7 +276,8 @@ class Vcl06GateReducer:
                  post_delivery_goal_tolerance=0.18,
                  post_delivery_doors=(), landing_xy=(0.0, 0.0),
                  landing_h_tolerance=0.35, gate_scope="full",
-                 expected_door_order=EXPECTED_DOOR_ORDER):
+                 expected_door_order=EXPECTED_DOOR_ORDER,
+                 low_height_region=None):
         self.profile = str(profile)
         self.nav_feature_profile = str(nav_feature_profile)
         self.mission_frame = str(mission_frame)
@@ -288,6 +289,7 @@ class Vcl06GateReducer:
             "min_y": -1.132, "max_y": 8.718,
         })
         self.max_height = float(max_height)
+        self.low_height_region = dict(low_height_region or {})
         self.max_mission_sec = float(max_mission_sec)
         self.forced_return_sec = float(forced_return_sec)
         tolerance_sec = float(command_stamp_future_tolerance_sec)
@@ -815,6 +817,12 @@ class Vcl06GateReducer:
         if z > self.max_height:
             self.height_violations += 1
             self._error("height_limit_violation")
+        region = self.low_height_region
+        if (region and region["min_x"] <= x <= region["max_x"] and
+                region["min_y"] <= y <= region["max_y"] and
+                z > region["max_height"]):
+            self.height_violations += 1
+            self._error("corridor_height_limit_violation")
         route_index = self.active_post_delivery_route_index
         previous = self.route_pose_previous
         self.route_pose_previous = (x, y, z, route_index)
@@ -1232,6 +1240,8 @@ class NavigationVcl06AssertionNode:
                 "max_y": float(rospy.get_param("~field/max_y", 8.718)),
             },
             max_height=float(rospy.get_param("~max_height", 4.0)),
+            low_height_region=rospy.get_param(
+                "~post_delivery_gate/low_height_region", {}),
             max_mission_sec=float(rospy.get_param(
                 "~max_mission_sec", 600.0)),
             forced_return_sec=float(rospy.get_param(

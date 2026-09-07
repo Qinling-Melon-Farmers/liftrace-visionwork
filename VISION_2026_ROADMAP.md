@@ -1,5 +1,3 @@
-# 当前状态：R59唯一一轮已结束，不追加仿真
+# 当前任务：R60完整Gate与十seed
 
-8/8航点和两处0.80m通口完成，实际最高.6701m；H有效对准后进入AUTO.LAND并触垫。评测遗漏终点平面标记名称，原始Gate FAIL提前结束，ON_GROUND/disarm未确认。已修正该评测分类并做45项回归，未重跑。
-
-本次按用户一轮约定收口，十seed暂停，现场坐标暂不改。详见[本轮结果](docs/verification/r59_corridor_landing/REPORT.md)。完整搜索/三投默认配置及R56/R57成功基线保留，main未合本轮失败实验。后续仅在新明确请求下继续。
+已按最新授权接入R59低空走廊/H方案，全场构建与239项回归通过。先完整Gate；完整PASS后冻结版本执行十seed，保留全部结果，不录全场bag。追加R56后修订说明、PASS飞行分析和rqt三版计算图。现场坐标与实机飞行不在本轮。见[报告](docs/verification/r60_full_matrix/REPORT.md)。

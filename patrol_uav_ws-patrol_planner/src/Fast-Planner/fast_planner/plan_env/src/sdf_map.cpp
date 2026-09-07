@@ -884,6 +884,13 @@ void SDFMap::odomCallback(const nav_msgs::OdometryConstPtr& odom) {
 }
 
 void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
+  // Apply phase ceiling before rebuilding the local occupancy map. The
+  // existing resetBuffer below clears prior ceiling cells each cloud update.
+  double phase_ceiling = mp_.virtual_ceil_height_;
+  if (node_.getParamCached("sdf_map/virtual_ceil_height", phase_ceiling) &&
+      std::isfinite(phase_ceiling) && phase_ceiling > 0.0)
+    mp_.virtual_ceil_height_ = phase_ceiling;
+
 
   pcl::PointCloud<pcl::PointXYZ> latest_cloud;
   pcl::fromROSMsg(*img, latest_cloud);
