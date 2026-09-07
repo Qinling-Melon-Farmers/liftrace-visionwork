@@ -26,3 +26,5 @@ roslaunch uav_mission competition_hardware.launch model_path:=/path/to/merged_st
 LiDAR 内部 IMU→扫描坐标外参与 IMU→相机安装外参是两件事。`mid360_hardware.yaml` 保留原 MID360 工程内部外参，使用 `/livox/imu`；Gazebo ray frame 使用独立仿真配置，不能相互覆盖。板端 ROS 实时链、实机噪声与现场飞行尚未验收。
 
 当前 competition_freedom.yaml 与本轮通过的 SITL 共享 .10 m 空闲网格、[-7,52]° 增强视场和场地范围；这些配置仍需板端实测。uav_vision_eval 是仿真评测包，其 Gazebo 插件不进入实机运行链，板端构建应选择运行所需的 camera_sdk/uav_vision 与导航包。
+
+仿真接触代理对雷达不可见只适用于额外虚拟包络；实机护圈/支架若遮挡扫描，应保留其真实射线遮挡并调整安装或策略，不能直接照搬过滤。详见[工程适用性复核](verification/r56_model_review/REVIEW.md)。
