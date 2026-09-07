@@ -13,3 +13,9 @@ Mission Manager 决定搜索、接近、恢复、返航和降落。Planner Bridg
 [本轮 Nodes only 图](verification/r56_final/topology/index.html) 来自 R56 实时 master 注册快照，由 rqt_graph 后端离线渲染；椭圆为节点，边为话题，箭头沿发布→订阅。图本身不证明实时吞吐。来源路径通过统一包装器校验，不以旧 worktree 绝对路径作为额外通过条件。
 
 R56 最终运行 Gate 37/37、注册关系检查 11/11。Nodes only 只绘制话题发布/订阅，不把 Servo 服务调用伪装成话题边；服务契约见上文。仿真接触代理 ModelPlugin 不增加 ROS 节点或话题。
+
+## R58冻结后的补充
+
+返程目标在已有PoseStamped中携带航向，没有新增飞行消息协议。仿真入口启用航向停稳覆盖参数，硬件入口当前未同步该覆盖，不能声称两入口行为完全一致。Gazebo接触/真值评测不在硬件22节点入口内，共享Planner与任务参数则会影响硬件。
+
+当前[Nodes only图](verification/r58_closeout/topology/index.html)采自59ed04b最后失败轮：34节点、注册接口11/11通过；节点连接图不证明飞行通过。场地坐标变换必须转换数值，不能只改frame_id，详见[坐标兼容说明](verification/r58_closeout/REPORT.md)。
