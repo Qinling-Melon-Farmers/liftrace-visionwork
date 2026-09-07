@@ -1,5 +1,7 @@
 # 2026 无人机竞赛整机工程
 
+接触代理的雷达过滤有建模前提，见[工程适用性复核与当前飞机图](docs/verification/r56_model_review/REVIEW.md)。真实护圈遮挡尚未验收。
+
 **R56 联合全流程 PASS（37/37）：三投、三次恢复、11 航段、三门、H 对准、AUTO.LAND、落地/disarm，零碰撞、零越界、零超高。** Gate 任务时长 182.924 ROS 秒；这是笔记本 SITL 功能验收，板端实时链和实机仍需独立验收。
 
 [完整报告与 R4x 改动历史](docs/verification/r56_final/REPORT.md) · [全部参数/阈值](docs/verification/r56_final/PARAMETERS.md) · [Nodes only 图](docs/verification/r56_final/topology/index.html) · [成功记录下载](https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/tag/sim/r2026-r56-contact-map-pass)

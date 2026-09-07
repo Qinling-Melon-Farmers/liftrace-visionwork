@@ -1,0 +1,159 @@
+{
+  "source": "R56 run vehicle_model.sdf + Gazebo MeshManager exact mesh loading",
+  "live_screenshot": false,
+  "simulation_started": false,
+  "visuals": [
+    {
+      "link": "link",
+      "triangles": 256,
+      "bounds": [
+        [
+          0.04,
+          -0.01,
+          0.039
+        ],
+        [
+          0.060000000000000005,
+          0.01,
+          0.041
+        ]
+      ]
+    },
+    {
+      "link": "base_link",
+      "triangles": 79996,
+      "bounds": [
+        [
+          -0.1563015580177307,
+          -0.23713898658752441,
+          -0.06703685224056244
+        ],
+        [
+          0.14307817816734314,
+          0.24057234823703766,
+          0.046631425619125366
+        ]
+      ]
+    },
+    {
+      "link": "rotor_0",
+      "triangles": 3839,
+      "bounds": [
+        [
+          -0.0032746999999999915,
+          -0.23445436,
+          0.017711876
+        ],
+        [
+          0.2544686,
+          -0.20640955,
+          0.028023539
+        ]
+      ]
+    },
+    {
+      "link": "rotor_1",
+      "triangles": 3839,
+      "bounds": [
+        [
+          -0.2632747,
+          0.18554564,
+          0.017711876
+        ],
+        [
+          -0.005531400000000006,
+          0.21359045000000002,
+          0.028023539
+        ]
+      ]
+    },
+    {
+      "link": "rotor_2",
+      "triangles": 4374,
+      "bounds": [
+        [
+          0.0004618000000000122,
+          0.20608131,
+          0.017742275
+        ],
+        [
+          0.2581403,
+          0.23411634,
+          0.028053937
+        ]
+      ]
+    },
+    {
+      "link": "rotor_3",
+      "triangles": 4374,
+      "bounds": [
+        [
+          -0.2595382,
+          -0.21391869000000002,
+          0.017742275
+        ],
+        [
+          -0.001859699999999992,
+          -0.18588366,
+          0.028053937
+        ]
+      ]
+    },
+    {
+      "link": "lidar_link",
+      "triangles": 376005,
+      "bounds": [
+        [
+          -0.02930046309496685,
+          -0.009149488555737991,
+          0.0540829
+        ],
+        [
+          0.04343948855573798,
+          0.05572948855573799,
+          0.11418
+        ]
+      ]
+    },
+    {
+      "link": "downward_camera_link",
+      "triangles": 12,
+      "bounds": [
+        [
+          -0.015000000000097932,
+          -0.02,
+          -0.10588000000007344
+        ],
+        [
+          0.015000000000097932,
+          0.02,
+          -0.06587999999992655
+        ]
+      ]
+    }
+  ],
+  "guard_bounds": [
+    [
+      -0.3,
+      -0.3,
+      0.18000000000000002
+    ],
+    [
+      0.3,
+      0.3,
+      0.22
+    ]
+  ],
+  "sources": [
+    "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r56_contact_map_fix_20260907_112803/vehicle_model.sdf",
+    "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris/iris.sdf",
+    "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/gps/gps.sdf",
+    "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris/meshes/iris.stl",
+    "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris/meshes/iris_prop_ccw.dae",
+    "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris/meshes/iris_prop_ccw.dae",
+    "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris/meshes/iris_prop_cw.dae",
+    "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris/meshes/iris_prop_cw.dae",
+    "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/mid360/mid360.sdf",
+    "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/mid360/meshes/livox_mid-360-90x.dae"
+  ]
+}
