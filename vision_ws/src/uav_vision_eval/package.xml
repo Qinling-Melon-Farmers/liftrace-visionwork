@@ -15,8 +15,13 @@
   <depend>message_generation</depend>
   <depend>message_runtime</depend>
   <depend>rospy</depend>
+  <depend>roscpp</depend>
   <depend>rosnode</depend>
   <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>roslib</exec_depend>
+  <exec_depend>mavros_msgs</exec_depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
@@ -31,8 +36,4 @@
   <exec_depend>rqt_graph</exec_depend>
   <build_depend>gazebo_dev</build_depend>
   <exec_depend>gazebo</exec_depend>
-  <exec_depend>python3-numpy</exec_depend>
-  <exec_depend>nav_msgs</exec_depend>
-  <exec_depend>roslib</exec_depend>
-  <exec_depend>mavros_msgs</exec_depend>
 </package>
