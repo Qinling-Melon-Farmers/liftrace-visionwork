@@ -1,4 +1,8 @@
-fsm/allow_goal_adjustment: false
+# Restore the legacy planner's local free-goal capability. The anchor remains
+# the requested waypoint, so adjustments cannot accumulate across map updates.
+# 0.15 m stays inside the existing 0.18 m original-waypoint arrival tolerance.
+fsm/allow_goal_adjustment: true
+fsm/goal_adjustment_radius: 0.15
 fsm/tracking_replan_distance: 0.45
 fsm/min_replan_interval: 0.75
 sdf_map/virtual_ceil_height: 2.30
