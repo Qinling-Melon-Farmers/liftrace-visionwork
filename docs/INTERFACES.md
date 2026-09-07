@@ -1,3 +1,5 @@
+> R59在原landing_detector内部补充可选H笔画几何，使用原检测话题、CameraInfo与投影链，没有新增飞行桥接。原始专项FAIL由终点平面垫接触分类遗漏触发，详情见[本轮报告](verification/r59_corridor_landing/REPORT.md)。
+
 # 运行链和接口
 
 Mission Manager 决定搜索、接近、恢复、返航和降落。Planner Bridge 是唯一 `/fastplanner/goal` 发布者。Fast-Planner 输出曲线，由轨迹服务器生成位置指令，再经 patrol_control 发布 MAVROS setpoint。外部任务模式不启动旧任务管理器或旧视觉桥。

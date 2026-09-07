@@ -1,3 +1,5 @@
+> 最新R59专项已收尾，只有一轮，无残留、无重跑；完整构建通过，实际阶段结果与原始FAIL见[报告](verification/r59_corridor_landing/REPORT.md)。
+
 > 当前工作停止实跑，验收结果见[收口报告](verification/r58_closeout/REPORT.md)。下文成功与构建描述按其R56历史来源理解，不代表R58通过。
 
 # 环境与构建

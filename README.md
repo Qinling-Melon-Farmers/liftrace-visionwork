@@ -1,4 +1,4 @@
-> R59单轮走廊—降落专项已完成离线准备，待唯一一轮实跑；十seed暂停。默认全场配置与R56/R57成功基线保留。见[当前报告](docs/verification/r59_corridor_landing/REPORT.md)。
+> R59唯一一轮已收尾：8/8航点、两通口、低空H对准和AUTO.LAND触垫完成；终点平面垫名称遗漏导致原始Gate FAIL，ON_GROUND/disarm未确认。评测分类已修正但未重跑，十seed暂停。见[完整结果](docs/verification/r59_corridor_landing/REPORT.md)。
 
 # 2026 无人机竞赛整机工程
 
@@ -27,7 +27,7 @@ SIM_STORAGE_GUARD_PATH=/mnt/f UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_N
 
 只有收到当前明确仿真授权后才执行启动命令。包装器独占 ROS/Gazebo/PX4，成功、失败与中断均收尾。`SIM_NO_RECORD=1`关闭桌面录屏，当前默认不录全场bag；紧凑记录器保留JSONL、CSV、参数与失败局部地图。权重、bag、视频及大日志不入 Git。
 
-冻结实跑配置为搜索/走廊 1.40 m、投递/H 取景 1.60 m；新要求的走廊目标 0.65 m、实际 ≤0.70 m仅保存在待验收方案，尚未加载。正装机顶 MID360 的 IMU 到相机为下方 21 cm。三槽满后结束搜索并走廊返程，当前不做槽位偏差补偿。实际成功源码 cc899f2；合入 main 保留分叉和功能分支，验收 tag 为 gate/vcl06-r56-full-competition。
+默认全场配置仍为搜索/走廊1.40m、投递/H取景1.60m；独立R59专项目标0.45m、H取景0.50m，已完成通口/H对准并触垫，但最终ON_GROUND/disarm未确认。早期0.65m草案未替换默认实机配置。正装机顶MID360的IMU到相机为下方21cm；当前不做槽位补偿。R56完整成功源cc899f2仍保留，main未合本轮FAIL。
 
 - [环境和依赖](docs/ENVIRONMENT.md)
 - [相机与飞行参数](docs/CAMERA_AND_FLIGHT.md)

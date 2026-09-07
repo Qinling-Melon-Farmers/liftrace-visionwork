@@ -1,3 +1,5 @@
+> R59唯一一轮实际源码e633a9be9fb1232e0b2bcdba5d6b68fb0d61bfd6；其后为接触评测分类和报告修正，未再实跑。原始Gate FAIL，阶段结果见[报告](verification/r59_corridor_landing/REPORT.md)。
+
 # 源码与冻结验收版本
 
 | 用途 | 运行源码/版本 | 实际结论 |

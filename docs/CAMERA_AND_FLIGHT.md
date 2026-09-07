@@ -1,3 +1,5 @@
+> R59独立低空入口已经跑过唯一一轮：目标.45m/H取景.50m，最高实际.6701m，两通口与H对准完成；末端被接触评测遗漏中断，未验收disarm。H笔画补充默认关闭，仅专项启用；全场默认参数保持。见[结果](verification/r59_corridor_landing/REPORT.md)。
+
 > 当前R58已停止，十seed暂停。低空方案、测高误差及H视野限制见[收口报告](verification/r58_closeout/REPORT.md)。
 
 # 相机安装与飞行参数
