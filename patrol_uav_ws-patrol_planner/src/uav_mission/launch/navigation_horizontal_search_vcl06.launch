@@ -4,6 +4,12 @@
   <arg name="rviz" default="false" />
   <!-- Keep run.log, gate/params and compact status JSON; full bag is opt-in. -->
   <arg name="record_debug" default="false" />
+  <arg name="record_key_info" default="true" />
+  <node if="$(arg record_key_info)" pkg="uav_vision_eval" type="competition_key_recorder.py"
+        name="competition_key_recorder" output="screen">
+    <rosparam file="$(find uav_vision_eval)/config/competition_logging.yaml" />
+    <param name="run_dir" value="$(optenv SIM_RUN_DIR)" />
+  </node>
   <arg name="record_camera_topic" default="/downward_camera/image_raw" />
   <arg name="field_seed" default="11" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />

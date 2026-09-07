@@ -33,57 +33,33 @@ mission:
   # 设置会把正常 H 对齐/下降误判成“需要重捕”的短事务超时。
   result_future_tolerance: 0.1
   home_xy: [0.0, 0.0]
-  # toudi4-style staggered corridor. Coordinates use the unchanged takeoff
-  # origin world=(-0.493412,-1.772690). These are surveyed corridor guides,
-  # independent of target truth. The online planner remains responsible for
-  # collision-free trajectories; no direct setpoint or new execution mode.
-  post_delivery_route_revision: r2026-toudi4-staggered-r57-080cm
+  # R58: user-confirmed 1.50 m corridor, staggered short walls, 0.80 m openings.
+  # The 0.70 m brackets include 0.30 m map inflation, 0.18 m arrival radius,
+  # the observed ~0.15 m positioning offset and 0.07 m sampling reserve.
+  # No goal is placed at a wall corner. Existing speed <=0.20 m/s and 0.50 s
+  # arrival dwell confirm each bracket before the next planner goal.
+  post_delivery_route_revision: r2026-r58-corridor150-opening080-bracket070
   landing_xy: [3.274292, 8.057220]
   landing_anchor_tolerance: 0.05
   post_delivery_route:
-    - [-3.106588000, 6.572690000, 1.40]  # entry south, world=(-3.60,4.80)
-    - [-3.106588000, 8.167690000, 1.40]  # entry clear, align to northern opening
-    - [-0.562003000, 8.167690000, 1.40]  # Wall_20 west, 0.45 m from panel axis
-    - [0.337997000, 8.167690000, 1.40]  # Wall_20 east clear
-    - [1.673022000, 7.897277297, 1.40]  # Wall_22 west, align to southern opening
-    - [2.573022000, 7.897277297, 1.40]  # Wall_22 east clear
-    - [3.274292000, 8.057220000, 1.60]  # final H capture; unchanged landing height
+    - [-3.091588000, 6.292690000, 1.40]  # entry approach
+    - [-3.091588000, 8.167690000, 1.40]  # entry clear
+    - [-0.812003000, 8.167690000, 1.40]  # Wall_20 approach
+    - [0.587997000, 8.167690000, 1.40]  # Wall_20 clear
+    - [1.423022000, 7.467690000, 1.40]  # Wall_22 approach
+    - [2.823022000, 7.467690000, 1.40]  # Wall_22 clear
+    - [3.274292000, 8.057220000, 1.60]  # H capture
 
-# Independent measurement sections from the actual collision boxes. These
-# are one entry and two staggered-wall passages, not the old three framed
-# scoring doors. Flight/collision/time/landing thresholds remain unchanged.
+# Independent physical sections. The two short-wall gaps remain strictly
+# 0.80 m; the corridor total width is 1.50 m, including the entrance aisle.
 post_delivery_gate:
   goal_tolerance: 0.18
   final_h_tolerance: 0.35
   expected_door_order: [corridor_entry, Wall_20, Wall_22]
   doors:
-    - name: corridor_entry
-      axis: y
-      coordinate: 7.414920
-      direction: positive
-      route_indices: [2]
-      lateral_min: -3.841588
-      lateral_max: -2.380295
-      z_min: 0.00
-      z_max: 2.50
-    - name: Wall_20
-      axis: x
-      coordinate: -0.112003
-      direction: positive
-      route_indices: [4]
-      lateral_min: 7.767690000
-      lateral_max: 8.567690000
-      z_min: 0.00
-      z_max: 2.50
-    - name: Wall_22
-      axis: x
-      coordinate: 2.123022
-      direction: positive
-      route_indices: [6]
-      lateral_min: 7.497277297
-      lateral_max: 8.297277297
-      z_min: 0.00
-      z_max: 2.50
+    - {name: corridor_entry, axis: y, coordinate: 6.992690, direction: positive, route_indices: [2], lateral_min: -3.841588, lateral_max: -2.341588, z_min: 0.0, z_max: 2.5}
+    - {name: Wall_20, axis: x, coordinate: -0.112003, direction: positive, route_indices: [4], lateral_min: 7.767690, lateral_max: 8.567690, z_min: 0.0, z_max: 2.5}
+    - {name: Wall_22, axis: x, coordinate: 2.123022, direction: positive, route_indices: [6], lateral_min: 7.067690, lateral_max: 7.867690, z_min: 0.0, z_max: 2.5}
 
 # Bounds match the static random-target spawn envelope declared in
 # coverage_toudi3_random.yaml.  They are scenario geometry, not per-seed truth,
