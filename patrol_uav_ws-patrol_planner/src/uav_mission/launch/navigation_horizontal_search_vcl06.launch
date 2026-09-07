@@ -76,5 +76,7 @@
   <param name="/navigation/planner_bridge/execution/return_yaw_tolerance" value="0.10" />
   <!-- Turn near the open staging point, then retain the heading in the aisle. -->
   <param name="/traj_server/traj_server/adjust_distance_yaw" value="0.50" />
+  <!-- The 5 mm flat H marker is the takeoff/landing support surface. -->
+  <rosparam param="/gazebo_contact_monitor/ignored_collision_patterns">[ground_plane, 'landing_h::link::collision']</rosparam>
 
 </launch>
