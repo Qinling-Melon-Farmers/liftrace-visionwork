@@ -1,17 +1,16 @@
-> R59唯一一轮实际源码e633a9be9fb1232e0b2bcdba5d6b68fb0d61bfd6；其后为接触评测分类和报告修正，未再实跑。原始Gate FAIL，阶段结果见[报告](verification/r59_corridor_landing/REPORT.md)。
+# 源码与验收记录
 
-# 源码与冻结验收版本
-
-| 用途 | 运行源码/版本 | 实际结论 |
+| 用途 | 实跑源码/版本 | 结论 |
 |---|---|---|
-| R56完整成功 | cc899f2bc4816caff9f9059adb0208705476f81b | 37/37 PASS |
-| R57/toudi4样式0.85m | 703541505f8dac5f2db7be333eda9c2460ed3d70 | 37/37 PASS |
-| R57严格0.80m | 655bf2a78927e07516a36ed328ba93f458b747a4 | 三投后目标占据超时FAIL |
-| R58最后实跑 | 59ed04b8d310af141670cb47ba1078759c8e02eb | 三投后外墙接触FAIL |
-| 当前main | 31d0b2aaa2c5bd9f9554008e42301cfbde666cfa | R56验收及模型适用性说明，未合R58实验 |
+| R56 | cc899f2bc4816caff9f9059adb0208705476f81b | 历史完整37/37 PASS |
+| R57/0.85m | 703541505f8dac5f2db7be333eda9c2460ed3d70 | 完整37/37 PASS |
+| R58最后轮 | 59ed04b8d310af141670cb47ba1078759c8e02eb | 三投后外墙接触FAIL |
+| R59 | e633a9be9fb1232e0b2bcdba5d6b68fb0d61bfd6 | 专项到触垫，原始FAIL，最终disarm未确认 |
+| R60先导与十seed | 9cfb3e56b11af23b4bc764b48e53454b32d015dc | 先导PASS；十seed2/10完整PASS |
+| R60 main集成源码镜像 | 7379ef5ba30a0a6709e9b5b6b0f20aa0880f2b27 | 对应R60功能源码，未合main |
+| R60导航分支源码镜像 | e4a4cc6b631423d9f92daaf6151986241e78c9af | 已推导航fork现有分支 |
+| main验收基线 | 31d0b2aaa2c5bd9f9554008e42301cfbde666cfa | 保留R56验收及模型说明，本轮不更新 |
 
-最后飞行后仅收口文档、保存未加载的低空方案，不能将其文档提交写作实跑源码。用户暂停十seed，执行0组；当前没有仿真。
+十seed飞行期间未更改HEAD/飞行配置；其后提交为报告、图形与记录工具，不冒充实跑源码。R56后17次提交/逐文件参数对照见[修订清单](verification/r60_full_matrix/revision_inventory.json)。
 
-R56以来13次提交的完整列表与文件/参数对照见[收口报告](verification/r58_closeout/REPORT.md)。R56合入main保留分叉及功能分支，标签为gate/vcl06-r56-full-competition；成功源码另由sim/r2026-r56-contact-map-pass和sim/r2026-r57-toudi4-085-pass固定。
-
-精简导入起点为导航987b57c6、视觉1b328c13，仅作历史来源。后续运行修复的原始资产及legacy快照保留在导航/main集成来源分支，精简分支不带旧包快照或机械PWM实现。
+精简分支feat/r2026-competition-integrated包含导航+视觉且无机械PWM与旧参考副本；原始资产和legacy快照在来源分支。新旧功能分支、历史Git标签继续保留，本轮没有删除分支/标签，也没有为2/10创建main验收标签。

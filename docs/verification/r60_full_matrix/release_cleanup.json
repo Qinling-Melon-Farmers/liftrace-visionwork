@@ -1,0 +1,53 @@
+{
+  "deleted": [
+    {
+      "id": 383715188,
+      "tag": "sim/r2026-r55-bounded-corridor",
+      "reason": "R54 failed / R55 I/O-incomplete; obsolete full-run releases, historical git reports/tags retained",
+      "asset_bytes": 2598581878,
+      "preserved_small_assets": [
+        {
+          "name": "r55_nodes_only_and_report.zip",
+          "bytes": 5750218,
+          "local": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/r60_full_matrix/retired_release_reports/r2026-r55-bounded-corridor/r55_nodes_only_and_report.zip"
+        },
+        {
+          "name": "README_R55.md",
+          "bytes": 1938,
+          "local": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/r60_full_matrix/retired_release_reports/r2026-r55-bounded-corridor/README_R55.md"
+        }
+      ],
+      "delete_http_status": 204
+    },
+    {
+      "id": 383689771,
+      "tag": "sim/r2026-r54-guided-entry",
+      "reason": "R54 failed / R55 I/O-incomplete; obsolete full-run releases, historical git reports/tags retained",
+      "asset_bytes": 2283058867,
+      "preserved_small_assets": [
+        {
+          "name": "r2026_r54_diagnosis.zip",
+          "bytes": 3430664,
+          "local": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/r60_full_matrix/retired_release_reports/r2026-r54-guided-entry/r2026_r54_diagnosis.zip"
+        },
+        {
+          "name": "r2026_r54_nodes_only.zip",
+          "bytes": 5600705,
+          "local": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/r60_full_matrix/retired_release_reports/r2026-r54-guided-entry/r2026_r54_nodes_only.zip"
+        },
+        {
+          "name": "R54_README.md",
+          "bytes": 1848,
+          "local": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/r60_full_matrix/retired_release_reports/r2026-r54-guided-entry/R54_README.md"
+        }
+      ],
+      "delete_http_status": 204
+    }
+  ],
+  "remaining_tags": [
+    "sim/r2026-r56-contact-map-pass"
+  ],
+  "removed_remote_asset_bytes": 4881640745,
+  "branches_or_git_tags_deleted": false,
+  "host_disk_space_reclaimed_by_this_action": 0
+}
