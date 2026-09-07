@@ -1,6 +1,8 @@
-# R57当前结果
+# 当前验收状态：R58停止，十seed暂停
 
-0.85m：PASS 37/37；严格0.80m：FAIL，三投3/3、投后4/7、通行截面2/3，未降落，零碰撞。十seed未启动；本次停止实跑。见[报告](verification/r57_toudi4/REPORT.md)。
+最后实跑59ed04b完成三投与三恢复，但179.495 ROS s护圈接触外侧长墙，FAIL；收尾零残留。R58共有6次启动尝试，5次进入飞行，1次在起飞前因地面标记接触类别结束，十seed执行0组。没有新实机飞行验收。
+
+R56完整PASS与R57/0.85m的37/37 PASS继续保留；R57严格0.80m及R58没有完整PASS。详见[收口与改动对照](verification/r58_closeout/REPORT.md)、[最后Gate](verification/r58_closeout/last_run/gate_status.json)。新增低空0.65m方案尚未加载或飞行验证。
 
 ## R56历史验收
 

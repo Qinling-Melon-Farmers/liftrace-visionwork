@@ -1,25 +1,15 @@
-# R57当前试验来源
+# 源码与冻结验收版本
 
-| 配置 | 运行源码 | 结果 |
+| 用途 | 运行源码/版本 | 实际结论 |
 |---|---|---|
-| 0.85m | 703541505f8dac5f2db7be333eda9c2460ed3d70 | PASS 37/37 |
-| 0.80m | 655bf2a78927e07516a36ed328ba93f458b747a4 | FAIL |
+| R56完整成功 | cc899f2bc4816caff9f9059adb0208705476f81b | 37/37 PASS |
+| R57/toudi4样式0.85m | 703541505f8dac5f2db7be333eda9c2460ed3d70 | 37/37 PASS |
+| R57严格0.80m | 655bf2a78927e07516a36ed328ba93f458b747a4 | 三投后目标占据超时FAIL |
+| R58最后实跑 | 59ed04b8d310af141670cb47ba1078759c8e02eb | 三投后外墙接触FAIL |
+| 当前main | 31d0b2aaa2c5bd9f9554008e42301cfbde666cfa | R56验收及模型适用性说明，未合R58实验 |
 
-此后只更新报告与后续默认bag开关，没有复飞或修改Planner。main保留R56已验收内容；R57失败配置未合并。
+最后飞行后仅收口文档、保存未加载的低空方案，不能将其文档提交写作实跑源码。用户暂停十seed，执行0组；当前没有仿真。
 
-## R56历史来源
+R56以来13次提交的完整列表与文件/参数对照见[收口报告](verification/r58_closeout/REPORT.md)。R56合入main保留分叉及功能分支，标签为gate/vcl06-r56-full-competition；成功源码另由sim/r2026-r56-contact-map-pass和sim/r2026-r57-toudi4-085-pass固定。
 
-# 源码与交付版本
-
-| 用途 | 实际修复/验证提交 |
-|---|---|
-| 精简整机实际成功运行 | cc899f2bc4816caff9f9059adb0208705476f81b |
-| 导航来源 | 286322f9b03fdcdab9b6b3efad1f02df4d3ca61c |
-| 视觉来源 | 0704d50fbe3eac7b90230dc3c00fca749b8a814e |
-| 保留原始资产的集成修复 | 5a472a3455f229a78cd707037dd26d64bb7b0308 |
-
-报告/归档与合并提交晚于实跑，不能当作飞行源码。main 通过 feat/r2026-main-integration 的 --no-ff 合并接收已验证内容；对应 gate/vcl06-r56-full-competition，所有功能分支保留。完整成功源另由 sim/r2026-r56-contact-map-pass 标记。
-
-I/O 中断与失败尝试不重写为 PASS；原先 main 的 44359e8ba426ed91ef42c4951b5ab2fae8924027 是此次合入前基线。最新交付状态以远端标签/分支和 [交付说明](verification/r56_final/DELIVERY.md) 为准。
-
-精简导入起点为导航 987b57c6、视觉 1b328c13，仅作历史来源；后续 R52—R56 修复已更新其运行代码。原始机载资产与冻结旧包留在来源分支和 main 集成分支，精简分支不带旧包快照或机械 PWM 实现。
+精简导入起点为导航987b57c6、视觉1b328c13，仅作历史来源。后续运行修复的原始资产及legacy快照保留在导航/main集成来源分支，精简分支不带旧包快照或机械PWM实现。

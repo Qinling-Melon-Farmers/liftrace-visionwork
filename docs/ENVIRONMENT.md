@@ -1,3 +1,5 @@
+> 当前工作停止实跑，验收结果见[收口报告](verification/r58_closeout/REPORT.md)。下文成功与构建描述按其R56历史来源理解，不代表R58通过。
+
 # 环境与构建
 
 运行环境为 Ubuntu 20.04、ROS Noetic、Gazebo Classic 11、PX4 SITL。构建使用 GCC 9、Catkin、Eigen、PCL、OpenCV 4、nlopt、yaml-cpp 和 MAVROS。先安装系统 ROS 开发依赖，执行仓库根目录的 `top_level_scripts/build_competition.sh`；脚本先编译视觉工作区，再编译导航工作区，并只引用当前 checkout 的 overlay。
@@ -19,4 +21,4 @@ uav_vision_eval 现构建仿真接触代理插件，需要 Gazebo 开发包；�
 
 最终根因修复完整仿真 PASS；整机与 main 集成分支均独立构建通过。回放、全量归档和验证目录见 [最终报告](verification/r56_final/REPORT.md)，物理接触代理光学语义与竞赛建图 profile 见根因修复报告。
 
-R57最新：0.85m通过、严格0.80m失败后停止，未启动十seed。后续horizontal入口record_debug默认false，只默认保留run.log、rosparams、Gate及各组件关键状态JSON；当前仍需修复严格通口可达性，不能把R56构建/成功写成R57通过。
+历史R57：0.85m通过、严格0.80m失败。当前R58停止，十seed执行0组；最后59ed04b实跑三投后外墙接触FAIL。后续horizontal入口record_debug默认false，只默认保留run.log、rosparams、Gate及各组件关键状态JSON；当前仍需修复严格通口可达性，不能把R56构建/成功写成R57通过。
