@@ -1,24 +1,15 @@
-> 当前工作停止实跑，验收结果见[收口报告](verification/r58_closeout/REPORT.md)。下文成功与构建描述按其R56历史来源理解，不代表R58通过。
-
 # 环境与构建
 
-运行环境为 Ubuntu 20.04、ROS Noetic、Gazebo Classic 11、PX4 SITL。构建使用 GCC 9、Catkin、Eigen、PCL、OpenCV 4、nlopt、yaml-cpp 和 MAVROS。先安装系统 ROS 开发依赖，执行仓库根目录的 `top_level_scripts/build_competition.sh`；脚本先编译视觉工作区，再编译导航工作区，并只引用当前 checkout 的 overlay。
+当前运行源码9cfb3e5的整机Catkin构建、239项任务/执行/Gate回归通过；先导完整PASS、十seed2/10，不能据构建成功宣称飞行鲁棒。见[验收](VALIDATION.md)。本轮未启动或改动实机。
 
-本机外部仿真底座为 `/home/xhj/PX4-Autopilot` 和 `/home/xhj/AstraDroneOpen`。异机通过 `PX4_ROOT`、`ASTRA_MODEL_ROOT`、`ASTRA_SIM_LIB` 指定位置。需要编译 PX4 Gazebo 插件及 Astra 的 MID360 插件；本仓库不复制整套飞控和仿真器。场景中的基础模型由这些模型目录提供。
+环境：WSL Ubuntu20.04、ROS Noetic、Gazebo Classic11、PX4 SITL；GCC9、Catkin、CMake、Eigen/PCL、OpenCV4、nlopt、yaml-cpp、MAVROS。`top_level_scripts/build_competition.sh`先构建视觉再构建导航，引用当前checkout的overlay。
 
-模型推理使用已有 conda `rl_drone` 环境，默认 Python 位于 `/home/xhj/miniconda3/envs/rl_drone/bin/python`，异机设置 `VISION_PYTHON`。系统 Python 仅运行 ROS 节点，不安装 ML 包。板端主路径为 RKNN/NPU；YOLO/PyTorch 仿真推理在笔记本运行。
+外部仿真底座为`/home/xhj/PX4-Autopilot`及`/home/xhj/AstraDroneOpen`，异机通过`PX4_ROOT`、`ASTRA_MODEL_ROOT`、`ASTRA_SIM_LIB`指定。仓库不复制完整飞控/仿真器和模型权重，权重由`UAV_VISION_MODEL_PATH`指定。
 
-权重通过 `UAV_VISION_MODEL_PATH` 指定。数据集、模型权重、build/devel、bag、视频及大日志不进入 git；联合实跑的报告与归档索引见 VALIDATION.md。
+非ROS Python分析/仿真推理使用已有conda `rl_drone`；系统Python只运行ROS脚本，不安装ML包。离线飞控分析另用该conda中的pyulog。板端采用RKNN/NPU，不把笔记本PyTorch时延当作板端性能。
 
-仿真统一由 `run_competition_sim.sh` 调用 `sim_run.sh`。调用方在获得启动授权后，仅在该命令设置 `SIM_RUN_AUTHORIZED=1`。包装器独占本机 ROS/Gazebo/PX4 资源，并检查启动前与收尾后的进程。无桌面时设置 `SIM_NO_RECORD=1`。不得在另一终端直接再起 roslaunch。
+仿真必须由`run_competition_sim.sh`→`sim_run.sh`包装，调用方在明确授权后临时设`SIM_RUN_AUTHORIZED=1`。禁止同时再起第二套ROS/Gazebo/PX4；包装器正常/失败/中断均清零进程。
 
+日志、PX4运行目录、分析和归档统一在WSL项目`logs/`；`SIM_STORAGE_GUARD_PATH=/mnt/f`用于宿主VHDX所在盘空间预检。默认关闭全场bag；`SIM_NO_RECORD=1`关闭桌面录屏。保留紧凑TXT/JSON/CSV、参数、局部故障地图和原生ULog。
 
-WSL 启动前还须检查 VHDX 宿主盘，使用 `SIM_STORAGE_GUARD_PATH`；本机按用户约定将 run、PX4 工作目录、分析和归档统一放在 WSL 项目 logs 内，不再写到其他盘。相机录图与本机示例见 [日志存储说明](verification/r55/RECORDING_FIX.md)。
-
-VHDX 已通过离线 compact 实际回收 68.06 GiB。两次 WSL 服务恢复经用户 UAC 允许完成。R56 同轮原生目录重跑越过启动并完成三投，记录缓冲溢出 0；第一次外盘尝试的失败记录保留，不能据此承诺任意记录负载均稳定。
-
-uav_vision_eval 现构建仿真接触代理插件，需要 Gazebo 开发包；它属于笔记本 SITL 评测工具，不属于板端飞行运行链。全量 build_competition.sh 面向本机联合仿真；板端包选择与实时验收按 HARDWARE.md 单独执行。
-
-最终根因修复完整仿真 PASS；整机与 main 集成分支均独立构建通过。回放、全量归档和验证目录见 [最终报告](verification/r56_final/REPORT.md)，物理接触代理光学语义与竞赛建图 profile 见根因修复报告。
-
-历史R57：0.85m通过、严格0.80m失败。当前R58停止，十seed执行0组；最后59ed04b实跑三投后外墙接触FAIL。后续horizontal入口record_debug默认false，只默认保留run.log、rosparams、Gate及各组件关键状态JSON；当前仍需修复严格通口可达性，不能把R56构建/成功写成R57通过。
+历史离线VHDX压缩曾实际回收68.06GiB；本轮没有再次压缩VHDX，也不把删除GitHub Release说成释放宿主磁盘。R60全批次无I/O中断、全部收尾通过。真实设备入口与差异见[HARDWARE.md](HARDWARE.md)。

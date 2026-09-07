@@ -45,7 +45,7 @@
 - [恢复摘要](r55_facts.json) 与 [恢复范围](recovery_manifest.json)。
 - [rqt_graph Nodes only 核心 SVG](topology/rqt_graph_nodes_only_core.svg)：29 节点；椭圆为节点，边文字为 ROS 话题，箭头沿发布到订阅方向。
 - [完整运行拓扑](topology/rqt_graph_nodes_only_full.svg)，同时提供 DOT、PNG 和实际 ROS 系统快照。
-- [本轮原始日志、恢复副本和拓扑归档](https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/tag/sim/r2026-r55-bounded-corridor)，标记为中断记录预发布。
+- 原失败/中断全量Release已于2026-09-08按清理要求退役；本目录历史报告和Git标签保留，小报告附件已留存于WSL。清理清单见[记录](../r60_full_matrix/release_cleanup.json)。
 
 远端分卷、大小和下载链接见 [remote_assets.json](remote_assets.json)。
 

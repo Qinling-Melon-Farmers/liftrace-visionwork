@@ -1,21 +1,15 @@
-# 运行链和接口
+# 当前运行链与计算图
 
-Mission Manager 决定搜索、接近、恢复、返航和降落。Planner Bridge 是唯一 `/fastplanner/goal` 发布者。Fast-Planner 输出曲线，由轨迹服务器生成位置指令，再经 patrol_control 发布 MAVROS setpoint。外部任务模式不启动旧任务管理器或旧视觉桥。
+Mission Manager负责搜索、目标事务、返程阶段与降落；Planner Bridge是唯一`/fastplanner/goal`发布者；Fast-Planner→轨迹服务器→patrol_control→MAVROS。R60用任务已有航点完成边界设置现有参数，消费者缓存读取，没有新增飞行节点、消息类型或二次任务权威。
 
-视觉以 `uav_vision` 的候选、目标记忆、对准偏差、释放证据为输出。候选身份和时间戳用于关联当前任务；已结束目标的规划事件不会终止新目标。走廊到达必须相对原始门前/门后航点判定。
+视觉链包含检测、融合/精修、投影、目标记忆、投递对齐；低空H笔画补充位于原landing_detector内部，使用原detections/CameraInfo/TF链。目标时间/身份关联与释放许可保留，不能把超时或失去目标时的“未投”改成成功。
 
-雷达自身 IMU 与点云进入 LIO；LIO→MAVROS `vision_pose/pose`→PX4 约束水平位置和航向，飞控 IMU/气压计负责高度融合。FreeDOM 使用融合机体位姿与 IMU 安装外参变换点云，与控制和相机共用坐标。此转换只处理消息类型和安装外参，不增加任务握手协议。
+`/Servo`经过guarded_servo_proxy调用`/legacy/Servo_raw`；仿真使用mock，机械组提供实际执行器。本精简分支只保留服务定义及调用链，不含机械PWM实现。服务不画成ROS话题。
 
-机械组对接 `patrol_control/srv/Servo.srv`，当前请求值对应三个槽位，响应表示执行确认。`/Servo` 经过现有释放许可代理调用 `/legacy/Servo_raw`；仿真使用 mock 服务。精简分支不包含 actuator_pwm 实现；仿真入口不运行舵机、PWM 或真实相机 SDK，实机应用入口见 HARDWARE.md。
+LIO→MAVROS vision_pose约束水平/航向，飞控IMU/气压计测高；点云经对应安装TF进入FreeDOM。Gazebo接触和真值仅在评测/记录链，硬件入口不启动这些节点。
 
-`legacy` 服务名属于现有通信接口，不能仅因名称含旧字样而删除。与比赛路径无关的参考副本从本分支移除；仍参与编译的 patrol_control 是当前执行器。
+[rqt三版Nodes only图](verification/r60_full_matrix/topology/index.html)：来自R60先导PASS的真实ROS Master注册快照，通过rqt_graph后端生成。完整34节点，核心30节点，仅飞行筛选23节点。椭圆为节点，连线文字为话题，箭头为发布→订阅；边数量不等于话题数量，多发布/订阅会产生多条边。
 
-[本轮 Nodes only 图](verification/r56_final/topology/index.html) 来自 R56 实时 master 注册快照，由 rqt_graph 后端离线渲染；椭圆为节点，边为话题，箭头沿发布→订阅。图本身不证明实时吞吐。来源路径通过统一包装器校验，不以旧 worktree 绝对路径作为额外通过条件。
+仅飞行图移除Gazebo/布设/评测/记录/mock与仿真启动辅助；它仍是该次仿真的实际节点筛选。板端应用静态展开22节点，外部MAVROS/设备驱动另供输入，target_detector由target_detector_rknn替代。该图不能证明板端链已经实时验收。
 
-R56 最终运行 Gate 37/37、注册关系检查 11/11。Nodes only 只绘制话题发布/订阅，不把 Servo 服务调用伪装成话题边；服务契约见上文。仿真接触代理 ModelPlugin 不增加 ROS 节点或话题。
-
-## R58冻结后的补充
-
-返程目标在已有PoseStamped中携带航向，没有新增飞行消息协议。仿真入口启用航向停稳覆盖参数，硬件入口当前未同步该覆盖，不能声称两入口行为完全一致。Gazebo接触/真值评测不在硬件22节点入口内，共享Planner与任务参数则会影响硬件。
-
-当前[Nodes only图](verification/r58_closeout/topology/index.html)采自59ed04b最后失败轮：34节点、注册接口11/11通过；节点连接图不证明飞行通过。场地坐标变换必须转换数值，不能只改frame_id，详见[坐标兼容说明](verification/r58_closeout/REPORT.md)。
+最新十seed2/10完整通过，根因以[失败报告](verification/r60_full_matrix/FAILURE_ANALYSIS.md)为准；Gate中提前结束后的多个false检查不等于多个通信协议故障。

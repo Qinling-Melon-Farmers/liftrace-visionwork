@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "scope": "full",
+  "build": "PASS",
+  "mission_tests": 239,
+  "static_parameters": {
+    "/navigation/mission_manager/runtime/start_mode": "full",
+    "/navigation_vcl06_assertion/gate_scope": "full",
+    "/fast_planner_node/sdf_map/virtual_ceil_height": 2.3,
+    "/external_planner_max_command_z": 2.3,
+    "/traj_server/traj_server/target_dist": 0.4,
+    "/px4_max_distance": 0.4,
+    "/external_landing/capture_height": 0.5,
+    "/landing_detector/landing_enable_h_stroke_fallback": true,
+    "/fast_planner_node/manager/max_vel": 1.0,
+    "/fast_planner_node/search/max_vel": 1.0
+  },
+  "prior_specialized_run": "r2026_r59_corridor_landing_20260908_003224",
+  "prior_raw_gate": "FAIL",
+  "full_runs_started": 0,
+  "matrix_runs_started": 0
+}

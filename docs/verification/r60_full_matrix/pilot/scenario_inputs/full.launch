@@ -1,0 +1,85 @@
+<launch>
+  <!-- Same formal mission/control chain, with 2026 geometry and measured camera mounting. -->
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <!-- Keep run.log, gate/params and compact status JSON; full bag is opt-in. -->
+  <arg name="record_debug" default="false" />
+  <arg name="record_key_info" default="true" />
+  <node if="$(arg record_key_info)" pkg="uav_vision_eval" type="competition_key_recorder.py"
+        name="competition_key_recorder" output="screen">
+    <rosparam file="$(find uav_vision_eval)/config/competition_logging.yaml" />
+    <param name="run_dir" value="$(optenv SIM_RUN_DIR)" />
+  </node>
+  <arg name="record_camera_topic" default="/downward_camera/image_raw" />
+  <arg name="field_seed" default="11" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="mission_start_mode" default="full" />
+  <arg name="gate_scope" default="full" />
+  <arg name="runtime_config" default="$(find uav_mission)/config/vcl06_full_low_corridor_runtime.yaml" />
+  <arg name="control_config" default="$(find uav_mission)/config/vcl06_full_low_corridor_control.yaml" />
+  <include file="$(find uav_mission)/launch/navigation_search_delivery_vcl06.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="record_debug" value="$(arg record_debug)" />
+    <arg name="record_camera_topic" value="$(arg record_camera_topic)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="mission_start_mode" value="$(arg mission_start_mode)" />
+    <arg name="gate_scope" value="$(arg gate_scope)" />
+    <arg name="world" value="$(find uav_vision_eval)/models/r2026_horizontal_field/field.world" />
+    <arg name="vehicle_sdf" value="$(find uav_vision_eval)/models/iris_mid360_ks2a543_installed/model.sdf" />
+    <arg name="runtime_config" value="$(arg runtime_config)" />
+    <arg name="waypoint_config" value="$(arg control_config)" />
+    <arg name="field_config" value="$(find uav_mission)/config/coverage_r2026_horizontal.yaml" />
+    <arg name="camera_extrinsic_xyz" value="0 0 -0.08588" />
+    <arg name="search_altitude" value="1.40" />
+    <arg name="external_planner_max_command_z" value="2.30" />
+    <!-- Retain the successful planner's dynamic search envelope. Actual
+         position following is bounded by the 0.40 m lookahead below. -->
+    <arg name="planner_max_vel" value="1.0" />
+    <arg name="planner_obstacles_inflation" value="0.30" />
+    <arg name="planner_clearance_threshold" value="0.025" />
+    <arg name="px4_max_distance" value="0.40" />
+  </include>
+  <!-- The MID360 mounting clears the iris chassis: ray z=.13, IMU z=.12412.
+       The sensor-internal IMU -> lidar transform is independent of mounting. -->
+  <param name="/common/imu_topic" value="/livox/imu" />
+  <rosparam param="/mapping/extrinsic_T">[0.011, 0.02329, 0.00588]</rosparam>
+  <param name="/filter_size_surf" value="0.15" />
+  <param name="/filter_size_map" value="0.15" />
+  <param name="/pcd_save/pcd_save_en" value="false" />
+  <node pkg="uav_mission" type="lio_external_pose.py" name="lio_external_pose" output="screen">
+    <rosparam param="imu_to_body_xyz">[0.0, 0.0, -0.12412]</rosparam>
+  </node>
+  <!-- FreeDOM consumes an IMU-frame scan, transformed by the same fused
+       vehicle pose as the controller and camera. LIO's unobservable vertical
+       component must not silently define a second camera_init frame. -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="mapping_imu_extrinsic"
+        args="0 0 0.12412 0 0 0 1 vision_body mapping_imu" />
+  <param name="/freedom/sensor_tf_frame" value="mapping_imu" />
+  <rosparam ns="/freedom" file="$(find uav_mission)/config/competition_freedom.yaml" />
+  <rosparam param="/simulation/px4_parameters">
+    EKF2_EV_CTRL: 9
+    EKF2_HGT_REF: 0
+    EKF2_GPS_CTRL: 0
+    EKF2_BARO_CTRL: 1
+    # Gazebo barometer plugin: 1 Pa RMS (~0.09 m), no programmed drift.
+    # Hardware barometer noise must be measured independently.
+    EKF2_BARO_NOISE: 0.15
+    EKF2_EV_DELAY: 0.0
+    EKF2_EVP_NOISE: 0.10
+    EKF2_EVA_NOISE: 0.05
+  </rosparam>
+  <!-- Physical scoring uses simulator measurements independently of EKF/LIO. -->
+  <param name="/navigation_vcl06_assertion/truth_model" value="iris_mid360" />
+  <rosparam param="/navigation_vcl06_assertion/truth_world_offset">[-0.493412, -1.772690, 0.0]</rosparam>
+  <rosparam ns="/fast_planner_node" file="$(find uav_mission)/config/horizontal_planner.yaml" />
+  <!-- Confirm the configured body heading before advancing corridor legs. -->
+  <param name="/navigation/planner_bridge/execution/return_yaw_tolerance" value="0.10" />
+  <!-- Turn near the open staging point, then retain the heading in the aisle. -->
+  <param name="/traj_server/traj_server/adjust_distance_yaw" value="0.50" />
+  <!-- Both 5 mm H markers use model://landing_h and are ground support. -->
+  <rosparam param="/gazebo_contact_monitor/ignored_collision_patterns">[ground_plane, 'landing_h::link::collision', 'landing_h_clone::link::collision']</rosparam>
+
+  <param name="/landing_detector/landing_enable_h_stroke_fallback" value="true" />
+</launch>

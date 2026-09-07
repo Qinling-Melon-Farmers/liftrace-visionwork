@@ -1,0 +1,307 @@
+{
+  "status": "PASS",
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_full_pilot_seed11_20260908_011243",
+  "seed": 11,
+  "source": "9cfb3e56b11af23b4bc764b48e53454b32d015dc",
+  "checks_passed": 37,
+  "checks_total": 37,
+  "gate_reason": "all_checks_passed",
+  "gate_errors": [],
+  "gate_failures": [],
+  "metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 25,
+    "door_crossings": [
+      {
+        "lateral": -3.0694283251229466,
+        "name": "corridor_entry",
+        "route_index": 3,
+        "z": 0.5063312302576718
+      },
+      {
+        "lateral": 8.257575215007636,
+        "name": "Wall_20",
+        "route_index": 5,
+        "z": 0.5613703724294636
+      },
+      {
+        "lateral": 7.461679184177146,
+        "name": "Wall_22",
+        "route_index": 8,
+        "z": 0.544590766529473
+      }
+    ],
+    "height_violations": 0,
+    "landing_align_mode_seen": true,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      3.274292,
+      8.05722
+    ],
+    "latest_armed": false,
+    "latest_landed_state": 1,
+    "max_observed_height": 1.755254122255963,
+    "mission_ros_sec": 269.748000001,
+    "mission_wall_sec": 937.4542857589986,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 14117,
+    "post_delivery_decision_indices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "post_delivery_return_success_count": 9,
+    "post_delivery_route_revision": "r2026-r60-full-staged-low-corridor",
+    "post_delivery_route_size": 9,
+    "recovery_success_count": 3,
+    "release_commit_count": 3,
+    "result_count": 110,
+    "selected_count": 1252,
+    "simulation_realtime_factor": 0.28774523099289234,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": {
+      "anchor_error_m": 0.08043149141827802,
+      "frame_id": "camera_init",
+      "stamp_ns": 294092000000,
+      "x": 3.2897388385659307,
+      "y": 7.978285723604465,
+      "z": 0.0
+    }
+  },
+  "drops": [
+    {
+      "time": 39.709,
+      "class": "panzer",
+      "slot": 1,
+      "decision": 2
+    },
+    {
+      "time": 129.76,
+      "class": "bridge",
+      "slot": 2,
+      "decision": 13
+    },
+    {
+      "time": 146.966,
+      "class": "red_cross",
+      "slot": 3,
+      "decision": 15
+    }
+  ],
+  "ground_error_to_h": 0.03977059910120564,
+  "planner_goals": {
+    "1": {
+      "accepted": 27.959,
+      "first_ready": 28.309,
+      "failures": 0
+    },
+    "2": {
+      "accepted": 30.92,
+      "first_ready": 31.017,
+      "failures": 0
+    },
+    "3": {
+      "accepted": 42.039,
+      "first_ready": 42.185,
+      "failures": 0
+    },
+    "4": {
+      "accepted": 47.439,
+      "first_ready": 47.517,
+      "failures": 0
+    },
+    "5": {
+      "accepted": 61.221,
+      "first_ready": 61.329,
+      "failures": 0
+    },
+    "6": {
+      "accepted": 64.493,
+      "first_ready": 64.62,
+      "failures": 0
+    },
+    "7": {
+      "accepted": 78.267,
+      "first_ready": 78.369,
+      "failures": 0
+    },
+    "8": {
+      "accepted": 81.493,
+      "first_ready": 81.617,
+      "failures": 0
+    },
+    "9": {
+      "accepted": 95.719,
+      "first_ready": 95.899,
+      "failures": 0
+    },
+    "10": {
+      "accepted": 99.161,
+      "first_ready": 99.29,
+      "failures": 0
+    },
+    "11": {
+      "accepted": 116.029,
+      "first_ready": 116.137,
+      "failures": 0
+    },
+    "12": {
+      "accepted": 119.377,
+      "first_ready": 119.535,
+      "failures": 0
+    },
+    "13": {
+      "accepted": 121.817,
+      "first_ready": 121.913,
+      "failures": 0
+    },
+    "14": {
+      "accepted": 132.285,
+      "first_ready": 132.435,
+      "failures": 0
+    },
+    "15": {
+      "accepted": 139.544,
+      "first_ready": 139.656,
+      "failures": 0
+    },
+    "16": {
+      "accepted": 149.261,
+      "first_ready": 149.389,
+      "failures": 0
+    },
+    "17": {
+      "accepted": 200.35,
+      "first_ready": 200.403,
+      "failures": 0
+    },
+    "18": {
+      "accepted": 208.896,
+      "first_ready": 209.073,
+      "failures": 0
+    },
+    "19": {
+      "accepted": 220.966,
+      "first_ready": 221.05,
+      "failures": 0
+    },
+    "20": {
+      "accepted": 241.441,
+      "first_ready": 241.51,
+      "failures": 0
+    },
+    "21": {
+      "accepted": 254.398,
+      "first_ready": 254.453,
+      "failures": 0
+    },
+    "22": {
+      "accepted": 262.631,
+      "first_ready": 262.635,
+      "failures": 0
+    },
+    "23": {
+      "accepted": 267.065,
+      "first_ready": 267.198,
+      "failures": 0
+    },
+    "24": {
+      "accepted": 279.537,
+      "first_ready": 279.669,
+      "failures": 0
+    }
+  },
+  "planner_ready_latency_ros_s": {
+    "p50": 0.1180000000000021,
+    "p95": 0.17955000000000892
+  },
+  "event_count": 308,
+  "pose_rows": {
+    "truth": 2939,
+    "mavros": 2490
+  },
+  "bag_files": 0,
+  "cleanup_pass": true,
+  "layout": {
+    "profile": "r2026",
+    "seed": 11,
+    "spawn_offset": {
+      "x": -0.4934,
+      "y": -1.7727
+    },
+    "search_region": {
+      "min_x": -2.007,
+      "max_x": 1.993,
+      "min_y": 0.273,
+      "max_y": 6.273
+    },
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": 0.0467,
+        "y": 5.1977,
+        "world_x": -0.4467,
+        "world_y": 3.425,
+        "yaw": 1.9197
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": 1.0231,
+        "y": 1.7417,
+        "world_x": 0.5297,
+        "world_y": -0.031,
+        "yaw": 0.7403
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": -1.1566,
+        "y": 4.1782,
+        "world_x": -1.65,
+        "world_y": 2.4056,
+        "yaw": -3.0191
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": -1.1945,
+        "y": 1.1095,
+        "world_x": -1.6879,
+        "world_y": -0.6632,
+        "yaw": 2.3006
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": 1.4469,
+        "y": 4.1073,
+        "world_x": 0.9535,
+        "world_y": 2.3346,
+        "yaw": 0.0029
+      }
+    ]
+  }
+}

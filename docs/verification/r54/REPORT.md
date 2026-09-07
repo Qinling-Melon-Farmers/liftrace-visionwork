@@ -54,7 +54,7 @@
 - [完整运行拓扑 SVG](topology/rqt_graph_nodes_only_full.svg)，包含评估、监视和仿真节点。
 - 同目录保留 DOT、原始 ROS 系统状态和渲染结果；完整 PNG 见原始归档。
 - 当前目录顶层 Gate、manifest、清理输出均对应复跑；首次记录在 `attempts/startup_timeout/`。两次启动的汇总为 [r54_retry_facts.json](r54_retry_facts.json)。
-- [同轮原始日志与 bag 归档](https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/tag/sim/r2026-r54-guided-entry)，为失败记录预发布，不是验收通过标签。
+- 原失败/中断全量Release已于2026-09-08按清理要求退役；本目录历史报告和Git标签保留，小报告附件已留存于WSL。清理清单见[记录](../r60_full_matrix/release_cleanup.json)。
 
 两次正式启动均通过统一包装器收尾并确认零残留。本次复跑后只做离线提取、文档和推送，未继续修改算法或重启仿真。main 保持原验收基线；本任务至此收口。
 
