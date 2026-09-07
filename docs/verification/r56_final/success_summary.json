@@ -1,0 +1,183 @@
+{
+  "status": "PASS",
+  "source_commit": "cc899f2bc4816caff9f9059adb0208705476f81b",
+  "checks_passed": 37,
+  "checks_total": 37,
+  "drops": [
+    {
+      "time": 40.396,
+      "topic": "/mission/release_result",
+      "target_class": "panzer",
+      "target_id": 0,
+      "payload_slot": 1,
+      "reason": "raw_actuator_ack",
+      "success": true
+    },
+    {
+      "time": 130.554,
+      "topic": "/mission/release_result",
+      "target_class": "bridge",
+      "target_id": 5,
+      "payload_slot": 2,
+      "reason": "raw_actuator_ack",
+      "success": true
+    },
+    {
+      "time": 147.567,
+      "topic": "/mission/release_result",
+      "target_class": "red_cross",
+      "target_id": 7,
+      "payload_slot": 3,
+      "reason": "raw_actuator_ack",
+      "success": true
+    }
+  ],
+  "doors": [
+    {
+      "lateral": -2.3498689589264132,
+      "name": "Wall_15",
+      "route_index": 5,
+      "z": 0.8252058655635373
+    },
+    {
+      "lateral": 8.097140183508847,
+      "name": "Wall_20",
+      "route_index": 8,
+      "z": 1.4100744574916686
+    },
+    {
+      "lateral": 8.054355744950783,
+      "name": "Wall_22",
+      "route_index": 10,
+      "z": 1.294671766368517
+    }
+  ],
+  "mission_ros_sec": 182.924,
+  "mission_wall_sec": 762.1261653319998,
+  "realtime_factor": 0.2400180026889827,
+  "goal19": {
+    "time": 168.01,
+    "goal": [
+      -2.386703,
+      5.67227,
+      0.75
+    ],
+    "first_ready_latency_sec": 0.07200000000000273,
+    "status_counts": {
+      "goal_received": 1,
+      "new_trajectory_attempt": 1,
+      "new_trajectory_ready": 1,
+      "goal_reached_after_local_trajectory": 1
+    }
+  },
+  "planner_first_ready_latency_sec": {
+    "count": 26,
+    "p50": 0.146000000000015,
+    "p95": 0.20324999999998639,
+    "max": 0.48900000000000077
+  },
+  "body_z_max_m": 1.7598741835792664,
+  "contact_proxy_top_z_max_m": 1.982410094459624,
+  "height_note": "Proxy top reconstructed from Gazebo model quaternions and unchanged contact mesh; not a complete real-airframe CAD envelope",
+  "ground_confirmed_ros_sec": 210.167,
+  "ground_pose_xy": [
+    3.4336699148011904,
+    8.026225521626433
+  ],
+  "ground_xy_error_to_h_m": 0.16236371951893994,
+  "final_truth_xy": [
+    3.433669919997699,
+    8.026225519793163
+  ],
+  "final_xy_error_to_h_m": 0.16236372496984935,
+  "h_start_ros_sec": 201.682,
+  "first_h_detection": [
+    {
+      "time": 201.798,
+      "source_stamp": 201.735,
+      "topic": "/uav_vision/detections_mapped",
+      "map_valid": true,
+      "map_frame": "camera_init",
+      "map_point": [
+        3.3709641243871937,
+        7.963426198227409,
+        0.0
+      ],
+      "pixel_center": [
+        690.6642456054688,
+        357.9591064453125
+      ],
+      "geometry_confidence": 0.8854954242706299
+    }
+  ],
+  "fcu_changes": [
+    {
+      "time": 0.508,
+      "connected": false,
+      "armed": false,
+      "mode": ""
+    },
+    {
+      "time": 1.77,
+      "connected": true,
+      "armed": false,
+      "mode": "CMODE(50593792)"
+    },
+    {
+      "time": 2.77,
+      "connected": true,
+      "armed": false,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "time": 14.772,
+      "connected": true,
+      "armed": false,
+      "mode": "OFFBOARD"
+    },
+    {
+      "time": 15.77,
+      "connected": true,
+      "armed": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "time": 207.779,
+      "connected": true,
+      "armed": true,
+      "mode": "AUTO.LAND"
+    },
+    {
+      "time": 212.774,
+      "connected": true,
+      "armed": false,
+      "mode": "OFFBOARD"
+    }
+  ],
+  "landed_state_changes": [
+    {
+      "time": 0.96,
+      "landed_state": 1
+    },
+    {
+      "time": 16.576,
+      "landed_state": 2
+    },
+    {
+      "time": 207.778,
+      "landed_state": 4
+    },
+    {
+      "time": 210.167,
+      "landed_state": 1
+    }
+  ],
+  "recorded_camera_frames": 4046,
+  "record_buffer_overflows": 0,
+  "lidar_visibility_samples": 20,
+  "near_lidar_returns_total": 0,
+  "lidar_point_count_min": 9135,
+  "lidar_point_count_max": 10756,
+  "px4_readback_all_success": true,
+  "cleanup_pass": true
+}

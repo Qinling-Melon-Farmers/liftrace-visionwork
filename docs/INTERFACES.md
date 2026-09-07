@@ -10,4 +10,6 @@ Mission Manager 决定搜索、接近、恢复、返航和降落。Planner Bridg
 
 `legacy` 服务名属于现有通信接口，不能仅因名称含旧字样而删除。与比赛路径无关的参考副本从本分支移除；仍参与编译的 patrol_control 是当前执行器。
 
-[本轮 Nodes only 图](verification/r56/topology/index.html) 来自 R56 实时 master 注册快照，由 rqt_graph 后端离线渲染；椭圆为节点，边为话题，箭头沿发布→订阅。图本身不证明实时吞吐。来源路径通过统一包装器校验，不以旧 worktree 绝对路径作为额外通过条件。
+[本轮 Nodes only 图](verification/r56_final/topology/index.html) 来自 R56 实时 master 注册快照，由 rqt_graph 后端离线渲染；椭圆为节点，边为话题，箭头沿发布→订阅。图本身不证明实时吞吐。来源路径通过统一包装器校验，不以旧 worktree 绝对路径作为额外通过条件。
+
+R56 最终运行 Gate 37/37、注册关系检查 11/11。Nodes only 只绘制话题发布/订阅，不把 Servo 服务调用伪装成话题边；服务契约见上文。仿真接触代理 ModelPlugin 不增加 ROS 节点或话题。

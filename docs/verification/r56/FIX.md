@@ -1,3 +1,5 @@
+> 历史阶段记录。后续 R56 根因修复已完整 PASS（37/37）；最新结果见 [最终报告](../r56_final/REPORT.md)。本文件保留当次运行的真实结论。
+
 # R56：按 1 m H 与安装相机修正取景高度
 
 本轮飞行参数仅改两处：最后 H 航点及 external_landing.capture_height 从 0.75 m 同步到 1.60 m。前三门坐标/高度、旧 POST_DELIVERY_ROUTE 状态机、Fast-Planner 和 H 识别/稳定帧/下降/AUTO.LAND 判据不变。
