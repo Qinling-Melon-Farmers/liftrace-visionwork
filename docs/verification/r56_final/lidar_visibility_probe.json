@@ -1,0 +1,125 @@
+{
+  "source": "read-only raw LiDAR samples while airborne above 1.2 m",
+  "samples": [
+    {
+      "stamp": 28.252,
+      "points": 10756,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 0.991332471370697
+    },
+    {
+      "stamp": 28.336,
+      "points": 10696,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.002278208732605
+    },
+    {
+      "stamp": 28.438,
+      "points": 10545,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.015004277229309
+    },
+    {
+      "stamp": 28.51,
+      "points": 10398,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.022889256477356
+    },
+    {
+      "stamp": 28.65,
+      "points": 10218,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.0380828380584717
+    },
+    {
+      "stamp": 28.741,
+      "points": 10079,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.0465455055236816
+    },
+    {
+      "stamp": 28.846,
+      "points": 9909,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.0559614896774292
+    },
+    {
+      "stamp": 28.918,
+      "points": 9886,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.0627351999282837
+    },
+    {
+      "stamp": 29.026,
+      "points": 9782,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.0728216171264648
+    },
+    {
+      "stamp": 29.135,
+      "points": 9742,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.0822581052780151
+    },
+    {
+      "stamp": 29.233,
+      "points": 9596,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.091189980506897
+    },
+    {
+      "stamp": 29.35,
+      "points": 9562,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.1021713018417358
+    },
+    {
+      "stamp": 29.428,
+      "points": 9564,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.1098639965057373
+    },
+    {
+      "stamp": 29.524,
+      "points": 9410,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.1188160181045532
+    },
+    {
+      "stamp": 29.638,
+      "points": 9307,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.1291933059692383
+    },
+    {
+      "stamp": 29.719,
+      "points": 9345,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.1363812685012817
+    },
+    {
+      "stamp": 29.822,
+      "points": 9376,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.1448546648025513
+    },
+    {
+      "stamp": 29.926,
+      "points": 9243,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.153207540512085
+    },
+    {
+      "stamp": 30.023,
+      "points": 9135,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.160063624382019
+    },
+    {
+      "stamp": 30.125,
+      "points": 9162,
+      "returns_below_lio_blind_05m": 0,
+      "min_range": 1.1674004793167114
+    }
+  ]
+}

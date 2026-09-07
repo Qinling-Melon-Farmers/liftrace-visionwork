@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "complete_gate_checks": 37,
+  "registration_checks": 11,
+  "broken_current_document_links": 0,
+  "integrated_build": "PASS",
+  "main_integration_build": "PASS",
+  "runtime_source": "cc899f2bc4816caff9f9059adb0208705476f81b",
+  "note": "Documentation, artifact and source checks; no additional simulation was started."
+}
