@@ -39,7 +39,11 @@ mission:
   # beyond the 0.30 m inflation plus the observed ~0.15 m position offset.
   # No goal is placed at a wall corner. Existing speed <=0.20 m/s and 0.50 s
   # arrival dwell confirm each bracket before the next planner goal.
-  post_delivery_route_revision: r2026-r58-corridor150-opening080-bracket070
+  # Last year's yaw=0 route ran along Y. This corridor runs along X:
+  # yaw=pi/2 preserves the airframe's orientation relative to the passage.
+  # Apply from the first staging point, before entering the corridor.
+  post_delivery_yaw: 1.5707963267948966  # rad, camera_init frame
+  post_delivery_route_revision: r2026-r58-corridor150-opening080-yaw090
   landing_xy: [3.274292, 8.057220]
   landing_anchor_tolerance: 0.05
   post_delivery_route:

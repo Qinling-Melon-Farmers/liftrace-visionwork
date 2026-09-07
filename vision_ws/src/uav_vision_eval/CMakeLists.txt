@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_filters
   message_generation
   rosnode
+  roscpp
   rospy
   sensor_msgs
   std_msgs
@@ -43,6 +44,7 @@ catkin_package(
     message_filters
     message_runtime
     rosnode
+    roscpp
     rospy
     sensor_msgs
     std_msgs
@@ -117,9 +119,9 @@ install(FILES README.md
 find_package(gazebo REQUIRED)
 link_directories(${GAZEBO_LIBRARY_DIRS})
 add_library(uav_contact_envelope SHARED src/contact_envelope_plugin.cpp)
-target_include_directories(uav_contact_envelope SYSTEM PRIVATE ${GAZEBO_INCLUDE_DIRS})
+target_include_directories(uav_contact_envelope SYSTEM PRIVATE ${GAZEBO_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 target_compile_features(uav_contact_envelope PRIVATE cxx_std_14)
-target_link_libraries(uav_contact_envelope ${GAZEBO_LIBRARIES})
+target_link_libraries(uav_contact_envelope ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 install(TARGETS uav_contact_envelope
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from dataclasses import replace
+import math
 import unittest
 from uav_mission.planner_execution import (MotionDecision, MotionGoal,
     OdomSample, PlannerMotionConfig, PlannerMotionExecutor,
@@ -33,6 +34,33 @@ def odom(stamp, speed=0.0):
                       speed, 0.0, 0.0)
 
 class PlannerMotionExecutorTest(unittest.TestCase):
+    def test_return_heading_must_settle_before_advancing(self):
+        executor = PlannerMotionExecutor(PlannerMotionConfig(
+            arrival_distance_m=.25, arrival_dwell_ns=100_000_000,
+            odom_max_age_ns=200_000_000, return_yaw_tolerance_rad=.1))
+        heading = math.pi / 2
+        g = replace(goal(), qz=math.sin(heading/2), qw=math.cos(heading/2))
+        self.dispatch(executor, replace(decision(command="RETURN_HOME"), goal=g))
+        now = BASE + 10_000_000
+        for seq, name in enumerate(("ACCEPTED", "TRAJECTORY_READY"), 1):
+            event = status(seq, 8, name, now+seq, motion_goal=g)
+            self.assertTrue(executor.apply_planner_status(event, now+seq).accepted)
+        now += 10_000_000
+        out = executor.apply_odom(odom(now), now)
+        self.assertEqual(out.reason, "arrival_yaw_not_met")
+        now += 100_000_000
+        out = executor.apply_odom(replace(odom(now), yaw=heading+2*math.pi), now)
+        self.assertEqual(out.reason, "arrival_dwell_pending")
+        now += 50_000_000
+        out = executor.apply_odom(replace(odom(now), yaw=heading+.2), now)
+        self.assertEqual(out.reason, "arrival_yaw_not_met")
+        now += 50_000_000
+        out = executor.apply_odom(replace(odom(now), yaw=heading), now)
+        self.assertEqual(out.reason, "arrival_dwell_pending")
+        now += 150_000_000
+        out = executor.apply_odom(replace(odom(now), yaw=heading), now)
+        self.assertTrue(any(e.status == "SUCCEEDED" for e in out.events))
+
     def make(self):
         return PlannerMotionExecutor(PlannerMotionConfig(
             executor_id="executor-test", arrival_distance_m=.25,

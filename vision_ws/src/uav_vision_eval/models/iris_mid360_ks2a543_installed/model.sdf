@@ -43,20 +43,6 @@
         </geometry>
         <max_contacts>20</max_contacts>
       </collision>
-      <sensor name="competition_contact_sensor" type="contact">
-        <always_on>true</always_on>
-        <update_rate>50</update_rate>
-        <contact>
-          <collision>competition_guard_collision</collision>
-        </contact>
-        <plugin name="competition_contact_ros"
-                filename="libgazebo_ros_bumper.so">
-          <alwaysOn>true</alwaysOn>
-          <updateRate>50</updateRate>
-          <frameName>iris::base_link</frameName>
-          <bumperTopicName>/mission/uav_contacts_raw</bumperTopicName>
-        </plugin>
-      </sensor>
     </link>
     <joint name="competition_contact_joint" type="fixed">
       <child>competition_contact_link</child>
@@ -146,6 +132,7 @@
     <plugin name="uav_contact_envelope" filename="libuav_contact_envelope.so">
       <link_name>competition_contact_link</link_name>
       <collision_name>competition_guard_collision</collision_name>
+      <contacts_topic>/mission/uav_contacts_raw</contacts_topic>
     </plugin>
   </model>
 </sdf>

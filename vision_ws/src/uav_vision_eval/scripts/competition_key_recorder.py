@@ -60,7 +60,8 @@ class Recorder:
         self.snapshots = 0
         self.closed = False
         self.graph_saved = False
-        for name in ('mavros_pose', 'truth_pose', 'lio_pose'):
+        for name in ('mavros_pose', 'truth_pose', 'lio_pose',
+                     'planner_setpoint', 'mavros_setpoint'):
             f = (self.run / (name + '.csv')).open('w', buffering=1)
             self.files[name] = f
             self.writers[name] = csv.writer(f)
@@ -72,7 +73,12 @@ class Recorder:
             rospy.Subscriber(self.topics['camera_info'], CameraInfo, self.camera, queue_size=1),
             rospy.Subscriber(self.topics['mission'], String, self.mission, queue_size=1),
         ]
-        for key in ('decision', 'result', 'planner', 'release', 'state', 'extended_state'):
+        for name in ('planner_setpoint', 'mavros_setpoint'):
+            self.subscribers.append(rospy.Subscriber(
+                self.topics[name], PoseStamped,
+                lambda msg, kind=name: self.row(kind, msg.header.stamp.to_sec(), msg.pose),
+                queue_size=1))
+        for key in ('decision', 'result', 'planner', 'release', 'state', 'extended_state', 'bspline'):
             self.subscribers.append(rospy.Subscriber(
                 self.topics[key], rospy.AnyMsg,
                 lambda msg, kind=key: self.message(kind, msg), queue_size=20))
@@ -187,7 +193,8 @@ class Recorder:
                 (self.run / 'ros_system_state.json').write_text(json.dumps(
                     {'publishers': dict(pub), 'subscribers': dict(sub), 'services': dict(srv)}, indent=2))
                 (self.run / 'rosparams.yaml').write_text(yaml.safe_dump(
-                    rospy.get_param('/'), allow_unicode=True, sort_keys=True))
+                    rosgraph.Master(rospy.get_name()).getParam('/'),
+                    allow_unicode=True, sort_keys=True))
                 readback = {}
                 service = rospy.get_param('~parameter_get_service')
                 for name in rospy.get_param('~parameter_names'):
