@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <sdf version="1.7">
   <world name="default">
-
     <light name="sun" type="directional">
       <cast_shadows>1</cast_shadows>
       <pose>0 0 10 0 -0 0</pose>
@@ -240,7 +239,7 @@
             <layer>0</layer>
           </meta>
         </visual>
-        <pose>1.09114 3.61479 0 0 -0 3.14159</pose>
+        <pose>1.091140000000 3.185210000000 0.000000000000 0.000000000000 0.000000000000 0.000000000000</pose>
         <self_collide>0</self_collide>
         <enable_wind>0</enable_wind>
         <kinematic>0</kinematic>
@@ -801,7 +800,7 @@
       </camera>
     </gui>
     <model name="Wall_14">
-      <pose>-2.12358 5.64223 0 0 0 -3.13988</pose>
+      <pose>-2.085 5.22 0 0 0 0</pose>
       <static>1</static>
       <link name="link">
         <collision name="collision">
@@ -850,13 +849,13 @@
       </link>
     </model>
     <model name="Wall_20">
-      <pose>-0.605415000000 5.796029862256 0.000000000000 0.000000000000 -0.000000000000 1.570800000000</pose>
+      <pose>-0.605415000000 5.645000000000 0 0 0 1.570796326794897</pose>
       <static>1</static>
       <link name="link">
         <collision name="collision">
           <geometry>
             <box>
-              <size>0.397939724510 0.150000000000 2.500000000000</size>
+              <size>0.7 0.15 2.5</size>
             </box>
           </geometry>
           <pose>0 0 1.25 0 -0 0</pose>
@@ -877,7 +876,7 @@
         <visual name="visual">
           <geometry>
             <box>
-              <size>0.397939724510 0.150000000000 2.500000000000</size>
+              <size>0.7 0.15 2.5</size>
             </box>
           </geometry>
           <pose>0 0 1.25 0 -0 0</pose>
@@ -897,13 +896,13 @@
       </link>
     </model>
     <model name="Wall_22">
-      <pose>1.629610000000 6.705658786430 0.000000000000 0.000000000000 -0.000000000000 1.570800000000</pose>
+      <pose>1.629610000000 6.445000000000 0 0 0 1.570796326794897</pose>
       <static>1</static>
       <link name="link">
         <collision name="collision">
           <geometry>
             <box>
-              <size>0.362142427138 0.150000000000 2.500000000000</size>
+              <size>0.7 0.15 2.5</size>
             </box>
           </geometry>
           <pose>0 0 1.25 0 -0 0</pose>
@@ -924,7 +923,7 @@
         <visual name="visual">
           <geometry>
             <box>
-              <size>0.362142427138 0.150000000000 2.500000000000</size>
+              <size>0.7 0.15 2.5</size>
             </box>
           </geometry>
           <pose>0 0 1.25 0 -0 0</pose>
