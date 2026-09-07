@@ -80,6 +80,10 @@ add_dependencies(cross_detector_node
 )
 
 if(CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(h_stroke_detector_test test/h_stroke_detector_test.cpp)
+  if(TARGET h_stroke_detector_test)
+    target_link_libraries(h_stroke_detector_test ${OpenCV_LIBRARIES})
+  endif()
   find_package(rostest REQUIRED)
   catkin_add_nosetests(test/test_alignment_context_policy.py)
   catkin_add_nosetests(test/test_detector_model_contract.py)

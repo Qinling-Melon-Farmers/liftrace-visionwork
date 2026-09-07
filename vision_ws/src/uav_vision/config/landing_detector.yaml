@@ -26,6 +26,10 @@ landing_radius_max: 300.0
 
 # 只有“外圈 + 内部低饱和黑色 H 结构”同时成立才发布 landing_pad。
 landing_enable_h_structure_check: true
+# Optional low-height supplement; original full-ring detector remains first.
+# Requires both long strokes, their inner notches and one connecting stroke.
+landing_enable_h_stroke_fallback: false
+landing_h_stroke_min_size_px: 24.0
 landing_h_inner_scale: 0.78
 landing_h_saturation_max: 90
 landing_h_value_max: 110

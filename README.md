@@ -1,4 +1,4 @@
-> 当前已按用户要求停止R58调试与仿真，十seed暂停、执行0组。最后实跑59ed04b三投完成后外墙接触FAIL；R56和R57/0.85m成功版本保留，main仍为R56验收基线。详见[改动对照、坐标系、低空方案及实机状态](docs/verification/r58_closeout/REPORT.md)。
+> R59单轮走廊—降落专项已完成离线准备，待唯一一轮实跑；十seed暂停。默认全场配置与R56/R57成功基线保留。见[当前报告](docs/verification/r59_corridor_landing/REPORT.md)。
 
 # 2026 无人机竞赛整机工程
 
