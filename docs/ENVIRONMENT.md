@@ -18,3 +18,5 @@ VHDX 已通过离线 compact 实际回收 68.06 GiB。两次 WSL 服务恢复经
 uav_vision_eval 现构建仿真接触代理插件，需要 Gazebo 开发包；它属于笔记本 SITL 评测工具，不属于板端飞行运行链。全量 build_competition.sh 面向本机联合仿真；板端包选择与实时验收按 HARDWARE.md 单独执行。
 
 最终根因修复完整仿真 PASS；整机与 main 集成分支均独立构建通过。回放、全量归档和验证目录见 [最终报告](verification/r56_final/REPORT.md)，物理接触代理光学语义与竞赛建图 profile 见根因修复报告。
+
+R57最新：0.85m通过、严格0.80m失败后停止，未启动十seed。后续horizontal入口record_debug默认false，只默认保留run.log、rosparams、Gate及各组件关键状态JSON；当前仍需修复严格通口可达性，不能把R56构建/成功写成R57通过。

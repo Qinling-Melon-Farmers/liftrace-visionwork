@@ -1,0 +1,7 @@
+{
+  "full_bag_default": false,
+  "static_launch_node_check": "PASS: navigation_vcl06_debug_recorder absent",
+  "new_simulation_started_for_check": false,
+  "simulation_processes_remaining": 0,
+  "ten_seed_runs_started": 0
+}

@@ -2,7 +2,8 @@
   <!-- Same formal mission/control chain, with 2026 geometry and measured camera mounting. -->
   <arg name="gui" default="false" />
   <arg name="rviz" default="false" />
-  <arg name="record_debug" default="true" />
+  <!-- Keep run.log, gate/params and compact status JSON; full bag is opt-in. -->
+  <arg name="record_debug" default="false" />
   <arg name="record_camera_topic" default="/downward_camera/image_raw" />
   <arg name="field_seed" default="11" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
