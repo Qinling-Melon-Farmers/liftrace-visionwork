@@ -138,5 +138,10 @@
       <child>downward_camera_link</child>
       <parent>iris::base_link</parent>
     </joint>
+    <!-- Contact scoring proxy remains collidable, but must not occlude LiDAR. -->
+    <plugin name="uav_contact_envelope" filename="libuav_contact_envelope.so">
+      <link_name>competition_contact_link</link_name>
+      <collision_name>competition_guard_collision</collision_name>
+    </plugin>
   </model>
 </sdf>

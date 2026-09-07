@@ -48,6 +48,7 @@
   <node pkg="tf2_ros" type="static_transform_publisher" name="mapping_imu_extrinsic"
         args="0 0 0.12412 0 0 0 1 vision_body mapping_imu" />
   <param name="/freedom/sensor_tf_frame" value="mapping_imu" />
+  <rosparam ns="/freedom" file="$(find uav_mission)/config/competition_freedom.yaml" />
   <rosparam param="/simulation/px4_parameters">
     EKF2_EV_CTRL: 9
     EKF2_HGT_REF: 0

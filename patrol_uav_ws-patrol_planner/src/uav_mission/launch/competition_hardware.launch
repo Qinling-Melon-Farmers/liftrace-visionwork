@@ -29,6 +29,7 @@
     <arg name="enable_static_pointcloud_viz" value="false" />
   </include>
   <param name="/freedom/sensor_tf_frame" value="mapping_imu" />
+  <rosparam ns="/freedom" file="$(find uav_mission)/config/competition_freedom.yaml" />
   <param name="/freedom/map_tf_frame" value="$(arg map_frame)" />
   <node pkg="uav_mission" type="lio_external_pose.py" name="lio_external_pose" output="screen">
     <param name="frame" value="$(arg map_frame)" />

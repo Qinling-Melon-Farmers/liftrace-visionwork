@@ -14,3 +14,5 @@
 WSL 启动前还须检查 VHDX 宿主盘，使用 `SIM_STORAGE_GUARD_PATH`；本机按用户约定将 run、PX4 工作目录、分析和归档统一放在 WSL 项目 logs 内，不再写到其他盘。相机录图与本机示例见 [日志存储说明](verification/r55/RECORDING_FIX.md)。
 
 VHDX 已通过离线 compact 实际回收 68.06 GiB。两次 WSL 服务恢复经用户 UAC 允许完成。R56 同轮原生目录重跑越过启动并完成三投，记录缓冲溢出 0；第一次外盘尝试的失败记录保留，不能据此承诺任意记录负载均稳定。
+
+uav_vision_eval 现构建仿真接触代理插件，需要 Gazebo 开发包；它属于笔记本 SITL 评测工具，不属于板端飞行运行链。全量 build_competition.sh 面向本机联合仿真；板端包选择与实时验收按 HARDWARE.md 单独执行。
