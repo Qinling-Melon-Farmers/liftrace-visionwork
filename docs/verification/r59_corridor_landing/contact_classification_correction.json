@@ -1,0 +1,17 @@
+{
+  "original_status": "FAIL",
+  "original_contact_count": 1,
+  "contact_ros_sec": 186.821,
+  "contact_pair": [
+    "iris_mid360::iris::base_link::base_link_inertia_collision",
+    "landing_h_clone::link::collision"
+  ],
+  "classification": "flat_landing_support",
+  "source_model_uri": "model://landing_h",
+  "model_thickness_m": 0.005,
+  "physical_collision_response_changed": false,
+  "raw_gate_rewritten": false,
+  "reruns": 0,
+  "on_ground_and_disarm": "not_confirmed_before_shutdown",
+  "full_pass_claimed": false
+}

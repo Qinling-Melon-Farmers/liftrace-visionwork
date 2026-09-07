@@ -1,5 +1,5 @@
-# 当前任务：R59单轮走廊—降落专项
+# 当前状态：R59唯一一轮已结束，不追加仿真
 
-用户明确只运行一轮走廊到landing，现场坐标暂不改，十seed仍暂停。当前已完成离线准备；唯一一轮尚未启动，结束无论成败均收尾，不追加轮次。
+8/8航点和两处0.80m通口完成，实际最高.6701m；H有效对准后进入AUTO.LAND并触垫。评测遗漏终点平面标记名称，原始Gate FAIL提前结束，ON_GROUND/disarm未确认。已修正该评测分类并做45项回归，未重跑。
 
-入口navigation_corridor_landing_vcl06.launch采用独立低空配置和可选H笔画几何，原全场默认配置及两份成功基线保持。详细改动和预检见[报告](docs/verification/r59_corridor_landing/REPORT.md)。R58失败及实机限制见[前轮收口](docs/verification/r58_closeout/REPORT.md)。
+本次按用户一轮约定收口，十seed暂停，现场坐标暂不改。详见[本轮结果](docs/verification/r59_corridor_landing/REPORT.md)。完整搜索/三投默认配置及R56/R57成功基线保留，main未合本轮失败实验。后续仅在新明确请求下继续。
