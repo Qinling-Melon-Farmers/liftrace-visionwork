@@ -1,0 +1,7 @@
+{
+  "goal_received": 1,
+  "new_trajectory_attempt": 1,
+  "new_trajectory_ready": 1,
+  "trajectory_replan_attempt": 6,
+  "replanned_trajectory_ready": 5
+}

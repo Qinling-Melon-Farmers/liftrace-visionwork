@@ -7,6 +7,13 @@ import math
 STANDARD_FOOTPRINT_RADIUS = math.sqrt(0.5 ** 2 + 0.5 ** 2)
 RED_CROSS_FOOTPRINT_RADIUS = math.sqrt(0.175 ** 2 + 0.175 ** 2)
 
+# Random-field admission only. Mission weights and interruption policy live
+# in MissionCore's competition profile and must not be duplicated here.
+CLASS_PROFILES = {
+    "full": ("tent", "pillbox", "bridge", "panzer", "tank"),
+    "r2026": ("tent", "pillbox", "bridge", "panzer"),
+}
+
 
 @dataclass(frozen=True)
 class Footprint:
@@ -14,6 +21,15 @@ class Footprint:
     x: float
     y: float
     radius: float
+
+
+def profile_standard_classes(profile):
+    """Return the canonical standard-target set for a field profile."""
+    if profile not in CLASS_PROFILES:
+        raise ValueError(
+            "unknown class profile %r (expected one of: %s)" %
+            (profile, ", ".join(sorted(CLASS_PROFILES))))
+    return CLASS_PROFILES[profile]
 
 
 def validate_seed(seed):

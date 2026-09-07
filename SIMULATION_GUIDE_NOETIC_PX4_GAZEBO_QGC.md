@@ -256,6 +256,16 @@ rostopic echo -n 1 /uav_vision/drop_ready
 
 不要在存在其他 ROS 任务时使用宽泛的 `pkill -f`。
 
+停止后或启动前，统一使用只读脚本核查本机仿真进程：
+
+```bash
+/home/xhj/liftrace/top_level_scripts/check_sim_processes.sh
+```
+
+脚本只会逐个执行 `pgrep -x`，发现残留时列出精确进程名和 PID 并返回非零。禁止在
+Windows→WSL 命令中临时拼写 `pgrep -af 'roscore|gzserver|...'`；跨边界引号丢失会把 `|`
+解释成 shell 管道，反而实际启动待检查的 `gzserver`、`gzclient` 等程序。
+
 ### 7.3 导航组 manager + 新视觉 headless 联调
 
 该入口使用导航组原始 manager 生成覆盖/候选抵近目标，外围适配器承接现有视觉和旧控制
@@ -264,12 +274,18 @@ rostopic echo -n 1 /uav_vision/drop_ready
 ```bash
 cd /home/xhj/liftrace
 export UAV_VISION_MODEL_PATH=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt
-SIM_NO_RECORD=1 bash top_level_scripts/sim_run.sh \
+SIM_RUN_AUTHORIZED=1 SIM_NO_RECORD=1 bash top_level_scripts/sim_run.sh \
   navigation_upstream_visual_delivery_headless \
   roslaunch uav_mission navigation_search_delivery_toudi4.launch \
   gui:=false rviz:=false enable_debug_image:=false \
   spawn_red_cross:=true red_cross_seed:=0
 ```
+
+`SIM_RUN_AUTHORIZED=1` 只允许写在本次明确获准的启动命令前，禁止导出为长期环境变量。包装器会拒绝
+已有 ROS/Gazebo/PX4/RViz 进程或第二个 `sim_run.sh`，并在正常结束、失败、超时和信号中断后调用
+`stop_toudi3_sim.sh`；只有清理复查为零残留时才算完成收尾。跨仓联合时只需显式传入 `UAV_WS` 和
+`VISION_WS`；包装器据此构造源码 overlay，并在 `uav_mission` 或 `uav_vision` 实际解析到旧根仓时
+启动前拒绝。不要再手写整条 `ROS_PACKAGE_PATH`。
 
 必须检查 run 目录中的：
 

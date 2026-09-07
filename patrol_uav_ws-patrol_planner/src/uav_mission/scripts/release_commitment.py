@@ -23,6 +23,108 @@ def _stamp_key(value):
     return whole, int(round((seconds - whole) * 1_000_000_000.0))
 
 
+def _stamp_nsec(value):
+    seconds, nanoseconds = _stamp_key(value)
+    return seconds * 1_000_000_000 + nanoseconds
+
+
+def strict_commitment_fence(context, now, maximum_age, class_profile,
+                            align_mode, payload_slot):
+    """Read the active Manager transaction without requiring live geometry.
+
+    A release commitment deliberately survives a short visual dropout during
+    final descent.  The Manager fence must remain fresh and active, but the
+    context's geometry-valid bit must not erase an already locked commitment.
+    """
+
+    if context is None:
+        return False, "commitment_context_missing", None
+    try:
+        now_sec = _seconds(now)
+        context_stamp = _seconds(context.context_header.stamp)
+        deadline = _seconds(context.deadline)
+        max_age = float(maximum_age)
+        if not all(math.isfinite(value) for value in (
+                now_sec, context_stamp, deadline, max_age)):
+            return False, "commitment_context_time_invalid", None
+        if max_age < 0.0 or context_stamp <= 0.0:
+            return False, "commitment_context_unstamped", None
+        if now_sec - context_stamp < 0.0:
+            return False, "commitment_context_from_future", None
+        if now_sec - context_stamp > max_age:
+            return False, "commitment_context_stale", None
+        if deadline <= now_sec:
+            return False, "commitment_context_deadline", None
+        if not context.context_active:
+            return False, "commitment_context_inactive", None
+        if (context.context_schema_version != 1 or
+                not str(context.context_source).strip() or
+                not str(context.mission_id).strip() or
+                int(context.decision_seq) <= 0):
+            return False, "commitment_context_fence_invalid", None
+        if (str(context.class_profile) != str(class_profile) or
+                str(context.align_mode) != str(align_mode) or
+                int(context.command) != 2 or
+                int(context.payload_slot) != int(payload_slot)):
+            return False, "commitment_context_fence_mismatch", None
+        semantic_class = str(context.semantic_target_class).strip()
+        if (not context.has_semantic_target or not semantic_class or
+                _stamp_nsec(context.semantic_target_first_seen) <= 0):
+            return False, "commitment_context_identity_invalid", None
+    except (AttributeError, TypeError, ValueError, OverflowError):
+        return False, "commitment_context_malformed", None
+
+    return True, "commitment_context_valid", {
+        "mission_id": str(context.mission_id),
+        "decision_seq": int(context.decision_seq),
+        "attempt": int(context.attempt),
+        "payload_slot": int(context.payload_slot),
+        "target_id": int(context.semantic_target_id),
+        "target_first_seen_nsec": _stamp_nsec(
+            context.semantic_target_first_seen),
+        "target_class": semantic_class,
+        "deadline_at": deadline,
+    }
+
+
+def commitment_matches_fence(commitment, fence):
+    if commitment is None or fence is None:
+        return False
+    return (
+        commitment.mission_id == fence["mission_id"] and
+        commitment.decision_seq == fence["decision_seq"] and
+        commitment.attempt == fence["attempt"] and
+        commitment.payload_slot == fence["payload_slot"] and
+        commitment.target_id == fence["target_id"] and
+        commitment.target_first_seen_nsec ==
+        fence["target_first_seen_nsec"] and
+        commitment.target_class == fence["target_class"]
+    )
+
+
+def commitment_rejection_is_terminal(reason):
+    """Return whether a denial invalidates the transaction lock itself."""
+
+    return reason in {
+        "commitment_expired",
+        "commitment_deadline_reached",
+        "commitment_mode_changed",
+        "commitment_slot_changed",
+        "commitment_target_changed",
+        "target_already_released",
+    }
+
+
+def commitment_context_rejection_is_terminal(reason):
+    return reason in {
+        "commitment_context_deadline",
+        "commitment_context_inactive",
+        "commitment_context_fence_invalid",
+        "commitment_context_fence_mismatch",
+        "commitment_context_identity_invalid",
+    }
+
+
 def strict_context_source(context, now, maximum_age, class_profile,
                           align_mode, payload_slot):
     """Return semantic release identity from one valid context wrapper.
@@ -120,6 +222,11 @@ class ReleaseCommitment:
     locked_x: float
     locked_y: float
     stable_frames: int
+    mission_id: str = ""
+    decision_seq: int = 0
+    attempt: int = 0
+    target_first_seen_nsec: int = 0
+    deadline_at: float = 0.0
 
 
 class ReleaseCommitmentPolicy:
@@ -159,6 +266,12 @@ class ReleaseCommitmentPolicy:
             locked_x=float(pose[0]),
             locked_y=float(pose[1]),
             stable_frames=int(evidence.get("stable_frames", 0)),
+            mission_id=str(evidence.get("mission_id", "")),
+            decision_seq=int(evidence.get("decision_seq", 0)),
+            attempt=int(evidence.get("attempt", 0)),
+            target_first_seen_nsec=int(
+                evidence.get("target_first_seen_nsec", 0)),
+            deadline_at=float(evidence.get("deadline_at", 0.0)),
         )
 
     def evaluate(self, commitment, now, align_mode, control_state, pose,
@@ -166,7 +279,10 @@ class ReleaseCommitmentPolicy:
                  current_target_key=None):
         if commitment is None:
             return False, "no_release_commitment"
-        if float(now) - commitment.locked_at > self._commitment_timeout:
+        if commitment.deadline_at > 0.0:
+            if float(now) >= commitment.deadline_at:
+                return False, "commitment_deadline_reached"
+        elif float(now) - commitment.locked_at > self._commitment_timeout:
             return False, "commitment_expired"
         if align_mode != commitment.align_mode:
             return False, "commitment_mode_changed"

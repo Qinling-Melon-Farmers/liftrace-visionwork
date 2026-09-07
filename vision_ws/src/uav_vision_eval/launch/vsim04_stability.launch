@@ -56,7 +56,7 @@
        callbacks. visual_only preserves the historical immediate finalization. -->
   <arg name="navigation_late_result_quiet_sec" default="0.5" />
   <arg name="navigation_late_result_timeout_sec" default="3.0" />
-  <arg name="extrinsic_profile" default="vision_eval_camera_d435i" />
+  <arg name="extrinsic_profile" default="vision_eval_camera_ks2a543" />
   <arg name="extrinsic_source"
        default="$(find uav_vision_eval)/models/vision_eval_camera/model.sdf" />
   <arg name="status_topic" default="/uav_vision_eval/vsim04/status" />
@@ -67,9 +67,11 @@
        diagnostic A/B of recorder overhead. -->
   <arg name="enable_stage_trace" default="true" />
   <arg name="handshake_write_margin_sec" default="5.0" />
-  <arg name="image_topic" default="/camera/color/image_raw" />
-  <arg name="camera_info_topic" default="/camera/color/camera_info" />
+  <arg name="image_topic" default="/camera/image_raw" />
+  <arg name="camera_info_topic" default="/camera/camera_info" />
+  <arg name="camera_link_suffix" default="KS2A543::camera_link" />
   <arg name="camera_pose_topic" default="/uav_vision_eval/camera_pose" />
+  <arg name="set_model_state_topic" default="/gazebo/set_model_state" />
   <arg name="px4_root" default="$(optenv PX4_ROOT /home/xhj/PX4-Autopilot)" />
   <arg name="px4_model_root"
        default="$(arg px4_root)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models" />
@@ -105,6 +107,7 @@
     <arg name="image_topic" value="$(arg image_topic)" />
     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
     <arg name="camera_pose_topic" value="$(arg camera_pose_topic)" />
+    <arg name="camera_link_suffix" value="$(arg camera_link_suffix)" />
   </include>
 
   <group if="$(arg start_vision)">
@@ -188,6 +191,7 @@
     <param name="trial_selector" value="$(arg trial_selector)" />
     <param name="trial_slice" value="$(arg trial_slice)" />
     <param name="camera_model" value="vision_eval_camera" />
+    <param name="set_model_state_topic" value="$(arg set_model_state_topic)" />
     <param name="status_topic" value="$(arg status_topic)" />
     <param name="trial_event_topic" value="$(arg trial_event_topic)" />
     <param name="require_capture_ready"

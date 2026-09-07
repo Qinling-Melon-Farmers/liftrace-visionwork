@@ -1,0 +1,57 @@
+# 圆形检测参数配置文件 - 圆弧检测优化版本
+
+# 霍夫圆检测参数（圆弧优化）
+circle_detection:
+  min_radius: 3.0       # 最小半径（像素）
+  max_radius: 200.0     # 最大半径（像素）
+  param1: 80.0          # Canny边缘检测的高阈值
+  param2: 35.0          # 累加器阈值
+  min_dist: 20          # 圆心之间的最小距离
+  
+  # 图像预处理参数
+  threshold_enabled: true       # 启用二值化阈值处理
+  histogram_equalization: true  # 启用直方图均衡化
+
+# 检测控制参数
+detection:
+  enabled: true        # 是否启用检测
+  debug: true          # 启用调试模式（显示实时标注窗口）
+
+# 相机内参（需要根据实际相机标定结果调整）
+camera:
+  fx: 479.652738       # 焦距x
+  fy: 482.690306       # 焦距y
+  cx: 657.45208        # 主点x
+  cy: 364.6207         # 主点y
+  width: 1280          # 图像宽度
+  height: 720          # 图像高度
+
+# 坐标转换参数
+coordinate_transform:
+  target_distance: 1.0    # 假设目标距离相机的距离（米）
+
+# 圆弧检测的质量评估参数
+quality_assessment:
+  circularity_threshold: 0.4    # 圆形度阈值 - 降低支持圆弧
+  aspect_ratio_threshold: 0.3   # 长宽比阈值 - 降低支持圆弧
+  contour_area_ratio: 0.3       # 轮廓面积比阈值 - 降低支持圆弧
+  arc_angle_threshold: 90.0     # 最小圆弧角度（度）
+
+# 圆弧检测参数
+arc_detection:
+  enable: true                  # 启用圆弧检测
+  min_contour_size: 10          # 最小轮廓点数
+  min_contour_area: 50          # 最小轮廓面积
+  min_contour_perimeter: 20     # 最小轮廓周长
+
+# 图像预处理参数
+image_preprocessing:
+  enable_histogram_equalization: true   # 启用直方图均衡化
+  enable_threshold: true                # 启用阈值处理
+  enable_gaussian_blur: true            # 启用高斯模糊
+  blur_kernel_size: 3                   # 高斯模糊核大小
+
+# 检测控制参数
+detection_control:
+  max_fps: 15.0                        # 最大帧率
+  show_image: true                      # 显示检测结果图像 

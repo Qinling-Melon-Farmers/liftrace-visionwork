@@ -4,7 +4,7 @@
     Full SITL competition-chain entry point.
 
     This starts toudi4_copy.world, PX4/Gazebo/MAVROS, the old
-    patrol-control/planner chain, the old visual detectors, and the simulated
+    patrol-control/planner chain, the simulated
     FAST-LIO + FreeDOM mapping chain.  It is for SITL only.  In particular,
     uav_arming_node must never be reused by a hardware launch.
   -->
@@ -28,8 +28,9 @@
   <arg name="rviz" default="false" />
   <arg name="mapping_rviz" default="false" />
   <arg name="start_mapping" default="true" />
-  <arg name="start_visual" default="true" />
   <arg name="start_arming" default="true" />
+  <arg name="start_waypoint_generator" default="true" />
+  <arg name="enable_static_pointcloud_viz" default="true" />
   <!-- The requested legacy competition flow is direct waypoint mode.  The
        planner nodes remain started for full-chain compatibility, but they do
        not own the vehicle setpoint in this mode. -->
@@ -40,6 +41,7 @@
   <!-- Smaller direct-setpoint step prevents PX4 position-loop overshoot in
        the CPU-limited WSL SITL; the historical launch default remains 1.0 m. -->
   <arg name="px4_max_distance" default="0.2" />
+  <arg name="external_planner_max_command_z" default="3.5" />
   <!-- 赛场为 10 m × 10 m × 4 m；20 m × 20 m × 5 m 保留边界余量并显著降低体素内存。 -->
   <arg name="planner_map_size_x" default="20.0" />
   <arg name="planner_map_size_y" default="20.0" />
@@ -82,6 +84,8 @@
     <arg name="external_mission_mode" value="$(arg external_mission_mode)" />
     <arg name="simulation_auto_land" value="$(arg simulation_auto_land)" />
     <arg name="px4_max_distance" value="$(arg px4_max_distance)" />
+    <arg name="external_planner_max_command_z"
+         value="$(arg external_planner_max_command_z)" />
     <arg name="planner_map_size_x" value="$(arg planner_map_size_x)" />
     <arg name="planner_map_size_y" value="$(arg planner_map_size_y)" />
     <arg name="planner_map_size_z" value="$(arg planner_map_size_z)" />
@@ -89,30 +93,18 @@
     <arg name="planner_max_acc" value="$(arg planner_max_acc)" />
     <arg name="planner_obstacles_inflation" value="$(arg planner_obstacles_inflation)" />
     <arg name="planner_clearance_threshold" value="$(arg planner_clearance_threshold)" />
+    <arg name="start_waypoint_generator" value="$(arg start_waypoint_generator)" />
     <arg name="aligning_threshold" value="$(arg aligning_threshold)" />
     <arg name="waypoint_config" value="$(arg waypoint_config)" />
   </include>
 
-  <!-- Old visual chain, connected to the SITL RealSense color stream. -->
-  <group if="$(arg start_visual)">
-    <include file="$(find patrol_control)/launch/circle_detection_sim.launch">
-      <arg name="image_topic" value="$(arg camera_image_topic)" />
-      <!-- patrol_control owns this control topic; avoid a competing always-on publisher. -->
-      <arg name="publish_initial_control" value="false" />
-    </include>
-    <include file="$(find patrol_control)/launch/cross_detection.launch">
-      <arg name="image_topic" value="$(arg camera_image_topic)" />
-      <arg name="show_image" value="false" />
-    </include>
-    <include file="$(find patrol_control)/launch/landing_detector_node.launch">
-      <arg name="image_topic" value="$(arg camera_image_topic)" />
-    </include>
-  </group>
 
   <!-- Simulated MID360 -> FAST-LIO -> FreeDOM mapping chain. -->
   <group if="$(arg start_mapping)">
     <include file="$(find fast_lio)/launch/mapping_mid360_sim.launch">
       <arg name="rviz" value="$(arg mapping_rviz)" />
+      <arg name="enable_static_pointcloud_viz"
+           value="$(arg enable_static_pointcloud_viz)" />
     </include>
   </group>
 </launch>

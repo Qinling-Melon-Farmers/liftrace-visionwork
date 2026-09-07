@@ -59,6 +59,7 @@ class VSim04DMatrixTest(unittest.TestCase):
     def test_runtime_adapter_reuses_dynamic_recorder_diagnostically(self):
         runtime = load_trial_matrix(MATRIX_PATH)
         self.assertTrue(runtime["diagnostic_only"])
+        self.assertEqual("invalid", runtime["dynamic_zero_visibility_policy"])
         self.assertEqual(50, runtime["formal_expected_trial_count"])
         self.assertTrue(all(trial["kind"] == "dynamic"
                             for trial in runtime["trials"]))

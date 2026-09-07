@@ -43,7 +43,8 @@ CameraInfo、相机模型/RPY、内嵌场景/真值模型/anchor catalog、外�
 尾部追加。分组统计便于直接比较 `sparse30` 各层结果。
 `summary.json`/report/性能 CSV 明确分开 artifact set、trial measurement completeness 和
 algorithm performance verdict：`MEASURED` 只表示正式测量完整，不等于性能 PASS。当前只按
-已冻结合同检查处理 P95 `<=200 ms` 和地图误差 P95 `<=0.25 m`；P_confirm、P_selected 与
+已冻结合同检查同 source stamp 的 detector callback-start 到候选接收 P95 `<=200 ms`，以及
+地图误差 P95 `<=0.25 m`；独立 recorder 图像订阅得到的 receipt-to-receipt 时延只作传输诊断；P_confirm、P_selected 与
 TF failure 门槛未冻结时写 `NOT_GATED`，不得自行补阈值。diagnostic 子集固定写
 `DIAGNOSTIC_ONLY`，不能成为 Gate PASS。
 
@@ -398,3 +399,54 @@ logs/vsim04_repeat_aggregate_boundary6-seed11-r3-final-307ac5c4/
 因此当前默认继续使用 imgsz 640，不把 2 m/s 作为跨类别通用速度，也不承诺 3.6 m 工作域。
 本轮只改评测/稳定性工具，算法、模型和阈值没有变化，所以没有重跑
 `formal23/static25/sparse30`；引用这些历史结果时必须同时保留其原运行目录和 revision 边界。
+
+## 2026-09-04 实装相机候选夹具
+
+`feat/vsim04-ks2a543-camera-baseline` 将独立评测相机收敛为实装 KS2A543 的单彩色流：
+`1280x720@30`、`/camera/image_raw`、`/camera/camera_info`、
+`downward_camera_optical_frame`，并使用已接受标定的水平视场和畸变。它不加载历史 D435i 的
+深度、双红外或 IMU，也不提供 D435i 运行 selector；历史数据由其 Git revision 复现。
+
+受控结果：
+
+- 单动态 red_cross：1/1 confirm/selected，地图误差 P95 `0.0670 m`；
+- 代表 10 格：10/10 trial 完成，8/10 confirm/selected，detector processing P95
+  `139.1 ms`，但两格缺 `confirmation_processing` 精确 source-stamp 对表，终态 INVALID；
+- formal23：23/23 trial 完成，22/23 confirm/selected，detector/pipeline/process P95
+  `117.0/152.5/222.9 ms`，地图误差 P95 `0.2038 m`；一格 process 对表缺样，终态 INVALID。
+
+上述先导 run 已由时戳配对和终态合同修复后的全量结果取代。Gazebo Classic 插件只支持单一
+焦距，仿真 K 使用 `fx=fy=725.351 px`，与实机 `fy=723.340 px` 相差约 0.28%；不要为这一近似
+增加 CameraInfo relay。外参测量与 B100 拆解分别见
+`docs/实装相机与安装外参测量标准_20260904.md` 和
+`docs/视觉工程精简与B100延迟复盘_20260904.md`。
+
+最终 KS2A543 单 seed 运行：
+
+| 面 | Run | 完成 | confirm/selected | pipeline / detector process P95 | map P95 | 状态 |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| A25 | `vsim04_diag_static25_seed11_20260904_140501` | 25/25 | 23/25、23/25 | 164.813 / 97.783 ms | 0.203769 m | `DIAGNOSTIC_ONLY` |
+| B100 | `vsim04_diag_b100_seed11_20260904_140800` | 100/100 | 87/86 | 181.990 / 145.724 ms | 0.203484 m | `DIAGNOSTIC_ONLY` |
+| C25 | `vsim04_c25_seed11_20260904_135946` | 25/25 | 15/12（完整入画 15 项） | 158.690 / 96.467 ms | 0.216720 m | `MEASURED/NOT_GATED` |
+| D11 | `vsim04_diag_d50_supported_seed11_20260904_144351` | 11/11 | 11/11 | 265.232 / 72.576 ms | 0.152282 m | `DIAGNOSTIC_ONLY` |
+
+D runner 会在内部 trial 事件附带紧凑规划 XY 序列，使 turn 的首帧和横向误差按圆弧而非起终点
+弦线核对；这不是新 ROS 话题或跨组接口。所有表仍是 visual-only，`P_interrupt=null`。
+
+## 整机 ROS 拓扑快照
+
+正式联合 launch 稳定后可从 ROS Master 采集实际注册关系：
+
+```bash
+rosrun uav_vision_eval ros_topology_snapshot.py \
+  --output-dir /tmp/vcl06_ros_topology \
+  --fail-on-audit
+```
+
+工具同时保存 `rosnode list`、`rostopic list -v` 原始输出；主图调用 rqt_graph 的
+`node_node`（界面中的 `Nodes only`）后端，椭圆表示节点、带话题名的有向边表示
+publisher→subscriber。工具同时输出核心链和全量链两张 Nodes-only 图，并保留 CSV/JSON
+结构化关系，不另造一套图语义。接口审计只允许正式链保留仍有生产者与消费者的
+`/detect/point_class`；legacy 视觉桥、旧 coverage manager 和旧 `/detect/*` 控制/结果话题
+必须退出正式 VCL06 入口。`/Servo -> /legacy/Servo_raw` 作为投递许可保护链单独核对，不视为
+冗余桥接；已被服务 ACK 取代的 `/control1~3`、`/servo/complete` 则作为旧执行话题残留核对。

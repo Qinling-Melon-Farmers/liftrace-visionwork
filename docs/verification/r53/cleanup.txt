@@ -1,0 +1,11 @@
+===== SIM RUN: r2026_integrated_r53_full =====
+Run dir: /home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r53_full_20260906_221720
+Start: Sun Sep  6 22:17:20 CST 2026
+
+Gate status: FAIL
+
+Main cmd exited: 1
+===== SIM RUN DONE: r2026_integrated_r53_full =====
+Run dir: /home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r53_full_20260906_221720
+Exit code: 1
+SITL cleanup verification: PASS (no local ROS/Gazebo/PX4/RViz process remains)

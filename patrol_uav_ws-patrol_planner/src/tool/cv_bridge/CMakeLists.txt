@@ -17,29 +17,25 @@ else()
 find_package(Boost REQUIRED)
 endif()
 
-# Prefer OpenCV 4 on Ubuntu 20.04 / ROS Noetic, but keep a fallback for older setups.
-set(_opencv_version 4)
-find_package(OpenCV 4 QUIET
+# set opencv version
+# set(OpenCV_DIR /usr/local/lib/cmake/opencv4)
+find_package(OpenCV REQUIRED)
+message("find ${OpenCV_VERSION}")
+
+# set(_opencv_version 4)
+# find_package(OpenCV 4 QUIET)
+# if(NOT OpenCV_FOUND)
+#   message(STATUS "Did not find OpenCV 4, trying OpenCV 3")
+#   set(_opencv_version 3)
+# endif()
+
+find_package(OpenCV ${_opencv_version} REQUIRED
   COMPONENTS
     opencv_core
     opencv_imgproc
     opencv_imgcodecs
   CONFIG
 )
-
-if(NOT OpenCV_FOUND)
-  message(STATUS "Did not find OpenCV 4, trying OpenCV 3")
-  set(_opencv_version 3)
-  find_package(OpenCV 3 REQUIRED
-    COMPONENTS
-      opencv_core
-      opencv_imgproc
-      opencv_imgcodecs
-    CONFIG
-  )
-endif()
-
-message(STATUS "cv_bridge using OpenCV ${OpenCV_VERSION}")
 
 catkin_package(
   INCLUDE_DIRS include

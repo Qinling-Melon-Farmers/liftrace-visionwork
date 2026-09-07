@@ -1,0 +1,356 @@
+{
+  "round": "R54",
+  "attempts": [
+    {
+      "attempt": 1,
+      "run": "r2026_integrated_r54_guided_entry_20260907_023929",
+      "status": "FAIL",
+      "reason": "startup_wall_timeout",
+      "errors": [
+        "startup_wall_timeout"
+      ],
+      "last_ros_log_stamp_sec": 6.178,
+      "metrics": {
+        "approach_command_count": 0,
+        "boundary_violations": 0,
+        "capture_started_count": 0,
+        "decision_count": 0,
+        "door_crossings": [],
+        "height_violations": 0,
+        "landing_align_mode_seen": false,
+        "landing_h_mark_rejections": {},
+        "landing_h_tolerance": 0.35,
+        "landing_xy": [
+          3.274292,
+          8.05722
+        ],
+        "latest_armed": null,
+        "latest_landed_state": null,
+        "max_observed_height": 0.05999147799957761,
+        "mission_ros_sec": null,
+        "mission_wall_sec": null,
+        "planner_goal_publishers": [
+          "/navigation/planner_bridge"
+        ],
+        "pose_samples": 254,
+        "post_delivery_decision_indices": [],
+        "post_delivery_return_success_count": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "recovery_success_count": 0,
+        "release_commit_count": 0,
+        "result_count": 0,
+        "selected_count": 0,
+        "simulation_realtime_factor": null,
+        "unmatched_result_count": 0,
+        "valid_landing_h_mark": null
+      },
+      "checks": {
+        "anchor_ready": true,
+        "bridge_live_and_healthy": true,
+        "committed_targets_were_selected": false,
+        "contact_ready_zero": true,
+        "contract_errors_zero": true,
+        "doors_crossed_in_order": false,
+        "field_ready": true,
+        "final_landed_on_ground": false,
+        "final_vehicle_disarmed": false,
+        "forced_return_within_limit": false,
+        "land_success": false,
+        "landing_align_mode_seen": false,
+        "landing_h_mark_valid": false,
+        "manager_complete": false,
+        "manager_identity_matches": false,
+        "manager_post_delivery_route_matches": false,
+        "mission_ros_within_limit": false,
+        "pose_seen": true,
+        "post_delivery_return_goals": false,
+        "post_delivery_return_sequence": false,
+        "real_approach_commands": false,
+        "required_statuses_seen": true,
+        "return_after_deliveries": false,
+        "return_before_land": false,
+        "return_home_success": false,
+        "single_mission": false,
+        "single_planner_goal_publisher": true,
+        "start_gate_started_once": false,
+        "tank_accepted_zero": true,
+        "tank_selected_zero": true,
+        "three_capture_started": false,
+        "three_recovery_successes": false,
+        "three_release_commits": false,
+        "unmatched_results_zero": true,
+        "zero_boundary_violations": true,
+        "zero_collisions": true,
+        "zero_height_violations": true
+      },
+      "actual_collision_count": 0,
+      "contact_events": [],
+      "cleanup_pass": true
+    },
+    {
+      "attempt": 2,
+      "run": "r2026_integrated_r54_guided_entry_20260907_025104",
+      "status": "FAIL",
+      "reason": "manager_failed",
+      "errors": [
+        "manager_failed",
+        "manager_aborted"
+      ],
+      "last_ros_log_stamp_sec": 255.394,
+      "metrics": {
+        "approach_command_count": 3,
+        "boundary_violations": 0,
+        "capture_started_count": 3,
+        "decision_count": 19,
+        "door_crossings": [],
+        "height_violations": 0,
+        "landing_align_mode_seen": false,
+        "landing_h_mark_rejections": {},
+        "landing_h_tolerance": 0.35,
+        "landing_xy": [
+          3.274292,
+          8.05722
+        ],
+        "latest_armed": null,
+        "latest_landed_state": null,
+        "max_observed_height": 1.712001038258114,
+        "mission_ros_sec": null,
+        "mission_wall_sec": null,
+        "planner_goal_publishers": [
+          "/navigation/planner_bridge"
+        ],
+        "pose_samples": 11131,
+        "post_delivery_decision_indices": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "post_delivery_return_success_count": 3,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "recovery_success_count": 3,
+        "release_commit_count": 3,
+        "result_count": 91,
+        "selected_count": 1076,
+        "simulation_realtime_factor": null,
+        "unmatched_result_count": 0,
+        "valid_landing_h_mark": null
+      },
+      "checks": {
+        "anchor_ready": true,
+        "bridge_live_and_healthy": true,
+        "committed_targets_were_selected": true,
+        "contact_ready_zero": true,
+        "contract_errors_zero": false,
+        "doors_crossed_in_order": false,
+        "field_ready": true,
+        "final_landed_on_ground": false,
+        "final_vehicle_disarmed": false,
+        "forced_return_within_limit": true,
+        "land_success": false,
+        "landing_align_mode_seen": false,
+        "landing_h_mark_valid": false,
+        "manager_complete": false,
+        "manager_identity_matches": true,
+        "manager_post_delivery_route_matches": false,
+        "mission_ros_within_limit": false,
+        "pose_seen": true,
+        "post_delivery_return_goals": false,
+        "post_delivery_return_sequence": false,
+        "real_approach_commands": true,
+        "required_statuses_seen": true,
+        "return_after_deliveries": false,
+        "return_before_land": false,
+        "return_home_success": false,
+        "single_mission": true,
+        "single_planner_goal_publisher": true,
+        "start_gate_started_once": true,
+        "tank_accepted_zero": true,
+        "tank_selected_zero": true,
+        "three_capture_started": true,
+        "three_recovery_successes": true,
+        "three_release_commits": true,
+        "unmatched_results_zero": true,
+        "zero_boundary_violations": true,
+        "zero_collisions": true,
+        "zero_height_violations": true
+      },
+      "actual_collision_count": 0,
+      "contact_events": [],
+      "cleanup_pass": true,
+      "last_progress": {
+        "mission": {
+          "phase": "ABORTED",
+          "active_command": "ABORT",
+          "active_decision_seq": 20,
+          "committed_slots": 3,
+          "route_index": 9,
+          "post_delivery_route_index": 3,
+          "last_reason": "candidates_ingested",
+          "mission_failed": true
+        },
+        "collisions": 0,
+        "fcu": [
+          true,
+          "OFFBOARD"
+        ],
+        "sim_seconds": 255.5,
+        "pose": [
+          -0.143,
+          4.811,
+          0.762
+        ],
+        "goal": [
+          20,
+          0.067,
+          4.699,
+          0.793
+        ],
+        "planner": [
+          19,
+          "trajectory_replan_attempt"
+        ]
+      },
+      "sampled_goals": [
+        {
+          "sim_seconds": 31.4,
+          "goal": [
+            2,
+            -1.027,
+            1.0,
+            1.6
+          ]
+        },
+        {
+          "sim_seconds": 43.9,
+          "goal": [
+            3,
+            -2.007,
+            0.273,
+            1.4
+          ]
+        },
+        {
+          "sim_seconds": 50.0,
+          "goal": [
+            4,
+            1.993,
+            0.273,
+            1.4
+          ]
+        },
+        {
+          "sim_seconds": 62.5,
+          "goal": [
+            5,
+            1.993,
+            0.973,
+            1.4
+          ]
+        },
+        {
+          "sim_seconds": 68.7,
+          "goal": [
+            6,
+            -2.007,
+            0.973,
+            1.4
+          ]
+        },
+        {
+          "sim_seconds": 81.0,
+          "goal": [
+            8,
+            1.993,
+            1.673,
+            1.4
+          ]
+        },
+        {
+          "sim_seconds": 99.5,
+          "goal": [
+            10,
+            -2.007,
+            2.373,
+            1.4
+          ]
+        },
+        {
+          "sim_seconds": 119.2,
+          "goal": [
+            11,
+            -2.007,
+            3.073,
+            1.4
+          ]
+        },
+        {
+          "sim_seconds": 125.9,
+          "goal": [
+            13,
+            -1.147,
+            4.176,
+            1.6
+          ]
+        },
+        {
+          "sim_seconds": 132.0,
+          "goal": [
+            14,
+            1.993,
+            3.073,
+            1.4
+          ]
+        },
+        {
+          "sim_seconds": 138.3,
+          "goal": [
+            15,
+            1.48,
+            4.075,
+            1.6
+          ]
+        },
+        {
+          "sim_seconds": 151.0,
+          "goal": [
+            16,
+            -2.387,
+            4.672,
+            1.4
+          ]
+        },
+        {
+          "sim_seconds": 164.0,
+          "goal": [
+            18,
+            -2.387,
+            5.172,
+            0.75
+          ]
+        },
+        {
+          "sim_seconds": 170.6,
+          "goal": [
+            19,
+            -2.387,
+            5.672,
+            0.75
+          ]
+        },
+        {
+          "sim_seconds": 255.2,
+          "goal": [
+            20,
+            0.067,
+            4.699,
+            0.793
+          ]
+        }
+      ]
+    }
+  ],
+  "retry_authorized_by_user": true
+}

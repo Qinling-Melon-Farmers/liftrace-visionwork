@@ -1,0 +1,1671 @@
+{
+  "round": "R56",
+  "attempt": 2,
+  "attempt_label": "user_authorized_same_round_native_retry",
+  "run": "r2026_integrated_r56_h_capture_native_retry_20260907_093916",
+  "source_commit": "f0f748016064fbecabefd03d7b05503fb744a697",
+  "status": "FAIL",
+  "reason": "manager_failed",
+  "metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 20,
+    "door_crossings": [],
+    "height_violations": 0,
+    "landing_align_mode_seen": false,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      3.274292,
+      8.05722
+    ],
+    "latest_armed": null,
+    "latest_landed_state": null,
+    "max_observed_height": 1.7387450058056906,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 12251,
+    "post_delivery_decision_indices": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "post_delivery_return_success_count": 3,
+    "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+    "post_delivery_route_size": 11,
+    "recovery_success_count": 3,
+    "release_commit_count": 3,
+    "result_count": 196,
+    "selected_count": 1186,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": null
+  },
+  "checks": {
+    "anchor_ready": true,
+    "bridge_live_and_healthy": true,
+    "committed_targets_were_selected": true,
+    "contact_ready_zero": true,
+    "contract_errors_zero": false,
+    "doors_crossed_in_order": false,
+    "field_ready": true,
+    "final_landed_on_ground": false,
+    "final_vehicle_disarmed": false,
+    "forced_return_within_limit": true,
+    "land_success": false,
+    "landing_align_mode_seen": false,
+    "landing_h_mark_valid": false,
+    "manager_complete": false,
+    "manager_identity_matches": true,
+    "manager_post_delivery_route_matches": false,
+    "mission_ros_within_limit": false,
+    "pose_seen": true,
+    "post_delivery_return_goals": false,
+    "post_delivery_return_sequence": false,
+    "real_approach_commands": true,
+    "required_statuses_seen": true,
+    "return_after_deliveries": false,
+    "return_before_land": false,
+    "return_home_success": false,
+    "single_mission": true,
+    "single_planner_goal_publisher": true,
+    "start_gate_started_once": true,
+    "tank_accepted_zero": true,
+    "tank_selected_zero": true,
+    "three_capture_started": true,
+    "three_recovery_successes": true,
+    "three_release_commits": true,
+    "unmatched_results_zero": true,
+    "zero_boundary_violations": true,
+    "zero_collisions": true,
+    "zero_height_violations": true
+  },
+  "errors": [
+    "manager_failed",
+    "manager_aborted"
+  ],
+  "bag_files": [
+    {
+      "file": "navigation_vcl06_debug_2026-09-07-09-39-28_0.bag",
+      "start": 0.378,
+      "end": 27.773,
+      "messages": 43779
+    },
+    {
+      "file": "navigation_vcl06_debug_2026-09-07-09-41-54_1.bag",
+      "start": 27.773,
+      "end": 47.529,
+      "messages": 35243
+    },
+    {
+      "file": "navigation_vcl06_debug_2026-09-07-09-43-34_2.bag",
+      "start": 47.529,
+      "end": 69.948,
+      "messages": 39505
+    },
+    {
+      "file": "navigation_vcl06_debug_2026-09-07-09-45-29_3.bag",
+      "start": 69.948,
+      "end": 91.231,
+      "messages": 37559
+    },
+    {
+      "file": "navigation_vcl06_debug_2026-09-07-09-47-15_4.bag",
+      "start": 91.231,
+      "end": 112.496,
+      "messages": 37532
+    },
+    {
+      "file": "navigation_vcl06_debug_2026-09-07-09-49-01_5.bag",
+      "start": 112.496,
+      "end": 132.132,
+      "messages": 34838
+    },
+    {
+      "file": "navigation_vcl06_debug_2026-09-07-09-50-44_6.bag",
+      "start": 132.134,
+      "end": 154.005,
+      "messages": 38841
+    },
+    {
+      "file": "navigation_vcl06_debug_2026-09-07-09-52-41_7.bag",
+      "start": 154.005,
+      "end": 176.057,
+      "messages": 39027
+    },
+    {
+      "file": "navigation_vcl06_debug_2026-09-07-09-54-40_8.bag",
+      "start": 176.058,
+      "end": 199.289,
+      "messages": 40928
+    },
+    {
+      "file": "navigation_vcl06_debug_2026-09-07-09-56-43_9.bag",
+      "start": 199.289,
+      "end": 222.595,
+      "messages": 41033
+    },
+    {
+      "file": "navigation_vcl06_debug_2026-09-07-09-58-47_10.bag",
+      "start": 222.595,
+      "end": 245.8,
+      "messages": 40867
+    },
+    {
+      "file": "navigation_vcl06_debug_2026-09-07-10-00-50_11.bag",
+      "start": 245.8,
+      "end": 256.232,
+      "messages": 18421
+    }
+  ],
+  "topic_counts": {
+    "/Odometry": 2554,
+    "/detect/point_class": 5117,
+    "/downward_camera/camera_info": 4861,
+    "/downward_camera/image_raw": 4860,
+    "/freedom/static_pointcloud": 2554,
+    "/gazebo/model_states": 255643,
+    "/livox/imu": 25552,
+    "/livox/lidar": 2557,
+    "/mavros/extended_state": 1277,
+    "/mavros/imu/data": 12744,
+    "/mavros/local_position/odom": 7664,
+    "/mavros/local_position/pose": 7664,
+    "/mavros/setpoint_position/local": 5117,
+    "/mavros/state": 256,
+    "/mavros/vision_pose/pose": 2554,
+    "/mission/gazebo_contact_status": 13291,
+    "/mission/planner_anchor_status": 257,
+    "/mission/random_field_status": 260,
+    "/mission/release_permission": 5124,
+    "/mission/release_permission_active": 5125,
+    "/navigation/mission_start_gate_status": 6360,
+    "/navigation/mission_status": 4809,
+    "/navigation/planner_bridge_status": 540,
+    "/sdf_map/occupancy_inflate": 1274,
+    "/tf": 10217,
+    "/tf_static": 3,
+    "/uav_vision/align_mode": 5117,
+    "/uav_vision/detections": 14563,
+    "/uav_vision/detections_mapped": 4859,
+    "/uav_vision/drop_ready": 4850,
+    "/uav_vision/release_evidence_context": 4850,
+    "/fastplanner/goal": 20,
+    "/fastplanner/setpoint_position/local": 22789,
+    "/mission/command": 22,
+    "/mission/release_commitment_evidence": 3,
+    "/mission/release_result": 3,
+    "/navigation/mission_command_raw": 20,
+    "/navigation/mission_result": 198,
+    "/planning/bspline": 18,
+    "/planning/goal_status": 301,
+    "/uav_vision/alignment_target_context": 304,
+    "/uav_vision/drop_offset": 236,
+    "/uav_vision/selected_target": 1186
+  },
+  "topic_types": {
+    "/Odometry": "nav_msgs/Odometry",
+    "/detect/point_class": "std_msgs/Int8",
+    "/downward_camera/camera_info": "sensor_msgs/CameraInfo",
+    "/downward_camera/image_raw": "sensor_msgs/Image",
+    "/freedom/static_pointcloud": "sensor_msgs/PointCloud2",
+    "/gazebo/model_states": "gazebo_msgs/ModelStates",
+    "/livox/imu": "sensor_msgs/Imu",
+    "/livox/lidar": "sensor_msgs/PointCloud2",
+    "/mavros/extended_state": "mavros_msgs/ExtendedState",
+    "/mavros/imu/data": "sensor_msgs/Imu",
+    "/mavros/local_position/odom": "nav_msgs/Odometry",
+    "/mavros/local_position/pose": "geometry_msgs/PoseStamped",
+    "/mavros/setpoint_position/local": "geometry_msgs/PoseStamped",
+    "/mavros/state": "mavros_msgs/State",
+    "/mavros/vision_pose/pose": "geometry_msgs/PoseStamped",
+    "/mission/gazebo_contact_status": "std_msgs/String",
+    "/mission/planner_anchor_status": "std_msgs/String",
+    "/mission/random_field_status": "std_msgs/String",
+    "/mission/release_permission": "uav_mission/ReleasePermission",
+    "/mission/release_permission_active": "std_msgs/Bool",
+    "/navigation/mission_start_gate_status": "std_msgs/String",
+    "/navigation/mission_status": "std_msgs/String",
+    "/navigation/planner_bridge_status": "std_msgs/String",
+    "/sdf_map/occupancy_inflate": "sensor_msgs/PointCloud2",
+    "/tf": "tf2_msgs/TFMessage",
+    "/tf_static": "tf2_msgs/TFMessage",
+    "/uav_vision/align_mode": "std_msgs/String",
+    "/uav_vision/detections": "uav_vision/TargetDetectionArray",
+    "/uav_vision/detections_mapped": "uav_vision/TargetDetectionArray",
+    "/uav_vision/drop_ready": "uav_vision/DropReady",
+    "/uav_vision/release_evidence_context": "uav_vision/ReleaseEvidenceContext",
+    "/fastplanner/goal": "geometry_msgs/PoseStamped",
+    "/fastplanner/setpoint_position/local": "geometry_msgs/PoseStamped",
+    "/mission/command": "patrol_control/MissionCommand",
+    "/mission/release_commitment_evidence": "uav_vision/ReleaseEvidence",
+    "/mission/release_result": "uav_mission/ReleaseResult",
+    "/navigation/mission_command_raw": "uav_mission/NavigationDecision",
+    "/navigation/mission_result": "uav_mission/NavigationResult",
+    "/planning/bspline": "plan_manage/Bspline",
+    "/planning/goal_status": "plan_manage/PlannerStatus",
+    "/uav_vision/alignment_target_context": "uav_vision/AlignmentTargetContext",
+    "/uav_vision/drop_offset": "uav_vision/DropOffset",
+    "/uav_vision/selected_target": "uav_vision/TargetCandidate"
+  },
+  "record_buffer_overflow_warnings": 0,
+  "wrapper_cleanup_pass": true,
+  "phase_changes": [
+    {
+      "time": 0.378,
+      "mission": {
+        "last_reason": "waiting_for_manual_start",
+        "manual_start_required": true,
+        "mission_id": "",
+        "phase": "IDLE",
+        "profile": "r2026",
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 28.023,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 1,
+        "committed_slots": 0,
+        "last_reason": "coverage_start",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 1,
+        "route_complete": false,
+        "route_index": 0,
+        "slot_status": [
+          "FREE",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 30.8,
+      "mission": {
+        "active_command": "APPROACH",
+        "active_decision_seq": 2,
+        "committed_slots": 0,
+        "last_reason": "high_weight_search_interrupt",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "EXECUTING",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 0,
+        "slot_status": [
+          "RESERVED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 39.668,
+      "mission": {
+        "active_command": "APPROACH",
+        "active_decision_seq": 2,
+        "committed_slots": 1,
+        "last_reason": "payload_committed",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "EXECUTING",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 0,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 41.856,
+      "mission": {
+        "active_command": "RESUME",
+        "active_decision_seq": 3,
+        "committed_slots": 1,
+        "last_reason": "resume_interrupted_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 3,
+        "route_complete": false,
+        "route_index": 0,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 47.023,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 4,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 4,
+        "route_complete": false,
+        "route_index": 1,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 60.832,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 5,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 5,
+        "route_complete": false,
+        "route_index": 2,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 64.004,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 6,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 6,
+        "route_complete": false,
+        "route_index": 3,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 77.804,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 7,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 7,
+        "route_complete": false,
+        "route_index": 4,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 81.171,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 8,
+        "committed_slots": 1,
+        "last_reason": "progress_recorded",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 8,
+        "route_complete": false,
+        "route_index": 5,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 94.887,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 9,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 9,
+        "route_complete": false,
+        "route_index": 6,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 98.26,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 10,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 10,
+        "route_complete": false,
+        "route_index": 7,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 114.503,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 11,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 11,
+        "route_complete": false,
+        "route_index": 8,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 117.932,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 12,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 12,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 120.301,
+      "mission": {
+        "active_command": "APPROACH",
+        "active_decision_seq": 13,
+        "committed_slots": 1,
+        "last_reason": "high_weight_search_interrupt",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "EXECUTING",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "RESERVED",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 128.5,
+      "mission": {
+        "active_command": "APPROACH",
+        "active_decision_seq": 13,
+        "committed_slots": 2,
+        "last_reason": "payload_committed",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "EXECUTING",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 130.896,
+      "mission": {
+        "active_command": "RESUME",
+        "active_decision_seq": 14,
+        "committed_slots": 2,
+        "last_reason": "resume_interrupted_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 14,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 138.108,
+      "mission": {
+        "active_command": "APPROACH",
+        "active_decision_seq": 15,
+        "committed_slots": 2,
+        "last_reason": "high_weight_search_interrupt",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "EXECUTING",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "RESERVED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 145.64,
+      "mission": {
+        "active_command": "APPROACH",
+        "active_decision_seq": 15,
+        "committed_slots": 3,
+        "last_reason": "payload_committed",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "EXECUTING",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 147.892,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 16,
+        "committed_slots": 3,
+        "last_reason": "required_deliveries_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 161.155,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 17,
+        "committed_slots": 3,
+        "last_reason": "post_delivery_route_segment_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 1,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 163.232,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 18,
+        "committed_slots": 3,
+        "last_reason": "post_delivery_route_segment_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 2,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 166.052,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 19,
+        "committed_slots": 3,
+        "last_reason": "post_delivery_route_segment_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 3,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 256.092,
+      "mission": {
+        "active_command": "ABORT",
+        "active_decision_seq": 20,
+        "committed_slots": 3,
+        "last_reason": "safety_motion_timed_out",
+        "manual_start_required": true,
+        "mission_failed": true,
+        "mission_id": "vcl06-random-28-023000000-1",
+        "phase": "ABORTED",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 3,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    }
+  ],
+  "fcu_changes": [
+    {
+      "time": 0.378,
+      "connected": false,
+      "armed": false,
+      "mode": ""
+    },
+    {
+      "time": 1.756,
+      "connected": true,
+      "armed": false,
+      "mode": "CMODE(50593792)"
+    },
+    {
+      "time": 2.755,
+      "connected": true,
+      "armed": false,
+      "mode": "AUTO.LOITER"
+    },
+    {
+      "time": 14.751,
+      "connected": true,
+      "armed": false,
+      "mode": "OFFBOARD"
+    },
+    {
+      "time": 15.756,
+      "connected": true,
+      "armed": true,
+      "mode": "OFFBOARD"
+    }
+  ],
+  "landed_state_changes": [
+    {
+      "time": 0.953,
+      "landed_state": 1
+    },
+    {
+      "time": 16.556,
+      "landed_state": 2
+    }
+  ],
+  "start_gate_changes": [
+    {
+      "time": 0.378,
+      "status": {
+        "call_in_flight": false,
+        "component": "navigation_mission_start_gate",
+        "conditions": {
+          "anchor_document": true,
+          "anchor_identity": true,
+          "anchor_models": true,
+          "anchor_ready": true,
+          "control_ready": false,
+          "field_classes": true,
+          "field_document": true,
+          "field_footprint": false,
+          "field_identity": true,
+          "field_models": false,
+          "field_ready": false,
+          "manager_document": true,
+          "manager_idle": true,
+          "manager_profile": true,
+          "truth_document": false,
+          "truth_durable": false,
+          "truth_geometry": false,
+          "truth_identity": false,
+          "truth_path": false,
+          "truth_targets": false
+        },
+        "control_ready": false,
+        "control_ready_topic": "/mission/control_ready",
+        "enabled": true,
+        "expected_seed": 11,
+        "expected_truth_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r56_h_capture_native_retry_20260907_093916/random_field_truth.yaml",
+        "last_service_message": "",
+        "nav_feature_profile": "baseline",
+        "next_retry_in_sec": 0.0,
+        "profile": "r2026",
+        "reason": "field_not_ready",
+        "retry_failure_count": 0,
+        "runtime_error": "",
+        "schema_version": 1,
+        "service_call_count": 0,
+        "service_rejection_count": 0,
+        "service_success_count": 0,
+        "service_unavailable_count": 0,
+        "start_service": "/navigation/start_mission",
+        "started_latched": false,
+        "status": "WAITING",
+        "status_topic": "/navigation/mission_start_gate_status",
+        "updated_wall_time": 1788745163.326454
+      }
+    },
+    {
+      "time": 1.098,
+      "status": {
+        "call_in_flight": false,
+        "component": "navigation_mission_start_gate",
+        "conditions": {
+          "anchor_document": true,
+          "anchor_identity": true,
+          "anchor_models": true,
+          "anchor_ready": true,
+          "control_ready": false,
+          "field_classes": true,
+          "field_document": true,
+          "field_footprint": true,
+          "field_identity": true,
+          "field_models": true,
+          "field_ready": true,
+          "manager_document": true,
+          "manager_idle": true,
+          "manager_profile": true,
+          "truth_document": true,
+          "truth_durable": true,
+          "truth_geometry": true,
+          "truth_identity": true,
+          "truth_path": true,
+          "truth_targets": true
+        },
+        "control_ready": false,
+        "control_ready_topic": "/mission/control_ready",
+        "enabled": true,
+        "expected_seed": 11,
+        "expected_truth_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r56_h_capture_native_retry_20260907_093916/random_field_truth.yaml",
+        "last_service_message": "",
+        "nav_feature_profile": "baseline",
+        "next_retry_in_sec": 0.0,
+        "profile": "r2026",
+        "reason": "control_not_ready",
+        "retry_failure_count": 0,
+        "runtime_error": "",
+        "schema_version": 1,
+        "service_call_count": 0,
+        "service_rejection_count": 0,
+        "service_success_count": 0,
+        "service_unavailable_count": 0,
+        "start_service": "/navigation/start_mission",
+        "started_latched": false,
+        "status": "WAITING",
+        "status_topic": "/navigation/mission_start_gate_status",
+        "updated_wall_time": 1788745180.902417
+      }
+    },
+    {
+      "time": 27.956,
+      "status": {
+        "call_in_flight": false,
+        "component": "navigation_mission_start_gate",
+        "conditions": {
+          "anchor_document": true,
+          "anchor_identity": true,
+          "anchor_models": true,
+          "anchor_ready": true,
+          "control_ready": true,
+          "field_classes": true,
+          "field_document": true,
+          "field_footprint": true,
+          "field_identity": true,
+          "field_models": true,
+          "field_ready": true,
+          "manager_document": true,
+          "manager_idle": true,
+          "manager_profile": true,
+          "truth_document": true,
+          "truth_durable": true,
+          "truth_geometry": true,
+          "truth_identity": true,
+          "truth_path": true,
+          "truth_targets": true
+        },
+        "control_ready": true,
+        "control_ready_topic": "/mission/control_ready",
+        "enabled": true,
+        "expected_seed": 11,
+        "expected_truth_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r56_h_capture_native_retry_20260907_093916/random_field_truth.yaml",
+        "last_service_message": "",
+        "nav_feature_profile": "baseline",
+        "next_retry_in_sec": 0.0,
+        "profile": "r2026",
+        "reason": "ready_to_start",
+        "retry_failure_count": 0,
+        "runtime_error": "",
+        "schema_version": 1,
+        "service_call_count": 0,
+        "service_rejection_count": 0,
+        "service_success_count": 0,
+        "service_unavailable_count": 0,
+        "start_service": "/navigation/start_mission",
+        "started_latched": false,
+        "status": "READY",
+        "status_topic": "/navigation/mission_start_gate_status",
+        "updated_wall_time": 1788745314.883056
+      }
+    },
+    {
+      "time": 28.02,
+      "status": {
+        "call_in_flight": true,
+        "component": "navigation_mission_start_gate",
+        "conditions": {
+          "anchor_document": true,
+          "anchor_identity": true,
+          "anchor_models": true,
+          "anchor_ready": true,
+          "control_ready": true,
+          "field_classes": true,
+          "field_document": true,
+          "field_footprint": true,
+          "field_identity": true,
+          "field_models": true,
+          "field_ready": true,
+          "manager_document": true,
+          "manager_idle": true,
+          "manager_profile": true,
+          "truth_document": true,
+          "truth_durable": true,
+          "truth_geometry": true,
+          "truth_identity": true,
+          "truth_path": true,
+          "truth_targets": true
+        },
+        "control_ready": true,
+        "control_ready_topic": "/mission/control_ready",
+        "enabled": true,
+        "expected_seed": 11,
+        "expected_truth_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r56_h_capture_native_retry_20260907_093916/random_field_truth.yaml",
+        "last_service_message": "",
+        "nav_feature_profile": "baseline",
+        "next_retry_in_sec": 0.0,
+        "profile": "r2026",
+        "reason": "start_service_call_in_flight",
+        "retry_failure_count": 0,
+        "runtime_error": "",
+        "schema_version": 1,
+        "service_call_count": 1,
+        "service_rejection_count": 0,
+        "service_success_count": 0,
+        "service_unavailable_count": 0,
+        "start_service": "/navigation/start_mission",
+        "started_latched": false,
+        "status": "STARTING",
+        "status_topic": "/navigation/mission_start_gate_status",
+        "updated_wall_time": 1788745315.093622
+      }
+    },
+    {
+      "time": 28.023,
+      "status": {
+        "call_in_flight": false,
+        "component": "navigation_mission_start_gate",
+        "conditions": {
+          "anchor_document": true,
+          "anchor_identity": true,
+          "anchor_models": true,
+          "anchor_ready": true,
+          "control_ready": true,
+          "field_classes": true,
+          "field_document": true,
+          "field_footprint": true,
+          "field_identity": true,
+          "field_models": true,
+          "field_ready": true,
+          "manager_document": true,
+          "manager_idle": true,
+          "manager_profile": true,
+          "truth_document": true,
+          "truth_durable": true,
+          "truth_geometry": true,
+          "truth_identity": true,
+          "truth_path": true,
+          "truth_targets": true
+        },
+        "control_ready": true,
+        "control_ready_topic": "/mission/control_ready",
+        "enabled": true,
+        "expected_seed": 11,
+        "expected_truth_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r56_h_capture_native_retry_20260907_093916/random_field_truth.yaml",
+        "last_service_message": "vcl06-random-28-023000000-1",
+        "nav_feature_profile": "baseline",
+        "next_retry_in_sec": 0.0,
+        "profile": "r2026",
+        "reason": "start_succeeded_latched",
+        "retry_failure_count": 0,
+        "runtime_error": "",
+        "schema_version": 1,
+        "service_call_count": 1,
+        "service_rejection_count": 0,
+        "service_success_count": 1,
+        "service_unavailable_count": 0,
+        "start_service": "/navigation/start_mission",
+        "started_latched": true,
+        "status": "STARTED",
+        "status_topic": "/navigation/mission_start_gate_status",
+        "updated_wall_time": 1788745315.3488805
+      }
+    }
+  ],
+  "align_mode_changes": [
+    {
+      "time": 0.429,
+      "mode": "disabled"
+    },
+    {
+      "time": 34.431,
+      "mode": "drop_circle"
+    },
+    {
+      "time": 41.331,
+      "mode": "disabled"
+    },
+    {
+      "time": 123.679,
+      "mode": "drop_circle"
+    },
+    {
+      "time": 130.377,
+      "mode": "disabled"
+    },
+    {
+      "time": 141.028,
+      "mode": "drop_cross"
+    },
+    {
+      "time": 147.381,
+      "mode": "disabled"
+    }
+  ],
+  "land_start_sec": null,
+  "h_detection_count": 0,
+  "first_h": [],
+  "goals": {
+    "1": {
+      "time": 28.023,
+      "goal": [
+        -2.007,
+        0.273,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.31200000000000117,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "superseded_by_new_goal": 1
+      }
+    },
+    "2": {
+      "time": 30.804,
+      "goal": [
+        -1.007683286167498,
+        0.9951479231353686,
+        1.6
+      ],
+      "first_ready_latency_sec": 0.17400000000000304,
+      "status_counts": {
+        "goal_received": 1,
+        "trajectory_replan_attempt": 1,
+        "replanned_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "3": {
+      "time": 41.861,
+      "goal": [
+        -2.007,
+        0.273,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.1010000000000062,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "4": {
+      "time": 47.023,
+      "goal": [
+        1.993,
+        0.273,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.134999999999998,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "5": {
+      "time": 60.835,
+      "goal": [
+        1.993,
+        0.973,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.12899999999999778,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "6": {
+      "time": 64.004,
+      "goal": [
+        -2.007,
+        0.973,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.23099999999999454,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "7": {
+      "time": 77.804,
+      "goal": [
+        -2.007,
+        1.673,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.16899999999999693,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "8": {
+      "time": 81.168,
+      "goal": [
+        1.993,
+        1.673,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.2599999999999909,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "9": {
+      "time": 94.887,
+      "goal": [
+        1.993,
+        2.373,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.26500000000000057,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "10": {
+      "time": 98.26,
+      "goal": [
+        -2.007,
+        2.373,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.19199999999999307,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "11": {
+      "time": 114.503,
+      "goal": [
+        -2.007,
+        3.0730000000000004,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.14100000000000534,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "12": {
+      "time": 117.932,
+      "goal": [
+        1.993,
+        3.0730000000000004,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.14799999999999613,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "superseded_by_new_goal": 1
+      }
+    },
+    "13": {
+      "time": 120.304,
+      "goal": [
+        -1.1789753875913989,
+        4.147006702884463,
+        1.6
+      ],
+      "first_ready_latency_sec": 0.20000000000000284,
+      "status_counts": {
+        "goal_received": 1,
+        "trajectory_replan_attempt": 1,
+        "replanned_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "14": {
+      "time": 130.896,
+      "goal": [
+        1.993,
+        3.0730000000000004,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.20000000000001705,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "superseded_by_new_goal": 1
+      }
+    },
+    "15": {
+      "time": 138.105,
+      "goal": [
+        1.4905032448876263,
+        4.0871057984470545,
+        1.6
+      ],
+      "first_ready_latency_sec": 0.19300000000001205,
+      "status_counts": {
+        "goal_received": 1,
+        "trajectory_replan_attempt": 1,
+        "replanned_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "16": {
+      "time": 147.892,
+      "goal": [
+        -2.386703,
+        4.67227,
+        1.4
+      ],
+      "first_ready_latency_sec": 0.24100000000001387,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "17": {
+      "time": 161.155,
+      "goal": [
+        -2.386703,
+        4.67227,
+        1.05
+      ],
+      "first_ready_latency_sec": 0.21299999999999386,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "18": {
+      "time": 163.232,
+      "goal": [
+        -2.386703,
+        5.17227,
+        0.75
+      ],
+      "first_ready_latency_sec": 0.015999999999991132,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_ready": 1,
+        "goal_reached_after_local_trajectory": 1
+      }
+    },
+    "19": {
+      "time": 166.052,
+      "goal": [
+        -2.386703,
+        5.67227,
+        0.75
+      ],
+      "first_ready_latency_sec": null,
+      "status_counts": {
+        "goal_received": 1,
+        "new_trajectory_attempt": 1,
+        "new_trajectory_attempt_failed": 113,
+        "new_trajectory_retry": 112,
+        "superseded_by_new_goal": 1
+      }
+    },
+    "20": {
+      "time": 256.095,
+      "goal": [
+        -2.395203113555908,
+        5.186011791229248,
+        0.7930719256401062
+      ],
+      "first_ready_latency_sec": null,
+      "status_counts": {
+        "goal_received": 1
+      }
+    }
+  },
+  "largest_map_gaps_sec": [
+    [
+      0.394999999999996,
+      116.049,
+      116.444
+    ],
+    [
+      0.3830000000000098,
+      132.259,
+      132.642
+    ],
+    [
+      0.3810000000000002,
+      104.028,
+      104.409
+    ],
+    [
+      0.37999999999999545,
+      75.232,
+      75.612
+    ],
+    [
+      0.3680000000000092,
+      83.056,
+      83.424
+    ]
+  ],
+  "largest_cloud_gaps_sec": [
+    [
+      0.20000000000000284,
+      86.236,
+      86.436
+    ],
+    [
+      0.18899999999999295,
+      133.279,
+      133.468
+    ],
+    [
+      0.1880000000000166,
+      196.38,
+      196.568
+    ],
+    [
+      0.18500000000000227,
+      72.067,
+      72.252
+    ],
+    [
+      0.1839999999999975,
+      157.568,
+      157.752
+    ]
+  ],
+  "largest_pose_gaps_sec": [
+    [
+      0.05299999999999727,
+      196.488,
+      196.541
+    ],
+    [
+      0.05200000000002092,
+      250.884,
+      250.936
+    ],
+    [
+      0.05200000000002092,
+      152.884,
+      152.936
+    ],
+    [
+      0.05200000000000671,
+      78.252,
+      78.304
+    ],
+    [
+      0.0519999999999996,
+      50.652,
+      50.704
+    ]
+  ],
+  "gazebo_body_z_max_m": 1.7387103243811233,
+  "mavros_z_max_m": 1.6444532871246338,
+  "height_scope": "Gazebo body/model origin, not the highest point of a tilted guard",
+  "px4_readback": {
+    "EKF2_EV_CTRL": {
+      "success": true,
+      "integer": 9,
+      "real": 0.0
+    },
+    "EKF2_HGT_REF": {
+      "success": true,
+      "integer": 0,
+      "real": 0.0
+    },
+    "EKF2_GPS_CTRL": {
+      "success": true,
+      "integer": 0,
+      "real": 0.0
+    },
+    "EKF2_BARO_CTRL": {
+      "success": true,
+      "integer": 1,
+      "real": 0.0
+    },
+    "EKF2_BARO_NOISE": {
+      "success": true,
+      "integer": 0,
+      "real": 0.15000000596046448
+    },
+    "EKF2_EV_DELAY": {
+      "success": true,
+      "integer": 0,
+      "real": 0.0
+    },
+    "EKF2_EVP_NOISE": {
+      "success": true,
+      "integer": 0,
+      "real": 0.10000000149011612
+    },
+    "EKF2_EVA_NOISE": {
+      "success": true,
+      "integer": 0,
+      "real": 0.05000000074505806
+    }
+  },
+  "derived_timing": {
+    "mission_start_ros_sec": 28.023,
+    "terminal_ros_sec": 256.092,
+    "elapsed_ros_sec": 228.069,
+    "scope": "Offline first active mission status to terminal status; original failed Gate time fields remain null",
+    "elapsed_wall_sec": 1188.7422814369202,
+    "realtime_factor": 0.19185739715114383
+  },
+  "failure_detail": {
+    "first_failed_goal_seq": 19,
+    "requested_goal": [
+      -2.386703,
+      5.67227,
+      0.75
+    ],
+    "motion_start_ros_sec": 166.052,
+    "motion_abort_ros_sec": 256.092,
+    "motion_elapsed_ros_sec": 90.04,
+    "observed_state": "Repeated occupied-goal rejection; three deliveries and three completed staging legs, no door crossing",
+    "rootcause_artifact": "rootcause/analysis.json"
+  }
+}

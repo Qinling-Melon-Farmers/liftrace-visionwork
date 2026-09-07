@@ -92,7 +92,7 @@ class GateEvaluation:
 
 
 class MissionStartPolicy:
-    """Validate field, truth, anchor and manager status documents."""
+    """Validate field, truth, anchor, manager and control readiness."""
 
     _CHECK_ORDER = (
         ("field_document", "field_status_missing_or_invalid"),
@@ -114,6 +114,7 @@ class MissionStartPolicy:
         ("manager_document", "manager_status_missing_or_invalid"),
         ("manager_profile", "manager_profile_mismatch"),
         ("manager_idle", "manager_not_idle"),
+        ("control_ready", "control_not_ready"),
     )
 
     def __init__(self, config):
@@ -148,7 +149,8 @@ class MissionStartPolicy:
                     for item in targets))
         return identity, targets_valid, geometry_valid
 
-    def evaluate(self, field, truth, truth_durable, anchor, manager):
+    def evaluate(self, field, truth, truth_durable, anchor, manager,
+                 control_ready=False):
         field_document = _is_document(field)
         truth_document = _is_document(truth)
         anchor_document = _is_document(anchor)
@@ -214,6 +216,7 @@ class MissionStartPolicy:
                 manager.get("profile") == self.config.profile),
             "manager_idle": bool(
                 manager_document and manager.get("phase") == "IDLE"),
+            "control_ready": control_ready is True,
         }
         for name, reason in self._CHECK_ORDER:
             if not checks[name]:
@@ -233,9 +236,11 @@ class MissionStartGate:
         self.truth_durable = False
         self.anchor = None
         self.manager = None
+        self.control_ready = False
         self.started_latched = False
         self.call_in_flight = False
         self.service_call_count = 0
+        self.service_success_count = 0
         self.service_unavailable_count = 0
         self.service_rejection_count = 0
         self.retry_failure_count = 0
@@ -253,10 +258,13 @@ class MissionStartGate:
     def update_manager(self, manager):
         self.manager = manager
 
+    def update_control_ready(self, ready):
+        self.control_ready = ready is True
+
     def evaluate(self):
         return self.policy.evaluate(
             self.field, self.truth, self.truth_durable,
-            self.anchor, self.manager)
+            self.anchor, self.manager, self.control_ready)
 
     def may_probe_service(self, now):
         if not self.enabled or self.started_latched or self.call_in_flight:
@@ -294,6 +302,7 @@ class MissionStartGate:
         self.call_in_flight = False
         self.last_service_message = str(message)
         if success:
+            self.service_success_count += 1
             self.started_latched = True
             self.next_retry_at = math.inf
             return
@@ -331,7 +340,9 @@ class MissionStartGate:
             "expected_truth_path": _normalized_path(
                 self.config.expected_truth_path),
             "conditions": dict(evaluation.checks),
+            "control_ready": self.control_ready,
             "service_call_count": self.service_call_count,
+            "service_success_count": self.service_success_count,
             "service_unavailable_count": self.service_unavailable_count,
             "service_rejection_count": self.service_rejection_count,
             "retry_failure_count": self.retry_failure_count,

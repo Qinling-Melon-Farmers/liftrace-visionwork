@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="7" failures="0" disabled="0" errors="0" time="0.594" timestamp="2026-09-07T03:58:20" name="AllTests">
+  <testsuite name="KinodynamicSearchFixture" tests="7" failures="0" disabled="0" errors="0" time="0.594" timestamp="2026-09-07T03:58:20">
+    <testcase name="ClearNearbyGoal" status="run" result="completed" time="0.002" timestamp="2026-09-07T03:58:20" classname="KinodynamicSearchFixture" />
+    <testcase name="BlockedConnectorStillFindsHorizontalDetour" status="run" result="completed" time="0.002" timestamp="2026-09-07T03:58:20" classname="KinodynamicSearchFixture" />
+    <testcase name="ClosedWallCannotEscapeMapBoundary" status="run" result="completed" time="0.251" timestamp="2026-09-07T03:58:20" classname="KinodynamicSearchFixture" />
+    <testcase name="OccupiedGoalCannotProduceHorizonSuccess" status="run" result="completed" time="0.001" timestamp="2026-09-07T03:58:21" classname="KinodynamicSearchFixture" />
+    <testcase name="ShortGoalCannotEscapeAsPartialTrajectory" status="run" result="completed" time="0.021" timestamp="2026-09-07T03:58:21" classname="KinodynamicSearchFixture" />
+    <testcase name="FrozenR54FineMapApproachAndDoor" status="run" result="completed" time="0.273" timestamp="2026-09-07T03:58:21" classname="KinodynamicSearchFixture" />
+    <testcase name="FrozenR54CoarseMapReproducesBlockedGoal" status="run" result="completed" time="0.044" timestamp="2026-09-07T03:58:21" classname="KinodynamicSearchFixture" />
+  </testsuite>
+</testsuites>

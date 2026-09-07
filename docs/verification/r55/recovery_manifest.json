@@ -1,0 +1,16 @@
+{
+  "original_active_bag_preserved": true,
+  "reindexed_copy": "recovered/navigation_vcl06_debug_2026-09-07-04-14-26_9.bag.active",
+  "indexed_bags": 9,
+  "recovered_bags": 1,
+  "recovered_end_ros_sec": 239.976,
+  "last_text_log_ros_sec": 246.596,
+  "missing_final_gate": true,
+  "wrapper_cleanup_completed": false,
+  "emergency_distro_termination": true,
+  "managed_processes_after_recovery": [],
+  "cleanup_removed_bytes": 51202580758,
+  "host_f_free_after_stop_bytes": 5899362304,
+  "host_f_free_during_failure_bytes": 17195008,
+  "note": "Reindex restores readable complete chunks, not missing data; no final Gate was synthesized."
+}

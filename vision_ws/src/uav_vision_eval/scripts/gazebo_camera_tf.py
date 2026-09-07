@@ -6,6 +6,7 @@ import tf2_ros
 from gazebo_msgs.msg import LinkStates
 from geometry_msgs.msg import PoseStamped, TransformStamped
 from sensor_msgs.msg import Image
+from uav_vision.msg import TargetDetectionArray
 
 from uav_vision_eval.stamped_pose_buffer import StampedPoseBuffer
 
@@ -49,6 +50,17 @@ class GazeboCameraTf:
             self._image_callback,
             queue_size=1,
         )
+        detection_trigger_topic = rospy.get_param(
+            "~detection_trigger_topic", "")
+        self._detection_trigger_source = rospy.get_param(
+            "~detection_trigger_source", "target_detector")
+        if detection_trigger_topic:
+            rospy.Subscriber(
+                detection_trigger_topic,
+                TargetDetectionArray,
+                self._detection_callback,
+                queue_size=1,
+            )
 
     def _link_states_callback(self, message):
         matches = [
@@ -68,18 +80,26 @@ class GazeboCameraTf:
         self.pose_buffer.add(message)
 
     def _image_callback(self, image):
+        self._broadcast_for_header(image.header)
+
+    def _detection_callback(self, detections):
+        if detections.source != self._detection_trigger_source:
+            return
+        self._broadcast_for_header(detections.header)
+
+    def _broadcast_for_header(self, header):
         pose = self.pose
         if self.use_stamped_camera_pose:
             stamped_pose, _age_sec = self.pose_buffer.at_or_before(
-                image.header.stamp)
+                header.stamp)
             pose = stamped_pose.pose if stamped_pose is not None else None
         if pose is None:
             rospy.logwarn_throttle(5.0, "uav_vision_eval: no unique Gazebo camera pose for TF")
             return
         transform = TransformStamped()
-        transform.header.stamp = image.header.stamp
+        transform.header.stamp = header.stamp
         transform.header.frame_id = self.world_frame
-        transform.child_frame_id = self.child_frame_override or image.header.frame_id
+        transform.child_frame_id = self.child_frame_override or header.frame_id
         transform.transform.translation.x = pose.position.x
         transform.transform.translation.y = pose.position.y
         transform.transform.translation.z = pose.position.z

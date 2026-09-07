@@ -1,0 +1,67 @@
+{
+  "local_raw_cloud_counterfactual": [
+    {
+      "case": "current",
+      "resolution": 0.1,
+      "xy_inflation": 0.3,
+      "up": 0.1,
+      "down": 0.3,
+      "occupied_queries": {
+        "approach_075": true,
+        "door_075": true,
+        "approach_090": true,
+        "door_090": true
+      }
+    },
+    {
+      "case": "same_envelope_finer_grid",
+      "resolution": 0.05,
+      "xy_inflation": 0.3,
+      "up": 0.1,
+      "down": 0.3,
+      "occupied_queries": {
+        "approach_075": false,
+        "door_075": false,
+        "approach_090": true,
+        "door_090": true
+      }
+    },
+    {
+      "case": "old_xy_current_vertical",
+      "resolution": 0.1,
+      "xy_inflation": 0.2,
+      "up": 0.1,
+      "down": 0.3,
+      "occupied_queries": {
+        "approach_075": false,
+        "door_075": false,
+        "approach_090": false,
+        "door_090": true
+      }
+    },
+    {
+      "case": "r41_actual_profile",
+      "resolution": 0.1,
+      "xy_inflation": 0.2,
+      "up": 0.2,
+      "down": 0.1,
+      "occupied_queries": {
+        "approach_075": false,
+        "door_075": false,
+        "approach_090": false,
+        "door_090": false
+      }
+    }
+  ],
+  "guard_mesh_local_min": [
+    -0.3,
+    -0.3,
+    -0.02
+  ],
+  "guard_mesh_local_max": [
+    0.3,
+    0.3,
+    0.02
+  ],
+  "note": "Offline raw-cloud inflation comparison only. It does not reproduce persistent SDF buffers, ESDF clearance, dynamics, or validate physical traversal."
+}

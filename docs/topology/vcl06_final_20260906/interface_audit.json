@@ -1,0 +1,91 @@
+{
+  "passed": false,
+  "checks": [
+    {
+      "id": "formal_legacy_topics_absent",
+      "passed": true,
+      "detail": "present=[]"
+    },
+    {
+      "id": "legacy_actuator_topics_absent",
+      "passed": false,
+      "detail": "present={'/control1': {'publishers': ['/patrol_control'], 'subscribers': []}, '/control2': {'publishers': ['/patrol_control'], 'subscribers': []}, '/control3': {'publishers': ['/patrol_control'], 'subscribers': []}, '/servo/complete': {'publishers': [], 'subscribers': ['/patrol_control']}}"
+    },
+    {
+      "id": "point_class_has_live_contract",
+      "passed": true,
+      "detail": "publishers=['/patrol_control'], subscribers=['/navigation/planner_bridge', '/release_permission_arbiter', '/visual_delivery_audit']"
+    },
+    {
+      "id": "typed_detections_connected",
+      "passed": true,
+      "detail": "publishers=['/target_map_projector'], subscribers=['/navigation_vcl06_assertion', '/patrol_control', '/target_memory']"
+    },
+    {
+      "id": "single_planner_goal_publisher",
+      "passed": true,
+      "detail": "publishers=['/navigation/planner_bridge']"
+    },
+    {
+      "id": "legacy_bridge_node_absent",
+      "passed": true,
+      "detail": "matching_nodes=[]"
+    },
+    {
+      "id": "old_coverage_manager_absent",
+      "passed": true,
+      "detail": "matching_nodes=[]"
+    },
+    {
+      "id": "node_present:/navigation/mission_manager",
+      "passed": true,
+      "detail": "present=True"
+    },
+    {
+      "id": "node_present:/navigation/planner_bridge",
+      "passed": true,
+      "detail": "present=True"
+    },
+    {
+      "id": "guarded_servo_service_present",
+      "passed": true,
+      "detail": "providers=['/guarded_servo_proxy']"
+    },
+    {
+      "id": "mock_raw_servo_service_present",
+      "passed": true,
+      "detail": "providers=['/mock_raw_servo_server']"
+    },
+    {
+      "id": "single_visual_source_root",
+      "passed": true,
+      "detail": "uav_vision=/home/xhj/liftrace-worktrees/vdeploy-final-closeout-plan/vision_ws/src/uav_vision"
+    },
+    {
+      "id": "single_navigation_source_root",
+      "passed": true,
+      "detail": "uav_mission=/home/xhj/liftrace-controlwork-worktrees/vcl06-local-full-mission/patrol_uav_ws-patrol_planner/src/uav_mission"
+    }
+  ],
+  "forbidden_topics": [
+    "/cross/control",
+    "/detect/class_control",
+    "/detect/control",
+    "/detect/cross_mark_point",
+    "/detect/cross_status",
+    "/detect/land_mark_point",
+    "/detect/landing_control",
+    "/detect/servo_complete",
+    "/detect/servo_status",
+    "/detect/tank_control",
+    "/detect/tank_status",
+    "/detect/waypoint_mark_point",
+    "/yolo_detect"
+  ],
+  "legacy_actuator_topic_candidates": [
+    "/control1",
+    "/control2",
+    "/control3",
+    "/servo/complete"
+  ]
+}

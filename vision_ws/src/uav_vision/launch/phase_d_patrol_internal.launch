@@ -9,6 +9,10 @@
     <arg name="rviz" value="$(arg rviz)" />
   </include>
 
-  <include unless="$(arg use_board_detector)" file="$(find uav_vision)/launch/phase_d.launch" />
-  <include if="$(arg use_board_detector)" file="$(find uav_vision)/launch/phase_d_board.launch" />
+  <include unless="$(arg use_board_detector)" file="$(find uav_vision)/launch/phase_d.launch">
+    <arg name="start_legacy_compat" value="true" />
+  </include>
+  <include if="$(arg use_board_detector)" file="$(find uav_vision)/launch/phase_d_board.launch">
+    <arg name="start_legacy_compat" value="true" />
+  </include>
 </launch>

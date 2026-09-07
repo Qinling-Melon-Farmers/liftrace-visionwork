@@ -1,0 +1,70 @@
+{
+  "deleted": [
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r54_guided_entry_20260907_023929/navigation_vcl06_debug_2026-09-07-02-40-19_0.bag",
+      "bytes": 123781498
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r54_guided_entry_20260907_025104/navigation_vcl06_debug_2026-09-07-02-51-20_0.bag",
+      "bytes": 1074682555
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r54_guided_entry_20260907_025104/navigation_vcl06_debug_2026-09-07-02-53-31_1.bag",
+      "bytes": 1074232713
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r54_guided_entry_20260907_025104/navigation_vcl06_debug_2026-09-07-02-55-36_2.bag",
+      "bytes": 1075173965
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r54_guided_entry_20260907_025104/navigation_vcl06_debug_2026-09-07-02-57-35_3.bag",
+      "bytes": 1075193538
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r54_guided_entry_20260907_025104/navigation_vcl06_debug_2026-09-07-02-59-29_4.bag",
+      "bytes": 928182978
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-00-58_0.bag",
+      "bytes": 1080647103
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-02-40_1.bag",
+      "bytes": 1074058686
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-04-07_2.bag",
+      "bytes": 1079165094
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-05-35_3.bag",
+      "bytes": 1077746880
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-06-59_4.bag",
+      "bytes": 1078650022
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-08-22_5.bag",
+      "bytes": 1074292559
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-09-47_6.bag",
+      "bytes": 1076636234
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-11-12_7.bag",
+      "bytes": 1080072967
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-12-46_8.bag",
+      "bytes": 1075119417
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-14-26_9.bag.active",
+      "bytes": 580636672
+    }
+  ],
+  "removed_bytes": 15628272881,
+  "prior_turn_removed_bytes": 51202580758
+}

@@ -66,6 +66,13 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
   node_.param("sdf_map/esdf_slice_height", mp_.esdf_slice_height_, -0.1);
   node_.param("sdf_map/visualization_truncate_height", mp_.visualization_truncate_height_, -0.1);
   node_.param("sdf_map/virtual_ceil_height", mp_.virtual_ceil_height_, -0.1);
+  node_.param("sdf_map/horizontal_avoidance/enabled", mp_.horizontal_avoidance_, false);
+  node_.param("sdf_map/horizontal_avoidance/min_x", mp_.horizontal_min_x_, 0.0);
+  node_.param("sdf_map/horizontal_avoidance/max_x", mp_.horizontal_max_x_, 0.0);
+  node_.param("sdf_map/horizontal_avoidance/min_y", mp_.horizontal_min_y_, 0.0);
+  node_.param("sdf_map/horizontal_avoidance/max_y", mp_.horizontal_max_y_, 0.0);
+  node_.param("sdf_map/horizontal_avoidance/obstacle_min_z", mp_.horizontal_obstacle_min_z_, 0.4);
+  node_.param("sdf_map/horizontal_avoidance/floor_z", mp_.horizontal_floor_z_, 0.1);
 
   node_.param("sdf_map/show_occ_time", mp_.show_occ_time_, false);
   node_.param("sdf_map/show_esdf_time", mp_.show_esdf_time_, false);
@@ -149,13 +156,16 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
   // use odometry and point cloud
 
   indep_cloud_sub_ =
-      node_.subscribe<sensor_msgs::PointCloud2>("/sdf_map/cloud", 10, &SDFMap::cloudCallback, this);
+      node_.subscribe<sensor_msgs::PointCloud2>("/sdf_map/cloud", 1, &SDFMap::cloudCallback, this);
   indep_odom_sub_ =
-      node_.subscribe<nav_msgs::Odometry>("/sdf_map/odom", 10, &SDFMap::odomCallback, this);
+      node_.subscribe<nav_msgs::Odometry>("/sdf_map/odom", 1, &SDFMap::odomCallback, this);
 
   occ_timer_ = node_.createTimer(ros::Duration(0.05), &SDFMap::updateOccupancyCallback, this);
   esdf_timer_ = node_.createTimer(ros::Duration(0.05), &SDFMap::updateESDFCallback, this);
-  vis_timer_ = node_.createTimer(ros::Duration(0.05), &SDFMap::visCallback, this);
+  double visualization_rate;
+  node_.param("sdf_map/visualization_rate", visualization_rate, 20.0);
+  vis_timer_ = node_.createTimer(ros::Duration(1.0 / std::max(0.1, visualization_rate)),
+                                 &SDFMap::visCallback, this);
 
   map_pub_ = node_.advertise<sensor_msgs::PointCloud2>("/sdf_map/occupancy", 10);
   map_inf_pub_ = node_.advertise<sensor_msgs::PointCloud2>("/sdf_map/occupancy_inflate", 10);
@@ -752,12 +762,18 @@ void SDFMap::clearAndInflateLocalMap() {
         }
       }
 
-  // add virtual ceiling to limit flight height
-  if (mp_.virtual_ceil_height_ > -0.5) {
-    int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_);
+  applyFlightCeiling();
+}
+
+void SDFMap::applyFlightCeiling() {
+  if (mp_.virtual_ceil_height_ > 0.0) {
+    const int ceil_id = std::max(0, std::min(mp_.map_voxel_num_(2) - 1,
+        int(floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_))));
+    md_.local_bound_max_(2) = std::max(md_.local_bound_max_(2), ceil_id);
     for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
       for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y) {
-        md_.occupancy_buffer_inflate_[toAddress(x, y, ceil_id)] = 1;
+        for (int z = ceil_id; z <= md_.local_bound_max_(2); ++z)
+          md_.occupancy_buffer_inflate_[toAddress(x, y, z)] = 1;
       }
   }
 }
@@ -893,6 +909,9 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   max_y = mp_.map_min_boundary_(1);
   max_z = mp_.map_min_boundary_(2);
 
+  std::vector<unsigned char> horizontal_columns(
+      mp_.map_voxel_num_(0) * mp_.map_voxel_num_(1), 0);
+
   for (size_t i = 0; i < latest_cloud.points.size(); ++i) {
     pt = latest_cloud.points[i];
     p3d(0) = pt.x, p3d(1) = pt.y, p3d(2) = pt.z;
@@ -904,31 +923,31 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
     if (fabs(devi(0)) < mp_.local_update_range_(0) && fabs(devi(1)) < mp_.local_update_range_(1) &&
         fabs(devi(2)) < mp_.local_update_range_(2)) {
 
-      /* inflate the point */
-      for (int x = -inf_step; x <= inf_step; ++x)
-        for (int y = -inf_step; y <= inf_step; ++y)
-          for (int z = -inf_step_z_down; z <= inf_step_z_up; ++z) {
-
-            p3d_inf(0) = pt.x + x * mp_.resolution_;
-            p3d_inf(1) = pt.y + y * mp_.resolution_;
-            p3d_inf(2) = pt.z + z * mp_.resolution_;
-
-            max_x = max(max_x, p3d_inf(0));
-            max_y = max(max_y, p3d_inf(1));
-            max_z = max(max_z, p3d_inf(2));
-
-            min_x = min(min_x, p3d_inf(0));
-            min_y = min(min_y, p3d_inf(1));
-            min_z = min(min_z, p3d_inf(2));
-
-            posToIndex(p3d_inf, inf_pt);
-
-            if (!isInMap(inf_pt)) continue;
-
-            int idx_inf = toAddress(inf_pt);
-
-            md_.occupancy_buffer_inflate_[idx_inf] = 1;
-          }
+      // Quantize each source point once, then fill contiguous Z spans. This
+      // is the same box inflation in voxel coordinates, without recomputing
+      // world coordinates for every occupied voxel on the finer grid.
+      Eigen::Vector3i center;
+      posToIndex(p3d, center);
+      min_x = min(min_x, pt.x - inf_step * mp_.resolution_);
+      min_y = min(min_y, pt.y - inf_step * mp_.resolution_);
+      min_z = min(min_z, pt.z - inf_step_z_down * mp_.resolution_);
+      max_x = max(max_x, pt.x + inf_step * mp_.resolution_);
+      max_y = max(max_y, pt.y + inf_step * mp_.resolution_);
+      max_z = max(max_z, pt.z + inf_step_z_up * mp_.resolution_);
+      int low_z = std::max(0, center.z() - inf_step_z_down);
+      int high_z = std::min(mp_.map_voxel_num_.z() - 1, center.z() + inf_step_z_up);
+      const bool column = mp_.horizontal_avoidance_ && pt.z >= mp_.horizontal_obstacle_min_z_ &&
+          pt.x >= mp_.horizontal_min_x_ && pt.x <= mp_.horizontal_max_x_ &&
+          pt.y >= mp_.horizontal_min_y_ && pt.y <= mp_.horizontal_max_y_;
+      if (low_z > high_z) continue;
+      for (int x = std::max(0, center.x() - inf_step);
+           x <= std::min(mp_.map_voxel_num_.x() - 1, center.x() + inf_step); ++x)
+        for (int y = std::max(0, center.y() - inf_step);
+             y <= std::min(mp_.map_voxel_num_.y() - 1, center.y() + inf_step); ++y) {
+          std::fill(md_.occupancy_buffer_inflate_.begin() + toAddress(x,y,low_z),
+                    md_.occupancy_buffer_inflate_.begin() + toAddress(x,y,high_z) + 1, 1);
+          if (column) horizontal_columns[x * mp_.map_voxel_num_.y() + y] = 1;
+        }
     }
   }
 
@@ -948,6 +967,22 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   boundIndex(md_.local_bound_min_);
   boundIndex(md_.local_bound_max_);
 
+  if (mp_.horizontal_avoidance_) {
+    const int low = std::max(0, int(floor((mp_.horizontal_floor_z_ - mp_.map_origin_(2)) *
+                                         mp_.resolution_inv_)));
+    const double top_height = mp_.virtual_ceil_height_ > 0.0 ?
+        mp_.virtual_ceil_height_ : mp_.map_max_boundary_(2);
+    const int high = std::min(mp_.map_voxel_num_(2) - 1,
+        int(ceil((top_height - mp_.map_origin_(2)) * mp_.resolution_inv_)));
+    for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
+      for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y)
+        if (horizontal_columns[x * mp_.map_voxel_num_(1) + y])
+          for (int z = low; z <= high; ++z)
+            md_.occupancy_buffer_inflate_[toAddress(x, y, z)] = 1;
+    md_.local_bound_min_(2) = std::min(md_.local_bound_min_(2), low);
+    md_.local_bound_max_(2) = std::max(md_.local_bound_max_(2), high);
+  }
+  applyFlightCeiling();
   md_.esdf_need_update_ = true;
 }
 

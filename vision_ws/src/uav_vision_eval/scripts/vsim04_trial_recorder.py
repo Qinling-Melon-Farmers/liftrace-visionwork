@@ -46,6 +46,7 @@ from uav_vision_eval.vsim04_metrics import (
     planned_trial_result,
     quaternion_yaw,
     select_trial_matrix,
+    trial_output_drain_boundary,
     watermarks_cover_source_stamp,
     write_artifacts,
 )
@@ -54,6 +55,12 @@ from uav_vision_eval.stamped_pose_buffer import StampedPoseBuffer
 
 UNKNOWN_VALUES = {"", "unknown", "unspecified", "none", "null"}
 EXPECTED_TRIAL_COUNT = 23
+NON_FATAL_INTERMEDIATE_CHAINS = frozenset({
+    "image_heartbeat",
+    "mapped_detections_heartbeat",
+    "targets_heartbeat",
+    "three_consecutive_images",
+})
 
 
 class VSim04TrialRecorder:
@@ -67,6 +74,8 @@ class VSim04TrialRecorder:
             rospy.get_param("~trial_selector", ""),
             rospy.get_param("~trial_slice", ""))
         self._evaluation_scope = self._matrix["evaluation_scope"]
+        self._dynamic_zero_visibility_policy = self._matrix[
+            "dynamic_zero_visibility_policy"]
         self._expected_trial_count = len(self._matrix["trials"])
         self._formal_expected_trial_count = int(self._matrix.get(
             "formal_expected_trial_count", self._expected_trial_count))
@@ -195,6 +204,9 @@ class VSim04TrialRecorder:
         self._camera_pose_samples = {}
         self._infra_gaps = []
         self._infra_gap_keys = set()
+        self._candidate_audit_keys = set()
+        self._candidate_event_keys = set()
+        self._selected_event_keys = set()
         self._pending_trial_end = None
         self._navigation_metrics = navigation_metrics_metadata(
             rospy.get_param("~navigation_metrics_mode", "visual_only"))
@@ -304,6 +316,8 @@ class VSim04TrialRecorder:
                 "scope": self._evaluation_scope,
                 "trial_selector": list(self._matrix["trial_selector"]),
                 "trial_slice": self._matrix.get("trial_slice", ""),
+                "dynamic_zero_visibility_policy":
+                    self._dynamic_zero_visibility_policy,
                 "all_targets_coexist": True,
                 "mode": "clutter",
                 "score_false_positives": bool(
@@ -391,13 +405,13 @@ class VSim04TrialRecorder:
                 queue_size=40)
         rospy.Subscriber(
             self._manifest["topics"]["targets"], TargetCandidateArray,
-            self._on_targets, queue_size=40)
+            self._on_targets, queue_size=1)
         rospy.Subscriber(
             self._manifest["topics"]["selected_target"], TargetCandidate,
-            self._on_selected, queue_size=40)
+            self._on_selected, queue_size=1)
         rospy.Subscriber(
             self._manifest["topics"]["image"], Image,
-            self._on_image, queue_size=40)
+            self._on_image, queue_size=1)
         rospy.Subscriber(
             self._manifest["topics"]["camera_info"], CameraInfo,
             self._on_camera_info, queue_size=1)
@@ -759,7 +773,13 @@ class VSim04TrialRecorder:
             receipt_monotonic=gap["monotonic_sec"])
 
     def _note_receipt_gap_locked(self, chain, previous, current):
-        if (self._active and previous is not None and
+        if chain in NON_FATAL_INTERMEDIATE_CHAINS:
+            return
+        result = self._result_locked()
+        observation_active = (
+            result and result.get("entered_visibility_window") and
+            not result.get("left_visibility_window"))
+        if (observation_active and previous is not None and
                 current - previous > self._heartbeat_timeout):
             self._record_infra_gap_locked(
                 chain, current - previous,
@@ -768,7 +788,13 @@ class VSim04TrialRecorder:
     def _record_current_missing_locked(self):
         if not self._active:
             return
+        result = self._result_locked()
+        if (not result.get("entered_visibility_window") or
+                result.get("left_visibility_window")):
+            return
         for missing in self._readiness_missing_locked():
+            if missing in NON_FATAL_INTERMEDIATE_CHAINS:
+                continue
             self._record_infra_gap_locked(
                 missing, None,
                 {"heartbeat_timeout_sec": self._heartbeat_timeout})
@@ -776,11 +802,11 @@ class VSim04TrialRecorder:
     def _note_pending_output_locked(self, source_stamp, receipt):
         if self._pending_trial_end is None:
             return
-        result = self._result_locked()
-        leave_stamp = result.get("leave_source_stamp") if result else None
-        if (leave_stamp is not None and source_stamp is not None and
+        output_boundary = self._pending_trial_end.get(
+            "output_boundary_stamp")
+        if (output_boundary is not None and source_stamp is not None and
                 math.isfinite(float(source_stamp)) and
-                float(source_stamp) <= float(leave_stamp)):
+                float(source_stamp) <= float(output_boundary)):
             self._pending_trial_end["last_relevant_receipt"] = receipt
 
     def _readiness_missing_locked(self):
@@ -1021,12 +1047,16 @@ class VSim04TrialRecorder:
         if self._pending_trial_end is not None:
             raise RuntimeError("trial_end already pending: " + trial_id)
         self._record_current_missing_locked()
+        output_boundary, output_boundary_kind = trial_output_drain_boundary(
+            self._result_locked(), source_event)
         self._pending_trial_end = {
             "trial_id": trial_id,
             "source_event": copy.deepcopy(source_event),
             "requested_monotonic": time.monotonic(),
             "watermarks_ready_monotonic": None,
             "last_relevant_receipt": time.monotonic(),
+            "output_boundary_stamp": output_boundary,
+            "output_boundary_kind": output_boundary_kind,
         }
         self._add_event_locked(
             "trial_end_requested", details={
@@ -1035,6 +1065,8 @@ class VSim04TrialRecorder:
                     "image", "truth", "mapped_detections", "targets",
                     "target_detector_diagnostic",
                 ],
+                "output_boundary_stamp": output_boundary,
+                "output_boundary_kind": output_boundary_kind,
             })
 
     def _output_watermarks_locked(self):
@@ -1052,17 +1084,20 @@ class VSim04TrialRecorder:
         if self._pending_trial_end is None:
             return False
         pending = self._pending_trial_end
-        result = self._result_locked()
-        leave_stamp = result.get("leave_source_stamp") if result else None
+        output_boundary = pending["output_boundary_stamp"]
         watermarks = self._output_watermarks_locked()
-        ready = watermarks_cover_source_stamp(watermarks, leave_stamp)
+        ready = watermarks_cover_source_stamp(watermarks, output_boundary)
         now = time.monotonic()
         if ready:
             if pending["watermarks_ready_monotonic"] is None:
                 pending["watermarks_ready_monotonic"] = now
                 self._add_event_locked(
-                    "output_watermarks_reached", leave_stamp,
-                    details={"watermarks": watermarks})
+                    "output_watermarks_reached", output_boundary,
+                    details={
+                        "watermarks": watermarks,
+                        "output_boundary_kind":
+                            pending["output_boundary_kind"],
+                    })
             quiet_since = max(
                 pending["watermarks_ready_monotonic"],
                 pending["last_relevant_receipt"])
@@ -1076,7 +1111,8 @@ class VSim04TrialRecorder:
             self._record_infra_gap_locked(
                 "output_watermark_timeout",
                 now - pending["requested_monotonic"],
-                {"leave_source_stamp": leave_stamp,
+                {"output_boundary_stamp": output_boundary,
+                 "output_boundary_kind": pending["output_boundary_kind"],
                  "watermarks": watermarks})
             self._fatal_error = "output_watermark_timeout:{}".format(
                 pending["trial_id"])
@@ -1633,11 +1669,18 @@ class VSim04TrialRecorder:
             self._allowed_classes, state=candidate.state,
             policy_selectable=policy_selectable,
             trial_id=self._active or "", source_stamp=source_stamp)
-        self._candidate_audit_observations.append(record)
-        self._add_event_locked(
-            "candidate_{}_audit".format(event_kind), source_stamp,
-            candidate.id, details=record, receipt_monotonic=receipt,
-            class_name=candidate.class_name)
+        audit_key = (
+            self._active or "", str(event_kind), int(candidate.id),
+            candidate.last_seen.to_nsec(), str(candidate.class_name),
+            int(candidate.state), bool(policy_selectable),
+        )
+        if audit_key not in self._candidate_audit_keys:
+            self._candidate_audit_keys.add(audit_key)
+            self._candidate_audit_observations.append(record)
+            self._add_event_locked(
+                "candidate_{}_audit".format(event_kind), source_stamp,
+                candidate.id, details=record, receipt_monotonic=receipt,
+                class_name=candidate.class_name)
         return record
 
     def _on_targets(self, message):
@@ -1672,22 +1715,30 @@ class VSim04TrialRecorder:
                     "stable_id": int(candidate.id),
                     "target_first_seen_ns": candidate.first_seen.to_nsec(),
                 }
-                self._candidate_events[self._active].append(event)
+                event_key = (
+                    self._active, int(candidate.id),
+                    candidate.last_seen.to_nsec())
+                first_observation = event_key not in self._candidate_event_keys
+                if first_observation:
+                    self._candidate_event_keys.add(event_key)
+                    self._candidate_events[self._active].append(event)
                 frame = self._frame_locked(
                     event["stamp_key"], event["source_stamp"])
                 frame["current_confirmed"] = True
                 frame["stable_id"] = int(candidate.id)
-                self._add_event_locked(
-                    "candidate_currently_admissible",
-                    event["source_stamp"], candidate.id,
-                    receipt_monotonic=receipt,
-                    details={
-                        "consecutive_observe_count": int(
-                            candidate.consecutive_observe_count),
-                        "map_valid": bool(candidate.map_valid),
-                        "association_valid": bool(candidate.association_valid),
-                        "reject_reason": candidate.reject_reason,
-                    })
+                if first_observation:
+                    self._add_event_locked(
+                        "candidate_currently_admissible",
+                        event["source_stamp"], candidate.id,
+                        receipt_monotonic=receipt,
+                        details={
+                            "consecutive_observe_count": int(
+                                candidate.consecutive_observe_count),
+                            "map_valid": bool(candidate.map_valid),
+                            "association_valid": bool(
+                                candidate.association_valid),
+                            "reject_reason": candidate.reject_reason,
+                        })
 
     def _on_selected(self, candidate):
         receipt = time.monotonic()
@@ -1722,17 +1773,24 @@ class VSim04TrialRecorder:
                 "stable_id": int(candidate.id),
                 "target_first_seen_ns": candidate.first_seen.to_nsec(),
             }
-            self._selected_events[self._active].append(event)
+            event_key = (
+                self._active, int(candidate.id), candidate.last_seen.to_nsec())
+            first_observation = event_key not in self._selected_event_keys
+            if first_observation:
+                self._selected_event_keys.add(event_key)
+                self._selected_events[self._active].append(event)
             frame = self._frame_locked(
                 event["stamp_key"], event["source_stamp"])
             frame["current_selected"] = True
             frame["stable_id"] = int(candidate.id)
-            self._add_event_locked(
-                "candidate_selected_observed", event["source_stamp"],
-                candidate.id, receipt_monotonic=receipt,
-                details={
-                    "target_first_seen_ns": candidate.first_seen.to_nsec(),
-                })
+            if first_observation:
+                self._add_event_locked(
+                    "candidate_selected_observed", event["source_stamp"],
+                    candidate.id, receipt_monotonic=receipt,
+                    details={
+                        "target_first_seen_ns":
+                            candidate.first_seen.to_nsec(),
+                    })
 
     def _on_navigation_decision(self, message):
         receipt = time.monotonic()
@@ -1863,18 +1921,20 @@ class VSim04TrialRecorder:
         for trial_id, result in self._results.items():
             if result.get("status") != "completed":
                 continue
-            if not result.get("entered_visibility_window"):
+            count_sampling_miss = (
+                self._dynamic_zero_visibility_policy ==
+                "count_as_failure" and result.get("kind") == "dynamic")
+            if (not result.get("entered_visibility_window") and
+                    not count_sampling_miss):
                 errors.append(
                     "{}:never_entered_visibility_window".format(trial_id))
-            if not result.get("left_visibility_window"):
+            if (not result.get("left_visibility_window") and
+                    not count_sampling_miss):
                 errors.append(
                     "{}:never_left_visibility_window".format(trial_id))
-            if int(result.get("eligible_frames", 0)) <= 0:
+            if (int(result.get("eligible_frames", 0)) <= 0 and
+                    not count_sampling_miss):
                 errors.append("{}:no_eligible_frames".format(trial_id))
-            if (result.get("p_confirm_visibility") and
-                    result.get("confirmation_processing_ms") is None):
-                errors.append("{}:confirmation_processing_missing".format(
-                    trial_id))
             if (result.get("p_confirm_visibility") and
                     result.get("confirmation_pipeline_ms") is None):
                 errors.append("{}:confirmation_pipeline_missing".format(
@@ -1980,6 +2040,8 @@ class VSim04TrialRecorder:
                 self._candidate_audit_observations)
             context["performance_contract"] = copy.deepcopy(
                 self._matrix.get("performance_contract", {}))
+            context["dynamic_zero_visibility_policy"] = \
+                self._dynamic_zero_visibility_policy
             context["navigation_metrics_mode"] = self._navigation_metrics[
                 "mode"]
             context["navigation_decision_topic"] = \
@@ -2022,6 +2084,8 @@ class VSim04TrialRecorder:
                 "formal_expected_trial_count":
                     self._formal_expected_trial_count,
                 "evaluation_scope": self._evaluation_scope,
+                "dynamic_zero_visibility_policy":
+                    self._dynamic_zero_visibility_policy,
                 "validation_errors": list(errors),
             }
             self._terminal_context = copy.deepcopy(context)

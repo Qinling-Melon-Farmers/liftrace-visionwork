@@ -1,0 +1,4 @@
+{
+  "source_commit": "21f61404d9cee350be03ee2c01c60caa2cf8dce5",
+  "reason": "AGENTS rule 14 protected package snapshot before simulation-model and FreeDOM input changes"
+}

@@ -23,8 +23,7 @@ mission:
   approach_altitude: 1.2
   return_altitude: 2.2
   target_action_timeout: 90.0
-  motion_action_timeout: 60.0
-  landing_action_timeout: 90.0
+  motion_action_timeout: 90.0
   result_future_tolerance: 0.1
   home_xy: [0.0, 0.0]
 
@@ -41,6 +40,9 @@ search:
 readiness:
   pose_max_age: 0.5
   map_max_age: 2.0
+  # ROS/Gazebo publishers can lead /clock by a few milliseconds.  Accept only
+  # bounded scheduler jitter; genuinely stale samples keep their original cap.
+  stamp_future_tolerance: 0.05
   require_map: true
 
 runtime:

@@ -1,0 +1,13 @@
+{
+  "formal_runs": 1,
+  "last_ros_clock_sec": null,
+  "armed_seen": false,
+  "state_samples": 11,
+  "gate": "FAIL",
+  "reason": "startup_wall_timeout",
+  "new_waypoints_executed": false,
+  "cleanup": "PASS",
+  "clock_topic_recorded": false,
+  "last_ros_log_stamp_sec": 6.178,
+  "clock_note": "The bag did not record /clock; the previous zero was an uninitialized extractor value, not measured simulation time."
+}

@@ -707,6 +707,8 @@ def evaluate_performance_verdict(metrics, completeness_status,
     metric_specs = {
         "max_p95_confirmation_processing_ms": (
             "p95_confirmation_processing_ms", "max"),
+        "max_p95_confirmation_pipeline_ms": (
+            "p95_confirmation_pipeline_ms", "max"),
         "max_p95_map_error_xy_m": ("p95_map_error_xy", "max"),
         "max_tf_failure_rate": ("tf_failure_rate", "max"),
         "min_p_confirm": ("p_confirm", "min"),
@@ -826,6 +828,11 @@ def load_trial_matrix(path):
         raise ValueError("V-SIM-04 seed must be a fixed positive integer")
     profile_name, allowed = resolve_class_profile(matrix.get("class_profile", ""))
     matrix["class_profile"] = profile_name
+    visibility_policy = str(matrix.get(
+        "dynamic_zero_visibility_policy", "invalid")).strip().lower()
+    if visibility_policy not in {"invalid", "count_as_failure"}:
+        raise ValueError("dynamic_zero_visibility_policy is invalid")
+    matrix["dynamic_zero_visibility_policy"] = visibility_policy
     contract = matrix.get("performance_contract", {})
     if not isinstance(contract, dict):
         raise ValueError("performance_contract must be a mapping")
@@ -1130,6 +1137,86 @@ def _dynamic_path(trajectory):
     return start_x, start_y, dx_value, dy_value, length
 
 
+def _planned_xy_path(trajectory):
+    """Return a validated time-indexed XY polyline, if one was supplied."""
+    raw_samples = trajectory.get("planned_path_xy_samples")
+    if not raw_samples:
+        return None
+    samples = []
+    cumulative = [0.0]
+    previous_time = None
+    for raw in raw_samples:
+        try:
+            offset, x_value, y_value = [float(value) for value in raw]
+        except (TypeError, ValueError, OverflowError):
+            return None
+        if not all(math.isfinite(value) for value in (
+                offset, x_value, y_value)):
+            return None
+        if previous_time is not None and offset <= previous_time:
+            return None
+        if samples:
+            step = math.hypot(
+                x_value - samples[-1][1], y_value - samples[-1][2])
+            if step <= 1.0e-12:
+                return None
+            cumulative.append(cumulative[-1] + step)
+        samples.append((offset, x_value, y_value))
+        previous_time = offset
+    if len(samples) < 2 or cumulative[-1] <= 1.0e-9:
+        return None
+    return {
+        "samples": samples,
+        "cumulative_m": cumulative,
+        "length_m": cumulative[-1],
+        "max_step_m": max(
+            cumulative[index] - cumulative[index - 1]
+            for index in range(1, len(cumulative))),
+    }
+
+
+def _planned_xy_reference(path, elapsed_sec):
+    samples = path["samples"]
+    elapsed_sec = min(max(float(elapsed_sec), samples[0][0]), samples[-1][0])
+    for index in range(1, len(samples)):
+        before, after = samples[index - 1], samples[index]
+        if elapsed_sec <= after[0]:
+            fraction = (elapsed_sec - before[0]) / (after[0] - before[0])
+            return (
+                before[1] + fraction * (after[1] - before[1]),
+                before[2] + fraction * (after[2] - before[2]))
+    return samples[-1][1], samples[-1][2]
+
+
+def _planned_xy_projection(path, position):
+    """Return signed cross-track error and progress on the nearest segment."""
+    best = None
+    samples = path["samples"]
+    cumulative = path["cumulative_m"]
+    for index in range(1, len(samples)):
+        before, after = samples[index - 1], samples[index]
+        dx_value = after[1] - before[1]
+        dy_value = after[2] - before[2]
+        step_sq = dx_value * dx_value + dy_value * dy_value
+        fraction = min(1.0, max(0.0, (
+            (position[0] - before[1]) * dx_value +
+            (position[1] - before[2]) * dy_value) / step_sq))
+        projected_x = before[1] + fraction * dx_value
+        projected_y = before[2] + fraction * dy_value
+        residual_x = position[0] - projected_x
+        residual_y = position[1] - projected_y
+        distance_sq = residual_x * residual_x + residual_y * residual_y
+        step_m = math.sqrt(step_sq)
+        signed_error = (
+            dx_value * (position[1] - before[2]) -
+            dy_value * (position[0] - before[1])) / step_m
+        progress_m = cumulative[index - 1] + fraction * step_m
+        candidate = (distance_sq, signed_error, progress_m)
+        if best is None or candidate[0] < best[0]:
+            best = candidate
+    return best[1], best[2]
+
+
 def _dynamic_trajectory_window(trajectory):
     try:
         start_stamp = float(trajectory["motion_start_source_stamp"])
@@ -1158,7 +1245,8 @@ def _reset_regression_tolerance_m(trajectory, path_length):
     return max(0.25, 2.0 * planned_step_m)
 
 
-def _trajectory_start_reference(trajectory, path, pose_stamp, window_start):
+def _trajectory_start_reference(trajectory, path, pose_stamp, window_start,
+                                planned_path=None):
     """Return the expected first-pose XY and a fail-closed sampling slack."""
     start_x, start_y, dx_value, dy_value, path_length = path
     try:
@@ -1169,6 +1257,12 @@ def _trajectory_start_reference(trajectory, path, pose_stamp, window_start):
     if (not math.isfinite(speed_mps) or not math.isfinite(elapsed_sec) or
             speed_mps < 0.0 or elapsed_sec < 0.0):
         return start_x, start_y, 0.05
+
+    if planned_path is not None:
+        reference_x, reference_y = _planned_xy_reference(
+            planned_path, elapsed_sec)
+        return (reference_x, reference_y,
+                max(0.05, 1.5 * planned_path["max_step_m"]))
 
     expected_progress_m = min(path_length, speed_mps * elapsed_sec)
     reference_x = start_x + dx_value * expected_progress_m / path_length
@@ -1209,10 +1303,12 @@ def annotate_motion_frames(frame_rows, trial_kind, trajectory):
     """
     is_dynamic = str(trial_kind) == "dynamic"
     path = _dynamic_path(trajectory) if is_dynamic else None
+    planned_path = _planned_xy_path(trajectory) if is_dynamic else None
     trajectory_window = (
         _dynamic_trajectory_window(trajectory) if is_dynamic else None)
     reset_tolerance_m = (
-        _reset_regression_tolerance_m(trajectory, path[4])
+        _reset_regression_tolerance_m(
+            trajectory, planned_path["length_m"] if planned_path else path[4])
         if path is not None else None)
     previous = None
     linear_samples = []
@@ -1276,6 +1372,13 @@ def annotate_motion_frames(frame_rows, trial_kind, trajectory):
         if path is None:
             row["path_lateral_invalid_reason"] = "dynamic_path_invalid"
             progress_m = None
+        elif planned_path is not None:
+            cross_track_m, progress_m = _planned_xy_projection(
+                planned_path, position)
+            normalized = cross_track_m / planned_path["length_m"]
+            row["path_lateral_offset_m"] = cross_track_m
+            row["path_lateral_offset_normalized"] = normalized
+            lateral_samples.append(normalized)
         else:
             start_x, start_y, dx_value, dy_value, path_length = path
             cross_track_m = (
@@ -1292,7 +1395,8 @@ def annotate_motion_frames(frame_rows, trial_kind, trajectory):
             if path is not None:
                 reference_x, reference_y, start_tolerance_m = (
                     _trajectory_start_reference(
-                        trajectory, path, pose_stamp, window_start))
+                        trajectory, path, pose_stamp, window_start,
+                        planned_path))
                 if math.hypot(
                         position[0] - reference_x,
                         position[1] - reference_y) > start_tolerance_m:
@@ -1610,6 +1714,31 @@ def watermarks_cover_source_stamp(watermarks, source_stamp):
     return (math.isfinite(boundary) and bool(values) and
             all(math.isfinite(value) and value >= boundary
                 for value in values))
+
+
+def trial_output_drain_boundary(result, source_event):
+    """Choose a finite source-time boundary for draining one trial.
+
+    A valid visibility leave is the closest boundary to the metric window. If
+    a discretely driven simulation never samples that window, the runner's
+    trial-end stamp still lets every output drain and lets terminal validation
+    report the missing enter/leave as a design-invalid trial instead of
+    deadlocking the entire matrix.
+    """
+    candidates = (
+        ("visibility_leave", (result or {}).get("leave_source_stamp")),
+        ("trial_end", (source_event or {}).get("stamp")),
+        ("motion_end", (source_event or {}).get(
+            "trajectory", {}).get("motion_end_source_stamp")),
+    )
+    for kind, candidate in candidates:
+        try:
+            value = float(candidate)
+        except (TypeError, ValueError, OverflowError):
+            continue
+        if math.isfinite(value):
+            return value, kind
+    return None, "unavailable"
 
 
 def completed_sources_cover(required_sources, completed_sources):
@@ -2065,7 +2194,12 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
         if len(completed) != len(finalized):
             validation_errors.append("completed_trials_{}/{}".format(
                 len(completed), len(finalized)))
+        dynamic_zero_visibility_policy = str(terminal_context.get(
+            "dynamic_zero_visibility_policy", "invalid"))
         for result in completed:
+            count_sampling_miss = (
+                dynamic_zero_visibility_policy == "count_as_failure" and
+                result.get("kind") == "dynamic")
             visibility_profile = str(
                 result.get("visibility_profile") or "full")
             entered_visibility = bool(
@@ -2076,11 +2210,11 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
                 result.get("left_visibility_window") or
                 (visibility_profile != "partial" and
                  result.get("left_fully_in_frame")))
-            if not entered_visibility:
+            if not entered_visibility and not count_sampling_miss:
                 validation_errors.append(
                     "{}:never_entered_visibility_window".format(
                         result.get("trial_id", "unknown")))
-            if not left_visibility:
+            if not left_visibility and not count_sampling_miss:
                 validation_errors.append(
                     "{}:never_left_visibility_window".format(
                         result.get("trial_id", "unknown")))
@@ -2296,10 +2430,13 @@ def summarize_trial_results(results, run_mode, actual_fps=None,
                 "truth stamp"),
             "confirmation_processing_ms": (
                 "monotonic recorder receipt of confirmation minus receipt of "
-                "the image at candidate last_seen"),
+                "the image at candidate last_seen; independent-subscriber "
+                "transport diagnostic and optional when that subscriber "
+                "skips the detector-processed frame"),
             "confirmation_pipeline_ms": (
                 "same-host monotonic confirmation receipt minus detector "
-                "callback start embedded for the same source stamp"),
+                "callback start embedded for the same source stamp; canonical "
+                "end-to-end latency and performance-contract metric"),
             "complete_mapped_rate": (
                 "unique active-trial mapped source stamps completed by all "
                 "required detector branches divided by complete plus "
@@ -2490,9 +2627,9 @@ def _report(summary):
             metrics["stage_frame_rates"]),
         "- Failed trial first-blocking stages: `{}`".format(
             metrics["failure_stage_counts"]),
-        "- P95 processing latency: `{}` ms".format(
+        "- P95 recorder-observed transport latency (diagnostic): `{}` ms".format(
             metrics["p95_confirmation_processing_ms"]),
-        "- P95 same-host pipeline latency: `{}` ms".format(
+        "- P95 same-host end-to-end latency (contract metric): `{}` ms".format(
             metrics["p95_confirmation_pipeline_ms"]),
         "- Detector inference/processing P95: `{}` / `{}` ms".format(
             metrics["p95_detector_inference_ms"],

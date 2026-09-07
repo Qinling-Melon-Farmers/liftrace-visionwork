@@ -11,6 +11,7 @@
   <arg name="max_acc" default="2.0"/>
   <arg name="obstacles_inflation" default="0.25"/>
   <arg name="clearance_threshold" default="0.20"/>
+  <arg name="start_waypoint_generator" default="true"/>
 
   <arg name="odom_topic" value="/mavros/local_position/odom" />
 
@@ -58,7 +59,8 @@
     <param name="traj_server/target_dist" value="0.4" type="double"/>
   </node>
 
-  <node pkg="waypoint_generator" name="waypoint_generator" type="waypoint_generator" output="screen">
+  <node if="$(arg start_waypoint_generator)" pkg="waypoint_generator"
+        name="waypoint_generator" type="waypoint_generator" output="screen">
     <remap from="~odom" to="$(arg odom_topic)"/>
     <remap from="~goal" to="/move_base_simple/goal"/>
     <remap from="~traj_start_trigger" to="/traj_start_trigger" />

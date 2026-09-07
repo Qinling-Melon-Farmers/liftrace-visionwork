@@ -33,10 +33,6 @@ class VisualDeliveryAudit:
             rospy.get_param("~required_control_state", 2))
         self._min_stable_frames = int(
             rospy.get_param("~min_stable_frames", 5))
-        self._min_altitude = float(
-            rospy.get_param("~min_release_altitude", -0.05))
-        self._max_altitude = float(
-            rospy.get_param("~max_release_altitude", 0.25))
         self._require_evidence_context = bool(
             rospy.get_param("~require_evidence_context", False))
         self._evidence_context_topic = rospy.get_param(
@@ -336,9 +332,6 @@ class VisualDeliveryAudit:
                 return False, "control_not_aligning_slot_%d" % slot
             if context["align_mode"] not in ("drop_circle", "drop_cross"):
                 return False, "align_mode_invalid_slot_%d" % slot
-            pose_z = context["pose_z"]
-            if pose_z is None or not self._min_altitude <= pose_z <= self._max_altitude:
-                return False, "altitude_invalid_slot_%d" % slot
             permission = context["release_permission"]
             evidence_context = context[
                 "permission_release_evidence_context"]

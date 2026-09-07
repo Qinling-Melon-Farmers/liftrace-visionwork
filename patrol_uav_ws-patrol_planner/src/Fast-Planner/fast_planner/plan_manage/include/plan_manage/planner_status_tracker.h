@@ -1,6 +1,7 @@
 #ifndef _PLANNER_STATUS_TRACKER_H_
 #define _PLANNER_STATUS_TRACKER_H_
 
+#include <cmath>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -95,6 +96,12 @@ public:
     return effective_goal_;
   }
 
+  bool canFinishWithin(double distance_to_goal, double max_distance) const {
+    return active_ && std::isfinite(distance_to_goal) &&
+           std::isfinite(max_distance) && max_distance >= 0.0 &&
+           distance_to_goal <= max_distance;
+  }
+
 private:
   plan_manage::PlannerStatus makeEvent(uint8_t status,
                                        const std::string& reason,
@@ -104,7 +111,8 @@ private:
     msg.header.stamp     = stamp;
     msg.header.frame_id  = effective_goal_.header.frame_id;
     msg.event_seq        = ++event_seq_;
-    msg.header.seq       = static_cast<uint32_t>(msg.event_seq);
+    // roscpp owns the top-level Header.seq and rewrites it when publishing.
+    // Keep mission ordering and deduplication on the explicit event_seq field.
     msg.goal_seq         = goal_seq_;
     msg.status           = status;
     msg.planning_attempt = planning_attempt_;

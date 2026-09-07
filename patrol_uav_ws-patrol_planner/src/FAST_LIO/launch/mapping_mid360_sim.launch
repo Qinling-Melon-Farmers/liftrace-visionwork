@@ -3,6 +3,7 @@
 <!-- Uses Velodyne lidar_type since Gazebo publishes standard PointCloud2 -->
 
 	<arg name="rviz" default="false" />
+	<arg name="enable_static_pointcloud_viz" default="true" />
 
 	<rosparam command="load" file="$(find fast_lio)/config/mid360_sim.yaml" />
 
@@ -15,7 +16,10 @@
 	<param name="runtime_pos_log_enable" type="bool" value="0" />
     <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen" />
 
-	<include file="$(find freedom)/launch/run_freedom_mid360.launch" />
+	<include file="$(find freedom)/launch/run_freedom_mid360.launch">
+		<arg name="enable_static_pointcloud_viz"
+		     value="$(arg enable_static_pointcloud_viz)" />
+	</include>
 
 	<group if="$(arg rviz)">
 	<node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find fast_lio)/rviz_cfg/loam_livox.rviz" />

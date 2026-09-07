@@ -33,6 +33,7 @@ from uav_vision_eval.vsim04_metrics import (
     quaternion_yaw,
     select_trial_matrix,
     summarize_trial_results,
+    trial_output_drain_boundary,
     watermarks_cover_source_stamp,
     write_artifacts,
 )
@@ -209,6 +210,28 @@ def main():
     assert abs(delayed_after["actual_linear_speed_mps"] - 0.5) < 1.0e-9
     assert delayed_motion["motion_sample_count"] == 1
 
+    # A turn trajectory must be checked against its time-indexed curve, not
+    # the straight chord between start and finish. The first observed pose is
+    # deliberately delayed by half a second.
+    curved_start = motion_row(10.6, 0.5, 0.0, 2.0, 0.0, 10.5)
+    curved_after = motion_row(11.6, 1.0, 0.5, 2.0, 0.2, 11.5)
+    curved_motion = annotate_motion_frames(
+        [curved_after, curved_start], "dynamic", {
+            "start_x": 0.0, "start_y": 0.0,
+            "finish_x": 1.0, "finish_y": 1.0,
+            "expected_speed_mps": 1.0, "update_rate_hz": 1.0,
+            "steps": 2, "motion_start_source_stamp": 10.0,
+            "motion_end_source_stamp": 12.0,
+            "planned_path_xy_samples": [
+                [0.0, 0.0, 0.0], [1.0, 1.0, 0.0],
+                [2.0, 1.0, 1.0]],
+        })
+    assert curved_start["motion_invalid_reason"] == "first_valid_pose"
+    assert curved_after["motion_delta_valid"]
+    assert curved_motion["motion_sample_count"] == 1
+    assert curved_motion["lateral_offset_sample_count"] == 2
+    assert curved_motion["p95_abs_normalized_lateral_offset"] < 1.0e-12
+
     offscreen_start = motion_row(2.8, 7.0, 7.0, 2.0, 0.0, 2.3)
     recovered_start = motion_row(3.0, 0.25, 0.0, 2.0, 0.0, 2.5)
     recovered_after = motion_row(3.2, 0.35, 0.0, 2.0, 0.0, 2.7)
@@ -294,6 +317,7 @@ def main():
     matrix = load_trial_matrix(matrix_path)
     trials = matrix["trials"]
     assert matrix["design_id"] == "formal23"
+    assert matrix["dynamic_zero_visibility_policy"] == "invalid"
     assert matrix["formal_expected_trial_count"] == 23
     assert select_trial_matrix(matrix, "")["evaluation_scope"] == "full"
     assert len(trials) == 23
@@ -306,6 +330,7 @@ def main():
         os.path.dirname(matrix_path), "vsim04_operating_surface_matrix.yaml")
     surface = load_trial_matrix(surface_path)
     assert surface["design_id"] == "operating-surface-125"
+    assert surface["dynamic_zero_visibility_policy"] == "count_as_failure"
     assert len(surface["trials"]) == 125
     assert surface["diagnostic_only"] is True
     assert select_trial_matrix(surface, "")["evaluation_scope"] == "diagnostic"
@@ -328,6 +353,7 @@ def main():
         1.2, 1.8, 2.4, 3.0, 3.6}
     assert {trial["speed_mps"] for trial in b100["trials"]} == {
         0.5, 1.0, 1.5, 2.0}
+    assert surface["dynamic"]["update_rate_hz"] == 60.0
     assert len({
         (trial["class_name"], trial["height_m"], trial["speed_mps"])
         for trial in b100["trials"]
@@ -358,6 +384,14 @@ def main():
     planner = VSim04TrialRunner.__new__(VSim04TrialRunner)
     planner._matrix = c25
     planner._arena_limit = 4.8
+    planner._camera_model = "vision_eval_camera"
+    planner._rpy = [0.0, math.pi / 2.0, 0.0]
+    camera_state = planner._camera_state(1.0, 2.0, 3.0)
+    assert camera_state.model_name == "vision_eval_camera"
+    assert camera_state.reference_frame == "world"
+    assert camera_state.pose.position.x == 1.0
+    assert camera_state.pose.position.y == 2.0
+    assert camera_state.pose.position.z == 3.0
     planner._anchor = lambda trial: tuple(
         c25["target_anchors"][trial["class_name"]]["xyz"])
     c25_plans = {
@@ -435,6 +469,7 @@ def main():
         "map_errors_xy": [0.05, 0.10, 0.20],
         "confirmation_exposure_sec": 0.4,
         "confirmation_processing_ms": 35.0,
+        "confirmation_pipeline_ms": 30.0,
     })
     measured_summary = summarize_trial_results(
         [measured], "unit", actual_fps=20.0)
@@ -554,6 +589,48 @@ def main():
     assert dynamic_half["speed_group_completed_trials"] == 4
     assert abs(dynamic_half["speed_group_mean_actual_linear_speed_mps"] -
                0.5) < 1.0e-9
+
+    dynamic_spec = next(trial for trial in trials
+                        if trial["kind"] == "dynamic")
+    sampling_miss = planned_trial_result(dynamic_spec)
+    sampling_miss.update({
+        "status": "completed",
+        "p_confirm": False,
+        "p_selected": False,
+        "eligible_frames": 0,
+        "entered_visibility_window": False,
+        "left_visibility_window": False,
+    })
+    sampling_failure_summary = summarize_trial_results(
+        [sampling_miss], "unit", actual_fps=13.0,
+        terminal_context={
+            "run_complete": True,
+            "expected_trial_count": 1,
+            "formal_expected_trial_count": 23,
+            "evaluation_scope": "diagnostic",
+            "dynamic_zero_visibility_policy": "count_as_failure",
+            "validation_errors": [],
+            "class_profile": "r2026",
+            "performance_contract": {},
+        })
+    assert sampling_failure_summary["status"] == "DIAGNOSTIC"
+    assert sampling_failure_summary["metrics"]["p_confirm"] == 0.0
+    assert sampling_failure_summary["metrics"]["failure_stage_counts"] == {
+        "truth_visibility": 1}
+    strict_sampling_summary = summarize_trial_results(
+        [sampling_miss], "unit", actual_fps=13.0,
+        terminal_context={
+            "run_complete": True,
+            "expected_trial_count": 1,
+            "formal_expected_trial_count": 23,
+            "evaluation_scope": "diagnostic",
+            "validation_errors": [],
+            "class_profile": "r2026",
+            "performance_contract": {},
+        })
+    assert strict_sampling_summary["status"] == "INVALID"
+    assert any("never_entered_visibility_window" in error
+               for error in strict_sampling_summary["validation_errors"])
 
     c25_results = []
     for trial in c25_trials:
@@ -686,7 +763,7 @@ def main():
     contract = matrix["performance_contract"]
     hard_verdict = evaluate_performance_verdict(
         {"p_confirm": 1.0, "p_selected": 1.0,
-         "p95_confirmation_processing_ms": 100.0,
+         "p95_confirmation_pipeline_ms": 100.0,
          "p95_map_error_xy": 0.1, "tf_failure_rate": 0.0},
         "MEASURED", "full", audit, contract)
     assert hard_verdict["status"] == "FAIL"
@@ -702,7 +779,7 @@ def main():
     clean_audit = candidate_audit_summary([], "r2026")
     not_gated = evaluate_performance_verdict(
         {"p_confirm": 1.0, "p_selected": 1.0,
-         "p95_confirmation_processing_ms": 100.0,
+         "p95_confirmation_pipeline_ms": 100.0,
          "p95_map_error_xy": 0.1, "tf_failure_rate": 0.0},
         "MEASURED", "full", clean_audit, contract)
     assert not_gated["status"] == "NOT_GATED"
@@ -745,9 +822,15 @@ def main():
     assert abs(correlated["confirmation_exposure_sec"] - 1.0) < 1.0e-9
     assert abs(correlated["confirmation_processing_ms"] - 10000.0) < 1.0e-9
     assert abs(correlated["confirmation_pipeline_ms"] - 5000.0) < 1.0e-9
+    missing_observer_image = correlate_admission_events(
+        candidates[:1], selected_first, window, {}, {200: 15.0})
+    assert missing_observer_image["p_confirm"]
+    assert missing_observer_image["confirmation_processing_ms"] is None
+    assert abs(
+        missing_observer_image["confirmation_pipeline_ms"] - 5000.0
+    ) < 1.0e-9
     image_after_candidate = correlate_admission_events(
-        candidates[:1], selected_first, window, {200: 21.0})
-    assert image_after_candidate["p_confirm"]
+        candidates[:1], selected_first, window, {200: 21.0}, {200: 15.0})
     assert image_after_candidate["confirmation_processing_ms"] == 0.0
     assert image_after_candidate["processing_receipt_reordered"]
     partial_window = dict(window)
@@ -766,6 +849,19 @@ def main():
     watermarks["targets"] = 2.99
     assert not watermarks_cover_source_stamp(watermarks, 3.0)
     assert not watermarks_cover_source_stamp(watermarks, None)
+    boundary, kind = trial_output_drain_boundary(
+        {"leave_source_stamp": 4.0}, {"stamp": 5.0})
+    assert boundary == 4.0 and kind == "visibility_leave"
+    boundary, kind = trial_output_drain_boundary(
+        {"leave_source_stamp": None}, {
+            "stamp": 5.0,
+            "trajectory": {"motion_end_source_stamp": 4.5},
+        })
+    assert boundary == 5.0 and kind == "trial_end"
+    boundary, kind = trial_output_drain_boundary(
+        {}, {"trajectory": {"motion_end_source_stamp": 4.5}})
+    assert boundary == 4.5 and kind == "motion_end"
+    assert trial_output_drain_boundary({}, {}) == (None, "unavailable")
     assert not detector_diagnostic_errors(
         0, {"backend": "ultralytics", "model_path": "/tmp/model.pt"},
         "ultralytics", "/tmp/model.pt")
@@ -905,6 +1001,7 @@ def main():
             "map_valid_frames": 1,
             "map_errors_xy": [0.1],
             "confirmation_processing_ms": 100.0,
+            "confirmation_pipeline_ms": 90.0,
         })
         audit_summary = write_artifacts(
             audit_output, {"class_profile": "r2026"}, [], [],

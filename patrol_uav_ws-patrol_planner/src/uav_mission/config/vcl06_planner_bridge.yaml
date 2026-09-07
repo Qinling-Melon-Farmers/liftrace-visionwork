@@ -7,15 +7,32 @@ execution:
   allow_live_goal_output: false
   executor_id_prefix: vcl06-planner-bridge
   mission_frame: camera_init
-  max_goal_z: 4.0
-  planner_accept_timeout: 2.0
-  max_planning_attempts: 20
+  # Mission goals top out at 2.2 m.  Keep a small operational margin while
+  # the independent patrol_control setpoint guard enforces the 3.5 m hard
+  # execution ceiling below the competition's 4.0 m limit.
+  max_goal_z: 2.5
+  # Fast-Planner uses a single callback queue and may not consume a new goal
+  # until the current replan callback returns.  Five seconds covers the
+  # observed loaded-map latency without masking the 60/90 s action deadline.
+  planner_accept_timeout: 5.0
+  # Planner retry messages are telemetry, not a physical failure budget.
+  # Motion remains bounded by the per-action deadline from Mission Manager.
   source_future_tolerance: 0.1
   odom_max_age: 0.5
-  arrival_position_tolerance: 0.30
+  # This is also the formal post-delivery Gate arrival tolerance.  Keeping
+  # both at 0.18 m prevents a corridor leg from being advanced while the
+  # vehicle is still outside the accepted door-approach envelope.
+  arrival_position_tolerance: 0.18
+  # APPROACH hands off to the visual aligner, which performs the precise
+  # centering/descent.  Keep search/return strict while allowing the observed
+  # Fast-Planner terminal offset plus tracking error at the handoff boundary.
+  approach_arrival_position_tolerance: 0.35
   arrival_speed_tolerance: 0.20
   arrival_dwell: 0.50
-  effective_goal_max_offset: 1.10
+  # A larger adjustment can make a wall-side surrogate look "arrived" while
+  # the commanded door-clear point was never reached.  0.35 m still covers
+  # one inflated-map correction plus tracking error without skipping a gate.
+  effective_goal_max_offset: 0.35
   tick_hz: 20.0
 
 # These parameters only describe observations for the active decision. Queue,
@@ -25,13 +42,17 @@ target:
   context_max_age: 0.5
   max_association_distance: 0.8
   recovery_height: 0.95
-  recovery_speed: 0.25
+  # Recovery is a physical position dwell, not a single noisy odom twist
+  # sample.  Restart the dwell only after moving outside this 3-D radius.
+  recovery_settle_radius: 0.15
   recovery_dwell: 0.5
 
 landing:
   # patrol_control requests disarm at z <= 0.02 m; success additionally
-  # requires a fresh MAVROS ON_GROUND state and this horizontal radius.
+  # requires a post-command MAVROS ON_GROUND state and this horizontal radius.
   height: 0.05
-  speed: 0.15
   radius: 0.25
+  # Once the post-command ON_GROUND fact is observed, require bounded pose
+  # motion for the full dwell instead of a separate instantaneous speed gate.
+  settle_radius: 0.15
   dwell: 1.0

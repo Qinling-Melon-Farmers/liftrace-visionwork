@@ -41,3 +41,11 @@ add_library( path_searching
 target_link_libraries( path_searching
     ${catkin_LIBRARIES} 
     )  
+
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  add_rostest_gtest(kinodynamic_near_goal_test test/kinodynamic_near_goal.test test/kinodynamic_near_goal_test.cpp)
+  if(TARGET kinodynamic_near_goal_test)
+    target_link_libraries(kinodynamic_near_goal_test path_searching ${catkin_LIBRARIES})
+  endif()
+endif()

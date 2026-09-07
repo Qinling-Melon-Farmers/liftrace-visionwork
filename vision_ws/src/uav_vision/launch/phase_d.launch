@@ -27,7 +27,8 @@
   <arg name="release_evidence_context_topic"
        default="/uav_vision/release_evidence_context" />
   <arg name="drop_stable_frames" default="3" />
-  <arg name="start_legacy_compat" default="true" />
+  <!-- Typed Phase D is authoritative. Legacy wrappers must opt in explicitly. -->
+  <arg name="start_legacy_compat" default="false" />
   <!-- H detector is needed only for landing-mode workflows. Search-only
        evaluation may disable it to avoid an unrelated full-frame CPU path. -->
   <arg name="start_landing_detector" default="true" />

@@ -3,9 +3,10 @@
 ## 边界
 
 D50 是 `formal23` 之后的定向诊断面，不替代正式 Gate，也不与 C25 横向偏移矩阵
-合并计数。当前实现冻结 schema、逐采样相机姿态和 dry-run，并提供复用现有
-pixel/Phase-D/recorder 的单 trial Gazebo 入口；尚未执行 Gazebo，因此不能产出算法
-PASS，所有 dry-run 摘要都明确记录 `gazebo_execution_status=NOT_RUN`。
+合并计数。历史 D435i revision 曾完成当时的 supported16；该结果只作旧相机诊断，不能
+移作 KS2A543 结果。当前 revision 冻结 schema、逐采样相机姿态和 dry-run，并提供复用现有
+pixel/Phase-D/recorder 的单 trial Gazebo 入口；KS2A543 D 项尚未执行 Gazebo，因此不能产出
+算法 PASS，所有新 dry-run 摘要都明确记录 `gazebo_execution_status=NOT_RUN`。
 
 实际相机入口当前只允许 `single_pairwise + center/quadrant`。`edge/partial` 不能直接
 套用 recorder 的 fully-in-frame 或 C25 partial 窗口：前者可能裁靶，后者要求中心仍
@@ -13,9 +14,11 @@ PASS，所有 dry-run 摘要都明确记录 `gazebo_execution_status=NOT_RUN`。
 由 runner fail-closed 为 NOT_RUN。`multi10` 在第二靶/H spawner 与动态真值接通前同样
 保持 NOT_RUN。center/quadrant 还必须满足完整轨迹坐标不超过 4.8 m；例如
 `d_single_39` 会达到 5.2898 m，因此不在 supported slice，runner 和 wrapper 都会拒绝。
-同一 readiness 还用冻结靶尺寸、CameraInfo 和 0.0325 m color-sensor 光轴偏移投影四角，
-要求轨迹内确实出现 fully-in-frame 且随后离开；因此 d12/d32（从未完整入画）和 d16
-（进入后未离开）也会在启动前排除，不能被记成视觉算法失败。
+同一 readiness 还用冻结靶尺寸、CameraInfo 和 KS2A543 单彩色夹具的零 sensor-link 偏移投影四角，
+要求轨迹内确实出现 fully-in-frame 且随后离开。相机几何更新后，现有入口可直接运行的
+single case 从历史 16 项变为 11 项：`d_single_01/05/11/15/18/21/22/25/31/35/38`。
+其余 single case 按观察窗口、完整入画/离画预检或场地边界明确标为 NOT_RUN，不能被记成
+视觉算法失败；准确清单始终以 loader 的 `--list-runtime-supported` 输出为准。
 
 ## 50 个 trial
 
@@ -31,9 +34,11 @@ PASS，所有 dry-run 摘要都明确记录 `gazebo_execution_status=NOT_RUN`。
 相对角不是下视相机的 ZYX yaw。实现先用世界光轴和目标朝向构造
 `image_right/image_down` 基向量，再由目标朝向在该基上的投影计算角度。Gazebo 相机
 姿态同样由这组三维基向量生成，因此在俯视奇异姿态下仍有明确定义。
-仿真 D435i color sensor 的 `horizontal_fov=1.211 rad`，640 像素宽对应
-`fx=fy=462.266337 px`；matrix loader 会重新计算并断言，禁止用其他相机的 554 px
-焦距悄悄改变 framing。
+当前仿真 KS2A543 使用实装标定推导的
+`horizontal_fov=1.44593453190313 rad`，1280 像素宽对应
+`fx=fy=725.3510059644434 px`。Gazebo Classic 仅提供一个焦距，因此仿真 `fy` 与实机
+`723.340356 px` 存在约 0.28% 近似；matrix loader 会重新计算并断言仿真焦距，
+禁止旧 D435i 参数悄悄改变 framing。
 
 ## 轨迹和关联契约
 
@@ -85,7 +90,7 @@ dry-run 输出：
 export UAV_VISION_MODEL_PATH=/absolute/path/to/model.pt
 export VSIM04_NAVIGATION_REVISION=<navigation-revision>
 bash top_level_scripts/run_vsim04_d50.sh d_single_01
-# 只串行运行 loader 与 runner 共同认可的 16 个 expected-target case：
+# 串行运行 loader 与 runner 在当前相机几何下共同认可的 expected-target case：
 bash top_level_scripts/run_vsim04_d50.sh supported
 ```
 
@@ -94,6 +99,6 @@ bash top_level_scripts/run_vsim04_d50.sh supported
 trial_start 后不会先落一次固定 ZYX-RPY 污染帧。结果的 frames/performance CSV 会带
 `design_kind/relative_angle_deg/motion_profile/framing`，但状态始终是 DIAGNOSTIC。
 
-下一步应先实跑默认 `d_single_01`，确认 enter→confirm/selected→leave、真实 CameraInfo
-以及四元数姿态轨迹，再扩大到其他 center/quadrant case。多目标仍需 spawner 为第二靶
-和 H 发布对应 `target_id` 真值；缺少该接线时保持 NOT_RUN。
+下一步应先实跑当前 11 个 supported single case，确认 enter→confirm/selected→leave、真实
+CameraInfo 以及四元数姿态轨迹，再修订其余 single case 的观察窗口或轨迹。多目标仍需
+spawner 为第二靶和 H 发布对应 `target_id` 真值；缺少该接线时保持 NOT_RUN。

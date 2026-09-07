@@ -204,6 +204,7 @@ struct LocalTrajData {
 
   int traj_id_;
   double duration_;
+  double execution_time_ = -1.0;  // negative retains the separate topo demo's clock tracking
   ros::Time start_time_;
   Eigen::Vector3d start_pos_;
   NonUniformBspline position_traj_, velocity_traj_, acceleration_traj_, yaw_traj_, yawdot_traj_,

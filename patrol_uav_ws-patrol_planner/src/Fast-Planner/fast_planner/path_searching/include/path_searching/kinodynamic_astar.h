@@ -14,6 +14,8 @@
 #include <utility>
 #include "plan_env/edt_environment.h"
 
+class KinodynamicSearchFixture;
+
 namespace fast_planner {
 // #define REACH_HORIZON 1
 // #define REACH_END 2
@@ -102,6 +104,7 @@ class NodeHashTable {
 };
 
 class KinodynamicAstar {
+  friend class ::KinodynamicSearchFixture;
  private:
   /* ---------- main data structure ---------- */
   vector<PathNodePtr> path_node_pool_;
@@ -128,6 +131,9 @@ class KinodynamicAstar {
   double w_time_, horizon_, lambda_heu_, w_z_;
   int allocate_num_, check_num_;
   double tie_breaker_;
+  double max_search_time_ = 0.25;  // wall seconds per attempt
+  double min_horizon_progress_ = 0.20;  // metres toward the requested goal
+  double direct_shot_distance_ = 2.0;  // short, fully collision-checked connector
   bool optimistic_;
   double search_acc_res = 1 / 4.0, search_time_res = 1 / 3.0;
 

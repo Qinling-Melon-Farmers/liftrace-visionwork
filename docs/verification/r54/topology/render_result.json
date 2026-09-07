@@ -1,0 +1,29 @@
+{
+  "full": {
+    "svg": {
+      "ok": true,
+      "path": "rqt_graph_nodes_only_full.svg",
+      "output": ""
+    },
+    "png": {
+      "ok": true,
+      "path": "rqt_graph_nodes_only_full.png",
+      "output": ""
+    }
+  },
+  "core": {
+    "svg": {
+      "ok": true,
+      "path": "rqt_graph_nodes_only_core.svg",
+      "output": ""
+    },
+    "png": {
+      "ok": true,
+      "path": "rqt_graph_nodes_only_core.png",
+      "output": ""
+    }
+  },
+  "graph_mode": "node_node",
+  "core_nodes": 29,
+  "core_topics": 41
+}

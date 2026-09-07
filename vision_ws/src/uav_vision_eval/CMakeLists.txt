@@ -82,6 +82,7 @@ catkin_install_python(PROGRAMS
   scripts/vsim04_failure_capture_manifest_check.py
   scripts/vsim04_repeat_runner.py
   scripts/vsim04_repeat_aggregate.py
+  scripts/ros_topology_snapshot.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
@@ -109,3 +110,22 @@ install(DIRECTORY config launch models
 install(FILES README.md
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
+
+# Simulation-only contact envelope: preserve contact scoring without making
+# the conservative proxy an opaque object in the onboard LiDAR's field of view.
+find_package(gazebo REQUIRED)
+link_directories(${GAZEBO_LIBRARY_DIRS})
+add_library(uav_contact_envelope SHARED src/contact_envelope_plugin.cpp)
+target_include_directories(uav_contact_envelope SYSTEM PRIVATE ${GAZEBO_INCLUDE_DIRS})
+target_compile_features(uav_contact_envelope PRIVATE cxx_std_14)
+target_link_libraries(uav_contact_envelope ${GAZEBO_LIBRARIES})
+install(TARGETS uav_contact_envelope
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+
+if(CATKIN_ENABLE_TESTING)
+  add_executable(contact_envelope_probe test/contact_envelope_probe.cpp)
+  target_include_directories(contact_envelope_probe SYSTEM PRIVATE ${GAZEBO_INCLUDE_DIRS})
+  target_compile_definitions(contact_envelope_probe PRIVATE USE_GAZEBO_ODE)
+  target_compile_features(contact_envelope_probe PRIVATE cxx_std_14)
+  target_link_libraries(contact_envelope_probe gazebo_ode)
+endif()
