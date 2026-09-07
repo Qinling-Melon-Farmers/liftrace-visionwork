@@ -1,4 +1,4 @@
-> 当前试验配置：R57严格0.80m错列墙 **FAIL**；0.85m前置轮次 **PASS 37/37**。按用户指令停止，十seed执行0组。报告见[两阶段结果与去年航点](docs/verification/r57_toudi4/REPORT.md)、[失败原因](docs/verification/r57_toudi4/FAILURE_ANALYSIS.md)。失败配置未合入main；下方R56为原已验收场景。后续默认不录制全场bag。
+> R58当前任务：1.50m走廊、0.80m错列通口与0.70m引导距离待实跑；通过后执行十seed。R57为历史失败记录。
 
 # 2026 无人机竞赛整机工程
 
@@ -25,7 +25,7 @@ top_level_scripts/build_competition.sh
 SIM_STORAGE_GUARD_PATH=/mnt/f UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_NO_RECORD=1 SIM_RUN_AUTHORIZED=1   top_level_scripts/run_competition_sim.sh
 ```
 
-只有收到当前明确仿真授权后才执行启动命令。包装器独占 ROS/Gazebo/PX4，成功、失败与中断均收尾。`SIM_NO_RECORD=1` 关闭桌面录屏，原始相机话题仍进入本轮 bag。权重、bag、视频及大日志不入 Git。
+只有收到当前明确仿真授权后才执行启动命令。包装器独占 ROS/Gazebo/PX4，成功、失败与中断均收尾。`SIM_NO_RECORD=1`关闭桌面录屏，当前默认不录全场bag；紧凑记录器保留JSONL、CSV、参数与失败局部地图。权重、bag、视频及大日志不入 Git。
 
 搜索高度 1.40 m，投递/H 取景 1.60 m；正装机顶 MID360 的 IMU 到相机为下方 21 cm。三槽满后结束搜索并走廊返程，当前不做槽位偏差补偿。实际成功源码 cc899f2；合入 main 保留分叉和功能分支，验收 tag 为 gate/vcl06-r56-full-competition。
 

@@ -52,6 +52,7 @@ catkin_package(
 )
 
 catkin_install_python(PROGRAMS
+  scripts/competition_key_recorder.py
   scripts/gazebo_camera_pose_stamper.py
   scripts/gazebo_camera_tf.py
   scripts/sim_ground_truth_projector.py
