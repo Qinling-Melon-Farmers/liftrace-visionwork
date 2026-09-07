@@ -1,3 +1,5 @@
+> 当前试验配置：R57严格0.80m错列墙 **FAIL**；0.85m前置轮次 **PASS 37/37**。按用户指令停止，十seed执行0组。报告见[两阶段结果与去年航点](docs/verification/r57_toudi4/REPORT.md)、[失败原因](docs/verification/r57_toudi4/FAILURE_ANALYSIS.md)。失败配置未合入main；下方R56为原已验收场景。后续默认不录制全场bag。
+
 # RoboCup 无人机投递工程（2025 基线 → 2026 视觉升级）
 
 接触代理的雷达过滤有建模前提，见[工程适用性复核与当前飞机图](docs/verification/r56_model_review/REVIEW.md)。真实护圈遮挡尚未验收。
