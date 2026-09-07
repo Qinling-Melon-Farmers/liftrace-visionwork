@@ -1,0 +1,16 @@
+{
+    "started":  "2026-09-07T09:33:58.7939615+08:00",
+    "reason":  "WSL idle restart unresponsive after completed R56 cleanup; no simulator running",
+    "state":  "complete",
+    "services":  [
+                     {
+                         "Name":  "vmcompute",
+                         "Status":  4
+                     },
+                     {
+                         "Name":  "WslService",
+                         "Status":  4
+                     }
+                 ],
+    "finished":  "2026-09-07T09:33:59.9512059+08:00"
+}

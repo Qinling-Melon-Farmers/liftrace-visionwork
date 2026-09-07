@@ -5,6 +5,8 @@
 
 本分支集成导航、建图、规划、视觉、任务管理及投递/降落执行逻辑。比赛入口保留机械组对接服务定义和仿真 mock，历史舵机驱动源码不参与此入口的编译或启动。
 
+**最新 R56：同轮重跑三投/三恢复完成，第一门前第 4 航段超时，整场 FAIL；main 未合并。** [完整报告](docs/verification/r56/REPORT.md) · [Nodes only 图](docs/verification/r56/topology/index.html)。
+
 当前验收状态见 [实跑记录](docs/VALIDATION.md)。历史成功记录和本场景的新验证分开列出；整场通过前不标记为比赛验收基线。
 
 | 目录 | 用途 |
@@ -20,12 +22,12 @@
 
 ```bash
 top_level_scripts/build_competition.sh
-SIM_STORAGE_GUARD_PATH=/mnt/f SIM_LOGS_DIR=/mnt/e/LiftraceRuns \
+SIM_STORAGE_GUARD_PATH=/mnt/f \
 UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_NO_RECORD=1 SIM_RUN_AUTHORIZED=1 \
   top_level_scripts/run_competition_sim.sh
 ```
 
-示例中的 F/E 盘为本机 WSL 宿主盘和日志盘；异机按实际位置配置，原生 Linux 可省略宿主盘参数。权重单独提供，不放进 git。`SIM_NO_RECORD=1` 用于没有桌面录屏能力的环境。运行自动生成 `logs/<场景>_<时间>/`，保存 Gate、manifest、任务时间线和 ROS 日志，并在成功、失败或中断时停止本轮全部仿真进程。
+示例中的 F 盘为本机 WSL 宿主盘；本机日志、PX4 工作目录及打包统一在 WSL 项目 logs 内，不再切到 E 盘或其他盘。异机按实际位置配置，原生 Linux 可省略宿主盘参数。权重单独提供，不放进 git。`SIM_NO_RECORD=1` 用于没有桌面录屏能力的环境。运行默认生成 `logs/<场景>_<时间>/`，保存 Gate、manifest、任务时间线和 ROS 日志，并在成功、失败或中断时停止本轮全部仿真进程。
 
 流程为自动起飞、低空搜索、候选接近/升高取景、下降投递、恢复搜索、三投后走廊穿门、H 对准与自主降落。当前不启用槽位偏差补偿。
 

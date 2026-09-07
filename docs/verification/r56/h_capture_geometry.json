@@ -1,0 +1,29 @@
+{
+  "kind": "Analytical level-camera projection of actual 1 m H texture, not recovered Gazebo frames",
+  "cases": [
+    {
+      "body_height_m": 0.75,
+      "camera_to_pad_m": 0.65912,
+      "nominal_outer_radius_px": 550.2419938436426,
+      "whole_marker_in_image": false,
+      "radius_below_existing_300px": false,
+      "file": "analytical_h_body_075.png"
+    },
+    {
+      "body_height_m": 0.956194,
+      "camera_to_pad_m": 0.865314,
+      "nominal_outer_radius_px": 419.1258930078812,
+      "whole_marker_in_image": false,
+      "radius_below_existing_300px": false,
+      "file": "analytical_h_body_096.png"
+    },
+    {
+      "body_height_m": 1.6,
+      "camera_to_pad_m": 1.5091200000000002,
+      "nominal_outer_radius_px": 240.32250780734577,
+      "whole_marker_in_image": true,
+      "radius_below_existing_300px": true,
+      "file": "analytical_h_body_160.png"
+    }
+  ]
+}

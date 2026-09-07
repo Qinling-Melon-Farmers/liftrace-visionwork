@@ -199,7 +199,7 @@ def add_check(checks, check_id, passed, detail):
     checks.append({"id": check_id, "passed": bool(passed), "detail": detail})
 
 
-def build_audit(publishers, subscribers, services, nodes, package_paths):
+def build_audit(publishers, subscribers, services, nodes):
     checks = []
     registered_topics = set(publishers) | set(subscribers)
     forbidden_present = sorted(FORBIDDEN_FORMAL_TOPICS & registered_topics)
@@ -291,20 +291,7 @@ def build_audit(publishers, subscribers, services, nodes, package_paths):
         "providers={}".format(raw_servo_providers),
     )
 
-    vision_path = package_paths.get("uav_vision", "")
-    mission_path = package_paths.get("uav_mission", "")
-    add_check(
-        checks,
-        "single_visual_source_root",
-        "/liftrace-worktrees/vdeploy-final-closeout-plan/vision_ws/src/uav_vision" in vision_path,
-        "uav_vision={}".format(vision_path),
-    )
-    add_check(
-        checks,
-        "single_navigation_source_root",
-        "/liftrace-controlwork-worktrees/vcl06-local-full-mission/" in mission_path,
-        "uav_mission={}".format(mission_path),
-    )
+    # Source ownership is checked by sim_run; actual paths stay in the snapshot.
     return {
         "passed": all(check["passed"] for check in checks),
         "checks": checks,
@@ -445,7 +432,7 @@ def main():
         "package_paths": package_paths,
         "cli_results": cli_results,
     }
-    audit = build_audit(publishers, subscribers, services, set(nodes), package_paths)
+    audit = build_audit(publishers, subscribers, services, set(nodes))
     snapshot["interface_audit"] = audit
     (output_dir / "ros_system_state.json").write_text(
         json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
