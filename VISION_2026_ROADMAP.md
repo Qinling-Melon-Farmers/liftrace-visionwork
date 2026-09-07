@@ -10,3 +10,5 @@
 R55 的 5 cm 地图、有界搜索和 horizon 进度修复已经实施；不能继续写成“尚未应用”，也不能说已经解决所有占据波动。R41 的 429.875 s 历史功能 PASS 包含旧墙钟判据离线修正，不等同于当前配置通过。
 
 [详细报告](docs/verification/r56/REPORT.md) · [参数全文与阈值](docs/verification/r56/PARAMETERS.md) · [实跑记录](docs/VALIDATION.md)
+
+当前推进：接触代理射线遮挡、FreeDOM .40→.10 m 空闲尺度、视场和输入队列修正已经构建及离线验证；按用户新授权进行整场验证。此前失败 Gate 保留，失败轮次不发布全量 Release。见 [根因修复](docs/verification/r56_root_fix/REPORT.md)。

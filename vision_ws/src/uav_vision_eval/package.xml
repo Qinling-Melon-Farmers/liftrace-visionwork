@@ -29,4 +29,6 @@
   <exec_depend>rostopic</exec_depend>
   <exec_depend>graphviz</exec_depend>
   <exec_depend>rqt_graph</exec_depend>
+  <build_depend>gazebo_dev</build_depend>
+  <exec_depend>gazebo</exec_depend>
 </package>

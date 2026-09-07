@@ -5,7 +5,9 @@
 
 本分支集成导航、建图、规划、视觉、任务管理及投递/降落执行逻辑。比赛入口保留机械组对接服务定义和仿真 mock，历史舵机驱动源码不参与此入口的编译或启动。
 
-**最新 R56：同轮重跑三投/三恢复完成，第一门前第 4 航段超时，整场 FAIL；main 未合并。** [完整报告](docs/verification/r56/REPORT.md) · [Nodes only 图](docs/verification/r56/topology/index.html)。
+接触代理遮挡与窄门地图清空修复已构建、离线验证，整场验证待完成，见 [修复报告](docs/verification/r56_root_fix/REPORT.md)。
+
+**最近完成的 R56：同轮重跑三投/三恢复完成，第一门前第 4 航段超时，整场 FAIL；main 未合并。** [完整报告](docs/verification/r56/REPORT.md) · [Nodes only 图](docs/verification/r56/topology/index.html)。
 
 当前验收状态见 [实跑记录](docs/VALIDATION.md)。历史成功记录和本场景的新验证分开列出；整场通过前不标记为比赛验收基线。
 

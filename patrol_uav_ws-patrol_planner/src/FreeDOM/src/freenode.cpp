@@ -35,7 +35,7 @@ FreeNode::FreeNode()
     // 设置订阅
     tf_buffer.reset(new tf2_ros::Buffer(ros::Duration(10.0)));
     tf_listener.reset(new tf2_ros::TransformListener(*tf_buffer));
-    pointcloud_sub = nh.subscribe(pointcloud_topic, 100, &FreeNode::pointcloud_callback, this);
+    pointcloud_sub = nh.subscribe(pointcloud_topic, 1, &FreeNode::pointcloud_callback, this);
     save_map_sub = nh.subscribe(save_map_topic, 10, &FreeNode::save_map_callback, this);
 
     // 启动建图线程
