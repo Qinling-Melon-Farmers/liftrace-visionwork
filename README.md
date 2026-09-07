@@ -1,4 +1,4 @@
-> 当前已按用户要求停止R58调试与仿真，十seed暂停、执行0组。最后实跑59ed04b三投完成后外墙接触FAIL；R56和R57/0.85m成功版本保留，main仍为R56验收基线。详见[改动对照、坐标系、低空方案及实机状态](docs/verification/r58_closeout/REPORT.md)。
+> R59唯一一轮已收尾：8/8航点、两通口、低空H对准和AUTO.LAND触垫完成；终点平面垫名称遗漏导致原始Gate FAIL，ON_GROUND/disarm未确认。评测分类已修正但未重跑，十seed暂停。见[完整结果](docs/verification/r59_corridor_landing/REPORT.md)。
 
 > 当前试验配置：R57严格0.80m错列墙 **FAIL**；0.85m前置轮次 **PASS 37/37**。按用户指令停止，十seed执行0组。报告见[两阶段结果与去年航点](docs/verification/r57_toudi4/REPORT.md)、[失败原因](docs/verification/r57_toudi4/FAILURE_ANALYSIS.md)。失败配置未合入main；下方R56为原已验收场景。后续默认不录制全场bag。
 
