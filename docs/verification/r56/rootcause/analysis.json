@@ -1,0 +1,371 @@
+{
+  "requested_goal": [
+    -2.386703,
+    5.67227,
+    0.75
+  ],
+  "origin": [
+    -6.0,
+    -11.0,
+    -0.2
+  ],
+  "resolution": 0.05,
+  "goal_index": [
+    72,
+    333,
+    19
+  ],
+  "snapshots": [
+    {
+      "requested_ros_sec": 166.3,
+      "topics": {
+        "static_pointcloud": {
+          "time": 166.241,
+          "frame": "camera_init",
+          "count": 27268
+        },
+        "pose": {
+          "time": 166.284,
+          "frame": "camera_init",
+          "count": 3
+        },
+        "occupancy_inflate": {
+          "time": 166.176,
+          "frame": "camera_init",
+          "count": 1359487
+        }
+      },
+      "pose": [
+        -2.379617214202881,
+        5.160553932189941,
+        0.7558857798576355
+      ],
+      "goal_occupied": true,
+      "first_line_occupied": [
+        -2.386419568568115,
+        5.651801357287598,
+        0.7502354311943055
+      ],
+      "normal_contributors": [
+        [
+          -2.303706645965576,
+          5.999974250793457,
+          1.0987915992736816
+        ]
+      ],
+      "horizontal_column_contributors": [],
+      "height_profile": [
+        {
+          "z": 0.55,
+          "occupied": true
+        },
+        {
+          "z": 0.6,
+          "occupied": false
+        },
+        {
+          "z": 0.65,
+          "occupied": false
+        },
+        {
+          "z": 0.7,
+          "occupied": false
+        },
+        {
+          "z": 0.75,
+          "occupied": true
+        },
+        {
+          "z": 0.8,
+          "occupied": true
+        },
+        {
+          "z": 0.85,
+          "occupied": true
+        },
+        {
+          "z": 0.9,
+          "occupied": true
+        },
+        {
+          "z": 0.95,
+          "occupied": true
+        },
+        {
+          "z": 1.0,
+          "occupied": true
+        },
+        {
+          "z": 1.05,
+          "occupied": true
+        },
+        {
+          "z": 1.1,
+          "occupied": true
+        },
+        {
+          "z": 1.15,
+          "occupied": true
+        },
+        {
+          "z": 1.2,
+          "occupied": true
+        },
+        {
+          "z": 1.25,
+          "occupied": true
+        },
+        {
+          "z": 1.3,
+          "occupied": true
+        },
+        {
+          "z": 1.35,
+          "occupied": true
+        },
+        {
+          "z": 1.4,
+          "occupied": true
+        },
+        {
+          "z": 1.45,
+          "occupied": true
+        }
+      ]
+    },
+    {
+      "requested_ros_sec": 200.0,
+      "topics": {
+        "static_pointcloud": {
+          "time": 199.956,
+          "frame": "camera_init",
+          "count": 27543
+        },
+        "pose": {
+          "time": 199.985,
+          "frame": "camera_init",
+          "count": 3
+        },
+        "occupancy_inflate": {
+          "time": 199.916,
+          "frame": "camera_init",
+          "count": 1359298
+        }
+      },
+      "pose": [
+        -2.369666814804077,
+        5.189037322998047,
+        0.7322325706481934
+      ],
+      "goal_occupied": true,
+      "first_line_occupied": [
+        -2.386703,
+        5.67227,
+        0.75
+      ],
+      "normal_contributors": [
+        [
+          -2.303706645965576,
+          5.999974250793457,
+          1.0987915992736816
+        ]
+      ],
+      "horizontal_column_contributors": [],
+      "height_profile": [
+        {
+          "z": 0.55,
+          "occupied": true
+        },
+        {
+          "z": 0.6,
+          "occupied": false
+        },
+        {
+          "z": 0.65,
+          "occupied": false
+        },
+        {
+          "z": 0.7,
+          "occupied": false
+        },
+        {
+          "z": 0.75,
+          "occupied": true
+        },
+        {
+          "z": 0.8,
+          "occupied": true
+        },
+        {
+          "z": 0.85,
+          "occupied": true
+        },
+        {
+          "z": 0.9,
+          "occupied": true
+        },
+        {
+          "z": 0.95,
+          "occupied": true
+        },
+        {
+          "z": 1.0,
+          "occupied": true
+        },
+        {
+          "z": 1.05,
+          "occupied": true
+        },
+        {
+          "z": 1.1,
+          "occupied": true
+        },
+        {
+          "z": 1.15,
+          "occupied": true
+        },
+        {
+          "z": 1.2,
+          "occupied": true
+        },
+        {
+          "z": 1.25,
+          "occupied": true
+        },
+        {
+          "z": 1.3,
+          "occupied": true
+        },
+        {
+          "z": 1.35,
+          "occupied": true
+        },
+        {
+          "z": 1.4,
+          "occupied": true
+        },
+        {
+          "z": 1.45,
+          "occupied": true
+        }
+      ]
+    },
+    {
+      "requested_ros_sec": 249.0,
+      "topics": {
+        "static_pointcloud": {
+          "time": 248.928,
+          "frame": "camera_init",
+          "count": 27574
+        },
+        "pose": {
+          "time": 248.984,
+          "frame": "camera_init",
+          "count": 3
+        },
+        "occupancy_inflate": {
+          "time": 248.94,
+          "frame": "camera_init",
+          "count": 1359995
+        }
+      },
+      "pose": [
+        -2.364170789718628,
+        5.156285762786865,
+        0.8191878199577332
+      ],
+      "goal_occupied": true,
+      "first_line_occupied": [
+        -2.385801711588745,
+        5.651630630511475,
+        0.7527675127983093
+      ],
+      "normal_contributors": [
+        [
+          -2.303706645965576,
+          5.999974250793457,
+          1.0987915992736816
+        ]
+      ],
+      "horizontal_column_contributors": [],
+      "height_profile": [
+        {
+          "z": 0.55,
+          "occupied": true
+        },
+        {
+          "z": 0.6,
+          "occupied": false
+        },
+        {
+          "z": 0.65,
+          "occupied": false
+        },
+        {
+          "z": 0.7,
+          "occupied": false
+        },
+        {
+          "z": 0.75,
+          "occupied": true
+        },
+        {
+          "z": 0.8,
+          "occupied": true
+        },
+        {
+          "z": 0.85,
+          "occupied": true
+        },
+        {
+          "z": 0.9,
+          "occupied": true
+        },
+        {
+          "z": 0.95,
+          "occupied": true
+        },
+        {
+          "z": 1.0,
+          "occupied": true
+        },
+        {
+          "z": 1.05,
+          "occupied": true
+        },
+        {
+          "z": 1.1,
+          "occupied": true
+        },
+        {
+          "z": 1.15,
+          "occupied": true
+        },
+        {
+          "z": 1.2,
+          "occupied": true
+        },
+        {
+          "z": 1.25,
+          "occupied": true
+        },
+        {
+          "z": 1.3,
+          "occupied": true
+        },
+        {
+          "z": 1.35,
+          "occupied": true
+        },
+        {
+          "z": 1.4,
+          "occupied": true
+        },
+        {
+          "z": 1.45,
+          "occupied": true
+        }
+      ]
+    }
+  ]
+}

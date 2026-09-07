@@ -1,3 +1,5 @@
+> 历史阶段记录；当前结论见 [R56 收口报告](../r56/REPORT.md)：同轮重跑三投完成、首门前超时 FAIL，main 未合并。
+
 # R55 规划修复与单轮验证准备
 
 针对 R54 门前目标被膨胀地图占据、无进展 REACH_HORIZON 曲线被执行、同步搜索阻塞 36 秒的问题，继续复用 Fast-Planner 和现有 POST_DELIVERY_ROUTE 状态机。

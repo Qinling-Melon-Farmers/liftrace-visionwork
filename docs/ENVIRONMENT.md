@@ -11,4 +11,6 @@
 仿真统一由 `run_competition_sim.sh` 调用 `sim_run.sh`。调用方在获得启动授权后，仅在该命令设置 `SIM_RUN_AUTHORIZED=1`。包装器独占本机 ROS/Gazebo/PX4 资源，并检查启动前与收尾后的进程。无桌面时设置 `SIM_NO_RECORD=1`。不得在另一终端直接再起 roslaunch。
 
 
-WSL 启动前还须检查 VHDX 宿主盘，使用 `SIM_STORAGE_GUARD_PATH`；可用 `SIM_LOGS_DIR` 将 run 目录置于另一磁盘。相机录图与本机示例见 [日志存储说明](verification/r55/RECORDING_FIX.md)。
+WSL 启动前还须检查 VHDX 宿主盘，使用 `SIM_STORAGE_GUARD_PATH`；本机按用户约定将 run、PX4 工作目录、分析和归档统一放在 WSL 项目 logs 内，不再写到其他盘。相机录图与本机示例见 [日志存储说明](verification/r55/RECORDING_FIX.md)。
+
+VHDX 已通过离线 compact 实际回收 68.06 GiB。两次 WSL 服务恢复经用户 UAC 允许完成。R56 同轮原生目录重跑越过启动并完成三投，记录缓冲溢出 0；第一次外盘尝试的失败记录保留，不能据此承诺任意记录负载均稳定。

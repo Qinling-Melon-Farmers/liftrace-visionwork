@@ -1,0 +1,16 @@
+{
+    "started":  "2026-09-07T05:40:28.3617313+08:00",
+    "reason":  "HCS_E_CONNECTION_TIMEOUT while starting WSL after normal shutdown",
+    "state":  "complete",
+    "services":  [
+                     {
+                         "Name":  "vmcompute",
+                         "Status":  4
+                     },
+                     {
+                         "Name":  "WslService",
+                         "Status":  4
+                     }
+                 ],
+    "finished":  "2026-09-07T05:40:29.5870512+08:00"
+}
