@@ -255,6 +255,8 @@ class NavigationPlannerBridge:
                 "~execution/approach_arrival_position_tolerance", 0.35)),
             arrival_speed_mps=float(rospy.get_param(
                 "~execution/arrival_speed_tolerance", 0.20)),
+            return_yaw_tolerance_rad=float(rospy.get_param(
+                "~execution/return_yaw_tolerance", math.pi)),
             arrival_dwell_ns=_seconds_to_ns(
                 "arrival_dwell",
                 rospy.get_param("~execution/arrival_dwell", 0.50)),
@@ -515,6 +517,7 @@ class NavigationPlannerBridge:
     @staticmethod
     def _odom_from_message(message):
         position = message.pose.pose.position
+        q = message.pose.pose.orientation
         velocity = message.twist.twist.linear
         return OdomSample(
             stamp_ns=_stamp_to_ns(message.header.stamp),
@@ -525,6 +528,8 @@ class NavigationPlannerBridge:
             vx=velocity.x,
             vy=velocity.y,
             vz=velocity.z,
+            yaw=math.atan2(2.0 * (q.w * q.z + q.x * q.y),
+                           1.0 - 2.0 * (q.y * q.y + q.z * q.z)),
         )
 
     def _publish_planner_goal(self, decision):

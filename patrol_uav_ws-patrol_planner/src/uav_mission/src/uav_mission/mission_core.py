@@ -127,12 +127,13 @@ class GoalSnapshot:
     x: float
     y: float
     z: float
+    yaw: float = 0.0  # radians in mission frame; historical goals keep yaw=0
 
     def __post_init__(self):
         if not self.frame_id.strip():
             raise ValueError("goal frame must not be empty")
         if not all(math.isfinite(float(value)) for value in
-                   (self.x, self.y, self.z)):
+                   (self.x, self.y, self.z, self.yaw)):
             raise ValueError("goal coordinates must be finite")
         if self.z < 0.0 or self.z > MAX_FLIGHT_Z:
             raise ValueError("goal altitude is outside the competition limit")

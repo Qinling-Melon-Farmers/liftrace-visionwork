@@ -72,5 +72,9 @@
   <param name="/navigation_vcl06_assertion/truth_model" value="iris_mid360" />
   <rosparam param="/navigation_vcl06_assertion/truth_world_offset">[-0.493412, -1.772690, 0.0]</rosparam>
   <rosparam ns="/fast_planner_node" file="$(find uav_mission)/config/horizontal_planner.yaml" />
+  <!-- Confirm the configured body heading before advancing corridor legs. -->
+  <param name="/navigation/planner_bridge/execution/return_yaw_tolerance" value="0.10" />
+  <!-- Turn near the open staging point, then retain the heading in the aisle. -->
+  <param name="/traj_server/traj_server/adjust_distance_yaw" value="0.50" />
 
 </launch>

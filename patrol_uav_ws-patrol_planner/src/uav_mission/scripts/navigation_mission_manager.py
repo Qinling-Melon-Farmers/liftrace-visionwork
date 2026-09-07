@@ -184,6 +184,7 @@ class NavigationMissionManager:
         if not isinstance(route_values, (list, tuple)):
             raise ValueError("mission/post_delivery_route must be a list")
         post_delivery_route = []
+        route_yaw = float(rospy.get_param("~mission/post_delivery_yaw", 0.0))
         for index, point in enumerate(route_values):
             if (not isinstance(point, (list, tuple)) or len(point) != 3 or
                     any(isinstance(value, bool) or not isinstance(value, Real)
@@ -192,7 +193,8 @@ class NavigationMissionManager:
                     "mission/post_delivery_route[%d] must be [x,y,z]" %
                     index)
             post_delivery_route.append(GoalSnapshot(
-                mission_frame, *(float(value) for value in point)))
+                mission_frame, *(float(value) for value in point),
+                yaw=route_yaw))
         return MissionConfig(
             mission_frame=mission_frame,
             candidate_max_age=rospy.get_param(
@@ -594,6 +596,8 @@ class NavigationMissionManager:
             message.goal.pose.position.x = action.goal.x
             message.goal.pose.position.y = action.goal.y
             message.goal.pose.position.z = action.goal.z
+            message.goal.pose.orientation.z = math.sin(action.goal.yaw / 2.0)
+            message.goal.pose.orientation.w = math.cos(action.goal.yaw / 2.0)
         message.reason = action.reason
         self._decision_pub.publish(message)
         rospy.loginfo(

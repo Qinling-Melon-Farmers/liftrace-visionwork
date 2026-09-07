@@ -19,3 +19,6 @@ topics:
   camera_info: /downward_camera/camera_info
   static_map: /freedom/static_pointcloud
   inflated_map: /sdf_map/occupancy_inflate
+  planner_setpoint: /fastplanner/setpoint_position/local
+  mavros_setpoint: /mavros/setpoint_position/local
+  bspline: /planning/bspline

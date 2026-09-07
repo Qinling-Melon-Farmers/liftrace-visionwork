@@ -212,13 +212,14 @@ class OdomSample:
     vx: float
     vy: float
     vz: float
+    yaw: float = 0.0
 
     def __post_init__(self):
         object.__setattr__(
             self, "stamp_ns", _integer("odom stamp_ns", self.stamp_ns, 1))
         if not isinstance(self.frame_id, str) or not self.frame_id.strip():
             raise ValueError("odom frame_id must not be empty")
-        for field_name in ("x", "y", "z", "vx", "vy", "vz"):
+        for field_name in ("x", "y", "z", "vx", "vy", "vz", "yaw"):
             object.__setattr__(
                 self, field_name, _finite("odom %s" % field_name,
                                          getattr(self, field_name)))
@@ -237,6 +238,7 @@ class PlannerMotionConfig:
     arrival_speed_mps: float = 0.20
     arrival_dwell_ns: int = 500_000_000
     odom_max_age_ns: int = 200_000_000
+    return_yaw_tolerance_rad: float = math.pi
 
     def __post_init__(self):
         if not isinstance(self.executor_id, str) or not self.executor_id.strip():
@@ -274,6 +276,10 @@ class PlannerMotionConfig:
             "arrival_dwell_ns", self.arrival_dwell_ns, 1))
         object.__setattr__(self, "odom_max_age_ns", _integer(
             "odom_max_age_ns", self.odom_max_age_ns, 1))
+        yaw_tolerance = _finite("return_yaw_tolerance_rad", self.return_yaw_tolerance_rad)
+        if not 0.0 < yaw_tolerance <= math.pi:
+            raise ValueError("return yaw tolerance must be in (0, pi]")
+        object.__setattr__(self, "return_yaw_tolerance_rad", yaw_tolerance)
 
 
 @dataclass(frozen=True)
@@ -1018,6 +1024,15 @@ class PlannerMotionExecutor:
                 speed > self.config.arrival_speed_mps):
             self._reset_dwell(state)
             return self._outcome(True, "arrival_threshold_not_met")
+
+        if state.decision.command == "RETURN_HOME":
+            goal_yaw = math.atan2(2.0 * (goal.qw * goal.qz + goal.qx * goal.qy),
+                                 1.0 - 2.0 * (goal.qy ** 2 + goal.qz ** 2))
+            yaw_error = math.atan2(math.sin(sample.yaw - goal_yaw),
+                                   math.cos(sample.yaw - goal_yaw))
+            if abs(yaw_error) > self.config.return_yaw_tolerance_rad:
+                self._reset_dwell(state)
+                return self._outcome(True, "arrival_yaw_not_met")
 
         if (state.last_qualified_odom_ns and
                 sample.stamp_ns - state.last_qualified_odom_ns >
