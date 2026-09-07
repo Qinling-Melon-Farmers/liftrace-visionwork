@@ -1,4 +1,4 @@
-> 当前工作配置：R57严格0.80m错列墙待实跑；前置0.85m整场已PASS。两阶段结果分别记录。
+> 当前试验配置：R57严格0.80m错列墙 **FAIL**；0.85m前置轮次 **PASS 37/37**。按用户指令停止，十seed执行0组。报告见[两阶段结果与去年航点](docs/verification/r57_toudi4/REPORT.md)、[失败原因](docs/verification/r57_toudi4/FAILURE_ANALYSIS.md)。失败配置未合入main；下方R56为原已验收场景。后续默认不录制全场bag。
 
 # 2026 无人机竞赛整机工程
 

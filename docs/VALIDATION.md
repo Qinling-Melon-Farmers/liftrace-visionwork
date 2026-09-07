@@ -1,6 +1,12 @@
+# R57当前结果
+
+0.85m：PASS 37/37；严格0.80m：FAIL，三投3/3、投后4/7、通行截面2/3，未降落，零碰撞。十seed未启动；本次停止实跑。见[报告](verification/r57_toudi4/REPORT.md)。
+
+## R56历史验收
+
 # 联合全量验证
 
-**当前 R56 完整 PASS：37/37，三投/三恢复 3/3、投后 11/11、三门 3/3、H 对齐、AUTO.LAND、ON_GROUND 与 disarm；碰撞/越界/超高 0，收尾零残留。** [完整报告](verification/r56_final/REPORT.md) · [原始 Gate](verification/r56_final/gate_status.json) · [Nodes only 图](verification/r56_final/topology/index.html)。
+**历史 R56 完整 PASS：37/37，三投/三恢复 3/3、投后 11/11、三门 3/3、H 对齐、AUTO.LAND、ON_GROUND 与 disarm；碰撞/越界/超高 0，收尾零残留。** [完整报告](verification/r56_final/REPORT.md) · [原始 Gate](verification/r56_final/gate_status.json) · [Nodes only 图](verification/r56_final/topology/index.html)。
 
 | 记录 | 真实结论 |
 |---|---|
