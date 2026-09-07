@@ -1,13 +1,14 @@
-# Source revisions
+# 源码与交付版本
 
-当前 R56 实跑源：精简整机 f0f748016064fbecabefd03d7b05503fb744a697；导航修复 4312488b66506e33464fde8a39a962428adff630；main 集成准备 548dffcde60c626f4f7d906be94c7c562dc06932。后续文档/诊断工具提交不是飞行源码。main 仍为 44359e8ba426ed91ef42c4951b5ab2fae8924027，未合并。
+| 用途 | 实际修复/验证提交 |
+|---|---|
+| 精简整机实际成功运行 | cc899f2bc4816caff9f9059adb0208705476f81b |
+| 导航来源 | 286322f9b03fdcdab9b6b3efad1f02df4d3ca61c |
+| 视觉来源 | 0704d50fbe3eac7b90230dc3c00fca749b8a814e |
+| 保留原始资产的集成修复 | 5a472a3455f229a78cd707037dd26d64bb7b0308 |
 
-下面两项是精简导入起点，仅作历史来源，不是当前运行 HEAD。
+报告/归档与合并提交晚于实跑，不能当作飞行源码。main 通过 feat/r2026-main-integration 的 --no-ff 合并接收已验证内容；对应 gate/vcl06-r56-full-competition，所有功能分支保留。完整成功源另由 sim/r2026-r56-contact-map-pass 标记。
 
-Navigation: Qinling-Melon-Farmers/liftrace-controlwork, branch `feat/vcl06-local-full-mission`, commit `987b57c6c28a5bbc2a793c0d38222f7daf061ebb`.
+I/O 中断与失败尝试不重写为 PASS；原先 main 的 44359e8ba426ed91ef42c4951b5ab2fae8924027 是此次合入前基线。最新交付状态以远端标签/分支和 [交付说明](verification/r56_final/DELIVERY.md) 为准。
 
-Vision and simulation assets: Qinling-Melon-Farmers/liftrace-visionwork, branch `feat/vdeploy-final-closeout-plan`, commit `1b328c13ab4d302d5f69809df6ebc24f6cb1cd81`.
-
-The competition checkout imports the active navigation packages from the navigation branch, retaining their upstream source and licenses. Mechanical actuator implementation and frozen historical/reference copies remain in the source repositories and branches. Servo.srv and the mock endpoint remain in the competition checkout because they are active integration interfaces.
-
-Competition-only packaging adds the hardware application entry, shared planner configuration and local build/run scripts. It removes inactive visual/search executables and unused fixed target waypoints; source development branches retain the original packages and protected snapshots.
+精简导入起点为导航 987b57c6、视觉 1b328c13，仅作历史来源；后续 R52—R56 修复已更新其运行代码。原始机载资产与冻结旧包留在来源分支和 main 集成分支，精简分支不带旧包快照或机械 PWM 实现。

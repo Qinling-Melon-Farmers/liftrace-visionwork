@@ -1,14 +1,11 @@
 # 2026 竞赛集成路线图
 
-本文件是当前任务优先级来源。最新 R56 已按用户要求在 WSL 项目内完成同轮重跑并收尾，不自动续跑。
+本文件是当前任务优先级来源。R56 最新完整验证为 PASS（37/37），任务 182.924 ROS s，三投/恢复、11 航段、三门、H 对准与落地/disarm完成，零碰撞和零残留。[完整记录](docs/verification/r56_final/REPORT.md)。
 
-1. **V-CL-06 当前阻断：门前地图可达性。** 三投、三恢复完成；首门前第 4 航段 goal 19 被一个持续静态点膨胀覆盖，90.04 s 超时。优先核对观测支持/地图清空与门洞安全高度窗口；不是本轮发生远距离无进展轨迹。见 [根因](docs/verification/r56/REPORT.md)。
-2. **V-CL-06 H 与完整 Gate。** H capture 已 .75→1.60 m，生产几何离线 3/3；R56 未到 H，仍待完整记录。R55 三投、11 段、三门零碰撞但 H 等待时 I/O 中断，仍为 INCOMPLETE。
-3. **V-SIM 交付。** 本机统一 WSL 项目 logs；R56 native 重跑越过启动、原图有记录且缓冲溢出 0。原 E 盘尝试作为同轮历史保留。main 仍待完整 PASS，最终 --no-ff 合并、保留分支并打 tag。
-4. **V-DEPLOY 与量化。** 固定版本多 seed/启动与记录负载波动、板端 RKNN ROS 10 min、实际内外参/测高、扰动与接管、机械 ACK/落点。槽位补偿暂不做。
+1. **V-CL-06 已完成当前 SITL 功能闭环。** 门前占据的接触代理自遮挡、FreeDOM 清空尺度/视场/积压问题已修复；原 goal 19 首条可执行轨迹等待 .072 ROS s，本次顺利过门。H 1.60 m 实际取景与降落已验证。历史失败与 R55 INCOMPLETE 保留原结论。
+2. **V-SIM 交付。** WSL 原生 logs；只发布完整成功全量记录。精简整机与原始资产集成分支保留，main 按 --no-ff 接收已验证内容并打 annotated tag。没有追加仿真。
+3. **后续五项验收。** 固定版本多 seed/启动与负载波动；OrangePi RKNN ROS 10 min 实时链；真实标定/安装/测高；照明/风/载荷/掉帧与遥控急停；机械三槽 ACK、真实落点与落地轮廓余量。
 
-R55 的 5 cm 地图、有界搜索和 horizon 进度修复已经实施；不能继续写成“尚未应用”，也不能说已经解决所有占据波动。R41 的 429.875 s 历史功能 PASS 包含旧墙钟判据离线修正，不等同于当前配置通过。
+本轮是一次完整配置成功，不据此保证比赛成功率。实时倍率约 .240，板端实时预算仍须实测；真实舵机/PWM 不包含在精简分支，槽位补偿仍暂不启用。
 
-[详细报告](docs/verification/r56/REPORT.md) · [参数全文与阈值](docs/verification/r56/PARAMETERS.md) · [实跑记录](docs/VALIDATION.md)
-
-当前推进：接触代理射线遮挡、FreeDOM .40→.10 m 空闲尺度、视场和输入队列修正已经构建及离线验证；按用户新授权进行整场验证。此前失败 Gate 保留，失败轮次不发布全量 Release。见 [根因修复](docs/verification/r56_root_fix/REPORT.md)。
+[参数与阈值](docs/verification/r56_final/PARAMETERS.md) · [验证汇总](docs/VALIDATION.md) · [交付说明](docs/verification/r56_final/DELIVERY.md)

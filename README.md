@@ -1,41 +1,33 @@
 # 2026 无人机竞赛整机工程
 
-本分支集成导航、建图、规划、视觉、任务管理及投递/降落执行逻辑。机械组的舵机驱动实现不在本分支；保留对接服务定义和仿真 mock。
+**R56 联合全流程 PASS（37/37）：三投、三次恢复、11 航段、三门、H 对准、AUTO.LAND、落地/disarm，零碰撞、零越界、零超高。** Gate 任务时长 182.924 ROS 秒；这是笔记本 SITL 功能验收，板端实时链和实机仍需独立验收。
 
-接触代理遮挡与窄门地图清空修复已构建、离线验证，整场验证待完成，见 [修复报告](docs/verification/r56_root_fix/REPORT.md)。
+[完整报告与 R4x 改动历史](docs/verification/r56_final/REPORT.md) · [全部参数/阈值](docs/verification/r56_final/PARAMETERS.md) · [Nodes only 图](docs/verification/r56_final/topology/index.html) · [成功记录下载](https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/tag/sim/r2026-r56-contact-map-pass)
 
-**最近完成的 R56：同轮重跑三投/三恢复完成，第一门前第 4 航段超时，整场 FAIL；main 未合并。** [完整报告](docs/verification/r56/REPORT.md) · [Nodes only 图](docs/verification/r56/topology/index.html)。
+精简整机分支包含今年实际运行的导航、视觉和仿真代码；不含机械 PWM 实现及原始参考工作区。保留 Servo 服务定义和仿真 mock。
 
-当前验收状态见 [实跑记录](docs/VALIDATION.md)。历史成功记录和本场景的新验证分开列出；整场通过前不标记为比赛验收基线。
-
-| 目录 | 用途 |
+| 目录 | 当前用途 |
 |---|---|
-| `vision_ws/src/uav_vision` | 检测、几何精修、目标记忆、投递对准 |
-| `vision_ws/src/uav_vision_eval` | 场景、相机模型、只读评测工具 |
-| `vision_ws/src/camera_sdk` | 相机接入与标定参数 |
-| `patrol_uav_ws-patrol_planner/src` | LIO、FreeDOM、Fast-Planner、任务及控制 |
-| `top_level_scripts` | 编译、仿真、收尾、板端工具 |
-| `docs` | 环境、接口、参数与验收说明 |
+| vision_ws/src/uav_vision | 目标检测、几何精修、记忆、投递对齐与证据 |
+| vision_ws/src/uav_vision_eval | 仿真模型、评测、接触代理插件和图表工具 |
+| vision_ws/src/camera_sdk | 相机输入和标定 |
+| patrol_uav_ws-patrol_planner/src | LIO、FreeDOM、Fast-Planner、任务与控制 |
+| top_level_scripts | 构建、统一仿真启动与收尾 |
 
-在 Ubuntu 20.04 / ROS Noetic 中执行；Windows 宿主命令使用 `wsl -e bash -c '...'`。
+在 Ubuntu 20.04 / ROS Noetic 中执行。Windows 宿主使用 `wsl -e bash -c '...'`；本机日志、bag、PX4 工作目录、分析和归档统一留在 WSL 项目 `logs/` 内，不再写到其他盘。
 
 ```bash
 top_level_scripts/build_competition.sh
-SIM_STORAGE_GUARD_PATH=/mnt/f \
-UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_NO_RECORD=1 SIM_RUN_AUTHORIZED=1 \
-  top_level_scripts/run_competition_sim.sh
+SIM_STORAGE_GUARD_PATH=/mnt/f UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_NO_RECORD=1 SIM_RUN_AUTHORIZED=1   top_level_scripts/run_competition_sim.sh
 ```
 
-示例中的 F 盘为本机 WSL 宿主盘；本机日志、PX4 工作目录及打包统一在 WSL 项目 logs 内，不再切到 E 盘或其他盘。异机按实际位置配置，原生 Linux 可省略宿主盘参数。权重单独提供，不放进 git。`SIM_NO_RECORD=1` 用于没有桌面录屏能力的环境。运行默认生成 `logs/<场景>_<时间>/`，保存 Gate、manifest、任务时间线和 ROS 日志，并在成功、失败或中断时停止本轮全部仿真进程。
+只有收到当前明确仿真授权后才执行启动命令。包装器独占 ROS/Gazebo/PX4，成功、失败与中断均收尾。`SIM_NO_RECORD=1` 关闭桌面录屏，原始相机话题仍进入本轮 bag。权重、bag、视频及大日志不入 Git。
 
-流程为自动起飞、低空搜索、候选接近/升高取景、下降投递、恢复搜索、三投后走廊穿门、H 对准与自主降落。当前不启用槽位偏差补偿。
+搜索高度 1.40 m，投递/H 取景 1.60 m；正装机顶 MID360 的 IMU 到相机为下方 21 cm。三槽满后结束搜索并走廊返程，当前不做槽位偏差补偿。实际成功源码 cc899f2；合入 main 保留分叉和功能分支，验收 tag 为 gate/vcl06-r56-full-competition。
 
-- [环境与外部依赖](docs/ENVIRONMENT.md)
-- [相机安装与飞行参数](docs/CAMERA_AND_FLIGHT.md)
-- [节点与机械接口](docs/INTERFACES.md)
+- [环境和依赖](docs/ENVIRONMENT.md)
+- [相机与飞行参数](docs/CAMERA_AND_FLIGHT.md)
+- [节点/机械接口](docs/INTERFACES.md)
+- [实机入口与待验收项](docs/HARDWARE.md)
 - [代码来源](docs/SOURCE_REVISIONS.md)
-- [任务与验收状态](VISION_2026_ROADMAP.md)
-
-笔记本 SITL 的结果不代表香橙派实时链或实机已经验收。原始机载目录和历史参考保留在来源分支及 git 历史中。
-
-实机应用入口与设备接线见 [HARDWARE.md](docs/HARDWARE.md)。原始历史工程留在来源功能分支，精简分支不包含旧搜索管理器、旧视觉节点或机械 PWM 实现。
+- [任务优先级](VISION_2026_ROADMAP.md)

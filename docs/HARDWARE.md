@@ -24,3 +24,5 @@ roslaunch uav_mission competition_hardware.launch model_path:=/path/to/merged_st
 本机 SITL 的 PX4 外部视觉配置为水平位置+航向（EV_CTRL=9）、气压高度参考（HGT_REF=0）、BARO_CTRL=1、GPS_CTRL=0。这些值针对本机 PX4 版本；部署时按实机固件配置并重启确认。`EKF2_BARO_NOISE=0.15` 仅依据 Gazebo 1 Pa 噪声设置，不是实机气压计标定结果。
 
 LiDAR 内部 IMU→扫描坐标外参与 IMU→相机安装外参是两件事。`mid360_hardware.yaml` 保留原 MID360 工程内部外参，使用 `/livox/imu`；Gazebo ray frame 使用独立仿真配置，不能相互覆盖。板端 ROS 实时链、实机噪声与现场飞行尚未验收。
+
+当前 competition_freedom.yaml 与本轮通过的 SITL 共享 .10 m 空闲网格、[-7,52]° 增强视场和场地范围；这些配置仍需板端实测。uav_vision_eval 是仿真评测包，其 Gazebo 插件不进入实机运行链，板端构建应选择运行所需的 camera_sdk/uav_vision 与导航包。

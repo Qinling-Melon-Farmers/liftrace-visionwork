@@ -1,8 +1,6 @@
-> 历史阶段记录。后续 R56 根因修复已完整 PASS（37/37）；最新结果见 [最终报告](../r56_final/REPORT.md)。本文件保留当次运行的真实结论。
+# R56 完整 PASS 的参数与阈值
 
-# R56 参数与阈值
-
-实际飞行源 f0f7480。完整组合以 [运行时 ROS 参数全文](rosparams.yaml) 为准；当前表只提供关键数值索引。PX4 八项值在本次重跑 armed 后读取，全部 success=true。
+实际飞行源 cc899f2。本次完整 Gate 37/37 PASS。完整组合以 [运行时 ROS 参数全文](rosparams.yaml) 为准；当前表只提供关键数值索引。PX4 八项值在本次重跑 armed 后读取，全部 success=true。
 
 | 组别 | 参数 |
 |---|---|
@@ -324,3 +322,67 @@ param set EKF2_GPS_CTRL 0
 param set EKF2_HGT_REF 0
 
 ```
+
+## 新竞赛 FreeDOM profile（本轮实际加载）
+
+```yaml
+# Competition field is 10 x 10 x 4 m. These overrides are shared by SITL
+# and hardware; raw LiDAR/LIO ranges are unchanged.
+sensor:
+  max_range: 15.0              # m; covers the field diagonal
+  min_z: -3.0                 # m relative to the sensor
+  max_z: 5.0
+map:
+  # sub_voxel_size remains 0.10 m. Free-space voxels become 0.10 m rather
+  # than 0.40 m; a 26-neighbour free test then spans 0.30 m, not 1.20 m.
+  voxel_depth: 0
+  raycast_max_range: 15.0
+  raycast_min_z: -3.0
+  raycast_max_z: 5.0
+raycast_enhancement:
+  # Match the recorded MID360 sector; half-bin padding covers scan noise.
+  lidar_vertical_fov_upper_degree: 52.0
+  lidar_vertical_fov_lower_degree: -7.0
+  # The existing 8-bit depth image now has ~0.047 m bins, instead of 0.314 m.
+  max_raycast_enhancement_range: 12.0
+# counts_to_free=6, counts_to_revert=20 and the connectivity remain unchanged.
+
+```
+
+## 完整规划配置
+
+```yaml
+fsm/allow_goal_adjustment: false
+fsm/tracking_replan_distance: 0.45
+fsm/min_replan_interval: 0.75
+sdf_map/virtual_ceil_height: 2.30
+# Inflate an overhead obstacle DOWN for the guard above the body; inflate
+# a floor obstacle UP for the undercarriage. These are not interchangeable.
+sdf_map/obstacles_inflation_up: 0.10
+sdf_map/obstacles_inflation_down: 0.30
+sdf_map/horizontal_avoidance/enabled: true
+sdf_map/horizontal_avoidance/min_x: -2.1
+sdf_map/horizontal_avoidance/max_x: 2.1
+sdf_map/horizontal_avoidance/min_y: 0.2
+sdf_map/horizontal_avoidance/max_y: 5.5
+sdf_map/horizontal_avoidance/obstacle_min_z: 0.40
+sdf_map/horizontal_avoidance/floor_z: 0.10
+# 5 cm voxels preserve the 0.30 m guard envelope at the 0.80 m doorway.
+# The bounded map covers the whole field: X [-6,6], Y [-11,11], Z [-0.2,2.8].
+# 6,336,000 cells (~355 MB of SDF buffers); physical ceiling remains 2.30 m.
+sdf_map/resolution: 0.05
+sdf_map/map_size_x: 12.0
+sdf_map/map_size_y: 22.0
+sdf_map/map_size_z: 3.0
+sdf_map/visualization_rate: 5.0
+# A short goal requires a complete path. Long partial paths must make progress.
+search/max_search_time: 0.25
+search/min_horizon_progress: 0.20
+search/direct_shot_distance: 2.0
+# Keep 20 cm spline controls, with dense 20 ms collision validation.
+manager/control_points_distance: 0.20
+optimization/dist0: 0.10
+
+```
+
+接触代理的网格、z=.20 m 和传感器保留；模型插件仅排除激光射线类别。SDF .05 m 规划网格与 FreeDOM .10 m 空闲网格属于不同用途。当前源快照见 vehicle_model.sdf。
