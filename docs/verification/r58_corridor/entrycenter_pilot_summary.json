@@ -1,0 +1,272 @@
+{
+  "status": "FAIL",
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r58_entrycenter_pilot_seed11_20260907_223209",
+  "seed": 11,
+  "source": "f3d9f34aec5d356d9036e5e0c01e1c4a73bb7c13",
+  "checks_passed": 22,
+  "checks_total": 37,
+  "gate_reason": "manager_failed",
+  "gate_errors": [
+    "manager_failed",
+    "manager_aborted"
+  ],
+  "gate_failures": [],
+  "metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 20,
+    "door_crossings": [
+      {
+        "lateral": -3.105937516304671,
+        "name": "corridor_entry",
+        "route_index": 2,
+        "z": 1.4963578022547088
+      },
+      {
+        "lateral": 8.199413977919075,
+        "name": "Wall_20",
+        "route_index": 4,
+        "z": 1.5516532878327602
+      }
+    ],
+    "height_violations": 0,
+    "landing_align_mode_seen": false,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      3.274292,
+      8.05722
+    ],
+    "latest_armed": null,
+    "latest_landed_state": null,
+    "max_observed_height": 1.7933007070398876,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 12896,
+    "post_delivery_decision_indices": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "post_delivery_return_success_count": 3,
+    "post_delivery_route_revision": "r2026-r58-corridor150-opening080-yaw090-entrycenter",
+    "post_delivery_route_size": 7,
+    "recovery_success_count": 3,
+    "release_commit_count": 3,
+    "result_count": 195,
+    "selected_count": 1233,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": null
+  },
+  "drops": [
+    {
+      "time": 40.391,
+      "class": "panzer",
+      "slot": 1,
+      "decision": 2
+    },
+    {
+      "time": 131.2,
+      "class": "bridge",
+      "slot": 2,
+      "decision": 13
+    },
+    {
+      "time": 148.799,
+      "class": "red_cross",
+      "slot": 3,
+      "decision": 15
+    }
+  ],
+  "ground_error_to_h": null,
+  "planner_goals": {
+    "1": {
+      "accepted": 28.107,
+      "first_ready": 28.55,
+      "failures": 0
+    },
+    "2": {
+      "accepted": 31.088,
+      "first_ready": 31.311,
+      "failures": 0
+    },
+    "3": {
+      "accepted": 42.812,
+      "first_ready": 42.934,
+      "failures": 0
+    },
+    "4": {
+      "accepted": 48.411,
+      "first_ready": 48.523,
+      "failures": 0
+    },
+    "5": {
+      "accepted": 62.07,
+      "first_ready": 62.183,
+      "failures": 0
+    },
+    "6": {
+      "accepted": 65.453,
+      "first_ready": 65.652,
+      "failures": 0
+    },
+    "7": {
+      "accepted": 79.781,
+      "first_ready": 79.943,
+      "failures": 0
+    },
+    "8": {
+      "accepted": 83.082,
+      "first_ready": 83.27,
+      "failures": 0
+    },
+    "9": {
+      "accepted": 96.943,
+      "first_ready": 97.063,
+      "failures": 0
+    },
+    "10": {
+      "accepted": 100.381,
+      "first_ready": 100.536,
+      "failures": 0
+    },
+    "11": {
+      "accepted": 117.325,
+      "first_ready": 117.467,
+      "failures": 0
+    },
+    "12": {
+      "accepted": 120.72,
+      "first_ready": 120.891,
+      "failures": 0
+    },
+    "13": {
+      "accepted": 122.882,
+      "first_ready": 123.006,
+      "failures": 0
+    },
+    "14": {
+      "accepted": 133.651,
+      "first_ready": 133.807,
+      "failures": 0
+    },
+    "15": {
+      "accepted": 141.317,
+      "first_ready": 141.423,
+      "failures": 0
+    },
+    "16": {
+      "accepted": 151.151,
+      "first_ready": 151.301,
+      "failures": 0
+    },
+    "17": {
+      "accepted": 173.464,
+      "first_ready": 173.647,
+      "failures": 0
+    },
+    "18": {
+      "accepted": 179.099,
+      "first_ready": 179.229,
+      "failures": 0
+    },
+    "19": {
+      "accepted": 187.319,
+      "first_ready": 187.464,
+      "failures": 109
+    },
+    "20": {
+      "accepted": 277.318,
+      "first_ready": null,
+      "failures": 1
+    }
+  },
+  "planner_ready_latency_ros_s": {
+    "p50": 0.14999999999997726,
+    "p95": 0.24499999999999875
+  },
+  "event_count": 567,
+  "pose_rows": {
+    "truth": 2732,
+    "mavros": 2296
+  },
+  "bag_files": 0,
+  "cleanup_pass": true,
+  "layout": {
+    "profile": "r2026",
+    "seed": 11,
+    "spawn_offset": {
+      "x": -0.4934,
+      "y": -1.7727
+    },
+    "search_region": {
+      "min_x": -2.007,
+      "max_x": 1.993,
+      "min_y": 0.273,
+      "max_y": 6.273
+    },
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": 0.0467,
+        "y": 5.1977,
+        "world_x": -0.4467,
+        "world_y": 3.425,
+        "yaw": 1.9197
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": 1.0231,
+        "y": 1.7417,
+        "world_x": 0.5297,
+        "world_y": -0.031,
+        "yaw": 0.7403
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": -1.1566,
+        "y": 4.1782,
+        "world_x": -1.65,
+        "world_y": 2.4056,
+        "yaw": -3.0191
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": -1.1945,
+        "y": 1.1095,
+        "world_x": -1.6879,
+        "world_y": -0.6632,
+        "yaw": 2.3006
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": 1.4469,
+        "y": 4.1073,
+        "world_x": 0.9535,
+        "world_y": 2.3346,
+        "yaw": 0.0029
+      }
+    ]
+  }
+}
