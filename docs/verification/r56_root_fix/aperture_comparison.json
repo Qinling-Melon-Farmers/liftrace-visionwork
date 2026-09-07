@@ -1,0 +1,4 @@
+{
+  "coarse": "APERTURE_RESULT depth=2 voxel=0.4 seed_present=1 ghost_present=1 first_clear_frame=-1 min_beam_points=59 final_beam_points=61 final_static_points=23425 sec=2.17928",
+  "fine": "APERTURE_RESULT depth=0 voxel=0.1 seed_present=1 ghost_present=0 first_clear_frame=5 min_beam_points=59 final_beam_points=61 final_static_points=23408 sec=3.20548"
+}
