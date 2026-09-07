@@ -34,8 +34,9 @@ mission:
   result_future_tolerance: 0.1
   home_xy: [0.0, 0.0]
   # R58: user-confirmed 1.50 m corridor, staggered short walls, 0.80 m openings.
-  # The 0.70 m brackets include 0.30 m map inflation, 0.18 m arrival radius,
-  # the observed ~0.15 m positioning offset and 0.07 m sampling reserve.
+  # The 0.70 m brackets are measured from the crossing mid-plane. With the
+  # 0.15 m wall thickness, each target is 0.625 m from its near solid face,
+  # beyond the 0.30 m inflation plus the observed ~0.15 m position offset.
   # No goal is placed at a wall corner. Existing speed <=0.20 m/s and 0.50 s
   # arrival dwell confirm each bracket before the next planner goal.
   post_delivery_route_revision: r2026-r58-corridor150-opening080-bracket070

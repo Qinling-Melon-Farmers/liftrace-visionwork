@@ -107,8 +107,6 @@ struct MappingParameters {
   bool horizontal_avoidance_;
   double horizontal_min_x_, horizontal_max_x_, horizontal_min_y_, horizontal_max_y_;
   double horizontal_obstacle_min_z_, horizontal_floor_z_;
-  int horizontal_support_min_points_;
-  double horizontal_support_radius_, horizontal_support_min_span_;
   bool show_esdf_time_, show_occ_time_;
 
   /* active mapping */

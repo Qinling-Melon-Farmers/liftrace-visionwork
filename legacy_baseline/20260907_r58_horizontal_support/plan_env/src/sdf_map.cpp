@@ -22,9 +22,6 @@
 */
 
 #include "plan_env/sdf_map.h"
-#include "plan_env/vertical_obstacle_support.h"
-#include <memory>
-#include <stdexcept>
 
 // #define current_img_ md_.depth_image_[image_cnt_ & 1]
 // #define last_img_ md_.depth_image_[!(image_cnt_ & 1)]
@@ -76,13 +73,6 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
   node_.param("sdf_map/horizontal_avoidance/max_y", mp_.horizontal_max_y_, 0.0);
   node_.param("sdf_map/horizontal_avoidance/obstacle_min_z", mp_.horizontal_obstacle_min_z_, 0.4);
   node_.param("sdf_map/horizontal_avoidance/floor_z", mp_.horizontal_floor_z_, 0.1);
-  node_.param("sdf_map/horizontal_avoidance/support_min_points", mp_.horizontal_support_min_points_, 1);
-  node_.param("sdf_map/horizontal_avoidance/support_radius", mp_.horizontal_support_radius_, 0.0);
-  node_.param("sdf_map/horizontal_avoidance/support_min_vertical_span", mp_.horizontal_support_min_span_, 0.0);
-  if (mp_.horizontal_support_min_points_ < 1 ||
-      !std::isfinite(mp_.horizontal_support_radius_) || mp_.horizontal_support_radius_ < 0.0 ||
-      !std::isfinite(mp_.horizontal_support_min_span_) || mp_.horizontal_support_min_span_ < 0.0)
-    throw std::invalid_argument("horizontal obstacle support parameters are invalid");
 
   node_.param("sdf_map/show_occ_time", mp_.show_occ_time_, false);
   node_.param("sdf_map/show_esdf_time", mp_.show_esdf_time_, false);
@@ -922,27 +912,6 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   std::vector<unsigned char> horizontal_columns(
       mp_.map_voxel_num_(0) * mp_.map_voxel_num_(1), 0);
 
-  const auto horizontal_candidate = [&](const pcl::PointXYZ& point) {
-    return point.z >= mp_.horizontal_obstacle_min_z_ &&
-        point.x >= mp_.horizontal_min_x_ && point.x <= mp_.horizontal_max_x_ &&
-        point.y >= mp_.horizontal_min_y_ && point.y <= mp_.horizontal_max_y_;
-  };
-  std::unique_ptr<fast_planner::VerticalObstacleSupport> support;
-  if (mp_.horizontal_avoidance_) {
-    support.reset(new fast_planner::VerticalObstacleSupport(
-        mp_.map_voxel_num_.x(), mp_.map_voxel_num_.y(),
-        static_cast<int>(std::ceil(mp_.horizontal_support_radius_ * mp_.resolution_inv_)),
-        mp_.horizontal_support_min_points_, mp_.horizontal_support_min_span_));
-    for (const auto& point : latest_cloud.points) {
-      if (!horizontal_candidate(point)) continue;
-      Eigen::Vector3d position(point.x, point.y, point.z);
-      if (!isInMap(position)) continue;
-      Eigen::Vector3i index;
-      posToIndex(position, index);
-      support->observe(index.x(), index.y(), point.z);
-    }
-  }
-
   for (size_t i = 0; i < latest_cloud.points.size(); ++i) {
     pt = latest_cloud.points[i];
     p3d(0) = pt.x, p3d(1) = pt.y, p3d(2) = pt.z;
@@ -967,10 +936,9 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
       max_z = max(max_z, pt.z + inf_step_z_up * mp_.resolution_);
       int low_z = std::max(0, center.z() - inf_step_z_down);
       int high_z = std::min(mp_.map_voxel_num_.z() - 1, center.z() + inf_step_z_up);
-      // All points keep normal 3-D inflation; extending to the full flight
-      // height additionally needs local vertical structure support.
-      const bool column = support && horizontal_candidate(pt) &&
-          support->supported(center.x(), center.y());
+      const bool column = mp_.horizontal_avoidance_ && pt.z >= mp_.horizontal_obstacle_min_z_ &&
+          pt.x >= mp_.horizontal_min_x_ && pt.x <= mp_.horizontal_max_x_ &&
+          pt.y >= mp_.horizontal_min_y_ && pt.y <= mp_.horizontal_max_y_;
       if (low_z > high_z) continue;
       for (int x = std::max(0, center.x() - inf_step);
            x <= std::min(mp_.map_voxel_num_.x() - 1, center.x() + inf_step); ++x)
