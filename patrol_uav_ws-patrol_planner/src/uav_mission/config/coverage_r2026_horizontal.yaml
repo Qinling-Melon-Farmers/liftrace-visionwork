@@ -1,9 +1,9 @@
-# 历史文件名保留为 launch 兼容；本文件现在只描述 V-CL-05 随机场地
-# （toudi3_random.world）的生成几何，不包含搜索、选靶或中断策略。
+# R57: toudi3_random-derived 2026 field with toudi4-style staggered corridor.
+# This file describes spawn geometry, not search or mission policy.
 # 正式任务策略由 vcl06_random_field_runtime.yaml 与 MissionCore 唯一管理。
 # 场地形态按 2026 规则书：投递区内 4 个 1m 标准投放区 + 1 个 0.35m 随机红十字
-# 均由 random_field_spawner 启动时随机摆放（真值只落盘）；北部走廊（含 0.8m
-# 门洞 Wall_15）与双 H 坐标视为赛会给定值，走廊穿越由后续 Gate 单独处理。
+# 均由 random_field_spawner 启动时随机摆放（真值只落盘）；北部错列墙走廊
+# 与双 H 坐标视为赛会给定值，走廊穿越由独立 Gate 记录。
 mission_frame: camera_init
 
 # 类目 profile：r2026 = 四类标准靶（无 tank）+ 随机红十字。profile 外的
@@ -32,13 +32,8 @@ static_exclusions:
   - {name: nested_tree_1, world_x: -0.730275, world_y: 0.180850, radius: 0.40}
   - {name: nested_tree_2, world_x: 0.162569, world_y: 1.311355, radius: 0.40}
   - {name: nested_tree_3, world_x: 1.183719, world_y: 3.155350, radius: 0.40}
-  # toudi2 is one compound parent model, so Wall_15 collisions are invisible
-  # in ModelStates.  These transformed world-frame circles conservatively
-  # enclose its four box collisions near the target-region upper-left edge.
-  - {name: toudi2_wall15_0, world_x: -2.236987, world_y: 4.299580, radius: 0.255}
-  - {name: toudi2_wall15_1, world_x: -3.111987, world_y: 4.299580, radius: 0.637}
-  - {name: toudi2_wall15_2, world_x: -3.511987, world_y: 4.299580, radius: 0.244}
-  - {name: toudi2_wall15_3, world_x: -2.880115, world_y: 4.299580, radius: 0.407}
+  # R57 removes the former Wall_15 entry; toudi4 corridor starts north
+  # of the unchanged random-target spawn envelope. Tree exclusions remain.
 
 # 起飞 H 与 toudi4 主 H 同位：world=(-0.493412,-1.772690)，spawn 局部 (0,0)。
 # PX4/MAVROS/camera_init 在此建立本地原点；下列边界为投递区/场地在该局部系

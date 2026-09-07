@@ -199,7 +199,11 @@ def _normalize_route(route):
     return tuple(result)
 
 
-def _normalize_doors(doors, route_size):
+def _normalize_doors(doors, route_size, expected_order=EXPECTED_DOOR_ORDER):
+    if (not isinstance(expected_order, (list, tuple)) or not expected_order or
+            any(not isinstance(name, str) or not name for name in expected_order) or
+            len(set(expected_order)) != len(expected_order)):
+        raise ValueError("expected door order must contain unique names")
     if not isinstance(doors, (list, tuple)):
         raise ValueError("post_delivery_gate/doors must be a list")
     result = []
@@ -250,8 +254,8 @@ def _normalize_doors(doors, route_size):
             z_min=z_min,
             z_max=z_max,
         ))
-    if result and tuple(item.name for item in result) != EXPECTED_DOOR_ORDER:
-        raise ValueError("door order must be Wall_15,Wall_20,Wall_22")
+    if result and tuple(item.name for item in result) != tuple(expected_order):
+        raise ValueError("door order must be " + ",".join(expected_order))
     return tuple(result)
 
 
@@ -271,7 +275,8 @@ class Vcl06GateReducer:
                  post_delivery_route_revision="direct-home-v1",
                  post_delivery_goal_tolerance=0.18,
                  post_delivery_doors=(), landing_xy=(0.0, 0.0),
-                 landing_h_tolerance=0.35, gate_scope="full"):
+                 landing_h_tolerance=0.35, gate_scope="full",
+                 expected_door_order=EXPECTED_DOOR_ORDER):
         self.profile = str(profile)
         self.nav_feature_profile = str(nav_feature_profile)
         self.mission_frame = str(mission_frame)
@@ -302,7 +307,7 @@ class Vcl06GateReducer:
                 self.post_delivery_goal_tolerance <= 0.0):
             raise ValueError("post-delivery route configuration invalid")
         self.post_delivery_doors = _normalize_doors(
-            post_delivery_doors, len(self.post_delivery_route))
+            post_delivery_doors, len(self.post_delivery_route), expected_door_order)
         if self.post_delivery_route and not self.post_delivery_doors:
             raise ValueError("post-delivery route requires door gates")
         if (not isinstance(landing_xy, (list, tuple)) or
@@ -1242,6 +1247,8 @@ class NavigationVcl06AssertionNode:
                 "~post_delivery_gate/goal_tolerance", 0.18)),
             post_delivery_doors=rospy.get_param(
                 "~post_delivery_gate/doors", []),
+            expected_door_order=rospy.get_param(
+                "~post_delivery_gate/expected_door_order", list(EXPECTED_DOOR_ORDER)),
             landing_xy=rospy.get_param("~mission/landing_xy", [0.0, 0.0]),
             landing_h_tolerance=float(rospy.get_param(
                 "~post_delivery_gate/final_h_tolerance", 0.35)),
