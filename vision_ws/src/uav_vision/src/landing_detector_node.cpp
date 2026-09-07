@@ -1,4 +1,5 @@
 #include <uav_vision/landing_detector_node.h>
+#include <uav_vision/h_stroke_detector.h>
 
 namespace uav_vision {
 
@@ -48,6 +49,8 @@ void LandingDetectorNode::loadParameters()
   nh_.param("landing_radius_min", radius_min_, 15.0);
   nh_.param("landing_radius_max", radius_max_, 300.0);
   nh_.param("landing_enable_h_structure_check", enable_h_structure_check_, true);
+  nh_.param("landing_enable_h_stroke_fallback", enable_h_stroke_fallback_, false);
+  nh_.param("landing_h_stroke_min_size_px", h_stroke_min_size_px_, 24.0);
   nh_.param("landing_h_inner_scale", h_inner_scale_, 0.78);
   nh_.param("landing_h_saturation_max", h_saturation_max_, 90);
   nh_.param("landing_h_value_max", h_value_max_, 110);
@@ -246,6 +249,23 @@ bool LandingDetectorNode::detectLandingPad(
         h_score,
     };
     return true;
+  }
+  if (enable_h_stroke_fallback_) {
+    cv::Mat hsv, dark;
+    cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV);
+    cv::inRange(hsv, cv::Scalar(0,0,0),
+                cv::Scalar(180,h_saturation_max_,h_value_max_), dark);
+    cv::morphologyEx(dark, dark, cv::MORPH_OPEN,
+        cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3,3)));
+    HStrokeObservation h;
+    if (detectHStrokes(dark, h_stroke_min_size_px_, h)) {
+      center = h.center;
+      best_bbox = h.bbox;
+      radius = 0.5f * std::max(h.bbox.width, h.bbox.height);
+      debug_mask = dark;
+      quality_metrics = {h.area, 1.0, radius, 0.90, 0.0, 1.0};
+      return true;
+    }
   }
   return false;
 }

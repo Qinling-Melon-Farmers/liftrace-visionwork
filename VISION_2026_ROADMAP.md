@@ -1,7 +1,5 @@
-# 当前状态：停止R58试飞，完成对照报告
+# 当前任务：R59单轮走廊—降落专项
 
-1. 用户已要求停止折腾，十seed暂停、执行0组。当前没有仿真；后续启动必须有新的明确请求，不能因旧计划自动续跑。
-2. 最后飞行源码59ed04b：三投/三恢复完成，外侧长墙接触FAIL。R56 cc899f2与R57/0.85m 7035415的成功记录保留；main=31d0b2a仍是R56验收基线，未合R58失败实验。
-3. [收口报告](docs/verification/r58_closeout/REPORT.md)给出R56以来13次提交、全部文件/参数对照、坐标系适配和实机入口核查。
-4. 走廊需求确定为目标0.65m、希望实际≤0.70m；[方案](docs/verification/r58_closeout/LOW_CORRIDOR_PROPOSAL.yaml)未加载、未飞行验收。必须先明确地面/机体参考点、整段高度约束及H区域是否允许升高。
-5. 后续若恢复，先选择成功基线与最小改动范围；还需坐标/高度基准、窄廊与低空H、板端实时链、机械/接管验收。当前R58不能作为已验收比赛实机版本。
+用户明确只运行一轮走廊到landing，现场坐标暂不改，十seed仍暂停。当前已完成离线准备；唯一一轮尚未启动，结束无论成败均收尾，不追加轮次。
+
+入口navigation_corridor_landing_vcl06.launch采用独立低空配置和可选H笔画几何，原全场默认配置及两份成功基线保持。详细改动和预检见[报告](docs/verification/r59_corridor_landing/REPORT.md)。R58失败及实机限制见[前轮收口](docs/verification/r58_closeout/REPORT.md)。

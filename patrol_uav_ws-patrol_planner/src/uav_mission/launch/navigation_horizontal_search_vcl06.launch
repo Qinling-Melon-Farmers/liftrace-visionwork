@@ -15,6 +15,8 @@
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="mission_start_mode" default="full" />
   <arg name="gate_scope" default="full" />
+  <arg name="runtime_config" default="$(find uav_mission)/config/vcl06_horizontal_field_runtime.yaml" />
+  <arg name="control_config" default="$(find uav_mission)/config/vcl06_horizontal_control.yaml" />
   <include file="$(find uav_mission)/launch/navigation_search_delivery_vcl06.launch">
     <arg name="gui" value="$(arg gui)" />
     <arg name="rviz" value="$(arg rviz)" />
@@ -26,8 +28,8 @@
     <arg name="gate_scope" value="$(arg gate_scope)" />
     <arg name="world" value="$(find uav_vision_eval)/models/r2026_horizontal_field/field.world" />
     <arg name="vehicle_sdf" value="$(find uav_vision_eval)/models/iris_mid360_ks2a543_installed/model.sdf" />
-    <arg name="runtime_config" value="$(find uav_mission)/config/vcl06_horizontal_field_runtime.yaml" />
-    <arg name="waypoint_config" value="$(find uav_mission)/config/vcl06_horizontal_control.yaml" />
+    <arg name="runtime_config" value="$(arg runtime_config)" />
+    <arg name="waypoint_config" value="$(arg control_config)" />
     <arg name="field_config" value="$(find uav_mission)/config/coverage_r2026_horizontal.yaml" />
     <arg name="camera_extrinsic_xyz" value="0 0 -0.08588" />
     <arg name="search_altitude" value="1.40" />
