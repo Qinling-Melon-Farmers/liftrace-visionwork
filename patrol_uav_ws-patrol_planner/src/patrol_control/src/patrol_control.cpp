@@ -974,6 +974,14 @@ void LLController::servoMarkyCallback(const std_msgs::Bool& msg) {
     ROS_INFO("\033[1;35m[servoMarkyCallback] Received servo_marky: %s\033[0m", servo_marky.data ? "true" : "false");
 }
 void LLController::cmdCallback(const ros::TimerEvent& event) {
+    double phase_lead = px4_max_distance;
+    double phase_ceiling = external_planner_max_command_z_;
+    if (nh_.getParamCached("px4_max_distance", phase_lead) &&
+        std::isfinite(phase_lead) && phase_lead > 0.0)
+        px4_max_distance = phase_lead;
+    if (nh_.getParamCached("external_planner_max_command_z", phase_ceiling) &&
+        std::isfinite(phase_ceiling) && phase_ceiling > 0.05 && phase_ceiling <= 4.0)
+        external_planner_max_command_z_ = phase_ceiling;
     if(!isQuaternionNormalized(uav_pose.pose.orientation)){
         std::cout<<"\033[33m[WARN]: The quaternion of the drone position has not been unitized. Please check whether the position information is correct!\033[0m"<<std::endl;
         return;

@@ -98,6 +98,10 @@ void KinoReplanFSM::init(ros::NodeHandle& nh) {
 }
 
 void KinoReplanFSM::waypointCallback(const geometry_msgs::PoseStamped msg) {
+  double phase_radius = goal_adjustment_radius_;
+  if (ros::param::getCached("~fsm/goal_adjustment_radius", phase_radius) &&
+      std::isfinite(phase_radius) && phase_radius >= 0.0)
+    goal_adjustment_radius_ = phase_radius;
   if (msg.pose.position.z <= -0.5) return;
 
   double cancelled_distance = std::numeric_limits<double>::quiet_NaN();

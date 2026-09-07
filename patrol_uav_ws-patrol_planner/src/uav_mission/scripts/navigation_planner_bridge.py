@@ -10,6 +10,7 @@ selection, retry, payload-slot allocation or mission scheduling.
 from dataclasses import dataclass
 import json
 import math
+from dataclasses import replace
 import os
 import sys
 import threading
@@ -1065,6 +1066,16 @@ class NavigationPlannerBridge:
             try:
                 now_ns = self._now_ns()
                 decision = self._decision_from_message(message, now_ns)
+                # Arrival settings change only at a new decision boundary.
+                # Search defaults are untouched until the task's return stage.
+                self._executor.config = replace(
+                    self._executor.config,
+                    arrival_distance_m=float(rospy.get_param(
+                        "~execution/arrival_position_tolerance",
+                        self._executor.config.arrival_distance_m)),
+                    arrival_dwell_ns=_seconds_to_ns("arrival_dwell", rospy.get_param(
+                        "~execution/arrival_dwell",
+                        self._executor.config.arrival_dwell_ns / 1e9)))
                 outcome = self._executor.submit_decision(decision, now_ns)
                 self._apply_outcome(
                     outcome,

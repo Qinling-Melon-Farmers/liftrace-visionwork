@@ -278,6 +278,12 @@ void goalCallback(const geometry_msgs::PoseStamped msg)
 }
 
 void cmdCallback(const ros::TimerEvent& e) {
+  // Mission phase changes the existing following lead; cached reads do not
+  // contact the parameter server on every 100 Hz tick.
+  double phase_lead = target_dist;
+  if (ros::param::getCached("~traj_server/target_dist", phase_lead) &&
+      std::isfinite(phase_lead) && phase_lead > 0.0)
+    target_dist = phase_lead;
   if (!receive_traj_) return;
   std::pair<double, double> yaw_yawdot(0, 0);
 
