@@ -1,0 +1,32 @@
+[
+  {
+    "file": "local_map_failure_2.json",
+    "goal": [
+      1.993,
+      4.473000000000001,
+      1.4
+    ],
+    "ros_sec": 254.756,
+    "nearest_inflated_center_m": 0.03087063938517536
+  },
+  {
+    "file": "local_map_failure_1.json",
+    "goal": [
+      1.993,
+      4.473000000000001,
+      1.4
+    ],
+    "ros_sec": 164.763,
+    "nearest_inflated_center_m": 0.03087063938517536
+  },
+  {
+    "file": "local_map_failure_3.json",
+    "goal": [
+      1.1713558534898754,
+      1.506535079171733,
+      1.6
+    ],
+    "ros_sec": 339.791,
+    "nearest_inflated_center_m": 0.7252443043680974
+  }
+]

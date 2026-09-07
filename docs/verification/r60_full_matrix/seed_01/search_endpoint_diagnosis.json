@@ -1,0 +1,86 @@
+{
+  "scope": "offline frozen occupancy analysis; no control commands or simulation changes",
+  "goal": [
+    1.993,
+    4.473000000000001,
+    1.4
+  ],
+  "sample_stamp": 268.354,
+  "free_sample_count_within_015_m": 0,
+  "nearest_free_grid_samples": [
+    {
+      "point": [
+        2.043,
+        4.323,
+        1.4
+      ],
+      "offset_m": 0.15811388300841933,
+      "nearest_occupied_center_m": 0.06044000481963918
+    },
+    {
+      "point": [
+        2.093,
+        4.323,
+        1.4
+      ],
+      "offset_m": 0.1802775637731997,
+      "nearest_occupied_center_m": 0.06044001902055416
+    },
+    {
+      "point": [
+        1.993,
+        4.273000000000001,
+        1.4
+      ],
+      "offset_m": 0.20000000000000018,
+      "nearest_occupied_center_m": 0.06043986202102643
+    },
+    {
+      "point": [
+        2.193,
+        4.423000000000001,
+        1.4
+      ],
+      "offset_m": 0.20615528128088292,
+      "nearest_occupied_center_m": 0.06043996537249703
+    },
+    {
+      "point": [
+        1.943,
+        4.273000000000001,
+        1.4
+      ],
+      "offset_m": 0.2061552812808832,
+      "nearest_occupied_center_m": 0.0604398833225468
+    },
+    {
+      "point": [
+        2.043,
+        4.273000000000001,
+        1.4
+      ],
+      "offset_m": 0.2061552812808832,
+      "nearest_occupied_center_m": 0.08917945131550731
+    },
+    {
+      "point": [
+        2.1430000000000002,
+        4.323,
+        1.4
+      ],
+      "offset_m": 0.21213203435596462,
+      "nearest_occupied_center_m": 0.06044003322150356
+    },
+    {
+      "point": [
+        2.193,
+        4.373000000000001,
+        1.4
+      ],
+      "offset_m": 0.22360679774997877,
+      "nearest_occupied_center_m": 0.07247756629341585
+    }
+  ],
+  "limitation": "Occupancy samples only; a free point is not a validated trajectory or complete EDT clearance result.",
+  "root_observed": "Coverage endpoint occupied by supported horizontal obstacle column; two 90-second leases retry the same endpoint before coverage can advance."
+}

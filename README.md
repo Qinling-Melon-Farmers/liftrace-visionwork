@@ -1,6 +1,4 @@
-> R59唯一一轮已收尾：8/8航点、两通口、低空H对准和AUTO.LAND触垫完成；终点平面垫名称遗漏导致原始Gate FAIL，ON_GROUND/disarm未确认。评测分类已修正但未重跑，十seed暂停。见[完整结果](docs/verification/r59_corridor_landing/REPORT.md)。
-
-> 当前试验配置：R57严格0.80m错列墙 **FAIL**；0.85m前置轮次 **PASS 37/37**。按用户指令停止，十seed执行0组。报告见[两阶段结果与去年航点](docs/verification/r57_toudi4/REPORT.md)、[失败原因](docs/verification/r57_toudi4/FAILURE_ANALYSIS.md)。失败配置未合入main；下方R56为原已验收场景。后续默认不录制全场bag。
+> 2026-09-08联合最新结果：R60先导完整PASS37/37，冻结十seed仅2/10完整PASS、8/10三投；全部收尾，不追加仿真，未合main。[报告](docs/verification/r60_full_matrix/REPORT.md) · [失败分析](docs/verification/r60_full_matrix/FAILURE_ANALYSIS.md) · [rqt三图](docs/verification/r60_full_matrix/topology/index.html)。本分支为来源开发checkout，全量复现使用visionwork的feat/r2026-competition-integrated；下文为原开发基线说明，不代表已通过本次鲁棒性验收。
 
 # RoboCup 无人机投递工程（2025 基线 → 2026 视觉升级）
 
