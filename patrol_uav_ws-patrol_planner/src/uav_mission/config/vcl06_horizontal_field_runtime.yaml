@@ -43,12 +43,12 @@ mission:
   # yaw=pi/2 preserves the airframe's orientation relative to the passage.
   # Apply from the first staging point, before entering the corridor.
   post_delivery_yaw: 1.5707963267948966  # rad, camera_init frame
-  post_delivery_route_revision: r2026-r58-corridor150-opening080-yaw090
+  post_delivery_route_revision: r2026-r58-corridor150-opening080-yaw090-entrycenter
   landing_xy: [3.274292, 8.057220]
   landing_anchor_tolerance: 0.05
   post_delivery_route:
     - [-3.091588000, 6.292690000, 1.40]  # entry approach
-    - [-3.091588000, 8.167690000, 1.40]  # entry clear
+    - [-3.091588000, 7.817690000, 1.40]  # entry clear; stop in the 1.50 m aisle center
     - [-0.812003000, 8.167690000, 1.40]  # Wall_20 approach
     - [0.587997000, 8.167690000, 1.40]  # Wall_20 clear
     - [1.423022000, 7.467690000, 1.40]  # Wall_22 approach
