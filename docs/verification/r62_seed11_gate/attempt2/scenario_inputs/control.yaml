@@ -1,0 +1,88 @@
+# Local FC-frame heights, ground=-0.22m. Release hover remains local0.10m.
+goal_list:
+- bridge
+- panzer
+- pillbox
+- tent
+- tank
+waypoints:
+- x: 0.0
+  y: 0.0
+  z: 1.18
+  yaw: 0.0
+  pointmode: Takeoff_point
+  hover_time: 0.0
+waypoint_skipping_index: 0
+land_height: 0.08
+align_height: 1.38
+px4_max_distance: 0.2
+max_yaw_change: 0.2
+external_landing:
+  frame: camera_init
+  detections_topic: /uav_vision/detections_mapped
+  capture_height: 0.28
+  auto_land_height: 0.18
+  alignment_tolerance: 0.08
+  max_mark_offset: 0.6
+  mark_max_age_sec: 0.5
+  stable_frames: 10
+  auto_land_retry_sec: 1.0
+  watchdog_timeout_sec: 120.0
+alignment:
+  threshold: 20.0
+  stable_count_threshold: 10
+  timeout: 30.0
+threshould:
+  takeoff_threshould: 0.3
+  waypoint_threshould: 0.3
+  aligning_threshould: 0.2
+  landing_threshould: 0.15
+  arrive_yaw_threshould: 0.3
+  times_detect_threshould: 40
+  waypoint_adjust_max_second_threshould: 15
+  land_adjust_max_second_threshould: 10
+  planner_min_pub_threshould: 0.025
+switch:
+  flag_planner_px4: 0
+  flag_landing_detect: 1
+  auto_land: true
+drop_system:
+  precision_threshold: 20.0
+  height_threshold: 0.2
+  position_threshold: 0.15
+  release_setpoint_height: 0.1
+  enable_drop: true
+  descent_stable_duration: 2.0
+  slot_offsets:
+  - - 0.0
+    - 0.0
+  - - 0.0
+    - 0.0
+  - - 0.0
+    - 0.0
+  dynamic_slot_offsets:
+  - - 0.0
+    - 0.0
+  - - 0.0
+    - 0.0
+  - - 0.0
+    - 0.0
+uav_vision:
+  update_goal_from_selected_target: false
+  require_release_permission: true
+  release_permission_state_topic: /mission/release_permission_active
+  release_permission_timeout: 0.2
+  recovery_height: 0.73
+  selected_target_timeout: 1.0
+  drop_offset_timeout: 1.0
+  pixel_to_meter_ratio: 0.0015
+  pixel_to_body_matrix:
+  - 0.0
+  - -1.0
+  - -1.0
+  - 0.0
+  max_movement_distance: 0.5
+  drop_circle_radius_m: 0.5
+  drop_cross_radius_m: 0.5
+  landing_pad_radius_m: 0.3
+  enable_tank_interrupt: false
