@@ -207,6 +207,7 @@ class NavigationMissionManager:
             retry_cooldown=rospy.get_param(
                 "~mission/retry_cooldown", 20.0),
             mission_timeout=rospy.get_param("~mission/timeout", 600.0),
+            early_return_enabled=rospy.get_param("~mission/early_return_enabled", True),
             forced_return_at=rospy.get_param(
                 "~mission/forced_return_at", 510.0),
             return_land_reserve=rospy.get_param(

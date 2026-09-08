@@ -10,6 +10,8 @@ mission:
   max_attempts: 2
   retry_cooldown: 20.0
   timeout: 600.0
+  # Batch diagnostic: no early return or return-budget candidate rejection.
+  early_return_enabled: false
   forced_return_at: 420.0
   return_land_reserve: 180.0
   delivery_reserve_per_slot: 60.0
