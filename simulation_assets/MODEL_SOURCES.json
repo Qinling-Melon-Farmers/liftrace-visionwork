@@ -1,0 +1,80 @@
+{
+  "copied_on": "2026-09-09",
+  "px4_revision": "99c40407ffd7ac184e2d7b4b293f36f10fe561ef",
+  "astra_revision": "82dce3e2c8bdf09fb1aa2f2fb84ecc37886f7510",
+  "note": "Local active assets may contain earlier project changes; copied files, not upstream HEAD alone, define this snapshot. No model geometry or material changes during vendoring.",
+  "models": [
+    {
+      "model": "iris",
+      "source": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris",
+      "files": 5,
+      "bytes": 4682048
+    },
+    {
+      "model": "gps",
+      "source": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/gps",
+      "files": 2,
+      "bytes": 3178
+    },
+    {
+      "model": "mid360",
+      "source": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/mid360",
+      "files": 3,
+      "bytes": 31474572
+    },
+    {
+      "model": "juniper_Tree",
+      "source": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/juniper_Tree",
+      "files": 6,
+      "bytes": 621448
+    },
+    {
+      "model": "landing_h",
+      "source": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/landing_h",
+      "files": 4,
+      "bytes": 231698
+    },
+    {
+      "model": "sun",
+      "source": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/sun",
+      "files": 5,
+      "bytes": 2246
+    },
+    {
+      "model": "ground_plane",
+      "source": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/ground_plane",
+      "files": 5,
+      "bytes": 4168
+    },
+    {
+      "model": "zhangpeng",
+      "source": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/zhangpeng",
+      "files": 4,
+      "bytes": 405143
+    },
+    {
+      "model": "dibao",
+      "source": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/dibao",
+      "files": 4,
+      "bytes": 440995
+    },
+    {
+      "model": "qiaoliang",
+      "source": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/qiaoliang",
+      "files": 4,
+      "bytes": 430872
+    },
+    {
+      "model": "zhuangjiache",
+      "source": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/zhuangjiache",
+      "files": 4,
+      "bytes": 423895
+    },
+    {
+      "model": "red_cross",
+      "source": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/red_cross",
+      "files": 4,
+      "bytes": 313308
+    }
+  ]
+}

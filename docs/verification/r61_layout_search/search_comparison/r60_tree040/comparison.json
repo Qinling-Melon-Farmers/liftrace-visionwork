@@ -1,0 +1,2498 @@
+{
+  "scope": "OFFLINE_GEOMETRY_ONLY",
+  "assumptions": {
+    "known_static_map": true,
+    "target_positions_used_by_route_builder": false,
+    "tree_bbox_radius_m": 0.4,
+    "clearance_m": 0.3,
+    "fc_agl_m": 1.4,
+    "camera_offset_z_m": -0.16,
+    "body_yaw_rad": 0,
+    "nominal_speed_mps": 0.5,
+    "turn_penalty_s": 1.0,
+    "visibility_hold_s": 0.2,
+    "detector_probability_model": null,
+    "flight_dynamics_or_gate_model": false
+  },
+  "routes": {
+    "x_raw": [
+      [
+        0,
+        0,
+        1.4
+      ],
+      [
+        -2.007,
+        0.273,
+        1.4
+      ],
+      [
+        1.993,
+        0.273,
+        1.4
+      ],
+      [
+        1.993,
+        0.973,
+        1.4
+      ],
+      [
+        -2.007,
+        0.973,
+        1.4
+      ],
+      [
+        -2.007,
+        1.673,
+        1.4
+      ],
+      [
+        1.993,
+        1.673,
+        1.4
+      ],
+      [
+        1.993,
+        2.373,
+        1.4
+      ],
+      [
+        -2.007,
+        2.373,
+        1.4
+      ],
+      [
+        -2.007,
+        3.0730000000000004,
+        1.4
+      ],
+      [
+        1.993,
+        3.0730000000000004,
+        1.4
+      ],
+      [
+        1.993,
+        3.7730000000000006,
+        1.4
+      ],
+      [
+        -2.007,
+        3.7730000000000006,
+        1.4
+      ],
+      [
+        -2.007,
+        4.473000000000001,
+        1.4
+      ],
+      [
+        1.993,
+        4.473000000000001,
+        1.4
+      ],
+      [
+        1.993,
+        5.173000000000001,
+        1.4
+      ],
+      [
+        -2.007,
+        5.173000000000001,
+        1.4
+      ],
+      [
+        -2.007,
+        5.873000000000001,
+        1.4
+      ],
+      [
+        1.993,
+        5.873000000000001,
+        1.4
+      ],
+      [
+        1.993,
+        6.273,
+        1.4
+      ],
+      [
+        -2.007,
+        6.273,
+        1.4
+      ]
+    ],
+    "x_boundary": [
+      [
+        -0.007000000000000117,
+        0.02300000000000002,
+        1.4
+      ],
+      [
+        -2.007,
+        0.273,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        0.273,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        0.9730000000000002,
+        1.4
+      ],
+      [
+        -2.007,
+        0.9730000000000002,
+        1.4
+      ],
+      [
+        -2.007,
+        1.6730000000000005,
+        1.4
+      ],
+      [
+        -0.907,
+        1.2230000000000003,
+        1.4
+      ],
+      [
+        1.0429999999999997,
+        1.2230000000000003,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        1.6730000000000005,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        2.373,
+        1.4
+      ],
+      [
+        0.44300000000000006,
+        1.2230000000000003,
+        1.4
+      ],
+      [
+        -0.907,
+        1.2230000000000003,
+        1.4
+      ],
+      [
+        -1.957,
+        2.123,
+        1.4
+      ],
+      [
+        -2.007,
+        2.373,
+        1.4
+      ],
+      [
+        -2.007,
+        3.0730000000000004,
+        1.4
+      ],
+      [
+        -1.957,
+        3.523,
+        1.4
+      ],
+      [
+        -1.807,
+        3.573,
+        1.4
+      ],
+      [
+        0.24299999999999988,
+        3.823,
+        1.4
+      ],
+      [
+        1.3430000000000004,
+        3.823,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        3.0730000000000004,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        3.773,
+        1.4
+      ],
+      [
+        -0.8570000000000002,
+        3.823,
+        1.4
+      ],
+      [
+        -2.007,
+        3.773,
+        1.4
+      ],
+      [
+        -2.007,
+        4.473,
+        1.4
+      ],
+      [
+        0.9929999999999999,
+        4.223,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        4.223,
+        1.4
+      ],
+      [
+        2.3930000000000002,
+        4.223,
+        1.4
+      ],
+      [
+        2.3930000000000002,
+        5.173,
+        1.4
+      ],
+      [
+        2.3930000000000002,
+        5.623,
+        1.4
+      ],
+      [
+        2.243,
+        5.673,
+        1.4
+      ],
+      [
+        -1.157,
+        5.573,
+        1.4
+      ],
+      [
+        -2.007,
+        5.173,
+        1.4
+      ],
+      [
+        -2.007,
+        5.873,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        5.873,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        6.273,
+        1.4
+      ],
+      [
+        -2.007,
+        6.273,
+        1.4
+      ]
+    ],
+    "y_boundary": [
+      [
+        -0.007000000000000117,
+        0.02300000000000002,
+        1.4
+      ],
+      [
+        -2.007,
+        0.273,
+        1.4
+      ],
+      [
+        -2.007,
+        6.273,
+        1.4
+      ],
+      [
+        -1.307,
+        6.273,
+        1.4
+      ],
+      [
+        -1.957,
+        3.3730000000000007,
+        1.4
+      ],
+      [
+        -1.907,
+        1.5730000000000004,
+        1.4
+      ],
+      [
+        -1.307,
+        0.273,
+        1.4
+      ],
+      [
+        -0.6069999999999998,
+        0.273,
+        1.4
+      ],
+      [
+        -1.957,
+        2.1730000000000005,
+        1.4
+      ],
+      [
+        -1.957,
+        3.523,
+        1.4
+      ],
+      [
+        -0.6069999999999998,
+        6.273,
+        1.4
+      ],
+      [
+        0.09299999999999997,
+        6.273,
+        1.4
+      ],
+      [
+        0.9929999999999999,
+        4.173,
+        1.4
+      ],
+      [
+        1.3930000000000002,
+        3.773,
+        1.4
+      ],
+      [
+        1.3930000000000002,
+        2.373,
+        1.4
+      ],
+      [
+        0.09299999999999997,
+        0.273,
+        1.4
+      ],
+      [
+        0.7930000000000001,
+        0.273,
+        1.4
+      ],
+      [
+        1.3930000000000002,
+        2.4730000000000003,
+        1.4
+      ],
+      [
+        1.3930000000000002,
+        3.773,
+        1.4
+      ],
+      [
+        0.9430000000000001,
+        4.223,
+        1.4
+      ],
+      [
+        0.7930000000000001,
+        6.273,
+        1.4
+      ],
+      [
+        1.4929999999999999,
+        6.273,
+        1.4
+      ],
+      [
+        0.9430000000000001,
+        5.623,
+        1.4
+      ],
+      [
+        0.9430000000000001,
+        4.223,
+        1.4
+      ],
+      [
+        1.3930000000000002,
+        3.773,
+        1.4
+      ],
+      [
+        1.4929999999999999,
+        0.273,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        0.273,
+        1.4
+      ],
+      [
+        2.3930000000000002,
+        4.373,
+        1.4
+      ],
+      [
+        2.3930000000000002,
+        5.623,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        6.273,
+        1.4
+      ]
+    ],
+    "x_north_first": [
+      [
+        -0.007000000000000117,
+        0.02300000000000002,
+        1.4
+      ],
+      [
+        -1.957,
+        2.1730000000000005,
+        1.4
+      ],
+      [
+        -2.007,
+        6.273,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        6.273,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        5.873,
+        1.4
+      ],
+      [
+        -2.007,
+        5.873,
+        1.4
+      ],
+      [
+        -2.007,
+        5.173,
+        1.4
+      ],
+      [
+        1.2429999999999999,
+        5.673,
+        1.4
+      ],
+      [
+        2.3430000000000004,
+        5.673,
+        1.4
+      ],
+      [
+        2.3930000000000002,
+        5.623,
+        1.4
+      ],
+      [
+        2.3930000000000002,
+        5.173,
+        1.4
+      ],
+      [
+        2.3930000000000002,
+        4.223,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        4.223,
+        1.4
+      ],
+      [
+        -1.5070000000000001,
+        4.223,
+        1.4
+      ],
+      [
+        -2.007,
+        4.473,
+        1.4
+      ],
+      [
+        -2.007,
+        3.773,
+        1.4
+      ],
+      [
+        1.943,
+        3.823,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        3.773,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        3.0730000000000004,
+        1.4
+      ],
+      [
+        1.3430000000000004,
+        3.823,
+        1.4
+      ],
+      [
+        -0.5070000000000001,
+        3.773,
+        1.4
+      ],
+      [
+        -1.907,
+        3.573,
+        1.4
+      ],
+      [
+        -1.957,
+        3.4230000000000005,
+        1.4
+      ],
+      [
+        -2.007,
+        3.0730000000000004,
+        1.4
+      ],
+      [
+        -2.007,
+        2.373,
+        1.4
+      ],
+      [
+        -1.957,
+        2.123,
+        1.4
+      ],
+      [
+        -0.907,
+        1.2230000000000003,
+        1.4
+      ],
+      [
+        0.44300000000000006,
+        1.2230000000000003,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        2.373,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        1.6730000000000005,
+        1.4
+      ],
+      [
+        0.39300000000000024,
+        1.2230000000000003,
+        1.4
+      ],
+      [
+        -1.057,
+        1.2230000000000003,
+        1.4
+      ],
+      [
+        -2.007,
+        1.6730000000000005,
+        1.4
+      ],
+      [
+        -2.007,
+        0.9730000000000002,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        0.9730000000000002,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        0.273,
+        1.4
+      ],
+      [
+        -2.007,
+        0.273,
+        1.4
+      ]
+    ],
+    "x_free_intervals": [
+      [
+        -0.007000000000000117,
+        0.02300000000000002,
+        1.4
+      ],
+      [
+        -2.007,
+        0.273,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        0.273,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        0.9730000000000002,
+        1.4
+      ],
+      [
+        -2.007,
+        0.9730000000000002,
+        1.4
+      ],
+      [
+        -2.007,
+        1.6730000000000005,
+        1.4
+      ],
+      [
+        -0.9569999999999999,
+        1.6730000000000005,
+        1.4
+      ],
+      [
+        -0.9569999999999999,
+        1.2730000000000001,
+        1.4
+      ],
+      [
+        -0.907,
+        1.2230000000000003,
+        1.4
+      ],
+      [
+        0.44300000000000006,
+        1.2230000000000003,
+        1.4
+      ],
+      [
+        0.4929999999999999,
+        1.2730000000000001,
+        1.4
+      ],
+      [
+        0.4929999999999999,
+        1.6730000000000005,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        1.6730000000000005,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        2.373,
+        1.4
+      ],
+      [
+        0.4929999999999999,
+        2.373,
+        1.4
+      ],
+      [
+        0.4929999999999999,
+        1.2730000000000001,
+        1.4
+      ],
+      [
+        0.44300000000000006,
+        1.2230000000000003,
+        1.4
+      ],
+      [
+        -0.907,
+        1.2230000000000003,
+        1.4
+      ],
+      [
+        -1.957,
+        2.123,
+        1.4
+      ],
+      [
+        -1.957,
+        2.373,
+        1.4
+      ],
+      [
+        -2.007,
+        2.373,
+        1.4
+      ],
+      [
+        -2.007,
+        3.0730000000000004,
+        1.4
+      ],
+      [
+        -1.957,
+        3.0730000000000004,
+        1.4
+      ],
+      [
+        -1.957,
+        3.523,
+        1.4
+      ],
+      [
+        -1.807,
+        3.573,
+        1.4
+      ],
+      [
+        -0.5569999999999999,
+        3.573,
+        1.4
+      ],
+      [
+        -0.5070000000000001,
+        3.523,
+        1.4
+      ],
+      [
+        -0.5070000000000001,
+        3.0730000000000004,
+        1.4
+      ],
+      [
+        -0.05699999999999994,
+        3.0730000000000004,
+        1.4
+      ],
+      [
+        -0.05699999999999994,
+        3.773,
+        1.4
+      ],
+      [
+        -0.007000000000000117,
+        3.823,
+        1.4
+      ],
+      [
+        1.3430000000000004,
+        3.823,
+        1.4
+      ],
+      [
+        1.3930000000000002,
+        3.6730000000000005,
+        1.4
+      ],
+      [
+        1.3930000000000002,
+        3.0730000000000004,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        3.0730000000000004,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        3.773,
+        1.4
+      ],
+      [
+        1.3930000000000002,
+        3.773,
+        1.4
+      ],
+      [
+        1.2429999999999999,
+        3.823,
+        1.4
+      ],
+      [
+        -0.007000000000000117,
+        3.823,
+        1.4
+      ],
+      [
+        -0.05699999999999994,
+        3.773,
+        1.4
+      ],
+      [
+        -2.007,
+        3.773,
+        1.4
+      ],
+      [
+        -2.007,
+        4.473,
+        1.4
+      ],
+      [
+        0.9430000000000001,
+        4.473,
+        1.4
+      ],
+      [
+        0.9430000000000001,
+        5.173,
+        1.4
+      ],
+      [
+        -2.007,
+        5.173,
+        1.4
+      ],
+      [
+        -2.007,
+        5.873,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        5.873,
+        1.4
+      ],
+      [
+        1.9929999999999999,
+        6.273,
+        1.4
+      ],
+      [
+        -2.007,
+        6.273,
+        1.4
+      ]
+    ]
+  },
+  "summary": [
+    {
+      "strategy": "x_raw",
+      "feasible": false,
+      "route_distance_m": 48.02548216481903,
+      "nominal_search_s": 115.05096432963808,
+      "mean_center_seen": 5,
+      "mean_refine_seen": 5,
+      "layouts_three_centers": 11,
+      "mean_third_center_visible_s": 54.51914614781988,
+      "blocked_original_endpoints": 2,
+      "max_endpoint_shift_m": 0
+    },
+    {
+      "strategy": "x_boundary",
+      "feasible": true,
+      "route_distance_m": 51.50261418269584,
+      "nominal_search_s": 135.0052283653917,
+      "mean_center_seen": 5,
+      "mean_refine_seen": 4.909090909090909,
+      "layouts_three_centers": 11,
+      "mean_third_center_visible_s": 62.19010234903474,
+      "blocked_original_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013
+    },
+    {
+      "strategy": "y_boundary",
+      "feasible": true,
+      "route_distance_m": 50.47869937328044,
+      "nominal_search_s": 128.9573987465609,
+      "mean_center_seen": 4.636363636363637,
+      "mean_refine_seen": 3.6363636363636362,
+      "layouts_three_centers": 11,
+      "mean_third_center_visible_s": 47.28331121006324,
+      "blocked_original_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267
+    },
+    {
+      "strategy": "x_north_first",
+      "feasible": true,
+      "route_distance_m": 56.49208474172594,
+      "nominal_search_s": 145.9841694834519,
+      "mean_center_seen": 5,
+      "mean_refine_seen": 5,
+      "layouts_three_centers": 11,
+      "mean_third_center_visible_s": 34.56322452208441,
+      "blocked_original_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013
+    },
+    {
+      "strategy": "x_free_intervals",
+      "feasible": true,
+      "route_distance_m": 50.847101823405765,
+      "nominal_search_s": 148.69420364681156,
+      "mean_center_seen": 5,
+      "mean_refine_seen": 5,
+      "layouts_three_centers": 11,
+      "mean_third_center_visible_s": 75.0697399371377,
+      "blocked_original_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267
+    }
+  ],
+  "rows": [
+    {
+      "seed": 1,
+      "strategy": "x_raw",
+      "feasible": false,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 48.02548216481903,
+      "nominal_search_s": 115.05096432963808,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 53.20096432963806,
+        "pillbox": 74.30096432963806,
+        "bridge": 17.20096432963807,
+        "panzer": 1.5314621246192697,
+        "red_cross": 87.60096432963807
+      },
+      "first_refine_s": {
+        "tent": 66.80096432963806,
+        "pillbox": 90.80096432963808,
+        "bridge": 18.20096432963807,
+        "panzer": 22.80096432963807,
+        "red_cross": 88.10096432963807
+      },
+      "third_center_visible_s": 53.20096432963806
+    },
+    {
+      "seed": 2,
+      "strategy": "x_raw",
+      "feasible": false,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 48.02548216481903,
+      "nominal_search_s": 115.05096432963808,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 53.20096432963806,
+        "pillbox": 17.30096432963807,
+        "bridge": 74.10096432963807,
+        "panzer": 77.30096432963806,
+        "red_cross": 56.900964329638064
+      },
+      "first_refine_s": {
+        "tent": 66.60096432963806,
+        "pillbox": 33.80096432963807,
+        "bridge": 91.00096432963808,
+        "panzer": 87.90096432963807,
+        "red_cross": 56.900964329638064
+      },
+      "third_center_visible_s": 56.900964329638064
+    },
+    {
+      "seed": 3,
+      "strategy": "x_raw",
+      "feasible": false,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 48.02548216481903,
+      "nominal_search_s": 115.05096432963808,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 67.10096432963806,
+        "pillbox": 10.00096432963807,
+        "bridge": 76.90096432963807,
+        "panzer": 1.4326581165793169,
+        "red_cross": 42.80096432963806
+      },
+      "first_refine_s": {
+        "tent": 68.10096432963806,
+        "pillbox": 18.30096432963807,
+        "bridge": 88.30096432963808,
+        "panzer": 22.80096432963807,
+        "red_cross": 43.30096432963806
+      },
+      "third_center_visible_s": 42.80096432963806
+    },
+    {
+      "seed": 4,
+      "strategy": "x_raw",
+      "feasible": false,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 48.02548216481903,
+      "nominal_search_s": 115.05096432963808,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 73.90096432963807,
+        "pillbox": 17.20096432963807,
+        "bridge": 64.30096432963806,
+        "panzer": 1.5314621246192697,
+        "red_cross": 86.40096432963807
+      },
+      "first_refine_s": {
+        "tent": 91.20096432963807,
+        "pillbox": 34.000964329638066,
+        "bridge": 78.00096432963807,
+        "panzer": 22.80096432963807,
+        "red_cross": 86.80096432963808
+      },
+      "third_center_visible_s": 64.30096432963806
+    },
+    {
+      "seed": 5,
+      "strategy": "x_raw",
+      "feasible": false,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 48.02548216481903,
+      "nominal_search_s": 115.05096432963808,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 74.10096432963807,
+        "pillbox": 9.700964329638069,
+        "bridge": 64.40096432963806,
+        "panzer": 1.5314621246192697,
+        "red_cross": 51.10096432963807
+      },
+      "first_refine_s": {
+        "tent": 91.10096432963807,
+        "pillbox": 18.600964329638067,
+        "bridge": 65.40096432963806,
+        "panzer": 22.900964329638068,
+        "red_cross": 67.90096432963806
+      },
+      "third_center_visible_s": 51.10096432963807
+    },
+    {
+      "seed": 6,
+      "strategy": "x_raw",
+      "feasible": false,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 48.02548216481903,
+      "nominal_search_s": 115.05096432963808,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 64.70096432963807,
+        "pillbox": 73.90096432963807,
+        "bridge": 17.20096432963807,
+        "panzer": 1.5314621246192697,
+        "red_cross": 43.10096432963807
+      },
+      "first_refine_s": {
+        "tent": 77.60096432963807,
+        "pillbox": 91.20096432963807,
+        "bridge": 34.000964329638066,
+        "panzer": 22.900964329638068,
+        "red_cross": 53.20096432963806
+      },
+      "third_center_visible_s": 43.10096432963807
+    },
+    {
+      "seed": 7,
+      "strategy": "x_raw",
+      "feasible": false,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 48.02548216481903,
+      "nominal_search_s": 115.05096432963808,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 74.30096432963806,
+        "pillbox": 64.50096432963807,
+        "bridge": 10.00096432963807,
+        "panzer": 1.5314621246192697,
+        "red_cross": 50.80096432963806
+      },
+      "first_refine_s": {
+        "tent": 90.80096432963808,
+        "pillbox": 77.90096432963807,
+        "bridge": 18.400964329638068,
+        "panzer": 22.900964329638068,
+        "red_cross": 68.10096432963806
+      },
+      "third_center_visible_s": 50.80096432963806
+    },
+    {
+      "seed": 8,
+      "strategy": "x_raw",
+      "feasible": false,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 48.02548216481903,
+      "nominal_search_s": 115.05096432963808,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 67.20096432963807,
+        "pillbox": 64.10096432963806,
+        "bridge": 9.800964329638068,
+        "panzer": 1.5314621246192697,
+        "red_cross": 86.40096432963807
+      },
+      "first_refine_s": {
+        "tent": 75.10096432963807,
+        "pillbox": 65.10096432963806,
+        "bridge": 18.50096432963807,
+        "panzer": 22.80096432963807,
+        "red_cross": 86.70096432963807
+      },
+      "third_center_visible_s": 64.10096432963806
+    },
+    {
+      "seed": 9,
+      "strategy": "x_raw",
+      "feasible": false,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 48.02548216481903,
+      "nominal_search_s": 115.05096432963808,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 17.20096432963807,
+        "pillbox": 76.90096432963807,
+        "bridge": 53.30096432963806,
+        "panzer": 1.5314621246192697,
+        "red_cross": 89.20096432963807
+      },
+      "first_refine_s": {
+        "tent": 18.20096432963807,
+        "pillbox": 77.90096432963807,
+        "bridge": 68.20096432963807,
+        "panzer": 22.900964329638068,
+        "red_cross": 89.70096432963807
+      },
+      "third_center_visible_s": 53.30096432963806
+    },
+    {
+      "seed": 10,
+      "strategy": "x_raw",
+      "feasible": false,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 48.02548216481903,
+      "nominal_search_s": 115.05096432963808,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 77.00096432963807,
+        "pillbox": 67.30096432963806,
+        "bridge": 17.30096432963807,
+        "panzer": 1.5314621246192697,
+        "red_cross": 63.20096432963806
+      },
+      "first_refine_s": {
+        "tent": 88.20096432963807,
+        "pillbox": 75.10096432963807,
+        "bridge": 18.30096432963807,
+        "panzer": 22.80096432963807,
+        "red_cross": 63.60096432963806
+      },
+      "third_center_visible_s": 63.20096432963806
+    },
+    {
+      "seed": 11,
+      "strategy": "x_raw",
+      "feasible": false,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 48.02548216481903,
+      "nominal_search_s": 115.05096432963808,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 76.40096432963807,
+        "pillbox": 17.400964329638068,
+        "bridge": 67.40096432963806,
+        "panzer": 1.5314621246192697,
+        "red_cross": 56.900964329638064
+      },
+      "first_refine_s": {
+        "tent": 88.80096432963808,
+        "pillbox": 33.70096432963807,
+        "bridge": 68.40096432963806,
+        "panzer": 22.900964329638068,
+        "red_cross": 62.500964329638066
+      },
+      "third_center_visible_s": 56.900964329638064
+    },
+    {
+      "seed": 1,
+      "strategy": "x_boundary",
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 7,
+      "route_distance_m": 51.50261418269584,
+      "nominal_search_s": 135.0052283653917,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 62.88739669565823,
+        "pillbox": 88.22280009303054,
+        "bridge": 17.181128874149273,
+        "panzer": 1.5239633548613112,
+        "red_cross": 106.52492867224711
+      },
+      "first_refine_s": {
+        "tent": 63.870819382708866,
+        "pillbox": 109.67991558966298,
+        "bridge": 18.181128874149273,
+        "panzer": 22.781128874149275,
+        "red_cross": 107.01789537809334
+      },
+      "third_center_visible_s": 62.88739669565823
+    },
+    {
+      "seed": 2,
+      "strategy": "x_boundary",
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 7,
+      "route_distance_m": 51.50261418269584,
+      "nominal_search_s": 135.0052283653917,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 63.08408123306836,
+        "pillbox": 17.281128874149275,
+        "bridge": 87.92669530830614,
+        "panzer": 105.73618194289314,
+        "red_cross": 66.91583131457506
+      },
+      "first_refine_s": {
+        "tent": 64.067503920119,
+        "pillbox": 35.05810173895022,
+        "bridge": 109.87710227200148,
+        "panzer": 106.72211535458561,
+        "red_cross": 67.39409218414028
+      },
+      "third_center_visible_s": 66.91583131457506
+    },
+    {
+      "seed": 3,
+      "strategy": "x_boundary",
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 7,
+      "route_distance_m": 51.50261418269584,
+      "nominal_search_s": 135.0052283653917,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 61.6089472024924,
+        "pillbox": 9.981128874149274,
+        "bridge": 90.69033996573388,
+        "panzer": 1.4256431384186459,
+        "red_cross": 63.08408123306836
+      },
+      "first_refine_s": {
+        "tent": 81.91591787609666,
+        "pillbox": 18.281128874149275,
+        "bridge": 107.11648871926259,
+        "panzer": 22.781128874149275,
+        "red_cross": 63.57579257659368
+      },
+      "third_center_visible_s": 61.6089472024924
+    },
+    {
+      "seed": 4,
+      "strategy": "x_boundary",
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 7,
+      "route_distance_m": 51.50261418269584,
+      "nominal_search_s": 135.0052283653917,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 87.72929211848987,
+        "pillbox": 17.181128874149273,
+        "bridge": 64.36253072623418,
+        "panzer": 1.5239633548613112,
+        "red_cross": 105.24321523704691
+      },
+      "first_refine_s": {
+        "tent": 111.17361334032368,
+        "pillbox": 36.347008512150545,
+        "bridge": 91.87475910463148,
+        "panzer": 22.781128874149275,
+        "red_cross": 105.73618194289314
+      },
+      "third_center_visible_s": 64.36253072623418
+    },
+    {
+      "seed": 5,
+      "strategy": "x_boundary",
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 7,
+      "route_distance_m": 51.50261418269584,
+      "nominal_search_s": 135.0052283653917,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 87.92669530830614,
+        "pillbox": 9.681128874149275,
+        "bridge": 64.26418845752912,
+        "panzer": 1.5239633548613112,
+        "red_cross": 61.31392039637721
+      },
+      "first_refine_s": {
+        "tent": 111.17361334032368,
+        "pillbox": 18.58112887414927,
+        "bridge": 66.43757044500984,
+        "panzer": 22.881128874149272,
+        "red_cross": 61.6089472024924
+      },
+      "third_center_visible_s": 61.31392039637721
+    },
+    {
+      "seed": 6,
+      "strategy": "x_boundary",
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 7,
+      "route_distance_m": 51.50261418269584,
+      "nominal_search_s": 135.0052283653917,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 63.96916165141393,
+        "pillbox": 87.72929211848987,
+        "bridge": 17.181128874149273,
+        "panzer": 1.5239633548613112,
+        "red_cross": 62.789054426953165
+      },
+      "first_refine_s": {
+        "tent": 91.47995272499895,
+        "pillbox": 111.17361334032368,
+        "bridge": 43.83743431222294,
+        "panzer": 22.881128874149272,
+        "red_cross": 63.18242350177342
+      },
+      "third_center_visible_s": 62.789054426953165
+    },
+    {
+      "seed": 7,
+      "strategy": "x_boundary",
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 7,
+      "route_distance_m": 51.50261418269584,
+      "nominal_search_s": 135.0052283653917,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 88.12409849812241,
+        "pillbox": 64.26418845752912,
+        "bridge": 9.981128874149274,
+        "panzer": 1.5239633548613112,
+        "red_cross": 58.072683073237414
+      },
+      "first_refine_s": {
+        "tent": 109.67991558966298,
+        "pillbox": 91.77605750972334,
+        "bridge": 18.381128874149272,
+        "panzer": 22.881128874149272,
+        "red_cross": 61.31392039637721
+      },
+      "third_center_visible_s": 58.072683073237414
+    },
+    {
+      "seed": 8,
+      "strategy": "x_boundary",
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 7,
+      "route_distance_m": 51.50261418269584,
+      "nominal_search_s": 135.0052283653917,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 62.00231627731266,
+        "pillbox": 64.55921526364432,
+        "bridge": 9.781128874149275,
+        "panzer": 1.5239633548613112,
+        "red_cross": 105.04602855470843
+      },
+      "first_refine_s": {
+        "tent": 89.01241285229561,
+        "pillbox": 66.53322261892288,
+        "bridge": 18.481128874149274,
+        "panzer": 22.781128874149275,
+        "red_cross": 105.53899526055466
+      },
+      "third_center_visible_s": 62.00231627731266
+    },
+    {
+      "seed": 9,
+      "strategy": "x_boundary",
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 7,
+      "route_distance_m": 51.50261418269584,
+      "nominal_search_s": 135.0052283653917,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 17.181128874149273,
+        "pillbox": 90.69033996573388,
+        "bridge": 61.412262665082274,
+        "panzer": 1.5239633548613112,
+        "red_cross": 108.10242213095505
+      },
+      "first_refine_s": {
+        "tent": 18.181128874149273,
+        "pillbox": null,
+        "bridge": 62.39568535213291,
+        "panzer": 22.881128874149272,
+        "red_cross": 108.59538883680128
+      },
+      "third_center_visible_s": 61.412262665082274
+    },
+    {
+      "seed": 10,
+      "strategy": "x_boundary",
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 7,
+      "route_distance_m": 51.50261418269584,
+      "nominal_search_s": 135.0052283653917,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 90.789041560642,
+        "pillbox": 61.412262665082274,
+        "bridge": 17.281128874149275,
+        "panzer": 1.5239633548613112,
+        "red_cross": 66.43757044500984
+      },
+      "first_refine_s": {
+        "tent": 107.01789537809334,
+        "pillbox": 88.91371125738748,
+        "bridge": 18.281128874149275,
+        "panzer": 22.781128874149275,
+        "red_cross": 66.82017914066202
+      },
+      "third_center_visible_s": 61.412262665082274
+    },
+    {
+      "seed": 11,
+      "strategy": "x_boundary",
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 7,
+      "route_distance_m": 51.50261418269584,
+      "nominal_search_s": 135.0052283653917,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 90.1968319911932,
+        "pillbox": 17.381128874149272,
+        "bridge": 61.31392039637721,
+        "panzer": 1.5239633548613112,
+        "red_cross": 67.48974435805331
+      },
+      "first_refine_s": {
+        "tent": 107.70804876627807,
+        "pillbox": 34.95810173895022,
+        "bridge": 62.29734308342785,
+        "panzer": 22.881128874149272,
+        "red_cross": 67.8723530537055
+      },
+      "third_center_visible_s": 61.31392039637721
+    },
+    {
+      "seed": 1,
+      "strategy": "y_boundary",
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 6,
+      "route_distance_m": 50.47869937328044,
+      "nominal_search_s": 128.9573987465609,
+      "center_seen": 4,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": null,
+        "pillbox": 19.011128874149275,
+        "bridge": 67.57935514311944,
+        "panzer": 1.5239633548613112,
+        "red_cross": 55.07852042970262
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 51.60383859638734,
+        "bridge": 69.76547133436046,
+        "panzer": 40.27321313942794,
+        "red_cross": 55.57852042970262
+      },
+      "third_center_visible_s": 55.07852042970262
+    },
+    {
+      "seed": 2,
+      "strategy": "y_boundary",
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 6,
+      "route_distance_m": 50.47869937328044,
+      "nominal_search_s": 128.9573987465609,
+      "center_seen": 4,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": null,
+        "pillbox": 66.97935514311945,
+        "bridge": 18.824462207482608,
+        "panzer": 55.87852042970262,
+        "red_cross": 60.257609814503226
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 69.86426404664229,
+        "bridge": 51.10972654212797,
+        "panzer": 58.568894908420354,
+        "red_cross": 60.75429066923348
+      },
+      "third_center_visible_s": 60.257609814503226
+    },
+    {
+      "seed": 3,
+      "strategy": "y_boundary",
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 6,
+      "route_distance_m": 50.47869937328044,
+      "nominal_search_s": 128.9573987465609,
+      "center_seen": 4,
+      "refine_seen": 3,
+      "first_center_s": {
+        "tent": 22.46196289138346,
+        "pillbox": 69.17271506066949,
+        "bridge": 55.47852042970262,
+        "panzer": 1.4256431384186459,
+        "red_cross": null
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 70.35822760805142,
+        "bridge": 58.46955873747431,
+        "panzer": 40.27321313942794,
+        "red_cross": null
+      },
+      "third_center_visible_s": 55.47852042970262
+    },
+    {
+      "seed": 4,
+      "strategy": "y_boundary",
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 6,
+      "route_distance_m": 50.47869937328044,
+      "nominal_search_s": 128.9573987465609,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 18.544462207482606,
+        "pillbox": 66.87935514311944,
+        "bridge": 58.66823107936641,
+        "panzer": 1.5239633548613112,
+        "red_cross": 57.37686085706775
+      },
+      "first_refine_s": {
+        "tent": 50.615614487868605,
+        "pillbox": 69.5678859097968,
+        "bridge": null,
+        "panzer": 40.27321313942794,
+        "red_cross": 58.46955873747431
+      },
+      "third_center_visible_s": 57.37686085706775
+    },
+    {
+      "seed": 5,
+      "strategy": "y_boundary",
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 6,
+      "route_distance_m": 50.47869937328044,
+      "nominal_search_s": 128.9573987465609,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 18.731128874149274,
+        "pillbox": 69.17271506066949,
+        "bridge": 59.164911934096665,
+        "panzer": 1.5239633548613112,
+        "red_cross": 23.15541840946343
+      },
+      "first_refine_s": {
+        "tent": 50.912081720424226,
+        "pillbox": 70.35822760805142,
+        "bridge": null,
+        "panzer": 40.27321313942794,
+        "red_cross": 49.232100735942375
+      },
+      "third_center_visible_s": 23.15541840946343
+    },
+    {
+      "seed": 6,
+      "strategy": "y_boundary",
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 6,
+      "route_distance_m": 50.47869937328044,
+      "nominal_search_s": 128.9573987465609,
+      "center_seen": 4,
+      "refine_seen": 3,
+      "first_center_s": {
+        "tent": 58.568894908420354,
+        "pillbox": 18.63779554081594,
+        "bridge": 66.57935514311944,
+        "panzer": 1.5239633548613112,
+        "red_cross": null
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 50.912081720424226,
+        "bridge": 69.5678859097968,
+        "panzer": 40.27321313942794,
+        "red_cross": null
+      },
+      "third_center_visible_s": 58.568894908420354
+    },
+    {
+      "seed": 7,
+      "strategy": "y_boundary",
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 6,
+      "route_distance_m": 50.47869937328044,
+      "nominal_search_s": 128.9573987465609,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 19.011128874149275,
+        "pillbox": 59.06557576315061,
+        "bridge": 68.87633692382401,
+        "panzer": 1.5239633548613112,
+        "red_cross": 10.681128874149275
+      },
+      "first_refine_s": {
+        "tent": 51.60383859638734,
+        "pillbox": null,
+        "bridge": 69.96305675892411,
+        "panzer": 40.372394943860336,
+        "red_cross": 23.15541840946343
+      },
+      "third_center_visible_s": 19.011128874149275
+    },
+    {
+      "seed": 8,
+      "strategy": "y_boundary",
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 6,
+      "route_distance_m": 50.47869937328044,
+      "nominal_search_s": 128.9573987465609,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 21.669442299292072,
+        "pillbox": 59.164911934096665,
+        "bridge": 68.87633692382401,
+        "panzer": 1.5239633548613112,
+        "red_cross": 57.77420554085195
+      },
+      "first_refine_s": {
+        "tent": 51.10972654212797,
+        "pillbox": null,
+        "bridge": 70.2594348957696,
+        "panzer": 40.27321313942794,
+        "red_cross": 58.96623959220456
+      },
+      "third_center_visible_s": 57.77420554085195
+    },
+    {
+      "seed": 9,
+      "strategy": "y_boundary",
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 6,
+      "route_distance_m": 50.47869937328044,
+      "nominal_search_s": 128.9573987465609,
+      "center_seen": 5,
+      "refine_seen": 3,
+      "first_center_s": {
+        "tent": 67.37935514311944,
+        "pillbox": 57.873541711798,
+        "bridge": 22.858223187429157,
+        "panzer": 1.5239633548613112,
+        "red_cross": 20.67879155917783
+      },
+      "first_refine_s": {
+        "tent": 69.66667862207863,
+        "pillbox": null,
+        "bridge": null,
+        "panzer": 40.27321313942794,
+        "red_cross": 51.80148341809109
+      },
+      "third_center_visible_s": 22.858223187429157
+    },
+    {
+      "seed": 10,
+      "strategy": "y_boundary",
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 6,
+      "route_distance_m": 50.47869937328044,
+      "nominal_search_s": 128.9573987465609,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 55.57852042970262,
+        "pillbox": 22.16476766934919,
+        "bridge": 68.87633692382401,
+        "panzer": 1.5239633548613112,
+        "red_cross": 59.363584275988764
+      },
+      "first_refine_s": {
+        "tent": 58.17155022463616,
+        "pillbox": null,
+        "bridge": 69.86426404664229,
+        "panzer": 40.27321313942794,
+        "red_cross": 59.76092895977297
+      },
+      "third_center_visible_s": 55.57852042970262
+    },
+    {
+      "seed": 11,
+      "strategy": "y_boundary",
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 6,
+      "route_distance_m": 50.47869937328044,
+      "nominal_search_s": 128.9573987465609,
+      "center_seen": 5,
+      "refine_seen": 3,
+      "first_center_s": {
+        "tent": 54.97852042970262,
+        "pillbox": 66.97935514311945,
+        "bridge": 22.759158113417733,
+        "panzer": 1.5239633548613112,
+        "red_cross": 60.85362684017953
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 70.06184947120595,
+        "bridge": null,
+        "panzer": 40.372394943860336,
+        "red_cross": 62.933686553616475
+      },
+      "third_center_visible_s": 54.97852042970262
+    },
+    {
+      "seed": 1,
+      "strategy": "x_north_first",
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 8,
+      "route_distance_m": 56.49208474172594,
+      "nominal_search_s": 145.9841694834519,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 58.473674418128624,
+        "pillbox": 16.95577984290836,
+        "bridge": 105.94399894475231,
+        "panzer": 2.115443344979999,
+        "red_cross": 19.05577984290836
+      },
+      "first_refine_s": {
+        "tent": 59.473674418128624,
+        "pillbox": 32.75577984290836,
+        "bridge": 107.13170719494423,
+        "panzer": 3.5913340507799987,
+        "red_cross": 19.55577984290836
+      },
+      "third_center_visible_s": 19.05577984290836
+    },
+    {
+      "seed": 2,
+      "strategy": "x_north_first",
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 8,
+      "route_distance_m": 56.49208474172594,
+      "nominal_search_s": 145.9841694834519,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 58.27367441812862,
+        "pillbox": 105.8450232572363,
+        "bridge": 16.65577984290836,
+        "panzer": 19.855779842908362,
+        "red_cross": 55.37367441812862
+      },
+      "first_refine_s": {
+        "tent": 59.27367441812862,
+        "pillbox": 107.03273150742824,
+        "bridge": 32.955779842908356,
+        "panzer": 29.85577984290836,
+        "red_cross": 55.87367441812862
+      },
+      "third_center_visible_s": 55.37367441812862
+    },
+    {
+      "seed": 3,
+      "strategy": "x_north_first",
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 8,
+      "route_distance_m": 56.49208474172594,
+      "nominal_search_s": 145.9841694834519,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 39.15239341230742,
+        "pillbox": 105.8450232572363,
+        "bridge": 19.45577984290836,
+        "panzer": 2.017050631259999,
+        "red_cross": 69.66127722822873
+      },
+      "first_refine_s": {
+        "tent": 60.77367441812862,
+        "pillbox": 107.03273150742824,
+        "bridge": 42.839204156282705,
+        "panzer": 3.492941337059999,
+        "red_cross": 70.15506678360632
+      },
+      "third_center_visible_s": 39.15239341230742
+    },
+    {
+      "seed": 4,
+      "strategy": "x_north_first",
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 8,
+      "route_distance_m": 56.49208474172594,
+      "nominal_search_s": 145.9841694834519,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 16.45577984290836,
+        "pillbox": 105.94399894475231,
+        "bridge": 41.942412353694124,
+        "panzer": 2.115443344979999,
+        "red_cross": 20.355779842908362
+      },
+      "first_refine_s": {
+        "tent": 39.75025461403314,
+        "pillbox": 107.23068288246023,
+        "bridge": 57.973674418128624,
+        "panzer": 3.5913340507799987,
+        "red_cross": 20.75577984290836
+      },
+      "third_center_visible_s": 20.355779842908362
+    },
+    {
+      "seed": 5,
+      "strategy": "x_north_first",
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 8,
+      "route_distance_m": 56.49208474172594,
+      "nominal_search_s": 145.9841694834519,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 16.65577984290836,
+        "pillbox": 104.34758403844633,
+        "bridge": 41.74312528645222,
+        "panzer": 2.115443344979999,
+        "red_cross": 60.17367441812863
+      },
+      "first_refine_s": {
+        "tent": 39.94954168127505,
+        "pillbox": 106.63682875736426,
+        "bridge": 58.073674418128626,
+        "panzer": 3.5913340507799987,
+        "red_cross": 60.573674418128626
+      },
+      "third_center_visible_s": 41.74312528645222
+    },
+    {
+      "seed": 6,
+      "strategy": "x_north_first",
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 8,
+      "route_distance_m": 56.49208474172594,
+      "nominal_search_s": 145.9841694834519,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 41.54383821921031,
+        "pillbox": 16.45577984290836,
+        "bridge": 105.94399894475231,
+        "panzer": 2.115443344979999,
+        "red_cross": 58.573674418128626
+      },
+      "first_refine_s": {
+        "tent": 58.37367441812862,
+        "pillbox": 33.15577984290836,
+        "bridge": 107.23068288246023,
+        "panzer": 3.5913340507799987,
+        "red_cross": 58.973674418128624
+      },
+      "third_center_visible_s": 41.54383821921031
+    },
+    {
+      "seed": 7,
+      "strategy": "x_north_first",
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 8,
+      "route_distance_m": 56.49208474172594,
+      "nominal_search_s": 145.9841694834519,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 16.855779842908362,
+        "pillbox": 41.74312528645222,
+        "bridge": 105.8450232572363,
+        "panzer": 2.115443344979999,
+        "red_cross": 8.830621911109894
+      },
+      "first_refine_s": {
+        "tent": 32.75577984290836,
+        "pillbox": 58.17367441812863,
+        "bridge": 106.93375581991225,
+        "panzer": 3.5913340507799987,
+        "red_cross": 60.77367441812862
+      },
+      "third_center_visible_s": 16.855779842908362
+    },
+    {
+      "seed": 8,
+      "strategy": "x_north_first",
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 8,
+      "route_distance_m": 56.49208474172594,
+      "nominal_search_s": 145.9841694834519,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 39.05274987868646,
+        "pillbox": 56.77367441812862,
+        "bridge": 104.44758403844632,
+        "panzer": 2.115443344979999,
+        "red_cross": 20.55577984290836
+      },
+      "first_refine_s": {
+        "tent": 60.87367441812862,
+        "pillbox": 57.77367441812862,
+        "bridge": 106.73580444488026,
+        "panzer": 3.5913340507799987,
+        "red_cross": 20.95577984290836
+      },
+      "third_center_visible_s": 39.05274987868646
+    },
+    {
+      "seed": 9,
+      "strategy": "x_north_first",
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 8,
+      "route_distance_m": 56.49208474172594,
+      "nominal_search_s": 145.9841694834519,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 105.8450232572363,
+        "pillbox": 29.255779842908357,
+        "bridge": 59.87367441812862,
+        "panzer": 2.115443344979999,
+        "red_cross": 17.45577984290836
+      },
+      "first_refine_s": {
+        "tent": 107.13170719494423,
+        "pillbox": 42.739560622661756,
+        "bridge": 60.87367441812862,
+        "panzer": 3.5913340507799987,
+        "red_cross": 17.95577984290836
+      },
+      "third_center_visible_s": 29.255779842908357
+    },
+    {
+      "seed": 10,
+      "strategy": "x_north_first",
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 8,
+      "route_distance_m": 56.49208474172594,
+      "nominal_search_s": 145.9841694834519,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 19.55577984290836,
+        "pillbox": 38.95310634506551,
+        "bridge": 105.8450232572363,
+        "panzer": 2.115443344979999,
+        "red_cross": 55.87367441812862
+      },
+      "first_refine_s": {
+        "tent": 30.15577984290836,
+        "pillbox": 60.973674418128624,
+        "bridge": 107.03273150742824,
+        "panzer": 3.5913340507799987,
+        "red_cross": 56.27367441812862
+      },
+      "third_center_visible_s": 38.95310634506551
+    },
+    {
+      "seed": 11,
+      "strategy": "x_north_first",
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 2,
+      "max_endpoint_shift_m": 0.40000000000000013,
+      "replanned_segments": 8,
+      "route_distance_m": 56.49208474172594,
+      "nominal_search_s": 145.9841694834519,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 18.855779842908362,
+        "pillbox": 104.54758403844633,
+        "bridge": 38.85346281144456,
+        "panzer": 2.115443344979999,
+        "red_cross": 54.87367441812862
+      },
+      "first_refine_s": {
+        "tent": 42.241342954556984,
+        "pillbox": 106.83478013239625,
+        "bridge": 61.073674418128626,
+        "panzer": 3.5913340507799987,
+        "red_cross": 55.17367441812863
+      },
+      "third_center_visible_s": 38.85346281144456
+    },
+    {
+      "seed": 1,
+      "strategy": "x_free_intervals",
+      "feasible": true,
+      "original_collisions": 6,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 5,
+      "route_distance_m": 50.847101823405765,
+      "nominal_search_s": 148.69420364681156,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 73.78748404606591,
+        "pillbox": 112.14420364681153,
+        "bridge": 17.181128874149273,
+        "panzer": 1.5239633548613112,
+        "red_cross": 121.24420364681156
+      },
+      "first_refine_s": {
+        "tent": 104.64420364681153,
+        "pillbox": 124.44420364681154,
+        "bridge": 18.181128874149273,
+        "panzer": 22.781128874149275,
+        "red_cross": 121.74420364681156
+      },
+      "third_center_visible_s": 73.78748404606591
+    },
+    {
+      "seed": 2,
+      "strategy": "x_free_intervals",
+      "feasible": true,
+      "original_collisions": 6,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 5,
+      "route_distance_m": 50.847101823405765,
+      "nominal_search_s": 148.69420364681156,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 73.98748404606592,
+        "pillbox": 17.281128874149275,
+        "bridge": 111.94420364681154,
+        "panzer": 115.14420364681153,
+        "red_cross": 85.22568390139767
+      },
+      "first_refine_s": {
+        "tent": 104.44420364681153,
+        "pillbox": 41.4639715866239,
+        "bridge": 124.64420364681155,
+        "panzer": 121.54420364681155,
+        "red_cross": 85.70782675854053
+      },
+      "third_center_visible_s": 85.22568390139767
+    },
+    {
+      "seed": 3,
+      "strategy": "x_free_intervals",
+      "feasible": true,
+      "original_collisions": 6,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 5,
+      "route_distance_m": 50.847101823405765,
+      "nominal_search_s": 148.69420364681156,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 72.48748404606592,
+        "pillbox": 9.981128874149274,
+        "bridge": 114.74420364681154,
+        "panzer": 1.4256431384186459,
+        "red_cross": 73.98748404606592
+      },
+      "first_refine_s": {
+        "tent": 105.94420364681153,
+        "pillbox": 18.281128874149275,
+        "bridge": 121.94420364681154,
+        "panzer": 22.781128874149275,
+        "red_cross": 74.48748404606592
+      },
+      "third_center_visible_s": 72.48748404606592
+    },
+    {
+      "seed": 4,
+      "strategy": "x_free_intervals",
+      "feasible": true,
+      "original_collisions": 6,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 5,
+      "route_distance_m": 50.847101823405765,
+      "nominal_search_s": 148.69420364681156,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 111.74420364681154,
+        "pillbox": 17.181128874149273,
+        "bridge": 81.52890540230322,
+        "panzer": 1.5239633548613112,
+        "red_cross": 118.80087031347821
+      },
+      "first_refine_s": {
+        "tent": 124.84420364681155,
+        "pillbox": 41.663971586623894,
+        "bridge": 115.84420364681154,
+        "panzer": 22.781128874149275,
+        "red_cross": 119.26753698014488
+      },
+      "third_center_visible_s": 81.52890540230322
+    },
+    {
+      "seed": 5,
+      "strategy": "x_free_intervals",
+      "feasible": true,
+      "original_collisions": 6,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 5,
+      "route_distance_m": 50.847101823405765,
+      "nominal_search_s": 148.69420364681156,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 111.94420364681154,
+        "pillbox": 9.681128874149275,
+        "bridge": 81.12890540230323,
+        "panzer": 1.5239633548613112,
+        "red_cross": 72.18748404606592
+      },
+      "first_refine_s": {
+        "tent": 124.74420364681156,
+        "pillbox": 18.58112887414927,
+        "bridge": 84.55068390139768,
+        "panzer": 22.881128874149272,
+        "red_cross": 72.48748404606592
+      },
+      "third_center_visible_s": 72.18748404606592
+    },
+    {
+      "seed": 6,
+      "strategy": "x_free_intervals",
+      "feasible": true,
+      "original_collisions": 6,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 5,
+      "route_distance_m": 50.847101823405765,
+      "nominal_search_s": 148.69420364681156,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 81.62890540230323,
+        "pillbox": 111.74420364681154,
+        "bridge": 17.181128874149273,
+        "panzer": 1.5239633548613112,
+        "red_cross": 73.58748404606591
+      },
+      "first_refine_s": {
+        "tent": 115.44420364681154,
+        "pillbox": 124.84420364681155,
+        "bridge": 41.663971586623894,
+        "panzer": 22.881128874149272,
+        "red_cross": 73.98748404606592
+      },
+      "third_center_visible_s": 73.58748404606591
+    },
+    {
+      "seed": 7,
+      "strategy": "x_free_intervals",
+      "feasible": true,
+      "original_collisions": 6,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 5,
+      "route_distance_m": 50.847101823405765,
+      "nominal_search_s": 148.69420364681156,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 112.14420364681153,
+        "pillbox": 81.22890540230323,
+        "bridge": 9.981128874149274,
+        "panzer": 1.5239633548613112,
+        "red_cross": 69.07125628004907
+      },
+      "first_refine_s": {
+        "tent": 124.44420364681154,
+        "pillbox": 115.74420364681154,
+        "bridge": 18.381128874149272,
+        "panzer": 22.881128874149272,
+        "red_cross": 72.18748404606592
+      },
+      "third_center_visible_s": 69.07125628004907
+    },
+    {
+      "seed": 8,
+      "strategy": "x_free_intervals",
+      "feasible": true,
+      "original_collisions": 6,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 5,
+      "route_distance_m": 50.847101823405765,
+      "nominal_search_s": 148.69420364681156,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 105.04420364681152,
+        "pillbox": 81.12890540230323,
+        "bridge": 9.781128874149275,
+        "panzer": 1.5239633548613112,
+        "red_cross": 118.42753698014488
+      },
+      "first_refine_s": {
+        "tent": 112.94420364681154,
+        "pillbox": 84.83996961568339,
+        "bridge": 18.481128874149274,
+        "panzer": 22.781128874149275,
+        "red_cross": 118.98753698014488
+      },
+      "third_center_visible_s": 81.12890540230323
+    },
+    {
+      "seed": 9,
+      "strategy": "x_free_intervals",
+      "feasible": true,
+      "original_collisions": 6,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 5,
+      "route_distance_m": 50.847101823405765,
+      "nominal_search_s": 148.69420364681156,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 17.181128874149273,
+        "pillbox": 114.74420364681154,
+        "bridge": 72.28748404606591,
+        "panzer": 1.5239633548613112,
+        "red_cross": 122.84420364681155
+      },
+      "first_refine_s": {
+        "tent": 18.181128874149273,
+        "pillbox": 115.74420364681154,
+        "bridge": 73.28748404606591,
+        "panzer": 22.881128874149272,
+        "red_cross": 123.34420364681155
+      },
+      "third_center_visible_s": 72.28748404606591
+    },
+    {
+      "seed": 10,
+      "strategy": "x_free_intervals",
+      "feasible": true,
+      "original_collisions": 6,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 5,
+      "route_distance_m": 50.847101823405765,
+      "nominal_search_s": 148.69420364681156,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 114.84420364681154,
+        "pillbox": 72.28748404606591,
+        "bridge": 17.281128874149275,
+        "panzer": 1.5239633548613112,
+        "red_cross": 84.74354104425483
+      },
+      "first_refine_s": {
+        "tent": 121.84420364681155,
+        "pillbox": 112.94420364681154,
+        "bridge": 18.281128874149275,
+        "panzer": 22.781128874149275,
+        "red_cross": 85.12925532996911
+      },
+      "third_center_visible_s": 72.28748404606591
+    },
+    {
+      "seed": 11,
+      "strategy": "x_free_intervals",
+      "feasible": true,
+      "original_collisions": 6,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 0.02404163056034267,
+      "replanned_segments": 5,
+      "route_distance_m": 50.847101823405765,
+      "nominal_search_s": 148.69420364681156,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 114.24420364681154,
+        "pillbox": 17.381128874149272,
+        "bridge": 72.18748404606592,
+        "panzer": 1.5239633548613112,
+        "red_cross": 85.80425532996911
+      },
+      "first_refine_s": {
+        "tent": 122.44420364681154,
+        "pillbox": 41.3639715866239,
+        "bridge": 106.24420364681153,
+        "panzer": 22.881128874149272,
+        "red_cross": 86.1899696156834
+      },
+      "third_center_visible_s": 72.18748404606592
+    }
+  ]
+}

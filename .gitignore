@@ -17,6 +17,8 @@ vision_ws/runs/
 vision_ws/test_data/
 runs/
 *.pt
+*.rknn
+/deliverables/
 *.onnx
 *.zip
 *.zip.sha256
