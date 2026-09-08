@@ -151,11 +151,11 @@
         </material>
       </visual>
       <visual name="camera_mount">
-        <pose>0 0 -0.1125 0 0 0</pose>
+        <pose>0 0 -0.0875 0 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.004</radius>
-            <length>0.055</length>
+            <length>.105</length>
           </cylinder>
         </geometry>
         <material>
@@ -164,11 +164,11 @@
         </material>
       </visual>
       <visual name="landing_leg_0">
-        <pose>-0.08 -0.1 -.1425 0 0 0</pose>
+        <pose>-0.08 -0.1 -.120 0 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.006</radius>
-            <length>0.145</length>
+            <length>.19</length>
           </cylinder>
         </geometry>
         <material>
@@ -177,11 +177,11 @@
         </material>
       </visual>
       <visual name="landing_leg_1">
-        <pose>0.08 -0.1 -.1425 0 0 0</pose>
+        <pose>0.08 -0.1 -.120 0 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.006</radius>
-            <length>0.145</length>
+            <length>.19</length>
           </cylinder>
         </geometry>
         <material>
@@ -190,11 +190,11 @@
         </material>
       </visual>
       <visual name="landing_leg_2">
-        <pose>-0.08 0.1 -.1425 0 0 0</pose>
+        <pose>-0.08 0.1 -.120 0 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.006</radius>
-            <length>0.145</length>
+            <length>.19</length>
           </cylinder>
         </geometry>
         <material>
@@ -203,11 +203,11 @@
         </material>
       </visual>
       <visual name="landing_leg_3">
-        <pose>0.08 0.1 -.1425 0 0 0</pose>
+        <pose>0.08 0.1 -.120 0 0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.006</radius>
-            <length>0.145</length>
+            <length>.19</length>
           </cylinder>
         </geometry>
         <material>
@@ -235,6 +235,30 @@
             <radius>0.005</radius>
             <length>0.2</length>
           </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="upper_skid_crossbar_0">
+        <pose>0 -0.1 -.025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.18 .012 .012</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="upper_skid_crossbar_1">
+        <pose>0 0.1 -.025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.18 .012 .012</size>
+          </box>
         </geometry>
         <material>
           <ambient>.15 .15 .15 1</ambient>
