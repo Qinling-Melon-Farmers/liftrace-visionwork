@@ -21,3 +21,10 @@ python top_level_scripts/build_competition_bundles.py \
 ```
 
 Python使用已有环境；本机为conda rl_drone。脚本只导出git已跟踪文件和调用方显式选定的权重/对照模型，归档后逐文件读回、检查路径与压缩完整性。当前源码版本与最终实跑版本分别记录，打包和构建成功不改变R60十seed2/10或main的R56验收结论。
+
+
+## 2026-09-09生成与检查结果
+
+本地包均对应`fd147c72a82ed64d346eb49a5644384032424df7`，之后提交仅补交付检查记录：机载`liftrace_r61_onboard_fd147c72.tar.gz`为17,473,765 bytes，1225文件；仿真`liftrace_r61_simulation_fd147c72.tar.gz`为38,927,840 bytes，1417文件。位于精简worktree的deliverables目录，README.md为本地索引。
+
+两包完整读回及内容/模型引用检查PASS；机载包重新解包后视觉+导航在WSL Ubuntu20.04 x86_64从源码完整构建PASS。未在ARM板端构建或运行，不把该结果写成上板/飞行验收。详见[bundle_validation.json](verification/r61_layout_search/bundle_validation.json)。
