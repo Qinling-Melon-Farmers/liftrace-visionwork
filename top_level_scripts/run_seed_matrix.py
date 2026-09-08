@@ -3,7 +3,7 @@
 from pathlib import Path
 import argparse,json,os,subprocess,signal,sys,shutil,time
 from collect_run_summary import collect
-p=argparse.ArgumentParser();p.add_argument('--scene-prefix',default='r2026_matrix');p.add_argument('--project-root',required=True);p.add_argument('--output-dir',required=True);p.add_argument('--pilot-run',required=True);p.add_argument('--seeds',nargs='+',required=True,type=int);a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--scene-prefix',default='r2026_matrix');p.add_argument('--project-root',required=True);p.add_argument('--output-dir',required=True);p.add_argument('--pilot-run',required=True);p.add_argument('--seeds',nargs='+',required=True,type=int);p.add_argument('--record-camera-video',action='store_true');p.add_argument('--observe-full-trial',action='store_true');a=p.parse_args()
 root=Path(a.project_root).resolve();out=Path(a.output_dir).resolve();out.mkdir(parents=True,exist_ok=True)
 assert os.environ.get('SIM_RUN_AUTHORIZED')=='1','Explicit authorization is required for this listed batch'
 assert len(a.seeds)==len(set(a.seeds)) and all(s>0 for s in a.seeds)
@@ -22,7 +22,7 @@ try:
         env=os.environ.copy();env['SIM_SCENE']=a.scene_prefix+'_seed%02d'%seed
         state['current']={'seed':seed,'run_dir':None};save();run=None
         with (out/('seed_%02d_console.txt'%seed)).open('w',buffering=1) as log:
-            child=subprocess.Popen([str(root/'top_level_scripts/run_competition_sim.sh'),'field_seed:='+str(seed)],cwd=root,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,bufsize=1)
+            child=subprocess.Popen([str(root/'top_level_scripts/run_competition_sim.sh'),'field_seed:='+str(seed),'record_camera_video:='+str(a.record_camera_video).lower(),'observe_full_trial:='+str(a.observe_full_trial).lower()],cwd=root,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,bufsize=1)
             try:
                 for line in child.stdout:
                     log.write(line);print(line.rstrip(),flush=True)

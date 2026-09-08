@@ -1,4 +1,6 @@
 <launch>
+  <arg name="observe_full_trial" default="false" />
+  <param name="/navigation_vcl06_assertion/observe_full_trial" value="$(arg observe_full_trial)" />
   <!-- Same formal mission/control chain, with 2026 geometry and measured camera mounting. -->
   <!-- Measured FC reference: camera -0.16m, MID360 IMU +0.05m.
        Local z=0 at landed FC gives ground_z=-0.22m. -->

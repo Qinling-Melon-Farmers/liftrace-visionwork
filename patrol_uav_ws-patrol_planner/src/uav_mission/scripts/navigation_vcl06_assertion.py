@@ -1206,6 +1206,8 @@ class NavigationVcl06AssertionNode:
         self.exit_code = 1
         self._assertion_started_wall = time.monotonic()
         self._mission_started_wall = None
+        self._mission_started_ros = None
+        self._observe_full_trial = bool(rospy.get_param("~observe_full_trial", False))
         self._startup_wall_timeout = float(rospy.get_param(
             "~startup_wall_timeout", 180.0))
         self._wall_timeout = float(rospy.get_param("~wall_timeout", 650.0))
@@ -1430,6 +1432,7 @@ class NavigationVcl06AssertionNode:
         if receipt_wall is None:
             receipt_wall = time.monotonic()
         self._mission_started_wall = float(receipt_wall)
+        self._mission_started_ros = rospy.Time.now().to_sec()
 
     def _timeout_reason(self, now_wall):
         now_wall = float(now_wall)
@@ -1545,9 +1548,23 @@ class NavigationVcl06AssertionNode:
     def _check_terminal(self, timeout_reason=""):
         if self._finished:
             return
+        if (self._observe_full_trial and self._mission_started_ros is not None
+                and rospy.Time.now().to_sec() - self._mission_started_ros >= self.reducer.max_mission_sec):
+            timeout_reason = timeout_reason or "full_trial_mission_timeout"
         report = self.reducer.report(timeout_reason=timeout_reason)
         if report["status"] == "WAITING":
             return
+        if self._observe_full_trial:
+            elapsed = (None if self._mission_started_ros is None else
+                       rospy.Time.now().to_sec() - self._mission_started_ros)
+            timed_out = elapsed is not None and elapsed >= self.reducer.max_mission_sec
+            landed = (self.reducer.latest_landed_state == LANDED_STATE_ON_GROUND
+                      and self.reducer.latest_armed is False
+                      and self._mission_started_ros is not None)
+            collision = "actual_collision" in report["errors"]
+            if not (timed_out or landed or collision or timeout_reason or
+                    report["status"] == "PASS"):
+                return
         self._finished = True
         self.exit_code = 0 if report["status"] == "PASS" else 1
         try:
