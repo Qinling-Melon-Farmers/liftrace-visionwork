@@ -1,4 +1,4 @@
-# Full takeoff/delivery retained; H acquisition uses the R59 low profile.
+# Local FC-frame heights, ground=-0.22m. Release hover remains local0.10m.
 goal_list:
 - bridge
 - panzer
@@ -8,20 +8,20 @@ goal_list:
 waypoints:
 - x: 0.0
   y: 0.0
-  z: 1.4
+  z: 1.18
   yaw: 0.0
   pointmode: Takeoff_point
   hover_time: 0.0
 waypoint_skipping_index: 0
-land_height: 0.3
-align_height: 1.6
+land_height: 0.08
+align_height: 1.38
 px4_max_distance: 0.2
 max_yaw_change: 0.2
 external_landing:
   frame: camera_init
   detections_topic: /uav_vision/detections_mapped
-  capture_height: 0.5
-  auto_land_height: 0.4
+  capture_height: 0.28
+  auto_land_height: 0.18
   alignment_tolerance: 0.08
   max_mark_offset: 0.6
   mark_max_age_sec: 0.5
@@ -72,7 +72,7 @@ uav_vision:
   require_release_permission: true
   release_permission_state_topic: /mission/release_permission_active
   release_permission_timeout: 0.2
-  recovery_height: 0.95
+  recovery_height: 0.73
   selected_target_timeout: 1.0
   drop_offset_timeout: 1.0
   pixel_to_meter_ratio: 0.0015

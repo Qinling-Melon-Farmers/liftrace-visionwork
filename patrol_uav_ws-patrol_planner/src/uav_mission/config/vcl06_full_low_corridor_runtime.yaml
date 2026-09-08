@@ -1,4 +1,4 @@
-# Full search/delivery preserved; low ceiling starts only after staging descent.
+# Local FC frame, ground=-0.22. Fixed-gap development fixture, not online random-door localization.
 profile:
   name: r2026
 mission:
@@ -16,8 +16,8 @@ mission:
   path_factor: 1.5
   nominal_speed: 0.5
   decision_guard: 15.0
-  approach_altitude: 1.6
-  return_altitude: 1.4
+  approach_altitude: 1.38
+  return_altitude: 1.18
   target_action_timeout: 120.0
   motion_action_timeout: 90.0
   result_future_tolerance: 0.1
@@ -25,39 +25,39 @@ mission:
   - 0.0
   - 0.0
   post_delivery_yaw: 1.5707963267948966
-  post_delivery_route_revision: r2026-r60-full-staged-low-corridor
+  post_delivery_route_revision: r2026-r61-inner960-nominal-fixed-gaps
   landing_xy:
-  - 3.274292
-  - 8.05722
+  - 4.2
+  - 8.5
   landing_anchor_tolerance: 0.05
   post_delivery_route:
-  - - -3.091588
-    - 6.29269
-    - 1.4
-  - - -3.091588
-    - 6.29269
-    - 0.4
-  - - -3.091588
-    - 7.81769
-    - 0.45
-  - - -0.812003
-    - 8.16769
-    - 0.45
-  - - 0.587997
-    - 8.16769
-    - 0.45
-  - - 1.0055095
-    - 7.46769
-    - 0.45
-  - - 1.423022
-    - 7.46769
-    - 0.45
-  - - 2.823022
-    - 7.46769
-    - 0.45
-  - - 3.274292
-    - 8.05722
-    - 0.5
+  - - -4.05
+    - 6.7
+    - 1.18
+  - - -4.05
+    - 6.7
+    - 0.18
+  - - -4.05
+    - 8.35
+    - 0.23
+  - - -2.3
+    - 8.7
+    - 0.23
+  - - -0.9000000000000001
+    - 8.7
+    - 0.23
+  - - 0.0
+    - 8.0
+    - 0.23
+  - - 0.9000000000000001
+    - 8.0
+    - 0.23
+  - - 2.3
+    - 8.0
+    - 0.23
+  - - 4.2
+    - 8.5
+    - 0.28
   post_delivery_parameter_stages:
   - after_completed_waypoints: 0
     parameters:
@@ -71,11 +71,16 @@ mission:
   - after_completed_waypoints: 2
     parameters:
       /navigation/planner_bridge/execution/arrival_position_tolerance: 0.12
-      /external_planner_max_command_z: 0.5
-      /fast_planner_node/sdf_map/virtual_ceil_height: 0.55
+      /external_planner_max_command_z: 0.28
+      /fast_planner_node/sdf_map/virtual_ceil_height: 0.33
       /fast_planner_node/fsm/goal_adjustment_radius: 0.1
 post_delivery_gate:
-  low_height_region: {min_x: -3.841588, max_x: 4.008, min_y: 7.067690, max_y: 8.567690, max_height: 0.70}
+  low_height_region:
+    min_x: -4.8
+    max_x: 4.8
+    min_y: 7.6
+    max_y: 9.1
+    max_height: 0.7
   goal_tolerance: 0.12
   final_h_tolerance: 0.35
   expected_door_order:
@@ -85,42 +90,42 @@ post_delivery_gate:
   doors:
   - name: corridor_entry
     axis: y
-    coordinate: 6.99269
+    coordinate: 7.5
     direction: positive
     route_indices:
     - 3
-    lateral_min: -3.841588
-    lateral_max: -2.341588
+    lateral_min: -4.8
+    lateral_max: -3.3
     z_min: 0.0
     z_max: 0.7
   - name: Wall_20
     axis: x
-    coordinate: -0.112003
+    coordinate: -1.6
     direction: positive
     route_indices:
     - 5
-    lateral_min: 7.76769
-    lateral_max: 8.56769
+    lateral_min: 8.299999999999999
+    lateral_max: 9.1
     z_min: 0.0
     z_max: 0.7
   - name: Wall_22
     axis: x
-    coordinate: 2.123022
+    coordinate: 1.6
     direction: positive
     route_indices:
     - 8
-    lateral_min: 7.06769
-    lateral_max: 7.86769
+    lateral_min: 7.6
+    lateral_max: 8.4
     z_min: 0.0
     z_max: 0.7
 search:
-  min_x: -2.007
-  max_x: 1.993
-  min_y: 0.273
-  max_y: 6.273
+  min_x: -4.3
+  max_x: 4.3
+  min_y: 0.0
+  max_y: 7.1
   lane_spacing: 0.7
-  altitude: 1.4
-  route_revision: r2026-installed-camera-070m-lanes-r1
+  altitude: 1.18
+  route_revision: r2026-r61-full-search-area
   max_failures_per_waypoint: 2
 readiness:
   pose_max_age: 0.5

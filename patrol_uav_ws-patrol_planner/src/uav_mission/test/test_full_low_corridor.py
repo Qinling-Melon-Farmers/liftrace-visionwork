@@ -10,16 +10,23 @@ from test_staggered_corridor_gate import MODULE
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = yaml.safe_load((ROOT/'config/vcl06_full_low_corridor_runtime.yaml').read_text())
+GROUND_Z = yaml.safe_load((ROOT/'config/aircraft_measurements_20260908.yaml').read_text())['height_reference']['ground_z_in_landed_fc_frame']
 
 class FullLowCorridorTest(unittest.TestCase):
     def test_original_search_and_delivery_policy_preserved(self):
         original = yaml.safe_load((ROOT/'config/vcl06_horizontal_field_runtime.yaml').read_text())
-        self.assertEqual(CONFIG['search'], original['search'])
+        self.assertEqual(CONFIG['search']['lane_spacing'], original['search']['lane_spacing'])
+        self.assertEqual(CONFIG['search']['max_failures_per_waypoint'], original['search']['max_failures_per_waypoint'])
+        self.assertAlmostEqual(CONFIG['search']['altitude']-GROUND_Z, original['search']['altitude'])
+        self.assertLess(CONFIG['search']['min_x'],original['search']['min_x'])
+        self.assertGreater(CONFIG['search']['max_x'],original['search']['max_x'])
         changed = {'post_delivery_route', 'post_delivery_route_revision',
-                   'post_delivery_parameter_stages'}
+                   'post_delivery_parameter_stages','landing_xy','approach_altitude','return_altitude'}
         for name, value in original['mission'].items():
             if name not in changed:
                 self.assertEqual(CONFIG['mission'][name], value, name)
+        for name in ('approach_altitude','return_altitude'):
+            self.assertAlmostEqual(CONFIG['mission'][name]-GROUND_Z,original['mission'][name])
 
     def test_parameter_stage_runs_before_next_goal_and_not_during_search(self):
         tree = ast.parse((ROOT/'scripts/navigation_mission_manager.py').read_text())
@@ -43,10 +50,10 @@ class FullLowCorridorTest(unittest.TestCase):
             elif completed < 2:
                 self.assertNotIn(ceiling,writes)
             else:
-                self.assertEqual(writes[ceiling],.55)
+                self.assertAlmostEqual(writes[ceiling]-GROUND_Z,.55)
         route=CONFIG['mission']['post_delivery_route']
         self.assertEqual(route[0][:2],route[1][:2])
-        self.assertEqual(route[1][2],.40)
+        self.assertAlmostEqual(route[1][2]-GROUND_Z,.40)
 
     def test_low_ceiling_only_in_corridor_including_between_doors(self):
         region=CONFIG['post_delivery_gate']['low_height_region']
@@ -56,6 +63,15 @@ class FullLowCorridorTest(unittest.TestCase):
         reducer.observe_pose(1, 7.8, .69, 'camera_init')
         self.assertEqual(reducer.height_violations,0)
         reducer.observe_pose(1, 7.8, .71, 'camera_init')
+        self.assertEqual(reducer.height_violations,1)
+
+    def test_limit_is_agl_when_local_origin_is_at_landed_flight_controller(self):
+        reducer=MODULE.Vcl06GateReducer(
+            ground_z=GROUND_Z,low_height_region=CONFIG['post_delivery_gate']['low_height_region'])
+        reducer.observe_pose(0,8,.45,'camera_init')
+        self.assertAlmostEqual(reducer.max_observed_height,.67)
+        self.assertEqual(reducer.height_violations,0)
+        reducer.observe_pose(0,8,.49,'camera_init')
         self.assertEqual(reducer.height_violations,1)
 
 if __name__ == '__main__':

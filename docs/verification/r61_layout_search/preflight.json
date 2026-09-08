@@ -1,0 +1,77 @@
+{
+  "status": "PASS",
+  "measurements": {
+    "measurements": {
+      "camera_below_fc": 0.16,
+      "camera_below_lidar_imu": 0.21,
+      "camera_ground_clearance_when_landed": 0.06,
+      "aircraft_length_width_height": [
+        0.5,
+        0.5,
+        0.37
+      ]
+    },
+    "derived": {
+      "fc_height_when_landed": 0.22,
+      "lidar_imu_height_when_landed": 0.27,
+      "fc_to_camera_xyz": [
+        0.0,
+        0.0,
+        -0.16
+      ],
+      "fc_to_lidar_imu_xyz": [
+        0.0,
+        0.0,
+        0.05
+      ],
+      "actual_body_z_bounds": [
+        -0.22,
+        0.15
+      ]
+    },
+    "simulation": {
+      "conservative_length_width_height": [
+        0.55,
+        0.55,
+        0.4
+      ],
+      "conservative_body_z_bounds": [
+        -0.22,
+        0.18
+      ],
+      "lidar_sees_conservative_proxy": false,
+      "physical_airframe_dynamics_calibrated": false
+    },
+    "height_reference": {
+      "ground_z_in_landed_fc_frame": -0.22,
+      "agl_from_local_pose": "local_z - ground_z",
+      "alternative_origin_requires_ground_recalibration": true
+    }
+  },
+  "ground_params": {
+    "/navigation_vcl06_assertion/ground_z": -0.22,
+    "/target_map_projector/ground_z": -0.22
+  },
+  "camera_model_z": -0.16,
+  "mid360_model_imu_z": 0.05,
+  "envelope_size": [
+    0.55,
+    0.55,
+    0.4
+  ],
+  "inner_size": [
+    9.6,
+    9.6
+  ],
+  "target_spawn_bounds": {
+    "min_x": -4.8,
+    "max_x": 4.8,
+    "min_y": -0.5,
+    "max_y": 7.6
+  },
+  "fixed_production_branch_test_pass": true,
+  "old_production_branch_test_pass": false,
+  "full_flight_runs_started": 0,
+  "static_preview_started": false,
+  "note": "Static checks only; new geometry/height datum does not inherit R60 PASS."
+}

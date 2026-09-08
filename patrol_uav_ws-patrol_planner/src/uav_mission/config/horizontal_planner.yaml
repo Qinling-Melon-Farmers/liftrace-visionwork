@@ -11,16 +11,16 @@ sdf_map/virtual_ceil_height: 2.30
 sdf_map/obstacles_inflation_up: 0.10
 sdf_map/obstacles_inflation_down: 0.30
 sdf_map/horizontal_avoidance/enabled: true
-sdf_map/horizontal_avoidance/min_x: -2.1
-sdf_map/horizontal_avoidance/max_x: 2.1
-sdf_map/horizontal_avoidance/min_y: 0.2
-sdf_map/horizontal_avoidance/max_y: 5.5
-sdf_map/horizontal_avoidance/obstacle_min_z: 0.40
+sdf_map/horizontal_avoidance/min_x: -4.8
+sdf_map/horizontal_avoidance/max_x: 4.8
+sdf_map/horizontal_avoidance/min_y: -0.5
+sdf_map/horizontal_avoidance/max_y: 7.6
+sdf_map/horizontal_avoidance/obstacle_min_z: 0.18  # local z; 0.40 m AGL
 # Only column extrusion needs this support; all points retain 3-D occupancy.
 sdf_map/horizontal_avoidance/support_min_points: 3
 sdf_map/horizontal_avoidance/support_radius: 0.15
 sdf_map/horizontal_avoidance/support_min_vertical_span: 0.20
-sdf_map/horizontal_avoidance/floor_z: 0.10
+sdf_map/horizontal_avoidance/floor_z: -0.12  # local z; 0.10 m AGL
 # 5 cm voxels preserve the 0.30 m guard envelope at the 0.80 m doorway.
 # The bounded map covers the whole field: X [-6,6], Y [-11,11], Z [-0.2,2.8].
 # 6,336,000 cells (~355 MB of SDF buffers); physical ceiling remains 2.30 m.
