@@ -1,5 +1,7 @@
 # 当前任务与优先级
 
+2026-09-09用户最新排序：**先冻结当前seed11地图/门/树箱/靶位并取得完整Gate基线，再扩随机因素。** R60问题尚未全部修复；本轮只更新轻量姿态模型和分析，没有启动新SITL。[复核报告](docs/verification/r61_layout_search/attitude_review/REVIEW.md)。下列随机门功能与随机布设验证在基线之后推进。
+
 R61源码/场地/机架修正、seed1–11历史布局展示、seed11静态原生Gazebo截图、轻量搜索预筛已完成；本地机载与仿真源码包由打包脚本导出。无新飞行PASS，main仍为R56。当前事实与产物见[R61报告](docs/verification/r61_layout_search/REPORT.md)和[交付包](docs/BUNDLES.md)。
 
 1. P0：按[会议](docs/competition/RULES_20260906.md)感知未知80cm门开口并更新引导；联调请求起飞后场地调整、缓存刷新与单次启动边界。固定错列名义航点不覆盖所有随机开口。
