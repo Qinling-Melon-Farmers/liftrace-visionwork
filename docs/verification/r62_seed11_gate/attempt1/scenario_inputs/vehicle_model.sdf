@@ -14,6 +14,29 @@
       <child>mid360::lidar_link</child>
       <parent>iris::base_link</parent>
     </joint>
+    <link name="competition_contact_link">
+      <pose>0 0 -0.020000000000000004 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx>
+          <iyy>1e-6</iyy>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
+      <collision name="competition_guard_collision">
+        <geometry>
+          <box>
+            <size>0.55 0.55 0.4</size>
+          </box>
+        </geometry>
+        <max_contacts>20</max_contacts>
+      </collision>
+    </link>
+    <joint name="competition_contact_joint" type="fixed">
+      <child>competition_contact_link</child>
+      <parent>iris::base_link</parent>
+    </joint>
     <link name="downward_camera_link">
       <pose>0 0 -0.16 0 1.57079632679 0</pose>
       <inertial>
@@ -90,9 +113,7 @@
       <parent>iris::base_link</parent>
     </joint>
     <plugin name="uav_contact_envelope" filename="libuav_contact_envelope.so">
-      <link_name>iris::base_link</link_name>
-      <ray_transparent_link>mid360::lidar_link</ray_transparent_link>
-      <ray_transparent_collision>lidar_collision</ray_transparent_collision>
+      <link_name>competition_contact_link</link_name>
       <collision_name>competition_guard_collision</collision_name>
       <contacts_topic>/mission/uav_contacts_raw</contacts_topic>
     </plugin>
