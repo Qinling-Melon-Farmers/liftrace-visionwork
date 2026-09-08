@@ -6,6 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import unittest
 import yaml
+import xml.etree.ElementTree as ET
 from test_staggered_corridor_gate import MODULE
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,6 +14,19 @@ CONFIG = yaml.safe_load((ROOT/'config/vcl06_full_low_corridor_runtime.yaml').rea
 GROUND_Z = yaml.safe_load((ROOT/'config/aircraft_measurements_20260908.yaml').read_text())['height_reference']['ground_z_in_landed_fc_frame']
 
 class FullLowCorridorTest(unittest.TestCase):
+    def test_full_gate_uses_current_inner_field_not_old_include_bounds(self):
+        launch=ET.parse(ROOT/'launch/navigation_horizontal_search_vcl06.launch')
+        node=next(n for n in launch.iter('rosparam')
+                  if n.get('param')=='/navigation_vcl06_assertion/field')
+        bounds=yaml.safe_load(node.text)
+        geometry=yaml.safe_load((ROOT/'config/competition_field_20260908.yaml').read_text())
+        self.assertEqual([bounds[k] for k in ('min_x','max_x','min_y','max_y')],geometry['inner_bounds'])
+        reducer=MODULE.Vcl06GateReducer(field_bounds=bounds)
+        reducer.observe_pose(4.2,8.7,.5,'camera_init')
+        self.assertEqual(reducer.boundary_violations,0)
+        reducer.observe_pose(4.81,8.7,.5,'camera_init')
+        self.assertEqual(reducer.boundary_violations,1)
+
     def test_original_search_and_delivery_policy_preserved(self):
         original = yaml.safe_load((ROOT/'config/vcl06_horizontal_field_runtime.yaml').read_text())
         self.assertEqual(CONFIG['search']['lane_spacing'], original['search']['lane_spacing'])
