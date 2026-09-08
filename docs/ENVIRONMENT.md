@@ -1,6 +1,6 @@
 # 环境与构建
 
-R61整机Catkin构建和240项任务/执行/Gate回归通过；轻量仓53项测试通过；seed11原生Gazebo静态截图、外参位姿检查与收尾完成。没有新飞行PASS。[验收范围](VALIDATION.md)。
+R62 seed11已建图、起飞、搜索、首投并恢复；保留原生相机视频、JSON/CSV/ULog。当前是阶段运行验证，不是完整比赛或板端验收。参见[验收](VALIDATION.md)。
 
 环境：WSL Ubuntu20.04、ROS Noetic、Gazebo Classic11、PX4 SITL；GCC9、Catkin/CMake、Eigen/PCL、OpenCV4、nlopt、yaml-cpp、MAVROS。`top_level_scripts/build_competition.sh`先视觉后导航，引用当前checkout，不复制笔记本build/devel上板。
 

@@ -1,10 +1,12 @@
 # 相机安装与当前飞行参数
 
+R62最新：主刚体参考为FC，IMU从主刚体采样；包络保持55×55×40cm，使用原稳定接触surface。SITL悬停初值0.713由1.577kg总质量/电机映射计算，HTE保留，硬件不复制该参数。seed11已经完成首投恢复，实测最高FC AGL1.580m；不是整场通过。
+
 最终用户数据：光心在FC下16cm、MID360 IMU下21cm，落地离支撑面6cm，飞机50×50×37cm。推出FC落地高22cm、IMU高27cm，FC→IMU=(0,0,+0.05)、FC→相机=(0,0,−0.16)。相机15cm说法已由用户撤回。
 
 Gazebo最终静态读回三项距离全部一致，见[原图及实时位姿](verification/r61_layout_search/REPORT.md#机体相机雷达为何看起来分离)。通用chassis与雷达CAD外壳各自的4cm装配补偿只用于网格登记，不是新测量值。光学轴仍为X=−机体Y、Y=−机体X、Z=−机体Z。
 
-仿真保守外形55×55×40cm；z相对FC为[−0.22,+0.18]。通用iris几何缩放0.70，质量/惯量/推力未按实机标定，新动力学未全场验证。可见支架是装配示意，不能称为真实CAD。
+仿真保守外形55×55×40cm；z相对FC为[−0.22,+0.18]。通用iris几何缩放0.70，质量/惯量/推力未按实机标定，新动力学已完成首投阶段，未全场验证。可见支架是装配示意，不能称为真实CAD。
 
 以落地FC为local0时ground_z=−0.22，AGL=local_z+0.22；起降垫厚度和实际上电零点变化需重新测定。全场候选如下：
 
@@ -20,7 +22,7 @@ Gazebo最终静态读回三项距离全部一致，见[原图及实时位姿](ve
 | AUTO.LAND条件 | 0.18 | 0.40m |
 | 全局指令/规划顶界 | 2.08 | 2.30m |
 
-释放hover_height=0.10和许可max_height=0.30仍为原local语义。完整配置见uav_mission/config/vcl06_full_low_corridor_{runtime,control}.yaml。硬件入口的16/21cm与ground_z已更新，但仍用此前runtime/control且launch覆盖搜索1.40local、指令上限2.30local；部署前必须整体选择配置，不能把它们写成对应AGL。
+释放hover_height=0.10和许可max_height=0.30仍为原local语义。uav_vision/recovery_height=0.73是控制交接门限；标准靶释放后源码align_height仍设1.2local，bridge回升确认默认要求≥0.95local，本轮ACK至恢复搜索37.431s，不能把0.73当成整个回升目标。完整配置见uav_mission/config/vcl06_full_low_corridor_{runtime,control}.yaml。硬件入口的16/21cm与ground_z已更新，但仍用此前runtime/control且launch覆盖搜索1.40local、指令上限2.30local；部署前必须整体选择配置，不能把它们写成对应AGL。
 
 沿用搜索间距0.70m、返程跟随0.15m、常规到达0.12m/停稳0.80s/速度≤0.20m/s；Planner速度/加速度1/1、SDF栅格0.05m、XY/向下/向上膨胀0.30/0.30/0.10m、净空0.025m。H保留整环检测与同节点H笔画补充，低空不要求整圈入画。
 
