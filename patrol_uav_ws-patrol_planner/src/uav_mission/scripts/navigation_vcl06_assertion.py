@@ -277,7 +277,7 @@ class Vcl06GateReducer:
                  post_delivery_doors=(), landing_xy=(0.0, 0.0),
                  landing_h_tolerance=0.35, gate_scope="full",
                  expected_door_order=EXPECTED_DOOR_ORDER,
-                 low_height_region=None):
+                 low_height_region=None, ground_z=0.0):
         self.profile = str(profile)
         self.nav_feature_profile = str(nav_feature_profile)
         self.mission_frame = str(mission_frame)
@@ -289,6 +289,7 @@ class Vcl06GateReducer:
             "min_y": -1.132, "max_y": 8.718,
         })
         self.max_height = float(max_height)
+        self.ground_z = float(ground_z)
         self.low_height_region = dict(low_height_region or {})
         self.max_mission_sec = float(max_mission_sec)
         self.forced_return_sec = float(forced_return_sec)
@@ -804,6 +805,9 @@ class Vcl06GateReducer:
             self._error("pose_frame_mismatch")
             return
         x, y, z = (float(value) for value in values)
+        # Pose z belongs to the navigation frame; scoring limits and door
+        # heights are measured above the actual ground in that frame.
+        z -= self.ground_z
         self.pose_samples += 1
         self.max_observed_height = (
             z if self.max_observed_height is None else
@@ -1240,6 +1244,7 @@ class NavigationVcl06AssertionNode:
                 "max_y": float(rospy.get_param("~field/max_y", 8.718)),
             },
             max_height=float(rospy.get_param("~max_height", 4.0)),
+            ground_z=float(rospy.get_param("~ground_z", 0.0)),
             low_height_region=rospy.get_param(
                 "~post_delivery_gate/low_height_region", {}),
             max_mission_sec=float(rospy.get_param(

@@ -1,6 +1,9 @@
 <launch>
   <!-- Full laptop SITL with the unchanged legacy patrol flow behind a
        permission-gated, simulation-only mock release endpoint. -->
+  <arg name="spawn_x" default="-0.493412" />
+  <arg name="spawn_y" default="-1.772690" />
+  <arg name="spawn_z" default="0.06" />
   <arg name="gui" default="true" />
   <arg name="rviz" default="false" />
   <arg name="start_mapping" default="true" />
@@ -58,6 +61,9 @@
   </node>
 
   <include file="$(find patrol_control)/launch/toudi3_full_competition_sim_new_vision.launch">
+    <arg name="spawn_x" value="$(arg spawn_x)" />
+    <arg name="spawn_y" value="$(arg spawn_y)" />
+    <arg name="spawn_z" value="$(arg spawn_z)" />
     <arg name="world" value="$(arg world)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="rviz" value="$(arg rviz)" />

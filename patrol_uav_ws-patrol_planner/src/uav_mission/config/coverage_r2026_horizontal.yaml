@@ -1,53 +1,43 @@
-# R57: toudi3_random-derived 2026 field with toudi4-style staggered corridor.
-# This file describes spawn geometry, not search or mission policy.
-# 正式任务策略由 vcl06_random_field_runtime.yaml 与 MissionCore 唯一管理。
-# 场地形态按 2026 规则书：投递区内 4 个 1m 标准投放区 + 1 个 0.35m 随机红十字
-# 均由 random_field_spawner 启动时随机摆放（真值只落盘）；北部错列墙走廊
-# 与双 H 坐标视为赛会给定值，走廊穿越由独立 Gate 记录。
+# Meeting-based 9.6m inner fixture; full search-area spawn, no separate bigbox.
+# Tree/box sizes and fixed opening offsets are scenario assumptions, not supplied competition truth.
 mission_frame: camera_init
-
-# 类目 profile：r2026 = 四类标准靶（无 tank）+ 随机红十字。profile 外的
-# 标准靶候选（如 tank 假阳性）不进入任务队列。
 class_profile: r2026
-
-# 随机摆放采用完整板面外接圆，而不是模型中心点距离。4 棵树位于复合模型
-# `3` 内，Gazebo ModelStates 只暴露父模型，故在此显式列出世界系 footprint。
 spawn:
-  boundary_margin: 0.10
-  pair_gap: 0.15
-  # 先在内存中规划完整 5 靶布局；顺序贪心遇到后段死路时整套重采样，Gazebo 不留半成品。
+  boundary_margin: 0.02
+  pair_gap: 0.05
   layout_attempts: 64
   static_model_radius: 0.55
-  # KS2A543 + MID360 冷启动时整机模型可能在 Gazebo 服务就绪后继续加载；
-  # 初始占用采样只等待状态，不改变摆放/飞行 Gate，避免 30 s 边缘竞态。
   initial_model_states_timeout: 90.0
   verification_tolerance: 0.05
   verification_timeout: 20.0
-# The 2026 scene has raised trees and no bigbox obstacles.
-static_model_radii: {}
+static_model_radii:
+  landing_h: 0.5
+  landing_h_clone: 0.5
 static_exclusions:
-  # juniper collision mesh 最大平面半径约 0.3174 m（DAE node 0.0254 × SDF 0.2）；
-  # 0.40 m 已含约 8 cm 模型余量，且 footprint_clear 还会额外叠加 0.15 m pair_gap。
-  - {name: nested_tree_0, world_x: -1.713091, world_y: 1.061375, radius: 0.40}
-  - {name: nested_tree_1, world_x: -0.730275, world_y: 0.180850, radius: 0.40}
-  - {name: nested_tree_2, world_x: 0.162569, world_y: 1.311355, radius: 0.40}
-  - {name: nested_tree_3, world_x: 1.183719, world_y: 3.155350, radius: 0.40}
-  # R57 removes the former Wall_15 entry; toudi4 corridor starts north
-  # of the unchanged random-target spawn envelope. Tree exclusions remain.
-
-# 起飞 H 与 toudi4 主 H 同位：world=(-0.493412,-1.772690)，spawn 局部 (0,0)。
-# PX4/MAVROS/camera_init 在此建立本地原点；下列边界为投递区/场地在该局部系
-# 下的范围（toudi3 原覆盖区 x[-2.5,1.5] y[-1.5,4.5] 平移 +0.493/+1.773 得到）。
+- name: combined_tree_0
+  world_x: -1.8
+  world_y: 2.0
+  radius: 0.43
+- name: combined_tree_1
+  world_x: 1.8
+  world_y: 2.7
+  radius: 0.43
+- name: combined_tree_2
+  world_x: -1.5
+  world_y: 5.2
+  radius: 0.43
+- name: combined_tree_3
+  world_x: 1.7
+  world_y: 5.7
+  radius: 0.43
 field:
-  min_x: -3.992
-  max_x: 4.008
-  min_y: -1.132
-  max_y: 8.718
-
-# 覆盖投递区中央区域（随机靶标仅在此区域内摆放）；北侧走廊由后续穿越任务
-# 单独处理。
+  min_x: -4.8
+  max_x: 4.8
+  min_y: -0.5
+  max_y: 9.1
 search_region:
-  min_x: -2.007
-  max_x: 1.993
-  min_y: 0.273
-  max_y: 6.273
+  min_x: -4.8
+  max_x: 4.8
+  min_y: -0.5
+  max_y: 7.6
+ignore_model_names: ground_plane,sun,toudi2,3,iris_mid360,preview_overhead,preview_aircraft

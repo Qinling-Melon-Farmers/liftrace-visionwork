@@ -2176,11 +2176,15 @@ bool LLController::WayPointDetectDone()
         ROS_INFO("\033[32m[WayPointDetectDone] Received valid target point, detection count: %d\033[0m", times_detect);
         ROS_INFO("\033[32m[WayPointDetectDone] have_waypoint_mark adjust_target_position: %.2f %.2f", waypoint_mark_point.pose.position.x, waypoint_mark_point.pose.position.y);
     }else{
-        // 没有目标就发送原始航路点
-        adjust_target_position[0] = waypoint_list[waypoint_next].x;
-        adjust_target_position[1] = waypoint_list[waypoint_next].y;
-        adjust_target_position[2] = waypoint_list[waypoint_next].z;
-        adjust_target_position[3] = waypoint_list[waypoint_next].yaw;
+        // External ALIGN already latched this transaction's position/height/yaw.
+        // Missing a visual update must hold that target for reacquisition;
+        // the old route table belongs only to standalone legacy missions.
+        if (!external_mission_mode_) {
+            adjust_target_position[0] = waypoint_list[waypoint_next].x;
+            adjust_target_position[1] = waypoint_list[waypoint_next].y;
+            adjust_target_position[2] = waypoint_list[waypoint_next].z;
+            adjust_target_position[3] = waypoint_list[waypoint_next].yaw;
+        }
 
         ROS_DEBUG_THROTTLE(2, "\033[33m[WayPointDetectDone] Waiting for valid target point...\033[0m");
         ROS_INFO("\033[32m[WayPointDetectDone] no valid circle : adjust_target_position: %.2f, %.2f", adjust_target_position[0], adjust_target_position[1]);

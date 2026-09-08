@@ -1,5 +1,11 @@
 <launch>
   <!-- Same formal mission/control chain, with 2026 geometry and measured camera mounting. -->
+  <!-- Measured FC reference: camera -0.16m, MID360 IMU +0.05m.
+       Local z=0 at landed FC gives ground_z=-0.22m. -->
+  <arg name="ground_z" default="-0.22" />
+  <arg name="spawn_z" default="0.22" />
+  <arg name="body_to_imu_xyz" default="0 0 0.05" />
+  <arg name="camera_extrinsic_xyz" default="0 0 -0.16" />
   <arg name="gui" default="false" />
   <arg name="rviz" default="false" />
   <!-- Keep run.log, gate/params and compact status JSON; full bag is opt-in. -->
@@ -8,6 +14,7 @@
   <node if="$(arg record_key_info)" pkg="uav_vision_eval" type="competition_key_recorder.py"
         name="competition_key_recorder" output="screen">
     <rosparam file="$(find uav_vision_eval)/config/competition_logging.yaml" />
+    <rosparam param="truth_world_offset">[0.0, 0.0, 0.22]</rosparam>
     <param name="run_dir" value="$(optenv SIM_RUN_DIR)" />
   </node>
   <arg name="record_camera_topic" default="/downward_camera/image_raw" />
@@ -18,6 +25,10 @@
   <arg name="runtime_config" default="$(find uav_mission)/config/vcl06_full_low_corridor_runtime.yaml" />
   <arg name="control_config" default="$(find uav_mission)/config/vcl06_full_low_corridor_control.yaml" />
   <include file="$(find uav_mission)/launch/navigation_search_delivery_vcl06.launch">
+    <arg name="ground_z" value="$(arg ground_z)" />
+    <arg name="spawn_x" value="0.0" />
+    <arg name="spawn_y" value="0.0" />
+    <arg name="spawn_z" value="$(arg spawn_z)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="rviz" value="$(arg rviz)" />
     <arg name="record_debug" value="$(arg record_debug)" />
@@ -31,9 +42,9 @@
     <arg name="runtime_config" value="$(arg runtime_config)" />
     <arg name="waypoint_config" value="$(arg control_config)" />
     <arg name="field_config" value="$(find uav_mission)/config/coverage_r2026_horizontal.yaml" />
-    <arg name="camera_extrinsic_xyz" value="0 0 -0.08588" />
-    <arg name="search_altitude" value="1.40" />
-    <arg name="external_planner_max_command_z" value="2.30" />
+    <arg name="camera_extrinsic_xyz" value="$(arg camera_extrinsic_xyz)" />
+    <arg name="search_altitude" value="1.18" />
+    <arg name="external_planner_max_command_z" value="2.08" />
     <!-- Retain the successful planner's dynamic search envelope. Actual
          position following is bounded by the 0.40 m lookahead below. -->
     <arg name="planner_max_vel" value="1.0" />
@@ -41,21 +52,21 @@
     <arg name="planner_clearance_threshold" value="0.025" />
     <arg name="px4_max_distance" value="0.40" />
   </include>
-  <!-- The MID360 mounting clears the iris chassis: ray z=.13, IMU z=.12412.
-       The sensor-internal IMU -> lidar transform is independent of mounting. -->
+  <!-- Measured mounting: ray z=.05588, IMU z=.05. Internal
+       IMU->ray transform stays unchanged; model self-occlusion needs revalidation. -->
   <param name="/common/imu_topic" value="/livox/imu" />
   <rosparam param="/mapping/extrinsic_T">[0.011, 0.02329, 0.00588]</rosparam>
   <param name="/filter_size_surf" value="0.15" />
   <param name="/filter_size_map" value="0.15" />
   <param name="/pcd_save/pcd_save_en" value="false" />
   <node pkg="uav_mission" type="lio_external_pose.py" name="lio_external_pose" output="screen">
-    <rosparam param="imu_to_body_xyz">[0.0, 0.0, -0.12412]</rosparam>
+    <rosparam param="imu_to_body_xyz" subst_value="true">$(eval [-float(v) for v in arg('body_to_imu_xyz').split()])</rosparam>
   </node>
   <!-- FreeDOM consumes an IMU-frame scan, transformed by the same fused
        vehicle pose as the controller and camera. LIO's unobservable vertical
        component must not silently define a second camera_init frame. -->
   <node pkg="tf2_ros" type="static_transform_publisher" name="mapping_imu_extrinsic"
-        args="0 0 0.12412 0 0 0 1 vision_body mapping_imu" />
+        args="$(arg body_to_imu_xyz) 0 0 0 1 vision_body mapping_imu" />
   <param name="/freedom/sensor_tf_frame" value="mapping_imu" />
   <rosparam ns="/freedom" file="$(find uav_mission)/config/competition_freedom.yaml" />
   <rosparam param="/simulation/px4_parameters">
@@ -71,9 +82,11 @@
     EKF2_EVA_NOISE: 0.05
   </rosparam>
   <!-- Physical scoring uses simulator measurements independently of EKF/LIO. -->
+  <param name="/navigation_vcl06_assertion/ground_z" value="$(arg ground_z)" />
   <param name="/navigation_vcl06_assertion/truth_model" value="iris_mid360" />
-  <rosparam param="/navigation_vcl06_assertion/truth_world_offset">[-0.493412, -1.772690, 0.0]</rosparam>
+  <rosparam param="/navigation_vcl06_assertion/truth_world_offset">[0.0, 0.0, 0.22]</rosparam>
   <rosparam ns="/fast_planner_node" file="$(find uav_mission)/config/horizontal_planner.yaml" />
+  <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="2.08" />
   <!-- Confirm the configured body heading before advancing corridor legs. -->
   <param name="/navigation/planner_bridge/execution/return_yaw_tolerance" value="0.10" />
   <!-- Turn near the open staging point, then retain the heading in the aisle. -->

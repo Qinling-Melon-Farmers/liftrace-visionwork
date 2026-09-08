@@ -1,31 +1,20 @@
-<?xml version="1.0"?>
+<?xml version='1.0' encoding='utf-8'?>
 <sdf version="1.6">
-  <!--
-    Complete PX4/Gazebo vehicle used by the VCL06 full-chain Gate.
-    The airframe and contact envelope are inherited from model.sdf.
-    Camera optical center: body z=-0.08588 m; MID360 IMU: body z=+0.12412 m.
-    User-confirmed IMU-to-camera vertical separation: 0.21 m.
-    Sensor offsets inside the included MID360 model are accounted for.  Camera intrinsics/distortion reproduce the
-    KS2A543 baseline delivered by vision commit 6743099.
-  -->
   <model name="iris_mid360_downward_camera">
     <include>
-      <uri>model://iris</uri>
+      <uri>model://r2026_iris_dynamics</uri>
+      <name>iris</name>
     </include>
-
     <include>
       <uri>model://mid360</uri>
-      <!-- Keep the ray origin above the iris box (top z=.055), so the
-           MID360's downward scan sector can see the floor past the chassis. -->
-      <pose>0.011 0.02329 0.08 0 0 0</pose>
+      <pose>0.011 0.02329 0.00588 0 0 0</pose>
     </include>
     <joint name="mid360_joint" type="fixed">
       <child>mid360::lidar_link</child>
       <parent>iris::base_link</parent>
     </joint>
-
     <link name="competition_contact_link">
-      <pose>0 0 0.20 0 0 0</pose>
+      <pose>0 0 -0.020000000000000004 0 0 0</pose>
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -36,10 +25,9 @@
       </inertial>
       <collision name="competition_guard_collision">
         <geometry>
-          <mesh>
-            <uri>model://iris_mid360_downward_camera/meshes/competition_guard_ring.obj</uri>
-            <scale>1 1 1</scale>
-          </mesh>
+          <box>
+            <size>0.55 0.55 0.4</size>
+          </box>
         </geometry>
         <max_contacts>20</max_contacts>
       </collision>
@@ -48,11 +36,8 @@
       <child>competition_contact_link</child>
       <parent>iris::base_link</parent>
     </joint>
-
-    <!-- Installed body-to-camera mounting transform.  Gazebo
-         camera sensors look along local +X; +90 degrees about Y points down. -->
     <link name="downward_camera_link">
-      <pose>0 0 -0.08588 0 1.57079632679 0</pose>
+      <pose>0 0 -0.16 0 1.57079632679 0</pose>
       <inertial>
         <mass>0.015</mass>
         <inertia>
@@ -80,7 +65,6 @@
         <update_rate>30</update_rate>
         <visualize>false</visualize>
         <camera name="color">
-          <!-- 2*atan(1280/(2*fx)), fx=725.3510059644434 px. -->
           <horizontal_fov>1.44593453190313</horizontal_fov>
           <image>
             <width>1280</width>
@@ -100,8 +84,7 @@
             <center>0.4934936430758014 0.5521755296266148</center>
           </distortion>
         </camera>
-        <plugin name="downward_camera_controller"
-                filename="libgazebo_ros_camera.so">
+        <plugin name="downward_camera_controller" filename="libgazebo_ros_camera.so">
           <robotNamespace>/</robotNamespace>
           <cameraName>downward_camera</cameraName>
           <imageTopicName>image_raw</imageTopicName>
@@ -128,7 +111,6 @@
       <child>downward_camera_link</child>
       <parent>iris::base_link</parent>
     </joint>
-    <!-- Contact scoring proxy remains collidable, but must not occlude LiDAR. -->
     <plugin name="uav_contact_envelope" filename="libuav_contact_envelope.so">
       <link_name>competition_contact_link</link_name>
       <collision_name>competition_guard_collision</collision_name>
