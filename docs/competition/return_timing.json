@@ -1,0 +1,48 @@
+{
+  "scope": "historical_R60_three_successes_only_not_current_R61_estimator",
+  "rows": [
+    {
+      "seed": 11,
+      "run": "r2026_r60_full_pilot_seed11_20260908_011243",
+      "route_start_ros": 149.196,
+      "land_handoff_ros": 286.857,
+      "disarm_ros": 298.557,
+      "route_to_disarm_sec": 149.361,
+      "land_to_disarm_sec": 11.7,
+      "phases": {
+        "POST_DELIVERY_ROUTE": 149.196,
+        "LAND": 286.857,
+        "COMPLETE": 297.564
+      }
+    },
+    {
+      "seed": 5,
+      "run": "r2026_r60_matrix_seed05_20260908_024146",
+      "route_start_ros": 142.517,
+      "land_handoff_ros": 274.559,
+      "disarm_ros": 284.754,
+      "route_to_disarm_sec": 142.237,
+      "land_to_disarm_sec": 10.195,
+      "phases": {
+        "POST_DELIVERY_ROUTE": 142.517,
+        "LAND": 274.559,
+        "COMPLETE": 282.986
+      }
+    },
+    {
+      "seed": 7,
+      "run": "r2026_r60_matrix_seed07_20260908_031450",
+      "route_start_ros": 145.066,
+      "land_handoff_ros": 264.53,
+      "disarm_ros": 273.99,
+      "route_to_disarm_sec": 128.924,
+      "land_to_disarm_sec": 9.46,
+      "phases": {
+        "POST_DELIVERY_ROUTE": 145.066,
+        "LAND": 264.53,
+        "COMPLETE": 275.699
+      }
+    }
+  ],
+  "warning": "Three successful examples do not estimate a reliable tail. Failures are censored/not zero. Starting positions and maps differ from R61."
+}
