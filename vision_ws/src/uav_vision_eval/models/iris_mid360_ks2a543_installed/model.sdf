@@ -6,8 +6,9 @@
       <name>iris</name>
     </include>
     <include>
-      <uri>model://mid360</uri>
+      <uri>model://r2026_mid360_mounted</uri>
       <pose>0.011 0.02329 0.00588 0 0 0</pose>
+      <name>mid360</name>
     </include>
     <joint name="mid360_joint" type="fixed">
       <child>mid360::lidar_link</child>
@@ -116,5 +117,134 @@
       <collision_name>competition_guard_collision</collision_name>
       <contacts_topic>/mission/uav_contacts_raw</contacts_topic>
     </plugin>
+    <link name="assembly_mounts">
+      <inertial>
+        <mass>.01</mass>
+        <inertia>
+          <ixx>1e-5</ixx>
+          <iyy>1e-5</iyy>
+          <izz>1e-5</izz>
+        </inertia>
+      </inertial>
+      <visual name="flight_controller_case">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.07 .05 .02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.10 .25 .18 1</ambient>
+          <diffuse>.10 .25 .18 1</diffuse>
+        </material>
+      </visual>
+      <visual name="lidar_mount_plate">
+        <pose>0.008 0.015 0.015 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.065 .065 .01</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.2 .2 .2 1</diffuse>
+        </material>
+      </visual>
+      <visual name="camera_mount">
+        <pose>0 0 -0.1125 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.004</radius>
+            <length>0.055</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.2 .2 .2 1</diffuse>
+        </material>
+      </visual>
+      <visual name="landing_leg_0">
+        <pose>-0.08 -0.1 -.1425 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.006</radius>
+            <length>0.145</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="landing_leg_1">
+        <pose>0.08 -0.1 -.1425 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.006</radius>
+            <length>0.145</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="landing_leg_2">
+        <pose>-0.08 0.1 -.1425 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.006</radius>
+            <length>0.145</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="landing_leg_3">
+        <pose>0.08 0.1 -.1425 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.006</radius>
+            <length>0.145</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="landing_skid_0">
+        <pose>0 -0.1 -.215 0 1.57079632679 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.005</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="landing_skid_1">
+        <pose>0 0.1 -.215 0 1.57079632679 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.005</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <joint name="assembly_mount_joint" type="fixed">
+      <parent>iris::base_link</parent>
+      <child>assembly_mounts</child>
+    </joint>
   </model>
 </sdf>

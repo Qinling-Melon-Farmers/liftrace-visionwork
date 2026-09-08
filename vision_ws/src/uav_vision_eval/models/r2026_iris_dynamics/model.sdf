@@ -2,7 +2,7 @@
 <sdf version="1.6">
   <model name="r2026_iris_dynamics">
     <link name="base_link">
-      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <pose>0.0 0.0 -0.04 0.0 0.0 0.0</pose>
       <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>1.5</mass>
@@ -86,7 +86,7 @@
       </axis>
     </joint>
     <link name="rotor_0">
-      <pose>0.091 -0.154 0.0161 0.0 0.0 0.0</pose>
+      <pose>0.091 -0.154 -0.0239 0.0 0.0 0.0</pose>
       <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.005</mass>
@@ -151,7 +151,7 @@
       </axis>
     </joint>
     <link name="rotor_1">
-      <pose>-0.091 0.13999999999999999 0.0161 0.0 0.0 0.0</pose>
+      <pose>-0.091 0.13999999999999999 -0.0239 0.0 0.0 0.0</pose>
       <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.005</mass>
@@ -216,7 +216,7 @@
       </axis>
     </joint>
     <link name="rotor_2">
-      <pose>0.091 0.154 0.0161 0.0 0.0 0.0</pose>
+      <pose>0.091 0.154 -0.0239 0.0 0.0 0.0</pose>
       <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.005</mass>
@@ -281,7 +281,7 @@
       </axis>
     </joint>
     <link name="rotor_3">
-      <pose>-0.091 -0.13999999999999999 0.0161 0.0 0.0 0.0</pose>
+      <pose>-0.091 -0.13999999999999999 -0.0239 0.0 0.0 0.0</pose>
       <inertial>
         <pose>0 0 0 0 0 0</pose>
         <mass>0.005</mass>
@@ -420,7 +420,7 @@
     </plugin>
     <include>
       <uri>model://gps</uri>
-      <pose>0.05 0 0.04 0 0 0</pose>
+      <pose>0.05 0.0 0.0 0.0 0.0 0.0</pose>
       <name>gps0</name>
     </include>
     <joint name="gps0_joint" type="fixed">
