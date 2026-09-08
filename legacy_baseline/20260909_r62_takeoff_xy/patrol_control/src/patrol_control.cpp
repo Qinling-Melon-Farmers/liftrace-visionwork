@@ -1327,13 +1327,6 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
         ROS_INFO_THROTTLE(2, "Target point adjusted to max distance limit.");
     }
 
-    // Vertical takeoff must hold the launch XY independently of the Z slew.
-    // A 3-D lookahead otherwise moves XY toward the drifting measured pose.
-    if (Drone_mode == Takeoff) {
-        mavros_point_cmd.pose.position.x = takeoff_point[0];
-        mavros_point_cmd.pose.position.y = takeoff_point[1];
-    }
-
     // The distance limiter interpolates from the current vehicle pose.  When
     // the vehicle is already above the configured ceiling, that interpolation
     // can raise a previously capped planner command above the ceiling again.
