@@ -1,0 +1,12 @@
+{
+  "mass_kg": 1.576999999999999,
+  "gravity": 9.8,
+  "motor_constant": 5.84e-06,
+  "rotors": 4,
+  "hover_angular_speed": 813.3780818964749,
+  "input_scaling": 1000.0,
+  "armed_offset": 100.0,
+  "calculated_hover_control": 0.7133780818964749,
+  "selected_MPC_THR_HOVER": 0.713,
+  "scope": "SITL only; existing HTE remains enabled"
+}

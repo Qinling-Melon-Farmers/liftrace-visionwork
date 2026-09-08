@@ -1,0 +1,175 @@
+{
+  "raw_calls": [
+    1
+  ],
+  "results": [
+    {
+      "align_mode": "drop_circle",
+      "execution_id": 1,
+      "payload_slot": 1,
+      "reason": "raw_actuator_ack",
+      "stamp": 105.57,
+      "success": true,
+      "target_class": "panzer",
+      "target_id": 0
+    }
+  ],
+  "raw_servo_events": [
+    {
+      "data": {
+        "context": {
+          "align_mode": "drop_circle",
+          "control_state": 2,
+          "locked_release_evidence": {
+            "align_mode": "drop_circle",
+            "aligned": true,
+            "center_refined": true,
+            "evidence_valid": true,
+            "geometry_verified": true,
+            "observation_fresh": true,
+            "stable_frames": 5,
+            "stamp": 102.927,
+            "stamp_nsec": 102927000000,
+            "target_class": "circle",
+            "target_confirmed": true,
+            "target_id": 1
+          },
+          "permission_release_evidence": {
+            "align_mode": "drop_circle",
+            "aligned": true,
+            "center_refined": true,
+            "evidence_valid": true,
+            "geometry_verified": true,
+            "observation_fresh": true,
+            "stable_frames": 5,
+            "stamp": 102.927,
+            "stamp_nsec": 102927000000,
+            "target_class": "circle",
+            "target_confirmed": true,
+            "target_id": 1
+          },
+          "permission_release_evidence_context": {
+            "align_mode": "drop_circle",
+            "attempt": 1,
+            "class_profile": "r2026",
+            "command": 2,
+            "context_active": true,
+            "context_reason": "alignment_context_valid",
+            "context_valid": true,
+            "deadline": 219.199999999,
+            "decision_seq": 6,
+            "evidence": {
+              "align_mode": "drop_circle",
+              "aligned": true,
+              "center_refined": true,
+              "evidence_valid": true,
+              "geometry_verified": true,
+              "observation_fresh": true,
+              "stable_frames": 5,
+              "stamp": 102.927,
+              "stamp_nsec": 102927000000,
+              "target_class": "circle",
+              "target_confirmed": true,
+              "target_id": 1
+            },
+            "geometry_map_valid": true,
+            "geometry_target_class": "circle",
+            "geometry_target_id": 1,
+            "geometry_target_present": true,
+            "has_semantic_target": true,
+            "mission_id": "vcl06-random-22-848000000-1",
+            "payload_slot": 1,
+            "semantic_geometry_match": true,
+            "semantic_target_class": "panzer",
+            "semantic_target_id": 0,
+            "stamp_nsec": 102927000000
+          },
+          "pose_z": 0.2715024948120117,
+          "release_evidence": {
+            "align_mode": "drop_circle",
+            "aligned": false,
+            "center_refined": false,
+            "evidence_valid": false,
+            "geometry_verified": false,
+            "observation_fresh": false,
+            "stable_frames": 0,
+            "stamp": 105.529,
+            "stamp_nsec": 105529000000,
+            "target_class": "",
+            "target_confirmed": false,
+            "target_id": 0
+          },
+          "release_evidence_context": {
+            "align_mode": "drop_circle",
+            "attempt": 1,
+            "class_profile": "r2026",
+            "command": 2,
+            "context_active": true,
+            "context_reason": "alignment_context_geometry_missing",
+            "context_valid": false,
+            "deadline": 219.199999999,
+            "decision_seq": 6,
+            "evidence": {
+              "align_mode": "drop_circle",
+              "aligned": false,
+              "center_refined": false,
+              "evidence_valid": false,
+              "geometry_verified": false,
+              "observation_fresh": false,
+              "stable_frames": 0,
+              "stamp": 105.529,
+              "stamp_nsec": 105529000000,
+              "target_class": "",
+              "target_confirmed": false,
+              "target_id": 0
+            },
+            "geometry_map_valid": false,
+            "geometry_target_class": "",
+            "geometry_target_id": 0,
+            "geometry_target_present": false,
+            "has_semantic_target": true,
+            "mission_id": "vcl06-random-22-848000000-1",
+            "payload_slot": 1,
+            "semantic_geometry_match": false,
+            "semantic_target_class": "panzer",
+            "semantic_target_id": 0,
+            "stamp_nsec": 105529000000
+          },
+          "release_permission": {
+            "align_mode": "drop_circle",
+            "evidence_stamp": 102.927,
+            "evidence_stamp_nsec": 102927000000,
+            "payload_slot": 1,
+            "permitted": true,
+            "reason": "permission_granted_from_commitment",
+            "stamp": 105.55,
+            "target_class": "panzer",
+            "target_id": 0,
+            "valid_until": 105.8
+          },
+          "selected_target": {
+            "class_confidence": 0.9688088893890381,
+            "class_name": "panzer",
+            "consecutive_observe_count": 110,
+            "geometry_confidence": 0.9596243500709534,
+            "id": 0,
+            "map_frame": "camera_init",
+            "map_point": [
+              -3.864101861142224,
+              1.961240031881664,
+              -0.21999999999999995
+            ],
+            "map_valid": true,
+            "observe_count": 113,
+            "state": 2
+          }
+        },
+        "slot": 1
+      },
+      "time": 105.579,
+      "type": "raw_servo"
+    }
+  ],
+  "three_slot_audit_status": "WAITING",
+  "scope_note": "Three-slot audit remains WAITING because this run intentionally ends after first delivery and recovery."
+}

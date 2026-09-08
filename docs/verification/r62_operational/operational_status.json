@@ -1,0 +1,43 @@
+{
+  "phase": "OPERATIONAL_COMPLETE",
+  "scope": "seed11_mapping_takeoff_search_and_one_delivery_recovery",
+  "head": "8bedcc0c376b815eb3590e740ee9634210f5c3f5",
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r62_operational_seed11_20260909_030841",
+  "pid": 1758,
+  "checks": {
+    "map_and_lio": true,
+    "armed_and_takeoff": true,
+    "search_cruise": true,
+    "delivery_and_recovery": true,
+    "contact_stream_healthy": true
+  },
+  "ros_sec": 144.0,
+  "mission": {
+    "active_command": "RESUME",
+    "active_decision_seq": 7,
+    "committed_slots": 1,
+    "last_reason": "search_continues",
+    "manual_start_required": true,
+    "mission_failed": false,
+    "mission_id": "vcl06-random-22-848000000-1",
+    "phase": "SEARCH",
+    "post_delivery_route_complete": false,
+    "post_delivery_route_index": 0,
+    "post_delivery_route_revision": "r2026-r61-inner960-nominal-fixed-gaps",
+    "post_delivery_route_size": 9,
+    "profile": "r2026",
+    "route_active_decision_seq": 7,
+    "route_complete": false,
+    "route_index": 4,
+    "slot_status": [
+      "COMMITTED",
+      "FREE",
+      "FREE"
+    ],
+    "start_mode": "full"
+  },
+  "max_truth_agl": 1.5771540745434725,
+  "max_truth_xy_displacement": 4.499954389395719,
+  "wrapper_exit_code": 130,
+  "full_competition_pass_claimed": false
+}

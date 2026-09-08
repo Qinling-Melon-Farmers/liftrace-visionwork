@@ -106,6 +106,7 @@ if(CATKIN_ENABLE_TESTING)
     DEPENDENCIES ${PROJECT_NAME}_generate_messages_py
   )
   catkin_add_nosetests(test/test_vsim04_d_matrix.py)
+  catkin_add_nosetests(test/test_r62_vehicle_contract.py)
 endif()
 
 install(DIRECTORY config launch models

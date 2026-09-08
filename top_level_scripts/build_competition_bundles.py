@@ -3,6 +3,7 @@
 import argparse
 import io
 import json
+import re
 from pathlib import Path
 import subprocess
 import tarfile
@@ -16,11 +17,14 @@ def git(root, *args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--label', default='r62', help='Filename version label')
     parser.add_argument('--onboard-rknn', type=Path, required=True)
     parser.add_argument('--sitl-weights', type=Path, required=True)
     parser.add_argument('--optional-model-root', type=Path,
                         help='PX4 model root for historical camera fixtures only')
     args = parser.parse_args()
+    if not re.fullmatch(r'[A-Za-z0-9_-]+', args.label):
+        parser.error('--label must be a simple filename label')
     root = Path(__file__).resolve().parents[1]
     output = (args.output or root / 'deliverables').resolve()
     if git(root, 'status', '--porcelain'):
@@ -33,7 +37,7 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     results = []
     for kind, weights in [('onboard', args.onboard_rknn), ('simulation', args.sitl_weights)]:
-        name = 'liftrace_r61_' + kind + '_' + revision[:8]
+        name = 'liftrace_' + args.label + '_' + kind + '_' + revision[:8]
         archive = output / (name + '.tar.gz')
         if archive.exists():
             raise SystemExit('Archive already exists: ' + str(archive))
@@ -96,7 +100,7 @@ def main():
                   'source_revision': revision, 'file_count': count, 'archive_readback': 'PASS'}
         results.append(result)
         print(json.dumps(result, ensure_ascii=False))
-    (output / ('r61_bundles_' + revision[:8] + '.json')).write_text(
+    (output / (args.label + '_bundles_' + revision[:8] + '.json')).write_text(
         json.dumps(results, ensure_ascii=False, indent=2), encoding='utf-8')
 
 
