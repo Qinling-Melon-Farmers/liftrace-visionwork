@@ -29,7 +29,7 @@ def main():
         if not model.is_file():
             raise SystemExit('Missing explicitly selected model: ' + str(model))
     revision = git(root, 'rev-parse', 'HEAD')
-    tracked = git(root, 'ls-files').splitlines()
+    tracked = subprocess.check_output(['git', '-C', str(root), 'ls-files', '-z']).decode('utf-8').rstrip('\0').split('\0')
     output.mkdir(parents=True, exist_ok=True)
     results = []
     for kind, weights in [('onboard', args.onboard_rknn), ('simulation', args.sitl_weights)]:
@@ -43,7 +43,7 @@ def main():
             common = relative.startswith(('patrol_uav_ws-patrol_planner/src/',
                                          'vision_ws/src/uav_vision/',
                                          'vision_ws/src/camera_sdk/'))
-            current_docs = relative in ['README.md', 'AGENTS.md', 'VISION_2026_ROADMAP.md'] or relative.startswith('docs/')
+            current_docs = relative in ['README.md', 'AGENTS.md', 'VISION_2026_ROADMAP.md'] or relative.startswith(('docs/', 'deployment/'))
             onboard = common or current_docs or relative in (
                 'vision_ws/src/CMakeLists.txt', 'top_level_scripts/build_competition.sh')
             if kind == 'simulation' or onboard:
