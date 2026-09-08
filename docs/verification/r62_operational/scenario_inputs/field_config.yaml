@@ -1,0 +1,43 @@
+# Meeting-based 9.6m inner fixture; full search-area spawn, no separate bigbox.
+# Tree/box sizes and fixed opening offsets are scenario assumptions, not supplied competition truth.
+mission_frame: camera_init
+class_profile: r2026
+spawn:
+  boundary_margin: 0.02
+  pair_gap: 0.05
+  layout_attempts: 64
+  static_model_radius: 0.55
+  initial_model_states_timeout: 90.0
+  verification_tolerance: 0.05
+  verification_timeout: 20.0
+static_model_radii:
+  landing_h: 0.5
+  landing_h_clone: 0.5
+static_exclusions:
+- name: combined_tree_0
+  world_x: -1.8
+  world_y: 2.0
+  radius: 0.43
+- name: combined_tree_1
+  world_x: 1.8
+  world_y: 2.7
+  radius: 0.43
+- name: combined_tree_2
+  world_x: -1.5
+  world_y: 5.2
+  radius: 0.43
+- name: combined_tree_3
+  world_x: 1.7
+  world_y: 5.7
+  radius: 0.43
+field:
+  min_x: -4.8
+  max_x: 4.8
+  min_y: -0.5
+  max_y: 9.1
+search_region:
+  min_x: -4.8
+  max_x: 4.8
+  min_y: -0.5
+  max_y: 7.6
+ignore_model_names: ground_plane,sun,toudi2,3,iris_mid360,preview_overhead,preview_aircraft,indoor_context

@@ -2,7 +2,7 @@
 
 本包包含当前视觉、camera_sdk、导航/LIO/地图/规划/控制/任务代码、消息、参数和文档，附已选用的`runtime_models/merged_standard_fp32.rknn`。不含机械组PWM实现；保留`Servo`定义和`/legacy/Servo_raw`对接约定。`BUNDLE_MANIFEST.json`记录源码版本和权重来源。
 
-这是部署联调准备包。R61新机架/地图没有全场飞行验收，硬件默认runtime/control仍为此前配置；不能把解包完成等同可直接比赛。请先读`docs/HARDWARE.md`、`docs/CAMERA_AND_FLIGHT.md`与`docs/competition/RULES_20260906.md`。
+这是部署联调准备包。R62仅有seed11首投阶段SITL记录，新机架/地图没有全场飞行及实机验收，硬件默认runtime/control仍为此前配置；不能把解包完成等同可直接比赛。请先读`docs/HARDWARE.md`、`docs/CAMERA_AND_FLIGHT.md`与`docs/competition/RULES_20260906.md`。
 
 在已有Ubuntu20.04/ROS Noetic、编译依赖及Livox SDK的机载环境解包后，于包根目录编译：
 
