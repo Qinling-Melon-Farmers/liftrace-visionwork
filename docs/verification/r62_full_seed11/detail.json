@@ -1,0 +1,135 @@
+{
+  "audit_status": "PASS",
+  "raw_calls": [
+    1,
+    2,
+    3
+  ],
+  "results": [
+    {
+      "align_mode": "drop_circle",
+      "execution_id": 1,
+      "payload_slot": 1,
+      "reason": "raw_actuator_ack",
+      "stamp": 107.055,
+      "success": true,
+      "target_class": "panzer",
+      "target_id": 0
+    },
+    {
+      "align_mode": "drop_circle",
+      "execution_id": 2,
+      "payload_slot": 2,
+      "reason": "raw_actuator_ack",
+      "stamp": 323.759,
+      "success": true,
+      "target_class": "bridge",
+      "target_id": 2
+    },
+    {
+      "align_mode": "drop_cross",
+      "execution_id": 3,
+      "payload_slot": 3,
+      "reason": "raw_actuator_ack",
+      "stamp": 459.713,
+      "success": true,
+      "target_class": "red_cross",
+      "target_id": 8
+    }
+  ],
+  "event_types": {
+    "permission": 16,
+    "control_state": 8,
+    "align_mode": 7,
+    "selected_target": 1879,
+    "release_evidence_lock": 3,
+    "raw_servo": 3,
+    "result": 3
+  },
+  "bridge_event_types": {
+    "selected_target": 994,
+    "control_state": 1,
+    "align_mode": 1,
+    "permission": 3,
+    "release_evidence_lock": 1
+  },
+  "permission": {
+    "first": {
+      "data": {
+        "align_mode": "drop_circle",
+        "evidence_stamp": 0.0,
+        "evidence_stamp_nsec": 0,
+        "payload_slot": 2,
+        "permitted": false,
+        "reason": "no_release_commitment",
+        "stamp": 221.156,
+        "target_class": "",
+        "target_id": 0,
+        "valid_until": 221.406
+      },
+      "time": 221.156,
+      "type": "permission"
+    },
+    "last": {
+      "data": {
+        "align_mode": "drop_circle",
+        "evidence_stamp": 319.799,
+        "evidence_stamp_nsec": 319799000000,
+        "payload_slot": 2,
+        "permitted": true,
+        "reason": "permission_granted_from_commitment",
+        "stamp": 323.7,
+        "target_class": "bridge",
+        "target_id": 2,
+        "valid_until": 323.95
+      },
+      "time": 323.697,
+      "type": "permission"
+    },
+    "reasons": {
+      "no_release_commitment": 1,
+      "release_altitude_invalid": 1,
+      "permission_granted_from_commitment": 1
+    },
+    "boolean_true_counts": {
+      "aligned": 0,
+      "geometry_verified": 0,
+      "observation_fresh": 0,
+      "evidence_valid": 0,
+      "semantic_geometry_match": 0,
+      "permitted": 1
+    }
+  },
+  "frames": {
+    "camera_ros_250.jpg": {
+      "frame": "2071",
+      "image_stamp_ros_sec": "249.946",
+      "receipt_ros_sec": "249.971"
+    },
+    "camera_ros_315.jpg": {
+      "frame": "2620",
+      "image_stamp_ros_sec": "314.987",
+      "receipt_ros_sec": "315.061"
+    },
+    "camera_ros_459_713.jpg": {
+      "frame": "3818",
+      "image_stamp_ros_sec": "459.692",
+      "receipt_ros_sec": "459.713"
+    },
+    "camera_ros_465.jpg": {
+      "frame": "3863",
+      "image_stamp_ros_sec": "465.014",
+      "receipt_ros_sec": "465.084"
+    },
+    "camera_ros_480.jpg": {
+      "frame": "3989",
+      "image_stamp_ros_sec": "480.053",
+      "receipt_ros_sec": "480.116"
+    },
+    "camera_ros_485_5.jpg": {
+      "frame": "4035",
+      "image_stamp_ros_sec": "485.559",
+      "receipt_ros_sec": "485.602"
+    }
+  }
+}

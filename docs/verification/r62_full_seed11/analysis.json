@@ -1,0 +1,321 @@
+{
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r62_complete_seed11_20260909_040421",
+  "source": "aedba0158d538b03845eca2d61f6f620cae1d7ad",
+  "status": "FAIL",
+  "errors": [
+    "actual_collision"
+  ],
+  "mission_start_ros": 22.667999999,
+  "collision_ros": 485.561,
+  "elapsed_at_collision": 462.89300000099996,
+  "collision": [
+    {
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "random_red_cross::link::collision"
+        ]
+      ],
+      "ros_stamp": 485.561,
+      "sequence": 1,
+      "wall_time": 1788899222.576351
+    }
+  ],
+  "deliveries": [
+    {
+      "class": "panzer",
+      "slot": 1,
+      "success": true,
+      "release_ros": 107.07,
+      "approach_ros": 99.515,
+      "approach_to_ack_sec": 7.554999999999993,
+      "recovery_ros": 142.89,
+      "ack_to_recovery_sec": 35.81999999999999,
+      "truth_at_ack": {
+        "t": 107.12,
+        "xyz": [
+          -3.872407273577648,
+          1.9456055263089416,
+          0.23451416882537
+        ]
+      }
+    },
+    {
+      "class": "bridge",
+      "slot": 2,
+      "success": true,
+      "release_ros": 323.759,
+      "approach_ros": 216.518,
+      "approach_to_ack_sec": 107.24100000000001,
+      "recovery_ros": 329.125,
+      "ack_to_recovery_sec": 5.3659999999999854,
+      "truth_at_ack": {
+        "t": 323.758,
+        "xyz": [
+          -2.8755640013478487,
+          3.6786594904644665,
+          0.313333785640317
+        ]
+      }
+    },
+    {
+      "class": "red_cross",
+      "slot": 3,
+      "success": true,
+      "release_ros": 459.713,
+      "approach_ros": 451.213,
+      "approach_to_ack_sec": 8.5,
+      "recovery_ros": null,
+      "ack_to_recovery_sec": null,
+      "truth_at_ack": {
+        "t": 459.704,
+        "xyz": [
+          -3.8083577915484375,
+          6.034548875716848,
+          0.2507534330339475
+        ]
+      }
+    }
+  ],
+  "samples": {
+    "459.713": {
+      "truth_pose": {
+        "t": 459.704,
+        "xyz": [
+          -3.8083577915484375,
+          6.034548875716848,
+          0.2507534330339475
+        ]
+      },
+      "mavros_pose": {
+        "t": 459.651,
+        "xyz": [
+          -3.8164761066436768,
+          6.051148414611816,
+          0.2805730998516083
+        ]
+      },
+      "mavros_setpoint": {
+        "t": 459.713,
+        "xyz": [
+          -3.845738172531128,
+          6.050734519958496,
+          0.10000000149011612
+        ]
+      },
+      "lio_pose": {
+        "t": 459.619,
+        "xyz": [
+          -3.803244674761822,
+          6.041699669032093,
+          0.26369866953588694
+        ]
+      }
+    },
+    "465": {
+      "truth_pose": {
+        "t": 464.988,
+        "xyz": [
+          -3.7994268386328405,
+          6.011750301961962,
+          0.7086723802699557
+        ]
+      },
+      "mavros_pose": {
+        "t": 465.008,
+        "xyz": [
+          -3.785282611846924,
+          6.000535488128662,
+          0.7419956922531128
+        ]
+      },
+      "mavros_setpoint": {
+        "t": 464.952,
+        "xyz": [
+          -3.78450870513916,
+          5.999420642852783,
+          0.7433679103851318
+        ]
+      },
+      "lio_pose": {
+        "t": 465.008,
+        "xyz": [
+          -3.7952528740808082,
+          6.0184939004984415,
+          0.7024222940533402
+        ]
+      }
+    },
+    "470": {
+      "truth_pose": {
+        "t": 469.952,
+        "xyz": [
+          -3.772511988982106,
+          6.079815524624715,
+          0.624304101576385
+        ]
+      },
+      "mavros_pose": {
+        "t": 470.05,
+        "xyz": [
+          -3.7715020179748535,
+          6.085142612457275,
+          0.6317408680915833
+        ]
+      },
+      "mavros_setpoint": {
+        "t": 469.952,
+        "xyz": [
+          -3.7740252017974854,
+          6.086419105529785,
+          0.6352829337120056
+        ]
+      },
+      "lio_pose": {
+        "t": 470.013,
+        "xyz": [
+          -3.7673192972644554,
+          6.085511526678974,
+          0.618177570932485
+        ]
+      }
+    },
+    "475": {
+      "truth_pose": {
+        "t": 475.034,
+        "xyz": [
+          -3.760766164685058,
+          6.076103336154303,
+          0.5150737414060569
+        ]
+      },
+      "mavros_pose": {
+        "t": 475.05,
+        "xyz": [
+          -3.759829521179199,
+          6.0932841300964355,
+          0.5198068618774414
+        ]
+      },
+      "mavros_setpoint": {
+        "t": 474.952,
+        "xyz": [
+          -3.7620937824249268,
+          6.0963616371154785,
+          0.5173608660697937
+        ]
+      },
+      "lio_pose": {
+        "t": 475.019,
+        "xyz": [
+          -3.7559499717615057,
+          6.082248648803815,
+          0.5102224846031981
+        ]
+      }
+    },
+    "480": {
+      "truth_pose": {
+        "t": 479.999,
+        "xyz": [
+          -3.7039322270825736,
+          6.010874392982662,
+          0.27330596658289386
+        ]
+      },
+      "mavros_pose": {
+        "t": 479.982,
+        "xyz": [
+          -3.701836347579956,
+          6.006982326507568,
+          0.3091718256473541
+        ]
+      },
+      "mavros_setpoint": {
+        "t": 479.953,
+        "xyz": [
+          -3.7018351554870605,
+          6.006808757781982,
+          0.3107025623321533
+        ]
+      },
+      "lio_pose": {
+        "t": 480.011,
+        "xyz": [
+          -3.69792841309181,
+          6.016544163019718,
+          0.2674797860790741
+        ]
+      }
+    },
+    "485.561": {
+      "truth_pose": {
+        "t": 485.59,
+        "xyz": [
+          -3.6187374805984107,
+          5.984186673213784,
+          0.024554854293195455
+        ]
+      },
+      "mavros_pose": {
+        "t": 485.581,
+        "xyz": [
+          -3.637298107147217,
+          5.989618301391602,
+          0.07904710620641708
+        ]
+      },
+      "mavros_setpoint": {
+        "t": 485.552,
+        "xyz": [
+          -3.6395537853240967,
+          5.990103721618652,
+          0.08193711191415787
+        ]
+      },
+      "lio_pose": {
+        "t": 485.526,
+        "xyz": [
+          -3.6144693796140652,
+          5.989921314118242,
+          0.022221857447259477
+        ]
+      }
+    }
+  },
+  "gate_metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 22,
+    "door_crossings": [],
+    "height_violations": 0,
+    "landing_align_mode_seen": false,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      4.2,
+      8.5
+    ],
+    "latest_armed": null,
+    "latest_landed_state": null,
+    "max_observed_height": 1.749286566703526,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 18795,
+    "post_delivery_decision_indices": [],
+    "post_delivery_return_success_count": 0,
+    "post_delivery_route_revision": "r2026-r61-inner960-nominal-fixed-gaps",
+    "post_delivery_route_size": 9,
+    "recovery_success_count": 2,
+    "release_commit_count": 3,
+    "result_count": 123,
+    "selected_count": 1882,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": null
+  }
+}
