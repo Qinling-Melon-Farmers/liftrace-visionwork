@@ -25,7 +25,7 @@ class ContactEnvelopePlugin : public ModelPlugin {
   void Load(physics::ModelPtr model, sdf::ElementPtr config) override {
     if (!config->HasElement("link_name") || !config->HasElement("collision_name"))
       gzthrow("Contact envelope requires link_name and collision_name");
-    const auto link = model->GetLink(config->Get<std::string>("link_name"));
+    const auto link = FindLink(model, config->Get<std::string>("link_name"));
     if (!link) gzthrow("Contact envelope link is missing");
     const auto collision = link->GetCollision(config->Get<std::string>("collision_name"));
     if (!collision) gzthrow("Contact envelope collision is missing");
@@ -34,6 +34,18 @@ class ContactEnvelopePlugin : public ModelPlugin {
     // category. Both masks are needed: world/body collisions still match.
     collision->SetCategoryBits(GZ_SENSOR_COLLIDE);
     collision->SetCollideBits(GZ_ALL_COLLIDE & ~GZ_SENSOR_COLLIDE);
+    // A closed CAD housing is not the lidar's optical window. The installed
+    // emission origin is internal; retain physical housing contacts while
+    // excluding this explicitly named self-housing from simulated rays.
+    if (config->HasElement("ray_transparent_link")) {
+      const auto housing_link = FindLink(model, config->Get<std::string>("ray_transparent_link"));
+      if (!housing_link || !config->HasElement("ray_transparent_collision"))
+        gzthrow("Ray-transparent housing configuration is incomplete");
+      const auto housing = housing_link->GetCollision(config->Get<std::string>("ray_transparent_collision"));
+      if (!housing) gzthrow("Ray-transparent housing collision is missing");
+      housing->SetCategoryBits(GZ_SENSOR_COLLIDE);
+      housing->SetCollideBits(GZ_ALL_COLLIDE & ~GZ_SENSOR_COLLIDE);
+    }
     gzmsg << "Contact-only envelope configured: " << collision->GetScopedName()
           << "; ray visibility disabled, physical contacts preserved\n";
 
@@ -69,6 +81,17 @@ class ContactEnvelopePlugin : public ModelPlugin {
   }
 
  private:
+  static physics::LinkPtr FindLink(const physics::ModelPtr &model,
+      const std::string &name) {
+    for (const auto &link : model->GetLinks())
+      if (link->GetName() == name || link->GetScopedName() == name) return link;
+    for (const auto &nested : model->NestedModels()) {
+      const auto link = FindLink(nested, name);
+      if (link) return link;
+    }
+    return physics::LinkPtr();
+  }
+
   static void CollectCollisions(const physics::ModelPtr &model,
       std::map<std::string, physics::CollisionPtr> &result) {
     for (const auto &link : model->GetLinks())
