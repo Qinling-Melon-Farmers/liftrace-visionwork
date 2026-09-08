@@ -54,6 +54,7 @@ catkin_package(
 )
 
 catkin_install_python(PROGRAMS
+  scripts/camera_video_recorder.py
   scripts/scene_preview_capture.py
   scripts/competition_key_recorder.py
   scripts/gazebo_camera_pose_stamper.py
