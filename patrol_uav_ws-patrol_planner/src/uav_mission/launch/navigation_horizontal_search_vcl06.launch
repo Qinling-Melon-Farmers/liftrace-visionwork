@@ -3,7 +3,8 @@
   <!-- Measured FC reference: camera -0.16m, MID360 IMU +0.05m.
        Local z=0 at landed FC gives ground_z=-0.22m. -->
   <arg name="ground_z" default="-0.22" />
-  <arg name="spawn_z" default="0.22" />
+  <!-- 0.22 m FC-to-support plus the existing 5 mm H pad; no initial penetration. -->
+  <arg name="spawn_z" default="0.225" />
   <arg name="body_to_imu_xyz" default="0 0 0.05" />
   <arg name="camera_extrinsic_xyz" default="0 0 -0.16" />
   <arg name="gui" default="false" />
