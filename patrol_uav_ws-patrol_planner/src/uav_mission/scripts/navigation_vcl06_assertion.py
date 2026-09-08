@@ -1250,7 +1250,8 @@ class NavigationVcl06AssertionNode:
             max_mission_sec=float(rospy.get_param(
                 "~max_mission_sec", 600.0)),
             forced_return_sec=float(rospy.get_param(
-                "~mission/forced_return_at", 420.0)),
+                "~mission/forced_return_at", 420.0) if rospy.get_param("~mission/early_return_enabled", True)
+                else rospy.get_param("~mission/timeout", 600.0)),
             command_stamp_future_tolerance_sec=float(rospy.get_param(
                 "~readiness/stamp_future_tolerance", 0.05)),
             expected_goal_publisher=self._expected_goal_publisher,

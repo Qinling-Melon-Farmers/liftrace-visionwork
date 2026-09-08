@@ -5,7 +5,7 @@
       <pose>0.0 0.0 -0.04 0.0 0.0 0.0</pose>
       <inertial>
         <pose>0 0 0 0 0 0</pose>
-        <mass>1.5</mass>
+        <mass>1.501</mass>
         <inertia>
           <ixx>0.029125</ixx>
           <ixy>0</ixy>
@@ -51,6 +51,15 @@
       </visual>
       <gravity>1</gravity>
       <velocity_decay />
+      <collision name="competition_guard_collision">
+        <geometry>
+          <box>
+            <size>0.55 0.55 0.4</size>
+          </box>
+        </geometry>
+        <max_contacts>20</max_contacts>
+        <pose>0 0 0.02000000 0 0 0</pose>
+      </collision>
     </link>
     <link name="/imu_link">
       <pose>0 0 0 0 0 0</pose>

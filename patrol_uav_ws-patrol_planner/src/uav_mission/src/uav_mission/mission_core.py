@@ -220,8 +220,11 @@ class MissionConfig:
     post_delivery_route_revision: str = "direct-home-v1"
     landing_xy: Tuple[float, float] = (0.0, 0.0)
     landing_anchor_tolerance: float = 0.15
+    early_return_enabled: bool = True
 
     def __post_init__(self):
+        if not isinstance(self.early_return_enabled, bool):
+            raise ValueError("early_return_enabled must be boolean")
         positive = {
             "candidate_max_age": self.candidate_max_age,
             "transform_max_age": self.transform_max_age,
@@ -640,6 +643,10 @@ class MissionCore:
         return next((slot for slot in self.slots
                      if slot.status == SlotStatus.FREE), None)
 
+    def _search_cutoff(self) -> float:
+        return (self.config.forced_return_at if self.config.early_return_enabled
+                else self.config.mission_timeout)
+
     def _elapsed(self, now: float) -> float:
         return max(0.0, float(now) - self.started_at)
 
@@ -734,12 +741,12 @@ class MissionCore:
             raise RuntimeError("another navigation decision is still active")
         if goal.frame_id != self.config.mission_frame:
             raise ValueError("search goal frame does not match mission frame")
-        if self._elapsed(now) >= self.config.forced_return_at:
+        if self._elapsed(now) >= self._search_cutoff():
             raise RuntimeError("forced return is due; search motion is forbidden")
         action = self._new_action(
             command, reason, now, goal=goal,
             timeout=self.config.motion_action_timeout)
-        search_deadline = self.started_at + self.config.forced_return_at
+        search_deadline = self.started_at + self._search_cutoff()
         if action.deadline_at > search_deadline:
             action = replace(action, deadline_at=search_deadline)
             self.active_action = action
@@ -775,6 +782,8 @@ class MissionCore:
 
     def should_stop_search(self, now: float,
                            current_xy: Tuple[float, float]) -> bool:
+        if not self.config.early_return_enabled:
+            return False
         ranked = self.queue.ranked(now, current_xy)
         if not ranked:
             return False
@@ -794,6 +803,8 @@ class MissionCore:
     def _candidate_fits(self, entry: CandidateEntry, now: float,
                         current_xy: Tuple[float, float]) -> bool:
         elapsed = self._elapsed(now)
+        if not self.config.early_return_enabled:
+            return elapsed < self.config.mission_timeout
         return (
             elapsed + self._delivery_work_eta([entry], current_xy) <=
             self.config.forced_return_at and
@@ -812,7 +823,7 @@ class MissionCore:
             return None
         if self.committed_slots >= self.profile.required_deliveries:
             return self._return_action("required_deliveries_complete", now)
-        if self._elapsed(now) >= self.config.forced_return_at:
+        if self._elapsed(now) >= self._search_cutoff():
             return self._return_action("forced_return_deadline", now)
 
         interrupt = self.queue.ranked(
@@ -866,8 +877,8 @@ class MissionCore:
             "APPROACH", reason, now, entry, slot, goal,
             self.config.target_action_timeout)
         hard_target_deadline = (
-            self.started_at + self.config.forced_return_at -
-            self.config.decision_guard)
+            self.started_at + self._search_cutoff() -
+            (self.config.decision_guard if self.config.early_return_enabled else 0.0))
         if action.deadline_at > hard_target_deadline:
             action = replace(action, deadline_at=hard_target_deadline)
             self.active_action = action
@@ -1211,7 +1222,7 @@ class MissionCore:
             return True, "target_action_timed_out_uncertain", self._return_action(
                 "target_action_timed_out_uncertain", now)
         if action.command in ("SEARCH", "RESUME"):
-            if self._elapsed(now) >= self.config.forced_return_at:
+            if self._elapsed(now) >= self._search_cutoff():
                 return True, "forced_return_deadline", self._return_action(
                     "forced_return_deadline", now)
             self.phase = MissionPhase.SEARCH
