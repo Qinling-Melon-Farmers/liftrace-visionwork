@@ -1,5 +1,7 @@
 # 2026无人机竞赛整机工程
 
+最新复核：[R60尚未解决的问题、机头/相机行为和轻量仓更新](docs/verification/r61_layout_search/attitude_review/REVIEW.md)。先固定seed11全场基线，再开展门与树箱随机化；本次没有新的飞行PASS。
+
 当前为R61候选：已修复外部投递丢标回旧航点，统一16/21/6cm实测安装关系，完成新9.6m地图、机架装配与seed11静态Gazebo截图。整机构建与240项任务/Gate回归通过；**没有新全场飞行PASS**。R60先导37/37 PASS、十seed2/10完整通过仍是历史结果，main保持R56验收。
 
 [R61完整报告和地图/飞机图片](docs/verification/r61_layout_search/REPORT.md) · [seed1–11历史实际布局](docs/verification/r61_layout_search/layouts.html) · [会议规则校正](docs/competition/RULES_20260906.md) · [两份本地部署/仿真包](docs/BUNDLES.md)
