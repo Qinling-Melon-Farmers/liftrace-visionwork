@@ -40,4 +40,4 @@ search_region:
   max_x: 4.8
   min_y: -0.5
   max_y: 7.6
-ignore_model_names: ground_plane,sun,toudi2,3,iris_mid360,preview_overhead,preview_aircraft
+ignore_model_names: ground_plane,sun,toudi2,3,iris_mid360,preview_overhead,preview_aircraft,indoor_context

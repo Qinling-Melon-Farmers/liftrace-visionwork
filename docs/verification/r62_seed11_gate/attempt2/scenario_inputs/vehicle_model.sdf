@@ -90,8 +90,8 @@
       <parent>iris::base_link</parent>
     </joint>
     <plugin name="uav_contact_envelope" filename="libuav_contact_envelope.so">
-      <link_name>iris::base_link</link_name>
-      <ray_transparent_link>mid360::lidar_link</ray_transparent_link>
+      <link_name>base_link</link_name>
+      <ray_transparent_link>lidar_link</ray_transparent_link>
       <ray_transparent_collision>lidar_collision</ray_transparent_collision>
       <collision_name>competition_guard_collision</collision_name>
       <contacts_topic>/mission/uav_contacts_raw</contacts_topic>
