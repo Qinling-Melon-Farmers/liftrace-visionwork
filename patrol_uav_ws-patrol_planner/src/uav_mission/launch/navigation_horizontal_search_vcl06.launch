@@ -18,6 +18,14 @@
     <param name="run_dir" value="$(optenv SIM_RUN_DIR)" />
   </node>
   <arg name="record_camera_topic" default="/downward_camera/image_raw" />
+  <arg name="record_camera_video" default="false" />
+  <arg name="camera_video_fps" default="10.0" />
+  <node if="$(arg record_camera_video)" pkg="uav_vision_eval" type="camera_video_recorder.py"
+        name="camera_video_recorder" output="screen">
+    <param name="image_topic" value="$(arg record_camera_topic)" />
+    <param name="fps" value="$(arg camera_video_fps)" />
+    <param name="output_path" value="$(optenv SIM_RUN_DIR)/downward_camera.mp4" />
+  </node>
   <arg name="field_seed" default="11" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="mission_start_mode" default="full" />
@@ -83,6 +91,8 @@
   </rosparam>
   <!-- Physical scoring uses simulator measurements independently of EKF/LIO. -->
   <param name="/navigation_vcl06_assertion/ground_z" value="$(arg ground_z)" />
+  <!-- Current world's inner wall faces; override the historical include bounds. -->
+  <rosparam param="/navigation_vcl06_assertion/field">{min_x: -4.8, max_x: 4.8, min_y: -0.5, max_y: 9.1}</rosparam>
   <param name="/navigation_vcl06_assertion/truth_model" value="iris_mid360" />
   <rosparam param="/navigation_vcl06_assertion/truth_world_offset">[0.0, 0.0, 0.22]</rosparam>
   <rosparam ns="/fast_planner_node" file="$(find uav_mission)/config/horizontal_planner.yaml" />
