@@ -1,0 +1,32 @@
+{
+  "scope": "archive_readback_content_and_asset_references",
+  "checks": [
+    {
+      "kind": "onboard",
+      "archive": "deliverables/liftrace_r61_onboard_fd147c72.tar.gz",
+      "archive_bytes": 17473765,
+      "file_count": 1225,
+      "status": "PASS",
+      "source_revision": "fd147c72a82ed64d346eb49a5644384032424df7"
+    },
+    {
+      "kind": "simulation",
+      "archive": "deliverables/liftrace_r61_simulation_fd147c72.tar.gz",
+      "archive_bytes": 38927840,
+      "file_count": 1417,
+      "status": "PASS",
+      "source_revision": "fd147c72a82ed64d346eb49a5644384032424df7"
+    }
+  ],
+  "hardware_execution": false,
+  "flight_simulation": false,
+  "extracted_onboard_build": {
+    "status": "PASS",
+    "host": "WSL Ubuntu20.04 x86_64",
+    "command": "BUILD_JOBS=2 bash top_level_scripts/build_competition.sh",
+    "exit_code": 0,
+    "log": "logs/_artifacts/r61_layout_search/bundle_build.log",
+    "arm_board_test": false,
+    "hardware_executed": false
+  }
+}
