@@ -1,5 +1,7 @@
 # 视觉组工作区与代码归属
 
+> 本文保留历史迁移/工具说明（见文内日期），其“当前”状态不作为2026-09-09整机事实。最新入口、规则、外参和未验收项见[README](README.md)、[R61报告](docs/verification/r61_layout_search/REPORT.md)及ROADMAP。
+
 更新时间：2026-07-15
 
 ## 1. 固定结论

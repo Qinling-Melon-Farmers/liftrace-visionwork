@@ -1,5 +1,7 @@
 # 当前运行链与计算图
 
+R61只在既有标准靶对准分支修复外部丢标回退，保留当前事务目标；没有新增飞行节点/协议。安装TF更新为FC→IMU +0.05m、IMU→光心 −0.21m，落地FC零点下ground_z=−0.22。当前图仍来自R60实跑，不能当作R61已飞行的注册快照。
+
 Mission Manager负责搜索、目标事务、返程阶段与降落；Planner Bridge是唯一`/fastplanner/goal`发布者；Fast-Planner→轨迹服务器→patrol_control→MAVROS。R60用任务已有航点完成边界设置现有参数，消费者缓存读取，没有新增飞行节点、消息类型或二次任务权威。
 
 视觉链包含检测、融合/精修、投影、目标记忆、投递对齐；低空H笔画补充位于原landing_detector内部，使用原detections/CameraInfo/TF链。目标时间/身份关联与释放许可保留，不能把超时或失去目标时的“未投”改成成功。

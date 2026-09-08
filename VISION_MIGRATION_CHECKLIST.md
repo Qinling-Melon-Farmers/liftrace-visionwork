@@ -1,5 +1,7 @@
 # 视觉迁移与发布 Gate
 
+> 本文保留历史迁移/工具说明（见文内日期），其“当前”状态不作为2026-09-09整机事实。最新入口、规则、外参和未验收项见[README](README.md)、[R61报告](docs/verification/r61_layout_search/REPORT.md)及ROADMAP。
+
 更新时间：2026-08-31
 
 本文件只记录 2025 旧视觉链迁移到 `uav_vision` 的通过状态，不维护任务优先级。执行顺序和指标见 [VISION_2026_ROADMAP.md](/home/xhj/liftrace/VISION_2026_ROADMAP.md)。

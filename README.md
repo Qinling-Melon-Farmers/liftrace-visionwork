@@ -1,29 +1,29 @@
-# 2026 无人机竞赛整机工程
+# 2026无人机竞赛整机工程
 
-**R60先导完整Gate PASS 37/37；冻结版本十seed仅2/10完整通过、8/10完成三投。当前不能称为稳定通关，未合入main。** main保留R56历史验收31d0b2a；所有仿真已收尾，不追加轮次。
+当前为R61候选：已修复外部投递丢标回旧航点，统一16/21/6cm实测安装关系，完成新9.6m地图、机架装配与seed11静态Gazebo截图。整机构建与240项任务/Gate回归通过；**没有新全场飞行PASS**。R60先导37/37 PASS、十seed2/10完整通过仍是历史结果，main保持R56验收。
 
-[完整报告与PASS飞行记录](docs/verification/r60_full_matrix/REPORT.md) · [十seed失败分析](docs/verification/r60_full_matrix/FAILURE_ANALYSIS.md) · [R56后修订说明](docs/verification/r60_full_matrix/REVISION_NOTES.md) · [rqt三版Nodes only图](docs/verification/r60_full_matrix/topology/index.html) · [成功记录Release](https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/tag/sim/r2026-r60-low-corridor-pass)
+[R61完整报告和地图/飞机图片](docs/verification/r61_layout_search/REPORT.md) · [seed1–11历史实际布局](docs/verification/r61_layout_search/layouts.html) · [会议规则校正](docs/competition/RULES_20260906.md) · [两份本地部署/仿真包](docs/BUNDLES.md)
 
-本main集成来源分支保留原始工程资产和旧包快照，机械PWM/旧参考不参与本轮仿真入口。只需今年导航+视觉且不含机械PWM/旧参考时，使用feat/r2026-competition-integrated精简分支。
+本main集成来源分支保留原始工程/机械源码及保护快照，不等于精简交付包。完整打包源使用feat/r2026-competition-integrated；本分支不重新打包旧资产。机载包用于联调准备，不代表已完成实机比赛验收。
 
 | 目录 | 用途 |
 |---|---|
-| vision_ws/src/uav_vision | 检测、几何精修、目标记忆、投递对齐 |
-| vision_ws/src/uav_vision_eval | 仿真场景、独立评测与记录 |
-| patrol_uav_ws-patrol_planner/src | LIO、FreeDOM、Planner、任务和控制 |
-| top_level_scripts | 构建、统一仿真启动/收尾、记录图形工具 |
+| vision_ws/src/uav_vision、camera_sdk | 视觉闭环与实机相机 |
+| vision_ws/src/uav_vision_eval | 当前机架/world、仿真、独立评测与记录 |
+| patrol_uav_ws-patrol_planner/src | LIO、地图、Planner、任务、控制 |
+| simulation_assets | 当前场景依赖的12个外部模型、网格/材质及来源 |
+| deployment、top_level_scripts | 两类包使用说明、构建与统一运行/收尾 |
 
-Ubuntu20.04/ROS Noetic/Gazebo Classic，Windows侧命令须用`wsl -e bash -c '...'`。获明确仿真启动授权后使用：
+Ubuntu20.04/ROS Noetic/Gazebo Classic；Windows侧WSL命令使用`wsl -e bash -c '...'`。编译用`bash top_level_scripts/build_competition.sh`。仿真获当轮明确授权后才执行：
 
 ```bash
-top_level_scripts/build_competition.sh
-SIM_STORAGE_GUARD_PATH=/mnt/f UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_NO_RECORD=1 SIM_RUN_AUTHORIZED=1 top_level_scripts/run_competition_sim.sh field_seed:=11
+UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_NO_RECORD=1 SIM_RUN_AUTHORIZED=1 bash top_level_scripts/run_competition_sim.sh field_seed:=11
 ```
 
-当前SITL默认是R60实验配置：搜索1.40m、投递取景1.60m，三投后廊外下降，再按0.45m走廊/0.50m H取景运行。它有真实完整PASS，但十seed结果不支持比赛级鲁棒性。硬件入口仍保留此前配置，未自动切成此候选；本轮未执行实机动作。
+当前SITL候选按落地FC为local0，ground_z=−0.22；搜索local1.18即AGL1.40m，取景AGL1.60m，廊外下降后按走廊AGL0.45m/H0.50m引导。硬件入口保留此前任务配置，必须整体复核高度/坐标后联调，不能直接把SITL参数视为实机已验收参数。
 
-所有日志留在WSL项目`logs/`；默认不录全场bag/录屏，保留TXT/JSON/CSV、参数、故障局部地图及PX4 ULog。包装器单实例运行，成功、失败和中断均收尾。
+日志统一留WSL本项目logs，不录全场bag/录屏，单实例强制收尾。本次只运行静态预览，未执行实际飞行、投递或新十seed批次。
 
-[环境](docs/ENVIRONMENT.md) · [相机与参数](docs/CAMERA_AND_FLIGHT.md) · [接口](docs/INTERFACES.md) · [实机待验收](docs/HARDWARE.md) · [源码版本](docs/SOURCE_REVISIONS.md) · [任务优先级](VISION_2026_ROADMAP.md)
+[环境](docs/ENVIRONMENT.md) · [相机与飞行参数](docs/CAMERA_AND_FLIGHT.md) · [接口](docs/INTERFACES.md) · [实机缺口](docs/HARDWARE.md) · [版本](docs/SOURCE_REVISIONS.md) · [验收](docs/VALIDATION.md) · [任务优先级](VISION_2026_ROADMAP.md)
 
-历史R56和R57/0.85m完整PASS继续保留，不能直接视作本次1.50m总宽/严格0.80m低空场景验收。[R4x至R56完整历史](docs/verification/r56_final/REPORT.md)。`docs/verification/rXX`中的旧报告按该轮日期/场景解释，当前状态以本页及ROADMAP为准。
+历史资料：[R60完整记录与十seed](docs/verification/r60_full_matrix/REPORT.md)、[失败分析](docs/verification/r60_full_matrix/FAILURE_ANALYSIS.md)、[R56后修订](docs/verification/r60_full_matrix/REVISION_NOTES.md)、[rqt三版Nodes only图](docs/verification/r60_full_matrix/topology/index.html)、[成功记录Release](https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/releases/tag/sim/r2026-r60-low-corridor-pass)。R56/R57成功按当时模型与几何解释，不改写成新场景PASS。
