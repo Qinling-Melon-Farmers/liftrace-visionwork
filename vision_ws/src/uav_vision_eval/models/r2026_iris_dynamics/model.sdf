@@ -2,21 +2,21 @@
 <sdf version="1.6">
   <model name="r2026_iris_dynamics">
     <link name="base_link">
-      <pose>0.0 0.0 -0.04 0.0 0.0 0.0</pose>
+      <pose>0 0 0 0 0 0</pose>
       <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>1.501</mass>
+        <pose>0 0 -0.03960422163588391 0 0 0</pose>
+        <mass>1.5159999999999998</mass>
         <inertia>
-          <ixx>0.029125</ixx>
+          <ixx>0.02915876253298153</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.029125</iyy>
+          <iyy>0.02915876253298153</iyy>
           <iyz>0</iyz>
-          <izz>0.055225</izz>
+          <izz>0.055235000000000006</izz>
         </inertia>
       </inertial>
       <collision name="base_link_inertia_collision">
-        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <pose>0.0 0.0 -0.04 0.0 0.0 0.0</pose>
         <geometry>
           <box>
             <size>0.32899999999999996 0.32899999999999996 0.077</size>
@@ -35,7 +35,7 @@
         </surface>
       </collision>
       <visual name="base_link_inertia_visual">
-        <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+        <pose>0.0 0.0 -0.04 0.0 0.0 0.0</pose>
         <geometry>
           <mesh>
             <scale>0.7 0.7 0.7</scale>
@@ -58,28 +58,9 @@
           </box>
         </geometry>
         <max_contacts>20</max_contacts>
-        <pose>0 0 0.02000000 0 0 0</pose>
+        <pose>0.0 0.0 -0.02 0.0 0.0 0.0</pose>
       </collision>
     </link>
-    <link name="/imu_link">
-      <pose>0 0 0 0 0 0</pose>
-      <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>0.015</mass>
-        <inertia>
-          <ixx>1e-05</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>1e-05</iyy>
-          <iyz>0</iyz>
-          <izz>1e-05</izz>
-        </inertia>
-      </inertial>
-    </link>
-    <joint name="/imu_joint" type="fixed">
-      <child>/imu_link</child>
-      <parent>base_link</parent>
-    </joint>
     <link name="rotor_0">
       <pose>0.091 -0.154 -0.0239 0.0 0.0 0.0</pose>
       <inertial>
@@ -561,7 +542,7 @@
     <static>0</static>
     <plugin name="rotors_gazebo_imu_plugin" filename="libgazebo_imu_plugin.so">
       <robotNamespace />
-      <linkName>/imu_link</linkName>
+      <linkName>base_link</linkName>
       <imuTopic>/imu</imuTopic>
       <gyroscopeNoiseDensity>0.00018665</gyroscopeNoiseDensity>
       <gyroscopeRandomWalk>3.8785e-05</gyroscopeRandomWalk>
