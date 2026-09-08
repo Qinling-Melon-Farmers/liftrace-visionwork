@@ -59,6 +59,17 @@
         </geometry>
         <max_contacts>20</max_contacts>
         <pose>0.0 0.0 -0.02 0.0 0.0 0.0</pose>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.001</min_depth>
+              <max_vel>0</max_vel>
+            </ode>
+          </contact>
+          <friction>
+            <ode />
+          </friction>
+        </surface>
       </collision>
     </link>
     <link name="rotor_0">
