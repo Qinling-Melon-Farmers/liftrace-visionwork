@@ -1,0 +1,1818 @@
+[
+  {
+    "seed": 11,
+    "status": "PASS",
+    "errors": [],
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_px4_seed11_20260909_151207",
+    "mission_start_ros": 22.847,
+    "last_ros": 447.552,
+    "full_ros_below_600": true,
+    "releases": [
+      {
+        "t": 103.975,
+        "data": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "stamp_ns": 103972000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 1,
+          "payload_slot": 1,
+          "align_mode": "drop_circle",
+          "target_id": 0,
+          "target_class": "panzer",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 232.816,
+        "data": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "stamp_ns": 232809000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 2,
+          "payload_slot": 2,
+          "align_mode": "drop_circle",
+          "target_id": 2,
+          "target_class": "bridge",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 312.56,
+        "data": {
+          "header": {
+            "seq": 3,
+            "stamp": {
+              "stamp_ns": 312557000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 3,
+          "payload_slot": 3,
+          "align_mode": "drop_cross",
+          "target_id": 8,
+          "target_class": "red_cross",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      }
+    ],
+    "recovery": [
+      {
+        "t": 106.695,
+        "class": "panzer"
+      },
+      {
+        "t": 234.895,
+        "class": "bridge"
+      },
+      {
+        "t": 314.994,
+        "class": "red_cross"
+      }
+    ],
+    "raw_calls": [
+      1,
+      2,
+      3
+    ],
+    "audit_status": "PASS",
+    "audit_reason": "",
+    "contact": [],
+    "route_start_ros": 315.019,
+    "land_start_ros": 433.791,
+    "disarm_ros": 446.94,
+    "route_to_disarm_sec": 131.921,
+    "land_to_disarm_sec": 13.149000000000001,
+    "final_center_error_m": 0.06523248228293337,
+    "final_envelope_radius_m": 0.45128830730894215,
+    "stopped_envelope_inside_nominal_circle": true,
+    "camera_frames": 3694,
+    "camera_span_ros": 446.662,
+    "video_decode_exit": 0,
+    "video_decode_error": ""
+  },
+  {
+    "seed": 1,
+    "status": "PASS",
+    "errors": [],
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed01_20260909_154735",
+    "mission_start_ros": 22.836999999,
+    "last_ros": 437.202,
+    "full_ros_below_600": true,
+    "releases": [
+      {
+        "t": 144.101,
+        "data": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "stamp_ns": 144101000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 1,
+          "payload_slot": 1,
+          "align_mode": "drop_circle",
+          "target_id": 2,
+          "target_class": "panzer",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 163.962,
+        "data": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "stamp_ns": 163961000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 2,
+          "payload_slot": 2,
+          "align_mode": "drop_circle",
+          "target_id": 4,
+          "target_class": "bridge",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 266.711,
+        "data": {
+          "header": {
+            "seq": 3,
+            "stamp": {
+              "stamp_ns": 266710000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 3,
+          "payload_slot": 3,
+          "align_mode": "drop_cross",
+          "target_id": 6,
+          "target_class": "red_cross",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      }
+    ],
+    "recovery": [
+      {
+        "t": 146.382,
+        "class": "panzer"
+      },
+      {
+        "t": 166.435,
+        "class": "bridge"
+      },
+      {
+        "t": 269.168,
+        "class": "red_cross"
+      }
+    ],
+    "raw_calls": [
+      1,
+      2,
+      3
+    ],
+    "audit_status": "PASS",
+    "audit_reason": "",
+    "contact": [],
+    "route_start_ros": 269.195,
+    "land_start_ros": 422.041,
+    "disarm_ros": 434.971,
+    "route_to_disarm_sec": 165.776,
+    "land_to_disarm_sec": 12.930000000000007,
+    "final_center_error_m": 0.040829604559225754,
+    "final_envelope_radius_m": 0.4218305192098144,
+    "stopped_envelope_inside_nominal_circle": true,
+    "camera_frames": 3653,
+    "camera_span_ros": 436.538,
+    "video_decode_exit": 0,
+    "video_decode_error": ""
+  },
+  {
+    "seed": 2,
+    "status": "PASS",
+    "errors": [],
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed02_20260909_161313",
+    "mission_start_ros": 22.439,
+    "last_ros": 478.19,
+    "full_ros_below_600": true,
+    "releases": [
+      {
+        "t": 35.681,
+        "data": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "stamp_ns": 35681000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 1,
+          "payload_slot": 1,
+          "align_mode": "drop_cross",
+          "target_id": 0,
+          "target_class": "red_cross",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 187.753,
+        "data": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "stamp_ns": 187753000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 2,
+          "payload_slot": 2,
+          "align_mode": "drop_circle",
+          "target_id": 1,
+          "target_class": "bridge",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 327.741,
+        "data": {
+          "header": {
+            "seq": 3,
+            "stamp": {
+              "stamp_ns": 327741000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 3,
+          "payload_slot": 3,
+          "align_mode": "drop_circle",
+          "target_id": 9,
+          "target_class": "panzer",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      }
+    ],
+    "recovery": [
+      {
+        "t": 37.957,
+        "class": "red_cross"
+      },
+      {
+        "t": 190.046,
+        "class": "bridge"
+      },
+      {
+        "t": 330.121,
+        "class": "panzer"
+      }
+    ],
+    "raw_calls": [
+      1,
+      2,
+      3
+    ],
+    "audit_status": "PASS",
+    "audit_reason": "",
+    "contact": [],
+    "route_start_ros": 330.137,
+    "land_start_ros": 461.819,
+    "disarm_ros": 476.346,
+    "route_to_disarm_sec": 146.209,
+    "land_to_disarm_sec": 14.526999999999987,
+    "final_center_error_m": 0.025510074482633604,
+    "final_envelope_radius_m": 0.4119896631551549,
+    "stopped_envelope_inside_nominal_circle": true,
+    "camera_frames": 4020,
+    "camera_span_ros": 478.054,
+    "video_decode_exit": 0,
+    "video_decode_error": ""
+  },
+  {
+    "seed": 3,
+    "status": "FAIL",
+    "errors": [
+      "actual_collision"
+    ],
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed03_20260909_163846",
+    "mission_start_ros": 23.803,
+    "last_ros": 450.875,
+    "full_ros_below_600": true,
+    "releases": [
+      {
+        "t": 62.368,
+        "data": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "stamp_ns": 62366000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 1,
+          "payload_slot": 1,
+          "align_mode": "drop_circle",
+          "target_id": 0,
+          "target_class": "bridge",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 216.055,
+        "data": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "stamp_ns": 216055000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 2,
+          "payload_slot": 2,
+          "align_mode": "drop_cross",
+          "target_id": 4,
+          "target_class": "red_cross",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 293.372,
+        "data": {
+          "header": {
+            "seq": 3,
+            "stamp": {
+              "stamp_ns": 293372000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 3,
+          "payload_slot": 3,
+          "align_mode": "drop_circle",
+          "target_id": 7,
+          "target_class": "panzer",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      }
+    ],
+    "recovery": [
+      {
+        "t": 64.639,
+        "class": "bridge"
+      },
+      {
+        "t": 218.575,
+        "class": "red_cross"
+      },
+      {
+        "t": 295.833,
+        "class": "panzer"
+      }
+    ],
+    "raw_calls": [
+      1,
+      2,
+      3
+    ],
+    "audit_status": "PASS",
+    "audit_reason": "",
+    "contact": [
+      {
+        "pairs": [
+          [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "toudi2::Wall_11::Wall_11_collision"
+          ]
+        ],
+        "ros_stamp": 450.251,
+        "sequence": 1,
+        "wall_time": 1788944501.9436045
+      }
+    ],
+    "route_start_ros": 295.864,
+    "land_start_ros": 441.11,
+    "disarm_ros": null,
+    "route_to_disarm_sec": null,
+    "land_to_disarm_sec": null,
+    "final_center_error_m": 0.44262250335715525,
+    "final_envelope_radius_m": 0.8337601745702924,
+    "stopped_envelope_inside_nominal_circle": false,
+    "camera_frames": 3758,
+    "camera_span_ros": 450.47799999999995,
+    "video_decode_exit": 0,
+    "video_decode_error": "",
+    "abnormal_events": [
+      {
+        "ros_sec": 295.864,
+        "kind": "decision",
+        "data": {
+          "header": {
+            "seq": 22,
+            "stamp": {
+              "stamp_ns": 295833000000
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-23-803000000-1",
+          "decision_seq": 22,
+          "deadline": {
+            "stamp_ns": 385833000000
+          },
+          "command": 4,
+          "class_profile": "r2026",
+          "has_goal": true,
+          "has_target": false,
+          "target_id": 0,
+          "target_first_seen": {
+            "stamp_ns": 0
+          },
+          "target_observation_stamp": {
+            "stamp_ns": 0
+          },
+          "target_class": "",
+          "attempt": 0,
+          "payload_slot": 0,
+          "goal": {
+            "header": {
+              "seq": 22,
+              "stamp": {
+                "stamp_ns": 295833000000
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": -4.05,
+                "y": 6.7,
+                "z": 1.18
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.7071067811865475,
+                "w": 0.7071067811865476
+              }
+            }
+          },
+          "reason": "post_delivery_route:1/9:r2026-r61-inner960-nominal-fixed-gaps:required_deliveries_complete"
+        }
+      },
+      {
+        "ros_sec": 339.73,
+        "kind": "decision",
+        "data": {
+          "header": {
+            "seq": 23,
+            "stamp": {
+              "stamp_ns": 339704999999
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-23-803000000-1",
+          "decision_seq": 23,
+          "deadline": {
+            "stamp_ns": 429704999999
+          },
+          "command": 4,
+          "class_profile": "r2026",
+          "has_goal": true,
+          "has_target": false,
+          "target_id": 0,
+          "target_first_seen": {
+            "stamp_ns": 0
+          },
+          "target_observation_stamp": {
+            "stamp_ns": 0
+          },
+          "target_class": "",
+          "attempt": 0,
+          "payload_slot": 0,
+          "goal": {
+            "header": {
+              "seq": 23,
+              "stamp": {
+                "stamp_ns": 339704999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": -4.05,
+                "y": 6.7,
+                "z": 0.18
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.7071067811865475,
+                "w": 0.7071067811865476
+              }
+            }
+          },
+          "reason": "post_delivery_route:2/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+        }
+      },
+      {
+        "ros_sec": 348.29,
+        "kind": "decision",
+        "data": {
+          "header": {
+            "seq": 24,
+            "stamp": {
+              "stamp_ns": 348269999999
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-23-803000000-1",
+          "decision_seq": 24,
+          "deadline": {
+            "stamp_ns": 438269999999
+          },
+          "command": 4,
+          "class_profile": "r2026",
+          "has_goal": true,
+          "has_target": false,
+          "target_id": 0,
+          "target_first_seen": {
+            "stamp_ns": 0
+          },
+          "target_observation_stamp": {
+            "stamp_ns": 0
+          },
+          "target_class": "",
+          "attempt": 0,
+          "payload_slot": 0,
+          "goal": {
+            "header": {
+              "seq": 24,
+              "stamp": {
+                "stamp_ns": 348269999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": -4.05,
+                "y": 8.35,
+                "z": 0.23
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.7071067811865475,
+                "w": 0.7071067811865476
+              }
+            }
+          },
+          "reason": "post_delivery_route:3/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+        }
+      },
+      {
+        "ros_sec": 362.438,
+        "kind": "decision",
+        "data": {
+          "header": {
+            "seq": 25,
+            "stamp": {
+              "stamp_ns": 362437999999
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-23-803000000-1",
+          "decision_seq": 25,
+          "deadline": {
+            "stamp_ns": 452437999999
+          },
+          "command": 4,
+          "class_profile": "r2026",
+          "has_goal": true,
+          "has_target": false,
+          "target_id": 0,
+          "target_first_seen": {
+            "stamp_ns": 0
+          },
+          "target_observation_stamp": {
+            "stamp_ns": 0
+          },
+          "target_class": "",
+          "attempt": 0,
+          "payload_slot": 0,
+          "goal": {
+            "header": {
+              "seq": 25,
+              "stamp": {
+                "stamp_ns": 362437999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": -2.3,
+                "y": 8.7,
+                "z": 0.23
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.7071067811865475,
+                "w": 0.7071067811865476
+              }
+            }
+          },
+          "reason": "post_delivery_route:4/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+        }
+      },
+      {
+        "ros_sec": 378.342,
+        "kind": "decision",
+        "data": {
+          "header": {
+            "seq": 26,
+            "stamp": {
+              "stamp_ns": 378336000000
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-23-803000000-1",
+          "decision_seq": 26,
+          "deadline": {
+            "stamp_ns": 468336000000
+          },
+          "command": 4,
+          "class_profile": "r2026",
+          "has_goal": true,
+          "has_target": false,
+          "target_id": 0,
+          "target_first_seen": {
+            "stamp_ns": 0
+          },
+          "target_observation_stamp": {
+            "stamp_ns": 0
+          },
+          "target_class": "",
+          "attempt": 0,
+          "payload_slot": 0,
+          "goal": {
+            "header": {
+              "seq": 26,
+              "stamp": {
+                "stamp_ns": 378336000000
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": -0.9000000000000001,
+                "y": 8.7,
+                "z": 0.23
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.7071067811865475,
+                "w": 0.7071067811865476
+              }
+            }
+          },
+          "reason": "post_delivery_route:5/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+        }
+      },
+      {
+        "ros_sec": 391.667,
+        "kind": "decision",
+        "data": {
+          "header": {
+            "seq": 27,
+            "stamp": {
+              "stamp_ns": 391668999999
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-23-803000000-1",
+          "decision_seq": 27,
+          "deadline": {
+            "stamp_ns": 481668999999
+          },
+          "command": 4,
+          "class_profile": "r2026",
+          "has_goal": true,
+          "has_target": false,
+          "target_id": 0,
+          "target_first_seen": {
+            "stamp_ns": 0
+          },
+          "target_observation_stamp": {
+            "stamp_ns": 0
+          },
+          "target_class": "",
+          "attempt": 0,
+          "payload_slot": 0,
+          "goal": {
+            "header": {
+              "seq": 27,
+              "stamp": {
+                "stamp_ns": 391668999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 0.0,
+                "y": 8.0,
+                "z": 0.23
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.7071067811865475,
+                "w": 0.7071067811865476
+              }
+            }
+          },
+          "reason": "post_delivery_route:6/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+        }
+      },
+      {
+        "ros_sec": 402.013,
+        "kind": "decision",
+        "data": {
+          "header": {
+            "seq": 28,
+            "stamp": {
+              "stamp_ns": 402005999999
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-23-803000000-1",
+          "decision_seq": 28,
+          "deadline": {
+            "stamp_ns": 492005999999
+          },
+          "command": 4,
+          "class_profile": "r2026",
+          "has_goal": true,
+          "has_target": false,
+          "target_id": 0,
+          "target_first_seen": {
+            "stamp_ns": 0
+          },
+          "target_observation_stamp": {
+            "stamp_ns": 0
+          },
+          "target_class": "",
+          "attempt": 0,
+          "payload_slot": 0,
+          "goal": {
+            "header": {
+              "seq": 28,
+              "stamp": {
+                "stamp_ns": 402005999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 0.9000000000000001,
+                "y": 8.0,
+                "z": 0.23
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.7071067811865475,
+                "w": 0.7071067811865476
+              }
+            }
+          },
+          "reason": "post_delivery_route:7/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+        }
+      },
+      {
+        "ros_sec": 410.969,
+        "kind": "decision",
+        "data": {
+          "header": {
+            "seq": 29,
+            "stamp": {
+              "stamp_ns": 410970000000
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-23-803000000-1",
+          "decision_seq": 29,
+          "deadline": {
+            "stamp_ns": 500970000000
+          },
+          "command": 4,
+          "class_profile": "r2026",
+          "has_goal": true,
+          "has_target": false,
+          "target_id": 0,
+          "target_first_seen": {
+            "stamp_ns": 0
+          },
+          "target_observation_stamp": {
+            "stamp_ns": 0
+          },
+          "target_class": "",
+          "attempt": 0,
+          "payload_slot": 0,
+          "goal": {
+            "header": {
+              "seq": 29,
+              "stamp": {
+                "stamp_ns": 410970000000
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 2.3,
+                "y": 8.0,
+                "z": 0.23
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.7071067811865475,
+                "w": 0.7071067811865476
+              }
+            }
+          },
+          "reason": "post_delivery_route:8/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+        }
+      },
+      {
+        "ros_sec": 424.011,
+        "kind": "decision",
+        "data": {
+          "header": {
+            "seq": 30,
+            "stamp": {
+              "stamp_ns": 424004000000
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-23-803000000-1",
+          "decision_seq": 30,
+          "deadline": {
+            "stamp_ns": 514004000000
+          },
+          "command": 4,
+          "class_profile": "r2026",
+          "has_goal": true,
+          "has_target": false,
+          "target_id": 0,
+          "target_first_seen": {
+            "stamp_ns": 0
+          },
+          "target_observation_stamp": {
+            "stamp_ns": 0
+          },
+          "target_class": "",
+          "attempt": 0,
+          "payload_slot": 0,
+          "goal": {
+            "header": {
+              "seq": 30,
+              "stamp": {
+                "stamp_ns": 424004000000
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 4.2,
+                "y": 8.5,
+                "z": 0.28
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.7071067811865475,
+                "w": 0.7071067811865476
+              }
+            }
+          },
+          "reason": "post_delivery_route:9/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+        }
+      },
+      {
+        "ros_sec": 441.11,
+        "kind": "decision",
+        "data": {
+          "header": {
+            "seq": 31,
+            "stamp": {
+              "stamp_ns": 441105000000
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-23-803000000-1",
+          "decision_seq": 31,
+          "deadline": {
+            "stamp_ns": 623802999999
+          },
+          "command": 5,
+          "class_profile": "r2026",
+          "has_goal": false,
+          "has_target": false,
+          "target_id": 0,
+          "target_first_seen": {
+            "stamp_ns": 0
+          },
+          "target_observation_stamp": {
+            "stamp_ns": 0
+          },
+          "target_class": "",
+          "attempt": 0,
+          "payload_slot": 0,
+          "goal": {
+            "header": {
+              "seq": 31,
+              "stamp": {
+                "stamp_ns": 441105000000
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "reason": "post_delivery_route_complete"
+        }
+      }
+    ]
+  },
+  {
+    "seed": 4,
+    "status": "PASS",
+    "errors": [],
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed04_20260909_170148",
+    "mission_start_ros": 22.829,
+    "last_ros": 494.434,
+    "full_ros_below_600": true,
+    "releases": [
+      {
+        "t": 78.738,
+        "data": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "stamp_ns": 78738000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 1,
+          "payload_slot": 1,
+          "align_mode": "drop_circle",
+          "target_id": 2,
+          "target_class": "bridge",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 95.232,
+        "data": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "stamp_ns": 95231000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 2,
+          "payload_slot": 2,
+          "align_mode": "drop_circle",
+          "target_id": 4,
+          "target_class": "panzer",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 362.477,
+        "data": {
+          "header": {
+            "seq": 3,
+            "stamp": {
+              "stamp_ns": 362477000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 3,
+          "payload_slot": 3,
+          "align_mode": "drop_cross",
+          "target_id": 8,
+          "target_class": "red_cross",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      }
+    ],
+    "recovery": [
+      {
+        "t": 81.24,
+        "class": "bridge"
+      },
+      {
+        "t": 97.842,
+        "class": "panzer"
+      },
+      {
+        "t": 365.072,
+        "class": "red_cross"
+      }
+    ],
+    "raw_calls": [
+      1,
+      2,
+      3
+    ],
+    "audit_status": "PASS",
+    "audit_reason": "",
+    "contact": [],
+    "route_start_ros": 365.073,
+    "land_start_ros": 480.136,
+    "disarm_ros": 493.903,
+    "route_to_disarm_sec": 128.83000000000004,
+    "land_to_disarm_sec": 13.766999999999996,
+    "final_center_error_m": 0.05061322791143271,
+    "final_envelope_radius_m": 0.4335683278079571,
+    "stopped_envelope_inside_nominal_circle": true,
+    "camera_frames": 4203,
+    "camera_span_ros": 493.77299999999997,
+    "video_decode_exit": 0,
+    "video_decode_error": ""
+  },
+  {
+    "seed": 5,
+    "status": "FAIL",
+    "errors": [
+      "manager_failed",
+      "post_delivery_door_sequence_incomplete"
+    ],
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed05_20260909_173017",
+    "mission_start_ros": 22.454999999,
+    "last_ros": 539.974,
+    "full_ros_below_600": true,
+    "releases": [
+      {
+        "t": 58.964,
+        "data": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "stamp_ns": 58964000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 1,
+          "payload_slot": 1,
+          "align_mode": "drop_circle",
+          "target_id": 0,
+          "target_class": "panzer",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 231.606,
+        "data": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "stamp_ns": 231606000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 2,
+          "payload_slot": 2,
+          "align_mode": "drop_circle",
+          "target_id": 6,
+          "target_class": "bridge",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      }
+    ],
+    "recovery": [
+      {
+        "t": 61.155,
+        "class": "panzer"
+      },
+      {
+        "t": 233.819,
+        "class": "bridge"
+      }
+    ],
+    "raw_calls": [
+      1,
+      2
+    ],
+    "audit_status": "WAITING",
+    "audit_reason": "",
+    "contact": [],
+    "route_start_ros": null,
+    "land_start_ros": 532.323,
+    "disarm_ros": 539.344,
+    "route_to_disarm_sec": null,
+    "land_to_disarm_sec": 7.021000000000072,
+    "final_center_error_m": 9.478308483985169,
+    "final_envelope_radius_m": 9.847502198297677,
+    "stopped_envelope_inside_nominal_circle": false,
+    "camera_frames": 4543,
+    "camera_span_ros": 539.8000000000001,
+    "video_decode_exit": 0,
+    "video_decode_error": "",
+    "abnormal_events": [
+      {
+        "ros_sec": 505.704,
+        "kind": "result",
+        "data": {
+          "header": {
+            "seq": 298,
+            "stamp": {
+              "stamp_ns": 505700000000
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-22-455000000-1",
+          "executor_id": "vcl06-planner-bridge-2ec3c94bce8d4918a610c185f091a0e6",
+          "event_seq": 298,
+          "decision_seq": 27,
+          "command": 1,
+          "status": 7,
+          "stage": 1,
+          "terminal": true,
+          "retryable": true,
+          "payload_committed": false,
+          "has_target": true,
+          "target_id": 8,
+          "target_first_seen": {
+            "stamp_ns": 385489000000
+          },
+          "target_class": "red_cross",
+          "attempt": 1,
+          "payload_slot": 3,
+          "reason": "decision_deadline_reached",
+          "evidence_source": "planner_motion_executor"
+        }
+      },
+      {
+        "ros_sec": 505.706,
+        "kind": "decision",
+        "data": {
+          "header": {
+            "seq": 28,
+            "stamp": {
+              "stamp_ns": 505699999999
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-22-455000000-1",
+          "decision_seq": 28,
+          "deadline": {
+            "stamp_ns": 595700000000
+          },
+          "command": 4,
+          "class_profile": "r2026",
+          "has_goal": true,
+          "has_target": false,
+          "target_id": 0,
+          "target_first_seen": {
+            "stamp_ns": 0
+          },
+          "target_observation_stamp": {
+            "stamp_ns": 0
+          },
+          "target_class": "",
+          "attempt": 0,
+          "payload_slot": 0,
+          "goal": {
+            "header": {
+              "seq": 28,
+              "stamp": {
+                "stamp_ns": 505699999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.18
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "reason": "target_action_timed_out_uncertain"
+        }
+      },
+      {
+        "ros_sec": 532.323,
+        "kind": "decision",
+        "data": {
+          "header": {
+            "seq": 29,
+            "stamp": {
+              "stamp_ns": 532322999999
+            },
+            "frame_id": "camera_init"
+          },
+          "schema_version": 1,
+          "mission_id": "vcl06-random-22-455000000-1",
+          "decision_seq": 29,
+          "deadline": {
+            "stamp_ns": 622455000000
+          },
+          "command": 5,
+          "class_profile": "r2026",
+          "has_goal": false,
+          "has_target": false,
+          "target_id": 0,
+          "target_first_seen": {
+            "stamp_ns": 0
+          },
+          "target_observation_stamp": {
+            "stamp_ns": 0
+          },
+          "target_class": "",
+          "attempt": 0,
+          "payload_slot": 0,
+          "goal": {
+            "header": {
+              "seq": 29,
+              "stamp": {
+                "stamp_ns": 532322999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "reason": "return_home_complete"
+        }
+      }
+    ]
+  },
+  {
+    "seed": 6,
+    "status": "PASS",
+    "errors": [],
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed06_20260909_175752",
+    "mission_start_ros": 23.871999999,
+    "last_ros": 480.31,
+    "full_ros_below_600": true,
+    "releases": [
+      {
+        "t": 128.235,
+        "data": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "stamp_ns": 128235000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 1,
+          "payload_slot": 1,
+          "align_mode": "drop_cross",
+          "target_id": 2,
+          "target_class": "red_cross",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 229.373,
+        "data": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "stamp_ns": 229365000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 2,
+          "payload_slot": 2,
+          "align_mode": "drop_circle",
+          "target_id": 3,
+          "target_class": "panzer",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 327.164,
+        "data": {
+          "header": {
+            "seq": 3,
+            "stamp": {
+              "stamp_ns": 327164000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 3,
+          "payload_slot": 3,
+          "align_mode": "drop_circle",
+          "target_id": 5,
+          "target_class": "bridge",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      }
+    ],
+    "recovery": [
+      {
+        "t": 130.751,
+        "class": "red_cross"
+      },
+      {
+        "t": 231.527,
+        "class": "panzer"
+      },
+      {
+        "t": 329.54,
+        "class": "bridge"
+      }
+    ],
+    "raw_calls": [
+      1,
+      2,
+      3
+    ],
+    "audit_status": "PASS",
+    "audit_reason": "",
+    "contact": [],
+    "route_start_ros": 329.582,
+    "land_start_ros": 466.012,
+    "disarm_ros": 479.755,
+    "route_to_disarm_sec": 150.173,
+    "land_to_disarm_sec": 13.742999999999995,
+    "final_center_error_m": 0.0886098515859403,
+    "final_envelope_radius_m": 0.4679814324195309,
+    "stopped_envelope_inside_nominal_circle": true,
+    "camera_frames": 3993,
+    "camera_span_ros": 479.741,
+    "video_decode_exit": 0,
+    "video_decode_error": ""
+  },
+  {
+    "seed": 7,
+    "status": "FAIL",
+    "errors": [
+      "actual_collision"
+    ],
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed07_20260909_182205",
+    "mission_start_ros": 26.012,
+    "last_ros": 363.538,
+    "full_ros_below_600": true,
+    "releases": [
+      {
+        "t": 105.726,
+        "data": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "stamp_ns": 105726000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 1,
+          "payload_slot": 1,
+          "align_mode": "drop_circle",
+          "target_id": 2,
+          "target_class": "panzer",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 325.12,
+        "data": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "stamp_ns": 325119000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 2,
+          "payload_slot": 2,
+          "align_mode": "drop_circle",
+          "target_id": 6,
+          "target_class": "bridge",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      }
+    ],
+    "recovery": [
+      {
+        "t": 108.305,
+        "class": "panzer"
+      },
+      {
+        "t": 327.34,
+        "class": "bridge"
+      }
+    ],
+    "raw_calls": [
+      1,
+      2
+    ],
+    "audit_status": "WAITING",
+    "audit_reason": "",
+    "contact": [
+      {
+        "pairs": [
+          [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "toudi2::Wall_13::Wall_13_collision"
+          ]
+        ],
+        "ros_stamp": 363.127,
+        "sequence": 1,
+        "wall_time": 1788950421.7859075
+      }
+    ],
+    "route_start_ros": null,
+    "land_start_ros": null,
+    "disarm_ros": null,
+    "route_to_disarm_sec": null,
+    "land_to_disarm_sec": null,
+    "final_center_error_m": 3.2074699491339387,
+    "final_envelope_radius_m": 3.5774122884811685,
+    "stopped_envelope_inside_nominal_circle": false,
+    "camera_frames": 2956,
+    "camera_span_ros": 362.898,
+    "video_decode_exit": 0,
+    "video_decode_error": "",
+    "abnormal_events": []
+  },
+  {
+    "seed": 8,
+    "status": "PASS",
+    "errors": [],
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed08_20260909_184028",
+    "mission_start_ros": 22.62,
+    "last_ros": 468.706,
+    "full_ros_below_600": true,
+    "releases": [
+      {
+        "t": 34.758,
+        "data": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "stamp_ns": 34756000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 1,
+          "payload_slot": 1,
+          "align_mode": "drop_cross",
+          "target_id": 0,
+          "target_class": "red_cross",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 189.594,
+        "data": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "stamp_ns": 189594000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 2,
+          "payload_slot": 2,
+          "align_mode": "drop_circle",
+          "target_id": 3,
+          "target_class": "bridge",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 318.259,
+        "data": {
+          "header": {
+            "seq": 3,
+            "stamp": {
+              "stamp_ns": 318258000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 3,
+          "payload_slot": 3,
+          "align_mode": "drop_circle",
+          "target_id": 7,
+          "target_class": "panzer",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      }
+    ],
+    "recovery": [
+      {
+        "t": 37.72,
+        "class": "red_cross"
+      },
+      {
+        "t": 191.887,
+        "class": "bridge"
+      },
+      {
+        "t": 320.48,
+        "class": "panzer"
+      }
+    ],
+    "raw_calls": [
+      1,
+      2,
+      3
+    ],
+    "audit_status": "PASS",
+    "audit_reason": "",
+    "contact": [],
+    "route_start_ros": 320.483,
+    "land_start_ros": 453.019,
+    "disarm_ros": 466.744,
+    "route_to_disarm_sec": 146.26100000000002,
+    "land_to_disarm_sec": 13.725000000000023,
+    "final_center_error_m": 0.080465168934708,
+    "final_envelope_radius_m": 0.46776116152505776,
+    "stopped_envelope_inside_nominal_circle": true,
+    "camera_frames": 3930,
+    "camera_span_ros": 468.196,
+    "video_decode_exit": 0,
+    "video_decode_error": ""
+  },
+  {
+    "seed": 9,
+    "status": "PASS",
+    "errors": [],
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed09_20260909_190805",
+    "mission_start_ros": 22.635999999,
+    "last_ros": 449.285,
+    "full_ros_below_600": true,
+    "releases": [
+      {
+        "t": 37.408,
+        "data": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "stamp_ns": 37408000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 1,
+          "payload_slot": 1,
+          "align_mode": "drop_cross",
+          "target_id": 0,
+          "target_class": "red_cross",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 73.182,
+        "data": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "stamp_ns": 73182000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 2,
+          "payload_slot": 2,
+          "align_mode": "drop_circle",
+          "target_id": 1,
+          "target_class": "panzer",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 264.869,
+        "data": {
+          "header": {
+            "seq": 3,
+            "stamp": {
+              "stamp_ns": 264869000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 3,
+          "payload_slot": 3,
+          "align_mode": "drop_circle",
+          "target_id": 6,
+          "target_class": "bridge",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      }
+    ],
+    "recovery": [
+      {
+        "t": 39.724,
+        "class": "red_cross"
+      },
+      {
+        "t": 75.808,
+        "class": "panzer"
+      },
+      {
+        "t": 267.157,
+        "class": "bridge"
+      }
+    ],
+    "raw_calls": [
+      1,
+      2,
+      3
+    ],
+    "audit_status": "PASS",
+    "audit_reason": "",
+    "contact": [],
+    "route_start_ros": 267.171,
+    "land_start_ros": 433.362,
+    "disarm_ros": 448.751,
+    "route_to_disarm_sec": 181.57999999999998,
+    "land_to_disarm_sec": 15.388999999999953,
+    "final_center_error_m": 0.077072445664785,
+    "final_envelope_radius_m": 0.4600985820956258,
+    "stopped_envelope_inside_nominal_circle": true,
+    "camera_frames": 3803,
+    "camera_span_ros": 448.76,
+    "video_decode_exit": 0,
+    "video_decode_error": ""
+  },
+  {
+    "seed": 10,
+    "status": "PASS",
+    "errors": [],
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed10_20260909_193259",
+    "mission_start_ros": 22.835999999,
+    "last_ros": 452.507,
+    "full_ros_below_600": true,
+    "releases": [
+      {
+        "t": 59.373,
+        "data": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "stamp_ns": 59373000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 1,
+          "payload_slot": 1,
+          "align_mode": "drop_cross",
+          "target_id": 2,
+          "target_class": "red_cross",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 212.777,
+        "data": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "stamp_ns": 212785000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 2,
+          "payload_slot": 2,
+          "align_mode": "drop_circle",
+          "target_id": 3,
+          "target_class": "bridge",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      },
+      {
+        "t": 314.844,
+        "data": {
+          "header": {
+            "seq": 3,
+            "stamp": {
+              "stamp_ns": 314844000000
+            },
+            "frame_id": ""
+          },
+          "execution_id": 3,
+          "payload_slot": 3,
+          "align_mode": "drop_circle",
+          "target_id": 5,
+          "target_class": "panzer",
+          "success": true,
+          "reason": "raw_actuator_ack"
+        }
+      }
+    ],
+    "recovery": [
+      {
+        "t": 61.513,
+        "class": "red_cross"
+      },
+      {
+        "t": 215.222,
+        "class": "bridge"
+      },
+      {
+        "t": 317.148,
+        "class": "panzer"
+      }
+    ],
+    "raw_calls": [
+      1,
+      2,
+      3
+    ],
+    "audit_status": "PASS",
+    "audit_reason": "",
+    "contact": [],
+    "route_start_ros": 317.161,
+    "land_start_ros": 437.439,
+    "disarm_ros": 450.75,
+    "route_to_disarm_sec": 133.589,
+    "land_to_disarm_sec": 13.310999999999979,
+    "final_center_error_m": 0.09365524045297262,
+    "final_envelope_radius_m": 0.47126097610268547,
+    "stopped_envelope_inside_nominal_circle": true,
+    "camera_frames": 3821,
+    "camera_span_ros": 451.961,
+    "video_decode_exit": 0,
+    "video_decode_error": ""
+  }
+]

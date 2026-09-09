@@ -1,4 +1,17 @@
 <launch>
+  <arg name="record_overview_video" default="false" />
+  <arg name="overview_x" default="0.0" />
+  <arg name="overview_y" default="4.3" />
+  <arg name="overview_z" default="5.0" />
+  <group if="$(arg record_overview_video)">
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_overview_camera"
+          args="-sdf -file $(find uav_vision_eval)/models/competition_overview_camera/model.sdf -model competition_overview_camera -x $(arg overview_x) -y $(arg overview_y) -z $(arg overview_z) -P 1.57079632679 -Y -1.57079632679" />
+    <node pkg="uav_vision_eval" type="camera_video_recorder.py" name="overview_video_recorder" output="screen">
+      <param name="image_topic" value="/competition_overview/image_raw" />
+      <param name="fps" value="10.0" />
+      <param name="output_path" value="$(optenv SIM_RUN_DIR)/overview.mp4" />
+    </node>
+  </group>
   <arg name="observe_full_trial" default="false" />
   <param name="/navigation_vcl06_assertion/observe_full_trial" value="$(arg observe_full_trial)" />
   <!-- Same formal mission/control chain, with 2026 geometry and measured camera mounting. -->
@@ -30,6 +43,9 @@
     <param name="output_path" value="$(optenv SIM_RUN_DIR)/downward_camera.mp4" />
   </node>
   <arg name="field_seed" default="11" />
+  <arg name="world" default="$(find uav_vision_eval)/models/r2026_horizontal_field/field.world" />
+  <arg name="field_config" default="$(find uav_mission)/config/coverage_r2026_horizontal.yaml" />
+  <arg name="gate_geometry_config" default="" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="mission_start_mode" default="full" />
   <arg name="gate_scope" default="full" />
@@ -48,11 +64,11 @@
     <arg name="target_model_path" value="$(arg target_model_path)" />
     <arg name="mission_start_mode" value="$(arg mission_start_mode)" />
     <arg name="gate_scope" value="$(arg gate_scope)" />
-    <arg name="world" value="$(find uav_vision_eval)/models/r2026_horizontal_field/field.world" />
+    <arg name="world" value="$(arg world)" />
     <arg name="vehicle_sdf" value="$(find uav_vision_eval)/models/iris_mid360_ks2a543_installed/model.sdf" />
     <arg name="runtime_config" value="$(arg runtime_config)" />
     <arg name="waypoint_config" value="$(arg control_config)" />
-    <arg name="field_config" value="$(find uav_mission)/config/coverage_r2026_horizontal.yaml" />
+    <arg name="field_config" value="$(arg field_config)" />
     <arg name="camera_extrinsic_xyz" value="$(arg camera_extrinsic_xyz)" />
     <arg name="search_altitude" value="1.18" />
     <arg name="external_planner_max_command_z" value="2.08" />
@@ -110,4 +126,7 @@
   <rosparam param="/gazebo_contact_monitor/ignored_collision_patterns">[ground_plane, 'landing_h::link::collision', 'landing_h_clone::link::collision']</rosparam>
 
   <param name="/landing_detector/landing_enable_h_stroke_fallback" value="true" />
+  <!-- Randomized geometry is an assertion-only input, not a mission waypoint source. -->
+  <rosparam if="$(eval arg('gate_geometry_config') != '')" command="load"
+            file="$(arg gate_geometry_config)" ns="/navigation_vcl06_assertion" />
 </launch>

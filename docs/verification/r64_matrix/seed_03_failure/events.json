@@ -1,0 +1,678 @@
+{
+  "seed": 3,
+  "status": "FAIL",
+  "errors": [
+    "actual_collision"
+  ],
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed03_20260909_163846",
+  "mission_start_ros": 23.803,
+  "last_ros": 450.875,
+  "full_ros_below_600": true,
+  "releases": [
+    {
+      "t": 62.368,
+      "data": {
+        "header": {
+          "seq": 1,
+          "stamp": {
+            "stamp_ns": 62366000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 1,
+        "payload_slot": 1,
+        "align_mode": "drop_circle",
+        "target_id": 0,
+        "target_class": "bridge",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    },
+    {
+      "t": 216.055,
+      "data": {
+        "header": {
+          "seq": 2,
+          "stamp": {
+            "stamp_ns": 216055000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 2,
+        "payload_slot": 2,
+        "align_mode": "drop_cross",
+        "target_id": 4,
+        "target_class": "red_cross",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    },
+    {
+      "t": 293.372,
+      "data": {
+        "header": {
+          "seq": 3,
+          "stamp": {
+            "stamp_ns": 293372000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 3,
+        "payload_slot": 3,
+        "align_mode": "drop_circle",
+        "target_id": 7,
+        "target_class": "panzer",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    }
+  ],
+  "recovery": [
+    {
+      "t": 64.639,
+      "class": "bridge"
+    },
+    {
+      "t": 218.575,
+      "class": "red_cross"
+    },
+    {
+      "t": 295.833,
+      "class": "panzer"
+    }
+  ],
+  "raw_calls": [
+    1,
+    2,
+    3
+  ],
+  "audit_status": "PASS",
+  "audit_reason": "",
+  "contact": [
+    {
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "toudi2::Wall_11::Wall_11_collision"
+        ]
+      ],
+      "ros_stamp": 450.251,
+      "sequence": 1,
+      "wall_time": 1788944501.9436045
+    }
+  ],
+  "route_start_ros": 295.864,
+  "land_start_ros": 441.11,
+  "disarm_ros": null,
+  "route_to_disarm_sec": null,
+  "land_to_disarm_sec": null,
+  "final_center_error_m": 0.44262250335715525,
+  "final_envelope_radius_m": 0.8337601745702924,
+  "stopped_envelope_inside_nominal_circle": false,
+  "camera_frames": 3758,
+  "camera_span_ros": 450.47799999999995,
+  "video_decode_exit": 0,
+  "video_decode_error": "",
+  "abnormal_events": [
+    {
+      "ros_sec": 295.864,
+      "kind": "decision",
+      "data": {
+        "header": {
+          "seq": 22,
+          "stamp": {
+            "stamp_ns": 295833000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-23-803000000-1",
+        "decision_seq": 22,
+        "deadline": {
+          "stamp_ns": 385833000000
+        },
+        "command": 4,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_observation_stamp": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 22,
+            "stamp": {
+              "stamp_ns": 295833000000
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -4.05,
+              "y": 6.7,
+              "z": 1.18
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "reason": "post_delivery_route:1/9:r2026-r61-inner960-nominal-fixed-gaps:required_deliveries_complete"
+      }
+    },
+    {
+      "ros_sec": 339.73,
+      "kind": "decision",
+      "data": {
+        "header": {
+          "seq": 23,
+          "stamp": {
+            "stamp_ns": 339704999999
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-23-803000000-1",
+        "decision_seq": 23,
+        "deadline": {
+          "stamp_ns": 429704999999
+        },
+        "command": 4,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_observation_stamp": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 23,
+            "stamp": {
+              "stamp_ns": 339704999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -4.05,
+              "y": 6.7,
+              "z": 0.18
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "reason": "post_delivery_route:2/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+      }
+    },
+    {
+      "ros_sec": 348.29,
+      "kind": "decision",
+      "data": {
+        "header": {
+          "seq": 24,
+          "stamp": {
+            "stamp_ns": 348269999999
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-23-803000000-1",
+        "decision_seq": 24,
+        "deadline": {
+          "stamp_ns": 438269999999
+        },
+        "command": 4,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_observation_stamp": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 24,
+            "stamp": {
+              "stamp_ns": 348269999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -4.05,
+              "y": 8.35,
+              "z": 0.23
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "reason": "post_delivery_route:3/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+      }
+    },
+    {
+      "ros_sec": 362.438,
+      "kind": "decision",
+      "data": {
+        "header": {
+          "seq": 25,
+          "stamp": {
+            "stamp_ns": 362437999999
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-23-803000000-1",
+        "decision_seq": 25,
+        "deadline": {
+          "stamp_ns": 452437999999
+        },
+        "command": 4,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_observation_stamp": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 25,
+            "stamp": {
+              "stamp_ns": 362437999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -2.3,
+              "y": 8.7,
+              "z": 0.23
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "reason": "post_delivery_route:4/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+      }
+    },
+    {
+      "ros_sec": 378.342,
+      "kind": "decision",
+      "data": {
+        "header": {
+          "seq": 26,
+          "stamp": {
+            "stamp_ns": 378336000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-23-803000000-1",
+        "decision_seq": 26,
+        "deadline": {
+          "stamp_ns": 468336000000
+        },
+        "command": 4,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_observation_stamp": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 26,
+            "stamp": {
+              "stamp_ns": 378336000000
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -0.9000000000000001,
+              "y": 8.7,
+              "z": 0.23
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "reason": "post_delivery_route:5/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+      }
+    },
+    {
+      "ros_sec": 391.667,
+      "kind": "decision",
+      "data": {
+        "header": {
+          "seq": 27,
+          "stamp": {
+            "stamp_ns": 391668999999
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-23-803000000-1",
+        "decision_seq": 27,
+        "deadline": {
+          "stamp_ns": 481668999999
+        },
+        "command": 4,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_observation_stamp": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 27,
+            "stamp": {
+              "stamp_ns": 391668999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.0,
+              "y": 8.0,
+              "z": 0.23
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "reason": "post_delivery_route:6/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+      }
+    },
+    {
+      "ros_sec": 402.013,
+      "kind": "decision",
+      "data": {
+        "header": {
+          "seq": 28,
+          "stamp": {
+            "stamp_ns": 402005999999
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-23-803000000-1",
+        "decision_seq": 28,
+        "deadline": {
+          "stamp_ns": 492005999999
+        },
+        "command": 4,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_observation_stamp": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 28,
+            "stamp": {
+              "stamp_ns": 402005999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.9000000000000001,
+              "y": 8.0,
+              "z": 0.23
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "reason": "post_delivery_route:7/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+      }
+    },
+    {
+      "ros_sec": 410.969,
+      "kind": "decision",
+      "data": {
+        "header": {
+          "seq": 29,
+          "stamp": {
+            "stamp_ns": 410970000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-23-803000000-1",
+        "decision_seq": 29,
+        "deadline": {
+          "stamp_ns": 500970000000
+        },
+        "command": 4,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_observation_stamp": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 29,
+            "stamp": {
+              "stamp_ns": 410970000000
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 2.3,
+              "y": 8.0,
+              "z": 0.23
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "reason": "post_delivery_route:8/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+      }
+    },
+    {
+      "ros_sec": 424.011,
+      "kind": "decision",
+      "data": {
+        "header": {
+          "seq": 30,
+          "stamp": {
+            "stamp_ns": 424004000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-23-803000000-1",
+        "decision_seq": 30,
+        "deadline": {
+          "stamp_ns": 514004000000
+        },
+        "command": 4,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_observation_stamp": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 30,
+            "stamp": {
+              "stamp_ns": 424004000000
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 4.2,
+              "y": 8.5,
+              "z": 0.28
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "reason": "post_delivery_route:9/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete"
+      }
+    },
+    {
+      "ros_sec": 441.11,
+      "kind": "decision",
+      "data": {
+        "header": {
+          "seq": 31,
+          "stamp": {
+            "stamp_ns": 441105000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-23-803000000-1",
+        "decision_seq": 31,
+        "deadline": {
+          "stamp_ns": 623802999999
+        },
+        "command": 5,
+        "class_profile": "r2026",
+        "has_goal": false,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_observation_stamp": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 31,
+            "stamp": {
+              "stamp_ns": 441105000000
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "post_delivery_route_complete"
+      }
+    }
+  ]
+}

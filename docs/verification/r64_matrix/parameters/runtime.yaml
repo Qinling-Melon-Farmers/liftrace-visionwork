@@ -1,0 +1,139 @@
+# Local FC frame, ground=-0.22. Fixed-gap development fixture, not online random-door localization.
+profile:
+  name: r2026
+mission:
+  frame: camera_init
+  candidate_max_age: 0.5
+  transform_max_age: 0.5
+  min_streak: 3
+  max_target_z: 4.0
+  max_attempts: 2
+  retry_cooldown: 20.0
+  timeout: 600.0
+  # Batch diagnostic: no early return or return-budget candidate rejection.
+  early_return_enabled: false
+  forced_return_at: 420.0
+  return_land_reserve: 180.0
+  delivery_reserve_per_slot: 60.0
+  path_factor: 1.5
+  nominal_speed: 0.5
+  decision_guard: 15.0
+  approach_altitude: 1.38
+  return_altitude: 1.18
+  target_action_timeout: 120.0
+  motion_action_timeout: 90.0
+  result_future_tolerance: 0.1
+  home_xy:
+  - 0.0
+  - 0.0
+  post_delivery_yaw: 1.5707963267948966
+  post_delivery_route_revision: r2026-r61-inner960-nominal-fixed-gaps
+  landing_xy:
+  - 4.2
+  - 8.5
+  landing_anchor_tolerance: 0.05
+  post_delivery_route:
+  - - -4.05
+    - 6.7
+    - 1.18
+  - - -4.05
+    - 6.7
+    - 0.18
+  - - -4.05
+    - 8.35
+    - 0.23
+  - - -2.3
+    - 8.7
+    - 0.23
+  - - -0.9000000000000001
+    - 8.7
+    - 0.23
+  - - 0.0
+    - 8.0
+    - 0.23
+  - - 0.9000000000000001
+    - 8.0
+    - 0.23
+  - - 2.3
+    - 8.0
+    - 0.23
+  - - 4.2
+    - 8.5
+    - 0.28
+  post_delivery_parameter_stages:
+  - after_completed_waypoints: 0
+    parameters:
+      /traj_server/traj_server/target_dist: 0.15
+      /px4_max_distance: 0.15
+      /navigation/planner_bridge/execution/arrival_position_tolerance: 0.12
+      /navigation/planner_bridge/execution/arrival_dwell: 0.8
+  - after_completed_waypoints: 1
+    parameters:
+      /navigation/planner_bridge/execution/arrival_position_tolerance: 0.05
+  - after_completed_waypoints: 2
+    parameters:
+      /navigation/planner_bridge/execution/arrival_position_tolerance: 0.12
+      /external_planner_max_command_z: 0.28
+      /fast_planner_node/sdf_map/virtual_ceil_height: 0.33
+      /fast_planner_node/fsm/goal_adjustment_radius: 0.1
+post_delivery_gate:
+  low_height_region:
+    min_x: -4.8
+    max_x: 4.8
+    min_y: 7.6
+    max_y: 9.1
+    max_height: 0.7
+  goal_tolerance: 0.12
+  final_h_tolerance: 0.35
+  expected_door_order:
+  - corridor_entry
+  - Wall_20
+  - Wall_22
+  doors:
+  - name: corridor_entry
+    axis: y
+    coordinate: 7.5
+    direction: positive
+    route_indices:
+    - 3
+    lateral_min: -4.8
+    lateral_max: -3.3
+    z_min: 0.0
+    z_max: 0.7
+  - name: Wall_20
+    axis: x
+    coordinate: -1.6
+    direction: positive
+    route_indices:
+    - 5
+    lateral_min: 8.299999999999999
+    lateral_max: 9.1
+    z_min: 0.0
+    z_max: 0.7
+  - name: Wall_22
+    axis: x
+    coordinate: 1.6
+    direction: positive
+    route_indices:
+    - 8
+    lateral_min: 7.6
+    lateral_max: 8.4
+    z_min: 0.0
+    z_max: 0.7
+search:
+  min_x: -4.3
+  max_x: 4.3
+  min_y: 0.0
+  max_y: 7.1
+  lane_spacing: 0.7
+  altitude: 1.18
+  route_revision: r2026-r61-full-search-area
+  max_failures_per_waypoint: 2
+readiness:
+  pose_max_age: 0.5
+  map_max_age: 2.0
+  stamp_future_tolerance: 0.05
+  require_map: true
+runtime:
+  tick_hz: 10.0
+  mission_id_prefix: vcl06-random

@@ -13,6 +13,10 @@ spawn:
 static_model_radii:
   landing_h: 0.5
   landing_h_clone: 0.5
+# World-frame physical divider AABB: search-side face is y=7.4, not 7.6.
+# Do not use an aggregate bounding circle for the entire toudi2 model.
+static_exclusion_boxes:
+- [-3.3, 4.8, 7.4, 7.6]
 static_exclusions:
 - name: combined_tree_0
   world_x: -1.8
@@ -40,4 +44,4 @@ search_region:
   max_x: 4.8
   min_y: -0.5
   max_y: 7.6
-ignore_model_names: ground_plane,sun,toudi2,3,iris_mid360,preview_overhead,preview_aircraft,indoor_context
+ignore_model_names: ground_plane,sun,toudi2,3,iris_mid360,preview_overhead,preview_aircraft,indoor_context,competition_overview_camera

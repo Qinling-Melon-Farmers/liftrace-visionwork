@@ -1,0 +1,93 @@
+{
+  "seed": 7,
+  "status": "FAIL",
+  "errors": [
+    "actual_collision"
+  ],
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed07_20260909_182205",
+  "mission_start_ros": 26.012,
+  "last_ros": 363.538,
+  "full_ros_below_600": true,
+  "releases": [
+    {
+      "t": 105.726,
+      "data": {
+        "header": {
+          "seq": 1,
+          "stamp": {
+            "stamp_ns": 105726000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 1,
+        "payload_slot": 1,
+        "align_mode": "drop_circle",
+        "target_id": 2,
+        "target_class": "panzer",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    },
+    {
+      "t": 325.12,
+      "data": {
+        "header": {
+          "seq": 2,
+          "stamp": {
+            "stamp_ns": 325119000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 2,
+        "payload_slot": 2,
+        "align_mode": "drop_circle",
+        "target_id": 6,
+        "target_class": "bridge",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    }
+  ],
+  "recovery": [
+    {
+      "t": 108.305,
+      "class": "panzer"
+    },
+    {
+      "t": 327.34,
+      "class": "bridge"
+    }
+  ],
+  "raw_calls": [
+    1,
+    2
+  ],
+  "audit_status": "WAITING",
+  "audit_reason": "",
+  "contact": [
+    {
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "toudi2::Wall_13::Wall_13_collision"
+        ]
+      ],
+      "ros_stamp": 363.127,
+      "sequence": 1,
+      "wall_time": 1788950421.7859075
+    }
+  ],
+  "route_start_ros": null,
+  "land_start_ros": null,
+  "disarm_ros": null,
+  "route_to_disarm_sec": null,
+  "land_to_disarm_sec": null,
+  "final_center_error_m": 3.2074699491339387,
+  "final_envelope_radius_m": 3.5774122884811685,
+  "stopped_envelope_inside_nominal_circle": false,
+  "camera_frames": 2956,
+  "camera_span_ros": 362.898,
+  "video_decode_exit": 0,
+  "video_decode_error": "",
+  "abnormal_events": []
+}

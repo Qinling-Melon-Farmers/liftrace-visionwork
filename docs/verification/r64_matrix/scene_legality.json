@@ -1,0 +1,61 @@
+[
+  {
+    "seed": 1,
+    "target_wall_overlap": []
+  },
+  {
+    "seed": 2,
+    "target_wall_overlap": []
+  },
+  {
+    "seed": 3,
+    "target_wall_overlap": []
+  },
+  {
+    "seed": 4,
+    "target_wall_overlap": []
+  },
+  {
+    "seed": 5,
+    "target_wall_overlap": [
+      {
+        "target": "red_cross",
+        "wall": "Wall_13"
+      }
+    ]
+  },
+  {
+    "seed": 6,
+    "target_wall_overlap": []
+  },
+  {
+    "seed": 7,
+    "target_wall_overlap": [
+      {
+        "target": "red_cross",
+        "wall": "Wall_13"
+      }
+    ]
+  },
+  {
+    "seed": 8,
+    "target_wall_overlap": [
+      {
+        "target": "panzer",
+        "wall": "Wall_13"
+      }
+    ]
+  },
+  {
+    "seed": 9,
+    "target_wall_overlap": []
+  },
+  {
+    "seed": 10,
+    "target_wall_overlap": []
+  },
+  {
+    "seed": 11,
+    "target_wall_overlap": []
+  }
+]
