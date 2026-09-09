@@ -1432,7 +1432,8 @@ class NavigationVcl06AssertionNode:
         if receipt_wall is None:
             receipt_wall = time.monotonic()
         self._mission_started_wall = float(receipt_wall)
-        self._mission_started_ros = rospy.Time.now().to_sec()
+        if getattr(self, "_observe_full_trial", False):
+            self._mission_started_ros = rospy.Time.now().to_sec()
 
     def _timeout_reason(self, now_wall):
         now_wall = float(now_wall)

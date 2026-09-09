@@ -348,6 +348,9 @@ void LLController::externalMissionTick() {
         // Manager is preparing the next RESUME/RETURN_HOME transaction.
         // Hold the measured pose until a new planner command arrives.
         patrol_cmd = uav_pose;
+        // Keep the completed recovery climb target, not a transient measured height.
+        patrol_cmd.pose.position.z = align_height;
+        external_waiting_for_motion_ = true;
         patrol_cmd.header.frame_id = "camera_init";
         mavros_point_cmd = patrol_cmd;
         last_mavros_point_cmd = patrol_cmd;
@@ -1033,7 +1036,10 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                 // The external task chain has exactly one motion source:
                 // Planner Bridge -> Fast-Planner -> planner_cmd.  The 2025
                 // flag_planner_px4 switch remains a legacy-mode option only.
-                if (hasValidExternalPlannerCommand()) {
+                if (external_waiting_for_motion_) {
+                    // A fresh sample from an old trajectory is not a new mission.
+                    mavros_point_cmd = patrol_cmd;
+                } else if (hasValidExternalPlannerCommand()) {
                     mavros_point_cmd = planner_cmd;
                     if (mavros_point_cmd.pose.position.z >
                             external_planner_max_command_z_) {
@@ -2716,6 +2722,8 @@ void LLController::missionCommandCallback(
                     "[ExternalLanding] refusing navigation command after AUTO.LAND handoff");
                 return;
             }
+            external_waiting_for_motion_ = false;
+            have_planner_cmd = false;
             clearExternalLandingState(true);
             if (msg->command == patrol_control::MissionCommand::RESUME) {
                 resetDetectionState();
