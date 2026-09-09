@@ -1,5 +1,7 @@
 # 2026无人机竞赛整机工程
 
+R64联合结果：固定seed11完整PASS，十seed原始7/10完整PASS；5/7/8存在历史靶板压墙，现已修布设检查但未重跑矩阵。当前完整任务入口/包以liftrace-visionwork的feat/r2026-competition-integrated为准；本分支提供分组源码与报告，不把历史副本当作已独立验收的整机入口。见docs/verification/r64_matrix/REPORT.md。
+
 **R62 seed11已实际完成建图、自动起飞、搜索巡航、panzer第1槽仿真投递确认，并恢复搜索。** 此处按用户目标主动收尾，不是整场PASS，未运行seed1–10。源码8bedcc0，相机视频与原始记录已保留；main仍为R56历史验收。
 
 [本轮运行报告与轨迹](docs/verification/r62_operational/REPORT.md) · [运行条件](docs/verification/r62_operational/operational_status.json) · [首投证据](docs/verification/r62_operational/first_release_evidence.json) · [本地交付包](docs/BUNDLES.md)

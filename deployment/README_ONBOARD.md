@@ -2,7 +2,7 @@
 
 本包包含当前视觉、camera_sdk、导航/LIO/地图/规划/控制/任务代码、消息、参数和文档，附已选用的`runtime_models/merged_standard_fp32.rknn`。不含机械组PWM实现；保留`Servo`定义和`/legacy/Servo_raw`对接约定。`BUNDLE_MANIFEST.json`记录源码版本和权重来源。
 
-这是部署联调准备包。R62仅有seed11首投阶段SITL记录，新机架/地图没有全场飞行及实机验收，硬件默认runtime/control仍为此前配置；不能把解包完成等同可直接比赛。请先读`docs/HARDWARE.md`、`docs/CAMERA_AND_FLIGHT.md`与`docs/competition/RULES_20260906.md`。
+这是R64部署联调准备包。当前源码在新机架/地图seed11完成37/37完整SITL PASS，但板端实时/实机未验收。R63恢复控制修复属于共用机载源码；PX4自动降落修复另见deployment/px4_patches/README.md，需在匹配飞控固件版本确认或移植，不能仅更新伴随机源码而沿用有该缺陷的飞控固件。硬件默认runtime/control仍须按现场整体选配，不能把解包完成等同可直接比赛。请先读`docs/HARDWARE.md`、`docs/CAMERA_AND_FLIGHT.md`与`docs/competition/RULES_20260906.md`。
 
 在已有Ubuntu20.04/ROS Noetic、编译依赖及Livox SDK的机载环境解包后，于包根目录编译：
 
@@ -20,3 +20,5 @@ export UAV_VISION_RKNN_MODEL_PATH="$PWD/runtime_models/merged_standard_fp32.rknn
 外参最终为相机FC下16cm、IMU下21cm，落地镜头离支撑面6cm。`ground_z=-0.22`只适用于落地FC为local0；现场不同零点须重标。硬件默认旧搜索1.40是local值，不是新SITL的1.40m AGL；不能只覆盖runtime文件而忽略launch内搜索/高度上限。现场应整体选配并复核路线/坐标/高度、开启条件、RC接管，再做分级飞行。包中保留共享包内的测试及仿真launch便于构建追溯，但硬件入口不加载Gazebo/真值/接触评测/mock/自动解锁辅助节点。
 
 当前不提供自动启飞的systemd开机服务，也不包含机械舵机实现。随机门开口感知、赛前调整缓存/单次启动联调、带载投递及整机实时稳定性仍需完成。
+
+R64矩阵原始7/10完整PASS，seed3近地落地仍失败；本包不是实机放飞授权。仿真布设物理墙排除已在矩阵后修复，不改变机载传感器或任务输出。完整指标见docs/verification/r64_matrix/REPORT.md。

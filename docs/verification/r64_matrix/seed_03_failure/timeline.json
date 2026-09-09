@@ -1,0 +1,764 @@
+[
+  {
+    "t": 23.803,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 1,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_start",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 38.314,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 1,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 38.314,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 2,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 54.798,
+    "kind": "decision",
+    "command": 1,
+    "decision_seq": 3,
+    "status": null,
+    "stage": null,
+    "reason": "high_weight_search_interrupt",
+    "target_class": "bridge",
+    "goal": {
+      "x": 1.35206709426117,
+      "y": 0.6973257786911349,
+      "z": 1.38
+    }
+  },
+  {
+    "t": 64.639,
+    "kind": "result",
+    "command": 1,
+    "decision_seq": 3,
+    "status": 3,
+    "stage": 5,
+    "reason": "release_recovery_confirmed",
+    "target_class": "bridge",
+    "goal": null
+  },
+  {
+    "t": 64.64,
+    "kind": "decision",
+    "command": 3,
+    "decision_seq": 4,
+    "status": null,
+    "stage": null,
+    "reason": "resume_interrupted_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 74.771,
+    "kind": "result",
+    "command": 3,
+    "decision_seq": 4,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 74.774,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 5,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 0.7,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 78.504,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 5,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 78.507,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 6,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 0.7,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 105.704,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 6,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 105.713,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 7,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 1.4,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 109.741,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 7,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 109.747,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 8,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 1.4,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 136.199,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 8,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 136.202,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 9,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 2.0999999999999996,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 139.604,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 9,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 139.606,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 10,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 2.0999999999999996,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 168.441,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 10,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 168.443,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 11,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 2.8,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 172.236,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 11,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 172.241,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 12,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 2.8,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 199.588,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 12,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 199.592,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 13,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 3.5,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 202.866,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 13,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 202.866,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 14,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 3.5,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 208.193,
+    "kind": "decision",
+    "command": 1,
+    "decision_seq": 15,
+    "status": null,
+    "stage": null,
+    "reason": "high_weight_search_interrupt",
+    "target_class": "red_cross",
+    "goal": {
+      "x": 2.5424299493923357,
+      "y": 4.274421159241438,
+      "z": 1.38
+    }
+  },
+  {
+    "t": 218.575,
+    "kind": "result",
+    "command": 1,
+    "decision_seq": 15,
+    "status": 3,
+    "stage": 5,
+    "reason": "release_recovery_confirmed",
+    "target_class": "red_cross",
+    "goal": null
+  },
+  {
+    "t": 218.576,
+    "kind": "decision",
+    "command": 3,
+    "decision_seq": 16,
+    "status": null,
+    "stage": null,
+    "reason": "resume_interrupted_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 3.5,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 240.311,
+    "kind": "result",
+    "command": 3,
+    "decision_seq": 16,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 240.314,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 17,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 4.2,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 244.135,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 17,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 244.14,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 18,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 4.2,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 270.738,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 18,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 270.74,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 19,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 4.9,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 274.371,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 19,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 274.376,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 20,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 4.9,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 285.904,
+    "kind": "decision",
+    "command": 1,
+    "decision_seq": 21,
+    "status": null,
+    "stage": null,
+    "reason": "high_weight_search_interrupt",
+    "target_class": "panzer",
+    "goal": {
+      "x": 0.34588803368177845,
+      "y": 5.445788560746496,
+      "z": 1.38
+    }
+  },
+  {
+    "t": 295.833,
+    "kind": "result",
+    "command": 1,
+    "decision_seq": 21,
+    "status": 3,
+    "stage": 5,
+    "reason": "release_recovery_confirmed",
+    "target_class": "panzer",
+    "goal": null
+  },
+  {
+    "t": 295.864,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 22,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:1/9:r2026-r61-inner960-nominal-fixed-gaps:required_deliveries_complete",
+    "target_class": "",
+    "goal": {
+      "x": -4.05,
+      "y": 6.7,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 339.705,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 22,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 339.73,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 23,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:2/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete",
+    "target_class": "",
+    "goal": {
+      "x": -4.05,
+      "y": 6.7,
+      "z": 0.18
+    }
+  },
+  {
+    "t": 348.262,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 23,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 348.29,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 24,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:3/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete",
+    "target_class": "",
+    "goal": {
+      "x": -4.05,
+      "y": 8.35,
+      "z": 0.23
+    }
+  },
+  {
+    "t": 362.433,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 24,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 362.438,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 25,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:4/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete",
+    "target_class": "",
+    "goal": {
+      "x": -2.3,
+      "y": 8.7,
+      "z": 0.23
+    }
+  },
+  {
+    "t": 378.337,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 25,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 378.342,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 26,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:5/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete",
+    "target_class": "",
+    "goal": {
+      "x": -0.9000000000000001,
+      "y": 8.7,
+      "z": 0.23
+    }
+  },
+  {
+    "t": 391.652,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 26,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 391.667,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 27,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:6/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete",
+    "target_class": "",
+    "goal": {
+      "x": 0.0,
+      "y": 8.0,
+      "z": 0.23
+    }
+  },
+  {
+    "t": 402.004,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 27,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 402.013,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 28,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:7/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete",
+    "target_class": "",
+    "goal": {
+      "x": 0.9000000000000001,
+      "y": 8.0,
+      "z": 0.23
+    }
+  },
+  {
+    "t": 410.963,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 28,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 410.969,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 29,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:8/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete",
+    "target_class": "",
+    "goal": {
+      "x": 2.3,
+      "y": 8.0,
+      "z": 0.23
+    }
+  },
+  {
+    "t": 424.005,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 29,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 424.011,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 30,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:9/9:r2026-r61-inner960-nominal-fixed-gaps:segment_complete",
+    "target_class": "",
+    "goal": {
+      "x": 4.2,
+      "y": 8.5,
+      "z": 0.28
+    }
+  },
+  {
+    "t": 441.106,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 30,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 441.11,
+    "kind": "decision",
+    "command": 5,
+    "decision_seq": 31,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route_complete",
+    "target_class": "",
+    "goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    }
+  }
+]

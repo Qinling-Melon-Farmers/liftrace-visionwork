@@ -1,0 +1,723 @@
+[
+  {
+    "t": 22.504,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 1,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_start",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 36.554,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 1,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 36.556,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 2,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 40.803,
+    "kind": "decision",
+    "command": 1,
+    "decision_seq": 3,
+    "status": null,
+    "stage": null,
+    "reason": "high_weight_search_interrupt",
+    "target_class": "panzer",
+    "goal": {
+      "x": -2.865359556501919,
+      "y": 1.147048573263219,
+      "z": 1.38
+    }
+  },
+  {
+    "t": 61.155,
+    "kind": "result",
+    "command": 1,
+    "decision_seq": 3,
+    "status": 3,
+    "stage": 5,
+    "reason": "release_recovery_confirmed",
+    "target_class": "panzer",
+    "goal": null
+  },
+  {
+    "t": 61.155,
+    "kind": "decision",
+    "command": 3,
+    "decision_seq": 4,
+    "status": null,
+    "stage": null,
+    "reason": "resume_interrupted_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 82.918,
+    "kind": "result",
+    "command": 3,
+    "decision_seq": 4,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 82.921,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 5,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 0.7,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 86.319,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 5,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 86.321,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 6,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 0.7,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 114.151,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 6,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 114.155,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 7,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 1.4,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 117.72,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 7,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 117.721,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 8,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 1.4,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 145.319,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 8,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 145.321,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 9,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 2.0999999999999996,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 148.957,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 9,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 148.96,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 10,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 2.0999999999999996,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 178.086,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 10,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 178.087,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 11,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 2.8,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 181.687,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 11,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 181.689,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 12,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 2.8,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 208.492,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 12,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 208.496,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 13,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 3.5,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 212.054,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 13,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 212.056,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 14,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 3.5,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 224.5,
+    "kind": "decision",
+    "command": 1,
+    "decision_seq": 15,
+    "status": null,
+    "stage": null,
+    "reason": "high_weight_search_interrupt",
+    "target_class": "bridge",
+    "goal": {
+      "x": 0.4872938035240663,
+      "y": 4.126462386883231,
+      "z": 1.38
+    }
+  },
+  {
+    "t": 233.819,
+    "kind": "result",
+    "command": 1,
+    "decision_seq": 15,
+    "status": 3,
+    "stage": 5,
+    "reason": "release_recovery_confirmed",
+    "target_class": "bridge",
+    "goal": null
+  },
+  {
+    "t": 233.821,
+    "kind": "decision",
+    "command": 3,
+    "decision_seq": 16,
+    "status": null,
+    "stage": null,
+    "reason": "resume_interrupted_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 3.5,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 250.056,
+    "kind": "result",
+    "command": 3,
+    "decision_seq": 16,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 250.056,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 17,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 4.2,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 254.254,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 17,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 254.255,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 18,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 4.2,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 280.882,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 18,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 280.883,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 19,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 4.9,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 284.482,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 19,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 284.483,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 20,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 4.9,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 312.92,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 20,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 312.92,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 21,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 5.6000000000000005,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 316.219,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 21,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 316.221,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 22,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 5.6000000000000005,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 344.318,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 22,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 344.324,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 23,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 6.300000000000001,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 347.818,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 23,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 347.821,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 24,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 6.300000000000001,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 375.614,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 24,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 375.616,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 25,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": -4.3,
+      "y": 7.000000000000001,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 379.21,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 25,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 379.217,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 26,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "goal": {
+      "x": 4.3,
+      "y": 7.000000000000001,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 385.703,
+    "kind": "decision",
+    "command": 1,
+    "decision_seq": 27,
+    "status": null,
+    "stage": null,
+    "reason": "high_weight_search_interrupt",
+    "target_class": "red_cross",
+    "goal": {
+      "x": -1.9742752473039837,
+      "y": 7.261324888155521,
+      "z": 1.38
+    }
+  },
+  {
+    "t": 505.704,
+    "kind": "result",
+    "command": 1,
+    "decision_seq": 27,
+    "status": 7,
+    "stage": 1,
+    "reason": "decision_deadline_reached",
+    "target_class": "red_cross",
+    "goal": null
+  },
+  {
+    "t": 505.706,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 28,
+    "status": null,
+    "stage": null,
+    "reason": "target_action_timed_out_uncertain",
+    "target_class": "",
+    "goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 532.32,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 28,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "goal": null
+  },
+  {
+    "t": 532.323,
+    "kind": "decision",
+    "command": 5,
+    "decision_seq": 29,
+    "status": null,
+    "stage": null,
+    "reason": "return_home_complete",
+    "target_class": "",
+    "goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    }
+  },
+  {
+    "t": 539.482,
+    "kind": "result",
+    "command": 5,
+    "decision_seq": 29,
+    "status": 3,
+    "stage": 6,
+    "reason": "landed_state_and_settle_confirmed",
+    "target_class": "",
+    "goal": null
+  }
+]
