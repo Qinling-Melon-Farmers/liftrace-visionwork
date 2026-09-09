@@ -63,6 +63,8 @@ ros::Time start_time_;
 int traj_id_;
 double execution_time_ = 0.0;
 bool trajectory_interrupted_ = false;
+bool tracking_hold_active_ = false;
+Eigen::Vector3d tracking_hold_position_;
 Eigen::Vector3d stop_position_ = Eigen::Vector3d::Zero();
 
 // yaw control
@@ -181,6 +183,7 @@ void bsplineCallback(plan_manage::BsplineConstPtr msg) {
   traj_duration_ = traj_[0].getTimeSum();
   execution_time_ = 0.0;
   trajectory_interrupted_ = false;
+  tracking_hold_active_ = false;
 
   receive_traj_ = true;
 }
@@ -302,10 +305,14 @@ void cmdCallback(const ros::TimerEvent& e) {
     pos = stop_position_;
     vel.setZero();
     acc.setZero();
-  } else if ((pos - odom_pos_).norm() > target_dist + 0.05) {
+  } else if (tracking_hold_active_ || (pos - odom_pos_).norm() > target_dist + 0.05) {
     // Lost path tracking must not jump to a distant endpoint. The FSM
     // replans from measured state while the controller holds locally.
-    pos = odom_pos_;
+    if (!tracking_hold_active_) {
+      tracking_hold_position_ = odom_pos_;
+      tracking_hold_active_ = true;
+    }
+    pos = tracking_hold_position_;
     vel.setZero();
     acc.setZero();
   }

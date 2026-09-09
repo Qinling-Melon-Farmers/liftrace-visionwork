@@ -115,7 +115,9 @@ class ExternalMissionContractTest(unittest.TestCase):
             timer_body.index("if (current_task_type == MAIN_MISSION)")]
         self.assertIn("hasValidExternalPlannerCommand", external_run)
         self.assertNotIn("if (!flag_planner_px4)", external_run)
-        self.assertNotIn("mavros_point_cmd = patrol_cmd;", external_run)
+        self.assertIn("if (external_waiting_for_motion_)", external_run)
+        self.assertNotIn("mavros_point_cmd = patrol_cmd;",
+                         external_run.split("else if (hasValidExternalPlannerCommand())", 1)[1])
 
         init_start = source.index("void LLController::initializeNode")
         init_end = source.index("void LLController::positionCallback", init_start)

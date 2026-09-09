@@ -72,7 +72,8 @@ uav_vision:
   require_release_permission: true
   release_permission_state_topic: /mission/release_permission_active
   release_permission_timeout: 0.2
-  recovery_height: 0.73
+  # Same local height threshold as target/recovery_height in planner bridge.
+  recovery_height: 0.95
   selected_target_timeout: 1.0
   drop_offset_timeout: 1.0
   pixel_to_meter_ratio: 0.0015
