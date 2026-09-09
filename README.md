@@ -11,7 +11,7 @@
 ```bash
 bash top_level_scripts/build_competition.sh
 # 先按deployment/px4_patches说明构建对应PX4；只在明确授权后运行。
-UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_STORAGE_GUARD_PATH=/mnt/f SIM_NO_RECORD=1 SIM_RUN_AUTHORIZED=1 bash top_level_scripts/run_competition_sim.sh field_seed:=11 record_camera_video:=true record_overview_video:=true
+UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_STORAGE_GUARD_PATH=/mnt/f SIM_NO_RECORD=1 SIM_RUN_AUTHORIZED=1 bash top_level_scripts/run_competition_sim.sh field_seed:=11 gui:=false rviz:=false record_camera_video:=false record_overview_video:=false
 ```
 
 不启动Gazebo GUI也可录制服务端俯视相机和机载相机。视频/大日志留本地logs，默认0bag；坐标时序以CSV为准。[部署包](deployment/README_ONBOARD.md)、[仿真包](deployment/README_SIMULATION.md)、[任务](VISION_2026_ROADMAP.md)、[验收](docs/VALIDATION.md)、[环境](docs/ENVIRONMENT.md)、[规则](docs/competition/RULES_20260906.md)。
@@ -21,3 +21,6 @@ UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_STORAGE_GUARD_PATH=/mnt/f SIM_N
 随机世界工具见[使用说明](docs/verification/r64_randomization/README.md)和simulation_tools；默认成功路线不变，随机门实际飞行尚未验收。
 
 当前[R64全图/核心/仅飞行rqt拓扑](docs/topology/r64/README.md)已按PASS运行注册快照离线更新。[时间优化、轻量仓复用与辅助相机计划](docs/planning/r64_time_camera/PLAN.md)附10种策略×11布局几何比较；这些优化尚未接入飞行，安全返航仍关闭。
+
+
+2026-09-09最新记录策略：后续无头运行只留日志/关键数据，关闭机载录像、俯视录像、桌面录屏和全场bag，在线机载图像仍供视觉算法使用。已有R64验收录像保留，未删除。

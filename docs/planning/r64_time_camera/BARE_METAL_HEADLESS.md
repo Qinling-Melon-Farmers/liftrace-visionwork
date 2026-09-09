@@ -4,7 +4,7 @@
 
 ## 无头运行约定
 
-当前`navigation_horizontal_search_vcl06.launch`已默认`gui=false`、`rviz=false`。保留gzserver、PX4 SITL、ROS、相机渲染和视觉处理；不启动gzclient、RViz或QGC。`SIM_NO_RECORD=1`关闭桌面录屏，不会关闭独立的机载相机录像。机载录像用`record_camera_video:=true`；俯视观察相机按任务选择`record_overview_video`，它同样在服务端渲染，不需要GUI。无头不等于纯CPU或没有图形运行库。
+当前`navigation_horizontal_search_vcl06.launch`已默认`gui=false`、`rviz=false`。保留gzserver、PX4 SITL、ROS、机载图像渲染和视觉处理；不启动gzclient、RViz或QGC。按用户最新要求，后续只留日志：`SIM_NO_RECORD=1`、`record_camera_video:=false`、`record_overview_video:=false`、`record_debug:=false`，保留`record_key_info:=true`。桌面录屏现也默认关闭；历史验收录像不删除。无头/不录像不等于不生成视觉输入或不需要图形运行库。
 
 正式运行仍只用本工程`sim_run.sh`包装器和单实例收尾，不用Astra示例直接拉起多套进程。取得具体轮次授权后，显式携带`gui:=false rviz:=false`即可；本次没有启动任何轮次。
 
@@ -26,7 +26,7 @@
 5. 从Astra的`simulation/sim_workspace`构建需要的仿真插件，特别是`sensors/Mid360_simulation_plugin/livox_laser_simulation`；带上`mid360-real-centr.csv`及其路径依赖。在服务器重新编译并核对共享库，不直接搬本机devel二进制。
 6. 解包当前R64仿真工程及模型/权重，先视觉后导航构建。当前地图、相机和机架由竞赛包提供；Astra提供仿真底座，不能用其原示例世界或旧相机覆盖当前9.6m地图和16/21/6cm外参。
 7. 在每个作业环境显式设置`PX4_ROOT`、`ASTRA_LIB`、`ASTRA_SIM_LIB`、`VISION_PYTHON`、`UAV_VISION_MODEL_PATH`，不沿用本机`/home/xhj`默认路径；日志写该作业目录，不把本机WSL的`/mnt/f`空间检查直接搬到服务器。
-8. 先做版本/库加载/包路径静态检查。得到新实跑授权后再进行单实例seed11检查：图像非黑屏、真实传感器频率、建图/起飞/巡航/投递、Gate、两类录像可解码及收尾。单作业达到本地口径后，按[远程隔离方案](REMOTE_SERVER_PLAN.md)逐步增并发。
+8. 先做版本/库加载/包路径静态检查。得到新实跑授权后再进行单实例seed11检查：在线图像非黑屏、真实传感器频率、建图/起飞/巡航/投递、Gate、关键日志完整及收尾，不录视频。单作业达到本地口径后，按[远程隔离方案](REMOTE_SERVER_PLAN.md)逐步增并发。
 
 轻量几何服务器无需安装这一整套ROS/PX4/Gazebo。它可先在纯Python环境按seed/策略分发CPU作业；完整视觉仿真另使用具有图形渲染和CUDA能力的GPU节点。多路CPU并非必需，高性能核心数量、单核速度、内存带宽和任务隔离更直接影响吞吐。
 

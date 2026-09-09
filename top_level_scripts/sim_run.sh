@@ -286,8 +286,8 @@ if [ "${SIM_HELPERS:-0}" = "1" ]; then
   sleep 2
 fi
 
-# ---- ffmpeg 录屏（可选：SIM_NO_RECORD=1 关闭） ----
-if [ "${SIM_NO_RECORD:-0}" != "1" ]; then
+# ---- Desktop recording is opt-in; routine runs keep logs only. ----
+if [ "${SIM_NO_RECORD:-1}" != "1" ]; then
   ffmpeg -f x11grab -framerate 10 -video_size 1280x720 -i :0 \
     -c:v libx264 -preset ultrafast -crf 28 "${RECORD_MP4}" \
     &>/tmp/sim_run_ffmpeg_$$.log &
