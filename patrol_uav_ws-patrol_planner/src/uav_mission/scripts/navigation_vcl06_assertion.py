@@ -199,7 +199,11 @@ def _normalize_route(route):
     return tuple(result)
 
 
-def _normalize_doors(doors, route_size):
+def _normalize_doors(doors, route_size, expected_order=EXPECTED_DOOR_ORDER):
+    if (not isinstance(expected_order, (list, tuple)) or not expected_order or
+            any(not isinstance(name, str) or not name for name in expected_order) or
+            len(set(expected_order)) != len(expected_order)):
+        raise ValueError("expected door order must contain unique names")
     if not isinstance(doors, (list, tuple)):
         raise ValueError("post_delivery_gate/doors must be a list")
     result = []
@@ -250,8 +254,8 @@ def _normalize_doors(doors, route_size):
             z_min=z_min,
             z_max=z_max,
         ))
-    if result and tuple(item.name for item in result) != EXPECTED_DOOR_ORDER:
-        raise ValueError("door order must be Wall_15,Wall_20,Wall_22")
+    if result and tuple(item.name for item in result) != tuple(expected_order):
+        raise ValueError("door order must be " + ",".join(expected_order))
     return tuple(result)
 
 
@@ -271,7 +275,9 @@ class Vcl06GateReducer:
                  post_delivery_route_revision="direct-home-v1",
                  post_delivery_goal_tolerance=0.18,
                  post_delivery_doors=(), landing_xy=(0.0, 0.0),
-                 landing_h_tolerance=0.35, gate_scope="full"):
+                 landing_h_tolerance=0.35, gate_scope="full",
+                 expected_door_order=EXPECTED_DOOR_ORDER,
+                 low_height_region=None, ground_z=0.0):
         self.profile = str(profile)
         self.nav_feature_profile = str(nav_feature_profile)
         self.mission_frame = str(mission_frame)
@@ -283,6 +289,8 @@ class Vcl06GateReducer:
             "min_y": -1.132, "max_y": 8.718,
         })
         self.max_height = float(max_height)
+        self.ground_z = float(ground_z)
+        self.low_height_region = dict(low_height_region or {})
         self.max_mission_sec = float(max_mission_sec)
         self.forced_return_sec = float(forced_return_sec)
         tolerance_sec = float(command_stamp_future_tolerance_sec)
@@ -302,7 +310,7 @@ class Vcl06GateReducer:
                 self.post_delivery_goal_tolerance <= 0.0):
             raise ValueError("post-delivery route configuration invalid")
         self.post_delivery_doors = _normalize_doors(
-            post_delivery_doors, len(self.post_delivery_route))
+            post_delivery_doors, len(self.post_delivery_route), expected_door_order)
         if self.post_delivery_route and not self.post_delivery_doors:
             raise ValueError("post-delivery route requires door gates")
         if (not isinstance(landing_xy, (list, tuple)) or
@@ -797,6 +805,9 @@ class Vcl06GateReducer:
             self._error("pose_frame_mismatch")
             return
         x, y, z = (float(value) for value in values)
+        # Pose z belongs to the navigation frame; scoring limits and door
+        # heights are measured above the actual ground in that frame.
+        z -= self.ground_z
         self.pose_samples += 1
         self.max_observed_height = (
             z if self.max_observed_height is None else
@@ -810,6 +821,12 @@ class Vcl06GateReducer:
         if z > self.max_height:
             self.height_violations += 1
             self._error("height_limit_violation")
+        region = self.low_height_region
+        if (region and region["min_x"] <= x <= region["max_x"] and
+                region["min_y"] <= y <= region["max_y"] and
+                z > region["max_height"]):
+            self.height_violations += 1
+            self._error("corridor_height_limit_violation")
         route_index = self.active_post_delivery_route_index
         previous = self.route_pose_previous
         self.route_pose_previous = (x, y, z, route_index)
@@ -1189,6 +1206,8 @@ class NavigationVcl06AssertionNode:
         self.exit_code = 1
         self._assertion_started_wall = time.monotonic()
         self._mission_started_wall = None
+        self._mission_started_ros = None
+        self._observe_full_trial = bool(rospy.get_param("~observe_full_trial", False))
         self._startup_wall_timeout = float(rospy.get_param(
             "~startup_wall_timeout", 180.0))
         self._wall_timeout = float(rospy.get_param("~wall_timeout", 650.0))
@@ -1227,10 +1246,14 @@ class NavigationVcl06AssertionNode:
                 "max_y": float(rospy.get_param("~field/max_y", 8.718)),
             },
             max_height=float(rospy.get_param("~max_height", 4.0)),
+            ground_z=float(rospy.get_param("~ground_z", 0.0)),
+            low_height_region=rospy.get_param(
+                "~post_delivery_gate/low_height_region", {}),
             max_mission_sec=float(rospy.get_param(
                 "~max_mission_sec", 600.0)),
             forced_return_sec=float(rospy.get_param(
-                "~mission/forced_return_at", 420.0)),
+                "~mission/forced_return_at", 420.0) if rospy.get_param("~mission/early_return_enabled", True)
+                else rospy.get_param("~mission/timeout", 600.0)),
             command_stamp_future_tolerance_sec=float(rospy.get_param(
                 "~readiness/stamp_future_tolerance", 0.05)),
             expected_goal_publisher=self._expected_goal_publisher,
@@ -1242,6 +1265,8 @@ class NavigationVcl06AssertionNode:
                 "~post_delivery_gate/goal_tolerance", 0.18)),
             post_delivery_doors=rospy.get_param(
                 "~post_delivery_gate/doors", []),
+            expected_door_order=rospy.get_param(
+                "~post_delivery_gate/expected_door_order", list(EXPECTED_DOOR_ORDER)),
             landing_xy=rospy.get_param("~mission/landing_xy", [0.0, 0.0]),
             landing_h_tolerance=float(rospy.get_param(
                 "~post_delivery_gate/final_h_tolerance", 0.35)),
@@ -1407,6 +1432,8 @@ class NavigationVcl06AssertionNode:
         if receipt_wall is None:
             receipt_wall = time.monotonic()
         self._mission_started_wall = float(receipt_wall)
+        if getattr(self, "_observe_full_trial", False):
+            self._mission_started_ros = rospy.Time.now().to_sec()
 
     def _timeout_reason(self, now_wall):
         now_wall = float(now_wall)
@@ -1522,9 +1549,23 @@ class NavigationVcl06AssertionNode:
     def _check_terminal(self, timeout_reason=""):
         if self._finished:
             return
+        if (self._observe_full_trial and self._mission_started_ros is not None
+                and rospy.Time.now().to_sec() - self._mission_started_ros >= self.reducer.max_mission_sec):
+            timeout_reason = timeout_reason or "full_trial_mission_timeout"
         report = self.reducer.report(timeout_reason=timeout_reason)
         if report["status"] == "WAITING":
             return
+        if self._observe_full_trial:
+            elapsed = (None if self._mission_started_ros is None else
+                       rospy.Time.now().to_sec() - self._mission_started_ros)
+            timed_out = elapsed is not None and elapsed >= self.reducer.max_mission_sec
+            landed = (self.reducer.latest_landed_state == LANDED_STATE_ON_GROUND
+                      and self.reducer.latest_armed is False
+                      and self._mission_started_ros is not None)
+            collision = "actual_collision" in report["errors"]
+            if not (timed_out or landed or collision or timeout_reason or
+                    report["status"] == "PASS"):
+                return
         self._finished = True
         self.exit_code = 0 if report["status"] == "PASS" else 1
         try:

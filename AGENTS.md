@@ -17,7 +17,7 @@
 7. **不硬编码新路径、新话题、新内参。** 新增代码必须通过 launch/yaml 参数配置相机话题、相机内参、TF frame、模型路径、输出话题。
 8. **不在 OrangePi 5 Plus 上跑 PyTorch 大模型作为主路径。** 板端推理路线优先 RKNN/NPU；OpenCV CPU 只做 ROI 几何精修与轻量检测。
 9. **保留旧接口兼容。** 改造视觉系统时，内部可以新增 `/uav_vision/*`，但短期必须兼容旧 `/detect/*` 话题，避免破坏 `patrol_control`。
-10. **遇到规则不确定项要标注。** 例如规则书对某类靶标的得分权重表述存在缺口时，应先标注并确认，不能擅自假定其最高优先级（`tank` 权重已确认 = 5，不再作为不确定项）。
+10. **遇到规则不确定项要标注。** 例如规则书对某类靶标的得分权重表述存在缺口时，应先标注并确认，不能擅自假定其最高优先级（2026-09-06会议已取消实物投递赛tank/移动靶，以docs/competition/RULES_20260906.md为准）。
 11. **Python 开发和模型训练优先使用已有 conda 环境。** 本机已配置 miniconda3 和 `rl_drone` 环境（含 PyTorch 2.5.1、Ultralytics 8.4.33、OpenCV 4.13 等），激活方式：`source /home/xhj/miniconda3/etc/profile.d/conda.sh && conda activate rl_drone`。禁止在系统 Python 中另行 pip install。如果确有需要新建 conda 环境，必须先申请并经用户确认后再执行。
 12. **每次变更完成后必须追加联调变更记录。** 代码、脚本、launch、配置、文档的任何修订，都必须在 [docs/仿真联调变更记录.md](/home/xhj/liftrace/docs/仿真联调变更记录.md) 文末按模板追加一条记录，至少包含：日期、改动范围、具体改动、验证结果、遗留问题、下一步。
 13. **WSL shell 命令必须用 `wsl -e bash -c '...'` 执行。** 本机宿主为 Windows 11，开发环境在 WSL2 Ubuntu 20.04 中。Claude Code 的 Bash 工具默认使用 Windows 原生 bash（而非 WSL 内 bash），会导致以下问题：
@@ -341,7 +341,7 @@ PX4/Gazebo/Astra（外部依赖与仿真底座）
 必须使用开源飞控
 总重量 ≤ 3 kg
 轴距 ≤ 500 mm
-必须配备桨叶保护装置
+实物投递赛不强制桨叶保护装置（2026-09-06会议；不得套用竞速全包要求）
 必须配备遥控器和紧急停止开关
 不允许使用差分 GPS / 差分北斗等高精度定位设备
 严禁使用品牌、商用或成品无人机
@@ -356,10 +356,10 @@ PX4/Gazebo/Astra（外部依赖与仿真底座）
 快递投送：最高 72.5 分
 障碍区过门：最多 30 分；无撞击通过一扇门 15 分，撞击通过 10 分
 自主降落：10 分，压边 5 分
-标准图案权重：tent=1, pillbox=1.5, bridge=2, panzer=2.5, tank=5, red_cross=10
+正式五类：tent=1, pillbox=1.5, bridge=2, panzer=2.5, red_cross=10；tank/移动靶已取消。分值为旧规则书延续项。
 ```
 
-注意：`tank` 得分权重已确认（tank=5），此前"权重表述存在缺口"的标注已由补充规则确认解除。
+注意：2026-09-06实物投递赛会议明确五个静态随机靶，tank/移动靶已取消。保护罩不强制、内部门严格80cm且开口随机，规则以docs/competition/RULES_20260906.md为准。
 
 ---
 

@@ -197,6 +197,7 @@ private:
     bool update_goal_from_selected_target_ = true;
     bool require_vision_release_permission_ = false;
     bool external_mission_mode_ = false;
+    bool external_waiting_for_motion_ = false;
     bool control_ready_latched_ = false;
     std::string control_ready_topic_ = "/mission/control_ready";
     std::string mission_command_topic_ = "/mission/command";

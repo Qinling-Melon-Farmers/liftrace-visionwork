@@ -348,6 +348,9 @@ void LLController::externalMissionTick() {
         // Manager is preparing the next RESUME/RETURN_HOME transaction.
         // Hold the measured pose until a new planner command arrives.
         patrol_cmd = uav_pose;
+        // Keep the completed recovery climb target, not a transient measured height.
+        patrol_cmd.pose.position.z = align_height;
+        external_waiting_for_motion_ = true;
         patrol_cmd.header.frame_id = "camera_init";
         mavros_point_cmd = patrol_cmd;
         last_mavros_point_cmd = patrol_cmd;
@@ -974,6 +977,14 @@ void LLController::servoMarkyCallback(const std_msgs::Bool& msg) {
     ROS_INFO("\033[1;35m[servoMarkyCallback] Received servo_marky: %s\033[0m", servo_marky.data ? "true" : "false");
 }
 void LLController::cmdCallback(const ros::TimerEvent& event) {
+    double phase_lead = px4_max_distance;
+    double phase_ceiling = external_planner_max_command_z_;
+    if (nh_.getParamCached("px4_max_distance", phase_lead) &&
+        std::isfinite(phase_lead) && phase_lead > 0.0)
+        px4_max_distance = phase_lead;
+    if (nh_.getParamCached("external_planner_max_command_z", phase_ceiling) &&
+        std::isfinite(phase_ceiling) && phase_ceiling > 0.05 && phase_ceiling <= 4.0)
+        external_planner_max_command_z_ = phase_ceiling;
     if(!isQuaternionNormalized(uav_pose.pose.orientation)){
         std::cout<<"\033[33m[WARN]: The quaternion of the drone position has not been unitized. Please check whether the position information is correct!\033[0m"<<std::endl;
         return;
@@ -1025,7 +1036,10 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                 // The external task chain has exactly one motion source:
                 // Planner Bridge -> Fast-Planner -> planner_cmd.  The 2025
                 // flag_planner_px4 switch remains a legacy-mode option only.
-                if (hasValidExternalPlannerCommand()) {
+                if (external_waiting_for_motion_) {
+                    // A fresh sample from an old trajectory is not a new mission.
+                    mavros_point_cmd = patrol_cmd;
+                } else if (hasValidExternalPlannerCommand()) {
                     mavros_point_cmd = planner_cmd;
                     if (mavros_point_cmd.pose.position.z >
                             external_planner_max_command_z_) {
@@ -1317,6 +1331,13 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
         mavros_point_cmd.pose.position.y = new_pos.y();
         mavros_point_cmd.pose.position.z = new_pos.z();
         ROS_INFO_THROTTLE(2, "Target point adjusted to max distance limit.");
+    }
+
+    // Vertical takeoff must hold the launch XY independently of the Z slew.
+    // A 3-D lookahead otherwise moves XY toward the drifting measured pose.
+    if (Drone_mode == Takeoff) {
+        mavros_point_cmd.pose.position.x = takeoff_point[0];
+        mavros_point_cmd.pose.position.y = takeoff_point[1];
     }
 
     // The distance limiter interpolates from the current vehicle pose.  When
@@ -2168,11 +2189,15 @@ bool LLController::WayPointDetectDone()
         ROS_INFO("\033[32m[WayPointDetectDone] Received valid target point, detection count: %d\033[0m", times_detect);
         ROS_INFO("\033[32m[WayPointDetectDone] have_waypoint_mark adjust_target_position: %.2f %.2f", waypoint_mark_point.pose.position.x, waypoint_mark_point.pose.position.y);
     }else{
-        // 没有目标就发送原始航路点
-        adjust_target_position[0] = waypoint_list[waypoint_next].x;
-        adjust_target_position[1] = waypoint_list[waypoint_next].y;
-        adjust_target_position[2] = waypoint_list[waypoint_next].z;
-        adjust_target_position[3] = waypoint_list[waypoint_next].yaw;
+        // External ALIGN already latched this transaction's position/height/yaw.
+        // Missing a visual update must hold that target for reacquisition;
+        // the old route table belongs only to standalone legacy missions.
+        if (!external_mission_mode_) {
+            adjust_target_position[0] = waypoint_list[waypoint_next].x;
+            adjust_target_position[1] = waypoint_list[waypoint_next].y;
+            adjust_target_position[2] = waypoint_list[waypoint_next].z;
+            adjust_target_position[3] = waypoint_list[waypoint_next].yaw;
+        }
 
         ROS_DEBUG_THROTTLE(2, "\033[33m[WayPointDetectDone] Waiting for valid target point...\033[0m");
         ROS_INFO("\033[32m[WayPointDetectDone] no valid circle : adjust_target_position: %.2f, %.2f", adjust_target_position[0], adjust_target_position[1]);
@@ -2697,6 +2722,8 @@ void LLController::missionCommandCallback(
                     "[ExternalLanding] refusing navigation command after AUTO.LAND handoff");
                 return;
             }
+            external_waiting_for_motion_ = false;
+            have_planner_cmd = false;
             clearExternalLandingState(true);
             if (msg->command == patrol_control::MissionCommand::RESUME) {
                 resetDetectionState();

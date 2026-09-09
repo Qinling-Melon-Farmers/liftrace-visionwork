@@ -1,0 +1,5 @@
+{
+  "source": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env",
+  "head": "19dcb424b176776ec34a48c75d6aab9036952c80",
+  "reason": "AGENTS legacy package snapshot before planner map source patch"
+}

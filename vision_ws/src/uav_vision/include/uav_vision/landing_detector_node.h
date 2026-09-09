@@ -70,6 +70,8 @@ private:
   double radius_min_;
   double radius_max_;
   bool enable_h_structure_check_;
+  bool enable_h_stroke_fallback_;
+  double h_stroke_min_size_px_;
   double h_inner_scale_;
   int h_saturation_max_;
   int h_value_max_;

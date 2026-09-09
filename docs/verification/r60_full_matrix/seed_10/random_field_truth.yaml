@@ -1,0 +1,57 @@
+# Random-field truth (evaluation only; never a control input)
+profile: r2026
+seed: 10
+spawn_offset:
+  x: -0.4934
+  y: -1.7727
+search_region:
+  min_x: -2.0070
+  max_x: 1.9930
+  min_y: 0.2730
+  max_y: 6.2730
+targets:
+  - class: tent
+    model: random_tent
+    source: zhangpeng
+    footprint_radius: 0.7071
+    x: 0.3519
+    y: 5.3253
+    world_x: -0.1415
+    world_y: 3.5526
+    yaw: 1.6542
+  - class: pillbox
+    model: random_pillbox
+    source: dibao
+    footprint_radius: 0.7071
+    x: -1.0893
+    y: 4.4477
+    world_x: -1.5827
+    world_y: 2.6751
+    yaw: 0.5524
+  - class: bridge
+    model: random_bridge
+    source: qiaoliang
+    footprint_radius: 0.7071
+    x: 1.0943
+    y: 1.3687
+    world_x: 0.6009
+    world_y: -0.4040
+    yaw: -0.2128
+  - class: panzer
+    model: random_panzer
+    source: zhuangjiache
+    footprint_radius: 0.7071
+    x: -1.1798
+    y: 1.1037
+    world_x: -1.6732
+    world_y: -0.6690
+    yaw: -2.4198
+  - class: red_cross
+    model: random_red_cross
+    source: red_cross
+    footprint_radius: 0.2475
+    x: 0.9217
+    y: 4.2582
+    world_x: 0.4282
+    world_y: 2.4855
+    yaw: 0.0936

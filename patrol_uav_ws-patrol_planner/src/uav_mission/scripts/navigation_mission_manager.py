@@ -184,6 +184,7 @@ class NavigationMissionManager:
         if not isinstance(route_values, (list, tuple)):
             raise ValueError("mission/post_delivery_route must be a list")
         post_delivery_route = []
+        route_yaw = float(rospy.get_param("~mission/post_delivery_yaw", 0.0))
         for index, point in enumerate(route_values):
             if (not isinstance(point, (list, tuple)) or len(point) != 3 or
                     any(isinstance(value, bool) or not isinstance(value, Real)
@@ -192,7 +193,8 @@ class NavigationMissionManager:
                     "mission/post_delivery_route[%d] must be [x,y,z]" %
                     index)
             post_delivery_route.append(GoalSnapshot(
-                mission_frame, *(float(value) for value in point)))
+                mission_frame, *(float(value) for value in point),
+                yaw=route_yaw))
         return MissionConfig(
             mission_frame=mission_frame,
             candidate_max_age=rospy.get_param(
@@ -205,6 +207,7 @@ class NavigationMissionManager:
             retry_cooldown=rospy.get_param(
                 "~mission/retry_cooldown", 20.0),
             mission_timeout=rospy.get_param("~mission/timeout", 600.0),
+            early_return_enabled=rospy.get_param("~mission/early_return_enabled", True),
             forced_return_at=rospy.get_param(
                 "~mission/forced_return_at", 510.0),
             return_land_reserve=rospy.get_param(
@@ -563,6 +566,17 @@ class NavigationMissionManager:
             return
         if action.command not in COMMAND_VALUES:
             raise ValueError("unsupported core command: %s" % action.command)
+        # This is the task owner's existing route cursor, not simulator truth.
+        # Stages are applied before publishing the next goal, after the prior
+        # waypoint has satisfied the normal execution arrival check.
+        if action.command == "RETURN_HOME" and action.reason.startswith("post_delivery_route:"):
+            completed = self._runtime.core.post_delivery_route_index
+            for stage in rospy.get_param("~mission/post_delivery_parameter_stages", []):
+                if completed == int(stage["after_completed_waypoints"]):
+                    for name, value in stage["parameters"].items():
+                        rospy.set_param(name, value)
+                    rospy.loginfo("Flight parameter stage after %d waypoints: %s",
+                                  completed, stage["parameters"])
         message = NavigationDecision()
         message.header.seq = int(action.decision_seq)
         message.header.stamp = rospy.Time.from_sec(action.issued_at)
@@ -594,6 +608,8 @@ class NavigationMissionManager:
             message.goal.pose.position.x = action.goal.x
             message.goal.pose.position.y = action.goal.y
             message.goal.pose.position.z = action.goal.z
+            message.goal.pose.orientation.z = math.sin(action.goal.yaw / 2.0)
+            message.goal.pose.orientation.w = math.cos(action.goal.yaw / 2.0)
         message.reason = action.reason
         self._decision_pub.publish(message)
         rospy.loginfo(

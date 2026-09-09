@@ -78,10 +78,21 @@ def footprint_clear(x, y, radius, occupied, gap=0.0):
     return True
 
 
+def footprint_clear_boxes(x, y, radius, boxes, margin=0.0):
+    """Conservative circular target footprint versus physical wall AABBs."""
+    for min_x, max_x, min_y, max_y in boxes:
+        dx = max(min_x-x, 0.0, x-max_x)
+        dy = max(min_y-y, 0.0, y-max_y)
+        if math.hypot(dx, dy) < radius + margin:
+            return False
+    return True
+
+
 def plan_footprint_layout(rng, targets, occupied, search_bounds,
                           field_bounds, boundary_margin=0.0, pair_gap=0.0,
                           offset_x=0.0, offset_y=0.0,
-                          attempts_per_target=4000, layout_attempts=64):
+                          attempts_per_target=4000, layout_attempts=64,
+                          occupied_boxes=()):
     """Sample a complete layout, restarting instead of keeping a dead end.
 
     Sequential rejection sampling can place early targets so that a later
@@ -94,6 +105,8 @@ def plan_footprint_layout(rng, targets, occupied, search_bounds,
     if attempts_per_target <= 0 or layout_attempts <= 0:
         raise ValueError("layout attempt limits must be positive")
     target_specs = [(str(name), float(radius)) for name, radius in targets]
+    occupied_boxes = tuple(validate_bounds(box, "occupied box")
+                           for box in occupied_boxes)
     if any(not math.isfinite(radius) or radius < 0.0
            for _name, radius in target_specs):
         raise ValueError("target footprint radii must be finite and nonnegative")
@@ -116,6 +129,9 @@ def plan_footprint_layout(rng, targets, occupied, search_bounds,
                     continue
                 world_x = local_x + float(offset_x)
                 world_y = local_y + float(offset_y)
+                if not footprint_clear_boxes(world_x, world_y, radius,
+                                             occupied_boxes, boundary_margin):
+                    continue
                 if footprint_clear(
                         world_x, world_y, radius, trial_occupied, pair_gap):
                     sample = (local_x, local_y)

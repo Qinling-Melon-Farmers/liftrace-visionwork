@@ -1,0 +1,108 @@
+{
+  "deleted_bags": 20,
+  "deleted_bytes": 19906342826,
+  "deleted": [
+    {
+      "run": "r2026_r57_toudi4_085_20260907_172823",
+      "file": "navigation_vcl06_debug_2026-09-07-17-28-44_0.bag",
+      "bytes": 1078664575
+    },
+    {
+      "run": "r2026_r57_toudi4_085_20260907_172823",
+      "file": "navigation_vcl06_debug_2026-09-07-17-30-47_1.bag",
+      "bytes": 1078847438
+    },
+    {
+      "run": "r2026_r57_toudi4_085_20260907_172823",
+      "file": "navigation_vcl06_debug_2026-09-07-17-32-26_2.bag",
+      "bytes": 1078736568
+    },
+    {
+      "run": "r2026_r57_toudi4_085_20260907_172823",
+      "file": "navigation_vcl06_debug_2026-09-07-17-34-24_3.bag",
+      "bytes": 1081533575
+    },
+    {
+      "run": "r2026_r57_toudi4_085_20260907_172823",
+      "file": "navigation_vcl06_debug_2026-09-07-17-36-15_4.bag",
+      "bytes": 1074519701
+    },
+    {
+      "run": "r2026_r57_toudi4_085_20260907_172823",
+      "file": "navigation_vcl06_debug_2026-09-07-17-38-03_5.bag",
+      "bytes": 1074382828
+    },
+    {
+      "run": "r2026_r57_toudi4_085_20260907_172823",
+      "file": "navigation_vcl06_debug_2026-09-07-17-39-43_6.bag",
+      "bytes": 1074502861
+    },
+    {
+      "run": "r2026_r57_toudi4_085_20260907_172823",
+      "file": "navigation_vcl06_debug_2026-09-07-17-41-38_7.bag",
+      "bytes": 1079004077
+    },
+    {
+      "run": "r2026_r57_toudi4_085_20260907_172823",
+      "file": "navigation_vcl06_debug_2026-09-07-17-43-35_8.bag",
+      "bytes": 1074018808
+    },
+    {
+      "run": "r2026_r57_toudi4_085_20260907_172823",
+      "file": "navigation_vcl06_debug_2026-09-07-17-45-20_9.bag",
+      "bytes": 246766125
+    },
+    {
+      "run": "r2026_r57_toudi4_080_20260907_174702",
+      "file": "navigation_vcl06_debug_2026-09-07-17-47-11_0.bag",
+      "bytes": 1081651308
+    },
+    {
+      "run": "r2026_r57_toudi4_080_20260907_174702",
+      "file": "navigation_vcl06_debug_2026-09-07-17-50-07_1.bag",
+      "bytes": 1078020651
+    },
+    {
+      "run": "r2026_r57_toudi4_080_20260907_174702",
+      "file": "navigation_vcl06_debug_2026-09-07-17-52-22_2.bag",
+      "bytes": 1076014923
+    },
+    {
+      "run": "r2026_r57_toudi4_080_20260907_174702",
+      "file": "navigation_vcl06_debug_2026-09-07-17-54-49_3.bag",
+      "bytes": 1079010889
+    },
+    {
+      "run": "r2026_r57_toudi4_080_20260907_174702",
+      "file": "navigation_vcl06_debug_2026-09-07-17-57-14_4.bag",
+      "bytes": 1078997700
+    },
+    {
+      "run": "r2026_r57_toudi4_080_20260907_174702",
+      "file": "navigation_vcl06_debug_2026-09-07-17-59-51_5.bag",
+      "bytes": 1078271534
+    },
+    {
+      "run": "r2026_r57_toudi4_080_20260907_174702",
+      "file": "navigation_vcl06_debug_2026-09-07-18-01-58_6.bag",
+      "bytes": 1074686987
+    },
+    {
+      "run": "r2026_r57_toudi4_080_20260907_174702",
+      "file": "navigation_vcl06_debug_2026-09-07-18-03-57_7.bag",
+      "bytes": 1074733610
+    },
+    {
+      "run": "r2026_r57_toudi4_080_20260907_174702",
+      "file": "navigation_vcl06_debug_2026-09-07-18-06-12_8.bag",
+      "bytes": 1074299137
+    },
+    {
+      "run": "r2026_r57_toudi4_080_20260907_174702",
+      "file": "navigation_vcl06_debug_2026-09-07-18-08-13_9.bag",
+      "bytes": 269679531
+    }
+  ],
+  "host_vhd_compaction_performed": false,
+  "simulation_restarted": false
+}

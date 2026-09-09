@@ -1,0 +1,539 @@
+{
+  "route_to_disarm_sec": {
+    "n": 8,
+    "min": 128.83000000000004,
+    "median": 146.235,
+    "max": 181.57999999999998
+  },
+  "land_to_disarm_sec": {
+    "n": 8,
+    "min": 12.930000000000007,
+    "median": 13.734000000000009,
+    "max": 15.388999999999953
+  },
+  "final_center_error_m": {
+    "n": 8,
+    "min": 0.025510074482633604,
+    "median": 0.07115246397385919,
+    "max": 0.09365524045297262
+  },
+  "final_envelope_radius_m": {
+    "n": 8,
+    "min": 0.4119896631551549,
+    "median": 0.455693444702284,
+    "max": 0.47126097610268547
+  },
+  "seed5_planner": {
+    "reason_counts": {
+      "superseded_by_new_goal": 2,
+      "goal_received": 2,
+      "trajectory_replan_attempt": 3,
+      "trajectory_replan_attempt_failed": 1,
+      "new_trajectory_retry": 148,
+      "new_trajectory_attempt_failed": 148,
+      "new_trajectory_attempt": 1,
+      "new_trajectory_ready": 1,
+      "replanned_trajectory_ready": 2,
+      "goal_reached_after_local_trajectory": 1
+    },
+    "last_events": [
+      {
+        "ros_sec": 508.5,
+        "kind": "planner",
+        "data": {
+          "header": {
+            "seq": 485,
+            "stamp": {
+              "stamp_ns": 508500000000
+            },
+            "frame_id": "camera_init"
+          },
+          "event_seq": 486,
+          "goal_seq": 28,
+          "status": 3,
+          "planning_attempt": 3,
+          "requested_goal": {
+            "header": {
+              "seq": 28,
+              "stamp": {
+                "stamp_ns": 505699999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.18
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "effective_goal": {
+            "header": {
+              "seq": 28,
+              "stamp": {
+                "stamp_ns": 505699999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.18
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "distance_to_goal": 7.6943596854987435,
+          "reason": "trajectory_replan_attempt"
+        }
+      },
+      {
+        "ros_sec": 508.505,
+        "kind": "planner",
+        "data": {
+          "header": {
+            "seq": 486,
+            "stamp": {
+              "stamp_ns": 508504000000
+            },
+            "frame_id": "camera_init"
+          },
+          "event_seq": 487,
+          "goal_seq": 28,
+          "status": 2,
+          "planning_attempt": 3,
+          "requested_goal": {
+            "header": {
+              "seq": 28,
+              "stamp": {
+                "stamp_ns": 505699999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.18
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "effective_goal": {
+            "header": {
+              "seq": 28,
+              "stamp": {
+                "stamp_ns": 505699999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.18
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "distance_to_goal": 7.6943596854987435,
+          "reason": "replanned_trajectory_ready"
+        }
+      },
+      {
+        "ros_sec": 531.764,
+        "kind": "planner",
+        "data": {
+          "header": {
+            "seq": 487,
+            "stamp": {
+              "stamp_ns": 531764000000
+            },
+            "frame_id": "camera_init"
+          },
+          "event_seq": 488,
+          "goal_seq": 28,
+          "status": 4,
+          "planning_attempt": 3,
+          "requested_goal": {
+            "header": {
+              "seq": 28,
+              "stamp": {
+                "stamp_ns": 505699999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.18
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "effective_goal": {
+            "header": {
+              "seq": 28,
+              "stamp": {
+                "stamp_ns": 505699999999
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.18
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "distance_to_goal": 0.09287999336945174,
+          "reason": "goal_reached_after_local_trajectory"
+        }
+      }
+    ]
+  },
+  "seed5_final": {
+    "truth_pose": {
+      "t": 539.974,
+      "xyz": [
+        0.04083380795270842,
+        -0.017022267466255958,
+        0.004714332799866522
+      ],
+      "rpy": [
+        -0.04829069931446608,
+        -0.004886979186041218,
+        0.20977025892528237
+      ]
+    },
+    "mavros_pose": {
+      "t": 539.944,
+      "xyz": [
+        -0.09504301100969315,
+        -0.12366309762001038,
+        0.02383337914943695
+      ],
+      "rpy": [
+        -0.12474335300815492,
+        -0.7646349183335694,
+        0.17114509676281695
+      ]
+    },
+    "mavros_setpoint": {
+      "t": 540.002,
+      "xyz": [
+        0.01810717137991335,
+        0.005406524947276104,
+        0.07999999821186066
+      ],
+      "rpy": [
+        0.0,
+        0.0,
+        -2.4848083448933725e-17
+      ]
+    },
+    "lio_pose": {
+      "t": 539.967,
+      "xyz": [
+        0.04498832987624161,
+        -0.012623727874887445,
+        0.0022065098402154924
+      ],
+      "rpy": [
+        -0.04323511471393837,
+        -0.017264245810727878,
+        0.22536828331825032
+      ]
+    }
+  },
+  "seed7_planner": {
+    "reason_counts": {
+      "superseded_by_new_goal": 1,
+      "goal_received": 1,
+      "trajectory_replan_attempt": 1,
+      "replanned_trajectory_ready": 1,
+      "goal_reached_after_local_trajectory": 1
+    },
+    "last_events": [
+      {
+        "ros_sec": 359.295,
+        "kind": "planner",
+        "data": {
+          "header": {
+            "seq": 161,
+            "stamp": {
+              "stamp_ns": 359297000000
+            },
+            "frame_id": "camera_init"
+          },
+          "event_seq": 162,
+          "goal_seq": 25,
+          "status": 3,
+          "planning_attempt": 1,
+          "requested_goal": {
+            "header": {
+              "seq": 25,
+              "stamp": {
+                "stamp_ns": 359000000000
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 1.288537177431299,
+                "y": 7.194672364412653,
+                "z": 1.38
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "effective_goal": {
+            "header": {
+              "seq": 25,
+              "stamp": {
+                "stamp_ns": 359000000000
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 1.288537177431299,
+                "y": 7.044672364412652,
+                "z": 1.38
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "distance_to_goal": 0.5695152062994419,
+          "reason": "trajectory_replan_attempt"
+        }
+      },
+      {
+        "ros_sec": 359.301,
+        "kind": "planner",
+        "data": {
+          "header": {
+            "seq": 162,
+            "stamp": {
+              "stamp_ns": 359301000000
+            },
+            "frame_id": "camera_init"
+          },
+          "event_seq": 163,
+          "goal_seq": 25,
+          "status": 2,
+          "planning_attempt": 1,
+          "requested_goal": {
+            "header": {
+              "seq": 25,
+              "stamp": {
+                "stamp_ns": 359000000000
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 1.288537177431299,
+                "y": 7.194672364412653,
+                "z": 1.38
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "effective_goal": {
+            "header": {
+              "seq": 25,
+              "stamp": {
+                "stamp_ns": 359000000000
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 1.288537177431299,
+                "y": 7.044672364412652,
+                "z": 1.38
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "distance_to_goal": 0.5695152062994419,
+          "reason": "replanned_trajectory_ready"
+        }
+      },
+      {
+        "ros_sec": 361.381,
+        "kind": "planner",
+        "data": {
+          "header": {
+            "seq": 163,
+            "stamp": {
+              "stamp_ns": 361381000000
+            },
+            "frame_id": "camera_init"
+          },
+          "event_seq": 164,
+          "goal_seq": 25,
+          "status": 4,
+          "planning_attempt": 1,
+          "requested_goal": {
+            "header": {
+              "seq": 25,
+              "stamp": {
+                "stamp_ns": 359000000000
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 1.288537177431299,
+                "y": 7.194672364412653,
+                "z": 1.38
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "effective_goal": {
+            "header": {
+              "seq": 25,
+              "stamp": {
+                "stamp_ns": 359000000000
+              },
+              "frame_id": "camera_init"
+            },
+            "pose": {
+              "position": {
+                "x": 1.288537177431299,
+                "y": 7.044672364412652,
+                "z": 1.38
+              },
+              "orientation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              }
+            }
+          },
+          "distance_to_goal": 0.07887306847223617,
+          "reason": "goal_reached_after_local_trajectory"
+        }
+      }
+    ]
+  },
+  "seed7_final": {
+    "truth_pose": {
+      "t": 363.129,
+      "xyz": [
+        1.3043362888408956,
+        7.12468264456361,
+        1.3304842965653196
+      ],
+      "rpy": [
+        0.03688456522873544,
+        -0.16350903796108798,
+        0.04848689181109486
+      ]
+    },
+    "mavros_pose": {
+      "t": 363.168,
+      "xyz": [
+        1.2997525930404663,
+        7.129137992858887,
+        1.3661117553710938
+      ],
+      "rpy": [
+        -0.31183030159423053,
+        -0.19547246148592418,
+        -0.04746561202790207
+      ]
+    },
+    "mavros_setpoint": {
+      "t": 363.191,
+      "xyz": [
+        1.2867960929870605,
+        7.158287048339844,
+        1.3799999952316284
+      ],
+      "rpy": [
+        0.0,
+        0.0,
+        0.010897164796974033
+      ]
+    },
+    "lio_pose": {
+      "t": 363.107,
+      "xyz": [
+        1.3064427928682234,
+        7.13380151775592,
+        1.329485092866059
+      ],
+      "rpy": [
+        0.03009682609393932,
+        -0.18037053933237107,
+        0.07131768085542235
+      ]
+    }
+  }
+}

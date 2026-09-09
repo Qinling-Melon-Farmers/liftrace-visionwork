@@ -1,20 +1,19 @@
 # 环境与构建
 
-运行环境为 Ubuntu 20.04、ROS Noetic、Gazebo Classic 11、PX4 SITL。构建使用 GCC 9、Catkin、Eigen、PCL、OpenCV 4、nlopt、yaml-cpp 和 MAVROS。先安装系统 ROS 开发依赖，执行仓库根目录的 `top_level_scripts/build_competition.sh`；脚本先编译视觉工作区，再编译导航工作区，并只引用当前 checkout 的 overlay。
+R64最新：seed11完整37/37 PASS，未实机验收；必须同步PX4补丁。R64新包替代旧R62运行源码，十seed原始7/10完整PASS，5/7/8有墙重叠布设，修复后的新布设未重跑矩阵。见[本轮报告](verification/r64_seed11/REPORT.md)和[固件依赖](../deployment/px4_patches/README.md)。下文较早状态按历史记录阅读。
 
-本机外部仿真底座为 `/home/xhj/PX4-Autopilot` 和 `/home/xhj/AstraDroneOpen`。异机通过 `PX4_ROOT`、`ASTRA_MODEL_ROOT`、`ASTRA_SIM_LIB` 指定位置。需要编译 PX4 Gazebo 插件及 Astra 的 MID360 插件；本仓库不复制整套飞控和仿真器。场景中的基础模型由这些模型目录提供。
+2026-09-09最新：R63完整seed11：三投、三恢复、9个投后航点和两门通过；AUTO.LAND后碰墙，完整Gate FAIL。恢复修复已验证，最后降落仍阻塞。[报告](verification/r63_recovery/REPORT.md)。本轮只跑一次，不追加矩阵，旧包未重新打包。
 
-模型推理使用已有 conda `rl_drone` 环境，默认 Python 位于 `/home/xhj/miniconda3/envs/rl_drone/bin/python`，异机设置 `VISION_PYTHON`。系统 Python 仅运行 ROS 节点，不安装 ML 包。板端主路径为 RKNN/NPU；YOLO/PyTorch 仿真推理在笔记本运行。
+以下为此前记录，按各自版本阅读。
 
-权重通过 `UAV_VISION_MODEL_PATH` 指定。数据集、模型权重、build/devel、bag、视频及大日志不进入 git；联合实跑的报告与归档索引见 VALIDATION.md。
+R62 seed11已建图、起飞、搜索、首投并恢复；保留原生相机视频、JSON/CSV/ULog。当前是阶段运行验证，不是完整比赛或板端验收。参见[验收](VALIDATION.md)。
 
-仿真统一由 `run_competition_sim.sh` 调用 `sim_run.sh`。调用方在获得启动授权后，仅在该命令设置 `SIM_RUN_AUTHORIZED=1`。包装器独占本机 ROS/Gazebo/PX4 资源，并检查启动前与收尾后的进程。无桌面时设置 `SIM_NO_RECORD=1`。不得在另一终端直接再起 roslaunch。
+环境：WSL Ubuntu20.04、ROS Noetic、Gazebo Classic11、PX4 SITL；GCC9、Catkin/CMake、Eigen/PCL、OpenCV4、nlopt、yaml-cpp、MAVROS。`top_level_scripts/build_competition.sh`先视觉后导航，引用当前checkout，不复制笔记本build/devel上板。
 
+外部PX4通过PX4_ROOT指定；MID360插件目录同时通过ASTRA_LIB/ASTRA_SIM_LIB指定。run_competition_sim.sh默认把当前checkout的机架模型与simulation_assets/models加入GAZEBO_MODEL_PATH，靶标根目录默认使用随仓资源，可由ASTRA_MODEL_ROOT覆盖。PX4/Gazebo/plugin与扫描CSV仍需安装，资源包不是系统镜像。更换主机的步骤见[BUNDLES.md](BUNDLES.md)。
 
-WSL 启动前还须检查 VHDX 宿主盘，使用 `SIM_STORAGE_GUARD_PATH`；本机按用户约定将 run、PX4 工作目录、分析和归档统一放在 WSL 项目 logs 内，不再写到其他盘。相机录图与本机示例见 [日志存储说明](verification/r55/RECORDING_FIX.md)。
+非ROS Python使用已有conda rl_drone；ROS脚本使用系统Python，不安装ML包。SITL权重由UAV_VISION_MODEL_PATH指定，板端采用RKNN/NPU。两份本地包附明确选定的相应权重，但权重不进入git。
 
-VHDX 已通过离线 compact 实际回收 68.06 GiB。两次 WSL 服务恢复经用户 UAC 允许完成。R56 同轮原生目录重跑越过启动并完成三投，记录缓冲溢出 0；第一次外盘尝试的失败记录保留，不能据此承诺任意记录负载均稳定。
+获当轮明确授权后才可由run_competition_sim.sh→sim_run.sh启动，单实例并在成功/失败/中断均收尾。日志统一留本项目logs；SIM_STORAGE_GUARD_PATH=/mnt/f只用于宿主VHDX所在盘空间预检。默认不录全场bag/录屏。没有再次进行磁盘清理或VHDX压缩。
 
-uav_vision_eval 现构建仿真接触代理插件，需要 Gazebo 开发包；它属于笔记本 SITL 评测工具，不属于板端飞行运行链。全量 build_competition.sh 面向本机联合仿真；板端包选择与实时验收按 HARDWARE.md 单独执行。
-
-最终根因修复完整仿真 PASS；整机与 main 集成分支均独立构建通过。回放、全量归档和验证目录见 [最终报告](verification/r56_final/REPORT.md)，物理接触代理光学语义与竞赛建图 profile 见根因修复报告。
+完整集中分析与合法性标记见[11轮报告](verification/r64_matrix/REPORT.md)，新随机化工具范围见[说明](verification/r64_randomization/README.md)。旧包及旧验收按生成时的源码阅读，最新交付索引在deliverables/README.md。

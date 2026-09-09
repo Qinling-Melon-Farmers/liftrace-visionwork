@@ -1,0 +1,11 @@
+{
+  "status": "RECORDED",
+  "image_topic": "/downward_camera/image_raw",
+  "frames": 3804,
+  "received": 8456,
+  "encoded_fps": 10.0,
+  "first_image_stamp": 0.468,
+  "last_image_stamp": 447.788,
+  "error": null,
+  "timing": "Constant-rate review video; CSV image timestamps are authoritative for gaps."
+}

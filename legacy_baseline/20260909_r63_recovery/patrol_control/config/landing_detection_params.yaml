@@ -1,0 +1,19 @@
+# 基本检测参数
+
+area_threshold: 20000
+show_image: false
+detection_enabled: true
+aspect_ratio_threshold: 0.7
+debug_mode: true
+
+
+# 相机内参（需要根据实际相机标定结果调整）
+camera:
+  fx: 479.652738            # 焦距x
+  fy: 482.690306            # 焦距y
+  cx: 657.45208             # 主点x
+  cy: 364.6207              # 主点y
+  width: 960               # 图像宽度
+  height: 540                # 图像高度
+landing_detection:
+  pixel_offset_scale: 0.0008

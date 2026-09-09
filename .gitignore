@@ -45,3 +45,7 @@ Desktop_patrol_uav_ws-patrol_planner/
 
 # Generated catkin workspace marker
 **/.catkin_workspace
+
+*.rknn
+
+/deliverables/

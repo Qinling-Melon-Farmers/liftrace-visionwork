@@ -1,0 +1,18 @@
+{
+  "active_pairs": [],
+  "actual_collision_count": 0,
+  "component": "gazebo_contact_monitor",
+  "contact_active": false,
+  "events": [],
+  "ignored_collision_patterns": [
+    "ground_plane",
+    "landing_h::link::collision",
+    "landing_h_clone::link::collision"
+  ],
+  "last_sample_wall_age": null,
+  "raw_topic": "/mission/uav_contacts_raw",
+  "ready": false,
+  "reason": "waiting_for_contact_sensor",
+  "sample_count": 0,
+  "status": "WAITING"
+}

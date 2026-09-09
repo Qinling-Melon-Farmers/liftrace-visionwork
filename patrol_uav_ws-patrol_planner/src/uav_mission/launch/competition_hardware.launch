@@ -6,11 +6,11 @@
   <arg name="camera_info_topic" default="/camera/camera_info" />
   <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
   <arg name="map_frame" default="camera_init" />
-  <arg name="ground_z" default="0.0" />
+  <arg name="ground_z" default="-0.22" />
   <arg name="runtime_config" default="$(find uav_mission)/config/vcl06_horizontal_field_runtime.yaml" />
   <arg name="control_config" default="$(find uav_mission)/config/vcl06_horizontal_control.yaml" />
   <arg name="lio_config" default="$(find uav_mission)/config/mid360_hardware.yaml" />
-  <arg name="body_to_imu_xyz" default="0 0 0.12412" />
+  <arg name="body_to_imu_xyz" default="0 0 0.05" />
   <arg name="imu_to_camera_z" default="-0.21" />
   <arg name="camera_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
   <arg name="raw_servo_service" default="/legacy/Servo_raw" />

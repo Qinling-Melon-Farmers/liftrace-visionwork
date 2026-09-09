@@ -1,0 +1,113 @@
+{
+  "raw_gate_status": "FAIL",
+  "source": "e633a9be9fb1232e0b2bcdba5d6b68fb0d61bfd6",
+  "gate_scope": "post_delivery",
+  "ros_flight_ended": 187.81699999999998,
+  "checks_passed": 22,
+  "checks_total": 31,
+  "route_completed": 8,
+  "max_true_height_m": 0.6700834540554244,
+  "door_crossings": [
+    {
+      "lateral": -3.047522680300732,
+      "name": "corridor_entry",
+      "route_index": 2,
+      "z": 0.4520858606172122
+    },
+    {
+      "lateral": 8.196271011658304,
+      "name": "Wall_20",
+      "route_index": 4,
+      "z": 0.568725441684831
+    },
+    {
+      "lateral": 7.502389969605532,
+      "name": "Wall_22",
+      "route_index": 7,
+      "z": 0.4841829224135951
+    }
+  ],
+  "raw_contacts": [
+    {
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::base_link_inertia_collision",
+          "landing_h_clone::link::collision"
+        ]
+      ],
+      "ros_stamp": 186.821,
+      "sequence": 1,
+      "wall_time": 1788799328.6084266
+    }
+  ],
+  "vehicle_status": {
+    "last_timestamp": 187.321,
+    "fields": {
+      "arming_state": {
+        "last": 2,
+        "transitions": [
+          [
+            14.357,
+            2
+          ]
+        ]
+      },
+      "nav_state": {
+        "last": 18,
+        "transitions": [
+          [
+            13.397,
+            14
+          ],
+          [
+            185.797,
+            18
+          ]
+        ]
+      }
+    }
+  },
+  "vehicle_land_detected": {
+    "last_timestamp": 187.08499999999998,
+    "fields": {
+      "ground_contact": {
+        "last": 0,
+        "transitions": [
+          [
+            16.093,
+            0
+          ]
+        ]
+      },
+      "maybe_landed": {
+        "last": 0,
+        "transitions": [
+          [
+            16.085,
+            0
+          ]
+        ]
+      },
+      "landed": {
+        "last": 0,
+        "transitions": [
+          [
+            16.085,
+            0
+          ]
+        ]
+      }
+    }
+  },
+  "px4_messages": [],
+  "contact_truth_xyz": [
+    3.352532651742979,
+    7.971588697663539,
+    0.07300360696784362
+  ],
+  "contact_xy_distance_to_H_m": 0.11599275634712884,
+  "landing_clone_world_definition": [
+    "<include>\n      <uri>model://landing_h</uri>\n      <name>landing_h_clone</name>\n      <pose>2.78088 6.28453 0 0 -0 -3.09751</pose>\n    </include>\n    "
+  ],
+  "conclusion": "CORRIDOR_PASS_AND_H_AUTO_LAND_TOUCHDOWN_OBSERVED; FINAL_LANDED_DISARM_UNCONFIRMED; RAW_GATE_FAIL"
+}

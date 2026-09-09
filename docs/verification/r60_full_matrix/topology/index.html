@@ -1,0 +1,7 @@
+<!doctype html><meta charset="utf-8"><title>ROS Nodes only</title>
+<style>body{font:16px sans-serif;margin:24px}iframe{width:100%;height:82vh;border:1px solid #bbb}button{padding:10px;margin:4px}</style>
+<h1>ROS 计算图 · Nodes only</h1><p>椭圆：实际注册节点；连线文字：ROS 话题；箭头：发布→订阅。
+仅飞行版为本轮实际节点的运行链筛选，不虚构未启动的实机雷达、相机SDK或机械舵机节点。服务不画成话题。</p>
+<button onclick="show('full')">完整</button><button onclick="show('core')">核心</button><button onclick="show('flight')">仅飞行运行链</button>
+<a id="download" href="rqt_graph_nodes_only_core.svg">打开 SVG</a><iframe id="graph" src="rqt_graph_nodes_only_core.svg"></iframe>
+<script>function show(n){let p='rqt_graph_nodes_only_'+n+'.svg';document.getElementById('graph').src=p;document.getElementById('download').href=p}</script>
