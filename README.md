@@ -1,5 +1,9 @@
 # 2026无人机竞赛整机工程
 
+2026-09-09最新：R63完整seed11：三投、三恢复、9个投后航点和两门通过；AUTO.LAND后碰墙，完整Gate FAIL。恢复修复已验证，最后降落仍阻塞。[报告](docs/verification/r63_recovery/REPORT.md)。本轮只跑一次，不追加矩阵，旧包未重新打包。
+
+以下为此前记录，按各自版本阅读。
+
 2026-09-09 完整seed11最新结论：三次释放回执成功，但第三投恢复时下沉碰靶，完整Gate FAIL；未运行seed1–10。当前部署包仍含待修复恢复交接问题。详见 [本轮报告](docs/verification/r62_full_seed11/REPORT.md)。
 
 

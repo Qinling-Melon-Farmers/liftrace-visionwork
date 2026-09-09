@@ -1,5 +1,9 @@
 # 环境与构建
 
+2026-09-09最新：R63完整seed11：三投、三恢复、9个投后航点和两门通过；AUTO.LAND后碰墙，完整Gate FAIL。恢复修复已验证，最后降落仍阻塞。[报告](verification/r63_recovery/REPORT.md)。本轮只跑一次，不追加矩阵，旧包未重新打包。
+
+以下为此前记录，按各自版本阅读。
+
 R62 seed11已建图、起飞、搜索、首投并恢复；保留原生相机视频、JSON/CSV/ULog。当前是阶段运行验证，不是完整比赛或板端验收。参见[验收](VALIDATION.md)。
 
 环境：WSL Ubuntu20.04、ROS Noetic、Gazebo Classic11、PX4 SITL；GCC9、Catkin/CMake、Eigen/PCL、OpenCV4、nlopt、yaml-cpp、MAVROS。`top_level_scripts/build_competition.sh`先视觉后导航，引用当前checkout，不复制笔记本build/devel上板。
