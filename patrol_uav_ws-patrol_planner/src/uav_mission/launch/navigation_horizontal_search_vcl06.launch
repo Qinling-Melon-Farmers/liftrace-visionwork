@@ -1,4 +1,17 @@
 <launch>
+  <arg name="record_overview_video" default="false" />
+  <arg name="overview_x" default="0.0" />
+  <arg name="overview_y" default="4.3" />
+  <arg name="overview_z" default="5.0" />
+  <group if="$(arg record_overview_video)">
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_overview_camera"
+          args="-sdf -file $(find uav_vision_eval)/models/competition_overview_camera/model.sdf -model competition_overview_camera -x $(arg overview_x) -y $(arg overview_y) -z $(arg overview_z) -P 1.57079632679 -Y -1.57079632679" />
+    <node pkg="uav_vision_eval" type="camera_video_recorder.py" name="overview_video_recorder" output="screen">
+      <param name="image_topic" value="/competition_overview/image_raw" />
+      <param name="fps" value="10.0" />
+      <param name="output_path" value="$(optenv SIM_RUN_DIR)/overview.mp4" />
+    </node>
+  </group>
   <arg name="observe_full_trial" default="false" />
   <param name="/navigation_vcl06_assertion/observe_full_trial" value="$(arg observe_full_trial)" />
   <!-- Same formal mission/control chain, with 2026 geometry and measured camera mounting. -->
