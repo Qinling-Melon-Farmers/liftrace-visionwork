@@ -17,3 +17,6 @@ R62 seed11已建图、起飞、搜索、首投并恢复；保留原生相机视�
 获当轮明确授权后才可由run_competition_sim.sh→sim_run.sh启动，单实例并在成功/失败/中断均收尾。日志统一留本项目logs；SIM_STORAGE_GUARD_PATH=/mnt/f只用于宿主VHDX所在盘空间预检。默认不录全场bag/录屏。没有再次进行磁盘清理或VHDX压缩。
 
 完整集中分析与合法性标记见[11轮报告](verification/r64_matrix/REPORT.md)，新随机化工具范围见[说明](verification/r64_randomization/README.md)。旧包及旧验收按生成时的源码阅读，最新交付索引在deliverables/README.md。
+
+
+2026-09-09本次维护：[冗余worktree/缓存清理记录](maintenance/CLEANUP_20260909_R64.md)。当前整机两套编译产物保留，旧视觉日志迁入logs/_archive；旧导航来源缓存已清理，后续编译使用当前整机视觉overlay。已fstrim，未离线压缩VHDX，宿主F盘未观测到可用空间增加。
