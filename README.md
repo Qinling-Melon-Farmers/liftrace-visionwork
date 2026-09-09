@@ -1,30 +1,19 @@
 # 2026无人机竞赛整机工程
 
-2026-09-09最新：R63完整seed11：三投、三恢复、9个投后航点和两门通过；AUTO.LAND后碰墙，完整Gate FAIL。恢复修复已验证，最后降落仍阻塞。[报告](docs/verification/r63_recovery/REPORT.md)。本轮只跑一次，不追加矩阵，旧包未重新打包。
+**R64固定seed11完整37/37 PASS，任务422.712秒。** 三投、三恢复、9航点、两门、H对准、落地解除武装，零碰撞。最终中心距H中心6.5cm，保守55cm包络在名义黑圈内；未采用空中停机。[报告与视频索引](docs/verification/r64_seed11/REPORT.md)。十seed矩阵待执行，不能称随机场景或实机已验收。
 
-以下为此前记录，按各自版本阅读。
+当前包含今年导航、视觉、任务、控制与仿真，机械组PWM实现另供。R63修复投后恢复/旧轨迹接管；R64修复PX4自动任务历史EKF重置重复应用，[固件补丁](deployment/px4_patches/README.md)是复现依赖。原始参考与旧快照保留在来源分支，精简分支不重复收录。
 
-2026-09-09 完整seed11最新结论：三次释放回执成功，但第三投恢复时下沉碰靶，完整Gate FAIL；未运行seed1–10。当前部署包仍含待修复恢复交接问题。详见 [本轮报告](docs/verification/r62_full_seed11/REPORT.md)。
+场内9.6m内净、四组树箱、两处左右错列0.80m通口，外围简单几何补充点云。相机FC下16cm、IMU下21cm、落地镜头离支撑面6cm；保守包络55×55×40cm。相机刚性随完整机体姿态，无云台。
 
-
-**R62 seed11已实际完成建图、自动起飞、搜索巡航、panzer第1槽仿真投递确认，并恢复搜索。** 此处按用户目标主动收尾，不是整场PASS，未运行seed1–10。源码8bedcc0，相机视频与原始记录已保留；main仍为R56历史验收。
-
-[本轮运行报告与轨迹](docs/verification/r62_operational/REPORT.md) · [运行条件](docs/verification/r62_operational/operational_status.json) · [首投证据](docs/verification/r62_operational/first_release_evidence.json) · [本地交付包](docs/BUNDLES.md)
-
-本精简分支包含今年导航、视觉、任务、控制和仿真代码，不含机械PWM实现或旧参考工作区；保留Servo接口及仿真mock。原始资产/保护快照留在来源分支和git历史。机载包用于联调准备，未实机验收。
-
-当前场内为9.6m内净、四组树箱、两处左右错列0.80m通口；外围仅简单墙/柱/箱体提供点云，不做人群拟真。实测安装为相机FC下16cm、IMU下21cm、落地离支撑面6cm；保守碰撞包络55×55×40cm。新模型修复了消息类型、展开link引用、接地抖动、FC惯性采样和SITL悬停初值，保持真实碰撞/健康检查。
-
-本批次关闭420秒提前返航，保留600秒总限时与动作失败处理；硬件默认仍启用提前返航。24个固定牛耕航点范围X[-4.3,4.3]/Y[0,7.1]，名义搜索FC AGL1.4m，不是在线自适应覆盖。
+当前24点固定覆盖路线，搜索范围X[-4.3,4.3]/Y[0,7.1]，名义FC AGL1.4m；不是在线自适应覆盖。本批early_return_enabled=false，420秒提前返航禁用、600秒保留；硬件默认另按现场选配。
 
 ```bash
 bash top_level_scripts/build_competition.sh
-# 仅在明确授权后运行；本次阶段验收不代表这个完整入口已全场PASS。
-UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_STORAGE_GUARD_PATH=/mnt/f SIM_NO_RECORD=1 SIM_RUN_AUTHORIZED=1 bash top_level_scripts/run_competition_sim.sh field_seed:=11 record_camera_video:=true
+# 先按deployment/px4_patches说明构建对应PX4；只在明确授权后运行。
+UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_STORAGE_GUARD_PATH=/mnt/f SIM_NO_RECORD=1 SIM_RUN_AUTHORIZED=1 bash top_level_scripts/run_competition_sim.sh field_seed:=11 record_camera_video:=true record_overview_video:=true
 ```
 
-所有日志留当前WSL项目logs，默认0bag；原生相机录像默认关闭、参数开启。Windows侧使用wsl -e bash -c。外部PX4/Gazebo/Livox插件与推理环境仍需配置。
+不启动Gazebo GUI也可录制服务端俯视相机和机载相机。视频/大日志留本地logs，默认0bag；坐标时序以CSV为准。[部署包](deployment/README_ONBOARD.md)、[仿真包](deployment/README_SIMULATION.md)、[任务](VISION_2026_ROADMAP.md)、[验收](docs/VALIDATION.md)、[环境](docs/ENVIRONMENT.md)、[规则](docs/competition/RULES_20260906.md)。
 
-[任务优先级](VISION_2026_ROADMAP.md) · [环境](docs/ENVIRONMENT.md) · [安装/高度](docs/CAMERA_AND_FLIGHT.md) · [实机](docs/HARDWARE.md) · [验收](docs/VALIDATION.md) · [规则](docs/competition/RULES_20260906.md)
-
-历史：[R60先导与十seed2/10](docs/verification/r60_full_matrix/REPORT.md)、[R62早期启动失败](docs/verification/r62_seed11_gate/REPORT.md)、[R60实际11布局](docs/verification/r61_layout_search/layouts.html)、[rqt三版图](docs/verification/r60_full_matrix/topology/index.html)。历史报告保持各自版本/场景，不改写成当前全场通过。
+历史：[R60矩阵2/10](docs/verification/r60_full_matrix/REPORT.md)、[R62恢复碰靶](docs/verification/r62_full_seed11/REPORT.md)、[R63降落失败](docs/verification/r63_recovery/REPORT.md)。历史结果保持其源码/世界边界，不代替当前验收。main仍为R56历史基线，后续合入依照实跑和分支流程。
