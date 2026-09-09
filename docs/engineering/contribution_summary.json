@@ -1,0 +1,69 @@
+{
+  "snapshot": {
+    "/home/xhj/liftrace-worktrees/r2026-competition-integrated": "9ab7119c41ddefefc152db54b6772e180e6c8536",
+    "/home/xhj/liftrace-controlwork-worktrees/vcl06-local-full-mission": "cfafba7d50b04e93cf594c2adac3685e8ce24b23"
+  },
+  "groups": {
+    "application_packages": {
+      "all_code": 25857,
+      "code_without_named_tests": 15972,
+      "physical_lines": 30118
+    },
+    "navigation_algorithms": {
+      "all_code": 28369,
+      "code_without_named_tests": 27743,
+      "physical_lines": 38919
+    },
+    "vendored_tools": {
+      "all_code": 45889,
+      "code_without_named_tests": 45467,
+      "physical_lines": 67179
+    }
+  },
+  "application_baseline_diff": [
+    {
+      "package": "uav_mission",
+      "files": 49,
+      "added_physical_lines": 15295,
+      "removed_physical_lines": 54
+    },
+    {
+      "package": "uav_vision",
+      "files": 43,
+      "added_physical_lines": 4723,
+      "removed_physical_lines": 448
+    },
+    {
+      "package": "patrol_control",
+      "files": 13,
+      "added_physical_lines": 2144,
+      "removed_physical_lines": 379
+    },
+    {
+      "package": "camera_sdk",
+      "files": 2,
+      "added_physical_lines": 140,
+      "removed_physical_lines": 24
+    }
+  ],
+  "integrated_commit_authors": "   324\tQinling-Melon-Farmers\n     4\tQinling-Melon-Farmers\n",
+  "navigation_source_commit_authors": "   120\tQinling-Melon-Farmers\n     6\tNozomi.\n     5\tsba\n",
+  "integrated_nonmerge_commit_types": {
+    "chore": 18,
+    "docs": 81,
+    "fix": 138,
+    "test": 4,
+    "feat": 54,
+    "refactor": 4,
+    "perf": 4
+  },
+  "servo_cpp_and_header_code": 109,
+  "servo_cpp_physical_lines": 142,
+  "servo_with_build_launch_manifest_code": 181,
+  "totals_with_servo_cpp": {
+    "onboard_source": 100224,
+    "onboard_excluding_named_tests": 89291,
+    "application_excluding_named_tests": 16081
+  },
+  "authorship_limit": "Git identities here include imported 2025 and third-party source plus agent-assisted commits. Commit share, diff churn and package LOC are not personal original authorship or team effort share."
+}
