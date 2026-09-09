@@ -53,6 +53,9 @@ def render(snapshot, out, project):
             group_image_nodes=False,hide_dynamic_reconfigure=False)
         path=out/('rqt_graph_nodes_only_'+name+'.dot');path.write_text(dot)
         subprocess.run(['dot','-Tsvg',str(path),'-o',str(path.with_suffix('.svg'))],check=True)
+        for raster_format in ('png','jpg'):
+            subprocess.run(['dot','-T'+raster_format,'-Gdpi=144','-Gbgcolor=white',
+                            str(path),'-o',str(path.with_suffix('.'+raster_format))],check=True)
         summary['views'][name]={'nodes':len(chosen),'edges':len(selected),
                               'topics':len(set(e.label for e in selected)),
                               'node_names':sorted(chosen)}
@@ -64,8 +67,11 @@ def render(snapshot, out, project):
 未启动实机雷达、相机SDK或机械舵机节点，不将它们虚构入图。服务不画成话题。
 这是归档ROS注册快照的离线重绘，不代表实时流量或板端验收。<a href="README.md">来源与范围</a></p>
 <button onclick="show('full')">完整</button><button onclick="show('core')">核心</button><button onclick="show('flight')">仅飞行运行链</button>
-<a id="download" href="rqt_graph_nodes_only_core.svg">打开 SVG</a><iframe id="graph" src="rqt_graph_nodes_only_core.svg"></iframe>
-<script>function show(n){let p='rqt_graph_nodes_only_'+n+'.svg';document.getElementById('graph').src=p;document.getElementById('download').href=p}</script>''')
+<a id="download" href="rqt_graph_nodes_only_core.svg">打开 SVG</a>
+<a id="png" href="rqt_graph_nodes_only_core.png">PNG</a>
+<a id="jpg" href="rqt_graph_nodes_only_core.jpg">JPEG</a>
+<iframe id="graph" src="rqt_graph_nodes_only_core.svg"></iframe>
+<script>function show(n){let p='rqt_graph_nodes_only_'+n;document.getElementById('graph').src=p+'.svg';document.getElementById('download').href=p+'.svg';document.getElementById('png').href=p+'.png';document.getElementById('jpg').href=p+'.jpg'}</script>''')
     print(json.dumps({n:{k:v for k,v in d.items() if k!='node_names'} for n,d in summary['views'].items()},indent=2))
 
 if __name__=='__main__':
