@@ -1,5 +1,7 @@
 # 当前任务与优先级
 
+R63完整seed11：三投、三恢复、9个投后航点和两门通过；AUTO.LAND后碰墙，完整Gate FAIL。恢复修复已验证，最后降落仍阻塞。[报告](docs/verification/r63_recovery/REPORT.md)。本轮只跑一次，不追加矩阵，旧包未重新打包。
+
 2026-09-09最新：R62完整seed11三槽回执成功，第三投恢复后下沉碰靶，完整Gate FAIL；按请求不再运行矩阵。当前基线阻断与后续顺序以精简整机ROADMAP为准，详见[本轮报告](docs/verification/r62_full_seed11/REPORT.md)。
 
 2026-09-09最新活动目标已达成：seed11完成建图、自动起飞、搜索巡航、首投确认和恢复搜索，随后主动收尾。[实际证据](docs/verification/r62_operational/REPORT.md)。不是整场PASS，也不是稳定三投或实机验收；没有启动矩阵。

@@ -1,0 +1,14 @@
+[INFO] [1788935226.422708115]: [ExternalLanding] frame=camera_init detections=/uav_vision/detections_mapped capture=0.28 handoff=0.18 land=0.08 tol=0.08 mark_age=0.50 stable=10 controller_watchdog=120.0
+[INFO] [1788936778.095952040, 436.667000000]: [ExternalLanding] waiting for fresh H alignment 0/10
+[INFO] [1788936781.717085631, 437.716000000]: [ExternalLanding] waiting for fresh H alignment 0/10
+[INFO] [1788936785.274744867, 438.716000000]: [ExternalLanding] waiting for fresh H alignment 0/10
+[INFO] [1788936788.721526444, 439.720000000]: [ExternalLanding] waiting for fresh H alignment 0/10
+[INFO] [1788936792.279449877, 440.766000000]: [ExternalLanding] waiting for fresh H alignment 0/10
+[INFO] [1788936792.567509375, 440.827000000]: [ExternalLanding] accepted fresh H mark at 4.231 8.413
+[INFO] [1788936795.894981752, 441.766000000]: [ExternalLanding] waiting for fresh H alignment 0/10
+[INFO] [1788936796.222640283, 441.884000000]: [ExternalLanding] accepted fresh H mark at 4.213 8.431
+[INFO] [1788936798.894893646, 442.767000000]: [ExternalLanding] waiting for fresh H alignment 1/10
+[INFO] [1788936799.525758951, 442.983000000]: [ExternalLanding] accepted fresh H mark at 4.231 8.479
+[INFO] [1788936800.658900845, 443.266000000]: [ExternalLanding] fresh H alignment latched with 10 frames
+[INFO] [1788936803.603790852, 443.991000000]: [ExternalLanding] accepted fresh H mark at 4.235 8.500
+[INFO] [1788936807.654525250, 445.079000000]: [PatrolControl] AUTO.LAND mode enabled
