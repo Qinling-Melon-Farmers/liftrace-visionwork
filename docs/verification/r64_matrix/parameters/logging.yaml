@@ -1,0 +1,24 @@
+pose_rate: 10.0
+snapshot_radius: 1.5  # m; local diagnostic excerpt only, never a control input
+max_failure_snapshots: 3  # storage budget; does not change flight behavior
+truth_model: iris_mid360
+truth_world_offset: [-0.493412, -1.772690, 0.0]
+parameter_get_service: /mavros/param/get
+parameter_names: [EKF2_EV_CTRL, EKF2_HGT_REF, EKF2_GPS_CTRL, EKF2_BARO_CTRL, EKF2_BARO_NOISE, EKF2_EV_DELAY, EKF2_EVP_NOISE, EKF2_EVA_NOISE]
+topics:
+  pose: /mavros/local_position/pose
+  lio: /Odometry
+  truth: /gazebo/model_states
+  mission: /navigation/mission_status
+  decision: /navigation/mission_command_raw
+  result: /navigation/mission_result
+  planner: /planning/goal_status
+  release: /mission/release_result
+  state: /mavros/state
+  extended_state: /mavros/extended_state
+  camera_info: /downward_camera/camera_info
+  static_map: /freedom/static_pointcloud
+  inflated_map: /sdf_map/occupancy_inflate
+  planner_setpoint: /fastplanner/setpoint_position/local
+  mavros_setpoint: /mavros/setpoint_position/local
+  bspline: /planning/bspline

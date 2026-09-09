@@ -1,6 +1,6 @@
 # 2026无人机竞赛整机工程
 
-**R64固定seed11完整37/37 PASS，任务422.712秒。** 三投、三恢复、9航点、两门、H对准、落地解除武装，零碰撞。最终中心距H中心6.5cm，保守55cm包络在名义黑圈内；未采用空中停机。[报告与视频索引](docs/verification/r64_seed11/REPORT.md)。十seed矩阵待执行，不能称随机场景或实机已验收。
+**R64固定seed11完整37/37 PASS，任务422.712秒。** 三投、三恢复、9航点、两门、H对准、落地解除武装，零碰撞。最终中心距H中心6.5cm，保守55cm包络在名义黑圈内；未采用空中停机。[报告与视频索引](docs/verification/r64_seed11/REPORT.md)。随后十seed已完成，原始7/10完整PASS；5/7/8有靶板压墙，已修布设检查并保留原结果。近地落地仍有seed3失败，不能称实机已鲁棒。[11轮图表与分析](docs/verification/r64_matrix/REPORT.md)。
 
 当前包含今年导航、视觉、任务、控制与仿真，机械组PWM实现另供。R63修复投后恢复/旧轨迹接管；R64修复PX4自动任务历史EKF重置重复应用，[固件补丁](deployment/px4_patches/README.md)是复现依赖。原始参考与旧快照保留在来源分支，精简分支不重复收录。
 
@@ -17,3 +17,5 @@ UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_STORAGE_GUARD_PATH=/mnt/f SIM_N
 不启动Gazebo GUI也可录制服务端俯视相机和机载相机。视频/大日志留本地logs，默认0bag；坐标时序以CSV为准。[部署包](deployment/README_ONBOARD.md)、[仿真包](deployment/README_SIMULATION.md)、[任务](VISION_2026_ROADMAP.md)、[验收](docs/VALIDATION.md)、[环境](docs/ENVIRONMENT.md)、[规则](docs/competition/RULES_20260906.md)。
 
 历史：[R60矩阵2/10](docs/verification/r60_full_matrix/REPORT.md)、[R62恢复碰靶](docs/verification/r62_full_seed11/REPORT.md)、[R63降落失败](docs/verification/r63_recovery/REPORT.md)。历史结果保持其源码/世界边界，不代替当前验收。main仍为R56历史基线，后续合入依照实跑和分支流程。
+
+随机世界工具见[使用说明](docs/verification/r64_randomization/README.md)和simulation_tools；默认成功路线不变，随机门实际飞行尚未验收。

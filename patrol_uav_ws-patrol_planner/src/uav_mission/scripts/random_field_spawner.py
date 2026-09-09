@@ -119,6 +119,9 @@ class RandomFieldSpawner:
         self._static_model_radii = rospy.get_param(
             "~static_model_radii", {})
         self._static_exclusions = rospy.get_param("~static_exclusions", [])
+        self._static_exclusion_boxes = tuple(
+            validate_bounds(box, "static exclusion box") for box in
+            rospy.get_param("~static_exclusion_boxes", []))
         self._rng = None
         self._publish_status()
 
@@ -336,7 +339,8 @@ class RandomFieldSpawner:
             occupied, self._search_bounds, self._field_bounds,
             self._boundary_margin, self._pair_gap,
             self._offset_x, self._offset_y,
-            self._max_attempts, self._layout_attempts)
+            self._max_attempts, self._layout_attempts,
+            occupied_boxes=self._static_exclusion_boxes)
         if layout is None:
             raise RuntimeError(
                 "no footprint-safe full layout after %d restarts "

@@ -20,3 +20,5 @@ export UAV_VISION_RKNN_MODEL_PATH="$PWD/runtime_models/merged_standard_fp32.rknn
 外参最终为相机FC下16cm、IMU下21cm，落地镜头离支撑面6cm。`ground_z=-0.22`只适用于落地FC为local0；现场不同零点须重标。硬件默认旧搜索1.40是local值，不是新SITL的1.40m AGL；不能只覆盖runtime文件而忽略launch内搜索/高度上限。现场应整体选配并复核路线/坐标/高度、开启条件、RC接管，再做分级飞行。包中保留共享包内的测试及仿真launch便于构建追溯，但硬件入口不加载Gazebo/真值/接触评测/mock/自动解锁辅助节点。
 
 当前不提供自动启飞的systemd开机服务，也不包含机械舵机实现。随机门开口感知、赛前调整缓存/单次启动联调、带载投递及整机实时稳定性仍需完成。
+
+R64矩阵原始7/10完整PASS，seed3近地落地仍失败；本包不是实机放飞授权。仿真布设物理墙排除已在矩阵后修复，不改变机载传感器或任务输出。完整指标见docs/verification/r64_matrix/REPORT.md。

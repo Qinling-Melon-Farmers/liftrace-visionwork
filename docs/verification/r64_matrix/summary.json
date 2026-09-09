@@ -1,0 +1,783 @@
+[
+  {
+    "seed": 1,
+    "status": "PASS",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed01_20260909_154735",
+    "source": "405bda420db343c35b37033f788b25436769b47c",
+    "releases": 3,
+    "recoveries": 3,
+    "route_points": 9,
+    "gate_reason": "all_checks_passed",
+    "mission_ros_sec": 413.791000001,
+    "collisions": 0,
+    "image": "seed_01.png",
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": -3.5101,
+        "y": 6.3642,
+        "world_x": -3.5101,
+        "world_y": 6.3642,
+        "yaw": -1.7042
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": 2.5322,
+        "y": 1.5661,
+        "world_x": 2.5322,
+        "world_y": 1.5661,
+        "yaw": 2.7977
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": -0.0438,
+        "y": 3.1409,
+        "world_x": -0.0438,
+        "world_y": 3.1409,
+        "yaw": 2.5222
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": 3.2233,
+        "y": 3.0054,
+        "world_x": 3.2233,
+        "world_y": 3.0054,
+        "yaw": -2.9494
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": -0.5243,
+        "y": 5.3445,
+        "world_x": -0.5243,
+        "world_y": 5.3445,
+        "yaw": -2.9817
+      }
+    ],
+    "bag_files": 0
+  },
+  {
+    "seed": 2,
+    "status": "PASS",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed02_20260909_161313",
+    "source": "405bda420db343c35b37033f788b25436769b47c",
+    "releases": 3,
+    "recoveries": 3,
+    "route_points": 9,
+    "gate_reason": "all_checks_passed",
+    "mission_ros_sec": 455.243,
+    "collisions": 0,
+    "image": "seed_02.png",
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": 3.2208,
+        "y": 5.4614,
+        "world_x": 3.2208,
+        "world_y": 5.4614,
+        "yaw": 0.0642
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": 1.0171,
+        "y": 4.4151,
+        "world_x": 1.0171,
+        "world_y": 4.4151,
+        "yaw": 3.1333
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": -0.6656,
+        "y": 2.6876,
+        "world_x": -0.6656,
+        "world_y": 2.6876,
+        "yaw": 1.0963
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": -1.1519,
+        "y": 6.7235,
+        "world_x": -1.1519,
+        "world_y": 6.7235,
+        "yaw": -1.999
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": -1.6786,
+        "y": 0.6072,
+        "world_x": -1.6786,
+        "world_y": 0.6072,
+        "yaw": 2.4729
+      }
+    ],
+    "bag_files": 0
+  },
+  {
+    "seed": 3,
+    "status": "FAIL",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed03_20260909_163846",
+    "source": "405bda420db343c35b37033f788b25436769b47c",
+    "releases": 3,
+    "recoveries": 3,
+    "route_points": 9,
+    "gate_reason": "actual_collision",
+    "mission_ros_sec": null,
+    "collisions": 1,
+    "image": "seed_03.png",
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": -2.5155,
+        "y": 3.9083,
+        "world_x": -2.5155,
+        "world_y": 3.9083,
+        "yaw": -1.2487
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": 3.23,
+        "y": 3.3585,
+        "world_x": 3.23,
+        "world_y": 3.3585,
+        "yaw": -2.9467
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": 1.3351,
+        "y": 0.72,
+        "world_x": 1.3351,
+        "world_y": 0.72,
+        "yaw": 2.2967
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": 0.2225,
+        "y": 5.5041,
+        "world_x": 0.2225,
+        "world_y": 5.5041,
+        "yaw": -0.1712
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": 2.479,
+        "y": 4.2879,
+        "world_x": 2.479,
+        "world_y": 4.2879,
+        "yaw": 1.3749
+      }
+    ],
+    "bag_files": 0
+  },
+  {
+    "seed": 4,
+    "status": "PASS",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed04_20260909_170148",
+    "source": "405bda420db343c35b37033f788b25436769b47c",
+    "releases": 3,
+    "recoveries": 3,
+    "route_points": 9,
+    "gate_reason": "all_checks_passed",
+    "mission_ros_sec": 470.833,
+    "collisions": 0,
+    "image": "seed_04.png",
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": -2.5339,
+        "y": 0.3356,
+        "world_x": -2.5339,
+        "world_y": 0.3356,
+        "yaw": 2.0667
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": 4.0124,
+        "y": 5.9837,
+        "world_x": 4.0124,
+        "world_y": 5.9837,
+        "yaw": 1.9268
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": 2.5456,
+        "y": 1.2976,
+        "world_x": 2.5456,
+        "world_y": 1.2976,
+        "yaw": 1.8878
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": 0.3521,
+        "y": 1.7411,
+        "world_x": 0.3521,
+        "world_y": 1.7411,
+        "yaw": -1.9262
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": -2.7418,
+        "y": 7.0126,
+        "world_x": -2.7418,
+        "world_y": 7.0126,
+        "yaw": -1.1947
+      }
+    ],
+    "bag_files": 0
+  },
+  {
+    "seed": 5,
+    "status": "FAIL",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed05_20260909_173017",
+    "source": "405bda420db343c35b37033f788b25436769b47c",
+    "releases": 2,
+    "recoveries": 2,
+    "route_points": 0,
+    "gate_reason": "manager_failed",
+    "mission_ros_sec": null,
+    "collisions": 0,
+    "image": "seed_05.png",
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": 3.8486,
+        "y": 0.417,
+        "world_x": 3.8486,
+        "world_y": 0.417,
+        "yaw": 0.2464
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": -0.2969,
+        "y": 1.4972,
+        "world_x": -0.2969,
+        "world_y": 1.4972,
+        "yaw": 1.1173
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": 0.4201,
+        "y": 4.1489,
+        "world_x": 0.4201,
+        "world_y": 4.1489,
+        "yaw": -1.8549
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": -2.7892,
+        "y": 1.2454,
+        "world_x": -2.7892,
+        "world_y": 1.2454,
+        "yaw": 2.7707
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": -2.0227,
+        "y": 7.288,
+        "world_x": -2.0227,
+        "world_y": 7.288,
+        "yaw": 1.1978
+      }
+    ],
+    "bag_files": 0
+  },
+  {
+    "seed": 6,
+    "status": "PASS",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed06_20260909_175752",
+    "source": "405bda420db343c35b37033f788b25436769b47c",
+    "releases": 3,
+    "recoveries": 3,
+    "route_points": 9,
+    "gate_reason": "all_checks_passed",
+    "mission_ros_sec": 455.448000001,
+    "collisions": 0,
+    "image": "seed_06.png",
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": 2.8161,
+        "y": 6.1578,
+        "world_x": 2.8161,
+        "world_y": 6.1578,
+        "yaw": 1.9061
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": -0.1437,
+        "y": 1.6191,
+        "world_x": -0.1437,
+        "world_y": 1.6191,
+        "yaw": 1.1667
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": -0.2856,
+        "y": 5.6538,
+        "world_x": -0.2856,
+        "world_y": 5.6538,
+        "yaw": 2.1632
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": -2.9473,
+        "y": 3.9843,
+        "world_x": -2.9473,
+        "world_y": 3.9843,
+        "yaw": -1.0331
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": 2.9292,
+        "y": 1.6507,
+        "world_x": 2.9292,
+        "world_y": 1.6507,
+        "yaw": -2.5564
+      }
+    ],
+    "bag_files": 0
+  },
+  {
+    "seed": 7,
+    "status": "FAIL",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed07_20260909_182205",
+    "source": "405bda420db343c35b37033f788b25436769b47c",
+    "releases": 2,
+    "recoveries": 2,
+    "route_points": 0,
+    "gate_reason": "actual_collision",
+    "mission_ros_sec": null,
+    "collisions": 1,
+    "image": "seed_07.png",
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": -1.6912,
+        "y": 0.7219,
+        "world_x": -1.6912,
+        "world_y": 0.7219,
+        "yaw": 0.4845
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": 0.3445,
+        "y": 2.4621,
+        "world_x": 0.3445,
+        "world_y": 2.4621,
+        "yaw": -0.6492
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": -0.7246,
+        "y": 6.1975,
+        "world_x": -0.7246,
+        "world_y": 6.1975,
+        "yaw": 2.9924
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": -3.6115,
+        "y": 1.3082,
+        "world_x": -3.6115,
+        "world_y": 1.3082,
+        "yaw": -2.8489
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": 1.2234,
+        "y": 7.1764,
+        "world_x": 1.2234,
+        "world_y": 7.1764,
+        "yaw": 2.2523
+      }
+    ],
+    "bag_files": 0
+  },
+  {
+    "seed": 8,
+    "status": "PASS",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed08_20260909_184028",
+    "source": "405bda420db343c35b37033f788b25436769b47c",
+    "releases": 3,
+    "recoveries": 3,
+    "route_points": 9,
+    "gate_reason": "all_checks_passed",
+    "mission_ros_sec": 445.661,
+    "collisions": 0,
+    "image": "seed_08.png",
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": -3.5872,
+        "y": 5.209,
+        "world_x": -3.5872,
+        "world_y": 5.209,
+        "yaw": -1.5183
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": -3.9822,
+        "y": 1.5043,
+        "world_x": -3.9822,
+        "world_y": 1.5043,
+        "yaw": 3.0888
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": -0.4499,
+        "y": 3.5094,
+        "world_x": -0.4499,
+        "world_y": 3.5094,
+        "yaw": -2.7452
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": -0.8864,
+        "y": 6.8067,
+        "world_x": -0.8864,
+        "world_y": 6.8067,
+        "yaw": 0.755
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": -1.1609,
+        "y": 0.4212,
+        "world_x": -1.1609,
+        "world_y": 0.4212,
+        "yaw": -0.7715
+      }
+    ],
+    "bag_files": 0
+  },
+  {
+    "seed": 9,
+    "status": "PASS",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed09_20260909_190805",
+    "source": "405bda420db343c35b37033f788b25436769b47c",
+    "releases": 3,
+    "recoveries": 3,
+    "route_points": 9,
+    "gate_reason": "all_checks_passed",
+    "mission_ros_sec": 424.920000001,
+    "collisions": 0,
+    "image": "seed_09.png",
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": -0.3551,
+        "y": 2.5238,
+        "world_x": -0.3551,
+        "world_y": 2.5238,
+        "yaw": 0.0394
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": -3.47,
+        "y": 6.5192,
+        "world_x": -3.47,
+        "world_y": 6.5192,
+        "yaw": 2.663
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": 0.521,
+        "y": 4.4949,
+        "world_x": 0.521,
+        "world_y": 4.4949,
+        "yaw": 0.5682
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": 2.1606,
+        "y": 0.773,
+        "world_x": 2.1606,
+        "world_y": 0.773,
+        "yaw": 1.7229
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": -2.5151,
+        "y": 0.3987,
+        "world_x": -2.5151,
+        "world_y": 0.3987,
+        "yaw": -0.731
+      }
+    ],
+    "bag_files": 0
+  },
+  {
+    "seed": 10,
+    "status": "PASS",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed10_20260909_193259",
+    "source": "405bda420db343c35b37033f788b25436769b47c",
+    "releases": 3,
+    "recoveries": 3,
+    "route_points": 9,
+    "gate_reason": "all_checks_passed",
+    "mission_ros_sec": 429.109000001,
+    "collisions": 0,
+    "image": "seed_10.png",
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": 0.7497,
+        "y": 1.1694,
+        "world_x": 0.7497,
+        "world_y": 1.1694,
+        "yaw": -3.1161
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": 3.0079,
+        "y": 6.1711,
+        "world_x": 3.0079,
+        "world_y": 6.1711,
+        "yaw": -2.2998
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": 3.4575,
+        "y": 4.3858,
+        "world_x": 3.4575,
+        "world_y": 4.3858,
+        "yaw": 2.7709
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": -3.5234,
+        "y": 5.7195,
+        "world_x": -3.5234,
+        "world_y": 5.7195,
+        "yaw": -1.2387
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": 1.0879,
+        "y": -0.1415,
+        "world_x": 1.0879,
+        "world_y": -0.1415,
+        "yaw": -0.841
+      }
+    ],
+    "bag_files": 0
+  },
+  {
+    "seed": 11,
+    "status": "PASS",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_px4_seed11_20260909_151207",
+    "source": "1983b2f7571cf3d96916d45af5cc8f3a2f8a9ad4",
+    "releases": 3,
+    "recoveries": 3,
+    "route_points": 9,
+    "gate_reason": "all_checks_passed",
+    "mission_ros_sec": 422.712,
+    "collisions": 0,
+    "image": "seed_11.png",
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": -0.4572,
+        "y": 4.0342,
+        "world_x": -0.4572,
+        "world_y": 4.0342,
+        "yaw": 1.2154
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": 4.0724,
+        "y": 3.2718,
+        "world_x": 4.0724,
+        "world_y": 3.2718,
+        "yaw": -2.8785
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": -3.0273,
+        "y": 3.6465,
+        "world_x": -3.0273,
+        "world_y": 3.6465,
+        "yaw": 3.0297
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": -3.8964,
+        "y": 1.9576,
+        "world_x": -3.8964,
+        "world_y": 1.9576,
+        "yaw": 2.9202
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": -3.9296,
+        "y": 6.0581,
+        "world_x": -3.9296,
+        "world_y": 6.0581,
+        "yaw": 0.9671
+      }
+    ],
+    "bag_files": 0
+  }
+]
