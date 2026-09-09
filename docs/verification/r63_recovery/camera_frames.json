@@ -1,0 +1,32 @@
+{
+  "camera_ros_230.jpg": {
+    "frame": "1937",
+    "image_stamp_ros_sec": "230.013",
+    "receipt_ros_sec": "230.045"
+  },
+  "camera_ros_307.jpg": {
+    "frame": "2596",
+    "image_stamp_ros_sec": "307.0",
+    "receipt_ros_sec": "307.063"
+  },
+  "camera_ros_310.jpg": {
+    "frame": "2621",
+    "image_stamp_ros_sec": "309.973",
+    "receipt_ros_sec": "310.037"
+  },
+  "camera_ros_440.jpg": {
+    "frame": "3738",
+    "image_stamp_ros_sec": "440.018",
+    "receipt_ros_sec": "440.079"
+  },
+  "camera_ros_444.jpg": {
+    "frame": "3772",
+    "image_stamp_ros_sec": "444.021",
+    "receipt_ros_sec": "444.083"
+  },
+  "camera_ros_446.jpg": {
+    "frame": "3788",
+    "image_stamp_ros_sec": "445.954",
+    "receipt_ros_sec": "445.974"
+  }
+}
