@@ -1,0 +1,82 @@
+{
+  "scope": "R64 approx 1Hz truth track; SEARCH samples AGL>=0.8 and speed>=0.2; not hardware",
+  "rows": [
+    {
+      "seed": 1,
+      "moving_search_samples": 184,
+      "heading_to_motion_median_deg": 92.39591823985475,
+      "heading_to_motion_over_30deg_fraction": 0.5652173913043478,
+      "max_search_abs_roll_or_pitch_deg": 3.5404290521390336
+    },
+    {
+      "seed": 2,
+      "moving_search_samples": 239,
+      "heading_to_motion_median_deg": 98.08599300828773,
+      "heading_to_motion_over_30deg_fraction": 0.5857740585774058,
+      "max_search_abs_roll_or_pitch_deg": 3.962001845529906
+    },
+    {
+      "seed": 3,
+      "moving_search_samples": 205,
+      "heading_to_motion_median_deg": 94.4068244233683,
+      "heading_to_motion_over_30deg_fraction": 0.5414634146341464,
+      "max_search_abs_roll_or_pitch_deg": 3.814373602633982
+    },
+    {
+      "seed": 4,
+      "moving_search_samples": 272,
+      "heading_to_motion_median_deg": 93.49948482924219,
+      "heading_to_motion_over_30deg_fraction": 0.5588235294117647,
+      "max_search_abs_roll_or_pitch_deg": 3.751944860110192
+    },
+    {
+      "seed": 5,
+      "moving_search_samples": 285,
+      "heading_to_motion_median_deg": 98.73743003990133,
+      "heading_to_motion_over_30deg_fraction": 0.5754385964912281,
+      "max_search_abs_roll_or_pitch_deg": 3.9597788676388075
+    },
+    {
+      "seed": 6,
+      "moving_search_samples": 237,
+      "heading_to_motion_median_deg": 94.89603517894383,
+      "heading_to_motion_over_30deg_fraction": 0.5654008438818565,
+      "max_search_abs_roll_or_pitch_deg": 4.313511687605737
+    },
+    {
+      "seed": 7,
+      "moving_search_samples": 270,
+      "heading_to_motion_median_deg": 91.59898735844982,
+      "heading_to_motion_over_30deg_fraction": 0.5888888888888889,
+      "max_search_abs_roll_or_pitch_deg": 4.001731332922175
+    },
+    {
+      "seed": 8,
+      "moving_search_samples": 233,
+      "heading_to_motion_median_deg": 93.86101804078464,
+      "heading_to_motion_over_30deg_fraction": 0.5493562231759657,
+      "max_search_abs_roll_or_pitch_deg": 3.7786319605317464
+    },
+    {
+      "seed": 9,
+      "moving_search_samples": 183,
+      "heading_to_motion_median_deg": 92.12723735786905,
+      "heading_to_motion_over_30deg_fraction": 0.5573770491803278,
+      "max_search_abs_roll_or_pitch_deg": 3.718126430452501
+    },
+    {
+      "seed": 10,
+      "moving_search_samples": 224,
+      "heading_to_motion_median_deg": 122.13735997012981,
+      "heading_to_motion_over_30deg_fraction": 0.5848214285714286,
+      "max_search_abs_roll_or_pitch_deg": 3.8736071648767108
+    },
+    {
+      "seed": 11,
+      "moving_search_samples": 228,
+      "heading_to_motion_median_deg": 110.81003952838762,
+      "heading_to_motion_over_30deg_fraction": 0.5921052631578947,
+      "max_search_abs_roll_or_pitch_deg": 3.963278468349061
+    }
+  ]
+}

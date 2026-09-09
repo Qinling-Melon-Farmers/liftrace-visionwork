@@ -18,24 +18,37 @@ def render(snapshot, out, project):
     excluded={'/gazebo','/gazebo_contact_monitor','/planner_anchor_spawner',
               '/random_field_spawner','/navigation_vcl06_assertion',
               '/competition_key_recorder','/mock_raw_servo_server','/rosout',
-              '/uav_arming_node','/navigation_mission_start_gate','/visual_delivery_audit'}
-    core_topics=set(CORE_TOPICS)|{'/Odometry','/livox/lidar','/livox/imu','/mavros/vision_pose/pose'}
+              '/uav_arming_node','/navigation_mission_start_gate','/visual_delivery_audit',
+              '/camera_video_recorder','/overview_video_recorder'}
+    core_topics=set(CORE_TOPICS)|{'/Odometry','/livox/lidar','/livox/imu',
+                                 '/cloud_registered_body','/mavros/vision_pose/pose'}
     out.mkdir(parents=True,exist_ok=True)
-    summary={'source_snapshot':str(snapshot),'backend':'rqt_graph.RosGraphDotcodeGenerator',
-             'mode':NODE_NODE_GRAPH,'flight_excluded_nodes':sorted(nodes&excluded),'views':{}}
+    try:
+        source_snapshot=str(snapshot.resolve().relative_to(project.resolve()))
+    except ValueError:
+        source_snapshot=str(snapshot)
+    # Keep Gazebo as the actual sensor publisher in the core view. The flight
+    # view is a runtime-node subset of SITL, not an invented hardware graph.
+    core_excluded=excluded-{'/gazebo'}
+    summary={'source_snapshot':source_snapshot,'backend':'rqt_graph.RosGraphDotcodeGenerator',
+             'mode':NODE_NODE_GRAPH,'recorded_state_only':True,
+             'services_are_not_topic_edges':True,
+             'core_excluded_nodes':sorted(nodes&core_excluded),
+             'flight_excluded_nodes':sorted(nodes&excluded),'views':{}}
     for name in ('full','core','flight'):
-        chosen=nodes if name!='flight' else nodes-excluded
+        chosen=nodes-excluded if name=='flight' else nodes-core_excluded if name=='core' else nodes
         selected=[e for e in edges if e.start in chosen and e.end in chosen
                   and (name!='core' or e.label in core_topics)
                   and (name!='flight' or e.label not in ('/clock','/rosout','/rosout_agg'))]
         if name=='core':chosen=set(n for e in selected for n in (e.start,e.end))
-        graph=SimpleNamespace(nn_nodes=chosen,nn_edges=selected,bad_nodes={})
+        selected=sorted(selected,key=lambda e:(e.start,e.end,e.label))
+        graph=SimpleNamespace(nn_nodes=sorted(chosen),nn_edges=selected,bad_nodes={})
         generator=RosGraphDotcodeGenerator.__new__(RosGraphDotcodeGenerator)
         dot=generator.generate_dotcode(rosgraphinst=graph,ns_filter='/',topic_filter='/',
             graph_mode=NODE_NODE_GRAPH,dotcode_factory=PydotFactory(),
             hide_single_connection_topics=False,hide_dead_end_topics=False,
-            cluster_namespaces_level=0,accumulate_actions=False,orientation='LR',
-            rank='same',ranksep=.3,rankdir='LR',simplify=False,quiet=False,
+            cluster_namespaces_level=0,accumulate_actions=False,orientation='TB',
+            rank='same',ranksep=.5,rankdir='TB',simplify=False,quiet=False,
             unreachable=False,hide_tf_nodes=False,group_tf_nodes=False,
             group_image_nodes=False,hide_dynamic_reconfigure=False)
         path=out/('rqt_graph_nodes_only_'+name+'.dot');path.write_text(dot)
@@ -47,7 +60,9 @@ def render(snapshot, out, project):
     (out/'index.html').write_text('''<!doctype html><meta charset="utf-8"><title>ROS Nodes only</title>
 <style>body{font:16px sans-serif;margin:24px}iframe{width:100%;height:82vh;border:1px solid #bbb}button{padding:10px;margin:4px}</style>
 <h1>ROS 计算图 · Nodes only</h1><p>椭圆：实际注册节点；连线文字：ROS 话题；箭头：发布→订阅。
-仅飞行版为本轮实际节点的运行链筛选，不虚构未启动的实机雷达、相机SDK或机械舵机节点。服务不画成话题。</p>
+完整图保留评测和录像；核心图仅保留主要传感器、任务与控制话题；仅飞行版为本轮实际节点的运行链筛选。
+未启动实机雷达、相机SDK或机械舵机节点，不将它们虚构入图。服务不画成话题。
+这是归档ROS注册快照的离线重绘，不代表实时流量或板端验收。<a href="README.md">来源与范围</a></p>
 <button onclick="show('full')">完整</button><button onclick="show('core')">核心</button><button onclick="show('flight')">仅飞行运行链</button>
 <a id="download" href="rqt_graph_nodes_only_core.svg">打开 SVG</a><iframe id="graph" src="rqt_graph_nodes_only_core.svg"></iframe>
 <script>function show(n){let p='rqt_graph_nodes_only_'+n+'.svg';document.getElementById('graph').src=p;document.getElementById('download').href=p}</script>''')
