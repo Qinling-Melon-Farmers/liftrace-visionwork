@@ -1,0 +1,21 @@
+{
+  "scope": "Fixed seed11 full Gate; not universal random or hardware acceptance",
+  "gate": "PASS 37/37",
+  "flight_source": "1983b2f7571cf3d96916d45af5cc8f3a2f8a9ad4",
+  "matrix_source": "405bda420db343c35b37033f788b25436769b47c",
+  "matrix_raw_pass": "7/10",
+  "invalid_recorded_layout_seeds": [
+    5,
+    7,
+    8
+  ],
+  "remaining_failures": [
+    "seed3 near-ground landing",
+    "near-wall capture clearance"
+  ],
+  "merge_source": "1c662cea60bada87a2223789fcf0cf80a6f3f0fc",
+  "tag": "gate/r64-seed11-full",
+  "merge_mode": "--no-ff; retained branches",
+  "merge_commit": "7f67a68d9acc06ff541a8e2d91de0b22d89aaaba",
+  "main_repository": "Qinling-Melon-Farmers/liftrace-visionwork"
+}

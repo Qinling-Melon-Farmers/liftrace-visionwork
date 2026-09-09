@@ -16,6 +16,6 @@ UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_STORAGE_GUARD_PATH=/mnt/f SIM_N
 
 不启动Gazebo GUI也可录制服务端俯视相机和机载相机。视频/大日志留本地logs，默认0bag；坐标时序以CSV为准。[部署包](deployment/README_ONBOARD.md)、[仿真包](deployment/README_SIMULATION.md)、[任务](VISION_2026_ROADMAP.md)、[验收](docs/VALIDATION.md)、[环境](docs/ENVIRONMENT.md)、[规则](docs/competition/RULES_20260906.md)。
 
-历史：[R60矩阵2/10](docs/verification/r60_full_matrix/REPORT.md)、[R62恢复碰靶](docs/verification/r62_full_seed11/REPORT.md)、[R63降落失败](docs/verification/r63_recovery/REPORT.md)。历史结果保持其源码/世界边界，不代替当前验收。main仍为R56历史基线，后续合入依照实跑和分支流程。
+历史：[R60矩阵2/10](docs/verification/r60_full_matrix/REPORT.md)、[R62恢复碰靶](docs/verification/r62_full_seed11/REPORT.md)、[R63降落失败](docs/verification/r63_recovery/REPORT.md)。历史结果保持其源码/世界边界，不代替当前验收。远端main已保留分支合入R64默认验收基线，标签gate/r64-seed11-full；仍保留矩阵失败及未验证范围。
 
 随机世界工具见[使用说明](docs/verification/r64_randomization/README.md)和simulation_tools；默认成功路线不变，随机门实际飞行尚未验收。
