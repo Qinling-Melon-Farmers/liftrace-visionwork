@@ -25,3 +25,15 @@ QT_QPA_PLATFORM=offscreen /usr/bin/python3 top_level_scripts/render_recorded_rqt
 ```
 
 旧图保留在历史报告原路径，当前文档入口更新到本目录。
+
+## PNG / JPEG导出
+
+2026-09-09从同一rqt DOT导出，144dpi、白色背景；未改节点、话题或连线。文字图优先PNG，JPEG便于通用查看。全图较宽，下载原图后放大阅读。
+
+| 视图 | PNG | JPEG |
+|---|---|---|
+| 全图 | [下载](rqt_graph_nodes_only_full.png) | [下载](rqt_graph_nodes_only_full.jpg) |
+| 核心 | [下载](rqt_graph_nodes_only_core.png) | [下载](rqt_graph_nodes_only_core.jpg) |
+| 仅飞行 | [下载](rqt_graph_nodes_only_flight.png) | [下载](rqt_graph_nodes_only_flight.jpg) |
+
+渲染脚本现会同时生成SVG、PNG和JPEG；分辨率与解码检查见[raster_manifest.json](raster_manifest.json)。

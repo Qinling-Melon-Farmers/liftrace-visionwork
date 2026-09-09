@@ -4,6 +4,8 @@
 
 结论：优先减少搜索绕行与无效等待，保留已验证的恢复和低走廊控制。辅助相机可以重新评审，但尚无证据表明比单相机航路优化更划算。轻量仓适合筛选候选，不能给出实机全局最优或PASS概率。以下区分实录、几何估算和待验证目标。
 
+远程演算的CPU/GPU分工、单实例隔离与迁移步骤另见[远程服务器评估](REMOTE_SERVER_PLAN.md)，本次未部署或启动远程任务。
+
 ## 1. 前期计划与事实基线
 
 用户提到的前期分析是轻量仓R61的`data/recorded_fields/SEARCH_COMPARISON.md`、`docs/ENGINEERING_REVIEW_20260909.md`，以及从R62/R63追加到R64的[SEARCH_RETURN_PLAN](../../competition/SEARCH_RETURN_PLAN_20260909.md)。R60十seed仅2/10完整PASS，不能与新地图R64混算。
