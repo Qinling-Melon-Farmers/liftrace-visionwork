@@ -130,3 +130,6 @@ python recorded_search_replay.py \
 ```
 
 其他间距调用原`build_route(...spacing=...)`，固定yaw调用原`quaternion_from_rpy`；全部假设/组合已在JSON。本次分析脚本留本地`logs/_artifacts/r64_topology_plan_20260909/`，不作为新轻量算法接入。仅提交图、离线绘图工具修正、分析附件和计划；飞行包仍是R64源码。
+
+
+2026-09-09最新记录策略：后续无头运行只留日志/关键数据，关闭机载录像、俯视录像、桌面录屏和全场bag，在线机载图像仍供视觉算法使用。已有R64验收录像保留，未删除。
