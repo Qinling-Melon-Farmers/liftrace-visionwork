@@ -19,3 +19,5 @@ UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_STORAGE_GUARD_PATH=/mnt/f SIM_N
 历史：[R60矩阵2/10](docs/verification/r60_full_matrix/REPORT.md)、[R62恢复碰靶](docs/verification/r62_full_seed11/REPORT.md)、[R63降落失败](docs/verification/r63_recovery/REPORT.md)。历史结果保持其源码/世界边界，不代替当前验收。远端main已保留分支合入R64默认验收基线，标签gate/r64-seed11-full；仍保留矩阵失败及未验证范围。
 
 随机世界工具见[使用说明](docs/verification/r64_randomization/README.md)和simulation_tools；默认成功路线不变，随机门实际飞行尚未验收。
+
+当前[R64全图/核心/仅飞行rqt拓扑](docs/topology/r64/README.md)已按PASS运行注册快照离线更新。[时间优化、轻量仓复用与辅助相机计划](docs/planning/r64_time_camera/PLAN.md)附10种策略×11布局几何比较；这些优化尚未接入飞行，安全返航仍关闭。
