@@ -1,0 +1,610 @@
+[
+  {
+    "t": 22.852,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 1,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_start",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 27.69,
+    "kind": "decision",
+    "command": 1,
+    "decision_seq": 2,
+    "status": null,
+    "stage": null,
+    "reason": "high_weight_search_interrupt",
+    "target_class": "panzer",
+    "payload_slot": 1,
+    "goal": {
+      "x": -1.5770264051540688,
+      "y": 0.7259237617499037,
+      "z": 1.38
+    }
+  },
+  {
+    "t": 41.891,
+    "kind": "decision",
+    "command": 3,
+    "decision_seq": 3,
+    "status": null,
+    "stage": null,
+    "reason": "resume_interrupted_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 41.891,
+    "kind": "result",
+    "command": 1,
+    "decision_seq": 2,
+    "status": 3,
+    "stage": 5,
+    "reason": "release_recovery_confirmed",
+    "target_class": "panzer",
+    "payload_slot": 1,
+    "goal": null
+  },
+  {
+    "t": 46.982,
+    "kind": "decision",
+    "command": 1,
+    "decision_seq": 4,
+    "status": null,
+    "stage": null,
+    "reason": "high_weight_search_interrupt",
+    "target_class": "red_cross",
+    "payload_slot": 2,
+    "goal": {
+      "x": -3.1457946119663793,
+      "y": 0.07420489010087421,
+      "z": 1.38
+    }
+  },
+  {
+    "t": 57.025,
+    "kind": "result",
+    "command": 1,
+    "decision_seq": 4,
+    "status": 3,
+    "stage": 5,
+    "reason": "release_recovery_confirmed",
+    "target_class": "red_cross",
+    "payload_slot": 2,
+    "goal": null
+  },
+  {
+    "t": 57.025,
+    "kind": "decision",
+    "command": 3,
+    "decision_seq": 5,
+    "status": null,
+    "stage": null,
+    "reason": "resume_interrupted_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 62.092,
+    "kind": "result",
+    "command": 3,
+    "decision_seq": 5,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 62.092,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 6,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 88.23,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 6,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 88.23,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 7,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 0.7,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 91.792,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 7,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 91.792,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 8,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 0.7,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 119.496,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 8,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 119.496,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 9,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 1.4,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 123.128,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 9,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 123.133,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 10,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 1.4,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 150.861,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 10,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 150.862,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 11,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 2.0999999999999996,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 154.734,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 11,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 154.738,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 12,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 2.0999999999999996,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 160.393,
+    "kind": "decision",
+    "command": 1,
+    "decision_seq": 13,
+    "status": null,
+    "stage": null,
+    "reason": "high_weight_search_interrupt",
+    "target_class": "bridge",
+    "payload_slot": 3,
+    "goal": {
+      "x": 2.472805268865503,
+      "y": 2.4240373328513356,
+      "z": 1.38
+    }
+  },
+  {
+    "t": 168.027,
+    "kind": "result",
+    "command": 1,
+    "decision_seq": 13,
+    "status": 3,
+    "stage": 5,
+    "reason": "release_recovery_confirmed",
+    "target_class": "bridge",
+    "payload_slot": 3,
+    "goal": null
+  },
+  {
+    "t": 168.041,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 14,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:1/9:r2026-experimental-neutral-wall-goals-v1:required_deliveries_complete",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.05,
+      "y": 6.7,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 243.485,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 14,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 243.509,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 15,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:2/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.05,
+      "y": 6.7,
+      "z": 0.18
+    }
+  },
+  {
+    "t": 260.262,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 15,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 260.289,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 16,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:3/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.05,
+      "y": 8.35,
+      "z": 0.23
+    }
+  },
+  {
+    "t": 274.994,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 16,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 275.001,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 17,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:4/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -2.3,
+      "y": 8.35,
+      "z": 0.23
+    }
+  },
+  {
+    "t": 291.013,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 17,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 291.027,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 18,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:5/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -0.9000000000000001,
+      "y": 8.35,
+      "z": 0.23
+    }
+  },
+  {
+    "t": 305.392,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 18,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 305.399,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 19,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:6/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 0.0,
+      "y": 8.35,
+      "z": 0.23
+    }
+  },
+  {
+    "t": 314.426,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 19,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 314.438,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 20,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:7/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 0.9000000000000001,
+      "y": 8.35,
+      "z": 0.23
+    }
+  },
+  {
+    "t": 323.605,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 20,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 323.609,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 21,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:8/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 2.3,
+      "y": 8.35,
+      "z": 0.23
+    }
+  },
+  {
+    "t": 339.352,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 21,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 339.369,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 22,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route:9/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.2,
+      "y": 8.5,
+      "z": 0.28
+    }
+  },
+  {
+    "t": 356.221,
+    "kind": "result",
+    "command": 4,
+    "decision_seq": 22,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 356.221,
+    "kind": "decision",
+    "command": 5,
+    "decision_seq": 23,
+    "status": null,
+    "stage": null,
+    "reason": "post_delivery_route_complete",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    }
+  },
+  {
+    "t": 364.961,
+    "kind": "result",
+    "command": 5,
+    "decision_seq": 23,
+    "status": 3,
+    "stage": 6,
+    "reason": "landed_state_and_settle_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  }
+]

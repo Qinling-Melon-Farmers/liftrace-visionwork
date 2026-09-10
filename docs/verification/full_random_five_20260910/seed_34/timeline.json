@@ -1,0 +1,642 @@
+[
+  {
+    "t": 22.618,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 1,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_start",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 42.614,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 1,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 42.618,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 2,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 132.634,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 2,
+    "status": 7,
+    "stage": 1,
+    "reason": "decision_deadline_reached",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 132.637,
+    "kind": "decision",
+    "command": 3,
+    "decision_seq": 3,
+    "status": null,
+    "stage": null,
+    "reason": "resume_interrupted_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 222.651,
+    "kind": "result",
+    "command": 3,
+    "decision_seq": 3,
+    "status": 7,
+    "stage": 1,
+    "reason": "decision_deadline_reached",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 222.654,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 4,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 0.7,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 312.657,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 4,
+    "status": 7,
+    "stage": 1,
+    "reason": "decision_deadline_reached",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 312.657,
+    "kind": "decision",
+    "command": 3,
+    "decision_seq": 5,
+    "status": null,
+    "stage": null,
+    "reason": "resume_interrupted_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 0.7,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 402.68,
+    "kind": "result",
+    "command": 3,
+    "decision_seq": 5,
+    "status": 7,
+    "stage": 1,
+    "reason": "decision_deadline_reached",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 402.681,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 6,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 0.7,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 406.378,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 6,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 406.378,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 7,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 1.4,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 409.917,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 7,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 409.92,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 8,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 1.4,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 437.345,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 9,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 2.0999999999999996,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 437.345,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 8,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 440.711,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 9,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 440.714,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 10,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 2.0999999999999996,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 468.275,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 10,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 468.28,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 11,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 2.8,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 471.819,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 11,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 471.82,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 12,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 2.8,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 478.0,
+    "kind": "decision",
+    "command": 1,
+    "decision_seq": 13,
+    "status": null,
+    "stage": null,
+    "reason": "high_weight_search_interrupt",
+    "target_class": "panzer",
+    "payload_slot": 1,
+    "goal": {
+      "x": -2.288671772207821,
+      "y": 3.998707839848845,
+      "z": 1.38
+    }
+  },
+  {
+    "t": 488.376,
+    "kind": "result",
+    "command": 1,
+    "decision_seq": 13,
+    "status": 3,
+    "stage": 5,
+    "reason": "release_recovery_confirmed",
+    "target_class": "panzer",
+    "payload_slot": 1,
+    "goal": null
+  },
+  {
+    "t": 488.376,
+    "kind": "decision",
+    "command": 3,
+    "decision_seq": 14,
+    "status": null,
+    "stage": null,
+    "reason": "resume_interrupted_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 2.8,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 509.553,
+    "kind": "result",
+    "command": 3,
+    "decision_seq": 14,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 509.561,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 15,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 3.5,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 512.901,
+    "kind": "decision",
+    "command": 1,
+    "decision_seq": 16,
+    "status": null,
+    "stage": null,
+    "reason": "high_weight_search_interrupt",
+    "target_class": "red_cross",
+    "payload_slot": 2,
+    "goal": {
+      "x": 4.242857198901999,
+      "y": 4.317983531481727,
+      "z": 1.38
+    }
+  },
+  {
+    "t": 523.709,
+    "kind": "result",
+    "command": 1,
+    "decision_seq": 16,
+    "status": 3,
+    "stage": 5,
+    "reason": "release_recovery_confirmed",
+    "target_class": "red_cross",
+    "payload_slot": 2,
+    "goal": null
+  },
+  {
+    "t": 523.713,
+    "kind": "decision",
+    "command": 3,
+    "decision_seq": 17,
+    "status": null,
+    "stage": null,
+    "reason": "resume_interrupted_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 3.5,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 527.888,
+    "kind": "result",
+    "command": 3,
+    "decision_seq": 17,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 527.888,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 18,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 3.5,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 555.78,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 18,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 555.785,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 19,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 4.2,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 559.213,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 19,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 559.213,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 20,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 4.2,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 587.142,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 20,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 587.143,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 21,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 4.3,
+      "y": 4.9,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 591.25,
+    "kind": "decision",
+    "command": 0,
+    "decision_seq": 22,
+    "status": null,
+    "stage": null,
+    "reason": "coverage_waypoint",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": -4.3,
+      "y": 4.9,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 591.25,
+    "kind": "result",
+    "command": 0,
+    "decision_seq": 21,
+    "status": 3,
+    "stage": 1,
+    "reason": "motion_arrival_confirmed",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": null
+  },
+  {
+    "t": 595.3,
+    "kind": "decision",
+    "command": 1,
+    "decision_seq": 23,
+    "status": null,
+    "stage": null,
+    "reason": "high_weight_search_interrupt",
+    "target_class": "bridge",
+    "payload_slot": 3,
+    "goal": {
+      "x": 2.7938595044596095,
+      "y": 5.581188971258375,
+      "z": 1.38
+    }
+  },
+  {
+    "t": 622.627,
+    "kind": "result",
+    "command": 1,
+    "decision_seq": 23,
+    "status": 7,
+    "stage": 3,
+    "reason": "alignment_evidence_deadline_reached",
+    "target_class": "bridge",
+    "payload_slot": 3,
+    "goal": null
+  },
+  {
+    "t": 622.631,
+    "kind": "decision",
+    "command": 4,
+    "decision_seq": 24,
+    "status": null,
+    "stage": null,
+    "reason": "target_action_timed_out_uncertain",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 1.18
+    }
+  },
+  {
+    "t": 622.706,
+    "kind": "decision",
+    "command": 7,
+    "decision_seq": 25,
+    "status": null,
+    "stage": null,
+    "reason": "safety_motion_timed_out",
+    "target_class": "",
+    "payload_slot": 0,
+    "goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    }
+  }
+]

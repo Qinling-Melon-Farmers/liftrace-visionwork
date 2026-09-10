@@ -1,5 +1,7 @@
 # 2026无人机竞赛整机工程
 
+2026-09-10全随机五seed已完成：2/5完整PASS、4/5三投、3/5两门和9点投后路线；五组靶板布设合法，seed31降落碰墙、33第二门前规划失败、34搜索耗时导致600秒截尾。算法和参数冻结，未补跑。[完整报告与20张图](docs/verification/full_random_five_20260910/REPORT.md)。
+
 **R64固定seed11完整37/37 PASS，任务422.712秒。** 三投、三恢复、9航点、两门、H对准、落地解除武装，零碰撞。最终中心距H中心6.5cm，保守55cm包络在名义黑圈内；未采用空中停机。[报告与视频索引](docs/verification/r64_seed11/REPORT.md)。随后十seed已完成，原始7/10完整PASS；5/7/8有靶板压墙，已修布设检查并保留原结果。近地落地仍有seed3失败，不能称实机已鲁棒。[11轮图表与分析](docs/verification/r64_matrix/REPORT.md)。
 
 当前包含今年导航、视觉、任务、控制与仿真，机械组PWM实现另供。R63修复投后恢复/旧轨迹接管；R64修复PX4自动任务历史EKF重置重复应用，[固件补丁](deployment/px4_patches/README.md)是复现依赖。原始参考与旧快照保留在来源分支，精简分支不重复收录。
@@ -18,7 +20,7 @@ UAV_VISION_MODEL_PATH=/absolute/path/best.pt SIM_STORAGE_GUARD_PATH=/mnt/f SIM_N
 
 历史：[R60矩阵2/10](docs/verification/r60_full_matrix/REPORT.md)、[R62恢复碰靶](docs/verification/r62_full_seed11/REPORT.md)、[R63降落失败](docs/verification/r63_recovery/REPORT.md)。历史结果保持其源码/世界边界，不代替当前验收。远端main已保留分支合入R64默认验收基线，标签gate/r64-seed11-full；仍保留矩阵失败及未验证范围。
 
-随机世界工具见[使用说明](docs/verification/r64_randomization/README.md)和simulation_tools；默认成功路线不变，随机门实际飞行尚未验收。
+随机世界工具见[使用说明](docs/verification/r64_randomization/README.md)和simulation_tools；默认成功路线不变，随机门首次五seed已完成2/5整场PASS，尚未全组合鲁棒验收。
 
 当前[R64全图/核心/仅飞行rqt拓扑](docs/topology/r64/README.md)已按PASS运行注册快照离线更新。[时间优化、轻量仓复用与辅助相机计划](docs/planning/r64_time_camera/PLAN.md)附10种策略×11布局几何比较；这些优化尚未接入飞行，安全返航仍关闭。
 

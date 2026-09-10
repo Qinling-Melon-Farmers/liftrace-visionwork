@@ -1,0 +1,21 @@
+diff --git a/src/modules/flight_mode_manager/FlightModeManager.cpp b/src/modules/flight_mode_manager/FlightModeManager.cpp
+index 3d70726..f962bd0 100644
+--- a/src/modules/flight_mode_manager/FlightModeManager.cpp
++++ b/src/modules/flight_mode_manager/FlightModeManager.cpp
+@@ -383,6 +383,16 @@ FlightTaskError FlightModeManager::switchTask(FlightTaskIndex new_task_index)
+ 	if (isAnyTaskActive()) {
+ 		last_setpoint = _current_task.task->getTrajectorySetpoint();
+ 		last_reset_counters = _current_task.task->getResetCounters();
++	} else {
++		// A new task starts in the current estimator frame. Resets that
++		// happened before activation must not be applied a second time.
++		vehicle_local_position_s position{};
++		_vehicle_local_position_sub.copy(&position);
++		last_reset_counters.xy = position.xy_reset_counter;
++		last_reset_counters.vxy = position.vxy_reset_counter;
++		last_reset_counters.z = position.z_reset_counter;
++		last_reset_counters.vz = position.vz_reset_counter;
++		last_reset_counters.heading = position.heading_reset_counter;
+ 	}
+ 
+ 	if (_initTask(new_task_index)) {

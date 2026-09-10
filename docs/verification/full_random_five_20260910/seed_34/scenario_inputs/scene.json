@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "scene_seed": 34,
+  "door_seed": 1034,
+  "obstacle_seed": 2034,
+  "door_pattern": "LL",
+  "doors": [
+    {
+      "name": "Wall_20",
+      "x": -1.6,
+      "side": "L",
+      "gap_min_y": 8.3,
+      "gap_max_y": 9.1,
+      "clear_width": 0.8,
+      "wall_y": 7.95,
+      "wall_length": 0.7
+    },
+    {
+      "name": "Wall_22",
+      "x": 1.6,
+      "side": "L",
+      "gap_min_y": 8.3,
+      "gap_max_y": 9.1,
+      "clear_width": 0.8,
+      "wall_y": 7.95,
+      "wall_length": 0.7
+    }
+  ],
+  "trees": [
+    {
+      "x": -3.424799808417782,
+      "y": 2.55283525070476,
+      "yaw": 1.925373194777377
+    },
+    {
+      "x": -3.647717899852281,
+      "y": 1.0085571713827328,
+      "yaw": -1.1900495889913625
+    },
+    {
+      "x": -2.491507692250935,
+      "y": 0.304719865748185,
+      "yaw": -0.937110119592039
+    },
+    {
+      "x": -2.4665340407081784,
+      "y": 5.421418295978038,
+      "yaw": -2.8996655996734955
+    }
+  ],
+  "frame": "world / nominal competition frame",
+  "corridor_width": 1.5,
+  "target_seed": "independent field_seed at spawner",
+  "qualification": "Geometry fixture only; randomized-door SITL not yet validated"
+}

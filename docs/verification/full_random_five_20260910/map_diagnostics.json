@@ -1,0 +1,256 @@
+[
+  {
+    "seed": 33,
+    "snapshots": [
+      {
+        "file": "local_map_failure_1.json",
+        "ros_sec": 360.211,
+        "goal": [
+          -0.9000000000000001,
+          8.35,
+          0.23
+        ],
+        "clouds": {
+          "inflated_map": {
+            "n": 129403,
+            "stamp": 0.0,
+            "error": null,
+            "nearest_goal_3d_m": 0.1013656634912615
+          },
+          "static_map": {
+            "n": 2994,
+            "stamp": 360.286,
+            "error": null,
+            "nearest_goal_3d_m": 0.41853140439964265
+          }
+        },
+        "raw_local_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147/local_map_failure_1.json"
+      },
+      {
+        "file": "local_map_failure_2.json",
+        "ros_sec": 394.357,
+        "goal": [
+          2.3,
+          8.35,
+          0.23
+        ],
+        "clouds": {
+          "inflated_map": {
+            "n": 124759,
+            "stamp": 0.0,
+            "error": null,
+            "nearest_goal_3d_m": 0.035707076206855724
+          },
+          "static_map": {
+            "n": 3250,
+            "stamp": 394.421,
+            "error": null,
+            "nearest_goal_3d_m": 0.13326257214160436
+          }
+        },
+        "raw_local_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147/local_map_failure_2.json"
+      },
+      {
+        "file": "local_map_failure_3.json",
+        "ros_sec": 484.4,
+        "goal": [
+          0.9159217476844788,
+          8.379035949707031,
+          0.19970762729644775
+        ],
+        "clouds": {
+          "inflated_map": {
+            "n": 124398,
+            "stamp": 0.0,
+            "error": null,
+            "nearest_goal_3d_m": 0.12568563737383653
+          },
+          "static_map": {
+            "n": 3616,
+            "stamp": 484.498,
+            "error": null,
+            "nearest_goal_3d_m": 0.3845193476179017
+          }
+        },
+        "raw_local_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147/local_map_failure_3.json"
+      }
+    ],
+    "failed_planner_goals": [
+      {
+        "goal_seq": 21,
+        "start": 359.995,
+        "last": 375.326,
+        "requested_goal": {
+          "x": -0.9000000000000001,
+          "y": 8.35,
+          "z": 0.23
+        },
+        "failed_attempts": 1,
+        "first_failure": 360.211
+      },
+      {
+        "goal_seq": 24,
+        "start": 394.162,
+        "last": 484.201,
+        "requested_goal": {
+          "x": 2.3,
+          "y": 8.35,
+          "z": 0.23
+        },
+        "failed_attempts": 110,
+        "first_failure": 394.357
+      },
+      {
+        "goal_seq": 25,
+        "start": 484.201,
+        "last": 485.402,
+        "requested_goal": {
+          "x": 0.9159217476844788,
+          "y": 8.379035949707031,
+          "z": 0.19970762729644775
+        },
+        "failed_attempts": 1,
+        "first_failure": 484.4
+      }
+    ]
+  },
+  {
+    "seed": 34,
+    "snapshots": [
+      {
+        "file": "local_map_failure_1.json",
+        "ros_sec": 43.061,
+        "goal": [
+          4.3,
+          0.0,
+          1.18
+        ],
+        "clouds": {
+          "inflated_map": {
+            "n": 50513,
+            "stamp": 0.0,
+            "error": null,
+            "nearest_goal_3d_m": 0.17684736327424105
+          },
+          "static_map": {
+            "n": 1655,
+            "stamp": 43.111,
+            "error": null,
+            "nearest_goal_3d_m": 0.4825766575236055
+          }
+        },
+        "raw_local_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330/local_map_failure_1.json"
+      },
+      {
+        "file": "local_map_failure_2.json",
+        "ros_sec": 132.928,
+        "goal": [
+          4.3,
+          0.0,
+          1.18
+        ],
+        "clouds": {
+          "inflated_map": {
+            "n": 50126,
+            "stamp": 0.0,
+            "error": null,
+            "nearest_goal_3d_m": 0.17684736327424105
+          },
+          "static_map": {
+            "n": 1653,
+            "stamp": 132.965,
+            "error": null,
+            "nearest_goal_3d_m": 0.4963268347013349
+          }
+        },
+        "raw_local_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330/local_map_failure_2.json"
+      },
+      {
+        "file": "local_map_failure_3.json",
+        "ros_sec": 223.156,
+        "goal": [
+          4.3,
+          0.7,
+          1.18
+        ],
+        "clouds": {
+          "inflated_map": {
+            "n": 49685,
+            "stamp": 0.0,
+            "error": null,
+            "nearest_goal_3d_m": 0.8753713416172169
+          },
+          "static_map": {
+            "n": 2042,
+            "stamp": 223.263,
+            "error": null,
+            "nearest_goal_3d_m": 0.4926450709711008
+          }
+        },
+        "raw_local_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330/local_map_failure_3.json"
+      }
+    ],
+    "failed_planner_goals": [
+      {
+        "goal_seq": 2,
+        "start": 42.712,
+        "last": 132.813,
+        "requested_goal": {
+          "x": 4.3,
+          "y": 0.0,
+          "z": 1.18
+        },
+        "failed_attempts": 95,
+        "first_failure": 43.061
+      },
+      {
+        "goal_seq": 3,
+        "start": 132.824,
+        "last": 222.905,
+        "requested_goal": {
+          "x": 4.3,
+          "y": 0.0,
+          "z": 1.18
+        },
+        "failed_attempts": 93,
+        "first_failure": 132.928
+      },
+      {
+        "goal_seq": 4,
+        "start": 222.905,
+        "last": 312.745,
+        "requested_goal": {
+          "x": 4.3,
+          "y": 0.7,
+          "z": 1.18
+        },
+        "failed_attempts": 92,
+        "first_failure": 223.156
+      },
+      {
+        "goal_seq": 5,
+        "start": 312.747,
+        "last": 402.846,
+        "requested_goal": {
+          "x": 4.3,
+          "y": 0.7,
+          "z": 1.18
+        },
+        "failed_attempts": 96,
+        "first_failure": 312.992
+      },
+      {
+        "goal_seq": 25,
+        "start": 622.754,
+        "last": 622.985,
+        "requested_goal": {
+          "x": 2.7213168144226074,
+          "y": 5.602343559265137,
+          "z": 1.4037930965423584
+        },
+        "failed_attempts": 1,
+        "first_failure": 622.985
+      }
+    ]
+  }
+]

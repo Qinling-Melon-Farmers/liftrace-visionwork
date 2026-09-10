@@ -1,0 +1,707 @@
+{
+  "seed": 32,
+  "door_pattern": "RR",
+  "status": "PASS",
+  "gate_reason": "all_checks_passed",
+  "gate_errors": [],
+  "checks_passed": 37,
+  "checks_total": 37,
+  "failed_checks": [],
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed32_20260910_103344",
+  "source": "7eb94462170d0adce666754ec2547d79a71b29df",
+  "release_count": 3,
+  "recovery_count": 3,
+  "route_points": 9,
+  "doors_crossed": [
+    "Wall_20",
+    "Wall_22"
+  ],
+  "door_crossings": [
+    {
+      "lateral": -4.015979053240909,
+      "name": "corridor_entry",
+      "route_index": 3,
+      "z": 0.4297722054061406
+    },
+    {
+      "lateral": 7.977481686118067,
+      "name": "Wall_20",
+      "route_index": 5,
+      "z": 0.40977291457594334
+    },
+    {
+      "lateral": 7.972936870173578,
+      "name": "Wall_22",
+      "route_index": 8,
+      "z": 0.3409627449422465
+    }
+  ],
+  "mission_start_ros": 22.634,
+  "record_end_ros": 536.826,
+  "observed_mission_span_s": 514.192,
+  "complete_mission_s": 513.573,
+  "release_events": [
+    {
+      "ros_sec": 63.845,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 1,
+          "stamp": {
+            "stamp_ns": 63845000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 1,
+        "payload_slot": 1,
+        "align_mode": "drop_circle",
+        "target_id": 0,
+        "target_class": "bridge",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    },
+    {
+      "ros_sec": 83.418,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 2,
+          "stamp": {
+            "stamp_ns": 83402000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 2,
+        "payload_slot": 2,
+        "align_mode": "drop_cross",
+        "target_id": 2,
+        "target_class": "red_cross",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    },
+    {
+      "ros_sec": 343.782,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 3,
+          "stamp": {
+            "stamp_ns": 343778000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 3,
+        "payload_slot": 3,
+        "align_mode": "drop_circle",
+        "target_id": 8,
+        "target_class": "panzer",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    }
+  ],
+  "recovery_events": [
+    {
+      "ros_sec": 66.118,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 19,
+          "stamp": {
+            "stamp_ns": 66114000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-634000000-1",
+        "executor_id": "vcl06-planner-bridge-6ff46b6879064d5a9752be2f947d9aa5",
+        "event_seq": 19,
+        "decision_seq": 3,
+        "command": 1,
+        "status": 3,
+        "stage": 5,
+        "terminal": true,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 56571000000
+        },
+        "target_class": "bridge",
+        "attempt": 1,
+        "payload_slot": 1,
+        "reason": "release_recovery_confirmed",
+        "evidence_source": "patrol_control_recovery"
+      }
+    },
+    {
+      "ros_sec": 85.826,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 34,
+          "stamp": {
+            "stamp_ns": 85814000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-634000000-1",
+        "executor_id": "vcl06-planner-bridge-6ff46b6879064d5a9752be2f947d9aa5",
+        "event_seq": 34,
+        "decision_seq": 6,
+        "command": 1,
+        "status": 3,
+        "stage": 5,
+        "terminal": true,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 2,
+        "target_first_seen": {
+          "stamp_ns": 75173000000
+        },
+        "target_class": "red_cross",
+        "attempt": 1,
+        "payload_slot": 2,
+        "reason": "release_recovery_confirmed",
+        "evidence_source": "patrol_control_recovery"
+      }
+    },
+    {
+      "ros_sec": 346.314,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 137,
+          "stamp": {
+            "stamp_ns": 346311000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-634000000-1",
+        "executor_id": "vcl06-planner-bridge-6ff46b6879064d5a9752be2f947d9aa5",
+        "event_seq": 137,
+        "decision_seq": 23,
+        "command": 1,
+        "status": 3,
+        "stage": 5,
+        "terminal": true,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 8,
+        "target_first_seen": {
+          "stamp_ns": 336381000000
+        },
+        "target_class": "panzer",
+        "attempt": 1,
+        "payload_slot": 3,
+        "reason": "release_recovery_confirmed",
+        "evidence_source": "patrol_control_recovery"
+      }
+    }
+  ],
+  "collision_count": 0,
+  "contact_events": [],
+  "route_start_ros": 346.334,
+  "land_start_ros": 520.54,
+  "auto_land_ros": 529.765,
+  "disarm_ros": 534.765,
+  "route_to_disarm_s": 188.43099999999998,
+  "land_to_disarm_s": 14.225000000000023,
+  "final_xyz_local": [
+    4.1831821019771125,
+    8.480095668990636,
+    0.004664136384067263
+  ],
+  "final_h_geometry": {
+    "start_H": {
+      "center_error_m": 9.455740851648557,
+      "envelope_radius_m": 9.824041661968566
+    },
+    "finish_H": {
+      "center_error_m": 0.02605809062150545,
+      "envelope_radius_m": 0.41502034626291756
+    }
+  },
+  "landed_on_ground": true,
+  "disarmed": true,
+  "max_fc_agl_m": 1.692413136485816,
+  "xy_path_length_m": 114.78957481277834,
+  "truth_mavros_xy_error_m": {
+    "n": 5297,
+    "min": 0.0002638436723407036,
+    "p50": 0.01617393091698476,
+    "p95": 0.0457207140509922,
+    "max": 0.17823428047850737
+  },
+  "truth_mavros_abs_z_error_m": {
+    "n": 5297,
+    "min": 1.3276916809246142e-05,
+    "p50": 0.02375417135831248,
+    "p95": 0.06490953386327386,
+    "max": 0.2412523301739494
+  },
+  "planner_ready_latency_ros_s": {
+    "p50": 0.16100000000000847,
+    "p95": 0.24030000000000268
+  },
+  "planner_reasons": {
+    "goal_received": 32,
+    "new_trajectory_attempt": 29,
+    "new_trajectory_ready": 29,
+    "goal_reached_after_local_trajectory": 29,
+    "trajectory_replan_attempt": 41,
+    "replanned_trajectory_ready": 41,
+    "superseded_by_new_goal": 3
+  },
+  "phase_durations_s": {
+    "IDLE": 22.66,
+    "SEARCH": 294.25800000000004,
+    "EXECUTING": 29.421999999999954,
+    "POST_DELIVERY_ROUTE": 174.21100000000007,
+    "LAND": 15.658999999999992,
+    "COMPLETE": 0.6159999999999854
+  },
+  "phases": [
+    {
+      "t": 0.0,
+      "phase": "IDLE",
+      "reason": "waiting_for_manual_start"
+    },
+    {
+      "t": 22.66,
+      "phase": "SEARCH",
+      "reason": "coverage_start"
+    },
+    {
+      "t": 56.818,
+      "phase": "EXECUTING",
+      "reason": "high_weight_search_interrupt"
+    },
+    {
+      "t": 66.133,
+      "phase": "SEARCH",
+      "reason": "progress_recorded"
+    },
+    {
+      "t": 75.442,
+      "phase": "EXECUTING",
+      "reason": "high_weight_search_interrupt"
+    },
+    {
+      "t": 85.828,
+      "phase": "SEARCH",
+      "reason": "resume_interrupted_waypoint"
+    },
+    {
+      "t": 336.619,
+      "phase": "EXECUTING",
+      "reason": "high_weight_search_interrupt"
+    },
+    {
+      "t": 346.34,
+      "phase": "POST_DELIVERY_ROUTE",
+      "reason": "required_deliveries_complete"
+    },
+    {
+      "t": 520.551,
+      "phase": "LAND",
+      "reason": "post_delivery_route_complete"
+    },
+    {
+      "t": 536.21,
+      "phase": "COMPLETE",
+      "reason": "mission_complete"
+    }
+  ],
+  "last_terminal_events": [
+    {
+      "t": 440.043,
+      "kind": "decision",
+      "command": 4,
+      "decision_seq": 27,
+      "status": null,
+      "stage": null,
+      "reason": "post_delivery_route:4/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": {
+        "x": -2.3,
+        "y": 8.35,
+        "z": 0.23
+      }
+    },
+    {
+      "t": 455.345,
+      "kind": "result",
+      "command": 4,
+      "decision_seq": 27,
+      "status": 3,
+      "stage": 1,
+      "reason": "motion_arrival_confirmed",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": null
+    },
+    {
+      "t": 455.354,
+      "kind": "decision",
+      "command": 4,
+      "decision_seq": 28,
+      "status": null,
+      "stage": null,
+      "reason": "post_delivery_route:5/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": {
+        "x": -0.9000000000000001,
+        "y": 8.35,
+        "z": 0.23
+      }
+    },
+    {
+      "t": 470.545,
+      "kind": "result",
+      "command": 4,
+      "decision_seq": 28,
+      "status": 3,
+      "stage": 1,
+      "reason": "motion_arrival_confirmed",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": null
+    },
+    {
+      "t": 470.549,
+      "kind": "decision",
+      "command": 4,
+      "decision_seq": 29,
+      "status": null,
+      "stage": null,
+      "reason": "post_delivery_route:6/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": {
+        "x": 0.0,
+        "y": 8.35,
+        "z": 0.23
+      }
+    },
+    {
+      "t": 478.708,
+      "kind": "result",
+      "command": 4,
+      "decision_seq": 29,
+      "status": 3,
+      "stage": 1,
+      "reason": "motion_arrival_confirmed",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": null
+    },
+    {
+      "t": 478.711,
+      "kind": "decision",
+      "command": 4,
+      "decision_seq": 30,
+      "status": null,
+      "stage": null,
+      "reason": "post_delivery_route:7/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": {
+        "x": 0.9000000000000001,
+        "y": 8.35,
+        "z": 0.23
+      }
+    },
+    {
+      "t": 486.744,
+      "kind": "result",
+      "command": 4,
+      "decision_seq": 30,
+      "status": 3,
+      "stage": 1,
+      "reason": "motion_arrival_confirmed",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": null
+    },
+    {
+      "t": 486.748,
+      "kind": "decision",
+      "command": 4,
+      "decision_seq": 31,
+      "status": null,
+      "stage": null,
+      "reason": "post_delivery_route:8/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": {
+        "x": 2.3,
+        "y": 8.35,
+        "z": 0.23
+      }
+    },
+    {
+      "t": 502.54,
+      "kind": "result",
+      "command": 4,
+      "decision_seq": 31,
+      "status": 3,
+      "stage": 1,
+      "reason": "motion_arrival_confirmed",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": null
+    },
+    {
+      "t": 502.548,
+      "kind": "decision",
+      "command": 4,
+      "decision_seq": 32,
+      "status": null,
+      "stage": null,
+      "reason": "post_delivery_route:9/9:r2026-experimental-neutral-wall-goals-v1:segment_complete",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": {
+        "x": 4.2,
+        "y": 8.5,
+        "z": 0.28
+      }
+    },
+    {
+      "t": 520.54,
+      "kind": "result",
+      "command": 4,
+      "decision_seq": 32,
+      "status": 3,
+      "stage": 1,
+      "reason": "motion_arrival_confirmed",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": null
+    },
+    {
+      "t": 520.54,
+      "kind": "decision",
+      "command": 5,
+      "decision_seq": 33,
+      "status": null,
+      "stage": null,
+      "reason": "post_delivery_route_complete",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "t": 536.209,
+      "kind": "result",
+      "command": 5,
+      "decision_seq": 33,
+      "status": 3,
+      "stage": 6,
+      "reason": "landed_state_and_settle_confirmed",
+      "target_class": "",
+      "payload_slot": 0,
+      "goal": null
+    }
+  ],
+  "scene_legality": {
+    "targets": [
+      {
+        "class": "tent",
+        "wall_overlaps": [],
+        "tree_box_overlaps": [],
+        "corners": [
+          [
+            -3.865940758500784,
+            1.9111617700637509
+          ],
+          [
+            -4.737661770063751,
+            1.421159241499216
+          ],
+          [
+            -4.247659241499216,
+            0.5494382299362491
+          ],
+          [
+            -3.3759382299362493,
+            1.0394407585007839
+          ]
+        ]
+      },
+      {
+        "class": "pillbox",
+        "wall_overlaps": [],
+        "tree_box_overlaps": [],
+        "corners": [
+          [
+            -3.8188185974265507,
+            4.329154647460749
+          ],
+          [
+            -4.544554647460749,
+            3.6411814025734492
+          ],
+          [
+            -3.8565814025734495,
+            2.9154453525392516
+          ],
+          [
+            -3.1308453525392514,
+            3.603418597426551
+          ]
+        ]
+      },
+      {
+        "class": "bridge",
+        "wall_overlaps": [],
+        "tree_box_overlaps": [],
+        "corners": [
+          [
+            3.015391351302141,
+            0.9493535573882327
+          ],
+          [
+            2.0251464426117676,
+            1.0886913513021406
+          ],
+          [
+            1.8858086486978596,
+            0.09844644261176738
+          ],
+          [
+            2.8760535573882327,
+            -0.04089135130214039
+          ]
+        ]
+      },
+      {
+        "class": "panzer",
+        "wall_overlaps": [],
+        "tree_box_overlaps": [],
+        "corners": [
+          [
+            3.3492921542486456,
+            6.981024705147763
+          ],
+          [
+            2.586575294852237,
+            6.334292154248645
+          ],
+          [
+            3.2333078457513547,
+            5.571575294852237
+          ],
+          [
+            3.996024705147763,
+            6.218307845751355
+          ]
+        ]
+      },
+      {
+        "class": "red_cross",
+        "wall_overlaps": [],
+        "tree_box_overlaps": [],
+        "corners": [
+          [
+            4.2997170642544456,
+            1.3751835301760034
+          ],
+          [
+            4.111316469823996,
+            1.080217064254446
+          ],
+          [
+            4.406282935745554,
+            0.8918164698239966
+          ],
+          [
+            4.594683530176003,
+            1.186782935745554
+          ]
+        ]
+      }
+    ],
+    "target_pair_overlaps": [],
+    "valid": true
+  },
+  "audit_status": "PASS",
+  "audit_reason": "",
+  "raw_calls": [
+    1,
+    2,
+    3
+  ],
+  "cleanup_pass": true,
+  "recording_files": [],
+  "csv_rows": {
+    "truth": 5297,
+    "mavros": 4496,
+    "command": 4143,
+    "planner": 4850
+  },
+  "release_geometry": [
+    {
+      "ros_sec": 63.845,
+      "class": "bridge",
+      "slot": 1,
+      "actual_fc_xyz_local": [
+        2.567452486061449,
+        0.5362679953092098,
+        0.33382854001961315
+      ],
+      "actual_fc_agl_m": 0.5538285400196131,
+      "body_center_to_target_m": 0.11750519480733512,
+      "scope": "Body XY at mock ACK, not a physical parcel impact point"
+    },
+    {
+      "ros_sec": 83.418,
+      "class": "red_cross",
+      "slot": 2,
+      "actual_fc_xyz_local": [
+        4.400009246301039,
+        1.178129080342451,
+        0.3001028525454459
+      ],
+      "actual_fc_agl_m": 0.5201028525454459,
+      "body_center_to_target_m": 0.06481993559087133,
+      "scope": "Body XY at mock ACK, not a physical parcel impact point"
+    },
+    {
+      "ros_sec": 343.782,
+      "class": "panzer",
+      "slot": 3,
+      "actual_fc_xyz_local": [
+        3.3050778549645083,
+        6.2403080942428355,
+        0.24162364637743275
+      ],
+      "actual_fc_agl_m": 0.46162364637743275,
+      "body_center_to_target_m": 0.03853889681160625,
+      "scope": "Body XY at mock ACK, not a physical parcel impact point"
+    }
+  ],
+  "wall_duration_s": 1680.0,
+  "mean_observed_rtf": 0.31953928571428575,
+  "physics_safety": {
+    "boundary_violations": 0,
+    "height_violations": 0,
+    "max_observed_height": 1.6924100346760471,
+    "latest_landed_state": 1,
+    "latest_armed": false
+  }
+}
