@@ -1,5 +1,8 @@
 # 2026无人机竞赛整机工程
 
+2026-09-11 驱动迁移：当前源码统一使用 **livox_ros_driver2 + Livox SDK2**；仿真仍由 Gazebo 发布 PointCloud2。两类源码包均需 SDK2 才能编译完整导航工作区，旧版本压缩包不会自动更新。[构建与实机接线说明](docs/deployment/LIVOX_DRIVER2.md)。
+
+
 2026-09-10全随机五seed已完成：2/5完整PASS、4/5三投、3/5两门和9点投后路线；五组靶板布设合法，seed31降落碰墙、33第二门前规划失败、34搜索耗时导致600秒截尾。算法和参数冻结，未补跑。[完整报告与20张图](docs/verification/full_random_five_20260910/REPORT.md)。
 
 **R64固定seed11完整37/37 PASS，任务422.712秒。** 三投、三恢复、9航点、两门、H对准、落地解除武装，零碰撞。最终中心距H中心6.5cm，保守55cm包络在名义黑圈内；未采用空中停机。[报告与视频索引](docs/verification/r64_seed11/REPORT.md)。随后十seed已完成，原始7/10完整PASS；5/7/8有靶板压墙，已修布设检查并保留原结果。近地落地仍有seed3失败，不能称实机已鲁棒。[11轮图表与分析](docs/verification/r64_matrix/REPORT.md)。

@@ -1,5 +1,6 @@
 <launch>
   <!-- Application entry. Device drivers supply the listed ROS inputs.
+       MID360: launch mid360_driver2.launch separately with the real SDK2 JSON.
        No simulator, arming helper, mock actuator or PX4 parameter writer. -->
   <arg name="model_path" />
   <arg name="image_topic" default="/camera/image_raw" />

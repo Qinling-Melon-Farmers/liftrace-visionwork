@@ -81,6 +81,7 @@
   <exec_depend>gazebo_plugins</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>mavros_msgs</exec_depend>
+  <exec_depend>livox_ros_driver2</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>nav_msgs</exec_depend>
   <exec_depend>patrol_control</exec_depend>

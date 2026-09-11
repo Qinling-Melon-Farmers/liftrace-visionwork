@@ -86,8 +86,8 @@ def main():
             'onboard_architecture': 'aarch64 / RK3588; build on target, no x86 build/devel copied',
             'weights_source': str(weights.resolve()), 'weights_destination': 'runtime_models/' + model_name,
             'optional_historical_models': optional,
-            'external_runtime_dependencies': ['ROS Noetic and system libraries',
-                'hardware: MAVROS/FC, device Livox SDK/driver, RKNN Lite2/NPU runtime, mechanical Servo implementation'
+            'external_runtime_dependencies': ['ROS Noetic and system libraries', 'Livox SDK2 headers and native library for the complete source build',
+                'hardware: MAVROS/FC, Livox SDK2 (driver2 source included), RKNN Lite2/NPU runtime, mechanical Servo implementation'
                 if kind == 'onboard' else
                 'PX4 SITL including iris_mid360 autostart, Gazebo Classic/PX4 plugins, MID360 plugin with scan CSV, Python inference environment'],
             'asset_adjustments': ['D435i mesh URI resolves inside its own model'] if overrides else [],

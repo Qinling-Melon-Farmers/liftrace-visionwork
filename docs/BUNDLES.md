@@ -1,5 +1,8 @@
 # 本地机载与仿真包
 
+2026-09-11 驱动迁移：当前源码统一使用 **livox_ros_driver2 + Livox SDK2**；仿真仍由 Gazebo 发布 PointCloud2。两类源码包均需 SDK2 才能编译完整导航工作区，旧版本压缩包不会自动更新。[构建与实机接线说明](deployment/LIVOX_DRIVER2.md)。
+
+
 R64最新：seed11完整37/37 PASS，未实机验收；必须同步PX4补丁。R64新包替代旧R62运行源码，十seed原始7/10完整PASS，5/7/8有墙重叠布设，修复后的新布设未重跑矩阵。见[本轮报告](verification/r64_seed11/REPORT.md)和[固件依赖](../deployment/px4_patches/README.md)。下文较早状态按历史记录阅读。
 
 R62当前源码已完成seed11建图、自动起飞、搜索、panzer第1槽投递确认并恢复搜索；完整比赛/实机未验收。两类包从精简分支干净提交导出，文件名liftrace_r62_onboard_<版本>.tar.gz与liftrace_r62_simulation_<版本>.tar.gz，位于本地deliverables。BUNDLE_MANIFEST记录精确源码与权重来源。

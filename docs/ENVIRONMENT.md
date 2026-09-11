@@ -1,5 +1,8 @@
 # 环境与构建
 
+2026-09-11 驱动迁移：当前源码统一使用 **livox_ros_driver2 + Livox SDK2**；仿真仍由 Gazebo 发布 PointCloud2。两类源码包均需 SDK2 才能编译完整导航工作区，旧版本压缩包不会自动更新。[构建与实机接线说明](deployment/LIVOX_DRIVER2.md)。
+
+
 R64最新：seed11完整37/37 PASS，未实机验收；必须同步PX4补丁。R64新包替代旧R62运行源码，十seed原始7/10完整PASS，5/7/8有墙重叠布设，修复后的新布设未重跑矩阵。见[本轮报告](verification/r64_seed11/REPORT.md)和[固件依赖](../deployment/px4_patches/README.md)。下文较早状态按历史记录阅读。
 
 2026-09-09最新：R63完整seed11：三投、三恢复、9个投后航点和两门通过；AUTO.LAND后碰墙，完整Gate FAIL。恢复修复已验证，最后降落仍阻塞。[报告](verification/r63_recovery/REPORT.md)。本轮只跑一次，不追加矩阵，旧包未重新打包。

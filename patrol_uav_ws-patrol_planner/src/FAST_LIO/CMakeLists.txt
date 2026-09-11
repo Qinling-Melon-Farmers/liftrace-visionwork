@@ -51,7 +51,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   pcl_ros
   tf
-  livox_ros_driver
+  livox_ros_driver2
   message_generation
   eigen_conversions
 )
@@ -79,7 +79,7 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy std_msgs message_runtime
+  CATKIN_DEPENDS livox_ros_driver2 geometry_msgs nav_msgs roscpp rospy std_msgs message_runtime
   DEPENDS EIGEN3 PCL
   INCLUDE_DIRS
 )
@@ -91,3 +91,12 @@ add_dependencies(fastlio_mapping
 )
 target_link_libraries(fastlio_mapping ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${PYTHON_LIBRARIES})
 target_include_directories(fastlio_mapping PRIVATE ${PYTHON_INCLUDE_DIRS})
+
+if(CATKIN_ENABLE_TESTING)
+  add_executable(preprocess_inputs EXCLUDE_FROM_ALL test/preprocess_inputs.cpp src/preprocess.cpp)
+  target_include_directories(preprocess_inputs PRIVATE src)
+  add_dependencies(preprocess_inputs ${catkin_EXPORTED_TARGETS})
+  target_link_libraries(preprocess_inputs ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+  add_dependencies(tests preprocess_inputs)
+  add_test(NAME fast_lio_preprocess_inputs COMMAND preprocess_inputs)
+endif()

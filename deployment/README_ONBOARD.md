@@ -1,5 +1,8 @@
 # 机载联调源码包
 
+2026-09-11 驱动迁移：当前源码统一使用 **livox_ros_driver2 + Livox SDK2**；仿真仍由 Gazebo 发布 PointCloud2。两类源码包均需 SDK2 才能编译完整导航工作区，旧版本压缩包不会自动更新。[构建与实机接线说明](../docs/deployment/LIVOX_DRIVER2.md)。
+
+
 2026-09-11资源修订：[模型与YAML清单](MODEL_CONTENTS.md)。正式入口元数据位于uav_vision/config；修订包在runtime_models旁附同源YAML，旧板端包装入口已修正路径。仿真修订包实际附带三套optional_models。未新增飞行验收，原先版本描述按历史阅读。
 
 本包包含当前视觉、camera_sdk、导航/LIO/地图/规划/控制/任务代码、消息、参数和文档，附已选用的`runtime_models/merged_standard_fp32.rknn`。不含机械组PWM实现；保留`Servo`定义和`/legacy/Servo_raw`对接约定。`BUNDLE_MANIFEST.json`记录源码版本和权重来源。
