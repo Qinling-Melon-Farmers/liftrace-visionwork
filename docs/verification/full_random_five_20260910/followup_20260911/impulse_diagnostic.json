@@ -1,0 +1,41 @@
+[
+  {
+    "seed": 31,
+    "window": [
+      375.64,
+      375.7
+    ],
+    "approx_integrated_ned_delta_v_mps": [
+      -0.29896291149183124,
+      -0.2943951828043815,
+      0.3193188058895584
+    ],
+    "caveat": "Input acceleration rotated with logged estimated attitude; not an independent actual velocity measurement."
+  },
+  {
+    "seed": 32,
+    "window": [
+      529.852,
+      529.9119999999999
+    ],
+    "approx_integrated_ned_delta_v_mps": [
+      0.004127054064852987,
+      0.30784881414492826,
+      -0.18707284900960827
+    ],
+    "caveat": "Input acceleration rotated with logged estimated attitude; not an independent actual velocity measurement."
+  },
+  {
+    "seed": 35,
+    "window": [
+      361.285,
+      361.345
+    ],
+    "approx_integrated_ned_delta_v_mps": [
+      -0.2750891488009272,
+      -0.26503800015632206,
+      -0.24152446197406024
+    ],
+    "caveat": "Input acceleration rotated with logged estimated attitude; not an independent actual velocity measurement."
+  }
+]

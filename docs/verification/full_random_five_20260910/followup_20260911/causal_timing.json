@@ -1,0 +1,167 @@
+[
+  {
+    "seed": 31,
+    "auto_land_ros": 375.371,
+    "diagnostic_accel_threshold": "horizontal norm >10 or body z >0 or body z <-20 m/s2; not a formal sensor-fault threshold",
+    "first_accel_excursion_ros_approx": 375.65,
+    "excursion_samples": 5,
+    "excursion_span_s": 1.052000000000021,
+    "max_horizontal_accel": 52.42760467529297,
+    "min_body_z_accel": -13.737931251525879,
+    "max_body_z_accel": 30.512907028198242,
+    "first_truth_mavros_error_over_0p1_after_auto": 375.806,
+    "first_baro_rejection_after_auto": 376.802,
+    "first_wall_contact": 376.56,
+    "reset_counter_changes": {
+      "xy_reset_counter": 0,
+      "z_reset_counter": 0,
+      "heading_reset_counter": 0
+    },
+    "samples": [
+      {
+        "t_imu": 375.602,
+        "accel_body_m_s2": [
+          -0.05267243832349777,
+          0.11611893773078918,
+          -8.003816604614258
+        ],
+        "ned_velocity": [
+          -0.030360030010342598,
+          -0.01728077419102192,
+          0.5270876884460449
+        ]
+      },
+      {
+        "t_imu": 375.65,
+        "accel_body_m_s2": [
+          -37.152034759521484,
+          36.99161911010742,
+          30.512907028198242
+        ],
+        "ned_velocity": [
+          -0.17608314752578735,
+          -0.163591668009758,
+          0.7675752639770508
+        ]
+      },
+      {
+        "t_imu": 375.698,
+        "accel_body_m_s2": [
+          0.25737667083740234,
+          -0.08020557463169098,
+          -10.644620895385742
+        ],
+        "ned_velocity": [
+          -0.6174126863479614,
+          -0.6013041138648987,
+          1.226111650466919
+        ]
+      },
+      {
+        "t_imu": 375.75,
+        "accel_body_m_s2": [
+          0.3902548551559448,
+          -0.42856189608573914,
+          -12.520479202270508
+        ],
+        "ned_velocity": [
+          -0.5984569191932678,
+          -0.5787044167518616,
+          1.1541566848754883
+        ]
+      },
+      {
+        "t_imu": 375.798,
+        "accel_body_m_s2": [
+          -0.02992752566933632,
+          0.09696540981531143,
+          -13.66610336303711
+        ],
+        "ned_velocity": [
+          -0.5780370235443115,
+          -0.5649347305297852,
+          0.9583339095115662
+        ]
+      },
+      {
+        "t_imu": 375.898,
+        "accel_body_m_s2": [
+          -0.08619126677513123,
+          0.16400305926799774,
+          -11.559207916259766
+        ],
+        "ned_velocity": [
+          -0.5049706697463989,
+          -0.5067755579948425,
+          0.7027398347854614
+        ]
+      },
+      {
+        "t_imu": 375.998,
+        "accel_body_m_s2": [
+          -0.07422026991844177,
+          0.14006099104881287,
+          -10.716447830200195
+        ],
+        "ned_velocity": [
+          -0.3674829304218292,
+          -0.37649697065353394,
+          0.5834529399871826
+        ]
+      },
+      {
+        "t_imu": 376.202,
+        "accel_body_m_s2": [
+          -0.12689268589019775,
+          0.25977110862731934,
+          -9.714473724365234
+        ],
+        "ned_velocity": [
+          -0.11157698929309845,
+          -0.10269475728273392,
+          0.5246580243110657
+        ]
+      }
+    ]
+  },
+  {
+    "seed": 32,
+    "auto_land_ros": 529.765,
+    "diagnostic_accel_threshold": "horizontal norm >10 or body z >0 or body z <-20 m/s2; not a formal sensor-fault threshold",
+    "first_accel_excursion_ros_approx": 529.862,
+    "excursion_samples": 3,
+    "excursion_span_s": 0.008000000000038199,
+    "max_horizontal_accel": 38.737091064453125,
+    "min_body_z_accel": -34.12935256958008,
+    "max_body_z_accel": -7.9858598709106445,
+    "first_truth_mavros_error_over_0p1_after_auto": 530.248,
+    "first_baro_rejection_after_auto": null,
+    "first_wall_contact": null,
+    "reset_counter_changes": {
+      "xy_reset_counter": 0,
+      "z_reset_counter": 0,
+      "heading_reset_counter": 0
+    },
+    "samples": []
+  },
+  {
+    "seed": 35,
+    "auto_land_ros": 361.724,
+    "diagnostic_accel_threshold": "horizontal norm >10 or body z >0 or body z <-20 m/s2; not a formal sensor-fault threshold",
+    "first_accel_excursion_ros_approx": 361.295,
+    "excursion_samples": 2,
+    "excursion_span_s": 0.007999999999981355,
+    "max_horizontal_accel": 47.47894287109375,
+    "min_body_z_accel": -42.9376220703125,
+    "max_body_z_accel": -7.808690071105957,
+    "first_truth_mavros_error_over_0p1_after_auto": 361.774,
+    "first_baro_rejection_after_auto": null,
+    "first_wall_contact": null,
+    "reset_counter_changes": {
+      "xy_reset_counter": 0,
+      "z_reset_counter": 0,
+      "heading_reset_counter": 0
+    },
+    "samples": []
+  }
+]

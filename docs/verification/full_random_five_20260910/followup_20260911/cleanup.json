@@ -1,0 +1,34 @@
+{
+  "deleted": [
+    {
+      "name": "liftrace_r64_assets_fixed_onboard_e973ca6f.tar.gz",
+      "bytes": 37617539
+    },
+    {
+      "name": "liftrace_r64_assets_fixed_simulation_e973ca6f.tar.gz",
+      "bytes": 59080224
+    },
+    {
+      "name": "liftrace_r64_assets_fixed_onboard_3883a8aa.tar.gz",
+      "bytes": 37618911
+    },
+    {
+      "name": "liftrace_r64_assets_fixed_simulation_3883a8aa.tar.gz",
+      "bytes": 59081658
+    },
+    {
+      "name": "r64_assets_fixed_bundles_e973ca6f.json",
+      "bytes": 640
+    },
+    {
+      "name": "r64_assets_fixed_bundles_3883a8aa.json",
+      "bytes": 640
+    }
+  ],
+  "freed_bytes": 193399612,
+  "kept_current_packages": [
+    "liftrace_r64_assets_fixed_onboard_d1ab9208.tar.gz",
+    "liftrace_r64_assets_fixed_simulation_d1ab9208.tar.gz"
+  ],
+  "older_historical_packages_untouched": true
+}
