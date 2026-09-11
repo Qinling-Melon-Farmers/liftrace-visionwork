@@ -70,6 +70,14 @@ def main():
                 for f in sorted(source.rglob('*')):
                     if f.is_file() and '.git' not in f.parts:
                         entries.append((f, str(Path('simulation_assets/optional_models') / model / f.relative_to(source))))
+        overrides = {}
+        for source, relative in entries:
+            if relative == 'simulation_assets/optional_models/D435i/model.sdf':
+                # The supplied STL already lives beside D435i; the old URI
+                # incorrectly requires an unrelated ROS package/model root.
+                overrides[relative] = source.read_bytes().replace(
+                    b'model://realsense_ros_gazebo/meshes/realsense_d435.stl',
+                    b'model://D435i/meshes/realsense_d435.stl')
         manifest = {
             'created_utc': datetime.now(timezone.utc).isoformat(),
             'kind': kind, 'source_revision': revision,
@@ -82,11 +90,17 @@ def main():
                 'hardware: MAVROS/FC, device Livox SDK/driver, RKNN Lite2/NPU runtime, mechanical Servo implementation'
                 if kind == 'onboard' else
                 'PX4 SITL including iris_mid360 autostart, Gazebo Classic/PX4 plugins, MID360 plugin with scan CSV, Python inference environment'],
-            'files': [{'path': p, 'bytes': f.stat().st_size} for f, p in entries],
+            'asset_adjustments': ['D435i mesh URI resolves inside its own model'] if overrides else [],
+            'files': [{'path': p, 'bytes': len(overrides[p]) if p in overrides else f.stat().st_size} for f, p in entries],
         }
         with tarfile.open(archive, 'w:gz', dereference=True) as tar:
             for source, relative in entries:
-                tar.add(source, arcname=name + '/' + relative, recursive=False)
+                if relative in overrides:
+                    info = tarfile.TarInfo(name + '/' + relative)
+                    info.size = len(overrides[relative]); info.mode = 0o644
+                    tar.addfile(info, io.BytesIO(overrides[relative]))
+                else:
+                    tar.add(source, arcname=name + '/' + relative, recursive=False)
             data = json.dumps(manifest, ensure_ascii=False, indent=2).encode('utf-8')
             info = tarfile.TarInfo(name + '/BUNDLE_MANIFEST.json'); info.size = len(data); info.mode = 0o644
             tar.addfile(info, io.BytesIO(data))
