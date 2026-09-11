@@ -1,0 +1,150 @@
+{
+  "same_scenario_checks": {
+    "field.world": true,
+    "field_config.yaml": true,
+    "runtime.yaml": true,
+    "gate_geometry.yaml": true,
+    "scene.json": true,
+    "vehicle_model.sdf": true,
+    "iris_dynamics.sdf": true,
+    "mid360_mounted.sdf": true,
+    "actual_target_layout_identical": true
+  },
+  "runs": [
+    {
+      "name": "baseline",
+      "source": "7eb94462170d0adce666754ec2547d79a71b29df",
+      "status": "FAIL",
+      "release_count": 2,
+      "recovery_count": 2,
+      "route_points": 0,
+      "doors_crossed": 0,
+      "collision_count": 0,
+      "mission_complete_s": null,
+      "on_ground_ros": null,
+      "mission_to_ground_s": null,
+      "initial_search_timeout_events": [
+        {
+          "seq": 2,
+          "reason": "decision_deadline_reached",
+          "start_ros": 42.618,
+          "end_ros": 132.634,
+          "elapsed_s": 90.01599999999999,
+          "goal": {
+            "x": 4.3,
+            "y": 0.0,
+            "z": 1.18
+          }
+        },
+        {
+          "seq": 3,
+          "reason": "decision_deadline_reached",
+          "start_ros": 132.637,
+          "end_ros": 222.651,
+          "elapsed_s": 90.01400000000001,
+          "goal": {
+            "x": 4.3,
+            "y": 0.0,
+            "z": 1.18
+          }
+        },
+        {
+          "seq": 4,
+          "reason": "decision_deadline_reached",
+          "start_ros": 222.654,
+          "end_ros": 312.657,
+          "elapsed_s": 90.00299999999999,
+          "goal": {
+            "x": 4.3,
+            "y": 0.7,
+            "z": 1.18
+          }
+        },
+        {
+          "seq": 5,
+          "reason": "decision_deadline_reached",
+          "start_ros": 312.657,
+          "end_ros": 402.68,
+          "elapsed_s": 90.02300000000002,
+          "goal": {
+            "x": 4.3,
+            "y": 0.7,
+            "z": 1.18
+          }
+        }
+      ],
+      "failed_search_wait_total_s": 360.05600000000004,
+      "first_release_from_mission_s": 462.96000000099997,
+      "gate_errors": [
+        "full_trial_mission_timeout"
+      ],
+      "cleanup_pass": true,
+      "final_h_geometry": {
+        "start_H": {
+          "center_error_m": 6.219555645253284,
+          "envelope_radius_m": 6.590746762691144
+        },
+        "finish_H": {
+          "center_error_m": 3.2614924096934894,
+          "envelope_radius_m": 3.634376595405542
+        }
+      },
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330"
+    },
+    {
+      "name": "candidate",
+      "source": "d7346c2274b8d60060c4d4a3d9ea10b7b9ea0d1d",
+      "status": "PASS",
+      "release_count": 3,
+      "recovery_count": 3,
+      "route_points": 9,
+      "doors_crossed": 2,
+      "collision_count": 0,
+      "mission_complete_s": 495.735,
+      "on_ground_ros": 515.482,
+      "mission_to_ground_s": 493.066,
+      "initial_search_timeout_events": [
+        {
+          "seq": 1,
+          "reason": "search_initial_plan_timeout",
+          "start_ros": 22.416,
+          "end_ros": 42.411,
+          "elapsed_s": 19.995,
+          "goal": {
+            "x": -4.3,
+            "y": 0.0,
+            "z": 1.18
+          }
+        },
+        {
+          "seq": 2,
+          "reason": "search_initial_plan_timeout",
+          "start_ros": 42.417,
+          "end_ros": 62.418,
+          "elapsed_s": 20.000999999999998,
+          "goal": {
+            "x": -4.3,
+            "y": 0.0,
+            "z": 1.18
+          }
+        }
+      ],
+      "failed_search_wait_total_s": 39.995999999999995,
+      "first_release_from_mission_s": 170.129,
+      "gate_errors": [],
+      "cleanup_pass": true,
+      "final_h_geometry": {
+        "start_H": {
+          "center_error_m": 9.474515046208001,
+          "envelope_radius_m": 9.844197014344887
+        },
+        "finish_H": {
+          "center_error_m": 0.016213378827949015,
+          "envelope_radius_m": 0.4050735996830029
+        }
+      },
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_seed34_initial_wait20_20260911_141613"
+    }
+  ],
+  "qualification": "One paired-seed observation; planner/sensor scheduling remains nondeterministic. Not a multi-seed reliability claim."
+}
