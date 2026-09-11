@@ -3,7 +3,7 @@ Upstream: https://github.com/Livox-SDK/livox_ros_driver2
 Revision: 6b9356cadf77084619ba406e6a0eb41163b08039
 License: LICENSE.txt (upstream files retained).
 
-Local changes: package.xml is package_ROS1.xml; CMake defaults to ROS1,
+Local changes: package.xml is tracked as package_ROS1.xml (upstream ignore removed); CMake defaults to ROS1,
 locates SDK2 headers/library explicitly and installs config alongside launches.
 Build through top_level_scripts/build_competition.sh; do not run upstream
 build.sh in this integrated workspace.
