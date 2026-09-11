@@ -1,0 +1,35 @@
+{
+  "run": "logs/local_entry_seed32_baseline_20260912_015423",
+  "classification": "STARTUP_DIAGNOSTIC_STOP",
+  "gate": "MISSING",
+  "flight_started": false,
+  "old_mapper_pid": 23408,
+  "old_mapper_roslog": "a93a2e84-adc3-11f1-9e5d-00155da225b2",
+  "cause": [
+    "old mapper/research processes omitted from cleanup names",
+    "direct research launch omitted uav_vision_eval model root needed by nested vehicle includes; Gazebo waited on model database"
+  ],
+  "resolved_world_uris": {
+    "model://sun": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/sun",
+    "model://ground_plane": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/ground_plane",
+    "model://juniper_Tree/meshes/pine_tree.dae": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/juniper_Tree/meshes/pine_tree.dae",
+    "model://juniper_Tree/materials/scripts/": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/juniper_Tree/materials/scripts",
+    "model://juniper_Tree/materials/textures/": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/juniper_Tree/materials/textures",
+    "model://landing_h": "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/landing_h"
+  },
+  "corrected_cleanup_verified": true,
+  "nested_vehicle_models": {
+    "r2026_iris_dynamics": {
+      "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/patrol_uav_ws-patrol_planner/src/patrol_control/models": false,
+      "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models": false,
+      "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/vision_ws/src/uav_vision_eval/models": true,
+      "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/simulation_assets/models": false
+    },
+    "r2026_mid360_mounted": {
+      "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/patrol_uav_ws-patrol_planner/src/patrol_control/models": false,
+      "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models": false,
+      "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/vision_ws/src/uav_vision_eval/models": true,
+      "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/simulation_assets/models": false
+    }
+  }
+}

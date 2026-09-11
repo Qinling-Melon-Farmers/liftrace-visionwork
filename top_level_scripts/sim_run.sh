@@ -39,7 +39,9 @@ if ! flock -n 9; then
   exit 73
 fi
 
-SIM_PROCESS_NAMES=(roscore rosmaster rosout roslaunch gzserver gzclient px4 mavros_node rviz)
+# Linux comm names are limited to 15 characters. Include the nodes observed
+# surviving an interrupted launch, so a stale mapper cannot join the next run.
+SIM_PROCESS_NAMES=(roscore rosmaster rosout roslaunch gzserver gzclient px4 mavros_node rviz fastlio_mapping fast_planner_no coverage_memory local_search_ad)
 SIM_EXISTING_PROCESSES=""
 for SIM_PROCESS_NAME in "${SIM_PROCESS_NAMES[@]}"; do
   SIM_PROCESS_PIDS="$(pgrep -x "${SIM_PROCESS_NAME}" 2>/dev/null | paste -sd, -)"
@@ -90,7 +92,8 @@ fi
 # prepend PROJECT_ROOT copies here: doing so silently mixes an old root tree
 # into a feature-worktree run even after the matching devel spaces are sourced.
 export ROS_PACKAGE_PATH="${VISION_SOURCE_ROOT}:${UAV_SOURCE_ROOT}:/opt/ros/noetic/share:${PX4_ROOT}:${PX4_GAZEBO}${ROS_PACKAGE_PATH:+:${ROS_PACKAGE_PATH}}"
-export GAZEBO_MODEL_PATH="${PX4_GAZEBO}/models${GAZEBO_MODEL_PATH:+:${GAZEBO_MODEL_PATH}}"
+export ASTRA_MODEL_ROOT="${ASTRA_MODEL_ROOT:-${PROJECT_ROOT}/simulation_assets/models}"
+export GAZEBO_MODEL_PATH="${PX4_GAZEBO}/models:${VISION_WS}/src/uav_vision_eval/models:${ASTRA_MODEL_ROOT}${GAZEBO_MODEL_PATH:+:${GAZEBO_MODEL_PATH}}"
 export GAZEBO_PLUGIN_PATH="${VISION_WS}/devel/lib:${ASTRA_LIB}:${PX4_BUILD}${GAZEBO_PLUGIN_PATH:+:${GAZEBO_PLUGIN_PATH}}"
 export LD_LIBRARY_PATH="${ASTRA_LIB}:${PX4_BUILD}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 

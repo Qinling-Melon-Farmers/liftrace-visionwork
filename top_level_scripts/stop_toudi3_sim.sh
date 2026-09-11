@@ -4,7 +4,9 @@
 # This script is intended for a machine dedicated to this local SITL run;
 # it does not send commands to a flight controller or actuator.
 set +e
-process_names=(roscore rosmaster rosout roslaunch gzserver gzclient px4 mavros_node rviz)
+# Include mapper/research nodes that may outlive roslaunch during forced stop.
+# Names below use the actual (15-character limited) Linux process comm value.
+process_names=(roscore rosmaster rosout roslaunch gzserver gzclient px4 mavros_node rviz fastlio_mapping fast_planner_no coverage_memory local_search_ad)
 for process_name in "${process_names[@]}"; do
   pkill -TERM -x "${process_name}" 2>/dev/null
 done
