@@ -103,5 +103,13 @@ class LocalProposalTests(unittest.TestCase):
         alternative.observation['observation_score']=1.3
         self.assertEqual(self.finish(batch)['selected']['name'],alternative.name)
 
+    def test_gain_is_for_entry_only_and_packet_carries_transport_context(self):
+        blank=Snapshot(self.cfg,np.zeros_like(self.grid),10.,'mission',2)
+        batch=self.proposer.prepare(blank,self.context,10.1)
+        result=self.finish(batch)
+        self.assertEqual(result['schema_version'],1);self.assertEqual(result['frame_id'],'map')
+        self.assertEqual(result['command'],'SEARCH');self.assertEqual(result['gain_scope'],'ENTRY_VIEW_PROXY')
+        self.assertAlmostEqual(result['selected']['entry_gain_m2'],.9*.8)
+
 
 if __name__=='__main__':unittest.main()

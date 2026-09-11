@@ -251,6 +251,8 @@ install(DIRECTORY launch config
 #############
 
 if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(test/test_local_motion.py)
+  catkin_add_nosetests(test/test_local_motion_manager.py)
   catkin_add_nosetests(test/test_local_search_adviser.py)
   catkin_add_nosetests(test/test_lio_external_pose.py)
   catkin_add_nosetests(test/test_contract_profile.py)

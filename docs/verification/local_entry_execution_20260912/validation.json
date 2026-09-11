@@ -1,0 +1,41 @@
+{
+  "date": "2026-09-12",
+  "base_revision": "201c4b4",
+  "tests": {
+    "uav_coverage_memory": {
+      "testcases": 90,
+      "errors": 0,
+      "failures": 0
+    },
+    "uav_mission": {
+      "testcases": 276,
+      "errors": 0,
+      "failures": 0
+    },
+    "plan_manage": {
+      "testcases": 12,
+      "errors": 0,
+      "failures": 0
+    },
+    "plan_env": {
+      "testcases": 13,
+      "errors": 0,
+      "failures": 0
+    }
+  },
+  "builds": [
+    "vision_ws PASS",
+    "navigation_ws PASS"
+  ],
+  "flow_checks": {
+    "entry_adopted": true,
+    "old_deadline_preserved": true,
+    "entry_did_not_advance_route": true,
+    "late_status_ignored": true,
+    "nominal_arrival_advanced": true
+  },
+  "scope": "PRE_SITL_CODE_CHECKPOINT",
+  "onboard_tested": false,
+  "subsequent_sitl_authorized": true,
+  "plan": "../local_entry_sitl_20260912/PLAN.md"
+}

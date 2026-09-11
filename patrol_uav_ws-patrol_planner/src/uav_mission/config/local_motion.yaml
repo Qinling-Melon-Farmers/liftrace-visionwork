@@ -1,0 +1,21 @@
+# Explicit research-only task adoption. Loaded only by research_trial.launch.
+enabled: false
+proposal_topic: /research/local_search_adviser/proposal
+memory_topic: /research/coverage_memory/status
+max_per_mission: 4  # one entry per nominal waypoint; budget persists through retries
+timeout: 12.0  # s; also capped by the original nominal decision deadline
+resume_reserve: 3.0  # s required in addition to the entry lease before adoption
+min_action_age: 0.5  # s; avoid immediate churn after nominal dispatch
+max_advice_age: 0.5
+max_memory_age: 1.0
+max_map_age: 1.0
+max_pose_age: 0.5
+max_pose_drift: 0.25  # m
+max_vertical_change: 0.25  # m, measured pose to the unchanged search height
+min_leg: 0.5
+max_leg: 4.0
+max_lateral: 1.0
+max_extra_distance: 1.5  # m, geometric estimate, not a guaranteed flight distance
+min_progress: 0.3
+min_entry_gain: 0.1  # m^2 of entry-view proxy; not a target recall guarantee
+entry_arrival_xy: 0.35  # m; diagnose planner-adjusted arrivals separately

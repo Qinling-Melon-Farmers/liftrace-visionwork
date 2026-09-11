@@ -1,0 +1,43 @@
+{
+  "date": "2026-09-12",
+  "removed": [
+    {
+      "path": "logs/_artifacts/coverage_resources_20260911/historical_baseline.npz",
+      "bytes": 24845934
+    },
+    {
+      "path": "logs/_artifacts/coverage_resources_20260911/historical_current.npz",
+      "bytes": 24845934
+    },
+    {
+      "path": "logs/_artifacts/coverage_resources_20260911/stress_baseline.npz",
+      "bytes": 99342
+    },
+    {
+      "path": "logs/_artifacts/coverage_resources_20260911/stress_current.npz",
+      "bytes": 99342
+    },
+    {
+      "path": "logs/_artifacts/coverage_resources_20260911/py38/historical_baseline.npz",
+      "bytes": 24845934
+    },
+    {
+      "path": "logs/_artifacts/coverage_resources_20260911/py38/historical_current.npz",
+      "bytes": 24845934
+    },
+    {
+      "path": "logs/_artifacts/coverage_resources_20260911/py38/stress_baseline.npz",
+      "bytes": 99342
+    },
+    {
+      "path": "logs/_artifacts/coverage_resources_20260911/py38/stress_current.npz",
+      "bytes": 99342
+    }
+  ],
+  "logical_bytes_removed": 99781104,
+  "category": "REGENERABLE_BENCHMARK_ARRAYS_ONLY",
+  "raw_flight_logs_deleted": false,
+  "host_f_free_gib_before_approx": 65,
+  "host_c_free_gib_before_approx": 28,
+  "vhdx_compacted": false
+}

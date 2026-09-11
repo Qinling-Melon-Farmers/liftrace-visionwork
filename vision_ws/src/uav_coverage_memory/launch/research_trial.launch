@@ -10,9 +10,10 @@
   <arg name="search_initial_plan_timeout" default="0.0" />
   <arg name="coverage_config" default="$(find uav_coverage_memory)/config/shadow.yaml" />
   <arg name="local_adviser_enabled" default="false" />
+  <arg name="local_motion_enabled" default="false" />
   <arg name="local_adviser_config" default="$(find uav_mission)/config/local_search_adviser.yaml" />
   <arg name="planner_probe_namespace" default="/fast_planner_node" />
-  <group if="$(arg local_adviser_enabled)">
+  <group if="$(eval arg('local_adviser_enabled') or arg('local_motion_enabled'))">
     <param name="$(arg planner_probe_namespace)/research/local_segment_probe/enabled" value="true" />
     <include file="$(find uav_mission)/launch/local_search_adviser.launch">
       <arg name="enabled" value="true" />
@@ -43,4 +44,6 @@
   <param name="/research/coverage_memory/record_dir" value="$(arg run_dir)/coverage" />
   <param name="/research/coverage_memory/record_interval" value="6.0" />
   <param name="/research/coverage_memory/record_limit" value="120" />
+  <rosparam file="$(find uav_mission)/config/local_motion.yaml" ns="/navigation/mission_manager/research/local_motion" />
+  <param name="/navigation/mission_manager/research/local_motion/enabled" value="$(arg local_motion_enabled)" />
 </launch>

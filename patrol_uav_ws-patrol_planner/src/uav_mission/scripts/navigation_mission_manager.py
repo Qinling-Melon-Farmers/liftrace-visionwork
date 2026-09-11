@@ -5,6 +5,7 @@ import json
 import math
 from numbers import Real
 import threading
+from dataclasses import fields
 
 import rospy
 from geometry_msgs.msg import PoseStamped
@@ -14,6 +15,7 @@ from std_srvs.srv import Trigger, TriggerResponse
 from uav_vision.msg import TargetCandidateArray
 
 from uav_mission.coverage_route import CoverageRoute
+from uav_mission.local_motion import LocalMotionConfig, validate_mode
 from uav_mission.mission_core import (
     CandidateSnapshot,
     GoalSnapshot,
@@ -122,6 +124,10 @@ class NavigationMissionManager:
         self._start_mode = str(
             rospy.get_param("~runtime/start_mode", "full")).strip()
         self._validate_shell_parameters()
+        self._local_enabled=rospy.get_param('~research/local_motion/enabled',False)
+        validate_mode(self._local_enabled,rospy.get_param('/use_sim_time',False),self._start_mode)
+        self._local_memory=None
+        self._local_input_reason='waiting_for_advice'
 
         self._decision_pub = rospy.Publisher(
             "mission_command_raw", NavigationDecision,
@@ -139,6 +145,13 @@ class NavigationMissionManager:
         self._result_sub = rospy.Subscriber(
             "mission_result", NavigationResult,
             self._on_result, queue_size=20)
+        if self._local_enabled:
+            self._local_proposal_sub=rospy.Subscriber(
+                rospy.get_param('~research/local_motion/proposal_topic','/research/local_search_adviser/proposal'),
+                String,self._on_local_proposal,queue_size=1)
+            self._local_memory_sub=rospy.Subscriber(
+                rospy.get_param('~research/local_motion/memory_topic','/research/coverage_memory/status'),
+                String,self._on_local_memory,queue_size=1)
 
         self._start_service = rospy.Service(
             "start_mission", Trigger, self._on_start)
@@ -254,7 +267,46 @@ class NavigationMissionManager:
                 "~search/route_revision", "toudi4-copy-r1")),
             rospy.get_param("~search/max_failures_per_waypoint", 2),
         )
-        return MissionRuntime(MissionCore(profile, config), route)
+        values={f.name:rospy.get_param('~research/local_motion/'+f.name,f.default)
+                for f in fields(LocalMotionConfig) if f.name not in ('bounds','enabled')}
+        local=LocalMotionConfig(enabled=self._local_enabled,
+            bounds=(search.min_x,search.max_x,search.min_y,search.max_y),**values)
+        return MissionRuntime(MissionCore(profile, config), route,local_config=local)
+
+    def _on_local_memory(self,message):
+        with self._lock:
+            try:
+                if len(message.data)>65536:raise ValueError('oversized memory status')
+                data=json.loads(message.data)
+                if not isinstance(data,dict):raise ValueError('invalid memory status')
+                self._local_memory=data
+            except (ValueError,TypeError):
+                self._local_memory=None
+
+    def _on_local_proposal(self,message):
+        with self._lock:
+            if not self._local_enabled or self._runtime is None or self._pose is None:return
+            try:
+                if len(message.data)>65536:raise ValueError('oversized local proposal')
+                data=json.loads(message.data)
+                now=rospy.Time.now().to_sec()
+                ready,reason=self._readiness(now)
+                if not ready:
+                    self._local_input_reason='local_readiness_'+reason
+                    self._publish_status();return
+                p=self._pose.pose.position
+                outcome=self._runtime.adopt_local_advice(data,self._local_memory,now,
+                    (p.x,p.y,p.z),self._pose.header.stamp.to_sec())
+                self._local_input_reason=outcome.reason
+                if outcome.action is not None:
+                    self._last_reason=outcome.reason
+                    self._publish_action(outcome.action)
+                self._publish_status()
+            except (ValueError,TypeError,KeyError,AttributeError) as error:
+                self._local_input_reason='local_input_rejected:'+str(error)
+                self._publish_status()
+            except Exception as error:
+                self._handle_callback_exception('local_proposal',error)
 
     @staticmethod
     def _age_state(stamp, now, max_age, future_tolerance):
@@ -653,6 +705,9 @@ class NavigationMissionManager:
                 "mission_failed": snapshot.mission_failed,
                 "slot_status": [slot.status.value for slot in core.slots],
             })
+            if self._local_enabled:
+                payload['local_motion']=self._runtime.local_status()
+                payload['local_motion']['input_reason']=self._local_input_reason
         encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
         if force or encoded != self._last_status:
             self._status_pub.publish(String(data=encoded))

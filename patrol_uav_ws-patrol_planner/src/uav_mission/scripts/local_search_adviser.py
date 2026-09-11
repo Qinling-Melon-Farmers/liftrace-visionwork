@@ -83,6 +83,10 @@ class LocalSearchAdviser:
     def context(self,now):
         p,m,s=self.pose,self.command,self.mission
         if p is None or m is None or s is None:raise ValueError('motion_context_missing')
+        local=s.get('local_motion',{})
+        if m.reason.startswith('research_local_entry:') or (local.get('enabled') and
+                (local.get('active_seq') or local.get('remaining_for_waypoint')==0)):
+            raise ValueError('local_entry_active_or_budget_used')
         if (m.schema_version!=NavigationDecision.SCHEMA_VERSION or not m.has_goal or m.has_target or
                 m.command not in (NavigationDecision.SEARCH,NavigationDecision.RESUME) or
                 s.get('phase')!='SEARCH' or s.get('mission_id')!=m.mission_id or

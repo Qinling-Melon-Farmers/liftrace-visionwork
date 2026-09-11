@@ -1,0 +1,22 @@
+{
+  "(False, False)": {
+    "nodes": 36,
+    "adviser_nodes": 0,
+    "task_local_enabled": false
+  },
+  "(True, False)": {
+    "nodes": 37,
+    "adviser_nodes": 1,
+    "task_local_enabled": false
+  },
+  "(False, True)": {
+    "nodes": 37,
+    "adviser_nodes": 1,
+    "task_local_enabled": true
+  },
+  "(True, True)": {
+    "nodes": 37,
+    "adviser_nodes": 1,
+    "task_local_enabled": true
+  }
+}

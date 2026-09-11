@@ -12,6 +12,7 @@ from threading import RLock
 from typing import Optional, Sequence, Tuple
 
 from .coverage_route import CoverageRoute, RouteOutcome
+from .local_motion import LocalMotionConfig, validate_advice
 from .mission_core import (
     CandidateSnapshot,
     CandidateValidation,
@@ -61,7 +62,8 @@ class RuntimeOutcome:
 class MissionRuntime:
     """Serialize mission facts, decisions and coverage cursor transitions."""
 
-    def __init__(self, core: MissionCore, route: CoverageRoute):
+    def __init__(self, core: MissionCore, route: CoverageRoute,
+                 local_config: Optional[LocalMotionConfig] = None):
         if not isinstance(core, MissionCore):
             raise TypeError("core must be a MissionCore")
         if not isinstance(route, CoverageRoute):
@@ -77,6 +79,72 @@ class MissionRuntime:
         self._current_xy: Optional[Tuple[float, float]] = None
         self._resume_pending = False
         self._last_now: Optional[float] = None
+        self.local_config = local_config or LocalMotionConfig()
+        if self.local_config.enabled:
+            self.core.enable_research_issue_order()
+        self._local_active_seq = 0
+        self._local_nominal_deadline = None
+        self._local_resume_deadline = None
+        self._local_goal = None
+        self._local_used = set()
+        self._local_reason = 'ready' if self.local_config.enabled else 'disabled'
+        self._local_last_outcome = None
+
+    def _clear_local(self):
+        self._local_active_seq = 0
+        self._local_nominal_deadline = None
+        self._local_resume_deadline = None
+        self._local_goal = None
+
+    def local_status(self):
+        with self._lock:
+            return dict(enabled=self.local_config.enabled,active_seq=self._local_active_seq,
+                used=len(self._local_used),max_per_mission=self.local_config.max_per_mission,
+                remaining_for_waypoint=int(self.route.current_index not in self._local_used and
+                    len(self._local_used)<self.local_config.max_per_mission and not self.route.is_complete),
+                original_deadline=self._local_nominal_deadline,last_reason=self._local_reason,
+                last_outcome=self._local_last_outcome)
+
+    def adopt_local_advice(self, data, memory, now, current_xyz, pose_stamp):
+        """Optional task-owned handover; advice never publishes goals itself."""
+        with self._lock:
+            self._require_started()
+            def reject(reason):
+                self._local_reason=reason
+                return self._outcome(False,reason)
+            if not self.local_config.enabled:return reject('local_motion_disabled')
+            now,failed=self._operation_time(now)
+            if failed is not None:return failed
+            if self._local_active_seq:return reject('local_entry_already_active')
+            if self.route.current_index in self._local_used:return reject('local_waypoint_budget_used')
+            if len(self._local_used)>=self.local_config.max_per_mission:return reject('local_mission_budget_used')
+            active=self.core.active_action
+            if active is None or self.core.phase!=MissionPhase.SEARCH or not self._route_binding_matches(active):
+                return reject('local_search_binding_missing')
+            point=self.route.current_waypoint
+            try:
+                entry=validate_advice(data,memory,active,(point.x,point.y,point.z),self.core.mission_id,
+                                      current_xyz,pose_stamp,now,self.local_config)
+            except (ValueError,TypeError,KeyError,AttributeError) as error:
+                return reject(str(error))
+            # Existing target/return/deadline scheduling retains priority.
+            priority=self.tick(now,tuple(current_xyz[:2]))
+            if priority.action is not None or not priority.accepted:return priority
+            if self.core.active_action is not active:return reject('local_action_changed')
+            try:
+                replacement=self.core.replace_search_motion(active.decision_seq,entry.goal,
+                    'research_local_entry:%d'%entry.request_id,now,self.local_config.timeout)
+                retired=self.route.interrupt(active.decision_seq)
+                if not retired.accepted:raise RuntimeError(retired.reason)
+                self.route.bind(replacement.decision_seq,replacement.command)
+            except Exception:
+                return self._fail_closed('local_entry_transaction_failed',now)
+            self._local_active_seq=replacement.decision_seq
+            self._local_nominal_deadline=active.deadline_at
+            self._local_goal=entry.goal
+            self._local_used.add(self.route.current_index)
+            self._local_reason='local_entry_adopted'
+            return self._outcome(True,self._local_reason,action=replacement,route_outcome=retired)
 
     @staticmethod
     def _normalize_xy(current_xy) -> Tuple[float, float]:
@@ -182,6 +250,7 @@ class MissionRuntime:
     def _fail_closed(self, reason: str, now: float,
                      route_outcome: Optional[RouteOutcome] = None
                      ) -> RuntimeOutcome:
+        self._clear_local()
         if self.route.active is not None:
             cleanup = self.route.interrupt(self.route.active.decision_seq)
             if route_outcome is None:
@@ -218,8 +287,10 @@ class MissionRuntime:
         goal = GoalSnapshot(
             self.core.config.mission_frame, point.x, point.y, point.z)
         try:
+            deadline=self._local_resume_deadline
+            self._local_resume_deadline=None
             action = self.core.dispatch_search_motion(
-                command, goal, reason, now)
+                command, goal, reason, now,deadline_at=deadline)
             self.route.bind(action.decision_seq, command)
         except Exception:
             return self._fail_closed(
@@ -247,6 +318,7 @@ class MissionRuntime:
             return self._fail_closed(
                 "mission_selection_failed", now, route_outcome)
         if action is not None:
+            self._local_resume_deadline=None
             if action.command not in ("APPROACH", "RETURN_HOME"):
                 return self._fail_closed(
                     "mission_selection_command_invalid", now, route_outcome)
@@ -288,6 +360,7 @@ class MissionRuntime:
             return self._fail_closed(
                 "route_interrupt_failed", now, route_outcome)
         self._resume_pending = replacement.command == "APPROACH"
+        self._clear_local()
         return self._outcome(
             True, replacement.reason, action=replacement,
             route_outcome=route_outcome)
@@ -295,7 +368,24 @@ class MissionRuntime:
     def _finish_route(self, action: CoreAction, succeeded: bool,
                       now: float) -> Tuple[Optional[RouteOutcome],
                                            Optional[RuntimeOutcome]]:
-        route_outcome = self.route.finish(action.decision_seq, succeeded)
+        if action.decision_seq == self._local_active_seq:
+            deadline=self._local_nominal_deadline
+            error=math.hypot(self._current_xy[0]-self._local_goal.x,self._current_xy[1]-self._local_goal.y)
+            reason=('local_entry_complete' if succeeded and error<=self.local_config.entry_arrival_xy else
+                    'local_entry_adjusted_or_missed' if succeeded else 'local_entry_failed_or_timed_out')
+            self._local_last_outcome=dict(reason=reason,decision_seq=action.decision_seq,
+                original_deadline=deadline,finished_at=now,entry_error_xy=error)
+            self._local_reason=reason
+            self._clear_local()
+            if now>=deadline:
+                route_outcome=self.route.finish(action.decision_seq,False)
+            else:
+                retired=self.route.interrupt(action.decision_seq)
+                if not retired.accepted:return retired,self._fail_closed('local_retirement_failed',now,retired)
+                route_outcome=RouteOutcome(True,reason,complete=self.route.is_complete)
+                self._local_resume_deadline=deadline
+        else:
+            route_outcome = self.route.finish(action.decision_seq, succeeded)
         if not route_outcome.accepted:
             return route_outcome, self._fail_closed(
                 "route_result_reduction_failed", now, route_outcome)
@@ -375,6 +465,7 @@ class MissionRuntime:
                                     route_outcome,
                                 )
                             self._resume_pending = False
+                            self._clear_local()
                         else:
                             route_outcome, reduction_failed = (
                                 self._finish_route(active, False, now))
@@ -444,6 +535,7 @@ class MissionRuntime:
                             route_outcome,
                         )
                     self._resume_pending = False
+                    self._clear_local()
                 else:
                     route_outcome, reduction_failed = self._finish_route(
                         previous,
@@ -483,5 +575,6 @@ class MissionRuntime:
                     return self._fail_closed(
                         "abort_route_retirement_failed", now, route_outcome)
             action = self.core.abort(reason, now)
+            self._clear_local()
             return self._outcome(
                 True, reason, action=action, route_outcome=route_outcome)

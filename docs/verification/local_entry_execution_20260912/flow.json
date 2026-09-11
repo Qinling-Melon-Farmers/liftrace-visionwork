@@ -1,0 +1,361 @@
+{
+  "scope": "SYNTHETIC_TASK_EXECUTOR_LOGIC_NOT_FLIGHT_OR_PLANNER_SEARCH",
+  "native_probe": {
+    "accepted": true,
+    "reason": "inflated_cloud_geometry_only",
+    "checked_voxels": 559,
+    "request_id": 1,
+    "frame_id": "map",
+    "stamp": 10.2,
+    "map_stamp": 10.0,
+    "map_revision": 1,
+    "planner_session": "OFFLINE_SYNTHETIC_GRID",
+    "known_free_proven": false,
+    "requires_trajectory_validation": true,
+    "status": [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0
+    ]
+  },
+  "advice": {
+    "accepted": true,
+    "reason": "local_hint_requires_actual_planner",
+    "request_id": 1,
+    "selected": {
+      "name": "local_0_0",
+      "entry": [
+        -1.8,
+        1.2,
+        1.2
+      ],
+      "exit": [
+        -1.2000000000000002,
+        1.2,
+        1.2
+      ],
+      "segment_status": [
+        0,
+        0
+      ],
+      "geometry_clear": true,
+      "estimated_gain_m2": 0.63,
+      "entry_gain_m2": 0.63,
+      "score": 0.10706199583257264
+    },
+    "candidates": [
+      {
+        "name": "local_0_0",
+        "entry": [
+          -1.8,
+          1.2,
+          1.2
+        ],
+        "exit": [
+          -1.2000000000000002,
+          1.2,
+          1.2
+        ],
+        "segment_status": [
+          0,
+          0
+        ],
+        "geometry_clear": true,
+        "estimated_gain_m2": 0.63,
+        "entry_gain_m2": 0.63,
+        "score": 0.10706199583257264
+      },
+      {
+        "name": "local_0_1",
+        "entry": [
+          -1.8,
+          2.0,
+          1.2
+        ],
+        "exit": [
+          -1.2000000000000002,
+          2.0,
+          1.2
+        ],
+        "segment_status": [
+          0,
+          1
+        ],
+        "geometry_clear": false,
+        "estimated_gain_m2": 0.0,
+        "entry_gain_m2": 0.0,
+        "score": 0.0
+      },
+      {
+        "name": "local_0_2",
+        "entry": [
+          -1.8,
+          2.8,
+          1.2
+        ],
+        "exit": [
+          -1.2000000000000002,
+          2.8,
+          1.2
+        ],
+        "segment_status": [
+          0,
+          0
+        ],
+        "geometry_clear": true,
+        "estimated_gain_m2": 0.0,
+        "entry_gain_m2": 0.0,
+        "score": 0.0
+      },
+      {
+        "name": "local_1_0",
+        "entry": [
+          -0.6000000000000001,
+          1.2,
+          1.2
+        ],
+        "exit": [
+          -1.1102230246251565e-16,
+          1.2,
+          1.2
+        ],
+        "segment_status": [
+          0,
+          0
+        ],
+        "geometry_clear": true,
+        "estimated_gain_m2": 0.63,
+        "entry_gain_m2": 0.63,
+        "score": 0.07816722177407989
+      },
+      {
+        "name": "local_1_1",
+        "entry": [
+          -0.6000000000000001,
+          2.0,
+          1.2
+        ],
+        "exit": [
+          -1.1102230246251565e-16,
+          2.0,
+          1.2
+        ],
+        "segment_status": [
+          1,
+          1
+        ],
+        "geometry_clear": false,
+        "estimated_gain_m2": 0.0,
+        "entry_gain_m2": 0.0,
+        "score": 0.0
+      },
+      {
+        "name": "local_1_2",
+        "entry": [
+          -0.6000000000000001,
+          2.8,
+          1.2
+        ],
+        "exit": [
+          -1.1102230246251565e-16,
+          2.8,
+          1.2
+        ],
+        "segment_status": [
+          0,
+          0
+        ],
+        "geometry_clear": true,
+        "estimated_gain_m2": 0.0,
+        "entry_gain_m2": 0.0,
+        "score": 0.0
+      }
+    ],
+    "schema_version": 1,
+    "command": "SEARCH",
+    "frame_id": "map",
+    "known_free_proven": false,
+    "gain_scope": "ENTRY_VIEW_PROXY",
+    "source_pose": [
+      -3.0,
+      2.0,
+      1.2
+    ],
+    "pose_stamp": 10.0,
+    "created": 10.1,
+    "source_snapshot_stamp": 10.0,
+    "nominal_goal": [
+      4.0,
+      2.0,
+      1.2
+    ],
+    "mission_id": "offline-entry",
+    "decision_seq": 1,
+    "generation": 2,
+    "scope": "LOCAL_OBSERVATION_ADVICE_ONLY",
+    "flight_authorized": false,
+    "requires_trajectory_validation": true,
+    "planner_session": "OFFLINE_SYNTHETIC_GRID",
+    "map_revision": 1,
+    "map_stamp": 10.0,
+    "snapshot_stamp": 10.0,
+    "geometry_scope": "INFLATED_CLOUD_CENTERLINE_ONLY",
+    "expires_at": 10.6,
+    "receipt_ros": 10.2
+  },
+  "actions": [
+    {
+      "command": "SEARCH",
+      "reason": "coverage_start",
+      "decision_seq": 1,
+      "profile_name": "r2026",
+      "issued_at": 9.0,
+      "deadline_at": 99.0,
+      "goal": {
+        "frame_id": "map",
+        "x": 4,
+        "y": 2,
+        "z": 1.2,
+        "yaw": 0.0
+      },
+      "target_snapshot": null,
+      "candidate_key": null,
+      "target_class": "",
+      "attempt": 0,
+      "payload_slot": 0
+    },
+    {
+      "command": "SEARCH",
+      "reason": "research_local_entry:1",
+      "decision_seq": 2,
+      "profile_name": "r2026",
+      "issued_at": 10.25,
+      "deadline_at": 22.25,
+      "goal": {
+        "frame_id": "map",
+        "x": -1.8,
+        "y": 1.2,
+        "z": 1.2,
+        "yaw": 0.0
+      },
+      "target_snapshot": null,
+      "candidate_key": null,
+      "target_class": "",
+      "attempt": 0,
+      "payload_slot": 0
+    },
+    {
+      "command": "RESUME",
+      "reason": "resume_interrupted_waypoint",
+      "decision_seq": 3,
+      "profile_name": "r2026",
+      "issued_at": 14.15,
+      "deadline_at": 99.0,
+      "goal": {
+        "frame_id": "map",
+        "x": 4,
+        "y": 2,
+        "z": 1.2,
+        "yaw": 0.0
+      },
+      "target_snapshot": null,
+      "candidate_key": null,
+      "target_class": "",
+      "attempt": 0,
+      "payload_slot": 0
+    }
+  ],
+  "timeline": [
+    {
+      "tag": "nominal_dispatched",
+      "time": 9.05,
+      "route_index": 0,
+      "local_active": 0,
+      "active_seq": 1,
+      "active_deadline": 99.0,
+      "extra": null
+    },
+    {
+      "tag": "entry_adopted",
+      "time": 10.25,
+      "route_index": 0,
+      "local_active": 2,
+      "active_seq": 2,
+      "active_deadline": 22.25,
+      "extra": {
+        "name": "local_0_0",
+        "entry": [
+          -1.8,
+          1.2,
+          1.2
+        ],
+        "exit": [
+          -1.2000000000000002,
+          1.2,
+          1.2
+        ],
+        "segment_status": [
+          0,
+          0
+        ],
+        "geometry_clear": true,
+        "estimated_gain_m2": 0.63,
+        "entry_gain_m2": 0.63,
+        "score": 0.10706199583257264
+      }
+    },
+    {
+      "tag": "entry_arrived_cursor_still_zero",
+      "time": 14.15,
+      "route_index": 0,
+      "local_active": 0,
+      "active_seq": 3,
+      "active_deadline": 99.0,
+      "extra": null
+    },
+    {
+      "tag": "late_original_status_ignored",
+      "time": 14.2,
+      "route_index": 0,
+      "local_active": 0,
+      "active_seq": 3,
+      "active_deadline": 99.0,
+      "extra": null
+    },
+    {
+      "tag": "nominal_arrived_cursor_advances",
+      "time": 20.15,
+      "route_index": 1,
+      "local_active": 0,
+      "active_seq": 4,
+      "active_deadline": 110.15,
+      "extra": null
+    }
+  ],
+  "original_deadline": 99.0,
+  "resume_deadline": 99.0,
+  "next_nominal_goal": {
+    "frame_id": "map",
+    "x": -4,
+    "y": 3,
+    "z": 1.2,
+    "yaw": 0.0
+  },
+  "checks": {
+    "entry_adopted": true,
+    "old_deadline_preserved": true,
+    "entry_did_not_advance_route": true,
+    "late_status_ignored": true,
+    "nominal_arrival_advanced": true
+  },
+  "new_simulation_runs": 0
+}

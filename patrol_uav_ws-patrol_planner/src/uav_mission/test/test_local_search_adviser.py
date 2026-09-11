@@ -118,5 +118,12 @@ class AdviserTests(unittest.TestCase):
             n.publish(dict(accepted=False,reason='no_candidate'),10.)
         self.assertIsNone(n.record);n.pub.publish.assert_called_once()
 
+    def test_local_execution_and_used_budget_suppress_redundant_queries(self):
+        self.node.command.reason='research_local_entry:1'
+        with self.assertRaises(ValueError):self.node.context(10.1)
+        self.node.command.reason='coverage_waypoint'
+        self.node.mission['local_motion']=dict(enabled=True,remaining_for_waypoint=0)
+        with self.assertRaises(ValueError):self.node.context(10.1)
+
 
 if __name__=='__main__':unittest.main()

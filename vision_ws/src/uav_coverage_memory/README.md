@@ -1,5 +1,7 @@
 # uav_coverage_memory — research observer
 
+2026-09-12执行接入：局部建议包更新为schema=1并显式提供frame/command、入口收益和来源时刻，排序按entry区域估计；不再计入尚未执行的exit视野。建议本身仍无飞行授权，新的任务层研究开关负责校验和采用，默认关闭。见[局部入口执行报告](../../../docs/verification/local_entry_execution_20260912/REPORT.md)。
+
 2026-09-12新增`local_proposals.py`：依据历史观测和当前SEARCH/RESUME名义目标生成少量局部航段，原地图预检后输出建议；不拥有任务游标或目标发布权。ROS建议节点位于导航工作区的uav_mission中，避免视觉工作区反向依赖plan_manage生成的服务类型。完整边界及验证见[局部建议报告](../../../docs/verification/local_search_proposals_20260912/REPORT.md)。
 
 独立ROS1旁路包，shadow入口默认不启用，未被正赛launch包含。research_trial.launch是额外的显式SITL研究包装入口，必须有sim_run.sh提供的SIM_RUN_DIR。观察器自身没有目标选取、航点/速度命令、MAVROS/投递服务调用；当前只用于搜索效率研究的第一阶段。

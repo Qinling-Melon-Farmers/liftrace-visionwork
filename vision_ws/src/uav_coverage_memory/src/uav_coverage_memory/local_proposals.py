@@ -128,9 +128,11 @@ class LocalProposer:
                 specs.append(('local_%d_%d'%(i,j),entry,end))
         regions=[]
         for name,entry,end in specs:
-            bounds=(min(entry[0],end[0])-c.view_half_x,max(entry[0],end[0])+c.view_half_x,
-                    min(entry[1],end[1])-c.view_half_y,max(entry[1],end[1])+c.view_half_y)
-            travel=(float(np.linalg.norm(entry-start))+float(np.linalg.norm(end-entry)))/c.speed
+            # The first execution prototype adopts ENTRY only. Do not score
+            # visibility along a later exit leg which may never be flown.
+            bounds=(entry[0]-c.view_half_x,entry[0]+c.view_half_x,
+                    entry[1]-c.view_half_y,entry[1]+c.view_half_y)
+            travel=float(np.linalg.norm(entry-start))/c.speed
             regions.append(Region(name,bounds,travel))
         ranked=snapshot.rank(regions,now=now,frame_id=context.frame_id,epoch=context.mission_id,
                              generation=snapshot.generation,max_age=c.max_snapshot_age,max_regions=c.max_candidates)
@@ -149,6 +151,8 @@ class LocalProposer:
     def finish(self, batch, reply, context, generation, now):
         c=self.config
         result=dict(accepted=False,reason='',request_id=batch.request_id,selected=None,candidates=[],
+                    schema_version=1,command=batch.context.command,frame_id=batch.context.frame_id,
+                    known_free_proven=False,gain_scope='ENTRY_VIEW_PROXY',
                     source_pose=list(batch.context.pose),pose_stamp=batch.context.pose_stamp,created=batch.created,
                     source_snapshot_stamp=batch.snapshot_stamp,
                     nominal_goal=list(batch.context.nominal_goal),mission_id=batch.context.mission_id,
@@ -185,6 +189,7 @@ class LocalProposer:
             row=dict(name=item.name,entry=list(item.entry),exit=list(item.exit),
                      segment_status=[codes[i] for i in item.segment_indices],geometry_clear=clear,
                      estimated_gain_m2=item.observation['potential_observation_area_m2'],
+                     entry_gain_m2=item.observation['potential_observation_area_m2'],
                      score=item.observation['observation_score'])
             result['candidates'].append(row)
             if clear and row['estimated_gain_m2']>=c.min_gain_m2:eligible.append(row)

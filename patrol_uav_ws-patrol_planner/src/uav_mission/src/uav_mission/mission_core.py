@@ -593,6 +593,14 @@ class MissionCore:
                       range(1, profile.required_deliveries + 1)]
         self.mission_failed = False
         self.post_delivery_route_index = 0
+        self._research_issue_order = False
+        self._last_issue_time = -math.inf
+
+    def enable_research_issue_order(self):
+        """Distinct transport identities for immediate local-goal handovers."""
+        if self.phase != MissionPhase.INIT:
+            raise RuntimeError('issue ordering must be selected before mission start')
+        self._research_issue_order = True
 
     def start(self, mission_id: str, now: float) -> None:
         if self.phase != MissionPhase.INIT:
@@ -679,12 +687,16 @@ class MissionCore:
             deadline = float(now) + timeout_sec
             self.mission_failed = True
         self.decision_seq += 1
+        issue_time = float(now)
+        if self._research_issue_order:
+            issue_time = max(issue_time, self._last_issue_time + 1e-6)
+        self._last_issue_time = issue_time
         action = CoreAction(
             command=command,
             reason=reason,
             decision_seq=self.decision_seq,
             profile_name=self.profile.name,
-            issued_at=float(now),
+            issued_at=issue_time,
             deadline_at=deadline,
             goal=goal,
             target_snapshot=frozen_target,
@@ -732,7 +744,8 @@ class MissionCore:
             timeout=self.config.motion_action_timeout)
 
     def dispatch_search_motion(self, command: str, goal: GoalSnapshot,
-                               reason: str, now: float) -> CoreAction:
+                               reason: str, now: float,
+                               deadline_at: Optional[float] = None) -> CoreAction:
         if command not in ("SEARCH", "RESUME"):
             raise ValueError("search motion command must be SEARCH or RESUME")
         if self.phase != MissionPhase.SEARCH:
@@ -743,14 +756,35 @@ class MissionCore:
             raise ValueError("search goal frame does not match mission frame")
         if self._elapsed(now) >= self._search_cutoff():
             raise RuntimeError("forced return is due; search motion is forbidden")
+        timeout = self.config.motion_action_timeout
+        if deadline_at is not None:
+            if not math.isfinite(deadline_at) or deadline_at <= now:
+                raise ValueError('search resume deadline expired')
+            timeout = min(timeout, deadline_at-now)
         action = self._new_action(
             command, reason, now, goal=goal,
-            timeout=self.config.motion_action_timeout)
+            timeout=timeout)
         search_deadline = self.started_at + self._search_cutoff()
         if action.deadline_at > search_deadline:
             action = replace(action, deadline_at=search_deadline)
             self.active_action = action
         return action
+
+    def replace_search_motion(self, expected_seq: int, goal: GoalSnapshot,
+                              reason: str, now: float, timeout: float) -> CoreAction:
+        """Replace only a targetless SEARCH/RESUME, without extending its lease."""
+        old = self.active_action
+        if (self.phase != MissionPhase.SEARCH or old is None or old.has_target or
+                old.command not in ('SEARCH','RESUME') or old.decision_seq != expected_seq):
+            raise RuntimeError('local replacement requires matching search action')
+        if (not isinstance(goal,GoalSnapshot) or goal.frame_id != self.config.mission_frame or
+                not all(math.isfinite(v) for v in (goal.x,goal.y,goal.z,goal.yaw)) or not 0<=goal.z<=4):
+            raise ValueError('invalid local search goal')
+        if (not math.isfinite(now) or now < old.issued_at or now >= old.deadline_at or
+                self._elapsed(now) >= self._search_cutoff() or not math.isfinite(timeout) or timeout<=0):
+            raise ValueError('invalid local replacement lease')
+        return self._new_action(old.command,reason,now,goal=goal,
+                                timeout=min(timeout,old.deadline_at-now))
 
     def _delivery_work_eta(self, entries: Sequence[CandidateEntry],
                            current_xy: Tuple[float, float]) -> float:
