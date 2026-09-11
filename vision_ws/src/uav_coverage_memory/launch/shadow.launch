@@ -1,10 +1,11 @@
 <launch>
   <!-- Standalone, opt-in research observer. Never includes flight/actuator nodes. -->
   <arg name="enabled" default="false" />
+  <arg name="required" default="false" />
   <arg name="config" default="$(find uav_coverage_memory)/config/shadow.yaml" />
   <group ns="research" if="$(arg enabled)">
     <node pkg="uav_coverage_memory" type="coverage_memory_shadow.py"
-          name="coverage_memory" output="screen">
+          name="coverage_memory" output="screen" required="$(arg required)">
       <rosparam file="$(arg config)" />
     </node>
   </group>

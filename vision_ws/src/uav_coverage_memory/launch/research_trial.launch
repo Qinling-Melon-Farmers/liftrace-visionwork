@@ -1,0 +1,34 @@
+<launch>
+  <!-- Explicit research SITL entry. Must run through the repository sim_run.sh. -->
+  <arg name="target_model_path" />
+  <arg name="field_seed" />
+  <arg name="world" />
+  <arg name="field_config" />
+  <arg name="runtime_config" />
+  <arg name="gate_geometry_config" />
+  <arg name="search_initial_plan_timeout" default="0.0" />
+  <arg name="coverage_config" default="$(find uav_coverage_memory)/config/shadow.yaml" />
+  <include file="$(find uav_mission)/launch/navigation_horizontal_search_vcl06.launch">
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="world" value="$(arg world)" />
+    <arg name="field_config" value="$(arg field_config)" />
+    <arg name="runtime_config" value="$(arg runtime_config)" />
+    <arg name="gate_geometry_config" value="$(arg gate_geometry_config)" />
+    <arg name="search_initial_plan_timeout" value="$(arg search_initial_plan_timeout)" />
+    <arg name="observe_full_trial" value="true" />
+    <arg name="gui" value="false" />
+    <arg name="rviz" value="false" />
+    <arg name="record_debug" value="false" />
+    <arg name="record_camera_video" value="false" />
+    <arg name="record_overview_video" value="false" />
+  </include>
+  <include file="$(find uav_coverage_memory)/launch/shadow.launch">
+    <arg name="enabled" value="true" />
+    <arg name="required" value="true" />
+    <arg name="config" value="$(arg coverage_config)" />
+  </include>
+  <param name="/research/coverage_memory/record_dir" value="$(optenv SIM_RUN_DIR)/coverage" />
+  <param name="/research/coverage_memory/record_interval" value="6.0" />
+  <param name="/research/coverage_memory/record_limit" value="120" />
+</launch>

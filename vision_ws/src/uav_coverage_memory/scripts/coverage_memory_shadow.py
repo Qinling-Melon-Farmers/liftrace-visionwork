@@ -15,6 +15,7 @@ from sensor_msgs import point_cloud2
 from std_msgs.msg import String
 from std_srvs.srv import Trigger, TriggerResponse
 from uav_coverage_memory.memory import Camera, Config, Memory, State
+from uav_coverage_memory.recording import Recorder
 
 
 def transform_matrix(message):
@@ -54,6 +55,11 @@ class Shadow:
         self.mission_id = None
         self.epoch_start = rospy.Time.now().to_sec()
         self.last_clock = self.epoch_start
+        record_dir = rospy.get_param('~record_dir', '')
+        self.recorder = Recorder(record_dir, float(rospy.get_param('~record_interval',6.)),
+                                 int(rospy.get_param('~record_limit',120))) if record_dir else None
+        if self.recorder:
+            rospy.on_shutdown(self.recorder.close)
         self.state_pub = rospy.Publisher('~state_grid', OccupancyGrid, queue_size=1, latch=True)
         self.status_pub = rospy.Publisher('~status', String, queue_size=1, latch=True)
         rospy.Subscriber(rospy.get_param('~image_topic'), Image, self.on_image, queue_size=1, buff_size=2**24)
@@ -185,9 +191,18 @@ class Shadow:
             points, cloud_stamp = self.map_snapshot(stamp)
         except Exception:
             points, cloud_stamp = None, None
-        return self.memory.observe(pixels, camera, matrix, stamp, now, tf_stamp,
+        result = self.memory.observe(pixels, camera, matrix, stamp, now, tf_stamp,
             info.header.stamp.to_sec(), image.header.frame_id,
             points, cloud_stamp, self.memory.config.frame_id)
+        result.update(camera_stamp=info.header.stamp.to_sec(), tf_stamp=tf_stamp,
+                      map_stamp=cloud_stamp, map_points=0 if points is None else len(points),
+                      image_age=now-stamp)
+        if self.recorder and result['accepted']:
+            begin = time.perf_counter()
+            self.recorder.sample(result,pixels,camera,matrix,points,cloud_stamp,
+                                 self.memory.state.reshape(self.memory.ny,self.memory.nx),self.memory.config)
+            result['sample_write_ms'] = (time.perf_counter()-begin)*1000
+        return result
 
     def publish(self, result, now):
         c = self.memory.config
@@ -202,6 +217,9 @@ class Shadow:
         grid.data = self.memory.state.tolist()
         result['state_codes'] = {s.name:int(s) for s in State}
         result['not_an_occupancy_or_navigation_map'] = True
+        result['receipt_ros'] = now
+        if self.recorder:
+            self.recorder.status(result)
         self.state_pub.publish(grid)
         self.status_pub.publish(String(data=json.dumps(result, sort_keys=True)))
 
