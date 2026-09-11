@@ -82,7 +82,11 @@ class Snapshot:
 
     def rank(self, regions, *, now, frame_id, epoch, generation, max_age=1.,
              quality_retry_weight=.5, occlusion_retry_weight=.25, pending_weight=.2,
-             fixed_view_cost_s=3., history_revisit_weight=.2):
+             fixed_view_cost_s=3., history_revisit_weight=.2, max_regions=32):
+        # Future local proposals must remain bounded on the companion computer.
+        # Reject overflow rather than silently dropping a possibly useful side.
+        if int(max_regions) != max_regions or max_regions <= 0 or len(regions) > max_regions:
+            raise ValueError('region_query_limit')
         weights=[quality_retry_weight,occlusion_retry_weight,pending_weight,history_revisit_weight]
         if any(not math.isfinite(w) or not 0 <= w <= 1 for w in weights) or not math.isfinite(fixed_view_cost_s) or fixed_view_cost_s <= 0:
             raise ValueError('invalid observation score weights')

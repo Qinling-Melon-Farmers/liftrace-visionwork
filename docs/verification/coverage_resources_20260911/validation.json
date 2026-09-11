@@ -1,0 +1,26 @@
+{
+  "date": "2026-09-12",
+  "baseline_revision": "80445c055f4e12ee278cc512ae06d58b298b76ca",
+  "tests": {
+    "tests": 77,
+    "failures": 0,
+    "errors": 0
+  },
+  "build": "vision_ws catkin_make PASS",
+  "static_observer_launch": "PASS: one observer, resource parameters loaded, recording disabled",
+  "historical_samples": 252,
+  "comparison_environments": [
+    "benchmark.json",
+    "benchmark_ros.json"
+  ],
+  "equivalence": "PASS",
+  "figures_inspected": [
+    "resources.png",
+    "budget_pacing.png"
+  ],
+  "new_simulation_runs": 0,
+  "onboard_tested": false,
+  "integration_revision": "86e382d",
+  "integration_clean": true,
+  "delivery_source": "c369e6f80f7671d78b083550887ed689e4a4d920"
+}

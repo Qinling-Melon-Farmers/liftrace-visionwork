@@ -2,7 +2,9 @@
 import numpy as np
 
 
-def decode_xyz(message, limit):
+def decode_xyz(message, limit, max_bytes=16*1024*1024):
+    if len(message.data) > max_bytes:
+        raise ValueError('cloud_byte_limit')
     width, height = int(message.width), int(message.height)
     if width < 0 or height < 0 or width*height > limit:
         raise ValueError('cloud_point_limit')

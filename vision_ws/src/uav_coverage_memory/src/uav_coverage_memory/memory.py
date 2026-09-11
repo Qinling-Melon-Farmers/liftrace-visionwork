@@ -6,6 +6,7 @@ navigation clearance, target recall, or a reason to declare search complete.
 """
 from dataclasses import dataclass
 from enum import IntEnum
+from functools import lru_cache
 import math
 import cv2
 import numpy as np
@@ -53,6 +54,8 @@ class Config:
     flat_ground_reference_enabled: bool = False
     min_reference_fraction: float = .02
     min_reference_tiles: int = 3
+    projection_chunk_points: int = 16384
+    max_image_pixels: int = 2073600
 
     def __post_init__(self):
         for name, value in vars(self).items():
@@ -64,7 +67,8 @@ class Config:
                     'memory_ttl', 'min_observation_interval', 'max_observation_gap']
         if any(getattr(self, key) <= 0 for key in positive):
             raise ValueError('positive durations/resolution required')
-        for key in ['max_cells', 'min_observations', 'quality_window_px', 'occlusion_tile_px', 'max_cloud_points']:
+        for key in ['max_cells', 'min_observations', 'quality_window_px', 'occlusion_tile_px',
+                    'max_cloud_points', 'projection_chunk_points', 'max_image_pixels']:
             value = getattr(self, key)
             if int(value) != value or value <= 0:
                 raise ValueError('positive integer required: '+key)
@@ -102,6 +106,21 @@ class Camera:
             raise ValueError('unsupported intrinsic matrix')
         if self.distortion_model not in ('plumb_bob', 'rational_polynomial') or len(self.d) not in (0, 4, 5, 8):
             raise ValueError('unsupported distortion model')
+
+
+@lru_cache(maxsize=1)
+def _ray_domain(width, height, intrinsics, distortion):
+    """One calibration entry only; cached data never include images or maps."""
+    k = np.asarray(intrinsics, dtype=float).reshape(3, 3)
+    d = np.asarray(distortion, dtype=float) if distortion else None
+    xs, ys = np.linspace(0, width-1, 33), np.linspace(0, height-1, 33)
+    border = np.concatenate([np.column_stack([xs, np.zeros(33)]),
+        np.column_stack([xs, np.full(33, height-1)]),
+        np.column_stack([np.zeros(33), ys]), np.column_stack([np.full(33, width-1), ys])])
+    rays = cv2.undistortPoints(border.reshape(-1, 1, 2), k, d).reshape(-1, 2)
+    if not np.isfinite(rays).all():
+        raise ValueError('invalid calibrated ray domain')
+    return k, d, rays.min(axis=0), rays.max(axis=0)
 
 
 class Memory:
@@ -167,20 +186,12 @@ class Memory:
         local = (points-camera_to_map[:3, 3]) @ camera_to_map[:3, :3]
         uv = np.full((len(local), 2), -1e9)
         front = local[:, 2] > 1e-5
-        k = np.asarray(camera.k, dtype=float).reshape(3,3)
-        d = np.asarray(camera.d, dtype=float) if camera.d else None
         # Brown distortion is calibrated over the sensor's field of view, not
         # arbitrary rays. Polynomial extrapolation can fold distant ground
         # points back INSIDE image bounds and falsely grow the footprint.
-        xs, ys = np.linspace(0,camera.width-1,33), np.linspace(0,camera.height-1,33)
-        border = np.concatenate([np.column_stack([xs,np.zeros(33)]),
-            np.column_stack([xs,np.full(33,camera.height-1)]),
-            np.column_stack([np.zeros(33),ys]),np.column_stack([np.full(33,camera.width-1),ys])])
-        rays = cv2.undistortPoints(border.reshape(-1,1,2), k, d).reshape(-1,2)
-        if not np.isfinite(rays).all():
-            raise ValueError('invalid calibrated ray domain')
+        k, d, lower, upper = _ray_domain(camera.width, camera.height, tuple(camera.k), tuple(camera.d))
         normalized = local[:,:2]/np.maximum(local[:,2,None],1e-5)
-        front &= ((normalized >= rays.min(axis=0)) & (normalized <= rays.max(axis=0))).all(axis=1)
+        front &= ((normalized >= lower) & (normalized <= upper)).all(axis=1)
         if front.any():
             uv[front] = cv2.projectPoints(local[front], np.zeros(3), np.zeros(3),
                 k, d)[0].reshape(-1,2)
@@ -204,6 +215,8 @@ class Memory:
             return self.reject('tf_time_mismatch', now)
         if image_frame != camera.frame_id:
             return self.reject('camera_frame_mismatch', now)
+        if camera.width*camera.height > c.max_image_pixels:
+            return self.reject('image_pixel_limit', now)
         if image.dtype != np.uint8 or image.shape not in [(camera.height,camera.width), (camera.height,camera.width,3)]:
             return self.reject('image_shape_or_encoding', now)
         transform = np.asarray(camera_to_map, dtype=float)
@@ -227,10 +240,14 @@ class Memory:
         inside = ((uv[:,:,0] >= m) & (uv[:,:,0] < camera.width-m) &
                   (uv[:,:,1] >= m) & (uv[:,:,1] < camera.height-m) & (depth > 0)).all(axis=1)
         gray = image if image.ndim == 2 else cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        gray = gray.astype(np.float32)
         box = (c.quality_window_px,)*2
         lap = cv2.Laplacian(gray, cv2.CV_32F)
-        variance = cv2.boxFilter(lap*lap, -1, box)-cv2.boxFilter(lap, -1, box)**2
+        mean = cv2.boxFilter(lap, -1, box)
+        np.square(mean, out=mean)
+        np.square(lap, out=lap)
+        variance = cv2.boxFilter(lap, -1, box)
+        variance -= mean
+        del mean, lap
         exposure = ((cv2.boxFilter((gray <= c.dark_level).astype(np.float32), -1, box) <= c.max_dark_fraction) &
                     (cv2.boxFilter((gray >= c.bright_level).astype(np.float32), -1, box) <= c.max_bright_fraction))
         local_sharp = variance >= c.min_laplacian_variance
@@ -248,7 +265,7 @@ class Memory:
         pixels = uv[ids].astype(int)
         good_quality[ids] = quality[pixels[:,:,1], pixels[:,:,0]].all(axis=1)
         local_quality = np.zeros(len(self.centers),dtype=bool)
-        local_quality[ids] = (local_sharp & exposure)[pixels[:,:,1],pixels[:,:,0]].all(axis=1)
+        local_quality[ids] = reference[pixels[:,:,1],pixels[:,:,0]].all(axis=1)
         fresh_map = (map_stamp is not None and math.isfinite(map_stamp) and map_stamp > 0 and
                      map_frame == c.frame_id and -c.future_tolerance <= stamp-map_stamp <= c.max_map_age)
         points = np.asarray(map_points, dtype=float) if map_points is not None else np.empty((0,3))
@@ -256,14 +273,17 @@ class Memory:
                          0 < len(points) <= c.max_cloud_points and np.isfinite(points).all())
         blocked = np.zeros(len(self.centers), dtype=bool)
         if fresh_map:
-            puv, pz = self._project(points, camera, transform)
-            valid = ((pz > 0) & (puv[:,0] >= 0) & (puv[:,0] < camera.width) &
-                     (puv[:,1] >= 0) & (puv[:,1] < camera.height))
             tile = c.occlusion_tile_px
             tw, th = math.ceil(camera.width/tile), math.ceil(camera.height/tile)
             zbuffer = np.full(tw*th, 1e6, dtype=np.float32)
-            loc = (puv[valid]/tile).astype(int)
-            np.minimum.at(zbuffer, loc[:,1]*tw+loc[:,0], pz[valid])
+            # Visit EVERY point, in bounded chunks. No downsampling or missing
+            # obstacle evidence; take the same global minimum before splatting.
+            for start in range(0, len(points), c.projection_chunk_points):
+                puv, pz = self._project(points[start:start+c.projection_chunk_points], camera, transform)
+                valid = ((pz > 0) & (puv[:,0] >= 0) & (puv[:,0] < camera.width) &
+                         (puv[:,1] >= 0) & (puv[:,1] < camera.height))
+                loc = (puv[valid]/tile).astype(int)
+                np.minimum.at(zbuffer, loc[:,1]*tw+loc[:,0], pz[valid])
             # Conservative neighboring tile splat rejects rays near known surfaces.
             zbuffer = cv2.erode(zbuffer.reshape(th,tw), np.ones((3,3),np.uint8))
             loc = (uv[ids]/tile).astype(int)

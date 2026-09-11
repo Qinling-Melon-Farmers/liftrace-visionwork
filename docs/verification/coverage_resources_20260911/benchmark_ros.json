@@ -1,0 +1,99 @@
+{
+  "baseline": "80445c055f4e12ee278cc512ae06d58b298b76ca",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.29",
+  "python": "3.8.10",
+  "numpy": "1.23.5",
+  "opencv": "4.2.0",
+  "native_threads": 1,
+  "scope": "OFFLINE_X86_CORE_ONLY_NOT_ONBOARD_OR_END_TO_END_TIMING",
+  "modes": {
+    "historical": {
+      "samples": 252,
+      "result_mismatches": 0,
+      "array_mismatches": {
+        "states": 0,
+        "counts": 0,
+        "seen": 0
+      },
+      "metrics": {
+        "baseline": {
+          "wall_ms": {
+            "p50": 26.418557503347984,
+            "p95": 30.32599089601717,
+            "max": 45.9714399985387
+          },
+          "cpu_ms": {
+            "p50": 26.41911100000027,
+            "p95": 30.197710299999926,
+            "max": 34.519959999999905
+          },
+          "peak_process_rss_mib": 185.09765625
+        },
+        "current": {
+          "wall_ms": {
+            "p50": 21.83154150043265,
+            "p95": 24.63134944810008,
+            "max": 28.46519000013359
+          },
+          "cpu_ms": {
+            "p50": 21.83299999999999,
+            "p95": 24.56814284999993,
+            "max": 28.466653999999814
+          },
+          "peak_process_rss_mib": 195.94140625
+        }
+      },
+      "runs": {
+        "coverage_seed32_reference070_20260911_174716": {
+          "samples": 88,
+          "max_points": 174843
+        },
+        "coverage_seed32_reference080_20260911_182732": {
+          "samples": 77,
+          "max_points": 177172
+        },
+        "coverage_seed34_reference080_wait20_20260911_190504": {
+          "samples": 87,
+          "max_points": 163755
+        }
+      }
+    },
+    "stress": {
+      "samples": 10,
+      "result_mismatches": 0,
+      "array_mismatches": {
+        "states": 0,
+        "counts": 0,
+        "seen": 0
+      },
+      "metrics": {
+        "baseline": {
+          "wall_ms": {
+            "p50": 317.590000002383,
+            "p95": 376.78459790186025,
+            "max": 388.4345930055133
+          },
+          "cpu_ms": {
+            "p50": 317.59277199999997,
+            "p95": 376.5076628999999,
+            "max": 388.433193
+          },
+          "peak_process_rss_mib": 442.12109375
+        },
+        "current": {
+          "wall_ms": {
+            "p50": 173.96139449920156,
+            "p95": 186.26740089639497,
+            "max": 187.8028809951502
+          },
+          "cpu_ms": {
+            "p50": 173.963958,
+            "p95": 186.26456534999994,
+            "max": 187.80633599999996
+          },
+          "peak_process_rss_mib": 144.71875
+        }
+      }
+    }
+  }
+}

@@ -86,5 +86,11 @@ class QueryTests(unittest.TestCase):
         moved=Snapshot(replace(self.config,ground_z=.2),np.zeros((20,20)),11.,'round1',2)
         self.assertFalse(ledger.update(moved,11.1).historical_seen.any())
 
+    def test_candidate_budget_rejects_overflow_without_partial_ranking(self):
+        regions=[Region(str(i),(-1,1,-1,1),0) for i in range(33)]
+        with self.assertRaisesRegex(ValueError,'region_query_limit'):
+            self.snapshot.rank(regions,**self.identity)
+        self.assertEqual(len(self.snapshot.rank(regions,max_regions=33,**self.identity)),33)
+
 
 if __name__=='__main__':unittest.main()

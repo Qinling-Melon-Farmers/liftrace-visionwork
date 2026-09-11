@@ -15,6 +15,8 @@ memory:
   ground_z: -0.22  # local landed-FC frame; set from real calibration
   max_cells: 20000
   max_cloud_points: 500000  # real historical online maps exceed 100k points
+  projection_chunk_points: 16384  # all points retained; cap temporary projection arrays
+  max_image_pixels: 2073600  # input guard, no implicit resize or calibration change
   max_image_age: 0.5  # s, source image time
   max_camera_age: 2.0
   max_map_age: 2.0

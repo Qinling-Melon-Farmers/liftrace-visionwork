@@ -35,3 +35,8 @@ class CloudTests(unittest.TestCase):
     def test_nan_filter(self):
         c=self.cloud();c.data=struct.pack('<f',float('nan'))+c.data[4:]
         self.assertEqual(decode_xyz(c,4).shape,(3,3))
+
+    def test_padding_bytes_count_toward_limit(self):
+        c=self.cloud()
+        with self.assertRaisesRegex(ValueError,'cloud_byte_limit'):
+            decode_xyz(c,4,max_bytes=len(c.data)-1)

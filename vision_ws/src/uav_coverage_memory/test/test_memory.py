@@ -200,5 +200,20 @@ class MemoryTests(unittest.TestCase):
         for t in [1.,1.25,1.5]:row=self.observe(t,image=image)
         self.assertGreater(row['state_area_m2']['LOW_QUALITY'],0)
 
+    def test_chunk_boundaries_keep_nearest_obstacle_and_same_states(self):
+        points=np.random.RandomState(20).uniform([-2,-2,-.1],[2,2,3],(1537,3))
+        points[128]=[0,0,1.9];points[-1]=[0,0,1.99]
+        results=[]
+        for size in [1,127,128,512,10000]:
+            self.memory=Memory(replace(self.config,projection_chunk_points=size))
+            for stamp in [1.,1.25,1.5]:row=self.observe(stamp,map_points=points)
+            results.append((row,self.memory.state.copy()))
+        for row,state in results[1:]:
+            self.assertEqual(row,results[0][0]);np.testing.assert_array_equal(state,results[0][1])
+
+    def test_oversized_image_rejected_before_projection(self):
+        self.memory=Memory(replace(self.config,max_image_pixels=100))
+        self.assertEqual(self.observe()['reason'],'image_pixel_limit')
+
 
 if __name__=='__main__':unittest.main()

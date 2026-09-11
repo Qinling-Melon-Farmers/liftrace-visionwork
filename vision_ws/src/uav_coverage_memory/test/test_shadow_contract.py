@@ -7,6 +7,7 @@ from collections import deque
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+from types import SimpleNamespace
 import xml.etree.ElementTree as ET
 import numpy as np
 import rospy
@@ -15,6 +16,7 @@ from std_msgs.msg import String
 from geometry_msgs.msg import TransformStamped
 from sensor_msgs.msg import Image, CameraInfo, PointCloud2
 from uav_coverage_memory.memory import Config, Memory
+from uav_coverage_memory.resources import ByteWindow, WorkBudget
 
 PACKAGE=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('coverage_shadow_test',PACKAGE/'scripts/coverage_memory_shadow.py')
@@ -26,11 +28,17 @@ class ShadowTests(unittest.TestCase):
     def setUp(self):
         self.node=adapter.Shadow.__new__(adapter.Shadow)
         self.node.lock=threading.RLock()
+        self.node.input_lock=threading.RLock()
         self.node.memory=Memory(Config(-1,1,-1,1,.1,0,'map'))
         self.node.mission_id=None
         self.node.image=self.node.cloud=object()
         self.node.infos=deque(maxlen=8)
-        self.node.clouds=deque(maxlen=4)
+        self.node.clouds=ByteWindow(4,32*1024*1024)
+        self.node.max_image_bytes=8*1024*1024
+        self.node.max_cloud_bytes=16*1024*1024
+        self.node.input_map_reason='no_map'
+        self.node.input_image_reason='image_or_calibration_missing'
+        self.node.map_input_points=0
 
     def test_default_disabled_and_no_flight_include(self):
         launch=ET.parse(PACKAGE/'launch/shadow.launch').getroot()
@@ -121,6 +129,94 @@ class ShadowTests(unittest.TestCase):
             self.node.on_cloud(PointCloud2())
         self.assertEqual(len(self.node.infos),8)
         self.assertEqual(len(self.node.clouds),4)
+
+    def test_transport_callbacks_do_not_wait_for_heavy_work(self):
+        image=Image()
+        with self.node.lock:
+            worker=threading.Thread(target=self.node.on_image,args=(image,))
+            worker.start();worker.join(timeout=1)
+            self.assertFalse(worker.is_alive())
+            self.assertIs(self.node.image,image)
+
+    def test_byte_limit_clears_old_map_and_rejects_large_image(self):
+        self.node.max_cloud_bytes=10
+        cloud=PointCloud2();cloud.data=b'x'*11
+        self.node.on_cloud(cloud)
+        self.assertIsNone(self.node.cloud)
+        self.assertEqual(len(self.node.clouds),0)
+        self.assertEqual(self.node.input_map_reason,'cloud_byte_limit')
+        self.node.max_image_bytes=10
+        image=Image();image.data=b'x'*11
+        self.node.on_image(image)
+        self.assertIsNone(self.node.image)
+
+    def test_stale_image_rejected_before_decoding_or_tf(self):
+        self.node.image=Image();self.node.image.header.stamp=rospy.Time(10)
+        self.node.info=CameraInfo();self.node.epoch_start=9;self.node.last_processed=None
+        with patch.object(self.node,'lookup',side_effect=AssertionError('TF must not run')):
+            self.assertEqual(self.node.process(11)['reason'],'image_stale_or_future')
+
+    def prepare_process(self):
+        image=Image();image.header.stamp=rospy.Time(10);image.header.frame_id='optical'
+        info=CameraInfo(width=160,height=120,K=[100.,0,80.,0,100.,60.,0,0,1],distortion_model='plumb_bob')
+        info.header=image.header
+        self.node.image=image;self.node.info=info;self.node.infos.append(info)
+        self.node.epoch_start=9;self.node.last_processed=None;self.node.recorder=None
+        self.node.bridge=SimpleNamespace(imgmsg_to_cv2=lambda *a,**kw:np.full((120,160,3),128,dtype=np.uint8))
+        tf=np.diag([1.,-1.,-1.,1.]);tf[2,3]=2
+        return tf
+
+    def test_expired_computation_rolls_back_new_credit(self):
+        tf=self.prepare_process()
+        def slow_observe(*a,**kw):
+            self.node.memory.last_seen.fill(10)
+            self.node.memory.state.fill(100)
+            self.node.memory.count.fill(3)
+            return dict(accepted=True)
+        with patch.object(self.node,'lookup',return_value=(tf,10.)), \
+             patch.object(self.node,'map_snapshot',return_value=(None,None)), \
+             patch.object(self.node.memory,'observe',side_effect=slow_observe), \
+             patch.object(rospy.Time,'now',return_value=rospy.Time(11)):
+            result=self.node.process(10.1)
+        self.assertEqual(result['reason'],'image_expired_during_processing')
+        self.assertEqual(result['estimated_seen_area_m2'],0)
+        self.assertTrue((self.node.memory.count==0).all())
+
+    def test_failed_computation_rolls_back_partial_credit(self):
+        tf=self.prepare_process()
+        def fail(*a,**kw):
+            self.node.memory.last_seen.fill(10)
+            self.node.memory.state.fill(100)
+            raise ValueError('decode fixture failed')
+        with patch.object(self.node,'lookup',return_value=(tf,10.)), \
+             patch.object(self.node,'map_snapshot',return_value=(None,None)), \
+             patch.object(self.node.memory,'observe',side_effect=fail):
+            with self.assertRaises(ValueError):self.node.process(10.1)
+        self.assertFalse(np.isfinite(self.node.memory.last_seen).any())
+        self.assertTrue((self.node.memory.state==0).all())
+
+    def test_clock_rollback_during_work_clears_future_history(self):
+        tf=self.prepare_process()
+        self.node.memory.last_seen.fill(10);self.node.memory.state.fill(100)
+        with patch.object(self.node,'lookup',return_value=(tf,10.)), \
+             patch.object(self.node,'map_snapshot',return_value=(None,None)), \
+             patch.object(self.node.memory,'observe',return_value=dict(accepted=True)), \
+             patch.object(rospy.Time,'now',return_value=rospy.Time(9)):
+            result=self.node.process(10.1)
+        self.assertEqual(result['reset_reason'],'clock_rollback')
+        self.assertEqual(result['estimated_seen_area_m2'],0)
+
+    def test_budget_tick_expires_memory_without_running_pipeline(self):
+        self.node.budget=WorkBudget();self.node.budget.next_ready=200
+        self.node.last_clock=10
+        with patch.object(adapter.time,'perf_counter',return_value=100), \
+             patch.object(rospy.Time,'now',return_value=rospy.Time(100)), \
+             patch.object(self.node,'process',side_effect=AssertionError('heavy work must be skipped')), \
+             patch.object(self.node,'publish') as publish:
+            self.node.memory.last_seen.fill(10);self.node.memory.state.fill(100)
+            self.node.tick(None)
+        self.assertEqual(publish.call_args[0][0]['reason'],'work_budget_cooldown')
+        self.assertEqual(publish.call_args[0][0]['estimated_seen_area_m2'],0)
 
     def test_research_trial_requires_wrapper_run_directory(self):
         args=['target_model_path:=/tmp/model.pt','field_seed:=32','world:=/tmp/world',

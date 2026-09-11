@@ -1,0 +1,12 @@
+# Research resource envelope, NOT measured OrangePi capacity or flight approval.
+# Wall-time rate and process-CPU duty; skip work instead of catching up on backlog.
+sample_hz: 3.0
+resources:
+  cpu_fraction: 0.15  # share of ONE CPU core, heavy work only; soft pacing
+  warn_wall_ms: 150.0  # diagnostic threshold; cannot interrupt native operations
+  max_image_bytes: 8388608  # 8 MiB per retained ROS image, before cv_bridge
+  max_cloud_bytes: 16777216  # 16 MiB per PointCloud2, including row/point padding
+  cloud_cache_bytes: 33554432  # 32 MiB across cached whole messages
+  cloud_cache_count: 4
+# Raw snapshots/JSONL disabled by default. Explicit research_trial overrides this.
+record_dir: ''
