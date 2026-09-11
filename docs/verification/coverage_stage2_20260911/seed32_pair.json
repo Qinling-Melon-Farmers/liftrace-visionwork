@@ -1,0 +1,39 @@
+{
+  "scope": "One contemporaneous pair, same seed32 layout and active observer; no robust success-rate estimate",
+  "baseline": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference070_20260911_174716",
+  "candidate": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference080_20260911_182732",
+  "both_gate_pass": true,
+  "same_release_classes": true,
+  "release_classes": [
+    "bridge",
+    "red_cross",
+    "panzer"
+  ],
+  "changes": {
+    "gate_mission_s": {
+      "baseline": 523.659,
+      "candidate": 461.978,
+      "improvement_percent": 11.778848449086139
+    },
+    "third_release_s": {
+      "baseline": 327.572,
+      "candidate": 266.725,
+      "improvement_percent": 18.575152943475015
+    },
+    "search_seconds": {
+      "baseline": 296.12399999999997,
+      "candidate": 238.485,
+      "improvement_percent": 19.46448109575717
+    },
+    "search_xy_m": {
+      "baseline": 91.482791266253,
+      "candidate": 73.34519645464434,
+      "improvement_percent": 19.82623678241377
+    },
+    "full_xy_m": {
+      "baseline": 116.66769420360569,
+      "candidate": 97.42044846912671,
+      "improvement_percent": 16.49749389997298
+    }
+  }
+}

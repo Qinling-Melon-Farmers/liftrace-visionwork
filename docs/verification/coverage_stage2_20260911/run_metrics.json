@@ -54,7 +54,68 @@
       "p99": 375.0081297972794
     },
     "sync_samples": 88,
-    "media_files": []
+    "media_files": [],
+    "command_motion": {
+      "search_resume_s": 296.12399999999997,
+      "search_resume_xy_m": 91.482791266253,
+      "initial_wait_events": [],
+      "initial_wait_s": 0
+    }
+  },
+  {
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference080_20260911_182732",
+    "status": "PASS",
+    "gate_reason": "all_checks_passed",
+    "checks_passed": 37,
+    "checks_total": 37,
+    "mission_start_basis": "first recorded decision, not referee clock",
+    "mission_start_ros": 11.628,
+    "last_ros": 474.106,
+    "drops": 3,
+    "third_release_s": 266.725,
+    "release_classes": [
+      "bridge",
+      "red_cross",
+      "panzer"
+    ],
+    "gate_mission_s": 461.978,
+    "search_seconds": 238.485,
+    "search_xy_m": 73.34519645464434,
+    "search_slow_seconds": 15.095000000000015,
+    "full_xy_m": 97.42044846912671,
+    "max_fc_agl_m": 1.718257920228881,
+    "collisions": 0,
+    "landing_ground": true,
+    "post_route_points": 9,
+    "lane_spacing": 0.8,
+    "observer_records": 1421,
+    "observer_accepted": 1405,
+    "observer_fresh_maps": 1404,
+    "fresh_fraction_of_accepted": 0.999288256227758,
+    "observer_reason_counts": {
+      "image_or_calibration_missing": 3,
+      "adapter_rejected:Lookup would require extrapolation at time 0.914000000, but only time 1.013000000 is in the buffer, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+      "observed": 1405,
+      "camera_not_above_ground": 12
+    },
+    "map_reason_counts": {
+      "no_source_time_matched_map": 1,
+      "source_time_matched": 1404
+    },
+    "max_active_seen_estimate_m2": 19.98,
+    "observer_processing_ms": {
+      "p50": 132.15655000021798,
+      "p95": 225.3926470002625,
+      "p99": 298.08048179984326
+    },
+    "sync_samples": 77,
+    "media_files": [],
+    "command_motion": {
+      "search_resume_s": 238.485,
+      "search_resume_xy_m": 73.34519645464434,
+      "initial_wait_events": [],
+      "initial_wait_s": 0
+    }
   },
   {
     "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_shadow_20260911_173209",
@@ -99,6 +160,104 @@
       "p99": 279.3826972502756
     },
     "sync_samples": 16,
-    "media_files": []
+    "media_files": [],
+    "command_motion": {
+      "search_resume_s": 59.82400000000001,
+      "search_resume_xy_m": 17.925834557879178,
+      "initial_wait_events": [],
+      "initial_wait_s": 0
+    }
+  },
+  {
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed34_reference080_wait20_20260911_190504",
+    "status": "PASS",
+    "gate_reason": "all_checks_passed",
+    "checks_passed": 37,
+    "checks_total": 37,
+    "mission_start_basis": "first recorded decision, not referee clock",
+    "mission_start_ros": 11.662,
+    "last_ros": 536.049,
+    "drops": 3,
+    "third_release_s": 337.928,
+    "release_classes": [
+      "panzer",
+      "red_cross",
+      "bridge"
+    ],
+    "gate_mission_s": 523.84,
+    "search_seconds": 275.62300000000005,
+    "search_xy_m": 60.0354898041594,
+    "search_slow_seconds": 93.42400000000004,
+    "full_xy_m": 83.77860712242551,
+    "max_fc_agl_m": 1.7313286579723064,
+    "collisions": 0,
+    "landing_ground": true,
+    "post_route_points": 9,
+    "lane_spacing": 0.8,
+    "observer_records": 1606,
+    "observer_accepted": 1593,
+    "observer_fresh_maps": 1591,
+    "fresh_fraction_of_accepted": 0.9987445072190835,
+    "observer_reason_counts": {
+      "image_or_calibration_missing": 3,
+      "adapter_rejected:Lookup would require extrapolation at time 0.886000000, but only time 1.002000000 is in the buffer, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+      "observed": 1593,
+      "camera_not_above_ground": 9
+    },
+    "map_reason_counts": {
+      "no_source_time_matched_map": 2,
+      "source_time_matched": 1591
+    },
+    "max_active_seen_estimate_m2": 19.049999999999997,
+    "observer_processing_ms": {
+      "p50": 122.18675350231933,
+      "p95": 207.3141762493833,
+      "p99": 271.17765784987574
+    },
+    "sync_samples": 87,
+    "media_files": [],
+    "command_motion": {
+      "search_resume_s": 275.62300000000005,
+      "search_resume_xy_m": 60.0354898041594,
+      "initial_wait_events": [
+        {
+          "seq": 2,
+          "seconds": 20.031,
+          "goal": {
+            "x": 4.3,
+            "y": 0.0,
+            "z": 1.18
+          }
+        },
+        {
+          "seq": 3,
+          "seconds": 20.016000000000005,
+          "goal": {
+            "x": 4.3,
+            "y": 0.0,
+            "z": 1.18
+          }
+        },
+        {
+          "seq": 4,
+          "seconds": 20.02799999999999,
+          "goal": {
+            "x": 4.3,
+            "y": 0.8,
+            "z": 1.18
+          }
+        },
+        {
+          "seq": 5,
+          "seconds": 20.034000000000006,
+          "goal": {
+            "x": 4.3,
+            "y": 0.8,
+            "z": 1.18
+          }
+        }
+      ],
+      "initial_wait_s": 80.10900000000001
+    }
   }
 ]

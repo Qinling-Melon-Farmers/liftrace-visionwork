@@ -1,0 +1,98 @@
+{
+  "scope": "Raw local z plus fixed configured ground offset; estimated/command values are not physical altitude",
+  "runs": [
+    {
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference070_20260911_174716",
+      "values": {
+        "mavros_pose.csv": {
+          "min_agl_like_m": 0.18361995488405228,
+          "ros_sec": 4.192,
+          "mode_at_sample": "OFFBOARD"
+        },
+        "mavros_setpoint.csv": {
+          "min_agl_like_m": 0.2698264352380253,
+          "ros_sec": 533.552,
+          "mode_at_sample": "OFFBOARD"
+        },
+        "truth_pose.csv": {
+          "min_agl_like_m": 0.2200704616498887,
+          "ros_sec": 505.481,
+          "mode_at_sample": "OFFBOARD",
+          "xyz_local": [
+            2.746722445357644,
+            8.467659232936075,
+            7.04616498886923e-05
+          ],
+          "nominal_support_clearance_m": 7.04616498886923e-05
+        }
+      },
+      "ignored_collision_patterns": [
+        "ground_plane",
+        "landing_h::link::collision",
+        "landing_h_clone::link::collision"
+      ]
+    },
+    {
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference080_20260911_182732",
+      "values": {
+        "mavros_pose.csv": {
+          "min_agl_like_m": -0.3821591424942017,
+          "ros_sec": 464.203,
+          "mode_at_sample": "AUTO.LAND"
+        },
+        "mavros_setpoint.csv": {
+          "min_agl_like_m": -0.24247046279092785,
+          "ros_sec": 464.233,
+          "mode_at_sample": "AUTO.LAND"
+        },
+        "truth_pose.csv": {
+          "min_agl_like_m": 0.22482847273668513,
+          "ros_sec": 462.523,
+          "mode_at_sample": "OFFBOARD",
+          "xyz_local": [
+            4.22567364396468,
+            8.461470290614473,
+            0.00482847273668513
+          ],
+          "nominal_support_clearance_m": 0.00482847273668513
+        }
+      },
+      "ignored_collision_patterns": [
+        "ground_plane",
+        "landing_h::link::collision",
+        "landing_h_clone::link::collision"
+      ]
+    },
+    {
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed34_reference080_wait20_20260911_190504",
+      "values": {
+        "mavros_pose.csv": {
+          "min_agl_like_m": -0.24501046419143677,
+          "ros_sec": 529.902,
+          "mode_at_sample": "AUTO.LAND"
+        },
+        "mavros_setpoint.csv": {
+          "min_agl_like_m": -0.09658076597242385,
+          "ros_sec": 530.013,
+          "mode_at_sample": "AUTO.LAND"
+        },
+        "truth_pose.csv": {
+          "min_agl_like_m": 0.22008555372718105,
+          "ros_sec": 505.562,
+          "mode_at_sample": "OFFBOARD",
+          "xyz_local": [
+            2.7124983598670127,
+            8.405464777026745,
+            8.555372718105358e-05
+          ],
+          "nominal_support_clearance_m": 8.555372718105358e-05
+        }
+      },
+      "ignored_collision_patterns": [
+        "ground_plane",
+        "landing_h::link::collision",
+        "landing_h_clone::link::collision"
+      ]
+    }
+  ]
+}

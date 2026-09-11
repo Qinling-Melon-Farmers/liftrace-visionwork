@@ -1,0 +1,1283 @@
+[
+  {
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference070_20260911_174716",
+    "samples_before_third_release": 54,
+    "rejected": [],
+    "scope": "Offline sampled estimate history, not actual coverage/recall and not used for control. Sampling may omit transient observations. Three generic regions use equal placeholder travel costs only to exercise the API.",
+    "last": {
+      "stamp": 337.945,
+      "generation": 3,
+      "history_m2": 45.61,
+      "active_m2": 13.209999999999997
+    },
+    "history": [
+      {
+        "stamp": 11.899000000000001,
+        "generation": 3,
+        "history_m2": 0.0,
+        "active_m2": 0.0
+      },
+      {
+        "stamp": 17.933,
+        "generation": 3,
+        "history_m2": 2.920000000000001,
+        "active_m2": 2.920000000000001
+      },
+      {
+        "stamp": 23.935,
+        "generation": 3,
+        "history_m2": 4.3500000000000005,
+        "active_m2": 4.340000000000001
+      },
+      {
+        "stamp": 29.939,
+        "generation": 3,
+        "history_m2": 4.620000000000001,
+        "active_m2": 4.540000000000001
+      },
+      {
+        "stamp": 35.948,
+        "generation": 3,
+        "history_m2": 5.070000000000001,
+        "active_m2": 4.700000000000001
+      },
+      {
+        "stamp": 42.231,
+        "generation": 3,
+        "history_m2": 5.7700000000000005,
+        "active_m2": 5.400000000000001
+      },
+      {
+        "stamp": 48.631,
+        "generation": 3,
+        "history_m2": 8.280000000000001,
+        "active_m2": 7.910000000000001
+      },
+      {
+        "stamp": 54.631,
+        "generation": 3,
+        "history_m2": 9.46,
+        "active_m2": 9.090000000000002
+      },
+      {
+        "stamp": 60.633,
+        "generation": 3,
+        "history_m2": 10.390000000000002,
+        "active_m2": 10.02
+      },
+      {
+        "stamp": 66.951,
+        "generation": 3,
+        "history_m2": 13.270000000000001,
+        "active_m2": 12.9
+      },
+      {
+        "stamp": 73.251,
+        "generation": 3,
+        "history_m2": 13.57,
+        "active_m2": 13.19
+      },
+      {
+        "stamp": 79.257,
+        "generation": 3,
+        "history_m2": 13.58,
+        "active_m2": 12.85
+      },
+      {
+        "stamp": 85.26,
+        "generation": 3,
+        "history_m2": 13.58,
+        "active_m2": 12.77
+      },
+      {
+        "stamp": 91.596,
+        "generation": 3,
+        "history_m2": 13.629999999999999,
+        "active_m2": 12.489999999999998
+      },
+      {
+        "stamp": 97.611,
+        "generation": 3,
+        "history_m2": 14.64,
+        "active_m2": 11.28
+      },
+      {
+        "stamp": 103.918,
+        "generation": 3,
+        "history_m2": 15.040000000000001,
+        "active_m2": 11.02
+      },
+      {
+        "stamp": 110.25,
+        "generation": 3,
+        "history_m2": 15.610000000000003,
+        "active_m2": 11.72
+      },
+      {
+        "stamp": 116.26,
+        "generation": 3,
+        "history_m2": 16.290000000000003,
+        "active_m2": 11.8
+      },
+      {
+        "stamp": 122.62,
+        "generation": 3,
+        "history_m2": 17.03,
+        "active_m2": 12.13
+      },
+      {
+        "stamp": 128.924,
+        "generation": 3,
+        "history_m2": 17.750000000000004,
+        "active_m2": 12.410000000000002
+      },
+      {
+        "stamp": 134.961,
+        "generation": 3,
+        "history_m2": 18.550000000000004,
+        "active_m2": 13.560000000000002
+      },
+      {
+        "stamp": 141.231,
+        "generation": 3,
+        "history_m2": 19.210000000000004,
+        "active_m2": 14.690000000000005
+      },
+      {
+        "stamp": 147.245,
+        "generation": 3,
+        "history_m2": 20.01,
+        "active_m2": 14.840000000000003
+      },
+      {
+        "stamp": 153.537,
+        "generation": 3,
+        "history_m2": 21.330000000000002,
+        "active_m2": 13.400000000000006
+      },
+      {
+        "stamp": 159.545,
+        "generation": 3,
+        "history_m2": 22.620000000000005,
+        "active_m2": 14.010000000000003
+      },
+      {
+        "stamp": 165.55,
+        "generation": 3,
+        "history_m2": 22.620000000000005,
+        "active_m2": 12.860000000000003
+      },
+      {
+        "stamp": 171.572,
+        "generation": 3,
+        "history_m2": 24.14,
+        "active_m2": 13.970000000000002
+      },
+      {
+        "stamp": 177.589,
+        "generation": 3,
+        "history_m2": 24.740000000000002,
+        "active_m2": 14.140000000000004
+      },
+      {
+        "stamp": 183.922,
+        "generation": 3,
+        "history_m2": 25.790000000000003,
+        "active_m2": 15.050000000000004
+      },
+      {
+        "stamp": 189.928,
+        "generation": 3,
+        "history_m2": 25.790000000000003,
+        "active_m2": 13.560000000000002
+      },
+      {
+        "stamp": 196.308,
+        "generation": 3,
+        "history_m2": 27.930000000000007,
+        "active_m2": 15.770000000000003
+      },
+      {
+        "stamp": 202.31,
+        "generation": 3,
+        "history_m2": 27.930000000000007,
+        "active_m2": 13.920000000000002
+      },
+      {
+        "stamp": 208.313,
+        "generation": 3,
+        "history_m2": 29.130000000000003,
+        "active_m2": 13.900000000000002
+      },
+      {
+        "stamp": 214.56,
+        "generation": 3,
+        "history_m2": 29.280000000000005,
+        "active_m2": 12.190000000000001
+      },
+      {
+        "stamp": 220.615,
+        "generation": 3,
+        "history_m2": 30.55,
+        "active_m2": 15.26
+      },
+      {
+        "stamp": 226.898,
+        "generation": 3,
+        "history_m2": 30.55,
+        "active_m2": 15.26
+      },
+      {
+        "stamp": 233.275,
+        "generation": 3,
+        "history_m2": 30.820000000000007,
+        "active_m2": 14.98
+      },
+      {
+        "stamp": 239.312,
+        "generation": 3,
+        "history_m2": 31.840000000000003,
+        "active_m2": 15.400000000000002
+      },
+      {
+        "stamp": 245.318,
+        "generation": 3,
+        "history_m2": 33.660000000000004,
+        "active_m2": 17.18
+      },
+      {
+        "stamp": 251.589,
+        "generation": 3,
+        "history_m2": 34.02,
+        "active_m2": 16.94
+      },
+      {
+        "stamp": 257.605,
+        "generation": 3,
+        "history_m2": 36.25,
+        "active_m2": 17.29
+      },
+      {
+        "stamp": 263.908,
+        "generation": 3,
+        "history_m2": 38.39000000000001,
+        "active_m2": 19.419999999999998
+      },
+      {
+        "stamp": 270.257,
+        "generation": 3,
+        "history_m2": 40.48,
+        "active_m2": 20.18
+      },
+      {
+        "stamp": 276.569,
+        "generation": 3,
+        "history_m2": 41.07,
+        "active_m2": 19.44
+      },
+      {
+        "stamp": 282.913,
+        "generation": 3,
+        "history_m2": 41.8,
+        "active_m2": 16.21
+      },
+      {
+        "stamp": 288.951,
+        "generation": 3,
+        "history_m2": 42.839999999999996,
+        "active_m2": 17.199999999999996
+      },
+      {
+        "stamp": 294.989,
+        "generation": 3,
+        "history_m2": 42.839999999999996,
+        "active_m2": 16.11
+      },
+      {
+        "stamp": 301.265,
+        "generation": 3,
+        "history_m2": 43.559999999999995,
+        "active_m2": 15.429999999999998
+      },
+      {
+        "stamp": 307.576,
+        "generation": 3,
+        "history_m2": 43.559999999999995,
+        "active_m2": 13.249999999999996
+      },
+      {
+        "stamp": 313.589,
+        "generation": 3,
+        "history_m2": 43.559999999999995,
+        "active_m2": 13.209999999999997
+      },
+      {
+        "stamp": 319.648,
+        "generation": 3,
+        "history_m2": 43.559999999999995,
+        "active_m2": 12.719999999999999
+      },
+      {
+        "stamp": 325.887,
+        "generation": 3,
+        "history_m2": 43.76,
+        "active_m2": 12.729999999999997
+      },
+      {
+        "stamp": 331.911,
+        "generation": 3,
+        "history_m2": 44.4,
+        "active_m2": 13.069999999999999
+      },
+      {
+        "stamp": 337.945,
+        "generation": 3,
+        "history_m2": 45.61,
+        "active_m2": 13.209999999999997
+      }
+    ],
+    "demonstration_queries": [
+      {
+        "name": "north",
+        "accepted": true,
+        "reason": "",
+        "scope": "OBSERVATION_HINT_ONLY_NOT_A_WAYPOINT_OR_SKIP_PERMISSION",
+        "requires_reachability_validation": true,
+        "epoch": "vcl06-random-11-631000000-1",
+        "generation": 3,
+        "region_area_m2": 24.939999999999994,
+        "in_grid_area_m2": 24.939999999999994,
+        "outside_grid_area_m2": 0.0,
+        "state_area_m2": {
+          "0": 14.209999999999999,
+          "20": 0.0,
+          "40": 0.5399999999999991,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 10.189999999999998
+        },
+        "seen_estimate_fraction": 0.40858059342421815,
+        "historical_estimate_area_m2": 11.959999999999997,
+        "historical_state_area_m2": {
+          "0": 1.7699999999999991,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 10.189999999999998
+        },
+        "needs_view_change": false,
+        "estimated_travel_s": 10.0,
+        "eligible_for_ranking": true,
+        "potential_observation_area_m2": 13.064,
+        "observation_score": 1.004923076923077
+      },
+      {
+        "name": "middle",
+        "accepted": true,
+        "reason": "",
+        "scope": "OBSERVATION_HINT_ONLY_NOT_A_WAYPOINT_OR_SKIP_PERMISSION",
+        "requires_reachability_validation": true,
+        "epoch": "vcl06-random-11-631000000-1",
+        "generation": 3,
+        "region_area_m2": 18.06,
+        "in_grid_area_m2": 18.060000000000002,
+        "outside_grid_area_m2": 0.0,
+        "state_area_m2": {
+          "0": 17.200000000000003,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 0.8599999999999992
+        },
+        "seen_estimate_fraction": 0.04761904761904758,
+        "historical_estimate_area_m2": 10.57,
+        "historical_state_area_m2": {
+          "0": 9.71,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 0.8599999999999992
+        },
+        "needs_view_change": false,
+        "estimated_travel_s": 10.0,
+        "eligible_for_ranking": true,
+        "potential_observation_area_m2": 9.432000000000002,
+        "observation_score": 0.7255384615384617
+      },
+      {
+        "name": "south",
+        "accepted": true,
+        "reason": "",
+        "scope": "OBSERVATION_HINT_ONLY_NOT_A_WAYPOINT_OR_SKIP_PERMISSION",
+        "requires_reachability_validation": true,
+        "epoch": "vcl06-random-11-631000000-1",
+        "generation": 3,
+        "region_area_m2": 18.06,
+        "in_grid_area_m2": 18.060000000000002,
+        "outside_grid_area_m2": 0.0,
+        "state_area_m2": {
+          "0": 18.060000000000002,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 0.0
+        },
+        "seen_estimate_fraction": 0.0,
+        "historical_estimate_area_m2": 13.400000000000002,
+        "historical_state_area_m2": {
+          "0": 13.400000000000002,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 0.0
+        },
+        "needs_view_change": false,
+        "estimated_travel_s": 10.0,
+        "eligible_for_ranking": true,
+        "potential_observation_area_m2": 7.34,
+        "observation_score": 0.5646153846153846
+      }
+    ]
+  },
+  {
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference080_20260911_182732",
+    "samples_before_third_release": 44,
+    "rejected": [],
+    "scope": "Offline sampled estimate history, not actual coverage/recall and not used for control. Sampling may omit transient observations. Three generic regions use equal placeholder travel costs only to exercise the API.",
+    "last": {
+      "stamp": 277.968,
+      "generation": 3,
+      "history_m2": 42.97,
+      "active_m2": 17.71
+    },
+    "history": [
+      {
+        "stamp": 11.875,
+        "generation": 3,
+        "history_m2": 0.0,
+        "active_m2": 0.0
+      },
+      {
+        "stamp": 17.876,
+        "generation": 3,
+        "history_m2": 2.79,
+        "active_m2": 2.79
+      },
+      {
+        "stamp": 23.926,
+        "generation": 3,
+        "history_m2": 4.140000000000001,
+        "active_m2": 4.130000000000001
+      },
+      {
+        "stamp": 29.928,
+        "generation": 3,
+        "history_m2": 4.49,
+        "active_m2": 4.4
+      },
+      {
+        "stamp": 35.93,
+        "generation": 3,
+        "history_m2": 4.96,
+        "active_m2": 4.57
+      },
+      {
+        "stamp": 42.28,
+        "generation": 3,
+        "history_m2": 5.66,
+        "active_m2": 5.27
+      },
+      {
+        "stamp": 48.296,
+        "generation": 3,
+        "history_m2": 7.930000000000001,
+        "active_m2": 7.540000000000001
+      },
+      {
+        "stamp": 54.624,
+        "generation": 3,
+        "history_m2": 9.34,
+        "active_m2": 8.95
+      },
+      {
+        "stamp": 60.624,
+        "generation": 3,
+        "history_m2": 10.32,
+        "active_m2": 9.93
+      },
+      {
+        "stamp": 66.908,
+        "generation": 3,
+        "history_m2": 12.989999999999998,
+        "active_m2": 12.599999999999998
+      },
+      {
+        "stamp": 72.943,
+        "generation": 3,
+        "history_m2": 13.19,
+        "active_m2": 12.8
+      },
+      {
+        "stamp": 79.291,
+        "generation": 3,
+        "history_m2": 13.2,
+        "active_m2": 12.559999999999999
+      },
+      {
+        "stamp": 85.596,
+        "generation": 3,
+        "history_m2": 13.2,
+        "active_m2": 12.51
+      },
+      {
+        "stamp": 91.64,
+        "generation": 3,
+        "history_m2": 14.28,
+        "active_m2": 13.2
+      },
+      {
+        "stamp": 97.944,
+        "generation": 3,
+        "history_m2": 15.82,
+        "active_m2": 12.489999999999998
+      },
+      {
+        "stamp": 104.224,
+        "generation": 3,
+        "history_m2": 15.82,
+        "active_m2": 11.03
+      },
+      {
+        "stamp": 110.262,
+        "generation": 3,
+        "history_m2": 16.520000000000003,
+        "active_m2": 11.26
+      },
+      {
+        "stamp": 116.599,
+        "generation": 3,
+        "history_m2": 17.790000000000003,
+        "active_m2": 12.2
+      },
+      {
+        "stamp": 122.607,
+        "generation": 3,
+        "history_m2": 18.229999999999997,
+        "active_m2": 11.7
+      },
+      {
+        "stamp": 128.614,
+        "generation": 3,
+        "history_m2": 18.229999999999997,
+        "active_m2": 11.020000000000001
+      },
+      {
+        "stamp": 134.979,
+        "generation": 3,
+        "history_m2": 20.380000000000003,
+        "active_m2": 13.020000000000001
+      },
+      {
+        "stamp": 141.278,
+        "generation": 3,
+        "history_m2": 20.770000000000003,
+        "active_m2": 13.640000000000002
+      },
+      {
+        "stamp": 147.652,
+        "generation": 3,
+        "history_m2": 21.58,
+        "active_m2": 13.0
+      },
+      {
+        "stamp": 153.894,
+        "generation": 3,
+        "history_m2": 22.36,
+        "active_m2": 13.03
+      },
+      {
+        "stamp": 159.96,
+        "generation": 3,
+        "history_m2": 22.58,
+        "active_m2": 10.819999999999999
+      },
+      {
+        "stamp": 166.26,
+        "generation": 3,
+        "history_m2": 22.58,
+        "active_m2": 10.759999999999998
+      },
+      {
+        "stamp": 172.545,
+        "generation": 3,
+        "history_m2": 24.03,
+        "active_m2": 11.780000000000001
+      },
+      {
+        "stamp": 178.94,
+        "generation": 3,
+        "history_m2": 25.380000000000003,
+        "active_m2": 12.65
+      },
+      {
+        "stamp": 185.24,
+        "generation": 3,
+        "history_m2": 26.05,
+        "active_m2": 13.32
+      },
+      {
+        "stamp": 191.262,
+        "generation": 3,
+        "history_m2": 26.05,
+        "active_m2": 13.3
+      },
+      {
+        "stamp": 197.268,
+        "generation": 3,
+        "history_m2": 26.400000000000002,
+        "active_m2": 12.030000000000003
+      },
+      {
+        "stamp": 203.576,
+        "generation": 3,
+        "history_m2": 27.190000000000005,
+        "active_m2": 12.260000000000005
+      },
+      {
+        "stamp": 209.578,
+        "generation": 3,
+        "history_m2": 27.900000000000002,
+        "active_m2": 12.100000000000001
+      },
+      {
+        "stamp": 215.617,
+        "generation": 3,
+        "history_m2": 31.6,
+        "active_m2": 14.960000000000003
+      },
+      {
+        "stamp": 221.932,
+        "generation": 3,
+        "history_m2": 35.050000000000004,
+        "active_m2": 18.410000000000004
+      },
+      {
+        "stamp": 227.934,
+        "generation": 3,
+        "history_m2": 35.050000000000004,
+        "active_m2": 18.1
+      },
+      {
+        "stamp": 234.269,
+        "generation": 3,
+        "history_m2": 37.06999999999999,
+        "active_m2": 19.04
+      },
+      {
+        "stamp": 240.272,
+        "generation": 3,
+        "history_m2": 38.11,
+        "active_m2": 18.46
+      },
+      {
+        "stamp": 246.56,
+        "generation": 3,
+        "history_m2": 38.69,
+        "active_m2": 18.97
+      },
+      {
+        "stamp": 252.598,
+        "generation": 3,
+        "history_m2": 39.75,
+        "active_m2": 19.98
+      },
+      {
+        "stamp": 258.973,
+        "generation": 3,
+        "history_m2": 39.870000000000005,
+        "active_m2": 16.650000000000002
+      },
+      {
+        "stamp": 265.236,
+        "generation": 3,
+        "history_m2": 41.2,
+        "active_m2": 17.27
+      },
+      {
+        "stamp": 271.592,
+        "generation": 3,
+        "history_m2": 41.99,
+        "active_m2": 17.14
+      },
+      {
+        "stamp": 277.968,
+        "generation": 3,
+        "history_m2": 42.97,
+        "active_m2": 17.71
+      }
+    ],
+    "demonstration_queries": [
+      {
+        "name": "north",
+        "accepted": true,
+        "reason": "",
+        "scope": "OBSERVATION_HINT_ONLY_NOT_A_WAYPOINT_OR_SKIP_PERMISSION",
+        "requires_reachability_validation": true,
+        "epoch": "vcl06-random-11-628000000-1",
+        "generation": 3,
+        "region_area_m2": 24.939999999999994,
+        "in_grid_area_m2": 24.939999999999994,
+        "outside_grid_area_m2": 0.0,
+        "state_area_m2": {
+          "0": 12.819999999999997,
+          "20": 0.0,
+          "40": 0.05999999999999975,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 12.059999999999999
+        },
+        "seen_estimate_fraction": 0.48356054530874104,
+        "historical_estimate_area_m2": 12.43,
+        "historical_state_area_m2": {
+          "0": 0.36999999999999983,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 12.059999999999999
+        },
+        "needs_view_change": false,
+        "estimated_travel_s": 10.0,
+        "eligible_for_ranking": true,
+        "potential_observation_area_m2": 12.553999999999997,
+        "observation_score": 0.9656923076923074
+      },
+      {
+        "name": "middle",
+        "accepted": true,
+        "reason": "",
+        "scope": "OBSERVATION_HINT_ONLY_NOT_A_WAYPOINT_OR_SKIP_PERMISSION",
+        "requires_reachability_validation": true,
+        "epoch": "vcl06-random-11-628000000-1",
+        "generation": 3,
+        "region_area_m2": 18.06,
+        "in_grid_area_m2": 18.060000000000002,
+        "outside_grid_area_m2": 0.0,
+        "state_area_m2": {
+          "0": 15.48,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 2.58
+        },
+        "seen_estimate_fraction": 0.14285714285714288,
+        "historical_estimate_area_m2": 8.01,
+        "historical_state_area_m2": {
+          "0": 5.430000000000001,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 2.58
+        },
+        "needs_view_change": false,
+        "estimated_travel_s": 10.0,
+        "eligible_for_ranking": true,
+        "potential_observation_area_m2": 11.136,
+        "observation_score": 0.8566153846153846
+      },
+      {
+        "name": "south",
+        "accepted": true,
+        "reason": "",
+        "scope": "OBSERVATION_HINT_ONLY_NOT_A_WAYPOINT_OR_SKIP_PERMISSION",
+        "requires_reachability_validation": true,
+        "epoch": "vcl06-random-11-628000000-1",
+        "generation": 3,
+        "region_area_m2": 18.06,
+        "in_grid_area_m2": 18.060000000000002,
+        "outside_grid_area_m2": 0.0,
+        "state_area_m2": {
+          "0": 18.060000000000002,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 0.0
+        },
+        "seen_estimate_fraction": 0.0,
+        "historical_estimate_area_m2": 13.0,
+        "historical_state_area_m2": {
+          "0": 13.0,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 0.0
+        },
+        "needs_view_change": false,
+        "estimated_travel_s": 10.0,
+        "eligible_for_ranking": true,
+        "potential_observation_area_m2": 7.660000000000002,
+        "observation_score": 0.5892307692307693
+      }
+    ]
+  },
+  {
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed34_reference080_wait20_20260911_190504",
+    "samples_before_third_release": 55,
+    "rejected": [],
+    "scope": "Offline sampled estimate history, not actual coverage/recall and not used for control. Sampling may omit transient observations. Three generic regions use equal placeholder travel costs only to exercise the API.",
+    "last": {
+      "stamp": 344.913,
+      "generation": 3,
+      "history_m2": 39.99,
+      "active_m2": 11.319999999999999
+    },
+    "history": [
+      {
+        "stamp": 11.924,
+        "generation": 3,
+        "history_m2": 0.0,
+        "active_m2": 0.0
+      },
+      {
+        "stamp": 18.174,
+        "generation": 3,
+        "history_m2": 2.0599999999999996,
+        "active_m2": 2.0599999999999996
+      },
+      {
+        "stamp": 24.176,
+        "generation": 3,
+        "history_m2": 4.48,
+        "active_m2": 4.48
+      },
+      {
+        "stamp": 30.18,
+        "generation": 3,
+        "history_m2": 8.17,
+        "active_m2": 8.100000000000001
+      },
+      {
+        "stamp": 36.183,
+        "generation": 3,
+        "history_m2": 9.820000000000002,
+        "active_m2": 9.690000000000001
+      },
+      {
+        "stamp": 42.253,
+        "generation": 3,
+        "history_m2": 9.970000000000002,
+        "active_m2": 9.780000000000001
+      },
+      {
+        "stamp": 48.502,
+        "generation": 3,
+        "history_m2": 9.970000000000002,
+        "active_m2": 9.770000000000001
+      },
+      {
+        "stamp": 54.836,
+        "generation": 3,
+        "history_m2": 9.970000000000002,
+        "active_m2": 9.75
+      },
+      {
+        "stamp": 60.861,
+        "generation": 3,
+        "history_m2": 9.970000000000002,
+        "active_m2": 9.770000000000001
+      },
+      {
+        "stamp": 66.936,
+        "generation": 3,
+        "history_m2": 9.970000000000002,
+        "active_m2": 9.770000000000001
+      },
+      {
+        "stamp": 73.201,
+        "generation": 3,
+        "history_m2": 9.980000000000002,
+        "active_m2": 9.790000000000001
+      },
+      {
+        "stamp": 79.205,
+        "generation": 3,
+        "history_m2": 9.980000000000002,
+        "active_m2": 8.340000000000003
+      },
+      {
+        "stamp": 85.243,
+        "generation": 3,
+        "history_m2": 9.990000000000002,
+        "active_m2": 5.920000000000002
+      },
+      {
+        "stamp": 91.249,
+        "generation": 3,
+        "history_m2": 9.990000000000002,
+        "active_m2": 2.7300000000000004
+      },
+      {
+        "stamp": 97.561,
+        "generation": 3,
+        "history_m2": 9.990000000000002,
+        "active_m2": 1.4500000000000004
+      },
+      {
+        "stamp": 103.608,
+        "generation": 3,
+        "history_m2": 9.990000000000002,
+        "active_m2": 1.4500000000000004
+      },
+      {
+        "stamp": 109.916,
+        "generation": 3,
+        "history_m2": 9.990000000000002,
+        "active_m2": 1.4600000000000004
+      },
+      {
+        "stamp": 116.201,
+        "generation": 3,
+        "history_m2": 9.990000000000002,
+        "active_m2": 1.4600000000000004
+      },
+      {
+        "stamp": 122.467,
+        "generation": 3,
+        "history_m2": 10.02,
+        "active_m2": 2.2000000000000006
+      },
+      {
+        "stamp": 128.615,
+        "generation": 3,
+        "history_m2": 10.11,
+        "active_m2": 3.710000000000001
+      },
+      {
+        "stamp": 134.887,
+        "generation": 3,
+        "history_m2": 10.430000000000001,
+        "active_m2": 5.780000000000002
+      },
+      {
+        "stamp": 141.119,
+        "generation": 3,
+        "history_m2": 12.640000000000004,
+        "active_m2": 8.700000000000003
+      },
+      {
+        "stamp": 147.19,
+        "generation": 3,
+        "history_m2": 14.850000000000001,
+        "active_m2": 10.91
+      },
+      {
+        "stamp": 153.293,
+        "generation": 3,
+        "history_m2": 17.35,
+        "active_m2": 13.41
+      },
+      {
+        "stamp": 159.604,
+        "generation": 3,
+        "history_m2": 18.689999999999998,
+        "active_m2": 14.75
+      },
+      {
+        "stamp": 165.92,
+        "generation": 3,
+        "history_m2": 19.200000000000003,
+        "active_m2": 15.26
+      },
+      {
+        "stamp": 171.921,
+        "generation": 3,
+        "history_m2": 19.200000000000003,
+        "active_m2": 15.26
+      },
+      {
+        "stamp": 178.201,
+        "generation": 3,
+        "history_m2": 19.200000000000003,
+        "active_m2": 15.18
+      },
+      {
+        "stamp": 184.256,
+        "generation": 3,
+        "history_m2": 19.520000000000003,
+        "active_m2": 14.889999999999999
+      },
+      {
+        "stamp": 190.518,
+        "generation": 3,
+        "history_m2": 20.73,
+        "active_m2": 15.440000000000001
+      },
+      {
+        "stamp": 196.588,
+        "generation": 3,
+        "history_m2": 23.78,
+        "active_m2": 18.04
+      },
+      {
+        "stamp": 202.623,
+        "generation": 3,
+        "history_m2": 23.89,
+        "active_m2": 15.229999999999999
+      },
+      {
+        "stamp": 208.885,
+        "generation": 3,
+        "history_m2": 26.09,
+        "active_m2": 16.310000000000002
+      },
+      {
+        "stamp": 214.922,
+        "generation": 3,
+        "history_m2": 28.43,
+        "active_m2": 17.21
+      },
+      {
+        "stamp": 221.277,
+        "generation": 3,
+        "history_m2": 29.53,
+        "active_m2": 15.740000000000002
+      },
+      {
+        "stamp": 227.583,
+        "generation": 3,
+        "history_m2": 31.070000000000004,
+        "active_m2": 17.92
+      },
+      {
+        "stamp": 233.858,
+        "generation": 3,
+        "history_m2": 31.130000000000003,
+        "active_m2": 17.98
+      },
+      {
+        "stamp": 239.875,
+        "generation": 3,
+        "history_m2": 31.150000000000002,
+        "active_m2": 17.44
+      },
+      {
+        "stamp": 245.905,
+        "generation": 3,
+        "history_m2": 32.58,
+        "active_m2": 16.509999999999998
+      },
+      {
+        "stamp": 251.915,
+        "generation": 3,
+        "history_m2": 33.760000000000005,
+        "active_m2": 16.67
+      },
+      {
+        "stamp": 258.216,
+        "generation": 3,
+        "history_m2": 34.15,
+        "active_m2": 14.049999999999997
+      },
+      {
+        "stamp": 264.249,
+        "generation": 3,
+        "history_m2": 35.25,
+        "active_m2": 16.95
+      },
+      {
+        "stamp": 270.527,
+        "generation": 3,
+        "history_m2": 35.25,
+        "active_m2": 16.919999999999998
+      },
+      {
+        "stamp": 276.87,
+        "generation": 3,
+        "history_m2": 35.78999999999999,
+        "active_m2": 17.54
+      },
+      {
+        "stamp": 282.925,
+        "generation": 3,
+        "history_m2": 36.08,
+        "active_m2": 17.48
+      },
+      {
+        "stamp": 289.251,
+        "generation": 3,
+        "history_m2": 36.52,
+        "active_m2": 17.67
+      },
+      {
+        "stamp": 295.507,
+        "generation": 3,
+        "history_m2": 36.94,
+        "active_m2": 18.08
+      },
+      {
+        "stamp": 301.54,
+        "generation": 3,
+        "history_m2": 38.04,
+        "active_m2": 18.65
+      },
+      {
+        "stamp": 307.89,
+        "generation": 3,
+        "history_m2": 39.53,
+        "active_m2": 18.759999999999998
+      },
+      {
+        "stamp": 313.938,
+        "generation": 3,
+        "history_m2": 39.870000000000005,
+        "active_m2": 18.71
+      },
+      {
+        "stamp": 320.238,
+        "generation": 3,
+        "history_m2": 39.9,
+        "active_m2": 18.12
+      },
+      {
+        "stamp": 326.513,
+        "generation": 3,
+        "history_m2": 39.96,
+        "active_m2": 16.53
+      },
+      {
+        "stamp": 332.557,
+        "generation": 3,
+        "history_m2": 39.99,
+        "active_m2": 16.560000000000002
+      },
+      {
+        "stamp": 338.909,
+        "generation": 3,
+        "history_m2": 39.99,
+        "active_m2": 14.620000000000001
+      },
+      {
+        "stamp": 344.913,
+        "generation": 3,
+        "history_m2": 39.99,
+        "active_m2": 11.319999999999999
+      }
+    ],
+    "demonstration_queries": [
+      {
+        "name": "north",
+        "accepted": true,
+        "reason": "",
+        "scope": "OBSERVATION_HINT_ONLY_NOT_A_WAYPOINT_OR_SKIP_PERMISSION",
+        "requires_reachability_validation": true,
+        "epoch": "vcl06-random-11-627000000-1",
+        "generation": 3,
+        "region_area_m2": 24.939999999999994,
+        "in_grid_area_m2": 24.939999999999994,
+        "outside_grid_area_m2": 0.0,
+        "state_area_m2": {
+          "0": 18.029999999999994,
+          "20": 0.0,
+          "40": 0.5700000000000002,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 6.34
+        },
+        "seen_estimate_fraction": 0.2542101042502005,
+        "historical_estimate_area_m2": 10.17,
+        "historical_state_area_m2": {
+          "0": 3.8300000000000005,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 6.34
+        },
+        "needs_view_change": false,
+        "estimated_travel_s": 10.0,
+        "eligible_for_ranking": true,
+        "potential_observation_area_m2": 15.250999999999994,
+        "observation_score": 1.1731538461538458
+      },
+      {
+        "name": "south",
+        "accepted": true,
+        "reason": "",
+        "scope": "OBSERVATION_HINT_ONLY_NOT_A_WAYPOINT_OR_SKIP_PERMISSION",
+        "requires_reachability_validation": true,
+        "epoch": "vcl06-random-11-627000000-1",
+        "generation": 3,
+        "region_area_m2": 18.06,
+        "in_grid_area_m2": 18.060000000000002,
+        "outside_grid_area_m2": 0.0,
+        "state_area_m2": {
+          "0": 18.060000000000002,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 0.0
+        },
+        "seen_estimate_fraction": 0.0,
+        "historical_estimate_area_m2": 11.340000000000002,
+        "historical_state_area_m2": {
+          "0": 11.34,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 0.0
+        },
+        "needs_view_change": false,
+        "estimated_travel_s": 10.0,
+        "eligible_for_ranking": true,
+        "potential_observation_area_m2": 8.988000000000001,
+        "observation_score": 0.6913846153846155
+      },
+      {
+        "name": "middle",
+        "accepted": true,
+        "reason": "",
+        "scope": "OBSERVATION_HINT_ONLY_NOT_A_WAYPOINT_OR_SKIP_PERMISSION",
+        "requires_reachability_validation": true,
+        "epoch": "vcl06-random-11-627000000-1",
+        "generation": 3,
+        "region_area_m2": 18.06,
+        "in_grid_area_m2": 18.060000000000002,
+        "outside_grid_area_m2": 0.0,
+        "state_area_m2": {
+          "0": 14.510000000000003,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 3.5500000000000003
+        },
+        "seen_estimate_fraction": 0.1965669988925803,
+        "historical_estimate_area_m2": 13.01,
+        "historical_state_area_m2": {
+          "0": 9.459999999999999,
+          "20": 0.0,
+          "40": 0.0,
+          "60": 0.0,
+          "80": 0.0,
+          "100": 3.5500000000000003
+        },
+        "needs_view_change": false,
+        "estimated_travel_s": 10.0,
+        "eligible_for_ranking": true,
+        "potential_observation_area_m2": 6.942000000000004,
+        "observation_score": 0.5340000000000003
+      }
+    ]
+  }
+]

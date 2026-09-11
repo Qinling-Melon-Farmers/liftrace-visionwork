@@ -1,0 +1,38 @@
+[
+  {
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference070_20260911_174716",
+    "seed": 32,
+    "checks": {
+      "field.world": true,
+      "field_config.yaml": true,
+      "gate_geometry.yaml": true,
+      "runtime_except_spacing_and_revision": true,
+      "actual_targets": true
+    },
+    "gate": "PASS"
+  },
+  {
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference080_20260911_182732",
+    "seed": 32,
+    "checks": {
+      "field.world": true,
+      "field_config.yaml": true,
+      "gate_geometry.yaml": true,
+      "runtime_except_spacing_and_revision": true,
+      "actual_targets": true
+    },
+    "gate": "PASS"
+  },
+  {
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed34_reference080_wait20_20260911_190504",
+    "seed": 34,
+    "checks": {
+      "field.world": true,
+      "field_config.yaml": true,
+      "gate_geometry.yaml": true,
+      "runtime_except_spacing_and_revision": true,
+      "actual_targets": true
+    },
+    "gate": "PASS"
+  }
+]

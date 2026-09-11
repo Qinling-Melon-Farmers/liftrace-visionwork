@@ -8,8 +8,11 @@
       "search/route_revision": "research version suffix"
     },
     "launch_search_initial_plan_timeout": 0,
-    "status": "PREPARED_NOT_RUN",
-    "qualification": "isolated research; no deployment acceptance"
+    "status": "COMPLETE",
+    "qualification": "isolated research; no deployment acceptance",
+    "gate": "PASS",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference080_20260911_182732",
+    "mission_s": 461.978
   },
   {
     "seed": 34,
@@ -20,7 +23,10 @@
       "search/route_revision": "research version suffix"
     },
     "launch_search_initial_plan_timeout": 20,
-    "status": "PREPARED_NOT_RUN",
-    "qualification": "isolated research; no deployment acceptance"
+    "status": "COMPLETE",
+    "qualification": "isolated research; no deployment acceptance",
+    "gate": "PASS",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed34_reference080_wait20_20260911_190504",
+    "mission_s": 523.84
   }
 ]

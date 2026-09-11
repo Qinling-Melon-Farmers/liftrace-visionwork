@@ -1,6 +1,6 @@
 # uav_coverage_memory — research observer
 
-独立ROS1旁路包，默认不启用，未被任何比赛launch包含。没有目标选取、航点、速度、MAVROS、投递或外部服务调用；当前只用于搜索效率研究的第一阶段。
+独立ROS1旁路包，shadow入口默认不启用，未被正赛launch包含。research_trial.launch是额外的显式SITL研究包装入口，必须有sim_run.sh提供的SIM_RUN_DIR。观察器自身没有目标选取、航点/速度命令、MAVROS/投递服务调用；当前只用于搜索效率研究的第一阶段。
 
 输入来自实际RGB、匹配CameraInfo、图像源时刻的相机到地图TF、FreeDOM占据点云和任务状态。配置集中在`config/shadow.yaml`；相机内参/畸变来自CameraInfo，不在源码写固定值。输入ROS订阅队列均为1；另保留最多8份CameraInfo和4份限量占据点云，按图像时刻选快照，图像不排历史队列。原始图像只接受全幅、无binning的匹配标定，裁剪/缩放必须先提供相应标定。
 
@@ -31,4 +31,10 @@
 
 独立Catkin构建/安装后，可通过`catkin_make run_tests_uav_coverage_memory`运行纯离线测试，测试不启动ROS Master。研究包不应复制到正赛部署包；板端参数和资源尚未验收。
 
-完整验证及后续工作见项目`docs/planning/search_efficiency_20260911/STAGE1.md`。
+后续增加了50万点上限和保留字节序/行填充的数组点云解码、显式同帧清晰参考选项（默认关闭）以及限量同步Recorder。Recorder默认关闭；研究入口最多120份、每6 ROS秒采样一份，不录全场视频/bag。
+
+queries.py提供只读区域面积/排序和MissionLedger；活动TTL到期不抹掉历史，当前视角遮挡也不代表过去未看过。联合epoch变化才清空历史。该模块当前仅离线验证和复盘，无导航目标输出；历史估计依然不是可达性/检出证据。
+
+状态栅格的Header是状态快照时间，100可能来自TTL内较早的图像，不表示此帧刚刚看见；使用时必须同时理解epoch和上述估计语义。
+
+完整验证见项目docs/verification/coverage_stage2_20260911/REPORT.md；首版过程见docs/planning/search_efficiency_20260911/STAGE1.md。

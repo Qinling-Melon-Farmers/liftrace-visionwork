@@ -1,0 +1,21 @@
+{
+  "status": "RESEARCH_VALIDATION_COMPLETE_NOT_DEPLOYMENT_ACCEPTANCE",
+  "full_trials": 3,
+  "full_gate_pass": 3,
+  "diagnostic_stops": 1,
+  "independent_layouts": 2,
+  "unit_tests": 61,
+  "catkin_tests": "PASS",
+  "static_launch": "PASS; missing run directory rejected",
+  "figures": 7,
+  "local_links": "PASS",
+  "input_parity": "PASS",
+  "residual_processes": {},
+  "observer_residual": "",
+  "production_control_diff": "EMPTY",
+  "stable_checkout": "86e382d clean",
+  "deployment_source": "c369e6f8",
+  "default_spacing_changed": false,
+  "query_layer_drives_flight": false,
+  "post_run_code_change": "research entry run-directory precondition plus read-only ledger ground-plane reset; tested offline, not an additional flight"
+}

@@ -24,6 +24,32 @@ def csv(path):
     return np.loadtxt(path,delimiter=',',skiprows=1,ndmin=2)
 
 
+def command_motion_summary(run):
+    """Same read-only timing method for current and older runs without an observer."""
+    pose=csv(run/'truth_pose.csv')
+    events=[json.loads(x) for x in (run/'key_events.jsonl').read_text().splitlines() if x]
+    unique={}
+    for e in events:
+        if e['kind']=='decision':unique.setdefault(e['data']['decision_seq'],e)
+    decisions=sorted(unique.values(),key=lambda e:e['ros_sec'])
+    terminal={}
+    for e in events:
+        if e['kind']=='result' and e['data'].get('terminal'):terminal.setdefault(e['data']['decision_seq'],e)
+    mid=(pose[1:,0]+pose[:-1,0])/2;dt=np.diff(pose[:,0]);ds=np.linalg.norm(np.diff(pose[:,1:3],axis=0),axis=1)
+    mask=np.zeros(len(mid),dtype=bool);intervals=[];waits=[]
+    for i,e in enumerate(decisions):
+        data=e['data'];seq=data['decision_seq']
+        if data['command'] not in [0,3]:continue
+        end=min(decisions[i+1]['ros_sec'] if i+1<len(decisions) else pose[-1,0],terminal.get(seq,{}).get('ros_sec',pose[-1,0]))
+        mask|=(mid>=e['ros_sec'])&(mid<end)&(dt>0)&(dt<=.5)
+        intervals.append({'seq':seq,'command':data['command'],'start':e['ros_sec'],'end':end})
+        term=terminal.get(seq)
+        if term and term['data'].get('reason')=='search_initial_plan_timeout':
+            waits.append({'seq':seq,'seconds':term['ros_sec']-e['ros_sec'],'goal':data['goal']['pose']['position']})
+    return {'search_resume_s':float(dt[mask].sum()),'search_resume_xy_m':float(ds[mask].sum()),
+            'initial_wait_events':waits,'initial_wait_s':sum(x['seconds'] for x in waits)}
+
+
 def field(ax,run):
     xml=ET.parse(run/'scenario_inputs/field.world').getroot()
     for model in xml.iter('model'):
@@ -88,6 +114,7 @@ def analyze(run):
          'observer_processing_ms':{k:float(np.percentile([o['processing_ms'] for o in obs],v)) for k,v in [('p50',50),('p95',95),('p99',99)]},
          'sync_samples':len(list((run/'coverage').glob('*.png'))),
          'media_files':[str(p.relative_to(run)) for p in run.rglob('*') if p.suffix in ['.mp4','.bag']]}
+    row['command_motion']=command_motion_summary(run)
     label=run.name
     fig,axes=plt.subplots(2,2,figsize=(13,10))
     field(axes[0,0],run)
