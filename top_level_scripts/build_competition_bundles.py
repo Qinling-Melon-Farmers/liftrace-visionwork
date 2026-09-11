@@ -59,6 +59,7 @@ def main():
             raise SystemExit('Missing six-class model metadata: ' + str(metadata))
         entries.append((metadata, 'runtime_models/merged_standard_6cls_metadata.yaml'))
         entries.append((root / 'deployment' / ('README_' + kind.upper() + '.md'), 'README_FIRST.md'))
+        entries.append((root / 'deployment/MODEL_CONTENTS.md', 'MODEL_CONTENTS.md'))
         optional = []
         if kind == 'simulation' and args.optional_model_root:
             for model in ['D435i', 'fpv_cam', 'tanke']:
