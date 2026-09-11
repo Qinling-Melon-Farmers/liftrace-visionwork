@@ -3,10 +3,9 @@
        但仍必须由整机提供真实 CameraInfo 和 TF。 -->
   <arg name="image_topic" default="/camera/image_raw" />
   <arg name="camera_info_topic" default="/camera/camera_info" />
-  <arg name="model_path"
-       default="$(find uav_vision)/models/merged_standard_fp32.rknn" />
+  <arg name="model_path" />
   <arg name="metadata_path"
-       default="$(find uav_vision)/models/merged_standard_6cls_metadata.yaml" />
+       default="$(find uav_vision)/config/merged_standard_6cls_metadata.yaml" />
   <arg name="map_frame" default="camera_init" />
   <arg name="ground_z" default="0.0" />
   <arg name="allow_latest_tf_fallback" default="false" />

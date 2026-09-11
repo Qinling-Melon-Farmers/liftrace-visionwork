@@ -54,6 +54,10 @@ def main():
                 entries.append((root / p, relative))
         model_name = 'merged_standard_fp32.rknn' if kind == 'onboard' else 'merged_standard.pt'
         entries.append((weights, 'runtime_models/' + model_name))
+        metadata = root / 'vision_ws/src/uav_vision/config/merged_standard_6cls_metadata.yaml'
+        if not metadata.is_file():
+            raise SystemExit('Missing six-class model metadata: ' + str(metadata))
+        entries.append((metadata, 'runtime_models/merged_standard_6cls_metadata.yaml'))
         entries.append((root / 'deployment' / ('README_' + kind.upper() + '.md'), 'README_FIRST.md'))
         optional = []
         if kind == 'simulation' and args.optional_model_root:

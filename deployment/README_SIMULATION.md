@@ -1,5 +1,7 @@
 # R64仿真工程与模型包
 
+2026-09-11资源修订：[模型与YAML清单](MODEL_CONTENTS.md)。正式入口元数据位于uav_vision/config；修订包在runtime_models旁附同源YAML，旧板端包装入口已修正路径。仿真修订包实际附带三套optional_models。未新增飞行验收，原先版本描述按历史阅读。
+
 包含今年整机源码、当前9.6m内净地图、55×55×40cm保守机架、相机/雷达装配、五个靶标、起降H、树与所需通用网格/材质、R64先导、十seed报告与11轮图表，并保留R60历史报告，附笔记本推理权重`runtime_models/merged_standard.pt`。`BUNDLE_MANIFEST.json`给出精确源码和权重来源。该包不自动启动仿真。
 
 当前资源：`vision_ws/src/uav_vision_eval/models`与`simulation_assets/models`；旧D435i/fpv/tank对照资产仅在`simulation_assets/optional_models`，不参与今年五靶默认场景。历史报告中的world按历史布局保留，不能用它们替换新场地后继续沿用旧PASS。

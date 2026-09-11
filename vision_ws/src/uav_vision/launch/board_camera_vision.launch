@@ -12,10 +12,9 @@
   <arg name="camera_extrinsic_xyz" default="0 0 -0.16" />
   <arg name="camera_extrinsic_quat_xyzw"
        default="-0.70710678 0.70710678 0 0" />
-  <arg name="model_path"
-       default="$(find uav_vision)/models/merged_standard_fp32.rknn" />
+  <arg name="model_path" />
   <arg name="metadata_path"
-       default="$(find uav_vision)/models/merged_standard_6cls_metadata.yaml" />
+       default="$(find uav_vision)/config/merged_standard_6cls_metadata.yaml" />
   <arg name="class_profile" default="r2026" />
   <arg name="rectify_input_pixels" default="true" />
   <arg name="enable_debug_image" default="false" />
