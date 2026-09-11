@@ -1,0 +1,114 @@
+{
+  "files": [
+    {
+      "source": "logs/fixed_tree_seed32_baseline_20260912_045841/px4/log/2026-09-11/20_58_59.ulg",
+      "compressed": "logs/fixed_tree_seed32_baseline_20260912_045841/px4/log/2026-09-11/20_58_59.ulg.gz",
+      "original_bytes": 117752978,
+      "compressed_bytes": 38684929,
+      "exact_roundtrip": true
+    },
+    {
+      "source": "logs/fixed_tree_seed32_active_20260912_053523/px4/log/2026-09-11/21_35_40.ulg",
+      "compressed": "logs/fixed_tree_seed32_active_20260912_053523/px4/log/2026-09-11/21_35_40.ulg.gz",
+      "original_bytes": 120749619,
+      "compressed_bytes": 39674013,
+      "exact_roundtrip": true
+    },
+    {
+      "source": "logs/fixed_tree_seed34_baseline_20260912_061303/px4/log/2026-09-11/22_13_21.ulg",
+      "compressed": "logs/fixed_tree_seed34_baseline_20260912_061303/px4/log/2026-09-11/22_13_21.ulg.gz",
+      "original_bytes": 96203847,
+      "compressed_bytes": 31619307,
+      "exact_roundtrip": true
+    },
+    {
+      "source": "logs/fixed_tree_seed34_active_20260912_064523/px4/log/2026-09-11/22_45_41.ulg",
+      "compressed": "logs/fixed_tree_seed34_active_20260912_064523/px4/log/2026-09-11/22_45_41.ulg.gz",
+      "original_bytes": 110359974,
+      "compressed_bytes": 36290338,
+      "exact_roundtrip": true
+    }
+  ],
+  "vhdx_compacted": false,
+  "original_observations_retained": true,
+  "logical_bytes_saved": 298797831,
+  "intermediate_figures_removed": [
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/fixed_tree_seed32_active_20260912_053523.png",
+      "bytes": 321865
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/fixed_tree_seed32_active_sampled_union.png",
+      "bytes": 24541
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/fixed_tree_seed32_active_terminal.png",
+      "bytes": 273916
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/fixed_tree_seed32_baseline_20260912_045841.png",
+      "bytes": 327825
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/fixed_tree_seed32_baseline_sampled_union.png",
+      "bytes": 24970
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/fixed_tree_seed32_baseline_terminal.png",
+      "bytes": 263689
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/fixed_tree_seed34_active_20260912_064523.png",
+      "bytes": 325646
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/fixed_tree_seed34_active_sampled_union.png",
+      "bytes": 24052
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/fixed_tree_seed34_active_terminal.png",
+      "bytes": 243133
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/fixed_tree_seed34_baseline_20260912_061303.png",
+      "bytes": 293726
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/fixed_tree_seed34_baseline_sampled_union.png",
+      "bytes": 24478
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/fixed_tree_seed34_baseline_terminal.png",
+      "bytes": 222621
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/seed32_comparison.png",
+      "bytes": 221322
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/seed32_release_breakdown.png",
+      "bytes": 49850
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/seed32_tree_sides.png",
+      "bytes": 120969
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/seed34_comparison.png",
+      "bytes": 195381
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/seed34_release_breakdown.png",
+      "bytes": 50958
+    },
+    {
+      "path": "logs/_artifacts/fixed_tree_efficiency_20260912/report_work/seed34_tree_sides.png",
+      "bytes": 116278
+    }
+  ],
+  "intermediate_bytes_removed": 3125220,
+  "host_f_free_final": 73015898112,
+  "final_sample_wall": 1789169420.9617534,
+  "research_logs_apparent_bytes": 2816525382,
+  "note": "Lossless ULog readback was checked before deleting uncompressed copies. Logical savings are not a claim of host VHDX reclamation; only regenerated intermediate PNGs were removed."
+}

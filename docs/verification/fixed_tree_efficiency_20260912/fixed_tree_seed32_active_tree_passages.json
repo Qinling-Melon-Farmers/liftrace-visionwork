@@ -1,0 +1,208 @@
+{
+  "run": "fixed_tree_seed32_active_20260912_053523",
+  "scope": "SEARCH/RESUME XY passages across tree X +/-0.5m, within Y +/-1.5m; north is +Y. A same-side passage is not automatically redundant or a coverage proof.",
+  "center_deadband_m": 0.2,
+  "max_pose_gap_s": 0.5,
+  "trees": [
+    {
+      "name": "juniper_Tree",
+      "tree_xy": [
+        -1.8,
+        2.0
+      ],
+      "passages": [
+        {
+          "ros_sec": 39.09238640018048,
+          "x": -1.8,
+          "y": 0.8963068744063086,
+          "offset_y": -1.1036931255936913,
+          "fc_agl": 1.4564067218308023,
+          "direction": "E",
+          "side": "S",
+          "since_first_decision_s": 27.36238640018048
+        },
+        {
+          "ros_sec": 83.48174193918827,
+          "x": -1.8,
+          "y": 0.9040287593411727,
+          "offset_y": -1.0959712406588273,
+          "fc_agl": 1.4772932534803649,
+          "direction": "W",
+          "side": "S",
+          "since_first_decision_s": 71.75174193918826
+        },
+        {
+          "ros_sec": 106.73157936591788,
+          "x": -1.8,
+          "y": 3.062714757579621,
+          "offset_y": 1.062714757579621,
+          "fc_agl": 1.4096900571049755,
+          "direction": "E",
+          "side": "N",
+          "since_first_decision_s": 95.00157936591788
+        },
+        {
+          "ros_sec": 151.90351116670072,
+          "x": -1.8,
+          "y": 1.0794611850857543,
+          "offset_y": -0.9205388149142457,
+          "fc_agl": 1.4661204700549795,
+          "direction": "W",
+          "side": "S",
+          "since_first_decision_s": 140.17351116670073
+        },
+        {
+          "ros_sec": 237.25007253328207,
+          "x": -1.8,
+          "y": 3.2018430042239694,
+          "offset_y": 1.2018430042239694,
+          "fc_agl": 1.454980061357793,
+          "direction": "W",
+          "side": "N",
+          "since_first_decision_s": 225.52007253328208
+        }
+      ],
+      "sequence": "S S N S N"
+    },
+    {
+      "name": "juniper_Tree_0",
+      "tree_xy": [
+        1.8,
+        2.7
+      ],
+      "passages": [
+        {
+          "ros_sec": 72.95584304911993,
+          "x": 1.8,
+          "y": 1.433170226206154,
+          "offset_y": -1.266829773793846,
+          "fc_agl": 1.3992552783092846,
+          "direction": "W",
+          "side": "S",
+          "since_first_decision_s": 61.22584304911993
+        },
+        {
+          "ros_sec": 119.15543688591275,
+          "x": 1.8,
+          "y": 1.5527734867064598,
+          "offset_y": -1.1472265132935404,
+          "fc_agl": 1.4853991284942765,
+          "direction": "E",
+          "side": "S",
+          "since_first_decision_s": 107.42543688591275
+        },
+        {
+          "ros_sec": 140.08484991228835,
+          "x": 1.8,
+          "y": 1.7434075900718073,
+          "offset_y": -0.9565924099281928,
+          "fc_agl": 1.3751673471289945,
+          "direction": "W",
+          "side": "S",
+          "since_first_decision_s": 128.35484991228836
+        },
+        {
+          "ros_sec": 192.1041684752948,
+          "x": 1.8,
+          "y": 3.6483030221666484,
+          "offset_y": 0.9483030221666482,
+          "fc_agl": 1.496855660823766,
+          "direction": "E",
+          "side": "N",
+          "since_first_decision_s": 180.37416847529482
+        },
+        {
+          "ros_sec": 224.98270837402325,
+          "x": 1.8,
+          "y": 1.5772038055544646,
+          "offset_y": -1.1227961944455356,
+          "fc_agl": 1.4100292148508013,
+          "direction": "W",
+          "side": "S",
+          "since_first_decision_s": 213.25270837402326
+        },
+        {
+          "ros_sec": 267.72928739726405,
+          "x": 1.8,
+          "y": 4.02830475297034,
+          "offset_y": 1.3283047529703396,
+          "fc_agl": 1.420063805183585,
+          "direction": "E",
+          "side": "N",
+          "since_first_decision_s": 255.99928739726406
+        }
+      ],
+      "sequence": "S S S N S N"
+    },
+    {
+      "name": "juniper_Tree_1",
+      "tree_xy": [
+        -1.5,
+        5.2
+      ],
+      "passages": [
+        {
+          "ros_sec": 258.2696783582081,
+          "x": -1.5,
+          "y": 4.377796064334319,
+          "offset_y": -0.822203935665681,
+          "fc_agl": 1.5014108891623719,
+          "direction": "E",
+          "side": "S",
+          "since_first_decision_s": 246.53967835820814
+        },
+        {
+          "ros_sec": 297.8652690198134,
+          "x": -1.5,
+          "y": 4.26483114350775,
+          "offset_y": -0.9351688564922505,
+          "fc_agl": 1.3922260852168071,
+          "direction": "W",
+          "side": "S",
+          "since_first_decision_s": 286.1352690198134
+        },
+        {
+          "ros_sec": 320.0242689987113,
+          "x": -1.5,
+          "y": 6.2747480341441575,
+          "offset_y": 1.0747480341441573,
+          "fc_agl": 1.5660399734449366,
+          "direction": "E",
+          "side": "N",
+          "since_first_decision_s": 308.2942689987113
+        }
+      ],
+      "sequence": "S S N"
+    },
+    {
+      "name": "juniper_Tree_2",
+      "tree_xy": [
+        1.7,
+        5.7
+      ],
+      "passages": [
+        {
+          "ros_sec": 288.572448815079,
+          "x": 1.7,
+          "y": 4.3696617452878055,
+          "offset_y": -1.3303382547121947,
+          "fc_agl": 1.3612366485166945,
+          "direction": "W",
+          "side": "S",
+          "since_first_decision_s": 276.84244881507897
+        },
+        {
+          "ros_sec": 329.441410341642,
+          "x": 1.7,
+          "y": 6.3600192833472295,
+          "offset_y": 0.6600192833472294,
+          "fc_agl": 1.4598016631971913,
+          "direction": "E",
+          "side": "N",
+          "since_first_decision_s": 317.71141034164197
+        }
+      ],
+      "sequence": "S N"
+    }
+  ]
+}

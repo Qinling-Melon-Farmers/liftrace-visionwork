@@ -1,0 +1,24 @@
+{
+  "land_decision_ros": 443.774,
+  "first_csv_corridor_height_violation": [
+    453.182,
+    3.9795608807086893,
+    8.262178705350875,
+    0.5492900063239331
+  ],
+  "min_after_land_t_xyz": [
+    452.476,
+    4.187668745186119,
+    8.45017293671767,
+    0.008327964409367034
+  ],
+  "max_after_land_fc_agl": 1.148879829878604,
+  "region": {
+    "min_x": -4.8,
+    "max_x": 4.8,
+    "min_y": 7.6,
+    "max_y": 9.1,
+    "max_height": 0.7
+  },
+  "scope": "CSV samples, not exact first 50Hz Gate callback; 43 Gate height violations are samples of the same excursion"
+}

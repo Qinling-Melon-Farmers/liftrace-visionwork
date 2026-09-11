@@ -1,0 +1,345 @@
+{
+  "source": "3d4403eb9f70aab81a795c8a0f9fafb8a58bcfbe",
+  "scene_source": "docs/verification/fixed_tree_efficiency_20260912",
+  "runs": [
+    {
+      "seed": 32,
+      "local": false,
+      "wait": 0,
+      "status": "PASS",
+      "run": "logs/fixed_tree_seed32_baseline_20260912_045841",
+      "summary": {
+        "reason": "all_checks_passed",
+        "errors": [],
+        "checks_passed": 37,
+        "checks_total": 37,
+        "metrics": {
+          "approach_command_count": 3,
+          "boundary_violations": 0,
+          "capture_started_count": 3,
+          "decision_count": 34,
+          "door_crossings": [
+            {
+              "lateral": -4.071307786492316,
+              "name": "corridor_entry",
+              "route_index": 3,
+              "z": 0.43614690775777476
+            },
+            {
+              "lateral": 8.004190677681887,
+              "name": "Wall_20",
+              "route_index": 5,
+              "z": 0.4038572802193222
+            },
+            {
+              "lateral": 7.989660428883059,
+              "name": "Wall_22",
+              "route_index": 8,
+              "z": 0.34750273148806027
+            }
+          ],
+          "height_violations": 0,
+          "landing_align_mode_seen": true,
+          "landing_h_mark_rejections": {},
+          "landing_h_tolerance": 0.35,
+          "landing_xy": [
+            4.2,
+            8.5
+          ],
+          "latest_armed": false,
+          "latest_landed_state": 1,
+          "max_observed_height": 1.6446562266997986,
+          "mission_ros_sec": 545.5,
+          "mission_wall_sec": 2094.6072437139956,
+          "planner_goal_publishers": [
+            "/navigation/planner_bridge"
+          ],
+          "pose_samples": 23407,
+          "post_delivery_decision_indices": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "post_delivery_return_success_count": 9,
+          "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+          "post_delivery_route_size": 9,
+          "recovery_success_count": 3,
+          "release_commit_count": 3,
+          "result_count": 177,
+          "selected_count": 1199,
+          "simulation_realtime_factor": 0.2604306853406854,
+          "unmatched_result_count": 0,
+          "valid_landing_h_mark": {
+            "anchor_error_m": 0.011443643891529772,
+            "frame_id": "camera_init",
+            "stamp_ns": 552206000000,
+            "x": 4.193164076970534,
+            "y": 8.490822465371824,
+            "z": -0.22
+          }
+        }
+      }
+    },
+    {
+      "seed": 32,
+      "local": true,
+      "wait": 0,
+      "status": "PASS",
+      "run": "logs/fixed_tree_seed32_active_20260912_053523",
+      "summary": {
+        "reason": "all_checks_passed",
+        "errors": [],
+        "checks_passed": 37,
+        "checks_total": 37,
+        "metrics": {
+          "approach_command_count": 3,
+          "boundary_violations": 0,
+          "capture_started_count": 3,
+          "decision_count": 40,
+          "door_crossings": [
+            {
+              "lateral": -4.046344971105426,
+              "name": "corridor_entry",
+              "route_index": 3,
+              "z": 0.5232127852406641
+            },
+            {
+              "lateral": 8.0138014160012,
+              "name": "Wall_20",
+              "route_index": 5,
+              "z": 0.3670706229459203
+            },
+            {
+              "lateral": 7.922408065849333,
+              "name": "Wall_22",
+              "route_index": 8,
+              "z": 0.3339837786024203
+            }
+          ],
+          "height_violations": 0,
+          "landing_align_mode_seen": true,
+          "landing_h_mark_rejections": {},
+          "landing_h_tolerance": 0.35,
+          "landing_xy": [
+            4.2,
+            8.5
+          ],
+          "latest_armed": false,
+          "latest_landed_state": 1,
+          "max_observed_height": 1.6573374012578492,
+          "mission_ros_sec": 558.621,
+          "mission_wall_sec": 2086.5125939510035,
+          "planner_goal_publishers": [
+            "/navigation/planner_bridge"
+          ],
+          "pose_samples": 25425,
+          "post_delivery_decision_indices": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "post_delivery_return_success_count": 9,
+          "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+          "post_delivery_route_size": 9,
+          "recovery_success_count": 3,
+          "release_commit_count": 3,
+          "result_count": 190,
+          "selected_count": 1312,
+          "simulation_realtime_factor": 0.267729512689976,
+          "unmatched_result_count": 0,
+          "valid_landing_h_mark": {
+            "anchor_error_m": 0.02509277179327133,
+            "frame_id": "camera_init",
+            "stamp_ns": 566629000000,
+            "x": 4.1953921786802475,
+            "y": 8.475333926559859,
+            "z": -0.22
+          }
+        }
+      }
+    },
+    {
+      "seed": 34,
+      "local": false,
+      "wait": 20,
+      "status": "FAIL",
+      "run": "logs/fixed_tree_seed34_baseline_20260912_061303",
+      "summary": {
+        "reason": "corridor_height_limit_violation",
+        "errors": [
+          "corridor_height_limit_violation",
+          "actual_collision"
+        ],
+        "checks_passed": 27,
+        "checks_total": 37,
+        "metrics": {
+          "approach_command_count": 3,
+          "boundary_violations": 0,
+          "capture_started_count": 3,
+          "decision_count": 31,
+          "door_crossings": [
+            {
+              "lateral": -4.029280651902692,
+              "name": "corridor_entry",
+              "route_index": 3,
+              "z": 0.38211653124569456
+            },
+            {
+              "lateral": 8.728200069042764,
+              "name": "Wall_20",
+              "route_index": 5,
+              "z": 0.4446449317932414
+            },
+            {
+              "lateral": 8.782541136669648,
+              "name": "Wall_22",
+              "route_index": 8,
+              "z": 0.43931749318529967
+            }
+          ],
+          "height_violations": 43,
+          "landing_align_mode_seen": true,
+          "landing_h_mark_rejections": {},
+          "landing_h_tolerance": 0.35,
+          "landing_xy": [
+            4.2,
+            8.5
+          ],
+          "latest_armed": true,
+          "latest_landed_state": 4,
+          "max_observed_height": 1.731208510035824,
+          "mission_ros_sec": null,
+          "mission_wall_sec": null,
+          "planner_goal_publishers": [
+            "/navigation/planner_bridge"
+          ],
+          "pose_samples": 20820,
+          "post_delivery_decision_indices": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "post_delivery_return_success_count": 9,
+          "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+          "post_delivery_route_size": 9,
+          "recovery_success_count": 3,
+          "release_commit_count": 3,
+          "result_count": 160,
+          "selected_count": 1252,
+          "simulation_realtime_factor": null,
+          "unmatched_result_count": 0,
+          "valid_landing_h_mark": {
+            "anchor_error_m": 0.03551316333363374,
+            "frame_id": "camera_init",
+            "stamp_ns": 452070000000,
+            "x": 4.235507409330916,
+            "y": 8.500639259390343,
+            "z": -0.22
+          }
+        }
+      }
+    },
+    {
+      "seed": 34,
+      "local": true,
+      "wait": 20,
+      "status": "PASS",
+      "run": "logs/fixed_tree_seed34_active_20260912_064523",
+      "summary": {
+        "reason": "all_checks_passed",
+        "errors": [],
+        "checks_passed": 37,
+        "checks_total": 37,
+        "metrics": {
+          "approach_command_count": 3,
+          "boundary_violations": 0,
+          "capture_started_count": 3,
+          "decision_count": 38,
+          "door_crossings": [
+            {
+              "lateral": -4.0504127556912914,
+              "name": "corridor_entry",
+              "route_index": 3,
+              "z": 0.34935703418363756
+            },
+            {
+              "lateral": 8.717906219442414,
+              "name": "Wall_20",
+              "route_index": 5,
+              "z": 0.4157071304098683
+            },
+            {
+              "lateral": 8.749145448838274,
+              "name": "Wall_22",
+              "route_index": 8,
+              "z": 0.38488215955507077
+            }
+          ],
+          "height_violations": 0,
+          "landing_align_mode_seen": true,
+          "landing_h_mark_rejections": {},
+          "landing_h_tolerance": 0.35,
+          "landing_xy": [
+            4.2,
+            8.5
+          ],
+          "latest_armed": false,
+          "latest_landed_state": 1,
+          "max_observed_height": 1.7237633773495573,
+          "mission_ros_sec": 508.871000001,
+          "mission_wall_sec": 1953.599751794005,
+          "planner_goal_publishers": [
+            "/navigation/planner_bridge"
+          ],
+          "pose_samples": 23885,
+          "post_delivery_decision_indices": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "post_delivery_return_success_count": 9,
+          "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+          "post_delivery_route_size": 9,
+          "recovery_success_count": 3,
+          "release_commit_count": 3,
+          "result_count": 177,
+          "selected_count": 1323,
+          "simulation_realtime_factor": 0.260478636698075,
+          "unmatched_result_count": 0,
+          "valid_landing_h_mark": {
+            "anchor_error_m": 0.015556433939315403,
+            "frame_id": "camera_init",
+            "stamp_ns": 515717000000,
+            "x": 4.215208422789168,
+            "y": 8.50327208086303,
+            "z": -0.22
+          }
+        }
+      }
+    }
+  ]
+}

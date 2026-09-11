@@ -1,0 +1,300 @@
+{
+  "run": "fixed_tree_seed34_active_20260912_064523",
+  "sampled_union_scope": "Union of saved SEEN_ESTIMATE cells, per generation, from first decision through third release; sparse ~6 ROS s snapshots, not all observer frames, target recall or free space",
+  "sampled_union_samples": [
+    {
+      "t": 0.27200000000000024,
+      "generation": "3",
+      "union_m2": 0.0
+    },
+    {
+      "t": 6.5760000000000005,
+      "generation": "3",
+      "union_m2": 1.9600000000000004
+    },
+    {
+      "t": 12.585,
+      "generation": "3",
+      "union_m2": 2.8300000000000005
+    },
+    {
+      "t": 18.969,
+      "generation": "3",
+      "union_m2": 3.6800000000000006
+    },
+    {
+      "t": 24.970000000000002,
+      "generation": "3",
+      "union_m2": 4.620000000000001
+    },
+    {
+      "t": 31.282,
+      "generation": "3",
+      "union_m2": 4.880000000000001
+    },
+    {
+      "t": 37.286,
+      "generation": "3",
+      "union_m2": 4.910000000000001
+    },
+    {
+      "t": 43.632000000000005,
+      "generation": "3",
+      "union_m2": 6.400000000000001
+    },
+    {
+      "t": 49.872,
+      "generation": "3",
+      "union_m2": 8.500000000000002
+    },
+    {
+      "t": 56.61,
+      "generation": "3",
+      "union_m2": 11.140000000000002
+    },
+    {
+      "t": 62.937,
+      "generation": "3",
+      "union_m2": 12.920000000000002
+    },
+    {
+      "t": 69.269,
+      "generation": "3",
+      "union_m2": 13.310000000000002
+    },
+    {
+      "t": 75.33,
+      "generation": "3",
+      "union_m2": 14.570000000000002
+    },
+    {
+      "t": 81.619,
+      "generation": "3",
+      "union_m2": 15.440000000000003
+    },
+    {
+      "t": 87.952,
+      "generation": "3",
+      "union_m2": 15.440000000000003
+    },
+    {
+      "t": 93.97,
+      "generation": "3",
+      "union_m2": 15.440000000000003
+    },
+    {
+      "t": 99.97200000000001,
+      "generation": "3",
+      "union_m2": 15.500000000000004
+    },
+    {
+      "t": 106.305,
+      "generation": "3",
+      "union_m2": 15.530000000000003
+    },
+    {
+      "t": 112.318,
+      "generation": "3",
+      "union_m2": 15.930000000000003
+    },
+    {
+      "t": 118.34400000000001,
+      "generation": "3",
+      "union_m2": 16.390000000000004
+    },
+    {
+      "t": 125.28099999999999,
+      "generation": "3",
+      "union_m2": 17.320000000000004
+    },
+    {
+      "t": 131.67399999999998,
+      "generation": "3",
+      "union_m2": 19.140000000000004
+    },
+    {
+      "t": 138.302,
+      "generation": "3",
+      "union_m2": 20.570000000000004
+    },
+    {
+      "t": 144.63899999999998,
+      "generation": "3",
+      "union_m2": 20.570000000000004
+    },
+    {
+      "t": 150.67399999999998,
+      "generation": "3",
+      "union_m2": 22.330000000000005
+    },
+    {
+      "t": 156.951,
+      "generation": "3",
+      "union_m2": 22.330000000000005
+    },
+    {
+      "t": 162.952,
+      "generation": "3",
+      "union_m2": 22.330000000000005
+    },
+    {
+      "t": 169.278,
+      "generation": "3",
+      "union_m2": 23.280000000000005
+    },
+    {
+      "t": 175.94199999999998,
+      "generation": "3",
+      "union_m2": 24.970000000000006
+    },
+    {
+      "t": 182.278,
+      "generation": "3",
+      "union_m2": 24.970000000000006
+    },
+    {
+      "t": 188.618,
+      "generation": "3",
+      "union_m2": 25.480000000000004
+    },
+    {
+      "t": 194.67999999999998,
+      "generation": "3",
+      "union_m2": 26.870000000000005
+    },
+    {
+      "t": 201.316,
+      "generation": "3",
+      "union_m2": 28.680000000000007
+    },
+    {
+      "t": 207.32399999999998,
+      "generation": "3",
+      "union_m2": 29.820000000000007
+    },
+    {
+      "t": 214.23499999999999,
+      "generation": "3",
+      "union_m2": 30.530000000000005
+    },
+    {
+      "t": 220.31699999999998,
+      "generation": "3",
+      "union_m2": 30.600000000000005
+    },
+    {
+      "t": 226.927,
+      "generation": "3",
+      "union_m2": 32.96000000000001
+    },
+    {
+      "t": 233.286,
+      "generation": "3",
+      "union_m2": 32.96000000000001
+    },
+    {
+      "t": 239.571,
+      "generation": "3",
+      "union_m2": 33.410000000000004
+    },
+    {
+      "t": 245.90800000000002,
+      "generation": "3",
+      "union_m2": 34.720000000000006
+    },
+    {
+      "t": 252.26599999999996,
+      "generation": "3",
+      "union_m2": 36.34000000000001
+    },
+    {
+      "t": 258.59,
+      "generation": "3",
+      "union_m2": 36.34000000000001
+    },
+    {
+      "t": 264.961,
+      "generation": "3",
+      "union_m2": 37.650000000000006
+    },
+    {
+      "t": 271.661,
+      "generation": "3",
+      "union_m2": 40.13000000000001
+    }
+  ],
+  "sampled_union_final_m2": {
+    "3": 40.13000000000001
+  },
+  "collision_preceding_samples": [],
+  "terminal_vehicle_events": [
+    {
+      "ros_sec": 516.12,
+      "kind": "extended_state",
+      "data": {
+        "header": {
+          "seq": 2576,
+          "stamp": {
+            "stamp_ns": 516119000000
+          },
+          "frame_id": ""
+        },
+        "vtol_state": 0,
+        "landed_state": 4
+      }
+    },
+    {
+      "ros_sec": 516.721,
+      "kind": "state",
+      "data": {
+        "header": {
+          "seq": 516,
+          "stamp": {
+            "stamp_ns": 516714000000
+          },
+          "frame_id": ""
+        },
+        "connected": true,
+        "armed": true,
+        "guided": true,
+        "manual_input": false,
+        "mode": "AUTO.LAND",
+        "system_status": 4
+      }
+    },
+    {
+      "ros_sec": 518.72,
+      "kind": "extended_state",
+      "data": {
+        "header": {
+          "seq": 2589,
+          "stamp": {
+            "stamp_ns": 518720000000
+          },
+          "frame_id": ""
+        },
+        "vtol_state": 0,
+        "landed_state": 1
+      }
+    },
+    {
+      "ros_sec": 521.72,
+      "kind": "state",
+      "data": {
+        "header": {
+          "seq": 521,
+          "stamp": {
+            "stamp_ns": 521717000000
+          },
+          "frame_id": ""
+        },
+        "connected": true,
+        "armed": false,
+        "guided": false,
+        "manual_input": false,
+        "mode": "OFFBOARD",
+        "system_status": 3
+      }
+    }
+  ]
+}

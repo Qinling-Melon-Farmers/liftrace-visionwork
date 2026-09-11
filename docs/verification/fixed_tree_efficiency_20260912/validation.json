@@ -1,0 +1,414 @@
+{
+  "status": "PASS",
+  "scope": "Data/report consistency, not a claim that every flight passed",
+  "completed_runs": 4,
+  "gate_results": [
+    {
+      "run": "fixed_tree_seed32_baseline_20260912_045841",
+      "status": "PASS",
+      "passed": 37,
+      "total": 37,
+      "errors": [],
+      "height_violation_samples": 0
+    },
+    {
+      "run": "fixed_tree_seed32_active_20260912_053523",
+      "status": "PASS",
+      "passed": 37,
+      "total": 37,
+      "errors": [],
+      "height_violation_samples": 0
+    },
+    {
+      "run": "fixed_tree_seed34_baseline_20260912_061303",
+      "status": "FAIL",
+      "passed": 27,
+      "total": 37,
+      "errors": [
+        "corridor_height_limit_violation",
+        "actual_collision"
+      ],
+      "height_violation_samples": 43
+    },
+    {
+      "run": "fixed_tree_seed34_active_20260912_064523",
+      "status": "PASS",
+      "passed": 37,
+      "total": 37,
+      "errors": [],
+      "height_violation_samples": 0
+    }
+  ],
+  "input_pairs": [
+    {
+      "seed": 32,
+      "source": "3d4403eb9f70aab81a795c8a0f9fafb8a58bcfbe",
+      "files_equal": {
+        "runtime.yaml": true,
+        "gate_geometry.yaml": true,
+        "field.world": true,
+        "field_config.yaml": true,
+        "resource_budget.yaml": true,
+        "vehicle_model.sdf": true,
+        "local_motion.yaml": true,
+        "coverage.yaml": true,
+        "iris_dynamics.sdf": true,
+        "mid360_mounted.sdf": true,
+        "local_adviser.yaml": true
+      },
+      "launch_differences": {
+        "local_motion_enabled": [
+          "false",
+          "true"
+        ]
+      },
+      "actual_targets_identical": true
+    },
+    {
+      "seed": 34,
+      "source": "3d4403eb9f70aab81a795c8a0f9fafb8a58bcfbe",
+      "files_equal": {
+        "runtime.yaml": true,
+        "gate_geometry.yaml": true,
+        "field.world": true,
+        "field_config.yaml": true,
+        "resource_budget.yaml": true,
+        "vehicle_model.sdf": true,
+        "local_motion.yaml": true,
+        "coverage.yaml": true,
+        "iris_dynamics.sdf": true,
+        "mid360_mounted.sdf": true,
+        "local_adviser.yaml": true
+      },
+      "launch_differences": {
+        "local_motion_enabled": [
+          "false",
+          "true"
+        ]
+      },
+      "actual_targets_identical": true
+    }
+  ],
+  "local_execution": [
+    {
+      "run": "fixed_tree_seed32_active_20260912_053523",
+      "seq": 2,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 3,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          0
+        ],
+        [
+          0
+        ],
+        [
+          0
+        ]
+      ],
+      "deadline_delta_ns": 0
+    },
+    {
+      "run": "fixed_tree_seed32_active_20260912_053523",
+      "seq": 5,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 6,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          1
+        ],
+        [
+          1
+        ],
+        [
+          1
+        ]
+      ],
+      "deadline_delta_ns": -1
+    },
+    {
+      "run": "fixed_tree_seed32_active_20260912_053523",
+      "seq": 9,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 10,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          3
+        ],
+        [
+          3
+        ],
+        [
+          3
+        ]
+      ],
+      "deadline_delta_ns": 0
+    },
+    {
+      "run": "fixed_tree_seed32_active_20260912_053523",
+      "seq": 13,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 14,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          5
+        ],
+        [
+          5
+        ],
+        [
+          5
+        ]
+      ],
+      "deadline_delta_ns": 0
+    },
+    {
+      "run": "fixed_tree_seed34_active_20260912_064523",
+      "seq": 2,
+      "resolution": "target_preempted",
+      "resumed_seq": 4,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          0
+        ],
+        [
+          0
+        ],
+        [
+          0
+        ]
+      ],
+      "deadline_delta_ns": null
+    },
+    {
+      "run": "fixed_tree_seed34_active_20260912_064523",
+      "seq": 6,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 7,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          1
+        ],
+        [
+          1
+        ],
+        [
+          1
+        ]
+      ],
+      "deadline_delta_ns": 0
+    },
+    {
+      "run": "fixed_tree_seed34_active_20260912_064523",
+      "seq": 10,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 11,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          3
+        ],
+        [
+          3
+        ],
+        [
+          3
+        ]
+      ],
+      "deadline_delta_ns": 0
+    },
+    {
+      "run": "fixed_tree_seed34_active_20260912_064523",
+      "seq": 14,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 15,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          5
+        ],
+        [
+          5
+        ],
+        [
+          5
+        ]
+      ],
+      "deadline_delta_ns": 0
+    }
+  ],
+  "raw_snapshots": 336,
+  "images": [
+    {
+      "file": "fixed_tree_seed32_active_20260912_053523.png",
+      "size": [
+        1885,
+        1450
+      ],
+      "bytes": 321865
+    },
+    {
+      "file": "fixed_tree_seed32_active_sampled_union.png",
+      "size": [
+        840,
+        700
+      ],
+      "bytes": 24541
+    },
+    {
+      "file": "fixed_tree_seed32_active_terminal.png",
+      "size": [
+        1740,
+        1160
+      ],
+      "bytes": 273916
+    },
+    {
+      "file": "fixed_tree_seed32_baseline_20260912_045841.png",
+      "size": [
+        1885,
+        1450
+      ],
+      "bytes": 327825
+    },
+    {
+      "file": "fixed_tree_seed32_baseline_sampled_union.png",
+      "size": [
+        840,
+        700
+      ],
+      "bytes": 24970
+    },
+    {
+      "file": "fixed_tree_seed32_baseline_terminal.png",
+      "size": [
+        1740,
+        1160
+      ],
+      "bytes": 263689
+    },
+    {
+      "file": "fixed_tree_seed34_active_20260912_064523.png",
+      "size": [
+        1885,
+        1450
+      ],
+      "bytes": 306794
+    },
+    {
+      "file": "fixed_tree_seed34_active_sampled_union.png",
+      "size": [
+        840,
+        700
+      ],
+      "bytes": 24052
+    },
+    {
+      "file": "fixed_tree_seed34_active_terminal.png",
+      "size": [
+        1740,
+        1160
+      ],
+      "bytes": 257136
+    },
+    {
+      "file": "fixed_tree_seed34_baseline_20260912_061303.png",
+      "size": [
+        1885,
+        1450
+      ],
+      "bytes": 293726
+    },
+    {
+      "file": "fixed_tree_seed34_baseline_sampled_union.png",
+      "size": [
+        840,
+        700
+      ],
+      "bytes": 24478
+    },
+    {
+      "file": "fixed_tree_seed34_baseline_terminal.png",
+      "size": [
+        1740,
+        1160
+      ],
+      "bytes": 222621
+    },
+    {
+      "file": "seed32_comparison.png",
+      "size": [
+        2400,
+        900
+      ],
+      "bytes": 221322
+    },
+    {
+      "file": "seed32_release_breakdown.png",
+      "size": [
+        1500,
+        570
+      ],
+      "bytes": 49850
+    },
+    {
+      "file": "seed32_tree_sides.png",
+      "size": [
+        1800,
+        1200
+      ],
+      "bytes": 120969
+    },
+    {
+      "file": "seed34_comparison.png",
+      "size": [
+        2400,
+        900
+      ],
+      "bytes": 194875
+    },
+    {
+      "file": "seed34_release_breakdown.png",
+      "size": [
+        1500,
+        570
+      ],
+      "bytes": 50958
+    },
+    {
+      "file": "seed34_tree_sides.png",
+      "size": [
+        1800,
+        1200
+      ],
+      "bytes": 116278
+    }
+  ],
+  "markdown_links_missing": [],
+  "python_syntax": "PASS",
+  "tree_passage_geometric_sanity_cases": 4,
+  "residual_processes": [],
+  "competition_head": "86e382d",
+  "delivery_source": "c369e6f80f7671d78b083550887ed689e4a4d920",
+  "visual_qa": {
+    "status": "PASS",
+    "inspected": [
+      "seed32_comparison.png",
+      "seed34_comparison.png",
+      "seed32_tree_sides.png",
+      "fixed_tree_seed34_baseline_terminal.png"
+    ],
+    "checks": [
+      "readable titles and axes",
+      "global tree-plot legend does not obscure data",
+      "paired plot values match metrics",
+      "terminal truth/estimate curves remain distinct"
+    ]
+  }
+}

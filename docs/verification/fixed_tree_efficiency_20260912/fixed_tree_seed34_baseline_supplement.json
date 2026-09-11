@@ -1,0 +1,317 @@
+{
+  "run": "fixed_tree_seed34_baseline_20260912_061303",
+  "sampled_union_scope": "Union of saved SEEN_ESTIMATE cells, per generation, from first decision through third release; sparse ~6 ROS s snapshots, not all observer frames, target recall or free space",
+  "sampled_union_samples": [
+    {
+      "t": 0.19500000000000028,
+      "generation": "3",
+      "union_m2": 0.0
+    },
+    {
+      "t": 6.195000000000002,
+      "generation": "3",
+      "union_m2": 2.1600000000000006
+    },
+    {
+      "t": 12.213,
+      "generation": "3",
+      "union_m2": 3.0100000000000007
+    },
+    {
+      "t": 18.494,
+      "generation": "3",
+      "union_m2": 4.5200000000000005
+    },
+    {
+      "t": 24.887999999999998,
+      "generation": "3",
+      "union_m2": 5.060000000000001
+    },
+    {
+      "t": 31.189,
+      "generation": "3",
+      "union_m2": 5.190000000000001
+    },
+    {
+      "t": 37.211,
+      "generation": "3",
+      "union_m2": 5.220000000000001
+    },
+    {
+      "t": 43.244,
+      "generation": "3",
+      "union_m2": 7.980000000000001
+    },
+    {
+      "t": 49.249,
+      "generation": "3",
+      "union_m2": 11.180000000000001
+    },
+    {
+      "t": 55.815999999999995,
+      "generation": "3",
+      "union_m2": 12.170000000000002
+    },
+    {
+      "t": 61.86299999999999,
+      "generation": "3",
+      "union_m2": 12.170000000000002
+    },
+    {
+      "t": 68.266,
+      "generation": "3",
+      "union_m2": 13.530000000000003
+    },
+    {
+      "t": 74.53800000000001,
+      "generation": "3",
+      "union_m2": 14.190000000000003
+    },
+    {
+      "t": 80.878,
+      "generation": "3",
+      "union_m2": 14.230000000000002
+    },
+    {
+      "t": 87.25800000000001,
+      "generation": "3",
+      "union_m2": 14.230000000000002
+    },
+    {
+      "t": 93.531,
+      "generation": "3",
+      "union_m2": 14.920000000000003
+    },
+    {
+      "t": 99.55900000000001,
+      "generation": "3",
+      "union_m2": 15.070000000000002
+    },
+    {
+      "t": 105.83600000000001,
+      "generation": "3",
+      "union_m2": 15.070000000000002
+    },
+    {
+      "t": 111.83800000000001,
+      "generation": "3",
+      "union_m2": 17.030000000000005
+    },
+    {
+      "t": 118.27,
+      "generation": "3",
+      "union_m2": 18.090000000000003
+    },
+    {
+      "t": 124.841,
+      "generation": "3",
+      "union_m2": 20.350000000000005
+    },
+    {
+      "t": 131.238,
+      "generation": "3",
+      "union_m2": 21.170000000000005
+    },
+    {
+      "t": 137.512,
+      "generation": "3",
+      "union_m2": 21.380000000000003
+    },
+    {
+      "t": 143.516,
+      "generation": "3",
+      "union_m2": 21.380000000000003
+    },
+    {
+      "t": 149.82299999999998,
+      "generation": "3",
+      "union_m2": 21.380000000000003
+    },
+    {
+      "t": 156.237,
+      "generation": "3",
+      "union_m2": 24.210000000000004
+    },
+    {
+      "t": 162.242,
+      "generation": "3",
+      "union_m2": 24.210000000000004
+    },
+    {
+      "t": 168.879,
+      "generation": "3",
+      "union_m2": 24.620000000000005
+    },
+    {
+      "t": 175.212,
+      "generation": "3",
+      "union_m2": 25.610000000000007
+    },
+    {
+      "t": 181.548,
+      "generation": "3",
+      "union_m2": 27.250000000000004
+    },
+    {
+      "t": 187.56199999999998,
+      "generation": "3",
+      "union_m2": 28.540000000000006
+    },
+    {
+      "t": 193.582,
+      "generation": "3",
+      "union_m2": 32.300000000000004
+    },
+    {
+      "t": 199.89,
+      "generation": "3",
+      "union_m2": 32.74000000000001
+    },
+    {
+      "t": 206.156,
+      "generation": "3",
+      "union_m2": 33.550000000000004
+    },
+    {
+      "t": 212.19199999999998,
+      "generation": "3",
+      "union_m2": 34.74000000000001
+    },
+    {
+      "t": 218.19199999999998,
+      "generation": "3",
+      "union_m2": 34.74000000000001
+    },
+    {
+      "t": 224.56099999999998,
+      "generation": "3",
+      "union_m2": 34.74000000000001
+    },
+    {
+      "t": 230.82999999999998,
+      "generation": "3",
+      "union_m2": 36.60000000000001
+    },
+    {
+      "t": 237.195,
+      "generation": "3",
+      "union_m2": 38.28000000000001
+    },
+    {
+      "t": 243.196,
+      "generation": "3",
+      "union_m2": 38.64000000000001
+    },
+    {
+      "t": 249.539,
+      "generation": "3",
+      "union_m2": 39.77000000000001
+    },
+    {
+      "t": 255.555,
+      "generation": "3",
+      "union_m2": 39.81000000000001
+    }
+  ],
+  "sampled_union_final_m2": {
+    "3": 39.81000000000001
+  },
+  "collision_preceding_samples": [
+    {
+      "seconds_before_first_counted_collision": 3,
+      "actual_t_xyz": [
+        451.058,
+        4.198010259777644,
+        8.514059828506305,
+        0.29479742269571685
+      ],
+      "estimated_t_xyz": [
+        451.067,
+        4.221068859100342,
+        8.498634338378906,
+        0.28159210085868835
+      ],
+      "truth_minus_estimated_xyz": [
+        -0.023058599322697937,
+        0.015425490127398689,
+        0.013205321837028494
+      ]
+    },
+    {
+      "seconds_before_first_counted_collision": 1,
+      "actual_t_xyz": [
+        453.082,
+        4.0304870885701956,
+        8.308897009738471,
+        0.46832950957487407
+      ],
+      "estimated_t_xyz": [
+        453.104,
+        4.362168312072754,
+        8.607110023498535,
+        -0.41471460461616516
+      ],
+      "truth_minus_estimated_xyz": [
+        -0.33168122350255835,
+        -0.2982130137600638,
+        0.8830441141910392
+      ]
+    },
+    {
+      "seconds_before_first_counted_collision": 0.1,
+      "actual_t_xyz": [
+        453.889,
+        3.6209760933526685,
+        7.934216991053874,
+        0.8163284794424455
+      ],
+      "estimated_t_xyz": [
+        453.867,
+        3.9532182216644287,
+        8.22354793548584,
+        -0.5360367298126221
+      ],
+      "truth_minus_estimated_xyz": [
+        -0.33224212831176025,
+        -0.28933094443196605,
+        1.3523652092550675
+      ]
+    }
+  ],
+  "terminal_vehicle_events": [
+    {
+      "ros_sec": 451.975,
+      "kind": "extended_state",
+      "data": {
+        "header": {
+          "seq": 2255,
+          "stamp": {
+            "stamp_ns": 451972000000
+          },
+          "frame_id": ""
+        },
+        "vtol_state": 0,
+        "landed_state": 4
+      }
+    },
+    {
+      "ros_sec": 452.774,
+      "kind": "state",
+      "data": {
+        "header": {
+          "seq": 452,
+          "stamp": {
+            "stamp_ns": 452771000000
+          },
+          "frame_id": ""
+        },
+        "connected": true,
+        "armed": true,
+        "guided": true,
+        "manual_input": false,
+        "mode": "AUTO.LAND",
+        "system_status": 4
+      }
+    }
+  ]
+}

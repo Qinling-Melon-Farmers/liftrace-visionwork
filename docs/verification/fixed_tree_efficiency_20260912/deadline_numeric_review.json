@@ -1,0 +1,11 @@
+{
+  "original_deadline_ns": 118158000000,
+  "resumed_deadline_ns": 118157999999,
+  "delta_ns": -1,
+  "deadline_not_extended": true,
+  "original_float": 118.158,
+  "resume_now": 35.099,
+  "reconstructed_float": 118.15799999999999,
+  "cause": "MissionCore restores remaining duration as now + (deadline - now); floating-point cancellation followed by ROS nanosecond conversion shortens this recorded deadline by 1 ns.",
+  "flight_code_changed": false
+}
