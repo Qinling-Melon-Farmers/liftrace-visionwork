@@ -1,0 +1,77 @@
+{
+  "status": "PASS",
+  "r64_source": "1983b2f7571cf3d96916d45af5cc8f3a2f8a9ad4",
+  "scene_checks": [
+    {
+      "seed": 32,
+      "door_seed": 1032,
+      "door_pattern": "RR",
+      "tree_subtrees_match_r64": true,
+      "trees": [
+        {
+          "x": -1.8,
+          "y": 2.0,
+          "yaw": 0.0
+        },
+        {
+          "x": 1.8,
+          "y": 2.7,
+          "yaw": 0.0
+        },
+        {
+          "x": -1.5,
+          "y": 5.2,
+          "yaw": 0.0
+        },
+        {
+          "x": 1.7,
+          "y": 5.7,
+          "yaw": 0.0
+        }
+      ],
+      "door_widths": [
+        0.8,
+        0.8
+      ],
+      "target_preview_no_wall_overlap": true,
+      "lane_spacing": 0.7
+    },
+    {
+      "seed": 34,
+      "door_seed": 1034,
+      "door_pattern": "LL",
+      "tree_subtrees_match_r64": true,
+      "trees": [
+        {
+          "x": -1.8,
+          "y": 2.0,
+          "yaw": 0.0
+        },
+        {
+          "x": 1.8,
+          "y": 2.7,
+          "yaw": 0.0
+        },
+        {
+          "x": -1.5,
+          "y": 5.2,
+          "yaw": 0.0
+        },
+        {
+          "x": 1.7,
+          "y": 5.7,
+          "yaw": 0.0
+        }
+      ],
+      "door_widths": [
+        0.8,
+        0.8
+      ],
+      "target_preview_no_wall_overlap": true,
+      "lane_spacing": 0.7
+    }
+  ],
+  "runtime_identical_across_door_patterns": true,
+  "flight_algorithms_changed": false,
+  "door_geometry_only_for_private_gate": true
+}

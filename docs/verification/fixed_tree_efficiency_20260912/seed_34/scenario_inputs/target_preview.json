@@ -1,0 +1,35 @@
+{
+  "scope": "Offline production-policy preview with configured H/tree exclusions; actual Gazebo readback remains authoritative",
+  "targets": [
+    {
+      "target_class": "tent",
+      "x": 0.27777967622795785,
+      "y": 4.2445495234738795,
+      "yaw": 2.7253317508924395
+    },
+    {
+      "target_class": "pillbox",
+      "x": 3.6689906636992964,
+      "y": 2.4540359961393117,
+      "yaw": 0.5578983859757733
+    },
+    {
+      "target_class": "bridge",
+      "x": -1.86063585225578,
+      "y": 0.2657164613216705,
+      "yaw": 0.8588461686049644
+    },
+    {
+      "target_class": "panzer",
+      "x": -2.3499180264603377,
+      "y": 3.9708787494160074,
+      "yaw": -1.3071711681597538
+    },
+    {
+      "target_class": "red_cross",
+      "x": 3.2528993410871836,
+      "y": 5.983767691497411,
+      "yaw": -1.1696016368246909
+    }
+  ]
+}

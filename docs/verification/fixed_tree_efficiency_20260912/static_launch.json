@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "nodes_started": false,
+  "cases": [
+    {
+      "seed": 32,
+      "local": false,
+      "nodes": 37,
+      "task_local_enabled": false,
+      "gate_private": true,
+      "use_sim_time": true
+    },
+    {
+      "seed": 32,
+      "local": true,
+      "nodes": 37,
+      "task_local_enabled": true,
+      "gate_private": true,
+      "use_sim_time": true
+    },
+    {
+      "seed": 34,
+      "local": false,
+      "nodes": 37,
+      "task_local_enabled": false,
+      "gate_private": true,
+      "use_sim_time": true
+    },
+    {
+      "seed": 34,
+      "local": true,
+      "nodes": 37,
+      "task_local_enabled": true,
+      "gate_private": true,
+      "use_sim_time": true
+    }
+  ]
+}
