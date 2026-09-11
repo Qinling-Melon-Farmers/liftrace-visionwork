@@ -1,5 +1,7 @@
 # 2026无人机竞赛整机工程
 
+> **搜索效率研究分支：待审阅，禁止用于正赛部署。** 从86e382d隔离建立，本轮仅文档和既有航迹分析；未实施优化、未改飞行配置、未启动仿真或重打包。先看[优化计划](docs/planning/search_efficiency_20260911/PLAN.md)及[20260911最新规则复盘](docs/competition/RULES_20260906.md)。原正赛工作树与交付c369e6f8保留。以下为继承的基线说明。
+
 2026-09-11 驱动迁移：当前源码统一使用 **livox_ros_driver2 + Livox SDK2**；仿真仍由 Gazebo 发布 PointCloud2。两类源码包均需 SDK2 才能编译完整导航工作区，旧版本压缩包不会自动更新。[构建与实机接线说明](docs/deployment/LIVOX_DRIVER2.md)。
 
 

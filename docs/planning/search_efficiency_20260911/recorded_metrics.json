@@ -1,0 +1,6220 @@
+{
+  "scope": "Existing logs only; no simulated candidate or flight execution",
+  "method": "SEARCH phase, dt<=0.5s, XY speed>=0.1m/s; revisit within radius of earlier moving SEARCH sample at least 15s old. Not observed area, target recall, avoidable path or attainable savings.",
+  "lag_s": 15,
+  "radii_m": [
+    0.2,
+    0.3,
+    0.4
+  ],
+  "runs": [
+    {
+      "group": "R60",
+      "seed": 1,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_matrix_seed01_20260908_013142",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 27.825,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 476.961,
+      "drops": 3,
+      "third_release_s": 323.605,
+      "phase_seconds": {
+        "IDLE": 27.825,
+        "SEARCH": 292.64000000000004,
+        "EXECUTING": 33.48899999999999,
+        "POST_DELIVERY_ROUTE": 120.36399999999998,
+        "LAND": 2.643000000000029
+      },
+      "search_sampled_s": 292.567,
+      "search_slow_s": 188.88400000000001,
+      "search_moving_path_m": 31.633094138387264,
+      "search_total_path_m": 35.570686280003926,
+      "revisit_m": {
+        "0.2": 6.203642783272635,
+        "0.3": 8.989831405669332,
+        "0.4": 10.562690568234347
+      },
+      "revisit_fraction": {
+        "0.2": 0.19611242441644097,
+        "0.3": 0.2841907075653414,
+        "0.4": 0.3339126587498867
+      },
+      "search_config": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 50.0442488845247,
+          "y": 0.10143369312194483,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 46.962,
+          "end": 60.861,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -0.297774,
+            -1.1279
+          ],
+          "t": 53.22677584788715,
+          "y": 0.060118505723997406,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 46.962,
+          "end": 60.861,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 82.74237363198056,
+          "y": 1.0839648897227236,
+          "side": "N",
+          "command": 3,
+          "decision_seq": 8,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 74.496,
+          "end": 85.392,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 77.23041000564567,
+          "y": 1.2835370939072002,
+          "side": "N",
+          "command": 3,
+          "decision_seq": 8,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 74.496,
+          "end": 85.392,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 97.1826518167683,
+          "y": 1.2681551195054237,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 88.466,
+          "end": 101.754,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R60",
+      "seed": 2,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_matrix_seed02_20260908_015830",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 28.07,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 252.164,
+      "drops": 3,
+      "third_release_s": 121.709,
+      "phase_seconds": {
+        "IDLE": 28.069,
+        "SEARCH": 89.11699999999999,
+        "EXECUTING": 34.908,
+        "POST_DELIVERY_ROUTE": 100.07
+      },
+      "search_sampled_s": 89.13499999999999,
+      "search_slow_s": 7.492999999999995,
+      "search_moving_path_m": 25.014955362817574,
+      "search_total_path_m": 25.43914002592362,
+      "revisit_m": {
+        "0.2": 1.4077393202143615,
+        "0.3": 2.4196625465831145,
+        "0.4": 3.5694488426467954
+      },
+      "revisit_fraction": {
+        "0.2": 0.05627590774384656,
+        "0.3": 0.0967286373886447,
+        "0.4": 0.1426925929259283
+      },
+      "search_config": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 33.11290717793642,
+          "y": 0.25190866142800467,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 1,
+          "goal": {
+            "x": -2.007,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 28.07,
+          "end": 35.917,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 38.882272222189386,
+          "y": 0.20439308272721715,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 2,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 35.921,
+          "end": 49.05,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -0.297774,
+            -1.1279
+          ],
+          "t": 41.79617259225728,
+          "y": 0.06657773012810282,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 2,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 35.921,
+          "end": 49.05,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 63.05485588716212,
+          "y": 0.978734346089872,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 52.481,
+          "end": 65.746,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 57.30769785789915,
+          "y": 0.9564105161363047,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 52.481,
+          "end": 65.746,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 72.79170923202386,
+          "y": 1.2189568471235228,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 69.213,
+          "end": 82.914,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 78.2312520813206,
+          "y": 1.3398178967946957,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 69.213,
+          "end": 82.914,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 92.90979191817613,
+          "y": 1.3136980948421673,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": -2.007,
+            "y": 2.373,
+            "z": 1.4
+          },
+          "begin": 86.249,
+          "end": 102.477,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R60",
+      "seed": 3,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_matrix_seed03_20260908_021325",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 28.024,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 287.257,
+      "drops": 3,
+      "third_release_s": 153.194,
+      "phase_seconds": {
+        "IDLE": 28.024,
+        "SEARCH": 123.54000000000002,
+        "EXECUTING": 31.935999999999986,
+        "POST_DELIVERY_ROUTE": 103.757
+      },
+      "search_sampled_s": 123.56800000000001,
+      "search_slow_s": 10.770999999999987,
+      "search_moving_path_m": 33.960217774239936,
+      "search_total_path_m": 34.5558390265424,
+      "revisit_m": {
+        "0.2": 5.853263205851942,
+        "0.3": 7.754751183453417,
+        "0.4": 9.906032702957297
+      },
+      "revisit_fraction": {
+        "0.2": 0.17235646852335132,
+        "0.3": 0.2283480993851482,
+        "0.4": 0.2916952055140054
+      },
+      "search_config": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -0.297774,
+            -1.1279
+          ],
+          "t": 53.74638802049285,
+          "y": -0.10934151627853718,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 47.216,
+          "end": 61.48,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 75.89229368629967,
+          "y": 0.9130559664991243,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 64.684,
+          "end": 78.611,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 70.15169811157125,
+          "y": 0.6610378835929805,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 64.684,
+          "end": 78.611,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 91.594901279622,
+          "y": 0.6976700860323231,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 82.012,
+          "end": 97.011,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 106.41778729207093,
+          "y": 1.490803262111683,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -2.007,
+            "y": 2.373,
+            "z": 1.4
+          },
+          "begin": 100.416,
+          "end": 116.779,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R60",
+      "seed": 4,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_matrix_seed04_20260908_022859",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 27.882,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 250.962,
+      "drops": 1,
+      "third_release_s": null,
+      "phase_seconds": {
+        "IDLE": 27.882,
+        "SEARCH": 91.35399999999998,
+        "EXECUTING": 131.07500000000002,
+        "RETURN_HOME": 0.650999999999982
+      },
+      "search_sampled_s": 91.42099999999999,
+      "search_slow_s": 5.785999999999994,
+      "search_moving_path_m": 25.99558231216767,
+      "search_total_path_m": 26.34055841261804,
+      "revisit_m": {
+        "0.2": 4.792727179257309,
+        "0.3": 7.409144978154867,
+        "0.4": 9.922578959316695
+      },
+      "revisit_fraction": {
+        "0.2": 0.1843669867327416,
+        "0.3": 0.2850155418402338,
+        "0.4": 0.3817025077631081
+      },
+      "search_config": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 49.89866520044408,
+          "y": 0.16743579507946754,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 46.773,
+          "end": 60.616,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -0.297774,
+            -1.1279
+          ],
+          "t": 53.05815108326979,
+          "y": 0.15080243470972743,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 46.773,
+          "end": 60.616,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 75.47077598558283,
+          "y": 0.4416347167133959,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 63.844,
+          "end": 78.671,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 69.24619348652983,
+          "y": 0.9989629838848816,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 63.844,
+          "end": 78.671,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 86.79118297903688,
+          "y": 0.7191931917248326,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 81.868,
+          "end": 100.168,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -0.297774,
+            -1.1279
+          ],
+          "t": 91.06438775688382,
+          "y": -0.17923786323757382,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 81.868,
+          "end": 100.168,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 94.34793208806346,
+          "y": 0.4736506399628704,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 81.868,
+          "end": 100.168,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 109.31326269751504,
+          "y": 1.450182947714286,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -2.007,
+            "y": 2.373,
+            "z": 1.4
+          },
+          "begin": 103.685,
+          "end": 120.016,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R60",
+      "seed": 5,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_matrix_seed05_20260908_024146",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 28.058,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 285.403,
+      "drops": 3,
+      "third_release_s": 112.231,
+      "phase_seconds": {
+        "IDLE": 28.058,
+        "SEARCH": 85.518,
+        "EXECUTING": 28.940999999999992,
+        "POST_DELIVERY_ROUTE": 132.04200000000003,
+        "LAND": 8.426999999999964,
+        "COMPLETE": 2.41700000000003
+      },
+      "search_sampled_s": 85.57,
+      "search_slow_s": 5.565000000000005,
+      "search_moving_path_m": 23.97163818111759,
+      "search_total_path_m": 24.3096318921608,
+      "revisit_m": {
+        "0.2": 4.0193824222957755,
+        "0.3": 6.383843613539067,
+        "0.4": 7.605805273482717
+      },
+      "revisit_fraction": {
+        "0.2": 0.16767241320461088,
+        "0.3": 0.26630819159316393,
+        "0.4": 0.31728350044402864
+      },
+      "search_config": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 48.88506735621083,
+          "y": 0.16413138213081088,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 45.925,
+          "end": 59.456,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -0.297774,
+            -1.1279
+          ],
+          "t": 51.88478315013011,
+          "y": 0.13737601314667977,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 45.925,
+          "end": 59.456,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 73.57877781216823,
+          "y": 0.935952332051203,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 62.721,
+          "end": 76.287,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 68.01978396355543,
+          "y": 1.0331760569200992,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 62.721,
+          "end": 76.287,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 88.4987934827188,
+          "y": 1.2846835232063718,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 79.62,
+          "end": 93.229,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R60",
+      "seed": 6,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_matrix_seed06_20260908_025845",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 28.26,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 287.704,
+      "drops": 3,
+      "third_release_s": 116.289,
+      "phase_seconds": {
+        "IDLE": 28.26,
+        "SEARCH": 85.72700000000002,
+        "EXECUTING": 32.95999999999998,
+        "POST_DELIVERY_ROUTE": 134.719,
+        "LAND": 6.038000000000011
+      },
+      "search_sampled_s": 85.60000000000001,
+      "search_slow_s": 8.33599999999996,
+      "search_moving_path_m": 23.019203637456137,
+      "search_total_path_m": 23.468104229202705,
+      "revisit_m": {
+        "0.2": 3.924539677834481,
+        "0.3": 5.372488469694392,
+        "0.4": 7.304414319856383
+      },
+      "revisit_fraction": {
+        "0.2": 0.1704898110136439,
+        "0.3": 0.23339158705527263,
+        "0.4": 0.31731828932478207
+      },
+      "search_config": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 51.73983421007407,
+          "y": 0.23020667928964017,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 48.598,
+          "end": 62.256,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -0.297774,
+            -1.1279
+          ],
+          "t": 54.95545724057276,
+          "y": 0.20792987036648214,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 48.598,
+          "end": 62.256,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 77.01479951605933,
+          "y": 0.702242473958642,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 65.693,
+          "end": 79.793,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 71.30719420223824,
+          "y": 0.5597550483368255,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 65.693,
+          "end": 79.793,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 92.12882095306871,
+          "y": 1.2681101811981441,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 83.064,
+          "end": 92.402,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R60",
+      "seed": 7,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_matrix_seed07_20260908_031450",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 28.358,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 276.36,
+      "drops": 3,
+      "third_release_s": 114.482,
+      "phase_seconds": {
+        "IDLE": 28.358,
+        "SEARCH": 84.226,
+        "EXECUTING": 32.482000000000006,
+        "POST_DELIVERY_ROUTE": 119.46399999999997,
+        "LAND": 11.16900000000004,
+        "COMPLETE": 0.6610000000000014
+      },
+      "search_sampled_s": 84.238,
+      "search_slow_s": 9.078999999999994,
+      "search_moving_path_m": 22.57819690997978,
+      "search_total_path_m": 23.02997490599967,
+      "revisit_m": {
+        "0.2": 6.2330677572332736,
+        "0.3": 8.071881406366026,
+        "0.4": 9.600168199613805
+      },
+      "revisit_fraction": {
+        "0.2": 0.27606578957942374,
+        "0.3": 0.35750779562021523,
+        "0.4": 0.42519640686499804
+      },
+      "search_config": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 51.35748965308775,
+          "y": 0.23022829454634505,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 48.332,
+          "end": 61.9,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -0.297774,
+            -1.1279
+          ],
+          "t": 54.56678759849853,
+          "y": 0.21921854714537894,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 48.332,
+          "end": 61.9,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 84.4747565242223,
+          "y": 1.0771871849580408,
+          "side": "N",
+          "command": 3,
+          "decision_seq": 8,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 76.433,
+          "end": 87.23,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 99.66839286028615,
+          "y": 1.1864932974497533,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 90.599,
+          "end": 104.364,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 121.26953602713053,
+          "y": 0.6047054021977178,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": -2.007,
+            "y": 2.373,
+            "z": 1.4
+          },
+          "begin": 108.099,
+          "end": 127.53,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 114.69352274993645,
+          "y": 1.1130951713621777,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": -2.007,
+            "y": 2.373,
+            "z": 1.4
+          },
+          "begin": 108.099,
+          "end": 127.53,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R60",
+      "seed": 8,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_matrix_seed08_20260908_033019",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 27.834,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 286.903,
+      "drops": 3,
+      "third_release_s": 117.537,
+      "phase_seconds": {
+        "IDLE": 27.834,
+        "SEARCH": 88.76499999999999,
+        "EXECUTING": 31.02000000000001,
+        "POST_DELIVERY_ROUTE": 135.754,
+        "LAND": 3.5300000000000296
+      },
+      "search_sampled_s": 88.74700000000001,
+      "search_slow_s": 7.783999999999988,
+      "search_moving_path_m": 24.545158427573917,
+      "search_total_path_m": 24.93848327640127,
+      "revisit_m": {
+        "0.2": 4.727708422008143,
+        "0.3": 6.7005226059593905,
+        "0.4": 7.959085282604845
+      },
+      "revisit_fraction": {
+        "0.2": 0.19261266680996678,
+        "0.3": 0.27298754765551053,
+        "0.4": 0.3242629419602216
+      },
+      "search_config": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -0.297774,
+            -1.1279
+          ],
+          "t": 54.20373843701218,
+          "y": -0.014447829333204735,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 47.699,
+          "end": 61.673,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 83.64413259041142,
+          "y": 1.0908808285950224,
+          "side": "N",
+          "command": 3,
+          "decision_seq": 8,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 75.741,
+          "end": 86.438,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 98.59216643030766,
+          "y": 1.2968532109729143,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 89.676,
+          "end": 103.071,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R60",
+      "seed": 9,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_matrix_seed09_20260908_034538",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 28.023,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 433.69,
+      "drops": 2,
+      "third_release_s": null,
+      "phase_seconds": {
+        "IDLE": 28.023,
+        "SEARCH": 291.10400000000004,
+        "EXECUTING": 113.91199999999999,
+        "RETURN_HOME": 0.6510000000000105
+      },
+      "search_sampled_s": 291.10900000000004,
+      "search_slow_s": 185.48000000000005,
+      "search_moving_path_m": 31.955487771121387,
+      "search_total_path_m": 35.89065197124082,
+      "revisit_m": {
+        "0.2": 4.247979333783709,
+        "0.3": 6.9963239263541706,
+        "0.4": 9.059687339603846
+      },
+      "revisit_fraction": {
+        "0.2": 0.13293426669652236,
+        "0.3": 0.21893966934458264,
+        "0.4": 0.28350959323459957
+      },
+      "search_config": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -0.297774,
+            -1.1279
+          ],
+          "t": 54.370907215872194,
+          "y": -0.4011586253766914,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 47.327,
+          "end": 62.127,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 57.09506313669013,
+          "y": -0.3541485134129938,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 47.327,
+          "end": 62.127,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 77.04898436214945,
+          "y": 0.5273577872208615,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 65.459,
+          "end": 80.058,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 70.8966417435086,
+          "y": 1.0806030203020331,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 65.459,
+          "end": 80.058,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 92.60139469273916,
+          "y": 1.016626137229434,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 83.459,
+          "end": 97.527,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R60",
+      "seed": 10,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_matrix_seed10_20260908_040831",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 28.082,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 287.986,
+      "drops": 3,
+      "third_release_s": 117.30700000000002,
+      "phase_seconds": {
+        "IDLE": 28.082,
+        "SEARCH": 89.44500000000001,
+        "EXECUTING": 30.20999999999999,
+        "POST_DELIVERY_ROUTE": 137.694,
+        "LAND": 2.555000000000007
+      },
+      "search_sampled_s": 89.50200000000001,
+      "search_slow_s": 9.291000000000004,
+      "search_moving_path_m": 24.210044856135816,
+      "search_total_path_m": 24.665494655644647,
+      "revisit_m": {
+        "0.2": 5.493444147895878,
+        "0.3": 6.797065328085651,
+        "0.4": 8.048989400007425
+      },
+      "revisit_fraction": {
+        "0.2": 0.22690764021875054,
+        "0.3": 0.2807539336864548,
+        "0.4": 0.3324648693481244
+      },
+      "search_config": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 51.25197117916164,
+          "y": 0.298853749419466,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 48.03,
+          "end": 61.855,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -0.297774,
+            -1.1279
+          ],
+          "t": 54.48153121194995,
+          "y": 0.3218075872490166,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 48.03,
+          "end": 61.855,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 57.159398441383566,
+          "y": 0.30297172040308695,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 48.03,
+          "end": 61.855,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 85.0672545102934,
+          "y": 1.0798012975064095,
+          "side": "N",
+          "command": 3,
+          "decision_seq": 8,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 76.899,
+          "end": 87.89,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 100.31481979155552,
+          "y": 1.2570902486555084,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 91.494,
+          "end": 104.954,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R60",
+      "seed": 11,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_full_pilot_seed11_20260908_011243",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 27.813,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 299.175,
+      "drops": 3,
+      "third_release_s": 119.147,
+      "phase_seconds": {
+        "IDLE": 27.813,
+        "SEARCH": 90.218,
+        "EXECUTING": 31.165,
+        "POST_DELIVERY_ROUTE": 137.66100000000003,
+        "LAND": 10.706999999999994,
+        "COMPLETE": 1.61099999999999
+      },
+      "search_sampled_s": 90.21,
+      "search_slow_s": 7.6050000000000075,
+      "search_moving_path_m": 24.884646400101275,
+      "search_total_path_m": 25.32998713376407,
+      "revisit_m": {
+        "0.2": 4.176797494769513,
+        "0.3": 5.070948788953564,
+        "0.4": 6.7523426783149265
+      },
+      "revisit_fraction": {
+        "0.2": 0.16784636709776654,
+        "0.3": 0.20377821357883255,
+        "0.4": 0.27134573542855106
+      },
+      "search_config": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 50.42760038092582,
+          "y": 0.2159525308049888,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 47.333,
+          "end": 61.163,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -0.297774,
+            -1.1279
+          ],
+          "t": 53.623556497058814,
+          "y": 0.21757192890505656,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": 1.993,
+            "y": 0.273,
+            "z": 1.4
+          },
+          "begin": 47.333,
+          "end": 61.163,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.28059,
+            -0.247375
+          ],
+          "t": 75.37757219940013,
+          "y": 0.8610340430506476,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 64.39,
+          "end": 78.131,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 69.73826174591507,
+          "y": 0.8635158461216754,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -2.007,
+            "y": 0.973,
+            "z": 1.4
+          },
+          "begin": 64.39,
+          "end": 78.131,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            0.59507,
+            0.002605
+          ],
+          "t": 90.97197029506552,
+          "y": 1.2261873157394543,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 1.993,
+            "y": 1.673,
+            "z": 1.4
+          },
+          "begin": 81.436,
+          "end": 95.666,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R64",
+      "seed": 1,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed01_20260909_154735",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 22.893,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 437.202,
+      "drops": 3,
+      "third_release_s": 243.818,
+      "phase_seconds": {
+        "IDLE": 22.893,
+        "SEARCH": 214.63099999999997,
+        "EXECUTING": 31.676000000000016,
+        "POST_DELIVERY_ROUTE": 152.851,
+        "LAND": 14.588999999999999,
+        "COMPLETE": 0.5620000000000118
+      },
+      "search_sampled_s": 214.57100000000003,
+      "search_slow_s": 14.252999999999972,
+      "search_moving_path_m": 64.71765249562212,
+      "search_total_path_m": 65.45780400443371,
+      "revisit_m": {
+        "0.2": 15.416084613811423,
+        "0.3": 19.296232766933432,
+        "0.4": 22.221401722297998
+      },
+      "revisit_fraction": {
+        "0.2": 0.23820525033497247,
+        "0.3": 0.29816027038741466,
+        "0.4": 0.3433592051844152
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 87.43497596656528,
+          "y": 0.7008879715992419,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": -4.3,
+            "y": 0.7,
+            "z": 1.18
+          },
+          "begin": 68.405,
+          "end": 95.536,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 108.45089918888128,
+          "y": 0.8002016741589301,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 99.082,
+          "end": 127.477,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 152.06986812152715,
+          "y": 3.427817081112504,
+          "side": "N",
+          "command": 3,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 146.382,
+          "end": 156.212,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 173.23384267192196,
+          "y": 2.812483771114471,
+          "side": "N",
+          "command": 3,
+          "decision_seq": 12,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 166.441,
+          "end": 182.635,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 194.3071249826842,
+          "y": 2.995216845838584,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 186.142,
+          "end": 213.001,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 204.66179990074096,
+          "y": 3.495258475352183,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 186.142,
+          "end": 213.001,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 235.93563818502625,
+          "y": 2.9355554234452055,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 217.017,
+          "end": 244.497,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 225.6689110742537,
+          "y": 3.6017233379431763,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 217.017,
+          "end": 244.497,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 257.1378426414953,
+          "y": 4.487952761887542,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 247.946,
+          "end": 258.717,
+          "goal_side": "S"
+        }
+      ]
+    },
+    {
+      "group": "R64",
+      "seed": 2,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed02_20260909_161313",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 22.473,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 478.19,
+      "drops": 3,
+      "third_release_s": 305.268,
+      "phase_seconds": {
+        "IDLE": 22.473,
+        "SEARCH": 273.51899999999995,
+        "EXECUTING": 34.15900000000002,
+        "POST_DELIVERY_ROUTE": 131.67399999999998,
+        "LAND": 15.864000000000033,
+        "COMPLETE": 0.5009999999999764
+      },
+      "search_sampled_s": 273.524,
+      "search_slow_s": 14.68199999999997,
+      "search_moving_path_m": 84.14891539950378,
+      "search_total_path_m": 84.986423350076,
+      "revisit_m": {
+        "0.2": 14.37810901472616,
+        "0.3": 18.002381135513776,
+        "0.4": 22.293077714544125
+      },
+      "revisit_fraction": {
+        "0.2": 0.17086505448661965,
+        "0.3": 0.2139347970208055,
+        "0.4": 0.2649241241994141
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 117.73243739550648,
+          "y": 1.109156113779991,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 109.253,
+          "end": 135.661,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 158.84058760281266,
+          "y": 1.2433808525830397,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 138.993,
+          "end": 167.654,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 147.89339277396667,
+          "y": 1.757693698977389,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 138.993,
+          "end": 167.654,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 179.08723103463421,
+          "y": 3.133739729440712,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 171.288,
+          "end": 181.002,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 198.34906749359314,
+          "y": 1.8007496162520895,
+          "side": "S",
+          "command": 3,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 190.058,
+          "end": 206.886,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 231.6598077288453,
+          "y": 2.9019283235294933,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 210.154,
+          "end": 239.753,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 220.3934585566539,
+          "y": 1.9133768563270295,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 210.154,
+          "end": 239.753,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 252.34137822612567,
+          "y": 3.140167592385546,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 243.525,
+          "end": 270.723,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 262.67159996166095,
+          "y": 3.57572804989882,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 243.525,
+          "end": 270.723,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 294.2720225955913,
+          "y": 3.4303752385911066,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 274.318,
+          "end": 304.053,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 282.96831821497943,
+          "y": 4.918509703971432,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 274.318,
+          "end": 304.053,
+          "goal_side": "S"
+        }
+      ]
+    },
+    {
+      "group": "R64",
+      "seed": 3,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed03_20260909_163846",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 23.803,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 450.875,
+      "drops": 3,
+      "third_release_s": 269.569,
+      "phase_seconds": {
+        "IDLE": 23.803,
+        "SEARCH": 241.89799999999994,
+        "EXECUTING": 30.171000000000056,
+        "POST_DELIVERY_ROUTE": 145.243,
+        "LAND": 9.759999999999991
+      },
+      "search_sampled_s": 241.934,
+      "search_slow_s": 14.870999999999963,
+      "search_moving_path_m": 74.03675191392291,
+      "search_total_path_m": 74.81293269833307,
+      "revisit_m": {
+        "0.2": 9.782822688070345,
+        "0.3": 13.255706476260348,
+        "0.4": 17.026230426663506
+      },
+      "revisit_fraction": {
+        "0.2": 0.13213468223787173,
+        "0.3": 0.17904224771599628,
+        "0.4": 0.22996998094214954
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 118.3269776527647,
+          "y": 1.1124412477111814,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 109.747,
+          "end": 136.199,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 128.49349631036077,
+          "y": 1.2288900402954333,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 109.747,
+          "end": 136.199,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 159.2747252118722,
+          "y": 1.0609854551064937,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 139.606,
+          "end": 168.441,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 148.31443872171914,
+          "y": 1.8916970470684284,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 139.606,
+          "end": 168.441,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 180.81890449253834,
+          "y": 2.804168736588469,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 172.241,
+          "end": 199.588,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 191.52118255521174,
+          "y": 1.96011297204051,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 172.241,
+          "end": 199.588,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 231.465613020123,
+          "y": 3.796802056907798,
+          "side": "S",
+          "command": 3,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 218.576,
+          "end": 240.311,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 222.1922551134827,
+          "y": 4.336537353957242,
+          "side": "S",
+          "command": 3,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 218.576,
+          "end": 240.311,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 262.64646385409253,
+          "y": 3.7571363816736962,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 244.14,
+          "end": 270.738,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 283.0991086646565,
+          "y": 4.876440873145043,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 274.376,
+          "end": 285.904,
+          "goal_side": "S"
+        }
+      ]
+    },
+    {
+      "group": "R64",
+      "seed": 4,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed04_20260909_170148",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 22.854,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 494.434,
+      "drops": 3,
+      "third_release_s": 339.623,
+      "phase_seconds": {
+        "IDLE": 22.855,
+        "SEARCH": 313.26800000000003,
+        "EXECUTING": 28.949999999999974,
+        "POST_DELIVERY_ROUTE": 115.06700000000001,
+        "LAND": 13.52600000000001,
+        "COMPLETE": 0.7680000000000291
+      },
+      "search_sampled_s": 313.30800000000005,
+      "search_slow_s": 16.256000000000093,
+      "search_moving_path_m": 96.4207598779915,
+      "search_total_path_m": 97.3563543562914,
+      "revisit_m": {
+        "0.2": 14.177634470947766,
+        "0.3": 18.79060644094159,
+        "0.4": 23.860163664819268
+      },
+      "revisit_fraction": {
+        "0.2": 0.1470392318924659,
+        "0.3": 0.19488133535473864,
+        "0.4": 0.2474587806091898
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 84.75044425128523,
+          "y": 1.3617107645468158,
+          "side": "S",
+          "command": 3,
+          "decision_seq": 6,
+          "goal": {
+            "x": -4.3,
+            "y": 0.7,
+            "z": 1.18
+          },
+          "begin": 81.242,
+          "end": 87.901,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 105.76492563739644,
+          "y": 1.1335582197419756,
+          "side": "S",
+          "command": 3,
+          "decision_seq": 8,
+          "goal": {
+            "x": -4.3,
+            "y": 0.7,
+            "z": 1.18
+          },
+          "begin": 97.845,
+          "end": 113.605,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 169.53274826931028,
+          "y": 1.1987545055933688,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 149.403,
+          "end": 178.331,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 157.97342966007636,
+          "y": 1.8655097364655184,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 149.403,
+          "end": 178.331,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 190.06096066219328,
+          "y": 3.172514428147016,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 181.766,
+          "end": 209.204,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 200.83048785655268,
+          "y": 1.937168410557591,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 181.766,
+          "end": 209.204,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 221.19776098889344,
+          "y": 3.733446578745826,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 212.474,
+          "end": 239.198,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 261.4102079871123,
+          "y": 4.061876687111956,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 242.84,
+          "end": 269.336,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 251.97824936218584,
+          "y": 4.335073670999474,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 242.84,
+          "end": 269.336,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 291.03467914383066,
+          "y": 4.429622751307547,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 273.006,
+          "end": 299.87,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 281.56163407281537,
+          "y": 4.919482710505257,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 273.006,
+          "end": 299.87,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 312.7376730902039,
+          "y": 6.021334603836785,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 22,
+          "goal": {
+            "x": 4.3,
+            "y": 5.6000000000000005,
+            "z": 1.18
+          },
+          "begin": 303.445,
+          "end": 330.831,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 322.11932613613897,
+          "y": 6.438986123581433,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 22,
+          "goal": {
+            "x": 4.3,
+            "y": 5.6000000000000005,
+            "z": 1.18
+          },
+          "begin": 303.445,
+          "end": 330.831,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 352.4663712254658,
+          "y": 6.5541524238910345,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 24,
+          "goal": {
+            "x": -4.3,
+            "y": 6.300000000000001,
+            "z": 1.18
+          },
+          "begin": 334.765,
+          "end": 355.001,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 343.5631791198047,
+          "y": 6.487785160600421,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 24,
+          "goal": {
+            "x": -4.3,
+            "y": 6.300000000000001,
+            "z": 1.18
+          },
+          "begin": 334.765,
+          "end": 355.001,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R64",
+      "seed": 5,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed05_20260909_173017",
+      "invalid_r64_layout": true,
+      "mission_start_ros": 22.504,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 539.974,
+      "drops": 2,
+      "third_release_s": null,
+      "phase_seconds": {
+        "IDLE": 22.504,
+        "SEARCH": 333.52599999999995,
+        "EXECUTING": 149.68600000000004,
+        "RETURN_HOME": 26.615999999999985,
+        "LAND": 7.152000000000044,
+        "COMPLETE": 0.4900000000000091
+      },
+      "search_sampled_s": 333.505,
+      "search_slow_s": 18.926000000000027,
+      "search_moving_path_m": 101.56038345779659,
+      "search_total_path_m": 102.59007272310795,
+      "revisit_m": {
+        "0.2": 16.17734364677633,
+        "0.3": 22.1376767591015,
+        "0.4": 28.76808578667476
+      },
+      "revisit_fraction": {
+        "0.2": 0.15928793389696902,
+        "0.3": 0.21797551373268306,
+        "0.4": 0.28326090161553336
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 64.4829339854314,
+          "y": 1.2465161384635297,
+          "side": "S",
+          "command": 3,
+          "decision_seq": 4,
+          "goal": {
+            "x": 4.3,
+            "y": 0.0,
+            "z": 1.18
+          },
+          "begin": 61.155,
+          "end": 82.918,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 169.32745144585812,
+          "y": 1.1149102004111688,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 148.96,
+          "end": 178.086,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 157.57988145672988,
+          "y": 1.7453815938223236,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 148.96,
+          "end": 178.086,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 190.07883715080655,
+          "y": 3.0849864210316826,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 181.689,
+          "end": 208.492,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 200.25558283409313,
+          "y": 3.522632123520709,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 181.689,
+          "end": 208.492,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 221.37402154008788,
+          "y": 3.7105114376974435,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 212.056,
+          "end": 224.5,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 240.67806766668923,
+          "y": 3.9616877814244362,
+          "side": "S",
+          "command": 3,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 233.821,
+          "end": 250.056,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 263.3954477362688,
+          "y": 4.423945480845369,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 254.255,
+          "end": 280.882,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 272.5670683134683,
+          "y": 4.503907121233903,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 254.255,
+          "end": 280.882,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 294.08013762388526,
+          "y": 3.8765209321111764,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 284.483,
+          "end": 312.92,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 303.8687381269488,
+          "y": 4.264442271698188,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 284.483,
+          "end": 312.92,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 326.17955413317674,
+          "y": 6.004539585608502,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 22,
+          "goal": {
+            "x": 4.3,
+            "y": 5.6000000000000005,
+            "z": 1.18
+          },
+          "begin": 316.221,
+          "end": 344.318,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 335.90277510015136,
+          "y": 6.464171280758212,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 22,
+          "goal": {
+            "x": 4.3,
+            "y": 5.6000000000000005,
+            "z": 1.18
+          },
+          "begin": 316.221,
+          "end": 344.318,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 366.63627646218436,
+          "y": 6.2033100538437,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 24,
+          "goal": {
+            "x": -4.3,
+            "y": 6.300000000000001,
+            "z": 1.18
+          },
+          "begin": 347.821,
+          "end": 375.614,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 356.77458962860453,
+          "y": 6.4629893514710774,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 24,
+          "goal": {
+            "x": -4.3,
+            "y": 6.300000000000001,
+            "z": 1.18
+          },
+          "begin": 347.821,
+          "end": 375.614,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R64",
+      "seed": 6,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed06_20260909_175752",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 23.882,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 480.31,
+      "drops": 3,
+      "third_release_s": 303.282,
+      "phase_seconds": {
+        "IDLE": 23.882,
+        "SEARCH": 276.34700000000004,
+        "EXECUTING": 29.36399999999999,
+        "POST_DELIVERY_ROUTE": 136.428,
+        "LAND": 13.300000000000011,
+        "COMPLETE": 0.9889999999999759
+      },
+      "search_sampled_s": 276.326,
+      "search_slow_s": 16.946999999999974,
+      "search_moving_path_m": 84.63415903786358,
+      "search_total_path_m": 85.49474769950851,
+      "revisit_m": {
+        "0.2": 16.772099289800664,
+        "0.3": 23.682088780385847,
+        "0.4": 28.740021389704648
+      },
+      "revisit_fraction": {
+        "0.2": 0.19817174862335635,
+        "0.3": 0.2798171453418822,
+        "0.4": 0.33957945250979515
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 109.40995814256935,
+          "y": 1.1859489688805678,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 100.661,
+          "end": 121.902,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 119.6542826261977,
+          "y": 1.4332385250240798,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 100.661,
+          "end": 121.902,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 158.99713174336864,
+          "y": 0.9630995966149053,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 139.228,
+          "end": 167.973,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 148.21801471710972,
+          "y": 1.6810517308683453,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 139.228,
+          "end": 167.973,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 179.61687649915302,
+          "y": 2.8606766658422704,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 171.725,
+          "end": 198.494,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 190.22370206175916,
+          "y": 3.6677062885891742,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 171.725,
+          "end": 198.494,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 210.1756636089415,
+          "y": 3.689412141514761,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 201.867,
+          "end": 222.903,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 220.03095610795802,
+          "y": 3.931100995610838,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 201.867,
+          "end": 222.903,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 260.31074817319285,
+          "y": 3.580409207872897,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 241.302,
+          "end": 268.528,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 292.50422668721,
+          "y": 3.136762612227673,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 272.028,
+          "end": 302.461,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 280.5976227345158,
+          "y": 4.985169506584053,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 272.028,
+          "end": 302.461,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 315.57378959463546,
+          "y": 6.20656971395715,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 22,
+          "goal": {
+            "x": 4.3,
+            "y": 5.6000000000000005,
+            "z": 1.18
+          },
+          "begin": 306.295,
+          "end": 317.708,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R64",
+      "seed": 7,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed07_20260909_182205",
+      "invalid_r64_layout": true,
+      "mission_start_ros": 26.012,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 363.538,
+      "drops": 2,
+      "third_release_s": null,
+      "phase_seconds": {
+        "IDLE": 26.012,
+        "SEARCH": 313.26800000000003,
+        "EXECUTING": 24.258000000000024
+      },
+      "search_sampled_s": 313.372,
+      "search_slow_s": 19.294000000000008,
+      "search_moving_path_m": 94.89068532127908,
+      "search_total_path_m": 95.90184147131598,
+      "revisit_m": {
+        "0.2": 13.235557842079166,
+        "0.3": 19.08751385299033,
+        "0.4": 24.57617275170363
+      },
+      "revisit_fraction": {
+        "0.2": 0.139482160944106,
+        "0.3": 0.20115266096313025,
+        "0.4": 0.25899457537369547
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 125.77062364275469,
+          "y": 1.191972890820677,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 116.777,
+          "end": 144.01,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 167.89597195318126,
+          "y": 1.000057891950061,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 147.777,
+          "end": 177.071,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 156.26680102538785,
+          "y": 1.8963039852844255,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 147.777,
+          "end": 177.071,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 191.79921835200133,
+          "y": 1.0244428336776041,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 180.652,
+          "end": 210.646,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 202.39080976361797,
+          "y": 1.9427606962412323,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 180.652,
+          "end": 210.646,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 224.25031380498578,
+          "y": 3.860637356692794,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 214.253,
+          "end": 242.206,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 265.73698348129807,
+          "y": 4.199554087331452,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 245.975,
+          "end": 273.639,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 255.1425032415197,
+          "y": 4.04303271359681,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 245.975,
+          "end": 273.639,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 295.80624273012256,
+          "y": 4.390395042631614,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 277.387,
+          "end": 304.941,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 286.3627712202639,
+          "y": 4.464281806535359,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 277.387,
+          "end": 304.941,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 317.8969958835626,
+          "y": 5.98971052902652,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": 4.3,
+            "y": 5.6000000000000005,
+            "z": 1.18
+          },
+          "begin": 308.644,
+          "end": 318.601,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 337.6035215939335,
+          "y": 4.890939139386206,
+          "side": "S",
+          "command": 3,
+          "decision_seq": 22,
+          "goal": {
+            "x": 4.3,
+            "y": 5.6000000000000005,
+            "z": 1.18
+          },
+          "begin": 327.346,
+          "end": 345.906,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 358.7969120805003,
+          "y": 6.570481635325365,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 24,
+          "goal": {
+            "x": -4.3,
+            "y": 6.300000000000001,
+            "z": 1.18
+          },
+          "begin": 349.509,
+          "end": 359.015,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R64",
+      "seed": 8,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed08_20260909_184028",
+      "invalid_r64_layout": true,
+      "mission_start_ros": 22.62,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 468.706,
+      "drops": 3,
+      "third_release_s": 295.639,
+      "phase_seconds": {
+        "IDLE": 22.62,
+        "SEARCH": 267.08,
+        "EXECUTING": 30.78300000000001,
+        "POST_DELIVERY_ROUTE": 132.541,
+        "LAND": 15.261000000000024,
+        "COMPLETE": 0.42099999999999227
+      },
+      "search_sampled_s": 267.10499999999996,
+      "search_slow_s": 14.700000000000003,
+      "search_moving_path_m": 82.49444620608314,
+      "search_total_path_m": 83.35332852549479,
+      "revisit_m": {
+        "0.2": 11.343219570988026,
+        "0.3": 14.148018993254986,
+        "0.4": 20.163169656444165
+      },
+      "revisit_fraction": {
+        "0.2": 0.13750282707094016,
+        "0.3": 0.17150268465238466,
+        "0.4": 0.24441851038157927
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 98.32715203269018,
+          "y": 0.6683046135320129,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -4.3,
+            "y": 0.7,
+            "z": 1.18
+          },
+          "begin": 79.154,
+          "end": 106.218,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 118.80773699086151,
+          "y": 1.136603898497266,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 110.089,
+          "end": 136.52,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 160.13777191872177,
+          "y": 1.238484202904363,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 139.789,
+          "end": 168.92,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 148.72125825138585,
+          "y": 1.7594460247110197,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 139.789,
+          "end": 168.92,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 180.40685255164752,
+          "y": 2.8408582233182984,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 172.548,
+          "end": 182.805,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 198.823014349027,
+          "y": 3.518326350420831,
+          "side": "N",
+          "command": 3,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 191.892,
+          "end": 207.02,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 229.37461877055648,
+          "y": 3.3173649649618673,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 210.395,
+          "end": 237.083,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 219.09242954508915,
+          "y": 3.4620376628513045,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 210.395,
+          "end": 237.083,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 249.61044626419235,
+          "y": 4.353062851082001,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 240.681,
+          "end": 266.62,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 258.6751259164873,
+          "y": 4.473664660246979,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 240.681,
+          "end": 266.62,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 288.1342021408976,
+          "y": 4.418771945296898,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 270.152,
+          "end": 296.916,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 278.6649329134531,
+          "y": 4.916193440264331,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 270.152,
+          "end": 296.916,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 309.82836020212454,
+          "y": 5.912870912557388,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 22,
+          "goal": {
+            "x": 4.3,
+            "y": 5.6000000000000005,
+            "z": 1.18
+          },
+          "begin": 300.656,
+          "end": 310.605,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "R64",
+      "seed": 9,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed09_20260909_190805",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 22.672,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 449.285,
+      "drops": 3,
+      "third_release_s": 242.19700000000003,
+      "phase_seconds": {
+        "IDLE": 22.672,
+        "SEARCH": 214.51900000000003,
+        "EXECUTING": 29.979999999999976,
+        "POST_DELIVERY_ROUTE": 166.19800000000004,
+        "LAND": 14.190999999999974,
+        "COMPLETE": 1.7250000000000227
+      },
+      "search_sampled_s": 214.547,
+      "search_slow_s": 13.190000000000051,
+      "search_moving_path_m": 65.05334524873365,
+      "search_total_path_m": 65.75948766863249,
+      "revisit_m": {
+        "0.2": 8.534628270466516,
+        "0.3": 11.786864573836933,
+        "0.4": 14.476870909269753
+      },
+      "revisit_fraction": {
+        "0.2": 0.13119430273468766,
+        "0.3": 0.18118767803207445,
+        "0.4": 0.22253845446251766
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 128.03032296444545,
+          "y": 0.8573639560568149,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 119.332,
+          "end": 146.126,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 138.14765455048584,
+          "y": 1.201529863040032,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 119.332,
+          "end": 146.126,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 169.834624359996,
+          "y": 1.159168153265594,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 150.129,
+          "end": 178.705,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 158.61391072654996,
+          "y": 1.954728479076606,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 150.129,
+          "end": 178.705,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 190.75980316832698,
+          "y": 2.7557586814833153,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 182.227,
+          "end": 209.894,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 201.67599512046084,
+          "y": 3.549518929611261,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 182.227,
+          "end": 209.894,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 232.4046193149909,
+          "y": 3.2805161550132715,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 213.426,
+          "end": 240.258,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 222.31432661271447,
+          "y": 3.4748077452538877,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 213.426,
+          "end": 240.258,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 253.002047547817,
+          "y": 3.9737758570269475,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 244.128,
+          "end": 257.502,
+          "goal_side": "S"
+        }
+      ]
+    },
+    {
+      "group": "R64",
+      "seed": 10,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed10_20260909_193259",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 22.836,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 452.507,
+      "drops": 3,
+      "third_release_s": 292.008,
+      "phase_seconds": {
+        "IDLE": 22.836,
+        "SEARCH": 261.89099999999996,
+        "EXECUTING": 32.434000000000026,
+        "POST_DELIVERY_ROUTE": 120.28800000000001,
+        "LAND": 14.497000000000014,
+        "COMPLETE": 0.5609999999999786
+      },
+      "search_sampled_s": 261.831,
+      "search_slow_s": 13.819999999999983,
+      "search_moving_path_m": 80.57122033059461,
+      "search_total_path_m": 81.36440059424052,
+      "revisit_m": {
+        "0.2": 17.38410414255995,
+        "0.3": 22.109485934554275,
+        "0.4": 25.18677545612964
+      },
+      "revisit_fraction": {
+        "0.2": 0.21576071544194836,
+        "0.3": 0.2744092225963075,
+        "0.4": 0.3126026309739991
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 94.41641083096337,
+          "y": 0.929889397505485,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": -4.3,
+            "y": 0.7,
+            "z": 1.18
+          },
+          "begin": 75.452,
+          "end": 102.417,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 114.41247147615447,
+          "y": 1.1502011663923215,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 105.926,
+          "end": 132.836,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 155.7853084206028,
+          "y": 1.2294136870999461,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 136.383,
+          "end": 164.413,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 145.1021060761933,
+          "y": 1.9096818918683096,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 136.383,
+          "end": 164.413,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 176.83114694192648,
+          "y": 2.774730479174121,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 168.089,
+          "end": 195.615,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 187.61066800012938,
+          "y": 1.8747531140177647,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 168.089,
+          "end": 195.615,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 231.07435915588474,
+          "y": 3.8242968860079265,
+          "side": "S",
+          "command": 3,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 215.225,
+          "end": 239.815,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 221.94363707163603,
+          "y": 4.401199520601861,
+          "side": "S",
+          "command": 3,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 215.225,
+          "end": 239.815,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 261.91839547120145,
+          "y": 3.8585729734101024,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 243.548,
+          "end": 270.279,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 252.34869426119872,
+          "y": 3.98134096152663,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 243.548,
+          "end": 270.279,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 292.48418825577573,
+          "y": 3.870639713916579,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 273.654,
+          "end": 302.385,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 282.7980124014388,
+          "y": 4.345023970469631,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 273.654,
+          "end": 302.385,
+          "goal_side": "S"
+        }
+      ]
+    },
+    {
+      "group": "R64",
+      "seed": 11,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_px4_seed11_20260909_151207",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 22.847,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 447.552,
+      "drops": 3,
+      "third_release_s": 289.713,
+      "phase_seconds": {
+        "IDLE": 22.847,
+        "SEARCH": 262.228,
+        "EXECUTING": 29.936999999999983,
+        "POST_DELIVERY_ROUTE": 118.78199999999998,
+        "LAND": 11.768000000000029,
+        "COMPLETE": 1.990000000000009
+      },
+      "search_sampled_s": 262.21299999999997,
+      "search_slow_s": 14.417000000000044,
+      "search_moving_path_m": 80.75689343726441,
+      "search_total_path_m": 81.53081799746575,
+      "revisit_m": {
+        "0.2": 10.796145843084297,
+        "0.3": 19.054130398900014,
+        "0.4": 23.861702378500038
+      },
+      "revisit_fraction": {
+        "0.2": 0.13368698799033457,
+        "0.3": 0.23594432113342895,
+        "0.4": 0.2954757341803506
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 118.5772971630542,
+          "y": 0.9817691817357668,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 110.066,
+          "end": 136.961,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 160.1096549818995,
+          "y": 1.2443660767298934,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 140.224,
+          "end": 168.927,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 148.99719616403513,
+          "y": 1.8369822421970465,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 140.224,
+          "end": 168.927,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -1.8,
+            2.0
+          ],
+          "t": 181.12911030880102,
+          "y": 3.0032049773544385,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 172.459,
+          "end": 200.899,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 191.85495154255457,
+          "y": 3.6940548164467737,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 172.459,
+          "end": 200.899,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 212.56542095413022,
+          "y": 3.6519523536330962,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 204.265,
+          "end": 225.722,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.8,
+            2.7
+          ],
+          "t": 262.59999335445474,
+          "y": 3.832595165835652,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 244.266,
+          "end": 270.727,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 253.26796110182858,
+          "y": 3.915527934668127,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 244.266,
+          "end": 270.727,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -1.5,
+            5.2
+          ],
+          "t": 292.4351247321743,
+          "y": 4.398037128216671,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 274.131,
+          "end": 301.488,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            1.7,
+            5.7
+          ],
+          "t": 282.81321209154527,
+          "y": 4.865751803563986,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 274.131,
+          "end": 301.488,
+          "goal_side": "S"
+        }
+      ]
+    },
+    {
+      "group": "Random",
+      "seed": 31,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed31_20260910_101159",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 22.406,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 377.233,
+      "drops": 3,
+      "third_release_s": 182.096,
+      "phase_seconds": {
+        "IDLE": 22.406,
+        "SEARCH": 155.853,
+        "EXECUTING": 28.85500000000001,
+        "POST_DELIVERY_ROUTE": 161.845,
+        "LAND": 8.274000000000001
+      },
+      "search_sampled_s": 155.776,
+      "search_slow_s": 8.655999999999985,
+      "search_moving_path_m": 47.143744077447366,
+      "search_total_path_m": 47.657287048311204,
+      "revisit_m": {
+        "0.2": 7.213459730238457,
+        "0.3": 10.552804245392903,
+        "0.4": 13.339808596944735
+      },
+      "revisit_fraction": {
+        "0.2": 0.15300990346435453,
+        "0.3": 0.22384315144882935,
+        "0.4": 0.28296031335632155
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            1.3292634707199893,
+            2.374614399301953
+          ],
+          "t": 127.81185932820662,
+          "y": 1.1058652279171393,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 109.118,
+          "end": 136.684,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -2.2573313602029583,
+            2.0725324345669685
+          ],
+          "t": 116.78416718977608,
+          "y": 0.7499181611299383,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 109.118,
+          "end": 136.684,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            1.3292634707199893,
+            2.374614399301953
+          ],
+          "t": 162.32507630072087,
+          "y": 1.480623821551016,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 151.918,
+          "end": 181.514,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            2.2962965646667817,
+            3.0873274318391033
+          ],
+          "t": 158.85996321166132,
+          "y": 1.9446268723666968,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 151.918,
+          "end": 181.514,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -2.2573313602029583,
+            2.0725324345669685
+          ],
+          "t": 173.3432217292659,
+          "y": 0.822213704709887,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 151.918,
+          "end": 181.514,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -2.2573313602029583,
+            2.0725324345669685
+          ],
+          "t": 191.8491672762777,
+          "y": 3.139455279865016,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 184.927,
+          "end": 198.103,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            -2.6895242052091706,
+            4.5553366857252
+          ],
+          "t": 190.67341438514762,
+          "y": 3.1194998979872532,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 184.927,
+          "end": 198.103,
+          "goal_side": "S"
+        }
+      ]
+    },
+    {
+      "group": "Random",
+      "seed": 32,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed32_20260910_103344",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 22.678,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 536.826,
+      "drops": 3,
+      "third_release_s": 321.104,
+      "phase_seconds": {
+        "IDLE": 22.66,
+        "SEARCH": 294.258,
+        "EXECUTING": 29.421999999999954,
+        "POST_DELIVERY_ROUTE": 174.21100000000007,
+        "LAND": 15.658999999999992,
+        "COMPLETE": 0.6159999999999854
+      },
+      "search_sampled_s": 294.20799999999997,
+      "search_slow_s": 15.61199999999996,
+      "search_moving_path_m": 90.32420885043325,
+      "search_total_path_m": 91.2268772862912,
+      "revisit_m": {
+        "0.2": 16.814604764870076,
+        "0.3": 25.699797262194338,
+        "0.4": 33.39332706247392
+      },
+      "revisit_fraction": {
+        "0.2": 0.18615833981688312,
+        "0.3": 0.28452834062184057,
+        "0.4": 0.3697051708226919
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.2671228147484825,
+            3.2048718510067498
+          ],
+          "t": 137.23709147749878,
+          "y": 1.726601229951171,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 120.247,
+          "end": 146.778,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.2671228147484825,
+            3.2048718510067498
+          ],
+          "t": 160.62173640260846,
+          "y": 2.1681510026447377,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 150.451,
+          "end": 177.98,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            2.6548639362649222,
+            3.9731876692777615
+          ],
+          "t": 224.88767655863418,
+          "y": 3.109502455863928,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 218.45,
+          "end": 247.145,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            1.2671228147484825,
+            3.2048718510067498
+          ],
+          "t": 229.54833155028194,
+          "y": 2.1230337651323965,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 16,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 218.45,
+          "end": 247.145,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            2.6548639362649222,
+            3.9731876692777615
+          ],
+          "t": 273.9564763309286,
+          "y": 5.003478876792504,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 250.818,
+          "end": 280.079,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            0.7090738640452727,
+            4.433117311336616
+          ],
+          "t": 268.2039971505676,
+          "y": 5.297857617290345,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 250.818,
+          "end": 280.079,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            2.6548639362649222,
+            3.9731876692777615
+          ],
+          "t": 289.5854043019769,
+          "y": 4.853723006037396,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 283.515,
+          "end": 311.276,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -2.2050213424207685,
+            6.597032912394907
+          ],
+          "t": 304.58236005691595,
+          "y": 5.279854013219186,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 283.515,
+          "end": 311.276,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            0.7090738640452727,
+            4.433117311336616
+          ],
+          "t": 296.06577695165043,
+          "y": 5.420866088608037,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": -4.3,
+            "y": 4.9,
+            "z": 1.18
+          },
+          "begin": 283.515,
+          "end": 311.276,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -2.2050213424207685,
+            6.597032912394907
+          ],
+          "t": 321.9656916664351,
+          "y": 5.534899875614073,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 22,
+          "goal": {
+            "x": 4.3,
+            "y": 5.6000000000000005,
+            "z": 1.18
+          },
+          "begin": 314.516,
+          "end": 336.612,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            0.7090738640452727,
+            4.433117311336616
+          ],
+          "t": 330.496259512262,
+          "y": 5.679693073025716,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 22,
+          "goal": {
+            "x": 4.3,
+            "y": 5.6000000000000005,
+            "z": 1.18
+          },
+          "begin": 314.516,
+          "end": 336.612,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "Random",
+      "seed": 33,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 22.826999999999998,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 623.469,
+      "drops": 3,
+      "third_release_s": 202.376,
+      "phase_seconds": {
+        "IDLE": 22.826999999999998,
+        "SEARCH": 166.05399999999997,
+        "EXECUTING": 38.81600000000003,
+        "POST_DELIVERY_ROUTE": 256.30899999999997,
+        "ABORTED": 139.46300000000008
+      },
+      "search_sampled_s": 166.02499999999998,
+      "search_slow_s": 9.519000000000062,
+      "search_moving_path_m": 50.74658526905117,
+      "search_total_path_m": 51.29572032291969,
+      "revisit_m": {
+        "0.2": 9.413328602616058,
+        "0.3": 12.110098008386714,
+        "0.4": 13.892719834907084
+      },
+      "revisit_fraction": {
+        "0.2": 0.18549678865499877,
+        "0.3": 0.23863867773921535,
+        "0.4": 0.273766594564932
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            -3.047264305108551,
+            1.0507317295036422
+          ],
+          "t": 32.75728408798428,
+          "y": 0.1269108667517117,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 1,
+          "goal": {
+            "x": -4.3,
+            "y": 0.0,
+            "z": 1.18
+          },
+          "begin": 22.826999999999998,
+          "end": 37.041,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            0.48854175075457906,
+            1.452557702302861
+          ],
+          "t": 51.9192211420013,
+          "y": 0.04444813046463646,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 2,
+          "goal": {
+            "x": 4.3,
+            "y": 0.0,
+            "z": 1.18
+          },
+          "begin": 37.041,
+          "end": 63.683,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            -3.047264305108551,
+            1.0507317295036422
+          ],
+          "t": 41.57724440804598,
+          "y": -0.10355366221751568,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 2,
+          "goal": {
+            "x": 4.3,
+            "y": 0.0,
+            "z": 1.18
+          },
+          "begin": 37.041,
+          "end": 63.683,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            0.48854175075457906,
+            1.452557702302861
+          ],
+          "t": 79.6930638733527,
+          "y": 0.5715177610336087,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": -4.3,
+            "y": 0.7,
+            "z": 1.18
+          },
+          "begin": 67.215,
+          "end": 94.505,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            2.3322952788880045,
+            1.763172406450125
+          ],
+          "t": 74.14449411298982,
+          "y": 0.9934972365507477,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": -4.3,
+            "y": 0.7,
+            "z": 1.18
+          },
+          "begin": 67.215,
+          "end": 94.505,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            -3.047264305108551,
+            1.0507317295036422
+          ],
+          "t": 90.04861120244543,
+          "y": 0.34133427686167406,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 4,
+          "goal": {
+            "x": -4.3,
+            "y": 0.7,
+            "z": 1.18
+          },
+          "begin": 67.215,
+          "end": 94.505,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            -3.047264305108551,
+            1.0507317295036422
+          ],
+          "t": 102.51760843629651,
+          "y": 1.80700708701777,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 6,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 97.847,
+          "end": 104.807,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            0.48854175075457906,
+            1.452557702302861
+          ],
+          "t": 120.70729972991779,
+          "y": 2.2403898031003218,
+          "side": "N",
+          "command": 3,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 112.906,
+          "end": 134.341,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            2.3322952788880045,
+            1.763172406450125
+          ],
+          "t": 126.11824690664574,
+          "y": 2.6860596050801546,
+          "side": "N",
+          "command": 3,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 112.906,
+          "end": 134.341,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            2.3322952788880045,
+            1.763172406450125
+          ],
+          "t": 144.56757135286557,
+          "y": 2.487901690415598,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 137.718,
+          "end": 148.896,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            -3.047264305108551,
+            1.0507317295036422
+          ],
+          "t": 179.24880022301826,
+          "y": 2.245527055692937,
+          "side": "N",
+          "command": 3,
+          "decision_seq": 12,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 167.419,
+          "end": 183.682,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            0.48854175075457906,
+            1.452557702302861
+          ],
+          "t": 201.82171674559046,
+          "y": 2.4293133569998884,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 187.191,
+          "end": 213.384,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            2.3322952788880045,
+            1.763172406450125
+          ],
+          "t": 207.15139543392007,
+          "y": 2.4984398858548373,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 187.191,
+          "end": 213.384,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            -3.047264305108551,
+            1.0507317295036422
+          ],
+          "t": 191.8568516238121,
+          "y": 2.5430136298148818,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 14,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 187.191,
+          "end": 213.384,
+          "goal_side": "N"
+        }
+      ]
+    },
+    {
+      "group": "Random",
+      "seed": 34,
+      "status": "FAIL",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 22.618,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 623.201,
+      "drops": 2,
+      "third_release_s": null,
+      "phase_seconds": {
+        "IDLE": 22.618,
+        "SEARCH": 551.5090000000001,
+        "EXECUTING": 48.521999999999935,
+        "RETURN_HOME": 0.08199999999999363,
+        "ABORTED": 0.4700000000000273
+      },
+      "search_sampled_s": 551.5540000000001,
+      "search_slow_s": 372.1159999999999,
+      "search_moving_path_m": 57.761942189410846,
+      "search_total_path_m": 65.10099138820576,
+      "revisit_m": {
+        "0.2": 12.242457848903362,
+        "0.3": 15.378522924772906,
+        "0.4": 18.853032288101407
+      },
+      "revisit_fraction": {
+        "0.2": 0.21194678338131953,
+        "0.3": 0.2662397132413626,
+        "0.4": 0.3263919385930486
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -3.424799808417782,
+            2.55283525070476
+          ],
+          "t": 34.936642655407965,
+          "y": 1.8049289779337447,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 1,
+          "goal": {
+            "x": -4.3,
+            "y": 0.0,
+            "z": 1.18
+          },
+          "begin": 22.618,
+          "end": 42.614,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -3.647717899852281,
+            1.0085571713827328
+          ],
+          "t": 35.605078838925316,
+          "y": 1.8553690406664085,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 1,
+          "goal": {
+            "x": -4.3,
+            "y": 0.0,
+            "z": 1.18
+          },
+          "begin": 22.618,
+          "end": 42.614,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -2.491507692250935,
+            0.304719865748185
+          ],
+          "t": 32.2219457089166,
+          "y": 1.494812808740255,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 1,
+          "goal": {
+            "x": -4.3,
+            "y": 0.0,
+            "z": 1.18
+          },
+          "begin": 22.618,
+          "end": 42.614,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -3.424799808417782,
+            2.55283525070476
+          ],
+          "t": 414.1579272876865,
+          "y": 1.793169055046508,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 409.92,
+          "end": 437.345,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -3.647717899852281,
+            1.0085571713827328
+          ],
+          "t": 413.36276285214984,
+          "y": 1.8161247783784011,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 409.92,
+          "end": 437.345,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -2.491507692250935,
+            0.304719865748185
+          ],
+          "t": 417.50131078692016,
+          "y": 1.3249215253255615,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 8,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 409.92,
+          "end": 437.345,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -3.424799808417782,
+            2.55283525070476
+          ],
+          "t": 465.05465563163665,
+          "y": 1.7141617504233313,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 440.714,
+          "end": 468.275,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -3.647717899852281,
+            1.0085571713827328
+          ],
+          "t": 465.7036998871951,
+          "y": 1.7841005399894827,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 10,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 440.714,
+          "end": 468.275,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -3.424799808417782,
+            2.55283525070476
+          ],
+          "t": 475.98073883646947,
+          "y": 3.349272853332576,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 12,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 471.82,
+          "end": 478.0,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -3.424799808417782,
+            2.55283525070476
+          ],
+          "t": 552.49555542993,
+          "y": 3.5268470848520646,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 18,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 527.888,
+          "end": 555.78,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            -2.4665340407081784,
+            5.421418295978038
+          ],
+          "t": 566.1522139953508,
+          "y": 4.0709813059143505,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 20,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 559.213,
+          "end": 587.142,
+          "goal_side": "S"
+        }
+      ]
+    },
+    {
+      "group": "Random",
+      "seed": 35,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed35_20260910_120409",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 22.852,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 365.535,
+      "drops": 3,
+      "third_release_s": 142.62199999999999,
+      "phase_seconds": {
+        "IDLE": 22.852,
+        "SEARCH": 113.301,
+        "EXECUTING": 31.896000000000004,
+        "POST_DELIVERY_ROUTE": 188.172,
+        "LAND": 8.740000000000009,
+        "COMPLETE": 0.5740000000000123
+      },
+      "search_sampled_s": 113.381,
+      "search_slow_s": 8.731000000000002,
+      "search_moving_path_m": 33.76449590379788,
+      "search_total_path_m": 34.182135235923866,
+      "revisit_m": {
+        "0.2": 8.04179881130451,
+        "0.3": 10.810612031887693,
+        "0.4": 12.603157184350044
+      },
+      "revisit_fraction": {
+        "0.2": 0.2381732229682113,
+        "0.3": 0.32017691194589104,
+        "0.4": 0.37326655846600165
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": []
+    },
+    {
+      "group": "Wait20",
+      "seed": 34,
+      "status": "PASS",
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_seed34_initial_wait20_20260911_141613",
+      "invalid_r64_layout": false,
+      "mission_start_ros": 22.416,
+      "mission_start_basis": "first recorded decision; can postdate actual task start",
+      "observed_end_ros": 519.082,
+      "drops": 3,
+      "third_release_s": 298.896,
+      "phase_seconds": {
+        "IDLE": 22.416,
+        "SEARCH": 258.04600000000005,
+        "EXECUTING": 43.14099999999999,
+        "POST_DELIVERY_ROUTE": 165.115,
+        "LAND": 29.422999999999945,
+        "COMPLETE": 0.9410000000000309
+      },
+      "search_sampled_s": 258.0,
+      "search_slow_s": 54.415000000000035,
+      "search_moving_path_m": 64.95298953917586,
+      "search_total_path_m": 66.68479351785712,
+      "revisit_m": {
+        "0.2": 5.09184466617441,
+        "0.3": 7.4600869426198635,
+        "0.4": 10.411133554519076
+      },
+      "revisit_fraction": {
+        "0.2": 0.07839276840526803,
+        "0.3": 0.11485363484494233,
+        "0.4": 0.1602872112335905
+      },
+      "search_config": {
+        "min_x": -4.3,
+        "max_x": 4.3,
+        "min_y": 0.0,
+        "max_y": 7.1,
+        "lane_spacing": 0.7,
+        "altitude": 1.18,
+        "route_revision": "r2026-r61-full-search-area",
+        "max_failures_per_waypoint": 2
+      },
+      "tree_crossings": [
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -3.424799808417782,
+            2.55283525070476
+          ],
+          "t": 106.78242321550518,
+          "y": 1.704534841188433,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 5,
+          "goal": {
+            "x": -4.3,
+            "y": 0.7,
+            "z": 1.18
+          },
+          "begin": 80.367,
+          "end": 112.647,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -3.647717899852281,
+            1.0085571713827328
+          ],
+          "t": 107.39717744112912,
+          "y": 1.7353319606345188,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 5,
+          "goal": {
+            "x": -4.3,
+            "y": 0.7,
+            "z": 1.18
+          },
+          "begin": 80.367,
+          "end": 112.647,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_1",
+          "tree_xy": [
+            -2.491507692250935,
+            0.304719865748185
+          ],
+          "t": 103.98767010536045,
+          "y": 1.3334468994294857,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 5,
+          "goal": {
+            "x": -4.3,
+            "y": 0.7,
+            "z": 1.18
+          },
+          "begin": 80.367,
+          "end": 112.647,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -3.424799808417782,
+            2.55283525070476
+          ],
+          "t": 120.66026411437647,
+          "y": 1.7706819984287299,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 7,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 116.666,
+          "end": 144.01,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -3.647717899852281,
+            1.0085571713827328
+          ],
+          "t": 120.00124897454788,
+          "y": 1.74559218488265,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 7,
+          "goal": {
+            "x": 4.3,
+            "y": 1.4,
+            "z": 1.18
+          },
+          "begin": 116.666,
+          "end": 144.01,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -3.424799808417782,
+            2.55283525070476
+          ],
+          "t": 172.552354713673,
+          "y": 1.8086596471222538,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 9,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 148.012,
+          "end": 176.044,
+          "goal_side": "S"
+        },
+        {
+          "tree": "juniper_Tree_0",
+          "tree_xy": [
+            -3.647717899852281,
+            1.0085571713827328
+          ],
+          "t": 173.23810384699854,
+          "y": 1.820294658724981,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 9,
+          "goal": {
+            "x": -4.3,
+            "y": 2.0999999999999996,
+            "z": 1.18
+          },
+          "begin": 148.012,
+          "end": 176.044,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -3.424799808417782,
+            2.55283525070476
+          ],
+          "t": 183.80970267179904,
+          "y": 3.503088094522208,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 11,
+          "goal": {
+            "x": 4.3,
+            "y": 2.8,
+            "z": 1.18
+          },
+          "begin": 179.563,
+          "end": 185.5,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree",
+          "tree_xy": [
+            -3.424799808417782,
+            2.55283525070476
+          ],
+          "t": 256.6166357085238,
+          "y": 3.3679910289281376,
+          "side": "N",
+          "command": 0,
+          "decision_seq": 17,
+          "goal": {
+            "x": -4.3,
+            "y": 3.5,
+            "z": 1.18
+          },
+          "begin": 231.812,
+          "end": 260.009,
+          "goal_side": "N"
+        },
+        {
+          "tree": "juniper_Tree_2",
+          "tree_xy": [
+            -2.4665340407081784,
+            5.421418295978038
+          ],
+          "t": 270.40521489435673,
+          "y": 4.287465776697353,
+          "side": "S",
+          "command": 0,
+          "decision_seq": 19,
+          "goal": {
+            "x": 4.3,
+            "y": 4.2,
+            "z": 1.18
+          },
+          "begin": 263.828,
+          "end": 290.737,
+          "goal_side": "S"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "R60": {
+      "n": 11,
+      "full_pass": 3,
+      "three_drops": 9,
+      "search_s_median": 89.50200000000001,
+      "revisit_fraction_median": 0.26630819159316393,
+      "search_moving_path_m_median": 24.884646400101275
+    },
+    "R64": {
+      "n": 11,
+      "full_pass": 8,
+      "three_drops": 9,
+      "search_s_median": 267.10499999999996,
+      "revisit_fraction_median": 0.2139347970208055,
+      "search_moving_path_m_median": 82.49444620608314
+    },
+    "Random": {
+      "n": 5,
+      "full_pass": 2,
+      "three_drops": 4,
+      "search_s_median": 166.02499999999998,
+      "revisit_fraction_median": 0.2662397132413626,
+      "search_moving_path_m_median": 50.74658526905117
+    },
+    "Wait20": {
+      "n": 1,
+      "full_pass": 1,
+      "three_drops": 1,
+      "search_s_median": 258.0,
+      "revisit_fraction_median": 0.11485363484494233,
+      "search_moving_path_m_median": 64.95298953917586
+    }
+  },
+  "example": {
+    "group": "Random",
+    "seed": 34,
+    "crossings": [
+      {
+        "tree": "juniper_Tree_0",
+        "tree_xy": [
+          -3.647717899852281,
+          1.0085571713827328
+        ],
+        "t": 35.605078838925316,
+        "y": 1.8553690406664085,
+        "side": "N",
+        "command": 0,
+        "decision_seq": 1,
+        "goal": {
+          "x": -4.3,
+          "y": 0.0,
+          "z": 1.18
+        },
+        "begin": 22.618,
+        "end": 42.614,
+        "goal_side": "S"
+      },
+      {
+        "tree": "juniper_Tree_0",
+        "tree_xy": [
+          -3.647717899852281,
+          1.0085571713827328
+        ],
+        "t": 413.36276285214984,
+        "y": 1.8161247783784011,
+        "side": "N",
+        "command": 0,
+        "decision_seq": 8,
+        "goal": {
+          "x": 4.3,
+          "y": 1.4,
+          "z": 1.18
+        },
+        "begin": 409.92,
+        "end": 437.345,
+        "goal_side": "N"
+      },
+      {
+        "tree": "juniper_Tree_0",
+        "tree_xy": [
+          -3.647717899852281,
+          1.0085571713827328
+        ],
+        "t": 465.7036998871951,
+        "y": 1.7841005399894827,
+        "side": "N",
+        "command": 0,
+        "decision_seq": 10,
+        "goal": {
+          "x": -4.3,
+          "y": 2.0999999999999996,
+          "z": 1.18
+        },
+        "begin": 440.714,
+        "end": 468.275,
+        "goal_side": "N"
+      }
+    ]
+  }
+}

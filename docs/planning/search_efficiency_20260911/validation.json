@@ -1,0 +1,13 @@
+{
+  "scope": "documents and existing-log analysis only",
+  "runs": 28,
+  "figures": 5,
+  "metrics_sanity": "PASS",
+  "local_links": "PASS",
+  "python_syntax": "PASS",
+  "flight_source_diff": "EMPTY",
+  "stable_checkout": "86e382d clean",
+  "current_deployment_source": "c369e6f8",
+  "new_simulation_runs": 0,
+  "optimization_implementation": "NOT STARTED; awaiting user review"
+}

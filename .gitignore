@@ -47,3 +47,6 @@ Desktop_patrol_uav_ws-patrol_planner/
 
 # Generated catkin workspace marker
 **/.catkin_workspace
+
+# User-supplied current competition rules, retained with the research review.
+!/1789106295928436.pdf
