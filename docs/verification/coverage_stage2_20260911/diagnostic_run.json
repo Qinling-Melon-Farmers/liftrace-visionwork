@@ -1,0 +1,12 @@
+{
+  "status": "DIAGNOSTIC_STOP",
+  "source": "7e1fc88",
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_shadow_20260911_173209",
+  "seed": 32,
+  "gate": "MISSING_AFTER_INTENTIONAL_STOP",
+  "reason": "observer rejects real occupied cloud above prototype 100000-point cap; fix before repeating",
+  "last_progress_ros": 95.0,
+  "committed_slots": 2,
+  "cleanup": "PASS",
+  "case_files": "docs/verification/full_random_five_20260910/seed_32/scenario_inputs"
+}

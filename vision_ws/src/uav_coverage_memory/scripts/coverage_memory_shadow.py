@@ -6,16 +6,17 @@ import time
 from collections import deque
 from dataclasses import fields, MISSING
 import numpy as np
+import cv2
 import rospy
 import tf2_ros
 from cv_bridge import CvBridge
 from nav_msgs.msg import OccupancyGrid
 from sensor_msgs.msg import Image, CameraInfo, PointCloud2
-from sensor_msgs import point_cloud2
 from std_msgs.msg import String
 from std_srvs.srv import Trigger, TriggerResponse
 from uav_coverage_memory.memory import Camera, Config, Memory, State
 from uav_coverage_memory.recording import Recorder
+from uav_coverage_memory.cloud import decode_xyz
 
 
 def transform_matrix(message):
@@ -33,6 +34,7 @@ def transform_matrix(message):
 
 class Shadow:
     def __init__(self):
+        cv2.setNumThreads(1)
         values = {}
         for field in fields(Config):
             name = '~memory/'+field.name
@@ -55,6 +57,8 @@ class Shadow:
         self.mission_id = None
         self.epoch_start = rospy.Time.now().to_sec()
         self.last_clock = self.epoch_start
+        self.map_reason = 'no_map'
+        self.map_input_points = 0
         record_dir = rospy.get_param('~record_dir', '')
         self.recorder = Recorder(record_dir, float(rospy.get_param('~record_interval',6.)),
                                  int(rospy.get_param('~record_limit',120))) if record_dir else None
@@ -80,12 +84,15 @@ class Shadow:
 
     def on_cloud(self, message):
         with self.lock:
+            self.map_input_points = message.width*message.height
             if message.width*message.height > self.memory.config.max_cloud_points:
+                self.map_reason = 'cloud_point_limit'
                 self.cloud = None
                 self.clouds.clear()
                 return
             self.cloud = message
             self.clouds.append(message)
+            self.map_reason = 'snapshot_received'
 
     def reset(self, reason, epoch=None):
         self.memory.reset(reason, epoch)
@@ -128,6 +135,8 @@ class Shadow:
         c = self.memory.config
         cloud = self.as_of(self.clouds, stamp, c.max_map_age)
         if cloud is None:
+            if self.map_reason != 'cloud_point_limit':
+                self.map_reason = 'no_source_time_matched_map'
             return None, None
         cloud_stamp = cloud.header.stamp.to_sec()
         if cloud_stamp < self.epoch_start or not -c.future_tolerance <= stamp-cloud_stamp <= c.max_map_age:
@@ -136,10 +145,11 @@ class Shadow:
         # obstacles for visibility. Oversized/empty/invalid inputs remain unknown.
         if cloud.width*cloud.height > c.max_cloud_points:
             return None, None
-        points = np.asarray(list(point_cloud2.read_points(cloud, field_names=('x','y','z'), skip_nans=True)), dtype=float)
+        points = decode_xyz(cloud,c.max_cloud_points)
         if points.size == 0:
             return None, None
         matrix, _ = self.lookup(c.frame_id, cloud.header.frame_id, cloud.header.stamp)
+        self.map_reason = 'source_time_matched'
         return points @ matrix[:3,:3].T + matrix[:3,3], cloud_stamp
 
     def as_of(self, messages, stamp, max_age):
@@ -189,13 +199,15 @@ class Shadow:
         pixels = self.bridge.imgmsg_to_cv2(image, desired_encoding='bgr8')
         try:
             points, cloud_stamp = self.map_snapshot(stamp)
-        except Exception:
+        except Exception as error:
+            self.map_reason = 'map_error:'+str(error)
             points, cloud_stamp = None, None
         result = self.memory.observe(pixels, camera, matrix, stamp, now, tf_stamp,
             info.header.stamp.to_sec(), image.header.frame_id,
             points, cloud_stamp, self.memory.config.frame_id)
         result.update(camera_stamp=info.header.stamp.to_sec(), tf_stamp=tf_stamp,
                       map_stamp=cloud_stamp, map_points=0 if points is None else len(points),
+                      map_input_points=self.map_input_points,map_reason=self.map_reason,
                       image_age=now-stamp)
         if self.recorder and result['accepted']:
             begin = time.perf_counter()

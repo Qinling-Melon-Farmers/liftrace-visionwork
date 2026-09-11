@@ -1,6 +1,7 @@
 import unittest
 from dataclasses import replace
 import numpy as np
+import cv2
 from uav_coverage_memory.memory import Camera, Config, Memory, State
 
 
@@ -78,7 +79,7 @@ class MemoryTests(unittest.TestCase):
     def test_bad_maps_are_unverified(self):
         variants=[dict(map_points=np.empty((0,3))),dict(map_stamp=0),dict(map_stamp=.1),
                   dict(map_stamp=4),dict(map_frame='other'),dict(map_points=np.array([[np.nan,0,0]])),
-                  dict(map_points=np.ones((100001,3)))]
+                  dict(map_points=np.ones((self.config.max_cloud_points+1,3)))]
         for changes in variants:
             self.memory.reset('test')
             result=self.observe(3.,**changes)
@@ -176,6 +177,28 @@ class MemoryTests(unittest.TestCase):
             with self.assertRaises(ValueError):Memory(replace(self.config,**kwargs))
         for kwargs in [dict(k=(0,)*9),dict(d=(1.,2.)),dict(distortion_model='equidistant')]:
             with self.assertRaises(ValueError):replace(self.camera,**kwargs)
+
+    def test_opt_in_sharp_reference_accepts_flat_exposed_region(self):
+        self.memory=Memory(replace(self.config,flat_ground_reference_enabled=True))
+        image=np.full_like(self.image,130);image[:,80:]=60
+        for t in [1.,1.25,1.5]:row=self.observe(t,image=image)
+        self.assertTrue(row['quality_reference_available'])
+        self.assertGreater(row['reference_supported_area_m2'],0)
+        self.assertGreater(row['estimated_seen_area_m2'],0)
+
+    def test_uniform_or_blurred_reference_does_not_certify_flat_cells(self):
+        image=np.full_like(self.image,130);image[:,80:]=60
+        for candidate in [np.full_like(image,130),cv2.GaussianBlur(image,(0,0),6)]:
+            self.memory=Memory(replace(self.config,flat_ground_reference_enabled=True))
+            for t in [1.,1.25,1.5]:row=self.observe(t,image=candidate)
+            self.assertFalse(row['quality_reference_available'])
+            self.assertEqual(row['estimated_seen_area_m2'],0)
+
+    def test_sharp_reference_never_credits_saturated_local_cells(self):
+        self.memory=Memory(replace(self.config,flat_ground_reference_enabled=True))
+        image=self.image.copy();image[20:100,40:120]=255
+        for t in [1.,1.25,1.5]:row=self.observe(t,image=image)
+        self.assertGreater(row['state_area_m2']['LOW_QUALITY'],0)
 
 
 if __name__=='__main__':unittest.main()

@@ -90,7 +90,7 @@ class ShadowTests(unittest.TestCase):
 
     def test_oversized_cloud_remains_unknown_without_truncation(self):
         self.node.cloud=PointCloud2();self.node.cloud.header.stamp=rospy.Time(10)
-        self.node.cloud.width=100001;self.node.cloud.height=1
+        self.node.cloud.width=self.node.memory.config.max_cloud_points+1;self.node.cloud.height=1
         self.node.epoch_start=9
         self.node.on_cloud(self.node.cloud)
         self.assertEqual(self.node.map_snapshot(10.1),(None,None))

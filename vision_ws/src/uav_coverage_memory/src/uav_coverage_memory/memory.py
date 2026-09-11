@@ -49,7 +49,10 @@ class Config:
     bright_level: int = 247
     occlusion_tile_px: int = 8
     occlusion_margin_m: float = .08
-    max_cloud_points: int = 100000
+    max_cloud_points: int = 500000
+    flat_ground_reference_enabled: bool = False
+    min_reference_fraction: float = .02
+    min_reference_tiles: int = 3
 
     def __post_init__(self):
         for name, value in vars(self).items():
@@ -76,6 +79,8 @@ class Config:
             raise ValueError('invalid exposure fractions')
         if not 0 <= self.dark_level < self.bright_level <= 255:
             raise ValueError('invalid exposure thresholds')
+        if not 0 < self.min_reference_fraction <= 1 or not 1 <= self.min_reference_tiles <= 16:
+            raise ValueError('invalid sharp-reference limits')
 
 
 @dataclass(frozen=True)
@@ -226,13 +231,24 @@ class Memory:
         box = (c.quality_window_px,)*2
         lap = cv2.Laplacian(gray, cv2.CV_32F)
         variance = cv2.boxFilter(lap*lap, -1, box)-cv2.boxFilter(lap, -1, box)**2
-        quality = ((variance >= c.min_laplacian_variance) &
-                   (cv2.boxFilter((gray <= c.dark_level).astype(np.float32), -1, box) <= c.max_dark_fraction) &
-                   (cv2.boxFilter((gray >= c.bright_level).astype(np.float32), -1, box) <= c.max_bright_fraction))
+        exposure = ((cv2.boxFilter((gray <= c.dark_level).astype(np.float32), -1, box) <= c.max_dark_fraction) &
+                    (cv2.boxFilter((gray >= c.bright_level).astype(np.float32), -1, box) <= c.max_bright_fraction))
+        local_sharp = variance >= c.min_laplacian_variance
+        reference = local_sharp & exposure
+        tile_support = sum(tile.size > 0 and float(tile.mean()) >= .05 for band in np.array_split(reference,4,axis=0)
+                           for tile in np.array_split(band,4,axis=1))
+        reference_available = bool(reference.mean() >= c.min_reference_fraction and tile_support >= c.min_reference_tiles)
+        # Low texture alone does not demonstrate blur. Opt-in research mode
+        # permits exposure-valid flat cells when spatially distributed sharp
+        # references exist in this SAME image. Still only a visibility estimate.
+        use_reference = c.flat_ground_reference_enabled and reference_available
+        quality = exposure & (local_sharp | use_reference)
         good_quality = np.zeros(len(self.centers), dtype=bool)
         ids = np.where(inside)[0]
         pixels = uv[ids].astype(int)
         good_quality[ids] = quality[pixels[:,:,1], pixels[:,:,0]].all(axis=1)
+        local_quality = np.zeros(len(self.centers),dtype=bool)
+        local_quality[ids] = (local_sharp & exposure)[pixels[:,:,1],pixels[:,:,0]].all(axis=1)
         fresh_map = (map_stamp is not None and math.isfinite(map_stamp) and map_stamp > 0 and
                      map_frame == c.frame_id and -c.future_tolerance <= stamp-map_stamp <= c.max_map_age)
         points = np.asarray(map_points, dtype=float) if map_points is not None else np.empty((0,3))
@@ -276,6 +292,9 @@ class Memory:
         self.state[candidate] = State.VISIBLE_PENDING
         self.state[seen] = State.SEEN_ESTIMATE
         return self.summary(now, accepted=True, reason='observed', map_fresh=fresh_map,
+            quality_reference_available=reference_available,
+            quality_mode='same_image_sharp_reference' if c.flat_ground_reference_enabled else 'local_variance_only',
+            reference_supported_area_m2=float(self.area[inside & good_quality & ~local_quality].sum()),
             newly_estimated_area_m2=float(self.area[qualified & ~before].sum()),
             revisited_estimated_area_m2=float(self.area[qualified & before].sum()),
             footprint_area_m2=float(self.area[inside].sum()), image_stamp=stamp)

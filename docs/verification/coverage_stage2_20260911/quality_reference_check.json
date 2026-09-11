@@ -1,0 +1,443 @@
+{
+  "scope": "same recorded images + explicitly synthetic blur/darkness negatives; no navigation/recall claim",
+  "samples": 16,
+  "sharp_reference_frames": {
+    "original": 13,
+    "blur_sigma6": 0,
+    "dark": 0
+  },
+  "rows": [
+    {
+      "sample": "0000.json",
+      "stamp": 1.283,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 0.0,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 0.0,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 0.0,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0001.json",
+      "stamp": 7.5649999999999995,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 0.0,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": true
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 0.0,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": true
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 0.0,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": true
+        }
+      }
+    },
+    {
+      "sample": "0002.json",
+      "stamp": 11.928,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 0.96,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 0.16000000000000014,
+          "map_fresh": true
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 0.96,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": true
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 0.96,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": true
+        }
+      }
+    },
+    {
+      "sample": "0003.json",
+      "stamp": 18.274,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 1.9200000000000004,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 1.9200000000000004,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 1.9200000000000004,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 1.9200000000000004,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0004.json",
+      "stamp": 24.529,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 1.92,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 1.5,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 1.92,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 1.92,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0005.json",
+      "stamp": 30.542,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 2.040000000000001,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 1.8300000000000005,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 2.040000000000001,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 2.040000000000001,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0006.json",
+      "stamp": 36.542,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 1.6499999999999995,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 1.6499999999999995,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 1.6499999999999995,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 1.6499999999999995,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0007.json",
+      "stamp": 42.608,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 1.6099999999999997,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 1.4099999999999993,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 1.6099999999999997,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 1.6099999999999997,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0008.json",
+      "stamp": 48.877,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 2.5200000000000005,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 1.4900000000000002,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 2.5200000000000005,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 2.5200000000000005,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0009.json",
+      "stamp": 54.944,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 0.10000000000000009,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 0.07000000000000015,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 0.10000000000000009,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 0.10000000000000009,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0010.json",
+      "stamp": 60.95,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 2.0000000000000013,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 1.8600000000000014,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 2.0000000000000013,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 2.0000000000000013,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0011.json",
+      "stamp": 67.297,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 2.75,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 2.54,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 2.75,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 2.75,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0012.json",
+      "stamp": 73.623,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 0.7799999999999999,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 0.5299999999999996,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 0.7799999999999999,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 0.7799999999999999,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0013.json",
+      "stamp": 79.938,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 1.4999999999999998,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 1.4799999999999998,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 1.4999999999999998,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 1.4999999999999998,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0014.json",
+      "stamp": 86.292,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 2.3100000000000005,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 2.3100000000000005,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 2.3100000000000005,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    },
+    {
+      "sample": "0015.json",
+      "stamp": 92.58,
+      "variants": {
+        "original": {
+          "accepted": true,
+          "footprint_area_m2": 1.9000000000000001,
+          "quality_reference_available": true,
+          "reference_supported_area_m2": 1.4400000000000004,
+          "map_fresh": false
+        },
+        "blur_sigma6": {
+          "accepted": true,
+          "footprint_area_m2": 1.9000000000000001,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        },
+        "dark": {
+          "accepted": true,
+          "footprint_area_m2": 1.9000000000000001,
+          "quality_reference_available": false,
+          "reference_supported_area_m2": 0.0,
+          "map_fresh": false
+        }
+      }
+    }
+  ]
+}

@@ -6,6 +6,8 @@
   <group ns="research" if="$(arg enabled)">
     <node pkg="uav_coverage_memory" type="coverage_memory_shadow.py"
           name="coverage_memory" output="screen" required="$(arg required)">
+      <env name="OPENBLAS_NUM_THREADS" value="1" />
+      <env name="OMP_NUM_THREADS" value="1" />
       <rosparam file="$(arg config)" />
     </node>
   </group>
