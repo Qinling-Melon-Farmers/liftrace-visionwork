@@ -121,7 +121,7 @@ class MissionLedger:
         reason=snapshot.check(now,snapshot.config.frame_id,snapshot.epoch,snapshot.generation,max_age)
         if reason:raise ValueError(reason)
         c=snapshot.config
-        identity=(snapshot.epoch,snapshot.generation,c.frame_id,c.min_x,c.max_x,c.min_y,c.max_y,c.resolution)
+        identity=(snapshot.epoch,snapshot.generation,c.frame_id,c.min_x,c.max_x,c.min_y,c.max_y,c.resolution,c.ground_z)
         if identity!=self.identity or now<self.last_now:
             self.identity=identity
             self.history=np.zeros_like(snapshot.states,dtype=bool)

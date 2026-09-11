@@ -1,4 +1,5 @@
 import unittest
+from dataclasses import replace
 import numpy as np
 from uav_coverage_memory.memory import Config
 from uav_coverage_memory.queries import Region,Snapshot,MissionLedger
@@ -79,6 +80,11 @@ class QueryTests(unittest.TestCase):
         with self.assertRaises(ValueError):ledger.update(Snapshot(self.config,np.zeros((20,20)),11.,'round1',2),20.)
         view=ledger.update(Snapshot(self.config,np.zeros((20,20)),5.,'round1',2),5.1)
         self.assertFalse(view.historical_seen.any())
+
+    def test_ground_plane_change_resets_history(self):
+        ledger=MissionLedger();ledger.update(self.snapshot,10.1)
+        moved=Snapshot(replace(self.config,ground_z=.2),np.zeros((20,20)),11.,'round1',2)
+        self.assertFalse(ledger.update(moved,11.1).historical_seen.any())
 
 
 if __name__=='__main__':unittest.main()

@@ -1,5 +1,6 @@
 <launch>
   <!-- Explicit research SITL entry. Must run through the repository sim_run.sh. -->
+  <arg name="run_dir" default="$(env SIM_RUN_DIR)" />
   <arg name="target_model_path" />
   <arg name="field_seed" />
   <arg name="world" />
@@ -28,7 +29,7 @@
     <arg name="required" value="true" />
     <arg name="config" value="$(arg coverage_config)" />
   </include>
-  <param name="/research/coverage_memory/record_dir" value="$(optenv SIM_RUN_DIR)/coverage" />
+  <param name="/research/coverage_memory/record_dir" value="$(arg run_dir)/coverage" />
   <param name="/research/coverage_memory/record_interval" value="6.0" />
   <param name="/research/coverage_memory/record_limit" value="120" />
 </launch>

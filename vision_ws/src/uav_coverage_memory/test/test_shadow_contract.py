@@ -2,6 +2,7 @@
 import ast
 import importlib.util
 import threading
+import os
 from collections import deque
 import unittest
 from pathlib import Path
@@ -9,6 +10,7 @@ from unittest.mock import patch
 import xml.etree.ElementTree as ET
 import numpy as np
 import rospy
+import roslaunch
 from std_msgs.msg import String
 from geometry_msgs.msg import TransformStamped
 from sensor_msgs.msg import Image, CameraInfo, PointCloud2
@@ -119,6 +121,14 @@ class ShadowTests(unittest.TestCase):
             self.node.on_cloud(PointCloud2())
         self.assertEqual(len(self.node.infos),8)
         self.assertEqual(len(self.node.clouds),4)
+
+    def test_research_trial_requires_wrapper_run_directory(self):
+        args=['target_model_path:=/tmp/model.pt','field_seed:=32','world:=/tmp/world',
+              'field_config:=/tmp/field','runtime_config:=/tmp/runtime','gate_geometry_config:=/tmp/gate']
+        with patch.dict(os.environ):
+            os.environ.pop('SIM_RUN_DIR',None)
+            with self.assertRaisesRegex(roslaunch.RLException,'SIM_RUN_DIR'):
+                roslaunch.config.load_config_default([(str(PACKAGE/'launch/research_trial.launch'),args)],None)
 
 
 if __name__=='__main__':unittest.main()
