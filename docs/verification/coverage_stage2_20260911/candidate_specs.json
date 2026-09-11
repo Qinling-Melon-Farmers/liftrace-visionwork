@@ -1,0 +1,26 @@
+[
+  {
+    "seed": 32,
+    "source_runtime": "docs/verification/full_random_five_20260910/seed_32/scenario_inputs/runtime.yaml",
+    "runtime": "docs/verification/coverage_stage2_20260911/candidate_inputs/seed32_s080/runtime.yaml",
+    "overrides": {
+      "search/lane_spacing": 0.8,
+      "search/route_revision": "research version suffix"
+    },
+    "launch_search_initial_plan_timeout": 0,
+    "status": "PREPARED_NOT_RUN",
+    "qualification": "isolated research; no deployment acceptance"
+  },
+  {
+    "seed": 34,
+    "source_runtime": "docs/verification/full_random_five_20260910/seed_34/scenario_inputs/runtime.yaml",
+    "runtime": "docs/verification/coverage_stage2_20260911/candidate_inputs/seed34_s080/runtime.yaml",
+    "overrides": {
+      "search/lane_spacing": 0.8,
+      "search/route_revision": "research version suffix"
+    },
+    "launch_search_initial_plan_timeout": 20,
+    "status": "PREPARED_NOT_RUN",
+    "qualification": "isolated research; no deployment acceptance"
+  }
+]

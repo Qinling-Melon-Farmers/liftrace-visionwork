@@ -1,0 +1,104 @@
+[
+  {
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference070_20260911_174716",
+    "status": "PASS",
+    "gate_reason": "all_checks_passed",
+    "checks_passed": 37,
+    "checks_total": 37,
+    "mission_start_basis": "first recorded decision, not referee clock",
+    "mission_start_ros": 11.669,
+    "last_ros": 535.682,
+    "drops": 3,
+    "third_release_s": 327.572,
+    "release_classes": [
+      "bridge",
+      "red_cross",
+      "panzer"
+    ],
+    "gate_mission_s": 523.659,
+    "search_seconds": 296.12399999999997,
+    "search_xy_m": 91.482791266253,
+    "search_slow_seconds": 17.480000000000004,
+    "full_xy_m": 116.66769420360569,
+    "max_fc_agl_m": 1.7168179649924358,
+    "collisions": 0,
+    "landing_ground": true,
+    "post_route_points": 9,
+    "lane_spacing": 0.7,
+    "observer_records": 1605,
+    "observer_accepted": 1593,
+    "observer_fresh_maps": 1592,
+    "fresh_fraction_of_accepted": 0.9993722536095417,
+    "observer_reason_counts": {
+      "image_or_calibration_missing": 2,
+      "adapter_rejected:Lookup would require extrapolation at time 0.973000000, but only time 1.025000000 is in the buffer, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+      "observed": 1593,
+      "adapter_rejected:Lookup would require extrapolation 0.002000000s into the future.  Requested time 40.996000000 but the latest data is at time 40.994000000, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+      "adapter_rejected:Lookup would require extrapolation 0.003000000s into the future.  Requested time 119.329000000 but the latest data is at time 119.326000000, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+      "adapter_rejected:Lookup would require extrapolation 0.004000000s into the future.  Requested time 178.654000000 but the latest data is at time 178.650000000, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+      "adapter_rejected:Lookup would require extrapolation 0.004000000s into the future.  Requested time 226.664000000 but the latest data is at time 226.660000000, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+      "adapter_rejected:Lookup would require extrapolation 0.001000000s into the future.  Requested time 260.993000000 but the latest data is at time 260.992000000, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+      "adapter_rejected:Lookup would require extrapolation 0.007000000s into the future.  Requested time 306.332000000 but the latest data is at time 306.325000000, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+      "adapter_rejected:Lookup would require extrapolation 0.001000000s into the future.  Requested time 386.658000000 but the latest data is at time 386.657000000, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+      "adapter_rejected:Lookup would require extrapolation 0.001000000s into the future.  Requested time 406.325000000 but the latest data is at time 406.324000000, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+      "adapter_rejected:Lookup would require extrapolation 0.011000000s into the future.  Requested time 489.664000000 but the latest data is at time 489.653000000, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1
+    },
+    "map_reason_counts": {
+      "no_source_time_matched_map": 1,
+      "source_time_matched": 1592
+    },
+    "max_active_seen_estimate_m2": 20.86,
+    "observer_processing_ms": {
+      "p50": 163.1723589998728,
+      "p95": 286.8225923994032,
+      "p99": 375.0081297972794
+    },
+    "sync_samples": 88,
+    "media_files": []
+  },
+  {
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_shadow_20260911_173209",
+    "status": "DIAGNOSTIC_STOP",
+    "gate_reason": "observer rejects real occupied cloud above prototype 100000-point cap; fix before repeating",
+    "checks_passed": 0,
+    "checks_total": 0,
+    "mission_start_basis": "first recorded decision, not referee clock",
+    "mission_start_ros": 11.85,
+    "last_ros": 95.334,
+    "drops": 2,
+    "third_release_s": null,
+    "release_classes": [
+      "bridge",
+      "red_cross"
+    ],
+    "gate_mission_s": null,
+    "search_seconds": 59.92500000000001,
+    "search_xy_m": 17.956885912737356,
+    "search_slow_seconds": 4.403000000000008,
+    "full_xy_m": 21.683865043253263,
+    "max_fc_agl_m": 1.6813257431696709,
+    "collisions": 0,
+    "landing_ground": false,
+    "post_route_points": null,
+    "lane_spacing": 0.7,
+    "observer_records": 286,
+    "observer_accepted": 283,
+    "observer_fresh_maps": 34,
+    "fresh_fraction_of_accepted": 0.12014134275618374,
+    "observer_reason_counts": {
+      "image_or_calibration_missing": 3,
+      "observed": 283
+    },
+    "map_reason_counts": {
+      "unrecorded": 283
+    },
+    "max_active_seen_estimate_m2": 0.0,
+    "observer_processing_ms": {
+      "p50": 139.19460700071795,
+      "p95": 243.0963037509173,
+      "p99": 279.3826972502756
+    },
+    "sync_samples": 16,
+    "media_files": []
+  }
+]
