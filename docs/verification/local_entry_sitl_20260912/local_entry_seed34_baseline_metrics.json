@@ -1,0 +1,410 @@
+{
+  "run_dir": "logs/local_entry_seed34_baseline_20260912_032219",
+  "status": "FAIL",
+  "gate_reason": "actual_collision",
+  "checks_passed": 28,
+  "checks_total": 37,
+  "mission_start_basis": "first recorded decision, not referee clock",
+  "mission_start_ros": 11.433,
+  "last_ros": 551.566,
+  "drops": 3,
+  "third_release_s": 348.87,
+  "release_classes": [
+    "panzer",
+    "red_cross",
+    "bridge"
+  ],
+  "gate_mission_s": null,
+  "search_seconds": 282.385,
+  "search_xy_m": 60.29537686749704,
+  "search_slow_seconds": 101.94600000000003,
+  "full_xy_m": 83.83265321726509,
+  "max_fc_agl_m": 1.7288447581172424,
+  "collisions": 1,
+  "landing_ground": false,
+  "post_route_points": 9,
+  "lane_spacing": 0.7,
+  "observer_records": 1653,
+  "observer_accepted": 1077,
+  "observer_fresh_maps": 1077,
+  "fresh_fraction_of_accepted": 1.0,
+  "observer_reason_counts": {
+    "image_or_calibration_missing": 1,
+    "work_budget_cooldown": 572,
+    "observed": 1077,
+    "camera_not_above_ground": 3
+  },
+  "map_reason_counts": {
+    "source_time_matched": 1077
+  },
+  "max_active_seen_estimate_m2": 18.979999999999997,
+  "observer_processing_ms": {
+    "p50": 145.63793900015298,
+    "p95": 255.47329500113847,
+    "p99": 333.15668759605626
+  },
+  "sync_samples": 88,
+  "media_files": [],
+  "command_motion": {
+    "search_resume_s": 282.486,
+    "search_resume_xy_m": 60.29659909321175,
+    "initial_wait_events": [
+      {
+        "seq": 2,
+        "seconds": 19.979,
+        "goal": {
+          "x": 4.3,
+          "y": 0.0,
+          "z": 1.18
+        }
+      },
+      {
+        "seq": 3,
+        "seconds": 20.037000000000006,
+        "goal": {
+          "x": 4.3,
+          "y": 0.0,
+          "z": 1.18
+        }
+      },
+      {
+        "seq": 4,
+        "seconds": 20.018,
+        "goal": {
+          "x": 4.3,
+          "y": 0.7,
+          "z": 1.18
+        }
+      },
+      {
+        "seq": 5,
+        "seconds": 20.010000000000005,
+        "goal": {
+          "x": 4.3,
+          "y": 0.7,
+          "z": 1.18
+        }
+      }
+    ],
+    "initial_wait_s": 80.04400000000001
+  },
+  "gate_errors": [
+    "actual_collision"
+  ],
+  "gate_checks": {
+    "anchor_ready": true,
+    "bridge_live_and_healthy": true,
+    "committed_targets_were_selected": true,
+    "contact_ready_zero": false,
+    "contract_errors_zero": false,
+    "doors_crossed_in_order": true,
+    "field_ready": true,
+    "final_landed_on_ground": false,
+    "final_vehicle_disarmed": false,
+    "forced_return_within_limit": true,
+    "land_success": false,
+    "landing_align_mode_seen": true,
+    "landing_h_mark_valid": true,
+    "manager_complete": false,
+    "manager_identity_matches": true,
+    "manager_post_delivery_route_matches": true,
+    "mission_ros_within_limit": false,
+    "pose_seen": true,
+    "post_delivery_return_goals": true,
+    "post_delivery_return_sequence": true,
+    "real_approach_commands": true,
+    "required_statuses_seen": true,
+    "return_after_deliveries": true,
+    "return_before_land": false,
+    "return_home_success": true,
+    "single_mission": true,
+    "single_planner_goal_publisher": true,
+    "start_gate_started_once": true,
+    "tank_accepted_zero": true,
+    "tank_selected_zero": true,
+    "three_capture_started": true,
+    "three_recovery_successes": true,
+    "three_release_commits": true,
+    "unmatched_results_zero": true,
+    "zero_boundary_violations": true,
+    "zero_collisions": false,
+    "zero_height_violations": true
+  },
+  "gate_metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 33,
+    "door_crossings": [
+      {
+        "lateral": -4.05173560066561,
+        "name": "corridor_entry",
+        "route_index": 3,
+        "z": 0.5269899739899175
+      },
+      {
+        "lateral": 8.680190183428762,
+        "name": "Wall_20",
+        "route_index": 5,
+        "z": 0.4419649769936389
+      },
+      {
+        "lateral": 8.684490512308097,
+        "name": "Wall_22",
+        "route_index": 8,
+        "z": 0.40516539903981724
+      }
+    ],
+    "height_violations": 0,
+    "landing_align_mode_seen": true,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      4.2,
+      8.5
+    ],
+    "latest_armed": true,
+    "latest_landed_state": 4,
+    "max_observed_height": 1.7288847066572541,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 25631,
+    "post_delivery_decision_indices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "post_delivery_return_success_count": 9,
+    "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+    "post_delivery_route_size": 9,
+    "recovery_success_count": 3,
+    "release_commit_count": 3,
+    "result_count": 256,
+    "selected_count": 2237,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": {
+      "anchor_error_m": 0.009065120961963711,
+      "frame_id": "camera_init",
+      "stamp_ns": 549438000000,
+      "x": 4.209037654728191,
+      "y": 8.499294865212146,
+      "z": -0.22
+    }
+  },
+  "collision_events": [
+    {
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "toudi2::Wall_9::Wall_9_collision"
+        ]
+      ],
+      "ros_stamp": 551.088,
+      "sequence": 1,
+      "wall_time": 1789156743.4273112
+    }
+  ],
+  "alignment_intervals": [
+    {
+      "seq": 13,
+      "target_class": "panzer",
+      "approach_issued_ros": 200.199,
+      "alignment_accepted_ros": 203.194,
+      "release_ros": 206.414,
+      "alignment_to_release_s": 3.219999999999999,
+      "throttled_drop_rejection_log_counts": {},
+      "log_count_scope": "Throttled diagnostic lines during this alignment, not frame rejection rate"
+    },
+    {
+      "seq": 16,
+      "target_class": "red_cross",
+      "approach_issued_ros": 232.7,
+      "alignment_accepted_ros": 236.383,
+      "release_ros": 240.414,
+      "alignment_to_release_s": 4.0309999999999775,
+      "throttled_drop_rejection_log_counts": {
+        "offset_exceeds_limit": 1
+      },
+      "log_count_scope": "Throttled diagnostic lines during this alignment, not frame rejection rate"
+    },
+    {
+      "seq": 23,
+      "target_class": "bridge",
+      "approach_issued_ros": 312.6,
+      "alignment_accepted_ros": 315.344,
+      "release_ros": 360.303,
+      "alignment_to_release_s": 44.959,
+      "throttled_drop_rejection_log_counts": {
+        "alignment_context_geometry_frame_mismatch": 8,
+        "insufficient_stable_frames": 7,
+        "stale_observation": 24,
+        "alignment_context_future_stamp": 2,
+        "offset_exceeds_limit": 1
+      },
+      "log_count_scope": "Throttled diagnostic lines during this alignment, not frame rejection rate"
+    }
+  ],
+  "local_entries": [],
+  "adviser": {
+    "rows": 551,
+    "accepted_rows": 99,
+    "unique_accepted_requests": 99,
+    "reasons": {
+      "motion_context_missing": 11,
+      "outside_search_bounds": 98,
+      "local_hint_requires_actual_planner": 99,
+      "probe_stamp_stale_or_future": 30,
+      "no_clear_candidate_with_observation_gain": 38,
+      "decision_or_memory_changed": 2,
+      "nominal_goal_already_near": 7,
+      "probe_or_context_rejected:invalid_or_stale_motion_context": 2,
+      "snapshot_stale_or_future": 1,
+      "probe_or_context_rejected:inactive_or_mismatched_search_context": 1,
+      "inactive_or_mismatched_search_context": 258,
+      "invalid_or_stale_motion_context": 4
+    },
+    "probe_work_ms": {
+      "p50": 0.074078,
+      "p95": 0.11658009999999998,
+      "max": 0.23728100000000002
+    },
+    "reply_age_ros_ms": {
+      "p50": 144.00000000000546,
+      "p95": 252.29999999998253,
+      "max": 323.99999999998386
+    },
+    "checked_voxels": {
+      "p50": 373.0,
+      "p95": 416.89999999999975,
+      "max": 484.0
+    }
+  },
+  "observer_processing_scope": "heavy-processing ticks only; cooldown rows excluded; not whole-node CPU",
+  "release_times": [
+    {
+      "ros_sec": 206.414,
+      "since_first_decision_s": 194.981,
+      "target_class": "panzer"
+    },
+    {
+      "ros_sec": 240.414,
+      "since_first_decision_s": 228.981,
+      "target_class": "red_cross"
+    },
+    {
+      "ros_sec": 360.303,
+      "since_first_decision_s": 348.87,
+      "target_class": "bridge"
+    }
+  ],
+  "resource_samples": [
+    {
+      "wall": 1789155551.4024036,
+      "phase": "search_two_drops",
+      "processes": [
+        {
+          "pid": 21588,
+          "comm": "local_search_ad",
+          "lifetime_cpu_percent": 6.4007044831646445,
+          "elapsed_wall_s": 1010.6699999999983,
+          "cpu_s": 64.69,
+          "rss_kib": 118892,
+          "hwm_kib": 118892,
+          "threads": 13
+        },
+        {
+          "pid": 21673,
+          "comm": "fast_planner_no",
+          "lifetime_cpu_percent": 110.6944197002993,
+          "elapsed_wall_s": 1010.3399999999965,
+          "cpu_s": 1118.39,
+          "rss_kib": 521136,
+          "hwm_kib": 598476,
+          "threads": 6
+        },
+        {
+          "pid": 21678,
+          "comm": "fastlio_mapping",
+          "lifetime_cpu_percent": 104.87172381027796,
+          "elapsed_wall_s": 1010.3199999999997,
+          "cpu_s": 1059.54,
+          "rss_kib": 194236,
+          "hwm_kib": 195220,
+          "threads": 8
+        },
+        {
+          "pid": 22143,
+          "comm": "coverage_memory",
+          "lifetime_cpu_percent": 53.04139386075261,
+          "elapsed_wall_s": 1009.5699999999997,
+          "cpu_s": 535.49,
+          "rss_kib": 176712,
+          "hwm_kib": 201900,
+          "threads": 20
+        }
+      ]
+    },
+    {
+      "wall": 1789156470.8177145,
+      "phase": "post_delivery",
+      "processes": [
+        {
+          "pid": 21588,
+          "comm": "local_search_ad",
+          "lifetime_cpu_percent": 6.127725275636237,
+          "elapsed_wall_s": 1930.0800000000017,
+          "cpu_s": 118.27,
+          "rss_kib": 118892,
+          "hwm_kib": 118892,
+          "threads": 13
+        },
+        {
+          "pid": 21673,
+          "comm": "fast_planner_no",
+          "lifetime_cpu_percent": 112.09690374400829,
+          "elapsed_wall_s": 1929.75,
+          "cpu_s": 2163.19,
+          "rss_kib": 490228,
+          "hwm_kib": 598476,
+          "threads": 6
+        },
+        {
+          "pid": 21678,
+          "comm": "fastlio_mapping",
+          "lifetime_cpu_percent": 105.31369673477619,
+          "elapsed_wall_s": 1929.7300000000032,
+          "cpu_s": 2032.27,
+          "rss_kib": 195588,
+          "hwm_kib": 197868,
+          "threads": 8
+        },
+        {
+          "pid": 22143,
+          "comm": "coverage_memory",
+          "lifetime_cpu_percent": 53.638710613899484,
+          "elapsed_wall_s": 1928.9800000000032,
+          "cpu_s": 1034.68,
+          "rss_kib": 180268,
+          "hwm_kib": 201900,
+          "threads": 20
+        }
+      ]
+    }
+  ],
+  "px4_logs": [
+    {
+      "path": "px4/log/2026-09-11/19_22_36.ulg.gz",
+      "bytes": 38377719
+    }
+  ]
+}

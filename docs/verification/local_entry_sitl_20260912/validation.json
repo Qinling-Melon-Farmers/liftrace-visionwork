@@ -1,0 +1,372 @@
+{
+  "status": "PASS",
+  "completed_runs": 4,
+  "gate_statuses": [
+    "FAIL",
+    "FAIL",
+    "FAIL",
+    "PASS"
+  ],
+  "gate_checks": [
+    21,
+    28,
+    28,
+    37
+  ],
+  "input_pairs": [
+    {
+      "seed": 32,
+      "source": "31374fda9aac9a417b3f1c4f60ef4a8c3d19ff2d",
+      "files_equal": {
+        "runtime.yaml": true,
+        "gate_geometry.yaml": true,
+        "field.world": true,
+        "field_config.yaml": true,
+        "resource_budget.yaml": true,
+        "vehicle_model.sdf": true,
+        "local_motion.yaml": true,
+        "coverage.yaml": true,
+        "iris_dynamics.sdf": true,
+        "mid360_mounted.sdf": true,
+        "local_adviser.yaml": true
+      },
+      "launch_differences": {
+        "local_motion_enabled": [
+          "false",
+          "true"
+        ]
+      }
+    },
+    {
+      "seed": 34,
+      "source": "31374fda9aac9a417b3f1c4f60ef4a8c3d19ff2d",
+      "files_equal": {
+        "runtime.yaml": true,
+        "gate_geometry.yaml": true,
+        "field.world": true,
+        "field_config.yaml": true,
+        "resource_budget.yaml": true,
+        "vehicle_model.sdf": true,
+        "local_motion.yaml": true,
+        "coverage.yaml": true,
+        "iris_dynamics.sdf": true,
+        "mid360_mounted.sdf": true,
+        "local_adviser.yaml": true
+      },
+      "launch_differences": {
+        "local_motion_enabled": [
+          "false",
+          "true"
+        ]
+      }
+    }
+  ],
+  "local_execution": [
+    {
+      "run": "local_entry_seed32_active_20260912_024451",
+      "seq": 2,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 3,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          0
+        ],
+        [
+          0
+        ],
+        [
+          0
+        ]
+      ],
+      "deadline_restored": true
+    },
+    {
+      "run": "local_entry_seed32_active_20260912_024451",
+      "seq": 5,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 6,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          1
+        ],
+        [
+          1
+        ],
+        [
+          1
+        ]
+      ],
+      "deadline_restored": true
+    },
+    {
+      "run": "local_entry_seed32_active_20260912_024451",
+      "seq": 13,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 14,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          3
+        ],
+        [
+          3
+        ],
+        [
+          3
+        ]
+      ],
+      "deadline_restored": true
+    },
+    {
+      "run": "local_entry_seed32_active_20260912_024451",
+      "seq": 17,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 18,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          5
+        ],
+        [
+          5
+        ],
+        [
+          5
+        ]
+      ],
+      "deadline_restored": true
+    },
+    {
+      "run": "local_entry_seed34_active_20260912_035944",
+      "seq": 2,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 3,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          0
+        ],
+        [
+          0
+        ],
+        [
+          0
+        ]
+      ],
+      "deadline_restored": true
+    },
+    {
+      "run": "local_entry_seed34_active_20260912_035944",
+      "seq": 12,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 13,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          5
+        ],
+        [
+          5
+        ],
+        [
+          5
+        ]
+      ],
+      "deadline_restored": true
+    },
+    {
+      "run": "local_entry_seed34_active_20260912_035944",
+      "seq": 16,
+      "resolution": "local_entry_complete",
+      "resumed_seq": 17,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          7
+        ],
+        [
+          7
+        ],
+        [
+          7
+        ]
+      ],
+      "deadline_restored": true
+    },
+    {
+      "run": "local_entry_seed34_active_20260912_035944",
+      "seq": 20,
+      "resolution": "target_preempted",
+      "resumed_seq": 22,
+      "goal_restored": true,
+      "cursor_indices": [
+        [
+          9
+        ],
+        [
+          9
+        ],
+        [
+          9
+        ]
+      ],
+      "deadline_restored": null
+    }
+  ],
+  "raw_snapshots": 345,
+  "images": [
+    {
+      "file": "local_entry_seed32_active_20260912_024451.png",
+      "size": [
+        1885,
+        1450
+      ],
+      "bytes": 327637
+    },
+    {
+      "file": "local_entry_seed32_active_sampled_union.png",
+      "size": [
+        840,
+        700
+      ],
+      "bytes": 26786
+    },
+    {
+      "file": "local_entry_seed32_active_terminal.png",
+      "size": [
+        1740,
+        1160
+      ],
+      "bytes": 242052
+    },
+    {
+      "file": "local_entry_seed32_baseline_20260912_020632.png",
+      "size": [
+        1885,
+        1450
+      ],
+      "bytes": 318207
+    },
+    {
+      "file": "local_entry_seed32_baseline_sampled_union.png",
+      "size": [
+        840,
+        700
+      ],
+      "bytes": 27063
+    },
+    {
+      "file": "local_entry_seed32_baseline_terminal.png",
+      "size": [
+        1740,
+        1160
+      ],
+      "bytes": 265143
+    },
+    {
+      "file": "local_entry_seed34_active_20260912_035944.png",
+      "size": [
+        1885,
+        1450
+      ],
+      "bytes": 298385
+    },
+    {
+      "file": "local_entry_seed34_active_sampled_union.png",
+      "size": [
+        840,
+        700
+      ],
+      "bytes": 26370
+    },
+    {
+      "file": "local_entry_seed34_active_terminal.png",
+      "size": [
+        1740,
+        1160
+      ],
+      "bytes": 255368
+    },
+    {
+      "file": "local_entry_seed34_baseline_20260912_032219.png",
+      "size": [
+        1885,
+        1450
+      ],
+      "bytes": 296490
+    },
+    {
+      "file": "local_entry_seed34_baseline_sampled_union.png",
+      "size": [
+        840,
+        700
+      ],
+      "bytes": 26668
+    },
+    {
+      "file": "local_entry_seed34_baseline_terminal.png",
+      "size": [
+        1740,
+        1160
+      ],
+      "bytes": 225094
+    },
+    {
+      "file": "seed32_comparison.png",
+      "size": [
+        2400,
+        900
+      ],
+      "bytes": 217444
+    },
+    {
+      "file": "seed32_release_breakdown.png",
+      "size": [
+        1500,
+        570
+      ],
+      "bytes": 50659
+    },
+    {
+      "file": "seed34_comparison.png",
+      "size": [
+        2400,
+        900
+      ],
+      "bytes": 188173
+    },
+    {
+      "file": "seed34_release_breakdown.png",
+      "size": [
+        1500,
+        570
+      ],
+      "bytes": 51199
+    }
+  ],
+  "markdown_links_missing": [],
+  "python_syntax": "PASS",
+  "shell_syntax": "PASS",
+  "git_diff_check": "PASS",
+  "residual_processes": [],
+  "competition_head": "86e382d",
+  "delivery_source": "c369e6f80f7671d78b083550887ed689e4a4d920",
+  "notes": "Checks use recorded real runs; no new simulation or mirror implementation unit tests were started. Visual image QA recorded separately.",
+  "visual_qa": {
+    "status": "PASS",
+    "inspected": [
+      "seed34_comparison.png",
+      "seed34_release_breakdown.png",
+      "local_entry_seed34_active_20260912_035944.png",
+      "local_entry_seed34_active_terminal.png"
+    ],
+    "checks": [
+      "readable labels and legends",
+      "no clipped titles or axis labels",
+      "height and attitude use distinct truth/estimate series",
+      "paired timing decomposition matches metrics"
+    ]
+  }
+}

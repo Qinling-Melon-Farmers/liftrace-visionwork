@@ -1,6 +1,6 @@
 # 第一阶段：旁路观测地图记忆原型
 
-后续在线验证及开发已完成一轮研究周期，最新见[阶段研究报告](../../verification/coverage_stage2_20260911/REPORT.md)。以下保留首版原型的当时状态。
+后续在线验证及开发已推进至[局部入口四轮SITL对照](../../verification/local_entry_sitl_20260912/REPORT.md)；早期航带研究见[阶段研究报告](../../verification/coverage_stage2_20260911/REPORT.md)。以下保留首版原型的当时状态。
 
 2026-09-11。用户已审阅优化计划并要求分阶段实施。本轮在`feat/coverage-efficiency-research`完成独立旁路包和离线验证；没有修改0.70m航带、覆盖游标、任务状态机、规划器或部署包，没有启动ROS/Gazebo/PX4仿真或实机。
 

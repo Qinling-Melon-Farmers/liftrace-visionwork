@@ -1,0 +1,90 @@
+{
+  "start_wall": 1789158950.3015091,
+  "host_f_free_before": 68131856384,
+  "wsl_free_before": 938307207168,
+  "files": [
+    {
+      "source": "logs/local_entry_seed32_baseline_20260912_020632/px4/log/2026-09-11/18_06_51.ulg",
+      "compressed": "logs/local_entry_seed32_baseline_20260912_020632/px4/log/2026-09-11/18_06_51.ulg.gz",
+      "original_bytes": 109150321,
+      "compressed_bytes": 35951067,
+      "exact_roundtrip": true
+    },
+    {
+      "source": "logs/local_entry_seed32_active_20260912_024451/px4/log/2026-09-11/18_45_11.ulg",
+      "compressed": "logs/local_entry_seed32_active_20260912_024451/px4/log/2026-09-11/18_45_11.ulg.gz",
+      "original_bytes": 113267194,
+      "compressed_bytes": 37289884,
+      "exact_roundtrip": true
+    },
+    {
+      "source": "logs/local_entry_seed34_baseline_20260912_032219/px4/log/2026-09-11/19_22_36.ulg",
+      "compressed": "logs/local_entry_seed34_baseline_20260912_032219/px4/log/2026-09-11/19_22_36.ulg.gz",
+      "original_bytes": 116664903,
+      "compressed_bytes": 38377719,
+      "exact_roundtrip": true
+    },
+    {
+      "source": "logs/local_entry_seed34_active_20260912_035944/px4/log/2026-09-11/20_00_01.ulg",
+      "compressed": "logs/local_entry_seed34_active_20260912_035944/px4/log/2026-09-11/20_00_01.ulg.gz",
+      "original_bytes": 117823863,
+      "compressed_bytes": 38688009,
+      "exact_roundtrip": true
+    }
+  ],
+  "finished_wall": 1789158959.9015582,
+  "host_f_free_after": 68131856384,
+  "wsl_free_after": 938613817344,
+  "logical_bytes_saved": 306599602,
+  "notes": "Only these four completed-run ULogs were losslessly compressed; readback byte equality and gzip CRC checked before removing uncompressed copies. Images, clouds, CSV, event logs and scenario inputs retained. No VHDX compaction; logical saving is not host reclaimed space.",
+  "intermediate_figures_removed": [
+    {
+      "path": "logs/_artifacts/local_entry_execution_20260912/report_work/local_entry_seed32_active_20260912_024451.png",
+      "bytes": 327637
+    },
+    {
+      "path": "logs/_artifacts/local_entry_execution_20260912/report_work/local_entry_seed32_active_sampled_union.png",
+      "bytes": 26786
+    },
+    {
+      "path": "logs/_artifacts/local_entry_execution_20260912/report_work/local_entry_seed32_active_terminal.png",
+      "bytes": 240674
+    },
+    {
+      "path": "logs/_artifacts/local_entry_execution_20260912/report_work/local_entry_seed32_baseline_20260912_020632.png",
+      "bytes": 318207
+    },
+    {
+      "path": "logs/_artifacts/local_entry_execution_20260912/report_work/local_entry_seed32_baseline_sampled_union.png",
+      "bytes": 27063
+    },
+    {
+      "path": "logs/_artifacts/local_entry_execution_20260912/report_work/local_entry_seed32_baseline_terminal.png",
+      "bytes": 263880
+    },
+    {
+      "path": "logs/_artifacts/local_entry_execution_20260912/report_work/local_entry_seed34_active_20260912_035944.png",
+      "bytes": 304979
+    },
+    {
+      "path": "logs/_artifacts/local_entry_execution_20260912/report_work/local_entry_seed34_baseline_20260912_032219.png",
+      "bytes": 296490
+    },
+    {
+      "path": "logs/_artifacts/local_entry_execution_20260912/report_work/local_entry_seed34_baseline_sampled_union.png",
+      "bytes": 26668
+    },
+    {
+      "path": "logs/_artifacts/local_entry_execution_20260912/report_work/local_entry_seed34_baseline_terminal.png",
+      "bytes": 223784
+    },
+    {
+      "path": "logs/_artifacts/local_entry_execution_20260912/report_work/seed32_comparison.png",
+      "bytes": 217444
+    }
+  ],
+  "intermediate_bytes_removed": 2273612,
+  "host_f_free_final": 74066972672,
+  "final_sample_wall": 1789159666.837313,
+  "research_logs_apparent_bytes": 1913473639
+}

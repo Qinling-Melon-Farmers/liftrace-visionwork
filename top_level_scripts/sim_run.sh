@@ -41,7 +41,7 @@ fi
 
 # Linux comm names are limited to 15 characters. Include the nodes observed
 # surviving an interrupted launch, so a stale mapper cannot join the next run.
-SIM_PROCESS_NAMES=(roscore rosmaster rosout roslaunch gzserver gzclient px4 mavros_node rviz fastlio_mapping fast_planner_no coverage_memory local_search_ad)
+SIM_PROCESS_NAMES=(roscore rosmaster rosout roslaunch gzserver gzclient px4 mavros_node rviz fastlio_mapping fast_planner_no coverage_memory local_search_ad competition_key)
 SIM_EXISTING_PROCESSES=""
 for SIM_PROCESS_NAME in "${SIM_PROCESS_NAMES[@]}"; do
   SIM_PROCESS_PIDS="$(pgrep -x "${SIM_PROCESS_NAME}" 2>/dev/null | paste -sd, -)"

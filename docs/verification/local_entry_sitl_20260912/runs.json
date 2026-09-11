@@ -1,0 +1,376 @@
+{
+  "source": "31374fd",
+  "model": "/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt",
+  "coverage": "docs/verification/coverage_stage2_20260911/reference_shadow.yaml",
+  "diagnostic_runs": [
+    "logs/local_entry_seed32_baseline_20260912_015423"
+  ],
+  "runs": [
+    {
+      "seed": 32,
+      "local": false,
+      "wait": 0,
+      "status": "FAIL",
+      "run": "logs/local_entry_seed32_baseline_20260912_020632",
+      "summary": {
+        "status": "FAIL",
+        "reason": "actual_collision",
+        "errors": [
+          "actual_collision"
+        ],
+        "checks_passed": 21,
+        "checks_total": 37,
+        "releases": [
+          {
+            "t": 51.701,
+            "relative_s": 40.085,
+            "target_class": "bridge"
+          },
+          {
+            "t": 68.034,
+            "relative_s": 56.418000000000006,
+            "target_class": "red_cross"
+          },
+          {
+            "t": 332.598,
+            "relative_s": 320.982,
+            "target_class": "panzer"
+          }
+        ],
+        "metrics": {
+          "approach_command_count": 3,
+          "boundary_violations": 0,
+          "capture_started_count": 3,
+          "decision_count": 32,
+          "door_crossings": [
+            {
+              "lateral": -4.033723107629238,
+              "name": "corridor_entry",
+              "route_index": 3,
+              "z": 0.376421195384943
+            },
+            {
+              "lateral": 7.979022021918427,
+              "name": "Wall_20",
+              "route_index": 5,
+              "z": 0.4666097199652674
+            },
+            {
+              "lateral": 7.997586413682146,
+              "name": "Wall_22",
+              "route_index": 8,
+              "z": 0.430608145200726
+            }
+          ],
+          "height_violations": 0,
+          "landing_align_mode_seen": false,
+          "landing_h_mark_rejections": {},
+          "landing_h_tolerance": 0.35,
+          "landing_xy": [
+            4.2,
+            8.5
+          ],
+          "latest_armed": null,
+          "latest_landed_state": null,
+          "max_observed_height": 1.6831252067075821,
+          "mission_ros_sec": null,
+          "mission_wall_sec": null,
+          "planner_goal_publishers": [
+            "/navigation/planner_bridge"
+          ],
+          "pose_samples": 23852,
+          "post_delivery_decision_indices": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "post_delivery_return_success_count": 8,
+          "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+          "post_delivery_route_size": 9,
+          "recovery_success_count": 3,
+          "release_commit_count": 3,
+          "result_count": 173,
+          "selected_count": 1509,
+          "simulation_realtime_factor": null,
+          "unmatched_result_count": 0,
+          "valid_landing_h_mark": null
+        }
+      }
+    },
+    {
+      "seed": 32,
+      "local": true,
+      "wait": 0,
+      "status": "FAIL",
+      "run": "logs/local_entry_seed32_active_20260912_024451",
+      "summary": {
+        "status": "FAIL",
+        "reason": "actual_collision",
+        "errors": [
+          "actual_collision"
+        ],
+        "checks_passed": 28,
+        "checks_total": 37,
+        "metrics": {
+          "approach_command_count": 3,
+          "boundary_violations": 0,
+          "capture_started_count": 3,
+          "decision_count": 43,
+          "door_crossings": [
+            {
+              "lateral": -4.069583924041084,
+              "name": "corridor_entry",
+              "route_index": 3,
+              "z": 0.46470449743327363
+            },
+            {
+              "lateral": 7.984696133522669,
+              "name": "Wall_20",
+              "route_index": 5,
+              "z": 0.42785148774471005
+            },
+            {
+              "lateral": 8.000030374846414,
+              "name": "Wall_22",
+              "route_index": 8,
+              "z": 0.2706185894318838
+            }
+          ],
+          "height_violations": 0,
+          "landing_align_mode_seen": true,
+          "landing_h_mark_rejections": {},
+          "landing_h_tolerance": 0.35,
+          "landing_xy": [
+            4.2,
+            8.5
+          ],
+          "latest_armed": true,
+          "latest_landed_state": 4,
+          "max_observed_height": 1.711924137043616,
+          "mission_ros_sec": null,
+          "mission_wall_sec": null,
+          "planner_goal_publishers": [
+            "/navigation/planner_bridge"
+          ],
+          "pose_samples": 24646,
+          "post_delivery_decision_indices": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "post_delivery_return_success_count": 9,
+          "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+          "post_delivery_route_size": 9,
+          "recovery_success_count": 3,
+          "release_commit_count": 3,
+          "result_count": 200,
+          "selected_count": 1399,
+          "simulation_realtime_factor": null,
+          "unmatched_result_count": 0,
+          "valid_landing_h_mark": {
+            "anchor_error_m": 0.05375403538758678,
+            "frame_id": "camera_init",
+            "stamp_ns": 532259000000,
+            "x": 4.211480332437385,
+            "y": 8.447486208596436,
+            "z": -0.22
+          }
+        }
+      }
+    },
+    {
+      "seed": 34,
+      "local": false,
+      "wait": 20,
+      "status": "FAIL",
+      "run": "logs/local_entry_seed34_baseline_20260912_032219",
+      "summary": {
+        "status": "FAIL",
+        "reason": "actual_collision",
+        "errors": [
+          "actual_collision"
+        ],
+        "checks_passed": 28,
+        "checks_total": 37,
+        "metrics": {
+          "approach_command_count": 3,
+          "boundary_violations": 0,
+          "capture_started_count": 3,
+          "decision_count": 33,
+          "door_crossings": [
+            {
+              "lateral": -4.05173560066561,
+              "name": "corridor_entry",
+              "route_index": 3,
+              "z": 0.5269899739899175
+            },
+            {
+              "lateral": 8.680190183428762,
+              "name": "Wall_20",
+              "route_index": 5,
+              "z": 0.4419649769936389
+            },
+            {
+              "lateral": 8.684490512308097,
+              "name": "Wall_22",
+              "route_index": 8,
+              "z": 0.40516539903981724
+            }
+          ],
+          "height_violations": 0,
+          "landing_align_mode_seen": true,
+          "landing_h_mark_rejections": {},
+          "landing_h_tolerance": 0.35,
+          "landing_xy": [
+            4.2,
+            8.5
+          ],
+          "latest_armed": true,
+          "latest_landed_state": 4,
+          "max_observed_height": 1.7288847066572541,
+          "mission_ros_sec": null,
+          "mission_wall_sec": null,
+          "planner_goal_publishers": [
+            "/navigation/planner_bridge"
+          ],
+          "pose_samples": 25631,
+          "post_delivery_decision_indices": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "post_delivery_return_success_count": 9,
+          "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+          "post_delivery_route_size": 9,
+          "recovery_success_count": 3,
+          "release_commit_count": 3,
+          "result_count": 256,
+          "selected_count": 2237,
+          "simulation_realtime_factor": null,
+          "unmatched_result_count": 0,
+          "valid_landing_h_mark": {
+            "anchor_error_m": 0.009065120961963711,
+            "frame_id": "camera_init",
+            "stamp_ns": 549438000000,
+            "x": 4.209037654728191,
+            "y": 8.499294865212146,
+            "z": -0.22
+          }
+        }
+      }
+    },
+    {
+      "seed": 34,
+      "local": true,
+      "wait": 20,
+      "status": "PASS",
+      "run": "logs/local_entry_seed34_active_20260912_035944",
+      "summary": {
+        "status": "PASS",
+        "reason": "all_checks_passed",
+        "errors": [],
+        "checks_passed": 37,
+        "checks_total": 37,
+        "metrics": {
+          "approach_command_count": 3,
+          "boundary_violations": 0,
+          "capture_started_count": 3,
+          "decision_count": 41,
+          "door_crossings": [
+            {
+              "lateral": -4.046641456591176,
+              "name": "corridor_entry",
+              "route_index": 3,
+              "z": 0.5185747699250308
+            },
+            {
+              "lateral": 8.655304367172356,
+              "name": "Wall_20",
+              "route_index": 5,
+              "z": 0.4121677062094661
+            },
+            {
+              "lateral": 8.675840403171998,
+              "name": "Wall_22",
+              "route_index": 8,
+              "z": 0.2535018506842142
+            }
+          ],
+          "height_violations": 0,
+          "landing_align_mode_seen": true,
+          "landing_h_mark_rejections": {},
+          "landing_h_tolerance": 0.35,
+          "landing_xy": [
+            4.2,
+            8.5
+          ],
+          "latest_armed": false,
+          "latest_landed_state": 1,
+          "max_observed_height": 1.6870185548629573,
+          "mission_ros_sec": 546.63,
+          "mission_wall_sec": 1971.1674819600012,
+          "planner_goal_publishers": [
+            "/navigation/planner_bridge"
+          ],
+          "pose_samples": 25192,
+          "post_delivery_decision_indices": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "post_delivery_return_success_count": 9,
+          "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+          "post_delivery_route_size": 9,
+          "recovery_success_count": 3,
+          "release_commit_count": 3,
+          "result_count": 294,
+          "selected_count": 1436,
+          "simulation_realtime_factor": 0.2773128133467718,
+          "unmatched_result_count": 0,
+          "valid_landing_h_mark": {
+            "anchor_error_m": 0.004185354204188613,
+            "frame_id": "camera_init",
+            "stamp_ns": 551088000000,
+            "x": 4.2025787461962905,
+            "y": 8.503296552421794,
+            "z": -0.22
+          }
+        }
+      }
+    }
+  ],
+  "idle_recorder_cleanup": {
+    "pid": 7931,
+    "source": "startup diagnostic d37adb58-ae09-11f1-b22e-00155da225b2",
+    "observed_lifetime_cpu_percent": 0.1,
+    "rss_kib": 45260,
+    "diagnostic_files_unchanged_since_startup": true,
+    "flight_publishers": false,
+    "cleared_wall": 1789153299.2823346,
+    "current_run_not_stopped": true
+  }
+}

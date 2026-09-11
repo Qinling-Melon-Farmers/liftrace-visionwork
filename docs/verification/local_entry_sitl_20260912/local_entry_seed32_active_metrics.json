@@ -1,0 +1,475 @@
+{
+  "run_dir": "logs/local_entry_seed32_active_20260912_024451",
+  "status": "FAIL",
+  "gate_reason": "actual_collision",
+  "checks_passed": 28,
+  "checks_total": 37,
+  "mission_start_basis": "first recorded decision, not referee clock",
+  "mission_start_ros": 11.642,
+  "last_ros": 534.413,
+  "drops": 3,
+  "third_release_s": 335.897,
+  "release_classes": [
+    "bridge",
+    "red_cross",
+    "panzer"
+  ],
+  "gate_mission_s": null,
+  "search_seconds": 310.918,
+  "search_xy_m": 94.47755025399601,
+  "search_slow_seconds": 18.921999999999912,
+  "full_xy_m": 117.57665258209997,
+  "max_fc_agl_m": 1.7119063328939894,
+  "collisions": 2,
+  "landing_ground": false,
+  "post_route_points": 9,
+  "lane_spacing": 0.7,
+  "observer_records": 1601,
+  "observer_accepted": 1165,
+  "observer_fresh_maps": 1165,
+  "fresh_fraction_of_accepted": 1.0,
+  "observer_reason_counts": {
+    "image_or_calibration_missing": 2,
+    "work_budget_cooldown": 430,
+    "observed": 1165,
+    "adapter_rejected:Lookup would require extrapolation 0.005000000s into the future.  Requested time 224.331000000 but the latest data is at time 224.326000000, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+    "adapter_rejected:Lookup would require extrapolation 0.006000000s into the future.  Requested time 290.663000000 but the latest data is at time 290.657000000, when looking up transform from frame [downward_camera_optical_frame] to frame [camera_init]": 1,
+    "camera_not_above_ground": 2
+  },
+  "map_reason_counts": {
+    "source_time_matched": 1165
+  },
+  "max_active_seen_estimate_m2": 19.97,
+  "observer_processing_ms": {
+    "p50": 134.31439499981934,
+    "p95": 208.36061199952383,
+    "p99": 253.86229839714358
+  },
+  "sync_samples": 86,
+  "media_files": [],
+  "command_motion": {
+    "search_resume_s": 310.918,
+    "search_resume_xy_m": 94.47755025399601,
+    "initial_wait_events": [],
+    "initial_wait_s": 0
+  },
+  "gate_errors": [
+    "actual_collision"
+  ],
+  "gate_checks": {
+    "anchor_ready": true,
+    "bridge_live_and_healthy": true,
+    "committed_targets_were_selected": true,
+    "contact_ready_zero": false,
+    "contract_errors_zero": false,
+    "doors_crossed_in_order": true,
+    "field_ready": true,
+    "final_landed_on_ground": false,
+    "final_vehicle_disarmed": false,
+    "forced_return_within_limit": true,
+    "land_success": false,
+    "landing_align_mode_seen": true,
+    "landing_h_mark_valid": true,
+    "manager_complete": false,
+    "manager_identity_matches": true,
+    "manager_post_delivery_route_matches": true,
+    "mission_ros_within_limit": false,
+    "pose_seen": true,
+    "post_delivery_return_goals": true,
+    "post_delivery_return_sequence": true,
+    "real_approach_commands": true,
+    "required_statuses_seen": true,
+    "return_after_deliveries": true,
+    "return_before_land": false,
+    "return_home_success": true,
+    "single_mission": true,
+    "single_planner_goal_publisher": true,
+    "start_gate_started_once": true,
+    "tank_accepted_zero": true,
+    "tank_selected_zero": true,
+    "three_capture_started": true,
+    "three_recovery_successes": true,
+    "three_release_commits": true,
+    "unmatched_results_zero": true,
+    "zero_boundary_violations": true,
+    "zero_collisions": false,
+    "zero_height_violations": true
+  },
+  "gate_metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 43,
+    "door_crossings": [
+      {
+        "lateral": -4.069583924041084,
+        "name": "corridor_entry",
+        "route_index": 3,
+        "z": 0.46470449743327363
+      },
+      {
+        "lateral": 7.984696133522669,
+        "name": "Wall_20",
+        "route_index": 5,
+        "z": 0.42785148774471005
+      },
+      {
+        "lateral": 8.000030374846414,
+        "name": "Wall_22",
+        "route_index": 8,
+        "z": 0.2706185894318838
+      }
+    ],
+    "height_violations": 0,
+    "landing_align_mode_seen": true,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      4.2,
+      8.5
+    ],
+    "latest_armed": true,
+    "latest_landed_state": 4,
+    "max_observed_height": 1.711924137043616,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 24646,
+    "post_delivery_decision_indices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "post_delivery_return_success_count": 9,
+    "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+    "post_delivery_route_size": 9,
+    "recovery_success_count": 3,
+    "release_commit_count": 3,
+    "result_count": 200,
+    "selected_count": 1399,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": {
+      "anchor_error_m": 0.05375403538758678,
+      "frame_id": "camera_init",
+      "stamp_ns": 532259000000,
+      "x": 4.211480332437385,
+      "y": 8.447486208596436,
+      "z": -0.22
+    }
+  },
+  "collision_events": [
+    {
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "toudi2::Wall_9::Wall_9_collision"
+        ]
+      ],
+      "ros_stamp": 533.816,
+      "sequence": 1,
+      "wall_time": 1789154489.0774722
+    },
+    {
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "toudi2::Wall_9::Wall_9_collision"
+        ]
+      ],
+      "ros_stamp": 533.886,
+      "sequence": 2,
+      "wall_time": 1789154489.3624592
+    }
+  ],
+  "alignment_intervals": [
+    {
+      "seq": 7,
+      "target_class": "bridge",
+      "approach_issued_ros": 49.129,
+      "alignment_accepted_ros": 51.33,
+      "release_ros": 55.104,
+      "alignment_to_release_s": 3.774000000000001,
+      "throttled_drop_rejection_log_counts": {
+        "offset_exceeds_limit": 1,
+        "stale_observation": 1
+      },
+      "log_count_scope": "Throttled diagnostic lines during this alignment, not frame rejection rate"
+    },
+    {
+      "seq": 9,
+      "target_class": "red_cross",
+      "approach_issued_ros": 62.63,
+      "alignment_accepted_ros": 67.286,
+      "release_ros": 70.693,
+      "alignment_to_release_s": 3.4069999999999965,
+      "throttled_drop_rejection_log_counts": {
+        "offset_exceeds_limit": 1
+      },
+      "log_count_scope": "Throttled diagnostic lines during this alignment, not frame rejection rate"
+    },
+    {
+      "seq": 33,
+      "target_class": "panzer",
+      "approach_issued_ros": 341.434,
+      "alignment_accepted_ros": 343.534,
+      "release_ros": 347.539,
+      "alignment_to_release_s": 4.0049999999999955,
+      "throttled_drop_rejection_log_counts": {
+        "offset_exceeds_limit": 2,
+        "alignment_context_geometry_frame_mismatch": 1
+      },
+      "log_count_scope": "Throttled diagnostic lines during this alignment, not frame rejection rate"
+    }
+  ],
+  "local_entries": [
+    {
+      "seq": 2,
+      "request_id": 1,
+      "issued_ros": 13.147,
+      "parent_seq": 1,
+      "parent_reason": "coverage_start",
+      "entry": [
+        -1.2494738873677296,
+        0.020825961665461426,
+        1.18
+      ],
+      "source": [
+        -0.049501851201057434,
+        0.029018178582191467,
+        1.1453907489776611
+      ],
+      "nominal": [
+        -4.3,
+        0.0,
+        1.18
+      ],
+      "lateral_m": 3.264903059644459e-18,
+      "gain_proxy_m2": 0.72,
+      "outcome": {
+        "decision_seq": 2,
+        "entry_error_xy": 0.04598394463291777,
+        "finished_at": 17.13,
+        "original_deadline": 101.623,
+        "reason": "local_entry_complete"
+      },
+      "next_seq": 3,
+      "next_reason": "resume_interrupted_waypoint",
+      "resolution": "local_entry_complete",
+      "restored_deadline": true,
+      "resume_after_target_seq": null,
+      "resume_after_target_goal_matches": null,
+      "estimate_only": true
+    },
+    {
+      "seq": 5,
+      "request_id": 2,
+      "issued_ros": 29.082,
+      "parent_seq": 4,
+      "parent_reason": "coverage_waypoint",
+      "entry": [
+        -2.9973786098655775,
+        0.8462027448789382,
+        1.18
+      ],
+      "source": [
+        -4.202417850494385,
+        0.05381368100643158,
+        1.2798174619674683
+      ],
+      "nominal": [
+        4.3,
+        0.0,
+        1.18
+      ],
+      "lateral_m": 0.8,
+      "gain_proxy_m2": 0.49935813547445196,
+      "outcome": {
+        "decision_seq": 5,
+        "entry_error_xy": 0.06703393940456744,
+        "finished_at": 33.83,
+        "original_deadline": 117.626,
+        "reason": "local_entry_complete"
+      },
+      "next_seq": 6,
+      "next_reason": "resume_interrupted_waypoint",
+      "resolution": "local_entry_complete",
+      "restored_deadline": true,
+      "resume_after_target_seq": null,
+      "resume_after_target_goal_matches": null,
+      "estimate_only": true
+    },
+    {
+      "seq": 13,
+      "request_id": 4,
+      "issued_ros": 83.028,
+      "parent_seq": 12,
+      "parent_reason": "coverage_waypoint",
+      "entry": [
+        3.041436516645398,
+        1.5505325885823193,
+        1.18
+      ],
+      "source": [
+        4.246912479400635,
+        0.7588080763816833,
+        1.1633929014205933
+      ],
+      "nominal": [
+        -4.3,
+        0.7,
+        1.18
+      ],
+      "lateral_m": 0.8000000000000002,
+      "gain_proxy_m2": 0.42462298138862736,
+      "outcome": {
+        "decision_seq": 13,
+        "entry_error_xy": 0.049742924763216144,
+        "finished_at": 88.066,
+        "original_deadline": 172.106,
+        "reason": "local_entry_complete"
+      },
+      "next_seq": 14,
+      "next_reason": "resume_interrupted_waypoint",
+      "resolution": "local_entry_complete",
+      "restored_deadline": true,
+      "resume_after_target_seq": null,
+      "resume_after_target_goal_matches": null,
+      "estimate_only": true
+    },
+    {
+      "seq": 17,
+      "request_id": 5,
+      "issued_ros": 116.126,
+      "parent_seq": 16,
+      "parent_reason": "coverage_waypoint",
+      "entry": [
+        -2.9129305707792463,
+        2.191089772064541,
+        1.18
+      ],
+      "source": [
+        -4.111941337585449,
+        1.3896079063415527,
+        1.1933900117874146
+      ],
+      "nominal": [
+        4.3,
+        1.4,
+        1.18
+      ],
+      "lateral_m": 0.8000000000000004,
+      "gain_proxy_m2": 0.7200000000000001,
+      "outcome": {
+        "decision_seq": 17,
+        "entry_error_xy": 0.023565077350228242,
+        "finished_at": 121.569,
+        "original_deadline": 204.562,
+        "reason": "local_entry_complete"
+      },
+      "next_seq": 18,
+      "next_reason": "resume_interrupted_waypoint",
+      "resolution": "local_entry_complete",
+      "restored_deadline": true,
+      "resume_after_target_seq": null,
+      "resume_after_target_goal_matches": null,
+      "estimate_only": true
+    }
+  ],
+  "adviser": {
+    "rows": 534,
+    "accepted_rows": 5,
+    "unique_accepted_requests": 5,
+    "reasons": {
+      "motion_context_missing": 11,
+      "invalid_or_stale_motion_context": 1,
+      "local_hint_requires_actual_planner": 5,
+      "local_entry_active_or_budget_used": 508,
+      "outside_search_bounds": 7,
+      "nominal_goal_already_near": 2
+    },
+    "probe_work_ms": {
+      "p50": 0.041225000000000005,
+      "p95": 0.07159599999999999,
+      "max": 0.078101
+    },
+    "reply_age_ros_ms": {
+      "p50": 118.00000000000921,
+      "p95": 134.40000000000083,
+      "max": 136.9999999999987
+    },
+    "checked_voxels": {
+      "p50": 238.0,
+      "p95": 339.59999999999997,
+      "max": 364.0
+    }
+  },
+  "observer_processing_scope": "heavy-processing ticks only; cooldown rows excluded; not whole-node CPU",
+  "release_times": [
+    {
+      "ros_sec": 55.104,
+      "since_first_decision_s": 43.462,
+      "target_class": "bridge"
+    },
+    {
+      "ros_sec": 70.693,
+      "since_first_decision_s": 59.051,
+      "target_class": "red_cross"
+    },
+    {
+      "ros_sec": 347.539,
+      "since_first_decision_s": 335.897,
+      "target_class": "panzer"
+    }
+  ],
+  "resource_samples": [
+    {
+      "wall": 1789154117.376954,
+      "phase": "post_delivery",
+      "processes": [
+        {
+          "pid": 6347,
+          "comm": "local_search_ad",
+          "ps_elapsed_cpu_time_percent": "1824 00:02:28  8.1",
+          "VmHWM": "118816 kB",
+          "VmRSS": "118816 kB"
+        },
+        {
+          "pid": 6444,
+          "comm": "fast_planner_no",
+          "ps_elapsed_cpu_time_percent": "1824 00:33:33  110",
+          "VmHWM": "584720 kB",
+          "VmRSS": "526716 kB"
+        },
+        {
+          "pid": 6448,
+          "comm": "fastlio_mapping",
+          "ps_elapsed_cpu_time_percent": "1824 00:28:49 94.7",
+          "VmHWM": "198496 kB",
+          "VmRSS": "194760 kB"
+        },
+        {
+          "pid": 6962,
+          "comm": "coverage_memory",
+          "ps_elapsed_cpu_time_percent": "1823 00:15:21 50.5",
+          "VmHWM": "199996 kB",
+          "VmRSS": "180196 kB"
+        }
+      ]
+    }
+  ],
+  "px4_logs": [
+    {
+      "path": "px4/log/2026-09-11/18_45_11.ulg.gz",
+      "bytes": 37289884
+    }
+  ]
+}

@@ -6,7 +6,7 @@
 set +e
 # Include mapper/research nodes that may outlive roslaunch during forced stop.
 # Names below use the actual (15-character limited) Linux process comm value.
-process_names=(roscore rosmaster rosout roslaunch gzserver gzclient px4 mavros_node rviz fastlio_mapping fast_planner_no coverage_memory local_search_ad)
+process_names=(roscore rosmaster rosout roslaunch gzserver gzclient px4 mavros_node rviz fastlio_mapping fast_planner_no coverage_memory local_search_ad competition_key)
 for process_name in "${process_names[@]}"; do
   pkill -TERM -x "${process_name}" 2>/dev/null
 done
