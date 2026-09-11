@@ -1,0 +1,22 @@
+{
+  "uav_coverage_memory": {
+    "testcases": 89,
+    "errors": 0,
+    "failures": 0
+  },
+  "uav_mission": {
+    "testcases": 253,
+    "errors": 0,
+    "failures": 0
+  },
+  "plan_manage": {
+    "testcases": 12,
+    "errors": 0,
+    "failures": 0
+  },
+  "plan_env": {
+    "testcases": 13,
+    "errors": 0,
+    "failures": 0
+  }
+}

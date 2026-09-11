@@ -1,5 +1,7 @@
 # uav_coverage_memory — research observer
 
+2026-09-12新增`local_proposals.py`：依据历史观测和当前SEARCH/RESUME名义目标生成少量局部航段，原地图预检后输出建议；不拥有任务游标或目标发布权。ROS建议节点位于导航工作区的uav_mission中，避免视觉工作区反向依赖plan_manage生成的服务类型。完整边界及验证见[局部建议报告](../../../docs/verification/local_search_proposals_20260912/REPORT.md)。
+
 独立ROS1旁路包，shadow入口默认不启用，未被正赛launch包含。research_trial.launch是额外的显式SITL研究包装入口，必须有sim_run.sh提供的SIM_RUN_DIR。观察器自身没有目标选取、航点/速度命令、MAVROS/投递服务调用；当前只用于搜索效率研究的第一阶段。
 
 2026-09-12端侧资源准备：新增完整点云分块投影、单份标定域缓存、消息字节上限和墙钟/CPU软预算。252份历史同步样本在两套本地OpenCV环境中与80445c0逐格结果一致；ROS库环境核心P95为30.33→24.63ms。压力场景RSS下降，普通回放RSS未下降；均为笔记本离线数据，板端与新在线行为未验收。见[资源报告](../../../docs/verification/coverage_resources_20260911/REPORT.md)。
@@ -44,5 +46,7 @@ queries.py提供只读区域面积/排序和MissionLedger；活动TTL到期不�
 只读rank默认最多32个候选（`max_regions`可配置），超限拒绝整次排名，避免候选增长造成无界计算；不静默遗漏某个障碍侧面。
 
 状态栅格的Header是状态快照时间，100可能来自TTL内较早的图像，不表示此帧刚刚看见；使用时必须同时理解epoch和上述估计语义。
+
+状态JSON新增`grid_geometry`，供只读建议节点按快照时间/frame/几何与栅格配对；未知配对不使用。`research_trial.launch`新增默认false的`local_adviser_enabled`开关，只有显式启用才加载建议节点并在原规划器注册只读预检服务，正常比赛入口不变。
 
 完整验证见项目docs/verification/coverage_stage2_20260911/REPORT.md；首版过程见docs/planning/search_efficiency_20260911/STAGE1.md。

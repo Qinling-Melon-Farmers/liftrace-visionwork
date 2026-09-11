@@ -1,0 +1,27 @@
+# Research-only read-only batch; frame must already match the planner map.
+std_msgs/Header header
+uint32 request_id
+geometry_msgs/Point[] starts
+geometry_msgs/Point[] ends
+---
+uint8 CLEAR_IN_INFLATED_MAP=0
+uint8 OCCUPIED=1
+uint8 OUTSIDE_WINDOW=2
+uint8 TOO_LONG=3
+uint8 NOT_CHECKED=4
+std_msgs/Header header
+uint32 request_id
+bool accepted
+string reason
+string planner_session
+uint64 map_revision
+time map_stamp
+geometry_msgs/Point window_min
+geometry_msgs/Point window_max
+float64 resolution
+uint8[] status
+uint32 checked_voxels
+float64 work_ms
+# Always false for the current occupied-cloud input; absence is not free evidence.
+bool known_free_proven
+bool requires_trajectory_validation

@@ -1,0 +1,21 @@
+# Research defaults for the present search rectangle. Match the selected runtime.
+grid_topic: /research/coverage_memory/state_grid
+coverage_status_topic: /research/coverage_memory/status
+pose_topic: /mavros/local_position/pose
+decision_topic: /navigation/mission_command_raw
+mission_status_topic: /navigation/mission_status
+probe_service: /fast_planner_node/research/check_local_segments
+query_hz: 1.0
+proposal:
+  flight_bounds: [-4.3, 4.3, 0.0, 7.1]
+  lookaheads: [1.2, 2.4]  # m along current nominal goal direction
+  lateral_offsets: [-0.8, 0.0, 0.8]  # m; relative sides, never obstacle truth
+  leg_length: 0.6
+  view_half_x: 0.45  # m; observation-area proxy, NOT calibrated detection footprint
+  view_half_y: 0.40
+  speed: 0.5  # m/s cost estimate; not a velocity command
+  max_candidates: 12
+  max_leg_length: 4.0
+  max_pose_drift: 0.25
+  max_result_age: 0.5
+  switch_gain_ratio: 1.2

@@ -81,6 +81,7 @@ void KinoReplanFSM::init(ros::NodeHandle& nh) {
   /* initialize main modules */
   planner_manager_.reset(new FastPlannerManager);
   planner_manager_->initPlanModules(nh);
+  local_segment_service_.init(nh, planner_manager_->edt_environment_->sdf_map_);
   visualization_.reset(new PlanningVisualization(nh));
 
   /* callback */

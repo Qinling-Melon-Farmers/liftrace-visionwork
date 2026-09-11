@@ -1,0 +1,44 @@
+{
+  "coverage_seed32_reference070_20260911_174716": {
+    "reasons": {
+      "no_recorded_decision": 2,
+      "outside_search_bounds": 10,
+      "proposal_generated_clearance_unavailable": 36,
+      "not_search_or_resume": 38,
+      "nominal_goal_already_near": 2
+    },
+    "max_candidates": 7,
+    "generation_ms_p50": 0.7126495002012234,
+    "generation_ms_p95": 0.9198019961331738,
+    "geometry_precheck": "NOT_RECORDED_IN_HISTORICAL_RUNS",
+    "flight_savings_measured": false
+  },
+  "coverage_seed32_reference080_20260911_182732": {
+    "reasons": {
+      "no_recorded_decision": 2,
+      "outside_search_bounds": 8,
+      "proposal_generated_clearance_unavailable": 29,
+      "not_search_or_resume": 36,
+      "nominal_goal_already_near": 2
+    },
+    "max_candidates": 7,
+    "generation_ms_p50": 0.832942001579795,
+    "generation_ms_p95": 1.1676935959258115,
+    "geometry_precheck": "NOT_RECORDED_IN_HISTORICAL_RUNS",
+    "flight_savings_measured": false
+  },
+  "coverage_seed34_reference080_wait20_20260911_190504": {
+    "reasons": {
+      "no_recorded_decision": 2,
+      "outside_search_bounds": 14,
+      "proposal_generated_clearance_unavailable": 30,
+      "not_search_or_resume": 40,
+      "nominal_goal_already_near": 1
+    },
+    "max_candidates": 7,
+    "generation_ms_p50": 0.7383935007965192,
+    "generation_ms_p95": 1.1897684496943834,
+    "geometry_precheck": "NOT_RECORDED_IN_HISTORICAL_RUNS",
+    "flight_savings_measured": false
+  }
+}

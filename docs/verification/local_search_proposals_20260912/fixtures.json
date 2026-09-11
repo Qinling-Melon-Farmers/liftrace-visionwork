@@ -1,0 +1,379 @@
+{
+  "south_clear": {
+    "probe": {
+      "accepted": true,
+      "reason": "inflated_cloud_geometry_only",
+      "checked_voxels": 559,
+      "request_id": 1,
+      "frame_id": "map",
+      "stamp": 10.2,
+      "map_stamp": 10.0,
+      "map_revision": 1,
+      "planner_session": "OFFLINE_SYNTHETIC_GRID",
+      "known_free_proven": false,
+      "requires_trajectory_validation": true,
+      "status": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    "result": {
+      "accepted": true,
+      "reason": "local_hint_requires_actual_planner",
+      "request_id": 1,
+      "selected": {
+        "name": "local_0_0",
+        "entry": [
+          -1.8,
+          1.2,
+          1.2
+        ],
+        "exit": [
+          -1.2000000000000002,
+          1.2,
+          1.2
+        ],
+        "segment_status": [
+          0,
+          0
+        ],
+        "geometry_clear": true,
+        "estimated_gain_m2": 1.05,
+        "score": 0.1482121168036748
+      },
+      "candidates": [
+        {
+          "name": "local_0_0",
+          "entry": [
+            -1.8,
+            1.2,
+            1.2
+          ],
+          "exit": [
+            -1.2000000000000002,
+            1.2,
+            1.2
+          ],
+          "segment_status": [
+            0,
+            0
+          ],
+          "geometry_clear": true,
+          "estimated_gain_m2": 1.05,
+          "score": 0.1482121168036748
+        },
+        {
+          "name": "local_0_1",
+          "entry": [
+            -1.8,
+            2.0,
+            1.2
+          ],
+          "exit": [
+            -1.2000000000000002,
+            2.0,
+            1.2
+          ],
+          "segment_status": [
+            0,
+            1
+          ],
+          "geometry_clear": false,
+          "estimated_gain_m2": 0.0,
+          "score": 0.0
+        },
+        {
+          "name": "local_0_2",
+          "entry": [
+            -1.8,
+            2.8,
+            1.2
+          ],
+          "exit": [
+            -1.2000000000000002,
+            2.8,
+            1.2
+          ],
+          "segment_status": [
+            0,
+            0
+          ],
+          "geometry_clear": true,
+          "estimated_gain_m2": 0.0,
+          "score": 0.0
+        },
+        {
+          "name": "local_1_0",
+          "entry": [
+            -0.6000000000000001,
+            1.2,
+            1.2
+          ],
+          "exit": [
+            -1.1102230246251565e-16,
+            1.2,
+            1.2
+          ],
+          "segment_status": [
+            0,
+            0
+          ],
+          "geometry_clear": true,
+          "estimated_gain_m2": 1.0500000000000003,
+          "score": 0.113395285060663
+        },
+        {
+          "name": "local_1_1",
+          "entry": [
+            -0.6000000000000001,
+            2.0,
+            1.2
+          ],
+          "exit": [
+            -1.1102230246251565e-16,
+            2.0,
+            1.2
+          ],
+          "segment_status": [
+            1,
+            1
+          ],
+          "geometry_clear": false,
+          "estimated_gain_m2": 0.0,
+          "score": 0.0
+        },
+        {
+          "name": "local_1_2",
+          "entry": [
+            -0.6000000000000001,
+            2.8,
+            1.2
+          ],
+          "exit": [
+            -1.1102230246251565e-16,
+            2.8,
+            1.2
+          ],
+          "segment_status": [
+            0,
+            0
+          ],
+          "geometry_clear": true,
+          "estimated_gain_m2": 0.0,
+          "score": 0.0
+        }
+      ],
+      "source_pose": [
+        -3.0,
+        2.0,
+        1.2
+      ],
+      "pose_stamp": 10.0,
+      "created": 10.1,
+      "source_snapshot_stamp": 10.0,
+      "nominal_goal": [
+        4.0,
+        2.0,
+        1.2
+      ],
+      "mission_id": "fixture",
+      "decision_seq": 1,
+      "generation": 2,
+      "scope": "LOCAL_OBSERVATION_ADVICE_ONLY",
+      "flight_authorized": false,
+      "requires_trajectory_validation": true,
+      "planner_session": "OFFLINE_SYNTHETIC_GRID",
+      "map_revision": 1,
+      "map_stamp": 10.0,
+      "snapshot_stamp": 10.0,
+      "geometry_scope": "INFLATED_CLOUD_CENTERLINE_ONLY",
+      "expires_at": 10.6
+    }
+  },
+  "south_blocked": {
+    "probe": {
+      "accepted": true,
+      "reason": "inflated_cloud_geometry_only",
+      "checked_voxels": 427,
+      "request_id": 1,
+      "frame_id": "map",
+      "stamp": 10.2,
+      "map_stamp": 10.0,
+      "map_revision": 1,
+      "planner_session": "OFFLINE_SYNTHETIC_GRID",
+      "known_free_proven": false,
+      "requires_trajectory_validation": true,
+      "status": [
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    "result": {
+      "accepted": false,
+      "reason": "no_clear_candidate_with_observation_gain",
+      "request_id": 1,
+      "selected": null,
+      "candidates": [
+        {
+          "name": "local_0_0",
+          "entry": [
+            -1.8,
+            1.2,
+            1.2
+          ],
+          "exit": [
+            -1.2000000000000002,
+            1.2,
+            1.2
+          ],
+          "segment_status": [
+            1,
+            1
+          ],
+          "geometry_clear": false,
+          "estimated_gain_m2": 1.05,
+          "score": 0.1482121168036748
+        },
+        {
+          "name": "local_0_1",
+          "entry": [
+            -1.8,
+            2.0,
+            1.2
+          ],
+          "exit": [
+            -1.2000000000000002,
+            2.0,
+            1.2
+          ],
+          "segment_status": [
+            0,
+            1
+          ],
+          "geometry_clear": false,
+          "estimated_gain_m2": 0.0,
+          "score": 0.0
+        },
+        {
+          "name": "local_0_2",
+          "entry": [
+            -1.8,
+            2.8,
+            1.2
+          ],
+          "exit": [
+            -1.2000000000000002,
+            2.8,
+            1.2
+          ],
+          "segment_status": [
+            0,
+            0
+          ],
+          "geometry_clear": true,
+          "estimated_gain_m2": 0.0,
+          "score": 0.0
+        },
+        {
+          "name": "local_1_0",
+          "entry": [
+            -0.6000000000000001,
+            1.2,
+            1.2
+          ],
+          "exit": [
+            -1.1102230246251565e-16,
+            1.2,
+            1.2
+          ],
+          "segment_status": [
+            1,
+            1
+          ],
+          "geometry_clear": false,
+          "estimated_gain_m2": 1.0500000000000003,
+          "score": 0.113395285060663
+        },
+        {
+          "name": "local_1_1",
+          "entry": [
+            -0.6000000000000001,
+            2.0,
+            1.2
+          ],
+          "exit": [
+            -1.1102230246251565e-16,
+            2.0,
+            1.2
+          ],
+          "segment_status": [
+            1,
+            1
+          ],
+          "geometry_clear": false,
+          "estimated_gain_m2": 0.0,
+          "score": 0.0
+        },
+        {
+          "name": "local_1_2",
+          "entry": [
+            -0.6000000000000001,
+            2.8,
+            1.2
+          ],
+          "exit": [
+            -1.1102230246251565e-16,
+            2.8,
+            1.2
+          ],
+          "segment_status": [
+            0,
+            0
+          ],
+          "geometry_clear": true,
+          "estimated_gain_m2": 0.0,
+          "score": 0.0
+        }
+      ],
+      "source_pose": [
+        -3.0,
+        2.0,
+        1.2
+      ],
+      "pose_stamp": 10.0,
+      "created": 10.1,
+      "source_snapshot_stamp": 10.0,
+      "nominal_goal": [
+        4.0,
+        2.0,
+        1.2
+      ],
+      "mission_id": "fixture",
+      "decision_seq": 1,
+      "generation": 2,
+      "scope": "LOCAL_OBSERVATION_ADVICE_ONLY",
+      "flight_authorized": false,
+      "requires_trajectory_validation": true
+    }
+  }
+}

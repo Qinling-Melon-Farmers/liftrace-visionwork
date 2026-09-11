@@ -1,0 +1,14 @@
+<launch>
+  <!-- Observer only; no flight includes and no implicit simulator startup. -->
+  <arg name="enabled" default="false" />
+  <arg name="config" default="$(find uav_mission)/config/local_search_adviser.yaml" />
+  <arg name="record_path" default="" />
+  <group if="$(arg enabled)" ns="research">
+    <node pkg="uav_mission" type="local_search_adviser.py" name="local_search_adviser" output="screen">
+      <env name="OPENBLAS_NUM_THREADS" value="1" />
+      <env name="OMP_NUM_THREADS" value="1" />
+      <rosparam file="$(arg config)" />
+      <param name="record_path" value="$(arg record_path)" />
+    </node>
+  </group>
+</launch>

@@ -1,0 +1,14 @@
+{
+  "False": {
+    "nodes": 36,
+    "local_adviser_nodes": 0,
+    "probe_enabled": false,
+    "recording": "disabled"
+  },
+  "True": {
+    "nodes": 37,
+    "local_adviser_nodes": 1,
+    "probe_enabled": true,
+    "recording": "run_directory_jsonl"
+  }
+}

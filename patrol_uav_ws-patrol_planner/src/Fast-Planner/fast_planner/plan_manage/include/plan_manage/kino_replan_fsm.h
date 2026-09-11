@@ -45,6 +45,7 @@
 #include <plan_manage/planner_status_tracker.h>
 #include <plan_manage/planner_manager.h>
 #include <plan_manage/trajectory_progress.h>
+#include <plan_manage/local_segment_service.h>
 #include <traj_utils/planning_visualization.h>
 
 using std::vector;
@@ -82,6 +83,7 @@ private:
   /* planning utils */
   FastPlannerManager::Ptr planner_manager_;
   PlanningVisualization::Ptr visualization_;
+  LocalSegmentService local_segment_service_;
 
   /* parameters */
   int target_type_;  // 1 mannual select, 2 hard code

@@ -56,5 +56,7 @@ target_link_libraries(obj_generator
     ${catkin_LIBRARIES})
 
 if(CATKIN_ENABLE_TESTING)
+  add_executable(local_segment_probe_cli test/local_segment_probe_cli.cpp)
+  catkin_add_gtest(test_local_segment_probe test/test_local_segment_probe.cpp)
   catkin_add_gtest(test_vertical_obstacle_support test/test_vertical_obstacle_support.cpp)
 endif()

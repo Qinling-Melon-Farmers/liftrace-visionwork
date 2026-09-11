@@ -185,6 +185,7 @@ include_directories(
 #############
 
 catkin_install_python(PROGRAMS
+  scripts/local_search_adviser.py
   scripts/release_permission_arbiter.py
   scripts/release_commitment.py
   scripts/guarded_servo_proxy.py
@@ -250,6 +251,7 @@ install(DIRECTORY launch config
 #############
 
 if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(test/test_local_search_adviser.py)
   catkin_add_nosetests(test/test_lio_external_pose.py)
   catkin_add_nosetests(test/test_contract_profile.py)
   catkin_add_nosetests(test/test_coverage_route.py)

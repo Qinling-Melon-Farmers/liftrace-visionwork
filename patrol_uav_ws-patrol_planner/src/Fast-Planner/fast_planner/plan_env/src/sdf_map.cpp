@@ -216,6 +216,7 @@ void SDFMap::resetBuffer() {
 }
 
 void SDFMap::resetBuffer(Eigen::Vector3d min_pos, Eigen::Vector3d max_pos) {
+  cloud_probe_view_.valid = false;
 
   Eigen::Vector3i min_id, max_id;
   posToIndex(min_pos, min_id);
@@ -884,6 +885,7 @@ void SDFMap::odomCallback(const nav_msgs::OdometryConstPtr& odom) {
 }
 
 void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
+  cloud_probe_view_.valid = false;
   // Apply phase ceiling before rebuilding the local occupancy map. The
   // existing resetBuffer below clears prior ceiling cells each cloud update.
   double phase_ceiling = mp_.virtual_ceil_height_;
@@ -1023,6 +1025,21 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   }
   applyFlightCeiling();
   md_.esdf_need_update_ = true;
+  // Read-only probe metadata; never changes occupancy or planner state.
+  // Shrink the rebuilt window so excluded outside points cannot inflate into
+  // the claimed interior. Keep map-build center, not later odometry center.
+  Eigen::Vector3d margin;
+  margin << (inf_step+1)*mp_.resolution_, (inf_step+1)*mp_.resolution_,
+      (std::max(inf_step_z_up,inf_step_z_down)+1)*mp_.resolution_;
+  cloud_probe_view_.lower = (md_.camera_pos_-mp_.local_update_range_+margin).cwiseMax(mp_.map_min_boundary_);
+  cloud_probe_view_.upper = (md_.camera_pos_+mp_.local_update_range_-margin).cwiseMin(mp_.map_max_boundary_);
+  cloud_probe_view_.origin = mp_.map_origin_;
+  cloud_probe_view_.resolution = mp_.resolution_;
+  cloud_probe_view_.frame = mp_.frame_id_;
+  cloud_probe_view_.stamp = img->header.stamp.toSec();
+  ++cloud_probe_view_.revision;
+  cloud_probe_view_.valid = cloud_probe_view_.stamp > 0 && img->header.frame_id == mp_.frame_id_ &&
+      cloud_probe_view_.lower.allFinite() && cloud_probe_view_.upper.allFinite();
 }
 
 void SDFMap::publishMap() {

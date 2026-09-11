@@ -48,6 +48,7 @@
 #include <message_filters/time_synchronizer.h>
 
 #include <plan_env/raycast.h>
+#include <plan_env/local_segment_probe.h>
 
 #define logit(x) (log((x) / (1 - (x))))
 
@@ -229,6 +230,7 @@ public:
   double getResolution();
   Eigen::Vector3d getOrigin();
   int getVoxelNum();
+  fast_planner::LocalCloudView localCloudView() const { return cloud_probe_view_; }
 
   typedef std::shared_ptr<SDFMap> Ptr;
 
@@ -237,6 +239,7 @@ public:
 private:
   MappingParameters mp_;
   MappingData md_;
+  fast_planner::LocalCloudView cloud_probe_view_;
 
   template <typename F_get_val, typename F_set_val>
   void fillESDF(F_get_val f_get_val, F_set_val f_set_val, int start, int end, int dim);

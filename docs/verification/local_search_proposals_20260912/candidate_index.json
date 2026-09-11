@@ -1,0 +1,952 @@
+[
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0003",
+    "stamp": 17.933,
+    "decision_seq": 1,
+    "candidate_count": 3,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0005",
+    "stamp": 29.939,
+    "decision_seq": 2,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0010",
+    "stamp": 60.633,
+    "decision_seq": 4,
+    "candidate_count": 1,
+    "highest_observation_score_name": "nominal",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0014",
+    "stamp": 85.26,
+    "decision_seq": 8,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_1_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0015",
+    "stamp": 91.596,
+    "decision_seq": 8,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0016",
+    "stamp": 97.611,
+    "decision_seq": 8,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0017",
+    "stamp": 103.918,
+    "decision_seq": 8,
+    "candidate_count": 3,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0019",
+    "stamp": 116.26,
+    "decision_seq": 10,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0020",
+    "stamp": 122.62,
+    "decision_seq": 10,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0021",
+    "stamp": 128.924,
+    "decision_seq": 10,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0022",
+    "stamp": 134.961,
+    "decision_seq": 10,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0024",
+    "stamp": 147.245,
+    "decision_seq": 12,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0025",
+    "stamp": 153.537,
+    "decision_seq": 12,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0026",
+    "stamp": 159.545,
+    "decision_seq": 12,
+    "candidate_count": 7,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0027",
+    "stamp": 165.55,
+    "decision_seq": 12,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0029",
+    "stamp": 177.589,
+    "decision_seq": 14,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0030",
+    "stamp": 183.922,
+    "decision_seq": 14,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0031",
+    "stamp": 189.928,
+    "decision_seq": 14,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0032",
+    "stamp": 196.308,
+    "decision_seq": 14,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0033",
+    "stamp": 202.31,
+    "decision_seq": 14,
+    "candidate_count": 1,
+    "highest_observation_score_name": "nominal",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0035",
+    "stamp": 214.56,
+    "decision_seq": 16,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0036",
+    "stamp": 220.615,
+    "decision_seq": 16,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_1_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0037",
+    "stamp": 226.898,
+    "decision_seq": 16,
+    "candidate_count": 7,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0038",
+    "stamp": 233.275,
+    "decision_seq": 16,
+    "candidate_count": 1,
+    "highest_observation_score_name": "nominal",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0040",
+    "stamp": 245.318,
+    "decision_seq": 18,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0041",
+    "stamp": 251.589,
+    "decision_seq": 18,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0042",
+    "stamp": 257.605,
+    "decision_seq": 18,
+    "candidate_count": 7,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0043",
+    "stamp": 263.908,
+    "decision_seq": 18,
+    "candidate_count": 3,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0045",
+    "stamp": 276.569,
+    "decision_seq": 20,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0046",
+    "stamp": 282.913,
+    "decision_seq": 20,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_1_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0047",
+    "stamp": 288.951,
+    "decision_seq": 20,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0048",
+    "stamp": 294.989,
+    "decision_seq": 20,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0050",
+    "stamp": 307.576,
+    "decision_seq": 22,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0051",
+    "stamp": 313.589,
+    "decision_seq": 22,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0052",
+    "stamp": 319.648,
+    "decision_seq": 22,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_1_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference070_20260911_174716",
+    "sample": "0053",
+    "stamp": 325.887,
+    "decision_seq": 22,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0003",
+    "stamp": 17.876,
+    "decision_seq": 1,
+    "candidate_count": 3,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0005",
+    "stamp": 29.928,
+    "decision_seq": 2,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0010",
+    "stamp": 60.624,
+    "decision_seq": 4,
+    "candidate_count": 1,
+    "highest_observation_score_name": "nominal",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0013",
+    "stamp": 79.291,
+    "decision_seq": 7,
+    "candidate_count": 1,
+    "highest_observation_score_name": "nominal",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0014",
+    "stamp": 85.596,
+    "decision_seq": 8,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_1_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0015",
+    "stamp": 91.64,
+    "decision_seq": 8,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0016",
+    "stamp": 97.944,
+    "decision_seq": 8,
+    "candidate_count": 7,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0017",
+    "stamp": 104.224,
+    "decision_seq": 8,
+    "candidate_count": 3,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0019",
+    "stamp": 116.599,
+    "decision_seq": 10,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0020",
+    "stamp": 122.607,
+    "decision_seq": 10,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0021",
+    "stamp": 128.614,
+    "decision_seq": 10,
+    "candidate_count": 7,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0022",
+    "stamp": 134.979,
+    "decision_seq": 10,
+    "candidate_count": 1,
+    "highest_observation_score_name": "nominal",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0024",
+    "stamp": 147.652,
+    "decision_seq": 12,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0025",
+    "stamp": 153.894,
+    "decision_seq": 12,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0026",
+    "stamp": 159.96,
+    "decision_seq": 12,
+    "candidate_count": 7,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0027",
+    "stamp": 166.26,
+    "decision_seq": 12,
+    "candidate_count": 1,
+    "highest_observation_score_name": "nominal",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0029",
+    "stamp": 178.94,
+    "decision_seq": 14,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0030",
+    "stamp": 185.24,
+    "decision_seq": 14,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0031",
+    "stamp": 191.262,
+    "decision_seq": 14,
+    "candidate_count": 7,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0032",
+    "stamp": 197.268,
+    "decision_seq": 14,
+    "candidate_count": 3,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0034",
+    "stamp": 209.578,
+    "decision_seq": 16,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0035",
+    "stamp": 215.617,
+    "decision_seq": 16,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0036",
+    "stamp": 221.932,
+    "decision_seq": 16,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0037",
+    "stamp": 227.934,
+    "decision_seq": 16,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0039",
+    "stamp": 240.272,
+    "decision_seq": 18,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0040",
+    "stamp": 246.56,
+    "decision_seq": 18,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0041",
+    "stamp": 252.598,
+    "decision_seq": 18,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0042",
+    "stamp": 258.973,
+    "decision_seq": 18,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed32_reference080_20260911_182732",
+    "sample": "0044",
+    "stamp": 271.592,
+    "decision_seq": 20,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0004",
+    "stamp": 24.176,
+    "decision_seq": 1,
+    "candidate_count": 3,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0005",
+    "stamp": 30.18,
+    "decision_seq": 1,
+    "candidate_count": 3,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0008",
+    "stamp": 48.502,
+    "decision_seq": 2,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0010",
+    "stamp": 60.861,
+    "decision_seq": 3,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0011",
+    "stamp": 66.936,
+    "decision_seq": 3,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0014",
+    "stamp": 85.243,
+    "decision_seq": 4,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0016",
+    "stamp": 97.561,
+    "decision_seq": 5,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0021",
+    "stamp": 128.615,
+    "decision_seq": 8,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0022",
+    "stamp": 134.887,
+    "decision_seq": 8,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0023",
+    "stamp": 141.119,
+    "decision_seq": 8,
+    "candidate_count": 7,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0024",
+    "stamp": 147.19,
+    "decision_seq": 8,
+    "candidate_count": 1,
+    "highest_observation_score_name": "nominal",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0026",
+    "stamp": 159.604,
+    "decision_seq": 10,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0027",
+    "stamp": 165.92,
+    "decision_seq": 10,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0028",
+    "stamp": 171.921,
+    "decision_seq": 10,
+    "candidate_count": 7,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0029",
+    "stamp": 178.201,
+    "decision_seq": 10,
+    "candidate_count": 3,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0031",
+    "stamp": 190.518,
+    "decision_seq": 12,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0033",
+    "stamp": 202.623,
+    "decision_seq": 14,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0034",
+    "stamp": 208.885,
+    "decision_seq": 14,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_1",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0035",
+    "stamp": 214.922,
+    "decision_seq": 14,
+    "candidate_count": 4,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0038",
+    "stamp": 233.858,
+    "decision_seq": 16,
+    "candidate_count": 1,
+    "highest_observation_score_name": "nominal",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0039",
+    "stamp": 239.875,
+    "decision_seq": 18,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0040",
+    "stamp": 245.905,
+    "decision_seq": 18,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0041",
+    "stamp": 251.915,
+    "decision_seq": 18,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0042",
+    "stamp": 258.216,
+    "decision_seq": 18,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_0",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0043",
+    "stamp": 264.249,
+    "decision_seq": 18,
+    "candidate_count": 1,
+    "highest_observation_score_name": "nominal",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0044",
+    "stamp": 270.527,
+    "decision_seq": 20,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0045",
+    "stamp": 276.87,
+    "decision_seq": 20,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0046",
+    "stamp": 282.925,
+    "decision_seq": 20,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0047",
+    "stamp": 289.251,
+    "decision_seq": 20,
+    "candidate_count": 6,
+    "highest_observation_score_name": "local_0_2",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  },
+  {
+    "run": "coverage_seed34_reference080_wait20_20260911_190504",
+    "sample": "0048",
+    "stamp": 295.507,
+    "decision_seq": 20,
+    "candidate_count": 1,
+    "highest_observation_score_name": "nominal",
+    "geometry_precheck": "NOT_RECORDED",
+    "selected_for_flight": null
+  }
+]

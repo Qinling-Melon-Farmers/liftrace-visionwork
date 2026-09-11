@@ -299,6 +299,8 @@ class Shadow:
         result['state_codes'] = {s.name:int(s) for s in State}
         result['not_an_occupancy_or_navigation_map'] = True
         result['receipt_ros'] = now
+        result['grid_geometry'] = {key:getattr(c,key) for key in
+            ('min_x','max_x','min_y','max_y','resolution','ground_z','frame_id')}
         if self.recorder:
             self.recorder.status(result)
         self.state_pub.publish(grid)

@@ -31,6 +31,7 @@ add_message_files(
   )
   
 # Generate added messages and services with any dependencies listed here
+add_service_files(FILES CheckLocalSegments.srv)
 generate_messages(
   DEPENDENCIES
   std_msgs

@@ -1,0 +1,38 @@
+{
+  "date": "2026-09-12",
+  "base_revision": "9d5ae12",
+  "tests": {
+    "uav_coverage_memory": {
+      "testcases": 89,
+      "errors": 0,
+      "failures": 0
+    },
+    "uav_mission": {
+      "testcases": 253,
+      "errors": 0,
+      "failures": 0
+    },
+    "plan_manage": {
+      "testcases": 12,
+      "errors": 0,
+      "failures": 0
+    },
+    "plan_env": {
+      "testcases": 13,
+      "errors": 0,
+      "failures": 0
+    }
+  },
+  "native_fixtures": 2,
+  "historical_candidates": 95,
+  "historical_clearance": "NOT_RECORDED",
+  "new_simulation_runs": 0,
+  "flight_goal_changes": false,
+  "onboard_tested": false,
+  "builds": [
+    "vision_ws PASS",
+    "patrol_uav_ws-patrol_planner PASS"
+  ],
+  "integration_revision": "86e382d",
+  "delivery_source": "c369e6f80f7671d78b083550887ed689e4a4d920"
+}
