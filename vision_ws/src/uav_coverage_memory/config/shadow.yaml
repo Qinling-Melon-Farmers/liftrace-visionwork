@@ -1,0 +1,36 @@
+# Research assumptions only. This file is never loaded by competition entries.
+image_topic: /downward_camera/image_raw
+camera_info_topic: /downward_camera/camera_info
+obstacle_topic: /freedom/static_pointcloud
+mission_status_topic: /navigation/mission_status
+sample_hz: 3.0
+tf_timeout: 0.03
+memory:
+  frame_id: camera_init
+  min_x: -4.8
+  max_x: 4.8
+  min_y: -0.5
+  max_y: 7.4
+  resolution: 0.10  # m; geometric samples at center + four inset corners
+  ground_z: -0.22  # local landed-FC frame; set from real calibration
+  max_cells: 20000
+  max_cloud_points: 100000
+  max_image_age: 0.5  # s, source image time
+  max_camera_age: 2.0
+  max_map_age: 2.0
+  max_tf_delta: 0.05
+  future_tolerance: 0.03
+  memory_ttl: 60.0
+  min_observations: 3
+  min_dwell: 0.5
+  min_observation_interval: 0.1
+  max_observation_gap: 0.8
+  image_margin_px: 16
+  quality_window_px: 31
+  min_laplacian_variance: 10.0  # uncalibrated research image-quality proxy
+  max_dark_fraction: 0.6
+  max_bright_fraction: 0.6
+  dark_level: 8
+  bright_level: 247
+  occlusion_tile_px: 8
+  occlusion_margin_m: 0.08

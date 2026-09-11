@@ -1,0 +1,21 @@
+{
+  "status": "PROTOTYPE_OFFLINE_PASS_ONLINE_PENDING",
+  "tests": 40,
+  "catkin_build": "PASS",
+  "catkin_install": "PASS",
+  "default_launch_nodes": 0,
+  "enabled_launch_nodes": 1,
+  "new_simulation_runs": 0,
+  "protected_control_and_deployment_diff": "EMPTY",
+  "baseline_checkout": "86e382d clean",
+  "deployment_source": "c369e6f8",
+  "recorded_replay_frames": 75,
+  "recorded_replay_estimated_seen_area_m2": 0,
+  "scope": "new standalone research package, source-time matched diagnostic outputs only",
+  "remaining": [
+    "online synchronized data",
+    "quality/occlusion annotations",
+    "joint map epoch",
+    "board resource measurement"
+  ]
+}
