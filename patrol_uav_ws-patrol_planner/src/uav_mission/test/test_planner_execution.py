@@ -556,4 +556,68 @@ class PlannerMotionExecutorTest(unittest.TestCase):
                          "planner_status_after_finished_ignored")
         self.assertFalse(late.snapshot.faulted)
 
+class InitialSearchTimeoutTest(unittest.TestCase):
+    def start(self, command="SEARCH", enabled=True):
+        ex = PlannerMotionExecutor(PlannerMotionConfig(
+            search_initial_plan_timeout_ns=20*NSEC if enabled else 0))
+        d = decision(command=command, deadline=BASE+90*NSEC)
+        ex.submit_decision(d, BASE)
+        ex.apply_planner_status(status(1, 8, "ACCEPTED", BASE+1), BASE+1)
+        return ex
+
+    def test_failed_retries_do_not_extend_deadline_and_cancel_once(self):
+        for command in ("SEARCH", "RESUME"):
+            ex = self.start(command)
+            for i in range(1, 20):
+                t = BASE+i*NSEC
+                ex.apply_planner_status(status(i+1, 8, "FAILED_ATTEMPT", t,
+                                               attempt=i), t)
+            out = ex.tick(BASE+20*NSEC)
+            self.assertEqual(out.handoff, "CANCEL_REQUIRED")
+            self.assertEqual(len(out.events), 1)
+            self.assertEqual(out.events[0].reason, "search_initial_plan_timeout")
+            self.assertTrue(out.events[0].retryable)
+            self.assertFalse(ex.tick(BASE+21*NSEC).events)
+
+    def test_default_preserves_90_second_deadline(self):
+        ex = self.start(enabled=False)
+        self.assertFalse(ex.tick(BASE+20*NSEC).events)
+        out = ex.tick(BASE+90*NSEC)
+        self.assertEqual(out.events[0].reason, "decision_deadline_reached")
+
+    def test_once_ready_later_replanning_does_not_trigger_initial_timeout(self):
+        ex = self.start()
+        ex.apply_planner_status(status(2, 8, "TRAJECTORY_READY", BASE+NSEC), BASE+NSEC)
+        ex.apply_planner_status(status(3, 8, "FAILED_ATTEMPT", BASE+2*NSEC,
+                                      attempt=2), BASE+2*NSEC)
+        self.assertFalse(ex.tick(BASE+20*NSEC).events)
+
+    def test_approach_return_and_abort_keep_original_deadline(self):
+        for command in ("APPROACH", "RETURN_HOME", "ABORT"):
+            ex = self.start(command)
+            self.assertFalse(ex.tick(BASE+20*NSEC).events)
+
+    def test_finished_trajectory_exempts_missing_ready_telemetry(self):
+        ex = self.start()
+        ex.apply_planner_status(status(2, 8, "TRAJECTORY_FINISHED", BASE+NSEC), BASE+NSEC)
+        self.assertFalse(ex.tick(BASE+20*NSEC).events)
+
+    def test_invalid_option_rejected(self):
+        for limit in (-1, True, 0.5):
+            with self.assertRaises(ValueError):
+                PlannerMotionConfig(search_initial_plan_timeout_ns=limit)
+
+    def test_old_goal_ready_cannot_exempt_new_search(self):
+        ex = self.start()
+        ex.apply_planner_status(status(2, 8, "TRAJECTORY_READY", BASE+NSEC), BASE+NSEC)
+        new = decision(seq=9, issued=BASE+2*NSEC, deadline=BASE+92*NSEC)
+        ex.submit_decision(new, BASE+2*NSEC)
+        ex.apply_planner_status(status(3, 9, "ACCEPTED", BASE+3*NSEC), BASE+3*NSEC)
+        ex.apply_planner_status(status(4, 8, "TRAJECTORY_READY", BASE+4*NSEC,
+                                      attempt=2), BASE+4*NSEC)
+        out = ex.tick(BASE+22*NSEC)
+        self.assertEqual(out.events[0].decision_seq, 9)
+        self.assertEqual(out.events[0].reason, "search_initial_plan_timeout")
+
+
 if __name__ == "__main__": unittest.main()

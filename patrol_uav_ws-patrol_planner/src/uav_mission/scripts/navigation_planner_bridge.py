@@ -248,6 +248,10 @@ class NavigationPlannerBridge:
             planner_accept_timeout_ns=_seconds_to_ns(
                 "planner_accept_timeout",
                 rospy.get_param("~execution/planner_accept_timeout", 5.0)),
+            search_initial_plan_timeout_ns=_seconds_to_ns(
+                "search_initial_plan_timeout",
+                rospy.get_param("~execution/search_initial_plan_timeout", 0.0),
+                allow_zero=True),
             max_effective_goal_offset_m=float(rospy.get_param(
                 "~execution/effective_goal_max_offset", 1.10)),
             arrival_distance_m=float(rospy.get_param(

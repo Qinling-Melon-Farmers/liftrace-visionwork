@@ -1,4 +1,6 @@
 <launch>
+  <!-- Experimental opt-in; zero keeps the accepted baseline behavior. -->
+  <arg name="search_initial_plan_timeout" default="0.0" />
   <arg name="record_overview_video" default="false" />
   <arg name="overview_x" default="0.0" />
   <arg name="overview_y" default="4.3" />
@@ -120,6 +122,8 @@
   <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="2.08" />
   <!-- Confirm the configured body heading before advancing corridor legs. -->
   <param name="/navigation/planner_bridge/execution/return_yaw_tolerance" value="0.10" />
+  <param name="/navigation/planner_bridge/execution/search_initial_plan_timeout"
+         value="$(arg search_initial_plan_timeout)" />
   <!-- Turn near the open staging point, then retain the heading in the aisle. -->
   <param name="/traj_server/traj_server/adjust_distance_yaw" value="0.50" />
   <!-- Both 5 mm H markers use model://landing_h and are ground support. -->

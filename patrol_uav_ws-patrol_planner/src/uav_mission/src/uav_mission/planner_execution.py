@@ -232,6 +232,9 @@ class PlannerMotionConfig:
     max_z_m: float = 4.0
     source_future_tolerance_ns: int = 100_000_000
     planner_accept_timeout_ns: int = 5_000_000_000
+    # Opt-in bound on SEARCH/RESUME that never produced a usable trajectory.
+    # Zero preserves the accepted flight baseline; this is not a motion timeout.
+    search_initial_plan_timeout_ns: int = 0
     max_effective_goal_offset_m: float = 1.10
     arrival_distance_m: float = 0.30
     approach_arrival_distance_m: float = 0.35
@@ -254,6 +257,8 @@ class PlannerMotionConfig:
             "source_future_tolerance_ns", self.source_future_tolerance_ns, 0))
         object.__setattr__(self, "planner_accept_timeout_ns", _integer(
             "planner_accept_timeout_ns", self.planner_accept_timeout_ns, 1))
+        object.__setattr__(self, "search_initial_plan_timeout_ns", _integer(
+            "search_initial_plan_timeout_ns", self.search_initial_plan_timeout_ns, 0))
         effective_offset = _finite(
             "max_effective_goal_offset_m", self.max_effective_goal_offset_m)
         if effective_offset <= 0.0 or effective_offset > 1.10:
@@ -534,6 +539,22 @@ class PlannerMotionExecutor:
         return self._outcome(True, "planner_accept_timed_out", events=(event,),
                              handoff="CANCEL_REQUIRED")
 
+    def _expire_initial_search_if_due(self, now_ns: int) -> Optional[ExecutorOutcome]:
+        active = self._active
+        limit = self.config.search_initial_plan_timeout_ns
+        if (not limit or active is None or active.terminal or active.handed_off or
+                active.decision.command not in ("SEARCH", "RESUME") or
+                not active.planner_accepted or active.trajectory_ever_ready or
+                active.trajectory_finished or
+                now_ns < active.dispatch_ns + limit):
+            return None
+        active.terminal = True
+        active.retired = True
+        event = self._result(active, now_ns, "TIMED_OUT", "PLANNER", True,
+                             True, "search_initial_plan_timeout")
+        return self._outcome(True, "search_initial_plan_timed_out", events=(event,),
+                             handoff="CANCEL_REQUIRED")
+
     def _prepare(self, now_ns: int) -> Optional[ExecutorOutcome]:
         invalid = self._validate_now(now_ns)
         if invalid is not None:
@@ -541,7 +562,10 @@ class PlannerMotionExecutor:
         expired = self._expire_if_due(int(now_ns))
         if expired is not None:
             return expired
-        return self._expire_acceptance_if_due(int(now_ns))
+        expired = self._expire_acceptance_if_due(int(now_ns))
+        if expired is not None:
+            return expired
+        return self._expire_initial_search_if_due(int(now_ns))
 
     def _validate_decision_contract(
             self, decision: MotionDecision) -> Optional[str]:
