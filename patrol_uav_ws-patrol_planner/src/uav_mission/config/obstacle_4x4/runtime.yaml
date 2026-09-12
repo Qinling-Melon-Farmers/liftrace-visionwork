@@ -1,5 +1,4 @@
-# Used only in post_delivery validation mode: no target search or release.
-# Launch supplies the route at ground_z + cruise_agl.
+# Used only in post_delivery validation mode; launch supplies route heights.
 profile:
   name: r2026
 mission:
@@ -26,17 +25,17 @@ mission:
   - 0.0
   - 0.0
   post_delivery_yaw: 0.0
-  post_delivery_route_revision: hardware-obstacle-4x4-r1
+  post_delivery_route_revision: hardware-obstacle-4x4-r2
   landing_xy:
   - 0.0
-  - 0.65
+  - 0.6
   landing_anchor_tolerance: 0.05
   post_delivery_route: []
 search:
-  min_x: -1.1
-  max_x: 1.1
-  min_y: 0.65
-  max_y: 3.1
+  min_x: -1.4
+  max_x: 1.4
+  min_y: 0.6
+  max_y: 3.4
   lane_spacing: 1.0
   altitude: 0.5
   route_revision: r2026-installed-camera-070m-lanes-r1

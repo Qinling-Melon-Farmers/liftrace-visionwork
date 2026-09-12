@@ -192,6 +192,7 @@ catkin_install_python(PROGRAMS
   scripts/visual_delivery_audit.py
   scripts/random_field_spawner.py
   scripts/pose_tf_broadcaster.py
+  scripts/obstacle_test_auto_land.py
   scripts/navigation_frame_adapter.py
   scripts/map_camera_alignment.py
   scripts/lio_external_pose.py

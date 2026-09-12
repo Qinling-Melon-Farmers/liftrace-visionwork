@@ -8,13 +8,13 @@
 
 ![航点示意](route.png)
 
-航点依次为 (0,0.65)、(-1.1,1.0)、(-1.1,2.0)、(1.1,2.0)、(1.1,3.1)、(-1.1,3.1)、(-1.1,2.0)、(1.1,2.0)、(0,0.65)。全部使用同一巡航目标高度。连线表示航点顺序，不是实际轨迹；图中障碍圆是建议布设位置，不写入规划地图。
+航点依次为 (0,0.60)、(-1.4,1.0)、(-1.4,2.0)、(1.4,2.0)、(1.4,3.4)、(-1.4,3.4)、(-1.4,2.0)、(1.4,2.0)、(0,0.60)。全部使用同一巡航目标高度。连线表示航点顺序，不是实际轨迹；图中障碍圆是建议布设位置，不写入规划地图。
 
 速度 0.25 m/s、加速度 0.35 m/s²，位置指令前导距离 0.15 m，水平障碍膨胀 0.30 m。先空场确认航线，再放置雷达能够清晰观测的障碍验证绕行。
 
 ## 文件与入口
 
-- `uav_mission/config/obstacle_4x4/control.yaml`：关闭投递、自动降落，低速控制参数。
+- `uav_mission/config/obstacle_4x4/control.yaml`：关闭投递和旧视觉降落，由独立测试节点在末点请求 AUTO.LAND。
 - `uav_mission/config/obstacle_4x4/planner.yaml`：5 cm 栅格、6×10×1.5 m 地图，约72万体素；地图以原点对称，需要覆盖 Y=4。不是板端实测内存。
 - `uav_mission/config/obstacle_4x4/runtime.yaml`：复用 post_delivery 航点验证模式，不搜索、不选靶、不释放。
 - `uav_mission/obstacle_4x4_hardware.launch`：独立测试入口，不覆盖正赛配置。
@@ -43,7 +43,7 @@ roslaunch --dump-params uav_mission obstacle_4x4_hardware.launch ground_z:=<实�
 
 实际启动留待试飞授权后执行。`enable_control_output=true` 才接通控制链，入口没有自动解锁或任务启动辅助节点。本测试复用 post_delivery 模式：人工完成起飞并稳定悬停后，再启动既有导航任务服务，不是全自动起飞程序。
 
-末点为场内 (0,0.65)，不自动退回边界起飞点。旧任务随后进入 LAND/H 对准等待；本测试没有 H 视觉节点且 auto_land=false，**不会自动降落或进入 COMPLETE，由飞手接管收尾**。
+末点为场内 (0,0.60)，不自动退回边界起飞点。全部航点完成、任务进入 LAND 后，独立 obstacle_test_auto_land 节点核对新鲜里程计、末点 XY误差≤0.18m、高度误差≤0.15m、速度≤0.12m/s，并连续满足1秒后请求 AUTO.LAND。只从已解锁的 OFFBOARD 请求，不覆盖飞手其他模式；最多3次请求，接受后不重复干预。落地与最终停止由PX4执行，以 MAVROS mode/extended_state 为实际结果，不能把 mode_sent 当成落地成功。
 
 `horizontal_avoidance` 的 XY 范围只限定障碍柱生成区域，**不是电子围栏**；航点留边也不保证所有避障轨迹不越界。现场需核对外围限制、可通行净空和定位一致性。
 
@@ -51,6 +51,21 @@ roslaunch --dump-params uav_mission obstacle_4x4_hardware.launch ground_z:=<实�
 
 预览与控制开启两种入口均已静态展开，确认单套规划器、预览无 patrol_control。示例 ground_z=-0.22 下，全部航点与起飞种子 Z=0.28，默认控制输出关闭。没有调用解锁、模式切换、任务启动、投递服务，没有试飞。
 
-旧控制器启动仍校验停用的降落阈值：保留 local Z=0.03/0.05 两个正值，要求巡航 local Z>0.05；这两项不代表实际离地高度，也不启用自动降落。若现场地面零点使巡航 local Z≤0.05，本配置不能直接启用控制，需要先处理旧控制器高度约束。
+旧控制器启动仍校验停用的降落阈值：保留 local Z=0.03/0.05 两个正值，要求巡航 local Z>0.05；这两项不代表实际离地高度，只供旧视觉控制分支启动校验；末点自动降落由独立节点触发。若现场地面零点使巡航 local Z≤0.05，本配置不能直接启用控制，需要先处理旧控制器高度约束。
 
-已同步到 192.168.3.126 的 /home/orangepi/liftrace_r64_onboard_405bda42/patrol_uav_ws-patrol_planner/src/uav_mission/，保留原入口。板端说明与图位于 /home/orangepi/navigation_frame_fix_20260912/obstacle_4x4/。板端仅做参数展开，未启动节点。
+已同步到 192.168.3.426 的 /home/orangepi/liftrace_r64_onboard_405bda42/patrol_uav_ws-patrol_planner/src/uav_mission/，保留原入口。板端说明与图位于 /home/orangepi/navigation_frame_fix_20260912/obstacle_4x4/。板端仅做参数展开，未启动节点。
+
+## r2 上板入口
+
+航点框扩至 2.8×2.8 m，四侧各留 0.6 m 中心余量（起飞接入段除外）；原版左右留0.9m，偏向初次保守验证。0.6m还需容纳约0.275m半机宽、定位及跟踪误差，不能用4m边线直接作为飞控中心航点。
+
+设备驱动和MAVROS先启动，原整机应用需先停止。项目根目录执行：
+
+    bash top_level_scripts/start_obstacle_4x4.sh preview <实测ground_z>
+    bash top_level_scripts/start_obstacle_4x4.sh flight <实测ground_z>
+
+两条是二选一；flight接通控制输出，不自动解锁或启动航线。此次仅安装，没有运行。日志写入项目logs/obstacle4x4_*，不录bag或视频。
+
+## 自动降落修订
+
+用户明确要求飞完航点自动降落。本入口 auto_land_after_route 默认true，但只有 enable_control_output=true 才加载自动降落节点；预览不加载。旧控制配置的 auto_land=false 保留，避免启用缺少H视觉证据的旧流程。新节点仅调用 SetMode(AUTO.LAND)，不调用解锁、强制解除武装或投递接口。6项单元测试覆盖完成条件、末点稳定、手动接管、错误坐标/速度、触发过期和重试上限，尚未实际飞行验证。
