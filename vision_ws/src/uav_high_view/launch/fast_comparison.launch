@@ -1,0 +1,38 @@
+<launch>
+  <arg name="strategy" default="true" />
+  <arg name="target_model_path" />
+  <arg name="world" />
+  <arg name="field_config" />
+  <arg name="runtime_config" />
+  <arg name="gate_geometry_config" />
+  <arg name="field_seed" />
+  <arg name="cruise_lead_m" default="1.0" />
+  <arg name="planner_max_vel" default="1.2" />
+  <group if="$(arg strategy)">
+    <include file="$(find uav_high_view)/launch/full_strategy.launch">
+      <arg name="target_model_path" value="$(arg target_model_path)" />
+      <arg name="world" value="$(arg world)" />
+      <arg name="field_config" value="$(arg field_config)" />
+      <arg name="runtime_config" value="$(arg runtime_config)" />
+      <arg name="gate_geometry_config" value="$(arg gate_geometry_config)" />
+      <arg name="field_seed" value="$(arg field_seed)" />
+    </include>
+  </group>
+  <group unless="$(arg strategy)">
+    <include file="$(find uav_mission)/launch/navigation_horizontal_search_vcl06.launch">
+      <arg name="target_model_path" value="$(arg target_model_path)" />
+      <arg name="world" value="$(arg world)" />
+      <arg name="field_config" value="$(arg field_config)" />
+      <arg name="runtime_config" value="$(arg runtime_config)" />
+      <arg name="gate_geometry_config" value="$(arg gate_geometry_config)" />
+      <arg name="field_seed" value="$(arg field_seed)" />
+    </include>
+  </group>
+  <param name="/navigation/mission_manager/following_speed_profile/cruise_lead_m" value="$(arg cruise_lead_m)" />
+  <param name="/navigation/mission_manager/following_speed_profile/precision_lead_m" value="0.4" />
+  <param name="/navigation/mission_manager/following_speed_profile/corridor_lead_m" value="0.15" />
+  <param name="/navigation/mission_manager/following_speed_profile/corridor_after_waypoints" value="1" />
+  <param name="/fast_planner_node/manager/max_vel" value="$(arg planner_max_vel)" />
+  <param name="/fast_planner_node/optimization/max_vel" value="$(arg planner_max_vel)" />
+  <param name="/fast_planner_node/search/max_vel" value="$(arg planner_max_vel)" />
+</launch>

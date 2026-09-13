@@ -1,0 +1,44 @@
+post_delivery_gate:
+  low_height_region:
+    min_x: -4.8
+    max_x: 4.8
+    min_y: 7.6
+    max_y: 9.1
+    max_height: 0.7
+  goal_tolerance: 0.12
+  final_h_tolerance: 0.35
+  expected_door_order:
+  - corridor_entry
+  - Wall_20
+  - Wall_22
+  doors:
+  - name: corridor_entry
+    axis: y
+    coordinate: 7.5
+    direction: positive
+    route_indices:
+    - 3
+    lateral_min: -4.8
+    lateral_max: -3.3
+    z_min: 0.0
+    z_max: 0.7
+  - name: Wall_20
+    axis: x
+    coordinate: -1.6
+    direction: positive
+    route_indices:
+    - 5
+    lateral_min: 8.3
+    lateral_max: 9.1
+    z_min: 0.0
+    z_max: 0.7
+  - name: Wall_22
+    axis: x
+    coordinate: 1.6
+    direction: positive
+    route_indices:
+    - 8
+    lateral_min: 7.6
+    lateral_max: 8.4
+    z_min: 0.0
+    z_max: 0.7

@@ -1,0 +1,38 @@
+[
+  {
+    "case": "31",
+    "stage_zero_fast": true,
+    "stage_one_slow": true,
+    "shared_gate_and_mission": true
+  },
+  {
+    "case": "32",
+    "stage_zero_fast": true,
+    "stage_one_slow": true,
+    "shared_gate_and_mission": true
+  },
+  {
+    "case": "33",
+    "stage_zero_fast": true,
+    "stage_one_slow": true,
+    "shared_gate_and_mission": true
+  },
+  {
+    "case": "34",
+    "stage_zero_fast": true,
+    "stage_one_slow": true,
+    "shared_gate_and_mission": true
+  },
+  {
+    "case": "35",
+    "stage_zero_fast": true,
+    "stage_one_slow": true,
+    "shared_gate_and_mission": true
+  },
+  {
+    "case": "pilot",
+    "stage_zero_fast": true,
+    "stage_one_slow": true,
+    "shared_gate_and_mission": true
+  }
+]

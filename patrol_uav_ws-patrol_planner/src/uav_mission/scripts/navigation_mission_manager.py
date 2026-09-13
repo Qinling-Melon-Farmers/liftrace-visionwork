@@ -26,6 +26,7 @@ from uav_mission.mission_runtime import MissionRuntime
 from uav_mission.msg import NavigationDecision, NavigationResult
 from uav_mission.profile_policy import load_profile
 from uav_mission.search_policy import SearchPolicy
+from uav_mission.execution_speed import FollowingSpeed
 
 
 COMMAND_NAMES = {
@@ -577,6 +578,23 @@ class NavigationMissionManager:
                         rospy.set_param(name, value)
                     rospy.loginfo("Flight parameter stage after %d waypoints: %s",
                                   completed, stage["parameters"])
+        # An explicitly enabled speed profile owns these two parameters after
+        # legacy stage updates, so stage zero cannot accidentally slow transit.
+        speed_config=rospy.get_param('~following_speed_profile',{})
+        if speed_config:
+            speed=FollowingSpeed(**speed_config)
+            selected=speed.select(action.command,action.reason,self._runtime.core.post_delivery_route_index)
+            for name in ('/traj_server/traj_server/target_dist','/px4_max_distance'):
+                rospy.set_param(name,selected[1])
+                if abs(float(rospy.get_param(name))-selected[1])>1e-8:
+                    raise RuntimeError('following distance readback mismatch')
+            if selected!=getattr(self,'_following_speed_state',None):
+                self._following_speed_state=selected
+                history=getattr(self,'_following_speed_events',[])
+                history.append(dict(t=rospy.Time.now().to_sec(),phase=selected[0],lead_m=selected[1],
+                                    command=action.command,completed_waypoints=self._runtime.core.post_delivery_route_index))
+                self._following_speed_events=history[-32:]
+                rospy.loginfo('Following speed phase=%s lead=%.3fm',*selected)
         message = NavigationDecision()
         message.header.seq = int(action.decision_seq)
         message.header.stamp = rospy.Time.from_sec(action.issued_at)
@@ -627,6 +645,9 @@ class NavigationMissionManager:
             "profile": self._profile_name,
             "start_mode": self._start_mode,
         }
+        if getattr(self,'_following_speed_state',None):
+            payload['speed_phase'],payload['following_lead_m']=self._following_speed_state
+            payload['speed_transitions']=list(self._following_speed_events)
         if self._runtime is None:
             payload.update({"mission_id": "", "phase": "IDLE"})
         else:

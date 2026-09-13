@@ -1,0 +1,152 @@
+{
+  "31": {
+    "seed": 31,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_31/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_31/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_31/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_31/gate_geometry.yaml",
+    "door_pattern": "LL",
+    "trees": [
+      {
+        "x": -3.950546196076399,
+        "y": 0.969352710913509,
+        "yaw": -0.6733227153829726
+      },
+      {
+        "x": 1.4893006149714623,
+        "y": 1.137621972573637,
+        "yaw": -2.4350889115447667
+      },
+      {
+        "x": -2.172400907701003,
+        "y": 5.098591906528075,
+        "yaw": -2.21544346779184
+      },
+      {
+        "x": 1.9493071114140497,
+        "y": 4.487866595297684,
+        "yaw": -2.283444476149459
+      }
+    ]
+  },
+  "32": {
+    "seed": 32,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_32/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_32/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_32/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_32/gate_geometry.yaml",
+    "door_pattern": "LL",
+    "trees": [
+      {
+        "x": -3.4228835507882365,
+        "y": 1.6171474525759253,
+        "yaw": -1.2369811397157913
+      },
+      {
+        "x": 3.2417308317582245,
+        "y": 3.4260159504090115,
+        "yaw": 1.3838123190736038
+      },
+      {
+        "x": -3.2380935212207214,
+        "y": 3.507133165852599,
+        "yaw": 2.1555907862397605
+      },
+      {
+        "x": 0.18467441717978605,
+        "y": 6.296084832795172,
+        "yaw": 2.398920989100648
+      }
+    ]
+  },
+  "33": {
+    "seed": 33,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_33/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_33/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_33/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_33/gate_geometry.yaml",
+    "door_pattern": "LR",
+    "trees": [
+      {
+        "x": 0.5696602274086722,
+        "y": 4.2962911717041825,
+        "yaw": 1.9917939947378
+      },
+      {
+        "x": -1.8039440789846068,
+        "y": 4.421903795254898,
+        "yaw": 2.45553765385489
+      },
+      {
+        "x": 3.3115110380323314,
+        "y": 1.4436803807845409,
+        "yaw": 0.9533295447415417
+      },
+      {
+        "x": 3.7762035180994236,
+        "y": 3.6309038391573467,
+        "yaw": -0.34397865334978306
+      }
+    ]
+  },
+  "34": {
+    "seed": 34,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_34/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_34/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_34/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_34/gate_geometry.yaml",
+    "door_pattern": "RL",
+    "trees": [
+      {
+        "x": 0.2343766018173401,
+        "y": 3.998779870399115,
+        "yaw": 2.1571821682933257
+      },
+      {
+        "x": 3.2290215942432043,
+        "y": 5.895993775799532,
+        "yaw": -0.8501413489203937
+      },
+      {
+        "x": 3.635607562385564,
+        "y": 2.9640769937273053,
+        "yaw": -1.2177833175942798
+      },
+      {
+        "x": -3.2842835386783293,
+        "y": 3.524739972235432,
+        "yaw": -2.168808864174724
+      }
+    ]
+  },
+  "35": {
+    "seed": 35,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_35/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_35/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_35/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fast_full_random_20260914/seed_35/gate_geometry.yaml",
+    "door_pattern": "RL",
+    "trees": [
+      {
+        "x": 0.3944263057149602,
+        "y": 5.053462082468293,
+        "yaw": 1.5538740085930618
+      },
+      {
+        "x": 2.95686550399508,
+        "y": 2.079803487383148,
+        "yaw": 2.9252780612393323
+      },
+      {
+        "x": 2.064676360701533,
+        "y": 6.196876516340578,
+        "yaw": -1.4192947678466366
+      },
+      {
+        "x": -1.0803633129310684,
+        "y": 4.841004844639242,
+        "yaw": 0.5359347217798214
+      }
+    ]
+  }
+}

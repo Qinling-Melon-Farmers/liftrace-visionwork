@@ -131,8 +131,9 @@ class NavigationManagerContractTest(unittest.TestCase):
     def test_launch_exposes_only_contract_topics(self):
         nodes = self.launch.findall(".//node")
         self.assertEqual(len(nodes), 1)
-        self.assertEqual(
-            nodes[0].attrib["type"], "navigation_mission_manager.py")
+        self.assertEqual(nodes[0].attrib["type"], "$(arg manager_type)")
+        manager_arg=next(a for a in self.launch.findall('arg') if a.attrib['name']=='manager_type')
+        self.assertEqual(manager_arg.attrib['default'], 'navigation_mission_manager.py')
         remaps = {
             item.attrib["from"]: item.attrib["to"]
             for item in nodes[0].findall("remap")
