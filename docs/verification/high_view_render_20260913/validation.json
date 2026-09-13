@@ -1,0 +1,26 @@
+{
+  "scope": "CAPTURE_AND_REPORT_CHECKS_NOT_FLIGHT_ACCEPTANCE",
+  "runs": [
+    {
+      "seed": 32,
+      "images": 240,
+      "height_view_matrix": true,
+      "source_time_spacing": true,
+      "truth_matches_historical_layout": true,
+      "cleanup": true
+    },
+    {
+      "seed": 34,
+      "images": 240,
+      "height_view_matrix": true,
+      "source_time_spacing": true,
+      "truth_matches_historical_layout": true,
+      "cleanup": true
+    }
+  ],
+  "identical_camera_rig": true,
+  "partial_target_association_regression": true,
+  "all_height_layout_five_classes": true,
+  "report_links": true,
+  "offline_unit_tests": 59
+}

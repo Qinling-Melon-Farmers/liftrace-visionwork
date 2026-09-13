@@ -1,6 +1,6 @@
 # 高位观测研究：离线原型
 
-本包仅用于P0评估和P1回放。**没有ROS节点、publisher、service客户端、飞控输出或正式launch接入**。原任务/候选/释放代码保持原状，不把本包的建议当作任务指令。
+核心、评估器和回放程序仍仅输出离线研究结果；另新增独立Gazebo静态相机采集入口，只调用仿真模型服务，不包含PX4、MAVROS或机载执行机构。原任务/候选/释放代码保持原状，不把本包建议当作任务指令。
 
 - `core.py`：有界线索表、类别投票/位置歧义、epoch/时钟回退、复访额度、已投递槽记录，显式有向成本的最多60个三目标顺序，以及有预算的下降/回退建议。
 - `evaluation.py`：按独立观察段统计物理实例发现、误分类、未匹配确认、位置P95、前三目标组合和Wilson区间。不会将检测器置信度解释为准确率。
@@ -33,3 +33,7 @@ rosrun uav_high_view high_view_evaluate.py --config /绝对路径/offline.json -
 事件类型为context、observation、edge、revisit、delivery_ack、snapshot。格式示例见[合成输入](../../../docs/verification/high_view_p0_p1_20260913/synthetic_replay.jsonl)。delivery_ack仅演示原任务已提交槽位的记录接入，不能由视觉候选或手动改标记冒充实投。
 
 当前实现结果、资源测量和限制见[报告](../../../docs/verification/high_view_p0_p1_20260913/REPORT.md)，下一步真实数据格式见[采样说明](../../../docs/verification/high_view_p0_p1_20260913/DATA_PLAN.md)。
+
+## 独立Gazebo观测入口
+
+launch/gazebo_observation.launch 配合 high_view_gazebo_capture.py，只从已安装机架SDF提取相机，在固定场地网格和指定高度重定位采样。必须经sim_run显式授权，不能与另一套仿真同时运行。不是飞机飞行或导航验证。已完成32/34两布局480帧，[报告与使用边界](../../../docs/verification/high_view_render_20260913/REPORT.md)。

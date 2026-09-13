@@ -1,5 +1,7 @@
 # 2026无人机竞赛整机工程
 
+2026-09-13最新：已完成[两布局四高度Gazebo观测](docs/verification/high_view_render_20260913/REPORT.md)，480张同步图像；高位具备粗发现潜力，位置偏差按低位复访线索处理，优先后续重捕与净节时验证。该批为静态相机实验，尚未执行高位飞行策略。
+
 2026-09-13：用户已批准[高位观测研究](docs/planning/high_view_search_20260913/PLAN.md)。首批[P0评估工具与P1离线原型](docs/verification/high_view_p0_p1_20260913/REPORT.md)完成，59项测试及独立构建通过；949份旧同步样本无高位数据，P0仍待证明。正式飞行链未修改、未仿真或上板。
 
 2026-09-11 驱动迁移：当前源码统一使用 **livox_ros_driver2 + Livox SDK2**；仿真仍由 Gazebo 发布 PointCloud2。两类源码包均需 SDK2 才能编译完整导航工作区，旧版本压缩包不会自动更新。[构建与实机接线说明](docs/deployment/LIVOX_DRIVER2.md)。

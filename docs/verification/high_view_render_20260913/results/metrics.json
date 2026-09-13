@@ -1,0 +1,223 @@
+{
+  "scope": "GAZEBO_STATIONARY_PT_SCREENING_NOT_FLIGHT_OR_RKNN_ACCEPTANCE",
+  "model": "/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt",
+  "model_names": {
+    "0": "bridge",
+    "1": "panzer",
+    "2": "pillbox",
+    "3": "tent",
+    "4": "tank",
+    "5": "red_cross"
+  },
+  "imgsz": 640,
+  "confidence": 0.5,
+  "frames": 480,
+  "independent_layouts": 2,
+  "segments": 160,
+  "groups": [
+    {
+      "fc_agl": 1.4,
+      "class_name": "bridge",
+      "geometric_eligible_views": 0,
+      "three_frame_confirmed_views": 0,
+      "conditional_confirmation_ratio": null,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": null
+    },
+    {
+      "fc_agl": 1.4,
+      "class_name": "panzer",
+      "geometric_eligible_views": 0,
+      "three_frame_confirmed_views": 0,
+      "conditional_confirmation_ratio": null,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": null
+    },
+    {
+      "fc_agl": 1.4,
+      "class_name": "pillbox",
+      "geometric_eligible_views": 0,
+      "three_frame_confirmed_views": 0,
+      "conditional_confirmation_ratio": null,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": null
+    },
+    {
+      "fc_agl": 1.4,
+      "class_name": "red_cross",
+      "geometric_eligible_views": 1,
+      "three_frame_confirmed_views": 1,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.055583922370186986
+    },
+    {
+      "fc_agl": 1.4,
+      "class_name": "tent",
+      "geometric_eligible_views": 0,
+      "three_frame_confirmed_views": 0,
+      "conditional_confirmation_ratio": null,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": null
+    },
+    {
+      "fc_agl": 2.4,
+      "class_name": "bridge",
+      "geometric_eligible_views": 3,
+      "three_frame_confirmed_views": 3,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.14006955088246062
+    },
+    {
+      "fc_agl": 2.4,
+      "class_name": "panzer",
+      "geometric_eligible_views": 0,
+      "three_frame_confirmed_views": 0,
+      "conditional_confirmation_ratio": null,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": null
+    },
+    {
+      "fc_agl": 2.4,
+      "class_name": "pillbox",
+      "geometric_eligible_views": 3,
+      "three_frame_confirmed_views": 3,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.12292904585940947
+    },
+    {
+      "fc_agl": 2.4,
+      "class_name": "red_cross",
+      "geometric_eligible_views": 3,
+      "three_frame_confirmed_views": 3,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.12451147041780987
+    },
+    {
+      "fc_agl": 2.4,
+      "class_name": "tent",
+      "geometric_eligible_views": 3,
+      "three_frame_confirmed_views": 3,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.12493195871563934
+    },
+    {
+      "fc_agl": 2.6,
+      "class_name": "bridge",
+      "geometric_eligible_views": 3,
+      "three_frame_confirmed_views": 3,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.14964682322266962
+    },
+    {
+      "fc_agl": 2.6,
+      "class_name": "panzer",
+      "geometric_eligible_views": 2,
+      "three_frame_confirmed_views": 2,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.12683609748767244
+    },
+    {
+      "fc_agl": 2.6,
+      "class_name": "pillbox",
+      "geometric_eligible_views": 3,
+      "three_frame_confirmed_views": 3,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.13672282024314808
+    },
+    {
+      "fc_agl": 2.6,
+      "class_name": "red_cross",
+      "geometric_eligible_views": 3,
+      "three_frame_confirmed_views": 3,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.1425687994800459
+    },
+    {
+      "fc_agl": 2.6,
+      "class_name": "tent",
+      "geometric_eligible_views": 3,
+      "three_frame_confirmed_views": 3,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.1356453565385339
+    },
+    {
+      "fc_agl": 2.8,
+      "class_name": "bridge",
+      "geometric_eligible_views": 3,
+      "three_frame_confirmed_views": 3,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.16180756364624174
+    },
+    {
+      "fc_agl": 2.8,
+      "class_name": "panzer",
+      "geometric_eligible_views": 2,
+      "three_frame_confirmed_views": 2,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.13709421510840644
+    },
+    {
+      "fc_agl": 2.8,
+      "class_name": "pillbox",
+      "geometric_eligible_views": 3,
+      "three_frame_confirmed_views": 3,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.14592783331294562
+    },
+    {
+      "fc_agl": 2.8,
+      "class_name": "red_cross",
+      "geometric_eligible_views": 3,
+      "three_frame_confirmed_views": 3,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.15006749911451928
+    },
+    {
+      "fc_agl": 2.8,
+      "class_name": "tent",
+      "geometric_eligible_views": 3,
+      "three_frame_confirmed_views": 3,
+      "conditional_confirmation_ratio": 1.0,
+      "discovered_layouts": 2,
+      "wrong_in_eligible": 0,
+      "exact_pose_box_center_error_p95": 0.1467607110341262
+    }
+  ],
+  "inference_ms_median": 9.389765000378247,
+  "inference_ms_p95": 11.249388500164056,
+  "unmatched_predictions": 27,
+  "p0_status": "PARTIAL_SCREENING_OCCLUSION_DYNAMIC_POSE_AND_SAMPLE_SIZE_PENDING"
+}
