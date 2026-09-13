@@ -1,4 +1,6 @@
 <launch>
+  <arg name="start_hard_gate" default="true" />
+  <arg name="manager_type" default="navigation_mission_manager.py" />
   <!-- Experimental opt-in; zero keeps the accepted baseline behavior. -->
   <arg name="search_initial_plan_timeout" default="0.0" />
   <arg name="record_overview_video" default="false" />
@@ -54,6 +56,8 @@
   <arg name="runtime_config" default="$(find uav_mission)/config/vcl06_full_low_corridor_runtime.yaml" />
   <arg name="control_config" default="$(find uav_mission)/config/vcl06_full_low_corridor_control.yaml" />
   <include file="$(find uav_mission)/launch/navigation_search_delivery_vcl06.launch">
+    <arg name="manager_type" value="$(arg manager_type)" />
+    <arg name="start_hard_gate" value="$(arg start_hard_gate)" />
     <arg name="ground_z" value="$(arg ground_z)" />
     <arg name="spawn_x" value="0.0" />
     <arg name="spawn_y" value="0.0" />

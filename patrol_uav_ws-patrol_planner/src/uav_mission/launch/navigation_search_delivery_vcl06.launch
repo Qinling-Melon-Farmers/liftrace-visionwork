@@ -1,4 +1,5 @@
 <launch>
+  <arg name="manager_type" default="navigation_mission_manager.py" />
   <!-- Formal VCL06 integration chain.  The navigation manager is the only
        mission-policy owner and navigation_planner_bridge is the only
        /fastplanner/goal publisher.  Legacy adapters/managers are deliberately
@@ -129,6 +130,7 @@
   </node>
 
   <include file="$(find uav_mission)/launch/navigation_mission_manager.launch">
+    <arg name="manager_type" value="$(arg manager_type)" />
     <arg name="runtime_config" value="$(arg runtime_config)" />
     <arg name="search_altitude" value="$(arg search_altitude)" />
     <arg name="start_mode" value="$(arg mission_start_mode)" />
