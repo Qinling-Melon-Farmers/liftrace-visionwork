@@ -1,0 +1,31 @@
+{
+  "scope": "SPEED_DIAGNOSTIC_NOT_FORMAL_PAIRED_RESULT",
+  "method": "Truth XY derivative, 0<dt<0.5s, moving samples >0.1m/s; position-setpoint lead from interpolated MAVROS pose",
+  "planner_max_vel_mps": 1.0,
+  "search_target_dist_m": 0.4,
+  "search_px4_max_distance_m": 0.4,
+  "post_route_lead_m": 0.15,
+  "control_interface": "geometry_msgs/PoseStamped /mavros/setpoint_position/local; no velocity feedforward in this interface",
+  "runs": [
+    {
+      "run": "logs/high_view_full_strategy_seed32_20260914_010237",
+      "median_mps": 0.3399546336723534,
+      "p95_mps": 0.37030656284187646,
+      "lead_p95_m": 0.39137656011948996
+    },
+    {
+      "run": "logs/high_view_full_baseline_seed32_20260914_004427",
+      "median_mps": 0.33798344720440626,
+      "p95_mps": 0.37447447078511054,
+      "lead_p95_m": 0.3901075746789714
+    },
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/fixed_tree_seed32_baseline_20260912_045841",
+      "median_mps": 0.3164128781314452,
+      "p95_mps": 0.375068559014048,
+      "lead_p95_m": 0.3888442018561985
+    }
+  ],
+  "r64_reference": "docs/verification/r64_matrix/parameters/startup_rosparams.yaml",
+  "limitation": "Code and trace diagnosis; no speed-parameter ablation yet. Formal paired runs retain the same control parameters."
+}

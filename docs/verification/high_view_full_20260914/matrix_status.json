@@ -1,0 +1,11 @@
+{
+  "status": "COMPLETE",
+  "frozen_flight_source": "5667bed8fb83daacf9e10a9addbf5ba56bca927a",
+  "requested_runs": 4,
+  "finished_runs": 4,
+  "flight_gate_pass": 3,
+  "flight_gate_fail": 1,
+  "high_strategy_pass": 2,
+  "baseline_pass": 1,
+  "no_more_simulations_started": true
+}
