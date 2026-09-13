@@ -1,0 +1,31 @@
+<launch>
+  <arg name="target_model_path" />
+  <arg name="world" />
+  <arg name="field_config" />
+  <arg name="field_seed" default="32" />
+  <arg name="ground_z" default="-0.22" />
+  <arg name="high_agl" default="2.6" />
+  <include file="$(find uav_mission)/launch/navigation_horizontal_search_vcl06.launch">
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="world" value="$(arg world)" />
+    <arg name="field_config" value="$(arg field_config)" />
+    <arg name="ground_z" value="$(arg ground_z)" />
+    <arg name="manager_type" value="navigation_high_view_full.py" />
+  </include>
+  <param name="/external_planner_max_command_z" value="$(eval float(arg('ground_z'))+3.0)" />
+  <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="$(eval float(arg('ground_z'))+3.1)" />
+  <param name="/navigation/planner_bridge/execution/max_goal_z" value="$(eval float(arg('ground_z'))+3.0)" />
+  <param name="/navigation/mission_manager/high_view_probe/config/ground_z" value="$(arg ground_z)" />
+  <param name="/navigation/mission_manager/high_view_probe/config/high_agl" value="$(arg high_agl)" />
+  <param name="/navigation/mission_manager/high_view_probe/config/low_agl" value="1.4" />
+  <!-- Closed high loop; normal completion or accumulated three-highest hints ends it. -->
+  <rosparam param="/navigation/mission_manager/high_view_probe/config/survey_xy">[[-3.5,1.0],[3.5,1.0],[3.5,5.5],[-3.5,5.5],[-3.5,1.0]]</rosparam>
+  <arg name="low_command_max" value="$(eval float(arg('ground_z'))+1.85)" />
+  <arg name="low_map_max" value="$(eval float(arg('ground_z'))+2.0)" />
+  <rosparam param="/navigation/mission_manager/high_view_probe/low_stage_parameters" subst_value="true">
+    - {name: /external_planner_max_command_z, value: $(arg low_command_max)}
+    - {name: /fast_planner_node/sdf_map/virtual_ceil_height, value: $(arg low_map_max)}
+  </rosparam>
+  <node pkg="uav_high_view" type="high_view_status_recorder.py" name="high_view_status_recorder" output="screen" />
+</launch>

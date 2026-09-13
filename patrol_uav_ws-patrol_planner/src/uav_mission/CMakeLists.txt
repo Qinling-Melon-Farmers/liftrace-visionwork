@@ -194,6 +194,7 @@ catkin_install_python(PROGRAMS
   scripts/pose_tf_broadcaster.py
   scripts/lio_external_pose.py
   scripts/navigation_mission_start_gate.py
+  scripts/navigation_high_view_full.py
   scripts/navigation_high_view_probe.py
   scripts/navigation_mission_manager.py
   scripts/navigation_planner_bridge.py
@@ -258,6 +259,7 @@ if(CATKIN_ENABLE_TESTING)
   catkin_add_nosetests(test/test_mission_core.py)
   catkin_add_nosetests(test/test_mission_runtime.py)
   catkin_add_nosetests(test/test_high_view_probe.py)
+  catkin_add_nosetests(test/test_high_view_full.py)
   catkin_add_nosetests(test/test_navigation_manager_contract.py)
   catkin_add_nosetests(test/test_mission_start_gate.py)
   catkin_add_nosetests(test/test_planner_execution.py)
