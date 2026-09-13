@@ -23,6 +23,15 @@
   <param name="/navigation/mission_manager/high_view_probe/config/ground_z" value="$(arg ground_z)" />
   <param name="/navigation/mission_manager/high_view_probe/config/high_agl" value="$(arg high_agl)" />
   <param name="/navigation/mission_manager/high_view_probe/config/low_agl" value="1.4" />
+  <rosparam param="/navigation/mission_manager/high_view_full/policy">
+    candidate_min_streak: 1
+    min_interval_ns: 100000000
+    min_span_ns: 200000000
+    max_uncertainty_m: 0.45
+    direct_descent: true
+    descent_radius_m: 1.5
+    descent_max_candidates: 25
+  </rosparam>
   <!-- Closed high loop; normal completion or accumulated three-highest hints ends it. -->
   <rosparam param="/navigation/mission_manager/high_view_probe/config/survey_xy">[[-3.5,1.0],[3.5,1.0],[3.5,5.5],[-3.5,5.5],[-3.5,1.0]]</rosparam>
   <arg name="low_command_max" value="$(eval float(arg('ground_z'))+1.85)" />

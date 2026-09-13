@@ -149,6 +149,9 @@ class HighViewProbe(MissionRuntime):
                 return self._outcome(True,'waiting_for_fresh_low_view')
         return self._dispatch_route('SEARCH','probe_waypoint',now,route_outcome)
 
+    def _candidate_validation_config(self):
+        return self.core.config
+
     def ingest(self,candidates,now):
         with self._lock:
             self._require_started()
@@ -160,7 +163,7 @@ class HighViewProbe(MissionRuntime):
             validations=[]
             good=[]
             for candidate in candidates:
-                validation=validate_candidate(candidate,now,self.core.profile,self.core.config)
+                validation=validate_candidate(candidate,now,self.core.profile,self._candidate_validation_config())
                 validations.append(validation)
                 if validation.accepted:good.append(candidate)
                 else:

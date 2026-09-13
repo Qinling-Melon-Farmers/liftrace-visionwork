@@ -4,7 +4,7 @@ import numpy as np
 from uav_high_view.grid_cost import GridCost
 from uav_mission.high_view_probe import ProbeConfig
 from uav_mission.high_view_full import HighViewFull
-from uav_mission.mission_core import MissionCore,MissionConfig,GoalSnapshot,MissionPhase
+from uav_mission.mission_core import MissionCore,MissionConfig,GoalSnapshot,MissionPhase,validate_candidate
 from test_mission_runtime import profile,candidate,result_for,release_ack
 
 
@@ -31,9 +31,11 @@ class FullTests(unittest.TestCase):
 
     def to_capture(self):
         self.top3();self.finish(103.)
+        self.map(104.)
         out=self.r.tick(104.,(0.,0.))
-        self.assertEqual(self.r.stage,'RETURN_COLUMN')
-        self.finish(107.);self.map(110.);self.finish(110.)
+        self.assertEqual(self.r.stage,'DESCEND')
+        self.assertEqual((out.action.goal.x,out.action.goal.y),(0.,0.))
+        self.map(110.);self.finish(110.)
         self.finish(113.);self.assertEqual(self.r.stage,'REACQUIRE')
 
     def test_no_fixed_45_second_cutoff(self):
@@ -42,6 +44,7 @@ class FullTests(unittest.TestCase):
 
     def test_interrupt_requires_all_three_coordinates(self):
         self.top3();self.finish(103.);old=self.r.core.active_action
+        self.map(104.)
         self.r.tick(104.,(0.,0.))
         self.assertGreater(self.r.core.active_action.decision_seq,old.decision_seq)
         self.assertFalse(self.r.core.active_action.has_target)
@@ -80,8 +83,29 @@ class FullTests(unittest.TestCase):
         self.assertEqual(self.r.core.committed_slots,3)
 
     def test_no_map_cost_no_route_guess(self):
-        self.top3();self.finish(103.);self.r.tick(104.,(0.,0.));self.finish(107.);self.finish(110.)
-        self.assertEqual(self.r.failure,'no_fresh_grid_route_to_required_targets')
+        self.top3();self.finish(103.);self.r.tick(104.,(0.,0.))
+        self.assertEqual(self.r.failure,'no_local_descent_route')
+
+    def test_high_hint_admission_is_not_low_delivery_admission(self):
+        for t in [101.,101.1,101.2]:
+            self.r.update_pose((0.,0.,2.38),t,'camera_init')
+            c=replace(candidate(target_id=1,class_name='bridge',now=t,x=1.+t-101.,y=1.),consecutive_observe_count=1,first_seen_ns=99_000_000_000)
+            self.r.ingest([c],t)
+        self.assertIn('bridge',self.r._all_top(101.2))
+        self.assertGreater(self.r._all_top(101.2)['bridge'].uncertainty_m,.25)
+        self.assertEqual(self.r.core.config.min_streak,3)
+        self.r.stage='REACQUIRE'
+        self.assertEqual(self.r._candidate_validation_config().min_streak,3)
+        self.assertEqual(validate_candidate(c,101.2,self.r.core.profile,self.r.core.config).reason,'streak_too_short')
+
+    def test_single_remaining_target_uses_actual_planner(self):
+        self.to_capture()
+        self.r.core.queue.delivered_classes={'panzer','red_cross'}
+        self.r.stage='DELIVERY';self.r.grid.stamp=None
+        out=self.r._next_target(114.)
+        self.assertEqual(out.action.command,'SEARCH')
+        self.assertIsNone(self.r.orders[-1]['grid_length_m'])
+        self.assertEqual(self.r.selected.class_name,'bridge')
 
     def test_old_candidate_cannot_be_released(self):
         self.to_capture();self.r.update_pose((0.,1.,1.18),114.,'camera_init')

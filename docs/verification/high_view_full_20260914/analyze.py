@@ -99,7 +99,7 @@ def analyze(item,out):
         elif e['data']['decision_seq']==active_seq:
             d=e['data']
             if d['command'] in (1,2):ordinary={1:'APPROACH',2:'CAPTURE',3:'ALIGN',4:'RELEASE',5:'RECOVERY'}.get(d['stage'],ordinary)
-        phase=research_phase if research_phase in ('ASCEND','SURVEY','RETURN_COLUMN','DESCEND','REVISIT','REACQUIRE') else ordinary
+        phase=research_phase if research_phase in ('ASCEND','SURVEY','RETURN_COLUMN','LOCAL_DESCENT_TRANSIT','DESCEND','REVISIT','REACQUIRE') else ordinary
         if not timeline or timeline[-1]['phase']!=phase:timeline.append(dict(t=t,phase=phase))
     durations={}
     for i,entry in enumerate(timeline):
