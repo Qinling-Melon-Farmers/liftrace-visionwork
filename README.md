@@ -1,5 +1,7 @@
 # 2026无人机竞赛整机工程
 
+2026-09-13：本研究分支仅提交[高位观测与低位定向投递设计](docs/planning/high_view_search_20260913/PLAN.md)，等待用户审批；飞行源码仍为整机86e382d，尚未开发、仿真或上板。
+
 2026-09-11 驱动迁移：当前源码统一使用 **livox_ros_driver2 + Livox SDK2**；仿真仍由 Gazebo 发布 PointCloud2。两类源码包均需 SDK2 才能编译完整导航工作区，旧版本压缩包不会自动更新。[构建与实机接线说明](docs/deployment/LIVOX_DRIVER2.md)。
 
 
