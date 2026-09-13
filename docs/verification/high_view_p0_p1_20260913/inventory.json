@@ -1,0 +1,106 @@
+{
+  "scope": "RECENT_RESEARCH_SYNCHRONIZED_SNAPSHOTS_ONLY",
+  "height_source": "camera_to_map estimate and recorded ground_z; rigid camera FC offset .16, NOT ground truth",
+  "runs": [
+    {
+      "run": "coverage_seed32_reference070_20260911_174716",
+      "samples": 88,
+      "min_fc_agl": 0.22064114112124306,
+      "max_fc_agl": 1.6554436845115088,
+      "high_24_30": 0,
+      "missing_pairs": 0
+    },
+    {
+      "run": "coverage_seed32_reference080_20260911_182732",
+      "samples": 77,
+      "min_fc_agl": 0.2006201917595403,
+      "max_fc_agl": 1.6572573012295446,
+      "high_24_30": 0,
+      "missing_pairs": 0
+    },
+    {
+      "run": "coverage_seed32_shadow_20260911_173209",
+      "samples": 16,
+      "min_fc_agl": 0.2422606493363767,
+      "max_fc_agl": 1.6544432324190108,
+      "high_24_30": 0,
+      "missing_pairs": 0
+    },
+    {
+      "run": "coverage_seed34_reference080_wait20_20260911_190504",
+      "samples": 87,
+      "min_fc_agl": 0.17207251072233726,
+      "max_fc_agl": 1.6706318051022295,
+      "high_24_30": 0,
+      "missing_pairs": 0
+    },
+    {
+      "run": "fixed_tree_seed32_active_20260912_053523",
+      "samples": 90,
+      "min_fc_agl": 0.1724015093812682,
+      "max_fc_agl": 1.6153852152003512,
+      "high_24_30": 0,
+      "missing_pairs": 0
+    },
+    {
+      "run": "fixed_tree_seed32_baseline_20260912_045841",
+      "samples": 89,
+      "min_fc_agl": 0.2401371852985322,
+      "max_fc_agl": 1.5458394894252063,
+      "high_24_30": 0,
+      "missing_pairs": 0
+    },
+    {
+      "run": "fixed_tree_seed34_active_20260912_064523",
+      "samples": 84,
+      "min_fc_agl": 0.2532971012922348,
+      "max_fc_agl": 1.6231382847996234,
+      "high_24_30": 0,
+      "missing_pairs": 0
+    },
+    {
+      "run": "fixed_tree_seed34_baseline_20260912_061303",
+      "samples": 73,
+      "min_fc_agl": 0.23109488759829244,
+      "max_fc_agl": 1.6316715542753817,
+      "high_24_30": 0,
+      "missing_pairs": 0
+    },
+    {
+      "run": "local_entry_seed32_active_20260912_024451",
+      "samples": 86,
+      "min_fc_agl": 0.23354021044320447,
+      "max_fc_agl": 1.5621153235003695,
+      "high_24_30": 0,
+      "missing_pairs": 0
+    },
+    {
+      "run": "local_entry_seed32_baseline_20260912_020632",
+      "samples": 82,
+      "min_fc_agl": 0.2512243062029724,
+      "max_fc_agl": 1.6232188921952035,
+      "high_24_30": 0,
+      "missing_pairs": 0
+    },
+    {
+      "run": "local_entry_seed34_active_20260912_035944",
+      "samples": 89,
+      "min_fc_agl": 0.1816736396748931,
+      "max_fc_agl": 1.6264234097962411,
+      "high_24_30": 0,
+      "missing_pairs": 0
+    },
+    {
+      "run": "local_entry_seed34_baseline_20260912_032219",
+      "samples": 88,
+      "min_fc_agl": 0.2509903008879202,
+      "max_fc_agl": 1.649901606222546,
+      "high_24_30": 0,
+      "missing_pairs": 0
+    }
+  ],
+  "total_samples": 949,
+  "qualifying_height_samples": 0,
+  "p0_status": "NOT_DEMONSTRATED",
+  "real_video_limit": "Reviewed real_target frame_summary columns have no verified height or annotated physical instance/center truth; not promoted to a high-view dataset."
+}
