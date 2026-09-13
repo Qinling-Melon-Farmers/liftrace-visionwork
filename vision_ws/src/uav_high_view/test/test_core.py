@@ -60,6 +60,14 @@ class CatalogTests(unittest.TestCase):
     def test_invalid_identity(self):
         self.assertEqual(self.c.observe(obs(key=Key(1, 20*NS)), 10*NS), 'invalid_identity')
 
+    def test_ros_zero_target_id_is_valid(self):
+        fill(self.c,i=0)
+        self.assertEqual(self.c.hints(11*NS)[0].key.target_id,0)
+
+    def test_target_id_uint32_bounds(self):
+        for value in [-1,2**32,True]:
+            self.assertEqual(self.c.observe(obs(key=Key(value,NS)),10*NS),'invalid_identity')
+
     def test_wrong_frame(self):
         self.assertEqual(self.c.observe(obs(frame='map'), 10*NS), 'frame_mismatch')
 

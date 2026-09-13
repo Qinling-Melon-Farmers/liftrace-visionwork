@@ -168,7 +168,9 @@ class Catalog:
                 or type(obs.transform_age_ns) is not int
                 or not 0 <= obs.transform_age_ns <= c.tf_max_age_ns):
             return 'stale_or_future'
-        if (type(obs.key.target_id) is not int or obs.key.target_id <= 0
+        # TargetCandidate.id is uint32 and target_memory starts at zero.
+        # has_target in a motion contract, not numeric ID 0, is the sentinel.
+        if (type(obs.key.target_id) is not int or not 0 <= obs.key.target_id < 2**32
                 or type(obs.key.first_seen_ns) is not int
                 or not 0 < obs.key.first_seen_ns <= obs.stamp_ns):
             return 'invalid_identity'

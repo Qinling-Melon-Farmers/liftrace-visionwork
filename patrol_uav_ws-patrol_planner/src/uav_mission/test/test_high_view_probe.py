@@ -18,10 +18,10 @@ class ProbeTests(unittest.TestCase):
                       event_stamp_ns=int((now-.01)*1e9))
         return self.r.apply_result(event,now,(action.goal.x,action.goal.y))
 
-    def observe_high(self):
+    def observe_high(self,target_id=1):
         for t in [101.,101.3,101.6]:
             self.r.update_pose((0.,0.,2.38),t,'camera_init')
-            c=replace(candidate(now=t,class_name='red_cross',x=1.,y=1.),first_seen_ns=99_000_000_000)
+            c=replace(candidate(now=t,class_name='red_cross',x=1.,y=1.),target_id=target_id,first_seen_ns=99_000_000_000)
             self.r.ingest([c],t)
 
     def to_reacquire(self):
@@ -46,6 +46,10 @@ class ProbeTests(unittest.TestCase):
         self.observe_high()
         self.assertFalse(self.r.core.queue.entries)
         self.assertFalse(self.r.core.active_action.has_target)
+
+    def test_zero_id_survives_real_candidate_adapter(self):
+        self.observe_high(target_id=0);self.finish(103.);self.finish(106.)
+        self.assertEqual(self.r.selected.key.target_id,0)
 
     def test_ascent_failure_stops(self):
         self.finish(103.,False)
