@@ -1,0 +1,36 @@
+{
+  "scope": "SINGLE_REVISIT_ONLY",
+  "runs": [
+    {
+      "label": "initial",
+      "gate": true,
+      "one_goal_publisher": true,
+      "targetless_motion_only": true,
+      "low_phase_height_verified": true,
+      "same_layout_as_render": true,
+      "cleanup": true,
+      "zero_id_rejection_fixed": false
+    },
+    {
+      "label": "seed32_fixed",
+      "gate": true,
+      "one_goal_publisher": true,
+      "targetless_motion_only": true,
+      "low_phase_height_verified": true,
+      "same_layout_as_render": true,
+      "cleanup": true,
+      "zero_id_rejection_fixed": true
+    },
+    {
+      "label": "seed34_fixed",
+      "gate": true,
+      "one_goal_publisher": true,
+      "targetless_motion_only": true,
+      "low_phase_height_verified": true,
+      "same_layout_as_render": true,
+      "cleanup": true,
+      "zero_id_rejection_fixed": true
+    }
+  ],
+  "offline_tests": 143
+}

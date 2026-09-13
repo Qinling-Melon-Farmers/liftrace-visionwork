@@ -1,0 +1,94 @@
+{
+  "scope": "HIGH_VIEW_SINGLE_REVISIT_NOT_FULL_MISSION",
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_dynamic_seed32_id0_20260913_235301",
+  "status": "PASS",
+  "reason": "fresh_low_reacquisition",
+  "mission_observed_seconds": 79.58,
+  "stages": [
+    {
+      "stage": "ASCEND",
+      "start": 11.828,
+      "end": 16.428,
+      "seconds": 4.600000000000001
+    },
+    {
+      "stage": "SURVEY",
+      "start": 16.428,
+      "end": 56.837,
+      "seconds": 40.409000000000006
+    },
+    {
+      "stage": "RETURN_COLUMN",
+      "start": 56.837,
+      "end": 71.675,
+      "seconds": 14.837999999999994
+    },
+    {
+      "stage": "DESCEND",
+      "start": 71.675,
+      "end": 75.108,
+      "seconds": 3.433000000000007
+    },
+    {
+      "stage": "REVISIT",
+      "start": 75.108,
+      "end": 91.289,
+      "seconds": 16.180999999999997
+    },
+    {
+      "stage": "REACQUIRE",
+      "start": 91.289,
+      "end": 91.408,
+      "seconds": 0.11899999999999977
+    }
+  ],
+  "truth_xy_distance_m": 22.5055391704527,
+  "max_true_fc_agl": 2.7704210849336897,
+  "target_errors": {
+    "high_hint_error_m": 0.09522743650983577,
+    "low_reacquisition_error_m": 0.07444694115712727
+  },
+  "selected": {
+    "class_name": "panzer",
+    "epoch": {
+      "calibration": "installed-camera-1280-v1",
+      "localization": "static-sitl-world",
+      "mission": "vcl06-random-11-826000000-1"
+    },
+    "evidence_count": 7,
+    "key": {
+      "first_seen_ns": 54743000000,
+      "target_id": 2
+    },
+    "last_seen_ns": 56592000000,
+    "role": "REVISIT_HINT_ONLY",
+    "uncertainty_m": 0.2060945796543723,
+    "vote_fraction": 1.0,
+    "xy": [
+      3.3483509470725994,
+      3.6568563215831005
+    ]
+  },
+  "reacquired": {
+    "class_name": "panzer",
+    "hint_delta": 0.021165861388035674,
+    "last_seen_ns": 91309000000,
+    "target_id": 2,
+    "time": 91.337,
+    "xy": [
+      3.3334273893318387,
+      3.671865689079958
+    ]
+  },
+  "observation_counts": {
+    "accepted": 29,
+    "candidate:profile_excluded": 1949,
+    "candidate:state_not_confirmed": 8,
+    "candidate:streak_too_short": 1634,
+    "duplicate_or_too_close": 118
+  },
+  "collisions": 0,
+  "payload_committed": 0,
+  "low_stage_max_true_fc_agl": 1.522660835785445,
+  "hint_age_at_reacquisition": 34.717
+}

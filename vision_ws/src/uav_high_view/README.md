@@ -1,6 +1,6 @@
 # 高位观测研究：离线原型
 
-核心、评估器和回放程序仍仅输出离线研究结果；另新增独立Gazebo静态相机采集入口，只调用仿真模型服务，不包含PX4、MAVROS或机载执行机构。原任务/候选/释放代码保持原状，不把本包建议当作任务指令。
+核心、评估器和回放程序仍仅输出离线研究结果；另有独立Gazebo静态相机入口，以及显式选择的受限SITL动态复访入口；后者复用PX4/MAVROS/原任务规划链，但不执行投递，不接入实机入口。原任务/候选/释放代码保持原状，不把本包建议当作任务指令。
 
 - `core.py`：有界线索表、类别投票/位置歧义、epoch/时钟回退、复访额度、已投递槽记录，显式有向成本的最多60个三目标顺序，以及有预算的下降/回退建议。
 - `evaluation.py`：按独立观察段统计物理实例发现、误分类、未匹配确认、位置P95、前三目标组合和Wilson区间。不会将检测器置信度解释为准确率。
@@ -37,3 +37,7 @@ rosrun uav_high_view high_view_evaluate.py --config /绝对路径/offline.json -
 ## 独立Gazebo观测入口
 
 launch/gazebo_observation.launch 配合 high_view_gazebo_capture.py，只从已安装机架SDF提取相机，在固定场地网格和指定高度重定位采样。必须经sim_run显式授权，不能与另一套仿真同时运行。不是飞机飞行或导航验证。已完成32/34两布局480帧，[报告与使用边界](../../../docs/verification/high_view_render_20260913/REPORT.md)。
+
+## 受限动态SITL入口
+
+launch/dynamic_probe.launch 显式选择 uav_mission 的研究管理器，复用原消息/执行器事务，只输出无目标payload的运动指令，最终ABORT保持收尾。线索ID允许合法uint32零值；has_target才区分无目标运动。已完成三个分段实跑，[动态报告](../../../docs/verification/high_view_dynamic_probe_20260913/REPORT.md)。该入口只能经sim_run授权启动，默认正式入口仍使用原管理器。

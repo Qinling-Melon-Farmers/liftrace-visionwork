@@ -1,0 +1,102 @@
+{
+  "status": "PASS",
+  "scope": "HIGH_VIEW_SINGLE_REVISIT_NOT_FULL_MISSION",
+  "reason": "fresh_low_reacquisition",
+  "probe": {
+    "ascent_verified": true,
+    "catalog_entries": 2,
+    "done": true,
+    "events": [
+      {
+        "stage": "RETURN_COLUMN",
+        "time": 56.491
+      },
+      {
+        "stage": "DESCEND",
+        "time": 73.415
+      },
+      {
+        "stage": "REVISIT",
+        "time": 77.029
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 83.85
+      },
+      {
+        "reason": "fresh_low_reacquisition",
+        "stage": "DONE",
+        "success": true,
+        "time": 84.014
+      }
+    ],
+    "failure": "",
+    "low_limits_applied": true,
+    "observation_counts": {
+      "accepted": 81,
+      "candidate:profile_excluded": 1933,
+      "candidate:state_not_confirmed": 448,
+      "candidate:streak_too_short": 993,
+      "duplicate_or_too_close": 306
+    },
+    "reacquired": {
+      "class_name": "bridge",
+      "hint_delta": 0.007153602757037712,
+      "last_seen_ns": 83973000000,
+      "target_id": 0,
+      "time": 83.991,
+      "xy": [
+        -1.7757445711201543,
+        0.20395253784325623
+      ]
+    },
+    "scope": "HIGH_VIEW_SINGLE_REVISIT_NO_DELIVERY",
+    "selected": {
+      "class_name": "bridge",
+      "epoch": {
+        "calibration": "installed-camera-1280-v1",
+        "localization": "static-sitl-world",
+        "mission": "vcl06-random-11-465000000-1"
+      },
+      "evidence_count": 8,
+      "key": {
+        "first_seen_ns": 18626000000,
+        "target_id": 0
+      },
+      "last_seen_ns": 37995000000,
+      "role": "REVISIT_HINT_ONLY",
+      "uncertainty_m": 0.202741654766238,
+      "vote_fraction": 1.0,
+      "xy": [
+        -1.7713388620309822,
+        0.19831660315351005
+      ]
+    },
+    "slots_committed": 0,
+    "stage": "REACQUIRE",
+    "succeeded": true
+  },
+  "truth_samples": 72741,
+  "contacts": {
+    "active_pairs": [],
+    "actual_collision_count": 0,
+    "component": "gazebo_contact_monitor",
+    "contact_active": false,
+    "events": [],
+    "ignored_collision_patterns": [
+      "ground_plane",
+      "landing_h::link::collision",
+      "landing_h_clone::link::collision"
+    ],
+    "last_sample_wall_age": 6.107000444899313e-06,
+    "raw_topic": "/mission/uav_contacts_raw",
+    "ready": true,
+    "reason": "contact_sensor_streaming",
+    "sample_count": 4185,
+    "status": "READY"
+  },
+  "target_errors": {
+    "high_hint_error_m": 0.11183949625286937,
+    "low_reacquisition_error_m": 0.10494376062053935
+  }
+}

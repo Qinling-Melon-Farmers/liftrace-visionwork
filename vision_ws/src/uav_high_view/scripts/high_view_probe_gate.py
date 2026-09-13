@@ -22,9 +22,13 @@ class Gate:
         self.model=rospy.get_param('~truth_model','iris_mid360')
         self.max_height=float(rospy.get_param('~max_fc_height',3.0))
         self.wall_limit=float(rospy.get_param('~wall_timeout',1200.))
-        self.subs=[rospy.Subscriber('/uav_high_view/probe_status',String,self.status,queue_size=1),
-            rospy.Subscriber('/mission/gazebo_contact_status',String,self.contact,queue_size=1),
-            rospy.Subscriber('/gazebo/model_states',ModelStates,self.truth,queue_size=1)]
+        self.bounds=rospy.get_param('~field_bounds',[-4.8,4.8,-.5,7.4])
+        self.high_match=float(rospy.get_param('~high_hint_match_radius',.6))
+        self.low_match=float(rospy.get_param('~low_hint_match_radius',.35))
+        self.truth_path=Path(rospy.get_param('~truth_path',str(self.root/'random_field_truth.yaml')))
+        self.subs=[rospy.Subscriber(rospy.get_param('~probe_status_topic','/uav_high_view/probe_status'),String,self.status,queue_size=1),
+            rospy.Subscriber(rospy.get_param('~contact_topic','/mission/gazebo_contact_status'),String,self.contact,queue_size=1),
+            rospy.Subscriber(rospy.get_param('~truth_topic','/gazebo/model_states'),ModelStates,self.truth,queue_size=1)]
 
     def status(self,msg):
         self.probe=json.loads(msg.data)
@@ -40,7 +44,7 @@ class Gate:
         if self.model not in msg.name:return
         p=msg.pose[msg.name.index(self.model)].position;self.truth_count+=1
         self.truth_seen=time.monotonic()
-        if not (-4.8<=p.x<=4.8 and -.5<=p.y<=7.4 and p.z<=self.max_height):
+        if not (self.bounds[0]<=p.x<=self.bounds[1] and self.bounds[2]<=p.y<=self.bounds[3] and p.z<=self.max_height):
             self.violation='truth_bounds_or_height'
 
     def run(self):
@@ -56,7 +60,7 @@ class Gate:
                     and time.monotonic()-self.contact_seen<2
                     and time.monotonic()-self.truth_seen<2)
                 if passed:
-                    truth=yaml.safe_load((self.root/'random_field_truth.yaml').read_text())
+                    truth=yaml.safe_load(self.truth_path.read_text())
                     selected=self.probe['selected'];low=self.probe['reacquired']
                     target=next((t for t in truth['targets'] if t['class']==selected['class_name']),None)
                     if target is None:
@@ -67,7 +71,7 @@ class Gate:
                         self.target_errors=dict(high_hint_error_m=high_error,low_reacquisition_error_m=low_error)
                         # Identity association checks, not a claim that P0's
                         # statistical 0.25m localization criterion has passed.
-                        passed=high_error<=.6 and low_error<=.35
+                        passed=high_error<=self.high_match and low_error<=self.low_match
                 reason='fresh_low_reacquisition' if passed else self.probe.get('failure','probe_failed')
                 break
             time.sleep(.1)

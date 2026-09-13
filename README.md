@@ -1,5 +1,7 @@
 # 2026无人机竞赛整机工程
 
+2026-09-14最新：[高位线索—回降—低位重捕动态验证](docs/verification/high_view_dynamic_probe_20260913/REPORT.md)三次受限SITL通过，修复视觉ID=0兼容问题；修复版seed32/34重捕地图点误差7.4/10.5cm，尚无三投或整场节时结论，机载部署未变。
+
 2026-09-13最新：已完成[两布局四高度Gazebo观测](docs/verification/high_view_render_20260913/REPORT.md)，480张同步图像；高位具备粗发现潜力，位置偏差按低位复访线索处理，优先后续重捕与净节时验证。该批为静态相机实验，尚未执行高位飞行策略。
 
 2026-09-13：用户已批准[高位观测研究](docs/planning/high_view_search_20260913/PLAN.md)。首批[P0评估工具与P1离线原型](docs/verification/high_view_p0_p1_20260913/REPORT.md)完成，59项测试及独立构建通过；949份旧同步样本无高位数据，P0仍待证明。正式飞行链未修改、未仿真或上板。
