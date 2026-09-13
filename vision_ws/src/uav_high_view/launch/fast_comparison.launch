@@ -8,6 +8,9 @@
   <arg name="field_seed" />
   <arg name="cruise_lead_m" default="1.0" />
   <arg name="planner_max_vel" default="1.2" />
+  <arg name="command_admission_m" default="1.2" />
+  <!-- Controller admission must accommodate the selected following distance. -->
+  <param name="/external_planner_start_max_distance" value="$(arg command_admission_m)" />
   <group if="$(arg strategy)">
     <include file="$(find uav_high_view)/launch/full_strategy.launch">
       <arg name="target_model_path" value="$(arg target_model_path)" />
