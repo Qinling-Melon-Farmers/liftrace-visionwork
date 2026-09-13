@@ -25,7 +25,7 @@
 
 `dpkg -V`检查Python3.8及PyYAML未报告包文件变化；检查时约14GiB可用内存、F盘67GiB可用。无证据证明硬件故障，不据此修改系统Python或安装依赖，也不以反复重跑掩盖异常。
 
-诊断脚本保留于忽略目录：`logs/check_python_runtime.py`、`logs/check_clean_ros.sh`。仿真已收尾。重启WSL会影响编辑器连接及其他WSL会话，需先与用户协调。
+诊断脚本保留于忽略目录：`logs/check_python_runtime.py`、`logs/check_clean_ros.sh`。确认无其他工作进程后，已依次重启发行版及完整WSL虚拟机：发行版重启后独立测试第3539次仍失败；完整重启后10000次YAML读写通过，但随后12组ROS参数展开仍报`SimpleKey object has no attribute index`。因此重启未消除间歇性异常，不能据单次PASS宣称环境恢复。仿真已收尾。
 
 ## 恢复后的顺序
 
