@@ -4,5 +4,8 @@
   <description>Offline bounded high-view survey research; no flight output.</description>
   <maintainer email="dev@example.com">liftrace</maintainer><license>BSD-3-Clause</license>
   <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>rospy</exec_depend><exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_msgs</exec_depend><exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend><exec_depend>std_msgs</exec_depend>
   <test_depend>python3-nose</test_depend>
 </package>

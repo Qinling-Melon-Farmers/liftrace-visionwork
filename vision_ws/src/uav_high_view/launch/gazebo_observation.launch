@@ -1,0 +1,25 @@
+<launch>
+  <!-- Evaluation sensor rig only. No PX4, MAVROS, mission or actuator nodes. -->
+  <arg name="world" />
+  <arg name="field_config" />
+  <arg name="field_seed" />
+  <arg name="capture_config" default="$(find uav_high_view)/config/render_capture.json" />
+  <arg name="model_roots" default="$(optenv ASTRA_MODEL_ROOT)" />
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world)" />
+    <arg name="gui" value="false" />
+    <arg name="paused" value="false" />
+    <arg name="use_sim_time" value="true" />
+  </include>
+  <node pkg="uav_mission" type="random_field_spawner.py" name="random_field_spawner" output="screen">
+    <rosparam file="$(arg field_config)" />
+    <param name="seed" value="$(arg field_seed)" />
+    <param name="class_profile" value="r2026" />
+    <param name="standard_classes" value="tent,pillbox,bridge,panzer" />
+    <param name="model_roots" value="$(arg model_roots)" />
+  </node>
+  <node pkg="uav_high_view" type="high_view_gazebo_capture.py" name="high_view_gazebo_capture" output="screen" required="true">
+    <param name="config" value="$(arg capture_config)" />
+    <param name="vehicle_sdf" value="$(find uav_vision_eval)/models/iris_mid360_ks2a543_installed/model.sdf" />
+  </node>
+</launch>
