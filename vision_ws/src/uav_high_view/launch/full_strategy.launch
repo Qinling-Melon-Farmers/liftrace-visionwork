@@ -2,6 +2,8 @@
   <arg name="target_model_path" />
   <arg name="world" />
   <arg name="field_config" />
+  <arg name="runtime_config" />
+  <arg name="gate_geometry_config" />
   <arg name="field_seed" default="32" />
   <arg name="ground_z" default="-0.22" />
   <arg name="high_agl" default="2.6" />
@@ -10,6 +12,8 @@
     <arg name="field_seed" value="$(arg field_seed)" />
     <arg name="world" value="$(arg world)" />
     <arg name="field_config" value="$(arg field_config)" />
+    <arg name="runtime_config" value="$(arg runtime_config)" />
+    <arg name="gate_geometry_config" value="$(arg gate_geometry_config)" />
     <arg name="ground_z" value="$(arg ground_z)" />
     <arg name="manager_type" value="navigation_high_view_full.py" />
   </include>

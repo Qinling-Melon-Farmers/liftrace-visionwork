@@ -1,0 +1,9 @@
+[
+  {
+    "run": "logs/high_view_full_baseline_seed32_20260914_004427",
+    "status": "STOPPED_CONFIGURATION_MISMATCH",
+    "reason": "Random-door world but default fixed-door runtime/Gate; stopped before tail; not one of four formal runs",
+    "cleanup": "PASS",
+    "committed_slots_before_stop": 2
+  }
+]
