@@ -36,9 +36,8 @@
   <rosparam param="/navigation/mission_manager/high_view_probe/config/survey_xy">[[-3.5,1.0],[3.5,1.0],[3.5,5.5],[-3.5,5.5],[-3.5,1.0]]</rosparam>
   <arg name="low_command_max" value="$(eval float(arg('ground_z'))+1.85)" />
   <arg name="low_map_max" value="$(eval float(arg('ground_z'))+2.0)" />
-  <!-- Keep low-layer horizontal avoidance; high survey retains actual 3-D
-       inflated obstacles rather than extending every low return to 3.1m. -->
-  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/column_top_z" value="$(arg low_map_max)" />
+  <!-- Retain full-height obstacle columns: competition search must route
+       horizontally around trees, including during the high survey. -->
   <rosparam param="/navigation/mission_manager/high_view_probe/low_stage_parameters" subst_value="true">
     - {name: /external_planner_max_command_z, value: $(arg low_command_max)}
     - {name: /fast_planner_node/sdf_map/virtual_ceil_height, value: $(arg low_map_max)}

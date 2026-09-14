@@ -10,5 +10,11 @@
     "label": "baseline",
     "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/fast_speed_pilot32_baseline_20260914_100040",
     "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_view_render_20260913/seed_32/field.world"
+  },
+  {
+    "seed": 32,
+    "label": "strategy_repaired",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_speed_column_fix_seed32_20260914_103959",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_view_render_20260913/seed_32/field.world"
   }
 ]
