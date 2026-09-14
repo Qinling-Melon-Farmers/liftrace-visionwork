@@ -1,0 +1,174 @@
+{
+  "run": "logs/high_view_full_local_strategy_seed32_20260914_012723",
+  "scope": "Offline collision-mesh convex horizontal hull including pedestal; center above tree top; 0.025m segment sampling. Nominal radius is not a full swept-body certification.",
+  "trees": [
+    {
+      "tree": "juniper_Tree",
+      "tree_top_world_z": 1.5,
+      "footprint": [
+        [
+          -2.1,
+          2.3
+        ],
+        [
+          -2.1172314204,
+          1.99094275116
+        ],
+        [
+          -2.1,
+          1.7
+        ],
+        [
+          -1.79094285784,
+          1.6827685796
+        ],
+        [
+          -1.5,
+          1.7
+        ],
+        [
+          -1.4827685796,
+          2.0090570558
+        ],
+        [
+          -1.5,
+          2.3
+        ],
+        [
+          -1.8090572844000001,
+          2.3172314204
+        ]
+      ],
+      "center_above_footprint_samples": 0,
+      "min_center_horizontal_clearance_m": 0.6240979264920918,
+      "min_clearance_time_s": 34.023,
+      "nominal_0_275m_radius_overlap_samples": 0
+    },
+    {
+      "tree": "juniper_Tree_0",
+      "tree_top_world_z": 1.5,
+      "footprint": [
+        [
+          1.5,
+          3.0
+        ],
+        [
+          1.4827685796,
+          2.69094275116
+        ],
+        [
+          1.5,
+          2.4000000000000004
+        ],
+        [
+          1.8090571421600001,
+          2.3827685796
+        ],
+        [
+          2.1,
+          2.4000000000000004
+        ],
+        [
+          2.1172314204,
+          2.7090570558000002
+        ],
+        [
+          2.1,
+          3.0
+        ],
+        [
+          1.7909427156,
+          3.0172314204000004
+        ]
+      ],
+      "center_above_footprint_samples": 0,
+      "min_center_horizontal_clearance_m": 0.7358948487671828,
+      "min_clearance_time_s": 59.176,
+      "nominal_0_275m_radius_overlap_samples": 0
+    },
+    {
+      "tree": "juniper_Tree_1",
+      "tree_top_world_z": 1.5,
+      "footprint": [
+        [
+          -1.8,
+          5.5
+        ],
+        [
+          -1.8172314204,
+          5.190942751160001
+        ],
+        [
+          -1.8,
+          4.9
+        ],
+        [
+          -1.49094285784,
+          4.8827685796
+        ],
+        [
+          -1.2,
+          4.9
+        ],
+        [
+          -1.1827685796,
+          5.2090570558
+        ],
+        [
+          -1.2,
+          5.5
+        ],
+        [
+          -1.5090572844,
+          5.5172314204
+        ]
+      ],
+      "center_above_footprint_samples": 0,
+      "min_center_horizontal_clearance_m": 0.43838085784507225,
+      "min_clearance_time_s": 85.6615,
+      "nominal_0_275m_radius_overlap_samples": 0
+    },
+    {
+      "tree": "juniper_Tree_2",
+      "tree_top_world_z": 1.5,
+      "footprint": [
+        [
+          1.4,
+          6.0
+        ],
+        [
+          1.3827685796,
+          5.690942751160001
+        ],
+        [
+          1.4,
+          5.4
+        ],
+        [
+          1.70905714216,
+          5.3827685796
+        ],
+        [
+          2.0,
+          5.4
+        ],
+        [
+          2.0172314204,
+          5.7090570558
+        ],
+        [
+          2.0,
+          6.0
+        ],
+        [
+          1.6909427155999999,
+          6.0172314204
+        ]
+      ],
+      "center_above_footprint_samples": 0,
+      "min_center_horizontal_clearance_m": 0.5055226301097178,
+      "min_clearance_time_s": 72.739,
+      "nominal_0_275m_radius_overlap_samples": 0
+    }
+  ]
+}

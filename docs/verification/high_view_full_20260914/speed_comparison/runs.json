@@ -1,0 +1,50 @@
+[
+  {
+    "seed": 32,
+    "label": "strategy",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed32_20260914_012723",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed32_20260914_012723/scenario_inputs/field.world",
+    "source": "5667bed",
+    "method": "slow_high"
+  },
+  {
+    "seed": 32,
+    "label": "baseline",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed32_20260914_015313",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed32_20260914_015313/scenario_inputs/field.world",
+    "source": "5667bed",
+    "method": "slow_coverage"
+  },
+  {
+    "seed": 34,
+    "label": "strategy",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed34_20260914_023010",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed34_20260914_023010/scenario_inputs/field.world",
+    "source": "5667bed",
+    "method": "slow_high"
+  },
+  {
+    "seed": 34,
+    "label": "baseline",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed34_20260914_025732",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed34_20260914_025732/scenario_inputs/field.world",
+    "source": "5667bed",
+    "method": "slow_coverage"
+  },
+  {
+    "seed": 32,
+    "label": "baseline",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/fast_speed_pilot32_baseline_20260914_100040",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_view_render_20260913/seed_32/field.world",
+    "method": "fast_coverage",
+    "source": "cca98cb"
+  },
+  {
+    "seed": 32,
+    "label": "strategy_lateral",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_speed_lateral_fix_seed32_20260914_111432",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_view_render_20260913/seed_32/field.world",
+    "method": "fast_high",
+    "source": "fabdc8c"
+  }
+]
