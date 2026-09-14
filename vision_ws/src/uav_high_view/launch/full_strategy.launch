@@ -7,6 +7,10 @@
   <arg name="field_seed" default="32" />
   <arg name="ground_z" default="-0.22" />
   <arg name="high_agl" default="2.6" />
+  <!-- High survey may shift a waypoint sideways within the existing 0.35m
+       effective-goal contract. Never change Z or weaken full-height columns. -->
+  <arg name="high_goal_adjustment_radius" default="0.30" />
+  <arg name="low_goal_adjustment_radius" default="0.15" />
   <include file="$(find uav_mission)/launch/navigation_horizontal_search_vcl06.launch">
     <arg name="target_model_path" value="$(arg target_model_path)" />
     <arg name="field_seed" value="$(arg field_seed)" />
@@ -18,6 +22,7 @@
     <arg name="manager_type" value="navigation_high_view_full.py" />
   </include>
   <param name="/external_planner_max_command_z" value="$(eval float(arg('ground_z'))+3.0)" />
+  <param name="/fast_planner_node/fsm/goal_adjustment_radius" value="$(arg high_goal_adjustment_radius)" />
   <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="$(eval float(arg('ground_z'))+3.1)" />
   <param name="/navigation/planner_bridge/execution/max_goal_z" value="$(eval float(arg('ground_z'))+3.0)" />
   <param name="/navigation/mission_manager/high_view_probe/config/ground_z" value="$(arg ground_z)" />
@@ -39,6 +44,7 @@
   <!-- Retain full-height obstacle columns: competition search must route
        horizontally around trees, including during the high survey. -->
   <rosparam param="/navigation/mission_manager/high_view_probe/low_stage_parameters" subst_value="true">
+    - {name: /fast_planner_node/fsm/goal_adjustment_radius, value: $(arg low_goal_adjustment_radius)}
     - {name: /external_planner_max_command_z, value: $(arg low_command_max)}
     - {name: /fast_planner_node/sdf_map/virtual_ceil_height, value: $(arg low_map_max)}
   </rosparam>

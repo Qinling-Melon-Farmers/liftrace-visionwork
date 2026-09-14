@@ -42,6 +42,22 @@ TEST(GoalAdjustment, DoesNotRelaxMapClearanceOrSelectVerticalShortcut) {
       [](const Eigen::Vector3d& p) { return p.z() > 1.5 ? 1. : -1.; }, selected));
 }
 
+TEST(GoalAdjustment, HighSurveyUsesLateralGapWhileKeepingHeightAndClearance) {
+  // The seed32 failure ROI has no free goal within 0.15m. A lateral
+  // opening at about x=3.75 is 0.25m from the requested (3.5,5.5,2.38).
+  // Model that boundary here; the archived point-cloud check is separate.
+  const Eigen::Vector3d requested(3.5, 5.5, 2.38);
+  const auto clearance = [](const Eigen::Vector3d& p) {
+    return p.x() >= 3.75 ? p.x() - 3.72 : -1.0;
+  };
+  Eigen::Vector3d selected;
+  EXPECT_FALSE(nearbyFreeGoal(requested, .15, .05, .025, clearance, selected));
+  ASSERT_TRUE(nearbyFreeGoal(requested, .30, .05, .025, clearance, selected));
+  EXPECT_LE((selected-requested).norm(), .300001);
+  EXPECT_DOUBLE_EQ(selected.z(), requested.z());
+  EXPECT_GE(clearance(selected), .025);
+}
+
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

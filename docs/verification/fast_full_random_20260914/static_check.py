@@ -24,6 +24,12 @@ for name,case in cases.items():
         assert params['/external_planner_start_max_distance']==1.2
         column_key='/fast_planner_node/sdf_map/horizontal_avoidance/column_top_z'
         assert params.get(column_key,-1.)==-1.
+        expected_radius=.30 if strategy=='true' else .15
+        assert params['/fast_planner_node/fsm/goal_adjustment_radius']==expected_radius
+        assert expected_radius<=params['/navigation/planner_bridge/execution/effective_goal_max_offset']
+        if strategy=='true':
+            low=params[prefix+'high_view_probe/low_stage_parameters']
+            assert next(v['value'] for v in low if v['name']=='/fast_planner_node/fsm/goal_adjustment_radius')==.15
         stages=params[prefix+'mission/post_delivery_parameter_stages']
         assert '/px4_max_distance' not in stages[0]['parameters']
         assert stages[1]['parameters']['/px4_max_distance']==.15
