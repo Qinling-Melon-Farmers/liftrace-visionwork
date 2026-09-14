@@ -22,6 +22,8 @@ for name,case in cases.items():
         prefix='/navigation/mission_manager/'
         assert params[prefix+'following_speed_profile/cruise_lead_m']==1.
         assert params['/external_planner_start_max_distance']==1.2
+        column_key='/fast_planner_node/sdf_map/horizontal_avoidance/column_top_z'
+        assert abs(params.get(column_key,-1.)-(1.78 if strategy=='true' else -1.))<1e-8
         stages=params[prefix+'mission/post_delivery_parameter_stages']
         assert '/px4_max_distance' not in stages[0]['parameters']
         assert stages[1]['parameters']['/px4_max_distance']==.15

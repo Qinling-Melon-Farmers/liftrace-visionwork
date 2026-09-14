@@ -76,6 +76,12 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
   node_.param("sdf_map/horizontal_avoidance/max_y", mp_.horizontal_max_y_, 0.0);
   node_.param("sdf_map/horizontal_avoidance/obstacle_min_z", mp_.horizontal_obstacle_min_z_, 0.4);
   node_.param("sdf_map/horizontal_avoidance/floor_z", mp_.horizontal_floor_z_, 0.1);
+  // Negative keeps the legacy full-height column. A separate cap lets a
+  // research high survey use real 3-D inflation above the low-flight layer.
+  node_.param("sdf_map/horizontal_avoidance/column_top_z", mp_.horizontal_column_top_z_, -1.0);
+  if (!std::isfinite(mp_.horizontal_column_top_z_) ||
+      (mp_.horizontal_column_top_z_ >= 0.0 && mp_.horizontal_column_top_z_ <= mp_.horizontal_floor_z_))
+    throw std::invalid_argument("horizontal obstacle column top is invalid");
   node_.param("sdf_map/horizontal_avoidance/support_min_points", mp_.horizontal_support_min_points_, 1);
   node_.param("sdf_map/horizontal_avoidance/support_radius", mp_.horizontal_support_radius_, 0.0);
   node_.param("sdf_map/horizontal_avoidance/support_min_vertical_span", mp_.horizontal_support_min_span_, 0.0);
@@ -1009,8 +1015,12 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   if (mp_.horizontal_avoidance_) {
     const int low = std::max(0, int(floor((mp_.horizontal_floor_z_ - mp_.map_origin_(2)) *
                                          mp_.resolution_inv_)));
-    const double top_height = mp_.virtual_ceil_height_ > 0.0 ?
+    double top_height = mp_.virtual_ceil_height_ > 0.0 ?
         mp_.virtual_ceil_height_ : mp_.map_max_boundary_(2);
+    if (mp_.horizontal_column_top_z_ >= 0.0)
+      top_height = std::min(top_height, mp_.horizontal_column_top_z_);
+    // Only synthetic columns are capped. The real point-cloud inflation
+    // above remains intact, and applyFlightCeiling still uses the flight cap.
     const int high = std::min(mp_.map_voxel_num_(2) - 1,
         int(ceil((top_height - mp_.map_origin_(2)) * mp_.resolution_inv_)));
     for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
