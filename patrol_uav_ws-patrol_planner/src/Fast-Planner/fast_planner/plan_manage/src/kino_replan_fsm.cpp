@@ -343,7 +343,14 @@ void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
         if (exec_state_ == EXEC_TRAJ) changeFSMExecState(REPLAN_TRAJ, "SAFETY");
         visualization_->drawGoal(end_pt_, 0.3, Eigen::Vector4d(1, 0, 0, 1.0));
       } else {
-        ROS_WARN_THROTTLE(2.0, "No collision-free goal within requested waypoint neighborhood");
+        ROS_WARN_STREAM_THROTTLE(2.0,
+            "No collision-free goal within requested waypoint neighborhood"
+            << " requested=" << requested_end_pt_.transpose()
+            << " effective=" << end_pt_.transpose()
+            << " in_map=" << edt_env->sdf_map_->isInMap(requested_end_pt_)
+            << " inflated=" << edt_env->sdf_map_->getInflateOccupancy(requested_end_pt_)
+            << " clearance=" << current_clearance
+            << " radius=" << goal_adjustment_radius_);
         if (exec_state_ == EXEC_TRAJ) {
           replan_pub_.publish(std_msgs::Empty());
           changeFSMExecState(REPLAN_TRAJ, "SAFETY");

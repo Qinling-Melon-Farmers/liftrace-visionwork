@@ -9,6 +9,10 @@
   <arg name="cruise_lead_m" default="1.0" />
   <arg name="planner_max_vel" default="1.2" />
   <arg name="command_admission_m" default="1.2" />
+  <arg name="diagnostic_cloud" default="false" />
+  <arg name="diagnostic_goal_xyz" default="[3.5,5.5,2.38]" />
+  <param name="/high_view_status_recorder/diagnostic_cloud" value="$(arg diagnostic_cloud)" />
+  <rosparam param="/high_view_status_recorder/diagnostic_goal_xyz" subst_value="true">$(arg diagnostic_goal_xyz)</rosparam>
   <!-- Controller admission must accommodate the selected following distance. -->
   <param name="/external_planner_start_max_distance" value="$(arg command_admission_m)" />
   <group if="$(arg strategy)">

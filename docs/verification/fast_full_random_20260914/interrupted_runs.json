@@ -1,0 +1,9 @@
+[
+  {
+    "run": "logs/fast_random_strategy_seed32_20260914_102549",
+    "status": "USER_INTERRUPTED",
+    "reason": "User prioritizes repair of high-altitude pilot before matrix",
+    "counts_as_formal_trial": false,
+    "final_wrapper_cleanup": "PASS; subsequent zero-process check PASS"
+  }
+]
