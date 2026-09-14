@@ -9,3 +9,5 @@
 高位邻域从0.15m改为0.30m，使用既有nearbyFreeGoal固定Z的水平搜索。仍在执行桥原0.35m有效目标偏移上限内。SEARCH按规划器有效目标和原停稳条件判到达；进入REVISIT恢复0.15m，走廊保留原0.10m及原始门航点到达约束。
 
 验证：4个goal_adjustment_test实际C++测试通过，含小邻域失败/扩大后横向成功/保持高度净空；12组参数展开通过，确认两策略都没有column_top_z覆盖，高位0.30m、低位恢复0.15m且未突破桥接上限。实跑待完成。
+
+实跑补充：seed32高位横移配置完整Gate PASS，225.762s；随后seed34同配置PASS，225.506s。两轮PlannerStatus未记录requested/effective偏移，因此不能仅凭通过就证明该兜底消除了先前地图波动。比较及投影限定见[总报告](../../high_view_full_20260914/speed_comparison/REPORT.md)。

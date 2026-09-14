@@ -54,5 +54,13 @@
     "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/fixed_fast_baseline_seed34_20260914_114415",
     "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_view_full_20260914/speed_comparison/seed34/field.world",
     "source": "72e17e6"
+  },
+  {
+    "seed": 34,
+    "label": "fast_high",
+    "method": "fast_high",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/fixed_fast_strategy_seed34_20260914_115010",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_view_full_20260914/speed_comparison/seed34/field.world",
+    "source": "ca40911"
   }
 ]

@@ -1,0 +1,30 @@
+[
+  {
+    "seed": 32,
+    "method": "slow_high",
+    "minimum_sat_gap_mm": 74.37693732397265,
+    "overlap_samples": 0,
+    "source": "32_slow_high_body_projection.json"
+  },
+  {
+    "seed": 32,
+    "method": "fast_high",
+    "minimum_sat_gap_mm": -0.9976585321167519,
+    "overlap_samples": 1,
+    "source": "32_fast_high_body_projection.json"
+  },
+  {
+    "seed": 34,
+    "method": "slow_high",
+    "minimum_sat_gap_mm": -9.144089786664367,
+    "overlap_samples": 3,
+    "source": "34_slow_high_body_projection.json"
+  },
+  {
+    "seed": 34,
+    "method": "fast_high",
+    "minimum_sat_gap_mm": -151.06229439352958,
+    "overlap_samples": 26,
+    "source": "34_fast_high/body_projection.json"
+  }
+]

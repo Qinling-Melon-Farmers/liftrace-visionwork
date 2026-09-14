@@ -31,5 +31,8 @@
   "flight_code_commit": "cca98cb",
   "pilot_scope": "fixed-tree seed32; baseline PASS, strategy FAIL retained",
   "random_scope": "trees doors targets",
-  "retry_policy": "no replacement of trial failures"
+  "retry_policy": "no replacement of trial failures",
+  "status": "SUPERSEDED_BY_FIXED_LAYOUT_COMPARISON",
+  "formal_random_trials_completed": 0,
+  "superseded_by": "../high_view_full_20260914/speed_comparison/PLAN.md"
 }

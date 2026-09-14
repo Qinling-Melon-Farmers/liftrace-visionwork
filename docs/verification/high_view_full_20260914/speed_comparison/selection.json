@@ -1,0 +1,31 @@
+{
+  "best_by_flight_gate": "fast_high",
+  "final_rule_qualified_selection": null,
+  "unresolved": "seed34 fast-high conservative body projection overlap about151mm; not covered by accepted seed32~1mm tolerance",
+  "methods": [
+    {
+      "method": "slow_coverage",
+      "successful_runs": 1,
+      "total_runs": 2,
+      "paired_mean_finish_s": null
+    },
+    {
+      "method": "fast_coverage",
+      "successful_runs": 1,
+      "total_runs": 2,
+      "paired_mean_finish_s": null
+    },
+    {
+      "method": "slow_high",
+      "successful_runs": 2,
+      "total_runs": 2,
+      "paired_mean_finish_s": 350.744
+    },
+    {
+      "method": "fast_high",
+      "successful_runs": 2,
+      "total_runs": 2,
+      "paired_mean_finish_s": 225.6340000005
+    }
+  ]
+}
