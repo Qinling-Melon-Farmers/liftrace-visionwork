@@ -3,36 +3,54 @@
     "case": "31",
     "stage_zero_fast": true,
     "stage_one_slow": true,
-    "shared_gate_and_mission": true
+    "shared_gate_and_mission": true,
+    "command_admission_m": 1.2,
+    "python_executable": "/home/xhj/miniconda3/envs/rl_drone/bin/python",
+    "python_version": "3.9.25"
   },
   {
     "case": "32",
     "stage_zero_fast": true,
     "stage_one_slow": true,
-    "shared_gate_and_mission": true
+    "shared_gate_and_mission": true,
+    "command_admission_m": 1.2,
+    "python_executable": "/home/xhj/miniconda3/envs/rl_drone/bin/python",
+    "python_version": "3.9.25"
   },
   {
     "case": "33",
     "stage_zero_fast": true,
     "stage_one_slow": true,
-    "shared_gate_and_mission": true
+    "shared_gate_and_mission": true,
+    "command_admission_m": 1.2,
+    "python_executable": "/home/xhj/miniconda3/envs/rl_drone/bin/python",
+    "python_version": "3.9.25"
   },
   {
     "case": "34",
     "stage_zero_fast": true,
     "stage_one_slow": true,
-    "shared_gate_and_mission": true
+    "shared_gate_and_mission": true,
+    "command_admission_m": 1.2,
+    "python_executable": "/home/xhj/miniconda3/envs/rl_drone/bin/python",
+    "python_version": "3.9.25"
   },
   {
     "case": "35",
     "stage_zero_fast": true,
     "stage_one_slow": true,
-    "shared_gate_and_mission": true
+    "shared_gate_and_mission": true,
+    "command_admission_m": 1.2,
+    "python_executable": "/home/xhj/miniconda3/envs/rl_drone/bin/python",
+    "python_version": "3.9.25"
   },
   {
     "case": "pilot",
     "stage_zero_fast": true,
     "stage_one_slow": true,
-    "shared_gate_and_mission": true
+    "shared_gate_and_mission": true,
+    "command_admission_m": 1.2,
+    "python_executable": "/home/xhj/miniconda3/envs/rl_drone/bin/python",
+    "python_version": "3.9.25"
   }
 ]
