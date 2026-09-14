@@ -1,0 +1,227 @@
+[
+  {
+    "label": "strategy",
+    "seed": 32,
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/fast_speed_pilot32_net_20260914_095034",
+    "status": "FAIL",
+    "reason": "manager_failed",
+    "failed_checks": [
+      "committed_targets_were_selected",
+      "contract_errors_zero",
+      "doors_crossed_in_order",
+      "final_landed_on_ground",
+      "final_vehicle_disarmed",
+      "forced_return_within_limit",
+      "land_success",
+      "landing_align_mode_seen",
+      "landing_h_mark_valid",
+      "manager_complete",
+      "manager_post_delivery_route_matches",
+      "mission_ros_within_limit",
+      "post_delivery_return_goals",
+      "post_delivery_return_sequence",
+      "real_approach_commands",
+      "return_after_deliveries",
+      "return_before_land",
+      "return_home_success",
+      "three_capture_started",
+      "three_recovery_successes",
+      "three_release_commits"
+    ],
+    "start_ros_s": 11.657999999,
+    "observed_end_ros_s": 126.176,
+    "completed_mission_s": null,
+    "landing_transaction_s": null,
+    "observed_duration_s": 114.518000001,
+    "xy_distance_m": 15.235614817446042,
+    "xyz_distance_m": 17.61399658030129,
+    "speed_xy_p95_mps": 0.8434072355108614,
+    "max_fc_agl_m": 2.7735710409604506,
+    "releases": [],
+    "gate_metrics": {
+      "approach_command_count": 0,
+      "boundary_violations": 0,
+      "capture_started_count": 0,
+      "decision_count": 5,
+      "door_crossings": [],
+      "height_violations": 0,
+      "landing_align_mode_seen": false,
+      "landing_h_mark_rejections": {},
+      "landing_h_tolerance": 0.35,
+      "landing_xy": [
+        4.2,
+        8.5
+      ],
+      "latest_armed": null,
+      "latest_landed_state": null,
+      "max_observed_height": 2.773631500615068,
+      "mission_ros_sec": null,
+      "mission_wall_sec": null,
+      "planner_goal_publishers": [
+        "/navigation/planner_bridge"
+      ],
+      "pose_samples": 5258,
+      "post_delivery_decision_indices": [],
+      "post_delivery_return_success_count": 0,
+      "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+      "post_delivery_route_size": 9,
+      "recovery_success_count": 0,
+      "release_commit_count": 0,
+      "result_count": 122,
+      "selected_count": 52,
+      "simulation_realtime_factor": null,
+      "unmatched_result_count": 0,
+      "valid_landing_h_mark": null
+    },
+    "collisions": 0,
+    "sample_gap_count": 0,
+    "moving_xy_time_s": 46.382000000000005,
+    "nonmoving_xy_time_s": 68.132,
+    "moving_sample_threshold_mps": 0.03,
+    "moving_speed_xy_median_mps": 0.09358196974504762,
+    "moving_speed_xy_p95_mps": 0.9065519840149495,
+    "high_view_final": {
+      "ascent_verified": true,
+      "catalog_entries": 2,
+      "descent_proposal": null,
+      "done": true,
+      "events": [
+        {
+          "reason": "motion_failed:SURVEY",
+          "stage": "DONE",
+          "success": false,
+          "time": 125.409
+        }
+      ],
+      "failure": "motion_failed:SURVEY",
+      "first_hint_ready": {
+        "panzer": {
+          "evidence_count": 3,
+          "last_seen_ns": 30887000000,
+          "time": 31.08,
+          "uncertainty_m": 0.21269599950355783,
+          "xy": [
+            3.2415855820341517,
+            3.516880797312904
+          ]
+        }
+      },
+      "low_limits_applied": false,
+      "observation_counts": {
+        "accepted": 34,
+        "candidate:profile_excluded": 3420,
+        "candidate:state_not_confirmed": 4,
+        "candidate:streak_too_short": 3363,
+        "duplicate_or_too_close": 18
+      },
+      "orders": [],
+      "reacquired": null,
+      "reacquisitions": [],
+      "required_classes": [
+        "bridge",
+        "panzer",
+        "red_cross"
+      ],
+      "scope": "HIGH_VIEW_FULL_MISSION",
+      "selected": null,
+      "slots_committed": 0,
+      "stage": "SURVEY",
+      "succeeded": false,
+      "survey_policy": {
+        "candidate_min_streak": 1,
+        "descent_max_candidates": 25,
+        "descent_radius_m": 1.5,
+        "direct_descent": true,
+        "max_uncertainty_m": 0.45,
+        "min_interval_ns": 100000000,
+        "min_span_ns": 200000000
+      },
+      "top_hints": {}
+    },
+    "target_hint_evaluation": {},
+    "commit_times": [],
+    "third_commit_s": null,
+    "first_commit_s": null,
+    "xy_distance_to_third_commit_m": null,
+    "armed_ros_s": 3.732,
+    "airborne_ros_s": 4.531,
+    "touchdown_ros_s": null,
+    "disarmed_ros_s": null,
+    "airborne_to_touchdown_s": null,
+    "armed_to_third_commit_s": null,
+    "touchdown_to_disarm_s": null,
+    "high_view_stage_changes": [
+      {
+        "name": "IDLE",
+        "t": 0.0
+      },
+      {
+        "name": "ASCEND",
+        "t": 11.875
+      },
+      {
+        "name": "SURVEY",
+        "t": 14.79
+      }
+    ],
+    "sampled_phase_durations_s": {
+      "SEARCH": 0.0,
+      "ASCEND": 2.914999999999999,
+      "SURVEY": 111.386
+    },
+    "sampled_phase_changes": [
+      {
+        "t": 11.875,
+        "phase": "SEARCH"
+      },
+      {
+        "t": 11.875,
+        "phase": "ASCEND"
+      },
+      {
+        "t": 14.79,
+        "phase": "SURVEY"
+      }
+    ],
+    "speed_by_phase": {
+      "ASCEND": {
+        "median_mps": 0.051679406777385806,
+        "p95_mps": 0.10304921564781308,
+        "samples": 21
+      },
+      "SURVEY": {
+        "median_mps": 0.1100250460570755,
+        "p95_mps": 0.9079176221721046,
+        "samples": 428
+      }
+    },
+    "following_speed_transitions": [
+      {
+        "t": 11.875,
+        "phase": "CRUISE",
+        "lead_m": 1.0
+      },
+      {
+        "t": 125.409,
+        "phase": "TERMINAL",
+        "lead_m": 0.15
+      }
+    ],
+    "following_speed_stats": {
+      "CRUISE": {
+        "duration_s": 113.534,
+        "moving_samples": 449,
+        "median_mps": 0.09342782345544481,
+        "p95_mps": 0.9067449318959641
+      },
+      "TERMINAL": {
+        "duration_s": 0.7669999999999959,
+        "moving_samples": 0,
+        "median_mps": null,
+        "p95_mps": null
+      }
+    },
+    "third_commit_to_corridor_entry_s": null,
+    "fast_corridor_transit_s": null
+  }
+]
