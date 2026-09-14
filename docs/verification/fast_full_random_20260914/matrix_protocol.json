@@ -1,0 +1,35 @@
+{
+  "seeds": [
+    32,
+    34
+  ],
+  "count": 4,
+  "order": [
+    [
+      32,
+      "strategy"
+    ],
+    [
+      32,
+      "baseline"
+    ],
+    [
+      34,
+      "baseline"
+    ],
+    [
+      34,
+      "strategy"
+    ]
+  ],
+  "cruise_lead_m": 1.0,
+  "planner_max_vel_mps": 1.2,
+  "command_admission_m": 1.2,
+  "precision_lead_m": 0.4,
+  "corridor_lead_m": 0.15,
+  "corridor_after_completed_waypoints": 1,
+  "flight_code_commit": "cca98cb",
+  "pilot_scope": "fixed-tree seed32; baseline PASS, strategy FAIL retained",
+  "random_scope": "trees doors targets",
+  "retry_policy": "no replacement of trial failures"
+}
