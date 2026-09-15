@@ -1,0 +1,14 @@
+{
+  "competition_base": "86e382d",
+  "base_is_ancestor": true,
+  "frame_fix_source": "71827d93c97647daa1b8b5c6f9ce594a6956008d",
+  "source_files_equal": {
+    "scripts/navigation_frame_adapter.py": true,
+    "scripts/map_camera_alignment.py": true,
+    "launch/competition_hardware.launch": true,
+    "test/test_navigation_frame_adapter.py": true
+  },
+  "hardware_tf_and_remaps": "PASS",
+  "tests": "7 adapter + 4 alignment PASS in rl_drone",
+  "scope": "Static hardware wiring plus nonidentity offline callbacks; no hardware or simulator started"
+}

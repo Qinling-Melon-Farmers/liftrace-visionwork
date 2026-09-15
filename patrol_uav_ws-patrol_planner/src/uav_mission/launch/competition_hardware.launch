@@ -36,9 +36,24 @@
     <param name="frame" value="$(arg map_frame)" />
     <rosparam param="imu_to_body_xyz" subst_value="true">$(eval [-float(v) for v in arg('body_to_imu_xyz').split()])</rosparam>
   </node>
+  <!-- Use measured alignment; never relabel a MAVROS pose as camera_init. -->
+  <node pkg="uav_mission" type="map_camera_alignment.py"
+        name="map_camera_alignment" output="screen">
+    <param name="parent_frame" value="$(arg map_frame)" />
+    <param name="child_frame" value="map" />
+    <param name="lio_frame" value="$(arg map_frame)" />
+    <param name="mavros_frame" value="map" />
+    <param name="require_disarmed_for_initialization" value="true" />
+  </node>
+  <node pkg="uav_mission" type="navigation_frame_adapter.py"
+        name="navigation_frame_adapter" output="screen" required="true">
+    <param name="local_frame" value="map" />
+    <param name="mission_frame" value="$(arg map_frame)" />
+    <param name="enable_setpoints" value="true" />
+  </node>
   <node pkg="uav_mission" type="pose_tf_broadcaster.py" name="vision_pose_tf" output="screen">
     <param name="pose_topic" value="/mavros/local_position/pose" />
-    <param name="parent_frame" value="$(arg map_frame)" />
+    <param name="parent_frame" value="map" />
     <param name="child_frame" value="vision_body" />
   </node>
   <node pkg="tf2_ros" type="static_transform_publisher" name="mapping_imu_extrinsic"
@@ -57,6 +72,10 @@
     <arg name="start_legacy_compat" value="false" />
     <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
   </include>
+  <group>
+    <remap from="/mavros/local_position/pose" to="/navigation/local_pose" />
+    <remap from="/mavros/local_position/odom" to="/navigation/local_odom" />
+    <remap from="/mavros/setpoint_position/local" to="/navigation/setpoint_mission" />
   <!-- This shared file contains only control and planner nodes. -->
   <include file="$(find patrol_control)/launch/patrol_control_px4_sim.launch">
     <arg name="rviz" value="false" />
@@ -76,6 +95,7 @@
   <include file="$(find uav_mission)/launch/navigation_mission_manager.launch">
     <arg name="runtime_config" value="$(arg runtime_config)" />
     <arg name="search_altitude" value="1.40" />
+    <arg name="pose_topic" value="/navigation/local_pose" />
   </include>
   <include file="$(find uav_mission)/launch/navigation_planner_bridge.launch">
     <arg name="execution_enabled" value="true" />
@@ -83,8 +103,9 @@
     <arg name="required" value="true" />
     <arg name="planner_goal_topic" value="/fastplanner/goal" />
     <arg name="planner_status_topic" value="/planning/goal_status" />
-    <arg name="odom_topic" value="/mavros/local_position/odom" />
+    <arg name="odom_topic" value="/navigation/local_odom" />
   </include>
+  </group>
   <include file="$(find uav_mission)/launch/release_guard.launch">
     <arg name="raw_service_name" value="$(arg raw_servo_service)" />
     <arg name="require_evidence_context" value="true" />

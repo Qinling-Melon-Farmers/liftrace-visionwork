@@ -192,6 +192,8 @@ catkin_install_python(PROGRAMS
   scripts/visual_delivery_audit.py
   scripts/random_field_spawner.py
   scripts/pose_tf_broadcaster.py
+  scripts/navigation_frame_adapter.py
+  scripts/map_camera_alignment.py
   scripts/lio_external_pose.py
   scripts/navigation_mission_start_gate.py
   scripts/navigation_high_view_full.py
@@ -253,6 +255,8 @@ install(DIRECTORY launch config
 
 if(CATKIN_ENABLE_TESTING)
   catkin_add_nosetests(test/test_lio_external_pose.py)
+  catkin_add_nosetests(test/test_navigation_frame_adapter.py)
+  catkin_add_nosetests(test/test_map_camera_alignment.py)
   catkin_add_nosetests(test/test_contract_profile.py)
   catkin_add_nosetests(test/test_coverage_route.py)
   catkin_add_nosetests(test/test_external_mission_contract.py)
