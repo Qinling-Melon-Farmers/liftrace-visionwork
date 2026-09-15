@@ -4,6 +4,8 @@
 
 本批按用户要求**重点分析走廊问题**：专项定位投后路线第 8 段（第二门 Wall_22，x=+1.6）的停滞现象，见第三节；后段其余失败原因单列在第二节。
 
+补充分析（37/39 降落确认、38/40 近墙碰撞几何根因、重规划停滞的三条件死锁分析、以及已计划但未实现项逐条核对）见 [ANALYSIS_landing_collision_replan.md](ANALYSIS_landing_collision_replan.md)。
+
 门型分配：36=LL、37=LR、38=RL、39=RR、40=LL（LL 为 seed31 同类，加权两组）。场景由本仓 `simulation_tools/tools/export_r2026_scene.py` 生成；生成器已用归档 seed31 复现校验（field.world/field_config/gate_geometry 逐字节一致）。
 
 ## 一、前段闭环（本次重点）
