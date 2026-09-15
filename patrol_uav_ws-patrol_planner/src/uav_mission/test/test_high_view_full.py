@@ -150,6 +150,26 @@ class FullTests(unittest.TestCase):
         self.top3();self.finish(103.);self.r.tick(104.,(0.,0.))
         self.assertEqual(self.r.failure,'no_local_descent_route')
 
+    def test_blocked_terminal_does_not_prevent_clear_local_descent(self):
+        self.top3();self.finish(103.);self.map(104.)
+        self.r.grid.blocked[self.r.grid.cell((-3.,6.))]=True
+        self.r.tick(104.,(0.,0.))
+        self.assertEqual(self.r.stage,'DESCEND')
+        self.assertTrue(self.r.descent_debug['exit_blocked'])
+        self.map(110.);self.r.grid.blocked[self.r.grid.cell((-3.,6.))]=True
+        out=self.finish(110.)
+        self.assertEqual(self.r.stage,'REVISIT')
+        self.assertEqual(out.action.command,'SEARCH')
+        self.assertIn('ONE_REACHABLE_HINT',self.r.orders[-1]['scope'])
+
+    def test_column_proposal_never_uses_stale_or_fully_blocked_map(self):
+        from uav_high_view.local_descent import propose_column
+        self.assertIsNone(propose_column(self.r.grid,(0.,0.),104.))
+        self.map(104.);self.r.grid.blocked[:]=True
+        self.assertIsNone(propose_column(self.r.grid,(0.,0.),104.))
+        self.r.grid.blocked[:]=False
+        self.assertIsNone(propose_column(self.r.grid,(0.,0.),107.))
+
     def test_high_hint_admission_is_not_low_delivery_admission(self):
         for t in [101.,101.1,101.2]:
             self.r.update_pose((0.,0.,2.38),t,'camera_init')

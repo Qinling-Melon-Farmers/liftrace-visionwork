@@ -4,7 +4,7 @@ import math
 from uav_high_view.navigation_memory import NavigationMemory
 from uav_high_view.core import Catalog
 from uav_high_view.grid_cost import GridCost
-from uav_high_view.local_descent import propose
+from uav_high_view.local_descent import propose,propose_column
 from uav_high_view.survey_policy import SurveyPolicy
 from .high_view_probe import HighViewProbe
 from .mission_runtime import MissionRuntime
@@ -31,6 +31,7 @@ class HighViewFull(HighViewProbe):
         self.fallback_route=fallback_route
         self._progress=None;self._alternative=False
         self.fallback_started=None
+        self.descent_debug=None
 
     def _candidate_validation_config(self):
         if self.stage=='SURVEY':
@@ -112,8 +113,17 @@ class HighViewFull(HighViewProbe):
             self.events.append(dict(stage='PARTIAL_HINT_FALLBACK',time=now,known=sorted(self.top_hints)))
         if self.policy.direct_descent:
             exit_goal=self.core.config.post_delivery_route[0]
+            def blocked(xy):
+                cell=self.grid.cell(xy)
+                return None if cell is None else bool(self.grid.blocked[cell])
+            self.descent_debug=dict(time=now,map_stamp=self.grid.stamp,current_xy=tuple(self._current_xy),
+                                    current_blocked=blocked(self._current_xy),exit_blocked=blocked((exit_goal.x,exit_goal.y)),
+                                    target_blocked={c:blocked(h.xy) for c,h in self.top_hints.items()})
             plan=propose(self.grid,self._current_xy,{c:h.xy for c,h in self.top_hints.items()},
                          (exit_goal.x,exit_goal.y),now,self.policy.descent_radius_m,self.policy.descent_max_candidates)
+            if plan is None:
+                plan=propose_column(self.grid,self._current_xy,now,self.policy.descent_radius_m,self.policy.descent_max_candidates)
+                if plan is not None:self.events.append(dict(stage='DESCENT_COLUMN_WITHOUT_FULL_TOUR',time=now,xy=plan['xy']))
             if plan is None and set(self.top_hints)!=self.required:
                 # Return along the already verified ascent column if the local
                 # coarse proposal is unavailable. Actual 3-D planner still owns motion.
@@ -145,9 +155,16 @@ class HighViewFull(HighViewProbe):
             scope='SINGLE_REMAINING_TARGET_REQUIRES_3D_PLANNER'
         else:
             order=self.grid.order(self._current_xy,{c:h.xy for c,h in remaining.items()},(exit_goal.x,exit_goal.y),now)
-            if order is None:return self._start_fallback(now,'hint_route_unavailable')
-            cost,names=order
-            scope='COARSE_OCCUPANCY_COST_NOT_FLIGHT_APPROVAL'
+            if order is None:
+                distances=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
+                reachable=[(distances.get(self.grid.cell(h.xy),math.inf),c) for c,h in remaining.items()]
+                reachable=[item for item in reachable if math.isfinite(item[0])]
+                if not reachable:return self._start_fallback(now,'hint_route_unavailable')
+                cost,name=min(reachable);names=(name,)
+                scope='ONE_REACHABLE_HINT_FULL_TOUR_UNAVAILABLE_REQUIRES_3D_PLANNER'
+            else:
+                cost,names=order
+                scope='COARSE_OCCUPANCY_COST_NOT_FLIGHT_APPROVAL'
         self.orders.append(dict(time=now,classes=list(names),grid_length_m=cost,map_stamp=self.grid.stamp,scope=scope))
         self.selected=remaining[names[0]]
         cls=self.selected.class_name;self.revisit_counts[cls]=self.revisit_counts.get(cls,0)+1
@@ -222,5 +239,5 @@ class HighViewFull(HighViewProbe):
                      orders=list(self.orders),reacquisitions=list(self.completed_reacquisitions))
         value.update(survey_policy=asdict(self.policy),descent_proposal=self.descent_proposal,
                      first_hint_ready=dict(self.first_hint_ready),navigation_memory_events=list(self.memory.events),
-                     fallback_started=self.fallback_started)
+                     fallback_started=self.fallback_started,descent_debug=self.descent_debug)
         return value

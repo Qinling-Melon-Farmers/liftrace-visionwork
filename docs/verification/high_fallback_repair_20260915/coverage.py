@@ -37,7 +37,11 @@ for ax,seed in zip(axes,(31,32,34)):
     ax.imshow(mask,origin='lower',extent=(-4.8,4.8,-.5,7.6),cmap=matplotlib.colors.ListedColormap(['#f9b9ab','#c9e6f0']),alpha=.8,zorder=0)
     base.scene(ax,old/f'seed_{seed}/field.world',truth)
     ax.plot(route[:,0],route[:,1],'o--',color='#174d91',lw=1.5,label='Nominal high route (yaw 0)')
-    for i,p in enumerate(route):ax.annotate(str(i),p,xytext=(4,5),textcoords='offset points',fontsize=8)
+    seen=set()
+    for i,p in enumerate(route):
+        if tuple(p) in seen:continue
+        seen.add(tuple(p));label=' / '.join(str(j) for j,q in enumerate(route) if np.array_equal(p,q))
+        ax.annotate(label,p,xytext=(4,5),textcoords='offset points',fontsize=8)
     ax.plot(*(np.vstack((foot+route[1],foot[0]+route[1])).T),color='#008b66',lw=1.4,label='One camera footprint')
     ax.set_title(f'Seed {seed}: same ideal route coverage\nBlue = in swept FOV; salmon = never in FOV')
     ax.legend(fontsize=8,loc='upper right');ax.set_ylim(-.6,10.)
