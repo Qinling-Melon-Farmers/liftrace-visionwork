@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "source": "d463613b1fbc1660c9a0e04f849b71e4b0e18083",
+  "followup32_source": "a12750b5c0b0a60bbfde0db5ca41107c8b909421",
+  "new_runs": 4,
+  "primary_runs": 3,
+  "followup_runs": 1,
+  "prior_runs": 6,
+  "image_links": 54,
+  "paired_inputs": "PASS",
+  "raw_gate": "PASS",
+  "inherited_frames": "PASS",
+  "retained_logic_reference": "a12750b",
+  "cleanup": "PASS"
+}
