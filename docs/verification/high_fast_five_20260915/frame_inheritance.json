@@ -10,5 +10,12 @@
   },
   "hardware_tf_and_remaps": "PASS",
   "tests": "7 adapter + 4 alignment PASS in rl_drone",
-  "scope": "Static hardware wiring plus nonidentity offline callbacks; no hardware or simulator started"
+  "scope": "Static hardware wiring plus nonidentity offline callbacks; no hardware or simulator started",
+  "current_board_head": "d55da83d89e46c153b2222c8294c404f654ce548",
+  "runtime_matches_current_board_branch": true,
+  "installed_entries": {
+    "navigation_frame_adapter.py": true,
+    "map_camera_alignment.py": true
+  },
+  "build_log": "logs/inherited_frames_build_20260915.log"
 }

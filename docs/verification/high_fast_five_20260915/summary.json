@@ -1,0 +1,9 @@
+{
+  "old_pass": 2,
+  "new_pass": 2,
+  "old_three": 4,
+  "new_three": 2,
+  "old_colliding_runs": 1,
+  "new_colliding_runs": 0,
+  "comparable_full_pairs": 1
+}

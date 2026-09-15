@@ -1,0 +1,265 @@
+{
+  "label": "slow_coverage",
+  "seed": 34,
+  "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330",
+  "status": "FAIL",
+  "reason": "full_trial_mission_timeout",
+  "failed_checks": [
+    "committed_targets_were_selected",
+    "doors_crossed_in_order",
+    "final_landed_on_ground",
+    "final_vehicle_disarmed",
+    "forced_return_within_limit",
+    "land_success",
+    "landing_align_mode_seen",
+    "landing_h_mark_valid",
+    "manager_complete",
+    "manager_post_delivery_route_matches",
+    "mission_ros_within_limit",
+    "post_delivery_return_goals",
+    "post_delivery_return_sequence",
+    "real_approach_commands",
+    "return_after_deliveries",
+    "return_before_land",
+    "return_home_success",
+    "three_capture_started",
+    "three_recovery_successes",
+    "three_release_commits"
+  ],
+  "start_ros_s": 22.617999999,
+  "observed_end_ros_s": 623.201,
+  "completed_mission_s": null,
+  "landing_transaction_s": null,
+  "observed_duration_s": 600.5830000010001,
+  "xy_distance_m": 68.875718493315,
+  "xyz_distance_m": 76.62287019688017,
+  "speed_xy_p95_mps": 0.3636229201854471,
+  "max_fc_agl_m": 1.8030284009850281,
+  "releases": [
+    {
+      "ros_sec": 485.578,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 1,
+          "stamp": {
+            "stamp_ns": 485577000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 1,
+        "payload_slot": 1,
+        "align_mode": "drop_circle",
+        "target_id": 2,
+        "target_class": "panzer",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    },
+    {
+      "ros_sec": 520.955,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 2,
+          "stamp": {
+            "stamp_ns": 520955000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 2,
+        "payload_slot": 2,
+        "align_mode": "drop_cross",
+        "target_id": 5,
+        "target_class": "red_cross",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    }
+  ],
+  "gate_metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 23,
+    "door_crossings": [],
+    "height_violations": 0,
+    "landing_align_mode_seen": false,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      4.2,
+      8.5
+    ],
+    "latest_armed": null,
+    "latest_landed_state": null,
+    "max_observed_height": 1.8030283060709706,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 28526,
+    "post_delivery_decision_indices": [],
+    "post_delivery_return_success_count": 0,
+    "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+    "post_delivery_route_size": 9,
+    "recovery_success_count": 2,
+    "release_commit_count": 2,
+    "result_count": 489,
+    "selected_count": 1377,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": null
+  },
+  "collisions": 0,
+  "sample_gap_count": 0,
+  "moving_xy_time_s": 268.348,
+  "nonmoving_xy_time_s": 332.169,
+  "moving_sample_threshold_mps": 0.03,
+  "moving_speed_xy_median_mps": 0.3124720892544833,
+  "moving_speed_xy_p95_mps": 0.37291136594114643,
+  "target_hint_evaluation": {},
+  "commit_times": [
+    {
+      "t": 485.575,
+      "target": "panzer",
+      "true_fc_xy_at_ack": [
+        -2.2594284913439746,
+        3.937515954708864
+      ],
+      "fc_target_distance_at_ack_m": 0.09643437332454582
+    },
+    {
+      "t": 520.955,
+      "target": "red_cross",
+      "true_fc_xy_at_ack": [
+        4.2928698221996635,
+        4.239348411976766
+      ],
+      "fc_target_distance_at_ack_m": 0.1322820788364086
+    }
+  ],
+  "third_commit_s": null,
+  "first_commit_s": 462.957000001,
+  "xy_distance_to_third_commit_m": null,
+  "armed_ros_s": 15.684,
+  "airborne_ros_s": 16.488,
+  "touchdown_ros_s": null,
+  "disarmed_ros_s": null,
+  "airborne_to_touchdown_s": null,
+  "armed_to_third_commit_s": null,
+  "touchdown_to_disarm_s": null,
+  "high_view_stage_changes": [],
+  "sampled_phase_durations_s": {
+    "SEARCH": 551.4939999999999,
+    "APPROACH": 11.493000000000052,
+    "CAPTURE": 26.12299999999999,
+    "ALIGN": 5.34800000000007,
+    "RECOVERY": 5.554999999999893,
+    "CORRIDOR": 0.07500000000004547,
+    "ABORT": 0.49500000000000455
+  },
+  "sampled_phase_changes": [
+    {
+      "t": 22.618,
+      "phase": "SEARCH"
+    },
+    {
+      "t": 478.0,
+      "phase": "APPROACH"
+    },
+    {
+      "t": 481.707,
+      "phase": "CAPTURE"
+    },
+    {
+      "t": 482.912,
+      "phase": "ALIGN"
+    },
+    {
+      "t": 485.579,
+      "phase": "RECOVERY"
+    },
+    {
+      "t": 488.376,
+      "phase": "SEARCH"
+    },
+    {
+      "t": 512.901,
+      "phase": "APPROACH"
+    },
+    {
+      "t": 517.076,
+      "phase": "CAPTURE"
+    },
+    {
+      "t": 518.278,
+      "phase": "ALIGN"
+    },
+    {
+      "t": 520.955,
+      "phase": "RECOVERY"
+    },
+    {
+      "t": 523.713,
+      "phase": "SEARCH"
+    },
+    {
+      "t": 595.3,
+      "phase": "APPROACH"
+    },
+    {
+      "t": 598.911,
+      "phase": "CAPTURE"
+    },
+    {
+      "t": 622.627,
+      "phase": "ALIGN"
+    },
+    {
+      "t": 622.631,
+      "phase": "CORRIDOR"
+    },
+    {
+      "t": 622.706,
+      "phase": "ABORT"
+    }
+  ],
+  "speed_by_phase": {
+    "SEARCH": {
+      "median_mps": 0.3210230368087661,
+      "p95_mps": 0.3741697898270271,
+      "samples": 2378
+    },
+    "APPROACH": {
+      "median_mps": 0.2741776222544804,
+      "p95_mps": 0.34943757366091616,
+      "samples": 113
+    },
+    "CAPTURE": {
+      "median_mps": 0.04011874776246043,
+      "p95_mps": 0.09866579040328911,
+      "samples": 91
+    },
+    "ALIGN": {
+      "median_mps": 0.041288916823945886,
+      "p95_mps": 0.087369124644244,
+      "samples": 32
+    },
+    "RECOVERY": {
+      "median_mps": 0.03960571805481627,
+      "p95_mps": 0.044223176333846606,
+      "samples": 27
+    },
+    "ABORT": {
+      "median_mps": 0.03865972485052238,
+      "p95_mps": 0.04595805849981492,
+      "samples": 4
+    }
+  },
+  "following_speed_transitions": [],
+  "following_speed_stats": {},
+  "third_commit_to_corridor_entry_s": null,
+  "fast_corridor_transit_s": null
+}
