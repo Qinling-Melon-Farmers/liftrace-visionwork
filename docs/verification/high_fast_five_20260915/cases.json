@@ -1,0 +1,47 @@
+[
+  {
+    "seed": 31,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_31/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_31/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_31/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_31/gate_geometry.yaml",
+    "baseline_run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed31_20260910_101159",
+    "baseline_source": "7eb94462170d0adce666754ec2547d79a71b29df"
+  },
+  {
+    "seed": 32,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_32/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_32/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_32/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_32/gate_geometry.yaml",
+    "baseline_run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed32_20260910_103344",
+    "baseline_source": "7eb94462170d0adce666754ec2547d79a71b29df"
+  },
+  {
+    "seed": 33,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_33/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_33/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_33/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_33/gate_geometry.yaml",
+    "baseline_run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147",
+    "baseline_source": "7eb94462170d0adce666754ec2547d79a71b29df"
+  },
+  {
+    "seed": 34,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_34/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_34/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_34/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_34/gate_geometry.yaml",
+    "baseline_run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330",
+    "baseline_source": "7eb94462170d0adce666754ec2547d79a71b29df"
+  },
+  {
+    "seed": 35,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_35/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_35/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_35/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_35/gate_geometry.yaml",
+    "baseline_run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed35_20260910_120409",
+    "baseline_source": "7eb94462170d0adce666754ec2547d79a71b29df"
+  }
+]

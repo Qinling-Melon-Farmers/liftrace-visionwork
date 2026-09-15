@@ -1,0 +1,44 @@
+{
+  "deleted": [
+    {
+      "ref": "refs/heads/feat/competition-main-r64-acceptance",
+      "name": "feat/competition-main-r64-acceptance",
+      "sha": "7f67a68d9acc06ff541a8e2d91de0b22d89aaaba"
+    },
+    {
+      "ref": "refs/heads/feat/competition-r64-log-only",
+      "name": "feat/competition-r64-log-only",
+      "sha": "c451c14ce1ff0e6d47f9eaf139a5233651bc6bfa"
+    },
+    {
+      "ref": "refs/heads/feat/competition-r64-raster-remote",
+      "name": "feat/competition-r64-raster-remote",
+      "sha": "cefee116b6e4f7468b2a36a5c016239c1cfc7850"
+    },
+    {
+      "ref": "refs/heads/feat/competition-r64-readiness",
+      "name": "feat/competition-r64-readiness",
+      "sha": "925e380efff67adb96789ec06232f39b3f0bf300"
+    },
+    {
+      "ref": "refs/heads/feat/competition-r64-topology-plan",
+      "name": "feat/competition-r64-topology-plan",
+      "sha": "d076e64ec37709c9adbc526f81a25d6ce5a3a424"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/competition-main-r64-acceptance",
+      "name": "feat/competition-main-r64-acceptance",
+      "sha": "7f67a68d9acc06ff541a8e2d91de0b22d89aaaba"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/competition-r64-log-only",
+      "name": "feat/competition-r64-log-only",
+      "sha": "c451c14ce1ff0e6d47f9eaf139a5233651bc6bfa"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/competition-r64-topology-plan",
+      "name": "feat/competition-r64-topology-plan",
+      "sha": "d076e64ec37709c9adbc526f81a25d6ce5a3a424"
+    }
+  ]
+}

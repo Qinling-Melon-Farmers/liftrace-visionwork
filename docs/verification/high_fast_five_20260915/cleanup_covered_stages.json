@@ -1,0 +1,68 @@
+{
+  "canonical_fast_forward": {
+    "branch": "feat/r2026-competition-integrated",
+    "old": "aec7c125415921ca32d6dc5195d97449762ebf1c",
+    "new": "86e382d50ffa1d27bce0652ac4d576c73d0bfcec"
+  },
+  "survivors": [
+    "feat/coverage-efficiency-research",
+    "feat/high-view-search-research",
+    "feat/oblique-aux-proposal-provider",
+    "feat/r2026-competition-integrated",
+    "feat/r2026-main-integration",
+    "feat/vcl05-full-random-deploy",
+    "feat/vcl06-local-full-mission",
+    "feat/vdeploy-final-closeout-plan",
+    "feat/vsim04-capture-hardening",
+    "feat/vsim04-capture-sampling-sync",
+    "feat/vsim04-hard-audit",
+    "feat/vsim04-motion-order-reset",
+    "feat/vsim04-motion-telemetry",
+    "feat/vsim04-navigation-handoff-docs",
+    "feat/vsim04-pillbox-capture",
+    "feat/vsim04-redcross-quality",
+    "feat/vsim04-redcross-yaw",
+    "feat/vsim04-repeat-tools",
+    "feat/vsim04-soak600",
+    "fix/board-navigation-frames",
+    "main"
+  ],
+  "removed_refs": [
+    {
+      "ref": "refs/heads/feat/livox-driver2-integration",
+      "name": "feat/livox-driver2-integration",
+      "sha": "86e382d50ffa1d27bce0652ac4d576c73d0bfcec"
+    },
+    {
+      "ref": "refs/heads/feat/oblique-active-search-stability",
+      "name": "feat/oblique-active-search-stability",
+      "sha": "ab6e447a9c984aa4a5a3fc2198c3a53434480fea"
+    },
+    {
+      "ref": "refs/heads/feat/oblique-camera-search-feasibility",
+      "name": "feat/oblique-camera-search-feasibility",
+      "sha": "b60a4d942ba7081d776bb81c434e18193a486b1b"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/full-random-five-seeds",
+      "name": "feat/full-random-five-seeds",
+      "sha": "f2459e60fe5d313b10236f020d8f60ffc0a4d2d2"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/livox-driver2-integration",
+      "name": "feat/livox-driver2-integration",
+      "sha": "86e382d50ffa1d27bce0652ac4d576c73d0bfcec"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/oblique-active-search-stability",
+      "name": "feat/oblique-active-search-stability",
+      "sha": "ab6e447a9c984aa4a5a3fc2198c3a53434480fea"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/oblique-camera-search-feasibility",
+      "name": "feat/oblique-camera-search-feasibility",
+      "sha": "b60a4d942ba7081d776bb81c434e18193a486b1b"
+    }
+  ],
+  "status": "COMPLETE"
+}

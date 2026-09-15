@@ -1,5 +1,9 @@
 # 当前任务与优先级
 
+## 当前：2026-09-15五seed高空快速先搜验证
+
+[计划](docs/verification/high_fast_five_20260915/PLAN.md)：已完成冗余引用/worktree清理和板端坐标修复移植验证；冻结31–35历史同场景进行五轮高位试验，以已有低速遍历作对照。保留失败及规则投影疑点，未部署机载。
+
 ## 当前：固定布局四方案效率对照完成，投影疑点单列
 
 [完整报告](docs/verification/high_view_full_20260914/speed_comparison/REPORT.md)：seed32/34四方案八条，6 PASS、2 FAIL。按飞行Gate最快为提速高位先搜225.762/225.506s，平均比低速高位快35.67%；seed32相对传统覆盖快57.34%。
