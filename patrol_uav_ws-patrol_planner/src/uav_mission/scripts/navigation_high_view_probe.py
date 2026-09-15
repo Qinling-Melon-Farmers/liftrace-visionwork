@@ -51,7 +51,7 @@ class ProbeManager(NavigationMissionManager):
                     self._handle_callback_exception('probe_pose',error)
 
     def _publish_action(self,action):
-        if action is not None and self._runtime is not None and self._runtime.stage=='REVISIT' and not self._low_limits_applied:
+        if action is not None and self._runtime is not None and self._runtime.stage in ('REVISIT','LOW_COVERAGE') and not self._low_limits_applied:
             limits=rospy.get_param('~high_view_probe/low_stage_parameters')
             for item in limits:rospy.set_param(item["name"],item["value"])
             if any(rospy.get_param(item["name"])!=item["value"] for item in limits):

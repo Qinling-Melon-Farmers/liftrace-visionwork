@@ -1,5 +1,7 @@
 """Opt-in full mission: survey all/early top3, sensed-grid ordering, fresh delivery."""
 from dataclasses import asdict,replace
+import math
+from uav_high_view.navigation_memory import NavigationMemory
 from uav_high_view.core import Catalog
 from uav_high_view.grid_cost import GridCost
 from uav_high_view.local_descent import propose
@@ -8,10 +10,11 @@ from .high_view_probe import HighViewProbe
 from .mission_runtime import MissionRuntime
 from .mission_core import MissionPhase
 from .search_types import Waypoint
+from .coverage_route import CoverageRoute
 
 
 class HighViewFull(HighViewProbe):
-    def __init__(self,core,config,policy=None):
+    def __init__(self,core,config,policy=None,fallback_route=None):
         super().__init__(core,config)
         self.policy=policy or SurveyPolicy()
         # Fixed targets are navigation knowledge for this mission; last_seen
@@ -24,6 +27,10 @@ class HighViewFull(HighViewProbe):
         self.completed_reacquisitions=[]
         self.descent_proposal=None
         self.first_hint_ready={}
+        self.memory=NavigationMemory(self.required,int(core.config.mission_timeout*1e9),config.association_radius)
+        self.fallback_route=fallback_route
+        self._progress=None;self._alternative=False
+        self.fallback_started=None
 
     def _candidate_validation_config(self):
         if self.stage=='SURVEY':
@@ -42,11 +49,11 @@ class HighViewFull(HighViewProbe):
         return result
 
     def _all_top(self,now):
-        groups={}
-        for h in self.catalog.hints(int(round(now*1e9))):groups.setdefault(h.class_name,[]).append(h)
-        return {c:groups[c][0] for c in self.required if len(groups.get(c,[]))==1}
+        ns=int(round(now*1e9))
+        return self.memory.update(self.catalog.hints(ns),self.catalog.epoch,ns)
 
     def _consider_search_replacement(self,now):
+        if self.stage=='LOW_COVERAGE':return MissionRuntime._consider_search_replacement(self,now)
         if self.stage=='SURVEY' and self.ascent_verified and set(self._all_top(now))==self.required:
             active=self.core.active_action
             if not self._route_binding_matches(active):return self._fail_closed('survey_binding_mismatch',now)
@@ -57,15 +64,60 @@ class HighViewFull(HighViewProbe):
             self.core.active_action=None
             self.events.append(dict(stage='SURVEY_INTERRUPTED_TOP3',time=now,retired_seq=active.decision_seq,original_deadline=active.deadline_at))
             return self._retreat(now)
+        if self.stage=='SURVEY' and self.ascent_verified:
+            active=self.core.active_action
+            distance=math.dist(self._current_xy,(active.goal.x,active.goal.y))
+            if self._progress is None or self._progress[0]!=active.decision_seq:
+                self._progress=(active.decision_seq,distance,now)
+            elif distance<self._progress[1]-self.policy.survey_progress_m:
+                self._progress=(active.decision_seq,distance,now)
+            elif now-self._progress[2]>=self.policy.survey_stall_seconds:
+                self.events.append(dict(stage='SURVEY_NO_PROGRESS',time=now,goal=(active.goal.x,active.goal.y),decision_seq=active.decision_seq))
+                # Use the original timeout reducer, not a fabricated executor result.
+                self.core.active_action=replace(active,deadline_at=now)
+                return MissionRuntime.tick(self,now,self._current_xy)
         return self._outcome(True,'full_motion_pending')
+
+    def _finish_route(self,action,succeeded,now):
+        if self.stage=='LOW_COVERAGE':return MissionRuntime._finish_route(self,action,succeeded,now)
+        if self.stage=='SURVEY' and self.ascent_verified:
+            outcome,failed=MissionRuntime._finish_route(self,action,succeeded,now)
+            if failed is not None:return outcome,failed
+            if succeeded:self._alternative=False
+            else:
+                candidates=[]
+                if not self._alternative and self.grid.stamp is not None and 0<=now-self.grid.stamp<=2.:
+                    costs=self.grid.distances(self._current_xy)
+                    for i in range(16):
+                        angle=i*math.pi/8;r=self.policy.survey_alternative_radius_m
+                        xy=(action.goal.x+r*math.cos(angle),action.goal.y+r*math.sin(angle))
+                        cost=costs.get(self.grid.cell(xy),math.inf)
+                        if math.isfinite(cost):candidates.append((cost,xy))
+                remaining=list(self.route.waypoints[self.route.current_index:])
+                if candidates:
+                    xy=min(candidates)[1]
+                    self._change_route('SURVEY',[Waypoint(*xy,action.goal.z)]+remaining,now)
+                    self._alternative=True
+                    self.events.append(dict(stage='SURVEY_ALTERNATIVE',time=now,xy=xy,scope='COARSE_PROPOSAL_REQUIRES_3D_PLANNER'))
+                else:
+                    self._alternative=False
+                    self.events.append(dict(stage='SURVEY_SKIPPED',time=now,goal=(action.goal.x,action.goal.y)))
+            return outcome,None
+        return super()._finish_route(action,succeeded,now)
 
     def _retreat(self,now):
         self.top_hints=self._all_top(now)
-        if set(self.top_hints)!=self.required:return self._finish(False,'survey_complete_missing_top3',now)
+        if not self.ascent_verified:return self._finish(False,'ascent_not_verified',now)
+        if set(self.top_hints)!=self.required:
+            self.events.append(dict(stage='PARTIAL_HINT_FALLBACK',time=now,known=sorted(self.top_hints)))
         if self.policy.direct_descent:
             exit_goal=self.core.config.post_delivery_route[0]
             plan=propose(self.grid,self._current_xy,{c:h.xy for c,h in self.top_hints.items()},
                          (exit_goal.x,exit_goal.y),now,self.policy.descent_radius_m,self.policy.descent_max_candidates)
+            if plan is None and set(self.top_hints)!=self.required:
+                # Return along the already verified ascent column if the local
+                # coarse proposal is unavailable. Actual 3-D planner still owns motion.
+                return super()._retreat(now)
             if plan is None:return self._finish(False,'no_local_descent_route',now)
             self.descent_proposal=dict(plan,time=now,from_xy=tuple(self._current_xy),map_stamp=self.grid.stamp,
                                        scope='SENSED_OCCUPANCY_PROPOSAL_REQUIRES_3D_PLANNER')
@@ -83,7 +135,7 @@ class HighViewFull(HighViewProbe):
 
     def _next_target(self,now):
         remaining={c:h for c,h in self.top_hints.items() if c not in self.core.queue.delivered_classes}
-        if not remaining:return self._fail_closed('no_remaining_target_before_tail',now)
+        if not remaining:return self._start_fallback(now,'known_hints_exhausted')
         exit_goal=self.core.config.post_delivery_route[0]
         if len(remaining)==1:
             # There is no visit-order optimization with one target. Leave
@@ -93,18 +145,31 @@ class HighViewFull(HighViewProbe):
             scope='SINGLE_REMAINING_TARGET_REQUIRES_3D_PLANNER'
         else:
             order=self.grid.order(self._current_xy,{c:h.xy for c,h in remaining.items()},(exit_goal.x,exit_goal.y),now)
-            if order is None:return self._finish(False,'no_fresh_grid_route_to_required_targets',now)
+            if order is None:return self._start_fallback(now,'hint_route_unavailable')
             cost,names=order
             scope='COARSE_OCCUPANCY_COST_NOT_FLIGHT_APPROVAL'
         self.orders.append(dict(time=now,classes=list(names),grid_length_m=cost,map_stamp=self.grid.stamp,scope=scope))
         self.selected=remaining[names[0]]
         cls=self.selected.class_name;self.revisit_counts[cls]=self.revisit_counts.get(cls,0)+1
-        if self.revisit_counts[cls]>2:return self._finish(False,'revisit_budget_exhausted',now)
+        if self.revisit_counts[cls]>2:return self._start_fallback(now,'revisit_budget_exhausted')
         self.reacquired=None;self.fresh_candidate=None
         self._change_route('REVISIT',[Waypoint(*self.selected.xy,self.probe_config.ground_z+self.probe_config.low_agl)],now)
         return self._dispatch_route('SEARCH','ordered_revisit',now)
 
+    def _start_fallback(self,now,reason):
+        if self.fallback_route is None:return self._finish(False,'fallback_route_unavailable',now)
+        points=list(self.fallback_route.waypoints)
+        costs=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
+        index=min(range(len(points)),key=lambda i:(costs.get(self.grid.cell((points[i].x,points[i].y)),math.inf),math.dist(self._current_xy,(points[i].x,points[i].y))))
+        points=points[index:]+points[:index]
+        self._change_route('LOW_COVERAGE',points,now)
+        self.route.max_failures_per_waypoint=self.fallback_route.max_failures_per_waypoint
+        self.fallback_started=now
+        self.events.append(dict(stage='LOW_COVERAGE_HANDOFF',time=now,reason=reason,entry_index=index,committed_slots=self.core.committed_slots,original_deadline=self.core.started_at+self.core.config.mission_timeout))
+        return MissionRuntime._schedule_from_search(self,now,False)
+
     def _schedule_from_search(self,now,prefer_resume,route_outcome=None):
+        if self.stage=='LOW_COVERAGE':return MissionRuntime._schedule_from_search(self,now,prefer_resume,route_outcome)
         if self.stage=='LOCAL_DESCENT_TRANSIT' and self.route.is_complete:
             self._change_route('DESCEND',[Waypoint(*self.descent_proposal['xy'],self.probe_config.ground_z+self.probe_config.low_agl)],now)
             return self._dispatch_route('SEARCH','local_descent',now)
@@ -113,6 +178,7 @@ class HighViewFull(HighViewProbe):
         return super()._schedule_from_search(now,prefer_resume,route_outcome)
 
     def ingest(self,candidates,now):
+        if self.stage=='LOW_COVERAGE':return MissionRuntime.ingest(self,candidates,now)
         outcome=super().ingest(candidates,now)
         if self.stage=='SURVEY':
             for name,hint in self._all_top(now).items():
@@ -129,7 +195,7 @@ class HighViewFull(HighViewProbe):
                 now,failed=self._operation_time(now)
                 if failed is not None:return failed
                 self._set_current_xy(current_xy)
-                if now>=self.wait_until:return self._finish(False,'reacquisition_timeout',now)
+                if now>=self.wait_until:return self._start_fallback(now,'reacquisition_timeout')
                 if self.reacquired is None or self.fresh_candidate is None:return self._outcome(True,'waiting_for_fresh_delivery_candidate')
                 validation=self.core.ingest([self.fresh_candidate],now)
                 if not validation[0].accepted:
@@ -155,5 +221,6 @@ class HighViewFull(HighViewProbe):
                      required_classes=sorted(self.required),top_hints={c:asdict(h) for c,h in self.top_hints.items()},
                      orders=list(self.orders),reacquisitions=list(self.completed_reacquisitions))
         value.update(survey_policy=asdict(self.policy),descent_proposal=self.descent_proposal,
-                     first_hint_ready=dict(self.first_hint_ready))
+                     first_hint_ready=dict(self.first_hint_ready),navigation_memory_events=list(self.memory.events),
+                     fallback_started=self.fallback_started)
         return value

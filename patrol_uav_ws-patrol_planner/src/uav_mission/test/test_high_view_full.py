@@ -4,6 +4,8 @@ import numpy as np
 from uav_high_view.grid_cost import GridCost
 from uav_mission.high_view_probe import ProbeConfig
 from uav_mission.high_view_full import HighViewFull
+from uav_mission.coverage_route import CoverageRoute
+from uav_mission.search_types import Waypoint
 from uav_mission.mission_core import MissionCore,MissionConfig,GoalSnapshot,MissionPhase,validate_candidate
 from test_mission_runtime import profile,candidate,result_for,release_ack
 
@@ -11,7 +13,8 @@ from test_mission_runtime import profile,candidate,result_for,release_ack
 class FullTests(unittest.TestCase):
     def setUp(self):
         cfg=MissionConfig(early_return_enabled=False,post_delivery_route=(GoalSnapshot('camera_init',-3.,6.,1.18),),landing_xy=(-3.,6.))
-        self.r=HighViewFull(MissionCore(profile(),cfg),ProbeConfig(-.22,((1.,1.),(2.,1.))))
+        self.r=HighViewFull(MissionCore(profile(),cfg),ProbeConfig(-.22,((1.,1.),(2.,1.))),
+                            fallback_route=CoverageRoute((Waypoint(0.,1.,1.18),Waypoint(2.,1.,1.18)),'test-low'))
         self.r.start('mission-runtime',100.,(0.,0.));self.seq=0
 
     def finish(self,now):
@@ -50,9 +53,70 @@ class FullTests(unittest.TestCase):
         self.assertFalse(self.r.core.active_action.has_target)
         self.assertEqual(set(self.r.top_hints),{'bridge','panzer','red_cross'})
 
-    def test_missing_top3_at_route_end_is_failure_not_cow_path(self):
+    def test_missing_top3_returns_verified_column_then_low_coverage(self):
         self.finish(103.);self.finish(106.);self.finish(109.)
-        self.assertTrue(self.r.done);self.assertEqual(self.r.failure,'survey_complete_missing_top3')
+        self.assertFalse(self.r.done);self.assertEqual(self.r.stage,'RETURN_COLUMN')
+        self.finish(112.);self.finish(115.)
+        self.assertEqual(self.r.stage,'LOW_COVERAGE')
+        self.assertEqual(self.r.core.started_at,100.)
+        self.assertEqual(self.r.core.committed_slots,0)
+
+    def test_confirmed_hint_survives_short_window_reset(self):
+        self.top3()
+        stamp=self.r._all_top(101.6)['red_cross'].last_seen_ns
+        self.r.update_pose((0.,0.,2.38),104.,'camera_init')
+        c=replace(candidate(target_id=2,class_name='red_cross',now=104.,x=2.,y=1.),first_seen_ns=99_000_000_000)
+        self.r.ingest([c],104.)
+        self.assertNotIn('red_cross',[h.class_name for h in self.r.catalog.hints(104_000_000_000)])
+        self.assertIn('red_cross',self.r._all_top(104.))
+        self.assertEqual(self.r._all_top(104.)['red_cross'].last_seen_ns,stamp)
+
+    def test_memory_conflict_and_epoch_invalidation(self):
+        self.top3();h=self.r._all_top(101.6)['red_cross']
+        found=self.r.memory.update([replace(h,xy=(4.,4.))],h.epoch,102_000_000_000)
+        self.assertNotIn('red_cross',found)
+        self.assertEqual(self.r.memory.update([],None,103_000_000_000),{})
+        self.assertEqual(self.r.memory.saved,{})
+
+    def test_partial_hints_descend_without_inventing_missing_target(self):
+        for t in [101.,101.3,101.6]:
+            self.r.update_pose((0.,0.,2.38),t,'camera_init')
+            self.r.ingest([replace(candidate(target_id=i,class_name=c,now=t,x=float(i),y=1.),first_seen_ns=99_000_000_000)
+                           for i,c in enumerate(['bridge','red_cross'])],t)
+        self.finish(103.);self.finish(106.);self.map(109.);self.finish(109.)
+        self.assertEqual(self.r.stage,'DESCEND')
+        self.assertEqual(set(self.r.top_hints),{'bridge','red_cross'})
+        self.assertEqual(self.r.core.committed_slots,0)
+
+    def test_high_stall_skips_with_no_map_and_rejects_late_success(self):
+        self.finish(103.);old=self.r.core.active_action
+        self.r.tick(104.,(0.,0.));self.r.tick(112.1,(0.,0.))
+        self.assertFalse(self.r.done)
+        self.assertNotEqual(self.r.core.active_action.decision_seq,old.decision_seq)
+        self.assertEqual(self.r.core.active_action.goal.x,2.)
+        out=self.r.apply_result(replace(result_for(old,999,status='SUCCEEDED',terminal=True),event_stamp_ns=112_000_000_000),112.2,(0.,0.))
+        self.assertFalse(out.accepted)
+
+    def test_failed_survey_gets_only_one_alternative(self):
+        self.finish(103.);self.map(104.);self.r.tick(104.,(0.,0.))
+        self.map(112.1);self.r.tick(112.1,(0.,0.))
+        self.assertTrue(self.r._alternative)
+        self.r.tick(113.,(0.,0.));self.map(122.);self.r.tick(122.,(0.,0.))
+        self.assertFalse(self.r._alternative)
+        self.assertEqual(self.r.core.active_action.goal.x,2.)
+
+    def test_fallback_retains_delivered_state_and_uses_original_selection(self):
+        self.finish(103.)
+        active=self.r.core.active_action
+        self.r.route.interrupt(active.decision_seq);self.r.core.active_action=None
+        self.r.core.queue.delivered_classes={'bridge','red_cross'}
+        self.r.top_hints={};self.r._next_target(104.)
+        self.assertEqual(self.r.stage,'LOW_COVERAGE')
+        self.r.ingest([candidate(target_id=5,class_name='panzer',now=105.,x=1.,y=1.)],105.)
+        out=self.r.tick(105.1,(0.,1.))
+        self.assertEqual(out.action.command,'APPROACH')
+        self.assertEqual(out.action.target_class,'panzer')
+        self.assertEqual(self.r.core.queue.delivered_classes,{'bridge','red_cross'})
 
     def test_fresh_capture_enters_original_delivery(self):
         self.to_capture();h=self.r.selected

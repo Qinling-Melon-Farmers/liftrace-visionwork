@@ -36,6 +36,9 @@
     direct_descent: true
     descent_radius_m: 1.5
     descent_max_candidates: 25
+    survey_stall_seconds: 8.0
+    survey_progress_m: 0.15
+    survey_alternative_radius_m: 0.6
   </rosparam>
   <!-- Closed high loop; normal completion or accumulated three-highest hints ends it. -->
   <rosparam param="/navigation/mission_manager/high_view_probe/config/survey_xy">[[-3.5,1.0],[3.5,1.0],[3.5,5.5],[-3.5,5.5],[-3.5,1.0]]</rosparam>

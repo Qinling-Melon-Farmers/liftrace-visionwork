@@ -22,7 +22,7 @@ class FullManager(base.ProbeManager):
         config=dict(rospy.get_param('~high_view_probe/config'))
         config['survey_xy']=tuple(tuple(p) for p in config['survey_xy'])
         policy=SurveyPolicy(**dict(rospy.get_param('~high_view_full/policy',{})))
-        return HighViewFull(ordinary.core,ProbeConfig(**config),policy)
+        return HighViewFull(ordinary.core,ProbeConfig(**config),policy,fallback_route=ordinary.route)
 
     def _on_map(self,message):
         super()._on_map(message)
