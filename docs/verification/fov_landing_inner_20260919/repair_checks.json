@@ -1,0 +1,588 @@
+[
+  {
+    "label": "A_baseline",
+    "start_ros_s": 11.833,
+    "tail_start_ros_s": 126.177,
+    "land_ros_s": 250.898,
+    "minimum_pre_tail_whole_body_inner_clearance_m": 0.05505949325797399,
+    "pre_tail_whole_body_outside_samples": 0,
+    "search_samples": 1120,
+    "max_pre_tail_center_x": 7.0610999180097185,
+    "final_guard_xy_m": 0.5,
+    "collision_count": 0,
+    "landing_support_events": [
+      {
+        "details": [
+          {
+            "info": "guard_xy_m=0.500000",
+            "max_depth_m": 0.0001269351348956809,
+            "normals": [
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ]
+            ],
+            "pair": [
+              "iris_mid360::iris::base_link::competition_guard_collision",
+              "landing_h_clone::link::collision"
+            ],
+            "positions": [
+              [
+                8.233836160370094,
+                -4.452893084750567,
+                0.00487306486510432
+              ],
+              [
+                8.733835730752986,
+                -4.452247094669914,
+                0.004984032156064873
+              ]
+            ],
+            "total_force_norm_n": 118.77077036073537
+          }
+        ],
+        "last_ros_stamp": 258.964,
+        "peak_sampled_force_n": 118.77077036073537,
+        "ros_stamp": 258.921
+      },
+      {
+        "details": [
+          {
+            "info": "guard_xy_m=0.500000",
+            "max_depth_m": 8.025221158477428e-06,
+            "normals": [
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ]
+            ],
+            "pair": [
+              "iris_mid360::iris::base_link::competition_guard_collision",
+              "landing_h_clone::link::collision"
+            ],
+            "positions": [
+              [
+                8.238879532370477,
+                -4.458545547038972,
+                0.004993934749572217
+              ],
+              [
+                8.238002058940236,
+                -3.9585463170339423,
+                0.004999830202420815
+              ],
+              [
+                8.73800128897614,
+                -3.957668843580537,
+                0.004997870231690122
+              ],
+              [
+                8.738878762406381,
+                -4.457668073585567,
+                0.004991974778841522
+              ]
+            ],
+            "total_force_norm_n": 15.300053999999959
+          }
+        ],
+        "last_ros_stamp": 265.004,
+        "peak_sampled_force_n": 15.300053999999959,
+        "ros_stamp": 260.126
+      }
+    ],
+    "configured_land_speed_mps": 0.25,
+    "gate_status": "PASS",
+    "gate_metrics": {
+      "approach_command_count": 3,
+      "boundary_violations": 0,
+      "capture_started_count": 3,
+      "decision_count": 22,
+      "door_crossings": [
+        {
+          "lateral": 4.085989592659253,
+          "name": "corridor_entry",
+          "route_index": 3,
+          "z": 0.4670148390688763
+        },
+        {
+          "lateral": 8.114642540310198,
+          "name": "Wall_20",
+          "route_index": 5,
+          "z": 0.4905286532798586
+        },
+        {
+          "lateral": 8.13089478640961,
+          "name": "Wall_22",
+          "route_index": 8,
+          "z": 0.4860062688805896
+        }
+      ],
+      "height_violations": 0,
+      "landing_align_mode_seen": true,
+      "landing_h_mark_rejections": {},
+      "landing_h_tolerance": 0.35,
+      "landing_xy": [
+        8.5,
+        -4.2
+      ],
+      "latest_armed": false,
+      "latest_landed_state": 1,
+      "max_observed_height": 2.803620348888758,
+      "mission_ros_sec": 251.667,
+      "mission_wall_sec": 1102.956575565,
+      "planner_goal_publishers": [
+        "/navigation/planner_bridge"
+      ],
+      "pose_samples": 11959,
+      "post_delivery_decision_indices": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "post_delivery_return_success_count": 9,
+      "post_delivery_route_revision": "fov-inner-repair-A",
+      "post_delivery_route_size": 9,
+      "recovery_success_count": 3,
+      "release_commit_count": 3,
+      "result_count": 97,
+      "search_envelope_violations": 0,
+      "selected_count": 1516,
+      "simulation_realtime_factor": 0.22817489425735657,
+      "unmatched_result_count": 0,
+      "valid_landing_h_mark": {
+        "anchor_error_m": 0.03359854757326638,
+        "frame_id": "camera_init",
+        "stamp_ns": 258297000000,
+        "x": 8.467885117131756,
+        "y": -4.209874041593593,
+        "z": -0.22
+      }
+    },
+    "videos": {
+      "follow": {
+        "duration_s": 186.2,
+        "size_bytes": 28407644
+      },
+      "overview": {
+        "duration_s": 186.3,
+        "size_bytes": 9130718
+      },
+      "presentation": {
+        "duration_s": 264.3,
+        "size_bytes": 14167067
+      }
+    }
+  },
+  {
+    "label": "B_corridor",
+    "start_ros_s": 11.859,
+    "tail_start_ros_s": 102.367,
+    "land_ros_s": 187.487,
+    "minimum_pre_tail_whole_body_inner_clearance_m": 0.19115538889467032,
+    "pre_tail_whole_body_outside_samples": 0,
+    "search_samples": 885,
+    "max_pre_tail_center_x": 6.693901490793039,
+    "final_guard_xy_m": 0.5,
+    "collision_count": 0,
+    "landing_support_events": [
+      {
+        "details": [
+          {
+            "info": "guard_xy_m=0.500000",
+            "max_depth_m": 0.0002359140905699537,
+            "normals": [
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ]
+            ],
+            "pair": [
+              "iris_mid360::iris::base_link::competition_guard_collision",
+              "landing_h_clone::link::collision"
+            ],
+            "positions": [
+              [
+                8.298274874408605,
+                -4.487870584871647,
+                0.004933082845712426
+              ],
+              [
+                8.296028113023922,
+                -3.9878756363351684,
+                0.004992254496611124
+              ],
+              [
+                8.796023036412103,
+                -3.985628855063634,
+                0.004823257560328744
+              ],
+              [
+                8.798269797796786,
+                -4.485623803600113,
+                0.004764085909430046
+              ]
+            ],
+            "total_force_norm_n": 0.044258644908584145
+          }
+        ],
+        "last_ros_stamp": 195.188,
+        "peak_sampled_force_n": 0.044258644908584145,
+        "ros_stamp": 195.151
+      },
+      {
+        "details": [
+          {
+            "info": "guard_xy_m=0.500000",
+            "max_depth_m": 1.4180933955417266e-06,
+            "normals": [
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ]
+            ],
+            "pair": [
+              "iris_mid360::iris::base_link::competition_guard_collision",
+              "landing_h_clone::link::collision"
+            ],
+            "positions": [
+              [
+                8.298605464536664,
+                -4.4881737758082645,
+                0.00499957675606432
+              ],
+              [
+                8.296424081900971,
+                -3.988178534261174,
+                0.004999828002007431
+              ],
+              [
+                8.796419323447134,
+                -3.9859971516249866,
+                0.0049988331525475695
+              ],
+              [
+                8.798600706082825,
+                -4.4859923931720775,
+                0.004998581906604458
+              ]
+            ],
+            "total_force_norm_n": 15.300054000000285
+          }
+        ],
+        "last_ros_stamp": 201.148,
+        "peak_sampled_force_n": 15.300054000000285,
+        "ros_stamp": 195.667
+      }
+    ],
+    "configured_land_speed_mps": 0.25,
+    "gate_status": "PASS",
+    "gate_metrics": {
+      "approach_command_count": 3,
+      "boundary_violations": 0,
+      "capture_started_count": 3,
+      "decision_count": 22,
+      "door_crossings": [
+        {
+          "lateral": 4.054612161824396,
+          "name": "corridor_entry",
+          "route_index": 3,
+          "z": 0.8509595646281899
+        },
+        {
+          "lateral": 8.039830680548098,
+          "name": "Wall_20",
+          "route_index": 5,
+          "z": 1.0160741737649626
+        },
+        {
+          "lateral": 8.147043073968637,
+          "name": "Wall_22",
+          "route_index": 8,
+          "z": 0.9434449086861879
+        }
+      ],
+      "height_violations": 0,
+      "landing_align_mode_seen": true,
+      "landing_h_mark_rejections": {},
+      "landing_h_tolerance": 0.35,
+      "landing_xy": [
+        8.5,
+        -4.2
+      ],
+      "latest_armed": false,
+      "latest_landed_state": 1,
+      "max_observed_height": 2.810928148204831,
+      "mission_ros_sec": 187.733,
+      "mission_wall_sec": 751.7954938580006,
+      "planner_goal_publishers": [
+        "/navigation/planner_bridge"
+      ],
+      "pose_samples": 8867,
+      "post_delivery_decision_indices": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "post_delivery_return_success_count": 9,
+      "post_delivery_route_revision": "fov-inner-repair-fast",
+      "post_delivery_route_size": 9,
+      "recovery_success_count": 3,
+      "release_commit_count": 3,
+      "result_count": 98,
+      "search_envelope_violations": 0,
+      "selected_count": 1032,
+      "simulation_realtime_factor": 0.24971285613406335,
+      "unmatched_result_count": 0,
+      "valid_landing_h_mark": {
+        "anchor_error_m": 0.03375107209328356,
+        "frame_id": "camera_init",
+        "stamp_ns": 194415000000,
+        "x": 8.46921652739267,
+        "y": -4.213838810703227,
+        "z": -0.22
+      }
+    },
+    "videos": {
+      "follow": {
+        "duration_s": 143.2,
+        "size_bytes": 24559843
+      },
+      "overview": {
+        "duration_s": 143.4,
+        "size_bytes": 7091214
+      },
+      "presentation": {
+        "duration_s": 199.7,
+        "size_bytes": 12370378
+      }
+    }
+  },
+  {
+    "label": "C_high3",
+    "start_ros_s": 12.025999999,
+    "tail_start_ros_s": 128.638,
+    "land_ros_s": 219.226,
+    "minimum_pre_tail_whole_body_inner_clearance_m": 0.19451490266881521,
+    "pre_tail_whole_body_outside_samples": 0,
+    "search_samples": 1147,
+    "max_pre_tail_center_x": 6.679654062052325,
+    "final_guard_xy_m": 0.5,
+    "collision_count": 0,
+    "landing_support_events": [
+      {
+        "details": [
+          {
+            "info": "guard_xy_m=0.500000",
+            "max_depth_m": 9.861849313236607e-05,
+            "normals": [
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ],
+              [
+                0.0,
+                -0.0,
+                1.0
+              ]
+            ],
+            "pair": [
+              "iris_mid360::iris::base_link::competition_guard_collision",
+              "landing_h_clone::link::collision"
+            ],
+            "positions": [
+              [
+                8.268338309434755,
+                -4.502682175323384,
+                0.0049192924814280385
+              ],
+              [
+                8.268324806364026,
+                -4.00268217582652,
+                0.0049013815068676345
+              ],
+              [
+                8.768324802801015,
+                -4.002668670673073,
+                0.004959524611274677
+              ],
+              [
+                8.768338305871746,
+                -4.502668670169938,
+                0.004977435585835081
+              ]
+            ],
+            "total_force_norm_n": 15.300054000000006
+          }
+        ],
+        "last_ros_stamp": 230.349,
+        "peak_sampled_force_n": 15.300054000000006,
+        "ros_stamp": 224.973
+      }
+    ],
+    "configured_land_speed_mps": 0.25,
+    "gate_status": "PASS",
+    "gate_metrics": {
+      "approach_command_count": 3,
+      "boundary_violations": 0,
+      "capture_started_count": 3,
+      "decision_count": 23,
+      "door_crossings": [
+        {
+          "lateral": 4.020303321412039,
+          "name": "corridor_entry",
+          "route_index": 3,
+          "z": 1.0047844084309057
+        },
+        {
+          "lateral": 8.108279373604836,
+          "name": "Wall_20",
+          "route_index": 5,
+          "z": 0.9132709558180099
+        },
+        {
+          "lateral": 8.1466335328002,
+          "name": "Wall_22",
+          "route_index": 8,
+          "z": 0.9119731857324292
+        }
+      ],
+      "height_violations": 0,
+      "landing_align_mode_seen": true,
+      "landing_h_mark_rejections": {},
+      "landing_h_tolerance": 0.35,
+      "landing_xy": [
+        8.5,
+        -4.2
+      ],
+      "latest_armed": false,
+      "latest_landed_state": 1,
+      "max_observed_height": 3.1709250797849724,
+      "mission_ros_sec": 216.548000001,
+      "mission_wall_sec": 791.9160955529987,
+      "planner_goal_publishers": [
+        "/navigation/planner_bridge"
+      ],
+      "pose_samples": 10537,
+      "post_delivery_decision_indices": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "post_delivery_return_success_count": 9,
+      "post_delivery_route_revision": "fov-inner-repair-fast",
+      "post_delivery_route_size": 9,
+      "recovery_success_count": 3,
+      "release_commit_count": 3,
+      "result_count": 103,
+      "search_envelope_violations": 0,
+      "selected_count": 1309,
+      "simulation_realtime_factor": 0.2734481610072384,
+      "unmatched_result_count": 0,
+      "valid_landing_h_mark": {
+        "anchor_error_m": 0.02845795083811405,
+        "frame_id": "camera_init",
+        "stamp_ns": 224149000000,
+        "x": 8.475656220606902,
+        "y": -4.214738906701812,
+        "z": -0.22
+      }
+    },
+    "videos": {
+      "follow": {
+        "duration_s": 160.6,
+        "size_bytes": 27549904
+      },
+      "overview": {
+        "duration_s": 160.8,
+        "size_bytes": 7924709
+      },
+      "presentation": {
+        "duration_s": 228.6,
+        "size_bytes": 14069553
+      }
+    }
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "label": "A_baseline",
+    "worst": {
+      "tree": "juniper_Tree_2",
+      "samples": 1460,
+      "overlap_samples": 0,
+      "min_separating_axis_gap_m": 0.11033140056728463,
+      "time_s": 43.043000000000006,
+      "fc_world_xyz": [
+        6.320120472465519,
+        -2.7745248207249804,
+        2.6991669705881542
+      ]
+    },
+    "guard_bottom_agl_m": 2.463273000132257
+  },
+  {
+    "label": "B_corridor",
+    "worst": {
+      "tree": "juniper_Tree_2",
+      "samples": 1470,
+      "overlap_samples": 0,
+      "min_separating_axis_gap_m": 0.041562839187552214,
+      "time_s": 43.176,
+      "fc_world_xyz": [
+        6.292310451043193,
+        -2.6953562097839567,
+        2.6087636341770843
+      ]
+    },
+    "guard_bottom_agl_m": 2.3770752695426545
+  },
+  {
+    "label": "C_high3",
+    "worst": {
+      "tree": "juniper_Tree_1",
+      "samples": 2016,
+      "overlap_samples": 0,
+      "min_separating_axis_gap_m": 0.03767759861854092,
+      "time_s": 48.184000000000005,
+      "fc_world_xyz": [
+        6.173151138442264,
+        0.2849645202529342,
+        3.111881921819033
+      ]
+    },
+    "guard_bottom_agl_m": 2.8830881862421722
+  }
+]

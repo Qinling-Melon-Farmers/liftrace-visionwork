@@ -9,4 +9,4 @@
 - H识别/接近采用独立阶段高度窗口，落地末段保守下降作为修复候选，不属于新增提速。保留全部接触和故障，不追改历史Gate。
 - 导航变更先在controlwork feature完成；视场、Gazebo物理代理和观察录像在visionwork。新私有参数共同文档记录，不改公共决策消息，不上硬件、不合main。
 
-状态：修复与整机构建/400项Python回归通过；新三轮尚未启动。Fast-Planner旧包快照在legacy_baseline/20260919_inner_region，清单与SHA256按仓库旧链保护要求生成。
+状态：修复与整机构建/400项Python回归通过；新三轮已完成，A/B/C均PASS，详见[完整报告](../../verification/fov_landing_inner_20260919/REPORT.md)。Fast-Planner旧包快照在legacy_baseline/20260919_inner_region，清单与SHA256按仓库旧链保护要求生成。

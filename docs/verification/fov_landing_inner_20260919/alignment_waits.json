@@ -1,0 +1,379 @@
+[
+  {
+    "label": "A_baseline",
+    "audit_event_types": {
+      "permission": 17,
+      "control_state": 9,
+      "align_mode": 8,
+      "selected_target": 1510,
+      "release_evidence_lock": 3,
+      "raw_servo": 3,
+      "result": 3
+    },
+    "transactions": [
+      {
+        "class_name": "bridge",
+        "align_start_ros": 55.672,
+        "commitment_lock_ros": 56.966,
+        "alignment_to_lock_s": 1.294000000000004,
+        "permission_reason_duration_s": {
+          "mission_not_in_drop_stage": 0.034000000000006025,
+          "no_release_commitment": 1.259999999999998
+        },
+        "other_event_types": {
+          "control_state": 1,
+          "align_mode": 1,
+          "release_evidence_lock": 1
+        },
+        "last_other_events": [
+          {
+            "data": {
+              "value": 2
+            },
+            "time": 55.693,
+            "type": "control_state"
+          },
+          {
+            "data": {
+              "value": "drop_circle"
+            },
+            "time": 55.693,
+            "type": "align_mode"
+          },
+          {
+            "data": {
+              "align_mode": "drop_circle",
+              "aligned": true,
+              "center_refined": true,
+              "evidence_valid": true,
+              "geometry_verified": true,
+              "observation_fresh": true,
+              "stable_frames": 5,
+              "stamp": 56.966,
+              "stamp_nsec": 56966000000,
+              "target_class": "circle",
+              "target_confirmed": true,
+              "target_id": 6
+            },
+            "time": 56.966,
+            "type": "release_evidence_lock"
+          }
+        ]
+      },
+      {
+        "class_name": "panzer",
+        "align_start_ros": 72.748,
+        "commitment_lock_ros": 103.211,
+        "alignment_to_lock_s": 30.462999999999994,
+        "permission_reason_duration_s": {
+          "mission_not_in_drop_stage": 0.05299999999999727,
+          "no_release_commitment": 30.409999999999997
+        },
+        "other_event_types": {
+          "align_mode": 1,
+          "control_state": 1
+        },
+        "last_other_events": [
+          {
+            "data": {
+              "value": "drop_circle"
+            },
+            "time": 72.788,
+            "type": "align_mode"
+          },
+          {
+            "data": {
+              "value": 2
+            },
+            "time": 72.794,
+            "type": "control_state"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "B_corridor",
+    "audit_event_types": {
+      "permission": 17,
+      "control_state": 9,
+      "align_mode": 8,
+      "selected_target": 1026,
+      "release_evidence_lock": 3,
+      "raw_servo": 3,
+      "result": 3
+    },
+    "transactions": [
+      {
+        "class_name": "bridge",
+        "align_start_ros": 56.527,
+        "commitment_lock_ros": 57.896,
+        "alignment_to_lock_s": 1.3689999999999998,
+        "permission_reason_duration_s": {
+          "mission_not_in_drop_stage": 0.07499999999999574,
+          "no_release_commitment": 1.294000000000004
+        },
+        "other_event_types": {
+          "align_mode": 1,
+          "control_state": 1,
+          "release_evidence_lock": 1
+        },
+        "last_other_events": [
+          {
+            "data": {
+              "value": "drop_circle"
+            },
+            "time": 56.564,
+            "type": "align_mode"
+          },
+          {
+            "data": {
+              "value": 2
+            },
+            "time": 56.564,
+            "type": "control_state"
+          },
+          {
+            "data": {
+              "align_mode": "drop_circle",
+              "aligned": true,
+              "center_refined": true,
+              "evidence_valid": true,
+              "geometry_verified": true,
+              "observation_fresh": true,
+              "stable_frames": 5,
+              "stamp": 57.896,
+              "stamp_nsec": 57896000000,
+              "target_class": "circle",
+              "target_confirmed": true,
+              "target_id": 6
+            },
+            "time": 57.896,
+            "type": "release_evidence_lock"
+          }
+        ]
+      },
+      {
+        "class_name": "panzer",
+        "align_start_ros": 74.33,
+        "commitment_lock_ros": 79.188,
+        "alignment_to_lock_s": 4.858000000000004,
+        "permission_reason_duration_s": {
+          "mission_not_in_drop_stage": 0.07699999999999818,
+          "no_release_commitment": 4.781000000000006
+        },
+        "other_event_types": {
+          "align_mode": 1,
+          "control_state": 1
+        },
+        "last_other_events": [
+          {
+            "data": {
+              "value": "drop_circle"
+            },
+            "time": 74.365,
+            "type": "align_mode"
+          },
+          {
+            "data": {
+              "value": 2
+            },
+            "time": 74.366,
+            "type": "control_state"
+          }
+        ]
+      },
+      {
+        "class_name": "red_cross",
+        "align_start_ros": 95.162,
+        "commitment_lock_ros": 96.772,
+        "alignment_to_lock_s": 1.6099999999999994,
+        "permission_reason_duration_s": {
+          "mission_not_in_drop_stage": 0.08899999999999864,
+          "no_release_commitment": 1.5210000000000008
+        },
+        "other_event_types": {
+          "control_state": 1,
+          "align_mode": 1
+        },
+        "last_other_events": [
+          {
+            "data": {
+              "value": 2
+            },
+            "time": 95.211,
+            "type": "control_state"
+          },
+          {
+            "data": {
+              "value": "drop_cross"
+            },
+            "time": 95.211,
+            "type": "align_mode"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "C_high3",
+    "audit_event_types": {
+      "permission": 17,
+      "control_state": 9,
+      "align_mode": 8,
+      "selected_target": 1302,
+      "release_evidence_lock": 3,
+      "raw_servo": 3,
+      "result": 3
+    },
+    "transactions": [
+      {
+        "class_name": "red_cross",
+        "align_start_ros": 70.349,
+        "commitment_lock_ros": 72.098,
+        "alignment_to_lock_s": 1.7489999999999952,
+        "permission_reason_duration_s": {
+          "mission_not_in_drop_stage": 0.04899999999999238,
+          "no_release_commitment": 1.7000000000000028
+        },
+        "other_event_types": {
+          "align_mode": 1,
+          "control_state": 1,
+          "release_evidence_lock": 1
+        },
+        "last_other_events": [
+          {
+            "data": {
+              "value": "drop_cross"
+            },
+            "time": 70.363,
+            "type": "align_mode"
+          },
+          {
+            "data": {
+              "value": 2
+            },
+            "time": 70.369,
+            "type": "control_state"
+          },
+          {
+            "data": {
+              "align_mode": "drop_cross",
+              "aligned": true,
+              "center_refined": true,
+              "evidence_valid": true,
+              "geometry_verified": true,
+              "observation_fresh": true,
+              "stable_frames": 5,
+              "stamp": 72.098,
+              "stamp_nsec": 72098000000,
+              "target_class": "red_cross",
+              "target_confirmed": true,
+              "target_id": 0
+            },
+            "time": 72.098,
+            "type": "release_evidence_lock"
+          }
+        ]
+      },
+      {
+        "class_name": "bridge",
+        "align_start_ros": 86.944,
+        "commitment_lock_ros": 88.246,
+        "alignment_to_lock_s": 1.3019999999999925,
+        "permission_reason_duration_s": {
+          "mission_not_in_drop_stage": 0.06099999999999284,
+          "no_release_commitment": 1.2409999999999997
+        },
+        "other_event_types": {
+          "control_state": 1,
+          "align_mode": 1,
+          "release_evidence_lock": 1
+        },
+        "last_other_events": [
+          {
+            "data": {
+              "value": 2
+            },
+            "time": 86.975,
+            "type": "control_state"
+          },
+          {
+            "data": {
+              "value": "drop_circle"
+            },
+            "time": 86.975,
+            "type": "align_mode"
+          },
+          {
+            "data": {
+              "align_mode": "drop_circle",
+              "aligned": true,
+              "center_refined": true,
+              "evidence_valid": true,
+              "geometry_verified": true,
+              "observation_fresh": true,
+              "stable_frames": 5,
+              "stamp": 88.246,
+              "stamp_nsec": 88246000000,
+              "target_class": "circle",
+              "target_confirmed": true,
+              "target_id": 6
+            },
+            "time": 88.246,
+            "type": "release_evidence_lock"
+          }
+        ]
+      },
+      {
+        "class_name": "panzer",
+        "align_start_ros": 106.01,
+        "commitment_lock_ros": 123.241,
+        "alignment_to_lock_s": 17.230999999999995,
+        "permission_reason_duration_s": {
+          "mission_not_in_drop_stage": 0.04999999999999716,
+          "no_release_commitment": 17.180999999999997
+        },
+        "other_event_types": {
+          "control_state": 1,
+          "align_mode": 1,
+          "release_evidence_lock": 1
+        },
+        "last_other_events": [
+          {
+            "data": {
+              "value": 2
+            },
+            "time": 106.027,
+            "type": "control_state"
+          },
+          {
+            "data": {
+              "value": "drop_circle"
+            },
+            "time": 106.029,
+            "type": "align_mode"
+          },
+          {
+            "data": {
+              "align_mode": "drop_circle",
+              "aligned": true,
+              "center_refined": true,
+              "evidence_valid": true,
+              "geometry_verified": true,
+              "observation_fresh": true,
+              "stable_frames": 5,
+              "stamp": 123.241,
+              "stamp_nsec": 123241000000,
+              "target_class": "circle",
+              "target_confirmed": true,
+              "target_id": 4
+            },
+            "time": 123.241,
+            "type": "release_evidence_lock"
+          }
+        ]
+      }
+    ]
+  }
+]
