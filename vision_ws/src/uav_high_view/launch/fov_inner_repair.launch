@@ -3,6 +3,7 @@
   <arg name="target_model_path" />
   <arg name="corridor_fast" default="true" />
   <arg name="high_agl" default="2.6" />
+  <arg name="field_seed" default="2672" />
   <arg name="runtime_config" default="$(eval arg('scene_dir') + ('/fast_runtime.yaml' if arg('corridor_fast') else '/baseline_runtime.yaml'))" />
   <arg name="gate_config" default="$(eval arg('scene_dir') + ('/fast_gate.yaml' if arg('corridor_fast') else '/baseline_gate.yaml'))" />
   <include file="$(find uav_high_view)/launch/fast_comparison.launch">
@@ -14,7 +15,7 @@
     <arg name="camera_extrinsic_quat_xyzw" value="0 1 0 0" />
     <arg name="target_model_path" value="$(arg target_model_path)" />
     <arg name="high_agl" value="$(arg high_agl)" />
-    <arg name="field_seed" value="2672" />
+    <arg name="field_seed" value="$(arg field_seed)" />
     <arg name="world" value="$(arg scene_dir)/field.world" />
     <arg name="field_config" value="$(arg scene_dir)/field_config.yaml" />
     <arg name="runtime_config" value="$(arg runtime_config)" />

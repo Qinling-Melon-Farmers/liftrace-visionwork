@@ -1,0 +1,31 @@
+views:
+  overview:
+    xyz:
+    - 4.3
+    - 0.0
+    - 9.0
+    near: 3.7
+    width: 960
+    height: 960
+    hfov: 1.6
+    vertical_yaw: 1.5707963267948966
+  follow:
+    xyz:
+    - 0.0
+    - 0.0
+    - 3.0
+    near: 0.05
+    width: 1280
+    height: 720
+    hfov: 1.45
+follow:
+  distance: 1.8
+  lift: 1.0
+  min_z: 1.2
+  max_z: 4.6
+  bounds:
+  - -0.25
+  - 8.85
+  - -4.55
+  - 4.55
+  smoothing_s: 0.35

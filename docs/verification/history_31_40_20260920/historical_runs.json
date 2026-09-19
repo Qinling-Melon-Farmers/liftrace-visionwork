@@ -1,0 +1,107 @@
+[
+  {
+    "seed": 31,
+    "label": "slow_coverage",
+    "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed31_20260910_101159",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_31/field.world",
+    "source": "7eb94462170d0adce666754ec2547d79a71b29df"
+  },
+  {
+    "seed": 31,
+    "label": "fast_high",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed31_20260915_101053",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_31/field.world",
+    "source": "20b1a0fe0f991af19ec437e10cba5dc3bcbd9e76"
+  },
+  {
+    "seed": 32,
+    "label": "slow_coverage",
+    "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed32_20260910_103344",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_32/field.world",
+    "source": "7eb94462170d0adce666754ec2547d79a71b29df"
+  },
+  {
+    "seed": 32,
+    "label": "fast_high",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed32_20260915_101502",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_32/field.world",
+    "source": "20b1a0fe0f991af19ec437e10cba5dc3bcbd9e76"
+  },
+  {
+    "seed": 33,
+    "label": "slow_coverage",
+    "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_33/field.world",
+    "source": "7eb94462170d0adce666754ec2547d79a71b29df"
+  },
+  {
+    "seed": 33,
+    "label": "fast_high",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed33_20260915_101944",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_33/field.world",
+    "source": "20b1a0fe0f991af19ec437e10cba5dc3bcbd9e76"
+  },
+  {
+    "seed": 34,
+    "label": "slow_coverage",
+    "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_34/field.world",
+    "source": "7eb94462170d0adce666754ec2547d79a71b29df"
+  },
+  {
+    "seed": 34,
+    "label": "fast_high",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed34_20260915_103731",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_34/field.world",
+    "source": "20b1a0fe0f991af19ec437e10cba5dc3bcbd9e76"
+  },
+  {
+    "seed": 35,
+    "label": "slow_coverage",
+    "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed35_20260910_120409",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_35/field.world",
+    "source": "7eb94462170d0adce666754ec2547d79a71b29df"
+  },
+  {
+    "seed": 35,
+    "label": "fast_high",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed35_20260915_104526",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_35/field.world",
+    "source": "20b1a0fe0f991af19ec437e10cba5dc3bcbd9e76"
+  },
+  {
+    "seed": 36,
+    "label": "fast_high_new",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed36_20260915_180729",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_36/field.world",
+    "source": "92bd3eed"
+  },
+  {
+    "seed": 37,
+    "label": "fast_high_new",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed37_20260915_182936",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_37/field.world",
+    "source": "92bd3eed"
+  },
+  {
+    "seed": 38,
+    "label": "fast_high_new",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed38_20260915_184340",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_38/field.world",
+    "source": "92bd3eed"
+  },
+  {
+    "seed": 39,
+    "label": "fast_high_new",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed39_20260915_184841",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_39/field.world",
+    "source": "92bd3eed"
+  },
+  {
+    "seed": 40,
+    "label": "fast_high_new",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed40_20260915_190259",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_40/field.world",
+    "source": "92bd3eed"
+  }
+]
