@@ -4,6 +4,7 @@ import argparse,csv,json,math,subprocess
 from pathlib import Path
 import cv2,numpy as np,yaml
 from PIL import Image,ImageDraw,ImageFont
+cv2.setNumThreads(1)
 
 PHASES={'IDLE':'待启动','STARTUP':'系统准备','SEARCH':'搜索','SURVEY':'高位快速搜索','ASCEND':'起飞 / 升高','DESCEND':'回降低空',
         'LOCAL_DESCENT_TRANSIT':'转移到下降位置','REVISIT':'低空目标复访','REACQUIRE':'视觉重新捕获',
@@ -28,6 +29,7 @@ def jsonl(path):return [json.loads(l) for l in path.read_text().splitlines() if 
 def main():
     p=argparse.ArgumentParser();p.add_argument('run',type=Path);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--source-run',type=Path);p.add_argument('--font',type=Path)
+    p.add_argument('--case-label',default='')
     p.add_argument('--test-pattern',action='store_true',help='label synthetic input self-tests, not flight footage')
     p.add_argument('--max-seconds',type=float,default=900.)
     p.add_argument('--flight-limit',type=float,required=True);p.add_argument('--corridor-limit',type=float,required=True);p.add_argument('--wall-height',type=float,required=True)
@@ -38,6 +40,7 @@ def main():
     if not all(math.isfinite(v) for v in a.corridor_bounds) or a.corridor_bounds[0]>=a.corridor_bounds[1] or a.corridor_bounds[2]>=a.corridor_bounds[3]:raise ValueError('invalid corridor display region')
     replay=json.loads((a.run/'replay_metadata.json').read_text()) if (a.run/'replay_metadata.json').exists() else None
     source=a.source_run or (Path(replay['source_run']) if replay else a.run)
+    gate=json.loads((source/'gate_status.json').read_text()) if (source/'gate_status.json').exists() else {'status':'INCOMPLETE','reason':'No completed Gate'}
     with (source/'truth_pose.csv').open() as f:poses=np.array([[float(r[k]) for k in ('t','x','y','z')] for r in csv.DictReader(f)])
     params=yaml.safe_load((source/'rosparams.yaml').read_text());offset=params['competition_key_recorder']['truth_world_offset'][2]
     events=jsonl(source/'key_events.jsonl');mission=[(e['ros_sec'],e['data']) for e in events if e['kind']=='mission']
@@ -77,7 +80,12 @@ def main():
             img=Image.fromarray(cv2.cvtColor(canvas,cv2.COLOR_BGR2RGB));draw=ImageDraw.Draw(img)
             label='合成素材自检（不是飞行视频）' if a.test_pattern else ('记录轨迹回放' if replay else '仿真实录')
             draw.text((35,25),'全场自主任务  |  '+label,font=large,fill='white')
+            draw.text((35,78),a.case_label,font=small,fill='#bdc7cf')
+            draw.text((1370,25),'本轮结果：'+gate['status'],font=large,fill='#7be39d' if gate['status']=='PASS' else '#ff7373')
+            explanation={'actual_collision':'记录到碰撞（阶段见报告）','corridor_height_limit_violation':'区域高度越限（阶段见报告）','all_checks_passed':'三投 / 两门 / H降落已通过'}.get(gate.get('reason'),gate.get('reason',''))
+            draw.text((1370,78),explanation,font=small,fill='white')
             phase_caption=PHASES.get(phase,phase)
+            if high_state.get('conflict_active') and phase in ('REVISIT','REACQUIRE'):phase_caption='低空复核冲突位置 / 类别'
             if phase=='POST_DELIVERY_ROUTE' and not in_corridor:phase_caption='投后转场 / 进廊准备'
             draw.text((35,870),'阶段：'+phase_caption,font=large,fill='#83d1ff')
             draw.text((35,940),f'任务时间 {max(0,source_t-start):06.1f} s     投递确认 {state.get("committed_slots",0)} / 3',font=large,fill='white')

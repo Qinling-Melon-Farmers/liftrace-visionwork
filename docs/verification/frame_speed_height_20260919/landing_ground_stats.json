@@ -1,0 +1,23 @@
+[
+  {
+    "label": "A_baseline",
+    "first_near_support_ros": 286.701,
+    "min_guard_bottom_m": 0.00482309855435642,
+    "descent_min_vz_mps": -0.5139479011624362,
+    "rebound_max_vz_mps": 0.8676175519122628
+  },
+  {
+    "label": "B_corridor",
+    "first_near_support_ros": 203.739,
+    "min_guard_bottom_m": 0.005153736395088149,
+    "descent_min_vz_mps": -0.5698324726209657,
+    "rebound_max_vz_mps": 0.7640463970540425
+  },
+  {
+    "label": "C_high3",
+    "first_near_support_ros": 205.198,
+    "min_guard_bottom_m": 0.004802335216158082,
+    "descent_min_vz_mps": -0.6531666283312832,
+    "rebound_max_vz_mps": -1.7307068088035816e-09
+  }
+]

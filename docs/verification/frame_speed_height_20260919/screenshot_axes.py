@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
 D=Path(__file__).resolve().parent
-shutil.copyfile('/home/xhj/presentation_overview_preview.jpg',D/'overview_actual.jpg')
+# The archived actual frame is the reproducible input; no external temp file required.
 font=FontProperties(fname='/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc')
 fig,ax=plt.subplots(figsize=(11,11));ax.imshow(plt.imread(D/'overview_actual.jpg'));ax.set_axis_off()
 # Ground pad centre from pinhole projection, verified against rendered H centre.
