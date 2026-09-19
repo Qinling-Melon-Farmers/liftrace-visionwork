@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "local_links_checked": 46,
+  "mission_tests": 312,
+  "high_view_tests": 65,
+  "cpp_leaf_tests": 18,
+  "live_flight_runs": 1,
+  "render_replays": 1,
+  "flight_gate": "PASS",
+  "full_video_decode": "PASS",
+  "source_sync_files": 22,
+  "temporary_build_removed_bytes": 109888042,
+  "body_projection_overlap_samples": 2,
+  "body_projection_min_gap_m": -0.007738896909510906,
+  "raw_runs_preserved": true,
+  "sim_processes_remaining": 0
+}

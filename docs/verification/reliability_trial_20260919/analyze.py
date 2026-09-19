@@ -41,8 +41,12 @@ def main():
     fig,axes=plt.subplots(3,1,figsize=(13,9),sharex=True)
     for source,label in [(0,'FSM'),(1,'Server')]:
         rows=by_source[source];t=np.array([row['data']['header']['stamp']/1e9-start for row in rows]);progress=np.array([row['data']['projection_t'] for row in rows])
+        breaks=np.array([False]+[rows[i]['data']['traj_id']!=rows[i-1]['data']['traj_id'] or t[i]-t[i-1]>.5 for i in range(1,len(rows))])
+        progress[breaks]=np.nan
         axes[0].plot(t,progress,lw=.7,label=label+' projection')
-        if source==1:axes[0].plot(t,[row['data']['lookahead_t'] for row in rows],lw=.5,alpha=.6,label='Server lookahead')
+        if source==1:
+            look=np.array([row['data']['lookahead_t'] for row in rows]);look[breaks]=np.nan
+            axes[0].plot(t,look,lw=.5,alpha=.6,label='Server lookahead')
     rows=by_source[0];t=[row['data']['header']['stamp']/1e9-start for row in rows]
     axes[1].plot(t,[row['data']['stagnant_seconds'] for row in rows],lw=.8,label='Physical no-progress window')
     axes[1].axhline(4,ls=':',color='red',label='4s recovery threshold')

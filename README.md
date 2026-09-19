@@ -1,5 +1,7 @@
 # 2026无人机竞赛整机工程
 
+> 2026-09-19整机更新：导航弧长投影停滞修复与近墙复访已集成；随机seed2672整场PASS（286.456s，三投/两门/H降落、0碰撞）。[完整报告与视频](docs/verification/reliability_trial_20260919/REPORT.md) · [图表总览](docs/verification/reliability_trial_20260919/index.html)。
+
 2026-09-19：[最新实验、停滞/速度评审与轻量fork评估](docs/planning/reliability_speed_review_20260919/REVIEW.md)完成。整机侧仅文档与数据重算；按后续指示在liftrace-sim fork新增当前profile和31–40几何预筛，74项测试通过。55cm按已有鲁棒膨胀包络处理，原视觉交付已被上游接收；没有修改整机飞行代码或启动SITL。
 
 2026-09-15修复验证：[理想视场及三轮重跑/32补验报告](docs/verification/high_fallback_repair_20260915/REPORT.md)。理想完整高位路线覆盖约96.8%（不计遮挡）；31/34三投后第二门附近超时，32补验两投后碰墙，未完整通过。保留a12750b下降解耦及记忆/换点/低位兜底，机载部署不变。[走廊复盘](docs/verification/high_fallback_repair_20260915/CORRIDOR_REVIEW.md)发现保持与续规划之间存在可复现的停滞窗口，现场触发细节待确认。

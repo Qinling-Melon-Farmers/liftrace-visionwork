@@ -1,5 +1,8 @@
 # 当前任务与优先级
 
+> 2026-09-19整机更新：导航弧长投影停滞修复与近墙复访已集成；随机seed2672整场PASS（286.456s，三投/两门/H降落、0碰撞）。[完整报告与视频](docs/verification/reliability_trial_20260919/REPORT.md) · [图表总览](docs/verification/reliability_trial_20260919/index.html)。
+> 当前下一优先级：历史36/38/40针对性验证 → 初次规划反复与高度一致性 → panzer捕获等待 → 走廊分段提速。近墙策略尚无对应难例实跑证明；不替换正赛部署。
+
 ## 当前评审：2026-09-19停滞治理与全阶段速度调查（仅文档）
 
 用户后续明确优先改造本地liftrace-sim fork：[仓库评估与本轮改造](docs/planning/reliability_speed_review_20260919/LIFTRACE_SIM_ASSESSMENT.md)。已在`feat/high-view-current-profile`建立当前profile，导入31–40并完成20组几何对照，74项测试通过；不修改上游main。后续先做实录姿态/线索回放与同速度几何对照，不把几何可见率当作完赛率。整机侧保持只读评审。

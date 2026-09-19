@@ -1,0 +1,82 @@
+{
+  "status": "PASS",
+  "reason": "all_checks_passed",
+  "completed_mission_s": 286.456000001,
+  "third_commit_s": 110.216000001,
+  "top3_interrupt_mission_s": 34.934000001,
+  "xy_distance_m": 56.14730083181068,
+  "collisions": 0,
+  "speed_by_phase": {
+    "ASCEND": {
+      "median_mps": 0.03819630377553842,
+      "p95_mps": 0.07680077073106467,
+      "samples": 11
+    },
+    "SURVEY": {
+      "median_mps": 0.8144992311944976,
+      "p95_mps": 0.9096814746221652,
+      "samples": 313
+    },
+    "DESCEND": {
+      "median_mps": 0.3352606473566554,
+      "p95_mps": 0.7912961067462676,
+      "samples": 36
+    },
+    "REVISIT": {
+      "median_mps": 0.7591039369707953,
+      "p95_mps": 0.8756157690899659,
+      "samples": 191
+    },
+    "REACQUIRE": {
+      "median_mps": 0.04197965623869705,
+      "p95_mps": 0.07071875752591494,
+      "samples": 5
+    },
+    "APPROACH": {
+      "median_mps": 0.047948884084431154,
+      "p95_mps": 0.08663741592960118,
+      "samples": 17
+    },
+    "CAPTURE": {
+      "median_mps": 0.05204955483974687,
+      "p95_mps": 0.1193010883904372,
+      "samples": 230
+    },
+    "ALIGN": {
+      "median_mps": 0.045143235360369585,
+      "p95_mps": 0.06102617954135615,
+      "samples": 26
+    },
+    "RECOVERY": {
+      "median_mps": 0.0398009953574909,
+      "p95_mps": 0.04672550350240657,
+      "samples": 13
+    },
+    "CORRIDOR": {
+      "median_mps": 0.1154019645747191,
+      "p95_mps": 0.7817678181064945,
+      "samples": 1200
+    },
+    "LAND": {
+      "median_mps": 0.0494099507846104,
+      "p95_mps": 0.08002146582178551,
+      "samples": 56
+    }
+  },
+  "height_estimation": {
+    "lio_pose": {
+      "abs_error_p95_m": 0.006897895037427293,
+      "abs_error_max_m": 0.016885923797798998,
+      "final_error_m": -0.0003888635547436587
+    },
+    "mavros_pose": {
+      "abs_error_p95_m": 0.0888483056322242,
+      "abs_error_max_m": 0.6711470973463507,
+      "final_error_m": -0.024108604491453137
+    }
+  },
+  "commits": 3,
+  "releases": 3,
+  "recovery_requests": 0,
+  "cleanup_pass": true
+}
