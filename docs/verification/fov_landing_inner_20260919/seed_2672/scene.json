@@ -1,0 +1,54 @@
+{
+  "schema_version": 3,
+  "scene_seed": 2672,
+  "door_seed": 3672,
+  "obstacle_seed": 4672,
+  "door_pattern": "CONTINUOUS",
+  "doors": [
+    {
+      "name": "Wall_20",
+      "axis": "y",
+      "coordinate": 1.6,
+      "lateral_min": 7.695710531072727,
+      "lateral_max": 8.495710531072728,
+      "clear_width": 0.8
+    },
+    {
+      "name": "Wall_22",
+      "axis": "y",
+      "coordinate": -1.6,
+      "lateral_min": 7.782737448365095,
+      "lateral_max": 8.582737448365096,
+      "clear_width": 0.8
+    }
+  ],
+  "trees": [
+    {
+      "x": 2.1775270740284256,
+      "y": 0.5589827218550969,
+      "yaw": -4.533154892633034
+    },
+    {
+      "x": 4.739403060206737,
+      "y": -3.161495228304185,
+      "yaw": -1.6052515460708436
+    },
+    {
+      "x": 5.452959783082196,
+      "y": -0.12318668675204236,
+      "yaw": -3.6807505070655306
+    },
+    {
+      "x": 5.658374287327671,
+      "y": -2.1073833114801346,
+      "yaw": 0.053893972943845014
+    }
+  ],
+  "frame": "fixed start FLU; X inward, Y left, Z up",
+  "corridor_width": 1.5,
+  "target_seed": "independent field_seed at spawner",
+  "qualification": "Fixture conversion, SITL validation separate",
+  "door_mode": "continuous",
+  "outer_wall_height_m": 4.0,
+  "coordinate_transform": "x_new=y_old; y_new=-x_old"
+}

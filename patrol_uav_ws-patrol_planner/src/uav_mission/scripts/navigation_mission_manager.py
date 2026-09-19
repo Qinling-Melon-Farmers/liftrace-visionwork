@@ -581,6 +581,12 @@ class NavigationMissionManager:
                     rospy.loginfo("Flight parameter stage after %d waypoints: %s",
                                   completed, stage["parameters"])
         self._apply_following_speed(action, force=True)
+        if rospy.get_param('~fixed_search_region/enabled',False):
+            is_tail=action.command=='RETURN_HOME' and action.reason.startswith('post_delivery_route:')
+            if is_tail:
+                rospy.set_param('/fast_planner_node/sdf_map/search_region/enabled',False)
+            if action.command=='LAND':
+                rospy.set_param('/simulation/landing_phase_active',True)
         message = NavigationDecision()
         message.header.seq = int(action.decision_seq)
         message.header.stamp = rospy.Time.from_sec(action.issued_at)

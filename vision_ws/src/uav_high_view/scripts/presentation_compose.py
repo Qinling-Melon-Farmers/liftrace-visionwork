@@ -26,6 +26,16 @@ class Stream:
 
 def jsonl(path):return [json.loads(l) for l in path.read_text().splitlines() if l.strip()] if path.exists() else []
 
+def landing_window_active(decision):
+    """Mirror the recorded Gate's final-approach / LAND phase selection."""
+    if decision.get('command') == 5:return True
+    reason=decision.get('reason','')
+    if not reason.startswith('post_delivery_route:'):return False
+    try:
+        index,total=(int(v) for v in reason.split(':')[1].split('/'))
+        return index==total and total>0
+    except ValueError:return False
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('run',type=Path);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--source-run',type=Path);p.add_argument('--font',type=Path)
@@ -46,6 +56,7 @@ def main():
     events=jsonl(source/'key_events.jsonl');mission=[(e['ros_sec'],e['data']) for e in events if e['kind']=='mission']
     high=[(e['t'],e['status']) for e in jsonl(source/'high_view_full_events.jsonl')]
     decisions=[e for e in events if e['kind']=='decision']
+    hregion=params.get('navigation_vcl06_assertion',{}).get('post_delivery_gate',{}).get('landing_observation_region',{})
     start=min((e['data']['header']['stamp']['stamp_ns']/1e9 for e in decisions),default=poses[0,0])
     overview,follow=Stream(a.run/'overview.mp4'),Stream(a.run/'follow.mp4')
     first=max(overview.times[0],follow.times[0]);last=min(overview.times[-1],follow.times[-1])
@@ -58,12 +69,13 @@ def main():
     a.output.parent.mkdir(parents=True,exist_ok=True)
     command=['ffmpeg','-hide_banner','-loglevel','error','-f','rawvideo','-pix_fmt','bgr24','-s','1920x1080','-r','10','-i','-',
              '-an','-c:v','libx264','-threads','2','-preset','veryfast','-crf','21','-pix_fmt','yuv420p','-movflags','+faststart',str(a.output)]
-    process=subprocess.Popen(command,stdin=subprocess.PIPE);count=0;max_age=[0.,0.];mi=hi=0;state={};high_state={};limit_counts={};over_limit=0
+    process=subprocess.Popen(command,stdin=subprocess.PIPE);count=0;max_age=[0.,0.];mi=hi=di=0;state={};high_state={};decision={};limit_counts={};over_limit=0
     try:
         for t in np.arange(first,last+1e-8,.1):
             source_t=t if replay is None else replay['source_start']+t-replay['replay_start_ros']
             while mi<len(mission) and mission[mi][0]<=source_t:state=mission[mi][1];mi+=1
             while hi<len(high) and high[hi][0]<=source_t:high_state=high[hi][1];hi+=1
+            while di<len(decisions) and decisions[di]['ros_sec']<=source_t:decision=decisions[di]['data'];di+=1
             phase=high_state.get('stage',state.get('phase','STARTUP'))
             if phase=='SURVEY' and not high_state.get('ascent_verified',True):phase='ASCEND'
             if phase=='TAIL':phase=state.get('phase','POST_DELIVERY_ROUTE')
@@ -72,6 +84,7 @@ def main():
             x0,x1,y0,y1=a.corridor_bounds
             in_corridor=x0<=x<=x1 and y0<=y<=y1
             limit=a.corridor_limit if in_corridor else a.flight_limit
+            if (hregion and landing_window_active(decision) and hregion['min_x']<=x<=hregion['max_x'] and hregion['min_y']<=y<=hregion['max_y']):limit=hregion['max_height']
             limit_counts[str(limit)]=limit_counts.get(str(limit),0)+1;over_limit+=int(z>limit)
             over,age0=overview.at(t);chase,age1=follow.at(t);max_age=[max(max_age[0],age0),max(max_age[1],age1)]
             canvas=np.full((1080,1920,3),(28,23,20),np.uint8)
@@ -101,7 +114,7 @@ def main():
         overview.cap.release();follow.cap.release()
         if process.poll() is None:process.terminate();process.wait()
     summary=dict(frames=count,fps=10,common_ros_start=float(first),common_ros_end=float(last),max_image_age_s=max_age,
-                 source_run=str(source),replay=bool(replay),synthetic_test=a.test_pattern,display_limit_counts=limit_counts,display_over_limit_frames=over_limit,display_limits=dict(flight=a.flight_limit,corridor=a.corridor_limit,wall=a.wall_height,corridor_bounds=a.corridor_bounds),
+                 source_run=str(source),replay=bool(replay),synthetic_test=a.test_pattern,display_limit_counts=limit_counts,display_over_limit_frames=over_limit,display_limits=dict(flight=a.flight_limit,corridor=a.corridor_limit,wall=a.wall_height,corridor_bounds=a.corridor_bounds,landing_observation_region=hregion),
                  note='Source-clock paired views; missing camera frames held. Display limit labels are user inputs, not new rule claims.')
     a.output.with_suffix('.json').write_text(json.dumps(summary,indent=2));print(json.dumps(summary,indent=2))
 

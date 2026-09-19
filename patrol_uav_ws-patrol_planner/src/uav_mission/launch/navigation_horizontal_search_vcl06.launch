@@ -26,6 +26,8 @@
   <!-- 0.22 m FC-to-support plus the existing 5 mm H pad; no initial penetration. -->
   <arg name="spawn_z" default="0.225" />
   <arg name="body_to_imu_xyz" default="0 0 0.05" />
+  <arg name="camera_extrinsic_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
+  <arg name="vehicle_sdf" default="$(find uav_vision_eval)/models/iris_mid360_ks2a543_installed/model.sdf" />
   <arg name="camera_extrinsic_xyz" default="0 0 -0.16" />
   <arg name="gui" default="false" />
   <arg name="rviz" default="false" />
@@ -72,10 +74,11 @@
     <arg name="mission_start_mode" value="$(arg mission_start_mode)" />
     <arg name="gate_scope" value="$(arg gate_scope)" />
     <arg name="world" value="$(arg world)" />
-    <arg name="vehicle_sdf" value="$(find uav_vision_eval)/models/iris_mid360_ks2a543_installed/model.sdf" />
+    <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
     <arg name="runtime_config" value="$(arg runtime_config)" />
     <arg name="waypoint_config" value="$(arg control_config)" />
     <arg name="field_config" value="$(arg field_config)" />
+    <arg name="camera_extrinsic_quat_xyzw" value="$(arg camera_extrinsic_quat_xyzw)" />
     <arg name="camera_extrinsic_xyz" value="$(arg camera_extrinsic_xyz)" />
     <arg name="search_altitude" value="1.18" />
     <arg name="external_planner_max_command_z" value="2.08" />

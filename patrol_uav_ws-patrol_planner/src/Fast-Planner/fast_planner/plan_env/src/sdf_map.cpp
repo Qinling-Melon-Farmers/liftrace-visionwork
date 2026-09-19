@@ -70,6 +70,17 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
   node_.param("sdf_map/visualization_truncate_height", mp_.visualization_truncate_height_, -0.1);
   node_.param("sdf_map/virtual_ceil_height", mp_.virtual_ceil_height_, -0.1);
   node_.param("sdf_map/horizontal_avoidance/enabled", mp_.horizontal_avoidance_, false);
+  node_.param("sdf_map/search_region/enabled", mp_.search_region_enabled_, false);
+  node_.param("sdf_map/search_region/min_x", mp_.search_region_bounds_[0], -0.1);
+  node_.param("sdf_map/search_region/max_x", mp_.search_region_bounds_[1], 7.0);
+  node_.param("sdf_map/search_region/min_y", mp_.search_region_bounds_[2], -4.4);
+  node_.param("sdf_map/search_region/max_y", mp_.search_region_bounds_[3], 4.4);
+  if (!mp_.search_region_bounds_.allFinite() || mp_.search_region_bounds_[0] >= mp_.search_region_bounds_[1] || mp_.search_region_bounds_[2] >= mp_.search_region_bounds_[3])
+    throw std::invalid_argument("invalid fixed search region");
+  node_.param("sdf_map/horizontal_avoidance/tracking_margin", mp_.horizontal_tracking_margin_, 0.0);
+  if (!std::isfinite(mp_.horizontal_tracking_margin_) || mp_.horizontal_tracking_margin_ < 0.0 || mp_.horizontal_tracking_margin_ > 0.2)
+    throw std::invalid_argument("invalid high column tracking margin");
+
   node_.param("sdf_map/horizontal_avoidance/min_x", mp_.horizontal_min_x_, 0.0);
   node_.param("sdf_map/horizontal_avoidance/max_x", mp_.horizontal_max_x_, 0.0);
   node_.param("sdf_map/horizontal_avoidance/min_y", mp_.horizontal_min_y_, 0.0);
@@ -890,6 +901,11 @@ void SDFMap::odomCallback(const nav_msgs::OdometryConstPtr& odom) {
 }
 
 void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
+  node_.getParamCached("sdf_map/search_region/enabled", mp_.search_region_enabled_);
+  double tracking_margin = mp_.horizontal_tracking_margin_;
+  if (node_.getParamCached("sdf_map/horizontal_avoidance/tracking_margin", tracking_margin) && std::isfinite(tracking_margin) && tracking_margin >= 0.0 && tracking_margin <= 0.2)
+    mp_.horizontal_tracking_margin_ = tracking_margin;
+
   // Apply phase ceiling before rebuilding the local occupancy map. The
   // existing resetBuffer below clears prior ceiling cells each cloud update.
   double phase_ceiling = mp_.virtual_ceil_height_;
@@ -1013,6 +1029,25 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   boundIndex(md_.local_bound_max_);
 
   if (mp_.horizontal_avoidance_) {
+    // Expand only supported synthetic tree columns. Real 3-D inflation and
+    // narrow-door geometry retain their existing values; margin is phase-owned.
+    const int extra = static_cast<int>(std::ceil(mp_.horizontal_tracking_margin_ * mp_.resolution_inv_));
+    if (extra > 0) {
+      const auto original = horizontal_columns;
+      for (int x=0; x<mp_.map_voxel_num_.x(); ++x)
+        for (int y=0; y<mp_.map_voxel_num_.y(); ++y)
+          if (original[x*mp_.map_voxel_num_.y()+y])
+            for (int dx=-extra; dx<=extra; ++dx)
+              for (int dy=-extra; dy<=extra; ++dy) {
+                const int a=x+dx, b=y+dy;
+                if (a>=0 && b>=0 && a<mp_.map_voxel_num_.x() && b<mp_.map_voxel_num_.y())
+                  horizontal_columns[a*mp_.map_voxel_num_.y()+b]=1;
+              }
+      md_.local_bound_min_.x()=std::max(0,md_.local_bound_min_.x()-extra);
+      md_.local_bound_min_.y()=std::max(0,md_.local_bound_min_.y()-extra);
+      md_.local_bound_max_.x()=std::min(mp_.map_voxel_num_.x()-1,md_.local_bound_max_.x()+extra);
+      md_.local_bound_max_.y()=std::min(mp_.map_voxel_num_.y()-1,md_.local_bound_max_.y()+extra);
+    }
     const int low = std::max(0, int(floor((mp_.horizontal_floor_z_ - mp_.map_origin_(2)) *
                                          mp_.resolution_inv_)));
     double top_height = mp_.virtual_ceil_height_ > 0.0 ?

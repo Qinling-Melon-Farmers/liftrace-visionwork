@@ -1,4 +1,6 @@
 <launch>
+  <arg name="vehicle_sdf" default="$(find uav_vision_eval)/models/iris_mid360_ks2a543_installed/model.sdf" />
+  <arg name="camera_extrinsic_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
   <arg name="target_model_path" />
   <arg name="record_overview_video" default="false" />
   <arg name="overview_z" default="7.0" />
@@ -14,6 +16,8 @@
   <arg name="high_goal_adjustment_radius" default="0.30" />
   <arg name="low_goal_adjustment_radius" default="0.15" />
   <include file="$(find uav_mission)/launch/navigation_horizontal_search_vcl06.launch">
+      <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+      <arg name="camera_extrinsic_quat_xyzw" value="$(arg camera_extrinsic_quat_xyzw)" />
     <arg name="target_model_path" value="$(arg target_model_path)" />
     <arg name="record_overview_video" value="$(arg record_overview_video)" />
     <arg name="overview_z" value="$(arg overview_z)" />
