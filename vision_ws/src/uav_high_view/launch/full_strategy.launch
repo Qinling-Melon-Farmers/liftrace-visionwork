@@ -17,6 +17,7 @@
     <arg name="target_model_path" value="$(arg target_model_path)" />
     <arg name="record_overview_video" value="$(arg record_overview_video)" />
     <arg name="overview_z" value="$(arg overview_z)" />
+    <arg name="overview_model_sdf" value="$(find uav_vision_eval)/models/competition_overview_camera_above_roof/model.sdf" />
     <arg name="field_seed" value="$(arg field_seed)" />
     <arg name="world" value="$(arg world)" />
     <arg name="field_config" value="$(arg field_config)" />

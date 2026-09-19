@@ -2,7 +2,7 @@
   "repository": "https://github.com/Qinling-Melon-Farmers/liftrace-controlwork.git",
   "authority": "https://github.com/sakelier/liftrace-controlwork.git",
   "branch": "feat/high-view-liveness-20260919",
-  "commit": "dc18320e6dc9008f2a56069cde7574d0e52e8076",
+  "commit": "b368e6d075125e2ead0cf1b822e0f50638b3df5c",
   "files": [
     "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/CMakeLists.txt",
     "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/kino_replan_fsm.h",
@@ -24,6 +24,8 @@
     "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_boundary_revisit.py",
     "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_external_mission_contract.py",
     "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_high_view_full.py",
-    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_planner_execution.py"
-  ]
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_planner_execution.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/launch/navigation_horizontal_search_vcl06.launch"
+  ],
+  "flight_source_commit": "dc18320e6dc9008f2a56069cde7574d0e52e8076"
 }
