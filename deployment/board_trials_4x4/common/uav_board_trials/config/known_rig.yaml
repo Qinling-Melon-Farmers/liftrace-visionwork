@@ -1,0 +1,23 @@
+mission_frame: camera_init
+mavros_frame: map
+body_to_imu_xyz:
+- 0.0
+- 0.0
+- 0.05
+imu_to_camera_xyz:
+- 0.0
+- 0.0
+- -0.21
+camera_quat_xyzw:
+- -0.70710678
+- 0.70710678
+- 0.0
+- 0.0
+pixel_to_body_matrix:
+- 0.0
+- -1.0
+- -1.0
+- 0.0
+fc_ground_clearance: 0.22
+source: Inherited 20260912 board 4x4 extrinsics; do not substitute rotated simulation
+  camera mounting

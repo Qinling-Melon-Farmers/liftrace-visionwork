@@ -1,0 +1,11 @@
+{
+  "synthetic_not_flight": true,
+  "output": "/tmp/board_recording_synthetic_5bk7wu_q",
+  "frames": 2.0,
+  "shape": [
+    444,
+    640,
+    3
+  ],
+  "video_decode": true
+}

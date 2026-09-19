@@ -1,0 +1,44 @@
+[
+  {
+    "trial": "visual_interrupt",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "trial": "visual_interrupt",
+    "control_output": "true",
+    "nodes": 19,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "trial": "high_view",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "FullCircleRuntime",
+    "passed": true
+  },
+  {
+    "trial": "high_view",
+    "control_output": "true",
+    "nodes": 19,
+    "runtime": "FullCircleRuntime",
+    "passed": true
+  },
+  {
+    "trial": "landing",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "trial": "landing",
+    "control_output": "true",
+    "nodes": 15,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  }
+]

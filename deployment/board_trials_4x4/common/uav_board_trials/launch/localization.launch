@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<launch>
+  <arg name="enable_control_output" default="false" />
+  <arg name="map_frame" default="camera_init" />
+  <arg name="body_to_imu_xyz" default="0 0 0.05" />
+  <arg name="imu_to_camera_z" default="-0.21" />
+  <arg name="camera_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
+  <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
+  <arg name="lio_config" default="$(find uav_mission)/config/mid360_hardware.yaml" />
+  <rosparam file="$(arg lio_config)" />
+  <param name="feature_extract_enable" value="false" />
+  <param name="point_filter_num" value="3" />
+  <param name="max_iteration" value="3" />
+  <param name="filter_size_surf" value="0.15" />
+  <param name="filter_size_map" value="0.15" />
+  <param name="cube_side_length" value="1000.0" />
+  <param name="runtime_pos_log_enable" value="false" />
+  <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen" />
+  <include file="$(find freedom)/launch/run_freedom_mid360.launch">
+    <arg name="enable_static_pointcloud_viz" value="false" />
+  </include>
+  <param name="/freedom/sensor_tf_frame" value="mapping_imu" />
+  <rosparam ns="/freedom" file="$(find uav_mission)/config/competition_freedom.yaml" />
+  <param name="/freedom/map_tf_frame" value="$(arg map_frame)" />
+  <node pkg="uav_mission" type="lio_external_pose.py" name="lio_external_pose" output="screen">
+    <param name="frame" value="$(arg map_frame)" />
+    <rosparam param="imu_to_body_xyz" subst_value="true">$(eval [-float(v) for v in arg('body_to_imu_xyz').split()])</rosparam>
+  </node>
+  <node pkg="uav_mission" type="map_camera_alignment.py" name="map_camera_alignment" output="screen">
+    <param name="parent_frame" value="$(arg map_frame)" />
+    <param name="child_frame" value="map" />
+    <param name="lio_frame" value="$(arg map_frame)" />
+    <param name="mavros_frame" value="map" />
+    <param name="require_disarmed_for_initialization" value="true" />
+  </node>
+  <node pkg="uav_mission" type="navigation_frame_adapter.py" name="navigation_frame_adapter" output="screen" required="true">
+    <param name="local_frame" value="map" />
+    <param name="mission_frame" value="$(arg map_frame)" />
+    <param name="enable_setpoints" value="$(arg enable_control_output)" />
+  </node>
+  <node pkg="uav_mission" type="pose_tf_broadcaster.py" name="vision_pose_tf" output="screen">
+    <param name="pose_topic" value="/mavros/local_position/pose" />
+    <param name="parent_frame" value="map" />
+    <param name="child_frame" value="vision_body" />
+  </node>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="mapping_imu_extrinsic" args="$(arg body_to_imu_xyz) 0 0 0 1 vision_body mapping_imu" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="downward_camera_extrinsic" args="0 0 $(arg imu_to_camera_z) $(arg camera_quat_xyzw) mapping_imu $(arg camera_optical_frame)" />
+</launch>

@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.0.2)
+project(uav_board_trials)
+find_package(catkin REQUIRED)
+catkin_package()
+catkin_install_python(PROGRAMS scripts/trial_manager.py scripts/trial_auto_land.py scripts/trial_recorder.py scripts/mock_servo.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+install(DIRECTORY launch config scripts DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
