@@ -636,6 +636,9 @@ class NavigationMissionManager:
             near_boundary=bool(boundary and action.goal is not None and
                                getattr(self._runtime,'stage','') in ('REVISIT','DELIVERY') and
                                boundary.near((action.goal.x,action.goal.y)))
+            if boundary and boundary.enabled and getattr(self._runtime,'stage','')=='LOW_COVERAGE' and action.goal is not None:
+                xy=self._current_xy()
+                near_boundary=boundary.slow_coverage(xy,(action.goal.x,action.goal.y))
             selected=speed.select(action.command,action.reason,self._runtime.core.post_delivery_route_index,near_boundary)
             schedule_config=rospy.get_param('~corridor_speed_schedule', {})
             if schedule_config and action.command=='RETURN_HOME' and action.reason.startswith('post_delivery_route:') and self._runtime.core.post_delivery_route_index>=1:

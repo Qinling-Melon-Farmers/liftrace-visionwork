@@ -21,7 +21,7 @@ class FollowingSpeed:
             raise ValueError('invalid following speed profile')
 
     def select(self,command,reason,completed,near_boundary=False):
-        if near_boundary and command in ('SEARCH','APPROACH'):
+        if near_boundary and command in ('SEARCH','RESUME','APPROACH'):
             return 'BOUNDARY_REVISIT',self.boundary_lead_m
         if command in ('SEARCH','RESUME'):
             return 'CRUISE',self.cruise_lead_m

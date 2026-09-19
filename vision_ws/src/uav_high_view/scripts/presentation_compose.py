@@ -84,8 +84,8 @@ def main():
             draw.text((1310,790),f'飞控中心离地（真值） {z:.2f} m',font=small,fill='#ff7373' if z>limit else 'white')
             draw.text((1310,842),f'本区测试限高 {limit:.2f} m',font=small,fill='white')
             draw.text((1310,894),f'边界墙参考高度 {a.wall_height:.1f} m',font=small,fill='#bdc7cf')
-            draw.text((1310,946),'右上：正上方 / 北向上',font=small,fill='#bdc7cf')
-            draw.text((35,1020),f'高位坐标 {len(high_state.get("first_hint_ready",{}))} / 3  |  观察相机不参与导航控制',font=small,fill='#bdc7cf')
+            draw.text((1310,946),'右上：正上方 / 固定+Y向上',font=small,fill='#bdc7cf')
+            draw.text((35,1020),f'曾形成高位线索 {len(high_state.get("first_hint_ready",{}))} / 3  |  观察相机不参与导航控制',font=small,fill='#bdc7cf')
             process.stdin.write(cv2.cvtColor(np.array(img),cv2.COLOR_RGB2BGR).tobytes());count+=1
         process.stdin.close()
         if process.wait()!=0:raise RuntimeError('ffmpeg composition failed')

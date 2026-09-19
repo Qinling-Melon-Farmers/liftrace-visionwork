@@ -35,3 +35,4 @@
   - 3.5
 - - 1
   - 3.5
+/navigation/planner_bridge/execution/search_initial_plan_timeout: 12.0

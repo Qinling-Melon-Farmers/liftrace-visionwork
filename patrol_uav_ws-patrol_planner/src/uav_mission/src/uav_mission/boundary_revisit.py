@@ -44,3 +44,8 @@ class BoundaryRevisit:
 
     def near(self, xy):
         return self.enabled and self.clearance(xy)<self.margin+self.max_view_offset_m
+
+    def slow_coverage(self, xy, goal):
+        """Brake near a field edge without slowing an entire coverage strip."""
+        return self.enabled and (self.clearance(xy)<.85 or
+                                 (self.near(goal) and math.dist(xy,goal)<1.0))

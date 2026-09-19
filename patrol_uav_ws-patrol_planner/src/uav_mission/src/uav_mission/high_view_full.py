@@ -36,6 +36,9 @@ class HighViewFull(HighViewProbe):
         self._progress=None;self._alternative=False
         self.fallback_started=None
         self.descent_debug=None
+        self.conflict_checked=set()
+        self.conflict_active=False
+        self.conflict_check_started=None
 
     def _candidate_validation_config(self):
         if self.stage=='SURVEY':
@@ -84,6 +87,11 @@ class HighViewFull(HighViewProbe):
         return self._outcome(True,'full_motion_pending')
 
     def _finish_route(self,action,succeeded,now):
+        if self.stage=='REVISIT' and self.conflict_active and not succeeded:
+            outcome,failed=MissionRuntime._finish_route(self,action,succeeded,now)
+            if failed is not None:return outcome,failed
+            self.events.append(dict(stage='CONFLICT_LOCATION_UNREACHABLE',time=now,xy=self.selected.xy))
+            return outcome,self._start_fallback(now,'conflict_location_unreachable')
         if self.stage=='LOW_COVERAGE':return MissionRuntime._finish_route(self,action,succeeded,now)
         if self.stage=='SURVEY' and self.ascent_verified:
             outcome,failed=MissionRuntime._finish_route(self,action,succeeded,now)
@@ -148,6 +156,7 @@ class HighViewFull(HighViewProbe):
         return result
 
     def _next_target(self,now):
+        self.conflict_active=False
         remaining={c:h for c,h in self.top_hints.items() if c not in self.core.queue.delivered_classes}
         if not remaining:return self._start_fallback(now,'known_hints_exhausted')
         self.revisit_viewpoints={c:self.boundary_policy.viewpoint(h.xy,h.uncertainty_m) for c,h in remaining.items()}
@@ -184,7 +193,44 @@ class HighViewFull(HighViewProbe):
         self._change_route('REVISIT',[Waypoint(*view,self.probe_config.ground_z+self.probe_config.low_agl)],now)
         return self._dispatch_route('SEARCH','ordered_revisit',now)
 
+    def _next_conflict_location(self,now):
+        # These are competing visual hypotheses, not confirmed class coordinates.
+        # A new physical low-view observation must still pass the original chain.
+        if self.conflict_check_started is not None and now-self.conflict_check_started>=75.:
+            return None
+        proposals=[]
+        costs=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
+        for cls,hints in self.memory.verification_hints(int(round(now*1e9))).items():
+            if cls in self.core.queue.delivered_classes:continue
+            for index,h in enumerate(hints):
+                key=(cls,index)
+                if key in self.conflict_checked:continue
+                view=self.boundary_policy.viewpoint(h.xy,h.uncertainty_m)
+                if view is None:
+                    self.conflict_checked.add(key)
+                    self.events.append(dict(stage='CONFLICT_LOCATION_INADMISSIBLE',time=now,xy=h.xy))
+                    continue
+                cost=costs.get(self.grid.cell(view),math.inf)
+                proposals.append((cost,math.dist(self._current_xy,view),cls,index,h,view))
+        if not proposals:return None
+        _,_,cls,index,h,view=min(proposals,key=lambda p:p[:4])
+        if self.conflict_check_started is None:self.conflict_check_started=now
+        self.conflict_checked.add((cls,index));self.conflict_active=True
+        self.selected=h;self.reacquired=None;self.fresh_candidate=None
+        self.events.append(dict(stage='CONFLICT_LOW_VERIFY',time=now,class_name=cls,xy=h.xy,
+                                viewpoint=view,hypothesis=index,scope='LOW_VIEW_RECHECK_NOT_RELEASE_AUTHORIZATION'))
+        self._change_route('REVISIT',[Waypoint(*view,self.probe_config.ground_z+self.probe_config.low_agl)],now)
+        out=self._dispatch_route('SEARCH','conflict_low_verify',now)
+        if out.action:
+            action=replace(out.action,deadline_at=min(out.action.deadline_at,now+25.,self.conflict_check_started+75.))
+            self.core.active_action=action
+            return self._outcome(True,out.reason,action)
+        return out
+
     def _start_fallback(self,now,reason):
+        self.conflict_active=False
+        check=self._next_conflict_location(now)
+        if check is not None:return check
         if self.fallback_route is None:return self._finish(False,'fallback_route_unavailable',now)
         points=list(self.fallback_route.waypoints)
         costs=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
@@ -255,5 +301,7 @@ class HighViewFull(HighViewProbe):
         value.update(boundary_policy=asdict(self.boundary_policy),boundary_rejections=self.boundary_rejections,revisit_viewpoints=self.revisit_viewpoints,
                      survey_policy=asdict(self.policy),descent_proposal=self.descent_proposal,
                      first_hint_ready=dict(self.first_hint_ready),navigation_memory_events=list(self.memory.events),
-                     fallback_started=self.fallback_started,descent_debug=self.descent_debug)
+                     fallback_started=self.fallback_started,descent_debug=self.descent_debug,
+                     conflict_active=self.conflict_active,conflict_checked=sorted(self.conflict_checked),
+                     conflict_locations={c:[asdict(h) for h in hs] for c,hs in self.memory.verification_hints(self.memory.last_now or 0).items()})
         return value

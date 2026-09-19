@@ -6,10 +6,23 @@ class NavigationMemory:
     def __init__(self, classes, ttl_ns, merge_radius=.6):
         self.classes=set(classes);self.ttl_ns=ttl_ns;self.merge_radius=merge_radius
         self.epoch=None;self.last_now=None;self.saved={};self.suspended=set();self.events=[]
+        self.conflict_hints={}
+
+    def _remember_conflict(self, hint):
+        rows=self.conflict_hints.setdefault(hint.class_name,[])
+        # Two spatial hypotheses per class, no live queues or unbounded history.
+        if any(math.dist(hint.xy,old.xy)<=self.merge_radius for old in rows):return
+        if len(rows)<2:rows.append(hint)
+
+    def verification_hints(self, now_ns):
+        """Ambiguous locations for low-view checking, never release permission."""
+        return {c:tuple(h for h in rows if h.epoch==self.epoch and 0<=now_ns-h.last_seen_ns<=self.ttl_ns)
+                for c,rows in self.conflict_hints.items() if c in self.suspended}
 
     def update(self, hints, epoch, now_ns):
         if epoch!=self.epoch or (self.last_now is not None and now_ns<self.last_now):
             self.saved.clear();self.suspended.clear()
+            self.conflict_hints.clear()
             self.events.append(dict(reason='epoch_or_clock_reset',time_ns=now_ns))
             self.epoch=epoch
         self.last_now=now_ns
@@ -25,9 +38,12 @@ class NavigationMemory:
                       (old.key==h.key and c!=cls) or
                       (c==cls and math.dist(old.xy,h.xy)>self.merge_radius)]
             if conflict:
+                self._remember_conflict(h)
                 for c in conflict+[cls]:
+                    if c in self.saved:self._remember_conflict(self.saved[c])
                     if c not in self.suspended:
-                        self.events.append(dict(reason='confirmed_evidence_conflict',class_name=c,time_ns=now_ns))
+                        self.events.append(dict(reason='confirmed_evidence_conflict',class_name=c,time_ns=now_ns,
+                                                locations=[old.xy for old in self.conflict_hints.get(c,())]))
                     self.suspended.add(c)
                 continue
             if cls in self.suspended:continue
