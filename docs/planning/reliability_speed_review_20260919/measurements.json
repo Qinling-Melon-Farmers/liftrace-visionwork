@@ -1,0 +1,833 @@
+{
+  "scope": "Read-only recomputation from existing 36-40 traces; not new simulation; moving threshold 0.03m/s and 0<dt<=0.5s; phases from recorded mission events; ascending/descending XY velocity is not vertical speed.",
+  "research_head": "778121a100cfe549fdb797ac6d67299aee8d2395",
+  "runs": [
+    {
+      "seed": 36,
+      "status": "FAIL",
+      "start_ros_s": 11.618999999,
+      "full_s": null,
+      "third_s": 101.04000000100001,
+      "interrupt_ros_s": 60.601,
+      "interrupt_elapsed_s": 48.982000001,
+      "committed": 3,
+      "release_events": 3,
+      "delivery_stage_entries": 3,
+      "phase_durations_s": {
+        "SEARCH": 0.01999999999999602,
+        "ASCEND": 3.421000000000001,
+        "SURVEY": 45.592,
+        "DESCEND": 3.3880000000000052,
+        "REVISIT": 24.164999999999992,
+        "REACQUIRE": 0.4900000000000091,
+        "APPROACH": 3.668999999999997,
+        "CAPTURE": 6.425999999999988,
+        "ALIGN": 8.688000000000017,
+        "RECOVERY": 7.741,
+        "CORRIDOR": 178.147,
+        "ABORT": 0.5790000000000077
+      },
+      "following_stats": {
+        "CRUISE": {
+          "duration_s": 77.05600000000001,
+          "moving_samples": 678,
+          "median_mps": 0.7840837321635157,
+          "p95_mps": 0.8852560993464086
+        },
+        "PRECISION": {
+          "duration_s": 26.543999999999997,
+          "moving_samples": 134,
+          "median_mps": 0.03952330368502045,
+          "p95_mps": 0.08849943981677616
+        },
+        "TRANSIT_TO_CORRIDOR": {
+          "duration_s": 11.599999999999994,
+          "moving_samples": 88,
+          "median_mps": 0.30348344815430905,
+          "p95_mps": 0.8456494945156822
+        },
+        "CORRIDOR": {
+          "duration_s": 166.54400000000004,
+          "moving_samples": 807,
+          "median_mps": 0.10732693091281606,
+          "p95_mps": 0.1448428052719597
+        },
+        "TERMINAL": {
+          "duration_s": 0.5819999999999936,
+          "moving_samples": 0,
+          "median_mps": null,
+          "p95_mps": null
+        }
+      },
+      "stage_speed": {
+        "ASCEND": {
+          "samples": 33,
+          "xy_mean_including_hold_mps": 0.042256322266216555,
+          "xy_moving_p50_mps": 0.050113843574895636,
+          "xy_moving_p95_mps": 0.09834329690949994,
+          "z_moving_p50_mps": 0.33213306526535696,
+          "duration_s": 3.421000000000001
+        },
+        "SURVEY": {
+          "samples": 450,
+          "xy_mean_including_hold_mps": 0.5431627804171634,
+          "xy_moving_p50_mps": 0.8092001832998931,
+          "xy_moving_p95_mps": 0.8969110969857848,
+          "z_moving_p50_mps": 0.045015553534274916,
+          "duration_s": 45.592
+        },
+        "DESCEND": {
+          "samples": 34,
+          "xy_mean_including_hold_mps": 0.28976961631361126,
+          "xy_moving_p50_mps": 0.24887557163362295,
+          "xy_moving_p95_mps": 0.6864959237876639,
+          "z_moving_p50_mps": 0.2531954524939403,
+          "duration_s": 3.3880000000000052
+        },
+        "REVISIT": {
+          "samples": 237,
+          "xy_mean_including_hold_mps": 0.6338073004552963,
+          "xy_moving_p50_mps": 0.8049616362432102,
+          "xy_moving_p95_mps": 0.8611857449272295,
+          "z_moving_p50_mps": 0.05111651415865678,
+          "duration_s": 24.164999999999992
+        },
+        "REACQUIRE": {
+          "samples": 5,
+          "xy_mean_including_hold_mps": 0.05123506443804833,
+          "xy_moving_p50_mps": 0.05504495383311008,
+          "xy_moving_p95_mps": 0.07680083218899648,
+          "z_moving_p50_mps": null,
+          "duration_s": 0.4900000000000091
+        },
+        "APPROACH": {
+          "samples": 37,
+          "xy_mean_including_hold_mps": 0.03800239935406967,
+          "xy_moving_p50_mps": 0.05662388618745205,
+          "xy_moving_p95_mps": 0.07411906377660134,
+          "z_moving_p50_mps": 0.1520417136044216,
+          "duration_s": 3.668999999999997
+        },
+        "CAPTURE": {
+          "samples": 63,
+          "xy_mean_including_hold_mps": 0.04803358571757606,
+          "xy_moving_p50_mps": 0.04475976593551258,
+          "xy_moving_p95_mps": 0.09679085546143135,
+          "z_moving_p50_mps": 0.0691044646338911,
+          "duration_s": 6.425999999999988
+        },
+        "ALIGN": {
+          "samples": 85,
+          "xy_mean_including_hold_mps": 0.030879969023680672,
+          "xy_moving_p50_mps": 0.03846876463915599,
+          "xy_moving_p95_mps": 0.08741878831202282,
+          "z_moving_p50_mps": 0.41791625772114094,
+          "duration_s": 8.688000000000017
+        },
+        "RECOVERY": {
+          "samples": 77,
+          "xy_mean_including_hold_mps": 0.02229116227588894,
+          "xy_moving_p50_mps": 0.03540576005224455,
+          "xy_moving_p95_mps": 0.04113763919083004,
+          "z_moving_p50_mps": 0.3735398379856158,
+          "duration_s": 7.741
+        },
+        "CORRIDOR": {
+          "samples": 1756,
+          "xy_mean_including_hold_mps": 0.07132639682321675,
+          "xy_moving_p50_mps": 0.10782495134074772,
+          "xy_moving_p95_mps": 0.26532261191289797,
+          "z_moving_p50_mps": 0.04186998151987861,
+          "duration_s": 178.147
+        },
+        "ABORT": {
+          "samples": 6,
+          "xy_mean_including_hold_mps": 0.020167941875291643,
+          "xy_moving_p50_mps": null,
+          "xy_moving_p95_mps": null,
+          "z_moving_p50_mps": null,
+          "duration_s": 0.5790000000000077
+        }
+      },
+      "tail_after_third_s": null,
+      "raw_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed36_20260915_180729"
+    },
+    {
+      "seed": 37,
+      "status": "PASS",
+      "start_ros_s": 11.65,
+      "full_s": 217.404,
+      "third_s": 76.27799999999999,
+      "interrupt_ros_s": 44.2,
+      "interrupt_elapsed_s": 32.550000000000004,
+      "committed": 3,
+      "release_events": 3,
+      "delivery_stage_entries": 3,
+      "phase_durations_s": {
+        "SEARCH": 0.0,
+        "ASCEND": 3.1340000000000003,
+        "SURVEY": 29.5,
+        "DESCEND": 4.1370000000000005,
+        "REVISIT": 16.86800000000001,
+        "REACQUIRE": 0.5729999999999933,
+        "APPROACH": 3.1840000000000046,
+        "CAPTURE": 3.561,
+        "ALIGN": 10.118000000000002,
+        "RECOVERY": 7.881999999999991,
+        "CORRIDOR": 125.91,
+        "LAND": 12.537000000000006
+      },
+      "following_stats": {
+        "CRUISE": {
+          "duration_s": 54.17700000000001,
+          "moving_samples": 503,
+          "median_mps": 0.6303501906635333,
+          "p95_mps": 0.9199464816459317
+        },
+        "PRECISION": {
+          "duration_s": 24.779999999999994,
+          "moving_samples": 158,
+          "median_mps": 0.054081586621665824,
+          "p95_mps": 0.1324647113230398
+        },
+        "TRANSIT_TO_CORRIDOR": {
+          "duration_s": 13.709999999999994,
+          "moving_samples": 115,
+          "median_mps": 0.37491336747075593,
+          "p95_mps": 0.8837578648879146
+        },
+        "CORRIDOR": {
+          "duration_s": 112.188,
+          "moving_samples": 1034,
+          "median_mps": 0.11426417417314123,
+          "p95_mps": 0.14399948818375047
+        },
+        "TERMINAL": {
+          "duration_s": 12.549000000000007,
+          "moving_samples": 51,
+          "median_mps": 0.05846436324315525,
+          "p95_mps": 0.11464123660115852
+        }
+      },
+      "stage_speed": {
+        "ASCEND": {
+          "samples": 31,
+          "xy_mean_including_hold_mps": 0.05109111024741871,
+          "xy_moving_p50_mps": 0.058327993811292056,
+          "xy_moving_p95_mps": 0.10456100358591722,
+          "z_moving_p50_mps": 0.307065265478717,
+          "duration_s": 3.1340000000000003
+        },
+        "SURVEY": {
+          "samples": 287,
+          "xy_mean_including_hold_mps": 0.6052042330607628,
+          "xy_moving_p50_mps": 0.7660218605364799,
+          "xy_moving_p95_mps": 0.9474737921336356,
+          "z_moving_p50_mps": 0.05014122153930918,
+          "duration_s": 29.5
+        },
+        "DESCEND": {
+          "samples": 41,
+          "xy_mean_including_hold_mps": 0.3993727506373509,
+          "xy_moving_p50_mps": 0.38823370737949275,
+          "xy_moving_p95_mps": 0.8510325322724998,
+          "z_moving_p50_mps": 0.1321506298884309,
+          "duration_s": 4.1370000000000005
+        },
+        "REVISIT": {
+          "samples": 165,
+          "xy_mean_including_hold_mps": 0.46785509240433687,
+          "xy_moving_p50_mps": 0.5621883549465756,
+          "xy_moving_p95_mps": 0.8725073395284795,
+          "z_moving_p50_mps": 0.055238891210136205,
+          "duration_s": 16.86800000000001
+        },
+        "REACQUIRE": {
+          "samples": 6,
+          "xy_mean_including_hold_mps": 0.09552495613621441,
+          "xy_moving_p50_mps": 0.16308263334024184,
+          "xy_moving_p95_mps": 0.17895398473998697,
+          "z_moving_p50_mps": 0.07485624249592945,
+          "duration_s": 0.5729999999999933
+        },
+        "APPROACH": {
+          "samples": 31,
+          "xy_mean_including_hold_mps": 0.05766926086731722,
+          "xy_moving_p50_mps": 0.055665093723380896,
+          "xy_moving_p95_mps": 0.12325596858817942,
+          "z_moving_p50_mps": 0.09606725991380141,
+          "duration_s": 3.1840000000000046
+        },
+        "CAPTURE": {
+          "samples": 36,
+          "xy_mean_including_hold_mps": 0.09303291396112666,
+          "xy_moving_p50_mps": 0.08402369792361708,
+          "xy_moving_p95_mps": 0.14980201907660753,
+          "z_moving_p50_mps": 0.10957052967315449,
+          "duration_s": 3.561
+        },
+        "ALIGN": {
+          "samples": 100,
+          "xy_mean_including_hold_mps": 0.04489795015543467,
+          "xy_moving_p50_mps": 0.054537335863886406,
+          "xy_moving_p95_mps": 0.09978073807172835,
+          "z_moving_p50_mps": 0.35038363904096514,
+          "duration_s": 10.118000000000002
+        },
+        "RECOVERY": {
+          "samples": 74,
+          "xy_mean_including_hold_mps": 0.027654529150740837,
+          "xy_moving_p50_mps": 0.03776062896524843,
+          "xy_moving_p95_mps": 0.06344308599591335,
+          "z_moving_p50_mps": 0.3603630018376157,
+          "duration_s": 7.881999999999991
+        },
+        "CORRIDOR": {
+          "samples": 1227,
+          "xy_mean_including_hold_mps": 0.13145111423774322,
+          "xy_moving_p50_mps": 0.11449221164864916,
+          "xy_moving_p95_mps": 0.37225008518946145,
+          "z_moving_p50_mps": 0.041223995917719095,
+          "duration_s": 125.91
+        },
+        "LAND": {
+          "samples": 122,
+          "xy_mean_including_hold_mps": 0.031606286377241014,
+          "xy_moving_p50_mps": 0.05846436324315526,
+          "xy_moving_p95_mps": 0.11464123660115853,
+          "z_moving_p50_mps": 0.04914252530549573,
+          "duration_s": 12.537000000000006
+        }
+      },
+      "tail_after_third_s": 141.126,
+      "raw_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed37_20260915_182936"
+    },
+    {
+      "seed": 38,
+      "status": "FAIL",
+      "start_ros_s": 11.83,
+      "full_s": null,
+      "third_s": null,
+      "interrupt_ros_s": 45.1,
+      "interrupt_elapsed_s": 33.27,
+      "committed": 2,
+      "release_events": 2,
+      "delivery_stage_entries": 3,
+      "phase_durations_s": {
+        "SEARCH": 0.0,
+        "ASCEND": 3.0180000000000007,
+        "SURVEY": 30.301000000000002,
+        "DESCEND": 3.8900000000000006,
+        "REVISIT": 14.852999999999994,
+        "REACQUIRE": 0.3680000000000092,
+        "APPROACH": 4.100000000000001,
+        "CAPTURE": 3.897999999999989,
+        "ALIGN": 8.541000000000011,
+        "RECOVERY": 4.915999999999997
+      },
+      "following_stats": {
+        "CRUISE": {
+          "duration_s": 52.396,
+          "moving_samples": 489,
+          "median_mps": 0.6536266309943937,
+          "p95_mps": 0.9000430415028362
+        },
+        "PRECISION": {
+          "duration_s": 21.489000000000004,
+          "moving_samples": 156,
+          "median_mps": 0.06145813714100161,
+          "p95_mps": 0.1941866498345416
+        }
+      },
+      "stage_speed": {
+        "ASCEND": {
+          "samples": 30,
+          "xy_mean_including_hold_mps": 0.04834309541991206,
+          "xy_moving_p50_mps": 0.045995257008196025,
+          "xy_moving_p95_mps": 0.11455267389719713,
+          "z_moving_p50_mps": 0.4291913038968087,
+          "duration_s": 3.0180000000000007
+        },
+        "SURVEY": {
+          "samples": 299,
+          "xy_mean_including_hold_mps": 0.6285001838108083,
+          "xy_moving_p50_mps": 0.7963185089155963,
+          "xy_moving_p95_mps": 0.9075369263236023,
+          "z_moving_p50_mps": 0.036928460498317266,
+          "duration_s": 30.301000000000002
+        },
+        "DESCEND": {
+          "samples": 38,
+          "xy_mean_including_hold_mps": 0.41748318487934094,
+          "xy_moving_p50_mps": 0.41857758485018426,
+          "xy_moving_p95_mps": 0.8538845191262155,
+          "z_moving_p50_mps": 0.12569452269713374,
+          "duration_s": 3.8900000000000006
+        },
+        "REVISIT": {
+          "samples": 146,
+          "xy_mean_including_hold_mps": 0.44492524029551506,
+          "xy_moving_p50_mps": 0.5356142044742221,
+          "xy_moving_p95_mps": 0.8524276115664254,
+          "z_moving_p50_mps": 0.047503972157037264,
+          "duration_s": 14.852999999999994
+        },
+        "REACQUIRE": {
+          "samples": 4,
+          "xy_mean_including_hold_mps": 0.06841371630787918,
+          "xy_moving_p50_mps": 0.060304279002774935,
+          "xy_moving_p95_mps": 0.13825836931751032,
+          "z_moving_p50_mps": 0.03337140405965148,
+          "duration_s": 0.3680000000000092
+        },
+        "APPROACH": {
+          "samples": 40,
+          "xy_mean_including_hold_mps": 0.05786702734720024,
+          "xy_moving_p50_mps": 0.050862904809776927,
+          "xy_moving_p95_mps": 0.12964413505684164,
+          "z_moving_p50_mps": 0.14408754221254372,
+          "duration_s": 4.100000000000001
+        },
+        "CAPTURE": {
+          "samples": 38,
+          "xy_mean_including_hold_mps": 0.1160257427018052,
+          "xy_moving_p50_mps": 0.1167589007669293,
+          "xy_moving_p95_mps": 0.23287049600999085,
+          "z_moving_p50_mps": 0.09427989285732309,
+          "duration_s": 3.897999999999989
+        },
+        "ALIGN": {
+          "samples": 84,
+          "xy_mean_including_hold_mps": 0.06405068659887875,
+          "xy_moving_p50_mps": 0.06516600610977023,
+          "xy_moving_p95_mps": 0.18672360680065342,
+          "z_moving_p50_mps": 0.33087800374247384,
+          "duration_s": 8.541000000000011
+        },
+        "RECOVERY": {
+          "samples": 49,
+          "xy_mean_including_hold_mps": 0.03364675883320283,
+          "xy_moving_p50_mps": 0.04425323165835934,
+          "xy_moving_p95_mps": 0.06783833709845385,
+          "z_moving_p50_mps": 0.36289468002141567,
+          "duration_s": 4.915999999999997
+        }
+      },
+      "tail_after_third_s": null,
+      "raw_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed38_20260915_184340"
+    },
+    {
+      "seed": 39,
+      "status": "PASS",
+      "start_ros_s": 11.435999999,
+      "full_s": 238.208000001,
+      "third_s": 79.095000001,
+      "interrupt_ros_s": 46.1,
+      "interrupt_elapsed_s": 34.664000001000005,
+      "committed": 3,
+      "release_events": 3,
+      "delivery_stage_entries": 3,
+      "phase_durations_s": {
+        "SEARCH": 0.019000000000005457,
+        "ASCEND": 3.199,
+        "SURVEY": 31.506999999999998,
+        "DESCEND": 4.081000000000003,
+        "REVISIT": 17.896999999999984,
+        "REACQUIRE": 0.5180000000000007,
+        "APPROACH": 2.7079999999999984,
+        "CAPTURE": 4.263000000000005,
+        "ALIGN": 9.59300000000001,
+        "RECOVERY": 7.910999999999994,
+        "CORRIDOR": 143.78300000000002,
+        "LAND": 12.720999999999975
+      },
+      "following_stats": {
+        "CRUISE": {
+          "duration_s": 57.175000000000004,
+          "moving_samples": 531,
+          "median_mps": 0.7086788275013057,
+          "p95_mps": 0.8976589447986754
+        },
+        "PRECISION": {
+          "duration_s": 24.523999999999994,
+          "moving_samples": 123,
+          "median_mps": 0.060452917625620155,
+          "p95_mps": 0.13395897872678067
+        },
+        "TRANSIT_TO_CORRIDOR": {
+          "duration_s": 15.858999999999995,
+          "moving_samples": 145,
+          "median_mps": 0.5939652219375362,
+          "p95_mps": 0.8784743334909082
+        },
+        "CORRIDOR": {
+          "duration_s": 127.921,
+          "moving_samples": 1034,
+          "median_mps": 0.11812693406354864,
+          "p95_mps": 0.14083359777383647
+        },
+        "TERMINAL": {
+          "duration_s": 12.720999999999975,
+          "moving_samples": 68,
+          "median_mps": 0.038600844348632674,
+          "p95_mps": 0.05809894244356804
+        }
+      },
+      "stage_speed": {
+        "SEARCH": {
+          "samples": 1,
+          "xy_mean_including_hold_mps": 0.02222331054260608,
+          "xy_moving_p50_mps": null,
+          "xy_moving_p95_mps": null,
+          "z_moving_p50_mps": 0.15910657765825428,
+          "duration_s": 0.019000000000005457
+        },
+        "ASCEND": {
+          "samples": 31,
+          "xy_mean_including_hold_mps": 0.04664604658412026,
+          "xy_moving_p50_mps": 0.04186382311658107,
+          "xy_moving_p95_mps": 0.12216892304357028,
+          "z_moving_p50_mps": 0.4535955822506284,
+          "duration_s": 3.199
+        },
+        "SURVEY": {
+          "samples": 309,
+          "xy_mean_including_hold_mps": 0.6395598724839421,
+          "xy_moving_p50_mps": 0.8093400991834734,
+          "xy_moving_p95_mps": 0.9047573240583975,
+          "z_moving_p50_mps": 0.04052214261671046,
+          "duration_s": 31.506999999999998
+        },
+        "DESCEND": {
+          "samples": 40,
+          "xy_mean_including_hold_mps": 0.40059443161655495,
+          "xy_moving_p50_mps": 0.38921568331371326,
+          "xy_moving_p95_mps": 0.8140349278309864,
+          "z_moving_p50_mps": 0.2127507585936109,
+          "duration_s": 4.081000000000003
+        },
+        "REVISIT": {
+          "samples": 175,
+          "xy_mean_including_hold_mps": 0.5080862257144508,
+          "xy_moving_p50_mps": 0.6382318318351814,
+          "xy_moving_p95_mps": 0.8616324292931411,
+          "z_moving_p50_mps": 0.06861956713647727,
+          "duration_s": 17.896999999999984
+        },
+        "REACQUIRE": {
+          "samples": 4,
+          "xy_mean_including_hold_mps": 0.10149699570424793,
+          "xy_moving_p50_mps": 0.15953922356282385,
+          "xy_moving_p95_mps": 0.1605647709010013,
+          "z_moving_p50_mps": 0.0372361761282926,
+          "duration_s": 0.5180000000000007
+        },
+        "APPROACH": {
+          "samples": 27,
+          "xy_mean_including_hold_mps": 0.050947115480191714,
+          "xy_moving_p50_mps": 0.05537253846279211,
+          "xy_moving_p95_mps": 0.12962529960531255,
+          "z_moving_p50_mps": 0.1302507455636786,
+          "duration_s": 2.7079999999999984
+        },
+        "CAPTURE": {
+          "samples": 42,
+          "xy_mean_including_hold_mps": 0.08062874897562536,
+          "xy_moving_p50_mps": 0.07117600932751564,
+          "xy_moving_p95_mps": 0.15553286104219533,
+          "z_moving_p50_mps": 0.07836552066883248,
+          "duration_s": 4.263000000000005
+        },
+        "ALIGN": {
+          "samples": 94,
+          "xy_mean_including_hold_mps": 0.04303339256304542,
+          "xy_moving_p50_mps": 0.05304786275120564,
+          "xy_moving_p95_mps": 0.10979844158518019,
+          "z_moving_p50_mps": 0.3649555464544255,
+          "duration_s": 9.59300000000001
+        },
+        "RECOVERY": {
+          "samples": 77,
+          "xy_mean_including_hold_mps": 0.019872162303828683,
+          "xy_moving_p50_mps": 0.04609953529220012,
+          "xy_moving_p95_mps": 0.06216279442261474,
+          "z_moving_p50_mps": 0.3593918661430004,
+          "duration_s": 7.910999999999994
+        },
+        "CORRIDOR": {
+          "samples": 1406,
+          "xy_mean_including_hold_mps": 0.1303489298591428,
+          "xy_moving_p50_mps": 0.11902164497493743,
+          "xy_moving_p95_mps": 0.7775578725303527,
+          "z_moving_p50_mps": 0.04250769491566905,
+          "duration_s": 143.78300000000002
+        },
+        "LAND": {
+          "samples": 124,
+          "xy_mean_including_hold_mps": 0.02522325256907014,
+          "xy_moving_p50_mps": 0.03860084434863267,
+          "xy_moving_p95_mps": 0.05809894244356803,
+          "z_moving_p50_mps": 0.06663878962583644,
+          "duration_s": 12.720999999999975
+        }
+      },
+      "tail_after_third_s": 159.113,
+      "raw_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed39_20260915_184841"
+    },
+    {
+      "seed": 40,
+      "status": "FAIL",
+      "start_ros_s": 12.202999999,
+      "full_s": null,
+      "third_s": null,
+      "interrupt_ros_s": 51.8,
+      "interrupt_elapsed_s": 39.597000001,
+      "committed": 2,
+      "release_events": 2,
+      "delivery_stage_entries": 2,
+      "phase_durations_s": {
+        "SEARCH": 0.0,
+        "ASCEND": 3.266,
+        "SURVEY": 36.364,
+        "DESCEND": 4.119,
+        "REVISIT": 18.896000000000008,
+        "REACQUIRE": 0.3499999999999943,
+        "APPROACH": 2.3160000000000025,
+        "CAPTURE": 1.987000000000009,
+        "ALIGN": 6.374999999999993,
+        "RECOVERY": 4.832999999999998
+      },
+      "following_stats": {
+        "CRUISE": {
+          "duration_s": 62.99300000000001,
+          "moving_samples": 583,
+          "median_mps": 0.795428345606992,
+          "p95_mps": 0.8843779114079997
+        },
+        "PRECISION": {
+          "duration_s": 15.512999999999998,
+          "moving_samples": 65,
+          "median_mps": 0.06567656162901779,
+          "p95_mps": 0.1371975789486895
+        }
+      },
+      "stage_speed": {
+        "ASCEND": {
+          "samples": 33,
+          "xy_mean_including_hold_mps": 0.032065162012515316,
+          "xy_moving_p50_mps": 0.04957095441402692,
+          "xy_moving_p95_mps": 0.09188787756163472,
+          "z_moving_p50_mps": 0.29965199405160314,
+          "duration_s": 3.266
+        },
+        "SURVEY": {
+          "samples": 360,
+          "xy_mean_including_hold_mps": 0.6578213927207227,
+          "xy_moving_p50_mps": 0.8237193771753158,
+          "xy_moving_p95_mps": 0.8933621899955047,
+          "z_moving_p50_mps": 0.04125560391134781,
+          "duration_s": 36.364
+        },
+        "DESCEND": {
+          "samples": 40,
+          "xy_mean_including_hold_mps": 0.2631758042510933,
+          "xy_moving_p50_mps": 0.2543682601820682,
+          "xy_moving_p95_mps": 0.7457706133228835,
+          "z_moving_p50_mps": 0.30078728382857983,
+          "duration_s": 4.119
+        },
+        "REVISIT": {
+          "samples": 187,
+          "xy_mean_including_hold_mps": 0.5633323508401721,
+          "xy_moving_p50_mps": 0.737343028544231,
+          "xy_moving_p95_mps": 0.8597393581301884,
+          "z_moving_p50_mps": 0.04240143670188125,
+          "duration_s": 18.896000000000008
+        },
+        "REACQUIRE": {
+          "samples": 4,
+          "xy_mean_including_hold_mps": 0.035732519597808876,
+          "xy_moving_p50_mps": 0.04388903847066564,
+          "xy_moving_p95_mps": 0.04495859375986482,
+          "z_moving_p50_mps": null,
+          "duration_s": 0.3499999999999943
+        },
+        "APPROACH": {
+          "samples": 22,
+          "xy_mean_including_hold_mps": 0.07345182999263732,
+          "xy_moving_p50_mps": 0.07607246687982355,
+          "xy_moving_p95_mps": 0.11780974420781314,
+          "z_moving_p50_mps": 0.12273011250518351,
+          "duration_s": 2.3160000000000025
+        },
+        "CAPTURE": {
+          "samples": 19,
+          "xy_mean_including_hold_mps": 0.09841957875764633,
+          "xy_moving_p50_mps": 0.11293880556636134,
+          "xy_moving_p95_mps": 0.14486670121844394,
+          "z_moving_p50_mps": 0.07107140595175536,
+          "duration_s": 1.987000000000009
+        },
+        "ALIGN": {
+          "samples": 64,
+          "xy_mean_including_hold_mps": 0.03357904786931844,
+          "xy_moving_p50_mps": 0.03910134500796066,
+          "xy_moving_p95_mps": 0.11317128545270962,
+          "z_moving_p50_mps": 0.36785329711969844,
+          "duration_s": 6.374999999999993
+        },
+        "RECOVERY": {
+          "samples": 48,
+          "xy_mean_including_hold_mps": 0.019367035172472458,
+          "xy_moving_p50_mps": null,
+          "xy_moving_p95_mps": null,
+          "z_moving_p50_mps": 0.40977212292808474,
+          "duration_s": 4.832999999999998
+        }
+      },
+      "tail_after_third_s": null,
+      "raw_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed40_20260915_190259"
+    }
+  ],
+  "legacy_0ddc845": {
+    "px4_max_distance": 1.0,
+    "align_height": 1.2,
+    "land_height": 0.2,
+    "progressive_descent": {
+      "enable": true,
+      "target_height": 0.8,
+      "descent_duration": 5.0,
+      "min_detection_count": 5
+    },
+    "waypoints": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.1,
+        "yaw": 0.0,
+        "pointmode": "Takeoff_point",
+        "hover_time": 0.0
+      },
+      {
+        "x": 2.7,
+        "y": 1.0,
+        "z": 1.1,
+        "yaw": 0.0,
+        "pointmode": "Detect_point",
+        "hover_time": 5.0
+      },
+      {
+        "x": 1.2,
+        "y": -1.0,
+        "z": 1.1,
+        "yaw": 0.0,
+        "pointmode": "Detect_point",
+        "hover_time": 5.0
+      },
+      {
+        "x": 1.7,
+        "y": 3.2,
+        "z": 1.1,
+        "yaw": 0.0,
+        "pointmode": "Detect_point",
+        "hover_time": 5.0
+      },
+      {
+        "x": 4.7,
+        "y": 2.5,
+        "z": 1.1,
+        "yaw": 0.0,
+        "pointmode": "Detect_point",
+        "hover_time": 5.0
+      },
+      {
+        "x": 6.0,
+        "y": 2.5,
+        "z": 1.7,
+        "yaw": 0.0,
+        "pointmode": "Nothing_point",
+        "hover_time": 0.0
+      },
+      {
+        "x": 6.0,
+        "y": -3.5,
+        "z": 1.7,
+        "yaw": 0.0,
+        "pointmode": "Nothing_point",
+        "hover_time": 0.0
+      },
+      {
+        "x": 1.0,
+        "y": -3.5,
+        "z": 1.7,
+        "yaw": 0.0,
+        "pointmode": "Nothing_point",
+        "hover_time": 0.0
+      },
+      {
+        "x": 6.5,
+        "y": 3.63,
+        "z": 0.65,
+        "yaw": 0.0,
+        "pointmode": "Nothing_point",
+        "hover_time": 0.0
+      },
+      {
+        "x": 8.08,
+        "y": 1.8,
+        "z": 0.65,
+        "yaw": 0.0,
+        "pointmode": "Nothing_point",
+        "hover_time": 2.0
+      },
+      {
+        "x": 8.08,
+        "y": 1.8,
+        "z": 0.15,
+        "yaw": 0.0,
+        "pointmode": "Nothing_point",
+        "hover_time": 2.0
+      },
+      {
+        "x": 8.08,
+        "y": 1.8,
+        "z": 0.65,
+        "yaw": 0.0,
+        "pointmode": "Nothing_point",
+        "hover_time": 1.0
+      },
+      {
+        "x": 8.19,
+        "y": -1.9,
+        "z": 0.65,
+        "yaw": 0.0,
+        "pointmode": "Nothing_point",
+        "hover_time": 2.0
+      },
+      {
+        "x": 8.19,
+        "y": -1.9,
+        "z": 0.15,
+        "yaw": 0.0,
+        "pointmode": "Nothing_point",
+        "hover_time": 2.0
+      },
+      {
+        "x": 8.19,
+        "y": -1.9,
+        "z": 0.65,
+        "yaw": 0.0,
+        "pointmode": "Nothing_point",
+        "hover_time": 1.0
+      },
+      {
+        "x": 8.29,
+        "y": -4.4,
+        "z": 0.75,
+        "yaw": 0.0,
+        "pointmode": "Land_point",
+        "hover_time": 0.0
+      }
+    ]
+  }
+}
