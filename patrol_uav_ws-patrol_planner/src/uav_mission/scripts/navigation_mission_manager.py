@@ -27,6 +27,7 @@ from uav_mission.msg import NavigationDecision, NavigationResult
 from uav_mission.profile_policy import load_profile
 from uav_mission.search_policy import SearchPolicy
 from uav_mission.execution_speed import FollowingSpeed
+from uav_mission.corridor_speed import CorridorSpeed, CorridorSpeedConfig
 
 
 COMMAND_NAMES = {
@@ -558,6 +559,7 @@ class NavigationMissionManager:
                 outcome = self._runtime.tick(now, self._current_xy())
                 self._last_reason = outcome.reason
                 self._publish_action(outcome.action)
+                self._apply_following_speed(self._runtime.core.active_action)
                 self._publish_status()
             except Exception as error:  # pylint: disable=broad-except
                 self._handle_callback_exception("timer", error)
@@ -578,27 +580,7 @@ class NavigationMissionManager:
                         rospy.set_param(name, value)
                     rospy.loginfo("Flight parameter stage after %d waypoints: %s",
                                   completed, stage["parameters"])
-        # An explicitly enabled speed profile owns these two parameters after
-        # legacy stage updates, so stage zero cannot accidentally slow transit.
-        speed_config=rospy.get_param('~following_speed_profile',{})
-        if speed_config:
-            speed=FollowingSpeed(**speed_config)
-            boundary=getattr(self._runtime,'boundary_policy',None)
-            near_boundary=bool(boundary and action.goal is not None and
-                               getattr(self._runtime,'stage','') in ('REVISIT','DELIVERY') and
-                               boundary.near((action.goal.x,action.goal.y)))
-            selected=speed.select(action.command,action.reason,self._runtime.core.post_delivery_route_index,near_boundary)
-            for name in ('/traj_server/traj_server/target_dist','/px4_max_distance'):
-                rospy.set_param(name,selected[1])
-                if abs(float(rospy.get_param(name))-selected[1])>1e-8:
-                    raise RuntimeError('following distance readback mismatch')
-            if selected!=getattr(self,'_following_speed_state',None):
-                self._following_speed_state=selected
-                history=getattr(self,'_following_speed_events',[])
-                history.append(dict(t=rospy.Time.now().to_sec(),phase=selected[0],lead_m=selected[1],
-                                    command=action.command,completed_waypoints=self._runtime.core.post_delivery_route_index))
-                self._following_speed_events=history[-32:]
-                rospy.loginfo('Following speed phase=%s lead=%.3fm',*selected)
+        self._apply_following_speed(action, force=True)
         message = NavigationDecision()
         message.header.seq = int(action.decision_seq)
         message.header.stamp = rospy.Time.from_sec(action.issued_at)
@@ -641,6 +623,38 @@ class NavigationMissionManager:
             action.deadline_at,
             action.reason,
         )
+
+    def _apply_following_speed(self, action, force=False):
+        if action is None:
+            return
+        # An explicitly enabled speed profile owns these two parameters after
+        # legacy stage updates, so stage zero cannot accidentally slow transit.
+        speed_config=rospy.get_param('~following_speed_profile',{})
+        if speed_config:
+            speed=FollowingSpeed(**speed_config)
+            boundary=getattr(self._runtime,'boundary_policy',None)
+            near_boundary=bool(boundary and action.goal is not None and
+                               getattr(self._runtime,'stage','') in ('REVISIT','DELIVERY') and
+                               boundary.near((action.goal.x,action.goal.y)))
+            selected=speed.select(action.command,action.reason,self._runtime.core.post_delivery_route_index,near_boundary)
+            schedule_config=rospy.get_param('~corridor_speed_schedule', {})
+            if schedule_config and action.command=='RETURN_HOME' and action.reason.startswith('post_delivery_route:') and self._runtime.core.post_delivery_route_index>=1:
+                if not hasattr(self,'_corridor_speed'):
+                    self._corridor_speed=CorridorSpeed(CorridorSpeedConfig(**schedule_config))
+                selected=self._corridor_speed.select(self._current_xy(),self._runtime.core.config.landing_xy,self._runtime.core.post_delivery_route_index)
+            if not force and selected==getattr(self,'_following_speed_state',None):
+                return
+            for name in ('/traj_server/traj_server/target_dist','/px4_max_distance'):
+                rospy.set_param(name,selected[1])
+                if abs(float(rospy.get_param(name))-selected[1])>1e-8:
+                    raise RuntimeError('following distance readback mismatch')
+            if selected!=getattr(self,'_following_speed_state',None):
+                self._following_speed_state=selected
+                history=getattr(self,'_following_speed_events',[])
+                history.append(dict(t=rospy.Time.now().to_sec(),phase=selected[0],lead_m=selected[1],
+                                    command=action.command,completed_waypoints=self._runtime.core.post_delivery_route_index))
+                self._following_speed_events=history[-32:]
+                rospy.loginfo('Following speed phase=%s lead=%.3fm',*selected)
 
     def _publish_status(self, force=False):
         payload = {

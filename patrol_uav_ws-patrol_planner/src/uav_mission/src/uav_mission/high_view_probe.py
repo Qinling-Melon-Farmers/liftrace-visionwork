@@ -29,7 +29,7 @@ class ProbeConfig:
         values=(self.ground_z,self.high_agl,self.low_agl,self.survey_budget,
                 self.reacquire_budget,self.hint_radius,self.association_radius,self.pose_max_age)
         if (not all(math.isfinite(v) for v in values)
-                or not 2.0<=self.high_agl<=2.8 or not 0<self.low_agl<self.high_agl
+                or not 2.0<=self.high_agl<=3.0 or not 0<self.low_agl<self.high_agl
                 or self.ground_z+self.low_agl<=0 or not 0<self.survey_budget<=60
                 or not 0<self.reacquire_budget<=30 or not 0<self.hint_radius<=.25
                 or not self.hint_radius<self.association_radius<=.8

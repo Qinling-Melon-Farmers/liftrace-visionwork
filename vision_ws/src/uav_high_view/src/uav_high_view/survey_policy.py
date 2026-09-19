@@ -5,6 +5,7 @@ from .core import Config
 
 @dataclass(frozen=True)
 class SurveyPolicy:
+    high_max_agl: float = 3.0
     candidate_min_streak: int = 1
     min_interval_ns: int = 100000000
     min_span_ns: int = 200000000
@@ -30,6 +31,6 @@ class SurveyPolicy:
         self.catalog_config('camera_init',600.)
 
     def catalog_config(self,frame,timeout):
-        return Config(frame=frame,hint_ttl_ns=int(timeout*1e9),
+        return Config(frame=frame,hint_ttl_ns=int(timeout*1e9),high_max_agl=self.high_max_agl,
                       min_interval_ns=self.min_interval_ns,min_span_ns=self.min_span_ns,
                       max_uncertainty_m=self.max_uncertainty_m)

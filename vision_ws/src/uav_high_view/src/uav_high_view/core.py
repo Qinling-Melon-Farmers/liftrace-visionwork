@@ -81,7 +81,7 @@ class Config:
                 or not .5 < self.vote_fraction <= 1
                 or not 0 <= self.min_confidence <= 1 or not 0 <= self.min_quality <= 1
                 or self.max_uncertainty_m <= 0
-                or not 0 < self.high_min_agl <= self.high_max_agl <= 3):
+                or not 0 < self.high_min_agl <= self.high_max_agl <= 4):
             raise ValueError('invalid thresholds')
 
 

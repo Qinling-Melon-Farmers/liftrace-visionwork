@@ -29,13 +29,17 @@ class SpeedTests(unittest.TestCase):
     def test_dispatch_speed_wins_over_old_stage_zero(self):
         tree=ast.parse((Path(__file__).resolve().parents[1]/'scripts/navigation_mission_manager.py').read_text())
         method=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='_publish_action')
-        body=[n for n in method.body if (isinstance(n,ast.If) and (isinstance(n.test,ast.BoolOp) or isinstance(n.test,ast.Name) and n.test.id=='speed_config')) or
-              (isinstance(n,ast.Assign) and isinstance(n.targets[0],ast.Name) and n.targets[0].id=='speed_config')]
+        helper=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='_apply_following_speed')
+        body=[n for n in method.body if isinstance(n,ast.If) and isinstance(n.test,ast.BoolOp)]
+        body += [n for n in method.body if isinstance(n,ast.Expr) and isinstance(n.value,ast.Call) and isinstance(n.value.func,ast.Attribute) and n.value.func.attr=='_apply_following_speed']
         values={'~following_speed_profile':{'cruise_lead_m':1.0},'~mission/post_delivery_parameter_stages':[
             {'after_completed_waypoints':0,'parameters':{'/px4_max_distance':.15,'/traj_server/traj_server/target_dist':.15}}]}
         ros=SimpleNamespace(get_param=lambda k,default=None:values.get(k,default),set_param=lambda k,v:values.update({k:v}),
                             loginfo=lambda *args:None,Time=SimpleNamespace(now=lambda:SimpleNamespace(to_sec=lambda:100.)))
         obj=SimpleNamespace(_runtime=SimpleNamespace(core=SimpleNamespace(post_delivery_route_index=0)))
+        namespace=dict(rospy=ros,FollowingSpeed=FollowingSpeed)
+        exec(compile(ast.Module(body=[helper],type_ignores=[]),'speed helper','exec'),namespace)
+        obj._apply_following_speed=lambda action,force=False:namespace['_apply_following_speed'](obj,action,force)
         exec(compile(ast.Module(body=body,type_ignores=[]),'speed stages','exec'),dict(rospy=ros,self=obj,FollowingSpeed=FollowingSpeed,
              action=SimpleNamespace(command='RETURN_HOME',reason='post_delivery_route:1')))
         self.assertEqual(values['/px4_max_distance'],1.0)

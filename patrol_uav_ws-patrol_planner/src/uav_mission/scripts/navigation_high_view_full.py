@@ -8,6 +8,7 @@ from uav_mission.high_view_full import HighViewFull
 from uav_mission.boundary_revisit import BoundaryRevisit
 from uav_mission.high_view_probe import ProbeConfig
 from uav_high_view.survey_policy import SurveyPolicy
+from uav_high_view.grid_cost import GridCost
 
 spec=importlib.util.spec_from_file_location('high_view_probe_shell',str(Path(__file__).with_name('navigation_high_view_probe.py')))
 base=importlib.util.module_from_spec(spec);spec.loader.exec_module(base)
@@ -23,8 +24,10 @@ class FullManager(base.ProbeManager):
         config=dict(rospy.get_param('~high_view_probe/config'))
         config['survey_xy']=tuple(tuple(p) for p in config['survey_xy'])
         policy=SurveyPolicy(**dict(rospy.get_param('~high_view_full/policy',{})))
-        return HighViewFull(ordinary.core,ProbeConfig(**config),policy,fallback_route=ordinary.route,
+        runtime=HighViewFull(ordinary.core,ProbeConfig(**config),policy,fallback_route=ordinary.route,
                             boundary_policy=BoundaryRevisit(**dict(rospy.get_param('~high_view_full/boundary_policy',{}))))
+        runtime.grid=GridCost(**dict(rospy.get_param('~high_view_full/grid',{})))
+        return runtime
 
     def _on_map(self,message):
         super()._on_map(message)
