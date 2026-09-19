@@ -1,0 +1,44 @@
+[
+  {
+    "seed": 33,
+    "group": "old",
+    "start_to_third": 83.798000001,
+    "third_to_land": 129.171,
+    "land_to_complete": 11.397999999999996
+  },
+  {
+    "seed": 33,
+    "group": "current",
+    "start_to_third": 80.497,
+    "third_to_land": 84.48800000000001,
+    "land_to_complete": 19.298999999999978
+  },
+  {
+    "seed": 35,
+    "group": "old",
+    "start_to_third": 64.211,
+    "third_to_land": 131.21599999900002,
+    "land_to_complete": 16.430000000999996
+  },
+  {
+    "seed": 35,
+    "group": "current",
+    "start_to_third": 71.079,
+    "third_to_land": 90.42199999900002,
+    "land_to_complete": 9.924000000999996
+  },
+  {
+    "seed": 39,
+    "group": "old",
+    "start_to_third": 79.095000001,
+    "third_to_land": 146.37699999900002,
+    "land_to_complete": 12.73600000099998
+  },
+  {
+    "seed": 39,
+    "group": "current",
+    "start_to_third": 81.44000000099999,
+    "third_to_land": 88.13000000000002,
+    "land_to_complete": 10.363
+  }
+]

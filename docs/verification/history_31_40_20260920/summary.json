@@ -1,0 +1,88 @@
+{
+  "current": {
+    "n": 10,
+    "full_pass": 4,
+    "three_drops": 7,
+    "drop_count": 23,
+    "collision_runs": 0
+  },
+  "old_high": {
+    "n": 10,
+    "full_pass": 4,
+    "three_drops": 5,
+    "drop_count": 19,
+    "collision_runs": 2
+  },
+  "old_low_31_35": {
+    "n": 5,
+    "full_pass": 2,
+    "three_drops": 4,
+    "drop_count": 14,
+    "collision_runs": 1
+  },
+  "failure_categories": {
+    "INITIAL_PLANNING_STARVATION": 3,
+    "PASS": 4,
+    "HIGH_VIEW_OR_TRANSACTION_FAILURE": 1,
+    "SEARCH_BODY_BOUNDARY": 1,
+    "WALL_CLOCK_CUTOFF": 1
+  },
+  "paired_complete": [
+    {
+      "seed": 33,
+      "old_high_status": "PASS",
+      "current_status": "PASS",
+      "old_high_completed_s": 224.367000001,
+      "current_completed_s": 184.284,
+      "old_high_third_s": 83.798000001,
+      "current_third_s": 80.497,
+      "old_high_drops": 3,
+      "current_drops": 3,
+      "completed_gain_s": 40.083000001000016,
+      "completed_gain_pct": 17.864926660703834,
+      "third_gain_s": 3.3010000010000056,
+      "old_low": {
+        "status": "FAIL",
+        "completed_s": null,
+        "third_s": 202.381000001,
+        "drops": 3,
+        "gain_s": null
+      }
+    },
+    {
+      "seed": 35,
+      "old_high_status": "PASS",
+      "current_status": "PASS",
+      "old_high_completed_s": 211.857,
+      "current_completed_s": 171.425,
+      "old_high_third_s": 64.211,
+      "current_third_s": 71.079,
+      "old_high_drops": 3,
+      "current_drops": 3,
+      "completed_gain_s": 40.43199999999999,
+      "completed_gain_pct": 19.08457119660903,
+      "third_gain_s": -6.867999999999995,
+      "old_low": {
+        "status": "PASS",
+        "completed_s": 342.134000001,
+        "third_s": 142.637000001,
+        "drops": 3,
+        "gain_s": 170.709000001
+      }
+    },
+    {
+      "seed": 39,
+      "old_high_status": "PASS",
+      "current_status": "PASS",
+      "old_high_completed_s": 238.208000001,
+      "current_completed_s": 179.933000001,
+      "old_high_third_s": 79.095000001,
+      "current_third_s": 81.44000000099999,
+      "old_high_drops": 3,
+      "current_drops": 3,
+      "completed_gain_s": 58.27499999999998,
+      "completed_gain_pct": 24.46391389027881,
+      "third_gain_s": -2.3449999999999847
+    }
+  ]
+}

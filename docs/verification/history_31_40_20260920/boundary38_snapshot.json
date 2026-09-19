@@ -1,0 +1,11 @@
+{
+  "gate_ros_s": 402.356,
+  "nearest_pose_ros_s": 402.313,
+  "nearest_fc_xyz": [
+    7.119098182979123,
+    1.2551191803980768,
+    1.562684878529769
+  ],
+  "nearest_clearance_cm": 0.07668820729653802,
+  "minimum_recorded_clearance_cm": -1.0102131912169021
+}

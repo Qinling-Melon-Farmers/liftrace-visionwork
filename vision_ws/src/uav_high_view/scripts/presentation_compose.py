@@ -95,7 +95,7 @@ def main():
             draw.text((35,25),'全场自主任务  |  '+label,font=large,fill='white')
             draw.text((35,78),a.case_label,font=small,fill='#bdc7cf')
             draw.text((1370,25),'本轮结果：'+gate['status'],font=large,fill='#7be39d' if gate['status']=='PASS' else '#ff7373')
-            explanation={'actual_collision':'记录到碰撞（阶段见报告）','corridor_height_limit_violation':'区域高度越限（阶段见报告）','all_checks_passed':'三投 / 两门 / H降落已通过'}.get(gate.get('reason'),gate.get('reason',''))
+            explanation={'actual_collision':'记录到碰撞（阶段见报告）','corridor_height_limit_violation':'区域高度越限（阶段见报告）','manager_failed':'任务未完成（原因见报告）','mission_wall_timeout':'评测墙钟超时（非完赛）','search_envelope_outside_inner_region':'搜索机体包络超出内环','all_checks_passed':'三投 / 两门 / H降落已通过'}.get(gate.get('reason'),gate.get('reason',''))
             draw.text((1370,78),explanation,font=small,fill='white')
             phase_caption=PHASES.get(phase,phase)
             if high_state.get('conflict_active') and phase in ('REVISIT','REACQUIRE'):phase_caption='低空复核冲突位置 / 类别'
