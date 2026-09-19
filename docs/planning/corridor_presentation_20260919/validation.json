@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "scope": "STATIC_ONLY_NO_NEW_SIMULATION",
+  "package_owners": {
+    "uav_high_view": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_high_view",
+    "uav_mission": "/home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/src/uav_mission",
+    "uav_vision_eval": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision_eval"
+  },
+  "scene_tests_in_fork": 77,
+  "high_view_tests": 70,
+  "launch_variants_checked": 3,
+  "continuous_centers": [
+    8.095710531072728,
+    8.182737448365096
+  ],
+  "actual_runtime_high_agl": 2.6,
+  "mechanism_budget_design_only_s": 10.0,
+  "candidate_corridor_fc_limit": 1.2,
+  "candidate_cruise_fc_agl": 0.9,
+  "new_sitl_runs": 0,
+  "local_links_validated": 20,
+  "navigation_flight_source_changed": false,
+  "vision_build": "PASS",
+  "composer_synthetic_decode": "PASS",
+  "simulator_started": false
+}

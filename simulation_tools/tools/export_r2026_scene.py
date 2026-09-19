@@ -4,7 +4,7 @@ from pathlib import Path
 import argparse,copy,json,sys,xml.etree.ElementTree as ET
 import yaml
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from r2026_scene import scene_layout
+from r2026_scene import scene_layout,door_segments
 
 
 def export_scene(template_world, field_config, runtime_config, output, layout):
@@ -12,10 +12,27 @@ def export_scene(template_world, field_config, runtime_config, output, layout):
     tree=ET.parse(template_world);world=tree.getroot().find('world')
     field=next(m for m in world.findall('model') if m.get('name')=='toudi2')
     for door in layout['doors']:
-        link=next(l for l in field.findall('link') if l.get('name','').startswith(door['name']))
-        pose=[float(x) for x in link.findtext('pose').split()];pose[1]=door['wall_y'];link.find('pose').text=' '.join(map(str,pose))
-        for node in link.findall('./collision/geometry/box/size')+link.findall('./visual/geometry/box/size'):
-            size=[float(x) for x in node.text.split()];size[1]=door['wall_length'];node.text=' '.join(map(str,size))
+        links=[l for l in field.findall('link') if l.get('name','')==door['name'] or l.get('name','').startswith(door['name']+'_')]
+        if not links:raise ValueError('missing wall template '+door['name'])
+        template=copy.deepcopy(links[0])
+        for link in links:field.remove(link)
+        for segment in door_segments(door):
+            link=copy.deepcopy(template);name=door['name']+'_'+segment['side'];link.set('name',name)
+            for kind in ('collision','visual'):
+                for item in link.findall(kind):item.set('name',name+'_'+kind)
+            pose=[float(x) for x in link.findtext('pose').split()];pose[0]=door['x'];pose[1]=segment['wall_y'];link.find('pose').text=' '.join(map(str,pose))
+            for node in link.findall('./collision/geometry/box/size')+link.findall('./visual/geometry/box/size'):
+                size=[float(x) for x in node.text.split()];size[1]=segment['wall_length'];node.text=' '.join(map(str,size))
+            field.append(link)
+    height=layout.get('outer_wall_height_m')
+    if height is not None:
+        for name in ('Wall_1','Wall_9','Wall_11','Wall_12'):
+            link=next(l for l in field.findall('link') if l.get('name')==name)
+            old_height=float(link.findtext('./collision/geometry/box/size').split()[2])
+            pose=[float(x) for x in link.findtext('pose').split()];bottom=pose[2]-old_height/2
+            pose[2]=bottom+height/2;link.find('pose').text=' '.join(map(str,pose))
+            for node in link.findall('./collision/geometry/box/size')+link.findall('./visual/geometry/box/size'):
+                size=[float(x) for x in node.text.split()];size[2]=height;node.text=' '.join(map(str,size))
     models=[m for m in field.findall('model') if 'Tree' in m.get('name','')]
     if len(models)!=4:raise ValueError('Template must contain four tree/box groups')
     for model,obstacle in zip(models,layout['trees']):
@@ -44,5 +61,6 @@ def export_scene(template_world, field_config, runtime_config, output, layout):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--template-world',type=Path,required=True);p.add_argument('--field-config',type=Path,required=True);p.add_argument('--runtime-config',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--scene-seed',type=int,required=True);p.add_argument('--door-seed',type=int);p.add_argument('--obstacle-seed',type=int);p.add_argument('--door-pattern',choices=['LL','LR','RL','RR']);a=p.parse_args()
-    print(export_scene(a.template_world,a.field_config,a.runtime_config,a.output,scene_layout(a.scene_seed,a.door_seed,a.obstacle_seed,a.door_pattern)))
+    p=argparse.ArgumentParser();p.add_argument('--template-world',type=Path,required=True);p.add_argument('--field-config',type=Path,required=True);p.add_argument('--runtime-config',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--scene-seed',type=int,required=True);p.add_argument('--door-seed',type=int);p.add_argument('--obstacle-seed',type=int);p.add_argument('--door-pattern',choices=['LL','LR','RL','RR'])
+    p.add_argument('--door-mode',choices=['left_right','continuous'],default='left_right');p.add_argument('--door-centers',type=float,nargs=2);p.add_argument('--outer-wall-height',type=float);a=p.parse_args()
+    print(export_scene(a.template_world,a.field_config,a.runtime_config,a.output,scene_layout(a.scene_seed,a.door_seed,a.obstacle_seed,a.door_pattern,door_mode=a.door_mode,door_centers=a.door_centers,outer_wall_height=a.outer_wall_height)))

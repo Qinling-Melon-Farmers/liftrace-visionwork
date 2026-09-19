@@ -12,7 +12,7 @@
         <camera>
           <horizontal_fov>1.98</horizontal_fov>
           <image><width>1280</width><height>960</height><format>R8G8B8</format></image>
-          <clip><near>3.1</near><far>30</far></clip>
+          <clip><near>1.7</near><far>30</far></clip>
         </camera>
         <plugin name="overview_camera_controller" filename="libgazebo_ros_camera.so">
           <robotNamespace>/</robotNamespace>

@@ -1,0 +1,38 @@
+kind: REVIEWED_DESIGN_INPUT_NOT_A_ROS_PARAMETER_FILE
+qualification: STATIC_ONLY_NO_NEW_FLIGHT
+navigation_strategy: inherited_high_view_first
+mechanism:
+  release_and_ack_reserve_per_slot_s: 10.0
+  slots: 3
+  recovery_reserve_per_slot_s: 5.0
+  existing_target_action_timeout_s: 120.0
+  existing_coarse_delivery_reserve_s: 60.0
+  proposed_coarse_delivery_reserve_with_mechanism_s: 70.0
+  budget_is_not_a_mandatory_sleep: true
+  success_requires_actuator_completion_semantics: true
+  admission_must_keep_release_and_recovery_reserve: true
+  raw_service_async_completion_required: true
+  note: Current synchronous raw service has no explicit execution timeout; budget is a design input, not yet an enforced 10s actuation contract.
+corridor:
+  internal_wall_height_m: 1.5
+  proposed_fc_agl_limit_m: 1.2
+  proposed_cruise_fc_agl_m: 0.9
+  proposed_command_ceiling_fc_agl_m: 1.0
+  total_tilt_budget_deg: 15.0
+  guard_box_m: [0.55, 0.55, 0.40]
+  guard_center_offset_z_m: -0.02
+  note: The 55cm box already includes robustness padding. 1.2m requires the combined tilt budget; not independent 15deg roll plus pitch.
+speed_candidates:
+  open_transfer:
+    desired_actual_speed_mps: [0.25, 0.35]
+    following_lead_candidate_m: [0.30, 0.40]
+  narrow_door:
+    initial_following_lead_m: 0.15
+    proposed_later_sweep_m: [0.15, 0.18, 0.20]
+  keep_release_capture_and_recovery_conditions: true
+  physical_braking_distance_required: true
+high_view_3m:
+  evaluate_only: true
+  default_fc_agl_remains_m: 2.6
+  map_z_size_candidate_m: 3.6
+  note: If 3m is a hard ceiling, a 3m command has no tracking allowance. Resolve that definition before flight.

@@ -1,0 +1,21 @@
+<launch>
+  <arg name="world" />
+  <arg name="vehicle_model" default="iris_mid360" />
+  <arg name="camera_config" default="$(find uav_high_view)/config/presentation.yaml" />
+  <node pkg="uav_high_view" type="presentation_cameras.py" name="presentation_cameras" output="screen">
+    <rosparam file="$(arg camera_config)" />
+    <param name="world" value="$(arg world)" />
+    <param name="vehicle_model" value="$(arg vehicle_model)" />
+    <param name="camera_sdf" value="$(find uav_vision_eval)/models/competition_overview_camera/model.sdf" />
+  </node>
+  <node pkg="uav_vision_eval" type="camera_video_recorder.py" name="presentation_overview_recorder" output="screen">
+    <param name="image_topic" value="/competition_overview/image_raw" />
+    <param name="fps" value="10.0" />
+    <param name="output_path" value="$(optenv SIM_RUN_DIR)/overview.mp4" />
+  </node>
+  <node pkg="uav_vision_eval" type="camera_video_recorder.py" name="presentation_follow_recorder" output="screen">
+    <param name="image_topic" value="/competition_follow/image_raw" />
+    <param name="fps" value="10.0" />
+    <param name="output_path" value="$(optenv SIM_RUN_DIR)/follow.mp4" />
+  </node>
+</launch>

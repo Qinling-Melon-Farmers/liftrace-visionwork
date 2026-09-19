@@ -73,12 +73,14 @@ def main():
     assert not any(vehicle.iter('plugin')) and not any(vehicle.iter('collision'))
     pose=Pose();pose.orientation.w=1.;pose.position.z=offset[2]
     add('recorded_vehicle',vehicle,pose)
-    camera=ET.parse(rospy.get_param('~overview_sdf')).getroot().find('model')
-    camera.find('.//camera/clip/near').text=str(rospy.get_param('~camera_near'))
-    pose=Pose();pose.position.y=4.3;pose.position.z=float(rospy.get_param('~camera_z'))
-    # Rz(-pi/2)*Ry(pi/2)
-    pose.orientation.x=.5;pose.orientation.y=.5;pose.orientation.z=-.5;pose.orientation.w=.5
-    add('competition_overview_camera',camera,pose)
+    external_cameras=rospy.get_param('~external_cameras',False)
+    if not external_cameras:
+        camera=ET.parse(rospy.get_param('~overview_sdf')).getroot().find('model')
+        camera.find('.//camera/clip/near').text=str(rospy.get_param('~camera_near'))
+        pose=Pose();pose.position.y=4.3;pose.position.z=float(rospy.get_param('~camera_z'))
+        # Rz(-pi/2)*Ry(pi/2)
+        pose.orientation.x=.5;pose.orientation.y=.5;pose.orientation.z=-.5;pose.orientation.w=.5
+        add('competition_overview_camera',camera,pose)
     # R64 recorder receives the same camera topic. Wait for rendering before movement.
     frame=rospy.wait_for_message('/competition_overview/image_raw',Image,timeout=30)
     assert frame.encoding in ('rgb8','bgr8')
@@ -89,7 +91,8 @@ def main():
     start=rospy.get_time();origin=rows[0,0];duration=rows[-1,0]-origin
     metadata=dict(kind='RECORDED_TRUTH_RENDER_REPLAY_NOT_A_NEW_FLIGHT',source_run=str(source),
                   source_start=origin,source_end=float(rows[-1,0]),replay_start_ros=start,
-                  camera_z=pose.position.z,camera_near=float(rospy.get_param('~camera_near')),
+                  camera_z=None if external_cameras else pose.position.z,camera_near=None if external_cameras else float(rospy.get_param('~camera_near')),
+                  presentation_recording=external_cameras,
                   vehicles_dynamic=False,controller_nodes=False,source_gate=json.loads((source/'gate_status.json').read_text())['status'])
     (output/'replay_metadata.json').write_text(json.dumps(metadata,indent=2))
     rate=rospy.Rate(20);count=0
