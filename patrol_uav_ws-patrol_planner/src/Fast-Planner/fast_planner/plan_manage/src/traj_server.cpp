@@ -54,6 +54,15 @@ geometry_msgs::PoseStamped pose_cmd;//px4
 double pos_gain[3] = { 5.7, 5.7, 6.2 };
 double vel_gain[3] = { 3.4, 3.4, 4.0 };
 
+#include <plan_manage/TrajectoryProgress.h>
+ros::Publisher progress_pub;
+bool progress_enabled = false;
+bool require_goal_identity = false;
+ros::Time active_goal_stamp;
+std::string active_goal_frame;
+ros::Time progress_stamp;
+std::string progress_reason;
+
 using fast_planner::NonUniformBspline;
 
 bool receive_traj_ = false;
@@ -144,6 +153,24 @@ void drawCmd(const Eigen::Vector3d& pos, const Eigen::Vector3d& vec, const int& 
 }
 
 void bsplineCallback(plan_manage::BsplineConstPtr msg) {
+  if (require_goal_identity && (active_goal_stamp.isZero() ||
+      msg->goal_stamp != active_goal_stamp || msg->goal_frame != active_goal_frame)) {
+    ROS_WARN("Ignoring Bspline from a different goal"); return;
+  }
+  // Duplicate/out-of-order generations may never release a tracking/safety hold.
+  if (receive_traj_ && (msg->start_time < start_time_ ||
+      (msg->start_time == start_time_ && msg->traj_id <= traj_id_))) {
+    ROS_WARN("Ignoring stale/duplicate Bspline generation"); return;
+  }
+  if (msg->order != 3 || msg->pos_pts.size() < 4 || msg->yaw_pts.size() < 4 ||
+      msg->knots.size() != msg->pos_pts.size()+4 || !std::isfinite(msg->yaw_dt) || msg->yaw_dt <= 0) {
+    ROS_ERROR("Rejecting invalid Bspline shape"); return;
+  }
+  for (const auto& pt : msg->pos_pts) if (!std::isfinite(pt.x) || !std::isfinite(pt.y) || !std::isfinite(pt.z)) return;
+  for (size_t i=0; i<msg->knots.size(); ++i)
+    if (!std::isfinite(msg->knots[i]) || (i && msg->knots[i] < msg->knots[i-1])) return;
+  if (msg->knots[msg->pos_pts.size()] <= msg->knots[msg->order]) return;
+  for (double yaw : msg->yaw_pts) if (!std::isfinite(yaw)) return;
   // parse pos traj
   Eigen::MatrixXd pos_pts(msg->pos_pts.size(), 3);
 
@@ -274,6 +301,12 @@ double interpolateYaw(double current_yaw, double target_yaw, double distance_, d
 
 void goalCallback(const geometry_msgs::PoseStamped msg)
 {
+  if (require_goal_identity && msg.header.stamp != active_goal_stamp) {
+    trajectory_interrupted_ = true;
+    stop_position_ = odom_pos_;
+  }
+  active_goal_stamp = msg.header.stamp;
+  active_goal_frame = msg.header.frame_id;
   goal_pos_ << msg.pose.position.x, msg.pose.position.y, msg.pose.position.z;
   // 计算终端速度，模长为 0.1，方向为收到的 yaw 角方向
   yaw_goal = tf::getYaw(msg.pose.orientation);
@@ -294,13 +327,14 @@ void cmdCallback(const ros::TimerEvent& e) {
     return traj_[0].evaluateDeBoorT(t);
   };
   execution_time_ = fast_planner::projectProgress(
-      position, odom_pos_, execution_time_, traj_duration_);
+      position, odom_pos_, execution_time_, traj_duration_, std::min(0.4,target_dist));
   const double best_t = fast_planner::boundedLookahead(
       position, odom_pos_, execution_time_, traj_duration_, target_dist);
 
   Eigen::Vector3d pos = traj_[0].evaluateDeBoorT(best_t);
   Eigen::Vector3d vel = traj_[1].evaluateDeBoorT(best_t);
   Eigen::Vector3d acc = traj_[2].evaluateDeBoorT(best_t);
+  const Eigen::Vector3d raw_pos = pos;
   if (trajectory_interrupted_) {
     pos = stop_position_;
     vel.setZero();
@@ -315,6 +349,26 @@ void cmdCallback(const ros::TimerEvent& e) {
     pos = tracking_hold_position_;
     vel.setZero();
     acc.setZero();
+  }
+
+  if (progress_enabled) {
+    const ros::Time now=ros::Time::now();
+    const std::string reason=trajectory_interrupted_ ? "interrupted" :
+        (tracking_hold_active_ ? "tracking_hold" : (best_t<=execution_time_+1e-9 ? "no_lookahead" : "tracking"));
+    if (reason!=progress_reason || (now-progress_stamp).toSec()>=0.1) {
+      // State-change publication captures a one-tick hold trigger at 100 Hz.
+      progress_reason=reason;progress_stamp=now;
+      plan_manage::TrajectoryProgress m;
+      m.header.stamp=now;m.header.frame_id=odom.header.frame_id;m.source=m.SERVER;
+      m.traj_id=traj_id_;m.traj_start=start_time_;m.projection_t=execution_time_;
+      m.lookahead_t=best_t;m.duration=traj_duration_;m.target_dist=target_dist;
+      auto point=[](const Eigen::Vector3d& v) { geometry_msgs::Point p; p.x=v.x();p.y=v.y();p.z=v.z();return p; };
+      m.odom=point(odom_pos_);m.projection=point(position(execution_time_));
+      m.raw_command=point(raw_pos);m.final_command=point(pos);
+      m.tracking_hold=tracking_hold_active_;m.interrupted=trajectory_interrupted_;
+      m.tracking_error=(raw_pos-odom_pos_).norm();m.odom_age=(now-odom.header.stamp).toSec();
+      m.reason=reason;progress_pub.publish(m);
+    }
   }
 
   double interpolated_yaw = interpolateYaw(current_yaw, yaw_goal, (goal_pos_ - odom_pos_).norm(), max_distance);
@@ -402,6 +456,11 @@ int main(int argc, char** argv) {
   cmd.kv[1] = vel_gain[1];
   cmd.kv[2] = vel_gain[2];
 
+  nh.param("progress/enabled", progress_enabled, false);
+  nh.param("traj_server/require_goal_identity", require_goal_identity, false);
+  std::string progress_topic;
+  nh.param<std::string>("progress/topic", progress_topic, "/planning/progress");
+  if(progress_enabled) progress_pub=node.advertise<plan_manage::TrajectoryProgress>(progress_topic,20);
   nh.param("traj_server/time_forward", time_forward_, -1.0);
   nh.param("traj_server/adjust_distance_yaw", max_distance, -1.0);
   nh.param("traj_server/target_dist", target_dist, -1.0);

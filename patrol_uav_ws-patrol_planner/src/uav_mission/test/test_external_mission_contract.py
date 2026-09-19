@@ -337,7 +337,8 @@ class ExternalMissionContractTest(unittest.TestCase):
             for element in manager.findall("arg")
         }
         self.assertEqual(arguments["search_altitude"], "2.2")
-        node = manager.find(".//node[@type='navigation_mission_manager.py']")
+        self.assertEqual(arguments['manager_type'], 'navigation_mission_manager.py')
+        node = manager.find(".//node[@type='$(arg manager_type)']")
         altitude = next(
             item for item in node.findall("param")
             if item.attrib.get("name") == "search/altitude")

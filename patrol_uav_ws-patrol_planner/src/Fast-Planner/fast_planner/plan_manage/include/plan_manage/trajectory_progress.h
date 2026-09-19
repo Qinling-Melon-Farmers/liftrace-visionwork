@@ -4,22 +4,31 @@
 #include <cmath>
 
 namespace fast_planner {
-// Project only onto the next part of the path. A spatially nearby later
-// branch of a loop is not a valid shortcut through the intervening obstacle.
+// Project onto a bounded contiguous ARC, not a fixed time interval. Retimed
+// slow initial curves may need >1s to cover even 15cm (seed36). The projection
+// window must include that already commandable geometry, but never a distant
+// later loop branch. No wall-clock advancement or endpoint jump is used.
 template <class Evaluate>
 double projectProgress(const Evaluate& position, const Eigen::Vector3d& measured,
-                       double previous, double duration) {
+                       double previous, double duration, double arc_window = 0.4) {
   previous = std::max(0.0, std::min(previous, duration));
-  const double end = std::min(duration, previous + 1.0);
   double best = previous;
   double distance = (position(previous) - measured).squaredNorm();
-  for (double t = previous + 0.02; t <= end + 1e-9; t += 0.02) {
+  double arc = 0.0;
+  Eigen::Vector3d prior = position(previous);
+  if (!measured.allFinite() || !prior.allFinite() || !std::isfinite(arc_window) || arc_window <= 0) return best;
+  unsigned samples = 0;
+  for (double t = previous + 0.02; t <= duration + 0.02 && ++samples <= 4096; t += 0.02) {
     const double sample = std::min(t, duration);
-    const double candidate = (position(sample) - measured).squaredNorm();
+    const Eigen::Vector3d point = position(sample);
+    if (!point.allFinite()) break;
+    arc += (point-prior).norm();
+    if (arc > arc_window + 1e-9) break;
+    const double candidate = (point - measured).squaredNorm();
     if (candidate < distance) { distance = candidate; best = sample; }
+    prior = point;
+    if (sample == duration) break;
   }
-  if (duration - end < 1e-9 &&
-      (position(duration) - measured).squaredNorm() < distance) best = duration;
   return best;
 }
 

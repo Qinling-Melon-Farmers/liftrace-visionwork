@@ -583,7 +583,11 @@ class NavigationMissionManager:
         speed_config=rospy.get_param('~following_speed_profile',{})
         if speed_config:
             speed=FollowingSpeed(**speed_config)
-            selected=speed.select(action.command,action.reason,self._runtime.core.post_delivery_route_index)
+            boundary=getattr(self._runtime,'boundary_policy',None)
+            near_boundary=bool(boundary and action.goal is not None and
+                               getattr(self._runtime,'stage','') in ('REVISIT','DELIVERY') and
+                               boundary.near((action.goal.x,action.goal.y)))
+            selected=speed.select(action.command,action.reason,self._runtime.core.post_delivery_route_index,near_boundary)
             for name in ('/traj_server/traj_server/target_dist','/px4_max_distance'):
                 rospy.set_param(name,selected[1])
                 if abs(float(rospy.get_param(name))-selected[1])>1e-8:

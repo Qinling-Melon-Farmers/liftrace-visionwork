@@ -11,12 +11,16 @@ from .mission_runtime import MissionRuntime
 from .mission_core import MissionPhase
 from .search_types import Waypoint
 from .coverage_route import CoverageRoute
+from .boundary_revisit import BoundaryRevisit
 
 
 class HighViewFull(HighViewProbe):
-    def __init__(self,core,config,policy=None,fallback_route=None):
+    def __init__(self,core,config,policy=None,fallback_route=None,boundary_policy=None):
         super().__init__(core,config)
         self.policy=policy or SurveyPolicy()
+        self.boundary_policy=boundary_policy or BoundaryRevisit()
+        self.revisit_viewpoints={}
+        self.boundary_rejections=0
         # Fixed targets are navigation knowledge for this mission; last_seen
         # remains untouched and never substitutes for fresh release evidence.
         self.catalog=Catalog(self.policy.catalog_config(core.config.mission_frame,core.config.mission_timeout),core.profile.weights)
@@ -146,6 +150,10 @@ class HighViewFull(HighViewProbe):
     def _next_target(self,now):
         remaining={c:h for c,h in self.top_hints.items() if c not in self.core.queue.delivered_classes}
         if not remaining:return self._start_fallback(now,'known_hints_exhausted')
+        self.revisit_viewpoints={c:self.boundary_policy.viewpoint(h.xy,h.uncertainty_m) for c,h in remaining.items()}
+        remaining={c:h for c,h in remaining.items() if self.revisit_viewpoints[c] is not None}
+        if not remaining:return self._start_fallback(now,'no_admissible_revisit_viewpoint')
+        points={c:self.revisit_viewpoints[c] for c in remaining}
         exit_goal=self.core.config.post_delivery_route[0]
         if len(remaining)==1:
             # There is no visit-order optimization with one target. Leave
@@ -154,10 +162,10 @@ class HighViewFull(HighViewProbe):
             cost,names=None,tuple(remaining)
             scope='SINGLE_REMAINING_TARGET_REQUIRES_3D_PLANNER'
         else:
-            order=self.grid.order(self._current_xy,{c:h.xy for c,h in remaining.items()},(exit_goal.x,exit_goal.y),now)
+            order=self.grid.order(self._current_xy,points,(exit_goal.x,exit_goal.y),now)
             if order is None:
                 distances=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
-                reachable=[(distances.get(self.grid.cell(h.xy),math.inf),c) for c,h in remaining.items()]
+                reachable=[(distances.get(self.grid.cell(points[c]),math.inf),c) for c,h in remaining.items()]
                 reachable=[item for item in reachable if math.isfinite(item[0])]
                 if not reachable:return self._start_fallback(now,'hint_route_unavailable')
                 cost,name=min(reachable);names=(name,)
@@ -170,7 +178,10 @@ class HighViewFull(HighViewProbe):
         cls=self.selected.class_name;self.revisit_counts[cls]=self.revisit_counts.get(cls,0)+1
         if self.revisit_counts[cls]>2:return self._start_fallback(now,'revisit_budget_exhausted')
         self.reacquired=None;self.fresh_candidate=None
-        self._change_route('REVISIT',[Waypoint(*self.selected.xy,self.probe_config.ground_z+self.probe_config.low_agl)],now)
+        view=self.revisit_viewpoints[cls]
+        self.events.append(dict(stage='REVISIT_VIEWPOINT',time=now,xy=view,hint_xy=self.selected.xy,
+                                uncertainty_m=self.selected.uncertainty_m,boundary_margin_m=self.boundary_policy.margin))
+        self._change_route('REVISIT',[Waypoint(*view,self.probe_config.ground_z+self.probe_config.low_agl)],now)
         return self._dispatch_route('SEARCH','ordered_revisit',now)
 
     def _start_fallback(self,now,reason):
@@ -214,6 +225,10 @@ class HighViewFull(HighViewProbe):
                 self._set_current_xy(current_xy)
                 if now>=self.wait_until:return self._start_fallback(now,'reacquisition_timeout')
                 if self.reacquired is None or self.fresh_candidate is None:return self._outcome(True,'waiting_for_fresh_delivery_candidate')
+                if self.boundary_policy.enabled and not self.boundary_policy.admissible((self.fresh_candidate.x,self.fresh_candidate.y)):
+                    self.boundary_rejections+=1
+                    self.reacquired=None;self.fresh_candidate=None
+                    return self._outcome(True,'fresh_target_outside_boundary_approach_region')
                 validation=self.core.ingest([self.fresh_candidate],now)
                 if not validation[0].accepted:
                     self.reacquired=None;self.fresh_candidate=None
@@ -237,7 +252,8 @@ class HighViewFull(HighViewProbe):
         value.update(scope='HIGH_VIEW_FULL_MISSION',survey_policy='COMPLETE_ROUTE_OR_CONFIRMED_TOP3',
                      required_classes=sorted(self.required),top_hints={c:asdict(h) for c,h in self.top_hints.items()},
                      orders=list(self.orders),reacquisitions=list(self.completed_reacquisitions))
-        value.update(survey_policy=asdict(self.policy),descent_proposal=self.descent_proposal,
+        value.update(boundary_policy=asdict(self.boundary_policy),boundary_rejections=self.boundary_rejections,revisit_viewpoints=self.revisit_viewpoints,
+                     survey_policy=asdict(self.policy),descent_proposal=self.descent_proposal,
                      first_hint_ready=dict(self.first_hint_ready),navigation_memory_events=list(self.memory.events),
                      fallback_started=self.fallback_started,descent_debug=self.descent_debug)
         return value

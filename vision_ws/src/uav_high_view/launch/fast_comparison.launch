@@ -1,6 +1,8 @@
 <launch>
   <arg name="strategy" default="true" />
   <arg name="target_model_path" />
+  <arg name="record_overview_video" default="false" />
+  <arg name="overview_z" default="7.0" />
   <arg name="world" />
   <arg name="field_config" />
   <arg name="runtime_config" />
@@ -18,6 +20,8 @@
   <group if="$(arg strategy)">
     <include file="$(find uav_high_view)/launch/full_strategy.launch">
       <arg name="target_model_path" value="$(arg target_model_path)" />
+      <arg name="record_overview_video" value="$(arg record_overview_video)" />
+      <arg name="overview_z" value="$(arg overview_z)" />
       <arg name="world" value="$(arg world)" />
       <arg name="field_config" value="$(arg field_config)" />
       <arg name="runtime_config" value="$(arg runtime_config)" />
@@ -28,6 +32,8 @@
   <group unless="$(arg strategy)">
     <include file="$(find uav_mission)/launch/navigation_horizontal_search_vcl06.launch">
       <arg name="target_model_path" value="$(arg target_model_path)" />
+      <arg name="record_overview_video" value="$(arg record_overview_video)" />
+      <arg name="overview_z" value="$(arg overview_z)" />
       <arg name="world" value="$(arg world)" />
       <arg name="field_config" value="$(arg field_config)" />
       <arg name="runtime_config" value="$(arg runtime_config)" />
@@ -42,4 +48,13 @@
   <param name="/fast_planner_node/manager/max_vel" value="$(arg planner_max_vel)" />
   <param name="/fast_planner_node/optimization/max_vel" value="$(arg planner_max_vel)" />
   <param name="/fast_planner_node/search/max_vel" value="$(arg planner_max_vel)" />
+  <!-- Research-only opt-in; accepted deployment defaults remain unchanged. -->
+  <arg name="reliability_trial" default="false" />
+  <param name="/fast_planner_node/fsm/liveness_enabled" value="$(arg reliability_trial)" />
+  <param name="/fast_planner_node/progress/enabled" value="$(arg reliability_trial)" />
+  <param name="/traj_server/progress/enabled" value="$(arg reliability_trial)" />
+  <param name="/traj_server/traj_server/require_goal_identity" value="$(arg reliability_trial)" />
+  <param name="/navigation/mission_manager/high_view_full/boundary_policy/enabled" value="$(arg reliability_trial)" />
+  <node if="$(arg reliability_trial)" pkg="uav_high_view" type="planner_progress_recorder.py"
+        name="planner_progress_recorder" output="screen" />
 </launch>

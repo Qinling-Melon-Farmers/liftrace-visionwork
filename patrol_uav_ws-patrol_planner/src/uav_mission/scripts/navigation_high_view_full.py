@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import rospy
 from uav_mission.high_view_full import HighViewFull
+from uav_mission.boundary_revisit import BoundaryRevisit
 from uav_mission.high_view_probe import ProbeConfig
 from uav_high_view.survey_policy import SurveyPolicy
 
@@ -22,7 +23,8 @@ class FullManager(base.ProbeManager):
         config=dict(rospy.get_param('~high_view_probe/config'))
         config['survey_xy']=tuple(tuple(p) for p in config['survey_xy'])
         policy=SurveyPolicy(**dict(rospy.get_param('~high_view_full/policy',{})))
-        return HighViewFull(ordinary.core,ProbeConfig(**config),policy,fallback_route=ordinary.route)
+        return HighViewFull(ordinary.core,ProbeConfig(**config),policy,fallback_route=ordinary.route,
+                            boundary_policy=BoundaryRevisit(**dict(rospy.get_param('~high_view_full/boundary_policy',{}))))
 
     def _on_map(self,message):
         super()._on_map(message)

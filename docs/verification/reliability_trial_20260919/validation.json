@@ -1,0 +1,12 @@
+{
+  "status": "PRE_FLIGHT_VALIDATED",
+  "navigation_commit": "dc18320e6dc9008f2a56069cde7574d0e52e8076",
+  "mission_tests": 312,
+  "high_view_tests": 65,
+  "catkin_report_tests": 36,
+  "tests_failed": 0,
+  "seed36_old_curve_replay": "FAIL",
+  "seed36_new_curve_replay": "PASS",
+  "seed": 2672,
+  "new_sitl_runs": 0
+}

@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   geometry_msgs
+  sensor_msgs
   quadrotor_msgs
   plan_env
   path_searching
@@ -28,6 +29,7 @@ add_message_files(
   FILES
   Bspline.msg
   PlannerStatus.msg
+  TrajectoryProgress.msg
   )
   
 # Generate added messages and services with any dependencies listed here
@@ -40,7 +42,7 @@ generate_messages(
 # catkin_package(CATKIN_DEPENDS message_runtime)
 catkin_package(
  INCLUDE_DIRS include
- CATKIN_DEPENDS roscpp std_msgs geometry_msgs plan_env path_searching bspline bspline_opt traj_utils message_runtime
+ CATKIN_DEPENDS roscpp std_msgs geometry_msgs sensor_msgs plan_env path_searching bspline bspline_opt traj_utils message_runtime
 #  DEPENDS system_lib
 )
 
@@ -69,8 +71,10 @@ target_link_libraries(traj_server ${catkin_LIBRARIES})
 add_dependencies(traj_server ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 if(CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(motion_watchdog_test test/motion_watchdog_test.cpp)
   catkin_add_gtest(goal_adjustment_test test/goal_adjustment_test.cpp)
   catkin_add_gtest(trajectory_progress_test test/trajectory_progress_test.cpp)
+  target_link_libraries(trajectory_progress_test ${catkin_LIBRARIES})
   catkin_add_gtest(planner_status_schema_test test/planner_status_schema_test.cpp)
   if(TARGET planner_status_schema_test)
     add_dependencies(planner_status_schema_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

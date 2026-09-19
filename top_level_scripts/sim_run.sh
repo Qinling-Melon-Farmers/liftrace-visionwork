@@ -67,8 +67,8 @@ export UAV_WS="${UAV_WS:-${PROJECT_ROOT}/patrol_uav_ws-patrol_planner}"
 # executables from an unrelated development checkout.
 set +u
 source /opt/ros/noetic/setup.bash
-source "${VISION_WS}/devel/setup.bash"
-source "${UAV_WS}/devel/setup.bash" --extend
+source "${VISION_WS}/devel/setup.bash" || exit 66
+source "${UAV_WS}/devel/setup.bash" --extend || exit 66
 set -u
 
 # ---- PX4 + Gazebo 环境（与 launch_toudi3_full_sim.sh 一致，可在调用前覆盖） ----
@@ -118,10 +118,10 @@ verify_package_owner() {
 }
 
 if [ -d "${UAV_SOURCE_ROOT}/uav_mission" ]; then
-  RESOLVED_UAV_MISSION="$(verify_package_owner uav_mission "${UAV_SOURCE_ROOT}/uav_mission")"
+  RESOLVED_UAV_MISSION="$(verify_package_owner uav_mission "${UAV_SOURCE_ROOT}/uav_mission")" || exit 66
 fi
 if [ -d "${VISION_SOURCE_ROOT}/uav_vision" ]; then
-  RESOLVED_UAV_VISION="$(verify_package_owner uav_vision "${VISION_SOURCE_ROOT}/uav_vision")"
+  RESOLVED_UAV_VISION="$(verify_package_owner uav_vision "${VISION_SOURCE_ROOT}/uav_vision")" || exit 66
 fi
 
 SCENE="${1:-sim}"

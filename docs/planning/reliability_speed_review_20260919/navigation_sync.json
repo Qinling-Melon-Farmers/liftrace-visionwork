@@ -1,0 +1,29 @@
+{
+  "repository": "https://github.com/Qinling-Melon-Farmers/liftrace-controlwork.git",
+  "authority": "https://github.com/sakelier/liftrace-controlwork.git",
+  "branch": "feat/high-view-liveness-20260919",
+  "commit": "dc18320e6dc9008f2a56069cde7574d0e52e8076",
+  "files": [
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/CMakeLists.txt",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/kino_replan_fsm.h",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/motion_watchdog.h",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/trajectory_progress.h",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/msg/Bspline.msg",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/msg/TrajectoryProgress.msg",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/package.xml",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/src/kino_replan_fsm.cpp",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/src/traj_server.cpp",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/test/motion_watchdog_test.cpp",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/test/trajectory_progress_test.cpp",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_high_view_full.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_mission_manager.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/boundary_revisit.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/execution_speed.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/high_view_full.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/planner_execution.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_boundary_revisit.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_external_mission_contract.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_high_view_full.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_planner_execution.py"
+  ]
+}

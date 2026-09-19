@@ -1,5 +1,7 @@
 <launch>
   <arg name="target_model_path" />
+  <arg name="record_overview_video" default="false" />
+  <arg name="overview_z" default="7.0" />
   <arg name="world" />
   <arg name="field_config" />
   <arg name="runtime_config" />
@@ -13,6 +15,8 @@
   <arg name="low_goal_adjustment_radius" default="0.15" />
   <include file="$(find uav_mission)/launch/navigation_horizontal_search_vcl06.launch">
     <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="record_overview_video" value="$(arg record_overview_video)" />
+    <arg name="overview_z" value="$(arg overview_z)" />
     <arg name="field_seed" value="$(arg field_seed)" />
     <arg name="world" value="$(arg world)" />
     <arg name="field_config" value="$(arg field_config)" />

@@ -11,6 +11,30 @@ from test_mission_runtime import profile,candidate,result_for,release_ack
 
 
 class FullTests(unittest.TestCase):
+    def test_boundary_hint_changes_viewpoint_not_target_identity(self):
+        from uav_mission.boundary_revisit import BoundaryRevisit
+        self.to_capture()
+        self.r.boundary_policy=BoundaryRevisit(enabled=True)
+        self.r.core.queue.delivered_classes={'bridge','panzer'}
+        h=self.r.top_hints['red_cross']
+        self.r.top_hints['red_cross']=replace(h,xy=(4.5,3.),uncertainty_m=.3)
+        out=self.r._next_target(114.)
+        self.assertLess(out.action.goal.x,4.2)
+        self.assertEqual(self.r.selected.xy,(4.5,3.))
+        self.assertFalse(out.action.has_target)
+        self.assertEqual(self.r.core.committed_slots,0)
+
+    def test_fresh_candidate_outside_boundary_cannot_start_delivery(self):
+        from uav_mission.boundary_revisit import BoundaryRevisit
+        self.to_capture();self.r.boundary_policy=BoundaryRevisit(enabled=True)
+        h=self.r.selected
+        self.r.fresh_candidate=candidate(target_id=h.key.target_id,class_name=h.class_name,now=114.,x=4.6,y=3.)
+        self.r.reacquired={'target_id':h.key.target_id}
+        out=self.r.tick(114.1,(4.,3.))
+        self.assertIsNone(out.action)
+        self.assertEqual(self.r.core.committed_slots,0)
+        self.assertEqual(self.r.boundary_rejections,1)
+
     def setUp(self):
         cfg=MissionConfig(early_return_enabled=False,post_delivery_route=(GoalSnapshot('camera_init',-3.,6.,1.18),),landing_xy=(-3.,6.))
         self.r=HighViewFull(MissionCore(profile(),cfg),ProbeConfig(-.22,((1.,1.),(2.,1.))),

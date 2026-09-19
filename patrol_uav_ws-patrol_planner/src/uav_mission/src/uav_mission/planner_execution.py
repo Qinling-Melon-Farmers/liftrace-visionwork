@@ -805,6 +805,12 @@ class PlannerMotionExecutor:
                 self._result(state, int(now_ns), "PROGRESS", "PLANNER",
                              False, False, "planner_trajectory_ready"),))
         if status == "FAILED_ATTEMPT":
+            if event.reason == "liveness_budget_exhausted":
+                state.terminal = True
+                state.retired = True
+                return self._outcome(True, event.reason, handoff="CANCEL_REQUIRED",
+                    events=(self._result(state, int(now_ns), "FAILED", "PLANNER",
+                                         True, state.decision.command in ("SEARCH", "RESUME", "APPROACH"), event.reason),))
             return self._outcome(True, "planner_attempt_failed_nonterminal",
                 events=(self._result(
                     state, int(now_ns), "PROGRESS", "PLANNER", False, False,
