@@ -35,4 +35,4 @@ bash deployment/board_trials_4x4/start_camera.sh /dev/video0
 
 ## 本轮实际飞行
 
-[2026-09-20日志复盘](../docs/deployment/board_flight_20260920/REPORT.md)：日志与录像已取回，0.4→1.2m约6.13s；任务全程IDLE、无模拟投递，不能标作专项通过。爬升速度和起飞后任务启动衔接仍待独立修正/验证，本分支此次不自动改变它们。
+[2026-09-20日志复盘](../docs/deployment/board_flight_20260920/REPORT.md)：首轮日志与录像已取回，0.4→1.2m约6.13s；任务全程IDLE、无模拟投递。第二轮任务已启动，第一点通过，第二个固定终点被膨胀地图占据，12秒后ABORT；详见[地图占据专项分析](../docs/deployment/board_flight_20260920/MAP_ABORT_ANALYSIS.md)。两轮均不能标作专项通过。
