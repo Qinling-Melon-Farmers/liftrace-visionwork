@@ -16,7 +16,8 @@
     "/fast_planner_node/fsm/liveness_enabled": true,
     "/fast_planner_node/progress/enabled": true,
     "/traj_server/progress/enabled": true,
-    "/traj_server/traj_server/require_goal_identity": true
+    "/traj_server/traj_server/require_goal_identity": true,
+    "/navigation_vcl06_assertion/startup_wall_timeout": 180.0
   },
   "passed": true
 }

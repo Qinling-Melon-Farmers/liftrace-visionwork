@@ -4,12 +4,14 @@
   <arg name="corridor_fast" default="true" />
   <arg name="high_agl" default="2.6" />
   <arg name="field_seed" default="2672" />
+  <arg name="presentation_recording" default="true" />
+  <arg name="gate_startup_wall_timeout" default="180.0" />
   <arg name="runtime_config" default="$(eval arg('scene_dir') + ('/fast_runtime.yaml' if arg('corridor_fast') else '/baseline_runtime.yaml'))" />
   <arg name="gate_config" default="$(eval arg('scene_dir') + ('/fast_gate.yaml' if arg('corridor_fast') else '/baseline_gate.yaml'))" />
   <include file="$(find uav_high_view)/launch/fast_comparison.launch">
     <arg name="strategy" value="true" />
     <arg name="reliability_trial" value="true" />
-    <arg name="presentation_recording" value="true" />
+    <arg name="presentation_recording" value="$(arg presentation_recording)" />
     <arg name="presentation_config" value="$(arg scene_dir)/presentation.yaml" />
     <arg name="vehicle_sdf" value="$(find uav_vision_eval)/models/iris_mid360_start_fov/model.sdf" />
     <arg name="camera_extrinsic_quat_xyzw" value="0 1 0 0" />
@@ -23,4 +25,8 @@
   </include>
   <rosparam file="$(arg scene_dir)/frame_overrides.yaml" />
   <rosparam file="$(arg scene_dir)/repair_overrides.yaml" />
+  <!-- Host startup is not competition time. Keep the accepted default while
+       allowing cold-cache regression runs to raise only this wall watchdog. -->
+  <param name="/navigation_vcl06_assertion/startup_wall_timeout"
+         value="$(arg gate_startup_wall_timeout)" />
 </launch>
