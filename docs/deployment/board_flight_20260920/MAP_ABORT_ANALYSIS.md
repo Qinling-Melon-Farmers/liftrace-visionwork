@@ -1,5 +1,7 @@
 # 实机地图占据导致ABORT：与仿真差异复盘
 
+FreeDOM静态地图的生命周期、清除条件及其与SDF/水平障碍柱的分层关系，见[FreeDOM静态点云专项分析](FREEDOM_MAP_ANALYSIS.md)。
+
 ## 结论
 
 本轮不是“飞机在途中看到障碍后不会绕行”。第二段请求终点 (3.0019, -0.0064, 1.1144) 在规划地图中直接返回 in_map=1、inflated=1，且半径0.15m内没有合法替代终点。Fast-Planner没有为该段发布可执行轨迹，约12秒首次轨迹保护到期后，专项状态机以 board_line_finished_without_delivery 中止。
