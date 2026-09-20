@@ -57,6 +57,7 @@ class KinodynamicSearchFixture : public ::testing::Test {
   }
   void setBudget(double seconds) { search.max_search_time_=seconds; }
   void setHorizon(double metres) { search.horizon_=metres; }
+  void setDirectShotDistance(double metres) { search.direct_shot_distance_=metres; }
   void occupy(const Eigen::Vector3d& p) {
     Eigen::Vector3i id; map->posToIndex(p,id);
     map->md_.occupancy_buffer_inflate_[map->toAddress(id)]=1;
@@ -139,6 +140,24 @@ TEST_F(KinodynamicSearchFixture, ShortGoalCannotEscapeAsPartialTrajectory) {
   auto before=std::chrono::steady_clock::now();
   ASSERT_EQ(fast_planner::KinodynamicAstar::NO_PATH,run());
   EXPECT_LT(std::chrono::duration<double>(std::chrono::steady_clock::now()-before).count(),0.10);
+}
+TEST_F(KinodynamicSearchFixture, InitialSearchUsesGoalBiasedEscapePrimitive) {
+  setDirectShotDistance(0.05); setBudget(1.0);
+  search.reset();
+  const auto result=search.search(Eigen::Vector3d(-0.8,0,1),Eigen::Vector3d::Zero(),
+      Eigen::Vector3d::Zero(),Eigen::Vector3d(0.8,0,1),Eigen::Vector3d::Zero(),true);
+  EXPECT_NE(fast_planner::KinodynamicAstar::NO_PATH,result);
+  EXPECT_GT(search.getLastDiagnostics().accepted,0u);
+}
+TEST_F(KinodynamicSearchFixture, OccupiedStartIsExplicitInDiagnostics) {
+  const Eigen::Vector3d start(-0.8,0,1);
+  occupy(start); setDirectShotDistance(0.05); setBudget(0.05);
+  search.reset();
+  EXPECT_EQ(fast_planner::KinodynamicAstar::NO_PATH,
+      search.search(start,Eigen::Vector3d::Zero(),Eigen::Vector3d::Zero(),
+                    Eigen::Vector3d(0.8,0,1),Eigen::Vector3d::Zero(),true));
+  EXPECT_EQ(search.getLastDiagnostics().start_occupancy,1);
+  EXPECT_GT(search.getLastDiagnostics().rejected_collision,0u);
 }
 TEST_F(KinodynamicSearchFixture, FrozenR54FineMapApproachAndDoor) {
   const char* filename=std::getenv("LIFTRACE_FROZEN_CLOUD");

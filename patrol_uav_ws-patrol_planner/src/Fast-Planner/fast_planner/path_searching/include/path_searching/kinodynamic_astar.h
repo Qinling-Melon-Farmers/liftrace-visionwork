@@ -6,6 +6,7 @@
 #include <ros/ros.h>
 #include <Eigen/Eigen>
 #include <boost/functional/hash.hpp>
+#include <cstdint>
 #include <iostream>
 #include <map>
 #include <queue>
@@ -104,6 +105,20 @@ class NodeHashTable {
 };
 
 class KinodynamicAstar {
+ public:
+  struct SearchDiagnostics {
+    uint64_t candidates = 0;
+    uint64_t rejected_closed = 0;
+    uint64_t rejected_velocity = 0;
+    uint64_t rejected_same_voxel = 0;
+    uint64_t rejected_collision = 0;
+    uint64_t pruned_same_parent = 0;
+    uint64_t accepted = 0;
+    int start_occupancy = 0;
+    int goal_occupancy = 0;
+    bool timed_out = false;
+  };
+
   friend class ::KinodynamicSearchFixture;
  private:
   /* ---------- main data structure ---------- */
@@ -123,6 +138,7 @@ class KinodynamicAstar {
   Eigen::MatrixXd coef_shot_;
   double t_shot_;
   bool has_path_ = false;
+  SearchDiagnostics last_diagnostics_;
 
   /* ---------- parameter ---------- */
   /* search */
@@ -183,6 +199,10 @@ class KinodynamicAstar {
                   vector<Eigen::Vector3d>& start_end_derivatives);
 
   std::vector<PathNodePtr> getVisitedNodes();
+
+  const SearchDiagnostics& getLastDiagnostics() const {
+    return last_diagnostics_;
+  }
 
   typedef shared_ptr<KinodynamicAstar> Ptr;
 

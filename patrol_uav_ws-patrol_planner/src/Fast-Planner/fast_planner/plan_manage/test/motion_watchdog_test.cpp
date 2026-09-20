@@ -31,4 +31,13 @@ TEST(MotionWatchdog, PoseNoiseDoesNotRenewBudget) {
   for(int i=0;i<100;++i) if(w.observe(i*.1,Eigen::Vector3d((i%2)*.005,0,0),true)==MotionWatchdog::REPLAN)++requests;
   EXPECT_EQ(requests,2);
 }
+TEST(MotionWatchdog, ExplicitServerRecoverySharesGoalBudget) {
+  MotionWatchdog w;
+  EXPECT_EQ(w.requestRecovery(1.0),MotionWatchdog::REPLAN);
+  EXPECT_EQ(w.attempts(),1u);
+  EXPECT_EQ(w.requestRecovery(2.0),MotionWatchdog::REPLAN);
+  EXPECT_EQ(w.requestRecovery(3.0),MotionWatchdog::EXHAUSTED);
+  w.reset();
+  EXPECT_EQ(w.requestRecovery(4.0),MotionWatchdog::REPLAN);
+}
 int main(int argc,char** argv){testing::InitGoogleTest(&argc,argv);return RUN_ALL_TESTS();}

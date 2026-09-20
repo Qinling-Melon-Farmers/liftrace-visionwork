@@ -31,6 +31,8 @@ class ProbeManager(NavigationMissionManager):
         ordinary=super()._new_runtime()
         cfg=dict(rospy.get_param('~high_view_probe/config'))
         cfg['survey_xy']=tuple(tuple(p) for p in cfg['survey_xy'])
+        if cfg.get('staging_xy'):
+            cfg['staging_xy']=tuple(cfg['staging_xy'])
         return HighViewProbe(ordinary.core,ProbeConfig(**cfg))
 
     def _camera_info(self,message):

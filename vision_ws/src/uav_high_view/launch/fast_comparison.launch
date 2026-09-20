@@ -62,6 +62,9 @@
   <!-- Research-only opt-in; accepted deployment defaults remain unchanged. -->
   <arg name="reliability_trial" default="false" />
   <param name="/fast_planner_node/fsm/liveness_enabled" value="$(arg reliability_trial)" />
+  <param name="/fast_planner_node/fsm/server_hold_replan_enabled" value="$(arg reliability_trial)" />
+  <param name="/fast_planner_node/fsm/server_hold_seconds" value="0.25" />
+  <param name="/fast_planner_node/fsm/server_progress_max_age" value="0.50" />
   <param name="/fast_planner_node/progress/enabled" value="$(arg reliability_trial)" />
   <param name="/traj_server/progress/enabled" value="$(arg reliability_trial)" />
   <param name="/traj_server/traj_server/require_goal_identity" value="$(arg reliability_trial)" />

@@ -1,4 +1,5 @@
 from dataclasses import replace
+import math
 import unittest
 from uav_mission.high_view_probe import HighViewProbe, ProbeConfig
 from uav_mission.mission_core import MissionCore, MissionConfig, MissionPhase
@@ -110,8 +111,38 @@ class ProbeTests(unittest.TestCase):
         self.assertEqual(self.r.stage,'RETURN_COLUMN');self.assertEqual(self.r.route.current_index,0)
 
     def test_probe_configuration_bound(self):
-        for args in [dict(high_agl=4.),dict(survey_budget=100.),dict(hint_radius=.5)]:
+        for args in [dict(high_agl=4.),dict(survey_budget=100.),dict(hint_radius=.5),
+                     dict(staging_xy=(1.,)),dict(staging_xy=(math.nan,0.))]:
             with self.assertRaises(ValueError):ProbeConfig(-.22,((1.,1.),),**args)
+
+    def test_low_staging_precedes_ascent_and_becomes_verified_column(self):
+        runtime=HighViewProbe(
+            MissionCore(profile(),MissionConfig(early_return_enabled=False,motion_action_timeout=30.)),
+            ProbeConfig(-.22,((1.,1.),),staging_xy=(.6,.05)))
+        runtime.start('mission-runtime',100.,(0.,0.))
+        self.assertEqual((runtime.core.active_action.goal.x,runtime.core.active_action.goal.y,
+                          runtime.core.active_action.goal.z),(.6,.05,1.18))
+        self.r=runtime;self.seq=0
+        self.finish(102.)
+        self.assertFalse(runtime.ascent_verified)
+        self.assertEqual((runtime.core.active_action.goal.x,runtime.core.active_action.goal.y,
+                          runtime.core.active_action.goal.z),(.6,.05,2.38))
+        self.finish(105.)
+        self.assertTrue(runtime.ascent_verified)
+        self.assertEqual((runtime.core.active_action.goal.x,runtime.core.active_action.goal.y,
+                          runtime.core.active_action.goal.z),(1.,1.,2.38))
+        self.finish(108.)
+        self.assertEqual(runtime.core.active_action.goal.x,.6)
+        self.assertEqual(runtime.core.active_action.goal.y,.05)
+
+    def test_low_staging_observation_is_not_high_view_memory(self):
+        runtime=HighViewProbe(
+            MissionCore(profile(),MissionConfig(early_return_enabled=False,motion_action_timeout=30.)),
+            ProbeConfig(-.22,((1.,1.),),staging_xy=(.6,.05)))
+        runtime.start('mission-runtime',100.,(0.,0.))
+        runtime.update_pose((.6,.05,1.18),101.,'camera_init')
+        runtime.ingest([candidate(now=101.,class_name='red_cross',x=1.,y=1.)],101.)
+        self.assertFalse(runtime.catalog.entries)
 
 
 if __name__=='__main__':unittest.main()

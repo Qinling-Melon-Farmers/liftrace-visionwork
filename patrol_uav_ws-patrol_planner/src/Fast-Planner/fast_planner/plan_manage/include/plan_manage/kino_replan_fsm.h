@@ -50,6 +50,7 @@
 using std::vector;
 
 #include <plan_manage/motion_watchdog.h>
+#include <plan_manage/server_hold_monitor.h>
 #include <plan_manage/TrajectoryProgress.h>
 #include <std_msgs/Int8.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -115,15 +116,19 @@ private:
   PlannerStatusTracker goal_status_tracker_;
 
   MotionWatchdog motion_watchdog_;
+  ServerHoldMonitor server_hold_monitor_;
   bool liveness_enabled_ = false, progress_enabled_ = false;
+  bool server_hold_replan_enabled_ = false;
+  bool server_hold_replan_pending_ = false;
   bool goal_has_trajectory_ = false;
   int controller_mode_ = -1;
   ros::Time controller_stamp_, odom_stamp_, map_stamp_, progress_stamp_;
   double odom_max_age_ = 0.5, map_max_age_ = 2.0;
   std::string progress_reason_;
-  ros::Subscriber controller_sub_, map_age_sub_;
+  ros::Subscriber controller_sub_, map_age_sub_, server_progress_sub_;
   ros::Publisher progress_pub_;
   void publishProgress(const std::string& reason, bool motion);
+  void serverProgressCallback(const plan_manage::TrajectoryProgress::ConstPtr& msg);
 
   /* ROS utils */
   ros::NodeHandle node_;

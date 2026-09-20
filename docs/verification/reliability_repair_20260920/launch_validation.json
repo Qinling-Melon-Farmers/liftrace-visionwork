@@ -1,0 +1,22 @@
+{
+  "launch": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_high_view/launch/fov_inner_repair.launch",
+  "scene": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_32",
+  "parameter_count": 841,
+  "node_count": 40,
+  "expected": {
+    "/navigation/planner_bridge/execution/initial_plan_timeout": 12.0,
+    "/navigation/planner_bridge/execution/search_initial_plan_timeout": 12.0,
+    "/navigation/mission_manager/high_view_probe/config/staging_xy": [
+      0.6,
+      0.05
+    ],
+    "/fast_planner_node/fsm/server_hold_replan_enabled": true,
+    "/fast_planner_node/fsm/server_hold_seconds": 0.25,
+    "/fast_planner_node/fsm/server_progress_max_age": 0.5,
+    "/fast_planner_node/fsm/liveness_enabled": true,
+    "/fast_planner_node/progress/enabled": true,
+    "/traj_server/progress/enabled": true,
+    "/traj_server/traj_server/require_goal_identity": true
+  },
+  "passed": true
+}

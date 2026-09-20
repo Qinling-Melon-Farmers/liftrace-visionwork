@@ -11,6 +11,9 @@
   <arg name="field_seed" default="32" />
   <arg name="ground_z" default="-0.22" />
   <arg name="high_agl" default="2.6" />
+  <arg name="initial_plan_timeout" default="12.0" />
+  <arg name="staging_x" default="0.60" />
+  <arg name="staging_y" default="0.05" />
   <!-- High survey may shift a waypoint sideways within the existing 0.35m
        effective-goal contract. Never change Z or weaken full-height columns. -->
   <arg name="high_goal_adjustment_radius" default="0.30" />
@@ -29,6 +32,7 @@
     <arg name="gate_geometry_config" value="$(arg gate_geometry_config)" />
     <arg name="ground_z" value="$(arg ground_z)" />
     <arg name="manager_type" value="navigation_high_view_full.py" />
+    <arg name="initial_plan_timeout" value="$(arg initial_plan_timeout)" />
   </include>
   <param name="/external_planner_max_command_z" value="$(eval float(arg('ground_z'))+3.0)" />
   <param name="/fast_planner_node/fsm/goal_adjustment_radius" value="$(arg high_goal_adjustment_radius)" />
@@ -37,6 +41,10 @@
   <param name="/navigation/mission_manager/high_view_probe/config/ground_z" value="$(arg ground_z)" />
   <param name="/navigation/mission_manager/high_view_probe/config/high_agl" value="$(arg high_agl)" />
   <param name="/navigation/mission_manager/high_view_probe/config/low_agl" value="1.4" />
+  <!-- Leave the boundary at low altitude before climbing. The 3-D planner
+       still validates both legs against the same inflated map. -->
+  <rosparam param="/navigation/mission_manager/high_view_probe/config/staging_xy"
+            subst_value="true">[$(arg staging_x), $(arg staging_y)]</rosparam>
   <rosparam param="/navigation/mission_manager/high_view_full/policy">
     candidate_min_streak: 1
     min_interval_ns: 100000000

@@ -23,6 +23,8 @@ class FullManager(base.ProbeManager):
         ordinary=base.NavigationMissionManager._new_runtime(self)
         config=dict(rospy.get_param('~high_view_probe/config'))
         config['survey_xy']=tuple(tuple(p) for p in config['survey_xy'])
+        if config.get('staging_xy'):
+            config['staging_xy']=tuple(config['staging_xy'])
         policy=SurveyPolicy(**dict(rospy.get_param('~high_view_full/policy',{})))
         runtime=HighViewFull(ordinary.core,ProbeConfig(**config),policy,fallback_route=ordinary.route,
                             boundary_policy=BoundaryRevisit(**dict(rospy.get_param('~high_view_full/boundary_policy',{}))))
