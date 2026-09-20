@@ -1,0 +1,11 @@
+uint8 SEARCH=0
+uint8 APPROACH=1
+uint8 ALIGN=2
+uint8 RESUME=3
+uint8 RETURN_HOME=4
+uint8 LAND=5
+Header header
+uint8 command
+uint32 target_id
+string target_class
+geometry_msgs/PoseStamped goal

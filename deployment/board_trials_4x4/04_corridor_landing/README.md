@@ -36,3 +36,5 @@ bash deployment/board_trials_4x4/04_corridor_landing/start.sh flight
 本地验证完成：原三套8项回归、新专项4项测试、四套共8个入口静态展开通过，空配置的实际监督入口返回缺项错误且未初始化ROS。板端当前不可达，本轮新增配置和公共脚本尚未同步到板端；旧三套部署未受影响。
 
 现场更新：本入口现已随四套补丁同步板端；航点/H仍留空，未启动本专项。
+
+本分支同步：默认alignment_mode=legacy_static、virtual_ceiling_enabled=false，共享自动高度精度、控制器READY及真实离地后落地收尾修复；控制Z限幅保留。

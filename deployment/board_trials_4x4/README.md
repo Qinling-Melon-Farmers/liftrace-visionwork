@@ -1,6 +1,6 @@
 # 本地4×4板端专项测试：四套独立入口
 
-2026-09-20现场更新：四套virtual_ceiling_enabled=false，虚拟顶棚为−0.1，高位转低位也保持关闭；保留目标高度和控制指令限高。视觉中断专项按现场要求使用legacy_static单位map→camera_init，其余入口可通过alignment_mode选择。新IP为10.231.47.193。READY要求视觉输出及控制器持续设定点同时就绪，地面解锁后上锁不再自动当作完成飞行。
+2026-09-20现场更新：四套virtual_ceiling_enabled=false，虚拟顶棚为−0.1，高位转低位也保持关闭；保留目标高度和控制指令限高。四套均使用legacy_static单位map→camera_init；如需实测对齐，可显式选择alignment_mode=measured。新IP为10.231.47.193。READY要求视觉输出及控制器持续设定点同时就绪，地面解锁后上锁不再自动当作完成飞行。
 
 新增[第四套：走廊导航＋自主避障＋H降落](04_corridor_landing/README.md)。走廊航点与H位置留空，未填写时入口拒绝运行；其余外参、自动高度、0.5m/s与录像复用公共配置。
 
@@ -30,7 +30,7 @@
 
 ## 保留上次坐标修复
 
-任务/规划使用`camera_init`；MAVROS原始反馈/设定点使用`map`。`map_camera_alignment`通过同一机体两路实测位姿建立变换；`navigation_frame_adapter`对位姿、里程计和反向设定点做数值转换，保留时间戳、机体系速度及协方差规则。没有只改`frame_id`，没有同时发布第二套固定`map→camera_init`变换，也没有打开latest-TF兜底。
+任务/规划使用`camera_init`；MAVROS原始反馈/设定点使用`map`。当前四套按现场口径默认`alignment_mode=legacy_static`，只发布一套单位`map→camera_init`；`navigation_frame_adapter`仍做正反数值转换并保留时间戳、机体系速度及协方差规则。`measured`模式可选，此时由两路同机体位姿估计变换；两种发布者互斥，不能同时运行。单位TF是否符合现场两系关系仍需检查，不能把名字相同或位置接近当作无误差证明。
 
 任务、控制、规划桥、释放许可都消费`/navigation/local_pose`或`/navigation/local_odom`；控制设定点先进入`/navigation/setpoint_mission`再转换回MAVROS。相机TF仍使用`map→vision_body→mapping_imu→optical`，保持地图与融合机体的来源一致。
 
@@ -99,3 +99,6 @@ rosservice call /navigation/start_mission "{}"
 规划区域和名义航点不能当作飞控硬围栏，末端CV修正与跟踪误差仍需场地余量。图像标框按图像时间匹配，底栏为记录时刻的任务状态，源时刻在CSV中保留。
 
 如需拷上板，可在本独立工作树已提交后用`git archive`导出**一个完整源码包**，保留相对符号链接；不要复制工作树的`.git`指针或笔记本build/devel。当前只保留本地三个目录，没有额外自动打包、推远端或上传板端。
+
+
+当前维护分支为feat/board-deployment-flight-20260920，已按用户授权推送远端，早期“仅本地”描述保留为过程记录。相机启动入口见[start_camera.sh](start_camera.sh)，实际试飞与旧工程参考见[部署总览](../BOARD_DEPLOYMENT.md)。

@@ -1,0 +1,107 @@
+<launch>
+  <!-- Central config: every corridor-test tunable lives in this file.
+       Edit values there, not in this launch. -->
+  <arg name="test_config" default="$(find uav_mission)/config/corridor_waypoint_test.yaml" />
+  <!-- Temporary hardware corridor test: all mission coordinates are camera_init. -->
+  <arg name="lio_config" default="$(find uav_mission)/config/mid360_hardware.yaml" />
+  <arg name="control_config" default="$(find uav_mission)/config/vcl06_horizontal_control.yaml" />
+  <arg name="runtime_config" default="$(find uav_mission)/config/vcl06_runtime.yaml" />
+  <arg name="map_frame" default="camera_init" />
+  <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
+  <arg name="body_to_imu_xyz" default="0 0 0.05" />
+  <arg name="imu_to_camera_z" default="-0.21" />
+  <arg name="camera_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
+  <!-- Phase 1: corridor tunables, Fast-LIO tuning and global caps.
+       Loaded after lio_config so the test overrides win. The same file is
+       re-asserted after the control group (phase 2). Note: roslaunch has no
+       $(param) substitution, so included launches below run with their own
+       defaults and phase 2 re-applies this file's final values on the
+       parameter server before the slow-starting nodes read them. -->
+  <rosparam file="$(arg lio_config)" />
+  <rosparam file="$(arg test_config)" command="load" />
+
+  <!-- Hardware LIO and point-cloud map. -->
+  <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen" />
+  <include file="$(find freedom)/launch/run_freedom_mid360.launch">
+    <arg name="enable_static_pointcloud_viz" value="false" />
+  </include>
+  <param name="/freedom/sensor_tf_frame" value="mapping_imu" />
+  <rosparam ns="/freedom" file="$(find uav_mission)/config/competition_freedom.yaml" />
+  <param name="/freedom/map_tf_frame" value="$(arg map_frame)" />
+  <node pkg="uav_mission" type="lio_external_pose.py" name="lio_external_pose" output="screen">
+    <param name="frame" value="$(arg map_frame)" />
+    <rosparam param="imu_to_body_xyz" subst_value="true">$(eval [-float(v) for v in arg('body_to_imu_xyz').split()])</rosparam>
+  </node>
+
+  <!-- Calibrated pose of camera_init in map; default is zero translation/rotation. -->
+  <arg name="map_to_mission_xyz" default="0 0 0" />
+  <arg name="map_to_mission_quat_xyzw" default="0 0 0 1" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_camera_init_identity"
+        args="$(arg map_to_mission_xyz) $(arg map_to_mission_quat_xyzw) map $(arg map_frame)" />
+  <!-- Keep adapter outside the remapped group to avoid feedback loops. -->
+  <node pkg="uav_mission" type="navigation_frame_adapter.py"
+        name="navigation_frame_adapter" output="screen" required="true">
+    <param name="local_frame" value="map" />
+    <param name="mission_frame" value="$(arg map_frame)" />
+    <param name="enable_setpoints" value="true" />
+  </node>
+  <node pkg="uav_mission" type="pose_tf_broadcaster.py" name="vision_pose_tf" output="screen">
+    <param name="pose_topic" value="/mavros/local_position/pose" />
+    <param name="parent_frame" value="map" />
+    <param name="child_frame" value="vision_body" />
+  </node>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="mapping_imu_extrinsic"
+        args="$(arg body_to_imu_xyz) 0 0 0 1 vision_body mapping_imu" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="downward_camera_extrinsic"
+        args="0 0 $(arg imu_to_camera_z) $(arg camera_quat_xyzw) mapping_imu $(arg camera_optical_frame)" />
+
+  <group>
+    <remap from="/mavros/local_position/pose" to="/navigation/local_pose" />
+    <remap from="/mavros/local_position/odom" to="/navigation/local_odom" />
+    <remap from="/mavros/setpoint_position/local" to="/navigation/setpoint_mission" />
+    <!-- Control and local planner. Mission manager supplies the fixed goals; the
+         planner replans between them against the live LIO occupancy map.
+         Planner limits intentionally NOT passed as args: the defaults below are
+         overridden on the parameter server by phase 2 of the test config. -->
+    <include file="$(find patrol_control)/launch/patrol_control_px4_sim.launch">
+      <arg name="rviz" value="false" />
+      <arg name="waypoint_mode" value="false" />
+      <arg name="external_mission_mode" value="true" />
+      <arg name="simulation_auto_land" value="false" />
+      <arg name="start_waypoint_generator" value="false" />
+      <arg name="waypoint_config" value="$(arg control_config)" />
+    </include>
+
+    <rosparam ns="/fast_planner_node" file="$(find uav_mission)/config/horizontal_planner.yaml" />
+
+    <!-- Start directly in post_delivery so no vision target is required.
+         search_altitude default is overridden by the test config phase 2. -->
+    <include file="$(find uav_mission)/launch/navigation_mission_manager.launch">
+      <arg name="runtime_config" value="$(arg runtime_config)" />
+      <arg name="pose_topic" value="/navigation/local_pose" />
+      <arg name="start_mode" value="post_delivery" />
+    </include>
+    <include file="$(find uav_mission)/launch/navigation_planner_bridge.launch">
+      <arg name="execution_enabled" value="true" />
+      <arg name="allow_live_goal_output" value="true" />
+      <arg name="required" value="true" />
+      <arg name="planner_goal_topic" value="/fastplanner/goal" />
+      <arg name="planner_status_topic" value="/planning/goal_status" />
+      <arg name="odom_topic" value="/navigation/local_odom" />
+    </include>
+
+  </group>
+
+  <!-- Phase 2: re-assert the same file after the control group so its values
+       win over the included launches' defaults and the runtime profile
+       (vcl06_runtime.yaml). patrol_control re-reads its globals with
+       getParamCached; the Python/C++ nodes start slowly enough that the
+       post-include override has already landed (same mechanism the previous
+       inline overrides relied on, verified in the 2026-09-19 flight log). -->
+  <rosparam file="$(arg test_config)" command="load" />
+
+  <!-- 末点仅悬停，等待遥控器切换 POSCTL 等手动模式后由飞手降落。
+       不启动 obstacle_test_auto_land；test_config 保持 switch/auto_land=false。
+       任务层 LAND 只进入既有 capture_height 悬停等待，不代表 PX4 AUTO.LAND。
+       本入口不启动视觉降落节点，capture_height 与航线高度保持一致。 -->
+</launch>

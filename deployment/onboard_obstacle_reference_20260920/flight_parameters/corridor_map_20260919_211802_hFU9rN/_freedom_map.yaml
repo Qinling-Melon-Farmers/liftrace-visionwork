@@ -1,0 +1,15 @@
+aggressive_connectivity: 124
+block_depth: 5
+conservative_connectivity: 26
+counts_to_free: 6
+counts_to_revert: 20
+enable_local_map: false
+local_map_max_z: 20.0
+local_map_min_z: -20.0
+local_map_range: 40.0
+raycast_max_range: 8.0
+raycast_max_z: 3.0
+raycast_min_z: -1.0
+sub_voxel_size: 0.1
+voxel_depth: 0
+

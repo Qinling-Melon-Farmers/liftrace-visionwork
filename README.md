@@ -1,5 +1,7 @@
 # 2026无人机竞赛整机工程
 
+> 本分支为 `feat/board-deployment-flight-20260920`，专门用于板端部署与试飞。[部署总览](deployment/BOARD_DEPLOYMENT.md) · [四套专项](deployment/board_trials_4x4/README.md) · [现场旧4×4参考镜像](deployment/onboard_obstacle_reference_20260920/README.md)。下方仿真记录保留来源历史，不代表本分支已实飞验收。
+
 > 2026-09-19最新修复验证：[新视场/内环/LAND 50cm三轮报告](docs/verification/fov_landing_inner_20260919/REPORT.md) · [35张图与双视角视频](docs/verification/fov_landing_inner_20260919/index.html)。同seed2672 A/B/C均PASS：251.667/187.733/216.548s，三投/两门/H降落、零碰撞；越树整机投影与搜索内环检查均通过。本轮最快B（2.6m＋已有快走廊）。3m仍有panzer冲突，经低位复核成功；未彻底消除视觉对准等待。九次mock ACK真实FC靶心误差中位8.01cm，非实物落点精度。后续提速只做文档，未替换机载部署。
 
 

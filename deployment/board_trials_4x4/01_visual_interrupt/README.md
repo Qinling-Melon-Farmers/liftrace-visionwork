@@ -46,3 +46,5 @@ rosservice call /navigation/start_mission "{}"
 每次输出 `logs/board_visual_interrupt_<时间>/index.html`。同时保留原相机录像、带YOLO/几何/任务标注录像、逐帧时间、轨迹、视觉事件和`result.json`。PASS要求一次任务确认的模拟投递以及自动落地交接/落地确认；预览或中途停止标为INCOMPLETE。
 
 本套已准备离线检查；实物动态表现仍需本次试飞验证，不代表正式比赛或真实机构验收。
+
+本分支同步：默认alignment_mode=legacy_static、virtual_ceiling_enabled=false，共享自动高度精度、控制器READY及真实离地后落地收尾修复；控制Z限幅保留。

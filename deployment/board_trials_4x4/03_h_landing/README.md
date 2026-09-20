@@ -40,3 +40,5 @@ rosservice call /navigation/start_mission "{}"
 每次回看入口为`logs/board_landing_<时间>/index.html`；原始/标注相机录像、地图/视觉结果和位姿均保留。原有CV模式随任务阶段切换，预览阶段未出现H对齐标记不等于已经进入LAND验收。
 
 本次是待上板的专项配置与离线验证，不把配置准备完成当成实机H降落已通过。
+
+本分支同步：默认alignment_mode=legacy_static、virtual_ceiling_enabled=false，共享自动高度精度、控制器READY及真实离地后落地收尾修复；控制Z限幅保留。

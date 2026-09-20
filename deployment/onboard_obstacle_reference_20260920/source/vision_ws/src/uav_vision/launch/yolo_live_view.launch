@@ -1,0 +1,18 @@
+<launch>
+  <!-- Attach to an existing camera and either YOLO backend. -->
+  <arg name="image_topic" default="/camera/image_raw" />
+  <arg name="detections_topic" default="/uav_vision/detections" />
+  <arg name="output_topic" default="/uav_vision/yolo_debug" />
+  <arg name="buffer_frames" default="30" />
+  <arg name="show_window" default="true" />
+  <node pkg="uav_vision" type="yolo_live_view.py" name="yolo_live_view" output="screen">
+    <param name="image_topic" value="$(arg image_topic)" />
+    <param name="detections_topic" value="$(arg detections_topic)" />
+    <param name="output_topic" value="$(arg output_topic)" />
+    <param name="buffer_frames" value="$(arg buffer_frames)" />
+  </node>
+  <node if="$(arg show_window)" pkg="image_view" type="image_view" name="yolo_image_view">
+    <remap from="image" to="$(arg output_topic)" />
+    <param name="autosize" value="true" />
+  </node>
+</launch>

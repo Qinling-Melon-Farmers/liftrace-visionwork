@@ -1,0 +1,33 @@
+# ROS CameraInfo profile converted from /vision_ws/calibration.yaml.
+# Source calibration: 1280x720, RMS reprojection error 0.2687378124 px.
+# Runtime uses the supplied K/D without re-solving the calibration.
+# Keep the camera output at exactly 1280x720. Do not scale this profile to
+# another stream size and do not apply pixel rotation without recalibration.
+image_width: 1280
+image_height: 720
+camera_name: liftrace_downward_camera
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [725.3510059644434, 0.0, 631.67186313702575,
+         0.0, 723.34035628450874, 397.56638133116269,
+         0.0, 0.0, 1.0]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [0.0058668600963917095, 0.017910549546758369,
+         -0.0010064115869294274, 0.0014715593681005204,
+         -0.026485100937585344]
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [1.0, 0.0, 0.0,
+         0.0, 1.0, 0.0,
+         0.0, 0.0, 1.0]
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [725.3510059644434, 0.0, 631.67186313702575, 0.0,
+         0.0, 723.34035628450874, 397.56638133116269, 0.0,
+         0.0, 0.0, 1.0, 0.0]

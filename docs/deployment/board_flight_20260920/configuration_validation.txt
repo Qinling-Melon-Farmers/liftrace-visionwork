@@ -1,0 +1,76 @@
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.926s
+
+OK
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.473s
+
+OK
+[
+  {
+    "folder": "01_visual_interrupt",
+    "trial": "visual_interrupt",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "01_visual_interrupt",
+    "trial": "visual_interrupt",
+    "control_output": "true",
+    "nodes": 19,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "02_high_view_revisit",
+    "trial": "high_view",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "FullCircleRuntime",
+    "passed": true
+  },
+  {
+    "folder": "02_high_view_revisit",
+    "trial": "high_view",
+    "control_output": "true",
+    "nodes": 19,
+    "runtime": "FullCircleRuntime",
+    "passed": true
+  },
+  {
+    "folder": "03_h_landing",
+    "trial": "landing",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "03_h_landing",
+    "trial": "landing",
+    "control_output": "true",
+    "nodes": 15,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "04_corridor_landing",
+    "trial": "landing",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "04_corridor_landing",
+    "trial": "landing",
+    "control_output": "true",
+    "nodes": 15,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  }
+]

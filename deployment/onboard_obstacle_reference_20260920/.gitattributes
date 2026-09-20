@@ -1,0 +1,3 @@
+source/** -text -whitespace
+site_notes/** -text -whitespace
+flight_parameters/** -text -whitespace

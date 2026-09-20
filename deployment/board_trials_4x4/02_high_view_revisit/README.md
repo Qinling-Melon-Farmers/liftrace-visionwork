@@ -46,3 +46,5 @@ rosservice call /navigation/start_mission "{}"
 这是一套独立板端测试适配器，不通过伪造`use_sim_time`绕开原仿真专用入口。正式整场默认提前中断策略保持原样；本套仅在本地，不推远端、不替换正赛入口。
 
 本专项PASS表示冻结清单全部完成，不表示场内真实靶标召回率100%。例如实际摆了3个但只形成2个合格记忆，应通过录像检查漏识别/类别冲突，不能把该PASS当作三个全找到。
+
+本分支同步：默认alignment_mode=legacy_static、virtual_ceiling_enabled=false，共享自动高度精度、控制器READY及真实离地后落地收尾修复；控制Z限幅保留。

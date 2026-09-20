@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+
+from pathlib import Path
+import unittest
+import xml.etree.ElementTree as ET
+
+import yaml
+
+
+PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+PROFILE = PACKAGE_ROOT / "param" / "calibration_1280x720.yaml"
+LAUNCH = PACKAGE_ROOT / "launch" / "camera_calibrated_1280x720.launch"
+SCRIPT = PACKAGE_ROOT / "script" / "camera_sdk.py"
+
+
+class CalibratedCameraProfileTest(unittest.TestCase):
+    def test_ros_camera_info_profile_matches_calibration(self):
+        profile = yaml.safe_load(PROFILE.read_text(encoding="utf-8"))
+        self.assertEqual(profile["image_width"], 1280)
+        self.assertEqual(profile["image_height"], 720)
+        self.assertEqual(profile["distortion_model"], "plumb_bob")
+        self.assertEqual(len(profile["camera_matrix"]["data"]), 9)
+        self.assertEqual(
+            len(profile["distortion_coefficients"]["data"]), 5)
+        self.assertEqual(len(profile["rectification_matrix"]["data"]), 9)
+        self.assertEqual(len(profile["projection_matrix"]["data"]), 12)
+        self.assertAlmostEqual(
+            profile["camera_matrix"]["data"][0], 725.3510059644434)
+        self.assertAlmostEqual(
+            profile["camera_matrix"]["data"][4], 723.34035628450874)
+
+    def test_launch_preserves_calibrated_pixel_geometry(self):
+        root = ET.parse(str(LAUNCH)).getroot()
+        node = root.find("node")
+        self.assertIsNotNone(node)
+        self.assertEqual(node.attrib.get("required"), "true")
+        params = {
+            item.attrib["name"]: item.attrib.get("value")
+            for item in node.findall("param")
+        }
+        self.assertEqual(params["frame_width"], "1280")
+        self.assertEqual(params["frame_height"], "720")
+        self.assertEqual(params["rotation_angle"], "0")
+        self.assertEqual(params["capture_fps"], "$(arg capture_fps)")
+        self.assertIn("calibration_1280x720.yaml",
+                      params["camera_param_yaml"])
+        self.assertEqual(params["frame_id"], "$(arg frame_id)")
+
+    def test_image_and_camera_info_share_one_frame(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("img_msg.header.frame_id = frame_id", source)
+        self.assertIn("compressed_msg.header.frame_id = frame_id", source)
+        self.assertIn("camera_info.header.frame_id = frame_id", source)
+        self.assertIn("actual_width != camera_info.width", source)
+        self.assertIn("actual_height != camera_info.height", source)
+        self.assertIn("cap.set(cv2.CAP_PROP_FPS, capture_fps)", source)
+        self.assertIn("cap.get(cv2.CAP_PROP_FPS)", source)
+        self.assertIn(
+            "if compressed_pub.get_num_connections() > 0:", source)
+
+
+if __name__ == "__main__":
+    unittest.main()

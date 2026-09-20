@@ -1,0 +1,16 @@
+description: liftrace merged-standard six-class detector
+version: 2026-07-16-fp32
+task: detect
+imgsz: [640, 640]
+channels: 3
+input_layout: NHWC
+input_color_space: RGB
+input_dtype: float32
+input_normalize: true
+names:
+  0: bridge
+  1: panzer
+  2: pillbox
+  3: tent
+  4: tank
+  5: red_cross

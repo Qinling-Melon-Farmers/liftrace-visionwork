@@ -1,0 +1,17 @@
+<launch>
+  <!-- One-click RViz viewer for the live corridor map. Visualization only:
+       starts no pipeline nodes and changes no parameters. Run the navigation
+       stack first (e.g. corridor_waypoint_test1.launch), then:
+         roslaunch uav_mission view_corridor_map_rviz.launch
+       Displays (Fixed Frame camera_init):
+         - /freedom/static_pointcloud   FreeDOM static map (enabled)
+         - /sdf_map/occupancy_inflate   planner occupancy after inflation, the
+                                        collision criterion (enabled, red)
+         - /sdf_map/occupancy, /sdf_map/esdf, /sdf_map/depth_cloud (off by default)
+         - /sdf_map/update_range        local update box marker
+         - /planning_vis/trajectory     planned trajectory marker
+         - /fastplanner/goal            current planner goal arrow -->
+  <arg name="rviz_config" default="$(find uav_mission)/rviz_config/corridor_map_view.rviz" />
+  <node pkg="rviz" type="rviz" name="corridor_map_view" output="screen"
+        args="-d $(arg rviz_config)" />
+</launch>

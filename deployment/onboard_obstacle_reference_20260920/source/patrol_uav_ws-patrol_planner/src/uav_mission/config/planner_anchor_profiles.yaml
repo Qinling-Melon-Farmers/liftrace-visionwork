@@ -1,0 +1,20 @@
+# Optional high, external mapping features for controlled A/B only.
+# baseline remains the default until the same-seed A/B acceptance Gate passes.
+profiles:
+  baseline:
+    source_revision: liftrace@4c10f70
+    external_feature_dependency: false
+    anchors: []
+  a68925d:
+    source_revision: liftrace-controlwork@a68925d15293e5510e2b4351c6b3d9bc5aa136ab
+    external_feature_dependency: true
+    anchors:
+      - {name: planner_oak_0, model: Oak_tree, pose: [-17.2179, 1.97896, 0, 0, 0, 0]}
+      - {name: planner_oak_1, model: Oak_tree, pose: [-27.5429, -8.26924, 0, 0, 0, 0]}
+      - {name: planner_oak_2, model: Oak_tree, pose: [-3.02349, 11.7308, 0, 0, 0, 0]}
+      - {name: planner_oak_3, model: Oak_tree, pose: [14.9765, 6.73076, 0, 0, 0, 0]}
+      - {name: planner_oak_4, model: Oak_tree, pose: [26.9765, -8.26924, 0, 0, 0, 0]}
+      - {name: planner_oak_5, model: Oak_tree, pose: [26.4722, -22.2692, 0, 0, 0, 0]}
+      - {name: planner_radio_0, model: radio_tower, pose: [-27.594, 4.90577, 0, 0, 0, 0]}
+      - {name: planner_radio_1, model: radio_tower, pose: [-6.02349, 14.7308, 0, 0, 0, 0]}
+      - {name: planner_radio_2, model: radio_tower, pose: [12.9765, -1.26924, 0, 0, 0, 0]}

@@ -1,0 +1,37 @@
+<launch>
+  <!-- 不依赖 fast_planner 的 Phase D 最小逻辑联调入口 -->
+  <!-- 用固定 Pose + 固定检测结果，验证：
+       detections -> target_memory -> drop_aligner -> patrol_control -->
+
+  <rosparam param="debug">true</rosparam>
+  <rosparam file="$(find patrol_control)/config/patrol_sim.yaml" />
+
+  <node pkg="uav_vision" type="mock_uav_pose.py" name="mock_uav_pose" output="screen">
+    <param name="x" value="0.0" />
+    <param name="y" value="0.0" />
+    <param name="z" value="2.0" />
+    <param name="yaw" value="0.0" />
+  </node>
+
+  <node pkg="uav_vision" type="mock_detection_feeder.py" name="mock_detection_feeder" output="screen">
+    <param name="class_name" value="red_cross" />
+    <param name="class_confidence" value="0.95" />
+    <param name="geometry_confidence" value="0.95" />
+    <param name="center_x" value="640.0" />
+    <param name="center_y" value="480.0" />
+    <param name="radius_px" value="120.0" />
+    <param name="rate" value="10.0" />
+  </node>
+
+  <node pkg="patrol_control" type="patrol_control" name="patrol_control" output="screen" />
+
+  <node pkg="uav_vision" type="target_memory.py" name="target_memory" output="screen">
+    <rosparam file="$(find uav_vision)/config/target_memory.yaml"/>
+  </node>
+
+  <node pkg="uav_vision" type="drop_aligner.py" name="drop_aligner" output="screen">
+    <rosparam file="$(find uav_vision)/config/drop_aligner.yaml"/>
+  </node>
+
+  <node pkg="uav_vision" type="detect_compat_bridge.py" name="detect_compat_bridge" output="screen"/>
+</launch>
