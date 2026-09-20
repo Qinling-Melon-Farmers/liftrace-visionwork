@@ -1,5 +1,5 @@
 from pathlib import Path
-import copy,tempfile,unittest,yaml,json,subprocess,sys
+import copy,tempfile,unittest,yaml,json,subprocess,sys,struct
 from trial_config import generate,validate_settings
 R=Path(__file__).resolve().parents[5]
 class CorridorConfigTest(unittest.TestCase):
@@ -36,4 +36,11 @@ class CorridorConfigTest(unittest.TestCase):
                 (out/'vision_events.jsonl').write_text(json.dumps(dict(kind='mission',data=dict(phase=phase,committed_slots=0)))+'\n')
                 subprocess.run([sys.executable,str(script),str(out)],check=True,stdout=subprocess.DEVNULL)
                 result=json.loads((out/'result.json').read_text());self.assertEqual(result['status'],expected);self.assertEqual(result['expected_mock_deliveries'],0)
+    def test_actual_ground_offset_does_not_trip_float_double_height_guard(self):
+        for fc_z in [-.061408067122101784,-.05,0.,.1]:
+            with tempfile.TemporaryDirectory() as tmp:
+                generate(R,tmp,self.filled(),(0,0,fc_z),self.rig)
+                c=yaml.safe_load((Path(tmp)/'control.yaml').read_text())
+                cpp_align=struct.unpack('f',struct.pack('f',c['align_height']))[0]
+                self.assertLessEqual(c['uav_vision']['recovery_height'],cpp_align)
 if __name__=='__main__':unittest.main()

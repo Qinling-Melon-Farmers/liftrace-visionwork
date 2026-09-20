@@ -1,8 +1,10 @@
 """Generate all local-Z parameters from one stationary FC reference."""
 from pathlib import Path
-import math,copy,json,yaml
+import math,copy,json,yaml,struct
 
 def validate_settings(settings):
+    if settings.get('alignment_mode','measured') not in ('measured','legacy_static'):
+        raise ValueError('Unknown alignment_mode')
     if settings.get('trial_kind') != 'corridor_landing':
         return
     points=settings.get('corridor_waypoints')
@@ -29,8 +31,12 @@ def generate(root,out,settings,fc_xyz,rig):
     validate_settings(settings)
     root=Path(root);out=Path(out);out.mkdir(parents=True,exist_ok=True)
     x,y,z=map(float,fc_xyz);ground=z-float(rig['fc_ground_clearance']);mode=settings['mode']
+    ceiling_enabled=bool(settings.get('virtual_ceiling_enabled',False))
     if not all(math.isfinite(v) for v in (x,y,z,ground)) or abs(x)>.3 or abs(y)>.3 or abs(z)>.3:raise ValueError('Unexpected camera_init origin; inspect localization before flight')
     low=ground+float(settings['low_agl']);high=ground+float(settings['high_agl']);drop=ground+float(settings['drop_agl']);capture=ground+float(settings['landing_capture_agl'])
+    # Legacy align_height is float32, recovery_height is double. Use an
+    # exactly representable shared value so equality cannot fail its guard.
+    low=struct.unpack('f',struct.pack('f',low))[0]
     if not .45<=settings['drop_agl']<=1.0 or min(drop,ground+.40)<=.05:raise ValueError('Legacy positive local-Z bounds not met')
     point=lambda a,b,h:[x+a,y+b,h]
     runtime=yaml.safe_load((root/'docs/verification/fov_landing_inner_20260919/seed_2672/fast_runtime.yaml').read_text())
@@ -52,7 +58,7 @@ def generate(root,out,settings,fc_xyz,rig):
         m.update(post_delivery_route=route,post_delivery_route_revision='board-corridor-landing',landing_xy=[x+hx,y+hy])
     bounds=[x-.35,x+3.4,y-1.4,y+1.4]
     runtime['high_view_probe']=dict(config=dict(ground_z=ground,high_agl=settings['high_agl'],low_agl=settings['low_agl'],survey_xy=[point(a,b,0)[:2] for a,b in [(1,-1.0),(3,-1.0),(3,1.0),(1,1.0),(1,-1.0)]],source_key='board-inherited-camera-static-start'),camera_info_topic=settings.get('camera_info_topic','/camera/camera_info'))
-    runtime['high_view_probe']['low_stage_parameters']=[dict(name=key,value=value) for key,value in {'/external_planner_max_command_z':ground+1.85,'/fast_planner_node/sdf_map/virtual_ceil_height':ground+2.,'/fast_planner_node/sdf_map/horizontal_avoidance/tracking_margin':0.,'/fast_planner_node/fsm/goal_adjustment_radius':.15}.items()]
+    runtime['high_view_probe']['low_stage_parameters']=[dict(name=key,value=value) for key,value in {'/external_planner_max_command_z':ground+1.85,'/fast_planner_node/sdf_map/virtual_ceil_height':(ground+2. if ceiling_enabled else -.1),'/fast_planner_node/sdf_map/horizontal_avoidance/tracking_margin':0.,'/fast_planner_node/fsm/goal_adjustment_radius':.15}.items()]
     runtime['high_view_full']=dict(policy=dict(high_max_agl=3.0,candidate_min_streak=1,min_interval_ns=100000000,min_span_ns=200000000,max_uncertainty_m=.45,direct_descent=True,descent_radius_m=1.,descent_max_candidates=9,survey_stall_seconds=8.,survey_progress_m=.15,survey_alternative_radius_m=.3),grid=dict(bounds=bounds,resolution=.10),boundary_policy=dict(enabled=True,bounds=[x-.35,x+4.,y-2.,y+2.]))
     control=yaml.safe_load((root/'patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_horizontal_control.yaml').read_text())
     control.update(waypoints=[dict(x=x,y=y,z=(ground+settings['landing_transit_agl'] if mode=='landing' else low),yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=ground+.40,px4_max_distance=.15)
@@ -64,7 +70,7 @@ def generate(root,out,settings,fc_xyz,rig):
         '/fast_planner_node/sdf_map/resolution':.10,'/fast_planner_node/sdf_map/map_size_x':10.,'/fast_planner_node/sdf_map/map_size_y':6.,'/fast_planner_node/sdf_map/map_size_z':3.8,
         '/fast_planner_node/sdf_map/visualization_rate':2.,
         '/fast_planner_node/sdf_map/local_update_range_x':4.5,'/fast_planner_node/sdf_map/local_update_range_y':3.,'/fast_planner_node/sdf_map/local_update_range_z':3.,
-        '/fast_planner_node/sdf_map/ground_height':ground-.1,'/fast_planner_node/sdf_map/virtual_ceil_height':ground+3.0,
+        '/fast_planner_node/sdf_map/ground_height':ground-.1,'/fast_planner_node/sdf_map/virtual_ceil_height':(ground+3.0 if ceiling_enabled else -.1),
         '/fast_planner_node/sdf_map/horizontal_avoidance/min_x':bounds[0],'/fast_planner_node/sdf_map/horizontal_avoidance/max_x':bounds[1],'/fast_planner_node/sdf_map/horizontal_avoidance/min_y':bounds[2],'/fast_planner_node/sdf_map/horizontal_avoidance/max_y':bounds[3],
         '/fast_planner_node/sdf_map/horizontal_avoidance/floor_z':ground+.1,'/fast_planner_node/sdf_map/horizontal_avoidance/obstacle_min_z':ground+.1,
         '/fast_planner_node/sdf_map/search_region/enabled':True,'/fast_planner_node/sdf_map/search_region/min_x':bounds[0],'/fast_planner_node/sdf_map/search_region/max_x':bounds[1],'/fast_planner_node/sdf_map/search_region/min_y':bounds[2],'/fast_planner_node/sdf_map/search_region/max_y':bounds[3],

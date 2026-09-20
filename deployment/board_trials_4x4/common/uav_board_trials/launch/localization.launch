@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <launch>
   <arg name="enable_control_output" default="false" />
+  <arg name="alignment_mode" default="measured" />
   <arg name="map_frame" default="camera_init" />
   <arg name="body_to_imu_xyz" default="0 0 0.05" />
   <arg name="imu_to_camera_z" default="-0.21" />
@@ -26,13 +27,14 @@
     <param name="frame" value="$(arg map_frame)" />
     <rosparam param="imu_to_body_xyz" subst_value="true">$(eval [-float(v) for v in arg('body_to_imu_xyz').split()])</rosparam>
   </node>
-  <node pkg="uav_mission" type="map_camera_alignment.py" name="map_camera_alignment" output="screen">
+  <node pkg="uav_mission" type="map_camera_alignment.py" name="map_camera_alignment" output="screen" unless="$(eval arg('alignment_mode') == 'legacy_static')">
     <param name="parent_frame" value="$(arg map_frame)" />
     <param name="child_frame" value="map" />
     <param name="lio_frame" value="$(arg map_frame)" />
     <param name="mavros_frame" value="map" />
     <param name="require_disarmed_for_initialization" value="true" />
   </node>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="map_camera_alignment" if="$(eval arg('alignment_mode') == 'legacy_static')" args="0 0 0 0 0 0 1 map $(arg map_frame)" />
   <node pkg="uav_mission" type="navigation_frame_adapter.py" name="navigation_frame_adapter" output="screen" required="true">
     <param name="local_frame" value="map" />
     <param name="mission_frame" value="$(arg map_frame)" />

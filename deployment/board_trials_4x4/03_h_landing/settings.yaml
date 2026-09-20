@@ -9,3 +9,4 @@ landing_xy:
 - 0.0
 cruise_speed: 0.5
 cruise_acceleration: 0.35
+virtual_ceiling_enabled: false

@@ -22,7 +22,7 @@ for folder in ('01_visual_interrupt','02_high_view_revisit','03_h_landing','04_c
             assert values['/fast_planner_node/manager/max_vel']==s['cruise_speed']==0.5
             assert values['/fast_planner_node/search/max_vel']==s['cruise_speed']
             assert values['/fast_planner_node/manager/max_acc']==s['cruise_acceleration']==0.35
-            assert values['/fast_planner_node/sdf_map/virtual_ceil_height']>ref['high_z']
+            assert values['/fast_planner_node/sdf_map/virtual_ceil_height']==-.1
             assert values['/fast_planner_node/sdf_map/local_update_range_x']>=3.4
             assert values['/fast_planner_node/sdf_map/local_update_range_y']>=2.
             assert not any(n.package in ('gazebo_ros','actuator_pwm') for n in cfg.nodes)
@@ -54,6 +54,9 @@ for folder in ('01_visual_interrupt','02_high_view_revisit','03_h_landing','04_c
             with patch('rospy.get_param',side_effect=get_param):actual=manager._new_runtime()
             rows.append(dict(folder=folder,trial=s['mode'],control_output=enabled,nodes=len(nodes),runtime=type(actual).__name__,passed=True))
         for enabled in ('false','true'):
-            cfg=roslaunch.config.load_config_default([(str(P/'launch/localization.launch'),[f'enable_control_output:={enabled}'])],11311,verbose=False)
+            cfg=roslaunch.config.load_config_default([(str(P/'launch/localization.launch'),[f'enable_control_output:={enabled}',"alignment_mode:="+s.get('alignment_mode','measured')])],11311,verbose=False)
+            alignment=[n for n in cfg.nodes if n.name=='map_camera_alignment']
+            assert len(alignment)==1
+            assert alignment[0].type==('static_transform_publisher' if s.get('alignment_mode')=='legacy_static' else 'map_camera_alignment.py')
             params={k:v.value for k,v in cfg.params.items()};assert params['/navigation_frame_adapter/mission_frame']=='camera_init';assert params['/navigation_frame_adapter/local_frame']=='map';assert params['/navigation_frame_adapter/enable_setpoints']==(enabled=='true')
 (R/'deployment/board_trials_4x4/validation_static.json').write_text(json.dumps(rows,indent=2));print(json.dumps(rows,indent=2))
