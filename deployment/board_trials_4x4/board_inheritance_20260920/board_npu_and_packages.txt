@@ -1,0 +1,24 @@
+/home/orangepi/liftrace_board_trials_20260920/patrol_uav_ws-patrol_planner/src/uav_mission
+/home/orangepi/liftrace_board_trials_20260920/vision_ws/src/uav_vision
+/home/orangepi/liftrace_board_trials_20260920/vision_ws/src/uav_high_view
+/home/orangepi/liftrace_board_trials_20260920/vision_ws/src/uav_board_trials
+/home/orangepi/liftrace_board_trials_20260920/patrol_uav_ws-patrol_planner/src/FAST_LIO
+/home/orangepi/liftrace_board_trials_20260920/patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage
+W Query dynamic range failed. Ret code: RKNN_ERR_MODEL_INVALID. (If it is a static shape RKNN model, please ignore the above warning message.)
+CV 4.12.0 RKNNLite import PASS
+NPU synthetic inference shapes: [(1, 10, 8400)]
+I RKNN: [10:44:30.040] RKNN Runtime Information, librknnrt version: 1.6.0 (9a7b5d24c@2023-12-13T17:31:11)
+I RKNN: [10:44:30.044] RKNN Driver Information, version: 0.9.8
+I RKNN: [10:44:30.066] RKNN Model Information, version: 6, toolkit version: 2.3.2(compiler version: 2.3.2 (@2025-04-03T08:26:16)), target: RKNPU v2, target platform: rk3588, framework name: ONNX, framework layout: NCHW, model inference type: static_shape
+W RKNN: [10:44:30.066] RKNN Model version: 2.3.2 not match with rknn runtime version: 1.6.0
+W RKNN: [10:44:30.340] query RKNN_QUERY_INPUT_DYNAMIC_RANGE error, rknn model is static shape type, please export rknn with dynamic_shapes
+vision_ws/devel/lib/uav_vision/landing_detector_node: ELF 64-bit LSB shared object, ARM aarch64, version 1 (GNU/Linux), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, BuildID[sha1]=7805377591fedf55fd0629e5a45b17ab1dbbe148, for GNU/Linux 3.7.0, not stripped
+	libopencv_core.so.4.2 => /lib/aarch64-linux-gnu/libopencv_core.so.4.2 (0x0000007fbc6aa000)
+	libopencv_imgproc.so.4.2 => /lib/aarch64-linux-gnu/libopencv_imgproc.so.4.2 (0x0000007fbc318000)
+	libopencv_imgcodecs.so.4.2 => /lib/aarch64-linux-gnu/libopencv_imgcodecs.so.4.2 (0x0000007fbba30000)
+	libopencv_calib3d.so.4.2 => /lib/aarch64-linux-gnu/libopencv_calib3d.so.4.2 (0x0000007fbb8d4000)
+	libopencv_features2d.so.4.2 => /lib/aarch64-linux-gnu/libopencv_features2d.so.4.2 (0x0000007fb9444000)
+	libopencv_flann.so.4.2 => /lib/aarch64-linux-gnu/libopencv_flann.so.4.2 (0x0000007fb93e1000)
+patrol_uav_ws-patrol_planner/devel/lib/fast_lio/fastlio_mapping: ELF 64-bit LSB shared object, ARM aarch64, version 1 (GNU/Linux), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, BuildID[sha1]=5229f59c279f551f21c96f32fd7363dd681a3892, for GNU/Linux 3.7.0, with debug_info, not stripped
+patrol_uav_ws-patrol_planner/devel/lib/plan_manage/traj_server: ELF 64-bit LSB shared object, ARM aarch64, version 1 (GNU/Linux), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, BuildID[sha1]=e8406335a170ddb9d1d64fa1d4a650d62a2cc7d5, for GNU/Linux 3.7.0, with debug_info, not stripped
+STATIC_CHECKS_COMPLETE

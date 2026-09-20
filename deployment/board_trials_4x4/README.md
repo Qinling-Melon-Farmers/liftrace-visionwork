@@ -2,6 +2,8 @@
 
 本地分支 `feat/board-4x4-vision-trials-local`。本目录不推远端，不覆盖上次4×4避障入口，也不自动部署/启动实机。复用当前研究版导航、视觉与旧投递事务，新增外围测试适配器；未修改正式任务核心或解除仿真专用节点的保护。
 
+2026-09-20用户授权SSH部署：独立板端目录为`/home/orangepi/liftrace_board_trials_20260920`。已先比对现场旧4×4修改，继承地图发布与局部地图资源配置，详见[继承说明](board_inheritance_20260920/README.md)。本段是对早期“尚未部署”的更新；飞行仍需现场启动，不自动执行。
+
 | 目录 | 任务 | 正常结束 |
 |---|---|---|
 | [01_visual_interrupt](01_visual_interrupt/README.md) | 1.4m直飞，遇前方高权重靶中断、对齐、模拟投递一次 | 恢复稳定后直接原地AUTO.LAND，不继续直飞或返航 |
@@ -36,7 +38,7 @@
 在板端独立工程根目录完成一次构建：
 
 ```bash
-BUILD_JOBS=2 bash top_level_scripts/build_competition.sh
+OPENCV_CMAKE_DIR=/usr/lib/aarch64-linux-gnu/cmake/opencv4 BUILD_JOBS=2 bash top_level_scripts/build_competition.sh
 source vision_ws/devel/setup.bash
 source patrol_uav_ws-patrol_planner/devel/setup.bash --extend
 export UAV_VISION_RKNN_MODEL_PATH="$PWD/runtime_models/merged_standard_fp32.rknn"

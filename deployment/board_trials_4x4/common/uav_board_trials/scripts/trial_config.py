@@ -11,7 +11,7 @@ def generate(root,out,settings,fc_xyz,rig):
     point=lambda a,b,h:[x+a,y+b,h]
     runtime=yaml.safe_load((root/'docs/verification/fov_landing_inner_20260919/seed_2672/fast_runtime.yaml').read_text())
     m=runtime['mission'];m.update(home_xy=[x,y],landing_xy=[x+.6,y],approach_altitude=low,return_altitude=low,timeout=300.,forced_return_at=240.,post_delivery_route_revision='board-'+mode,
-        post_delivery_route=[point(.6,0,low)],post_delivery_parameter_stages=[],early_return_enabled=False,delivery_reserve_per_slot=25.,return_land_reserve=45.,nominal_speed=.25,motion_action_timeout=30.,target_action_timeout=60.)
+        post_delivery_route=[point(.6,0,low)],post_delivery_parameter_stages=[],early_return_enabled=False,delivery_reserve_per_slot=25.,return_land_reserve=45.,nominal_speed=float(settings['cruise_speed']),motion_action_timeout=30.,target_action_timeout=60.)
     runtime.pop('corridor_speed_schedule',None);runtime.pop('fixed_search_region',None)
     runtime['search'].update(min_x=x+.6,max_x=x+3.2,min_y=y-1.2,max_y=y+1.2,lane_spacing=1.2,altitude=low)
     runtime['runtime'].update(start_mode='post_delivery' if mode=='landing' else 'full',mission_id_prefix='board-'+mode)
@@ -32,6 +32,8 @@ def generate(root,out,settings,fc_xyz,rig):
     control['external_landing'].update(frame='camera_init',capture_height=capture if mode=='landing' else low,auto_land_height=ground+.55,detections_topic='/uav_vision/detections_mapped' if mode=='landing' else '/board_trials/h_disabled')
     overrides={
         '/fast_planner_node/sdf_map/resolution':.10,'/fast_planner_node/sdf_map/map_size_x':10.,'/fast_planner_node/sdf_map/map_size_y':6.,'/fast_planner_node/sdf_map/map_size_z':3.8,
+        '/fast_planner_node/sdf_map/visualization_rate':2.,
+        '/fast_planner_node/sdf_map/local_update_range_x':4.5,'/fast_planner_node/sdf_map/local_update_range_y':3.,'/fast_planner_node/sdf_map/local_update_range_z':3.,
         '/fast_planner_node/sdf_map/ground_height':ground-.1,'/fast_planner_node/sdf_map/virtual_ceil_height':ground+3.0,
         '/fast_planner_node/sdf_map/horizontal_avoidance/min_x':bounds[0],'/fast_planner_node/sdf_map/horizontal_avoidance/max_x':bounds[1],'/fast_planner_node/sdf_map/horizontal_avoidance/min_y':bounds[2],'/fast_planner_node/sdf_map/horizontal_avoidance/max_y':bounds[3],
         '/fast_planner_node/sdf_map/horizontal_avoidance/floor_z':ground+.1,'/fast_planner_node/sdf_map/horizontal_avoidance/obstacle_min_z':ground+.1,

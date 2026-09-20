@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <launch>
   <arg name="enable_control_output" default="false" />
+  <arg name="cruise_speed" default="0.5" />
+  <arg name="cruise_acceleration" default="0.35" />
   <arg name="mode" default="visual_interrupt" />
   <arg name="model_path" />
   <arg name="generated_dir" />
@@ -33,16 +35,16 @@
       <arg name="simulation_auto_land" value="false" />
       <arg name="start_waypoint_generator" value="false" />
       <arg name="waypoint_config" value="$(arg generated_dir)/control.yaml" />
-      <arg name="planner_max_vel" value="0.25" />
-      <arg name="planner_max_acc" value="0.35" />
+      <arg name="planner_max_vel" value="$(arg cruise_speed)" />
+      <arg name="planner_max_acc" value="$(arg cruise_acceleration)" />
       <arg name="planner_obstacles_inflation" value="0.30" />
       <arg name="planner_clearance_threshold" value="0.025" />
       <arg name="px4_max_distance" value="0.15" />
       <arg name="external_planner_max_command_z" value="$(eval float(arg('ground_z'))+2.9)" />
     </include>
     <include file="$(find plan_manage)/launch/patrol_planner_px4_sim.launch" unless="$(arg enable_control_output)">
-      <arg name="max_vel" value=".25" />
-      <arg name="max_acc" value=".35" />
+      <arg name="max_vel" value="$(arg cruise_speed)" />
+      <arg name="max_acc" value="$(arg cruise_acceleration)" />
       <arg name="obstacles_inflation" value=".30" />
       <arg name="clearance_threshold" value=".025" />
       <arg name="start_waypoint_generator" value="false" />

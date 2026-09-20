@@ -1,0 +1,949 @@
+FILE deployment/README_ONBOARD.md
+--- laptop_old
++++ board_current
+@@ -1,9 +1,4 @@
+ # 机载联调源码包
+-
+-2026-09-11 驱动迁移：当前源码统一使用 **livox_ros_driver2 + Livox SDK2**；仿真仍由 Gazebo 发布 PointCloud2。两类源码包均需 SDK2 才能编译完整导航工作区，旧版本压缩包不会自动更新。[构建与实机接线说明](../docs/deployment/LIVOX_DRIVER2.md)。
+-
+-
+-2026-09-11资源修订：[模型与YAML清单](MODEL_CONTENTS.md)。正式入口元数据位于uav_vision/config；修订包在runtime_models旁附同源YAML，旧板端包装入口已修正路径。仿真修订包实际附带三套optional_models。未新增飞行验收，原先版本描述按历史阅读。
+
+ 本包包含当前视觉、camera_sdk、导航/LIO/地图/规划/控制/任务代码、消息、参数和文档，附已选用的`runtime_models/merged_standard_fp32.rknn`。不含机械组PWM实现；保留`Servo`定义和`/legacy/Servo_raw`对接约定。`BUNDLE_MANIFEST.json`记录源码版本和权重来源。
+
+@@ -25,5 +20,3 @@
+ 外参最终为相机FC下16cm、IMU下21cm，落地镜头离支撑面6cm。`ground_z=-0.22`只适用于落地FC为local0；现场不同零点须重标。硬件默认旧搜索1.40是local值，不是新SITL的1.40m AGL；不能只覆盖runtime文件而忽略launch内搜索/高度上限。现场应整体选配并复核路线/坐标/高度、开启条件、RC接管，再做分级飞行。包中保留共享包内的测试及仿真launch便于构建追溯，但硬件入口不加载Gazebo/真值/接触评测/mock/自动解锁辅助节点。
+
+ 当前不提供自动启飞的systemd开机服务，也不包含机械舵机实现。随机门开口感知、赛前调整缓存/单次启动联调、带载投递及整机实时稳定性仍需完成。
+-
+-R64矩阵原始7/10完整PASS，seed3近地落地仍失败；本包不是实机放飞授权。仿真布设物理墙排除已在矩阵后修复，不改变机载传感器或任务输出。完整指标见docs/verification/r64_matrix/REPORT.md。
+
+FILE deployment/README_SIMULATION.md
+--- laptop_old
++++ board_current
+@@ -1,11 +1,6 @@
+ # R64仿真工程与模型包
+
+-2026-09-11 驱动迁移：当前源码统一使用 **livox_ros_driver2 + Livox SDK2**；仿真仍由 Gazebo 发布 PointCloud2。两类源码包均需 SDK2 才能编译完整导航工作区，旧版本压缩包不会自动更新。[构建与实机接线说明](../docs/deployment/LIVOX_DRIVER2.md)。
+-
+-
+-2026-09-11资源修订：[模型与YAML清单](MODEL_CONTENTS.md)。正式入口元数据位于uav_vision/config；修订包在runtime_models旁附同源YAML，旧板端包装入口已修正路径。仿真修订包实际附带三套optional_models。未新增飞行验收，原先版本描述按历史阅读。
+-
+-包含今年整机源码、当前9.6m内净地图、55×55×40cm保守机架、相机/雷达装配、五个靶标、起降H、树与所需通用网格/材质、R64先导、十seed报告与11轮图表，并保留R60历史报告，附笔记本推理权重`runtime_models/merged_standard.pt`。`BUNDLE_MANIFEST.json`给出精确源码和权重来源。该包不自动启动仿真。
++包含今年整机源码、当前9.6m内净地图、55×55×40cm保守机架、相机/雷达装配、五个靶标、起降H、树与所需通用网格/材质、seed11截图及R60历史飞行报告，附笔记本推理权重`runtime_models/merged_standard.pt`。`BUNDLE_MANIFEST.json`给出精确源码和权重来源。该包不自动启动仿真。
+
+ 当前资源：`vision_ws/src/uav_vision_eval/models`与`simulation_assets/models`；旧D435i/fpv/tank对照资产仅在`simulation_assets/optional_models`，不参与今年五靶默认场景。历史报告中的world按历史布局保留，不能用它们替换新场地后继续沿用旧PASS。
+
+@@ -36,7 +31,3 @@
+ R62已经实跑完成seed11建图、起飞、搜索、首个panzer投递确认并恢复搜索；仍未取得全场PASS。当前SITL关闭420秒提前返航，保留600秒总限时。机架物理尺寸/相机外参已按用户数据修正，通用动力学仍待标定。当前两门开口固定错列，尚未覆盖规则中未知随机开口。
+
+ R64完整seed11记录见docs/verification/r64_seed11/REPORT.md。overview.mp4是Gazebo服务端相机，无需gzclient GUI；对照时必须保持同一飞行源码/固件。当前固定俯视视角可能受隔墙遮挡，R64实跑于投后只移动无碰撞观测相机至(0,8.35,5)，具体时刻和姿态在报告记录；不移动飞机，不改变场内障碍。机载相机独立录制。失败删除俯视视频，保留机载视频及轻量诊断，不全量发布失败release。
+-
+-本最终包补入矩阵报告、物理墙排除修复和当前随机场景工具。矩阵原始7/10完整PASS，5/7/8有靶板压墙；修复保持seed11坐标，但新随机布设没有重跑SITL矩阵。随机门/树箱仅离线几何和launch展开已验证。
+-
+-投递完成后，如需与R64先导一样将无碰撞观察相机移到走廊视角，可在同一ROS环境运行：`python top_level_scripts/pan_overview_camera.py --run-dir /path/to/current/run`。只移动观测相机，脚本不控制飞机。
+
+FILE patrol_uav_ws-patrol_planner/src/FAST_LIO/CMakeLists.txt
+--- laptop_old
++++ board_current
+@@ -51,7 +51,7 @@
+   std_msgs
+   pcl_ros
+   tf
+-  livox_ros_driver2
++  livox_ros_driver
+   message_generation
+   eigen_conversions
+ )
+@@ -79,7 +79,7 @@
+ )
+
+ catkin_package(
+-  CATKIN_DEPENDS livox_ros_driver2 geometry_msgs nav_msgs roscpp rospy std_msgs message_runtime
++  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy std_msgs message_runtime
+   DEPENDS EIGEN3 PCL
+   INCLUDE_DIRS
+ )
+@@ -91,12 +91,3 @@
+ )
+ target_link_libraries(fastlio_mapping ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${PYTHON_LIBRARIES})
+ target_include_directories(fastlio_mapping PRIVATE ${PYTHON_INCLUDE_DIRS})
+-
+-if(CATKIN_ENABLE_TESTING)
+-  add_executable(preprocess_inputs EXCLUDE_FROM_ALL test/preprocess_inputs.cpp src/preprocess.cpp)
+-  target_include_directories(preprocess_inputs PRIVATE src)
+-  add_dependencies(preprocess_inputs ${catkin_EXPORTED_TARGETS})
+-  target_link_libraries(preprocess_inputs ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+-  add_dependencies(tests preprocess_inputs)
+-  add_test(NAME fast_lio_preprocess_inputs COMMAND preprocess_inputs)
+-endif()
+
+FILE patrol_uav_ws-patrol_planner/src/FAST_LIO/package.xml
+--- laptop_old
++++ board_current
+@@ -25,7 +25,7 @@
+   <build_depend>sensor_msgs</build_depend>
+   <build_depend>tf</build_depend>
+   <build_depend>pcl_ros</build_depend>
+-  <build_depend>livox_ros_driver2</build_depend>
++  <build_depend>livox_ros_driver</build_depend>
+   <build_depend>message_generation</build_depend>
+
+   <run_depend>geometry_msgs</run_depend>
+@@ -36,7 +36,7 @@
+   <run_depend>std_msgs</run_depend>
+   <run_depend>tf</run_depend>
+   <run_depend>pcl_ros</run_depend>
+-  <run_depend>livox_ros_driver2</run_depend>
++  <run_depend>livox_ros_driver</run_depend>
+   <run_depend>message_runtime</run_depend>
+
+   <test_depend>rostest</test_depend>
+
+FILE patrol_uav_ws-patrol_planner/src/FAST_LIO/src/laserMapping.cpp
+--- laptop_old
++++ board_current
+@@ -35,6 +35,7 @@
+ #include <omp.h>
+ #include <mutex>
+ #include <math.h>
++#include <cmath>
+ #include <thread>
+ #include <fstream>
+ #include <csignal>
+@@ -56,7 +57,7 @@
+ #include <tf/transform_datatypes.h>
+ #include <tf/transform_broadcaster.h>
+ #include <geometry_msgs/Vector3.h>
+-#include <livox_ros_driver2/CustomMsg.h>
++#include <livox_ros_driver/CustomMsg.h>
+ #include "preprocess.h"
+ #include <ikd-Tree/ikd_Tree.h>
+
+@@ -71,6 +72,8 @@
+ double match_time = 0, solve_time = 0, solve_const_H_time = 0;
+ int    kdtree_size_st = 0, kdtree_size_end = 0, add_point_size = 0, kdtree_delete_counter = 0;
+ bool   runtime_pos_log = false, pcd_save_en = false, time_sync_en = false, extrinsic_est_en = true, path_en = true;
++bool   map_pub_en = false;
++double map_publish_period = 1.0;
+ /**************************/
+
+ float res_last[100000] = {0.0};
+@@ -299,7 +302,7 @@
+
+ double timediff_lidar_wrt_imu = 0.0;
+ bool   timediff_set_flg = false;
+-void livox_pcl_cbk(const livox_ros_driver2::CustomMsg::ConstPtr &msg)
++void livox_pcl_cbk(const livox_ros_driver::CustomMsg::ConstPtr &msg)
+ {
+     mtx_buffer.lock();
+     double preprocess_start_time = omp_get_wtime();
+@@ -566,11 +569,26 @@
+
+ void publish_map(const ros::Publisher & pubLaserCloudMap)
+ {
++    // Export the internal map only for visualization, after map_incremental().
++    // Flattening/copying the entire tree on every scan is expensive on board.
++    static ros::WallTime last_publish;
++    const ros::WallTime now = ros::WallTime::now();
++    if (!map_pub_en || pubLaserCloudMap.getNumSubscribers() == 0 ||
++        ikdtree.Root_Node == nullptr ||
++        (!last_publish.isZero() && (now - last_publish).toSec() < map_publish_period))
++    {
++        return;
++    }
++    ikdtree.PCL_Storage.clear();
++    ikdtree.flatten(ikdtree.Root_Node, ikdtree.PCL_Storage, NOT_RECORD);
++    featsFromMap->clear();
++    featsFromMap->points = ikdtree.PCL_Storage;
+     sensor_msgs::PointCloud2 laserCloudMap;
+     pcl::toROSMsg(*featsFromMap, laserCloudMap);
+     laserCloudMap.header.stamp = ros::Time().fromSec(lidar_end_time);
+     laserCloudMap.header.frame_id = "camera_init";
+     pubLaserCloudMap.publish(laserCloudMap);
++    last_publish = ros::WallTime::now();
+ }
+
+ template<typename T>
+@@ -762,6 +780,15 @@
+     nh.param<bool>("publish/scan_publish_en",scan_pub_en, true);
+     nh.param<bool>("publish/dense_publish_en",dense_pub_en, true);
+     nh.param<bool>("publish/scan_bodyframe_pub_en",scan_body_pub_en, true);
++    nh.param<bool>("publish/map_publish_en", map_pub_en, false);
++    double map_publish_hz = 1.0;
++    nh.param<double>("publish/map_publish_hz", map_publish_hz, 1.0);
++    if (!std::isfinite(map_publish_hz) || map_publish_hz <= 0.0)
++    {
++        ROS_WARN("Invalid publish/map_publish_hz; using 1 Hz");
++        map_publish_hz = 1.0;
++    }
++    map_publish_period = 1.0 / map_publish_hz;
+     nh.param<int>("max_iteration",NUM_MAX_ITERATIONS,4);
+     nh.param<string>("map_file_path",map_file_path,"");
+     nh.param<string>("common/lid_topic",lid_topic,"/livox/lidar");
+@@ -939,14 +966,6 @@
+             fout_pre<<setw(20)<<Measures.lidar_beg_time - first_lidar_time<<" "<<euler_cur.transpose()<<" "<< state_point.pos.transpose()<<" "<<ext_euler.transpose() << " "<<state_point.offset_T_L_I.transpose()<< " " << state_point.vel.transpose() \
+             <<" "<<state_point.bg.transpose()<<" "<<state_point.ba.transpose()<<" "<<state_point.grav<< endl;
+
+-            if(0) // If you need to see map point, change to "if(1)"
+-            {
+-                PointVector ().swap(ikdtree.PCL_Storage);
+-                ikdtree.flatten(ikdtree.Root_Node, ikdtree.PCL_Storage, NOT_RECORD);
+-                featsFromMap->clear();
+-                featsFromMap->points = ikdtree.PCL_Storage;
+-            }
+-
+             pointSearchInd_surf.resize(feats_down_size);
+             Nearest_Points.resize(feats_down_size);
+             int  rematch_num = 0;
+
+FILE patrol_uav_ws-patrol_planner/src/FAST_LIO/src/preprocess.cpp
+--- laptop_old
++++ board_current
+@@ -41,7 +41,7 @@
+   point_filter_num = pfilt_num;
+ }
+
+-void Preprocess::process(const livox_ros_driver2::CustomMsg::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out)
++void Preprocess::process(const livox_ros_driver::CustomMsg::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out)
+ {
+   avia_handler(msg);
+   *pcl_out = pl_surf;
+@@ -89,7 +89,7 @@
+   *pcl_out = pl_surf;
+ }
+
+-void Preprocess::avia_handler(const livox_ros_driver2::CustomMsg::ConstPtr &msg)
++void Preprocess::avia_handler(const livox_ros_driver::CustomMsg::ConstPtr &msg)
+ {
+   pl_surf.clear();
+   pl_corn.clear();
+
+FILE patrol_uav_ws-patrol_planner/src/FAST_LIO/src/preprocess.h
+--- laptop_old
++++ board_current
+@@ -5,7 +5,7 @@
+ #include <ros/ros.h>
+ #include <pcl_conversions/pcl_conversions.h>
+ #include <sensor_msgs/PointCloud2.h>
+-#include <livox_ros_driver2/CustomMsg.h>
++#include <livox_ros_driver/CustomMsg.h>
+
+ using namespace std;
+
+@@ -91,7 +91,7 @@
+   Preprocess();
+   ~Preprocess();
+
+-  void process(const livox_ros_driver2::CustomMsg::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out);
++  void process(const livox_ros_driver::CustomMsg::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out);
+   void process(const sensor_msgs::PointCloud2::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out);
+   void set(bool feat_en, int lid_type, double bld, int pfilt_num);
+
+@@ -107,7 +107,7 @@
+
+
+   private:
+-  void avia_handler(const livox_ros_driver2::CustomMsg::ConstPtr &msg);
++  void avia_handler(const livox_ros_driver::CustomMsg::ConstPtr &msg);
+   void oust64_handler(const sensor_msgs::PointCloud2::ConstPtr &msg);
+   void velodyne_handler(const sensor_msgs::PointCloud2::ConstPtr &msg);
+   void sim_handler(const sensor_msgs::PointCloud2::ConstPtr &msg);
+
+FILE patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_sim.launch
+--- laptop_old
++++ board_current
+@@ -12,7 +12,7 @@
+   <arg name="map_size_x" value="20.0"/>
+   <arg name="map_size_y" value="20.0"/>
+   <arg name="map_size_z" value="5.0"/>
+-  <arg name="obstacles_inflation" value="0.25"/>
++  <arg name="obstacles_inflation" value="0.10"/>
+   <arg name="clearance_threshold" value="0.20"/>
+
+   <!-- topic of your odometry such as VIO or LIO -->
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/CMakeLists.txt
+--- laptop_old
++++ board_current
+@@ -22,6 +22,7 @@
+   std_srvs
+   tf2_ros
+   uav_vision
++  visualization_msgs
+ )
+
+ catkin_python_setup()
+@@ -137,6 +138,7 @@
+     std_srvs
+     tf2_ros
+     uav_vision
++    visualization_msgs
+ )
+
+ ###########
+@@ -146,8 +148,15 @@
+ ## Specify additional locations of header files
+ ## Your package locations should be listed before other locations
+ include_directories(
++  include
+   ${catkin_INCLUDE_DIRS}
+ )
++
++add_executable(obstacle_view_node src/obstacle_view_node.cpp)
++target_compile_features(obstacle_view_node PRIVATE cxx_std_14)
++target_link_libraries(obstacle_view_node ${catkin_LIBRARIES})
++add_dependencies(obstacle_view_node ${catkin_EXPORTED_TARGETS})
++install(TARGETS obstacle_view_node RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+
+ ## Declare a C++ library
+@@ -192,9 +201,8 @@
+   scripts/visual_delivery_audit.py
+   scripts/random_field_spawner.py
+   scripts/pose_tf_broadcaster.py
+-  scripts/obstacle_test_auto_land.py
++  scripts/map_camera_alignment.py
+   scripts/navigation_frame_adapter.py
+-  scripts/map_camera_alignment.py
+   scripts/lio_external_pose.py
+   scripts/navigation_mission_start_gate.py
+   scripts/navigation_mission_manager.py
+@@ -202,11 +210,12 @@
+   scripts/navigation_vcl06_assertion.py
+   scripts/planner_anchor_spawner.py
+   scripts/gazebo_contact_monitor.py
++  scripts/obstacle_test_auto_land.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
+
+
+-install(DIRECTORY launch config
++install(DIRECTORY launch config rviz_config
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+ )
+
+@@ -253,6 +262,11 @@
+ #############
+
+ if(CATKIN_ENABLE_TESTING)
++  catkin_add_gtest(test_obstacle_view test/test_obstacle_view.cpp)
++  if(TARGET test_obstacle_view)
++    target_compile_features(test_obstacle_view PRIVATE cxx_std_14)
++    target_link_libraries(test_obstacle_view ${catkin_LIBRARIES})
++  endif()
+   catkin_add_nosetests(test/test_lio_external_pose.py)
+   catkin_add_nosetests(test/test_contract_profile.py)
+   catkin_add_nosetests(test/test_coverage_route.py)
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/config/coverage_r2026_horizontal.yaml
+--- laptop_old
++++ board_current
+@@ -13,10 +13,6 @@
+ static_model_radii:
+   landing_h: 0.5
+   landing_h_clone: 0.5
+-# World-frame physical divider AABB: search-side face is y=7.4, not 7.6.
+-# Do not use an aggregate bounding circle for the entire toudi2 model.
+-static_exclusion_boxes:
+-- [-3.3, 4.8, 7.4, 7.6]
+ static_exclusions:
+ - name: combined_tree_0
+   world_x: -1.8
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/config/horizontal_planner.yaml
+--- laptop_old
++++ board_current
+@@ -9,7 +9,7 @@
+ # Inflate an overhead obstacle DOWN for the guard above the body; inflate
+ # a floor obstacle UP for the undercarriage. These are not interchangeable.
+ sdf_map/obstacles_inflation_up: 0.10
+-sdf_map/obstacles_inflation_down: 0.30
++sdf_map/obstacles_inflation_down: 0.10
+ sdf_map/horizontal_avoidance/enabled: true
+ sdf_map/horizontal_avoidance/min_x: -4.8
+ sdf_map/horizontal_avoidance/max_x: 4.8
+@@ -26,9 +26,16 @@
+ # 6,336,000 cells (~355 MB of SDF buffers); physical ceiling remains 2.30 m.
+ sdf_map/resolution: 0.05
+ sdf_map/map_size_x: 12.0
+-sdf_map/map_size_y: 22.0
+-sdf_map/map_size_z: 3.0
+-sdf_map/visualization_rate: 5.0
++sdf_map/map_size_y: 12.0
++sdf_map/map_size_z: 4.0
++# Viz-only throttle: 2 Hz eases RViz/CPU load on the board; planning is unaffected.
++sdf_map/visualization_rate: 2.0
++# Shrink the local update box (base xml default is 8.5/8.5/4.5). The corridor
++# route is 5 m long, so +-5.5 m around the body still covers every goal;
++# fewer voxels per update means less ESDF compute and a smaller RViz box.
++sdf_map/local_update_range_x: 5.5
++sdf_map/local_update_range_y: 5.5
++sdf_map/local_update_range_z: 3.0
+ # A short goal requires a complete path. Long partial paths must make progress.
+ search/max_search_time: 0.25
+ search/min_horizon_progress: 0.20
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/config/mid360_hardware.yaml
+--- laptop_old
++++ board_current
+@@ -1,5 +1,3 @@
+-# Livox ROS Driver2 + SDK2; xfer_format=1 (CustomMsg).
+-# lidar_type=1 selects Livox processing, not driver version; simulation uses 4.
+ # Real MID360 CustomMsg input and its own IMU. Factory IMU/lidar transform retained.
+ common:
+   lid_topic: /livox/lidar
+@@ -33,6 +31,9 @@
+   - 0
+   - 1
+ publish:
++  # Internal FAST-LIO point map; exported only while a subscriber is connected.
++  map_publish_en: true
++  map_publish_hz: 1.0
+   path_en: false
+   scan_publish_en: true
+   dense_publish_en: true
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/config/obstacle_4x4/planner.yaml
+--- laptop_old
++++ board_current
+@@ -3,8 +3,9 @@
+ fsm/goal_adjustment_radius: 0.1
+ fsm/tracking_replan_distance: 0.45
+ fsm/min_replan_interval: 0.75
++sdf_map/obstacles_inflation: 0.1
+ sdf_map/obstacles_inflation_up: 0.1
+-sdf_map/obstacles_inflation_down: 0.3
++sdf_map/obstacles_inflation_down: 0.1
+ sdf_map/horizontal_avoidance/enabled: true
+ sdf_map/horizontal_avoidance/min_x: -2.0
+ sdf_map/horizontal_avoidance/max_x: 2.0
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/launch/competition_hardware.launch
+--- laptop_old
++++ board_current
+@@ -1,10 +1,18 @@
+ <launch>
+   <!-- Application entry. Device drivers supply the listed ROS inputs.
+-       MID360: launch mid360_driver2.launch separately with the real SDK2 JSON.
+        No simulator, arming helper, mock actuator or PX4 parameter writer. -->
+   <arg name="model_path" />
++  <arg name="metadata_path"
++       default="$(find uav_vision)/config/merged_standard_6cls_metadata.yaml" />
+   <arg name="image_topic" default="/camera/image_raw" />
+   <arg name="camera_info_topic" default="/camera/camera_info" />
++  <arg name="start_camera" default="false" />
++  <arg name="video_devices" default="/dev/video0" />
++  <arg name="camera_capture_fps" default="30" />
++  <arg name="camera_publish_rate" default="30" />
++  <arg name="start_yolo_live_view" default="false" />
++  <arg name="show_yolo_window" default="false" />
++  <arg name="yolo_debug_topic" default="/uav_vision/yolo_debug" />
+   <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
+   <arg name="map_frame" default="camera_init" />
+   <arg name="ground_z" default="-0.22" />
+@@ -16,6 +24,19 @@
+   <arg name="camera_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
+   <arg name="raw_servo_service" default="/legacy/Servo_raw" />
+   <arg name="enable_debug_image" default="false" />
++
++  <!-- Optional UVC source. Keep disabled when a device-side camera process
++       already owns the camera or publishes the configured image topics. -->
++  <group if="$(arg start_camera)">
++    <include file="$(find camera_sdk)/launch/camera_calibrated_1280x720.launch">
++      <arg name="video_devices" value="$(arg video_devices)" />
++      <arg name="capture_fps" value="$(arg camera_capture_fps)" />
++      <arg name="publish_rate" value="$(arg camera_publish_rate)" />
++      <arg name="frame_id" value="$(arg camera_optical_frame)" />
++      <arg name="image_topic" value="$(arg image_topic)" />
++      <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
++    </include>
++  </group>
+
+   <rosparam file="$(arg lio_config)" />
+   <param name="feature_extract_enable" value="false" />
+@@ -36,23 +57,21 @@
+     <param name="frame" value="$(arg map_frame)" />
+     <rosparam param="imu_to_body_xyz" subst_value="true">$(eval [-float(v) for v in arg('body_to_imu_xyz').split()])</rosparam>
+   </node>
+-  <!-- Use measured alignment; never relabel a MAVROS pose as camera_init. -->
++  <!-- Align PX4/MAVROS's local map frame with the LIO world frame using two
++       simultaneous poses of the same body. This is recomputed each startup. -->
+   <node pkg="uav_mission" type="map_camera_alignment.py"
+         name="map_camera_alignment" output="screen">
+     <param name="parent_frame" value="$(arg map_frame)" />
+     <param name="child_frame" value="map" />
+     <param name="lio_frame" value="$(arg map_frame)" />
+     <param name="mavros_frame" value="map" />
++    <param name="lio_pose_topic" value="/mavros/vision_pose/pose" />
++    <param name="mavros_pose_topic" value="/mavros/local_position/pose" />
+     <param name="require_disarmed_for_initialization" value="true" />
+-  </node>
+-  <node pkg="uav_mission" type="navigation_frame_adapter.py"
+-        name="navigation_frame_adapter" output="screen" required="true">
+-    <param name="local_frame" value="map" />
+-    <param name="mission_frame" value="$(arg map_frame)" />
+-    <param name="enable_setpoints" value="true" />
+   </node>
+   <node pkg="uav_mission" type="pose_tf_broadcaster.py" name="vision_pose_tf" output="screen">
+     <param name="pose_topic" value="/mavros/local_position/pose" />
++    <!-- The input pose is expressed in MAVROS's map frame. -->
+     <param name="parent_frame" value="map" />
+     <param name="child_frame" value="vision_body" />
+   </node>
+@@ -63,6 +82,7 @@
+
+   <include file="$(find uav_vision)/launch/phase_d_board.launch">
+     <arg name="model_path" value="$(arg model_path)" />
++    <arg name="metadata_path" value="$(arg metadata_path)" />
+     <arg name="image_topic" value="$(arg image_topic)" />
+     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+     <arg name="map_frame" value="$(arg map_frame)" />
+@@ -72,10 +92,14 @@
+     <arg name="start_legacy_compat" value="false" />
+     <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+   </include>
+-  <group>
+-    <remap from="/mavros/local_position/pose" to="/navigation/local_pose" />
+-    <remap from="/mavros/local_position/odom" to="/navigation/local_odom" />
+-    <remap from="/mavros/setpoint_position/local" to="/navigation/setpoint_mission" />
++  <group if="$(arg start_yolo_live_view)">
++    <include file="$(find uav_vision)/launch/yolo_live_view.launch">
++      <arg name="image_topic" value="$(arg image_topic)" />
++      <arg name="detections_topic" value="/uav_vision/detections" />
++      <arg name="output_topic" value="$(arg yolo_debug_topic)" />
++      <arg name="show_window" value="$(arg show_yolo_window)" />
++    </include>
++  </group>
+   <!-- This shared file contains only control and planner nodes. -->
+   <include file="$(find patrol_control)/launch/patrol_control_px4_sim.launch">
+     <arg name="rviz" value="false" />
+@@ -95,7 +119,9 @@
+   <include file="$(find uav_mission)/launch/navigation_mission_manager.launch">
+     <arg name="runtime_config" value="$(arg runtime_config)" />
+     <arg name="search_altitude" value="1.40" />
+-    <arg name="pose_topic" value="/navigation/local_pose" />
++    <!-- Mission frame is camera_init; use the LIO pose already published in
++         that frame instead of the raw PX4 map-frame pose. -->
++    <arg name="pose_topic" value="/mavros/vision_pose/pose" />
+   </include>
+   <include file="$(find uav_mission)/launch/navigation_planner_bridge.launch">
+     <arg name="execution_enabled" value="true" />
+@@ -103,9 +129,8 @@
+     <arg name="required" value="true" />
+     <arg name="planner_goal_topic" value="/fastplanner/goal" />
+     <arg name="planner_status_topic" value="/planning/goal_status" />
+-    <arg name="odom_topic" value="/navigation/local_odom" />
++    <arg name="odom_topic" value="/mavros/local_position/odom" />
+   </include>
+-  </group>
+   <include file="$(find uav_mission)/launch/release_guard.launch">
+     <arg name="raw_service_name" value="$(arg raw_servo_service)" />
+     <arg name="require_evidence_context" value="true" />
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/launch/navigation_horizontal_search_vcl06.launch
+--- laptop_old
++++ board_current
+@@ -1,6 +1,4 @@
+ <launch>
+-  <!-- Experimental opt-in; zero keeps the accepted baseline behavior. -->
+-  <arg name="search_initial_plan_timeout" default="0.0" />
+   <arg name="record_overview_video" default="false" />
+   <arg name="overview_x" default="0.0" />
+   <arg name="overview_y" default="4.3" />
+@@ -45,9 +43,6 @@
+     <param name="output_path" value="$(optenv SIM_RUN_DIR)/downward_camera.mp4" />
+   </node>
+   <arg name="field_seed" default="11" />
+-  <arg name="world" default="$(find uav_vision_eval)/models/r2026_horizontal_field/field.world" />
+-  <arg name="field_config" default="$(find uav_mission)/config/coverage_r2026_horizontal.yaml" />
+-  <arg name="gate_geometry_config" default="" />
+   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+   <arg name="mission_start_mode" default="full" />
+   <arg name="gate_scope" default="full" />
+@@ -66,11 +61,11 @@
+     <arg name="target_model_path" value="$(arg target_model_path)" />
+     <arg name="mission_start_mode" value="$(arg mission_start_mode)" />
+     <arg name="gate_scope" value="$(arg gate_scope)" />
+-    <arg name="world" value="$(arg world)" />
++    <arg name="world" value="$(find uav_vision_eval)/models/r2026_horizontal_field/field.world" />
+     <arg name="vehicle_sdf" value="$(find uav_vision_eval)/models/iris_mid360_ks2a543_installed/model.sdf" />
+     <arg name="runtime_config" value="$(arg runtime_config)" />
+     <arg name="waypoint_config" value="$(arg control_config)" />
+-    <arg name="field_config" value="$(arg field_config)" />
++    <arg name="field_config" value="$(find uav_mission)/config/coverage_r2026_horizontal.yaml" />
+     <arg name="camera_extrinsic_xyz" value="$(arg camera_extrinsic_xyz)" />
+     <arg name="search_altitude" value="1.18" />
+     <arg name="external_planner_max_command_z" value="2.08" />
+@@ -122,15 +117,10 @@
+   <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="2.08" />
+   <!-- Confirm the configured body heading before advancing corridor legs. -->
+   <param name="/navigation/planner_bridge/execution/return_yaw_tolerance" value="0.10" />
+-  <param name="/navigation/planner_bridge/execution/search_initial_plan_timeout"
+-         value="$(arg search_initial_plan_timeout)" />
+   <!-- Turn near the open staging point, then retain the heading in the aisle. -->
+   <param name="/traj_server/traj_server/adjust_distance_yaw" value="0.50" />
+   <!-- Both 5 mm H markers use model://landing_h and are ground support. -->
+   <rosparam param="/gazebo_contact_monitor/ignored_collision_patterns">[ground_plane, 'landing_h::link::collision', 'landing_h_clone::link::collision']</rosparam>
+
+   <param name="/landing_detector/landing_enable_h_stroke_fallback" value="true" />
+-  <!-- Randomized geometry is an assertion-only input, not a mission waypoint source. -->
+-  <rosparam if="$(eval arg('gate_geometry_config') != '')" command="load"
+-            file="$(arg gate_geometry_config)" ns="/navigation_vcl06_assertion" />
+ </launch>
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/launch/obstacle_4x4_hardware.launch
+--- laptop_old
++++ board_current
+@@ -44,15 +44,8 @@
+     <param name="frame" value="$(arg map_frame)" />
+     <rosparam param="imu_to_body_xyz" subst_value="true">$(eval [-float(v) for v in arg('body_to_imu_xyz').split()])</rosparam>
+   </node>
+-  <node pkg="uav_mission" type="map_camera_alignment.py" name="map_camera_alignment" output="screen">
+-    <param name="parent_frame" value="$(arg map_frame)" />
+-    <param name="child_frame" value="map" />
+-    <param name="lio_frame" value="$(arg map_frame)" />
+-    <param name="mavros_frame" value="map" />
+-    <param name="lio_pose_topic" value="/mavros/vision_pose/pose" />
+-    <param name="mavros_pose_topic" value="/mavros/local_position/pose" />
+-    <param name="require_disarmed_for_initialization" value="true" />
+-  </node>
++  <node pkg="tf2_ros" type="static_transform_publisher" name="map_camera_alignment"
++        args="0 0 0 0 0 0 1 $(arg map_frame) map" />
+   <node pkg="uav_mission" type="navigation_frame_adapter.py" name="navigation_frame_adapter" output="screen" required="true">
+     <param name="local_frame" value="map" />
+     <param name="mission_frame" value="$(arg map_frame)" />
+@@ -76,17 +69,17 @@
+       <arg name="simulation_auto_land" value="false" />
+       <arg name="start_waypoint_generator" value="false" />
+       <arg name="waypoint_config" value="$(arg control_config)" />
+-      <arg name="planner_max_vel" value="0.25" />
+-      <arg name="planner_max_acc" value="0.35" />
+-      <arg name="planner_obstacles_inflation" value="0.30" />
++      <arg name="planner_max_vel" value="0.80" />
++      <arg name="planner_max_acc" value="0.80" />
++      <arg name="planner_obstacles_inflation" value="0.10" />
+       <arg name="planner_clearance_threshold" value="0.025" />
+       <arg name="px4_max_distance" value="0.15" />
+       <arg name="external_planner_max_command_z" value="$(eval float(arg('ground_z')) + 0.65)" />
+     </include>
+     <include file="$(find plan_manage)/launch/patrol_planner_px4_sim.launch" unless="$(arg enable_control_output)">
+-      <arg name="max_vel" value="0.25" />
+-      <arg name="max_acc" value="0.35" />
+-      <arg name="obstacles_inflation" value="0.30" />
++      <arg name="max_vel" value="0.80" />
++      <arg name="max_acc" value="0.80" />
++      <arg name="obstacles_inflation" value="0.10" />
+       <arg name="clearance_threshold" value="0.025" />
+       <arg name="start_waypoint_generator" value="false" />
+       <arg name="map_size_x" value="6.0" />
+@@ -115,7 +108,7 @@
+   <param name="/navigation/mission_manager/mission/approach_altitude" value="$(eval float(arg('ground_z')) + float(arg('cruise_agl')))" />
+   <param name="/navigation/mission_manager/mission/return_altitude" value="$(eval float(arg('ground_z')) + float(arg('cruise_agl')))" />
+   <param name="/fast_planner_node/sdf_map/ground_height" value="$(eval float(arg('ground_z')) - 0.10)" />
+-  <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="$(eval float(arg('ground_z')) + 0.80)" />
++  <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="-0.1" />
+   <param name="/fast_planner_node/sdf_map/horizontal_avoidance/obstacle_min_z" value="$(eval float(arg('ground_z')) + 0.10)" />
+   <param name="/fast_planner_node/sdf_map/horizontal_avoidance/floor_z" value="$(eval float(arg('ground_z')) + 0.10)" />
+   <rosparam param="/waypoints" subst_value="true">[{x: 0.0, y: 0.0, z: $(arg cruise_z), yaw: 0.0, pointmode: Takeoff_point, hover_time: 0.0}]</rosparam>
+@@ -128,4 +121,4 @@
+       <rosparam param="landing_xy">[0.0, 0.6]</rosparam>
+     </node>
+   </group>
+-</launch>
++</launch>
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/package.xml
+--- laptop_old
++++ board_current
+@@ -49,6 +49,8 @@
+   <!-- Use doc_depend for packages you need only for building documentation: -->
+   <!--   <doc_depend>doxygen</doc_depend> -->
+   <buildtool_depend>catkin</buildtool_depend>
++  <depend>visualization_msgs</depend>
++  <exec_depend>rviz</exec_depend>
+   <build_depend>gazebo_msgs</build_depend>
+   <build_depend>geometry_msgs</build_depend>
+   <build_depend>message_generation</build_depend>
+@@ -81,7 +83,6 @@
+   <exec_depend>gazebo_plugins</exec_depend>
+   <exec_depend>geometry_msgs</exec_depend>
+   <exec_depend>mavros_msgs</exec_depend>
+-  <exec_depend>livox_ros_driver2</exec_depend>
+   <exec_depend>message_runtime</exec_depend>
+   <exec_depend>nav_msgs</exec_depend>
+   <exec_depend>patrol_control</exec_depend>
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_planner_bridge.py
+--- laptop_old
++++ board_current
+@@ -248,10 +248,6 @@
+             planner_accept_timeout_ns=_seconds_to_ns(
+                 "planner_accept_timeout",
+                 rospy.get_param("~execution/planner_accept_timeout", 5.0)),
+-            search_initial_plan_timeout_ns=_seconds_to_ns(
+-                "search_initial_plan_timeout",
+-                rospy.get_param("~execution/search_initial_plan_timeout", 0.0),
+-                allow_zero=True),
+             max_effective_goal_offset_m=float(rospy.get_param(
+                 "~execution/effective_goal_max_offset", 1.10)),
+             arrival_distance_m=float(rospy.get_param(
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/scripts/random_field_spawner.py
+--- laptop_old
++++ board_current
+@@ -119,9 +119,6 @@
+         self._static_model_radii = rospy.get_param(
+             "~static_model_radii", {})
+         self._static_exclusions = rospy.get_param("~static_exclusions", [])
+-        self._static_exclusion_boxes = tuple(
+-            validate_bounds(box, "static exclusion box") for box in
+-            rospy.get_param("~static_exclusion_boxes", []))
+         self._rng = None
+         self._publish_status()
+
+@@ -339,8 +336,7 @@
+             occupied, self._search_bounds, self._field_bounds,
+             self._boundary_margin, self._pair_gap,
+             self._offset_x, self._offset_y,
+-            self._max_attempts, self._layout_attempts,
+-            occupied_boxes=self._static_exclusion_boxes)
++            self._max_attempts, self._layout_attempts)
+         if layout is None:
+             raise RuntimeError(
+                 "no footprint-safe full layout after %d restarts "
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/planner_execution.py
+--- laptop_old
++++ board_current
+@@ -232,9 +232,6 @@
+     max_z_m: float = 4.0
+     source_future_tolerance_ns: int = 100_000_000
+     planner_accept_timeout_ns: int = 5_000_000_000
+-    # Opt-in bound on SEARCH/RESUME that never produced a usable trajectory.
+-    # Zero preserves the accepted flight baseline; this is not a motion timeout.
+-    search_initial_plan_timeout_ns: int = 0
+     max_effective_goal_offset_m: float = 1.10
+     arrival_distance_m: float = 0.30
+     approach_arrival_distance_m: float = 0.35
+@@ -257,8 +254,6 @@
+             "source_future_tolerance_ns", self.source_future_tolerance_ns, 0))
+         object.__setattr__(self, "planner_accept_timeout_ns", _integer(
+             "planner_accept_timeout_ns", self.planner_accept_timeout_ns, 1))
+-        object.__setattr__(self, "search_initial_plan_timeout_ns", _integer(
+-            "search_initial_plan_timeout_ns", self.search_initial_plan_timeout_ns, 0))
+         effective_offset = _finite(
+             "max_effective_goal_offset_m", self.max_effective_goal_offset_m)
+         if effective_offset <= 0.0 or effective_offset > 1.10:
+@@ -539,22 +534,6 @@
+         return self._outcome(True, "planner_accept_timed_out", events=(event,),
+                              handoff="CANCEL_REQUIRED")
+
+-    def _expire_initial_search_if_due(self, now_ns: int) -> Optional[ExecutorOutcome]:
+-        active = self._active
+-        limit = self.config.search_initial_plan_timeout_ns
+-        if (not limit or active is None or active.terminal or active.handed_off or
+-                active.decision.command not in ("SEARCH", "RESUME") or
+-                not active.planner_accepted or active.trajectory_ever_ready or
+-                active.trajectory_finished or
+-                now_ns < active.dispatch_ns + limit):
+-            return None
+-        active.terminal = True
+-        active.retired = True
+-        event = self._result(active, now_ns, "TIMED_OUT", "PLANNER", True,
+-                             True, "search_initial_plan_timeout")
+-        return self._outcome(True, "search_initial_plan_timed_out", events=(event,),
+-                             handoff="CANCEL_REQUIRED")
+-
+     def _prepare(self, now_ns: int) -> Optional[ExecutorOutcome]:
+         invalid = self._validate_now(now_ns)
+         if invalid is not None:
+@@ -562,10 +541,7 @@
+         expired = self._expire_if_due(int(now_ns))
+         if expired is not None:
+             return expired
+-        expired = self._expire_acceptance_if_due(int(now_ns))
+-        if expired is not None:
+-            return expired
+-        return self._expire_initial_search_if_due(int(now_ns))
++        return self._expire_acceptance_if_due(int(now_ns))
+
+     def _validate_decision_contract(
+             self, decision: MotionDecision) -> Optional[str]:
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/random_field_policy.py
+--- laptop_old
++++ board_current
+@@ -78,21 +78,10 @@
+     return True
+
+
+-def footprint_clear_boxes(x, y, radius, boxes, margin=0.0):
+-    """Conservative circular target footprint versus physical wall AABBs."""
+-    for min_x, max_x, min_y, max_y in boxes:
+-        dx = max(min_x-x, 0.0, x-max_x)
+-        dy = max(min_y-y, 0.0, y-max_y)
+-        if math.hypot(dx, dy) < radius + margin:
+-            return False
+-    return True
+-
+-
+ def plan_footprint_layout(rng, targets, occupied, search_bounds,
+                           field_bounds, boundary_margin=0.0, pair_gap=0.0,
+                           offset_x=0.0, offset_y=0.0,
+-                          attempts_per_target=4000, layout_attempts=64,
+-                          occupied_boxes=()):
++                          attempts_per_target=4000, layout_attempts=64):
+     """Sample a complete layout, restarting instead of keeping a dead end.
+
+     Sequential rejection sampling can place early targets so that a later
+@@ -105,8 +94,6 @@
+     if attempts_per_target <= 0 or layout_attempts <= 0:
+         raise ValueError("layout attempt limits must be positive")
+     target_specs = [(str(name), float(radius)) for name, radius in targets]
+-    occupied_boxes = tuple(validate_bounds(box, "occupied box")
+-                           for box in occupied_boxes)
+     if any(not math.isfinite(radius) or radius < 0.0
+            for _name, radius in target_specs):
+         raise ValueError("target footprint radii must be finite and nonnegative")
+@@ -129,9 +116,6 @@
+                     continue
+                 world_x = local_x + float(offset_x)
+                 world_y = local_y + float(offset_y)
+-                if not footprint_clear_boxes(world_x, world_y, radius,
+-                                             occupied_boxes, boundary_margin):
+-                    continue
+                 if footprint_clear(
+                         world_x, world_y, radius, trial_occupied, pair_gap):
+                     sample = (local_x, local_y)
+
+FILE patrol_uav_ws-patrol_planner/src/uav_mission/test/test_planner_execution.py
+--- laptop_old
++++ board_current
+@@ -556,68 +556,4 @@
+                          "planner_status_after_finished_ignored")
+         self.assertFalse(late.snapshot.faulted)
+
+-class InitialSearchTimeoutTest(unittest.TestCase):
+-    def start(self, command="SEARCH", enabled=True):
+-        ex = PlannerMotionExecutor(PlannerMotionConfig(
+-            search_initial_plan_timeout_ns=20*NSEC if enabled else 0))
+-        d = decision(command=command, deadline=BASE+90*NSEC)
+-        ex.submit_decision(d, BASE)
+-        ex.apply_planner_status(status(1, 8, "ACCEPTED", BASE+1), BASE+1)
+-        return ex
+-
+-    def test_failed_retries_do_not_extend_deadline_and_cancel_once(self):
+-        for command in ("SEARCH", "RESUME"):
+-            ex = self.start(command)
+-            for i in range(1, 20):
+-                t = BASE+i*NSEC
+-                ex.apply_planner_status(status(i+1, 8, "FAILED_ATTEMPT", t,
+-                                               attempt=i), t)
+-            out = ex.tick(BASE+20*NSEC)
+-            self.assertEqual(out.handoff, "CANCEL_REQUIRED")
+-            self.assertEqual(len(out.events), 1)
+-            self.assertEqual(out.events[0].reason, "search_initial_plan_timeout")
+-            self.assertTrue(out.events[0].retryable)
+-            self.assertFalse(ex.tick(BASE+21*NSEC).events)
+-
+-    def test_default_preserves_90_second_deadline(self):
+-        ex = self.start(enabled=False)
+-        self.assertFalse(ex.tick(BASE+20*NSEC).events)
+-        out = ex.tick(BASE+90*NSEC)
+-        self.assertEqual(out.events[0].reason, "decision_deadline_reached")
+-
+-    def test_once_ready_later_replanning_does_not_trigger_initial_timeout(self):
+-        ex = self.start()
+-        ex.apply_planner_status(status(2, 8, "TRAJECTORY_READY", BASE+NSEC), BASE+NSEC)
+-        ex.apply_planner_status(status(3, 8, "FAILED_ATTEMPT", BASE+2*NSEC,
+-                                      attempt=2), BASE+2*NSEC)
+-        self.assertFalse(ex.tick(BASE+20*NSEC).events)
+-
+-    def test_approach_return_and_abort_keep_original_deadline(self):
+-        for command in ("APPROACH", "RETURN_HOME", "ABORT"):
+-            ex = self.start(command)
+-            self.assertFalse(ex.tick(BASE+20*NSEC).events)
+-
+-    def test_finished_trajectory_exempts_missing_ready_telemetry(self):
+-        ex = self.start()
+-        ex.apply_planner_status(status(2, 8, "TRAJECTORY_FINISHED", BASE+NSEC), BASE+NSEC)
+-        self.assertFalse(ex.tick(BASE+20*NSEC).events)
+-
+-    def test_invalid_option_rejected(self):
+-        for limit in (-1, True, 0.5):
+-            with self.assertRaises(ValueError):
+-                PlannerMotionConfig(search_initial_plan_timeout_ns=limit)
+-
+-    def test_old_goal_ready_cannot_exempt_new_search(self):
+-        ex = self.start()
+-        ex.apply_planner_status(status(2, 8, "TRAJECTORY_READY", BASE+NSEC), BASE+NSEC)
+-        new = decision(seq=9, issued=BASE+2*NSEC, deadline=BASE+92*NSEC)
+-        ex.submit_decision(new, BASE+2*NSEC)
+-        ex.apply_planner_status(status(3, 9, "ACCEPTED", BASE+3*NSEC), BASE+3*NSEC)
+-        ex.apply_planner_status(status(4, 8, "TRAJECTORY_READY", BASE+4*NSEC,
+-                                      attempt=2), BASE+4*NSEC)
+-        out = ex.tick(BASE+22*NSEC)
+-        self.assertEqual(out.events[0].decision_seq, 9)
+-        self.assertEqual(out.events[0].reason, "search_initial_plan_timeout")
+-
+-
+ if __name__ == "__main__": unittest.main()
+
+FILE vision_ws/src/uav_vision/CMakeLists.txt
+--- laptop_old
++++ board_current
+@@ -149,6 +149,7 @@
+   scripts/alignment_context_assertion.py
+   scripts/video_replay_publisher.py
+   scripts/video_annotation_recorder.py
++  scripts/yolo_live_view.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
+
+
+FILE vision_ws/src/uav_vision/launch/board_camera_vision.launch
+--- laptop_old
++++ board_current
+@@ -12,9 +12,10 @@
+   <arg name="camera_extrinsic_xyz" default="0 0 -0.16" />
+   <arg name="camera_extrinsic_quat_xyzw"
+        default="-0.70710678 0.70710678 0 0" />
+-  <arg name="model_path" />
++  <arg name="model_path"
++       default="$(find uav_vision)/models/merged_standard_fp32.rknn" />
+   <arg name="metadata_path"
+-       default="$(find uav_vision)/config/merged_standard_6cls_metadata.yaml" />
++       default="$(find uav_vision)/models/merged_standard_6cls_metadata.yaml" />
+   <arg name="class_profile" default="r2026" />
+   <arg name="rectify_input_pixels" default="true" />
+   <arg name="enable_debug_image" default="false" />
+
+FILE vision_ws/src/uav_vision/launch/control_handoff_board.launch
+--- laptop_old
++++ board_current
+@@ -3,9 +3,10 @@
+        但仍必须由整机提供真实 CameraInfo 和 TF。 -->
+   <arg name="image_topic" default="/camera/image_raw" />
+   <arg name="camera_info_topic" default="/camera/camera_info" />
+-  <arg name="model_path" />
++  <arg name="model_path"
++       default="$(find uav_vision)/models/merged_standard_fp32.rknn" />
+   <arg name="metadata_path"
+-       default="$(find uav_vision)/config/merged_standard_6cls_metadata.yaml" />
++       default="$(find uav_vision)/models/merged_standard_6cls_metadata.yaml" />
+   <arg name="map_frame" default="camera_init" />
+   <arg name="ground_z" default="0.0" />
+   <arg name="allow_latest_tf_fallback" default="false" />
+
+FILE vision_ws/src/uav_vision/package.xml
+--- laptop_old
++++ board_current
+@@ -16,6 +16,7 @@
+   <depend>geometry_msgs</depend>
+   <depend>diagnostic_msgs</depend>
+   <depend>image_transport</depend>
++  <exec_depend>image_view</exec_depend>
+   <depend>cv_bridge</depend>
+   <depend>image_geometry</depend>
+   <depend>tf2</depend>

@@ -7,5 +7,5 @@ landing_capture_agl: 1.8
 landing_xy:
 - 2.0
 - 0.0
-cruise_speed: 0.25
+cruise_speed: 0.5
 cruise_acceleration: 0.35

@@ -35,6 +35,7 @@
 #include <omp.h>
 #include <mutex>
 #include <math.h>
+#include <cmath>
 #include <thread>
 #include <fstream>
 #include <csignal>
@@ -71,6 +72,8 @@ double T1[MAXN], s_plot[MAXN], s_plot2[MAXN], s_plot3[MAXN], s_plot4[MAXN], s_pl
 double match_time = 0, solve_time = 0, solve_const_H_time = 0;
 int    kdtree_size_st = 0, kdtree_size_end = 0, add_point_size = 0, kdtree_delete_counter = 0;
 bool   runtime_pos_log = false, pcd_save_en = false, time_sync_en = false, extrinsic_est_en = true, path_en = true;
+bool   map_pub_en = false;
+double map_publish_period = 1.0;
 /**************************/
 
 float res_last[100000] = {0.0};
@@ -566,11 +569,26 @@ void publish_effect_world(const ros::Publisher & pubLaserCloudEffect)
 
 void publish_map(const ros::Publisher & pubLaserCloudMap)
 {
+    // Export the internal map only for visualization, after map_incremental().
+    // Flattening/copying the entire tree on every scan is expensive on board.
+    static ros::WallTime last_publish;
+    const ros::WallTime now = ros::WallTime::now();
+    if (!map_pub_en || pubLaserCloudMap.getNumSubscribers() == 0 ||
+        ikdtree.Root_Node == nullptr ||
+        (!last_publish.isZero() && (now - last_publish).toSec() < map_publish_period))
+    {
+        return;
+    }
+    ikdtree.PCL_Storage.clear();
+    ikdtree.flatten(ikdtree.Root_Node, ikdtree.PCL_Storage, NOT_RECORD);
+    featsFromMap->clear();
+    featsFromMap->points = ikdtree.PCL_Storage;
     sensor_msgs::PointCloud2 laserCloudMap;
     pcl::toROSMsg(*featsFromMap, laserCloudMap);
     laserCloudMap.header.stamp = ros::Time().fromSec(lidar_end_time);
     laserCloudMap.header.frame_id = "camera_init";
     pubLaserCloudMap.publish(laserCloudMap);
+    last_publish = ros::WallTime::now();
 }
 
 template<typename T>
@@ -762,6 +780,15 @@ int main(int argc, char** argv)
     nh.param<bool>("publish/scan_publish_en",scan_pub_en, true);
     nh.param<bool>("publish/dense_publish_en",dense_pub_en, true);
     nh.param<bool>("publish/scan_bodyframe_pub_en",scan_body_pub_en, true);
+    nh.param<bool>("publish/map_publish_en", map_pub_en, false);
+    double map_publish_hz = 1.0;
+    nh.param<double>("publish/map_publish_hz", map_publish_hz, 1.0);
+    if (!std::isfinite(map_publish_hz) || map_publish_hz <= 0.0)
+    {
+        ROS_WARN("Invalid publish/map_publish_hz; using 1 Hz");
+        map_publish_hz = 1.0;
+    }
+    map_publish_period = 1.0 / map_publish_hz;
     nh.param<int>("max_iteration",NUM_MAX_ITERATIONS,4);
     nh.param<string>("map_file_path",map_file_path,"");
     nh.param<string>("common/lid_topic",lid_topic,"/livox/lidar");
@@ -939,13 +966,6 @@ int main(int argc, char** argv)
             fout_pre<<setw(20)<<Measures.lidar_beg_time - first_lidar_time<<" "<<euler_cur.transpose()<<" "<< state_point.pos.transpose()<<" "<<ext_euler.transpose() << " "<<state_point.offset_T_L_I.transpose()<< " " << state_point.vel.transpose() \
             <<" "<<state_point.bg.transpose()<<" "<<state_point.ba.transpose()<<" "<<state_point.grav<< endl;
 
-            if(0) // If you need to see map point, change to "if(1)"
-            {
-                PointVector ().swap(ikdtree.PCL_Storage);
-                ikdtree.flatten(ikdtree.Root_Node, ikdtree.PCL_Storage, NOT_RECORD);
-                featsFromMap->clear();
-                featsFromMap->points = ikdtree.PCL_Storage;
-            }
 
             pointSearchInd_surf.resize(feats_down_size);
             Nearest_Points.resize(feats_down_size);

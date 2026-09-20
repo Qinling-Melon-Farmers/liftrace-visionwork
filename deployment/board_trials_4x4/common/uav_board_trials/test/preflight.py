@@ -14,6 +14,13 @@ for folder in ('01_visual_interrupt','02_high_view_revisit','03_h_landing'):
         for enabled in ('false','true'):
             cfg=roslaunch.config.load_config_default([(str(P/'launch/application.launch'),[f'enable_control_output:={enabled}',f'mode:={s["mode"]}','model_path:=/test/model.rknn',f'generated_dir:={tmp}',f'ground_z:={ref["ground_z"]}',f'low_z:={ref["low_z"]}'])],11311,verbose=False)
             values={k:v.value for k,v in cfg.params.items()};nodes={n.name:n for n in cfg.nodes}
+            assert values['/fast_planner_node/sdf_map/visualization_rate']==2.
+            assert values['/fast_planner_node/manager/max_vel']==s['cruise_speed']==0.5
+            assert values['/fast_planner_node/search/max_vel']==s['cruise_speed']
+            assert values['/fast_planner_node/manager/max_acc']==s['cruise_acceleration']==0.35
+            assert values['/fast_planner_node/sdf_map/virtual_ceil_height']>ref['high_z']
+            assert values['/fast_planner_node/sdf_map/local_update_range_x']>=3.4
+            assert values['/fast_planner_node/sdf_map/local_update_range_y']>=2.
             assert not any(n.package in ('gazebo_ros','actuator_pwm') for n in cfg.nodes)
             assert 'trial_recorder' in nodes and 'target_detector_rknn' in nodes
             assert ('patrol_control' in nodes)==(enabled=='true')
