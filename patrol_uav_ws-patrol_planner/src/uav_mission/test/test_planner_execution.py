@@ -85,19 +85,20 @@ class PlannerMotionExecutorTest(unittest.TestCase):
         return now + 30_000_000
 
     def test_liveness_exhaustion_is_terminal_and_late_ready_cannot_revive(self):
-        executor=self.make(); original=decision(deadline=BASE+30*NSEC)
-        self.dispatch(executor,original)
-        executor.apply_planner_status(status(1,8,'ACCEPTED',BASE+1),BASE+1)
-        executor.apply_planner_status(status(2,8,'TRAJECTORY_READY',BASE+2),BASE+2)
-        event=replace(status(3,8,'FAILED_ATTEMPT',BASE+12*NSEC),reason='liveness_budget_exhausted')
-        out=executor.apply_planner_status(event,BASE+12*NSEC)
-        self.assertEqual(out.handoff,'CANCEL_REQUIRED')
-        self.assertTrue(out.events[0].terminal)
-        self.assertEqual(out.events[0].status,'FAILED')
-        self.assertEqual(executor._active.decision.deadline_ns,original.deadline_ns)
-        late=executor.apply_planner_status(status(4,8,'TRAJECTORY_READY',BASE+13*NSEC),BASE+13*NSEC)
-        self.assertFalse(late.events)
-        self.assertTrue(late.snapshot.active_terminal)
+        for reason in ('liveness_budget_exhausted','server_hold_budget_exhausted'):
+            executor=self.make(); original=decision(deadline=BASE+30*NSEC)
+            self.dispatch(executor,original)
+            executor.apply_planner_status(status(1,8,'ACCEPTED',BASE+1),BASE+1)
+            executor.apply_planner_status(status(2,8,'TRAJECTORY_READY',BASE+2),BASE+2)
+            event=replace(status(3,8,'FAILED_ATTEMPT',BASE+12*NSEC),reason=reason)
+            out=executor.apply_planner_status(event,BASE+12*NSEC)
+            self.assertEqual(out.handoff,'CANCEL_REQUIRED')
+            self.assertTrue(out.events[0].terminal)
+            self.assertEqual(out.events[0].status,'FAILED')
+            self.assertEqual(executor._active.decision.deadline_ns,original.deadline_ns)
+            late=executor.apply_planner_status(status(4,8,'TRAJECTORY_READY',BASE+13*NSEC),BASE+13*NSEC)
+            self.assertFalse(late.events)
+            self.assertTrue(late.snapshot.active_terminal)
 
     def test_late_start_and_zero_target_id(self):
         out = self.dispatch(self.make(), decision(42, "APPROACH"))
@@ -621,6 +622,23 @@ class InitialSearchTimeoutTest(unittest.TestCase):
         for limit in (-1, True, 0.5):
             with self.assertRaises(ValueError):
                 PlannerMotionConfig(search_initial_plan_timeout_ns=limit)
+
+    def test_generic_timeout_covers_all_planner_owned_motion(self):
+        for command in ("SEARCH", "RESUME", "APPROACH", "RETURN_HOME", "ABORT"):
+            ex = PlannerMotionExecutor(PlannerMotionConfig(
+                initial_plan_timeout_ns=20*NSEC))
+            d = decision(command=command, deadline=BASE+90*NSEC)
+            ex.submit_decision(d, BASE)
+            ex.apply_planner_status(status(1, 8, "ACCEPTED", BASE+1), BASE+1)
+            out = ex.tick(BASE+20*NSEC)
+            self.assertEqual(out.handoff, "CANCEL_REQUIRED")
+            self.assertEqual(out.events[0].reason, "initial_plan_timeout")
+            self.assertEqual(out.events[0].decision_seq, d.decision_seq)
+
+    def test_generic_timeout_and_legacy_option_must_agree(self):
+        with self.assertRaises(ValueError):
+            PlannerMotionConfig(initial_plan_timeout_ns=10*NSEC,
+                                search_initial_plan_timeout_ns=20*NSEC)
 
     def test_old_goal_ready_cannot_exempt_new_search(self):
         ex = self.start()

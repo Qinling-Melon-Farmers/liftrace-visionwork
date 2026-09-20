@@ -48,8 +48,13 @@ class TrialTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as path:
                 s=yaml.safe_load((base/folder/'settings.yaml').read_text());ref=generate(ROOT,path,s,(.01,-.01,-.05),rig)
                 self.assertAlmostEqual(ref['ground_z'],-.27);self.assertAlmostEqual(ref['low_z']-ref['ground_z'],1.4)
-                control=yaml.safe_load((Path(path)/'control.yaml').read_text());runtime=yaml.safe_load((Path(path)/'runtime.yaml').read_text())
+                control=yaml.safe_load((Path(path)/'control.yaml').read_text());runtime=yaml.safe_load((Path(path)/'runtime.yaml').read_text());overrides=yaml.safe_load((Path(path)/'overrides.yaml').read_text())
                 self.assertAlmostEqual(control['drop_system']['release_setpoint_height']-ref['ground_z'],.6)
+                self.assertEqual(overrides['/navigation/planner_bridge/execution/initial_plan_timeout'],12.)
+                self.assertTrue(overrides['/fast_planner_node/fsm/server_hold_replan_enabled'])
+                self.assertTrue(overrides['/traj_server/progress/enabled'])
+                if folder=='02_high_view_revisit':
+                    self.assertEqual(runtime['high_view_probe']['config']['staging_xy'],[.61,.04])
                 if folder=='03_h_landing':
                     route=runtime['mission']['post_delivery_route'];self.assertEqual(route[-1][:2],route[-2][:2]);self.assertGreater(route[-1][2],route[-2][2]);self.assertFalse(control['drop_system']['enable_drop'])
                 else:self.assertTrue(control['drop_system']['enable_drop'])

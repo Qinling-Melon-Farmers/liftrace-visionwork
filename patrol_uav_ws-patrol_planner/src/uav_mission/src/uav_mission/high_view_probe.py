@@ -24,6 +24,7 @@ class ProbeConfig:
     association_radius: float = .60
     pose_max_age: float = .5
     source_key: str = 'installed-camera-1280-v1'
+    staging_xy: tuple = ()
 
     def __post_init__(self):
         values=(self.ground_z,self.high_agl,self.low_agl,self.survey_budget,
@@ -38,6 +39,10 @@ class ProbeConfig:
             raise ValueError('invalid probe configuration')
         if any(len(p)!=2 or not all(math.isfinite(v) for v in p) for p in self.survey_xy):
             raise ValueError('invalid survey points')
+        if (self.staging_xy and
+                (len(self.staging_xy)!=2 or
+                 not all(math.isfinite(v) for v in self.staging_xy))):
+            raise ValueError('invalid staging point')
 
 
 class HighViewProbe(MissionRuntime):
@@ -45,7 +50,15 @@ class HighViewProbe(MissionRuntime):
         self.probe_config=config
         self.home=tuple(core.config.home_xy)
         high=config.ground_z+config.high_agl
-        points=[Waypoint(*self.home,high)]+[Waypoint(x,y,high) for x,y in config.survey_xy]
+        low=config.ground_z+config.low_agl
+        self.ascent_xy=tuple(config.staging_xy) if config.staging_xy else self.home
+        if config.staging_xy:
+            points=[Waypoint(*self.ascent_xy,low),Waypoint(*self.ascent_xy,high)]
+            self.ascent_waypoint_index=1
+        else:
+            points=[Waypoint(*self.ascent_xy,high)]
+            self.ascent_waypoint_index=0
+        points.extend(Waypoint(x,y,high) for x,y in config.survey_xy)
         super().__init__(core,CoverageRoute(points,'high-view-probe:SURVEY',1))
         self.catalog=Catalog(Config(frame=core.config.mission_frame),core.profile.weights)
         self.stage='SURVEY'
@@ -103,7 +116,7 @@ class HighViewProbe(MissionRuntime):
         if hints:
             self.selected=min(hints,key=lambda h:(-self.core.profile.weight(h.class_name),h.key))
         high=self.probe_config.ground_z+self.probe_config.high_agl
-        self._change_route('RETURN_COLUMN',[Waypoint(*self.home,high)],now)
+        self._change_route('RETURN_COLUMN',[Waypoint(*self.ascent_xy,high)],now)
         return self._dispatch_route('SEARCH','return_column',now)
 
     def _finish(self,success,reason,now):
@@ -117,7 +130,7 @@ class HighViewProbe(MissionRuntime):
         index=self.route.current_index
         route_outcome,failed=super()._finish_route(action,succeeded,now)
         if failed is not None:return route_outcome,failed
-        if self.stage=='SURVEY' and index==0 and succeeded:
+        if self.stage=='SURVEY' and index==self.ascent_waypoint_index and succeeded:
             self.ascent_verified=True
         if not succeeded:
             if self.stage=='SURVEY' and index>0 and now>=self.survey_until:
@@ -137,7 +150,7 @@ class HighViewProbe(MissionRuntime):
             if self.stage=='RETURN_COLUMN':
                 # Static-scene retrace of the confirmed ascent column. The
                 # original planner must still accept and complete this segment.
-                self._change_route('DESCEND',[Waypoint(*self.home,c.ground_z+c.low_agl)],now)
+                self._change_route('DESCEND',[Waypoint(*self.ascent_xy,c.ground_z+c.low_agl)],now)
             elif self.stage=='DESCEND':
                 if self.selected is None:return self._finish(False,'no_high_view_hint',now)
                 if now-self.selected.last_seen_ns/1e9>self.catalog.config.hint_ttl_ns/1e9:
@@ -169,7 +182,9 @@ class HighViewProbe(MissionRuntime):
                 else:
                     key='candidate:'+validation.reason
                     self.observation_counts[key]=self.observation_counts.get(key,0)+1
-            if self.stage=='SURVEY':
+            high_ready=(self.pose[2] >= self.probe_config.ground_z+
+                        self.probe_config.high_agl-.20)
+            if self.stage=='SURVEY' and (self.ascent_verified or high_ready):
                 for v in good:
                     observation=Observation(self.catalog.epoch,Key(v.target_id,v.first_seen_ns),
                         v.last_seen_ns,v.map_frame,v.class_name,(v.x,v.y),v.class_confidence,
@@ -207,5 +222,6 @@ class HighViewProbe(MissionRuntime):
             return dict(scope='HIGH_VIEW_SINGLE_REVISIT_NO_DELIVERY',stage=self.stage,
                 done=self.done,succeeded=self.succeeded,failure=self.failure,
                 ascent_verified=self.ascent_verified,selected=asdict(self.selected) if self.selected else None,
+                ascent_xy=self.ascent_xy,ascent_waypoint_index=self.ascent_waypoint_index,
                 reacquired=self.reacquired,events=list(self.events),slots_committed=self.core.committed_slots,
                 catalog_entries=len(self.catalog.entries),observation_counts=dict(self.observation_counts))

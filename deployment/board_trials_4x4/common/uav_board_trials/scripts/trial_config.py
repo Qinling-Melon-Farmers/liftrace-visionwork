@@ -57,7 +57,7 @@ def generate(root,out,settings,fc_xyz,rig):
             if any(abs(a-b)>1e-6 for a,b in zip(route[-1],final)):route.append(final)
         m.update(post_delivery_route=route,post_delivery_route_revision='board-corridor-landing',landing_xy=[x+hx,y+hy])
     bounds=[x-.35,x+3.4,y-1.4,y+1.4]
-    runtime['high_view_probe']=dict(config=dict(ground_z=ground,high_agl=settings['high_agl'],low_agl=settings['low_agl'],survey_xy=[point(a,b,0)[:2] for a,b in [(1,-1.0),(3,-1.0),(3,1.0),(1,1.0),(1,-1.0)]],source_key='board-inherited-camera-static-start'),camera_info_topic=settings.get('camera_info_topic','/camera/camera_info'))
+    runtime['high_view_probe']=dict(config=dict(ground_z=ground,high_agl=settings['high_agl'],low_agl=settings['low_agl'],staging_xy=[x+.6,y+.05],survey_xy=[point(a,b,0)[:2] for a,b in [(1,-1.0),(3,-1.0),(3,1.0),(1,1.0),(1,-1.0)]],source_key='board-inherited-camera-static-start'),camera_info_topic=settings.get('camera_info_topic','/camera/camera_info'))
     runtime['high_view_probe']['low_stage_parameters']=[dict(name=key,value=value) for key,value in {'/external_planner_max_command_z':ground+1.85,'/fast_planner_node/sdf_map/virtual_ceil_height':(ground+2. if ceiling_enabled else -.1),'/fast_planner_node/sdf_map/horizontal_avoidance/tracking_margin':0.,'/fast_planner_node/fsm/goal_adjustment_radius':.15}.items()]
     runtime['high_view_full']=dict(policy=dict(high_max_agl=3.0,candidate_min_streak=1,min_interval_ns=100000000,min_span_ns=200000000,max_uncertainty_m=.45,direct_descent=True,descent_radius_m=1.,descent_max_candidates=9,survey_stall_seconds=8.,survey_progress_m=.15,survey_alternative_radius_m=.3),grid=dict(bounds=bounds,resolution=.10),boundary_policy=dict(enabled=True,bounds=[x-.35,x+4.,y-2.,y+2.]))
     control=yaml.safe_load((root/'patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_horizontal_control.yaml').read_text())
@@ -77,7 +77,12 @@ def generate(root,out,settings,fc_xyz,rig):
         '/fast_planner_node/sdf_map/horizontal_avoidance/tracking_margin':.1 if mode=='high_view' else 0.,
         '/external_planner_max_command_z':ground+2.9,'/navigation/planner_bridge/execution/max_goal_z':ground+2.9,
         '/navigation/planner_bridge/execution/arrival_position_tolerance':.12,'/navigation/planner_bridge/execution/arrival_dwell':.8,
+        '/navigation/planner_bridge/execution/initial_plan_timeout':12.,
         '/navigation/planner_bridge/execution/search_initial_plan_timeout':12.,
+        '/fast_planner_node/fsm/liveness_enabled':True,'/fast_planner_node/fsm/server_hold_replan_enabled':True,
+        '/fast_planner_node/fsm/server_hold_seconds':.25,'/fast_planner_node/fsm/server_progress_max_age':.5,
+        '/fast_planner_node/progress/enabled':True,'/traj_server/progress/enabled':True,
+        '/traj_server/traj_server/require_goal_identity':True,
         '/navigation/planner_bridge/target/recovery_height':low,
         '/release_permission_arbiter/pose_topic':'/navigation/local_pose','/release_permission_arbiter/min_release_altitude':drop-.08,'/release_permission_arbiter/max_release_altitude':drop+.12,
         '/board_trials/ground_z':ground,'/board_trials/fc_on_ground_z':z,'/board_trials/mock_only':True,

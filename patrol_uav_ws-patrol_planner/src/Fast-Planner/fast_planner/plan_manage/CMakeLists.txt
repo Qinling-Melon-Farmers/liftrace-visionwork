@@ -72,6 +72,7 @@ add_dependencies(traj_server ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 if(CATKIN_ENABLE_TESTING)
   catkin_add_gtest(motion_watchdog_test test/motion_watchdog_test.cpp)
+  catkin_add_gtest(server_hold_monitor_test test/server_hold_monitor_test.cpp)
   catkin_add_gtest(goal_adjustment_test test/goal_adjustment_test.cpp)
   catkin_add_gtest(trajectory_progress_test test/trajectory_progress_test.cpp)
   target_link_libraries(trajectory_progress_test ${catkin_LIBRARIES})

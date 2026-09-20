@@ -10,6 +10,15 @@ class MotionWatchdog {
   double window = 4.0, movement = 0.04;
   unsigned budget = 2;
   void reset() { active_ = false; attempts_ = 0; last_ = -1; }
+  Result requestRecovery(double now) {
+    if (!std::isfinite(now)) return PAUSED;
+    if (attempts_ >= budget) return EXHAUSTED;
+    ++attempts_;
+    active_ = false;
+    last_ = now;
+    since_ = now;
+    return REPLAN;
+  }
   Result observe(double now, const Eigen::Vector3d& position, bool enabled) {
     if (!std::isfinite(now) || !position.allFinite() || !enabled ||
         (last_ >= 0 && (now < last_ || now-last_ > 1.0))) {

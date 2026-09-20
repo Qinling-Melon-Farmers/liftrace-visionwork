@@ -159,8 +159,24 @@ bool FastPlannerManager::kinodynamicReplan(Eigen::Vector3d start_pt, Eigen::Vect
 
   int status = kino_path_finder_->search(start_pt, start_vel, start_acc, end_pt, end_vel, true);
 
+  const auto log_search_diagnostics = [this](const char* phase) {
+    const auto& d = kino_path_finder_->getLastDiagnostics();
+    ROS_WARN_STREAM("kinodynamic " << phase
+        << " rejection summary start_occ=" << d.start_occupancy
+        << " goal_occ=" << d.goal_occupancy
+        << " candidates=" << d.candidates
+        << " accepted=" << d.accepted
+        << " same_voxel=" << d.rejected_same_voxel
+        << " collision=" << d.rejected_collision
+        << " velocity=" << d.rejected_velocity
+        << " closed=" << d.rejected_closed
+        << " parent_prune=" << d.pruned_same_parent
+        << " timed_out=" << d.timed_out);
+  };
+
   if (status == KinodynamicAstar::NO_PATH) {
     cout << "[kino replan]: kinodynamic search fail!" << endl;
+    log_search_diagnostics("initial");
 
     // retry searching with discontinuous initial state
     kino_path_finder_->reset();
@@ -168,6 +184,7 @@ bool FastPlannerManager::kinodynamicReplan(Eigen::Vector3d start_pt, Eigen::Vect
 
     if (status == KinodynamicAstar::NO_PATH) {
       cout << "[kino replan]: Can't find path." << endl;
+      log_search_diagnostics("retry");
       return false;
     } else {
       cout << "[kino replan]: retry search success." << endl;

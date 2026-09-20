@@ -2,6 +2,7 @@
   <arg name="start_hard_gate" default="true" />
   <arg name="manager_type" default="navigation_mission_manager.py" />
   <!-- Experimental opt-in; zero keeps the accepted baseline behavior. -->
+  <arg name="initial_plan_timeout" default="0.0" />
   <arg name="search_initial_plan_timeout" default="0.0" />
   <arg name="record_overview_video" default="false" />
   <arg name="overview_x" default="0.0" />
@@ -132,6 +133,8 @@
   <param name="/navigation/planner_bridge/execution/return_yaw_tolerance" value="0.10" />
   <param name="/navigation/planner_bridge/execution/search_initial_plan_timeout"
          value="$(arg search_initial_plan_timeout)" />
+  <param name="/navigation/planner_bridge/execution/initial_plan_timeout"
+         value="$(arg initial_plan_timeout)" />
   <!-- Turn near the open staging point, then retain the heading in the aisle. -->
   <param name="/traj_server/traj_server/adjust_distance_yaw" value="0.50" />
   <!-- Both 5 mm H markers use model://landing_h and are ground support. -->

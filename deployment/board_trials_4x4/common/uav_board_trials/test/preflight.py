@@ -25,6 +25,12 @@ for folder in ('01_visual_interrupt','02_high_view_revisit','03_h_landing','04_c
             assert values['/fast_planner_node/sdf_map/virtual_ceil_height']==-.1
             assert values['/fast_planner_node/sdf_map/local_update_range_x']>=3.4
             assert values['/fast_planner_node/sdf_map/local_update_range_y']>=2.
+            assert values['/navigation/planner_bridge/execution/initial_plan_timeout']==12.
+            assert values['/fast_planner_node/fsm/server_hold_replan_enabled']
+            assert values['/fast_planner_node/progress/enabled']
+            assert values['/traj_server/progress/enabled']
+            assert values['/traj_server/traj_server/require_goal_identity']
+            if s['mode']=='high_view':assert values['/navigation/mission_manager/high_view_probe/config/staging_xy']==[.6,.05]
             assert not any(n.package in ('gazebo_ros','actuator_pwm') for n in cfg.nodes)
             assert 'trial_recorder' in nodes and 'target_detector_rknn' in nodes
             assert ('patrol_control' in nodes)==(enabled=='true')

@@ -60,6 +60,7 @@ bool progress_enabled = false;
 bool require_goal_identity = false;
 ros::Time active_goal_stamp;
 std::string active_goal_frame;
+uint32_t active_goal_seq = 0;
 ros::Time progress_stamp;
 std::string progress_reason;
 
@@ -307,6 +308,7 @@ void goalCallback(const geometry_msgs::PoseStamped msg)
   }
   active_goal_stamp = msg.header.stamp;
   active_goal_frame = msg.header.frame_id;
+  active_goal_seq = msg.header.seq;
   goal_pos_ << msg.pose.position.x, msg.pose.position.y, msg.pose.position.z;
   // 计算终端速度，模长为 0.1，方向为收到的 yaw 角方向
   yaw_goal = tf::getYaw(msg.pose.orientation);
@@ -360,6 +362,7 @@ void cmdCallback(const ros::TimerEvent& e) {
       progress_reason=reason;progress_stamp=now;
       plan_manage::TrajectoryProgress m;
       m.header.stamp=now;m.header.frame_id=odom.header.frame_id;m.source=m.SERVER;
+      m.goal_seq=active_goal_seq;
       m.traj_id=traj_id_;m.traj_start=start_time_;m.projection_t=execution_time_;
       m.lookahead_t=best_t;m.duration=traj_duration_;m.target_dist=target_dist;
       auto point=[](const Eigen::Vector3d& v) { geometry_msgs::Point p; p.x=v.x();p.y=v.y();p.z=v.z();return p; };

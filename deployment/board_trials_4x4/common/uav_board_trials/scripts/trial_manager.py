@@ -31,6 +31,7 @@ class BoardManager(base.NavigationMissionManager):
         route=CoverageRoute(points,'board-trial-search',1)
         if self.mode!='high_view':return SingleDeliveryRuntime(ordinary.core,route)
         cfg=dict(rospy.get_param('~high_view_probe/config'));cfg['survey_xy']=tuple(tuple(v) for v in cfg['survey_xy'])
+        if cfg.get('staging_xy'):cfg['staging_xy']=tuple(cfg['staging_xy'])
         runtime=FullCircleRuntime(ordinary.core,ProbeConfig(**cfg),SurveyPolicy(**dict(rospy.get_param('~high_view_full/policy'))),
             fallback_route=None,boundary_policy=BoundaryRevisit(**dict(rospy.get_param('~high_view_full/boundary_policy'))))
         runtime.grid=OpenTourGrid(**dict(rospy.get_param('~high_view_full/grid')));return runtime
