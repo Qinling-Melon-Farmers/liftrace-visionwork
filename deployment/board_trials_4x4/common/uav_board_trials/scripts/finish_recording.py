@@ -9,8 +9,8 @@ if (out/'vision_events.jsonl').exists():
 supervisor=json.loads((out/'supervisor_result.json').read_text()) if (out/'supervisor_result.json').exists() else {}
 mission=latest.get('mission',{});high=latest.get('high',{});trial=supervisor.get('trial');committed=mission.get('committed_slots',0);expected=1 if trial=='visual_interrupt' else high.get('trial_memory_count',0)
 landed=supervisor.get('end_reason')=='landed_after_flight'
-success=(landed and ((trial=='landing' and mission.get('phase')=='COMPLETE') or (trial!='landing' and 1<=expected<=3 and committed==expected and latest.get('land_handoff',{}).get('mode_sent') is True)))
-result=dict(status='PASS' if success else 'INCOMPLETE',trial=trial,expected_mock_deliveries=expected if trial!='landing' else 0,committed_mock_deliveries=committed,mock_service_calls=mock_calls,supervisor=supervisor,final_mission=mission,final_high_view=high,auto_land_handoff=latest.get('land_handoff'))
+success=(landed and ((trial in ('landing','corridor_landing') and mission.get('phase')=='COMPLETE') or (trial not in ('landing','corridor_landing') and 1<=expected<=3 and committed==expected and latest.get('land_handoff',{}).get('mode_sent') is True)))
+result=dict(status='PASS' if success else 'INCOMPLETE',trial=trial,expected_mock_deliveries=expected if trial not in ('landing','corridor_landing') else 0,committed_mock_deliveries=committed,mock_service_calls=mock_calls,supervisor=supervisor,final_mission=mission,final_high_view=high,auto_land_handoff=latest.get('land_handoff'))
 (out/'result.json').write_text(json.dumps(result,indent=2))
 for name in ('camera_raw','camera_annotated'):
     source=out/(name+'.mp4');target=out/(name+'_h264.mp4')

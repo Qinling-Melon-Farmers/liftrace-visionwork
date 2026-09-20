@@ -1,0 +1,12 @@
+mode: landing
+trial_kind: corridor_landing
+# Measured coordinates in the fixed takeoff frame. Intentionally empty.
+corridor_waypoints: []
+landing_xy: null
+low_agl: 1.4
+high_agl: 2.6
+drop_agl: 0.6
+landing_transit_agl: 1.4
+landing_capture_agl: 1.8
+cruise_speed: 0.5
+cruise_acceleration: 0.35

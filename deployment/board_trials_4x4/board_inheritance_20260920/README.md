@@ -1,5 +1,7 @@
 # 板端4×4差异继承与三套部署
 
+[TF影响与虚拟顶棚说明](TF_AND_CEILING.md) · [新增走廊导航＋H降落专项](../04_corridor_landing/README.md)。第四套的走廊点/H位置留空，必须测量后填写。
+
 2026-09-20通过SSH读取192.168.3.126。板端主目录为`/home/orangepi/liftrace_r64_onboard_405bda42`，另有`newfly/`和`newfly_push/`副本；后两者仅少数配置/显示构建文件与主目录不同。与本机`r2026-board-frame-fix`的d55da83逐文件比对，完整差异保存在[board_vs_laptop_4x4.diff](board_vs_laptop_4x4.diff)。来源目录没有可直接当作干净已提交版本使用的状态，不擅自提交或覆盖其现场修改。
 
 ## 已确认及继承

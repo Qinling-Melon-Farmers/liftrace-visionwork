@@ -7,10 +7,16 @@ import numpy as np,yaml,rospy,rosnode,tf2_ros
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import CameraInfo,Image
 from mavros_msgs.msg import State,ExtendedState
-from trial_config import generate
+from trial_config import generate,validate_settings
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('trial',choices=['visual_interrupt','high_view','landing']);p.add_argument('mode',choices=['preview','flight']);p.add_argument('--root',type=Path,required=True);p.add_argument('--model',type=Path);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('trial',choices=['visual_interrupt','high_view','landing','corridor_landing']);p.add_argument('mode',choices=['preview','flight']);p.add_argument('--root',type=Path,required=True);p.add_argument('--model',type=Path);p.add_argument('--check-config',action='store_true');a=p.parse_args()
+    folder={'visual_interrupt':'01_visual_interrupt','high_view':'02_high_view_revisit','landing':'03_h_landing','corridor_landing':'04_corridor_landing'}[a.trial]
+    base=a.root/'deployment/board_trials_4x4';settings=yaml.safe_load((base/folder/'settings.yaml').read_text());rig=yaml.safe_load((base/'common/uav_board_trials/config/known_rig.yaml').read_text())
+    try:validate_settings(settings)
+    except ValueError as error:p.error(str(error))
+    if a.check_config:
+        print('CONFIG_VALID; no ROS nodes started');return
     rospy.init_node('board_trial_supervisor',disable_signals=True)
     if rospy.get_param('/use_sim_time',False):raise RuntimeError('Board trials refuse /use_sim_time=true; do not run against laptop SITL')
     existing=set(rosnode.get_node_names())
@@ -19,8 +25,6 @@ def main():
     if '/mavros' not in existing:raise RuntimeError('Start device MAVROS and driver2 first')
     model=a.model or Path(os.environ.get('UAV_VISION_RKNN_MODEL_PATH',str(a.root/'runtime_models/merged_standard_fp32.rknn')))
     if not model.is_file():raise RuntimeError('RKNN model not found; set UAV_VISION_RKNN_MODEL_PATH once or use --model')
-    folder={'visual_interrupt':'01_visual_interrupt','high_view':'02_high_view_revisit','landing':'03_h_landing'}[a.trial]
-    base=a.root/'deployment/board_trials_4x4';settings=yaml.safe_load((base/folder/'settings.yaml').read_text());rig=yaml.safe_load((base/'common/uav_board_trials/config/known_rig.yaml').read_text())
     out=a.root/'logs'/('board_'+a.trial+'_'+time.strftime('%Y%m%d_%H%M%S'));out.mkdir(parents=True,exist_ok=False)
     if shutil.disk_usage(out).free<2*1024**3:raise RuntimeError('Less than 2GB recording space available')
     lock=threading.RLock();samples=deque(maxlen=400);state=[None];camera=[None];extended=[None];ever_armed=[False];image_ref=[None];end_reason='interrupted_or_error'
@@ -62,7 +66,7 @@ def main():
         if reference is None:raise RuntimeError('No stationary disarmed camera_init reference. Inspect map<->camera_init conversion, initial heading and camera; no manual Z guess was applied')
         subs[-1].unregister()
         (out/'camera_info.json').write_text(json.dumps(dict(width=c.width,height=c.height,K=list(c.K),D=list(c.D),frame=c.header.frame_id),indent=2))
-        args=['enable_control_output:='+str(a.mode=='flight').lower(),f'mode:={a.trial}',f'model_path:={model}',f'generated_dir:={out}',f'ground_z:={reference["ground_z"]}',f'low_z:={reference["low_z"]}']
+        args=['enable_control_output:='+str(a.mode=='flight').lower(),f'mode:={settings["mode"]}',f'model_path:={model}',f'generated_dir:={out}',f'ground_z:={reference["ground_z"]}',f'low_z:={reference["low_z"]}']
         args+=['cruise_speed:='+str(settings['cruise_speed']),'cruise_acceleration:='+str(settings['cruise_acceleration'])]
         args+=['image_topic:='+settings.get('image_topic','/camera/image_raw'),'camera_info_topic:='+settings.get('camera_info_topic','/camera/camera_info')]
         app=launch('application',args)

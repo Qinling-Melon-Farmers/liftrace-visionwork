@@ -2,7 +2,31 @@
 from pathlib import Path
 import math,copy,json,yaml
 
+def validate_settings(settings):
+    if settings.get('trial_kind') != 'corridor_landing':
+        return
+    points=settings.get('corridor_waypoints')
+    if not isinstance(points,list) or len(points)<2:
+        raise ValueError('Fill corridor_waypoints with at least two measured waypoints; no default route is permitted')
+    landing=settings.get('landing_xy')
+    if not isinstance(landing,list) or len(landing)!=2:
+        raise ValueError('Fill landing_xy with the measured H center')
+    def finite(value):
+        return not isinstance(value,bool) and isinstance(value,(int,float)) and math.isfinite(value)
+    def check_xy(x,y):
+        if not finite(x) or not finite(y) or not .35<=x<=3.4 or not -1.4<=y<=1.4:
+            raise ValueError('Waypoint/H outside configured 4x4 center bounds: X [.35,3.4], Y [-1.4,1.4]')
+    check_xy(*landing)
+    for point in points:
+        if not isinstance(point,dict) or set(point)-{'x','y','agl'} or 'x' not in point or 'y' not in point:
+            raise ValueError('Each corridor waypoint requires x/y and optional agl')
+        check_xy(point['x'],point['y'])
+        height=point.get('agl',settings['low_agl'])
+        if not finite(height) or not .5<=height<=1.8:
+            raise ValueError('Corridor waypoint agl must be within [0.5,1.8] m')
+
 def generate(root,out,settings,fc_xyz,rig):
+    validate_settings(settings)
     root=Path(root);out=Path(out);out.mkdir(parents=True,exist_ok=True)
     x,y,z=map(float,fc_xyz);ground=z-float(rig['fc_ground_clearance']);mode=settings['mode']
     if not all(math.isfinite(v) for v in (x,y,z,ground)) or abs(x)>.3 or abs(y)>.3 or abs(z)>.3:raise ValueError('Unexpected camera_init origin; inspect localization before flight')
@@ -20,6 +44,12 @@ def generate(root,out,settings,fc_xyz,rig):
     if mode=='landing':
         hx,hy=settings['landing_xy'];transit=ground+settings['landing_transit_agl']
         m.update(landing_xy=[x+hx,y+hy],return_altitude=capture,post_delivery_route=[point(max(.6,hx-.7),hy,transit),point(hx,hy,transit),point(hx,hy,capture)])
+    if settings.get('trial_kind')=='corridor_landing':
+        hx,hy=settings['landing_xy']
+        route=[point(w['x'],w['y'],ground+float(w.get('agl',settings['low_agl']))) for w in settings['corridor_waypoints']]
+        for final in [point(hx,hy,ground+settings['landing_transit_agl']),point(hx,hy,capture)]:
+            if any(abs(a-b)>1e-6 for a,b in zip(route[-1],final)):route.append(final)
+        m.update(post_delivery_route=route,post_delivery_route_revision='board-corridor-landing',landing_xy=[x+hx,y+hy])
     bounds=[x-.35,x+3.4,y-1.4,y+1.4]
     runtime['high_view_probe']=dict(config=dict(ground_z=ground,high_agl=settings['high_agl'],low_agl=settings['low_agl'],survey_xy=[point(a,b,0)[:2] for a,b in [(1,-1.0),(3,-1.0),(3,1.0),(1,1.0),(1,-1.0)]],source_key='board-inherited-camera-static-start'),camera_info_topic=settings.get('camera_info_topic','/camera/camera_info'))
     runtime['high_view_probe']['low_stage_parameters']=[dict(name=key,value=value) for key,value in {'/external_planner_max_command_z':ground+1.85,'/fast_planner_node/sdf_map/virtual_ceil_height':ground+2.,'/fast_planner_node/sdf_map/horizontal_avoidance/tracking_margin':0.,'/fast_planner_node/fsm/goal_adjustment_radius':.15}.items()]

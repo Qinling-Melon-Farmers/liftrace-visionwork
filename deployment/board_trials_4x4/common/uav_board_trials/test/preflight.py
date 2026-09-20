@@ -7,8 +7,12 @@ from unittest.mock import patch
 R=Path(__file__).resolve().parents[5];P=R/'deployment/board_trials_4x4/common/uav_board_trials'
 roslaunch.substitution_args._rospack=rospkg.RosPack(ros_paths=[str(R/'vision_ws/src'),str(R/'patrol_uav_ws-patrol_planner/src'),'/opt/ros/noetic/share'])
 rows=[]
-for folder in ('01_visual_interrupt','02_high_view_revisit','03_h_landing'):
+for folder in ('01_visual_interrupt','02_high_view_revisit','03_h_landing','04_corridor_landing'):
     s=yaml.safe_load((R/'deployment/board_trials_4x4'/folder/'settings.yaml').read_text());rig=yaml.safe_load((P/'config/known_rig.yaml').read_text())
+    if folder=='04_corridor_landing':
+        # Test fixture only; the shipped settings file remains empty.
+        s['corridor_waypoints']=[dict(x=.6,y=0),dict(x=1.5,y=.4)]
+        s['landing_xy']=[2.5,0]
     with tempfile.TemporaryDirectory() as tmp:
         ref=generate(R,tmp,s,(0.,0.,-.05),rig)
         for enabled in ('false','true'):
@@ -48,7 +52,7 @@ for folder in ('01_visual_interrupt','02_high_view_revisit','03_h_landing'):
                 return default
             manager=BoardManager.__new__(BoardManager);manager.mode=s['mode'];manager._profile_name='r2026';manager._profile_path=str(R/'patrol_uav_ws-patrol_planner/src/uav_mission/config/competition_profiles.yaml')
             with patch('rospy.get_param',side_effect=get_param):actual=manager._new_runtime()
-            rows.append(dict(trial=s['mode'],control_output=enabled,nodes=len(nodes),runtime=type(actual).__name__,passed=True))
+            rows.append(dict(folder=folder,trial=s['mode'],control_output=enabled,nodes=len(nodes),runtime=type(actual).__name__,passed=True))
         for enabled in ('false','true'):
             cfg=roslaunch.config.load_config_default([(str(P/'launch/localization.launch'),[f'enable_control_output:={enabled}'])],11311,verbose=False)
             params={k:v.value for k,v in cfg.params.items()};assert params['/navigation_frame_adapter/mission_frame']=='camera_init';assert params['/navigation_frame_adapter/local_frame']=='map';assert params['/navigation_frame_adapter/enable_setpoints']==(enabled=='true')

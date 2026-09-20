@@ -1,3 +1,13 @@
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.377s
+
+OK
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.120s
+
+OK
 [
   {
     "folder": "01_visual_interrupt",
@@ -64,3 +74,8 @@
     "passed": true
   }
 ]
+usage: run_trial.py [-h] --root ROOT [--model MODEL] [--check-config]
+                    {visual_interrupt,high_view,landing,corridor_landing}
+                    {preview,flight}
+run_trial.py: error: Fill corridor_waypoints with at least two measured waypoints; no default route is permitted
+EMPTY_CORRIDOR_REJECTED_BEFORE_ROS_INIT
