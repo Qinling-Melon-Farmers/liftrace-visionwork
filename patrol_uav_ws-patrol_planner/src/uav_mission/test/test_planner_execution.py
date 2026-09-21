@@ -635,6 +635,16 @@ class InitialSearchTimeoutTest(unittest.TestCase):
             self.assertEqual(out.events[0].reason, "initial_plan_timeout")
             self.assertEqual(out.events[0].decision_seq, d.decision_seq)
 
+    def test_replayed_decision_cannot_bypass_initial_timeout(self):
+        ex = PlannerMotionExecutor(PlannerMotionConfig(initial_plan_timeout_ns=20*NSEC))
+        d = decision(command="RETURN_HOME", deadline=BASE+90*NSEC)
+        ex.submit_decision(d, BASE)
+        ex.apply_planner_status(status(1, 8, "ACCEPTED", BASE+1), BASE+1)
+        out = ex.submit_decision(d, BASE+20*NSEC)
+        self.assertEqual(out.events[0].reason, "initial_plan_timeout")
+        self.assertEqual(out.handoff, "CANCEL_REQUIRED")
+        self.assertFalse(ex.submit_decision(d, BASE+21*NSEC).events)
+
     def test_generic_timeout_and_legacy_option_must_agree(self):
         with self.assertRaises(ValueError):
             PlannerMotionConfig(initial_plan_timeout_ns=10*NSEC,
