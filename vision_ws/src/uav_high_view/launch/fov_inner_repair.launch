@@ -27,6 +27,10 @@
   </include>
   <rosparam file="$(arg scene_dir)/frame_overrides.yaml" />
   <rosparam file="$(arg scene_dir)/repair_overrides.yaml" />
+  <!-- Share the existing body/field geometry with visual admission. The
+       tracking reserve stays inside this hard center fence; no new FSM. -->
+  <param name="/fast_planner_node/sdf_map/search_region/boundary_policy_param"
+         value="/navigation/mission_manager/high_view_full/boundary_policy" />
   <!-- Host startup is not competition time. Keep the accepted default while
        allowing cold-cache regression runs to raise only this wall watchdog. -->
   <param name="/navigation_vcl06_assertion/startup_wall_timeout"
