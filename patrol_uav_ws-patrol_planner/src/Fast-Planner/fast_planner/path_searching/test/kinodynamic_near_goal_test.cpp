@@ -21,6 +21,10 @@ class KinodynamicSearchFixture : public ::testing::Test {
     p.resolution_=0.05; p.resolution_inv_=20;
     p.map_voxel_num_=Eigen::Vector3i(80,80,40);
     p.virtual_ceil_height_=-1.0;
+    // This fixture bypasses initMap(), so initialize its artificial-region
+    // policy explicitly instead of reading an indeterminate bool/bounds.
+    p.search_region_enabled_=false;
+    p.search_region_bounds_=Eigen::Vector4d(-1.5,1.5,-1.5,1.5);
     map->md_.occupancy_buffer_inflate_.assign(80*80*40,0);
     fast_planner::EDTEnvironment::Ptr env(new fast_planner::EDTEnvironment);
     env->sdf_map_=map;
@@ -56,6 +60,7 @@ class KinodynamicSearchFixture : public ::testing::Test {
     ASSERT_LT((points.back()-Eigen::Vector3d(0.15,0,1)).norm(),0.01);
   }
   void setBudget(double seconds) { search.max_search_time_=seconds; }
+  void enableSearchRegion() { map->mp_.search_region_enabled_=true; }
   void setHorizon(double metres) { search.horizon_=metres; }
   void setDirectShotDistance(double metres) { search.direct_shot_distance_=metres; }
   void occupy(const Eigen::Vector3d& p) {
@@ -159,6 +164,19 @@ TEST_F(KinodynamicSearchFixture, OccupiedStartIsExplicitInDiagnostics) {
   EXPECT_EQ(search.getLastDiagnostics().start_occupancy,1);
   EXPECT_GT(search.getLastDiagnostics().rejected_collision,0u);
 }
+TEST_F(KinodynamicSearchFixture, ClearVoxelsOutsideSearchRegionAreNotFree) {
+  const Eigen::Vector3d start(0,-1.6,1), goal(0,0,1);
+  ASSERT_EQ(0,map->getInflateOccupancy(start));
+  enableSearchRegion();
+  ASSERT_EQ(1,map->getInflateOccupancy(start));
+  ASSERT_EQ(0,map->getInflateOccupancy(goal));
+  search.reset();
+  EXPECT_EQ(fast_planner::KinodynamicAstar::NO_PATH,
+      search.search(start,Eigen::Vector3d::Zero(),Eigen::Vector3d::Zero(),
+                    goal,Eigen::Vector3d::Zero(),true));
+  EXPECT_EQ(search.getLastDiagnostics().start_occupancy,1);
+}
+
 TEST_F(KinodynamicSearchFixture, FrozenR54FineMapApproachAndDoor) {
   const char* filename=std::getenv("LIFTRACE_FROZEN_CLOUD");
   if (!filename) { std::cout << "External R54 cloud not supplied; fixture not exercised." << std::endl; return; }
