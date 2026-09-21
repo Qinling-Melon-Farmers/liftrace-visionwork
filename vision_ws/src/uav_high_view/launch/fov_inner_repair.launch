@@ -6,6 +6,8 @@
   <arg name="field_seed" default="2672" />
   <arg name="presentation_recording" default="true" />
   <arg name="gate_startup_wall_timeout" default="180.0" />
+  <arg name="field_model_states_timeout" default="90.0" />
+  <arg name="detector_device" default="0" />
   <arg name="runtime_config" default="$(eval arg('scene_dir') + ('/fast_runtime.yaml' if arg('corridor_fast') else '/baseline_runtime.yaml'))" />
   <arg name="gate_config" default="$(eval arg('scene_dir') + ('/fast_gate.yaml' if arg('corridor_fast') else '/baseline_gate.yaml'))" />
   <include file="$(find uav_high_view)/launch/fast_comparison.launch">
@@ -29,4 +31,7 @@
        allowing cold-cache regression runs to raise only this wall watchdog. -->
   <param name="/navigation_vcl06_assertion/startup_wall_timeout"
          value="$(arg gate_startup_wall_timeout)" />
+  <param name="/random_field_spawner/spawn/initial_model_states_timeout"
+         value="$(arg field_model_states_timeout)" />
+  <param name="/target_detector/device" value="$(arg detector_device)" />
 </launch>

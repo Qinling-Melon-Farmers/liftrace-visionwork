@@ -615,6 +615,9 @@ class PlannerMotionExecutor:
                 accept_expired = self._expire_acceptance_if_due(int(now_ns))
                 if accept_expired is not None:
                     return accept_expired
+                initial_expired = self._expire_initial_plan_if_due(int(now_ns))
+                if initial_expired is not None:
+                    return initial_expired
                 return self._outcome(True, "decision_idempotent")
             return self._fail_closed("decision_sequence_conflict")
 

@@ -30,7 +30,7 @@ class ServerHoldMonitor {
                  uint32_t message_goal_seq, int message_traj_id,
                  uint64_t message_traj_start_ns, bool tracking_hold) {
     if (!std::isfinite(now) || !std::isfinite(stamp) || now < stamp ||
-        now - stamp > max_age || expected_goal_seq == 0 ||
+        now - stamp > max_age || expected_traj_start_ns == 0 ||
         message_goal_seq != expected_goal_seq ||
         message_traj_id != expected_traj_id ||
         message_traj_start_ns != expected_traj_start_ns) {

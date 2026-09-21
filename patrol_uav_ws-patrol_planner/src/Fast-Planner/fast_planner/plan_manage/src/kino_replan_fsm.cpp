@@ -262,8 +262,8 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
   std::string progress_reason = motion ? "tracking" : "motion_or_inputs_inactive";
   bool recovery_handled = false;
   if (server_hold_replan_pending_) {
-    server_hold_replan_pending_ = false;
     if (server_hold_replan_enabled_ && motion && exec_state_ == EXEC_TRAJ) {
+      server_hold_replan_pending_ = false;
       const auto status = motion_watchdog_.requestRecovery(now.toSec());
       recovery_handled = true;
       if (status == MotionWatchdog::REPLAN) {
@@ -501,6 +501,7 @@ bool KinoReplanFSM::callKinodynamicReplan() {
   if (plan_success) {
 
     goal_has_trajectory_ = true;
+    server_hold_replan_pending_ = false;
     planner_manager_->planYaw(start_yaw_);
 
     auto info = &planner_manager_->local_data_;

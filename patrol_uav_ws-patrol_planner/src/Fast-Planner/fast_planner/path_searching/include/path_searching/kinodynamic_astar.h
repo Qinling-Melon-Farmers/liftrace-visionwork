@@ -42,6 +42,8 @@ class PathNode {
   /* -------------------- */
   PathNode() {
     parent = NULL;
+    time = 0.0;
+    time_idx = 0;
     node_state = NOT_EXPAND;
   }
   ~PathNode(){};
@@ -156,7 +158,7 @@ class KinodynamicAstar {
   /* map */
   double resolution_, inv_resolution_, time_resolution_, inv_time_resolution_;
   Eigen::Vector3d origin_, map_size_3d_;
-  double time_origin_;
+  double time_origin_ = 0.0;
 
   /* helper */
   Eigen::Vector3i posToIndex(Eigen::Vector3d pt);

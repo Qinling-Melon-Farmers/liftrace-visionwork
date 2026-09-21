@@ -36,6 +36,8 @@ expected = {
     "/traj_server/progress/enabled": True,
     "/traj_server/traj_server/require_goal_identity": True,
     "/navigation_vcl06_assertion/startup_wall_timeout": 180.0,
+    "/random_field_spawner/spawn/initial_model_states_timeout": 90.0,
+    "/target_detector/device": 0,
 }
 for name, value in expected.items():
     if values.get(name) != value:
