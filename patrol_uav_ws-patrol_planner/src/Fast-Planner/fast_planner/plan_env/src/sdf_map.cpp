@@ -75,6 +75,28 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
   node_.param("sdf_map/search_region/max_x", mp_.search_region_bounds_[1], 7.0);
   node_.param("sdf_map/search_region/min_y", mp_.search_region_bounds_[2], -4.4);
   node_.param("sdf_map/search_region/max_y", mp_.search_region_bounds_[3], 4.4);
+  std::string boundary_policy_param;
+  node_.param<std::string>("sdf_map/search_region/boundary_policy_param", boundary_policy_param, "");
+  if (!boundary_policy_param.empty()) {
+    std::vector<double> field;
+    bool enabled = false;
+    double side, yaw, reserve, clearance;
+    if (boundary_policy_param[0] != '/' ||
+        !node_.getParam(boundary_policy_param + "/enabled", enabled) || !enabled ||
+        !node_.getParam(boundary_policy_param + "/bounds", field) || field.size() != 4)
+      throw std::invalid_argument("missing enabled shared boundary policy");
+    node_.param(boundary_policy_param + "/guard_side_m", side, 0.55);
+    node_.param(boundary_policy_param + "/yaw_budget_deg", yaw, 10.0);
+    node_.param(boundary_policy_param + "/tracking_reserve_m", reserve, 0.03);
+    if (!node_.getParam("manager/clearance_threshold", clearance) ||
+        !std::isfinite(clearance) || clearance < 0.0 ||
+        !std::isfinite(reserve) || reserve > 0.1 || reserve <= clearance)
+      throw std::invalid_argument("shared boundary reserve must exceed planner clearance");
+    mp_.search_region_bounds_ = fast_planner::envelopeSearchBounds(
+        Eigen::Vector4d(field[0], field[1], field[2], field[3]), side, yaw);
+    ROS_INFO_STREAM("Fixed search center bounds from " << boundary_policy_param
+                    << ": " << mp_.search_region_bounds_.transpose());
+  }
   if (!mp_.search_region_bounds_.allFinite() || mp_.search_region_bounds_[0] >= mp_.search_region_bounds_[1] || mp_.search_region_bounds_[2] >= mp_.search_region_bounds_[3])
     throw std::invalid_argument("invalid fixed search region");
   node_.param("sdf_map/horizontal_avoidance/tracking_margin", mp_.horizontal_tracking_margin_, 0.0);
