@@ -11,6 +11,99 @@ from test_mission_runtime import profile,candidate,result_for,release_ack
 
 
 class FullTests(unittest.TestCase):
+    def test_deferred_target_does_not_discard_other_hints_without_coarse_order(self):
+        self.to_capture();first=self.r.selected.class_name
+        self.r.grid.stamp=None
+        out=self.r.tick(self.r.wait_until+.1,self.r.selected.xy)
+        self.assertEqual(self.r.stage,'REVISIT')
+        self.assertNotEqual(self.r.selected.class_name,first)
+        self.assertEqual(out.action.command,'SEARCH')
+        self.assertFalse(out.action.has_target)
+        self.assertEqual(self.r.orders[-1]['scope'],'COARSE_ORDER_UNAVAILABLE_REQUIRES_3D_PLANNER')
+        self.assertEqual(self.r.core.committed_slots,0)
+
+    def test_timeout_delivers_other_hints_before_retrying_deferred_target(self):
+        self.to_capture();deferred=self.r.selected.class_name
+        now=self.r.wait_until+.1;self.map(now)
+        out=self.r.tick(now,self.r.selected.xy)
+        self.assertEqual(self.r.stage,'REVISIT')
+        self.assertNotEqual(self.r.selected.class_name,deferred)
+        self.assertIsNone(self.r.fallback_started)
+        self.finish(now+1);now+=2
+        delivered=[]
+        for slot in range(1,4):
+            h=self.r.selected;delivered.append(h.class_name)
+            self.r.update_pose((*h.xy,1.18),now,'camera_init')
+            self.r.ingest([candidate(target_id=h.key.target_id,class_name=h.class_name,now=now,x=h.xy[0],y=h.xy[1])],now)
+            action=self.r.tick(now+.1,h.xy).action
+            self.assertEqual(action.payload_slot,slot)
+            self.seq+=1
+            self.r.apply_result(replace(release_ack(action,self.seq),event_stamp_ns=int((now+1)*1e9)),now+1,h.xy)
+            self.seq+=1;self.map(now+2)
+            out=self.r.apply_result(replace(result_for(action,self.seq,status='SUCCEEDED',stage='RECOVERY',terminal=True),event_stamp_ns=int((now+2)*1e9)),now+2,h.xy)
+            if slot<3:self.finish(now+5);now+=10
+        self.assertEqual(delivered[-1],deferred)
+        self.assertEqual(len(set(delivered)),3)
+        self.assertEqual(self.r.revisit_counts[deferred],2)
+        self.assertIsNone(self.r.fallback_started)
+        self.assertEqual(out.action.command,'RETURN_HOME')
+        self.assertEqual(self.r.core.started_at,100.)
+
+    def test_all_reacquisition_failures_are_bounded_before_coverage(self):
+        self.to_capture();seen=[]
+        for i in range(6):
+            seen.append(self.r.selected.class_name)
+            now=self.r.wait_until+.1;self.map(now)
+            out=self.r.tick(now,self.r.selected.xy)
+            if i<5:
+                self.assertEqual(self.r.stage,'REVISIT')
+                self.finish(now+1)
+        self.assertEqual(len(set(seen[:3])),3)
+        self.assertEqual(self.r.revisit_counts,dict.fromkeys(self.r.required,2))
+        self.assertEqual(self.r.stage,'LOW_COVERAGE')
+        self.assertEqual(self.r.core.committed_slots,0)
+        self.assertEqual(self.r.core.started_at,100.)
+        self.assertLessEqual(out.action.deadline_at,700.)
+
+    def test_unreachable_revisit_uses_other_known_hint(self):
+        self.to_capture();now=self.r.wait_until+.1;self.map(now)
+        self.r.tick(now,self.r.selected.xy)
+        failed_class=self.r.selected.class_name;action=self.r.core.active_action
+        self.seq+=1;self.map(now+1)
+        out=self.r.apply_result(replace(result_for(action,self.seq,status='FAILED',terminal=True),event_stamp_ns=int((now+1)*1e9)),now+1,self.r._current_xy)
+        self.assertEqual(out.action.command,'SEARCH')
+        self.assertNotEqual(self.r.selected.class_name,failed_class)
+        self.assertIsNone(self.r.fallback_started)
+
+    def test_coverage_rechecks_queued_candidate_boundary_before_reserving(self):
+        from uav_mission.boundary_revisit import BoundaryRevisit
+        self.finish(103.);active=self.r.core.active_action
+        self.r.route.interrupt(active.decision_seq);self.r.core.active_action=None
+        self.r.top_hints={};self.r._next_target(104.)
+        self.r.ingest([candidate(target_id=5,class_name='red_cross',now=105.,x=4.6,y=3.)],105.)
+        self.r.boundary_policy=BoundaryRevisit(enabled=True)
+        out=self.r.tick(105.1,(0.,1.))
+        self.assertIsNone(out.action)
+        self.assertEqual(self.r.core.active_action.command,'SEARCH')
+        self.assertTrue(all(s.candidate_key is None for s in self.r.core.slots))
+        self.assertGreater(self.r.boundary_rejections,0)
+        self.r.ingest([candidate(target_id=5,class_name='red_cross',now=106.,x=4.4,y=3.)],106.)
+        out=self.r.tick(106.1,(0.,1.))
+        self.assertEqual(out.action.command,'APPROACH')
+        self.assertEqual(out.action.target_class,'red_cross')
+        self.assertEqual(out.action.payload_slot,1)
+
+    def test_coverage_rejection_does_not_starve_an_allowed_target(self):
+        from uav_mission.boundary_revisit import BoundaryRevisit
+        self.finish(103.);active=self.r.core.active_action
+        self.r.route.interrupt(active.decision_seq);self.r.core.active_action=None
+        self.r.top_hints={};self.r._next_target(104.)
+        self.r.boundary_policy=BoundaryRevisit(enabled=True)
+        self.r.ingest([candidate(target_id=5,class_name='red_cross',now=105.,x=4.6,y=3.),candidate(target_id=6,class_name='bridge',now=105.,x=1.,y=1.)],105.)
+        out=self.r.tick(105.1,(0.,1.))
+        self.assertEqual(out.action.target_class,'bridge')
+        self.assertEqual(out.action.payload_slot,1)
+
     def test_boundary_hint_changes_viewpoint_not_target_identity(self):
         from uav_mission.boundary_revisit import BoundaryRevisit
         self.to_capture()

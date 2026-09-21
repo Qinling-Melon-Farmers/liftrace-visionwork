@@ -579,6 +579,9 @@ class MissionCore:
         self.profile = profile
         self.config = config or MissionConfig()
         self.queue = CandidateQueue(profile, self.config)
+        # Optional mission geometry admission, shared by every choose() path.
+        # Evaluate before reserving a payload slot, including queued candidates.
+        self.approach_admission = None
         self.phase = MissionPhase.INIT
         self.mission_id = ""
         self.started_at = 0.0
@@ -802,6 +805,9 @@ class MissionCore:
 
     def _candidate_fits(self, entry: CandidateEntry, now: float,
                         current_xy: Tuple[float, float]) -> bool:
+        if (self.approach_admission is not None and
+                not self.approach_admission(entry.snapshot)):
+            return False
         elapsed = self._elapsed(now)
         if not self.config.early_return_enabled:
             return elapsed < self.config.mission_timeout

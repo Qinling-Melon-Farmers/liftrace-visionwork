@@ -1,0 +1,52 @@
+[
+  {
+    "seed": 31,
+    "corridor_xy_matches": true,
+    "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_31/runtime.yaml"
+  },
+  {
+    "seed": 32,
+    "corridor_xy_matches": true,
+    "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_32/runtime.yaml"
+  },
+  {
+    "seed": 33,
+    "corridor_xy_matches": true,
+    "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_33/runtime.yaml"
+  },
+  {
+    "seed": 34,
+    "corridor_xy_matches": true,
+    "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_34/runtime.yaml"
+  },
+  {
+    "seed": 35,
+    "corridor_xy_matches": true,
+    "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_five_20260915/seed_35/runtime.yaml"
+  },
+  {
+    "seed": 36,
+    "corridor_xy_matches": true,
+    "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_36/runtime.yaml"
+  },
+  {
+    "seed": 37,
+    "corridor_xy_matches": true,
+    "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_37/runtime.yaml"
+  },
+  {
+    "seed": 38,
+    "corridor_xy_matches": true,
+    "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_38/runtime.yaml"
+  },
+  {
+    "seed": 39,
+    "corridor_xy_matches": true,
+    "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_39/runtime.yaml"
+  },
+  {
+    "seed": 40,
+    "corridor_xy_matches": true,
+    "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_40/runtime.yaml"
+  }
+]

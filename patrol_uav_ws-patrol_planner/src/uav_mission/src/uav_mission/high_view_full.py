@@ -21,6 +21,7 @@ class HighViewFull(HighViewProbe):
         self.boundary_policy=boundary_policy or BoundaryRevisit()
         self.revisit_viewpoints={}
         self.boundary_rejections=0
+        self.core.approach_admission=self._approach_allowed
         # Fixed targets are navigation knowledge for this mission; last_seen
         # remains untouched and never substitutes for fresh release evidence.
         self.catalog=Catalog(self.policy.catalog_config(core.config.mission_frame,core.config.mission_timeout),core.profile.weights)
@@ -44,6 +45,19 @@ class HighViewFull(HighViewProbe):
         if self.stage=='SURVEY':
             return replace(self.core.config,min_streak=self.policy.candidate_min_streak)
         return self.core.config
+
+    def _approach_allowed(self,candidate):
+        allowed=(not self.boundary_policy.enabled or
+                 self.boundary_policy.admissible((candidate.x,candidate.y)))
+        if not allowed:self.boundary_rejections+=1
+        return allowed
+
+    def _defer_selected(self,now,reason):
+        self.events.append(dict(stage='TARGET_DEFERRED',time=now,reason=reason,
+                                target=self.selected.class_name,
+                                visits=self.revisit_counts.get(self.selected.class_name,0)))
+        self.reacquired=None;self.fresh_candidate=None
+        return self._next_target(now)
 
     def start(self,mission_id,now,current_xy):
         result=super().start(mission_id,now,current_xy)
@@ -87,11 +101,10 @@ class HighViewFull(HighViewProbe):
         return self._outcome(True,'full_motion_pending')
 
     def _finish_route(self,action,succeeded,now):
-        if self.stage=='REVISIT' and self.conflict_active and not succeeded:
+        if self.stage=='REVISIT' and not succeeded:
             outcome,failed=MissionRuntime._finish_route(self,action,succeeded,now)
             if failed is not None:return outcome,failed
-            self.events.append(dict(stage='CONFLICT_LOCATION_UNREACHABLE',time=now,xy=self.selected.xy))
-            return outcome,self._start_fallback(now,'conflict_location_unreachable')
+            return outcome,self._defer_selected(now,'revisit_unreachable')
         if self.stage=='LOW_COVERAGE':return MissionRuntime._finish_route(self,action,succeeded,now)
         if self.stage=='SURVEY' and self.ascent_verified:
             outcome,failed=MissionRuntime._finish_route(self,action,succeeded,now)
@@ -159,9 +172,15 @@ class HighViewFull(HighViewProbe):
         self.conflict_active=False
         remaining={c:h for c,h in self.top_hints.items() if c not in self.core.queue.delivered_classes}
         if not remaining:return self._start_fallback(now,'known_hints_exhausted')
+        remaining={c:h for c,h in remaining.items() if self.revisit_counts.get(c,0)<2}
+        if not remaining:return self._start_fallback(now,'revisit_budget_exhausted')
         self.revisit_viewpoints={c:self.boundary_policy.viewpoint(h.xy,h.uncertainty_m) for c,h in remaining.items()}
         remaining={c:h for c,h in remaining.items() if self.revisit_viewpoints[c] is not None}
         if not remaining:return self._start_fallback(now,'no_admissible_revisit_viewpoint')
+        # Complete a first pass over valid hints before retrying a deferred one.
+        # The existing two-visits-per-class limit remains the only revisit budget.
+        least_visits=min(self.revisit_counts.get(c,0) for c in remaining)
+        remaining={c:h for c,h in remaining.items() if self.revisit_counts.get(c,0)==least_visits}
         points={c:self.revisit_viewpoints[c] for c in remaining}
         exit_goal=self.core.config.post_delivery_route[0]
         if len(remaining)==1:
@@ -176,16 +195,19 @@ class HighViewFull(HighViewProbe):
                 distances=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
                 reachable=[(distances.get(self.grid.cell(points[c]),math.inf),c) for c,h in remaining.items()]
                 reachable=[item for item in reachable if math.isfinite(item[0])]
-                if not reachable:return self._start_fallback(now,'hint_route_unavailable')
-                cost,name=min(reachable);names=(name,)
-                scope='ONE_REACHABLE_HINT_FULL_TOUR_UNAVAILABLE_REQUIRES_3D_PLANNER'
+                if reachable:
+                    cost,name=min(reachable);names=(name,)
+                    scope='ONE_REACHABLE_HINT_FULL_TOUR_UNAVAILABLE_REQUIRES_3D_PLANNER'
+                else:
+                    cost=None
+                    names=(min(remaining,key=lambda c:(math.dist(self._current_xy,points[c]),c)),)
+                    scope='COARSE_ORDER_UNAVAILABLE_REQUIRES_3D_PLANNER'
             else:
                 cost,names=order
                 scope='COARSE_OCCUPANCY_COST_NOT_FLIGHT_APPROVAL'
         self.orders.append(dict(time=now,classes=list(names),grid_length_m=cost,map_stamp=self.grid.stamp,scope=scope))
         self.selected=remaining[names[0]]
         cls=self.selected.class_name;self.revisit_counts[cls]=self.revisit_counts.get(cls,0)+1
-        if self.revisit_counts[cls]>2:return self._start_fallback(now,'revisit_budget_exhausted')
         self.reacquired=None;self.fresh_candidate=None
         view=self.revisit_viewpoints[cls]
         self.events.append(dict(stage='REVISIT_VIEWPOINT',time=now,xy=view,hint_xy=self.selected.xy,
@@ -269,10 +291,9 @@ class HighViewFull(HighViewProbe):
                 now,failed=self._operation_time(now)
                 if failed is not None:return failed
                 self._set_current_xy(current_xy)
-                if now>=self.wait_until:return self._start_fallback(now,'reacquisition_timeout')
+                if now>=self.wait_until:return self._defer_selected(now,'reacquisition_timeout')
                 if self.reacquired is None or self.fresh_candidate is None:return self._outcome(True,'waiting_for_fresh_delivery_candidate')
-                if self.boundary_policy.enabled and not self.boundary_policy.admissible((self.fresh_candidate.x,self.fresh_candidate.y)):
-                    self.boundary_rejections+=1
+                if not self._approach_allowed(self.fresh_candidate):
                     self.reacquired=None;self.fresh_candidate=None
                     return self._outcome(True,'fresh_target_outside_boundary_approach_region')
                 validation=self.core.ingest([self.fresh_candidate],now)

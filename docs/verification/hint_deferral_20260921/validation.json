@@ -1,0 +1,9 @@
+{
+  "integrated_mission_tests": 340,
+  "board_trial_tests": 8,
+  "targeted_tests_in_integrated_suite": 28,
+  "new_targeted_cases": 6,
+  "source_copies_equal": true,
+  "simulation_run": false,
+  "hardware_actions": false
+}
