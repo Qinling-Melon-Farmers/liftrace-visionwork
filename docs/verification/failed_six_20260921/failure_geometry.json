@@ -1,0 +1,124 @@
+{
+  "contacts": [
+    {
+      "seed": 38,
+      "contact_s": 444.506,
+      "boundary_rejections": 0,
+      "contact": {
+        "details": [
+          {
+            "info": "guard_xy_m=0.550000",
+            "max_depth_m": 2.412969470344528e-07,
+            "normals": [
+              [
+                0.0,
+                1.0,
+                0.0
+              ]
+            ],
+            "pair": [
+              "iris_mid360::iris::base_link::competition_guard_collision",
+              "toudi2::Wall_11::Wall_11_collision"
+            ],
+            "positions": [
+              [
+                4.769933391313225,
+                -4.800000241296947,
+                1.188114027401788
+              ]
+            ],
+            "total_force_norm_n": 0.0
+          }
+        ],
+        "pairs": [
+          [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "toudi2::Wall_11::Wall_11_collision"
+          ]
+        ],
+        "ros_stamp": 444.506,
+        "sequence": 1,
+        "wall_time": 1789979091.7662442
+      }
+    },
+    {
+      "seed": 40,
+      "contact_s": 153.635,
+      "boundary_rejections": 149,
+      "contact": {
+        "details": [
+          {
+            "info": "guard_xy_m=0.550000",
+            "max_depth_m": 1.949508086851459e-06,
+            "normals": [
+              [
+                0.0,
+                1.0,
+                0.0
+              ]
+            ],
+            "pair": [
+              "iris_mid360::iris::base_link::competition_guard_collision",
+              "toudi2::Wall_11::Wall_11_collision"
+            ],
+            "positions": [
+              [
+                0.6465822866082092,
+                -4.800001949508086,
+                1.1975786508561697
+              ]
+            ],
+            "total_force_norm_n": 0.06027601800617877
+          }
+        ],
+        "pairs": [
+          [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "toudi2::Wall_11::Wall_11_collision"
+          ]
+        ],
+        "ros_stamp": 153.635,
+        "sequence": 1,
+        "wall_time": 1789979659.7705526
+      }
+    }
+  ],
+  "seed34_snapshots": [
+    {
+      "snapshot": "local_map_failure_1.json",
+      "t": 18.074,
+      "pose": [
+        0.5305342788702924,
+        0.046987819477694086,
+        2.466286122192256
+      ],
+      "nearest_inflated_point_m": null,
+      "current_area_outside_goal_crop": true,
+      "scope": "point-centre distance, not exact SDF; inflated cloud header stamp is zero"
+    },
+    {
+      "snapshot": "local_map_failure_2.json",
+      "t": 31.739,
+      "pose": [
+        1.0455915198288328,
+        3.106968210358614,
+        2.486826230308592
+      ],
+      "nearest_inflated_point_m": 0.029816423115600905,
+      "current_area_outside_goal_crop": false,
+      "scope": "point-centre distance, not exact SDF; inflated cloud header stamp is zero"
+    },
+    {
+      "snapshot": "local_map_failure_3.json",
+      "t": 33.32,
+      "pose": [
+        0.9862207735421719,
+        2.841264367755672,
+        2.4799816594160937
+      ],
+      "nearest_inflated_point_m": null,
+      "current_area_outside_goal_crop": true,
+      "scope": "point-centre distance, not exact SDF; inflated cloud header stamp is zero"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "seed": 31,
+    "label": "rerun",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/failedsix_seed31_20260921_151434",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_31/field.world",
+    "source": "57c1003ac3a91568e1bdb38e90570ac8634824f3"
+  },
+  {
+    "seed": 32,
+    "label": "rerun",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/failedsix_seed32_20260921_153029",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_32/field.world",
+    "source": "57c1003ac3a91568e1bdb38e90570ac8634824f3"
+  },
+  {
+    "seed": 34,
+    "label": "rerun",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/failedsix_seed34_20260921_154427",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_34/field.world",
+    "source": "57c1003ac3a91568e1bdb38e90570ac8634824f3"
+  },
+  {
+    "seed": 37,
+    "label": "rerun",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/failedsix_seed37_20260921_155049",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_37/field.world",
+    "source": "57c1003ac3a91568e1bdb38e90570ac8634824f3"
+  },
+  {
+    "seed": 38,
+    "label": "rerun",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/failedsix_seed38_20260921_160134",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_38/field.world",
+    "source": "57c1003ac3a91568e1bdb38e90570ac8634824f3"
+  },
+  {
+    "seed": 40,
+    "label": "rerun",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/failedsix_seed40_20260921_162515",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_40/field.world",
+    "source": "57c1003ac3a91568e1bdb38e90570ac8634824f3"
+  }
+]

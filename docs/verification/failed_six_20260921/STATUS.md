@@ -9,3 +9,7 @@
 - 任务FAIL保留并读取原因后运行下一个布局；启动/收尾故障停止批次，不无分析重试。
 - 每轮统一sim_run.sh独占/空间预检/收尾；宿主F盘启动前约64GiB可用。
 - 状态文件：logs/failed_six_20260921_batch/matrix.json。统一报告待全部结束后出具。
+
+## 已完成
+
+六轮均已完成并正常收尾。31/32/37 PASS，34 manager_failed，38/40 actual_collision（55cm鲁棒包络接触Wall_11）。已完成配对分析、六段校时视频解码检查及图表检查。入口：[统一报告](REPORT.md)、[图表视频](index.html)、[首因诊断](DIAGNOSIS.md)、[补充问题](FOLLOWUP.md)。

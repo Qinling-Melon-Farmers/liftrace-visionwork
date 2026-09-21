@@ -1,0 +1,82 @@
+SEED 34 low_limits False ascent_verified True
+local_map_failure_1.json keys ['goal', 'ros_sec', 'clouds'] t 18.074 goal [1.0, 3.5, 2.38] clouds [('static_map', 1952, 18.095), ('inflated_map', 159288, 0.0)]
+local_map_failure_2.json keys ['goal', 'ros_sec', 'clouds'] t 31.739 goal [0.9999999999999999, 2.9, 2.38] clouds [('static_map', 927, 31.739), ('inflated_map', 140588, 0.0)]
+local_map_failure_3.json keys ['goal', 'ros_sec', 'clouds'] t 33.32 goal [1.0, -3.5, 2.38] clouds [('static_map', 2946, 33.32), ('inflated_map', 92672, 0.0)]
+PLAN 11.506 1 0 goal_received {'x': 0.6, 'y': 0.05, 'z': 1.18} {'x': 0.6, 'y': 0.05, 'z': 1.18}
+PLAN 12.119 1 1 new_trajectory_attempt {'x': 0.6, 'y': 0.05, 'z': 1.18} {'x': 0.6, 'y': 0.05, 'z': 1.18}
+PLAN 12.122 1 2 new_trajectory_ready {'x': 0.6, 'y': 0.05, 'z': 1.18} {'x': 0.6, 'y': 0.05, 'z': 1.18}
+PLAN 14.53 1 4 goal_reached_after_local_trajectory {'x': 0.6, 'y': 0.05, 'z': 1.18} {'x': 0.6, 'y': 0.05, 'z': 1.18}
+PLAN 15.263 2 0 goal_received {'x': 0.6, 'y': 0.05, 'z': 2.38} {'x': 0.6, 'y': 0.05, 'z': 2.38}
+PLAN 15.458 2 1 new_trajectory_attempt {'x': 0.6, 'y': 0.05, 'z': 2.38} {'x': 0.6, 'y': 0.05, 'z': 2.38}
+PLAN 15.461 2 2 new_trajectory_ready {'x': 0.6, 'y': 0.05, 'z': 2.38} {'x': 0.6, 'y': 0.05, 'z': 2.38}
+PLAN 17.785 2 4 goal_reached_after_local_trajectory {'x': 0.6, 'y': 0.05, 'z': 2.38} {'x': 0.6, 'y': 0.05, 'z': 2.38}
+PLAN 17.893 3 0 goal_received {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 18.074 3 1 new_trajectory_attempt {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 18.074 3 5 new_trajectory_attempt_failed {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 18.911 3 1 new_trajectory_retry {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 18.913 3 5 new_trajectory_attempt_failed {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 19.877 3 1 new_trajectory_retry {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 19.877 3 5 new_trajectory_attempt_failed {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 20.917 3 1 new_trajectory_retry {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 20.917 3 5 new_trajectory_attempt_failed {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 21.889 3 1 new_trajectory_retry {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 21.889 3 5 new_trajectory_attempt_failed {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 22.677 3 1 new_trajectory_retry {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 22.677 3 5 new_trajectory_attempt_failed {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 23.427 3 1 new_trajectory_retry {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 23.427 3 5 new_trajectory_attempt_failed {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 24.222 3 1 new_trajectory_retry {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 24.222 3 5 new_trajectory_attempt_failed {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 25.016 3 1 new_trajectory_retry {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 25.016 3 5 new_trajectory_attempt_failed {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 25.807 3 1 new_trajectory_retry {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 25.807 3 5 new_trajectory_attempt_failed {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 26.09 3 6 superseded_by_new_goal {'x': 1.0, 'y': 3.5, 'z': 2.38} {'x': 1.0, 'y': 3.5, 'z': 2.38}
+PLAN 26.091 4 0 goal_received {'x': 0.9999999999999999, 'y': 2.9, 'z': 2.38} {'x': 0.9999999999999999, 'y': 2.9, 'z': 2.38}
+PLAN 26.329 4 1 new_trajectory_attempt {'x': 0.9999999999999999, 'y': 2.9, 'z': 2.38} {'x': 1.0499999999999998, 'y': 2.85, 'z': 2.38}
+PLAN 26.348 4 2 new_trajectory_ready {'x': 0.9999999999999999, 'y': 2.9, 'z': 2.38} {'x': 1.0499999999999998, 'y': 2.85, 'z': 2.38}
+PLAN 31.739 4 3 trajectory_replan_attempt {'x': 0.9999999999999999, 'y': 2.9, 'z': 2.38} {'x': 1.0499999999999998, 'y': 2.85, 'z': 2.38}
+PLAN 31.739 4 5 trajectory_replan_attempt_failed {'x': 0.9999999999999999, 'y': 2.9, 'z': 2.38} {'x': 1.0499999999999998, 'y': 2.85, 'z': 2.38}
+PLAN 32.535 4 1 new_trajectory_retry {'x': 0.9999999999999999, 'y': 2.9, 'z': 2.38} {'x': 1.0499999999999998, 'y': 2.85, 'z': 2.38}
+PLAN 32.535 4 5 new_trajectory_attempt_failed {'x': 0.9999999999999999, 'y': 2.9, 'z': 2.38} {'x': 1.0499999999999998, 'y': 2.85, 'z': 2.38}
+PLAN 33.133 4 6 superseded_by_new_goal {'x': 0.9999999999999999, 'y': 2.9, 'z': 2.38} {'x': 1.0499999999999998, 'y': 2.85, 'z': 2.38}
+PLAN 33.134 5 0 goal_received {'x': 1.0, 'y': -3.5, 'z': 2.38} {'x': 1.0, 'y': -3.5, 'z': 2.38}
+PLAN 33.32 5 1 new_trajectory_attempt {'x': 1.0, 'y': -3.5, 'z': 2.38} {'x': 1.0, 'y': -3.5, 'z': 2.38}
+PLAN 33.32 5 5 new_trajectory_attempt_failed {'x': 1.0, 'y': -3.5, 'z': 2.38} {'x': 1.0, 'y': -3.5, 'z': 2.38}
+PLAN 34.138 5 1 new_trajectory_retry {'x': 1.0, 'y': -3.5, 'z': 2.38} {'x': 1.0, 'y': -3.5, 'z': 2.38}
+PLAN 34.138 5 5 new_trajectory_attempt_failed {'x': 1.0, 'y': -3.5, 'z': 2.38} {'x': 1.0, 'y': -3.5, 'z': 2.38}
+PLAN 34.968 5 1 new_trajectory_retry {'x': 1.0, 'y': -3.5, 'z': 2.38} {'x': 1.0, 'y': -3.5, 'z': 2.38}
+PLAN 34.968 5 5 new_trajectory_attempt_failed {'x': 1.0, 'y': -3.5, 'z': 2.38} {'x': 1.0, 'y': -3.5, 'z': 2.38}
+PLAN 35.829 5 1 new_trajectory_retry {'x': 1.0, 'y': -3.5, 'z': 2.38} {'x': 1.0, 'y': -3.5, 'z': 2.38}
+PLAN 35.829 5 5 new_trajectory_attempt_failed {'x': 1.0, 'y': -3.5, 'z': 2.38} {'x': 1.0, 'y': -3.5, 'z': 2.38}
+SEED 38 low_limits True ascent_verified True
+local_map_failure_1.json keys ['goal', 'ros_sec', 'clouds'] t 34.765 goal [5.5, -3.5, 2.38] clouds [('static_map', 2185, 34.856), ('inflated_map', 88888, 0.0)]
+local_map_failure_2.json keys ['goal', 'ros_sec', 'clouds'] t 42.876 goal [5.075735931288071, -3.0757359312880714, 2.38] clouds [('static_map', 31, 42.876), ('inflated_map', 82860, 0.0)]
+local_map_failure_3.json keys ['goal', 'ros_sec', 'clouds'] t 131.077 goal [7.0, 0.6000000000000005, 1.18] clouds [('static_map', 1413, 131.081), ('inflated_map', 114265, 0.0)]
+NEAR 423.988 result 0 motion_arrival_confirmed  None None
+NEAR 424.013 decision 0 high_view_full:LOW_COVERAGE  None None
+NEAR 428.79 result 0 motion_arrival_confirmed  None None
+NEAR 428.795 decision 0 high_view_full:LOW_COVERAGE  None None
+NEAR 435.751 decision 1 high_weight_search_interrupt red_cross None None
+truth_pose.csv 443.506 ['443.488', '4.4947924576831095', '-4.500629186369158', '0.956720116076839']
+truth_pose.csv 444.506 ['444.508', '4.495520644878813', '-4.524413561755256', '0.7894470121647263']
+lio_pose.csv 443.506 ['443.487', '4.48346895089587', '-4.486410942942425', '0.979739496253368']
+lio_pose.csv 444.506 ['444.484', '4.484874473377412', '-4.5099331136857925', '0.8162207400610373']
+mavros_pose.csv 443.506 ['443.481', '4.479128837585449', '-4.477938175201416', '0.9121972918510437']
+mavros_pose.csv 444.506 ['444.483', '4.485533237457275', '-4.488893508911133', '0.7734865546226501']
+mavros_setpoint.csv 443.506 ['443.467', '4.473122651309336', '-4.473513416659725', '0.71662767925881']
+mavros_setpoint.csv 444.506 ['444.471', '4.476684070659164', '-4.4798513561922935', '0.5772226373634194']
+SEED 40 low_limits True ascent_verified True
+local_map_failure_1.json keys ['goal', 'ros_sec', 'clouds'] t 144.07 goal [0.0, -4.3, 1.18] clouds [('static_map', 2724, 144.07), ('inflated_map', 120282, 0.0)]
+NEAR 131.344 decision 0 high_view_full:LOW_COVERAGE  None None
+NEAR 131.416 decision 1 high_weight_search_interrupt red_cross None None
+NEAR 143.72 result 1 release_recovery_confirmed red_cross None None
+NEAR 143.742 decision 3 high_view_full:LOW_COVERAGE  None None
+truth_pose.csv 152.635 ['152.615', '0.9113394773963278', '-4.5114487384832636', '1.2068206549838885']
+truth_pose.csv 153.635 ['153.63', '0.9187939775623308', '-4.522984031579779', '1.1985160644093866']
+lio_pose.csv 152.635 ['152.667', '0.9062975670661626', '-4.500674101020188', '1.2054169610387535']
+lio_pose.csv 153.635 ['153.682', '0.9123285471685226', '-4.511513088179335', '1.1973730704274863']
+mavros_pose.csv 152.635 ['152.678', '0.900974452495575', '-4.489662170410156', '1.1702516078948975']
+mavros_pose.csv 153.635 ['153.64', '0.9159979224205017', '-4.501040458679199', '1.1708534955978394']
+mavros_setpoint.csv 152.635 ['152.601', '0.8957291841506958', '-4.482425212860107', '1.1019656658172607']
+mavros_setpoint.csv 153.635 ['153.647', '0.8957291841506958', '-4.482425212860107', '1.1019656658172607']

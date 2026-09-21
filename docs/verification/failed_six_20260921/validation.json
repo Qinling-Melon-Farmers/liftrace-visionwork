@@ -1,0 +1,64 @@
+{
+  "six_complete": true,
+  "source_consistent": true,
+  "actual_targets_matched": true,
+  "all_videos_decoded": true,
+  "all_overlay_heads_match": true,
+  "png_count": 57,
+  "release_accuracy": {
+    "old": {
+      "n": 11,
+      "median_cm": 6.767349614659839,
+      "p95_cm": 12.108357824643452,
+      "max_cm": 13.328402242177836
+    },
+    "rerun": {
+      "n": 12,
+      "median_cm": 8.149517474877428,
+      "p95_cm": 13.027872313807498,
+      "max_cm": 15.430907496155113
+    }
+  },
+  "body_projection": [
+    {
+      "seed": 31,
+      "overlap_samples": 0,
+      "min_gap_m": 0.38772841974378136
+    },
+    {
+      "seed": 32,
+      "overlap_samples": 0,
+      "min_gap_m": 0.33492653736621225
+    },
+    {
+      "seed": 34,
+      "overlap_samples": 38,
+      "min_gap_m": -0.14427924392510727
+    },
+    {
+      "seed": 37,
+      "overlap_samples": 0,
+      "min_gap_m": 0.13119137695766958
+    },
+    {
+      "seed": 38,
+      "overlap_samples": 1,
+      "min_gap_m": -0.0030548667238479155
+    },
+    {
+      "seed": 40,
+      "overlap_samples": 0,
+      "min_gap_m": 0.1669882704746667
+    }
+  ],
+  "broken_markdown_links": [],
+  "corrected_38_40_videos_decoded": true,
+  "python_syntax_pass": true,
+  "visual_review": [
+    "paired_paths.png",
+    "stages.png",
+    "seed34_map_snapshots.png",
+    "wall11_contact_timeline.png",
+    "38_rerun/video_end.png"
+  ]
+}

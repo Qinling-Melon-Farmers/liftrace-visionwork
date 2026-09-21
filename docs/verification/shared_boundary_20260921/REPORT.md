@@ -63,3 +63,5 @@ SERVER是TrajectoryProgress消息的来源标记，生产者为原有traj_server
 ![本轮完整航迹、高度及速度](flight.png)
 
 这次结果支持共享边界修正解决了seed32已复现的人工边界交接冲突；真实机载外参、实机障碍停滞和其他历史seed仍需分别验收，不由此替代。
+
+后续历史失败六seed矩阵已完成：严格Gate为3/6 PASS；共享边界并未覆盖低空补搜所有入口和恢复交接。见[六轮统一报告](../failed_six_20260921/REPORT.md)、[首因诊断](../failed_six_20260921/DIAGNOSIS.md)。单轮seed32通过不能替代这份完整复测结果。

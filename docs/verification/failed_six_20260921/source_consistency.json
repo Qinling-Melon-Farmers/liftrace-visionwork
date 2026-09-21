@@ -1,0 +1,50 @@
+[
+  {
+    "seed": 31,
+    "git_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "uav_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "vision_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "uav_package": "/home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/src/uav_mission",
+    "vision_package": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision"
+  },
+  {
+    "seed": 32,
+    "git_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "uav_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "vision_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "uav_package": "/home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/src/uav_mission",
+    "vision_package": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision"
+  },
+  {
+    "seed": 34,
+    "git_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "uav_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "vision_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "uav_package": "/home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/src/uav_mission",
+    "vision_package": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision"
+  },
+  {
+    "seed": 37,
+    "git_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "uav_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "vision_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "uav_package": "/home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/src/uav_mission",
+    "vision_package": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision"
+  },
+  {
+    "seed": 38,
+    "git_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "uav_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "vision_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "uav_package": "/home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/src/uav_mission",
+    "vision_package": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision"
+  },
+  {
+    "seed": 40,
+    "git_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "uav_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "vision_head": "57c1003ac3a91568e1bdb38e90570ac8634824f3",
+    "uav_package": "/home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/src/uav_mission",
+    "vision_package": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision"
+  }
+]
