@@ -2,7 +2,7 @@
 
 ## 远端与板端同步
 
-用户提问时，fetch后确认导航分支领先远端3个提交、研究分支7个、板端分支5个，确实尚未推送今天的提交。随后已将导航`5556f3d`推到fork/feat/high-view-liveness-20260919，将板端`1558ae0`推到origin/feat/board-deployment-flight-20260920。研究报告在收尾后随现有feat/high-view-search-research推送；最终状态另以回复和upstream核对为准。
+用户提问时，fetch后确认导航分支领先远端3个提交、研究分支7个、板端分支5个，确实尚未推送今天的提交。随后已将导航`5556f3d`推到fork/feat/high-view-liveness-20260919，将板端`1558ae0`推到origin/feat/board-deployment-flight-20260920。研究报告提交9e851f0也已推到origin/feat/high-view-search-research。三条分支推送后均已核对无ahead/behind，工作区干净。
 
 板端分支本地已包含必要导航修正、测试修正及可选共享边界实现；研究专用fov入口才显式启用共享边界，未把研究配置直接替换板端试飞配置。没有重新部署/编译香橙派，也没有根据相机截图擅改板端外参。main和正赛部署不变。
 
