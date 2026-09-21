@@ -90,7 +90,9 @@ fi
 # prepend PROJECT_ROOT copies here: doing so silently mixes an old root tree
 # into a feature-worktree run even after the matching devel spaces are sourced.
 export ROS_PACKAGE_PATH="${VISION_SOURCE_ROOT}:${UAV_SOURCE_ROOT}:/opt/ros/noetic/share:${PX4_ROOT}:${PX4_GAZEBO}${ROS_PACKAGE_PATH:+:${ROS_PACKAGE_PATH}}"
-export GAZEBO_MODEL_PATH="${PX4_GAZEBO}/models${GAZEBO_MODEL_PATH:+:${GAZEBO_MODEL_PATH}}"
+# Nested model:// references in the selected vehicle SDF must resolve from the
+# same vision overlay, not from an unrelated checkout or the online database.
+export GAZEBO_MODEL_PATH="${VISION_SOURCE_ROOT}/uav_vision_eval/models:${PX4_GAZEBO}/models${GAZEBO_MODEL_PATH:+:${GAZEBO_MODEL_PATH}}"
 export GAZEBO_PLUGIN_PATH="${VISION_WS}/devel/lib:${ASTRA_LIB}:${PX4_BUILD}${GAZEBO_PLUGIN_PATH:+:${GAZEBO_PLUGIN_PATH}}"
 export LD_LIBRARY_PATH="${ASTRA_LIB}:${PX4_BUILD}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
