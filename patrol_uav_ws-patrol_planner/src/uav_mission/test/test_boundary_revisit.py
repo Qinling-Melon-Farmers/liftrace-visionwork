@@ -28,4 +28,15 @@ class BoundaryTests(unittest.TestCase):
         self.assertEqual(p.viewpoint((0.,3.),.4),(0.,3.))
         self.assertFalse(p.near((0.,3.)))
 
+    def test_near_wall_target_has_separate_legal_aircraft_center(self):
+        p=BoundaryRevisit(enabled=True)
+        target=(4.52,1.)
+        self.assertFalse(p.admissible(target))
+        center=p.approach_center(target)
+        self.assertTrue(p.admissible(center))
+        self.assertAlmostEqual(center[0],4.8-p.margin)
+        self.assertLessEqual(target[0]-center[0],.15)
+        self.assertIsNone(p.approach_center((4.7,1.)))
+        self.assertIsNone(p.approach_center((4.81,1.)))
+
 if __name__=='__main__':unittest.main()

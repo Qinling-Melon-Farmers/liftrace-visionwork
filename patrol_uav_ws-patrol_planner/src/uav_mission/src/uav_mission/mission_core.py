@@ -582,6 +582,9 @@ class MissionCore:
         # Optional mission geometry admission, shared by every choose() path.
         # Evaluate before reserving a payload slot, including queued candidates.
         self.approach_admission = None
+        # A runtime may switch to lower-weight classes after a confirmed
+        # unreachable high-weight target, without changing the rule profile.
+        self.interrupt_class_override = None
         self.phase = MissionPhase.INIT
         self.mission_id = ""
         self.started_at = 0.0
@@ -833,7 +836,9 @@ class MissionCore:
             return self._return_action("forced_return_deadline", now)
 
         interrupt = self.queue.ranked(
-            now, current_xy, self.profile.interrupt_classes)
+            now, current_xy,
+            self.profile.interrupt_classes if self.interrupt_class_override is None
+            else self.interrupt_class_override)
         fallback = self.queue.ranked(now, current_xy)
         interrupt_entry = next(
             (item for item in interrupt

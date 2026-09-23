@@ -7,7 +7,6 @@
  */
 #include "patrol_control/patrol_control.h"
 #include "patrol_control/Servo.h"
-#include "patrol_control/near_wall_align.h"
 #include <tf/transform_listener.h>
 #include "tf2_ros/transform_broadcaster.h"
 #include <Eigen/Core>
@@ -80,39 +79,6 @@ bool loadSlotOffsets(ros::NodeHandle& nh, const std::string& param_name,
         }
     }
     return true;
-}
-
-NearWallAlignFence loadNearWallAlignFence(ros::NodeHandle& nh) {
-    NearWallAlignFence fence;
-    const std::string root =
-        "/navigation/mission_manager/high_view_full/boundary_policy/";
-    nh.param(root + "enabled", fence.enabled, false);
-    if (!fence.enabled) return fence;
-    XmlRpc::XmlRpcValue bounds;
-    if (!nh.getParam(root + "bounds", bounds) ||
-        bounds.getType() != XmlRpc::XmlRpcValue::TypeArray ||
-        bounds.size() != 4) {
-        fence.valid = false;
-        return fence;
-    }
-    for (int i = 0; i < 4; ++i) {
-        if (!readNumber(bounds[i], &fence.bounds[i])) fence.valid = false;
-    }
-    nh.param(root + "guard_side_m", fence.side_m, 0.55);
-    nh.param(root + "tracking_reserve_m", fence.tracking_reserve_m, 0.03);
-    fence.valid = fence.valid && fence.wellFormed();
-    return fence;
-}
-
-bool nearWallAlignReleaseAllowed(ros::NodeHandle& nh,
-                                 const geometry_msgs::PoseStamped& pose) {
-    const auto fence = loadNearWallAlignFence(nh);
-    if (!fence.enabled) return true;
-    const auto& p = pose.pose.position;
-    const double yaw = tf::getYaw(pose.pose.orientation);
-    if (fence.contains(p.x, p.y, yaw)) return true;
-    ROS_WARN_THROTTLE(1.0, "[NearWallAlign] release withheld: body center outside legal area");
-    return false;
 }
 
 }  // namespace
@@ -1413,29 +1379,6 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     mavros_point_cmd.pose.orientation.z = sin(interpolated_yaw / 2.0);
     mavros_point_cmd.pose.orientation.w = cos(interpolated_yaw / 2.0);
 
-    // The target center can lie closer to a wall than the legal aircraft
-    // center.  Keep the final, post-interpolation ALIGN setpoint inside the
-    // shared research boundary; visual evidence remains a separate gate.
-    if (external_mission_mode_ && Drone_mode == Aligning) {
-        const auto fence = loadNearWallAlignFence(nh_);
-        if (fence.enabled) {
-            if (!fence.wellFormed()) {
-                mavros_point_cmd = uav_pose;
-                ROS_ERROR_THROTTLE(1.0, "[NearWallAlign] invalid boundary; holding pose");
-            } else {
-                const auto safe = fence.clamp(mavros_point_cmd.pose.position.x,
-                                               mavros_point_cmd.pose.position.y,
-                                               current_yaw, interpolated_yaw);
-                if (std::hypot(mavros_point_cmd.pose.position.x-safe.first,
-                               mavros_point_cmd.pose.position.y-safe.second) > 1e-4) {
-                    ROS_WARN_THROTTLE(1.0, "[NearWallAlign] clamped center to legal area");
-                }
-                mavros_point_cmd.pose.position.x = safe.first;
-                mavros_point_cmd.pose.position.y = safe.second;
-            }
-        }
-    }
-
     mavros_point_cmd.header.stamp = ros::Time::now();
     mavros_point_cmd.header.frame_id = "camera_init";
     mavros_point_cmd_pub.publish(mavros_point_cmd);
@@ -2353,8 +2296,6 @@ bool LLController::WayPointDetectDone()
             should_drop = dropReleaseReady(
                 external_mission_mode_, legacy_geometry_ready,
                 require_vision_release_permission_, release_gate);
-            if (external_mission_mode_ &&
-                !nearWallAlignReleaseAllowed(nh_, uav_pose)) should_drop = false;
             if (!drop_complete && !should_drop) {
                 ROS_WARN_THROTTLE(
                     1.0,
@@ -3231,8 +3172,6 @@ bool LLController::CrossDetectionDone() {
             should_drop = dropReleaseReady(
                 external_mission_mode_, legacy_geometry_ready,
                 require_vision_release_permission_, release_gate);
-            if (external_mission_mode_ &&
-                !nearWallAlignReleaseAllowed(nh_, uav_pose)) should_drop = false;
             if (!drop_complete && !should_drop) {
                 ROS_WARN_THROTTLE(
                     1.0,

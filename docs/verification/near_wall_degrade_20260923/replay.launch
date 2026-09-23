@@ -1,0 +1,17 @@
+<launch>
+  <arg name="scene_dir" />
+  <arg name="field_seed" />
+  <arg name="target_model_path" />
+  <include file="$(find uav_high_view)/launch/fov_inner_repair.launch">
+    <arg name="scene_dir" value="$(arg scene_dir)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="corridor_fast" value="true" />
+    <arg name="high_agl" value="2.6" />
+    <arg name="presentation_recording" value="true" />
+    <arg name="gate_startup_wall_timeout" value="600" />
+    <arg name="field_model_states_timeout" value="600" />
+  </include>
+  <!-- Host throughput is not competition time; mission ROS limit stays 600s. -->
+  <param name="/navigation_vcl06_assertion/wall_timeout" value="6000.0" />
+</launch>

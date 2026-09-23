@@ -34,6 +34,20 @@ class BoundaryRevisit:
     def admissible(self, xy):
         return all(math.isfinite(v) for v in xy) and self.clearance(xy)>=self.margin
 
+    def approach_center(self, xy, max_offset_m=.15):
+        """Keep the aircraft center legal even if a fresh target estimate is not.
+
+        The returned point is a flight goal, never a replacement target center
+        or release permission.  Visual alignment must still confirm the mark.
+        """
+        if not all(math.isfinite(v) for v in xy):return None
+        if not self.enabled:return tuple(xy)
+        x,y=xy;a,b,c,d=self.bounds
+        if not a<=x<=b or not c<=y<=d:return None
+        center=(min(b-self.margin,max(a+self.margin,x)),
+                min(d-self.margin,max(c+self.margin,y)))
+        return center if math.dist(center,xy)<=max_offset_m else None
+
     def viewpoint(self, xy, uncertainty):
         if not all(math.isfinite(v) for v in (*xy,uncertainty)) or not 0<=uncertainty<=.5:
             return None

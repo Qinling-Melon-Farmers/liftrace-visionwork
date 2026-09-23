@@ -122,6 +122,8 @@ class SemanticTargetPose:
 class TargetTransaction:
     decision: MotionDecision
     phase: str = "APPROACHING"
+    near_wall_bounded: bool = False
+    capture_started_ns: int = 0
     target_pose: object = None
     align_mode: str = ""
     strict_evidence_stamp_ns: int = 0
@@ -729,6 +731,7 @@ class NavigationPlannerBridge:
         if transaction is None or transaction.phase != "APPROACHING":
             raise RuntimeError("APPROACH handoff has no active transaction")
         transaction.phase = "CAPTURE"
+        transaction.capture_started_ns = now_ns
         self._try_begin_alignment(now_ns)
 
     def _try_begin_alignment(self, now_ns):
@@ -993,6 +996,23 @@ class NavigationPlannerBridge:
     def _expire_handoff_if_due(self, now_ns):
         transaction = self._transaction
         snapshot = self._executor.snapshot()
+        if (transaction is not None and transaction.near_wall_bounded and
+                transaction.capture_started_ns > 0 and
+                transaction.phase in ("CAPTURE", "ALIGN_COMMAND_SENT", "ALIGNMENT") and
+                transaction.strict_evidence_stamp_ns == 0 and
+                snapshot.active_handed_off and
+                snapshot.active_decision_seq == transaction.decision.decision_seq and
+                now_ns >= min(transaction.capture_started_ns + 40_000_000_000,
+                              transaction.decision.deadline_ns - 5_000_000_000) and
+                now_ns < transaction.decision.deadline_ns):
+            stage = ("CAPTURE" if transaction.phase == "CAPTURE"
+                     else "ALIGNMENT")
+            self._report_target_stage(
+                "FAILED", stage, now_ns, terminal=True, retryable=False,
+                reason="near_wall_visual_alignment_unreachable")
+            transaction.phase = "EXPIRED"
+            self._publish_alignment_context(False, now_ns)
+            return
         if (transaction is not None and
                 snapshot.active_handed_off and
                 snapshot.active_decision_seq ==
@@ -1091,6 +1111,9 @@ class NavigationPlannerBridge:
                 )
                 if outcome.accepted:
                     self._start_decision_handoff(decision, outcome, now_ns)
+                    if self._transaction is not None and decision.command == "APPROACH":
+                        self._transaction.near_wall_bounded = (
+                            message.reason == "near_wall_bounded_approach")
                 self._publish_status(force=True)
             except Exception as error:  # pylint: disable=broad-except
                 self._handle_callback_exception("decision", error)

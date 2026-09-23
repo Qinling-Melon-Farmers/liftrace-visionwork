@@ -8,7 +8,7 @@ from uav_high_view.local_descent import propose,propose_column
 from uav_high_view.survey_policy import SurveyPolicy
 from .high_view_probe import HighViewProbe
 from .mission_runtime import MissionRuntime
-from .mission_core import MissionPhase
+from .mission_core import GoalSnapshot,MissionPhase
 from .search_types import Waypoint
 from .coverage_route import CoverageRoute
 from .boundary_revisit import BoundaryRevisit
@@ -32,7 +32,7 @@ class HighViewFull(HighViewProbe):
         self.completed_reacquisitions=[]
         self.descent_proposal=None
         self.first_hint_ready={}
-        self.memory=NavigationMemory(self.required,int(core.config.mission_timeout*1e9),config.association_radius)
+        self.memory=NavigationMemory(core.profile.weights,int(core.config.mission_timeout*1e9),config.association_radius)
         self.fallback_route=fallback_route
         self._progress=None;self._alternative=False
         self._survey_original=None;self.skipped_survey_xy=[]
@@ -42,6 +42,9 @@ class HighViewFull(HighViewProbe):
         self.conflict_active=False
         self.conflict_check_started=None
         self.local_wall_verify_used=False;self.local_wall_verify_started=None
+        self.local_wall_target=None
+        self.unreachable_classes=set()
+        self.degraded_from=None
 
     def _candidate_validation_config(self):
         if self.stage=='SURVEY':
@@ -49,10 +52,29 @@ class HighViewFull(HighViewProbe):
         return self.core.config
 
     def _approach_allowed(self,candidate):
+        xy=(candidate.x,candidate.y)
         allowed=(not self.boundary_policy.enabled or
-                 self.boundary_policy.admissible((candidate.x,candidate.y)))
+                 self.boundary_policy.admissible(xy))
+        if candidate.class_name in self.unreachable_classes:allowed=False
+        elif (not allowed and self.stage in ('REACQUIRE','LOCAL_WALL_VERIFY') and
+              self.selected is not None and candidate.class_name==self.selected.class_name and
+              math.dist(xy,self.selected.xy)<=max(.65,self.selected.uncertainty_m+.25)):
+            allowed=self.boundary_policy.approach_center(xy) is not None
         if not allowed:self.boundary_rejections+=1
         return allowed
+
+    def _bounded_approach(self,action,now):
+        if action is None or action.command!='APPROACH':return action
+        xy=(action.target_snapshot.x,action.target_snapshot.y)
+        center=self.boundary_policy.approach_center(xy)
+        if center is None:raise RuntimeError('admitted_target_has_no_safe_approach_center')
+        if math.dist(center,xy)>1e-6:
+            action=replace(action,reason='near_wall_bounded_approach',
+                           goal=GoalSnapshot(action.goal.frame_id,*center,action.goal.z,action.goal.yaw))
+            self.core.active_action=action
+            self.events.append(dict(stage='NEAR_WALL_BOUNDED_APPROACH',time=now,
+                                    target=action.target_class,target_xy=xy,center_xy=center))
+        return action
 
     def _defer_selected(self,now,reason):
         self.events.append(dict(stage='TARGET_DEFERRED',time=now,reason=reason,
@@ -76,13 +98,19 @@ class HighViewFull(HighViewProbe):
             return self._outcome(True,result.reason,action,route_outcome)
         return result
 
-    def _all_top(self,now):
+    def _all_hints(self,now):
         ns=int(round(now*1e9))
         return self.memory.update(self.catalog.hints(ns),self.catalog.epoch,ns)
+
+    def _all_top(self,now):
+        return {c:h for c,h in self._all_hints(now).items() if c in self.required}
 
     def _consider_search_replacement(self,now):
         if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
             outcome=MissionRuntime._consider_search_replacement(self,now)
+            if outcome.action is not None and outcome.action.command=='APPROACH':
+                action=self._bounded_approach(outcome.action,now)
+                outcome=replace(outcome,action=action,snapshot=self._snapshot())
             if (self.stage=='LOCAL_WALL_VERIFY' and outcome.action is not None and
                     outcome.action.command=='APPROACH'):
                 self.stage='DELIVERY'
@@ -189,7 +217,17 @@ class HighViewFull(HighViewProbe):
 
     def _next_target(self,now):
         self.conflict_active=False
-        remaining={c:h for c,h in self.top_hints.items() if c not in self.core.queue.delivered_classes}
+        remaining={c:h for c,h in self.top_hints.items()
+                   if c not in self.core.queue.delivered_classes and c not in self.unreachable_classes}
+        if not remaining and self.degraded_from is not None:
+            remaining={c:h for c,h in self._all_hints(now).items()
+                       if c not in self.required and c not in self.core.queue.delivered_classes and
+                       c not in self.unreachable_classes}
+            if remaining:
+                best=max(self.core.profile.weight(c) for c in remaining)
+                remaining={c:h for c,h in remaining.items() if self.core.profile.weight(c)==best}
+                self.events.append(dict(stage='LOWER_WEIGHT_HINT_SELECTED',time=now,
+                                        classes=sorted(remaining),after=self.degraded_from))
         if not remaining:return self._start_fallback(now,'known_hints_exhausted')
         remaining={c:h for c,h in remaining.items() if self.revisit_counts.get(c,0)<2}
         if not remaining:return self._start_fallback(now,'revisit_budget_exhausted')
@@ -242,7 +280,7 @@ class HighViewFull(HighViewProbe):
         proposals=[]
         costs=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
         for cls,hints in self.memory.verification_hints(int(round(now*1e9))).items():
-            if cls in self.core.queue.delivered_classes:continue
+            if cls in self.core.queue.delivered_classes or cls in self.unreachable_classes:continue
             for index,h in enumerate(hints):
                 key=(cls,index)
                 if key in self.conflict_checked:continue
@@ -311,7 +349,7 @@ class HighViewFull(HighViewProbe):
         if self.local_wall_verify_used or not self.boundary_policy.enabled:
             return None
         remaining=[h for c,h in self.top_hints.items()
-                   if c not in self.core.queue.delivered_classes]
+                   if c not in self.core.queue.delivered_classes and c not in self.unreachable_classes]
         if len(remaining)!=1 or len(self.top_hints)!=len(self.required):
             return None
         hint=remaining[0]
@@ -328,6 +366,7 @@ class HighViewFull(HighViewProbe):
         if not points:return None
         points.sort(key=lambda xy:math.dist(self._current_xy,xy))
         self.local_wall_verify_used=True;self.local_wall_verify_started=now
+        self.local_wall_target=hint.class_name
         self.selected=hint
         self._change_route('LOCAL_WALL_VERIFY',[
             Waypoint(x,y,self.probe_config.ground_z+self.probe_config.low_agl)
@@ -338,14 +377,65 @@ class HighViewFull(HighViewProbe):
                                 scope='FRESH_VISUAL_CANDIDATE_AND_BOUNDARY_ADMISSION_REQUIRED'))
         return MissionRuntime._schedule_from_search(self,now,False)
 
+    def _degrade_near_wall(self,now):
+        target=self.local_wall_target
+        if target is None:
+            remaining=[h for c,h in self.top_hints.items()
+                       if c not in self.core.queue.delivered_classes and c not in self.unreachable_classes]
+            if len(remaining)!=1 or not self.boundary_policy.near(remaining[0].xy):return None
+            target=remaining[0].class_name
+        self.unreachable_classes.add(target)
+        self.degraded_from=target
+        lower=tuple(c for c in self.core.profile.weights if c not in self.required)
+        self.core.interrupt_class_override=tuple(c for c in self.core.profile.weights
+                                                  if c not in self.unreachable_classes)
+        self.events.append(dict(stage='NEAR_WALL_TARGET_UNREACHABLE',time=now,
+                                target=target,next_classes=sorted(lower,key=lambda c:-self.core.profile.weight(c))))
+        return self._next_target(now)
+
+    def apply_result(self,event,now,current_xy):
+        # A confirmed inaccessible delivery point is not a reason to search
+        # for the same target again.  Retire only failures before release;
+        # uncertain/committed releases keep the original fail-closed path.
+        with self._lock:
+            active=self.core.active_action
+            inaccessible=(active is not None and active.command=='APPROACH' and
+                          event.decision_seq==active.decision_seq and
+                          event.terminal and event.status=='FAILED' and
+                          event.reason in ('near_wall_visual_alignment_unreachable',
+                                           'initial_plan_timeout') and
+                          not self.core.active_release_started)
+            if not inaccessible:
+                return super().apply_result(event,now,current_xy)
+            old=(set(self.unreachable_classes),self.degraded_from,
+                 self.local_wall_target,self.core.interrupt_class_override)
+            target=active.target_class
+            self.unreachable_classes.add(target)
+            self.degraded_from=target
+            self.local_wall_target=target
+            self.core.interrupt_class_override=tuple(
+                c for c in self.core.profile.weights if c not in self.unreachable_classes)
+            outcome=super().apply_result(event,now,current_xy)
+            if not outcome.accepted:
+                (self.unreachable_classes,self.degraded_from,self.local_wall_target,
+                 self.core.interrupt_class_override)=old
+            else:
+                self.events.append(dict(stage='DELIVERY_POINT_UNREACHABLE',time=now,
+                                        target=target,reason=event.reason,
+                                        next_classes=sorted(self.core.interrupt_class_override)))
+            return outcome
+
     def _start_fallback(self,now,reason):
         self.conflict_active=False
         check=self._next_conflict_location(now)
         if check is not None:return check
         local=self._local_wall_recheck(now)
         if local is not None:return local
-        if self.local_wall_verify_used and any(c not in self.core.queue.delivered_classes for c in self.top_hints):
-            return self._finish(False,'near_wall_local_verify_exhausted',now)
+        if self.degraded_from is None and (self.local_wall_verify_used or
+                (len(self.top_hints)==len(self.required) and
+                 len([c for c in self.top_hints if c not in self.core.queue.delivered_classes])==1)):
+            downgraded=self._degrade_near_wall(now)
+            if downgraded is not None:return downgraded
         if self.fallback_route is None:return self._finish(False,'fallback_route_unavailable',now)
         points=list(self.fallback_route.waypoints)
         costs=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
@@ -367,9 +457,13 @@ class HighViewFull(HighViewProbe):
 
     def _schedule_from_search(self,now,prefer_resume,route_outcome=None):
         if self.stage=='LOCAL_WALL_VERIFY' and self.route.is_complete:
-            return self._finish(False,'near_wall_local_verify_exhausted',now)
+            return self._degrade_near_wall(now) or self._finish(False,'near_wall_local_verify_exhausted',now)
         if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
-            return MissionRuntime._schedule_from_search(self,now,prefer_resume,route_outcome)
+            outcome=MissionRuntime._schedule_from_search(self,now,prefer_resume,route_outcome)
+            if outcome.action is not None and outcome.action.command=='APPROACH':
+                action=self._bounded_approach(outcome.action,now)
+                return replace(outcome,action=action,snapshot=self._snapshot())
+            return outcome
         if self.stage=='LOCAL_DESCENT_TRANSIT' and self.route.is_complete:
             self._change_route('DESCEND',[Waypoint(*self.descent_proposal['xy'],self.probe_config.ground_z+self.probe_config.low_agl)],now)
             return self._dispatch_route('SEARCH','local_descent',now)
@@ -408,6 +502,7 @@ class HighViewFull(HighViewProbe):
                 action=self.core.choose(now,current_xy,False)
                 if action is not None:
                     if action.command!='APPROACH':return self._fail_closed('unexpected_delivery_dispatch',now)
+                    action=self._bounded_approach(action,now)
                     self.completed_reacquisitions.append(dict(self.reacquired))
                     self.stage='DELIVERY';self.events.append(dict(stage='DELIVERY',time=now,target=action.target_class))
                     return self._outcome(True,'fresh_ordered_delivery',action)
@@ -430,6 +525,8 @@ class HighViewFull(HighViewProbe):
                      fallback_started=self.fallback_started,descent_debug=self.descent_debug,
                      skipped_survey_xy=list(self.skipped_survey_xy),
                      local_wall_verify_used=self.local_wall_verify_used,
+                     degraded_from=self.degraded_from,
+                     unreachable_classes=sorted(self.unreachable_classes),
                      conflict_active=self.conflict_active,conflict_checked=sorted(self.conflict_checked),
                      conflict_locations={c:[asdict(h) for h in hs] for c,hs in self.memory.verification_hints(self.memory.last_now or 0).items()})
         return value
