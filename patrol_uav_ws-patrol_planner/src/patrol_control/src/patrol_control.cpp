@@ -100,6 +100,7 @@ NearWallAlignFence loadNearWallAlignFence(ros::NodeHandle& nh) {
     }
     nh.param(root + "guard_side_m", fence.side_m, 0.55);
     nh.param(root + "tracking_reserve_m", fence.tracking_reserve_m, 0.03);
+    nh.param(root + "yaw_budget_deg", fence.yaw_budget_deg, 10.0);
     fence.valid = fence.valid && fence.wellFormed();
     return fence;
 }

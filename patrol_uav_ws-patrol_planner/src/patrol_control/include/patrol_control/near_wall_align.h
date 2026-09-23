@@ -13,17 +13,23 @@ struct NearWallAlignFence {
     std::array<double, 4> bounds{{-4.8, 4.8, -0.5, 7.4}};
     double side_m = 0.55;
     double tracking_reserve_m = 0.03;
+    double yaw_budget_deg = 10.0;
 
     double margin(double yaw) const {
-        return 0.5 * side_m * (std::abs(std::cos(yaw)) +
-                                std::abs(std::sin(yaw))) + tracking_reserve_m;
+        const double budget = yaw_budget_deg * 3.14159265358979323846 / 180.0;
+        const double budget_projection = std::cos(budget) + std::sin(budget);
+        const double actual_projection = std::abs(std::cos(yaw)) +
+                                         std::abs(std::sin(yaw));
+        return 0.5 * side_m * std::max(budget_projection, actual_projection) +
+               tracking_reserve_m;
     }
 
     bool wellFormed() const {
         if (!valid || !std::isfinite(side_m) ||
             !std::isfinite(tracking_reserve_m) || side_m <= 0.0 ||
             side_m > 1.0 || tracking_reserve_m < 0.0 ||
-            tracking_reserve_m > 0.1) return false;
+            tracking_reserve_m > 0.1 || !std::isfinite(yaw_budget_deg) ||
+            yaw_budget_deg < 0.0 || yaw_budget_deg > 45.0) return false;
         for (double value : bounds) if (!std::isfinite(value)) return false;
         const double worst = 0.5 * side_m * std::sqrt(2.0) + tracking_reserve_m;
         return bounds[1] - bounds[0] > 2.0 * worst &&
