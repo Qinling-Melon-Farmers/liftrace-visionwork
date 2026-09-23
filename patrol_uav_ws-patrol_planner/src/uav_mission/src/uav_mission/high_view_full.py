@@ -35,11 +35,13 @@ class HighViewFull(HighViewProbe):
         self.memory=NavigationMemory(self.required,int(core.config.mission_timeout*1e9),config.association_radius)
         self.fallback_route=fallback_route
         self._progress=None;self._alternative=False
+        self._survey_original=None;self.skipped_survey_xy=[]
         self.fallback_started=None
         self.descent_debug=None
         self.conflict_checked=set()
         self.conflict_active=False
         self.conflict_check_started=None
+        self.local_wall_verify_used=False;self.local_wall_verify_started=None
 
     def _candidate_validation_config(self):
         if self.stage=='SURVEY':
@@ -68,6 +70,10 @@ class HighViewFull(HighViewProbe):
         # No 45s research-probe cut-off in the full strategy.
         result=MissionRuntime._dispatch_route(self,command,'high_view_full:'+self.stage,now,route_outcome)
         if result.action and self.stage=='REVISIT':self.revisit_started=now
+        if result.action and self.stage=='LOCAL_WALL_VERIFY':
+            action=replace(result.action,deadline_at=min(result.action.deadline_at,now+20.,self.local_wall_verify_started+40.))
+            self.core.active_action=action
+            return self._outcome(True,result.reason,action,route_outcome)
         return result
 
     def _all_top(self,now):
@@ -75,7 +81,14 @@ class HighViewFull(HighViewProbe):
         return self.memory.update(self.catalog.hints(ns),self.catalog.epoch,ns)
 
     def _consider_search_replacement(self,now):
-        if self.stage=='LOW_COVERAGE':return MissionRuntime._consider_search_replacement(self,now)
+        if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
+            outcome=MissionRuntime._consider_search_replacement(self,now)
+            if (self.stage=='LOCAL_WALL_VERIFY' and outcome.action is not None and
+                    outcome.action.command=='APPROACH'):
+                self.stage='DELIVERY'
+                self.events.append(dict(stage='DELIVERY',time=now,target=outcome.action.target_class,
+                                        reason='local_wall_visual_confirmation'))
+            return outcome
         if self.stage=='SURVEY' and self.ascent_verified and set(self._all_top(now))==self.required:
             active=self.core.active_action
             if not self._route_binding_matches(active):return self._fail_closed('survey_binding_mismatch',now)
@@ -105,11 +118,13 @@ class HighViewFull(HighViewProbe):
             outcome,failed=MissionRuntime._finish_route(self,action,succeeded,now)
             if failed is not None:return outcome,failed
             return outcome,self._defer_selected(now,'revisit_unreachable')
-        if self.stage=='LOW_COVERAGE':return MissionRuntime._finish_route(self,action,succeeded,now)
+        if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
+            return MissionRuntime._finish_route(self,action,succeeded,now)
         if self.stage=='SURVEY' and self.ascent_verified:
             outcome,failed=MissionRuntime._finish_route(self,action,succeeded,now)
             if failed is not None:return outcome,failed
-            if succeeded:self._alternative=False
+            if succeeded:
+                self._alternative=False;self._survey_original=None
             else:
                 candidates=[]
                 if not self._alternative and self.grid.stamp is not None and 0<=now-self.grid.stamp<=2.:
@@ -124,10 +139,14 @@ class HighViewFull(HighViewProbe):
                     xy=min(candidates)[1]
                     self._change_route('SURVEY',[Waypoint(*xy,action.goal.z)]+remaining,now)
                     self._alternative=True
+                    self._survey_original=(action.goal.x,action.goal.y)
                     self.events.append(dict(stage='SURVEY_ALTERNATIVE',time=now,xy=xy,scope='COARSE_PROPOSAL_REQUIRES_3D_PLANNER'))
                 else:
                     self._alternative=False
-                    self.events.append(dict(stage='SURVEY_SKIPPED',time=now,goal=(action.goal.x,action.goal.y)))
+                    skipped=self._survey_original or (action.goal.x,action.goal.y)
+                    self._survey_original=None
+                    if skipped not in self.skipped_survey_xy:self.skipped_survey_xy.append(skipped)
+                    self.events.append(dict(stage='SURVEY_SKIPPED',time=now,goal=(action.goal.x,action.goal.y),region=skipped))
             return outcome,None
         return super()._finish_route(action,succeeded,now)
 
@@ -249,15 +268,97 @@ class HighViewFull(HighViewProbe):
             return self._outcome(True,out.reason,action)
         return out
 
+    def _prioritized_fallback(self,points):
+        # Each pair of consecutive sweep endpoints spans one full low lane.
+        # A skipped high region chooses its nearest lane, not merely its nearest
+        # endpoint; visit both endpoints before resuming the other lanes.
+        lanes=[]
+        for i in range(0,len(points)-1,2):
+            a,b=points[i:i+2]
+            if abs(a.y-b.y)>1e-6 or abs(a.x-b.x)<1e-6:
+                return None
+            lanes.append((i,(a,b)))
+        if len(points)%2 or not lanes:return None
+        # Several skipped high points can describe the same unseen sector.
+        # Map each point against all lanes before removing any lane, so that
+        # one sector is searched once rather than consuming adjacent lanes.
+        priority_indices=set()
+        for region in self.skipped_survey_xy:
+            def gap(lane):
+                index,(a,b)=lane
+                segment_gap=max(min(a.x,b.x)-region[0],0.,region[0]-max(a.x,b.x))
+                return (abs(a.y-region[1])+segment_gap,index)
+            priority_indices.add(min(lanes,key=gap)[0])
+        chosen=[];remaining=list(lanes);origin=self._current_xy
+        while priority_indices:
+            def entry_cost(lane):
+                index,pair=lane
+                return (min(math.dist(origin,(p.x,p.y)) for p in pair),index)
+            index,pair=min((lane for lane in remaining if lane[0] in priority_indices),key=entry_cost)
+            entry,exit_=sorted(pair,key=lambda p:math.dist(origin,(p.x,p.y)))
+            chosen.extend((entry,exit_))
+            origin=(exit_.x,exit_.y)
+            remaining=[lane for lane in remaining if lane[0]!=index]
+            priority_indices.remove(index)
+        if not chosen:return None
+        # Continue the usual boustrophedon order from the next untouched lane.
+        first_index=min(range(len(remaining)),key=lambda i:math.dist(origin,(remaining[i][1][0].x,remaining[i][1][0].y))) if remaining else 0
+        remaining=remaining[first_index:]+remaining[:first_index]
+        for _,pair in remaining:chosen.extend(pair)
+        return chosen
+
+    def _local_wall_recheck(self,now):
+        if self.local_wall_verify_used or not self.boundary_policy.enabled:
+            return None
+        remaining=[h for c,h in self.top_hints.items()
+                   if c not in self.core.queue.delivered_classes]
+        if len(remaining)!=1 or len(self.top_hints)!=len(self.required):
+            return None
+        hint=remaining[0]
+        if not self.boundary_policy.near(hint.xy):
+            return None
+        view=self.boundary_policy.viewpoint(hint.xy,hint.uncertainty_m)
+        if view is None:return None
+        a,b,c,d=self.boundary_policy.bounds
+        margin=self.boundary_policy.margin
+        left=(max(a+margin,view[0]-.30),view[1])
+        right=(min(b-margin,view[0]+.30),view[1])
+        points=[xy for xy in (left,right) if math.dist(xy,view)>.05 and
+                self.boundary_policy.admissible(xy)]
+        if not points:return None
+        points.sort(key=lambda xy:math.dist(self._current_xy,xy))
+        self.local_wall_verify_used=True;self.local_wall_verify_started=now
+        self.selected=hint
+        self._change_route('LOCAL_WALL_VERIFY',[
+            Waypoint(x,y,self.probe_config.ground_z+self.probe_config.low_agl)
+            for x,y in points],now)
+        self.route.max_failures_per_waypoint=1
+        self.events.append(dict(stage='LOCAL_WALL_VERIFY',time=now,target=hint.class_name,
+                                hint_xy=hint.xy,waypoints=points,
+                                scope='FRESH_VISUAL_CANDIDATE_AND_BOUNDARY_ADMISSION_REQUIRED'))
+        return MissionRuntime._schedule_from_search(self,now,False)
+
     def _start_fallback(self,now,reason):
         self.conflict_active=False
         check=self._next_conflict_location(now)
         if check is not None:return check
+        local=self._local_wall_recheck(now)
+        if local is not None:return local
+        if self.local_wall_verify_used and any(c not in self.core.queue.delivered_classes for c in self.top_hints):
+            return self._finish(False,'near_wall_local_verify_exhausted',now)
         if self.fallback_route is None:return self._finish(False,'fallback_route_unavailable',now)
         points=list(self.fallback_route.waypoints)
         costs=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
-        index=min(range(len(points)),key=lambda i:(costs.get(self.grid.cell((points[i].x,points[i].y)),math.inf),math.dist(self._current_xy,(points[i].x,points[i].y))))
-        points=points[index:]+points[:index]
+        prioritized=self._prioritized_fallback(points) if self.skipped_survey_xy else None
+        if prioritized is None:
+            index=min(range(len(points)),key=lambda i:(costs.get(self.grid.cell((points[i].x,points[i].y)),math.inf),math.dist(self._current_xy,(points[i].x,points[i].y))))
+            points=points[index:]+points[:index]
+        else:
+            points=prioritized
+            index=next(i for i,p in enumerate(self.fallback_route.waypoints) if p==points[0])
+            self.events.append(dict(stage='LOW_COVERAGE_SKIPPED_HIGH_PRIORITY',time=now,
+                                    regions=list(self.skipped_survey_xy),
+                                    first_lane_y=points[0].y))
         self._change_route('LOW_COVERAGE',points,now)
         self.route.max_failures_per_waypoint=self.fallback_route.max_failures_per_waypoint
         self.fallback_started=now
@@ -265,7 +366,10 @@ class HighViewFull(HighViewProbe):
         return MissionRuntime._schedule_from_search(self,now,False)
 
     def _schedule_from_search(self,now,prefer_resume,route_outcome=None):
-        if self.stage=='LOW_COVERAGE':return MissionRuntime._schedule_from_search(self,now,prefer_resume,route_outcome)
+        if self.stage=='LOCAL_WALL_VERIFY' and self.route.is_complete:
+            return self._finish(False,'near_wall_local_verify_exhausted',now)
+        if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
+            return MissionRuntime._schedule_from_search(self,now,prefer_resume,route_outcome)
         if self.stage=='LOCAL_DESCENT_TRANSIT' and self.route.is_complete:
             self._change_route('DESCEND',[Waypoint(*self.descent_proposal['xy'],self.probe_config.ground_z+self.probe_config.low_agl)],now)
             return self._dispatch_route('SEARCH','local_descent',now)
@@ -274,7 +378,8 @@ class HighViewFull(HighViewProbe):
         return super()._schedule_from_search(now,prefer_resume,route_outcome)
 
     def ingest(self,candidates,now):
-        if self.stage=='LOW_COVERAGE':return MissionRuntime.ingest(self,candidates,now)
+        if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
+            return MissionRuntime.ingest(self,candidates,now)
         outcome=super().ingest(candidates,now)
         if self.stage=='SURVEY':
             for name,hint in self._all_top(now).items():
@@ -323,6 +428,8 @@ class HighViewFull(HighViewProbe):
                      survey_policy=asdict(self.policy),descent_proposal=self.descent_proposal,
                      first_hint_ready=dict(self.first_hint_ready),navigation_memory_events=list(self.memory.events),
                      fallback_started=self.fallback_started,descent_debug=self.descent_debug,
+                     skipped_survey_xy=list(self.skipped_survey_xy),
+                     local_wall_verify_used=self.local_wall_verify_used,
                      conflict_active=self.conflict_active,conflict_checked=sorted(self.conflict_checked),
                      conflict_locations={c:[asdict(h) for h in hs] for c,hs in self.memory.verification_hints(self.memory.last_now or 0).items()})
         return value

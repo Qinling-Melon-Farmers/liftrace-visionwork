@@ -220,7 +220,72 @@ class FullTests(unittest.TestCase):
         self.assertTrue(self.r._alternative)
         self.r.tick(113.,(0.,0.));self.map(122.);self.r.tick(122.,(0.,0.))
         self.assertFalse(self.r._alternative)
+        self.assertEqual(self.r.skipped_survey_xy,[(1.,1.)])
         self.assertEqual(self.r.core.active_action.goal.x,2.)
+
+    def test_near_wall_hint_gets_bounded_local_visual_recheck(self):
+        from uav_mission.boundary_revisit import BoundaryRevisit
+        self.to_capture()
+        self.r.boundary_policy=BoundaryRevisit(enabled=True)
+        self.r.core.queue.delivered_classes={'bridge','panzer'}
+        h=self.r.top_hints['red_cross']
+        self.r.top_hints['red_cross']=replace(h,xy=(4.5,1.))
+        out=self.r._start_fallback(114.,'revisit_budget_exhausted')
+        self.assertEqual(self.r.stage,'LOCAL_WALL_VERIFY')
+        self.assertEqual(out.action.command,'SEARCH')
+        self.assertEqual(self.r.core.committed_slots,0)
+        self.assertTrue(all(self.r.boundary_policy.admissible((p.x,p.y))
+                            for p in self.r.route.waypoints))
+        self.assertEqual(len(self.r.route.waypoints),2)
+        self.r.update_pose((4.1,1.,1.18),114.2,'camera_init')
+        self.r.ingest([candidate(target_id=99,class_name='red_cross',
+                                 now=114.2,x=4.4,y=1.)],114.2)
+        out=self.r.tick(114.3,(4.1,1.))
+        self.assertEqual(out.action.command,'APPROACH')
+        self.assertEqual(self.r.stage,'DELIVERY')
+
+    def test_near_wall_recheck_exhausts_without_global_coverage(self):
+        from uav_mission.boundary_revisit import BoundaryRevisit
+        self.to_capture()
+        self.r.boundary_policy=BoundaryRevisit(enabled=True)
+        self.r.core.queue.delivered_classes={'bridge','panzer'}
+        h=self.r.top_hints['red_cross']
+        self.r.top_hints['red_cross']=replace(h,xy=(4.5,1.))
+        self.r._start_fallback(114.,'revisit_budget_exhausted')
+        self.finish(116.);out=self.finish(118.)
+        self.assertTrue(self.r.done)
+        self.assertEqual(self.r.failure,'near_wall_local_verify_exhausted')
+        self.assertIsNone(self.r.fallback_started)
+
+    def test_skipped_high_region_prioritizes_complete_low_lane(self):
+        self.r.fallback_route=CoverageRoute((
+            Waypoint(0.,-4.2,1.18),Waypoint(7.,-4.2,1.18),
+            Waypoint(7.,-3.5,1.18),Waypoint(0.,-3.5,1.18),
+            Waypoint(0.,-.1,1.18),Waypoint(7.,-.1,1.18),
+            Waypoint(7.,.6,1.18),Waypoint(0.,.6,1.18)),'south-first')
+        self.r.skipped_survey_xy=[(5.5,-3.5)]
+        self.finish(103.)
+        self.r._current_xy=(5.,-.5)
+        active=self.r.core.active_action
+        self.r.route.interrupt(active.decision_seq);self.r.core.active_action=None
+        self.r.top_hints={}
+        out=self.r._next_target(104.)
+        self.assertEqual(self.r.stage,'LOW_COVERAGE')
+        self.assertEqual([(p.x,p.y) for p in self.r.route.waypoints[:2]],
+                         [(7.,-3.5),(0.,-3.5)])
+        self.assertEqual(out.action.goal.y,-3.5)
+        self.assertEqual(len(self.r.route.waypoints),8)
+        self.assertTrue(any(e['stage']=='LOW_COVERAGE_SKIPPED_HIGH_PRIORITY' for e in self.r.events))
+
+    def test_multiple_skipped_points_in_one_sector_do_not_take_extra_lanes(self):
+        self.r._current_xy=(5.,-.5)
+        points=[Waypoint(x,y,1.18) for y in (-4.2,-3.5,-.1,.6)
+                for x in (0.,7.)]
+        self.r.skipped_survey_xy=[(5.5,-3.5),(5.5,-3.6),(5.5,.6)]
+        prioritized=self.r._prioritized_fallback(points)
+        self.assertEqual([p.y for p in prioritized[:4]],[.6,.6,-3.5,-3.5])
+        self.assertEqual(len(prioritized),len(points))
+        self.assertEqual(set(prioritized),set(points))
 
     def test_fallback_retains_delivered_state_and_uses_original_selection(self):
         self.finish(103.)
