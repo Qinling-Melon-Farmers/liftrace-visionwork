@@ -1,0 +1,120 @@
+[INFO] [1788898175.198551520, 108.503000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898175.198568842, 108.503000000]: [WayPointDetectDone] servo_complete.data: 0
+[INFO] [1788898276.142547214, 142.907000000]: [DetectionState] All detection flags reset for new waypoint, servo_complete.data: 0
+[INFO] [1788898491.815801761, 221.092000000]: [DetectionState] All detection flags reset for new waypoint, servo_complete.data: 0
+[INFO] [1788898781.356210359, 323.759000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898781.356229243, 323.759000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.29
+[INFO] [1788898781.508440278, 323.804000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898781.508550222, 323.805000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.29
+[INFO] [1788898781.733819423, 323.853000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898781.733831827, 323.853000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.28
+[INFO] [1788898781.788079258, 323.903000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898781.788096911, 323.903000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.27
+[INFO] [1788898781.849608573, 323.953000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898781.849623337, 323.953000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.28
+[INFO] [1788898782.063071610, 324.002000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898782.063088767, 324.003000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.29
+[INFO] [1788898782.307197516, 324.054000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898782.307210741, 324.054000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.31
+[INFO] [1788898782.367516614, 324.108000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898782.367563563, 324.108000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.32
+[INFO] [1788898782.428434631, 324.156000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898782.428453997, 324.156000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.34
+[INFO] [1788898782.652116179, 324.203000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898782.652135246, 324.204000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.36
+[INFO] [1788898782.724216236, 324.254000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898782.724266006, 324.254000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.39
+[INFO] [1788898782.929518244, 324.302000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898782.929571902, 324.302000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.40
+[INFO] [1788898782.996074629, 324.352000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898782.996105750, 324.352000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.42
+[INFO] [1788898783.216538701, 324.403000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898783.216553622, 324.403000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.45
+[INFO] [1788898783.453252846, 324.453000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898783.453305196, 324.453000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.48
+[INFO] [1788898783.513110495, 324.504000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898783.513127876, 324.504000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.49
+[INFO] [1788898783.777927371, 324.552000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898783.777951788, 324.552000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.52
+[INFO] [1788898783.830874330, 324.602000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898783.830899122, 324.602000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.54
+[INFO] [1788898784.058751409, 324.653000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898784.058800018, 324.653000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.55
+[INFO] [1788898784.118281836, 324.704000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898784.118298460, 324.704000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.58
+[INFO] [1788898784.322760777, 324.753000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898784.322782788, 324.753000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.61
+[INFO] [1788898784.375541920, 324.802000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898784.375556653, 324.802000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.63
+[INFO] [1788898784.447057360, 324.855000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898784.447076265, 324.855000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.64
+[INFO] [1788898784.698530349, 324.903000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898784.698538081, 324.903000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.67
+[INFO] [1788898784.762165297, 324.952000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898784.762184597, 324.952000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.70
+[INFO] [1788898784.982762046, 325.003000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898784.982779776, 325.003000000]: [WayPointDetectDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.20  uav_z : 0.72
+[INFO] [1788898785.056284566, 325.054000000]: [WayPointDetectDone] servo_complete.data: 1
+[INFO] [1788898785.056313814, 325.054000000]: [WayPointDetectDone] servo_complete.data: 0
+[INFO] [1788898797.597866119, 329.136000000]: [DetectionState] All detection flags reset for new waypoint, servo_complete.data: 0
+[INFO] [1788899137.964667728, 455.155000000]: [DetectionState] All detection flags reset for new waypoint, servo_complete.data: 0
+[INFO] [1788899149.702909743, 459.713000000]: [DropSystem] Drop action 3 received positive Servo ACK
+[INFO] [1788899149.703021371, 459.713000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899149.703059352, 459.713000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.29
+[INFO] [1788899149.703639240, 459.713000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899149.703670352, 459.713000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.27
+[INFO] [1788899149.887522194, 459.753000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899149.887531605, 459.753000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.26
+[INFO] [1788899149.941391797, 459.802000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899149.941413647, 459.802000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.26
+[INFO] [1788899150.166255721, 459.852000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899150.166270383, 459.852000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.26
+[INFO] [1788899150.220672443, 459.903000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899150.220686671, 459.903000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.27
+[INFO] [1788899150.402005669, 459.952000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899150.402013828, 459.952000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.28
+[INFO] [1788899150.460051974, 460.002000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899150.460134901, 460.002000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.31
+[INFO] [1788899150.679089980, 460.054000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899150.679106373, 460.054000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.33
+[INFO] [1788899150.937905310, 460.102000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899150.937912717, 460.102000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.35
+[INFO] [1788899150.990427603, 460.153000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899150.990436239, 460.153000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.36
+[INFO] [1788899151.045389107, 460.202000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899151.045408854, 460.202000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.39
+[INFO] [1788899151.253558316, 460.252000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899151.253576611, 460.252000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.42
+[INFO] [1788899151.298851478, 460.302000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899151.298869520, 460.302000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.43
+[INFO] [1788899151.506633468, 460.352000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899151.506650268, 460.352000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.45
+[INFO] [1788899151.705621676, 460.403000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899151.705700810, 460.403000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.48
+[INFO] [1788899151.860994810, 460.453000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899151.861007716, 460.453000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.49
+[INFO] [1788899151.917190504, 460.504000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899151.917207574, 460.504000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.51
+[INFO] [1788899152.119931608, 460.552000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899152.119949437, 460.552000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.52
+[INFO] [1788899152.181118643, 460.602000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899152.181165991, 460.602000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.55
+[INFO] [1788899152.395056903, 460.652000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899152.395074993, 460.652000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.56
+[INFO] [1788899152.453391635, 460.703000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899152.453403193, 460.703000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.58
+[INFO] [1788899152.662500482, 460.752000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899152.662510417, 460.752000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.59
+[INFO] [1788899152.719414281, 460.803000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899152.719468349, 460.803000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.62
+[INFO] [1788899152.957051032, 460.853000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899152.957079469, 460.853000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.65
+[INFO] [1788899153.009652155, 460.902000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899153.009708980, 460.902000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.66
+[INFO] [1788899153.201385047, 460.952000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899153.201401783, 460.952000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.69
+[INFO] [1788899153.260609121, 461.005000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899153.260628504, 461.005000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.70
+[INFO] [1788899153.462218373, 461.052000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899153.462498664, 461.053000000]: [CrossDetectionDone] Height Not ready,heignt not reached and not get to 1.2m current align_heignt: 1.15  uav_z : 0.72
+[INFO] [1788899153.682880900, 461.103000000]: [CrossDetectionDone] servo_complete.data: 1

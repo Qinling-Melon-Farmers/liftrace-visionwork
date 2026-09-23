@@ -1,0 +1,7 @@
+{
+  "graph_mode": "Nodes only",
+  "renderer": "rqt_graph NODE_NODE_GRAPH",
+  "node_count": 35,
+  "source": "Live R56 native-retry master registration snapshot, rendered offline",
+  "scope": "Publish-to-subscribe registrations; not a throughput or transport-health measurement"
+}

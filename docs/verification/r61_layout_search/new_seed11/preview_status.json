@@ -1,0 +1,226 @@
+{
+  "status": "CAPTURED",
+  "scope": "static_scene_no_flight",
+  "flight_validation": false,
+  "field_status": {
+    "allowed_classes": [
+      "tent",
+      "pillbox",
+      "bridge",
+      "panzer",
+      "red_cross"
+    ],
+    "component": "random_field_spawner",
+    "compound_exclusions": [
+      "combined_tree_0",
+      "combined_tree_1",
+      "combined_tree_2",
+      "combined_tree_3"
+    ],
+    "expected_models": [
+      "random_tent",
+      "random_pillbox",
+      "random_bridge",
+      "random_panzer",
+      "random_red_cross"
+    ],
+    "footprint_valid": true,
+    "layout_attempts": 64,
+    "model_roots": [
+      "/home/xhj/AstraDroneOpen/simulation/astra_gazebo_models",
+      "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models"
+    ],
+    "occupied_footprint_count": 6,
+    "profile": "r2026",
+    "ready": true,
+    "reason": "models_verified_and_truth_written",
+    "seed": 11,
+    "spawned_models": [
+      "random_bridge",
+      "random_panzer",
+      "random_pillbox",
+      "random_red_cross",
+      "random_tent"
+    ],
+    "static_model_radii": {
+      "landing_h": 0.5,
+      "landing_h_clone": 0.5
+    },
+    "status": "READY",
+    "truth_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r61_seed11_final_preview_20260909_000031/random_field_truth.yaml",
+    "updated_wall_time": 1788883242.4945607,
+    "verified_models": [
+      "random_bridge",
+      "random_panzer",
+      "random_pillbox",
+      "random_red_cross",
+      "random_tent"
+    ]
+  },
+  "images": [
+    {
+      "file": "seed11_map.png",
+      "topic": "/preview_overhead/image_raw",
+      "stamp": 1.035,
+      "width": 1536,
+      "height": 1536,
+      "std": 27.830172761498712
+    },
+    {
+      "file": "aircraft_model.png",
+      "topic": "/preview_aircraft/image_raw",
+      "stamp": 2.34,
+      "width": 1280,
+      "height": 960,
+      "std": 80.73681177360265
+    },
+    {
+      "file": "aircraft_side.png",
+      "topic": "/preview_aircraft_side/image_raw",
+      "stamp": 2.48,
+      "width": 1280,
+      "height": 960,
+      "std": 77.47836934642741
+    }
+  ],
+  "model_positions": {
+    "ground_plane": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "toudi2": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "landing_h": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "landing_h_clone": {
+      "x": 4.2,
+      "y": 8.5,
+      "z": 0.0
+    },
+    "iris_mid360": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.225
+    },
+    "preview_overhead": {
+      "x": 0.0,
+      "y": 4.3,
+      "z": 14.0
+    },
+    "preview_aircraft": {
+      "x": 1.1,
+      "y": 1.3,
+      "z": 1.0
+    },
+    "preview_aircraft_side": {
+      "x": 1.1,
+      "y": 0.0,
+      "z": 0.35
+    },
+    "random_tent": {
+      "x": -0.457156,
+      "y": 4.03416,
+      "z": 0.02
+    },
+    "random_pillbox": {
+      "x": 4.07242,
+      "y": 3.27177,
+      "z": 0.02
+    },
+    "random_bridge": {
+      "x": -3.02726,
+      "y": 3.64646,
+      "z": 0.02
+    },
+    "random_panzer": {
+      "x": -3.89641,
+      "y": 1.95755,
+      "z": 0.02
+    },
+    "random_red_cross": {
+      "x": -3.92956,
+      "y": 6.05812,
+      "z": 0.02
+    }
+  },
+  "live_assembly": {
+    "links": {
+      "fc": {
+        "xyz": [
+          0.0,
+          0.0,
+          0.225
+        ],
+        "quat": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "camera": {
+        "xyz": [
+          0.0,
+          0.0,
+          0.065
+        ],
+        "quat": [
+          0.0,
+          0.7071067811848163,
+          0.0,
+          0.7071067811882787
+        ]
+      },
+      "radar_link": {
+        "xyz": [
+          0.011,
+          0.02329,
+          0.23088
+        ],
+        "quat": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "chassis": {
+        "xyz": [
+          0.0,
+          0.0,
+          0.185
+        ],
+        "quat": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    "imu_world_xyz": [
+      0.0,
+      0.0,
+      0.275
+    ],
+    "fc_to_camera_xyz": [
+      0.0,
+      0.0,
+      -0.16
+    ],
+    "imu_to_camera_xyz": [
+      0.0,
+      0.0,
+      -0.21000000000000002
+    ],
+    "camera_height_above_support": 0.060000000000000005,
+    "passed": true
+  }
+}

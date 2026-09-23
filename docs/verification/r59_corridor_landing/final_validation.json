@@ -1,0 +1,8 @@
+{
+  "runs_started": 1,
+  "reruns": 0,
+  "raw_gate_preserved": "FAIL",
+  "runtime_head": "e633a9be9fb1232e0b2bcdba5d6b68fb0d61bfd6",
+  "gate_regression_cases": 45,
+  "ros_residuals": []
+}

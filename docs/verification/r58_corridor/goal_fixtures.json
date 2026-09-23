@@ -1,0 +1,26 @@
+[
+  {
+    "case": "r57",
+    "frozen_map": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r57_toudi4_080_20260907_174702/blocked_goal/map_0.npz",
+    "original_goal": [
+      1.673022,
+      7.897277297,
+      1.4
+    ],
+    "original_occupied": true,
+    "occupied_cells_in_excerpt": 8133,
+    "fixture": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/r58_corridor15/goal_fixture_r57.txt"
+  },
+  {
+    "case": "r58",
+    "frozen_map": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r58_entrycenter_pilot_seed11_20260907_223209/diagnostic_goal_19.npz",
+    "original_goal": [
+      0.587997,
+      8.16769,
+      1.4
+    ],
+    "original_occupied": true,
+    "occupied_cells_in_excerpt": 5488,
+    "fixture": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/r58_corridor15/goal_fixture_r58.txt"
+  }
+]

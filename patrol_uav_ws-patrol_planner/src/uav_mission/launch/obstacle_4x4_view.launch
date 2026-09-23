@@ -1,0 +1,19 @@
+<launch>
+  <!-- Visualization only: no drivers, mission triggers, planner or controls. -->
+  <arg name="rviz" default="true" />
+  <arg name="display_resolution" default="0.10" />
+  <arg name="update_rate" default="1.0" />
+  <arg name="max_blocks" default="12000" />
+  <node pkg="uav_mission" type="obstacle_view_node" name="obstacle_view" output="screen">
+    <param name="fixed_frame" value="camera_init" />
+    <param name="display_resolution" value="$(arg display_resolution)" />
+    <param name="update_rate" value="$(arg update_rate)" />
+    <param name="max_blocks" value="$(arg max_blocks)" />
+    <param name="max_path_points" value="1000" />
+    <param name="line_width" value="0.03" />
+  </node>
+  <node if="$(arg rviz)" pkg="rviz" type="rviz" name="obstacle_rviz"
+        args="-d $(find uav_mission)/config/obstacle_4x4/view.rviz" output="screen">
+    <env name="LP_NUM_THREADS" value="2" />
+  </node>
+</launch>

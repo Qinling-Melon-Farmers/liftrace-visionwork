@@ -1,0 +1,293 @@
+{
+  "gate": "PASS",
+  "source": "9cfb3e56b11af23b4bc764b48e53454b32d015dc",
+  "seed": 7,
+  "mission_ros_sec": 247.448000001,
+  "drops": [
+    {
+      "time": 40.669,
+      "class": "panzer",
+      "slot": 1,
+      "decision": 2
+    },
+    {
+      "time": 73.738,
+      "class": "bridge",
+      "slot": 2,
+      "decision": 7
+    },
+    {
+      "time": 142.84,
+      "class": "red_cross",
+      "slot": 3,
+      "decision": 15
+    }
+  ],
+  "return_goals": [
+    {
+      "t": 145.062,
+      "reason": "post_delivery_route:1/9:r2026-r60-full-staged-low-corridor:required_deliveries_complete",
+      "goal": {
+        "position": {
+          "x": -3.091588,
+          "y": 6.29269,
+          "z": 1.4
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    },
+    {
+      "t": 175.089,
+      "reason": "post_delivery_route:2/9:r2026-r60-full-staged-low-corridor:segment_complete",
+      "goal": {
+        "position": {
+          "x": -3.091588,
+          "y": 6.29269,
+          "z": 0.4
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    },
+    {
+      "t": 186.358,
+      "reason": "post_delivery_route:3/9:r2026-r60-full-staged-low-corridor:segment_complete",
+      "goal": {
+        "position": {
+          "x": -3.091588,
+          "y": 7.81769,
+          "z": 0.45
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    },
+    {
+      "t": 198.83,
+      "reason": "post_delivery_route:4/9:r2026-r60-full-staged-low-corridor:segment_complete",
+      "goal": {
+        "position": {
+          "x": -0.812003,
+          "y": 8.16769,
+          "z": 0.45
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    },
+    {
+      "t": 219.726,
+      "reason": "post_delivery_route:5/9:r2026-r60-full-staged-low-corridor:segment_complete",
+      "goal": {
+        "position": {
+          "x": 0.587997,
+          "y": 8.16769,
+          "z": 0.45
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    },
+    {
+      "t": 232.503,
+      "reason": "post_delivery_route:6/9:r2026-r60-full-staged-low-corridor:segment_complete",
+      "goal": {
+        "position": {
+          "x": 1.0055095,
+          "y": 7.46769,
+          "z": 0.45
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    },
+    {
+      "t": 240.272,
+      "reason": "post_delivery_route:7/9:r2026-r60-full-staged-low-corridor:segment_complete",
+      "goal": {
+        "position": {
+          "x": 1.423022,
+          "y": 7.46769,
+          "z": 0.45
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    },
+    {
+      "t": 245.002,
+      "reason": "post_delivery_route:8/9:r2026-r60-full-staged-low-corridor:segment_complete",
+      "goal": {
+        "position": {
+          "x": 2.823022,
+          "y": 7.46769,
+          "z": 0.45
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    },
+    {
+      "t": 257.698,
+      "reason": "post_delivery_route:9/9:r2026-r60-full-staged-low-corridor:segment_complete",
+      "goal": {
+        "position": {
+          "x": 3.274292,
+          "y": 8.05722,
+          "z": 0.5
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    }
+  ],
+  "autoland_ros_sec": 268.994,
+  "on_ground_ros_sec": 271.994,
+  "disarmed_ros_sec": 273.99,
+  "ground_error_to_h_m": 0.09136932236048,
+  "corridor_samples": 819,
+  "corridor_max_true_z_m": 0.6702053107047097,
+  "corridor_height_errors_m": {
+    "p50": 0.08957478166747179,
+    "p95": 0.14399295108531318
+  },
+  "corridor_xy_error_p95_m": 0.10356881775721068,
+  "door_crossings": [
+    {
+      "lateral": -3.1095353808003705,
+      "name": "corridor_entry",
+      "route_index": 3,
+      "z": 0.5411649352672063
+    },
+    {
+      "lateral": 8.194854891958053,
+      "name": "Wall_20",
+      "route_index": 5,
+      "z": 0.5957424057427353
+    },
+    {
+      "lateral": 7.538717595555613,
+      "name": "Wall_22",
+      "route_index": 8,
+      "z": 0.6028593106545659
+    }
+  ],
+  "cleanup_pass": true,
+  "bag_files": 0,
+  "phase_change_log": [
+    "[INFO] [1788808988.009606, 145.052000]: Flight parameter stage after 0 waypoints: {'/traj_server/traj_server/target_dist': 0.15, '/px4_max_distance': 0.15, '/navigation/planner_bridge/execution/arrival_position_tolerance': 0.12, '/navigation/planner_bridge/execution/arrival_dwell': 0.8}",
+    "[INFO] [1788809083.550220, 175.073000]: Flight parameter stage after 1 waypoints: {'/navigation/planner_bridge/execution/arrival_position_tolerance': 0.05}",
+    "[INFO] [1788809119.959873, 186.343000]: Flight parameter stage after 2 waypoints: {'/navigation/planner_bridge/execution/arrival_position_tolerance': 0.12, '/external_planner_max_command_z': 0.5, '/fast_planner_node/sdf_map/virtual_ceil_height': 0.55, '/fast_planner_node/fsm/goal_adjustment_radius': 0.1}"
+  ],
+  "px4_ulog": "px4/log/2026-09-07/19_15_10.ulg",
+  "vehicle_status": {
+    "arming_state": {
+      "last": 1,
+      "transitions": [
+        [
+          15.01,
+          2
+        ],
+        [
+          273.938,
+          1
+        ]
+      ]
+    },
+    "nav_state": {
+      "last": 14,
+      "transitions": [
+        [
+          14.026,
+          14
+        ],
+        [
+          268.442,
+          18
+        ],
+        [
+          273.938,
+          14
+        ]
+      ]
+    }
+  },
+  "vehicle_land_detected": {
+    "ground_contact": {
+      "last": 1,
+      "transitions": [
+        [
+          16.742,
+          0
+        ],
+        [
+          271.238,
+          1
+        ]
+      ]
+    },
+    "maybe_landed": {
+      "last": 1,
+      "transitions": [
+        [
+          16.733999999999998,
+          0
+        ],
+        [
+          271.59,
+          1
+        ]
+      ]
+    },
+    "landed": {
+      "last": 1,
+      "transitions": [
+        [
+          16.733999999999998,
+          0
+        ],
+        [
+          271.926,
+          1
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,181 @@
+<launch>
+  <!-- 最简投递验证 launch — minimal_delivery_test.launch
+       硬件启动链沿用走廊避障测试（FAST-LIO + FreeDOM + Fast-Planner +
+       patrol_control + mission_manager + planner_bridge），
+       额外加入完整视觉链 (phase_d_board.launch) 和投放安全守卫 (release_guard.launch)，
+       start_mode=full 触发 SEARCH → APPROACH → ALIGN → RELEASE → RECOVERY 全流程。
+
+       对应配置：config/minimal_delivery_test.yaml
+       手动启动任务：rosservice call /navigation/start_mission "{}"
+       急停：rosrun mavros mavsys mode -c AUTO.LAND  -->
+
+  <!-- ==== 路径 & 配置 === -->
+  <arg name="test_config"
+       default="$(find uav_mission)/config/minimal_delivery_test.yaml" />
+  <arg name="lio_config"
+       default="$(find uav_mission)/config/mid360_hardware.yaml" />
+  <arg name="control_config"
+       default="$(find uav_mission)/config/vcl06_horizontal_control.yaml" />
+  <arg name="runtime_config"
+       default="$(find uav_mission)/config/vcl06_runtime.yaml" />
+
+  <!-- ==== TF & 外参 === -->
+  <arg name="map_frame" default="camera_init" />
+  <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
+  <arg name="body_to_imu_xyz" default="0 0 0.05" />
+  <arg name="imu_to_camera_z" default="-0.21" />
+  <arg name="camera_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
+
+  <!-- ==== 相机输入（由外部相机节点/SDK 发布，默认话题）=== -->
+  <arg name="image_topic" default="/camera/image_raw" />
+  <arg name="camera_info_topic" default="/camera/camera_info" />
+  <arg name="ground_z" default="-0.22" />
+
+  <!-- ==== 视觉模型路径 === -->
+  <arg name="model_path" default="/home/orangepi/liftrace_r64_onboard_405bda42/runtime_models/merged_standard_fp32.rknn" />
+  <arg name="raw_servo_service" default="/legacy/Servo_raw" />
+
+  <!-- ==== YOLO 调试图 + 录像 ==== -->
+  <arg name="start_yolo_live_view" default="true" />
+  <arg name="record_debug" default="true" />
+  <arg name="record_dir" default="/home/orangepi/liftrace_r64_onboard_405bda42/logs/minimal_delivery_test" />
+
+  <!-- ========== Phase 1: 任务配置 + Fast-LIO + FreeDOM ========== -->
+  <rosparam file="$(arg lio_config)" />
+  <rosparam file="$(arg test_config)" command="load" />
+
+  <!-- 硬件 LIO 和点云地图 -->
+  <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen" />
+  <include file="$(find freedom)/launch/run_freedom_mid360.launch">
+    <arg name="enable_static_pointcloud_viz" value="false" />
+  </include>
+  <param name="/freedom/sensor_tf_frame" value="mapping_imu" />
+  <rosparam ns="/freedom"
+            file="$(find uav_mission)/config/competition_freedom.yaml" />
+  <param name="/freedom/map_tf_frame" value="$(arg map_frame)" />
+  <node pkg="uav_mission" type="lio_external_pose.py"
+        name="lio_external_pose" output="screen">
+    <param name="frame" value="$(arg map_frame)" />
+    <!-- body_to_imu_xyz 默认 "0 0 0.05"，取负即 IMU 相对 body = [0, 0, -0.05] -->
+    <rosparam param="imu_to_body_xyz" subst_value="true">[0, 0, -0.05]</rosparam>
+  </node>
+
+  <!-- map → camera_init 零变换（与走廊测试一致）。
+       走廊测试已验证 camera_init 与 MAVROS map 重合时可正常运行；
+       如需精确对齐请改用 competition_hardware.launch 的 map_camera_alignment.py。 -->
+  <arg name="map_to_mission_xyz" default="0 0 0" />
+  <arg name="map_to_mission_quat_xyzw" default="0 0 0 1" />
+  <node pkg="tf2_ros" type="static_transform_publisher"
+        name="map_to_camera_init_identity"
+        args="$(arg map_to_mission_xyz) $(arg map_to_mission_quat_xyzw)
+              map $(arg map_frame)" />
+
+  <node pkg="uav_mission" type="navigation_frame_adapter.py"
+        name="navigation_frame_adapter" output="screen" required="true">
+    <param name="local_frame" value="map" />
+    <param name="mission_frame" value="$(arg map_frame)" />
+    <param name="enable_setpoints" value="true" />
+  </node>
+  <node pkg="uav_mission" type="pose_tf_broadcaster.py"
+        name="vision_pose_tf" output="screen">
+    <param name="pose_topic" value="/mavros/local_position/pose" />
+    <param name="parent_frame" value="map" />
+    <param name="child_frame" value="vision_body" />
+  </node>
+  <node pkg="tf2_ros" type="static_transform_publisher"
+        name="mapping_imu_extrinsic"
+        args="$(arg body_to_imu_xyz) 0 0 0 1 vision_body mapping_imu" />
+  <node pkg="tf2_ros" type="static_transform_publisher"
+        name="downward_camera_extrinsic"
+        args="0 0 $(arg imu_to_camera_z) $(arg camera_quat_xyzw)
+              mapping_imu $(arg camera_optical_frame)" />
+
+  <!-- ========== 视觉链（phase_d_board.launch） ========== -->
+  <!-- 放在 remap group 外面，这样视觉节点可以直接订阅原始 MAVROS 话题 -->
+  <include file="$(find uav_vision)/launch/phase_d_board.launch">
+    <arg name="model_path" value="$(arg model_path)" />
+    <arg name="image_topic" value="$(arg image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="map_frame" value="$(arg map_frame)" />
+    <arg name="ground_z" value="$(arg ground_z)" />
+    <arg name="class_profile" value="r2026" />
+    <arg name="require_alignment_context" value="true" />
+    <arg name="start_legacy_compat" value="false" />
+  </include>
+
+  <!-- ========== YOLO 识别结果可视化 + bag 录像 ========== -->
+  <!-- yolo_live_view.py 订阅原始图像 + 融合后的检测结果，
+       输出带边界框的 /uav_vision/yolo_debug 话题。
+       该话题是 sensor_msgs/Image，可以用 video_recorder 或 rosbag 转视频。 -->
+  <include if="$(arg start_yolo_live_view)"
+           file="$(find uav_vision)/launch/yolo_live_view.launch">
+    <arg name="image_topic" value="$(arg image_topic)" />
+    <arg name="detections_topic" value="/uav_vision/detections_resolved" />
+    <arg name="output_topic" value="/uav_vision/yolo_debug" />
+    <arg name="show_window" value="false" />
+  </include>
+
+  <!-- rosbag record: 记录 YOLO 识别结果视频 + 原始图像 + 检测结果 + 位姿 -->
+  <!-- 只录视觉相关话题，bag 体积可控。
+       bag 文件存放目录 = $(arg record_dir)，文件名前缀 = yolo_debug -->
+  <node if="$(arg record_debug)" pkg="rosbag" type="record"
+        name="debug_bag" output="screen" required="false"
+        args="$(arg record_dir)/yolo_debug
+              /uav_vision/yolo_debug
+              /uav_vision/detections_resolved
+              /uav_vision/detections
+              $(arg image_topic)
+              /mavros/local_position/pose" />
+
+  <!-- ========== Remap group: 控制 + 规划 + 任务管理层 ========== -->
+  <group>
+    <remap from="/mavros/local_position/pose" to="/navigation/local_pose" />
+    <remap from="/mavros/local_position/odom" to="/navigation/local_odom" />
+    <remap from="/mavros/setpoint_position/local" to="/navigation/setpoint_mission" />
+
+    <!-- patrol_control: 底层飞行控制 + 投放执行 -->
+    <include file="$(find patrol_control)/launch/patrol_control_px4_sim.launch">
+      <arg name="rviz" value="false" />
+      <arg name="waypoint_mode" value="false" />
+      <arg name="external_mission_mode" value="true" />
+      <arg name="simulation_auto_land" value="false" />
+      <arg name="start_waypoint_generator" value="false" />
+      <arg name="waypoint_config" value="$(arg control_config)" />
+    </include>
+
+    <!-- Fast-Planner 限制参数，阶段二会被 test_config 覆盖 -->
+    <rosparam ns="/fast_planner_node"
+              file="$(find uav_mission)/config/horizontal_planner.yaml" />
+
+    <!-- Mission Manager: full 模式 = SEARCH → APPROACH → ALIGN → RELEASE → RECOVERY -->
+    <include file="$(find uav_mission)/launch/navigation_mission_manager.launch">
+      <arg name="runtime_config" value="$(arg runtime_config)" />
+      <arg name="pose_topic" value="/navigation/local_pose" />
+      <arg name="start_mode" value="full" />
+    </include>
+
+    <!-- Planner Bridge: Fast-Planner goal 发布 -->
+    <include file="$(find uav_mission)/launch/navigation_planner_bridge.launch">
+      <arg name="execution_enabled" value="true" />
+      <arg name="allow_live_goal_output" value="true" />
+      <arg name="required" value="true" />
+      <arg name="planner_goal_topic" value="/fastplanner/goal" />
+      <arg name="planner_status_topic" value="/planning/goal_status" />
+      <arg name="odom_topic" value="/navigation/local_odom" />
+    </include>
+  </group>
+
+  <!-- ========== 投放安全守卫 ========== -->
+  <!-- release_guard.launch 在 remap group 外，直接订阅原始 MAVROS 话题 -->
+  <include file="$(find uav_mission)/launch/release_guard.launch">
+    <arg name="raw_service_name" value="$(arg raw_servo_service)" />
+    <arg name="require_evidence_context" value="true" />
+    <arg name="class_profile" value="r2026" />
+  </include>
+
+  <!-- ========== Phase 2: 重新加载 test_config 覆盖底层默认值 ========== -->
+  <!-- 与 corridor_waypoint_test1.launch 相同的两阶段覆盖模式：
+       patrol_control 用 getParamCached 重读；Python/C++ 节点启动慢，
+       后置覆盖已在实跑中验证生效。 -->
+  <rosparam file="$(arg test_config)" command="load" />
+</launch>

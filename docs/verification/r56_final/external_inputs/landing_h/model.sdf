@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<sdf version="1.7">
+  <model name="landing_h">
+    <static>true</static>
+    <link name="link">
+      <pose>0 0 0.0025 0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box><size>1.0 1.0 0.005</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>1.0 1.0 0.005</size></box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://landing_h/materials/scripts/</uri>
+            <uri>model://landing_h/materials/textures/</uri>
+            <name>Mark/LandingH</name>
+          </script>
+        </material>
+        <cast_shadows>true</cast_shadows>
+        <receive_shadows>true</receive_shadows>
+      </visual>
+    </link>
+  </model>
+</sdf>

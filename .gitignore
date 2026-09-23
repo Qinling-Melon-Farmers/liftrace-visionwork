@@ -1,0 +1,29 @@
+# ROS build artifacts
+build/
+devel/
+install/
+log/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Large data / binaries
+*.bag
+*.tar.gz
+*.zip
+*.model
+*.engine
+*.onnx
+*.pt
+*.pth
+
+# OS
+.DS_Store
+Thumbs.db

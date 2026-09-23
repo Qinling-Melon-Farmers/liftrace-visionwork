@@ -1,0 +1,144 @@
+{
+  "status": "PASS",
+  "source": "1983b2f7571cf3d96916d45af5cc8f3a2f8a9ad4",
+  "checks_passed": 37,
+  "checks_total": 37,
+  "metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 32,
+    "door_crossings": [
+      {
+        "lateral": -4.045525615285727,
+        "name": "corridor_entry",
+        "route_index": 3,
+        "z": 0.4142204654519548
+      },
+      {
+        "lateral": 8.67269182376266,
+        "name": "Wall_20",
+        "route_index": 5,
+        "z": 0.35623728215010164
+      },
+      {
+        "lateral": 8.064253822666466,
+        "name": "Wall_22",
+        "route_index": 8,
+        "z": 0.4485596754850081
+      }
+    ],
+    "height_violations": 0,
+    "landing_align_mode_seen": true,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      4.2,
+      8.5
+    ],
+    "latest_armed": false,
+    "latest_landed_state": 1,
+    "max_observed_height": 1.7086678674535511,
+    "mission_ros_sec": 422.712,
+    "mission_wall_sec": 1625.0659560939998,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 20513,
+    "post_delivery_decision_indices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "post_delivery_return_success_count": 9,
+    "post_delivery_route_revision": "r2026-r61-inner960-nominal-fixed-gaps",
+    "post_delivery_route_size": 9,
+    "recovery_success_count": 3,
+    "release_commit_count": 3,
+    "result_count": 166,
+    "selected_count": 1491,
+    "simulation_realtime_factor": 0.2601199036967265,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": {
+      "anchor_error_m": 0.033183961067112445,
+      "frame_id": "camera_init",
+      "stamp_ns": 442594000000,
+      "x": 4.217207739407627,
+      "y": 8.471626262555263,
+      "z": -0.22
+    }
+  },
+  "cleanup_pass": true,
+  "bag_files": 0,
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_px4_seed11_20260909_151207",
+  "release_recovery": [
+    {
+      "class": "panzer",
+      "release_ros": 103.975,
+      "recovery_ros": 106.695,
+      "recovery_sec": 2.719999999999999
+    },
+    {
+      "class": "bridge",
+      "release_ros": 232.816,
+      "recovery_ros": 234.895,
+      "recovery_sec": 2.0790000000000077
+    },
+    {
+      "class": "red_cross",
+      "release_ros": 312.56,
+      "recovery_ros": 314.994,
+      "recovery_sec": 2.434000000000026
+    }
+  ],
+  "final_landing": {
+    "xyz_local": [
+      4.2287187328707425,
+      8.441429434635713,
+      0.0046843764034079916
+    ],
+    "center_error_m": 0.06523248228293337,
+    "conservative_055m_corners_max_radius_m": 0.45118151663081857,
+    "nominal_h_outer_radius_m": 0.5,
+    "envelope_inside_nominal_circle": true
+  },
+  "videos": {
+    "downward_camera": {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_px4_seed11_20260909_151207/downward_camera.mp4",
+      "decode_exit_code": 0,
+      "status": "RECORDED",
+      "image_topic": "/downward_camera/image_raw",
+      "frames": 3694,
+      "received": 8582,
+      "encoded_fps": 10.0,
+      "first_image_stamp": 0.94,
+      "last_image_stamp": 447.602,
+      "error": null,
+      "timing": "Constant-rate review video; CSV image timestamps are authoritative for gaps."
+    },
+    "overview": {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_px4_seed11_20260909_151207/overview.mp4",
+      "decode_exit_code": 0,
+      "status": "RECORDED",
+      "image_topic": "/competition_overview/image_raw",
+      "frames": 3214,
+      "received": 3214,
+      "encoded_fps": 10.0,
+      "first_image_stamp": 0.678,
+      "last_image_stamp": 447.434,
+      "error": null,
+      "timing": "Constant-rate review video; CSV image timestamps are authoritative for gaps."
+    }
+  },
+  "auto_land_yaw": {
+    "ros_mode_receipt": 442.94,
+    "window_yaw_span_deg": 0.08231743425130844,
+    "max_adjacent_step_deg": 0.03803049027919769
+  }
+}

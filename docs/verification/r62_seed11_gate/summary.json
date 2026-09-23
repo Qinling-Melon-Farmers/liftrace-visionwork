@@ -1,0 +1,72 @@
+{
+  "status": "FAILED_STOPPED",
+  "matrix_started": false,
+  "attempts": [
+    {
+      "attempt": 1,
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r62_full_pilot_seed11_20260909_013457",
+      "source": "9514f323693ee4e4e7218a3e9b5f4dfcf0280bf8",
+      "gate": "FAIL",
+      "reason": "actual_collision",
+      "decision_count": 0,
+      "release_count": 0,
+      "ever_armed_recorded": false,
+      "max_truth_xy_distance_from_start_m": 4.561344552172355,
+      "video": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r62_full_pilot_seed11_20260909_013457/downward_camera.mp4",
+      "video_metadata": {
+        "status": "RECORDED",
+        "image_topic": "/downward_camera/image_raw",
+        "frames": 75,
+        "received": 160,
+        "encoded_fps": 10.0,
+        "first_image_stamp": 0.5,
+        "last_image_stamp": 9.33,
+        "error": null,
+        "timing": "Constant-rate review video; CSV image timestamps are authoritative for gaps."
+      },
+      "cleanup_pass": true
+    },
+    {
+      "attempt": 2,
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r62_retry_seed11_20260909_015353",
+      "source": "d1768a14a5bb7ee6ff586b1ced2d96e267bd2902",
+      "gate": "FAIL",
+      "reason": "startup_wall_timeout",
+      "decision_count": 0,
+      "release_count": 0,
+      "ever_armed_recorded": false,
+      "max_truth_xy_distance_from_start_m": 0.00043463710065164254,
+      "video": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r62_retry_seed11_20260909_015353/downward_camera.mp4",
+      "video_metadata": {
+        "status": "RECORDED",
+        "image_topic": "/downward_camera/image_raw",
+        "frames": 480,
+        "received": 1067,
+        "encoded_fps": 10.0,
+        "first_image_stamp": 0.501,
+        "last_image_stamp": 57.131,
+        "error": null,
+        "timing": "Constant-rate review video; CSV image timestamps are authoritative for gaps."
+      },
+      "cleanup_pass": true
+    }
+  ],
+  "latest_early_return_enabled": false,
+  "total_mission_limit_sec": 600,
+  "readonly_lidar_probe": {
+    "stamp": 43.036,
+    "point_count": 20000,
+    "points_beyond_0_2m": 6,
+    "max_range_m": 0.3762204090712103,
+    "points_beyond_blind_0_5m": 0
+  },
+  "gazebo_plugin_error": "Contact envelope link is missing",
+  "expanded_links": [
+    "iris::base_link",
+    "mid360::lidar_link"
+  ],
+  "configured_links": [
+    "base_link",
+    "lidar_link"
+  ]
+}

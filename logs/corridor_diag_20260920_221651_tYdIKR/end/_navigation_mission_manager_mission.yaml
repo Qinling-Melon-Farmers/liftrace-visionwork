@@ -1,0 +1,42 @@
+approach_altitude: 0.3
+candidate_max_age: 0.5
+decision_guard: 15.0
+delivery_reserve_per_slot: 60.0
+forced_return_at: 510.0
+frame: camera_init
+home_xy:
+- 0.0
+- 0.0
+landing_anchor_tolerance: 0.05
+landing_xy:
+- 5.0
+- 0.0
+max_attempts: 2
+max_target_z: 4.0
+min_streak: 3
+motion_action_timeout: 90.0
+nominal_speed: 1.0
+path_factor: 1.5
+post_delivery_route:
+- - 0.0
+  - 0.0
+  - 0.3
+- - 2.0
+  - 0.37
+  - 0.3
+- - 4.0
+  - -0.37
+  - 0.3
+- - 5.0
+  - 0.0
+  - 0.3
+post_delivery_route_revision: corridor-waypoint-test-r1
+post_delivery_yaw: 0.0
+result_future_tolerance: 0.1
+retry_cooldown: 20.0
+return_altitude: 0.3
+return_land_reserve: 90.0
+target_action_timeout: 90.0
+timeout: 600.0
+transform_max_age: 0.5
+

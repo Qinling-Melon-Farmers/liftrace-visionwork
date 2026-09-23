@@ -1,0 +1,51 @@
+path:        /home/orangepi/liftrace_r64_onboard_405bda42/logs/corridor_diag_20260920_231157_MAMagv/navigation_0.bag
+version:     2.0
+duration:    1:20s (80s)
+start:       Sep 20 2026 23:11:58.88 (1789917118.88)
+end:         Sep 20 2026 23:13:19.03 (1789917199.03)
+size:        9.5 MB
+messages:    38846
+compression: none [12/12 chunks]
+types:       geometry_msgs/PoseStamped      [d3812c3cbc69362b77dc0b19b345f8f5]
+             mavros_msgs/ExtendedState      [ae780b1800fe17b917369d21b90058bd]
+             mavros_msgs/PositionTarget     [dedb0081aaf8cb20209737746bb49117]
+             mavros_msgs/State              [65cd0a9fff993b062b91e354554ec7e9]
+             nav_msgs/Odometry              [cd5e73d190d741a2f92e81eda573aca7]
+             patrol_control/MissionCommand  [038c007e424e8bde0eb7bbefa0802447]
+             plan_manage/Bspline            [b352d4f7278a546180de67cbe6793e49]
+             plan_manage/PlannerStatus      [6dd2a0344b804ca254594ba311c6c83f]
+             quadrotor_msgs/PositionCommand [4712f0609ca29a79af79a35ca3e3967a]
+             rosgraph_msgs/Log              [acffd30cd6b6de30f120938c17c593fb]
+             std_msgs/Bool                  [8b94c1b53db61fb6aed406028ad6332a]
+             std_msgs/Int8                  [27ffa0c9c4b8fb8492252bcad9e5c57b]
+             std_msgs/String                [992ce8a1687cec8c8bd883ec73ca41d1]
+             tf2_msgs/TFMessage             [94810edda583a504dfda3829e70d7eec]
+             uav_mission/NavigationDecision [e78ea87843ba27eae8820cf3e01c4d17]
+             uav_mission/NavigationResult   [b23c1358b274449bcbffa141752984c4]
+topics:      /Odometry                               801 msgs    : nav_msgs/Odometry             
+             /detect/point_class                    1603 msgs    : std_msgs/Int8                 
+             /fastplanner/goal                         4 msgs    : geometry_msgs/PoseStamped     
+             /fastplanner/setpoint_position/local   8016 msgs    : geometry_msgs/PoseStamped     
+             /mavros/extended_state                  401 msgs    : mavros_msgs/ExtendedState     
+             /mavros/local_position/odom            2403 msgs    : nav_msgs/Odometry             
+             /mavros/local_position/pose            2403 msgs    : geometry_msgs/PoseStamped     
+             /mavros/setpoint_position/local        1603 msgs    : geometry_msgs/PoseStamped     
+             /mavros/setpoint_raw/target_local       801 msgs    : mavros_msgs/PositionTarget    
+             /mavros/state                            81 msgs    : mavros_msgs/State             
+             /mavros/vision_pose/pose                801 msgs    : geometry_msgs/PoseStamped     
+             /mission/command                          4 msgs    : patrol_control/MissionCommand 
+             /mission/control_ready                    1 msg     : std_msgs/Bool                 
+             /navigation/local_odom                 2049 msgs    : nav_msgs/Odometry             
+             /navigation/local_pose                 2403 msgs    : geometry_msgs/PoseStamped     
+             /navigation/mission_command_raw           5 msgs    : uav_mission/NavigationDecision
+             /navigation/mission_result               16 msgs    : uav_mission/NavigationResult  
+             /navigation/mission_status               15 msgs    : std_msgs/String               
+             /navigation/planner_bridge_status        29 msgs    : std_msgs/String               
+             /navigation/setpoint_mission           1602 msgs    : geometry_msgs/PoseStamped     
+             /planning/bspline                         4 msgs    : plan_manage/Bspline           
+             /planning/goal_status                    16 msgs    : plan_manage/PlannerStatus     
+             /planning/pos_cmd                      8011 msgs    : quadrotor_msgs/PositionCommand
+             /rosout_agg                             971 msgs    : rosgraph_msgs/Log             
+             /tf                                    3199 msgs    : tf2_msgs/TFMessage             (2 connections)
+             /tf_static                                4 msgs    : tf2_msgs/TFMessage             (4 connections)
+             /uav_vision/align_mode                 1600 msgs    : std_msgs/String

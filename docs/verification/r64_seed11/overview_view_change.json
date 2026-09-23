@@ -1,0 +1,10 @@
+{
+  "ros_sec": 0.0,
+  "model": "competition_overview_camera",
+  "position": [
+    0,
+    8.35,
+    5
+  ],
+  "purpose": "Show corridor after completed delivery; observation camera only, no collision geometry"
+}

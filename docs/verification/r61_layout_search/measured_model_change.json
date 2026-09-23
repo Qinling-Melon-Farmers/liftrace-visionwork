@@ -1,0 +1,19 @@
+{
+  "ground_z": -0.22,
+  "fc_ground_height": 0.22,
+  "camera_ground_height": 0.06,
+  "lidar_imu_ground_height": 0.27,
+  "actual_dimensions": [
+    0.5,
+    0.5,
+    0.37
+  ],
+  "conservative_dimensions": [
+    0.55,
+    0.55,
+    0.4
+  ],
+  "carrier_geometry_scale": 0.7,
+  "dynamics": "generic/not hardware calibrated",
+  "new_flight_simulations": 0
+}

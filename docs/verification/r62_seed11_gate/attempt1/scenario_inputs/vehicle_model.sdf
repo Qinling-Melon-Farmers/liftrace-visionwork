@@ -1,0 +1,274 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.6">
+  <model name="iris_mid360_downward_camera">
+    <include>
+      <uri>model://r2026_iris_dynamics</uri>
+      <name>iris</name>
+    </include>
+    <include>
+      <uri>model://r2026_mid360_mounted</uri>
+      <pose>0.011 0.02329 0.00588 0 0 0</pose>
+      <name>mid360</name>
+    </include>
+    <joint name="mid360_joint" type="fixed">
+      <child>mid360::lidar_link</child>
+      <parent>iris::base_link</parent>
+    </joint>
+    <link name="competition_contact_link">
+      <pose>0 0 -0.020000000000000004 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1e-6</ixx>
+          <iyy>1e-6</iyy>
+          <izz>1e-6</izz>
+        </inertia>
+      </inertial>
+      <collision name="competition_guard_collision">
+        <geometry>
+          <box>
+            <size>0.55 0.55 0.4</size>
+          </box>
+        </geometry>
+        <max_contacts>20</max_contacts>
+      </collision>
+    </link>
+    <joint name="competition_contact_joint" type="fixed">
+      <child>competition_contact_link</child>
+      <parent>iris::base_link</parent>
+    </joint>
+    <link name="downward_camera_link">
+      <pose>0 0 -0.16 0 1.57079632679 0</pose>
+      <inertial>
+        <mass>0.015</mass>
+        <inertia>
+          <ixx>4.15e-6</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>2.407e-6</iyy>
+          <iyz>0</iyz>
+          <izz>2.407e-6</izz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.04 0.04 0.03</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
+      </visual>
+      <sensor name="downward_camera" type="camera">
+        <always_on>true</always_on>
+        <update_rate>30</update_rate>
+        <visualize>false</visualize>
+        <camera name="color">
+          <horizontal_fov>1.44593453190313</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+            <format>RGB_INT8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <distortion>
+            <k1>0.0058668600963917095</k1>
+            <k2>0.017910549546758369</k2>
+            <p1>-0.0010064115869294274</p1>
+            <p2>0.0014715593681005204</p2>
+            <k3>-0.026485100937585344</k3>
+            <center>0.4934936430758014 0.5521755296266148</center>
+          </distortion>
+        </camera>
+        <plugin name="downward_camera_controller" filename="libgazebo_ros_camera.so">
+          <robotNamespace>/</robotNamespace>
+          <cameraName>downward_camera</cameraName>
+          <imageTopicName>image_raw</imageTopicName>
+          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+          <frameName>downward_camera_optical_frame</frameName>
+          <alwaysOn>true</alwaysOn>
+          <updateRate>30</updateRate>
+          <CxPrime>631.67186313702575</CxPrime>
+          <Cx>631.67186313702575</Cx>
+          <Cy>397.56638133116269</Cy>
+          <hackBaseline>0.0</hackBaseline>
+          <focalLength>725.3510059644434</focalLength>
+          <distortionK1>0.0058668600963917095</distortionK1>
+          <distortionK2>0.017910549546758369</distortionK2>
+          <distortionK3>-0.026485100937585344</distortionK3>
+          <distortionT1>-0.0010064115869294274</distortionT1>
+          <distortionT2>0.0014715593681005204</distortionT2>
+          <autoDistortion>true</autoDistortion>
+          <borderCrop>false</borderCrop>
+        </plugin>
+      </sensor>
+    </link>
+    <joint name="downward_camera_joint" type="fixed">
+      <child>downward_camera_link</child>
+      <parent>iris::base_link</parent>
+    </joint>
+    <plugin name="uav_contact_envelope" filename="libuav_contact_envelope.so">
+      <link_name>competition_contact_link</link_name>
+      <collision_name>competition_guard_collision</collision_name>
+      <contacts_topic>/mission/uav_contacts_raw</contacts_topic>
+    </plugin>
+    <link name="assembly_mounts">
+      <inertial>
+        <mass>.01</mass>
+        <inertia>
+          <ixx>1e-5</ixx>
+          <iyy>1e-5</iyy>
+          <izz>1e-5</izz>
+        </inertia>
+      </inertial>
+      <visual name="flight_controller_case">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.07 .05 .02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.10 .25 .18 1</ambient>
+          <diffuse>.10 .25 .18 1</diffuse>
+        </material>
+      </visual>
+      <visual name="lidar_mount_plate">
+        <pose>0.008 0.015 0.015 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.065 .065 .01</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.2 .2 .2 1</diffuse>
+        </material>
+      </visual>
+      <visual name="camera_mount">
+        <pose>0 0 -0.0875 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.004</radius>
+            <length>.105</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.2 .2 .2 1</ambient>
+          <diffuse>.2 .2 .2 1</diffuse>
+        </material>
+      </visual>
+      <visual name="landing_leg_0">
+        <pose>-0.08 -0.1 -.120 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.006</radius>
+            <length>.19</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="landing_leg_1">
+        <pose>0.08 -0.1 -.120 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.006</radius>
+            <length>.19</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="landing_leg_2">
+        <pose>-0.08 0.1 -.120 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.006</radius>
+            <length>.19</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="landing_leg_3">
+        <pose>0.08 0.1 -.120 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.006</radius>
+            <length>.19</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="landing_skid_0">
+        <pose>0 -0.1 -.215 0 1.57079632679 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.005</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="landing_skid_1">
+        <pose>0 0.1 -.215 0 1.57079632679 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.005</radius>
+            <length>0.2</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="upper_skid_crossbar_0">
+        <pose>0 -0.1 -.025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.18 .012 .012</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+      <visual name="upper_skid_crossbar_1">
+        <pose>0 0.1 -.025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.18 .012 .012</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.15 .15 .15 1</ambient>
+          <diffuse>.15 .15 .15 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <joint name="assembly_mount_joint" type="fixed">
+      <parent>iris::base_link</parent>
+      <child>assembly_mounts</child>
+    </joint>
+  </model>
+</sdf>

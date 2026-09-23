@@ -1,0 +1,996 @@
+{
+  "frame": "camera_init",
+  "units": "m",
+  "world_to_mission_translation": [
+    0.493412,
+    1.77269,
+    -0.0
+  ],
+  "search_bounds": {
+    "min_x": -2.007,
+    "max_x": 1.993,
+    "min_y": 0.273,
+    "max_y": 6.273,
+    "lane_spacing": 0.7,
+    "altitude": 1.4,
+    "route_revision": "r2026-installed-camera-070m-lanes-r1",
+    "max_failures_per_waypoint": 2
+  },
+  "walls": [
+    {
+      "id": "/toudi2/Wall_1/Wall_1_Collision",
+      "polygon": [
+        [
+          4.008412199005152,
+          -0.9823206143594374
+        ],
+        [
+          -3.9915878009666828,
+          -0.9822993856410906
+        ],
+        [
+          -3.991588199005152,
+          -1.1322993856405625
+        ],
+        [
+          4.008411800966683,
+          -1.1323206143589093
+        ]
+      ],
+      "height": 2.5
+    },
+    {
+      "id": "/toudi2/Wall_11/Wall_11_Collision",
+      "polygon": [
+        [
+          4.0084300905346275,
+          -1.132309724476392
+        ],
+        [
+          4.008393909464361,
+          8.717690275457159
+        ],
+        [
+          3.8583939094653723,
+          8.717689724476394
+        ],
+        [
+          3.8584300905356397,
+          -1.132310275457157
+        ]
+      ],
+      "height": 2.5
+    },
+    {
+      "id": "/toudi2/Wall_13/Wall_13_Collision",
+      "polygon": [
+        [
+          -1.650448,
+          6.91769
+        ],
+        [
+          3.849552,
+          6.91769
+        ],
+        [
+          3.849552,
+          7.067690000000001
+        ],
+        [
+          -1.650448,
+          7.067690000000001
+        ]
+      ],
+      "height": 2.5
+    },
+    {
+      "id": "/toudi2/Wall_4/Wall_4_Collision",
+      "polygon": [
+        [
+          -3.841578816987748,
+          -1.1323097244927511
+        ],
+        [
+          -3.8415971830132642,
+          3.8676902754735174
+        ],
+        [
+          -3.991597183012252,
+          3.8676897244927515
+        ],
+        [
+          -3.9915788169867357,
+          -1.132310275473517
+        ]
+      ],
+      "height": 2.5
+    },
+    {
+      "id": "/toudi2/Wall_6/Wall_6_Collision",
+      "polygon": [
+        [
+          -3.841578816987748,
+          3.7176902755072487
+        ],
+        [
+          -3.8415971830132642,
+          8.717690275473517
+        ],
+        [
+          -3.991597183012252,
+          8.717689724492752
+        ],
+        [
+          -3.9915788169867357,
+          3.717689724526483
+        ]
+      ],
+      "height": 2.5
+    },
+    {
+      "id": "/toudi2/Wall_9/Wall_9_Collision",
+      "polygon": [
+        [
+          -3.991588,
+          8.56769
+        ],
+        [
+          4.008412,
+          8.56769
+        ],
+        [
+          4.008412,
+          8.71769
+        ],
+        [
+          -3.991588,
+          8.71769
+        ]
+      ],
+      "height": 2.5
+    },
+    {
+      "id": "/Wall_14/link/collision",
+      "polygon": [
+        [
+          -2.341588,
+          6.9176899999999995
+        ],
+        [
+          -0.841588,
+          6.9176899999999995
+        ],
+        [
+          -0.841588,
+          7.06769
+        ],
+        [
+          -2.341588,
+          7.06769
+        ]
+      ],
+      "height": 2.5
+    },
+    {
+      "id": "/Wall_20/link/collision",
+      "polygon": [
+        [
+          -0.03700299999999987,
+          7.06769
+        ],
+        [
+          -0.037003000000000175,
+          7.767689999999999
+        ],
+        [
+          -0.18700300000000017,
+          7.767689999999999
+        ],
+        [
+          -0.18700299999999986,
+          7.06769
+        ]
+      ],
+      "height": 2.5
+    },
+    {
+      "id": "/Wall_22/link/collision",
+      "polygon": [
+        [
+          2.1980220000000004,
+          7.867690000000001
+        ],
+        [
+          2.198022,
+          8.56769
+        ],
+        [
+          2.048022,
+          8.56769
+        ],
+        [
+          2.0480220000000005,
+          7.867690000000001
+        ]
+      ],
+      "height": 2.5
+    }
+  ],
+  "trees": [
+    {
+      "id": "juniper_Tree",
+      "x": -1.219679,
+      "y": 2.834065,
+      "base_radius": 0.18,
+      "canopy_display_radius": 0.4,
+      "height": 1.5
+    },
+    {
+      "id": "juniper_Tree_0",
+      "x": -0.236863,
+      "y": 1.9535400000000003,
+      "base_radius": 0.18,
+      "canopy_display_radius": 0.4,
+      "height": 1.5
+    },
+    {
+      "id": "juniper_Tree_1",
+      "x": 0.6559809999999999,
+      "y": 3.084045,
+      "base_radius": 0.18,
+      "canopy_display_radius": 0.4,
+      "height": 1.5
+    },
+    {
+      "id": "juniper_Tree_2",
+      "x": 1.677131,
+      "y": 4.92804,
+      "base_radius": 0.18,
+      "canopy_display_radius": 0.4,
+      "height": 1.5
+    }
+  ],
+  "landing_xy": [
+    3.274292,
+    8.05722
+  ],
+  "tree_display_note": "Tree center/pedestal from world; canopy circles are schematic, not measured collision hulls.",
+  "standard_plate_size": 1.0,
+  "red_cross_size": 0.35,
+  "layouts": [
+    {
+      "seed": 1,
+      "run": "r2026_r60_matrix_seed01_20260908_013142",
+      "gate": "FAIL",
+      "drops": [
+        "panzer",
+        "bridge",
+        "tent"
+      ],
+      "targets": [
+        {
+          "class": "tent",
+          "model": "random_tent",
+          "source": "zhangpeng",
+          "footprint_radius": 0.7071,
+          "x": -0.3445,
+          "y": 3.9827,
+          "world_x": -0.838,
+          "world_y": 2.21,
+          "yaw": -0.2987
+        },
+        {
+          "class": "pillbox",
+          "model": "random_pillbox",
+          "source": "dibao",
+          "footprint_radius": 0.7071,
+          "x": -0.9551,
+          "y": 5.4288,
+          "world_x": -1.4485,
+          "world_y": 3.6561,
+          "yaw": -1.872
+        },
+        {
+          "class": "bridge",
+          "model": "random_bridge",
+          "source": "qiaoliang",
+          "footprint_radius": 0.7071,
+          "x": 1.1525,
+          "y": 1.4126,
+          "world_x": 0.6591,
+          "world_y": -0.3601,
+          "yaw": -0.6189
+        },
+        {
+          "class": "panzer",
+          "model": "random_panzer",
+          "source": "zhuangjiache",
+          "footprint_radius": 0.7071,
+          "x": -1.183,
+          "y": 1.1042,
+          "world_x": -1.6764,
+          "world_y": -0.6684,
+          "yaw": 2.5554
+        },
+        {
+          "class": "red_cross",
+          "model": "random_red_cross",
+          "source": "red_cross",
+          "footprint_radius": 0.2475,
+          "x": 0.1331,
+          "y": 5.7659,
+          "world_x": -0.3603,
+          "world_y": 3.9932,
+          "yaw": -0.7334
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "run": "r2026_r60_matrix_seed02_20260908_015830",
+      "gate": "FAIL",
+      "drops": [
+        "bridge",
+        "panzer",
+        "red_cross"
+      ],
+      "targets": [
+        {
+          "class": "tent",
+          "model": "random_tent",
+          "source": "zhangpeng",
+          "footprint_radius": 0.7071,
+          "x": -0.255,
+          "y": 3.9562,
+          "world_x": -0.7484,
+          "world_y": 2.1835,
+          "yaw": 1.0782
+        },
+        {
+          "class": "pillbox",
+          "model": "random_pillbox",
+          "source": "dibao",
+          "footprint_radius": 0.7071,
+          "x": 1.0862,
+          "y": 1.7288,
+          "world_x": 0.5927,
+          "world_y": -0.0439,
+          "yaw": 1.9473
+        },
+        {
+          "class": "bridge",
+          "model": "random_bridge",
+          "source": "qiaoliang",
+          "footprint_radius": 0.7071,
+          "x": -1.0591,
+          "y": 5.3263,
+          "world_x": -1.5525,
+          "world_y": 3.5536,
+          "yaw": 1.6334
+        },
+        {
+          "class": "panzer",
+          "model": "random_panzer",
+          "source": "zhuangjiache",
+          "footprint_radius": 0.7071,
+          "x": 0.5133,
+          "y": 5.4397,
+          "world_x": 0.0199,
+          "world_y": 3.667,
+          "yaw": -2.3163
+        },
+        {
+          "class": "red_cross",
+          "model": "random_red_cross",
+          "source": "red_cross",
+          "footprint_radius": 0.2475,
+          "x": 1.1739,
+          "y": 3.8293,
+          "world_x": 0.6804,
+          "world_y": 2.0566,
+          "yaw": -0.3781
+        }
+      ]
+    },
+    {
+      "seed": 3,
+      "run": "r2026_r60_matrix_seed03_20260908_021325",
+      "gate": "FAIL",
+      "drops": [
+        "panzer",
+        "red_cross",
+        "bridge"
+      ],
+      "targets": [
+        {
+          "class": "tent",
+          "model": "random_tent",
+          "source": "zhangpeng",
+          "footprint_radius": 0.7071,
+          "x": -1.0031,
+          "y": 4.276,
+          "world_x": -1.4965,
+          "world_y": 2.5033,
+          "yaw": -1.9116
+        },
+        {
+          "class": "pillbox",
+          "model": "random_pillbox",
+          "source": "dibao",
+          "footprint_radius": 0.7071,
+          "x": 1.0819,
+          "y": 1.1575,
+          "world_x": 0.5885,
+          "world_y": -0.6152,
+          "yaw": -1.9431
+        },
+        {
+          "class": "bridge",
+          "model": "random_bridge",
+          "source": "qiaoliang",
+          "footprint_radius": 0.7071,
+          "x": 0.3164,
+          "y": 5.1784,
+          "world_x": -0.177,
+          "world_y": 3.4057,
+          "yaw": 0.5253
+        },
+        {
+          "class": "panzer",
+          "model": "random_panzer",
+          "source": "zhuangjiache",
+          "footprint_radius": 0.7071,
+          "x": -1.161,
+          "y": 1.0907,
+          "world_x": -1.6544,
+          "world_y": -0.682,
+          "yaw": 0.0317
+        },
+        {
+          "class": "red_cross",
+          "model": "random_red_cross",
+          "source": "red_cross",
+          "footprint_radius": 0.2475,
+          "x": -0.2465,
+          "y": 3.0439,
+          "world_x": -0.7399,
+          "world_y": 1.2712,
+          "yaw": 2.4911
+        }
+      ]
+    },
+    {
+      "seed": 4,
+      "run": "r2026_r60_matrix_seed04_20260908_022859",
+      "gate": "FAIL",
+      "drops": [
+        "panzer"
+      ],
+      "targets": [
+        {
+          "class": "tent",
+          "model": "random_tent",
+          "source": "zhangpeng",
+          "footprint_radius": 0.7071,
+          "x": -1.1762,
+          "y": 5.2378,
+          "world_x": -1.6696,
+          "world_y": 3.4651,
+          "yaw": 2.4026
+        },
+        {
+          "class": "pillbox",
+          "model": "random_pillbox",
+          "source": "dibao",
+          "footprint_radius": 0.7071,
+          "x": 1.164,
+          "y": 1.7853,
+          "world_x": 0.6706,
+          "world_y": 0.0127,
+          "yaw": -1.0812
+        },
+        {
+          "class": "bridge",
+          "model": "random_bridge",
+          "source": "qiaoliang",
+          "footprint_radius": 0.7071,
+          "x": 0.3793,
+          "y": 4.5667,
+          "world_x": -0.1141,
+          "world_y": 2.794,
+          "yaw": -2.7529
+        },
+        {
+          "class": "panzer",
+          "model": "random_panzer",
+          "source": "zhuangjiache",
+          "footprint_radius": 0.7071,
+          "x": -1.1783,
+          "y": 1.101,
+          "world_x": -1.6717,
+          "world_y": -0.6716,
+          "yaw": 0.297
+        },
+        {
+          "class": "red_cross",
+          "model": "random_red_cross",
+          "source": "red_cross",
+          "footprint_radius": 0.2475,
+          "x": 0.7474,
+          "y": 5.736,
+          "world_x": 0.254,
+          "world_y": 3.9633,
+          "yaw": 1.9696
+        }
+      ]
+    },
+    {
+      "seed": 5,
+      "run": "r2026_r60_matrix_seed05_20260908_024146",
+      "gate": "PASS",
+      "drops": [
+        "panzer",
+        "red_cross",
+        "bridge"
+      ],
+      "targets": [
+        {
+          "class": "tent",
+          "model": "random_tent",
+          "source": "zhangpeng",
+          "footprint_radius": 0.7071,
+          "x": -1.1023,
+          "y": 5.2537,
+          "world_x": -1.5957,
+          "world_y": 3.4811,
+          "yaw": -3.0748
+        },
+        {
+          "class": "pillbox",
+          "model": "random_pillbox",
+          "source": "dibao",
+          "footprint_radius": 0.7071,
+          "x": 0.9409,
+          "y": 1.1321,
+          "world_x": 0.4475,
+          "world_y": -0.6406,
+          "yaw": 3.0259
+        },
+        {
+          "class": "bridge",
+          "model": "random_bridge",
+          "source": "qiaoliang",
+          "footprint_radius": 0.7071,
+          "x": 0.3197,
+          "y": 4.3377,
+          "world_x": -0.1737,
+          "world_y": 2.565,
+          "yaw": 0.6837
+        },
+        {
+          "class": "panzer",
+          "model": "random_panzer",
+          "source": "zhuangjiache",
+          "footprint_radius": 0.7071,
+          "x": -1.1887,
+          "y": 1.0866,
+          "world_x": -1.6822,
+          "world_y": -0.6861,
+          "yaw": -0.9702
+        },
+        {
+          "class": "red_cross",
+          "model": "random_red_cross",
+          "source": "red_cross",
+          "footprint_radius": 0.2475,
+          "x": -1.189,
+          "y": 3.975,
+          "world_x": -1.6825,
+          "world_y": 2.2023,
+          "yaw": 1.2882
+        }
+      ]
+    },
+    {
+      "seed": 6,
+      "run": "r2026_r60_matrix_seed06_20260908_025845",
+      "gate": "FAIL",
+      "drops": [
+        "panzer",
+        "bridge",
+        "red_cross"
+      ],
+      "targets": [
+        {
+          "class": "tent",
+          "model": "random_tent",
+          "source": "zhangpeng",
+          "footprint_radius": 0.7071,
+          "x": 0.1805,
+          "y": 4.6015,
+          "world_x": -0.3129,
+          "world_y": 2.8288,
+          "yaw": -2.6333
+        },
+        {
+          "class": "pillbox",
+          "model": "random_pillbox",
+          "source": "dibao",
+          "footprint_radius": 0.7071,
+          "x": -1.1644,
+          "y": 5.4581,
+          "world_x": -1.6578,
+          "world_y": 3.6854,
+          "yaw": -2.7417
+        },
+        {
+          "class": "bridge",
+          "model": "random_bridge",
+          "source": "qiaoliang",
+          "footprint_radius": 0.7071,
+          "x": 1.1662,
+          "y": 1.9205,
+          "world_x": 0.6727,
+          "world_y": 0.1478,
+          "yaw": 0.9267
+        },
+        {
+          "class": "panzer",
+          "model": "random_panzer",
+          "source": "zhuangjiache",
+          "footprint_radius": 0.7071,
+          "x": -1.1858,
+          "y": 1.1236,
+          "world_x": -1.6792,
+          "world_y": -0.6491,
+          "yaw": 2.4247
+        },
+        {
+          "class": "red_cross",
+          "model": "random_red_cross",
+          "source": "red_cross",
+          "footprint_radius": 0.2475,
+          "x": -0.4153,
+          "y": 3.3649,
+          "world_x": -0.9088,
+          "world_y": 1.5922,
+          "yaw": -0.1401
+        }
+      ]
+    },
+    {
+      "seed": 7,
+      "run": "r2026_r60_matrix_seed07_20260908_031450",
+      "gate": "PASS",
+      "drops": [
+        "panzer",
+        "bridge",
+        "red_cross"
+      ],
+      "targets": [
+        {
+          "class": "tent",
+          "model": "random_tent",
+          "source": "zhangpeng",
+          "footprint_radius": 0.7071,
+          "x": -0.9627,
+          "y": 5.3405,
+          "world_x": -1.4561,
+          "world_y": 3.5678,
+          "yaw": -1.2186
+        },
+        {
+          "class": "pillbox",
+          "model": "random_pillbox",
+          "source": "dibao",
+          "footprint_radius": 0.7071,
+          "x": 0.3165,
+          "y": 4.4169,
+          "world_x": -0.1769,
+          "world_y": 2.6442,
+          "yaw": 2.7466
+        },
+        {
+          "class": "bridge",
+          "model": "random_bridge",
+          "source": "qiaoliang",
+          "footprint_radius": 0.7071,
+          "x": 1.0585,
+          "y": 1.3278,
+          "world_x": 0.5651,
+          "world_y": -0.4449,
+          "yaw": -1.3889
+        },
+        {
+          "class": "panzer",
+          "model": "random_panzer",
+          "source": "zhuangjiache",
+          "footprint_radius": 0.7071,
+          "x": -1.1904,
+          "y": 1.1164,
+          "world_x": -1.6838,
+          "world_y": -0.6563,
+          "yaw": -0.0885
+        },
+        {
+          "class": "red_cross",
+          "model": "random_red_cross",
+          "source": "red_cross",
+          "footprint_radius": 0.2475,
+          "x": -1.3331,
+          "y": 4.121,
+          "world_x": -1.8265,
+          "world_y": 2.3483,
+          "yaw": 0.0226
+        }
+      ]
+    },
+    {
+      "seed": 8,
+      "run": "r2026_r60_matrix_seed08_20260908_033019",
+      "gate": "FAIL",
+      "drops": [
+        "panzer",
+        "bridge",
+        "red_cross"
+      ],
+      "targets": [
+        {
+          "class": "tent",
+          "model": "random_tent",
+          "source": "zhangpeng",
+          "footprint_radius": 0.7071,
+          "x": -1.0612,
+          "y": 4.6926,
+          "world_x": -1.5546,
+          "world_y": 2.92,
+          "yaw": -1.2647
+        },
+        {
+          "class": "pillbox",
+          "model": "random_pillbox",
+          "source": "dibao",
+          "footprint_radius": 0.7071,
+          "x": 0.4733,
+          "y": 4.345,
+          "world_x": -0.0201,
+          "world_y": 2.5724,
+          "yaw": 1.0333
+        },
+        {
+          "class": "bridge",
+          "model": "random_bridge",
+          "source": "qiaoliang",
+          "footprint_radius": 0.7071,
+          "x": 0.9825,
+          "y": 1.3288,
+          "world_x": 0.4891,
+          "world_y": -0.4439,
+          "yaw": 1.8563
+        },
+        {
+          "class": "panzer",
+          "model": "random_panzer",
+          "source": "zhuangjiache",
+          "footprint_radius": 0.7071,
+          "x": -1.178,
+          "y": 1.0959,
+          "world_x": -1.6714,
+          "world_y": -0.6768,
+          "yaw": -2.1654
+        },
+        {
+          "class": "red_cross",
+          "model": "random_red_cross",
+          "source": "red_cross",
+          "footprint_radius": 0.2475,
+          "x": 0.8492,
+          "y": 5.5736,
+          "world_x": 0.3558,
+          "world_y": 3.8009,
+          "yaw": -0.9912
+        }
+      ]
+    },
+    {
+      "seed": 9,
+      "run": "r2026_r60_matrix_seed09_20260908_034538",
+      "gate": "FAIL",
+      "drops": [
+        "panzer",
+        "bridge"
+      ],
+      "targets": [
+        {
+          "class": "tent",
+          "model": "random_tent",
+          "source": "zhangpeng",
+          "footprint_radius": 0.7071,
+          "x": 1.1378,
+          "y": 1.5222,
+          "world_x": 0.6444,
+          "world_y": -0.2505,
+          "yaw": -2.8055
+        },
+        {
+          "class": "pillbox",
+          "model": "random_pillbox",
+          "source": "dibao",
+          "footprint_radius": 0.7071,
+          "x": 0.3006,
+          "y": 4.9236,
+          "world_x": -0.1929,
+          "world_y": 3.1509,
+          "yaw": 2.361
+        },
+        {
+          "class": "bridge",
+          "model": "random_bridge",
+          "source": "qiaoliang",
+          "footprint_radius": 0.7071,
+          "x": -1.0779,
+          "y": 4.0987,
+          "world_x": -1.5714,
+          "world_y": 2.326,
+          "yaw": -1.8632
+        },
+        {
+          "class": "panzer",
+          "model": "random_panzer",
+          "source": "zhuangjiache",
+          "footprint_radius": 0.7071,
+          "x": -1.1872,
+          "y": 1.0873,
+          "world_x": -1.6806,
+          "world_y": -0.6853,
+          "yaw": -0.1098
+        },
+        {
+          "class": "red_cross",
+          "model": "random_red_cross",
+          "source": "red_cross",
+          "footprint_radius": 0.2475,
+          "x": -0.6599,
+          "y": 5.5649,
+          "world_x": -1.1534,
+          "world_y": 3.7922,
+          "yaw": -0.6984
+        }
+      ]
+    },
+    {
+      "seed": 10,
+      "run": "r2026_r60_matrix_seed10_20260908_040831",
+      "gate": "FAIL",
+      "drops": [
+        "panzer",
+        "bridge",
+        "red_cross"
+      ],
+      "targets": [
+        {
+          "class": "tent",
+          "model": "random_tent",
+          "source": "zhangpeng",
+          "footprint_radius": 0.7071,
+          "x": 0.3519,
+          "y": 5.3253,
+          "world_x": -0.1415,
+          "world_y": 3.5526,
+          "yaw": 1.6542
+        },
+        {
+          "class": "pillbox",
+          "model": "random_pillbox",
+          "source": "dibao",
+          "footprint_radius": 0.7071,
+          "x": -1.0893,
+          "y": 4.4477,
+          "world_x": -1.5827,
+          "world_y": 2.6751,
+          "yaw": 0.5524
+        },
+        {
+          "class": "bridge",
+          "model": "random_bridge",
+          "source": "qiaoliang",
+          "footprint_radius": 0.7071,
+          "x": 1.0943,
+          "y": 1.3687,
+          "world_x": 0.6009,
+          "world_y": -0.404,
+          "yaw": -0.2128
+        },
+        {
+          "class": "panzer",
+          "model": "random_panzer",
+          "source": "zhuangjiache",
+          "footprint_radius": 0.7071,
+          "x": -1.1798,
+          "y": 1.1037,
+          "world_x": -1.6732,
+          "world_y": -0.669,
+          "yaw": -2.4198
+        },
+        {
+          "class": "red_cross",
+          "model": "random_red_cross",
+          "source": "red_cross",
+          "footprint_radius": 0.2475,
+          "x": 0.9217,
+          "y": 4.2582,
+          "world_x": 0.4282,
+          "world_y": 2.4855,
+          "yaw": 0.0936
+        }
+      ]
+    },
+    {
+      "seed": 11,
+      "run": "r2026_r60_full_pilot_seed11_20260908_011243",
+      "gate": "PASS",
+      "drops": [
+        "panzer",
+        "bridge",
+        "red_cross"
+      ],
+      "targets": [
+        {
+          "class": "tent",
+          "model": "random_tent",
+          "source": "zhangpeng",
+          "footprint_radius": 0.7071,
+          "x": 0.0467,
+          "y": 5.1977,
+          "world_x": -0.4467,
+          "world_y": 3.425,
+          "yaw": 1.9197
+        },
+        {
+          "class": "pillbox",
+          "model": "random_pillbox",
+          "source": "dibao",
+          "footprint_radius": 0.7071,
+          "x": 1.0231,
+          "y": 1.7417,
+          "world_x": 0.5297,
+          "world_y": -0.031,
+          "yaw": 0.7403
+        },
+        {
+          "class": "bridge",
+          "model": "random_bridge",
+          "source": "qiaoliang",
+          "footprint_radius": 0.7071,
+          "x": -1.1566,
+          "y": 4.1782,
+          "world_x": -1.65,
+          "world_y": 2.4056,
+          "yaw": -3.0191
+        },
+        {
+          "class": "panzer",
+          "model": "random_panzer",
+          "source": "zhuangjiache",
+          "footprint_radius": 0.7071,
+          "x": -1.1945,
+          "y": 1.1095,
+          "world_x": -1.6879,
+          "world_y": -0.6632,
+          "yaw": 2.3006
+        },
+        {
+          "class": "red_cross",
+          "model": "random_red_cross",
+          "source": "red_cross",
+          "footprint_radius": 0.2475,
+          "x": 1.4469,
+          "y": 4.1073,
+          "world_x": 0.9535,
+          "world_y": 2.3346,
+          "yaw": 0.0029
+        }
+      ]
+    }
+  ]
+}

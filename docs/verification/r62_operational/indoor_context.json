@@ -1,0 +1,12 @@
+{
+  "bounds_xy": [
+    -8,
+    8,
+    -4,
+    13
+  ],
+  "ceiling_height": 5.5,
+  "scope": "Simple external walls, columns, boxes for richer lidar features. No crowd simulation or claimed venue reconstruction.",
+  "field_geometry_and_seed11_targets_unchanged": true,
+  "raw_lio_range_preserved": true
+}

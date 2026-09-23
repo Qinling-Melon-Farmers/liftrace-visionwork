@@ -1,0 +1,317 @@
+{
+  "source": "Exact triangles of the unchanged contact-ring OBJ translated by its actual +0.20 m link pose",
+  "samples": 60,
+  "mesh_intersections": 59,
+  "max_absolute_range_error": 0.0011275893903646694,
+  "ray_origin_body": [
+    0.011,
+    0.02329,
+    0.13
+  ],
+  "inner_vertex_radius": 0.25,
+  "inner_apothem": 0.23096988312782168,
+  "outer_vertex_radius": 0.3,
+  "matches_within_1cm": 59,
+  "checks": [
+    {
+      "measured_range": 0.24648098829589632,
+      "mesh_intersection_range": 0.2464806724309486,
+      "range_error": 3.1586494772528617e-07
+    },
+    {
+      "measured_range": 0.2492433635286856,
+      "mesh_intersection_range": 0.2495936559862575,
+      "range_error": -0.0003502924575718991
+    },
+    {
+      "measured_range": 0.2705000817638921,
+      "mesh_intersection_range": 0.27110309133563193,
+      "range_error": -0.0006030095717398098
+    },
+    {
+      "measured_range": 0.2640819756958133,
+      "mesh_intersection_range": 0.2644406927502972,
+      "range_error": -0.00035871705448387026
+    },
+    {
+      "measured_range": 0.27170707898678054,
+      "mesh_intersection_range": null,
+      "range_error": null
+    },
+    {
+      "measured_range": 0.251726007359756,
+      "mesh_intersection_range": 0.25285359675012065,
+      "range_error": -0.0011275893903646694
+    },
+    {
+      "measured_range": 0.24613660385144104,
+      "mesh_intersection_range": 0.24704265946178,
+      "range_error": -0.0009060556103389628
+    },
+    {
+      "measured_range": 0.24070485804771344,
+      "mesh_intersection_range": 0.24157782153631982,
+      "range_error": -0.000872963488606382
+    },
+    {
+      "measured_range": 0.23615008577270227,
+      "mesh_intersection_range": 0.23679376924439158,
+      "range_error": -0.0006436834716893047
+    },
+    {
+      "measured_range": 0.24267935483466407,
+      "mesh_intersection_range": 0.24267909808443874,
+      "range_error": 2.5675022533033776e-07
+    },
+    {
+      "measured_range": 0.228439979357495,
+      "mesh_intersection_range": 0.22844026529561326,
+      "range_error": -2.8593811826627125e-07
+    },
+    {
+      "measured_range": 0.2256020771608175,
+      "mesh_intersection_range": 0.2256804673376921,
+      "range_error": -7.839017687458205e-05
+    },
+    {
+      "measured_range": 0.22494224252961809,
+      "mesh_intersection_range": 0.22496933263526409,
+      "range_error": -2.709010564599934e-05
+    },
+    {
+      "measured_range": 0.2259739305525836,
+      "mesh_intersection_range": 0.2259740601926407,
+      "range_error": -1.2964005710602855e-07
+    },
+    {
+      "measured_range": 0.2249643783111944,
+      "mesh_intersection_range": 0.22496389739256484,
+      "range_error": 4.809186295584578e-07
+    },
+    {
+      "measured_range": 0.22580551928424727,
+      "mesh_intersection_range": 0.2259272008664019,
+      "range_error": -0.00012168158215461466
+    },
+    {
+      "measured_range": 0.22491770551511522,
+      "mesh_intersection_range": 0.2249435890785962,
+      "range_error": -2.5883563480988414e-05
+    },
+    {
+      "measured_range": 0.2259631499374381,
+      "mesh_intersection_range": 0.22599804172993693,
+      "range_error": -3.489179249882568e-05
+    },
+    {
+      "measured_range": 0.22532151290529318,
+      "mesh_intersection_range": 0.22535264877390548,
+      "range_error": -3.113586861230866e-05
+    },
+    {
+      "measured_range": 0.2242384317668902,
+      "mesh_intersection_range": 0.22424829318105655,
+      "range_error": -9.86141416634001e-06
+    },
+    {
+      "measured_range": 0.22516552634459594,
+      "mesh_intersection_range": 0.2251653216758861,
+      "range_error": 2.0466870984114927e-07
+    },
+    {
+      "measured_range": 0.22599374273644252,
+      "mesh_intersection_range": 0.22601027747147462,
+      "range_error": -1.653473503210323e-05
+    },
+    {
+      "measured_range": 0.225730722794988,
+      "mesh_intersection_range": 0.22573051913926342,
+      "range_error": 2.036557245621573e-07
+    },
+    {
+      "measured_range": 0.22601535400639797,
+      "mesh_intersection_range": 0.2260181332775873,
+      "range_error": -2.779271189329302e-06
+    },
+    {
+      "measured_range": 0.22544956789046855,
+      "mesh_intersection_range": 0.22545927478586547,
+      "range_error": -9.706895396921489e-06
+    },
+    {
+      "measured_range": 0.22759060953074858,
+      "mesh_intersection_range": 0.22759074895298062,
+      "range_error": -1.3942223203722293e-07
+    },
+    {
+      "measured_range": 0.22640609430173708,
+      "mesh_intersection_range": 0.22640585343195702,
+      "range_error": 2.408697800659887e-07
+    },
+    {
+      "measured_range": 0.22555519115018216,
+      "mesh_intersection_range": 0.22555498248258876,
+      "range_error": 2.0866759339877028e-07
+    },
+    {
+      "measured_range": 0.2265281273556736,
+      "mesh_intersection_range": 0.2265342462360107,
+      "range_error": -6.118880337108168e-06
+    },
+    {
+      "measured_range": 0.22597252795795492,
+      "mesh_intersection_range": 0.22597227220810157,
+      "range_error": 2.557498533506397e-07
+    },
+    {
+      "measured_range": 0.22481270226988137,
+      "mesh_intersection_range": 0.22481266265140887,
+      "range_error": 3.9618472502667146e-08
+    },
+    {
+      "measured_range": 0.22599697291490714,
+      "mesh_intersection_range": 0.2259967338143303,
+      "range_error": 2.391005768376253e-07
+    },
+    {
+      "measured_range": 0.22654558706432584,
+      "mesh_intersection_range": 0.22655120604297196,
+      "range_error": -5.618978646121375e-06
+    },
+    {
+      "measured_range": 0.24005756685361115,
+      "mesh_intersection_range": 0.24003342003421863,
+      "range_error": 2.4146819392528718e-05
+    },
+    {
+      "measured_range": 0.23406578924557395,
+      "mesh_intersection_range": 0.23412736253969896,
+      "range_error": -6.157329412501134e-05
+    },
+    {
+      "measured_range": 0.2295037171841311,
+      "mesh_intersection_range": 0.2296195690779945,
+      "range_error": -0.00011585189386340011
+    },
+    {
+      "measured_range": 0.2515042767943704,
+      "mesh_intersection_range": 0.2515046290792063,
+      "range_error": -3.5228483591387416e-07
+    },
+    {
+      "measured_range": 0.24409489805431708,
+      "mesh_intersection_range": 0.24415674413911487,
+      "range_error": -6.18460847977842e-05
+    },
+    {
+      "measured_range": 0.2384058338290051,
+      "mesh_intersection_range": 0.23870338756472848,
+      "range_error": -0.00029755373572337707
+    },
+    {
+      "measured_range": 0.23336372876747277,
+      "mesh_intersection_range": 0.23336349925992306,
+      "range_error": 2.295075497149579e-07
+    },
+    {
+      "measured_range": 0.22396452327240424,
+      "mesh_intersection_range": 0.22396441941493173,
+      "range_error": 1.0385747251095978e-07
+    },
+    {
+      "measured_range": 0.22507388964325536,
+      "mesh_intersection_range": 0.22507377034406303,
+      "range_error": 1.192991923304465e-07
+    },
+    {
+      "measured_range": 0.2243356080418176,
+      "mesh_intersection_range": 0.2243499934025536,
+      "range_error": -1.4385360736002273e-05
+    },
+    {
+      "measured_range": 0.22486623677778264,
+      "mesh_intersection_range": 0.22487270441358967,
+      "range_error": -6.467635807028138e-06
+    },
+    {
+      "measured_range": 0.22421812747973713,
+      "mesh_intersection_range": 0.22421794947238388,
+      "range_error": 1.7800735324646766e-07
+    },
+    {
+      "measured_range": 0.24577640387836328,
+      "mesh_intersection_range": 0.24577671151646865,
+      "range_error": -3.076381053790378e-07
+    },
+    {
+      "measured_range": 0.24704232815368285,
+      "mesh_intersection_range": 0.2470426557824797,
+      "range_error": -3.276287968423386e-07
+    },
+    {
+      "measured_range": 0.2410426240895313,
+      "mesh_intersection_range": 0.2415778192718313,
+      "range_error": -0.0005351951822999967
+    },
+    {
+      "measured_range": 0.23614517410104063,
+      "mesh_intersection_range": 0.2367937798622783,
+      "range_error": -0.0006486057612376528
+    },
+    {
+      "measured_range": 0.2413218362718516,
+      "mesh_intersection_range": 0.24165756989224702,
+      "range_error": -0.00033573362039540644
+    },
+    {
+      "measured_range": 0.2278726241553172,
+      "mesh_intersection_range": 0.22787294333903463,
+      "range_error": -3.191837174287837e-07
+    },
+    {
+      "measured_range": 0.22372912308343731,
+      "mesh_intersection_range": 0.22375540643438374,
+      "range_error": -2.6283350946426642e-05
+    },
+    {
+      "measured_range": 0.2247432354014751,
+      "mesh_intersection_range": 0.22476286144943902,
+      "range_error": -1.962604796393319e-05
+    },
+    {
+      "measured_range": 0.22397880783808893,
+      "mesh_intersection_range": 0.22397854337516654,
+      "range_error": 2.644629223946815e-07
+    },
+    {
+      "measured_range": 0.22496352206512849,
+      "mesh_intersection_range": 0.2249638974960948,
+      "range_error": -3.7543096631509343e-07
+    },
+    {
+      "measured_range": 0.2243500168167377,
+      "mesh_intersection_range": 0.2243591380241983,
+      "range_error": -9.121207460605074e-06
+    },
+    {
+      "measured_range": 0.2249129144015502,
+      "mesh_intersection_range": 0.2249435883725373,
+      "range_error": -3.0673970987105115e-05
+    },
+    {
+      "measured_range": 0.2239723826402061,
+      "mesh_intersection_range": 0.22397232660270988,
+      "range_error": 5.603749622662413e-08
+    },
+    {
+      "measured_range": 0.2253524995773503,
+      "mesh_intersection_range": 0.22535264767679095,
+      "range_error": -1.4809944065552472e-07
+    },
+    {
+      "measured_range": 0.2242193989922621,
+      "mesh_intersection_range": 0.22424829309753966,
+      "range_error": -2.8894105277565973e-05
+    }
+  ]
+}

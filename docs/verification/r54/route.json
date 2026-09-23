@@ -1,0 +1,101 @@
+{
+  "revision": "r2026-horizontal-three-door-h-r2-low-entry",
+  "route": [
+    [
+      -2.386703,
+      4.67227,
+      1.4
+    ],
+    [
+      -2.386703,
+      4.67227,
+      1.05
+    ],
+    [
+      -2.386703,
+      5.17227,
+      0.75
+    ],
+    [
+      -2.386703,
+      5.67227,
+      0.75
+    ],
+    [
+      -2.386703,
+      6.67227,
+      0.75
+    ],
+    [
+      -2.386703,
+      7.65269,
+      1.2
+    ],
+    [
+      -0.512003,
+      8.053133,
+      1.2
+    ],
+    [
+      0.287997,
+      8.053133,
+      1.2
+    ],
+    [
+      1.723022,
+      8.00965,
+      1.2
+    ],
+    [
+      2.523022,
+      8.00965,
+      1.2
+    ],
+    [
+      3.274292,
+      8.05722,
+      0.75
+    ]
+  ],
+  "doors": [
+    {
+      "name": "Wall_15",
+      "axis": "y",
+      "coordinate": 6.07227,
+      "direction": "positive",
+      "route_indices": [
+        5
+      ],
+      "lateral_min": -2.786588,
+      "lateral_max": -1.986588,
+      "z_min": 0.5,
+      "z_max": 1.3
+    },
+    {
+      "name": "Wall_20",
+      "axis": "x",
+      "coordinate": -0.112003,
+      "direction": "positive",
+      "route_indices": [
+        8
+      ],
+      "lateral_min": 7.60269,
+      "lateral_max": 8.50269,
+      "z_min": 0.0,
+      "z_max": 2.0
+    },
+    {
+      "name": "Wall_22",
+      "axis": "x",
+      "coordinate": 2.123022,
+      "direction": "positive",
+      "route_indices": [
+        10
+      ],
+      "lateral_min": 7.55969,
+      "lateral_max": 8.45969,
+      "z_min": 0.0,
+      "z_max": 2.0
+    }
+  ]
+}

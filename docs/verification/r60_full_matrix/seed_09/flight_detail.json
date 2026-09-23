@@ -1,0 +1,101 @@
+{
+  "gate": "FAIL",
+  "source": "9cfb3e56b11af23b4bc764b48e53454b32d015dc",
+  "seed": 9,
+  "mission_ros_sec": null,
+  "drops": [
+    {
+      "time": 39.984,
+      "class": "panzer",
+      "slot": 1,
+      "decision": 2
+    },
+    {
+      "time": 130.343,
+      "class": "bridge",
+      "slot": 2,
+      "decision": 13
+    }
+  ],
+  "return_goals": [
+    {
+      "t": 433.033,
+      "reason": "target_action_timed_out_uncertain",
+      "goal": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.4
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0,
+          "w": 1.0
+        }
+      }
+    }
+  ],
+  "autoland_ros_sec": null,
+  "on_ground_ros_sec": null,
+  "disarmed_ros_sec": null,
+  "ground_error_to_h_m": null,
+  "corridor_samples": 0,
+  "corridor_max_true_z_m": null,
+  "corridor_height_errors_m": {},
+  "corridor_xy_error_p95_m": null,
+  "door_crossings": [],
+  "cleanup_pass": true,
+  "bag_files": 0,
+  "phase_change_log": [],
+  "px4_ulog": "px4/log/2026-09-07/19_45_58.ulg",
+  "vehicle_status": {
+    "arming_state": {
+      "last": 2,
+      "transitions": [
+        [
+          14.783,
+          2
+        ]
+      ]
+    },
+    "nav_state": {
+      "last": 14,
+      "transitions": [
+        [
+          13.786999999999999,
+          14
+        ]
+      ]
+    }
+  },
+  "vehicle_land_detected": {
+    "ground_contact": {
+      "last": 0,
+      "transitions": [
+        [
+          16.535,
+          0
+        ]
+      ]
+    },
+    "maybe_landed": {
+      "last": 0,
+      "transitions": [
+        [
+          16.527,
+          0
+        ]
+      ]
+    },
+    "landed": {
+      "last": 0,
+      "transitions": [
+        [
+          16.527,
+          0
+        ]
+      ]
+    }
+  }
+}

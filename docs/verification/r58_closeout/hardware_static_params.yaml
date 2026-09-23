@@ -1,0 +1,651 @@
+# Static roslaunch expansion only; no hardware nodes were started.
+/align_height: 1.6
+/alignment/stable_count_threshold: 10
+/alignment/threshold: 20.0
+/alignment/timeout: 30.0
+/circle_detector/camera_info_topic: /camera/camera_info
+/circle_detector/circle_aspect_ratio_threshold: 0.85
+/circle_detector/circle_blur_kernel_size: 5
+/circle_detector/circle_duplicate_center_ratio: 0.45
+/circle_detector/circle_enable_morphology: true
+/circle_detector/circle_enable_resize: true
+/circle_detector/circle_h_max: 130
+/circle_detector/circle_h_min: 90
+/circle_detector/circle_max_candidates: 12
+/circle_detector/circle_min_contour_points: 15
+/circle_detector/circle_min_quality: 0.7
+/circle_detector/circle_morphology_kernel_size: 7
+/circle_detector/circle_preserve_aspect_ratio: true
+/circle_detector/circle_radius_max: 300.0
+/circle_detector/circle_radius_min: 10.0
+/circle_detector/circle_reject_border_clipped: true
+/circle_detector/circle_resize_height: 512
+/circle_detector/circle_resize_width: 640
+/circle_detector/circle_s_max: 255
+/circle_detector/circle_s_min: 80
+/circle_detector/circle_v_max: 255
+/circle_detector/circle_v_min: 80
+/circle_detector/debug_image_topic: /uav_vision/circle_debug
+/circle_detector/enable_debug_image: false
+/circle_detector/image_topic: /camera/image_raw
+/circle_detector/odom_topic: /mavros/local_position/odom
+/common/imu_topic: /livox/imu
+/common/lid_topic: /livox/lidar
+/common/time_offset_lidar_to_imu: 0.0
+/common/time_sync_en: false
+/cross_detector/black_ring_roi_radius: 80
+/cross_detector/blur_kernel_size: 5
+/cross_detector/camera_info_topic: /camera/camera_info
+/cross_detector/cross_area_min: 200.0
+/cross_detector/cross_aspect_ratio_min: 0.6
+/cross_detector/cross_border_margin_px: 3
+/cross_detector/cross_enable_relaxed_scoring: true
+/cross_detector/cross_min_contour_points: 20
+/cross_detector/cross_reject_border_clipped: true
+/cross_detector/cross_relaxed_depth_threshold: 10.0
+/cross_detector/cross_relaxed_good_cover: 0.5
+/cross_detector/cross_relaxed_max_aspect_ratio: 2.0
+/cross_detector/cross_relaxed_max_concave_points: 6
+/cross_detector/cross_relaxed_max_extent: 0.75
+/cross_detector/cross_relaxed_max_solidity: 0.9
+/cross_detector/cross_relaxed_min_concave_points: 2
+/cross_detector/cross_relaxed_min_cover: 0.3
+/cross_detector/cross_relaxed_min_extent: 0.2
+/cross_detector/cross_relaxed_min_score: 3.0
+/cross_detector/cross_relaxed_min_solidity: 0.4
+/cross_detector/cross_relaxed_prefer_aspect_ratio: 1.4
+/cross_detector/cross_relaxed_prefer_concave_points: 4
+/cross_detector/cross_shape_min_concave_points: 3
+/cross_detector/cross_shape_min_symmetry: 0.72
+/cross_detector/cross_shape_min_template_iou: 0.7
+/cross_detector/cross_solidity_max: 0.85
+/cross_detector/cross_solidity_min: 0.6
+/cross_detector/debug_image_topic: /uav_vision/debug_image
+/cross_detector/enable_black_ring_check: false
+/cross_detector/enable_debug_image: false
+/cross_detector/enable_gaussian_blur: true
+/cross_detector/image_topic: /camera/image_raw
+/cross_detector/odom_topic: /mavros/local_position/odom
+/cross_detector/red_s_max: 255
+/cross_detector/red_s_min: 50
+/cross_detector/red_v_max: 255
+/cross_detector/red_v_min: 50
+/cross_detector/target_center_x: 640.0
+/cross_detector/target_center_y: 480.0
+/cube_side_length: 1000.0
+/debug: true
+/detection_fusion/align_mode_topic: /uav_vision/align_mode
+/detection_fusion/aux_geometry_confidence: 0.85
+/detection_fusion/dedup_center_ratio: 0.35
+/detection_fusion/dedup_iou_threshold: 0.3
+/detection_fusion/deduplicate_same_class: true
+/detection_fusion/default_align_mode: disabled
+/detection_fusion/early_flush_complete_evidence: true
+/detection_fusion/flush_delay: 0.8
+/detection_fusion/input_topic: /uav_vision/detections
+/detection_fusion/output_topic: /uav_vision/detections_resolved
+/detection_fusion/require_red_cross_dual_confirmation: true
+/detection_fusion/source_sync_slop_sec: 0.05
+/detection_fusion/suppress_bridge_on_landing_pad: false
+/detection_fusion/suppress_bridge_on_red_cross: false
+/drop_aligner/align_mode_topic: /uav_vision/align_mode
+/drop_aligner/alignment_context_max_age: 0.5
+/drop_aligner/alignment_context_topic: /uav_vision/alignment_target_context
+/drop_aligner/alignment_context_watchdog_rate: 20.0
+/drop_aligner/allowed_alignment_commands:
+- 2
+/drop_aligner/camera_info_topic: /camera/camera_info
+/drop_aligner/class_profile: r2026
+/drop_aligner/default_mode: disabled
+/drop_aligner/max_offset_px: 30.0
+/drop_aligner/min_confidence: 0.6
+/drop_aligner/release_evidence_context_topic: /uav_vision/release_evidence_context
+/drop_aligner/require_alignment_context: true
+/drop_aligner/stable_frames: 3
+/drop_aligner/target_center_x: 640.0
+/drop_aligner/target_center_y: 480.0
+/drop_aligner/target_max_age: 0.5
+/drop_aligner/use_camera_info: true
+/drop_system/descent_stable_duration: 2.0
+/drop_system/dynamic_slot_offsets:
+- - 0.0
+  - 0.0
+- - 0.0
+  - 0.0
+- - 0.0
+  - 0.0
+/drop_system/enable_drop: true
+/drop_system/height_threshold: 0.2
+/drop_system/position_threshold: 0.15
+/drop_system/precision_threshold: 20.0
+/drop_system/release_setpoint_height: 0.1
+/drop_system/slot_offsets:
+- - 0.0
+  - 0.0
+- - 0.0
+  - 0.0
+- - 0.0
+  - 0.0
+/external_landing/alignment_tolerance: 0.08
+/external_landing/auto_land_height: 0.4
+/external_landing/auto_land_retry_sec: 1.0
+/external_landing/capture_height: 1.6
+/external_landing/detections_topic: /uav_vision/detections_mapped
+/external_landing/frame: camera_init
+/external_landing/mark_max_age_sec: 0.5
+/external_landing/max_mark_offset: 0.6
+/external_landing/stable_frames: 10
+/external_landing/watchdog_timeout_sec: 120.0
+/external_mission_mode: true
+/external_planner_max_command_z: 2.3
+/fast_planner_node/bspline/limit_acc: 1.0
+/fast_planner_node/bspline/limit_ratio: 1.1
+/fast_planner_node/bspline/limit_vel: 1.0
+/fast_planner_node/fsm/allow_goal_adjustment: true
+/fast_planner_node/fsm/flight_type: 1
+/fast_planner_node/fsm/goal_adjustment_radius: 0.15
+/fast_planner_node/fsm/min_replan_interval: 0.75
+/fast_planner_node/fsm/thresh_no_replan: 0.1
+/fast_planner_node/fsm/thresh_replan: 0.2
+/fast_planner_node/fsm/tracking_replan_distance: 0.45
+/fast_planner_node/fsm/waypoint0_x: 19.0
+/fast_planner_node/fsm/waypoint0_y: 0.0
+/fast_planner_node/fsm/waypoint0_z: 1.0
+/fast_planner_node/fsm/waypoint1_x: -19.0
+/fast_planner_node/fsm/waypoint1_y: 0.0
+/fast_planner_node/fsm/waypoint1_z: 1.0
+/fast_planner_node/fsm/waypoint2_x: 0.0
+/fast_planner_node/fsm/waypoint2_y: 19.0
+/fast_planner_node/fsm/waypoint2_z: 1.0
+/fast_planner_node/fsm/waypoint_num: 2
+/fast_planner_node/manager/clearance_threshold: 0.025
+/fast_planner_node/manager/control_points_distance: 0.2
+/fast_planner_node/manager/dynamic_environment: 0
+/fast_planner_node/manager/local_segment_length: 6.0
+/fast_planner_node/manager/max_acc: 1.0
+/fast_planner_node/manager/max_jerk: 4.0
+/fast_planner_node/manager/max_vel: 1.0
+/fast_planner_node/manager/use_geometric_path: false
+/fast_planner_node/manager/use_kinodynamic_path: true
+/fast_planner_node/manager/use_optimization: true
+/fast_planner_node/manager/use_topo_path: false
+/fast_planner_node/optimization/algorithm1: 15
+/fast_planner_node/optimization/algorithm2: 11
+/fast_planner_node/optimization/dist0: 0.1
+/fast_planner_node/optimization/lambda1: 10.0
+/fast_planner_node/optimization/lambda2: 5.0
+/fast_planner_node/optimization/lambda3: 1.0e-05
+/fast_planner_node/optimization/lambda4: 0.01
+/fast_planner_node/optimization/lambda7: 100.0
+/fast_planner_node/optimization/max_acc: 1.0
+/fast_planner_node/optimization/max_iteration_num1: 2
+/fast_planner_node/optimization/max_iteration_num2: 300
+/fast_planner_node/optimization/max_iteration_num3: 200
+/fast_planner_node/optimization/max_iteration_num4: 200
+/fast_planner_node/optimization/max_iteration_time1: 0.0001
+/fast_planner_node/optimization/max_iteration_time2: 0.005
+/fast_planner_node/optimization/max_iteration_time3: 0.003
+/fast_planner_node/optimization/max_iteration_time4: 0.003
+/fast_planner_node/optimization/max_vel: 1.0
+/fast_planner_node/optimization/order: 3
+/fast_planner_node/planner_node/planner: 1
+/fast_planner_node/sdf_map/cx: 321.04638671875
+/fast_planner_node/sdf_map/cy: 243.44969177246094
+/fast_planner_node/sdf_map/depth_filter_margin: 2
+/fast_planner_node/sdf_map/depth_filter_maxdist: 5.0
+/fast_planner_node/sdf_map/depth_filter_mindist: 0.2
+/fast_planner_node/sdf_map/depth_filter_tolerance: 0.15
+/fast_planner_node/sdf_map/esdf_slice_height: 0.3
+/fast_planner_node/sdf_map/frame_id: camera_init
+/fast_planner_node/sdf_map/fx: 387.229248046875
+/fast_planner_node/sdf_map/fy: 387.229248046875
+/fast_planner_node/sdf_map/ground_height: -0.2
+/fast_planner_node/sdf_map/horizontal_avoidance/enabled: true
+/fast_planner_node/sdf_map/horizontal_avoidance/floor_z: 0.1
+/fast_planner_node/sdf_map/horizontal_avoidance/max_x: 2.1
+/fast_planner_node/sdf_map/horizontal_avoidance/max_y: 5.5
+/fast_planner_node/sdf_map/horizontal_avoidance/min_x: -2.1
+/fast_planner_node/sdf_map/horizontal_avoidance/min_y: 0.2
+/fast_planner_node/sdf_map/horizontal_avoidance/obstacle_min_z: 0.4
+/fast_planner_node/sdf_map/horizontal_avoidance/support_min_points: 3
+/fast_planner_node/sdf_map/horizontal_avoidance/support_min_vertical_span: 0.2
+/fast_planner_node/sdf_map/horizontal_avoidance/support_radius: 0.15
+/fast_planner_node/sdf_map/k_depth_scaling_factor: 1000.0
+/fast_planner_node/sdf_map/local_bound_inflate: 0.0
+/fast_planner_node/sdf_map/local_map_margin: 50
+/fast_planner_node/sdf_map/local_update_range_x: 8.5
+/fast_planner_node/sdf_map/local_update_range_y: 8.5
+/fast_planner_node/sdf_map/local_update_range_z: 4.5
+/fast_planner_node/sdf_map/map_size_x: 12.0
+/fast_planner_node/sdf_map/map_size_y: 22.0
+/fast_planner_node/sdf_map/map_size_z: 3.0
+/fast_planner_node/sdf_map/max_ray_length: 4.5
+/fast_planner_node/sdf_map/min_ray_length: 0.5
+/fast_planner_node/sdf_map/obstacles_inflation: 0.3
+/fast_planner_node/sdf_map/obstacles_inflation_down: 0.3
+/fast_planner_node/sdf_map/obstacles_inflation_up: 0.1
+/fast_planner_node/sdf_map/p_hit: 0.65
+/fast_planner_node/sdf_map/p_max: 0.9
+/fast_planner_node/sdf_map/p_min: 0.12
+/fast_planner_node/sdf_map/p_miss: 0.35
+/fast_planner_node/sdf_map/p_occ: 0.8
+/fast_planner_node/sdf_map/pose_type: 1
+/fast_planner_node/sdf_map/resolution: 0.05
+/fast_planner_node/sdf_map/show_esdf_time: false
+/fast_planner_node/sdf_map/show_occ_time: false
+/fast_planner_node/sdf_map/skip_pixel: 2
+/fast_planner_node/sdf_map/use_depth_filter: true
+/fast_planner_node/sdf_map/virtual_ceil_height: 2.3
+/fast_planner_node/sdf_map/visualization_rate: 5.0
+/fast_planner_node/sdf_map/visualization_truncate_height: 2.49
+/fast_planner_node/search/allocate_num: 100000
+/fast_planner_node/search/check_num: 5
+/fast_planner_node/search/direct_shot_distance: 2.0
+/fast_planner_node/search/horizon: 7.0
+/fast_planner_node/search/init_max_tau: 0.8
+/fast_planner_node/search/lambda_heu: 5.0
+/fast_planner_node/search/margin: 0.2
+/fast_planner_node/search/max_acc: 1.0
+/fast_planner_node/search/max_search_time: 0.25
+/fast_planner_node/search/max_tau: 0.9
+/fast_planner_node/search/max_vel: 1.0
+/fast_planner_node/search/min_horizon_progress: 0.2
+/fast_planner_node/search/resolution_astar: 0.1
+/fast_planner_node/search/search_acc_resolution: 0.25
+/fast_planner_node/search/search_time_resolution: 0.3
+/fast_planner_node/search/time_resolution: 0.3
+/fast_planner_node/search/w_time: 10.0
+/fast_planner_node/search/w_z: 450.0
+/feature_extract_enable: false
+/filter_size_map: 0.15
+/filter_size_surf: 0.15
+/freedom/enable_visualization: true
+/freedom/fov_mask_path: /home/xhj/liftrace-worktrees/r2026-competition-integrated/patrol_uav_ws-patrol_planner/src/FreeDOM/config/
+/freedom/learn_fov: false
+/freedom/map/aggressive_connectivity: 124
+/freedom/map/block_depth: 5
+/freedom/map/conservative_connectivity: 26
+/freedom/map/counts_to_free: 6
+/freedom/map/counts_to_revert: 20
+/freedom/map/enable_local_map: false
+/freedom/map/local_map_max_z: 20.0
+/freedom/map/local_map_min_z: -20.0
+/freedom/map/local_map_range: 40.0
+/freedom/map/raycast_max_range: 15.0
+/freedom/map/raycast_max_z: 5.0
+/freedom/map/raycast_min_z: -3.0
+/freedom/map/sub_voxel_size: 0.1
+/freedom/map/voxel_depth: 0
+/freedom/map_tf_frame: camera_init
+/freedom/num_threads: 8
+/freedom/pointcloud_topic: /cloud_registered_body
+/freedom/raycast_enhancement/depth_image_min_range: 0.2
+/freedom/raycast_enhancement/depth_image_top_margin: 0
+/freedom/raycast_enhancement/depth_image_vertical_lines: 64
+/freedom/raycast_enhancement/enable_fov_mask: false
+/freedom/raycast_enhancement/enable_raycast_enhancement: true
+/freedom/raycast_enhancement/erosion_size: 0
+/freedom/raycast_enhancement/fov_mask_name: ''
+/freedom/raycast_enhancement/inpaint_size: 3
+/freedom/raycast_enhancement/lidar_horizon_fov_degree: 360.0
+/freedom/raycast_enhancement/lidar_vertical_fov_lower_degree: -7.0
+/freedom/raycast_enhancement/lidar_vertical_fov_upper_degree: 52.0
+/freedom/raycast_enhancement/max_raycast_enhancement_range: 12.0
+/freedom/raycast_enhancement/min_raycast_enhancement_area: 0.0
+/freedom/raycast_enhancement/raycast_enhancement_depth_margin: 0.2
+/freedom/save_map_path: /home/xhj/liftrace-worktrees/r2026-competition-integrated/patrol_uav_ws-patrol_planner/src/FreeDOM/generated_pcd/
+/freedom/save_map_topic: /save_map
+/freedom/sensor/max_range: 15.0
+/freedom/sensor/max_z: 5.0
+/freedom/sensor/min_range: 0.2
+/freedom/sensor/min_z: -3.0
+/freedom/sensor_tf_frame: mapping_imu
+/goal_list:
+- bridge
+- panzer
+- pillbox
+- tent
+- tank
+/guarded_servo_proxy/raw_service_name: /legacy/Servo_raw
+/guarded_servo_proxy/service_name: /Servo
+/land_height: 0.3
+/landing_detector/align_mode_topic: /uav_vision/align_mode
+/landing_detector/camera_info_topic: /camera/camera_info
+/landing_detector/debug_image_topic: /uav_vision/debug_image
+/landing_detector/default_align_mode: disabled
+/landing_detector/enable_debug_image: false
+/landing_detector/image_topic: /camera/image_raw
+/landing_detector/landing_adaptive_block_size: 31
+/landing_detector/landing_adaptive_c: 10.0
+/landing_detector/landing_aspect_ratio_threshold: 0.85
+/landing_detector/landing_blur_kernel_size: 5
+/landing_detector/landing_enable_h_structure_check: true
+/landing_detector/landing_h_defect_depth_ratio: 0.04
+/landing_detector/landing_h_inner_scale: 0.78
+/landing_detector/landing_h_max_area_ratio: 0.7
+/landing_detector/landing_h_max_center_distance_ratio: 0.35
+/landing_detector/landing_h_max_solidity: 0.8
+/landing_detector/landing_h_min_area_ratio: 0.1
+/landing_detector/landing_h_min_aspect_ratio: 0.55
+/landing_detector/landing_h_min_concave_points: 2
+/landing_detector/landing_h_min_solidity: 0.25
+/landing_detector/landing_h_open_kernel_size: 5
+/landing_detector/landing_h_saturation_max: 90
+/landing_detector/landing_h_value_max: 110
+/landing_detector/landing_min_contour_points: 15
+/landing_detector/landing_min_ellipse_fill_ratio: 0.7
+/landing_detector/landing_morphology_kernel_size: 7
+/landing_detector/landing_radius_max: 300.0
+/landing_detector/landing_radius_min: 15.0
+/landing_detector/odom_topic: /mavros/local_position/odom
+/landing_detector/process_only_in_landing_mode: true
+/lio_external_pose/frame: camera_init
+/lio_external_pose/imu_to_body_xyz:
+- -0.0
+- -0.0
+- -0.12412
+/mapping/acc_cov: 0.1
+/mapping/b_acc_cov: 0.0001
+/mapping/b_gyr_cov: 0.0001
+/mapping/det_range: 100.0
+/mapping/extrinsic_R:
+- 1
+- 0
+- 0
+- 0
+- 1
+- 0
+- 0
+- 0
+- 1
+/mapping/extrinsic_T:
+- -0.011
+- -0.02329
+- 0.04412
+/mapping/extrinsic_est_en: false
+/mapping/fov_degree: 360
+/mapping/gyr_cov: 0.1
+/max_iteration: 3
+/max_yaw_change: 0.2
+/navigation/mission_manager/mission/approach_altitude: 1.6
+/navigation/mission_manager/mission/candidate_max_age: 0.5
+/navigation/mission_manager/mission/decision_guard: 15.0
+/navigation/mission_manager/mission/delivery_reserve_per_slot: 60.0
+/navigation/mission_manager/mission/forced_return_at: 420.0
+/navigation/mission_manager/mission/frame: camera_init
+/navigation/mission_manager/mission/home_xy:
+- 0.0
+- 0.0
+/navigation/mission_manager/mission/landing_anchor_tolerance: 0.05
+/navigation/mission_manager/mission/landing_xy:
+- 3.274292
+- 8.05722
+/navigation/mission_manager/mission/max_attempts: 2
+/navigation/mission_manager/mission/max_target_z: 4.0
+/navigation/mission_manager/mission/min_streak: 3
+/navigation/mission_manager/mission/motion_action_timeout: 90.0
+/navigation/mission_manager/mission/nominal_speed: 0.5
+/navigation/mission_manager/mission/path_factor: 1.5
+/navigation/mission_manager/mission/post_delivery_route:
+- - -3.091588
+  - 6.29269
+  - 1.4
+- - -3.091588
+  - 7.81769
+  - 1.4
+- - -0.812003
+  - 8.16769
+  - 1.4
+- - 0.587997
+  - 8.16769
+  - 1.4
+- - 1.423022
+  - 7.46769
+  - 1.4
+- - 2.823022
+  - 7.46769
+  - 1.4
+- - 3.274292
+  - 8.05722
+  - 1.6
+/navigation/mission_manager/mission/post_delivery_route_revision: r2026-r58-corridor150-opening080-yaw090-entrycenter
+/navigation/mission_manager/mission/post_delivery_yaw: 1.5707963267948966
+/navigation/mission_manager/mission/result_future_tolerance: 0.1
+/navigation/mission_manager/mission/retry_cooldown: 20.0
+/navigation/mission_manager/mission/return_altitude: 1.4
+/navigation/mission_manager/mission/return_land_reserve: 180.0
+/navigation/mission_manager/mission/target_action_timeout: 120.0
+/navigation/mission_manager/mission/timeout: 600.0
+/navigation/mission_manager/mission/transform_max_age: 0.5
+/navigation/mission_manager/post_delivery_gate/doors:
+- axis: y
+  coordinate: 6.99269
+  direction: positive
+  lateral_max: -2.341588
+  lateral_min: -3.841588
+  name: corridor_entry
+  route_indices:
+  - 2
+  z_max: 2.5
+  z_min: 0.0
+- axis: x
+  coordinate: -0.112003
+  direction: positive
+  lateral_max: 8.56769
+  lateral_min: 7.76769
+  name: Wall_20
+  route_indices:
+  - 4
+  z_max: 2.5
+  z_min: 0.0
+- axis: x
+  coordinate: 2.123022
+  direction: positive
+  lateral_max: 7.86769
+  lateral_min: 7.06769
+  name: Wall_22
+  route_indices:
+  - 6
+  z_max: 2.5
+  z_min: 0.0
+/navigation/mission_manager/post_delivery_gate/expected_door_order:
+- corridor_entry
+- Wall_20
+- Wall_22
+/navigation/mission_manager/post_delivery_gate/final_h_tolerance: 0.35
+/navigation/mission_manager/post_delivery_gate/goal_tolerance: 0.18
+/navigation/mission_manager/profile/name: r2026
+/navigation/mission_manager/profile/path: /home/xhj/liftrace-worktrees/r2026-competition-integrated/patrol_uav_ws-patrol_planner/src/uav_mission/config/competition_profiles.yaml
+/navigation/mission_manager/readiness/map_max_age: 2.0
+/navigation/mission_manager/readiness/pose_max_age: 0.5
+/navigation/mission_manager/readiness/require_map: true
+/navigation/mission_manager/readiness/stamp_future_tolerance: 0.05
+/navigation/mission_manager/runtime/mission_id_prefix: vcl06-random
+/navigation/mission_manager/runtime/start_mode: full
+/navigation/mission_manager/runtime/tick_hz: 10.0
+/navigation/mission_manager/search/altitude: 1.4
+/navigation/mission_manager/search/lane_spacing: 0.7
+/navigation/mission_manager/search/max_failures_per_waypoint: 2
+/navigation/mission_manager/search/max_x: 1.993
+/navigation/mission_manager/search/max_y: 6.273
+/navigation/mission_manager/search/min_x: -2.007
+/navigation/mission_manager/search/min_y: 0.273
+/navigation/mission_manager/search/route_revision: r2026-installed-camera-070m-lanes-r1
+/navigation/planner_bridge/execution/allow_live_goal_output: true
+/navigation/planner_bridge/execution/approach_arrival_position_tolerance: 0.35
+/navigation/planner_bridge/execution/arrival_dwell: 0.5
+/navigation/planner_bridge/execution/arrival_position_tolerance: 0.18
+/navigation/planner_bridge/execution/arrival_speed_tolerance: 0.2
+/navigation/planner_bridge/execution/effective_goal_max_offset: 0.35
+/navigation/planner_bridge/execution/enabled: true
+/navigation/planner_bridge/execution/executor_id_prefix: vcl06-planner-bridge
+/navigation/planner_bridge/execution/max_goal_z: 2.5
+/navigation/planner_bridge/execution/mission_frame: camera_init
+/navigation/planner_bridge/execution/odom_max_age: 0.5
+/navigation/planner_bridge/execution/planner_accept_timeout: 5.0
+/navigation/planner_bridge/execution/source_future_tolerance: 0.1
+/navigation/planner_bridge/execution/tick_hz: 20.0
+/navigation/planner_bridge/landing/dwell: 1.0
+/navigation/planner_bridge/landing/height: 0.05
+/navigation/planner_bridge/landing/radius: 0.25
+/navigation/planner_bridge/landing/settle_radius: 0.15
+/navigation/planner_bridge/target/capture_max_age: 1.0
+/navigation/planner_bridge/target/context_max_age: 0.5
+/navigation/planner_bridge/target/max_association_distance: 0.8
+/navigation/planner_bridge/target/recovery_dwell: 0.5
+/navigation/planner_bridge/target/recovery_height: 0.95
+/navigation/planner_bridge/target/recovery_settle_radius: 0.15
+/pcd_save/interval: -1
+/pcd_save/pcd_save_en: false
+/point_filter_num: 3
+/preprocess/blind: 0.5
+/preprocess/lidar_type: 1
+/preprocess/scan_line: 4
+/publish/dense_publish_en: true
+/publish/path_en: false
+/publish/scan_bodyframe_pub_en: true
+/publish/scan_publish_en: true
+/px4_max_distance: 0.4
+/release_permission_arbiter/align_mode_topic: /uav_vision/align_mode
+/release_permission_arbiter/class_profile: r2026
+/release_permission_arbiter/commitment_evidence_topic: /mission/release_commitment_evidence
+/release_permission_arbiter/commitment_max_drift: 0.2
+/release_permission_arbiter/commitment_timeout: 45.0
+/release_permission_arbiter/control_state_timeout: 0.5
+/release_permission_arbiter/control_state_topic: /detect/point_class
+/release_permission_arbiter/evidence_context_topic: /uav_vision/release_evidence_context
+/release_permission_arbiter/evidence_timeout: 0.5
+/release_permission_arbiter/evidence_topic: /uav_vision/release_evidence
+/release_permission_arbiter/first_payload_slot: 1
+/release_permission_arbiter/max_release_altitude: 0.3
+/release_permission_arbiter/min_release_altitude: -0.05
+/release_permission_arbiter/payload_slots: 3
+/release_permission_arbiter/permission_lifetime: 0.25
+/release_permission_arbiter/permission_state_topic: /mission/release_permission_active
+/release_permission_arbiter/permission_topic: /mission/release_permission
+/release_permission_arbiter/pose_timeout: 0.5
+/release_permission_arbiter/pose_topic: /mavros/local_position/pose
+/release_permission_arbiter/publish_rate: 20.0
+/release_permission_arbiter/require_evidence_context: true
+/release_permission_arbiter/required_control_state: 2
+/release_permission_arbiter/result_topic: /mission/release_result
+/runtime_pos_log_enable: false
+/simulation/enable_auto_land: false
+/switch/auto_land: true
+/switch/flag_landing_detect: 1
+/switch/flag_planner_px4: false
+/target_detector_rknn/box_format: auto
+/target_detector_rknn/camera_info_topic: /camera/camera_info
+/target_detector_rknn/conf_threshold: 0.5
+/target_detector_rknn/debug_image_topic: /uav_vision/debug_image
+/target_detector_rknn/enable_debug_image: false
+/target_detector_rknn/image_topic: /camera/image_raw
+/target_detector_rknn/imgsz: 640
+/target_detector_rknn/input_color_space: RGB
+/target_detector_rknn/input_dtype: float32
+/target_detector_rknn/input_layout: NHWC
+/target_detector_rknn/input_normalize: true
+/target_detector_rknn/iou_threshold: 0.45
+/target_detector_rknn/metadata_path: /home/xhj/liftrace-worktrees/r2026-competition-integrated/vision_ws/src/uav_vision/config/merged_standard_6cls_metadata.yaml
+/target_detector_rknn/model_path: offline-inspection-only.rknn
+/target_detector_rknn/odom_topic: /mavros/local_position/odom
+/target_detector_rknn/perf_topic: /uav_vision/perf
+/target_detector_rknn/std_metadata_path: ''
+/target_detector_rknn/std_model_path: ''
+/target_detector_rknn/tank_metadata_path: ''
+/target_detector_rknn/tank_model_path: ''
+/target_map_projector/allow_latest_tf_fallback: false
+/target_map_projector/camera_info_topic: /camera/camera_info
+/target_map_projector/debug_image_topic: /uav_vision/debug_image
+/target_map_projector/enable_debug_image: false
+/target_map_projector/ground_z: 0.0
+/target_map_projector/image_topic: /camera/image_raw
+/target_map_projector/input_topic: /uav_vision/detections_refined
+/target_map_projector/map_frame: camera_init
+/target_map_projector/max_latest_tf_age_sec: 0.1
+/target_map_projector/odom_topic: /mavros/local_position/odom
+/target_map_projector/output_topic: /uav_vision/detections_mapped
+/target_map_projector/ray_z_epsilon: 1.0e-05
+/target_map_projector/rectify_input_pixels: true
+/target_map_projector/tf_timeout: 0.05
+/target_memory/align_mode_topic: /uav_vision/align_mode
+/target_memory/aux_geometry_confidence: 0.8
+/target_memory/candidate_ttl: 3.0
+/target_memory/class_profile: r2026
+/target_memory/class_switch_confirm_frames: 2
+/target_memory/class_switch_min_confidence: 0.7
+/target_memory/class_switch_vote_ratio: 1.0
+/target_memory/confirm_frames: 3
+/target_memory/cross_class_confidence: 0.8
+/target_memory/cross_geometry_confidence: 0.7
+/target_memory/default_align_mode: disabled
+/target_memory/detections_topic: /uav_vision/detections_mapped
+/target_memory/map_match_distance_m: 0.7
+/target_memory/map_memory_ttl: 0.0
+/target_memory/map_merge_distance_m: 0.7
+/target_memory/match_distance_px: 80.0
+/target_memory/priority_bridge: 2.0
+/target_memory/priority_circle: 0.0
+/target_memory/priority_landing_pad: 0.0
+/target_memory/priority_panzer: 2.5
+/target_memory/priority_pillbox: 1.5
+/target_memory/priority_red_cross: 10.0
+/target_memory/priority_tank: 5.0
+/target_memory/priority_tent: 1.0
+/target_memory/reject_cooldown: 5.0
+/target_memory/require_complete_detection_sources: true
+/target_memory/require_map_for_candidates: true
+/target_memory/reset_service: /uav_vision/reset_memory
+/target_memory/selected_max_age: 0.5
+/target_memory/std_class_confidence: 0.6
+/target_memory/std_geometry_confidence: 0.7
+/target_memory/suppress_bridge_on_landing_pad: true
+/target_memory/suppress_bridge_on_red_cross: true
+/target_refiner/class_profile: r2026
+/target_refiner/input_topic: /uav_vision/detections_resolved
+/target_refiner/max_center_distance_ratio: 1.25
+/target_refiner/min_ring_quality: 0.7
+/target_refiner/output_topic: /uav_vision/detections_refined
+/target_refiner/roi_margin_px: 40.0
+/threshould/aligning_threshould: 0.05
+/threshould/arrive_yaw_threshould: 0.3
+/threshould/land_adjust_max_second_threshould: 10
+/threshould/landing_threshould: 0.15
+/threshould/planner_min_pub_threshould: 0.025
+/threshould/takeoff_threshould: 0.3
+/threshould/times_detect_threshould: 40
+/threshould/waypoint_adjust_max_second_threshould: 15
+/threshould/waypoint_threshould: 0.3
+/traj_server/traj_server/adjust_distance_yaw: 4.0
+/traj_server/traj_server/target_dist: 0.4
+/traj_server/traj_server/time_forward: 1.5
+/uav_vision/drop_circle_radius_m: 0.5
+/uav_vision/drop_cross_radius_m: 0.5
+/uav_vision/drop_offset_timeout: 1.0
+/uav_vision/enable_tank_interrupt: false
+/uav_vision/landing_pad_radius_m: 0.3
+/uav_vision/max_movement_distance: 0.5
+/uav_vision/pixel_to_body_matrix:
+- 0.0
+- -1.0
+- -1.0
+- 0.0
+/uav_vision/pixel_to_meter_ratio: 0.0015
+/uav_vision/recovery_height: 0.95
+/uav_vision/release_permission_state_topic: /mission/release_permission_active
+/uav_vision/release_permission_timeout: 0.2
+/uav_vision/require_release_permission: true
+/uav_vision/selected_target_timeout: 1.0
+/uav_vision/update_goal_from_selected_target: false
+/vision_pose_tf/child_frame: vision_body
+/vision_pose_tf/parent_frame: camera_init
+/vision_pose_tf/pose_topic: /mavros/local_position/pose
+/waypoint_skipping_index: 0
+/waypoints:
+- hover_time: 0.0
+  pointmode: Takeoff_point
+  x: 0.0
+  y: 0.0
+  yaw: 0.0
+  z: 1.4
+

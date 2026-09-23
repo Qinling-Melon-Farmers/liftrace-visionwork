@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "completed_seeds": 10,
+  "complete_passes": 2,
+  "three_delivery_runs": 8,
+  "distinct_layouts": 10,
+  "all_cleanup": true,
+  "all_no_bag": true,
+  "flight_source_unchanged_after_matrix": true,
+  "checked_local_links": 65,
+  "rqt_three_svg_parse": "PASS",
+  "offline_tool_python_compile": "PASS",
+  "hardware_entry_changed": false,
+  "main_merged": false
+}

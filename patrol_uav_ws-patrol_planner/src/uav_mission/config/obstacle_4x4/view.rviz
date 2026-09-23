@@ -1,0 +1,72 @@
+Panels:
+  - Class: rviz/Displays
+    Name: Displays
+  - Class: rviz/Views
+    Name: Views
+Visualization Manager:
+  Class: ""
+  Enabled: true
+  Global Options:
+    Background Color: 30; 34; 40
+    Fixed Frame: camera_init
+    Frame Rate: 10
+  Displays:
+    - Class: rviz/Grid
+      Name: Reference grid (camera_init Z=0)
+      Enabled: true
+      Value: true
+      Cell Size: 0.5
+      Plane Cell Count: 20
+      Color: 100; 110; 120
+      Alpha: 0.4
+      Reference Frame: camera_init
+      Line Style:
+        Value: Lines
+    - Class: rviz/Marker
+      Name: Planning obstacle blocks
+      Enabled: true
+      Value: true
+      Marker Topic: /navigation/obstacle_blocks
+      Queue Size: 1
+      Namespaces: {}
+    - Class: rviz/Marker
+      Name: Latest planned path
+      Enabled: true
+      Value: true
+      Marker Topic: /navigation/planned_path
+      Queue Size: 1
+      Namespaces: {}
+    - Class: rviz/Pose
+      Name: UAV pose
+      Enabled: true
+      Value: true
+      Topic: /navigation/local_pose
+      Shape: Arrow
+      Color: 255; 220; 60
+      Alpha: 1
+      Shaft Length: 0.25
+      Shaft Radius: 0.025
+      Head Length: 0.1
+      Head Radius: 0.06
+      Queue Size: 1
+  Tools:
+    - Class: rviz/Interact
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz/FocusCamera
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 8
+      Focal Point:
+        X: 0
+        Y: 2
+        Z: 0.3
+      Pitch: 0.8
+      Yaw: 0.8
+      Target Frame: camera_init
+      Near Clip Distance: 0.01
+      Name: Current View
+Window Geometry:
+  Width: 1000
+  Height: 700

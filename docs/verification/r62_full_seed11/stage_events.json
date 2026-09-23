@@ -1,0 +1,686 @@
+{
+  "event_types": {
+    "mission": 26,
+    "state": 5,
+    "extended_state": 2,
+    "decision": 22,
+    "result": 123,
+    "planner": 144,
+    "bspline": 50,
+    "release": 3
+  },
+  "target_results": [
+    {
+      "ros_sec": 216.56,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 69,
+          "stamp": {
+            "stamp_ns": 216520000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 69,
+        "decision_seq": 13,
+        "command": 1,
+        "status": 0,
+        "stage": 0,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 2,
+        "target_first_seen": {
+          "stamp_ns": 214859000000
+        },
+        "target_class": "bridge",
+        "attempt": 1,
+        "payload_slot": 2,
+        "reason": "planner_goal_dispatched",
+        "evidence_source": "planner_motion_executor"
+      }
+    },
+    {
+      "ros_sec": 216.758,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 70,
+          "stamp": {
+            "stamp_ns": 216757000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 70,
+        "decision_seq": 13,
+        "command": 1,
+        "status": 1,
+        "stage": 1,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 2,
+        "target_first_seen": {
+          "stamp_ns": 214859000000
+        },
+        "target_class": "bridge",
+        "attempt": 1,
+        "payload_slot": 2,
+        "reason": "planner_goal_accepted",
+        "evidence_source": "planner_motion_executor"
+      }
+    },
+    {
+      "ros_sec": 217.045,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 71,
+          "stamp": {
+            "stamp_ns": 217042000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 71,
+        "decision_seq": 13,
+        "command": 1,
+        "status": 2,
+        "stage": 1,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 2,
+        "target_first_seen": {
+          "stamp_ns": 214859000000
+        },
+        "target_class": "bridge",
+        "attempt": 1,
+        "payload_slot": 2,
+        "reason": "planner_trajectory_ready",
+        "evidence_source": "planner_motion_executor"
+      }
+    },
+    {
+      "ros_sec": 221.091,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 72,
+          "stamp": {
+            "stamp_ns": 221088000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 72,
+        "decision_seq": 13,
+        "command": 1,
+        "status": 2,
+        "stage": 1,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 2,
+        "target_first_seen": {
+          "stamp_ns": 214859000000
+        },
+        "target_class": "bridge",
+        "attempt": 1,
+        "payload_slot": 2,
+        "reason": "approach_arrival_confirmed",
+        "evidence_source": "planner_motion_executor"
+      }
+    },
+    {
+      "ros_sec": 221.105,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 73,
+          "stamp": {
+            "stamp_ns": 221097000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 73,
+        "decision_seq": 13,
+        "command": 1,
+        "status": 1,
+        "stage": 2,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 2,
+        "target_first_seen": {
+          "stamp_ns": 214859000000
+        },
+        "target_class": "bridge",
+        "attempt": 1,
+        "payload_slot": 2,
+        "reason": "patrol_control_alignment_accepted",
+        "evidence_source": "patrol_control_state"
+      }
+    },
+    {
+      "ros_sec": 319.811,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 74,
+          "stamp": {
+            "stamp_ns": 319807000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 74,
+        "decision_seq": 13,
+        "command": 1,
+        "status": 1,
+        "stage": 3,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 2,
+        "target_first_seen": {
+          "stamp_ns": 214859000000
+        },
+        "target_class": "bridge",
+        "attempt": 1,
+        "payload_slot": 2,
+        "reason": "strict_alignment_context_valid",
+        "evidence_source": "uav_vision_release_context"
+      }
+    },
+    {
+      "ros_sec": 323.759,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 75,
+          "stamp": {
+            "stamp_ns": 323759000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 75,
+        "decision_seq": 13,
+        "command": 1,
+        "status": 2,
+        "stage": 4,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": true,
+        "has_target": true,
+        "target_id": 2,
+        "target_first_seen": {
+          "stamp_ns": 214859000000
+        },
+        "target_class": "bridge",
+        "attempt": 1,
+        "payload_slot": 2,
+        "reason": "release_ack_success",
+        "evidence_source": "guarded_servo_proxy:2"
+      }
+    },
+    {
+      "ros_sec": 329.125,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 76,
+          "stamp": {
+            "stamp_ns": 329117000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 76,
+        "decision_seq": 13,
+        "command": 1,
+        "status": 3,
+        "stage": 5,
+        "terminal": true,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 2,
+        "target_first_seen": {
+          "stamp_ns": 214859000000
+        },
+        "target_class": "bridge",
+        "attempt": 1,
+        "payload_slot": 2,
+        "reason": "release_recovery_confirmed",
+        "evidence_source": "patrol_control_recovery"
+      }
+    },
+    {
+      "ros_sec": 451.219,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 117,
+          "stamp": {
+            "stamp_ns": 451219000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 117,
+        "decision_seq": 22,
+        "command": 1,
+        "status": 0,
+        "stage": 0,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 8,
+        "target_first_seen": {
+          "stamp_ns": 450348000000
+        },
+        "target_class": "red_cross",
+        "attempt": 1,
+        "payload_slot": 3,
+        "reason": "planner_goal_dispatched",
+        "evidence_source": "planner_motion_executor"
+      }
+    },
+    {
+      "ros_sec": 451.391,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 118,
+          "stamp": {
+            "stamp_ns": 451389000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 118,
+        "decision_seq": 22,
+        "command": 1,
+        "status": 1,
+        "stage": 1,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 8,
+        "target_first_seen": {
+          "stamp_ns": 450348000000
+        },
+        "target_class": "red_cross",
+        "attempt": 1,
+        "payload_slot": 3,
+        "reason": "planner_goal_accepted",
+        "evidence_source": "planner_motion_executor"
+      }
+    },
+    {
+      "ros_sec": 451.616,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 119,
+          "stamp": {
+            "stamp_ns": 451597000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 119,
+        "decision_seq": 22,
+        "command": 1,
+        "status": 2,
+        "stage": 1,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 8,
+        "target_first_seen": {
+          "stamp_ns": 450348000000
+        },
+        "target_class": "red_cross",
+        "attempt": 1,
+        "payload_slot": 3,
+        "reason": "planner_trajectory_ready",
+        "evidence_source": "planner_motion_executor"
+      }
+    },
+    {
+      "ros_sec": 455.154,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 120,
+          "stamp": {
+            "stamp_ns": 455151000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 120,
+        "decision_seq": 22,
+        "command": 1,
+        "status": 2,
+        "stage": 1,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 8,
+        "target_first_seen": {
+          "stamp_ns": 450348000000
+        },
+        "target_class": "red_cross",
+        "attempt": 1,
+        "payload_slot": 3,
+        "reason": "approach_arrival_confirmed",
+        "evidence_source": "planner_motion_executor"
+      }
+    },
+    {
+      "ros_sec": 455.205,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 121,
+          "stamp": {
+            "stamp_ns": 455204000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 121,
+        "decision_seq": 22,
+        "command": 1,
+        "status": 1,
+        "stage": 2,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 8,
+        "target_first_seen": {
+          "stamp_ns": 450348000000
+        },
+        "target_class": "red_cross",
+        "attempt": 1,
+        "payload_slot": 3,
+        "reason": "patrol_control_alignment_accepted",
+        "evidence_source": "patrol_control_state"
+      }
+    },
+    {
+      "ros_sec": 456.401,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 122,
+          "stamp": {
+            "stamp_ns": 456398000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 122,
+        "decision_seq": 22,
+        "command": 1,
+        "status": 1,
+        "stage": 3,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 8,
+        "target_first_seen": {
+          "stamp_ns": 450348000000
+        },
+        "target_class": "red_cross",
+        "attempt": 1,
+        "payload_slot": 3,
+        "reason": "strict_alignment_context_valid",
+        "evidence_source": "uav_vision_release_context"
+      }
+    },
+    {
+      "ros_sec": 459.713,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 123,
+          "stamp": {
+            "stamp_ns": 459713000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-668000000-1",
+        "executor_id": "vcl06-planner-bridge-5059ad4955cd4899a40c737b1f8a4db6",
+        "event_seq": 123,
+        "decision_seq": 22,
+        "command": 1,
+        "status": 2,
+        "stage": 4,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": true,
+        "has_target": true,
+        "target_id": 8,
+        "target_first_seen": {
+          "stamp_ns": 450348000000
+        },
+        "target_class": "red_cross",
+        "attempt": 1,
+        "payload_slot": 3,
+        "reason": "release_ack_success",
+        "evidence_source": "guarded_servo_proxy:3"
+      }
+    }
+  ],
+  "recovery_status": [],
+  "control_transitions": [
+    {
+      "data": {
+        "value": 0
+      },
+      "time": 0.452,
+      "type": "control_state"
+    },
+    {
+      "data": {
+        "value": "disabled"
+      },
+      "time": 0.452,
+      "type": "align_mode"
+    },
+    {
+      "data": {
+        "value": 1
+      },
+      "time": 22.654,
+      "type": "control_state"
+    },
+    {
+      "data": {
+        "value": 2
+      },
+      "time": 102.804,
+      "type": "control_state"
+    },
+    {
+      "data": {
+        "value": "drop_circle"
+      },
+      "time": 102.815,
+      "type": "align_mode"
+    },
+    {
+      "data": {
+        "align_mode": "drop_circle",
+        "aligned": true,
+        "center_refined": true,
+        "evidence_valid": true,
+        "geometry_verified": true,
+        "observation_fresh": true,
+        "stable_frames": 5,
+        "stamp": 104.203,
+        "stamp_nsec": 104203000000,
+        "target_class": "circle",
+        "target_confirmed": true,
+        "target_id": 1
+      },
+      "time": 104.203,
+      "type": "release_evidence_lock"
+    },
+    {
+      "data": {
+        "value": 1
+      },
+      "time": 108.503,
+      "type": "control_state"
+    },
+    {
+      "data": {
+        "value": "disabled"
+      },
+      "time": 108.504,
+      "type": "align_mode"
+    },
+    {
+      "data": {
+        "value": 2
+      },
+      "time": 221.097,
+      "type": "control_state"
+    },
+    {
+      "data": {
+        "value": "drop_circle"
+      },
+      "time": 221.11,
+      "type": "align_mode"
+    },
+    {
+      "data": {
+        "align_mode": "drop_circle",
+        "aligned": true,
+        "center_refined": true,
+        "evidence_valid": true,
+        "geometry_verified": true,
+        "observation_fresh": true,
+        "stable_frames": 5,
+        "stamp": 319.799,
+        "stamp_nsec": 319799000000,
+        "target_class": "circle",
+        "target_confirmed": true,
+        "target_id": 3
+      },
+      "time": 319.819,
+      "type": "release_evidence_lock"
+    },
+    {
+      "data": {
+        "value": 1
+      },
+      "time": 325.055,
+      "type": "control_state"
+    },
+    {
+      "data": {
+        "value": "disabled"
+      },
+      "time": 325.058,
+      "type": "align_mode"
+    },
+    {
+      "data": {
+        "value": 2
+      },
+      "time": 455.204,
+      "type": "control_state"
+    },
+    {
+      "data": {
+        "value": "drop_cross"
+      },
+      "time": 455.214,
+      "type": "align_mode"
+    },
+    {
+      "data": {
+        "align_mode": "drop_cross",
+        "aligned": true,
+        "center_refined": true,
+        "evidence_valid": true,
+        "geometry_verified": true,
+        "observation_fresh": true,
+        "stable_frames": 5,
+        "stamp": 456.396,
+        "stamp_nsec": 456396000000,
+        "target_class": "red_cross",
+        "target_confirmed": true,
+        "target_id": 8
+      },
+      "time": 456.409,
+      "type": "release_evidence_lock"
+    },
+    {
+      "data": {
+        "value": 1
+      },
+      "time": 461.103,
+      "type": "control_state"
+    },
+    {
+      "data": {
+        "value": "disabled"
+      },
+      "time": 461.113,
+      "type": "align_mode"
+    }
+  ]
+}

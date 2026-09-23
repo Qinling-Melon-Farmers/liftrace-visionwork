@@ -1,0 +1,81 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "id": "formal_legacy_topics_absent",
+      "passed": true,
+      "detail": "present=[]"
+    },
+    {
+      "id": "legacy_actuator_topics_absent",
+      "passed": true,
+      "detail": "present={}"
+    },
+    {
+      "id": "point_class_has_live_contract",
+      "passed": true,
+      "detail": "publishers=['/patrol_control'], subscribers=['/navigation_vcl06_debug_recorder', '/visual_delivery_audit', '/release_permission_arbiter', '/navigation/planner_bridge']"
+    },
+    {
+      "id": "typed_detections_connected",
+      "passed": true,
+      "detail": "publishers=['/target_map_projector'], subscribers=['/patrol_control', '/target_memory', '/navigation_vcl06_assertion', '/navigation_vcl06_debug_recorder', '/r56_readonly_observer']"
+    },
+    {
+      "id": "single_planner_goal_publisher",
+      "passed": true,
+      "detail": "publishers=['/navigation/planner_bridge']"
+    },
+    {
+      "id": "legacy_bridge_node_absent",
+      "passed": true,
+      "detail": "matching_nodes=[]"
+    },
+    {
+      "id": "old_coverage_manager_absent",
+      "passed": true,
+      "detail": "matching_nodes=[]"
+    },
+    {
+      "id": "node_present:/navigation/mission_manager",
+      "passed": true,
+      "detail": "present=True"
+    },
+    {
+      "id": "node_present:/navigation/planner_bridge",
+      "passed": true,
+      "detail": "present=True"
+    },
+    {
+      "id": "guarded_servo_service_present",
+      "passed": true,
+      "detail": "providers=['/guarded_servo_proxy']"
+    },
+    {
+      "id": "mock_raw_servo_service_present",
+      "passed": true,
+      "detail": "providers=['/mock_raw_servo_server']"
+    }
+  ],
+  "forbidden_topics": [
+    "/cross/control",
+    "/detect/class_control",
+    "/detect/control",
+    "/detect/cross_mark_point",
+    "/detect/cross_status",
+    "/detect/land_mark_point",
+    "/detect/landing_control",
+    "/detect/servo_complete",
+    "/detect/servo_status",
+    "/detect/tank_control",
+    "/detect/tank_status",
+    "/detect/waypoint_mark_point",
+    "/yolo_detect"
+  ],
+  "legacy_actuator_topic_candidates": [
+    "/control1",
+    "/control2",
+    "/control3",
+    "/servo/complete"
+  ]
+}

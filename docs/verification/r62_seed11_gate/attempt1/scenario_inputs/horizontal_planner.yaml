@@ -1,0 +1,38 @@
+# Restore the legacy planner's local free-goal capability. The anchor remains
+# the requested waypoint, so adjustments cannot accumulate across map updates.
+# 0.15 m stays inside the existing 0.18 m original-waypoint arrival tolerance.
+fsm/allow_goal_adjustment: true
+fsm/goal_adjustment_radius: 0.15
+fsm/tracking_replan_distance: 0.45
+fsm/min_replan_interval: 0.75
+sdf_map/virtual_ceil_height: 2.30
+# Inflate an overhead obstacle DOWN for the guard above the body; inflate
+# a floor obstacle UP for the undercarriage. These are not interchangeable.
+sdf_map/obstacles_inflation_up: 0.10
+sdf_map/obstacles_inflation_down: 0.30
+sdf_map/horizontal_avoidance/enabled: true
+sdf_map/horizontal_avoidance/min_x: -4.8
+sdf_map/horizontal_avoidance/max_x: 4.8
+sdf_map/horizontal_avoidance/min_y: -0.5
+sdf_map/horizontal_avoidance/max_y: 7.6
+sdf_map/horizontal_avoidance/obstacle_min_z: 0.18  # local z; 0.40 m AGL
+# Only column extrusion needs this support; all points retain 3-D occupancy.
+sdf_map/horizontal_avoidance/support_min_points: 3
+sdf_map/horizontal_avoidance/support_radius: 0.15
+sdf_map/horizontal_avoidance/support_min_vertical_span: 0.20
+sdf_map/horizontal_avoidance/floor_z: -0.12  # local z; 0.10 m AGL
+# 5 cm voxels preserve the 0.30 m guard envelope at the 0.80 m doorway.
+# The bounded map covers the whole field: X [-6,6], Y [-11,11], Z [-0.2,2.8].
+# 6,336,000 cells (~355 MB of SDF buffers); physical ceiling remains 2.30 m.
+sdf_map/resolution: 0.05
+sdf_map/map_size_x: 12.0
+sdf_map/map_size_y: 22.0
+sdf_map/map_size_z: 3.0
+sdf_map/visualization_rate: 5.0
+# A short goal requires a complete path. Long partial paths must make progress.
+search/max_search_time: 0.25
+search/min_horizon_progress: 0.20
+search/direct_shot_distance: 2.0
+# Keep 20 cm spline controls, with dense 20 ms collision validation.
+manager/control_points_distance: 0.20
+optimization/dist0: 0.10

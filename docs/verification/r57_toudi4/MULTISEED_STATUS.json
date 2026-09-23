@@ -1,0 +1,8 @@
+{
+  "requested_seed_runs": 10,
+  "executed_seed_runs": 0,
+  "condition": "strict 0.80 m full mission PASS",
+  "condition_met": false,
+  "status": "NOT_STARTED",
+  "reason": "User instructed analysis/report/closeout on failure, with no additional simulation."
+}

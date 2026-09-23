@@ -1,0 +1,14 @@
+[INFO] [1788898175.198604045, 108.503000000]: [PatrolControl] External ALIGN completed; waiting for RESUME command
+[INFO] [1788898785.056360899, 325.054000000]: [PatrolControl] External ALIGN completed; waiting for RESUME command
+[WARN] [1788899153.683195706, 461.103000000]: [ExternalPlanner] no planner command received
+[INFO] [1788899153.682749387, 461.103000000]: [CrossDetection] Received alignment target, detection count: 119
+[INFO] [1788899153.682847668, 461.103000000]: [crossdetectiondone]dis_to yes or no 0.21
+[INFO] [1788899153.682861964, 461.103000000]: [CrossDetectionDone]waypoint_temp: -3.85, 6.05
+[INFO] [1788899153.682872835, 461.103000000]: [CrossDetectionDone] should_drop: 0, drop_complete: 1, uav_pose.pose.position.z: 0.74
+[INFO] [1788899153.682880900, 461.103000000]: [CrossDetectionDone] servo_complete.data: 1
+[INFO] [1788899153.682894428, 461.103000000]: [CleanupAfterCrossDrop] All states cleaned up after cross drop, ready for next mission
+[INFO] [1788899153.682902497, 461.103000000]: [CrossDetectionDone] Cross drop completed successfully, returning to main mission
+[INFO] [1788899153.682910566, 461.103000000]: [PatrolControl] External ALIGN completed; waiting for RESUME command
+[INFO] [1788899153.683148401, 461.103000000]: [AlignMode] -> disabled
+[INFO] [1788899153.733676227, 461.153000000]: [ExternalPlanner] accepted current=(-3.802, 6.033, 0.767) command=(-3.803, 6.033, 0.752) distance=0.015
+[INFO] [1788899222.534792191, 485.552000000]: [ExternalPlanner] accepted current=(-3.640, 5.990, 0.082) command=(-3.640, 5.990, 0.082) distance=0.000

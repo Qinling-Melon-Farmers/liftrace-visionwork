@@ -1,0 +1,18 @@
+{
+  "chassis_origin_z_relative_fc": -0.04,
+  "camera_z_relative_fc": -0.16,
+  "imu_z_relative_fc": 0.05,
+  "cad_housing_local_z_adjustment": 0.04,
+  "lidar_housing_fc_z_bounds": [
+    0.019962900000000006,
+    0.08006
+  ],
+  "mounts": "schematic visual support, not measured CAD",
+  "collision_envelope": [
+    0.55,
+    0.55,
+    0.4
+  ],
+  "measured_sensor_extrinsics_changed": false,
+  "new_flight_simulations": 0
+}

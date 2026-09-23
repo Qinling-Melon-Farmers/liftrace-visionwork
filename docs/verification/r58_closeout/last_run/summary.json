@@ -1,0 +1,260 @@
+{
+  "status": "FAIL",
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r58_localgoal_pilot_seed11_20260907_230255",
+  "seed": 11,
+  "source": "59ed04b8d310af141670cb47ba1078759c8e02eb",
+  "checks_passed": 20,
+  "checks_total": 37,
+  "gate_reason": "actual_collision",
+  "gate_errors": [
+    "actual_collision"
+  ],
+  "gate_failures": [],
+  "metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 19,
+    "door_crossings": [
+      {
+        "lateral": -3.065883080574782,
+        "name": "corridor_entry",
+        "route_index": 2,
+        "z": 1.5332517302945579
+      }
+    ],
+    "height_violations": 0,
+    "landing_align_mode_seen": false,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      3.274292,
+      8.05722
+    ],
+    "latest_armed": null,
+    "latest_landed_state": null,
+    "max_observed_height": 1.7346585747951504,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 8619,
+    "post_delivery_decision_indices": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "post_delivery_return_success_count": 3,
+    "post_delivery_route_revision": "r2026-r58-corridor150-opening080-yaw090-entrycenter",
+    "post_delivery_route_size": 7,
+    "recovery_success_count": 3,
+    "release_commit_count": 3,
+    "result_count": 85,
+    "selected_count": 1116,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": null
+  },
+  "drops": [
+    {
+      "time": 39.304,
+      "class": "panzer",
+      "slot": 1,
+      "decision": 2
+    },
+    {
+      "time": 125.416,
+      "class": "bridge",
+      "slot": 2,
+      "decision": 13
+    },
+    {
+      "time": 141.574,
+      "class": "red_cross",
+      "slot": 3,
+      "decision": 15
+    }
+  ],
+  "ground_error_to_h": null,
+  "planner_goals": {
+    "1": {
+      "accepted": 27.828,
+      "first_ready": 27.858,
+      "failures": 0
+    },
+    "2": {
+      "accepted": 30.412,
+      "first_ready": 30.497,
+      "failures": 0
+    },
+    "3": {
+      "accepted": 41.784,
+      "first_ready": 41.791,
+      "failures": 0
+    },
+    "4": {
+      "accepted": 46.816,
+      "first_ready": 46.857,
+      "failures": 0
+    },
+    "5": {
+      "accepted": 60.412,
+      "first_ready": 60.413,
+      "failures": 0
+    },
+    "6": {
+      "accepted": 63.448,
+      "first_ready": 63.476,
+      "failures": 0
+    },
+    "7": {
+      "accepted": 77.06,
+      "first_ready": 77.064,
+      "failures": 0
+    },
+    "8": {
+      "accepted": 80.214,
+      "first_ready": 80.315,
+      "failures": 0
+    },
+    "9": {
+      "accepted": 93.864,
+      "first_ready": 93.868,
+      "failures": 0
+    },
+    "10": {
+      "accepted": 96.972,
+      "first_ready": 96.996,
+      "failures": 0
+    },
+    "11": {
+      "accepted": 112.892,
+      "first_ready": 112.896,
+      "failures": 0
+    },
+    "12": {
+      "accepted": 116.214,
+      "first_ready": 116.226,
+      "failures": 0
+    },
+    "13": {
+      "accepted": 118.62,
+      "first_ready": 118.68,
+      "failures": 0
+    },
+    "14": {
+      "accepted": 127.818,
+      "first_ready": 127.94,
+      "failures": 0
+    },
+    "15": {
+      "accepted": 134.822,
+      "first_ready": 134.923,
+      "failures": 0
+    },
+    "16": {
+      "accepted": 143.728,
+      "first_ready": 143.733,
+      "failures": 0
+    },
+    "17": {
+      "accepted": 165.228,
+      "first_ready": 165.232,
+      "failures": 0
+    },
+    "18": {
+      "accepted": 171.188,
+      "first_ready": 171.2,
+      "failures": 0
+    },
+    "19": {
+      "accepted": 178.996,
+      "first_ready": 179.0,
+      "failures": 0
+    }
+  },
+  "planner_ready_latency_ros_s": {
+    "p50": 0.012000000000000455,
+    "p95": 0.10309999999999912
+  },
+  "event_count": 234,
+  "pose_rows": {
+    "truth": 1782,
+    "mavros": 1498
+  },
+  "bag_files": 0,
+  "cleanup_pass": true,
+  "layout": {
+    "profile": "r2026",
+    "seed": 11,
+    "spawn_offset": {
+      "x": -0.4934,
+      "y": -1.7727
+    },
+    "search_region": {
+      "min_x": -2.007,
+      "max_x": 1.993,
+      "min_y": 0.273,
+      "max_y": 6.273
+    },
+    "targets": [
+      {
+        "class": "tent",
+        "model": "random_tent",
+        "source": "zhangpeng",
+        "footprint_radius": 0.7071,
+        "x": 0.0467,
+        "y": 5.1977,
+        "world_x": -0.4467,
+        "world_y": 3.425,
+        "yaw": 1.9197
+      },
+      {
+        "class": "pillbox",
+        "model": "random_pillbox",
+        "source": "dibao",
+        "footprint_radius": 0.7071,
+        "x": 1.0231,
+        "y": 1.7417,
+        "world_x": 0.5297,
+        "world_y": -0.031,
+        "yaw": 0.7403
+      },
+      {
+        "class": "bridge",
+        "model": "random_bridge",
+        "source": "qiaoliang",
+        "footprint_radius": 0.7071,
+        "x": -1.1566,
+        "y": 4.1782,
+        "world_x": -1.65,
+        "world_y": 2.4056,
+        "yaw": -3.0191
+      },
+      {
+        "class": "panzer",
+        "model": "random_panzer",
+        "source": "zhuangjiache",
+        "footprint_radius": 0.7071,
+        "x": -1.1945,
+        "y": 1.1095,
+        "world_x": -1.6879,
+        "world_y": -0.6632,
+        "yaw": 2.3006
+      },
+      {
+        "class": "red_cross",
+        "model": "random_red_cross",
+        "source": "red_cross",
+        "footprint_radius": 0.2475,
+        "x": 1.4469,
+        "y": 4.1073,
+        "world_x": 0.9535,
+        "world_y": 2.3346,
+        "yaw": 0.0029
+      }
+    ]
+  }
+}

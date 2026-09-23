@@ -1,0 +1,56 @@
+{
+  "last_runtime_head": "59ed04b8d310af141670cb47ba1078759c8e02eb",
+  "last_run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r58_localgoal_pilot_seed11_20260907_230255",
+  "last_gate": "FAIL",
+  "last_releases": 3,
+  "last_route_completed": 3,
+  "last_contact": {
+    "pairs": [
+      [
+        "iris_mid360::competition_contact_link::competition_guard_collision",
+        "toudi2::Wall_9::Wall_9_Collision"
+      ]
+    ],
+    "ros_stamp": 179.495,
+    "sequence": 1,
+    "wall_time": 1788794004.0682235
+  },
+  "last_cleanup_pass": true,
+  "ten_seed_runs": 0,
+  "new_simulations_after_stop_request": 0,
+  "return_true_z_minus_estimated_z_m": {
+    "p50": 0.0963636270904018,
+    "p95": 0.14618476750184772,
+    "max": 0.16676352002589145
+  },
+  "hardware_nodes": [
+    "/laserMapping",
+    "/freedom",
+    "/lio_external_pose",
+    "/vision_pose_tf",
+    "/mapping_imu_extrinsic",
+    "/downward_camera_extrinsic",
+    "/target_detector_rknn",
+    "/cross_detector",
+    "/circle_detector",
+    "/landing_detector",
+    "/detection_fusion",
+    "/target_refiner",
+    "/target_map_projector",
+    "/target_memory",
+    "/drop_aligner",
+    "/patrol_control",
+    "/fast_planner_node",
+    "/traj_server",
+    "/navigation/mission_manager",
+    "/navigation/planner_bridge",
+    "/release_permission_arbiter",
+    "/guarded_servo_proxy"
+  ],
+  "hardware_static_inspection_only": true,
+  "hardware_post_delivery_yaw": 1.5707963267948966,
+  "hardware_turn_start_distance": 4.0,
+  "hardware_return_yaw_tolerance_param": "absent; source defaults to pi",
+  "low_corridor_065_short_fov_m": 0.5599584201303921,
+  "current_main": "31d0b2aaa2c5bd9f9554008e42301cfbde666cfa"
+}

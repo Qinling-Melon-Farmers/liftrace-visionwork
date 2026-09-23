@@ -1,0 +1,51 @@
+cx: 321.04638671875
+cy: 243.44969177246094
+depth_filter_margin: 2
+depth_filter_maxdist: 5.0
+depth_filter_mindist: 0.2
+depth_filter_tolerance: 0.15
+esdf_slice_height: 0.3
+frame_id: camera_init
+fx: 387.229248046875
+fy: 387.229248046875
+ground_height: -0.2
+horizontal_avoidance:
+  enabled: false
+  floor_z: -0.12
+  max_x: 4.8
+  max_y: 7.6
+  min_x: -4.8
+  min_y: -0.5
+  obstacle_min_z: 0.18
+  support_min_points: 3
+  support_min_vertical_span: 0.2
+  support_radius: 0.15
+k_depth_scaling_factor: 1000.0
+local_bound_inflate: 0.0
+local_map_margin: 50
+local_update_range_x: 5.5
+local_update_range_y: 5.5
+local_update_range_z: 3.0
+map_size_x: 12.0
+map_size_y: 5.0
+map_size_z: 3.0
+max_ray_length: 4.5
+min_ray_length: 0.5
+obstacles_inflation: 0.1
+obstacles_inflation_down: 0.1
+obstacles_inflation_up: 0.1
+p_hit: 0.65
+p_max: 0.9
+p_min: 0.12
+p_miss: 0.35
+p_occ: 0.8
+pose_type: 1
+resolution: 0.1
+show_esdf_time: false
+show_occ_time: false
+skip_pixel: 2
+use_depth_filter: true
+virtual_ceil_height: -0.1
+visualization_rate: 2.0
+visualization_truncate_height: 2.49
+

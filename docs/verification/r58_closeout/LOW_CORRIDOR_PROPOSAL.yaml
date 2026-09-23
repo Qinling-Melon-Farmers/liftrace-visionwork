@@ -1,0 +1,32 @@
+# Requirement/proposal only. No launch loads this file; it is NOT a flown profile.
+status: draft_not_loaded_not_flight_validated
+source_runtime: 59ed04b8d310af141670cb47ba1078759c8e02eb
+reason: user_requested_stop_and_review_with_corridor_below_070m
+corridor:
+  height_reference: ground_relative_vehicle_reference_point
+  nominal_height_m: 0.65
+  desired_actual_max_height_m: 0.70
+  currently_enforced: false
+  frame: camera_init
+  # XY is the frozen R58 layout; actual field coordinates need registration.
+  proposed_waypoints:
+    - [-3.091588, 6.292690, 0.65]
+    - [-3.091588, 7.817690, 0.65]
+    - [-0.812003, 8.167690, 0.65]
+    - [0.587997, 8.167690, 0.65]
+    - [1.423022, 7.467690, 0.65]
+    - [2.823022, 7.467690, 0.65]
+  yaw_rad_in_current_frame: 1.5707963267948966
+  repeat_065_015_065_motion: false  # old intent/clearance not established
+  required_before_use:
+    - establish_ground_datum_and_reference_point
+    - bound_height_estimation_and_tracking_error_within_available_margin
+    - constrain_planned_and_commanded_height_for_the_entire_corridor_phase
+    - verify_physical_roof_clearance_including_airframe_top_and_tilt
+landing:
+  current_capture_height_m: 1.60
+  climb_requires_confirmed_exit_from_height_limited_corridor: true
+  if_landing_area_also_limited: current_full_ring_H_detector_requires_redesign
+simulation:
+  authorized_to_run_now: false
+  ten_seed_status: deferred_by_user

@@ -1,0 +1,15 @@
+{
+  "head": "e633a9be9fb1232e0b2bcdba5d6b68fb0d61bfd6",
+  "paths": {
+    "runtime.yaml": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_corridor_low_runtime.yaml",
+    "control.yaml": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_corridor_low_control.yaml",
+    "corridor.launch": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/navigation_corridor_landing_vcl06.launch",
+    "field.world": "vision_ws/src/uav_vision_eval/models/r2026_horizontal_field/field.world",
+    "vehicle_model.sdf": "vision_ws/src/uav_vision_eval/models/iris_mid360_ks2a543_installed/model.sdf",
+    "horizontal_planner.yaml": "patrol_uav_ws-patrol_planner/src/uav_mission/config/horizontal_planner.yaml",
+    "landing_detector.yaml": "vision_ws/src/uav_vision/config/landing_detector.yaml",
+    "logging.yaml": "vision_ws/src/uav_vision_eval/config/competition_logging.yaml"
+  },
+  "scope": "post_delivery",
+  "authorized_rounds": 1
+}

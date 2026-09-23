@@ -1,0 +1,28 @@
+# sim_run manifest — 自动生成，勿手改
+scene: r2026_integrated_r54_guided_entry
+start_time: 2026-09-07T02:51:04+08:00
+git_head: 19c602d7e4b3c0c1054a2dc5473b51f8f2e07362
+git_status:
+uav_ws: /home/xhj/liftrace-worktrees/r2026-competition-integrated/patrol_uav_ws-patrol_planner
+uav_git_head: 19c602d7e4b3c0c1054a2dc5473b51f8f2e07362
+uav_git_status:
+vision_ws: /home/xhj/liftrace-worktrees/r2026-competition-integrated/vision_ws
+vision_git_head: 19c602d7e4b3c0c1054a2dc5473b51f8f2e07362
+vision_git_status:
+resolved_uav_mission: /home/xhj/liftrace-worktrees/r2026-competition-integrated/patrol_uav_ws-patrol_planner/src/uav_mission
+resolved_uav_vision: /home/xhj/liftrace-worktrees/r2026-competition-integrated/vision_ws/src/uav_vision
+launch_cmd:
+  - "roslaunch"
+  - "uav_mission"
+  - "navigation_horizontal_search_vcl06.launch"
+  - "target_model_path:=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt"
+roslaunch_args:
+  - "roslaunch"
+  - "uav_mission"
+  - "navigation_horizontal_search_vcl06.launch"
+  - "target_model_path:=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt"
+require_gate: 1
+exit_code: 1
+end_time: 2026-09-07T03:04:56+08:00
+roslog: archived
+timeline: generated

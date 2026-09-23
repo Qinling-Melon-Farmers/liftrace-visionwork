@@ -1,0 +1,21 @@
+Gazebo multi-robot simulator, version 11.15.1
+Copyright (C) 2012 Open Source Robotics Foundation.
+Released under the Apache 2 License.
+http://gazebosim.org
+
+
+(1788890039 406239490) [Msg] Waiting for master.
+(1788890039 486619026) [Msg] Connected to gazebo master @ http://127.0.0.1:11345
+(1788890039 486754600) [Msg] Publicized address: 10.255.255.254
+(1788890042 238254885) [Msg] Loading world file [/home/xhj/liftrace-worktrees/r2026-competition-integrated/vision_ws/src/uav_vision_eval/models/r2026_horizontal_field/field.world]
+(1788890042 758350451) Init world[default]
+(1788890043 552194774) [Wrn] [gazebo_gps_plugin.cpp:77] [gazebo_gps_plugin]: iris_mid360::gps0 using gps topic "gps0"
+(1788890043 552276732) [Wrn] [gazebo_gps_plugin.cpp:202] [gazebo_gps_plugin] Using default update rate of 5hz
+(1788890051 900167235) [Msg] Connecting to PX4 SITL using TCP
+(1788890051 900189458) [Msg] Lockstep is enabled
+(1788890051 900203807) [Msg] Speed factor set to: 1
+(1788890051 902741032) [Msg] Using MAVLink protocol v2.0
+(1788890051 924901958) [Err] [contact_envelope_plugin.cpp:29] EXCEPTION: Contact envelope link is missing
+
+(1788890051 925706688) [Err] [Model.cc:1160] Exception occured in the Load function of plugin with name[uav_contact_envelope] and filename[libuav_contact_envelope.so]. This plugin will not run.
+(1788890051 925750187) Exception occured in the Load function of plugin with name[uav_contact_envelope] and filename[libuav_contact_envelope.so]. This plugin will not run.

@@ -1,0 +1,36 @@
+<launch>
+  <!-- Segmented SITL Gate for the navigation-owned post-delivery chain.
+
+       This launch uses the same world, planner, visual H detector and landing
+       executor as the formal full mission, but starts MissionCore at the
+       versioned corridor route.  It does not seed or claim payload commits;
+       gate_scope=post_delivery rejects any APPROACH action and expects zero
+       committed slots. -->
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="start_arming" default="true" />
+  <arg name="record_debug" default="true" />
+  <arg name="gate_startup_wall_timeout" default="180.0" />
+  <arg name="gate_wall_timeout" default="1800.0" />
+  <arg name="run_dir" default="$(optenv SIM_RUN_DIR /tmp)" />
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <arg name="field_seed" default="11" />
+  <arg name="enable_debug_image" default="false" />
+
+  <include file="$(find uav_mission)/launch/navigation_search_delivery_vcl06.launch">
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="start_arming" value="$(arg start_arming)" />
+    <arg name="start_hard_gate" value="true" />
+    <arg name="record_debug" value="$(arg record_debug)" />
+    <arg name="gate_startup_wall_timeout"
+         value="$(arg gate_startup_wall_timeout)" />
+    <arg name="gate_wall_timeout" value="$(arg gate_wall_timeout)" />
+    <arg name="run_dir" value="$(arg run_dir)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+    <arg name="mission_start_mode" value="post_delivery" />
+    <arg name="gate_scope" value="post_delivery" />
+  </include>
+</launch>

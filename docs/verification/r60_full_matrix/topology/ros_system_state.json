@@ -1,0 +1,1467 @@
+{
+  "publishers": {
+    "/rosout": [
+      "/downward_camera_extrinsic",
+      "/vision_pose_tf",
+      "/competition_key_recorder",
+      "/uav_arming_node",
+      "/patrol_control",
+      "/mavros",
+      "/traj_server",
+      "/mapping_imu_extrinsic",
+      "/target_refiner",
+      "/detection_fusion",
+      "/target_memory",
+      "/gazebo_contact_monitor",
+      "/mock_raw_servo_server",
+      "/guarded_servo_proxy",
+      "/random_field_spawner",
+      "/visual_delivery_audit",
+      "/navigation_mission_start_gate",
+      "/release_permission_arbiter",
+      "/planner_anchor_spawner",
+      "/lio_external_pose",
+      "/navigation/mission_manager",
+      "/navigation_vcl06_assertion",
+      "/navigation/planner_bridge",
+      "/laserMapping",
+      "/freedom",
+      "/cross_detector",
+      "/fast_planner_node",
+      "/circle_detector",
+      "/landing_detector",
+      "/drop_aligner",
+      "/target_map_projector",
+      "/gazebo",
+      "/target_detector"
+    ],
+    "/rosout_agg": [
+      "/rosout"
+    ],
+    "/tf_static": [
+      "/downward_camera_extrinsic",
+      "/mavros",
+      "/mapping_imu_extrinsic"
+    ],
+    "/tf": [
+      "/vision_pose_tf",
+      "/mavros",
+      "/gazebo",
+      "/laserMapping"
+    ],
+    "/diagnostics": [
+      "/mavros"
+    ],
+    "/fastplanner/setpoint_position/local": [
+      "/traj_server"
+    ],
+    "/planning/position_cmd_vis": [
+      "/traj_server"
+    ],
+    "/planning/pos_cmd": [
+      "/traj_server"
+    ],
+    "/planning/travel_traj": [
+      "/traj_server"
+    ],
+    "/mission/control_ready": [
+      "/patrol_control"
+    ],
+    "/mavros/setpoint_position/local": [
+      "/patrol_control"
+    ],
+    "/detect/point_class": [
+      "/patrol_control"
+    ],
+    "/uav_vision/align_mode": [
+      "/patrol_control"
+    ],
+    "/mavlink/from": [
+      "/mavros"
+    ],
+    "/uav_vision/detections_refined": [
+      "/target_refiner"
+    ],
+    "/uav_vision/targets": [
+      "/target_memory"
+    ],
+    "/uav_vision/selected_target": [
+      "/target_memory"
+    ],
+    "/uav_vision/detections_resolved": [
+      "/detection_fusion"
+    ],
+    "/mission/gazebo_contact_status": [
+      "/gazebo_contact_monitor"
+    ],
+    "/uav_mission/mock_raw_servo_calls": [
+      "/mock_raw_servo_server"
+    ],
+    "/mission/release_result": [
+      "/guarded_servo_proxy"
+    ],
+    "/mission/random_field_status": [
+      "/random_field_spawner"
+    ],
+    "/mission/visual_delivery_audit_status": [
+      "/visual_delivery_audit"
+    ],
+    "/navigation/mission_start_gate_status": [
+      "/navigation_mission_start_gate"
+    ],
+    "/mission/planner_anchor_status": [
+      "/planner_anchor_spawner"
+    ],
+    "/mission/release_permission": [
+      "/release_permission_arbiter"
+    ],
+    "/mission/release_commitment_evidence": [
+      "/release_permission_arbiter"
+    ],
+    "/mission/release_permission_active": [
+      "/release_permission_arbiter"
+    ],
+    "/mavros/vision_pose/pose": [
+      "/lio_external_pose"
+    ],
+    "/navigation/mission_command_raw": [
+      "/navigation/mission_manager"
+    ],
+    "/navigation/mission_status": [
+      "/navigation/mission_manager"
+    ],
+    "/mavros/radio_status": [
+      "/mavros"
+    ],
+    "/mavros/target_actuator_control": [
+      "/mavros"
+    ],
+    "/fastplanner/goal": [
+      "/navigation/planner_bridge"
+    ],
+    "/navigation/mission_result": [
+      "/navigation/planner_bridge"
+    ],
+    "/navigation/planner_bridge_status": [
+      "/navigation/planner_bridge"
+    ],
+    "/mission/command": [
+      "/navigation/planner_bridge"
+    ],
+    "/uav_vision/alignment_target_context": [
+      "/navigation/planner_bridge"
+    ],
+    "/mavros/adsb/vehicle": [
+      "/mavros"
+    ],
+    "/mavros/altitude": [
+      "/mavros"
+    ],
+    "/mavros/cam_imu_sync/cam_imu_stamp": [
+      "/mavros"
+    ],
+    "/mavros/camera/image_captured": [
+      "/mavros"
+    ],
+    "/mavros/debug_value/debug": [
+      "/mavros"
+    ],
+    "/mavros/debug_value/debug_vector": [
+      "/mavros"
+    ],
+    "/mavros/debug_value/debug_float_array": [
+      "/mavros"
+    ],
+    "/mavros/debug_value/named_value_float": [
+      "/mavros"
+    ],
+    "/mavros/debug_value/named_value_int": [
+      "/mavros"
+    ],
+    "/mavros/esc_info": [
+      "/mavros"
+    ],
+    "/mavros/esc_status": [
+      "/mavros"
+    ],
+    "/mavros/esc_telemetry": [
+      "/mavros"
+    ],
+    "/mavros/geofence/waypoints": [
+      "/mavros"
+    ],
+    "/mavros/global_position/raw/fix": [
+      "/mavros"
+    ],
+    "/mavros/global_position/raw/gps_vel": [
+      "/mavros"
+    ],
+    "/mavros/global_position/raw/satellites": [
+      "/mavros"
+    ],
+    "/mavros/global_position/global": [
+      "/mavros"
+    ],
+    "/mavros/global_position/local": [
+      "/mavros"
+    ],
+    "/mavros/global_position/rel_alt": [
+      "/mavros"
+    ],
+    "/mavros/global_position/compass_hdg": [
+      "/mavros"
+    ],
+    "/mavros/global_position/gp_origin": [
+      "/mavros"
+    ],
+    "/mavros/global_position/gp_lp_offset": [
+      "/mavros"
+    ],
+    "/mavros/gps_rtk/rtk_baseline": [
+      "/mavros"
+    ],
+    "/mavros/gpsstatus/gps1/raw": [
+      "/mavros"
+    ],
+    "/mavros/gpsstatus/gps2/raw": [
+      "/mavros"
+    ],
+    "/mavros/gpsstatus/gps1/rtk": [
+      "/mavros"
+    ],
+    "/mavros/gpsstatus/gps2/rtk": [
+      "/mavros"
+    ],
+    "/move_base_simple/goal": [
+      "/mavros"
+    ],
+    "/mavros/hil/controls": [
+      "/mavros"
+    ],
+    "/mavros/hil/actuator_controls": [
+      "/mavros"
+    ],
+    "/mavros/home_position/home": [
+      "/mavros"
+    ],
+    "/mavros/imu/data": [
+      "/mavros"
+    ],
+    "/mavros/imu/mag": [
+      "/mavros"
+    ],
+    "/mavros/imu/temperature_imu": [
+      "/mavros"
+    ],
+    "/mavros/imu/temperature_baro": [
+      "/mavros"
+    ],
+    "/mavros/imu/static_pressure": [
+      "/mavros"
+    ],
+    "/mavros/imu/diff_pressure": [
+      "/mavros"
+    ],
+    "/mavros/imu/data_raw": [
+      "/mavros"
+    ],
+    "/mavros/landing_target/pose_in": [
+      "/mavros"
+    ],
+    "/mavros/landing_target/lt_marker": [
+      "/mavros"
+    ],
+    "/mavros/local_position/pose": [
+      "/mavros"
+    ],
+    "/mavros/local_position/pose_cov": [
+      "/mavros"
+    ],
+    "/mavros/local_position/velocity_local": [
+      "/mavros"
+    ],
+    "/mavros/local_position/velocity_body": [
+      "/mavros"
+    ],
+    "/mavros/local_position/velocity_body_cov": [
+      "/mavros"
+    ],
+    "/mavros/local_position/accel": [
+      "/mavros"
+    ],
+    "/mavros/local_position/odom": [
+      "/mavros"
+    ],
+    "/mavros/log_transfer/raw/log_entry": [
+      "/mavros"
+    ],
+    "/mavros/log_transfer/raw/log_data": [
+      "/mavros"
+    ],
+    "/mavros/mag_calibration/status": [
+      "/mavros"
+    ],
+    "/mavros/mag_calibration/report": [
+      "/mavros"
+    ],
+    "/mavros/manual_control/control": [
+      "/mavros"
+    ],
+    "/mavros/mount_control/orientation": [
+      "/mavros"
+    ],
+    "/mavros/mount_control/status": [
+      "/mavros"
+    ],
+    "/mavros/nav_controller_output": [
+      "/mavros"
+    ],
+    "/mavros/odometry/in": [
+      "/mavros"
+    ],
+    "/mavros/param/param_value": [
+      "/mavros"
+    ],
+    "/mavros/px4flow/raw/optical_flow_rad": [
+      "/mavros"
+    ],
+    "/mavros/px4flow/ground_distance": [
+      "/mavros"
+    ],
+    "/mavros/px4flow/temperature": [
+      "/mavros"
+    ],
+    "/mavros/rallypoint/waypoints": [
+      "/mavros"
+    ],
+    "/mavros/rc/in": [
+      "/mavros"
+    ],
+    "/mavros/rc/out": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_raw/target_local": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_raw/target_global": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_raw/target_attitude": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_trajectory/desired": [
+      "/mavros"
+    ],
+    "/mavros/state": [
+      "/mavros"
+    ],
+    "/mavros/extended_state": [
+      "/mavros"
+    ],
+    "/mavros/battery": [
+      "/mavros"
+    ],
+    "/mavros/estimator_status": [
+      "/mavros"
+    ],
+    "/mavros/statustext/recv": [
+      "/mavros"
+    ],
+    "/mavros/sys_status": [
+      "/mavros"
+    ],
+    "/mavros/time_reference": [
+      "/mavros"
+    ],
+    "/mavros/timesync_status": [
+      "/mavros"
+    ],
+    "/mavros/terrain/report": [
+      "/mavros"
+    ],
+    "/mavros/trajectory/desired": [
+      "/mavros"
+    ],
+    "/mavros/tunnel/out": [
+      "/mavros"
+    ],
+    "/mavros/vfr_hud": [
+      "/mavros"
+    ],
+    "/mavros/mission/waypoints": [
+      "/mavros"
+    ],
+    "/mavros/mission/reached": [
+      "/mavros"
+    ],
+    "/mavros/wind_estimation": [
+      "/mavros"
+    ],
+    "/cloud_registered": [
+      "/laserMapping"
+    ],
+    "/cloud_registered_body": [
+      "/laserMapping"
+    ],
+    "/cloud_effected": [
+      "/laserMapping"
+    ],
+    "/Laser_map": [
+      "/laserMapping"
+    ],
+    "/Odometry": [
+      "/laserMapping"
+    ],
+    "/path": [
+      "/laserMapping"
+    ],
+    "/freedom/scan_blocks": [
+      "/freedom"
+    ],
+    "/freedom/scan_voxels": [
+      "/freedom"
+    ],
+    "/freedom/clusters": [
+      "/freedom"
+    ],
+    "/freedom/scan_map_range": [
+      "/freedom"
+    ],
+    "/freedom/depth_image": [
+      "/freedom"
+    ],
+    "/freedom/enhanced_depth_image": [
+      "/freedom"
+    ],
+    "/freedom/enhanced_pointcloud": [
+      "/freedom"
+    ],
+    "/freedom/raycasted_blocks": [
+      "/freedom"
+    ],
+    "/freedom/raycasted_voxels": [
+      "/freedom"
+    ],
+    "/freedom/free_blocks": [
+      "/freedom"
+    ],
+    "/freedom/free_voxels": [
+      "/freedom"
+    ],
+    "/freedom/static_blocks": [
+      "/freedom"
+    ],
+    "/freedom/static_voxels": [
+      "/freedom"
+    ],
+    "/freedom/static_subvoxels": [
+      "/freedom"
+    ],
+    "/freedom/static_pointcloud": [
+      "/freedom"
+    ],
+    "/freedom/raycast_range": [
+      "/freedom"
+    ],
+    "/freedom/local_map_range": [
+      "/freedom"
+    ],
+    "/uav_vision/drop_offset": [
+      "/drop_aligner"
+    ],
+    "/uav_vision/drop_ready": [
+      "/drop_aligner"
+    ],
+    "/uav_vision/release_evidence": [
+      "/drop_aligner"
+    ],
+    "/uav_vision/release_evidence_context": [
+      "/drop_aligner"
+    ],
+    "/uav_vision/detections_mapped": [
+      "/target_map_projector"
+    ],
+    "/uav_vision/detections": [
+      "/circle_detector",
+      "/cross_detector",
+      "/landing_detector",
+      "/target_detector"
+    ],
+    "/uav_vision/circle_debug": [
+      "/circle_detector"
+    ],
+    "/uav_vision/debug_image": [
+      "/cross_detector",
+      "/landing_detector"
+    ],
+    "/uav_vision/cross_debug": [
+      "/cross_detector"
+    ],
+    "/sdf_map/occupancy": [
+      "/fast_planner_node"
+    ],
+    "/sdf_map/occupancy_inflate": [
+      "/fast_planner_node"
+    ],
+    "/sdf_map/esdf": [
+      "/fast_planner_node"
+    ],
+    "/sdf_map/update_range": [
+      "/fast_planner_node"
+    ],
+    "/sdf_map/unknown": [
+      "/fast_planner_node"
+    ],
+    "/sdf_map/depth_cloud": [
+      "/fast_planner_node"
+    ],
+    "/planning_vis/trajectory": [
+      "/fast_planner_node"
+    ],
+    "/planning_vis/topo_path": [
+      "/fast_planner_node"
+    ],
+    "/planning_vis/prediction": [
+      "/fast_planner_node"
+    ],
+    "/planning_vis/visib_constraint": [
+      "/fast_planner_node"
+    ],
+    "/planning_vis/frontier": [
+      "/fast_planner_node"
+    ],
+    "/planning_vis/yaw": [
+      "/fast_planner_node"
+    ],
+    "/planning/replan": [
+      "/fast_planner_node"
+    ],
+    "/planning/new": [
+      "/fast_planner_node"
+    ],
+    "/planning/bspline": [
+      "/fast_planner_node"
+    ],
+    "/planning/goal_status": [
+      "/fast_planner_node"
+    ],
+    "/clock": [
+      "/gazebo"
+    ],
+    "/gazebo/link_states": [
+      "/gazebo"
+    ],
+    "/gazebo/model_states": [
+      "/gazebo"
+    ],
+    "/gazebo/performance_metrics": [
+      "/gazebo"
+    ],
+    "/gazebo/parameter_descriptions": [
+      "/gazebo"
+    ],
+    "/gazebo/parameter_updates": [
+      "/gazebo"
+    ],
+    "/livox/lidar": [
+      "/gazebo"
+    ],
+    "/uav_vision/perf": [
+      "/target_detector"
+    ],
+    "/livox/imu": [
+      "/gazebo"
+    ],
+    "/downward_camera/parameter_descriptions": [
+      "/gazebo"
+    ],
+    "/downward_camera/parameter_updates": [
+      "/gazebo"
+    ],
+    "/downward_camera/image_raw": [
+      "/gazebo"
+    ],
+    "/downward_camera/camera_info": [
+      "/gazebo"
+    ],
+    "/mission/uav_contacts_raw": [
+      "/gazebo"
+    ],
+    "/mavlink/gcs_ip": [
+      "/mavros"
+    ]
+  },
+  "subscribers": {
+    "/clock": [
+      "/rosout",
+      "/downward_camera_extrinsic",
+      "/vision_pose_tf",
+      "/competition_key_recorder",
+      "/uav_arming_node",
+      "/patrol_control",
+      "/mavros",
+      "/traj_server",
+      "/mapping_imu_extrinsic",
+      "/target_refiner",
+      "/detection_fusion",
+      "/target_memory",
+      "/gazebo_contact_monitor",
+      "/mock_raw_servo_server",
+      "/guarded_servo_proxy",
+      "/random_field_spawner",
+      "/visual_delivery_audit",
+      "/navigation_mission_start_gate",
+      "/release_permission_arbiter",
+      "/planner_anchor_spawner",
+      "/lio_external_pose",
+      "/navigation/mission_manager",
+      "/navigation_vcl06_assertion",
+      "/navigation/planner_bridge",
+      "/laserMapping",
+      "/freedom",
+      "/cross_detector",
+      "/fast_planner_node",
+      "/circle_detector",
+      "/landing_detector",
+      "/drop_aligner",
+      "/target_map_projector",
+      "/gazebo",
+      "/target_detector"
+    ],
+    "/rosout": [
+      "/rosout"
+    ],
+    "/mavros/local_position/pose": [
+      "/vision_pose_tf",
+      "/competition_key_recorder",
+      "/patrol_control",
+      "/visual_delivery_audit",
+      "/release_permission_arbiter",
+      "/navigation/mission_manager",
+      "/mavros"
+    ],
+    "/Odometry": [
+      "/competition_key_recorder",
+      "/lio_external_pose"
+    ],
+    "/gazebo/model_states": [
+      "/competition_key_recorder",
+      "/navigation_vcl06_assertion"
+    ],
+    "/downward_camera/camera_info": [
+      "/competition_key_recorder",
+      "/circle_detector",
+      "/cross_detector",
+      "/target_map_projector",
+      "/landing_detector",
+      "/drop_aligner"
+    ],
+    "/navigation/mission_status": [
+      "/competition_key_recorder",
+      "/navigation_mission_start_gate",
+      "/navigation_vcl06_assertion"
+    ],
+    "/fastplanner/setpoint_position/local": [
+      "/competition_key_recorder",
+      "/patrol_control"
+    ],
+    "/mavros/setpoint_position/local": [
+      "/competition_key_recorder",
+      "/mavros"
+    ],
+    "/navigation/mission_command_raw": [
+      "/competition_key_recorder",
+      "/navigation_vcl06_assertion",
+      "/navigation/planner_bridge"
+    ],
+    "/navigation/mission_result": [
+      "/competition_key_recorder",
+      "/navigation/mission_manager",
+      "/navigation_vcl06_assertion"
+    ],
+    "/planning/goal_status": [
+      "/competition_key_recorder",
+      "/navigation/planner_bridge"
+    ],
+    "/mission/release_result": [
+      "/competition_key_recorder",
+      "/visual_delivery_audit",
+      "/release_permission_arbiter",
+      "/navigation/planner_bridge"
+    ],
+    "/mavros/state": [
+      "/competition_key_recorder",
+      "/uav_arming_node",
+      "/navigation_vcl06_assertion"
+    ],
+    "/mavros/extended_state": [
+      "/competition_key_recorder",
+      "/navigation_vcl06_assertion",
+      "/navigation/planner_bridge"
+    ],
+    "/planning/bspline": [
+      "/competition_key_recorder",
+      "/traj_server"
+    ],
+    "/planning/replan": [
+      "/traj_server"
+    ],
+    "/planning/new": [
+      "/traj_server"
+    ],
+    "/mavros/local_position/odom": [
+      "/traj_server",
+      "/navigation/planner_bridge",
+      "/fast_planner_node"
+    ],
+    "/fastplanner/goal": [
+      "/traj_server",
+      "/fast_planner_node"
+    ],
+    "/tf": [
+      "/mavros",
+      "/freedom",
+      "/target_map_projector"
+    ],
+    "/tf_static": [
+      "/mavros",
+      "/freedom",
+      "/target_map_projector"
+    ],
+    "/uav_vision/detections_mapped": [
+      "/patrol_control",
+      "/target_memory",
+      "/navigation_vcl06_assertion"
+    ],
+    "/uav_vision/drop_offset": [
+      "/patrol_control"
+    ],
+    "/uav_vision/drop_ready": [
+      "/patrol_control"
+    ],
+    "/mission/release_permission_active": [
+      "/patrol_control"
+    ],
+    "/mission/command": [
+      "/patrol_control",
+      "/navigation_vcl06_assertion"
+    ],
+    "/mavlink/to": [
+      "/mavros"
+    ],
+    "/uav_vision/detections_resolved": [
+      "/target_refiner"
+    ],
+    "/uav_vision/detections": [
+      "/detection_fusion"
+    ],
+    "/uav_vision/align_mode": [
+      "/detection_fusion",
+      "/target_memory",
+      "/visual_delivery_audit",
+      "/release_permission_arbiter",
+      "/navigation_vcl06_assertion",
+      "/navigation/planner_bridge",
+      "/drop_aligner",
+      "/landing_detector"
+    ],
+    "/mission/uav_contacts_raw": [
+      "/gazebo_contact_monitor"
+    ],
+    "/mission/release_permission": [
+      "/guarded_servo_proxy",
+      "/visual_delivery_audit"
+    ],
+    "/detect/point_class": [
+      "/visual_delivery_audit",
+      "/release_permission_arbiter",
+      "/navigation/planner_bridge"
+    ],
+    "/uav_vision/selected_target": [
+      "/visual_delivery_audit",
+      "/navigation_vcl06_assertion",
+      "/drop_aligner"
+    ],
+    "/uav_vision/release_evidence": [
+      "/visual_delivery_audit"
+    ],
+    "/uav_vision/release_evidence_context": [
+      "/visual_delivery_audit",
+      "/release_permission_arbiter",
+      "/navigation/planner_bridge"
+    ],
+    "/mission/release_commitment_evidence": [
+      "/visual_delivery_audit"
+    ],
+    "/uav_mission/mock_raw_servo_calls": [
+      "/visual_delivery_audit"
+    ],
+    "/mission/random_field_status": [
+      "/navigation_mission_start_gate",
+      "/navigation_vcl06_assertion"
+    ],
+    "/mission/planner_anchor_status": [
+      "/navigation_mission_start_gate",
+      "/navigation_vcl06_assertion"
+    ],
+    "/mission/control_ready": [
+      "/navigation_mission_start_gate"
+    ],
+    "/uav_vision/targets": [
+      "/navigation/mission_manager",
+      "/navigation/planner_bridge",
+      "/drop_aligner"
+    ],
+    "/freedom/static_pointcloud": [
+      "/navigation/mission_manager",
+      "/fast_planner_node"
+    ],
+    "/mavros/actuator_control": [
+      "/mavros"
+    ],
+    "/navigation/mission_start_gate_status": [
+      "/navigation_vcl06_assertion"
+    ],
+    "/mission/gazebo_contact_status": [
+      "/navigation_vcl06_assertion"
+    ],
+    "/navigation/planner_bridge_status": [
+      "/navigation_vcl06_assertion"
+    ],
+    "/mavros/adsb/send": [
+      "/mavros"
+    ],
+    "/mavros/cellular_status/status": [
+      "/mavros"
+    ],
+    "/mavros/companion_process/status": [
+      "/mavros"
+    ],
+    "/mavros/debug_value/send": [
+      "/mavros"
+    ],
+    "/mavros/fake_gps/mocap/tf": [
+      "/mavros"
+    ],
+    "/mavros/global_position/set_gp_origin": [
+      "/mavros"
+    ],
+    "/mavros/home_position/home": [
+      "/mavros"
+    ],
+    "/mavros/gps_input/gps_input": [
+      "/mavros"
+    ],
+    "/mavros/gps_rtk/send_rtcm": [
+      "/mavros"
+    ],
+    "/mavros/global_position/gp_origin": [
+      "/mavros"
+    ],
+    "/mavros/hil/state": [
+      "/mavros"
+    ],
+    "/mavros/hil/gps": [
+      "/mavros"
+    ],
+    "/mavros/hil/imu_ned": [
+      "/mavros"
+    ],
+    "/mavros/hil/optical_flow": [
+      "/mavros"
+    ],
+    "/mavros/hil/rc_inputs": [
+      "/mavros"
+    ],
+    "/mavros/home_position/set": [
+      "/mavros"
+    ],
+    "/mavros/landing_target/pose": [
+      "/mavros"
+    ],
+    "/mavros/manual_control/send": [
+      "/mavros"
+    ],
+    "/mavros/mocap/pose": [
+      "/mavros"
+    ],
+    "/mavros/mount_control/command": [
+      "/mavros"
+    ],
+    "/mavros/obstacle/send": [
+      "/mavros"
+    ],
+    "/mavros/odometry/out": [
+      "/mavros"
+    ],
+    "/mavros/onboard_computer/status": [
+      "/mavros"
+    ],
+    "/mavros/play_tune": [
+      "/mavros"
+    ],
+    "/mavros/px4flow/raw/send": [
+      "/mavros"
+    ],
+    "/mavros/rc/override": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_accel/accel": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_attitude/thrust": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_attitude/cmd_vel": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_position/global": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_position/global_to_local": [
+      "/mavros"
+    ],
+    "/mavros/global_position/global": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_raw/local": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_raw/global": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_raw/attitude": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_trajectory/local": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_velocity/cmd_vel": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_velocity/cmd_vel_unstamped": [
+      "/mavros"
+    ],
+    "/mavros/statustext/send": [
+      "/mavros"
+    ],
+    "/mavros/trajectory/generated": [
+      "/mavros"
+    ],
+    "/mavros/trajectory/path": [
+      "/mavros"
+    ],
+    "/mavros/tunnel/in": [
+      "/mavros"
+    ],
+    "/mavros/vision_pose/pose": [
+      "/mavros"
+    ],
+    "/mavros/vision_pose/pose_cov": [
+      "/mavros"
+    ],
+    "/mavros/vision_speed/speed_twist_cov": [
+      "/mavros"
+    ],
+    "/livox/lidar": [
+      "/laserMapping"
+    ],
+    "/livox/imu": [
+      "/laserMapping"
+    ],
+    "/cloud_registered_body": [
+      "/freedom"
+    ],
+    "/save_map": [
+      "/freedom"
+    ],
+    "/downward_camera/image_raw": [
+      "/circle_detector",
+      "/cross_detector",
+      "/landing_detector",
+      "/target_detector"
+    ],
+    "/uav_vision/alignment_target_context": [
+      "/drop_aligner"
+    ],
+    "/uav_vision/detections_refined": [
+      "/target_map_projector"
+    ],
+    "/pcl_render_node/depth": [
+      "/fast_planner_node"
+    ],
+    "/pcl_render_node/camera_pose": [
+      "/fast_planner_node"
+    ],
+    "/gazebo/set_link_state": [
+      "/gazebo"
+    ],
+    "/gazebo/set_model_state": [
+      "/gazebo"
+    ]
+  },
+  "services": {
+    "/downward_camera_extrinsic/get_loggers": [
+      "/downward_camera_extrinsic"
+    ],
+    "/downward_camera_extrinsic/set_logger_level": [
+      "/downward_camera_extrinsic"
+    ],
+    "/rosout/get_loggers": [
+      "/rosout"
+    ],
+    "/rosout/set_logger_level": [
+      "/rosout"
+    ],
+    "/vision_pose_tf/get_loggers": [
+      "/vision_pose_tf"
+    ],
+    "/vision_pose_tf/set_logger_level": [
+      "/vision_pose_tf"
+    ],
+    "/competition_key_recorder/get_loggers": [
+      "/competition_key_recorder"
+    ],
+    "/competition_key_recorder/set_logger_level": [
+      "/competition_key_recorder"
+    ],
+    "/uav_arming_node/get_loggers": [
+      "/uav_arming_node"
+    ],
+    "/uav_arming_node/set_logger_level": [
+      "/uav_arming_node"
+    ],
+    "/patrol_control/get_loggers": [
+      "/patrol_control"
+    ],
+    "/patrol_control/set_logger_level": [
+      "/patrol_control"
+    ],
+    "/mavros/get_loggers": [
+      "/mavros"
+    ],
+    "/mavros/set_logger_level": [
+      "/mavros"
+    ],
+    "/traj_server/get_loggers": [
+      "/traj_server"
+    ],
+    "/traj_server/set_logger_level": [
+      "/traj_server"
+    ],
+    "/mapping_imu_extrinsic/get_loggers": [
+      "/mapping_imu_extrinsic"
+    ],
+    "/mapping_imu_extrinsic/set_logger_level": [
+      "/mapping_imu_extrinsic"
+    ],
+    "/target_refiner/get_loggers": [
+      "/target_refiner"
+    ],
+    "/target_refiner/set_logger_level": [
+      "/target_refiner"
+    ],
+    "/detection_fusion/get_loggers": [
+      "/detection_fusion"
+    ],
+    "/detection_fusion/set_logger_level": [
+      "/detection_fusion"
+    ],
+    "/target_memory/get_loggers": [
+      "/target_memory"
+    ],
+    "/target_memory/set_logger_level": [
+      "/target_memory"
+    ],
+    "/gazebo_contact_monitor/get_loggers": [
+      "/gazebo_contact_monitor"
+    ],
+    "/gazebo_contact_monitor/set_logger_level": [
+      "/gazebo_contact_monitor"
+    ],
+    "/mock_raw_servo_server/get_loggers": [
+      "/mock_raw_servo_server"
+    ],
+    "/mock_raw_servo_server/set_logger_level": [
+      "/mock_raw_servo_server"
+    ],
+    "/guarded_servo_proxy/get_loggers": [
+      "/guarded_servo_proxy"
+    ],
+    "/guarded_servo_proxy/set_logger_level": [
+      "/guarded_servo_proxy"
+    ],
+    "/legacy/Servo_raw": [
+      "/mock_raw_servo_server"
+    ],
+    "/uav_vision/reset_memory": [
+      "/target_memory"
+    ],
+    "/Servo": [
+      "/guarded_servo_proxy"
+    ],
+    "/random_field_spawner/get_loggers": [
+      "/random_field_spawner"
+    ],
+    "/random_field_spawner/set_logger_level": [
+      "/random_field_spawner"
+    ],
+    "/visual_delivery_audit/get_loggers": [
+      "/visual_delivery_audit"
+    ],
+    "/visual_delivery_audit/set_logger_level": [
+      "/visual_delivery_audit"
+    ],
+    "/navigation_mission_start_gate/get_loggers": [
+      "/navigation_mission_start_gate"
+    ],
+    "/navigation_mission_start_gate/set_logger_level": [
+      "/navigation_mission_start_gate"
+    ],
+    "/release_permission_arbiter/get_loggers": [
+      "/release_permission_arbiter"
+    ],
+    "/release_permission_arbiter/set_logger_level": [
+      "/release_permission_arbiter"
+    ],
+    "/planner_anchor_spawner/get_loggers": [
+      "/planner_anchor_spawner"
+    ],
+    "/planner_anchor_spawner/set_logger_level": [
+      "/planner_anchor_spawner"
+    ],
+    "/lio_external_pose/get_loggers": [
+      "/lio_external_pose"
+    ],
+    "/lio_external_pose/set_logger_level": [
+      "/lio_external_pose"
+    ],
+    "/navigation/mission_manager/get_loggers": [
+      "/navigation/mission_manager"
+    ],
+    "/navigation/mission_manager/set_logger_level": [
+      "/navigation/mission_manager"
+    ],
+    "/navigation_vcl06_assertion/get_loggers": [
+      "/navigation_vcl06_assertion"
+    ],
+    "/navigation_vcl06_assertion/set_logger_level": [
+      "/navigation_vcl06_assertion"
+    ],
+    "/navigation/start_mission": [
+      "/navigation/mission_manager"
+    ],
+    "/navigation/abort_mission": [
+      "/navigation/mission_manager"
+    ],
+    "/navigation/planner_bridge/get_loggers": [
+      "/navigation/planner_bridge"
+    ],
+    "/navigation/planner_bridge/set_logger_level": [
+      "/navigation/planner_bridge"
+    ],
+    "/mavros/cmd/command": [
+      "/mavros"
+    ],
+    "/mavros/cmd/command_ack": [
+      "/mavros"
+    ],
+    "/mavros/cmd/command_int": [
+      "/mavros"
+    ],
+    "/mavros/cmd/arming": [
+      "/mavros"
+    ],
+    "/mavros/cmd/set_home": [
+      "/mavros"
+    ],
+    "/mavros/cmd/takeoff": [
+      "/mavros"
+    ],
+    "/mavros/cmd/land": [
+      "/mavros"
+    ],
+    "/mavros/cmd/trigger_control": [
+      "/mavros"
+    ],
+    "/mavros/cmd/trigger_interval": [
+      "/mavros"
+    ],
+    "/mavros/cmd/vtol_transition": [
+      "/mavros"
+    ],
+    "/mavros/ftp/list": [
+      "/mavros"
+    ],
+    "/mavros/ftp/open": [
+      "/mavros"
+    ],
+    "/mavros/ftp/close": [
+      "/mavros"
+    ],
+    "/mavros/ftp/read": [
+      "/mavros"
+    ],
+    "/mavros/ftp/write": [
+      "/mavros"
+    ],
+    "/mavros/ftp/mkdir": [
+      "/mavros"
+    ],
+    "/mavros/ftp/rmdir": [
+      "/mavros"
+    ],
+    "/mavros/ftp/remove": [
+      "/mavros"
+    ],
+    "/mavros/ftp/truncate": [
+      "/mavros"
+    ],
+    "/mavros/ftp/reset": [
+      "/mavros"
+    ],
+    "/mavros/ftp/rename": [
+      "/mavros"
+    ],
+    "/mavros/ftp/checksum": [
+      "/mavros"
+    ],
+    "/mavros/geofence/pull": [
+      "/mavros"
+    ],
+    "/mavros/geofence/push": [
+      "/mavros"
+    ],
+    "/mavros/geofence/clear": [
+      "/mavros"
+    ],
+    "/mavros/home_position/req_update": [
+      "/mavros"
+    ],
+    "/mavros/log_transfer/raw/log_request_list": [
+      "/mavros"
+    ],
+    "/mavros/log_transfer/raw/log_request_data": [
+      "/mavros"
+    ],
+    "/mavros/log_transfer/raw/log_request_end": [
+      "/mavros"
+    ],
+    "/mavros/log_transfer/raw/log_request_erase": [
+      "/mavros"
+    ],
+    "/mavros/mount_control/configure": [
+      "/mavros"
+    ],
+    "/mavros/param/pull": [
+      "/mavros"
+    ],
+    "/mavros/param/push": [
+      "/mavros"
+    ],
+    "/mavros/param/set": [
+      "/mavros"
+    ],
+    "/mavros/param/get": [
+      "/mavros"
+    ],
+    "/mavros/rallypoint/pull": [
+      "/mavros"
+    ],
+    "/mavros/rallypoint/push": [
+      "/mavros"
+    ],
+    "/mavros/rallypoint/clear": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_position/mav_frame": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_trajectory/reset": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_trajectory/mav_frame": [
+      "/mavros"
+    ],
+    "/mavros/setpoint_velocity/mav_frame": [
+      "/mavros"
+    ],
+    "/mavros/set_stream_rate": [
+      "/mavros"
+    ],
+    "/mavros/set_mode": [
+      "/mavros"
+    ],
+    "/mavros/vehicle_info_get": [
+      "/mavros"
+    ],
+    "/mavros/set_message_interval": [
+      "/mavros"
+    ],
+    "/mavros/mission/pull": [
+      "/mavros"
+    ],
+    "/mavros/mission/push": [
+      "/mavros"
+    ],
+    "/mavros/mission/clear": [
+      "/mavros"
+    ],
+    "/mavros/mission/set_current": [
+      "/mavros"
+    ],
+    "/laserMapping/get_loggers": [
+      "/laserMapping"
+    ],
+    "/laserMapping/set_logger_level": [
+      "/laserMapping"
+    ],
+    "/freedom/get_loggers": [
+      "/freedom"
+    ],
+    "/freedom/set_logger_level": [
+      "/freedom"
+    ],
+    "/cross_detector/get_loggers": [
+      "/cross_detector"
+    ],
+    "/cross_detector/set_logger_level": [
+      "/cross_detector"
+    ],
+    "/fast_planner_node/get_loggers": [
+      "/fast_planner_node"
+    ],
+    "/fast_planner_node/set_logger_level": [
+      "/fast_planner_node"
+    ],
+    "/circle_detector/get_loggers": [
+      "/circle_detector"
+    ],
+    "/circle_detector/set_logger_level": [
+      "/circle_detector"
+    ],
+    "/landing_detector/get_loggers": [
+      "/landing_detector"
+    ],
+    "/landing_detector/set_logger_level": [
+      "/landing_detector"
+    ],
+    "/drop_aligner/get_loggers": [
+      "/drop_aligner"
+    ],
+    "/drop_aligner/set_logger_level": [
+      "/drop_aligner"
+    ],
+    "/target_map_projector/get_loggers": [
+      "/target_map_projector"
+    ],
+    "/target_map_projector/set_logger_level": [
+      "/target_map_projector"
+    ],
+    "/target_map_projector/tf2_frames": [
+      "/target_map_projector"
+    ],
+    "/gazebo/get_loggers": [
+      "/gazebo"
+    ],
+    "/gazebo/set_logger_level": [
+      "/gazebo"
+    ],
+    "/gazebo/spawn_sdf_model": [
+      "/gazebo"
+    ],
+    "/gazebo/spawn_urdf_model": [
+      "/gazebo"
+    ],
+    "/gazebo/delete_model": [
+      "/gazebo"
+    ],
+    "/gazebo/delete_light": [
+      "/gazebo"
+    ],
+    "/gazebo/get_model_properties": [
+      "/gazebo"
+    ],
+    "/gazebo/get_model_state": [
+      "/gazebo"
+    ],
+    "/gazebo/get_world_properties": [
+      "/gazebo"
+    ],
+    "/gazebo/get_joint_properties": [
+      "/gazebo"
+    ],
+    "/gazebo/get_link_properties": [
+      "/gazebo"
+    ],
+    "/gazebo/get_link_state": [
+      "/gazebo"
+    ],
+    "/gazebo/get_light_properties": [
+      "/gazebo"
+    ],
+    "/gazebo/set_light_properties": [
+      "/gazebo"
+    ],
+    "/gazebo/get_physics_properties": [
+      "/gazebo"
+    ],
+    "/gazebo/set_link_properties": [
+      "/gazebo"
+    ],
+    "/gazebo/set_physics_properties": [
+      "/gazebo"
+    ],
+    "/gazebo/set_model_state": [
+      "/gazebo"
+    ],
+    "/gazebo/set_model_configuration": [
+      "/gazebo"
+    ],
+    "/gazebo/set_joint_properties": [
+      "/gazebo"
+    ],
+    "/gazebo/set_link_state": [
+      "/gazebo"
+    ],
+    "/gazebo/pause_physics": [
+      "/gazebo"
+    ],
+    "/gazebo/unpause_physics": [
+      "/gazebo"
+    ],
+    "/gazebo/apply_body_wrench": [
+      "/gazebo"
+    ],
+    "/gazebo/apply_joint_effort": [
+      "/gazebo"
+    ],
+    "/gazebo/clear_joint_forces": [
+      "/gazebo"
+    ],
+    "/gazebo/clear_body_wrenches": [
+      "/gazebo"
+    ],
+    "/gazebo/reset_simulation": [
+      "/gazebo"
+    ],
+    "/gazebo/reset_world": [
+      "/gazebo"
+    ],
+    "/gazebo/set_parameters": [
+      "/gazebo"
+    ],
+    "/target_detector/get_loggers": [
+      "/target_detector"
+    ],
+    "/target_detector/set_logger_level": [
+      "/target_detector"
+    ],
+    "/downward_camera/set_camera_info": [
+      "/gazebo"
+    ],
+    "/downward_camera/set_parameters": [
+      "/gazebo"
+    ]
+  }
+}

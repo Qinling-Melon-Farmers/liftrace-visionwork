@@ -1,0 +1,20 @@
+[
+  {
+    "kind": "onboard",
+    "file": "deliverables/liftrace_r62_onboard_3ed8cdd7.tar.gz",
+    "bytes": 19591146,
+    "contents_check": "PASS",
+    "source_revision": "3ed8cdd76b953e281280b1069cc3e7e953480bbc",
+    "flight_revision": "8bedcc0c376b815eb3590e740ee9634210f5c3f5",
+    "validation_scope": "seed11_mapping_takeoff_search_first_delivery_and_recovery_not_full_competition"
+  },
+  {
+    "kind": "simulation",
+    "file": "deliverables/liftrace_r62_simulation_3ed8cdd7.tar.gz",
+    "bytes": 41048816,
+    "contents_check": "PASS",
+    "source_revision": "3ed8cdd76b953e281280b1069cc3e7e953480bbc",
+    "flight_revision": "8bedcc0c376b815eb3590e740ee9634210f5c3f5",
+    "validation_scope": "seed11_mapping_takeoff_search_first_delivery_and_recovery_not_full_competition"
+  }
+]

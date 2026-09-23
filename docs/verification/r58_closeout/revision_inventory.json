@@ -1,0 +1,1298 @@
+{
+  "last_flight_head": "59ed04b8d310af141670cb47ba1078759c8e02eb",
+  "baselines": {
+    "R56": {
+      "ref": "cc899f2bc4816caff9f9059adb0208705476f81b",
+      "changed_file_count": 140,
+      "categories": {
+        "documentation_and_evidence": 111,
+        "build_and_dependencies": 5,
+        "flight_source": 10,
+        "tests": 4,
+        "simulation_geometry": 1,
+        "flight_configuration_and_launch": 3,
+        "simulation_assertion": 1,
+        "simulation_recording_and_model": 5
+      },
+      "files": [
+        {
+          "path": "README.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "VISION_2026_ROADMAP.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/CAMERA_AND_FLIGHT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/ENVIRONMENT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/HARDWARE.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/INTERFACES.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/SOURCE_REVISIONS.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/VALIDATION.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r53/REPORT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r54/DIAGNOSIS.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r54/PLAN.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r54/REPORT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r55/FIX.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r55/RECORDING_FIX.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r55/REPORT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56/DELIVERY.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56/FIX.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56/PARAMETERS.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56/REPORT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/DELIVERY.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/PARAMETERS.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/REPORT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/actual_camera_info.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/actual_camera_mission.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/camera_replay.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/camera_selection.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/competition_freedom.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/external_inputs/iris/iris.sdf",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/external_inputs/iris/model.config",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/external_inputs/landing_h/model.config",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/external_inputs/landing_h/model.sdf",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/external_inputs/mid360/mid360.sdf",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/external_inputs/mid360/model.config",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/external_inputs/source_versions.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/final_validation.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/flight_events.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/gate_status.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/gazebo_contact_status.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/horizontal_planner.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/lidar_visibility_probe.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/manifest.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/px4_parameters_readback.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/r56_facts.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/rosparams.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/route_trace.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/success_summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/topology/index.html",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/topology/interface_audit.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/topology/render_result.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/topology/ros_system_state.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/topology/rqt_graph_nodes_only_core.dot",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/topology/rqt_graph_nodes_only_core.svg",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/topology/rqt_graph_nodes_only_full.dot",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/topology/rqt_graph_nodes_only_full.svg",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/vehicle_model.sdf",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_model_review/REVIEW.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_model_review/model_image_sources.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_model_review/r56_vehicle_model.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_root_fix/REPORT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/competition_freedom.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/control.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/coverage.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/diagnosis.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/estimator_comparison.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/field.world",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/flight_route.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/gate_status.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/horizontal_planner.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/point_trace.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/px4_parameters_readback.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/rosparams.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/runtime.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/source.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/competition_freedom.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/control.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/coverage.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/field.world",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/flight_route.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/gate_status.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/horizontal_planner.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/px4_parameters_readback.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/rosparams.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/runtime.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/source.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/BAG_CLEANUP.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/FAILURE_ANALYSIS.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/MULTISEED_STATUS.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/REPORT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/blocked_goal.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/corridor_080cm.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/logging_validation.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/REPORT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/airframe_replay.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/airframe_replay.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/blocked_clear_goal.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/corridor_layout.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/entry_stop_analysis.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/entrycenter_pilot_flight.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/entrycenter_pilot_summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/estimator_analysis.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/estimator_errors.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/geometry_validation.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/goal_fixtures.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/pilot1_summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/pilot2_summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/yaw_pilot_flight.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/yaw_pilot_summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/仿真联调变更记录.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/规划波动与低空水平搜索评估_20260906.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/CMakeLists.txt",
+          "category": "build_and_dependencies"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/sdf_map.h",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/vertical_obstacle_support.h",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/src/sdf_map.cpp",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/test/test_vertical_obstacle_support.cpp",
+          "category": "tests"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/CMakeLists.txt",
+          "category": "build_and_dependencies"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/goal_adjustment.h",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/kino_replan_fsm.h",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/src/kino_replan_fsm.cpp",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/test/goal_adjustment_test.cpp",
+          "category": "tests"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/CMakeLists.txt",
+          "category": "build_and_dependencies"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/coverage_r2026_horizontal.yaml",
+          "category": "simulation_geometry"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/horizontal_planner.yaml",
+          "category": "flight_configuration_and_launch"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_horizontal_field_runtime.yaml",
+          "category": "flight_configuration_and_launch"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/navigation_horizontal_search_vcl06.launch",
+          "category": "flight_configuration_and_launch"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_mission_manager.py",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_planner_bridge.py",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_vcl06_assertion.py",
+          "category": "simulation_assertion"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/mission_core.py",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/planner_execution.py",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_planner_execution.py",
+          "category": "tests"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_staggered_corridor_gate.py",
+          "category": "tests"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/CMakeLists.txt",
+          "category": "build_and_dependencies"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/config/competition_logging.yaml",
+          "category": "simulation_recording_and_model"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/models/iris_mid360_ks2a543_installed/model.sdf",
+          "category": "simulation_recording_and_model"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/models/r2026_horizontal_field/field.world",
+          "category": "simulation_recording_and_model"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/package.xml",
+          "category": "build_and_dependencies"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/scripts/competition_key_recorder.py",
+          "category": "simulation_recording_and_model"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/src/contact_envelope_plugin.cpp",
+          "category": "simulation_recording_and_model"
+        }
+      ],
+      "commits": [
+        "2e39ee1 docs: 归档R56全流程成功并同步竞赛验收文档",
+        "b97abcc docs: 明确R56接触代理适用条件并补充机架模型图",
+        "7035415 feat: 采用toudi4错列走廊并配置0.85米通口验证",
+        "655bf2a feat: 0.85米全场通过后收紧错列通口至0.80米",
+        "966f972 chore: 收口R57两阶段验证并关闭默认全场bag",
+        "1c779b9 fix: 按1.5米走廊重设安全引导点并增加紧凑记录",
+        "2e4655c chore: 补齐紧凑记录器入口执行权限",
+        "f5feff7 fix: 按规划状态数值字段记录失败局部地图",
+        "63f8ade fix: 仅对有竖向结构支持的障碍生成绕行柱",
+        "9fa7aa9 fix: 沿用去年走廊机架朝向并补齐整机接触记录",
+        "a063d10 fix: 将平面起降标记纳入地面接触语义",
+        "f3d9f34 fix: 入廊先在通道中线停稳再对齐通口",
+        "59ed04b fix: 恢复原航点附近选点以适应地图占据更新"
+      ],
+      "diffstat": "140 files changed, 26962 insertions(+), 771 deletions(-)"
+    },
+    "R57_085": {
+      "ref": "703541505f8dac5f2db7be333eda9c2460ed3d70",
+      "changed_file_count": 83,
+      "categories": {
+        "documentation_and_evidence": 58,
+        "build_and_dependencies": 4,
+        "flight_source": 10,
+        "tests": 3,
+        "flight_configuration_and_launch": 3,
+        "simulation_recording_and_model": 5
+      },
+      "files": [
+        {
+          "path": "README.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "VISION_2026_ROADMAP.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/CAMERA_AND_FLIGHT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/ENVIRONMENT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/SOURCE_REVISIONS.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/VALIDATION.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r56_final/REPORT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/competition_freedom.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/control.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/coverage.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/diagnosis.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/estimator_comparison.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/field.world",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/flight_route.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/gate_status.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/horizontal_planner.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/point_trace.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/px4_parameters_readback.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/rosparams.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/runtime.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/source.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/080/summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/competition_freedom.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/control.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/coverage.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/field.world",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/flight_route.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/gate_status.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/horizontal_planner.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/px4_parameters_readback.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/rosparams.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/runtime.yaml",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/source.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/085/summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/BAG_CLEANUP.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/FAILURE_ANALYSIS.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/MULTISEED_STATUS.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/REPORT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/blocked_goal.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/corridor_080cm.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r57_toudi4/logging_validation.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/REPORT.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/airframe_replay.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/airframe_replay.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/blocked_clear_goal.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/corridor_layout.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/entry_stop_analysis.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/entrycenter_pilot_flight.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/entrycenter_pilot_summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/estimator_analysis.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/estimator_errors.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/geometry_validation.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/goal_fixtures.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/pilot1_summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/pilot2_summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/yaw_pilot_flight.png",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/verification/r58_corridor/yaw_pilot_summary.json",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "docs/仿真联调变更记录.md",
+          "category": "documentation_and_evidence"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/CMakeLists.txt",
+          "category": "build_and_dependencies"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/sdf_map.h",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/vertical_obstacle_support.h",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/src/sdf_map.cpp",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/test/test_vertical_obstacle_support.cpp",
+          "category": "tests"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/CMakeLists.txt",
+          "category": "build_and_dependencies"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/goal_adjustment.h",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/kino_replan_fsm.h",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/src/kino_replan_fsm.cpp",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/test/goal_adjustment_test.cpp",
+          "category": "tests"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/horizontal_planner.yaml",
+          "category": "flight_configuration_and_launch"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_horizontal_field_runtime.yaml",
+          "category": "flight_configuration_and_launch"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/navigation_horizontal_search_vcl06.launch",
+          "category": "flight_configuration_and_launch"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_mission_manager.py",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_planner_bridge.py",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/mission_core.py",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/planner_execution.py",
+          "category": "flight_source"
+        },
+        {
+          "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_planner_execution.py",
+          "category": "tests"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/CMakeLists.txt",
+          "category": "build_and_dependencies"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/config/competition_logging.yaml",
+          "category": "simulation_recording_and_model"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/models/iris_mid360_ks2a543_installed/model.sdf",
+          "category": "simulation_recording_and_model"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/models/r2026_horizontal_field/field.world",
+          "category": "simulation_recording_and_model"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/package.xml",
+          "category": "build_and_dependencies"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/scripts/competition_key_recorder.py",
+          "category": "simulation_recording_and_model"
+        },
+        {
+          "path": "vision_ws/src/uav_vision_eval/src/contact_envelope_plugin.cpp",
+          "category": "simulation_recording_and_model"
+        }
+      ],
+      "commits": [
+        "655bf2a feat: 0.85米全场通过后收紧错列通口至0.80米",
+        "966f972 chore: 收口R57两阶段验证并关闭默认全场bag",
+        "1c779b9 fix: 按1.5米走廊重设安全引导点并增加紧凑记录",
+        "2e4655c chore: 补齐紧凑记录器入口执行权限",
+        "f5feff7 fix: 按规划状态数值字段记录失败局部地图",
+        "63f8ade fix: 仅对有竖向结构支持的障碍生成绕行柱",
+        "9fa7aa9 fix: 沿用去年走廊机架朝向并补齐整机接触记录",
+        "a063d10 fix: 将平面起降标记纳入地面接触语义",
+        "f3d9f34 fix: 入廊先在通道中线停稳再对齐通口",
+        "59ed04b fix: 恢复原航点附近选点以适应地图占据更新"
+      ],
+      "diffstat": "83 files changed, 10862 insertions(+), 134 deletions(-)"
+    }
+  },
+  "parameters": {
+    "R56": {
+      "mission": {
+        "frame": "camera_init",
+        "candidate_max_age": 0.5,
+        "transform_max_age": 0.5,
+        "min_streak": 3,
+        "max_target_z": 4.0,
+        "max_attempts": 2,
+        "retry_cooldown": 20.0,
+        "timeout": 600.0,
+        "forced_return_at": 420.0,
+        "return_land_reserve": 180.0,
+        "delivery_reserve_per_slot": 60.0,
+        "path_factor": 1.5,
+        "nominal_speed": 0.5,
+        "decision_guard": 15.0,
+        "approach_altitude": 1.6,
+        "return_altitude": 1.4,
+        "target_action_timeout": 120.0,
+        "motion_action_timeout": 90.0,
+        "result_future_tolerance": 0.1,
+        "home_xy": [
+          0.0,
+          0.0
+        ],
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r3-h-capture",
+        "landing_xy": [
+          3.274292,
+          8.05722
+        ],
+        "landing_anchor_tolerance": 0.05,
+        "post_delivery_route": [
+          [
+            -2.386703,
+            4.67227,
+            1.4
+          ],
+          [
+            -2.386703,
+            4.67227,
+            1.05
+          ],
+          [
+            -2.386703,
+            5.17227,
+            0.75
+          ],
+          [
+            -2.386703,
+            5.67227,
+            0.75
+          ],
+          [
+            -2.386703,
+            6.67227,
+            0.75
+          ],
+          [
+            -2.386703,
+            7.65269,
+            1.2
+          ],
+          [
+            -0.512003,
+            8.053133,
+            1.2
+          ],
+          [
+            0.287997,
+            8.053133,
+            1.2
+          ],
+          [
+            1.723022,
+            8.00965,
+            1.2
+          ],
+          [
+            2.523022,
+            8.00965,
+            1.2
+          ],
+          [
+            3.274292,
+            8.05722,
+            1.6
+          ]
+        ]
+      },
+      "planner": {
+        "fsm/allow_goal_adjustment": false,
+        "fsm/tracking_replan_distance": 0.45,
+        "fsm/min_replan_interval": 0.75,
+        "sdf_map/virtual_ceil_height": 2.3,
+        "sdf_map/obstacles_inflation_up": 0.1,
+        "sdf_map/obstacles_inflation_down": 0.3,
+        "sdf_map/horizontal_avoidance/enabled": true,
+        "sdf_map/horizontal_avoidance/min_x": -2.1,
+        "sdf_map/horizontal_avoidance/max_x": 2.1,
+        "sdf_map/horizontal_avoidance/min_y": 0.2,
+        "sdf_map/horizontal_avoidance/max_y": 5.5,
+        "sdf_map/horizontal_avoidance/obstacle_min_z": 0.4,
+        "sdf_map/horizontal_avoidance/floor_z": 0.1,
+        "sdf_map/resolution": 0.05,
+        "sdf_map/map_size_x": 12.0,
+        "sdf_map/map_size_y": 22.0,
+        "sdf_map/map_size_z": 3.0,
+        "sdf_map/visualization_rate": 5.0,
+        "search/max_search_time": 0.25,
+        "search/min_horizon_progress": 0.2,
+        "search/direct_shot_distance": 2.0,
+        "manager/control_points_distance": 0.2,
+        "optimization/dist0": 0.1
+      },
+      "search": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      }
+    },
+    "R57_085": {
+      "mission": {
+        "frame": "camera_init",
+        "candidate_max_age": 0.5,
+        "transform_max_age": 0.5,
+        "min_streak": 3,
+        "max_target_z": 4.0,
+        "max_attempts": 2,
+        "retry_cooldown": 20.0,
+        "timeout": 600.0,
+        "forced_return_at": 420.0,
+        "return_land_reserve": 180.0,
+        "delivery_reserve_per_slot": 60.0,
+        "path_factor": 1.5,
+        "nominal_speed": 0.5,
+        "decision_guard": 15.0,
+        "approach_altitude": 1.6,
+        "return_altitude": 1.4,
+        "target_action_timeout": 120.0,
+        "motion_action_timeout": 90.0,
+        "result_future_tolerance": 0.1,
+        "home_xy": [
+          0.0,
+          0.0
+        ],
+        "post_delivery_route_revision": "r2026-toudi4-staggered-r57-085cm",
+        "landing_xy": [
+          3.274292,
+          8.05722
+        ],
+        "landing_anchor_tolerance": 0.05,
+        "post_delivery_route": [
+          [
+            -3.106588,
+            6.57269,
+            1.4
+          ],
+          [
+            -3.106588,
+            8.14269,
+            1.4
+          ],
+          [
+            -0.562003,
+            8.14269,
+            1.4
+          ],
+          [
+            0.337997,
+            8.14269,
+            1.4
+          ],
+          [
+            1.673022,
+            7.922277297,
+            1.4
+          ],
+          [
+            2.573022,
+            7.922277297,
+            1.4
+          ],
+          [
+            3.274292,
+            8.05722,
+            1.6
+          ]
+        ]
+      },
+      "planner": {
+        "fsm/allow_goal_adjustment": false,
+        "fsm/tracking_replan_distance": 0.45,
+        "fsm/min_replan_interval": 0.75,
+        "sdf_map/virtual_ceil_height": 2.3,
+        "sdf_map/obstacles_inflation_up": 0.1,
+        "sdf_map/obstacles_inflation_down": 0.3,
+        "sdf_map/horizontal_avoidance/enabled": true,
+        "sdf_map/horizontal_avoidance/min_x": -2.1,
+        "sdf_map/horizontal_avoidance/max_x": 2.1,
+        "sdf_map/horizontal_avoidance/min_y": 0.2,
+        "sdf_map/horizontal_avoidance/max_y": 5.5,
+        "sdf_map/horizontal_avoidance/obstacle_min_z": 0.4,
+        "sdf_map/horizontal_avoidance/floor_z": 0.1,
+        "sdf_map/resolution": 0.05,
+        "sdf_map/map_size_x": 12.0,
+        "sdf_map/map_size_y": 22.0,
+        "sdf_map/map_size_z": 3.0,
+        "sdf_map/visualization_rate": 5.0,
+        "search/max_search_time": 0.25,
+        "search/min_horizon_progress": 0.2,
+        "search/direct_shot_distance": 2.0,
+        "manager/control_points_distance": 0.2,
+        "optimization/dist0": 0.1
+      },
+      "search": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      }
+    },
+    "R58_last": {
+      "mission": {
+        "frame": "camera_init",
+        "candidate_max_age": 0.5,
+        "transform_max_age": 0.5,
+        "min_streak": 3,
+        "max_target_z": 4.0,
+        "max_attempts": 2,
+        "retry_cooldown": 20.0,
+        "timeout": 600.0,
+        "forced_return_at": 420.0,
+        "return_land_reserve": 180.0,
+        "delivery_reserve_per_slot": 60.0,
+        "path_factor": 1.5,
+        "nominal_speed": 0.5,
+        "decision_guard": 15.0,
+        "approach_altitude": 1.6,
+        "return_altitude": 1.4,
+        "target_action_timeout": 120.0,
+        "motion_action_timeout": 90.0,
+        "result_future_tolerance": 0.1,
+        "home_xy": [
+          0.0,
+          0.0
+        ],
+        "post_delivery_yaw": 1.5707963267948966,
+        "post_delivery_route_revision": "r2026-r58-corridor150-opening080-yaw090-entrycenter",
+        "landing_xy": [
+          3.274292,
+          8.05722
+        ],
+        "landing_anchor_tolerance": 0.05,
+        "post_delivery_route": [
+          [
+            -3.091588,
+            6.29269,
+            1.4
+          ],
+          [
+            -3.091588,
+            7.81769,
+            1.4
+          ],
+          [
+            -0.812003,
+            8.16769,
+            1.4
+          ],
+          [
+            0.587997,
+            8.16769,
+            1.4
+          ],
+          [
+            1.423022,
+            7.46769,
+            1.4
+          ],
+          [
+            2.823022,
+            7.46769,
+            1.4
+          ],
+          [
+            3.274292,
+            8.05722,
+            1.6
+          ]
+        ]
+      },
+      "planner": {
+        "fsm/allow_goal_adjustment": true,
+        "fsm/goal_adjustment_radius": 0.15,
+        "fsm/tracking_replan_distance": 0.45,
+        "fsm/min_replan_interval": 0.75,
+        "sdf_map/virtual_ceil_height": 2.3,
+        "sdf_map/obstacles_inflation_up": 0.1,
+        "sdf_map/obstacles_inflation_down": 0.3,
+        "sdf_map/horizontal_avoidance/enabled": true,
+        "sdf_map/horizontal_avoidance/min_x": -2.1,
+        "sdf_map/horizontal_avoidance/max_x": 2.1,
+        "sdf_map/horizontal_avoidance/min_y": 0.2,
+        "sdf_map/horizontal_avoidance/max_y": 5.5,
+        "sdf_map/horizontal_avoidance/obstacle_min_z": 0.4,
+        "sdf_map/horizontal_avoidance/support_min_points": 3,
+        "sdf_map/horizontal_avoidance/support_radius": 0.15,
+        "sdf_map/horizontal_avoidance/support_min_vertical_span": 0.2,
+        "sdf_map/horizontal_avoidance/floor_z": 0.1,
+        "sdf_map/resolution": 0.05,
+        "sdf_map/map_size_x": 12.0,
+        "sdf_map/map_size_y": 22.0,
+        "sdf_map/map_size_z": 3.0,
+        "sdf_map/visualization_rate": 5.0,
+        "search/max_search_time": 0.25,
+        "search/min_horizon_progress": 0.2,
+        "search/direct_shot_distance": 2.0,
+        "manager/control_points_distance": 0.2,
+        "optimization/dist0": 0.1
+      },
+      "search": {
+        "min_x": -2.007,
+        "max_x": 1.993,
+        "min_y": 0.273,
+        "max_y": 6.273,
+        "lane_spacing": 0.7,
+        "altitude": 1.4,
+        "route_revision": "r2026-installed-camera-070m-lanes-r1",
+        "max_failures_per_waypoint": 2
+      }
+    }
+  }
+}

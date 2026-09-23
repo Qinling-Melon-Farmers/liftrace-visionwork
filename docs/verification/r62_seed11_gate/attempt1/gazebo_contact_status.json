@@ -1,0 +1,35 @@
+{
+  "active_pairs": [
+    [
+      "iris_mid360::competition_contact_link::competition_guard_collision",
+      "toudi2::Wall_12::Wall_12_collision"
+    ]
+  ],
+  "actual_collision_count": 1,
+  "component": "gazebo_contact_monitor",
+  "contact_active": true,
+  "events": [
+    {
+      "pairs": [
+        [
+          "iris_mid360::competition_contact_link::competition_guard_collision",
+          "toudi2::Wall_12::Wall_12_collision"
+        ]
+      ],
+      "ros_stamp": 8.725999999999999,
+      "sequence": 1,
+      "wall_time": 1788888954.6547832
+    }
+  ],
+  "ignored_collision_patterns": [
+    "ground_plane",
+    "landing_h::link::collision",
+    "landing_h_clone::link::collision"
+  ],
+  "last_sample_wall_age": 8.906999937607907e-06,
+  "raw_topic": "/mission/uav_contacts_raw",
+  "ready": true,
+  "reason": "contact_sensor_streaming",
+  "sample_count": 420,
+  "status": "READY"
+}

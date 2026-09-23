@@ -1,0 +1,31 @@
+{
+  "source": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r60_full_pilot_seed11_20260908_011243/mavros_pose.csv",
+  "scope": "recorded_attitude_not_camera_detection",
+  "filter_raw_pose_z_min": 0.5,
+  "moving_speed_min_mps": 0.2,
+  "roll_abs_deg": {
+    "samples": 1793,
+    "median": 0.42983378834881175,
+    "p95": 1.6216806323467257,
+    "max": 4.415020171688952
+  },
+  "pitch_abs_deg": {
+    "samples": 1793,
+    "median": 0.4534912125689615,
+    "p95": 1.995848357794505,
+    "max": 4.7248008164081625
+  },
+  "yaw_deg": {
+    "samples": 1793,
+    "median": 0.0910639145766347,
+    "p95": 90.01866393166993,
+    "max": 90.20363500625072
+  },
+  "moving_course_yaw_abs_difference_deg": {
+    "samples": 692,
+    "median": 88.09783316747392,
+    "p95": 176.11566653084085,
+    "max": 179.85580234988564
+  },
+  "moving_course_difference_over_30deg_fraction": 0.6286127167630058
+}

@@ -1,0 +1,491 @@
+{
+  "truth_pose": [
+    -3.0566391685968104,
+    8.269962610550158,
+    1.5147293805901323
+  ],
+  "attitude_rpy_deg": [
+    -0.13816126667354064,
+    -0.8568120287382832,
+    90.44301224710301
+  ],
+  "mavros_pose": [
+    -3.0654885462014985,
+    8.26411712759792,
+    1.410819591862138
+  ],
+  "lio_pose": [
+    -3.054524120664016,
+    8.27316059486629,
+    0.8460945308615859
+  ],
+  "planner_setpoint": [
+    -3.091588,
+    8.16769,
+    1.4
+  ],
+  "mavros_setpoint": [
+    -3.091588,
+    8.16769,
+    1.4
+  ],
+  "mavros_minus_truth": [
+    -0.008849377604688069,
+    -0.005845482952237191,
+    -0.10390978872799428
+  ],
+  "truth_minus_sent_setpoint": [
+    0.034948831403189384,
+    0.10227261055015724,
+    0.11472938059013238
+  ],
+  "wall_inner_y": 8.56769,
+  "center_clearance_to_wall_m": 0.2977273894498431,
+  "contact_time": 181.265,
+  "recent_events": [
+    {
+      "ros_sec": 180.253,
+      "kind": "planner",
+      "data": {
+        "header": {
+          "seq": 67,
+          "stamp": {
+            "stamp_ns": 180253000000
+          },
+          "frame_id": "camera_init"
+        },
+        "event_seq": 68,
+        "goal_seq": 17,
+        "status": 4,
+        "planning_attempt": 1,
+        "requested_goal": {
+          "header": {
+            "seq": 17,
+            "stamp": {
+              "stamp_ns": 174344999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -3.091588,
+              "y": 8.16769,
+              "z": 1.4
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "effective_goal": {
+          "header": {
+            "seq": 17,
+            "stamp": {
+              "stamp_ns": 174344999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -3.091588,
+              "y": 8.16769,
+              "z": 1.4
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "distance_to_goal": 0.08122368893908508,
+        "reason": "goal_reached_after_local_trajectory"
+      }
+    },
+    {
+      "ros_sec": 180.904,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 77,
+          "stamp": {
+            "stamp_ns": 180902000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-28-065000000-1",
+        "executor_id": "vcl06-planner-bridge-d423cd93205e479da08e324fbdf5a3c6",
+        "event_seq": 77,
+        "decision_seq": 17,
+        "command": 4,
+        "status": 3,
+        "stage": 1,
+        "terminal": true,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "reason": "motion_arrival_confirmed",
+        "evidence_source": "planner_motion_executor"
+      }
+    },
+    {
+      "ros_sec": 180.904,
+      "kind": "decision",
+      "data": {
+        "header": {
+          "seq": 18,
+          "stamp": {
+            "stamp_ns": 180902999999
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-28-065000000-1",
+        "decision_seq": 18,
+        "deadline": {
+          "stamp_ns": 270903000000
+        },
+        "command": 4,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_observation_stamp": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 18,
+            "stamp": {
+              "stamp_ns": 180902999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -0.812003,
+              "y": 8.16769,
+              "z": 1.4
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "reason": "post_delivery_route:3/7:r2026-r58-corridor150-opening080-yaw090:segment_complete"
+      }
+    },
+    {
+      "ros_sec": 180.923,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 78,
+          "stamp": {
+            "stamp_ns": 180914000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-28-065000000-1",
+        "executor_id": "vcl06-planner-bridge-d423cd93205e479da08e324fbdf5a3c6",
+        "event_seq": 78,
+        "decision_seq": 18,
+        "command": 4,
+        "status": 0,
+        "stage": 0,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "reason": "planner_goal_dispatched",
+        "evidence_source": "planner_motion_executor"
+      }
+    },
+    {
+      "ros_sec": 181.01,
+      "kind": "planner",
+      "data": {
+        "header": {
+          "seq": 68,
+          "stamp": {
+            "stamp_ns": 181009000000
+          },
+          "frame_id": "camera_init"
+        },
+        "event_seq": 69,
+        "goal_seq": 18,
+        "status": 0,
+        "planning_attempt": 0,
+        "requested_goal": {
+          "header": {
+            "seq": 18,
+            "stamp": {
+              "stamp_ns": 180902999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -0.812003,
+              "y": 8.16769,
+              "z": 1.4
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "effective_goal": {
+          "header": {
+            "seq": 18,
+            "stamp": {
+              "stamp_ns": 180902999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -0.812003,
+              "y": 8.16769,
+              "z": 1.4
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "distance_to_goal": 2.2565603669207728,
+        "reason": "goal_received"
+      }
+    },
+    {
+      "ros_sec": 181.011,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 79,
+          "stamp": {
+            "stamp_ns": 181010000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-28-065000000-1",
+        "executor_id": "vcl06-planner-bridge-d423cd93205e479da08e324fbdf5a3c6",
+        "event_seq": 79,
+        "decision_seq": 18,
+        "command": 4,
+        "status": 1,
+        "stage": 1,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "reason": "planner_goal_accepted",
+        "evidence_source": "planner_motion_executor"
+      }
+    },
+    {
+      "ros_sec": 181.089,
+      "kind": "planner",
+      "data": {
+        "header": {
+          "seq": 69,
+          "stamp": {
+            "stamp_ns": 181088000000
+          },
+          "frame_id": "camera_init"
+        },
+        "event_seq": 70,
+        "goal_seq": 18,
+        "status": 1,
+        "planning_attempt": 1,
+        "requested_goal": {
+          "header": {
+            "seq": 18,
+            "stamp": {
+              "stamp_ns": 180902999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -0.812003,
+              "y": 8.16769,
+              "z": 1.4
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "effective_goal": {
+          "header": {
+            "seq": 18,
+            "stamp": {
+              "stamp_ns": 180902999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -0.812003,
+              "y": 8.16769,
+              "z": 1.4
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "distance_to_goal": 2.2565603669207728,
+        "reason": "new_trajectory_attempt"
+      }
+    },
+    {
+      "ros_sec": 181.09,
+      "kind": "planner",
+      "data": {
+        "header": {
+          "seq": 70,
+          "stamp": {
+            "stamp_ns": 181089000000
+          },
+          "frame_id": "camera_init"
+        },
+        "event_seq": 71,
+        "goal_seq": 18,
+        "status": 5,
+        "planning_attempt": 1,
+        "requested_goal": {
+          "header": {
+            "seq": 18,
+            "stamp": {
+              "stamp_ns": 180902999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -0.812003,
+              "y": 8.16769,
+              "z": 1.4
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "effective_goal": {
+          "header": {
+            "seq": 18,
+            "stamp": {
+              "stamp_ns": 180902999999
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": -0.812003,
+              "y": 8.16769,
+              "z": 1.4
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.7071067811865475,
+              "w": 0.7071067811865476
+            }
+          }
+        },
+        "distance_to_goal": 2.2565603669207728,
+        "reason": "new_trajectory_attempt_failed"
+      }
+    },
+    {
+      "ros_sec": 181.093,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 80,
+          "stamp": {
+            "stamp_ns": 181090000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-28-065000000-1",
+        "executor_id": "vcl06-planner-bridge-d423cd93205e479da08e324fbdf5a3c6",
+        "event_seq": 80,
+        "decision_seq": 18,
+        "command": 4,
+        "status": 2,
+        "stage": 1,
+        "terminal": false,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "reason": "planner_attempt_failed_nonterminal",
+        "evidence_source": "planner_motion_executor"
+      }
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "width_m": 0.8,
+  "status": "FAIL",
+  "source_commit": "655bf2a78927e07516a36ed328ba93f458b747a4",
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r57_toudi4_080_20260907_174702",
+  "checks_passed": 22,
+  "checks_total": 37,
+  "metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 21,
+    "door_crossings": [
+      {
+        "lateral": -3.1192677649494702,
+        "name": "corridor_entry",
+        "route_index": 2,
+        "z": 1.5007488846513137
+      },
+      {
+        "lateral": 8.15562823434196,
+        "name": "Wall_20",
+        "route_index": 4,
+        "z": 1.5312616973609852
+      }
+    ],
+    "height_violations": 0,
+    "landing_align_mode_seen": false,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      3.274292,
+      8.05722
+    ],
+    "latest_armed": null,
+    "latest_landed_state": null,
+    "max_observed_height": 1.7370678395512094,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 12369,
+    "post_delivery_decision_indices": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "post_delivery_return_success_count": 4,
+    "post_delivery_route_revision": "r2026-toudi4-staggered-r57-080cm",
+    "post_delivery_route_size": 7,
+    "recovery_success_count": 3,
+    "release_commit_count": 3,
+    "result_count": 197,
+    "selected_count": 1231,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": null
+  },
+  "camera_frames": 5198,
+  "record_buffer_warnings": 0,
+  "ground_error_to_h": null,
+  "cleanup_pass": true,
+  "opening_widths": [
+    0.7999999999999599,
+    0.8000000000001704
+  ]
+}

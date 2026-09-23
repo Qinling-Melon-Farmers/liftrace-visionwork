@@ -1,0 +1,58 @@
+[
+  {
+    "cloud_first_stamp": 190.623,
+    "lio": [
+      190.623,
+      1.3771863187368671,
+      8.141291656820897,
+      0.8028038595381216
+    ],
+    "truth_body": [
+      1.3659836027929257,
+      8.21170047045348,
+      1.5414741740258562
+    ],
+    "mavros": [
+      1.2987250089645386,
+      8.090534210205078,
+      1.4711098670959473
+    ],
+    "lio_minus_truth_xy": [
+      0.0112027159439414,
+      -0.07040881363258222
+    ],
+    "mavros_minus_truth_xy": [
+      -0.06725859382838717,
+      -0.12116626024840116
+    ],
+    "note": "LIO z is IMU reference; only XY compared here. This sampled comparison does not identify all estimator error causes."
+  },
+  {
+    "cloud_first_stamp": 190.623,
+    "lio": [
+      190.623,
+      1.3771863187368671,
+      8.141291656820897,
+      0.8028038595381216
+    ],
+    "truth_body": [
+      1.3659836027929257,
+      8.21170047045348,
+      1.5414741740258562
+    ],
+    "mavros": [
+      1.2987250089645386,
+      8.090534210205078,
+      1.4711098670959473
+    ],
+    "lio_minus_truth_xy": [
+      0.0112027159439414,
+      -0.07040881363258222
+    ],
+    "mavros_minus_truth_xy": [
+      -0.06725859382838717,
+      -0.12116626024840116
+    ],
+    "note": "LIO z is IMU reference; only XY compared here. This sampled comparison does not identify all estimator error causes."
+  }
+]

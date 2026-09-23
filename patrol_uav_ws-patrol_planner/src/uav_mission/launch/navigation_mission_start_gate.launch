@@ -1,0 +1,54 @@
+<launch>
+  <!-- Safe include for the navigation-owned VCL06 manager.
+
+       This file starts neither a mission manager nor an execution adapter.
+       It is disabled by default so a standalone roslaunch cannot initiate a
+       mission.  The eventual VCL06 execution-bridge launch must include the
+       new navigation_mission_manager.launch and then opt in with
+       enabled:=true.  Do not include it in the legacy random-field launch,
+       which still owns target_search_manager_py. -->
+  <arg name="enabled" default="false" />
+  <arg name="class_profile" default="r2026" />
+  <arg name="field_seed" default="11" />
+  <arg name="nav_feature_profile" default="baseline" />
+  <arg name="run_dir" default="$(optenv SIM_RUN_DIR /tmp)" />
+  <arg name="expected_truth_path"
+       default="$(arg run_dir)/random_field_truth.yaml" />
+  <arg name="field_status_topic"
+       default="/mission/random_field_status" />
+  <arg name="anchor_status_topic"
+       default="/mission/planner_anchor_status" />
+  <arg name="manager_status_topic"
+       default="/navigation/mission_status" />
+  <arg name="control_ready_topic" default="/mission/control_ready" />
+  <arg name="start_service" default="/navigation/start_mission" />
+  <arg name="status_topic"
+       default="/navigation/mission_start_gate_status" />
+  <arg name="service_probe_timeout" default="0.05" />
+  <arg name="retry_initial_sec" default="0.5" />
+  <arg name="retry_max_sec" default="5.0" />
+  <arg name="tick_hz" default="5.0" />
+
+  <node pkg="uav_mission"
+        type="navigation_mission_start_gate.py"
+        name="navigation_mission_start_gate"
+        output="screen"
+        required="true">
+    <param name="enabled" value="$(arg enabled)" />
+    <param name="class_profile" value="$(arg class_profile)" />
+    <param name="field_seed" value="$(arg field_seed)" />
+    <param name="nav_feature_profile" value="$(arg nav_feature_profile)" />
+    <param name="expected_truth_path" value="$(arg expected_truth_path)" />
+    <param name="field_status_topic" value="$(arg field_status_topic)" />
+    <param name="anchor_status_topic" value="$(arg anchor_status_topic)" />
+    <param name="manager_status_topic" value="$(arg manager_status_topic)" />
+    <param name="control_ready_topic" value="$(arg control_ready_topic)" />
+    <param name="start_service" value="$(arg start_service)" />
+    <param name="status_topic" value="$(arg status_topic)" />
+    <param name="service_probe_timeout"
+           value="$(arg service_probe_timeout)" />
+    <param name="retry_initial_sec" value="$(arg retry_initial_sec)" />
+    <param name="retry_max_sec" value="$(arg retry_max_sec)" />
+    <param name="tick_hz" value="$(arg tick_hz)" />
+  </node>
+</launch>

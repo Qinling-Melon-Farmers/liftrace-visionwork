@@ -1,0 +1,143 @@
+# 最简投递验证集中配置 —— minimal_delivery_test.launch
+#
+# 所有本测试专用旋钮集中在此文件；launch 只保留节点/TF 结构。
+# launch 分两阶段加载本文件：阶段一在 fast_lio 与控制组之前，阶段二在控制组
+# 之后。被包含的底层 launch 会用默认值设置同名参数，阶段二的重新加载保证本
+# 文件的值最终生效（patrol_control 用 getParamCached 运行时重读，mission
+# manager / fast_planner 为慢启动节点，后置覆盖在实践中已被实跑验证）。
+#
+# 本测试目标：在走廊避障测试的硬件启动链（FAST-LIO + FreeDOM + Fast-Planner
+# + patrol_control + mission_manager + planner_bridge）基础上，加入视觉链
+# 和投放守卫，用 start_mode=full 触发完整投递流程。
+
+# ---- 信息性高度记录（见文件头约定）----
+delivery:
+  search_altitude: 1.0       # 搜索航线高度 (camera_init Z)
+  approach_altitude: 0.6     # 逼近目标上方高度
+  return_altitude: 1.0       # 返航航线高度
+  recovery_height: 0.85      # 投放后恢复飞行高度
+  land_height: 0.05          # 降落高度
+
+# ---- 控制器全局参数（patrol_control 运行时 getParamCached 重读）----
+# 与走廊测试一致的低高度安全约束。
+px4_max_distance: 0.15
+external_planner_max_command_z: 2.0
+
+# ---- 投放相关参数 ----
+# patrol_control 收到投放指令后降落到 capture_height 执行释放，
+# 完成后 recovery_height 恢复。参数约束（patrol_control load_params）：
+#   capture_height > auto_land_height >= land_height；
+#   drop_height_threshold < uav_vision/recovery_height <= align_height。
+land_height: 0.05
+align_height: 1.0            # 视觉对准高度（与 approach_altitude 配合）
+external_landing:
+  capture_height: 0.85       # 接近目标后悬停对准高度
+  auto_land_height: 0.15
+switch:
+  flag_landing_detect: 1
+  auto_land: true            # 自动降落开启
+uav_vision:
+  recovery_height: 0.85      # 投放后恢复高度
+drop_system:
+  enable_drop: true          # 投放机构开启
+
+# ---- Fast-LIO 调参（fastlio_mapping 从全局命名空间读取）----
+feature_extract_enable: true
+point_filter_num: 3
+max_iteration: 3
+filter_size_surf: 0.15
+filter_size_map: 0.15
+cube_side_length: 20.0
+runtime_pos_log_enable: false
+
+# ---- 起飞点航点表（/waypoints）----
+# 起飞高度 = search_altitude。
+waypoints:
+  - {x: 0.0, y: 0.0, z: 1.0, yaw: 0.0, pointmode: Takeoff_point, hover_time: 0.0}
+
+# ---- FreeDOM 建图范围（最终位于 /freedom/*）----
+# 与走廊测试同量级；如需覆盖更大区域可放宽 max_range / cube_side_length。
+freedom:
+  sensor:
+    max_range: 6.0
+    min_z: -1.0
+    max_z: 2.0
+  map:
+    sub_voxel_size: 0.1
+    voxel_depth: 2
+    block_depth: 5
+    raycast_max_range: 6.0
+    raycast_min_z: -1.0
+    raycast_max_z: 2.0
+    counts_to_free: 6
+    counts_to_revert: 20
+
+# ---- Fast-Planner 动态限制（最终位于 /fast_planner_node/*）----
+# 低空走廊收紧，略高于走廊测试（搜索速度可以稍快一些）。
+fast_planner_node:
+  manager:
+    max_vel: 1.00
+    max_acc: 1.00
+    clearance_threshold: 0.05
+  search:
+    max_vel: 1.00
+    max_acc: 1.00
+  optimization:
+    max_vel: 1.00
+    max_acc: 1.00
+  bspline:
+    limit_vel: 1.00
+    limit_acc: 1.00
+  sdf_map:
+    ground_height: -0.2
+    obstacles_inflation: 0.05
+    resolution: 0.10
+    map_size_x: 14.0
+    map_size_y: 8.0
+    map_size_z: 4.0
+    local_update_range_x: 5.0
+    local_update_range_y: 5.0
+    local_update_range_z: 2.0
+    visualization_rate: 2.0
+    horizontal_avoidance:
+      enabled: false
+    virtual_ceil_height: -0.1
+    visualization_truncate_height: 2.49
+
+# ---- 任务管理器（最终位于 /navigation/mission_manager/*）----
+navigation:
+  mission_manager:
+    search:
+      # 手动打点航线（仿照 corridor_waypoint_test.yaml 的 post_delivery_route 格式）
+      # X 轴正前方，Y=0 中心线；所有航点 z 应等于 search_altitude。
+      # 如需自动之字形航线，把 manual_waypoints 整段删掉即可（会用 min_x/max_x/min_y/max_y 自动生成）。
+      manual_waypoints:
+        - [0.0,  0.0, 1.0]
+        - [2.0,  0.0, 1.0]
+        - [4.0,  0.0, 1.0]
+      route_revision: minimal-delivery-test-manual-r1
+      max_failures_per_waypoint: 2
+    mission:
+      # 完整投递模式使用 SEARCH → APPROACH → ALIGN → RELEASE → RECOVERY，
+      # 不走 post_delivery_route。以下参数控制逼近和返航。
+      approach_altitude: 0.6
+      return_altitude: 1.0
+      # 任务时间控制（与 vcl06_runtime 默认值一致）
+      timeout: 600.0
+      forced_return_at: 510.0
+      return_land_reserve: 90.0
+      delivery_reserve_per_slot: 60.0
+      path_factor: 1.5
+      nominal_speed: 1.0
+      decision_guard: 15.0
+      max_attempts: 2
+      retry_cooldown: 20.0
+      home_xy: [0.0, 0.0]
+      candidate_max_age: 0.5
+      transform_max_age: 0.5
+      min_streak: 3
+      max_target_z: 4.0
+      target_action_timeout: 90.0
+      motion_action_timeout: 60.0
+      landing_action_timeout: 90.0
+      result_future_tolerance: 0.1

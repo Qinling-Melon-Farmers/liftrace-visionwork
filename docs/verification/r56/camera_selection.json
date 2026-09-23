@@ -1,0 +1,26 @@
+[
+  {
+    "stage": "Delivery 1",
+    "requested_ros_sec": 37.666,
+    "actual_image_stamp": 37.135,
+    "file": "camera_frames/camera_00037.135.jpg"
+  },
+  {
+    "stage": "Delivery 2",
+    "requested_ros_sec": 126.499,
+    "actual_image_stamp": 126.19,
+    "file": "camera_frames/camera_00126.190.jpg"
+  },
+  {
+    "stage": "Delivery 3",
+    "requested_ros_sec": 143.64,
+    "actual_image_stamp": 144.329,
+    "file": "camera_frames/camera_00144.329.jpg"
+  },
+  {
+    "stage": "Corridor entry",
+    "requested_ros_sec": 162.892,
+    "actual_image_stamp": 162.639,
+    "file": "camera_frames/camera_00162.639.jpg"
+  }
+]

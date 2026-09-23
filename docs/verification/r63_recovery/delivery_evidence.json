@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "raw_calls": [
+    1,
+    2,
+    3
+  ],
+  "results": [
+    {
+      "align_mode": "drop_circle",
+      "execution_id": 1,
+      "payload_slot": 1,
+      "reason": "raw_actuator_ack",
+      "stamp": 103.741,
+      "success": true,
+      "target_class": "panzer",
+      "target_id": 0
+    },
+    {
+      "align_mode": "drop_circle",
+      "execution_id": 2,
+      "payload_slot": 2,
+      "reason": "raw_actuator_ack",
+      "stamp": 230.943,
+      "success": true,
+      "target_class": "bridge",
+      "target_id": 2
+    },
+    {
+      "align_mode": "drop_cross",
+      "execution_id": 3,
+      "payload_slot": 3,
+      "reason": "raw_actuator_ack",
+      "stamp": 307.065,
+      "success": true,
+      "target_class": "red_cross",
+      "target_id": 9
+    }
+  ],
+  "failure_reason": ""
+}

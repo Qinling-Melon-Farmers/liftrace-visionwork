@@ -1,0 +1,44 @@
+{
+  "fc_reference_link": "iris::base_link",
+  "fc_link_pose": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "removed_artificial_imu_link": true,
+  "total_mass_before_after": [
+    1.5159999999999998,
+    1.5159999999999998
+  ],
+  "preserved_shape_poses_in_fc_frame": {
+    "base_link_inertia_visual": [
+      0.0,
+      0.0,
+      -0.04,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "base_link_inertia_collision": [
+      0.0,
+      0.0,
+      -0.04,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "competition_guard_collision": [
+      0.0,
+      0.0,
+      -0.02,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "sensor_noise_unchanged": true,
+  "health_checks_unchanged": true
+}

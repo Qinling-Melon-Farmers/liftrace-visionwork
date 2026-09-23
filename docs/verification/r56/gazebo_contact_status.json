@@ -1,0 +1,16 @@
+{
+  "active_pairs": [],
+  "actual_collision_count": 0,
+  "component": "gazebo_contact_monitor",
+  "contact_active": false,
+  "events": [],
+  "ignored_collision_patterns": [
+    "ground_plane"
+  ],
+  "last_sample_wall_age": 5.891999990126351e-06,
+  "raw_topic": "/mission/uav_contacts_raw",
+  "ready": true,
+  "reason": "contact_sensor_streaming",
+  "sample_count": 12788,
+  "status": "READY"
+}

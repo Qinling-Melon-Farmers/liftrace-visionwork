@@ -1,0 +1,6 @@
+2026-09-20T22:16:51+08:00
+duration_seconds=unlimited
+Read-only capture; bag receipt time and message header stamps are both retained.
+Point clouds, images and actuator topics are excluded.
+2026-09-20T22:18:13+08:00
+exit_code=130

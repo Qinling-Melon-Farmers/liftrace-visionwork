@@ -1,0 +1,129 @@
+{
+  "method": "256-sided cylinder convex projection plus vertical overlap; sampled truth poses, no dynamics replay; <=0.01 mm radial tessellation error",
+  "airframe": {
+    "0": {
+      "x_span": 0.6,
+      "y_span": 0.696
+    },
+    "90": {
+      "x_span": 0.696,
+      "y_span": 0.6
+    }
+  },
+  "r2026_r57_toudi4_085_20260907_172823": {
+    "first_projected_overlap": {
+      "rotor_2:/toudi2/Wall_9/Wall_9_Collision": {
+        "t": 184.633,
+        "truth": [
+          -0.09940639920855082,
+          8.218983614237777,
+          1.4937023678886476
+        ],
+        "mavros_minus_truth": [
+          0.014940670934137687,
+          -0.04638630812248934,
+          -0.05087698664371576
+        ],
+        "separation": -1.3891212802263908e-07,
+        "rpy_deg": [
+          0.21633424032786497,
+          0.8171931698765754,
+          0.3486409323124229
+        ]
+      }
+    },
+    "contact_monitor": {
+      "active_pairs": [],
+      "actual_collision_count": 0,
+      "component": "gazebo_contact_monitor",
+      "contact_active": false,
+      "events": [],
+      "ignored_collision_patterns": [
+        "ground_plane"
+      ],
+      "last_sample_wall_age": 4.841000190936029e-06,
+      "raw_topic": "/mission/uav_contacts_raw",
+      "ready": true,
+      "reason": "contact_sensor_streaming",
+      "sample_count": 10423,
+      "status": "READY"
+    },
+    "minimum_projected_separation": -1.3891212802263908e-07
+  },
+  "r2026_r58_support_pilot_seed11_20260907_211343": {
+    "first_projected_overlap": {
+      "rotor_2:/toudi2/Wall_9/Wall_9_Collision": {
+        "t": 185.104,
+        "truth": [
+          -1.4483683003002286,
+          8.220052885770217,
+          1.4858837500788844
+        ],
+        "mavros_minus_truth": [
+          -0.05032448419433755,
+          -0.0642135027467603,
+          -0.05840141823814715
+        ],
+        "separation": -0.0003361502897814006,
+        "rpy_deg": [
+          -0.054568691864535196,
+          1.1242647838968696,
+          -0.022325451395673337
+        ]
+      },
+      "guard_proxy:/Wall_20/link/collision": {
+        "t": 192.717,
+        "truth": [
+          -0.43376664275769145,
+          7.892303805036208,
+          1.5560411765856001
+        ],
+        "mavros_minus_truth": [
+          0.2238179507663955,
+          0.21966693593360986,
+          -0.1070494919552345
+        ],
+        "separation": -0.0043641085672256885,
+        "rpy_deg": [
+          -0.28665266044107685,
+          1.1415219715321077,
+          -3.1814265602847076
+        ]
+      }
+    },
+    "contact_monitor": {
+      "active_pairs": [
+        [
+          "Wall_20::link::collision",
+          "iris_mid360::competition_contact_link::competition_guard_collision"
+        ]
+      ],
+      "actual_collision_count": 1,
+      "component": "gazebo_contact_monitor",
+      "contact_active": true,
+      "events": [
+        {
+          "pairs": [
+            [
+              "Wall_20::link::collision",
+              "iris_mid360::competition_contact_link::competition_guard_collision"
+            ]
+          ],
+          "ros_stamp": 192.717,
+          "sequence": 1,
+          "wall_time": 1788787597.7175086
+        }
+      ],
+      "ignored_collision_patterns": [
+        "ground_plane"
+      ],
+      "last_sample_wall_age": 8.018003427423537e-06,
+      "raw_topic": "/mission/uav_contacts_raw",
+      "ready": true,
+      "reason": "contact_sensor_streaming",
+      "sample_count": 9621,
+      "status": "READY"
+    },
+    "minimum_projected_separation": -0.0043641085672256885
+  }
+}

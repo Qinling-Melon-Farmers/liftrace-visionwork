@@ -1,0 +1,1333 @@
+{
+  "round": "R55",
+  "attempts": 1,
+  "run": "r2026_integrated_r55_bounded_corridor_20260907_040048",
+  "source_commit": "fe9e720e781eee4aaa09c622181aec7a21ca48d9",
+  "status": "INCOMPLETE",
+  "reason": "host_storage_io_interruption",
+  "errors": [
+    "host_storage_io_interruption",
+    "final_gate_not_written"
+  ],
+  "checks": {},
+  "metrics": {
+    "release_commit_count": 3,
+    "post_delivery_route_completed": 11,
+    "last_mission_phase": "LAND",
+    "auto_land_observed": false,
+    "last_fcu_state": {
+      "time": 239.737,
+      "armed": true,
+      "mode": "OFFBOARD"
+    },
+    "landing_h_detection_count": 0,
+    "door_crossings": [
+      {
+        "name": "Wall_15",
+        "route_index": 5,
+        "lateral": -2.363972406612041,
+        "z": 0.7781154845563494
+      },
+      {
+        "name": "Wall_20",
+        "route_index": 8,
+        "lateral": 8.060543349083686,
+        "z": 1.2497194796005722
+      },
+      {
+        "name": "Wall_22",
+        "route_index": 10,
+        "lateral": 8.011348619404952,
+        "z": 1.2239666806309402
+      }
+    ]
+  },
+  "gate_status_present": false,
+  "actual_collision_count": 0,
+  "contact_events": [],
+  "wrapper_cleanup_pass": false,
+  "emergency_stop": "Ubuntu-20.04 terminated after normal cleanup could not execute due to filesystem I/O errors; restarted for offline recovery only",
+  "post_recovery_process_check": "No managed ROS/Gazebo/PX4/RViz processes remained",
+  "goals": {
+    "1": {
+      "time": 28.012,
+      "goal": [
+        -2.007,
+        0.273,
+        1.4
+      ],
+      "first_status_time": 28.108,
+      "first_ready_latency_sec": 0.3999999999999986
+    },
+    "2": {
+      "time": 31.0,
+      "goal": [
+        -1.0190859757974398,
+        0.9942449485998728,
+        1.6
+      ],
+      "first_status_time": 31.011,
+      "first_ready_latency_sec": 0.14199999999999946
+    },
+    "3": {
+      "time": 42.039,
+      "goal": [
+        -2.007,
+        0.273,
+        1.4
+      ],
+      "first_status_time": 42.116,
+      "first_ready_latency_sec": 0.1769999999999996
+    },
+    "4": {
+      "time": 47.362999999,
+      "goal": [
+        1.993,
+        0.273,
+        1.4
+      ],
+      "first_status_time": 47.368,
+      "first_ready_latency_sec": 0.03300000099999778
+    },
+    "5": {
+      "time": 61.161999999,
+      "goal": [
+        1.993,
+        0.973,
+        1.4
+      ],
+      "first_status_time": 61.252,
+      "first_ready_latency_sec": 0.1890000009999966
+    },
+    "6": {
+      "time": 64.394999999,
+      "goal": [
+        -2.007,
+        0.973,
+        1.4
+      ],
+      "first_status_time": 64.432,
+      "first_ready_latency_sec": 0.13800000099999465
+    },
+    "7": {
+      "time": 77.902,
+      "goal": [
+        -2.007,
+        1.673,
+        1.4
+      ],
+      "first_status_time": 78.069,
+      "first_ready_latency_sec": 0.25900000000000034
+    },
+    "8": {
+      "time": 81.329999999,
+      "goal": [
+        1.993,
+        1.673,
+        1.4
+      ],
+      "first_status_time": 81.412,
+      "first_ready_latency_sec": 0.19800000100001114
+    },
+    "9": {
+      "time": 96.028999999,
+      "goal": [
+        1.993,
+        2.373,
+        1.4
+      ],
+      "first_status_time": 96.076,
+      "first_ready_latency_sec": 0.26000000099999454
+    },
+    "10": {
+      "time": 99.394999999,
+      "goal": [
+        -2.007,
+        2.373,
+        1.4
+      ],
+      "first_status_time": 99.478,
+      "first_ready_latency_sec": 0.1850000009999917
+    },
+    "11": {
+      "time": 115.826999999,
+      "goal": [
+        -2.007,
+        3.0730000000000004,
+        1.4
+      ],
+      "first_status_time": 115.965,
+      "first_ready_latency_sec": 0.2650000010000042
+    },
+    "12": {
+      "time": 119.162,
+      "goal": [
+        1.993,
+        3.0730000000000004,
+        1.4
+      ],
+      "first_status_time": 119.26,
+      "first_ready_latency_sec": 0.2569999999999908
+    },
+    "13": {
+      "time": 121.5,
+      "goal": [
+        -1.1871391788330476,
+        4.154593543356163,
+        1.6
+      ],
+      "first_status_time": 121.659,
+      "first_ready_latency_sec": 0.20399999999999352
+    },
+    "14": {
+      "time": 131.895,
+      "goal": [
+        1.993,
+        3.0730000000000004,
+        1.4
+      ],
+      "first_status_time": 131.98,
+      "first_ready_latency_sec": 0.20599999999998886
+    },
+    "15": {
+      "time": 139.099999999,
+      "goal": [
+        1.4835402394893717,
+        4.076625912097201,
+        1.6
+      ],
+      "first_status_time": 139.226,
+      "first_ready_latency_sec": 0.18600000099999647
+    },
+    "16": {
+      "time": 148.926999999,
+      "goal": [
+        -2.386703,
+        4.67227,
+        1.4
+      ],
+      "first_status_time": 148.928,
+      "first_ready_latency_sec": 0.04100000099998624
+    },
+    "17": {
+      "time": 161.997,
+      "goal": [
+        -2.386703,
+        4.67227,
+        1.05
+      ],
+      "first_status_time": 162.092,
+      "first_ready_latency_sec": 0.2879999999999825
+    },
+    "18": {
+      "time": 163.719999999,
+      "goal": [
+        -2.386703,
+        5.17227,
+        0.75
+      ],
+      "first_status_time": 163.785,
+      "first_ready_latency_sec": 0.1710000009999817
+    },
+    "19": {
+      "time": 166.727,
+      "goal": [
+        -2.386703,
+        5.67227,
+        0.75
+      ],
+      "first_status_time": 166.836,
+      "first_ready_latency_sec": 0.20300000000000296
+    },
+    "20": {
+      "time": 169.794999999,
+      "goal": [
+        -2.386703,
+        6.67227,
+        0.75
+      ],
+      "first_status_time": 169.906,
+      "first_ready_latency_sec": 1.8330000009999878
+    },
+    "21": {
+      "time": 175.926999999,
+      "goal": [
+        -2.386703,
+        7.65269,
+        1.2
+      ],
+      "first_status_time": 176.064,
+      "first_ready_latency_sec": 0.19400000100000625
+    },
+    "22": {
+      "time": 180.098,
+      "goal": [
+        -0.512003,
+        8.053133,
+        1.2
+      ],
+      "first_status_time": 180.11,
+      "first_ready_latency_sec": 0.04999999999998295
+    },
+    "23": {
+      "time": 186.961,
+      "goal": [
+        0.287997,
+        8.053133,
+        1.2
+      ],
+      "first_status_time": 187.006,
+      "first_ready_latency_sec": 0.16499999999999204
+    },
+    "24": {
+      "time": 190.469999999,
+      "goal": [
+        1.723022,
+        8.00965,
+        1.2
+      ],
+      "first_status_time": 190.525,
+      "first_ready_latency_sec": 0.153000000999981
+    },
+    "25": {
+      "time": 195.699999999,
+      "goal": [
+        2.523022,
+        8.00965,
+        1.2
+      ],
+      "first_status_time": 195.72,
+      "first_ready_latency_sec": 0.09200000100000238
+    },
+    "26": {
+      "time": 199.0,
+      "goal": [
+        3.274292,
+        8.05722,
+        0.75
+      ],
+      "first_status_time": 199.02,
+      "first_ready_latency_sec": 0.15000000000000568
+    }
+  },
+  "phase_changes": [
+    {
+      "time": 0.409,
+      "mission": {
+        "last_reason": "waiting_for_manual_start",
+        "manual_start_required": true,
+        "mission_id": "",
+        "phase": "IDLE",
+        "profile": "r2026",
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 28.012,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 1,
+        "committed_slots": 0,
+        "last_reason": "coverage_start",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 1,
+        "route_complete": false,
+        "route_index": 0,
+        "slot_status": [
+          "FREE",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 31.004,
+      "mission": {
+        "active_command": "APPROACH",
+        "active_decision_seq": 2,
+        "committed_slots": 0,
+        "last_reason": "high_weight_search_interrupt",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "EXECUTING",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 0,
+        "slot_status": [
+          "RESERVED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 39.84,
+      "mission": {
+        "active_command": "APPROACH",
+        "active_decision_seq": 2,
+        "committed_slots": 1,
+        "last_reason": "payload_committed",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "EXECUTING",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 0,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 42.052,
+      "mission": {
+        "active_command": "RESUME",
+        "active_decision_seq": 3,
+        "committed_slots": 1,
+        "last_reason": "resume_interrupted_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 3,
+        "route_complete": false,
+        "route_index": 0,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 47.371,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 4,
+        "committed_slots": 1,
+        "last_reason": "progress_recorded",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 4,
+        "route_complete": false,
+        "route_index": 1,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 61.169,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 5,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 5,
+        "route_complete": false,
+        "route_index": 2,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 64.4,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 6,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 6,
+        "route_complete": false,
+        "route_index": 3,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 77.919,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 7,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 7,
+        "route_complete": false,
+        "route_index": 4,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 81.346,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 8,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 8,
+        "route_complete": false,
+        "route_index": 5,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 96.034,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 9,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 9,
+        "route_complete": false,
+        "route_index": 6,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 99.4,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 10,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 10,
+        "route_complete": false,
+        "route_index": 7,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 115.832,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 11,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 11,
+        "route_complete": false,
+        "route_index": 8,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 119.175,
+      "mission": {
+        "active_command": "SEARCH",
+        "active_decision_seq": 12,
+        "committed_slots": 1,
+        "last_reason": "coverage_waypoint",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 12,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "FREE",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 121.512,
+      "mission": {
+        "active_command": "APPROACH",
+        "active_decision_seq": 13,
+        "committed_slots": 1,
+        "last_reason": "high_weight_search_interrupt",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "EXECUTING",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "RESERVED",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 129.489,
+      "mission": {
+        "active_command": "APPROACH",
+        "active_decision_seq": 13,
+        "committed_slots": 2,
+        "last_reason": "payload_committed",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "EXECUTING",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 131.9,
+      "mission": {
+        "active_command": "RESUME",
+        "active_decision_seq": 14,
+        "committed_slots": 2,
+        "last_reason": "candidates_ingested",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "SEARCH",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 14,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "FREE"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 139.111,
+      "mission": {
+        "active_command": "APPROACH",
+        "active_decision_seq": 15,
+        "committed_slots": 2,
+        "last_reason": "high_weight_search_interrupt",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "EXECUTING",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "RESERVED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 146.68,
+      "mission": {
+        "active_command": "APPROACH",
+        "active_decision_seq": 15,
+        "committed_slots": 3,
+        "last_reason": "payload_committed",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "EXECUTING",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 148.93,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 16,
+        "committed_slots": 3,
+        "last_reason": "required_deliveries_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 0,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 161.997,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 17,
+        "committed_slots": 3,
+        "last_reason": "progress_recorded",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 1,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 163.728,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 18,
+        "committed_slots": 3,
+        "last_reason": "post_delivery_route_segment_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 2,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 166.742,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 19,
+        "committed_slots": 3,
+        "last_reason": "post_delivery_route_segment_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 3,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 169.796,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 20,
+        "committed_slots": 3,
+        "last_reason": "post_delivery_route_segment_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 4,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 175.944,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 21,
+        "committed_slots": 3,
+        "last_reason": "progress_recorded",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 5,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 180.105,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 22,
+        "committed_slots": 3,
+        "last_reason": "post_delivery_route_segment_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 6,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 186.968,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 23,
+        "committed_slots": 3,
+        "last_reason": "post_delivery_route_segment_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 7,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 190.486,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 24,
+        "committed_slots": 3,
+        "last_reason": "post_delivery_route_segment_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 8,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 195.7,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 25,
+        "committed_slots": 3,
+        "last_reason": "post_delivery_route_segment_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 9,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 199.008,
+      "mission": {
+        "active_command": "RETURN_HOME",
+        "active_decision_seq": 26,
+        "committed_slots": 3,
+        "last_reason": "post_delivery_route_segment_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "POST_DELIVERY_ROUTE",
+        "post_delivery_route_complete": false,
+        "post_delivery_route_index": 10,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    },
+    {
+      "time": 202.737,
+      "mission": {
+        "active_command": "LAND",
+        "active_decision_seq": 27,
+        "committed_slots": 3,
+        "last_reason": "post_delivery_route_complete",
+        "manual_start_required": true,
+        "mission_failed": false,
+        "mission_id": "vcl06-random-28-012000000-1",
+        "phase": "LAND",
+        "post_delivery_route_complete": true,
+        "post_delivery_route_index": 11,
+        "post_delivery_route_revision": "r2026-horizontal-three-door-h-r2-low-entry",
+        "post_delivery_route_size": 11,
+        "profile": "r2026",
+        "route_active_decision_seq": 0,
+        "route_complete": false,
+        "route_index": 9,
+        "slot_status": [
+          "COMMITTED",
+          "COMMITTED",
+          "COMMITTED"
+        ],
+        "start_mode": "full"
+      }
+    }
+  ],
+  "largest_map_gaps_sec": [
+    [
+      0.5489999999999999,
+      1.883,
+      2.432
+    ],
+    [
+      0.3650000000000091,
+      132.0,
+      132.365
+    ],
+    [
+      0.3569999999999993,
+      115.172,
+      115.529
+    ],
+    [
+      0.3540000000000134,
+      150.421,
+      150.775
+    ],
+    [
+      0.3400000000000034,
+      141.276,
+      141.616
+    ]
+  ],
+  "largest_cloud_gaps_sec": [
+    [
+      0.21100000000001273,
+      230.469,
+      230.68
+    ],
+    [
+      0.19900000000001228,
+      200.939,
+      201.138
+    ],
+    [
+      0.1980000000000075,
+      206.428,
+      206.626
+    ],
+    [
+      0.19400000000000261,
+      73.973,
+      74.167
+    ],
+    [
+      0.19300000000001205,
+      112.198,
+      112.391
+    ]
+  ],
+  "largest_pose_gaps_sec": [
+    [
+      0.08200000000000074,
+      28.15,
+      28.232
+    ],
+    [
+      0.06400000000000716,
+      87.092,
+      87.156
+    ],
+    [
+      0.05700000000001637,
+      155.725,
+      155.782
+    ],
+    [
+      0.055999999999997385,
+      70.793,
+      70.849
+    ],
+    [
+      0.055999999999997385,
+      32.939,
+      32.995
+    ]
+  ],
+  "first_pose_time": 0.994,
+  "last_pose_time": 239.959,
+  "pose_count": 7170,
+  "spline_count": 26,
+  "search_time_budget_log_count": 0,
+  "occupied_goal_log_count": 0,
+  "landing_vision_counts": {
+    "/uav_vision/detections_mapped:target_map_projector": 695
+  },
+  "landing_images": [],
+  "bag_reads": [
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-00-58_0.bag",
+      "start": 0.409,
+      "end": 28.128,
+      "messages": 42360
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-02-40_1.bag",
+      "start": 28.128,
+      "end": 52.176,
+      "messages": 40762
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-04-07_2.bag",
+      "start": 52.176,
+      "end": 76.345,
+      "messages": 40680
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-05-35_3.bag",
+      "start": 76.346,
+      "end": 100.295,
+      "messages": 40301
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-06-59_4.bag",
+      "start": 100.296,
+      "end": 123.52,
+      "messages": 39137
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-08-22_5.bag",
+      "start": 123.52,
+      "end": 146.48,
+      "messages": 39126
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-09-47_6.bag",
+      "start": 146.481,
+      "end": 169.484,
+      "messages": 38662
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-11-12_7.bag",
+      "start": 169.484,
+      "end": 195.79,
+      "messages": 44003
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_integrated_r55_bounded_corridor_20260907_040048/navigation_vcl06_debug_2026-09-07-04-12-46_8.bag",
+      "start": 195.79,
+      "end": 224.452,
+      "messages": 48005
+    },
+    {
+      "path": "/mnt/e/LiftraceArtifacts/r55/recovered/navigation_vcl06_debug_2026-09-07-04-14-26_9.bag.active",
+      "start": 224.452,
+      "end": 239.976,
+      "messages": 25933
+    }
+  ],
+  "recovered_door_crossings": [
+    {
+      "name": "Wall_15",
+      "route_index": 5,
+      "lateral": -2.363972406612041,
+      "z": 0.7781154845563494
+    },
+    {
+      "name": "Wall_20",
+      "route_index": 8,
+      "lateral": 8.060543349083686,
+      "z": 1.2497194796005722
+    },
+    {
+      "name": "Wall_22",
+      "route_index": 10,
+      "lateral": 8.011348619404952,
+      "z": 1.2239666806309402
+    }
+  ],
+  "recovered_pose_check_errors": [],
+  "landing_truth_body_z_range": [
+    0.8030924095718797,
+    0.9561940752705931
+  ],
+  "max_truth_body_z": 1.7520100260843399,
+  "goals_recovered_from": "PlannerStatus.requested_goal (raw /fastplanner/goal not recorded)",
+  "recovered_release_targets": [
+    {
+      "time": 39.84,
+      "slot": 1,
+      "target_class": "panzer"
+    },
+    {
+      "time": 129.489,
+      "slot": 2,
+      "target_class": "bridge"
+    },
+    {
+      "time": 146.68,
+      "slot": 3,
+      "target_class": "red_cross"
+    }
+  ]
+}

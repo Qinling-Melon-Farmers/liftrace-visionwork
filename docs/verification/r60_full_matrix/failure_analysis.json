@@ -1,0 +1,981 @@
+[
+  {
+    "seed": 1,
+    "status": "FAIL",
+    "gate_reason": "actual_collision",
+    "errors": [
+      "actual_collision"
+    ],
+    "slots": 3,
+    "route_completed": 9,
+    "passages": 3,
+    "last_event_ros_sec": 476.961,
+    "event_elapsed_from_start_sec": 448.612,
+    "contact_events": [
+      {
+        "pairs": [
+          [
+            "iris_mid360::iris::rotor_2::rotor_2_collision",
+            "toudi2::Wall_9::Wall_9_Collision"
+          ]
+        ],
+        "ros_stamp": 476.437,
+        "sequence": 1,
+        "wall_time": 1788803903.6023886
+      }
+    ],
+    "event_truth_xyz": [
+      3.3214189190974803,
+      8.185942281929536,
+      0.5394987815967656
+    ],
+    "event_mavros_xyz": [
+      3.326566547817654,
+      8.069272436919036,
+      0.48262865057698
+    ],
+    "event_setpoint_xyz": [
+      3.28794527053833,
+      8.052750587463379,
+      0.5
+    ],
+    "event_truth_rpy_deg": [
+      -0.4906858655685329,
+      -0.09322301051860643,
+      38.33670861287993
+    ],
+    "last_command": 5,
+    "last_decision_seq": 31,
+    "last_decision_reason": "post_delivery_route_complete",
+    "last_goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "last_results": [
+      {
+        "t": 467.186,
+        "seq": 30,
+        "reason": "planner_goal_dispatched",
+        "status": 0
+      },
+      {
+        "t": 467.278,
+        "seq": 30,
+        "reason": "planner_goal_accepted",
+        "status": 1
+      },
+      {
+        "t": 467.368,
+        "seq": 30,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      },
+      {
+        "t": 474.318,
+        "seq": 30,
+        "reason": "motion_arrival_confirmed",
+        "status": 3
+      },
+      {
+        "t": 474.356,
+        "seq": 31,
+        "reason": "patrol_control_landing_accepted",
+        "status": 1
+      }
+    ],
+    "motion_deadlines": [
+      {
+        "t": 250.488,
+        "seq": 18
+      },
+      {
+        "t": 340.491,
+        "seq": 19
+      }
+    ],
+    "gate_checks_false": [
+      "contact_ready_zero",
+      "contract_errors_zero",
+      "final_landed_on_ground",
+      "final_vehicle_disarmed",
+      "land_success",
+      "landing_h_mark_valid",
+      "manager_complete",
+      "mission_ros_within_limit",
+      "return_before_land",
+      "zero_collisions"
+    ]
+  },
+  {
+    "seed": 2,
+    "status": "FAIL",
+    "gate_reason": "actual_collision",
+    "errors": [
+      "actual_collision"
+    ],
+    "slots": 3,
+    "route_completed": 4,
+    "passages": 2,
+    "last_event_ros_sec": 252.164,
+    "event_elapsed_from_start_sec": 223.644,
+    "contact_events": [
+      {
+        "pairs": [
+          [
+            "iris_mid360::competition_contact_link::competition_guard_collision",
+            "toudi2::Wall_9::Wall_9_Collision"
+          ]
+        ],
+        "ros_stamp": 251.714,
+        "sequence": 1,
+        "wall_time": 1788804784.9323401
+      }
+    ],
+    "event_truth_xyz": [
+      0.07625672628675727,
+      8.268014758945094,
+      0.5932582019565473
+    ],
+    "event_mavros_xyz": [
+      0.05492305155733915,
+      8.20496031817268,
+      0.5132036713116309
+    ],
+    "event_setpoint_xyz": [
+      -0.02560863085091114,
+      8.189197540283203,
+      0.4890094995498657
+    ],
+    "event_truth_rpy_deg": [
+      -0.5549798169416686,
+      -0.16220933326389803,
+      90.33346381965076
+    ],
+    "last_command": 4,
+    "last_decision_seq": 19,
+    "last_decision_reason": "post_delivery_route:5/9:r2026-r60-full-staged-low-corridor:segment_complete",
+    "last_goal": {
+      "x": 0.587997,
+      "y": 8.16769,
+      "z": 0.45
+    },
+    "last_results": [
+      {
+        "t": 242.89,
+        "seq": 19,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      },
+      {
+        "t": 250.642,
+        "seq": 19,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      },
+      {
+        "t": 250.756,
+        "seq": 19,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      },
+      {
+        "t": 250.846,
+        "seq": 19,
+        "reason": "planner_attempt_failed_nonterminal",
+        "status": 2
+      },
+      {
+        "t": 251.61,
+        "seq": 19,
+        "reason": "planner_attempt_failed_nonterminal",
+        "status": 2
+      }
+    ],
+    "motion_deadlines": [],
+    "gate_checks_false": [
+      "contact_ready_zero",
+      "contract_errors_zero",
+      "doors_crossed_in_order",
+      "final_landed_on_ground",
+      "final_vehicle_disarmed",
+      "land_success",
+      "landing_align_mode_seen",
+      "landing_h_mark_valid",
+      "manager_complete",
+      "manager_post_delivery_route_matches",
+      "mission_ros_within_limit",
+      "post_delivery_return_goals",
+      "post_delivery_return_sequence",
+      "return_after_deliveries",
+      "return_before_land",
+      "return_home_success",
+      "zero_collisions"
+    ]
+  },
+  {
+    "seed": 3,
+    "status": "FAIL",
+    "gate_reason": "actual_collision",
+    "errors": [
+      "actual_collision"
+    ],
+    "slots": 3,
+    "route_completed": 4,
+    "passages": 2,
+    "last_event_ros_sec": 287.257,
+    "event_elapsed_from_start_sec": 258.544,
+    "contact_events": [
+      {
+        "pairs": [
+          [
+            "iris_mid360::competition_contact_link::competition_guard_collision",
+            "toudi2::Wall_9::Wall_9_Collision"
+          ]
+        ],
+        "ros_stamp": 286.568,
+        "sequence": 1,
+        "wall_time": 1788805733.2133653
+      }
+    ],
+    "event_truth_xyz": [
+      -0.1126862147173745,
+      8.267359740471585,
+      0.541872532951669
+    ],
+    "event_mavros_xyz": [
+      -0.09412553453562499,
+      8.2020331177057,
+      0.4608016545866043
+    ],
+    "event_setpoint_xyz": [
+      -0.13490718603134155,
+      8.192586898803711,
+      0.4497404396533966
+    ],
+    "event_truth_rpy_deg": [
+      -1.0917407404801507,
+      0.0962552963411672,
+      90.22577751599735
+    ],
+    "last_command": 4,
+    "last_decision_seq": 24,
+    "last_decision_reason": "post_delivery_route:5/9:r2026-r60-full-staged-low-corridor:segment_complete",
+    "last_goal": {
+      "x": 0.587997,
+      "y": 8.16769,
+      "z": 0.45
+    },
+    "last_results": [
+      {
+        "t": 279.434,
+        "seq": 24,
+        "reason": "planner_goal_accepted",
+        "status": 1
+      },
+      {
+        "t": 279.529,
+        "seq": 24,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      },
+      {
+        "t": 285.895,
+        "seq": 24,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      },
+      {
+        "t": 286.057,
+        "seq": 24,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      },
+      {
+        "t": 286.235,
+        "seq": 24,
+        "reason": "planner_attempt_failed_nonterminal",
+        "status": 2
+      }
+    ],
+    "motion_deadlines": [],
+    "gate_checks_false": [
+      "contact_ready_zero",
+      "contract_errors_zero",
+      "doors_crossed_in_order",
+      "final_landed_on_ground",
+      "final_vehicle_disarmed",
+      "land_success",
+      "landing_align_mode_seen",
+      "landing_h_mark_valid",
+      "manager_complete",
+      "manager_post_delivery_route_matches",
+      "mission_ros_within_limit",
+      "post_delivery_return_goals",
+      "post_delivery_return_sequence",
+      "return_after_deliveries",
+      "return_before_land",
+      "return_home_success",
+      "zero_collisions"
+    ]
+  },
+  {
+    "seed": 4,
+    "status": "FAIL",
+    "gate_reason": "manager_failed",
+    "errors": [
+      "manager_failed"
+    ],
+    "slots": 1,
+    "route_completed": 0,
+    "passages": 0,
+    "last_event_ros_sec": 250.962,
+    "event_elapsed_from_start_sec": 223.07999999999998,
+    "contact_events": [],
+    "event_truth_xyz": [
+      0.05071494635363483,
+      -0.06458914014511441,
+      1.729446965313766
+    ],
+    "event_mavros_xyz": [
+      0.025956310644632018,
+      -0.0180287899605873,
+      1.6131390251276165
+    ],
+    "event_setpoint_xyz": [
+      0.0,
+      0.0,
+      1.4
+    ],
+    "event_truth_rpy_deg": [
+      0.052027021013772594,
+      -0.20089732387324724,
+      0.13432389719830018
+    ],
+    "last_command": 4,
+    "last_decision_seq": 14,
+    "last_decision_reason": "target_action_timed_out_uncertain",
+    "last_goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 1.4
+    },
+    "last_results": [
+      {
+        "t": 165.252,
+        "seq": 13,
+        "reason": "patrol_control_alignment_accepted",
+        "status": 1
+      },
+      {
+        "t": 250.309,
+        "seq": 13,
+        "reason": "alignment_evidence_deadline_reached",
+        "status": 7
+      },
+      {
+        "t": 250.327,
+        "seq": 14,
+        "reason": "planner_goal_dispatched",
+        "status": 0
+      },
+      {
+        "t": 250.403,
+        "seq": 14,
+        "reason": "planner_goal_accepted",
+        "status": 1
+      },
+      {
+        "t": 250.578,
+        "seq": 14,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      }
+    ],
+    "motion_deadlines": [],
+    "gate_checks_false": [
+      "committed_targets_were_selected",
+      "contract_errors_zero",
+      "doors_crossed_in_order",
+      "final_landed_on_ground",
+      "final_vehicle_disarmed",
+      "forced_return_within_limit",
+      "land_success",
+      "landing_align_mode_seen",
+      "landing_h_mark_valid",
+      "manager_complete",
+      "manager_post_delivery_route_matches",
+      "mission_ros_within_limit",
+      "post_delivery_return_goals",
+      "post_delivery_return_sequence",
+      "real_approach_commands",
+      "return_after_deliveries",
+      "return_before_land",
+      "return_home_success",
+      "three_capture_started",
+      "three_recovery_successes",
+      "three_release_commits"
+    ]
+  },
+  {
+    "seed": 5,
+    "status": "PASS",
+    "gate_reason": "all_checks_passed",
+    "errors": [],
+    "slots": 3,
+    "route_completed": 9,
+    "passages": 3,
+    "last_event_ros_sec": 285.403,
+    "event_elapsed_from_start_sec": 257.345,
+    "contact_events": [],
+    "event_truth_xyz": [
+      3.4082536499645943,
+      8.114384870098894,
+      0.05997998548474523
+    ],
+    "event_mavros_xyz": [
+      3.3622887134552,
+      8.04100513458252,
+      0.05110262706875801
+    ],
+    "event_setpoint_xyz": [
+      3.307795503589219,
+      7.999763720323333,
+      0.1875149036767748
+    ],
+    "event_truth_rpy_deg": [
+      0.0015201042355095515,
+      0.0023530751274534033,
+      -47.73265948548444
+    ],
+    "last_command": 5,
+    "last_decision_seq": 25,
+    "last_decision_reason": "post_delivery_route_complete",
+    "last_goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "last_results": [
+      {
+        "t": 267.793,
+        "seq": 24,
+        "reason": "planner_goal_accepted",
+        "status": 1
+      },
+      {
+        "t": 267.796,
+        "seq": 24,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      },
+      {
+        "t": 274.55,
+        "seq": 24,
+        "reason": "motion_arrival_confirmed",
+        "status": 3
+      },
+      {
+        "t": 274.581,
+        "seq": 25,
+        "reason": "patrol_control_landing_accepted",
+        "status": 1
+      },
+      {
+        "t": 282.983,
+        "seq": 25,
+        "reason": "landed_state_and_settle_confirmed",
+        "status": 3
+      }
+    ],
+    "motion_deadlines": [],
+    "gate_checks_false": []
+  },
+  {
+    "seed": 6,
+    "status": "FAIL",
+    "gate_reason": "actual_collision",
+    "errors": [
+      "actual_collision"
+    ],
+    "slots": 3,
+    "route_completed": 9,
+    "passages": 3,
+    "last_event_ros_sec": 287.704,
+    "event_elapsed_from_start_sec": 258.927,
+    "contact_events": [
+      {
+        "pairs": [
+          [
+            "iris_mid360::iris::rotor_1::rotor_1_collision",
+            "toudi2::Wall_9::Wall_9_Collision"
+          ]
+        ],
+        "ros_stamp": 287.187,
+        "sequence": 1,
+        "wall_time": 1788808483.6589854
+      }
+    ],
+    "event_truth_xyz": [
+      3.3742447601738847,
+      8.203371650413466,
+      0.1064180188699847
+    ],
+    "event_mavros_xyz": [
+      3.456200017068619,
+      7.92919521403492,
+      -0.33085989503933344
+    ],
+    "event_setpoint_xyz": [
+      3.424910225671337,
+      7.925944357696864,
+      -0.17788638947212224
+    ],
+    "event_truth_rpy_deg": [
+      -0.4794500561814876,
+      -2.977949545259537,
+      -25.179685686746417
+    ],
+    "last_command": 5,
+    "last_decision_seq": 25,
+    "last_decision_reason": "post_delivery_route_complete",
+    "last_goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "last_results": [
+      {
+        "t": 274.164,
+        "seq": 24,
+        "reason": "planner_goal_dispatched",
+        "status": 0
+      },
+      {
+        "t": 274.343,
+        "seq": 24,
+        "reason": "planner_goal_accepted",
+        "status": 1
+      },
+      {
+        "t": 274.519,
+        "seq": 24,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      },
+      {
+        "t": 281.658,
+        "seq": 24,
+        "reason": "motion_arrival_confirmed",
+        "status": 3
+      },
+      {
+        "t": 281.671,
+        "seq": 25,
+        "reason": "patrol_control_landing_accepted",
+        "status": 1
+      }
+    ],
+    "motion_deadlines": [],
+    "gate_checks_false": [
+      "contact_ready_zero",
+      "contract_errors_zero",
+      "final_landed_on_ground",
+      "final_vehicle_disarmed",
+      "land_success",
+      "manager_complete",
+      "mission_ros_within_limit",
+      "return_before_land",
+      "zero_collisions"
+    ]
+  },
+  {
+    "seed": 7,
+    "status": "PASS",
+    "gate_reason": "all_checks_passed",
+    "errors": [],
+    "slots": 3,
+    "route_completed": 9,
+    "passages": 3,
+    "last_event_ros_sec": 276.36,
+    "event_elapsed_from_start_sec": 248.002,
+    "contact_events": [],
+    "event_truth_xyz": [
+      3.365577449968792,
+      8.061134158080003,
+      0.05994400145494698
+    ],
+    "event_mavros_xyz": [
+      3.354914903640747,
+      7.992737770080566,
+      0.033168334513902664
+    ],
+    "event_setpoint_xyz": [
+      3.3130986301450798,
+      7.98926924832032,
+      0.17580405184690706
+    ],
+    "event_truth_rpy_deg": [
+      -0.005395158663359658,
+      0.0051635579460523546,
+      -6.136003171113425
+    ],
+    "last_command": 5,
+    "last_decision_seq": 25,
+    "last_decision_reason": "post_delivery_route_complete",
+    "last_goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "last_results": [
+      {
+        "t": 257.738,
+        "seq": 24,
+        "reason": "planner_goal_accepted",
+        "status": 1
+      },
+      {
+        "t": 257.847,
+        "seq": 24,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      },
+      {
+        "t": 264.53,
+        "seq": 24,
+        "reason": "motion_arrival_confirmed",
+        "status": 3
+      },
+      {
+        "t": 264.561,
+        "seq": 25,
+        "reason": "patrol_control_landing_accepted",
+        "status": 1
+      },
+      {
+        "t": 275.695,
+        "seq": 25,
+        "reason": "landed_state_and_settle_confirmed",
+        "status": 3
+      }
+    ],
+    "motion_deadlines": [],
+    "gate_checks_false": []
+  },
+  {
+    "seed": 8,
+    "status": "FAIL",
+    "gate_reason": "actual_collision",
+    "errors": [
+      "actual_collision"
+    ],
+    "slots": 3,
+    "route_completed": 9,
+    "passages": 3,
+    "last_event_ros_sec": 286.903,
+    "event_elapsed_from_start_sec": 258.541,
+    "contact_events": [
+      {
+        "pairs": [
+          [
+            "iris_mid360::iris::rotor_2::rotor_2_collision",
+            "toudi2::Wall_9::Wall_9_Collision"
+          ]
+        ],
+        "ros_stamp": 286.375,
+        "sequence": 1,
+        "wall_time": 1788810332.3665636
+      }
+    ],
+    "event_truth_xyz": [
+      3.314966244519886,
+      8.194664399979112,
+      0.5888356985169299
+    ],
+    "event_mavros_xyz": [
+      3.2778725734976835,
+      8.064828961394554,
+      0.4883458129195286
+    ],
+    "event_setpoint_xyz": [
+      3.2694203871137955,
+      7.949342987116645,
+      0.5
+    ],
+    "event_truth_rpy_deg": [
+      0.4589643859952015,
+      0.09379484912416787,
+      13.417573520584966
+    ],
+    "last_command": 5,
+    "last_decision_seq": 25,
+    "last_decision_reason": "post_delivery_route_complete",
+    "last_goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "last_results": [
+      {
+        "t": 276.014,
+        "seq": 24,
+        "reason": "planner_goal_dispatched",
+        "status": 0
+      },
+      {
+        "t": 276.091,
+        "seq": 24,
+        "reason": "planner_goal_accepted",
+        "status": 1
+      },
+      {
+        "t": 276.224,
+        "seq": 24,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      },
+      {
+        "t": 283.369,
+        "seq": 24,
+        "reason": "motion_arrival_confirmed",
+        "status": 3
+      },
+      {
+        "t": 283.394,
+        "seq": 25,
+        "reason": "patrol_control_landing_accepted",
+        "status": 1
+      }
+    ],
+    "motion_deadlines": [],
+    "gate_checks_false": [
+      "contact_ready_zero",
+      "contract_errors_zero",
+      "final_landed_on_ground",
+      "final_vehicle_disarmed",
+      "land_success",
+      "manager_complete",
+      "mission_ros_within_limit",
+      "return_before_land",
+      "zero_collisions"
+    ]
+  },
+  {
+    "seed": 9,
+    "status": "FAIL",
+    "gate_reason": "manager_failed",
+    "errors": [
+      "manager_failed"
+    ],
+    "slots": 2,
+    "route_completed": 0,
+    "passages": 0,
+    "last_event_ros_sec": 433.69,
+    "event_elapsed_from_start_sec": 405.667,
+    "contact_events": [],
+    "event_truth_xyz": [
+      -1.9676126812828423,
+      4.390626961295342,
+      1.471035817282348
+    ],
+    "event_mavros_xyz": [
+      -1.9815127849578857,
+      4.426241874694824,
+      1.406888484954834
+    ],
+    "event_setpoint_xyz": [
+      -2.0255900876437583,
+      4.0461982076794225,
+      1.415207359631869
+    ],
+    "event_truth_rpy_deg": [
+      3.4737196659516747,
+      -0.34909298406355593,
+      1.0041691193155182
+    ],
+    "last_command": 4,
+    "last_decision_seq": 21,
+    "last_decision_reason": "target_action_timed_out_uncertain",
+    "last_goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 1.4
+    },
+    "last_results": [
+      {
+        "t": 431.915,
+        "seq": 20,
+        "reason": "planner_attempt_failed_nonterminal",
+        "status": 2
+      },
+      {
+        "t": 432.855,
+        "seq": 20,
+        "reason": "planner_attempt_failed_nonterminal",
+        "status": 2
+      },
+      {
+        "t": 433.031,
+        "seq": 20,
+        "reason": "decision_deadline_reached",
+        "status": 7
+      },
+      {
+        "t": 433.047,
+        "seq": 21,
+        "reason": "planner_goal_dispatched",
+        "status": 0
+      },
+      {
+        "t": 433.151,
+        "seq": 21,
+        "reason": "planner_goal_accepted",
+        "status": 1
+      }
+    ],
+    "motion_deadlines": [
+      {
+        "t": 254.521,
+        "seq": 18
+      },
+      {
+        "t": 433.031,
+        "seq": 20
+      }
+    ],
+    "gate_checks_false": [
+      "committed_targets_were_selected",
+      "contract_errors_zero",
+      "doors_crossed_in_order",
+      "final_landed_on_ground",
+      "final_vehicle_disarmed",
+      "forced_return_within_limit",
+      "land_success",
+      "landing_align_mode_seen",
+      "landing_h_mark_valid",
+      "manager_complete",
+      "manager_post_delivery_route_matches",
+      "mission_ros_within_limit",
+      "post_delivery_return_goals",
+      "post_delivery_return_sequence",
+      "real_approach_commands",
+      "return_after_deliveries",
+      "return_before_land",
+      "return_home_success",
+      "three_capture_started",
+      "three_recovery_successes",
+      "three_release_commits"
+    ]
+  },
+  {
+    "seed": 10,
+    "status": "FAIL",
+    "gate_reason": "actual_collision",
+    "errors": [
+      "actual_collision"
+    ],
+    "slots": 3,
+    "route_completed": 9,
+    "passages": 3,
+    "last_event_ros_sec": 287.986,
+    "event_elapsed_from_start_sec": 259.254,
+    "contact_events": [
+      {
+        "pairs": [
+          [
+            "iris_mid360::iris::rotor_2::rotor_2_collision",
+            "toudi2::Wall_9::Wall_9_Collision"
+          ]
+        ],
+        "ros_stamp": 287.336,
+        "sequence": 1,
+        "wall_time": 1788812586.975498
+      },
+      {
+        "pairs": [
+          [
+            "iris_mid360::iris::rotor_2::rotor_2_collision",
+            "toudi2::Wall_9::Wall_9_Collision"
+          ]
+        ],
+        "ros_stamp": 287.5,
+        "sequence": 2,
+        "wall_time": 1788812587.5090704
+      }
+    ],
+    "event_truth_xyz": [
+      3.290192928438855,
+      8.190567357997162,
+      0.5970667467966089
+    ],
+    "event_mavros_xyz": [
+      3.2809597067534924,
+      8.087465316057205,
+      0.5452867681160568
+    ],
+    "event_setpoint_xyz": [
+      3.2796266078948975,
+      8.047944068908691,
+      0.5
+    ],
+    "event_truth_rpy_deg": [
+      0.17010059108498454,
+      0.018116279585697018,
+      43.39737309526402
+    ],
+    "last_command": 5,
+    "last_decision_seq": 25,
+    "last_decision_reason": "post_delivery_route_complete",
+    "last_goal": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "last_results": [
+      {
+        "t": 277.709,
+        "seq": 24,
+        "reason": "planner_goal_dispatched",
+        "status": 0
+      },
+      {
+        "t": 277.839,
+        "seq": 24,
+        "reason": "planner_goal_accepted",
+        "status": 1
+      },
+      {
+        "t": 277.957,
+        "seq": 24,
+        "reason": "planner_trajectory_ready",
+        "status": 2
+      },
+      {
+        "t": 285.42,
+        "seq": 24,
+        "reason": "motion_arrival_confirmed",
+        "status": 3
+      },
+      {
+        "t": 285.467,
+        "seq": 25,
+        "reason": "patrol_control_landing_accepted",
+        "status": 1
+      }
+    ],
+    "motion_deadlines": [],
+    "gate_checks_false": [
+      "contact_ready_zero",
+      "contract_errors_zero",
+      "final_landed_on_ground",
+      "final_vehicle_disarmed",
+      "land_success",
+      "landing_h_mark_valid",
+      "manager_complete",
+      "mission_ros_within_limit",
+      "return_before_land",
+      "zero_collisions"
+    ]
+  }
+]

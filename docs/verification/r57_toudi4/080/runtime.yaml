@@ -1,0 +1,111 @@
+# VCL06 runtime for r2026 horizontal field.  This file changes only geometry and
+# timing inputs; queue, retry and payload-slot behavior remains in MissionCore.
+
+profile:
+  name: r2026
+
+mission:
+  frame: camera_init
+  candidate_max_age: 0.5
+  transform_max_age: 0.5
+  min_streak: 3
+  max_target_z: 4.0
+  max_attempts: 2
+  retry_cooldown: 20.0
+  timeout: 600.0
+  # Reserve three-door transit plus H alignment inside the 10 min limit.
+  forced_return_at: 420.0
+  return_land_reserve: 180.0
+  delivery_reserve_per_slot: 60.0
+  path_factor: 1.5
+  nominal_speed: 0.5
+  decision_guard: 15.0
+  approach_altitude: 1.60
+  return_altitude: 1.40
+  # r17 的 KS2A543 实跑中，复杂地图接近 + 低空视觉对准在 90 s 截止后约
+  # 1 s 才满足释放高度；给完整目标事务保留适度调度余量，但不放宽证据或 Gate。
+  target_action_timeout: 120.0
+  # r33 的首个走廊航段已使用 55.8 s；r37b 从第三靶离场时因实体靶体
+  # 绕障先爬升后下降，60 s 时仍在持续收敛。统一留 90 s 运动 lease，
+  # 但继续服从 420 s 强制返航与 600 s 整场硬限。
+  motion_action_timeout: 90.0
+  # LAND 是最终阶段，只服从从任务开始计的 600 s 全场时限；不再额外
+  # 设置会把正常 H 对齐/下降误判成“需要重捕”的短事务超时。
+  result_future_tolerance: 0.1
+  home_xy: [0.0, 0.0]
+  # toudi4-style staggered corridor. Coordinates use the unchanged takeoff
+  # origin world=(-0.493412,-1.772690). These are surveyed corridor guides,
+  # independent of target truth. The online planner remains responsible for
+  # collision-free trajectories; no direct setpoint or new execution mode.
+  post_delivery_route_revision: r2026-toudi4-staggered-r57-080cm
+  landing_xy: [3.274292, 8.057220]
+  landing_anchor_tolerance: 0.05
+  post_delivery_route:
+    - [-3.106588000, 6.572690000, 1.40]  # entry south, world=(-3.60,4.80)
+    - [-3.106588000, 8.167690000, 1.40]  # entry clear, align to northern opening
+    - [-0.562003000, 8.167690000, 1.40]  # Wall_20 west, 0.45 m from panel axis
+    - [0.337997000, 8.167690000, 1.40]  # Wall_20 east clear
+    - [1.673022000, 7.897277297, 1.40]  # Wall_22 west, align to southern opening
+    - [2.573022000, 7.897277297, 1.40]  # Wall_22 east clear
+    - [3.274292000, 8.057220000, 1.60]  # final H capture; unchanged landing height
+
+# Independent measurement sections from the actual collision boxes. These
+# are one entry and two staggered-wall passages, not the old three framed
+# scoring doors. Flight/collision/time/landing thresholds remain unchanged.
+post_delivery_gate:
+  goal_tolerance: 0.18
+  final_h_tolerance: 0.35
+  expected_door_order: [corridor_entry, Wall_20, Wall_22]
+  doors:
+    - name: corridor_entry
+      axis: y
+      coordinate: 7.414920
+      direction: positive
+      route_indices: [2]
+      lateral_min: -3.841588
+      lateral_max: -2.380295
+      z_min: 0.00
+      z_max: 2.50
+    - name: Wall_20
+      axis: x
+      coordinate: -0.112003
+      direction: positive
+      route_indices: [4]
+      lateral_min: 7.767690000
+      lateral_max: 8.567690000
+      z_min: 0.00
+      z_max: 2.50
+    - name: Wall_22
+      axis: x
+      coordinate: 2.123022
+      direction: positive
+      route_indices: [6]
+      lateral_min: 7.497277297
+      lateral_max: 8.297277297
+      z_min: 0.00
+      z_max: 2.50
+
+# Bounds match the static random-target spawn envelope declared in
+# coverage_toudi3_random.yaml.  They are scenario geometry, not per-seed truth,
+# and avoid spending most of the mission outside the only legal target region.
+search:
+  min_x: -2.007
+  max_x: 1.993
+  min_y: 0.273
+  max_y: 6.273
+  lane_spacing: 0.70
+  altitude: 1.40
+  route_revision: r2026-installed-camera-070m-lanes-r1
+  max_failures_per_waypoint: 2
+
+readiness:
+  pose_max_age: 0.5
+  map_max_age: 2.0
+  # Full-chain load can make a producer stamp lead /clock by a few milliseconds.
+  # This is clock-jitter tolerance, not extra allowance for stale telemetry.
+  stamp_future_tolerance: 0.05
+  require_map: true
+
+runtime:
+  tick_hz: 10.0
+  mission_id_prefix: vcl06-random

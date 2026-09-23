@@ -1,0 +1,31 @@
+# target_detector_rknn 参数
+#
+# 优先 unified 6-class RKNN：
+# - model_path
+# - metadata_path
+#
+# 若确需历史对照，可显式提供旧 split assets：
+# - std_model_path / std_metadata_path
+# - tank_model_path / tank_metadata_path
+#
+# 统一 6 类 RKNN 可由板端 Toolkit2 从 best.onnx 转换得到；交付入口不再
+# 隐式加载旧 split assets。统一 INT8 RKNN 使用 uint8/RGB/NHWC，
+# 旧 split RKNN 默认使用 float32/RGB/NHWC/255。
+
+model_path: ""
+metadata_path: ""
+
+std_model_path: ""
+std_metadata_path: ""
+tank_model_path: ""
+tank_metadata_path: ""
+
+conf_threshold: 0.5
+iou_threshold: 0.45
+imgsz: 640
+input_layout: "NHWC"
+input_color_space: "RGB"
+input_dtype: "float32"
+input_normalize: true
+box_format: "auto"
+perf_topic: "/uav_vision/perf"

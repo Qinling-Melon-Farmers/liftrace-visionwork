@@ -1,0 +1,14 @@
+{
+  "archive": "r2026_r60_seed11_full_PASS.tar.gz",
+  "bytes": 22499536,
+  "regular_files": 82,
+  "source_run": "r2026_r60_full_pilot_seed11_20260908_011243",
+  "flight_source": "9cfb3e56b11af23b4bc764b48e53454b32d015dc",
+  "gate": "PASS",
+  "bag_files": 0,
+  "excluded_runtime_symlinks": [
+    "r2026_r60_full_pilot_seed11_20260908_011243/px4/etc",
+    "r2026_r60_full_pilot_seed11_20260908_011243/px4/test_data"
+  ],
+  "failed_full_run_archives_published": false
+}

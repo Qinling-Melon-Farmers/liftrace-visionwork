@@ -1,0 +1,14 @@
+{
+  "n": 10,
+  "passed": 2,
+  "failed": 8,
+  "observed_pass_fraction": 0.2,
+  "wilson_95_interval": [
+    0.05668215145437705,
+    0.5098375284633498
+  ],
+  "distinct_layouts": 10,
+  "frozen_head": "9cfb3e56b11af23b4bc764b48e53454b32d015dc",
+  "all_runs_cleanup_pass": true,
+  "all_runs_without_bag": true
+}

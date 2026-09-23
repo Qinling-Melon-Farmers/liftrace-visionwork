@@ -1,0 +1,8 @@
+{
+  "source_topic": "/downward_camera/image_raw",
+  "frames": 4046,
+  "first_source_stamp": 0.503,
+  "last_source_stamp": 212.727,
+  "playback_fps": 20,
+  "note": "Every recorded raw image, with source ROS timestamp overlay. Playback is fixed 20 FPS; bag timestamps are the authoritative timing."
+}

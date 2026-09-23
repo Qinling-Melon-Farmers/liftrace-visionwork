@@ -1,0 +1,10 @@
+{
+  "PX4": {
+    "path": "/home/xhj/PX4-Autopilot",
+    "commit": "99c40407ffd7ac184e2d7b4b293f36f10fe561ef"
+  },
+  "AstraDroneOpen": {
+    "path": "/home/xhj/AstraDroneOpen",
+    "commit": "82dce3e2c8bdf09fb1aa2f2fb84ecc37886f7510"
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "gate": "FAIL",
+  "source": "9cfb3e56b11af23b4bc764b48e53454b32d015dc",
+  "seed": 2,
+  "mission_ros_sec": null,
+  "drops": [
+    {
+      "time": 122.534,
+      "class": "bridge",
+      "slot": 1,
+      "decision": 11
+    },
+    {
+      "time": 135.789,
+      "class": "panzer",
+      "slot": 2,
+      "decision": 12
+    },
+    {
+      "time": 149.78,
+      "class": "red_cross",
+      "slot": 3,
+      "decision": 14
+    }
+  ],
+  "return_goals": [
+    {
+      "t": 152.089,
+      "reason": "post_delivery_route:1/9:r2026-r60-full-staged-low-corridor:required_deliveries_complete",
+      "goal": {
+        "position": {
+          "x": -3.091588,
+          "y": 6.29269,
+          "z": 1.4
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    },
+    {
+      "t": 202.089,
+      "reason": "post_delivery_route:2/9:r2026-r60-full-staged-low-corridor:segment_complete",
+      "goal": {
+        "position": {
+          "x": -3.091588,
+          "y": 6.29269,
+          "z": 0.4
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    },
+    {
+      "t": 210.361,
+      "reason": "post_delivery_route:3/9:r2026-r60-full-staged-low-corridor:segment_complete",
+      "goal": {
+        "position": {
+          "x": -3.091588,
+          "y": 7.81769,
+          "z": 0.45
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    },
+    {
+      "t": 222.479,
+      "reason": "post_delivery_route:4/9:r2026-r60-full-staged-low-corridor:segment_complete",
+      "goal": {
+        "position": {
+          "x": -0.812003,
+          "y": 8.16769,
+          "z": 0.45
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    },
+    {
+      "t": 242.771,
+      "reason": "post_delivery_route:5/9:r2026-r60-full-staged-low-corridor:segment_complete",
+      "goal": {
+        "position": {
+          "x": 0.587997,
+          "y": 8.16769,
+          "z": 0.45
+        },
+        "orientation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.7071067811865475,
+          "w": 0.7071067811865476
+        }
+      }
+    }
+  ],
+  "autoland_ros_sec": null,
+  "on_ground_ros_sec": null,
+  "disarmed_ros_sec": null,
+  "ground_error_to_h_m": null,
+  "corridor_samples": 345,
+  "corridor_max_true_z_m": 0.6490568899455388,
+  "corridor_height_errors_m": {
+    "p50": 0.09104272109454259,
+    "p95": 0.1350493143354147
+  },
+  "corridor_xy_error_p95_m": 0.05899038961088266,
+  "door_crossings": [
+    {
+      "lateral": -3.0969867623175897,
+      "name": "corridor_entry",
+      "route_index": 3,
+      "z": 0.5155437443182219
+    },
+    {
+      "lateral": 8.24773493408637,
+      "name": "Wall_20",
+      "route_index": 5,
+      "z": 0.5498502522968242
+    }
+  ],
+  "cleanup_pass": true,
+  "bag_files": 0,
+  "phase_change_log": [
+    "[INFO] [1788804455.624948, 152.093000]: Flight parameter stage after 0 waypoints: {'/traj_server/traj_server/target_dist': 0.15, '/px4_max_distance': 0.15, '/navigation/planner_bridge/execution/arrival_position_tolerance': 0.12, '/navigation/planner_bridge/execution/arrival_dwell': 0.8}",
+    "[INFO] [1788804621.658084, 202.083000]: Flight parameter stage after 1 waypoints: {'/navigation/planner_bridge/execution/arrival_position_tolerance': 0.05}",
+    "[INFO] [1788804649.899009, 210.355000]: Flight parameter stage after 2 waypoints: {'/navigation/planner_bridge/execution/arrival_position_tolerance': 0.12, '/external_planner_max_command_z': 0.5, '/fast_planner_node/sdf_map/virtual_ceil_height': 0.55, '/fast_planner_node/fsm/goal_adjustment_radius': 0.1}"
+  ],
+  "px4_ulog": "px4/log/2026-09-07/17_58_50.ulg",
+  "vehicle_status": {
+    "arming_state": {
+      "last": 2,
+      "transitions": [
+        [
+          14.761,
+          2
+        ]
+      ]
+    },
+    "nav_state": {
+      "last": 14,
+      "transitions": [
+        [
+          13.777,
+          14
+        ]
+      ]
+    }
+  },
+  "vehicle_land_detected": {
+    "ground_contact": {
+      "last": 0,
+      "transitions": [
+        [
+          16.537,
+          0
+        ]
+      ]
+    },
+    "maybe_landed": {
+      "last": 0,
+      "transitions": [
+        [
+          16.529,
+          0
+        ]
+      ]
+    },
+    "landed": {
+      "last": 0,
+      "transitions": [
+        [
+          16.529,
+          0
+        ]
+      ]
+    }
+  }
+}

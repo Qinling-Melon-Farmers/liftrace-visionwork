@@ -1,0 +1,19 @@
+{
+  "source": "9cfb3e56b11af23b4bc764b48e53454b32d015dc",
+  "return_start_ros_sec": 433.033,
+  "return_xy_error_abs_max_m": [
+    0.017193818615643286,
+    0.035614913399482084
+  ],
+  "return_xy_error_norm_p95_m": 0.037863957359909745,
+  "return_goal_orientations": [
+    {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    }
+  ],
+  "gate": "FAIL",
+  "landing_error_to_h_m": null
+}

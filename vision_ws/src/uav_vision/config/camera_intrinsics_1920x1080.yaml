@@ -1,0 +1,25 @@
+# OrangePi 5 Plus 所用高清 USB 相机的板端标定参数。
+# 历史来源为 camera_sdk/param/camera_param.yaml；实机必须重新核对该标定是否属于
+# 当前安装的相机和分辨率。
+# 畸变模型：plumb_bob；原始标定分辨率：1920x1080。
+# 板端查看器会先使用本标定校正图像，再执行 letterbox 和推理。
+image_width: 1920
+image_height: 1080
+camera_name: camera
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [581.2568, 0.0, 1043.5, 0.0, 580.9240, 513.0979, 0.0, 0.0, 1.0]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [0.0349, -0.0426, 0.0, 0.0, 0.0076]
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [581.2568, 0.0, 1043.5, 0.0, 0.0, 580.9240, 513.0979, 0.0, 0.0, 0.0, 1.0, 0.0]

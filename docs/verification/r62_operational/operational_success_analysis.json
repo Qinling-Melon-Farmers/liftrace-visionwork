@@ -1,0 +1,146 @@
+{
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r62_operational_seed11_20260909_030841",
+  "source": "8bedcc0c376b815eb3590e740ee9634210f5c3f5",
+  "scope": "mapping_takeoff_search_one_delivery_and_recovery",
+  "operational_status": {
+    "phase": "OPERATIONAL_COMPLETE",
+    "scope": "seed11_mapping_takeoff_search_and_one_delivery_recovery",
+    "head": "8bedcc0c376b815eb3590e740ee9634210f5c3f5",
+    "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r62_operational_seed11_20260909_030841",
+    "pid": 1758,
+    "checks": {
+      "map_and_lio": true,
+      "armed_and_takeoff": true,
+      "search_cruise": true,
+      "delivery_and_recovery": true,
+      "contact_stream_healthy": true
+    },
+    "ros_sec": 144.0,
+    "mission": {
+      "active_command": "RESUME",
+      "active_decision_seq": 7,
+      "committed_slots": 1,
+      "last_reason": "search_continues",
+      "manual_start_required": true,
+      "mission_failed": false,
+      "mission_id": "vcl06-random-22-848000000-1",
+      "phase": "SEARCH",
+      "post_delivery_route_complete": false,
+      "post_delivery_route_index": 0,
+      "post_delivery_route_revision": "r2026-r61-inner960-nominal-fixed-gaps",
+      "post_delivery_route_size": 9,
+      "profile": "r2026",
+      "route_active_decision_seq": 7,
+      "route_complete": false,
+      "route_index": 4,
+      "slot_status": [
+        "COMMITTED",
+        "FREE",
+        "FREE"
+      ],
+      "start_mode": "full"
+    },
+    "max_truth_agl": 1.5771540745434725,
+    "max_truth_xy_displacement": 4.499954389395719,
+    "wrapper_exit_code": 130,
+    "full_competition_pass_claimed": false
+  },
+  "releases": [
+    {
+      "ros_sec": 105.584,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 1,
+          "stamp": {
+            "stamp_ns": 105570000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 1,
+        "payload_slot": 1,
+        "align_mode": "drop_circle",
+        "target_id": 0,
+        "target_class": "panzer",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    }
+  ],
+  "recovery_events": [
+    {
+      "ros_sec": 143.006,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 34,
+          "stamp": {
+            "stamp_ns": 143001000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-22-848000000-1",
+        "executor_id": "vcl06-planner-bridge-cb01c895689e41c588f715e10e8df474",
+        "event_seq": 34,
+        "decision_seq": 6,
+        "command": 1,
+        "status": 3,
+        "stage": 5,
+        "terminal": true,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 0,
+        "target_first_seen": {
+          "stamp_ns": 98903000000
+        },
+        "target_class": "panzer",
+        "attempt": 1,
+        "payload_slot": 1,
+        "reason": "release_recovery_confirmed",
+        "evidence_source": "patrol_control_recovery"
+      }
+    }
+  ],
+  "first_truth_agl_ge_1_ros": 22.11,
+  "max_truth_agl_m": 1.5802454587052832,
+  "truth_xy_bounds": [
+    -4.350715446472471,
+    4.37158380681527,
+    -0.20153960795124004,
+    1.9621764379095203
+  ],
+  "lidar_pose_samples": 911,
+  "contact": {
+    "active_pairs": [],
+    "actual_collision_count": 0,
+    "component": "gazebo_contact_monitor",
+    "contact_active": false,
+    "events": [],
+    "ignored_collision_patterns": [
+      "ground_plane",
+      "landing_h::link::collision",
+      "landing_h_clone::link::collision"
+    ],
+    "last_sample_wall_age": 6.159003532957286e-06,
+    "raw_topic": "/mission/uav_contacts_raw",
+    "ready": true,
+    "reason": "contact_sensor_streaming",
+    "sample_count": 7198,
+    "status": "READY"
+  },
+  "video": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "mpeg4",
+        "width": 1280,
+        "height": 720,
+        "duration": "119.700000",
+        "nb_frames": "1197"
+      }
+    ]
+  },
+  "no_full_competition_PASS_claim": true
+}

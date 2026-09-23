@@ -1,0 +1,17 @@
+{
+  "bag": "navigation_vcl06_debug_2026-09-07-04-00-58_0.bag",
+  "start": 0.409,
+  "end": 28.128,
+  "image_topics": {},
+  "camera_info_topics": {
+    "/downward_camera/camera_info": 515
+  },
+  "raw_publishers": [
+    "/gazebo"
+  ],
+  "compressed_publishers": [],
+  "compressed_subscribers": [
+    "/navigation_vcl06_debug_recorder"
+  ],
+  "graph_captured_at": "2026-09-06T20:03:17.863987+00:00"
+}

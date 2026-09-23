@@ -1,0 +1,22 @@
+# Conservative inner size discussed in the meeting; on-site coordinates may differ.
+frame: camera_init
+inner_bounds: [-4.8, 4.8, -0.5, 9.1]
+wall_thickness: 0.20
+wall_height: 1.50
+corridor_width: 1.50
+entrance_width: 1.50
+door_width: 0.80
+door_plane_x: [-1.60, 1.60]
+# Fixed nominal fixture for development, NOT known competition opening positions.
+door_opening_offset_from_south: [0.70, 0.0]
+start_h_xy: [0.0, 0.0]
+landing_h_xy: [4.20, 8.50]
+h_radius: 0.50
+landing_h_wall_gap: 0.10
+tree_xy: [[-1.8, 2.0], [1.8, 2.7], [-1.5, 5.2], [1.7, 5.7]]
+# Representative combined box+tree fixtures; actual box/tree widths are not supplied.
+pedestal_box_size: [0.60, 0.60, 0.30]
+tree_exclusion_radius: 0.43
+target_boundary_margin: 0.02
+target_pair_gap: 0.05
+flight_center_inset: 0.50

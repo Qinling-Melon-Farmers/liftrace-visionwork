@@ -1,0 +1,1 @@
+before_ray_range=0.254933 after_ray_range=1.45898 physical_contacts_after_mask=1 result=PASS

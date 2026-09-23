@@ -1,0 +1,7 @@
+<launch>
+  <include file="$(find uav_vision)/launch/alignment_context_mock.launch">
+    <arg name="run_assertion" value="false" />
+  </include>
+  <test test-name="alignment_context" pkg="uav_vision"
+        type="alignment_context_assertion.py" time-limit="25.0" />
+</launch>

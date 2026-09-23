@@ -1,0 +1,44 @@
+[
+  {
+    "stage": "Delivery 1",
+    "requested_ros_sec": 38.396,
+    "actual_image_stamp": 38.864,
+    "file": "camera_frames/camera_00038.864.jpg"
+  },
+  {
+    "stage": "Delivery 2",
+    "requested_ros_sec": 128.554,
+    "actual_image_stamp": 128.052,
+    "file": "camera_frames/camera_00128.052.jpg"
+  },
+  {
+    "stage": "Delivery 3",
+    "requested_ros_sec": 145.567,
+    "actual_image_stamp": 146.32,
+    "file": "camera_frames/camera_00146.320.jpg"
+  },
+  {
+    "stage": "Corridor entry",
+    "requested_ros_sec": 164.881,
+    "actual_image_stamp": 164.436,
+    "file": "camera_frames/camera_00164.436.jpg"
+  },
+  {
+    "stage": "H acquisition",
+    "requested_ros_sec": 202.682,
+    "actual_image_stamp": 202.939,
+    "file": "camera_frames/camera_00202.939.jpg"
+  },
+  {
+    "stage": "Near first H detection",
+    "requested_ros_sec": 201.798,
+    "actual_image_stamp": 200.937,
+    "file": "camera_frames/camera_00200.937.jpg"
+  },
+  {
+    "stage": "Near AUTO.LAND transition",
+    "requested_ros_sec": 207.779,
+    "actual_image_stamp": 206.951,
+    "file": "camera_frames/camera_00206.951.jpg"
+  }
+]

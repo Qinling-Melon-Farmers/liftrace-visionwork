@@ -1,0 +1,87 @@
+{
+  "width_m": 0.85,
+  "status": "PASS",
+  "source_commit": "703541505f8dac5f2db7be333eda9c2460ed3d70",
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r57_toudi4_085_20260907_172823",
+  "checks_passed": 37,
+  "checks_total": 37,
+  "metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 23,
+    "door_crossings": [
+      {
+        "lateral": -3.128546804460155,
+        "name": "corridor_entry",
+        "route_index": 2,
+        "z": 1.49979125578957
+      },
+      {
+        "lateral": 8.218690199407666,
+        "name": "Wall_20",
+        "route_index": 4,
+        "z": 1.4946263115472913
+      },
+      {
+        "lateral": 7.979385867138683,
+        "name": "Wall_22",
+        "route_index": 6,
+        "z": 1.520229706258649
+      }
+    ],
+    "height_violations": 0,
+    "landing_align_mode_seen": true,
+    "landing_h_mark_rejections": {
+      "source_before_land_decision": 1
+    },
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      3.274292,
+      8.05722
+    ],
+    "latest_armed": false,
+    "latest_landed_state": 1,
+    "max_observed_height": 1.7945702133533488,
+    "mission_ros_sec": 180.229000001,
+    "mission_wall_sec": 892.9137055140018,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 9045,
+    "post_delivery_decision_indices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "post_delivery_return_success_count": 7,
+    "post_delivery_route_revision": "r2026-toudi4-staggered-r57-085cm",
+    "post_delivery_route_size": 7,
+    "recovery_success_count": 3,
+    "release_commit_count": 3,
+    "result_count": 99,
+    "selected_count": 1067,
+    "simulation_realtime_factor": 0.20184369316769754,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": {
+      "anchor_error_m": 0.1459565298626402,
+      "frame_id": "camera_init",
+      "stamp_ns": 201074000000,
+      "x": 3.3293444349133328,
+      "y": 7.922044047923984,
+      "z": 0.0
+    }
+  },
+  "camera_frames": 3944,
+  "record_buffer_warnings": 0,
+  "ground_error_to_h": 0.09141018882035351,
+  "cleanup_pass": true,
+  "opening_widths": [
+    0.84999999999979,
+    0.8500000000000023
+  ]
+}

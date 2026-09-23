@@ -1,0 +1,147 @@
+# 走廊航点测试集中配置 —— corridor_waypoint_test1.launch
+#
+# 所有本测试专用旋钮集中在此文件；launch 只保留节点/TF 结构。
+# launch 分两阶段加载本文件：阶段一在 fast_lio 与控制组之前，阶段二在控制组
+# 之后。被包含的底层 launch 会用默认值设置同名参数，阶段二的重新加载保证本
+# 文件的值最终生效（patrol_control 用 getParamCached 运行时重读，mission
+# manager / fast_planner 为慢启动节点，后置覆盖在实践中已被实跑验证）。
+#
+# 高度一致性约定：下方 waypoints 的 z、post_delivery_route 每一项的 z、
+# search/altitude、approach_altitude、return_altitude 都是写死的高度副本，
+# 修改飞行高度时必须全部同步修改；corridor/flight_height 是同一高度的
+# 信息性记录，供脚本/诊断读取，launch 不引用它。
+
+# ---- 信息性高度记录（见文件头约定）----
+corridor:
+  flight_height: 0.3        # 任务坐标系(camera_init)目标 Z，非离地高度
+
+# ---- 控制器全局参数（patrol_control 运行时 getParamCached 重读）----
+# 单步设定点与当前位置的最大偏差，低空走廊收紧到 0.15 m。
+px4_max_distance: 0.15
+# 外部规划器输出 Z 上限（安全上限，不是目标高度）。
+external_planner_max_command_z: 0.65
+
+# ---- 末点悬停，由飞手手动降落 ----
+# 本测试无 H 标志/视觉节点，launch 不启动 obstacle_test_auto_land.py。
+# patrol_control 收到任务层 LAND 后只在 capture_height（=巡航高度）悬停等待，
+# 不自动请求 PX4 AUTO.LAND；飞手须用遥控器切换 POSCTL 等手动模式后降落。
+# switch/auto_land 必须保持 false；capture_height 必须与航线 z 一致。
+# 参数校验约束（patrol_control load_params）：
+#   capture_height > auto_land_height >= land_height；
+#   drop_height_threshold < uav_vision/recovery_height <= align_height。
+land_height: 0.03
+align_height: 0.3
+external_landing:
+  capture_height: 0.3       # 必须等于航线 z（末点悬停高度，不爬升）
+  auto_land_height: 0.05
+switch:
+  flag_landing_detect: 0
+  auto_land: false
+uav_vision:
+  recovery_height: 0.3
+drop_system:
+  enable_drop: false
+
+# ---- Fast-LIO 调参（fastlio_mapping 从全局命名空间读取）----
+feature_extract_enable: true
+point_filter_num: 3
+max_iteration: 3
+filter_size_surf: 0.15
+filter_size_map: 0.15
+cube_side_length: 20.0
+runtime_pos_log_enable: false
+
+# ---- 起飞点航点表（/waypoints）----
+waypoints:
+  - {x: 0.0, y: 0.0, z: 0.3, yaw: 0.0, pointmode: Takeoff_point, hover_time: 0.0}
+
+# ---- FreeDOM 建图范围（最终位于 /freedom/*）----
+# 与 competition_freedom.yaml 同键，本文件阶段二最后加载，走廊测试以此为准。
+# min_z/max_z 相对雷达本体：地面最低约 -0.9 m（0.65 m 安全上限时），
+# -1.0 切掉实测到的 -4 m 地下噪点；3.0 覆盖 2.3 m 虚拟顶棚。
+# 走廊航线全长 5 m，max_range 8 m 足够，点云规模与内存随之减半。
+freedom:
+  sensor:
+    max_range: 5.0
+    min_z: -1.0
+    max_z: 1.5
+  map:
+    sub_voxel_size: 0.1      # 子体素大小10cm（控制点云密度）
+    voxel_depth: 2           # 体素深度（影响分辨率）
+    block_depth: 5           # 块深度（影响内存块大小）
+    # 启用局部地图以限制点云数量
+    #enable_local_map: false   # 启用局部地图
+    #local_map_range: 10.0    # 只保留10m范围内的点云
+    #local_map_min_z: -1.0    # 局部地图最小高度
+    #local_map_max_z: 3.0     # 局部地图最大高度
+
+    raycast_max_range: 5.0
+    raycast_min_z: -1.0
+    raycast_max_z: 1.5
+
+    counts_to_free: 6        # 空闲判定阈值
+    counts_to_revert: 20     # 恢复判定阈值
+# ---- Fast-Planner 动态限制（最终位于 /fast_planner_node/*）----
+# 覆盖底层 patrol_planner_sim.xml 的 3.0/2.0/0.25/0.20 默认，低空走廊收紧。
+fast_planner_node:
+  manager:
+    max_vel: 0.80
+    max_acc: 0.80
+    clearance_threshold: 0.25
+  search:
+    max_vel: 0.80
+    max_acc: 0.80
+  optimization:
+    max_vel: 0.80
+    max_acc: 0.80
+  bspline:
+    limit_vel: 0.80
+    limit_acc: 0.80
+  sdf_map:
+    ground_height: -0.2
+    obstacles_inflation: 0.05
+    # 地图几何与可视化（与共享档案 horizontal_planner.yaml 同键；本文件阶段二
+    # 最后加载，走廊测试以这里为准，其他入口不受本文件影响）。
+    # 5 cm 体素为 0.80 m 门口保留 0.30 m 防护包络；12x12x4 m 有界地图
+    # 约 633 万体素（~355 MB SDF 缓冲），虚拟顶棚 2.30 m。
+    resolution: 0.10
+    map_size_x: 14.0
+    map_size_y: 5.0
+    map_size_z: 3.0
+    # 以机体为中心的局部更新盒（盒子的长宽高为range*2）。底层 xml 默认 8.5/8.5/4.5；
+    # 盒外占据会被清除。
+    local_update_range_x: 4.0
+    local_update_range_y: 4.0
+    local_update_range_z: 2.0
+    # RViz 显示节流（仅影响可视化，不影响规划）。
+    visualization_rate: 2.0
+    # 竖直障碍列挤压开关：开启时，满足 obstacle_min_z + 竖向支撑条件的噪点列
+    # 会从 floor_z 一路填充到 virtual_ceil_height，在 RViz 里表现为 2.3 m 处
+    # 一整层"天花板"占据。置 false 可整功能关闭（判障与显示同时去掉）。
+    horizontal_avoidance:
+      enabled: false
+    # 虚拟顶棚：高于此高度的体素在判障时视为占据；同时是障碍列挤压的顶面。
+    # 设为 -0.1 可关闭虚拟顶棚（此时挤压列将填到地图上边界 3.8 m，慎改）。
+    virtual_ceil_height: -0.1
+    # 显示截断：RViz 中只发布低于此高度的占据点，纯显示开关，不影响判障。
+    # 想隐藏顶层"天花板"但保留判障时，可降到 2.20。
+    visualization_truncate_height: 2.49
+
+# ---- 任务管理器（最终位于 /navigation/mission_manager/*）----
+navigation:
+  mission_manager:
+    search:
+      altitude: 0.3
+    mission:
+      # 四航点折线走廊：原点起飞，x 方向 5 m，y 方向 ±0.37 m 小幅摆动。
+      post_delivery_route:
+        - [0.0, 0.0, 0.3]
+        - [1.50, 0.00, 0.3]
+        - [3.50, 0.00, 0.3]
+        - [4.20, 0.00, 0.3]
+      post_delivery_route_revision: corridor-waypoint-test-r1
+      post_delivery_yaw: 0.0
+      landing_xy: [4.20, 0.0]
+      landing_anchor_tolerance: 0.05
+      approach_altitude: 0.3
+      return_altitude: 0.3

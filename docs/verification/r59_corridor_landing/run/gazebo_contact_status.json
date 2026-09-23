@@ -1,0 +1,29 @@
+{
+  "active_pairs": [],
+  "actual_collision_count": 1,
+  "component": "gazebo_contact_monitor",
+  "contact_active": false,
+  "events": [
+    {
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::base_link_inertia_collision",
+          "landing_h_clone::link::collision"
+        ]
+      ],
+      "ros_stamp": 186.821,
+      "sequence": 1,
+      "wall_time": 1788799328.6084266
+    }
+  ],
+  "ignored_collision_patterns": [
+    "ground_plane",
+    "landing_h::link::collision"
+  ],
+  "last_sample_wall_age": 3.8810030673630536e-06,
+  "raw_topic": "/mission/uav_contacts_raw",
+  "ready": true,
+  "reason": "contact_sensor_streaming",
+  "sample_count": 9351,
+  "status": "READY"
+}

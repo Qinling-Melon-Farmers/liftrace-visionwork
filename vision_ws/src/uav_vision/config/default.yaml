@@ -1,0 +1,6 @@
+# uav_vision 统一参数
+image_topic: "/camera/image_raw"
+camera_info_topic: "/camera/camera_info"
+odom_topic: "/mavros/local_position/odom"
+enable_debug_image: false
+debug_image_topic: "/uav_vision/debug_image"

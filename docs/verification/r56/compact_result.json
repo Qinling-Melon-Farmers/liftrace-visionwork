@@ -1,0 +1,11 @@
+{
+    "target":  "F:\\WSL\\Ubuntu20.04\\ext4.vhdx",
+    "state":  "complete",
+    "started":  "2026-09-07T05:16:39.8611211+08:00",
+    "before_bytes":  165654036480,
+    "host_free_before_bytes":  5994586112,
+    "diskpart_exit":  0,
+    "after_bytes":  92571435008,
+    "host_free_after_bytes":  79076204544,
+    "finished":  "2026-09-07T05:26:34.1859085+08:00"
+}
