@@ -1,0 +1,310 @@
+[
+  {
+    "seed": 34,
+    "old_status": "FAIL",
+    "old_drops": 0,
+    "status": "FAIL",
+    "drops": 3,
+    "reason": "actual_collision",
+    "third_commit_s": 110.53999999999999,
+    "completed_s": null,
+    "first_contact": {
+      "details": [
+        {
+          "info": "guard_xy_m=0.550000",
+          "max_depth_m": 8.32777124694713e-06,
+          "normals": [
+            [
+              0.000822994207983612,
+              0.9999996613402095,
+              -0.0
+            ]
+          ],
+          "pair": [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "toudi2::Wall_20_south::Wall_20_south_collision"
+          ],
+          "positions": [
+            [
+              8.299999996573147,
+              1.6999958361157868,
+              0.8157873954120007
+            ]
+          ],
+          "total_force_norm_n": 0.0
+        }
+      ],
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "toudi2::Wall_20_south::Wall_20_south_collision"
+        ]
+      ],
+      "ros_stamp": 156.225,
+      "sequence": 1,
+      "wall_time": 1790174877.6724017
+    },
+    "contact_pose": {
+      "truth_pose": {
+        "t": 156.253,
+        "x": 8.448591561405932,
+        "y": 1.9747538558077369,
+        "z": 0.8153179420213879,
+        "qx": -0.0005422642144283835,
+        "qy": 0.00042965778057438894,
+        "qz": -0.001702682759217198,
+        "qw": 0.9999983111061412
+      },
+      "mavros_pose": {
+        "t": 156.22,
+        "x": 8.463740348815918,
+        "y": 1.9905203580856323,
+        "z": 0.7843657732009888,
+        "qx": 0.0013474134265148976,
+        "qy": -0.0028583962202404227,
+        "qz": 4.6530120756116224e-05,
+        "qw": -0.9999950095576047
+      },
+      "mavros_setpoint": {
+        "t": 156.162,
+        "x": 8.503935120155557,
+        "y": 1.8778409344898894,
+        "z": 0.7098243175601149,
+        "qx": 0.0,
+        "qy": 0.0,
+        "qz": -1.683621599656371e-05,
+        "qw": 0.9999999998582709
+      }
+    },
+    "stage_counts": {
+      "SURVEY_NO_PROGRESS": 1,
+      "SURVEY": 1,
+      "SURVEY_ALTERNATIVE": 1,
+      "SURVEY_INTERRUPTED_TOP3": 1,
+      "DESCEND": 1,
+      "REVISIT_VIEWPOINT": 3,
+      "REVISIT": 3,
+      "REACQUIRE": 3,
+      "DELIVERY": 3
+    },
+    "degraded_from": null,
+    "unreachable_classes": [],
+    "revisit_events": [],
+    "target_error_m": 0.0,
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/nearwalldegrade_seed34_20260923_223711"
+  },
+  {
+    "seed": 38,
+    "old_status": "FAIL",
+    "old_drops": 2,
+    "status": "FAIL",
+    "drops": 3,
+    "reason": "actual_collision",
+    "third_commit_s": 98.948,
+    "completed_s": null,
+    "first_contact": {
+      "details": [
+        {
+          "info": "guard_xy_m=0.550000",
+          "max_depth_m": 6.910462468991618e-06,
+          "normals": [
+            [
+              -0.009475009087426673,
+              0.9999551110938897,
+              3.3881317890172014e-21
+            ]
+          ],
+          "pair": [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "toudi2::Wall_20_south::Wall_20_south_collision"
+          ],
+          "positions": [
+            [
+              8.400000032738347,
+              1.6999965449238672,
+              1.265237350688309
+            ]
+          ],
+          "total_force_norm_n": 8.262777008109037e-05
+        }
+      ],
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "toudi2::Wall_20_south::Wall_20_south_collision"
+        ]
+      ],
+      "ros_stamp": 147.255,
+      "sequence": 1,
+      "wall_time": 1790175527.2591443
+    },
+    "contact_pose": {
+      "truth_pose": {
+        "t": 147.296,
+        "x": 8.206979538155728,
+        "y": 1.9718191135074252,
+        "z": 0.8648370533670215,
+        "qx": -0.000859521874202775,
+        "qy": 0.0004967657778875781,
+        "qz": 0.009444644513954723,
+        "qw": 0.9999549055512027
+      },
+      "mavros_pose": {
+        "t": 147.273,
+        "x": 8.219321250915527,
+        "y": 1.9795509576797485,
+        "z": 0.7696471214294434,
+        "qx": 0.0015167770798972583,
+        "qy": -0.004108273031268256,
+        "qz": -0.0012673557347225308,
+        "qw": -0.9999896990546924
+      },
+      "mavros_setpoint": {
+        "t": 147.306,
+        "x": 8.163513252515356,
+        "y": 1.8666333486160498,
+        "z": 0.6907177708408674,
+        "qx": 0.0,
+        "qy": 0.0,
+        "qz": 0.0012611547285857343,
+        "qw": 0.999999204744059
+      }
+    },
+    "stage_counts": {
+      "SURVEY_INTERRUPTED_TOP3": 1,
+      "DESCENT_COLUMN_WITHOUT_FULL_TOUR": 1,
+      "DESCEND": 1,
+      "REVISIT_VIEWPOINT": 3,
+      "REVISIT": 3,
+      "REACQUIRE": 3,
+      "NEAR_WALL_BOUNDED_APPROACH": 1,
+      "DELIVERY": 3
+    },
+    "degraded_from": null,
+    "unreachable_classes": [],
+    "revisit_events": [
+      {
+        "center_xy": [
+          4.340130987222698,
+          -4.4514246190632365
+        ],
+        "stage": "NEAR_WALL_BOUNDED_APPROACH",
+        "target": "red_cross",
+        "target_xy": [
+          4.340130987222698,
+          -4.5672270129696395
+        ],
+        "time": 74.215
+      }
+    ],
+    "target_error_m": 0.0,
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/nearwalldegrade_seed38_20260923_224806"
+  },
+  {
+    "seed": 40,
+    "old_status": "FAIL",
+    "old_drops": 2,
+    "status": "FAIL",
+    "drops": 1,
+    "reason": "actual_collision",
+    "third_commit_s": null,
+    "completed_s": null,
+    "first_contact": {
+      "details": [
+        {
+          "info": "guard_xy_m=0.550000",
+          "max_depth_m": 1.1815347150306854e-05,
+          "normals": [
+            [
+              0.0,
+              1.0,
+              0.0
+            ]
+          ],
+          "pair": [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "toudi2::Wall_11::Wall_11_collision"
+          ],
+          "positions": [
+            [
+              0.6144997799556466,
+              -4.800011815347149,
+              0.8679913842283762
+            ]
+          ],
+          "total_force_norm_n": 0.0005237901218674506
+        }
+      ],
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "toudi2::Wall_11::Wall_11_collision"
+        ]
+      ],
+      "ros_stamp": 104.729,
+      "sequence": 1,
+      "wall_time": 1790176014.1863956
+    },
+    "contact_pose": {
+      "truth_pose": {
+        "t": 104.684,
+        "x": 0.8902291409825659,
+        "y": -4.522002564678594,
+        "z": 0.4793636427791371,
+        "qx": 0.0009070391624137627,
+        "qy": -0.0008535197897409229,
+        "qz": 0.002798440376839285,
+        "qw": 0.9999953087466878
+      },
+      "mavros_pose": {
+        "t": 104.749,
+        "x": 0.9053048491477966,
+        "y": -4.49774694442749,
+        "z": 0.49711892008781433,
+        "qx": 0.00559896236439022,
+        "qy": -0.009108877163575698,
+        "qz": -0.0007028829926161167,
+        "qw": -0.9999426210249056
+      },
+      "mavros_setpoint": {
+        "t": 104.708,
+        "x": 0.8973981571344938,
+        "y": -4.492272391740727,
+        "z": 0.3216083845521621,
+        "qx": 0.0,
+        "qy": 0.0,
+        "qz": 0.00070504623651469,
+        "qw": 0.9999997514548713
+      }
+    },
+    "stage_counts": {
+      "SURVEY_INTERRUPTED_TOP3": 1,
+      "DESCENT_COLUMN_WITHOUT_FULL_TOUR": 1,
+      "DESCEND": 1,
+      "REVISIT_VIEWPOINT": 2,
+      "REVISIT": 2,
+      "REACQUIRE": 2,
+      "DELIVERY": 2,
+      "NEAR_WALL_BOUNDED_APPROACH": 1
+    },
+    "degraded_from": null,
+    "unreachable_classes": [],
+    "revisit_events": [
+      {
+        "center_xy": [
+          0.8134408677372592,
+          -4.4514246190632365
+        ],
+        "stage": "NEAR_WALL_BOUNDED_APPROACH",
+        "target": "red_cross",
+        "target_xy": [
+          0.8134408677372592,
+          -4.581457687070966
+        ],
+        "time": 98.1
+      }
+    ],
+    "target_error_m": 0.0,
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/nearwalldegrade_seed40_20260923_225855"
+  }
+]

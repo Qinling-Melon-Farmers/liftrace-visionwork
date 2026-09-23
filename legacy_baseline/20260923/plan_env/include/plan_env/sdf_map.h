@@ -242,7 +242,6 @@ public:
 private:
   MappingParameters mp_;
   MappingData md_;
-  double last_inflation_applied_ = -1.0;
 
   template <typename F_get_val, typename F_set_val>
   void fillESDF(F_get_val f_get_val, F_set_val f_set_val, int start, int end, int dim);

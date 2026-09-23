@@ -27,6 +27,10 @@
   </include>
   <rosparam file="$(arg scene_dir)/frame_overrides.yaml" />
   <rosparam file="$(arg scene_dir)/repair_overrides.yaml" />
+  <!-- Research-only: search/low delivery keeps 0.10 m; before the first
+       post-delivery transit the manager waits for a rebuilt 0.30 m map. -->
+  <param name="/navigation/mission_manager/mission/post_delivery_obstacles_inflation"
+         value="0.30" />
   <!-- Share the existing body/field geometry with visual admission. The
        tracking reserve stays inside this hard center fence; no new FSM. -->
   <param name="/fast_planner_node/sdf_map/search_region/boundary_policy_param"

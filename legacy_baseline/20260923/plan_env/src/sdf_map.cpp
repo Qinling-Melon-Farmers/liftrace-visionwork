@@ -882,12 +882,6 @@ void SDFMap::updateESDFCallback(const ros::TimerEvent& /*event*/) {
              md_.esdf_time_ / md_.update_num_, md_.max_esdf_time_);
 
   md_.esdf_need_update_ = false;
-  // A stage switch may publish the next goal only after occupancy AND ESDF
-  // have been rebuilt with its requested horizontal inflation.
-  if (std::abs(last_inflation_applied_ - mp_.obstacles_inflation_) > 1e-6) {
-    node_.setParam("sdf_map/obstacles_inflation_applied", mp_.obstacles_inflation_);
-    last_inflation_applied_ = mp_.obstacles_inflation_;
-  }
 }
 
 void SDFMap::depthPoseCallback(const sensor_msgs::ImageConstPtr& img,
@@ -930,11 +924,6 @@ void SDFMap::odomCallback(const nav_msgs::OdometryConstPtr& odom) {
 
 void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   node_.getParamCached("sdf_map/search_region/enabled", mp_.search_region_enabled_);
-  double phase_inflation = mp_.obstacles_inflation_;
-  if (node_.getParamCached("sdf_map/obstacles_inflation", phase_inflation) &&
-      std::isfinite(phase_inflation) && phase_inflation >= 0.0 &&
-      phase_inflation <= 0.6)
-    mp_.obstacles_inflation_ = phase_inflation;
   double tracking_margin = mp_.horizontal_tracking_margin_;
   if (node_.getParamCached("sdf_map/horizontal_avoidance/tracking_margin", tracking_margin) && std::isfinite(tracking_margin) && tracking_margin >= 0.0 && tracking_margin <= 0.2)
     mp_.horizontal_tracking_margin_ = tracking_margin;

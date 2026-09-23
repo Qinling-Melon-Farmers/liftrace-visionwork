@@ -2,6 +2,7 @@
 """Stage transitions and height evaluation must preserve the full mission."""
 import ast
 import copy
+import math
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
@@ -50,7 +51,9 @@ class FullLowCorridorTest(unittest.TestCase):
                      and isinstance(n.test, ast.BoolOp))
         code = compile(ast.Module(body=[copy.deepcopy(stage)], type_ignores=[]), 'stage', 'exec')
         writes = {}
-        ros = SimpleNamespace(get_param=lambda *_: CONFIG['mission']['post_delivery_parameter_stages'],
+        ros = SimpleNamespace(get_param=lambda name,default=None: (
+            None if name.endswith('post_delivery_obstacles_inflation')
+            else CONFIG['mission']['post_delivery_parameter_stages']),
                               set_param=lambda k,v: writes.update({k:v}), loginfo=lambda *_: None)
         for command, completed in [('SEARCH',0), ('RETURN_HOME',0),
                                    ('RETURN_HOME',1), ('RETURN_HOME',2)]:
@@ -68,6 +71,41 @@ class FullLowCorridorTest(unittest.TestCase):
         route=CONFIG['mission']['post_delivery_route']
         self.assertEqual(route[0][:2],route[1][:2])
         self.assertAlmostEqual(route[1][2]-GROUND_Z,.40)
+
+    def test_corridor_map_rebuild_ack_precedes_first_goal(self):
+        tree = ast.parse((ROOT/'scripts/navigation_mission_manager.py').read_text())
+        method = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)
+                      and n.name == '_publish_action')
+        stage = next(n for n in method.body if isinstance(n, ast.If)
+                     and isinstance(n.test, ast.BoolOp))
+        code = compile(ast.Module(body=[copy.deepcopy(stage)], type_ignores=[]), 'stage', 'exec')
+        base = '/fast_planner_node/sdf_map/obstacles_inflation'
+        values = {base + '_applied': 0.30}  # stale ACK from a prior map
+        writes = []
+
+        def set_param(name, value):
+            writes.append((name, value))
+            values[name] = value
+            if name == base:
+                values[base + '_applied'] = value  # mocked new ESDF callback
+
+        def get_param(name, default=None):
+            if name.endswith('post_delivery_obstacles_inflation'):
+                return 0.30
+            if name.endswith('post_delivery_parameter_stages'):
+                return []
+            return values.get(name, default)
+
+        ros = SimpleNamespace(get_param=get_param, set_param=set_param)
+        timer = SimpleNamespace(monotonic=lambda: 0.0, sleep=lambda _: None)
+        mission = SimpleNamespace(_runtime=SimpleNamespace(
+            core=SimpleNamespace(post_delivery_route_index=0)))
+        context = {'rospy': ros, 'time': timer, 'math': math, 'self': mission,
+                   'action': SimpleNamespace(command='RETURN_HOME',
+                                             reason='post_delivery_route:1/9:test')}
+        exec(code, context)
+        self.assertEqual(writes[:2], [(base + '_applied', -1.0), (base, 0.30)])
+        self.assertTrue(mission._corridor_inflation_applied)
 
     def test_low_ceiling_only_in_corridor_including_between_doors(self):
         region=CONFIG['post_delivery_gate']['low_height_region']

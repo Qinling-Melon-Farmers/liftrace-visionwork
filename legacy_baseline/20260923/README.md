@@ -8,3 +8,7 @@
 | `patrol_control/patrol_control.h` | `src/patrol_control/include/patrol_control/patrol_control.h` | `caa040dc8c1fc3940978f1a2b17e50dca06ecca6155156b248386b5371eafd32` |
 
 变更是在外部任务对准时约束飞控中心，投递许可另检查实时位置；默认未启用的旧控制行为保持原样。
+
+# plan_env 修改前快照
+
+来源：本工作树 `patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env`，2026-09-23 分阶段膨胀参数改动前。完整文件清单见 `plan_env_file_list.txt`，逐文件校验值见 `plan_env_sha256.txt`；`plan_env/` 不参与构建。本次仅为点云地图增加按阶段读取水平膨胀参数和重建完成回执。
