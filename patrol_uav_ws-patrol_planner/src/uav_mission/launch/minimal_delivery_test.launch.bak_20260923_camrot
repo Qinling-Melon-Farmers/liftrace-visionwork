@@ -24,10 +24,7 @@
   <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
   <arg name="body_to_imu_xyz" default="0 0 0.05" />
   <arg name="imu_to_camera_z" default="-0.21" />
-  <!-- 2026-09-23 实测安装：相机在机架上转了90°，图像上方=机体右侧，机头正前方的靶出现在画面左侧。
-       原 -0.70710678 0.70710678 0 0（图像正立、上=机头）已作废。
-       配套 pixel_to_body_matrix 必须同时为 [-1.0, 0.0, 0.0, 1.0]（见 config/minimal_delivery_test.yaml）。 -->
-  <arg name="camera_quat_xyzw" default="0 1 0 0" />
+  <arg name="camera_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
 
   <!-- ==== 相机输入（由外部相机节点/SDK 发布，默认话题）=== -->
   <arg name="image_topic" default="/camera/image_raw" />

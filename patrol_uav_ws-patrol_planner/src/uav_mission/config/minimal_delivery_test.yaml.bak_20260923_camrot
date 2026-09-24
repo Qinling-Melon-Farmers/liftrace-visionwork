@@ -38,10 +38,6 @@ switch:
   auto_land: true            # 自动降落开启
 uav_vision:
   recovery_height: 0.85      # 投放后恢复高度
-  # 2026-09-23 实测安装：图像向右=-body_x（机尾方向），图像向下=+body_y（机体左侧）；
-  # 与 launch 里 camera_quat_xyzw="0 1 0 0" 配套，旧的 [0,-1,-1,0] 已作废。
-  # 本文件在 launch 末尾二次加载，会压过 vcl06_horizontal_control.yaml 里的旧值。
-  pixel_to_body_matrix: [-1.0, 0.0, 0.0, 1.0]
 drop_system:
   enable_drop: true          # 投放机构开启
 
