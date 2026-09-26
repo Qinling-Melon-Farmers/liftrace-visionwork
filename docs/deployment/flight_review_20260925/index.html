@@ -1,10 +1,10 @@
 <!doctype html><html lang="zh"><meta charset="utf-8"><title>9月25日板端视觉回放</title>
 <style>body{max-width:1280px;margin:24px auto;padding:0 16px;background:#15191f;color:#eee;font:17px/1.6 sans-serif}a{color:#8dceff}video{width:100%;max-height:80vh;background:#000}button{margin:5px;padding:8px 12px;cursor:pointer}small{color:#bbb}</style>
 <h1>9月25日板端视觉工作链回放</h1>
-<p>109.13秒，1倍速，15fps。图像与检测均来自已有bag，没有重新运行YOLO或飞行程序。叠加框按图像时间戳匹配（最多30ms）；任务状态使用当时录包接收时序，因此离线框可能先于在线任务响应显示。</p>
-<video id="player" controls preload="metadata" src="../../../logs/flight_review_20260925/video/camera_annotated.mp4"></video>
+<p>109.10秒，1倍速，10fps。图像与检测均来自已有bag，没有重新运行YOLO或飞行程序。叠加框按图像时间戳匹配（最多30ms）；任务状态使用当时录包接收时序，因此离线框可能先于在线任务响应显示。</p>
+<video id="player" controls preload="metadata" src="../../../logs/flight_review_20260925/replay_suite/dashboard.mp4"></video>
 <div><button onclick="go(21)">红十字发现</button><button onclick="go(26)">接近与对准</button><button onclick="go(39)">释放条件成立</button><button onclick="go(41)">舵机服务失败</button><button onclick="go(48.2)">装甲车出现</button><button onclick="go(49.2)">进入降落模式</button><button onclick="go(100)">POSCTL与落地</button></div>
-<p><a href="../../../logs/flight_review_20260925/video/camera_raw.mp4">原始下视视频</a> · <a href="../../../logs/flight_review_20260925/video/camera_annotated.mp4">视觉叠加视频</a> · <a href="REPORT.md">完整分析</a></p>
+<p><a href="../../../logs/flight_review_20260925/replay_suite/camera_raw.mp4">原始下视视频</a> · <a href="../../../logs/flight_review_20260925/replay_suite/dashboard.mp4">多画面汇报视频</a> · <a href="REPORT.md">完整分析</a></p>
 <p>绿色：YOLO；青色：圆环/十字几何；橙色：精修；黄色：拒绝；紫色：有效地图投影。下方显示高度、速度、任务阶段、候选、对准证据、释放许可及最近释放结果。</p>
-<small>无框不代表目标不存在：该相机帧可能没有匹配检测结果，或该类别被当前模式过滤。FC高度显示local Z，非直接离地测距。视频保留本机logs，不上传Git。</small>
+<p><a href="../../../logs/flight_review_20260925/replay_suite/trajectory.mp4">独立轨迹动画</a> · <a href="../../../logs/flight_review_20260925/replay_suite/index.html">四种回放与报告</a> · <a href="../../../tools/bag_replay/README.md">通用工具说明</a></p><p>坐标标记HISTORY表示最后有效记录，不代表当前许可；后段装甲车与圆环同时出现时已经处于landing模式，没有形成装甲车有效地图坐标。</p><small>无框不代表目标不存在：该相机帧可能没有匹配检测结果，或该类别被当前模式过滤。FC高度显示local Z，非直接离地测距。视频保留本机logs，不上传Git。</small>
 <script>function go(t){const v=document.getElementById('player');v.currentTime=t;v.play()}</script></html>
