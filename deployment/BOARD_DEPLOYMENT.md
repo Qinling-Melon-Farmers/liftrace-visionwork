@@ -40,3 +40,7 @@ bash deployment/board_trials_4x4/start_camera.sh /dev/video0
 
 ## 2026-09-26 试飞组长期维护来源
 实际板载代码由试飞组维护在 https://github.com/sakelier/liftrace-controlwork/tree/板载代码 。本地部署分支与研究分支不自动覆盖该来源；分析每轮bag时先对照其实际revision和未提交修改。9月25日最简投递测试与fa621262的对照及提交时间限制见 [实飞报告](../docs/deployment/flight_review_20260925/REPORT.md)。
+
+
+## 2026-09-26 渐进式试飞安排
+已完成走廊避障与低空红十字中断的能力继续保留，下一步补齐真实释放及恢复，再到连续多投、高位记忆重访、走廊接H与整场。详见[阶段化方案](../docs/planning/staged_flight_20260926/PLAN.md)；该文档明确四套旧专项与最新板载入口的适配缺口，不表示可直接照旧配置启动。当前任务顺序以[ROADMAP](../VISION_2026_ROADMAP.md)为准。
