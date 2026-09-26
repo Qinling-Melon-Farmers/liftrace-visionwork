@@ -31,3 +31,7 @@
 导航改动位于 liftrace-controlwork 的 feat/high-view-liveness-20260919；配套 uav_high_view/uav_vision 和回放工具位于 liftrace-visionwork 的 feat/high-view-search-research。导航仓旧视觉副本未整目录覆盖，联合运行必须使用匹配的视觉研究 overlay。
 
 导航来源：e92f1f3ff08fd611f24023354fe9619a05937b46（liftrace-controlwork / feat/high-view-liveness-20260919），仅逐文件集成导航入口、策略及新增测试。
+
+## 完整工作流与阈值
+
+修改前后全链、launch覆盖值及检测/融合/确认/高位/释放/H的完整阈值见[WORKFLOW_AND_THRESHOLDS.md](WORKFLOW_AND_THRESHOLDS.md)。本次已离线展开完整入口，特别区分对准5次与基础3次、搜索间隔1秒与证据年龄0.5秒，以及既有释放承诺的下降期约束。
