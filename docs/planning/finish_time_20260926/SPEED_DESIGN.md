@@ -168,3 +168,10 @@
 4. 高位与普通低位仍可尝试从实际约0.8m/s提高到约1.0m/s，但必须同时观察视觉质量和规划跟踪；当前未实施。
 
 高度建议、逐阶段耗时、复算方法和数据见[总报告](REPORT.md)。[plot_speed_zones.py](plot_speed_zones.py)只读取当前代码和YAML生成条件图/示例，运行时不会启动ROS或仿真；[policy_examples.json](policy_examples.json)保存了当时计算的数值。
+
+
+## 2026-09-26：搜索确认与时间间隔补充
+
+已在高位研究链加入一次粗类别投影形成重访线索；低空确认仍需三次有效检测，搜索模式允许相邻命中间隔1秒。本次未改速度档位和投递对准阈值。
+[接口与启用范围](../coarse_search_20260926/CONTRACT.md)；[19:12实飞bag复跑与视频](../../verification/panzer_replay_20260926/REPORT.md)。
+该包去程只有一次panzer检出，时间间隔放宽未产生去程CONFIRMED/APPROACH；PT重推理返程确认约提前0.10秒，不能计入完赛收益。

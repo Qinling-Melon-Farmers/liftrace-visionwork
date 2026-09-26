@@ -5,6 +5,9 @@ from .core import Config
 
 @dataclass(frozen=True)
 class SurveyPolicy:
+    coarse_enabled: bool = False
+    coarse_min_confidence: float = .60
+    coarse_uncertainty_m: float = .45
     high_max_agl: float = 3.0
     candidate_min_streak: int = 1
     min_interval_ns: int = 100000000
@@ -18,7 +21,10 @@ class SurveyPolicy:
     survey_alternative_radius_m: float = .6
 
     def __post_init__(self):
-        if (not 3.<=self.survey_stall_seconds<=20. or not .05<=self.survey_progress_m<=.3
+        if (type(self.coarse_enabled) is not bool or
+                not .0 <= self.coarse_min_confidence <= 1.0 or
+                not .25 <= self.coarse_uncertainty_m <= .5 or
+                not 3.<=self.survey_stall_seconds<=20. or not .05<=self.survey_progress_m<=.3
                 or not .3<=self.survey_alternative_radius_m<=1.
                 or type(self.candidate_min_streak) is not int or not 1<=self.candidate_min_streak<=3
                 or type(self.direct_descent) is not bool

@@ -1,0 +1,9 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>Panzer确认回放</title>
+<style>body{max-width:1500px;margin:24px auto;padding:0 18px;background:#15191e;color:#ecf2f7;font:18px/1.65 sans-serif}video,img{width:100%}a{color:#87cdfa}button{margin:4px;padding:8px 14px;font-size:16px}.note{color:#b8c6d5}</style>
+<h1>装甲车：确认与接近判定对照</h1>
+<p>去程仍只有一次有效类别检出，放宽间隔后仍未确认。返程PT回放约提前0.10秒确认，但当时已在RETURN_HOME，不会触发APPROACH。</p>
+<video id="v" controls preload="metadata" src="../../../logs/panzer_replay_video/panzer_comparison.mp4"></video>
+<div><button onclick="v.currentTime=13;v.play()">首次经过</button><button onclick="v.currentTime=18;v.play()">红十字中断</button><button onclick="v.currentTime=36;v.play()">原任务返航</button><button onclick="v.currentTime=51;v.play()">返程确认对照</button></div>
+<p class="note">101.50秒，1倍速。相机为实飞录像；框/地图坐标/候选为离线复算。Shadow APPROACH是只读决策建议，没有控制输出。</p>
+<p><a href="REPORT.md">详细报告</a> · <a href="metrics.json">结果指标</a> · <a href="../../../logs/panzer_replay_video/panzer_comparison.mp4" download>下载MP4</a></p>
+<img src="confirmation_timeline.png" alt="确认计数与高度速度时序"><img src="earlier_confirm.jpg" alt="52.4秒前后对照"></html>

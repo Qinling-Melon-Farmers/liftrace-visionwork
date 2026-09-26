@@ -28,6 +28,7 @@ class Epoch:
 class Key:
     target_id: int
     first_seen_ns: int
+    source: str = "vision"
 
 
 @dataclass(frozen=True)

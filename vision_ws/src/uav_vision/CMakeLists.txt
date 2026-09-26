@@ -148,6 +148,7 @@ catkin_install_python(PROGRAMS
   scripts/drop_aligner_freshness_assertion.py
   scripts/alignment_context_assertion.py
   scripts/video_replay_publisher.py
+  scripts/bag_detector_replay.py
   scripts/video_annotation_recorder.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

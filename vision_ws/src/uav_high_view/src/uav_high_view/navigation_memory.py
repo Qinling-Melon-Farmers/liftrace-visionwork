@@ -32,11 +32,14 @@ class NavigationMemory:
                 del self.saved[cls]
                 self.events.append(dict(reason='hint_expired',class_name=cls,time_ns=now_ns))
         for h in hints:
-            if h.epoch!=epoch or h.class_name not in self.classes:continue
+            if (h.epoch!=epoch or h.class_name not in self.classes or
+                    not 0<=now_ns-h.last_seen_ns<=self.ttl_ns):continue
             cls=h.class_name
             conflict=[c for c,old in self.saved.items() if
                       (old.key==h.key and c!=cls) or
-                      (c==cls and math.dist(old.xy,h.xy)>self.merge_radius)]
+                      (c==cls and math.dist(old.xy,h.xy)>self.merge_radius) or
+                      (c!=cls and (old.key.source=="bbox" or h.key.source=="bbox") and
+                       math.dist(old.xy,h.xy)<=self.merge_radius)]
             if conflict:
                 self._remember_conflict(h)
                 for c in conflict+[cls]:
@@ -47,8 +50,13 @@ class NavigationMemory:
                     self.suspended.add(c)
                 continue
             if cls in self.suspended:continue
+            old=self.saved.get(cls)
+            if old is not None:
+                # Prefer refined geometry and never refresh with an older sample.
+                if old.key.source!="bbox" and h.key.source=="bbox":continue
+                if old.key.source==h.key.source and h.last_seen_ns<=old.last_seen_ns:continue
             if cls not in self.saved:
-                self.events.append(dict(reason='navigation_hint_confirmed',class_name=cls,time_ns=now_ns,xy=h.xy))
+                self.events.append(dict(reason='coarse_navigation_hint_saved' if h.key.source=='bbox' else 'navigation_hint_confirmed',class_name=cls,time_ns=now_ns,xy=h.xy))
             self.saved[cls]=h
         self.events=self.events[-64:]
         return {c:h for c,h in self.saved.items() if c not in self.suspended}

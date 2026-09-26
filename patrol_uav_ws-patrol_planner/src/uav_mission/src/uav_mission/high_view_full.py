@@ -2,7 +2,7 @@
 from dataclasses import asdict,replace
 import math
 from uav_high_view.navigation_memory import NavigationMemory
-from uav_high_view.core import Catalog
+from uav_high_view.core import Catalog, Hint, Key
 from uav_high_view.grid_cost import GridCost
 from uav_high_view.local_descent import propose,propose_column
 from uav_high_view.survey_policy import SurveyPolicy
@@ -97,6 +97,55 @@ class HighViewFull(HighViewProbe):
             self.core.active_action=action
             return self._outcome(True,result.reason,action,route_outcome)
         return result
+
+    def ingest_coarse(self, *, class_name, xy, stamp_ns, frame, confidence,
+                      transform_age_sec, map_valid, now):
+        """Accept a navigation hypothesis, never a MissionCore candidate."""
+        with self._lock:
+            self._require_started()
+            now,failed=self._operation_time(now)
+            if failed is not None:return 'mission_time_invalid'
+            if not self.policy.coarse_enabled or self.done or self.stage!='SURVEY':
+                return 'coarse_inactive'
+            if self.catalog.epoch is None:return 'coarse_epoch_unavailable'
+            if (self.pose is None or not 0<=now-self.pose_stamp<=self.probe_config.pose_max_age):
+                return 'coarse_pose_unavailable'
+            agl=self.pose[2]-self.probe_config.ground_z
+            if not max(2.,self.probe_config.high_agl-.2)<=agl<=self.policy.high_max_agl:
+                return 'coarse_not_at_high_view'
+            ns=int(round(now*1e9))
+            if (type(stamp_ns) is not int or stamp_ns<=0 or
+                    not 0<=ns-stamp_ns<=self.catalog.config.input_max_age_ns):
+                return 'coarse_image_stale'
+            if (frame!=self.core.config.mission_frame or not map_valid or
+                    len(xy)!=2 or not all(math.isfinite(v) for v in
+                    tuple(xy)+(confidence,transform_age_sec))):
+                return 'coarse_projection_invalid'
+            if not 0<=transform_age_sec<=self.catalog.config.tf_max_age_ns/1e9:
+                return 'coarse_tf_stale'
+            if (class_name not in self.core.profile.weights or
+                    class_name in self.core.queue.delivered_classes or
+                    not self.policy.coarse_min_confidence<=confidence<=1.):
+                return 'coarse_class_rejected'
+            if self.boundary_policy.enabled and self.boundary_policy.clearance(xy)<0:
+                return 'coarse_outside_field'
+            self._all_hints(now)  # Apply the existing epoch/TTL and refined upgrades.
+            old=self.memory.saved.get(class_name)
+            nearby=old is not None and math.dist(old.xy,xy)<=self.memory.merge_radius
+            if nearby and stamp_ns<=old.last_seen_ns:return 'coarse_duplicate_or_older'
+            key=(old.key if nearby and old.key.source=='bbox' else
+                 Key(sorted(self.core.profile.weights).index(class_name),stamp_ns,'bbox'))
+            hint=Hint(self.catalog.epoch,key,class_name,tuple(xy),
+                      self.policy.coarse_uncertainty_m,stamp_ns,1.,1)
+            hints=self.memory.update((hint,),self.catalog.epoch,ns)
+            self.observation_counts['coarse_accepted']=self.observation_counts.get('coarse_accepted',0)+1
+            for name,h in hints.items():
+                if name in self.required:
+                    self.first_hint_ready.setdefault(name,dict(
+                        time=now,last_seen_ns=h.last_seen_ns,xy=h.xy,
+                        uncertainty_m=h.uncertainty_m,evidence_count=h.evidence_count,
+                        source=h.key.source))
+            return 'coarse_conflict' if class_name in self.memory.suspended else 'coarse_accepted'
 
     def _all_hints(self,now):
         ns=int(round(now*1e9))

@@ -1,0 +1,22 @@
+{
+  "tests": {
+    "high_view_navigation_integration": 62,
+    "high_view_core": 71,
+    "offline_ros_message_cases": 9,
+    "existing_projection_and_selection_assertions": 2,
+    "nav_source_new_cases": 9
+  },
+  "video": {
+    "duration_sec": 101.5,
+    "size_bytes": 31521274,
+    "width": 1600,
+    "height": 900,
+    "fps": 10,
+    "decode": "PASS"
+  },
+  "decoded_frames_removed": 2965,
+  "decoded_bytes_reclaimed": 242828619,
+  "original_bag_deleted": false,
+  "high_view_sitl_executed": false,
+  "hardware_deployed": false
+}

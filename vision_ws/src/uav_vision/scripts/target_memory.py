@@ -11,6 +11,7 @@
 - /uav_vision/selected_target — 最高优先级已确认目标 (TargetCandidate)
 """
 import threading
+import math
 
 import rospy
 from geometry_msgs.msg import Point
@@ -148,7 +149,11 @@ class CandidateRecord:
         self.map_weight = total_weight
 
     def update(self, det, now, confirm_frames, switch_frames,
-               switch_min_confidence, switch_vote_ratio):
+               switch_min_confidence, switch_vote_ratio, max_gap_sec=0.0):
+        if now <= self.last_seen:
+            return  # Duplicate/out-of-order source images are not new evidence.
+        if max_gap_sec > 0.0 and (now - self.last_seen).to_sec() > max_gap_sec:
+            self.reset_confirmation()
         self._update_class(det, switch_frames, switch_min_confidence,
                            switch_vote_ratio)
         self.geometry_confidence = max(self.geometry_confidence, det.geometry_confidence)
@@ -233,9 +238,22 @@ class CandidateRecord:
         elif self.consecutive_observe_count >= max(confirm_frames - 1, 1):
             self.state = ST_OBSERVING
 
-    def mark_missed(self):
+    def reset_confirmation(self):
         self.consecutive_observe_count = 0
         self.current_map_valid = False
+        self.pending_class = ""
+        self.pending_class_count = 0
+        if self.state not in (ST_REJECTED, ST_EXPIRED):
+            self.state = ST_DETECTED
+
+    def mark_missed(self, now=None, max_gap_sec=0.0):
+        self.current_map_valid = False
+        if (max_gap_sec > 0.0 and now is not None and
+                0.0 <= (now - self.last_seen).to_sec() <= max_gap_sec):
+            return
+        self.consecutive_observe_count = 0
+        self.pending_class = ""
+        self.pending_class_count = 0
         if self.state != ST_CONFIRMED:
             self.state = ST_DETECTED
 
@@ -290,6 +308,13 @@ class TargetMemory:
 
         # ---- 匹配参数 ----
         self._confirm_frames = rospy.get_param("~confirm_frames", 3)
+        self._search_confirmation_max_gap = float(rospy.get_param(
+            "~search_confirmation_max_gap_sec", 0.0))
+        if (not math.isfinite(self._search_confirmation_max_gap) or
+                not 0.0 <= self._search_confirmation_max_gap <= 2.0):
+            raise ValueError("invalid search_confirmation_max_gap_sec")
+        self._last_detection_stamp = None
+        self._mode_cutoff = None
         self._candidate_ttl = rospy.get_param("~candidate_ttl", 3.0)
         self._reject_cooldown = rospy.get_param("~reject_cooldown", 5.0)
         self._match_distance_px = rospy.get_param("~match_distance_px", 80.0)
@@ -392,6 +417,10 @@ class TargetMemory:
             new_mode = mode if mode in VALID_ALIGN_MODES else "disabled"
             if new_mode != self._align_mode:
                 self._align_mode = new_mode
+                if self._search_confirmation_max_gap > 0.0:
+                    self._mode_cutoff = rospy.Time.now()
+                    for candidate in self._candidates.values():
+                        candidate.reset_confirmation()
                 self._publish(rospy.Time.now())
 
     def _allowed_in_current_mode(self, class_name):
@@ -427,6 +456,11 @@ class TargetMemory:
                 if self._reset_cutoff is not None else -1.0)
             return
         now = msg.header.stamp if msg.header.stamp.to_sec() > 0 else rospy.Time.now()
+        if self._search_confirmation_max_gap > 0.0:
+            if ((self._last_detection_stamp is not None and now <= self._last_detection_stamp) or
+                    (self._mode_cutoff is not None and now <= self._mode_cutoff)):
+                return
+            self._last_detection_stamp = now
         # Reset before matching so duplicate merging cannot copy a previous
         # frame's valid projection into the current observation state.
         for candidate in self._candidates.values():
@@ -474,7 +508,7 @@ class TargetMemory:
         stale = []
         for cid, cand in self._candidates.items():
             if cid not in matched_ids:
-                cand.mark_missed()
+                cand.mark_missed(now, self._confirmation_gap())
                 was_confirmed = (cand.state == ST_CONFIRMED)
                 ttl = self._map_memory_ttl if cand.map_valid else self._candidate_ttl
                 if ttl > 0.0 and cand.age(now, ttl):
@@ -560,12 +594,15 @@ class TargetMemory:
             return True
         return left_class == right_class
 
+    def _confirmation_gap(self):
+        return self._search_confirmation_max_gap if self._align_mode == "disabled" else 0.0
+
     def _update_candidate(self, candidate, det, now):
         candidate.update(
             det, now, self._confirm_frames,
             self._class_switch_confirm_frames,
             self._class_switch_min_confidence,
-            self._class_switch_vote_ratio)
+            self._class_switch_vote_ratio, self._confirmation_gap())
 
     def _match_or_create(self, det, now, matched_ids):
         """优先用地图距离跨视角匹配，无地图时退回像素近邻。"""
@@ -625,6 +662,8 @@ class TargetMemory:
     def _on_reset(self, _request):
         with self._state_lock:
             self._reset_cutoff = rospy.Time.now()
+            self._last_detection_stamp = None
+            self._mode_cutoff = None
             self._candidates.clear()
             self._rejected.clear()
             self._next_id = 0
