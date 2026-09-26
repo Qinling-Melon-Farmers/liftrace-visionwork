@@ -5,5 +5,5 @@
 <video id="v" controls preload="metadata" src="../../../logs/panzer_replay_video/panzer_comparison.mp4"></video>
 <div><button onclick="v.currentTime=13;v.play()">首次经过</button><button onclick="v.currentTime=18;v.play()">红十字中断</button><button onclick="v.currentTime=36;v.play()">原任务返航</button><button onclick="v.currentTime=51;v.play()">返程确认对照</button></div>
 <p class="note">101.50秒，1倍速。相机为实飞录像；框/地图坐标/候选为离线复算。Shadow APPROACH是只读决策建议，没有控制输出。</p>
-<p><a href="REPORT.md">详细报告</a> · <a href="metrics.json">结果指标</a> · <a href="../../../logs/panzer_replay_video/panzer_comparison.mp4" download>下载MP4</a></p>
-<img src="confirmation_timeline.png" alt="确认计数与高度速度时序"><img src="earlier_confirm.jpg" alt="52.4秒前后对照"></html>
+<p><a href="MODEL_GENERALIZATION.md">阈值、光照与五类模型分析</a> · <a href="REPORT.md">详细报告</a> · <a href="metrics.json">结果指标</a> · <a href="../../../logs/panzer_replay_video/panzer_comparison.mp4" download>下载MP4</a></p>
+<img src="confirmation_timeline.png" alt="确认计数与高度速度时序"><img src="earlier_confirm.jpg" alt="52.4秒前后对照"><h2>同一源图像：原图、提亮与局部对比度</h2><p>仅作离线诊断，当前线上预处理未改变。</p><img src="appearance_comparison.jpg" alt="同一图像装甲车置信度0.438、0.975、0.944"><img src="threshold_appearance.png" alt="阈值扫描与图像外观敏感性"></html>

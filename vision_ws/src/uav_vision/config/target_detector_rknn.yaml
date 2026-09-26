@@ -29,3 +29,6 @@ input_dtype: "float32"
 input_normalize: true
 box_format: "auto"
 perf_topic: "/uav_vision/perf"
+
+# 2026 正式五类；保留六类权重原始 ID，历史回归显式选择 full。
+class_profile: r2026

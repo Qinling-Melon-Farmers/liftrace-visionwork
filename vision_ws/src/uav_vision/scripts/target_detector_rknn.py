@@ -23,6 +23,7 @@ from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from sensor_msgs.msg import Image, RegionOfInterest
 
 from uav_vision.msg import TargetDetection, TargetDetectionArray
+from uav_vision.target_selection_policy import resolve_class_profile
 
 
 def _restore_standard_logging_levels():
@@ -345,6 +346,8 @@ class TargetDetectorRKNN:
 
         self._image_topic = rospy.get_param("~image_topic", "/camera/image_raw")
         self._conf_threshold = float(rospy.get_param("~conf_threshold", 0.5))
+        self._class_profile, self._allowed_classes = resolve_class_profile(
+            rospy.get_param("~class_profile", "r2026"))
         self._iou_threshold = float(rospy.get_param("~iou_threshold", 0.45))
         self._imgsz = int(rospy.get_param("~imgsz", 640))
         self._layout = str(rospy.get_param("~input_layout", "NHWC"))
@@ -372,6 +375,12 @@ class TargetDetectorRKNN:
             "~tank_metadata_path",
             "",
         )
+
+        # Keep six-class metadata intact: red_cross is still class ID 5.
+        # The retired split tank model need not allocate an NPU runtime.
+        if "tank" not in self._allowed_classes:
+            self._tank_model_path = ""
+            self._tank_metadata_path = ""
 
         self._bridge = CvBridge()
         self._detections_pub = rospy.Publisher("/uav_vision/detections",
@@ -444,6 +453,7 @@ class TargetDetectorRKNN:
         status.message = self._backend_name()
         status.values = [
             KeyValue("backend", self._backend_name()),
+            KeyValue("class_profile", self._class_profile),
             KeyValue("image_topic", self._image_topic),
             KeyValue("frames", str(self._frames)),
             KeyValue("detections", str(int(detections_count))),
@@ -512,10 +522,13 @@ class TargetDetectorRKNN:
         arr.completed_sources = [arr.source]
         for det in detections:
             cls_id = det["class_id"]
+            class_name = handle.names.get(cls_id, "class_%d" % cls_id)
+            if class_name not in self._allowed_classes:
+                continue
             x1, y1, x2, y2 = det["bbox"]
             msg = TargetDetection()
             msg.header = header
-            msg.class_name = handle.names.get(cls_id, "class_%d" % cls_id)
+            msg.class_name = class_name
             msg.class_confidence = float(det["score"])
             msg.geometry_confidence = float(det["score"])
             msg.geometry_verified = False

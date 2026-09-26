@@ -44,6 +44,7 @@
             launch-prefix="$(arg vision_python)">
         <rosparam file="$(find uav_vision)/config/default.yaml" />
         <rosparam file="$(find uav_vision)/config/target_detector.yaml" />
+        <param name="class_profile" value="$(arg class_profile)" />
         <param name="image_topic" value="$(arg image_topic)" />
         <param name="model_path" value="$(arg target_model_path)" />
         <param name="imgsz" value="$(arg target_detector_imgsz)" />
@@ -56,6 +57,7 @@
             name="target_detector_rknn" output="screen" required="true">
         <rosparam file="$(find uav_vision)/config/default.yaml" />
         <rosparam file="$(find uav_vision)/config/target_detector_rknn.yaml" />
+        <param name="class_profile" value="$(arg class_profile)" />
         <param name="image_topic" value="$(arg image_topic)" />
         <param name="model_path" value="$(arg rknn_model_path)" />
         <param name="metadata_path" value="$(arg rknn_metadata_path)" />

@@ -66,3 +66,7 @@
 运行目录：logs/panzer_bag_reinfer_20260926_223208。
 中间结果：logs/panzer_recorded_recomputed.json、logs/panzer_reinferred_recomputed.json。
 导出视频：logs/panzer_replay_video/panzer_comparison.mp4。
+
+## 后续：阈值扫描、光照/朝向诊断与tank输出移除
+
+“去程只有一次有效检出”指原始0.50门槛；进一步低阈值扫描表明存在少量被过滤的低分框。同一36张去程图，在0.30下检出3帧，Gamma提亮/CLAHE在0.50下分别4/7帧；这是PT离线检测计数，不是CONFIRMED或飞行收益。[详细结果与五类模型方案](MODEL_GENERALIZATION.md)。前文链路回放及视频保留其原始输入设置和结论。

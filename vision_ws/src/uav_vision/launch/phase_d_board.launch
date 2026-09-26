@@ -16,7 +16,7 @@
   <arg name="max_latest_tf_age_sec" default="0.10" />
   <arg name="rectify_input_pixels" default="true" />
   <arg name="default_align_mode" default="disabled" />
-  <arg name="class_profile" default="full" />
+  <arg name="class_profile" default="r2026" />
   <arg name="require_alignment_context" default="false" />
   <arg name="alignment_context_topic"
        default="/uav_vision/alignment_target_context" />
@@ -30,6 +30,7 @@
         name="target_detector_rknn" output="screen" required="true">
     <rosparam file="$(find uav_vision)/config/default.yaml" />
     <rosparam file="$(find uav_vision)/config/target_detector_rknn.yaml" />
+    <param name="class_profile" value="$(arg class_profile)" />
     <param name="image_topic" value="$(arg image_topic)" />
     <param name="model_path" value="$(arg model_path)" />
     <param name="metadata_path" value="$(arg metadata_path)" />
