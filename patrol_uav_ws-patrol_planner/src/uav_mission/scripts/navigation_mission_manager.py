@@ -3,7 +3,6 @@
 
 import json
 import math
-import time
 from numbers import Real
 import threading
 
@@ -575,26 +574,6 @@ class NavigationMissionManager:
         # waypoint has satisfied the normal execution arrival check.
         if action.command == "RETURN_HOME" and action.reason.startswith("post_delivery_route:"):
             completed = self._runtime.core.post_delivery_route_index
-            if completed == 0 and not getattr(self, '_corridor_inflation_applied', False):
-                requested = rospy.get_param('~mission/post_delivery_obstacles_inflation', None)
-                if requested is not None:
-                    requested = float(requested)
-                    if not math.isfinite(requested) or not 0.0 <= requested <= 0.6:
-                        raise ValueError('invalid post-delivery obstacle inflation')
-                    # Invalidate any ACK left by an earlier map instance; only
-                    # a new occupancy/ESDF rebuild may authorize this goal.
-                    rospy.set_param('/fast_planner_node/sdf_map/obstacles_inflation_applied', -1.0)
-                    rospy.set_param('/fast_planner_node/sdf_map/obstacles_inflation', requested)
-                    deadline = time.monotonic() + 10.0
-                    while True:
-                        applied = rospy.get_param(
-                            '/fast_planner_node/sdf_map/obstacles_inflation_applied', None)
-                        if applied is not None and abs(float(applied) - requested) < 1e-6:
-                            break
-                        if time.monotonic() >= deadline:
-                            raise RuntimeError('post-delivery map inflation rebuild not acknowledged')
-                        time.sleep(0.02)
-                    self._corridor_inflation_applied = True
             for stage in rospy.get_param("~mission/post_delivery_parameter_stages", []):
                 if completed == int(stage["after_completed_waypoints"]):
                     for name, value in stage["parameters"].items():

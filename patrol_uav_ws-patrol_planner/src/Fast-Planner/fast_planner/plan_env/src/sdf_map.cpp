@@ -99,25 +99,23 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
   }
   if (!mp_.search_region_bounds_.allFinite() || mp_.search_region_bounds_[0] >= mp_.search_region_bounds_[1] || mp_.search_region_bounds_[2] >= mp_.search_region_bounds_[3])
     throw std::invalid_argument("invalid fixed search region");
-  node_.param("sdf_map/horizontal_avoidance/tracking_margin", mp_.horizontal_tracking_margin_, 0.0);
-  if (!std::isfinite(mp_.horizontal_tracking_margin_) || mp_.horizontal_tracking_margin_ < 0.0 || mp_.horizontal_tracking_margin_ > 0.2)
-    throw std::invalid_argument("invalid high column tracking margin");
-
   node_.param("sdf_map/horizontal_avoidance/min_x", mp_.horizontal_min_x_, 0.0);
   node_.param("sdf_map/horizontal_avoidance/max_x", mp_.horizontal_max_x_, 0.0);
   node_.param("sdf_map/horizontal_avoidance/min_y", mp_.horizontal_min_y_, 0.0);
   node_.param("sdf_map/horizontal_avoidance/max_y", mp_.horizontal_max_y_, 0.0);
   node_.param("sdf_map/horizontal_avoidance/obstacle_min_z", mp_.horizontal_obstacle_min_z_, 0.4);
   node_.param("sdf_map/horizontal_avoidance/floor_z", mp_.horizontal_floor_z_, 0.1);
-  // Negative keeps the legacy full-height column. A separate cap lets a
-  // research high survey use real 3-D inflation above the low-flight layer.
-  node_.param("sdf_map/horizontal_avoidance/column_top_z", mp_.horizontal_column_top_z_, -1.0);
-  if (!std::isfinite(mp_.horizontal_column_top_z_) ||
-      (mp_.horizontal_column_top_z_ >= 0.0 && mp_.horizontal_column_top_z_ <= mp_.horizontal_floor_z_))
-    throw std::invalid_argument("horizontal obstacle column top is invalid");
   node_.param("sdf_map/horizontal_avoidance/support_min_points", mp_.horizontal_support_min_points_, 1);
   node_.param("sdf_map/horizontal_avoidance/support_radius", mp_.horizontal_support_radius_, 0.0);
   node_.param("sdf_map/horizontal_avoidance/support_min_vertical_span", mp_.horizontal_support_min_span_, 0.0);
+  node_.param("sdf_map/horizontal_avoidance/column_middle_enabled", mp_.horizontal_column_middle_, false);
+  node_.param("sdf_map/horizontal_avoidance/column_band_low_ratio", mp_.horizontal_column_low_ratio_, 0.40);
+  node_.param("sdf_map/horizontal_avoidance/column_band_high_ratio", mp_.horizontal_column_high_ratio_, 0.60);
+  if (!std::isfinite(mp_.horizontal_column_low_ratio_) ||
+      !std::isfinite(mp_.horizontal_column_high_ratio_) ||
+      mp_.horizontal_column_low_ratio_ < 0.0 || mp_.horizontal_column_high_ratio_ > 1.0 ||
+      mp_.horizontal_column_low_ratio_ >= mp_.horizontal_column_high_ratio_)
+    throw std::invalid_argument("horizontal column band must satisfy 0 <= low < high <= 1");
   if (mp_.horizontal_support_min_points_ < 1 ||
       !std::isfinite(mp_.horizontal_support_radius_) || mp_.horizontal_support_radius_ < 0.0 ||
       !std::isfinite(mp_.horizontal_support_min_span_) || mp_.horizontal_support_min_span_ < 0.0)
@@ -882,12 +880,6 @@ void SDFMap::updateESDFCallback(const ros::TimerEvent& /*event*/) {
              md_.esdf_time_ / md_.update_num_, md_.max_esdf_time_);
 
   md_.esdf_need_update_ = false;
-  // A stage switch may publish the next goal only after occupancy AND ESDF
-  // have been rebuilt with its requested horizontal inflation.
-  if (std::abs(last_inflation_applied_ - mp_.obstacles_inflation_) > 1e-6) {
-    node_.setParam("sdf_map/obstacles_inflation_applied", mp_.obstacles_inflation_);
-    last_inflation_applied_ = mp_.obstacles_inflation_;
-  }
 }
 
 void SDFMap::depthPoseCallback(const sensor_msgs::ImageConstPtr& img,
@@ -930,15 +922,6 @@ void SDFMap::odomCallback(const nav_msgs::OdometryConstPtr& odom) {
 
 void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   node_.getParamCached("sdf_map/search_region/enabled", mp_.search_region_enabled_);
-  double phase_inflation = mp_.obstacles_inflation_;
-  if (node_.getParamCached("sdf_map/obstacles_inflation", phase_inflation) &&
-      std::isfinite(phase_inflation) && phase_inflation >= 0.0 &&
-      phase_inflation <= 0.6)
-    mp_.obstacles_inflation_ = phase_inflation;
-  double tracking_margin = mp_.horizontal_tracking_margin_;
-  if (node_.getParamCached("sdf_map/horizontal_avoidance/tracking_margin", tracking_margin) && std::isfinite(tracking_margin) && tracking_margin >= 0.0 && tracking_margin <= 0.2)
-    mp_.horizontal_tracking_margin_ = tracking_margin;
-
   // Apply phase ceiling before rebuilding the local occupancy map. The
   // existing resetBuffer below clears prior ceiling cells each cloud update.
   double phase_ceiling = mp_.virtual_ceil_height_;
@@ -961,8 +944,16 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
 
   if (isnan(md_.camera_pos_(0)) || isnan(md_.camera_pos_(1)) || isnan(md_.camera_pos_(2))) return;
 
-  this->resetBuffer(md_.camera_pos_ - mp_.local_update_range_,
-                    md_.camera_pos_ + mp_.local_update_range_);
+  Eigen::Vector3d rebuild_min = md_.camera_pos_ - mp_.local_update_range_;
+  Eigen::Vector3d rebuild_max = md_.camera_pos_ + mp_.local_update_range_;
+  if (mp_.horizontal_avoidance_) {
+    // Synthetic columns can extend beyond the moving local Z window. Rebuild
+    // the entire height for this XY patch, including real observations there,
+    // so a changed canopy base cannot leave old synthetic cells underneath.
+    rebuild_min.z() = mp_.map_min_boundary_.z();
+    rebuild_max.z() = mp_.map_max_boundary_.z();
+  }
+  this->resetBuffer(rebuild_min, rebuild_max);
 
   pcl::PointXYZ pt;
   Eigen::Vector3d p3d, p3d_inf;
@@ -981,11 +972,12 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   max_y = mp_.map_min_boundary_(1);
   max_z = mp_.map_min_boundary_(2);
 
-  std::vector<unsigned char> horizontal_columns(
-      mp_.map_voxel_num_(0) * mp_.map_voxel_num_(1), 0);
+  fast_planner::UpwardObstacleColumns horizontal_columns(
+      mp_.map_voxel_num_(0), mp_.map_voxel_num_(1), mp_.map_voxel_num_(2));
 
   const auto horizontal_candidate = [&](const pcl::PointXYZ& point) {
-    return point.z >= mp_.horizontal_obstacle_min_z_ &&
+    return std::isfinite(point.x) && std::isfinite(point.y) && std::isfinite(point.z) &&
+        point.z >= mp_.horizontal_obstacle_min_z_ &&
         point.x >= mp_.horizontal_min_x_ && point.x <= mp_.horizontal_max_x_ &&
         point.y >= mp_.horizontal_min_y_ && point.y <= mp_.horizontal_max_y_;
   };
@@ -993,7 +985,7 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   if (mp_.horizontal_avoidance_) {
     support.reset(new fast_planner::VerticalObstacleSupport(
         mp_.map_voxel_num_.x(), mp_.map_voxel_num_.y(),
-        static_cast<int>(std::ceil(mp_.horizontal_support_radius_ * mp_.resolution_inv_)),
+        mp_.horizontal_support_radius_ * mp_.resolution_inv_,
         mp_.horizontal_support_min_points_, mp_.horizontal_support_min_span_));
     for (const auto& point : latest_cloud.points) {
       if (!horizontal_candidate(point)) continue;
@@ -1005,8 +997,33 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
     }
   }
 
+  std::unique_ptr<fast_planner::MiddleHeightColumnSelector> middle;
+  if (support && mp_.horizontal_column_middle_) {
+    middle.reset(new fast_planner::MiddleHeightColumnSelector(
+        mp_.map_voxel_num_.x(), mp_.map_voxel_num_.y(),
+        mp_.horizontal_support_radius_ * mp_.resolution_inv_,
+        mp_.horizontal_column_low_ratio_, mp_.horizontal_column_high_ratio_));
+    for (const auto& point : latest_cloud.points) {
+      if (!horizontal_candidate(point)) continue;
+      const Eigen::Vector3d position(point.x,point.y,point.z);
+      if (!isInMap(position)) continue;
+      Eigen::Vector3i index; posToIndex(position,index);
+      if (support->supported(index.x(),index.y()))
+        middle->observe(index.x(),index.y(),point.z);
+    }
+    middle->build();
+    for (const auto& point : latest_cloud.points) {
+      if (!horizontal_candidate(point)) continue;
+      const Eigen::Vector3d position(point.x,point.y,point.z);
+      if (!isInMap(position)) continue;
+      Eigen::Vector3i index; posToIndex(position,index);
+      middle->observeBand(index.x(),index.y(),point.z);
+    }
+  }
+
   for (size_t i = 0; i < latest_cloud.points.size(); ++i) {
     pt = latest_cloud.points[i];
+    if (!std::isfinite(pt.x) || !std::isfinite(pt.y) || !std::isfinite(pt.z)) continue;
     p3d(0) = pt.x, p3d(1) = pt.y, p3d(2) = pt.z;
 
     /* point inside update range */
@@ -1014,7 +1031,7 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
     Eigen::Vector3i inf_pt;
 
     if (fabs(devi(0)) < mp_.local_update_range_(0) && fabs(devi(1)) < mp_.local_update_range_(1) &&
-        fabs(devi(2)) < mp_.local_update_range_(2)) {
+        (mp_.horizontal_avoidance_ || fabs(devi(2)) < mp_.local_update_range_(2))) {
 
       // Quantize each source point once, then fill contiguous Z spans. This
       // is the same box inflation in voxel coordinates, without recomputing
@@ -1031,7 +1048,7 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
       int high_z = std::min(mp_.map_voxel_num_.z() - 1, center.z() + inf_step_z_up);
       // All points keep normal 3-D inflation; extending to the full flight
       // height additionally needs local vertical structure support.
-      const bool column = support && horizontal_candidate(pt) &&
+      const bool column = support && !middle && horizontal_candidate(pt) &&
           support->supported(center.x(), center.y());
       if (low_z > high_z) continue;
       for (int x = std::max(0, center.x() - inf_step);
@@ -1040,9 +1057,23 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
              y <= std::min(mp_.map_voxel_num_.y() - 1, center.y() + inf_step); ++y) {
           std::fill(md_.occupancy_buffer_inflate_.begin() + toAddress(x,y,low_z),
                     md_.occupancy_buffer_inflate_.begin() + toAddress(x,y,high_z) + 1, 1);
-          if (column) horizontal_columns[x * mp_.map_voxel_num_.y() + y] = 1;
+          if (column) horizontal_columns.mark(x, y, low_z);
         }
     }
+  }
+
+  if (middle) {
+    middle->forEachFootprint([&](int cx,int cy,double source_bottom) {
+      const double wx=mp_.map_origin_.x()+(cx+.5)*mp_.resolution_;
+      const double wy=mp_.map_origin_.y()+(cy+.5)*mp_.resolution_;
+      if (fabs(wx-md_.camera_pos_.x())>=mp_.local_update_range_.x() ||
+          fabs(wy-md_.camera_pos_.y())>=mp_.local_update_range_.y()) return;
+      const int low=std::max(0,int(floor((source_bottom-mp_.map_origin_.z())*
+                                        mp_.resolution_inv_))-inf_step_z_down);
+      for (int x=std::max(0,cx-inf_step);x<=std::min(mp_.map_voxel_num_.x()-1,cx+inf_step);++x)
+        for (int y=std::max(0,cy-inf_step);y<=std::min(mp_.map_voxel_num_.y()-1,cy+inf_step);++y)
+          horizontal_columns.mark(x,y,low);
+    });
   }
 
   min_x = min(min_x, md_.camera_pos_(0));
@@ -1062,42 +1093,21 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
   boundIndex(md_.local_bound_max_);
 
   if (mp_.horizontal_avoidance_) {
-    // Expand only supported synthetic tree columns. Real 3-D inflation and
-    // narrow-door geometry retain their existing values; margin is phase-owned.
-    const int extra = static_cast<int>(std::ceil(mp_.horizontal_tracking_margin_ * mp_.resolution_inv_));
-    if (extra > 0) {
-      const auto original = horizontal_columns;
-      for (int x=0; x<mp_.map_voxel_num_.x(); ++x)
-        for (int y=0; y<mp_.map_voxel_num_.y(); ++y)
-          if (original[x*mp_.map_voxel_num_.y()+y])
-            for (int dx=-extra; dx<=extra; ++dx)
-              for (int dy=-extra; dy<=extra; ++dy) {
-                const int a=x+dx, b=y+dy;
-                if (a>=0 && b>=0 && a<mp_.map_voxel_num_.x() && b<mp_.map_voxel_num_.y())
-                  horizontal_columns[a*mp_.map_voxel_num_.y()+b]=1;
-              }
-      md_.local_bound_min_.x()=std::max(0,md_.local_bound_min_.x()-extra);
-      md_.local_bound_min_.y()=std::max(0,md_.local_bound_min_.y()-extra);
-      md_.local_bound_max_.x()=std::min(mp_.map_voxel_num_.x()-1,md_.local_bound_max_.x()+extra);
-      md_.local_bound_max_.y()=std::min(mp_.map_voxel_num_.y()-1,md_.local_bound_max_.y()+extra);
-    }
     const int low = std::max(0, int(floor((mp_.horizontal_floor_z_ - mp_.map_origin_(2)) *
                                          mp_.resolution_inv_)));
     double top_height = mp_.virtual_ceil_height_ > 0.0 ?
         mp_.virtual_ceil_height_ : mp_.map_max_boundary_(2);
-    if (mp_.horizontal_column_top_z_ >= 0.0)
-      top_height = std::min(top_height, mp_.horizontal_column_top_z_);
-    // Only synthetic columns are capped. The real point-cloud inflation
-    // above remains intact, and applyFlightCeiling still uses the flight cap.
     const int high = std::min(mp_.map_voxel_num_(2) - 1,
         int(ceil((top_height - mp_.map_origin_(2)) * mp_.resolution_inv_)));
     for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
       for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y)
-        if (horizontal_columns[x * mp_.map_voxel_num_(1) + y])
-          for (int z = low; z <= high; ++z)
+        // Extrude the selected measured footprint upward. In middle-band mode
+        // lower outer branches keep only real 3-D inflation; passing above
+        // those edges is intentionally allowed by the selected field policy.
+        for (int z = std::max(low, horizontal_columns.bottom(x, y)); z <= high; ++z)
             md_.occupancy_buffer_inflate_[toAddress(x, y, z)] = 1;
-    md_.local_bound_min_(2) = std::min(md_.local_bound_min_(2), low);
-    md_.local_bound_max_(2) = std::max(md_.local_bound_max_(2), high);
+    md_.local_bound_min_(2) = 0;
+    md_.local_bound_max_(2) = mp_.map_voxel_num_(2) - 1;
   }
   applyFlightCeiling();
   md_.esdf_need_update_ = true;

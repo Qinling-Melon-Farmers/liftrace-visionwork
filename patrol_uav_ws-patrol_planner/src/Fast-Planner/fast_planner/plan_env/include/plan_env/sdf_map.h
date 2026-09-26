@@ -108,10 +108,10 @@ struct MappingParameters {
   bool horizontal_avoidance_;
   bool search_region_enabled_;
   Eigen::Vector4d search_region_bounds_;
-  double horizontal_tracking_margin_;
   double horizontal_min_x_, horizontal_max_x_, horizontal_min_y_, horizontal_max_y_;
   double horizontal_obstacle_min_z_, horizontal_floor_z_;
-  double horizontal_column_top_z_;
+  bool horizontal_column_middle_;
+  double horizontal_column_low_ratio_, horizontal_column_high_ratio_;
   int horizontal_support_min_points_;
   double horizontal_support_radius_, horizontal_support_min_span_;
   bool show_esdf_time_, show_occ_time_;
@@ -242,7 +242,6 @@ public:
 private:
   MappingParameters mp_;
   MappingData md_;
-  double last_inflation_applied_ = -1.0;
 
   template <typename F_get_val, typename F_set_val>
   void fillESDF(F_get_val f_get_val, F_set_val f_set_val, int start, int end, int dim);
