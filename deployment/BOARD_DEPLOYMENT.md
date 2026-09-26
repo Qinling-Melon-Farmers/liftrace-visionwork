@@ -36,3 +36,7 @@ bash deployment/board_trials_4x4/start_camera.sh /dev/video0
 ## 本轮实际飞行
 
 [2026-09-20日志复盘](../docs/deployment/board_flight_20260920/REPORT.md)：首轮日志与录像已取回，0.4→1.2m约6.13s；任务全程IDLE、无模拟投递。第二轮任务已启动，第一点通过，第二个固定终点被膨胀地图占据，12秒后ABORT；详见[地图占据专项分析](../docs/deployment/board_flight_20260920/MAP_ABORT_ANALYSIS.md)。两轮均不能标作专项通过。
+
+
+## 2026-09-26 试飞组长期维护来源
+实际板载代码由试飞组维护在 https://github.com/sakelier/liftrace-controlwork/tree/板载代码 。本地部署分支与研究分支不自动覆盖该来源；分析每轮bag时先对照其实际revision和未提交修改。9月25日最简投递测试与fa621262的对照及提交时间限制见 [实飞报告](../docs/deployment/flight_review_20260925/REPORT.md)。

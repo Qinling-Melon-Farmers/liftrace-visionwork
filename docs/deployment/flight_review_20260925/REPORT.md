@@ -98,3 +98,47 @@ LAND后约51.65秒飞控仍在OFFBOARD，随后POSCTL才快速下降落地。故
 旧视频只显示当帧匹配地图结果，未持续显示已有坐标。新版加入class、ID、XYZ、frame、CURRENT/HISTORY和记录年龄：例如红十字末次有效融合位置约(2.104,-0.074,-0.220)，坐标系camera_init。HISTORY仅是历史有效坐标，不是当前投递许可；circle#1也不是panzer。bag没有有效panzer坐标，因此不补造坐标。
 
 [新版多画面播放器](index.html) · [多画面视频](../../../logs/flight_review_20260925/replay_suite/dashboard.mp4) · [轨迹动画](../../../logs/flight_review_20260925/replay_suite/trajectory.mp4) · [完整输出目录播放器](../../../logs/flight_review_20260925/replay_suite/index.html) · [可分享工具说明](../../../tools/bag_replay/README.md)。四种视频均为10fps、109.100秒、1倍速；多画面为1920×1080。全部经过FFmpeg完整解码和时长验证，6项自动测试通过，包括缺失可选话题的导出。工具仅离线读包，不启动仿真、不发布控制话题、不重跑模型；本轮没有修改飞行代码。
+## 试飞组板载分支对照（2026-09-26）
+
+试飞组今后长期维护并同步实际板载代码的来源：[liftrace-controlwork/板载代码](https://github.com/sakelier/liftrace-controlwork/tree/板载代码)。本次只读fetch至本地导航参考仓，核对revision `fa62126213995780015d58773511de1e4569cfb8`；未向试飞组分支写入或覆盖。用户确认9月25日bag使用“最简投递验证测试”。
+
+入口为 `patrol_uav_ws-patrol_planner/src/uav_mission/launch/minimal_delivery_test.launch`，专用参数为同包 `config/minimal_delivery_test.yaml`。实际为今年Mission Manager（start_mode=full）+ Planner Bridge + RKNN/几何/投影/记忆/对准 + ReleaseGuard，底层复用external_mission_mode的patrol_control。不能将复用旧执行器等同于旧任务链，也不能将full理解成高位搜索已启用。
+
+| 配置/源码 | 与bag对应事实 |
+|---|---|
+| 手动搜索航点(0,0,1)、(4,0,1)，camera_init | 低空前飞时中断；没有先完成高位航线再重访 |
+| approach_altitude=1.0、return_altitude=1.0 | 与任务指令Z=1吻合；说明文档的0.6已落后于YAML |
+| home_xy=[4,0] | 失败后前往4米终点，不是回到起飞原点 |
+| cruise_lead_m=1.0、precision_lead_m=0.4，规划max_vel=1.2 | 与搜索约0.85–0.96m/s、返回约0.32m/s实速相容；前视距离本身不是速度设定 |
+| require_alignment_context=true、require_evidence_context=true | 正在使用新对准/释放证据链 |
+| raw_servo_service=/legacy/Servo_raw | 服务等待或调用失败产生raw_actuator_unavailable；不能仅凭此区分未启动、命名不一致与通信异常 |
+| mission_core的candidate_release_state_uncertain | 释放阶段失败后隔离槽位并返回；不是装甲车候选被投递优先级抛弃 |
+| detection_fusion landing仅接受landing_pad | 解释后段panzer与圆环同帧却没有装甲车有效地图坐标 |
+| camera_quat_xyzw=0,1,0,0；pixel_to_body_matrix=[-1,0,0,1] | 配置已针对机头朝图像左侧修正；不应继续将更早known_rig值当成本次运行配置 |
+
+### revision时间边界
+
+bag为18:20:20至约18:22:09；HEAD fa621262提交于18:24:51，即飞行结束之后。相对父提交d96c55b（15:25:23），它将地图尺寸14×8改为16×4，并新增(6,0,1)航点，同时新增详细录包入口。故HEAD不是可证明的飞行时源码快照；父提交也不能排除现场未提交修改。报告可确认共同逻辑与bag时序相互吻合，但不据此断言当时已经使用新增6米航点或最新地图尺寸。
+
+### 后续协同约定
+
+以试飞组板载分支作为实际板端代码同步参考；本地板端部署分支保留工具、分析和待交付配置，研究分支仍是仿真研究，三者不自动互相覆盖。每轮日志最好同时留下git revision、工作区diff、实际启动命令及参数导出，尤其记录舵机入口、外参、地面Z和专用测试配置。当前说明文档仍有高度表与YAML不一致、record_debug默认false却称自动录制的问题；应由试飞组后续同步订正文档，本次不改其运行代码。
+## 本机高位、整机与试飞组板载三方比较（2026-09-26）
+
+比较版本：试飞组板载fa621262；本机高位 `feat/high-view-search-research` 04c6ec8；本机整机 `feat/r2026-competition-integrated` 86e382d。原整机目录已是归档软链接，不是活动Git工作树，因此以仍保存的同名Git分支为比较依据，不把归档目录冒充当前工作树。主仓main及另一个main-integration分支不等同于这里的competition-integrated。
+
+| 项目 | 板载最简测试 | 本机整机 | 本机高位研究 |
+|---|---|---|---|
+| 任务入口 | navigation_mission_manager，手动低空航点，full投递闭环 | 常规SearchPolicy覆盖搜索任务 | 另有navigation_high_view_full与high_view_full策略层 |
+| 高位先搜后重访 | 该分支未包含high_view模块，不能仅把高度改成2.6就获得该策略 | 无该研究模块 | 有线索记忆、排序重访、延期问题目标、优先补搜跳过片区等 |
+| mission_core.py | 与整机完全相同 | 共同任务基线 | 新增共享接近准入及中断类别覆盖入口 |
+| 手动航点读取 | manager显式读取search/manual_waypoints | 所比较manager无该读取分支 | 所比较常规manager也无该读取分支；不能原样替换板端manager |
+| 分段跟随 | 有FollowingSpeed，根据任务切前视 | 所比较manager没有此实现 | 有FollowingSpeed及走廊分段与投后膨胀切换 |
+| 投后恢复高度 | patrol_control新增标准靶/红十字恢复设定点参数及检查 | 相关位置仍用1.2/1.15固定值 | 所检查相关位置同样未含板载参数化，需要保留板端成果 |
+| 近墙处理 | 未含高位研究新增围栏逻辑 | 未含研究围栏逻辑 | 控制设定点及释放许可加入近墙围栏；尚不能据此宣称板端已验收 |
+| 视觉五份核心文件 | 与右两列逐文件相同 | 同左 | 同左 |
+| guarded_servo_proxy.py | 与右两列完全相同 | 同左 | 同左 |
+
+这里“视觉五份”精确指：scripts/target_refiner.py、src/uav_vision/detection_fusion.py、scripts/drop_aligner.py、scripts/target_memory.py、scripts/target_map_projector.py。不是宣称相机驱动、全部检测器、配置或整套视觉仓完全一致。现场外参、CameraInfo及模式控制不同，仍会产生不同运行结果。
+
+由此，昨天红十字中断与释放失败逻辑不是一套独立旧视觉链：共同核心与整机一致，低空专项入口不同；后段装甲车被landing过滤在三版共有融合源码中都有依据。高位策略实机尚未由该包验证。反向同步时优先保留板载手动航点、相机方向和恢复高度参数化，再逐项评估高位策略与研究边界策略；不得以研究版覆盖板端正在使用的源码。此次仅比较并记录，未修改或运行控制代码。
