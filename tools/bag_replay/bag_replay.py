@@ -235,7 +235,7 @@ def render(a):
                 panel=canvas(1280,360)
                 texts=[f"RECORDED BAG | 1x t={t:.2f}/{d['duration']:.2f}s | image={fr['stamp'] if fr else -1:.2f}s | {fc.get('mode','?')}",f"Mission={mission.get('phase','?')} / {mission.get('active_command','')} | vision={mode} | committed={mission.get('committed_slots','?')}",f"Map: {map_text}",f"aligned={ev.get('aligned','?')} evidence={ev.get('evidence_valid','?')} permit={permit.get('data','?')} | release={release.get('reason','none')}",'LAST VALID RECORDED TARGET POSITIONS (historical; not current release permission):',*coord]
                 while len(texts)<8:texts.append('')
-                texts+=['Raw YOLO + ring can coexist while landing mode filters delivery classes.','Pixel overlay: offline image-stamp match <=30ms; states use receipt time. No inference rerun.']
+                texts+=['Circle IDs are auxiliary geometry; map-valid / selected does not mean task accepted.','Pixel overlay: offline image-stamp match <=30ms; states use receipt time. No inference rerun.']
                 for n,line in enumerate(texts[:10]):txt(panel,line[:155],12,25+n*34,scale=.52)
                 ann=np.vstack((annotated,panel));mp=map_panel(t,640,720);cv=curves(t,640,360)
                 dashboard=np.hstack((ann,np.vstack((mp,cv))));trajectory=np.vstack((map_panel(t,1280,720),curves(t,1280,360)))

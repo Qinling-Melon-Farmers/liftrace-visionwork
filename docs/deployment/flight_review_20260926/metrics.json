@@ -1,0 +1,262 @@
+{
+  "bag_duration_s": 101.4598319530487,
+  "camera_frames": 2965,
+  "speed_method": "0.5s centered position difference, bag receipt time, not ground truth",
+  "local_ground_z_m": -0.041027698665857315,
+  "assumed_landed_fc_clearance_m": 0.22,
+  "estimated_agl_formula": "local_z - initial_ground_local_z + 0.22",
+  "phase_metrics": [
+    {
+      "phase": "Takeoff / initial hold",
+      "start_s": 3.841,
+      "end_s": 12.371,
+      "duration_s": 8.530000000000001,
+      "vxy_p50_mps": 0.1121057117455721,
+      "vxy_p95_mps": 0.40345132699197506,
+      "local_z_min_m": -0.051711831241846085,
+      "local_z_max_m": 0.8809252977371216
+    },
+    {
+      "phase": "Outbound search",
+      "start_s": 12.371,
+      "end_s": 19.027,
+      "duration_s": 6.656000000000001,
+      "vxy_p50_mps": 0.6305483564129735,
+      "vxy_p95_mps": 0.6995861848034038,
+      "local_z_min_m": 0.8820868730545044,
+      "local_z_max_m": 1.1270593404769897
+    },
+    {
+      "phase": "Approach red_cross",
+      "start_s": 19.027,
+      "end_s": 20.76,
+      "duration_s": 1.7330000000000005,
+      "vxy_p50_mps": 0.2525749075502064,
+      "vxy_p95_mps": 0.45720265491868306,
+      "local_z_min_m": 1.1056807041168213,
+      "local_z_max_m": 1.1135088205337524
+    },
+    {
+      "phase": "Capture / align",
+      "start_s": 20.76,
+      "end_s": 24.699,
+      "duration_s": 3.939,
+      "vxy_p50_mps": 0.11072196091095263,
+      "vxy_p95_mps": 0.16795485086366363,
+      "local_z_min_m": 0.9906272888183594,
+      "local_z_max_m": 1.1174635887145996
+    },
+    {
+      "phase": "Release descent",
+      "start_s": 24.699,
+      "end_s": 27.872,
+      "duration_s": 3.1729999999999983,
+      "vxy_p50_mps": 0.05130117818367507,
+      "vxy_p95_mps": 0.09883094867338227,
+      "local_z_min_m": 0.20062857866287231,
+      "local_z_max_m": 0.9898456931114197
+    },
+    {
+      "phase": "Recovery",
+      "start_s": 27.872,
+      "end_s": 30.312,
+      "duration_s": 2.4400000000000013,
+      "vxy_p50_mps": 0.053445641463045084,
+      "vxy_p95_mps": 0.07315669643885837,
+      "local_z_min_m": 0.19741792976856232,
+      "local_z_max_m": 0.9514827728271484
+    },
+    {
+      "phase": "Resume",
+      "start_s": 30.353,
+      "end_s": 32.179,
+      "duration_s": 1.8260000000000005,
+      "vxy_p50_mps": 0.09263621003026151,
+      "vxy_p95_mps": 0.11928041741546698,
+      "local_z_min_m": 0.9628188014030457,
+      "local_z_max_m": 1.0135639905929565
+    },
+    {
+      "phase": "Search to x=6",
+      "start_s": 32.179,
+      "end_s": 37.53,
+      "duration_s": 5.350999999999999,
+      "vxy_p50_mps": 0.4946562220782503,
+      "vxy_p95_mps": 0.6721846720279906,
+      "local_z_min_m": 0.9551084041595459,
+      "local_z_max_m": 1.0915627479553223
+    },
+    {
+      "phase": "Return home",
+      "start_s": 37.53,
+      "end_s": 57.67,
+      "duration_s": 20.14,
+      "vxy_p50_mps": 0.30684747494926723,
+      "vxy_p95_mps": 0.43639157525490635,
+      "local_z_min_m": 0.9893391132354736,
+      "local_z_max_m": 1.144327163696289
+    },
+    {
+      "phase": "Landing handoff hold",
+      "start_s": 57.67,
+      "end_s": 58.84,
+      "duration_s": 1.1700000000000017,
+      "vxy_p50_mps": 0.029216089221810577,
+      "vxy_p95_mps": 0.05392386834314029,
+      "local_z_min_m": 0.9739158749580383,
+      "local_z_max_m": 0.9909350872039795
+    },
+    {
+      "phase": "AUTO.LAND",
+      "start_s": 58.84,
+      "end_s": 63.844,
+      "duration_s": 5.003999999999998,
+      "vxy_p50_mps": 0.329449110708839,
+      "vxy_p95_mps": 0.5251186977073267,
+      "local_z_min_m": -0.007956132292747498,
+      "local_z_max_m": 0.9730677008628845
+    },
+    {
+      "phase": "Manual takeover",
+      "start_s": 63.844,
+      "end_s": 68.974,
+      "duration_s": 5.130000000000003,
+      "vxy_p50_mps": 0.1104247189365887,
+      "vxy_p95_mps": 0.2890286000041541,
+      "local_z_min_m": -0.12731119990348816,
+      "local_z_max_m": 0.3081102967262268
+    }
+  ],
+  "releases": [
+    {
+      "t": 27.871745586395264,
+      "stamp": 27.87090539932251,
+      "m": {
+        "header": {
+          "seq": 1,
+          "stamp": {
+            "secs": 1790421169,
+            "nsecs": 131817817
+          },
+          "frame_id": ""
+        },
+        "execution_id": 1,
+        "payload_slot": 1,
+        "align_mode": "drop_cross",
+        "target_id": 2,
+        "target_class": "red_cross",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    }
+  ],
+  "candidate_confirmation": {
+    "panzer": {
+      "first_t": 52.52835154533386,
+      "first_consecutive": 3,
+      "first_xyz": {
+        "x": 1.77780131390338,
+        "y": 0.019307640054080397,
+        "z": -0.21999999999999997
+      },
+      "last_valid_t": 53.313941955566406,
+      "last_valid_xyz": {
+        "x": 1.7667191741360768,
+        "y": 0.02187306636907149,
+        "z": -0.21999999999999997
+      },
+      "valid_confirmed_rows": 7
+    },
+    "red_cross": {
+      "first_t": 18.948081254959106,
+      "first_consecutive": 3,
+      "first_xyz": {
+        "x": 4.044163434579133,
+        "y": -0.0516608248283432,
+        "z": -0.22
+      },
+      "last_valid_t": 47.94724249839783,
+      "last_valid_xyz": {
+        "x": 3.9823321962307254,
+        "y": -0.06508276438917912,
+        "z": -0.21999999999999997
+      },
+      "valid_confirmed_rows": 137
+    }
+  },
+  "manual_takeover_confirmed_by_user": true,
+  "earlier_panzer_drop_photos_are_other_flight": true,
+  "latest_remote": "e94d0a7a7fb3c52d172cb29c958698a9de93b584",
+  "flight_revision": "not recorded; behavior agrees with pre-flight 4e831ce",
+  "auto_land_yaw_range_deg": [
+    -132.17427409149798,
+    -0.07645769338413176
+  ],
+  "final_xy_m": [
+    -0.47689591348171234,
+    -0.06859949231147766
+  ],
+  "final_home_error_m": 0.4818045274184847,
+  "last_landing_settle": {
+    "displacement_m": 0.0,
+    "elapsed_sec": 0.0,
+    "reason": "landing_radius_not_met"
+  },
+  "selected_targets": {
+    "circle": {
+      "count": 0,
+      "first_t": null,
+      "last_t": null
+    },
+    "panzer": {
+      "count": 7,
+      "first_t": 52.53109550476074,
+      "last_t": 53.31718158721924
+    },
+    "red_cross": {
+      "count": 132,
+      "first_t": 18.950106620788574,
+      "last_t": 47.95024561882019
+    }
+  },
+  "last_valid_identities": {
+    "0": {
+      "class_name": "circle",
+      "xyz": {
+        "x": 1.8163998372245376,
+        "y": 0.002856361582026118,
+        "z": -0.21999999999999995
+      }
+    },
+    "1": {
+      "class_name": "panzer",
+      "xyz": {
+        "x": 1.7667191741360768,
+        "y": 0.02187306636907149,
+        "z": -0.21999999999999997
+      }
+    },
+    "2": {
+      "class_name": "red_cross",
+      "xyz": {
+        "x": 3.9823321962307254,
+        "y": -0.06508276438917912,
+        "z": -0.21999999999999997
+      }
+    },
+    "3": {
+      "class_name": "circle",
+      "xyz": {
+        "x": 3.9921105985714105,
+        "y": -0.045499207430786,
+        "z": -0.22
+      }
+    }
+  },
+  "release_pose": {
+    "x": 3.837203801627241,
+    "y": -0.14802822034709856,
+    "z": 0.20007135404325355
+  },
+  "release_agl_estimate_m": 0.4610990527091109
+}
