@@ -23,6 +23,11 @@ for folder in ('01_visual_interrupt','02_high_view_revisit','03_h_landing','04_c
             assert values['/fast_planner_node/search/max_vel']==s['cruise_speed']
             assert values['/fast_planner_node/manager/max_acc']==s['cruise_acceleration']==0.35
             assert values['/fast_planner_node/sdf_map/virtual_ceil_height']==-.1
+            assert [values['/fast_planner_node/sdf_map/'+key] for key in ('obstacles_inflation','obstacles_inflation_up','obstacles_inflation_down')]==[.25,.2,.1]
+            assert values['/fast_planner_node/sdf_map/horizontal_avoidance/enabled']==(s['mode']=='high_view')
+            assert values['/fast_planner_node/sdf_map/horizontal_avoidance/column_middle_enabled']
+            assert values['/fast_planner_node/sdf_map/horizontal_avoidance/column_band_low_ratio']==.4
+            assert values['/fast_planner_node/sdf_map/horizontal_avoidance/column_band_high_ratio']==.6
             assert values['/fast_planner_node/sdf_map/local_update_range_x']>=3.4
             assert values['/fast_planner_node/sdf_map/local_update_range_y']>=2.
             assert values['/navigation/planner_bridge/execution/initial_plan_timeout']==12.

@@ -6,7 +6,7 @@ import numpy as np
 
 
 class GridCost:
-    def __init__(self,bounds=(-4.8,4.8,-.5,7.4),resolution=.15,inflation=.35):
+    def __init__(self,bounds=(-4.8,4.8,-.5,7.4),resolution=.15,inflation=.25):
         if len(bounds)!=4 or not all(math.isfinite(v) for v in tuple(bounds)+(resolution,inflation)) or resolution<=0 or inflation<0 or bounds[1]<=bounds[0] or bounds[3]<=bounds[2]:raise ValueError('grid bounds')
         self.bounds=tuple(bounds);self.resolution=resolution;self.inflation=inflation
         self.nx=math.ceil((bounds[1]-bounds[0])/resolution)

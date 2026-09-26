@@ -86,7 +86,7 @@
     <arg name="waypoint_config" value="$(arg control_config)" />
     <arg name="planner_max_vel" value="1.0" />
     <arg name="planner_max_acc" value="1.0" />
-    <arg name="planner_obstacles_inflation" value="0.30" />
+    <arg name="planner_obstacles_inflation" value="0.25" />
     <arg name="planner_clearance_threshold" value="0.025" />
     <arg name="px4_max_distance" value="0.40" />
     <arg name="external_planner_max_command_z" value="2.30" />

@@ -245,6 +245,8 @@ private:
     double drop_position_threshold_ = 0.15; // 旧链投递三维距离阈值（米）
     double drop_release_setpoint_height_ = 0.10; // 投递下降目标高度（米）
     double external_recovery_height_ = 0.95; // 外部投递恢复交接高度（米）
+    double external_standard_recovery_setpoint_height_ = 1.20;
+    double external_cross_recovery_setpoint_height_ = 1.15;
     double external_alignment_capture_height_ = 1.2; // Retain configured align_height across deliveries.
     bool drop_enabled = true;               // 投递功能是否启用
     bool cross_mark = true;

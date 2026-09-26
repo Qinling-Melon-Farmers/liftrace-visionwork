@@ -7,6 +7,7 @@ import numpy as np,yaml,rospy,rosnode,tf2_ros
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import CameraInfo,Image
 from mavros_msgs.msg import State,ExtendedState
+from std_msgs.msg import String
 from trial_config import generate,validate_settings
 
 def main():
@@ -59,7 +60,8 @@ def main():
         while time.monotonic()<until:
             if local.poll() is not None:raise RuntimeError('Localization launch exited; inspect localization.log')
             with lock:
-                s=state[0];c=camera[0];v=np.array(samples)
+                s=state[0];c=camera[0];now=rospy.Time.now().to_sec()
+                v=np.array([v for v in samples if 0<=now-v[4]<=2.0])
                 im=image_ref[0];valid=(s is not None and s.connected and not s.armed and c is not None and c.width>0 and c.K[0]>0 and c.K[4]>0 and len(v)>=30 and im is not None and 0<=rospy.Time.now().to_sec()-im[0]<=1.)
                 lio=lio_ref[0];lio_fresh=lio is not None and lio[1]=='camera_init' and 0<=rospy.Time.now().to_sec()-lio[0]<=.3
                 valid=valid and lio_fresh
@@ -92,10 +94,21 @@ def main():
         print('READY:',out,flush=True)
         print('Ground/reference and all local-Z limits generated automatically. No arming or mission start was sent.',flush=True)
         if a.mode=='flight':print('After local inspection, operator chooses flight mode/arming and calls: rosservice call /navigation/start_mission "{}"',flush=True)
-        on_ground_since=None
+        mission_rx=[{}]
+        def mission_status(msg):
+            try:mission_rx[0]=json.loads(msg.data)
+            except (ValueError,TypeError):pass
+        mission_sub=rospy.Subscriber('/navigation/mission_status',String,mission_status,queue_size=1)
+        on_ground_since=None;last_status_log=0.
         while not rospy.is_shutdown():
             if any(c.poll() is not None for c in children):raise RuntimeError('A launch exited; inspect logs')
             s=state[0];e=extended[0]
+            if time.monotonic()-last_status_log>=5.:
+                last_status_log=time.monotonic();status=mission_rx[0]
+                print('FLIGHT_STATUS',dict(mode=s.mode if s else None,armed=s.armed if s else None,
+                    phase=status.get('phase','UNKNOWN'),reason=status.get('reason',status.get('last_reason',''))),flush=True)
+                if a.mode=='flight' and status.get('phase')=='IDLE':
+                    print('WAITING_FOR_MANUAL_MISSION_START: flight READY is not route START.',flush=True)
             done=ever_airborne[0] and s is not None and not s.armed and e is not None and e.landed_state==ExtendedState.LANDED_STATE_ON_GROUND
             if done:
                 on_ground_since=on_ground_since or time.monotonic()

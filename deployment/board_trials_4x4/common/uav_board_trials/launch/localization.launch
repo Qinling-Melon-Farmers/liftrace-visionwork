@@ -5,7 +5,7 @@
   <arg name="map_frame" default="camera_init" />
   <arg name="body_to_imu_xyz" default="0 0 0.05" />
   <arg name="imu_to_camera_z" default="-0.21" />
-  <arg name="camera_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
+  <arg name="camera_quat_xyzw" default="0 1 0 0" />
   <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
   <arg name="lio_config" default="$(find uav_mission)/config/mid360_hardware.yaml" />
   <rosparam file="$(arg lio_config)" />

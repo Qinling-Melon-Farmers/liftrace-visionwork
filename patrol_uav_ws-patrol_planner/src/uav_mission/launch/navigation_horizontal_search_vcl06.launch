@@ -86,7 +86,7 @@
     <!-- Retain the successful planner's dynamic search envelope. Actual
          position following is bounded by the 0.40 m lookahead below. -->
     <arg name="planner_max_vel" value="1.0" />
-    <arg name="planner_obstacles_inflation" value="0.30" />
+    <arg name="planner_obstacles_inflation" value="0.25" />
     <arg name="planner_clearance_threshold" value="0.025" />
     <arg name="px4_max_distance" value="0.40" />
   </include>
