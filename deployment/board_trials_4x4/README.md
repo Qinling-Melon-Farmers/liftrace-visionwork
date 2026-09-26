@@ -104,3 +104,8 @@ rosservice call /navigation/start_mission "{}"
 
 
 当前维护分支为feat/board-deployment-flight-20260920，已按用户授权推送远端，早期“仅本地”描述保留为过程记录。相机启动入口见[start_camera.sh](start_camera.sh)，实际试飞与旧工程参考见[部署总览](../BOARD_DEPLOYMENT.md)。
+
+
+### 三槽补偿说明（2026-09-26晚）
+
+known_rig继承的12cm表仅为试飞组已有camera_init XY目标偏移，尚非经实测确认、按机体姿态旋转的三槽安装外参。四套专项的mock释放不能验证真实槽口精度；共同视觉主点与槽位补偿未完全统一，见[核查报告](../../docs/deployment/drop_slots_20260926/REPORT.md)。本次未改该表或部署参数。

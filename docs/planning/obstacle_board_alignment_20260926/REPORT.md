@@ -90,3 +90,6 @@ map↔camera_init保留单位静态模式/可选实测模式和双向frame适配
 另行完成[1m靶板与bag视场核对](../../deployment/flight_fov_20260926/REPORT.md)：内参一致，动态五帧尺度仍有波动，未据此改相机参数。
 
 导航来源提交：[8df8397](https://github.com/Qinling-Melon-Farmers/liftrace-controlwork/commit/8df83974fd98323284a30418d6be3cb1a4e79694)，branch=feat/high-view-liveness-20260919；逐文件集成，旧控制快照同在此提交。
+
+
+2026-09-26晚补充：[槽位闭环核查](../../deployment/drop_slots_20260926/REPORT.md)发现继承的12cm数组是固定camera_init目标增量，不是已验收的机体系槽位外参；视觉主点对齐和槽口到位尚未统一。本页“槽位继承”仅表示复制现场参数，不表示补偿方向或三槽精度已经验证。
