@@ -61,7 +61,7 @@ def main():
             data=e.get('data',{})
             if e.get('kind')=='result' and data.get('terminal') and data.get('status') in (4,5,6,7):
                 failures.append(dict(t=e.get('ros_sec'),decision=data.get('decision_seq'),reason=data.get('reason')))
-        row['first_failure_analysis']=dict(terminal=gate['reason'],errors=gate.get('errors',[]),action_failures=failures,scope='Different preselected layout next; never replaces this outcome')
+        row['first_failure_analysis']=dict(terminal=gate['reason'],errors=gate.get('errors',[]),action_failures=failures,scope='One authorized seed38 run; no automatic retries')
         state['results'].append(row);state['active']=None;save()
         print(f'seed{seed}: {row["status"]}; reason={row["reason"]}; cleanup PASS',flush=True)
         if gate['reason'] in ('startup_wall_timeout','field_status_fail'):

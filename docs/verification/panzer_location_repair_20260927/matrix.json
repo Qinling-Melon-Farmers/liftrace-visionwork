@@ -1,0 +1,49 @@
+{
+  "status": "COMPLETE",
+  "source": "dd01d8b09dcbd429f486ed8c1d6c90b8ee694a96",
+  "seeds": [
+    38
+  ],
+  "pid": 5569,
+  "results": [
+    {
+      "seed": 38,
+      "status": "PASS",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/panzer_location_repair_seed38_20260927_154743",
+      "command": [
+        "env",
+        "SIM_RUN_AUTHORIZED=1",
+        "SIM_NO_RECORD=1",
+        "SIM_REQUIRE_GATE=1",
+        "SIM_STORAGE_GUARD_PATH=/mnt/f",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=60s",
+        "7200s",
+        "bash",
+        "top_level_scripts/sim_run.sh",
+        "panzer_location_repair_seed38",
+        "bash",
+        "top_level_scripts/roslaunch_rl_drone.sh",
+        "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/panzer_location_repair_20260927/replay.launch",
+        "scene_dir:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_38",
+        "field_seed:=38",
+        "target_model_path:=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt"
+      ],
+      "pid": 5596,
+      "exit_code": 0,
+      "cleanup_pass": true,
+      "reason": "all_checks_passed",
+      "failed_checks": [],
+      "mission_s": 193.650000001,
+      "drops": 3,
+      "first_failure_analysis": {
+        "terminal": "all_checks_passed",
+        "errors": [],
+        "action_failures": [],
+        "scope": "Different preselected layout next; never replaces this outcome"
+      }
+    }
+  ],
+  "active": null
+}
