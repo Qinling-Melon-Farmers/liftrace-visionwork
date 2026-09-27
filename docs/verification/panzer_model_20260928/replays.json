@@ -1,0 +1,173 @@
+[
+  {
+    "name": "replay_2033",
+    "title": "9月27日20:33：未参与训练",
+    "summary": {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay",
+      "split_note": "HELD-OUT FLIGHT",
+      "frames": 777,
+      "fps": 5,
+      "duration": 155.4,
+      "counts": [
+        {
+          "model": "baseline",
+          "positive_frames": {
+            "0.5": {
+              "bridge": 51,
+              "red_cross": 234,
+              "panzer": 66,
+              "tank": 8
+            },
+            "0.6": {
+              "bridge": 47,
+              "red_cross": 227,
+              "panzer": 62,
+              "tank": 7
+            },
+            "0.7": {
+              "bridge": 41,
+              "red_cross": 219,
+              "panzer": 62,
+              "tank": 5
+            }
+          }
+        },
+        {
+          "model": "candidate",
+          "positive_frames": {
+            "0.5": {
+              "panzer": 222,
+              "bridge": 64,
+              "red_cross": 212
+            },
+            "0.6": {
+              "bridge": 61,
+              "panzer": 218,
+              "red_cross": 208
+            },
+            "0.7": {
+              "bridge": 61,
+              "panzer": 216,
+              "red_cross": 206
+            }
+          }
+        }
+      ],
+      "caveat": "Positive-frame counts are not recall; source includes unlabeled/truncated targets."
+    },
+    "video": "../../../logs/panzer_finetune_20260928/replay_2033/comparison.mp4"
+  },
+  {
+    "name": "replay_1941",
+    "title": "9月27日19:41：训练来源诊断",
+    "summary": {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay",
+      "split_note": "TRAINING_FLIGHT_DIAGNOSTIC",
+      "frames": 947,
+      "fps": 5,
+      "duration": 189.4,
+      "counts": [
+        {
+          "model": "baseline",
+          "positive_frames": {
+            "0.5": {
+              "red_cross": 303,
+              "tank": 20,
+              "bridge": 145,
+              "tent": 10,
+              "panzer": 2
+            },
+            "0.6": {
+              "red_cross": 301,
+              "tank": 11,
+              "bridge": 143,
+              "tent": 9,
+              "panzer": 1
+            },
+            "0.7": {
+              "red_cross": 285,
+              "tank": 8,
+              "bridge": 140,
+              "tent": 6
+            }
+          }
+        },
+        {
+          "model": "candidate",
+          "positive_frames": {
+            "0.5": {
+              "bridge": 171,
+              "red_cross": 282,
+              "panzer": 43
+            },
+            "0.6": {
+              "bridge": 169,
+              "red_cross": 282,
+              "panzer": 40
+            },
+            "0.7": {
+              "bridge": 164,
+              "red_cross": 281,
+              "panzer": 37
+            }
+          }
+        }
+      ],
+      "caveat": "Positive-frame counts are not recall; source includes unlabeled/truncated targets."
+    },
+    "video": "../../../logs/panzer_finetune_20260928/replay_1941/comparison.mp4"
+  },
+  {
+    "name": "replay_0926",
+    "title": "9月26日19:12：未参与训练的前一天",
+    "summary": {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260926_191221/replay",
+      "split_note": "UNTRAINED_PREVIOUS_DAY",
+      "frames": 508,
+      "fps": 5,
+      "duration": 101.6,
+      "counts": [
+        {
+          "model": "baseline",
+          "positive_frames": {
+            "0.5": {
+              "red_cross": 140,
+              "panzer": 8,
+              "tank": 1
+            },
+            "0.6": {
+              "red_cross": 138,
+              "panzer": 6,
+              "tank": 1
+            },
+            "0.7": {
+              "red_cross": 135,
+              "panzer": 6,
+              "tank": 1
+            }
+          }
+        },
+        {
+          "model": "candidate",
+          "positive_frames": {
+            "0.5": {
+              "panzer": 54,
+              "red_cross": 124,
+              "bridge": 1
+            },
+            "0.6": {
+              "panzer": 52,
+              "red_cross": 124
+            },
+            "0.7": {
+              "panzer": 52,
+              "red_cross": 123
+            }
+          }
+        }
+      ],
+      "caveat": "Positive-frame counts are not recall; source includes unlabeled/truncated targets."
+    },
+    "video": "../../../logs/panzer_finetune_20260928/replay_0926/comparison.mp4"
+  }
+]

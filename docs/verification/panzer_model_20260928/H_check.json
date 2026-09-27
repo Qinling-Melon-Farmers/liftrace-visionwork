@@ -1,0 +1,9 @@
+{
+  "samples": 45,
+  "scope": "H-containing selected camera views, two with real red_cross at left edge",
+  "method": "Contact sheet manually reviewed; H central region [0.2W,0.9W] by box center excludes real red_cross edge",
+  "baseline_panzer": 3,
+  "candidate_panzer": 0,
+  "baseline_H_false_frames": 10,
+  "candidate_H_false_frames": 0
+}

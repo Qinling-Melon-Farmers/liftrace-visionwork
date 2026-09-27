@@ -1,0 +1,3440 @@
+{
+  "rows": [
+    {
+      "group": "trainA",
+      "t": -0.014105081558227539,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000004.jpg",
+      "name": "trainA_00000",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 2.018623113632202,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000063.jpg",
+      "name": "trainA_00200",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 4.00599217414856,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000118.jpg",
+      "name": "trainA_00400",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 5.989859580993652,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000178.jpg",
+      "name": "trainA_00600",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 8.005269527435303,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000237.jpg",
+      "name": "trainA_00800",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 11.981435775756836,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000353.jpg",
+      "name": "trainA_01200",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            0.0,
+            332.1094665527344,
+            158.56639099121094,
+            501.66241455078125
+          ],
+          "inliers": 55,
+          "central": 24
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 14.02054476737976,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000412.jpg",
+      "name": "trainA_01400",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            0.0,
+            354.8968811035156,
+            108.91451263427734,
+            529.005615234375
+          ],
+          "inliers": 36,
+          "central": 18
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 17.978636980056763,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000528.jpg",
+      "name": "trainA_01800",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            318.1972961425781,
+            310.5912170410156,
+            487.0266418457031,
+            474.2453308105469
+          ],
+          "inliers": 144,
+          "central": 82
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 20.006370306015015,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000587.jpg",
+      "name": "trainA_02000",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            845.6915893554688,
+            370.73681640625,
+            1022.7103881835938,
+            544.4842529296875
+          ],
+          "inliers": 155,
+          "central": 95
+        },
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            165.03648376464844,
+            564.2820434570312,
+            293.1810607910156,
+            688.83349609375
+          ],
+          "inliers": 42,
+          "central": 12
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 22.004578590393066,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000645.jpg",
+      "name": "trainA_02200",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            1083.2960205078125,
+            316.4779357910156,
+            1262.9796142578125,
+            494.5317687988281
+          ],
+          "inliers": 46,
+          "central": 38
+        },
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            331.80706787109375,
+            462.7032165527344,
+            461.4333801269531,
+            591.162841796875
+          ],
+          "inliers": 168,
+          "central": 36
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 23.98084259033203,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000703.jpg",
+      "name": "trainA_02400",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            929.8262939453125,
+            341.2640686035156,
+            1126.5430908203125,
+            536.3967895507812
+          ],
+          "inliers": 160,
+          "central": 112
+        },
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            87.3025894165039,
+            489.14007568359375,
+            235.1655731201172,
+            637.1403198242188
+          ],
+          "inliers": 58,
+          "central": 18
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 27.999947786331177,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000820.jpg",
+      "name": "trainA_02800",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            637.3720092773438,
+            286.45855712890625,
+            906.5222778320312,
+            551.7286987304688
+          ],
+          "inliers": 354,
+          "central": 203
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 29.985246419906616,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000878.jpg",
+      "name": "trainA_03000",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            615.0,
+            300.0,
+            860.0,
+            540.0
+          ],
+          "inliers": 1873,
+          "central": 576
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 32.01056408882141,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000936.jpg",
+      "name": "trainA_03200",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            548.52880859375,
+            279.40869140625,
+            787.0917358398438,
+            514.3716430664062
+          ],
+          "inliers": 268,
+          "central": 170
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 33.99428963661194,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/000993.jpg",
+      "name": "trainA_03400",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            456.98602294921875,
+            326.8853454589844,
+            711.2098999023438,
+            576.956787109375
+          ],
+          "inliers": 294,
+          "central": 183
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 35.997424602508545,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001052.jpg",
+      "name": "trainA_03600",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            492.7716979980469,
+            324.5506591796875,
+            755.4622192382812,
+            582.7251586914062
+          ],
+          "inliers": 306,
+          "central": 187
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 38.017460107803345,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001111.jpg",
+      "name": "trainA_03800",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            544.7512817382812,
+            268.86761474609375,
+            805.8917236328125,
+            524.9935302734375
+          ],
+          "inliers": 277,
+          "central": 172
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 40.00944900512695,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001169.jpg",
+      "name": "trainA_04000",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            530.169189453125,
+            264.736572265625,
+            796.5514526367188,
+            527.4468383789062
+          ],
+          "inliers": 309,
+          "central": 175
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 42.0132691860199,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001228.jpg",
+      "name": "trainA_04200",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            538.9673461914062,
+            278.41595458984375,
+            826.73291015625,
+            559.4349975585938
+          ],
+          "inliers": 294,
+          "central": 168
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 44.009145975112915,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001285.jpg",
+      "name": "trainA_04400",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            659.3817749023438,
+            147.30731201171875,
+            1171.039306640625,
+            644.9014892578125
+          ],
+          "inliers": 206,
+          "central": 178
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 45.993276596069336,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001344.jpg",
+      "name": "trainA_04600",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            639.6614990234375,
+            0.0,
+            1280.0,
+            720.0
+          ],
+          "inliers": 91,
+          "central": 86
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 47.981396436691284,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001402.jpg",
+      "name": "trainA_04800",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            417.15447998046875,
+            84.08819580078125,
+            1207.34619140625,
+            720.0
+          ],
+          "inliers": 143,
+          "central": 133
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 50.00401473045349,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001461.jpg",
+      "name": "trainA_05000",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            447.4985656738281,
+            126.4432144165039,
+            1211.7196044921875,
+            720.0
+          ],
+          "inliers": 128,
+          "central": 109
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 52.01327562332153,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001519.jpg",
+      "name": "trainA_05200",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            529.3535766601562,
+            13.091618537902832,
+            1280.0,
+            720.0
+          ],
+          "inliers": 109,
+          "central": 101
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 54.02323317527771,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001577.jpg",
+      "name": "trainA_05400",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            688.9872436523438,
+            0.0,
+            1280.0,
+            720.0
+          ],
+          "inliers": 94,
+          "central": 91
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 56.00322127342224,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001636.jpg",
+      "name": "trainA_05600",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            765.7918090820312,
+            0.0,
+            1280.0,
+            665.3952026367188
+          ],
+          "inliers": 89,
+          "central": 84
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 57.994895458221436,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001694.jpg",
+      "name": "trainA_05800",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            494.5830078125,
+            0.0,
+            1280.0,
+            720.0
+          ],
+          "inliers": 70,
+          "central": 70
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 60.016329765319824,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001753.jpg",
+      "name": "trainA_06000",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            309.3855285644531,
+            0.0,
+            1280.0,
+            720.0
+          ],
+          "inliers": 69,
+          "central": 67
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 62.010711431503296,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001811.jpg",
+      "name": "trainA_06200",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            380.6537170410156,
+            0.0,
+            1280.0,
+            720.0
+          ],
+          "inliers": 51,
+          "central": 50
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 63.9904088973999,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001869.jpg",
+      "name": "trainA_06400",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            585.1768798828125,
+            96.03839111328125,
+            1090.9749755859375,
+            594.1447143554688
+          ],
+          "inliers": 247,
+          "central": 191
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 65.98783540725708,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/001927.jpg",
+      "name": "trainA_06600",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            542.0595703125,
+            199.6066436767578,
+            861.3084106445312,
+            514.2164306640625
+          ],
+          "inliers": 319,
+          "central": 193
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 71.99162912368774,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002102.jpg",
+      "name": "trainA_07200",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            645.5167846679688,
+            277.1653747558594,
+            847.7678833007812,
+            476.2187805175781
+          ],
+          "inliers": 482,
+          "central": 76
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 74.00669980049133,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002160.jpg",
+      "name": "trainA_07400",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            606.9179077148438,
+            222.1874542236328,
+            818.552001953125,
+            431.5827941894531
+          ],
+          "inliers": 459,
+          "central": 65
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 75.99743580818176,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002219.jpg",
+      "name": "trainA_07600",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            542.0664672851562,
+            314.8116149902344,
+            776.3538208007812,
+            545.7496337890625
+          ],
+          "inliers": 447,
+          "central": 87
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 77.98544883728027,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002277.jpg",
+      "name": "trainA_07800",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            574.8597412109375,
+            269.0670166015625,
+            808.1371459960938,
+            498.20440673828125
+          ],
+          "inliers": 520,
+          "central": 75
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 80.01650595664978,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002336.jpg",
+      "name": "trainA_08000",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            575.0,
+            227.0,
+            808.0,
+            456.0
+          ],
+          "inliers": 2626,
+          "central": 273
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 82.00712871551514,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002394.jpg",
+      "name": "trainA_08200",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            592.7908935546875,
+            226.2179412841797,
+            811.6406860351562,
+            442.9576110839844
+          ],
+          "inliers": 472,
+          "central": 73
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 84.01732087135315,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002453.jpg",
+      "name": "trainA_08400",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            547.1477661132812,
+            296.41717529296875,
+            778.6315307617188,
+            524.5867309570312
+          ],
+          "inliers": 431,
+          "central": 70
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 86.00659704208374,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002511.jpg",
+      "name": "trainA_08600",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            536.0213623046875,
+            286.08074951171875,
+            744.2142944335938,
+            492.72979736328125
+          ],
+          "inliers": 445,
+          "central": 71
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 87.99466061592102,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002568.jpg",
+      "name": "trainA_08800",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            541.8178100585938,
+            302.6011962890625,
+            745.7914428710938,
+            504.3129577636719
+          ],
+          "inliers": 381,
+          "central": 66
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 90.00123643875122,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002624.jpg",
+      "name": "trainA_09000",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            503.9473571777344,
+            190.13095092773438,
+            802.4324951171875,
+            485.16754150390625
+          ],
+          "inliers": 437,
+          "central": 71
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 92.00380969047546,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002683.jpg",
+      "name": "trainA_09200",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            312.0999450683594,
+            0.0,
+            905.853759765625,
+            452.4406433105469
+          ],
+          "inliers": 109,
+          "central": 53
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 93.9932050704956,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002741.jpg",
+      "name": "trainA_09400",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            110.25081634521484,
+            0.0,
+            992.5994873046875,
+            379.741455078125
+          ],
+          "inliers": 43,
+          "central": 20
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 98.02230167388916,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002858.jpg",
+      "name": "trainA_09800",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            473.9871520996094,
+            0.0,
+            913.4133911132812,
+            406.47894287109375
+          ],
+          "inliers": 171,
+          "central": 51
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 99.99929237365723,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/002916.jpg",
+      "name": "trainA_10000",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            524.5060424804688,
+            182.23892211914062,
+            765.6463623046875,
+            421.5209655761719
+          ],
+          "inliers": 428,
+          "central": 59
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 108.00085663795471,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003149.jpg",
+      "name": "trainA_10800",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 109.98188900947571,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003192.jpg",
+      "name": "trainA_11000",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 112.00724196434021,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003237.jpg",
+      "name": "trainA_11200",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 113.99565434455872,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003295.jpg",
+      "name": "trainA_11400",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 115.99941229820251,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003353.jpg",
+      "name": "trainA_11600",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 118.01495933532715,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003397.jpg",
+      "name": "trainA_11800",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 120.02647662162781,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003437.jpg",
+      "name": "trainA_12000",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 122.01289415359497,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003479.jpg",
+      "name": "trainA_12200",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 124.00456953048706,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003537.jpg",
+      "name": "trainA_12400",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 125.99543237686157,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003595.jpg",
+      "name": "trainA_12600",
+      "objects": [
+        {
+          "cls": "bridge",
+          "cid": 0,
+          "xyxy": [
+            1197.1328125,
+            237.13259887695312,
+            1280.0,
+            429.99957275390625
+          ],
+          "inliers": 43,
+          "central": 8
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 127.99556851387024,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003653.jpg",
+      "name": "trainA_12800",
+      "objects": [
+        {
+          "cls": "bridge",
+          "cid": 0,
+          "xyxy": [
+            1018.674072265625,
+            251.6033477783203,
+            1214.6507568359375,
+            447.894775390625
+          ],
+          "inliers": 184,
+          "central": 87
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 130.0023536682129,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003712.jpg",
+      "name": "trainA_13000",
+      "objects": [
+        {
+          "cls": "bridge",
+          "cid": 0,
+          "xyxy": [
+            499.0,
+            281.0,
+            671.0,
+            457.0
+          ],
+          "inliers": 1075,
+          "central": 346
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 131.98987817764282,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003770.jpg",
+      "name": "trainA_13200",
+      "objects": [
+        {
+          "cls": "bridge",
+          "cid": 0,
+          "xyxy": [
+            0.0,
+            233.1273193359375,
+            154.29774475097656,
+            414.17626953125
+          ],
+          "inliers": 76,
+          "central": 16
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 133.98409342765808,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003828.jpg",
+      "name": "trainA_13400",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 136.00437211990356,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003887.jpg",
+      "name": "trainA_13600",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 137.99898099899292,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/003945.jpg",
+      "name": "trainA_13800",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 139.98560285568237,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/004003.jpg",
+      "name": "trainA_14000",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 142.00081396102905,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/004062.jpg",
+      "name": "trainA_14200",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 143.98879766464233,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/004120.jpg",
+      "name": "trainA_14400",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 145.97935605049133,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/004177.jpg",
+      "name": "trainA_14600",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainA",
+      "t": 148.0108997821808,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-23-54/replay/frames/004237.jpg",
+      "name": "trainA_14800",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": -0.0003859996795654297,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/000008.jpg",
+      "name": "testB_00000",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 2.009011745452881,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/000067.jpg",
+      "name": "testB_00200",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 12.00783920288086,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/000358.jpg",
+      "name": "testB_01200",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 22.003271341323853,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/000649.jpg",
+      "name": "testB_02200",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            439.86859130859375,
+            522.7799682617188,
+            637.4474487304688,
+            716.26806640625
+          ],
+          "inliers": 156,
+          "central": 111
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 26.00075626373291,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/000766.jpg",
+      "name": "testB_02600",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            887.7496948242188,
+            465.84710693359375,
+            1115.390869140625,
+            687.388671875
+          ],
+          "inliers": 161,
+          "central": 126
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 27.991060733795166,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/000824.jpg",
+      "name": "testB_02800",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            661.207275390625,
+            295.86602783203125,
+            917.02294921875,
+            547.0723876953125
+          ],
+          "inliers": 323,
+          "central": 189
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 30.01311755180359,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/000883.jpg",
+      "name": "testB_03000",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            556.2139892578125,
+            247.15957641601562,
+            840.1514282226562,
+            525.3817138671875
+          ],
+          "inliers": 334,
+          "central": 197
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 32.01829504966736,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/000941.jpg",
+      "name": "testB_03200",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            527.2462158203125,
+            215.17933654785156,
+            826.5760498046875,
+            509.28619384765625
+          ],
+          "inliers": 323,
+          "central": 200
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 34.01203775405884,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/000999.jpg",
+      "name": "testB_03400",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            466.0470886230469,
+            203.33642578125,
+            803.9990844726562,
+            535.3938598632812
+          ],
+          "inliers": 283,
+          "central": 184
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 35.983978271484375,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001057.jpg",
+      "name": "testB_03600",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            434.6151428222656,
+            224.3901824951172,
+            752.18359375,
+            535.0111083984375
+          ],
+          "inliers": 287,
+          "central": 177
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 38.014917850494385,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001116.jpg",
+      "name": "testB_03800",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            495.7095642089844,
+            280.2942810058594,
+            815.1402587890625,
+            593.9999389648438
+          ],
+          "inliers": 300,
+          "central": 196
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 39.99821186065674,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001174.jpg",
+      "name": "testB_04000",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            585.4260864257812,
+            192.66305541992188,
+            1270.19775390625,
+            720.0
+          ],
+          "inliers": 164,
+          "central": 139
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 42.01214122772217,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001233.jpg",
+      "name": "testB_04200",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            729.35888671875,
+            0.0,
+            1280.0,
+            720.0
+          ],
+          "inliers": 83,
+          "central": 77
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 44.00008010864258,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001291.jpg",
+      "name": "testB_04400",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            353.8318176269531,
+            0.0,
+            1280.0,
+            720.0
+          ],
+          "inliers": 104,
+          "central": 99
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 45.99266529083252,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001349.jpg",
+      "name": "testB_04600",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            223.27064514160156,
+            0.0,
+            1280.0,
+            720.0
+          ],
+          "inliers": 66,
+          "central": 64
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 47.981393575668335,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001407.jpg",
+      "name": "testB_04800",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            353.561279296875,
+            0.0,
+            1280.0,
+            720.0
+          ],
+          "inliers": 57,
+          "central": 55
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 51.99127149581909,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001524.jpg",
+      "name": "testB_05200",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            203.2984619140625,
+            0.0,
+            1280.0,
+            720.0
+          ],
+          "inliers": 40,
+          "central": 40
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 54.01521921157837,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001583.jpg",
+      "name": "testB_05400",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            327.9922180175781,
+            0.0,
+            1280.0,
+            720.0
+          ],
+          "inliers": 35,
+          "central": 35
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 55.97516465187073,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001640.jpg",
+      "name": "testB_05600",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            484.6367492675781,
+            126.55096435546875,
+            1046.1378173828125,
+            678.1209106445312
+          ],
+          "inliers": 181,
+          "central": 147
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 57.98037075996399,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001698.jpg",
+      "name": "testB_05800",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            496.3686218261719,
+            234.1127471923828,
+            801.7024536132812,
+            538.48046875
+          ],
+          "inliers": 298,
+          "central": 190
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 60.01622128486633,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001758.jpg",
+      "name": "testB_06000",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            1100.2476806640625,
+            280.7728576660156,
+            1280.0,
+            506.7964782714844
+          ],
+          "inliers": 94,
+          "central": 76
+        },
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            167.47161865234375,
+            514.5262451171875,
+            342.34515380859375,
+            681.5018310546875
+          ],
+          "inliers": 42,
+          "central": 10
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 62.00953817367554,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001815.jpg",
+      "name": "testB_06200",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            607.0473022460938,
+            460.8351745605469,
+            768.2542114257812,
+            620.0499267578125
+          ],
+          "inliers": 250,
+          "central": 51
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 64.01064372062683,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001873.jpg",
+      "name": "testB_06400",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            664.677490234375,
+            231.8962860107422,
+            874.9296875,
+            439.4372253417969
+          ],
+          "inliers": 455,
+          "central": 65
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 65.97916555404663,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001932.jpg",
+      "name": "testB_06600",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            625.5098876953125,
+            208.9155731201172,
+            843.3047485351562,
+            424.4681701660156
+          ],
+          "inliers": 488,
+          "central": 66
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 68.00967764854431,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/001991.jpg",
+      "name": "testB_06800",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            632.6033325195312,
+            262.0527038574219,
+            866.2216796875,
+            491.548095703125
+          ],
+          "inliers": 444,
+          "central": 64
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 70.01324081420898,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002049.jpg",
+      "name": "testB_07000",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            585.9420776367188,
+            167.38856506347656,
+            849.4413452148438,
+            428.846923828125
+          ],
+          "inliers": 417,
+          "central": 81
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 72.02120018005371,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002106.jpg",
+      "name": "testB_07200",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            597.3119506835938,
+            236.13523864746094,
+            844.80029296875,
+            480.5190124511719
+          ],
+          "inliers": 529,
+          "central": 79
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 74.00354528427124,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002166.jpg",
+      "name": "testB_07400",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            554.5545043945312,
+            220.82290649414062,
+            783.7587280273438,
+            447.0459899902344
+          ],
+          "inliers": 484,
+          "central": 56
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 76.00676107406616,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002224.jpg",
+      "name": "testB_07600",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            497.4303894042969,
+            246.6531982421875,
+            720.8095092773438,
+            467.6573791503906
+          ],
+          "inliers": 455,
+          "central": 68
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 77.98860192298889,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002282.jpg",
+      "name": "testB_07800",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            515.5130004882812,
+            287.5843200683594,
+            738.80859375,
+            507.8219909667969
+          ],
+          "inliers": 417,
+          "central": 71
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 79.97204113006592,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002340.jpg",
+      "name": "testB_08000",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            519.4856567382812,
+            278.4969177246094,
+            749.4486694335938,
+            506.4358825683594
+          ],
+          "inliers": 502,
+          "central": 62
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 81.99514174461365,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002399.jpg",
+      "name": "testB_08200",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            559.4107055664062,
+            278.13897705078125,
+            783.6004638671875,
+            499.6554870605469
+          ],
+          "inliers": 441,
+          "central": 64
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 83.9858946800232,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002457.jpg",
+      "name": "testB_08400",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            511.9759826660156,
+            257.20770263671875,
+            740.014404296875,
+            483.0728454589844
+          ],
+          "inliers": 460,
+          "central": 60
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 85.99718737602234,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002515.jpg",
+      "name": "testB_08600",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            489.37847900390625,
+            292.275390625,
+            712.7164306640625,
+            512.8331298828125
+          ],
+          "inliers": 449,
+          "central": 57
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 88.01220750808716,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002574.jpg",
+      "name": "testB_08800",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            489.1264953613281,
+            274.85467529296875,
+            714.1561889648438,
+            497.49749755859375
+          ],
+          "inliers": 444,
+          "central": 64
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 89.98293995857239,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002632.jpg",
+      "name": "testB_09000",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            482.1689453125,
+            170.69998168945312,
+            791.087890625,
+            474.3240051269531
+          ],
+          "inliers": 395,
+          "central": 87
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 91.97412657737732,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002690.jpg",
+      "name": "testB_09200",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            172.4004364013672,
+            0.0,
+            1029.5986328125,
+            443.0000915527344
+          ],
+          "inliers": 56,
+          "central": 29
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 98.01060771942139,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002866.jpg",
+      "name": "testB_09800",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            469.1864318847656,
+            72.65084838867188,
+            779.8632202148438,
+            382.345458984375
+          ],
+          "inliers": 299,
+          "central": 79
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 99.98486971855164,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002922.jpg",
+      "name": "testB_10000",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            576.1185302734375,
+            273.9088134765625,
+            759.54638671875,
+            457.2246398925781
+          ],
+          "inliers": 328,
+          "central": 52
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 102.00554633140564,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/002981.jpg",
+      "name": "testB_10200",
+      "objects": [
+        {
+          "cls": "red_cross",
+          "cid": 4,
+          "xyxy": [
+            649.4979858398438,
+            519.4241943359375,
+            810.0077514648438,
+            672.68505859375
+          ],
+          "inliers": 68,
+          "central": 29
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 105.98807311058044,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003097.jpg",
+      "name": "testB_10600",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 107.98944568634033,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003156.jpg",
+      "name": "testB_10800",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 110.01346588134766,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003215.jpg",
+      "name": "testB_11000",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 112.01218771934509,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003273.jpg",
+      "name": "testB_11200",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 114.0095157623291,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003331.jpg",
+      "name": "testB_11400",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 116.01076245307922,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003390.jpg",
+      "name": "testB_11600",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 117.99382257461548,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003447.jpg",
+      "name": "testB_11800",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 119.99380683898926,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003506.jpg",
+      "name": "testB_12000",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 122.00145554542542,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003564.jpg",
+      "name": "testB_12200",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 125.9854691028595,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003681.jpg",
+      "name": "testB_12600",
+      "objects": [
+        {
+          "cls": "bridge",
+          "cid": 0,
+          "xyxy": [
+            671.3904418945312,
+            113.74333953857422,
+            869.5831298828125,
+            313.65118408203125
+          ],
+          "inliers": 279,
+          "central": 111
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 128.01498651504517,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003740.jpg",
+      "name": "testB_12800",
+      "objects": [
+        {
+          "cls": "bridge",
+          "cid": 0,
+          "xyxy": [
+            104.62593078613281,
+            142.80970764160156,
+            316.6555480957031,
+            359.72576904296875
+          ],
+          "inliers": 169,
+          "central": 47
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 129.99961304664612,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003798.jpg",
+      "name": "testB_13000",
+      "objects": [
+        {
+          "cls": "bridge",
+          "cid": 0,
+          "xyxy": [
+            102.68082427978516,
+            192.7025604248047,
+            293.74725341796875,
+            398.3218994140625
+          ],
+          "inliers": 191,
+          "central": 54
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 131.98978400230408,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/003856.jpg",
+      "name": "testB_13200",
+      "objects": [
+        {
+          "cls": "bridge",
+          "cid": 0,
+          "xyxy": [
+            47.28770065307617,
+            407.3585510253906,
+            237.1558380126953,
+            608.6651611328125
+          ],
+          "inliers": 121,
+          "central": 24
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 137.99425864219666,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/004031.jpg",
+      "name": "testB_13800",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 139.99293041229248,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/004089.jpg",
+      "name": "testB_14000",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 142.0016040802002,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/004148.jpg",
+      "name": "testB_14200",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 143.9898238182068,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/004206.jpg",
+      "name": "testB_14400",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 145.98681688308716,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/004264.jpg",
+      "name": "testB_14600",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 148.0075168609619,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/004323.jpg",
+      "name": "testB_14800",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 149.99607157707214,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/004381.jpg",
+      "name": "testB_15000",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "testB",
+      "t": 151.98813557624817,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_pair_20260928/20-33-08/replay/frames/004439.jpg",
+      "name": "testB_15200",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "test",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 115.99044752120972,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003243.jpg",
+      "name": "trainC_11600",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 116.49319887161255,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003253.jpg",
+      "name": "trainC_11650",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 116.99233341217041,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003263.jpg",
+      "name": "trainC_11700",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 117.48413491249084,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003273.jpg",
+      "name": "trainC_11750",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 117.99645519256592,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003283.jpg",
+      "name": "trainC_11800",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 118.48018670082092,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003293.jpg",
+      "name": "trainC_11850",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 119.97875332832336,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003323.jpg",
+      "name": "trainC_12000",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            1076.043701171875,
+            189.20582580566406,
+            1270.77001953125,
+            387.5797119140625
+          ],
+          "inliers": 33,
+          "central": 21
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 120.50824475288391,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003337.jpg",
+      "name": "trainC_12050",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            936.4653930664062,
+            202.48980712890625,
+            1132.2965087890625,
+            397.65118408203125
+          ],
+          "inliers": 94,
+          "central": 50
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 120.98506259918213,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003351.jpg",
+      "name": "trainC_12100",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            790.743896484375,
+            215.57925415039062,
+            981.3255004882812,
+            407.7572326660156
+          ],
+          "inliers": 62,
+          "central": 38
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 121.50062823295593,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003366.jpg",
+      "name": "trainC_12150",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            654.1767578125,
+            223.24313354492188,
+            841.8416748046875,
+            414.5982971191406
+          ],
+          "inliers": 121,
+          "central": 70
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 122.01726937294006,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003381.jpg",
+      "name": "trainC_12200",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            576.6942749023438,
+            233.5384979248047,
+            764.8540649414062,
+            425.94097900390625
+          ],
+          "inliers": 174,
+          "central": 107
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 122.49283862113953,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003395.jpg",
+      "name": "trainC_12250",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            543.9511108398438,
+            242.6670379638672,
+            729.7366943359375,
+            433.12738037109375
+          ],
+          "inliers": 192,
+          "central": 121
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 123.00761890411377,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003409.jpg",
+      "name": "trainC_12300",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            553.38818359375,
+            246.83241271972656,
+            743.97021484375,
+            435.7220458984375
+          ],
+          "inliers": 36,
+          "central": 6
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 123.4987645149231,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003424.jpg",
+      "name": "trainC_12350",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            563.4484252929688,
+            249.89649963378906,
+            749.2339477539062,
+            438.40167236328125
+          ],
+          "inliers": 91,
+          "central": 50
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 124.0187840461731,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003439.jpg",
+      "name": "trainC_12400",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            435.6121520996094,
+            233.74290466308594,
+            619.3496704101562,
+            419.3475341796875
+          ],
+          "inliers": 98,
+          "central": 55
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 124.48904299736023,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003453.jpg",
+      "name": "trainC_12450",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            314.62054443359375,
+            214.93370056152344,
+            496.0570373535156,
+            398.5533752441406
+          ],
+          "inliers": 96,
+          "central": 45
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 125.00533676147461,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003468.jpg",
+      "name": "trainC_12500",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            174.5314483642578,
+            187.7672576904297,
+            352.8107604980469,
+            372.36273193359375
+          ],
+          "inliers": 82,
+          "central": 48
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 125.48729467391968,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003482.jpg",
+      "name": "trainC_12550",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            48.1505012512207,
+            161.15101623535156,
+            225.201416015625,
+            345.1521301269531
+          ],
+          "inliers": 58,
+          "central": 31
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 125.9879264831543,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003497.jpg",
+      "name": "trainC_12600",
+      "objects": [
+        {
+          "cls": "panzer",
+          "cid": 1,
+          "xyxy": [
+            0.0,
+            165.80523681640625,
+            87.02885437011719,
+            358.1032409667969
+          ],
+          "inliers": 13,
+          "central": 6
+        }
+      ],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 126.98435688018799,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003526.jpg",
+      "name": "trainC_12700",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 127.50062417984009,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003541.jpg",
+      "name": "trainC_12750",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 127.99270582199097,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003555.jpg",
+      "name": "trainC_12800",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 128.50417232513428,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003570.jpg",
+      "name": "trainC_12850",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 129.01722073554993,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003585.jpg",
+      "name": "trainC_12900",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 129.4876549243927,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003599.jpg",
+      "name": "trainC_12950",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 130.00177240371704,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003614.jpg",
+      "name": "trainC_13000",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 130.49369978904724,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003628.jpg",
+      "name": "trainC_13050",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 130.9959397315979,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003643.jpg",
+      "name": "trainC_13100",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "group": "trainC",
+      "t": 131.5117700099945,
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260927_194157/replay/frames/003658.jpg",
+      "name": "trainC_13150",
+      "objects": [],
+      "width": 1280,
+      "height": 720,
+      "split": "train",
+      "annotation_method": "manual template bbox; SIFT/RANSAC proposal; contact-sheet visual review; wrong-class proposals removed",
+      "kind": "real_flight"
+    },
+    {
+      "name": "H_v2_z14",
+      "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_render_seed32_20260913_225236/frames/h14_v02_f0.png",
+      "group": "H_view2",
+      "split": "train",
+      "width": 1280,
+      "height": 720,
+      "objects": [],
+      "kind": "sim_H_negative",
+      "annotation_method": "visual review: H and background only; no delivery-class box"
+    },
+    {
+      "name": "H_v2_z24",
+      "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_render_seed32_20260913_225236/frames/h24_v02_f0.png",
+      "group": "H_view2",
+      "split": "train",
+      "width": 1280,
+      "height": 720,
+      "objects": [],
+      "kind": "sim_H_negative",
+      "annotation_method": "visual review: H and background only; no delivery-class box"
+    },
+    {
+      "name": "H_v2_z26",
+      "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_render_seed32_20260913_225236/frames/h26_v02_f0.png",
+      "group": "H_view2",
+      "split": "train",
+      "width": 1280,
+      "height": 720,
+      "objects": [],
+      "kind": "sim_H_negative",
+      "annotation_method": "visual review: H and background only; no delivery-class box"
+    },
+    {
+      "name": "H_v2_z28",
+      "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_render_seed32_20260913_225236/frames/h28_v02_f0.png",
+      "group": "H_view2",
+      "split": "train",
+      "width": 1280,
+      "height": 720,
+      "objects": [],
+      "kind": "sim_H_negative",
+      "annotation_method": "visual review: H and background only; no delivery-class box"
+    },
+    {
+      "name": "H_v7_z14",
+      "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_render_seed32_20260913_225236/frames/h14_v07_f0.png",
+      "group": "H_view7",
+      "split": "test",
+      "width": 1280,
+      "height": 720,
+      "objects": [],
+      "kind": "sim_H_negative",
+      "annotation_method": "visual review: H and background only; no delivery-class box"
+    },
+    {
+      "name": "H_v7_z24",
+      "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_render_seed32_20260913_225236/frames/h24_v07_f0.png",
+      "group": "H_view7",
+      "split": "test",
+      "width": 1280,
+      "height": 720,
+      "objects": [],
+      "kind": "sim_H_negative",
+      "annotation_method": "visual review: H and background only; no delivery-class box"
+    },
+    {
+      "name": "H_v7_z26",
+      "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_render_seed32_20260913_225236/frames/h26_v07_f0.png",
+      "group": "H_view7",
+      "split": "test",
+      "width": 1280,
+      "height": 720,
+      "objects": [],
+      "kind": "sim_H_negative",
+      "annotation_method": "visual review: H and background only; no delivery-class box"
+    },
+    {
+      "name": "H_v7_z28",
+      "source": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_render_seed32_20260913_225236/frames/h28_v07_f0.png",
+      "group": "H_view7",
+      "split": "test",
+      "width": 1280,
+      "height": 720,
+      "objects": [],
+      "kind": "sim_H_negative",
+      "annotation_method": "visual review: H and background only; no delivery-class box"
+    },
+    {
+      "name": "H_flight_2",
+      "source": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference070_20260911_174716/coverage/0002.png",
+      "group": "H_coverage_flight",
+      "split": "test",
+      "width": 1280,
+      "height": 720,
+      "objects": [],
+      "kind": "sim_H_negative",
+      "annotation_method": "visually reviewed historical flight camera image; only H/background"
+    },
+    {
+      "name": "H_flight_7",
+      "source": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research/logs/coverage_seed32_reference070_20260911_174716/coverage/0007.png",
+      "group": "H_coverage_flight",
+      "split": "test",
+      "width": 1280,
+      "height": 720,
+      "objects": [],
+      "kind": "sim_H_negative",
+      "annotation_method": "visually reviewed historical flight camera image; only H/background"
+    },
+    {
+      "name": "H_standard_asset",
+      "source": "/home/xhj/liftrace/simulation_assets/models/landing_h/materials/textures/Hjiangluo.png",
+      "group": "H_standard_asset",
+      "split": "train",
+      "width": 2268,
+      "height": 2268,
+      "objects": [],
+      "kind": "sim_H_negative",
+      "annotation_method": "user supplied official H texture, negative for delivery detector only"
+    }
+  ],
+  "excluded": [
+    {
+      "name": "trainA_01000",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "trainA_01600",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "trainA_02600",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "trainA_06800",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "trainA_07000",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "trainA_09600",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "trainA_10200",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "trainA_10400",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "trainA_10600",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_00400",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_00600",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_00800",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_01000",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_01400",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_01600",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_01800",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_02000",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_02400",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_05000",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_09400",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_09600",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_10400",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_12400",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_13400",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "testB_13600",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "trainC_11900",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "trainC_11950",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    },
+    {
+      "name": "trainC_12650",
+      "reason": "cropped pictogram or unreliable full-object annotation; selected before training"
+    }
+  ],
+  "classes": [
+    "bridge",
+    "panzer",
+    "pillbox",
+    "tent",
+    "red_cross"
+  ]
+}

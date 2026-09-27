@@ -342,3 +342,8 @@ Catalog还会排除位置不确定度圆相互重叠的歧义线索。两路最�
 高位单帧置信度≥0.60仍可形成粗导航线索；默认`interrupt_refined_classes: [panzer]`使panzer必须升级为现有精修视觉Hint才计入提前TOP3。其他类别维持两个独立图像粗支持，完整高位路线结束可使用部分或粗线索回访。低空未确认只撤销该类该位置的旧线索，旧帧重发/新弱框不能复活，新鲜精修可恢复；同类其它位置不禁用。近墙复核无果本身不再造成整类降级，正式APPROACH失败仍保留原有降级和释放保护。
 
 同布局seed38开柱＋0.275m实跑：三高权重、两门、H降落PASS，193.650s；上一轮281.353s且第三投tent。未进入牛耕补搜。详见[本轮报告](../../verification/panzer_location_repair_20260927/REPORT.md)，其中区分任务碰撞Gate与保守全树投影重叠。
+
+
+## 2026-09-28 五分类候选模型接入
+
+检测器新增实拍强化五分类候选（bridge、panzer、pillbox、tent、red_cross），移除tank输出，红十字输出ID5→4；ROS仍发布类别名。高位粗线索/支持中断、低位确认、释放许可阈值本轮未再放宽。PT/ONNX/RK3588 FP16、元数据和解码契约成对交付；[新旧模型与六组专项结果](../../verification/panzer_model_20260928/REPORT.md)。六组4 PASS/2 INCOMPLETE，不代表全机验收完成。[位置级去重/改类事务待修项](../panzer_five_class_20260928/DEDUP.md)与模型训练是两项独立工作。

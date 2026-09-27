@@ -7,9 +7,9 @@
   <arg name="detector_backend" default="pt" />
   <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
   <arg name="rknn_model_path"
-       default="$(find uav_vision)/models/merged_standard_fp32.rknn" />
+       default="$(find uav_vision)/models/flight_5cls_20260928_fp16.rknn" />
   <arg name="rknn_metadata_path"
-       default="$(find uav_vision)/config/merged_standard_6cls_metadata.yaml" />
+       default="$(find uav_vision)/config/flight_5cls_20260928_metadata.yaml" />
   <arg name="vision_python"
        default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
   <arg name="target_detector_imgsz" default="640" />

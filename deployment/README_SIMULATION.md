@@ -5,7 +5,7 @@
 
 2026-09-11资源修订：[模型与YAML清单](MODEL_CONTENTS.md)。正式入口元数据位于uav_vision/config；修订包在runtime_models旁附同源YAML，旧板端包装入口已修正路径。仿真修订包实际附带三套optional_models。未新增飞行验收，原先版本描述按历史阅读。
 
-包含今年整机源码、当前9.6m内净地图、55×55×40cm保守机架、相机/雷达装配、五个靶标、起降H、树与所需通用网格/材质、R64先导、十seed报告与11轮图表，并保留R60历史报告，附笔记本推理权重`runtime_models/merged_standard.pt`。`BUNDLE_MANIFEST.json`给出精确源码和权重来源。该包不自动启动仿真。
+包含今年整机源码、当前9.6m内净地图、55×55×40cm保守机架、相机/雷达装配、五个靶标、起降H、树与所需通用网格/材质、R64先导、十seed报告与11轮图表，并保留R60历史报告，附笔记本推理权重`runtime_models/flight_5cls_20260928.pt`。`BUNDLE_MANIFEST.json`给出精确源码和权重来源。该包不自动启动仿真。
 
 当前资源：`vision_ws/src/uav_vision_eval/models`与`simulation_assets/models`；旧D435i/fpv/tank对照资产仅在`simulation_assets/optional_models`，不参与今年五靶默认场景。历史报告中的world按历史布局保留，不能用它们替换新场地后继续沿用旧PASS。
 
@@ -21,7 +21,7 @@ export PX4_ROOT=/path/to/PX4-Autopilot
 export ASTRA_LIB=/path/to/astra/sim_workspace/devel/lib
 export ASTRA_SIM_LIB="$ASTRA_LIB"
 export VISION_PYTHON=/path/to/existing/inference/environment/bin/python
-export UAV_VISION_MODEL_PATH="$PWD/runtime_models/merged_standard.pt"
+export UAV_VISION_MODEL_PATH="$PWD/runtime_models/flight_5cls_20260928.pt"
 export GAZEBO_MODEL_PATH="$PWD/simulation_assets/optional_models${GAZEBO_MODEL_PATH:+:$GAZEBO_MODEL_PATH}"
 ```
 
@@ -40,3 +40,6 @@ R64完整seed11记录见docs/verification/r64_seed11/REPORT.md。overview.mp4是
 本最终包补入矩阵报告、物理墙排除修复和当前随机场景工具。矩阵原始7/10完整PASS，5/7/8有靶板压墙；修复保持seed11坐标，但新随机布设没有重跑SITL矩阵。随机门/树箱仅离线几何和launch展开已验证。
 
 投递完成后，如需与R64先导一样将无碰撞观察相机移到走廊视角，可在同一ROS环境运行：`python top_level_scripts/pan_overview_camera.py --run-dir /path/to/current/run`。只移动观测相机，脚本不控制飞机。
+
+
+2026-09-28：当前入口默认五分类候选元数据。权重单独交付，不随git克隆；以打包清单的实际文件名为准。新RKNN须配套五类metadata，回退旧权重时也须显式回退六类metadata。工具链模拟器验证不替代板端NPU实测。

@@ -2,7 +2,7 @@
 """target_detector_rknn: OrangePi/RK3588 板端标准目标检测入口。
 
 设计目标：
-- 优先使用显式配置的 unified 6-class RKNN
+- 优先使用显式配置的 unified RKNN (five/six classes via metadata)
 - 历史 split assets 仅在调用方显式提供路径时启用
 - 当前环境无 RKNNLite 或没有可用模型时启动失败，不发布伪完成空检测
 
@@ -298,6 +298,20 @@ def _decode_outputs(outputs, num_classes, conf_threshold, imgsz, orig_shape, sca
     return dets
 
 
+def _validate_output_contract(outputs, metadata):
+    """Reject five/six-class mismatches instead of treating class 0 as objectness."""
+    expected = metadata.get("output_channels")
+    if expected is None:
+        return  # Explicit legacy metadata preserves historical split model support.
+    arrays = _candidate_arrays(outputs or [])
+    if len(arrays) != 1 or arrays[0].shape[1] != int(expected):
+        shapes = [tuple(np.asarray(a).shape) for a in (outputs or [])]
+        raise ValueError("RKNN output/metadata mismatch: expected %s channels, got %s" %
+                         (expected, shapes))
+    if int(expected) != 4 + len(metadata.get("names", {})):
+        raise ValueError("Invalid decoded YOLO metadata class count")
+
+
 class _RknnHandle:
     def __init__(self, model_path, metadata_path, tag):
         self.model_path = model_path
@@ -494,6 +508,13 @@ class TargetDetectorRKNN:
             )
             return [], 0.0
 
+        try:
+            _validate_output_contract(outputs, handle.meta)
+        except ValueError as exc:
+            rospy.logfatal("[TargetDetectorRKNN] %s", exc)
+            rospy.signal_shutdown(str(exc))
+            raise
+
         detections = _decode_outputs(
             outputs=outputs,
             num_classes=handle.num_classes,
@@ -503,7 +524,7 @@ class TargetDetectorRKNN:
             scale=scale,
             pad=pad,
             iou_threshold=self._iou_threshold,
-            box_format=self._box_format,
+            box_format=handle.meta.get("box_format", self._box_format),
         )
         if not detections and outputs:
             shapes = [tuple(np.asarray(out).shape) for out in outputs]
