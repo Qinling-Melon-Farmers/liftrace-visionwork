@@ -1,0 +1,18 @@
+{
+  "mechanism": {
+    "source": "synthetic mechanism",
+    "raw": 10414,
+    "display_inflated": 53612,
+    "display_columns": 114269,
+    "goal_in_3d": false,
+    "goal_in_columns": true
+  },
+  "recorded_local": {
+    "source": "recorded cropped cloud; not full map",
+    "raw": 1290,
+    "display_inflated": 5710,
+    "display_columns": 432,
+    "goal_in_3d": false,
+    "goal_in_columns": false
+  }
+}
