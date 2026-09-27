@@ -10,5 +10,12 @@
   "xy_config_m": 0.275,
   "xy_voxel_dilation_m": 0.3,
   "columns_enabled": true,
-  "new_flights": "pending"
+  "new_flights": "COMPLETE",
+  "mission_gate_pass": 2,
+  "high_weight_complete": 1,
+  "contacts": 0,
+  "cleanup": "PASS_ZERO_REMAINS",
+  "video_decode": "PASS_6_OF_6",
+  "source_visual": "74ec4bd5185a7a3a56c40f32f6306ed17f8944dc",
+  "source_navigation": "d71b8fe1fdf83873c0b7a2be48167effb984acad"
 }

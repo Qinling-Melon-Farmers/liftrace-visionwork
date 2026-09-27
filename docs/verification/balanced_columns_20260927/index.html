@@ -1,0 +1,38 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>开柱0.275m · seed31/38回归</title><style>body{max-width:1280px;margin:auto;padding:28px;background:#15212d;color:#e8edf2;font:17px/1.65 system-ui,sans-serif}a{color:#87d4ff}img,video{max-width:100%;height:auto;border-radius:8px}figure{margin:22px 0}section{border-top:1px solid #506173;padding:26px 0}table{border-collapse:collapse;width:100%;margin:16px 0}td,th{padding:10px;border-bottom:1px solid #506173;text-align:left}.note{background:#253a50;padding:16px;border-radius:8px}.warn{color:#ffd18c}nav{display:flex;gap:22px;flex-wrap:wrap}.jump{padding:7px 13px;margin:5px;background:#34516c;color:#fff;border:1px solid #66819a;border-radius:5px;cursor:pointer}summary{cursor:pointer;font-size:20px}figcaption{color:#becad6}h1{line-height:1.3}</style></head><body><h1>修正障碍柱开启 · XY膨胀0.275m</h1><p>2026-09-27，同一冻结版本，seed31 / seed38，2.6m高位＋原快走廊。</p><nav><a href="REPORT.md">完整分析报告</a><a href="summary.json">数据摘要</a><a href="artifact_validation.json">视频及参数检查</a><a href="#seed31">seed31</a><a href="#seed38">seed38</a></nav><p class="note">两轮均完成三投、两门及H降落，0包络接触。<strong>seed31三个高权重全部完成；seed38第三投为tent，panzer未完成。</strong>配置0.275m经5cm体素取整实际扩张0.30m。原始视频与日志保留本机，远端仓库只包含报告和图表。</p><table><tr><th>seed</th><th>任务时间</th><th>投递顺序</th><th>高权重</th></tr>
+<tr><td>31</td><td>226.723s</td><td>red_cross → bridge → panzer</td><td>3/3</td></tr>
+<tr><td>38</td><td>281.353s</td><td>red_cross → bridge → tent</td><td>2/3</td></tr>
+</table><figure><img src="paired_routes.png" alt="双场地航迹、三投位置与初始机头方向"><figcaption>蓝：完整实际航迹；橙：高位结束前；X向场内，Y向起飞机体左侧。树圆仅作位置示意。</figcaption></figure><figure><img src="stage_comparison.png" alt="与关柱旧轮阶段对比"><figcaption>整套改动回归，非单因素A/B。旧seed31未完成尾段，图中仅汇总完整里程碑。</figcaption></figure>
+<section id="seed31"><h2>seed31 · 226.7s · 高权重3/3</h2>
+<video id="v31" controls preload="metadata" poster="video_sample_31.jpg" src="../../../logs/balanced_columns_seed31_20260927_141240/presentation_review.mp4"></video><p>合成视频237.7s，10fps，源ROS时钟1倍速；包含任务前准备，不是墙钟运行时长。缺帧保持上一图像，俯视/跟随最大图龄0.21/0.21s。</p><p><a href="../../../logs/balanced_columns_seed31_20260927_141240/overview.mp4">原始俯视</a> · <a href="../../../logs/balanced_columns_seed31_20260927_141240/follow.mp4">原始低位跟随</a> · <a href="../../../logs/balanced_columns_seed31_20260927_141240/presentation_review.mp4" download>下载合成视频</a></p>
+<button class="jump" data-video="v31" data-time="44.946">高位中断</button>
+<button class="jump" data-video="v31" data-time="85.625">red_cross投递ACK</button>
+<button class="jump" data-video="v31" data-time="119.635">bridge投递ACK</button>
+<button class="jump" data-video="v31" data-time="133.161">panzer投递ACK</button>
+<button class="jump" data-video="v31" data-time="224.510">H降落</button>
+<details><summary>航迹 / 高度 / 速度 / 指令</summary><img loading="lazy" src="31_balanced_columns/flight_charts.png" alt="航迹 / 高度 / 速度 / 指令"></details>
+<details><summary>分阶段实际航迹</summary><img loading="lazy" src="31_balanced_columns/route_stages.png" alt="分阶段实际航迹"></details>
+<details><summary>三维轨迹</summary><img loading="lazy" src="31_balanced_columns/route_3d.png" alt="三维轨迹"></details>
+<details><summary>速度与速度档</summary><img loading="lazy" src="31_balanced_columns/speed_profile.png" alt="速度与速度档"></details>
+<details><summary>高度与姿态</summary><img loading="lazy" src="31_balanced_columns/height_tilt.png" alt="高度与姿态"></details>
+<details><summary>阶段和目标时序</summary><img loading="lazy" src="31_balanced_columns/phase_target_timeline.png" alt="阶段和目标时序"></details>
+<details><summary>停滞监督</summary><img loading="lazy" src="31_balanced_columns/progress.png" alt="停滞监督"></details>
+<details><summary>H降落估计误差</summary><img loading="lazy" src="31_balanced_columns/landing_diagnostic.png" alt="H降落估计误差"></details>
+</section>
+<section id="seed38"><h2>seed38 · 281.4s · 高权重2/3</h2>
+<p class="warn">本轮PASS表示三槽/两门/H落地；红十字、bridge、tent三投，不是三个高权重齐备。H附近panzer粗线索错误，第一次bridge重访有12s首轨迹超时。</p>
+<video id="v38" controls preload="metadata" poster="video_sample_38.jpg" src="../../../logs/balanced_columns_seed38_20260927_142607/presentation_review.mp4"></video><p>合成视频292.0s，10fps，源ROS时钟1倍速；包含任务前准备，不是墙钟运行时长。缺帧保持上一图像，俯视/跟随最大图龄0.22/0.22s。</p><p><a href="../../../logs/balanced_columns_seed38_20260927_142607/overview.mp4">原始俯视</a> · <a href="../../../logs/balanced_columns_seed38_20260927_142607/follow.mp4">原始低位跟随</a> · <a href="../../../logs/balanced_columns_seed38_20260927_142607/presentation_review.mp4" download>下载合成视频</a></p>
+<button class="jump" data-video="v38" data-time="36.977">高位中断</button>
+<button class="jump" data-video="v38" data-time="70.449">red_cross投递ACK</button>
+<button class="jump" data-video="v38" data-time="163.970">bridge投递ACK</button>
+<button class="jump" data-video="v38" data-time="185.571">tent投递ACK</button>
+<button class="jump" data-video="v38" data-time="275.252">H降落</button>
+<details><summary>航迹 / 高度 / 速度 / 指令</summary><img loading="lazy" src="38_balanced_columns/flight_charts.png" alt="航迹 / 高度 / 速度 / 指令"></details>
+<details><summary>分阶段实际航迹</summary><img loading="lazy" src="38_balanced_columns/route_stages.png" alt="分阶段实际航迹"></details>
+<details><summary>三维轨迹</summary><img loading="lazy" src="38_balanced_columns/route_3d.png" alt="三维轨迹"></details>
+<details><summary>速度与速度档</summary><img loading="lazy" src="38_balanced_columns/speed_profile.png" alt="速度与速度档"></details>
+<details><summary>高度与姿态</summary><img loading="lazy" src="38_balanced_columns/height_tilt.png" alt="高度与姿态"></details>
+<details><summary>阶段和目标时序</summary><img loading="lazy" src="38_balanced_columns/phase_target_timeline.png" alt="阶段和目标时序"></details>
+<details><summary>停滞监督</summary><img loading="lazy" src="38_balanced_columns/progress.png" alt="停滞监督"></details>
+<details><summary>H降落估计误差</summary><img loading="lazy" src="38_balanced_columns/landing_diagnostic.png" alt="H降落估计误差"></details>
+</section>
+<section><h2>局部诊断与投递中心误差</h2><img loading="lazy" src="seed38_diagnostic.png" alt="seed38误线索、目标局部点云及近墙起点"><img loading="lazy" src="release_center_errors.png" alt="模拟ACK时飞控中心与真靶心误差"><p>局部云只覆盖bridge目标，不能证明远处起点可达；误差不是实物落点或槽位补偿精度。详见报告。</p></section><script>document.querySelectorAll(".jump").forEach(b=>b.addEventListener("click",()=>{const v=document.getElementById(b.dataset.video);v.currentTime=Number(b.dataset.time);v.scrollIntoView({block:"center",behavior:"smooth"});}));</script></body></html>
