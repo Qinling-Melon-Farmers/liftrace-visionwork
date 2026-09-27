@@ -9,7 +9,7 @@
 | 项目 | seed31 | seed38 |
 | --- | --- | --- |
 | 开柱原轮 | 第二升高目标占据，12.061s超时 | 第二升高目标占据，12.070s超时 |
-| 关柱本轮 | 升高约2.56s到达 | 升高约2.44s到达 |
+| 关柱本轮 | 升高约2.57s到达 | 升高约2.47s到达 |
 | 三投类别 | bridge、red_cross、panzer | red_cross、bridge、tent |
 | 第三投ACK（任务时间） | 478.898s | 155.184s |
 | 任务Gate | FAIL：actual_collision | PASS：all_checks_passed |
