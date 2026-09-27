@@ -26,6 +26,10 @@ sdf_map/horizontal_avoidance/support_min_vertical_span: 0.20
 sdf_map/horizontal_avoidance/column_middle_enabled: true
 sdf_map/horizontal_avoidance/column_band_low_ratio: 0.40
 sdf_map/horizontal_avoidance/column_band_high_ratio: 0.60
+# Full supported-component XY extent (meters); larger components never hull-fill.
+sdf_map/horizontal_avoidance/column_max_hull_span: 1.60
+# Interpolation INSIDE a compact hull, not additional obstacle inflation.
+sdf_map/horizontal_avoidance/column_max_fill_distance: 0.35
 sdf_map/horizontal_avoidance/floor_z: -0.12  # local z; 0.10 m AGL
 # 5 cm voxels represent the fixed 0.25 m XY inflation without 10 cm rounding.
 # The bounded map covers the whole field: X [-6,6], Y [-11,11], Z [-0.2,2.8].

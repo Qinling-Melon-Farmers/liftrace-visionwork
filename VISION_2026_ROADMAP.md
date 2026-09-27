@@ -1,5 +1,7 @@
 # 当前任务与优先级
 
+2026-09-27：[障碍柱凸包填空修复](docs/verification/column_fix_20260927/REPORT.md)已编译及18项离线回归通过，同真实点云高位入口附加柱占据解除，尚未新飞行。下一步优先修[高位记忆更新/提前中断/低空消歧](docs/planning/high_view_balance_20260927/REPORT.md)并统一几何后做新旧证据策略对照；不先加速或降低释放门槛。
+
 2026-09-26晚效率方向：[释放高度与分阶段速度复核](docs/planning/finish_time_20260926/REPORT.md)完成，并补齐[当前速度档及进入/退出条件](docs/planning/finish_time_20260926/SPEED_DESIGN.md)。下一步先统一槽位几何与许可，再优化近边重访及走廊慢档覆盖；当前尚未实施新增速度/高度调整，历史数据不代替中部柱修复后的实跑。
 
 2026-09-26当前：中部禁越柱、固定膨胀及板端入口对齐完成离线验证；[改动与待实飞范围](docs/planning/obstacle_board_alignment_20260926/REPORT.md)。未启动新仿真，未上板。

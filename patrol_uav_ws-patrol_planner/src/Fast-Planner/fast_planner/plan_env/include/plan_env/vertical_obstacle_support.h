@@ -74,9 +74,11 @@ class VerticalObstacleSupport {
 class MiddleHeightColumnSelector {
  public:
   MiddleHeightColumnSelector(int nx, int ny, double link_radius_cells,
-                             double low_ratio, double high_ratio)
+                             double low_ratio, double high_ratio,
+                             double max_hull_span_cells, double max_fill_distance_cells)
       : nx_(nx), ny_(ny), radius_(std::max(1.0, link_radius_cells)),
-        low_ratio_(low_ratio), high_ratio_(high_ratio), labels_(nx*ny, -1),
+        low_ratio_(low_ratio), high_ratio_(high_ratio),
+        max_hull_span_(max_hull_span_cells), max_fill_distance_(max_fill_distance_cells), labels_(nx*ny, -1),
         lows_(nx*ny, std::numeric_limits<double>::infinity()),
         highs_(nx*ny, -std::numeric_limits<double>::infinity()),
         middle_lows_(nx*ny, std::numeric_limits<double>::infinity()) {}
@@ -93,9 +95,12 @@ class MiddleHeightColumnSelector {
       const int label=bands_.size();
       labels_[seed]=label; queue.clear(); queue.push_back(seed);
       double low=lows_[seed], high=highs_[seed];
+      int min_x=seed/ny_, max_x=min_x, min_y=seed%ny_, max_y=min_y;
       for (size_t head=0; head<queue.size(); ++head) {
         const int i=queue[head], x=i/ny_, y=i%ny_;
         low=std::min(low,lows_[i]); high=std::max(high,highs_[i]);
+        min_x=std::min(min_x,x); max_x=std::max(max_x,x);
+        min_y=std::min(min_y,y); max_y=std::max(max_y,y);
         for (int dx=-r; dx<=r; ++dx) for (int dy=-r; dy<=r; ++dy) {
           if (dx*dx+dy*dy>radius_*radius_+1e-9 || !inside(x+dx,y+dy)) continue;
           const int j=(x+dx)*ny_+y+dy;
@@ -104,7 +109,8 @@ class MiddleHeightColumnSelector {
           }
         }
       }
-      bands_.push_back({low+(high-low)*low_ratio_, low+(high-low)*high_ratio_, false});
+      bands_.push_back({low+(high-low)*low_ratio_, low+(high-low)*high_ratio_, false,
+                        std::max(max_x-min_x,max_y-min_y)+1 <= max_hull_span_});
     }
   }
   void observeBand(int x, int y, double z) {
@@ -118,27 +124,47 @@ class MiddleHeightColumnSelector {
   bool source(int x, int y, double z) const {
     if (!inside(x,y) || !std::isfinite(z)) return false;
     const int label=labels_[x*ny_+y];
-    return label>=0 && (!bands_[label].observed || inBand(bands_[label],z));
+    return label>=0 && (!bands_[label].compact || !bands_[label].observed || inBand(bands_[label],z));
   }
   // Fill each observed middle silhouette, not just its hollow surface ring.
-  // Convex hull is computed per component, before the single physical XY
-  // inflation. No global hull across unrelated trees; no assumed tree center.
+  // Only small observed components may interpolate a hull, bounded by the
+  // measured contour distance. Physical inflation is still applied once.
   template<class Emit> void forEachFootprint(Emit emit) const {
     std::vector<std::vector<Cell>> groups(bands_.size());
     std::vector<double> bottoms(bands_.size(),std::numeric_limits<double>::infinity());
     for (int i=0; i<nx_*ny_; ++i) {
       const int label=labels_[i];
       if (label<0) continue;
-      const double z=bands_[label].observed ? middle_lows_[i] : lows_[i];
+      const double z=(bands_[label].compact && bands_[label].observed) ? middle_lows_[i] : lows_[i];
       if (!std::isfinite(z)) continue;
       groups[label].push_back({i/ny_,i%ny_}); bottoms[label]=std::min(bottoms[label],z);
     }
     for (size_t k=0; k<groups.size(); ++k) {
+      // Walls, wall-connected trees, and missing middle bands: keep measured
+      // supported columns at their own bases. Never fill their global hull.
+      if (!bands_[k].compact || !bands_[k].observed) {
+        for (const auto& p:groups[k]) emit(p.first,p.second,lows_[p.first*ny_+p.second]);
+        continue;
+      }
       const auto hull=convexHull(groups[k]);
       if (hull.empty()) continue;
       if (hull.size()==1) {emit(hull[0].first,hull[0].second,bottoms[k]);continue;}
-      int min_y=ny_,max_y=0;
-      for (const auto& p:hull) {min_y=std::min(min_y,p.second);max_y=std::max(max_y,p.second);}
+      int min_y=ny_,max_y=0,min_x=nx_,max_x=0;
+      for (const auto& p:hull) {
+        min_y=std::min(min_y,p.second);max_y=std::max(max_y,p.second);
+        min_x=std::min(min_x,p.first);max_x=std::max(max_x,p.first);
+      }
+      // Bound interpolation from measured middle returns. This is NOT extra
+      // obstacle inflation: only cells already inside the small hull qualify.
+      const int width=max_y-min_y+1;
+      std::vector<unsigned char> nearby((max_x-min_x+1)*width,0);
+      const int r=static_cast<int>(std::ceil(max_fill_distance_));
+      for (const auto& p:groups[k])
+        for (int x=std::max(min_x,p.first-r);x<=std::min(max_x,p.first+r);++x)
+          for (int y=std::max(min_y,p.second-r);y<=std::min(max_y,p.second+r);++y)
+            if ((x-p.first)*(x-p.first)+(y-p.second)*(y-p.second)
+                <= max_fill_distance_*max_fill_distance_+1e-9)
+              nearby[(x-min_x)*width+y-min_y]=1;
       for (int y=min_y; y<=max_y; ++y) {
         double left=nx_,right=-1.;
         for (size_t j=0;j<hull.size();++j) {
@@ -153,7 +179,7 @@ class MiddleHeightColumnSelector {
           }
         }
         for (int x=int(std::ceil(left-1e-9)); x<=int(std::floor(right+1e-9)); ++x)
-          emit(x,y,bottoms[k]);
+          if (nearby[(x-min_x)*width+y-min_y]) emit(x,y,bottoms[k]);
       }
     }
   }
@@ -178,13 +204,13 @@ class MiddleHeightColumnSelector {
     }
     hull.pop_back();return hull;
   }
-  struct Band { double low, high; bool observed; };
+  struct Band { double low, high; bool observed, compact; };
   static bool inBand(const Band& band,double z) {
     return z+1e-9>=band.low && z-1e-9<=band.high;
   }
   bool inside(int x,int y) const { return x>=0 && y>=0 && x<nx_ && y<ny_; }
   int nx_,ny_;
-  double radius_,low_ratio_,high_ratio_;
+  double radius_,low_ratio_,high_ratio_,max_hull_span_,max_fill_distance_;
   std::vector<int> labels_;
   std::vector<double> lows_,highs_,middle_lows_;
   std::vector<Band> bands_;

@@ -50,3 +50,7 @@
 - summary.json：早期合成场景/历史裁剪快照统计，不是本次实时统计。
 
 复现：source ROS Noetic，单独启动roscore，执行build_capture.py，再执行replay_live.py；需要本机logs中的点云和切片文件。使用系统Python仅因ROS/RViz绑定依赖Python3.8，没有模型推理或安装系统包。不要与另一套仿真并行，结束后停止roscore。
+
+## 2026-09-27 后续订正
+
+以上实时点云/RViz图是修复前真实运行产物。该目录的早期离线重建器没有完整继承规划地图Z范围，不能用它生成的修复后环带判断在线结果。后续工具改为读取实际rosparams并匹配SDFMap边界与float量化，见[最终修复与输入过滤订正](../column_fix_20260927/REPORT.md)。原始图不覆盖；旧重建器仅作为该提交的历史资产，当前诊断请使用column_fix目录的工具。

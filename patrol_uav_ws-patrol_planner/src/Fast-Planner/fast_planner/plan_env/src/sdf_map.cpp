@@ -111,6 +111,14 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
   node_.param("sdf_map/horizontal_avoidance/column_middle_enabled", mp_.horizontal_column_middle_, false);
   node_.param("sdf_map/horizontal_avoidance/column_band_low_ratio", mp_.horizontal_column_low_ratio_, 0.40);
   node_.param("sdf_map/horizontal_avoidance/column_band_high_ratio", mp_.horizontal_column_high_ratio_, 0.60);
+  node_.param("sdf_map/horizontal_avoidance/column_max_hull_span", mp_.horizontal_column_max_hull_span_, 1.60);
+  node_.param("sdf_map/horizontal_avoidance/column_max_fill_distance", mp_.horizontal_column_max_fill_distance_, 0.35);
+  if (!std::isfinite(mp_.horizontal_column_max_hull_span_) ||
+      !std::isfinite(mp_.horizontal_column_max_fill_distance_) ||
+      mp_.horizontal_column_max_hull_span_ <= 0.0 ||
+      mp_.horizontal_column_max_fill_distance_ < 0.0 ||
+      mp_.horizontal_column_max_fill_distance_ > mp_.horizontal_column_max_hull_span_)
+    throw std::invalid_argument("invalid bounded column footprint parameters");
   if (!std::isfinite(mp_.horizontal_column_low_ratio_) ||
       !std::isfinite(mp_.horizontal_column_high_ratio_) ||
       mp_.horizontal_column_low_ratio_ < 0.0 || mp_.horizontal_column_high_ratio_ > 1.0 ||
@@ -1002,7 +1010,9 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
     middle.reset(new fast_planner::MiddleHeightColumnSelector(
         mp_.map_voxel_num_.x(), mp_.map_voxel_num_.y(),
         mp_.horizontal_support_radius_ * mp_.resolution_inv_,
-        mp_.horizontal_column_low_ratio_, mp_.horizontal_column_high_ratio_));
+        mp_.horizontal_column_low_ratio_, mp_.horizontal_column_high_ratio_,
+        mp_.horizontal_column_max_hull_span_ * mp_.resolution_inv_,
+        mp_.horizontal_column_max_fill_distance_ * mp_.resolution_inv_));
     for (const auto& point : latest_cloud.points) {
       if (!horizontal_candidate(point)) continue;
       const Eigen::Vector3d position(point.x,point.y,point.z);

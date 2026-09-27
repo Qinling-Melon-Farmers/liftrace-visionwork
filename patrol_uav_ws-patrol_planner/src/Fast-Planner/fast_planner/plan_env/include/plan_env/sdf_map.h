@@ -111,6 +111,7 @@ struct MappingParameters {
   double horizontal_min_x_, horizontal_max_x_, horizontal_min_y_, horizontal_max_y_;
   double horizontal_obstacle_min_z_, horizontal_floor_z_;
   bool horizontal_column_middle_;
+  double horizontal_column_max_hull_span_, horizontal_column_max_fill_distance_;
   double horizontal_column_low_ratio_, horizontal_column_high_ratio_;
   int horizontal_support_min_points_;
   double horizontal_support_radius_, horizontal_support_min_span_;

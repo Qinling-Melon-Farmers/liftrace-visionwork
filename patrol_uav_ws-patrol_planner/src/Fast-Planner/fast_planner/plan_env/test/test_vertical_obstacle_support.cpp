@@ -95,7 +95,7 @@ TEST(UpwardObstacleColumns, RebuiltCloudCanRemoveOldSyntheticColumns) {
 }
 
 TEST(MiddleHeightColumns, ConeMiddleFreesLowerShoulderOnlyAbovePhysicalGeometry) {
-  fast_planner::MiddleHeightColumnSelector m(60,60,1.5,.4,.6);
+  fast_planner::MiddleHeightColumnSelector m(60,60,1.5,.4,.6,32.,7.);
   struct Point {int x,y,z;}; std::vector<Point> cloud;
   // Filled XY projection of a cone, sampled at 10 cm voxel centers.
   for (int z=5; z<=25; ++z) {
@@ -121,7 +121,7 @@ TEST(MiddleHeightColumns, ConeMiddleFreesLowerShoulderOnlyAbovePhysicalGeometry)
 }
 
 TEST(MiddleHeightColumns, SeparateHeightsAndSparseBandFallback) {
-  fast_planner::MiddleHeightColumnSelector m(30,30,1.5,.4,.6);
+  fast_planner::MiddleHeightColumnSelector m(30,30,1.5,.4,.6,32.,7.);
   for (double z:{1.,2.,3.}) m.observe(5,5,z);
   for (double z:{2.,4.,6.}) m.observe(20,20,z);
   // Only endpoints in third component: no invented middle footprint.
@@ -137,7 +137,7 @@ TEST(MiddleHeightColumns, SeparateHeightsAndSparseBandFallback) {
 }
 
 TEST(MiddleHeightColumns, BandCanBeTunedWithoutChangingRawObservations) {
-  fast_planner::MiddleHeightColumnSelector m(10,10,1.5,.2,.4);
+  fast_planner::MiddleHeightColumnSelector m(10,10,1.5,.2,.4,32.,7.);
   for (int z=0;z<=10;++z) m.observe(5,5,z);
   m.build();
   for (int z=0;z<=10;++z) m.observeBand(5,5,z);
@@ -146,7 +146,7 @@ TEST(MiddleHeightColumns, BandCanBeTunedWithoutChangingRawObservations) {
 }
 
 TEST(MiddleHeightColumns, SurfaceRingFillsCenterWithoutJoiningSeparateTrees) {
-  fast_planner::MiddleHeightColumnSelector m(60,60,1.5,.4,.6);
+  fast_planner::MiddleHeightColumnSelector m(60,60,1.5,.4,.6,32.,7.);
   for (int x=10;x<=20;++x) for (int y=10;y<=20;++y)
     if (x==10 || x==20 || y==10 || y==20)
       for (double z:{1.,2.,3.}) m.observe(x,y,z);
@@ -160,4 +160,67 @@ TEST(MiddleHeightColumns, SurfaceRingFillsCenterWithoutJoiningSeparateTrees) {
   EXPECT_TRUE(c.occupied(15,15,40)); // closed interior of middle ring
   EXPECT_FALSE(c.occupied(30,30,40)); // no global hull bridge to other tree
   EXPECT_TRUE(c.occupied(45,45,40));
+}
+
+// At 5 cm resolution these are 1.6 m extent and 35 cm interpolation bounds.
+TEST(MiddleHeightColumns, ConnectedUWallsNeverFillCourtyard) {
+  fast_planner::MiddleHeightColumnSelector m(120,120,3.,.4,.6,32.,7.);
+  std::vector<std::pair<int,int>> cells;
+  for(int x=10;x<=100;++x) { cells.push_back({x,10});cells.push_back({x,100}); }
+  for(int y=10;y<=100;++y) cells.push_back({10,y});
+  for(auto p:cells) for(double z:{.3,2.,3.7}) m.observe(p.first,p.second,z);
+  m.build();
+  for(auto p:cells) m.observeBand(p.first,p.second,2.);
+  fast_planner::UpwardObstacleColumns c(120,120,80);
+  m.forEachFootprint([&](int x,int y,double z){c.mark(x,y,int(z*20));});
+  EXPECT_FALSE(c.occupied(30,40,50));
+  EXPECT_TRUE(c.occupied(10,40,50));
+}
+TEST(MiddleHeightColumns, ClosedWallsDoNotFillInteriorEither) {
+  fast_planner::MiddleHeightColumnSelector m(100,100,2.,.4,.6,32.,7.);
+  for(int x=10;x<=80;++x) for(int y=10;y<=80;++y)
+    if(x==10||x==80||y==10||y==80) for(double z:{.3,2.,3.7}) m.observe(x,y,z);
+  m.build();
+  for(int x=10;x<=80;++x) for(int y=10;y<=80;++y)
+    if(x==10||x==80||y==10||y==80) m.observeBand(x,y,2.);
+  bool center=false;
+  m.forEachFootprint([&](int x,int y,double){if(x==40&&y==40)center=true;});
+  EXPECT_FALSE(center);
+}
+TEST(MiddleHeightColumns, LargeConnectedWallDoesNotEraseShortTreeOrLowerItsBase) {
+  fast_planner::MiddleHeightColumnSelector m(100,100,2.,.4,.6,32.,7.);
+  for(int x=5;x<90;++x) for(double z:{.3,2.,3.7}) m.observe(x,20,z);
+  // A short canopy touches the wall in XY but is below the wall middle band.
+  for(int y=21;y<=28;++y) for(double z:{.7,1.,1.3}) m.observe(40,y,z);
+  m.build();
+  for(int x=5;x<90;++x) m.observeBand(x,20,2.);
+  for(int y=21;y<=28;++y) m.observeBand(40,y,1.);
+  double base=-1;
+  m.forEachFootprint([&](int x,int y,double z){if(x==40&&y==28)base=z;});
+  EXPECT_DOUBLE_EQ(.7,base);
+}
+TEST(MiddleHeightColumns, InterpolationCannotBridgeWideUnobservedInterior) {
+  fast_planner::MiddleHeightColumnSelector m(60,60,2.,.4,.6,32.,3.);
+  for(int x=10;x<=30;++x) for(int y=10;y<=30;++y)
+    if(x==10||x==30||y==10||y==30) for(double z:{1.,2.,3.}) m.observe(x,y,z);
+  m.build();
+  for(int x=10;x<=30;++x) for(int y=10;y<=30;++y)
+    if(x==10||x==30||y==10||y==30) m.observeBand(x,y,2.);
+  bool center=false,near=false;
+  m.forEachFootprint([&](int x,int y,double){
+    if(x==20&&y==20)center=true;
+    if(x==12&&y==20)near=true;
+  });
+  EXPECT_FALSE(center);EXPECT_TRUE(near);
+}
+TEST(MiddleHeightColumns, MissingBandDoesNotInventFilledCanopy) {
+  fast_planner::MiddleHeightColumnSelector m(40,40,2.,.4,.6,32.,7.);
+  for(int x=10;x<=20;++x) for(int y=10;y<=20;++y)
+    if(x==10||x==20||y==10||y==20) for(double z:{1.,3.}) m.observe(x,y,z);
+  m.build();
+  bool center=false;double base=-1;
+  m.forEachFootprint([&](int x,int y,double z){
+    if(x==15&&y==15)center=true;if(x==10&&y==15)base=z;
+  });
+  EXPECT_FALSE(center);EXPECT_DOUBLE_EQ(1.,base);
 }

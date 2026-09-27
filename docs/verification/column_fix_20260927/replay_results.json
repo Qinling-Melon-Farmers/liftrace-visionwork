@@ -1,0 +1,54 @@
+{
+  "geometry": {
+    "map_origin": [
+      -11.0,
+      -6.0,
+      -0.2
+    ],
+    "map_size": [
+      22.0,
+      12.0,
+      3.8
+    ],
+    "resolution": 0.05,
+    "source": "logs/column_rviz_seed31_20260927_131600/rosparams.yaml",
+    "source_bounds_filter": "SDFMap::isInMap including Z"
+  },
+  "live_old": {
+    "footprint_cells": 31325,
+    "column_at_goal": true,
+    "process_ms": [
+      52.02359099348541,
+      50.53233899525367,
+      49.502622001455165
+    ]
+  },
+  "mechanism_old": {
+    "footprint_cells": 28734,
+    "column_at_goal": true,
+    "process_ms": [
+      15.271565003786236,
+      17.270130003453232,
+      16.992020988254808
+    ]
+  },
+  "live_new": {
+    "footprint_cells": 1380,
+    "column_at_goal": false,
+    "process_ms": [
+      47.43171000154689,
+      51.19088100036606,
+      45.21602198656183
+    ]
+  },
+  "mechanism_new": {
+    "footprint_cells": 385,
+    "column_at_goal": false,
+    "process_ms": [
+      9.54609501059167,
+      9.246971996617503,
+      10.764585007564165
+    ]
+  },
+  "outside_map_filter_regression": "PASS"
+}
