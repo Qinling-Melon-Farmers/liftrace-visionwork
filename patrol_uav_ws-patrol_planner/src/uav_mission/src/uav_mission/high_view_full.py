@@ -26,6 +26,8 @@ class HighViewFull(HighViewProbe):
         # remains untouched and never substitutes for fresh release evidence.
         self.catalog=Catalog(self.policy.catalog_config(core.config.mission_frame,core.config.mission_timeout),core.profile.weights)
         self.required=set(core.profile.interrupt_classes)
+        if not set(self.policy.interrupt_refined_classes)<=set(core.profile.weights):
+            raise ValueError('unknown refined interruption class')
         self.top_hints={}
         self.grid=GridCost()
         self.orders=[];self.revisit_counts={};self.fresh_candidate=None
@@ -81,10 +83,26 @@ class HighViewFull(HighViewProbe):
                                     target=action.target_class,target_xy=xy,center_xy=center))
         return action
 
+    def _retire_selected_location(self,now,reason):
+        hint=self.selected
+        self.memory.retire_location(hint,int(round(now*1e9)))
+        self.top_hints.pop(hint.class_name,None)
+        # Other spatial hypotheses of this same class remain usable. A fresh
+        # refined observation can later restore the old location as well.
+        alternative=self._all_top(now).get(hint.class_name)
+        if alternative is not None:
+            self.top_hints[hint.class_name]=alternative
+            self.revisit_counts[hint.class_name]=0
+        self.events.append(dict(stage='UNCONFIRMED_LOCATION_RETIRED',time=now,
+                                target=hint.class_name,xy=hint.xy,reason=reason,
+                                alternative_xy=alternative.xy if alternative else None))
+
     def _defer_selected(self,now,reason):
         self.events.append(dict(stage='TARGET_DEFERRED',time=now,reason=reason,
                                 target=self.selected.class_name,
                                 visits=self.revisit_counts.get(self.selected.class_name,0)))
+        if reason=='reacquisition_timeout':
+            self._retire_selected_location(now,reason)
         self.reacquired=None;self.fresh_candidate=None
         return self._next_target(now)
 
@@ -162,7 +180,8 @@ class HighViewFull(HighViewProbe):
     def _interrupt_top(self,now):
         self._all_hints(now)
         return {c:h for c,h in self.memory.interrupt_hints(int(round(now*1e9))).items()
-                if c in self.required and c not in self.core.queue.delivered_classes}
+                if c in self.required and c not in self.core.queue.delivered_classes
+                and (c not in self.policy.interrupt_refined_classes or h.key.source!='bbox')}
 
     def _consider_search_replacement(self,now):
         if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
@@ -451,20 +470,11 @@ class HighViewFull(HighViewProbe):
                                 scope='FRESH_VISUAL_CANDIDATE_AND_BOUNDARY_ADMISSION_REQUIRED'))
         return MissionRuntime._schedule_from_search(self,now,False)
 
-    def _degrade_near_wall(self,now):
-        target=self.local_wall_target
-        if target is None:
-            remaining=[h for c,h in self.top_hints.items()
-                       if c not in self.core.queue.delivered_classes and c not in self.unreachable_classes]
-            if len(remaining)!=1 or not self.boundary_policy.near(remaining[0].xy):return None
-            target=remaining[0].class_name
-        self.unreachable_classes.add(target)
-        self.degraded_from=target
-        lower=tuple(c for c in self.core.profile.weights if c not in self.required)
-        self.core.interrupt_class_override=tuple(c for c in self.core.profile.weights
-                                                  if c not in self.unreachable_classes)
-        self.events.append(dict(stage='NEAR_WALL_TARGET_UNREACHABLE',time=now,
-                                target=target,next_classes=sorted(lower,key=lambda c:-self.core.profile.weight(c))))
+    def _finish_local_wall_recheck(self,now):
+        # Exhausting observation viewpoints does not prove that this class's
+        # real delivery point is inaccessible. Only APPROACH failures do that.
+        self._retire_selected_location(now,'local_wall_verify_exhausted')
+        self.reacquired=None;self.fresh_candidate=None
         return self._next_target(now)
 
     def apply_result(self,event,now,current_xy):
@@ -505,11 +515,6 @@ class HighViewFull(HighViewProbe):
         if check is not None:return check
         local=self._local_wall_recheck(now)
         if local is not None:return local
-        if self.degraded_from is None and (self.local_wall_verify_used or
-                (len(self.top_hints)==len(self.required) and
-                 len([c for c in self.top_hints if c not in self.core.queue.delivered_classes])==1)):
-            downgraded=self._degrade_near_wall(now)
-            if downgraded is not None:return downgraded
         if self.fallback_route is None:return self._finish(False,'fallback_route_unavailable',now)
         points=list(self.fallback_route.waypoints)
         costs=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
@@ -531,7 +536,7 @@ class HighViewFull(HighViewProbe):
 
     def _schedule_from_search(self,now,prefer_resume,route_outcome=None):
         if self.stage=='LOCAL_WALL_VERIFY' and self.route.is_complete:
-            return self._degrade_near_wall(now) or self._finish(False,'near_wall_local_verify_exhausted',now)
+            return self._finish_local_wall_recheck(now)
         if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
             outcome=MissionRuntime._schedule_from_search(self,now,prefer_resume,route_outcome)
             if outcome.action is not None and outcome.action.command=='APPROACH':

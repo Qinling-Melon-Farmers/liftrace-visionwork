@@ -1,0 +1,191 @@
+{
+  "/fast_planner_node/sdf_map/resolution": 0.05,
+  "/fast_planner_node/sdf_map/map_size_x": 22.0,
+  "/fast_planner_node/sdf_map/map_size_y": 12.0,
+  "/fast_planner_node/sdf_map/map_size_z": 3.8,
+  "/fast_planner_node/sdf_map/local_update_range_x": 8.5,
+  "/fast_planner_node/sdf_map/local_update_range_y": 8.5,
+  "/fast_planner_node/sdf_map/local_update_range_z": 4.5,
+  "/fast_planner_node/sdf_map/obstacles_inflation": 0.275,
+  "/fast_planner_node/sdf_map/obstacles_inflation_up": 0.2,
+  "/fast_planner_node/sdf_map/obstacles_inflation_down": 0.1,
+  "/fast_planner_node/sdf_map/local_bound_inflate": 0.0,
+  "/fast_planner_node/sdf_map/local_map_margin": 50,
+  "/fast_planner_node/sdf_map/ground_height": -0.2,
+  "/fast_planner_node/sdf_map/cx": 321.04638671875,
+  "/fast_planner_node/sdf_map/cy": 243.44969177246094,
+  "/fast_planner_node/sdf_map/fx": 387.229248046875,
+  "/fast_planner_node/sdf_map/fy": 387.229248046875,
+  "/fast_planner_node/sdf_map/use_depth_filter": true,
+  "/fast_planner_node/sdf_map/depth_filter_tolerance": 0.15,
+  "/fast_planner_node/sdf_map/depth_filter_maxdist": 5.0,
+  "/fast_planner_node/sdf_map/depth_filter_mindist": 0.2,
+  "/fast_planner_node/sdf_map/depth_filter_margin": 2,
+  "/fast_planner_node/sdf_map/k_depth_scaling_factor": 1000.0,
+  "/fast_planner_node/sdf_map/skip_pixel": 2,
+  "/fast_planner_node/sdf_map/p_hit": 0.65,
+  "/fast_planner_node/sdf_map/p_miss": 0.35,
+  "/fast_planner_node/sdf_map/p_min": 0.12,
+  "/fast_planner_node/sdf_map/p_max": 0.9,
+  "/fast_planner_node/sdf_map/p_occ": 0.8,
+  "/fast_planner_node/sdf_map/min_ray_length": 0.5,
+  "/fast_planner_node/sdf_map/max_ray_length": 4.5,
+  "/fast_planner_node/sdf_map/esdf_slice_height": 0.3,
+  "/fast_planner_node/sdf_map/visualization_truncate_height": 2.49,
+  "/fast_planner_node/sdf_map/virtual_ceil_height": 3.13,
+  "/fast_planner_node/sdf_map/show_occ_time": false,
+  "/fast_planner_node/sdf_map/show_esdf_time": false,
+  "/fast_planner_node/sdf_map/pose_type": 1,
+  "/fast_planner_node/sdf_map/frame_id": "camera_init",
+  "/fast_planner_node/sdf_map/horizontal_avoidance/enabled": true,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/min_x": -0.5,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/max_x": 7.6,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/min_y": -4.8,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/max_y": 4.8,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/obstacle_min_z": 0.18,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/support_min_points": 3,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/support_radius": 0.15,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/support_min_vertical_span": 0.2,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/column_middle_enabled": true,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/column_band_low_ratio": 0.4,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/column_band_high_ratio": 0.6,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/column_max_hull_span": 1.6,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/column_max_fill_distance": 0.35,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/floor_z": -0.12,
+  "/fast_planner_node/sdf_map/visualization_rate": 5.0,
+  "/navigation/mission_manager/high_view_probe/config/ground_z": -0.22,
+  "/navigation/mission_manager/high_view_probe/config/high_agl": 2.6,
+  "/navigation/mission_manager/high_view_probe/config/low_agl": 1.4,
+  "/navigation/mission_manager/high_view_probe/config/staging_xy": [
+    0.6,
+    0.05
+  ],
+  "/navigation/mission_manager/high_view_full/policy/coarse_interrupt_min_interval_ns": 100000000,
+  "/navigation/mission_manager/high_view_full/policy/coarse_interrupt_max_gap_ns": 1000000000,
+  "/navigation/mission_manager/high_view_full/policy/coarse_interrupt_consistency_m": 0.5,
+  "/navigation/mission_manager/high_view_full/policy/interrupt_refined_classes": [
+    "panzer"
+  ],
+  "/navigation/mission_manager/high_view_full/policy/recheck_observe_seconds": 5.0,
+  "/navigation/mission_manager/high_view_full/policy/recheck_shift_after_seconds": 1.0,
+  "/navigation/mission_manager/high_view_full/policy/recheck_shift_radius_m": 0.5,
+  "/navigation/mission_manager/high_view_full/policy/candidate_min_streak": 1,
+  "/navigation/mission_manager/high_view_full/policy/min_interval_ns": 100000000,
+  "/navigation/mission_manager/high_view_full/policy/min_span_ns": 200000000,
+  "/navigation/mission_manager/high_view_full/policy/max_uncertainty_m": 0.45,
+  "/navigation/mission_manager/high_view_full/policy/direct_descent": true,
+  "/navigation/mission_manager/high_view_full/policy/descent_radius_m": 1.5,
+  "/navigation/mission_manager/high_view_full/policy/descent_max_candidates": 25,
+  "/navigation/mission_manager/high_view_full/policy/survey_stall_seconds": 8.0,
+  "/navigation/mission_manager/high_view_full/policy/survey_progress_m": 0.15,
+  "/navigation/mission_manager/high_view_full/policy/survey_alternative_radius_m": 0.6,
+  "/navigation/mission_manager/high_view_full/navigation_hints_topic": "/uav_vision/navigation_hints",
+  "/navigation/mission_manager/high_view_full/policy/coarse_enabled": true,
+  "/navigation/mission_manager/high_view_full/policy/coarse_min_confidence": 0.6,
+  "/navigation/mission_manager/high_view_probe/config/survey_xy": [
+    [
+      1,
+      3.5
+    ],
+    [
+      1,
+      -3.5
+    ],
+    [
+      5.5,
+      -3.5
+    ],
+    [
+      5.5,
+      3.5
+    ],
+    [
+      1,
+      3.5
+    ]
+  ],
+  "/navigation/mission_manager/high_view_probe/low_stage_parameters": [
+    {
+      "name": "/fast_planner_node/fsm/goal_adjustment_radius",
+      "value": 0.15
+    },
+    {
+      "name": "/external_planner_max_command_z",
+      "value": 1.63
+    },
+    {
+      "name": "/fast_planner_node/sdf_map/virtual_ceil_height",
+      "value": 1.78
+    },
+    {
+      "name": "/fast_planner_node/sdf_map/horizontal_avoidance/tracking_margin",
+      "value": 0.0
+    }
+  ],
+  "/navigation/mission_manager/high_view_full/boundary_policy/enabled": true,
+  "/presentation_cameras/views/overview/xyz": [
+    4.3,
+    0.0,
+    9.0
+  ],
+  "/presentation_cameras/views/overview/near": 3.7,
+  "/presentation_cameras/views/overview/width": 960,
+  "/presentation_cameras/views/overview/height": 960,
+  "/presentation_cameras/views/overview/hfov": 1.6,
+  "/presentation_cameras/views/overview/vertical_yaw": 1.5707963267948966,
+  "/presentation_cameras/views/follow/xyz": [
+    0.0,
+    0.0,
+    3.0
+  ],
+  "/presentation_cameras/views/follow/near": 0.05,
+  "/presentation_cameras/views/follow/width": 1280,
+  "/presentation_cameras/views/follow/height": 720,
+  "/presentation_cameras/views/follow/hfov": 1.45,
+  "/presentation_cameras/follow/distance": 1.8,
+  "/presentation_cameras/follow/lift": 1.0,
+  "/presentation_cameras/follow/min_z": 1.2,
+  "/presentation_cameras/follow/max_z": 4.6,
+  "/presentation_cameras/follow/bounds": [
+    -0.25,
+    8.85,
+    -4.55,
+    4.55
+  ],
+  "/presentation_cameras/follow/smoothing_s": 0.35,
+  "/presentation_cameras/world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_38/field.world",
+  "/presentation_cameras/vehicle_model": "iris_mid360",
+  "/presentation_cameras/camera_sdf": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision_eval/models/competition_overview_camera/model.sdf",
+  "/presentation_overview_recorder/image_topic": "/competition_overview/image_raw",
+  "/presentation_overview_recorder/fps": 10.0,
+  "/presentation_overview_recorder/output_path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/preflight_balanced_seed38/overview.mp4",
+  "/presentation_follow_recorder/image_topic": "/competition_follow/image_raw",
+  "/presentation_follow_recorder/fps": 10.0,
+  "/presentation_follow_recorder/output_path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/preflight_balanced_seed38/follow.mp4",
+  "/navigation/mission_manager/high_view_full/policy/high_max_agl": 3.3,
+  "/navigation/mission_manager/high_view_full/grid/bounds": [
+    -0.5,
+    7.4,
+    -4.8,
+    4.8
+  ],
+  "/navigation/mission_manager/high_view_full/boundary_policy/bounds": [
+    -0.5,
+    7.4,
+    -4.8,
+    4.8
+  ],
+  "/fast_planner_node/sdf_map/search_region/enabled": true,
+  "/fast_planner_node/sdf_map/search_region/min_x": -0.1,
+  "/fast_planner_node/sdf_map/search_region/max_x": 7.0,
+  "/fast_planner_node/sdf_map/search_region/min_y": -4.4,
+  "/fast_planner_node/sdf_map/search_region/max_y": 4.4,
+  "/fast_planner_node/sdf_map/horizontal_avoidance/tracking_margin": 0.1,
+  "/navigation/mission_manager/high_view_full/grid/inflation": 0.275,
+  "/fast_planner_node/sdf_map/search_region/boundary_policy_param": "/navigation/mission_manager/high_view_full/boundary_policy",
+  "offline_checks": {
+    "status": "PASS",
+    "effective_xy_dilation_m": 0.30000000000000004,
+    "nodes_launched": false
+  }
+}

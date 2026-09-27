@@ -90,6 +90,34 @@ class MemoryTests(unittest.TestCase):
         self.assertFalse(self.m.support_status())
         self.put(self.h(source='vision'))
         self.assertFalse(self.m.update([],Epoch('new','loc','cal'),11*N))
+    def test_retirement_blocks_catalog_replay_but_not_other_same_class_location(self):
+        bad=self.h();other=self.h((3.,3.),key=2)
+        self.put(bad,other);self.m.retire_location(bad,11*N)
+        self.assertEqual(self.m.update([bad],self.epoch,11*N),{'panzer':other})
+        self.assertEqual(self.put(self.h(t=12.)),{'panzer':other})
+        fine=self.h(t=13.,source='vision')
+        self.assertEqual(self.put(fine),{'panzer':fine})
+
+    def test_retired_old_formal_hint_cannot_restore_without_new_image(self):
+        h=self.h(source='vision');self.put(h);self.m.retire_location(h,11*N)
+        self.assertFalse(self.m.update([h],self.epoch,12*N))
+        self.assertFalse(self.m.resolve_low(h,12*N))
+        fresh=self.h(t=12.,source='vision')
+        self.assertTrue(self.m.resolve_low(fresh,12*N))
+        self.assertEqual(self.m.saved['panzer'],fresh)
+
+    def test_retirement_has_bounded_capacity_and_resets_with_epoch_clock_and_ttl(self):
+        for i in range(20):
+            h=self.h((2.*i,0.),10.+i)
+            self.put(h);self.m.retire_location(h,h.last_seen_ns)
+        self.assertLessEqual(len(self.m._retired),2*len(self.m.classes))
+        self.m.update([],self.epoch,61*N);self.assertFalse(self.m._retired)
+        self.put(self.h(t=62.));self.m.retire_location(self.h(t=62.),63*N)
+        self.m.update([],Epoch('new','loc','cal'),64*N);self.assertFalse(self.m._retired)
+        self.m.update([],self.epoch,65*N)
+        h=self.h(t=65.);self.put(h);self.m.retire_location(h,66*N)
+        self.m.update([],self.epoch,64*N);self.assertFalse(self.m._retired)
+
     def test_capacity_is_bounded(self):
         for i in range(100):self.put(self.h((i*2.,0.),10.+i*.1,key=i))
         self.assertLessEqual(len(self.m.support_status()['panzer']),2)

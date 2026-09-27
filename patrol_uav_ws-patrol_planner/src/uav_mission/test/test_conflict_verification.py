@@ -62,7 +62,11 @@ class ConflictMotionTest(unittest.TestCase):
         self.r._next_target(114.);self.fixture.finish(116.)
         self.r.tick(131.1,(1.,1.));self.fixture.finish(133.)
         self.r.tick(148.1,(3.,1.))
-        self.assertEqual(self.r.stage,'LOW_COVERAGE');self.assertEqual(len(self.r.conflict_checked),2)
+        self.assertEqual(self.r.stage,'LOW_COVERAGE')
+        retired=[e['xy'] for e in self.r.events if e['stage']=='UNCONFIRMED_LOCATION_RETIRED']
+        self.assertEqual(retired,[(1.,1.),(3.,1.)])
+        self.assertNotIn('panzer',self.r._all_top(148.1))
+        self.assertFalse(self.r.unreachable_classes)
         self.assertEqual(self.r.core.started_at,100.);self.assertEqual(self.r.core.committed_slots,0)
 
     def test_same_place_competing_classes_are_not_two_trips(self):

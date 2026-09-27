@@ -11,6 +11,7 @@ class SurveyPolicy:
     coarse_interrupt_min_interval_ns: int = 100000000
     coarse_interrupt_max_gap_ns: int = 1000000000
     coarse_interrupt_consistency_m: float = .5
+    interrupt_refined_classes: tuple = ('panzer',)
     recheck_observe_seconds: float = 5.
     recheck_shift_after_seconds: float = 1.
     recheck_shift_radius_m: float = .5
@@ -46,6 +47,10 @@ class SurveyPolicy:
                 or not 50000000<=self.min_interval_ns<=250000000
                 or not 2*self.min_interval_ns<=self.min_span_ns<=500000000):
             raise ValueError('invalid survey-only policy')
+        if (not isinstance(self.interrupt_refined_classes,(list,tuple)) or
+                any(not isinstance(c,str) or not c for c in self.interrupt_refined_classes) or
+                len(set(self.interrupt_refined_classes))!=len(self.interrupt_refined_classes)):
+            raise ValueError('invalid refined interruption classes')
         self.catalog_config('camera_init',600.)
 
     def catalog_config(self,frame,timeout):

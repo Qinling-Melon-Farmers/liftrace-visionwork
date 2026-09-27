@@ -33,7 +33,7 @@ class NavigationMemory:
             raise ValueError('invalid navigation support window')
         self.epoch=None;self.last_now=None
         self.saved={};self.suspended=set();self.events=[];self.conflict_hints={}
-        self._rows={};self._resolved=[]
+        self._rows={};self._resolved=[];self._retired=[]
 
     def _event(self, reason, now_ns, **data):
         self.events.append(dict(reason=reason,time_ns=now_ns,**data))
@@ -49,7 +49,7 @@ class NavigationMemory:
 
     def _advance(self,epoch,now_ns):
         if epoch!=self.epoch or (self.last_now is not None and now_ns<self.last_now):
-            self._rows.clear();self._resolved.clear()
+            self._rows.clear();self._resolved.clear();self._retired.clear()
             self._event('epoch_or_clock_reset',now_ns)
             self.epoch=epoch
         self.last_now=now_ns
@@ -59,6 +59,7 @@ class NavigationMemory:
             if kept:self._rows[cls]=kept
             else:del self._rows[cls]
         self._resolved=[h for h in self._resolved if self._valid(h,now_ns)]
+        self._retired=[r for r in self._retired if 0<=now_ns-r[2]<=self.ttl_ns]
 
     def _sample(self,row,h):
         # A re-published image, even with a new target ID, cannot add support.
@@ -83,6 +84,12 @@ class NavigationMemory:
         # at this location, including catalog re-publications after resolution.
         if not low and any(r.class_name!=h.class_name and self._near(r.xy,h.xy)
                            for r in self._resolved):return
+        retired=[r for r in self._retired if r[0]==h.class_name and self._near(r[1],h.xy)]
+        if retired:
+            # Re-publication or more weak boxes cannot undo a completed low check.
+            # A new formally refined observation may restore this location.
+            if h.key.source=='bbox' or h.last_seen_ns<=max(r[2] for r in retired):return
+            self._retired=[r for r in self._retired if r not in retired]
         rows=self._rows.setdefault(h.class_name,[])
         near=[r for r in rows if self._near(r.hint.xy,h.xy) and self._near(r.anchor,h.xy)]
         row=min(near,key=lambda r:math.dist(r.hint.xy,h.xy)) if near else None
@@ -147,11 +154,28 @@ class NavigationMemory:
                 if self._valid(h,now_ns):self._put(h,now_ns)
         return self._refresh(now_ns)
 
+    def retire_location(self,hint,now_ns):
+        """Retire one unconfirmed location; this never rejects an entire class."""
+        self._advance(self.epoch,now_ns)
+        if not self._valid(hint,now_ns):return False
+        cls=hint.class_name
+        self._rows[cls]=[r for r in self._rows.get(cls,[]) if not self._near(r.hint.xy,hint.xy)]
+        self._resolved=[h for h in self._resolved
+                        if h.class_name!=cls or not self._near(h.xy,hint.xy)]
+        self._retired=[r for r in self._retired if r[0]!=cls or not self._near(r[1],hint.xy)]
+        self._retired.append((cls,tuple(hint.xy),now_ns))
+        self._retired=self._retired[-2*len(self.classes):]
+        self._event('unconfirmed_location_retired',now_ns,class_name=cls,xy=hint.xy)
+        self._refresh(now_ns)
+        return True
+
     def resolve_low(self,hint,now_ns):
         """Caller must supply a fresh formally validated low-view observation."""
         self._advance(self.epoch,now_ns)
         if not self._valid(hint,now_ns) or hint.key.source=='bbox' or hint.evidence_count<3:
             return False
+        if any(r[0]==hint.class_name and self._near(r[1],hint.xy) and
+               hint.last_seen_ns<=r[2] for r in self._retired):return False
         near=[h for h in self._resolved if self._near(h.xy,hint.xy)]
         if near and hint.last_seen_ns<=max(h.last_seen_ns for h in near):
             return any(h==hint for h in near)

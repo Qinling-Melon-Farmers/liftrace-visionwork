@@ -31,6 +31,7 @@ class CoarseTests(unittest.TestCase):
         self.assertEqual(self.r.core.active_action.command,'SEARCH')
 
     def test_two_images_per_class_descend_and_wait_for_low_confirmation(self):
+        self.r.policy=replace(self.r.policy,interrupt_refined_classes=())
         for index,cls in enumerate(('bridge','panzer','red_cross')):
             self.assertEqual(self.cue(class_name=cls,xy=(float(index),1.)),'coarse_accepted')
         for index,cls in enumerate(('bridge','panzer','red_cross')):
@@ -46,6 +47,21 @@ class CoarseTests(unittest.TestCase):
         self.assertIsNone(out.action)
         self.assertIsNone(self.r.reacquired)
         self.assertTrue(all(s.candidate_key is None for s in self.r.core.slots))
+
+    def test_repeated_coarse_panzer_cannot_end_high_survey_until_refined(self):
+        for t in (101.,101.2):
+            for index,cls in enumerate(('bridge','panzer','red_cross')):
+                self.cue(class_name=cls,xy=(float(index),1.),stamp_ns=int(t*1e9),now=t)
+        self.finish(103.);self.map(104.);self.r.tick(104.,(0.,0.))
+        self.assertEqual(self.r.stage,'SURVEY')
+        self.assertIn('panzer',self.r._all_top(104.))
+        self.assertNotIn('panzer',self.r._interrupt_top(104.))
+        h=self.r._all_top(104.)['panzer']
+        self.r.memory.update([replace(h,key=Key(42,100000000000),last_seen_ns=104000000000,
+                                      evidence_count=3)],h.epoch,104000000000)
+        self.map(104.1);self.r.tick(104.1,(0.,0.))
+        self.assertEqual(self.r.stage,'DESCEND')
+        self.assertEqual(self.r.core.committed_slots,0)
 
     def test_three_single_images_do_not_interrupt_but_route_end_can_descend(self):
         for index,cls in enumerate(('bridge','panzer','red_cross')):
