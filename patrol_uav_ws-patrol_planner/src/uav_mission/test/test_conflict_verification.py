@@ -18,7 +18,7 @@ class ConflictMemoryTest(unittest.TestCase):
         self.assertEqual({v.xy for v in hs},{(1.,1.),(3.,1.)})
         m.update([self.hint(5.)],h.epoch,12_000_000_000)
         self.assertEqual(len(m.verification_hints(12_000_000_000)['panzer']),2)
-        self.assertEqual(m.verification_hints(41_000_000_000)['panzer'],())
+        self.assertEqual(m.verification_hints(41_000_000_000),{})
         m.update([],None,42_000_000_000);self.assertEqual(m.conflict_hints,{})
 
 
@@ -33,14 +33,15 @@ class ConflictMotionTest(unittest.TestCase):
         out=self.r._next_target(114.)
         self.assertEqual(out.action.command,'SEARCH');self.assertFalse(out.action.has_target)
         self.assertEqual(self.r.selected.xy,(1.,1.));self.assertTrue(self.r.conflict_active)
-        self.assertLessEqual(out.action.deadline_at,139.)
+        self.assertLessEqual(out.action.deadline_at,189.)
         self.fixture.finish(116.)
         self.r.update_pose((1.,1.,1.18),117.,'camera_init')
         self.r.ingest([candidate(class_name='pillbox',now=117.,x=1.,y=1.)],117.)
-        self.assertIsNone(self.r.tick(117.1,(1.,1.)).action)
-        out=self.r.tick(131.1,(1.,1.))
+        out=self.r.tick(117.1,(1.,1.))
         self.assertEqual(out.action.command,'SEARCH');self.assertEqual(self.r.selected.xy,(3.,1.))
         self.assertIsNone(self.r.fallback_started);self.assertEqual(self.r.core.committed_slots,0)
+        self.assertFalse(self.r.conflict_active)
+        self.assertEqual(self.r.memory.saved['pillbox'].xy,(1.,1.))
         self.fixture.finish(133.)
         self.r.update_pose((3.,1.,1.18),134.,'camera_init')
         self.r.ingest([candidate(target_id=8,class_name='panzer',now=134.,x=3.,y=1.)],134.)
@@ -63,6 +64,89 @@ class ConflictMotionTest(unittest.TestCase):
         self.r.tick(148.1,(3.,1.))
         self.assertEqual(self.r.stage,'LOW_COVERAGE');self.assertEqual(len(self.r.conflict_checked),2)
         self.assertEqual(self.r.core.started_at,100.);self.assertEqual(self.r.core.committed_slots,0)
+
+    def test_same_place_competing_classes_are_not_two_trips(self):
+        h=self.r.memory.saved['panzer']
+        self.r.memory.update([replace(h,class_name='pillbox',xy=(1.,1.),
+                                      key=Key(90,1))],h.epoch,114_000_000_000)
+        self.r._next_target(114.)
+        self.assertEqual(self.r.selected.xy,(1.,1.))
+        old=self.r.core.active_action;self.fixture.seq+=1
+        failed=replace(result_for(old,self.fixture.seq,status='FAILED',terminal=True),
+                       event_stamp_ns=115_000_000_000)
+        out=self.r.apply_result(failed,115.1,(1.,1.))
+        self.assertEqual(out.action.command,'SEARCH')
+        self.assertEqual(self.r.selected.xy,(3.,1.))
+        self.assertEqual(len(self.r.conflict_checked),2)
+
+    def test_competing_fresh_labels_do_not_resolve_or_release(self):
+        self.r._next_target(114.);self.fixture.finish(116.)
+        self.r.update_pose((1.,1.,1.18),117.,'camera_init')
+        self.r.ingest([candidate(class_name='pillbox',now=117.,x=1.,y=1.),
+                       candidate(target_id=2,class_name='panzer',now=117.,x=1.,y=1.)],117.)
+        self.assertIsNone(self.r.tick(117.1,(1.,1.)).action)
+        self.assertIn('panzer',self.r.memory.suspended)
+        self.assertEqual(self.r.core.committed_slots,0)
+
+    def test_stale_or_prearrival_or_low_streak_cannot_correct_class(self):
+        self.r._next_target(114.);self.fixture.finish(116.)
+        self.r.update_pose((1.,1.,1.18),117.,'camera_init')
+        for c in (candidate(class_name='pillbox',now=115.,x=1.,y=1.),
+                  replace(candidate(class_name='pillbox',now=117.,x=1.,y=1.),
+                          consecutive_observe_count=1)):
+            self.r.ingest([c],117.)
+            self.assertFalse(self.r.low_class_disproved)
+            self.assertIsNone(self.r.fresh_candidate)
+
+
+class LocalObservationTest(unittest.TestCase):
+    def setUp(self):
+        self.f=fixtures.FullTests();self.f.setUp();self.f.to_capture();self.r=self.f.r
+        self.xy=self.r.selected.xy
+
+    def test_one_shift_uses_original_observation_deadline_and_planner(self):
+        self.r.update_pose((*self.xy,1.18),114.1,'camera_init');self.f.map(114.1)
+        out=self.r.tick(114.1,self.xy)
+        self.assertEqual(out.action.command,'SEARCH')
+        self.assertFalse(out.action.has_target)
+        self.assertTrue(self.r.recheck_shift_used)
+        self.assertLessEqual(out.action.deadline_at,118.)
+        self.f.finish(115.)
+        self.r.update_pose((*self.xy,1.18),116.,'camera_init');self.f.map(116.)
+        self.assertIsNone(self.r.tick(116.,self.xy).action)
+        self.assertEqual(self.r.observe_until,118.)
+        self.assertEqual(sum(e['stage']=='RECHECK_VIEWPOINT_SHIFT' for e in self.r.events),1)
+        self.assertEqual(self.r.core.committed_slots,0)
+        out=self.r.tick(118.1,self.xy)
+        self.assertEqual(out.action.command,'SEARCH')
+        self.assertIsNone(self.r.fallback_started)
+
+    def test_no_shift_without_fresh_map_or_legal_clear_endpoint(self):
+        self.r.update_pose((*self.xy,1.18),114.1,'camera_init')
+        self.r.grid.stamp=None
+        self.assertIsNone(self.r.tick(114.1,self.xy).action)
+        self.f.map(114.2);self.r.grid.blocked[:]=True
+        self.assertIsNone(self.r.tick(114.2,self.xy).action)
+        self.assertFalse(self.r.recheck_shift_used)
+
+    def test_fresh_confirmation_wins_over_optional_shift(self):
+        self.r.update_pose((*self.xy,1.18),114.1,'camera_init');self.f.map(114.1)
+        self.r.ingest([candidate(class_name=self.r.selected.class_name,
+                                now=114.1,x=self.xy[0],y=self.xy[1])],114.1)
+        out=self.r.tick(114.2,self.xy)
+        self.assertEqual(out.action.command,'APPROACH')
+        self.assertFalse(self.r.recheck_shift_used)
+        self.assertEqual(self.r.core.committed_slots,0)
+
+    def test_delivered_class_at_wrong_hint_location_cannot_be_delivered_again(self):
+        self.r.core.queue.delivered_classes={'panzer'}
+        self.r.update_pose((*self.xy,1.18),114.,'camera_init')
+        self.r.ingest([candidate(class_name='panzer',now=114.,
+                                x=self.xy[0],y=self.xy[1])],114.)
+        out=self.r.tick(114.1,self.xy)
+        self.assertEqual(out.action.command,'SEARCH')
+        self.assertFalse(out.action.has_target)
+        self.assertEqual(self.r.core.committed_slots,0)
 
 
 class CoverageBrakingTest(unittest.TestCase):

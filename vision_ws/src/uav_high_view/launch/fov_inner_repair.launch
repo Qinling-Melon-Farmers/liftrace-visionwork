@@ -3,6 +3,7 @@
   <arg name="target_model_path" />
   <arg name="corridor_fast" default="true" />
   <arg name="high_agl" default="2.6" />
+  <arg name="obstacle_inflation_xy" default="0.275" />
   <arg name="field_seed" default="2672" />
   <arg name="presentation_recording" default="true" />
   <arg name="gate_startup_wall_timeout" default="180.0" />
@@ -28,9 +29,10 @@
   <rosparam file="$(arg scene_dir)/frame_overrides.yaml" />
   <rosparam file="$(arg scene_dir)/repair_overrides.yaml" />
   <!-- All phases use the same obstacle geometry, including archived scenes. -->
-  <param name="/fast_planner_node/sdf_map/obstacles_inflation" value="0.25" />
+  <param name="/fast_planner_node/sdf_map/obstacles_inflation" value="$(arg obstacle_inflation_xy)" />
   <param name="/fast_planner_node/sdf_map/obstacles_inflation_up" value="0.20" />
   <param name="/fast_planner_node/sdf_map/obstacles_inflation_down" value="0.10" />
+  <param name="/navigation/mission_manager/high_view_full/grid/inflation" value="$(arg obstacle_inflation_xy)" />
   <!-- Share the existing body/field geometry with visual admission. The
        tracking reserve stays inside this hard center fence; no new FSM. -->
   <param name="/fast_planner_node/sdf_map/search_region/boundary_policy_param"

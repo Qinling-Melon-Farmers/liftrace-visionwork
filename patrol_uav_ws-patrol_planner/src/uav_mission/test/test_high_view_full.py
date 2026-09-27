@@ -41,7 +41,7 @@ class FullTests(unittest.TestCase):
             self.r.apply_result(replace(release_ack(action,self.seq),event_stamp_ns=int((now+1)*1e9)),now+1,h.xy)
             self.seq+=1;self.map(now+2)
             out=self.r.apply_result(replace(result_for(action,self.seq,status='SUCCEEDED',stage='RECOVERY',terminal=True),event_stamp_ns=int((now+2)*1e9)),now+2,h.xy)
-            if slot<3:self.finish(now+5);now+=10
+            if slot<3:self.finish(now+5);now+=7
         self.assertEqual(delivered[-1],deferred)
         self.assertEqual(len(set(delivered)),3)
         self.assertEqual(self.r.revisit_counts[deferred],2)
@@ -267,9 +267,9 @@ class FullTests(unittest.TestCase):
         self.r.core.queue.delivered_classes={'bridge','panzer'}
         h=self.r.top_hints['red_cross']
         self.r.top_hints['red_cross']=replace(h,xy=(4.5,1.))
-        lower=replace(h,class_name='pillbox',xy=(1.5,1.),
+        lower=replace(h,class_name='pillbox',xy=(3.,2.),
                       key=replace(h.key,target_id=42))
-        self.r.memory.saved['pillbox']=lower
+        self.r.memory.update([lower],lower.epoch,114_000_000_000)
         self.r.local_wall_target='red_cross'
         out=self.r._degrade_near_wall(114.)
         self.assertEqual(self.r.degraded_from,'red_cross')
@@ -304,9 +304,9 @@ class FullTests(unittest.TestCase):
         self.r.reacquired={'target_id':h.key.target_id}
         self.r.fresh_candidate=candidate(target_id=h.key.target_id,
                                          class_name=h.class_name,now=114.,x=4.52,y=1.)
-        lower=replace(h,class_name='pillbox',xy=(1.5,1.),
+        lower=replace(h,class_name='pillbox',xy=(3.,2.),
                       key=replace(h.key,target_id=42))
-        self.r.memory.saved['pillbox']=lower
+        self.r.memory.update([lower],lower.epoch,114_000_000_000)
         action=self.r.tick(114.1,(4.1,1.)).action
         self.assertEqual(action.reason,'near_wall_bounded_approach')
         self.seq+=1
@@ -400,7 +400,7 @@ class FullTests(unittest.TestCase):
             out=self.r.apply_result(replace(result_for(action,self.seq,status='SUCCEEDED',stage='RECOVERY',terminal=True),event_stamp_ns=int((now+2)*1e9)),now+2,h.xy)
             if slot<3:
                 self.assertEqual(out.action.command,'SEARCH')
-                self.finish(now+5);now+=10
+                self.finish(now+5);now+=7
             else:
                 self.assertEqual(out.action.command,'RETURN_HOME')
                 self.assertEqual(self.r.core.phase,MissionPhase.POST_DELIVERY_ROUTE)

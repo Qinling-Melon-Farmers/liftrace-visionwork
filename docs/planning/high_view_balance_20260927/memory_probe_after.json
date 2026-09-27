@@ -1,0 +1,15 @@
+{
+  "scenario": "synthetic sequence modeled on observed spatial alternatives; not detector rerun",
+  "visible_after_new_refined": [
+    "panzer"
+  ],
+  "suspended": [],
+  "retained_locations": {},
+  "new_refined_location_retained": true,
+  "after_old_hint_ttl": {
+    "visible": [
+      "panzer"
+    ],
+    "suspended": []
+  }
+}

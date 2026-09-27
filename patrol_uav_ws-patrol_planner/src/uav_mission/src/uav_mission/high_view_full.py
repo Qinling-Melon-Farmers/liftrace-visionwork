@@ -8,7 +8,7 @@ from uav_high_view.local_descent import propose,propose_column
 from uav_high_view.survey_policy import SurveyPolicy
 from .high_view_probe import HighViewProbe
 from .mission_runtime import MissionRuntime
-from .mission_core import GoalSnapshot,MissionPhase
+from .mission_core import GoalSnapshot,MissionPhase,validate_candidate
 from .search_types import Waypoint
 from .coverage_route import CoverageRoute
 from .boundary_revisit import BoundaryRevisit
@@ -32,13 +32,18 @@ class HighViewFull(HighViewProbe):
         self.completed_reacquisitions=[]
         self.descent_proposal=None
         self.first_hint_ready={}
-        self.memory=NavigationMemory(core.profile.weights,int(core.config.mission_timeout*1e9),config.association_radius)
+        self.memory=NavigationMemory(core.profile.weights,int(core.config.mission_timeout*1e9),config.association_radius,
+            coarse_min_interval_ns=self.policy.coarse_interrupt_min_interval_ns,
+            coarse_max_gap_ns=self.policy.coarse_interrupt_max_gap_ns,
+            coarse_consistency_m=self.policy.coarse_interrupt_consistency_m)
         self.fallback_route=fallback_route
         self._progress=None;self._alternative=False
         self._survey_original=None;self.skipped_survey_xy=[]
         self.fallback_started=None
         self.descent_debug=None
-        self.conflict_checked=set()
+        self.conflict_checked=[]  # Attempted physical locations, not class/list indices.
+        self.observe_until=None;self.observe_started=None;self.recheck_shift_used=False
+        self.low_class_disproved=False
         self.conflict_active=False
         self.conflict_check_started=None
         self.local_wall_verify_used=False;self.local_wall_verify_started=None
@@ -154,6 +159,11 @@ class HighViewFull(HighViewProbe):
     def _all_top(self,now):
         return {c:h for c,h in self._all_hints(now).items() if c in self.required}
 
+    def _interrupt_top(self,now):
+        self._all_hints(now)
+        return {c:h for c,h in self.memory.interrupt_hints(int(round(now*1e9))).items()
+                if c in self.required and c not in self.core.queue.delivered_classes}
+
     def _consider_search_replacement(self,now):
         if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
             outcome=MissionRuntime._consider_search_replacement(self,now)
@@ -166,7 +176,7 @@ class HighViewFull(HighViewProbe):
                 self.events.append(dict(stage='DELIVERY',time=now,target=outcome.action.target_class,
                                         reason='local_wall_visual_confirmation'))
             return outcome
-        if self.stage=='SURVEY' and self.ascent_verified and set(self._all_top(now))==self.required:
+        if self.stage=='SURVEY' and self.ascent_verified and set(self._interrupt_top(now))==self.required:
             active=self.core.active_action
             if not self._route_binding_matches(active):return self._fail_closed('survey_binding_mismatch',now)
             retired=self.route.interrupt(active.decision_seq)
@@ -174,7 +184,8 @@ class HighViewFull(HighViewProbe):
             # Same serialized replacement boundary as the original search
             # interruption: targetless motion retires before the next sequence.
             self.core.active_action=None
-            self.events.append(dict(stage='SURVEY_INTERRUPTED_TOP3',time=now,retired_seq=active.decision_seq,original_deadline=active.deadline_at))
+            self.events.append(dict(stage='SURVEY_INTERRUPTED_TOP3',time=now,retired_seq=active.decision_seq,original_deadline=active.deadline_at,
+                                    support=self.memory.support_status()))
             return self._retreat(now)
         if self.stage=='SURVEY' and self.ascent_verified:
             active=self.core.active_action
@@ -264,8 +275,13 @@ class HighViewFull(HighViewProbe):
         self.selected=None
         return result
 
+    def _reset_observation(self):
+        self.observe_until=None;self.observe_started=None;self.recheck_shift_used=False
+        self.low_class_disproved=False
+
     def _next_target(self,now):
         self.conflict_active=False
+        self._reset_observation()
         remaining={c:h for c,h in self.top_hints.items()
                    if c not in self.core.queue.delivered_classes and c not in self.unreachable_classes}
         if not remaining and self.degraded_from is not None:
@@ -321,21 +337,29 @@ class HighViewFull(HighViewProbe):
         self._change_route('REVISIT',[Waypoint(*view,self.probe_config.ground_z+self.probe_config.low_agl)],now)
         return self._dispatch_route('SEARCH','ordered_revisit',now)
 
+    def _location_checked(self,xy):
+        return any(math.dist(xy,old)<=self.probe_config.association_radius
+                   for old in self.conflict_checked)
+
+    def _check_location(self,xy):
+        if not self._location_checked(xy):
+            self.conflict_checked.append(tuple(xy))
+
     def _next_conflict_location(self,now):
         # These are competing visual hypotheses, not confirmed class coordinates.
         # A new physical low-view observation must still pass the original chain.
-        if self.conflict_check_started is not None and now-self.conflict_check_started>=75.:
+        if ((self.conflict_check_started is not None and now-self.conflict_check_started>=75.)
+                or len(self.conflict_checked)>=2*len(self.core.profile.weights)):
             return None
         proposals=[]
         costs=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
         for cls,hints in self.memory.verification_hints(int(round(now*1e9))).items():
             if cls in self.core.queue.delivered_classes or cls in self.unreachable_classes:continue
             for index,h in enumerate(hints):
-                key=(cls,index)
-                if key in self.conflict_checked:continue
+                if self._location_checked(h.xy):continue
                 view=self.boundary_policy.viewpoint(h.xy,h.uncertainty_m)
                 if view is None:
-                    self.conflict_checked.add(key)
+                    self._check_location(h.xy)
                     self.events.append(dict(stage='CONFLICT_LOCATION_INADMISSIBLE',time=now,xy=h.xy))
                     continue
                 cost=costs.get(self.grid.cell(view),math.inf)
@@ -343,14 +367,15 @@ class HighViewFull(HighViewProbe):
         if not proposals:return None
         _,_,cls,index,h,view=min(proposals,key=lambda p:p[:4])
         if self.conflict_check_started is None:self.conflict_check_started=now
-        self.conflict_checked.add((cls,index));self.conflict_active=True
+        self._reset_observation()
+        self._check_location(h.xy);self.conflict_active=True
         self.selected=h;self.reacquired=None;self.fresh_candidate=None
         self.events.append(dict(stage='CONFLICT_LOW_VERIFY',time=now,class_name=cls,xy=h.xy,
                                 viewpoint=view,hypothesis=index,scope='LOW_VIEW_RECHECK_NOT_RELEASE_AUTHORIZATION'))
         self._change_route('REVISIT',[Waypoint(*view,self.probe_config.ground_z+self.probe_config.low_agl)],now)
         out=self._dispatch_route('SEARCH','conflict_low_verify',now)
         if out.action:
-            action=replace(out.action,deadline_at=min(out.action.deadline_at,now+25.,self.conflict_check_started+75.))
+            action=replace(out.action,deadline_at=min(out.action.deadline_at,self.conflict_check_started+75.))
             self.core.active_action=action
             return self._outcome(True,out.reason,action)
         return out
@@ -518,20 +543,95 @@ class HighViewFull(HighViewProbe):
             return self._dispatch_route('SEARCH','local_descent',now)
         if self.stage=='DESCEND' and self.route.is_complete:return self._next_target(now)
         if self.stage=='DELIVERY':return self._next_target(now)
-        return super()._schedule_from_search(now,prefer_resume,route_outcome)
+        outcome=super()._schedule_from_search(now,prefer_resume,route_outcome)
+        if self.stage=='REACQUIRE' and self.observe_until is None:
+            self.observe_started=now
+            self.observe_until=min(self.wait_until,now+self.policy.recheck_observe_seconds)
+            if self.conflict_active:
+                self.observe_until=min(self.observe_until,self.conflict_check_started+75.)
+        return outcome
+
+    def _resolve_low_location(self,candidates,now):
+        # Resolve by new, formal low-view evidence, including a different label
+        # at the visited location. A coarse box alone never enters this path.
+        if (self.pose is None or self.selected is None or
+                not 0<=now-self.pose_stamp<=self.probe_config.pose_max_age or
+                abs(self.pose[2]-(self.probe_config.ground_z+self.probe_config.low_agl))>.2):return
+        arrival=self.wait_until-self.probe_config.reacquire_budget
+        matches=[c for c in candidates
+                 if validate_candidate(c,now,self.core.profile,self.core.config).accepted
+                 and c.last_seen_ns/1e9>arrival
+                 and math.dist((c.x,c.y),self.selected.xy)<=self.probe_config.association_radius]
+        if len(matches)!=1:
+            self.reacquired=None;self.fresh_candidate=None
+            return
+        c=matches[0]
+        h=Hint(self.catalog.epoch,Key(c.target_id,c.first_seen_ns),c.class_name,
+               (c.x,c.y),self.probe_config.hint_radius,c.last_seen_ns,
+               1.,c.consecutive_observe_count)
+        previous=self.selected.class_name
+        delta=math.dist((c.x,c.y),self.selected.xy)
+        if not self.memory.resolve_low(h,int(round(now*1e9))):
+            self.reacquired=None;self.fresh_candidate=None
+            return
+        visible=self.memory.update((),self.catalog.epoch,int(round(now*1e9)))
+        self.top_hints={name:hint for name,hint in visible.items() if name in self.required}
+        eligible=(c.class_name in self.required or
+                  (self.degraded_from is not None and c.class_name==previous))
+        if not eligible or c.class_name in self.core.queue.delivered_classes:
+            self.low_class_disproved=True
+            self.reacquired=None;self.fresh_candidate=None
+        else:
+            self.low_class_disproved=False
+            self.selected=h
+            self.reacquired=dict(target_id=c.target_id,class_name=c.class_name,
+                last_seen_ns=c.last_seen_ns,xy=[c.x,c.y],time=now,
+                hint_delta=delta)
+            self.fresh_candidate=c
+        if previous!=c.class_name:
+            self.events.append(dict(stage='LOW_VIEW_LABEL_RESOLVED',time=now,
+                previous_class=previous,class_name=c.class_name,xy=(c.x,c.y)))
 
     def ingest(self,candidates,now):
-        if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
-            return MissionRuntime.ingest(self,candidates,now)
-        outcome=super().ingest(candidates,now)
-        if self.stage=='SURVEY':
-            for name,hint in self._all_top(now).items():
-                self.first_hint_ready.setdefault(name,dict(time=now,last_seen_ns=hint.last_seen_ns,xy=hint.xy,
-                                                           uncertainty_m=hint.uncertainty_m,evidence_count=hint.evidence_count))
-        if self.stage=='REACQUIRE' and self.reacquired is not None:
-            fresh=[c for c in candidates if c.target_id==self.reacquired['target_id'] and c.last_seen_ns==self.reacquired['last_seen_ns']]
-            if len(fresh)==1:self.fresh_candidate=fresh[0]
-        return outcome
+        with self._lock:
+            if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
+                return MissionRuntime.ingest(self,candidates,now)
+            outcome=super().ingest(candidates,now)
+            if not outcome.accepted:return outcome
+            if self.stage=='SURVEY':
+                for name,hint in self._all_top(now).items():
+                    self.first_hint_ready.setdefault(name,dict(time=now,last_seen_ns=hint.last_seen_ns,xy=hint.xy,
+                                                               uncertainty_m=hint.uncertainty_m,evidence_count=hint.evidence_count))
+            if self.stage=='REACQUIRE':self._resolve_low_location(candidates,now)
+            return outcome
+
+    def _shift_observation(self,now):
+        if (self.pose is None or not 0<=now-self.pose_stamp<=self.probe_config.pose_max_age or
+                self.recheck_shift_used or self.observe_until is None or
+                now-self.observe_started<self.policy.recheck_shift_after_seconds or
+                self.observe_until-now<1. or self.grid.stamp is None or
+                not 0<=now-self.grid.stamp<=2.):return None
+        costs=self.grid.distances(self._current_xy)
+        choices=[]
+        for i in range(8):
+            angle=i*math.pi/4.;r=self.policy.recheck_shift_radius_m
+            xy=(self._current_xy[0]+r*math.cos(angle),self._current_xy[1]+r*math.sin(angle))
+            if (not self.boundary_policy.admissible(xy) or
+                    math.dist(xy,self.selected.xy)>self.probe_config.association_radius):continue
+            cost=costs.get(self.grid.cell(xy),math.inf)
+            if math.isfinite(cost):choices.append((cost,xy))
+        if not choices:return None
+        _,xy=min(choices)
+        self.recheck_shift_used=True;self.reacquired=None;self.fresh_candidate=None
+        self._change_route('REVISIT',[Waypoint(*xy,self.probe_config.ground_z+self.probe_config.low_agl)],now)
+        self.events.append(dict(stage='RECHECK_VIEWPOINT_SHIFT',time=now,xy=xy,
+                                observe_until=self.observe_until,scope='REQUIRES_3D_PLANNER'))
+        out=self._dispatch_route('SEARCH','recheck_viewpoint',now)
+        if out.action:
+            action=replace(out.action,deadline_at=min(out.action.deadline_at,self.observe_until))
+            self.core.active_action=action
+            return self._outcome(True,out.reason,action)
+        return out
 
     def tick(self,now,current_xy):
         with self._lock:
@@ -539,8 +639,13 @@ class HighViewFull(HighViewProbe):
                 now,failed=self._operation_time(now)
                 if failed is not None:return failed
                 self._set_current_xy(current_xy)
-                if now>=self.wait_until:return self._defer_selected(now,'reacquisition_timeout')
-                if self.reacquired is None or self.fresh_candidate is None:return self._outcome(True,'waiting_for_fresh_delivery_candidate')
+                if self.low_class_disproved:
+                    return self._defer_selected(now,'low_view_class_disproved')
+                if now>=min(self.wait_until,self.observe_until or self.wait_until):
+                    return self._defer_selected(now,'reacquisition_timeout')
+                if self.reacquired is None or self.fresh_candidate is None:
+                    shifted=self._shift_observation(now)
+                    return shifted or self._outcome(True,'waiting_for_fresh_delivery_candidate')
                 if not self._approach_allowed(self.fresh_candidate):
                     self.reacquired=None;self.fresh_candidate=None
                     return self._outcome(True,'fresh_target_outside_boundary_approach_region')
@@ -565,12 +670,14 @@ class HighViewFull(HighViewProbe):
 
     def probe_status(self):
         value=super().probe_status()
-        value.update(scope='HIGH_VIEW_FULL_MISSION',survey_policy='COMPLETE_ROUTE_OR_CONFIRMED_TOP3',
+        value.update(scope='HIGH_VIEW_FULL_MISSION',completion_policy='COMPLETE_ROUTE_OR_SUPPORTED_TOP3',
                      required_classes=sorted(self.required),top_hints={c:asdict(h) for c,h in self.top_hints.items()},
                      orders=list(self.orders),reacquisitions=list(self.completed_reacquisitions))
         value.update(boundary_policy=asdict(self.boundary_policy),boundary_rejections=self.boundary_rejections,revisit_viewpoints=self.revisit_viewpoints,
                      survey_policy=asdict(self.policy),descent_proposal=self.descent_proposal,
                      first_hint_ready=dict(self.first_hint_ready),navigation_memory_events=list(self.memory.events),
+                     navigation_support=self.memory.support_status(),
+                     observe_until=self.observe_until,recheck_shift_used=self.recheck_shift_used,
                      fallback_started=self.fallback_started,descent_debug=self.descent_debug,
                      skipped_survey_xy=list(self.skipped_survey_xy),
                      local_wall_verify_used=self.local_wall_verify_used,

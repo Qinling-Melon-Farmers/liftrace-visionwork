@@ -30,9 +30,12 @@ class CoarseTests(unittest.TestCase):
         self.assertTrue(all(s.candidate_key is None for s in self.r.core.slots))
         self.assertEqual(self.r.core.active_action.command,'SEARCH')
 
-    def test_three_coarse_hints_only_descend_and_wait_for_low_confirmation(self):
+    def test_two_images_per_class_descend_and_wait_for_low_confirmation(self):
         for index,cls in enumerate(('bridge','panzer','red_cross')):
             self.assertEqual(self.cue(class_name=cls,xy=(float(index),1.)),'coarse_accepted')
+        for index,cls in enumerate(('bridge','panzer','red_cross')):
+            self.assertEqual(self.cue(class_name=cls,xy=(float(index),1.),
+                                     stamp_ns=101200000000,now=101.2),'coarse_accepted')
         self.finish(103.)
         self.map(104.)
         self.r.tick(104.,(0.,0.))
@@ -43,6 +46,18 @@ class CoarseTests(unittest.TestCase):
         self.assertIsNone(out.action)
         self.assertIsNone(self.r.reacquired)
         self.assertTrue(all(s.candidate_key is None for s in self.r.core.slots))
+
+    def test_three_single_images_do_not_interrupt_but_route_end_can_descend(self):
+        for index,cls in enumerate(('bridge','panzer','red_cross')):
+            self.cue(class_name=cls,xy=(float(index),1.))
+        self.finish(103.);self.map(104.)
+        self.r.tick(104.,(0.,0.))
+        self.assertEqual(self.r.stage,'SURVEY')
+        self.assertEqual(len(self.r._all_top(104.)),3)
+        self.assertFalse(self.r._interrupt_top(104.))
+        self.finish(105.);self.map(106.);self.finish(106.)
+        self.assertEqual(self.r.stage,'DESCEND')
+        self.assertEqual(self.r.core.committed_slots,0)
 
     def test_freshness_class_geometry_and_phase_guards(self):
         cases=[

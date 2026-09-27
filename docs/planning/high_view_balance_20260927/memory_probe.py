@@ -15,8 +15,8 @@ rows=m.verification_hints(3_000_000_000)
 out={'scenario':'synthetic sequence modeled on observed spatial alternatives; not detector rerun',
  'visible_after_new_refined':list(visible),'suspended':sorted(m.suspended),
  'retained_locations':{k:[x.xy for x in v] for k,v in rows.items()},
- 'new_refined_location_retained':any(x.xy==(3.12,-.34) for x in rows.get('panzer',()))}
+ 'new_refined_location_retained':any(x.xy==(3.12,-.34) for x in list(visible.values())+list(rows.get('panzer',())))}
 visible=m.update([h(3,(3.12,-.34),'vision',3,604)],e,604_000_000_000)
 out['after_old_hint_ttl']={'visible':list(visible),'suspended':sorted(m.suspended)}
-Path(__file__).with_name('memory_probe.json').write_text(json.dumps(out,indent=2))
+Path(__file__).with_name('memory_probe_after.json').write_text(json.dumps(out,indent=2))
 print(json.dumps(out,indent=2))

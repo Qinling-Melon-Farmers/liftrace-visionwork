@@ -7,6 +7,7 @@ catkin_install_python(PROGRAMS scripts/high_view_replay.py scripts/high_view_eva
 install(DIRECTORY config launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 if(CATKIN_ENABLE_TESTING)
   catkin_add_nosetests(test/test_core.py)
+  catkin_add_nosetests(test/test_navigation_memory.py)
   catkin_add_nosetests(test/test_local_descent.py)
   catkin_add_nosetests(test/test_presentation.py)
 endif()

@@ -1,0 +1,14 @@
+{
+  "task_tests": 192,
+  "high_view_tests": 86,
+  "nav_build": "PASS",
+  "vision_build": "PASS",
+  "preflight_seeds": [
+    31,
+    38
+  ],
+  "xy_config_m": 0.275,
+  "xy_voxel_dilation_m": 0.3,
+  "columns_enabled": true,
+  "new_flights": "pending"
+}
