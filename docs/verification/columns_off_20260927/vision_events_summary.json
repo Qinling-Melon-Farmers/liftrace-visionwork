@@ -1,0 +1,634 @@
+[
+  {
+    "seed": 31,
+    "events": [
+      {
+        "known": [
+          "bridge",
+          "red_cross"
+        ],
+        "stage": "PARTIAL_HINT_FALLBACK",
+        "time": 61.84
+      },
+      {
+        "stage": "DESCEND",
+        "time": 61.84
+      },
+      {
+        "boundary_margin_m": 0.3485753809367631,
+        "hint_xy": [
+          0.5177154429170583,
+          -1.677988943347156
+        ],
+        "stage": "REVISIT_VIEWPOINT",
+        "time": 64.841,
+        "uncertainty_m": 0.20739327677485758,
+        "xy": [
+          0.5177154429170583,
+          -1.677988943347156
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 64.841
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 73.512
+      },
+      {
+        "stage": "DELIVERY",
+        "target": "bridge",
+        "time": 73.8
+      },
+      {
+        "boundary_margin_m": 0.3485753809367631,
+        "hint_xy": [
+          2.602775613114484,
+          -4.370032993954764
+        ],
+        "stage": "REVISIT_VIEWPOINT",
+        "time": 83.069,
+        "uncertainty_m": 0.20206669873878663,
+        "xy": [
+          2.602775613114484,
+          -4.24935792032445
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 83.069
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 104.472
+      },
+      {
+        "stage": "DELIVERY",
+        "target": "red_cross",
+        "time": 104.6
+      },
+      {
+        "class_name": "panzer",
+        "hypothesis": 1,
+        "scope": "LOW_VIEW_RECHECK_NOT_RELEASE_AUTHORIZATION",
+        "stage": "CONFLICT_LOW_VERIFY",
+        "time": 119.173,
+        "viewpoint": [
+          0.29857538093676306,
+          0.010253101409672283
+        ],
+        "xy": [
+          -0.09631408952301457,
+          0.010253101409672283
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 119.173
+      },
+      {
+        "reason": "revisit_unreachable",
+        "stage": "TARGET_DEFERRED",
+        "target": "panzer",
+        "time": 144.191,
+        "visits": 0
+      },
+      {
+        "class_name": "pillbox",
+        "hypothesis": 0,
+        "scope": "LOW_VIEW_RECHECK_NOT_RELEASE_AUTHORIZATION",
+        "stage": "CONFLICT_LOW_VERIFY",
+        "time": 144.191,
+        "viewpoint": [
+          0.321117510131908,
+          3.256694108379703
+        ],
+        "xy": [
+          0.321117510131908,
+          3.256694108379703
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 144.191
+      },
+      {
+        "reason": "revisit_unreachable",
+        "stage": "TARGET_DEFERRED",
+        "target": "pillbox",
+        "time": 169.2,
+        "visits": 0
+      },
+      {
+        "class_name": "panzer",
+        "hypothesis": 0,
+        "scope": "LOW_VIEW_RECHECK_NOT_RELEASE_AUTHORIZATION",
+        "stage": "CONFLICT_LOW_VERIFY",
+        "time": 169.2,
+        "viewpoint": [
+          0.3333736670793499,
+          3.368434431271482
+        ],
+        "xy": [
+          0.3333736670793499,
+          3.368434431271482
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 169.2
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 170.636
+      },
+      {
+        "reason": "reacquisition_timeout",
+        "stage": "TARGET_DEFERRED",
+        "target": "panzer",
+        "time": 185.703,
+        "visits": 0
+      },
+      {
+        "stage": "LOW_COVERAGE",
+        "time": 185.703
+      },
+      {
+        "committed_slots": 2,
+        "entry_index": 23,
+        "original_deadline": 611.437,
+        "reason": "known_hints_exhausted",
+        "stage": "LOW_COVERAGE_HANDOFF",
+        "time": 185.703
+      }
+    ],
+    "conflict_locations": {
+      "panzer": [
+        {
+          "class_name": "panzer",
+          "epoch": {
+            "calibration": "installed-camera-1280-v1",
+            "localization": "static-sitl-world",
+            "mission": "vcl06-random-11-437000000-1"
+          },
+          "evidence_count": 1,
+          "key": {
+            "first_seen_ns": 25359000000,
+            "source": "bbox",
+            "target_id": 1
+          },
+          "last_seen_ns": 25359000000,
+          "role": "REVISIT_HINT_ONLY",
+          "uncertainty_m": 0.45,
+          "vote_fraction": 1.0,
+          "xy": [
+            0.3333736670793499,
+            3.368434431271482
+          ]
+        },
+        {
+          "class_name": "panzer",
+          "epoch": {
+            "calibration": "installed-camera-1280-v1",
+            "localization": "static-sitl-world",
+            "mission": "vcl06-random-11-437000000-1"
+          },
+          "evidence_count": 1,
+          "key": {
+            "first_seen_ns": 17197000000,
+            "source": "bbox",
+            "target_id": 1
+          },
+          "last_seen_ns": 20562000000,
+          "role": "REVISIT_HINT_ONLY",
+          "uncertainty_m": 0.45,
+          "vote_fraction": 1.0,
+          "xy": [
+            -0.09631408952301457,
+            0.010253101409672283
+          ]
+        }
+      ],
+      "pillbox": [
+        {
+          "class_name": "pillbox",
+          "epoch": {
+            "calibration": "installed-camera-1280-v1",
+            "localization": "static-sitl-world",
+            "mission": "vcl06-random-11-437000000-1"
+          },
+          "evidence_count": 8,
+          "key": {
+            "first_seen_ns": 21557000000,
+            "source": "vision",
+            "target_id": 2
+          },
+          "last_seen_ns": 25097000000,
+          "role": "REVISIT_HINT_ONLY",
+          "uncertainty_m": 0.21098620717143693,
+          "vote_fraction": 1.0,
+          "xy": [
+            0.321117510131908,
+            3.256694108379703
+          ]
+        }
+      ]
+    },
+    "reacquisitions": [
+      {
+        "class_name": "bridge",
+        "hint_delta": 0.02772673171098529,
+        "last_seen_ns": 73535000000,
+        "target_id": 0,
+        "time": 73.743,
+        "xy": [
+          0.5252044187595245,
+          -1.651292747134888
+        ]
+      },
+      {
+        "class_name": "red_cross",
+        "hint_delta": 0.054858470263547184,
+        "last_seen_ns": 104510000000,
+        "target_id": 6,
+        "time": 104.597,
+        "xy": [
+          2.6527343418498295,
+          -4.347370752609199
+        ]
+      }
+    ],
+    "memory_events": [
+      {
+        "reason": "epoch_or_clock_reset",
+        "time_ns": 11543000000
+      },
+      {
+        "class_name": "panzer",
+        "reason": "coarse_navigation_hint_saved",
+        "time_ns": 17248000000,
+        "xy": [
+          -0.034859825414114365,
+          -0.16281042208375562
+        ]
+      },
+      {
+        "class_name": "bridge",
+        "reason": "coarse_navigation_hint_saved",
+        "time_ns": 18553000000,
+        "xy": [
+          0.4945062845463309,
+          -1.4805242736864954
+        ]
+      },
+      {
+        "class_name": "pillbox",
+        "reason": "coarse_navigation_hint_saved",
+        "time_ns": 21630000000,
+        "xy": [
+          0.33007933125436406,
+          3.088250562752995
+        ]
+      },
+      {
+        "class_name": "panzer",
+        "locations": [
+          [
+            0.3333736670793499,
+            3.368434431271482
+          ],
+          [
+            -0.09631408952301457,
+            0.010253101409672283
+          ]
+        ],
+        "reason": "confirmed_evidence_conflict",
+        "time_ns": 25444000000
+      },
+      {
+        "class_name": "pillbox",
+        "locations": [
+          [
+            0.321117510131908,
+            3.256694108379703
+          ]
+        ],
+        "reason": "confirmed_evidence_conflict",
+        "time_ns": 25444000000
+      },
+      {
+        "class_name": "red_cross",
+        "reason": "coarse_navigation_hint_saved",
+        "time_ns": 33459000000,
+        "xy": [
+          2.645427829040586,
+          -4.210079045868006
+        ]
+      },
+      {
+        "class_name": "tent",
+        "reason": "coarse_navigation_hint_saved",
+        "time_ns": 47794000000,
+        "xy": [
+          4.943463750775911,
+          0.5465667839357279
+        ]
+      }
+    ]
+  },
+  {
+    "seed": 38,
+    "events": [
+      {
+        "original_deadline": 132.582,
+        "retired_seq": 6,
+        "stage": "SURVEY_INTERRUPTED_TOP3",
+        "time": 44.9
+      },
+      {
+        "stage": "DESCENT_COLUMN_WITHOUT_FULL_TOUR",
+        "time": 44.9,
+        "xy": [
+          5.52626895904541,
+          -2.3830034732818604
+        ]
+      },
+      {
+        "stage": "DESCEND",
+        "time": 44.9
+      },
+      {
+        "boundary_margin_m": 0.3485753809367631,
+        "hint_xy": [
+          4.319819976758856,
+          -4.5852399042351415
+        ],
+        "stage": "REVISIT_VIEWPOINT",
+        "time": 48.819,
+        "uncertainty_m": 0.20797269469704066,
+        "xy": [
+          4.319819976758856,
+          -4.243451924366196
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 48.819
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 64.419
+      },
+      {
+        "center_xy": [
+          4.353890239404039,
+          -4.4514246190632365
+        ],
+        "stage": "NEAR_WALL_BOUNDED_APPROACH",
+        "target": "red_cross",
+        "target_xy": [
+          4.353890239404039,
+          -4.560447772114425
+        ],
+        "time": 64.5
+      },
+      {
+        "stage": "DELIVERY",
+        "target": "red_cross",
+        "time": 64.5
+      },
+      {
+        "boundary_margin_m": 0.3485753809367631,
+        "hint_xy": [
+          3.6448447036917138,
+          -1.52955447990989
+        ],
+        "stage": "REVISIT_VIEWPOINT",
+        "time": 84.052,
+        "uncertainty_m": 0.45,
+        "xy": [
+          3.6448447036917138,
+          -1.52955447990989
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 84.052
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 89.556
+      },
+      {
+        "stage": "DELIVERY",
+        "target": "bridge",
+        "time": 89.6
+      },
+      {
+        "boundary_margin_m": 0.3485753809367631,
+        "hint_xy": [
+          -0.10980228208286791,
+          -0.17044148790779548
+        ],
+        "stage": "REVISIT_VIEWPOINT",
+        "time": 98.25,
+        "uncertainty_m": 0.45,
+        "xy": [
+          0.29857538093676306,
+          -0.17044148790779548
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 98.25
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 121.083
+      },
+      {
+        "reason": "reacquisition_timeout",
+        "stage": "TARGET_DEFERRED",
+        "target": "panzer",
+        "time": 136.1,
+        "visits": 1
+      },
+      {
+        "boundary_margin_m": 0.3485753809367631,
+        "hint_xy": [
+          -0.10980228208286791,
+          -0.17044148790779548
+        ],
+        "stage": "REVISIT_VIEWPOINT",
+        "time": 136.1,
+        "uncertainty_m": 0.45,
+        "xy": [
+          0.29857538093676306,
+          -0.17044148790779548
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 136.1
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 137.45
+      },
+      {
+        "reason": "reacquisition_timeout",
+        "stage": "TARGET_DEFERRED",
+        "target": "panzer",
+        "time": 152.5,
+        "visits": 2
+      },
+      {
+        "stage": "LOCAL_WALL_VERIFY",
+        "time": 152.5
+      },
+      {
+        "hint_xy": [
+          -0.10980228208286791,
+          -0.17044148790779548
+        ],
+        "scope": "FRESH_VISUAL_CANDIDATE_AND_BOUNDARY_ADMISSION_REQUIRED",
+        "stage": "LOCAL_WALL_VERIFY",
+        "target": "panzer",
+        "time": 152.5,
+        "waypoints": [
+          [
+            0.5985753809367631,
+            -0.17044148790779548
+          ],
+          [
+            -0.0014246190632369315,
+            -0.17044148790779548
+          ]
+        ]
+      },
+      {
+        "next_classes": [
+          "pillbox",
+          "tent"
+        ],
+        "stage": "NEAR_WALL_TARGET_UNREACHABLE",
+        "target": "panzer",
+        "time": 157.751
+      },
+      {
+        "after": "panzer",
+        "classes": [
+          "tent"
+        ],
+        "stage": "LOWER_WEIGHT_HINT_SELECTED",
+        "time": 157.751
+      },
+      {
+        "boundary_margin_m": 0.3485753809367631,
+        "hint_xy": [
+          0.8088828171900017,
+          -1.1641719405896644
+        ],
+        "stage": "REVISIT_VIEWPOINT",
+        "time": 157.751,
+        "uncertainty_m": 0.20256650461795958,
+        "xy": [
+          0.8088828171900017,
+          -1.1641719405896644
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 157.751
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 161.651
+      },
+      {
+        "stage": "DELIVERY",
+        "target": "tent",
+        "time": 161.807
+      }
+    ],
+    "conflict_locations": {},
+    "reacquisitions": [
+      {
+        "class_name": "red_cross",
+        "hint_delta": 0.04213588271061626,
+        "last_seen_ns": 64452000000,
+        "target_id": 2,
+        "time": 64.484,
+        "xy": [
+          4.353890239404039,
+          -4.560447772114425
+        ]
+      },
+      {
+        "class_name": "bridge",
+        "hint_delta": 0.33505086308015225,
+        "last_seen_ns": 89582000000,
+        "target_id": 3,
+        "time": 89.596,
+        "xy": [
+          3.7194819048095216,
+          -1.2029226243598612
+        ]
+      },
+      {
+        "class_name": "tent",
+        "hint_delta": 0.035587075350603195,
+        "last_seen_ns": 161700000000,
+        "target_id": 0,
+        "time": 161.735,
+        "xy": [
+          0.8282475206945615,
+          -1.1343148109521726
+        ]
+      }
+    ],
+    "memory_events": [
+      {
+        "reason": "epoch_or_clock_reset",
+        "time_ns": 11650000000
+      },
+      {
+        "class_name": "tent",
+        "reason": "coarse_navigation_hint_saved",
+        "time_ns": 17255000000,
+        "xy": [
+          0.8420049883202718,
+          -1.0656851867135775
+        ]
+      },
+      {
+        "class_name": "panzer",
+        "reason": "coarse_navigation_hint_saved",
+        "time_ns": 19450000000,
+        "xy": [
+          -0.0742735424867339,
+          -0.2041620686751744
+        ]
+      },
+      {
+        "class_name": "red_cross",
+        "reason": "coarse_navigation_hint_saved",
+        "time_ns": 37870000000,
+        "xy": [
+          4.160581944082175,
+          -4.5465675281658235
+        ]
+      },
+      {
+        "class_name": "bridge",
+        "reason": "coarse_navigation_hint_saved",
+        "time_ns": 44859000000,
+        "xy": [
+          3.6448447036917138,
+          -1.52955447990989
+        ]
+      }
+    ]
+  }
+]

@@ -321,3 +321,10 @@ Catalog还会排除位置不确定度圆相互重叠的歧义线索。两路最�
 目前已完成源码与离线/回放验证，未得到新粗支路整场仿真或2.6m实飞的成功率、节时量。模型光照泛化和五类重训仍是下一步工作，并未因为阈值文件更新而完成。
 
 相关：[接口约定](CONTRACT.md)、[bag回放报告与视频](../../verification/panzer_replay_20260926/REPORT.md)、[阈值/泛化诊断](../../verification/panzer_replay_20260926/MODEL_GENERALIZATION.md)、[速度阶段判断](../finish_time_20260926/SPEED_DESIGN.md)。
+
+
+## 2026-09-27 动态对照补充
+
+[关闭障碍柱两轮诊断](../../verification/columns_off_20260927/REPORT.md)：31/38均解除2.6m升高占据阻塞；31三投后第二门55cm包络接触FAIL，38投红十字/bridge/tent后整场PASS、263.3s。正常入口未关闭柱。
+
+高位提前结束要求三类当前有效且未冲突暂停的导航Hint，不要求三类正式confirmed；完整航线结束可以带部分线索下降。单次粗线索可能错误，本轮出现H附近panzer假设；seed31冲突复核后补搜，seed38低位重捕不足后改投tent。不能把高位三类曾检出或任务三槽PASS解释为三个最高权重靶识别成功。冲突更新/退出与复核调度的改进尚未实施。

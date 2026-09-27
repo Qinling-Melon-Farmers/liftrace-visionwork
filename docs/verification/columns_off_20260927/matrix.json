@@ -1,0 +1,118 @@
+{
+  "status": "COMPLETE",
+  "source": "c35e3910d700640e34f9119d627c0b75a24c9510",
+  "seeds": [
+    31,
+    38
+  ],
+  "pid": 26111,
+  "results": [
+    {
+      "seed": 31,
+      "status": "FAIL",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/columnsoff_seed31_20260927_120609",
+      "command": [
+        "env",
+        "SIM_RUN_AUTHORIZED=1",
+        "SIM_NO_RECORD=1",
+        "SIM_REQUIRE_GATE=1",
+        "SIM_STORAGE_GUARD_PATH=/mnt/f",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=60s",
+        "7200s",
+        "bash",
+        "top_level_scripts/sim_run.sh",
+        "columnsoff_seed31",
+        "bash",
+        "top_level_scripts/roslaunch_rl_drone.sh",
+        "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/columns_off_20260927/replay.launch",
+        "scene_dir:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_31",
+        "field_seed:=31",
+        "target_model_path:=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt"
+      ],
+      "pid": 26138,
+      "exit_code": 1,
+      "cleanup_pass": true,
+      "reason": "actual_collision",
+      "failed_checks": [
+        "contact_ready_zero",
+        "contract_errors_zero",
+        "final_landed_on_ground",
+        "final_vehicle_disarmed",
+        "land_success",
+        "landing_align_mode_seen",
+        "landing_h_mark_valid",
+        "manager_complete",
+        "manager_post_delivery_route_matches",
+        "mission_ros_within_limit",
+        "post_delivery_return_goals",
+        "post_delivery_return_sequence",
+        "return_after_deliveries",
+        "return_before_land",
+        "return_home_success",
+        "zero_collisions"
+      ],
+      "mission_s": null,
+      "drops": 3,
+      "first_failure_analysis": {
+        "terminal": "actual_collision",
+        "errors": [
+          "actual_collision"
+        ],
+        "action_failures": [
+          {
+            "t": 144.173,
+            "decision": 13,
+            "reason": "decision_deadline_reached"
+          },
+          {
+            "t": 169.196,
+            "decision": 14,
+            "reason": "decision_deadline_reached"
+          }
+        ],
+        "scope": "Different preselected layout next; never replaces this outcome"
+      }
+    },
+    {
+      "seed": 38,
+      "status": "PASS",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/columnsoff_seed38_20260927_124315",
+      "command": [
+        "env",
+        "SIM_RUN_AUTHORIZED=1",
+        "SIM_NO_RECORD=1",
+        "SIM_REQUIRE_GATE=1",
+        "SIM_STORAGE_GUARD_PATH=/mnt/f",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=60s",
+        "7200s",
+        "bash",
+        "top_level_scripts/sim_run.sh",
+        "columnsoff_seed38",
+        "bash",
+        "top_level_scripts/roslaunch_rl_drone.sh",
+        "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/columns_off_20260927/replay.launch",
+        "scene_dir:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_38",
+        "field_seed:=38",
+        "target_model_path:=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt"
+      ],
+      "pid": 19154,
+      "exit_code": 0,
+      "cleanup_pass": true,
+      "reason": "all_checks_passed",
+      "failed_checks": [],
+      "mission_s": 263.3,
+      "drops": 3,
+      "first_failure_analysis": {
+        "terminal": "all_checks_passed",
+        "errors": [],
+        "action_failures": [],
+        "scope": "Different preselected layout next; never replaces this outcome"
+      }
+    }
+  ],
+  "active": null
+}
