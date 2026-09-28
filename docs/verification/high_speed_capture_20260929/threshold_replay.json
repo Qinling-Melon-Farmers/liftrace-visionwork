@@ -1,0 +1,4691 @@
+{
+  "circle": [
+    {
+      "replay": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/site_download_20260928/board_low_multi_20260928_221154_replay/data.json",
+      "threshold": 0.8,
+      "mapped_circle_samples": 355,
+      "score_pass": 348,
+      "new_score_pass": 0,
+      "new_score_pass_fresh": 0,
+      "newly_observed_confirmed_frames": 92,
+      "fresh_confirmed_frames": 91,
+      "windows": [
+        {
+          "start": 165.35258769989014,
+          "end": 182.86902832984924,
+          "first_confirmed": 165.91348004341125,
+          "first_fresh_confirmed": 165.91348004341125,
+          "fresh_frames": 91
+        }
+      ],
+      "extra_centre_agreement": {
+        "paired": 0,
+        "unpaired": 0,
+        "median_m": null,
+        "p95_m": null
+      },
+      "scope": "Production TargetMemory replay of recorded mapped frames with arrival-time mode switches; metrics only for armed OFFBOARD drop_circle windows; only circle score changed. No detector rerun, flight, alignment-context or release simulation; H remains 0.80."
+    },
+    {
+      "replay": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/site_download_20260928/board_low_multi_20260928_221154_replay/data.json",
+      "threshold": 0.75,
+      "mapped_circle_samples": 355,
+      "score_pass": 354,
+      "new_score_pass": 6,
+      "new_score_pass_fresh": 3,
+      "newly_observed_confirmed_frames": 97,
+      "fresh_confirmed_frames": 96,
+      "windows": [
+        {
+          "start": 165.35258769989014,
+          "end": 182.86902832984924,
+          "first_confirmed": 165.91348004341125,
+          "first_fresh_confirmed": 165.91348004341125,
+          "fresh_frames": 96
+        }
+      ],
+      "extra_centre_agreement": {
+        "paired": 6,
+        "unpaired": 0,
+        "median_m": 0.0028894785440308213,
+        "p95_m": 0.010654775167225983
+      },
+      "scope": "Production TargetMemory replay of recorded mapped frames with arrival-time mode switches; metrics only for armed OFFBOARD drop_circle windows; only circle score changed. No detector rerun, flight, alignment-context or release simulation; H remains 0.80."
+    },
+    {
+      "replay": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/bridge_landing_20260928/17-16-41/replay/data.json",
+      "threshold": 0.8,
+      "mapped_circle_samples": 1487,
+      "score_pass": 49,
+      "new_score_pass": 0,
+      "new_score_pass_fresh": 0,
+      "newly_observed_confirmed_frames": 0,
+      "fresh_confirmed_frames": 0,
+      "windows": [
+        {
+          "start": 60.87100434303284,
+          "end": 112.07250022888184,
+          "first_confirmed": null,
+          "first_fresh_confirmed": null,
+          "fresh_frames": 0
+        }
+      ],
+      "extra_centre_agreement": {
+        "paired": 0,
+        "unpaired": 0,
+        "median_m": null,
+        "p95_m": null
+      },
+      "scope": "Production TargetMemory replay of recorded mapped frames with arrival-time mode switches; metrics only for armed OFFBOARD drop_circle windows; only circle score changed. No detector rerun, flight, alignment-context or release simulation; H remains 0.80."
+    },
+    {
+      "replay": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/bridge_landing_20260928/17-16-41/replay/data.json",
+      "threshold": 0.75,
+      "mapped_circle_samples": 1487,
+      "score_pass": 1487,
+      "new_score_pass": 1438,
+      "new_score_pass_fresh": 426,
+      "newly_observed_confirmed_frames": 429,
+      "fresh_confirmed_frames": 429,
+      "windows": [
+        {
+          "start": 60.87100434303284,
+          "end": 112.07250022888184,
+          "first_confirmed": 61.457950830459595,
+          "first_fresh_confirmed": 61.457950830459595,
+          "fresh_frames": 429
+        }
+      ],
+      "extra_centre_agreement": {
+        "paired": 730,
+        "unpaired": 708,
+        "median_m": 0.001392775743263556,
+        "p95_m": 0.004024701257389167
+      },
+      "scope": "Production TargetMemory replay of recorded mapped frames with arrival-time mode switches; metrics only for armed OFFBOARD drop_circle windows; only circle score changed. No detector rerun, flight, alignment-context or release simulation; H remains 0.80."
+    },
+    {
+      "replay": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/bridge_landing_20260928/17-34-47/replay/data.json",
+      "threshold": 0.8,
+      "mapped_circle_samples": 966,
+      "score_pass": 463,
+      "new_score_pass": 0,
+      "new_score_pass_fresh": 0,
+      "newly_observed_confirmed_frames": 84,
+      "fresh_confirmed_frames": 84,
+      "windows": [
+        {
+          "start": 69.25710201263428,
+          "end": 96.83192563056946,
+          "first_confirmed": 70.89159226417542,
+          "first_fresh_confirmed": 70.89159226417542,
+          "fresh_frames": 26
+        },
+        {
+          "start": 121.44645833969116,
+          "end": 129.61346125602722,
+          "first_confirmed": 122.16337084770203,
+          "first_fresh_confirmed": 122.16337084770203,
+          "fresh_frames": 58
+        }
+      ],
+      "extra_centre_agreement": {
+        "paired": 0,
+        "unpaired": 0,
+        "median_m": null,
+        "p95_m": null
+      },
+      "scope": "Production TargetMemory replay of recorded mapped frames with arrival-time mode switches; metrics only for armed OFFBOARD drop_circle windows; only circle score changed. No detector rerun, flight, alignment-context or release simulation; H remains 0.80."
+    },
+    {
+      "replay": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/bridge_landing_20260928/17-34-47/replay/data.json",
+      "threshold": 0.75,
+      "mapped_circle_samples": 966,
+      "score_pass": 960,
+      "new_score_pass": 497,
+      "new_score_pass_fresh": 138,
+      "newly_observed_confirmed_frames": 256,
+      "fresh_confirmed_frames": 256,
+      "windows": [
+        {
+          "start": 69.25710201263428,
+          "end": 96.83192563056946,
+          "first_confirmed": 69.87757968902588,
+          "first_fresh_confirmed": 69.87757968902588,
+          "fresh_frames": 188
+        },
+        {
+          "start": 121.44645833969116,
+          "end": 129.61346125602722,
+          "first_confirmed": 122.16337084770203,
+          "first_fresh_confirmed": 122.16337084770203,
+          "fresh_frames": 68
+        }
+      ],
+      "extra_centre_agreement": {
+        "paired": 497,
+        "unpaired": 0,
+        "median_m": 0.0009268139920118804,
+        "p95_m": 0.002307837739199472
+      },
+      "scope": "Production TargetMemory replay of recorded mapped frames with arrival-time mode switches; metrics only for armed OFFBOARD drop_circle windows; only circle score changed. No detector rerun, flight, alignment-context or release simulation; H remains 0.80."
+    }
+  ],
+  "coarse": {
+    "scope": "Recorded sampled projected boxes with paired recorded poses; TF age assumed zero. Production coarse ingest/memory only; no detector rerun or truth score.",
+    "results": [
+      {
+        "threshold": 0.6,
+        "counts": {
+          "coarse_accepted": 42,
+          "coarse_conflict": 103
+        },
+        "revisit": {
+          "bridge": [
+            4.740237678926632,
+            1.2676286743925291
+          ],
+          "red_cross": [
+            3.19022437394709,
+            -1.2776063418419734
+          ],
+          "panzer": [
+            5.713896660007723,
+            -1.5898230582591828
+          ]
+        },
+        "conflicts": [
+          "bridge",
+          "panzer",
+          "red_cross"
+        ],
+        "interrupt": [],
+        "max_interrupt": 1,
+        "observations": [
+          {
+            "time": 1790606890.6663892,
+            "class_name": "panzer",
+            "confidence": 0.6298828125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606890.9583566,
+            "class_name": "panzer",
+            "confidence": 0.6650390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606891.3023455,
+            "class_name": "panzer",
+            "confidence": 0.63232421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606892.5114746,
+            "class_name": "bridge",
+            "confidence": 0.65625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606892.9947317,
+            "class_name": "bridge",
+            "confidence": 0.6357421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606893.9179142,
+            "class_name": "panzer",
+            "confidence": 0.693359375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606894.142849,
+            "class_name": "panzer",
+            "confidence": 0.77490234375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606894.4339063,
+            "class_name": "panzer",
+            "confidence": 0.77880859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606894.7254655,
+            "class_name": "panzer",
+            "confidence": 0.82666015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606894.94151,
+            "class_name": "panzer",
+            "confidence": 0.775390625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606903.875058,
+            "class_name": "red_cross",
+            "confidence": 0.6181640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.1015368,
+            "class_name": "red_cross",
+            "confidence": 0.87548828125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.3411722,
+            "class_name": "red_cross",
+            "confidence": 0.85888671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.6144323,
+            "class_name": "red_cross",
+            "confidence": 0.8857421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.882295,
+            "class_name": "red_cross",
+            "confidence": 0.8837890625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.1133826,
+            "class_name": "red_cross",
+            "confidence": 0.892578125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.3762865,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.6391513,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.9320672,
+            "class_name": "red_cross",
+            "confidence": 0.89306640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.144217,
+            "class_name": "red_cross",
+            "confidence": 0.89404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.3492258,
+            "class_name": "red_cross",
+            "confidence": 0.90771484375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.596934,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.9006526,
+            "class_name": "red_cross",
+            "confidence": 0.91357421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.162998,
+            "class_name": "red_cross",
+            "confidence": 0.89208984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.3883724,
+            "class_name": "red_cross",
+            "confidence": 0.90625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.6366076,
+            "class_name": "red_cross",
+            "confidence": 0.900390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.9052613,
+            "class_name": "red_cross",
+            "confidence": 0.9052734375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.108987,
+            "class_name": "red_cross",
+            "confidence": 0.88671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.4641926,
+            "class_name": "red_cross",
+            "confidence": 0.900390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.7700024,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.0281959,
+            "class_name": "red_cross",
+            "confidence": 0.8994140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.2902792,
+            "class_name": "red_cross",
+            "confidence": 0.9072265625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.552751,
+            "class_name": "red_cross",
+            "confidence": 0.9130859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.7530441,
+            "class_name": "red_cross",
+            "confidence": 0.90869140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.033014,
+            "class_name": "red_cross",
+            "confidence": 0.9072265625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.357933,
+            "class_name": "red_cross",
+            "confidence": 0.9169921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.7038062,
+            "class_name": "red_cross",
+            "confidence": 0.91943359375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.9193149,
+            "class_name": "red_cross",
+            "confidence": 0.92138671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.197538,
+            "class_name": "red_cross",
+            "confidence": 0.91845703125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.4337525,
+            "class_name": "red_cross",
+            "confidence": 0.91552734375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.667246,
+            "class_name": "red_cross",
+            "confidence": 0.90625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.9220467,
+            "class_name": "red_cross",
+            "confidence": 0.908203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.1587582,
+            "class_name": "red_cross",
+            "confidence": 0.8955078125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.4123135,
+            "class_name": "red_cross",
+            "confidence": 0.91259765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.663421,
+            "class_name": "red_cross",
+            "confidence": 0.8935546875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.9308245,
+            "class_name": "panzer",
+            "confidence": 0.85986328125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606912.9308245,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.186721,
+            "class_name": "panzer",
+            "confidence": 0.90087890625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.186721,
+            "class_name": "red_cross",
+            "confidence": 0.89404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.4076154,
+            "class_name": "panzer",
+            "confidence": 0.79833984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.4076154,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "panzer",
+            "confidence": 0.755859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "red_cross",
+            "confidence": 0.9033203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "red_cross",
+            "confidence": 0.69189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.8995576,
+            "class_name": "panzer",
+            "confidence": 0.88232421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.8995576,
+            "class_name": "red_cross",
+            "confidence": 0.8642578125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.1170716,
+            "class_name": "panzer",
+            "confidence": 0.83251953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.1170716,
+            "class_name": "red_cross",
+            "confidence": 0.8740234375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.3717763,
+            "class_name": "red_cross",
+            "confidence": 0.81298828125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.3717763,
+            "class_name": "panzer",
+            "confidence": 0.89794921875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.6459312,
+            "class_name": "panzer",
+            "confidence": 0.916015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.8944495,
+            "class_name": "panzer",
+            "confidence": 0.88623046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.1573455,
+            "class_name": "panzer",
+            "confidence": 0.9013671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.360267,
+            "class_name": "panzer",
+            "confidence": 0.90283203125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.5682652,
+            "class_name": "panzer",
+            "confidence": 0.916015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.8176386,
+            "class_name": "panzer",
+            "confidence": 0.89599609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.04576,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.297942,
+            "class_name": "panzer",
+            "confidence": 0.91796875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.5444088,
+            "class_name": "panzer",
+            "confidence": 0.91845703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.803423,
+            "class_name": "panzer",
+            "confidence": 0.92333984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.0844681,
+            "class_name": "panzer",
+            "confidence": 0.9072265625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.3150585,
+            "class_name": "panzer",
+            "confidence": 0.91845703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.5640712,
+            "class_name": "panzer",
+            "confidence": 0.9169921875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.8108351,
+            "class_name": "panzer",
+            "confidence": 0.90771484375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.117847,
+            "class_name": "panzer",
+            "confidence": 0.91015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.543605,
+            "class_name": "panzer",
+            "confidence": 0.92578125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.797567,
+            "class_name": "panzer",
+            "confidence": 0.93017578125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.015322,
+            "class_name": "panzer",
+            "confidence": 0.92138671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.3165686,
+            "class_name": "panzer",
+            "confidence": 0.9130859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.5590599,
+            "class_name": "panzer",
+            "confidence": 0.91748046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.7978888,
+            "class_name": "panzer",
+            "confidence": 0.91455078125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.0306137,
+            "class_name": "panzer",
+            "confidence": 0.9248046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.3013914,
+            "class_name": "panzer",
+            "confidence": 0.9248046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.5275514,
+            "class_name": "panzer",
+            "confidence": 0.92822265625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.7515135,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.9702907,
+            "class_name": "panzer",
+            "confidence": 0.9130859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.200026,
+            "class_name": "panzer",
+            "confidence": 0.912109375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.4092522,
+            "class_name": "panzer",
+            "confidence": 0.9140625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.6941798,
+            "class_name": "panzer",
+            "confidence": 0.9150390625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.9437094,
+            "class_name": "panzer",
+            "confidence": 0.91552734375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.187877,
+            "class_name": "panzer",
+            "confidence": 0.908203125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.4220455,
+            "class_name": "panzer",
+            "confidence": 0.90673828125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.6373723,
+            "class_name": "panzer",
+            "confidence": 0.9189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.866511,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.0982964,
+            "class_name": "panzer",
+            "confidence": 0.931640625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.3173835,
+            "class_name": "panzer",
+            "confidence": 0.92626953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.519056,
+            "class_name": "panzer",
+            "confidence": 0.92138671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.739629,
+            "class_name": "panzer",
+            "confidence": 0.91357421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.9544213,
+            "class_name": "panzer",
+            "confidence": 0.9189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606924.1625793,
+            "class_name": "bridge",
+            "confidence": 0.65576171875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606931.2846816,
+            "class_name": "panzer",
+            "confidence": 0.6064453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606931.561213,
+            "class_name": "bridge",
+            "confidence": 0.86083984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606931.8623624,
+            "class_name": "bridge",
+            "confidence": 0.91943359375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606932.1152735,
+            "class_name": "bridge",
+            "confidence": 0.9521484375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606932.352818,
+            "class_name": "bridge",
+            "confidence": 0.9453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606932.5647821,
+            "class_name": "bridge",
+            "confidence": 0.9453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606932.7791536,
+            "class_name": "bridge",
+            "confidence": 0.95458984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606932.989952,
+            "class_name": "bridge",
+            "confidence": 0.95654296875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606933.2209966,
+            "class_name": "bridge",
+            "confidence": 0.95703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606933.478451,
+            "class_name": "bridge",
+            "confidence": 0.95556640625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606933.7239637,
+            "class_name": "bridge",
+            "confidence": 0.9580078125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606933.9435542,
+            "class_name": "bridge",
+            "confidence": 0.953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606934.2142453,
+            "class_name": "bridge",
+            "confidence": 0.93896484375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606934.5028446,
+            "class_name": "bridge",
+            "confidence": 0.92626953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606934.807121,
+            "class_name": "bridge",
+            "confidence": 0.9384765625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606935.0893574,
+            "class_name": "bridge",
+            "confidence": 0.94287109375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606935.3853188,
+            "class_name": "bridge",
+            "confidence": 0.94482421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606935.6621287,
+            "class_name": "bridge",
+            "confidence": 0.93408203125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606935.8985922,
+            "class_name": "bridge",
+            "confidence": 0.931640625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606936.1422246,
+            "class_name": "bridge",
+            "confidence": 0.9404296875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606936.3982062,
+            "class_name": "bridge",
+            "confidence": 0.92333984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606936.6407661,
+            "class_name": "bridge",
+            "confidence": 0.94482421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606936.9119887,
+            "class_name": "bridge",
+            "confidence": 0.9482421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606937.1384885,
+            "class_name": "bridge",
+            "confidence": 0.94384765625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606937.3713155,
+            "class_name": "bridge",
+            "confidence": 0.9384765625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606937.6892617,
+            "class_name": "bridge",
+            "confidence": 0.9345703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606938.007046,
+            "class_name": "bridge",
+            "confidence": 0.92626953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606938.3497167,
+            "class_name": "bridge",
+            "confidence": 0.9501953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606938.5824215,
+            "class_name": "bridge",
+            "confidence": 0.9541015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606938.920129,
+            "class_name": "bridge",
+            "confidence": 0.94384765625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606939.1302588,
+            "class_name": "bridge",
+            "confidence": 0.9375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606939.37496,
+            "class_name": "bridge",
+            "confidence": 0.9404296875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606939.592169,
+            "class_name": "bridge",
+            "confidence": 0.9560546875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606939.8800013,
+            "class_name": "bridge",
+            "confidence": 0.951171875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606940.149129,
+            "class_name": "bridge",
+            "confidence": 0.94140625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606940.440346,
+            "class_name": "bridge",
+            "confidence": 0.94287109375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606940.7234256,
+            "class_name": "bridge",
+            "confidence": 0.94140625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606940.9872065,
+            "class_name": "bridge",
+            "confidence": 0.9375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606941.190844,
+            "class_name": "bridge",
+            "confidence": 0.93798828125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606941.4311447,
+            "class_name": "bridge",
+            "confidence": 0.912109375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606941.6460338,
+            "class_name": "bridge",
+            "confidence": 0.92431640625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606941.8862,
+            "class_name": "bridge",
+            "confidence": 0.92529296875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606942.1394458,
+            "class_name": "bridge",
+            "confidence": 0.9189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606942.43372,
+            "class_name": "bridge",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606942.6877253,
+            "class_name": "bridge",
+            "confidence": 0.93017578125,
+            "reason": "coarse_conflict"
+          }
+        ],
+        "committed": 0
+      },
+      {
+        "threshold": 0.65,
+        "counts": {
+          "coarse_class_rejected": 5,
+          "coarse_accepted": 39,
+          "coarse_conflict": 101
+        },
+        "revisit": {
+          "bridge": [
+            4.740237678926632,
+            1.2676286743925291
+          ],
+          "red_cross": [
+            3.19022437394709,
+            -1.2776063418419734
+          ],
+          "panzer": [
+            5.713896660007723,
+            -1.5898230582591828
+          ]
+        },
+        "conflicts": [
+          "bridge",
+          "panzer",
+          "red_cross"
+        ],
+        "interrupt": [],
+        "max_interrupt": 1,
+        "observations": [
+          {
+            "time": 1790606890.6663892,
+            "class_name": "panzer",
+            "confidence": 0.6298828125,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606890.9583566,
+            "class_name": "panzer",
+            "confidence": 0.6650390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606891.3023455,
+            "class_name": "panzer",
+            "confidence": 0.63232421875,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606892.5114746,
+            "class_name": "bridge",
+            "confidence": 0.65625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606892.9947317,
+            "class_name": "bridge",
+            "confidence": 0.6357421875,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606893.9179142,
+            "class_name": "panzer",
+            "confidence": 0.693359375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606894.142849,
+            "class_name": "panzer",
+            "confidence": 0.77490234375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606894.4339063,
+            "class_name": "panzer",
+            "confidence": 0.77880859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606894.7254655,
+            "class_name": "panzer",
+            "confidence": 0.82666015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606894.94151,
+            "class_name": "panzer",
+            "confidence": 0.775390625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606903.875058,
+            "class_name": "red_cross",
+            "confidence": 0.6181640625,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606904.1015368,
+            "class_name": "red_cross",
+            "confidence": 0.87548828125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.3411722,
+            "class_name": "red_cross",
+            "confidence": 0.85888671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.6144323,
+            "class_name": "red_cross",
+            "confidence": 0.8857421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.882295,
+            "class_name": "red_cross",
+            "confidence": 0.8837890625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.1133826,
+            "class_name": "red_cross",
+            "confidence": 0.892578125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.3762865,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.6391513,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.9320672,
+            "class_name": "red_cross",
+            "confidence": 0.89306640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.144217,
+            "class_name": "red_cross",
+            "confidence": 0.89404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.3492258,
+            "class_name": "red_cross",
+            "confidence": 0.90771484375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.596934,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.9006526,
+            "class_name": "red_cross",
+            "confidence": 0.91357421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.162998,
+            "class_name": "red_cross",
+            "confidence": 0.89208984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.3883724,
+            "class_name": "red_cross",
+            "confidence": 0.90625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.6366076,
+            "class_name": "red_cross",
+            "confidence": 0.900390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.9052613,
+            "class_name": "red_cross",
+            "confidence": 0.9052734375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.108987,
+            "class_name": "red_cross",
+            "confidence": 0.88671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.4641926,
+            "class_name": "red_cross",
+            "confidence": 0.900390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.7700024,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.0281959,
+            "class_name": "red_cross",
+            "confidence": 0.8994140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.2902792,
+            "class_name": "red_cross",
+            "confidence": 0.9072265625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.552751,
+            "class_name": "red_cross",
+            "confidence": 0.9130859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.7530441,
+            "class_name": "red_cross",
+            "confidence": 0.90869140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.033014,
+            "class_name": "red_cross",
+            "confidence": 0.9072265625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.357933,
+            "class_name": "red_cross",
+            "confidence": 0.9169921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.7038062,
+            "class_name": "red_cross",
+            "confidence": 0.91943359375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.9193149,
+            "class_name": "red_cross",
+            "confidence": 0.92138671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.197538,
+            "class_name": "red_cross",
+            "confidence": 0.91845703125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.4337525,
+            "class_name": "red_cross",
+            "confidence": 0.91552734375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.667246,
+            "class_name": "red_cross",
+            "confidence": 0.90625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.9220467,
+            "class_name": "red_cross",
+            "confidence": 0.908203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.1587582,
+            "class_name": "red_cross",
+            "confidence": 0.8955078125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.4123135,
+            "class_name": "red_cross",
+            "confidence": 0.91259765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.663421,
+            "class_name": "red_cross",
+            "confidence": 0.8935546875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.9308245,
+            "class_name": "panzer",
+            "confidence": 0.85986328125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606912.9308245,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.186721,
+            "class_name": "panzer",
+            "confidence": 0.90087890625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.186721,
+            "class_name": "red_cross",
+            "confidence": 0.89404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.4076154,
+            "class_name": "panzer",
+            "confidence": 0.79833984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.4076154,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "panzer",
+            "confidence": 0.755859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "red_cross",
+            "confidence": 0.9033203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "red_cross",
+            "confidence": 0.69189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.8995576,
+            "class_name": "panzer",
+            "confidence": 0.88232421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.8995576,
+            "class_name": "red_cross",
+            "confidence": 0.8642578125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.1170716,
+            "class_name": "panzer",
+            "confidence": 0.83251953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.1170716,
+            "class_name": "red_cross",
+            "confidence": 0.8740234375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.3717763,
+            "class_name": "red_cross",
+            "confidence": 0.81298828125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.3717763,
+            "class_name": "panzer",
+            "confidence": 0.89794921875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.6459312,
+            "class_name": "panzer",
+            "confidence": 0.916015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.8944495,
+            "class_name": "panzer",
+            "confidence": 0.88623046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.1573455,
+            "class_name": "panzer",
+            "confidence": 0.9013671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.360267,
+            "class_name": "panzer",
+            "confidence": 0.90283203125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.5682652,
+            "class_name": "panzer",
+            "confidence": 0.916015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.8176386,
+            "class_name": "panzer",
+            "confidence": 0.89599609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.04576,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.297942,
+            "class_name": "panzer",
+            "confidence": 0.91796875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.5444088,
+            "class_name": "panzer",
+            "confidence": 0.91845703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.803423,
+            "class_name": "panzer",
+            "confidence": 0.92333984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.0844681,
+            "class_name": "panzer",
+            "confidence": 0.9072265625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.3150585,
+            "class_name": "panzer",
+            "confidence": 0.91845703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.5640712,
+            "class_name": "panzer",
+            "confidence": 0.9169921875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.8108351,
+            "class_name": "panzer",
+            "confidence": 0.90771484375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.117847,
+            "class_name": "panzer",
+            "confidence": 0.91015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.543605,
+            "class_name": "panzer",
+            "confidence": 0.92578125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.797567,
+            "class_name": "panzer",
+            "confidence": 0.93017578125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.015322,
+            "class_name": "panzer",
+            "confidence": 0.92138671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.3165686,
+            "class_name": "panzer",
+            "confidence": 0.9130859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.5590599,
+            "class_name": "panzer",
+            "confidence": 0.91748046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.7978888,
+            "class_name": "panzer",
+            "confidence": 0.91455078125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.0306137,
+            "class_name": "panzer",
+            "confidence": 0.9248046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.3013914,
+            "class_name": "panzer",
+            "confidence": 0.9248046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.5275514,
+            "class_name": "panzer",
+            "confidence": 0.92822265625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.7515135,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.9702907,
+            "class_name": "panzer",
+            "confidence": 0.9130859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.200026,
+            "class_name": "panzer",
+            "confidence": 0.912109375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.4092522,
+            "class_name": "panzer",
+            "confidence": 0.9140625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.6941798,
+            "class_name": "panzer",
+            "confidence": 0.9150390625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.9437094,
+            "class_name": "panzer",
+            "confidence": 0.91552734375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.187877,
+            "class_name": "panzer",
+            "confidence": 0.908203125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.4220455,
+            "class_name": "panzer",
+            "confidence": 0.90673828125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.6373723,
+            "class_name": "panzer",
+            "confidence": 0.9189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.866511,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.0982964,
+            "class_name": "panzer",
+            "confidence": 0.931640625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.3173835,
+            "class_name": "panzer",
+            "confidence": 0.92626953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.519056,
+            "class_name": "panzer",
+            "confidence": 0.92138671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.739629,
+            "class_name": "panzer",
+            "confidence": 0.91357421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.9544213,
+            "class_name": "panzer",
+            "confidence": 0.9189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606924.1625793,
+            "class_name": "bridge",
+            "confidence": 0.65576171875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606931.2846816,
+            "class_name": "panzer",
+            "confidence": 0.6064453125,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606931.561213,
+            "class_name": "bridge",
+            "confidence": 0.86083984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606931.8623624,
+            "class_name": "bridge",
+            "confidence": 0.91943359375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606932.1152735,
+            "class_name": "bridge",
+            "confidence": 0.9521484375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606932.352818,
+            "class_name": "bridge",
+            "confidence": 0.9453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606932.5647821,
+            "class_name": "bridge",
+            "confidence": 0.9453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606932.7791536,
+            "class_name": "bridge",
+            "confidence": 0.95458984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606932.989952,
+            "class_name": "bridge",
+            "confidence": 0.95654296875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606933.2209966,
+            "class_name": "bridge",
+            "confidence": 0.95703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606933.478451,
+            "class_name": "bridge",
+            "confidence": 0.95556640625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606933.7239637,
+            "class_name": "bridge",
+            "confidence": 0.9580078125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606933.9435542,
+            "class_name": "bridge",
+            "confidence": 0.953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606934.2142453,
+            "class_name": "bridge",
+            "confidence": 0.93896484375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606934.5028446,
+            "class_name": "bridge",
+            "confidence": 0.92626953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606934.807121,
+            "class_name": "bridge",
+            "confidence": 0.9384765625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606935.0893574,
+            "class_name": "bridge",
+            "confidence": 0.94287109375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606935.3853188,
+            "class_name": "bridge",
+            "confidence": 0.94482421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606935.6621287,
+            "class_name": "bridge",
+            "confidence": 0.93408203125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606935.8985922,
+            "class_name": "bridge",
+            "confidence": 0.931640625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606936.1422246,
+            "class_name": "bridge",
+            "confidence": 0.9404296875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606936.3982062,
+            "class_name": "bridge",
+            "confidence": 0.92333984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606936.6407661,
+            "class_name": "bridge",
+            "confidence": 0.94482421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606936.9119887,
+            "class_name": "bridge",
+            "confidence": 0.9482421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606937.1384885,
+            "class_name": "bridge",
+            "confidence": 0.94384765625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606937.3713155,
+            "class_name": "bridge",
+            "confidence": 0.9384765625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606937.6892617,
+            "class_name": "bridge",
+            "confidence": 0.9345703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606938.007046,
+            "class_name": "bridge",
+            "confidence": 0.92626953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606938.3497167,
+            "class_name": "bridge",
+            "confidence": 0.9501953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606938.5824215,
+            "class_name": "bridge",
+            "confidence": 0.9541015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606938.920129,
+            "class_name": "bridge",
+            "confidence": 0.94384765625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606939.1302588,
+            "class_name": "bridge",
+            "confidence": 0.9375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606939.37496,
+            "class_name": "bridge",
+            "confidence": 0.9404296875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606939.592169,
+            "class_name": "bridge",
+            "confidence": 0.9560546875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606939.8800013,
+            "class_name": "bridge",
+            "confidence": 0.951171875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606940.149129,
+            "class_name": "bridge",
+            "confidence": 0.94140625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606940.440346,
+            "class_name": "bridge",
+            "confidence": 0.94287109375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606940.7234256,
+            "class_name": "bridge",
+            "confidence": 0.94140625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606940.9872065,
+            "class_name": "bridge",
+            "confidence": 0.9375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606941.190844,
+            "class_name": "bridge",
+            "confidence": 0.93798828125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606941.4311447,
+            "class_name": "bridge",
+            "confidence": 0.912109375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606941.6460338,
+            "class_name": "bridge",
+            "confidence": 0.92431640625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606941.8862,
+            "class_name": "bridge",
+            "confidence": 0.92529296875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606942.1394458,
+            "class_name": "bridge",
+            "confidence": 0.9189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606942.43372,
+            "class_name": "bridge",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606942.6877253,
+            "class_name": "bridge",
+            "confidence": 0.93017578125,
+            "reason": "coarse_conflict"
+          }
+        ],
+        "committed": 0
+      },
+      {
+        "threshold": 0.7,
+        "counts": {
+          "coarse_class_rejected": 10,
+          "coarse_accepted": 89,
+          "coarse_conflict": 46
+        },
+        "revisit": {
+          "red_cross": [
+            3.19022437394709,
+            -1.2776063418419734
+          ],
+          "bridge": [
+            4.740237678926632,
+            1.2676286743925291
+          ],
+          "panzer": [
+            5.713896660007723,
+            -1.5898230582591828
+          ]
+        },
+        "conflicts": [
+          "panzer"
+        ],
+        "interrupt": [
+          "red_cross",
+          "bridge"
+        ],
+        "max_interrupt": 2,
+        "observations": [
+          {
+            "time": 1790606890.6663892,
+            "class_name": "panzer",
+            "confidence": 0.6298828125,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606890.9583566,
+            "class_name": "panzer",
+            "confidence": 0.6650390625,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606891.3023455,
+            "class_name": "panzer",
+            "confidence": 0.63232421875,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606892.5114746,
+            "class_name": "bridge",
+            "confidence": 0.65625,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606892.9947317,
+            "class_name": "bridge",
+            "confidence": 0.6357421875,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606893.9179142,
+            "class_name": "panzer",
+            "confidence": 0.693359375,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606894.142849,
+            "class_name": "panzer",
+            "confidence": 0.77490234375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606894.4339063,
+            "class_name": "panzer",
+            "confidence": 0.77880859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606894.7254655,
+            "class_name": "panzer",
+            "confidence": 0.82666015625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606894.94151,
+            "class_name": "panzer",
+            "confidence": 0.775390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606903.875058,
+            "class_name": "red_cross",
+            "confidence": 0.6181640625,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606904.1015368,
+            "class_name": "red_cross",
+            "confidence": 0.87548828125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.3411722,
+            "class_name": "red_cross",
+            "confidence": 0.85888671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.6144323,
+            "class_name": "red_cross",
+            "confidence": 0.8857421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.882295,
+            "class_name": "red_cross",
+            "confidence": 0.8837890625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.1133826,
+            "class_name": "red_cross",
+            "confidence": 0.892578125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.3762865,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.6391513,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.9320672,
+            "class_name": "red_cross",
+            "confidence": 0.89306640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.144217,
+            "class_name": "red_cross",
+            "confidence": 0.89404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.3492258,
+            "class_name": "red_cross",
+            "confidence": 0.90771484375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.596934,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.9006526,
+            "class_name": "red_cross",
+            "confidence": 0.91357421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.162998,
+            "class_name": "red_cross",
+            "confidence": 0.89208984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.3883724,
+            "class_name": "red_cross",
+            "confidence": 0.90625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.6366076,
+            "class_name": "red_cross",
+            "confidence": 0.900390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.9052613,
+            "class_name": "red_cross",
+            "confidence": 0.9052734375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.108987,
+            "class_name": "red_cross",
+            "confidence": 0.88671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.4641926,
+            "class_name": "red_cross",
+            "confidence": 0.900390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.7700024,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.0281959,
+            "class_name": "red_cross",
+            "confidence": 0.8994140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.2902792,
+            "class_name": "red_cross",
+            "confidence": 0.9072265625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.552751,
+            "class_name": "red_cross",
+            "confidence": 0.9130859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.7530441,
+            "class_name": "red_cross",
+            "confidence": 0.90869140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.033014,
+            "class_name": "red_cross",
+            "confidence": 0.9072265625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.357933,
+            "class_name": "red_cross",
+            "confidence": 0.9169921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.7038062,
+            "class_name": "red_cross",
+            "confidence": 0.91943359375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.9193149,
+            "class_name": "red_cross",
+            "confidence": 0.92138671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.197538,
+            "class_name": "red_cross",
+            "confidence": 0.91845703125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.4337525,
+            "class_name": "red_cross",
+            "confidence": 0.91552734375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.667246,
+            "class_name": "red_cross",
+            "confidence": 0.90625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.9220467,
+            "class_name": "red_cross",
+            "confidence": 0.908203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.1587582,
+            "class_name": "red_cross",
+            "confidence": 0.8955078125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.4123135,
+            "class_name": "red_cross",
+            "confidence": 0.91259765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.663421,
+            "class_name": "red_cross",
+            "confidence": 0.8935546875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.9308245,
+            "class_name": "panzer",
+            "confidence": 0.85986328125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606912.9308245,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.186721,
+            "class_name": "panzer",
+            "confidence": 0.90087890625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.186721,
+            "class_name": "red_cross",
+            "confidence": 0.89404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.4076154,
+            "class_name": "panzer",
+            "confidence": 0.79833984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.4076154,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "panzer",
+            "confidence": 0.755859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "red_cross",
+            "confidence": 0.9033203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "red_cross",
+            "confidence": 0.69189453125,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606913.8995576,
+            "class_name": "panzer",
+            "confidence": 0.88232421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.8995576,
+            "class_name": "red_cross",
+            "confidence": 0.8642578125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606914.1170716,
+            "class_name": "panzer",
+            "confidence": 0.83251953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.1170716,
+            "class_name": "red_cross",
+            "confidence": 0.8740234375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606914.3717763,
+            "class_name": "red_cross",
+            "confidence": 0.81298828125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606914.3717763,
+            "class_name": "panzer",
+            "confidence": 0.89794921875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.6459312,
+            "class_name": "panzer",
+            "confidence": 0.916015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.8944495,
+            "class_name": "panzer",
+            "confidence": 0.88623046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.1573455,
+            "class_name": "panzer",
+            "confidence": 0.9013671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.360267,
+            "class_name": "panzer",
+            "confidence": 0.90283203125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.5682652,
+            "class_name": "panzer",
+            "confidence": 0.916015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.8176386,
+            "class_name": "panzer",
+            "confidence": 0.89599609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.04576,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.297942,
+            "class_name": "panzer",
+            "confidence": 0.91796875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.5444088,
+            "class_name": "panzer",
+            "confidence": 0.91845703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.803423,
+            "class_name": "panzer",
+            "confidence": 0.92333984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.0844681,
+            "class_name": "panzer",
+            "confidence": 0.9072265625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.3150585,
+            "class_name": "panzer",
+            "confidence": 0.91845703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.5640712,
+            "class_name": "panzer",
+            "confidence": 0.9169921875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.8108351,
+            "class_name": "panzer",
+            "confidence": 0.90771484375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.117847,
+            "class_name": "panzer",
+            "confidence": 0.91015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.543605,
+            "class_name": "panzer",
+            "confidence": 0.92578125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.797567,
+            "class_name": "panzer",
+            "confidence": 0.93017578125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.015322,
+            "class_name": "panzer",
+            "confidence": 0.92138671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.3165686,
+            "class_name": "panzer",
+            "confidence": 0.9130859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.5590599,
+            "class_name": "panzer",
+            "confidence": 0.91748046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.7978888,
+            "class_name": "panzer",
+            "confidence": 0.91455078125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.0306137,
+            "class_name": "panzer",
+            "confidence": 0.9248046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.3013914,
+            "class_name": "panzer",
+            "confidence": 0.9248046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.5275514,
+            "class_name": "panzer",
+            "confidence": 0.92822265625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.7515135,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.9702907,
+            "class_name": "panzer",
+            "confidence": 0.9130859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.200026,
+            "class_name": "panzer",
+            "confidence": 0.912109375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.4092522,
+            "class_name": "panzer",
+            "confidence": 0.9140625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.6941798,
+            "class_name": "panzer",
+            "confidence": 0.9150390625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.9437094,
+            "class_name": "panzer",
+            "confidence": 0.91552734375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.187877,
+            "class_name": "panzer",
+            "confidence": 0.908203125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.4220455,
+            "class_name": "panzer",
+            "confidence": 0.90673828125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.6373723,
+            "class_name": "panzer",
+            "confidence": 0.9189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.866511,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.0982964,
+            "class_name": "panzer",
+            "confidence": 0.931640625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.3173835,
+            "class_name": "panzer",
+            "confidence": 0.92626953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.519056,
+            "class_name": "panzer",
+            "confidence": 0.92138671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.739629,
+            "class_name": "panzer",
+            "confidence": 0.91357421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.9544213,
+            "class_name": "panzer",
+            "confidence": 0.9189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606924.1625793,
+            "class_name": "bridge",
+            "confidence": 0.65576171875,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606931.2846816,
+            "class_name": "panzer",
+            "confidence": 0.6064453125,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606931.561213,
+            "class_name": "bridge",
+            "confidence": 0.86083984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606931.8623624,
+            "class_name": "bridge",
+            "confidence": 0.91943359375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.1152735,
+            "class_name": "bridge",
+            "confidence": 0.9521484375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.352818,
+            "class_name": "bridge",
+            "confidence": 0.9453125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.5647821,
+            "class_name": "bridge",
+            "confidence": 0.9453125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.7791536,
+            "class_name": "bridge",
+            "confidence": 0.95458984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.989952,
+            "class_name": "bridge",
+            "confidence": 0.95654296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606933.2209966,
+            "class_name": "bridge",
+            "confidence": 0.95703125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606933.478451,
+            "class_name": "bridge",
+            "confidence": 0.95556640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606933.7239637,
+            "class_name": "bridge",
+            "confidence": 0.9580078125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606933.9435542,
+            "class_name": "bridge",
+            "confidence": 0.953125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606934.2142453,
+            "class_name": "bridge",
+            "confidence": 0.93896484375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606934.5028446,
+            "class_name": "bridge",
+            "confidence": 0.92626953125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606934.807121,
+            "class_name": "bridge",
+            "confidence": 0.9384765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606935.0893574,
+            "class_name": "bridge",
+            "confidence": 0.94287109375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606935.3853188,
+            "class_name": "bridge",
+            "confidence": 0.94482421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606935.6621287,
+            "class_name": "bridge",
+            "confidence": 0.93408203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606935.8985922,
+            "class_name": "bridge",
+            "confidence": 0.931640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606936.1422246,
+            "class_name": "bridge",
+            "confidence": 0.9404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606936.3982062,
+            "class_name": "bridge",
+            "confidence": 0.92333984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606936.6407661,
+            "class_name": "bridge",
+            "confidence": 0.94482421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606936.9119887,
+            "class_name": "bridge",
+            "confidence": 0.9482421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606937.1384885,
+            "class_name": "bridge",
+            "confidence": 0.94384765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606937.3713155,
+            "class_name": "bridge",
+            "confidence": 0.9384765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606937.6892617,
+            "class_name": "bridge",
+            "confidence": 0.9345703125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606938.007046,
+            "class_name": "bridge",
+            "confidence": 0.92626953125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606938.3497167,
+            "class_name": "bridge",
+            "confidence": 0.9501953125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606938.5824215,
+            "class_name": "bridge",
+            "confidence": 0.9541015625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606938.920129,
+            "class_name": "bridge",
+            "confidence": 0.94384765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606939.1302588,
+            "class_name": "bridge",
+            "confidence": 0.9375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606939.37496,
+            "class_name": "bridge",
+            "confidence": 0.9404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606939.592169,
+            "class_name": "bridge",
+            "confidence": 0.9560546875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606939.8800013,
+            "class_name": "bridge",
+            "confidence": 0.951171875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606940.149129,
+            "class_name": "bridge",
+            "confidence": 0.94140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606940.440346,
+            "class_name": "bridge",
+            "confidence": 0.94287109375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606940.7234256,
+            "class_name": "bridge",
+            "confidence": 0.94140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606940.9872065,
+            "class_name": "bridge",
+            "confidence": 0.9375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606941.190844,
+            "class_name": "bridge",
+            "confidence": 0.93798828125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606941.4311447,
+            "class_name": "bridge",
+            "confidence": 0.912109375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606941.6460338,
+            "class_name": "bridge",
+            "confidence": 0.92431640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606941.8862,
+            "class_name": "bridge",
+            "confidence": 0.92529296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606942.1394458,
+            "class_name": "bridge",
+            "confidence": 0.9189453125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606942.43372,
+            "class_name": "bridge",
+            "confidence": 0.92724609375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606942.6877253,
+            "class_name": "bridge",
+            "confidence": 0.93017578125,
+            "reason": "coarse_accepted"
+          }
+        ],
+        "committed": 0
+      },
+      {
+        "threshold": 0.75,
+        "counts": {
+          "coarse_class_rejected": 10,
+          "coarse_accepted": 89,
+          "coarse_conflict": 46
+        },
+        "revisit": {
+          "red_cross": [
+            3.19022437394709,
+            -1.2776063418419734
+          ],
+          "bridge": [
+            4.740237678926632,
+            1.2676286743925291
+          ],
+          "panzer": [
+            5.713896660007723,
+            -1.5898230582591828
+          ]
+        },
+        "conflicts": [
+          "panzer"
+        ],
+        "interrupt": [
+          "red_cross",
+          "bridge"
+        ],
+        "max_interrupt": 2,
+        "observations": [
+          {
+            "time": 1790606890.6663892,
+            "class_name": "panzer",
+            "confidence": 0.6298828125,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606890.9583566,
+            "class_name": "panzer",
+            "confidence": 0.6650390625,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606891.3023455,
+            "class_name": "panzer",
+            "confidence": 0.63232421875,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606892.5114746,
+            "class_name": "bridge",
+            "confidence": 0.65625,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606892.9947317,
+            "class_name": "bridge",
+            "confidence": 0.6357421875,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606893.9179142,
+            "class_name": "panzer",
+            "confidence": 0.693359375,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606894.142849,
+            "class_name": "panzer",
+            "confidence": 0.77490234375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606894.4339063,
+            "class_name": "panzer",
+            "confidence": 0.77880859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606894.7254655,
+            "class_name": "panzer",
+            "confidence": 0.82666015625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606894.94151,
+            "class_name": "panzer",
+            "confidence": 0.775390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606903.875058,
+            "class_name": "red_cross",
+            "confidence": 0.6181640625,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606904.1015368,
+            "class_name": "red_cross",
+            "confidence": 0.87548828125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.3411722,
+            "class_name": "red_cross",
+            "confidence": 0.85888671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.6144323,
+            "class_name": "red_cross",
+            "confidence": 0.8857421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.882295,
+            "class_name": "red_cross",
+            "confidence": 0.8837890625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.1133826,
+            "class_name": "red_cross",
+            "confidence": 0.892578125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.3762865,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.6391513,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.9320672,
+            "class_name": "red_cross",
+            "confidence": 0.89306640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.144217,
+            "class_name": "red_cross",
+            "confidence": 0.89404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.3492258,
+            "class_name": "red_cross",
+            "confidence": 0.90771484375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.596934,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.9006526,
+            "class_name": "red_cross",
+            "confidence": 0.91357421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.162998,
+            "class_name": "red_cross",
+            "confidence": 0.89208984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.3883724,
+            "class_name": "red_cross",
+            "confidence": 0.90625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.6366076,
+            "class_name": "red_cross",
+            "confidence": 0.900390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.9052613,
+            "class_name": "red_cross",
+            "confidence": 0.9052734375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.108987,
+            "class_name": "red_cross",
+            "confidence": 0.88671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.4641926,
+            "class_name": "red_cross",
+            "confidence": 0.900390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.7700024,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.0281959,
+            "class_name": "red_cross",
+            "confidence": 0.8994140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.2902792,
+            "class_name": "red_cross",
+            "confidence": 0.9072265625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.552751,
+            "class_name": "red_cross",
+            "confidence": 0.9130859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.7530441,
+            "class_name": "red_cross",
+            "confidence": 0.90869140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.033014,
+            "class_name": "red_cross",
+            "confidence": 0.9072265625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.357933,
+            "class_name": "red_cross",
+            "confidence": 0.9169921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.7038062,
+            "class_name": "red_cross",
+            "confidence": 0.91943359375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.9193149,
+            "class_name": "red_cross",
+            "confidence": 0.92138671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.197538,
+            "class_name": "red_cross",
+            "confidence": 0.91845703125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.4337525,
+            "class_name": "red_cross",
+            "confidence": 0.91552734375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.667246,
+            "class_name": "red_cross",
+            "confidence": 0.90625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.9220467,
+            "class_name": "red_cross",
+            "confidence": 0.908203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.1587582,
+            "class_name": "red_cross",
+            "confidence": 0.8955078125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.4123135,
+            "class_name": "red_cross",
+            "confidence": 0.91259765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.663421,
+            "class_name": "red_cross",
+            "confidence": 0.8935546875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.9308245,
+            "class_name": "panzer",
+            "confidence": 0.85986328125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606912.9308245,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.186721,
+            "class_name": "panzer",
+            "confidence": 0.90087890625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.186721,
+            "class_name": "red_cross",
+            "confidence": 0.89404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.4076154,
+            "class_name": "panzer",
+            "confidence": 0.79833984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.4076154,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "panzer",
+            "confidence": 0.755859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "red_cross",
+            "confidence": 0.9033203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "red_cross",
+            "confidence": 0.69189453125,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606913.8995576,
+            "class_name": "panzer",
+            "confidence": 0.88232421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.8995576,
+            "class_name": "red_cross",
+            "confidence": 0.8642578125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606914.1170716,
+            "class_name": "panzer",
+            "confidence": 0.83251953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.1170716,
+            "class_name": "red_cross",
+            "confidence": 0.8740234375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606914.3717763,
+            "class_name": "red_cross",
+            "confidence": 0.81298828125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606914.3717763,
+            "class_name": "panzer",
+            "confidence": 0.89794921875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.6459312,
+            "class_name": "panzer",
+            "confidence": 0.916015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.8944495,
+            "class_name": "panzer",
+            "confidence": 0.88623046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.1573455,
+            "class_name": "panzer",
+            "confidence": 0.9013671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.360267,
+            "class_name": "panzer",
+            "confidence": 0.90283203125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.5682652,
+            "class_name": "panzer",
+            "confidence": 0.916015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.8176386,
+            "class_name": "panzer",
+            "confidence": 0.89599609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.04576,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.297942,
+            "class_name": "panzer",
+            "confidence": 0.91796875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.5444088,
+            "class_name": "panzer",
+            "confidence": 0.91845703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.803423,
+            "class_name": "panzer",
+            "confidence": 0.92333984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.0844681,
+            "class_name": "panzer",
+            "confidence": 0.9072265625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.3150585,
+            "class_name": "panzer",
+            "confidence": 0.91845703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.5640712,
+            "class_name": "panzer",
+            "confidence": 0.9169921875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.8108351,
+            "class_name": "panzer",
+            "confidence": 0.90771484375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.117847,
+            "class_name": "panzer",
+            "confidence": 0.91015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.543605,
+            "class_name": "panzer",
+            "confidence": 0.92578125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.797567,
+            "class_name": "panzer",
+            "confidence": 0.93017578125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.015322,
+            "class_name": "panzer",
+            "confidence": 0.92138671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.3165686,
+            "class_name": "panzer",
+            "confidence": 0.9130859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.5590599,
+            "class_name": "panzer",
+            "confidence": 0.91748046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.7978888,
+            "class_name": "panzer",
+            "confidence": 0.91455078125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.0306137,
+            "class_name": "panzer",
+            "confidence": 0.9248046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.3013914,
+            "class_name": "panzer",
+            "confidence": 0.9248046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.5275514,
+            "class_name": "panzer",
+            "confidence": 0.92822265625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.7515135,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.9702907,
+            "class_name": "panzer",
+            "confidence": 0.9130859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.200026,
+            "class_name": "panzer",
+            "confidence": 0.912109375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.4092522,
+            "class_name": "panzer",
+            "confidence": 0.9140625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.6941798,
+            "class_name": "panzer",
+            "confidence": 0.9150390625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.9437094,
+            "class_name": "panzer",
+            "confidence": 0.91552734375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.187877,
+            "class_name": "panzer",
+            "confidence": 0.908203125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.4220455,
+            "class_name": "panzer",
+            "confidence": 0.90673828125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.6373723,
+            "class_name": "panzer",
+            "confidence": 0.9189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.866511,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.0982964,
+            "class_name": "panzer",
+            "confidence": 0.931640625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.3173835,
+            "class_name": "panzer",
+            "confidence": 0.92626953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.519056,
+            "class_name": "panzer",
+            "confidence": 0.92138671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.739629,
+            "class_name": "panzer",
+            "confidence": 0.91357421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.9544213,
+            "class_name": "panzer",
+            "confidence": 0.9189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606924.1625793,
+            "class_name": "bridge",
+            "confidence": 0.65576171875,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606931.2846816,
+            "class_name": "panzer",
+            "confidence": 0.6064453125,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606931.561213,
+            "class_name": "bridge",
+            "confidence": 0.86083984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606931.8623624,
+            "class_name": "bridge",
+            "confidence": 0.91943359375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.1152735,
+            "class_name": "bridge",
+            "confidence": 0.9521484375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.352818,
+            "class_name": "bridge",
+            "confidence": 0.9453125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.5647821,
+            "class_name": "bridge",
+            "confidence": 0.9453125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.7791536,
+            "class_name": "bridge",
+            "confidence": 0.95458984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.989952,
+            "class_name": "bridge",
+            "confidence": 0.95654296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606933.2209966,
+            "class_name": "bridge",
+            "confidence": 0.95703125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606933.478451,
+            "class_name": "bridge",
+            "confidence": 0.95556640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606933.7239637,
+            "class_name": "bridge",
+            "confidence": 0.9580078125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606933.9435542,
+            "class_name": "bridge",
+            "confidence": 0.953125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606934.2142453,
+            "class_name": "bridge",
+            "confidence": 0.93896484375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606934.5028446,
+            "class_name": "bridge",
+            "confidence": 0.92626953125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606934.807121,
+            "class_name": "bridge",
+            "confidence": 0.9384765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606935.0893574,
+            "class_name": "bridge",
+            "confidence": 0.94287109375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606935.3853188,
+            "class_name": "bridge",
+            "confidence": 0.94482421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606935.6621287,
+            "class_name": "bridge",
+            "confidence": 0.93408203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606935.8985922,
+            "class_name": "bridge",
+            "confidence": 0.931640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606936.1422246,
+            "class_name": "bridge",
+            "confidence": 0.9404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606936.3982062,
+            "class_name": "bridge",
+            "confidence": 0.92333984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606936.6407661,
+            "class_name": "bridge",
+            "confidence": 0.94482421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606936.9119887,
+            "class_name": "bridge",
+            "confidence": 0.9482421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606937.1384885,
+            "class_name": "bridge",
+            "confidence": 0.94384765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606937.3713155,
+            "class_name": "bridge",
+            "confidence": 0.9384765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606937.6892617,
+            "class_name": "bridge",
+            "confidence": 0.9345703125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606938.007046,
+            "class_name": "bridge",
+            "confidence": 0.92626953125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606938.3497167,
+            "class_name": "bridge",
+            "confidence": 0.9501953125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606938.5824215,
+            "class_name": "bridge",
+            "confidence": 0.9541015625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606938.920129,
+            "class_name": "bridge",
+            "confidence": 0.94384765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606939.1302588,
+            "class_name": "bridge",
+            "confidence": 0.9375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606939.37496,
+            "class_name": "bridge",
+            "confidence": 0.9404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606939.592169,
+            "class_name": "bridge",
+            "confidence": 0.9560546875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606939.8800013,
+            "class_name": "bridge",
+            "confidence": 0.951171875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606940.149129,
+            "class_name": "bridge",
+            "confidence": 0.94140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606940.440346,
+            "class_name": "bridge",
+            "confidence": 0.94287109375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606940.7234256,
+            "class_name": "bridge",
+            "confidence": 0.94140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606940.9872065,
+            "class_name": "bridge",
+            "confidence": 0.9375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606941.190844,
+            "class_name": "bridge",
+            "confidence": 0.93798828125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606941.4311447,
+            "class_name": "bridge",
+            "confidence": 0.912109375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606941.6460338,
+            "class_name": "bridge",
+            "confidence": 0.92431640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606941.8862,
+            "class_name": "bridge",
+            "confidence": 0.92529296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606942.1394458,
+            "class_name": "bridge",
+            "confidence": 0.9189453125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606942.43372,
+            "class_name": "bridge",
+            "confidence": 0.92724609375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606942.6877253,
+            "class_name": "bridge",
+            "confidence": 0.93017578125,
+            "reason": "coarse_accepted"
+          }
+        ],
+        "committed": 0
+      },
+      {
+        "threshold": 0.8,
+        "counts": {
+          "coarse_class_rejected": 15,
+          "coarse_accepted": 86,
+          "coarse_conflict": 44
+        },
+        "revisit": {
+          "red_cross": [
+            3.19022437394709,
+            -1.2776063418419734
+          ],
+          "bridge": [
+            4.740237678926632,
+            1.2676286743925291
+          ],
+          "panzer": [
+            5.713896660007723,
+            -1.5898230582591828
+          ]
+        },
+        "conflicts": [
+          "panzer"
+        ],
+        "interrupt": [
+          "red_cross",
+          "bridge"
+        ],
+        "max_interrupt": 2,
+        "observations": [
+          {
+            "time": 1790606890.6663892,
+            "class_name": "panzer",
+            "confidence": 0.6298828125,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606890.9583566,
+            "class_name": "panzer",
+            "confidence": 0.6650390625,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606891.3023455,
+            "class_name": "panzer",
+            "confidence": 0.63232421875,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606892.5114746,
+            "class_name": "bridge",
+            "confidence": 0.65625,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606892.9947317,
+            "class_name": "bridge",
+            "confidence": 0.6357421875,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606893.9179142,
+            "class_name": "panzer",
+            "confidence": 0.693359375,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606894.142849,
+            "class_name": "panzer",
+            "confidence": 0.77490234375,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606894.4339063,
+            "class_name": "panzer",
+            "confidence": 0.77880859375,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606894.7254655,
+            "class_name": "panzer",
+            "confidence": 0.82666015625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606894.94151,
+            "class_name": "panzer",
+            "confidence": 0.775390625,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606903.875058,
+            "class_name": "red_cross",
+            "confidence": 0.6181640625,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606904.1015368,
+            "class_name": "red_cross",
+            "confidence": 0.87548828125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.3411722,
+            "class_name": "red_cross",
+            "confidence": 0.85888671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.6144323,
+            "class_name": "red_cross",
+            "confidence": 0.8857421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606904.882295,
+            "class_name": "red_cross",
+            "confidence": 0.8837890625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.1133826,
+            "class_name": "red_cross",
+            "confidence": 0.892578125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.3762865,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.6391513,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606905.9320672,
+            "class_name": "red_cross",
+            "confidence": 0.89306640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.144217,
+            "class_name": "red_cross",
+            "confidence": 0.89404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.3492258,
+            "class_name": "red_cross",
+            "confidence": 0.90771484375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.596934,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606906.9006526,
+            "class_name": "red_cross",
+            "confidence": 0.91357421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.162998,
+            "class_name": "red_cross",
+            "confidence": 0.89208984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.3883724,
+            "class_name": "red_cross",
+            "confidence": 0.90625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.6366076,
+            "class_name": "red_cross",
+            "confidence": 0.900390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606907.9052613,
+            "class_name": "red_cross",
+            "confidence": 0.9052734375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.108987,
+            "class_name": "red_cross",
+            "confidence": 0.88671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.4641926,
+            "class_name": "red_cross",
+            "confidence": 0.900390625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606908.7700024,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.0281959,
+            "class_name": "red_cross",
+            "confidence": 0.8994140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.2902792,
+            "class_name": "red_cross",
+            "confidence": 0.9072265625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.552751,
+            "class_name": "red_cross",
+            "confidence": 0.9130859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606909.7530441,
+            "class_name": "red_cross",
+            "confidence": 0.90869140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.033014,
+            "class_name": "red_cross",
+            "confidence": 0.9072265625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.357933,
+            "class_name": "red_cross",
+            "confidence": 0.9169921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.7038062,
+            "class_name": "red_cross",
+            "confidence": 0.91943359375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606910.9193149,
+            "class_name": "red_cross",
+            "confidence": 0.92138671875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.197538,
+            "class_name": "red_cross",
+            "confidence": 0.91845703125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.4337525,
+            "class_name": "red_cross",
+            "confidence": 0.91552734375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.667246,
+            "class_name": "red_cross",
+            "confidence": 0.90625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606911.9220467,
+            "class_name": "red_cross",
+            "confidence": 0.908203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.1587582,
+            "class_name": "red_cross",
+            "confidence": 0.8955078125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.4123135,
+            "class_name": "red_cross",
+            "confidence": 0.91259765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.663421,
+            "class_name": "red_cross",
+            "confidence": 0.8935546875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606912.9308245,
+            "class_name": "panzer",
+            "confidence": 0.85986328125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606912.9308245,
+            "class_name": "red_cross",
+            "confidence": 0.90380859375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.186721,
+            "class_name": "panzer",
+            "confidence": 0.90087890625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.186721,
+            "class_name": "red_cross",
+            "confidence": 0.89404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.4076154,
+            "class_name": "panzer",
+            "confidence": 0.79833984375,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606913.4076154,
+            "class_name": "red_cross",
+            "confidence": 0.89794921875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "panzer",
+            "confidence": 0.755859375,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "red_cross",
+            "confidence": 0.9033203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606913.6987324,
+            "class_name": "red_cross",
+            "confidence": 0.69189453125,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606913.8995576,
+            "class_name": "panzer",
+            "confidence": 0.88232421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606913.8995576,
+            "class_name": "red_cross",
+            "confidence": 0.8642578125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606914.1170716,
+            "class_name": "panzer",
+            "confidence": 0.83251953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.1170716,
+            "class_name": "red_cross",
+            "confidence": 0.8740234375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606914.3717763,
+            "class_name": "red_cross",
+            "confidence": 0.81298828125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606914.3717763,
+            "class_name": "panzer",
+            "confidence": 0.89794921875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.6459312,
+            "class_name": "panzer",
+            "confidence": 0.916015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606914.8944495,
+            "class_name": "panzer",
+            "confidence": 0.88623046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.1573455,
+            "class_name": "panzer",
+            "confidence": 0.9013671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.360267,
+            "class_name": "panzer",
+            "confidence": 0.90283203125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.5682652,
+            "class_name": "panzer",
+            "confidence": 0.916015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606915.8176386,
+            "class_name": "panzer",
+            "confidence": 0.89599609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.04576,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.297942,
+            "class_name": "panzer",
+            "confidence": 0.91796875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.5444088,
+            "class_name": "panzer",
+            "confidence": 0.91845703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606916.803423,
+            "class_name": "panzer",
+            "confidence": 0.92333984375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.0844681,
+            "class_name": "panzer",
+            "confidence": 0.9072265625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.3150585,
+            "class_name": "panzer",
+            "confidence": 0.91845703125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.5640712,
+            "class_name": "panzer",
+            "confidence": 0.9169921875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606917.8108351,
+            "class_name": "panzer",
+            "confidence": 0.90771484375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.117847,
+            "class_name": "panzer",
+            "confidence": 0.91015625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.543605,
+            "class_name": "panzer",
+            "confidence": 0.92578125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606918.797567,
+            "class_name": "panzer",
+            "confidence": 0.93017578125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.015322,
+            "class_name": "panzer",
+            "confidence": 0.92138671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.3165686,
+            "class_name": "panzer",
+            "confidence": 0.9130859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.5590599,
+            "class_name": "panzer",
+            "confidence": 0.91748046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606919.7978888,
+            "class_name": "panzer",
+            "confidence": 0.91455078125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.0306137,
+            "class_name": "panzer",
+            "confidence": 0.9248046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.3013914,
+            "class_name": "panzer",
+            "confidence": 0.9248046875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.5275514,
+            "class_name": "panzer",
+            "confidence": 0.92822265625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.7515135,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606920.9702907,
+            "class_name": "panzer",
+            "confidence": 0.9130859375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.200026,
+            "class_name": "panzer",
+            "confidence": 0.912109375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.4092522,
+            "class_name": "panzer",
+            "confidence": 0.9140625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.6941798,
+            "class_name": "panzer",
+            "confidence": 0.9150390625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606921.9437094,
+            "class_name": "panzer",
+            "confidence": 0.91552734375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.187877,
+            "class_name": "panzer",
+            "confidence": 0.908203125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.4220455,
+            "class_name": "panzer",
+            "confidence": 0.90673828125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.6373723,
+            "class_name": "panzer",
+            "confidence": 0.9189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606922.866511,
+            "class_name": "panzer",
+            "confidence": 0.92724609375,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.0982964,
+            "class_name": "panzer",
+            "confidence": 0.931640625,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.3173835,
+            "class_name": "panzer",
+            "confidence": 0.92626953125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.519056,
+            "class_name": "panzer",
+            "confidence": 0.92138671875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.739629,
+            "class_name": "panzer",
+            "confidence": 0.91357421875,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606923.9544213,
+            "class_name": "panzer",
+            "confidence": 0.9189453125,
+            "reason": "coarse_conflict"
+          },
+          {
+            "time": 1790606924.1625793,
+            "class_name": "bridge",
+            "confidence": 0.65576171875,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606931.2846816,
+            "class_name": "panzer",
+            "confidence": 0.6064453125,
+            "reason": "coarse_class_rejected"
+          },
+          {
+            "time": 1790606931.561213,
+            "class_name": "bridge",
+            "confidence": 0.86083984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606931.8623624,
+            "class_name": "bridge",
+            "confidence": 0.91943359375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.1152735,
+            "class_name": "bridge",
+            "confidence": 0.9521484375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.352818,
+            "class_name": "bridge",
+            "confidence": 0.9453125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.5647821,
+            "class_name": "bridge",
+            "confidence": 0.9453125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.7791536,
+            "class_name": "bridge",
+            "confidence": 0.95458984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606932.989952,
+            "class_name": "bridge",
+            "confidence": 0.95654296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606933.2209966,
+            "class_name": "bridge",
+            "confidence": 0.95703125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606933.478451,
+            "class_name": "bridge",
+            "confidence": 0.95556640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606933.7239637,
+            "class_name": "bridge",
+            "confidence": 0.9580078125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606933.9435542,
+            "class_name": "bridge",
+            "confidence": 0.953125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606934.2142453,
+            "class_name": "bridge",
+            "confidence": 0.93896484375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606934.5028446,
+            "class_name": "bridge",
+            "confidence": 0.92626953125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606934.807121,
+            "class_name": "bridge",
+            "confidence": 0.9384765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606935.0893574,
+            "class_name": "bridge",
+            "confidence": 0.94287109375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606935.3853188,
+            "class_name": "bridge",
+            "confidence": 0.94482421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606935.6621287,
+            "class_name": "bridge",
+            "confidence": 0.93408203125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606935.8985922,
+            "class_name": "bridge",
+            "confidence": 0.931640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606936.1422246,
+            "class_name": "bridge",
+            "confidence": 0.9404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606936.3982062,
+            "class_name": "bridge",
+            "confidence": 0.92333984375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606936.6407661,
+            "class_name": "bridge",
+            "confidence": 0.94482421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606936.9119887,
+            "class_name": "bridge",
+            "confidence": 0.9482421875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606937.1384885,
+            "class_name": "bridge",
+            "confidence": 0.94384765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606937.3713155,
+            "class_name": "bridge",
+            "confidence": 0.9384765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606937.6892617,
+            "class_name": "bridge",
+            "confidence": 0.9345703125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606938.007046,
+            "class_name": "bridge",
+            "confidence": 0.92626953125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606938.3497167,
+            "class_name": "bridge",
+            "confidence": 0.9501953125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606938.5824215,
+            "class_name": "bridge",
+            "confidence": 0.9541015625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606938.920129,
+            "class_name": "bridge",
+            "confidence": 0.94384765625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606939.1302588,
+            "class_name": "bridge",
+            "confidence": 0.9375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606939.37496,
+            "class_name": "bridge",
+            "confidence": 0.9404296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606939.592169,
+            "class_name": "bridge",
+            "confidence": 0.9560546875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606939.8800013,
+            "class_name": "bridge",
+            "confidence": 0.951171875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606940.149129,
+            "class_name": "bridge",
+            "confidence": 0.94140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606940.440346,
+            "class_name": "bridge",
+            "confidence": 0.94287109375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606940.7234256,
+            "class_name": "bridge",
+            "confidence": 0.94140625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606940.9872065,
+            "class_name": "bridge",
+            "confidence": 0.9375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606941.190844,
+            "class_name": "bridge",
+            "confidence": 0.93798828125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606941.4311447,
+            "class_name": "bridge",
+            "confidence": 0.912109375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606941.6460338,
+            "class_name": "bridge",
+            "confidence": 0.92431640625,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606941.8862,
+            "class_name": "bridge",
+            "confidence": 0.92529296875,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606942.1394458,
+            "class_name": "bridge",
+            "confidence": 0.9189453125,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606942.43372,
+            "class_name": "bridge",
+            "confidence": 0.92724609375,
+            "reason": "coarse_accepted"
+          },
+          {
+            "time": 1790606942.6877253,
+            "class_name": "bridge",
+            "confidence": 0.93017578125,
+            "reason": "coarse_accepted"
+          }
+        ],
+        "committed": 0
+      }
+    ]
+  }
+}
