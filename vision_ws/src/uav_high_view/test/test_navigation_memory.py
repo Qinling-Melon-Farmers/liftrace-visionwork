@@ -123,4 +123,81 @@ class MemoryTests(unittest.TestCase):
         self.assertLessEqual(len(self.m.support_status()['panzer']),2)
         self.assertLessEqual(len(self.m.events),64)
 
+class RevisitMemoryTests(unittest.TestCase):
+    setUp=MemoryTests.setUp
+    h=MemoryTests.h
+    put=MemoryTests.put
+    def test_supported_place_survives_newer_competing_single_image(self):
+        for i in range(6):self.put(self.h(t=10.+i*.2))
+        self.put(self.h((3.,3.),12.,key=2))
+        hints=self.m.revisit_hints(12*N)
+        self.assertEqual(hints['panzer'].xy,(0.,0.))
+        self.assertEqual(hints['panzer'].evidence_count,2)
+        self.assertFalse(self.m.interrupt_hints(12*N))
+        self.assertEqual(len(self.m.verification_hints(12*N)['panzer']),2)
+        self.assertEqual(self.m.support_status()['panzer'][0]['revisit_support_count'],6)
+
+    def test_sustained_place_beats_newer_two_image_competitor(self):
+        for i in range(6):self.put(self.h(t=10.+i*.2))
+        for t in (12.,12.2):self.put(self.h((3.,3.),t,key=2))
+        self.assertEqual(self.m.revisit_hints(int(12.2*N))['panzer'].xy,(0.,0.))
+        self.assertFalse(self.m.interrupt_hints(int(12.2*N)))
+
+    def test_single_image_conflicts_stay_for_local_verification(self):
+        self.put(self.h(),self.h((3.,3.),key=2))
+        self.assertFalse(self.m.revisit_hints(10*N))
+        self.assertEqual(len(self.m.verification_hints(10*N)['panzer']),2)
+
+    def test_same_place_wrong_class_does_not_remove_supported_revisit(self):
+        for t in (10.,10.2,10.4):self.put(self.h(t=t))
+        self.put(self.h(t=11.,cls='bridge',key=2))
+        self.assertEqual(set(self.m.revisit_hints(11*N)),{'panzer'})
+        self.assertFalse(self.m.interrupt_hints(11*N))
+        low=self.h(t=12.,source='vision')
+        self.assertTrue(self.m.resolve_low(low,12*N))
+        self.assertEqual(self.m.revisit_hints(12*N),{'panzer':low})
+        self.assertNotIn('bridge',self.m.saved)
+
+    def test_duplicate_or_dense_images_cannot_inflate_revisit_support(self):
+        for i in range(9):self.put(self.h(t=10.+i*.01,key=i))
+        self.assertEqual(self.m.support_status()['panzer'][0]['revisit_support_count'],1)
+        self.put(self.h(t=10.2))
+        for i in range(10):self.put(self.h(t=10.2,key=100+i))
+        self.assertEqual(self.m.support_status()['panzer'][0]['revisit_support_count'],2)
+
+    def test_low_confirmation_cleans_local_labels_and_suppresses_remote_weak_place(self):
+        for t in (10.,10.2):
+            self.put(self.h((0.,0.),t),self.h((3.,0.),t,key=2),
+                     self.h((3.,0.),t,cls='bridge',key=3),
+                     self.h((6.,0.),t,cls='bridge',key=4))
+        low=self.h((3.,0.),11.,source='vision',key=2)
+        self.assertTrue(self.m.resolve_low(low,11*N))
+        preferred=self.m.revisit_hints(11*N)
+        self.assertEqual(preferred['panzer'],low)
+        self.assertEqual(preferred['bridge'].xy,(6.,0.))
+        self.assertEqual(len(self.m.support_status()['bridge']),1)
+        self.assertFalse(self.m.verification_hints(11*N))
+        # Older wrong labels cannot reappear as navigation candidates.
+        self.put(self.h((0.,0.),12.),self.h((3.,0.),12.,cls='bridge',key=3))
+        preferred=self.m.revisit_hints(12*N)
+        self.assertEqual(preferred['panzer'],low)
+        self.assertEqual(preferred['bridge'].xy,(6.,0.))
+
+    def test_revisit_hints_respect_expiry_and_clock_reset(self):
+        for t in (10.,10.2):self.put(self.h(t=t))
+        self.put(self.h((3.,3.),11.,key=2))
+        self.assertTrue(self.m.revisit_hints(11*N))
+        self.assertFalse(self.m.revisit_hints(42*N))
+        self.put(self.h(t=43.))
+        self.assertFalse(self.m.revisit_hints(42*N))
+
+    def test_retire_preferred_exposes_alternative_without_resurrecting_it(self):
+        for t in (10.,10.2):self.put(self.h(t=t))
+        self.put(self.h((3.,3.),11.,key=2))
+        preferred=self.m.revisit_hints(11*N)['panzer']
+        self.m.retire_location(preferred,12*N)
+        self.assertEqual(self.m.revisit_hints(12*N)['panzer'].xy,(3.,3.))
+        self.put(self.h(t=13.))
+        self.assertEqual(self.m.revisit_hints(13*N)['panzer'].xy,(3.,3.))
+
 if __name__=='__main__':unittest.main()

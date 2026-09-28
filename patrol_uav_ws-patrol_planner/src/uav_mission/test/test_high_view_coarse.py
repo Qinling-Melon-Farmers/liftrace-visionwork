@@ -20,6 +20,26 @@ class CoarseTests(unittest.TestCase):
         data.update(kwargs)
         return self.r.ingest_coarse(**data)
 
+    def test_supported_conflicts_revisit_after_full_route_without_early_exit(self):
+        for t in (101.,101.2,101.4):
+            for index,cls in enumerate(('bridge','panzer','red_cross')):
+                self.r.update_pose((0.,0.,2.38),t,'camera_init')
+                self.cue(class_name=cls,xy=(float(index),1.),stamp_ns=int(round(t*1e9)),now=t)
+        self.cue(class_name='panzer',xy=(3.,3.),stamp_ns=101500000000,now=101.5)
+        self.assertEqual(set(self.r._all_top(101.5)),self.r.required)
+        self.assertNotIn('panzer',self.r._interrupt_top(101.5))
+        self.finish(103.);self.map(104.);self.r.tick(104.,(0.,0.))
+        self.assertEqual(self.r.stage,'SURVEY')
+        self.finish(105.);self.map(106.);self.finish(106.)
+        self.assertEqual(self.r.stage,'DESCEND')
+        self.assertEqual(self.r.top_hints['panzer'].xy,(1.,1.))
+        self.map(110.);self.finish(110.);self.finish(113.)
+        self.assertEqual(self.r.stage,'REACQUIRE')
+        self.assertIsNone(self.r.tick(113.1,self.r.selected.xy).action)
+        self.assertIsNone(self.r.fresh_candidate)
+        self.assertEqual(self.r.core.committed_slots,0)
+        self.assertIsNone(self.r.fallback_started)
+
     def test_one_bbox_can_be_remembered_without_delivery_candidate(self):
         self.assertEqual(self.cue(),'coarse_accepted')
         hint=self.r._all_hints(101.)['panzer']

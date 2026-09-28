@@ -14,6 +14,7 @@ class _Hypothesis:
     samples: list = field(default_factory=list)
     pair: tuple = ()
     low_verified: bool = False
+    support_count: int = 0  # Bounded independent observations; revisit ranking only.
 
     @property
     def level(self):
@@ -73,6 +74,10 @@ class NavigationMemory:
             if gap<self.min_interval_ns:return
             if gap<=self.max_gap_ns and math.dist(xy,h.xy)<=self.consistency_m:
                 row.pair=(row.samples[-1],sample)
+        if row.samples and math.dist(row.samples[-1][1],h.xy)<=self.consistency_m:
+            row.support_count=min(255,row.support_count+1)
+        else:
+            row.support_count=1
         row.samples=(row.samples+[sample])[-2:]
 
     def _rank(self,row):
@@ -190,6 +195,23 @@ class NavigationMemory:
         self._refresh(now_ns)
         return True
 
+    def revisit_hints(self,now_ns):
+        """Best supported place per class, even when early exit is suspended.
+
+        Navigation only: competing labels/places stay in verification_hints.
+        A conflicted single image cannot displace a supported location; repeated
+        publication of one source image cannot increase its ranking.
+        """
+        visible=self.update((),self.epoch,now_ns)
+        for cls,hints in self.conflict_hints.items():
+            supported=[r for r in self._rows.get(cls,()) if r.hint in hints and
+                       (r.hint.key.source!='bbox' or r.pair)]
+            if supported:
+                best=max(supported,key=lambda r:(r.level,r.support_count,
+                                                 r.hint.evidence_count,r.hint.last_seen_ns))
+                visible[cls]=best.hint
+        return visible
+
     def verification_hints(self,now_ns):
         self.update((),self.epoch,now_ns)
         return {c:tuple(hs) for c,hs in self.conflict_hints.items()}
@@ -203,5 +225,6 @@ class NavigationMemory:
         return {c:[dict(xy=r.hint.xy,source=r.hint.key.source,
                        source_stamp_ns=r.hint.last_seen_ns,
                        distinct_image_stamps=[t for t,_ in r.pair or r.samples],
-                       low_verified=r.low_verified) for r in rows]
+                       low_verified=r.low_verified,
+                       revisit_support_count=r.support_count) for r in rows]
                 for c,rows in self._rows.items()}

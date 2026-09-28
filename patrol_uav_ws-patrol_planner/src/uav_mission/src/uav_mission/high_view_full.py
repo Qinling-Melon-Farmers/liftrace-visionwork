@@ -172,7 +172,8 @@ class HighViewFull(HighViewProbe):
 
     def _all_hints(self,now):
         ns=int(round(now*1e9))
-        return self.memory.update(self.catalog.hints(ns),self.catalog.epoch,ns)
+        self.memory.update(self.catalog.hints(ns),self.catalog.epoch,ns)
+        return self.memory.revisit_hints(ns)
 
     def _all_top(self,now):
         return {c:h for c,h in self._all_hints(now).items() if c in self.required}
@@ -348,6 +349,11 @@ class HighViewFull(HighViewProbe):
                 scope='COARSE_OCCUPANCY_COST_NOT_FLIGHT_APPROVAL'
         self.orders.append(dict(time=now,classes=list(names),grid_length_m=cost,map_stamp=self.grid.stamp,scope=scope))
         self.selected=remaining[names[0]]
+        if self.selected.class_name in self.memory.suspended:
+            self._check_location(self.selected.xy)
+            self.events.append(dict(stage='SUPPORTED_CONFLICT_REVISIT',time=now,
+                                    class_name=self.selected.class_name,xy=self.selected.xy,
+                                    scope='LOW_VIEW_RECHECK_NOT_RELEASE_AUTHORIZATION'))
         cls=self.selected.class_name;self.revisit_counts[cls]=self.revisit_counts.get(cls,0)+1
         self.reacquired=None;self.fresh_candidate=None
         view=self.revisit_viewpoints[cls]
@@ -364,7 +370,7 @@ class HighViewFull(HighViewProbe):
         if not self._location_checked(xy):
             self.conflict_checked.append(tuple(xy))
 
-    def _next_conflict_location(self,now):
+    def _next_conflict_location(self,now,allowed_classes=None):
         # These are competing visual hypotheses, not confirmed class coordinates.
         # A new physical low-view observation must still pass the original chain.
         if ((self.conflict_check_started is not None and now-self.conflict_check_started>=75.)
@@ -373,6 +379,7 @@ class HighViewFull(HighViewProbe):
         proposals=[]
         costs=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
         for cls,hints in self.memory.verification_hints(int(round(now*1e9))).items():
+            if allowed_classes is not None and cls not in allowed_classes:continue
             if cls in self.core.queue.delivered_classes or cls in self.unreachable_classes:continue
             for index,h in enumerate(hints):
                 if self._location_checked(h.xy):continue
@@ -579,7 +586,7 @@ class HighViewFull(HighViewProbe):
         if not self.memory.resolve_low(h,int(round(now*1e9))):
             self.reacquired=None;self.fresh_candidate=None
             return
-        visible=self.memory.update((),self.catalog.epoch,int(round(now*1e9)))
+        visible=self.memory.revisit_hints(int(round(now*1e9)))
         self.top_hints={name:hint for name,hint in visible.items() if name in self.required}
         eligible=(c.class_name in self.required or
                   (self.degraded_from is not None and c.class_name==previous))
@@ -682,6 +689,7 @@ class HighViewFull(HighViewProbe):
                      survey_policy=asdict(self.policy),descent_proposal=self.descent_proposal,
                      first_hint_ready=dict(self.first_hint_ready),navigation_memory_events=list(self.memory.events),
                      navigation_support=self.memory.support_status(),
+                     navigation_conflicted_classes=sorted(self.memory.suspended),
                      observe_until=self.observe_until,recheck_shift_used=self.recheck_shift_used,
                      fallback_started=self.fallback_started,descent_debug=self.descent_debug,
                      skipped_survey_xy=list(self.skipped_survey_xy),
