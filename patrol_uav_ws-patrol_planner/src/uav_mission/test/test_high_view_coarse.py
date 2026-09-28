@@ -31,7 +31,7 @@ class CoarseTests(unittest.TestCase):
         self.assertEqual(self.r.core.active_action.command,'SEARCH')
 
     def test_two_images_per_class_descend_and_wait_for_low_confirmation(self):
-        self.r.policy=replace(self.r.policy,interrupt_refined_classes=())
+        self.assertEqual(self.r.policy.interrupt_refined_classes,())
         for index,cls in enumerate(('bridge','panzer','red_cross')):
             self.assertEqual(self.cue(class_name=cls,xy=(float(index),1.)),'coarse_accepted')
         for index,cls in enumerate(('bridge','panzer','red_cross')):
@@ -48,7 +48,8 @@ class CoarseTests(unittest.TestCase):
         self.assertIsNone(self.r.reacquired)
         self.assertTrue(all(s.candidate_key is None for s in self.r.core.slots))
 
-    def test_repeated_coarse_panzer_cannot_end_high_survey_until_refined(self):
+    def test_explicit_legacy_refined_policy_still_supported(self):
+        self.r.policy=replace(self.r.policy,interrupt_refined_classes=('panzer',))
         for t in (101.,101.2):
             for index,cls in enumerate(('bridge','panzer','red_cross')):
                 self.cue(class_name=cls,xy=(float(index),1.),stamp_ns=int(t*1e9),now=t)

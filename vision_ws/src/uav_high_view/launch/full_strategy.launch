@@ -53,7 +53,7 @@
     coarse_interrupt_min_interval_ns: 100000000
     coarse_interrupt_max_gap_ns: 1000000000
     coarse_interrupt_consistency_m: 0.5
-    interrupt_refined_classes: [panzer]
+    interrupt_refined_classes: []
     recheck_observe_seconds: 5.0
     recheck_shift_after_seconds: 1.0
     recheck_shift_radius_m: 0.5

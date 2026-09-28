@@ -11,7 +11,7 @@ class SurveyPolicy:
     coarse_interrupt_min_interval_ns: int = 100000000
     coarse_interrupt_max_gap_ns: int = 1000000000
     coarse_interrupt_consistency_m: float = .5
-    interrupt_refined_classes: tuple = ('panzer',)
+    interrupt_refined_classes: tuple = ()
     recheck_observe_seconds: float = 5.
     recheck_shift_after_seconds: float = 1.
     recheck_shift_radius_m: float = .5
