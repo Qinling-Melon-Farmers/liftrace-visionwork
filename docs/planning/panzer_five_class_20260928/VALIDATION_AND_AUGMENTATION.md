@@ -57,3 +57,9 @@
 - `/home/xhj/liftrace/vision_ws/test_data/yolo_dataset_v6_5cls_flight_h_20260928/manifest.json`：来源、类别、派生变换。
 - `/home/xhj/liftrace/vision_ws/runs/liftrace_5cls_flight_h_20260928/candidate/args.yaml`：实际训练参数。
 - `tools/model_finetune/prepare.py`、`train.py`：增强实现；数据、模型、视频均未加入Git。
+
+## 5. 09/28新增实飞包的适用范围
+
+17:16与17:34两份新增bag已完成[离线视频与故障复盘](../../../../r2026-board-vision-tests/docs/deployment/bridge_landing_20260928/REPORT.md)。它们不能直接作为新五分类已上板验证：本次fetch的试飞组“板载代码”停在d1fe025，默认仍为merged_standard_fp32＋六类metadata，17:34包还记录了tank输出；实际模型路径/参数快照缺失。权重可能被现场替换，但正确五分类契约尚未确认。
+
+17:16装甲车有437条YOLO、434条有效精修投影，停滞主要对应独立圆环0.80门槛与语义靶几何0.70门槛不一致；17:34桥梁已确认且达到严格对准条件，失败前控制输出与LIO/地图更新中断。两包均无任务LAND命令。不能把这些故障归因于新模型或用抬高高位类别阈值处理；具体诊断边界、视频、时序和后续排查见报告。本轮未新增训练或飞行代码修改。
