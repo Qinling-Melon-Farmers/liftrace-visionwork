@@ -99,10 +99,31 @@ class ProbeTests(unittest.TestCase):
         self.r.ingest([a,replace(a,target_id=2)],116.)
         self.assertIsNone(self.r.reacquired)
 
-    def test_pose_jump_or_frame_change_rejected(self):
+    def test_flight5_fusion_correction_does_not_abort(self):
+        before=(3.1740057468,-1.1063992977,1.803057313)
+        after=(3.2236683369,-1.0406501293,2.196893454)
+        self.r.update_pose(before,101.,'camera_init')
+        self.r.update_pose(after,101.04,'camera_init')
+        self.assertEqual(self.r.pose,after)
+        self.assertNotEqual(self.r.core.phase,MissionPhase.ABORTED)
+        self.r.update_pose((5.,0.,2.38),101.1,'camera_init')
+        self.assertEqual(self.r.pose,(5.,0.,2.38))
+
+    def test_invalid_pose_and_clock_still_rejected(self):
         self.r.update_pose((0.,0.,2.38),101.,'camera_init')
-        with self.assertRaises(ValueError):self.r.update_pose((5.,0.,2.38),101.1,'camera_init')
-        with self.assertRaises(ValueError):self.r.update_pose((0.,0.,2.38),102.,'map')
+        for xyz,stamp,frame in [
+                ((0.,0.,2.38),102.,'map'),
+                ((math.nan,0.,2.38),102.,'camera_init'),
+                ((0.,0.,2.38),math.inf,'camera_init'),
+                ((0.,0.,2.38),100.,'camera_init')]:
+            with self.assertRaises(ValueError):
+                self.r.update_pose(xyz,stamp,frame)
+        self.assertEqual(self.r.pose_stamp,101.)
+
+    def test_abort_status_preserves_original_reason(self):
+        self.r.abort('board_pose_exception:ValueError',101.)
+        self.r.tick(101.1,(0.,0.))
+        self.assertEqual(self.r.failure,'board_pose_exception:ValueError')
 
     def test_old_result_does_not_advance_new_stage(self):
         action=self.r.core.active_action;self.observe_high();self.finish(103.);self.finish(106.)

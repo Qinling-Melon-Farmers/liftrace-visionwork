@@ -82,9 +82,9 @@ class HighViewProbe(MissionRuntime):
                 raise ValueError('probe pose invalid')
             if self.pose_stamp is not None:
                 if stamp<self.pose_stamp:raise ValueError('probe pose clock rewind')
-                dt=stamp-self.pose_stamp
-                if dt>0 and math.dist(tuple(xyz),self.pose)>3.*dt+.25:
-                    raise ValueError('probe pose discontinuity')
+                # FC fusion corrections are not physical velocity samples.
+                # Do not turn an estimator jump into a mission-wide ABORT.
+                # Frame, finite values, ordering and freshness remain checked.
             self.pose=tuple(xyz);self.pose_stamp=stamp
 
     def start(self, mission_id, now, current_xy):
@@ -214,7 +214,10 @@ class HighViewProbe(MissionRuntime):
                 return self._outcome(True,'waiting_for_fresh_low_view')
             result=super().tick(now,current_xy)
             if self.core.phase==MissionPhase.ABORTED and not self.done:
-                self.done=True;self.failure=result.reason
+                self.done=True
+                active=self.core.active_action
+                self.failure=(active.reason if active and active.command=='ABORT'
+                              else result.reason)
             return result
 
     def probe_status(self):
