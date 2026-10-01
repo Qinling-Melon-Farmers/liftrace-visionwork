@@ -30,14 +30,17 @@ def propose_column(grid,current_xy,now,radius=1.5,max_candidates=25,max_age=2.):
 
 
 def propose(grid, current_xy, targets, exit_xy, now, radius=1.5, max_candidates=25,
-            max_age=2.):
+            max_age=2., column_grid=None):
     if not 0<radius<=2. or not 1<=max_candidates<=25:raise ValueError('descent search bounds')
     if grid.stamp is None or not 0<=now-grid.stamp<=max_age or not 1<=len(targets)<=3:return None
+    column_grid = grid if column_grid is None else column_grid
+    if column_grid.stamp is None or not 0<=now-column_grid.stamp<=max_age:return None
+    if (grid.bounds,grid.resolution)!=(column_grid.bounds,column_grid.resolution):raise ValueError("descent grid geometry mismatch")
     start=grid.cell(current_xy)
     if start is None:return None
     # If the sensed vertical occupancy column is clear, optimize directly
     # from the interruption point; no compulsory excursion to the home column.
-    if not grid.blocked[start]:
+    if not column_grid.blocked[start]:
         order=grid.order(current_xy,targets,exit_xy,now,max_age)
         if order is not None:
             return dict(xy=tuple(current_xy),classes=order[1],cost_m=order[0],kind='CURRENT_COLUMN',candidates=1)
@@ -52,7 +55,7 @@ def propose(grid, current_xy, targets, exit_xy, now, radius=1.5, max_candidates=
     for dx in range(-steps,steps+1,2):
         for dy in range(-steps,steps+1,2):
             cell=(start[0]+dx,start[1]+dy)
-            if not 0<=cell[0]<grid.nx or not 0<=cell[1]<grid.ny or grid.blocked[cell]:continue
+            if not 0<=cell[0]<grid.nx or not 0<=cell[1]<grid.ny or column_grid.blocked[cell]:continue
             xy=(grid.bounds[0]+(cell[0]+.5)*grid.resolution,grid.bounds[2]+(cell[1]+.5)*grid.resolution)
             distance=math.dist(current_xy,xy)
             if distance<=radius:candidates.append((distance,cell,xy))

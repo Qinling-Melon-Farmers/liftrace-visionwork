@@ -58,6 +58,7 @@ double vel_gain[3] = { 3.4, 3.4, 4.0 };
 ros::Publisher progress_pub;
 bool progress_enabled = false;
 bool require_goal_identity = false;
+plan_manage::BsplineConstPtr pending_goal_trajectory;
 ros::Time active_goal_stamp;
 std::string active_goal_frame;
 uint32_t active_goal_seq = 0;
@@ -156,7 +157,19 @@ void drawCmd(const Eigen::Vector3d& pos, const Eigen::Vector3d& vec, const int& 
 void bsplineCallback(plan_manage::BsplineConstPtr msg) {
   if (require_goal_identity && (active_goal_stamp.isZero() ||
       msg->goal_stamp != active_goal_stamp || msg->goal_frame != active_goal_frame)) {
-    ROS_WARN("Ignoring Bspline from a different goal"); return;
+    // Independent ROS subscriptions can deliver the new curve before its goal.
+    // Retain only the newest future identity; never execute without a matching goal.
+    if (!msg->goal_stamp.isZero() &&
+        (active_goal_stamp.isZero() || msg->goal_stamp > active_goal_stamp) &&
+        (!pending_goal_trajectory || msg->goal_stamp > pending_goal_trajectory->goal_stamp ||
+         (msg->goal_stamp == pending_goal_trajectory->goal_stamp &&
+          (msg->start_time > pending_goal_trajectory->start_time ||
+           (msg->start_time == pending_goal_trajectory->start_time &&
+            msg->traj_id > pending_goal_trajectory->traj_id))))) {
+      pending_goal_trajectory = msg;
+      ROS_WARN("Deferring Bspline until matching goal arrives");
+    } else ROS_WARN("Ignoring Bspline from a different goal");
+    return;
   }
   // Duplicate/out-of-order generations may never release a tracking/safety hold.
   if (receive_traj_ && (msg->start_time < start_time_ ||
@@ -313,6 +326,12 @@ void goalCallback(const geometry_msgs::PoseStamped msg)
   // 计算终端速度，模长为 0.1，方向为收到的 yaw 角方向
   yaw_goal = tf::getYaw(msg.pose.orientation);
   if (std::isnan(yaw_goal)) yaw_goal = 0.0;
+  if (pending_goal_trajectory && pending_goal_trajectory->goal_stamp <= active_goal_stamp) {
+    const auto pending = pending_goal_trajectory;
+    pending_goal_trajectory.reset();
+    if (pending->goal_stamp == active_goal_stamp && pending->goal_frame == active_goal_frame)
+      bsplineCallback(pending);  // Apply all existing shape and generation checks.
+  }
 }
 
 void cmdCallback(const ros::TimerEvent& e) {

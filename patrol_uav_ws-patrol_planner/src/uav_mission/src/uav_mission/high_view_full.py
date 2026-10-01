@@ -134,7 +134,7 @@ class HighViewFull(HighViewProbe):
             if (self.pose is None or not 0<=now-self.pose_stamp<=self.probe_config.pose_max_age):
                 return 'coarse_pose_unavailable'
             agl=self.pose[2]-self.probe_config.ground_z
-            if not max(2.,self.probe_config.high_agl-.2)<=agl<=self.policy.high_max_agl:
+            if not max(self.policy.high_min_agl,self.probe_config.high_agl-.2)<=agl<=self.policy.high_max_agl:
                 return 'coarse_not_at_high_view'
             ns=int(round(now*1e9))
             if (type(stamp_ns) is not int or stamp_ns<=0 or
@@ -265,16 +265,17 @@ class HighViewFull(HighViewProbe):
             self.events.append(dict(stage='PARTIAL_HINT_FALLBACK',time=now,known=sorted(self.top_hints)))
         if self.policy.direct_descent:
             exit_goal=self.core.config.post_delivery_route[0]
+            descent_grid=getattr(self,"descent_grid",self.grid)
             def blocked(xy):
-                cell=self.grid.cell(xy)
-                return None if cell is None else bool(self.grid.blocked[cell])
+                cell=descent_grid.cell(xy)
+                return None if cell is None else bool(descent_grid.blocked[cell])
             self.descent_debug=dict(time=now,map_stamp=self.grid.stamp,current_xy=tuple(self._current_xy),
                                     current_blocked=blocked(self._current_xy),exit_blocked=blocked((exit_goal.x,exit_goal.y)),
                                     target_blocked={c:blocked(h.xy) for c,h in self.top_hints.items()})
             plan=propose(self.grid,self._current_xy,{c:h.xy for c,h in self.top_hints.items()},
-                         (exit_goal.x,exit_goal.y),now,self.policy.descent_radius_m,self.policy.descent_max_candidates)
+                         (exit_goal.x,exit_goal.y),now,self.policy.descent_radius_m,self.policy.descent_max_candidates,column_grid=descent_grid)
             if plan is None:
-                plan=propose_column(self.grid,self._current_xy,now,self.policy.descent_radius_m,self.policy.descent_max_candidates)
+                plan=propose_column(descent_grid,self._current_xy,now,self.policy.descent_radius_m,self.policy.descent_max_candidates)
                 if plan is not None:self.events.append(dict(stage='DESCENT_COLUMN_WITHOUT_FULL_TOUR',time=now,xy=plan['xy']))
             if plan is None and set(self.top_hints)!=self.required:
                 # Return along the already verified ascent column if the local

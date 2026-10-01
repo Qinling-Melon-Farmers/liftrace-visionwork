@@ -53,6 +53,7 @@ class FullManager(base.ProbeManager):
         runtime=HighViewFull(ordinary.core,ProbeConfig(**config),policy,fallback_route=ordinary.route,
                             boundary_policy=BoundaryRevisit(**dict(rospy.get_param('~high_view_full/boundary_policy',{}))))
         runtime.grid=GridCost(**dict(rospy.get_param('~high_view_full/grid',{})))
+        runtime.descent_grid=GridCost(**dict(rospy.get_param('~high_view_full/grid',{})))
         return runtime
 
     def _on_map(self,message):
@@ -72,6 +73,17 @@ class FullManager(base.ProbeManager):
                 xyz=np.column_stack([array[k].ravel() for k in ['x','y','z']])
                 ground=self._runtime.probe_config.ground_z
                 self._runtime.grid.update(xyz,message.header.stamp.to_sec(),ground+.4,ground+3.)
+                # Check only the swept descent height interval, not low furniture below it.
+                if self._runtime.pose is None:
+                    self._runtime.descent_grid.stamp=None
+                    return
+                cfg=self._runtime.probe_config
+                low=ground+cfg.low_agl
+                high=max(ground+cfg.high_agl,self._runtime.pose[2])
+                below=float(rospy.get_param('~high_view_full/descent_margin_below_m',0.10))
+                above=float(rospy.get_param('~high_view_full/descent_margin_above_m',0.20))
+                if not np.isfinite([below,above]).all() or min(below,above)<0:raise ValueError('descent margins')
+                self._runtime.descent_grid.update(xyz,message.header.stamp.to_sec(),min(low,self._runtime.pose[2])-below,high+above)
             except Exception as error:
                 self._handle_callback_exception('cost_map',error)
 

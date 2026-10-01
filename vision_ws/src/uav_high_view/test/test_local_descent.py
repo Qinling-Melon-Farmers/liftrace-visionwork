@@ -5,6 +5,22 @@ from uav_high_view.local_descent import propose
 
 
 class LocalDescentTests(unittest.TestCase):
+
+    def test_descent_volume_excludes_low_structure_but_keeps_swept_obstacle(self):
+        from uav_high_view.local_descent import propose_column
+        broad=self.grid();column=self.grid()
+        points=np.array([[0.,0.,.6],[20.,20.,1.]])
+        broad.update(points,10.,.4,3.)
+        column.update(points,10.,1.3,2.2)
+        self.assertTrue(broad.blocked[broad.cell((0.,0.))])
+        self.assertEqual(propose_column(column,(0.,0.),10.1)['kind'],'CURRENT_COLUMN')
+        column.update(np.array([[0.,0.,1.5]]),10.,1.3,2.2)
+        self.assertTrue(column.blocked[column.cell((0.,0.))])
+        self.assertNotEqual(propose_column(column,(0.,0.),10.1)['kind'],'CURRENT_COLUMN')
+
+    def test_stale_descent_grid_cannot_use_fresh_tour_grid(self):
+        broad=self.grid();column=self.grid();column.stamp=1.
+        self.assertIsNone(propose(broad,(0.,0.),{'a':(1.,1.)},(2.,2.),10.1,column_grid=column))
     def grid(self):
         g=GridCost(bounds=(-3.,3.,-3.,3.),resolution=.15,inflation=.35)
         g.update(np.array([[20.,20.,1.]]),10.,.4,3.)
