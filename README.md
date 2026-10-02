@@ -1,5 +1,7 @@
 # 2026无人机竞赛整机工程
 
+> **2026-10-03：** [整机/冻结版本与分支整理](docs/planning/competition_freeze_20261003/REVIEW.md) · [无测试组的独立正赛交付计划](docs/planning/competition_freeze_20261003/DEPLOYMENT_PLAN.md) · [到点停顿、爬升与分阶段提速计划](docs/planning/finish_time_20261003/PLAN.md)。导航主线为 `feat/high-view-liveness-20260919`，VCL06已停用；现场保留位姿跳变保护和小范围点云录制。当前Git开发头仍有冻结差异，不能直接覆盖现场。此次仅修工作台及整理文档，未改飞行/速度、未部署、未运行仿真；以下按原日期保留历史记录。
+
 > 2026-09-20：[历史seed31–40统一回归](docs/verification/history_31_40_20260920/REPORT.md) · [完整图表与录像](docs/verification/history_31_40_20260920/index.html)。十轮使用同一源码26e3673，各一次；完整通过4/10（33、35、36、39），三投7/10、累计23投、最终物理碰撞0。历史高位同为4/10；共同成功33/35/39合计节时20.58%，不能代表全布局可靠性提升。seed31首轨迹107次尝试、90s等待仍未解决，seed40为2700s评测墙钟截尾。板端三套4×4另在本地分支efbdea7完成，未部署或推送。
 
 > 2026-09-19最新修复验证：[新视场/内环/LAND 50cm三轮报告](docs/verification/fov_landing_inner_20260919/REPORT.md) · [35张图与双视角视频](docs/verification/fov_landing_inner_20260919/index.html)。同seed2672 A/B/C均PASS：251.667/187.733/216.548s，三投/两门/H降落、零碰撞；越树整机投影与搜索内环检查均通过。本轮最快B（2.6m＋已有快走廊）。3m仍有panzer冲突，经低位复核成功；未彻底消除视觉对准等待。九次mock ACK真实FC靶心误差中位8.01cm，非实物落点精度。后续提速只做文档，未替换机载部署。

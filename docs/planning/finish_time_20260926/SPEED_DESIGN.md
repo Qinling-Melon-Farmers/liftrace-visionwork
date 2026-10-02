@@ -1,5 +1,7 @@
 # 当前高位研究分支：分阶段速度与切换条件
 
+> 2026-10-03补充：[冻结后的到点停顿、爬升与分阶段优化计划](../finish_time_20261003/PLAN.md)。本页保留9月26日参数出处；专项与正赛入口分开核对，本轮只更新计划。
+
 2026-09-26，核查分支 feat/high-view-search-research，源码参考 c04cc48。本文说明当前完整高位快速入口的实际配置和代码条件；只读取代码与历史记录，没有修改飞行实现/参数，没有启动新仿真。
 
 入口基准为 uav_high_view/launch/fov_inner_repair.launch → fast_comparison.launch → full_strategy.launch；场景取保留的 seed2672 fast_runtime.yaml、frame_overrides.yaml、repair_overrides.yaml。其他入口必须检查最终覆盖值：单独启动早期 dynamic_probe 或 full_strategy，不能直接套用这里的快速档。
