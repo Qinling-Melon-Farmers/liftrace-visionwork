@@ -96,6 +96,37 @@ class DetectorClassProfileTest(unittest.TestCase):
         self.assertEqual(handles[-1],("","","tank"))
         self.assertEqual(node._class_profile,"r2026")
 
+    def test_pt_landing_pauses_inference_and_search_resumes(self):
+        node=self.make_pt()
+        frame=Image(height=12,width=12,encoding="bgr8",step=36,data=bytes(432))
+        node._stage_gate._on_mode(SimpleNamespace(data="landing"))
+        node._on_image(frame)
+        node._model.predict.assert_not_called()
+        node._detections_pub.publish.assert_not_called()
+        node._stage_gate._on_mode(SimpleNamespace(data="disabled"))
+        node._on_image(frame)
+        node._model.predict.assert_called_once()
+        node._detections_pub.publish.assert_called_once()
+
+    def test_mode_switch_during_inference_discards_old_frame(self):
+        node=self.make_pt()
+        def predict(*args, **kwargs):
+            node._stage_gate._on_mode(SimpleNamespace(data="landing"))
+            return [SimpleNamespace(boxes=Boxes())]
+        node._model.predict.side_effect=predict
+        node._on_image(Image(height=12,width=12,encoding="bgr8",step=36,data=bytes(432)))
+        node._detections_pub.publish.assert_not_called()
+
+    def test_rknn_landing_skips_npu_and_bridge(self):
+        node=RK.TargetDetectorRKNN.__new__(RK.TargetDetectorRKNN)
+        node._stage_gate=self.make_pt()._stage_gate
+        node._stage_gate._on_mode(SimpleNamespace(data="landing"))
+        node._bridge=Mock()
+        node._infer_handle=Mock()
+        node._on_image(Image())
+        node._bridge.imgmsg_to_cv2.assert_not_called()
+        node._infer_handle.assert_not_called()
+
     def test_unknown_profile_fails_before_runtime(self):
         with self.assertRaises(ValueError): self.make_pt("typo")
 

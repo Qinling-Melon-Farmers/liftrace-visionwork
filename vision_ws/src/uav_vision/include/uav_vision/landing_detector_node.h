@@ -76,6 +76,7 @@ private:
   int h_saturation_max_;
   int h_value_max_;
   int h_open_kernel_size_;
+  int h_close_kernel_size_;
   double h_min_area_ratio_;
   double h_max_area_ratio_;
   double h_min_aspect_ratio_;

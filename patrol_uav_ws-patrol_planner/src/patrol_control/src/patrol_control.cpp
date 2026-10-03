@@ -176,6 +176,9 @@ void LLController::initializeNode() {
             "/detect/land_mark_point", 1,
             &LLController::landMarkCallback, this);
     } else {
+        external_landing_state_sub_ = nh_.subscribe(
+            external_landing_state_topic_, 10,
+            &LLController::externalLandingStateCallback, this);
         landing_detections_sub_ = nh_.subscribe(
             external_landing_detections_topic_, 2,
             &LLController::landingDetectionsCallback, this);
@@ -413,11 +416,43 @@ bool LLController::externalLandingMarkFresh(const ros::Time& now) const {
            receipt_age <= external_landing_mark_max_age_sec_;
 }
 
+bool LLController::externalLandingControlReady(const ros::Time& now) const {
+    const auto& state = external_landing_mavros_state_;
+    if (!state.connected || !state.armed || state.mode != "OFFBOARD" ||
+        state.header.stamp.isZero() || external_landing_state_receipt_.isZero()) {
+        return false;
+    }
+    const double source_age = (now - state.header.stamp).toSec();
+    const double receipt_age = (now - external_landing_state_receipt_).toSec();
+    return source_age >= 0.0 && receipt_age >= 0.0 &&
+           source_age <= external_landing_state_max_age_sec_ &&
+           receipt_age <= external_landing_state_max_age_sec_;
+}
+
+void LLController::externalLandingStateCallback(
+    const mavros_msgs::State::ConstPtr& msg) {
+    external_landing_mavros_state_ = *msg;
+    external_landing_state_receipt_ = ros::Time::now();
+    if (!external_mission_mode_ || !external_landing_active_) {
+        return;
+    }
+    // AUTO.LAND is the expected mode transition after our successful request.
+    // Every other loss of OFFBOARD must latch even between two timer ticks.
+    if (external_landing_auto_land_requested_ && msg->mode == "AUTO.LAND") {
+        return;
+    }
+    if (!msg->connected || !msg->armed || msg->mode != "OFFBOARD") {
+        failExternalLanding("flight_controller_control_lost");
+        external_landing_cancelled_ = true;
+    }
+}
+
 void LLController::clearExternalLandingState(bool disable_detector) {
     external_landing_active_ = false;
     external_landing_new_mark_ = false;
     external_landing_alignment_complete_ = false;
     external_landing_auto_land_requested_ = false;
+    external_landing_cancelled_ = false;
     external_landing_stable_count_ = 0;
     external_landing_started_at_ = ros::Time(0);
     external_landing_command_stamp_ = ros::Time(0);
@@ -442,6 +477,8 @@ void LLController::failExternalLanding(const std::string& reason) {
     mavros_point_cmd = patrol_cmd;
     last_mavros_point_cmd = patrol_cmd;
     have_planner_cmd = false;
+    // Fresh samples of the previous trajectory cannot release this hold.
+    external_waiting_for_motion_ = true;
     Point_mode = Nothing_point;
     Drone_mode = Run_point;
     ROS_ERROR("[ExternalLanding] failed closed and holding position: %s",
@@ -449,8 +486,19 @@ void LLController::failExternalLanding(const std::string& reason) {
 }
 
 void LLController::externalLandingTick() {
+    if (external_landing_cancelled_) {
+        return;
+    }
     if (!external_landing_active_) {
         failExternalLanding("landing_state_not_initialized");
+        return;
+    }
+
+    const ros::Time now = ros::Time::now();
+    if (!external_landing_auto_land_requested_ &&
+        !externalLandingControlReady(now)) {
+        failExternalLanding("flight_controller_state_not_ready_or_stale");
+        external_landing_cancelled_ = true;
         return;
     }
 
@@ -458,7 +506,6 @@ void LLController::externalLandingTick() {
     landing_enable.data = true;
     publishLegacyVisionControl(landing_detect_control_pub_, landing_enable);
 
-    const ros::Time now = ros::Time::now();
     if (flag_land) {
         patrol_cmd.pose.position.x = external_landing_aligned_goal_.pose.position.x;
         patrol_cmd.pose.position.y = external_landing_aligned_goal_.pose.position.y;
@@ -549,7 +596,6 @@ void LLController::externalLandingTick() {
                 external_landing_auto_land_retry_sec_) {
             external_landing_last_auto_land_attempt_ = now;
             CallLand();
-            external_landing_auto_land_requested_ = flag_land;
         }
     }
 }
@@ -1479,6 +1525,14 @@ void LLController::Lock() {
 }
 
 void LLController::CallLand() {
+    if (external_mission_mode_ &&
+        (!auto_land || !external_landing_active_ || external_landing_cancelled_ ||
+         external_landing_auto_land_requested_ ||
+         !externalLandingControlReady(ros::Time::now()))) {
+        ROS_WARN_THROTTLE(
+            1.0, "[ExternalLanding] AUTO.LAND blocked without fresh armed OFFBOARD ownership");
+        return;
+    }
     if (auto_land && (external_mission_mode_ || simulation_auto_land)) {
         mavros_msgs::SetMode auto_land_mode;
         auto_land_mode.request.custom_mode = "AUTO.LAND";
@@ -1498,6 +1552,9 @@ void LLController::CallLand() {
             // of pretending that the landing handoff succeeded.
             flag_land = false;
             return;
+        }
+        if (external_mission_mode_) {
+            external_landing_auto_land_requested_ = true;
         }
     } else {
         if(!flag_landing_detect){
@@ -1595,11 +1652,19 @@ void LLController::load_params() {
         "external_landing/auto_land_height", 0.40);
     external_landing_auto_land_retry_sec_ = nh_.param(
         "external_landing/auto_land_retry_sec", 1.0);
+    external_landing_state_topic_ = nh_.param<std::string>(
+        "external_landing/state_topic", "/mavros/state");
+    // Match the board supervisor's mapping_startup.yaml state_max_age default.
+    external_landing_state_max_age_sec_ = nh_.param(
+        "external_landing/state_max_age_sec", 2.5);
     external_landing_stable_frames_ = nh_.param(
         "external_landing/stable_frames", 10);
     if (external_landing_frame_.empty() ||
         (external_mission_mode_ &&
-         external_landing_detections_topic_.empty()) ||
+         (external_landing_detections_topic_.empty() ||
+          external_landing_state_topic_.empty() ||
+          !std::isfinite(external_landing_state_max_age_sec_) ||
+          external_landing_state_max_age_sec_ <= 0.0)) ||
         land_height <= 0.0 ||
         external_landing_capture_height_ <= external_landing_auto_land_height_ ||
         external_landing_auto_land_height_ < land_height ||
@@ -2944,9 +3009,9 @@ void LLController::missionCommandCallback(
         }
 
         case patrol_control::MissionCommand::LAND: {
-            if (external_landing_active_) {
+            if (external_landing_active_ || external_landing_cancelled_) {
                 ROS_WARN_THROTTLE(
-                    2.0, "[ExternalLanding] duplicate LAND command ignored");
+                    2.0, "[ExternalLanding] duplicate or cancelled LAND command ignored");
                 return;
             }
             resetDetectionState();
