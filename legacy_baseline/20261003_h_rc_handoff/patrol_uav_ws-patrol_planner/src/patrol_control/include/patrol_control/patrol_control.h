@@ -121,7 +121,6 @@ private:
     ros::Subscriber mission_release_permission_sub_;
     ros::Subscriber mission_command_sub_;
     ros::Subscriber landing_detections_sub_;
-    ros::Subscriber external_landing_state_sub_;
     // 舵机控制发布器
     ros::Publisher servo1_pub_;
     ros::Publisher servo2_pub_;
@@ -221,16 +220,11 @@ private:
     double external_landing_max_mark_offset_ = 0.60;
     double external_landing_auto_land_height_ = 0.40;
     double external_landing_auto_land_retry_sec_ = 1.0;
-    std::string external_landing_state_topic_ = "/mavros/state";
-    double external_landing_state_max_age_sec_ = 2.5;
-    mavros_msgs::State external_landing_mavros_state_;
-    ros::Time external_landing_state_receipt_;
     int external_landing_stable_frames_ = 10;
     bool external_landing_active_ = false;
     bool external_landing_new_mark_ = false;
     bool external_landing_alignment_complete_ = false;
     bool external_landing_auto_land_requested_ = false;
-    bool external_landing_cancelled_ = false;
     int external_landing_stable_count_ = 0;
     geometry_msgs::PoseStamped external_landing_goal_;
     geometry_msgs::PoseStamped external_landing_aligned_goal_;
@@ -388,8 +382,6 @@ private:
     void externalLandingTick();
     void failExternalLanding(const std::string& reason);
     bool externalLandingMarkFresh(const ros::Time& now) const;
-    bool externalLandingControlReady(const ros::Time& now) const;
-    void externalLandingStateCallback(const mavros_msgs::State::ConstPtr& msg);
 
     void Lock();
     void CallLand();
