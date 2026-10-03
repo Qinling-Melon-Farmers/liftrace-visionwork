@@ -24,6 +24,7 @@ from sensor_msgs.msg import Image, RegionOfInterest
 
 from uav_vision.msg import TargetDetection, TargetDetectionArray
 from uav_vision.target_selection_policy import resolve_class_profile
+from uav_vision.detector_stage_gate import DetectorStageGate
 
 
 def _restore_standard_logging_levels():
@@ -423,6 +424,7 @@ class TargetDetectorRKNN:
         # Advertise the image subscription only after every callback-visible
         # runtime handle and counter is ready. A replay publisher can emit its
         # first frame synchronously as soon as it observes this subscriber.
+        self._stage_gate = DetectorStageGate()
         self._image_sub = rospy.Subscriber(self._image_topic, Image,
                                            self._on_image, queue_size=1,
                                            buff_size=2**24)
@@ -576,6 +578,9 @@ class TargetDetectorRKNN:
         return arr
 
     def _on_image(self, msg):
+        stage = self._stage_gate.begin()
+        if stage is None:
+            return
         t0 = time.perf_counter()
         try:
             img_bgr = self._bridge.imgmsg_to_cv2(msg, "bgr8")
@@ -586,6 +591,8 @@ class TargetDetectorRKNN:
         if self._unified.available():
             detections, infer_ms = self._infer_handle(self._unified, img_bgr)
             arr = self._build_msg(msg.header, detections, self._unified)
+            if not self._stage_gate.current(stage):
+                return
             self._detections_pub.publish(arr)
             total_ms = (time.perf_counter() - t0) * 1000.0
             self._publish_perf(msg.header, len(arr.detections), total_ms, infer_ms)
@@ -602,6 +609,8 @@ class TargetDetectorRKNN:
             infer_ms += tank_ms
             merged.extend((self._tank, det) for det in tank_dets)
 
+        if not self._stage_gate.current(stage):
+            return
         if not merged:
             self._empty_publish(msg.header)
             total_ms = (time.perf_counter() - t0) * 1000.0

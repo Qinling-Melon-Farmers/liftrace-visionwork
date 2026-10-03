@@ -14,6 +14,7 @@ from uav_vision.msg import TargetDetection, TargetDetectionArray
 from sensor_msgs.msg import RegionOfInterest
 from uav_vision.model_contract import require_local_model_file
 from uav_vision.target_selection_policy import resolve_class_profile
+from uav_vision.detector_stage_gate import DetectorStageGate
 
 try:
     from ultralytics import YOLO
@@ -48,6 +49,7 @@ class TargetDetector:
         self._detections_pub = rospy.Publisher("/uav_vision/detections",
                                                TargetDetectionArray, queue_size=1)
         self._perf_pub = rospy.Publisher(self._perf_topic, DiagnosticArray, queue_size=1)
+        self._stage_gate = DetectorStageGate()
         self._image_sub = rospy.Subscriber(self._image_topic, Image,
                                             self._on_image, queue_size=1,
                                             buff_size=2**24)
@@ -137,6 +139,9 @@ class TargetDetector:
         return image.copy()
 
     def _on_image(self, msg):
+        stage = self._stage_gate.begin()
+        if stage is None:
+            return
         t0 = time.monotonic()
         try:
             img = self._image_to_bgr(msg)
@@ -191,6 +196,8 @@ class TargetDetector:
 
                 arr.detections.append(det)
 
+        if not self._stage_gate.current(stage):
+            return
         self._detections_pub.publish(arr)
         callback_end = time.monotonic()
         total_ms = (callback_end - t0) * 1000.0

@@ -32,3 +32,8 @@ perf_topic: "/uav_vision/perf"
 
 # 2026 正式五类；保留六类权重原始 ID，历史回归显式选择 full。
 class_profile: r2026
+
+# H landing uses OpenCV geometry; resume class inference when leaving landing.
+align_mode_topic: /uav_vision/align_mode
+default_align_mode: disabled
+pause_in_landing_mode: true

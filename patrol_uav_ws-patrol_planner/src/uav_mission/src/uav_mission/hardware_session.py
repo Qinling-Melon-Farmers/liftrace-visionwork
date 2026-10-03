@@ -163,7 +163,7 @@ def run_session(a,settings,rig,startup,generate,launch_package,launch_prefix='',
         check_mapping_alignment()
         if not warmup.ready(rospy.Time.now().to_sec()):raise RuntimeError('FreeDOM map stale before READY')
         print('READY:',out,flush=True)
-        if a.mode=='flight' and settings.get('auto_start_after_arm',False):print('AUTO_SEQUENCE: manual arm -> OFFBOARD -> low hover -> mission. Never auto-arms.',flush=True)
+        if a.mode=='flight' and settings.get('auto_start_after_arm',False):print('AUTO_SEQUENCE: operator arms AND selects OFFBOARD -> stable takeoff hover -> mission. No automatic arming or mode request.',flush=True)
         print('Ground/reference and all local-Z limits generated automatically. No arming or mission start was sent.',flush=True)
         if a.mode=='flight' and not settings.get('auto_start_after_arm',False):print('After local inspection, operator chooses flight mode/arming and calls: rosservice call /navigation/start_mission "{}"',flush=True)
         mission_rx=[{}]
@@ -173,25 +173,16 @@ def run_session(a,settings,rig,startup,generate,launch_package,launch_prefix='',
         mission_sub=rospy.Subscriber('/navigation/mission_status',String,mission_status,queue_size=1)
         on_ground_since=None;last_status_log=0.
         auto_enabled=a.mode=='flight' and settings.get('auto_start_after_arm',False)
-        arm_attempted=False;start_attempted=False;auto_cancelled=False;offboard_seen=False;hover_since=None
+        start_attempted=False;auto_cancelled=False;offboard_seen=False;hover_since=None
         while not rospy.is_shutdown():
             if any(c.poll() is not None for c in children):raise RuntimeError('A launch exited; inspect logs')
             bag.check()
             s=state[0];e=extended[0]
-            if auto_enabled and s is not None and s.connected and s.armed and not auto_cancelled:
+            if (auto_enabled and s is not None and s.connected and s.armed and not auto_cancelled
+                    and 0<=time.monotonic()-state_rx[0]<float(startup['state_max_age'])):
                 if offboard_seen and s.mode!='OFFBOARD':
                     auto_cancelled=True
                     print('AUTO_SEQUENCE_CANCELLED_PILOT_MODE_CHANGE',flush=True)
-                elif not arm_attempted:
-                    arm_attempted=True
-                    from mavros_msgs.srv import SetMode
-                    try:
-                        if s.mode!='OFFBOARD':
-                            response=rospy.ServiceProxy('/mavros/set_mode',SetMode)(base_mode=0,custom_mode='OFFBOARD')
-                            if not response.mode_sent:auto_cancelled=True
-                        print('ARMED_AUTO_OFFBOARD_REQUEST cancelled=',auto_cancelled,flush=True)
-                    except rospy.ServiceException as error:
-                        auto_cancelled=True;print('AUTO_OFFBOARD_FAILED',str(error),flush=True)
                 elif s.mode=='OFFBOARD':
                     offboard_seen=True
                     with lock:
@@ -211,6 +202,8 @@ def run_session(a,settings,rig,startup,generate,launch_package,launch_prefix='',
                             print('AUTO_MISSION_START',response.success,response.message,flush=True)
                         except rospy.ServiceException as error:
                             print('AUTO_MISSION_START_FAILED_NO_RETRY',str(error),flush=True)
+                else:hover_since=None
+            else:hover_since=None
             if time.monotonic()-last_status_log>=5.:
                 last_status_log=time.monotonic();status=mission_rx[0]
                 print('FLIGHT_STATUS',dict(mode=s.mode if s else None,armed=s.armed if s else None,

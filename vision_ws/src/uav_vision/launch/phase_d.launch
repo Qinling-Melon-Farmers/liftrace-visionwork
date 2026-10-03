@@ -39,6 +39,7 @@
         launch-prefix="$(arg target_detector_launch_prefix)">
     <rosparam file="$(find uav_vision)/config/default.yaml"/>
     <rosparam file="$(find uav_vision)/config/target_detector.yaml"/>
+    <param name="default_align_mode" value="$(arg default_align_mode)" />
     <param name="class_profile" value="$(arg class_profile)" />
     <param name="image_topic" value="$(arg image_topic)" />
     <param name="imgsz" value="$(arg target_detector_imgsz)" />

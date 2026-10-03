@@ -40,7 +40,7 @@ void LandingDetectorNode::loadParameters()
                          "/uav_vision/landing_debug");
 
   nh_.param("landing_blur_kernel_size", blur_kernel_size_, 5);
-  nh_.param("landing_adaptive_block_size", adaptive_block_size_, 31);
+  nh_.param("landing_adaptive_block_size", adaptive_block_size_, 81);
   nh_.param("landing_adaptive_c", adaptive_c_, 10.0);
   nh_.param("landing_morphology_kernel_size", morphology_kernel_size_, 7);
   nh_.param("landing_min_contour_points", min_contour_points_, 15);
@@ -55,6 +55,7 @@ void LandingDetectorNode::loadParameters()
   nh_.param("landing_h_saturation_max", h_saturation_max_, 90);
   nh_.param("landing_h_value_max", h_value_max_, 110);
   nh_.param("landing_h_open_kernel_size", h_open_kernel_size_, 5);
+  nh_.param("landing_h_close_kernel_size", h_close_kernel_size_, 7);
   nh_.param("landing_h_min_area_ratio", h_min_area_ratio_, 0.10);
   nh_.param("landing_h_max_area_ratio", h_max_area_ratio_, 0.70);
   nh_.param("landing_h_min_aspect_ratio", h_min_aspect_ratio_, 0.55);
@@ -287,6 +288,16 @@ bool LandingDetectorNode::validateHStructure(
   cv::inRange(hsv, cv::Scalar(0, 0, 0),
               cv::Scalar(180, h_saturation_max_, h_value_max_), dark_neutral);
   cv::bitwise_and(dark_neutral, ellipse_mask, dark_neutral);
+
+  // Small specular gaps in black tape must not be expanded by the opening.
+  // Repair only local holes, then keep the original H shape/concavity checks.
+  int close_size = std::max(1, h_close_kernel_size_);
+  if (close_size % 2 == 0) ++close_size;
+  if (close_size > 1) {
+    cv::morphologyEx(dark_neutral, dark_neutral, cv::MORPH_CLOSE,
+        cv::getStructuringElement(cv::MORPH_RECT, cv::Size(close_size, close_size)));
+    cv::bitwise_and(dark_neutral, ellipse_mask, dark_neutral);
+  }
 
   int kernel_size = std::max(1, h_open_kernel_size_);
   if (kernel_size % 2 == 0) ++kernel_size;

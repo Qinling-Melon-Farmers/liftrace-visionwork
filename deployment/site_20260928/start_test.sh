@@ -10,8 +10,14 @@ case "$trial" in
   4|revisit) folder=02_high_view_revisit ;;
   5|priority) folder=06_high_priority ;;
   6|capture) folder=09_high_speed_capture ;;
-  *) echo "Usage: start_test.sh 1|2|3|4|5|6 [preview|flight]"; exit 2 ;;
+  h|landing) folder=03_h_landing ;;
+  *) echo "Usage: start_test.sh 1|2|3|4|5|6|h|landing [preview|flight]"; exit 2 ;;
 esac
+if [[ "$folder" == 03_h_landing ]]; then
+  shift "$(( $# >= 2 ? 2 : $# ))"
+  # H has no delivery entry. Keep its dedicated profile even with extra options.
+  exec bash "$site_dir/../board_trials_4x4/$folder/start.sh" "$mode" "$@" --site-config "$site_dir/h_landing_test_area.yaml"
+fi
 if [[ "$folder" == 09_high_speed_capture ]]; then
   shift "$(( $# >= 2 ? 2 : $# ))"
   exec bash "$site_dir/../board_trials_4x4/$folder/start.sh" "$mode" --site-config "$site_dir/test_area.yaml" "$@"

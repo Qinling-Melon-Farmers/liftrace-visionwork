@@ -16,7 +16,7 @@
 - `actuator_pwm`：10月3日实际成功验收的实体源码，位于主工作区，三槽PWM映射4/5/0；不依赖另一个目录的hardware_ws。其他硬件型号不可照搬引脚映射。
 - `deployment/competition/package.sh`：导出只含正式源码的包，剔除九组专项、研究报告和回放资产的运行依赖；模型是独立交付资产。
 
-完整任务为：静置定位一致→新建地图→视觉/控制READY→人工解锁→OFFBOARD/低空稳定→低位入场→高位巡航及线索→低位重访/确认→逐槽许可投递及恢复→实测走廊→H识别对齐→AUTO.LAND与终态。保留未达三投时的既有任务期限/降级收尾，不承诺任意场景一定三投。
+完整任务为：静置定位一致→新建地图→视觉/控制READY→人工解锁并手动切OFFBOARD→低空稳定→低位入场→高位巡航及线索→低位重访/确认→逐槽许可投递及恢复→实测走廊→H识别对齐→AUTO.LAND与终态。保留未达三投时的既有任务期限/降级收尾，不承诺任意场景一定三投。
 
 ## 保留与明确的配置
 
@@ -90,7 +90,7 @@ bash deployment/competition/package.sh /绝对路径/liftrace_competition_source
    bash deployment/competition/start.sh flight --site-config deployment/competition/field.yaml
    ```
 
-第一个roslaunch可启动本机ROS master，无需第六个长期终端。preview不启动执行控制和释放代理；flight得到READY后只等待**人工解锁**，沿用现场OFFBOARD→低空稳定→启动任务时序，程序不自动解锁。READY以前不解锁。
+第一个roslaunch可启动本机ROS master，无需第六个长期终端。preview不启动执行控制和释放代理；flight得到READY后等待**人工解锁并手动切入OFFBOARD**，再经低空稳定→启动任务；程序不自动解锁，也不主动请求OFFBOARD。READY以前不解锁。
 
 查询任务可另开临时终端 `rostopic echo /navigation/mission_status`。ABORT仍是终止，人工接管后落地复位；本轮未接入调研中的自动恢复方案。监督器退出会收尾所属应用/地图/定位/录包，设备终端保留；一次只启动一套任务。不要在飞行中用重启监督器当作恢复。
 
@@ -99,3 +99,6 @@ bash deployment/competition/package.sh /绝对路径/liftrace_competition_source
 本轮验证明细见 [REPORT.md](REPORT.md)。尚需测量正赛实际门洞/H/边界、核对真实镜头覆盖，取得授权后进行同版完整任务实跑，并完成硬件模型/图像/性能确认。高度跳变原因已研究，但EKF内部原因与ULog验证、20m地图盒候选修订、ABORT有界恢复仍是后续独立工作。
 
 main不合入此次未整场实跑候选；`r2026-main-integration`保留为主干集成工作区。板端试飞分支和导航参考分支只补推另一对话已完成的713556e研究报告，不把本轮新入口直接覆盖现场冻结部署。
+
+
+2026-10-03晚公共修复已同步：对准观测时间、反光H、landing阶段暂停类别推理、人工模式启动及H接管保护见[同步说明](../COMMON_H_SYNC_20261003.md)。此次未部署或重新SITL/实飞验收。
