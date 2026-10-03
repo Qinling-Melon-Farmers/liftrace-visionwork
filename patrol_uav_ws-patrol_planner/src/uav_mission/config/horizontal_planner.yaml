@@ -6,9 +6,10 @@ fsm/goal_adjustment_radius: 0.15
 fsm/tracking_replan_distance: 0.45
 fsm/min_replan_interval: 0.75
 sdf_map/virtual_ceil_height: 2.30
-# Fixed inflation, shared by all mission stages (meters); 0.55 m guard half-side.
+# Fixed field inflation shared by all mission stages (meters).
+# 0.55 m remains the evaluation envelope, not an extra term added here.
 # These distances expand measured obstacle points, not the aircraft mesh.
-sdf_map/obstacles_inflation: 0.275
+sdf_map/obstacles_inflation: 0.25
 sdf_map/obstacles_inflation_up: 0.20
 sdf_map/obstacles_inflation_down: 0.10
 sdf_map/horizontal_avoidance/enabled: true
@@ -31,7 +32,7 @@ sdf_map/horizontal_avoidance/column_max_hull_span: 1.60
 # Interpolation INSIDE a compact hull, not additional obstacle inflation.
 sdf_map/horizontal_avoidance/column_max_fill_distance: 0.35
 sdf_map/horizontal_avoidance/floor_z: -0.12  # local z; 0.10 m AGL
-# 5 cm voxels round XY 0.275 m upward to 6 cells = 0.30 m.
+# 5 cm voxels represent XY 0.25 m as 5 cells; board 10 cm voxels round to 0.30 m.
 # The bounded map covers the whole field: X [-6,6], Y [-11,11], Z [-0.2,2.8].
 # 6,336,000 cells (~355 MB of SDF buffers); physical ceiling remains 2.30 m.
 sdf_map/resolution: 0.05

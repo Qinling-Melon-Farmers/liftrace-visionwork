@@ -1,3 +1,5 @@
+> 2026-10-03：当前整机已合入高位研究/现场成果，独立硬件入口与验收范围见[本轮说明](deployment/competition_integration_20261003/README.md)。本文下方R64/VCL06状态保留为历史，不代表新候选已整场实飞。
+
 # 环境与构建
 
 2026-09-11 驱动迁移：当前源码统一使用 **livox_ros_driver2 + Livox SDK2**；仿真仍由 Gazebo 发布 PointCloud2。两类源码包均需 SDK2 才能编译完整导航工作区，旧版本压缩包不会自动更新。[构建与实机接线说明](deployment/LIVOX_DRIVER2.md)。

@@ -1,3 +1,5 @@
+> 2026-10-03：当前整机已合入高位研究/现场成果，独立硬件入口与验收范围见[本轮说明](deployment/competition_integration_20261003/README.md)。本文下方R64/VCL06状态保留为历史，不代表新候选已整场实飞。
+
 # 当前运行链与计算图
 
 [R64三版rqt_graph Nodes only图](topology/r64/README.md)来自固定seed11完整PASS运行的ROS Master注册快照。全图36节点，核心22节点，仅飞行23节点。椭圆为节点，连线文字为话题，箭头为发布→订阅，服务不画成话题。2026-09-09离线更新，无新仿真。

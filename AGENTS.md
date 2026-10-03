@@ -2,7 +2,7 @@
 
 先读 README.md、VISION_2026_ROADMAP.md、docs/VALIDATION.md、docs/ENVIRONMENT.md、docs/INTERFACES.md，再查看本次相关代码和 git status。任务优先级仅在 ROADMAP 维护。
 
-本分支按用户要求集成今年导航+视觉，机械组舵机实现不包含；原始资产和冻结参考留在来源分支及 git 历史，不在这个精简 checkout 重复保存。不得清理其他 worktree 的原始文件或用户未提交修改。
+本分支按用户要求集成今年导航+视觉。2026-10-03按用户独立正赛交付要求纳入已现场验收的actuator_pwm实体实现（4/5/0映射），替代早期不含机械实现的范围；不得恢复外部目录symlink。原始资产和冻结参考留在来源分支及 git 历史，不在这个精简 checkout 重复保存。不得清理其他 worktree 的原始文件或用户未提交修改。
 
 - 小步修复、实际编译并执行相关检查；每个可验证改动追加 docs/仿真联调变更记录.md（日期、范围、改动、验证、遗留、下一步），再作中文 conventional commit。中文提交通过 UTF-8 文件和 git commit -F，禁止 Windows→WSL 参数内联中文。
 - Windows 中所有 WSL 命令使用 `wsl -e bash -c '...'`。文件工具用 WSL UNC 路径。脚本目录用 `${BASH_SOURCE[0]%/*}`。Python/ML 使用既有 conda 环境，系统 Python 仅用于 ROS，禁止系统 pip 安装。

@@ -1,10 +1,14 @@
+# 当前整机候选：2026-10-03
+
+现有 `feat/r2026-competition-integrated` 已合入高位研究与现场板端成果，独立正赛入口/实体舵机见[操作说明](docs/deployment/competition_integration_20261003/README.md)。保留位姿跳变保护、轻量bag及全部现行任务门槛；速度优化仅计划。下方来自来源分支的进展均为对应日期历史，不能代替本轮同版整场验收。
+
 # 2026无人机竞赛整机工程
 
 > **2026-10-03：** [整机/冻结版本与分支整理](docs/planning/competition_freeze_20261003/REVIEW.md) · [无测试组的独立正赛交付计划](docs/planning/competition_freeze_20261003/DEPLOYMENT_PLAN.md) · [到点停顿、爬升与分阶段提速计划](docs/planning/finish_time_20261003/PLAN.md)。导航主线为 `feat/high-view-liveness-20260919`，VCL06已停用；现场保留位姿跳变保护和小范围点云录制。当前Git开发头仍有冻结差异，不能直接覆盖现场。此次仅修工作台及整理文档，未改飞行/速度、未部署、未运行仿真；以下按原日期保留历史记录。
 
 > 2026-09-27当前：[导航仓板端参考分支与八组交接](docs/deployment/board_reference_20260927/README.md)。现场FAST-LIO/FreeDOM负载档案已继承，水平膨胀0.25m；新配置完成离线验证与构建，不覆盖此前动态验收结论。
 
-> 本分支为 `feat/board-deployment-flight-20260920`，专门用于板端部署与试飞。[部署总览](deployment/BOARD_DEPLOYMENT.md) · [八组专项](deployment/board_trials_4x4/MODULES.md) · [现场旧4×4参考镜像](deployment/onboard_obstacle_reference_20260920/README.md)。下方仿真记录保留来源历史，不代表本分支已实飞验收。
+> 来源板端分支为 `feat/board-deployment-flight-20260920`，专门用于板端部署与试飞。[部署总览](deployment/BOARD_DEPLOYMENT.md) · [八组专项](deployment/board_trials_4x4/MODULES.md) · [现场旧4×4参考镜像](deployment/onboard_obstacle_reference_20260920/README.md)。下方仿真记录保留来源历史，不代表本分支已实飞验收。
 
 > 2026-09-27：[远端板载代码与八组专项对比](docs/deployment/board_remote_comparison_20260927/REPORT.md)。远端仍为48541a7；TF/相机/槽位已保留，定位建图参数和消息版本仍有差异；两个远端投递入口存在默认降落高度顺序冲突。本次仅文档核查。
 

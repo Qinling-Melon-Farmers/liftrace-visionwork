@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Full high-view strategy on the original simulation mission/executor chain."""
+"""Full high-view strategy on the shared mission/executor chain."""
 import importlib.util
 from pathlib import Path
 import numpy as np
@@ -16,9 +16,9 @@ base=importlib.util.module_from_spec(spec);spec.loader.exec_module(base)
 
 
 class FullManager(base.ProbeManager):
-    def __init__(self):
+    def __init__(self, hardware=False):
         self._grid_last=-1e9
-        super().__init__()
+        super().__init__(simulation_only=not hardware)
         if rospy.get_param('~high_view_full/policy/coarse_enabled',False):
             self._hint_sub=rospy.Subscriber(
                 rospy.get_param('~high_view_full/navigation_hints_topic','/uav_vision/navigation_hints'),
