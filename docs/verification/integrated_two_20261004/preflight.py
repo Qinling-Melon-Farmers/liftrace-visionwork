@@ -26,7 +26,7 @@ for seed in (31,38):
       '/navigation/mission_manager/high_view_full/policy/recheck_observe_seconds':5.,
       '/navigation/mission_manager/high_view_probe/config/high_agl':2.6,
     }
-    expected.update({'/uav_vision/drop_metric_scale_enabled':True,'/target_memory/drop_circle_geometry_confidence':.75,'/target_detector/pause_in_landing_mode':True,'/landing_detector/landing_adaptive_block_size':81,'/fast_planner_node/sdf_map/virtual_ceil_height':-.1})
+    expected.update({'/landing_detector/landing_enable_h_stroke_fallback':True,'/external_landing/capture_height':.68,'/uav_vision/drop_metric_scale_enabled':True,'/target_memory/drop_circle_geometry_confidence':.75,'/target_detector/pause_in_landing_mode':True,'/landing_detector/landing_adaptive_block_size':81,'/fast_planner_node/sdf_map/virtual_ceil_height':-.1})
     for key,value in expected.items():assert params.get(key)==value,(key,params.get(key),value)
     selected=params.copy()
     selected['offline_checks']={'status':'PASS','effective_xy_dilation_m':math.ceil(.25/.05)*.05,'nodes_launched':False}

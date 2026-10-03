@@ -23,7 +23,6 @@
     <param name="fps" value="10.0" />
     <param name="output_path" value="$(optenv SIM_RUN_DIR)/downward.mp4" />
   </node>
-  <param name="/landing_detector/landing_enable_h_stroke_fallback" value="false" />
   <!-- Offline center comparison: no image or cloud duplication. -->
   <node pkg="rosbag" type="record" name="center_evidence_recorder" output="screen"
         args="--lz4 -O $(optenv SIM_RUN_DIR)/vision_metrics.bag /tf /tf_static /uav_vision/detections_mapped /uav_vision/targets /uav_vision/selected_target /uav_vision/drop_offset /uav_vision/align_mode /mavros/local_position/pose /mission/release_result" />
