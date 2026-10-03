@@ -119,6 +119,7 @@ add_dependencies(landing_detector_node
 )
 
 catkin_install_python(PROGRAMS
+  scripts/landing_bag_replay.py
   scripts/placeholder_node.py
   scripts/detection_fusion.py
   scripts/detection_fusion_concurrency_assertion.py
