@@ -1,0 +1,717 @@
+{
+  "seed": 38,
+  "run": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed38_20261004_013059",
+  "coverage": {
+    "source_frames": 1678,
+    "first_source_ros_s": 0.742,
+    "last_source_ros_s": 205.96,
+    "mission_end_ros_s": 204.40800000000002,
+    "source_after_mission_end_s": 1.5519999999999925,
+    "last_output_playback_ros_s": 206.042,
+    "last_output_source_ros_s": 205.96,
+    "last_output_source_frame": 1677,
+    "final_source_frames_not_selected_by_output_grid": 0,
+    "final_source_to_last_output_tick_s": -0.08199999999999363,
+    "last10s_source_max_gap_s": 0.19200000000000728,
+    "last10s_source_gaps_over_150ms": 9,
+    "last10s_source_gaps_over_300ms": 0
+  },
+  "landing_source_mode_counts": {
+    "arrays": 208,
+    "landing_pad": 95
+  },
+  "landing_completed_sources": {
+    "circle_detector": 173,
+    "cross_detector": 208,
+    "landing_detector": 198,
+    "target_detector": 1
+  },
+  "target_detector_completion_marks_in_landing": [
+    {
+      "source_ros_s": 205.96,
+      "receipt_ros_s": 206.034,
+      "classes": []
+    }
+  ],
+  "landing_note": "Mode as of source image stamp. Completion does not prove inference ran or emitted boxes. No raw detector topic was recorded.",
+  "release_commits": [
+    {
+      "ack_ros_s": 79.502,
+      "decision_seq": 9,
+      "payload_slot": 1,
+      "target_id": 2,
+      "target_class": "red_cross",
+      "reason": "release_ack_success",
+      "decision_xy": [
+        4.359859680251805,
+        -4.4514246190632365
+      ],
+      "decision_target_id": 2,
+      "identity_matches_decision": true,
+      "nearest_class": "red_cross",
+      "nearest_instance": "random_red_cross",
+      "nearest_distance_m": 0.12581660872510586,
+      "same_class_distance_m": 0.12581660872510586
+    },
+    {
+      "ack_ros_s": 95.749,
+      "decision_seq": 11,
+      "payload_slot": 2,
+      "target_id": 3,
+      "target_class": "bridge",
+      "reason": "release_ack_success",
+      "decision_xy": [
+        3.7409394567677214,
+        -1.1357485546303658
+      ],
+      "decision_target_id": 3,
+      "identity_matches_decision": true,
+      "nearest_class": "bridge",
+      "nearest_instance": "random_bridge",
+      "nearest_distance_m": 0.06409209562823419,
+      "same_class_distance_m": 0.06409209562823419
+    },
+    {
+      "ack_ros_s": 109.751,
+      "decision_seq": 13,
+      "payload_slot": 3,
+      "target_id": 4,
+      "target_class": "panzer",
+      "reason": "release_ack_success",
+      "decision_xy": [
+        4.983910662149672,
+        -0.515150440902942
+      ],
+      "decision_target_id": 4,
+      "identity_matches_decision": true,
+      "nearest_class": "panzer",
+      "nearest_instance": "random_panzer",
+      "nearest_distance_m": 0.18181042379654852,
+      "same_class_distance_m": 0.18181042379654852
+    }
+  ],
+  "tails": [
+    {
+      "class_name": "bridge",
+      "n": 193,
+      "p95_m": 0.6303224379513483,
+      "max_m": 0.7323785892714175,
+      "above_30cm_by_phase": {
+        "HIGH_SURVEY": 1,
+        "DELIVERY": 13
+      },
+      "p95_tail_by_phase": {
+        "DELIVERY": 10
+      }
+    },
+    {
+      "class_name": "panzer",
+      "n": 255,
+      "p95_m": 0.3213748590004924,
+      "max_m": 0.3996589293627231,
+      "above_30cm_by_phase": {
+        "HIGH_SURVEY": 3,
+        "DESCEND": 10,
+        "DELIVERY": 3
+      },
+      "p95_tail_by_phase": {
+        "HIGH_SURVEY": 3,
+        "DESCEND": 7,
+        "DELIVERY": 3
+      }
+    }
+  ],
+  "cases": [
+    {
+      "class_name": "bridge",
+      "phase": "DELIVERY",
+      "sample": {
+        "stream": "mapped",
+        "class_name": "bridge",
+        "id": "",
+        "source": "target_map_projector",
+        "receipt_ros_s": "106.71",
+        "source_ros_s": "106.48",
+        "mission_s": "94.90200000099999",
+        "age_s": "0.22999999999998977",
+        "fresh": "True",
+        "align_mode": "drop_circle",
+        "map_frame": "camera_init",
+        "map_valid": "True",
+        "center_refined": "True",
+        "center_source": "circle_geometry",
+        "association_valid": "True",
+        "reject_reason": "",
+        "transform_age_sec": "0.0",
+        "class_confidence": "0.9252440929412842",
+        "geometry_confidence": "0.7415664196014404",
+        "state": "",
+        "observe_count": "",
+        "consecutive_observe_count": "",
+        "raw_x": "4.295736511645705",
+        "raw_y": "-0.5656976371733252",
+        "raw_z": "-0.22",
+        "eval_x": "4.295736511645705",
+        "eval_y": "-0.5656976371733252",
+        "truth_name": "random_bridge",
+        "truth_x": "3.7772",
+        "truth_y": "-1.0829",
+        "dx_m": "0.518536511645705",
+        "dy_m": "0.5172023628266748",
+        "xy_error_m": "0.7323785892714175",
+        "nearest_truth_gap_m": "",
+        "nearest_any_class": "bridge",
+        "nearest_any_instance": "random_bridge",
+        "nearest_any_distance_m": "0.7323785892714175",
+        "same_class_distance_m": "0.7323785892714175",
+        "same_vs_any_gap_m": "0.0",
+        "category_confusion_suspected": "False",
+        "duplicate": "False",
+        "exclusion": "",
+        "in_mission": "True",
+        "source_stage": "DELIVERY",
+        "source_align_mode": "drop_circle",
+        "source_phase": "DELIVERY",
+        "source_fc_agl_m": "1.5533502231015983"
+      },
+      "frame_mapping": {
+        "output_frame": "1058",
+        "playback_ros_s": "106.542000000",
+        "source_frame": "856",
+        "image_stamp_ros_s": "106.480000000",
+        "image_age_s": "0.062000000",
+        "mapped_source_stamp_ros_s": "106.480000000",
+        "match_delta_ms": "0.0",
+        "recorded_detections": "4"
+      },
+      "preview": "bridge_DELIVERY_106.480.png",
+      "recorded_detections": [
+        {
+          "header": {
+            "seq": 2007,
+            "stamp": {
+              "secs": 106,
+              "nsecs": 480000000
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "bridge",
+          "class_confidence": 0.9252440929412842,
+          "geometry_confidence": 0.7415664196014404,
+          "geometry_verified": true,
+          "roi": {
+            "x_offset": 1178,
+            "y_offset": 6,
+            "height": 169,
+            "width": 101,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 996.21826171875,
+            "y": 336.2431335449219,
+            "z": 183.22825622558594
+          },
+          "center_refined": true,
+          "center_source": "circle_geometry",
+          "association_valid": true,
+          "reject_reason": "",
+          "map_valid": true,
+          "map_point": {
+            "x": 4.295736511645705,
+            "y": -0.5656976371733252,
+            "z": -0.22
+          },
+          "map_frame": "camera_init",
+          "map_quality": 0.7415664196014404,
+          "transform_age_sec": 0.0
+        }
+      ],
+      "selected_at_source": {
+        "class_name": "panzer",
+        "id": 4,
+        "map_point": {
+          "x": 4.999858124564966,
+          "y": -0.47367483038773783,
+          "z": -0.22000000000000006
+        },
+        "map_valid": true
+      }
+    },
+    {
+      "class_name": "bridge",
+      "phase": "HIGH_SURVEY",
+      "sample": {
+        "stream": "mapped",
+        "class_name": "bridge",
+        "id": "",
+        "source": "target_map_projector",
+        "receipt_ros_s": "45.65",
+        "source_ros_s": "45.502",
+        "mission_s": "33.842000001",
+        "age_s": "0.14799999999999613",
+        "fresh": "True",
+        "align_mode": "disabled",
+        "map_frame": "camera_init",
+        "map_valid": "True",
+        "center_refined": "True",
+        "center_source": "circle_geometry",
+        "association_valid": "True",
+        "reject_reason": "",
+        "transform_age_sec": "0.0",
+        "class_confidence": "0.9187491536140442",
+        "geometry_confidence": "0.7716254591941833",
+        "state": "",
+        "observe_count": "",
+        "consecutive_observe_count": "",
+        "raw_x": "3.646246343755068",
+        "raw_y": "-1.3967996516326304",
+        "raw_z": "-0.22",
+        "eval_x": "3.646246343755068",
+        "eval_y": "-1.3967996516326304",
+        "truth_name": "random_bridge",
+        "truth_x": "3.7772",
+        "truth_y": "-1.0829",
+        "dx_m": "-0.13095365624493205",
+        "dy_m": "-0.31389965163263045",
+        "xy_error_m": "0.34012034837539873",
+        "nearest_truth_gap_m": "",
+        "nearest_any_class": "bridge",
+        "nearest_any_instance": "random_bridge",
+        "nearest_any_distance_m": "0.34012034837539873",
+        "same_class_distance_m": "0.34012034837539873",
+        "same_vs_any_gap_m": "0.0",
+        "category_confusion_suspected": "False",
+        "duplicate": "False",
+        "exclusion": "",
+        "in_mission": "True",
+        "source_stage": "SURVEY",
+        "source_align_mode": "disabled",
+        "source_phase": "HIGH_SURVEY",
+        "source_fc_agl_m": "2.57321296584702"
+      },
+      "frame_mapping": {
+        "output_frame": "448",
+        "playback_ros_s": "45.542000000",
+        "source_frame": "363",
+        "image_stamp_ros_s": "45.502000000",
+        "image_age_s": "0.040000000",
+        "mapped_source_stamp_ros_s": "45.502000000",
+        "match_delta_ms": "0.0",
+        "recorded_detections": "2"
+      },
+      "preview": "bridge_HIGH_SURVEY_45.502.png",
+      "recorded_detections": [
+        {
+          "header": {
+            "seq": 848,
+            "stamp": {
+              "secs": 45,
+              "nsecs": 502000000
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "bridge",
+          "class_confidence": 0.9187491536140442,
+          "geometry_confidence": 0.7716254591941833,
+          "geometry_verified": true,
+          "roi": {
+            "x_offset": 1109,
+            "y_offset": 600,
+            "height": 120,
+            "width": 168,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 1181.7103271484375,
+            "y": 670.7431030273438,
+            "z": 94.88412475585938
+          },
+          "center_refined": true,
+          "center_source": "circle_geometry",
+          "association_valid": true,
+          "reject_reason": "",
+          "map_valid": true,
+          "map_point": {
+            "x": 3.646246343755068,
+            "y": -1.3967996516326304,
+            "z": -0.22
+          },
+          "map_frame": "camera_init",
+          "map_quality": 0.7716254591941833,
+          "transform_age_sec": 0.0
+        }
+      ],
+      "selected_at_source": {
+        "class_name": "red_cross",
+        "id": 2,
+        "map_point": {
+          "x": 4.333618841399953,
+          "y": -4.588743747081274,
+          "z": -0.21999999999999997
+        },
+        "map_valid": true
+      }
+    },
+    {
+      "class_name": "panzer",
+      "phase": "DELIVERY",
+      "sample": {
+        "stream": "mapped",
+        "class_name": "panzer",
+        "id": "",
+        "source": "target_map_projector",
+        "receipt_ros_s": "106.71",
+        "source_ros_s": "106.48",
+        "mission_s": "94.90200000099999",
+        "age_s": "0.22999999999998977",
+        "fresh": "True",
+        "align_mode": "drop_circle",
+        "map_frame": "camera_init",
+        "map_valid": "True",
+        "center_refined": "True",
+        "center_source": "circle_geometry",
+        "association_valid": "True",
+        "reject_reason": "",
+        "transform_age_sec": "0.0",
+        "class_confidence": "0.91550612449646",
+        "geometry_confidence": "0.8656489849090576",
+        "state": "",
+        "observe_count": "",
+        "consecutive_observe_count": "",
+        "raw_x": "5.032284817091034",
+        "raw_y": "-0.43798115639889773",
+        "raw_z": "-0.22",
+        "eval_x": "5.032284817091034",
+        "eval_y": "-0.43798115639889773",
+        "truth_name": "random_panzer",
+        "truth_x": "5.0584",
+        "truth_y": "-0.3493",
+        "dx_m": "-0.026115182908966084",
+        "dy_m": "-0.08868115639889773",
+        "xy_error_m": "0.09244647250498265",
+        "nearest_truth_gap_m": "",
+        "nearest_any_class": "panzer",
+        "nearest_any_instance": "random_panzer",
+        "nearest_any_distance_m": "0.09244647250498265",
+        "same_class_distance_m": "0.09244647250498265",
+        "same_vs_any_gap_m": "0.0",
+        "category_confusion_suspected": "False",
+        "duplicate": "False",
+        "exclusion": "",
+        "in_mission": "True",
+        "source_stage": "DELIVERY",
+        "source_align_mode": "drop_circle",
+        "source_phase": "DELIVERY",
+        "source_fc_agl_m": "1.5533502231015983"
+      },
+      "frame_mapping": {
+        "output_frame": "1058",
+        "playback_ros_s": "106.542000000",
+        "source_frame": "856",
+        "image_stamp_ros_s": "106.480000000",
+        "image_age_s": "0.062000000",
+        "mapped_source_stamp_ros_s": "106.480000000",
+        "match_delta_ms": "0.0",
+        "recorded_detections": "4"
+      },
+      "preview": "panzer_DELIVERY_106.480.png",
+      "recorded_detections": [
+        {
+          "header": {
+            "seq": 2007,
+            "stamp": {
+              "secs": 106,
+              "nsecs": 480000000
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "panzer",
+          "class_confidence": 0.91550612449646,
+          "geometry_confidence": 0.8656489849090576,
+          "geometry_verified": true,
+          "roi": {
+            "x_offset": 482,
+            "y_offset": 255,
+            "height": 294,
+            "width": 273,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 617.995849609375,
+            "y": 401.87591552734375,
+            "z": 168.99267578125
+          },
+          "center_refined": true,
+          "center_source": "circle_geometry",
+          "association_valid": true,
+          "reject_reason": "",
+          "map_valid": true,
+          "map_point": {
+            "x": 5.032284817091034,
+            "y": -0.43798115639889773,
+            "z": -0.22
+          },
+          "map_frame": "camera_init",
+          "map_quality": 0.8656489849090576,
+          "transform_age_sec": 0.0
+        }
+      ],
+      "selected_at_source": {
+        "class_name": "panzer",
+        "id": 4,
+        "map_point": {
+          "x": 4.999858124564966,
+          "y": -0.47367483038773783,
+          "z": -0.22000000000000006
+        },
+        "map_valid": true
+      }
+    },
+    {
+      "class_name": "panzer",
+      "phase": "DESCEND",
+      "sample": {
+        "stream": "mapped",
+        "class_name": "panzer",
+        "id": "",
+        "source": "target_map_projector",
+        "receipt_ros_s": "46.807",
+        "source_ros_s": "46.636",
+        "mission_s": "34.999000001",
+        "age_s": "0.17099999999999937",
+        "fresh": "True",
+        "align_mode": "disabled",
+        "map_frame": "camera_init",
+        "map_valid": "True",
+        "center_refined": "True",
+        "center_source": "circle_geometry",
+        "association_valid": "True",
+        "reject_reason": "",
+        "transform_age_sec": "0.0",
+        "class_confidence": "0.9195480346679688",
+        "geometry_confidence": "0.8515846133232117",
+        "state": "",
+        "observe_count": "",
+        "consecutive_observe_count": "",
+        "raw_x": "4.954381508575943",
+        "raw_y": "-0.6903212651876729",
+        "raw_z": "-0.22",
+        "eval_x": "4.954381508575943",
+        "eval_y": "-0.6903212651876729",
+        "truth_name": "random_panzer",
+        "truth_x": "5.0584",
+        "truth_y": "-0.3493",
+        "dx_m": "-0.10401849142405695",
+        "dy_m": "-0.3410212651876729",
+        "xy_error_m": "0.3565323966603003",
+        "nearest_truth_gap_m": "",
+        "nearest_any_class": "panzer",
+        "nearest_any_instance": "random_panzer",
+        "nearest_any_distance_m": "0.3565323966603003",
+        "same_class_distance_m": "0.3565323966603003",
+        "same_vs_any_gap_m": "0.0",
+        "category_confusion_suspected": "False",
+        "duplicate": "False",
+        "exclusion": "",
+        "in_mission": "True",
+        "source_stage": "DESCEND",
+        "source_align_mode": "disabled",
+        "source_phase": "DESCEND",
+        "source_fc_agl_m": "2.5860671429423934"
+      },
+      "frame_mapping": {
+        "output_frame": "459",
+        "playback_ros_s": "46.642000000",
+        "source_frame": "372",
+        "image_stamp_ros_s": "46.636000000",
+        "image_age_s": "0.006000000",
+        "mapped_source_stamp_ros_s": "46.636000000",
+        "match_delta_ms": "0.0",
+        "recorded_detections": "3"
+      },
+      "preview": "panzer_DESCEND_46.636.png",
+      "recorded_detections": [
+        {
+          "header": {
+            "seq": 869,
+            "stamp": {
+              "secs": 46,
+              "nsecs": 636000000
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "panzer",
+          "class_confidence": 0.9195480346679688,
+          "geometry_confidence": 0.8515846133232117,
+          "geometry_verified": true,
+          "roi": {
+            "x_offset": 745,
+            "y_offset": 426,
+            "height": 152,
+            "width": 149,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 819.3197631835938,
+            "y": 500.57244873046875,
+            "z": 93.46345520019531
+          },
+          "center_refined": true,
+          "center_source": "circle_geometry",
+          "association_valid": true,
+          "reject_reason": "",
+          "map_valid": true,
+          "map_point": {
+            "x": 4.954381508575943,
+            "y": -0.6903212651876729,
+            "z": -0.22
+          },
+          "map_frame": "camera_init",
+          "map_quality": 0.8515846133232117,
+          "transform_age_sec": 0.0
+        }
+      ],
+      "selected_at_source": {
+        "class_name": "panzer",
+        "id": 4,
+        "map_point": {
+          "x": 4.941119101718832,
+          "y": -0.6582473988582129,
+          "z": -0.22
+        },
+        "map_valid": true
+      }
+    },
+    {
+      "class_name": "panzer",
+      "phase": "HIGH_SURVEY",
+      "sample": {
+        "stream": "mapped",
+        "class_name": "panzer",
+        "id": "",
+        "source": "target_map_projector",
+        "receipt_ros_s": "46.389",
+        "source_ros_s": "46.242",
+        "mission_s": "34.58100000100001",
+        "age_s": "0.14700000000000557",
+        "fresh": "True",
+        "align_mode": "disabled",
+        "map_frame": "camera_init",
+        "map_valid": "True",
+        "center_refined": "True",
+        "center_source": "circle_geometry",
+        "association_valid": "True",
+        "reject_reason": "",
+        "transform_age_sec": "0.0",
+        "class_confidence": "0.8961684703826904",
+        "geometry_confidence": "0.8388164043426514",
+        "state": "",
+        "observe_count": "",
+        "consecutive_observe_count": "",
+        "raw_x": "4.94036425115369",
+        "raw_y": "-0.663794094901259",
+        "raw_z": "-0.22",
+        "eval_x": "4.94036425115369",
+        "eval_y": "-0.663794094901259",
+        "truth_name": "random_panzer",
+        "truth_x": "5.0584",
+        "truth_y": "-0.3493",
+        "dx_m": "-0.11803574884631018",
+        "dy_m": "-0.31449409490125896",
+        "xy_error_m": "0.3359151287653941",
+        "nearest_truth_gap_m": "",
+        "nearest_any_class": "panzer",
+        "nearest_any_instance": "random_panzer",
+        "nearest_any_distance_m": "0.3359151287653941",
+        "same_class_distance_m": "0.3359151287653941",
+        "same_vs_any_gap_m": "0.0",
+        "category_confusion_suspected": "False",
+        "duplicate": "False",
+        "exclusion": "",
+        "in_mission": "True",
+        "source_stage": "SURVEY",
+        "source_align_mode": "disabled",
+        "source_phase": "HIGH_SURVEY",
+        "source_fc_agl_m": "2.5722517764023998"
+      },
+      "frame_mapping": {
+        "output_frame": "455",
+        "playback_ros_s": "46.242000000",
+        "source_frame": "369",
+        "image_stamp_ros_s": "46.242000000",
+        "image_age_s": "0.000000000",
+        "mapped_source_stamp_ros_s": "46.242000000",
+        "match_delta_ms": "0.0",
+        "recorded_detections": "3"
+      },
+      "preview": "panzer_HIGH_SURVEY_46.242.png",
+      "recorded_detections": [
+        {
+          "header": {
+            "seq": 861,
+            "stamp": {
+              "secs": 46,
+              "nsecs": 242000000
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "panzer",
+          "class_confidence": 0.8961684703826904,
+          "geometry_confidence": 0.8388164043426514,
+          "geometry_verified": true,
+          "roi": {
+            "x_offset": 749,
+            "y_offset": 623,
+            "height": 97,
+            "width": 149,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 823.8471069335938,
+            "y": 695.5513916015625,
+            "z": 106.46112060546875
+          },
+          "center_refined": true,
+          "center_source": "circle_geometry",
+          "association_valid": true,
+          "reject_reason": "",
+          "map_valid": true,
+          "map_point": {
+            "x": 4.94036425115369,
+            "y": -0.663794094901259,
+            "z": -0.22
+          },
+          "map_frame": "camera_init",
+          "map_quality": 0.8388164043426514,
+          "transform_age_sec": 0.0
+        }
+      ],
+      "selected_at_source": {
+        "class_name": "red_cross",
+        "id": 2,
+        "map_point": {
+          "x": 4.333618841399953,
+          "y": -4.588743747081274,
+          "z": -0.21999999999999997
+        },
+        "map_valid": true
+      }
+    }
+  ],
+  "previous_endpoint_coverage": {
+    "source_frames": 1678,
+    "first_source_ros_s": 0.742,
+    "last_source_ros_s": 205.96,
+    "mission_end_ros_s": 204.40800000000002,
+    "source_after_mission_end_s": 1.5519999999999925,
+    "last_output_playback_ros_s": 205.942,
+    "last_output_source_ros_s": 205.827,
+    "last_output_source_frame": 1676,
+    "final_source_frames_not_selected_by_output_grid": 1,
+    "final_source_to_last_output_tick_s": 0.018000000000000682,
+    "last10s_source_max_gap_s": 0.19200000000000728,
+    "last10s_source_gaps_over_150ms": 9,
+    "last10s_source_gaps_over_300ms": 0
+  },
+  "endpoint_correction": "Inclusive last output tick; previous derived media retained under prior_endpoint_overlay. Raw media unchanged."
+}

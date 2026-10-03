@@ -1,0 +1,369 @@
+{
+  "seed": 31,
+  "run": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed31_20261004_011753",
+  "coverage": {
+    "source_frames": 1622,
+    "first_source_ros_s": 0.491,
+    "last_source_ros_s": 196.78,
+    "mission_end_ros_s": 196.071,
+    "source_after_mission_end_s": 0.7090000000000032,
+    "last_output_playback_ros_s": 196.791,
+    "last_output_source_ros_s": 196.78,
+    "last_output_source_frame": 1621,
+    "final_source_frames_not_selected_by_output_grid": 0,
+    "final_source_to_last_output_tick_s": -0.01099999999999568,
+    "last10s_source_max_gap_s": 0.1769999999999925,
+    "last10s_source_gaps_over_150ms": 12,
+    "last10s_source_gaps_over_300ms": 0
+  },
+  "landing_source_mode_counts": {
+    "arrays": 230,
+    "landing_pad": 133
+  },
+  "landing_completed_sources": {
+    "circle_detector": 219,
+    "cross_detector": 40,
+    "landing_detector": 229,
+    "target_detector": 1
+  },
+  "target_detector_completion_marks_in_landing": [
+    {
+      "source_ros_s": 196.78,
+      "receipt_ros_s": 196.812,
+      "classes": []
+    }
+  ],
+  "landing_note": "Mode as of source image stamp. Completion does not prove inference ran or emitted boxes. No raw detector topic was recorded.",
+  "release_commits": [
+    {
+      "ack_ros_s": 60.05,
+      "decision_seq": 7,
+      "payload_slot": 1,
+      "target_id": 4,
+      "target_class": "red_cross",
+      "reason": "release_ack_success",
+      "decision_xy": [
+        2.6873828079323503,
+        -4.312463155232255
+      ],
+      "decision_target_id": 4,
+      "identity_matches_decision": true,
+      "nearest_class": "red_cross",
+      "nearest_instance": "random_red_cross",
+      "nearest_distance_m": 0.11840768769571568,
+      "same_class_distance_m": 0.11840768769571568
+    },
+    {
+      "ack_ros_s": 89.424,
+      "decision_seq": 9,
+      "payload_slot": 2,
+      "target_id": 0,
+      "target_class": "bridge",
+      "reason": "release_ack_success",
+      "decision_xy": [
+        0.5207627162774082,
+        -1.665477846492613
+      ],
+      "decision_target_id": 0,
+      "identity_matches_decision": true,
+      "nearest_class": "bridge",
+      "nearest_instance": "random_bridge",
+      "nearest_distance_m": 0.13830220976148977,
+      "same_class_distance_m": 0.13830220976148977
+    },
+    {
+      "ack_ros_s": 102.622,
+      "decision_seq": 11,
+      "payload_slot": 3,
+      "target_id": 5,
+      "target_class": "panzer",
+      "reason": "release_ack_success",
+      "decision_xy": [
+        3.109257543247174,
+        -0.409058379881285
+      ],
+      "decision_target_id": 5,
+      "identity_matches_decision": true,
+      "nearest_class": "panzer",
+      "nearest_instance": "random_panzer",
+      "nearest_distance_m": 0.06892805957897317,
+      "same_class_distance_m": 0.06892805957897317
+    }
+  ],
+  "tails": [
+    {
+      "class_name": "bridge",
+      "n": 261,
+      "p95_m": 0.18301973412852457,
+      "max_m": 0.338005862305537,
+      "above_30cm_by_phase": {
+        "HIGH_SURVEY": 1,
+        "DELIVERY": 1
+      },
+      "p95_tail_by_phase": {
+        "HIGH_SURVEY": 13,
+        "DELIVERY": 1
+      }
+    },
+    {
+      "class_name": "panzer",
+      "n": 194,
+      "p95_m": 0.09482503693391757,
+      "max_m": 0.11332502715066732,
+      "above_30cm_by_phase": {},
+      "p95_tail_by_phase": {
+        "REVISIT": 1,
+        "DELIVERY": 8,
+        "TAIL": 1
+      }
+    }
+  ],
+  "cases": [
+    {
+      "class_name": "bridge",
+      "phase": "DELIVERY",
+      "sample": {
+        "stream": "mapped",
+        "class_name": "bridge",
+        "id": "",
+        "source": "target_map_projector",
+        "receipt_ros_s": "86.071",
+        "source_ros_s": "86.043",
+        "mission_s": "74.447",
+        "age_s": "0.027999999999991587",
+        "fresh": "True",
+        "align_mode": "drop_circle",
+        "map_frame": "camera_init",
+        "map_valid": "True",
+        "center_refined": "True",
+        "center_source": "circle_geometry",
+        "association_valid": "True",
+        "reject_reason": "",
+        "transform_age_sec": "0.0",
+        "class_confidence": "0.9417297840118408",
+        "geometry_confidence": "0.8593727350234985",
+        "state": "",
+        "observe_count": "",
+        "consecutive_observe_count": "",
+        "raw_x": "0.5328397153039783",
+        "raw_y": "-1.6408606722411014",
+        "raw_z": "-0.22",
+        "eval_x": "0.5328397153039783",
+        "eval_y": "-1.6408606722411014",
+        "truth_name": "random_bridge",
+        "truth_x": "0.6063",
+        "truth_y": "-1.5568",
+        "dx_m": "-0.07346028469602162",
+        "dy_m": "-0.08406067224110148",
+        "xy_error_m": "0.11163606068491684",
+        "nearest_truth_gap_m": "",
+        "nearest_any_class": "bridge",
+        "nearest_any_instance": "random_bridge",
+        "nearest_any_distance_m": "0.11163606068491684",
+        "same_class_distance_m": "0.11163606068491684",
+        "same_vs_any_gap_m": "0.0",
+        "category_confusion_suspected": "False",
+        "duplicate": "False",
+        "exclusion": "",
+        "in_mission": "True",
+        "source_stage": "DELIVERY",
+        "source_align_mode": "drop_circle",
+        "source_phase": "DELIVERY",
+        "source_fc_agl_m": "1.527994031771091"
+      },
+      "frame_mapping": {
+        "output_frame": "856",
+        "playback_ros_s": "86.091000000",
+        "source_frame": "710",
+        "image_stamp_ros_s": "86.043000000",
+        "image_age_s": "0.048000000",
+        "mapped_source_stamp_ros_s": "86.043000000",
+        "match_delta_ms": "0.0",
+        "recorded_detections": "2"
+      },
+      "preview": "bridge_DELIVERY_86.043.png",
+      "recorded_detections": [
+        {
+          "header": {
+            "seq": 1660,
+            "stamp": {
+              "secs": 86,
+              "nsecs": 43000000
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "bridge",
+          "class_confidence": 0.9417297840118408,
+          "geometry_confidence": 0.8593727350234985,
+          "geometry_verified": true,
+          "roi": {
+            "x_offset": 470,
+            "y_offset": 261,
+            "height": 297,
+            "width": 291,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 613.793212890625,
+            "y": 404.78338623046875,
+            "z": 172.220458984375
+          },
+          "center_refined": true,
+          "center_source": "circle_geometry",
+          "association_valid": true,
+          "reject_reason": "",
+          "map_valid": true,
+          "map_point": {
+            "x": 0.5328397153039783,
+            "y": -1.6408606722411014,
+            "z": -0.22
+          },
+          "map_frame": "camera_init",
+          "map_quality": 0.8593727350234985,
+          "transform_age_sec": 0.0
+        }
+      ],
+      "selected_at_source": {
+        "class_name": "bridge",
+        "id": 0,
+        "map_point": {
+          "x": 0.5219702449675221,
+          "y": -1.6620903199929717,
+          "z": -0.2200000000000001
+        },
+        "map_valid": true
+      }
+    },
+    {
+      "class_name": "bridge",
+      "phase": "HIGH_SURVEY",
+      "sample": {
+        "stream": "mapped",
+        "class_name": "bridge",
+        "id": "",
+        "source": "target_map_projector",
+        "receipt_ros_s": "30.183",
+        "source_ros_s": "30.155",
+        "mission_s": "18.558999999999997",
+        "age_s": "0.027999999999998693",
+        "fresh": "True",
+        "align_mode": "disabled",
+        "map_frame": "camera_init",
+        "map_valid": "True",
+        "center_refined": "True",
+        "center_source": "circle_geometry",
+        "association_valid": "True",
+        "reject_reason": "",
+        "transform_age_sec": "0.0",
+        "class_confidence": "0.9340377449989319",
+        "geometry_confidence": "0.708545982837677",
+        "state": "",
+        "observe_count": "",
+        "consecutive_observe_count": "",
+        "raw_x": "0.3030635433093579",
+        "raw_y": "-1.6881769223997263",
+        "raw_z": "-0.22",
+        "eval_x": "0.3030635433093579",
+        "eval_y": "-1.6881769223997263",
+        "truth_name": "random_bridge",
+        "truth_x": "0.6063",
+        "truth_y": "-1.5568",
+        "dx_m": "-0.30323645669064203",
+        "dy_m": "-0.13137692239972631",
+        "xy_error_m": "0.33047275894620926",
+        "nearest_truth_gap_m": "",
+        "nearest_any_class": "bridge",
+        "nearest_any_instance": "random_bridge",
+        "nearest_any_distance_m": "0.33047275894620926",
+        "same_class_distance_m": "0.33047275894620926",
+        "same_vs_any_gap_m": "0.0",
+        "category_confusion_suspected": "False",
+        "duplicate": "False",
+        "exclusion": "",
+        "in_mission": "True",
+        "source_stage": "SURVEY",
+        "source_align_mode": "disabled",
+        "source_phase": "HIGH_SURVEY",
+        "source_fc_agl_m": "2.7631084430942345"
+      },
+      "frame_mapping": {
+        "output_frame": "297",
+        "playback_ros_s": "30.191000000",
+        "source_frame": "245",
+        "image_stamp_ros_s": "30.155000000",
+        "image_age_s": "0.036000000",
+        "mapped_source_stamp_ros_s": "30.155000000",
+        "match_delta_ms": "0.0",
+        "recorded_detections": "3"
+      },
+      "preview": "bridge_HIGH_SURVEY_30.155.png",
+      "recorded_detections": [
+        {
+          "header": {
+            "seq": 564,
+            "stamp": {
+              "secs": 30,
+              "nsecs": 155000000
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "bridge",
+          "class_confidence": 0.9340377449989319,
+          "geometry_confidence": 0.708545982837677,
+          "geometry_verified": true,
+          "roi": {
+            "x_offset": 690,
+            "y_offset": 93,
+            "height": 160,
+            "width": 159,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 823.0444946289062,
+            "y": 173.84124755859375,
+            "z": 96.4562759399414
+          },
+          "center_refined": true,
+          "center_source": "circle_geometry",
+          "association_valid": true,
+          "reject_reason": "",
+          "map_valid": true,
+          "map_point": {
+            "x": 0.3030635433093579,
+            "y": -1.6881769223997263,
+            "z": -0.22
+          },
+          "map_frame": "camera_init",
+          "map_quality": 0.708545982837677,
+          "transform_age_sec": 0.0
+        }
+      ],
+      "selected_at_source": {
+        "class_name": "bridge",
+        "id": 0,
+        "map_point": {
+          "x": 0.4955080702359621,
+          "y": -1.6972753934655043,
+          "z": -0.22
+        },
+        "map_valid": true
+      }
+    }
+  ],
+  "previous_endpoint_coverage": {
+    "source_frames": 1622,
+    "first_source_ros_s": 0.491,
+    "last_source_ros_s": 196.78,
+    "mission_end_ros_s": 196.071,
+    "source_after_mission_end_s": 0.7090000000000032,
+    "last_output_playback_ros_s": 196.691,
+    "last_output_source_ros_s": 196.677,
+    "last_output_source_frame": 1620,
+    "final_source_frames_not_selected_by_output_grid": 1,
+    "final_source_to_last_output_tick_s": 0.08899999999999864,
+    "last10s_source_max_gap_s": 0.1769999999999925,
+    "last10s_source_gaps_over_150ms": 12,
+    "last10s_source_gaps_over_300ms": 0
+  },
+  "endpoint_correction": "Inclusive last output tick; previous derived media retained under prior_endpoint_overlay. Raw media unchanged."
+}

@@ -1,0 +1,23 @@
+{
+  "source_video": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed31_20261004_011753/downward.mp4",
+  "source_csv": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed31_20261004_011753/downward.csv",
+  "mapped_data": "/home/xhj/sim_reports_20261004/seed31_center_inputs.jsonl",
+  "center_csv": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/31_centers/center_samples.csv",
+  "label": "Corrected_seed31_011753",
+  "output": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/31_mapped_overlay.mp4",
+  "output_frames": 1963,
+  "fps": 10.0,
+  "source_ros_span_s": 196.289,
+  "source_frames": 1622,
+  "visited_source_frames": 1621,
+  "frames_with_nonempty_match": 530,
+  "frames_with_empty_match": 1091,
+  "frames_without_match": 0,
+  "max_match_abs_delta_ms": 0.0,
+  "max_held_image_age_s": 0.353,
+  "match_tolerance_ms": 30.0,
+  "ffmpeg_threads": 1,
+  "note": "Source-image stamp match only. Held images labelled. Recorded ROI/center only; no H shape fitting or model inference.",
+  "interpretation": "Nearest-any and same-class distances are different; class ambiguity is not pure localization error.",
+  "validation": "Encoding completed; run ffmpeg full decode separately."
+}

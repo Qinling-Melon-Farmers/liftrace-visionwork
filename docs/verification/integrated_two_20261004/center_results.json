@@ -1,0 +1,1556 @@
+{
+  "scope": "Corrected formal runs only; excludes 002834 preparation and 003709 diagnostic.",
+  "source": "4cb75a3b1308ef0e17fcf6c7a296c946e0d9e751",
+  "comparison": "Different code/model/inflation/ceiling/H geometry from history; not strict A/B.",
+  "results": [
+    {
+      "seed": 31,
+      "run": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed31_20261004_011753",
+      "gate": "PASS",
+      "mapped_H_landing": [
+        {
+          "scope": "fresh_H_landing_mode",
+          "stream": "mapped",
+          "class_name": "landing_pad",
+          "truth_name": "landing_h_clone",
+          "n": 133,
+          "median_m": 0.0382911841434239,
+          "p95_m": 0.04391895096116337,
+          "rmse_m": 0.03750516971740745,
+          "max_m": 0.04415598966252388,
+          "mean_dx_m": -0.026732234613599682,
+          "mean_dy_m": -0.023363592926346318,
+          "first_mission_s": 173.589,
+          "last_mission_s": 180.30100000000002
+        }
+      ],
+      "mapped_H_source_landing": [
+        {
+          "scope": "all_associations",
+          "stream": "mapped",
+          "phase": "LANDING",
+          "align_mode": "landing",
+          "class_name": "landing_pad",
+          "same_class_instance": "landing_h_clone",
+          "n": 133,
+          "median_same_class_m": 0.0382911841434239,
+          "p95_same_class_m": 0.04391895096116337,
+          "median_nearest_any_m": 0.0382911841434239,
+          "suspected_confusion_n": 0,
+          "first_source_ros_s": 185.146,
+          "last_source_ros_s": 191.842
+        }
+      ],
+      "selected_centers": [
+        {
+          "scope": "fresh_nearest_class_agrees",
+          "stream": "selected",
+          "class_name": "bridge",
+          "truth_name": "random_bridge",
+          "n": 244,
+          "median_m": 0.13572950841594894,
+          "p95_m": 0.18294426570077396,
+          "rmse_m": 0.14349495945060875,
+          "max_m": 0.18852469903807548,
+          "mean_dx_m": -0.08827061736835154,
+          "mean_dy_m": -0.11031948791093789,
+          "first_mission_s": 6.612999999999998,
+          "last_mission_s": 83.25200000000001
+        },
+        {
+          "scope": "fresh_nearest_class_agrees",
+          "stream": "selected",
+          "class_name": "panzer",
+          "truth_name": "random_panzer",
+          "n": 183,
+          "median_m": 0.06870202335896443,
+          "p95_m": 0.07562957670349667,
+          "rmse_m": 0.0694141167828592,
+          "max_m": 0.0903388649639126,
+          "mean_dx_m": -0.021427853372126784,
+          "mean_dy_m": -0.06561682435319549,
+          "first_mission_s": 84.28800000000001,
+          "last_mission_s": 96.063
+        },
+        {
+          "scope": "fresh_nearest_class_agrees",
+          "stream": "selected",
+          "class_name": "pillbox",
+          "truth_name": "random_pillbox",
+          "n": 56,
+          "median_m": 0.23511349524447864,
+          "p95_m": 0.2615994232781324,
+          "rmse_m": 0.23401652893461222,
+          "max_m": 0.2640285387514539,
+          "mean_dx_m": -0.08769648265329473,
+          "mean_dy_m": -0.2155688666488918,
+          "first_mission_s": 9.906999999999998,
+          "last_mission_s": 14.610999999999999
+        },
+        {
+          "scope": "fresh_nearest_class_agrees",
+          "stream": "selected",
+          "class_name": "red_cross",
+          "truth_name": "random_red_cross",
+          "n": 342,
+          "median_m": 0.10745021651858258,
+          "p95_m": 0.1458465771078367,
+          "rmse_m": 0.10996682996472282,
+          "max_m": 0.15943075312953578,
+          "mean_dx_m": -0.06351742702866141,
+          "mean_dy_m": -0.08809914234473872,
+          "first_mission_s": 21.421,
+          "last_mission_s": 57.24699999999999
+        }
+      ],
+      "class_confusions": [
+        {
+          "stream": "hint_bbox",
+          "predicted_class": "panzer",
+          "nearest_class": "pillbox",
+          "nearest_instance": "random_pillbox",
+          "n": 21,
+          "median_nearest_distance_m": 0.1388501639804114,
+          "median_same_class_distance_m": 4.65631845812211,
+          "suspected_confusion_n": 21
+        },
+        {
+          "stream": "mapped",
+          "predicted_class": "bridge",
+          "nearest_class": "pillbox",
+          "nearest_instance": "random_pillbox",
+          "n": 1,
+          "median_nearest_distance_m": 0.2751461982399302,
+          "median_same_class_distance_m": 4.779174909070381,
+          "suspected_confusion_n": 1
+        },
+        {
+          "stream": "mapped",
+          "predicted_class": "panzer",
+          "nearest_class": "pillbox",
+          "nearest_instance": "random_pillbox",
+          "n": 28,
+          "median_nearest_distance_m": 0.13191993380573752,
+          "median_same_class_distance_m": 4.649376595938661,
+          "suspected_confusion_n": 28
+        },
+        {
+          "stream": "targets",
+          "predicted_class": "panzer",
+          "nearest_class": "pillbox",
+          "nearest_instance": "random_pillbox",
+          "n": 2,
+          "median_nearest_distance_m": 0.26840517663290886,
+          "median_same_class_distance_m": 4.5381248465968795,
+          "suspected_confusion_n": 2
+        }
+      ],
+      "mapped_phase_confusions": [
+        {
+          "scope": "all_associations",
+          "stream": "mapped",
+          "phase": "HIGH_SURVEY",
+          "align_mode": "disabled",
+          "class_name": "bridge",
+          "same_class_instance": "random_bridge",
+          "n": 67,
+          "median_same_class_m": 0.16175452493104236,
+          "p95_same_class_m": 0.2545627510582492,
+          "median_nearest_any_m": 0.16175452493104236,
+          "suspected_confusion_n": 1,
+          "first_source_ros_s": 18.094,
+          "last_source_ros_s": 32.417
+        },
+        {
+          "scope": "all_associations",
+          "stream": "mapped",
+          "phase": "HIGH_SURVEY",
+          "align_mode": "disabled",
+          "class_name": "panzer",
+          "same_class_instance": "random_panzer",
+          "n": 28,
+          "median_same_class_m": 4.649376595938661,
+          "p95_same_class_m": 4.662630907295405,
+          "median_nearest_any_m": 0.13191993380573752,
+          "suspected_confusion_n": 28,
+          "first_source_ros_s": 21.349,
+          "last_source_ros_s": 26.196
+        }
+      ],
+      "far_from_all_truth_threshold_m": 0.5,
+      "far_from_all_truth": [],
+      "first_high_survey": [
+        {
+          "kind": "first_high_survey_by_nearest_instance",
+          "class_name": "bridge",
+          "source": "bbox",
+          "xy": [
+            0.515825292402253,
+            -1.5786083063914138
+          ],
+          "source_ros_s": 18.094,
+          "source_mission_s": 6.470000000000001,
+          "first_publication_ros_s": 18.139,
+          "event_ros_s": null,
+          "source_age_at_publication_s": 0.04499999999999815,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              18094000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1,
+            "source": "bbox",
+            "source_stamp_ns": 18094000000,
+            "xy": [
+              0.515825292402253,
+              -1.5786083063914138
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.675582410048683,
+          "nearest_any_instance": "random_bridge",
+          "nearest_any_class": "bridge",
+          "nearest_any_distance_m": 0.09306597091611725,
+          "same_class_instance": "random_bridge",
+          "same_class_distance_m": 0.09306597091611725,
+          "category_confusion_suspected": false,
+          "first_high_observation_of_class": true
+        },
+        {
+          "kind": "first_high_survey_by_nearest_instance",
+          "class_name": "panzer",
+          "source": "bbox",
+          "xy": [
+            0.3126297833762943,
+            3.1679077277405536
+          ],
+          "source_ros_s": 21.349,
+          "source_mission_s": 9.725,
+          "first_publication_ros_s": 21.422,
+          "event_ros_s": null,
+          "source_age_at_publication_s": 0.0730000000000004,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              21349000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1,
+            "source": "bbox",
+            "source_stamp_ns": 21349000000,
+            "xy": [
+              0.3126297833762943,
+              3.1679077277405536
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.676745536257145,
+          "nearest_any_instance": "random_pillbox",
+          "nearest_any_class": "pillbox",
+          "nearest_any_distance_m": 0.3163119252075303,
+          "same_class_instance": "random_panzer",
+          "same_class_distance_m": 4.499090391575497,
+          "category_confusion_suspected": true,
+          "first_high_observation_of_class": true
+        },
+        {
+          "kind": "first_high_survey_by_nearest_instance",
+          "class_name": "pillbox",
+          "source": "bbox",
+          "xy": [
+            0.3098844014439488,
+            3.20469553191011
+          ],
+          "source_ros_s": 21.415,
+          "source_mission_s": 9.790999999999999,
+          "first_publication_ros_s": 21.437,
+          "event_ros_s": null,
+          "source_age_at_publication_s": 0.022000000000002018,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              21415000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1,
+            "source": "bbox",
+            "source_stamp_ns": 21415000000,
+            "xy": [
+              0.3098844014439488,
+              3.20469553191011
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.6754701031261447,
+          "nearest_any_instance": "random_pillbox",
+          "nearest_any_class": "pillbox",
+          "nearest_any_distance_m": 0.28254119400493427,
+          "same_class_instance": "random_pillbox",
+          "same_class_distance_m": 0.28254119400493427,
+          "category_confusion_suspected": false,
+          "first_high_observation_of_class": true
+        },
+        {
+          "kind": "first_high_survey_by_nearest_instance",
+          "class_name": "panzer",
+          "source": "bbox",
+          "xy": [
+            2.9404333787712114,
+            -0.27413062444852443
+          ],
+          "source_ros_s": 27.751,
+          "source_mission_s": 16.127000000000002,
+          "first_publication_ros_s": 27.843,
+          "event_ros_s": null,
+          "source_age_at_publication_s": 0.09199999999999875,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              27751000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1,
+            "source": "bbox",
+            "source_stamp_ns": 27751000000,
+            "xy": [
+              2.9404333787712114,
+              -0.27413062444852443
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.7194534209669747,
+          "nearest_any_instance": "random_panzer",
+          "nearest_any_class": "panzer",
+          "nearest_any_distance_m": 0.1984772660695,
+          "same_class_instance": "random_panzer",
+          "same_class_distance_m": 0.1984772660695,
+          "category_confusion_suspected": false,
+          "first_high_observation_of_class": false
+        },
+        {
+          "kind": "first_high_survey_by_nearest_instance",
+          "class_name": "red_cross",
+          "source": "bbox",
+          "xy": [
+            2.653722770105026,
+            -4.297095449768194
+          ],
+          "source_ros_s": 32.69,
+          "source_mission_s": 21.065999999999995,
+          "first_publication_ros_s": 32.743,
+          "event_ros_s": null,
+          "source_age_at_publication_s": 0.05300000000000438,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              32690000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1,
+            "source": "bbox",
+            "source_stamp_ns": 32690000000,
+            "xy": [
+              2.653722770105026,
+              -4.297095449768194
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.7082349595040243,
+          "nearest_any_instance": "random_red_cross",
+          "nearest_any_class": "red_cross",
+          "nearest_any_distance_m": 0.13327917869368644,
+          "same_class_instance": "random_red_cross",
+          "same_class_distance_m": 0.13327917869368644,
+          "category_confusion_suspected": false,
+          "first_high_observation_of_class": true
+        }
+      ],
+      "survey_interrupt": [
+        {
+          "kind": "survey_interrupt_frozen_support",
+          "class_name": "bridge",
+          "source": "vision",
+          "xy": [
+            0.4973221321563226,
+            -1.687924019098929
+          ],
+          "source_ros_s": 32.351,
+          "source_mission_s": 20.726999999999997,
+          "first_publication_ros_s": 32.945,
+          "event_ros_s": 32.9,
+          "source_age_at_publication_s": 0.5940000000000012,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              29633000000,
+              29767000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 9,
+            "source": "vision",
+            "source_stamp_ns": 32351000000,
+            "xy": [
+              0.4973221321563226,
+              -1.687924019098929
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.7190004453809626,
+          "nearest_any_instance": "random_bridge",
+          "nearest_any_class": "bridge",
+          "nearest_any_distance_m": 0.17049834035676223,
+          "same_class_instance": "random_bridge",
+          "same_class_distance_m": 0.17049834035676223,
+          "category_confusion_suspected": false
+        },
+        {
+          "kind": "survey_interrupt_frozen_support",
+          "class_name": "panzer",
+          "source": "bbox",
+          "xy": [
+            0.3388709274969164,
+            3.307387809889054
+          ],
+          "source_ros_s": 26.196,
+          "source_mission_s": 14.572000000000001,
+          "first_publication_ros_s": 32.945,
+          "event_ros_s": 32.9,
+          "source_age_at_publication_s": 6.748999999999999,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              25948000000,
+              26148000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 13,
+            "source": "bbox",
+            "source_stamp_ns": 26196000000,
+            "xy": [
+              0.3388709274969164,
+              3.307387809889054
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.7530381511229556,
+          "nearest_any_instance": "random_pillbox",
+          "nearest_any_class": "pillbox",
+          "nearest_any_distance_m": 0.1765309086577239,
+          "same_class_instance": "random_panzer",
+          "same_class_distance_m": 4.5927660043292695,
+          "category_confusion_suspected": true
+        },
+        {
+          "kind": "survey_interrupt_frozen_support",
+          "class_name": "panzer",
+          "source": "bbox",
+          "xy": [
+            2.9439241834489485,
+            -0.636245956787949
+          ],
+          "source_ros_s": 31.104,
+          "source_mission_s": 19.479999999999997,
+          "first_publication_ros_s": 32.945,
+          "event_ros_s": 32.9,
+          "source_age_at_publication_s": 1.841000000000001,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              30957000000,
+              31104000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 29,
+            "source": "bbox",
+            "source_stamp_ns": 31104000000,
+            "xy": [
+              2.9439241834489485,
+              -0.636245956787949
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.756380402380637,
+          "nearest_any_instance": "random_panzer",
+          "nearest_any_class": "panzer",
+          "nearest_any_distance_m": 0.34610549056586637,
+          "same_class_instance": "random_panzer",
+          "same_class_distance_m": 0.34610549056586637,
+          "category_confusion_suspected": false
+        },
+        {
+          "kind": "survey_interrupt_frozen_support",
+          "class_name": "pillbox",
+          "source": "vision",
+          "xy": [
+            0.3267295198099862,
+            3.2863132026396933
+          ],
+          "source_ros_s": 26.148,
+          "source_mission_s": 14.524,
+          "first_publication_ros_s": 32.945,
+          "event_ros_s": 32.9,
+          "source_age_at_publication_s": 6.797000000000001,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              21650000000,
+              21798000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 4,
+            "source": "vision",
+            "source_stamp_ns": 26148000000,
+            "xy": [
+              0.3267295198099862,
+              3.2863132026396933
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.752780336798572,
+          "nearest_any_instance": "random_pillbox",
+          "nearest_any_class": "pillbox",
+          "nearest_any_distance_m": 0.20073943840525457,
+          "same_class_instance": "random_pillbox",
+          "same_class_distance_m": 0.20073943840525457,
+          "category_confusion_suspected": false
+        },
+        {
+          "kind": "survey_interrupt_frozen_support",
+          "class_name": "red_cross",
+          "source": "bbox",
+          "xy": [
+            2.649958101607657,
+            -4.340722819257405
+          ],
+          "source_ros_s": 32.85,
+          "source_mission_s": 21.226,
+          "first_publication_ros_s": 32.945,
+          "event_ros_s": 32.9,
+          "source_age_at_publication_s": 0.09499999999999886,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              32690000000,
+              32801000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 2,
+            "source": "bbox",
+            "source_stamp_ns": 32850000000,
+            "xy": [
+              2.649958101607657,
+              -4.340722819257405
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.702901109628886,
+          "nearest_any_instance": "random_red_cross",
+          "nearest_any_class": "red_cross",
+          "nearest_any_distance_m": 0.16448139547628482,
+          "same_class_instance": "random_red_cross",
+          "same_class_distance_m": 0.16448139547628482,
+          "category_confusion_suspected": false
+        }
+      ],
+      "low_reacquisition": [
+        {
+          "kind": "low_reacquisition_event",
+          "class_name": "red_cross",
+          "source": "vision",
+          "xy": [
+            2.6873828079323503,
+            -4.312463155232255
+          ],
+          "source_ros_s": 47.902,
+          "source_mission_s": 36.278,
+          "first_publication_ros_s": 48.022,
+          "event_ros_s": 47.943,
+          "source_age_at_publication_s": 0.11999999999999744,
+          "raw_hint": {
+            "class_name": "red_cross",
+            "hint_delta": 0.00020926422553084595,
+            "last_seen_ns": 47902000000,
+            "target_id": 4,
+            "time": 47.943,
+            "xy": [
+              2.6873828079323503,
+              -4.312463155232255
+            ]
+          },
+          "source_stage": "REACQUIRE",
+          "source_align_mode": "disabled",
+          "source_phase": "REACQUIRE",
+          "source_fc_agl_m": 1.473206592285145,
+          "nearest_any_instance": "random_red_cross",
+          "nearest_any_class": "red_cross",
+          "nearest_any_distance_m": 0.11840768769571568,
+          "same_class_instance": "random_red_cross",
+          "same_class_distance_m": 0.11840768769571568,
+          "category_confusion_suspected": false
+        },
+        {
+          "kind": "low_reacquisition_event",
+          "class_name": "bridge",
+          "source": "vision",
+          "xy": [
+            0.5207627162774082,
+            -1.665477846492613
+          ],
+          "source_ros_s": 84.956,
+          "source_mission_s": 73.33200000000001,
+          "first_publication_ros_s": 85.037,
+          "event_ros_s": 84.977,
+          "source_age_at_publication_s": 0.08100000000000307,
+          "raw_hint": {
+            "class_name": "bridge",
+            "hint_delta": 0.0002730622087176163,
+            "last_seen_ns": 84956000000,
+            "target_id": 0,
+            "time": 84.977,
+            "xy": [
+              0.5207627162774082,
+              -1.665477846492613
+            ]
+          },
+          "source_stage": "REACQUIRE",
+          "source_align_mode": "disabled",
+          "source_phase": "REACQUIRE",
+          "source_fc_agl_m": 1.4313848197550896,
+          "nearest_any_instance": "random_bridge",
+          "nearest_any_class": "bridge",
+          "nearest_any_distance_m": 0.13830220976148977,
+          "same_class_instance": "random_bridge",
+          "same_class_distance_m": 0.13830220976148977,
+          "category_confusion_suspected": false
+        },
+        {
+          "kind": "low_reacquisition_event",
+          "class_name": "panzer",
+          "source": "vision",
+          "xy": [
+            3.109257543247174,
+            -0.409058379881285
+          ],
+          "source_ros_s": 97.553,
+          "source_mission_s": 85.929,
+          "first_publication_ros_s": 97.632,
+          "event_ros_s": 97.579,
+          "source_age_at_publication_s": 0.07900000000000773,
+          "raw_hint": {
+            "class_name": "panzer",
+            "hint_delta": 5.963017587514768e-05,
+            "last_seen_ns": 97553000000,
+            "target_id": 5,
+            "time": 97.579,
+            "xy": [
+              3.109257543247174,
+              -0.409058379881285
+            ]
+          },
+          "source_stage": "REACQUIRE",
+          "source_align_mode": "disabled",
+          "source_phase": "REACQUIRE",
+          "source_fc_agl_m": 1.3385557699327217,
+          "nearest_any_instance": "random_panzer",
+          "nearest_any_class": "panzer",
+          "nearest_any_distance_m": 0.06892805957897317,
+          "same_class_instance": "random_panzer",
+          "same_class_distance_m": 0.06892805957897317,
+          "category_confusion_suspected": false
+        }
+      ],
+      "final_gate_H_mark": {
+        "recorded_mark": {
+          "anchor_error_m": 0.031852757326493425,
+          "frame_id": "camera_init",
+          "stamp_ns": 191842000000,
+          "x": 8.46818390118491,
+          "y": -4.201527745230359,
+          "z": -0.22
+        },
+        "nearest_any_instance": "landing_h_clone",
+        "nearest_any_class": "landing_pad",
+        "nearest_any_distance_m": 0.031852757326493425,
+        "same_class_instance": "landing_h_clone",
+        "same_class_distance_m": 0.031852757326493425,
+        "category_confusion_suspected": false
+      },
+      "video": {
+        "source_video": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed31_20261004_011753/downward.mp4",
+        "source_csv": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed31_20261004_011753/downward.csv",
+        "mapped_data": "/home/xhj/sim_reports_20261004/seed31_center_inputs.jsonl",
+        "center_csv": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/31_centers/center_samples.csv",
+        "label": "Corrected_seed31_011753",
+        "output": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/31_mapped_overlay.mp4",
+        "output_frames": 1964,
+        "fps": 10.0,
+        "source_ros_span_s": 196.289,
+        "source_frames": 1622,
+        "visited_source_frames": 1622,
+        "frames_with_nonempty_match": 530,
+        "frames_with_empty_match": 1092,
+        "frames_without_match": 0,
+        "max_match_abs_delta_ms": 0.0,
+        "max_held_image_age_s": 0.353,
+        "match_tolerance_ms": 30.0,
+        "ffmpeg_threads": 1,
+        "final_source_frame_shown": true,
+        "last_source_ros_s": 196.78,
+        "last_output_ros_s": 196.79100000000003,
+        "note": "Source-image stamp match only. Held images labelled. Recorded ROI/center only; no H shape fitting or model inference.",
+        "interpretation": "Nearest-any and same-class distances are different; class ambiguity is not pure localization error.",
+        "validation": "Encoding completed; run ffmpeg full decode separately."
+      },
+      "video_validation": {
+        "video": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/31_mapped_overlay.mp4",
+        "status": "PASS",
+        "checks": {
+          "ffprobe_exit_zero": true,
+          "full_decode_exit_zero": true,
+          "full_decode_no_error_text": true,
+          "final_source_frame_shown": true,
+          "frame_sidecar_matches": true,
+          "timestamp_match_within_30ms": true
+        },
+        "ffprobe_command": [
+          "ffprobe",
+          "-v",
+          "error",
+          "-threads",
+          "1",
+          "-select_streams",
+          "v:0",
+          "-show_entries",
+          "stream=codec_name,width,height,r_frame_rate,nb_frames,duration:format=duration,size",
+          "-of",
+          "json",
+          "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/31_mapped_overlay.mp4"
+        ],
+        "ffprobe_exit": 0,
+        "ffprobe": {
+          "programs": [],
+          "streams": [
+            {
+              "codec_name": "h264",
+              "width": 1840,
+              "height": 814,
+              "r_frame_rate": "10/1",
+              "duration": "196.400000",
+              "nb_frames": "1964"
+            }
+          ],
+          "format": {
+            "duration": "196.400000",
+            "size": "8249523"
+          }
+        },
+        "ffprobe_stderr": "",
+        "decode_command": [
+          "ffmpeg",
+          "-nostdin",
+          "-v",
+          "error",
+          "-xerror",
+          "-threads",
+          "1",
+          "-filter_threads",
+          "1",
+          "-i",
+          "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/31_mapped_overlay.mp4",
+          "-map",
+          "0:v:0",
+          "-an",
+          "-threads",
+          "1",
+          "-f",
+          "null",
+          "-"
+        ],
+        "full_decode_exit": 0,
+        "full_decode_stderr": "",
+        "sidecar_rows": 1964
+      },
+      "links": {
+        "center_report": "31_centers/CENTER_REPORT.md",
+        "phase_report": "31_centers/stages/PHASE_REPORT.md",
+        "centers_csv": "31_centers/center_samples.csv",
+        "phases_csv": "31_centers/stages/center_samples_by_phase.csv",
+        "phase_json": "31_centers/stages/phase_summary.json",
+        "final_inspection": "31_centers/inspection/inspection.json",
+        "video": "31_mapped_overlay.mp4",
+        "video_validation": "31_mapped_overlay.validation.json",
+        "timestamp_sidecar": "31_mapped_overlay.frames.csv"
+      }
+    },
+    {
+      "seed": 38,
+      "run": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed38_20261004_013059",
+      "gate": "PASS",
+      "mapped_H_landing": [
+        {
+          "scope": "fresh_H_landing_mode",
+          "stream": "mapped",
+          "class_name": "landing_pad",
+          "truth_name": "landing_h_clone",
+          "n": 97,
+          "median_m": 0.03826835876780317,
+          "p95_m": 0.05525007838946792,
+          "rmse_m": 0.04240066860786193,
+          "max_m": 0.05569541512902094,
+          "mean_dx_m": -0.03345387897222655,
+          "mean_dy_m": -0.024091668277704016,
+          "first_mission_s": 183.183000001,
+          "last_mission_s": 188.711000001
+        }
+      ],
+      "mapped_H_source_landing": [
+        {
+          "scope": "all_associations",
+          "stream": "mapped",
+          "phase": "LANDING",
+          "align_mode": "landing",
+          "class_name": "landing_pad",
+          "same_class_instance": "landing_h_clone",
+          "n": 95,
+          "median_same_class_m": 0.038251979042173936,
+          "p95_same_class_m": 0.05525269265024503,
+          "median_nearest_any_m": 0.038251979042173936,
+          "suspected_confusion_n": 0,
+          "first_source_ros_s": 194.97,
+          "last_source_ros_s": 200.269
+        }
+      ],
+      "selected_centers": [
+        {
+          "scope": "fresh_nearest_class_agrees",
+          "stream": "selected",
+          "class_name": "bridge",
+          "truth_name": "random_bridge",
+          "n": 164,
+          "median_m": 0.0659933275380067,
+          "p95_m": 0.08305271655646343,
+          "rmse_m": 0.06818903872735928,
+          "max_m": 0.1323360444471334,
+          "mean_dx_m": -0.039960777329951944,
+          "mean_dy_m": -0.054244475558842535,
+          "first_mission_s": 76.937000001,
+          "last_mission_s": 88.66400000099999
+        },
+        {
+          "scope": "fresh_nearest_class_agrees",
+          "stream": "selected",
+          "class_name": "panzer",
+          "truth_name": "random_panzer",
+          "n": 236,
+          "median_m": 0.1415185571937001,
+          "p95_m": 0.3292284855846431,
+          "rmse_m": 0.18495684461466688,
+          "max_m": 0.3385231710027964,
+          "mean_dx_m": -0.06761112759074828,
+          "mean_dy_m": -0.1583224797070531,
+          "first_mission_s": 34.648000001,
+          "last_mission_s": 102.844000001
+        },
+        {
+          "scope": "fresh_nearest_class_agrees",
+          "stream": "selected",
+          "class_name": "pillbox",
+          "truth_name": "random_pillbox",
+          "n": 20,
+          "median_m": 0.08559844584667109,
+          "p95_m": 0.09607759175117471,
+          "rmse_m": 0.08756940848270633,
+          "max_m": 0.09649204498406608,
+          "mean_dx_m": -0.03752311996458575,
+          "mean_dy_m": -0.07890116958169874,
+          "first_mission_s": 104.139000001,
+          "last_mission_s": 105.27400000099999
+        },
+        {
+          "scope": "fresh_nearest_class_agrees",
+          "stream": "selected",
+          "class_name": "red_cross",
+          "truth_name": "random_red_cross",
+          "n": 293,
+          "median_m": 0.1577660090536095,
+          "p95_m": 0.27619368311379044,
+          "rmse_m": 0.17920633818267495,
+          "max_m": 0.2771302415988604,
+          "mean_dx_m": -0.11441704251723957,
+          "mean_dy_m": -0.1262667987688703,
+          "first_mission_s": 26.214000001,
+          "last_mission_s": 74.05100000099999
+        },
+        {
+          "scope": "fresh_nearest_class_agrees",
+          "stream": "selected",
+          "class_name": "tent",
+          "truth_name": "random_tent",
+          "n": 93,
+          "median_m": 0.1373700336189266,
+          "p95_m": 0.1419837285350714,
+          "rmse_m": 0.12865261635641576,
+          "max_m": 0.14259554420048823,
+          "mean_dx_m": -0.05738446871641771,
+          "mean_dy_m": -0.11341817980519803,
+          "first_mission_s": 5.196000001000002,
+          "last_mission_s": 20.271000001
+        }
+      ],
+      "class_confusions": [],
+      "mapped_phase_confusions": [],
+      "far_from_all_truth_threshold_m": 0.5,
+      "far_from_all_truth": [
+        {
+          "stream": "hint_bbox",
+          "phase": "HIGH_SURVEY",
+          "class_name": "tent",
+          "n": 7,
+          "median_nearest_any_m": 2.8600443402767146,
+          "max_nearest_any_m": 2.872322403376
+        },
+        {
+          "stream": "mapped",
+          "phase": "DELIVERY",
+          "class_name": "bridge",
+          "n": 18,
+          "median_nearest_any_m": 0.6957788151609856,
+          "max_nearest_any_m": 0.7493101751449406
+        },
+        {
+          "stream": "targets",
+          "phase": "DELIVERY",
+          "class_name": "bridge",
+          "n": 12,
+          "median_nearest_any_m": 0.6589329037771167,
+          "max_nearest_any_m": 0.6978152678127777
+        }
+      ],
+      "first_high_survey": [
+        {
+          "kind": "first_high_survey_by_nearest_instance",
+          "class_name": "tent",
+          "source": "bbox",
+          "xy": [
+            0.8445378335817871,
+            -1.0583484195954067
+          ],
+          "source_ros_s": 17.136,
+          "source_mission_s": 5.3280000009999995,
+          "first_publication_ros_s": 17.197,
+          "event_ros_s": null,
+          "source_age_at_publication_s": 0.06099999999999994,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              17136000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1,
+            "source": "bbox",
+            "source_stamp_ns": 17136000000,
+            "xy": [
+              0.8445378335817871,
+              -1.0583484195954067
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.4574341070828196,
+          "nearest_any_instance": "random_tent",
+          "nearest_any_class": "tent",
+          "nearest_any_distance_m": 0.03938558894890002,
+          "same_class_instance": "random_tent",
+          "same_class_distance_m": 0.03938558894890002,
+          "category_confusion_suspected": false,
+          "first_high_observation_of_class": true
+        },
+        {
+          "kind": "first_high_survey_by_nearest_instance",
+          "class_name": "tent",
+          "source": "bbox",
+          "xy": [
+            2.522430142972536,
+            1.8267016506364748
+          ],
+          "source_ros_s": 21.994,
+          "source_mission_s": 10.186000001,
+          "first_publication_ros_s": 22.014,
+          "event_ros_s": null,
+          "source_age_at_publication_s": 0.019999999999999574,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              21994000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1,
+            "source": "bbox",
+            "source_stamp_ns": 21994000000,
+            "xy": [
+              2.522430142972536,
+              1.8267016506364748
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.6650696469157804,
+          "nearest_any_instance": "random_pillbox",
+          "nearest_any_class": "pillbox",
+          "nearest_any_distance_m": 2.8692478314886047,
+          "same_class_instance": "random_tent",
+          "same_class_distance_m": 3.3024986203465185,
+          "category_confusion_suspected": false,
+          "first_high_observation_of_class": false
+        },
+        {
+          "kind": "first_high_survey_by_nearest_instance",
+          "class_name": "red_cross",
+          "source": "bbox",
+          "xy": [
+            4.174804194546406,
+            -4.568412302560995
+          ],
+          "source_ros_s": 37.521,
+          "source_mission_s": 25.713000001,
+          "first_publication_ros_s": 37.567,
+          "event_ros_s": null,
+          "source_age_at_publication_s": 0.045999999999999375,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              37472000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1,
+            "source": "bbox",
+            "source_stamp_ns": 37521000000,
+            "xy": [
+              4.174804194546406,
+              -4.568412302560995
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.7273297508922836,
+          "nearest_any_instance": "random_red_cross",
+          "nearest_any_class": "red_cross",
+          "nearest_any_distance_m": 0.3426095992438141,
+          "same_class_instance": "random_red_cross",
+          "same_class_distance_m": 0.3426095992438141,
+          "category_confusion_suspected": false,
+          "first_high_observation_of_class": true
+        },
+        {
+          "kind": "first_high_survey_by_nearest_instance",
+          "class_name": "bridge",
+          "source": "bbox",
+          "xy": [
+            3.580330341335851,
+            -1.533995530655468
+          ],
+          "source_ros_s": 45.249,
+          "source_mission_s": 33.441000001000006,
+          "first_publication_ros_s": 45.313,
+          "event_ros_s": null,
+          "source_age_at_publication_s": 0.06400000000000006,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              45249000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1,
+            "source": "bbox",
+            "source_stamp_ns": 45249000000,
+            "xy": [
+              3.580330341335851,
+              -1.533995530655468
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.586461219353586,
+          "nearest_any_instance": "random_bridge",
+          "nearest_any_class": "bridge",
+          "nearest_any_distance_m": 0.4921837464604828,
+          "same_class_instance": "random_bridge",
+          "same_class_distance_m": 0.4921837464604828,
+          "category_confusion_suspected": false,
+          "first_high_observation_of_class": true
+        },
+        {
+          "kind": "first_high_survey_by_nearest_instance",
+          "class_name": "panzer",
+          "source": "bbox",
+          "xy": [
+            4.942711827064995,
+            -0.8129143338202354
+          ],
+          "source_ros_s": 46.102,
+          "source_mission_s": 34.294000001,
+          "first_publication_ros_s": 46.179,
+          "event_ros_s": null,
+          "source_age_at_publication_s": 0.07700000000000529,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              46102000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1,
+            "source": "bbox",
+            "source_stamp_ns": 46102000000,
+            "xy": [
+              4.942711827064995,
+              -0.8129143338202354
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.5694121505685974,
+          "nearest_any_instance": "random_panzer",
+          "nearest_any_class": "panzer",
+          "nearest_any_distance_m": 0.4778305179460811,
+          "same_class_instance": "random_panzer",
+          "same_class_distance_m": 0.4778305179460811,
+          "category_confusion_suspected": false,
+          "first_high_observation_of_class": true
+        }
+      ],
+      "survey_interrupt": [
+        {
+          "kind": "survey_interrupt_frozen_support",
+          "class_name": "bridge",
+          "source": "bbox",
+          "xy": [
+            3.6435972350544605,
+            -1.335922474188731
+          ],
+          "source_ros_s": 46.242,
+          "source_mission_s": 34.434000001,
+          "first_publication_ros_s": 46.392,
+          "event_ros_s": 46.3,
+          "source_age_at_publication_s": 0.15000000000000568,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              46102000000,
+              46242000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 9,
+            "source": "bbox",
+            "source_stamp_ns": 46242000000,
+            "xy": [
+              3.6435972350544605,
+              -1.335922474188731
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.5722517764023998,
+          "nearest_any_instance": "random_bridge",
+          "nearest_any_class": "bridge",
+          "nearest_any_distance_m": 0.28612946588158333,
+          "same_class_instance": "random_bridge",
+          "same_class_distance_m": 0.28612946588158333,
+          "category_confusion_suspected": false
+        },
+        {
+          "kind": "survey_interrupt_frozen_support",
+          "class_name": "panzer",
+          "source": "bbox",
+          "xy": [
+            4.940562961629209,
+            -0.7412695984511002
+          ],
+          "source_ros_s": 46.242,
+          "source_mission_s": 34.434000001,
+          "first_publication_ros_s": 46.392,
+          "event_ros_s": 46.3,
+          "source_age_at_publication_s": 0.15000000000000568,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              46102000000,
+              46242000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 2,
+            "source": "bbox",
+            "source_stamp_ns": 46242000000,
+            "xy": [
+              4.940562961629209,
+              -0.7412695984511002
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.5722517764023998,
+          "nearest_any_instance": "random_panzer",
+          "nearest_any_class": "panzer",
+          "nearest_any_distance_m": 0.40929907613127586,
+          "same_class_instance": "random_panzer",
+          "same_class_distance_m": 0.40929907613127586,
+          "category_confusion_suspected": false
+        },
+        {
+          "kind": "survey_interrupt_frozen_support",
+          "class_name": "red_cross",
+          "source": "vision",
+          "xy": [
+            4.325412710785383,
+            -4.577297145629442
+          ],
+          "source_ros_s": 44.205,
+          "source_mission_s": 32.397000000999995,
+          "first_publication_ros_s": 46.392,
+          "event_ros_s": 46.3,
+          "source_age_at_publication_s": 2.1870000000000047,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              37883000000,
+              37989000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 5,
+            "source": "vision",
+            "source_stamp_ns": 44205000000,
+            "xy": [
+              4.325412710785383,
+              -4.577297145629442
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.649946544359512,
+          "nearest_any_instance": "random_red_cross",
+          "nearest_any_class": "red_cross",
+          "nearest_any_distance_m": 0.22667668100592872,
+          "same_class_instance": "random_red_cross",
+          "same_class_distance_m": 0.22667668100592872,
+          "category_confusion_suspected": false
+        },
+        {
+          "kind": "survey_interrupt_frozen_support",
+          "class_name": "tent",
+          "source": "vision",
+          "xy": [
+            0.8076037621789675,
+            -1.1605344101226331
+          ],
+          "source_ros_s": 31.884,
+          "source_mission_s": 20.076000001,
+          "first_publication_ros_s": 46.392,
+          "event_ros_s": 46.3,
+          "source_age_at_publication_s": 14.508000000000003,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              17136000000,
+              17244000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 2,
+            "source": "vision",
+            "source_stamp_ns": 31884000000,
+            "xy": [
+              0.8076037621789675,
+              -1.1605344101226331
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.7569357483579044,
+          "nearest_any_instance": "random_tent",
+          "nearest_any_class": "tent",
+          "nearest_any_distance_m": 0.14194906184609032,
+          "same_class_instance": "random_tent",
+          "same_class_distance_m": 0.14194906184609032,
+          "category_confusion_suspected": false
+        },
+        {
+          "kind": "survey_interrupt_frozen_support",
+          "class_name": "tent",
+          "source": "bbox",
+          "xy": [
+            2.6072617183111855,
+            2.101992419212385
+          ],
+          "source_ros_s": 25.747,
+          "source_mission_s": 13.939000001,
+          "first_publication_ros_s": 46.392,
+          "event_ros_s": 46.3,
+          "source_age_at_publication_s": 20.645000000000003,
+          "raw_hint": {
+            "distinct_image_stamps": [
+              25647000000,
+              25747000000
+            ],
+            "low_verified": false,
+            "revisit_support_count": 4,
+            "source": "bbox",
+            "source_stamp_ns": 25747000000,
+            "xy": [
+              2.6072617183111855,
+              2.101992419212385
+            ]
+          },
+          "source_stage": "SURVEY",
+          "source_align_mode": "disabled",
+          "source_phase": "HIGH_SURVEY",
+          "source_fc_agl_m": 2.7353109963493525,
+          "nearest_any_instance": "random_pillbox",
+          "nearest_any_class": "pillbox",
+          "nearest_any_distance_m": 2.8167836732894243,
+          "same_class_instance": "random_tent",
+          "same_class_distance_m": 3.584031940957586,
+          "category_confusion_suspected": false
+        }
+      ],
+      "low_reacquisition": [
+        {
+          "kind": "low_reacquisition_event",
+          "class_name": "red_cross",
+          "source": "vision",
+          "xy": [
+            4.359859680251805,
+            -4.562537732045072
+          ],
+          "source_ros_s": 71.602,
+          "source_mission_s": 59.794000001,
+          "first_publication_ros_s": 71.81,
+          "event_ros_s": 71.702,
+          "source_age_at_publication_s": 0.2079999999999984,
+          "raw_hint": {
+            "class_name": "red_cross",
+            "hint_delta": 0.037475778774764865,
+            "last_seen_ns": 71602000000,
+            "target_id": 2,
+            "time": 71.702,
+            "xy": [
+              4.359859680251805,
+              -4.562537732045072
+            ]
+          },
+          "source_stage": "REACQUIRE",
+          "source_align_mode": "disabled",
+          "source_phase": "REACQUIRE",
+          "source_fc_agl_m": 1.3635857416523998,
+          "nearest_any_instance": "random_red_cross",
+          "nearest_any_class": "red_cross",
+          "nearest_any_distance_m": 0.19311315121871153,
+          "same_class_instance": "random_red_cross",
+          "same_class_distance_m": 0.19311315121871153,
+          "category_confusion_suspected": false
+        },
+        {
+          "kind": "low_reacquisition_event",
+          "class_name": "bridge",
+          "source": "vision",
+          "xy": [
+            3.7409394567677214,
+            -1.1357485546303658
+          ],
+          "source_ros_s": 90.059,
+          "source_mission_s": 78.251000001,
+          "first_publication_ros_s": 90.244,
+          "event_ros_s": 90.174,
+          "source_age_at_publication_s": 0.18500000000000227,
+          "raw_hint": {
+            "class_name": "bridge",
+            "hint_delta": 0.22258730017553222,
+            "last_seen_ns": 90059000000,
+            "target_id": 3,
+            "time": 90.174,
+            "xy": [
+              3.7409394567677214,
+              -1.1357485546303658
+            ]
+          },
+          "source_stage": "REACQUIRE",
+          "source_align_mode": "disabled",
+          "source_phase": "REACQUIRE",
+          "source_fc_agl_m": 1.3429363961264127,
+          "nearest_any_instance": "random_bridge",
+          "nearest_any_class": "bridge",
+          "nearest_any_distance_m": 0.06409209562823419,
+          "same_class_instance": "random_bridge",
+          "same_class_distance_m": 0.06409209562823419,
+          "category_confusion_suspected": false
+        },
+        {
+          "kind": "low_reacquisition_event",
+          "class_name": "panzer",
+          "source": "vision",
+          "xy": [
+            4.983910662149672,
+            -0.515150440902942
+          ],
+          "source_ros_s": 102.137,
+          "source_mission_s": 90.329000001,
+          "first_publication_ros_s": 102.416,
+          "event_ros_s": 102.33,
+          "source_age_at_publication_s": 0.27899999999999636,
+          "raw_hint": {
+            "class_name": "panzer",
+            "hint_delta": 0.0015785849754297364,
+            "last_seen_ns": 102137000000,
+            "target_id": 4,
+            "time": 102.33,
+            "xy": [
+              4.983910662149672,
+              -0.515150440902942
+            ]
+          },
+          "source_stage": "REACQUIRE",
+          "source_align_mode": "disabled",
+          "source_phase": "REACQUIRE",
+          "source_fc_agl_m": 1.2917361783730317,
+          "nearest_any_instance": "random_panzer",
+          "nearest_any_class": "panzer",
+          "nearest_any_distance_m": 0.18181042379654852,
+          "same_class_instance": "random_panzer",
+          "same_class_distance_m": 0.18181042379654852,
+          "category_confusion_suspected": false
+        }
+      ],
+      "final_gate_H_mark": {
+        "recorded_mark": {
+          "anchor_error_m": 0.03592776821633617,
+          "frame_id": "camera_init",
+          "stamp_ns": 200269000000,
+          "x": 8.477016067660633,
+          "y": -4.227614188078345,
+          "z": -0.22
+        },
+        "nearest_any_instance": "landing_h_clone",
+        "nearest_any_class": "landing_pad",
+        "nearest_any_distance_m": 0.03592776821633617,
+        "same_class_instance": "landing_h_clone",
+        "same_class_distance_m": 0.03592776821633617,
+        "category_confusion_suspected": false
+      },
+      "video": {
+        "source_video": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed38_20261004_013059/downward.mp4",
+        "source_csv": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed38_20261004_013059/downward.csv",
+        "mapped_data": "/home/xhj/sim_reports_20261004/seed38_center_inputs.jsonl",
+        "center_csv": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/38_centers/center_samples.csv",
+        "label": "Corrected_seed38_013059",
+        "output": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/38_mapped_overlay.mp4",
+        "output_frames": 2054,
+        "fps": 10.0,
+        "source_ros_span_s": 205.21800000000002,
+        "source_frames": 1678,
+        "visited_source_frames": 1678,
+        "frames_with_nonempty_match": 501,
+        "frames_with_empty_match": 1177,
+        "frames_without_match": 0,
+        "max_match_abs_delta_ms": 0.0,
+        "max_held_image_age_s": 0.3400000000000001,
+        "match_tolerance_ms": 30.0,
+        "ffmpeg_threads": 1,
+        "final_source_frame_shown": true,
+        "last_source_ros_s": 205.96,
+        "last_output_ros_s": 206.042,
+        "note": "Source-image stamp match only. Held images labelled. Recorded ROI/center only; no H shape fitting or model inference.",
+        "interpretation": "Nearest-any and same-class distances are different; class ambiguity is not pure localization error.",
+        "validation": "Encoding completed; run ffmpeg full decode separately."
+      },
+      "video_validation": {
+        "video": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/38_mapped_overlay.mp4",
+        "status": "PASS",
+        "checks": {
+          "ffprobe_exit_zero": true,
+          "full_decode_exit_zero": true,
+          "full_decode_no_error_text": true,
+          "final_source_frame_shown": true,
+          "frame_sidecar_matches": true,
+          "timestamp_match_within_30ms": true
+        },
+        "ffprobe_command": [
+          "ffprobe",
+          "-v",
+          "error",
+          "-threads",
+          "1",
+          "-select_streams",
+          "v:0",
+          "-show_entries",
+          "stream=codec_name,width,height,r_frame_rate,nb_frames,duration:format=duration,size",
+          "-of",
+          "json",
+          "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/38_mapped_overlay.mp4"
+        ],
+        "ffprobe_exit": 0,
+        "ffprobe": {
+          "programs": [],
+          "streams": [
+            {
+              "codec_name": "h264",
+              "width": 1840,
+              "height": 814,
+              "r_frame_rate": "10/1",
+              "duration": "205.400000",
+              "nb_frames": "2054"
+            }
+          ],
+          "format": {
+            "duration": "205.400000",
+            "size": "9160088"
+          }
+        },
+        "ffprobe_stderr": "",
+        "decode_command": [
+          "ffmpeg",
+          "-nostdin",
+          "-v",
+          "error",
+          "-xerror",
+          "-threads",
+          "1",
+          "-filter_threads",
+          "1",
+          "-i",
+          "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/38_mapped_overlay.mp4",
+          "-map",
+          "0:v:0",
+          "-an",
+          "-threads",
+          "1",
+          "-f",
+          "null",
+          "-"
+        ],
+        "full_decode_exit": 0,
+        "full_decode_stderr": "",
+        "sidecar_rows": 2054
+      },
+      "links": {
+        "center_report": "38_centers/CENTER_REPORT.md",
+        "phase_report": "38_centers/stages/PHASE_REPORT.md",
+        "centers_csv": "38_centers/center_samples.csv",
+        "phases_csv": "38_centers/stages/center_samples_by_phase.csv",
+        "phase_json": "38_centers/stages/phase_summary.json",
+        "final_inspection": "38_centers/inspection/inspection.json",
+        "video": "38_mapped_overlay.mp4",
+        "video_validation": "38_mapped_overlay.validation.json",
+        "timestamp_sidecar": "38_mapped_overlay.frames.csv"
+      }
+    }
+  ],
+  "pending_seeds": []
+}

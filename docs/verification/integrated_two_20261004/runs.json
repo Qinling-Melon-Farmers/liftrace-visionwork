@@ -1,0 +1,16 @@
+[
+  {
+    "seed": 31,
+    "label": "integrated_two",
+    "run": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed31_20261004_011753",
+    "world": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/seed_31/field.world",
+    "source": "4cb75a3b1308ef0e17fcf6c7a296c946e0d9e751"
+  },
+  {
+    "seed": 38,
+    "label": "integrated_two",
+    "run": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed38_20261004_013059",
+    "world": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/seed_38/field.world",
+    "source": "4cb75a3b1308ef0e17fcf6c7a296c946e0d9e751"
+  }
+]

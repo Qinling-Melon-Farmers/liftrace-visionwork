@@ -1,0 +1,68 @@
+{
+  "video": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/38_mapped_overlay.mp4",
+  "status": "PASS",
+  "checks": {
+    "ffprobe_exit_zero": true,
+    "full_decode_exit_zero": true,
+    "full_decode_no_error_text": true,
+    "frame_sidecar_matches": true,
+    "timestamp_match_within_30ms": true
+  },
+  "ffprobe_command": [
+    "ffprobe",
+    "-v",
+    "error",
+    "-threads",
+    "1",
+    "-select_streams",
+    "v:0",
+    "-show_entries",
+    "stream=codec_name,width,height,r_frame_rate,nb_frames,duration:format=duration,size",
+    "-of",
+    "json",
+    "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/38_mapped_overlay.mp4"
+  ],
+  "ffprobe_exit": 0,
+  "ffprobe": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1840,
+        "height": 814,
+        "r_frame_rate": "10/1",
+        "duration": "205.300000",
+        "nb_frames": "2053"
+      }
+    ],
+    "format": {
+      "duration": "205.300000",
+      "size": "9159347"
+    }
+  },
+  "ffprobe_stderr": "",
+  "decode_command": [
+    "ffmpeg",
+    "-nostdin",
+    "-v",
+    "error",
+    "-xerror",
+    "-threads",
+    "1",
+    "-filter_threads",
+    "1",
+    "-i",
+    "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/38_mapped_overlay.mp4",
+    "-map",
+    "0:v:0",
+    "-an",
+    "-threads",
+    "1",
+    "-f",
+    "null",
+    "-"
+  ],
+  "full_decode_exit": 0,
+  "full_decode_stderr": "",
+  "sidecar_rows": 2053
+}

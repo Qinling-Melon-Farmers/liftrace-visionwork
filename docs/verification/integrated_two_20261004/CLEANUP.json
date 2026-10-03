@@ -1,0 +1,73 @@
+{
+  "removed_count": 14,
+  "removed_allocated_bytes_before": 4157575168,
+  "removed_GiB": 3.8720436096191406,
+  "removed": [
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-board-reference-sync",
+      "allocated_bytes_before": 183242752
+    },
+    {
+      "path": "/home/xhj/liftrace-controlwork-worktrees/drop-height-pixel-scale-20261003",
+      "allocated_bytes_before": 195571712
+    },
+    {
+      "path": "/home/xhj/liftrace-controlwork-worktrees/vcl06-local-full-mission",
+      "allocated_bytes_before": 492523520
+    },
+    {
+      "path": "/tmp/liftrace_motion_watchdog_test",
+      "allocated_bytes_before": 6942720
+    },
+    {
+      "path": "/tmp/liftrace_curve_test",
+      "allocated_bytes_before": 7012352
+    },
+    {
+      "path": "/tmp/board_column_test",
+      "allocated_bytes_before": 7086080
+    },
+    {
+      "path": "/tmp/board_trials_build_20260920/build",
+      "allocated_bytes_before": 1060864
+    },
+    {
+      "path": "/tmp/liftrace_inner_region_ws/build",
+      "allocated_bytes_before": 8622080
+    },
+    {
+      "path": "/home/xhj/liftrace-archives/r2026-competition-integrated_20260915/logs/_artifacts/driver2_migration_20260911/clean_ws/build",
+      "allocated_bytes_before": 152670208
+    },
+    {
+      "path": "/home/xhj/liftrace-archives/r2026-coverage-efficiency-research_20260915/logs/_artifacts/coverage_memory_stage1_20260911/build_ws/build",
+      "allocated_bytes_before": 2998272
+    },
+    {
+      "path": "/home/xhj/liftrace-archives/r2026-competition-integrated_20260915/logs/_artifacts/r61_layout_search/bundle_check/liftrace_r61_onboard_fd147c72/patrol_uav_ws-patrol_planner/build",
+      "allocated_bytes_before": 349052928
+    },
+    {
+      "path": "/home/xhj/liftrace-archives/r2026-competition-integrated_20260915/logs/_artifacts/r61_layout_search/bundle_check/liftrace_r61_onboard_fd147c72/vision_ws/build",
+      "allocated_bytes_before": 9818112
+    },
+    {
+      "path": "/home/xhj/liftrace/logs/toudi4_coverage_r6_v2_20260813_221737/debug_visual_2026-08-13-22-17-55_0.bag",
+      "allocated_bytes_before": 2151518208
+    },
+    {
+      "path": "/home/xhj/liftrace/logs/toudi4_coverage_r6_v2_20260813_221737/debug_visual_2026-08-13-22-31-40_1.bag",
+      "allocated_bytes_before": 589455360
+    }
+  ],
+  "retained": [
+    "current formal runs and diagnostic runs",
+    "recent real-flight bags and ULogs",
+    "original source assets and git branches",
+    "dirty vcl06-planner-stop-ack worktree",
+    "all active visual/navigation/board/main worktrees"
+  ],
+  "old_bag_summary": "/home/xhj/cleanup_aug_compact_20261004",
+  "original_gate_FAIL_retained": true,
+  "note": "Allocated file blocks before removal; no Windows VHDX compaction."
+}

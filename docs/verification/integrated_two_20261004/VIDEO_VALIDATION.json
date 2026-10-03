@@ -1,0 +1,42 @@
+[
+  {
+    "seed": 31,
+    "path": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed31_20261004_011753/presentation_review.mp4",
+    "codec_name": "h264",
+    "width": 1920,
+    "height": 1080,
+    "duration": "195.700000",
+    "nb_frames": "1957",
+    "full_decode_verified": true
+  },
+  {
+    "seed": 31,
+    "path": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/31_mapped_overlay.mp4",
+    "codec_name": "h264",
+    "width": 1840,
+    "height": 814,
+    "duration": "196.400000",
+    "nb_frames": "1964",
+    "full_decode_verified": true
+  },
+  {
+    "seed": 38,
+    "path": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/logs/integrated_two_seed38_20261004_013059/presentation_review.mp4",
+    "codec_name": "h264",
+    "width": 1920,
+    "height": 1080,
+    "duration": "204.600000",
+    "nb_frames": "2046",
+    "full_decode_verified": true
+  },
+  {
+    "seed": 38,
+    "path": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix/docs/verification/integrated_two_20261004/38_mapped_overlay.mp4",
+    "codec_name": "h264",
+    "width": 1840,
+    "height": 814,
+    "duration": "205.400000",
+    "nb_frames": "2054",
+    "full_decode_verified": true
+  }
+]

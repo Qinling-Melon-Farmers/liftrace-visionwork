@@ -1,0 +1,4 @@
+# Full per-frame exports stay local alongside the videos.
+*_centers/center_samples.csv
+*_mapped_overlay.frames.csv
+*_centers/stages/center_samples_by_phase.csv
