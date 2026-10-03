@@ -1,4 +1,8 @@
-# 当前整机候选：2026-10-03
+# EV 连续性专项分支：2026-10-04
+
+本分支从最新整机 `e5fb382d` 派生，处理 LIO 实时性、EV 独立 IMU 预测与高度跳变恢复。已记录前线 FAST-LIO 并行改动待对照；预测原型仅输出观察话题，尚未替换机载输入。[实现与分支计划](docs/planning/ev_continuity_20261004/README.md) · [离线验证](docs/verification/ev_continuity_20261004/REPORT.md)。以下保留来源整机说明。
+
+# 来源整机候选：2026-10-03
 
 现有 `feat/r2026-competition-integrated` 已合入高位研究与现场板端成果，独立正赛入口/实体舵机见[操作说明](docs/deployment/competition_integration_20261003/README.md)。保留位姿跳变保护、轻量bag及全部现行任务门槛；速度优化仅计划。下方来自来源分支的进展均为对应日期历史，不能代替本轮同版整场验收。
 

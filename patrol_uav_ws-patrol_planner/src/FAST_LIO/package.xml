@@ -18,6 +18,7 @@
   
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>geometry_msgs</build_depend>
+  <build_depend>diagnostic_msgs</build_depend>
   <build_depend>nav_msgs</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
@@ -29,6 +30,8 @@
   <build_depend>message_generation</build_depend>
 
   <run_depend>geometry_msgs</run_depend>
+  <run_depend>diagnostic_msgs</run_depend>
+  <run_depend>python3-numpy</run_depend>
   <run_depend>nav_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>roscpp</run_depend>

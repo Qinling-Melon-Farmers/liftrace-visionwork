@@ -1,0 +1,14 @@
+<launch>
+  <!-- Only an observer. Does NOT start LIO, MAVROS, flight control or simulation.
+       Start LIO with private prediction_state_enabled=true before collecting. -->
+  <arg name="imu_topic" default="/livox/imu" />
+  <arg name="state_topic" default="/laserMapping/prediction_state" />
+  <arg name="config" default="$(find fast_lio)/config/ev_shadow.yaml" />
+  <node pkg="fast_lio" type="ev_shadow.py" name="ev_shadow" output="screen">
+    <env name="OPENBLAS_NUM_THREADS" value="1" />
+    <env name="OMP_NUM_THREADS" value="1" />
+    <rosparam file="$(arg config)" />
+    <param name="imu_topic" value="$(arg imu_topic)" />
+    <param name="state_topic" value="$(arg state_topic)" />
+  </node>
+</launch>
