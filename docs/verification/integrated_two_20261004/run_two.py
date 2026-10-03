@@ -28,7 +28,7 @@ def main():
              'bash','top_level_scripts/roslaunch_rl_drone.sh',str(D/'replay.launch'),f'scene_dir:={scene}',f'field_seed:={seed}',
              'target_model_path:=/home/xhj/liftrace/deliverables/liftrace_five_class_20260928_models/flight_5cls_20260928.pt']
         env=os.environ.copy();env.pop('SIM_RUN_AUTHORIZED',None)
-        env.update(UAV_WS=str(R/'patrol_uav_ws-patrol_planner'),VISION_WS=str(R/'vision_ws'),ASTRA_MODEL_ROOT=str(R/'simulation_assets/models'),GAZEBO_MODEL_PATH=str(R/'vision_ws/src/uav_vision_eval/models')+':'+str(R/'simulation_assets/models'))
+        env.update(OPENCV_FOR_THREADS_NUM='1',OMP_NUM_THREADS='2',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='2',UAV_WS=str(R/'patrol_uav_ws-patrol_planner'),VISION_WS=str(R/'vision_ws'),ASTRA_MODEL_ROOT=str(R/'simulation_assets/models'),GAZEBO_MODEL_PATH=str(R/'vision_ws/src/uav_vision_eval/models')+':'+str(R/'simulation_assets/models'))
         row=dict(seed=seed,status='RUNNING',run=None,command=cmd);state['active']=row;save()
         with (batch/f'seed{seed}.log').open('w') as out:
             child=subprocess.Popen(cmd,cwd=R,env=env,stdout=out,stderr=subprocess.STDOUT,start_new_session=True)

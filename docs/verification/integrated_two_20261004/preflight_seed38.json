@@ -485,7 +485,7 @@
   "/landing_detector/landing_radius_min": 15.0,
   "/landing_detector/landing_radius_max": 300.0,
   "/landing_detector/landing_enable_h_structure_check": true,
-  "/landing_detector/landing_enable_h_stroke_fallback": true,
+  "/landing_detector/landing_enable_h_stroke_fallback": false,
   "/landing_detector/landing_h_stroke_min_size_px": 24.0,
   "/landing_detector/landing_h_inner_scale": 0.78,
   "/landing_detector/landing_h_saturation_max": 90,

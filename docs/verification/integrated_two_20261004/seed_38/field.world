@@ -557,12 +557,12 @@
       </model>
     </model>
     <include>
-      <uri>model://landing_h</uri>
+      <uri>model://landing_h_80cm</uri>
       <name>landing_h</name>
       <pose>0.0 -0.0 0.0 0.0 0.0 -1.5707963267948966</pose>
     </include>
     <include>
-      <uri>model://landing_h</uri>
+      <uri>model://landing_h_80cm</uri>
       <name>landing_h_clone</name>
       <pose>8.5 -4.2 0.0 0.0 0.0 -1.5707963267948966</pose>
     </include>
