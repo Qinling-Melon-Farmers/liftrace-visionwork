@@ -1,0 +1,258 @@
+{
+  "recorded_raw": {
+    "strict": {
+      "panzer": {
+        "first_confirmed": 52.49502897262573,
+        "first_admitted": 52.49502897262573,
+        "first_approach": null,
+        "confirmed_rows": 7,
+        "admitted_rows": 7,
+        "outbound_approach_rows": 0
+      },
+      "red_cross": {
+        "first_confirmed": 18.943246126174927,
+        "first_admitted": 18.943246126174927,
+        "first_approach": 18.943246126174927,
+        "confirmed_rows": 137,
+        "admitted_rows": 128,
+        "outbound_approach_rows": 1
+      }
+    },
+    "gap1s": {
+      "panzer": {
+        "first_confirmed": 52.49502897262573,
+        "first_admitted": 52.49502897262573,
+        "first_approach": null,
+        "confirmed_rows": 7,
+        "admitted_rows": 7,
+        "outbound_approach_rows": 0
+      },
+      "red_cross": {
+        "first_confirmed": 18.943246126174927,
+        "first_admitted": 18.943246126174927,
+        "first_approach": 18.943246126174927,
+        "confirmed_rows": 125,
+        "admitted_rows": 119,
+        "outbound_approach_rows": 1
+      }
+    },
+    "yolo_counts": {
+      "panzer": 11,
+      "red_cross": 227
+    },
+    "mapped_panzer": [
+      {
+        "t": 15.472374677658081,
+        "stamp": 15.159762620925903,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.810546875
+      },
+      {
+        "t": 51.99027061462402,
+        "stamp": 51.763960123062134,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.65673828125
+      },
+      {
+        "t": 52.28152656555176,
+        "stamp": 52.07293748855591,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.8115234375
+      },
+      {
+        "t": 52.3968870639801,
+        "stamp": 52.14392423629761,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.9638671875
+      },
+      {
+        "t": 52.49502897262573,
+        "stamp": 52.21876239776611,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.96875
+      },
+      {
+        "t": 52.590704679489136,
+        "stamp": 52.315008878707886,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.9638671875
+      },
+      {
+        "t": 52.74647927284241,
+        "stamp": 52.414554834365845,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.96728515625
+      },
+      {
+        "t": 52.93269395828247,
+        "stamp": 52.5231454372406,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.96923828125
+      },
+      {
+        "t": 53.03775429725647,
+        "stamp": 52.65879559516907,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.966796875
+      },
+      {
+        "t": 53.19774079322815,
+        "stamp": 52.82394313812256,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.8984375
+      },
+      {
+        "t": 53.29767155647278,
+        "stamp": 52.99621605873108,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.962890625
+      }
+    ]
+  },
+  "reinferred_images": {
+    "strict": {
+      "panzer": {
+        "first_confirmed": 52.49502897262573,
+        "first_admitted": 52.49502897262573,
+        "first_approach": null,
+        "confirmed_rows": 6,
+        "admitted_rows": 6,
+        "outbound_approach_rows": 0
+      },
+      "red_cross": {
+        "first_confirmed": 18.943246126174927,
+        "first_admitted": 18.943246126174927,
+        "first_approach": 18.943246126174927,
+        "confirmed_rows": 146,
+        "admitted_rows": 138,
+        "outbound_approach_rows": 1
+      }
+    },
+    "gap1s": {
+      "panzer": {
+        "first_confirmed": 52.3968870639801,
+        "first_admitted": 52.3968870639801,
+        "first_approach": null,
+        "confirmed_rows": 7,
+        "admitted_rows": 7,
+        "outbound_approach_rows": 0
+      },
+      "red_cross": {
+        "first_confirmed": 18.943246126174927,
+        "first_admitted": 18.943246126174927,
+        "first_approach": 18.943246126174927,
+        "confirmed_rows": 133,
+        "admitted_rows": 128,
+        "outbound_approach_rows": 1
+      }
+    },
+    "yolo_counts": {
+      "panzer": 11,
+      "red_cross": 223
+    },
+    "mapped_panzer": [
+      {
+        "t": 15.472374677658081,
+        "stamp": 15.159762620925903,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.8091023564338684
+      },
+      {
+        "t": 51.99027061462402,
+        "stamp": 51.763960123062134,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.7371953129768372
+      },
+      {
+        "t": 52.28152656555176,
+        "stamp": 52.07293748855591,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.8138014674186707
+      },
+      {
+        "t": 52.3968870639801,
+        "stamp": 52.14392423629761,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.962577760219574
+      },
+      {
+        "t": 52.49502897262573,
+        "stamp": 52.21876239776611,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.9645044803619385
+      },
+      {
+        "t": 52.590704679489136,
+        "stamp": 52.315008878707886,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.9624455571174622
+      },
+      {
+        "t": 52.74647927284241,
+        "stamp": 52.414554834365845,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.9654176831245422
+      },
+      {
+        "t": 52.93269395828247,
+        "stamp": 52.5231454372406,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.9683462381362915
+      },
+      {
+        "t": 53.03775429725647,
+        "stamp": 52.65879559516907,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.9668686985969543
+      },
+      {
+        "t": 53.19774079322815,
+        "stamp": 52.82394313812256,
+        "map_valid": true,
+        "reason": "",
+        "conf": 0.8671367168426514
+      },
+      {
+        "t": 53.29767155647278,
+        "stamp": 52.99621605873108,
+        "map_valid": false,
+        "reason": "circle_association_missing",
+        "conf": 0.9633947014808655
+      }
+    ]
+  },
+  "samples": 822,
+  "source_frames": 2965,
+  "maximum_image_match_error_sec": 0.0,
+  "original_bag_duration_sec": 101.4598319530487,
+  "video_duration_sec": 101.5,
+  "video_resolution": [
+    1600,
+    900
+  ],
+  "video_fps": 10,
+  "video_bytes": 31521274,
+  "no_motion_publishers": true,
+  "recorded_return_started_sec": 37.53,
+  "bag_is_low_altitude_not_high_survey": true
+}

@@ -1,0 +1,129 @@
+{
+  "videos": [
+    {
+      "seed": 38,
+      "file": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/panzer_location_repair_seed38_20260927_154743/overview.mp4",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "width": 960,
+            "height": 960,
+            "avg_frame_rate": "10/1"
+          }
+        ],
+        "format": {
+          "duration": "145.600000",
+          "size": "7139278"
+        }
+      },
+      "decode_pass": true,
+      "errors": ""
+    },
+    {
+      "seed": 38,
+      "file": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/panzer_location_repair_seed38_20260927_154743/follow.mp4",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "width": 1280,
+            "height": 720,
+            "avg_frame_rate": "10/1"
+          }
+        ],
+        "format": {
+          "duration": "145.400000",
+          "size": "22152752"
+        }
+      },
+      "decode_pass": true,
+      "errors": ""
+    },
+    {
+      "seed": 38,
+      "file": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/panzer_location_repair_seed38_20260927_154743/presentation_review.mp4",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "width": 1920,
+            "height": 1080,
+            "avg_frame_rate": "10/1"
+          }
+        ],
+        "format": {
+          "duration": "205.700000",
+          "size": "11074726"
+        }
+      },
+      "decode_pass": true,
+      "errors": ""
+    }
+  ],
+  "runtime_params": [
+    {
+      "seed": 38,
+      "inflation_xy": 0.275,
+      "up": 0.2,
+      "down": 0.1,
+      "resolution": 0.05,
+      "columns": {
+        "column_band_high_ratio": 0.6,
+        "column_band_low_ratio": 0.4,
+        "column_max_fill_distance": 0.35,
+        "column_max_hull_span": 1.6,
+        "column_middle_enabled": true,
+        "enabled": true,
+        "floor_z": -0.12,
+        "max_x": 7.6,
+        "max_y": 4.8,
+        "min_x": -0.5,
+        "min_y": -4.8,
+        "obstacle_min_z": 0.18,
+        "support_min_points": 3,
+        "support_min_vertical_span": 0.2,
+        "support_radius": 0.15,
+        "tracking_margin": 0.1
+      },
+      "composition": {
+        "frames": 2057,
+        "fps": 10,
+        "common_ros_start": 1.313,
+        "common_ros_end": 206.923,
+        "max_image_age_s": [
+          0.21900000000010778,
+          0.21900000000010778
+        ],
+        "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/panzer_location_repair_seed38_20260927_154743",
+        "replay": false,
+        "synthetic_test": false,
+        "display_limit_counts": {
+          "4.0": 1276,
+          "1.2": 781
+        },
+        "display_over_limit_frames": 0,
+        "display_limits": {
+          "flight": 4.0,
+          "corridor": 1.2,
+          "wall": 4.0,
+          "corridor_bounds": [
+            7.6,
+            9.1,
+            -4.8,
+            4.8
+          ],
+          "landing_observation_region": {
+            "max_height": 1.2,
+            "max_x": 9.1,
+            "max_y": -2.1,
+            "min_x": 7.6,
+            "min_y": -4.8
+          }
+        },
+        "note": "Source-clock paired views; missing camera frames held. Display limit labels are user inputs, not new rule claims."
+      }
+    }
+  ],
+  "status": "PASS"
+}

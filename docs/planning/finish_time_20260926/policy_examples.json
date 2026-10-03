@@ -1,0 +1,110 @@
+{
+  "source_commit": "c04cc48",
+  "scope": "Current pure selectors and retained seed2672 fast scene; not flight validation",
+  "bounds": [
+    -0.5,
+    7.4,
+    -4.8,
+    4.8
+  ],
+  "boundary_margin_m": 0.3485753809367631,
+  "boundary_near_distance_m": 0.9985753809367631,
+  "boundary_goal_example": {
+    "xy": [
+      6.8,
+      0
+    ],
+    "near": true,
+    "far_revisit_profile": [
+      "BOUNDARY_REVISIT",
+      0.2
+    ],
+    "low_coverage_far_is_slow": false,
+    "low_coverage_near_wall_is_slow": true,
+    "low_coverage_last_meter_is_slow": true
+  },
+  "corridor_config": {
+    "axis": 1,
+    "wall_coordinates": [
+      -1.6,
+      1.6
+    ],
+    "enter_distance_m": 0.75,
+    "exit_distance_m": 0.95,
+    "open_lead_m": 0.4,
+    "door_lead_m": 0.15,
+    "landing_radius_m": 0.8
+  },
+  "corridor_sequential_examples": [
+    {
+      "name": "entry descent",
+      "xy": [
+        6.7,
+        4.05
+      ],
+      "completed": 1,
+      "phase": "CORRIDOR_DESCENT",
+      "lead_m": 0.15
+    },
+    {
+      "name": "open approach",
+      "xy": [
+        8.35,
+        2.7
+      ],
+      "completed": 2,
+      "phase": "CORRIDOR_OPEN",
+      "lead_m": 0.4
+    },
+    {
+      "name": "hysteresis retains fast",
+      "xy": [
+        8.35,
+        2.45
+      ],
+      "completed": 3,
+      "phase": "CORRIDOR_OPEN",
+      "lead_m": 0.4
+    },
+    {
+      "name": "door entered",
+      "xy": [
+        8.35,
+        2.3
+      ],
+      "completed": 3,
+      "phase": "DOOR",
+      "lead_m": 0.15
+    },
+    {
+      "name": "hysteresis retains slow",
+      "xy": [
+        8.35,
+        2.45
+      ],
+      "completed": 3,
+      "phase": "DOOR",
+      "lead_m": 0.15
+    },
+    {
+      "name": "door cleared",
+      "xy": [
+        8.35,
+        2.6
+      ],
+      "completed": 3,
+      "phase": "CORRIDOR_OPEN",
+      "lead_m": 0.4
+    },
+    {
+      "name": "H approach",
+      "xy": [
+        8.5,
+        -3.6
+      ],
+      "completed": 8,
+      "phase": "H_APPROACH",
+      "lead_m": 0.15
+    }
+  ]
+}

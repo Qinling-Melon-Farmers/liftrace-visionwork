@@ -1,0 +1,855 @@
+{
+  "baseline": {
+    "weights": "/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt",
+    "names": {
+      "0": "bridge",
+      "1": "panzer",
+      "2": "pillbox",
+      "3": "tent",
+      "4": "tank",
+      "5": "red_cross"
+    },
+    "groups": {
+      "legacy_val": {
+        "images": 203,
+        "ap": {
+          "bridge": {
+            "ap50": 0.995,
+            "ap50_95": 0.9949999999999999,
+            "targets": 15
+          },
+          "panzer": {
+            "ap50": 0.995,
+            "ap50_95": 0.9949999999999999,
+            "targets": 55
+          },
+          "pillbox": {
+            "ap50": 0.995,
+            "ap50_95": 0.9949999999999999,
+            "targets": 53
+          },
+          "tent": {
+            "ap50": 0.995,
+            "ap50_95": 0.9949999999999999,
+            "targets": 61
+          },
+          "red_cross": {
+            "ap50": 0.995,
+            "ap50_95": 0.8992261703103914,
+            "targets": 19
+          }
+        },
+        "thresholds": {
+          "0.5": {
+            "bridge": {
+              "tp": 15,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "panzer": {
+              "tp": 55,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "pillbox": {
+              "tp": 53,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "tent": {
+              "tp": 61,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "red_cross": {
+              "tp": 19,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          },
+          "0.6": {
+            "bridge": {
+              "tp": 15,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "panzer": {
+              "tp": 55,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "pillbox": {
+              "tp": 53,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "tent": {
+              "tp": 61,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "red_cross": {
+              "tp": 19,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          },
+          "0.7": {
+            "bridge": {
+              "tp": 15,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "panzer": {
+              "tp": 55,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "pillbox": {
+              "tp": 53,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "tent": {
+              "tp": 61,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "red_cross": {
+              "tp": 19,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "confusion_at_05": {
+          "panzer->panzer": 55,
+          "pillbox->pillbox": 53,
+          "tent->tent": 61,
+          "bridge->bridge": 15,
+          "red_cross->red_cross": 19
+        },
+        "background_frames": 0,
+        "background_false_frames_at_05": {}
+      },
+      "flight_holdout": {
+        "images": 61,
+        "ap": {
+          "bridge": {
+            "ap50": 0.945,
+            "ap50_95": 0.7650238095238094,
+            "targets": 4
+          },
+          "panzer": {
+            "ap50": 0.7245,
+            "ap50_95": 0.6065532026143792,
+            "targets": 18
+          },
+          "red_cross": {
+            "ap50": 0.995,
+            "ap50_95": 0.5689512026766586,
+            "targets": 20
+          }
+        },
+        "thresholds": {
+          "0.5": {
+            "bridge": {
+              "tp": 3,
+              "fp": 1,
+              "fn": 1,
+              "precision": 0.75,
+              "recall": 0.75
+            },
+            "panzer": {
+              "tp": 7,
+              "fp": 0,
+              "fn": 11,
+              "precision": 1.0,
+              "recall": 0.3888888888888889
+            },
+            "pillbox": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "tent": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "red_cross": {
+              "tp": 20,
+              "fp": 3,
+              "fn": 0,
+              "precision": 0.8695652173913043,
+              "recall": 1.0
+            }
+          },
+          "0.6": {
+            "bridge": {
+              "tp": 3,
+              "fp": 1,
+              "fn": 1,
+              "precision": 0.75,
+              "recall": 0.75
+            },
+            "panzer": {
+              "tp": 7,
+              "fp": 0,
+              "fn": 11,
+              "precision": 1.0,
+              "recall": 0.3888888888888889
+            },
+            "pillbox": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "tent": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "red_cross": {
+              "tp": 20,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.9523809523809523,
+              "recall": 1.0
+            }
+          },
+          "0.7": {
+            "bridge": {
+              "tp": 3,
+              "fp": 1,
+              "fn": 1,
+              "precision": 0.75,
+              "recall": 0.75
+            },
+            "panzer": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 12,
+              "precision": 1.0,
+              "recall": 0.3333333333333333
+            },
+            "pillbox": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "tent": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "red_cross": {
+              "tp": 20,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.9523809523809523,
+              "recall": 1.0
+            }
+          }
+        },
+        "confusion_at_05": {
+          "panzer->panzer": 7,
+          "panzer->bridge": 1,
+          "panzer->red_cross": 1,
+          "panzer->miss": 9,
+          "red_cross->red_cross": 20,
+          "bridge->bridge": 3,
+          "bridge->miss": 1
+        },
+        "background_frames": 20,
+        "background_false_frames_at_05": {}
+      },
+      "H_background_views": {
+        "images": 6,
+        "ap": {},
+        "thresholds": {
+          "0.5": {
+            "bridge": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "panzer": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "pillbox": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "tent": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "red_cross": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            }
+          },
+          "0.6": {
+            "bridge": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "panzer": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "pillbox": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "tent": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "red_cross": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            }
+          },
+          "0.7": {
+            "bridge": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "panzer": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "pillbox": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "tent": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "red_cross": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            }
+          }
+        },
+        "confusion_at_05": {},
+        "background_frames": 6,
+        "background_false_frames_at_05": {}
+      }
+    }
+  },
+  "candidate": {
+    "weights": "/home/xhj/liftrace/vision_ws/runs/liftrace_5cls_flight_h_20260928/candidate/weights/best.pt",
+    "names": {
+      "0": "bridge",
+      "1": "panzer",
+      "2": "pillbox",
+      "3": "tent",
+      "4": "red_cross"
+    },
+    "groups": {
+      "legacy_val": {
+        "images": 203,
+        "ap": {
+          "bridge": {
+            "ap50": 0.995,
+            "ap50_95": 0.9074982467532466,
+            "targets": 15
+          },
+          "panzer": {
+            "ap50": 0.995,
+            "ap50_95": 0.9854411958459274,
+            "targets": 55
+          },
+          "pillbox": {
+            "ap50": 0.995,
+            "ap50_95": 0.9825394457034283,
+            "targets": 53
+          },
+          "tent": {
+            "ap50": 0.995,
+            "ap50_95": 0.9692663860154097,
+            "targets": 61
+          },
+          "red_cross": {
+            "ap50": 0.995,
+            "ap50_95": 0.8755491336426731,
+            "targets": 19
+          }
+        },
+        "thresholds": {
+          "0.5": {
+            "bridge": {
+              "tp": 15,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "panzer": {
+              "tp": 55,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "pillbox": {
+              "tp": 53,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "tent": {
+              "tp": 61,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "red_cross": {
+              "tp": 19,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          },
+          "0.6": {
+            "bridge": {
+              "tp": 15,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "panzer": {
+              "tp": 55,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "pillbox": {
+              "tp": 53,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "tent": {
+              "tp": 61,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "red_cross": {
+              "tp": 19,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          },
+          "0.7": {
+            "bridge": {
+              "tp": 14,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.9333333333333333
+            },
+            "panzer": {
+              "tp": 55,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "pillbox": {
+              "tp": 53,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "tent": {
+              "tp": 61,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "red_cross": {
+              "tp": 19,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "confusion_at_05": {
+          "panzer->panzer": 55,
+          "pillbox->pillbox": 53,
+          "tent->tent": 61,
+          "bridge->bridge": 15,
+          "red_cross->red_cross": 19
+        },
+        "background_frames": 0,
+        "background_false_frames_at_05": {}
+      },
+      "flight_holdout": {
+        "images": 61,
+        "ap": {
+          "bridge": {
+            "ap50": 0.995,
+            "ap50_95": 0.8955833333333333,
+            "targets": 4
+          },
+          "panzer": {
+            "ap50": 0.995,
+            "ap50_95": 0.8506013812409814,
+            "targets": 18
+          },
+          "red_cross": {
+            "ap50": 0.995,
+            "ap50_95": 0.849185574229692,
+            "targets": 20
+          }
+        },
+        "thresholds": {
+          "0.5": {
+            "bridge": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "panzer": {
+              "tp": 18,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "pillbox": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "tent": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "red_cross": {
+              "tp": 20,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          },
+          "0.6": {
+            "bridge": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "panzer": {
+              "tp": 18,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "pillbox": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "tent": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "red_cross": {
+              "tp": 20,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          },
+          "0.7": {
+            "bridge": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "panzer": {
+              "tp": 18,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "pillbox": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "tent": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "red_cross": {
+              "tp": 20,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "confusion_at_05": {
+          "panzer->panzer": 18,
+          "red_cross->red_cross": 20,
+          "bridge->bridge": 4
+        },
+        "background_frames": 20,
+        "background_false_frames_at_05": {}
+      },
+      "H_background_views": {
+        "images": 6,
+        "ap": {},
+        "thresholds": {
+          "0.5": {
+            "bridge": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "panzer": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "pillbox": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "tent": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "red_cross": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            }
+          },
+          "0.6": {
+            "bridge": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "panzer": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "pillbox": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "tent": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "red_cross": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            }
+          },
+          "0.7": {
+            "bridge": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "panzer": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "pillbox": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "tent": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "red_cross": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0
+            }
+          }
+        },
+        "confusion_at_05": {},
+        "background_frames": 6,
+        "background_false_frames_at_05": {}
+      }
+    }
+  }
+}

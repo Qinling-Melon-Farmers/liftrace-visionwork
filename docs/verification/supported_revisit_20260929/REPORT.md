@@ -66,3 +66,4 @@
 配套视觉策略源码：Qinling-Melon-Farmers/liftrace-visionwork，`feat/high-view-search-research`，`4ef4555b15c73d6d9b9c1ba4584791d887ccbb41`。NAV中的HighViewFull调用新增revisit_hints接口，必须同时更新此版本uav_high_view。
 
 导航源码同步提交：sakelier/liftrace-controlwork，`feat/high-view-liveness-20260919`，`66b10fa9072d2094cffd3837c9becd4aedec54ed`。板端保留既有现场2m观测窗口覆盖；此次导航功能修改一致。
+

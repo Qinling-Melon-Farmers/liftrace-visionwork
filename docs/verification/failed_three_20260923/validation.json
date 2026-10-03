@@ -1,0 +1,11 @@
+{
+  "three_complete": true,
+  "source_consistent": true,
+  "actual_targets_matched": true,
+  "all_videos_decoded": true,
+  "three_selected_complete": true,
+  "seed40_repeat_selected": true,
+  "post_run_code_sitl_validated": false,
+  "unit_tests_passed": 344,
+  "sim_inflation_static_checked": true
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "seed": 34,
+    "label": "rerun",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/failedthree_seed34_20260923_204202",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_34/field.world",
+    "source": "649dfe0442dd67ad4b51ef432af08809ba00c549"
+  },
+  {
+    "seed": 38,
+    "label": "rerun",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/failedthree_seed38_20260923_205045",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_38/field.world",
+    "source": "649dfe0442dd67ad4b51ef432af08809ba00c549"
+  },
+  {
+    "seed": 40,
+    "label": "rerun",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/failedthree_repeat_seed40_20260923_210513",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_40/field.world",
+    "source": "649dfe0442dd67ad4b51ef432af08809ba00c549"
+  }
+]

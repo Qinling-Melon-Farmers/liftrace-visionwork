@@ -1,0 +1,34 @@
+<launch>
+  <arg name="bag" />
+  <arg name="model" />
+  <arg name="vision_python" default="$(optenv VISION_PYTHON /home/xhj/miniconda3/envs/rl_drone/bin/python)" />
+  <param name="/use_sim_time" value="true" />
+  <!-- Only three detectors and a file publisher; no mission/executor or FC nodes. -->
+  <node pkg="uav_vision" type="target_detector.py" name="replay_yolo"
+        launch-prefix="$(arg vision_python)" output="screen" required="true">
+    <rosparam file="$(find uav_vision)/config/default.yaml"/>
+    <rosparam file="$(find uav_vision)/config/target_detector.yaml"/>
+    <param name="model_path" value="$(arg model)"/>
+    <param name="image_topic" value="/replay/image"/>
+    <remap from="/uav_vision/detections" to="/replay/detections"/>
+  </node>
+  <node pkg="uav_vision" type="circle_detector_node" name="replay_circle" output="screen" required="true">
+    <rosparam file="$(find uav_vision)/config/default.yaml"/>
+    <rosparam file="$(find uav_vision)/config/circle_detector.yaml"/>
+    <param name="image_topic" value="/replay/image"/>
+    <param name="camera_info_topic" value="/replay/camera_info"/>
+    <param name="enable_debug_image" value="false"/>
+    <remap from="/uav_vision/detections" to="/replay/detections"/>
+  </node>
+  <node pkg="uav_vision" type="cross_detector_node" name="replay_cross" output="screen" required="true">
+    <rosparam file="$(find uav_vision)/config/default.yaml"/>
+    <rosparam file="$(find uav_vision)/config/cross_detector.yaml"/>
+    <param name="image_topic" value="/replay/image"/>
+    <param name="camera_info_topic" value="/replay/camera_info"/>
+    <param name="enable_debug_image" value="false"/>
+    <remap from="/uav_vision/detections" to="/replay/detections"/>
+  </node>
+  <node pkg="uav_vision" type="bag_detector_replay.py" name="bag_detector_replay" output="screen" required="true">
+    <param name="bag" value="$(arg bag)"/><param name="model" value="$(arg model)"/>
+  </node>
+</launch>

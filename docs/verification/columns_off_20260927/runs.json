@@ -1,0 +1,16 @@
+[
+  {
+    "seed": 31,
+    "label": "columns_off",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/columnsoff_seed31_20260927_120609",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_31/field.world",
+    "source": "c35e3910d700640e34f9119d627c0b75a24c9510"
+  },
+  {
+    "seed": 38,
+    "label": "columns_off",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/columnsoff_seed38_20260927_124315",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_38/field.world",
+    "source": "c35e3910d700640e34f9119d627c0b75a24c9510"
+  }
+]

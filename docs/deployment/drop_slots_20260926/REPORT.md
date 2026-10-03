@@ -77,7 +77,7 @@ applyDropSlotOffset直接加世界XY，不使用机体yaw或完整姿态。其�
 
 Desktop converter另有自己的count1/temp_mark，渐降后给临时XY做10cm偏移，并按固定像素轴映射移动。其二、三槽符号与主控制不同；不能把两处直接叠加，也不能认定它们在去年最终入口里同时启用。当前最简投递入口没有启动这个旧converter。
 
-**今年不能只把去年的7cm改成12cm就视为完成安装外参迁移。** 槽号、物理位置、参考轴、补偿符号及到位条件仍须一致。详细旧链来源另见[历史槽位说明](https://github.com/Qinling-Melon-Farmers/liftrace-visionwork/blob/feat/high-view-search-research/docs/planning/finish_time_20260921/LEGACY_SLOTS.md)。
+**今年不能只把去年的7cm改成12cm就视为完成安装外参迁移。** 槽号、物理位置、参考轴、补偿符号及到位条件仍须一致。详细旧链来源另见[历史槽位说明](../../planning/finish_time_20260921/LEGACY_SLOTS.md)。
 
 ## 与本机分支的关系及后续处理
 

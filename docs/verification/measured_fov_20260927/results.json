@@ -1,0 +1,764 @@
+{
+  "scope": "offline ideal ground visibility only",
+  "step_m": 0.01,
+  "area_m2": 75.84,
+  "bounds": [
+    -0.5,
+    7.4,
+    -4.8,
+    4.8
+  ],
+  "route": [
+    [
+      0.6,
+      0.05
+    ],
+    [
+      1.0,
+      3.5
+    ],
+    [
+      1.0,
+      -3.5
+    ],
+    [
+      5.5,
+      -3.5
+    ],
+    [
+      5.5,
+      3.5
+    ],
+    [
+      1.0,
+      3.5
+    ]
+  ],
+  "measured": {
+    "fc_agl_m": 2.0,
+    "lens_offset_m": 0.16,
+    "long_m": 3.6,
+    "short_m": 1.8
+  },
+  "calibration": {
+    "topic": "/camera/camera_info",
+    "stamp": 1790331620.0075042,
+    "w": 1280,
+    "h": 720,
+    "K": [
+      725.3510059644434,
+      0.0,
+      631.6718631370258,
+      0.0,
+      723.3403562845087,
+      397.5663813311627,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "D": [
+      0.0058668600963917095,
+      0.01791054954675837,
+      -0.0010064115869294274,
+      0.0014715593681005204,
+      -0.026485100937585344
+    ],
+    "P": [
+      725.3510059644434,
+      0.0,
+      631.6718631370258,
+      0.0,
+      0.0,
+      723.3403562845087,
+      397.5663813311627,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    "model": "plumb_bob",
+    "binning": [
+      0,
+      0
+    ],
+    "roi": {
+      "x": 0,
+      "y": 0,
+      "w": 0,
+      "h": 0
+    }
+  },
+  "cases": [
+    {
+      "name": "old_2_6",
+      "fc_agl_m": 2.6,
+      "lens_agl_m": 2.44,
+      "footprint_m": [
+        4.305777443359744,
+        2.4287321794458325
+      ],
+      "footprint_offsets_m": [
+        [
+          -2.1809036465625344,
+          -1.3410864775067053
+        ],
+        [
+          2.12487379679721,
+          -1.3410864775067053
+        ],
+        [
+          2.12487379679721,
+          1.0876457019391272
+        ],
+        [
+          -2.1809036465625344,
+          1.0876457019391272
+        ]
+      ],
+      "covered_percent": 96.60733122362869,
+      "uncovered_area_m2": 2.5730000000000004,
+      "cumulative_percent": [
+        27.179061181434598,
+        44.82041139240506,
+        58.308280590717295,
+        95.96650843881856,
+        96.60733122362869
+      ],
+      "one_m_ring_center_coverage_percent": 86.29423660262891,
+      "assumed_centered": false,
+      "targets": {
+        "31": [
+          {
+            "class_name": "tent",
+            "xy": [
+              5.0393,
+              1.0288
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "pillbox",
+            "xy": [
+              0.4108,
+              3.4686
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "bridge",
+            "xy": [
+              0.6063,
+              -1.5568
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "panzer",
+            "xy": [
+              3.1268,
+              -0.3424
+            ],
+            "center_ever_visible": false,
+            "one_m_circle_or_035m_cross_ever_contained": false
+          },
+          {
+            "class_name": "red_cross",
+            "xy": [
+              2.7639,
+              -4.2221
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          }
+        ],
+        "38": [
+          {
+            "class_name": "tent",
+            "xy": [
+              0.8777,
+              -1.0371
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "pillbox",
+            "xy": [
+              5.3854,
+              1.637
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "bridge",
+            "xy": [
+              3.7772,
+              -1.0829
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": false
+          },
+          {
+            "class_name": "panzer",
+            "xy": [
+              5.0584,
+              -0.3493
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "red_cross",
+            "xy": [
+              4.4788,
+              -4.4104
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "measured_2_6",
+      "fc_agl_m": 2.6,
+      "lens_agl_m": 2.44,
+      "footprint_m": [
+        4.773913043478261,
+        2.3869565217391306
+      ],
+      "footprint_offsets_m": [
+        [
+          -2.4180173039250876,
+          -1.318018981587007
+        ],
+        [
+          2.3558957395531737,
+          -1.318018981587007
+        ],
+        [
+          2.3558957395531737,
+          1.0689375401521237
+        ],
+        [
+          -2.4180173039250876,
+          1.0689375401521237
+        ]
+      ],
+      "covered_percent": 97.60416666666667,
+      "uncovered_area_m2": 1.8170000000000002,
+      "cumulative_percent": [
+        28.794040084388183,
+        47.69013713080169,
+        60.31513713080169,
+        97.60416666666667,
+        97.60416666666667
+      ],
+      "one_m_ring_center_coverage_percent": 90.51870576339736,
+      "assumed_centered": false,
+      "targets": {
+        "31": [
+          {
+            "class_name": "tent",
+            "xy": [
+              5.0393,
+              1.0288
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "pillbox",
+            "xy": [
+              0.4108,
+              3.4686
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "bridge",
+            "xy": [
+              0.6063,
+              -1.5568
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "panzer",
+            "xy": [
+              3.1268,
+              -0.3424
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": false
+          },
+          {
+            "class_name": "red_cross",
+            "xy": [
+              2.7639,
+              -4.2221
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          }
+        ],
+        "38": [
+          {
+            "class_name": "tent",
+            "xy": [
+              0.8777,
+              -1.0371
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "pillbox",
+            "xy": [
+              5.3854,
+              1.637
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "bridge",
+            "xy": [
+              3.7772,
+              -1.0829
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "panzer",
+            "xy": [
+              5.0584,
+              -0.3493
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "red_cross",
+            "xy": [
+              4.4788,
+              -4.4104
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "measured_3_0",
+      "fc_agl_m": 3.0,
+      "lens_agl_m": 2.84,
+      "footprint_m": [
+        5.556521739130434,
+        2.778260869565217
+      ],
+      "footprint_offsets_m": [
+        [
+          -2.814413583257069,
+          -1.5340876670930734
+        ],
+        [
+          2.7421081558733653,
+          -1.5340876670930734
+        ],
+        [
+          2.7421081558733653,
+          1.2441732024721437
+        ],
+        [
+          -2.814413583257069,
+          1.2441732024721437
+        ]
+      ],
+      "covered_percent": 99.375,
+      "uncovered_area_m2": 0.47400000000000003,
+      "cumulative_percent": [
+        33.876318565400844,
+        53.335443037974684,
+        65.59335443037975,
+        99.375,
+        99.375
+      ],
+      "one_m_ring_center_coverage_percent": 99.30232558139535,
+      "assumed_centered": false,
+      "targets": {
+        "31": [
+          {
+            "class_name": "tent",
+            "xy": [
+              5.0393,
+              1.0288
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "pillbox",
+            "xy": [
+              0.4108,
+              3.4686
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "bridge",
+            "xy": [
+              0.6063,
+              -1.5568
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "panzer",
+            "xy": [
+              3.1268,
+              -0.3424
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "red_cross",
+            "xy": [
+              2.7639,
+              -4.2221
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          }
+        ],
+        "38": [
+          {
+            "class_name": "tent",
+            "xy": [
+              0.8777,
+              -1.0371
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "pillbox",
+            "xy": [
+              5.3854,
+              1.637
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "bridge",
+            "xy": [
+              3.7772,
+              -1.0829
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "panzer",
+            "xy": [
+              5.0584,
+              -0.3493
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "red_cross",
+            "xy": [
+              4.4788,
+              -4.4104
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "measured_2_6_centered",
+      "fc_agl_m": 2.6,
+      "lens_agl_m": 2.44,
+      "footprint_m": [
+        4.773913043478261,
+        2.3869565217391306
+      ],
+      "footprint_offsets_m": [
+        [
+          -2.3869565217391306,
+          -1.1934782608695653
+        ],
+        [
+          2.3869565217391306,
+          -1.1934782608695653
+        ],
+        [
+          2.3869565217391306,
+          1.1934782608695653
+        ],
+        [
+          -2.3869565217391306,
+          1.1934782608695653
+        ]
+      ],
+      "covered_percent": 97.70833333333333,
+      "uncovered_area_m2": 1.738,
+      "cumulative_percent": [
+        28.981671940928273,
+        48.11207805907173,
+        60.69620253164557,
+        97.70833333333333,
+        97.70833333333333
+      ],
+      "one_m_ring_center_coverage_percent": 90.62285136501517,
+      "assumed_centered": true,
+      "targets": {
+        "31": [
+          {
+            "class_name": "tent",
+            "xy": [
+              5.0393,
+              1.0288
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "pillbox",
+            "xy": [
+              0.4108,
+              3.4686
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "bridge",
+            "xy": [
+              0.6063,
+              -1.5568
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "panzer",
+            "xy": [
+              3.1268,
+              -0.3424
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": false
+          },
+          {
+            "class_name": "red_cross",
+            "xy": [
+              2.7639,
+              -4.2221
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          }
+        ],
+        "38": [
+          {
+            "class_name": "tent",
+            "xy": [
+              0.8777,
+              -1.0371
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "pillbox",
+            "xy": [
+              5.3854,
+              1.637
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "bridge",
+            "xy": [
+              3.7772,
+              -1.0829
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "panzer",
+            "xy": [
+              5.0584,
+              -0.3493
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "red_cross",
+            "xy": [
+              4.4788,
+              -4.4104
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "measured_3_0_centered",
+      "fc_agl_m": 3.0,
+      "lens_agl_m": 2.84,
+      "footprint_m": [
+        5.556521739130434,
+        2.778260869565217
+      ],
+      "footprint_offsets_m": [
+        [
+          -2.778260869565217,
+          -1.3891304347826086
+        ],
+        [
+          2.778260869565217,
+          -1.3891304347826086
+        ],
+        [
+          2.778260869565217,
+          1.3891304347826086
+        ],
+        [
+          -2.778260869565217,
+          1.3891304347826086
+        ]
+      ],
+      "covered_percent": 100.0,
+      "uncovered_area_m2": 0.0,
+      "cumulative_percent": [
+        33.73246308016878,
+        54.177215189873415,
+        67.01714135021098,
+        100.0,
+        100.0
+      ],
+      "one_m_ring_center_coverage_percent": 100.0,
+      "assumed_centered": true,
+      "targets": {
+        "31": [
+          {
+            "class_name": "tent",
+            "xy": [
+              5.0393,
+              1.0288
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "pillbox",
+            "xy": [
+              0.4108,
+              3.4686
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "bridge",
+            "xy": [
+              0.6063,
+              -1.5568
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "panzer",
+            "xy": [
+              3.1268,
+              -0.3424
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "red_cross",
+            "xy": [
+              2.7639,
+              -4.2221
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          }
+        ],
+        "38": [
+          {
+            "class_name": "tent",
+            "xy": [
+              0.8777,
+              -1.0371
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "pillbox",
+            "xy": [
+              5.3854,
+              1.637
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "bridge",
+            "xy": [
+              3.7772,
+              -1.0829
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "panzer",
+            "xy": [
+              5.0584,
+              -0.3493
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          },
+          {
+            "class_name": "red_cross",
+            "xy": [
+              4.4788,
+              -4.4104
+            ],
+            "center_ever_visible": true,
+            "one_m_circle_or_035m_cross_ever_contained": true
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "train": {
+    "images": 1163,
+    "label_files": 1163,
+    "missing_label_images": 0,
+    "empty_label_images": 1,
+    "missing_examples": [],
+    "instances_by_class_id": {
+      "3": 282,
+      "1": 309,
+      "4": 118,
+      "2": 260,
+      "0": 117,
+      "5": 76
+    },
+    "official_instances_by_class_id": {
+      "3": 60,
+      "0": 60,
+      "1": 60,
+      "2": 60
+    }
+  },
+  "val": {
+    "images": 232,
+    "label_files": 232,
+    "missing_label_images": 0,
+    "empty_label_images": 0,
+    "missing_examples": [],
+    "instances_by_class_id": {
+      "5": 19,
+      "1": 55,
+      "2": 53,
+      "3": 61,
+      "4": 29,
+      "0": 15
+    },
+    "official_instances_by_class_id": {}
+  }
+}

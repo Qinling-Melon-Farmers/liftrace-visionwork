@@ -1,0 +1,155 @@
+[
+  {
+    "seed": 31,
+    "status": "PASS",
+    "completed_mission_s": 226.723000001,
+    "third_commit_s": 122.84600000100001,
+    "top3_interrupt_mission_s": 34.631000001000004,
+    "high_weight_delivered": 3,
+    "xy_distance_m": 48.987449038022646,
+    "collisions": 0,
+    "milestone_durations_s": {
+      "start_to_third_ack": 122.84600000100001,
+      "last_release_recovery": 2.4399999999999977,
+      "fast_transfer_to_staging": 10.76400000000001,
+      "staging_descent": 10.857999999999976,
+      "corridor_to_H": 67.33500000000001,
+      "H_landing": 12.480000000000018
+    },
+    "projection_summary": {
+      "center_above_hull_samples": 0,
+      "whole_guard_above_tree_overlap_samples": 0,
+      "whole_guard_above_tree_min_axis_gap_m": 0.3225003103932549,
+      "fc_above_tree_nominal_disk_overlap_samples": 0,
+      "scope": "Conservative full tree+pedestal footprint. Whole-guard and FC-above tests have different height conditions; not a complete swept-volume guarantee."
+    },
+    "target_hint_evaluation": {
+      "red_cross": {
+        "high_xy": [
+          2.597489225092094,
+          -4.367900242889251
+        ],
+        "high_source": "vision",
+        "high_source_stamp_ns": 40459000000,
+        "high_hint_error_m": 0.22124704931820954,
+        "low_xy": [
+          2.6308440960825017,
+          -4.343060750925578
+        ],
+        "low_fused_point_error_m": 0.17982040160054766,
+        "high_to_low_delta_m": 0.04158783211229105,
+        "source_age_at_reacquisition_s": 37.18899999999999,
+        "scope": "High point frozen at TOP3 event; low point at first reacquisition. Not release accuracy."
+      },
+      "bridge": {
+        "high_xy": [
+          0.4955905956423411,
+          -1.6816459534048087
+        ],
+        "high_source": "vision",
+        "high_source_stamp_ns": 33016000000,
+        "high_hint_error_m": 0.16686247119943806,
+        "low_xy": [
+          0.5192333008990194,
+          -1.6526085066312377
+        ],
+        "low_fused_point_error_m": 0.12945995533464627,
+        "high_to_low_delta_m": 0.037445304471750984,
+        "source_age_at_reacquisition_s": 82.62200000000001,
+        "scope": "High point frozen at TOP3 event; low point at first reacquisition. Not release accuracy."
+      },
+      "panzer": {
+        "high_xy": [
+          3.0485383202000746,
+          -0.6362105264589286
+        ],
+        "high_source": "vision",
+        "high_source_stamp_ns": 46391000000,
+        "high_hint_error_m": 0.3040551199752749,
+        "low_xy": [
+          3.0866162696207677,
+          -0.46063498517016344
+        ],
+        "low_fused_point_error_m": 0.124876915021871,
+        "high_to_low_delta_m": 0.17965717611865034,
+        "source_age_at_reacquisition_s": 82.868,
+        "scope": "High point frozen at TOP3 event; low point at first reacquisition. Not release accuracy."
+      }
+    }
+  },
+  {
+    "seed": 38,
+    "status": "PASS",
+    "completed_mission_s": 281.353,
+    "third_commit_s": 175.171,
+    "top3_interrupt_mission_s": 26.576999999999998,
+    "high_weight_delivered": 2,
+    "xy_distance_m": 56.557078137718236,
+    "collisions": 0,
+    "milestone_durations_s": {
+      "start_to_third_ack": 175.171,
+      "last_release_recovery": 2.319000000000017,
+      "fast_transfer_to_staging": 12.990999999999985,
+      "staging_descent": 5.231000000000023,
+      "corridor_to_H": 69.14500000000001,
+      "H_landing": 16.49599999999998
+    },
+    "projection_summary": {
+      "center_above_hull_samples": 0,
+      "whole_guard_above_tree_overlap_samples": 0,
+      "whole_guard_above_tree_min_axis_gap_m": 0.058251772899069465,
+      "fc_above_tree_nominal_disk_overlap_samples": 56,
+      "scope": "Conservative full tree+pedestal footprint. Whole-guard and FC-above tests have different height conditions; not a complete swept-volume guarantee."
+    },
+    "target_hint_evaluation": {
+      "red_cross": {
+        "high_xy": [
+          4.239595649139687,
+          -4.5489576353469205
+        ],
+        "high_source": "bbox",
+        "high_source_stamp_ns": 38368000000,
+        "high_hint_error_m": 0.27643614051609383,
+        "low_xy": [
+          4.405338762132806,
+          -4.496622809513107
+        ],
+        "low_fused_point_error_m": 0.11327367897845397,
+        "high_to_low_delta_m": 0.17380941717785428,
+        "source_age_at_reacquisition_s": 18.939999999999998,
+        "scope": "High point frozen at TOP3 event; low point at first reacquisition. Not release accuracy."
+      },
+      "bridge": {
+        "high_xy": [
+          3.4620400526444732,
+          -1.3655801872592161
+        ],
+        "high_source": "bbox",
+        "high_source_stamp_ns": 33092000000,
+        "high_hint_error_m": 0.4233602256779019,
+        "low_xy": [
+          3.7681813190099165,
+          -1.136506455878488
+        ],
+        "low_fused_point_error_m": 0.054359807934292674,
+        "high_to_low_delta_m": 0.3823574889818784,
+        "source_age_at_reacquisition_s": 124.81500000000001,
+        "scope": "High point frozen at TOP3 event; low point at first reacquisition. Not release accuracy."
+      },
+      "panzer": {
+        "high_xy": [
+          -0.09813852686086033,
+          -0.18396391910398846
+        ],
+        "high_source": "bbox",
+        "high_source_stamp_ns": 31100000000,
+        "high_hint_error_m": 5.159188463183567,
+        "low_xy": null,
+        "low_fused_point_error_m": null,
+        "high_to_low_delta_m": null,
+        "source_age_at_reacquisition_s": null,
+        "scope": "High point frozen at TOP3 event; low point at first reacquisition. Not release accuracy."
+      }
+    }
+  }
+]

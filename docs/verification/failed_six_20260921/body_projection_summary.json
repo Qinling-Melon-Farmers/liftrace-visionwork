@@ -1,0 +1,32 @@
+[
+  {
+    "seed": 31,
+    "overlap_samples": 0,
+    "min_gap_m": 0.38772841974378136
+  },
+  {
+    "seed": 32,
+    "overlap_samples": 0,
+    "min_gap_m": 0.33492653736621225
+  },
+  {
+    "seed": 34,
+    "overlap_samples": 38,
+    "min_gap_m": -0.14427924392510727
+  },
+  {
+    "seed": 37,
+    "overlap_samples": 0,
+    "min_gap_m": 0.13119137695766958
+  },
+  {
+    "seed": 38,
+    "overlap_samples": 1,
+    "min_gap_m": -0.0030548667238479155
+  },
+  {
+    "seed": 40,
+    "overlap_samples": 0,
+    "min_gap_m": 0.1669882704746667
+  }
+]

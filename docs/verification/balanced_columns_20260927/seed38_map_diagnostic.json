@@ -1,0 +1,30 @@
+{
+  "snapshot": 77.209,
+  "goal": [
+    3.4620400526444732,
+    -1.3655801872592161,
+    1.18
+  ],
+  "clouds": {
+    "inflated_map": {
+      "nearest_point_3d_m": 0.309731414694028,
+      "nearest_xyz": [
+        3.4749999046325684,
+        -1.6749999523162842,
+        1.1749999523162842
+      ],
+      "voxel_centers_within_26mm": 0
+    },
+    "static_map": {
+      "nearest_point_3d_m": 0.7732835834602456,
+      "nearest_xyz": [
+        3.2558741569519043,
+        -2.0973451137542725,
+        1.0386379957199097
+      ],
+      "voxel_centers_within_26mm": 0
+    }
+  },
+  "planner_y_min": -4.481424619063237,
+  "scope": "Goal-local capture. Start cloud not present; nearest point alone is not traversability proof."
+}

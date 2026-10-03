@@ -1,0 +1,51 @@
+{
+  "initial_conflicts": {
+    "bridge": [
+      [
+        1.0,
+        1.0
+      ],
+      [
+        4.0,
+        1.0
+      ]
+    ]
+  },
+  "after_true_bridge_low": {
+    "bridge": [
+      {
+        "xy": [
+          1.0,
+          1.0
+        ],
+        "source": "bbox",
+        "source_stamp_ns": 1000000000,
+        "distinct_image_stamps": [
+          1000000000
+        ],
+        "low_verified": false
+      },
+      {
+        "xy": [
+          4.0,
+          1.0
+        ],
+        "source": "vision",
+        "source_stamp_ns": 3000000000,
+        "distinct_image_stamps": [
+          2000000000
+        ],
+        "low_verified": true
+      }
+    ]
+  },
+  "visible": {
+    "bridge": [
+      4.0,
+      1.0
+    ]
+  },
+  "verification": {},
+  "scheduler_after_bridge_delivered": {},
+  "scope": "Pure-memory reproduction + explicit same delivered-class filter used by _next_target/_next_conflict_location; not a flight run."
+}

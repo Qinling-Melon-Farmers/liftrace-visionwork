@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "shared_source": "/navigation/mission_manager/high_view_full/boundary_policy",
+  "field": [
+    -0.5,
+    7.4,
+    -4.8,
+    4.8
+  ],
+  "hard_center_bounds": [
+    -0.18142461906323692,
+    7.081424619063237,
+    -4.481424619063237,
+    4.481424619063237
+  ],
+  "tracking_reserve": 0.03,
+  "planner_clearance": 0.025,
+  "nodes": 40,
+  "scope": "offline launch expansion; not dynamic flight"
+}

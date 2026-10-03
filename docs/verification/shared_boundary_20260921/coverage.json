@@ -1,0 +1,67 @@
+{
+  "scope": "ideal pinhole raster estimate, 1cm grid; not measured detection recall",
+  "field_bounds": [
+    -0.5,
+    7.4,
+    -4.8,
+    4.8
+  ],
+  "route": [
+    [
+      0.6,
+      0.05
+    ],
+    [
+      1.0,
+      3.5
+    ],
+    [
+      1.0,
+      -3.5
+    ],
+    [
+      5.5,
+      -3.5
+    ],
+    [
+      5.5,
+      3.5
+    ],
+    [
+      1.0,
+      3.5
+    ]
+  ],
+  "results": [
+    {
+      "fc_agl": 2.6,
+      "camera_agl": 2.44,
+      "rotated_90": false,
+      "ideal_fraction": 0.9666758966244726,
+      "footprint_m": [
+        4.305777443359744,
+        2.4219998118898562
+      ]
+    },
+    {
+      "fc_agl": 2.6,
+      "camera_agl": 2.44,
+      "rotated_90": true,
+      "ideal_fraction": 0.818099947257384,
+      "footprint_m": [
+        4.305777443359744,
+        2.4219998118898562
+      ]
+    },
+    {
+      "fc_agl": 3.0,
+      "camera_agl": 2.84,
+      "rotated_90": false,
+      "ideal_fraction": 0.996875,
+      "footprint_m": [
+        5.011642598008883,
+        2.8190489613799965
+      ]
+    }
+  ]
+}

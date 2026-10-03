@@ -1,0 +1,1624 @@
+{
+  "label": "current",
+  "seed": 38,
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/history20260920_seed38_20260920_023547",
+  "status": "FAIL",
+  "reason": "search_envelope_outside_inner_region",
+  "failed_checks": [
+    "committed_targets_were_selected",
+    "contract_errors_zero",
+    "doors_crossed_in_order",
+    "final_landed_on_ground",
+    "final_vehicle_disarmed",
+    "forced_return_within_limit",
+    "land_success",
+    "landing_align_mode_seen",
+    "landing_h_mark_valid",
+    "manager_complete",
+    "manager_post_delivery_route_matches",
+    "mission_ros_within_limit",
+    "post_delivery_return_goals",
+    "post_delivery_return_sequence",
+    "real_approach_commands",
+    "return_after_deliveries",
+    "return_before_land",
+    "return_home_success",
+    "three_capture_started",
+    "three_recovery_successes",
+    "three_release_commits"
+  ],
+  "start_ros_s": 11.428,
+  "observed_end_ros_s": 402.92,
+  "completed_mission_s": null,
+  "landing_transaction_s": null,
+  "observed_duration_s": 391.492,
+  "xy_distance_m": 64.390035991255,
+  "xyz_distance_m": 73.90469275048027,
+  "speed_xy_p95_mps": 0.8510291186753154,
+  "max_fc_agl_m": 2.8093308678857,
+  "releases": [
+    {
+      "ros_sec": 86.028,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 1,
+          "stamp": {
+            "stamp_ns": 86029000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 1,
+        "payload_slot": 1,
+        "align_mode": "drop_circle",
+        "target_id": 3,
+        "target_class": "bridge",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    },
+    {
+      "ros_sec": 115.528,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 2,
+          "stamp": {
+            "stamp_ns": 115529000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 2,
+        "payload_slot": 2,
+        "align_mode": "drop_circle",
+        "target_id": 7,
+        "target_class": "panzer",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    }
+  ],
+  "gate_metrics": {
+    "approach_command_count": 2,
+    "boundary_violations": 0,
+    "capture_started_count": 2,
+    "decision_count": 39,
+    "door_crossings": [],
+    "height_violations": 0,
+    "landing_align_mode_seen": false,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      8.5,
+      -4.2
+    ],
+    "latest_armed": null,
+    "latest_landed_state": null,
+    "max_observed_height": 2.8093912844493834,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 19018,
+    "post_delivery_decision_indices": [],
+    "post_delivery_return_success_count": 0,
+    "post_delivery_route_revision": "fov-inner-repair-fast",
+    "post_delivery_route_size": 9,
+    "recovery_success_count": 2,
+    "release_commit_count": 2,
+    "result_count": 450,
+    "search_envelope_violations": 1,
+    "selected_count": 647,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": null
+  },
+  "collisions": 0,
+  "sample_gap_count": 0,
+  "moving_xy_time_s": 152.75100000000003,
+  "nonmoving_xy_time_s": 238.70899999999997,
+  "moving_sample_threshold_mps": 0.03,
+  "moving_speed_xy_median_mps": 0.19758818028055752,
+  "moving_speed_xy_p95_mps": 0.8765425269127564,
+  "high_view_final": {
+    "ascent_verified": true,
+    "boundary_policy": {
+      "bounds": [
+        -0.5,
+        7.4,
+        -4.8,
+        4.8
+      ],
+      "enabled": true,
+      "guard_side_m": 0.55,
+      "max_view_offset_m": 0.65,
+      "tracking_reserve_m": 0.03,
+      "yaw_budget_deg": 10.0
+    },
+    "boundary_rejections": 0,
+    "catalog_entries": 3,
+    "conflict_active": false,
+    "conflict_checked": [],
+    "conflict_locations": {},
+    "descent_debug": {
+      "current_blocked": false,
+      "current_xy": [
+        0.8952001333236694,
+        3.476738214492798
+      ],
+      "exit_blocked": false,
+      "map_stamp": 69.336,
+      "target_blocked": {
+        "bridge": false
+      },
+      "time": 69.524
+    },
+    "descent_proposal": {
+      "candidates": 1,
+      "classes": [
+        "bridge"
+      ],
+      "cost_m": 12.623149339882595,
+      "from_xy": [
+        0.8952001333236694,
+        3.476738214492798
+      ],
+      "kind": "CURRENT_COLUMN",
+      "map_stamp": 69.336,
+      "scope": "SENSED_OCCUPANCY_PROPOSAL_REQUIRES_3D_PLANNER",
+      "time": 69.524,
+      "xy": [
+        0.8952001333236694,
+        3.476738214492798
+      ]
+    },
+    "done": false,
+    "events": [
+      {
+        "decision_seq": 4,
+        "goal": [
+          5.5,
+          -3.5
+        ],
+        "stage": "SURVEY_NO_PROGRESS",
+        "time": 40.6
+      },
+      {
+        "stage": "SURVEY",
+        "time": 40.6
+      },
+      {
+        "scope": "COARSE_PROPOSAL_REQUIRES_3D_PLANNER",
+        "stage": "SURVEY_ALTERNATIVE",
+        "time": 40.6,
+        "xy": [
+          4.945672280493228,
+          -3.2703899405809462
+        ]
+      },
+      {
+        "decision_seq": 5,
+        "goal": [
+          4.945672280493228,
+          -3.2703899405809462
+        ],
+        "stage": "SURVEY_NO_PROGRESS",
+        "time": 48.7
+      },
+      {
+        "goal": [
+          4.945672280493228,
+          -3.2703899405809462
+        ],
+        "stage": "SURVEY_SKIPPED",
+        "time": 48.7
+      },
+      {
+        "known": [
+          "bridge"
+        ],
+        "stage": "PARTIAL_HINT_FALLBACK",
+        "time": 69.524
+      },
+      {
+        "stage": "DESCEND",
+        "time": 69.524
+      },
+      {
+        "boundary_margin_m": 0.3485753809367631,
+        "hint_xy": [
+          3.67080535232311,
+          -1.211649449267592
+        ],
+        "stage": "REVISIT_VIEWPOINT",
+        "time": 72.258,
+        "uncertainty_m": 0.2114330655111083,
+        "xy": [
+          3.67080535232311,
+          -1.211649449267592
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 72.258
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 80.824
+      },
+      {
+        "stage": "DELIVERY",
+        "target": "bridge",
+        "time": 80.901
+      },
+      {
+        "stage": "LOW_COVERAGE",
+        "time": 88.36
+      },
+      {
+        "committed_slots": 1,
+        "entry_index": 11,
+        "original_deadline": 611.428,
+        "reason": "known_hints_exhausted",
+        "stage": "LOW_COVERAGE_HANDOFF",
+        "time": 88.36
+      }
+    ],
+    "failure": "",
+    "fallback_started": 88.36,
+    "first_hint_ready": {
+      "bridge": {
+        "evidence_count": 3,
+        "last_seen_ns": 54381000000,
+        "time": 54.44,
+        "uncertainty_m": 0.21118072461509935,
+        "xy": [
+          3.6706533735880353,
+          -1.2121924766200391
+        ]
+      }
+    },
+    "low_limits_applied": true,
+    "navigation_memory_events": [
+      {
+        "reason": "epoch_or_clock_reset",
+        "time_ns": 11501000000
+      },
+      {
+        "class_name": "bridge",
+        "reason": "navigation_hint_confirmed",
+        "time_ns": 54440000000,
+        "xy": [
+          3.6706533735880353,
+          -1.2121924766200391
+        ]
+      }
+    ],
+    "observation_counts": {
+      "accepted": 87,
+      "candidate:profile_excluded": 2731,
+      "candidate:state_not_confirmed": 1278,
+      "candidate:streak_too_short": 1779,
+      "duplicate_or_too_close": 110
+    },
+    "orders": [
+      {
+        "classes": [
+          "bridge"
+        ],
+        "grid_length_m": 12.623149339882595,
+        "map_stamp": 69.336,
+        "scope": "INTERRUPTION_POINT_ROUTE",
+        "time": 69.524
+      },
+      {
+        "classes": [
+          "bridge"
+        ],
+        "grid_length_m": null,
+        "map_stamp": 71.448,
+        "scope": "SINGLE_REMAINING_TARGET_REQUIRES_3D_PLANNER",
+        "time": 72.258
+      }
+    ],
+    "reacquired": {
+      "class_name": "bridge",
+      "hint_delta": 0.06943501120885577,
+      "last_seen_ns": 80827000000,
+      "target_id": 3,
+      "time": 80.864,
+      "xy": [
+        3.711780191561384,
+        -1.1555933761713475
+      ]
+    },
+    "reacquisitions": [
+      {
+        "class_name": "bridge",
+        "hint_delta": 0.06943501120885577,
+        "last_seen_ns": 80827000000,
+        "target_id": 3,
+        "time": 80.864,
+        "xy": [
+          3.711780191561384,
+          -1.1555933761713475
+        ]
+      }
+    ],
+    "required_classes": [
+      "bridge",
+      "panzer",
+      "red_cross"
+    ],
+    "revisit_viewpoints": {
+      "bridge": [
+        3.67080535232311,
+        -1.211649449267592
+      ]
+    },
+    "scope": "HIGH_VIEW_FULL_MISSION",
+    "selected": {
+      "class_name": "bridge",
+      "epoch": {
+        "calibration": "installed-camera-1280-v1",
+        "localization": "static-sitl-world",
+        "mission": "vcl06-random-11-428000000-1"
+      },
+      "evidence_count": 4,
+      "key": {
+        "first_seen_ns": 54047000000,
+        "target_id": 3
+      },
+      "last_seen_ns": 54482000000,
+      "role": "REVISIT_HINT_ONLY",
+      "uncertainty_m": 0.2114330655111083,
+      "vote_fraction": 1.0,
+      "xy": [
+        3.67080535232311,
+        -1.211649449267592
+      ]
+    },
+    "slots_committed": 2,
+    "stage": "LOW_COVERAGE",
+    "succeeded": false,
+    "survey_policy": {
+      "candidate_min_streak": 1,
+      "descent_max_candidates": 25,
+      "descent_radius_m": 1.5,
+      "direct_descent": true,
+      "high_max_agl": 3.3,
+      "max_uncertainty_m": 0.45,
+      "min_interval_ns": 100000000,
+      "min_span_ns": 200000000,
+      "survey_alternative_radius_m": 0.6,
+      "survey_progress_m": 0.15,
+      "survey_stall_seconds": 8.0
+    },
+    "top_hints": {
+      "bridge": {
+        "class_name": "bridge",
+        "epoch": {
+          "calibration": "installed-camera-1280-v1",
+          "localization": "static-sitl-world",
+          "mission": "vcl06-random-11-428000000-1"
+        },
+        "evidence_count": 4,
+        "key": {
+          "first_seen_ns": 54047000000,
+          "target_id": 3
+        },
+        "last_seen_ns": 54482000000,
+        "role": "REVISIT_HINT_ONLY",
+        "uncertainty_m": 0.2114330655111083,
+        "vote_fraction": 1.0,
+        "xy": [
+          3.67080535232311,
+          -1.211649449267592
+        ]
+      }
+    }
+  },
+  "target_hint_evaluation": {
+    "bridge": {
+      "high_hint_error_m": 0.16702168045196364,
+      "hint_uncertainty_m": 0.2114330655111083,
+      "low_fused_point_error_m": 0.0977961056245812,
+      "source_age_at_reacquisition_s": 26.345
+    }
+  },
+  "commit_times": [
+    {
+      "t": 86.032,
+      "target": "bridge",
+      "true_fc_xy_at_ack": [
+        3.8437593563118817,
+        -1.1109855900683907
+      ],
+      "fc_target_distance_at_ack_m": 0.07224228873825704
+    },
+    {
+      "t": 115.53,
+      "target": "panzer",
+      "true_fc_xy_at_ack": [
+        5.064756668570778,
+        -0.41095881146240043
+      ],
+      "fc_target_distance_at_ack_m": 0.06198561338144978
+    }
+  ],
+  "third_commit_s": null,
+  "first_commit_s": 74.604,
+  "xy_distance_to_third_commit_m": null,
+  "armed_ros_s": 3.661,
+  "airborne_ros_s": 4.468,
+  "touchdown_ros_s": null,
+  "disarmed_ros_s": null,
+  "airborne_to_touchdown_s": null,
+  "armed_to_third_commit_s": null,
+  "touchdown_to_disarm_s": null,
+  "high_view_stage_changes": [
+    {
+      "name": "IDLE",
+      "t": 0.0
+    },
+    {
+      "name": "ASCEND",
+      "t": 11.504
+    },
+    {
+      "name": "SURVEY",
+      "t": 14.6
+    },
+    {
+      "name": "DESCEND",
+      "t": 69.536
+    },
+    {
+      "name": "REVISIT",
+      "t": 72.291
+    },
+    {
+      "name": "REACQUIRE",
+      "t": 80.828
+    },
+    {
+      "name": "DELIVERY",
+      "t": 80.944
+    },
+    {
+      "name": "LOW_COVERAGE",
+      "t": 88.441
+    }
+  ],
+  "sampled_phase_durations_s": {
+    "ASCEND": 3.096,
+    "SURVEY": 54.936,
+    "DESCEND": 2.7549999999999955,
+    "REVISIT": 8.537000000000006,
+    "REACQUIRE": 0.11599999999999966,
+    "APPROACH": 2.7449999999999903,
+    "CAPTURE": 2.686000000000007,
+    "ALIGN": 6.152999999999992,
+    "RECOVERY": 4.984000000000009,
+    "SEARCH": 305.408
+  },
+  "sampled_phase_changes": [
+    {
+      "t": 11.504,
+      "phase": "ASCEND"
+    },
+    {
+      "t": 14.6,
+      "phase": "SURVEY"
+    },
+    {
+      "t": 69.536,
+      "phase": "DESCEND"
+    },
+    {
+      "t": 72.291,
+      "phase": "REVISIT"
+    },
+    {
+      "t": 80.828,
+      "phase": "REACQUIRE"
+    },
+    {
+      "t": 80.944,
+      "phase": "APPROACH"
+    },
+    {
+      "t": 81.812,
+      "phase": "CAPTURE"
+    },
+    {
+      "t": 82.944,
+      "phase": "ALIGN"
+    },
+    {
+      "t": 86.033,
+      "phase": "RECOVERY"
+    },
+    {
+      "t": 88.436,
+      "phase": "SEARCH"
+    },
+    {
+      "t": 109.037,
+      "phase": "APPROACH"
+    },
+    {
+      "t": 110.914,
+      "phase": "CAPTURE"
+    },
+    {
+      "t": 112.468,
+      "phase": "ALIGN"
+    },
+    {
+      "t": 115.532,
+      "phase": "RECOVERY"
+    },
+    {
+      "t": 118.113,
+      "phase": "SEARCH"
+    }
+  ],
+  "speed_by_phase": {
+    "ASCEND": {
+      "median_mps": 0.042762978937121325,
+      "p95_mps": 0.08814307536666614,
+      "samples": 17
+    },
+    "SURVEY": {
+      "median_mps": 0.763299073632047,
+      "p95_mps": 0.8771882664384423,
+      "samples": 433
+    },
+    "DESCEND": {
+      "median_mps": 0.03481919253716888,
+      "p95_mps": 0.041926060011612934,
+      "samples": 5
+    },
+    "REVISIT": {
+      "median_mps": 0.8203040396342258,
+      "p95_mps": 0.878541993251924,
+      "samples": 84
+    },
+    "REACQUIRE": {
+      "median_mps": 0.03987600954857994,
+      "p95_mps": 0.03987600954857994,
+      "samples": 1
+    },
+    "APPROACH": {
+      "median_mps": 0.24556770625577412,
+      "p95_mps": 0.8531496997402628,
+      "samples": 20
+    },
+    "CAPTURE": {
+      "median_mps": 0.13606707722198447,
+      "p95_mps": 0.16459312306941654,
+      "samples": 26
+    },
+    "ALIGN": {
+      "median_mps": 0.04316212988289135,
+      "p95_mps": 0.10520139115075272,
+      "samples": 38
+    },
+    "RECOVERY": {
+      "median_mps": 0.03649934126028584,
+      "p95_mps": 0.0429934581986762,
+      "samples": 26
+    },
+    "SEARCH": {
+      "median_mps": 0.1565920825186607,
+      "p95_mps": 0.8772109782424846,
+      "samples": 853
+    }
+  },
+  "following_speed_transitions": [
+    {
+      "t": 11.489,
+      "phase": "CRUISE",
+      "lead_m": 1.0
+    },
+    {
+      "t": 80.918,
+      "phase": "PRECISION",
+      "lead_m": 0.4
+    },
+    {
+      "t": 88.428,
+      "phase": "CRUISE",
+      "lead_m": 1.0
+    },
+    {
+      "t": 92.925,
+      "phase": "BOUNDARY_REVISIT",
+      "lead_m": 0.2
+    },
+    {
+      "t": 103.33,
+      "phase": "CRUISE",
+      "lead_m": 1.0
+    },
+    {
+      "t": 109.032,
+      "phase": "PRECISION",
+      "lead_m": 0.4
+    },
+    {
+      "t": 118.104,
+      "phase": "CRUISE",
+      "lead_m": 1.0
+    },
+    {
+      "t": 120.422,
+      "phase": "BOUNDARY_REVISIT",
+      "lead_m": 0.2
+    },
+    {
+      "t": 141.132,
+      "phase": "CRUISE",
+      "lead_m": 1.0
+    },
+    {
+      "t": 148.332,
+      "phase": "BOUNDARY_REVISIT",
+      "lead_m": 0.2
+    },
+    {
+      "t": 159.532,
+      "phase": "CRUISE",
+      "lead_m": 1.0
+    },
+    {
+      "t": 166.916,
+      "phase": "BOUNDARY_REVISIT",
+      "lead_m": 0.2
+    }
+  ],
+  "following_speed_stats": {
+    "CRUISE": {
+      "duration_s": 96.52999999999997,
+      "moving_samples": 794,
+      "median_mps": 0.8010563382922858,
+      "p95_mps": 0.8850421127908578
+    },
+    "PRECISION": {
+      "duration_s": 16.581999999999994,
+      "moving_samples": 110,
+      "median_mps": 0.049917216797074546,
+      "p95_mps": 0.32281399062796967
+    },
+    "BOUNDARY_REVISIT": {
+      "duration_s": 278.3190000000001,
+      "moving_samples": 599,
+      "median_mps": 0.10199251094321121,
+      "p95_mps": 0.3846723918985218
+    }
+  },
+  "third_commit_to_corridor_entry_s": null,
+  "fast_corridor_transit_s": null,
+  "actions": [
+    {
+      "seq": 1,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 0.0,
+      "end": 3.1279999999999983,
+      "duration": 3.1279999999999983,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 2,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 3.129999998999999,
+      "end": 9.527999999999999,
+      "duration": 6.398000001,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 3,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 9.529999998999998,
+      "end": 21.096,
+      "duration": 11.566000001000003,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 4,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 21.096999999,
+      "end": 29.188,
+      "duration": 8.091000000999998,
+      "terminal": null
+    },
+    {
+      "seq": 5,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 29.172,
+      "end": 37.312,
+      "duration": 8.14,
+      "terminal": null
+    },
+    {
+      "seq": 6,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 37.272000000000006,
+      "end": 49.664,
+      "duration": 12.391999999999996,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 7,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 49.663999999,
+      "end": 58.096000000000004,
+      "duration": 8.432000000999999,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 8,
+      "command": 0,
+      "reason": "high_view_full:DESCEND",
+      "target": "",
+      "start": 58.096000000000004,
+      "end": 60.828,
+      "duration": 2.7319999999999993,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 9,
+      "command": 0,
+      "reason": "high_view_full:REVISIT",
+      "target": "",
+      "start": 60.82999999900001,
+      "end": 69.396,
+      "duration": 8.566000000999992,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 10,
+      "command": 1,
+      "reason": "high_weight_search_interrupt",
+      "target": "bridge",
+      "start": 69.47299999900001,
+      "end": 76.931,
+      "duration": 7.458000000999988,
+      "terminal": "release_recovery_confirmed"
+    },
+    {
+      "seq": 11,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 76.931999999,
+      "end": 84.56400000000001,
+      "duration": 7.632000001000009,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 12,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 84.56400000000001,
+      "end": 89.12400000000001,
+      "duration": 4.560000000000002,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 13,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 89.127999999,
+      "end": 97.60900000000001,
+      "duration": 8.481000001000012,
+      "terminal": null
+    },
+    {
+      "seq": 14,
+      "command": 1,
+      "reason": "high_weight_search_interrupt",
+      "target": "panzer",
+      "start": 97.572,
+      "end": 106.661,
+      "duration": 9.088999999999999,
+      "terminal": "release_recovery_confirmed"
+    },
+    {
+      "seq": 15,
+      "command": 3,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 106.660999999,
+      "end": 111.925,
+      "duration": 5.264000000999999,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 16,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 111.919999999,
+      "end": 125.49600000000001,
+      "duration": 13.576000001000011,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 17,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 125.49600000000001,
+      "end": 139.526,
+      "duration": 14.030000000000001,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 18,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 139.526,
+      "end": 144.89600000000002,
+      "duration": 5.3700000000000045,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 19,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 144.89600000000002,
+      "end": 158.36,
+      "duration": 13.463999999999999,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 20,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 158.362999999,
+      "end": 170.39600000000002,
+      "duration": 12.033000001000005,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 21,
+      "command": 3,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 170.392999999,
+      "end": 182.422,
+      "duration": 12.029000000999986,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 22,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 182.422999999,
+      "end": 194.459,
+      "duration": 12.03600000099999,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 23,
+      "command": 3,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 194.459,
+      "end": 206.494,
+      "duration": 12.034999999999997,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 24,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 206.492999999,
+      "end": 218.524,
+      "duration": 12.031000000999995,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 25,
+      "command": 3,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 218.525,
+      "end": 230.556,
+      "duration": 12.031000000000006,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 26,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 230.558999999,
+      "end": 242.596,
+      "duration": 12.037000000999996,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 27,
+      "command": 3,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 242.597,
+      "end": 254.622,
+      "duration": 12.025000000000006,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 28,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 254.622999999,
+      "end": 266.657,
+      "duration": 12.034000000999981,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 29,
+      "command": 3,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 266.658,
+      "end": 278.692,
+      "duration": 12.033999999999992,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 30,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 278.692999999,
+      "end": 290.757,
+      "duration": 12.06400000100001,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 31,
+      "command": 3,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 290.759,
+      "end": 302.793,
+      "duration": 12.033999999999992,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 32,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 302.793,
+      "end": 314.823,
+      "duration": 12.029999999999973,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 33,
+      "command": 3,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 314.819999999,
+      "end": 326.857,
+      "duration": 12.037000001000024,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 34,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 326.858,
+      "end": 338.892,
+      "duration": 12.033999999999992,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 35,
+      "command": 3,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 338.889,
+      "end": 350.956,
+      "duration": 12.067000000000007,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 36,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 350.956,
+      "end": 362.96,
+      "duration": 12.003999999999962,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 37,
+      "command": 3,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 362.961,
+      "end": 374.972,
+      "duration": 12.010999999999967,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 38,
+      "command": 0,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 374.971999999,
+      "end": 386.972,
+      "duration": 12.00000000099999,
+      "terminal": "search_initial_plan_timeout"
+    },
+    {
+      "seq": 39,
+      "command": 3,
+      "reason": "high_view_full:LOW_COVERAGE",
+      "target": "",
+      "start": 386.975999999,
+      "end": 391.492,
+      "duration": 4.516000001000009,
+      "terminal": null
+    }
+  ],
+  "land_command_mission_s": null,
+  "gate_terminal_ros_s": 402.356,
+  "contact_events": [],
+  "first_contact_ros_s": null,
+  "top3_interrupt_mission_s": null,
+  "low_reacquisition_truth_errors": [
+    {
+      "class_name": "bridge",
+      "error_m": 0.0977961056245812,
+      "time": 69.436
+    }
+  ],
+  "conflict_hypothesis_evaluation": {},
+  "coverage_fallback_started": 88.36,
+  "conflict_checked": [],
+  "milestone_durations_s": {
+    "start_to_third_ack": null,
+    "last_release_recovery": null,
+    "fast_transfer_to_staging": null,
+    "staging_descent": null,
+    "corridor_to_H": null,
+    "H_landing": null
+  },
+  "initial_planning": [
+    {
+      "goal_seq": 1,
+      "first_ros": 11.633,
+      "ready_delay_s": 0.5900000000000016,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 2,
+      "first_ros": 14.625,
+      "ready_delay_s": 0.20500000000000007,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 3,
+      "first_ros": 21.232,
+      "ready_delay_s": 0.1980000000000004,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 4,
+      "first_ros": 32.682,
+      "ready_delay_s": null,
+      "max_attempt": 9,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 5,
+      "first_ros": 40.921,
+      "ready_delay_s": null,
+      "max_attempt": 9,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 6,
+      "first_ros": 48.929,
+      "ready_delay_s": 0.2839999999999989,
+      "max_attempt": 3,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready",
+        "replanned_trajectory_ready",
+        "trajectory_replan_attempt"
+      ]
+    },
+    {
+      "goal_seq": 7,
+      "first_ros": 61.234,
+      "ready_delay_s": 0.20199999999999818,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 8,
+      "first_ros": 69.749,
+      "ready_delay_s": 0.21000000000000796,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 9,
+      "first_ros": 72.437,
+      "ready_delay_s": 0.21000000000000796,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 10,
+      "first_ros": 81.045,
+      "ready_delay_s": 0.1979999999999933,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 11,
+      "first_ros": 88.629,
+      "ready_delay_s": 0.2179999999999893,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 12,
+      "first_ros": 96.244,
+      "ready_delay_s": 0.09600000000000364,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 13,
+      "first_ros": 100.727,
+      "ready_delay_s": 0.1599999999999966,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_received",
+        "replanned_trajectory_ready",
+        "superseded_by_new_goal",
+        "trajectory_replan_attempt"
+      ]
+    },
+    {
+      "goal_seq": 14,
+      "first_ros": 109.208,
+      "ready_delay_s": 0.13100000000000023,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "replanned_trajectory_ready",
+        "trajectory_replan_attempt"
+      ]
+    },
+    {
+      "goal_seq": 15,
+      "first_ros": 118.29,
+      "ready_delay_s": 0.2289999999999992,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 16,
+      "first_ros": 123.543,
+      "ready_delay_s": 9.405000000000001,
+      "max_attempt": 12,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_ready",
+        "new_trajectory_retry"
+      ]
+    },
+    {
+      "goal_seq": 17,
+      "first_ros": 137.037,
+      "ready_delay_s": 0.22199999999998,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 18,
+      "first_ros": 151.138,
+      "ready_delay_s": 0.23999999999998067,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 19,
+      "first_ros": 156.441,
+      "ready_delay_s": 0.17799999999999727,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "replanned_trajectory_ready",
+        "trajectory_replan_attempt"
+      ]
+    },
+    {
+      "goal_seq": 20,
+      "first_ros": 169.961,
+      "ready_delay_s": null,
+      "max_attempt": 14,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 21,
+      "first_ros": 181.934,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 22,
+      "first_ros": 194.005,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 23,
+      "first_ros": 206.024,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 24,
+      "first_ros": 218.049,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 25,
+      "first_ros": 230.165,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 26,
+      "first_ros": 242.15,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 27,
+      "first_ros": 254.145,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 28,
+      "first_ros": 266.241,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 29,
+      "first_ros": 278.225,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 30,
+      "first_ros": 290.275,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 31,
+      "first_ros": 302.369,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 32,
+      "first_ros": 314.365,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 33,
+      "first_ros": 326.412,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 34,
+      "first_ros": 338.443,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 35,
+      "first_ros": 350.541,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 36,
+      "first_ros": 362.489,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 37,
+      "first_ros": 374.481,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 38,
+      "first_ros": 386.498,
+      "ready_delay_s": null,
+      "max_attempt": 15,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry",
+        "superseded_by_new_goal"
+      ]
+    },
+    {
+      "goal_seq": 39,
+      "first_ros": 398.48,
+      "ready_delay_s": null,
+      "max_attempt": 5,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed",
+        "new_trajectory_retry"
+      ]
+    }
+  ],
+  "liveness_recovery_requests": 0,
+  "liveness_budget_exhausted": false,
+  "corridor_geometry": {
+    "max_agl_m": null,
+    "max_combined_tilt_deg": null,
+    "samples": 0,
+    "tilt_above15_samples": 0,
+    "cruise_max_combined_tilt_deg": null,
+    "max_guard_top_agl_m": null
+  }
+}

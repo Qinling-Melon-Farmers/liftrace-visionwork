@@ -1,0 +1,86 @@
+{
+  "status": "COMPLETE",
+  "source": "649dfe0442dd67ad4b51ef432af08809ba00c549",
+  "seeds": [
+    40
+  ],
+  "pid": 25386,
+  "results": [
+    {
+      "seed": 40,
+      "status": "FAIL",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/failedthree_repeat_seed40_20260923_210513",
+      "command": [
+        "env",
+        "SIM_RUN_AUTHORIZED=1",
+        "SIM_NO_RECORD=1",
+        "SIM_REQUIRE_GATE=1",
+        "SIM_STORAGE_GUARD_PATH=/mnt/f",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=60s",
+        "7200s",
+        "bash",
+        "top_level_scripts/sim_run.sh",
+        "failedthree_repeat_seed40",
+        "bash",
+        "top_level_scripts/roslaunch_rl_drone.sh",
+        "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/failed_three_20260923/replay.launch",
+        "scene_dir:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/history_31_40_20260920/seed_40",
+        "field_seed:=40",
+        "target_model_path:=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt"
+      ],
+      "pid": 25414,
+      "exit_code": 1,
+      "cleanup_pass": true,
+      "reason": "actual_collision",
+      "failed_checks": [
+        "committed_targets_were_selected",
+        "contact_ready_zero",
+        "contract_errors_zero",
+        "doors_crossed_in_order",
+        "final_landed_on_ground",
+        "final_vehicle_disarmed",
+        "forced_return_within_limit",
+        "land_success",
+        "landing_align_mode_seen",
+        "landing_h_mark_valid",
+        "manager_complete",
+        "manager_post_delivery_route_matches",
+        "mission_ros_within_limit",
+        "post_delivery_return_goals",
+        "post_delivery_return_sequence",
+        "real_approach_commands",
+        "return_after_deliveries",
+        "return_before_land",
+        "return_home_success",
+        "three_capture_started",
+        "three_recovery_successes",
+        "three_release_commits",
+        "zero_collisions"
+      ],
+      "mission_s": null,
+      "drops": 2,
+      "first_failure_analysis": {
+        "terminal": "actual_collision",
+        "errors": [
+          "actual_collision"
+        ],
+        "action_failures": [
+          {
+            "t": 415.194,
+            "decision": 27,
+            "reason": "initial_plan_timeout"
+          },
+          {
+            "t": 427.239,
+            "decision": 28,
+            "reason": "initial_plan_timeout"
+          }
+        ],
+        "scope": "Different preselected layout next; never replaces this outcome"
+      }
+    }
+  ],
+  "active": null
+}

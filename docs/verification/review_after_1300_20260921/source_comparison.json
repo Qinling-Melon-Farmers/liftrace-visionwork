@@ -1,0 +1,15 @@
+{
+  "source": "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919",
+  "source_head": "5f0d2ca72e9428a4b9f0d521583e311e90d43351",
+  "files": 20,
+  "comparisons": {
+    "r2026-high-view-search": {
+      "head": "91bab2043a2e758c4c52083096dad6d2bbd428df",
+      "mismatches": []
+    },
+    "r2026-board-vision-tests": {
+      "head": "9683c1b2a4326941ef47c01651da695b62ddea15",
+      "mismatches": []
+    }
+  }
+}

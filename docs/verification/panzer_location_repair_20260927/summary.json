@@ -1,0 +1,152 @@
+{
+  "before": {
+    "status": "PASS",
+    "completed_mission_s": 281.353,
+    "third_commit_s": 175.171,
+    "top3_interrupt_mission_s": 26.576999999999998,
+    "high_weight_delivered": 2,
+    "collisions": 0,
+    "xy_distance_m": 56.557078137718236,
+    "milestone_durations_s": {
+      "start_to_third_ack": 175.171,
+      "last_release_recovery": 2.319000000000017,
+      "fast_transfer_to_staging": 12.990999999999985,
+      "staging_descent": 5.231000000000023,
+      "corridor_to_H": 69.14500000000001,
+      "H_landing": 16.49599999999998
+    }
+  },
+  "after": {
+    "status": "PASS",
+    "completed_mission_s": 193.650000001,
+    "third_commit_s": 98.509000001,
+    "top3_interrupt_mission_s": 34.984000001,
+    "high_weight_delivered": 3,
+    "collisions": 0,
+    "xy_distance_m": 46.149440028332336,
+    "milestone_durations_s": {
+      "start_to_third_ack": 98.509000001,
+      "last_release_recovery": 2.590999999999994,
+      "fast_transfer_to_staging": 8.321000000000012,
+      "staging_descent": 4.3729999999999905,
+      "corridor_to_H": 69.94300000000001,
+      "H_landing": 9.912999999999982
+    }
+  },
+  "new_high_hints": {
+    "bridge": {
+      "xy": [
+        3.6477496790756985,
+        -1.3344662760993318
+      ],
+      "source": "vision",
+      "stamp_ns": 46541000000,
+      "error_m": 0.28291867534309206,
+      "high_hypotheses": [
+        {
+          "distinct_image_stamps": [
+            45591000000,
+            45692000000
+          ],
+          "low_verified": false,
+          "source": "vision",
+          "source_stamp_ns": 46541000000,
+          "xy": [
+            3.6477496790756985,
+            -1.3344662760993318
+          ]
+        }
+      ]
+    },
+    "panzer": {
+      "xy": [
+        4.958881216070324,
+        -0.6403399436554639
+      ],
+      "source": "vision",
+      "stamp_ns": 46541000000,
+      "error_m": 0.3075845203481753,
+      "high_hypotheses": [
+        {
+          "distinct_image_stamps": [
+            28759000000,
+            29625000000
+          ],
+          "low_verified": false,
+          "source": "bbox",
+          "source_stamp_ns": 29625000000,
+          "xy": [
+            -0.08800622297237504,
+            -0.18367270726891927
+          ]
+        },
+        {
+          "distinct_image_stamps": [
+            46401000000,
+            46541000000
+          ],
+          "low_verified": false,
+          "source": "vision",
+          "source_stamp_ns": 46541000000,
+          "xy": [
+            4.958881216070324,
+            -0.6403399436554639
+          ]
+        }
+      ]
+    },
+    "red_cross": {
+      "xy": [
+        4.342036120396704,
+        -4.573842192851461
+      ],
+      "source": "vision",
+      "stamp_ns": 44190000000,
+      "error_m": 0.21311431009727805,
+      "high_hypotheses": [
+        {
+          "distinct_image_stamps": [
+            37259000000,
+            37392000000
+          ],
+          "low_verified": false,
+          "source": "vision",
+          "source_stamp_ns": 44190000000,
+          "xy": [
+            4.342036120396704,
+            -4.573842192851461
+          ]
+        }
+      ]
+    },
+    "tent": {
+      "xy": [
+        0.8033570608323347,
+        -1.1662910649407279
+      ],
+      "source": "vision",
+      "stamp_ns": 31803000000,
+      "error_m": 0.1490543654664518,
+      "high_hypotheses": [
+        {
+          "distinct_image_stamps": [
+            17087000000,
+            17225000000
+          ],
+          "low_verified": false,
+          "source": "vision",
+          "source_stamp_ns": 31803000000,
+          "xy": [
+            0.8033570608323347,
+            -1.1662910649407279
+          ]
+        }
+      ]
+    }
+  },
+  "old_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/balanced_columns_seed38_20260927_142607",
+  "new_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/panzer_location_repair_seed38_20260927_154743",
+  "scope": "Same scene/FOV/speed/columns/inflation, one run each. Different delivered classes; elapsed saving is not a distributional benchmark.",
+  "mission_seconds_saved": 87.70299999900001,
+  "mission_percent_saved": 31.171873055911973
+}

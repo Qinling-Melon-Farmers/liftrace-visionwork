@@ -11,3 +11,7 @@ Mission Manager负责搜索、目标事务、投后路线和降落；Planner Bri
 全图含Gazebo、布设/碰撞/Gate评测及两路录像；真值和观察节点不进入实机飞行入口。仅飞行图移除它们，不虚构本轮未注册的设备。板端使用`target_detector_rknn`替代SITL的`target_detector`；MAVROS、相机、雷达和机械服务按设备配套。此图不证明板端实时链已验收。
 
 当前R64：seed11完整PASS，十seed原始7/10完整PASS，5/7/8有旧布设压墙，生成器已修但新矩阵未重跑；seed3近地落地仍失败。[矩阵报告](verification/r64_matrix/REPORT.md)。随机门实验已完成五seed，2/5整场PASS、RL未采样；辅助相机仍未启用，[本轮仅作计划与离线比较](planning/r64_time_camera/PLAN.md)。
+
+## 2026-09-26 高位研究补充
+
+[视觉链修改前后及阈值](planning/coarse_search_20260926/WORKFLOW_AND_THRESHOLDS.md)：原正式融合→精修→投影→候选→对准链保留；新增navigation_hints只供高位导航记忆，不进入正式候选或释放链。完整入口对准稳定5次，搜索三次合格命中允许相邻1秒，行动新鲜度仍0.5秒。上文R64图是历史运行快照，不代表新增话题已经在板端部署。
