@@ -91,6 +91,10 @@
     <arg name="px4_max_distance" value="0.40" />
     <arg name="external_planner_max_command_z" value="2.30" />
   </include>
+  <param name="/uav_vision/drop_camera_info_topic" value="$(arg camera_info_topic)" />
+  <param name="/uav_vision/drop_camera_frame" value="$(arg camera_optical_frame)" />
+  <param name="/uav_vision/drop_map_frame" value="$(arg map_frame)" />
+  <param name="/uav_vision/drop_ground_z" value="$(arg ground_z)" />
   <rosparam ns="/fast_planner_node" file="$(find uav_mission)/config/horizontal_planner.yaml" />
   <include file="$(find uav_mission)/launch/navigation_mission_manager.launch">
     <arg name="runtime_config" value="$(arg runtime_config)" />

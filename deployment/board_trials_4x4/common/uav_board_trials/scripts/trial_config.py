@@ -207,7 +207,10 @@ def generate(root,out,settings,fc_xyz,rig):
     control['switch']['flag_landing_detect']=1 if h_landing else 0
     control['uav_vision'].update(recovery_height=low,
         standard_recovery_setpoint_height=low+.10,cross_recovery_setpoint_height=low+.10,
-        pixel_to_body_matrix=list(rig['pixel_to_body_matrix']),max_movement_distance=.15)
+        pixel_to_body_matrix=list(rig['pixel_to_body_matrix']),max_movement_distance=.15,
+        drop_metric_scale_enabled=True,drop_ground_z=ground,
+        drop_map_frame=rig['mission_frame'],
+        drop_camera_info_topic=settings.get('camera_info_topic','/camera/camera_info'))
     # Preserve the flight team's existing fixed-frame offsets; not a new calibration.
     for key in ('slot_offsets','dynamic_slot_offsets'):
         if key in rig:control['drop_system'][key]=copy.deepcopy(rig[key])

@@ -103,6 +103,10 @@
          value="$(arg external_planner_max_command_z)" />
     <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
   </include>
+  <param name="/uav_vision/drop_camera_info_topic" value="$(arg camera_info_topic)" />
+  <param name="/uav_vision/drop_camera_frame" value="$(arg camera_optical_frame)" />
+  <param name="/uav_vision/drop_map_frame" value="camera_init" />
+  <param name="/uav_vision/drop_ground_z" value="$(arg ground_z)" />
 
   <node pkg="uav_mission" type="random_field_spawner.py"
         name="random_field_spawner" output="screen">
