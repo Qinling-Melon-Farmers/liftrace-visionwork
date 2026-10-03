@@ -6,12 +6,12 @@
       <pose>0 0 0.0025 0 0 0</pose>
       <collision name="collision">
         <geometry>
-          <box><size>1.0 1.0 0.005</size></box>
+          <box><size>0.8 0.8 0.005</size></box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
-          <box><size>1.0 1.0 0.005</size></box>
+          <box><size>0.8 0.8 0.005</size></box>
         </geometry>
         <material>
           <script>
