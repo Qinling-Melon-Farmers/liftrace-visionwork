@@ -1,0 +1,168 @@
+"""Offline navigation checks: coarse hints must not become release candidates."""
+from dataclasses import replace
+import unittest
+from uav_high_view.core import Hint, Key
+from uav_high_view.navigation_memory import NavigationMemory
+import test_high_view_full as full_tests
+
+class CoarseTests(unittest.TestCase):
+    def setUp(self):
+        full_tests.FullTests.setUp(self)
+        self.r.policy=replace(self.r.policy,coarse_enabled=True)
+        self.r.update_pose((0.,0.,2.38),101.,'camera_init')
+    finish=full_tests.FullTests.finish
+    map=full_tests.FullTests.map
+
+    def cue(self, **kwargs):
+        data=dict(class_name='panzer',xy=(1.,1.),stamp_ns=101000000000,
+                  frame='camera_init',confidence=.61,transform_age_sec=0.,
+                  map_valid=True,now=101.)
+        data.update(kwargs)
+        return self.r.ingest_coarse(**data)
+
+    def test_supported_conflicts_revisit_after_full_route_without_early_exit(self):
+        for t in (101.,101.2,101.4):
+            for index,cls in enumerate(('bridge','panzer','red_cross')):
+                self.r.update_pose((0.,0.,2.38),t,'camera_init')
+                self.cue(class_name=cls,xy=(float(index),1.),stamp_ns=int(round(t*1e9)),now=t)
+        self.cue(class_name='panzer',xy=(3.,3.),stamp_ns=101500000000,now=101.5)
+        self.assertEqual(set(self.r._all_top(101.5)),self.r.required)
+        self.assertNotIn('panzer',self.r._interrupt_top(101.5))
+        self.finish(103.);self.map(104.);self.r.tick(104.,(0.,0.))
+        self.assertEqual(self.r.stage,'SURVEY')
+        self.finish(105.);self.map(106.);self.finish(106.)
+        self.assertEqual(self.r.stage,'DESCEND')
+        self.assertEqual(self.r.top_hints['panzer'].xy,(1.,1.))
+        self.map(110.);self.finish(110.);self.finish(113.)
+        self.assertEqual(self.r.stage,'REACQUIRE')
+        self.assertIsNone(self.r.tick(113.1,self.r.selected.xy).action)
+        self.assertIsNone(self.r.fresh_candidate)
+        self.assertEqual(self.r.core.committed_slots,0)
+        self.assertIsNone(self.r.fallback_started)
+
+    def test_two_metre_survey_observation_tolerance_is_not_flight_cap(self):
+        for agl in (1.81,1.95,2.,2.05,2.19):
+            self.setUp()
+            self.r.policy=replace(self.r.policy,high_min_agl=1.8,high_max_agl=2.2)
+            self.r.probe_config=replace(self.r.probe_config,high_agl=2.)
+            self.r.pose=(0.,0.,self.r.probe_config.ground_z+agl)
+            self.assertEqual(self.cue(),'coarse_accepted')
+            self.assertEqual(self.r.core.committed_slots,0)
+        for agl in (1.4,1.79,2.21):
+            self.setUp()
+            self.r.policy=replace(self.r.policy,high_min_agl=1.8,high_max_agl=2.2)
+            self.r.probe_config=replace(self.r.probe_config,high_agl=2.)
+            self.r.pose=(0.,0.,self.r.probe_config.ground_z+agl)
+            self.assertEqual(self.cue(),'coarse_not_at_high_view')
+
+    def test_one_bbox_can_be_remembered_without_delivery_candidate(self):
+        self.assertEqual(self.cue(),'coarse_accepted')
+        hint=self.r._all_hints(101.)['panzer']
+        self.assertEqual(hint.evidence_count,1)
+        self.assertEqual(hint.key.source,'bbox')
+        self.assertEqual(hint.role,'REVISIT_HINT_ONLY')
+        self.assertEqual(self.r.core.committed_slots,0)
+        self.assertTrue(all(s.candidate_key is None for s in self.r.core.slots))
+        self.assertEqual(self.r.core.active_action.command,'SEARCH')
+
+    def test_two_images_per_class_descend_and_wait_for_low_confirmation(self):
+        self.assertEqual(self.r.policy.interrupt_refined_classes,())
+        for index,cls in enumerate(('bridge','panzer','red_cross')):
+            self.assertEqual(self.cue(class_name=cls,xy=(float(index),1.)),'coarse_accepted')
+        for index,cls in enumerate(('bridge','panzer','red_cross')):
+            self.assertEqual(self.cue(class_name=cls,xy=(float(index),1.),
+                                     stamp_ns=101200000000,now=101.2),'coarse_accepted')
+        self.finish(103.)
+        self.map(104.)
+        self.r.tick(104.,(0.,0.))
+        self.assertEqual(self.r.stage,'DESCEND')
+        self.map(110.);self.finish(110.);self.finish(113.)
+        self.assertEqual(self.r.stage,'REACQUIRE')
+        out=self.r.tick(113.1,self.r.selected.xy)
+        self.assertIsNone(out.action)
+        self.assertIsNone(self.r.reacquired)
+        self.assertTrue(all(s.candidate_key is None for s in self.r.core.slots))
+
+    def test_explicit_legacy_refined_policy_still_supported(self):
+        self.r.policy=replace(self.r.policy,interrupt_refined_classes=('panzer',))
+        for t in (101.,101.2):
+            for index,cls in enumerate(('bridge','panzer','red_cross')):
+                self.cue(class_name=cls,xy=(float(index),1.),stamp_ns=int(t*1e9),now=t)
+        self.finish(103.);self.map(104.);self.r.tick(104.,(0.,0.))
+        self.assertEqual(self.r.stage,'SURVEY')
+        self.assertIn('panzer',self.r._all_top(104.))
+        self.assertNotIn('panzer',self.r._interrupt_top(104.))
+        h=self.r._all_top(104.)['panzer']
+        self.r.memory.update([replace(h,key=Key(42,100000000000),last_seen_ns=104000000000,
+                                      evidence_count=3)],h.epoch,104000000000)
+        self.map(104.1);self.r.tick(104.1,(0.,0.))
+        self.assertEqual(self.r.stage,'DESCEND')
+        self.assertEqual(self.r.core.committed_slots,0)
+
+    def test_three_single_images_do_not_interrupt_but_route_end_can_descend(self):
+        for index,cls in enumerate(('bridge','panzer','red_cross')):
+            self.cue(class_name=cls,xy=(float(index),1.))
+        self.finish(103.);self.map(104.)
+        self.r.tick(104.,(0.,0.))
+        self.assertEqual(self.r.stage,'SURVEY')
+        self.assertEqual(len(self.r._all_top(104.)),3)
+        self.assertFalse(self.r._interrupt_top(104.))
+        self.finish(105.);self.map(106.);self.finish(106.)
+        self.assertEqual(self.r.stage,'DESCEND')
+        self.assertEqual(self.r.core.committed_slots,0)
+
+    def test_freshness_class_geometry_and_phase_guards(self):
+        cases=[
+            dict(stamp_ns=100000000000),dict(stamp_ns=102000000000),
+            dict(transform_age_sec=.11),dict(transform_age_sec=-1.),
+            dict(xy=(float('nan'),1.)),dict(confidence=float('nan')),
+            dict(confidence=.59),dict(confidence=1.1),dict(map_valid=False),
+            dict(frame='wrong'),dict(class_name='circle')]
+        for case in cases:
+            with self.subTest(case=case):
+                self.assertNotEqual(self.cue(**case),'coarse_accepted')
+                self.assertFalse(self.r._all_hints(101.))
+        self.r.policy=replace(self.r.policy,coarse_enabled=False)
+        self.assertEqual(self.cue(),'coarse_inactive')
+        self.r.policy=replace(self.r.policy,coarse_enabled=True)
+        self.r.stage='REACQUIRE'
+        self.assertEqual(self.cue(),'coarse_inactive')
+
+    def test_low_height_is_not_a_high_hint(self):
+        self.r.pose=(0.,0.,1.18)
+        self.assertEqual(self.cue(),'coarse_not_at_high_view')
+        self.r.pose=(0.,0.,2.38);self.r.pose_stamp=100.
+        self.assertEqual(self.cue(),'coarse_pose_unavailable')
+
+    def test_duplicate_cannot_refresh_source_time(self):
+        self.cue()
+        self.assertEqual(self.cue(now=101.1),'coarse_duplicate_or_older')
+        self.assertEqual(self.r._all_hints(101.1)['panzer'].last_seen_ns,101000000000)
+
+    def test_same_class_two_distant_boxes_require_low_verification(self):
+        self.cue()
+        self.assertEqual(self.cue(xy=(3.,1.)),'coarse_conflict')
+        self.assertNotIn('panzer',self.r._all_hints(101.))
+        self.assertEqual(len(self.r.memory.verification_hints(101000000000)['panzer']),2)
+
+    def test_two_classes_on_one_position_cannot_complete_top_three(self):
+        self.cue()
+        self.assertEqual(self.cue(class_name='bridge',xy=(1.1,1.)),'coarse_conflict')
+        self.assertNotIn('panzer',self.r._all_hints(101.))
+        self.assertNotIn('bridge',self.r._all_hints(101.))
+
+    def test_refined_upgrade_is_not_overwritten_by_a_later_bbox(self):
+        self.cue()
+        hint=self.r._all_hints(101.)['panzer']
+        fine=replace(hint,key=Key(42,100000000000),xy=(1.1,1.),uncertainty_m=.2,evidence_count=3)
+        self.r.memory.update([fine],self.r.catalog.epoch,101000000000)
+        self.cue(stamp_ns=101100000000,now=101.1,xy=(1.3,1.))
+        self.assertEqual(self.r._all_hints(101.1)['panzer'],fine)
+
+    def test_expired_hint_cannot_be_reinserted(self):
+        self.cue()
+        h=self.r._all_hints(101.)['panzer']
+        mem=NavigationMemory(['panzer'],1000000000)
+        self.assertFalse(mem.update([h],h.epoch,h.last_seen_ns+1000000001))
+
+if __name__=='__main__':unittest.main()

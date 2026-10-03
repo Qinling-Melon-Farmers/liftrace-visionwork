@@ -1,0 +1,566 @@
+{
+  "scope": "Recorded sampled coarse projections, same 1.8..2.2m height window, TF age assumed zero; no detector, formal confirmation or flight rerun",
+  "results": [
+    {
+      "threshold": 0.6,
+      "counts": {
+        "coarse_accepted": 42,
+        "coarse_conflict": 103
+      },
+      "before_strict_navigation": {},
+      "after_revisit_navigation": {
+        "red_cross": [
+          3.19022437394709,
+          -1.2776063418419734
+        ],
+        "bridge": [
+          4.740237678926632,
+          1.2676286743925291
+        ],
+        "panzer": [
+          5.713896660007723,
+          -1.5898230582591828
+        ]
+      },
+      "interrupt_eligible": [],
+      "max_interrupt_eligible": 1,
+      "max_revisit": 3,
+      "support": {
+        "panzer": [
+          {
+            "xy": [
+              2.5111464827170438,
+              0.5591093222033381
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 104980918407,
+            "distinct_image_stamps": [
+              104841085910,
+              104980918407
+            ],
+            "low_verified": false,
+            "revisit_support_count": 8
+          },
+          {
+            "xy": [
+              5.713896660007723,
+              -1.5898230582591828
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 134082173109,
+            "distinct_image_stamps": [
+              133931994438,
+              134082173109
+            ],
+            "low_verified": false,
+            "revisit_support_count": 46
+          }
+        ],
+        "bridge": [
+          {
+            "xy": [
+              2.464109240992633,
+              0.5518442065519997
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 102920836210,
+            "distinct_image_stamps": [
+              102545001745,
+              102920836210
+            ],
+            "low_verified": false,
+            "revisit_support_count": 2
+          },
+          {
+            "xy": [
+              4.740237678926632,
+              1.2676286743925291
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 152779431104,
+            "distinct_image_stamps": [
+              152577374219,
+              152779431104
+            ],
+            "low_verified": false,
+            "revisit_support_count": 44
+          }
+        ],
+        "red_cross": [
+          {
+            "xy": [
+              3.19022437394709,
+              -1.2776063418419734
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 124489648342,
+            "distinct_image_stamps": [
+              124181867599,
+              124489648342
+            ],
+            "low_verified": false,
+            "revisit_support_count": 41
+          },
+          {
+            "xy": [
+              5.77046352868702,
+              -1.7708910479943425
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 123770349264,
+            "distinct_image_stamps": [
+              123770349264
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1
+          }
+        ]
+      },
+      "conflicts": [
+        "bridge",
+        "panzer",
+        "red_cross"
+      ],
+      "committed": 0
+    },
+    {
+      "threshold": 0.65,
+      "counts": {
+        "coarse_class_rejected": 5,
+        "coarse_accepted": 39,
+        "coarse_conflict": 101
+      },
+      "before_strict_navigation": {},
+      "after_revisit_navigation": {
+        "red_cross": [
+          3.19022437394709,
+          -1.2776063418419734
+        ],
+        "bridge": [
+          4.740237678926632,
+          1.2676286743925291
+        ],
+        "panzer": [
+          5.713896660007723,
+          -1.5898230582591828
+        ]
+      },
+      "interrupt_eligible": [],
+      "max_interrupt_eligible": 1,
+      "max_revisit": 3,
+      "support": {
+        "panzer": [
+          {
+            "xy": [
+              2.5111464827170438,
+              0.5591093222033381
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 104980918407,
+            "distinct_image_stamps": [
+              104841085910,
+              104980918407
+            ],
+            "low_verified": false,
+            "revisit_support_count": 6
+          },
+          {
+            "xy": [
+              5.713896660007723,
+              -1.5898230582591828
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 134082173109,
+            "distinct_image_stamps": [
+              133931994438,
+              134082173109
+            ],
+            "low_verified": false,
+            "revisit_support_count": 46
+          }
+        ],
+        "bridge": [
+          {
+            "xy": [
+              5.70875956293284,
+              -1.5348391385004048
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 134280584096,
+            "distinct_image_stamps": [
+              134280584096
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1
+          },
+          {
+            "xy": [
+              4.740237678926632,
+              1.2676286743925291
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 152779431104,
+            "distinct_image_stamps": [
+              152577374219,
+              152779431104
+            ],
+            "low_verified": false,
+            "revisit_support_count": 44
+          }
+        ],
+        "red_cross": [
+          {
+            "xy": [
+              3.19022437394709,
+              -1.2776063418419734
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 124489648342,
+            "distinct_image_stamps": [
+              124181867599,
+              124489648342
+            ],
+            "low_verified": false,
+            "revisit_support_count": 40
+          },
+          {
+            "xy": [
+              5.77046352868702,
+              -1.7708910479943425
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 123770349264,
+            "distinct_image_stamps": [
+              123770349264
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1
+          }
+        ]
+      },
+      "conflicts": [
+        "bridge",
+        "panzer",
+        "red_cross"
+      ],
+      "committed": 0
+    },
+    {
+      "threshold": 0.7,
+      "counts": {
+        "coarse_class_rejected": 10,
+        "coarse_accepted": 89,
+        "coarse_conflict": 46
+      },
+      "before_strict_navigation": {
+        "red_cross": [
+          3.19022437394709,
+          -1.2776063418419734
+        ],
+        "bridge": [
+          4.740237678926632,
+          1.2676286743925291
+        ]
+      },
+      "after_revisit_navigation": {
+        "red_cross": [
+          3.19022437394709,
+          -1.2776063418419734
+        ],
+        "bridge": [
+          4.740237678926632,
+          1.2676286743925291
+        ],
+        "panzer": [
+          5.713896660007723,
+          -1.5898230582591828
+        ]
+      },
+      "interrupt_eligible": [
+        "red_cross",
+        "bridge"
+      ],
+      "max_interrupt_eligible": 2,
+      "max_revisit": 3,
+      "support": {
+        "panzer": [
+          {
+            "xy": [
+              2.5111464827170438,
+              0.5591093222033381
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 104980918407,
+            "distinct_image_stamps": [
+              104841085910,
+              104980918407
+            ],
+            "low_verified": false,
+            "revisit_support_count": 4
+          },
+          {
+            "xy": [
+              5.713896660007723,
+              -1.5898230582591828
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 134082173109,
+            "distinct_image_stamps": [
+              133931994438,
+              134082173109
+            ],
+            "low_verified": false,
+            "revisit_support_count": 46
+          }
+        ],
+        "red_cross": [
+          {
+            "xy": [
+              3.19022437394709,
+              -1.2776063418419734
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 124489648342,
+            "distinct_image_stamps": [
+              124181867599,
+              124489648342
+            ],
+            "low_verified": false,
+            "revisit_support_count": 40
+          }
+        ],
+        "bridge": [
+          {
+            "xy": [
+              4.740237678926632,
+              1.2676286743925291
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 152779431104,
+            "distinct_image_stamps": [
+              152577374219,
+              152779431104
+            ],
+            "low_verified": false,
+            "revisit_support_count": 44
+          }
+        ]
+      },
+      "conflicts": [
+        "panzer"
+      ],
+      "committed": 0
+    },
+    {
+      "threshold": 0.75,
+      "counts": {
+        "coarse_class_rejected": 10,
+        "coarse_accepted": 89,
+        "coarse_conflict": 46
+      },
+      "before_strict_navigation": {
+        "red_cross": [
+          3.19022437394709,
+          -1.2776063418419734
+        ],
+        "bridge": [
+          4.740237678926632,
+          1.2676286743925291
+        ]
+      },
+      "after_revisit_navigation": {
+        "red_cross": [
+          3.19022437394709,
+          -1.2776063418419734
+        ],
+        "bridge": [
+          4.740237678926632,
+          1.2676286743925291
+        ],
+        "panzer": [
+          5.713896660007723,
+          -1.5898230582591828
+        ]
+      },
+      "interrupt_eligible": [
+        "red_cross",
+        "bridge"
+      ],
+      "max_interrupt_eligible": 2,
+      "max_revisit": 3,
+      "support": {
+        "panzer": [
+          {
+            "xy": [
+              2.5111464827170438,
+              0.5591093222033381
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 104980918407,
+            "distinct_image_stamps": [
+              104841085910,
+              104980918407
+            ],
+            "low_verified": false,
+            "revisit_support_count": 4
+          },
+          {
+            "xy": [
+              5.713896660007723,
+              -1.5898230582591828
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 134082173109,
+            "distinct_image_stamps": [
+              133931994438,
+              134082173109
+            ],
+            "low_verified": false,
+            "revisit_support_count": 46
+          }
+        ],
+        "red_cross": [
+          {
+            "xy": [
+              3.19022437394709,
+              -1.2776063418419734
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 124489648342,
+            "distinct_image_stamps": [
+              124181867599,
+              124489648342
+            ],
+            "low_verified": false,
+            "revisit_support_count": 40
+          }
+        ],
+        "bridge": [
+          {
+            "xy": [
+              4.740237678926632,
+              1.2676286743925291
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 152779431104,
+            "distinct_image_stamps": [
+              152577374219,
+              152779431104
+            ],
+            "low_verified": false,
+            "revisit_support_count": 44
+          }
+        ]
+      },
+      "conflicts": [
+        "panzer"
+      ],
+      "committed": 0
+    },
+    {
+      "threshold": 0.8,
+      "counts": {
+        "coarse_class_rejected": 15,
+        "coarse_accepted": 86,
+        "coarse_conflict": 44
+      },
+      "before_strict_navigation": {
+        "red_cross": [
+          3.19022437394709,
+          -1.2776063418419734
+        ],
+        "bridge": [
+          4.740237678926632,
+          1.2676286743925291
+        ]
+      },
+      "after_revisit_navigation": {
+        "red_cross": [
+          3.19022437394709,
+          -1.2776063418419734
+        ],
+        "bridge": [
+          4.740237678926632,
+          1.2676286743925291
+        ],
+        "panzer": [
+          5.713896660007723,
+          -1.5898230582591828
+        ]
+      },
+      "interrupt_eligible": [
+        "red_cross",
+        "bridge"
+      ],
+      "max_interrupt_eligible": 2,
+      "max_revisit": 3,
+      "support": {
+        "panzer": [
+          {
+            "xy": [
+              2.512710305671507,
+              0.5725368754684925
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 104841085910,
+            "distinct_image_stamps": [
+              104841085910
+            ],
+            "low_verified": false,
+            "revisit_support_count": 1
+          },
+          {
+            "xy": [
+              5.713896660007723,
+              -1.5898230582591828
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 134082173109,
+            "distinct_image_stamps": [
+              133931994438,
+              134082173109
+            ],
+            "low_verified": false,
+            "revisit_support_count": 44
+          }
+        ],
+        "red_cross": [
+          {
+            "xy": [
+              3.19022437394709,
+              -1.2776063418419734
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 124489648342,
+            "distinct_image_stamps": [
+              124181867599,
+              124489648342
+            ],
+            "low_verified": false,
+            "revisit_support_count": 40
+          }
+        ],
+        "bridge": [
+          {
+            "xy": [
+              4.740237678926632,
+              1.2676286743925291
+            ],
+            "source": "bbox",
+            "source_stamp_ns": 152779431104,
+            "distinct_image_stamps": [
+              152577374219,
+              152779431104
+            ],
+            "low_verified": false,
+            "revisit_support_count": 44
+          }
+        ]
+      },
+      "conflicts": [
+        "panzer"
+      ],
+      "committed": 0
+    }
+  ]
+}

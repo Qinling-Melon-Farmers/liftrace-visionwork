@@ -1,0 +1,47 @@
+<launch>
+  <!-- OrangePi 上的新相机 + RKNN 视觉链统一入口。只做图像采集、视觉推理
+       和 ROS 结果发布；不启动飞控、舵机、任务控制或任何实机运动。 -->
+  <arg name="video_devices" default="/dev/video0" />
+  <arg name="capture_fps" default="30" />
+  <arg name="publish_rate" default="30" />
+  <arg name="frame_id" default="downward_camera_optical_frame" />
+  <!-- 2026 实机机械基线：当前 FAST-LIO 的 body 来自飞控 IMU；暂按机械组
+       “飞控盒到相机正下方 0.16 m”的工程口径接线。若整机顶层已发布同一 TF，关闭本节点。 -->
+  <arg name="publish_camera_extrinsic" default="true" />
+  <arg name="camera_parent_frame" default="body" />
+  <arg name="camera_extrinsic_xyz" default="0 0 -0.16" />
+  <arg name="camera_extrinsic_quat_xyzw"
+       default="-0.70710678 0.70710678 0 0" />
+  <arg name="model_path"
+       default="$(find uav_vision)/models/merged_standard_fp32.rknn" />
+  <arg name="metadata_path"
+       default="$(find uav_vision)/models/merged_standard_6cls_metadata.yaml" />
+  <arg name="class_profile" default="r2026" />
+  <arg name="rectify_input_pixels" default="true" />
+  <arg name="enable_debug_image" default="false" />
+  <arg name="start_legacy_compat" default="false" />
+
+  <include file="$(find camera_sdk)/launch/camera_calibrated_1280x720.launch">
+    <arg name="video_devices" value="$(arg video_devices)" />
+    <arg name="capture_fps" value="$(arg capture_fps)" />
+    <arg name="publish_rate" value="$(arg publish_rate)" />
+    <arg name="frame_id" value="$(arg frame_id)" />
+  </include>
+
+  <group if="$(arg publish_camera_extrinsic)">
+    <node pkg="tf2_ros" type="static_transform_publisher"
+          name="aircraft_camera_extrinsic"
+          args="$(arg camera_extrinsic_xyz) $(arg camera_extrinsic_quat_xyzw) $(arg camera_parent_frame) $(arg frame_id)" />
+  </group>
+
+  <include file="$(find uav_vision)/launch/control_handoff_board.launch">
+    <arg name="image_topic" value="/camera/image_raw" />
+    <arg name="camera_info_topic" value="/camera/camera_info" />
+    <arg name="model_path" value="$(arg model_path)" />
+    <arg name="metadata_path" value="$(arg metadata_path)" />
+    <arg name="class_profile" value="$(arg class_profile)" />
+    <arg name="rectify_input_pixels" value="$(arg rectify_input_pixels)" />
+    <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
+    <arg name="start_legacy_compat" value="$(arg start_legacy_compat)" />
+  </include>
+</launch>

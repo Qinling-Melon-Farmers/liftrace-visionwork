@@ -1,0 +1,26 @@
+[
+  {
+    "seed": 2672,
+    "label": "A_baseline",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/fovfix2672_A_20260919_224157",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fov_landing_inner_20260919/seed_2672/field.world",
+    "flight_source": "708529d",
+    "navigation_source": "30ff44d"
+  },
+  {
+    "seed": 2672,
+    "label": "B_corridor",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/fovfix2672_B_20260919_230322",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fov_landing_inner_20260919/seed_2672/field.world",
+    "flight_source": "708529d",
+    "navigation_source": "30ff44d"
+  },
+  {
+    "seed": 2672,
+    "label": "C_high3",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/fovfix2672_C_20260919_231830",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/fov_landing_inner_20260919/seed_2672/field.world",
+    "flight_source": "708529d",
+    "navigation_source": "30ff44d"
+  }
+]

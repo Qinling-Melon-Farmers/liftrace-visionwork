@@ -1,0 +1,198 @@
+{
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed34_20260914_025732",
+  "contact": {
+    "active_pairs": [],
+    "actual_collision_count": 1,
+    "component": "gazebo_contact_monitor",
+    "contact_active": false,
+    "events": [
+      {
+        "pairs": [
+          [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "toudi2::Wall_11::Wall_11_collision"
+          ]
+        ],
+        "ros_stamp": 471.985,
+        "sequence": 1,
+        "wall_time": 1789327694.3179708
+      }
+    ],
+    "ignored_collision_patterns": [
+      "ground_plane",
+      "landing_h::link::collision",
+      "landing_h_clone::link::collision"
+    ],
+    "last_sample_wall_age": 5.1339993660803884e-06,
+    "raw_topic": "/mission/uav_contacts_raw",
+    "ready": true,
+    "reason": "contact_sensor_streaming",
+    "sample_count": 23580,
+    "status": "READY"
+  },
+  "sampled_xyz_local_or_truth": [
+    {
+      "t": 468.0,
+      "truth_pose": [
+        4.1269,
+        8.6717,
+        0.2443
+      ],
+      "mavros_pose": [
+        4.1313,
+        8.6521,
+        0.2389
+      ],
+      "lio_pose": [
+        4.1273,
+        8.6508,
+        0.2351
+      ],
+      "mavros_setpoint": [
+        4.2061,
+        8.5315,
+        0.2754
+      ]
+    },
+    {
+      "t": 469.0,
+      "truth_pose": [
+        4.1866,
+        8.5497,
+        0.2626
+      ],
+      "mavros_pose": [
+        4.1805,
+        8.5338,
+        0.249
+      ],
+      "lio_pose": [
+        4.1882,
+        8.5315,
+        0.2544
+      ],
+      "mavros_setpoint": [
+        4.2186,
+        8.4843,
+        0.28
+      ]
+    },
+    {
+      "t": 470.0,
+      "truth_pose": [
+        4.2261,
+        8.4674,
+        0.2359
+      ],
+      "mavros_pose": [
+        4.2284,
+        8.4582,
+        0.2447
+      ],
+      "lio_pose": [
+        4.2295,
+        8.4494,
+        0.2295
+      ],
+      "mavros_setpoint": [
+        4.2163,
+        8.479,
+        0.0989
+      ]
+    },
+    {
+      "t": 470.5,
+      "truth_pose": [
+        4.2267,
+        8.4478,
+        0.1552
+      ],
+      "mavros_pose": [
+        4.2378,
+        8.438,
+        0.1611
+      ],
+      "lio_pose": [
+        4.2307,
+        8.4313,
+        0.1522
+      ],
+      "mavros_setpoint": [
+        4.215,
+        8.4814,
+        0.08
+      ]
+    },
+    {
+      "t": 471.0,
+      "truth_pose": [
+        4.222,
+        8.4389,
+        0.0076
+      ],
+      "mavros_pose": [
+        4.2093,
+        8.3936,
+        -0.0623
+      ],
+      "lio_pose": [
+        4.2285,
+        8.4232,
+        -0.0027
+      ],
+      "mavros_setpoint": [
+        4.209,
+        8.4587,
+        0.04
+      ]
+    },
+    {
+      "t": 471.5,
+      "truth_pose": [
+        4.3158,
+        8.5393,
+        0.2472
+      ],
+      "mavros_pose": [
+        4.0688,
+        8.2497,
+        -0.3701
+      ],
+      "lio_pose": [
+        4.3183,
+        8.5184,
+        0.2311
+      ],
+      "mavros_setpoint": [
+        4.1115,
+        8.3169,
+        -0.2382
+      ]
+    },
+    {
+      "t": 471.985,
+      "truth_pose": [
+        4.5205,
+        8.7472,
+        0.455
+      ],
+      "mavros_pose": [
+        4.2279,
+        8.409,
+        -0.4038
+      ],
+      "lio_pose": [
+        4.5104,
+        8.7115,
+        0.4385
+      ],
+      "mavros_setpoint": [
+        4.2219,
+        8.429,
+        -0.2562
+      ]
+    }
+  ],
+  "truth_fc_z_offset_m": 0.22,
+  "estimated_ground_z": -0.22
+}

@@ -56,5 +56,6 @@ target_link_libraries(obj_generator
     ${catkin_LIBRARIES})
 
 if(CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(test_search_region test/test_search_region.cpp)
   catkin_add_gtest(test_vertical_obstacle_support test/test_vertical_obstacle_support.cpp)
 endif()

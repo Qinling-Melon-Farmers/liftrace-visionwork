@@ -1,0 +1,53 @@
+# target_memory 参数
+
+# 匹配与生命周期
+confirm_frames: 3
+candidate_ttl: 3.0          # 候选超时 [s]
+reject_cooldown: 5.0        # 拒绝冷却 [s]
+match_distance_px: 80.0     # 跨帧匹配最大中心距离 [px]
+map_match_distance_m: 0.7   # 地图坐标跨视角匹配距离 [m]；覆盖 toudi4 首轮最大约 0.65m 投影漂移
+map_merge_distance_m: 0.7   # 已有记录融合后收敛到此距离内时合并 stable ID [m]
+map_memory_ttl: 0.0         # 地图候选记忆时长 [s]；0 表示直到 reset
+# Phase D/板端闭环 launch 会覆盖为 true；Phase B/C 纯像素兼容链保持 false
+require_map_for_candidates: false
+# true 时要求发布者必须携带 completed_sources 且正式分支齐全；false 时完全旁路该门槛。
+# Phase D/板端正式链覆盖为 true，只有 cross/circle 的旧 Phase C 保持兼容。
+require_complete_detection_sources: false
+selected_max_age: 0.5       # selected_target 最大观测年龄 [s]；长期地图记忆不能绕过
+# full 保留全部六类资产；r2026 暂不允许 tank 主动进入 selected_target。
+# 未知 profile 会使 target_memory 非零退出，禁止静默回退。
+class_profile: full
+# 同一地图目标发生类别抖动时，需连续高置信命中并赢得累计置信度投票才切类
+class_switch_confirm_frames: 2
+class_switch_min_confidence: 0.70
+class_switch_vote_ratio: 1.0
+reset_service: /uav_vision/reset_memory
+align_mode_topic: /uav_vision/align_mode
+
+# 视觉中断置信度阈值
+# red_cross：识别权威在 YOLO（在线同帧实测 conf 0.956/0.964，离线多高度
+# 0.89-0.97），故类别门槛从严（0.80 压误报仍有裕量）；几何通道职责是中心
+# 精修（geometry_verified 已含形状校验），分数门槛只防退化几何，与标准靶
+# 一致取 0.70。2026-08-29 smoke3c 实测：2.0m 高度斜视角 cross_detector 约
+# 0.770，原 0.85 门槛导致 12s 连续可见期一次都未确认。
+cross_class_confidence: 0.80
+cross_geometry_confidence: 0.70
+# 标准目标
+std_class_confidence: 0.60
+std_geometry_confidence: 0.70
+aux_geometry_confidence: 0.80  # 2.2m 搜索高度圆环质量约 0.84-0.86，0.85 边缘致确认不稳
+
+# 目标优先级权重（越高越优先）
+# 权重 = 0 的类别不会主动触发中断
+priority_red_cross: 10.0
+priority_panzer: 2.5
+priority_pillbox: 1.5
+priority_tent: 1.0
+priority_tank: 5.0        # 赛委会已确认 tank 正式得分权重为 5
+priority_bridge: 2.0
+priority_landing_pad: 0.0   # 降落标识不参与自动选择，由 patrol_control 按状态机使用
+priority_circle: 0.0        # 圆环精修结果不参与自动选择
+
+# 历史冲突抑制开关保留；正式靶标不复用 v3 的 bridge 底座
+suppress_bridge_on_red_cross: true
+suppress_bridge_on_landing_pad: true

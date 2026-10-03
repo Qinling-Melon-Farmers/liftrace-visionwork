@@ -1,0 +1,20 @@
+[
+  {
+    "seed": 32,
+    "label": "initial",
+    "run": "logs/high_view_dynamic_seed32_20260913_234403",
+    "gate": "initial/gate_status.json"
+  },
+  {
+    "seed": 32,
+    "label": "seed32_fixed",
+    "run": "logs/high_view_dynamic_seed32_id0_20260913_235301",
+    "gate": "seed32_fixed/gate_status.json"
+  },
+  {
+    "seed": 34,
+    "label": "seed34_fixed",
+    "run": "logs/high_view_dynamic_seed34_id0_20260914_000011",
+    "gate": "seed34_fixed/gate_status.json"
+  }
+]

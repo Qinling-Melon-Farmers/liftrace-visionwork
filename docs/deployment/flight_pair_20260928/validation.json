@@ -1,0 +1,52 @@
+{
+  "candidate_queue_ast_equal": true,
+  "component_probes": "PASS (scope in component_probes.json)",
+  "analysis_script_compiles": true,
+  "local_links": true,
+  "videos": {
+    "20-23-54": {
+      "camera_raw.mp4": {
+        "avg_frame_rate": "10/1",
+        "duration": "150.800000",
+        "nb_frames": "1508"
+      },
+      "camera_annotated.mp4": {
+        "avg_frame_rate": "10/1",
+        "duration": "150.800000",
+        "nb_frames": "1508"
+      },
+      "trajectory.mp4": {
+        "avg_frame_rate": "10/1",
+        "duration": "150.800000",
+        "nb_frames": "1508"
+      },
+      "dashboard.mp4": {
+        "avg_frame_rate": "10/1",
+        "duration": "150.800000",
+        "nb_frames": "1508"
+      }
+    },
+    "20-33-08": {
+      "camera_raw.mp4": {
+        "avg_frame_rate": "10/1",
+        "duration": "155.300000",
+        "nb_frames": "1553"
+      },
+      "camera_annotated.mp4": {
+        "avg_frame_rate": "10/1",
+        "duration": "155.300000",
+        "nb_frames": "1553"
+      },
+      "trajectory.mp4": {
+        "avg_frame_rate": "10/1",
+        "duration": "155.300000",
+        "nb_frames": "1553"
+      },
+      "dashboard.mp4": {
+        "avg_frame_rate": "10/1",
+        "duration": "155.300000",
+        "nb_frames": "1553"
+      }
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "videos": [
+    {
+      "label": "A_baseline",
+      "path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_A_recheck_20260919_202737/presentation.mp4",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "nb_frames": "2861"
+          }
+        ],
+        "format": {
+          "duration": "286.100000",
+          "size": "14301925"
+        }
+      },
+      "decode_exit": 0,
+      "decode_error": ""
+    },
+    {
+      "label": "B_corridor",
+      "path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_B_corridor_20260919_205129/presentation.mp4",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "nb_frames": "2033"
+          }
+        ],
+        "format": {
+          "duration": "203.300000",
+          "size": "12406847"
+        }
+      },
+      "decode_exit": 0,
+      "decode_error": ""
+    },
+    {
+      "label": "C_high3",
+      "path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_C_high3_20260919_210945/presentation.mp4",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "nb_frames": "2091"
+          }
+        ],
+        "format": {
+          "duration": "209.100000",
+          "size": "12991158"
+        }
+      },
+      "decode_exit": 0,
+      "decode_error": ""
+    }
+  ],
+  "missing_links": [],
+  "png_count": 33,
+  "all_videos_decode": true
+}

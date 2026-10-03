@@ -2,7 +2,7 @@
 """target_detector_rknn: OrangePi/RK3588 板端标准目标检测入口。
 
 设计目标：
-- 优先使用显式配置的 unified 6-class RKNN
+- 优先使用显式配置的 unified RKNN (five/six classes via metadata)
 - 历史 split assets 仅在调用方显式提供路径时启用
 - 当前环境无 RKNNLite 或没有可用模型时启动失败，不发布伪完成空检测
 
@@ -23,6 +23,7 @@ from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from sensor_msgs.msg import Image, RegionOfInterest
 
 from uav_vision.msg import TargetDetection, TargetDetectionArray
+from uav_vision.target_selection_policy import resolve_class_profile
 
 
 def _restore_standard_logging_levels():
@@ -297,6 +298,20 @@ def _decode_outputs(outputs, num_classes, conf_threshold, imgsz, orig_shape, sca
     return dets
 
 
+def _validate_output_contract(outputs, metadata):
+    """Reject five/six-class mismatches instead of treating class 0 as objectness."""
+    expected = metadata.get("output_channels")
+    if expected is None:
+        return  # Explicit legacy metadata preserves historical split model support.
+    arrays = _candidate_arrays(outputs or [])
+    if len(arrays) != 1 or arrays[0].shape[1] != int(expected):
+        shapes = [tuple(np.asarray(a).shape) for a in (outputs or [])]
+        raise ValueError("RKNN output/metadata mismatch: expected %s channels, got %s" %
+                         (expected, shapes))
+    if int(expected) != 4 + len(metadata.get("names", {})):
+        raise ValueError("Invalid decoded YOLO metadata class count")
+
+
 class _RknnHandle:
     def __init__(self, model_path, metadata_path, tag):
         self.model_path = model_path
@@ -345,6 +360,8 @@ class TargetDetectorRKNN:
 
         self._image_topic = rospy.get_param("~image_topic", "/camera/image_raw")
         self._conf_threshold = float(rospy.get_param("~conf_threshold", 0.5))
+        self._class_profile, self._allowed_classes = resolve_class_profile(
+            rospy.get_param("~class_profile", "r2026"))
         self._iou_threshold = float(rospy.get_param("~iou_threshold", 0.45))
         self._imgsz = int(rospy.get_param("~imgsz", 640))
         self._layout = str(rospy.get_param("~input_layout", "NHWC"))
@@ -372,6 +389,12 @@ class TargetDetectorRKNN:
             "~tank_metadata_path",
             "",
         )
+
+        # Keep six-class metadata intact: red_cross is still class ID 5.
+        # The retired split tank model need not allocate an NPU runtime.
+        if "tank" not in self._allowed_classes:
+            self._tank_model_path = ""
+            self._tank_metadata_path = ""
 
         self._bridge = CvBridge()
         self._detections_pub = rospy.Publisher("/uav_vision/detections",
@@ -444,6 +467,7 @@ class TargetDetectorRKNN:
         status.message = self._backend_name()
         status.values = [
             KeyValue("backend", self._backend_name()),
+            KeyValue("class_profile", self._class_profile),
             KeyValue("image_topic", self._image_topic),
             KeyValue("frames", str(self._frames)),
             KeyValue("detections", str(int(detections_count))),
@@ -484,6 +508,13 @@ class TargetDetectorRKNN:
             )
             return [], 0.0
 
+        try:
+            _validate_output_contract(outputs, handle.meta)
+        except ValueError as exc:
+            rospy.logfatal("[TargetDetectorRKNN] %s", exc)
+            rospy.signal_shutdown(str(exc))
+            raise
+
         detections = _decode_outputs(
             outputs=outputs,
             num_classes=handle.num_classes,
@@ -493,7 +524,7 @@ class TargetDetectorRKNN:
             scale=scale,
             pad=pad,
             iou_threshold=self._iou_threshold,
-            box_format=self._box_format,
+            box_format=handle.meta.get("box_format", self._box_format),
         )
         if not detections and outputs:
             shapes = [tuple(np.asarray(out).shape) for out in outputs]
@@ -512,10 +543,13 @@ class TargetDetectorRKNN:
         arr.completed_sources = [arr.source]
         for det in detections:
             cls_id = det["class_id"]
+            class_name = handle.names.get(cls_id, "class_%d" % cls_id)
+            if class_name not in self._allowed_classes:
+                continue
             x1, y1, x2, y2 = det["bbox"]
             msg = TargetDetection()
             msg.header = header
-            msg.class_name = handle.names.get(cls_id, "class_%d" % cls_id)
+            msg.class_name = class_name
             msg.class_confidence = float(det["score"])
             msg.geometry_confidence = float(det["score"])
             msg.geometry_verified = False

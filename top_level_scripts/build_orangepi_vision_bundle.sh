@@ -6,7 +6,9 @@ SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 PROJECT_ROOT="${PROJECT_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
 OUTPUT_DIR="${1:-${PROJECT_ROOT}/deliverables}"
 BUNDLE_NAME="orangepi_vision_camera_20260902"
-BOARD_MODEL="${UAV_VISION_RKNN_MODEL_PATH:?set UAV_VISION_RKNN_MODEL_PATH to merged_standard_fp32.rknn}"
+BOARD_MODEL="${UAV_VISION_RKNN_MODEL_PATH:?set UAV_VISION_RKNN_MODEL_PATH to the selected RKNN}"
+
+BOARD_METADATA="${UAV_VISION_RKNN_METADATA_PATH:?set UAV_VISION_RKNN_METADATA_PATH to matching metadata YAML}"
 
 if [[ ! -f "${BOARD_MODEL}" ]]; then
   echo "RKNN model is not a file: ${BOARD_MODEL}" >&2
@@ -16,7 +18,7 @@ for REQUIRED in \
   "${PROJECT_ROOT}/vision_ws/src/CMakeLists.txt" \
   "${PROJECT_ROOT}/vision_ws/src/uav_vision/package.xml" \
   "${PROJECT_ROOT}/vision_ws/src/camera_sdk/package.xml" \
-  "${PROJECT_ROOT}/vision_ws/src/uav_vision/config/merged_standard_6cls_metadata.yaml" \
+  "${BOARD_METADATA}" \
   "${PROJECT_ROOT}/docs/ORANGEPI_CAMERA_VISION_LAB_CHECKLIST_20260902.md"; do
   if [[ ! -f "${REQUIRED}" ]]; then
     echo "required board-deploy input is missing: ${REQUIRED}" >&2
@@ -62,10 +64,10 @@ install -m 0755 "${PROJECT_ROOT}/top_level_scripts/board_realtime_rknn_viewer.py
 install -m 0644 "${PROJECT_ROOT}/docs/ORANGEPI_CAMERA_VISION_LAB_CHECKLIST_20260902.md" \
   "${BUNDLE_ROOT}/README_FIRST.md"
 install -m 0644 "${BOARD_MODEL}" \
-  "${BUNDLE_ROOT}/vision_ws/src/uav_vision/models/merged_standard_fp32.rknn"
+  "${BUNDLE_ROOT}/vision_ws/src/uav_vision/models/${BOARD_MODEL##*/}"
 install -m 0644 \
-  "${PROJECT_ROOT}/vision_ws/src/uav_vision/config/merged_standard_6cls_metadata.yaml" \
-  "${BUNDLE_ROOT}/vision_ws/src/uav_vision/models/merged_standard_6cls_metadata.yaml"
+  "${BOARD_METADATA}" \
+  "${BUNDLE_ROOT}/vision_ws/src/uav_vision/models/${BOARD_METADATA##*/}"
 
 git -C "${PROJECT_ROOT}" rev-parse HEAD > "${BUNDLE_ROOT}/VISION_REVISION"
 ZIP_PATH="${OUTPUT_DIR}/${BUNDLE_NAME}.zip"

@@ -1,0 +1,267 @@
+{
+  "scope": "Recorded target_detector output, exact original bag image stamps; not model rerun or new confirmed targets",
+  "frames": [
+    {
+      "name": "bridge_A",
+      "video_image_stamp_sec": 128.28232765197754,
+      "detector_receipt_sec": 128.6889226436615,
+      "detections": [
+        {
+          "header": {
+            "seq": 894,
+            "stamp": {
+              "secs": 1790606892,
+              "nsecs": 587225437
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "bridge",
+          "class_confidence": 0.6357421875,
+          "geometry_confidence": 0.6357421875,
+          "geometry_verified": false,
+          "roi": {
+            "x_offset": 0,
+            "y_offset": 498,
+            "height": 156,
+            "width": 38,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 19.0,
+            "y": 576.0,
+            "z": 0.0
+          },
+          "center_refined": false,
+          "center_source": "bbox",
+          "association_valid": false,
+          "reject_reason": "geometry_not_refined",
+          "map_valid": false,
+          "map_point": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "map_frame": "",
+          "map_quality": 0.0,
+          "transform_age_sec": -1.0
+        }
+      ]
+    },
+    {
+      "name": "panzer_A",
+      "video_image_stamp_sec": 130.34240984916687,
+      "detector_receipt_sec": 130.64121985435486,
+      "detections": [
+        {
+          "header": {
+            "seq": 913,
+            "stamp": {
+              "secs": 1790606894,
+              "nsecs": 647307634
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "panzer",
+          "class_confidence": 0.775390625,
+          "geometry_confidence": 0.775390625,
+          "geometry_verified": false,
+          "roi": {
+            "x_offset": 0,
+            "y_offset": 590,
+            "height": 129,
+            "width": 81,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 40.5,
+            "y": 654.5,
+            "z": 0.0
+          },
+          "center_refined": false,
+          "center_source": "bbox",
+          "association_valid": false,
+          "reject_reason": "geometry_not_refined",
+          "map_valid": false,
+          "map_point": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "map_frame": "",
+          "map_quality": 0.0,
+          "transform_age_sec": -1.0
+        }
+      ]
+    },
+    {
+      "name": "duplicate_red_cross",
+      "video_image_stamp_sec": 149.13184070587158,
+      "detector_receipt_sec": 149.3660159111023,
+      "detections": [
+        {
+          "header": {
+            "seq": 1077,
+            "stamp": {
+              "secs": 1790606913,
+              "nsecs": 436738491
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "panzer",
+          "class_confidence": 0.755859375,
+          "geometry_confidence": 0.755859375,
+          "geometry_verified": false,
+          "roi": {
+            "x_offset": 20,
+            "y_offset": 203,
+            "height": 192,
+            "width": 188,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 114.0,
+            "y": 299.0,
+            "z": 0.0
+          },
+          "center_refined": false,
+          "center_source": "bbox",
+          "association_valid": false,
+          "reject_reason": "geometry_not_refined",
+          "map_valid": false,
+          "map_point": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "map_frame": "",
+          "map_quality": 0.0,
+          "transform_age_sec": -1.0
+        },
+        {
+          "header": {
+            "seq": 1077,
+            "stamp": {
+              "secs": 1790606913,
+              "nsecs": 436738491
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "red_cross",
+          "class_confidence": 0.9033203125,
+          "geometry_confidence": 0.9033203125,
+          "geometry_verified": false,
+          "roi": {
+            "x_offset": 1109,
+            "y_offset": 392,
+            "height": 130,
+            "width": 128,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 1173.0,
+            "y": 457.0,
+            "z": 0.0
+          },
+          "center_refined": false,
+          "center_source": "bbox",
+          "association_valid": false,
+          "reject_reason": "geometry_not_refined",
+          "map_valid": false,
+          "map_point": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "map_frame": "",
+          "map_quality": 0.0,
+          "transform_age_sec": -1.0
+        },
+        {
+          "header": {
+            "seq": 1077,
+            "stamp": {
+              "secs": 1790606913,
+              "nsecs": 436738491
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "red_cross",
+          "class_confidence": 0.69189453125,
+          "geometry_confidence": 0.69189453125,
+          "geometry_verified": false,
+          "roi": {
+            "x_offset": 19,
+            "y_offset": 206,
+            "height": 188,
+            "width": 187,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 112.5,
+            "y": 300.0,
+            "z": 0.0
+          },
+          "center_refined": false,
+          "center_source": "bbox",
+          "association_valid": false,
+          "reject_reason": "geometry_not_refined",
+          "map_valid": false,
+          "map_point": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "map_frame": "",
+          "map_quality": 0.0,
+          "transform_age_sec": -1.0
+        }
+      ]
+    },
+    {
+      "name": "true_bridge",
+      "video_image_stamp_sec": 178.14092254638672,
+      "detector_receipt_sec": 178.37110424041748,
+      "detections": [
+        {
+          "header": {
+            "seq": 1388,
+            "stamp": {
+              "secs": 1790606942,
+              "nsecs": 445820331
+            },
+            "frame_id": "downward_camera_optical_frame"
+          },
+          "class_name": "bridge",
+          "class_confidence": 0.93017578125,
+          "geometry_confidence": 0.93017578125,
+          "geometry_verified": false,
+          "roi": {
+            "x_offset": 1078,
+            "y_offset": 151,
+            "height": 188,
+            "width": 190,
+            "do_rectify": false
+          },
+          "center_px": {
+            "x": 1173.0,
+            "y": 245.0,
+            "z": 0.0
+          },
+          "center_refined": false,
+          "center_source": "bbox",
+          "association_valid": false,
+          "reject_reason": "geometry_not_refined",
+          "map_valid": false,
+          "map_point": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "map_frame": "",
+          "map_quality": 0.0,
+          "transform_age_sec": -1.0
+        }
+      ]
+    }
+  ]
+}

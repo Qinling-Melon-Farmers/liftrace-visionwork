@@ -1,0 +1,52 @@
+[
+  {
+    "seed": 31,
+    "same_world": true,
+    "same_targets": true,
+    "same_camera_intrinsics": true,
+    "old_status": "FAIL",
+    "new_status": "FAIL",
+    "full_gain_pct": null,
+    "third_gain_pct": null
+  },
+  {
+    "seed": 32,
+    "same_world": true,
+    "same_targets": true,
+    "same_camera_intrinsics": true,
+    "old_status": "PASS",
+    "new_status": "FAIL",
+    "full_gain_pct": null,
+    "third_gain_pct": null
+  },
+  {
+    "seed": 33,
+    "same_world": true,
+    "same_targets": true,
+    "same_camera_intrinsics": true,
+    "old_status": "FAIL",
+    "new_status": "PASS",
+    "full_gain_pct": null,
+    "third_gain_pct": 58.59393915407773
+  },
+  {
+    "seed": 34,
+    "same_world": true,
+    "same_targets": true,
+    "same_camera_intrinsics": true,
+    "old_status": "FAIL",
+    "new_status": "FAIL",
+    "full_gain_pct": null,
+    "third_gain_pct": null
+  },
+  {
+    "seed": 35,
+    "same_world": true,
+    "same_targets": true,
+    "same_camera_intrinsics": true,
+    "old_status": "PASS",
+    "new_status": "PASS",
+    "full_gain_pct": 38.07777069821158,
+    "third_gain_pct": 54.982928693431695
+  }
+]

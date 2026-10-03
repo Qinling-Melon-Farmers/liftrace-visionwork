@@ -277,7 +277,7 @@ class Vcl06GateReducer:
                  post_delivery_doors=(), landing_xy=(0.0, 0.0),
                  landing_h_tolerance=0.35, gate_scope="full",
                  expected_door_order=EXPECTED_DOOR_ORDER,
-                 low_height_region=None, ground_z=0.0):
+                 low_height_region=None, ground_z=0.0, landing_observation_region=None, search_envelope_region=None):
         self.profile = str(profile)
         self.nav_feature_profile = str(nav_feature_profile)
         self.mission_frame = str(mission_frame)
@@ -291,6 +291,9 @@ class Vcl06GateReducer:
         self.max_height = float(max_height)
         self.ground_z = float(ground_z)
         self.low_height_region = dict(low_height_region or {})
+        self.landing_observation_region=dict(landing_observation_region or {})
+        self.search_envelope_region=dict(search_envelope_region or {})
+        self.search_envelope_violations=0
         self.max_mission_sec = float(max_mission_sec)
         self.forced_return_sec = float(forced_return_sec)
         tolerance_sec = float(command_stamp_future_tolerance_sec)
@@ -796,6 +799,18 @@ class Vcl06GateReducer:
         if names and names != (self.expected_goal_publisher,):
             self._error("planner_goal_publisher_set_invalid")
 
+    def observe_search_envelope(self, xyz, quat):
+        if not self.search_envelope_region:return
+        phase=self.statuses.get('manager',{}).get('phase','')
+        if phase not in ('SEARCH','EXECUTING'):return
+        from uav_mission.flight_envelope import projected_bounds,within_xy
+        try:inside=within_xy(projected_bounds(xyz,quat),self.search_envelope_region)
+        except ValueError:
+            self._error('invalid_search_envelope_pose');return
+        if not inside:
+            self.search_envelope_violations+=1
+            self._error('search_envelope_outside_inner_region')
+
     def observe_pose(self, x, y, z, frame_id):
         values = (x, y, z)
         if not all(_finite(value) for value in values):
@@ -822,6 +837,11 @@ class Vcl06GateReducer:
             self.height_violations += 1
             self._error("height_limit_violation")
         region = self.low_height_region
+        hregion=self.landing_observation_region
+        hstage=(self.land_decision_issued_ns is not None or
+                (self.post_delivery_route and self.active_post_delivery_route_index==len(self.post_delivery_route)))
+        if (hregion and hstage and hregion['min_x']<=x<=hregion['max_x'] and hregion['min_y']<=y<=hregion['max_y']):
+            region=hregion
         if (region and region["min_x"] <= x <= region["max_x"] and
                 region["min_y"] <= y <= region["max_y"] and
                 z > region["max_height"]):
@@ -1125,6 +1145,7 @@ class Vcl06GateReducer:
             "approach_command_count": len(bound_commands),
             "selected_count": len(self.selected_classes),
             "planner_goal_publishers": list(self.planner_goal_publishers),
+            "search_envelope_violations": self.search_envelope_violations,
             "pose_samples": self.pose_samples,
             "boundary_violations": self.boundary_violations,
             "height_violations": self.height_violations,
@@ -1247,6 +1268,8 @@ class NavigationVcl06AssertionNode:
             },
             max_height=float(rospy.get_param("~max_height", 4.0)),
             ground_z=float(rospy.get_param("~ground_z", 0.0)),
+            landing_observation_region=rospy.get_param('~post_delivery_gate/landing_observation_region',{}),
+            search_envelope_region=rospy.get_param('~search_envelope_region',{}),
             low_height_region=rospy.get_param(
                 "~post_delivery_gate/low_height_region", {}),
             max_mission_sec=float(rospy.get_param(
@@ -1453,11 +1476,14 @@ class NavigationVcl06AssertionNode:
         if self._truth_model not in message.name:
             return
         self._truth_last_ns = now_ns
-        position = message.pose[message.name.index(self._truth_model)].position
+        body = message.pose[message.name.index(self._truth_model)]
+        position = body.position
         offset = self._truth_world_offset
         # The scoring geometry uses local XY and physical height above floor.
         # It must not move with an estimator's drifting origin or height bias.
         with self._lock:
+            q=body.orientation
+            self.reducer.observe_search_envelope((position.x-offset[0],position.y-offset[1],position.z-offset[2]),(q.x,q.y,q.z,q.w))
             self.reducer.observe_pose(position.x-offset[0], position.y-offset[1],
                                       position.z-offset[2], self.reducer.mission_frame)
             self._check_terminal()

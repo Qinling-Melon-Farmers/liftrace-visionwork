@@ -105,4 +105,5 @@
     <!-- Other tools can request additional information be placed here -->
 
   </export>
+  <exec_depend>uav_high_view</exec_depend>
 </package>

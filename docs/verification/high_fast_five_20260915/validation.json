@@ -1,0 +1,13 @@
+{
+  "new_trials": 5,
+  "baseline_trials": 5,
+  "unique_scenarios": 5,
+  "source_frozen": "20b1a0fe0f991af19ec437e10cba5dc3bcbd9e76",
+  "frame_source_and_installed_entries": "PASS",
+  "removed_refs": 62,
+  "retired_worktrees": 2,
+  "remaining_worktrees": 3,
+  "image_links": 53,
+  "raw_gate_and_pairing": "PASS",
+  "status": "PASS"
+}

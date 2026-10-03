@@ -1,0 +1,62 @@
+[
+  {
+    "seed": 31,
+    "goal_issued_s": 216.876,
+    "deadline_s": 306.872,
+    "command_within_1cm_of_terminal_from_s": 304.328,
+    "within_1cm_duration_s": 2.4420000000000073,
+    "held_xyz": [
+      0.9426987820344307,
+      8.477489983993905,
+      0.21964118515945893
+    ],
+    "nearest_lio_stamp": 304.57,
+    "nearest_lio_error_m": 0.048229518262949536,
+    "goal_xyz": {
+      "x": 2.3,
+      "y": 8.35,
+      "z": 0.23
+    },
+    "late_command_xyz_min": [
+      0.8976388432241689,
+      8.368195580292827,
+      0.21964118515945893
+    ],
+    "late_command_xyz_max": [
+      0.9426987820344307,
+      8.477489983993905,
+      0.24109050942302454
+    ],
+    "late_fraction_within_1cm": 0.9546099290780142
+  },
+  {
+    "seed": 34,
+    "goal_issued_s": 195.945,
+    "deadline_s": 285.937,
+    "command_within_1cm_of_terminal_from_s": 247.627,
+    "within_1cm_duration_s": 38.173,
+    "held_xyz": [
+      1.058902482731189,
+      8.643034284762827,
+      0.19725710054974038
+    ],
+    "nearest_lio_stamp": 247.744,
+    "nearest_lio_error_m": 0.14396881221616445,
+    "goal_xyz": {
+      "x": 2.3,
+      "y": 8.35,
+      "z": 0.23
+    },
+    "late_command_xyz_min": [
+      1.0588677269419031,
+      8.591399172258297,
+      0.19725710054974038
+    ],
+    "late_command_xyz_max": [
+      1.1420684238040566,
+      8.643034284762827,
+      0.2001156241512179
+    ],
+    "late_fraction_within_1cm": 0.9943262411347518
+  }
+]

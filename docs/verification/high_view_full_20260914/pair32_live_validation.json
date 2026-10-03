@@ -1,0 +1,10 @@
+{
+  "actual_target_layout_identical": true,
+  "mission_and_gate_parameters_identical": true,
+  "excluded_run_specific_parameter": "navigation_vcl06_assertion/report_path",
+  "report_paths": [
+    "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed32_20260914_012723/gate_status.json",
+    "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed32_20260914_015313/gate_status.json"
+  ],
+  "scope": "Startup readback; terminal results reported separately"
+}

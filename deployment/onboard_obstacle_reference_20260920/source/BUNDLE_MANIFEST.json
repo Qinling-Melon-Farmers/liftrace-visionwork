@@ -1,0 +1,5473 @@
+{
+  "created_utc": "2026-09-09T07:46:00.060131+00:00",
+  "kind": "onboard",
+  "source_revision": "405bda420db343c35b37033f788b25436769b47c",
+  "source_branch": "feat/r2026-competition-integrated",
+  "status": "SOURCE_PACKAGE_NOT_FLIGHT_ACCEPTANCE",
+  "onboard_architecture": "aarch64 / RK3588; build on target, no x86 build/devel copied",
+  "weights_source": "/home/xhj/liftrace/vision_ws/test_data/board_eval_20260716/models/merged_standard_fp32.rknn",
+  "weights_destination": "runtime_models/merged_standard_fp32.rknn",
+  "optional_historical_models": [],
+  "external_runtime_dependencies": [
+    "ROS Noetic and system libraries",
+    "hardware: MAVROS/FC, device Livox SDK/driver, RKNN Lite2/NPU runtime, mechanical Servo implementation"
+  ],
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 2651
+    },
+    {
+      "path": "README.md",
+      "bytes": 2283
+    },
+    {
+      "path": "VISION_2026_ROADMAP.md",
+      "bytes": 1924
+    },
+    {
+      "path": "deployment/README_ONBOARD.md",
+      "bytes": 2831
+    },
+    {
+      "path": "deployment/README_SIMULATION.md",
+      "bytes": 3324
+    },
+    {
+      "path": "deployment/px4_patches/0001-initialize-task-reset-counters.patch",
+      "bytes": 1089
+    },
+    {
+      "path": "deployment/px4_patches/README.md",
+      "bytes": 840
+    },
+    {
+      "path": "docs/BUNDLES.md",
+      "bytes": 1842
+    },
+    {
+      "path": "docs/CAMERA_AND_FLIGHT.md",
+      "bytes": 3350
+    },
+    {
+      "path": "docs/ENVIRONMENT.md",
+      "bytes": 2059
+    },
+    {
+      "path": "docs/HARDWARE.md",
+      "bytes": 2120
+    },
+    {
+      "path": "docs/INTERFACES.md",
+      "bytes": 2196
+    },
+    {
+      "path": "docs/SOURCE_REVISIONS.md",
+      "bytes": 2004
+    },
+    {
+      "path": "docs/VALIDATION.md",
+      "bytes": 2428
+    },
+    {
+      "path": "docs/competition/RULES_20260906.md",
+      "bytes": 6413
+    },
+    {
+      "path": "docs/competition/SEARCH_RETURN_PLAN_20260909.md",
+      "bytes": 15241
+    },
+    {
+      "path": "docs/competition/return_timing.json",
+      "bytes": 1375
+    },
+    {
+      "path": "docs/competition/rule_extracts/rulepage-11.png",
+      "bytes": 605906
+    },
+    {
+      "path": "docs/competition/rule_extracts/rulepage-12.png",
+      "bytes": 489587
+    },
+    {
+      "path": "docs/competition/rule_extracts/rulepage-13.png",
+      "bytes": 303208
+    },
+    {
+      "path": "docs/competition/rule_extracts/rulepage-15.png",
+      "bytes": 541177
+    },
+    {
+      "path": "docs/topology/r53/index.html",
+      "bytes": 42584
+    },
+    {
+      "path": "docs/topology/r53/render_result.json",
+      "bytes": 520
+    },
+    {
+      "path": "docs/topology/r53/ros_system_state.json",
+      "bytes": 48351
+    },
+    {
+      "path": "docs/topology/r53/rqt_graph_nodes_only_flight.dot",
+      "bytes": 10207
+    },
+    {
+      "path": "docs/topology/r53/rqt_graph_nodes_only_flight.svg",
+      "bytes": 40725
+    },
+    {
+      "path": "docs/topology/r53/rqt_graph_nodes_only_full.dot",
+      "bytes": 71163
+    },
+    {
+      "path": "docs/topology/r53/rqt_graph_nodes_only_full.svg",
+      "bytes": 169559
+    },
+    {
+      "path": "docs/verification/r53/REPORT.md",
+      "bytes": 2840
+    },
+    {
+      "path": "docs/verification/r53/cleanup.txt",
+      "bytes": 494
+    },
+    {
+      "path": "docs/verification/r53/gate_status.json",
+      "bytes": 14034
+    },
+    {
+      "path": "docs/verification/r53/gazebo_contact_status.json",
+      "bytes": 395
+    },
+    {
+      "path": "docs/verification/r53/manifest.yaml",
+      "bytes": 1261
+    },
+    {
+      "path": "docs/verification/r53/planner_summary.json",
+      "bytes": 13278
+    },
+    {
+      "path": "docs/verification/r53/visual_delivery_audit.json",
+      "bytes": 833561
+    },
+    {
+      "path": "docs/verification/r54/DIAGNOSIS.md",
+      "bytes": 9435
+    },
+    {
+      "path": "docs/verification/r54/PLAN.md",
+      "bytes": 2002
+    },
+    {
+      "path": "docs/verification/r54/REPORT.md",
+      "bytes": 5434
+    },
+    {
+      "path": "docs/verification/r54/attempts/startup_timeout/cleanup.txt",
+      "bytes": 526
+    },
+    {
+      "path": "docs/verification/r54/attempts/startup_timeout/gate_status.json",
+      "bytes": 3393
+    },
+    {
+      "path": "docs/verification/r54/attempts/startup_timeout/manifest.yaml",
+      "bytes": 1269
+    },
+    {
+      "path": "docs/verification/r54/attempts/startup_timeout/r54_summary.json",
+      "bytes": 412
+    },
+    {
+      "path": "docs/verification/r54/cleanup.txt",
+      "bytes": 526
+    },
+    {
+      "path": "docs/verification/r54/flight_events.json",
+      "bytes": 62812
+    },
+    {
+      "path": "docs/verification/r54/gate_status.json",
+      "bytes": 13679
+    },
+    {
+      "path": "docs/verification/r54/goal19_planner_counts.json",
+      "bytes": 153
+    },
+    {
+      "path": "docs/verification/r54/manifest.yaml",
+      "bytes": 1269
+    },
+    {
+      "path": "docs/verification/r54/r53_door_profile.png",
+      "bytes": 39603
+    },
+    {
+      "path": "docs/verification/r54/r54_retry_facts.json",
+      "bytes": 9300
+    },
+    {
+      "path": "docs/verification/r54/r54_summary.json",
+      "bytes": 412
+    },
+    {
+      "path": "docs/verification/r54/rootcause/analysis.json",
+      "bytes": 15261
+    },
+    {
+      "path": "docs/verification/r54/rootcause/extraction.json",
+      "bytes": 8974
+    },
+    {
+      "path": "docs/verification/r54/rootcause/geometry_comparison.json",
+      "bytes": 1475
+    },
+    {
+      "path": "docs/verification/r54/rootcause/rootcause.png",
+      "bytes": 123675
+    },
+    {
+      "path": "docs/verification/r54/rootcause/splines.json",
+      "bytes": 14341
+    },
+    {
+      "path": "docs/verification/r54/route.json",
+      "bytes": 1492
+    },
+    {
+      "path": "docs/verification/r54/route_trace.png",
+      "bytes": 217112
+    },
+    {
+      "path": "docs/verification/r54/topology/render_result.json",
+      "bytes": 520
+    },
+    {
+      "path": "docs/verification/r54/topology/ros_system_state.json",
+      "bytes": 48339
+    },
+    {
+      "path": "docs/verification/r54/topology/rqt_graph_nodes_only_core.dot",
+      "bytes": 53633
+    },
+    {
+      "path": "docs/verification/r54/topology/rqt_graph_nodes_only_core.svg",
+      "bytes": 126406
+    },
+    {
+      "path": "docs/verification/r54/topology/rqt_graph_nodes_only_full.dot",
+      "bytes": 72329
+    },
+    {
+      "path": "docs/verification/r54/topology/rqt_graph_nodes_only_full.svg",
+      "bytes": 170326
+    },
+    {
+      "path": "docs/verification/r55/FIX.md",
+      "bytes": 3076
+    },
+    {
+      "path": "docs/verification/r55/RECORDING_FIX.md",
+      "bytes": 1555
+    },
+    {
+      "path": "docs/verification/r55/REPORT.md",
+      "bytes": 5180
+    },
+    {
+      "path": "docs/verification/r55/cleanup_inventory.json",
+      "bytes": 5001
+    },
+    {
+      "path": "docs/verification/r55/gazebo_contact_status.json",
+      "bytes": 394
+    },
+    {
+      "path": "docs/verification/r55/manifest.yaml",
+      "bytes": 1187
+    },
+    {
+      "path": "docs/verification/r55/r55_facts.json",
+      "bytes": 37334
+    },
+    {
+      "path": "docs/verification/r55/recovery_manifest.json",
+      "bytes": 637
+    },
+    {
+      "path": "docs/verification/r55/remote_assets.json",
+      "bytes": 1409
+    },
+    {
+      "path": "docs/verification/r55/route_trace.png",
+      "bytes": 172859
+    },
+    {
+      "path": "docs/verification/r55/search_tests.xml",
+      "bytes": 1539
+    },
+    {
+      "path": "docs/verification/r55/storage_tests.json",
+      "bytes": 915
+    },
+    {
+      "path": "docs/verification/r55/topology/render_result.json",
+      "bytes": 520
+    },
+    {
+      "path": "docs/verification/r55/topology/ros_system_state.json",
+      "bytes": 48351
+    },
+    {
+      "path": "docs/verification/r55/topology/rqt_graph_nodes_only_core.dot",
+      "bytes": 50873
+    },
+    {
+      "path": "docs/verification/r55/topology/rqt_graph_nodes_only_core.svg",
+      "bytes": 124315
+    },
+    {
+      "path": "docs/verification/r55/topology/rqt_graph_nodes_only_full.dot",
+      "bytes": 69836
+    },
+    {
+      "path": "docs/verification/r55/topology/rqt_graph_nodes_only_full.svg",
+      "bytes": 171510
+    },
+    {
+      "path": "docs/verification/r56/DELIVERY.md",
+      "bytes": 1326
+    },
+    {
+      "path": "docs/verification/r56/FIX.md",
+      "bytes": 1489
+    },
+    {
+      "path": "docs/verification/r56/PARAMETERS.md",
+      "bytes": 11785
+    },
+    {
+      "path": "docs/verification/r56/REPORT.md",
+      "bytes": 19677
+    },
+    {
+      "path": "docs/verification/r56/actual_camera_info.json",
+      "bytes": 579
+    },
+    {
+      "path": "docs/verification/r56/actual_camera_mission.png",
+      "bytes": 323854
+    },
+    {
+      "path": "docs/verification/r56/analytical_h_body_075.png",
+      "bytes": 74552
+    },
+    {
+      "path": "docs/verification/r56/analytical_h_body_096.png",
+      "bytes": 67573
+    },
+    {
+      "path": "docs/verification/r56/analytical_h_body_160.png",
+      "bytes": 42886
+    },
+    {
+      "path": "docs/verification/r56/attempts/external_storage_startup/actual_camera_info.json",
+      "bytes": 579
+    },
+    {
+      "path": "docs/verification/r56/attempts/external_storage_startup/gate_status.json",
+      "bytes": 3394
+    },
+    {
+      "path": "docs/verification/r56/attempts/external_storage_startup/manifest.yaml",
+      "bytes": 1266
+    },
+    {
+      "path": "docs/verification/r56/attempts/external_storage_startup/px4_parameters_readback.json",
+      "bytes": 661
+    },
+    {
+      "path": "docs/verification/r56/attempts/external_storage_startup/r56_facts.json",
+      "bytes": 291207
+    },
+    {
+      "path": "docs/verification/r56/camera_selection.json",
+      "bytes": 618
+    },
+    {
+      "path": "docs/verification/r56/compact_result.json",
+      "bytes": 365
+    },
+    {
+      "path": "docs/verification/r56/flight_events.json",
+      "bytes": 63283
+    },
+    {
+      "path": "docs/verification/r56/gate_status.json",
+      "bytes": 14209
+    },
+    {
+      "path": "docs/verification/r56/gazebo_contact_status.json",
+      "bytes": 394
+    },
+    {
+      "path": "docs/verification/r56/h_capture_geometry.json",
+      "bytes": 890
+    },
+    {
+      "path": "docs/verification/r56/h_geometry_probe.txt",
+      "bytes": 255
+    },
+    {
+      "path": "docs/verification/r56/local_cleanup.json",
+      "bytes": 3628
+    },
+    {
+      "path": "docs/verification/r56/manifest.yaml",
+      "bytes": 1279
+    },
+    {
+      "path": "docs/verification/r56/px4_parameters_readback.json",
+      "bytes": 701
+    },
+    {
+      "path": "docs/verification/r56/r55_camera_recording_proof.json",
+      "bytes": 396
+    },
+    {
+      "path": "docs/verification/r56/r56_facts.json",
+      "bytes": 48502
+    },
+    {
+      "path": "docs/verification/r56/remote_cleanup.json",
+      "bytes": 4499
+    },
+    {
+      "path": "docs/verification/r56/rootcause/analysis.json",
+      "bytes": 6861
+    },
+    {
+      "path": "docs/verification/r56/rootcause/rootcause.png",
+      "bytes": 152050
+    },
+    {
+      "path": "docs/verification/r56/rosparams.yaml",
+      "bytes": 27919
+    },
+    {
+      "path": "docs/verification/r56/route_trace.png",
+      "bytes": 214455
+    },
+    {
+      "path": "docs/verification/r56/topology/index.html",
+      "bytes": 571
+    },
+    {
+      "path": "docs/verification/r56/topology/interface_audit.json",
+      "bytes": 2184
+    },
+    {
+      "path": "docs/verification/r56/topology/render_result.json",
+      "bytes": 278
+    },
+    {
+      "path": "docs/verification/r56/topology/ros_system_state.json",
+      "bytes": 48171
+    },
+    {
+      "path": "docs/verification/r56/topology/rqt_graph_nodes_only_core.dot",
+      "bytes": 39901
+    },
+    {
+      "path": "docs/verification/r56/topology/rqt_graph_nodes_only_core.svg",
+      "bytes": 99646
+    },
+    {
+      "path": "docs/verification/r56/topology/rqt_graph_nodes_only_full.dot",
+      "bytes": 77608
+    },
+    {
+      "path": "docs/verification/r56/topology/rqt_graph_nodes_only_full.svg",
+      "bytes": 179808
+    },
+    {
+      "path": "docs/verification/r56/wsl_service_recovery.json",
+      "bytes": 523
+    },
+    {
+      "path": "docs/verification/r56/wsl_service_recovery_second.json",
+      "bytes": 537
+    },
+    {
+      "path": "docs/verification/r56_final/DELIVERY.md",
+      "bytes": 1033
+    },
+    {
+      "path": "docs/verification/r56_final/PARAMETERS.md",
+      "bytes": 14161
+    },
+    {
+      "path": "docs/verification/r56_final/REPORT.md",
+      "bytes": 19240
+    },
+    {
+      "path": "docs/verification/r56_final/actual_camera_info.json",
+      "bytes": 579
+    },
+    {
+      "path": "docs/verification/r56_final/actual_camera_mission.png",
+      "bytes": 607796
+    },
+    {
+      "path": "docs/verification/r56_final/camera_replay.json",
+      "bytes": 298
+    },
+    {
+      "path": "docs/verification/r56_final/camera_selection.json",
+      "bytes": 1111
+    },
+    {
+      "path": "docs/verification/r56_final/competition_freedom.yaml",
+      "bytes": 873
+    },
+    {
+      "path": "docs/verification/r56_final/external_inputs/iris/iris.sdf",
+      "bytes": 19271
+    },
+    {
+      "path": "docs/verification/r56_final/external_inputs/iris/model.config",
+      "bytes": 400
+    },
+    {
+      "path": "docs/verification/r56_final/external_inputs/landing_h/model.config",
+      "bytes": 266
+    },
+    {
+      "path": "docs/verification/r56_final/external_inputs/landing_h/model.sdf",
+      "bytes": 785
+    },
+    {
+      "path": "docs/verification/r56_final/external_inputs/mid360/mid360.sdf",
+      "bytes": 4020
+    },
+    {
+      "path": "docs/verification/r56_final/external_inputs/mid360/model.config",
+      "bytes": 403
+    },
+    {
+      "path": "docs/verification/r56_final/external_inputs/source_versions.json",
+      "bytes": 238
+    },
+    {
+      "path": "docs/verification/r56_final/final_validation.json",
+      "bytes": 343
+    },
+    {
+      "path": "docs/verification/r56_final/flight_events.json",
+      "bytes": 36357
+    },
+    {
+      "path": "docs/verification/r56_final/gate_status.json",
+      "bytes": 18595
+    },
+    {
+      "path": "docs/verification/r56_final/gazebo_contact_status.json",
+      "bytes": 394
+    },
+    {
+      "path": "docs/verification/r56_final/horizontal_planner.yaml",
+      "bytes": 1321
+    },
+    {
+      "path": "docs/verification/r56_final/lidar_visibility_probe.json",
+      "bytes": 2807
+    },
+    {
+      "path": "docs/verification/r56_final/manifest.yaml",
+      "bytes": 1272
+    },
+    {
+      "path": "docs/verification/r56_final/px4_parameters_readback.json",
+      "bytes": 701
+    },
+    {
+      "path": "docs/verification/r56_final/r56_facts.json",
+      "bytes": 57779
+    },
+    {
+      "path": "docs/verification/r56_final/rosparams.yaml",
+      "bytes": 27895
+    },
+    {
+      "path": "docs/verification/r56_final/route_trace.png",
+      "bytes": 234188
+    },
+    {
+      "path": "docs/verification/r56_final/success_summary.json",
+      "bytes": 4063
+    },
+    {
+      "path": "docs/verification/r56_final/topology/index.html",
+      "bytes": 571
+    },
+    {
+      "path": "docs/verification/r56_final/topology/interface_audit.json",
+      "bytes": 2184
+    },
+    {
+      "path": "docs/verification/r56_final/topology/render_result.json",
+      "bytes": 278
+    },
+    {
+      "path": "docs/verification/r56_final/topology/ros_system_state.json",
+      "bytes": 48190
+    },
+    {
+      "path": "docs/verification/r56_final/topology/rqt_graph_nodes_only_core.dot",
+      "bytes": 39448
+    },
+    {
+      "path": "docs/verification/r56_final/topology/rqt_graph_nodes_only_core.svg",
+      "bytes": 99961
+    },
+    {
+      "path": "docs/verification/r56_final/topology/rqt_graph_nodes_only_full.dot",
+      "bytes": 77341
+    },
+    {
+      "path": "docs/verification/r56_final/topology/rqt_graph_nodes_only_full.svg",
+      "bytes": 182890
+    },
+    {
+      "path": "docs/verification/r56_final/vehicle_model.sdf",
+      "bytes": 5545
+    },
+    {
+      "path": "docs/verification/r56_model_review/REVIEW.md",
+      "bytes": 4298
+    },
+    {
+      "path": "docs/verification/r56_model_review/model_image_sources.json",
+      "bytes": 3756
+    },
+    {
+      "path": "docs/verification/r56_model_review/r56_vehicle_model.png",
+      "bytes": 309548
+    },
+    {
+      "path": "docs/verification/r56_root_fix/REPORT.md",
+      "bytes": 5111
+    },
+    {
+      "path": "docs/verification/r56_root_fix/aperture_comparison.json",
+      "bytes": 357
+    },
+    {
+      "path": "docs/verification/r56_root_fix/contact_envelope_probe.txt",
+      "bytes": 93
+    },
+    {
+      "path": "docs/verification/r56_root_fix/guard_self_occlusion_exact.json",
+      "bytes": 9696
+    },
+    {
+      "path": "docs/verification/r56_root_fix/observed_lidar_fov.json",
+      "bytes": 147
+    },
+    {
+      "path": "docs/verification/r56_root_fix/point_trace_summary.json",
+      "bytes": 519
+    },
+    {
+      "path": "docs/verification/r56_root_fix/validation.json",
+      "bytes": 2464
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/competition_freedom.yaml",
+      "bytes": 873
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/control.yaml",
+      "bytes": 2899
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/coverage.yaml",
+      "bytes": 2737
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/diagnosis.json",
+      "bytes": 4318
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/estimator_comparison.json",
+      "bytes": 1336
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/field.world",
+      "bytes": 29612
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/flight_route.png",
+      "bytes": 101484
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/gate_status.json",
+      "bytes": 15042
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/horizontal_planner.yaml",
+      "bytes": 1321
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/point_trace.json",
+      "bytes": 2770
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/px4_parameters_readback.json",
+      "bytes": 701
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/rosparams.yaml",
+      "bytes": 27271
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/runtime.yaml",
+      "bytes": 4094
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/source.json",
+      "bytes": 826
+    },
+    {
+      "path": "docs/verification/r57_toudi4/080/summary.json",
+      "bytes": 1832
+    },
+    {
+      "path": "docs/verification/r57_toudi4/085/competition_freedom.yaml",
+      "bytes": 873
+    },
+    {
+      "path": "docs/verification/r57_toudi4/085/control.yaml",
+      "bytes": 2899
+    },
+    {
+      "path": "docs/verification/r57_toudi4/085/coverage.yaml",
+      "bytes": 2737
+    },
+    {
+      "path": "docs/verification/r57_toudi4/085/field.world",
+      "bytes": 29612
+    },
+    {
+      "path": "docs/verification/r57_toudi4/085/flight_route.png",
+      "bytes": 104255
+    },
+    {
+      "path": "docs/verification/r57_toudi4/085/gate_status.json",
+      "bytes": 16128
+    },
+    {
+      "path": "docs/verification/r57_toudi4/085/horizontal_planner.yaml",
+      "bytes": 1321
+    },
+    {
+      "path": "docs/verification/r57_toudi4/085/px4_parameters_readback.json",
+      "bytes": 701
+    },
+    {
+      "path": "docs/verification/r57_toudi4/085/rosparams.yaml",
+      "bytes": 27271
+    },
+    {
+      "path": "docs/verification/r57_toudi4/085/runtime.yaml",
+      "bytes": 4094
+    },
+    {
+      "path": "docs/verification/r57_toudi4/085/source.json",
+      "bytes": 826
+    },
+    {
+      "path": "docs/verification/r57_toudi4/085/summary.json",
+      "bytes": 2265
+    },
+    {
+      "path": "docs/verification/r57_toudi4/BAG_CLEANUP.json",
+      "bytes": 3308
+    },
+    {
+      "path": "docs/verification/r57_toudi4/FAILURE_ANALYSIS.md",
+      "bytes": 4841
+    },
+    {
+      "path": "docs/verification/r57_toudi4/MULTISEED_STATUS.json",
+      "bytes": 260
+    },
+    {
+      "path": "docs/verification/r57_toudi4/REPORT.md",
+      "bytes": 6232
+    },
+    {
+      "path": "docs/verification/r57_toudi4/blocked_goal.png",
+      "bytes": 74058
+    },
+    {
+      "path": "docs/verification/r57_toudi4/corridor_080cm.png",
+      "bytes": 75846
+    },
+    {
+      "path": "docs/verification/r57_toudi4/logging_validation.json",
+      "bytes": 223
+    },
+    {
+      "path": "docs/verification/r58_closeout/LOW_CORRIDOR_PROPOSAL.yaml",
+      "bytes": 1408
+    },
+    {
+      "path": "docs/verification/r58_closeout/REPORT.md",
+      "bytes": 16345
+    },
+    {
+      "path": "docs/verification/r58_closeout/closeout_facts.json",
+      "bytes": 1693
+    },
+    {
+      "path": "docs/verification/r58_closeout/hardware_nodes.txt",
+      "bytes": 418
+    },
+    {
+      "path": "docs/verification/r58_closeout/hardware_static_params.yaml",
+      "bytes": 27338
+    },
+    {
+      "path": "docs/verification/r58_closeout/last_run/actual_camera_info.json",
+      "bytes": 863
+    },
+    {
+      "path": "docs/verification/r58_closeout/last_run/flight_analysis.png",
+      "bytes": 259053
+    },
+    {
+      "path": "docs/verification/r58_closeout/last_run/flight_metrics.json",
+      "bytes": 744
+    },
+    {
+      "path": "docs/verification/r58_closeout/last_run/gate_status.json",
+      "bytes": 13898
+    },
+    {
+      "path": "docs/verification/r58_closeout/last_run/gazebo_contact_status.json",
+      "bytes": 831
+    },
+    {
+      "path": "docs/verification/r58_closeout/last_run/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r58_closeout/last_run/rosparams.yaml",
+      "bytes": 28737
+    },
+    {
+      "path": "docs/verification/r58_closeout/last_run/source.json",
+      "bytes": 902
+    },
+    {
+      "path": "docs/verification/r58_closeout/last_run/summary.json",
+      "bytes": 5598
+    },
+    {
+      "path": "docs/verification/r58_closeout/revision_inventory.json",
+      "bytes": 45128
+    },
+    {
+      "path": "docs/verification/r58_closeout/topology/index.html",
+      "bytes": 572
+    },
+    {
+      "path": "docs/verification/r58_closeout/topology/interface_audit.json",
+      "bytes": 2087
+    },
+    {
+      "path": "docs/verification/r58_closeout/topology/ros_system_state.json",
+      "bytes": 50062
+    },
+    {
+      "path": "docs/verification/r58_closeout/topology/rqt_graph_nodes_only_core.dot",
+      "bytes": 39402
+    },
+    {
+      "path": "docs/verification/r58_closeout/topology/rqt_graph_nodes_only_core.svg",
+      "bytes": 99227
+    },
+    {
+      "path": "docs/verification/r58_closeout/topology/rqt_graph_nodes_only_full.dot",
+      "bytes": 53296
+    },
+    {
+      "path": "docs/verification/r58_closeout/topology/rqt_graph_nodes_only_full.svg",
+      "bytes": 132919
+    },
+    {
+      "path": "docs/verification/r58_closeout/validation.json",
+      "bytes": 503
+    },
+    {
+      "path": "docs/verification/r58_corridor/REPORT.md",
+      "bytes": 10637
+    },
+    {
+      "path": "docs/verification/r58_corridor/airframe_replay.json",
+      "bytes": 3532
+    },
+    {
+      "path": "docs/verification/r58_corridor/airframe_replay.png",
+      "bytes": 229871
+    },
+    {
+      "path": "docs/verification/r58_corridor/blocked_clear_goal.json",
+      "bytes": 1400
+    },
+    {
+      "path": "docs/verification/r58_corridor/corridor_layout.png",
+      "bytes": 48198
+    },
+    {
+      "path": "docs/verification/r58_corridor/entry_stop_analysis.json",
+      "bytes": 11949
+    },
+    {
+      "path": "docs/verification/r58_corridor/entrycenter_pilot_flight.png",
+      "bytes": 269042
+    },
+    {
+      "path": "docs/verification/r58_corridor/entrycenter_pilot_summary.json",
+      "bytes": 5859
+    },
+    {
+      "path": "docs/verification/r58_corridor/estimator_analysis.json",
+      "bytes": 24808
+    },
+    {
+      "path": "docs/verification/r58_corridor/estimator_errors.png",
+      "bytes": 357762
+    },
+    {
+      "path": "docs/verification/r58_corridor/geometry_validation.json",
+      "bytes": 6784
+    },
+    {
+      "path": "docs/verification/r58_corridor/goal_fixtures.json",
+      "bytes": 900
+    },
+    {
+      "path": "docs/verification/r58_corridor/pilot1_summary.json",
+      "bytes": 4711
+    },
+    {
+      "path": "docs/verification/r58_corridor/pilot2_summary.json",
+      "bytes": 5589
+    },
+    {
+      "path": "docs/verification/r58_corridor/yaw_pilot_flight.png",
+      "bytes": 264361
+    },
+    {
+      "path": "docs/verification/r58_corridor/yaw_pilot_summary.json",
+      "bytes": 5482
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/REPORT.md",
+      "bytes": 5672
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/contact_classification_correction.json",
+      "bytes": 521
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/final_validation.json",
+      "bytes": 186
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/historical_r57_low_h.jpg",
+      "bytes": 44667
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/preflight.json",
+      "bytes": 921
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/actual_camera_info.json",
+      "bytes": 863
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/control.yaml",
+      "bytes": 2029
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/corridor.launch",
+      "bytes": 1651
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/flight_analysis.png",
+      "bytes": 226825
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/flight_metrics.json",
+      "bytes": 1166
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/gate_status.json",
+      "bytes": 8681
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/gazebo_contact_status.json",
+      "bytes": 692
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/outcome_analysis.json",
+      "bytes": 2430
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/rosparams.yaml",
+      "bytes": 28890
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/runtime.yaml",
+      "bytes": 2334
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/source.json",
+      "bytes": 940
+    },
+    {
+      "path": "docs/verification/r59_corridor_landing/run/summary.json",
+      "bytes": 4780
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/CLOSEOUT.md",
+      "bytes": 1562
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/FAILURE_ANALYSIS.md",
+      "bytes": 6516
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/REPORT.md",
+      "bytes": 7476
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/REPRODUCE.md",
+      "bytes": 1489
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/REVISION_NOTES.md",
+      "bytes": 9433
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/archive_manifest.json",
+      "bytes": 466
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/delivery_failure_details.txt",
+      "bytes": 8255
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/failure_analysis.json",
+      "bytes": 22170
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/final_validation.json",
+      "bytes": 380
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/hardware_nodes.txt",
+      "bytes": 418
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/matrix_failure_paths.png",
+      "bytes": 205626
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/matrix_statistics.json",
+      "bytes": 307
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/matrix_status.json",
+      "bytes": 4242
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/flight_analysis.png",
+      "bytes": 256953
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/flight_detail.json",
+      "bytes": 6744
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/flight_metrics.json",
+      "bytes": 1286
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/gate_status.json",
+      "bytes": 17299
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/random_field_truth.yaml",
+      "bytes": 1116
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/rosparams.yaml",
+      "bytes": 30790
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/rosparams_low_corridor.yaml",
+      "bytes": 30792
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/rosparams_return_staging.yaml",
+      "bytes": 30792
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/scenario_inputs/control.yaml",
+      "bytes": 1897
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/scenario_inputs/field.world",
+      "bytes": 29456
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/scenario_inputs/full.launch",
+      "bytes": 5250
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/scenario_inputs/geometry_validation.json",
+      "bytes": 6915
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/scenario_inputs/horizontal_planner.yaml",
+      "bytes": 1828
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/scenario_inputs/landing_detector.yaml",
+      "bytes": 1465
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/scenario_inputs/logging.yaml",
+      "bytes": 1034
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/scenario_inputs/preflight.json",
+      "bytes": 768
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/scenario_inputs/runtime.yaml",
+      "bytes": 3040
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/scenario_inputs/source.json",
+      "bytes": 912
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/scenario_inputs/vehicle_model.sdf",
+      "bytes": 5047
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/pilot/summary.json",
+      "bytes": 6594
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/preflight.json",
+      "bytes": 768
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/release_cleanup.json",
+      "bytes": 2185
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/revision_inventory.json",
+      "bytes": 86793
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_01/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_01/flight_analysis.png",
+      "bytes": 291724
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_01/flight_detail.json",
+      "bytes": 6418
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_01/flight_metrics.json",
+      "bytes": 1273
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_01/gate_status.json",
+      "bytes": 20588
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_01/gazebo_contact_status.json",
+      "bytes": 720
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_01/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_01/random_field_truth.yaml",
+      "bytes": 1120
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_01/search_endpoint_diagnosis.json",
+      "bytes": 2008
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_01/summary.json",
+      "bytes": 6939
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_02/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_02/flight_analysis.png",
+      "bytes": 278243
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_02/flight_detail.json",
+      "bytes": 4668
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_02/flight_metrics.json",
+      "bytes": 848
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_02/gate_status.json",
+      "bytes": 14021
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_02/gazebo_contact_status.json",
+      "bytes": 871
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_02/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_02/random_field_truth.yaml",
+      "bytes": 1114
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_02/summary.json",
+      "bytes": 5728
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_03/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_03/flight_analysis.png",
+      "bytes": 285678
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_03/flight_detail.json",
+      "bytes": 4674
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_03/flight_metrics.json",
+      "bytes": 849
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_03/gate_status.json",
+      "bytes": 16710
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_03/gazebo_contact_status.json",
+      "bytes": 872
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_03/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_03/random_field_truth.yaml",
+      "bytes": 1118
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_03/summary.json",
+      "bytes": 6207
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_04/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_04/flight_analysis.png",
+      "bytes": 280783
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_04/flight_detail.json",
+      "bytes": 1655
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_04/flight_metrics.json",
+      "bytes": 395
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_04/gate_status.json",
+      "bytes": 10809
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_04/gazebo_contact_status.json",
+      "bytes": 467
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_04/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_04/random_field_truth.yaml",
+      "bytes": 1115
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_04/summary.json",
+      "bytes": 4701
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_05/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_05/flight_analysis.png",
+      "bytes": 275533
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_05/flight_detail.json",
+      "bytes": 6746
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_05/flight_metrics.json",
+      "bytes": 1288
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_05/gate_status.json",
+      "bytes": 17347
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_05/gazebo_contact_status.json",
+      "bytes": 468
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_05/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_05/random_field_truth.yaml",
+      "bytes": 1118
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_05/summary.json",
+      "bytes": 6643
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_06/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_06/flight_analysis.png",
+      "bytes": 226111
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_06/flight_detail.json",
+      "bytes": 6452
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_06/flight_metrics.json",
+      "bytes": 1270
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_06/gate_status.json",
+      "bytes": 17526
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_06/gazebo_contact_status.json",
+      "bytes": 720
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_06/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_06/random_field_truth.yaml",
+      "bytes": 1118
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_06/summary.json",
+      "bytes": 6569
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_07/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_07/flight_analysis.png",
+      "bytes": 266886
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_07/flight_detail.json",
+      "bytes": 6750
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_07/flight_metrics.json",
+      "bytes": 1285
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_07/gate_status.json",
+      "bytes": 17288
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_07/gazebo_contact_status.json",
+      "bytes": 468
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_07/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_07/random_field_truth.yaml",
+      "bytes": 1119
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_07/summary.json",
+      "bytes": 6590
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_08/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_08/flight_analysis.png",
+      "bytes": 277504
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_08/flight_detail.json",
+      "bytes": 6397
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_08/flight_metrics.json",
+      "bytes": 1273
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_08/gate_status.json",
+      "bytes": 17566
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_08/gazebo_contact_status.json",
+      "bytes": 721
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_08/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_08/random_field_truth.yaml",
+      "bytes": 1117
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_08/summary.json",
+      "bytes": 6605
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_09/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_09/flight_analysis.png",
+      "bytes": 295399
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_09/flight_detail.json",
+      "bytes": 1754
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_09/flight_metrics.json",
+      "bytes": 398
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_09/gate_status.json",
+      "bytes": 14623
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_09/gazebo_contact_status.json",
+      "bytes": 468
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_09/local_map_summary.json",
+      "bytes": 599
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_09/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_09/random_field_truth.yaml",
+      "bytes": 1120
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_09/summary.json",
+      "bytes": 5475
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_10/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_10/flight_analysis.png",
+      "bytes": 272971
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_10/flight_detail.json",
+      "bytes": 6411
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_10/flight_metrics.json",
+      "bytes": 1273
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_10/gate_status.json",
+      "bytes": 17366
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_10/gazebo_contact_status.json",
+      "bytes": 1077
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_10/px4_parameters_readback.json",
+      "bytes": 901
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_10/random_field_truth.yaml",
+      "bytes": 1117
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/seed_10/summary.json",
+      "bytes": 6391
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/topology/graph_manifest.json",
+      "bytes": 3467
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/topology/index.html",
+      "bytes": 922
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/topology/ros_system_state.json",
+      "bytes": 32252
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/topology/rqt_graph_nodes_only_core.dot",
+      "bytes": 41721
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/topology/rqt_graph_nodes_only_core.svg",
+      "bytes": 104533
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/topology/rqt_graph_nodes_only_flight.dot",
+      "bytes": 28237
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/topology/rqt_graph_nodes_only_flight.svg",
+      "bytes": 70288
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/topology/rqt_graph_nodes_only_full.dot",
+      "bytes": 80718
+    },
+    {
+      "path": "docs/verification/r60_full_matrix/topology/rqt_graph_nodes_only_full.svg",
+      "bytes": 190068
+    },
+    {
+      "path": "docs/verification/r61_layout_search/REPORT.md",
+      "bytes": 8321
+    },
+    {
+      "path": "docs/verification/r61_layout_search/SEARCH_COMPARISON.md",
+      "bytes": 3542
+    },
+    {
+      "path": "docs/verification/r61_layout_search/all_seeds_individual.pdf",
+      "bytes": 77389
+    },
+    {
+      "path": "docs/verification/r61_layout_search/all_seeds_overview.pdf",
+      "bytes": 97711
+    },
+    {
+      "path": "docs/verification/r61_layout_search/all_seeds_overview.png",
+      "bytes": 549815
+    },
+    {
+      "path": "docs/verification/r61_layout_search/assembly_correction.json",
+      "bytes": 418
+    },
+    {
+      "path": "docs/verification/r61_layout_search/asset_validation.json",
+      "bytes": 2870
+    },
+    {
+      "path": "docs/verification/r61_layout_search/attitude_review/REVIEW.md",
+      "bytes": 7590
+    },
+    {
+      "path": "docs/verification/r61_layout_search/attitude_review/attitude_sensitivity/level_yaw0.json",
+      "bytes": 20637
+    },
+    {
+      "path": "docs/verification/r61_layout_search/attitude_review/attitude_sensitivity/level_yaw90.json",
+      "bytes": 20699
+    },
+    {
+      "path": "docs/verification/r61_layout_search/attitude_review/attitude_sensitivity/pitch5_yaw0.json",
+      "bytes": 20692
+    },
+    {
+      "path": "docs/verification/r61_layout_search/attitude_review/r60_seed11_attitude_summary.json",
+      "bytes": 905
+    },
+    {
+      "path": "docs/verification/r61_layout_search/bundle_validation.json",
+      "bytes": 981
+    },
+    {
+      "path": "docs/verification/r61_layout_search/layouts.html",
+      "bytes": 1766
+    },
+    {
+      "path": "docs/verification/r61_layout_search/measured_model_change.json",
+      "bytes": 352
+    },
+    {
+      "path": "docs/verification/r61_layout_search/mesh_origins.json",
+      "bytes": 896
+    },
+    {
+      "path": "docs/verification/r61_layout_search/new_field_geometry.json",
+      "bytes": 2804
+    },
+    {
+      "path": "docs/verification/r61_layout_search/new_seed11/aircraft_model.png",
+      "bytes": 123191
+    },
+    {
+      "path": "docs/verification/r61_layout_search/new_seed11/aircraft_side.png",
+      "bytes": 135248
+    },
+    {
+      "path": "docs/verification/r61_layout_search/new_seed11/preview_status.json",
+      "bytes": 4347
+    },
+    {
+      "path": "docs/verification/r61_layout_search/new_seed11/random_field_truth.yaml",
+      "bytes": 1116
+    },
+    {
+      "path": "docs/verification/r61_layout_search/new_seed11/seed11_map.png",
+      "bytes": 203855
+    },
+    {
+      "path": "docs/verification/r61_layout_search/preflight.json",
+      "bytes": 1716
+    },
+    {
+      "path": "docs/verification/r61_layout_search/search_comparison/r60_tree040/comparison.csv",
+      "bytes": 723
+    },
+    {
+      "path": "docs/verification/r61_layout_search/search_comparison/r60_tree040/comparison.json",
+      "bytes": 62132
+    },
+    {
+      "path": "docs/verification/r61_layout_search/search_comparison/r60_tree050/comparison.csv",
+      "bytes": 743
+    },
+    {
+      "path": "docs/verification/r61_layout_search/search_comparison/r60_tree050/comparison.json",
+      "bytes": 61988
+    },
+    {
+      "path": "docs/verification/r61_layout_search/search_comparison/r61_tree040/comparison.csv",
+      "bytes": 722
+    },
+    {
+      "path": "docs/verification/r61_layout_search/search_comparison/r61_tree040/comparison.json",
+      "bytes": 62823
+    },
+    {
+      "path": "docs/verification/r61_layout_search/search_comparison/r61_tree050/comparison.csv",
+      "bytes": 718
+    },
+    {
+      "path": "docs/verification/r61_layout_search/search_comparison/r61_tree050/comparison.json",
+      "bytes": 63590
+    },
+    {
+      "path": "docs/verification/r61_layout_search/seed_01.png",
+      "bytes": 131737
+    },
+    {
+      "path": "docs/verification/r61_layout_search/seed_01_11_layouts.json",
+      "bytes": 23008
+    },
+    {
+      "path": "docs/verification/r61_layout_search/seed_02.png",
+      "bytes": 133424
+    },
+    {
+      "path": "docs/verification/r61_layout_search/seed_03.png",
+      "bytes": 133103
+    },
+    {
+      "path": "docs/verification/r61_layout_search/seed_04.png",
+      "bytes": 136740
+    },
+    {
+      "path": "docs/verification/r61_layout_search/seed_05.png",
+      "bytes": 130799
+    },
+    {
+      "path": "docs/verification/r61_layout_search/seed_06.png",
+      "bytes": 133913
+    },
+    {
+      "path": "docs/verification/r61_layout_search/seed_07.png",
+      "bytes": 127723
+    },
+    {
+      "path": "docs/verification/r61_layout_search/seed_08.png",
+      "bytes": 135872
+    },
+    {
+      "path": "docs/verification/r61_layout_search/seed_09.png",
+      "bytes": 128981
+    },
+    {
+      "path": "docs/verification/r61_layout_search/seed_10.png",
+      "bytes": 132168
+    },
+    {
+      "path": "docs/verification/r61_layout_search/seed_11.png",
+      "bytes": 133049
+    },
+    {
+      "path": "docs/verification/r61_layout_search/target_coordinates.csv",
+      "bytes": 2900
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/REPORT.md",
+      "bytes": 7797
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/analysis.json",
+      "bytes": 7194
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/camera_ros_250.jpg",
+      "bytes": 87817
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/camera_ros_315.jpg",
+      "bytes": 97423
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/camera_ros_459_713.jpg",
+      "bytes": 64732
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/camera_ros_465.jpg",
+      "bytes": 46861
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/camera_ros_480.jpg",
+      "bytes": 43744
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/camera_ros_485_5.jpg",
+      "bytes": 15028
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/camera_video_probe.json",
+      "bytes": 232
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/controller_recovery_excerpt.txt",
+      "bytes": 15041
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/detail.json",
+      "bytes": 3163
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/downward_camera.json",
+      "bytes": 304
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/flight_analysis.png",
+      "bytes": 180177
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/gate_status.json",
+      "bytes": 14952
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/gazebo_contact_status.json",
+      "bytes": 855
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/handoff_excerpt.txt",
+      "bytes": 1582
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/manifest.yaml",
+      "bytes": 1429
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/random_field_truth.yaml",
+      "bytes": 1116
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/recovery_hold_error.json",
+      "bytes": 124
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/stage_events.json",
+      "bytes": 17322
+    },
+    {
+      "path": "docs/verification/r62_full_seed11/video_decode_check.json",
+      "bytes": 168
+    },
+    {
+      "path": "docs/verification/r62_operational/REPORT.md",
+      "bytes": 5855
+    },
+    {
+      "path": "docs/verification/r62_operational/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r62_operational/bundle_delivery.json",
+      "bytes": 786
+    },
+    {
+      "path": "docs/verification/r62_operational/camera_video_probe.json",
+      "bytes": 232
+    },
+    {
+      "path": "docs/verification/r62_operational/downward_camera.json",
+      "bytes": 304
+    },
+    {
+      "path": "docs/verification/r62_operational/fc_rigid_change.json",
+      "bytes": 676
+    },
+    {
+      "path": "docs/verification/r62_operational/first_release_evidence.json",
+      "bytes": 5794
+    },
+    {
+      "path": "docs/verification/r62_operational/flight_analysis.png",
+      "bytes": 145317
+    },
+    {
+      "path": "docs/verification/r62_operational/gazebo_contact_status.json",
+      "bytes": 467
+    },
+    {
+      "path": "docs/verification/r62_operational/hover_thrust_model.json",
+      "bytes": 332
+    },
+    {
+      "path": "docs/verification/r62_operational/indoor_context.json",
+      "bytes": 301
+    },
+    {
+      "path": "docs/verification/r62_operational/manifest.yaml",
+      "bytes": 1489
+    },
+    {
+      "path": "docs/verification/r62_operational/operational_status.json",
+      "bytes": 1335
+    },
+    {
+      "path": "docs/verification/r62_operational/operational_success_analysis.json",
+      "bytes": 4111
+    },
+    {
+      "path": "docs/verification/r62_operational/random_field_truth.yaml",
+      "bytes": 1116
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/aircraft_measurements.yaml",
+      "bytes": 1101
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/control.yaml",
+      "bytes": 1903
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/field.world",
+      "bytes": 27370
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/field_config.yaml",
+      "bytes": 1018
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/field_geometry.yaml",
+      "bytes": 771
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/full.launch",
+      "bytes": 6896
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/horizontal_planner.yaml",
+      "bytes": 1876
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/iris_dynamics.sdf",
+      "bytes": 19345
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/landing_detector.yaml",
+      "bytes": 1465
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/logging.yaml",
+      "bytes": 1034
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/mid360_mounted.sdf",
+      "bytes": 3593
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/runtime.yaml",
+      "bytes": 3071
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/source.json",
+      "bytes": 1505
+    },
+    {
+      "path": "docs/verification/r62_operational/scenario_inputs/vehicle_model.sdf",
+      "bytes": 7916
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/REPORT.md",
+      "bytes": 5639
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/downward_camera.json",
+      "bytes": 296
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/gate_status.json",
+      "bytes": 3449
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/gazebo_contact_status.json",
+      "bytes": 884
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/manifest.yaml",
+      "bytes": 1369
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/random_field_truth.yaml",
+      "bytes": 1116
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/aircraft_measurements.yaml",
+      "bytes": 1101
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/control.yaml",
+      "bytes": 1903
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/field.world",
+      "bytes": 18101
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/field_geometry.yaml",
+      "bytes": 771
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/full.launch",
+      "bytes": 6702
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/horizontal_planner.yaml",
+      "bytes": 1876
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/iris_dynamics.sdf",
+      "bytes": 19634
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/landing_detector.yaml",
+      "bytes": 1465
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/logging.yaml",
+      "bytes": 1034
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/mid360_mounted.sdf",
+      "bytes": 3593
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/runtime.yaml",
+      "bytes": 2965
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/source.json",
+      "bytes": 1388
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt1/scenario_inputs/vehicle_model.sdf",
+      "bytes": 8440
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/actual_camera_info.json",
+      "bytes": 864
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/downward_camera.json",
+      "bytes": 302
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/gate_status.json",
+      "bytes": 3406
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/gazebo_contact_status.json",
+      "bytes": 452
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/gazebo_default.txt",
+      "bytes": 1496
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/manifest.yaml",
+      "bytes": 1364
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/random_field_truth.yaml",
+      "bytes": 1116
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/aircraft_measurements.yaml",
+      "bytes": 1101
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/control.yaml",
+      "bytes": 1903
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/field.world",
+      "bytes": 18101
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/field_geometry.yaml",
+      "bytes": 771
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/full.launch",
+      "bytes": 6702
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/horizontal_planner.yaml",
+      "bytes": 1876
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/iris_dynamics.sdf",
+      "bytes": 19901
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/landing_detector.yaml",
+      "bytes": 1465
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/logging.yaml",
+      "bytes": 1034
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/mid360_mounted.sdf",
+      "bytes": 3593
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/runtime.yaml",
+      "bytes": 3071
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/source.json",
+      "bytes": 1388
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/attempt2/scenario_inputs/vehicle_model.sdf",
+      "bytes": 7903
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/retry_preflight.json",
+      "bytes": 1718
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/retry_video_ffprobe.json",
+      "bytes": 230
+    },
+    {
+      "path": "docs/verification/r62_seed11_gate/summary.json",
+      "bytes": 2507
+    },
+    {
+      "path": "docs/verification/r63_recovery/REPORT.md",
+      "bytes": 6702
+    },
+    {
+      "path": "docs/verification/r63_recovery/analysis.json",
+      "bytes": 12795
+    },
+    {
+      "path": "docs/verification/r63_recovery/camera_frames.json",
+      "bytes": 738
+    },
+    {
+      "path": "docs/verification/r63_recovery/camera_ros_230.jpg",
+      "bytes": 165496
+    },
+    {
+      "path": "docs/verification/r63_recovery/camera_ros_307.jpg",
+      "bytes": 77567
+    },
+    {
+      "path": "docs/verification/r63_recovery/camera_ros_310.jpg",
+      "bytes": 32712
+    },
+    {
+      "path": "docs/verification/r63_recovery/camera_ros_440.jpg",
+      "bytes": 31536
+    },
+    {
+      "path": "docs/verification/r63_recovery/camera_ros_444.jpg",
+      "bytes": 25700
+    },
+    {
+      "path": "docs/verification/r63_recovery/camera_ros_446.jpg",
+      "bytes": 19845
+    },
+    {
+      "path": "docs/verification/r63_recovery/delivery_evidence.json",
+      "bytes": 811
+    },
+    {
+      "path": "docs/verification/r63_recovery/downward_camera.json",
+      "bytes": 304
+    },
+    {
+      "path": "docs/verification/r63_recovery/flight_analysis.png",
+      "bytes": 186198
+    },
+    {
+      "path": "docs/verification/r63_recovery/gate_status.json",
+      "bytes": 21151
+    },
+    {
+      "path": "docs/verification/r63_recovery/gazebo_contact_status.json",
+      "bytes": 1121
+    },
+    {
+      "path": "docs/verification/r63_recovery/landing_commands.json",
+      "bytes": 7297
+    },
+    {
+      "path": "docs/verification/r63_recovery/landing_excerpt.txt",
+      "bytes": 1490
+    },
+    {
+      "path": "docs/verification/r63_recovery/landing_ulog.json",
+      "bytes": 33246
+    },
+    {
+      "path": "docs/verification/r63_recovery/manifest.yaml",
+      "bytes": 1429
+    },
+    {
+      "path": "docs/verification/r63_recovery/random_field_truth.yaml",
+      "bytes": 1116
+    },
+    {
+      "path": "docs/verification/r63_recovery/video_decode.json",
+      "bytes": 35
+    },
+    {
+      "path": "docs/verification/r64_seed11/REPORT.md",
+      "bytes": 1479
+    },
+    {
+      "path": "docs/verification/r64_seed11/analysis.json",
+      "bytes": 4059
+    },
+    {
+      "path": "docs/verification/r64_seed11/downward_camera_final.jpg",
+      "bytes": 15028
+    },
+    {
+      "path": "docs/verification/r64_seed11/gate_status.json",
+      "bytes": 20913
+    },
+    {
+      "path": "docs/verification/r64_seed11/gazebo_contact_status.json",
+      "bytes": 468
+    },
+    {
+      "path": "docs/verification/r64_seed11/manifest.yaml",
+      "bytes": 1492
+    },
+    {
+      "path": "docs/verification/r64_seed11/overview_final.jpg",
+      "bytes": 82554
+    },
+    {
+      "path": "docs/verification/r64_seed11/overview_view_change.json",
+      "bytes": 209
+    },
+    {
+      "path": "docs/verification/r64_seed11/random_field_truth.yaml",
+      "bytes": 1116
+    },
+    {
+      "path": "docs/仿真联调变更记录.md",
+      "bytes": 804459
+    },
+    {
+      "path": "docs/规划波动与低空水平搜索评估_20260906.md",
+      "bytes": 20449
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/CMakeLists.txt",
+      "bytes": 2352
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/.gitignore",
+      "bytes": 108
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/.gitmodules",
+      "bytes": 123
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/CMakeLists.txt",
+      "bytes": 2309
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/avia.yaml",
+      "bytes": 1530
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/horizon.yaml",
+      "bytes": 1535
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/marsim.yaml",
+      "bytes": 1544
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/mid360.yaml",
+      "bytes": 1539
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/mid360_sim.yaml",
+      "bytes": 1656
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/ouster64.yaml",
+      "bytes": 1631
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/velodyne.yaml",
+      "bytes": 1743
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/Exp_mat.h",
+      "bytes": 2743
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/esekfom/esekfom.hpp",
+      "bytes": 68556
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/esekfom/util.hpp",
+      "bytes": 2363
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/build_manifold.hpp",
+      "bytes": 9436
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/src/SubManifold.hpp",
+      "bytes": 4886
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/src/mtkmath.hpp",
+      "bytes": 10176
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/src/vectview.hpp",
+      "bytes": 6540
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/startIdx.hpp",
+      "bytes": 12515
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/types/S2.hpp",
+      "bytes": 9971
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/types/SOn.hpp",
+      "bytes": 10624
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/types/vect.hpp",
+      "bytes": 14226
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/types/wrapped_cv_mat.hpp",
+      "bytes": 3236
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/common_lib.h",
+      "bytes": 7767
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/ikd-Tree/README.md",
+      "bytes": 73
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/ikd-Tree/ikd_Tree.cpp",
+      "bytes": 68733
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/ikd-Tree/ikd_Tree.h",
+      "bytes": 10279
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/matplotlibcpp.h",
+      "bytes": 81837
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/so3_math.h",
+      "bytes": 2936
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/use-ikfom.hpp",
+      "bytes": 4337
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/gdb_debug_example.launch",
+      "bytes": 962
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_avia.launch",
+      "bytes": 830
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_horizon.launch",
+      "bytes": 835
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_marsim.launch",
+      "bytes": 832
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_mid360.launch",
+      "bytes": 1291
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_mid360_sim.launch",
+      "bytes": 1175
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_ouster64.launch",
+      "bytes": 873
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_velodyne.launch",
+      "bytes": 878
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/msg/Pose6D.msg",
+      "bytes": 597
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/package.xml",
+      "bytes": 1465
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/rviz_cfg/.gitignore",
+      "bytes": 0
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/rviz_cfg/loam_livox.rviz",
+      "bytes": 11312
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/src/IMU_Processing.hpp",
+      "bytes": 12866
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/src/laserMapping.cpp",
+      "bytes": 43214
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/src/preprocess.cpp",
+      "bytes": 24959
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/src/preprocess.h",
+      "bytes": 3786
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/bspline/CMakeLists.txt",
+      "bytes": 677
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/bspline/include/bspline/non_uniform_bspline.h",
+      "bytes": 4014
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/bspline/package.xml",
+      "bytes": 2998
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/bspline/src/non_uniform_bspline.cpp",
+      "bytes": 14654
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/bspline_opt/CMakeLists.txt",
+      "bytes": 860
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/bspline_opt/include/bspline_opt/bspline_optimizer.h",
+      "bytes": 7241
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/bspline_opt/package.xml",
+      "bytes": 3010
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/bspline_opt/script/calc_jacobian.py",
+      "bytes": 291
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/bspline_opt/script/cost_function.py",
+      "bytes": 367
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/bspline_opt/script/dist_to_line.py",
+      "bytes": 2308
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/bspline_opt/src/bspline_optimizer.cpp",
+      "bytes": 17504
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/path_searching/CMakeLists.txt",
+      "bytes": 1075
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/path_searching/include/path_searching/astar.h",
+      "bytes": 4912
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/path_searching/include/path_searching/kinodynamic_astar.h",
+      "bytes": 5541
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/path_searching/include/path_searching/topo_prm.h",
+      "bytes": 6295
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/path_searching/package.xml",
+      "bytes": 3002
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/path_searching/src/astar.cpp",
+      "bytes": 10687
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/path_searching/src/kinodynamic_astar.cpp",
+      "bytes": 24797
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/path_searching/src/topo_prm.cpp",
+      "bytes": 21945
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/path_searching/test/kinodynamic_near_goal.test",
+      "bytes": 140
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/path_searching/test/kinodynamic_near_goal_test.cpp",
+      "bytes": 7800
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/CMakeLists.txt",
+      "bytes": 1138
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/edt_environment.h",
+      "bytes": 2617
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/linear_obj_model.hpp",
+      "bytes": 6127
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/obj_predictor.h",
+      "bytes": 4087
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/polynomial_traj.hpp",
+      "bytes": 8189
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/raycast.h",
+      "bytes": 2425
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/sdf_map.h",
+      "bytes": 17362
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/vertical_obstacle_support.h",
+      "bytes": 2149
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/package.xml",
+      "bytes": 2869
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/src/edt_environment.cpp",
+      "bytes": 4717
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/src/obj_generator.cpp",
+      "bytes": 7944
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/src/obj_predictor.cpp",
+      "bytes": 7499
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/src/raycast.cpp",
+      "bytes": 11259
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/src/sdf_map.cpp",
+      "bytes": 49113
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/test/test_vertical_obstacle_support.cpp",
+      "bytes": 1238
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/CMakeLists.txt",
+      "bytes": 2057
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/README.md",
+      "bytes": 7029
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/config/exp.rviz",
+      "bytes": 24896
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/config/kino.rviz",
+      "bytes": 18369
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/config/traj.rviz",
+      "bytes": 18303
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/backward.hpp",
+      "bytes": 142599
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/goal_adjustment.h",
+      "bytes": 1457
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/kino_replan_fsm.h",
+      "bytes": 4564
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/plan_container.hpp",
+      "bytes": 9090
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/planner_manager.h",
+      "bytes": 3643
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/planner_status_tracker.h",
+      "bytes": 4300
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/topo_replan_fsm.h",
+      "bytes": 3624
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/trajectory_progress.h",
+      "bytes": 1866
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/include/plan_manage/utils.h",
+      "bytes": 1595
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_px4_sim.launch",
+      "bytes": 2984
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_real.launch",
+      "bytes": 4465
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_real.xml",
+      "bytes": 8285
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_sim.launch",
+      "bytes": 4505
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/launch/patrol_planner_sim.xml",
+      "bytes": 8396
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/launch/rviz.launch",
+      "bytes": 138
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/launch/simulator.xml",
+      "bytes": 4793
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/launch/topo_algorithm.xml",
+      "bytes": 8097
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/launch/topo_replan.launch",
+      "bytes": 3248
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/msg/Bspline.msg",
+      "bytes": 124
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/msg/PlannerStatus.msg",
+      "bytes": 362
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/package.xml",
+      "bytes": 3526
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/script/calc.py",
+      "bytes": 1109
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/script/polyfit_predict.py",
+      "bytes": 1761
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/script/traj_opt.py",
+      "bytes": 1467
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/src/fast_planner_node.cpp",
+      "bytes": 1752
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/src/kino_replan_fsm.cpp",
+      "bytes": 17038
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/src/planner_manager.cpp",
+      "bytes": 26718
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/src/topo_replan_fsm.cpp",
+      "bytes": 14503
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/src/traj_server.cpp",
+      "bytes": 13561
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/test/goal_adjustment_test.cpp",
+      "bytes": 1685
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/test/planner_status_schema_test.cpp",
+      "bytes": 6631
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage/test/trajectory_progress_test.cpp",
+      "bytes": 1441
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/poly_traj/CMakeLists.txt",
+      "bytes": 588
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/poly_traj/include/poly_traj/polynomial_traj.h",
+      "bytes": 8811
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/poly_traj/package.xml",
+      "bytes": 2837
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/poly_traj/src/polynomial_traj.cpp",
+      "bytes": 14132
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/poly_traj/src/traj_generator.cpp",
+      "bytes": 7202
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/traj_utils/CMakeLists.txt",
+      "bytes": 787
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/traj_utils/include/traj_utils/planning_visualization.h",
+      "bytes": 4978
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/traj_utils/package.xml",
+      "bytes": 3309
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/traj_utils/src/planning_visualization.cpp",
+      "bytes": 15193
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/cmake_utils/CMakeLists.txt",
+      "bytes": 262
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/cmake_utils/cmake/arch.cmake",
+      "bytes": 5169
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/cmake_utils/cmake/cmake_modules.cmake",
+      "bytes": 136
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/cmake_utils/cmake/color.cmake",
+      "bytes": 512
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/cmake_utils/cmake_modules/FindEigen.cmake",
+      "bytes": 7870
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/cmake_utils/cmake_modules/FindGSL.cmake",
+      "bytes": 4197
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/cmake_utils/cmake_modules/FindmvIMPACT.cmake",
+      "bytes": 4766
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/cmake_utils/package.xml",
+      "bytes": 434
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/pose_utils/CMakeLists.txt",
+      "bytes": 456
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/pose_utils/Makefile",
+      "bytes": 41
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/pose_utils/include/pose_utils.h",
+      "bytes": 1138
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/pose_utils/package.xml",
+      "bytes": 448
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/pose_utils/src/pose_utils.cpp",
+      "bytes": 13324
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/pose_utils/src/pose_utils.cpp~",
+      "bytes": 13324
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/CMakeLists.txt",
+      "bytes": 2941
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/cmake/FindEigen3.cmake",
+      "bytes": 2995
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/include/quadrotor_msgs/comm_types.h",
+      "bytes": 1604
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/include/quadrotor_msgs/decode_msgs.h",
+      "bytes": 642
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/include/quadrotor_msgs/encode_msgs.h",
+      "bytes": 635
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/AuxCommand.msg",
+      "bytes": 135
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/Corrections.msg",
+      "bytes": 51
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/Gains.msg",
+      "bytes": 52
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/LQRTrajectory.msg",
+      "bytes": 572
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/Odometry.msg",
+      "bytes": 163
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/OutputData.msg",
+      "bytes": 304
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/PPROutputData.msg",
+      "bytes": 283
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/PolynomialTrajectory.msg",
+      "bytes": 596
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/PolynomialTrajectory.msg~",
+      "bytes": 579
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/PositionCommand.msg",
+      "bytes": 544
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/PositionCommand.msg~",
+      "bytes": 351
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/SO3Command.msg",
+      "bytes": 138
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/Serial.msg",
+      "bytes": 426
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/StatusData.msg",
+      "bytes": 57
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/msg/TRPYCommand.msg",
+      "bytes": 98
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/package.xml",
+      "bytes": 682
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/decode_msgs.cpp",
+      "bytes": 3451
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/encode_msgs.cpp",
+      "bytes": 2542
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/quadrotor_msgs/__init__.py",
+      "bytes": 0
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/quadrotor_msgs/msg/_AuxCommand.py",
+      "bytes": 5117
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/quadrotor_msgs/msg/_Corrections.py",
+      "bytes": 3819
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/quadrotor_msgs/msg/_Gains.py",
+      "bytes": 3625
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/quadrotor_msgs/msg/_OutputData.py",
+      "bytes": 11303
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/quadrotor_msgs/msg/_PPROutputData.py",
+      "bytes": 8976
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/quadrotor_msgs/msg/_PositionCommand.py",
+      "bytes": 9081
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/quadrotor_msgs/msg/_SO3Command.py",
+      "bytes": 10474
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/quadrotor_msgs/msg/_Serial.py",
+      "bytes": 7573
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/quadrotor_msgs/msg/_StatusData.py",
+      "bytes": 6275
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/quadrotor_msgs/msg/_TRPYCommand.py",
+      "bytes": 8329
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/quadrotor_msgs/src/quadrotor_msgs/msg/__init__.py",
+      "bytes": 271
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/uav_utils/CMakeLists.txt",
+      "bytes": 2708
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/uav_utils/README.md",
+      "bytes": 1392
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/uav_utils/include/uav_utils/converters.h",
+      "bytes": 2941
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/uav_utils/include/uav_utils/geometry_utils.h",
+      "bytes": 7377
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/uav_utils/include/uav_utils/utils.h",
+      "bytes": 1111
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/uav_utils/package.xml",
+      "bytes": 2267
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/uav_utils/scripts/odom_to_euler.py",
+      "bytes": 1959
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/uav_utils/scripts/send_odom.py",
+      "bytes": 961
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/uav_utils/scripts/tf_assist.py",
+      "bytes": 6174
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/uav_utils/scripts/topic_statistics.py",
+      "bytes": 364
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/uav_utils/src/uav_utils_test.cpp",
+      "bytes": 4027
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/waypoint_generator/CMakeLists.txt",
+      "bytes": 975
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/waypoint_generator/package.xml",
+      "bytes": 550
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/waypoint_generator/src/sample_waypoints.h",
+      "bytes": 6593
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/Fast-Planner/uav_simulator/Utils/waypoint_generator/src/waypoint_generator.cpp",
+      "bytes": 8898
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/CMakeLists.txt",
+      "bytes": 2141
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/helimos_aeva.yaml",
+      "bytes": 1417
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/helimos_livox.yaml",
+      "bytes": 1433
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/helimos_ouster.yaml",
+      "bytes": 1420
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/helimos_velodyne.yaml",
+      "bytes": 1433
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/indoor_corridor.yaml",
+      "bytes": 1407
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/indoor_stairs.yaml",
+      "bytes": 1407
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/kitti_velodyne.yaml",
+      "bytes": 1468
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/livox_fov.png",
+      "bytes": 320
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/mid360.yaml",
+      "bytes": 1467
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/rviz.rviz",
+      "bytes": 18863
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/rviz_indoor.rviz",
+      "bytes": 15716
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/static_pointcloud_viz.yaml",
+      "bytes": 504
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/config/velodyne_fov.png",
+      "bytes": 1331
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/generated_pcd/frame/.gitkeep",
+      "bytes": 0
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/include/freedom/common_types.h",
+      "bytes": 1047
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/include/freedom/depth_image.h",
+      "bytes": 4271
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/include/freedom/freedom.h",
+      "bytes": 2673
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/include/freedom/freenode.h",
+      "bytes": 1301
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/include/freedom/map.h",
+      "bytes": 7123
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/include/freedom/mrmap.h",
+      "bytes": 13593
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/include/freedom/raycast.h",
+      "bytes": 964
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/include/freedom/scanmap.h",
+      "bytes": 5924
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/include/freedom/utils.h",
+      "bytes": 9616
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/include/freedom/visualization.h",
+      "bytes": 2804
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/include/freedom/visualization_utils.h",
+      "bytes": 4884
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/include/lidar/point_types.h",
+      "bytes": 2267
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/launch/evaluate/ground_truth_generate.launch",
+      "bytes": 946
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/launch/evaluate/static_map_evaluate.launch",
+      "bytes": 464
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/launch/run_freedom_mid360.launch",
+      "bytes": 1344
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/package.xml",
+      "bytes": 3179
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/src/depth_image.cpp",
+      "bytes": 10991
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/src/evaluate_tools/ground_truth_generate.cpp",
+      "bytes": 7574
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/src/evaluate_tools/static_map_evaluate.cpp",
+      "bytes": 5556
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/src/freedom.cpp",
+      "bytes": 7013
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/src/freenode.cpp",
+      "bytes": 9062
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/src/map.cpp",
+      "bytes": 3467
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/src/mrmap.cpp",
+      "bytes": 41691
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/src/node.cpp",
+      "bytes": 263
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/src/raycast.cpp",
+      "bytes": 2650
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/src/scanmap.cpp",
+      "bytes": 6884
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/src/static_pointcloud_viz_node.cpp",
+      "bytes": 6608
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/src/visualization.cpp",
+      "bytes": 30159
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/FreeDOM/test/visualization_utils_test.cpp",
+      "bytes": 4706
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/CMakeLists.txt",
+      "bytes": 7117
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/config/mavros_px4_sim.yaml",
+      "bytes": 1196
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/config/patrol_real.yaml",
+      "bytes": 3395
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/config/patrol_sim.yaml",
+      "bytes": 3436
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/config/patrol_toudi3_new_vision.yaml",
+      "bytes": 3853
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/config/patrol_toudi4_new_vision.yaml",
+      "bytes": 3736
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/drop_action.h",
+      "bytes": 2866
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/patrol_control.h",
+      "bytes": 18475
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/launch/mavros_px4_sim.launch",
+      "bytes": 1144
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/launch/patrol_control_px4_sim.launch",
+      "bytes": 3064
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/launch/patrol_control_real.launch",
+      "bytes": 982
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/launch/patrol_control_sim.launch",
+      "bytes": 1142
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/launch/patrol_full_competition_sim.launch",
+      "bytes": 6124
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/launch/patrol_world.launch",
+      "bytes": 4605
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/launch/px4_toudi3_sitl.launch",
+      "bytes": 2261
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/launch/toudi3_full_competition_sim_new_vision.launch",
+      "bytes": 6181
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/models/iris_mid360_downward_camera/meshes/competition_guard_ring.obj",
+      "bytes": 1526
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/models/iris_mid360_downward_camera/model.config",
+      "bytes": 411
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/models/iris_mid360_downward_camera/model.sdf",
+      "bytes": 4477
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/models/iris_mid360_downward_camera/model_ks2a543.sdf",
+      "bytes": 5223
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/msg/MissionCommand.msg",
+      "bytes": 190
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/package.xml",
+      "bytes": 4736
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/rviz_config/patrol_nano.rviz",
+      "bytes": 16874
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/rviz_config/patrol_pc.rviz",
+      "bytes": 17081
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/scripts/odom_to_pose_relay.py",
+      "bytes": 837
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/scripts/px4_sitl_start.py",
+      "bytes": 1754
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/scripts/spawn_model_delayed.py",
+      "bytes": 1397
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/src/node/patrol_control_node.cpp",
+      "bytes": 564
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp",
+      "bytes": 155948
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/src/uav_arming_node.cpp",
+      "bytes": 2900
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/srv/Servo.srv",
+      "bytes": 23
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_drop_action.cpp",
+      "bytes": 3387
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_external_alignment_fallback.py",
+      "bytes": 3618
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_new_vision_config.py",
+      "bytes": 11859
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_no_legacy_servo_status_false.py",
+      "bytes": 1299
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_px4_sitl_start.py",
+      "bytes": 1028
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_recovery_hold.py",
+      "bytes": 2542
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_takeoff_xy_hold.py",
+      "bytes": 1798
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/CMakeLists.txt",
+      "bytes": 175
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/README.md",
+      "bytes": 5487
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/cmake/catkin_simple-extras.cmake.em",
+      "bytes": 8998
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/package.xml",
+      "bytes": 536
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/test/scenarios/hello_world/.gitignore",
+      "bytes": 15
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/test/scenarios/hello_world/bar/include/bar/hello.h",
+      "bytes": 14
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/test/scenarios/hello_world/bar/msg/HeaderString.msg",
+      "bytes": 26
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/test/scenarios/hello_world/bar/package.xml",
+      "bytes": 579
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/test/scenarios/hello_world/bar/src/hello.cpp",
+      "bytes": 228
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/test/scenarios/hello_world/baz/include/baz/world.h",
+      "bytes": 179
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/test/scenarios/hello_world/baz/package.xml",
+      "bytes": 357
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/test/scenarios/hello_world/foo/package.xml",
+      "bytes": 542
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/catkin_simple/test/scenarios/hello_world/foo/src/main.cpp",
+      "bytes": 106
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/CHANGELOG.rst",
+      "bytes": 17109
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/CMakeLists.txt",
+      "bytes": 1427
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/cmake/cv_bridge-extras.cmake.in",
+      "bytes": 472
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/doc/conf.py",
+      "bytes": 6600
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/doc/index.rst",
+      "bytes": 317
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/doc/mainpage.dox",
+      "bytes": 235
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/include/cv_bridge/cv_bridge.h",
+      "bytes": 15636
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/include/cv_bridge/rgb_colors.h",
+      "bytes": 4362
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/package.xml",
+      "bytes": 1398
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/python/CMakeLists.txt",
+      "bytes": 311
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/python/__init__.py.plain.in",
+      "bytes": 0
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/python/cv_bridge/__init__.py",
+      "bytes": 244
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/python/cv_bridge/core.py",
+      "bytes": 11830
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/rosdoc.yaml",
+      "bytes": 191
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/setup.py",
+      "bytes": 222
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/CMakeLists.txt",
+      "bytes": 2745
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/README",
+      "bytes": 142
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/core/scoped_enum.hpp",
+      "bytes": 7370
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/endian/conversion.hpp",
+      "bytes": 20308
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/endian/detail/intrinsic.hpp",
+      "bytes": 3010
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/detail/_cassert.h",
+      "bytes": 350
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/detail/endian_compat.h",
+      "bytes": 609
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/detail/test.h",
+      "bytes": 364
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/library/c/_prefix.h",
+      "bytes": 319
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/library/c/gnu.h",
+      "bytes": 1491
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/make.h",
+      "bytes": 4563
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/os/android.h",
+      "bytes": 1065
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/os/bsd.h",
+      "bytes": 3097
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/os/bsd/bsdi.h",
+      "bytes": 1163
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/os/bsd/dragonfly.h",
+      "bytes": 1283
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/os/bsd/free.h",
+      "bytes": 1526
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/os/bsd/net.h",
+      "bytes": 2523
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/os/bsd/open.h",
+      "bytes": 5952
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/os/ios.h",
+      "bytes": 1354
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/os/macos.h",
+      "bytes": 1813
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/other/endian.h",
+      "bytes": 7391
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/boost/predef/version_number.h",
+      "bytes": 1587
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/cv_bridge.cpp",
+      "bytes": 25944
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/module.cpp",
+      "bytes": 4889
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/module.hpp",
+      "bytes": 1118
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/module_opencv4.cpp",
+      "bytes": 9642
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/pycompat.hpp",
+      "bytes": 3073
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/src/rgb_colors.cpp",
+      "bytes": 11099
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/test/CMakeLists.txt",
+      "bytes": 421
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/test/conversions.py",
+      "bytes": 3931
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/test/enumerants.py",
+      "bytes": 1451
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/test/python_bindings.py",
+      "bytes": 1253
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/test/test_compression.cpp",
+      "bytes": 1138
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/test/test_endian.cpp",
+      "bytes": 1197
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/test/test_rgb_colors.cpp",
+      "bytes": 483
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/test/utest.cpp",
+      "bytes": 4323
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/cv_bridge/test/utest2.cpp",
+      "bytes": 7816
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/CMakeLists.txt",
+      "bytes": 7377
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/.gitignore",
+      "bytes": 139
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/CMakeLists.txt",
+      "bytes": 686
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/Doxyfile",
+      "bytes": 112090
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/LICENSE.txt",
+      "bytes": 15543
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/README.md",
+      "bytes": 9297
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/README_CN.md",
+      "bytes": 8974
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/doc/images/1.png",
+      "bytes": 5082
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/doc/images/broadcast_code.png",
+      "bytes": 117381
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/doc/images/sample.png",
+      "bytes": 72917
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/doc/images/sdk.png",
+      "bytes": 24853
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/doc/images/sdk_init.png",
+      "bytes": 1660
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/hub/CMakeLists.txt",
+      "bytes": 192
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/hub/main.c",
+      "bytes": 10372
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/hub_lvx_file/CMakeLists.txt",
+      "bytes": 211
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/hub_lvx_file/lvx_file.cpp",
+      "bytes": 7863
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/hub_lvx_file/lvx_file.h",
+      "bytes": 3071
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/hub_lvx_file/main.cpp",
+      "bytes": 13192
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/lidar/CMakeLists.txt",
+      "bytes": 194
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/lidar/main.c",
+      "bytes": 10229
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/lidar_lvx_file/CMakeLists.txt",
+      "bytes": 213
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/lidar_lvx_file/lvx_file.cpp",
+      "bytes": 9474
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/lidar_lvx_file/lvx_file.h",
+      "bytes": 3133
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/lidar_lvx_file/main.cpp",
+      "bytes": 14491
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/lidar_lvx_file/third_party/rapidxml/rapidxml.hpp",
+      "bytes": 118341
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/lidar_lvx_file/third_party/rapidxml/rapidxml_iterators.hpp",
+      "bytes": 3918
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/lidar_lvx_file/third_party/rapidxml/rapidxml_print.hpp",
+      "bytes": 15671
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample/lidar_lvx_file/third_party/rapidxml/rapidxml_utils.hpp",
+      "bytes": 3417
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/hub/CMakeLists.txt",
+      "bytes": 209
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/hub/lds_hub.cpp",
+      "bytes": 20571
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/hub/lds_hub.h",
+      "bytes": 4723
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/hub/main.cpp",
+      "bytes": 2617
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/lidar/CMakeLists.txt",
+      "bytes": 213
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/lidar/lds_lidar.cpp",
+      "bytes": 16886
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/lidar/lds_lidar.h",
+      "bytes": 4364
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/lidar/main.cpp",
+      "bytes": 2823
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/lidar_utc_sync/CMakeLists.txt",
+      "bytes": 296
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/lidar_utc_sync/lds_lidar.cpp",
+      "bytes": 10369
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/lidar_utc_sync/lds_lidar.h",
+      "bytes": 3186
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/lidar_utc_sync/main.cpp",
+      "bytes": 3432
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/lidar_utc_sync/synchro.cpp",
+      "bytes": 8668
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/lidar_utc_sync/synchro.h",
+      "bytes": 2817
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/trouble_shooting/CMakeLists.txt",
+      "bytes": 200
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sample_cc/trouble_shooting/main.cpp",
+      "bytes": 2820
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/CMakeLists.txt",
+      "bytes": 3332
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/comm/comm_port.h",
+      "bytes": 2042
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/comm/protocol.h",
+      "bytes": 2544
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/config.h",
+      "bytes": 1707
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/livox_def.h",
+      "bytes": 33423
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/livox_sdk.h",
+      "bytes": 45899
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/FastCRC/FastCRC.h",
+      "bytes": 2445
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/cmdline/cmdline.h",
+      "bytes": 19046
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/async.h",
+      "bytes": 3082
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/async_logger.h",
+      "bytes": 2323
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/common.h",
+      "bytes": 6046
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/async_logger_impl.h",
+      "bytes": 2989
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/circular_q.h",
+      "bytes": 1531
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/console_globals.h",
+      "bytes": 1195
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/file_helper.h",
+      "bytes": 3892
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/fmt_helper.h",
+      "bytes": 3444
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/log_msg.h",
+      "bytes": 1269
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/logger_impl.h",
+      "bytes": 11499
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/mpmc_blocking_q.h",
+      "bytes": 3437
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/null_mutex.h",
+      "bytes": 683
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/os.h",
+      "bytes": 10605
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/pattern_formatter.h",
+      "bytes": 39208
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/periodic_worker.h",
+      "bytes": 1844
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/registry.h",
+      "bytes": 8086
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/details/thread_pool.h",
+      "bytes": 6420
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bin_to_hex.h",
+      "bytes": 4360
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bundled/LICENSE.rst",
+      "bytes": 1310
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bundled/chrono.h",
+      "bytes": 13284
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bundled/color.h",
+      "bytes": 21968
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bundled/core.h",
+      "bytes": 47459
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bundled/format-inl.h",
+      "bytes": 32309
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bundled/format.h",
+      "bytes": 109393
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bundled/locale.h",
+      "bytes": 2782
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bundled/ostream.h",
+      "bytes": 4771
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bundled/posix.h",
+      "bytes": 8820
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bundled/printf.h",
+      "bytes": 25813
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bundled/ranges.h",
+      "bytes": 9069
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/bundled/time.h",
+      "bytes": 4311
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/fmt.h",
+      "bytes": 534
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/fmt/ostr.h",
+      "bytes": 371
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/formatter.h",
+      "bytes": 436
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/logger.h",
+      "bytes": 5771
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/android_sink.h",
+      "bytes": 3292
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/ansicolor_sink.h",
+      "bytes": 5248
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/base_sink.h",
+      "bytes": 1738
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/basic_file_sink.h",
+      "bytes": 1827
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/daily_file_sink.h",
+      "bytes": 4281
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/dist_sink.h",
+      "bytes": 2233
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/msvc_sink.h",
+      "bytes": 1034
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/null_sink.h",
+      "bytes": 1175
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/ostream_sink.h",
+      "bytes": 1276
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/rotating_file_sink.h",
+      "bytes": 5260
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/sink.h",
+      "bytes": 1364
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/stdout_color_sinks.h",
+      "bytes": 1659
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/stdout_sinks.h",
+      "bytes": 2867
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/syslog_sink.h",
+      "bytes": 2963
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/sinks/wincolor_sink.h",
+      "bytes": 4844
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/spdlog.h",
+      "bytes": 10861
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/tweakme.h",
+      "bytes": 6780
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/include/third_party/spdlog/spdlog/version.h",
+      "bytes": 305
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/command_callback.h",
+      "bytes": 7454
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/io_loop.cpp",
+      "bytes": 3411
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/io_loop.h",
+      "bytes": 2625
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/io_thread.cpp",
+      "bytes": 1679
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/io_thread.h",
+      "bytes": 1643
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/logging.cpp",
+      "bytes": 2146
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/logging.h",
+      "bytes": 2558
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/multiple_io/multiple_io_base.cpp",
+      "bytes": 2595
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/multiple_io/multiple_io_base.h",
+      "bytes": 2662
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/multiple_io/multiple_io_epoll.cpp",
+      "bytes": 3080
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/multiple_io/multiple_io_epoll.h",
+      "bytes": 1721
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/multiple_io/multiple_io_factory.h",
+      "bytes": 1982
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/multiple_io/multiple_io_kqueue.cpp",
+      "bytes": 4107
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/multiple_io/multiple_io_kqueue.h",
+      "bytes": 1758
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/multiple_io/multiple_io_poll.cpp",
+      "bytes": 3090
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/multiple_io/multiple_io_poll.h",
+      "bytes": 1713
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/multiple_io/multiple_io_select.cpp",
+      "bytes": 3236
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/multiple_io/multiple_io_select.h",
+      "bytes": 1686
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/network/network_util.h",
+      "bytes": 1893
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/network/unix/network_util.cpp",
+      "bytes": 3615
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/network/win/network_util.cpp",
+      "bytes": 4417
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/noncopyable.h",
+      "bytes": 1460
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/thread_base.cpp",
+      "bytes": 1633
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/thread_base.h",
+      "bytes": 1765
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/wake_up/unix/wake_up_pipe.cpp",
+      "bytes": 2706
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/wake_up/wake_up_pipe.h",
+      "bytes": 1541
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/base/wake_up/win/wake_up_pipe.cpp",
+      "bytes": 3592
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/comm/comm_port.cpp",
+      "bytes": 4741
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/comm/sdk_protocol.cpp",
+      "bytes": 4303
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/comm/sdk_protocol.h",
+      "bytes": 2390
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/command_handler/command_channel.cpp",
+      "bytes": 7646
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/command_handler/command_channel.h",
+      "bytes": 4123
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/command_handler/command_handler.cpp",
+      "bytes": 7162
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/command_handler/command_handler.h",
+      "bytes": 3566
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/command_handler/command_impl.cpp",
+      "bytes": 41725
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/command_handler/command_impl.h",
+      "bytes": 11577
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/command_handler/hub_command_handler.cpp",
+      "bytes": 2003
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/command_handler/hub_command_handler.h",
+      "bytes": 1872
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/command_handler/lidar_command_handler.cpp",
+      "bytes": 2446
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/command_handler/lidar_command_handler.h",
+      "bytes": 1917
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/data_handler/data_handler.cpp",
+      "bytes": 4345
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/data_handler/data_handler.h",
+      "bytes": 2676
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/data_handler/hub_data_handler.cpp",
+      "bytes": 2865
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/data_handler/hub_data_handler.h",
+      "bytes": 1901
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/data_handler/lidar_data_handler.cpp",
+      "bytes": 3690
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/data_handler/lidar_data_handler.h",
+      "bytes": 2003
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/device_discovery.cpp",
+      "bytes": 7808
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/device_discovery.h",
+      "bytes": 3148
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/device_manager.cpp",
+      "bytes": 13251
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/device_manager.h",
+      "bytes": 5883
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/livox_sdk.cpp",
+      "bytes": 3125
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/third_party/FastCRC/FastCRC_tables.hpp",
+      "bytes": 13215
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/third_party/FastCRC/FastCRCsw.cpp",
+      "bytes": 4504
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/third_party/FastCRC/LICENSE.md",
+      "bytes": 1093
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/Livox-SDK/sdk_core/src/third_party/FastCRC/README.md",
+      "bytes": 1589
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/cmake/version.cmake",
+      "bytes": 991
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/FastCRC/FastCRC.h",
+      "bytes": 2509
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/FastCRC/FastCRC_tables.hpp",
+      "bytes": 13603
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/FastCRC/FastCRCsw.cpp",
+      "bytes": 4748
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/FastCRC/LICENSE.md",
+      "bytes": 1093
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/FastCRC/README.md",
+      "bytes": 1589
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/comm/comm_device.h",
+      "bytes": 2002
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/comm/comm_protocol.cpp",
+      "bytes": 6314
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/comm/comm_protocol.h",
+      "bytes": 3011
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/comm/gps_protocol.cpp",
+      "bytes": 3827
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/comm/gps_protocol.h",
+      "bytes": 2325
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/comm/protocol.h",
+      "bytes": 3088
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/comm/sdk_protocol.cpp",
+      "bytes": 4418
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/comm/sdk_protocol.h",
+      "bytes": 2493
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/allocators.h",
+      "bytes": 10437
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/cursorstreamwrapper.h",
+      "bytes": 2230
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/document.h",
+      "bytes": 117966
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/encodedstream.h",
+      "bytes": 10634
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/encodings.h",
+      "bytes": 29827
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/error/en.h",
+      "bytes": 3739
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/error/error.h",
+      "bytes": 6472
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/filereadstream.h",
+      "bytes": 2961
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/filewritestream.h",
+      "bytes": 3073
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/fwd.h",
+      "bytes": 4120
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/biginteger.h",
+      "bytes": 8296
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/clzll.h",
+      "bytes": 2035
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/diyfp.h",
+      "bytes": 11387
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/dtoa.h",
+      "bytes": 7724
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/ieee754.h",
+      "bytes": 2990
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/itoa.h",
+      "bytes": 9272
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/meta.h",
+      "bytes": 6731
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/pow10.h",
+      "bytes": 3957
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/regex.h",
+      "bytes": 23238
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/stack.h",
+      "bytes": 6805
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/strfunc.h",
+      "bytes": 2184
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/strtod.h",
+      "bytes": 8656
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/internal/swap.h",
+      "bytes": 1421
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/istreamwrapper.h",
+      "bytes": 4112
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/memorybuffer.h",
+      "bytes": 2573
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/memorystream.h",
+      "bytes": 2673
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/msinttypes/inttypes.h",
+      "bytes": 7824
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/msinttypes/stdint.h",
+      "bytes": 9151
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/ostreamwrapper.h",
+      "bytes": 2342
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/pointer.h",
+      "bytes": 60230
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/prettywriter.h",
+      "bytes": 10253
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/rapidjson.h",
+      "bytes": 24293
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/reader.h",
+      "bytes": 89290
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/schema.h",
+      "bytes": 101259
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/stream.h",
+      "bytes": 6694
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/stringbuffer.h",
+      "bytes": 3984
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidjson/writer.h",
+      "bytes": 26178
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidxml/rapidxml.hpp",
+      "bytes": 98996
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidxml/rapidxml_iterators.hpp",
+      "bytes": 3011
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidxml/rapidxml_print.hpp",
+      "bytes": 12914
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/common/rapidxml/rapidxml_utils.hpp",
+      "bytes": 2823
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/config/display_hub_points.rviz",
+      "bytes": 5824
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/config/display_lidar_points.rviz",
+      "bytes": 5650
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/config/livox_hub_config.json",
+      "bytes": 664
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/config/livox_lidar_config.json",
+      "bytes": 795
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/launch/livox_hub.launch",
+      "bytes": 1825
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/launch/livox_hub_msg.launch",
+      "bytes": 1825
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/launch/livox_hub_rviz.launch",
+      "bytes": 1824
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/launch/livox_lidar.launch",
+      "bytes": 1829
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/launch/livox_lidar_msg.launch",
+      "bytes": 1829
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/launch/livox_lidar_rviz.launch",
+      "bytes": 1830
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/launch/livox_template.launch",
+      "bytes": 1829
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/launch/lvx_to_rosbag.launch",
+      "bytes": 1829
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/launch/lvx_to_rosbag_rviz.launch",
+      "bytes": 1825
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/include/livox_ros_driver.h",
+      "bytes": 1726
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/lddc.cpp",
+      "bytes": 23554
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/lddc.h",
+      "bytes": 4060
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/ldq.cpp",
+      "bytes": 3716
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/ldq.h",
+      "bytes": 2842
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/lds.cpp",
+      "bytes": 26097
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/lds.h",
+      "bytes": 15428
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/lds_hub.cpp",
+      "bytes": 24555
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/lds_hub.h",
+      "bytes": 4594
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/lds_lidar.cpp",
+      "bytes": 27475
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/lds_lidar.h",
+      "bytes": 5039
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/lds_lvx.cpp",
+      "bytes": 7809
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/lds_lvx.h",
+      "bytes": 2183
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/livox_ros_driver.cpp",
+      "bytes": 6118
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/lvx_file.cpp",
+      "bytes": 13630
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/livox_ros_driver/lvx_file.h",
+      "bytes": 5807
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/msg/CustomMsg.msg",
+      "bytes": 341
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/msg/CustomPoint.msg",
+      "bytes": 353
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/package.xml",
+      "bytes": 3410
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/timesync/timesync.cpp",
+      "bytes": 6108
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/timesync/timesync.h",
+      "bytes": 3080
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/timesync/user_uart/user_uart.cpp",
+      "bytes": 5242
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver1_2/livox_ros_driver/livox_ros_driver/timesync/user_uart/user_uart.h",
+      "bytes": 2332
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/CMakeLists.txt",
+      "bytes": 9176
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/README.md",
+      "bytes": 4329
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/aircraft_measurements_20260908.yaml",
+      "bytes": 1101
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/competition_field_20260908.yaml",
+      "bytes": 771
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/competition_freedom.yaml",
+      "bytes": 873
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/competition_profiles.yaml",
+      "bytes": 369
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/coverage_r2026_horizontal.yaml",
+      "bytes": 1046
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/coverage_toudi3_random.yaml",
+      "bytes": 3443
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/horizontal_planner.yaml",
+      "bytes": 1876
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/mid360_hardware.yaml",
+      "bytes": 666
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/planner_anchor_profiles.yaml",
+      "bytes": 1195
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/release_guard.yaml",
+      "bytes": 1542
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/sim.yaml",
+      "bytes": 568
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_corridor_low_control.yaml",
+      "bytes": 2029
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_corridor_low_runtime.yaml",
+      "bytes": 2334
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_full_low_corridor_control.yaml",
+      "bytes": 1980
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_full_low_corridor_runtime.yaml",
+      "bytes": 3071
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_horizontal_control.yaml",
+      "bytes": 2899
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_horizontal_field_runtime.yaml",
+      "bytes": 4241
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_planner_bridge.yaml",
+      "bytes": 2716
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_random_field_runtime.yaml",
+      "bytes": 4599
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_runtime.yaml",
+      "bytes": 1174
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/competition_hardware.launch",
+      "bytes": 5225
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/navigation_corridor_landing_vcl06.launch",
+      "bytes": 1651
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/navigation_horizontal_search_vcl06.launch",
+      "bytes": 7909
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/navigation_mission_manager.launch",
+      "bytes": 1530
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/navigation_mission_start_gate.launch",
+      "bytes": 2718
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/navigation_planner_bridge.launch",
+      "bytes": 2673
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/navigation_post_delivery_vcl06.launch",
+      "bytes": 1815
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/navigation_search_delivery_vcl06.launch",
+      "bytes": 12149
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/release_guard.launch",
+      "bytes": 1254
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/release_guard_sim.launch",
+      "bytes": 802
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/launch/toudi3_visual_delivery_guarded.launch",
+      "bytes": 6379
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/msg/NavigationDecision.msg",
+      "bytes": 476
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/msg/NavigationResult.msg",
+      "bytes": 756
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/msg/ReleasePermission.msg",
+      "bytes": 246
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/msg/ReleaseResult.msg",
+      "bytes": 181
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/package.xml",
+      "bytes": 4664
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/gazebo_contact_monitor.py",
+      "bytes": 4062
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/guarded_servo_proxy.py",
+      "bytes": 5130
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/lio_external_pose.py",
+      "bytes": 2377
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/mock_raw_servo_server.py",
+      "bytes": 1360
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_mission_manager.py",
+      "bytes": 28894
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_mission_start_gate.py",
+      "bytes": 8738
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_planner_bridge.py",
+      "bytes": 59547
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_vcl06_assertion.py",
+      "bytes": 71434
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/planner_anchor_spawner.py",
+      "bytes": 7092
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/pose_tf_broadcaster.py",
+      "bytes": 1873
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/random_field_spawner.py",
+      "bytes": 16915
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/release_commitment.py",
+      "bytes": 13449
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/release_permission_arbiter.py",
+      "bytes": 16778
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/visual_delivery_audit.py",
+      "bytes": 17639
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/setup.py",
+      "bytes": 235
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/__init__.py",
+      "bytes": 0
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/candidate_policy.py",
+      "bytes": 1314
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/contact_policy.py",
+      "bytes": 974
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/coverage_route.py",
+      "bytes": 5842
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/mission_core.py",
+      "bytes": 56374
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/mission_runtime.py",
+      "bytes": 21327
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/mission_start_gate.py",
+      "bytes": 14097
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/planner_anchor_policy.py",
+      "bytes": 2677
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/planner_execution.py",
+      "bytes": 46467
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/position_settle.py",
+      "bytes": 3193
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/profile_policy.py",
+      "bytes": 4557
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/random_field_policy.py",
+      "bytes": 5149
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/search_policy.py",
+      "bytes": 3680
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/search_types.py",
+      "bytes": 1213
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/visual_delivery_audit_policy.py",
+      "bytes": 2747
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/frozen_planner_replay.launch",
+      "bytes": 621
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/liftrace_frozen_replay.py",
+      "bytes": 2575
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_contract_profile.py",
+      "bytes": 3980
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_coverage_route.py",
+      "bytes": 3321
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_early_return_disabled.py",
+      "bytes": 1423
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_external_mission_contract.py",
+      "bytes": 22024
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_full_low_corridor.py",
+      "bytes": 5317
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_lio_external_pose.py",
+      "bytes": 990
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_mission_core.py",
+      "bytes": 48151
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_mission_runtime.py",
+      "bytes": 20869
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_mission_start_gate.py",
+      "bytes": 12501
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_navigation_manager_contract.py",
+      "bytes": 10436
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_navigation_planner_bridge_contract.py",
+      "bytes": 12719
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_navigation_vcl06_assertion.py",
+      "bytes": 52394
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_planner_execution.py",
+      "bytes": 28010
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_planner_mission_contract.py",
+      "bytes": 3933
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_position_settle.py",
+      "bytes": 2880
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_release_commitment.py",
+      "bytes": 4942
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_sim_lidar_map_contract.py",
+      "bytes": 4555
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_staggered_corridor_gate.py",
+      "bytes": 3937
+    },
+    {
+      "path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_visual_delivery_audit_policy.py",
+      "bytes": 5544
+    },
+    {
+      "path": "top_level_scripts/build_competition.sh",
+      "bytes": 527
+    },
+    {
+      "path": "vision_ws/src/CMakeLists.txt",
+      "bytes": 2179
+    },
+    {
+      "path": "vision_ws/src/camera_sdk/CMakeLists.txt",
+      "bytes": 7125
+    },
+    {
+      "path": "vision_ws/src/camera_sdk/launch/camera_calibrated_1280x720.launch",
+      "bytes": 1753
+    },
+    {
+      "path": "vision_ws/src/camera_sdk/launch/camera_video0.launch",
+      "bytes": 1620
+    },
+    {
+      "path": "vision_ws/src/camera_sdk/launch/camera_video2.launch",
+      "bytes": 1955
+    },
+    {
+      "path": "vision_ws/src/camera_sdk/launch/usb_cam.launch",
+      "bytes": 645
+    },
+    {
+      "path": "vision_ws/src/camera_sdk/package.xml",
+      "bytes": 3273
+    },
+    {
+      "path": "vision_ws/src/camera_sdk/param/calibration_1280x720.yaml",
+      "bytes": 1115
+    },
+    {
+      "path": "vision_ws/src/camera_sdk/param/camera_param.yaml",
+      "bytes": 508
+    },
+    {
+      "path": "vision_ws/src/camera_sdk/param/jdland.yaml",
+      "bytes": 495
+    },
+    {
+      "path": "vision_ws/src/camera_sdk/param/video0.yaml",
+      "bytes": 503
+    },
+    {
+      "path": "vision_ws/src/camera_sdk/script/camera_sdk.py",
+      "bytes": 14167
+    },
+    {
+      "path": "vision_ws/src/camera_sdk/test/test_calibrated_profile.py",
+      "bytes": 2733
+    },
+    {
+      "path": "vision_ws/src/uav_vision/CMakeLists.txt",
+      "bytes": 3886
+    },
+    {
+      "path": "vision_ws/src/uav_vision/README.md",
+      "bytes": 14838
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/camera_intrinsics_1920x1080.yaml",
+      "bytes": 861
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/circle_detector.yaml",
+      "bytes": 820
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/cross_detector.yaml",
+      "bytes": 1399
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/default.yaml",
+      "bytes": 213
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/detection_fusion.yaml",
+      "bytes": 1623
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/drop_aligner.yaml",
+      "bytes": 1013
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/landing_detector.yaml",
+      "bytes": 1465
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/merged_standard_6cls_metadata.yaml",
+      "bytes": 289
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/target_detector.yaml",
+      "bytes": 604
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/target_detector_rknn.yaml",
+      "bytes": 774
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/target_map_projector.yaml",
+      "bytes": 620
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/target_memory.yaml",
+      "bytes": 2789
+    },
+    {
+      "path": "vision_ws/src/uav_vision/config/target_refiner.yaml",
+      "bytes": 316
+    },
+    {
+      "path": "vision_ws/src/uav_vision/docs/CONTROL_GROUP_HANDOFF.md",
+      "bytes": 8285
+    },
+    {
+      "path": "vision_ws/src/uav_vision/docs/NAVIGATION_GROUP_HANDOFF.md",
+      "bytes": 16014
+    },
+    {
+      "path": "vision_ws/src/uav_vision/docs/VIDEO_REPLAY_ANNOTATION.md",
+      "bytes": 3473
+    },
+    {
+      "path": "vision_ws/src/uav_vision/include/uav_vision/circular_detector_node.h",
+      "bytes": 2702
+    },
+    {
+      "path": "vision_ws/src/uav_vision/include/uav_vision/cross_detector_node.h",
+      "bytes": 5015
+    },
+    {
+      "path": "vision_ws/src/uav_vision/include/uav_vision/h_stroke_detector.h",
+      "bytes": 4071
+    },
+    {
+      "path": "vision_ws/src/uav_vision/include/uav_vision/landing_detector_node.h",
+      "bytes": 2793
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/alignment_context_mock.launch",
+      "bytes": 1010
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/board_camera_vision.launch",
+      "bytes": 2529
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/circle_detection.launch",
+      "bytes": 254
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/circle_geometry_mock.launch",
+      "bytes": 569
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/control_handoff_board.launch",
+      "bytes": 1911
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/control_handoff_dev.launch",
+      "bytes": 1729
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/cross_detection.launch",
+      "bytes": 251
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/drop_aligner_freshness_mock.launch",
+      "bytes": 643
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/map_rejection_mock.launch",
+      "bytes": 1228
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/phase_b.launch",
+      "bytes": 1152
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/phase_c.launch",
+      "bytes": 1406
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/phase_d.launch",
+      "bytes": 6953
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/phase_d_board.launch",
+      "bytes": 6440
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/phase_d_board_perf_mock.launch",
+      "bytes": 1199
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/phase_d_map_mock.launch",
+      "bytes": 1805
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/phase_d_mock_patrol.launch",
+      "bytes": 1535
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/phase_d_mock_patrol_regression.launch",
+      "bytes": 741
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/phase_d_mode_mock.launch",
+      "bytes": 2694
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/phase_d_patrol_internal.launch",
+      "bytes": 757
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/target_memory_physical_mock.launch",
+      "bytes": 694
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/uav_vision.launch",
+      "bytes": 178
+    },
+    {
+      "path": "vision_ws/src/uav_vision/launch/video_replay_annotation.launch",
+      "bytes": 10009
+    },
+    {
+      "path": "vision_ws/src/uav_vision/models/README.md",
+      "bytes": 524
+    },
+    {
+      "path": "vision_ws/src/uav_vision/msg/AlignmentTargetContext.msg",
+      "bytes": 890
+    },
+    {
+      "path": "vision_ws/src/uav_vision/msg/DropOffset.msg",
+      "bytes": 118
+    },
+    {
+      "path": "vision_ws/src/uav_vision/msg/DropReady.msg",
+      "bytes": 114
+    },
+    {
+      "path": "vision_ws/src/uav_vision/msg/ReleaseEvidence.msg",
+      "bytes": 360
+    },
+    {
+      "path": "vision_ws/src/uav_vision/msg/ReleaseEvidenceContext.msg",
+      "bytes": 1093
+    },
+    {
+      "path": "vision_ws/src/uav_vision/msg/TargetCandidate.msg",
+      "bytes": 712
+    },
+    {
+      "path": "vision_ws/src/uav_vision/msg/TargetCandidateArray.msg",
+      "bytes": 67
+    },
+    {
+      "path": "vision_ws/src/uav_vision/msg/TargetDetection.msg",
+      "bytes": 925
+    },
+    {
+      "path": "vision_ws/src/uav_vision/msg/TargetDetectionArray.msg",
+      "bytes": 516
+    },
+    {
+      "path": "vision_ws/src/uav_vision/package.xml",
+      "bytes": 899
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/alignment_context_assertion.py",
+      "bytes": 15565
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/circle_geometry_assertion.py",
+      "bytes": 2542
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/cross_geometry_regression_assertion.py",
+      "bytes": 10820
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/detect_compat_bridge.py",
+      "bytes": 10961
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/detection_fusion.py",
+      "bytes": 181
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/detection_fusion_concurrency_assertion.py",
+      "bytes": 10256
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/drop_aligner.py",
+      "bytes": 22141
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/drop_aligner_freshness_assertion.py",
+      "bytes": 2889
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/landing_mode_gate_assertion.py",
+      "bytes": 8166
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/map_rejection_assertion.py",
+      "bytes": 2234
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/mock_align_mode_publisher.py",
+      "bytes": 952
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/mock_camera_info.py",
+      "bytes": 1609
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/mock_detection_feeder.py",
+      "bytes": 2570
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/mock_image_publisher.py",
+      "bytes": 1959
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/mock_ring_image_publisher.py",
+      "bytes": 1556
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/mock_target_pair_feeder.py",
+      "bytes": 3058
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/mock_uav_pose.py",
+      "bytes": 2081
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/phase_d_assertion.py",
+      "bytes": 7807
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/phase_d_map_assertion.py",
+      "bytes": 4037
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/placeholder_node.py",
+      "bytes": 1127
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/target_detector.py",
+      "bytes": 8166
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/target_detector_rknn.py",
+      "bytes": 22083
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/target_map_projector.py",
+      "bytes": 7891
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/target_map_projector_rectification_assertion.py",
+      "bytes": 2523
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/target_memory.py",
+      "bytes": 31853
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/target_memory_physical_assertion.py",
+      "bytes": 15036
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/target_refiner.py",
+      "bytes": 6421
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/target_selection_policy_assertion.py",
+      "bytes": 5536
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/video_annotation_recorder.py",
+      "bytes": 20349
+    },
+    {
+      "path": "vision_ws/src/uav_vision/scripts/video_replay_publisher.py",
+      "bytes": 11941
+    },
+    {
+      "path": "vision_ws/src/uav_vision/setup.py",
+      "bytes": 211
+    },
+    {
+      "path": "vision_ws/src/uav_vision/src/circle_detector_node.cpp",
+      "bytes": 13403
+    },
+    {
+      "path": "vision_ws/src/uav_vision/src/cross_detector_node.cpp",
+      "bytes": 29740
+    },
+    {
+      "path": "vision_ws/src/uav_vision/src/landing_detector_node.cpp",
+      "bytes": 16492
+    },
+    {
+      "path": "vision_ws/src/uav_vision/src/uav_vision/__init__.py",
+      "bytes": 53
+    },
+    {
+      "path": "vision_ws/src/uav_vision/src/uav_vision/alignment_context_policy.py",
+      "bytes": 8886
+    },
+    {
+      "path": "vision_ws/src/uav_vision/src/uav_vision/detection_fusion.py",
+      "bytes": 14365
+    },
+    {
+      "path": "vision_ws/src/uav_vision/src/uav_vision/model_contract.py",
+      "bytes": 647
+    },
+    {
+      "path": "vision_ws/src/uav_vision/src/uav_vision/target_selection_policy.py",
+      "bytes": 6489
+    },
+    {
+      "path": "vision_ws/src/uav_vision/src/uav_vision/video_replay_contract.py",
+      "bytes": 3145
+    },
+    {
+      "path": "vision_ws/src/uav_vision/test/alignment_context.test",
+      "bytes": 276
+    },
+    {
+      "path": "vision_ws/src/uav_vision/test/alignment_context_optional.test",
+      "bytes": 1339
+    },
+    {
+      "path": "vision_ws/src/uav_vision/test/cross_geometry_regression.test",
+      "bytes": 809
+    },
+    {
+      "path": "vision_ws/src/uav_vision/test/h_stroke_detector_test.cpp",
+      "bytes": 1466
+    },
+    {
+      "path": "vision_ws/src/uav_vision/test/landing_mode_gate.test",
+      "bytes": 787
+    },
+    {
+      "path": "vision_ws/src/uav_vision/test/test_alignment_context_policy.py",
+      "bytes": 6738
+    },
+    {
+      "path": "vision_ws/src/uav_vision/test/test_detector_model_contract.py",
+      "bytes": 3931
+    },
+    {
+      "path": "vision_ws/src/uav_vision/test/test_video_replay_contract.py",
+      "bytes": 6475
+    },
+    {
+      "path": "runtime_models/merged_standard_fp32.rknn",
+      "bytes": 7544630
+    },
+    {
+      "path": "README_FIRST.md",
+      "bytes": 2831
+    }
+  ]
+}

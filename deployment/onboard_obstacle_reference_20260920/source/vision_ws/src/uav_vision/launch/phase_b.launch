@@ -1,0 +1,26 @@
+<launch>
+  <!-- 视觉最小闭环：cross + circle + compat + aligner -->
+
+  <node pkg="uav_vision" type="cross_detector_node" name="cross_detector" output="screen">
+    <rosparam file="$(find uav_vision)/config/default.yaml"/>
+    <rosparam file="$(find uav_vision)/config/cross_detector.yaml"/>
+  </node>
+
+  <node pkg="uav_vision" type="circle_detector_node" name="circle_detector" output="screen">
+    <rosparam file="$(find uav_vision)/config/default.yaml"/>
+    <rosparam file="$(find uav_vision)/config/circle_detector.yaml"/>
+    <param name="debug_image_topic" value="/uav_vision/circle_debug"/>
+  </node>
+
+  <node pkg="uav_vision" type="detection_fusion.py" name="detection_fusion" output="screen">
+    <rosparam file="$(find uav_vision)/config/detection_fusion.yaml"/>
+  </node>
+
+  <node pkg="uav_vision" type="detect_compat_bridge.py" name="detect_compat_bridge" output="screen">
+    <param name="detections_topic" value="/uav_vision/detections_resolved"/>
+  </node>
+
+  <node pkg="uav_vision" type="drop_aligner.py" name="drop_aligner" output="screen">
+    <rosparam file="$(find uav_vision)/config/drop_aligner.yaml"/>
+  </node>
+</launch>

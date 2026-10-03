@@ -1,0 +1,1527 @@
+{
+  "new": [
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed36_20260915_180729",
+      "route": [
+        {
+          "t": 115.242,
+          "idx": "1/9",
+          "goal": [
+            -4.05,
+            6.7,
+            1.18
+          ]
+        },
+        {
+          "t": 126.853,
+          "idx": "2/9",
+          "goal": [
+            -4.05,
+            6.7,
+            0.18
+          ]
+        },
+        {
+          "t": 138.225,
+          "idx": "3/9",
+          "goal": [
+            -4.05,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 153.498,
+          "idx": "4/9",
+          "goal": [
+            -2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 169.313,
+          "idx": "5/9",
+          "goal": [
+            -0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 184.965,
+          "idx": "6/9",
+          "goal": [
+            0.0,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 194.226,
+          "idx": "7/9",
+          "goal": [
+            0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 203.41,
+          "idx": "8/9",
+          "goal": [
+            2.3,
+            8.35,
+            0.23
+          ]
+        }
+      ],
+      "segments": [
+        {
+          "idx": "1/9",
+          "start": 115.242,
+          "end": 126.853,
+          "duration": 11.61099999999999,
+          "goal_xyz": [
+            -4.05,
+            6.7,
+            1.18
+          ]
+        },
+        {
+          "idx": "2/9",
+          "start": 126.853,
+          "end": 138.225,
+          "duration": 11.372,
+          "goal_xyz": [
+            -4.05,
+            6.7,
+            0.18
+          ]
+        },
+        {
+          "idx": "3/9",
+          "start": 138.225,
+          "end": 153.498,
+          "duration": 15.272999999999996,
+          "goal_xyz": [
+            -4.05,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "4/9",
+          "start": 153.498,
+          "end": 169.313,
+          "duration": 15.814999999999998,
+          "goal_xyz": [
+            -2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "5/9",
+          "start": 169.313,
+          "end": 184.965,
+          "duration": 15.652000000000015,
+          "goal_xyz": [
+            -0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "6/9",
+          "start": 184.965,
+          "end": 194.226,
+          "duration": 9.260999999999996,
+          "goal_xyz": [
+            0.0,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "7/9",
+          "start": 194.226,
+          "end": 203.41,
+          "duration": 9.183999999999997,
+          "goal_xyz": [
+            0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "8/9",
+          "start": 203.41,
+          "end": 293.389,
+          "duration": 89.97900000000001,
+          "goal_xyz": [
+            2.3,
+            8.35,
+            0.23
+          ]
+        }
+      ],
+      "end_t": 293.389,
+      "terminal_reason": "safety_motion_timed_out",
+      "first_door_segment": {
+        "idx": "5/9",
+        "duration_s": 15.652000000000015,
+        "goal_xyz": [
+          -0.9000000000000001,
+          8.35,
+          0.23
+        ],
+        "setpoint_samples": 145,
+        "held_xyz": [
+          -0.9000000000000001,
+          8.350000000000001,
+          0.23
+        ],
+        "held_from_s": 183.439,
+        "held_duration_s": 1.396000000000015,
+        "held_fraction": 0.09655172413793103,
+        "truth_xy_start": [
+          -2.264301310404535,
+          8.348773382535212
+        ],
+        "truth_xy_end": [
+          -0.9280061820220151,
+          8.351292638403732
+        ],
+        "moved_path_m": 1.7808460391577494,
+        "last_motion_s": 184.103,
+        "still_duration_s": 0.8619999999999948,
+        "truth_x_range": [
+          -2.264301310404535,
+          -0.9280061820220151
+        ],
+        "planner_failures": 1
+      },
+      "second_door_segment": {
+        "idx": "8/9",
+        "duration_s": 89.97900000000001,
+        "goal_xyz": [
+          2.3,
+          8.35,
+          0.23
+        ],
+        "setpoint_samples": 846,
+        "held_xyz": [
+          0.9330681550862634,
+          8.394764736665621,
+          0.23048635331493544
+        ],
+        "held_from_s": 261.345,
+        "held_duration_s": 31.97999999999996,
+        "held_fraction": 0.9787234042553191,
+        "truth_xy_start": [
+          0.885689833228238,
+          8.33217771628029
+        ],
+        "truth_xy_end": [
+          0.9212211132477038,
+          8.386779691325767
+        ],
+        "moved_path_m": 1.7449446169837735,
+        "last_motion_s": null,
+        "still_duration_s": 89.97900000000001,
+        "truth_x_range": [
+          0.8769870857263206,
+          1.00918472233564
+        ],
+        "planner_failures": 0
+      },
+      "log": {
+        "kino_replan_fail": 13,
+        "no_planner_command": 6,
+        "time_jump": 25,
+        "seg8_kino_fail": 0,
+        "seg8_no_command": 1
+      },
+      "doors_crossed": [
+        "corridor_entry",
+        "Wall_20"
+      ],
+      "seed": 36,
+      "source": "92bd3ee",
+      "door_pattern": "LL",
+      "seg8_s": 89.97900000000001,
+      "seg8_still_s": 89.97900000000001,
+      "seg8_hold_x": 0.9330681550862634,
+      "seg8_hold_s": 31.97999999999996,
+      "seg8_kino_fail": 0,
+      "seg8_no_command": 1,
+      "seg8_gap_m": 0.667
+    },
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed37_20260915_182936",
+      "route": [
+        {
+          "t": 90.607,
+          "idx": "1/9",
+          "goal": [
+            -4.05,
+            6.7,
+            1.18
+          ]
+        },
+        {
+          "t": 104.317,
+          "idx": "2/9",
+          "goal": [
+            -4.05,
+            6.7,
+            0.18
+          ]
+        },
+        {
+          "t": 116.096,
+          "idx": "3/9",
+          "goal": [
+            -4.05,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 130.526,
+          "idx": "4/9",
+          "goal": [
+            -2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 147.976,
+          "idx": "5/9",
+          "goal": [
+            -0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 166.386,
+          "idx": "6/9",
+          "goal": [
+            0.0,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 174.09,
+          "idx": "7/9",
+          "goal": [
+            0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 182.646,
+          "idx": "8/9",
+          "goal": [
+            2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 198.518,
+          "idx": "9/9",
+          "goal": [
+            4.2,
+            8.5,
+            0.28
+          ]
+        }
+      ],
+      "segments": [
+        {
+          "idx": "1/9",
+          "start": 90.607,
+          "end": 104.317,
+          "duration": 13.709999999999994,
+          "goal_xyz": [
+            -4.05,
+            6.7,
+            1.18
+          ]
+        },
+        {
+          "idx": "2/9",
+          "start": 104.317,
+          "end": 116.096,
+          "duration": 11.77900000000001,
+          "goal_xyz": [
+            -4.05,
+            6.7,
+            0.18
+          ]
+        },
+        {
+          "idx": "3/9",
+          "start": 116.096,
+          "end": 130.526,
+          "duration": 14.430000000000007,
+          "goal_xyz": [
+            -4.05,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "4/9",
+          "start": 130.526,
+          "end": 147.976,
+          "duration": 17.44999999999999,
+          "goal_xyz": [
+            -2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "5/9",
+          "start": 147.976,
+          "end": 166.386,
+          "duration": 18.409999999999997,
+          "goal_xyz": [
+            -0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "6/9",
+          "start": 166.386,
+          "end": 174.09,
+          "duration": 7.704000000000008,
+          "goal_xyz": [
+            0.0,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "7/9",
+          "start": 174.09,
+          "end": 182.646,
+          "duration": 8.555999999999983,
+          "goal_xyz": [
+            0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "8/9",
+          "start": 182.646,
+          "end": 198.518,
+          "duration": 15.872000000000014,
+          "goal_xyz": [
+            2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "9/9",
+          "start": 198.518,
+          "end": 216.517,
+          "duration": 17.998999999999995,
+          "goal_xyz": [
+            4.2,
+            8.5,
+            0.28
+          ]
+        }
+      ],
+      "end_t": 216.517,
+      "terminal_reason": "post_delivery_route_complete",
+      "first_door_segment": {
+        "idx": "5/9",
+        "duration_s": 18.409999999999997,
+        "goal_xyz": [
+          -0.9000000000000001,
+          8.35,
+          0.23
+        ],
+        "setpoint_samples": 170,
+        "held_xyz": [
+          -0.9000000000000001,
+          8.35,
+          0.23000000000000004
+        ],
+        "held_from_s": 164.699,
+        "held_duration_s": 1.603999999999985,
+        "held_fraction": 0.09411764705882353,
+        "truth_xy_start": [
+          -2.283278630162757,
+          8.324858676312816
+        ],
+        "truth_xy_end": [
+          -0.8414631265163174,
+          8.376892735518387
+        ],
+        "moved_path_m": 1.9300007486424655,
+        "last_motion_s": 165.473,
+        "still_duration_s": 0.9129999999999825,
+        "truth_x_range": [
+          -2.2992566856571854,
+          -0.8414631265163174
+        ],
+        "planner_failures": 1
+      },
+      "second_door_segment": {
+        "idx": "8/9",
+        "duration_s": 15.872000000000014,
+        "goal_xyz": [
+          2.3,
+          8.35,
+          0.23
+        ],
+        "setpoint_samples": 148,
+        "held_xyz": [
+          2.3,
+          8.350000000000001,
+          0.23
+        ],
+        "held_from_s": 197.011,
+        "held_duration_s": 1.391999999999996,
+        "held_fraction": 0.0945945945945946,
+        "truth_xy_start": [
+          0.8917616121097081,
+          8.360569259553559
+        ],
+        "truth_xy_end": [
+          2.3079847142615555,
+          8.366566639838402
+        ],
+        "moved_path_m": 1.7398380280657233,
+        "last_motion_s": 197.948,
+        "still_duration_s": 0.5699999999999932,
+        "truth_x_range": [
+          0.8881470534310278,
+          2.3079847142615555
+        ],
+        "planner_failures": 1
+      },
+      "log": {
+        "kino_replan_fail": 6,
+        "no_planner_command": 2,
+        "time_jump": 14,
+        "seg8_kino_fail": 0,
+        "seg8_no_command": 0
+      },
+      "doors_crossed": [
+        "corridor_entry",
+        "Wall_20",
+        "Wall_22"
+      ],
+      "seed": 37,
+      "source": "92bd3ee",
+      "door_pattern": "LR",
+      "seg8_s": 15.872000000000014,
+      "seg8_still_s": 0.5699999999999932,
+      "seg8_hold_x": 2.3,
+      "seg8_hold_s": 1.391999999999996,
+      "seg8_kino_fail": 0,
+      "seg8_no_command": 0,
+      "seg8_gap_m": -0.7
+    },
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed38_20260915_184340",
+      "route": [],
+      "segments": [],
+      "end_t": null,
+      "terminal_reason": null,
+      "first_door_segment": null,
+      "second_door_segment": null,
+      "log": {
+        "kino_replan_fail": 5,
+        "no_planner_command": 1,
+        "time_jump": 5,
+        "seg8_kino_fail": null,
+        "seg8_no_command": null
+      },
+      "doors_crossed": [],
+      "seed": 38,
+      "source": "92bd3ee",
+      "door_pattern": "RL",
+      "seg8_s": null,
+      "seg8_still_s": null,
+      "seg8_hold_x": null,
+      "seg8_hold_s": null,
+      "seg8_kino_fail": null,
+      "seg8_no_command": null,
+      "seg8_gap_m": null
+    },
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed39_20260915_184841",
+      "route": [
+        {
+          "t": 93.14,
+          "idx": "1/9",
+          "goal": [
+            -4.05,
+            6.7,
+            1.18
+          ]
+        },
+        {
+          "t": 109.003,
+          "idx": "2/9",
+          "goal": [
+            -4.05,
+            6.7,
+            0.18
+          ]
+        },
+        {
+          "t": 117.86,
+          "idx": "3/9",
+          "goal": [
+            -4.05,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 131.658,
+          "idx": "4/9",
+          "goal": [
+            -2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 148.818,
+          "idx": "5/9",
+          "goal": [
+            -0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 164.563,
+          "idx": "6/9",
+          "goal": [
+            0.0,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 171.976,
+          "idx": "7/9",
+          "goal": [
+            0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 180.446,
+          "idx": "8/9",
+          "goal": [
+            2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 220.457,
+          "idx": "9/9",
+          "goal": [
+            4.2,
+            8.5,
+            0.28
+          ]
+        }
+      ],
+      "segments": [
+        {
+          "idx": "1/9",
+          "start": 93.14,
+          "end": 109.003,
+          "duration": 15.863,
+          "goal_xyz": [
+            -4.05,
+            6.7,
+            1.18
+          ]
+        },
+        {
+          "idx": "2/9",
+          "start": 109.003,
+          "end": 117.86,
+          "duration": 8.857,
+          "goal_xyz": [
+            -4.05,
+            6.7,
+            0.18
+          ]
+        },
+        {
+          "idx": "3/9",
+          "start": 117.86,
+          "end": 131.658,
+          "duration": 13.797999999999988,
+          "goal_xyz": [
+            -4.05,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "4/9",
+          "start": 131.658,
+          "end": 148.818,
+          "duration": 17.160000000000025,
+          "goal_xyz": [
+            -2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "5/9",
+          "start": 148.818,
+          "end": 164.563,
+          "duration": 15.744999999999976,
+          "goal_xyz": [
+            -0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "6/9",
+          "start": 164.563,
+          "end": 171.976,
+          "duration": 7.413000000000011,
+          "goal_xyz": [
+            0.0,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "7/9",
+          "start": 171.976,
+          "end": 180.446,
+          "duration": 8.469999999999999,
+          "goal_xyz": [
+            0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "8/9",
+          "start": 180.446,
+          "end": 220.457,
+          "duration": 40.010999999999996,
+          "goal_xyz": [
+            2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "9/9",
+          "start": 220.457,
+          "end": 236.923,
+          "duration": 16.466000000000008,
+          "goal_xyz": [
+            4.2,
+            8.5,
+            0.28
+          ]
+        }
+      ],
+      "end_t": 236.923,
+      "terminal_reason": "post_delivery_route_complete",
+      "first_door_segment": {
+        "idx": "5/9",
+        "duration_s": 15.744999999999976,
+        "goal_xyz": [
+          -0.9000000000000001,
+          8.35,
+          0.23
+        ],
+        "setpoint_samples": 146,
+        "held_xyz": [
+          -0.9000000000000001,
+          8.35,
+          0.22999999999999998
+        ],
+        "held_from_s": 163.008,
+        "held_duration_s": 1.4019999999999868,
+        "held_fraction": 0.0958904109589041,
+        "truth_xy_start": [
+          -2.3020189279239336,
+          8.315255478737022
+        ],
+        "truth_xy_end": [
+          -0.9065735620533543,
+          8.35976146628955
+        ],
+        "moved_path_m": 1.6853738126479787,
+        "last_motion_s": 163.981,
+        "still_duration_s": 0.5819999999999936,
+        "truth_x_range": [
+          -2.3020189279239336,
+          -0.9065735620533543
+        ],
+        "planner_failures": 1
+      },
+      "second_door_segment": {
+        "idx": "8/9",
+        "duration_s": 40.010999999999996,
+        "goal_xyz": [
+          2.3,
+          8.35,
+          0.23
+        ],
+        "setpoint_samples": 375,
+        "held_xyz": [
+          2.3,
+          8.350000000000001,
+          0.23000000000000004
+        ],
+        "held_from_s": 218.938,
+        "held_duration_s": 1.4020000000000152,
+        "held_fraction": 0.037333333333333336,
+        "truth_xy_start": [
+          0.921415653571532,
+          8.397579444103334
+        ],
+        "truth_xy_end": [
+          2.2470369736106277,
+          8.425047124324822
+        ],
+        "moved_path_m": 2.3691621440451445,
+        "last_motion_s": 219.77,
+        "still_duration_s": 0.6869999999999834,
+        "truth_x_range": [
+          0.8818047147511636,
+          2.2513985617879393
+        ],
+        "planner_failures": 1
+      },
+      "log": {
+        "kino_replan_fail": 6,
+        "no_planner_command": 2,
+        "time_jump": 14,
+        "seg8_kino_fail": 0,
+        "seg8_no_command": 0
+      },
+      "doors_crossed": [
+        "corridor_entry",
+        "Wall_20",
+        "Wall_22"
+      ],
+      "seed": 39,
+      "source": "92bd3ee",
+      "door_pattern": "RR",
+      "seg8_s": 40.010999999999996,
+      "seg8_still_s": 0.6869999999999834,
+      "seg8_hold_x": 2.3,
+      "seg8_hold_s": 1.4020000000000152,
+      "seg8_kino_fail": 0,
+      "seg8_no_command": 0,
+      "seg8_gap_m": -0.7
+    },
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed40_20260915_190259",
+      "route": [],
+      "segments": [],
+      "end_t": null,
+      "terminal_reason": null,
+      "first_door_segment": null,
+      "second_door_segment": null,
+      "log": {
+        "kino_replan_fail": 3,
+        "no_planner_command": 2,
+        "time_jump": 5,
+        "seg8_kino_fail": null,
+        "seg8_no_command": null
+      },
+      "doors_crossed": [],
+      "seed": 40,
+      "source": "92bd3ee",
+      "door_pattern": "LL",
+      "seg8_s": null,
+      "seg8_still_s": null,
+      "seg8_hold_x": null,
+      "seg8_hold_s": null,
+      "seg8_kino_fail": null,
+      "seg8_no_command": null,
+      "seg8_gap_m": null
+    }
+  ],
+  "history": [
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fallback_repair_seed31_20260915_124852",
+      "route": [
+        {
+          "t": 118.763,
+          "idx": "1/9",
+          "goal": [
+            -4.05,
+            6.7,
+            1.18
+          ]
+        },
+        {
+          "t": 133.383,
+          "idx": "2/9",
+          "goal": [
+            -4.05,
+            6.7,
+            0.18
+          ]
+        },
+        {
+          "t": 151.124,
+          "idx": "3/9",
+          "goal": [
+            -4.05,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 165.152,
+          "idx": "4/9",
+          "goal": [
+            -2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 179.676,
+          "idx": "5/9",
+          "goal": [
+            -0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 198.528,
+          "idx": "6/9",
+          "goal": [
+            0.0,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 208.302,
+          "idx": "7/9",
+          "goal": [
+            0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 216.876,
+          "idx": "8/9",
+          "goal": [
+            2.3,
+            8.35,
+            0.23
+          ]
+        }
+      ],
+      "segments": [
+        {
+          "idx": "1/9",
+          "start": 118.763,
+          "end": 133.383,
+          "duration": 14.620000000000005,
+          "goal_xyz": [
+            -4.05,
+            6.7,
+            1.18
+          ]
+        },
+        {
+          "idx": "2/9",
+          "start": 133.383,
+          "end": 151.124,
+          "duration": 17.740999999999985,
+          "goal_xyz": [
+            -4.05,
+            6.7,
+            0.18
+          ]
+        },
+        {
+          "idx": "3/9",
+          "start": 151.124,
+          "end": 165.152,
+          "duration": 14.027999999999992,
+          "goal_xyz": [
+            -4.05,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "4/9",
+          "start": 165.152,
+          "end": 179.676,
+          "duration": 14.524000000000001,
+          "goal_xyz": [
+            -2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "5/9",
+          "start": 179.676,
+          "end": 198.528,
+          "duration": 18.852000000000004,
+          "goal_xyz": [
+            -0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "6/9",
+          "start": 198.528,
+          "end": 208.302,
+          "duration": 9.774000000000001,
+          "goal_xyz": [
+            0.0,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "7/9",
+          "start": 208.302,
+          "end": 216.876,
+          "duration": 8.574000000000012,
+          "goal_xyz": [
+            0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "8/9",
+          "start": 216.876,
+          "end": 306.883,
+          "duration": 90.00699999999998,
+          "goal_xyz": [
+            2.3,
+            8.35,
+            0.23
+          ]
+        }
+      ],
+      "end_t": 306.883,
+      "terminal_reason": "safety_motion_timed_out",
+      "first_door_segment": {
+        "idx": "5/9",
+        "duration_s": 18.852000000000004,
+        "goal_xyz": [
+          -0.9000000000000001,
+          8.35,
+          0.23
+        ],
+        "setpoint_samples": 176,
+        "held_xyz": [
+          -0.9000000000000001,
+          8.349999999999998,
+          0.23
+        ],
+        "held_from_s": 196.922,
+        "held_duration_s": 1.4809999999999945,
+        "held_fraction": 0.08522727272727272,
+        "truth_xy_start": [
+          -2.294521970919174,
+          8.388426686199548
+        ],
+        "truth_xy_end": [
+          -0.890702364315722,
+          8.370021428244996
+        ],
+        "moved_path_m": 1.8383408934112508,
+        "last_motion_s": 197.422,
+        "still_duration_s": 1.1059999999999945,
+        "truth_x_range": [
+          -2.321740589466956,
+          -0.8882601964136703
+        ],
+        "planner_failures": 1
+      },
+      "second_door_segment": {
+        "idx": "8/9",
+        "duration_s": 90.00699999999998,
+        "goal_xyz": [
+          2.3,
+          8.35,
+          0.23
+        ],
+        "setpoint_samples": 846,
+        "held_xyz": [
+          0.9426987820344307,
+          8.477489983993905,
+          0.21964118515945893
+        ],
+        "held_from_s": 304.328,
+        "held_duration_s": 2.4420000000000073,
+        "held_fraction": 0.9598108747044918,
+        "truth_xy_start": [
+          0.899914942960746,
+          8.402848368212869
+        ],
+        "truth_xy_end": [
+          0.9455103619443467,
+          8.431017465657076
+        ],
+        "moved_path_m": 1.9160702033950194,
+        "last_motion_s": null,
+        "still_duration_s": 90.00699999999998,
+        "truth_x_range": [
+          0.8832054598473881,
+          1.0045051031991927
+        ],
+        "planner_failures": 0
+      },
+      "log": {
+        "kino_replan_fail": 4,
+        "no_planner_command": 5,
+        "time_jump": 18,
+        "seg8_kino_fail": 0,
+        "seg8_no_command": 0
+      },
+      "doors_crossed": [
+        "corridor_entry",
+        "Wall_20"
+      ],
+      "seed": 31,
+      "source": "d463613",
+      "door_pattern": "LL",
+      "seg8_s": 90.00699999999998,
+      "seg8_still_s": 90.00699999999998,
+      "seg8_hold_x": 0.9426987820344307,
+      "seg8_hold_s": 2.4420000000000073,
+      "seg8_kino_fail": 0,
+      "seg8_no_command": 0,
+      "seg8_gap_m": 0.657
+    },
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fallback_repair_seed32_20260915_130605",
+      "route": [],
+      "segments": [],
+      "end_t": null,
+      "terminal_reason": null,
+      "first_door_segment": null,
+      "second_door_segment": null,
+      "log": {
+        "kino_replan_fail": 1,
+        "no_planner_command": 1,
+        "time_jump": 2,
+        "seg8_kino_fail": null,
+        "seg8_no_command": null
+      },
+      "doors_crossed": [],
+      "seed": 32,
+      "source": "d463613",
+      "door_pattern": "RR",
+      "seg8_s": null,
+      "seg8_still_s": null,
+      "seg8_hold_x": null,
+      "seg8_hold_s": null,
+      "seg8_kino_fail": null,
+      "seg8_no_command": null,
+      "seg8_gap_m": null
+    },
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fallback_repair_seed34_20260915_130829",
+      "route": [
+        {
+          "t": 108.163,
+          "idx": "1/9",
+          "goal": [
+            -4.05,
+            6.7,
+            1.18
+          ]
+        },
+        {
+          "t": 120.127,
+          "idx": "2/9",
+          "goal": [
+            -4.05,
+            6.7,
+            0.18
+          ]
+        },
+        {
+          "t": 132.819,
+          "idx": "3/9",
+          "goal": [
+            -4.05,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 146.591,
+          "idx": "4/9",
+          "goal": [
+            -2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 162.89,
+          "idx": "5/9",
+          "goal": [
+            -0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 177.397,
+          "idx": "6/9",
+          "goal": [
+            0.0,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 186.589,
+          "idx": "7/9",
+          "goal": [
+            0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "t": 195.945,
+          "idx": "8/9",
+          "goal": [
+            2.3,
+            8.35,
+            0.23
+          ]
+        }
+      ],
+      "segments": [
+        {
+          "idx": "1/9",
+          "start": 108.163,
+          "end": 120.127,
+          "duration": 11.963999999999999,
+          "goal_xyz": [
+            -4.05,
+            6.7,
+            1.18
+          ]
+        },
+        {
+          "idx": "2/9",
+          "start": 120.127,
+          "end": 132.819,
+          "duration": 12.691999999999993,
+          "goal_xyz": [
+            -4.05,
+            6.7,
+            0.18
+          ]
+        },
+        {
+          "idx": "3/9",
+          "start": 132.819,
+          "end": 146.591,
+          "duration": 13.77200000000002,
+          "goal_xyz": [
+            -4.05,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "4/9",
+          "start": 146.591,
+          "end": 162.89,
+          "duration": 16.298999999999978,
+          "goal_xyz": [
+            -2.3,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "5/9",
+          "start": 162.89,
+          "end": 177.397,
+          "duration": 14.507000000000005,
+          "goal_xyz": [
+            -0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "6/9",
+          "start": 177.397,
+          "end": 186.589,
+          "duration": 9.192000000000007,
+          "goal_xyz": [
+            0.0,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "7/9",
+          "start": 186.589,
+          "end": 195.945,
+          "duration": 9.355999999999995,
+          "goal_xyz": [
+            0.9000000000000001,
+            8.35,
+            0.23
+          ]
+        },
+        {
+          "idx": "8/9",
+          "start": 195.945,
+          "end": 285.962,
+          "duration": 90.017,
+          "goal_xyz": [
+            2.3,
+            8.35,
+            0.23
+          ]
+        }
+      ],
+      "end_t": 285.962,
+      "terminal_reason": "safety_motion_timed_out",
+      "first_door_segment": {
+        "idx": "5/9",
+        "duration_s": 14.507000000000005,
+        "goal_xyz": [
+          -0.9000000000000001,
+          8.35,
+          0.23
+        ],
+        "setpoint_samples": 135,
+        "held_xyz": [
+          -0.9000000000000001,
+          8.35,
+          0.23
+        ],
+        "held_from_s": 175.678,
+        "held_duration_s": 1.600999999999999,
+        "held_fraction": 0.11851851851851852,
+        "truth_xy_start": [
+          -2.3431103198973653,
+          8.368785742986756
+        ],
+        "truth_xy_end": [
+          -0.9246747584444308,
+          8.403819522139838
+        ],
+        "moved_path_m": 1.7482883165902803,
+        "last_motion_s": 174.461,
+        "still_duration_s": 2.9359999999999786,
+        "truth_x_range": [
+          -2.3431103198973653,
+          -0.9246747584444308
+        ],
+        "planner_failures": 1
+      },
+      "second_door_segment": {
+        "idx": "8/9",
+        "duration_s": 90.017,
+        "goal_xyz": [
+          2.3,
+          8.35,
+          0.23
+        ],
+        "setpoint_samples": 846,
+        "held_xyz": [
+          1.058902482731189,
+          8.643034284762827,
+          0.19725710054974038
+        ],
+        "held_from_s": 247.627,
+        "held_duration_s": 38.28399999999999,
+        "held_fraction": 0.9290780141843972,
+        "truth_xy_start": [
+          0.8979570805150124,
+          8.372136879953654
+        ],
+        "truth_xy_end": [
+          1.0526663604858364,
+          8.671123114478267
+        ],
+        "moved_path_m": 2.051618769016472,
+        "last_motion_s": 199.779,
+        "still_duration_s": 86.18299999999999,
+        "truth_x_range": [
+          0.8979570805150124,
+          1.1350759820721026
+        ],
+        "planner_failures": 0
+      },
+      "log": {
+        "kino_replan_fail": 15,
+        "no_planner_command": 3,
+        "time_jump": 17,
+        "seg8_kino_fail": 0,
+        "seg8_no_command": 0
+      },
+      "doors_crossed": [
+        "corridor_entry",
+        "Wall_20"
+      ],
+      "seed": 34,
+      "source": "d463613",
+      "door_pattern": "LL",
+      "seg8_s": 90.017,
+      "seg8_still_s": 86.18299999999999,
+      "seg8_hold_x": 1.058902482731189,
+      "seg8_hold_s": 38.28399999999999,
+      "seg8_kino_fail": 0,
+      "seg8_no_command": 0,
+      "seg8_gap_m": 0.541
+    },
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fallback_descent32_seed32_20260915_132723",
+      "route": [],
+      "segments": [],
+      "end_t": null,
+      "terminal_reason": null,
+      "first_door_segment": null,
+      "second_door_segment": null,
+      "log": {
+        "kino_replan_fail": 2,
+        "no_planner_command": 2,
+        "time_jump": 5,
+        "seg8_kino_fail": null,
+        "seg8_no_command": null
+      },
+      "doors_crossed": [],
+      "seed": 32,
+      "source": "a12750b",
+      "door_pattern": "RR",
+      "seg8_s": null,
+      "seg8_still_s": null,
+      "seg8_hold_x": null,
+      "seg8_hold_s": null,
+      "seg8_kino_fail": null,
+      "seg8_no_command": null,
+      "seg8_gap_m": null
+    },
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed31_20260915_101053",
+      "route": [],
+      "segments": [],
+      "end_t": null,
+      "terminal_reason": null,
+      "first_door_segment": null,
+      "second_door_segment": null,
+      "log": {
+        "kino_replan_fail": 0,
+        "no_planner_command": 2,
+        "time_jump": 4,
+        "seg8_kino_fail": null,
+        "seg8_no_command": null
+      },
+      "doors_crossed": [],
+      "seed": 31,
+      "source": "20b1a0f",
+      "door_pattern": "LL",
+      "seg8_s": null,
+      "seg8_still_s": null,
+      "seg8_hold_x": null,
+      "seg8_hold_s": null,
+      "seg8_kino_fail": null,
+      "seg8_no_command": null,
+      "seg8_gap_m": null
+    },
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed32_20260915_101502",
+      "route": [],
+      "segments": [],
+      "end_t": null,
+      "terminal_reason": null,
+      "first_door_segment": null,
+      "second_door_segment": null,
+      "log": {
+        "kino_replan_fail": 1,
+        "no_planner_command": 1,
+        "time_jump": 4,
+        "seg8_kino_fail": null,
+        "seg8_no_command": null
+      },
+      "doors_crossed": [],
+      "seed": 32,
+      "source": "20b1a0f",
+      "door_pattern": "RR",
+      "seg8_s": null,
+      "seg8_still_s": null,
+      "seg8_hold_x": null,
+      "seg8_hold_s": null,
+      "seg8_kino_fail": null,
+      "seg8_no_command": null,
+      "seg8_gap_m": null
+    },
+    {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed34_20260915_103731",
+      "route": [],
+      "segments": [],
+      "end_t": null,
+      "terminal_reason": null,
+      "first_door_segment": null,
+      "second_door_segment": null,
+      "log": {
+        "kino_replan_fail": 107,
+        "no_planner_command": 1,
+        "time_jump": 8,
+        "seg8_kino_fail": null,
+        "seg8_no_command": null
+      },
+      "doors_crossed": [],
+      "seed": 34,
+      "source": "20b1a0f",
+      "door_pattern": "LL",
+      "seg8_s": null,
+      "seg8_still_s": null,
+      "seg8_hold_x": null,
+      "seg8_hold_s": null,
+      "seg8_kino_fail": null,
+      "seg8_no_command": null,
+      "seg8_gap_m": null
+    }
+  ]
+}

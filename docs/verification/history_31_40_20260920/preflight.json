@@ -1,0 +1,62 @@
+[
+  {
+    "seed": 31,
+    "parameter_count": 836,
+    "nodes": 40,
+    "passed": true
+  },
+  {
+    "seed": 32,
+    "parameter_count": 836,
+    "nodes": 40,
+    "passed": true
+  },
+  {
+    "seed": 33,
+    "parameter_count": 836,
+    "nodes": 40,
+    "passed": true
+  },
+  {
+    "seed": 34,
+    "parameter_count": 836,
+    "nodes": 40,
+    "passed": true
+  },
+  {
+    "seed": 35,
+    "parameter_count": 836,
+    "nodes": 40,
+    "passed": true
+  },
+  {
+    "seed": 36,
+    "parameter_count": 836,
+    "nodes": 40,
+    "passed": true
+  },
+  {
+    "seed": 37,
+    "parameter_count": 836,
+    "nodes": 40,
+    "passed": true
+  },
+  {
+    "seed": 38,
+    "parameter_count": 836,
+    "nodes": 40,
+    "passed": true
+  },
+  {
+    "seed": 39,
+    "parameter_count": 836,
+    "nodes": 40,
+    "passed": true
+  },
+  {
+    "seed": 40,
+    "parameter_count": 836,
+    "nodes": 40,
+    "passed": true
+  }
+]

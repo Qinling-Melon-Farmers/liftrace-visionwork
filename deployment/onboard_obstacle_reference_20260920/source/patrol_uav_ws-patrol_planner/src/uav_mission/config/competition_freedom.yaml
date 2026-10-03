@@ -1,0 +1,20 @@
+# Competition field is 10 x 10 x 4 m. These overrides are shared by SITL
+# and hardware; raw LiDAR/LIO ranges are unchanged.
+sensor:
+  max_range: 15.0              # m; covers the field diagonal
+  min_z: -3.0                 # m relative to the sensor
+  max_z: 5.0
+map:
+  # sub_voxel_size remains 0.10 m. Free-space voxels become 0.10 m rather
+  # than 0.40 m; a 26-neighbour free test then spans 0.30 m, not 1.20 m.
+  voxel_depth: 0
+  raycast_max_range: 15.0
+  raycast_min_z: -3.0
+  raycast_max_z: 5.0
+raycast_enhancement:
+  # Match the recorded MID360 sector; half-bin padding covers scan noise.
+  lidar_vertical_fov_upper_degree: 52.0
+  lidar_vertical_fov_lower_degree: -7.0
+  # The existing 8-bit depth image now has ~0.047 m bins, instead of 0.314 m.
+  max_raycast_enhancement_range: 12.0
+# counts_to_free=6, counts_to_revert=20 and the connectivity remain unchanged.

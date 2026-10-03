@@ -1,0 +1,154 @@
+{
+  "scope": "low_multi recorded mapped circle messages during drop_circle, source-stamp/center deduplicated; threshold pass is not confirmed or release success",
+  "circle_samples": 355,
+  "geometry_pass_by_threshold": {
+    "0.7": 355,
+    "0.75": 354,
+    "0.8": 348
+  },
+  "below_08_samples": [
+    {
+      "t": 170.19858050346375,
+      "stamp": 169.9693579673767,
+      "quality": 0.7985708117485046,
+      "map_valid": true,
+      "geometry_verified": true,
+      "center_refined": true,
+      "reject_reason": ""
+    },
+    {
+      "t": 174.28949236869812,
+      "stamp": 173.44701218605042,
+      "quality": 0.7991829514503479,
+      "map_valid": true,
+      "geometry_verified": true,
+      "center_refined": true,
+      "reject_reason": ""
+    },
+    {
+      "t": 174.35115432739258,
+      "stamp": 173.50776958465576,
+      "quality": 0.7989115715026855,
+      "map_valid": true,
+      "geometry_verified": true,
+      "center_refined": true,
+      "reject_reason": ""
+    },
+    {
+      "t": 181.74089431762695,
+      "stamp": 181.43407583236694,
+      "quality": 0.7963589429855347,
+      "map_valid": true,
+      "geometry_verified": true,
+      "center_refined": true,
+      "reject_reason": ""
+    },
+    {
+      "t": 181.8944594860077,
+      "stamp": 181.5998558998108,
+      "quality": 0.79198157787323,
+      "map_valid": true,
+      "geometry_verified": true,
+      "center_refined": true,
+      "reject_reason": ""
+    },
+    {
+      "t": 182.13400077819824,
+      "stamp": 181.29102754592896,
+      "quality": 0.7249132394790649,
+      "map_valid": true,
+      "geometry_verified": true,
+      "center_refined": true,
+      "reject_reason": ""
+    },
+    {
+      "t": 182.2500376701355,
+      "stamp": 181.39726662635803,
+      "quality": 0.7920947670936584,
+      "map_valid": true,
+      "geometry_verified": true,
+      "center_refined": true,
+      "reject_reason": ""
+    }
+  ],
+  "evidence_reasons": {
+    "no_confirmed_refined_target": 4,
+    "offset_exceeds_limit": 72,
+    "insufficient_stable_frames": 12,
+    "alignment_context_geometry_frame_mismatch": 1,
+    "alignment_context_geometry_stale": 9,
+    "stale_observation": 31,
+    "alignment_context_inactive": 19
+  },
+  "first_valid_drop_circle_evidence": {
+    "t": 173.26351642608643,
+    "stamp": 173.26114892959595,
+    "m": {
+      "header": {
+        "seq": 1178,
+        "stamp": {
+          "secs": 1790604888,
+          "nsecs": 615711450
+        },
+        "frame_id": ""
+      },
+      "align_mode": "drop_circle",
+      "target_present": true,
+      "target_id": 2,
+      "target_class": "circle",
+      "target_confirmed": true,
+      "geometry_verified": true,
+      "center_refined": true,
+      "observation_fresh": true,
+      "observation_age_sec": 0.36188626289367676,
+      "aligned": true,
+      "stable_frames": 5,
+      "evidence_valid": true,
+      "rejection_reasons": []
+    }
+  },
+  "release_results": [
+    {
+      "t": 141.18926787376404,
+      "stamp": 141.1889624595642,
+      "m": {
+        "header": {
+          "seq": 1,
+          "stamp": {
+            "secs": 1790604856,
+            "nsecs": 543524980
+          },
+          "frame_id": ""
+        },
+        "execution_id": 1,
+        "payload_slot": 1,
+        "align_mode": "drop_cross",
+        "target_id": 0,
+        "target_class": "red_cross",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    },
+    {
+      "t": 180.47064518928528,
+      "stamp": 180.4701554775238,
+      "m": {
+        "header": {
+          "seq": 2,
+          "stamp": {
+            "secs": 1790604895,
+            "nsecs": 824717998
+          },
+          "frame_id": ""
+        },
+        "execution_id": 2,
+        "payload_slot": 2,
+        "align_mode": "drop_circle",
+        "target_id": 3,
+        "target_class": "panzer",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "status": "PASS",
+  "scope": "Report consistency and additional high-strategy checks, not a new flight Gate",
+  "runs": [
+    {
+      "seed": 32,
+      "label": "strategy",
+      "gate": "PASS",
+      "checks_passed": 37,
+      "checks_total": 37,
+      "high_strategy_checks": {
+        "three_required_hints": true,
+        "no_return_to_home_column": true,
+        "fresh_low_reacquisitions": true,
+        "three_classes_reacquired": true,
+        "true_fc_below_3m": true,
+        "new_observation_after_arrival:bridge": true,
+        "new_observation_after_arrival:panzer": true,
+        "new_observation_after_arrival:red_cross": true,
+        "low_revisit_goal_count_at_least_three": true,
+        "low_revisit_goals_are_hints": true
+      },
+      "run_exit_code": 0
+    },
+    {
+      "seed": 32,
+      "label": "baseline",
+      "gate": "PASS",
+      "checks_passed": 37,
+      "checks_total": 37,
+      "high_strategy_checks": {},
+      "run_exit_code": 0
+    },
+    {
+      "seed": 34,
+      "label": "strategy",
+      "gate": "PASS",
+      "checks_passed": 37,
+      "checks_total": 37,
+      "high_strategy_checks": {
+        "three_required_hints": true,
+        "no_return_to_home_column": true,
+        "fresh_low_reacquisitions": true,
+        "three_classes_reacquired": true,
+        "true_fc_below_3m": true,
+        "new_observation_after_arrival:panzer": true,
+        "new_observation_after_arrival:bridge": true,
+        "new_observation_after_arrival:red_cross": true,
+        "low_revisit_goal_count_at_least_three": true,
+        "low_revisit_goals_are_hints": true
+      },
+      "run_exit_code": 0
+    },
+    {
+      "seed": 34,
+      "label": "baseline",
+      "gate": "FAIL",
+      "checks_passed": 28,
+      "checks_total": 37,
+      "high_strategy_checks": {},
+      "run_exit_code": 1
+    }
+  ],
+  "pairs": [
+    {
+      "seed": 32,
+      "actual_targets_equal": true,
+      "world_equal": true,
+      "shared_mission_and_gate_equal": true,
+      "camera_info_equal": true
+    },
+    {
+      "seed": 34,
+      "actual_targets_equal": true,
+      "world_equal": true,
+      "shared_mission_and_gate_equal": true,
+      "camera_info_equal": true
+    }
+  ],
+  "individual_figures": 12,
+  "comparison_figures": 3,
+  "landing_diagnostic_figures": 1
+}

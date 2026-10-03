@@ -1,0 +1,114 @@
+# R59 explicit corridor-to-landing profile, not the full delivery default.
+# Nominal 0.45 m leaves room for measured height bias; independent truth Gate
+# enforces <=0.70 m. Real aircraft still needs an established ground datum.
+profile:
+  name: r2026
+mission:
+  frame: camera_init
+  candidate_max_age: 0.5
+  transform_max_age: 0.5
+  min_streak: 3
+  max_target_z: 4.0
+  max_attempts: 2
+  retry_cooldown: 20.0
+  timeout: 600.0
+  forced_return_at: 420.0
+  return_land_reserve: 180.0
+  delivery_reserve_per_slot: 60.0
+  path_factor: 1.5
+  nominal_speed: 0.15
+  decision_guard: 15.0
+  approach_altitude: 1.6
+  return_altitude: 0.45
+  target_action_timeout: 120.0
+  motion_action_timeout: 90.0
+  result_future_tolerance: 0.1
+  home_xy:
+  - 0.0
+  - 0.0
+  post_delivery_yaw: 1.5707963267948966
+  post_delivery_route_revision: r2026-r59-low-corridor-h-strokes
+  landing_xy:
+  - 3.274292
+  - 8.05722
+  landing_anchor_tolerance: 0.05
+  post_delivery_route:
+  - - -3.091588
+    - 6.29269
+    - 0.45
+  - - -3.091588
+    - 7.81769
+    - 0.45
+  - - -0.812003
+    - 8.16769
+    - 0.45
+  - - 0.587997
+    - 8.16769
+    - 0.45
+  - - 1.0055095
+    - 7.46769
+    - 0.45
+  - - 1.423022
+    - 7.46769
+    - 0.45
+  - - 2.823022
+    - 7.46769
+    - 0.45
+  - - 3.274292
+    - 8.05722
+    - 0.5
+post_delivery_gate:
+  goal_tolerance: 0.12
+  final_h_tolerance: 0.35
+  expected_door_order:
+  - corridor_entry
+  - Wall_20
+  - Wall_22
+  doors:
+  - name: corridor_entry
+    axis: y
+    coordinate: 6.99269
+    direction: positive
+    route_indices:
+    - 2
+    lateral_min: -3.841588
+    lateral_max: -2.341588
+    z_min: 0.0
+    z_max: 0.7
+  - name: Wall_20
+    axis: x
+    coordinate: -0.112003
+    direction: positive
+    route_indices:
+    - 4
+    lateral_min: 7.76769
+    lateral_max: 8.56769
+    z_min: 0.0
+    z_max: 0.7
+  - name: Wall_22
+    axis: x
+    coordinate: 2.123022
+    direction: positive
+    route_indices:
+    - 7
+    lateral_min: 7.06769
+    lateral_max: 7.86769
+    z_min: 0.0
+    z_max: 0.7
+search:
+  min_x: -2.007
+  max_x: 1.993
+  min_y: 0.273
+  max_y: 6.273
+  lane_spacing: 0.7
+  altitude: 1.4
+  route_revision: r2026-installed-camera-070m-lanes-r1
+  max_failures_per_waypoint: 2
+readiness:
+  pose_max_age: 0.5
+  map_max_age: 2.0
+  stamp_future_tolerance: 0.05
+  require_map: true
+runtime:
+  tick_hz: 10.0
+  mission_id_prefix: vcl06-random

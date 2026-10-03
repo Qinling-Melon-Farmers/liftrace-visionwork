@@ -25,6 +25,7 @@ from std_msgs.msg import String
 
 from uav_mission.random_field_policy import (
     Footprint,
+    frozen_footprint_layout,
     RED_CROSS_FOOTPRINT_RADIUS,
     STANDARD_FOOTPRINT_RADIUS,
     plan_footprint_layout,
@@ -122,6 +123,7 @@ class RandomFieldSpawner:
         self._static_exclusion_boxes = tuple(
             validate_bounds(box, "static exclusion box") for box in
             rospy.get_param("~static_exclusion_boxes", []))
+        self._frozen_layout = rospy.get_param("~spawn/frozen_layout", [])
         self._rng = None
         self._publish_status()
 
@@ -332,15 +334,23 @@ class RandomFieldSpawner:
             expected_models=["random_%s" % item[0] for item in plan],
             occupied_footprint_count=len(occupied))
 
-        layout = plan_footprint_layout(
-            self._rng,
-            [(class_name, radius)
-             for class_name, _model_name, radius in plan],
-            occupied, self._search_bounds, self._field_bounds,
-            self._boundary_margin, self._pair_gap,
-            self._offset_x, self._offset_y,
-            self._max_attempts, self._layout_attempts,
-            occupied_boxes=self._static_exclusion_boxes)
+        frozen_yaws={}
+        if self._frozen_layout:
+            layout,frozen_yaws=frozen_footprint_layout(
+                self._frozen_layout, [(name,radius) for name,_,radius in plan],
+                occupied,self._search_bounds,self._field_bounds,
+                self._boundary_margin,self._pair_gap,self._offset_x,self._offset_y,
+                self._static_exclusion_boxes)
+        else:
+            layout = plan_footprint_layout(
+                self._rng,
+                [(class_name, radius)
+                 for class_name, _model_name, radius in plan],
+                occupied, self._search_bounds, self._field_bounds,
+                self._boundary_margin, self._pair_gap,
+                self._offset_x, self._offset_y,
+                self._max_attempts, self._layout_attempts,
+                occupied_boxes=self._static_exclusion_boxes)
         if layout is None:
             raise RuntimeError(
                 "no footprint-safe full layout after %d restarts "
@@ -355,7 +365,8 @@ class RandomFieldSpawner:
                 raise RuntimeError("planned class order changed unexpectedly")
             sdf_path = self._resolve_model_sdf(model_name)
             wx, wy = lx + self._offset_x, ly + self._offset_y
-            yaw = self._rng.uniform(-math.pi, math.pi)
+            yaw = (frozen_yaws[class_name] if frozen_yaws else
+                   self._rng.uniform(-math.pi, math.pi))
             initial_pose = Pose()
             initial_pose.position.x = wx
             initial_pose.position.y = wy

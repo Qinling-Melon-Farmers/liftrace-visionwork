@@ -1,0 +1,61 @@
+{
+  "vision": "c9df53fd3d4ac942b4734148df45954f83ab92cd",
+  "navigation": "5962dd1edf47cbded61bd7d44e38766b1dcc2689",
+  "board_reference": "48541a7a8d91a2993711a10b556f7028504c3e1c",
+  "integrated": [
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/sdf_map.h",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/include/plan_env/vertical_obstacle_support.h",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/src/sdf_map.cpp",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/test/test_vertical_obstacle_support.cpp",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/CMakeLists.txt",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/config/horizontal_planner.yaml",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_high_view_full.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_planner_bridge.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/boundary_revisit.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/high_view_full.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/mission_core.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_boundary_revisit.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_conflict_verification.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_full_low_corridor.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_high_view_coarse.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_high_view_full.py",
+    "vision_ws/src/uav_high_view/CMakeLists.txt",
+    "vision_ws/src/uav_high_view/launch/fast_comparison.launch",
+    "vision_ws/src/uav_high_view/launch/fov_inner_repair.launch",
+    "vision_ws/src/uav_high_view/launch/full_strategy.launch",
+    "vision_ws/src/uav_high_view/scripts/presentation_compose.py",
+    "vision_ws/src/uav_high_view/src/uav_high_view/core.py",
+    "vision_ws/src/uav_high_view/src/uav_high_view/navigation_memory.py",
+    "vision_ws/src/uav_high_view/src/uav_high_view/survey_policy.py",
+    "vision_ws/src/uav_high_view/test/test_navigation_memory.py",
+    "vision_ws/src/uav_vision/CMakeLists.txt",
+    "vision_ws/src/uav_vision/config/target_detector.yaml",
+    "vision_ws/src/uav_vision/config/target_detector_rknn.yaml",
+    "vision_ws/src/uav_vision/launch/control_handoff_board.launch",
+    "vision_ws/src/uav_vision/launch/control_handoff_dev.launch",
+    "vision_ws/src/uav_vision/launch/phase_d.launch",
+    "vision_ws/src/uav_vision/launch/phase_d_board.launch",
+    "vision_ws/src/uav_vision/launch/video_replay_annotation.launch",
+    "vision_ws/src/uav_vision/scripts/bag_detector_replay.py",
+    "vision_ws/src/uav_vision/scripts/coarse_search_assertion.py",
+    "vision_ws/src/uav_vision/scripts/target_detector.py",
+    "vision_ws/src/uav_vision/scripts/target_detector_rknn.py",
+    "vision_ws/src/uav_vision/scripts/target_map_projector.py",
+    "vision_ws/src/uav_vision/scripts/target_memory.py",
+    "vision_ws/src/uav_vision/test/test_detector_class_profile.py"
+  ],
+  "board_files_preserved": [
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_env/package.xml",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/config/mid360_hardware.yaml"
+  ],
+  "additional_legacy_control_inheritance": {
+    "source": "c9df53fd3d4ac942b4734148df45954f83ab92cd",
+    "files": [
+      "patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/near_wall_align.h",
+      "patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp",
+      "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_near_wall_align.cpp"
+    ],
+    "snapshot": "legacy_baseline/20260927_board_modules"
+  },
+  "board_resource_alignment": "../board_reference_20260927/sources.json"
+}

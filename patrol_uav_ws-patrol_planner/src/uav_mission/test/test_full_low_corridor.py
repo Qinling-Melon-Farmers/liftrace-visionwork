@@ -2,6 +2,7 @@
 """Stage transitions and height evaluation must preserve the full mission."""
 import ast
 import copy
+import math
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
@@ -50,7 +51,8 @@ class FullLowCorridorTest(unittest.TestCase):
                      and isinstance(n.test, ast.BoolOp))
         code = compile(ast.Module(body=[copy.deepcopy(stage)], type_ignores=[]), 'stage', 'exec')
         writes = {}
-        ros = SimpleNamespace(get_param=lambda *_: CONFIG['mission']['post_delivery_parameter_stages'],
+        ros = SimpleNamespace(get_param=lambda name,default=None: (
+            CONFIG['mission']['post_delivery_parameter_stages']),
                               set_param=lambda k,v: writes.update({k:v}), loginfo=lambda *_: None)
         for command, completed in [('SEARCH',0), ('RETURN_HOME',0),
                                    ('RETURN_HOME',1), ('RETURN_HOME',2)]:
@@ -68,6 +70,16 @@ class FullLowCorridorTest(unittest.TestCase):
         route=CONFIG['mission']['post_delivery_route']
         self.assertEqual(route[0][:2],route[1][:2])
         self.assertAlmostEqual(route[1][2]-GROUND_Z,.40)
+
+    def test_stage_switch_preserves_fixed_inflation_without_waiting(self):
+        source = (ROOT/'scripts/navigation_mission_manager.py').read_text()
+        self.assertNotIn('post_delivery_obstacles_inflation', source)
+        self.assertNotIn('obstacles_inflation_applied', source)
+        self.assertNotIn('time.sleep', source)
+        params = yaml.safe_load((ROOT/'config/horizontal_planner.yaml').read_text())
+        self.assertEqual([params['sdf_map/'+k] for k in
+                         ('obstacles_inflation','obstacles_inflation_up','obstacles_inflation_down')],
+                         [.25,.20,.10])
 
     def test_low_ceiling_only_in_corridor_including_between_doors(self):
         region=CONFIG['post_delivery_gate']['low_height_region']

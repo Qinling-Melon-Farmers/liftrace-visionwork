@@ -1,0 +1,4 @@
+mission_id_prefix: vcl06
+start_mode: post_delivery
+tick_hz: 10.0
+

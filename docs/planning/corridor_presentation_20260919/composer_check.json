@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "scope": "SYNTHETIC_INPUT_NOT_FLIGHT",
+  "frames": 13,
+  "fps": 10,
+  "common_ros_start": 0.0,
+  "common_ros_end": 1.2000000000000002,
+  "max_image_age_s": [
+    0.0,
+    0.09999999999999998
+  ],
+  "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/presentation_composer_selftest_20260919",
+  "replay": false,
+  "synthetic_test": true,
+  "display_limit_counts": {
+    "3.0": 6,
+    "1.2": 7
+  },
+  "display_over_limit_frames": 0,
+  "display_limits": {
+    "flight": 3.0,
+    "corridor": 1.2,
+    "wall": 4.0,
+    "corridor_bounds": [
+      -4.8,
+      4.8,
+      7.6,
+      9.1
+    ]
+  },
+  "note": "Source-clock paired views; missing camera frames held. Display limit labels are user inputs, not new rule claims."
+}

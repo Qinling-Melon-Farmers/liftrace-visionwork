@@ -1,0 +1,56 @@
+{
+  "date": "2026-09-28",
+  "scope": "site_prepare_and_ground_preview_not_flight",
+  "board": "192.168.156.193",
+  "board_directory": "/home/orangepi/liftrace_board_trials_20260928",
+  "tests": {
+    "board_unit_pass": 27,
+    "original_modes_expanded": 16,
+    "site_modes_expanded": 10,
+    "site_cli_checks": 5,
+    "bag_selftest": {
+      "directory": "deployment_results/recording_selftest_205648",
+      "status": "PASS",
+      "camera_messages": 25,
+      "camera_info_messages": 25,
+      "pose_messages": 25,
+      "detection_messages": 25,
+      "static_tf_messages": 1,
+      "run_metadata_messages": 1,
+      "jpeg_decode": "PASS",
+      "active_files": 0
+    }
+  },
+  "ground_preview": {
+    "directory": "deployment_results/ground_preview_210344",
+    "status": "INITIALIZATION_BLOCKED",
+    "lidar_reachable": true,
+    "camera_raw_and_compressed_fresh": true,
+    "lio_fresh": true,
+    "fcu_connected": true,
+    "fcu_armed": false,
+    "fcu_mode": "AUTO.LOITER",
+    "observed_navigation_yaw_rad": 0.9921088091650063,
+    "reason": "legacy_static frame startup heading exceeds existing 0.10 rad limit; LIO-relative comparison pending",
+    "user_action": "Repositioning vehicle at takeoff point, rebooting; reconnect only after notification"
+  },
+  "limits": [
+    "No arming, mission-start or servo command sent.",
+    "No actual flight acceptance.",
+    "Static checks do not verify boundary tracking or CPU/storage throughput during flight."
+  ],
+  "latest_site_execution": {
+    "deployed_revision": "1da9c7f",
+    "servo_service": "/legacy/Servo_raw",
+    "servo_type": "patrol_control/Servo",
+    "servo_reset_verified": true,
+    "pwm_enabled": [
+      0,
+      0,
+      0
+    ],
+    "release_requests_sent": 0,
+    "flight_started": false,
+    "blocking": "FCU disconnected / TX queue overflow; subsequent SSH banner timeout"
+  }
+}

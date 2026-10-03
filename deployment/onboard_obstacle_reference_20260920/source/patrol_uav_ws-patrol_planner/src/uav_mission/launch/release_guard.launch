@@ -1,0 +1,27 @@
+<launch>
+  <!-- Safe gateway only. It does not start actuator_pwm or a mock actuator. -->
+  <arg name="raw_service_name" default="/legacy/Servo_raw" />
+  <arg name="public_service_name" default="/Servo" />
+  <arg name="pose_topic" default="/mavros/local_position/pose" />
+  <arg name="require_evidence_context" default="false" />
+  <arg name="class_profile" default="r2026" />
+  <arg name="evidence_context_topic"
+       default="/uav_vision/release_evidence_context" />
+
+  <node pkg="uav_mission" type="release_permission_arbiter.py"
+        name="release_permission_arbiter" output="screen">
+    <rosparam file="$(find uav_mission)/config/release_guard.yaml" />
+    <param name="pose_topic" value="$(arg pose_topic)" />
+    <param name="require_evidence_context"
+           value="$(arg require_evidence_context)" />
+    <param name="class_profile" value="$(arg class_profile)" />
+    <param name="evidence_context_topic"
+           value="$(arg evidence_context_topic)" />
+  </node>
+
+  <node pkg="uav_mission" type="guarded_servo_proxy.py"
+        name="guarded_servo_proxy" output="screen">
+    <param name="service_name" value="$(arg public_service_name)" />
+    <param name="raw_service_name" value="$(arg raw_service_name)" />
+  </node>
+</launch>

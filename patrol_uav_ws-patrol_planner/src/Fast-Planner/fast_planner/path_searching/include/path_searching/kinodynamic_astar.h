@@ -6,6 +6,7 @@
 #include <ros/ros.h>
 #include <Eigen/Eigen>
 #include <boost/functional/hash.hpp>
+#include <cstdint>
 #include <iostream>
 #include <map>
 #include <queue>
@@ -41,6 +42,8 @@ class PathNode {
   /* -------------------- */
   PathNode() {
     parent = NULL;
+    time = 0.0;
+    time_idx = 0;
     node_state = NOT_EXPAND;
   }
   ~PathNode(){};
@@ -104,6 +107,20 @@ class NodeHashTable {
 };
 
 class KinodynamicAstar {
+ public:
+  struct SearchDiagnostics {
+    uint64_t candidates = 0;
+    uint64_t rejected_closed = 0;
+    uint64_t rejected_velocity = 0;
+    uint64_t rejected_same_voxel = 0;
+    uint64_t rejected_collision = 0;
+    uint64_t pruned_same_parent = 0;
+    uint64_t accepted = 0;
+    int start_occupancy = 0;
+    int goal_occupancy = 0;
+    bool timed_out = false;
+  };
+
   friend class ::KinodynamicSearchFixture;
  private:
   /* ---------- main data structure ---------- */
@@ -123,6 +140,7 @@ class KinodynamicAstar {
   Eigen::MatrixXd coef_shot_;
   double t_shot_;
   bool has_path_ = false;
+  SearchDiagnostics last_diagnostics_;
 
   /* ---------- parameter ---------- */
   /* search */
@@ -140,7 +158,7 @@ class KinodynamicAstar {
   /* map */
   double resolution_, inv_resolution_, time_resolution_, inv_time_resolution_;
   Eigen::Vector3d origin_, map_size_3d_;
-  double time_origin_;
+  double time_origin_ = 0.0;
 
   /* helper */
   Eigen::Vector3i posToIndex(Eigen::Vector3d pt);
@@ -183,6 +201,10 @@ class KinodynamicAstar {
                   vector<Eigen::Vector3d>& start_end_derivatives);
 
   std::vector<PathNodePtr> getVisitedNodes();
+
+  const SearchDiagnostics& getLastDiagnostics() const {
+    return last_diagnostics_;
+  }
 
   typedef shared_ptr<KinodynamicAstar> Ptr;
 

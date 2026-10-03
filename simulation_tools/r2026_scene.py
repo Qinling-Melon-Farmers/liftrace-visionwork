@@ -22,21 +22,45 @@ def polygons_overlap(a,b):
     return True
 
 
-def scene_layout(seed, door_seed=None, obstacle_seed=None, pattern=None):
+def door_segments(door):
+    """Complement of the exact 0.80m opening; zero-length edge slabs omitted."""
+    return [dict(side=side,wall_y=(lo+hi)/2,wall_length=hi-lo)
+            for side,lo,hi in [('south',7.6,door['gap_min_y']),
+                               ('north',door['gap_max_y'],9.1)] if hi-lo>1e-9]
+
+
+def scene_layout(seed, door_seed=None, obstacle_seed=None, pattern=None, *,
+                 door_mode='left_right', door_centers=None, outer_wall_height=None):
     if seed < 0:
         raise ValueError('scene seed must be nonnegative; zero preserves the fixture')
     door_rng = random.Random(seed if door_seed is None else door_seed)
     tree_rng = random.Random(seed if obstacle_seed is None else obstacle_seed)
-    pattern = pattern or ('LR' if seed == 0 else door_rng.choice(PATTERNS))
-    if pattern not in PATTERNS:
+    if door_mode not in ('left_right','continuous'):
+        raise ValueError('unknown door mode')
+    if door_mode=='continuous' and pattern is not None:
+        raise ValueError('continuous opening cannot also specify an L/R pattern')
+    if door_centers is not None and (door_mode!='continuous' or len(door_centers)!=2
+            or any(not math.isfinite(c) or not 8.0<=c<=8.7 for c in door_centers)):
+        raise ValueError('two door centers must be within [8.0,8.7]')
+    if outer_wall_height is not None and (not math.isfinite(outer_wall_height) or not 1.5<=outer_wall_height<=4.):
+        raise ValueError('outer wall height must be in [1.5,4.0]')
+    pattern = pattern or ('LR' if seed == 0 else door_rng.choice(PATTERNS)) if door_mode=='left_right' else 'CONTINUOUS'
+    if door_mode=='left_right' and pattern not in PATTERNS:
         raise ValueError('two doors have only left/right openings: LL, LR, RL, RR')
     doors = []
-    for index, (x, side) in enumerate(zip((-1.6, 1.6), pattern)):
+    for index, (x, side) in enumerate(zip((-1.6, 1.6), pattern if door_mode=='left_right' else ('continuous','continuous'))):
         # Along travel direction +X, left is +Y. Corridor interior [7.6,9.1].
-        lo, hi = (8.3, 9.1) if side == 'L' else (7.6, 8.4)
-        doors.append(dict(name=('Wall_20','Wall_22')[index], x=x, side=side,
+        if door_mode=='continuous':
+            center=door_rng.uniform(8.0,8.7) if door_centers is None else door_centers[index]
+            lo,hi=center-.4,center+.4
+        else:lo, hi = (8.3, 9.1) if side == 'L' else (7.6, 8.4)
+        door=dict(name=('Wall_20','Wall_22')[index], x=x, side=side,
                           gap_min_y=lo, gap_max_y=hi, clear_width=.8,
-                          wall_y=7.95 if side == 'L' else 8.75, wall_length=.7))
+                          wall_y=7.95 if side == 'L' else 8.75, wall_length=.7)
+        if door_mode=='continuous':
+            door.pop('wall_y');door.pop('wall_length')
+            door.update(center_y=(lo+hi)/2,segments=door_segments(door))
+        doors.append(door)
     trees = []
     if seed == 0:
         trees = [dict(x=x, y=y, yaw=0.0) for x,y in NOMINAL_TREES]
@@ -52,8 +76,11 @@ def scene_layout(seed, door_seed=None, obstacle_seed=None, pattern=None):
                 break
         if len(trees)!=4:
             raise RuntimeError('Could not place four separated tree/box groups')
-    return dict(schema_version=1,scene_seed=seed,door_seed=door_seed,
+    result = dict(schema_version=1,scene_seed=seed,door_seed=door_seed,
                 obstacle_seed=obstacle_seed,door_pattern=pattern,doors=doors,trees=trees,
                 frame='world / nominal competition frame',corridor_width=1.5,
                 target_seed='independent field_seed at spawner',
                 qualification='Geometry fixture only; randomized-door SITL not yet validated')
+    if door_mode!='left_right':result.update(schema_version=2,door_mode=door_mode)
+    if outer_wall_height is not None:result['outer_wall_height_m']=outer_wall_height
+    return result

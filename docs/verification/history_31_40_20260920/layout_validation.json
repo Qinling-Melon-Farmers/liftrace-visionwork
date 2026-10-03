@@ -1,0 +1,202 @@
+[
+  {
+    "seed": 31,
+    "paired_horizontal_layout": true,
+    "walls_checked": [
+      "Wall_1",
+      "Wall_9",
+      "Wall_11",
+      "Wall_12",
+      "Wall_13",
+      "Wall_20_south",
+      "Wall_22_north"
+    ],
+    "trees_checked": 4,
+    "targets_checked": 5,
+    "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed31_20260915_101053",
+    "changes_beyond_rotation": [
+      "outer walls raised to 4m",
+      "latest 2.6m/fast corridor/FOV/landing repair profile"
+    ]
+  },
+  {
+    "seed": 32,
+    "paired_horizontal_layout": true,
+    "walls_checked": [
+      "Wall_1",
+      "Wall_9",
+      "Wall_11",
+      "Wall_12",
+      "Wall_13",
+      "Wall_20_south",
+      "Wall_22_north"
+    ],
+    "trees_checked": 4,
+    "targets_checked": 5,
+    "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed32_20260915_101502",
+    "changes_beyond_rotation": [
+      "outer walls raised to 4m",
+      "latest 2.6m/fast corridor/FOV/landing repair profile"
+    ]
+  },
+  {
+    "seed": 33,
+    "paired_horizontal_layout": true,
+    "walls_checked": [
+      "Wall_1",
+      "Wall_9",
+      "Wall_11",
+      "Wall_12",
+      "Wall_13",
+      "Wall_20_south",
+      "Wall_22_north"
+    ],
+    "trees_checked": 4,
+    "targets_checked": 5,
+    "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed33_20260915_101944",
+    "changes_beyond_rotation": [
+      "outer walls raised to 4m",
+      "latest 2.6m/fast corridor/FOV/landing repair profile"
+    ]
+  },
+  {
+    "seed": 34,
+    "paired_horizontal_layout": true,
+    "walls_checked": [
+      "Wall_1",
+      "Wall_9",
+      "Wall_11",
+      "Wall_12",
+      "Wall_13",
+      "Wall_20_south",
+      "Wall_22_north"
+    ],
+    "trees_checked": 4,
+    "targets_checked": 5,
+    "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed34_20260915_103731",
+    "changes_beyond_rotation": [
+      "outer walls raised to 4m",
+      "latest 2.6m/fast corridor/FOV/landing repair profile"
+    ]
+  },
+  {
+    "seed": 35,
+    "paired_horizontal_layout": true,
+    "walls_checked": [
+      "Wall_1",
+      "Wall_9",
+      "Wall_11",
+      "Wall_12",
+      "Wall_13",
+      "Wall_20_south",
+      "Wall_22_north"
+    ],
+    "trees_checked": 4,
+    "targets_checked": 5,
+    "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed35_20260915_104526",
+    "changes_beyond_rotation": [
+      "outer walls raised to 4m",
+      "latest 2.6m/fast corridor/FOV/landing repair profile"
+    ]
+  },
+  {
+    "seed": 36,
+    "paired_horizontal_layout": true,
+    "walls_checked": [
+      "Wall_1",
+      "Wall_9",
+      "Wall_11",
+      "Wall_12",
+      "Wall_13",
+      "Wall_20_south",
+      "Wall_22_north"
+    ],
+    "trees_checked": 4,
+    "targets_checked": 5,
+    "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed36_20260915_180729",
+    "changes_beyond_rotation": [
+      "outer walls raised to 4m",
+      "latest 2.6m/fast corridor/FOV/landing repair profile"
+    ]
+  },
+  {
+    "seed": 37,
+    "paired_horizontal_layout": true,
+    "walls_checked": [
+      "Wall_1",
+      "Wall_9",
+      "Wall_11",
+      "Wall_12",
+      "Wall_13",
+      "Wall_20_south",
+      "Wall_22_north"
+    ],
+    "trees_checked": 4,
+    "targets_checked": 5,
+    "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed37_20260915_182936",
+    "changes_beyond_rotation": [
+      "outer walls raised to 4m",
+      "latest 2.6m/fast corridor/FOV/landing repair profile"
+    ]
+  },
+  {
+    "seed": 38,
+    "paired_horizontal_layout": true,
+    "walls_checked": [
+      "Wall_1",
+      "Wall_9",
+      "Wall_11",
+      "Wall_12",
+      "Wall_13",
+      "Wall_20_south",
+      "Wall_22_north"
+    ],
+    "trees_checked": 4,
+    "targets_checked": 5,
+    "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed38_20260915_184340",
+    "changes_beyond_rotation": [
+      "outer walls raised to 4m",
+      "latest 2.6m/fast corridor/FOV/landing repair profile"
+    ]
+  },
+  {
+    "seed": 39,
+    "paired_horizontal_layout": true,
+    "walls_checked": [
+      "Wall_1",
+      "Wall_9",
+      "Wall_11",
+      "Wall_12",
+      "Wall_13",
+      "Wall_20_south",
+      "Wall_22_north"
+    ],
+    "trees_checked": 4,
+    "targets_checked": 5,
+    "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed39_20260915_184841",
+    "changes_beyond_rotation": [
+      "outer walls raised to 4m",
+      "latest 2.6m/fast corridor/FOV/landing repair profile"
+    ]
+  },
+  {
+    "seed": 40,
+    "paired_horizontal_layout": true,
+    "walls_checked": [
+      "Wall_1",
+      "Wall_9",
+      "Wall_11",
+      "Wall_12",
+      "Wall_13",
+      "Wall_20_south",
+      "Wall_22_north"
+    ],
+    "trees_checked": 4,
+    "targets_checked": 5,
+    "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_new_seed40_20260915_190259",
+    "changes_beyond_rotation": [
+      "outer walls raised to 4m",
+      "latest 2.6m/fast corridor/FOV/landing repair profile"
+    ]
+  }
+]

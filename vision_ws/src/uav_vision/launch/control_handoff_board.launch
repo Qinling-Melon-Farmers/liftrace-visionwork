@@ -5,14 +5,14 @@
   <arg name="camera_info_topic" default="/camera/camera_info" />
   <arg name="model_path" />
   <arg name="metadata_path"
-       default="$(find uav_vision)/config/merged_standard_6cls_metadata.yaml" />
+       default="$(find uav_vision)/config/flight_5cls_20260928_metadata.yaml" />
   <arg name="map_frame" default="camera_init" />
   <arg name="ground_z" default="0.0" />
   <arg name="allow_latest_tf_fallback" default="false" />
   <arg name="max_latest_tf_age_sec" default="0.10" />
   <arg name="rectify_input_pixels" default="true" />
   <arg name="default_align_mode" default="disabled" />
-  <arg name="class_profile" default="full" />
+  <arg name="class_profile" default="r2026" />
   <arg name="enable_debug_image" default="false" />
   <arg name="start_legacy_compat" default="false" />
 

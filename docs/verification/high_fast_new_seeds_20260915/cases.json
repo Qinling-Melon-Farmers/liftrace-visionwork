@@ -1,0 +1,37 @@
+[
+  {
+    "seed": 36,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_36/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_36/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_36/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_36/gate_geometry.yaml"
+  },
+  {
+    "seed": 37,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_37/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_37/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_37/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_37/gate_geometry.yaml"
+  },
+  {
+    "seed": 38,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_38/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_38/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_38/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_38/gate_geometry.yaml"
+  },
+  {
+    "seed": 39,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_39/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_39/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_39/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_39/gate_geometry.yaml"
+  },
+  {
+    "seed": 40,
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_40/field.world",
+    "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_40/field_config.yaml",
+    "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_40/runtime.yaml",
+    "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_fast_new_seeds_20260915/seed_40/gate_geometry.yaml"
+  }
+]

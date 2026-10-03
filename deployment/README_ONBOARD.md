@@ -5,7 +5,7 @@
 
 2026-09-11资源修订：[模型与YAML清单](MODEL_CONTENTS.md)。正式入口元数据位于uav_vision/config；修订包在runtime_models旁附同源YAML，旧板端包装入口已修正路径。仿真修订包实际附带三套optional_models。未新增飞行验收，原先版本描述按历史阅读。
 
-本包包含当前视觉、camera_sdk、导航/LIO/地图/规划/控制/任务代码、消息、参数和文档，附已选用的`runtime_models/merged_standard_fp32.rknn`。不含机械组PWM实现；保留`Servo`定义和`/legacy/Servo_raw`对接约定。`BUNDLE_MANIFEST.json`记录源码版本和权重来源。
+本包包含当前视觉、camera_sdk、导航/LIO/地图/规划/控制/任务代码、消息、参数和文档，附已选用的`runtime_models/flight_5cls_20260928_fp16.rknn`。不含机械组PWM实现；保留`Servo`定义和`/legacy/Servo_raw`对接约定。`BUNDLE_MANIFEST.json`记录源码版本和权重来源。
 
 这是R64部署联调准备包。当前源码在新机架/地图seed11完成37/37完整SITL PASS，但板端实时/实机未验收。R63恢复控制修复属于共用机载源码；PX4自动降落修复另见deployment/px4_patches/README.md，需在匹配飞控固件版本确认或移植，不能仅更新伴随机源码而沿用有该缺陷的飞控固件。硬件默认runtime/control仍须按现场整体选配，不能把解包完成等同可直接比赛。请先读`docs/HARDWARE.md`、`docs/CAMERA_AND_FLIGHT.md`与`docs/competition/RULES_20260906.md`。
 
@@ -15,7 +15,7 @@
 BUILD_JOBS=2 bash top_level_scripts/build_competition.sh
 source vision_ws/devel/setup.bash
 source patrol_uav_ws-patrol_planner/devel/setup.bash --extend
-export UAV_VISION_RKNN_MODEL_PATH="$PWD/runtime_models/merged_standard_fp32.rknn"
+export UAV_VISION_RKNN_MODEL_PATH="$PWD/runtime_models/flight_5cls_20260928_fp16.rknn"
 ```
 
 代码包不携带笔记本x86的build/devel，不替板端安装驱动或Python环境。RK3588需已有匹配的NPU驱动、RKNN Lite2/librknnrt；ROS Python使用板端可导入的RKNN环境，不在系统Python临时pip安装。MAVROS和飞控连接、MID360设备驱动/网络与机械服务由设备侧配套。导航树保留已有Livox驱动源码，实际MID360驱动版本/消息类型须按板端已部署链核对。
@@ -27,3 +27,6 @@ export UAV_VISION_RKNN_MODEL_PATH="$PWD/runtime_models/merged_standard_fp32.rknn
 当前不提供自动启飞的systemd开机服务，也不包含机械舵机实现。随机门开口感知、赛前调整缓存/单次启动联调、带载投递及整机实时稳定性仍需完成。
 
 R64矩阵原始7/10完整PASS，seed3近地落地仍失败；本包不是实机放飞授权。仿真布设物理墙排除已在矩阵后修复，不改变机载传感器或任务输出。完整指标见docs/verification/r64_matrix/REPORT.md。
+
+
+2026-09-28：当前入口默认五分类候选元数据。权重单独交付，不随git克隆；以打包清单的实际文件名为准。新RKNN须配套五类metadata，回退旧权重时也须显式回退六类metadata。工具链模拟器验证不替代板端NPU实测。

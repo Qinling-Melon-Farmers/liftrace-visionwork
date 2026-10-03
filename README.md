@@ -1,5 +1,34 @@
 # 2026无人机竞赛整机工程
 
+> **2026-10-03：** [整机/冻结版本与分支整理](docs/planning/competition_freeze_20261003/REVIEW.md) · [无测试组的独立正赛交付计划](docs/planning/competition_freeze_20261003/DEPLOYMENT_PLAN.md) · [到点停顿、爬升与分阶段提速计划](docs/planning/finish_time_20261003/PLAN.md)。导航主线为 `feat/high-view-liveness-20260919`，VCL06已停用；现场保留位姿跳变保护和小范围点云录制。当前Git开发头仍有冻结差异，不能直接覆盖现场。此次仅修工作台及整理文档，未改飞行/速度、未部署、未运行仿真；以下按原日期保留历史记录。
+
+> 2026-09-27当前：[导航仓板端参考分支与八组交接](docs/deployment/board_reference_20260927/README.md)。现场FAST-LIO/FreeDOM负载档案已继承，水平膨胀0.25m；新配置完成离线验证与构建，不覆盖此前动态验收结论。
+
+> 本分支为 `feat/board-deployment-flight-20260920`，专门用于板端部署与试飞。[部署总览](deployment/BOARD_DEPLOYMENT.md) · [八组专项](deployment/board_trials_4x4/MODULES.md) · [现场旧4×4参考镜像](deployment/onboard_obstacle_reference_20260920/README.md)。下方仿真记录保留来源历史，不代表本分支已实飞验收。
+
+> 2026-09-27：[远端板载代码与八组专项对比](docs/deployment/board_remote_comparison_20260927/REPORT.md)。远端仍为48541a7；TF/相机/槽位已保留，定位建图参数和消息版本仍有差异；两个远端投递入口存在默认降落高度顺序冲突。本次仅文档核查。
+
+> 2026-09-19最新修复验证：[新视场/内环/LAND 50cm三轮报告](docs/verification/fov_landing_inner_20260919/REPORT.md) · [35张图与双视角视频](docs/verification/fov_landing_inner_20260919/index.html)。同seed2672 A/B/C均PASS：251.667/187.733/216.548s，三投/两门/H降落、零碰撞；越树整机投影与搜索内环检查均通过。本轮最快B（2.6m＋已有快走廊）。3m仍有panzer冲突，经低位复核成功；未彻底消除视觉对准等待。九次mock ACK真实FC靶心误差中位8.01cm，非实物落点精度。后续提速只做文档，未替换机载部署。
+
+
+> 最新订正：[高位继承、10s机构预算、走廊高度/分段提速、连续80cm门与4m外墙、双视角、3m几何分析](docs/planning/corridor_presentation_20260919/REPORT.md)。本轮无新增仿真；候选走廊FC上限1.2m/巡航0.9m，高位默认仍2.6m。新录制入口与场景工具完成静态验证，尚未实跑。
+
+> 2026-09-19整机更新：导航弧长投影停滞修复与近墙复访已集成；随机seed2672整场PASS（286.456s，三投/两门/H降落、0碰撞）。[完整报告与视频](docs/verification/reliability_trial_20260919/REPORT.md) · [图表总览](docs/verification/reliability_trial_20260919/index.html)。
+
+2026-09-19前期评审（随后已进入整机实施）：[最新实验、停滞/速度评审与轻量fork评估](docs/planning/reliability_speed_review_20260919/REVIEW.md)完成。该前期阶段为文档与数据重算；按后续指示在liftrace-sim fork新增当前profile和31–40几何预筛，74项测试通过。55cm按已有鲁棒膨胀包络处理，原视觉交付已被上游接收；该前期文档轮未修改整机飞行代码或启动SITL；后续修复与seed2672实跑见顶部最新记录。
+
+2026-09-15修复验证：[理想视场及三轮重跑/32补验报告](docs/verification/high_fallback_repair_20260915/REPORT.md)。理想完整高位路线覆盖约96.8%（不计遮挡）；31/34三投后第二门附近超时，32补验两投后碰墙，未完整通过。保留a12750b下降解耦及记忆/换点/低位兜底，机载部署不变。[走廊复盘](docs/verification/high_fallback_repair_20260915/CORRIDOR_REVIEW.md)发现保持与续规划之间存在可复现的停滞窗口，现场触发细节待确认。
+
+2026-09-15：[五seed高位快速先搜验证与53张图](docs/verification/high_fast_five_20260915/REPORT.md)完成。复用历史全随机31–35同场景低速遍历作对照，完整成功率均2/5，三投完成率由4/5降至2/5；唯一双侧完赛seed35节时38.08%，目前不能稳定替代遍历。综合基线与板端双向坐标修复已核实继承；冗余分支/worktree清理完成，未部署机载。
+
+2026-09-14补充：[固定布局四方案效率对照](docs/verification/high_view_full_20260914/speed_comparison/REPORT.md)完成。提速高位先搜两轮225.762/225.506s、Gate PASS，平均比低速高位快35.67%；seed34保守机体投影疑点单列，尚不作为最终规则合规或实机验收。
+
+2026-09-14早期记录：[高位线索—回降—低位重捕动态验证](docs/verification/high_view_dynamic_probe_20260913/REPORT.md)三次受限SITL通过，修复视觉ID=0兼容问题；修复版seed32/34重捕地图点误差7.4/10.5cm，尚无三投或整场节时结论，机载部署未变。
+
+2026-09-13最新：已完成[两布局四高度Gazebo观测](docs/verification/high_view_render_20260913/REPORT.md)，480张同步图像；高位具备粗发现潜力，位置偏差按低位复访线索处理，优先后续重捕与净节时验证。该批为静态相机实验，尚未执行高位飞行策略。
+
+2026-09-13：用户已批准[高位观测研究](docs/planning/high_view_search_20260913/PLAN.md)。首批[P0评估工具与P1离线原型](docs/verification/high_view_p0_p1_20260913/REPORT.md)完成，59项测试及独立构建通过；949份旧同步样本无高位数据，P0仍待证明。正式飞行链未修改、未仿真或上板。
+
 2026-09-11 驱动迁移：当前源码统一使用 **livox_ros_driver2 + Livox SDK2**；仿真仍由 Gazebo 发布 PointCloud2。两类源码包均需 SDK2 才能编译完整导航工作区，旧版本压缩包不会自动更新。[构建与实机接线说明](docs/deployment/LIVOX_DRIVER2.md)。
 
 

@@ -1,0 +1,123 @@
+<launch>
+  <arg name="enable_control_output" default="false" />
+  <arg name="start_servo" default="false" />
+  <arg name="receipt_path" default="/tmp/red_cross_4x5_unconfigured.receipt" />
+  <arg name="model_path" default="/home/orangepi/liftrace_r64_onboard_405bda42/runtime_models/merged_standard_fp32.rknn" />
+  <arg name="start_camera" default="false" />
+  <arg name="video_devices" default="/dev/video0" />
+  <arg name="image_topic" default="/camera/image_raw" />
+  <arg name="camera_info_topic" default="/camera/camera_info" />
+  <rosparam file="$(find uav_mission)/config/mid360_hardware.yaml" />
+  <param name="feature_extract_enable" value="false" />
+  <param name="point_filter_num" value="3" />
+  <param name="max_iteration" value="3" />
+  <param name="filter_size_surf" value="0.15" />
+  <param name="filter_size_map" value="0.15" />
+  <param name="cube_side_length" value="1000.0" />
+  <param name="runtime_pos_log_enable" value="false" />
+  <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen" required="true" />
+  <include file="$(find freedom)/launch/run_freedom_mid360.launch">
+    <arg name="enable_static_pointcloud_viz" value="false" />
+  </include>
+  <rosparam ns="/freedom" file="$(find uav_mission)/config/competition_freedom.yaml" />
+  <param name="/freedom/sensor_tf_frame" value="mapping_imu" />
+  <param name="/freedom/map_tf_frame" value="camera_init" />
+  <node pkg="uav_mission" type="lio_external_pose.py" name="lio_external_pose" output="screen" required="true">
+    <param name="frame" value="camera_init" />
+    <rosparam param="imu_to_body_xyz">[0.0, 0.0, -0.05]</rosparam>
+  </node>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="map_camera_alignment" args="0 0 0 0 0 0 1 camera_init map" />
+  <node pkg="red_cross_4x5_test" type="bounded_frame_adapter.py" name="navigation_frame_adapter" output="screen" required="true">
+    <param name="local_frame" value="map" />
+    <param name="mission_frame" value="camera_init" />
+    <param name="enable_setpoints" value="$(arg enable_control_output)" />
+  </node>
+  <node pkg="uav_mission" type="pose_tf_broadcaster.py" name="vision_pose_tf" output="screen">
+    <param name="pose_topic" value="/mavros/local_position/pose" />
+    <param name="parent_frame" value="map" />
+    <param name="child_frame" value="vision_body" />
+  </node>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="mapping_imu_extrinsic" args="0 0 0.05 0 0 0 1 vision_body mapping_imu" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="downward_camera_extrinsic" args="0 0 -0.21 -0.70710678 0.70710678 0 0 mapping_imu downward_camera_optical_frame" />
+  <group if="$(arg start_camera)">
+    <include file="$(find camera_sdk)/launch/camera_calibrated_1280x720.launch">
+      <arg name="video_devices" value="$(arg video_devices)" />
+      <arg name="image_topic" value="$(arg image_topic)" />
+      <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+      <arg name="frame_id" value="downward_camera_optical_frame" />
+    </include>
+  </group>
+  <include file="$(find uav_vision)/launch/phase_d_board.launch">
+    <arg name="model_path" value="$(arg model_path)" />
+    <arg name="image_topic" value="$(arg image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="map_frame" value="camera_init" />
+    <arg name="ground_z" value="-0.25" />
+    <arg name="class_profile" value="r2026" />
+    <arg name="require_alignment_context" value="true" />
+    <arg name="start_legacy_compat" value="false" />
+  </include>
+  <group>
+    <remap from="/mavros/local_position/pose" to="/navigation/local_pose" />
+    <remap from="/mavros/local_position/odom" to="/navigation/local_odom" />
+    <remap from="/mavros/setpoint_position/local" to="/navigation/setpoint_mission" />
+    <include if="$(arg enable_control_output)" file="$(find patrol_control)/launch/patrol_control_px4_sim.launch">
+      <arg name="rviz" value="false" />
+      <arg name="waypoint_mode" value="false" />
+      <arg name="external_mission_mode" value="true" />
+      <arg name="simulation_auto_land" value="false" />
+      <arg name="start_waypoint_generator" value="false" />
+      <arg name="waypoint_config" value="$(dirname)/control.yaml" />
+      <arg name="planner_max_vel" value="0.25" />
+      <arg name="planner_max_acc" value="0.35" />
+      <arg name="planner_obstacles_inflation" value="0.30" />
+      <arg name="planner_clearance_threshold" value="0.025" />
+      <arg name="planner_map_size_x" value="6.0" />
+      <arg name="planner_map_size_y" value="12.0" />
+      <arg name="planner_map_size_z" value="1.5" />
+      <arg name="px4_max_distance" value="0.15" />
+      <arg name="external_planner_max_command_z" value="0.25" />
+    </include>
+    <include unless="$(arg enable_control_output)" file="$(find plan_manage)/launch/patrol_planner_px4_sim.launch">
+      <arg name="max_vel" value="0.25" />
+      <arg name="max_acc" value="0.35" />
+      <arg name="obstacles_inflation" value="0.30" />
+      <arg name="clearance_threshold" value="0.025" />
+      <arg name="map_size_x" value="6.0" />
+      <arg name="map_size_y" value="12.0" />
+      <arg name="map_size_z" value="1.5" />
+      <arg name="start_waypoint_generator" value="false" />
+    </include>
+  </group>
+  <rosparam ns="/fast_planner_node" file="$(find uav_mission)/config/obstacle_4x4/planner.yaml" />
+  <rosparam file="$(dirname)/map.yaml" />
+  <include file="$(find uav_mission)/launch/navigation_planner_bridge.launch">
+    <arg name="execution_enabled" value="$(arg enable_control_output)" />
+    <arg name="allow_live_goal_output" value="$(arg enable_control_output)" />
+    <arg name="required" value="true" />
+    <arg name="planner_goal_topic" value="/fastplanner/goal" />
+    <arg name="planner_status_topic" value="/planning/goal_status" />
+    <arg name="odom_topic" value="/navigation/local_odom" />
+  </include>
+  <group if="$(arg enable_control_output)">
+    <node pkg="red_cross_4x5_test" type="test_mission_manager.py" ns="navigation" name="mission_manager" output="screen" required="true">
+      <rosparam file="$(dirname)/route.yaml" />
+      <param name="profile/path" value="$(find uav_mission)/config/competition_profiles.yaml" />
+      <param name="runtime/start_mode" value="full" />
+      <remap from="candidates" to="/uav_vision/targets" />
+      <remap from="pose" to="/navigation/local_pose" />
+      <remap from="map" to="/freedom/static_pointcloud" />
+    </node>
+    <include file="$(find uav_mission)/launch/release_guard.launch">
+      <arg name="raw_service_name" value="/test_4x5/right_once" />
+      <arg name="pose_topic" value="/navigation/local_pose" />
+      <arg name="require_evidence_context" value="true" />
+      <arg name="class_profile" value="r2026" />
+    </include>
+    <node pkg="red_cross_4x5_test" type="right_servo_once.py" name="right_servo_once" output="screen" required="true">
+      <param name="receipt_path" value="$(arg receipt_path)" />
+    </node>
+    <include if="$(arg start_servo)" file="$(find actuator_pwm)/launch/launch_all.launch" />
+  </group>
+  <rosparam file="$(dirname)/bridge_guard.yaml" />
+</launch>

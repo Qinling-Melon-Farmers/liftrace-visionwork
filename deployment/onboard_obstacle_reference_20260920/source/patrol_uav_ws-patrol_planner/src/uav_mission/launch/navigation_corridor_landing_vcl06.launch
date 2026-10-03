@@ -1,0 +1,24 @@
+<launch>
+  <!-- Explicit post-delivery validation; no payload commits are fabricated. -->
+  <arg name="target_model_path" default="$(optenv UAV_VISION_MODEL_PATH)" />
+  <include file="$(find uav_mission)/launch/navigation_horizontal_search_vcl06.launch">
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="mission_start_mode" value="post_delivery" />
+    <arg name="gate_scope" value="post_delivery" />
+    <arg name="runtime_config" value="$(find uav_mission)/config/vcl06_corridor_low_runtime.yaml" />
+    <arg name="control_config" value="$(find uav_mission)/config/vcl06_corridor_low_control.yaml" />
+  </include>
+  <!-- Low speed reduces the measured wall-side stopping/tracking offset.
+       Search/delivery defaults and the validated full-ring detector stay unchanged. -->
+  <param name="/traj_server/traj_server/target_dist" value="0.15" />
+  <param name="/px4_max_distance" value="0.15" />
+  <param name="/external_planner_max_command_z" value="0.50" />
+  <!-- Keep the successful planner's 1 m/s search envelope. Slow following
+       uses the existing 0.15 m position lead; no coarse-search retuning. -->
+  <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="0.55" />
+  <param name="/fast_planner_node/fsm/goal_adjustment_radius" value="0.10" />
+  <param name="/navigation/planner_bridge/execution/arrival_position_tolerance" value="0.12" />
+  <param name="/navigation/planner_bridge/execution/arrival_dwell" value="0.80" />
+  <param name="/landing_detector/landing_enable_h_stroke_fallback" value="true" />
+  <param name="/navigation_vcl06_assertion/max_height" value="0.70" />
+</launch>

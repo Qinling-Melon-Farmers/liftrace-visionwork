@@ -1,0 +1,15 @@
+{
+  "run_bytes": {
+    "high_view_full_local_strategy_seed32_20260914_012723": 121019870,
+    "high_view_full_frozen_baseline_seed32_20260914_015313": 136501265,
+    "high_view_full_local_strategy_seed34_20260914_023010": 122571826,
+    "high_view_full_frozen_baseline_seed34_20260914_025732": 120356459,
+    "high_view_full_baseline_seed32_20260914_004427": 64240306,
+    "high_view_full_strategy_seed32_20260914_010237": 50494449
+  },
+  "total_run_gib": 0.5729349097236991,
+  "host_f_free_gib": 66.86357879638672,
+  "bags": [],
+  "videos": [],
+  "retention": "Unique raw traces and failure records retained; no raw-asset deletion."
+}

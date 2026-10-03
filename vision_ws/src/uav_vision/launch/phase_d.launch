@@ -19,8 +19,8 @@
   <arg name="max_latest_tf_age_sec" default="0.10" />
   <arg name="rectify_input_pixels" default="true" />
   <arg name="default_align_mode" default="disabled" />
-  <!-- full preserves historical assets; r2026 excludes tank from candidates. -->
-  <arg name="class_profile" default="full" />
+  <!-- r2026 filters tank at the detector; historical six-class runs must select full. -->
+  <arg name="class_profile" default="r2026" />
   <arg name="require_alignment_context" default="false" />
   <arg name="alignment_context_topic"
        default="/uav_vision/alignment_target_context" />
@@ -39,6 +39,7 @@
         launch-prefix="$(arg target_detector_launch_prefix)">
     <rosparam file="$(find uav_vision)/config/default.yaml"/>
     <rosparam file="$(find uav_vision)/config/target_detector.yaml"/>
+    <param name="class_profile" value="$(arg class_profile)" />
     <param name="image_topic" value="$(arg image_topic)" />
     <param name="imgsz" value="$(arg target_detector_imgsz)" />
     <param if="$(eval arg('target_model_path') != '')"

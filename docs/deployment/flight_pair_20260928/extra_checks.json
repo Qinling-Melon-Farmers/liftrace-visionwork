@@ -1,0 +1,68 @@
+{
+  "20-23-54": {
+    "late_bridge_eligible_before_return": 19,
+    "late_bridge_eligible_before_return_range": [
+      128.55233335494995,
+      131.64858198165894
+    ],
+    "late_bridge_selected": 19,
+    "wrong_bridge_mapped": 7,
+    "true_bridge_mapped": 27,
+    "wrong_bridge_peak": 0.84912109375,
+    "mode_changes": [
+      [
+        0.038971900939941406,
+        "disabled"
+      ],
+      [
+        30.539647340774536,
+        "drop_circle"
+      ],
+      [
+        64.87397742271423,
+        "disabled"
+      ],
+      [
+        72.22157049179077,
+        "drop_cross"
+      ],
+      [
+        99.42155623435974,
+        "disabled"
+      ]
+    ]
+  },
+  "20-33-08": {
+    "late_bridge_eligible_before_return": 22,
+    "late_bridge_eligible_before_return_range": [
+      126.38299989700317,
+      129.03914213180542
+    ],
+    "late_bridge_selected": 40,
+    "wrong_bridge_mapped": 11,
+    "true_bridge_mapped": 50,
+    "wrong_bridge_peak": 0.9150390625,
+    "mode_changes": [
+      [
+        0.09053874015808105,
+        "disabled"
+      ],
+      [
+        30.089975595474243,
+        "drop_circle"
+      ],
+      [
+        56.91498303413391,
+        "disabled"
+      ],
+      [
+        64.2637095451355,
+        "drop_cross"
+      ],
+      [
+        98.48242449760437,
+        "disabled"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "seed": 32,
+    "label": "strategy",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed32_20260914_012723",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed32_20260914_012723/scenario_inputs/field.world",
+    "source": "5667bed"
+  },
+  {
+    "seed": 32,
+    "label": "baseline",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed32_20260914_015313",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed32_20260914_015313/scenario_inputs/field.world",
+    "source": "5667bed"
+  },
+  {
+    "seed": 34,
+    "label": "strategy",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed34_20260914_023010",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed34_20260914_023010/scenario_inputs/field.world",
+    "source": "5667bed"
+  },
+  {
+    "seed": 34,
+    "label": "baseline",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed34_20260914_025732",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed34_20260914_025732/scenario_inputs/field.world",
+    "source": "5667bed"
+  }
+]

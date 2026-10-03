@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "scene_seed": 0,
+  "door_seed": 1034,
+  "obstacle_seed": null,
+  "door_pattern": "LL",
+  "doors": [
+    {
+      "name": "Wall_20",
+      "x": -1.6,
+      "side": "L",
+      "gap_min_y": 8.3,
+      "gap_max_y": 9.1,
+      "clear_width": 0.8,
+      "wall_y": 7.95,
+      "wall_length": 0.7
+    },
+    {
+      "name": "Wall_22",
+      "x": 1.6,
+      "side": "L",
+      "gap_min_y": 8.3,
+      "gap_max_y": 9.1,
+      "clear_width": 0.8,
+      "wall_y": 7.95,
+      "wall_length": 0.7
+    }
+  ],
+  "trees": [
+    {
+      "x": -1.8,
+      "y": 2.0,
+      "yaw": 0.0
+    },
+    {
+      "x": 1.8,
+      "y": 2.7,
+      "yaw": 0.0
+    },
+    {
+      "x": -1.5,
+      "y": 5.2,
+      "yaw": 0.0
+    },
+    {
+      "x": 1.7,
+      "y": 5.7,
+      "yaw": 0.0
+    }
+  ],
+  "frame": "world / nominal competition frame",
+  "corridor_width": 1.5,
+  "target_seed": "independent field_seed at spawner",
+  "qualification": "Frozen input for a new SITL comparison; not a flight result",
+  "tree_mode": "FIXED_R64",
+  "tree_source": "1983b2f7571cf3d96916d45af5cc8f3a2f8a9ad4",
+  "field_seed": 34,
+  "door_sampling": "random.Random(1000+field_seed).choice(LL,LR,RL,RR)"
+}

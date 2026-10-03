@@ -1,0 +1,12 @@
+<launch>
+  <!-- Read-only; launch the existing hardware stack separately. -->
+  <arg name="interval" default="5.0" />
+  <arg name="sample_occupancy" default="false" />
+  <arg name="path_samples" default="12" />
+  <node pkg="uav_mission" type="navigation_status_monitor.py"
+        name="navigation_status_monitor" output="screen">
+    <param name="interval" value="$(arg interval)" />
+    <param name="sample_occupancy" value="$(arg sample_occupancy)" />
+    <param name="path_samples" value="$(arg path_samples)" />
+  </node>
+</launch>

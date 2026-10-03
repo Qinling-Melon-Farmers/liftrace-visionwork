@@ -1,0 +1,10 @@
+{
+  "fps": 15,
+  "frames": 1637,
+  "duration": 109.13333333333334,
+  "source_images": 3113,
+  "matched_frames": 1633,
+  "box_tolerance_seconds": 0.03,
+  "mode": "offline recorded results; no inference rerun",
+  "outputs": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/flight_review_20260925/video"
+}

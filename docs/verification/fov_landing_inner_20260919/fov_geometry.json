@@ -1,0 +1,47 @@
+{
+  "bounds": [
+    -0.5,
+    7.4,
+    -4.8,
+    4.8
+  ],
+  "scope": "IDEAL_GEOMETRY_ONLY",
+  "cases": [
+    {
+      "repaired": false,
+      "fc_agl_m": 2.6,
+      "ideal_coverage_percent": 84.29176555907173,
+      "footprint_extent_xy_m": [
+        2.433854147753272,
+        4.325701086972437
+      ]
+    },
+    {
+      "repaired": true,
+      "fc_agl_m": 2.6,
+      "ideal_coverage_percent": 96.79671017932489,
+      "footprint_extent_xy_m": [
+        4.325701086972437,
+        2.433854147753272
+      ]
+    },
+    {
+      "repaired": false,
+      "fc_agl_m": 3.0,
+      "ideal_coverage_percent": 90.91261207805907,
+      "footprint_extent_xy_m": [
+        2.8328466309915132,
+        5.034832412705624
+      ]
+    },
+    {
+      "repaired": true,
+      "fc_agl_m": 3.0,
+      "ideal_coverage_percent": 99.73958333333334,
+      "footprint_extent_xy_m": [
+        5.034832412705624,
+        2.8328466309915132
+      ]
+    }
+  ]
+}

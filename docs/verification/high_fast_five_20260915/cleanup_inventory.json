@@ -1,0 +1,1166 @@
+{
+  "retained": [
+    "main",
+    "feat/high-view-search-research",
+    "fix/board-navigation-frames",
+    "feat/coverage-efficiency-research",
+    "feat/livox-driver2-integration",
+    "feat/vcl05-full-random-deploy",
+    "feat/r2026-competition-integrated"
+  ],
+  "worktrees": [
+    {
+      "worktree": "/home/xhj/liftrace",
+      "HEAD": "ccac51789b561daca8802a89d498154b77804054",
+      "branch": "refs/heads/feat/vcl05-full-random-deploy",
+      "status_count": 13
+    },
+    {
+      "worktree": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix",
+      "HEAD": "d55da83d89e46c153b2222c8294c404f654ce548",
+      "branch": "refs/heads/fix/board-navigation-frames",
+      "status_count": 0
+    },
+    {
+      "worktree": "/home/xhj/liftrace-worktrees/r2026-competition-integrated",
+      "HEAD": "86e382d50ffa1d27bce0652ac4d576c73d0bfcec",
+      "branch": "refs/heads/feat/livox-driver2-integration",
+      "status_count": 0
+    },
+    {
+      "worktree": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research",
+      "HEAD": "4da9614190834bf2af6b34a6a04d6577a01c875c",
+      "branch": "refs/heads/feat/coverage-efficiency-research",
+      "status_count": 0
+    },
+    {
+      "worktree": "/home/xhj/liftrace-worktrees/r2026-high-view-search",
+      "HEAD": "10557f69577af0816a95f70b3581897b538580d7",
+      "branch": "refs/heads/feat/high-view-search-research",
+      "status_count": 7
+    }
+  ],
+  "refs": [
+    {
+      "ref": "refs/heads/chore/docs-progress-sync",
+      "sha": "0a41ee0c1cc696688af7f67a643de5ab88f6e897",
+      "name": "chore/docs-progress-sync",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/chore/docs-responsibility-remap",
+      "sha": "2dd1d91f96fb55a66d6f5d189746f163e0aa1829",
+      "name": "chore/docs-responsibility-remap",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/chore/freeze-oblique-camera-exploration",
+      "sha": "9889591a595114ada9a6cfc11233e31e2cbe7c93",
+      "name": "chore/freeze-oblique-camera-exploration",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/chore/gate-tagging-convention",
+      "sha": "0e69fef0626ca95f835f0db5e88fe6ac69252217",
+      "name": "chore/gate-tagging-convention",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/chore/local-delivery-check-20260911",
+      "sha": "d55939e51ed12c926e24bbae225d4905c05ffd3c",
+      "name": "chore/local-delivery-check-20260911",
+      "contained_in": [
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/docs/liftrace-sim-upstream",
+      "sha": "9bc376b8c7642fef19a4bb5ff7571a088b5cad76",
+      "name": "docs/liftrace-sim-upstream",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/competition-main-r64-acceptance",
+      "sha": "7f67a68d9acc06ff541a8e2d91de0b22d89aaaba",
+      "name": "feat/competition-main-r64-acceptance",
+      "contained_in": [],
+      "merged_remote_main": true,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/competition-r64-log-only",
+      "sha": "c451c14ce1ff0e6d47f9eaf139a5233651bc6bfa",
+      "name": "feat/competition-r64-log-only",
+      "contained_in": [],
+      "merged_remote_main": true,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/competition-r64-raster-remote",
+      "sha": "cefee116b6e4f7468b2a36a5c016239c1cfc7850",
+      "name": "feat/competition-r64-raster-remote",
+      "contained_in": [],
+      "merged_remote_main": true,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/competition-r64-readiness",
+      "sha": "925e380efff67adb96789ec06232f39b3f0bf300",
+      "name": "feat/competition-r64-readiness",
+      "contained_in": [],
+      "merged_remote_main": true,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/competition-r64-topology-plan",
+      "sha": "d076e64ec37709c9adbc526f81a25d6ce5a3a424",
+      "name": "feat/competition-r64-topology-plan",
+      "contained_in": [],
+      "merged_remote_main": true,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/coverage-efficiency-research",
+      "sha": "4da9614190834bf2af6b34a6a04d6577a01c875c",
+      "name": "feat/coverage-efficiency-research",
+      "contained_in": [
+        "feat/coverage-efficiency-research"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/external-mission-coverage",
+      "sha": "f46d45fbc59822abc497d386ae858a48f5a4e2b4",
+      "name": "feat/external-mission-coverage",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/full-random-five-seeds",
+      "sha": "f2459e60fe5d313b10236f020d8f60ffc0a4d2d2",
+      "name": "feat/full-random-five-seeds",
+      "contained_in": [
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/high-view-search-research",
+      "sha": "10557f69577af0816a95f70b3581897b538580d7",
+      "name": "feat/high-view-search-research",
+      "contained_in": [
+        "feat/high-view-search-research"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/livox-driver2-integration",
+      "sha": "86e382d50ffa1d27bce0652ac4d576c73d0bfcec",
+      "name": "feat/livox-driver2-integration",
+      "contained_in": [
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/navigation-mission-visual-delivery",
+      "sha": "8255aa4400ca1be1cb99c236adcb645861081c49",
+      "name": "feat/navigation-mission-visual-delivery",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/new-vision-coverage-search",
+      "sha": "31b38ad6a4179c5a32672a2968dd245368e1ce99",
+      "name": "feat/new-vision-coverage-search",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/oblique-active-search-stability",
+      "sha": "ab6e447a9c984aa4a5a3fc2198c3a53434480fea",
+      "name": "feat/oblique-active-search-stability",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/oblique-aux-proposal-provider",
+      "sha": "3f2e55a020c1b4691d2b04cd4b74d71a046e5648",
+      "name": "feat/oblique-aux-proposal-provider",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/oblique-camera-search-feasibility",
+      "sha": "b60a4d942ba7081d776bb81c434e18193a486b1b",
+      "name": "feat/oblique-camera-search-feasibility",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/planner-map-20x20x5-sim",
+      "sha": "7c80844c775758437de1dec0a0854950e42dda6b",
+      "name": "feat/planner-map-20x20x5-sim",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/r2026-competition-integrated",
+      "sha": "aec7c125415921ca32d6dc5195d97449762ebf1c",
+      "name": "feat/r2026-competition-integrated",
+      "contained_in": [
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/r2026-main-integration",
+      "sha": "4fb5ffcf244cc8b4bafe3b8c95d0e993a25edc33",
+      "name": "feat/r2026-main-integration",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/search-planning-wait-bound",
+      "sha": "4195ef36c1b01d4d4ad286a4342469a2de420ea8",
+      "name": "feat/search-planning-wait-bound",
+      "contained_in": [
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vcl04-clean-rerun",
+      "sha": "af800567a9b9d6f929ec96f981be8b1a6574fed1",
+      "name": "feat/vcl04-clean-rerun",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vcl04-r6-bridge",
+      "sha": "81090b4aa029d5f96df4b1d864f0e059e6ef7b54",
+      "name": "feat/vcl04-r6-bridge",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vcl05-full-random-deploy",
+      "sha": "ccac51789b561daca8802a89d498154b77804054",
+      "name": "feat/vcl05-full-random-deploy",
+      "contained_in": [
+        "feat/vcl05-full-random-deploy"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vcl05-search-delivery-strategy",
+      "sha": "7419a062f6c26cde8a93aeb1675325ab0bddd85e",
+      "name": "feat/vcl05-search-delivery-strategy",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vcl06-execution-integration",
+      "sha": "ad93d364ac7e34e4c58ddf40dce796042ffbfc96",
+      "name": "feat/vcl06-execution-integration",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vcl06-local-full-mission",
+      "sha": "34ce0c34c72ed762ce5984d35595e13d0d57e182",
+      "name": "feat/vcl06-local-full-mission",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vcl06-next-integration",
+      "sha": "8341dd18b67bfb23510223257e2718f0fbd2d875",
+      "name": "feat/vcl06-next-integration",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vcl06-random-start-gate",
+      "sha": "2247b10ce53b76f919218b9dd5fdedf9c96c16b1",
+      "name": "feat/vcl06-random-start-gate",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vcl06-vision-context",
+      "sha": "37cb2a91106c7c7b35e77aa9caf15b89aef97a20",
+      "name": "feat/vcl06-vision-context",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vdeploy-camera-extrinsic",
+      "sha": "f0b1b8be8df7a4ba716ff68b452eb522ef3b0c07",
+      "name": "feat/vdeploy-camera-extrinsic",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vdeploy-final-closeout-plan",
+      "sha": "65172469299733faef3ac060a44cf53030039c55",
+      "name": "feat/vdeploy-final-closeout-plan",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-capture-hardening",
+      "sha": "350f26cdba20411ee87cb18df2273ffe2be8194c",
+      "name": "feat/vsim04-capture-hardening",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-capture-sampling-sync",
+      "sha": "2f27a2e7da7ec95f3b15b28d6f0177dfd3a1e8a2",
+      "name": "feat/vsim04-capture-sampling-sync",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-hard-audit",
+      "sha": "b0bf5e6754b4ab3bc60573154e3f580047cb3f0b",
+      "name": "feat/vsim04-hard-audit",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-ks2a543-camera-baseline",
+      "sha": "56f06670530b92b6403a5b52069ed4fa20ec5247",
+      "name": "feat/vsim04-ks2a543-camera-baseline",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-motion-order-reset",
+      "sha": "00cf14da57017214e0918c48a71776b47f82b4e8",
+      "name": "feat/vsim04-motion-order-reset",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-motion-telemetry",
+      "sha": "7ef97422b70cf38acd174eb3fe9b221725208b30",
+      "name": "feat/vsim04-motion-telemetry",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-navigation-events",
+      "sha": "277a0a157c86bddc107dc103421cd68dc6989f95",
+      "name": "feat/vsim04-navigation-events",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-navigation-handoff-docs",
+      "sha": "34ef5db06780075212ff3d34295a73b884fa4111",
+      "name": "feat/vsim04-navigation-handoff-docs",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-navigation-handoff-final",
+      "sha": "bdf229693f0747754a3dbda00b38f8aaa339e604",
+      "name": "feat/vsim04-navigation-handoff-final",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-performance-surface",
+      "sha": "d6f4cc372c030558755703464a545e6140821cde",
+      "name": "feat/vsim04-performance-surface",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-pillbox-capture",
+      "sha": "959539233a80c64b673d526031d1370058278eb5",
+      "name": "feat/vsim04-pillbox-capture",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-redcross-quality",
+      "sha": "4059b5c90ca7858ed73f544798cb9fd3b9b2a732",
+      "name": "feat/vsim04-redcross-quality",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-redcross-yaw",
+      "sha": "27f97478912b734c56d91b1f541af8ca452a78c4",
+      "name": "feat/vsim04-redcross-yaw",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-repeat-tools",
+      "sha": "ad211eba07f26858bed3c10668911ecb24581df2",
+      "name": "feat/vsim04-repeat-tools",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-soak600",
+      "sha": "da04caca4394d5b32c351f92d3056108b85d37c7",
+      "name": "feat/vsim04-soak600",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-stability",
+      "sha": "0deeb1ecaa7c3deaba31c4ba3d98e51ca7429fa3",
+      "name": "feat/vsim04-stability",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/feat/vsim04-video-cd-validation",
+      "sha": "96c47fdf99bbe9f35c9e6d69a294c17dab8fb062",
+      "name": "feat/vsim04-video-cd-validation",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/fix/board-navigation-frames",
+      "sha": "d55da83d89e46c153b2222c8294c404f654ce548",
+      "name": "fix/board-navigation-frames",
+      "contained_in": [
+        "fix/board-navigation-frames"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/heads/fix/pr3-premerge-hygiene",
+      "sha": "1a494105064525c29ceb6e51a367f5a0d281ef05",
+      "name": "fix/pr3-premerge-hygiene",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/fix/vcl06-sim-lidar-map-readiness",
+      "sha": "b83342de6ab5649e57203662910393bd658505f9",
+      "name": "fix/vcl06-sim-lidar-map-readiness",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/heads/main",
+      "sha": "31d0b2aaa2c5bd9f9554008e42301cfbde666cfa",
+      "name": "main",
+      "contained_in": [
+        "main"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/chore/docs-progress-sync",
+      "sha": "0a41ee0c1cc696688af7f67a643de5ab88f6e897",
+      "name": "chore/docs-progress-sync",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/chore/docs-responsibility-remap",
+      "sha": "2dd1d91f96fb55a66d6f5d189746f163e0aa1829",
+      "name": "chore/docs-responsibility-remap",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/chore/freeze-oblique-camera-exploration",
+      "sha": "9889591a595114ada9a6cfc11233e31e2cbe7c93",
+      "name": "chore/freeze-oblique-camera-exploration",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/chore/gate-tagging-convention",
+      "sha": "0e69fef0626ca95f835f0db5e88fe6ac69252217",
+      "name": "chore/gate-tagging-convention",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/competition-main-r64-acceptance",
+      "sha": "7f67a68d9acc06ff541a8e2d91de0b22d89aaaba",
+      "name": "feat/competition-main-r64-acceptance",
+      "contained_in": [],
+      "merged_remote_main": true,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/competition-r64-log-only",
+      "sha": "c451c14ce1ff0e6d47f9eaf139a5233651bc6bfa",
+      "name": "feat/competition-r64-log-only",
+      "contained_in": [],
+      "merged_remote_main": true,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/competition-r64-topology-plan",
+      "sha": "d076e64ec37709c9adbc526f81a25d6ce5a3a424",
+      "name": "feat/competition-r64-topology-plan",
+      "contained_in": [],
+      "merged_remote_main": true,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/coverage-efficiency-research",
+      "sha": "4da9614190834bf2af6b34a6a04d6577a01c875c",
+      "name": "feat/coverage-efficiency-research",
+      "contained_in": [
+        "feat/coverage-efficiency-research"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/external-mission-coverage",
+      "sha": "f46d45fbc59822abc497d386ae858a48f5a4e2b4",
+      "name": "feat/external-mission-coverage",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/full-random-five-seeds",
+      "sha": "f2459e60fe5d313b10236f020d8f60ffc0a4d2d2",
+      "name": "feat/full-random-five-seeds",
+      "contained_in": [
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/high-view-search-research",
+      "sha": "10557f69577af0816a95f70b3581897b538580d7",
+      "name": "feat/high-view-search-research",
+      "contained_in": [
+        "feat/high-view-search-research"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/livox-driver2-integration",
+      "sha": "86e382d50ffa1d27bce0652ac4d576c73d0bfcec",
+      "name": "feat/livox-driver2-integration",
+      "contained_in": [
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/navigation-mission-visual-delivery",
+      "sha": "8255aa4400ca1be1cb99c236adcb645861081c49",
+      "name": "feat/navigation-mission-visual-delivery",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/new-vision-coverage-search",
+      "sha": "31b38ad6a4179c5a32672a2968dd245368e1ce99",
+      "name": "feat/new-vision-coverage-search",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/oblique-active-search-stability",
+      "sha": "ab6e447a9c984aa4a5a3fc2198c3a53434480fea",
+      "name": "feat/oblique-active-search-stability",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/oblique-aux-proposal-provider",
+      "sha": "3f2e55a020c1b4691d2b04cd4b74d71a046e5648",
+      "name": "feat/oblique-aux-proposal-provider",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/oblique-camera-search-feasibility",
+      "sha": "b60a4d942ba7081d776bb81c434e18193a486b1b",
+      "name": "feat/oblique-camera-search-feasibility",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/planner-map-20x20x5-sim",
+      "sha": "7c80844c775758437de1dec0a0854950e42dda6b",
+      "name": "feat/planner-map-20x20x5-sim",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/r2026-competition-integrated",
+      "sha": "86e382d50ffa1d27bce0652ac4d576c73d0bfcec",
+      "name": "feat/r2026-competition-integrated",
+      "contained_in": [
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/r2026-main-integration",
+      "sha": "4fb5ffcf244cc8b4bafe3b8c95d0e993a25edc33",
+      "name": "feat/r2026-main-integration",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vcl04-clean-rerun",
+      "sha": "af800567a9b9d6f929ec96f981be8b1a6574fed1",
+      "name": "feat/vcl04-clean-rerun",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vcl04-r6-bridge",
+      "sha": "81090b4aa029d5f96df4b1d864f0e059e6ef7b54",
+      "name": "feat/vcl04-r6-bridge",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vcl05-full-random-deploy",
+      "sha": "ccac51789b561daca8802a89d498154b77804054",
+      "name": "feat/vcl05-full-random-deploy",
+      "contained_in": [
+        "feat/vcl05-full-random-deploy"
+      ],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vcl05-search-delivery-strategy",
+      "sha": "7419a062f6c26cde8a93aeb1675325ab0bddd85e",
+      "name": "feat/vcl05-search-delivery-strategy",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/vcl05-full-random-deploy",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vcl06-execution-integration",
+      "sha": "1a494105064525c29ceb6e51a367f5a0d281ef05",
+      "name": "feat/vcl06-execution-integration",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vcl06-local-full-mission",
+      "sha": "34ce0c34c72ed762ce5984d35595e13d0d57e182",
+      "name": "feat/vcl06-local-full-mission",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vcl06-next-integration",
+      "sha": "8341dd18b67bfb23510223257e2718f0fbd2d875",
+      "name": "feat/vcl06-next-integration",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vdeploy-camera-extrinsic",
+      "sha": "f0b1b8be8df7a4ba716ff68b452eb522ef3b0c07",
+      "name": "feat/vdeploy-camera-extrinsic",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vdeploy-final-closeout-plan",
+      "sha": "65172469299733faef3ac060a44cf53030039c55",
+      "name": "feat/vdeploy-final-closeout-plan",
+      "contained_in": [],
+      "merged_remote_main": false,
+      "delete_candidate": false
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vsim04-ks2a543-camera-baseline",
+      "sha": "56f06670530b92b6403a5b52069ed4fa20ec5247",
+      "name": "feat/vsim04-ks2a543-camera-baseline",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vsim04-navigation-handoff-final",
+      "sha": "bdf229693f0747754a3dbda00b38f8aaa339e604",
+      "name": "feat/vsim04-navigation-handoff-final",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vsim04-performance-surface",
+      "sha": "d6f4cc372c030558755703464a545e6140821cde",
+      "name": "feat/vsim04-performance-surface",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/feat/vsim04-video-cd-validation",
+      "sha": "96c47fdf99bbe9f35c9e6d69a294c17dab8fb062",
+      "name": "feat/vsim04-video-cd-validation",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/fix/vcl06-sim-lidar-map-readiness",
+      "sha": "b83342de6ab5649e57203662910393bd658505f9",
+      "name": "fix/vcl06-sim-lidar-map-readiness",
+      "contained_in": [
+        "main",
+        "feat/high-view-search-research",
+        "fix/board-navigation-frames",
+        "feat/coverage-efficiency-research",
+        "feat/livox-driver2-integration",
+        "feat/r2026-competition-integrated"
+      ],
+      "merged_remote_main": true,
+      "delete_candidate": true
+    },
+    {
+      "ref": "refs/remotes/origin/main",
+      "sha": "2f405bef1b980fc8ba7b99958185538f660e28ee",
+      "name": "main",
+      "contained_in": [],
+      "merged_remote_main": true,
+      "delete_candidate": false
+    }
+  ]
+}

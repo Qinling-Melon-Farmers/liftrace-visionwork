@@ -1,0 +1,40 @@
+# sim_run manifest — 自动生成，勿手改
+scene: high_view_dynamic_seed34_id0
+start_time: 2026-09-14T00:00:11+08:00
+git_head: 1e2dbf39bfc4c1df1cf088db58c913b57da06b69
+git_status:
+  ?? docs/verification/high_view_dynamic_probe_20260913/analyze.py
+  ?? docs/verification/high_view_dynamic_probe_20260913/initial/
+uav_ws: /home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner
+uav_git_head: 1e2dbf39bfc4c1df1cf088db58c913b57da06b69
+uav_git_status:
+  ?? ../docs/verification/high_view_dynamic_probe_20260913/analyze.py
+  ?? ../docs/verification/high_view_dynamic_probe_20260913/initial/
+vision_ws: /home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws
+vision_git_head: 1e2dbf39bfc4c1df1cf088db58c913b57da06b69
+vision_git_status:
+  ?? ../docs/verification/high_view_dynamic_probe_20260913/analyze.py
+  ?? ../docs/verification/high_view_dynamic_probe_20260913/initial/
+resolved_uav_mission: /home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/src/uav_mission
+resolved_uav_vision: /home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision
+launch_cmd:
+  - "roslaunch"
+  - "uav_high_view"
+  - "dynamic_probe.launch"
+  - "target_model_path:=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt"
+  - "world:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_view_render_20260913/seed_34/field.world"
+  - "field_config:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_view_render_20260913/seed_34/field_config.yaml"
+  - "field_seed:=34"
+roslaunch_args:
+  - "roslaunch"
+  - "uav_high_view"
+  - "dynamic_probe.launch"
+  - "target_model_path:=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt"
+  - "world:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_view_render_20260913/seed_34/field.world"
+  - "field_config:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_view_render_20260913/seed_34/field_config.yaml"
+  - "field_seed:=34"
+require_gate: 1
+exit_code: 0
+end_time: 2026-09-14T00:05:31+08:00
+roslog: archived
+timeline: generated

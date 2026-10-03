@@ -7,6 +7,7 @@
  */
 #include "patrol_control/patrol_control.h"
 #include "patrol_control/Servo.h"
+#include "patrol_control/near_wall_align.h"
 #include <tf/transform_listener.h>
 #include "tf2_ros/transform_broadcaster.h"
 #include <Eigen/Core>
@@ -79,6 +80,40 @@ bool loadSlotOffsets(ros::NodeHandle& nh, const std::string& param_name,
         }
     }
     return true;
+}
+
+NearWallAlignFence loadNearWallAlignFence(ros::NodeHandle& nh) {
+    NearWallAlignFence fence;
+    const std::string root =
+        "/navigation/mission_manager/high_view_full/boundary_policy/";
+    nh.param(root + "enabled", fence.enabled, false);
+    if (!fence.enabled) return fence;
+    XmlRpc::XmlRpcValue bounds;
+    if (!nh.getParam(root + "bounds", bounds) ||
+        bounds.getType() != XmlRpc::XmlRpcValue::TypeArray ||
+        bounds.size() != 4) {
+        fence.valid = false;
+        return fence;
+    }
+    for (int i = 0; i < 4; ++i) {
+        if (!readNumber(bounds[i], &fence.bounds[i])) fence.valid = false;
+    }
+    nh.param(root + "guard_side_m", fence.side_m, 0.55);
+    nh.param(root + "tracking_reserve_m", fence.tracking_reserve_m, 0.03);
+    nh.param(root + "yaw_budget_deg", fence.yaw_budget_deg, 10.0);
+    fence.valid = fence.valid && fence.wellFormed();
+    return fence;
+}
+
+bool nearWallAlignReleaseAllowed(ros::NodeHandle& nh,
+                                 const geometry_msgs::PoseStamped& pose) {
+    const auto fence = loadNearWallAlignFence(nh);
+    if (!fence.enabled) return true;
+    const auto& p = pose.pose.position;
+    const double yaw = tf::getYaw(pose.pose.orientation);
+    if (fence.contains(p.x, p.y, yaw)) return true;
+    ROS_WARN_THROTTLE(1.0, "[NearWallAlign] release withheld: body center outside legal area");
+    return false;
 }
 
 }  // namespace
@@ -1379,6 +1414,29 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     mavros_point_cmd.pose.orientation.z = sin(interpolated_yaw / 2.0);
     mavros_point_cmd.pose.orientation.w = cos(interpolated_yaw / 2.0);
 
+    // The target center can lie closer to a wall than the legal aircraft
+    // center.  Keep the final, post-interpolation ALIGN setpoint inside the
+    // shared research boundary; visual evidence remains a separate gate.
+    if (external_mission_mode_ && Drone_mode == Aligning) {
+        const auto fence = loadNearWallAlignFence(nh_);
+        if (fence.enabled) {
+            if (!fence.wellFormed()) {
+                mavros_point_cmd = uav_pose;
+                ROS_ERROR_THROTTLE(1.0, "[NearWallAlign] invalid boundary; holding pose");
+            } else {
+                const auto safe = fence.clamp(mavros_point_cmd.pose.position.x,
+                                               mavros_point_cmd.pose.position.y,
+                                               current_yaw, interpolated_yaw);
+                if (std::hypot(mavros_point_cmd.pose.position.x-safe.first,
+                               mavros_point_cmd.pose.position.y-safe.second) > 1e-4) {
+                    ROS_WARN_THROTTLE(1.0, "[NearWallAlign] clamped center to legal area");
+                }
+                mavros_point_cmd.pose.position.x = safe.first;
+                mavros_point_cmd.pose.position.y = safe.second;
+            }
+        }
+    }
+
     mavros_point_cmd.header.stamp = ros::Time::now();
     mavros_point_cmd.header.frame_id = "camera_init";
     mavros_point_cmd_pub.publish(mavros_point_cmd);
@@ -1571,6 +1629,10 @@ void LLController::load_params() {
         "uav_vision/release_permission_timeout", 0.25);
     external_recovery_height_ = nh_.param(
         "uav_vision/recovery_height", 0.95);
+    external_standard_recovery_setpoint_height_ = nh_.param(
+        "uav_vision/standard_recovery_setpoint_height", 1.20);
+    external_cross_recovery_setpoint_height_ = nh_.param(
+        "uav_vision/cross_recovery_setpoint_height", 1.15);
     mission_release_permission_topic_ = nh_.param<std::string>(
         "uav_vision/release_permission_state_topic",
         "/mission/release_permission_active");
@@ -1598,12 +1660,19 @@ void LLController::load_params() {
         !std::isfinite(drop_position_threshold_) ||
         !std::isfinite(drop_release_setpoint_height_) ||
         !std::isfinite(external_recovery_height_) ||
+        !std::isfinite(external_standard_recovery_setpoint_height_) ||
+        !std::isfinite(external_cross_recovery_setpoint_height_) ||
         drop_height_threshold <= 0.0 || drop_height_threshold > 1.0 ||
         drop_position_threshold_ <= 0.0 || drop_position_threshold_ > 1.0 ||
         drop_release_setpoint_height_ <= 0.05 ||
         drop_release_setpoint_height_ > drop_height_threshold ||
         external_recovery_height_ <= drop_height_threshold ||
-        external_recovery_height_ > align_height) {
+        external_recovery_height_ > align_height ||
+        (external_mission_mode_ &&
+         (external_standard_recovery_setpoint_height_ < external_recovery_height_ ||
+          external_cross_recovery_setpoint_height_ < external_recovery_height_ ||
+          external_standard_recovery_setpoint_height_ > external_planner_max_command_z_ ||
+          external_cross_recovery_setpoint_height_ > external_planner_max_command_z_))) {
         ROS_FATAL("[DropSystem] invalid release/recovery geometry parameters");
         throw std::invalid_argument("invalid drop_system geometry parameters");
     }
@@ -2001,7 +2070,7 @@ bool LLController::DynamicProcess()
                 if(servo_complete.data){
                     ROS_INFO("\033[33m[CrossDetectionDone] servo_complete.data: %d\033[0m", servo_complete.data);
                     down_flag = false;
-                    align_height = 1.15;
+                    align_height = external_mission_mode_ ? external_cross_recovery_setpoint_height_ : 1.15;
                     const double recovery_height = external_mission_mode_
                         ? external_recovery_height_ : 0.95;
                     if(uav_pose.pose.position.z >= recovery_height){
@@ -2296,6 +2365,8 @@ bool LLController::WayPointDetectDone()
             should_drop = dropReleaseReady(
                 external_mission_mode_, legacy_geometry_ready,
                 require_vision_release_permission_, release_gate);
+            if (external_mission_mode_ &&
+                !nearWallAlignReleaseAllowed(nh_, uav_pose)) should_drop = false;
             if (!drop_complete && !should_drop) {
                 ROS_WARN_THROTTLE(
                     1.0,
@@ -2336,7 +2407,7 @@ bool LLController::WayPointDetectDone()
             if(servo_complete.data){
                 ROS_INFO("\033[33m[WayPointDetectDone] servo_complete.data: %d\033[0m", servo_complete.data);
                 // down_flag = false;
-                align_height = 1.2;
+                align_height = external_mission_mode_ ? external_standard_recovery_setpoint_height_ : 1.2;
                 const double recovery_height = external_mission_mode_
                     ? external_recovery_height_ : 1.0;
                 if(uav_pose.pose.position.z >= recovery_height){
@@ -2349,7 +2420,7 @@ bool LLController::WayPointDetectDone()
                     resetDropState();   // 重置投递状态
                     drop_complete = false;
                     servo_complete.data = false;
-                    align_height = 1.2;
+                    align_height = external_mission_mode_ ? external_standard_recovery_setpoint_height_ : 1.2;
                     time_temp = 0;
                     detect_point_counter++;
                     // drop_time_flag = false;
@@ -3172,6 +3243,8 @@ bool LLController::CrossDetectionDone() {
             should_drop = dropReleaseReady(
                 external_mission_mode_, legacy_geometry_ready,
                 require_vision_release_permission_, release_gate);
+            if (external_mission_mode_ &&
+                !nearWallAlignReleaseAllowed(nh_, uav_pose)) should_drop = false;
             if (!drop_complete && !should_drop) {
                 ROS_WARN_THROTTLE(
                     1.0,
@@ -3210,7 +3283,7 @@ bool LLController::CrossDetectionDone() {
             if(servo_complete.data){
                 ROS_INFO("\033[33m[CrossDetectionDone] servo_complete.data: %d\033[0m", servo_complete.data);
                 down_flag = false;
-                align_height = 1.15;
+                align_height = external_mission_mode_ ? external_cross_recovery_setpoint_height_ : 1.15;
                 const double recovery_height = external_mission_mode_
                     ? external_recovery_height_ : 0.95;
                 if(uav_pose.pose.position.z >= recovery_height){
@@ -3301,7 +3374,7 @@ void LLController::cleanupAfterCrossDrop() {
     mission_interrupted = false;
 
     // 重置高度
-    align_height = 1.2;
+    align_height = external_mission_mode_ ? external_alignment_capture_height_ : 1.2;
 
     ROS_INFO("\033[32m[CleanupAfterCrossDrop] All states cleaned up after cross drop, ready for next mission\033[0m");
 }

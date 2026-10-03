@@ -9,3 +9,6 @@ imgsz: 640
 # OrangePi 不运行本节点，板端使用独立 RKNN/NPU 入口。
 device: 0
 perf_topic: "/uav_vision/perf"
+
+# 2026 正式五类；保留六类权重原始 ID，历史回归显式选择 full。
+class_profile: r2026

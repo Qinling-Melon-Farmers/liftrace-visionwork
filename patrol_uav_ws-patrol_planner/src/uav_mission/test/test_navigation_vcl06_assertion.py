@@ -1150,7 +1150,8 @@ class PhysicalPoseGateTest(unittest.TestCase):
         node._check_terminal = mock.Mock()
         node.reducer = MODULE.Vcl06GateReducer()
         message = SimpleNamespace(name=['iris_mid360'], pose=[SimpleNamespace(
-            position=SimpleNamespace(x=-.493412, y=-1.772690, z=4.2))])
+            position=SimpleNamespace(x=-.493412, y=-1.772690, z=4.2),
+            orientation=SimpleNamespace(x=0.,y=0.,z=0.,w=1.))])
         with mock.patch.object(MODULE, 'rospy') as ros:
             ros.Time.now.return_value.to_nsec.return_value = 1000000000
             node._on_truth_pose(message)

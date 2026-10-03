@@ -1,0 +1,12 @@
+clearance_threshold: 0.025
+control_points_distance: 0.2
+dynamic_environment: 0
+local_segment_length: 6.0
+max_acc: 0.8
+max_jerk: 4.0
+max_vel: 0.8
+use_geometric_path: false
+use_kinodynamic_path: true
+use_optimization: true
+use_topo_path: false
+

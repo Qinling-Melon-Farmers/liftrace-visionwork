@@ -1,0 +1,291 @@
+{
+  "label": "fast_high",
+  "seed": 31,
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed31_20260915_101053",
+  "status": "FAIL",
+  "reason": "manager_failed",
+  "failed_checks": [
+    "committed_targets_were_selected",
+    "contract_errors_zero",
+    "doors_crossed_in_order",
+    "final_landed_on_ground",
+    "final_vehicle_disarmed",
+    "forced_return_within_limit",
+    "land_success",
+    "landing_align_mode_seen",
+    "landing_h_mark_valid",
+    "manager_complete",
+    "manager_post_delivery_route_matches",
+    "mission_ros_within_limit",
+    "post_delivery_return_goals",
+    "post_delivery_return_sequence",
+    "real_approach_commands",
+    "return_after_deliveries",
+    "return_before_land",
+    "return_home_success",
+    "three_capture_started",
+    "three_recovery_successes",
+    "three_release_commits"
+  ],
+  "start_ros_s": 11.428,
+  "observed_end_ros_s": 59.289,
+  "completed_mission_s": null,
+  "landing_transaction_s": null,
+  "observed_duration_s": 47.861000000000004,
+  "xy_distance_m": 28.37252374591249,
+  "xyz_distance_m": 29.96756916505385,
+  "speed_xy_p95_mps": 0.9160294184076634,
+  "max_fc_agl_m": 2.771245418764124,
+  "releases": [],
+  "gate_metrics": {
+    "approach_command_count": 0,
+    "boundary_violations": 0,
+    "capture_started_count": 0,
+    "decision_count": 7,
+    "door_crossings": [],
+    "height_violations": 0,
+    "landing_align_mode_seen": false,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      4.2,
+      8.5
+    ],
+    "latest_armed": null,
+    "latest_landed_state": null,
+    "max_observed_height": 2.771245418764124,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 2712,
+    "post_delivery_decision_indices": [],
+    "post_delivery_return_success_count": 0,
+    "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+    "post_delivery_route_size": 9,
+    "recovery_success_count": 0,
+    "release_commit_count": 0,
+    "result_count": 25,
+    "selected_count": 389,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": null
+  },
+  "collisions": 0,
+  "sample_gap_count": 0,
+  "moving_xy_time_s": 45.694,
+  "nonmoving_xy_time_s": 2.134999999999998,
+  "moving_sample_threshold_mps": 0.03,
+  "moving_speed_xy_median_mps": 0.8121295524351246,
+  "moving_speed_xy_p95_mps": 0.9168076499061214,
+  "high_view_final": {
+    "ascent_verified": true,
+    "catalog_entries": 4,
+    "descent_proposal": null,
+    "done": true,
+    "events": [
+      {
+        "reason": "survey_complete_missing_top3",
+        "stage": "DONE",
+        "success": false,
+        "time": 58.542
+      }
+    ],
+    "failure": "survey_complete_missing_top3",
+    "first_hint_ready": {
+      "bridge": {
+        "evidence_count": 3,
+        "last_seen_ns": 26970000000,
+        "time": 27.034,
+        "uncertainty_m": 0.20471766975484001,
+        "xy": [
+          1.562061379020711,
+          0.4938858888816668
+        ]
+      },
+      "red_cross": {
+        "evidence_count": 3,
+        "last_seen_ns": 30245000000,
+        "time": 30.281,
+        "uncertainty_m": 0.20162878949748989,
+        "xy": [
+          4.203214386366044,
+          2.630674125955126
+        ]
+      }
+    },
+    "low_limits_applied": false,
+    "observation_counts": {
+      "accepted": 183,
+      "candidate:profile_excluded": 1839,
+      "candidate:state_not_confirmed": 16,
+      "candidate:streak_too_short": 1978,
+      "duplicate_or_too_close": 211
+    },
+    "orders": [],
+    "reacquired": null,
+    "reacquisitions": [],
+    "required_classes": [
+      "bridge",
+      "panzer",
+      "red_cross"
+    ],
+    "scope": "HIGH_VIEW_FULL_MISSION",
+    "selected": null,
+    "slots_committed": 0,
+    "stage": "SURVEY",
+    "succeeded": false,
+    "survey_policy": {
+      "candidate_min_streak": 1,
+      "descent_max_candidates": 25,
+      "descent_radius_m": 1.5,
+      "direct_descent": true,
+      "max_uncertainty_m": 0.45,
+      "min_interval_ns": 100000000,
+      "min_span_ns": 200000000
+    },
+    "top_hints": {
+      "bridge": {
+        "class_name": "bridge",
+        "epoch": {
+          "calibration": "installed-camera-1280-v1",
+          "localization": "static-sitl-world",
+          "mission": "vcl06-random-11-428000000-1"
+        },
+        "evidence_count": 8,
+        "key": {
+          "first_seen_ns": 15486000000,
+          "target_id": 0
+        },
+        "last_seen_ns": 29579000000,
+        "role": "REVISIT_HINT_ONLY",
+        "uncertainty_m": 0.2041888556757019,
+        "vote_fraction": 1.0,
+        "xy": [
+          1.5579627269053846,
+          0.48596644675178474
+        ]
+      },
+      "red_cross": {
+        "class_name": "red_cross",
+        "epoch": {
+          "calibration": "installed-camera-1280-v1",
+          "localization": "static-sitl-world",
+          "mission": "vcl06-random-11-428000000-1"
+        },
+        "evidence_count": 8,
+        "key": {
+          "first_seen_ns": 29879000000,
+          "target_id": 4
+        },
+        "last_seen_ns": 37789000000,
+        "role": "REVISIT_HINT_ONLY",
+        "uncertainty_m": 0.20129261593081302,
+        "vote_fraction": 1.0,
+        "xy": [
+          4.282107929860429,
+          2.6167649559643458
+        ]
+      }
+    }
+  },
+  "target_hint_evaluation": {
+    "bridge": {
+      "high_hint_error_m": 0.12033917056053507,
+      "hint_uncertainty_m": 0.2041888556757019,
+      "low_fused_point_error_m": null,
+      "source_age_at_reacquisition_s": null
+    },
+    "red_cross": {
+      "high_hint_error_m": 0.15890145634797723,
+      "hint_uncertainty_m": 0.20129261593081302,
+      "low_fused_point_error_m": null,
+      "source_age_at_reacquisition_s": null
+    }
+  },
+  "commit_times": [],
+  "third_commit_s": null,
+  "first_commit_s": null,
+  "xy_distance_to_third_commit_m": null,
+  "armed_ros_s": 3.507,
+  "airborne_ros_s": 4.306,
+  "touchdown_ros_s": null,
+  "disarmed_ros_s": null,
+  "airborne_to_touchdown_s": null,
+  "armed_to_third_commit_s": null,
+  "touchdown_to_disarm_s": null,
+  "high_view_stage_changes": [
+    {
+      "name": "IDLE",
+      "t": 0.0
+    },
+    {
+      "name": "ASCEND",
+      "t": 11.428
+    },
+    {
+      "name": "SURVEY",
+      "t": 15.002
+    }
+  ],
+  "sampled_phase_durations_s": {
+    "SEARCH": 0.0,
+    "ASCEND": 3.574,
+    "SURVEY": 44.287
+  },
+  "sampled_phase_changes": [
+    {
+      "t": 11.428,
+      "phase": "SEARCH"
+    },
+    {
+      "t": 11.428,
+      "phase": "ASCEND"
+    },
+    {
+      "t": 15.002,
+      "phase": "SURVEY"
+    }
+  ],
+  "speed_by_phase": {
+    "ASCEND": {
+      "median_mps": 0.04669047147563954,
+      "p95_mps": 0.12462804559150693,
+      "samples": 21
+    },
+    "SURVEY": {
+      "median_mps": 0.8200941332489924,
+      "p95_mps": 0.9181840999304496,
+      "samples": 427
+    }
+  },
+  "following_speed_transitions": [
+    {
+      "t": 11.428,
+      "phase": "CRUISE",
+      "lead_m": 1.0
+    },
+    {
+      "t": 58.549,
+      "phase": "TERMINAL",
+      "lead_m": 0.15
+    }
+  ],
+  "following_speed_stats": {
+    "CRUISE": {
+      "duration_s": 47.120999999999995,
+      "moving_samples": 442,
+      "median_mps": 0.8134620008414559,
+      "p95_mps": 0.9172028606494622
+    },
+    "TERMINAL": {
+      "duration_s": 0.740000000000002,
+      "moving_samples": 7,
+      "median_mps": 0.050984562819960194,
+      "p95_mps": 0.07388227338308252
+    }
+  },
+  "third_commit_to_corridor_entry_s": null,
+  "fast_corridor_transit_s": null
+}

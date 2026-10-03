@@ -1,0 +1,21 @@
+navigation:
+  planner_bridge:
+    execution:
+      max_goal_z: 0.25
+      arrival_position_tolerance: 0.15
+      approach_arrival_position_tolerance: 0.15
+      arrival_speed_tolerance: 0.12
+      arrival_dwell: 0.5
+      effective_goal_max_offset: 0.15
+    target:
+      recovery_height: 0.20
+      recovery_settle_radius: 0.08
+      recovery_dwell: 0.5
+release_permission_arbiter:
+  min_release_altitude: 0.06
+  max_release_altitude: 0.15
+  payload_slots: 1
+  first_payload_slot: 1
+  pose_topic: /navigation/local_pose
+  require_evidence_context: true
+  class_profile: r2026

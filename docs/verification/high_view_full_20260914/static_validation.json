@@ -1,0 +1,44 @@
+[
+  {
+    "seed": 32,
+    "different_parameters": [
+      "/external_planner_max_command_z",
+      "/fast_planner_node/sdf_map/virtual_ceil_height",
+      "/navigation/mission_manager/high_view_full/policy/candidate_min_streak",
+      "/navigation/mission_manager/high_view_full/policy/descent_max_candidates",
+      "/navigation/mission_manager/high_view_full/policy/descent_radius_m",
+      "/navigation/mission_manager/high_view_full/policy/direct_descent",
+      "/navigation/mission_manager/high_view_full/policy/max_uncertainty_m",
+      "/navigation/mission_manager/high_view_full/policy/min_interval_ns",
+      "/navigation/mission_manager/high_view_full/policy/min_span_ns",
+      "/navigation/mission_manager/high_view_probe/config/ground_z",
+      "/navigation/mission_manager/high_view_probe/config/high_agl",
+      "/navigation/mission_manager/high_view_probe/config/low_agl",
+      "/navigation/mission_manager/high_view_probe/config/survey_xy",
+      "/navigation/mission_manager/high_view_probe/low_stage_parameters",
+      "/navigation/planner_bridge/execution/max_goal_z"
+    ],
+    "shared_low_delivery_and_gate": true
+  },
+  {
+    "seed": 34,
+    "different_parameters": [
+      "/external_planner_max_command_z",
+      "/fast_planner_node/sdf_map/virtual_ceil_height",
+      "/navigation/mission_manager/high_view_full/policy/candidate_min_streak",
+      "/navigation/mission_manager/high_view_full/policy/descent_max_candidates",
+      "/navigation/mission_manager/high_view_full/policy/descent_radius_m",
+      "/navigation/mission_manager/high_view_full/policy/direct_descent",
+      "/navigation/mission_manager/high_view_full/policy/max_uncertainty_m",
+      "/navigation/mission_manager/high_view_full/policy/min_interval_ns",
+      "/navigation/mission_manager/high_view_full/policy/min_span_ns",
+      "/navigation/mission_manager/high_view_probe/config/ground_z",
+      "/navigation/mission_manager/high_view_probe/config/high_agl",
+      "/navigation/mission_manager/high_view_probe/config/low_agl",
+      "/navigation/mission_manager/high_view_probe/config/survey_xy",
+      "/navigation/mission_manager/high_view_probe/low_stage_parameters",
+      "/navigation/planner_bridge/execution/max_goal_z"
+    ],
+    "shared_low_delivery_and_gate": true
+  }
+]

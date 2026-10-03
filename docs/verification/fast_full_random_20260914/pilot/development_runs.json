@@ -1,0 +1,12 @@
+[
+  {
+    "run": "logs/fast_speed_pilot32_20260914_041135",
+    "status": "STARTUP_ERROR",
+    "reason": "ROS catkin package parsing TypeError before flight; isolated package parsing passed and rospack cache rebuilt"
+  },
+  {
+    "run": "logs/fast_speed_pilot32_cache_20260914_041407",
+    "status": "FAIL",
+    "reason": "High ascent blocked by controller default0.6m command admission against1.0m lookahead; motion timeout; zero collisions"
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "seed": 2672,
+  "door_seed": 3672,
+  "obstacle_seed": 4672,
+  "pattern": "LR",
+  "method": "SystemRandom: one draw in [41,9999], independent uniform door pattern; no retries"
+}

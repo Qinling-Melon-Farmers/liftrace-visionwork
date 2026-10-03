@@ -1,0 +1,386 @@
+{
+  "date": "2026-09-28",
+  "host": "192.168.156.193",
+  "directory": "/home/orangepi/liftrace_board_trials_20260928",
+  "source_branch": "feat/board-deployment-flight-20260920",
+  "source_revision": "e1f067b545b02e5a870b1cea1990aff4e787fe15",
+  "build": {
+    "vision_ws": "PASS",
+    "navigation_ws": "PASS",
+    "jobs": 2,
+    "cxx_opencv": "4.2.0",
+    "missing_shared_libraries": false
+  },
+  "static_checks": [
+    {
+      "trial": "visual_interrupt",
+      "mode": "preview",
+      "status": "PASS",
+      "ground_z": -0.22,
+      "low_z": 1.1799999475479126,
+      "drop_z": 0.38
+    },
+    {
+      "trial": "visual_interrupt",
+      "mode": "flight",
+      "status": "PASS",
+      "ground_z": -0.22,
+      "low_z": 1.1799999475479126,
+      "drop_z": 0.38
+    },
+    {
+      "trial": "high_view",
+      "mode": "preview",
+      "status": "PASS",
+      "ground_z": -0.22,
+      "low_z": 1.1799999475479126,
+      "drop_z": 0.38
+    },
+    {
+      "trial": "high_view",
+      "mode": "flight",
+      "status": "PASS",
+      "ground_z": -0.22,
+      "low_z": 1.1799999475479126,
+      "drop_z": 0.38
+    },
+    {
+      "trial": "landing",
+      "mode": "preview",
+      "status": "PASS",
+      "ground_z": -0.22,
+      "low_z": 1.1799999475479126,
+      "drop_z": 0.38
+    },
+    {
+      "trial": "landing",
+      "mode": "flight",
+      "status": "PASS",
+      "ground_z": -0.22,
+      "low_z": 1.1799999475479126,
+      "drop_z": 0.38
+    },
+    {
+      "trial": "corridor_landing",
+      "status": "EXPECTED_BLOCKED",
+      "reason": "Fill corridor_waypoints with at least two measured waypoints; no default route is permitted"
+    },
+    {
+      "trial": "low_multi",
+      "mode": "preview",
+      "status": "PASS",
+      "ground_z": -0.22,
+      "low_z": 1.1799999475479126,
+      "drop_z": 0.38
+    },
+    {
+      "trial": "low_multi",
+      "mode": "flight",
+      "status": "PASS",
+      "ground_z": -0.22,
+      "low_z": 1.1799999475479126,
+      "drop_z": 0.38
+    },
+    {
+      "trial": "high_priority",
+      "mode": "preview",
+      "status": "PASS",
+      "ground_z": -0.22,
+      "low_z": 1.1799999475479126,
+      "drop_z": 0.38
+    },
+    {
+      "trial": "high_priority",
+      "mode": "flight",
+      "status": "PASS",
+      "ground_z": -0.22,
+      "low_z": 1.1799999475479126,
+      "drop_z": 0.38
+    },
+    {
+      "trial": "memory_only",
+      "mode": "preview",
+      "status": "PASS",
+      "ground_z": -0.22,
+      "low_z": 1.1799999475479126,
+      "drop_z": 0.38
+    },
+    {
+      "trial": "memory_only",
+      "mode": "flight",
+      "status": "PASS",
+      "ground_z": -0.22,
+      "low_z": 1.1799999475479126,
+      "drop_z": 0.38
+    },
+    {
+      "trial": "full_mission",
+      "status": "EXPECTED_BLOCKED",
+      "reason": "Fill corridor_waypoints with at least two measured waypoints; no default route is permitted"
+    },
+    {
+      "localization": "low",
+      "status": "PASS"
+    },
+    {
+      "localization": "high",
+      "status": "PASS"
+    },
+    {
+      "localization": "corridor",
+      "status": "PASS"
+    },
+    {
+      "package": "uav_mission",
+      "path": "/home/orangepi/liftrace_board_trials_20260928/patrol_uav_ws-patrol_planner/src/uav_mission",
+      "status": "PASS"
+    },
+    {
+      "package": "uav_high_view",
+      "path": "/home/orangepi/liftrace_board_trials_20260928/vision_ws/src/uav_high_view",
+      "status": "PASS"
+    },
+    {
+      "package": "uav_vision",
+      "path": "/home/orangepi/liftrace_board_trials_20260928/vision_ws/src/uav_vision",
+      "status": "PASS"
+    },
+    {
+      "package": "uav_board_trials",
+      "path": "/home/orangepi/liftrace_board_trials_20260928/vision_ws/src/uav_board_trials",
+      "status": "PASS"
+    },
+    {
+      "package": "fast_lio",
+      "path": "/home/orangepi/liftrace_board_trials_20260928/patrol_uav_ws-patrol_planner/src/FAST_LIO",
+      "status": "PASS"
+    },
+    {
+      "package": "freedom",
+      "path": "/home/orangepi/liftrace_board_trials_20260928/patrol_uav_ws-patrol_planner/src/FreeDOM",
+      "status": "PASS"
+    },
+    {
+      "package": "plan_manage",
+      "path": "/home/orangepi/liftrace_board_trials_20260928/patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage",
+      "status": "PASS"
+    },
+    {
+      "package": "patrol_control",
+      "path": "/home/orangepi/liftrace_board_trials_20260928/patrol_uav_ws-patrol_planner/src/patrol_control",
+      "status": "PASS"
+    },
+    {
+      "package": "livox_ros_driver2",
+      "path": "/home/orangepi/liftrace_board_trials_20260928/patrol_uav_ws-patrol_planner/src/tool/livox_ros_driver2",
+      "status": "PASS"
+    },
+    {
+      "package": "camera_sdk",
+      "path": "/home/orangepi/liftrace_board_trials_20260928/vision_ws/src/camera_sdk",
+      "status": "PASS"
+    }
+  ],
+  "runtime_construction": [
+    {
+      "folder": "01_visual_interrupt",
+      "trial": "visual_interrupt",
+      "control_output": "false",
+      "nodes": 14,
+      "runtime": "SingleDeliveryRuntime",
+      "passed": true
+    },
+    {
+      "folder": "01_visual_interrupt",
+      "trial": "visual_interrupt",
+      "control_output": "true",
+      "nodes": 19,
+      "runtime": "SingleDeliveryRuntime",
+      "passed": true
+    },
+    {
+      "folder": "02_high_view_revisit",
+      "trial": "high_view",
+      "control_output": "false",
+      "nodes": 14,
+      "runtime": "FullCircleRuntime",
+      "passed": true
+    },
+    {
+      "folder": "02_high_view_revisit",
+      "trial": "high_view",
+      "control_output": "true",
+      "nodes": 19,
+      "runtime": "FullCircleRuntime",
+      "passed": true
+    },
+    {
+      "folder": "03_h_landing",
+      "trial": "landing",
+      "control_output": "false",
+      "nodes": 14,
+      "runtime": "SingleDeliveryRuntime",
+      "passed": true
+    },
+    {
+      "folder": "03_h_landing",
+      "trial": "landing",
+      "control_output": "true",
+      "nodes": 15,
+      "runtime": "SingleDeliveryRuntime",
+      "passed": true
+    },
+    {
+      "folder": "04_corridor_landing",
+      "trial": "landing",
+      "control_output": "false",
+      "nodes": 14,
+      "runtime": "SingleDeliveryRuntime",
+      "passed": true
+    },
+    {
+      "folder": "04_corridor_landing",
+      "trial": "landing",
+      "control_output": "true",
+      "nodes": 15,
+      "runtime": "SingleDeliveryRuntime",
+      "passed": true
+    },
+    {
+      "folder": "05_low_multi",
+      "trial": "low_multi",
+      "control_output": "false",
+      "nodes": 14,
+      "runtime": "MultiDeliveryRuntime",
+      "passed": true
+    },
+    {
+      "folder": "05_low_multi",
+      "trial": "low_multi",
+      "control_output": "true",
+      "nodes": 19,
+      "runtime": "MultiDeliveryRuntime",
+      "passed": true
+    },
+    {
+      "folder": "06_high_priority",
+      "trial": "high_priority",
+      "control_output": "false",
+      "nodes": 14,
+      "runtime": "PriorityRevisitRuntime",
+      "passed": true
+    },
+    {
+      "folder": "06_high_priority",
+      "trial": "high_priority",
+      "control_output": "true",
+      "nodes": 19,
+      "runtime": "PriorityRevisitRuntime",
+      "passed": true
+    },
+    {
+      "folder": "07_memory_only",
+      "trial": "memory_only",
+      "control_output": "false",
+      "nodes": 14,
+      "runtime": "MemoryOnlyRuntime",
+      "passed": true
+    },
+    {
+      "folder": "07_memory_only",
+      "trial": "memory_only",
+      "control_output": "true",
+      "nodes": 16,
+      "runtime": "MemoryOnlyRuntime",
+      "passed": true
+    },
+    {
+      "folder": "08_full_mission",
+      "trial": "high_view_full",
+      "control_output": "false",
+      "nodes": 14,
+      "runtime": "FullMissionTrialRuntime",
+      "passed": true
+    },
+    {
+      "folder": "08_full_mission",
+      "trial": "high_view_full",
+      "control_output": "true",
+      "nodes": 18,
+      "runtime": "FullMissionTrialRuntime",
+      "passed": true
+    }
+  ],
+  "npu_contract": {
+    "status": "PASS",
+    "kind": "offline_frame_no_ROS_nodes",
+    "shapes": [
+      [
+        1,
+        9,
+        8400
+      ]
+    ],
+    "names": {
+      "0": "bridge",
+      "1": "panzer",
+      "2": "pillbox",
+      "3": "tent",
+      "4": "red_cross"
+    },
+    "inference_ms": [
+      109.30823499984399,
+      87.13147600064985,
+      60.040809999918565,
+      53.35709899918584
+    ],
+    "detections": []
+  },
+  "npu_positive_frames": [
+    {
+      "frame": "frame_2.jpg",
+      "inference_ms": 105.42388999965624,
+      "detections": [
+        {
+          "name": "panzer",
+          "score": 0.89697265625
+        }
+      ]
+    },
+    {
+      "frame": "frame_3.jpg",
+      "inference_ms": 53.73071699978027,
+      "detections": [
+        {
+          "name": "panzer",
+          "score": 0.9140625
+        }
+      ]
+    },
+    {
+      "frame": "frame_4.jpg",
+      "inference_ms": 55.82397099988157,
+      "detections": [
+        {
+          "name": "bridge",
+          "score": 0.9306640625
+        }
+      ]
+    },
+    {
+      "frame": "frame_5.jpg",
+      "inference_ms": 57.472439999401104,
+      "detections": [
+        {
+          "name": "bridge",
+          "score": 0.93017578125
+        }
+      ]
+    }
+  ],
+  "real_application_started": false,
+  "flight_started": false,
+  "servo_called": false,
+  "live_lidar_verified": false,
+  "site_config": "MID360 JSON copied from existing field installation; eth0 DOWN at inspection"
+}

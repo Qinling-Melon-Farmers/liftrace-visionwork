@@ -1,0 +1,97 @@
+{
+  "status": "PASS",
+  "file": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/reliability_seed2672_render_replay_20260919_182252/overview_replay_timed.mp4",
+  "codec": "h264",
+  "width": 1280,
+  "height": 960,
+  "frames": 2992,
+  "encoded_duration_s": 299.2,
+  "source_span_s": 299.025,
+  "recorded_ros_span_s": 302.488,
+  "max_frame_source_gap_s": 0.5869999999999997,
+  "sampled_frames": [
+    {
+      "frame": 6,
+      "source_ros_s": 1.0,
+      "std": 42.79961740137785
+    },
+    {
+      "frame": 256,
+      "source_ros_s": 26.0,
+      "std": 42.88663990658166
+    },
+    {
+      "frame": 536,
+      "source_ros_s": 54.0,
+      "std": 42.85478955558864
+    },
+    {
+      "frame": 1146,
+      "source_ros_s": 115.0,
+      "std": 42.89213793022738
+    },
+    {
+      "frame": 2316,
+      "source_ros_s": 232.0,
+      "std": 42.871800043213625
+    },
+    {
+      "frame": 2976,
+      "source_ros_s": 298.0,
+      "std": 42.86392259954887
+    }
+  ],
+  "note": "Complete source trajectory render replay. Raw live overview was roof-occluded and is not an accepted video.",
+  "replay_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/reliability_seed2672_render_replay_20260919_182252",
+  "replay_cleanup": true,
+  "raw_camera_validation": {
+    "status": "PASS",
+    "file": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/reliability_seed2672_render_replay_20260919_182252/overview_replay_h264.mp4",
+    "codec": "h264",
+    "width": 1280,
+    "height": 960,
+    "frames": 2773,
+    "encoded_duration_s": 277.3,
+    "source_span_s": 299.025,
+    "recorded_ros_span_s": 302.488,
+    "max_frame_source_gap_s": 0.5869999999999997,
+    "sampled_frames": [
+      {
+        "frame": 9,
+        "source_ros_s": 1.0,
+        "std": 42.90084489632506
+      },
+      {
+        "frame": 244,
+        "source_ros_s": 26.0,
+        "std": 42.974663495922826
+      },
+      {
+        "frame": 504,
+        "source_ros_s": 54.0,
+        "std": 42.94833910329674
+      },
+      {
+        "frame": 1062,
+        "source_ros_s": 115.0,
+        "std": 42.97348805269364
+      },
+      {
+        "frame": 2134,
+        "source_ros_s": 232.0,
+        "std": 42.959942937254134
+      },
+      {
+        "frame": 2734,
+        "source_ros_s": 298.0,
+        "std": 42.95735242170613
+      }
+    ],
+    "note": "Complete source trajectory render replay. Raw live overview was roof-occluded and is not an accepted video.",
+    "replay_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/reliability_seed2672_render_replay_20260919_182252",
+    "replay_cleanup": true
+  },
+  "held_duplicate_frames": 246,
+  "timing_method": "10fps source-clock grid; hold previous captured frame through gaps, no generated motion",
+  "full_decode_pass": true
+}

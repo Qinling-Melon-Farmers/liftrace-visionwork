@@ -1,0 +1,99 @@
+mission_frame: camera_init
+class_profile: r2026
+spawn:
+  boundary_margin: 0.02
+  pair_gap: 0.05
+  layout_attempts: 64
+  static_model_radius: 0.55
+  initial_model_states_timeout: 90.0
+  verification_tolerance: 0.05
+  verification_timeout: 20.0
+  frozen_layout:
+  - class: tent
+    x: 4.1303
+    y: -1.0199
+    yaw: -0.0188963267948965
+  - class: pillbox
+    x: 2.0863
+    y: -3.5901
+    yaw: 0.5719036732051035
+  - class: bridge
+    x: 5.5824
+    y: 1.0838
+    yaw: -3.1014963267948965
+  - class: panzer
+    x: 3.3168
+    y: -2.5969
+    yaw: -0.38729632679489656
+  - class: red_cross
+    x: 0.7243
+    y: 2.1641
+    yaw: -0.12949632679489653
+static_model_radii:
+  landing_h: 0.5
+  landing_h_clone: 0.5
+static_exclusion_boxes:
+- - -0.7
+  - -0.5
+  - -5.0
+  - 5.0
+- - 9.1
+  - 9.299999999999999
+  - -5.0
+  - 5.0
+- - -0.5
+  - 9.1
+  - -4.999999999999999
+  - -4.8
+- - -0.5
+  - 9.1
+  - 4.8
+  - 4.999999999999999
+- - 7.4
+  - 7.6
+  - -4.8
+  - 3.3
+- - 7.6
+  - 7.695710531072727
+  - 1.5
+  - 1.7000000000000002
+- - 8.495710531072728
+  - 9.099999999999998
+  - 1.5
+  - 1.7000000000000002
+- - 7.6
+  - 7.782737448365095
+  - -1.7000000000000002
+  - -1.5
+- - 8.582737448365096
+  - 9.1
+  - -1.7000000000000002
+  - -1.5
+static_exclusions:
+- name: combined_tree_0
+  world_x: 2.1775270740284256
+  world_y: 0.5589827218550969
+  radius: 0.43
+- name: combined_tree_1
+  world_x: 4.739403060206737
+  world_y: -3.161495228304185
+  radius: 0.43
+- name: combined_tree_2
+  world_x: 5.452959783082196
+  world_y: -0.12318668675204236
+  radius: 0.43
+- name: combined_tree_3
+  world_x: 5.658374287327671
+  world_y: -2.1073833114801346
+  radius: 0.43
+field:
+  min_x: -0.5
+  max_x: 9.1
+  min_y: -4.8
+  max_y: 4.8
+search_region:
+  min_x: -0.5
+  max_x: 7.6
+  min_y: -4.8
+  max_y: 4.8
+ignore_model_names: ground_plane,sun,toudi2,3,iris_mid360,preview_overhead,preview_aircraft,indoor_context,competition_overview_camera,presentation_overview_camera,presentation_follow_camera

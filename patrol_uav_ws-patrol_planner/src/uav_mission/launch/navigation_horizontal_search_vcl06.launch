@@ -1,13 +1,17 @@
 <launch>
+  <arg name="start_hard_gate" default="true" />
+  <arg name="manager_type" default="navigation_mission_manager.py" />
   <!-- Experimental opt-in; zero keeps the accepted baseline behavior. -->
+  <arg name="initial_plan_timeout" default="0.0" />
   <arg name="search_initial_plan_timeout" default="0.0" />
   <arg name="record_overview_video" default="false" />
   <arg name="overview_x" default="0.0" />
   <arg name="overview_y" default="4.3" />
   <arg name="overview_z" default="5.0" />
+  <arg name="overview_model_sdf" default="$(find uav_vision_eval)/models/competition_overview_camera/model.sdf" />
   <group if="$(arg record_overview_video)">
     <node pkg="gazebo_ros" type="spawn_model" name="spawn_overview_camera"
-          args="-sdf -file $(find uav_vision_eval)/models/competition_overview_camera/model.sdf -model competition_overview_camera -x $(arg overview_x) -y $(arg overview_y) -z $(arg overview_z) -P 1.57079632679 -Y -1.57079632679" />
+          args="-sdf -file $(arg overview_model_sdf) -model competition_overview_camera -x $(arg overview_x) -y $(arg overview_y) -z $(arg overview_z) -P 1.57079632679 -Y -1.57079632679" />
     <node pkg="uav_vision_eval" type="camera_video_recorder.py" name="overview_video_recorder" output="screen">
       <param name="image_topic" value="/competition_overview/image_raw" />
       <param name="fps" value="10.0" />
@@ -23,6 +27,8 @@
   <!-- 0.22 m FC-to-support plus the existing 5 mm H pad; no initial penetration. -->
   <arg name="spawn_z" default="0.225" />
   <arg name="body_to_imu_xyz" default="0 0 0.05" />
+  <arg name="camera_extrinsic_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
+  <arg name="vehicle_sdf" default="$(find uav_vision_eval)/models/iris_mid360_ks2a543_installed/model.sdf" />
   <arg name="camera_extrinsic_xyz" default="0 0 -0.16" />
   <arg name="gui" default="false" />
   <arg name="rviz" default="false" />
@@ -54,6 +60,8 @@
   <arg name="runtime_config" default="$(find uav_mission)/config/vcl06_full_low_corridor_runtime.yaml" />
   <arg name="control_config" default="$(find uav_mission)/config/vcl06_full_low_corridor_control.yaml" />
   <include file="$(find uav_mission)/launch/navigation_search_delivery_vcl06.launch">
+    <arg name="manager_type" value="$(arg manager_type)" />
+    <arg name="start_hard_gate" value="$(arg start_hard_gate)" />
     <arg name="ground_z" value="$(arg ground_z)" />
     <arg name="spawn_x" value="0.0" />
     <arg name="spawn_y" value="0.0" />
@@ -67,17 +75,18 @@
     <arg name="mission_start_mode" value="$(arg mission_start_mode)" />
     <arg name="gate_scope" value="$(arg gate_scope)" />
     <arg name="world" value="$(arg world)" />
-    <arg name="vehicle_sdf" value="$(find uav_vision_eval)/models/iris_mid360_ks2a543_installed/model.sdf" />
+    <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
     <arg name="runtime_config" value="$(arg runtime_config)" />
     <arg name="waypoint_config" value="$(arg control_config)" />
     <arg name="field_config" value="$(arg field_config)" />
+    <arg name="camera_extrinsic_quat_xyzw" value="$(arg camera_extrinsic_quat_xyzw)" />
     <arg name="camera_extrinsic_xyz" value="$(arg camera_extrinsic_xyz)" />
     <arg name="search_altitude" value="1.18" />
     <arg name="external_planner_max_command_z" value="2.08" />
     <!-- Retain the successful planner's dynamic search envelope. Actual
          position following is bounded by the 0.40 m lookahead below. -->
     <arg name="planner_max_vel" value="1.0" />
-    <arg name="planner_obstacles_inflation" value="0.30" />
+    <arg name="planner_obstacles_inflation" value="0.25" />
     <arg name="planner_clearance_threshold" value="0.025" />
     <arg name="px4_max_distance" value="0.40" />
   </include>
@@ -124,6 +133,8 @@
   <param name="/navigation/planner_bridge/execution/return_yaw_tolerance" value="0.10" />
   <param name="/navigation/planner_bridge/execution/search_initial_plan_timeout"
          value="$(arg search_initial_plan_timeout)" />
+  <param name="/navigation/planner_bridge/execution/initial_plan_timeout"
+         value="$(arg initial_plan_timeout)" />
   <!-- Turn near the open staging point, then retain the heading in the aisle. -->
   <param name="/traj_server/traj_server/adjust_distance_yaw" value="0.50" />
   <!-- Both 5 mm H markers use model://landing_h and are ground support. -->

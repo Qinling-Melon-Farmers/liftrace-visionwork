@@ -1,0 +1,72 @@
+{
+  "20-23-54": {
+    "kind": "RECORDED_SNAPSHOTS_COMPONENT_PROBE_NOT_FLIGHT_REPLAY",
+    "queue_before_commit": {
+      "current": "panzer",
+      "reserved": "bridge"
+    },
+    "delivered_classes": [
+      "bridge"
+    ],
+    "late_bridge_validation": "accepted",
+    "late_bridge_selected_after_wrong_commit": false,
+    "late_bridge_selected_without_wrong_commit": true,
+    "high_only_coarse_conflicts": [
+      "bridge"
+    ],
+    "memory_after_low": {
+      "panzer": [
+        1.9883573870750728,
+        -1.305045159545923
+      ]
+    },
+    "memory_conflict_after": [],
+    "memory_resolved": true,
+    "memory_locations": {
+      "panzer": [
+        1.9883573870750728,
+        -1.305045159545923
+      ],
+      "bridge": [
+        2.3513449588519397,
+        1.3248702137003099
+      ]
+    },
+    "limitations": "Chronological component inputs from recorded valid snapshots. Memory input promotes recorded map locations to Hint objects, not an end-to-end coarse projector/Catalog replay; no live height/stage/admissibility/route/actuator acceptance is asserted. Queue uses original source and receipt times."
+  },
+  "20-33-08": {
+    "kind": "RECORDED_SNAPSHOTS_COMPONENT_PROBE_NOT_FLIGHT_REPLAY",
+    "queue_before_commit": {
+      "current": "panzer",
+      "reserved": "bridge"
+    },
+    "delivered_classes": [
+      "bridge"
+    ],
+    "late_bridge_validation": "accepted",
+    "late_bridge_selected_after_wrong_commit": false,
+    "late_bridge_selected_without_wrong_commit": true,
+    "high_only_coarse_conflicts": [
+      "bridge"
+    ],
+    "memory_after_low": {
+      "panzer": [
+        1.7959526231333203,
+        -1.395874536542037
+      ]
+    },
+    "memory_conflict_after": [],
+    "memory_resolved": true,
+    "memory_locations": {
+      "panzer": [
+        1.7959526231333203,
+        -1.395874536542037
+      ],
+      "bridge": [
+        1.2724852043712995,
+        1.3183622131374988
+      ]
+    },
+    "limitations": "Chronological component inputs from recorded valid snapshots. Memory input promotes recorded map locations to Hint objects, not an end-to-end coarse projector/Catalog replay; no live height/stage/admissibility/route/actuator acceptance is asserted. Queue uses original source and receipt times."
+  }
+}

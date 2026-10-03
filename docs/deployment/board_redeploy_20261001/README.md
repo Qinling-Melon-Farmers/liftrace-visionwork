@@ -1,0 +1,76 @@
+# 旧机载电脑九组测试重新部署（2026-10-01）
+
+> **10月3日当前板端：** `192.168.3.126` / Orange Pi 5，舵机已实体安装在主工作区，三槽许可链及现场动作正常；不是下文5 Plus/hardware_ws的旧路径。当前操作、位姿冻结同步和轻量录包见[10月3日现场记录](FIELD_FREEZE_20261003.md)。
+
+> **2026-10-03当前说明：** 本页记录10月1日那次部署，不能代表10月2日换回43.59后的全部状态。用户已确认目前保留位姿跳变保护，bag恢复试飞组的小范围点云录制；不要按下文历史“点云默认不录”覆盖现场。03/04/08已改人工解锁后的自动时序，见[10月2日部署记录](DEPLOY_4359_20261002.md)。下一份无测试组的独立正赛工程须实体包含舵机源码，不再沿用跨目录链接；[方案及分支处置](../../planning/competition_freeze_20261003/REVIEW.md)，本轮不部署。
+
+## 部署结果
+
+SSH：`orangepi@192.168.3.15`，OrangePi 5 Plus。部署目录仍使用 `/home/orangepi/liftrace_board_trials_20260928`，以便现场沿用现有命令。原机载工程未覆盖。
+
+来源：视觉 `feat/board-deployment-flight-20260920` 的5d6429a及本条提交；新五分类模型 `flight_5cls_20260928_fp16.rknn` 与配套metadata已部署。视觉、导航两个catkin工作区完整编译通过（C++ OpenCV 4.2.0）；独立hardware_ws舵机包编译通过，未运行舵机。板端Python OpenCV为4.12.0，未更改系统版本。
+
+- 九组应用launch共18种控制开/关参数展开检查通过，61项板端专项单测通过。
+- 现场覆盖配置：7组参数生成通过；04走廊降落、08整场接走廊保持航点留空，必须补实测坐标才能启动。其launch测试用临时测试航点，不代表现场航点已准备好。
+- NPU离线加载、一次空图推理成功，输出 `(1,9,8400)`。runtime1.5.2与模型toolkit2.3.2有版本警告；本次仅验证加载和推理接口，未做连续实拍性能验收。
+- 不启动roscore/试飞/舵机。检查时没有飞控ttyACM或下视video0；两个有线口enP4p65s0、enP3p49s0均DOWN，WiFi为wlP2p33s0。不能沿用上一台的eth0名称，也未猜测哪一个口连接雷达。
+
+## 保留的现场档案
+
+使用 `deployment/site_20260928/test_area.yaml`：前方6m、左右±1.5m；最高/高位2m、低位1.4m、投递高度独立配置；结束30cm悬停并人工落地。普通组0.5m/s，高速拍摄1m/s（支持0.5对照）。静态TF、虚拟顶棚关闭、障碍柱关闭、三维膨胀左右0.25/上0.20/下0.10m；FAST-LIO特征提取开启、20m局部地图。已知相机/投递外参原样继承，未把换电脑当作重新标定。
+
+只录轻量bag及文字日志；不启动独立相机MP4/视觉视频编码。点云默认不录，可通过record_map_clouds显式开启。修正了一条仍要求默认录点云的旧测试断言。
+
+## 九组入口
+
+进入部署根目录并执行：
+
+```bash
+source deployment/site_20260928/environment.sh
+```
+
+现有现场顺序仍为1=单投中断、2=连续多投、3=仅记忆、4=整圈重访、5=优先中断重访、6=高速拍摄；它与01—09目录编号不同。
+
+|目录|内容|现场参数检查|
+|---|---|---|
+|01_visual_interrupt|低空识别中断、对齐、投递|通过|
+|02_high_view_revisit|完整高位巡航、记忆、低位重访投递|通过|
+|03_h_landing|前往H、升高识别与视觉降落|通过，需真实H现场确认|
+|04_corridor_landing|走廊航点避障与H降落|等待实测航点|
+|05_low_multi|低空连续多目标投递|通过|
+|06_high_priority|高位提前中断与重访投递|通过|
+|07_memory_only|高位整圈、仅检测记忆|通过|
+|08_full_mission|三投接走廊/H|等待实测航点|
+|09_high_speed_capture|1m/s识别采集、无投递|通过|
+
+仅检查参数、不启动节点：
+
+```bash
+bash deployment/board_trials_4x4/07_memory_only/start.sh preview --site-config deployment/site_20260928/test_area.yaml --check-config
+```
+
+飞行仍按[操作文档](../flight_handover_20261001/OPERATIONS.md)顺序；**本机舵机入口与该旧文档不同**：新的可执行文件是下述路径，只在现场明确授权执行机构后运行：
+
+```bash
+/home/orangepi/liftrace_board_trials_20260928/hardware_ws/devel/lib/actuator_pwm/pwm_node1 /Servo:=/legacy/Servo_raw
+```
+
+hardware_ws/src/actuator_pwm链接到仓库的 `deployment/onboard_obstacle_reference_20260920/source/patrol_uav_ws-patrol_planner/src/actuator_pwm`，保留原源码和服务语义；没有更改PWM引脚映射。换回5Plus后需按实物接线核对并进行地面机构测试，编译通过不等于引脚和机构已验收。
+
+## 补丁同步
+
+公共轨迹交接、下降净空及粗线索高度配置适配已同步：视觉研究分支bc74a32；导航接替开发分支5d3f803（导航origin和fork）。研究入口显式建立下降扫掠高度带栅格；板端重复的空位姿判断已整理。研究分支不继承现场限速/航线。研究侧下降规划6项、整机策略36项测试通过；未运行新仿真。
+
+板端参考分支继续接收本次部署记录与测试整理；不修改试飞组维护的板载代码分支。导航研究分支仍依赖配套视觉研究分支的完整视觉包，不是独立整机发行包。
+
+## 下一步
+
+接好雷达、飞控、相机后，核对雷达网口及192.168.1.100主机地址、192.168.1.175雷达地址与真实设备一致；检查实时位姿、相机图像和初始化稳定，再由现场授权启动试飞。板端验证日志在deployment_results/。本轮没有产生飞行bag。
+
+## 今日H专项操作补充
+
+见[操作手册H专项章节](../flight_handover_20261001/OPERATIONS.md#今日h识别降落专项目录03不是现场第三组memory)。使用h_landing_test_area.yaml，1.0m稳定后手动启动任务；H链最终请求AUTO.LAND，不能套用其他组30cm悬停说明。无需舵机。
+
+## 实时整机检查
+
+见[10月1日硬件检查](HARDWARE_CHECK.md)。设备已接线，预览链到READY；雷达临时地址已修正。现场舵机源码已更新，服务启动会复位，尚未进行机构动作测试。

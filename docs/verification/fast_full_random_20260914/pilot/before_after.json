@@ -1,0 +1,20 @@
+{
+  "old": {
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed32_20260914_015313",
+    "status": "PASS",
+    "third_commit_s": 322.135,
+    "third_to_corridor_entry_s": 83.695,
+    "first_transit_s": 81.38999999999999,
+    "full_mission_s": 529.224
+  },
+  "new": {
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/fast_speed_pilot32_baseline_20260914_100040",
+    "status": "PASS",
+    "third_commit_s": 195.716,
+    "third_to_corridor_entry_s": 20.389999998999997,
+    "first_transit_s": 17.706999999999994,
+    "full_mission_s": 348.954
+  },
+  "same_targets": true,
+  "entry_definition": "Second post-delivery RETURN decision: first staging waypoint complete"
+}

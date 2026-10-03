@@ -1,0 +1,6 @@
+<launch>
+  <!-- The permission proxy owns /Servo; the physical actuator is its raw backend. -->
+  <node name="servo_controller1" pkg="actuator_pwm" type="pwm_node1" output="screen">
+    <remap from="Servo" to="/legacy/Servo_raw" />
+  </node>
+</launch>

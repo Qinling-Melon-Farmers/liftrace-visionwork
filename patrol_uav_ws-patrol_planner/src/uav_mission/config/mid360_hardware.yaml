@@ -33,6 +33,8 @@ mapping:
   - 0
   - 1
 publish:
+  map_publish_en: true
+  map_publish_hz: 1.0
   path_en: false
   scan_publish_en: true
   dense_publish_en: true

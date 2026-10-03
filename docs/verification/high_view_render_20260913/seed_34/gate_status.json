@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "scope": "RENDER_CAPTURE_COMPLETENESS_ONLY",
+  "images": 240,
+  "image_bytes": 23912814,
+  "fc_heights": [
+    1.4,
+    2.4,
+    2.6,
+    2.8
+  ],
+  "views_per_height": 20,
+  "not_flight_acceptance": true
+}

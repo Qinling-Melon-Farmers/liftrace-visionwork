@@ -1,0 +1,79 @@
+{
+  "schema_version": 2,
+  "scene_seed": 2672,
+  "door_seed": 3672,
+  "obstacle_seed": 4672,
+  "door_pattern": "CONTINUOUS",
+  "doors": [
+    {
+      "name": "Wall_20",
+      "x": -1.6,
+      "side": "continuous",
+      "gap_min_y": 7.695710531072727,
+      "gap_max_y": 8.495710531072728,
+      "clear_width": 0.8,
+      "center_y": 8.095710531072728,
+      "segments": [
+        {
+          "side": "south",
+          "wall_y": 7.647855265536363,
+          "wall_length": 0.09571053107272753
+        },
+        {
+          "side": "north",
+          "wall_y": 8.797855265536363,
+          "wall_length": 0.6042894689272718
+        }
+      ]
+    },
+    {
+      "name": "Wall_22",
+      "x": 1.6,
+      "side": "continuous",
+      "gap_min_y": 7.782737448365095,
+      "gap_max_y": 8.582737448365096,
+      "clear_width": 0.8,
+      "center_y": 8.182737448365096,
+      "segments": [
+        {
+          "side": "south",
+          "wall_y": 7.6913687241825475,
+          "wall_length": 0.18273744836509564
+        },
+        {
+          "side": "north",
+          "wall_y": 8.841368724182548,
+          "wall_length": 0.5172625516349036
+        }
+      ]
+    }
+  ],
+  "trees": [
+    {
+      "x": -0.5589827218550969,
+      "y": 2.1775270740284256,
+      "yaw": -2.9623585658381373
+    },
+    {
+      "x": 3.161495228304185,
+      "y": 4.739403060206737,
+      "yaw": -0.03445521927594708
+    },
+    {
+      "x": 0.12318668675204236,
+      "y": 5.452959783082196,
+      "yaw": -2.109954180270634
+    },
+    {
+      "x": 2.1073833114801346,
+      "y": 5.658374287327671,
+      "yaw": 1.6246902997387416
+    }
+  ],
+  "frame": "world / nominal competition frame",
+  "corridor_width": 1.5,
+  "target_seed": "independent field_seed at spawner",
+  "qualification": "Geometry fixture only; randomized-door SITL not yet validated",
+  "door_mode": "continuous",
+  "outer_wall_height_m": 4.0
+}

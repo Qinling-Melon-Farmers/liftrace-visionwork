@@ -1,0 +1,95 @@
+{
+  "scope": "HIGH_VIEW_SINGLE_REVISIT_NOT_FULL_MISSION",
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_dynamic_seed32_20260913_234403",
+  "status": "PASS",
+  "reason": "fresh_low_reacquisition",
+  "mission_observed_seconds": 81.609,
+  "stages": [
+    {
+      "stage": "ASCEND",
+      "start": 11.61,
+      "end": 16.224,
+      "seconds": 4.614000000000001
+    },
+    {
+      "stage": "SURVEY",
+      "start": 16.224,
+      "end": 56.64,
+      "seconds": 40.416
+    },
+    {
+      "stage": "RETURN_COLUMN",
+      "start": 56.64,
+      "end": 73.103,
+      "seconds": 16.462999999999994
+    },
+    {
+      "stage": "DESCEND",
+      "start": 73.103,
+      "end": 76.617,
+      "seconds": 3.51400000000001
+    },
+    {
+      "stage": "REVISIT",
+      "start": 76.617,
+      "end": 93.001,
+      "seconds": 16.384
+    },
+    {
+      "stage": "REACQUIRE",
+      "start": 93.001,
+      "end": 93.219,
+      "seconds": 0.2179999999999893
+    }
+  ],
+  "truth_xy_distance_m": 22.90502420234058,
+  "max_true_fc_agl": 2.7650090007348065,
+  "target_errors": {
+    "high_hint_error_m": 0.10124145297486797,
+    "low_reacquisition_error_m": 0.08219138433001609
+  },
+  "selected": {
+    "class_name": "panzer",
+    "epoch": {
+      "calibration": "installed-camera-1280-v1",
+      "localization": "static-sitl-world",
+      "mission": "vcl06-random-11-610000000-1"
+    },
+    "evidence_count": 6,
+    "key": {
+      "first_seen_ns": 54821000000,
+      "target_id": 2
+    },
+    "last_seen_ns": 56322000000,
+    "role": "REVISIT_HINT_ONLY",
+    "uncertainty_m": 0.20712215848111093,
+    "vote_fraction": 1.0,
+    "xy": [
+      3.362491500288819,
+      3.660605434150943
+    ]
+  },
+  "reacquired": {
+    "class_name": "panzer",
+    "hint_delta": 0.02683020372905491,
+    "last_seen_ns": 93185000000,
+    "target_id": 2,
+    "time": 93.192,
+    "xy": [
+      3.3359168112614808,
+      3.664299447583898
+    ]
+  },
+  "observation_counts": {
+    "accepted": 6,
+    "candidate:profile_excluded": 2010,
+    "candidate:state_not_confirmed": 6,
+    "candidate:streak_too_short": 1661,
+    "duplicate_or_too_close": 24,
+    "invalid_identity": 116
+  },
+  "collisions": 0,
+  "payload_committed": 0,
+  "low_stage_max_true_fc_agl": 1.5027416969481429,
+  "hint_age_at_reacquisition": 36.863
+}

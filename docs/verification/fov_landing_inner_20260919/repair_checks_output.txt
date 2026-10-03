@@ -1,0 +1,86 @@
+[
+  {
+    "label": "A_baseline",
+    "start_ros_s": 11.833,
+    "tail_start_ros_s": 126.177,
+    "land_ros_s": 250.898,
+    "minimum_pre_tail_whole_body_inner_clearance_m": 0.05505949325797399,
+    "pre_tail_whole_body_outside_samples": 0,
+    "search_samples": 1120,
+    "max_pre_tail_center_x": 7.0610999180097185,
+    "final_guard_xy_m": 0.5,
+    "collision_count": 0,
+    "configured_land_speed_mps": 0.25,
+    "gate_status": "PASS",
+    "videos": {
+      "follow": {
+        "duration_s": 186.2,
+        "size_bytes": 28407644
+      },
+      "overview": {
+        "duration_s": 186.3,
+        "size_bytes": 9130718
+      },
+      "presentation": {
+        "duration_s": 264.3,
+        "size_bytes": 14167067
+      }
+    }
+  },
+  {
+    "label": "B_corridor",
+    "start_ros_s": 11.859,
+    "tail_start_ros_s": 102.367,
+    "land_ros_s": 187.487,
+    "minimum_pre_tail_whole_body_inner_clearance_m": 0.19115538889467032,
+    "pre_tail_whole_body_outside_samples": 0,
+    "search_samples": 885,
+    "max_pre_tail_center_x": 6.693901490793039,
+    "final_guard_xy_m": 0.5,
+    "collision_count": 0,
+    "configured_land_speed_mps": 0.25,
+    "gate_status": "PASS",
+    "videos": {
+      "follow": {
+        "duration_s": 143.2,
+        "size_bytes": 24559843
+      },
+      "overview": {
+        "duration_s": 143.4,
+        "size_bytes": 7091214
+      },
+      "presentation": {
+        "duration_s": 199.7,
+        "size_bytes": 12370378
+      }
+    }
+  },
+  {
+    "label": "C_high3",
+    "start_ros_s": 12.025999999,
+    "tail_start_ros_s": 128.638,
+    "land_ros_s": 219.226,
+    "minimum_pre_tail_whole_body_inner_clearance_m": 0.19451490266881521,
+    "pre_tail_whole_body_outside_samples": 0,
+    "search_samples": 1147,
+    "max_pre_tail_center_x": 6.679654062052325,
+    "final_guard_xy_m": 0.5,
+    "collision_count": 0,
+    "configured_land_speed_mps": 0.25,
+    "gate_status": "PASS",
+    "videos": {
+      "follow": {
+        "duration_s": 160.6,
+        "size_bytes": 27549904
+      },
+      "overview": {
+        "duration_s": 160.8,
+        "size_bytes": 7924709
+      },
+      "presentation": {
+        "duration_s": 228.6,
+        "size_bytes": 14069553
+      }
+    }
+  }
+]

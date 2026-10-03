@@ -1,0 +1,25 @@
+<launch>
+  <!-- Deliberately no map->camera TF. -->
+  <node pkg="uav_vision" type="mock_camera_info.py" name="mock_camera_info" />
+  <node pkg="uav_vision" type="mock_target_pair_feeder.py"
+        name="mock_target_pair_feeder" />
+  <node pkg="uav_vision" type="detection_fusion.py" name="detection_fusion">
+    <rosparam file="$(find uav_vision)/config/detection_fusion.yaml" />
+    <param name="flush_delay" value="0.10" />
+  </node>
+  <node pkg="uav_vision" type="target_refiner.py" name="target_refiner">
+    <rosparam file="$(find uav_vision)/config/target_refiner.yaml" />
+  </node>
+  <node pkg="uav_vision" type="target_map_projector.py"
+        name="target_map_projector">
+    <rosparam file="$(find uav_vision)/config/target_map_projector.yaml" />
+    <param name="tf_timeout" value="0.01" />
+  </node>
+  <node pkg="uav_vision" type="target_memory.py" name="target_memory">
+    <rosparam file="$(find uav_vision)/config/target_memory.yaml" />
+    <param name="detections_topic" value="/uav_vision/detections_mapped" />
+    <param name="require_map_for_candidates" value="true" />
+  </node>
+  <node pkg="uav_vision" type="map_rejection_assertion.py"
+        name="map_rejection_assertion" required="true" />
+</launch>

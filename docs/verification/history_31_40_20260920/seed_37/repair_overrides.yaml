@@ -1,0 +1,42 @@
+/fast_planner_node/sdf_map/search_region/enabled: true
+/fast_planner_node/sdf_map/search_region/min_x: -0.1
+/fast_planner_node/sdf_map/search_region/max_x: 7.0
+/fast_planner_node/sdf_map/search_region/min_y: -4.4
+/fast_planner_node/sdf_map/search_region/max_y: 4.4
+/fast_planner_node/sdf_map/horizontal_avoidance/tracking_margin: 0.1
+/navigation_vcl06_assertion/search_envelope_region:
+  min_x: -0.5
+  max_x: 7.4
+  min_y: -4.8
+  max_y: 4.8
+/uav_vision/pixel_to_body_matrix:
+- -1.0
+- 0.0
+- 0.0
+- 1.0
+/external_landing/capture_height: 0.68
+/simulation/landing_phase_active: false
+/simulation/px4_parameters/MPC_LAND_SPEED: 0.25
+/navigation/mission_manager/high_view_probe/low_stage_parameters:
+- name: /fast_planner_node/fsm/goal_adjustment_radius
+  value: 0.15
+- name: /external_planner_max_command_z
+  value: 1.63
+- name: /fast_planner_node/sdf_map/virtual_ceil_height
+  value: 1.78
+- name: /fast_planner_node/sdf_map/horizontal_avoidance/tracking_margin
+  value: 0.0
+/experiment/camera_optical_quaternion:
+- 0.0
+- 1.0
+- 0.0
+- 0.0
+/experiment/nominal_search_dimensions_m:
+- 8.5
+- 10.0
+/experiment/search_inner_bounds:
+- -0.5
+- 7.4
+- -4.8
+- 4.8
+/experiment/landing_guard_xy_m: 0.5

@@ -1,0 +1,2086 @@
+/* Liftrace 试飞验证看板 · 纯前端（无构建 / 无依赖）
+ * 结构：util → state → api → AnsiTerm → bus(SSE) → render* → actions → init
+ * 安全约定：任何会下发到板端的动作都必须先把完整命令展示给人看；
+ *          本文件不含解锁 / 起飞 / 投递下发，只调用现场既有入口。
+ */
+'use strict';
+
+/* ==========================================================================
+ * 1. 工具
+ * ========================================================================== */
+
+var $ = function (sel, root) { return (root || document).querySelector(sel); };
+
+function el(tag, cls, text) {
+  var n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text !== undefined && text !== null) n.textContent = String(text);
+  return n;
+}
+function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+function txt(v) { return (v === undefined || v === null) ? '' : String(v); }
+function pad2(n) { return (n < 10 ? '0' : '') + n; }
+function hhmmss(sec) {
+  if (!sec || !isFinite(sec)) return '—';
+  var d = new Date(sec * 1000);
+  return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
+}
+function dur(sec) {
+  if (sec === undefined || sec === null || !isFinite(sec) || sec < 0) return '—';
+  var s = Math.floor(sec);
+  return pad2(Math.floor(s / 60)) + ':' + pad2(s % 60);
+}
+function fmtSize(n) {
+  if (n === undefined || n === null || !isFinite(n)) return '—';
+  if (n < 1024) return n + ' B';
+  if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+  return (n / 1048576).toFixed(2) + ' MB';
+}
+
+/* 只允许保存 UI 偏好；绝不写口令 / 密钥 */
+var PREF_KEY = 'liftrace.flight_workbench.prefs.v1';
+var prefs = { sound: false, autoscroll: true, group_id: null };
+function loadPrefs() {
+  try {
+    var raw = window.localStorage.getItem(PREF_KEY);
+    if (raw) {
+      var o = JSON.parse(raw);
+      if (o && typeof o === 'object') {
+        prefs.sound = !!o.sound;
+        prefs.autoscroll = o.autoscroll === undefined ? true : !!o.autoscroll;
+        prefs.group_id = typeof o.group_id === 'string' ? o.group_id : null;
+      }
+    }
+  } catch (e) { /* localStorage 不可用时忽略 */ }
+}
+function savePrefs() {
+  try { window.localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch (e) { /* ignore */ }
+}
+
+/* 复制到剪贴板（失败时退回 prompt 展示，便于手工复制） */
+function copyText(text, label) {
+  var s = String(text === undefined || text === null ? '' : text);
+  var done = function () { toast('ok', (label || '内容') + '已复制到剪贴板'); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(s).then(done, function () { fallbackCopy(s, label); });
+  } else fallbackCopy(s, label);
+}
+function fallbackCopy(s, label) {
+  try {
+    var ta = el('textarea');
+    ta.value = s;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var okc = document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast(okc ? 'ok' : 'warn', okc ? ((label || '内容') + '已复制') : '复制失败，请手工选择文本');
+  } catch (e) { toast('warn', '复制失败：' + (label || '') + ' 请手工选择'); }
+}
+function copyBtn(getText, label) {
+  var b = el('button', 'btn btn-sm btn-ghost', '复制');
+  b.addEventListener('click', function () { copyText(getText(), label || '命令'); });
+  return b;
+}
+
+/* toast：右上角，4 秒消失 */
+var TOAST_MAX = 6;
+function toast(level, text) {
+  var box = $('#toasts');
+  if (!box) return;
+  var lv = (level === 'ok' || level === 'warn' || level === 'error') ? level : 'info';
+  var t = el('div', 'toast t-' + lv);
+  t.appendChild(el('span', 'tiny muted', hhmmss(Date.now() / 1000) + '  '));
+  t.appendChild(document.createTextNode(txt(text)));
+  box.appendChild(t);
+  while (box.children.length > TOAST_MAX) box.removeChild(box.firstChild);
+  window.setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 4000);
+}
+
+/* 提示音：WebAudio 现场生成，无音频文件 */
+var _ac = null;
+function audioCtx() {
+  if (_ac) return _ac;
+  try {
+    var C = window.AudioContext || window.webkitAudioContext;
+    if (!C) return null;
+    _ac = new C();
+  } catch (e) { _ac = null; }
+  return _ac;
+}
+function beep(kind) {
+  if (!prefs.sound) return;
+  var c = audioCtx();
+  if (!c) return;
+  try { if (c.state === 'suspended' && c.resume) c.resume(); } catch (e) { /* ignore */ }
+  var notes = (kind === 'error') ? [[400, 0], [300, 0.18]] : [[880, 0], [1320, 0.14]];
+  notes.forEach(function (n) {
+    var osc = c.createOscillator(), g = c.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = n[0];
+    var t0 = c.currentTime + n[1];
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.18, t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.16);
+    osc.connect(g); g.connect(c.destination);
+    osc.start(t0); osc.stop(t0 + 0.2);
+  });
+}
+
+/* ==========================================================================
+ * 2. 全局状态
+ * ========================================================================== */
+
+var state = {
+  snapshot: null,
+  connection: { host: '', state: 'unknown', detail: '', board_root: '', site_dir: '', password_available: false },
+  profile: { path: '', auto_password: false, saved_password: false },
+  groups: [],
+  terminals: [],
+  sessions: {},
+  trial: {},
+  stage: null,
+  telemetry: null,
+  orchestration: null,
+  alerts: [],
+  timeline: [],
+  board: { logs: [], preflight: null },
+  report: null,
+  toast: null,
+  sse: { state: 'idle' },
+  tabs: {},              // 终端面板 UI 状态（per terminal id）
+  activeTerm: null,
+  terms: {},             // id -> AnsiTerm
+  logTerm: null,         // independent read-only trial mirror (a DOM node has one parent)
+  drawer: 'run',
+  drawerCollapsed: false,
+  reportText: ''
+};
+var ALERT_KEEP = 200;
+var TL_KEEP = 300;
+
+// Connection events are patches; keep host options and configuration from the snapshot.
+function mergeConnection(patch) {
+  if (patch) Object.assign(state.connection, patch);
+}
+
+function hostChoices() {
+  var c = state.connection || {};
+  var choices = (c.host_options || []).map(function (o) {
+    return { value: o.host, label: o.host + (o.label ? (' — ' + o.label) : '') };
+  });
+  if (c.host && !choices.some(function (o) { return o.value === c.host; })) {
+    choices.push({ value: c.host, label: c.host + ' — 当前自定义地址' });
+  }
+  choices.push({ value: '', label: '自定义地址…' });
+  return choices;
+}
+
+function connected() { return state.connection && state.connection.state === 'ok'; }
+
+/* ==========================================================================
+ * 3. API 封装
+ * ========================================================================== */
+
+function qs(obj) {
+  var parts = [];
+  Object.keys(obj || {}).forEach(function (k) {
+    var v = obj[k];
+    if (v === undefined || v === null) return;
+    parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
+  });
+  return parts.join('&');
+}
+
+function postJSON(path, body) {
+  return window.fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body || {})
+  }).then(function (r) {
+    return r.json().catch(function () { return { ok: false, error: 'HTTP ' + r.status + ' 响应不是 JSON' }; })
+      .then(function (j) {
+        if (!j || typeof j !== 'object') j = { ok: false, error: 'HTTP ' + r.status + ' 空响应' };
+        if (j.ok === undefined) j.ok = r.ok;
+        return j;
+      });
+  }, function (err) {
+    return { ok: false, error: '请求失败：' + (err && err.message ? err.message : String(err)) };
+  });
+}
+function getJSON(path) {
+  return window.fetch(path).then(function (r) { return r.json(); },
+    function (err) { return { ok: false, error: String(err && err.message ? err.message : err) }; });
+}
+
+var api = {
+  snapshot: function () { return getJSON('/api/snapshot'); },
+  config: function (body) { return postJSON('/api/config', body); },
+  connect: function (body) { return postJSON('/api/connect', body || {}); },
+  disconnect: function () { return postJSON('/api/disconnect', {}); },
+  preflight: function () { return postJSON('/api/action/preflight', {}); },
+  startAll: function (includeServo) { return postJSON('/api/action/start_all', { include_servo: !!includeServo, confirm: '启动设备' }); },
+  stopAll: function () { return postJSON('/api/action/stop_all', {}); },
+  missionStart: function () {
+    // 后端要求确认词「启动任务」（仅在 READY 且飞手完成解锁/悬停后调用一次）
+    return postJSON('/api/action/mission_start', { confirm: '启动任务' });
+  },
+  report: function () { return postJSON('/api/action/report', {}); },
+  sessionOpen: function (id, confirmText) {
+    var b = { id: id };
+    if (confirmText !== undefined && confirmText !== null) b.confirm = confirmText;
+    return postJSON('/api/session/open', b);
+  },
+  sessionInput: function (id, data) { return postJSON('/api/session/input', { id: id, data: data }); },
+  sessionClose: function (id) { return postJSON('/api/session/close', { id: id }); },
+  sessionClear: function (id) { return postJSON('/api/session/clear', { id: id }); },
+  sessionKey: function (id, key) { return postJSON('/api/session/key', { id: id, key: key || 'C-c' }); },
+  sessionResize: function (id, rows, cols) { return postJSON('/api/session/resize', { id: id, rows: rows, cols: cols }); },
+  trialStart: function (body) { return postJSON('/api/trial/start', body); },
+  trialStop: function () { return postJSON('/api/trial/stop', {}); },
+  logsRefresh: function () { return postJSON('/api/logs/refresh', {}); },
+  logsTail: function (run, file, lines) { return postJSON('/api/logs/tail', { run: run, file: file, lines: lines || 200 }); }
+};
+
+/* 只读数据请求 + 错误 toast 的统一封装 */
+function act(promise, failPrefix) {
+  return promise.then(function (res) {
+    if (!res || res.ok !== true) toast('error', (failPrefix || '请求失败') + '：' + txt(res && res.error ? res.error : '未知错误'));
+    return res;
+  });
+}
+
+/* ==========================================================================
+ * 4. ANSI 终端渲染（增量追加，绝不整体重绘历史行）
+ * ========================================================================== */
+
+var MAX_LINES = 5000;      // 每会话最多保留行数
+var RENDER_TAIL = 200;     // 增量更新时最多重建的尾部行数
+/* 注：文本一律通过 textContent 写入 DOM，不需要 HTML 转义；
+ *     终端文本的转义序列在 AnsiTerm._parse / 下方颜色表中统一处理。 */
+var ANSI_FG = ['#3f4753', '#ff6b6b', '#7ee787', '#ffd866', '#6fb3ff', '#d2a8ff', '#5fd7d7', '#d7dde5'];
+var ANSI_FG_BRIGHT = ['#6b7787', '#ff9d97', '#b3f0b8', '#ffe9a3', '#9ccbff', '#e2ccff', '#9ff0f0', '#ffffff'];
+function ansiColor(code) {
+  if (code >= 30 && code <= 37) return ANSI_FG[code - 30];
+  if (code >= 90 && code <= 97) return ANSI_FG_BRIGHT[code - 90];
+  return null;
+}
+/* 解析一段文本 -> [{t:文本, fg,bold}...]；SGR 之外的所有转义一律吞掉 */
+
+function AnsiTerm(opts) {
+  this.id = opts.id;
+  this.maxLines = opts.maxLines || MAX_LINES;
+  this.scrollEl = el('div', 'term-out');
+  this.scrollEl.setAttribute('role', 'log');
+  this.onTrim = opts.onTrim || null;
+  this.onAppend = opts.onAppend || null;
+  this.buf = [];           // 行 = {chars:[{c,fg,bold}]}
+  this.col = 0;            // 当前光标列（\r 覆盖依赖它）
+  this.style = { fg: null, bold: false };
+  this._queue = '';
+  this._pending = false;
+  this._dirtyFrom = -1;
+  this._rendered = 0;
+  this._staleTail = false;
+  this._droppedLines = 0;
+  this._screen = false;
+  this._filter = '';
+  this._filterMode = false;
+  this.lines = 0;          // 收到过的行数（含新行）
+  this.autoScroll = !!prefs.autoscroll;
+  this.followTail = true;
+  this.savedScrollTop = 0;
+  var self = this;
+  this.scrollEl.addEventListener('scroll', function () {
+    if (!self.scrollEl.isConnected) return;
+    self.savedScrollTop = self.scrollEl.scrollTop;
+    self.followTail = self.scrollEl.scrollHeight - self.scrollEl.clientHeight - self.scrollEl.scrollTop < 24;
+  });
+}
+AnsiTerm.prototype.saveScroll = function () {
+  if (this.scrollEl.isConnected) this.savedScrollTop = this.scrollEl.scrollTop;
+};
+AnsiTerm.prototype.stick = function () {
+  this.scrollEl.scrollTop = (this.autoScroll && this.followTail)
+    ? this.scrollEl.scrollHeight : this.savedScrollTop;
+};
+AnsiTerm.prototype.append = function (data) {
+  if (data === undefined || data === null) return;
+  this._queue += String(data);
+  if (this._pending) return;
+  this._pending = true;
+  var self = this;
+  window.requestAnimationFrame(function () {
+    self._pending = false;      // 必须先清标记再取队列，避免 rAF 同步回调时丢数据
+    var s = self._queue;
+    self._queue = '';
+    if (!s) return;
+    self._parse(s);
+    self._flush();
+  });
+};
+AnsiTerm.prototype._parse = function (s) {
+  for (var i = 0; i < s.length; i++) {
+    var ch = s.charAt(i);
+    if (ch === '\x1b') {
+      // 注意：s.slice(i) 仍带 ESC 本身，正则必须锚定 \x1b
+      var rest = s.slice(i);
+      var m = /^\x1b\[([0-9;?]*)([ -\/]*)([@-~])/.exec(rest);
+      if (m) {
+        if (m[3] === 'm') {
+          var parts = m[1].split(';');
+          for (var k = 0; k < parts.length; k++) {
+            var n = parts[k] === '' ? 0 : parseInt(parts[k], 10);
+            if (isNaN(n)) continue;
+            if (n === 0) { this.style = { fg: null, bold: false }; }
+            else if (n === 1) { this.style = { fg: this.style.fg, bold: true }; }
+            else if (n === 22) { this.style = { fg: this.style.fg, bold: false }; }
+            else if (n === 39) { this.style = { fg: null, bold: this.style.bold }; }
+            else { var c = ansiColor(n); if (c) this.style = { fg: c, bold: this.style.bold }; }
+          }
+        } else if (m[3] === 'J' || m[3] === 'K') {
+          // 清屏 / 清行：只在“清整屏”时重置缓冲，清行忽略（ROS 进度输出不依赖它）
+          var pm = (m[1].charAt(0) === '2');
+          if (m[3] === 'J' && pm) this._screenClear();
+        }
+        // m[0] 含 ESC，循环末尾还会 +1，正好补齐
+        i += m[0].length - 1;
+        continue;
+      }
+      var m2 = /^\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)?/.exec(rest);
+      if (m2) { i += m2[0].length - 1; continue; }
+      var m3 = /^\x1b[@-Z\\-_]/.exec(rest);
+      if (m3) { i += m3[0].length - 1; continue; }
+      continue; // 孤立 ESC，吞掉
+    }
+    if (ch === '\n') { this._newLine(); continue; }
+    if (ch === '\r') { this._setLineDirty(); this.col = 0; continue; }
+    if (ch === '\b') { if (this.col > 0) this.col--; continue; }
+    if (ch === '\x00' || ch === '\x07') continue;
+    if (ch < ' ') continue; // 其余控制字符吞掉
+    this._putChar(ch);
+  }
+};
+AnsiTerm.prototype._setLineDirty = function () {
+  var last = this.buf.length - 1;
+  if (this._dirtyFrom < 0 || this._dirtyFrom > last) this._dirtyFrom = last;
+};
+AnsiTerm.prototype._cur = function () {
+  if (!this.buf.length) this.buf.push({ chars: [] });
+  return this.buf[this.buf.length - 1];
+};
+AnsiTerm.prototype._putChar = function (ch) {
+  var line = this._cur();
+  var w = /[\u1100-\u115f\u2e80-\ua4cf\ua960-\ua97f\uac00-\ud7ff\uf900-\ufaff\ufe10-\ufe19\ufe30-\ufe6f\uff00-\uff60\uffe0-\uffe6]/.test(ch) ? 2 : 1; // 仅用于光标推进
+  var idx = this.col;
+  line.chars[idx] = { c: ch, fg: this.style.fg, bold: this.style.bold };
+  // 宽字符占两格：第二格记为空白占位，避免列错位
+  if (w === 2) {
+    var nxt = line.chars[idx + 1];
+    if (!nxt || nxt.c === '') line.chars[idx + 1] = { c: '', fg: this.style.fg, bold: this.style.bold };
+  }
+  this.col = idx + w;
+  if (this._dirtyFrom < 0 || this._dirtyFrom > this.buf.length - 1) this._dirtyFrom = this.buf.length - 1;
+};
+AnsiTerm.prototype._newLine = function () {
+  this.buf.push({ chars: [] });
+  this.col = 0;
+  this.lines++;
+  this._trim();
+  var last = this.buf.length - 1;
+  if (this._dirtyFrom < 0 || this._dirtyFrom > last) this._dirtyFrom = last;
+};
+AnsiTerm.prototype._trim = function () {
+  if (this.buf.length <= this.maxLines) return;
+  var drop = this.buf.length - this.maxLines;
+  var firstDroppedWasRendered = (this._rendered > 0); // DOM 首行是否已被丢掉
+  this.buf.splice(0, drop);
+  this._droppedLines += drop;
+  if (firstDroppedWasRendered) this._staleTail = true;
+  if (this._dirtyFrom >= 0) {
+    this._dirtyFrom = this._dirtyFrom - drop;
+    if (this._dirtyFrom < 0) this._dirtyFrom = 0;
+  }
+  this._rendered = Math.max(0, this._rendered - drop);
+  if (this.onTrim) this.onTrim(this);
+};
+AnsiTerm.prototype._screenClear = function () {
+  this.buf = [{ chars: [] }];
+  this.col = 0;
+  this._dirtyFrom = 0;
+  this._staleTail = true; // 整屏清空：下次统一重绘
+  this._screen = true;
+};
+AnsiTerm.prototype._flush = function () {
+  if (this._screen) {
+    this._screen = false;
+    this._renderAll(true);
+    return;
+  }
+  if (this._filterMode) { this._renderAll(false); return; }
+  if (this._staleTail) { this._renderAll(false); return; } // 首行被丢弃过：DOM 与行号已错位
+  if (this._dirtyFrom < 0) return;
+  var start = this._dirtyFrom;
+  this._dirtyFrom = -1;
+  if (start > this._rendered || (this._rendered - start) > RENDER_TAIL) {
+    this._renderAll(false);
+    return;
+  }
+  this._renderTail(start);
+};
+AnsiTerm.prototype._lineNode = function (line) {
+  var d = el('div', 'tl');
+  var chars = line.chars || [];
+  var frag = document.createDocumentFragment();
+  var runText = '', runFg = null, runBold = false;
+  var flushRun = function () {
+    if (!runText) return;
+    var sp = el('span');
+    if (runFg) sp.style.color = runFg;
+    if (runBold) sp.style.fontWeight = '700';
+    sp.textContent = runText;
+    frag.appendChild(sp);
+    runText = '';
+  };
+  for (var i = 0; i < chars.length; i++) {
+    var c = chars[i];
+    if (!c) continue;
+    if (c.c === '') continue; // 宽字符占位
+    if (c.fg !== runFg || c.bold !== runBold) { flushRun(); runFg = c.fg; runBold = c.bold; }
+    runText += c.c;
+  }
+  flushRun();
+  d.appendChild(frag);
+  return d;
+};
+AnsiTerm.prototype._renderTail = function (start) {
+  this.saveScroll();
+  // DOM indices match buf indices, including line zero and pure append batches.
+  while (this.scrollEl.children.length > start) this.scrollEl.removeChild(this.scrollEl.lastChild);
+  var frag = document.createDocumentFragment();
+  for (var i = start; i < this.buf.length; i++) frag.appendChild(this._lineNode(this.buf[i]));
+  this.scrollEl.appendChild(frag);
+  this._rendered = this.buf.length;
+  this._staleTail = false;
+  this.stick();
+  if (this.onAppend) this.onAppend(this);
+};
+AnsiTerm.prototype._renderAll = function () {
+  this.saveScroll();
+  clear(this.scrollEl);
+  var frag = document.createDocumentFragment();
+  if (this._filterMode) {
+    this._filterRows().forEach(function (row) { frag.appendChild(row); });
+  } else {
+    // buf is already bounded by maxLines; do not drop all but 200 DOM rows and
+    // then address that shortened DOM using absolute buffer indices.
+    for (var i = 0; i < this.buf.length; i++) frag.appendChild(this._lineNode(this.buf[i]));
+  }
+  this.scrollEl.appendChild(frag);
+  this._rendered = this.buf.length;
+  this._staleTail = false;
+  this._dirtyFrom = -1;
+  this.stick();
+  if (this.onAppend) this.onAppend(this);
+};
+AnsiTerm.prototype._lineText = function (line) {
+  var s = '', chars = line.chars || [];
+  for (var j = 0; j < chars.length; j++) if (chars[j] && chars[j].c) s += chars[j].c;
+  return s;
+};
+AnsiTerm.prototype._filterRows = function () {
+  var kw = this._filter.toLowerCase();
+  var out = [];
+  for (var i = 0; i < this.buf.length; i++) {
+    var s = this._lineText(this.buf[i]);
+    if (s.toLowerCase().indexOf(kw) >= 0) out.push(this._lineNode(this.buf[i]));
+  }
+  return out;
+};
+AnsiTerm.prototype.setLineFilter = function (kw) {
+  var next = txt(kw);
+  if (next === this._filter) return; // 避免抽屉重绘时整屏重建
+  this._filter = next;
+  this._filterMode = !!next;
+  this._renderAll(false);
+};
+AnsiTerm.prototype.setAutoScroll = function (on) {
+  this.autoScroll = !!on;
+  if (on) this.followTail = true;
+  this.stick();
+};
+AnsiTerm.prototype.clearView = function () {
+  this.buf = [{ chars: [] }];
+  this.col = 0;
+  this.lines = 0;
+  this._droppedLines = 0;
+  this._screen = false;
+  this._dirtyFrom = 0;
+  clear(this.scrollEl);
+  this._rendered = 0;
+  this._staleTail = false;
+  this._renderAll(false);
+};
+AnsiTerm.prototype.stats = function () {
+  return { lines: this.buf.length, total: this.lines, dropped: this._droppedLines };
+};
+AnsiTerm.prototype.plainLines = function () {
+  var out = [];
+  for (var i = 0; i < this.buf.length; i++) {
+    // 转义序列在 _parse 阶段已被消费，这里只做尾部空白清理，绝不删除正常文本
+    out.push(this._lineText(this.buf[i]).replace(/\s+$/, ''));
+  }
+  return out;
+};
+
+/* ==========================================================================
+ * 5. SSE 事件总线
+ * ========================================================================== */
+
+function setSse(text, cls) {
+  state.sse = { state: text, cls: cls || '' };
+  renderTerminals();
+}
+
+function startSSE() {
+  if (state._es) return;
+  var es = new EventSource('/api/events');
+  state._es = es;
+  es.onopen = function () { setSse('已连接 /api/events', 'ok'); };
+  es.onerror = function () { setSse('事件流断开，浏览器将自动重连…', 'bad'); };
+  es.onmessage = function (ev) {
+    var msg = null;
+    try { msg = JSON.parse(ev.data); } catch (e) { return; }
+    if (!msg) return;
+    bus.dispatch(msg);
+  };
+}
+
+var saveScheduled = false;
+function scheduleRender() {
+  if (saveScheduled) return;
+  saveScheduled = true;
+  window.requestAnimationFrame(function () {
+    saveScheduled = false;
+    renderTopbar();
+    // Telemetry arrives every second; preserve input focus and IME composition.
+    var active = document.activeElement;
+    if (!(active && active.closest && active.closest('#groups-body'))) renderGroups();
+    if (!(active && active.closest && active.closest('#term-body'))) renderTerminals();
+    renderMonitor(); renderDrawer();
+  });
+}
+
+var bus = {
+  dispatch: function (msg) {
+    var t = msg.t;
+    switch (t) {
+      case 'hello':
+        applySnapshot(msg.snapshot || {});
+        toast('info', '事件流已连接，面板缓冲已重置');
+        break;
+      case 'out':
+        this.onOut(msg.s || 'trial', msg.d || '', msg.n);
+        break;
+      case 'session':
+        if (msg.s && msg.session) state.sessions[msg.s] = msg.session;
+        if (msg.session && !msg.s) state.sessions[msg.session.id] = msg.session;
+        setSse('事件流正常', 'ok');
+        scheduleRender();
+        break;
+      case 'stage':
+        if (msg.stage) { onStage(msg.stage); scheduleRender(); }
+        break;
+      case 'telemetry':
+        state.telemetry = msg.telemetry || null;
+        scheduleRender();
+        break;
+      case 'alert':
+        if (msg.alert) { state.alerts.unshift(msg.alert); if (state.alerts.length > ALERT_KEEP) state.alerts.pop(); renderMonitor(); }
+        break;
+      case 'timeline':
+        if (msg.item) { state.timeline.push(msg.item); if (state.timeline.length > TL_KEEP) state.timeline.shift(); renderDrawer(); }
+        break;
+      case 'trial':
+        state.trial = msg.trial || {};
+        scheduleRender();
+        break;
+      case 'orchestration':
+        state.orchestration = msg.orchestration || null;
+        renderMonitor();
+        break;
+      case 'board':
+        state.board = msg.board || state.board || { logs: [], preflight: null };
+        renderMonitor(); renderDrawer();
+        break;
+      case 'report':
+        state.report = msg.report || null;
+        state.reportText = (msg.report && msg.report.markdown) || '';
+        renderMonitor();
+        break;
+      case 'connection':
+        mergeConnection(msg.connection);
+        scheduleRender();
+        break;
+      case 'toast':
+        toast(msg.level, msg.text);
+        break;
+      default:
+        break;
+    }
+  },
+  onOut: function (sid, data) {
+    if (!data) return;
+    var term = state.terms[sid];
+    if (term) term.append(data);
+    if (sid === 'trial' && state.logTerm) state.logTerm.append(data);
+  }
+};
+
+function onStage(stage) {
+  var prevName = state.stage ? state.stage.name : null;
+  state.stage = stage;
+  if (prevName !== stage.name) {
+    if (stage.name === 'READY') beep('ok');
+    else if (stage.name === 'FAILED') beep('error');
+  }
+  renderMonitor();
+}
+
+function applySnapshot(snap) {
+  state.snapshot = snap;
+  if (snap.connection) state.connection = snap.connection;
+  if (snap.profile) state.profile = snap.profile;
+  state.groups = snap.groups || [];
+  state.terminals = snap.terminals || [];
+  state.sessions = snap.sessions || {};
+  state.trial = snap.trial || {};
+  state.stage = snap.stage || null;
+  state.telemetry = snap.telemetry || null;
+  state.orchestration = snap.orchestration || null;
+  state.alerts = (snap.alerts || []).slice(0, ALERT_KEEP);
+  state.timeline = (snap.timeline || []).slice(0, TL_KEEP);
+  state.board = snap.board || { logs: [], preflight: null };
+  state.report = snap.report || null;
+  state.reportText = (snap.report && snap.report.markdown) || '';
+
+  // 选择最近的组（记忆优先）
+  var ids = state.groups.map(function (g) { return g.id; });
+  var pick = null;
+  if (prefs.group_id && ids.indexOf(prefs.group_id) >= 0) pick = prefs.group_id;
+  else if (snap.trial && snap.trial.group_id && ids.indexOf(snap.trial.group_id) >= 0) pick = snap.trial.group_id;
+  else if (ids.length) pick = ids[0];
+  state.selectedGroup = pick;
+
+  initTermsFromSnapshot();
+  scheduleRender();
+}
+
+/* hello / 重连时重建终端与标签，清空面板缓冲（旧缓冲按协议丢弃） */
+function initTermsFromSnapshot() {
+  state.logTerm = new AnsiTerm({ id: 'trial-log' });
+  state.terms = { trial: new AnsiTerm({ id: 'trial' }) };
+  state.terms.trial.autoScroll = !!prefs.autoscroll;
+  state.terms.trial.onAppend = function () { /* 状态条由 render 刷新 */ };
+  state.terms.trial.onTrim = function () { };
+
+  var tabs = { _log: state.tabs._log || { filter: '' } };
+  state.terminals.forEach(function (t) {
+    var term = new AnsiTerm({ id: t.id });
+    term.autoScroll = !!prefs.autoscroll;
+    state.terms[t.id] = term;
+    var prev = state.tabs[t.id] || {};
+    tabs[t.id] = {
+      input: prev.input || '',
+      filter: prev.filter || '',
+      history: prev.history || [],
+      histIdx: -1,
+      autoScroll: prev.autoScroll === undefined ? !!prefs.autoscroll : !!prev.autoScroll
+    };
+  });
+  state.tabs = tabs;
+
+  var active = null;
+  if (state.activeTerm && state.terms[state.activeTerm]) active = state.activeTerm;
+  else if (state.terminals.length) {
+    var running = state.terminals.filter(function (t) {
+      var s = state.sessions[t.id];
+      return s && s.state === 'running';
+    });
+    active = (running.length ? running[0] : state.terminals[0]).id;
+  }
+  state.activeTerm = active;
+}
+
+/* ==========================================================================
+ * 6. 渲染 · 顶栏
+ * ========================================================================== */
+
+var STAGE_LABELS = {
+  IDLE: '空闲（未起飞流程）',
+  STARTING: '启动中（节点拉起）',
+  INITIALIZING: '初始化（等待飞控与建图）',
+  MAPPING_READY: '建图就绪（等待应用就绪）',
+  READY: '就绪（READY，可人工解锁）',
+  IN_FLIGHT: '飞行中（人工接管）',
+  DISARMED: '已锁定（未解锁）',
+  STOPPED: '已停止',
+  FAILED: '失败（需人工排查）',
+  UNKNOWN: '未知'
+};
+
+/* 板端地址下拉：列出 memoir/现场部署记录里出现过的历史 SSH 地址 */
+function renderHostSelect() {
+  var sel = $('#host-select');
+  if (!sel) return;
+  var c = state.connection || {};
+  var options = hostChoices();
+  var current = c.host || '';
+  var key = current + '|' + JSON.stringify(options);
+  if (sel.getAttribute('data-key') !== key) {
+    sel.setAttribute('data-key', key);
+    clear(sel);
+    options.forEach(function (o) {
+      var opt = el('option', null, o.label);
+      opt.value = o.value;
+      sel.appendChild(opt);
+    });
+    sel.value = current;
+  }
+  sel.title = '板端 SSH 地址（历史地址来自现场部署记录与项目 memoir）。切换后记得点「连接」。';
+}
+
+function renderTopbar() {
+  var c = state.connection || {};
+  var chip = $('#conn-chip');
+  var st = c.state || 'unknown';
+  chip.className = 'chip chip-' + st;
+  renderHostSelect();
+  var hostEl = $('#conn-host');
+  hostEl.textContent = (c.host || '未配置') + (c.port ? (':' + c.port) : '') + ' · ' + ({
+    unknown: '未连接', checking: '检查中', ok: '正常', failed: '失败'
+  }[st] || st);
+  $('#conn-detail').textContent = c.detail ? ('· ' + c.detail) : '';
+
+  var off = !connected();
+  $('#offline-banner').classList.toggle('hidden', !off);
+  ['#btn-preflight', '#btn-start-all', '#btn-stop-all', '#btn-report'].forEach(function (sel) {
+    var b = $(sel); if (b) b.disabled = off;
+  });
+
+  var tel = state.telemetry || {};
+  var ms = state.snapshot ? state.snapshot.now : null;
+  var tAt = tel.at || tel.t || ms;
+  $('#topbar-probe').textContent = 'master ' + (tel.master === true ? 'OK' : (tel.master === false ? '无' : '—'))
+    + ' · 节点 ' + (tel.nodes ? tel.nodes.length : '—')
+    + ' · 遥测 ' + hhmmss(tAt)
+    + (tel.probe && tel.probe.node ? (' · 探针 ' + (tel.probe.host || '') + (tel.probe.pid ? ('#' + tel.probe.pid) : '')) : '');
+}
+
+/* ==========================================================================
+ * 7. 渲染 · 任务组
+ * ========================================================================== */
+
+function releaseBadge(release) {
+  if (release === 'real') return { cls: 'badge badge-real', text: '实投' };
+  if (release === 'mock') return { cls: 'badge badge-mock', text: '模拟投递' };
+  return { cls: 'badge badge-none', text: '无投递' };
+}
+
+/* 依据 group 复原后端将要执行的完整命令。
+ * 该逻辑与后端 wb_board.build_group_command / terminal_wrapped_command 一致，
+ * 只用于“把命令给人看”，不参与任何下发。 */
+/* 与后端 wb_board.REAL_RELEASE_FOLDERS 保持一致（只有这些模块目录有 start_real.sh） */
+var REAL_RELEASE_FOLDERS = ['01_visual_interrupt', '02_high_view_revisit', '05_low_multi',
+  '06_high_priority', '08_full_mission'];
+function shQuote(s) { return "'" + String(s).replace(/'/g, "'\\''") + "'"; }
+
+function groupCommandBody(g, mode, realRelease, checkConfig, speed) {
+  var c = state.connection || {};
+  var folder = g.folder || '';
+  var siteDir = c.site_dir || 'deployment/site_20260928';
+  var siteConfig = g.site_config || siteDir + '/test_area.yaml';
+  var route = g.channel || 'module';
+  var moduleBase = 'deployment/board_trials_4x4/' + folder;
+  var extra = '';
+  if (speed !== null && speed !== undefined) extra += ' --capture-speed ' + Number(speed).toFixed(1);
+
+  // check_config 优先于 channel：后端只在“启动 ROS 节点”时才区分现场/模块入口
+  if (checkConfig) {
+    return { body: 'bash ' + moduleBase + '/start.sh preview --site-config ' + siteConfig + extra + ' --check-config',
+             note: '只做配置检查：按模块入口展开参数，不启动任何 ROS 节点' };
+  }
+  if (route === 'site') {
+    if (extra && folder !== '09_high_speed_capture') {
+      return { body: null, note: '现场快捷入口不支持速度参数（后端会拒绝：现场快捷入口只有拍摄组支持附加参数）' };
+    }
+    return { body: 'bash ' + siteDir + '/start_test.sh ' + (g.key || '') + ' ' + mode + extra,
+             note: '现场快捷入口：flight 对投递组自动走 start_real.sh（真实舵机），记忆组走 start.sh' };
+  }
+  if (realRelease && mode === 'flight') {
+    var okFolder = REAL_RELEASE_FOLDERS.indexOf(folder) >= 0;
+    return {
+      body: okFolder ? ('bash ' + moduleBase + '/start_real.sh --site-config ' + siteConfig + extra) : null,
+      note: okFolder
+        ? '模块实投入口：经释放许可代理调用现场 /legacy/Servo_raw（真实舵机）'
+        : (folder + ' 没有 start_real.sh，不能走实投入口（后端会拒绝该组合）')
+    };
+  }
+  return { body: 'bash ' + moduleBase + '/start.sh ' + mode + ' --site-config ' + siteConfig + extra,
+           note: '模块入口：默认模拟投递（mock 舵机），不接 PWM' };
+}
+
+function buildTrialCommand(g, mode, realRelease, checkConfig, speed) {
+  var c = state.connection || {};
+  var root = c.board_root || '<board_root>';
+  var env = c.env_script || '<env_script>';
+  var built = groupCommandBody(g, mode, realRelease, checkConfig, speed);
+  if (!built.body) {
+    return '（该参数组合后端会拒绝启动：' + built.note + '）';
+  }
+  return 'cd ' + shQuote(root) + ' && source ' + shQuote(root.replace(/\/$/, '') + '/' + env)
+    + ' && ' + built.body;
+}
+
+function renderGroups() {
+  var body = $('#groups-body');
+  if (!body) return;
+  var scrollTop = body.scrollTop;
+  clear(body);
+  var groups = state.groups || [];
+  var hint = $('#groups-hint');
+  var tSess = state.sessions.trial;
+  hint.textContent = (tSess && (tSess.state === 'running' || tSess.state === 'starting'))
+    ? ('trial 会话 ' + tSess.state + '：' + (state.trial && state.trial.name ? state.trial.name : ''))
+    : 'trial 会话未运行';
+
+  if (!groups.length) { body.appendChild(el('p', 'empty', '等待快照…（/api/snapshot 的 groups 为空）')); return; }
+
+  appendGroupSection(body, '现场组号（1–6）', groups.filter(function (g) { return g.channel === 'site'; }));
+  appendGroupSection(body, '模块目录（01–09）', groups.filter(function (g) { return g.channel !== 'site'; }));
+
+  var others = groups.filter(function (g) { return g.channel && g.channel !== 'site' && g.channel !== 'module'; });
+  if (others.length) appendGroupSection(body, '其他任务组', others);
+  body.scrollTop = scrollTop;
+}
+
+function appendGroupSection(body, title, list) {
+  if (!list.length) return;
+  var h = el('div', 'grp-section-title');
+  h.appendChild(el('span', null, title));
+  h.appendChild(el('span', 'muted tiny', list.length + ' 组'));
+  body.appendChild(h);
+  list.forEach(function (g) { body.appendChild(groupCard(g)); });
+}
+
+function groupCard(g) {
+  var sel = state.selectedGroup === g.id;
+  var card = el('div', 'grp-card' + (sel ? ' sel' : ''));
+
+  // 标题
+  var top = el('div', 'grp-top');
+  top.appendChild(el('span', 'badge badge-info', g.key || g.id));
+  top.appendChild(el('span', 'grp-title', g.name || g.id));
+  var selectBtn = el('button', 'btn btn-sm grp-select', sel ? '已选择' : '选择此组');
+  selectBtn.disabled = sel;
+  selectBtn.title = '选择要查看和操作的任务组；不会启动任务或替换正在运行的试飞';
+  selectBtn.addEventListener('click', selectGroup);
+  top.appendChild(selectBtn);
+  card.appendChild(top);
+  if (g.plan) card.appendChild(el('div', 'grp-plan', 'plan：' + g.plan));
+  if (g.ending) card.appendChild(el('div', 'grp-ending', 'ending：' + g.ending));
+
+  // 徽标
+  var badges = el('div', 'badges');
+  var rb = releaseBadge(g.release);
+  badges.appendChild(el('span', rb.cls, rb.text));
+  if (g.needs_servo) badges.appendChild(el('span', 'badge', '需舵机'));
+  if (g.needs_waypoints) badges.appendChild(el('span', 'badge', '需实测航点'));
+  if (g.manual_mission_start) badges.appendChild(el('span', 'badge', '手动启动任务'));
+  card.appendChild(badges);
+
+  var U = state.tabs[g.id] || (state.tabs[g.id] = { mode: 'preview', armedOk: false, realConfirm: '', checkConfig: false, speed: null, cmdOpen: false });
+  if (!U.mode) U.mode = 'preview';
+  if (g.speed_options && g.speed_options.length && (U.speed === null || U.speed === undefined)) U.speed = g.speed_options[0];
+
+  var ops = el('div', 'grp-ops');
+
+  // 模式
+  var modeRow = el('div', 'grp-row');
+  modeRow.appendChild(el('span', 'lbl', '模式'));
+  [['preview', '预览 preview'], ['flight', '飞行 flight']].forEach(function (m) {
+    var b = el('button', 'btn btn-sm' + (U.mode === m[0] ? ' active' : ''), m[1]);
+    b.addEventListener('click', function () { U.mode = m[0]; renderGroups(); });
+    modeRow.appendChild(b);
+  });
+  ops.appendChild(modeRow);
+
+  // flight 二次确认
+  if (U.mode === 'flight') {
+    var armRow = el('div', 'grp-row');
+    var lab = el('label', 'chk');
+    var cb = el('input'); cb.type = 'checkbox'; cb.checked = !!U.armedOk;
+    cb.addEventListener('change', function () { U.armedOk = cb.checked; renderGroups(); });
+    lab.appendChild(cb);
+    lab.appendChild(el('span', null, '已确认：飞机回到起飞点、未解锁、机头朝场内'));
+    armRow.appendChild(lab);
+    ops.appendChild(armRow);
+  }
+
+  // 实投确认词
+  if (g.release === 'real' && U.mode === 'flight') {
+    var realRow = el('div', 'grp-row');
+    realRow.appendChild(el('span', 'lbl', '实投确认词'));
+    var inp = el('input'); inp.type = 'text'; inp.value = U.realConfirm || '';
+    inp.placeholder = '输入 实投'; inp.size = 10;
+    inp.addEventListener('input', function () { U.realConfirm = inp.value; updateFlightBtn(); });
+    realRow.appendChild(inp);
+    ops.appendChild(realRow);
+    ops.appendChild(el('div', 'err-line', '该组 release=real：必须手工输入确认词「实投」才能点击飞行。'));
+  }
+
+  // 速度
+  if (g.speed_options && g.speed_options.length) {
+    var spRow = el('div', 'grp-row');
+    spRow.appendChild(el('span', 'lbl', '速度'));
+    g.speed_options.forEach(function (s) {
+      var b = el('button', 'btn btn-sm' + (U.speed === s ? ' active' : ''), String(s));
+      b.addEventListener('click', function () { U.speed = s; renderGroups(); });
+      spRow.appendChild(b);
+    });
+    ops.appendChild(spRow);
+    ops.appendChild(el('div', 'warn-line', '速度选项属于「仅采集不投递」路径：只跑视觉采集，不下发投递。'));
+  }
+
+  // 配置检查
+  var ccRow = el('div', 'grp-row');
+  var ccLab = el('label', 'chk');
+  var ccb = el('input'); ccb.type = 'checkbox'; ccb.checked = !!U.checkConfig;
+  ccb.addEventListener('change', function () { U.checkConfig = ccb.checked; renderGroups(); });
+  ccLab.appendChild(ccb);
+  ccLab.appendChild(el('span', null, '只做配置检查（check_config，不启动节点）'));
+  ccRow.appendChild(ccLab);
+  ops.appendChild(ccRow);
+
+  if (g.needs_waypoints) ops.appendChild(el('div', 'warn-line', '航点留空时入口会拒绝启动，属预期。'));
+
+  // 按钮
+  var btnRow = el('div', 'grp-row');
+  var previewBtn = el('button', 'btn btn-sm', '预览（preview）');
+  previewBtn.disabled = !connected();
+  previewBtn.addEventListener('click', function () { startTrial(g, 'preview'); });
+
+  var flightBtn = el('button', 'btn btn-sm btn-danger', '飞行（flight）');
+  btnRow.appendChild(previewBtn);
+  btnRow.appendChild(flightBtn);
+  if (tSessRunning()) {
+    var stopBtn = el('button', 'btn btn-sm', '停止（Ctrl+C）');
+    stopBtn.title = 'POST /api/trial/stop {} → 向 trial 会话发送 INT（等同 Ctrl+C），不做任何自动降落';
+    stopBtn.addEventListener('click', function () { doTrialStop(); });
+    btnRow.appendChild(stopBtn);
+  }
+  ops.appendChild(btnRow);
+
+  // 手动启动任务（仅 manual_mission_start 的组）：与右栏同一动作、同一确认
+  if (g.manual_mission_start) {
+    var msRow = el('div', 'grp-row');
+    var msBtn = el('button', 'btn btn-sm', '启动任务（仅 READY 后）');
+    var stageName = (state.stage || {}).name || 'IDLE';
+    var stOk = MISSION_STAGES.indexOf(stageName) >= 0;
+    msBtn.disabled = !connected() || !stOk;
+    msBtn.title = !connected() ? '未连接板端，先连接'
+      : (!stOk ? ('当前阶段是 ' + stageName + '，只有 READY 之后才允许启动任务（后端会返回 400）')
+        : 'POST /api/action/mission_start {confirm:"启动任务"} → rosservice call /navigation/start_mission "{}"');
+    msBtn.addEventListener('click', doMissionStart);
+    msRow.appendChild(msBtn);
+    msRow.appendChild(el('span', 'tiny muted', '该组 manual_mission_start=true：只在下发一次，不能为催促重复调用'));
+    ops.appendChild(msRow);
+    if (state.lastMissionOutput) {
+      ops.appendChild(el('div', 'tiny muted', '最近一次 rosservice 返回（必须 success: true）'));
+      ops.appendChild(el('pre', 'cmd-pre', state.lastMissionOutput));
+    }
+  }
+
+  var reqEl = el('div', 'tiny muted');
+  ops.appendChild(reqEl);
+  var cmdNote = el('div', 'cmd-note', 'POST /api/trial/start');
+  ops.appendChild(cmdNote);
+
+  // flight 按钮启用条件
+  function updateFlightBtn() {
+    var needReal = (g.release === 'real');
+    var realOk = !needReal || (U.realConfirm || '').trim() === '实投';
+    flightBtn.disabled = !connected() || !U.armedOk || !realOk;
+    flightBtn.title = !connected() ? '未连接板端'
+      : (!U.armedOk ? '请先勾选飞行前确认（已回到起飞点、未解锁、机头朝场内）'
+        : (!realOk ? '该组 release=real，需输入确认词「实投」' : 'POST /api/trial/start {group_id,mode:"flight",...}'));
+    var parts = ['group_id=' + g.id, 'mode=' + U.mode, g.release ? ('release=' + g.release) : null];
+    if (U.checkConfig) parts.push('check_config=true');
+    if (U.speed !== null && U.speed !== undefined) parts.push('capture_speed=' + U.speed);
+    reqEl.textContent = '请求体：{' + parts.filter(Boolean).join(', ') + '}';
+  }
+  flightBtn.addEventListener('click', function () { startTrial(g, 'flight'); });
+  updateFlightBtn();
+
+  // 命令预览（始终可见）
+  var cmd = buildTrialCommand(g, U.mode, g.release === 'real', U.checkConfig, U.speed);
+  var det = el('details', 'cmd-box');
+  if (U.cmdOpen) det.open = true;
+  det.addEventListener('toggle', function () { U.cmdOpen = det.open; });
+  var sum = el('summary');
+  sum.appendChild(el('span', null, '命令预览（将要执行的完整命令）'));
+  det.appendChild(sum);
+  var cb2 = el('div', 'cmd-box-body');
+  var pre = el('pre', 'cmd-pre', cmd);
+  cb2.appendChild(pre);
+  cb2.appendChild(el('div', 'tiny muted wrap-any', '入口说明：' + groupCommandBody(g, U.mode, g.release === 'real', !!U.checkConfig, U.speed).note));
+  var row = el('div', 'grp-row');
+  row.appendChild(copyBtn(function () { return cmd; }, '试飞命令'));
+  if (g.command) {
+    var b2 = el('button', 'btn btn-sm btn-ghost', '后端登记的原始命令');
+    b2.addEventListener('click', function () { openCommandModal('后端登记的原始命令', g.command, g.name); });
+    row.appendChild(b2);
+  }
+  cb2.appendChild(row);
+  det.appendChild(cb2);
+  ops.appendChild(det);
+
+  if (g.notes) ops.appendChild(el('div', 'tiny muted wrap-any', '备注：' + g.notes));
+
+  card.appendChild(ops);
+  card.addEventListener('click', function (ev) {
+    if (ev.target && ev.target.closest('button,input,select,textarea,label,a,details')) return;
+    selectGroup();
+  });
+  function selectGroup() {
+    if (state.selectedGroup === g.id) return;
+    state.selectedGroup = g.id;
+    prefs.group_id = g.id;
+    savePrefs();
+    renderGroups();
+    renderMonitor();
+  }
+  return card;
+}
+
+function tSessRunning() {
+  var s = state.sessions.trial;
+  return !!(s && (s.state === 'running' || s.state === 'starting'));
+}
+
+/* ==========================================================================
+ * 8. 渲染 · 终端
+ * ========================================================================== */
+
+function termStatus(tid) {
+  var s = state.sessions[tid] || {};
+  var st = s.state || 'idle';
+  var cls = (st === 'running' || st === 'starting' || st === 'exited' || st === 'failed') ? st : 'idle';
+  var label = { idle: '未启动', starting: '启动中', running: '运行中', exited: '已退出', failed: '失败' }[st] || st;
+  return { state: st, cls: cls, label: label, sess: s };
+}
+
+function renderTerminals() {
+  var tabsBox = $('#term-tabs');
+  var bodyBox = $('#term-body');
+  if (!tabsBox || !bodyBox) return;
+
+  var list = state.terminals || [];
+  $('#terminals-hint').textContent = state.sse.state ? state.sse.state : '';
+
+  // 标签栏
+  clear(tabsBox);
+  list.forEach(function (t) {
+    var st = termStatus(t.id);
+    var b = el('button', 'ttab' + (state.activeTerm === t.id ? ' active' : ''));
+    b.appendChild(el('span', 'dot ' + st.cls));
+    b.appendChild(el('span', null, t.title || t.id));
+    b.title = (t.desc || '') + '\n命令：' + (t.command || '');
+    b.addEventListener('click', function () { state.activeTerm = t.id; renderTerminals(); });
+    tabsBox.appendChild(b);
+  });
+  if (!list.length) tabsBox.appendChild(el('span', 'tiny muted', '等待快照…'));
+
+  // Preserve terminal history position when telemetry redraws its controls.
+  Object.keys(state.terms).forEach(function (id) { state.terms[id].saveScroll(); });
+  // 内容区
+  clear(bodyBox);
+  var t = null;
+  for (var i = 0; i < list.length; i++) if (list[i].id === state.activeTerm) t = list[i];
+  if (!t && list.length) { t = list[0]; state.activeTerm = t.id; }
+  if (!t) { bodyBox.appendChild(el('p', 'empty', '等待快照…（/api/snapshot 的 terminals 为空）')); return; }
+
+  var st = termStatus(t.id);
+  var term = state.terms[t.id];
+  if (!term) return;
+
+  // 工具条
+  var tool = el('div', 'term-tool');
+  var startBtn = el('button', 'btn btn-sm btn-primary', '启动');
+  startBtn.disabled = !connected() || t.id === 'trial' || st.state === 'running' || st.state === 'starting';
+  if (t.id === 'trial') startBtn.textContent = '从任务组启动';
+  startBtn.title = 'POST /api/session/open {id:"' + t.id + '"}' + (t.confirm ? '，需带 confirm:"确认"' : '') + '\n' + (t.command || '');
+  startBtn.addEventListener('click', function () { openTerminal(t); });
+  var stopBtn = el('button', 'btn btn-sm', '停止');
+  stopBtn.disabled = st.state === 'idle';
+  stopBtn.title = 'POST /api/session/close {id:"' + t.id + '"}';
+  stopBtn.addEventListener('click', function () { act(api.sessionClose(t.id), '停止 ' + t.title); });
+  var clearBtn = el('button', 'btn btn-sm', '清屏');
+  clearBtn.title = 'POST /api/session/clear {id:"' + t.id + '"}（清板端缓冲与本地视图）';
+  clearBtn.addEventListener('click', function () {
+    term.clearView();
+    if (t.id === 'trial' && state.logTerm) state.logTerm.clearView();
+    act(api.sessionClear(t.id), '清屏 ' + t.title);
+  });
+  var ctrlCBtn = el('button', 'btn btn-sm', 'Ctrl+C');
+  ctrlCBtn.title = 'POST /api/session/key {id:"' + t.id + '", key:"C-c"}';
+  ctrlCBtn.addEventListener('click', function () { act(api.sessionKey(t.id, 'C-c'), '发送 Ctrl+C'); });
+  var cmdBtn = el('button', 'btn btn-sm btn-ghost', '命令');
+  cmdBtn.title = '查看该终端将要执行的完整命令';
+  cmdBtn.addEventListener('click', function () {
+    openCommandModal(t.title || t.id, t.command || '（后端未登记命令）', (t.desc || '') + (t.confirm ? ('\n启动确认：' + t.confirm) : ''));
+  });
+
+  tool.appendChild(startBtn); tool.appendChild(stopBtn); tool.appendChild(clearBtn);
+  tool.appendChild(ctrlCBtn); tool.appendChild(cmdBtn);
+  var sw = el('label', 'switch');
+  var swi = el('input'); swi.type = 'checkbox'; swi.checked = !!(state.tabs[t.id] && state.tabs[t.id].autoScroll);
+  swi.addEventListener('change', function () {
+    if (state.tabs[t.id]) state.tabs[t.id].autoScroll = swi.checked;
+    prefs.autoscroll = swi.checked;
+    savePrefs();
+    Object.keys(state.terms).forEach(function (k) { state.terms[k].setAutoScroll(swi.checked); });
+    if (state.logTerm) state.logTerm.setAutoScroll(swi.checked);
+    var sa = $('#sw-autoscroll'); if (sa) sa.checked = swi.checked;
+  });
+  sw.appendChild(swi); sw.appendChild(el('span', null, '自动滚动'));
+  tool.appendChild(sw);
+
+  var grow = el('span', 'grow');
+  tool.appendChild(grow);
+  var stats = term.stats();
+  tool.appendChild(el('span', 'term-meta',
+    '状态 ' + st.label
+    + ' · 启动 ' + hhmmss(st.sess.started_at)
+    + ' · 结束 ' + hhmmss(st.sess.ended_at)
+    + ' · exit ' + (st.sess.exit_code === null || st.sess.exit_code === undefined ? '—' : st.sess.exit_code)
+    + ' · 行 ' + stats.lines + (stats.dropped ? ('（丢 ' + stats.dropped + '）') : '')
+    + (st.sess.chars ? (' · ' + st.sess.chars + ' 字符') : '')
+  ));
+  bodyBox.appendChild(tool);
+
+  if (t.desc) bodyBox.appendChild(el('div', 'term-desc', t.desc));
+  if (t.confirm) bodyBox.appendChild(el('div', 'warn-line', '该终端启动前会弹确认框，确认文案：' + t.confirm));
+
+  // 输出区（增量渲染，只追加）
+  bodyBox.appendChild(term.scrollEl);
+  term.stick();
+
+  // Each view has its own filter; filtering the drawer must not hide flight output.
+  var U = state.tabs[t.id] || (state.tabs[t.id] = { input: '', history: [], histIdx: -1 });
+  var filterRow = el('div', 'term-line-filter');
+  var filter = el('input'); filter.type = 'text'; filter.value = U.filter || '';
+  filter.placeholder = '筛选本终端关键字（不区分大小写）';
+  filter.addEventListener('input', function () { U.filter = filter.value; term.setLineFilter(U.filter); });
+  var resetFilter = el('button', 'btn btn-sm', '清除筛选');
+  resetFilter.addEventListener('click', function () { U.filter = ''; filter.value = ''; term.setLineFilter(''); });
+  filterRow.appendChild(filter); filterRow.appendChild(resetFilter); bodyBox.appendChild(filterRow);
+  term.setLineFilter(U.filter || '');
+
+  // 输入行
+  var inRow = el('div', 'term-input');
+  var inp = el('input');
+  inp.type = 'text';
+  inp.placeholder = '输入后回车发送到该会话（交互式 shell / sudo 提示用）';
+  inp.value = U.input || '';
+  inp.spellcheck = false;
+  inp.addEventListener('input', function () { U.input = inp.value; });
+  inp.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter' && !ev.shiftKey) {
+      var data = inp.value;
+      if (data === '' || data === null || data === undefined) return;
+      U.history = U.history || [];
+      if (U.history[U.history.length - 1] !== data) U.history.push(data);
+      U.histIdx = -1;
+      inp.value = ''; U.input = '';
+      act(api.sessionInput(t.id, data + '\n'), '发送到 ' + t.title);
+    } else if (ev.key === 'ArrowUp') {
+      var h = U.history || [];
+      if (!h.length) return;
+      ev.preventDefault();
+      U.histIdx = (U.histIdx < 0) ? h.length - 1 : Math.max(0, U.histIdx - 1);
+      inp.value = h[U.histIdx]; U.input = inp.value;
+    } else if (ev.key === 'ArrowDown') {
+      var h2 = U.history || [];
+      if (!h2.length) return;
+      ev.preventDefault();
+      U.histIdx = (U.histIdx < 0) ? -1 : Math.min(h2.length - 1, U.histIdx + 1);
+      inp.value = (U.histIdx < 0) ? '' : h2[U.histIdx];
+      U.input = inp.value;
+    }
+  });
+  var sendBtn = el('button', 'btn btn-sm', '发送');
+  sendBtn.disabled = st.state === 'idle';
+  sendBtn.addEventListener('click', function () {
+    var d = inp.value; if (!d) return;
+    inp.value = ''; U.input = '';
+    act(api.sessionInput(t.id, d + '\n'), '发送到 ' + t.title);
+  });
+  inRow.appendChild(inp); inRow.appendChild(sendBtn);
+  bodyBox.appendChild(inRow);
+  bodyBox.appendChild(el('div', 'term-hint', '会话状态 ' + st.label + (st.state === 'running' ? '（ssh 会话保持打开）' : '') + ' · 发送内容是原始文本，直接进入远端 stdin'));
+}
+
+/* ==========================================================================
+ * 9. 渲染 · 右栏监视
+ * ========================================================================== */
+
+var DETAIL_LABELS = {
+  pose_samples: '位姿样本 pose_samples',
+  camera_info: '相机内参 camera_info',
+  image_seen: '图像到达 image_seen',
+  compressed_fresh: '压缩图新鲜 compressed_fresh',
+  distinct_clouds: '点云簇 distinct_clouds',
+  clouds: '点云 clouds',
+  odom: '里程计 odom',
+  lidar: '雷达 lidar',
+  detections: '检测 detections'
+};
+var TOPIC_WATCH = [
+  '/mavros/state',
+  '/camera/image_raw',
+  '/camera/image_raw/compressed',
+  '/camera/camera_info',
+  '/livox/lidar',
+  '/freedom/static_pointcloud',
+  '/navigation/setpoint_mission',
+  '/uav_vision/detections'
+];
+
+function kvRow(box, k, v, cls) {
+  box.appendChild(el('div', 'k', k));
+  box.appendChild(el('div', 'v ' + (cls || ''), v === undefined || v === null || v === '' ? '—' : String(v)));
+}
+
+function renderMonitor() {
+  var body = $('#monitor-body');
+  if (!body) return;
+  var scrollTop = body.scrollTop;
+  var oldReport = body.querySelector('.report-pre');
+  var reportTop = oldReport ? oldReport.scrollTop : 0;
+  var keepReport = state.reportText;
+  clear(body);
+
+  var stage = state.stage || {};
+  var sname = stage.name || 'IDLE';
+  var card = el('div', 'stage-card c-' + (/^(IDLE|STARTING|INITIALIZING|MAPPING_READY|READY|IN_FLIGHT|DISARMED|STOPPED|FAILED)$/.test(sname) ? sname : 'unknown'));
+  var head = el('div');
+  head.appendChild(el('div', 'stage-name', stage.label || STAGE_LABELS[sname] || sname));
+  head.appendChild(el('div', 'stage-sub', '阶段码 ' + sname + (stage.reason ? (' · 原因：' + stage.reason) : '')));
+  card.appendChild(head);
+  var elapsed = el('div', 'stage-elapsed', '已持续 ' + dur(nowSec() - (stage.since || nowSec())));
+  elapsed.setAttribute('data-elapsed-since', String(stage.since || nowSec()));
+  card.appendChild(elapsed);
+  body.appendChild(card);
+
+  // 启动任务按钮紧贴大状态卡
+  body.appendChild(missionStartSection(stage));
+
+  // 指标网格
+  var sec = el('div', 'sec');
+  sec.appendChild(secHead('关键状态'));
+  var sb = el('div', 'sec-body');
+  var kv = el('div', 'kv');
+  kvRow(kv, 'armed', stage.armed === true ? '已解锁' : '未解锁', stage.armed ? 'warn' : 'ok');
+  kvRow(kv, 'ever_armed', stage.ever_armed ? '本次已解锁过' : '从未解锁');
+  kvRow(kv, 'mode', stage.mode || '—');
+  kvRow(kv, 'phase', stage.phase || '—');
+  kvRow(kv, 'reason', stage.reason || '—');
+  var align = stage.alignment || '—';
+  kvRow(kv, '定位一致性', align + (stage.alignment_hint ? ('（' + stage.alignment_hint + '）') : ''),
+    align === 'stable' ? 'ok' : (align === 'unstable' || align === 'bad' ? 'bad' : 'warn'));
+  kvRow(kv, 'READY 时刻', stage.ready_at ? hhmmss(stage.ready_at) : '—');
+  kvRow(kv, '开始时刻', stage.started_at ? hhmmss(stage.started_at) : '—');
+  sb.appendChild(kv);
+
+  var d = stage.detail || {};
+  var keys = Object.keys(d);
+  if (keys.length) {
+    sb.appendChild(el('div', 'tiny muted', '关键量'));
+    var kv2 = el('div', 'kv');
+    keys.forEach(function (k) {
+      var v = d[k];
+      if (v !== null && typeof v === 'object') { try { v = JSON.stringify(v); } catch (e) { v = String(v); } }
+      kvRow(kv2, DETAIL_LABELS[k] || k, v);
+    });
+    sb.appendChild(kv2);
+  }
+
+  var runDir = stage.run_dir || (state.trial && state.trial.run_dir) || '';
+  if (runDir) {
+    var rr = el('div', 'grp-row');
+    rr.appendChild(el('span', 'tiny muted', '产物目录'));
+    rr.appendChild(el('code', 'tiny mono wrap-any', runDir));
+    rr.appendChild(copyBtn(function () { return runDir; }, '产物目录'));
+    sb.appendChild(rr);
+  }
+  sec.appendChild(sb);
+  body.appendChild(sec);
+
+  // orchestration 进度
+  var orch = state.orchestration;
+  if (orch && (orch.running || (orch.steps && orch.steps.length))) {
+    var so = el('div', 'sec');
+    so.appendChild(secHead('一键启动进度' + (orch.running ? '（进行中）' : '')));
+    var sob = el('div', 'sec-body');
+    var steps = el('div', 'steps');
+    (orch.steps || []).forEach(function (s) {
+      var row = el('div', 'step s-' + (s.state || 'pending'));
+      row.appendChild(el('span', 'sdot'));
+      row.appendChild(el('span', null, s.title || s.id));
+      if (s.detail) row.appendChild(el('span', 'sdetail', '· ' + s.detail));
+      steps.appendChild(row);
+    });
+    sob.appendChild(steps);
+    if (orch.step) sob.appendChild(el('div', 'tiny muted', '当前步骤：' + orch.step + ' · 开始 ' + hhmmss(orch.started_at)));
+    so.appendChild(sob);
+    body.appendChild(so);
+  }
+
+  // 设备与遥测
+  var tel = state.telemetry || {};
+  var sd = el('div', 'sec');
+  sd.appendChild(secHead('设备与遥测', 'master ' + (tel.master === true ? 'OK' : (tel.master === false ? '无' : '—'))));
+  var sdb = el('div', 'sec-body');
+  var kv3 = el('div', 'kv');
+  kvRow(kv3, 'ROS master', tel.master === true ? '已就绪' : (tel.master === false ? '未就绪' : '—'), tel.master ? 'ok' : 'warn');
+  kvRow(kv3, '节点数', (tel.nodes || []).length + (tel.nodes && tel.nodes.length ? ('（' + tel.nodes.slice(0, 4).join(', ') + (tel.nodes.length > 4 ? ' …' : '') + '）') : ''));
+  kvRow(kv3, '最后遥测', hhmmss(tel.at || tel.t));
+  var mst = tel.state || {};
+  kvRow(kv3, '飞控', 'connected=' + (mst.connected === true ? 'true' : 'false') + ' armed=' + (mst.armed === true ? 'true' : 'false') + ' mode=' + txt(mst.mode || '—'));
+  if (tel.mission) kvRow(kv3, 'mission', txt(tel.mission.phase || '') + (tel.mission.reason ? (' · ' + tel.mission.reason) : ''));
+  if (tel.probe_status) kvRow(kv3, '探针阶段', txt(tel.probe_status.scope || '') + ' / ' + txt(tel.probe_status.stage || ''));
+  if (tel.extended && tel.extended.landed_state !== undefined) kvRow(kv3, 'landed_state', String(tel.extended.landed_state));
+  sdb.appendChild(kv3);
+
+  var topics = tel.topics || {};
+  var tb = el('table', 'mini');
+  var th = el('tr');
+  ['话题', 'hz', 'age', '样本'].forEach(function (h, i) {
+    var c = el('th', i > 0 ? 'num' : null, h); th.appendChild(c);
+  });
+  tb.appendChild(el('thead')).appendChild(th);
+  var tbody = el('tbody');
+  TOPIC_WATCH.forEach(function (name) {
+    var info = topics[name];
+    var tr = el('tr');
+    if (!info) { tr.className = 'miss'; tr.appendChild(el('td', 'mono', name)); tr.appendChild(el('td', 'num', '—')); tr.appendChild(el('td', 'num', '—')); tr.appendChild(el('td', 'num', '—')); }
+    else {
+      var age = info.age;
+      if (age !== undefined && age !== null && age > 2) tr.className = 'stale';
+      tr.appendChild(el('td', 'mono', name));
+      tr.appendChild(el('td', 'num', info.hz === undefined || info.hz === null ? '—' : Number(info.hz).toFixed(1)));
+      tr.appendChild(el('td', 'num', age === undefined || age === null ? '—' : Number(age).toFixed(2) + 's'));
+      tr.appendChild(el('td', 'num', info.count === undefined ? '—' : String(info.count)));
+    }
+    tbody.appendChild(tr);
+  });
+  tb.appendChild(tbody);
+  sdb.appendChild(tb);
+  sdb.appendChild(el('div', 'tiny muted', 'age > 2s 标黄；未出现的话题按“无数据”处理。'));
+  sd.appendChild(sdb);
+  body.appendChild(sd);
+
+  // 飞控冲突
+  var conflicts = (state.board && state.board.preflight && state.board.preflight.conflicts) || [];
+  if (conflicts.length) {
+    var sc = el('div', 'sec');
+    sc.appendChild(secHead('飞控冲突', conflicts.length + ' 个'));
+    var scb = el('div', 'sec-body');
+    var cb = el('div', 'conflict-box');
+    cb.appendChild(el('div', null, '必须先退出的旧应用（否则会抢飞控 / 抢串口）：'));
+    var ul = el('ul');
+    conflicts.forEach(function (c) { var li = el('li'); li.appendChild(el('code', null, String(c))); ul.appendChild(li); });
+    cb.appendChild(ul);
+    scb.appendChild(cb);
+    sc.appendChild(scb);
+    body.appendChild(sc);
+  }
+
+  // 阶段时间线
+  var hist = (stage.history || []).slice().reverse();
+  var sh = el('div', 'sec');
+  sh.appendChild(secHead('阶段时间线', hist.length + ' 条'));
+  var shb = el('div', 'sec-body');
+  if (!hist.length) shb.appendChild(el('p', 'empty', '暂无阶段变化'));
+  else {
+    var ul2 = el('ul', 'hist-list');
+    hist.slice(0, 40).forEach(function (h) {
+      var li = el('li');
+      li.appendChild(el('span', 'tl-time', hhmmss(h.at)));
+      li.appendChild(el('span', null, (STAGE_LABELS[h.name] || h.name) + '（' + h.name + '）'));
+      ul2.appendChild(li);
+    });
+    shb.appendChild(ul2);
+  }
+  sh.appendChild(shb);
+  body.appendChild(sh);
+
+  // 告警
+  var sa = el('div', 'sec');
+  sa.appendChild(secHead('告警', state.alerts.length + ' 条'));
+  var sab = el('div', 'sec-body');
+  if (!state.alerts.length) sab.appendChild(el('p', 'empty', '暂无告警'));
+  else {
+    var ul3 = el('ul', 'alert-list');
+    state.alerts.slice(0, 40).forEach(function (a) {
+      var lv = a.level || 'info';
+      var li = el('li', 'a-' + lv);
+      li.appendChild(el('span', 'alert-time', hhmmss(a.at) + ' '));
+      li.appendChild(el('span', null, txt(a.text)));
+      if (a.hint) { li.appendChild(el('div', 'alert-hint', txt(a.hint))); }
+      ul3.appendChild(li);
+    });
+    sab.appendChild(ul3);
+  }
+  sa.appendChild(sab);
+  body.appendChild(sa);
+
+  // 回报
+  var sr = el('div', 'sec');
+  sr.appendChild(secHead('回报 markdown'));
+  var srb = el('div', 'sec-body');
+  if (!keepReport) srb.appendChild(el('p', 'empty', '点顶栏「生成回报」后在此显示 markdown。'));
+  else {
+    var pre = el('pre', 'report-pre', keepReport);
+    srb.appendChild(pre);
+    var row = el('div', 'grp-row');
+    row.appendChild(copyBtn(function () { return state.reportText; }, '回报 markdown'));
+    var dl = el('a', 'btn btn-sm', '下载 .md');
+    dl.href = 'data:text/markdown;charset=utf-8,' + encodeURIComponent(state.reportText);
+    var rp = (state.report && state.report.path) || '';
+    var fname = rp ? rp.split('/').pop() : 'flight_report.md';
+    dl.setAttribute('download', fname);
+    row.appendChild(dl);
+    if (rp) row.appendChild(el('span', 'tiny muted wrap-any', rp));
+    srb.appendChild(row);
+  }
+  sr.appendChild(srb);
+  body.appendChild(sr);
+  body.scrollTop = scrollTop;
+  var newReport = body.querySelector('.report-pre');
+  if (newReport) newReport.scrollTop = reportTop;
+}
+
+function secHead(title, right) {
+  var h = el('div', 'sec-head');
+  h.appendChild(el('span', null, title));
+  if (right) h.appendChild(el('span', 'tiny muted', right));
+  return h;
+}
+
+/* 启动任务：只在 READY / IN_FLIGHT 允许，且必须人工点一次 + 二次确认。
+ * 后端 mission_start 的允许阶段与这里保持一致，并会再校验一次。 */
+var MISSION_STAGES = ['READY', 'IN_FLIGHT'];
+function missionStartSection(stage) {
+  var st = (stage && stage.name) || 'IDLE';
+  var stageOk = MISSION_STAGES.indexOf(st) >= 0;
+  var cur = null;
+  (state.groups || []).forEach(function (gg) {
+    if (gg.id === state.trial.group_id) cur = gg;
+  });
+  var manual = !!(cur && cur.manual_mission_start);
+  var tSess = state.sessions.trial || {};
+  var trialRun = (tSess.state === 'running' || tSess.state === 'starting');
+
+  var sec = el('div', 'sec');
+  sec.appendChild(secHead('启动任务（仅 READY 后）', '板端下发一次'));
+  var sb = el('div', 'sec-body');
+  sb.appendChild(el('div', 'tiny muted',
+    '板端执行一次：rosservice call /navigation/start_mission "{}"（请求体 {confirm:"启动任务"}）'));
+
+  var row = el('div', 'grp-row');
+  var label = '启动任务（仅 READY 后）' + (manual && cur ? (' · ' + (cur.key || cur.id)) : '');
+  var btn = el('button', 'btn btn-sm', label);
+  var reason = '';
+  if (!connected()) reason = '未连接板端，先连接';
+  else if (!stageOk) reason = '当前阶段是 ' + st + '，只有 READY 之后才允许启动任务（后端会返回 400）';
+  else if (!trialRun) reason = '专项入口未在运行：先启动对应任务组';
+  else if (state.trial.mode !== 'flight' || state.trial.check_config) reason = 'preview/配置检查不能启动任务';
+  else if (stage.auto_sequence) reason = '板端自动时序负责启动任务，请勿重复下发';
+  btn.disabled = !!reason;
+  btn.title = reason ? reason
+    : 'POST /api/action/mission_start {confirm:"启动任务"} → 板端 rosservice call /navigation/start_mission "{}"\n'
+      + '只在 READY、飞手已解锁并进入 OFFBOARD、低空悬停稳定后调用一次；不要为催促重复调用。';
+  btn.addEventListener('click', doMissionStart);
+  row.appendChild(btn);
+  if (reason) row.appendChild(el('span', 'tiny muted', reason));
+  else row.appendChild(el('span', 'tiny muted', '只在飞手完成解锁与稳定悬停后调用一次'));
+  if (manual) row.appendChild(el('span', 'badge badge-info', '该组 manual_mission_start=true'));
+  sb.appendChild(row);
+
+  if (state.lastMissionOutput) {
+    sb.appendChild(el('div', 'tiny muted', '最近一次 rosservice 返回（必须 success: true）'));
+    sb.appendChild(el('pre', 'cmd-pre', state.lastMissionOutput));
+  }
+  sec.appendChild(sb);
+  return sec;
+}
+
+/* 启动任务：人工在 READY、未解锁、trial 运行中按需触发；非自动流程 */
+function doMissionStart() {
+  var stage = state.stage || {};
+  var cmdText = 'POST /api/action/mission_start\n' + JSON.stringify({ confirm: '启动任务' })
+    + '\n→ 板端执行：rosservice call /navigation/start_mission "{}"';
+  confirmModal('启动任务（仅 READY 后）', cmdText,
+    '只在 READY、飞手已解锁并进入 OFFBOARD、低空悬停稳定后调用一次；不要为催促重复调用。\n'
+    + '当前阶段：' + txt(stage.name || '—') + ' · armed=' + (stage.armed ? 'true' : 'false')
+    + ' · trial 会话=' + txt((state.sessions.trial || {}).state || '—') + '\n'
+    + '本工作台不会因此自动解锁或自动起飞；解锁与起飞仍由飞手手工完成。', '确认下发一次').then(function (res) {
+    if (!res || !res.confirmed) return;
+    act(api.missionStart(), '启动任务').then(function (r) {
+      if (!r) return;
+      var out = txt(r.output || '').trim();
+      state.lastMissionOutput = out || ('（服务未返回文本）ok=' + txt(r.ok));
+      renderMonitor();
+      var good = (r.ok === true) && /success:\s*true/i.test(out);
+      toast(good ? 'ok' : 'warn', good
+        ? '启动任务返回 success: true'
+        : ('启动任务返回未确认成功，必须人工核对：' + (out || txt(r.error || '无输出'))));
+    });
+  });
+}
+
+function nowSec() { return Date.now() / 1000; }
+
+/* 每秒刷新阶段持续时间（本地时钟，不用服务端时间） */
+function tickElapsed() {
+  var nodes = document.querySelectorAll('[data-elapsed-since]');
+  for (var i = 0; i < nodes.length; i++) {
+    var since = parseFloat(nodes[i].getAttribute('data-elapsed-since'));
+    if (!isFinite(since)) continue;
+    nodes[i].textContent = '已持续 ' + dur(nowSec() - since);
+  }
+}
+
+/* ==========================================================================
+ * 10. 渲染 · 底部抽屉
+ * ========================================================================== */
+
+function renderDrawer() {
+  var body = $('#drawer-body');
+  var tools = $('#drawer-tools');
+  if (!body || !tools) return;
+  // Keep the filter DOM/focus (including IME) and scroll on periodic updates.
+  if (state.drawer === 'run' && body.getAttribute('data-drawer') === 'run'
+      && state.logTerm && state.logTerm.scrollEl.parentNode === body) return;
+  var sameDrawer = body.getAttribute('data-drawer') === state.drawer;
+  var scrollTop = sameDrawer ? body.scrollTop : 0;
+  if (state.logTerm) state.logTerm.saveScroll();
+  body.setAttribute('data-drawer', state.drawer);
+  clear(tools);
+  clear(body);
+
+  var tabs = document.querySelectorAll('.dtab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.toggle('active', tabs[i].getAttribute('data-drawer') === state.drawer);
+
+  if (state.drawer === 'run') {
+    var U = state.tabs._log || (state.tabs._log = { filter: '' });
+    var f = el('input'); f.type = 'text'; f.value = U.filter;
+    f.placeholder = '关键字过滤（INITIALIZING / MAPPING_READY / READY / FLIGHT_STATUS / ERROR）';
+    f.size = 40;
+    f.addEventListener('input', function () {
+      U.filter = f.value;
+      if (state.logTerm) state.logTerm.setLineFilter(f.value);
+    });
+    f.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') ev.preventDefault(); });
+    var clr = el('button', 'btn btn-sm btn-ghost', '清除过滤');
+    clr.addEventListener('click', function () { U.filter = ''; f.value = ''; if (state.logTerm) state.logTerm.setLineFilter(''); });
+    tools.appendChild(el('span', 'tiny muted', 'trial 会话实时输出（只读）'));
+    tools.appendChild(f); tools.appendChild(clr);
+    var t = state.logTerm;
+    if (t) {
+      body.appendChild(t.scrollEl);
+      t.setLineFilter(U.filter || '');
+      t.stick();
+    }
+  } else if (state.drawer === 'board') {
+    var ref = el('button', 'btn btn-sm', '刷新');
+    ref.title = 'POST /api/logs/refresh {}';
+    ref.addEventListener('click', function () {
+      act(api.logsRefresh(), '刷新板端产物').then(function (r) {
+        if (r && r.ok && r.board) { state.board = r.board; renderDrawer(); }
+      });
+    });
+    tools.appendChild(ref);
+    var runs = (state.board && state.board.logs) || [];
+    tools.appendChild(el('span', 'tiny muted', runs.length + ' 个 run 目录'));
+    var pf = state.board && state.board.preflight;
+    if (pf) {
+      var box = el('div', 'sec');
+      box.appendChild(secHead('预检查', hhmmss(pf.at) + (pf.conflicts && pf.conflicts.length ? (' · 冲突 ' + pf.conflicts.length) : '')));
+      var pb = el('div', 'sec-body');
+      (pf.checks || []).forEach(function (c) {
+        var row = el('div', 'grp-row');
+        row.appendChild(el('span', 'badge ' + (c.ok ? 'badge-info' : 'badge-real'), c.ok ? 'OK' : 'FAIL'));
+        row.appendChild(el('span', null, c.name));
+        if (c.detail) row.appendChild(el('span', 'tiny muted wrap-any', c.detail));
+        pb.appendChild(row);
+      });
+      if (pf.conflicts && pf.conflicts.length) {
+        var cbox = el('div', 'conflict-box');
+        cbox.appendChild(el('div', null, '必须先退出的旧应用：'));
+        var ul = el('ul');
+        pf.conflicts.forEach(function (c) { var li = el('li'); li.appendChild(el('code', null, String(c))); ul.appendChild(li); });
+        cbox.appendChild(ul);
+        pb.appendChild(cbox);
+      }
+      box.appendChild(pb);
+      body.appendChild(box);
+    }
+    if (!runs.length) body.appendChild(el('p', 'empty', '暂无板端产物（点「刷新」拉取 /api/logs/refresh）'));
+    runs.forEach(function (run) {
+      body.appendChild(el('div', 'run-title', txt(run.run) + '  ' + (run.trial ? ('· ' + run.trial) : '') + '  ' + hhmmss(run.mtime)));
+      (run.files || []).forEach(function (fl) {
+        var row = el('div', 'file-row');
+        row.appendChild(el('span', 'fname', fl.name));
+        row.appendChild(el('span', 'fsize', fmtSize(fl.size)));
+        var v = el('button', 'btn btn-sm btn-ghost', '预览');
+        v.addEventListener('click', function () {
+          act(api.logsTail(run.run, fl.name, 200), '预览 ' + fl.name).then(function (r) {
+            if (!r || !r.ok) return;
+            openTextModal(fl.name + ' · ' + run.run, r.text || '');
+          });
+        });
+        row.appendChild(v);
+        var dl = el('a', 'btn btn-sm btn-ghost', '下载');
+        dl.href = '/api/logs/download?' + qs({ run: run.run, file: fl.name });
+        dl.setAttribute('download', fl.name);
+        row.appendChild(dl);
+        body.appendChild(row);
+      });
+    });
+  } else {
+    tools.appendChild(el('span', 'tiny muted', (state.timeline || []).length + ' 条'));
+    var tb = el('ul', 'tl-list');
+    (state.timeline || []).slice().reverse().forEach(function (it) {
+      var li = el('li');
+      li.appendChild(el('span', 'tl-time', hhmmss(it.at)));
+      li.appendChild(el('span', 'badge a-' + (it.level || 'info'), it.level || 'info'));
+      li.appendChild(el('span', null, txt(it.text)));
+      tb.appendChild(li);
+    });
+    if (!state.timeline.length) body.appendChild(el('p', 'empty', '暂无操作时间线'));
+    else body.appendChild(tb);
+  }
+  body.scrollTop = scrollTop;
+}
+
+/* ==========================================================================
+ * 11. 模态框
+ * ========================================================================== */
+
+function closeModal() {
+  var root = $('#modal-root');
+  clear(root);
+  root.classList.add('hidden');
+}
+function openModal(title, opts) {
+  var root = $('#modal-root');
+  clear(root);
+  root.classList.remove('hidden');
+  var m = el('div', 'modal');
+  m.appendChild(el('div', 'modal-head', title));
+  var body = el('div', 'modal-body');
+  m.appendChild(body);
+  var foot = el('div', 'modal-foot');
+  m.appendChild(foot);
+  root.appendChild(m);
+  root.onclick = function (ev) { if (ev.target === root) closeModal(); };
+  return { body: body, foot: foot, close: closeModal };
+}
+/* 命令确认模态：展示准确命令 + 备注，确认才返回 true */
+function openCommandModal(title, command, note) {
+  var mo = openModal(title);
+  mo.body.appendChild(el('div', 'tiny muted', '本工作台将要执行的准确命令（只读展示）：'));
+  mo.body.appendChild(el('pre', 'cmd-pre', command || '（空）'));
+  if (note) mo.body.appendChild(el('div', 'tiny muted wrap-any', note));
+  mo.foot.appendChild(copyBtn(function () { return command || ''; }, '命令'));
+  var ok = el('button', 'btn btn-primary', '知道了');
+  ok.addEventListener('click', closeModal);
+  mo.foot.appendChild(ok);
+}
+function openTextModal(title, text) {
+  var mo = openModal(title);
+  mo.body.appendChild(el('pre', 'cmd-pre', String(text || '')));
+  mo.foot.appendChild(copyBtn(function () { return String(text || ''); }, '日志内容'));
+  var ok = el('button', 'btn btn-primary', '关闭');
+  ok.addEventListener('click', closeModal);
+  mo.foot.appendChild(ok);
+}
+/* Promise 风格确认框；extra 用于附加表单内容（如口令输入） */
+function confirmModal(title, command, note, okLabel) {
+  return new Promise(function (resolve) {
+    var mo = openModal(title);
+    if (command) {
+      mo.body.appendChild(el('div', 'tiny muted', '将要执行的准确命令 / 请求：'));
+      mo.body.appendChild(el('pre', 'cmd-pre', command));
+    }
+    if (note) mo.body.appendChild(el('div', 'small wrap-any', note));
+    var extra = el('div');
+    mo.body.appendChild(extra);
+    var cancel = el('button', 'btn', '取消');
+    cancel.addEventListener('click', function () { closeModal(); resolve(false); });
+    var ok = el('button', 'btn btn-primary', okLabel || '确认执行');
+    ok.addEventListener('click', function () {
+      var vals = {};
+      var inputs = extra.querySelectorAll('[data-field]');
+      for (var i = 0; i < inputs.length; i++) vals[inputs[i].getAttribute('data-field')] = inputs[i].value;
+      closeModal();
+      resolve({ confirmed: true, values: vals });
+    });
+    mo.foot.appendChild(cancel); mo.foot.appendChild(ok);
+    return extra;
+  });
+}
+/* 带字段的确认框 */
+function formModal(title, command, note, fields, okLabel) {
+  return new Promise(function (resolve) {
+    var mo = openModal(title);
+    if (command) {
+      mo.body.appendChild(el('div', 'tiny muted', '将要执行的准确命令 / 请求：'));
+      mo.body.appendChild(el('pre', 'cmd-pre', command));
+    }
+    if (note) mo.body.appendChild(el('div', 'small wrap-any', note));
+    var grid = el('div', 'field-grid');
+    fields.forEach(function (f) {
+      grid.appendChild(el('label', null, f.label));
+      var inp;
+      if (f.type === 'select') {
+        inp = el('select');
+        (f.options || []).forEach(function (o) {
+          var opt = el('option', null, o.label === undefined ? o.value : o.label);
+          opt.value = o.value;
+          inp.appendChild(opt);
+        });
+        inp.value = f.value === undefined || f.value === null ? '' : String(f.value);
+      } else {
+        inp = el('input');
+        inp.type = f.type || 'text';
+        inp.value = f.value === undefined || f.value === null ? '' : String(f.value);
+        if (f.placeholder) inp.placeholder = f.placeholder;
+        if (f.type === 'checkbox') { inp.checked = !!f.value; inp.style.width = 'auto'; }
+      }
+      inp.setAttribute('data-field', f.name);
+      grid.appendChild(inp);
+    });
+    mo.body.appendChild(grid);
+    var cancel = el('button', 'btn', '取消');
+    cancel.addEventListener('click', function () { closeModal(); resolve(null); });
+    var ok = el('button', 'btn btn-primary', okLabel || '确认');
+    ok.addEventListener('click', function () {
+      var vals = {};
+      var inputs = grid.querySelectorAll('[data-field]');
+      for (var i = 0; i < inputs.length; i++) {
+        var k = inputs[i].getAttribute('data-field');
+        vals[k] = inputs[i].type === 'checkbox' ? inputs[i].checked : inputs[i].value;
+      }
+      closeModal();
+      resolve(vals);
+    });
+    mo.foot.appendChild(cancel); mo.foot.appendChild(ok);
+  });
+}
+
+/* ==========================================================================
+ * 12. 动作
+ * ========================================================================== */
+
+function openTerminal(t) {
+  var doOpen = function (confirmText) {
+    act(api.sessionOpen(t.id, confirmText), '启动 ' + (t.title || t.id)).then(function (r) {
+      if (r && r.ok) {
+        if (r.session) state.sessions[t.id] = r.session;
+        toast('ok', '已启动：' + (t.title || t.id));
+        renderTerminals();
+      }
+    });
+  };
+  var cmdText = 'POST /api/session/open\n' + JSON.stringify(t.confirm ? { id: t.id, confirm: '确认' } : { id: t.id });
+  if (t.confirm) {
+    confirmModal('启动确认 · ' + (t.title || t.id), cmdText, t.confirm + '\n\n该终端涉及执行机构 / 硬件，确认后才会启动：\n' + (t.command || ''), '确认启动')
+      .then(function (res) { if (res && res.confirmed) doOpen('确认'); });
+  } else {
+    doOpen(undefined);
+  }
+}
+
+function doConnect(custom) {
+  var c = state.connection || {};
+  var fields = [
+    { name: 'host', label: 'SSH 地址（历史）', type: 'select', value: custom === true ? '' : c.host,
+      options: hostChoices() },
+    { name: 'host_custom', label: '自定义地址（优先）', placeholder: 'IP / 主机名，也支持 user@host' },
+    { name: 'user', label: 'SSH 用户名', value: c.user || 'orangepi' },
+    { name: 'port', label: 'SSH 端口', type: 'number', value: c.port || 22 },
+    { name: 'password', label: 'SSH 密码（可选）', type: 'password', placeholder: '留空使用当前口令 / 密钥' }
+  ];
+  formModal('连接板端', '先保存所选地址，再检查 SSH 连接；不启动飞行或设备。',
+    '自定义地址留空时使用下拉选项。密码只留在当前工作台进程内存，不写入文件或浏览器存储。',
+    fields, '连接').then(function (vals) {
+    if (!vals) return;
+    var customHost = String(vals.host_custom || '').trim();
+    var host = customHost || String(vals.host || '').trim();
+    var user = String(vals.user || '').trim();
+    if (host.indexOf('@') >= 0) {
+      if (customHost) user = host.slice(0, host.lastIndexOf('@'));
+      host = host.slice(host.lastIndexOf('@') + 1);
+    }
+    var port = Number(vals.port);
+    if (!host || !/^[a-zA-Z0-9.:[\]_-]+$/.test(host) || host.charAt(0) === '-' ||
+        !/^[a-zA-Z0-9_][a-zA-Z0-9_.-]*$/.test(user) || !Number.isInteger(port) || port < 1 || port > 65535) {
+      toast('warn', '请填写有效的地址、用户名和 1–65535 范围内的端口');
+      return;
+    }
+    if (c.transport === 'local') {
+      toast('info', '当前是离线预览。要连接板端，请用默认 SSH 模式启动工作台；本次未连接。');
+      return;
+    }
+    act(api.config({ host: user + '@' + host, port: port }), '保存连接地址').then(function (cfg) {
+      if (!cfg || !cfg.ok) return;
+      mergeConnection(cfg.connection);
+      state.connection.state = 'checking';
+      renderTopbar();
+      var body = {};
+      if (vals.password) body.password = vals.password;
+      act(api.connect(body), '连接').then(function (r) {
+        if (r && r.connection) mergeConnection(r.connection);
+        scheduleRender();
+        if (r && r.ok) toast('ok', '已连接 ' + (state.connection.host || ''));
+      });
+    });
+  });
+}
+
+function doConfig() {
+  var c = state.connection || {};
+  var cmdText = 'POST /api/config\n' + JSON.stringify({
+    host: '<host>', user: '<user>', port: '<port>', board_root: '<board_root>',
+    site_dir: '<site_dir>', env_script: '<env_script>', model: '<model>', metadata: '<metadata>',
+    auto_password: '<bool>', save_password: '<bool>'
+  }, null, 2);
+  formModal('连接参数（engineer only）', cmdText,
+    '这些参数决定 SSH 目标与板端工程根目录；修改后需要重新连接。口令不会写入浏览器 localStorage。\n'
+    + 'host 下拉是现场用过的历史地址；要用清单外的地址，在「host（自定义）」里直接填（填了就覆盖下拉选择）。',
+    [
+      { name: 'host', label: 'host（历史地址）', type: 'select', value: c.host || '', options: hostChoices() },
+      { name: 'host_custom', label: 'host（自定义，可留空）', value: '', placeholder: 'orangepi@192.168.43.59' },
+
+      { name: 'port', label: 'port', value: c.port || 22 },
+      { name: 'board_root', label: 'board_root', value: c.board_root || '' },
+      { name: 'site_dir', label: 'site_dir', value: c.site_dir || '' },
+      { name: 'env_script', label: 'env_script', value: c.env_script || '' },
+      { name: 'model', label: 'model', value: c.model || '' },
+      { name: 'metadata', label: 'metadata', value: c.metadata || '' },
+      { name: 'password', label: '口令（可选）', type: 'password' },
+      { name: 'save_password', label: '记住口令（仅本机，仓库外）', type: 'checkbox', value: false }
+    ], '保存').then(function (vals) {
+    if (!vals) return;
+    vals.port = parseInt(vals.port, 10) || 22;
+    if (vals.host_custom && String(vals.host_custom).trim()) vals.host = String(vals.host_custom).trim();
+    delete vals.host_custom;
+    if (!vals.host) {
+      toast('warn', 'host 为空：请从下拉选一个历史地址，或填写自定义地址');
+      return;
+    }
+    act(api.config(vals), '保存连接参数').then(function (r) {
+      if (r && r.connection) mergeConnection(r.connection);
+      if (r && r.profile) state.profile = r.profile;
+      scheduleRender();
+    });
+  });
+}
+
+function doPreflight() {
+  var cmdText = 'POST /api/action/preflight {}';
+  confirmModal('单实例检查', cmdText,
+    '检查板端工程目录、ROS/MAVROS 进程与飞控串口占用；不启动任何节点。', '开始检查').then(function (res) {
+    if (!res || !res.confirmed) return;
+    act(api.preflight(), '单实例检查').then(function (r) {
+      if (r && r.board) state.board = r.board;
+      renderMonitor(); renderDrawer();
+    });
+  });
+}
+
+function doStartAll() {
+  var servo = (state.terminals || []).filter(function (t) { return t.id !== 'roscore' && t.needs_servo; });
+  var cmdText = 'POST /api/action/start_all\n' + JSON.stringify({ include_servo: '<bool>', confirm: '启动设备' });
+  var note = '按顺序启动设备终端并逐项等待就绪：\n'
+    + (state.terminals || []).map(function (t) { return t.seq + '. ' + t.title + '  →  ' + (t.command || ''); }).join('\n')
+    + '\n\n不包含解锁、起飞、投递动作；舵机相关终端是否包含由下面选项决定。';
+  formModal('一键启动设备', cmdText, note, [
+    { name: 'include_servo', label: '包含舵机端子（需逐个确认）', type: 'checkbox', value: false }
+  ], '确认启动').then(function (vals) {
+    if (!vals) return;
+    act(api.startAll(vals.include_servo), '一键启动设备').then(function (r) {
+      if (r && r.orchestration) state.orchestration = r.orchestration;
+      renderMonitor();
+    });
+  });
+}
+
+function doStopAll() {
+  var cmdText = 'POST /api/action/stop_all {}';
+  var list = (state.terminals || []).map(function (t) { return t.title; }).join(' / ');
+  confirmModal('全部停止', cmdText,
+    '会依次关闭所有常驻终端（' + list + '）与 trial 会话。\n'
+    + '注意：本工作台不自动降落、不自动上锁；请在飞控链路仍可用时确认飞机安全状态。', '停止全部').then(function (res) {
+    if (!res || !res.confirmed) return;
+    act(api.stopAll(), '全部停止');
+  });
+}
+
+function doReport() {
+  act(api.report(), '生成回报').then(function (r) {
+    if (r && r.report) { state.report = r.report; state.reportText = r.report.markdown || ''; }
+    renderMonitor();
+  });
+}
+
+function startTrial(g, mode) {
+  var U = state.tabs[g.id] || (state.tabs[g.id] = {});
+  var body = { group_id: g.id, mode: mode, real_release: false };
+  if (mode === 'flight') {
+    if (!U.armedOk) { toast('warn', '飞行前必须先勾选「已确认飞机回到起飞点、未解锁、机头朝场内」'); return; }
+    body.real_release = (g.release === 'real');
+    if (g.release === 'real' && (U.realConfirm || '').trim() !== '实投') {
+      toast('warn', '该组 release=real：必须输入确认词「实投」');
+      return;
+    }
+  }
+  if (U.checkConfig) body.check_config = true;
+  if (g.speed_options && g.speed_options.length && U.speed !== null && U.speed !== undefined) body.capture_speed = U.speed;
+  // 确认词按后端校验规则给：实投路径用「实投」，其余用「启动试飞」
+  body.confirm = body.real_release ? '实投' : '启动试飞';
+
+  var built = groupCommandBody(g, mode, body.real_release, !!body.check_config, body.capture_speed);
+  var cmd = buildTrialCommand(g, mode, body.real_release, !!body.check_config, body.capture_speed);
+  // 把界面预览的入口命令一起发回后端做一致性校验：不一致就拒绝启动（防止预览与真实命令漂移）
+  if (built.body) body.expected_body = built.body;
+  var note = '请求体：' + JSON.stringify(body) + '\n'
+    + '入口说明：' + built.note + '\n'
+    + '模式：' + (mode === 'flight' ? 'flight（飞行）' : 'preview（只采集，不下发）') + '\n'
+    + 'release=' + txt(g.release || 'none') + ' · needs_servo=' + (g.needs_servo ? 'true' : 'false')
+    + ' · needs_waypoints=' + (g.needs_waypoints ? 'true' : 'false') + '\n'
+    + (g.ending ? ('ending：' + g.ending + '\n') : '')
+    + (mode === 'flight'
+      ? '飞行入口只启动板端既有 entry；解锁与起飞仍由飞手手工完成。'
+      : '预览模式只启动视觉采集与配置检查。');
+
+  confirmModal((mode === 'flight' ? '确认启动飞行试飞 · ' : '确认启动预览 · ') + g.name, cmd, note,
+    mode === 'flight' ? '确认启动 flight' : '确认启动 preview').then(function (res) {
+    if (!res || !res.confirmed) return;
+    act(api.trialStart(body), '启动试飞').then(function (r) {
+      if (r && r.trial) state.trial = r.trial;
+      if (r && r.ok) state.activeTerm = 'trial';
+      scheduleRender();
+      if (r && r.ok) toast('ok', '试飞入口已下发：' + g.name);
+    });
+  });
+}
+
+function doTrialStop() {
+  var cmdText = 'POST /api/trial/stop {}\n→ 向 trial 会话发送 SIGINT（等同 Ctrl+C），由现场入口自行收尾';
+  confirmModal('停止试飞入口', cmdText,
+    '只是结束入口进程，不发送降落 / 上锁指令。飞机状态以飞控与飞手判断为准。', '停止试飞').then(function (res) {
+    if (!res || !res.confirmed) return;
+    act(api.trialStop(), '停止试飞');
+  });
+}
+
+/* ==========================================================================
+ * 13. 初始化
+ * ========================================================================== */
+
+function bindUI() {
+  $('#btn-connect').addEventListener('click', function () { doConnect(false); });
+  $('#btn-config').addEventListener('click', doConfig);
+  var hostSel = $('#host-select');
+  if (hostSel) {
+    hostSel.addEventListener('change', function () {
+      var host = hostSel.value;
+      if (!host) { hostSel.value = state.connection.host || ''; doConnect(true); return; }
+      act(api.config({ host: host }), '切换板端地址').then(function (r) {
+        if (r && r.connection) mergeConnection(r.connection);
+        if (r && r.profile) state.profile = r.profile;
+        scheduleRender();
+        if (r && r.ok) toast('info', '板端地址已切到 ' + host + '，点「连接」开始检查');
+      });
+    });
+  }
+  $('#btn-disconnect').addEventListener('click', function () {
+    confirmModal('断开板端', 'POST /api/disconnect {}', '先落地上锁；断开会关闭本工作台启动的应用和设备会话。外部终端启动的设备需另行收尾。', '断开').then(function (res) {
+      if (!res || !res.confirmed) return;
+      act(api.disconnect(), '断开连接');
+    });
+  });
+  $('#btn-preflight').addEventListener('click', doPreflight);
+  $('#btn-start-all').addEventListener('click', doStartAll);
+  $('#btn-stop-all').addEventListener('click', doStopAll);
+  $('#btn-report').addEventListener('click', doReport);
+  $('#btn-report').addEventListener('contextmenu', function (ev) { ev.preventDefault(); doConfig(); });
+  // 双击标题打开连接参数（不显眼入口，避免误触）
+  $('.brand-title').addEventListener('dblclick', doConfig);
+
+  var swSound = $('#sw-sound');
+  swSound.checked = !!prefs.sound;
+  swSound.addEventListener('change', function () {
+    prefs.sound = swSound.checked; savePrefs();
+    if (prefs.sound) { audioCtx(); beep('ok'); }
+  });
+  var swAuto = $('#sw-autoscroll');
+  swAuto.checked = !!prefs.autoscroll;
+  swAuto.addEventListener('change', function () {
+    prefs.autoscroll = swAuto.checked; savePrefs();
+    Object.keys(state.terms).forEach(function (k) { state.terms[k].setAutoScroll(swAuto.checked); });
+    if (state.logTerm) state.logTerm.setAutoScroll(swAuto.checked);
+    Object.keys(state.tabs).forEach(function (k) { if (state.tabs[k]) state.tabs[k].autoScroll = swAuto.checked; });
+    renderTerminals();
+  });
+
+  var dtabs = document.querySelectorAll('.dtab');
+  for (var i = 0; i < dtabs.length; i++) {
+    dtabs[i].addEventListener('click', function (ev) {
+      state.drawer = ev.currentTarget.getAttribute('data-drawer');
+      state.drawerCollapsed = false;
+      $('#drawer').classList.remove('collapsed');
+      $('#btn-drawer').textContent = '收起';
+      renderDrawer();
+    });
+  }
+  $('#btn-drawer').addEventListener('click', function () {
+    state.drawerCollapsed = !state.drawerCollapsed;
+    $('#drawer').classList.toggle('collapsed', state.drawerCollapsed);
+    $('#btn-drawer').textContent = state.drawerCollapsed ? '展开' : '收起';
+    if (!state.drawerCollapsed) renderDrawer();
+  });
+
+  window.addEventListener('beforeunload', function () {
+    if (state._es) { try { state._es.close(); } catch (e) { /* ignore */ } }
+  });
+}
+
+function init() {
+  loadPrefs();
+  bindUI();
+  // 首次进入先用一次快照对齐（SSE hello 也会重置）
+  api.snapshot().then(function (snap) {
+    if (snap && snap.ok) applySnapshot(snap);
+    else toast('warn', '读取 /api/snapshot 失败：' + txt(snap && snap.error ? snap.error : '未知错误'));
+  });
+  startSSE();
+  window.setInterval(tickElapsed, 1000);
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();

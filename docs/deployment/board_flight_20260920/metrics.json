@@ -1,0 +1,37 @@
+{
+  "run": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/visual_flight_review_20260920/board_visual_interrupt_20260920_120748",
+  "samples": 1187,
+  "recording_duration_s": 259.8957724571228,
+  "maximum_fc_agl_m": 1.3389172323793173,
+  "xy_span_m": [
+    0.2153916284441948,
+    0.21010561287403107
+  ],
+  "mission_phases": [
+    "IDLE"
+  ],
+  "mission_ids": [
+    ""
+  ],
+  "mock_calls": 0,
+  "ground_z": -0.2810839184373617,
+  "climb_0.35_0.8": {
+    "start": 1789877527.2327032,
+    "end": 1789877531.3978024,
+    "duration": 4.165099143981934,
+    "average_mps": 0.1080406454790388
+  },
+  "climb_0.4_1.0": {
+    "start": 1789877528.1307275,
+    "end": 1789877532.6908429,
+    "duration": 4.560115337371826,
+    "average_mps": 0.1315756193890051
+  },
+  "climb_0.4_1.2": {
+    "start": 1789877528.1307275,
+    "end": 1789877534.2608905,
+    "duration": 6.130162954330444,
+    "average_mps": 0.13050224047223202
+  },
+  "max_xy_distance_from_initial_m": 0.2268825959128737
+}

@@ -1,0 +1,32 @@
+# detection_fusion 参数
+input_topic: "/uav_vision/detections"
+output_topic: "/uav_vision/detections_resolved"
+align_mode_topic: "/uav_vision/align_mode"
+
+# 空帧/不完整帧从“首个检测分支到达融合器”开始计算的最大聚合窗口 [s]。
+# 完整正样本会提前发布。该语义已在笔记本仿真验证；板端时序尚未验证，
+# OrangePi 上必须重新测量分支到达差后再决定是否保留 0.15 s。
+flush_delay: 0.80
+# queue_size=1 的独立检测器在负载下可能抽取相邻而非完全相同的相机帧。
+# 允许最多 50 ms 的近似同步；动态场景必须继续用地图真值误差验证该上限。
+source_sync_slop_sec: 0.05
+default_align_mode: disabled
+# 当前模式所需检测器均声明完成该帧后立即发布（包括空结果）；只有节点
+# 缺席或消息丢失才等待 flush_delay 兜底，因此 0.80 s 不会叠加在正常帧上。
+early_flush_complete_evidence: true
+
+# 同类多检测器重叠输出去重；优先保留几何验证/精修后的观测。
+deduplicate_same_class: true
+dedup_iou_threshold: 0.30
+dedup_center_ratio: 0.35
+
+# 红十字是高价值/高风险触发：必须同时有 YOLO 类别框与红色十字几何，
+# 两者重叠后才进入 resolved 操作链。单路结果仍保留在原始 detections。
+require_red_cross_dual_confirmation: true
+
+# bridge 冲突抑制阈值
+# 当前默认关闭 bridge 抑制。若后续靶标规范化或需要重新启用冲突裁决，
+# 可将下列开关改回 true。
+aux_geometry_confidence: 0.85
+suppress_bridge_on_red_cross: false
+suppress_bridge_on_landing_pad: false

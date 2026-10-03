@@ -1,0 +1,14 @@
+<launch>
+  <!-- ROS-only reproduction: no simulated or real flight controller. -->
+  <arg name="cloud_file" />
+  <arg name="planner_params" />
+  <arg name="goal" />
+  <include file="$(find plan_manage)/launch/patrol_planner_px4_sim.launch">
+    <arg name="start_waypoint_generator" value="false" />
+  </include>
+  <rosparam file="$(arg planner_params)" />
+  <node pkg="uav_mission" type="liftrace_frozen_replay.py" name="frozen_map_fixture" output="screen" required="true">
+    <param name="cloud_file" value="$(arg cloud_file)" />
+    <rosparam param="goal" subst_value="true">$(arg goal)</rosparam>
+  </node>
+</launch>

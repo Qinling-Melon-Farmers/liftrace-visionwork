@@ -1,4 +1,5 @@
 <launch>
+  <arg name="manager_type" default="navigation_mission_manager.py" />
   <!-- Formal VCL06 integration chain.  The navigation manager is the only
        mission-policy owner and navigation_planner_bridge is the only
        /fastplanner/goal publisher.  Legacy adapters/managers are deliberately
@@ -22,6 +23,7 @@
   <arg name="search_altitude" default="2.4" />
   <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_toudi4_new_vision.yaml" />
   <arg name="field_config" default="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+  <arg name="camera_extrinsic_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
   <arg name="camera_extrinsic_xyz" default="0 0 -0.05" />
   <arg name="planner_max_vel" default="1.0" />
   <arg name="planner_obstacles_inflation" default="0.20" />
@@ -78,6 +80,7 @@
     <arg name="world" value="$(arg world)" />
     <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
     <arg name="waypoint_config" value="$(arg waypoint_config)" />
+    <arg name="camera_extrinsic_quat_xyzw" value="$(arg camera_extrinsic_quat_xyzw)" />
     <arg name="camera_extrinsic_xyz" value="$(arg camera_extrinsic_xyz)" />
     <arg name="camera_image_topic" value="$(arg camera_image_topic)" />
     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
@@ -129,6 +132,7 @@
   </node>
 
   <include file="$(find uav_mission)/launch/navigation_mission_manager.launch">
+    <arg name="manager_type" value="$(arg manager_type)" />
     <arg name="runtime_config" value="$(arg runtime_config)" />
     <arg name="search_altitude" value="$(arg search_altitude)" />
     <arg name="start_mode" value="$(arg mission_start_mode)" />

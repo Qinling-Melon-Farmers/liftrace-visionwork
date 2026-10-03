@@ -1,0 +1,64 @@
+{
+  "scope": "OFFLINE_ANNOTATED_P0_ONLY",
+  "segments": 0,
+  "layouts": 0,
+  "classes": {
+    "tent": {
+      "all": 0,
+      "visible": 0,
+      "discovered": 0,
+      "visible_discovered": 0,
+      "visible_recall": null,
+      "all_recall": null,
+      "visible_recall_wilson95": null
+    },
+    "pillbox": {
+      "all": 0,
+      "visible": 0,
+      "discovered": 0,
+      "visible_discovered": 0,
+      "visible_recall": null,
+      "all_recall": null,
+      "visible_recall_wilson95": null
+    },
+    "bridge": {
+      "all": 0,
+      "visible": 0,
+      "discovered": 0,
+      "visible_discovered": 0,
+      "visible_recall": null,
+      "all_recall": null,
+      "visible_recall_wilson95": null
+    },
+    "panzer": {
+      "all": 0,
+      "visible": 0,
+      "discovered": 0,
+      "visible_discovered": 0,
+      "visible_recall": null,
+      "all_recall": null,
+      "visible_recall_wilson95": null
+    },
+    "red_cross": {
+      "all": 0,
+      "visible": 0,
+      "discovered": 0,
+      "visible_discovered": 0,
+      "visible_recall": null,
+      "all_recall": null,
+      "visible_recall_wilson95": null
+    }
+  },
+  "confirmed_predictions": 0,
+  "wrong_class": 0,
+  "wrong_class_fraction": null,
+  "wrong_class_wilson95": null,
+  "unmatched_confirmations": 0,
+  "position_p95_m": null,
+  "top3_correct": 0,
+  "top3_total": 0,
+  "sufficient_sample_counts": false,
+  "point_thresholds_met": false,
+  "p0_status": "NOT_DEMONSTRATED",
+  "caveat": "Point thresholds do not establish confidence bounds or authorize flight."
+}

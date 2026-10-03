@@ -1,0 +1,37 @@
+{
+  "frames": 2286,
+  "fps": 10,
+  "common_ros_start": 1.6360000000000001,
+  "common_ros_end": 230.196,
+  "max_image_age_s": [
+    0.21100000000015484,
+    0.21100000000015484
+  ],
+  "source_run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/fovfix2672_C_20260919_231830",
+  "replay": false,
+  "synthetic_test": false,
+  "display_limit_counts": {
+    "4.0": 1539,
+    "1.2": 747
+  },
+  "display_over_limit_frames": 0,
+  "display_limits": {
+    "flight": 4.0,
+    "corridor": 1.2,
+    "wall": 4.0,
+    "corridor_bounds": [
+      7.6,
+      9.1,
+      -4.8,
+      4.8
+    ],
+    "landing_observation_region": {
+      "max_height": 1.2,
+      "max_x": 9.1,
+      "max_y": -2.1,
+      "min_x": 7.6,
+      "min_y": -4.8
+    }
+  },
+  "note": "Source-clock paired views; missing camera frames held. Display limit labels are user inputs, not new rule claims."
+}

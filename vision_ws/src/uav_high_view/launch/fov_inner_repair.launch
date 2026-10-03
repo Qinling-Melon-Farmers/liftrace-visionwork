@@ -1,0 +1,47 @@
+<launch>
+  <arg name="scene_dir" />
+  <arg name="target_model_path" />
+  <arg name="corridor_fast" default="true" />
+  <arg name="high_agl" default="2.6" />
+  <arg name="obstacle_inflation_xy" default="0.275" />
+  <arg name="field_seed" default="2672" />
+  <arg name="presentation_recording" default="true" />
+  <arg name="gate_startup_wall_timeout" default="180.0" />
+  <arg name="field_model_states_timeout" default="90.0" />
+  <arg name="detector_device" default="0" />
+  <arg name="runtime_config" default="$(eval arg('scene_dir') + ('/fast_runtime.yaml' if arg('corridor_fast') else '/baseline_runtime.yaml'))" />
+  <arg name="gate_config" default="$(eval arg('scene_dir') + ('/fast_gate.yaml' if arg('corridor_fast') else '/baseline_gate.yaml'))" />
+  <include file="$(find uav_high_view)/launch/fast_comparison.launch">
+    <arg name="strategy" value="true" />
+    <arg name="reliability_trial" value="true" />
+    <arg name="presentation_recording" value="$(arg presentation_recording)" />
+    <arg name="presentation_config" value="$(arg scene_dir)/presentation.yaml" />
+    <arg name="vehicle_sdf" value="$(find uav_vision_eval)/models/iris_mid360_start_fov/model.sdf" />
+    <arg name="camera_extrinsic_quat_xyzw" value="0 1 0 0" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="high_agl" value="$(arg high_agl)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="world" value="$(arg scene_dir)/field.world" />
+    <arg name="field_config" value="$(arg scene_dir)/field_config.yaml" />
+    <arg name="runtime_config" value="$(arg runtime_config)" />
+    <arg name="gate_geometry_config" value="$(arg gate_config)" />
+  </include>
+  <rosparam file="$(arg scene_dir)/frame_overrides.yaml" />
+  <rosparam file="$(arg scene_dir)/repair_overrides.yaml" />
+  <!-- All phases use the same obstacle geometry, including archived scenes. -->
+  <param name="/fast_planner_node/sdf_map/obstacles_inflation" value="$(arg obstacle_inflation_xy)" />
+  <param name="/fast_planner_node/sdf_map/obstacles_inflation_up" value="0.20" />
+  <param name="/fast_planner_node/sdf_map/obstacles_inflation_down" value="0.10" />
+  <param name="/navigation/mission_manager/high_view_full/grid/inflation" value="$(arg obstacle_inflation_xy)" />
+  <!-- Share the existing body/field geometry with visual admission. The
+       tracking reserve stays inside this hard center fence; no new FSM. -->
+  <param name="/fast_planner_node/sdf_map/search_region/boundary_policy_param"
+         value="/navigation/mission_manager/high_view_full/boundary_policy" />
+  <!-- Host startup is not competition time. Keep the accepted default while
+       allowing cold-cache regression runs to raise only this wall watchdog. -->
+  <param name="/navigation_vcl06_assertion/startup_wall_timeout"
+         value="$(arg gate_startup_wall_timeout)" />
+  <param name="/random_field_spawner/spawn/initial_model_states_timeout"
+         value="$(arg field_model_states_timeout)" />
+  <param name="/target_detector/device" value="$(arg detector_device)" />
+</launch>

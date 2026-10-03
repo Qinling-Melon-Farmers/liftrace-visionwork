@@ -1,0 +1,283 @@
+# 试飞验证看板配置（笔记本/WSL 侧）
+#
+# 本文件只描述"点哪个按钮会执行什么命令"，不含任何口令、不提权、不自动解锁。
+# 口令只保存在本机 ~/.config/liftrace-flight-workbench/profile.json（chmod 600，且不入 Git）。
+# 现场地址与部署目录换网络/换板时改这里，或在使用中的 Web 界面上临时覆盖。
+version: 1
+
+connection:
+  # 外场当前地址（2026-10-03，Orange Pi 5，已验收三槽许可链）；换网/换板时改这里，
+  # 或在界面的「板端地址」下拉里直接切换（下拉项来自下面的 host_options）。
+  host: "orangepi@192.168.3.126"
+  port: 22
+  board_root: "/home/orangepi/liftrace_board_trials_20260928"
+  site_dir: "deployment/site_20260928"
+  env_script: "deployment/site_20260928/environment.sh"
+  board_python: "/usr/bin/python3"
+  model: "runtime_models/flight_5cls_20260928_fp16.rknn"
+  metadata: "vision_ws/src/uav_vision/config/flight_5cls_20260928_metadata.yaml"
+  probe_path: "logs/flight_workbench/board_probe.py"
+  connect_timeout: 12
+  # 历史外场 SSH 地址（来源：现场操作手册/部署记录与项目 memoir）。界面下拉可选，
+  # 选中后写回 ~/.config/liftrace-flight-workbench/profile.json，不改本文件。
+  host_options:
+    - { host: "orangepi@192.168.3.126", label: "外场当前 · Orange Pi 5（2026-10-03）" }
+    - { host: "orangepi@192.168.43.59", label: "2026-10-02 · 28~30日旧机网络" }
+    - { host: "orangepi@192.168.43.99", label: "2026-10-01 第五组实投" }
+    - { host: "orangepi@192.168.3.15", label: "2026-10-01 现场手册 / 九组部署" }
+    - { host: "orangepi@192.168.156.193", label: "2026-09-28 现场部署（当时新 IP）" }
+    - { host: "orangepi@10.231.47.193", label: "2026-09-20 现场（onboard_obstacle_reference）" }
+  ssh_options:
+    - "-o"
+    - "StrictHostKeyChecking=accept-new"
+    - "-o"
+    - "ServerAliveInterval=15"
+    - "-o"
+    - "ServerAliveCountMax=4"
+    - "-o"
+    - "LogLevel=ERROR"
+
+probe:
+  # 板端只读探针：只订阅、只统计新鲜度，不发布任何指令、不调用服务、不改飞行状态。
+  interval: 1.0
+  topics:
+    - /mavros/state
+    - /mavros/extended_state
+    - /mavros/local_position/pose
+    - /livox/lidar
+    - /camera/image_raw
+    - /camera/image_raw/compressed
+    - /camera/camera_info
+    - /freedom/static_pointcloud
+    - /navigation/local_pose
+    - /navigation/mission_status
+    - /navigation/setpoint_mission
+    - /uav_high_view/probe_status
+    - /board_trials/auto_land_status
+    - /uav_vision/detections
+    - /uav_vision/targets
+  services:
+    - /legacy/Servo_raw
+    - /navigation/start_mission
+    - /mavros/set_mode
+
+# 现场单实例检查：逐个精确进程名（不用 pgrep -f 组合模式，避免宿主侧引号被解释成管道）
+checks:
+  process_names:
+    - roscore
+    - rosmaster
+    - roslaunch
+    - rosout
+    - gzserver
+    - gzclient
+    - px4
+    - mavros_node
+    - rviz
+  # 与 run_trial.py 的冲突节点集合一致：这些节点在场时专项入口会拒绝启动
+  conflict_nodes:
+    - /laserMapping
+    - /freedom
+    - /patrol_control
+    - /fast_planner_node
+    - /navigation_frame_adapter
+    - /navigation/mission_manager
+    - /target_detector_rknn
+    - /target_detector
+    - /detection_fusion
+    - /target_refiner
+    - /target_map_projector
+    - /target_memory
+    - /cross_detector
+    - /circle_detector
+    - /landing_detector
+    - /drop_aligner
+    - /navigation/planner_bridge
+    - /release_permission_arbiter
+    - /guarded_servo_proxy
+    - /trial_auto_land
+    - /board_mock_servo
+    - /trial_recorder
+    - /trial_journal
+    - /map_camera_alignment
+    - /board_trial_bag
+  min_free_gb: 2.0
+
+# 六个常驻终端（现场手册 2026-10-01：有实投 6 个 + 1 个监测）
+terminals:
+  - id: roscore
+    seq: 1
+    title: "1 · roscore"
+    desc: "ROS 通信主节点，所有设备链都依赖它。"
+    command: "roscore"
+    ready: { kind: ros_master, timeout: 45 }
+
+  - id: mavros
+    seq: 2
+    title: "2 · MAVROS"
+    desc: "与飞控通信。串口按实际接线核对，不要沿用上一台板的设备名。"
+    command: "roslaunch mavros px4.launch fcu_url:={fcu_url}"
+    params:
+      fcu_url: "/dev/ttyACM0:57600"
+    ready: { kind: mavros_connected, timeout: 90 }
+
+  - id: lidar
+    seq: 3
+    title: "3 · MID360 驱动"
+    desc: "雷达数据。用现场 MID360_config.json；雷达专网 192.168.1.100/192.168.1.175 不要替换成 Wi-Fi 网段。"
+    command: "roslaunch uav_mission mid360_driver2.launch user_config_path:=\"{board_root}/deployment/site_20260928/MID360_config.json\""
+    ready: { kind: topic, topic: "/livox/lidar", timeout: 90 }
+
+  - id: camera
+    seq: 4
+    title: "4 · 下视相机"
+    desc: "需要同时有原始图、压缩图和 CameraInfo；按实际设备节点调整视频节点。"
+    command: "bash deployment/board_trials_4x4/start_camera.sh {video_device}"
+    params:
+      video_device: "/dev/video0"
+    ready: { kind: topic, topic: "/camera/image_raw", timeout: 60 }
+
+  - id: servo_init
+    seq: 5
+    title: "5a · 舵机 PWM 初始化（不输出脉冲）"
+    desc: "只在需要真实投递时启动。导出/周期/权限/极性，不使能输出。"
+    confirm: "初始化会修改PWM导出、权限和周期；确认旧舵机进程已经退出。真正的三槽复位发生在5b服务启动时。"
+    optional: true
+    command: "sudo bash {pwm_init_script}"
+    params:
+      pwm_init_script: "{board_root}/patrol_uav_ws-patrol_planner/src/actuator_pwm/init_pwm.sh"
+
+  - id: servo
+    seq: 6
+    title: "5b · 舵机服务（真实释放接口）"
+    desc: "启动时依次复位三槽，再把真实 pwm 节点重映射到 /legacy/Servo_raw；投递组启动前入口会检查该服务类型为 patrol_control/Servo。"
+    confirm: "启动会依次复位三槽。确认地面未解锁、机构允许复位、无人处于动作范围且旧舵机进程已退出。"
+    optional: true
+    command: "{pwm_node} /Servo:=/legacy/Servo_raw"
+    params:
+      pwm_node: "{board_root}/patrol_uav_ws-patrol_planner/devel/lib/actuator_pwm/pwm_node1"
+    ready: { kind: service, service: "/legacy/Servo_raw", timeout: 60 }
+
+  - id: trial
+    seq: 7
+    title: "6 · 专项 flight 入口"
+    desc: "由任务组面板生成命令；INITIALIZING / MAPPING_READY / READY / FLIGHT_STATUS 都在这里输出。"
+    command: null
+
+  - id: monitor
+    seq: 8
+    title: "7 · 状态监测 / 手动命令"
+    desc: "板端交互式 shell（已 cd 到工程根并 source 现场环境）。可自己敲 rostopic/rosservice；工作台不会自动调用任务开始。"
+    command: "exec bash -l"
+
+# 任务组：channel=site 走现场快捷入口（1..6），channel=module 走 board_trials_4x4 目录入口
+groups:
+  - id: site1
+    key: "1"
+    folder: "01_visual_interrupt"
+    channel: site
+    name: "现场第1组 · 低空直飞中断单投"
+    plan: "低空直飞，遇前方高权重靶中断、对齐、一次投递。"
+    ending: "任务结束后下降至30cm悬停，飞手落地"
+    release: real
+    needs_servo: true
+
+  - id: site2
+    key: "2"
+    folder: "05_low_multi"
+    channel: site
+    name: "现场第2组 · 低空连续多投（默认两投）"
+    plan: "低位搜索、中断、投递、恢复搜索，默认两投。"
+    ending: "完成指定投递后下降至30cm悬停，飞手落地"
+    release: real
+    needs_servo: true
+
+  - id: site3
+    key: "3"
+    folder: "07_memory_only"
+    channel: site
+    name: "现场第3组 · 高位整圈仅记忆"
+    plan: "完整高位环线，只检测记忆，规划下降。"
+    ending: "完成记忆后下降至30cm悬停，飞手落地"
+    release: none
+    needs_servo: false
+
+  - id: site4
+    key: "4"
+    folder: "02_high_view_revisit"
+    channel: site
+    name: "现场第4组 · 高位记忆后逐个重访投递"
+    plan: "完整高位环线，冻结 1–3 个有效目标，低位逐个重访、对齐、投递。"
+    ending: "已记忆目标投完后下降至30cm悬停，飞手落地"
+    release: real
+    needs_servo: true
+
+  - id: site5
+    key: "5"
+    folder: "06_high_priority"
+    channel: site
+    name: "现场第5组 · 高位提前中断后低位重访"
+    plan: "高位搜索，满足支持条件后提前中断，低位复核与连续投递。"
+    ending: "投递后先返起飞点，再下降至30cm悬停，飞手落地"
+    release: real
+    needs_servo: true
+
+  - id: site6
+    key: "6"
+    folder: "09_high_speed_capture"
+    channel: site
+    name: "现场第6组 · 高速拍摄采集（不投递）"
+    plan: "按速度档采集五类靶与 H 负例，只采集不投递。"
+    ending: "采集完成后下降至30cm悬停，飞手落地"
+    release: none
+    needs_servo: false
+    speed_options: [0.5, 1.0]
+
+  - id: mod03
+    key: "03"
+    folder: "03_h_landing"
+    channel: module
+    name: "模块03 · H 视觉识别与降落"
+    plan: "低位接近前方约 2m 的 H，定点升高识别、视觉对齐，末段请求 AUTO.LAND。"
+    ending: "降落到 H 上（不启动投递服务）"
+    release: none
+    needs_servo: false
+    site_config: "deployment/site_20260928/h_landing_test_area.yaml"
+    notes: "READY 后人工解锁，板端自动请求 OFFBOARD，在实际 1.0m 起飞高度稳定后启动任务；H识别升至1.8m并视觉降落。不要执行现场 start_test.sh 3（那是记忆组）。"
+
+  - id: mod04
+    key: "04"
+    folder: "04_corridor_landing"
+    channel: module
+    name: "模块04 · 走廊避障接 H 降落"
+    plan: "按实测走廊航点自主避障，再接近 H 并升高识别。"
+    ending: "降落到 H 上"
+    release: none
+    needs_servo: false
+    needs_waypoints: true
+    site_config: "deployment/site_20260928/corridor_landing_test_area.yaml"
+    notes: "走廊航点与 H 坐标出厂留空，未填写时入口会拒绝启动；这是预期行为，不要用仿真航点替代。"
+
+  - id: mod08
+    key: "08"
+    folder: "08_full_mission"
+    channel: module
+    name: "模块08 · 整场（三投接走廊/H）"
+    plan: "高位搜索、低空重访三投、走廊、H。"
+    ending: "完整任务"
+    release: mock
+    needs_servo: false
+    needs_waypoints: true
+    site_config: "deployment/site_20260928/full_mission_test_area.yaml"
+    notes: "走廊引导点和 H 坐标必须实测填写，否则入口拒绝运行。"
+
+  - id: mod06mock
+    key: "06"
+    folder: "06_high_priority"
+    channel: module
+    name: "模块06 · 第五组（模拟投递，不接舵机）"
+    plan: "高位搜索提前中断、低位重访连续投递；mock 释放，验证任务链与返航收尾。"
+    ending: "投完后先返起飞点，再下降至30cm悬停，飞手落地"
+    release: mock
+    needs_servo: false
+    site_config: "deployment/site_20260928/test_area.yaml"
+    notes: "模拟投递：走模块 start.sh（不带 --real-release），不需要舵机终端；验收读 mock_service_calls / committed_mock_deliveries，不要读 committed_deliveries。"

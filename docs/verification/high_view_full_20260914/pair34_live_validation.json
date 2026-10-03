@@ -1,0 +1,6 @@
+{
+  "actual_target_layout_identical": true,
+  "mission_and_gate_parameters_identical": true,
+  "excluded_run_specific_parameter": "navigation_vcl06_assertion/report_path",
+  "scope": "Startup readback; terminal results reported separately"
+}

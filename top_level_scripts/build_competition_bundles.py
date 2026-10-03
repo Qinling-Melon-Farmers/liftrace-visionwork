@@ -20,6 +20,7 @@ def main():
     parser.add_argument('--label', default='r62', help='Filename version label')
     parser.add_argument('--onboard-rknn', type=Path, required=True)
     parser.add_argument('--sitl-weights', type=Path, required=True)
+    parser.add_argument('--metadata', type=Path, required=True, help='Matching RKNN/PT class and output contract; never infer from a legacy filename')
     parser.add_argument('--optional-model-root', type=Path,
                         help='PX4 model root for historical camera fixtures only')
     args = parser.parse_args()
@@ -52,12 +53,12 @@ def main():
                 'vision_ws/src/CMakeLists.txt', 'top_level_scripts/build_competition.sh')
             if kind == 'simulation' or onboard:
                 entries.append((root / p, relative))
-        model_name = 'merged_standard_fp32.rknn' if kind == 'onboard' else 'merged_standard.pt'
+        model_name = weights.name
         entries.append((weights, 'runtime_models/' + model_name))
-        metadata = root / 'vision_ws/src/uav_vision/config/merged_standard_6cls_metadata.yaml'
+        metadata = args.metadata.resolve()
         if not metadata.is_file():
-            raise SystemExit('Missing six-class model metadata: ' + str(metadata))
-        entries.append((metadata, 'runtime_models/merged_standard_6cls_metadata.yaml'))
+            raise SystemExit('Missing explicitly selected model metadata: ' + str(metadata))
+        entries.append((metadata, 'runtime_models/' + metadata.name))
         entries.append((root / 'deployment' / ('README_' + kind.upper() + '.md'), 'README_FIRST.md'))
         entries.append((root / 'deployment/MODEL_CONTENTS.md', 'MODEL_CONTENTS.md'))
         optional = []
@@ -84,6 +85,7 @@ def main():
             'source_branch': git(root, 'branch', '--show-current'),
             'status': 'SOURCE_PACKAGE_NOT_FLIGHT_ACCEPTANCE',
             'onboard_architecture': 'aarch64 / RK3588; build on target, no x86 build/devel copied',
+            'metadata_destination': 'runtime_models/' + metadata.name,
             'weights_source': str(weights.resolve()), 'weights_destination': 'runtime_models/' + model_name,
             'optional_historical_models': optional,
             'external_runtime_dependencies': ['ROS Noetic and system libraries', 'Livox SDK2 headers and native library for the complete source build',

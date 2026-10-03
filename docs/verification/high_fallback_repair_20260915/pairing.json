@@ -1,0 +1,20 @@
+[
+  {
+    "seed": 31,
+    "same_world": true,
+    "same_targets": true,
+    "same_camera": true
+  },
+  {
+    "seed": 32,
+    "same_world": true,
+    "same_targets": true,
+    "same_camera": true
+  },
+  {
+    "seed": 34,
+    "same_world": true,
+    "same_targets": true,
+    "same_camera": true
+  }
+]

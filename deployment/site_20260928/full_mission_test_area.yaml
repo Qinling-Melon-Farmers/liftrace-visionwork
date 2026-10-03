@@ -1,0 +1,62 @@
+# Full mission: mock drops, manual arm, auto OFFBOARD/start; measured geometry required.
+flight_area:
+  center_bounds:
+  - -0.35
+  - 6.0
+  - -1.5
+  - 1.5
+  target_bounds:
+  - -0.35
+  - 6.0
+  - -1.5
+  - 1.5
+  search_bounds:
+  - 0.6
+  - 6.0
+  - -1.5
+  - 1.5
+  staging_xy:
+  - 0.6
+  - 0.0
+  survey_xy:
+  - - 0.8
+    - -1.1
+  - - 3.2
+    - -1.1
+  - - 5.5
+    - -1.1
+  - - 5.5
+    - 0.0
+  - - 5.5
+    - 1.1
+  - - 3.2
+    - 1.1
+  - - 0.8
+    - 1.1
+  - - 0.8
+    - -1.1
+  map_size:
+  - 16.0
+  - 6.0
+  - 3.8
+search_line_x:
+- 0.6
+- 1.2
+- 1.8
+- 2.4
+- 3.0
+- 3.6
+- 4.2
+- 4.8
+- 5.4
+- 6.0
+compressed_image_topic: /camera/image_raw/compressed
+high_agl: 2.0
+max_agl: 2.0
+auto_start_after_arm: true
+initialization_timeout: 300.0
+obstacle_columns_enabled: true
+# Replace with the measured H center in the takeoff frame (+X forward, +Y left).
+landing_xy: null
+# At least two measured {x, y, agl} waypoints; agl is FC height above ground.
+corridor_waypoints: []

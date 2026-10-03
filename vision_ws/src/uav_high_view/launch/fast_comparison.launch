@@ -1,0 +1,78 @@
+<launch>
+  <arg name="vehicle_sdf" default="$(find uav_vision_eval)/models/iris_mid360_ks2a543_installed/model.sdf" />
+  <arg name="camera_extrinsic_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
+  <arg name="high_agl" default="2.6" />
+  <arg name="presentation_config" default="$(find uav_high_view)/config/presentation.yaml" />
+  <arg name="strategy" default="true" />
+  <arg name="target_model_path" />
+  <arg name="record_overview_video" default="false" />
+  <arg name="presentation_recording" default="false" />
+  <arg name="overview_z" default="7.0" />
+  <arg name="world" />
+  <arg name="field_config" />
+  <arg name="runtime_config" />
+  <arg name="gate_geometry_config" />
+  <arg name="field_seed" />
+  <arg name="cruise_lead_m" default="1.0" />
+  <arg name="planner_max_vel" default="1.2" />
+  <arg name="command_admission_m" default="1.2" />
+  <arg name="diagnostic_cloud" default="false" />
+  <arg name="diagnostic_goal_xyz" default="[3.5,5.5,2.38]" />
+  <param name="/high_view_status_recorder/diagnostic_cloud" value="$(arg diagnostic_cloud)" />
+  <rosparam param="/high_view_status_recorder/diagnostic_goal_xyz" subst_value="true">$(arg diagnostic_goal_xyz)</rosparam>
+  <!-- Controller admission must accommodate the selected following distance. -->
+  <param name="/external_planner_start_max_distance" value="$(arg command_admission_m)" />
+  <group if="$(arg strategy)">
+    <include file="$(find uav_high_view)/launch/full_strategy.launch">
+      <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+      <arg name="camera_extrinsic_quat_xyzw" value="$(arg camera_extrinsic_quat_xyzw)" />
+      <arg name="high_agl" value="$(arg high_agl)" />
+      <arg name="target_model_path" value="$(arg target_model_path)" />
+      <arg name="record_overview_video" value="$(eval arg('record_overview_video') and not arg('presentation_recording'))" />
+      <arg name="overview_z" value="$(arg overview_z)" />
+      <arg name="world" value="$(arg world)" />
+      <arg name="field_config" value="$(arg field_config)" />
+      <arg name="runtime_config" value="$(arg runtime_config)" />
+      <arg name="gate_geometry_config" value="$(arg gate_geometry_config)" />
+      <arg name="field_seed" value="$(arg field_seed)" />
+    </include>
+  </group>
+  <group unless="$(arg strategy)">
+    <include file="$(find uav_mission)/launch/navigation_horizontal_search_vcl06.launch">
+      <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+      <arg name="camera_extrinsic_quat_xyzw" value="$(arg camera_extrinsic_quat_xyzw)" />
+      <arg name="overview_model_sdf" value="$(find uav_vision_eval)/models/competition_overview_camera_above_roof/model.sdf" />
+      <arg name="target_model_path" value="$(arg target_model_path)" />
+      <arg name="record_overview_video" value="$(eval arg('record_overview_video') and not arg('presentation_recording'))" />
+      <arg name="overview_z" value="$(arg overview_z)" />
+      <arg name="world" value="$(arg world)" />
+      <arg name="field_config" value="$(arg field_config)" />
+      <arg name="runtime_config" value="$(arg runtime_config)" />
+      <arg name="gate_geometry_config" value="$(arg gate_geometry_config)" />
+      <arg name="field_seed" value="$(arg field_seed)" />
+    </include>
+  </group>
+  <param name="/navigation/mission_manager/following_speed_profile/cruise_lead_m" value="$(arg cruise_lead_m)" />
+  <param name="/navigation/mission_manager/following_speed_profile/precision_lead_m" value="0.4" />
+  <param name="/navigation/mission_manager/following_speed_profile/corridor_lead_m" value="0.15" />
+  <param name="/navigation/mission_manager/following_speed_profile/corridor_after_waypoints" value="1" />
+  <param name="/fast_planner_node/manager/max_vel" value="$(arg planner_max_vel)" />
+  <param name="/fast_planner_node/optimization/max_vel" value="$(arg planner_max_vel)" />
+  <param name="/fast_planner_node/search/max_vel" value="$(arg planner_max_vel)" />
+  <!-- Research-only opt-in; accepted deployment defaults remain unchanged. -->
+  <arg name="reliability_trial" default="false" />
+  <param name="/fast_planner_node/fsm/liveness_enabled" value="$(arg reliability_trial)" />
+  <param name="/fast_planner_node/fsm/server_hold_replan_enabled" value="$(arg reliability_trial)" />
+  <param name="/fast_planner_node/fsm/server_hold_seconds" value="0.25" />
+  <param name="/fast_planner_node/fsm/server_progress_max_age" value="0.50" />
+  <param name="/fast_planner_node/progress/enabled" value="$(arg reliability_trial)" />
+  <param name="/traj_server/progress/enabled" value="$(arg reliability_trial)" />
+  <param name="/traj_server/traj_server/require_goal_identity" value="$(arg reliability_trial)" />
+  <param name="/navigation/mission_manager/high_view_full/boundary_policy/enabled" value="$(arg reliability_trial)" />
+  <node if="$(arg reliability_trial)" pkg="uav_high_view" type="planner_progress_recorder.py"
+        name="planner_progress_recorder" output="screen" />
+  <include if="$(arg presentation_recording)" file="$(find uav_high_view)/launch/presentation_cameras.launch">
+    <arg name="camera_config" value="$(arg presentation_config)" />
+    <arg name="world" value="$(arg world)" />
+  </include>
+</launch>

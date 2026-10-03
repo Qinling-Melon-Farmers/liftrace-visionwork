@@ -1,0 +1,20 @@
+{
+  "A": {
+    "camera_tf": "0 0 -0.16 0 1 0 0 vision_body downward_camera_optical_frame",
+    "parameters": 822,
+    "high_agl": "2.6",
+    "corridor_fast": "false"
+  },
+  "B": {
+    "camera_tf": "0 0 -0.16 0 1 0 0 vision_body downward_camera_optical_frame",
+    "parameters": 836,
+    "high_agl": "2.6",
+    "corridor_fast": "true"
+  },
+  "C": {
+    "camera_tf": "0 0 -0.16 0 1 0 0 vision_body downward_camera_optical_frame",
+    "parameters": 836,
+    "high_agl": "3.0",
+    "corridor_fast": "true"
+  }
+}

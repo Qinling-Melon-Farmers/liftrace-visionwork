@@ -2,7 +2,7 @@
 """target_detector: YOLO 标准目标检测（dev/sim 路径，板端使用 RKNN 替代）。
 
 订阅相机图像，运行 YOLO 推理，输出 TargetDetectionArray 到 /uav_vision/detections。
-当前 dev/sim 默认支持类别：bridge, panzer, pillbox, tent, tank, red_cross。
+当前 r2026 输出五类；六类旧权重保持原 ID，tank 只在显式 full 配置中输出。
 """
 import rospy
 import cv2
@@ -13,6 +13,7 @@ from sensor_msgs.msg import Image
 from uav_vision.msg import TargetDetection, TargetDetectionArray
 from sensor_msgs.msg import RegionOfInterest
 from uav_vision.model_contract import require_local_model_file
+from uav_vision.target_selection_policy import resolve_class_profile
 
 try:
     from ultralytics import YOLO
@@ -28,6 +29,8 @@ class TargetDetector:
         self._model_path = require_local_model_file(
             rospy.get_param("~model_path", ""), "ultralytics")
         self._conf_threshold = rospy.get_param("~conf_threshold", 0.5)
+        self._class_profile, self._allowed_classes = resolve_class_profile(
+            rospy.get_param("~class_profile", "r2026"))
         self._image_topic = rospy.get_param("~image_topic", "/camera/image_raw")
         self._imgsz = int(rospy.get_param("~imgsz", 640))
         self._device = rospy.get_param("~device", "")
@@ -52,7 +55,7 @@ class TargetDetector:
         rospy.loginfo("[TargetDetector] ready  model=%s  conf=%.2f  device=%s  classes=%s",
                       self._model_path, self._conf_threshold,
                       self._device if self._device != "" else "ultralytics_default",
-                      list(self._class_names.values()))
+                      sorted(self._allowed_classes))
 
     def _publish_perf(self, header, detections_count, total_ms, inference_ms,
                       callback_start, callback_end):
@@ -74,6 +77,7 @@ class TargetDetector:
         status.message = "ok"
         status.values = [
             KeyValue("backend", "ultralytics"),
+            KeyValue("class_profile", self._class_profile),
             KeyValue("image_topic", self._image_topic),
             KeyValue("model_path", self._model_path),
             KeyValue("device", str(self._device)),
@@ -160,12 +164,15 @@ class TargetDetector:
             boxes = results[0].boxes
             for i in range(len(boxes)):
                 cls_id = int(boxes.cls[i].item())
+                class_name = self._class_names.get(cls_id, f"class_{cls_id}")
+                if class_name not in self._allowed_classes:
+                    continue
                 conf = float(boxes.conf[i].item())
                 x1, y1, x2, y2 = boxes.xyxy[i].cpu().numpy().astype(int)
 
                 det = TargetDetection()
                 det.header = msg.header
-                det.class_name = self._class_names.get(cls_id, f"class_{cls_id}")
+                det.class_name = class_name
                 det.class_confidence = conf
                 det.geometry_confidence = conf
                 det.geometry_verified = False

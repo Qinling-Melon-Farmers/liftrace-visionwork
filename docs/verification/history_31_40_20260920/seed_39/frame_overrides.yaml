@@ -1,0 +1,38 @@
+/navigation_vcl06_assertion/field:
+  min_x: -0.5
+  max_x: 9.1
+  min_y: -4.8
+  max_y: 4.8
+/fast_planner_node/sdf_map/horizontal_avoidance/min_x: -0.5
+/fast_planner_node/sdf_map/horizontal_avoidance/max_x: 7.6
+/fast_planner_node/sdf_map/horizontal_avoidance/min_y: -4.8
+/fast_planner_node/sdf_map/horizontal_avoidance/max_y: 4.8
+/fast_planner_node/sdf_map/map_size_x: 22.0
+/fast_planner_node/sdf_map/map_size_y: 12.0
+/fast_planner_node/sdf_map/map_size_z: 3.8
+/external_planner_max_command_z: 2.98
+/navigation/planner_bridge/execution/max_goal_z: 2.98
+/fast_planner_node/sdf_map/virtual_ceil_height: 3.13
+/navigation/mission_manager/high_view_full/policy/high_max_agl: 3.3
+/navigation/mission_manager/high_view_full/grid/bounds:
+- -0.5
+- 7.4
+- -4.8
+- 4.8
+/navigation/mission_manager/high_view_full/boundary_policy/bounds:
+- -0.5
+- 7.4
+- -4.8
+- 4.8
+/navigation/mission_manager/high_view_probe/config/survey_xy:
+- - 1
+  - 3.5
+- - 1
+  - -3.5
+- - 5.5
+  - -3.5
+- - 5.5
+  - 3.5
+- - 1
+  - 3.5
+/navigation/planner_bridge/execution/search_initial_plan_timeout: 12.0
