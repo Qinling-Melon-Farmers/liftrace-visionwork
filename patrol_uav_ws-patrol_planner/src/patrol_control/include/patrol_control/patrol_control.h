@@ -8,6 +8,9 @@
 #include <mavros_msgs/SetMode.h>
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <sensor_msgs/CameraInfo.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/CommandLong.h>
@@ -80,6 +83,8 @@ private:
     };
 
     ros::NodeHandle nh_;
+    tf2_ros::Buffer drop_tf_buffer_;
+    tf2_ros::TransformListener drop_tf_listener_;
     /** publish the goal waypoint to the avoidance **/
     ros::Publisher setplanner_goal_pub_;
     /** publish the flag that arouse the circle detection with task C**/
@@ -111,6 +116,7 @@ private:
     ros::ServiceClient servo_client;
     ros::Subscriber selected_target_sub_;
     ros::Subscriber drop_offset_sub_;
+    ros::Subscriber drop_camera_info_sub_;
     ros::Subscriber drop_ready_sub_;
     ros::Subscriber mission_release_permission_sub_;
     ros::Subscriber mission_command_sub_;
@@ -315,6 +321,19 @@ private:
     double drop_offset_timeout_ = 1.0;
     double mission_release_permission_timeout_ = 0.25;
     double pixel_to_meter_ratio_ = 0.0015;
+    bool drop_metric_scale_enabled_ = false;
+    bool drop_camera_info_valid_ = false;
+    double drop_fx_ = 0.0;
+    double drop_fy_ = 0.0;
+    double drop_ground_z_ = 0.0;
+    double drop_tf_max_age_sec_ = 0.20;
+    std::string drop_camera_info_topic_ = "/camera/camera_info";
+    std::string drop_camera_frame_ = "downward_camera_optical_frame";
+    std::string drop_map_frame_ = "camera_init";
+    void dropCameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& msg);
+    bool dropPixelScales(const ros::Time& stamp,
+                         double* horizontal_meter_per_pixel,
+                         double* vertical_meter_per_pixel);
     std::array<double, 4> pixel_to_body_matrix_{{0.0, -1.0, -1.0, 0.0}};
     double max_alignment_move_distance_ = 0.5;
     double drop_circle_radius_m_ = 0.5;

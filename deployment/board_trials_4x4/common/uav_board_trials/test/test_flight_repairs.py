@@ -10,6 +10,24 @@ BASE = ROOT / 'deployment/board_trials_4x4'
 
 
 class FlightRepairs(unittest.TestCase):
+    def test_drop_scale_uses_each_flight_ground_and_camera_topic(self):
+        rig = yaml.safe_load((BASE/'common/uav_board_trials/config/known_rig.yaml').read_text())
+        for folder in ('01_visual_interrupt', '05_low_multi', '06_high_priority'):
+            settings = yaml.safe_load((BASE/folder/'settings.yaml').read_text())
+            settings['camera_info_topic'] = '/test_camera/calibration'
+            for ground_fc in (-.09, 0., .09):
+                with tempfile.TemporaryDirectory() as directory:
+                    ref = generate(ROOT, directory, settings, (0., 0., ground_fc), rig)
+                    control = yaml.safe_load((Path(directory)/'control.yaml').read_text())
+                    vision = control['uav_vision']
+                    self.assertTrue(vision['drop_metric_scale_enabled'])
+                    self.assertAlmostEqual(vision['drop_ground_z'], ground_fc-rig['fc_ground_clearance'])
+                    self.assertEqual(vision['drop_ground_z'], ref['ground_z'])
+                    self.assertEqual(vision['drop_map_frame'], rig['mission_frame'])
+                    self.assertEqual(vision['drop_camera_info_topic'], '/test_camera/calibration')
+                    self.assertTrue(vision['require_release_permission'])
+                    self.assertEqual(vision['max_movement_distance'], .15)
+
     def test_recovery_goal_exceeds_handoff_for_every_ground_reference(self):
         rig = yaml.safe_load((BASE/'common/uav_board_trials/config/known_rig.yaml').read_text())
         for folder in ('01_visual_interrupt', '02_high_view_revisit', '03_h_landing'):

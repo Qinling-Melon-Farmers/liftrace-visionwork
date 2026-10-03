@@ -98,7 +98,9 @@ def generate(root,out,settings,fc_xyz,rig):
     control['switch'].update(auto_land=True,flag_landing_detect=1)
     control['drop_system'].update(enable_drop=True,release_setpoint_height=drop,height_threshold=drop+.1)
     for key in ('slot_offsets','dynamic_slot_offsets'):control['drop_system'][key]=copy.deepcopy(rig[key])
-    control['uav_vision'].update(recovery_height=low,standard_recovery_setpoint_height=low+.1,cross_recovery_setpoint_height=low+.1,pixel_to_body_matrix=rig['pixel_to_body_matrix'],max_movement_distance=.15)
+    control['uav_vision'].update(recovery_height=low,standard_recovery_setpoint_height=low+.1,cross_recovery_setpoint_height=low+.1,pixel_to_body_matrix=rig['pixel_to_body_matrix'],max_movement_distance=.15,
+        drop_metric_scale_enabled=True,drop_ground_z=ground,
+        drop_map_frame=rig['mission_frame'],drop_camera_info_topic=settings['camera_info_topic'])
     control['external_landing'].update(frame=rig['mission_frame'],capture_height=capture,auto_land_height=ground+.55,detections_topic='/uav_vision/detections_mapped')
     overrides={
         '/fast_planner_node/sdf_map/resolution':.10,

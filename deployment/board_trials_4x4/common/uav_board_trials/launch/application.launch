@@ -71,6 +71,9 @@
       <arg name="map_size_y" value="6." />
       <arg name="map_size_z" value="3.8" />
     </include>
+    <param name="/uav_vision/drop_camera_info_topic" value="$(arg camera_info_topic)" />
+    <param name="/uav_vision/drop_map_frame" value="$(arg map_frame)" />
+    <param name="/uav_vision/drop_ground_z" value="$(arg ground_z)" />
     <rosparam ns="/fast_planner_node" file="$(find uav_mission)/config/horizontal_planner.yaml" />
     <group ns="navigation">
       <node pkg="uav_board_trials" type="$(eval 'trial_sim_manager.py' if arg('simulation') else 'trial_manager.py')" name="mission_manager" output="screen" required="true">

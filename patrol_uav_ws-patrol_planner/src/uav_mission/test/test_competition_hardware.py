@@ -42,6 +42,17 @@ class CompetitionTests(unittest.TestCase):
         self.assertEqual(rt['mission']['post_delivery_route'][-1][:2],rt['mission']['landing_xy'])
         self.assertAlmostEqual(rt['mission']['post_delivery_route'][-1][2],c['external_landing']['capture_height'])
         self.assertTrue(c['switch']['auto_land'])
+    def test_drop_scale_uses_flight_ground_reference_and_calibration(self):
+        self.s['camera_info_topic']='/custom_camera/info'
+        for z in (-.09, .09):
+            ref,docs=self.generate(z)
+            vision=docs['control']['uav_vision']
+            self.assertTrue(vision['drop_metric_scale_enabled'])
+            self.assertEqual(vision['drop_ground_z'],ref['ground_z'])
+            self.assertEqual(vision['drop_map_frame'],self.rig['mission_frame'])
+            self.assertEqual(vision['drop_camera_info_topic'],'/custom_camera/info')
+            self.assertTrue(vision['require_release_permission'])
+            self.assertEqual(vision['max_movement_distance'],.15)
     def test_search_stays_inside_then_corridor_opens(self):
         _,d=self.generate();o=d['overrides'];rt=d['runtime']
         self.assertTrue(o['/fast_planner_node/sdf_map/search_region/enabled'])
