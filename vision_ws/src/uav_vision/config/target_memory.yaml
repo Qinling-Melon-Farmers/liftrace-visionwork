@@ -35,7 +35,9 @@ cross_geometry_confidence: 0.70
 # 标准目标
 std_class_confidence: 0.60
 std_geometry_confidence: 0.70
-aux_geometry_confidence: 0.80  # 2.2m 搜索高度圆环质量约 0.84-0.86，0.85 边缘致确认不稳
+aux_geometry_confidence: 0.80  # 搜索圆环与H保留原门槛
+# 仅drop_circle模式重新确认圆环；仍需地图有效、精修、连续三帧及后续对齐/释放许可。
+drop_circle_geometry_confidence: 0.75
 
 # 目标优先级权重（越高越优先）
 # 权重 = 0 的类别不会主动触发中断
