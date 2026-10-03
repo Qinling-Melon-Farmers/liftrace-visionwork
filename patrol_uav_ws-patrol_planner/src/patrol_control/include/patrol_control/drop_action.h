@@ -67,16 +67,24 @@ inline bool alignmentWindowOpen(bool external_mission_mode,
 }
 
 inline std::array<double, 2> projectPixelOffsetToBody(
+    double dx_px, double dy_px, double horizontal_meter_per_pixel,
+    double vertical_meter_per_pixel,
+    const std::array<double, 4>& pixel_to_body_matrix) {
+    const double image_x_m = dx_px * horizontal_meter_per_pixel;
+    const double image_y_m = dy_px * vertical_meter_per_pixel;
+    return {{
+        pixel_to_body_matrix[0] * image_x_m +
+            pixel_to_body_matrix[1] * image_y_m,
+        pixel_to_body_matrix[2] * image_x_m +
+            pixel_to_body_matrix[3] * image_y_m,
+    }};
+}
+
+inline std::array<double, 2> projectPixelOffsetToBody(
     double dx_px, double dy_px, double pixel_to_meter_ratio,
     const std::array<double, 4>& pixel_to_body_matrix) {
-    return {{
-        pixel_to_meter_ratio *
-            (pixel_to_body_matrix[0] * dx_px +
-             pixel_to_body_matrix[1] * dy_px),
-        pixel_to_meter_ratio *
-            (pixel_to_body_matrix[2] * dx_px +
-             pixel_to_body_matrix[3] * dy_px),
-    }};
+    return projectPixelOffsetToBody(dx_px, dy_px, pixel_to_meter_ratio,
+                                   pixel_to_meter_ratio, pixel_to_body_matrix);
 }
 
 }  // namespace patrol_control
