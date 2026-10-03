@@ -99,15 +99,27 @@ class ProbeTests(unittest.TestCase):
         self.r.ingest([a,replace(a,target_id=2)],116.)
         self.assertIsNone(self.r.reacquired)
 
-    def test_flight5_fusion_correction_does_not_abort(self):
+    def test_field_pose_jump_is_rejected_without_replacing_last_pose(self):
         before=(3.1740057468,-1.1063992977,1.803057313)
         after=(3.2236683369,-1.0406501293,2.196893454)
         self.r.update_pose(before,101.,'camera_init')
-        self.r.update_pose(after,101.04,'camera_init')
-        self.assertEqual(self.r.pose,after)
-        self.assertNotEqual(self.r.core.phase,MissionPhase.ABORTED)
-        self.r.update_pose((5.,0.,2.38),101.1,'camera_init')
-        self.assertEqual(self.r.pose,(5.,0.,2.38))
+        with self.assertRaisesRegex(ValueError,'probe pose discontinuity'):
+            self.r.update_pose(after,101.04,'camera_init')
+        self.assertEqual(self.r.pose,before)
+        self.assertEqual(self.r.pose_stamp,101.)
+        # A subsequent consistent sample is evaluated against the accepted pose.
+        normal=(before[0]+.1,before[1],before[2])
+        self.r.update_pose(normal,101.1,'camera_init')
+        self.assertEqual(self.r.pose,normal)
+
+    def test_field_pose_guard_uses_three_dimensional_displacement(self):
+        self.r.update_pose((0.,0.,2.),101.,'camera_init')
+        # dt=.25 gives a 1m boundary. A diagonal sample exceeds it even
+        # though its separate axis deltas are all below the boundary.
+        with self.assertRaisesRegex(ValueError,'probe pose discontinuity'):
+            self.r.update_pose((.6,.6,2.6),101.25,'camera_init')
+        self.r.update_pose((1.,0.,2.),101.25,'camera_init')
+        self.assertEqual(self.r.pose,(1.,0.,2.))
 
     def test_invalid_pose_and_clock_still_rejected(self):
         self.r.update_pose((0.,0.,2.38),101.,'camera_init')
