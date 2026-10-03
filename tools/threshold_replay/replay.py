@@ -2,7 +2,7 @@
 """Offline threshold comparison; no ROS node, publisher, services or aircraft."""
 import argparse,bisect,collections,contextlib,copy,importlib.util,json,math,sys
 from pathlib import Path
-from types import MethodType,SimpleNamespace
+from types import SimpleNamespace
 from unittest.mock import patch
 import numpy as np,yaml,rospy
 from genpy.message import fill_message_args
@@ -16,7 +16,8 @@ def circle_replay(root,path,threshold):
     data=json.loads(path.read_text());base=data['start'];rows=data['rows'];clock=[base];published=[]
     params=yaml.safe_load((root/'vision_ws/src/uav_vision/config/target_memory.yaml').read_text())
     params.update(require_map_for_candidates=True,require_complete_detection_sources=True,
-                  class_profile='r2026',search_confirmation_max_gap_sec=1.)
+                  class_profile='r2026',search_confirmation_max_gap_sec=1.,
+                  drop_circle_geometry_confidence=threshold)
     def publisher(topic,*args,**kwargs):
         return SimpleNamespace(publish=lambda msg:published.append(msg) if topic=='/uav_vision/targets' else None)
     events=sorted([(row['t'],0,row) for row in rows['mode']]+[(row['t'],1,row) for row in rows['fc']]+[(row['t'],2,row) for row in rows['mapped']],key=lambda v:(v[0],v[1]))
@@ -27,14 +28,7 @@ def circle_replay(root,path,threshold):
         stack.enter_context(patch.object(rospy,'get_param',side_effect=lambda name,default=None:params.get(name.lstrip('~'),default)))
         stack.enter_context(patch.object(rospy,'Publisher',side_effect=publisher))
         stack.enter_context(patch.object(rospy.Time,'now',side_effect=lambda:rospy.Time.from_sec(clock[0])))
-        memory=mod.TargetMemory();original=memory._pass_threshold
-        def only_circle(self,det):
-            saved=self._aux_geom
-            try:
-                if det.class_name=='circle':self._aux_geom=threshold
-                return original(det)
-            finally:self._aux_geom=saved
-        memory._pass_threshold=MethodType(only_circle,memory)
+        memory=mod.TargetMemory()
         for t,kind,row in events:
             clock[0]=base+t
             if kind==0:memory._on_align_mode(String(data=row['m']['data']))

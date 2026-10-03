@@ -366,6 +366,10 @@ class TargetMemory:
         self._std_conf = rospy.get_param("~std_class_confidence", 0.60)
         self._std_geom = rospy.get_param("~std_geometry_confidence", 0.70)
         self._aux_geom = rospy.get_param("~aux_geometry_confidence", 0.85)
+        self._drop_circle_geom = float(rospy.get_param(
+            "~drop_circle_geometry_confidence", self._aux_geom))
+        if not math.isfinite(self._drop_circle_geom) or not 0.0 <= self._drop_circle_geom <= 1.0:
+            raise ValueError("invalid drop_circle_geometry_confidence")
         self._suppress_bridge_on_red_cross = rospy.get_param("~suppress_bridge_on_red_cross", True)
         self._suppress_bridge_on_landing_pad = rospy.get_param("~suppress_bridge_on_landing_pad", True)
 
@@ -572,8 +576,12 @@ class TargetMemory:
                     det.class_confidence >= self._cross_conf and
                     det.geometry_confidence >= self._cross_geom)
         if det.class_name in ("landing_pad", "circle"):
+            # Delivery-only ring admission. H and search keep the auxiliary gate.
+            threshold = (self._drop_circle_geom
+                         if det.class_name == "circle" and self._align_mode == "drop_circle"
+                         else self._aux_geom)
             return (det.geometry_verified and det.center_refined and
-                    det.geometry_confidence >= self._aux_geom)
+                    det.geometry_confidence >= threshold)
         # 标准投放区必须同时有类别和蓝环关联；未关联框仅保留在原始
         # detections 供调试，不能升级成可操作候选。
         return (det.geometry_verified and det.center_refined and

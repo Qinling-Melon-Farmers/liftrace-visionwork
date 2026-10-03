@@ -16,3 +16,5 @@ python tools/threshold_replay/replay.py --root "$PWD" --replay /absolute/path/re
 多份输入可重复--replay；--coarse接收既有抽样粗投影JSON（poses、events、reference），--coarse-end限制原任务结束时间。本轮来源是本机/home/xhj/third_memory_replay.json，使用--coarse-end 1790606942.77；这是历史抽样数据，不是完整视频检测召回率评测。
 
 样本只改变circle准入，后续同一候选链会产生不同ID/确认时序；未复跑投递上下文、飞行响应或机构，不能将其写成释放成功。中心差是邻时高分投影的一致性，不是实测靶心误差；无邻时参照必须保留unpaired计数。结果范围见docs/verification/high_speed_capture_20260929/REPORT.md。
+
+2026-10-03：对照通过实际参数`drop_circle_geometry_confidence`运行，不再临时改共享辅助门槛。该参数仅在drop_circle生效；搜索圆环/H仍用aux_geometry_confidence=0.80。

@@ -71,6 +71,33 @@ class MemoryTests(unittest.TestCase):
         self.assertEqual(c.consecutive_observe_count,1)
         self.assertNotEqual(c.state,ST_CONFIRMED)
 
+    def test_delivery_ring_gate_does_not_relax_h_or_search(self):
+        self.m._aux_geom=.80;self.m._drop_circle_geom=.75
+        for mode in ('disabled','landing','drop_cross','drop_circle'):
+            self.m._align_mode=mode
+            for cls in ('circle','landing_pad'):
+                det=Fixtures._detection(cls,.93,1.);det.geometry_confidence=.786
+                self.assertEqual(self.m._pass_threshold(det),mode=='drop_circle' and cls=='circle')
+        self.m._align_mode='drop_circle'
+        for field in ('map_valid','geometry_verified','center_refined'):
+            det=Fixtures._detection('circle',.93,1.);det.geometry_confidence=.786
+            setattr(det,field,False);self.assertFalse(self.m._pass_threshold(det))
+        det=Fixtures._detection('circle',.93,1.);det.geometry_confidence=.749
+        self.assertFalse(self.m._pass_threshold(det))
+
+    def test_relaxed_ring_still_needs_new_consecutive_frames(self):
+        self.m._aux_geom=.80;self.m._drop_circle_geom=.75
+        self.m._on_align_mode(String(data='drop_circle'))
+        det=Fixtures._detection('circle',.93,1.);det.geometry_confidence=.786
+        def send(t,hit=True):
+            self.m._process_detections_locked(Fixtures._message([det] if hit else [],stamp=stamp(t)))
+        send(201.);send(201.);send(201.1);send(201.2,False);send(201.3)
+        c=next(iter(self.m._candidates.values()))
+        self.assertNotEqual(c.state,ST_CONFIRMED)
+        send(201.4);send(201.5)
+        self.assertEqual(c.state,ST_CONFIRMED)
+        self.assertEqual(c.consecutive_observe_count,3)
+
     def test_no_geometry_does_not_join_low_confirmation(self):
         det=Fixtures._detection('panzer',.99,1.)
         det.center_refined=det.geometry_verified=det.association_valid=False
