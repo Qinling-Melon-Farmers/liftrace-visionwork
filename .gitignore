@@ -11,6 +11,7 @@
 **/logs/
 *.bag
 *.bag.active
+*.ulg
 
 # ---- 大文件：模型权重 / 数据集 / 压缩包 / 点云 ----
 vision_ws/runs/

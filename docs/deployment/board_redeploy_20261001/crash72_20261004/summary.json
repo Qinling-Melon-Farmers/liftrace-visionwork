@@ -1,0 +1,349 @@
+{
+  "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/log_72_2026-10-4-12-05-42.ulg",
+  "scope": "User identifies log72 as crash flight; PX4 timesync provides ROS wall-clock mapping, cross-checked with 6d trajectory transition.",
+  "boot_start_s": 120.923701,
+  "boot_end_s": 145.587645,
+  "firmware": {
+    "ver_sw": "30e763b6780061d70a14894e3e8b06e6a656f9b8",
+    "ver_sw_release": 17760511,
+    "ver_hw": "PX4_FMU_V6C",
+    "time_ref_utc": 28800
+  },
+  "logger_dropouts": [],
+  "missing_topics": [
+    "esc_status",
+    "esc_report",
+    "vehicle_visual_odometry",
+    "estimator_aid_src_ev_hgt",
+    "adc_report",
+    "power_status"
+  ],
+  "power_topic_present": "system_power",
+  "battery": {
+    "voltage_v": {
+      "min": 17.99649429321289,
+      "min_boot_s": 130.983992,
+      "max": 28.808778762817383,
+      "max_boot_s": 129.183991
+    },
+    "voltage_filtered_v": {
+      "min": 17.99649429321289,
+      "min_boot_s": 130.983992,
+      "max": 28.808778762817383,
+      "max_boot_s": 129.183991
+    },
+    "current_a": {
+      "min": 0.0,
+      "min_boot_s": 120.993992,
+      "max": 46.21525573730469,
+      "max_boot_s": 132.983995
+    },
+    "current_filtered_a": {
+      "min": 0.0,
+      "min_boot_s": 133.383993,
+      "max": 46.21525573730469,
+      "max_boot_s": 132.983995
+    },
+    "current_average_a": {
+      "min": 13.075080871582031,
+      "min_boot_s": 144.783993,
+      "max": 16.033674240112305,
+      "max_boot_s": 133.583991
+    },
+    "remaining": {
+      "min": 0.0,
+      "min_boot_s": 129.383992,
+      "max": 1.0,
+      "max_boot_s": 120.983993
+    },
+    "scale": {
+      "min": 1.0,
+      "min_boot_s": 120.983993,
+      "max": 1.1666666269302368,
+      "max_boot_s": 129.383992
+    }
+  },
+  "power": {
+    "voltage5v_v": {
+      "min": 4.715249538421631,
+      "min_boot_s": 130.463982,
+      "max": 4.890985012054443,
+      "max_boot_s": 133.963982
+    },
+    "brick_valid": {
+      "min": 1.0,
+      "min_boot_s": 121.454054,
+      "max": 1.0,
+      "max_boot_s": 121.454054
+    },
+    "usb_valid": {
+      "min": 0.0,
+      "min_boot_s": 121.454054,
+      "max": 0.0,
+      "max_boot_s": 121.454054
+    },
+    "usb_connected": {
+      "min": 1.0,
+      "min_boot_s": 121.454054,
+      "max": 1.0,
+      "max_boot_s": 121.454054
+    },
+    "servo_valid": {
+      "min": 1.0,
+      "min_boot_s": 121.454054,
+      "max": 1.0,
+      "max_boot_s": 121.454054
+    },
+    "periph_5v_oc": {
+      "min": 0.0,
+      "min_boot_s": 121.454054,
+      "max": 0.0,
+      "max_boot_s": 121.454054
+    },
+    "hipower_5v_oc": {
+      "min": 0.0,
+      "min_boot_s": 121.454054,
+      "max": 0.0,
+      "max_boot_s": 121.454054
+    }
+  },
+  "tilt_threshold_first_boot_s": {
+    "5": 127.087045,
+    "10": 133.834957,
+    "20": 133.93386,
+    "30": 134.086662,
+    "45": 134.230518,
+    "60": null,
+    "90": null
+  },
+  "attitude": {
+    "roll": {
+      "min": -2.3385983118890388,
+      "min_boot_s": 133.533694,
+      "max": 45.1675806099581,
+      "max_boot_s": 134.230518
+    },
+    "pitch": {
+      "min": -11.205724198986282,
+      "min_boot_s": 134.482318,
+      "max": 5.132695735293645,
+      "max_boot_s": 134.230518
+    },
+    "tilt": {
+      "min": 0.35436130233323915,
+      "min_boot_s": 126.331699,
+      "max": 45.395536364426086,
+      "max_boot_s": 134.230518
+    }
+  },
+  "rates_rad_s": {
+    "xyz[0]": {
+      "min": -9.342479705810547,
+      "min_boot_s": 134.243865,
+      "max": 4.5976057052612305,
+      "max_boot_s": 134.646974
+    },
+    "xyz[1]": {
+      "min": -2.2238776683807373,
+      "min_boot_s": 134.685936,
+      "max": 1.6587947607040405,
+      "max_boot_s": 134.566055
+    },
+    "xyz[2]": {
+      "min": -1.865114450454712,
+      "min_boot_s": 134.625997,
+      "max": 1.7541258335113525,
+      "max_boot_s": 134.285873
+    }
+  },
+  "accel_norm": {
+    "specific_force_norm": {
+      "min": 0.5566741228103638,
+      "min_boot_s": 134.068522,
+      "max": 145.61065673828125,
+      "max_boot_s": 134.252796
+    }
+  },
+  "clipping": {
+    "accelerometer_clipping": {
+      "min": 0.0,
+      "min_boot_s": 120.981645,
+      "max": 0.0,
+      "max_boot_s": 120.981645
+    },
+    "gyro_clipping": {
+      "min": 0.0,
+      "min_boot_s": 120.981645,
+      "max": 0.0,
+      "max_boot_s": 120.981645
+    }
+  },
+  "motor_command_mapping_aux_function": [
+    101,
+    103,
+    104,
+    102
+  ],
+  "output_units": "driver raw values; not RPM and not assumed PWM microseconds. AUX_TIM0=-3.",
+  "motor_pre_event_127_133p3": {
+    "motor1": {
+      "min": 0.6918627619743347,
+      "min_boot_s": 127.286154,
+      "max": 0.9560210704803467,
+      "max_boot_s": 131.685931
+    },
+    "motor2": {
+      "min": 0.3753431737422943,
+      "min_boot_s": 127.185748,
+      "max": 0.5437748432159424,
+      "max_boot_s": 131.38468
+    },
+    "motor3": {
+      "min": 0.5049031376838684,
+      "min_boot_s": 127.885611,
+      "max": 0.5715057849884033,
+      "max_boot_s": 130.986066
+    },
+    "motor4": {
+      "min": 0.44223201274871826,
+      "min_boot_s": 127.086856,
+      "max": 0.5452080965042114,
+      "max_boot_s": 131.287277
+    }
+  },
+  "motor_pre_event_medians": [
+    0.9305079579353333,
+    0.5219729542732239,
+    0.5512295961380005,
+    0.53049236536026
+  ],
+  "first_motor1_max_after_takeoff": 133.684941,
+  "first_all_outputs_zero_after_kill": 139.687233,
+  "clock_alignment": {
+    "formula": "remote epoch seconds = boot seconds - interpolated estimated_offset / 1e6",
+    "samples": 24,
+    "round_trip_us": {
+      "round_trip_time": {
+        "min": 525.0,
+        "min_boot_s": 133.854733,
+        "max": 2545.0,
+        "max_boot_s": 121.858735
+      }
+    },
+    "estimated_offset_us": {
+      "estimated_offset": {
+        "min": -1791107514198683.0,
+        "min_boot_s": 121.858735,
+        "max": -1791107514189616.0,
+        "max_boot_s": 144.857334
+      }
+    },
+    "trajectory_1p8_to_0p8_boot_s": 133.356944,
+    "trajectory_1p8_to_0p8_wall_cst": "2026-10-04T17:54:07.551+08:00",
+    "ros_6d_first_accepted_epoch": 1791107647.549,
+    "delta_to_ros_accepted_ms": 2.066373825073242,
+    "caution": "Timesync is not an independent UTC calibration; log filename time is not used."
+  },
+  "messages": [
+    {
+      "boot_s": 120.913593,
+      "wall_cst": "2026-10-04T17:53:55.112+08:00",
+      "text": "[commander] Armed by RC (switch)\t"
+    },
+    {
+      "boot_s": 120.917215,
+      "wall_cst": "2026-10-04T17:53:55.115+08:00",
+      "text": "[logger] Start file log (type: full)"
+    },
+    {
+      "boot_s": 120.920675,
+      "wall_cst": "2026-10-04T17:53:55.119+08:00",
+      "text": "[logger] [logger] /fs/microsd/log/2026-10-04/12_05_18.ulg\t"
+    },
+    {
+      "boot_s": 120.923697,
+      "wall_cst": "2026-10-04T17:53:55.122+08:00",
+      "text": "[logger] Opened full log file: /fs/microsd/log/2026-10-04/12_05_18.ulg"
+    },
+    {
+      "boot_s": 125.891467,
+      "wall_cst": "2026-10-04T17:54:00.088+08:00",
+      "text": "[commander] Takeoff detected\t"
+    },
+    {
+      "boot_s": 127.002529,
+      "wall_cst": "2026-10-04T17:54:01.199+08:00",
+      "text": "[health_and_arming_checks] Battery 1 disconnected\t"
+    },
+    {
+      "boot_s": 127.00265,
+      "wall_cst": "2026-10-04T17:54:01.199+08:00",
+      "text": "[health_and_arming_checks] Low battery level\t"
+    },
+    {
+      "boot_s": 127.013297,
+      "wall_cst": "2026-10-04T17:54:01.209+08:00",
+      "text": "[failsafe] Failsafe activated\t"
+    },
+    {
+      "boot_s": 129.103659,
+      "wall_cst": "2026-10-04T17:54:03.299+08:00",
+      "text": "[health_and_arming_checks] Battery 1 disconnected\t"
+    },
+    {
+      "boot_s": 129.103781,
+      "wall_cst": "2026-10-04T17:54:03.299+08:00",
+      "text": "[health_and_arming_checks] Low battery level\t"
+    },
+    {
+      "boot_s": 129.994266,
+      "wall_cst": "2026-10-04T17:54:04.189+08:00",
+      "text": "[failsafe] Failsafe activated\t"
+    },
+    {
+      "boot_s": 130.984279,
+      "wall_cst": "2026-10-04T17:54:05.179+08:00",
+      "text": "[failsafe] Failsafe activated\t"
+    },
+    {
+      "boot_s": 131.193616,
+      "wall_cst": "2026-10-04T17:54:05.388+08:00",
+      "text": "[health_and_arming_checks] Low battery level\t"
+    },
+    {
+      "boot_s": 133.283731,
+      "wall_cst": "2026-10-04T17:54:07.477+08:00",
+      "text": "[health_and_arming_checks] Low battery level\t"
+    },
+    {
+      "boot_s": 139.58635,
+      "wall_cst": "2026-10-04T17:54:13.778+08:00",
+      "text": "[commander] Kill engaged\t"
+    },
+    {
+      "boot_s": 139.630673,
+      "wall_cst": "2026-10-04T17:54:13.822+08:00",
+      "text": "[health_and_arming_checks] Preflight Fail: Flight termination active"
+    },
+    {
+      "boot_s": 139.630794,
+      "wall_cst": "2026-10-04T17:54:13.822+08:00",
+      "text": "[health_and_arming_checks] Low battery level\t"
+    },
+    {
+      "boot_s": 144.591695,
+      "wall_cst": "2026-10-04T17:54:18.781+08:00",
+      "text": "[commander] Disarmed by kill-switch\t"
+    },
+    {
+      "boot_s": 144.592135,
+      "wall_cst": "2026-10-04T17:54:18.781+08:00",
+      "text": "[health_and_arming_checks] Preflight Fail: Kill switch engaged"
+    },
+    {
+      "boot_s": 144.592332,
+      "wall_cst": "2026-10-04T17:54:18.782+08:00",
+      "text": "[health_and_arming_checks] Preflight Fail: Flight termination active"
+    }
+  ]
+}
