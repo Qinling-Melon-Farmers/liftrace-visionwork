@@ -1,0 +1,122 @@
+[
+  {
+    "name": "old_fc2p6",
+    "camera_agl": 2.44,
+    "fc_agl": 2.6,
+    "model": "measured",
+    "erosion": 0.0,
+    "length": 23.0,
+    "point_percent": 92.82417752351584,
+    "interior_percent": 98.09407937002234
+  },
+  {
+    "name": "old_fc2p6",
+    "camera_agl": 2.44,
+    "fc_agl": 2.6,
+    "model": "measured",
+    "erosion": 0.15,
+    "length": 23.0,
+    "point_percent": 88.09284195933402,
+    "interior_percent": 95.48247334818839
+  },
+  {
+    "name": "old_fc2p6",
+    "camera_agl": 2.44,
+    "fc_agl": 2.6,
+    "model": "K",
+    "erosion": 0.0,
+    "length": 23.0,
+    "point_percent": 89.6087759746778,
+    "interior_percent": 96.18661123969702
+  },
+  {
+    "name": "old_fc2p6",
+    "camera_agl": 2.44,
+    "fc_agl": 2.6,
+    "model": "K",
+    "erosion": 0.15,
+    "length": 23.0,
+    "point_percent": 83.3053214431815,
+    "interior_percent": 90.18313614647721
+  },
+  {
+    "name": "old_camera2p6",
+    "camera_agl": 2.6,
+    "fc_agl": 2.7600000000000002,
+    "model": "measured",
+    "erosion": 0.0,
+    "length": 23.0,
+    "point_percent": 95.43478260869564,
+    "interior_percent": 98.83191373768558
+  },
+  {
+    "name": "old_camera2p6",
+    "camera_agl": 2.6,
+    "fc_agl": 2.7600000000000002,
+    "model": "measured",
+    "erosion": 0.15,
+    "length": 23.0,
+    "point_percent": 91.45443468550934,
+    "interior_percent": 97.25296636926453
+  },
+  {
+    "name": "old_camera2p6",
+    "camera_agl": 2.6,
+    "fc_agl": 2.7600000000000002,
+    "model": "K",
+    "erosion": 0.0,
+    "length": 23.0,
+    "point_percent": 93.77182021661497,
+    "interior_percent": 99.04175506920504
+  },
+  {
+    "name": "old_camera2p6",
+    "camera_agl": 2.6,
+    "fc_agl": 2.7600000000000002,
+    "model": "K",
+    "erosion": 0.15,
+    "length": 23.0,
+    "point_percent": 88.00752981111059,
+    "interior_percent": 95.08916688987668
+  },
+  {
+    "name": "optimized_camera2p6",
+    "camera_agl": 2.6,
+    "fc_agl": 2.7600000000000002,
+    "model": "measured",
+    "erosion": 0.0,
+    "length": 22.799999999999997,
+    "point_percent": 100.0,
+    "interior_percent": 100.0
+  },
+  {
+    "name": "optimized_camera2p6",
+    "camera_agl": 2.6,
+    "fc_agl": 2.7600000000000002,
+    "model": "measured",
+    "erosion": 0.15,
+    "length": 22.799999999999997,
+    "point_percent": 98.43478260869564,
+    "interior_percent": 100.0
+  },
+  {
+    "name": "optimized_camera2p6",
+    "camera_agl": 2.6,
+    "fc_agl": 2.7600000000000002,
+    "model": "K",
+    "erosion": 0.0,
+    "length": 22.799999999999997,
+    "point_percent": 98.98473116535426,
+    "interior_percent": 100.0
+  },
+  {
+    "name": "optimized_camera2p6",
+    "camera_agl": 2.6,
+    "fc_agl": 2.7600000000000002,
+    "model": "K",
+    "erosion": 0.15,
+    "length": 22.799999999999997,
+    "point_percent": 94.64533855318668,
+    "interior_percent": 100.0
+  }
+]

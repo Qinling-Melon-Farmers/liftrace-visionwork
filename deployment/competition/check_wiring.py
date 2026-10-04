@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Offline launch expansion and real runtime construction. Starts no ROS nodes."""
 from pathlib import Path
-import importlib.util,json,tempfile
+import argparse,importlib.util,json,tempfile
 from unittest.mock import patch
 import yaml,roslaunch,rospkg
 from uav_mission.competition_config import generate
@@ -9,7 +9,11 @@ R=Path(__file__).resolve().parents[2];M=R/'patrol_uav_ws-patrol_planner/src/uav_
 roslaunch.substitution_args._rospack=rospkg.RosPack(ros_paths=[str(R/'vision_ws/src'),str(R/'patrol_uav_ws-patrol_planner/src'),'/opt/ros/noetic/share'])
 spec=importlib.util.spec_from_file_location('checked_full_manager',str(M/'scripts/navigation_high_view_full.py'))
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
-s=yaml.safe_load((R/'deployment/competition/field.example.yaml').read_text())
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--profile',type=Path,default=R/'deployment/competition/field.example.yaml')
+args=parser.parse_args()
+s=yaml.safe_load(args.profile.read_text())
+motion=s.get('motion_optimization',{}).get('enabled',False)
 # Offline fixture only; shipped field profile stays unconfirmed/without gate coordinates.
 s.update(site_confirmed=True,corridor_waypoints=[dict(x=6.7,y=4.,agl=1.4),dict(x=6.7,y=4.,agl=.9),dict(x=8.3,y=4.,agl=.9),dict(x=8.3,y=-4.,agl=.9)],landing_xy=[8.5,-4.2])
 rig=yaml.safe_load((M/'config/competition/known_rig.yaml').read_text());rows=[]
@@ -28,7 +32,15 @@ with tempfile.TemporaryDirectory() as tmp:
   assert v['/fast_planner_node/manager/max_acc']==s['cruise_acceleration']
   assert v['/fast_planner_node/sdf_map/virtual_ceil_height']==-.1
   assert [v['/fast_planner_node/sdf_map/'+k] for k in ('obstacles_inflation','obstacles_inflation_up','obstacles_inflation_down')]==[.25,.2,.1]
-  assert v['/navigation/planner_bridge/target/recovery_height']==v['/navigation/mission_manager/mission/approach_altitude']
+  if motion and s['motion_optimization'].get('moving_recovery',True):
+   assert abs(v['/navigation/planner_bridge/target/recovery_height']-(ref['ground_z']+s['motion_optimization']['recovery_handoff_agl']))<1e-6
+   if enabled=='true':assert v['/navigation/planner_bridge/target/recovery_height']==v['/uav_vision/recovery_height']
+  else:
+   assert v['/navigation/planner_bridge/target/recovery_height']==v['/navigation/mission_manager/mission/approach_altitude']
+  if motion:
+   assert v['/navigation/planner_bridge/motion_optimization/enabled']
+   assert v['/navigation/mission_manager/motion_optimization/enabled']
+   assert v['/fast_planner_node/search/line_deviation_weight']==0.
   if enabled=='true':
    assert v['/guarded_servo_proxy/raw_service_name']=='/legacy/Servo_raw'
    assert v['/guarded_servo_proxy/service_name']=='/Servo'
@@ -62,4 +74,4 @@ with tempfile.TemporaryDirectory() as tmp:
   assert len([n for n in cfg.nodes if n.name=='map_camera_alignment'])==1
  cfg=load('mapping',['mapping_profile:=high'])
  assert [n.name for n in cfg.nodes]==['freedom']
-print(json.dumps(dict(status='PASS',applications=rows,localization_modes=2,mapping=1,ros_started=False),indent=2))
+print(json.dumps(dict(status='PASS',profile=str(args.profile),applications=rows,localization_modes=2,mapping=1,ros_started=False),indent=2))

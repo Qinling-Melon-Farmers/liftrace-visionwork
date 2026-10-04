@@ -10,9 +10,21 @@ from uav_mission.high_view_probe import ProbeConfig
 from uav_high_view.survey_policy import SurveyPolicy
 from uav_mission.execution_speed import FollowingSpeed
 from uav_mission.corridor_speed import CorridorSpeedConfig
+from uav_mission.motion_optimization import MotionOptimization, optimize_post_route
 
 
 def validate(settings, flight=False):
+    motion=MotionOptimization(**settings.get('motion_optimization',{}))
+    if motion.enabled:
+        if motion.braking_speed_mps<settings['cruise_speed'] or motion.braking_accel_mps2>settings['cruise_acceleration']:
+            raise ValueError('braking model must not overstate commanded dynamics')
+        if motion.moving_recovery and not settings['drop_agl']+.15<=motion.recovery_handoff_agl<=settings['low_agl']:
+            raise ValueError('recovery handoff must clear release height before low transit')
+        if not settings.get('corridor_speed_schedule'):
+            raise ValueError('motion optimization needs measured corridor wall planes')
+        if settings['landing_transit_agl']>motion.corridor_max_agl:
+            raise ValueError('H transit exceeds corridor cap')
+
     if settings.get('mode')!='high_view_full' or settings.get('actuator_mode')!='real':
         raise ValueError('competition uses the full mission and permission-guarded real release')
     FollowingSpeed(**settings['following_speed_profile'])
@@ -63,6 +75,12 @@ def generate(root,out,settings,fc_xyz,rig):
     x,y,z=map(float,fc_xyz);ground=z-float(rig['fc_ground_clearance'])
     if not all(math.isfinite(v) for v in (x,y,z,ground)) or max(abs(x),abs(y),abs(z))>.3:raise ValueError('unexpected initial reference')
     low=struct.unpack('f',struct.pack('f',ground+settings['low_agl']))[0]
+    camera_offset=-(float(rig['body_to_imu_xyz'][2])+float(rig['imu_to_camera_xyz'][2]))
+    if 'survey_camera_agl' in settings:
+        requested=float(settings['survey_camera_agl'])
+        if not math.isfinite(requested) or requested<=0 or abs(settings['high_agl']-(requested+camera_offset))>1e-6:
+            raise ValueError('survey camera AGL and FC high_agl disagree with rig')
+    motion=MotionOptimization(**settings.get('motion_optimization',{}))
     high=ground+settings['high_agl'];drop=ground+settings['drop_agl'];capture=ground+settings['landing_capture_agl'];cap=ground+settings['max_agl']
     if min(drop,ground+.4)<=.05:raise ValueError('legacy positive local-Z bounds not met')
     point=lambda px,py,h:[x+px,y+py,h]
@@ -70,8 +88,27 @@ def generate(root,out,settings,fc_xyz,rig):
     area=shift(settings['flight_bounds']);search=shift(settings['search_center_bounds']);target=shift(settings['target_bounds']);cover=shift(settings['coverage_bounds'])
     hx,hy=settings['landing_xy'];landing=[x+hx,y+hy]
     route=[point(p['x'],p['y'],ground+p['agl']) for p in settings['corridor_waypoints']]
+    corridor_count=len(route)
     for p in (point(hx,hy,ground+settings['landing_transit_agl']),point(hx,hy,capture)):
         if math.dist(route[-1],p)>1e-6:route.append(p)
+    motion_meta={}
+    if motion.enabled:
+        schedule=settings['corridor_speed_schedule']
+        axis=schedule.get('axis',1)
+        walls=[v+(x if axis==0 else y) for v in schedule['wall_coordinates']]
+        # Only a same-XY high-to-low entrance pair may be combined. All remaining
+        # corridor points must already satisfy the low-plane constraint.
+        low_prefix=route[1:corridor_count] if (corridor_count>=2 and
+            math.dist(route[0][:2],route[1][:2])<1e-6 and route[0][2]>route[1][2]+.05) else route[:corridor_count]
+        if any(p[2]>ground+motion.corridor_max_agl+1e-6 for p in low_prefix):
+            raise ValueError('corridor relay above low cap')
+        route,motion_meta=optimize_post_route(route,motion,corridor_count,axis,walls)
+        entry_index=(1 if not motion_meta['diagonal_entry'] and len(route)>1 and
+            math.dist(route[0][:2],route[1][:2])<1e-6 and route[0][2]>route[1][2]+.05 else 0)
+        motion_meta['entry_completed_waypoints']=entry_index+1
+        entrance=route[entry_index]
+        if entrance[2]>ground+motion.corridor_max_agl+1e-6 or min(abs(entrance[axis]-w) for w in walls)<schedule.get('exit_distance_m',.95):
+            raise ValueError('low entrance must be reached before gate braking zone')
     runtime=yaml.safe_load((cfg/'runtime_base.yaml').read_text())
     runtime['mission'].update(home_xy=[x,y],landing_xy=landing,approach_altitude=low,return_altitude=low,
         nominal_speed=.5,post_delivery_route=route,post_delivery_route_revision='competition-measured',
@@ -81,12 +118,24 @@ def generate(root,out,settings,fc_xyz,rig):
             '/fast_planner_node/sdf_map/virtual_ceil_height':-.1,
             '/navigation/planner_bridge/execution/arrival_position_tolerance':.12,
             '/navigation/planner_bridge/execution/arrival_dwell':.8})])
+    if motion.enabled:
+        runtime['motion_optimization']=copy.deepcopy(settings['motion_optimization'])
+        runtime['motion_optimization_metadata']=motion_meta
+        parameters=runtime['mission']['post_delivery_parameter_stages'][0]['parameters']
+        parameters['/external_planner_max_command_z']=cap
+        # Enter the corridor only AFTER the low entrance point has settled.
+        runtime['mission']['post_delivery_parameter_stages'].append(dict(after_completed_waypoints=motion_meta['entry_completed_waypoints'],
+            parameters={'/external_planner_max_command_z':ground+motion.corridor_max_agl}))
+        runtime['mission']['post_delivery_parameter_stages'].append(dict(
+            after_completed_waypoints=motion_meta['corridor_points_count'],
+            parameters={'/external_planner_max_command_z':max(ground+motion.corridor_max_agl,capture+.1)}))
     runtime['search'].update(min_x=cover[0],max_x=cover[1],min_y=cover[2],max_y=cover[3],altitude=low,lane_spacing=settings['lane_spacing'],route_revision='competition-coverage')
     runtime['runtime'].update(start_mode='full',mission_id_prefix='competition')
     runtime['following_speed_profile']=copy.deepcopy(settings['following_speed_profile'])
     if settings.get('corridor_speed_schedule'):
         schedule=copy.deepcopy(settings['corridor_speed_schedule'])
         schedule['wall_coordinates']=[v+(x if schedule['axis']==0 else y) for v in schedule['wall_coordinates']]
+        if motion.enabled: schedule['entry_waypoints']=motion_meta['entry_completed_waypoints']
         runtime['corridor_speed_schedule']=schedule
     runtime['high_view_probe']=dict(config=dict(ground_z=ground,high_agl=settings['high_agl'],low_agl=settings['low_agl'],staging_xy=point(*settings['staging_xy'],0)[:2],survey_xy=[point(*p,0)[:2] for p in settings['survey_xy']],source_key='competition-field-rig'),camera_info_topic=settings['camera_info_topic'],low_stage_parameters=[
         dict(name='/external_planner_max_command_z',value=max(ground+1.85,capture+.1)),
@@ -127,6 +176,15 @@ def generate(root,out,settings,fc_xyz,rig):
         '/target_map_projector/coarse_navigation_enabled':True,'/target_map_projector/coarse_min_confidence':policy['coarse_min_confidence'],
         '/target_memory/search_confirmation_max_gap_sec':1.,'/drop_aligner/stable_frames':5,
     }
+    if motion.enabled:
+        overrides['/navigation/planner_bridge/motion_optimization']=copy.deepcopy(settings['motion_optimization'])
+        overrides['/fast_planner_node/search/line_deviation_weight']=0.
+        if motion.moving_recovery:
+            handoff=struct.unpack('f',struct.pack('f',ground+motion.recovery_handoff_agl))[0]
+            control['uav_vision']['recovery_height']=handoff
+            overrides['/navigation/planner_bridge/target/recovery_height']=handoff
+            # Legacy climb setpoints stay high until a fresh, collision-checked
+            # planner transaction takes over. No horizontal direct-control shortcut.
     for region,box in [('horizontal_avoidance',search),('search_region',search)]:
         for key,val in zip(('min_x','max_x','min_y','max_y'),box):overrides['/fast_planner_node/sdf_map/'+region+'/'+key]=val
     for name,data in [('runtime.yaml',runtime),('control.yaml',control),('overrides.yaml',overrides)]:

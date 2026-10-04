@@ -147,6 +147,8 @@ class KinodynamicAstar {
   double max_tau_, init_max_tau_;
   double max_vel_, max_acc_;
   double w_time_, horizon_, lambda_heu_, w_z_;
+  double line_deviation_weight_ = 0.;
+  std::string line_deviation_param_;
   int allocate_num_, check_num_;
   double tie_breaker_;
   double max_search_time_ = 0.25;  // wall seconds per attempt

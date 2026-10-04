@@ -402,7 +402,8 @@ class ExternalMissionContractTest(unittest.TestCase):
         self.assertIn("failed closed and holding position", source)
         self.assertIn("if (external_mission_mode_ && !mode_accepted)", source)
         self.assertIn("flag_land = false;", source)
-        self.assertIn("duplicate LAND command ignored", source)
+        self.assertIn("if (external_landing_active_ || external_landing_cancelled_)", source)
+        self.assertIn("duplicate or cancelled LAND command ignored", source)
         self.assertIn(
             "if (external_mission_mode_ && external_landing_active_)",
             source)

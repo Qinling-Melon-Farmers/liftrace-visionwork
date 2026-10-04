@@ -1,0 +1,123 @@
+# UNVALIDATED motion candidate. Site geometry/doors/H MUST be measured.
+# high_agl remains FC AGL; survey_camera_agl must agree with actual rig.
+site_confirmed: false
+mode: high_view_full
+low_agl: 1.4
+high_agl: 2.76
+max_agl: 3.0
+drop_agl: 0.6
+landing_transit_agl: 1.0
+landing_capture_agl: 0.9
+landing_enable_h_stroke_fallback: true
+cruise_speed: 1.2
+cruise_acceleration: 1.0
+lane_spacing: 0.7
+virtual_ceiling_enabled: false
+alignment_mode: legacy_static
+actuator_mode: real
+raw_servo_service: /legacy/Servo_raw
+auto_start_after_arm: true
+initialization_timeout: 180
+obstacle_columns_enabled: true
+flight_bounds:
+- -0.5
+- 9.5
+- -5.0
+- 5.0
+search_center_bounds:
+- -0.1
+- 7.55
+- -4.55
+- 4.55
+target_bounds:
+- -0.5
+- 7.95
+- -5.0
+- 5.0
+coverage_bounds:
+- 0.4
+- 7.2
+- -4.25
+- 4.25
+staging_xy:
+- 0.6
+- 0.05
+survey_xy:
+- - 1.8
+  - -3.7
+- - 5.6
+  - -3.7
+- - 5.6
+  - 3.9
+- - 1.8
+  - 3.9
+- - 1.8
+  - -3.7
+map_size:
+- 22.0
+- 12.0
+- 4.0
+corridor_waypoints: []
+landing_xy: null
+corridor_speed_schedule:
+  axis: 1
+  wall_coordinates:
+  - -1.6
+  - 1.6
+  enter_distance_m: 0.75
+  exit_distance_m: 0.95
+  open_lead_m: 0.4
+  door_lead_m: 0.15
+  landing_radius_m: 0.8
+following_speed_profile:
+  cruise_lead_m: 1.0
+  precision_lead_m: 0.4
+  corridor_lead_m: 0.15
+  corridor_after_waypoints: 1
+survey_policy:
+  coarse_enabled: true
+  coarse_min_confidence: 0.6
+  coarse_interrupt_min_interval_ns: 100000000
+  coarse_interrupt_max_gap_ns: 1000000000
+  coarse_interrupt_consistency_m: 0.5
+  interrupt_refined_classes: []
+  recheck_observe_seconds: 5.0
+  recheck_shift_after_seconds: 1.0
+  recheck_shift_radius_m: 0.5
+  candidate_min_streak: 1
+  min_interval_ns: 100000000
+  min_span_ns: 200000000
+  max_uncertainty_m: 0.45
+  direct_descent: true
+  descent_radius_m: 1.5
+  descent_max_candidates: 25
+  survey_stall_seconds: 8.0
+  survey_progress_m: 0.15
+  survey_alternative_radius_m: 0.6
+image_topic: /camera/image_raw
+camera_info_topic: /camera/camera_info
+compressed_image_topic: /camera/image_raw/compressed
+bag_image_topic: /competition/recording/image/compressed
+bag_image_hz: 5.0
+record_map_clouds: false
+record_inflated_cloud: true
+metadata_topic: /competition/run_metadata
+competition_recording: true
+mapping_profile: high
+supervisor_name: competition_supervisor
+survey_camera_agl: 2.6
+motion_optimization:
+  enabled: true
+  dynamic_boundary: true
+  moving_recovery: true
+  diagonal_entry: true
+  merge_collinear_relays: true
+  survey_line_weight: 2.0
+  braking_speed_mps: 1.2
+  braking_accel_mps2: 0.6
+  reaction_seconds: 0.3
+  boundary_reserve_m: 0.15
+  recovery_handoff_agl: 0.9
+  recovery_min_ack_seconds: 0.6
+  recovery_max_vz: 0.6
+  corridor_max_agl: 1.0
