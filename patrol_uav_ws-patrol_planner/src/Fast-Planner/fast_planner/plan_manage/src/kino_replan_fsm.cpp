@@ -255,16 +255,33 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
 
   const ros::Time now = ros::Time::now();
   const auto height = referenceHeight();
-  if (height.enabled && height.valid) {
-    std::string ns;
-    ros::param::param<std::string>("~height_constraint_namespace",ns,"/navigation_height_constraint");
-    // Heartbeat ACK: stages wait for a post-request observation, not a stale latched value.
-    static double last_ack=-1;
-    if (now.toSec()-last_ack>=0.1 || now.toSec()<last_ack) {
-      ros::param::set(ns+"/planner_applied_max_z",height.max_z);
-      ros::param::set(ns+"/planner_applied_frame",height.frame);
-      ros::param::set(ns+"/planner_applied_stamp",now.toSec());
-      last_ack=now.toSec();
+  static ros::Time height_request_polled;
+  if (height.enabled && height.valid && (height_request_polled.isZero() ||
+      (now-height_request_polled).toSec()>=0.1 || now<height_request_polled)) {
+    height_request_polled=now;
+    const auto& ns=heightConstraintNamespace();
+    XmlRpc::XmlRpcValue request;
+    static std::string acknowledged_id;
+    static double acknowledged_limit=std::numeric_limits<double>::quiet_NaN();
+    static std::string acknowledged_frame;
+    // Cached request subscription: no 100Hz namespace queries or periodic
+    // parameter writes. One atomic ACK per request (also for an equal cap).
+    if (ros::param::getCached(ns+"/request",request) &&
+        request.getType()==XmlRpc::XmlRpcValue::TypeStruct &&
+        request.hasMember("id") && request.hasMember("max_z") && request.hasMember("frame") &&
+        request["id"].getType()==XmlRpc::XmlRpcValue::TypeString &&
+        request["max_z"].getType()==XmlRpc::XmlRpcValue::TypeDouble &&
+        request["frame"].getType()==XmlRpc::XmlRpcValue::TypeString) {
+      const std::string id=static_cast<std::string>(request["id"]);
+      const std::string frame=static_cast<std::string>(request["frame"]);
+      const double cap=static_cast<double>(request["max_z"]);
+      if (!id.empty() && frame==height.frame && std::isfinite(cap) && std::abs(cap-height.max_z)<=1e-9 &&
+          (id!=acknowledged_id || cap!=acknowledged_limit || frame!=acknowledged_frame)) {
+        XmlRpc::XmlRpcValue ack;
+        ack["id"]=id;ack["max_z"]=cap;ack["frame"]=frame;ack["stamp"]=now.toSec();
+        ros::param::set(ns+"/ack",ack);
+        acknowledged_id=id;acknowledged_limit=cap;acknowledged_frame=frame;
+      }
     }
   }
   if (exec_state_==EXEC_TRAJ && !height.controls(planner_manager_->local_data_.position_traj_.getControlPoint())) {

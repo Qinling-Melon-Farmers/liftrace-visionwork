@@ -6,7 +6,7 @@
 
 1. 规划与控制共用 /external_planner_max_command_z（任务坐标的FC参考点local Z）。启动显式指定 /navigation_height_constraint 的 enabled、frame_id、limit_parameter。不是虚拟障碍顶棚，不额外叠加膨胀。目标调整、运动原语二次曲线、直接连接三次曲线、最终B样条控制点凸包、轨迹服务器逐级检查；超限轨迹拒绝并保持/重规划，控制不再保留原XY单独压低Z。B样条凸包判据保守，可能拒绝少数曲线本身未越界的解。
 2. 走廊目标FC AGL 0.90、上限1.00不变，local Z=ground_z+AGL。阶段收紧前必须当前高度已在新上限内；等待规划FSM回执，再发布下一目标。普通0.12m到点容差不能代替高度检查；等待仍受原任务deadline约束。
-3. Bridge明确里程计twist约定。正式/navigation/local_odom用child，经完整姿态旋转；原始FAST-LIO /Odometry用header，不二次旋转。提前恢复仍为ACK后0.60s开始计窗、窗口0.15s、间隔0.20s，新增至少3个不同时间戳和专用0.20s新鲜度。水平0.25、竖速[-0.03,0.60]、交接AGL0.90不变。
+3. Bridge明确里程计twist约定。正式/navigation/local_odom用child，经完整姿态旋转；原始FAST-LIO /Odometry按header约定，不二次旋转；当前源未填twist，不具备同等移动恢复能力，后续复核已将该入口提前恢复默认禁用。提前恢复仍为ACK后0.60s开始计窗、窗口0.15s、间隔0.20s，新增至少3个不同时间戳和专用0.20s新鲜度。水平0.25、竖速[-0.03,0.60]、交接AGL0.90不变。
 4. Manager位姿过期在提前返回前优先收紧前视至min(现值,0.20m)，0.15m走廊档不放大；暂停任务推进，至少3条递增有效位姿跨0.20s后恢复当前阶段选档。通用0.50s及LIO/EV300ms不变。此动作不是悬停保证，不能替代定位失效处置。
 5. planner_line_preference.weight独立为全局参数，默认2.0，显式0关闭；motion_optimization.enabled只控制运动衔接。各规划阶段共用软代价，保留避障与动力学检查和0.25s搜索预算。
 
@@ -28,3 +28,5 @@
 
 competition_application显式启用共同限高并指定任务frame，正式里程计child速度约定；competition_config将全局直线偏好独立输出，默认2、显式0关闭。保留既有supervisor、手动OFFBOARD、实机位姿保护和场地配置，不引入九组专项依赖。
 整机413项任务测试全部通过（研究分支先前跳过的4项已实际执行）；原正赛模板、矩形候选、蛇形候选分别展开preview/control两种入口，共6组合通过，未启动ROS节点。
+
+复核后续修复与能力边界见 [REVIEW_FOLLOWUP.md](REVIEW_FOLLOWUP.md)，后续测试以最终修订为准。
