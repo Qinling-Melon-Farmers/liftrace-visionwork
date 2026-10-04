@@ -1,3 +1,4 @@
+#include <plan_env/reference_height.h>
 /**
 * This file is part of Fast-Planner.
 *
@@ -263,6 +264,7 @@ bool FastPlannerManager::kinodynamicReplan(Eigen::Vector3d start_pt, Eigen::Vect
   // curve. Both candidates use the same complete clearance check.
   Eigen::Vector3d rejected_point = Eigen::Vector3d::Zero();
   const auto is_clear = [this, &rejected_point](NonUniformBspline& curve) {
+    if (!referenceHeight().controls(curve.getControlPoint())) return false;
     for (double t = 0.0; t <= curve.getTimeSum() + 0.02; t += 0.02) {
       Eigen::Vector3d point = curve.evaluateDeBoorT(std::min(t, curve.getTimeSum()));
       if (!point.allFinite() ||

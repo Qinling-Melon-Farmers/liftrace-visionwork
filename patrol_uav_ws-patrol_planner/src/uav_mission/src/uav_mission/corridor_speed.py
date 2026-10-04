@@ -11,9 +11,11 @@ class CorridorSpeedConfig:
     open_lead_m: float = .4
     door_lead_m: float = .15
     landing_radius_m: float = .8
+    entry_waypoints: int = 2
 
     def __post_init__(self):
-        if (self.axis not in (0,1) or not self.wall_coordinates or
+        if (type(self.entry_waypoints) is not int or self.entry_waypoints not in (1,2) or
+            self.axis not in (0,1) or not self.wall_coordinates or
             not all(math.isfinite(v) for v in (*self.wall_coordinates,self.enter_distance_m,self.exit_distance_m,self.open_lead_m,self.door_lead_m,self.landing_radius_m)) or
             not 0<self.enter_distance_m<self.exit_distance_m or
             not .05<=self.door_lead_m<=self.open_lead_m<=.6 or self.landing_radius_m<.5):
@@ -25,7 +27,7 @@ class CorridorSpeed:
         c=self.config
         if xy is None or not all(math.isfinite(v) for v in xy):return 'CORRIDOR_UNCERTAIN',c.door_lead_m
         # completed==1 is the deliberate staging descent, not fast transit.
-        if completed<2:return 'CORRIDOR_DESCENT',c.door_lead_m
+        if completed<self.config.entry_waypoints:return 'CORRIDOR_DESCENT',c.door_lead_m
         if math.dist(xy,landing_xy)<=c.landing_radius_m:return 'H_APPROACH',c.door_lead_m
         distance=min(abs(xy[c.axis]-v) for v in c.wall_coordinates)
         if distance<=c.enter_distance_m:self.slow=True

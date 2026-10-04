@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <launch>
+  <arg name="height_constraint_enabled" default="true" />
   <arg name="terminal_hover_enabled" default="false" />
   <arg name="max_command_z" default="$(eval float(arg('ground_z'))+2.9)" />
   <arg name="simulation" default="false" />
@@ -18,6 +19,9 @@
   <arg name="actuator_mode" default="mock" />
   <arg name="raw_servo_service" default="/legacy/Servo_raw" />
   <arg name="map_frame" default="camera_init" />
+  <param name="/navigation_height_constraint/enabled" value="$(arg height_constraint_enabled)" />
+  <param name="/navigation_height_constraint/frame_id" value="$(arg map_frame)" />
+  <param name="/navigation_height_constraint/limit_parameter" value="/external_planner_max_command_z" />
   <include file="$(find uav_vision)/launch/phase_d_board.launch" unless="$(arg simulation)">
     <arg name="model_path" value="$(arg model_path)" />
     <arg name="metadata_path" value="$(arg metadata_path)" />
@@ -94,6 +98,7 @@
       <arg name="planner_goal_topic" value="/fastplanner/goal" />
       <arg name="planner_status_topic" value="/planning/goal_status" />
       <arg name="odom_topic" value="/navigation/local_odom" />
+      <arg name="odom_twist_frame" value="child" />
     </include>
   </group>
   <include file="$(find uav_mission)/launch/release_guard.launch" if="$(eval arg('enable_control_output') and arg('mode') not in ['landing','memory_only','high_speed_capture'])">

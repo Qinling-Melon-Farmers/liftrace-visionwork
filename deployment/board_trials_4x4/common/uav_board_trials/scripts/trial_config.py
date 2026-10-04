@@ -21,7 +21,7 @@ def apply_site_profile(settings, profile):
     if settings['mode'] in H_MODES:
         allowed.add('landing_xy')
     if settings.get('trial_kind') in ('corridor_landing','full_mission'):
-        allowed.add('corridor_waypoints')
+        allowed.update(('corridor_waypoints','corridor_geometry'))
     if not isinstance(profile,dict) or set(profile)-allowed:
         raise ValueError('Unsupported site profile key')
     if settings['mode'] in H_MODES and 'terminal_hover_agl' in profile:
@@ -57,6 +57,12 @@ def flight_geometry(settings):
     if not all(inside(v,target) for v in ([bounds[0],bounds[2]],[bounds[1],bounds[3]])):
         raise ValueError("target_bounds must contain center_bounds")
     if not all(inside(v) for v in ([search[0],search[2]],[search[1],search[3]])):raise ValueError("Search bounds outside flight_area")
+    if 'survey_pattern' in settings:
+        if settings['mode'] not in HIGH_MODES:raise ValueError('Survey pattern only applies to high-view modules')
+        from uav_mission.survey_routes import survey_route
+        old=area['survey_xy'];xs=[min(v[0] for v in old),max(v[0] for v in old)]
+        if settings['survey_pattern']=='snake3':xs.insert(1,sum(xs)/2)
+        area['survey_xy']=survey_route(settings['survey_pattern'],xs,min(v[1] for v in old),max(v[1] for v in old),start_high=old[0][1]>sum(v[1] for v in old)/len(old))
     points=area["survey_xy"]
     if not isinstance(points,list) or len(points)<(2 if settings.get('mode')=='high_speed_capture' else 3) or any(not inside(v) for v in points):raise ValueError("Survey point outside flight_area")
     if settings.get('mode')=='high_speed_capture':
@@ -106,6 +112,8 @@ def validate_settings(settings):
     if settings['high_agl']>max_agl:raise ValueError('high altitude exceeds cap')
     if 'terminal_hover_agl' in settings and not .25<=settings['terminal_hover_agl']<=.5:raise ValueError('invalid terminal hover')
     if type(settings.get('obstacle_columns_enabled',True)) is not bool:raise ValueError('invalid obstacle column flag')
+    from trial_motion import motion_options
+    motion_options(settings)
     area=flight_geometry(settings);cb=area['center_bounds']
     if settings['mode'] in H_MODES and settings.get('trial_kind') not in ('corridor_landing','full_mission'):
         landing=settings.get('landing_xy')
@@ -248,6 +256,9 @@ def generate(root,out,settings,fc_xyz,rig):
         '/target_memory/search_confirmation_max_gap_sec':1.0,
         '/drop_aligner/stable_frames':5,
     }
+    from trial_motion import apply_generated_motion
+    motion_report=apply_generated_motion(runtime,control,overrides,settings,ground)
+    (out/'motion_profile.json').write_text(json.dumps(motion_report,indent=2))
     (out/'terminal_hover.yaml').write_text(yaml.safe_dump(dict(frame='camera_init',ground_z=ground,hover_agl=settings.get('terminal_hover_agl',.3),max_agl=settings.get('max_agl',2.9),descent_speed=.15)))
     for name,data in [('runtime.yaml',runtime),('control.yaml',control),('overrides.yaml',overrides),('auto_land.yaml',dict(frame='camera_init',landing_xy=[x+.6,y],cruise_z=low,route_revision='board-'+mode))]:
         (out/name).write_text(yaml.safe_dump(data,sort_keys=False))

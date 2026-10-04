@@ -50,7 +50,7 @@ struct Time {
     static Time now() { return Time(clock); }
 };
 Duration operator-(Time a, Time b) { return Duration{a.value - b.value}; }
-struct Publisher {};
+struct Publisher { int calls=0; template<typename T> void publish(const T&) {++calls;} };
 }
 struct Header { ros::Time stamp; std::string frame_id; };
 struct Position { double x=0, y=0, z=0; };
@@ -61,7 +61,7 @@ struct PoseStamped {
     struct { Position position; double orientation=0; } pose;
 };
 }
-namespace std_msgs { struct Bool { bool data=false; }; }
+namespace std_msgs { struct Empty {}; struct Bool { bool data=false; }; }
 namespace mavros_msgs {
 struct State {
     using ConstPtr = std::shared_ptr<const State>;
@@ -128,7 +128,8 @@ public:
     ros::Time external_landing_started_at_, external_landing_command_stamp_;
     ros::Time external_landing_last_mark_stamp_, external_landing_last_mark_receipt_;
     ros::Time external_landing_last_auto_land_attempt_;
-    ros::Time latest_planner_cmd_time_;
+    ros::Time latest_planner_cmd_time_, height_replan_stamp_;
+    ros::Publisher height_replan_pub_;
     geometry_msgs::PoseStamped external_landing_goal_, external_landing_aligned_goal_;
     geometry_msgs::PoseStamped patrol_cmd, mavros_point_cmd, last_mavros_point_cmd;
     geometry_msgs::PoseStamped planner_cmd;

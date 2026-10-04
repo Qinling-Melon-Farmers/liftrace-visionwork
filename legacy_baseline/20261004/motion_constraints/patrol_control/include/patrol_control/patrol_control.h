@@ -1,4 +1,3 @@
-#include <std_msgs/Empty.h>
 #ifndef _LL_CONTROLLER_NEW_H_
 #define _LL_CONTROLLER_NEW_H_
 
@@ -213,8 +212,6 @@ private:
         "/uav_vision/detections_mapped";
     double external_planner_cmd_timeout_ = 0.5;
     double external_planner_start_max_distance_ = 0.6;
-    ros::Publisher height_replan_pub_;
-    ros::Time height_replan_stamp_;
     double external_planner_max_command_z_ = 3.5;
     std::string external_landing_frame_ = "camera_init";
     double external_landing_capture_height_ = 0.75;

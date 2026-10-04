@@ -11,10 +11,16 @@ class RecoveryHoldTest(unittest.TestCase):
         branch=src[start:end]
         code='''#include <cassert>
 #define ROS_WARN_THROTTLE(...)
+#define ROS_ERROR_THROTTLE(...)
+namespace std_msgs { struct Empty {}; }
+namespace ros { struct Time { static Time now(){return Time();} }; }
+struct Pub { int calls=0; template<typename T> void publish(const T&) { ++calls; } };
 struct P { double x,y,z; }; struct Pose { P position; }; struct Msg {Pose pose;};
 bool hasValidExternalPlannerCommand(){return true;}
 int main(){
-bool external_waiting_for_motion_=true;
+bool external_waiting_for_motion_=true, have_planner_cmd=true;
+Pub height_replan_pub_; ros::Time height_replan_stamp_;
+Msg uav_pose{{{3,4,.8}}};
 Msg patrol_cmd{{{1,2,1.2}}},mavros_point_cmd{},planner_cmd{{{9,9,.1}}},last_mavros_point_cmd{};
 double external_planner_max_command_z_=2.08;
 for(int i=0;i<100;i++){
@@ -26,6 +32,12 @@ planner_cmd.pose.position.z-=.001;
 external_waiting_for_motion_=false;
 '''+branch+'''
 assert(mavros_point_cmd.pose.position.x==9);
+planner_cmd.pose.position.z=2.5;
+'''+branch+'''
+assert(mavros_point_cmd.pose.position.x==3);
+assert(mavros_point_cmd.pose.position.y==4);
+assert(mavros_point_cmd.pose.position.z==.8);
+assert(!have_planner_cmd && height_replan_pub_.calls==1);
 }
 '''
         self.compile_run(code)
@@ -34,7 +46,7 @@ assert(mavros_point_cmd.pose.position.x==9);
         root=Path(__file__).resolve().parents[2]
         src=(root/'Fast-Planner/fast_planner/plan_manage/src/traj_server.cpp').read_text()
         start=src.index('  if (trajectory_interrupted_) {',src.index('void cmdCallback'))
-        end=src.index('  double interpolated_yaw',start)
+        end=src.index('  if (progress_enabled)',start)
         branch=src[start:end]
         code='''#include <Eigen/Dense>
 #include <cassert>
