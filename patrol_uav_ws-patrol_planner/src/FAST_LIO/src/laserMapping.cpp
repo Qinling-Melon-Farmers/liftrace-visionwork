@@ -36,6 +36,7 @@
 #include <mutex>
 #include <math.h>
 #include <cmath>
+#include <cstdint>
 #include <thread>
 #include <fstream>
 #include <csignal>
@@ -58,8 +59,11 @@
 #include <tf/transform_broadcaster.h>
 #include <geometry_msgs/Vector3.h>
 #include <livox_ros_driver2/CustomMsg.h>
+#include <diagnostic_msgs/DiagnosticArray.h>
+#include <time.h>
 #include "preprocess.h"
 #include <ikd-Tree/ikd_Tree.h>
+#include <local_map_shift.h>
 
 #define INIT_TIME           (0.1)
 #define LASER_POINT_COV     (0.001)
@@ -74,9 +78,11 @@ int    kdtree_size_st = 0, kdtree_size_end = 0, add_point_size = 0, kdtree_delet
 bool   runtime_pos_log = false, pcd_save_en = false, time_sync_en = false, extrinsic_est_en = true, path_en = true;
 bool   map_pub_en = false;
 double map_publish_period = 1.0;
+double map_shift_distance = 0.0;
+ros::Publisher realtime_pub;
 /**************************/
 
-float res_last[100000] = {0.0};
+vector<float> res_last;
 float DET_RANGE = 300.0f;
 const float MOV_THRESHOLD = 1.5f;
 double time_diff_lidar_to_imu = 0.0;
@@ -94,7 +100,8 @@ double filter_size_corner_min = 0, filter_size_surf_min = 0, filter_size_map_min
 double cube_len = 0, HALF_FOV_COS = 0, FOV_DEG = 0, total_distance = 0, lidar_end_time = 0, first_lidar_time = 0.0;
 int    effct_feat_num = 0, time_log_counter = 0, scan_count = 0, publish_count = 0;
 int    iterCount = 0, feats_down_size = 0, NUM_MAX_ITERATIONS = 0, laserCloudValidNum = 0, pcd_save_interval = -1, pcd_index = 0;
-bool   point_selected_surf[100000] = {0};
+// Each OpenMP worker owns a distinct byte; vector<bool> would share packed bits.
+vector<uint8_t> point_selected_surf;
 bool   lidar_pushed, flg_first_scan = true, flg_exit = false, flg_EKF_inited;
 bool   scan_pub_en = false, dense_pub_en = false, scan_body_pub_en = false;
 int lidar_type;
@@ -112,9 +119,9 @@ PointCloudXYZI::Ptr featsFromMap(new PointCloudXYZI());
 PointCloudXYZI::Ptr feats_undistort(new PointCloudXYZI());
 PointCloudXYZI::Ptr feats_down_body(new PointCloudXYZI());
 PointCloudXYZI::Ptr feats_down_world(new PointCloudXYZI());
-PointCloudXYZI::Ptr normvec(new PointCloudXYZI(100000, 1));
-PointCloudXYZI::Ptr laserCloudOri(new PointCloudXYZI(100000, 1));
-PointCloudXYZI::Ptr corr_normvect(new PointCloudXYZI(100000, 1));
+PointCloudXYZI::Ptr normvec(new PointCloudXYZI());
+PointCloudXYZI::Ptr laserCloudOri(new PointCloudXYZI());
+PointCloudXYZI::Ptr corr_normvect(new PointCloudXYZI());
 PointCloudXYZI::Ptr _featsArray;
 
 pcl::VoxelGrid<PointType> downSizeFilterSurf;
@@ -256,7 +263,7 @@ void lasermap_fov_segment()
     if (!need_move) return;
     BoxPointType New_LocalMap_Points, tmp_boxpoints;
     New_LocalMap_Points = LocalMap_Points;
-    float mov_dist = max((cube_len - 2.0 * MOV_THRESHOLD * DET_RANGE) * 0.5 * 0.9, double(DET_RANGE * (MOV_THRESHOLD -1)));
+    const double mov_dist = map_shift_distance;
     for (int i = 0; i < 3; i++){
         tmp_boxpoints = LocalMap_Points;
         if (dist_to_map_edge[i][0] <= MOV_THRESHOLD * DET_RANGE){
@@ -288,6 +295,8 @@ void standard_pcl_cbk(const sensor_msgs::PointCloud2::ConstPtr &msg)
     {
         ROS_ERROR("lidar loop back, clear buffer");
         lidar_buffer.clear();
+        time_buffer.clear();
+        lidar_pushed = false;
     }
 
     PointCloudXYZI::Ptr  ptr(new PointCloudXYZI());
@@ -311,6 +320,8 @@ void livox_pcl_cbk(const livox_ros_driver2::CustomMsg::ConstPtr &msg)
     {
         ROS_ERROR("lidar loop back, clear buffer");
         lidar_buffer.clear();
+        time_buffer.clear();
+        lidar_pushed = false;
     }
     last_timestamp_lidar = msg->header.stamp.toSec();
     
@@ -480,7 +491,7 @@ PointCloudXYZI::Ptr pcl_wait_pub(new PointCloudXYZI(500000, 1));
 PointCloudXYZI::Ptr pcl_wait_save(new PointCloudXYZI());
 void publish_frame_world(const ros::Publisher & pubLaserCloudFull)
 {
-    if(scan_pub_en)
+    if(scan_pub_en && pubLaserCloudFull.getNumSubscribers() > 0)
     {
         PointCloudXYZI::Ptr laserCloudFullRes(dense_pub_en ? feats_undistort : feats_down_body);
         int size = laserCloudFullRes->points.size();
@@ -534,6 +545,7 @@ void publish_frame_world(const ros::Publisher & pubLaserCloudFull)
 
 void publish_frame_body(const ros::Publisher & pubLaserCloudFull_body)
 {
+    if (pubLaserCloudFull_body.getNumSubscribers() == 0) return;
     int size = feats_undistort->points.size();
     PointCloudXYZI::Ptr laserCloudIMUBody(new PointCloudXYZI(size, 1));
 
@@ -610,18 +622,17 @@ void publish_odometry(const ros::Publisher & pubOdomAftMapped)
     odomAftMapped.child_frame_id = "body";
     odomAftMapped.header.stamp = ros::Time().fromSec(lidar_end_time);// ros::Time().fromSec(lidar_end_time);
     set_posestamp(odomAftMapped.pose);
-    pubOdomAftMapped.publish(odomAftMapped);
     auto P = kf.get_P();
+    // state_ikfom order is position 0:3, right rotation 3:6. Convert
+    // attitude errors to ROS fixed-world axes before publishing covariance.
+    Eigen::Matrix<double, 6, 6> pose_J = Eigen::Matrix<double, 6, 6>::Identity();
+    pose_J.block<3, 3>(3, 3) = state_point.rot.toRotationMatrix();
+    Eigen::Matrix<double, 6, 6> pose_P = pose_J * P.block<6, 6>(0, 0) * pose_J.transpose();
     for (int i = 0; i < 6; i ++)
     {
-        int k = i < 3 ? i + 3 : i - 3;
-        odomAftMapped.pose.covariance[i*6 + 0] = P(k, 3);
-        odomAftMapped.pose.covariance[i*6 + 1] = P(k, 4);
-        odomAftMapped.pose.covariance[i*6 + 2] = P(k, 5);
-        odomAftMapped.pose.covariance[i*6 + 3] = P(k, 0);
-        odomAftMapped.pose.covariance[i*6 + 4] = P(k, 1);
-        odomAftMapped.pose.covariance[i*6 + 5] = P(k, 2);
+        for (int j = 0; j < 6; ++j) odomAftMapped.pose.covariance[i*6+j] = pose_P(i,j);
     }
+    pubOdomAftMapped.publish(odomAftMapped);
 
     static tf::TransformBroadcaster br;
     tf::Transform                   transform;
@@ -635,6 +646,37 @@ void publish_odometry(const ros::Publisher & pubOdomAftMapped)
     q.setZ(odomAftMapped.pose.pose.orientation.z);
     transform.setRotation( q );
     br.sendTransform( tf::StampedTransform( transform, odomAftMapped.header.stamp, "camera_init", "body" ) );
+}
+
+double thread_cpu_seconds()
+{
+    timespec ts{};
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts);
+    return double(ts.tv_sec) + double(ts.tv_nsec)*1e-9;
+}
+
+void publish_realtime(double wall, double cpu, double callbacks, double imu_map,
+                      double icp, double insert, double output)
+{
+    if (realtime_pub.getNumSubscribers() == 0) return;
+    diagnostic_msgs::DiagnosticArray out;
+    out.header = odomAftMapped.header;
+    diagnostic_msgs::DiagnosticStatus s;
+    s.name="fast_lio/scan_timing"; s.hardware_id="lio";
+    s.level=diagnostic_msgs::DiagnosticStatus::OK;
+    s.message="completed scan; wall includes spinOnce and all outputs, CPU is main thread only";
+    auto add = [&](const string &key, double value) {
+        diagnostic_msgs::KeyValue kv; kv.key=key; kv.value=std::to_string(value); s.values.push_back(kv);
+    };
+    add("output_age_sec", (ros::Time::now()-out.header.stamp).toSec());
+    add("iteration_wall_sec", wall); add("main_thread_cpu_sec", cpu);
+    add("callbacks_wall_sec", callbacks); add("imu_map_downsample_sec", imu_map);
+    add("icp_sec", icp); add("map_insert_sec", insert); add("outputs_sec", output);
+    add("map_delete_sec", kdtree_delete_time); add("lidar_queue", lidar_buffer.size());
+    add("imu_queue", imu_buffer.size());
+    add("oldest_scan_age_sec", time_buffer.empty()?0.:ros::Time::now().toSec()-time_buffer.front());
+    add("imu_coverage_stamp", last_timestamp_imu);
+    out.status.push_back(s); realtime_pub.publish(out);
 }
 
 void publish_path(const ros::Publisher pubPath)
@@ -656,8 +698,12 @@ void publish_path(const ros::Publisher pubPath)
 void h_share_model(state_ikfom &s, esekfom::dyn_share_datastruct<double> &ekfom_data)
 {
     double match_start = omp_get_wtime();
-    laserCloudOri->clear(); 
-    corr_normvect->clear(); 
+    // Resize before parallel indexed writes. Preserve selection on cached
+    // nearest-neighbor iterations (converge=false); new slots start unselected.
+    point_selected_surf.resize(feats_down_size, 0);
+    res_last.resize(feats_down_size, 0.0f);
+    laserCloudOri->resize(feats_down_size);
+    corr_normvect->resize(feats_down_size);
     total_residual = 0.0; 
 
     /** closest surface search and residual computation **/
@@ -723,6 +769,10 @@ void h_share_model(state_ikfom &s, esekfom::dyn_share_datastruct<double> &ekfom_
         }
     }
 
+    // Compaction above writes valid elements, not merely reserved capacity.
+    laserCloudOri->resize(effct_feat_num);
+    corr_normvect->resize(effct_feat_num);
+
     if (effct_feat_num < 1)
     {
         ekfom_data.valid = false;
@@ -775,6 +825,8 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "laserMapping");
     ros::NodeHandle nh;
+    ros::NodeHandle private_nh("~");
+    realtime_pub = private_nh.advertise<diagnostic_msgs::DiagnosticArray>("realtime", 1);
 
     nh.param<bool>("publish/path_en",path_en, true);
     nh.param<bool>("publish/scan_publish_en",scan_pub_en, true);
@@ -800,6 +852,11 @@ int main(int argc, char** argv)
     nh.param<double>("filter_size_map",filter_size_map_min,0.5);
     nh.param<double>("cube_side_length",cube_len,200);
     nh.param<float>("mapping/det_range",DET_RANGE,300.f);
+    try {
+        map_shift_distance = fast_lio::localMapShiftDistance(cube_len, DET_RANGE, MOV_THRESHOLD);
+    } catch (const std::invalid_argument &e) {
+        ROS_FATAL("Invalid FAST-LIO map configuration: %s", e.what()); return 1;
+    }
     nh.param<double>("mapping/fov_degree",fov_deg,180);
     nh.param<double>("mapping/gyr_cov",gyr_cov,0.1);
     nh.param<double>("mapping/acc_cov",acc_cov,0.1);
@@ -835,12 +892,8 @@ int main(int argc, char** argv)
 
     _featsArray.reset(new PointCloudXYZI());
 
-    memset(point_selected_surf, true, sizeof(point_selected_surf));
-    memset(res_last, -1000.0f, sizeof(res_last));
     downSizeFilterSurf.setLeafSize(filter_size_surf_min, filter_size_surf_min, filter_size_surf_min);
     downSizeFilterMap.setLeafSize(filter_size_map_min, filter_size_map_min, filter_size_map_min);
-    memset(point_selected_surf, true, sizeof(point_selected_surf));
-    memset(res_last, -1000.0f, sizeof(res_last));
 
     Lidar_T_wrt_IMU<<VEC_FROM_ARRAY(extrinT);
     Lidar_R_wrt_IMU<<MAT_FROM_ARRAY(extrinR);
@@ -873,18 +926,23 @@ int main(int argc, char** argv)
         nh.subscribe(lid_topic, 200000, livox_pcl_cbk) : \
         nh.subscribe(lid_topic, 200000, standard_pcl_cbk);
     ros::Subscriber sub_imu = nh.subscribe(imu_topic, 200000, imu_cbk);
+    int output_queue_size = 1;
+    nh.param<int>("publish/output_queue_size", output_queue_size, 1);
+    if (output_queue_size < 1 || output_queue_size > 100) {
+        ROS_FATAL("publish/output_queue_size must be in [1,100]"); return 1;
+    }
     ros::Publisher pubLaserCloudFull = nh.advertise<sensor_msgs::PointCloud2>
-            ("/cloud_registered", 100000);
+            ("/cloud_registered", output_queue_size);
     ros::Publisher pubLaserCloudFull_body = nh.advertise<sensor_msgs::PointCloud2>
-            ("/cloud_registered_body", 100000);
+            ("/cloud_registered_body", output_queue_size);
     ros::Publisher pubLaserCloudEffect = nh.advertise<sensor_msgs::PointCloud2>
-            ("/cloud_effected", 100000);
+            ("/cloud_effected", output_queue_size);
     ros::Publisher pubLaserCloudMap = nh.advertise<sensor_msgs::PointCloud2>
-            ("/Laser_map", 100000);
+            ("/Laser_map", output_queue_size);
     ros::Publisher pubOdomAftMapped = nh.advertise<nav_msgs::Odometry> 
-            ("/Odometry", 100000);
+            ("/Odometry", output_queue_size);
     ros::Publisher pubPath          = nh.advertise<nav_msgs::Path> 
-            ("/path", 100000);
+            ("/path", output_queue_size);
 //------------------------------------------------------------------------------------------------------
     signal(SIGINT, SigHandle);
     ros::Rate rate(5000);
@@ -892,7 +950,10 @@ int main(int argc, char** argv)
     while (status)
     {
         if (flg_exit) break;
+        const double iteration_wall = omp_get_wtime();
+        const double iteration_cpu = thread_cpu_seconds();
         ros::spinOnce();
+        const double callback_wall = omp_get_wtime()-iteration_wall;
         if(sync_packages(Measures)) 
         {
             if (flg_first_scan)
@@ -912,7 +973,7 @@ int main(int argc, char** argv)
             svd_time   = 0;
             t0 = omp_get_wtime();
 
-            p_imu->Process(Measures, kf, feats_undistort);
+            if (!p_imu->Process(Measures, kf, feats_undistort)) continue;
             state_point = kf.get_x();
             pos_lid = state_point.pos + state_point.rot * state_point.offset_T_L_I;
 
@@ -1002,6 +1063,9 @@ int main(int argc, char** argv)
             if (scan_pub_en && scan_body_pub_en) publish_frame_body(pubLaserCloudFull_body);
             // publish_effect_world(pubLaserCloudEffect);
             publish_map(pubLaserCloudMap);
+            publish_realtime(omp_get_wtime()-iteration_wall, thread_cpu_seconds()-iteration_cpu,
+                             callback_wall, t1-t0, t_update_end-t_update_start,
+                             t5-t3, omp_get_wtime()-t5);
 
             /*** Debug variables ***/
             if (runtime_pos_log)

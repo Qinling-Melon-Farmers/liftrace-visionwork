@@ -50,7 +50,7 @@ class ImuProcess
   void set_gyr_bias_cov(const V3D &b_g);
   void set_acc_bias_cov(const V3D &b_a);
   Eigen::Matrix<double, 12, 12> Q;
-  void Process(const MeasureGroup &meas,  esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, PointCloudXYZI::Ptr pcl_un_);
+  bool Process(const MeasureGroup &meas,  esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, PointCloudXYZI::Ptr pcl_un_);
 
   ofstream fout_imu;
   V3D cov_acc;
@@ -78,7 +78,7 @@ class ImuProcess
   V3D angvel_last;
   V3D acc_s_last;
   double start_timestamp_;
-  double last_lidar_end_time_;
+  double last_lidar_end_time_ = 0.0;
   int    init_iter_num = 1;
   bool   b_first_frame_ = true;
   bool   imu_need_init_ = true;
@@ -110,6 +110,7 @@ void ImuProcess::Reset()
   mean_gyr      = V3D(0, 0, 0);
   angvel_last       = Zero3d;
   imu_need_init_    = true;
+  last_lidar_end_time_ = 0.0;
   start_timestamp_  = -1;
   init_iter_num     = 1;
   v_imu_.clear();
@@ -345,12 +346,14 @@ void ImuProcess::UndistortPcl(const MeasureGroup &meas, esekfom::esekf<state_ikf
   }
 }
 
-void ImuProcess::Process(const MeasureGroup &meas,  esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, PointCloudXYZI::Ptr cur_pcl_un_)
+bool ImuProcess::Process(const MeasureGroup &meas,  esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, PointCloudXYZI::Ptr cur_pcl_un_)
 {
   double t1,t2,t3;
   t1 = omp_get_wtime();
 
-  if(meas.imu.empty()) {return;};
+  // A skipped scan must not retain the previous cloud and acquire a new stamp.
+  cur_pcl_un_->clear();
+  if(meas.imu.empty()) {return false;};
   ROS_ASSERT(meas.lidar != nullptr);
 
   if (imu_need_init_)
@@ -361,6 +364,9 @@ void ImuProcess::Process(const MeasureGroup &meas,  esekfom::esekf<state_ikfom, 
     imu_need_init_ = true;
     
     last_imu_   = meas.imu.back();
+    // Initialization assumes rest and anchors the initialized filter at this
+    // scan boundary; the first propagation must not use an indeterminate time.
+    last_lidar_end_time_ = meas.lidar_end_time;
 
     state_ikfom imu_state = kf_state.get_x();
     if (init_iter_num > MAX_INI_COUNT)
@@ -376,7 +382,7 @@ void ImuProcess::Process(const MeasureGroup &meas,  esekfom::esekf<state_ikfom, 
       fout_imu.open(DEBUG_FILE_DIR("imu.txt"),ios::out);
     }
 
-    return;
+    return false;
   }
 
   UndistortPcl(meas, kf_state, *cur_pcl_un_);
@@ -385,4 +391,6 @@ void ImuProcess::Process(const MeasureGroup &meas,  esekfom::esekf<state_ikfom, 
   t3 = omp_get_wtime();
   
   // cout<<"[ IMU Process ]: Time: "<<t3 - t1<<endl;
+  return std::isfinite(last_lidar_end_time_) &&
+         std::abs(last_lidar_end_time_ - meas.lidar_end_time) < 1e-6;
 }
