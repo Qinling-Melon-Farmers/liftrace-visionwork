@@ -1,0 +1,20 @@
+{
+  "vision": {
+    "feat/board-deployment-flight-20260920": "5a08f9f0f0674ea3997ad40ef891572e95481ac1",
+    "feat/ev-continuity-20261004": "df29c381ccff274adb87a1f8c318cf722aa59881",
+    "feat/high-view-search-research": "b9778b052df28ad7f0f098d93346a25ceac56ce4",
+    "feat/r2026-competition-integrated": "cb19c20f76c054de2f408fdf2e608ab8959d0467",
+    "main": "2f405bef1b980fc8ba7b99958185538f660e28ee",
+    "板端参考分支": "ce4ba3cdc59a9855e2f05e8d3aee75ba0009fffe"
+  },
+  "navigation": {
+    "feat/high-view-liveness-20260919": "3cf127ccbd9b3aecd268db7eb9f93c5f5e2128a9",
+    "main": "864a8e4869a1fe41b1925a76845e04ba483c0bf4",
+    "板端参考分支": "8c131b5f29b83a7348daa504b4441556a844db95",
+    "板载代码": "d1fe025a8fb48d33e6db89b287053daa9c036bfb"
+  },
+  "navigation_fork": {
+    "feat/high-view-liveness-20260919": "3cf127ccbd9b3aecd268db7eb9f93c5f5e2128a9",
+    "main": "a68925d15293e5510e2b4351c6b3d9bc5aa136ab"
+  }
+}

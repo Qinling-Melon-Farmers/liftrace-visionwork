@@ -1,0 +1,96 @@
+# OFFLINE ANALYSIS ONLY. Synthetic corridor/H coordinates; NOT a flight configuration.
+goal_list:
+- red_cross
+- panzer
+- bridge
+- pillbox
+- tent
+waypoints:
+- x: 0.0
+  y: 0.0
+  z: 1.1799999475479126
+  yaw: 0.0
+  pointmode: Takeoff_point
+  hover_time: 0.0
+waypoint_skipping_index: 0
+land_height: 0.18000000000000002
+align_height: 1.1799999475479126
+px4_max_distance: 0.4
+max_yaw_change: 0.2
+external_landing:
+  frame: camera_init
+  detections_topic: /uav_vision/detections_mapped
+  capture_height: 0.68
+  auto_land_height: 0.33000000000000007
+  alignment_tolerance: 0.08
+  max_mark_offset: 0.6
+  mark_max_age_sec: 0.5
+  stable_frames: 10
+  auto_land_retry_sec: 1.0
+  watchdog_timeout_sec: 120.0
+alignment:
+  threshold: 20.0
+  stable_count_threshold: 10
+  timeout: 30.0
+threshould:
+  takeoff_threshould: 0.3
+  waypoint_threshould: 0.3
+  aligning_threshould: 0.2
+  landing_threshould: 0.15
+  arrive_yaw_threshould: 0.3
+  times_detect_threshould: 40
+  waypoint_adjust_max_second_threshould: 15
+  land_adjust_max_second_threshould: 10
+  planner_min_pub_threshould: 0.025
+switch:
+  flag_planner_px4: 0
+  flag_landing_detect: 1
+  auto_land: true
+drop_system:
+  precision_threshold: 20.0
+  height_threshold: 0.48
+  position_threshold: 0.15
+  release_setpoint_height: 0.38
+  enable_drop: true
+  descent_stable_duration: 2.0
+  slot_offsets:
+  - - -0.12
+    - 0.0
+  - - 0.0
+    - -0.12
+  - - 0.0
+    - 0.12
+  dynamic_slot_offsets:
+  - - -0.12
+    - 0.0
+  - - 0.0
+    - -0.12
+  - - 0.0
+    - 0.12
+uav_vision:
+  update_goal_from_selected_target: false
+  require_release_permission: true
+  release_permission_state_topic: /mission/release_permission_active
+  release_permission_timeout: 0.2
+  recovery_height: 1.1799999475479126
+  selected_target_timeout: 1.0
+  drop_offset_timeout: 1.0
+  pixel_to_meter_ratio: 0.0015
+  drop_metric_scale_enabled: true
+  drop_camera_info_topic: /camera/camera_info
+  drop_camera_frame: downward_camera_optical_frame
+  drop_map_frame: camera_init
+  drop_ground_z: -0.22
+  drop_tf_max_age_sec: 0.2
+  pixel_to_body_matrix:
+  - -1.0
+  - 0.0
+  - 0.0
+  - 1.0
+  max_movement_distance: 0.15
+  drop_circle_radius_m: 0.5
+  drop_cross_radius_m: 0.5
+  landing_pad_radius_m: 0.3
+  enable_tank_interrupt: false
+  standard_recovery_setpoint_height: 1.2799999475479127
+  cross_recovery_setpoint_height: 1.2799999475479127

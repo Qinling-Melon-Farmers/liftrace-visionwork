@@ -1,0 +1,574 @@
+{
+  "source": "formal field.example.yaml, cb19c20f; horizontal straight complete route, fixed yaw=0",
+  "assumption": "flat ground; no occlusion, tracking error, tilt or distortion; measured span keeps calibrated principal-point proportions",
+  "no_ros_nodes": true,
+  "fc_to_lens_vertical_m": 0.15999999999999998,
+  "route": [
+    [
+      0.6,
+      0.05
+    ],
+    [
+      1.0,
+      -3.5
+    ],
+    [
+      5.5,
+      -3.5
+    ],
+    [
+      5.5,
+      3.5
+    ],
+    [
+      1.0,
+      3.5
+    ],
+    [
+      1.0,
+      -3.5
+    ]
+  ],
+  "route_length_m": 26.57246413557925,
+  "bounds": {
+    "flight_bounds": [
+      -0.5,
+      9.5,
+      -4.8,
+      4.8
+    ],
+    "target_bounds": [
+      -0.5,
+      7.4,
+      -4.8,
+      4.8
+    ],
+    "coverage_bounds": [
+      0.4,
+      6.8,
+      -4.1,
+      4.1
+    ]
+  },
+  "measured_at_2m": {
+    "footprint_m": [
+      3.6,
+      1.8
+    ],
+    "single_frame_area_m2": 6.48,
+    "symmetric_fov_degrees": [
+      88.74080278317948,
+      52.12932815657152
+    ]
+  },
+  "calibration_at_2m": {
+    "footprint_m": [
+      3.2469797113860372,
+      1.8315029549919393
+    ],
+    "measured_relative_span_change_percent": [
+      10.872266536684606,
+      -1.720060287430869
+    ],
+    "fov_degrees": [
+      82.84173239137257,
+      52.81955237549945
+    ]
+  },
+  "cases": [
+    {
+      "name": "calibration_K_2.6",
+      "fc_agl_m": 2.6,
+      "lens_agl_m": 2.44,
+      "footprint_m": [
+        4.305777443359744,
+        2.4287321794458325
+      ],
+      "single_frame_area_m2": 10.457580234219817,
+      "unclipped_sweep_m2": 83.82096669382724,
+      "footprint_offsets_m": [
+        [
+          -2.1809036465625344,
+          -1.3410864775067053
+        ],
+        [
+          2.12487379679721,
+          -1.3410864775067053
+        ],
+        [
+          2.12487379679721,
+          1.0876457019391272
+        ],
+        [
+          -2.1809036465625344,
+          1.0876457019391272
+        ]
+      ],
+      "regions": {
+        "flight_bounds": {
+          "area_m2": 96.0,
+          "covered_m2": 75.38559325410581,
+          "coverage_percent": 78.52665963969356,
+          "uncovered_m2": 20.61440674589419
+        },
+        "target_bounds": {
+          "area_m2": 75.84,
+          "covered_m2": 73.27455772212376,
+          "coverage_percent": 96.61729657453027,
+          "uncovered_m2": 2.5654422778762513
+        },
+        "coverage_bounds": {
+          "area_m2": 52.47999999999999,
+          "covered_m2": 51.59215667680463,
+          "coverage_percent": 98.30822537500883,
+          "uncovered_m2": 0.8878433231953594
+        }
+      },
+      "full_1m_circle_eligible_center_area_m2": 59.34,
+      "full_1m_circle_covered_center_area_m2": 51.22142164299021,
+      "full_1m_circle_center_percent": 86.31854001177992,
+      "prefixes": [
+        {
+          "survey_waypoints": 1,
+          "area_m2": 75.84,
+          "covered_m2": 20.81321631962472,
+          "coverage_percent": 27.443586919336386,
+          "uncovered_m2": 55.02678368037528
+        },
+        {
+          "survey_waypoints": 2,
+          "area_m2": 75.84,
+          "covered_m2": 31.020703023949203,
+          "coverage_percent": 40.902825717232595,
+          "uncovered_m2": 44.81929697605079
+        },
+        {
+          "survey_waypoints": 3,
+          "area_m2": 75.84,
+          "covered_m2": 59.58702854988694,
+          "coverage_percent": 78.5693941849775,
+          "uncovered_m2": 16.25297145011306
+        },
+        {
+          "survey_waypoints": 4,
+          "area_m2": 75.84,
+          "covered_m2": 68.86259075988475,
+          "coverage_percent": 90.79982958845562,
+          "uncovered_m2": 6.977409240115248
+        },
+        {
+          "survey_waypoints": 5,
+          "area_m2": 75.84,
+          "covered_m2": 73.27455772212376,
+          "coverage_percent": 96.61729657453027,
+          "uncovered_m2": 2.5654422778762513
+        }
+      ]
+    },
+    {
+      "name": "measured_2.6",
+      "fc_agl_m": 2.6,
+      "lens_agl_m": 2.44,
+      "footprint_m": [
+        4.773913043478261,
+        2.3869565217391306
+      ],
+      "single_frame_area_m2": 11.395122873345938,
+      "unclipped_sweep_m2": 88.7186011342155,
+      "footprint_offsets_m": [
+        [
+          -2.4180173039250876,
+          -1.318018981587007
+        ],
+        [
+          2.3558957395531737,
+          -1.318018981587007
+        ],
+        [
+          2.3558957395531737,
+          1.0689375401521237
+        ],
+        [
+          -2.4180173039250876,
+          1.0689375401521237
+        ]
+      ],
+      "regions": {
+        "flight_bounds": {
+          "area_m2": 96.0,
+          "covered_m2": 78.28586527589692,
+          "coverage_percent": 81.54777632905929,
+          "uncovered_m2": 17.714134724103086
+        },
+        "target_bounds": {
+          "area_m2": 75.84,
+          "covered_m2": 74.01460656720178,
+          "coverage_percent": 97.59309937658462,
+          "uncovered_m2": 1.8253934327982195
+        },
+        "coverage_bounds": {
+          "area_m2": 52.47999999999999,
+          "covered_m2": 52.47999999999999,
+          "coverage_percent": 100.0,
+          "uncovered_m2": 0.0
+        }
+      },
+      "full_1m_circle_eligible_center_area_m2": 59.34,
+      "full_1m_circle_covered_center_area_m2": 53.67011137109503,
+      "full_1m_circle_center_percent": 90.44508151515846,
+      "prefixes": [
+        {
+          "survey_waypoints": 1,
+          "area_m2": 75.84,
+          "covered_m2": 22.112806043753917,
+          "coverage_percent": 29.157180964865397,
+          "uncovered_m2": 53.7271939562461
+        },
+        {
+          "survey_waypoints": 2,
+          "area_m2": 75.84,
+          "covered_m2": 31.693036442615544,
+          "coverage_percent": 41.789341300917116,
+          "uncovered_m2": 44.14696355738445
+        },
+        {
+          "survey_waypoints": 3,
+          "area_m2": 75.84,
+          "covered_m2": 61.58621924305902,
+          "coverage_percent": 81.2054578626833,
+          "uncovered_m2": 14.25378075694098
+        },
+        {
+          "survey_waypoints": 4,
+          "area_m2": 75.84,
+          "covered_m2": 70.13625620021175,
+          "coverage_percent": 92.4792407703214,
+          "uncovered_m2": 5.703743799788251
+        },
+        {
+          "survey_waypoints": 5,
+          "area_m2": 75.84,
+          "covered_m2": 74.01460656720178,
+          "coverage_percent": 97.59309937658462,
+          "uncovered_m2": 1.8253934327982195
+        }
+      ]
+    },
+    {
+      "name": "measured_2.6_centered",
+      "fc_agl_m": 2.6,
+      "lens_agl_m": 2.44,
+      "footprint_m": [
+        4.773913043478261,
+        2.3869565217391306
+      ],
+      "single_frame_area_m2": 11.395122873345938,
+      "unclipped_sweep_m2": 88.7186011342155,
+      "footprint_offsets_m": [
+        [
+          -2.3869565217391306,
+          -1.1934782608695653
+        ],
+        [
+          2.3869565217391306,
+          -1.1934782608695653
+        ],
+        [
+          2.3869565217391306,
+          1.1934782608695653
+        ],
+        [
+          -2.3869565217391306,
+          1.1934782608695653
+        ]
+      ],
+      "regions": {
+        "flight_bounds": {
+          "area_m2": 96.0,
+          "covered_m2": 78.72799621928166,
+          "coverage_percent": 82.00832939508507,
+          "uncovered_m2": 17.272003780718354
+        },
+        "target_bounds": {
+          "area_m2": 75.84,
+          "covered_m2": 74.15695652173912,
+          "coverage_percent": 97.78079710144925,
+          "uncovered_m2": 1.6830434782608723
+        },
+        "coverage_bounds": {
+          "area_m2": 52.47999999999999,
+          "covered_m2": 52.47999999999999,
+          "coverage_percent": 100.0,
+          "uncovered_m2": 0.0
+        }
+      },
+      "full_1m_circle_eligible_center_area_m2": 59.34,
+      "full_1m_circle_covered_center_area_m2": 53.794442344045365,
+      "full_1m_circle_center_percent": 90.65460455686781,
+      "prefixes": [
+        {
+          "survey_waypoints": 1,
+          "area_m2": 75.84,
+          "covered_m2": 22.36669187145558,
+          "coverage_percent": 29.491946033037415,
+          "uncovered_m2": 53.47330812854442
+        },
+        {
+          "survey_waypoints": 2,
+          "area_m2": 75.84,
+          "covered_m2": 31.945652173913043,
+          "coverage_percent": 42.12243166391488,
+          "uncovered_m2": 43.89434782608695
+        },
+        {
+          "survey_waypoints": 3,
+          "area_m2": 75.84,
+          "covered_m2": 61.62140949905482,
+          "coverage_percent": 81.2518585166862,
+          "uncovered_m2": 14.218590500945176
+        },
+        {
+          "survey_waypoints": 4,
+          "area_m2": 75.84,
+          "covered_m2": 70.24558719281663,
+          "coverage_percent": 92.6234008344101,
+          "uncovered_m2": 5.5944128071833665
+        },
+        {
+          "survey_waypoints": 5,
+          "area_m2": 75.84,
+          "covered_m2": 74.15695652173912,
+          "coverage_percent": 97.78079710144925,
+          "uncovered_m2": 1.6830434782608723
+        }
+      ]
+    },
+    {
+      "name": "measured_2",
+      "fc_agl_m": 2.0,
+      "lens_agl_m": 1.84,
+      "footprint_m": [
+        3.6,
+        1.8
+      ],
+      "single_frame_area_m2": 6.48,
+      "unclipped_sweep_m2": 68.02999999999999,
+      "footprint_offsets_m": [
+        [
+          -1.8234228849271152,
+          -0.9939159533279068
+        ],
+        [
+          1.7765771150728848,
+          -0.9939159533279068
+        ],
+        [
+          1.7765771150728848,
+          0.8060840466720932
+        ],
+        [
+          -1.8234228849271152,
+          0.8060840466720932
+        ]
+      ],
+      "regions": {
+        "flight_bounds": {
+          "area_m2": 96.0,
+          "covered_m2": 63.75387861264138,
+          "coverage_percent": 66.41029022150144,
+          "uncovered_m2": 32.246121387358606
+        },
+        "target_bounds": {
+          "area_m2": 75.84,
+          "covered_m2": 63.75387861264138,
+          "coverage_percent": 84.06365850822966,
+          "uncovered_m2": 12.08612138735861
+        },
+        "coverage_bounds": {
+          "area_m2": 52.47999999999999,
+          "covered_m2": 47.79999999999999,
+          "coverage_percent": 91.08231707317073,
+          "uncovered_m2": 4.679999999999997
+        }
+      },
+      "full_1m_circle_eligible_center_area_m2": 59.34,
+      "full_1m_circle_covered_center_area_m2": 41.0773014975685,
+      "full_1m_circle_center_percent": 69.2236290825219,
+      "prefixes": [
+        {
+          "survey_waypoints": 1,
+          "area_m2": 75.84,
+          "covered_m2": 16.81968756563993,
+          "coverage_percent": 22.17785807705687,
+          "uncovered_m2": 59.02031243436007
+        },
+        {
+          "survey_waypoints": 2,
+          "area_m2": 75.84,
+          "covered_m2": 24.91968756563993,
+          "coverage_percent": 32.85823782389231,
+          "uncovered_m2": 50.92031243436008
+        },
+        {
+          "survey_waypoints": 3,
+          "area_m2": 75.84,
+          "covered_m2": 50.11968756563994,
+          "coverage_percent": 66.08608592515814,
+          "uncovered_m2": 25.72031243436006
+        },
+        {
+          "survey_waypoints": 4,
+          "area_m2": 75.84,
+          "covered_m2": 57.63752637277113,
+          "coverage_percent": 75.99884806536276,
+          "uncovered_m2": 18.20247362722887
+        },
+        {
+          "survey_waypoints": 5,
+          "area_m2": 75.84,
+          "covered_m2": 63.75387861264138,
+          "coverage_percent": 84.06365850822966,
+          "uncovered_m2": 12.08612138735861
+        }
+      ]
+    },
+    {
+      "name": "measured_3",
+      "fc_agl_m": 3.0,
+      "lens_agl_m": 2.84,
+      "footprint_m": [
+        5.556521739130434,
+        2.778260869565217
+      ],
+      "single_frame_area_m2": 15.437466918714552,
+      "unclipped_sweep_m2": 100.15659735349716,
+      "footprint_offsets_m": [
+        [
+          -2.814413583257069,
+          -1.5340876670930734
+        ],
+        [
+          2.7421081558733653,
+          -1.5340876670930734
+        ],
+        [
+          2.7421081558733653,
+          1.2441732024721437
+        ],
+        [
+          -2.814413583257069,
+          1.2441732024721437
+        ]
+      ],
+      "regions": {
+        "flight_bounds": {
+          "area_m2": 96.0,
+          "covered_m2": 83.43619439439975,
+          "coverage_percent": 86.91270249416641,
+          "uncovered_m2": 12.563805605600256
+        },
+        "target_bounds": {
+          "area_m2": 75.84,
+          "covered_m2": 75.39896829952995,
+          "coverage_percent": 99.41847085908485,
+          "uncovered_m2": 0.4410317004700617
+        },
+        "coverage_bounds": {
+          "area_m2": 52.47999999999999,
+          "covered_m2": 52.47999999999999,
+          "coverage_percent": 100.0,
+          "uncovered_m2": 0.0
+        }
+      },
+      "full_1m_circle_eligible_center_area_m2": 59.34,
+      "full_1m_circle_covered_center_area_m2": 58.954795097057804,
+      "full_1m_circle_center_percent": 99.35085119153656,
+      "prefixes": [
+        {
+          "survey_waypoints": 1,
+          "area_m2": 75.84,
+          "covered_m2": 25.142141845511986,
+          "coverage_percent": 33.15155834060125,
+          "uncovered_m2": 50.69785815448801
+        },
+        {
+          "survey_waypoints": 2,
+          "area_m2": 75.84,
+          "covered_m2": 34.44845225288039,
+          "coverage_percent": 45.422537253270555,
+          "uncovered_m2": 41.39154774711962
+        },
+        {
+          "survey_waypoints": 3,
+          "area_m2": 75.84,
+          "covered_m2": 64.40869516176684,
+          "coverage_percent": 84.92707695380649,
+          "uncovered_m2": 11.431304838233174
+        },
+        {
+          "survey_waypoints": 4,
+          "area_m2": 75.84,
+          "covered_m2": 73.2590852500222,
+          "coverage_percent": 96.59689510815163,
+          "uncovered_m2": 2.580914749977814
+        },
+        {
+          "survey_waypoints": 5,
+          "area_m2": 75.84,
+          "covered_m2": 75.39896829952995,
+          "coverage_percent": 99.41847085908485,
+          "uncovered_m2": 0.4410317004700617
+        }
+      ]
+    }
+  ],
+  "full_low_fallback": {
+    "waypoints": 26,
+    "route_length_m": 91.4,
+    "footprint_m": [
+      2.4260869565217393,
+      1.2130434782608697
+    ],
+    "regions": {
+      "flight_bounds": {
+        "area_m2": 96.0,
+        "covered_m2": 79.98506361796944,
+        "coverage_percent": 83.3177746020515,
+        "uncovered_m2": 16.014936382030516
+      },
+      "target_bounds": {
+        "area_m2": 75.84,
+        "covered_m2": 74.36304347826086,
+        "coverage_percent": 98.05253623188405,
+        "uncovered_m2": 1.4769565217391307
+      },
+      "coverage_bounds": {
+        "area_m2": 52.47999999999999,
+        "covered_m2": 52.47999999999999,
+        "coverage_percent": 100.0,
+        "uncovered_m2": 0.0
+      }
+    },
+    "high_and_full_low_union": {
+      "flight_bounds": {
+        "area_m2": 96.0,
+        "covered_m2": 80.23730366877658,
+        "coverage_percent": 83.5805246549756,
+        "uncovered_m2": 15.762696331223385
+      },
+      "target_bounds": {
+        "area_m2": 75.84,
+        "covered_m2": 74.6015213702173,
+        "coverage_percent": 98.36698492908398,
+        "uncovered_m2": 1.2384786297827026
+      },
+      "coverage_bounds": {
+        "area_m2": 52.47999999999999,
+        "covered_m2": 52.47999999999999,
+        "coverage_percent": 100.0,
+        "uncovered_m2": 0.0
+      }
+    },
+    "note": "Hypothetical full fallback only; excludes transition to first low point; runtime may stop or reorder earlier"
+  }
+}

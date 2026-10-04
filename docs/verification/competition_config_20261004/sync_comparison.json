@@ -1,0 +1,47 @@
+{
+  "visual_research": {
+    "revision": "b9778b05",
+    "files": {
+      "vision_ws/src/uav_vision/config/target_memory.yaml": "same",
+      "vision_ws/src/uav_vision/scripts/drop_aligner.py": "same",
+      "vision_ws/src/uav_vision/src/landing_detector_node.cpp": "same",
+      "vision_ws/src/uav_vision/scripts/target_detector_rknn.py": "same",
+      "vision_ws/src/uav_high_view/src/uav_high_view/navigation_memory.py": "same",
+      "patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp": "same",
+      "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/high_view_probe.py": "same",
+      "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/high_view_full.py": "same",
+      "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/competition_config.py": "absent",
+      "deployment/competition/field.example.yaml": "absent"
+    }
+  },
+  "navigation_liveness": {
+    "revision": "3cf127cc",
+    "files": {
+      "vision_ws/src/uav_vision/config/target_memory.yaml": "different",
+      "vision_ws/src/uav_vision/scripts/drop_aligner.py": "different",
+      "vision_ws/src/uav_vision/src/landing_detector_node.cpp": "different",
+      "vision_ws/src/uav_vision/scripts/target_detector_rknn.py": "different",
+      "vision_ws/src/uav_high_view/src/uav_high_view/navigation_memory.py": "absent",
+      "patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp": "different",
+      "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/high_view_probe.py": "same",
+      "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/high_view_full.py": "same",
+      "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/competition_config.py": "absent",
+      "deployment/competition/field.example.yaml": "absent"
+    }
+  },
+  "navigation_board_reference": {
+    "revision": "8c131b5f",
+    "files": {
+      "vision_ws/src/uav_vision/config/target_memory.yaml": "same",
+      "vision_ws/src/uav_vision/scripts/drop_aligner.py": "same",
+      "vision_ws/src/uav_vision/src/landing_detector_node.cpp": "same",
+      "vision_ws/src/uav_vision/scripts/target_detector_rknn.py": "same",
+      "vision_ws/src/uav_high_view/src/uav_high_view/navigation_memory.py": "same",
+      "patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp": "same",
+      "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/high_view_probe.py": "same",
+      "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/high_view_full.py": "same",
+      "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/competition_config.py": "absent",
+      "deployment/competition/field.example.yaml": "absent"
+    }
+  }
+}
