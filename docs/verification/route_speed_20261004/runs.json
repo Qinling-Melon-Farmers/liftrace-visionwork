@@ -1,0 +1,58 @@
+[
+  {
+    "seed": 31,
+    "label": "rectangle_baseline",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_rectangle_baseline_seed31_20261004_223346",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/route_speed_20261004/rectangle_baseline_seed31/field.world",
+    "source": "2b0678b9eacfdc2ebee977d6ed0477a393b21038"
+  },
+  {
+    "seed": 31,
+    "label": "rectangle",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_rectangle_seed31_20261004_224908",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/route_speed_20261004/rectangle_seed31/field.world",
+    "source": "2b0678b9eacfdc2ebee977d6ed0477a393b21038"
+  },
+  {
+    "seed": 31,
+    "label": "snake2",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_snake2_seed31_20261004_231619",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/route_speed_20261004/snake2_seed31/field.world",
+    "source": "2b0678b9eacfdc2ebee977d6ed0477a393b21038"
+  },
+  {
+    "seed": 31,
+    "label": "snake3",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_snake3_seed31_20261004_235752",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/route_speed_20261004/snake3_seed31/field.world",
+    "source": "2b0678b9eacfdc2ebee977d6ed0477a393b21038"
+  },
+  {
+    "seed": 38,
+    "label": "rectangle_baseline",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_rectangle_baseline_seed38_20261005_001117",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/route_speed_20261004/rectangle_baseline_seed38/field.world",
+    "source": "2b0678b9eacfdc2ebee977d6ed0477a393b21038"
+  },
+  {
+    "seed": 38,
+    "label": "rectangle",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_rectangle_seed38_20261005_002556",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/route_speed_20261004/rectangle_seed38/field.world",
+    "source": "2b0678b9eacfdc2ebee977d6ed0477a393b21038"
+  },
+  {
+    "seed": 38,
+    "label": "snake2",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_snake2_seed38_20261005_004057",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/route_speed_20261004/snake2_seed38/field.world",
+    "source": "2b0678b9eacfdc2ebee977d6ed0477a393b21038"
+  },
+  {
+    "seed": 38,
+    "label": "snake3",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_snake3_seed38_20261005_010738",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/route_speed_20261004/snake3_seed38/field.world",
+    "source": "2b0678b9eacfdc2ebee977d6ed0477a393b21038"
+  }
+]

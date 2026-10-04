@@ -1,0 +1,411 @@
+{
+  "batch_status": "COMPLETE",
+  "source": "2b0678b9eacfdc2ebee977d6ed0477a393b21038",
+  "rows": [
+    {
+      "seed": 31,
+      "variant": "rectangle_baseline",
+      "status": "PASS",
+      "reason": "all_checks_passed",
+      "mission_s": 183.036000001,
+      "classes": [
+        "panzer",
+        "bridge",
+        "red_cross"
+      ],
+      "all_top3": true,
+      "phases": {
+        "search_to_descent": 24.247000001000004,
+        "low_revisit_delivery": 65.430999999,
+        "post_delivery_route": 81.797,
+        "H_landing": 11.561000000999996
+      },
+      "recovery": [
+        {
+          "class_name": "panzer",
+          "ack_ros": 52.103,
+          "handoff_ros": 54.431,
+          "seconds": 2.327999999999996
+        },
+        {
+          "class_name": "bridge",
+          "ack_ros": 66.776,
+          "handoff_ros": 69.097,
+          "seconds": 2.320999999999998
+        },
+        {
+          "class_name": "red_cross",
+          "ack_ros": 96.503,
+          "handoff_ros": 101.332,
+          "seconds": 4.8289999999999935
+        }
+      ],
+      "recovery_sum_s": 9.477999999999987,
+      "survey_interrupt": true,
+      "low_coverage": false,
+      "contacts": true,
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_rectangle_baseline_seed31_20261004_223346",
+      "xy_distance_m": 40.567813988691775,
+      "xyz_distance_m": 49.45284021994037,
+      "speed_xy_p95_mps": 0.8415886997074418,
+      "touchdown_truth_center_error_m": 0.04883496402670661
+    },
+    {
+      "seed": 31,
+      "variant": "rectangle",
+      "status": "FAIL",
+      "reason": "manager_failed",
+      "mission_s": null,
+      "classes": [
+        "bridge",
+        "panzer",
+        "red_cross"
+      ],
+      "all_top3": true,
+      "phases": {
+        "search_to_descent": 52.495999999999995,
+        "low_revisit_delivery": 95.632,
+        "post_delivery_route": 66.093999999,
+        "H_landing": null
+      },
+      "recovery": [
+        {
+          "class_name": "bridge",
+          "ack_ros": 93.884,
+          "handoff_ros": 96.756,
+          "seconds": 2.872
+        },
+        {
+          "class_name": "panzer",
+          "ack_ros": 138.976,
+          "handoff_ros": 140.384,
+          "seconds": 1.407999999999987
+        },
+        {
+          "class_name": "red_cross",
+          "ack_ros": 157.64,
+          "handoff_ros": 159.983,
+          "seconds": 2.3430000000000177
+        }
+      ],
+      "recovery_sum_s": 6.623000000000005,
+      "survey_interrupt": false,
+      "low_coverage": true,
+      "contacts": true,
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_rectangle_seed31_20261004_224908",
+      "xy_distance_m": 66.71704410662569,
+      "xyz_distance_m": 75.13489599653892,
+      "speed_xy_p95_mps": 0.8608323867309402,
+      "touchdown_truth_center_error_m": 0.10057588584915746
+    },
+    {
+      "seed": 31,
+      "variant": "snake2",
+      "status": "FAIL",
+      "reason": "manager_failed",
+      "mission_s": null,
+      "classes": [
+        "bridge",
+        "panzer",
+        "red_cross"
+      ],
+      "all_top3": true,
+      "phases": {
+        "search_to_descent": 43.541,
+        "low_revisit_delivery": 65.18999999900001,
+        "post_delivery_route": 63.673,
+        "H_landing": null
+      },
+      "recovery": [
+        {
+          "class_name": "bridge",
+          "ack_ros": 72.669,
+          "handoff_ros": 75.929,
+          "seconds": 3.260000000000005
+        },
+        {
+          "class_name": "panzer",
+          "ack_ros": 93.049,
+          "handoff_ros": 94.72,
+          "seconds": 1.6709999999999923
+        },
+        {
+          "class_name": "red_cross",
+          "ack_ros": 118.267,
+          "handoff_ros": 120.754,
+          "seconds": 2.487000000000009
+        }
+      ],
+      "recovery_sum_s": 7.418000000000006,
+      "survey_interrupt": false,
+      "low_coverage": false,
+      "contacts": true,
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_snake2_seed31_20261004_231619",
+      "xy_distance_m": 49.99865729248227,
+      "xyz_distance_m": 58.537640509024605,
+      "speed_xy_p95_mps": 0.7510666523895081,
+      "touchdown_truth_center_error_m": 0.06208860871562957
+    },
+    {
+      "seed": 31,
+      "variant": "snake3",
+      "status": "PASS",
+      "reason": "all_checks_passed",
+      "mission_s": 217.364000001,
+      "classes": [
+        "panzer",
+        "bridge",
+        "red_cross"
+      ],
+      "all_top3": true,
+      "phases": {
+        "search_to_descent": 60.181000001,
+        "low_revisit_delivery": 80.46000000000001,
+        "post_delivery_route": 66.85900000000001,
+        "H_landing": 9.863999999999976
+      },
+      "recovery": [
+        {
+          "class_name": "panzer",
+          "ack_ros": 98.843,
+          "handoff_ros": 100.647,
+          "seconds": 1.804000000000002
+        },
+        {
+          "class_name": "bridge",
+          "ack_ros": 116.61,
+          "handoff_ros": 119.215,
+          "seconds": 2.605000000000004
+        },
+        {
+          "class_name": "red_cross",
+          "ack_ros": 151.008,
+          "handoff_ros": 152.876,
+          "seconds": 1.867999999999995
+        }
+      ],
+      "recovery_sum_s": 6.277000000000001,
+      "survey_interrupt": false,
+      "low_coverage": false,
+      "contacts": true,
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_snake3_seed31_20261004_235752",
+      "xy_distance_m": 64.51557403392158,
+      "xyz_distance_m": 72.98417421278928,
+      "speed_xy_p95_mps": 0.8749539402312715,
+      "touchdown_truth_center_error_m": 0.08141393363247396
+    },
+    {
+      "seed": 38,
+      "variant": "rectangle_baseline",
+      "status": "PASS",
+      "reason": "all_checks_passed",
+      "mission_s": 225.063,
+      "classes": [
+        "panzer",
+        "red_cross",
+        "bridge"
+      ],
+      "all_top3": true,
+      "phases": {
+        "search_to_descent": 49.06999999999999,
+        "low_revisit_delivery": 79.86500000000001,
+        "post_delivery_route": 82.899,
+        "H_landing": 13.228999999999985
+      },
+      "recovery": [
+        {
+          "class_name": "panzer",
+          "ack_ros": 101.477,
+          "handoff_ros": 106.785,
+          "seconds": 5.307999999999993
+        },
+        {
+          "class_name": "red_cross",
+          "ack_ros": 123.401,
+          "handoff_ros": 126.448,
+          "seconds": 3.046999999999997
+        },
+        {
+          "class_name": "bridge",
+          "ack_ros": 138.349,
+          "handoff_ros": 140.782,
+          "seconds": 2.433000000000021
+        }
+      ],
+      "recovery_sum_s": 10.788000000000011,
+      "survey_interrupt": false,
+      "low_coverage": false,
+      "contacts": true,
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_rectangle_baseline_seed38_20261005_001117",
+      "xy_distance_m": 61.37690995194716,
+      "xyz_distance_m": 71.1939223746267,
+      "speed_xy_p95_mps": 0.8686101389841145,
+      "touchdown_truth_center_error_m": 0.12190487854766895
+    },
+    {
+      "seed": 38,
+      "variant": "rectangle",
+      "status": "FAIL",
+      "reason": "manager_failed",
+      "mission_s": null,
+      "classes": [
+        "panzer",
+        "red_cross",
+        "bridge"
+      ],
+      "all_top3": true,
+      "phases": {
+        "search_to_descent": 48.727,
+        "low_revisit_delivery": 79.530999999,
+        "post_delivery_route": 65.033000001,
+        "H_landing": null
+      },
+      "recovery": [
+        {
+          "class_name": "panzer",
+          "ack_ros": 88.0,
+          "handoff_ros": 90.917,
+          "seconds": 2.9170000000000016
+        },
+        {
+          "class_name": "red_cross",
+          "ack_ros": 119.121,
+          "handoff_ros": 121.78,
+          "seconds": 2.659000000000006
+        },
+        {
+          "class_name": "bridge",
+          "ack_ros": 138.514,
+          "handoff_ros": 139.881,
+          "seconds": 1.3669999999999902
+        }
+      ],
+      "recovery_sum_s": 6.942999999999998,
+      "survey_interrupt": false,
+      "low_coverage": false,
+      "contacts": true,
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_rectangle_seed38_20261005_002556",
+      "xy_distance_m": 56.61499353292476,
+      "xyz_distance_m": 65.13481665889589,
+      "speed_xy_p95_mps": 0.8611684411777679,
+      "touchdown_truth_center_error_m": 0.023539273278189547
+    },
+    {
+      "seed": 38,
+      "variant": "snake2",
+      "status": "FAIL",
+      "reason": "manager_failed",
+      "mission_s": null,
+      "classes": [
+        "red_cross",
+        "bridge",
+        "panzer"
+      ],
+      "all_top3": true,
+      "phases": {
+        "search_to_descent": 42.454,
+        "low_revisit_delivery": 267.619,
+        "post_delivery_route": 66.68899999899998,
+        "H_landing": null
+      },
+      "recovery": [
+        {
+          "class_name": "red_cross",
+          "ack_ros": 87.628,
+          "handoff_ros": 90.71,
+          "seconds": 3.0819999999999936
+        },
+        {
+          "class_name": "bridge",
+          "ack_ros": 109.131,
+          "handoff_ros": 110.675,
+          "seconds": 1.543999999999997
+        },
+        {
+          "class_name": "panzer",
+          "ack_ros": 320.191,
+          "handoff_ros": 322.31,
+          "seconds": 2.119000000000028
+        }
+      ],
+      "recovery_sum_s": 6.745000000000019,
+      "survey_interrupt": true,
+      "low_coverage": true,
+      "contacts": true,
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_snake2_seed38_20261005_004057",
+      "xy_distance_m": 110.73676662967002,
+      "xyz_distance_m": 119.13944817794854,
+      "speed_xy_p95_mps": 0.8731493406035127,
+      "touchdown_truth_center_error_m": null
+    },
+    {
+      "seed": 38,
+      "variant": "snake3",
+      "status": "FAIL",
+      "reason": "actual_collision",
+      "mission_s": null,
+      "classes": [
+        "red_cross",
+        "bridge"
+      ],
+      "all_top3": false,
+      "phases": {
+        "search_to_descent": 39.564000001000004,
+        "low_revisit_delivery": null,
+        "post_delivery_route": null,
+        "H_landing": null
+      },
+      "recovery": [
+        {
+          "class_name": "red_cross",
+          "ack_ros": 86.475,
+          "handoff_ros": 88.615,
+          "seconds": 2.1400000000000006
+        },
+        {
+          "class_name": "bridge",
+          "ack_ros": 105.142,
+          "handoff_ros": 106.707,
+          "seconds": 1.5649999999999977
+        }
+      ],
+      "recovery_sum_s": 3.7049999999999983,
+      "survey_interrupt": true,
+      "low_coverage": true,
+      "contacts": false,
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/route_speed_snake3_seed38_20261005_010738",
+      "xy_distance_m": 35.800644151950266,
+      "xyz_distance_m": 41.40145668675276,
+      "speed_xy_p95_mps": 0.8800863335342768,
+      "touchdown_truth_center_error_m": null
+    }
+  ],
+  "rectangle_pairs": [
+    {
+      "seed": 31,
+      "both_pass": false,
+      "same_top3": true,
+      "total_saved_s": null,
+      "phase_saved_s": {
+        "search_to_descent": -28.24899999899999,
+        "low_revisit_delivery": -30.20100000100001,
+        "post_delivery_route": 15.703000000999992,
+        "H_landing": null
+      },
+      "recovery_saved_s": 2.8549999999999827
+    },
+    {
+      "seed": 38,
+      "both_pass": false,
+      "same_top3": true,
+      "total_saved_s": null,
+      "phase_saved_s": {
+        "search_to_descent": 0.3429999999999964,
+        "low_revisit_delivery": 0.3340000010000068,
+        "post_delivery_route": 17.865999998999996,
+        "H_landing": null
+      },
+      "recovery_saved_s": 3.845000000000013
+    }
+  ]
+}

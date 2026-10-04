@@ -1,0 +1,148 @@
+[
+  {
+    "seed": 31,
+    "variant": "rectangle_baseline",
+    "raw_gate": "PASS",
+    "collision_count": 0,
+    "support_ros_s": 190.452,
+    "touchdown_mission_s": 178.798000001,
+    "abort_after_support_s": null,
+    "terminal_reason": null,
+    "tail_xyz_range_m": [
+      2.8321583300794373e-08,
+      2.4733770587204162e-08,
+      1.9345670926318448e-08
+    ],
+    "final_truth_xy": [
+      8.78693813808339,
+      -4.231944128437893
+    ],
+    "physical_landing_accepted": true
+  },
+  {
+    "seed": 31,
+    "variant": "rectangle",
+    "raw_gate": "FAIL",
+    "collision_count": 0,
+    "support_ros_s": 234.134,
+    "touchdown_mission_s": 222.279,
+    "abort_after_support_s": 7.430000000000007,
+    "terminal_reason": "probe_pose_exception:ValueError",
+    "tail_xyz_range_m": [
+      3.8433263682691177e-08,
+      4.561389310708819e-08,
+      2.9381121813276678e-08
+    ],
+    "final_truth_xy": [
+      8.714160047429589,
+      -4.2939734488204335
+    ],
+    "physical_landing_accepted": true
+  },
+  {
+    "seed": 31,
+    "variant": "snake2",
+    "raw_gate": "FAIL",
+    "collision_count": 0,
+    "support_ros_s": 191.904,
+    "touchdown_mission_s": 179.886,
+    "abort_after_support_s": 420.13700000000006,
+    "terminal_reason": "safety_motion_timed_out",
+    "tail_xyz_range_m": [
+      2.4648822803285952e-05,
+      2.75207014057699e-05,
+      2.0874376408519524e-06
+    ],
+    "final_truth_xy": [
+      8.805564854270049,
+      -4.2277754089172275
+    ],
+    "physical_landing_accepted": true
+  },
+  {
+    "seed": 31,
+    "variant": "snake3",
+    "raw_gate": "PASS",
+    "collision_count": 0,
+    "support_ros_s": 225.966,
+    "touchdown_mission_s": 213.731000001,
+    "abort_after_support_s": null,
+    "terminal_reason": null,
+    "tail_xyz_range_m": [
+      2.141122656951211e-08,
+      3.088273903273375e-08,
+      1.759023951497518e-08
+    ],
+    "final_truth_xy": [
+      8.753178816692918,
+      -4.281351869012782
+    ],
+    "physical_landing_accepted": true
+  },
+  {
+    "seed": 38,
+    "variant": "rectangle_baseline",
+    "raw_gate": "PASS",
+    "collision_count": 0,
+    "support_ros_s": 231.66,
+    "touchdown_mission_s": 219.814,
+    "abort_after_support_s": null,
+    "terminal_reason": null,
+    "tail_xyz_range_m": [
+      2.7864158980150933e-08,
+      3.876639187438968e-08,
+      2.1766640156961614e-08
+    ],
+    "final_truth_xy": [
+      8.6950977104217,
+      -4.308841838228428
+    ],
+    "physical_landing_accepted": true
+  },
+  {
+    "seed": 38,
+    "variant": "rectangle",
+    "raw_gate": "FAIL",
+    "collision_count": 0,
+    "support_ros_s": 209.814,
+    "touchdown_mission_s": 198.19299999999998,
+    "abort_after_support_s": 8.786000000000001,
+    "terminal_reason": "probe_pose_exception:ValueError",
+    "tail_xyz_range_m": [
+      4.841240119901613e-08,
+      6.15451432040004e-08,
+      3.463116449164971e-08
+    ],
+    "final_truth_xy": [
+      8.741058245577277,
+      -4.221774822573457
+    ],
+    "physical_landing_accepted": true
+  },
+  {
+    "seed": 38,
+    "variant": "snake2",
+    "raw_gate": "FAIL",
+    "collision_count": 0,
+    "support_ros_s": 393.573,
+    "touchdown_mission_s": 381.327,
+    "abort_after_support_s": 7.328000000000031,
+    "terminal_reason": "probe_pose_exception:ValueError",
+    "tail_xyz_range_m": [
+      9.650313032238955e-06,
+      9.639462524191345e-06,
+      2.1424856194718345e-08
+    ],
+    "final_truth_xy": [
+      8.75799460073192,
+      -4.225536099644497
+    ],
+    "physical_landing_accepted": true
+  },
+  {
+    "seed": 38,
+    "variant": "snake3",
+    "raw_gate": "FAIL",
+    "collision_count": 1
+  }
+]

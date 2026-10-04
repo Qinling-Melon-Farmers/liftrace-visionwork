@@ -1,0 +1,36 @@
+{
+  "lens_agl_m": 2.6,
+  "fc_agl_m": 2.76,
+  "footprint_m": [
+    5.086956521739131,
+    2.5434782608695654
+  ],
+  "grid_resolution_m": 0.02,
+  "assumptions": "Measured 3.6x1.8m at FC2m, lens1.84m; nadir horizontal ground; full route; no occlusion/no detection recall guarantee; full target metric axis-aligned 1m square, not arbitrary rotation",
+  "routes": [
+    {
+      "route": "rectangle",
+      "geometric_length_m": 22.799999999999997,
+      "search_area_m2": 84.5,
+      "ideal_center_coverage_m2": 84.331,
+      "ideal_center_coverage_percent": 99.8,
+      "full_1m_axis_aligned_target_coverage_of_legal_centers_percent": 99.77777777777777
+    },
+    {
+      "route": "snake2",
+      "geometric_length_m": 19.0,
+      "search_area_m2": 84.5,
+      "ideal_center_coverage_m2": 84.331,
+      "ideal_center_coverage_percent": 99.8,
+      "full_1m_axis_aligned_target_coverage_of_legal_centers_percent": 99.77777777777777
+    },
+    {
+      "route": "snake3",
+      "geometric_length_m": 26.6,
+      "search_area_m2": 84.5,
+      "ideal_center_coverage_m2": 84.331,
+      "ideal_center_coverage_percent": 99.8,
+      "full_1m_axis_aligned_target_coverage_of_legal_centers_percent": 99.77777777777777
+    }
+  ]
+}
