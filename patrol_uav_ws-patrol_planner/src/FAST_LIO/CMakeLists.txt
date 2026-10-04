@@ -16,7 +16,16 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -std=c++0x -std=c++14 -fexceptions")
 
 message("Current CPU archtecture: ${CMAKE_SYSTEM_PROCESSOR}")
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)" )
+set(FAST_LIO_MATCH_THREADS "0" CACHE STRING "0 preserves legacy arch default; 1-4 overrides nearest-neighbor workers")
+if(NOT FAST_LIO_MATCH_THREADS MATCHES "^[0-4]$")
+  message(FATAL_ERROR "FAST_LIO_MATCH_THREADS must be 0, 1, 2, 3 or 4")
+endif()
+if(FAST_LIO_MATCH_THREADS GREATER 0)
+  add_definitions(-DMP_PROC_NUM=${FAST_LIO_MATCH_THREADS})
+  if(FAST_LIO_MATCH_THREADS GREATER 1)
+    add_definitions(-DMP_EN)
+  endif()
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)" )
   include(ProcessorCount)
   ProcessorCount(N)
   message("Processer number:  ${N}")
@@ -36,6 +45,9 @@ else()
 endif()
 
 find_package(OpenMP QUIET)
+if(FAST_LIO_MATCH_THREADS GREATER 1 AND NOT OPENMP_FOUND)
+  message(FATAL_ERROR "Requested FAST-LIO parallel matching requires OpenMP")
+endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}   ${OpenMP_C_FLAGS}")
 
@@ -46,6 +58,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   nav_msgs
   sensor_msgs
+  diagnostic_msgs
   roscpp
   rospy
   std_msgs
@@ -79,7 +92,7 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS livox_ros_driver2 geometry_msgs nav_msgs roscpp rospy std_msgs message_runtime
+  CATKIN_DEPENDS diagnostic_msgs livox_ros_driver2 geometry_msgs nav_msgs roscpp rospy std_msgs message_runtime
   DEPENDS EIGEN3 PCL
   INCLUDE_DIRS
 )
@@ -93,6 +106,23 @@ target_link_libraries(fastlio_mapping ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${PYT
 target_include_directories(fastlio_mapping PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 if(CATKIN_ENABLE_TESTING)
+  add_executable(matching_buffers_test EXCLUDE_FROM_ALL
+    test/matching_buffers.cpp include/ikd-Tree/ikd_Tree.cpp src/preprocess.cpp)
+  # Bounds assertions catch clear()+operator[] even when capacity is retained.
+  target_compile_definitions(matching_buffers_test PRIVATE _GLIBCXX_ASSERTIONS)
+  add_dependencies(matching_buffers_test ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+  target_link_libraries(matching_buffers_test ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${PYTHON_LIBRARIES})
+  add_dependencies(tests matching_buffers_test)
+  add_test(NAME fast_lio_matching_buffers COMMAND matching_buffers_test)
+  add_executable(imu_process_validity_test EXCLUDE_FROM_ALL test/imu_process_validity.cpp)
+  target_include_directories(imu_process_validity_test PRIVATE src)
+  add_dependencies(imu_process_validity_test ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+  target_link_libraries(imu_process_validity_test ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+  add_dependencies(tests imu_process_validity_test)
+  add_test(NAME fast_lio_imu_process_validity COMMAND imu_process_validity_test)
+  add_executable(local_map_shift_test EXCLUDE_FROM_ALL test/local_map_shift.cpp)
+  add_dependencies(tests local_map_shift_test)
+  add_test(NAME fast_lio_local_map_shift COMMAND local_map_shift_test)
   add_executable(preprocess_inputs EXCLUDE_FROM_ALL test/preprocess_inputs.cpp src/preprocess.cpp)
   target_include_directories(preprocess_inputs PRIVATE src)
   add_dependencies(preprocess_inputs ${catkin_EXPORTED_TARGETS})

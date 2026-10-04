@@ -1,0 +1,33 @@
+{
+  "source_ev": [
+    "cc46ca00",
+    "df29c381"
+  ],
+  "tests": [
+    {
+      "worktree": "r2026-board-frame-fix",
+      "matching_threads": 3,
+      "production_build": "PASS",
+      "ctest": "4/4 PASS"
+    },
+    {
+      "worktree": "r2026-high-view-search",
+      "matching_threads": 3,
+      "production_build": "PASS",
+      "ctest": "4/4 PASS"
+    },
+    {
+      "worktree": "high-view-liveness-20260919",
+      "matching_threads": 3,
+      "production_build": "PASS",
+      "ctest": "4/4 PASS"
+    }
+  ],
+  "board_deployed": false,
+  "simulated": false,
+  "ev_route_changed": false,
+  "identical_patch_copies": [
+    "r2026-board-vision-tests",
+    "drop-height-board-reference-20261003"
+  ]
+}
