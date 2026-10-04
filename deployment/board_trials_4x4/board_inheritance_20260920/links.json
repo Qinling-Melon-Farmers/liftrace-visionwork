@@ -1,0 +1,72 @@
+[
+  {
+    "binary": "vision_ws/devel/lib/uav_vision/landing_detector_node",
+    "opencv": [
+      "libopencv_core.so.4.2 => /lib/aarch64-linux-gnu/libopencv_core.so.4.2 (0x0000007f85696000)",
+      "libopencv_imgproc.so.4.2 => /lib/aarch64-linux-gnu/libopencv_imgproc.so.4.2 (0x0000007f85304000)",
+      "libopencv_imgcodecs.so.4.2 => /lib/aarch64-linux-gnu/libopencv_imgcodecs.so.4.2 (0x0000007f84a1c000)",
+      "libopencv_calib3d.so.4.2 => /lib/aarch64-linux-gnu/libopencv_calib3d.so.4.2 (0x0000007f848c0000)",
+      "libopencv_features2d.so.4.2 => /lib/aarch64-linux-gnu/libopencv_features2d.so.4.2 (0x0000007f82430000)",
+      "libopencv_flann.so.4.2 => /lib/aarch64-linux-gnu/libopencv_flann.so.4.2 (0x0000007f823cd000)"
+    ],
+    "passed": true
+  },
+  {
+    "binary": "vision_ws/devel/lib/uav_vision/circle_detector_node",
+    "opencv": [
+      "libopencv_core.so.4.2 => /lib/aarch64-linux-gnu/libopencv_core.so.4.2 (0x0000007fa7b3b000)",
+      "libopencv_imgproc.so.4.2 => /lib/aarch64-linux-gnu/libopencv_imgproc.so.4.2 (0x0000007fa77a9000)",
+      "libopencv_imgcodecs.so.4.2 => /lib/aarch64-linux-gnu/libopencv_imgcodecs.so.4.2 (0x0000007fa6ec1000)",
+      "libopencv_calib3d.so.4.2 => /lib/aarch64-linux-gnu/libopencv_calib3d.so.4.2 (0x0000007fa6d65000)",
+      "libopencv_features2d.so.4.2 => /lib/aarch64-linux-gnu/libopencv_features2d.so.4.2 (0x0000007fa48d5000)",
+      "libopencv_flann.so.4.2 => /lib/aarch64-linux-gnu/libopencv_flann.so.4.2 (0x0000007fa4872000)"
+    ],
+    "passed": true
+  },
+  {
+    "binary": "vision_ws/devel/lib/uav_vision/cross_detector_node",
+    "opencv": [
+      "libopencv_core.so.4.2 => /lib/aarch64-linux-gnu/libopencv_core.so.4.2 (0x0000007fb04c9000)",
+      "libopencv_imgproc.so.4.2 => /lib/aarch64-linux-gnu/libopencv_imgproc.so.4.2 (0x0000007fb0137000)",
+      "libopencv_imgcodecs.so.4.2 => /lib/aarch64-linux-gnu/libopencv_imgcodecs.so.4.2 (0x0000007faf84f000)",
+      "libopencv_calib3d.so.4.2 => /lib/aarch64-linux-gnu/libopencv_calib3d.so.4.2 (0x0000007faf6f3000)",
+      "libopencv_features2d.so.4.2 => /lib/aarch64-linux-gnu/libopencv_features2d.so.4.2 (0x0000007fad263000)",
+      "libopencv_flann.so.4.2 => /lib/aarch64-linux-gnu/libopencv_flann.so.4.2 (0x0000007fad200000)"
+    ],
+    "passed": true
+  },
+  {
+    "binary": "patrol_uav_ws-patrol_planner/devel/lib/patrol_control/patrol_control",
+    "opencv": [],
+    "passed": true
+  },
+  {
+    "binary": "patrol_uav_ws-patrol_planner/devel/lib/fast_lio/fastlio_mapping",
+    "opencv": [],
+    "passed": true
+  },
+  {
+    "binary": "patrol_uav_ws-patrol_planner/devel/lib/plan_manage/traj_server",
+    "opencv": [],
+    "passed": true
+  },
+  {
+    "binary": "patrol_uav_ws-patrol_planner/devel/lib/plan_manage/fast_planner_node",
+    "opencv": [
+      "libopencv_core.so.4.2 => /lib/aarch64-linux-gnu/libopencv_core.so.4.2 (0x0000007fb6f51000)",
+      "libopencv_imgcodecs.so.4.2 => /lib/aarch64-linux-gnu/libopencv_imgcodecs.so.4.2 (0x0000007fb640f000)",
+      "libopencv_imgproc.so.4.2 => /lib/aarch64-linux-gnu/libopencv_imgproc.so.4.2 (0x0000007fb607d000)"
+    ],
+    "passed": true
+  },
+  {
+    "binary": "patrol_uav_ws-patrol_planner/devel/lib/freedom/freedom_node",
+    "opencv": [
+      "libopencv_photo.so.4.2 => /lib/aarch64-linux-gnu/libopencv_photo.so.4.2 (0x0000007f94ae2000)",
+      "libopencv_core.so.4.2 => /lib/aarch64-linux-gnu/libopencv_core.so.4.2 (0x0000007f94835000)",
+      "libopencv_imgproc.so.4.2 => /lib/aarch64-linux-gnu/libopencv_imgproc.so.4.2 (0x0000007f944a3000)",
+      "libopencv_imgcodecs.so.4.2 => /lib/aarch64-linux-gnu/libopencv_imgcodecs.so.4.2 (0x0000007f94449000)"
+    ],
+    "passed": true
+  }
+]

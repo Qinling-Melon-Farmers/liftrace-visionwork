@@ -1,0 +1,64 @@
+<launch>
+  <arg name="generated_dir" />
+  <arg name="model_path" />
+  <arg name="mode" />
+  <arg name="trial" />
+  <arg name="mapping_profile" default="$(eval 'high' if arg('mode') in ['high_view','high_priority','memory_only','high_view_full'] else ('corridor' if arg('trial') == 'corridor_landing' else 'low'))" />
+  <arg name="low_z" default="1.18" />
+  <arg name="ground_z" default="-0.22" />
+  <include file="$(find patrol_control)/launch/patrol_world.launch">
+    <arg name="world" value="$(arg generated_dir)/scene.world" />
+    <arg name="sdf" value="$(find uav_vision_eval)/models/iris_mid360_start_fov/model.sdf" />
+    <arg name="x" value="0" /><arg name="y" value="0" /><arg name="z" value="0.225" />
+    <arg name="Y" value="0" /><arg name="gui" value="false" />
+  </include>
+  <include file="$(find uav_board_trials)/launch/localization.launch">
+    <arg name="start_mapping" value="true" />
+    <arg name="enable_control_output" value="true" />
+    <arg name="alignment_mode" value="legacy_static" />
+    <arg name="lio_config" value="$(find fast_lio)/config/mid360_sim.yaml" />
+    <arg name="mapping_profile" value="$(arg mapping_profile)" />
+  </include>
+  <param name="/mavros/local_position/frame_id" value="map" />
+  <param name="/mavros/local_position/tf/frame_id" value="map" />
+  <param name="/trial_recorder/max_seconds" value="2700" />
+  <param name="/common/imu_topic" value="/livox/imu" />
+  <param name="/pcd_save/pcd_save_en" value="false" />
+  <rosparam param="/simulation/px4_parameters">
+    MPC_THR_HOVER: 0.713
+    EKF2_EV_CTRL: 9
+    EKF2_HGT_REF: 0
+    EKF2_GPS_CTRL: 0
+    EKF2_BARO_CTRL: 1
+    EKF2_BARO_NOISE: 0.15
+    EKF2_EV_DELAY: 0.0
+    EKF2_EVP_NOISE: 0.10
+    EKF2_EVA_NOISE: 0.05
+  </rosparam>
+  <include file="$(find uav_board_trials)/launch/application.launch">
+    <arg name="enable_control_output" value="true" />
+    <arg name="simulation" value="true" />
+    <arg name="model_path" value="$(arg model_path)" />
+    <arg name="mode" value="$(arg mode)" />
+    <arg name="actuator_mode" value="mock" />
+    <arg name="generated_dir" value="$(arg generated_dir)" />
+    <arg name="ground_z" value="$(arg ground_z)" />
+    <arg name="low_z" value="$(arg low_z)" />
+    <arg name="image_topic" value="/downward_camera/image_raw" />
+    <arg name="camera_info_topic" value="/downward_camera/camera_info" />
+  </include>
+  <node pkg="patrol_control" type="uav_arming_node" name="uav_arming_node" output="screen" />
+  <node pkg="uav_board_trials" type="trial_sim_gate.py" name="trial_sim_gate" required="true" output="screen">
+    <param name="trial" value="$(arg trial)" />
+    <param name="directory" value="$(arg generated_dir)" />
+  </node>
+  <node pkg="uav_mission" type="gazebo_contact_monitor.py" name="gazebo_contact_monitor" output="screen">
+    <rosparam param="ignored_collision_patterns">[ground_plane, 'landing_h::link::collision', 'landing_h_clone::link::collision', 'target_red_cross::link::collision', 'target_bridge::link::collision', 'target_panzer::link::collision']</rosparam>
+  </node>
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_overview_camera" args="-sdf -file $(find uav_vision_eval)/models/competition_overview_camera_above_roof/model.sdf -model competition_overview_camera -x 1.8 -y 0 -z 6 -P 1.57079632679 -Y -1.57079632679" />
+  <node pkg="uav_vision_eval" type="camera_video_recorder.py" name="overview_video_recorder" output="screen">
+    <param name="image_topic" value="/competition_overview/image_raw" />
+    <param name="fps" value="5" />
+    <param name="output_path" value="$(arg generated_dir)/overview.mp4" />
+  </node>
+</launch>

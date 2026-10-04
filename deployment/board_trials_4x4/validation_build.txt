@@ -1,0 +1,123 @@
+CMake Deprecation Warning at CMakeLists.txt:4 (cmake_minimum_required):
+  Compatibility with CMake < 3.5 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+-- The C compiler identification is GNU 9.4.0
+-- The CXX compiler identification is GNU 9.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Using CATKIN_DEVEL_PREFIX: /tmp/board_trials_build_20260920/devel
+-- Using CMAKE_PREFIX_PATH: /home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/devel;/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/devel;/opt/ros/noetic
+-- This workspace overlays: /home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/devel;/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/devel;/opt/ros/noetic
+CMake Warning (dev) at /opt/ros/noetic/share/catkin/cmake/python.cmake:4 (find_package):
+  Policy CMP0148 is not set: The FindPythonInterp and FindPythonLibs modules
+  are removed.  Run "cmake --help-policy CMP0148" for policy details.  Use
+  the cmake_policy command to set the policy and suppress this warning.
+
+Call Stack (most recent call first):
+  /opt/ros/noetic/share/catkin/cmake/all.cmake:164 (include)
+  /opt/ros/noetic/share/catkin/cmake/catkinConfig.cmake:20 (include)
+  CMakeLists.txt:58 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Found PythonInterp: /usr/bin/python3 (found suitable version "3.8.10", minimum required is "3")
+-- Using PYTHON_EXECUTABLE: /usr/bin/python3
+-- Using Debian Python package layout
+-- Found PY_em: /home/xhj/.local/lib/python3.8/site-packages/em.py
+-- Using empy: /home/xhj/.local/lib/python3.8/site-packages/em.py
+-- Using CATKIN_ENABLE_TESTING: ON
+-- Call enable_testing()
+-- Using CATKIN_TEST_RESULTS_DIR: /tmp/board_trials_build_20260920/build/test_results
+-- Forcing gtest/gmock from source, though one was otherwise available.
+-- Found gtest sources under '/usr/src/googletest': gtests will be built
+-- Found gmock sources under '/usr/src/googletest': gmock will be built
+CMake Deprecation Warning at /usr/src/googletest/CMakeLists.txt:4 (cmake_minimum_required):
+  Compatibility with CMake < 3.5 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+CMake Deprecation Warning at /usr/src/googletest/googlemock/CMakeLists.txt:45 (cmake_minimum_required):
+  Compatibility with CMake < 3.5 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+CMake Deprecation Warning at /usr/src/googletest/googletest/CMakeLists.txt:56 (cmake_minimum_required):
+  Compatibility with CMake < 3.5 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+CMake Warning (dev) at /usr/src/googletest/googletest/cmake/internal_utils.cmake:249 (find_package):
+  Policy CMP0148 is not set: The FindPythonInterp and FindPythonLibs modules
+  are removed.  Run "cmake --help-policy CMP0148" for policy details.  Use
+  the cmake_policy command to set the policy and suppress this warning.
+
+Call Stack (most recent call first):
+  /usr/src/googletest/googletest/CMakeLists.txt:91 (include)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Found PythonInterp: /usr/bin/python3 (found version "3.8.10")
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE
+-- Using Python nosetests: /usr/bin/nosetests3
+-- catkin 0.8.12
+-- BUILD_SHARED_LIBS is on
+-- BUILD_SHARED_LIBS is on
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- ~~  traversing 1 packages in topological order:
+-- ~~  - uav_board_trials
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- +++ processing catkin package: 'uav_board_trials'
+-- ==> add_subdirectory(uav_board_trials)
+CMake Deprecation Warning at uav_board_trials/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.5 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+-- Installing devel-space wrapper /tmp/board_trials_build_20260920/src/uav_board_trials/scripts/trial_manager.py to /tmp/board_trials_build_20260920/devel/lib/uav_board_trials
+-- Installing devel-space wrapper /tmp/board_trials_build_20260920/src/uav_board_trials/scripts/trial_auto_land.py to /tmp/board_trials_build_20260920/devel/lib/uav_board_trials
+-- Installing devel-space wrapper /tmp/board_trials_build_20260920/src/uav_board_trials/scripts/trial_recorder.py to /tmp/board_trials_build_20260920/devel/lib/uav_board_trials
+-- Installing devel-space wrapper /tmp/board_trials_build_20260920/src/uav_board_trials/scripts/mock_servo.py to /tmp/board_trials_build_20260920/devel/lib/uav_board_trials
+-- Configuring done (40.8s)
+-- Generating done (0.1s)
+-- Build files have been written to: /tmp/board_trials_build_20260920/build
+Base path: /tmp/board_trials_build_20260920
+Source space: /tmp/board_trials_build_20260920/src
+Build space: /tmp/board_trials_build_20260920/build
+Devel space: /tmp/board_trials_build_20260920/devel
+Install space: /tmp/board_trials_build_20260920/install
+Creating symlink "/tmp/board_trials_build_20260920/src/CMakeLists.txt" pointing to "/opt/ros/noetic/share/catkin/cmake/toplevel.cmake"
+####
+#### Running command: "cmake /tmp/board_trials_build_20260920/src -DPYTHON_EXECUTABLE=/usr/bin/python3 -DCATKIN_DEVEL_PREFIX=/tmp/board_trials_build_20260920/devel -DCMAKE_INSTALL_PREFIX=/tmp/board_trials_build_20260920/install -G Unix Makefiles" in "/tmp/board_trials_build_20260920/build"
+####
+####
+#### Running command: "make -j2" in "/tmp/board_trials_build_20260920/build"
+####

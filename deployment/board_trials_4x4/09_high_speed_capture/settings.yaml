@@ -1,0 +1,73 @@
+mode: high_speed_capture
+low_agl: 1.4
+high_agl: 2.0
+drop_agl: 0.6
+landing_transit_agl: 1.0
+landing_capture_agl: 1.8
+landing_xy:
+- 2.0
+- 0.0
+cruise_speed: 1.2
+cruise_acceleration: 1.0
+virtual_ceiling_enabled: false
+alignment_mode: legacy_static
+actuator_mode: mock
+raw_servo_service: /legacy/Servo_raw
+flight_area:
+  center_bounds:
+  - -0.35
+  - 6.0
+  - -1.5
+  - 1.5
+  target_bounds:
+  - -0.35
+  - 6.0
+  - -1.5
+  - 1.5
+  search_bounds:
+  - 0.6
+  - 6.0
+  - -1.5
+  - 1.5
+  staging_xy:
+  - 0.6
+  - 0.0
+  survey_xy:
+  - - 0.8
+    - -1.1
+  - - 3.2
+    - -1.1
+  - - 5.5
+    - -1.1
+  - - 5.5
+    - 0.0
+  - - 5.5
+    - 1.1
+  - - 3.2
+    - 1.1
+  - - 0.8
+    - 1.1
+  - - 0.8
+    - -1.1
+  map_size:
+  - 16.0
+  - 6.0
+  - 3.8
+search_line_x:
+- 0.6
+- 1.2
+- 1.8
+- 2.4
+- 3.0
+- 3.6
+- 4.2
+- 4.8
+- 5.4
+- 6.0
+compressed_image_topic: /camera/image_raw/compressed
+max_agl: 2.0
+terminal_hover_agl: 0.3
+auto_start_after_arm: true
+initialization_timeout: 300.0
+obstacle_columns_enabled: false
+capture_lighting: unspecified

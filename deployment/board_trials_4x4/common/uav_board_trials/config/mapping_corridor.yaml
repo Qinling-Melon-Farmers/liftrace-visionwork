@@ -1,0 +1,8 @@
+# Sensor-relative/raycast limits inherited from the corresponding board test.
+# Select once before localization starts; FreeDOM does not reload these live.
+sensor:
+  max_range: 5.0
+  max_z: 1.5
+map:
+  raycast_max_range: 5.0
+  raycast_max_z: 1.5

@@ -1,0 +1,23 @@
+# Mapping is started once, from an empty process, after FC/LIO convergence.
+# These thresholds control preflight admission, not in-flight map deletion.
+pose_topic: /navigation/local_pose
+lio_pose_topic: /mavros/vision_pose/pose
+cloud_topic: /freedom/static_pointcloud
+frame: camera_init
+pose_max_age: 0.3
+state_max_age: 2.5  # MAVROS state normally arrives at about 1 Hz.
+pair_max_skew: 0.10
+position_tolerance: 0.20
+yaw_tolerance_deg: 5.0
+stable_seconds: 2.0
+map_warmup_seconds: 3.0
+map_max_age: 1.5
+map_timeout: 30.0
+# Empty arrays are valid. Two advancing source stamps prove the pipeline lives;
+# a single latched startup-empty candidate array does not.
+vision_max_age: 1.0
+vision_detection_topics:
+  - /uav_vision/detections
+  - /uav_vision/detections_refined
+  - /uav_vision/detections_mapped
+vision_targets_topic: /uav_vision/targets
