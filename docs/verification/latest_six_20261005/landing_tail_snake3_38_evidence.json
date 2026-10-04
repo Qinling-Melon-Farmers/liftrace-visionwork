@@ -1,0 +1,13 @@
+{
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/latest_six_snake3_seed38_20261005_035440",
+  "landed_ros_s": 417.369,
+  "disarmed_ros_s": 419.568,
+  "observed_control_state": 1,
+  "control_state_topic": "/detect/point_class",
+  "log_lines": [
+    "[INFO] [1791145332.228204522, 410.349000000]: [ExternalLanding] fresh H alignment latched with 10 frames",
+    "[ERROR] [1791145368.692325200, 419.568000000]: [ExternalLanding] failed closed and holding position: flight_controller_control_lost",
+    "[INFO] [1791145350.240466726, 414.851000000]: [PatrolControl] AUTO.LAND mode enabled"
+  ],
+  "mechanism": "externalLandingStateCallback treats armed=false and non-AUTO.LAND after handoff as control loss; failExternalLanding sets Drone_mode=Run_point(1); Bridge requires state=3 before landing settle"
+}

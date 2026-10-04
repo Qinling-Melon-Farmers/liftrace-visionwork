@@ -1,0 +1,108 @@
+[
+  {
+    "seed": 31,
+    "variant": "rectangle",
+    "raw_gate": "PASS",
+    "collision_count": 0,
+    "support_ros_s": 204.393,
+    "touchdown_mission_s": 192.778,
+    "abort_after_support_s": null,
+    "terminal_reason": null,
+    "tail_xyz_range_m": [
+      2.361417195118065e-08,
+      2.824861589090233e-08,
+      1.5281199916561405e-08
+    ],
+    "final_truth_xy": [
+      8.72555747913421,
+      -4.234428551009385
+    ],
+    "physical_landing_accepted": true
+  },
+  {
+    "seed": 31,
+    "variant": "snake2",
+    "raw_gate": "PASS",
+    "collision_count": 0,
+    "support_ros_s": 227.489,
+    "touchdown_mission_s": 215.25,
+    "abort_after_support_s": null,
+    "terminal_reason": null,
+    "tail_xyz_range_m": [
+      2.4977319768026973e-07,
+      1.7840945343294834e-07,
+      2.5722470153866084e-08
+    ],
+    "final_truth_xy": [
+      8.699470985581677,
+      -4.290838988324788
+    ],
+    "physical_landing_accepted": true
+  },
+  {
+    "seed": 31,
+    "variant": "snake3",
+    "raw_gate": "PASS",
+    "collision_count": 0,
+    "support_ros_s": 240.442,
+    "touchdown_mission_s": 228.18,
+    "abort_after_support_s": null,
+    "terminal_reason": null,
+    "tail_xyz_range_m": [
+      0.00309982020831967,
+      0.002232580325939537,
+      0.0030009027643143338
+    ],
+    "final_truth_xy": [
+      8.733388828883136,
+      -4.258739631107603
+    ],
+    "physical_landing_accepted": true
+  },
+  {
+    "seed": 38,
+    "variant": "rectangle",
+    "raw_gate": "PASS",
+    "collision_count": 0,
+    "support_ros_s": 241.063,
+    "touchdown_mission_s": 229.425000001,
+    "abort_after_support_s": null,
+    "terminal_reason": null,
+    "tail_xyz_range_m": [
+      0.0012819310218894486,
+      0.0008734680320641175,
+      0.0022046349857924308
+    ],
+    "final_truth_xy": [
+      8.733641683992936,
+      -4.2615333756593685
+    ],
+    "physical_landing_accepted": true
+  },
+  {
+    "seed": 38,
+    "variant": "snake2",
+    "raw_gate": "FAIL",
+    "collision_count": 1
+  },
+  {
+    "seed": 38,
+    "variant": "snake3",
+    "raw_gate": "FAIL",
+    "collision_count": 0,
+    "support_ros_s": 415.41,
+    "touchdown_mission_s": 403.98400000000004,
+    "abort_after_support_s": 196.06400000000002,
+    "terminal_reason": "safety_motion_timed_out",
+    "tail_xyz_range_m": [
+      9.651080800310297e-06,
+      1.0921293370991236e-05,
+      8.546988363722363e-07
+    ],
+    "final_truth_xy": [
+      8.67042145284655,
+      -4.259584845866456
+    ],
+    "physical_landing_accepted": true
+  }
+]

@@ -1,0 +1,382 @@
+[
+  {
+    "seed": 31,
+    "variant": "rectangle",
+    "peak_ros_s": 151.544,
+    "truth_agl_m": 1.0575997155163543,
+    "streams": {
+      "mavros_pose": {
+        "agl_m": 1.0049276065826416,
+        "sample_offset_s": -0.02400000000000091
+      },
+      "lio_pose": {
+        "agl_m": 1.061222357049918,
+        "sample_offset_s": 0.020999999999986585
+      },
+      "mavros_setpoint": {
+        "agl_m": 0.9368632745742798,
+        "sample_offset_s": 0.031999999999982265
+      },
+      "planner_setpoint": {
+        "agl_m": 0.9368632745742798,
+        "sample_offset_s": -0.049000000000006594
+      }
+    },
+    "decision": {
+      "header": {
+        "seq": 15,
+        "stamp": {
+          "stamp_ns": 120326999999
+        },
+        "frame_id": "camera_init"
+      },
+      "schema_version": 1,
+      "mission_id": "vcl06-random-11-615000000-1",
+      "decision_seq": 15,
+      "deadline": {
+        "stamp_ns": 210326999999
+      },
+      "command": 4,
+      "class_profile": "r2026",
+      "has_goal": true,
+      "has_target": false,
+      "target_id": 0,
+      "target_first_seen": {
+        "stamp_ns": 0
+      },
+      "target_observation_stamp": {
+        "stamp_ns": 0
+      },
+      "target_class": "",
+      "attempt": 0,
+      "payload_slot": 0,
+      "goal": {
+        "header": {
+          "seq": 15,
+          "stamp": {
+            "stamp_ns": 120326999999
+          },
+          "frame_id": "camera_init"
+        },
+        "pose": {
+          "position": {
+            "x": 8.75,
+            "y": -2.3,
+            "z": 0.68
+          },
+          "orientation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          }
+        }
+      },
+      "reason": "post_delivery_route:3/4:route-speed-rectangle:segment_complete"
+    }
+  },
+  {
+    "seed": 31,
+    "variant": "snake2",
+    "peak_ros_s": 187.483,
+    "truth_agl_m": 0.9801586840371309,
+    "streams": {
+      "mavros_pose": {
+        "agl_m": 0.9093563866615295,
+        "sample_offset_s": -0.027999999999991587
+      },
+      "lio_pose": {
+        "agl_m": 0.9872964363868434,
+        "sample_offset_s": 0.00899999999998613
+      },
+      "mavros_setpoint": {
+        "agl_m": 0.8479214777131248,
+        "sample_offset_s": 0.031999999999982265
+      },
+      "planner_setpoint": {
+        "agl_m": 0.8479214777131248,
+        "sample_offset_s": 0.0020000000000095497
+      }
+    },
+    "decision": {
+      "header": {
+        "seq": 17,
+        "stamp": {
+          "stamp_ns": 172290999999
+        },
+        "frame_id": "camera_init"
+      },
+      "schema_version": 1,
+      "mission_id": "vcl06-random-12-239000000-1",
+      "decision_seq": 17,
+      "deadline": {
+        "stamp_ns": 262290999999
+      },
+      "command": 4,
+      "class_profile": "r2026",
+      "has_goal": true,
+      "has_target": false,
+      "target_id": 0,
+      "target_first_seen": {
+        "stamp_ns": 0
+      },
+      "target_observation_stamp": {
+        "stamp_ns": 0
+      },
+      "target_class": "",
+      "attempt": 0,
+      "payload_slot": 0,
+      "goal": {
+        "header": {
+          "seq": 17,
+          "stamp": {
+            "stamp_ns": 172290999999
+          },
+          "frame_id": "camera_init"
+        },
+        "pose": {
+          "position": {
+            "x": 8.75,
+            "y": -2.3,
+            "z": 0.68
+          },
+          "orientation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          }
+        }
+      },
+      "reason": "post_delivery_route:3/4:route-speed-snake2:segment_complete"
+    }
+  },
+  {
+    "seed": 31,
+    "variant": "snake3",
+    "peak_ros_s": 229.814,
+    "truth_agl_m": 1.0677506429189512,
+    "streams": {
+      "mavros_pose": {
+        "agl_m": 0.9827660632133484,
+        "sample_offset_s": 0.043000000000006366
+      },
+      "lio_pose": {
+        "agl_m": 1.070684066392484,
+        "sample_offset_s": 0.043000000000006366
+      },
+      "mavros_setpoint": {
+        "agl_m": 0.9000000000000001,
+        "sample_offset_s": 0.01300000000000523
+      },
+      "planner_setpoint": {
+        "agl_m": 0.9000000000000001,
+        "sample_offset_s": -0.007000000000005002
+      }
+    },
+    "decision": {
+      "header": {
+        "seq": 19,
+        "stamp": {
+          "stamp_ns": 219157999999
+        },
+        "frame_id": "camera_init"
+      },
+      "schema_version": 1,
+      "mission_id": "vcl06-random-12-262000000-1",
+      "decision_seq": 19,
+      "deadline": {
+        "stamp_ns": 309158000000
+      },
+      "command": 4,
+      "class_profile": "r2026",
+      "has_goal": true,
+      "has_target": false,
+      "target_id": 0,
+      "target_first_seen": {
+        "stamp_ns": 0
+      },
+      "target_observation_stamp": {
+        "stamp_ns": 0
+      },
+      "target_class": "",
+      "attempt": 0,
+      "payload_slot": 0,
+      "goal": {
+        "header": {
+          "seq": 19,
+          "stamp": {
+            "stamp_ns": 219157999999
+          },
+          "frame_id": "camera_init"
+        },
+        "pose": {
+          "position": {
+            "x": 8.75,
+            "y": -4.2,
+            "z": 0.68
+          },
+          "orientation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          }
+        }
+      },
+      "reason": "post_delivery_route:4/4:route-speed-snake3:segment_complete"
+    }
+  },
+  {
+    "seed": 38,
+    "variant": "rectangle",
+    "peak_ros_s": 230.254,
+    "truth_agl_m": 1.0489028893850685,
+    "streams": {
+      "mavros_pose": {
+        "agl_m": 0.9818089914321899,
+        "sample_offset_s": -0.01999999999998181
+      },
+      "lio_pose": {
+        "agl_m": 1.0531927867933346,
+        "sample_offset_s": 0.04099999999999682
+      },
+      "mavros_setpoint": {
+        "agl_m": 0.9000200648594261,
+        "sample_offset_s": -0.04099999999999682
+      },
+      "planner_setpoint": {
+        "agl_m": 0.9000200648594261,
+        "sample_offset_s": -0.03499999999999659
+      }
+    },
+    "decision": {
+      "header": {
+        "seq": 19,
+        "stamp": {
+          "stamp_ns": 220604999999
+        },
+        "frame_id": "camera_init"
+      },
+      "schema_version": 1,
+      "mission_id": "vcl06-random-11-638000000-1",
+      "decision_seq": 19,
+      "deadline": {
+        "stamp_ns": 310605000000
+      },
+      "command": 4,
+      "class_profile": "r2026",
+      "has_goal": true,
+      "has_target": false,
+      "target_id": 0,
+      "target_first_seen": {
+        "stamp_ns": 0
+      },
+      "target_observation_stamp": {
+        "stamp_ns": 0
+      },
+      "target_class": "",
+      "attempt": 0,
+      "payload_slot": 0,
+      "goal": {
+        "header": {
+          "seq": 19,
+          "stamp": {
+            "stamp_ns": 220604999999
+          },
+          "frame_id": "camera_init"
+        },
+        "pose": {
+          "position": {
+            "x": 8.75,
+            "y": -4.2,
+            "z": 0.68
+          },
+          "orientation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          }
+        }
+      },
+      "reason": "post_delivery_route:4/4:route-speed-rectangle:segment_complete"
+    }
+  },
+  {
+    "seed": 38,
+    "variant": "snake3",
+    "peak_ros_s": 410.38,
+    "truth_agl_m": 0.937705119212055,
+    "streams": {
+      "mavros_pose": {
+        "agl_m": 0.8958918166160583,
+        "sample_offset_s": -0.04099999999999682
+      },
+      "lio_pose": {
+        "agl_m": 0.9608633505282911,
+        "sample_offset_s": -0.031999999999982265
+      },
+      "mavros_setpoint": {
+        "agl_m": 0.7463624984224155,
+        "sample_offset_s": -0.03100000000000591
+      },
+      "planner_setpoint": {
+        "agl_m": 0.9,
+        "sample_offset_s": -0.02400000000000091
+      }
+    },
+    "decision": {
+      "header": {
+        "seq": 30,
+        "stamp": {
+          "stamp_ns": 409470000000
+        },
+        "frame_id": "camera_init"
+      },
+      "schema_version": 1,
+      "mission_id": "vcl06-random-11-426000000-1",
+      "decision_seq": 30,
+      "deadline": {
+        "stamp_ns": 611426000000
+      },
+      "command": 5,
+      "class_profile": "r2026",
+      "has_goal": false,
+      "has_target": false,
+      "target_id": 0,
+      "target_first_seen": {
+        "stamp_ns": 0
+      },
+      "target_observation_stamp": {
+        "stamp_ns": 0
+      },
+      "target_class": "",
+      "attempt": 0,
+      "payload_slot": 0,
+      "goal": {
+        "header": {
+          "seq": 30,
+          "stamp": {
+            "stamp_ns": 409470000000
+          },
+          "frame_id": "camera_init"
+        },
+        "pose": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "orientation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          }
+        }
+      },
+      "reason": "post_delivery_route_complete"
+    }
+  }
+]

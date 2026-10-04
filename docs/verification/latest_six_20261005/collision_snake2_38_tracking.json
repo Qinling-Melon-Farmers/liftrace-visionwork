@@ -1,0 +1,45 @@
+{
+  "contact_ros_s": 136.178,
+  "truth_xyz": [
+    4.865447839863538,
+    1.1732573938197328,
+    1.2727505085750785
+  ],
+  "fc_xyz": [
+    4.862206144240288,
+    1.1560134818253085,
+    1.2427955611238202
+  ],
+  "lio_xyz": [
+    4.866659231938277,
+    1.1770436331866627,
+    1.2804358878288065
+  ],
+  "fc_minus_truth_m": [
+    -0.0032416956232506067,
+    -0.01724391199442432,
+    -0.029954947451258374
+  ],
+  "lio_minus_truth_m": [
+    0.0012113920747385265,
+    0.0037862393669299,
+    0.00768537925372792
+  ],
+  "nearest_emitted_setpoint_polyline_xyz": [
+    4.746673467090712,
+    1.0448104194347316,
+    1.2480892535112054
+  ],
+  "distance_to_sampled_setpoint_polyline_m": 0.17667527941838612,
+  "precontact_2s_estimation_errors": {
+    "mavros": {
+      "max_xy_error_m": 0.01767075995263434,
+      "max_abs_z_error_m": 0.038128421202595186
+    },
+    "lio": {
+      "max_xy_error_m": 0.005273450302030365,
+      "max_abs_z_error_m": 0.008708619201191148
+    }
+  },
+  "note": "Setpoint stream includes deliberate lookahead. Spatial polyline distance is diagnostic, not a full time-aligned B-spline collision proof. Interpolated LIO may include a post-contact sample; precontact error table ends 0.1 seconds before contact to avoid interpolating post-contact observations."
+}

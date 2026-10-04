@@ -1,0 +1,4 @@
+# Reproducible per-observation tables are retained locally, not versioned.
+*_centers/*.csv
+*_centers/stages/*.csv
+__pycache__/

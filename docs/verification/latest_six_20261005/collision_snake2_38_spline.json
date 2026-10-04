@@ -1,0 +1,11 @@
+{
+  "time": 136.178,
+  "truth_sample_time": 136.157,
+  "distance_to_spatial_bspline_m": 0.17650439824773467,
+  "nearest_spatial_bspline_xyz": [
+    4.7302778719300855,
+    1.0603761965260643,
+    1.2474299995376337
+  ],
+  "note": "Spatial distance, not a time-synchronised tracking error. No recorded occupancy cloud was available to fully certify planner-map clearance."
+}
