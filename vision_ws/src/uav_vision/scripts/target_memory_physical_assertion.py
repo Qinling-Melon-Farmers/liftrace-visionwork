@@ -148,7 +148,8 @@ class PhysicalMemoryAssertion:
         assert self._standard_targets(below_threshold)[0].class_name == "tent", \
             "below-threshold class evidence changed the committed class"
         self._publish([self._detection("panzer", 0.93, 1.10)])
-        final = self._publish([self._detection("panzer", 0.94, 0.90)])
+        self._publish([self._detection("panzer", 0.94, 0.90)])
+        final = self._publish([self._detection("panzer", 0.94, 1.00)])
         targets = self._standard_targets(final)
         assert len(targets) == 1, "class flicker split one physical target: %r" % [
             (target.id, target.class_name) for target in targets]
@@ -156,7 +157,7 @@ class PhysicalMemoryAssertion:
         assert target.id == first_id, "physical target ID changed"
         assert target.class_name == "panzer", "stable class did not switch"
         assert target.state == CONFIRMED_STATE, "three consecutive hits not confirmed"
-        assert target.observe_count == 5, "cumulative observation count is wrong"
+        assert target.observe_count == 6, "cumulative observation count is wrong"
         assert abs(target.map_point.x - 1.0) < 0.03, "map fusion is not weighted"
 
     def _assert_miss_resets_confirmation_streak(self):
