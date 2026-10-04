@@ -1,0 +1,516 @@
+{
+  "measurements_source": "flight_fov_20260926/result.json: five manually marked 1m boards; not independent altitude truth",
+  "height_table": [
+    {
+      "fc_agl": 0.6,
+      "lens_agl": 0.43999999999999995,
+      "measured_span": [
+        0.8608695652173912,
+        0.4304347826086956
+      ],
+      "measured_area": 0.3705482041587901,
+      "calibration_span": [
+        0.7764516701140523,
+        0.437968097932855
+      ],
+      "recorded_five_frame_extrapolation_min": [
+        0.7564056780244338,
+        0.4291665083226367,
+        0.32458797412752827
+      ],
+      "recorded_five_frame_extrapolation_max": [
+        0.8734124617730924,
+        0.49472429944621193,
+        0.4320686742718997
+      ]
+    },
+    {
+      "fc_agl": 0.9,
+      "lens_agl": 0.74,
+      "measured_span": [
+        1.4478260869565218,
+        0.7239130434782609
+      ],
+      "measured_area": 1.048100189035917,
+      "calibration_span": [
+        1.3058505361009063,
+        0.7365827101598016
+      ],
+      "recorded_five_frame_extrapolation_min": [
+        1.2721368221320024,
+        0.7217800367244345,
+        0.9181011086375748
+      ],
+      "recorded_five_frame_extrapolation_max": [
+        1.4689209584365648,
+        0.8320363217959019,
+        1.2221116014013036
+      ]
+    },
+    {
+      "fc_agl": 1.0,
+      "lens_agl": 0.84,
+      "measured_span": [
+        1.643478260869565,
+        0.8217391304347825
+      ],
+      "measured_area": 1.350510396975425,
+      "calibration_span": [
+        1.4823168247631908,
+        0.8361209142354505
+      ],
+      "recorded_five_frame_extrapolation_min": [
+        1.4440472035011918,
+        0.8193178795250335,
+        1.1830024511590078
+      ],
+      "recorded_five_frame_extrapolation_max": [
+        1.667423790657722,
+        0.944473662579132,
+        1.5747296310240317
+      ]
+    },
+    {
+      "fc_agl": 1.4,
+      "lens_agl": 1.24,
+      "measured_span": [
+        2.4260869565217393,
+        1.2130434782608697
+      ],
+      "measured_area": 2.942948960302458,
+      "calibration_span": [
+        2.188181979412329,
+        1.234273730538046
+      ],
+      "recorded_five_frame_extrapolation_min": [
+        2.13168872897795,
+        1.2094692507274307,
+        2.5779259763351625
+      ],
+      "recorded_five_frame_extrapolation_max": [
+        2.4614351195423514,
+        1.3942230257120518,
+        3.431553685746246
+      ]
+    },
+    {
+      "fc_agl": 1.8,
+      "lens_agl": 1.6400000000000001,
+      "measured_span": [
+        3.208695652173913,
+        1.6043478260869566
+      ],
+      "measured_area": 5.147863894139887,
+      "calibration_span": [
+        2.894047134061468,
+        1.6324265468406418
+      ],
+      "recorded_five_frame_extrapolation_min": [
+        2.8193302544547083,
+        1.599620621929828,
+        4.509358549655993
+      ],
+      "recorded_five_frame_extrapolation_max": [
+        3.2554464484269814,
+        1.843972388844972,
+        6.002540838438543
+      ]
+    },
+    {
+      "fc_agl": 2.0,
+      "lens_agl": 1.84,
+      "measured_span": [
+        3.6,
+        1.8
+      ],
+      "measured_area": 6.48,
+      "calibration_span": [
+        3.2469797113860372,
+        1.8315029549919393
+      ],
+      "recorded_five_frame_extrapolation_min": [
+        3.1631510171930874,
+        1.7946963075310263,
+        5.676265729370661
+      ],
+      "recorded_five_frame_extrapolation_max": [
+        3.652452112869296,
+        2.068847070411432,
+        7.555845576523472
+      ]
+    },
+    {
+      "fc_agl": 2.6,
+      "lens_agl": 2.44,
+      "measured_span": [
+        4.773913043478261,
+        2.3869565217391306
+      ],
+      "measured_area": 11.395122873345938,
+      "calibration_span": [
+        4.305777443359744,
+        2.4287321794458325
+      ],
+      "recorded_five_frame_extrapolation_min": [
+        4.194613305408224,
+        2.379923364334622,
+        9.981750840731676
+      ],
+      "recorded_five_frame_extrapolation_max": [
+        4.84346910619624,
+        2.743471115110812,
+        13.287004437733382
+      ]
+    },
+    {
+      "fc_agl": 3.0,
+      "lens_agl": 2.84,
+      "measured_span": [
+        5.556521739130434,
+        2.778260869565217
+      ],
+      "measured_area": 15.437466918714552,
+      "calibration_span": [
+        5.011642598008883,
+        2.826884995748428
+      ],
+      "recorded_five_frame_extrapolation_min": [
+        4.882254830884983,
+        2.7700747355370186,
+        13.522710558486528
+      ],
+      "recorded_five_frame_extrapolation_max": [
+        5.637480435080869,
+        3.1932204782437315,
+        18.00048088433592
+      ]
+    },
+    {
+      "fc_agl": 4.0,
+      "lens_agl": 3.84,
+      "measured_span": [
+        7.513043478260869,
+        3.7565217391304344
+      ],
+      "measured_area": 28.22291115311909,
+      "calibration_span": [
+        6.776305484631729,
+        3.8222670365049165
+      ],
+      "recorded_five_frame_extrapolation_min": [
+        6.601358644576877,
+        3.7454531635430106,
+        24.722336938506615
+      ],
+      "recorded_five_frame_extrapolation_max": [
+        7.622508757292443,
+        4.317593886076032,
+        32.90863555446139
+      ]
+    }
+  ],
+  "flight_height_and_yaw": [
+    {
+      "run": "173929",
+      "ground_z": -0.26698523133993146,
+      "high_local_z": 1.7330147686600685,
+      "configured_high_agl": 2.0,
+      "high_band_yaw_deg_percentiles": [
+        -1.3175746951619562,
+        -0.8937251149458267,
+        -0.061757436034156996,
+        1.387355152522914,
+        3.488391494989298
+      ],
+      "note": "yaw samples within +/-0.3m of high local Z; may include ascent/descent; not isolated cruise intervals"
+    },
+    {
+      "run": "175604",
+      "ground_z": -0.2540239685028791,
+      "high_local_z": 1.7459760314971209,
+      "configured_high_agl": 2.0,
+      "high_band_yaw_deg_percentiles": [
+        -1.8233004583927646,
+        -1.0521242060516507,
+        0.01558420328775744,
+        2.3703425313901594,
+        3.007072596596933
+      ],
+      "note": "yaw samples within +/-0.3m of high local Z; may include ascent/descent; not isolated cruise intervals"
+    },
+    {
+      "run": "181136",
+      "ground_z": -0.26340839013457296,
+      "high_local_z": 1.736591609865427,
+      "configured_high_agl": 2.0,
+      "high_band_yaw_deg_percentiles": [
+        -4.448954569446212,
+        -3.507523233505886,
+        -0.12170849176202164,
+        2.5061709003775174,
+        3.7002808568948677
+      ],
+      "note": "yaw samples within +/-0.3m of high local Z; may include ascent/descent; not isolated cruise intervals"
+    }
+  ],
+  "walls": [
+    {
+      "name": "Wall_1",
+      "pose": [
+        -0.6,
+        -0.0,
+        2.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "size": [
+        0.2,
+        10.0,
+        4.0
+      ]
+    },
+    {
+      "name": "Wall_9",
+      "pose": [
+        9.2,
+        -0.0,
+        2.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "size": [
+        0.2,
+        10.0,
+        4.0
+      ]
+    },
+    {
+      "name": "Wall_11",
+      "pose": [
+        4.3,
+        -4.8999999999999995,
+        2.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "size": [
+        9.6,
+        0.2,
+        4.0
+      ]
+    },
+    {
+      "name": "Wall_12",
+      "pose": [
+        4.3,
+        4.8999999999999995,
+        2.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "size": [
+        9.6,
+        0.2,
+        4.0
+      ]
+    },
+    {
+      "name": "Wall_13",
+      "pose": [
+        7.5,
+        -0.75,
+        0.75,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "size": [
+        0.2,
+        8.1,
+        1.5
+      ]
+    },
+    {
+      "name": "Wall_20_south",
+      "pose": [
+        8.75,
+        1.6,
+        0.75,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "size": [
+        0.7,
+        0.2,
+        1.5
+      ]
+    },
+    {
+      "name": "Wall_22_north",
+      "pose": [
+        7.95,
+        -1.6,
+        0.75,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "size": [
+        0.7,
+        0.2,
+        1.5
+      ]
+    }
+  ],
+  "outer_field_area": 100.0,
+  "inner_field_area": 92.16,
+  "search_area": 75.84,
+  "corridor_area": 14.4,
+  "partition_strip_area": 1.92,
+  "formal_flight_bounds": [
+    -0.5,
+    9.5,
+    -4.8,
+    4.8
+  ],
+  "formal_high_route": [
+    [
+      1.0,
+      -3.5
+    ],
+    [
+      5.5,
+      -3.5
+    ],
+    [
+      5.5,
+      3.5
+    ],
+    [
+      1.0,
+      3.5
+    ],
+    [
+      1.0,
+      -3.5
+    ]
+  ],
+  "validated_post_route": [
+    [
+      6.7,
+      4.05,
+      1.18
+    ],
+    [
+      6.7,
+      4.05,
+      0.68
+    ],
+    [
+      8.35,
+      4.05,
+      0.68
+    ],
+    [
+      8.35,
+      2.3,
+      0.68
+    ],
+    [
+      8.35,
+      0.9000000000000001,
+      0.68
+    ],
+    [
+      8.35,
+      -0.0,
+      0.68
+    ],
+    [
+      8.35,
+      -0.9000000000000001,
+      0.68
+    ],
+    [
+      8.35,
+      -2.3,
+      0.68
+    ],
+    [
+      8.5,
+      -4.2,
+      0.68
+    ]
+  ],
+  "gate": {
+    "post_delivery_gate": {
+      "low_height_region": {
+        "min_x": 7.6,
+        "max_x": 9.1,
+        "min_y": -4.8,
+        "max_y": 4.8,
+        "max_height": 1.2
+      },
+      "goal_tolerance": 0.12,
+      "final_h_tolerance": 0.35,
+      "expected_door_order": [
+        "corridor_entry",
+        "Wall_20",
+        "Wall_22"
+      ],
+      "doors": [
+        {
+          "name": "corridor_entry",
+          "axis": "x",
+          "coordinate": 7.5,
+          "direction": "positive",
+          "route_indices": [
+            3
+          ],
+          "lateral_min": 3.3,
+          "lateral_max": 4.8,
+          "z_min": 0.0,
+          "z_max": 1.2
+        },
+        {
+          "name": "Wall_20",
+          "axis": "y",
+          "coordinate": 1.6,
+          "direction": "negative",
+          "route_indices": [
+            5
+          ],
+          "lateral_min": 7.6,
+          "lateral_max": 8.4,
+          "z_min": 0.0,
+          "z_max": 1.2
+        },
+        {
+          "name": "Wall_22",
+          "axis": "y",
+          "coordinate": -1.6,
+          "direction": "negative",
+          "route_indices": [
+            8
+          ],
+          "lateral_min": 8.3,
+          "lateral_max": 9.1,
+          "z_min": 0.0,
+          "z_max": 1.2
+        }
+      ],
+      "landing_observation_region": {
+        "min_x": 7.6,
+        "max_x": 9.1,
+        "min_y": -4.8,
+        "max_y": -2.1,
+        "max_height": 1.2
+      }
+    }
+  }
+}
