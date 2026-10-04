@@ -1,0 +1,1286 @@
+{
+  "design_only": true,
+  "frame": "takeoff +X forward +Y left",
+  "camera_offset_below_fc": 0.15999999999999998,
+  "geometry_profiles": [
+    {
+      "name": "legacy_outer10_wall20",
+      "inner_bounds": [
+        -0.5,
+        9.1,
+        -4.8,
+        4.8
+      ],
+      "outer_wall_thickness": 0.2,
+      "partition_thickness": 0.2,
+      "search_bounds": [
+        -0.5,
+        7.3999999999999995,
+        -4.8,
+        4.8
+      ],
+      "corridor_bounds": [
+        7.6,
+        9.1,
+        -4.8,
+        4.8
+      ],
+      "corridor_clear_width": 1.5,
+      "outer_wall_height": 4.0,
+      "inner_wall_height": 1.5,
+      "door_clear_width": 0.8,
+      "doorway_planes_y": [
+        1.6,
+        -1.6
+      ],
+      "entrance_y": [
+        3.3,
+        4.8
+      ],
+      "neutral_guide_x": 8.35,
+      "landing_h_xy": [
+        8.35,
+        -4.0
+      ],
+      "geometry_only": true,
+      "search_area": 75.83999999999999
+    },
+    {
+      "name": "inner10_wall20",
+      "inner_bounds": [
+        -0.5,
+        9.5,
+        -5,
+        5
+      ],
+      "outer_wall_thickness": 0.2,
+      "partition_thickness": 0.2,
+      "search_bounds": [
+        -0.5,
+        7.8,
+        -5,
+        5
+      ],
+      "corridor_bounds": [
+        8.0,
+        9.5,
+        -5,
+        5
+      ],
+      "corridor_clear_width": 1.5,
+      "outer_wall_height": 4.0,
+      "inner_wall_height": 1.5,
+      "door_clear_width": 0.8,
+      "doorway_planes_y": [
+        1.6,
+        -1.6
+      ],
+      "entrance_y": [
+        3.5,
+        5
+      ],
+      "neutral_guide_x": 8.75,
+      "landing_h_xy": [
+        8.75,
+        -4.2
+      ],
+      "geometry_only": true,
+      "search_area": 83.0
+    },
+    {
+      "name": "inner10_wall05",
+      "inner_bounds": [
+        -0.5,
+        9.5,
+        -5,
+        5
+      ],
+      "outer_wall_thickness": 0.05,
+      "partition_thickness": 0.05,
+      "search_bounds": [
+        -0.5,
+        7.95,
+        -5,
+        5
+      ],
+      "corridor_bounds": [
+        8.0,
+        9.5,
+        -5,
+        5
+      ],
+      "corridor_clear_width": 1.5,
+      "outer_wall_height": 4.0,
+      "inner_wall_height": 1.5,
+      "door_clear_width": 0.8,
+      "doorway_planes_y": [
+        1.6,
+        -1.6
+      ],
+      "entrance_y": [
+        3.5,
+        5
+      ],
+      "neutral_guide_x": 8.75,
+      "landing_h_xy": [
+        8.75,
+        -4.2
+      ],
+      "geometry_only": true,
+      "search_area": 84.5
+    },
+    {
+      "name": "outer10_wall05",
+      "inner_bounds": [
+        -0.65,
+        9.25,
+        -4.95,
+        4.95
+      ],
+      "outer_wall_thickness": 0.05,
+      "partition_thickness": 0.05,
+      "search_bounds": [
+        -0.65,
+        7.7,
+        -4.95,
+        4.95
+      ],
+      "corridor_bounds": [
+        7.75,
+        9.25,
+        -4.95,
+        4.95
+      ],
+      "corridor_clear_width": 1.5,
+      "outer_wall_height": 4.0,
+      "inner_wall_height": 1.5,
+      "door_clear_width": 0.8,
+      "doorway_planes_y": [
+        1.6,
+        -1.6
+      ],
+      "entrance_y": [
+        3.45,
+        4.95
+      ],
+      "neutral_guide_x": 8.5,
+      "landing_h_xy": [
+        8.5,
+        -4.15
+      ],
+      "geometry_only": true,
+      "search_area": 82.665
+    }
+  ],
+  "routes": [
+    {
+      "name": "old_rectangle_fc2p6",
+      "camera_agl": 2.44,
+      "xy": [
+        [
+          1,
+          -3.5
+        ],
+        [
+          5.5,
+          -3.5
+        ],
+        [
+          5.5,
+          3.5
+        ],
+        [
+          1,
+          3.5
+        ],
+        [
+          1,
+          -3.5
+        ]
+      ],
+      "fc_agl": 2.6,
+      "yaw_rad": 0.0,
+      "survey_length": 23.0,
+      "staging_xy": [
+        0.6,
+        0.05
+      ],
+      "ingress_straight_length": 3.57246413557925,
+      "flight_ready": false
+    },
+    {
+      "name": "snake2_camera2p6",
+      "camera_agl": 2.6,
+      "xy": [
+        [
+          1.8,
+          -3.7
+        ],
+        [
+          1.8,
+          3.9
+        ],
+        [
+          5.6,
+          3.9
+        ],
+        [
+          5.6,
+          -3.7
+        ]
+      ],
+      "fc_agl": 2.7600000000000002,
+      "yaw_rad": 0.0,
+      "survey_length": 19.0,
+      "staging_xy": [
+        0.6,
+        0.05
+      ],
+      "ingress_straight_length": 3.9373214245220063,
+      "flight_ready": false
+    },
+    {
+      "name": "snake3_camera2p0",
+      "camera_agl": 2.0,
+      "xy": [
+        [
+          1.0,
+          -3.95
+        ],
+        [
+          1.0,
+          4.1
+        ],
+        [
+          3.7,
+          4.1
+        ],
+        [
+          3.7,
+          -3.95
+        ],
+        [
+          6.4,
+          -3.95
+        ],
+        [
+          6.4,
+          4.1
+        ]
+      ],
+      "fc_agl": 2.16,
+      "yaw_rad": 0.0,
+      "survey_length": 29.55,
+      "staging_xy": [
+        0.6,
+        0.05
+      ],
+      "ingress_straight_length": 4.019950248448356,
+      "flight_ready": false
+    },
+    {
+      "name": "old_rectangle_camera2p6",
+      "camera_agl": 2.6,
+      "xy": [
+        [
+          1,
+          -3.5
+        ],
+        [
+          5.5,
+          -3.5
+        ],
+        [
+          5.5,
+          3.5
+        ],
+        [
+          1,
+          3.5
+        ],
+        [
+          1,
+          -3.5
+        ]
+      ],
+      "fc_agl": 2.7600000000000002,
+      "yaw_rad": 0.0,
+      "survey_length": 23.0,
+      "staging_xy": [
+        0.6,
+        0.05
+      ],
+      "ingress_straight_length": 3.57246413557925,
+      "flight_ready": false
+    }
+  ],
+  "results": [
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "legacy_outer10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 75.83999999999999,
+      "visible_area": 74.01460656720178,
+      "point_percent": 97.59309937658465,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 90.44508151515845,
+      "full_1m_circle_with_15cm_wall_gap_percent": 91.58347957110148,
+      "red_cross_center_percent": 99.39391935299595,
+      "outside_search_m2": 13.039211958318075
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "legacy_outer10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 75.83999999999999,
+      "visible_area": 71.65879017013232,
+      "point_percent": 94.48680138466817,
+      "interior_point_percent": 98.36942596602155,
+      "interior_missing_m2": 1.0980285544810864,
+      "full_1m_circle_percent": 83.80974589418705,
+      "full_1m_circle_with_15cm_wall_gap_percent": 86.14036323222822,
+      "red_cross_center_percent": 97.58877691289311,
+      "outside_search_m2": 9.758601134215516
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "legacy_outer10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 75.83999999999999,
+      "visible_area": 73.27455772212376,
+      "point_percent": 96.61729657453029,
+      "interior_point_percent": 98.68155134660624,
+      "interior_missing_m2": 0.8878433231953594,
+      "full_1m_circle_percent": 86.31854001177993,
+      "full_1m_circle_with_15cm_wall_gap_percent": 87.10319082221335,
+      "red_cross_center_percent": 98.3248709166924,
+      "outside_search_m2": 8.864916099925157
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "legacy_outer10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 75.83999999999999,
+      "visible_area": 69.70949378126839,
+      "point_percent": 91.91652661032226,
+      "interior_point_percent": 95.19021051083435,
+      "interior_missing_m2": 3.2389122420041434,
+      "full_1m_circle_percent": 79.73588005498506,
+      "full_1m_circle_with_15cm_wall_gap_percent": 81.42658053897433,
+      "red_cross_center_percent": 94.52727347526292,
+      "outside_search_m2": 5.529980040780531
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "inner10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 83.0,
+      "visible_area": 77.91173913043478,
+      "point_percent": 93.8695652173913,
+      "interior_point_percent": 98.09407937002236,
+      "interior_missing_m2": 1.4122871868134332,
+      "full_1m_circle_percent": 86.98512169366974,
+      "full_1m_circle_with_15cm_wall_gap_percent": 89.70958620068849,
+      "red_cross_center_percent": 97.2741608470376,
+      "outside_search_m2": 9.142079395085071
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "inner10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 83.0,
+      "visible_area": 74.43845145563725,
+      "point_percent": 89.6848812718521,
+      "interior_point_percent": 95.47920987578735,
+      "interior_missing_m2": 3.349905482041582,
+      "full_1m_circle_percent": 79.46190069948607,
+      "full_1m_circle_with_15cm_wall_gap_percent": 82.99080273527835,
+      "red_cross_center_percent": 93.99828982464142,
+      "outside_search_m2": 6.97893984871058
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "inner10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 83.0,
+      "visible_area": 75.71941569860273,
+      "point_percent": 91.22821168506353,
+      "interior_point_percent": 97.0928382617137,
+      "interior_missing_m2": 2.154206848070165,
+      "full_1m_circle_percent": 81.27902487848596,
+      "full_1m_circle_with_15cm_wall_gap_percent": 85.60921103160658,
+      "red_cross_center_percent": 96.38153237681937,
+      "outside_search_m2": 6.42005812344618
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "inner10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 83.0,
+      "visible_area": 70.39299661948837,
+      "point_percent": 84.8108393005884,
+      "interior_point_percent": 91.91742722621717,
+      "interior_missing_m2": 5.989186425373079,
+      "full_1m_circle_percent": 72.9435316073834,
+      "full_1m_circle_with_15cm_wall_gap_percent": 76.69062469480137,
+      "red_cross_center_percent": 89.67376216389395,
+      "outside_search_m2": 4.846477202560546
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "inner10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 84.5,
+      "visible_area": 78.43643000737089,
+      "point_percent": 92.82417752351584,
+      "interior_point_percent": 98.09407937002234,
+      "interior_missing_m2": 1.4394465557906146,
+      "full_1m_circle_percent": 85.93291586893952,
+      "full_1m_circle_with_15cm_wall_gap_percent": 89.84998227550865,
+      "red_cross_center_percent": 97.27416084703762,
+      "outside_search_m2": 8.617388518148974
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "inner10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 84.5,
+      "visible_area": 74.43845145563725,
+      "point_percent": 88.09284195933402,
+      "interior_point_percent": 95.48247334818839,
+      "interior_missing_m2": 3.411862003780713,
+      "full_1m_circle_percent": 77.86199665855682,
+      "full_1m_circle_with_15cm_wall_gap_percent": 81.97640910103928,
+      "red_cross_center_percent": 93.19802221497206,
+      "outside_search_m2": 6.97893984871058
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "inner10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 84.5,
+      "visible_area": 75.71941569860273,
+      "point_percent": 89.6087759746778,
+      "interior_point_percent": 96.18661123969702,
+      "interior_missing_m2": 2.8800618612188313,
+      "full_1m_circle_percent": 79.64253444469094,
+      "full_1m_circle_with_15cm_wall_gap_percent": 83.81321359737706,
+      "red_cross_center_percent": 94.59668918465604,
+      "outside_search_m2": 6.42005812344618
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "inner10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 84.5,
+      "visible_area": 70.39299661948837,
+      "point_percent": 83.3053214431815,
+      "interior_point_percent": 90.18313614647721,
+      "interior_missing_m2": 7.4141864253730905,
+      "full_1m_circle_percent": 71.47486989716764,
+      "full_1m_circle_with_15cm_wall_gap_percent": 75.0817304704349,
+      "red_cross_center_percent": 88.01313693863665,
+      "outside_search_m2": 4.846477202560546
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "outer10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 82.665,
+      "visible_area": 78.38108695652173,
+      "point_percent": 94.81774264382959,
+      "interior_point_percent": 98.60571851225664,
+      "interior_missing_m2": 1.0288403098058285,
+      "full_1m_circle_percent": 88.00515597160893,
+      "full_1m_circle_with_15cm_wall_gap_percent": 90.59121227464598,
+      "red_cross_center_percent": 97.84227790735207,
+      "outside_search_m2": 8.672731568998111
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "outer10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 82.665,
+      "visible_area": 75.74792060491494,
+      "point_percent": 91.63239654619842,
+      "interior_point_percent": 96.49605955284642,
+      "interior_missing_m2": 2.5855576559546285,
+      "full_1m_circle_percent": 81.58959512098632,
+      "full_1m_circle_with_15cm_wall_gap_percent": 84.02729126153962,
+      "red_cross_center_percent": 94.9836201862647,
+      "outside_search_m2": 5.6694706994329005
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "outer10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 82.665,
+      "visible_area": 77.13372552551961,
+      "point_percent": 93.30880726488793,
+      "interior_point_percent": 97.60153874105812,
+      "interior_missing_m2": 1.7698245629732103,
+      "full_1m_circle_percent": 83.56589340683657,
+      "full_1m_circle_with_15cm_wall_gap_percent": 86.55709796846624,
+      "red_cross_center_percent": 96.8760762988451,
+      "outside_search_m2": 5.005748296529305
+    },
+    {
+      "route": "old_rectangle_fc2p6",
+      "geometry": "outer10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 82.665,
+      "visible_area": 71.76230644640525,
+      "point_percent": 86.81099189064929,
+      "interior_point_percent": 93.85154786867612,
+      "interior_missing_m2": 4.536942827703902,
+      "full_1m_circle_percent": 75.12529250625664,
+      "full_1m_circle_with_15cm_wall_gap_percent": 79.04321336970295,
+      "red_cross_center_percent": 91.83871507199245,
+      "outside_search_m2": 3.477167375643671
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "legacy_outer10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 75.83999999999999,
+      "visible_area": 75.83999999999999,
+      "point_percent": 100.0,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 100.0,
+      "full_1m_circle_with_15cm_wall_gap_percent": 100.0,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 14.304650283553883
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "legacy_outer10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 75.83999999999999,
+      "visible_area": 75.83999999999999,
+      "point_percent": 100.0,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 99.8363398790124,
+      "full_1m_circle_with_15cm_wall_gap_percent": 99.82628807218893,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 8.685519848771278
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "legacy_outer10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 75.83999999999999,
+      "visible_area": 75.83999999999999,
+      "point_percent": 100.0,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 97.40386187552977,
+      "full_1m_circle_with_15cm_wall_gap_percent": 97.24577055705818,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 9.618146120798613
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "legacy_outer10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 75.83999999999999,
+      "visible_area": 74.62957172877083,
+      "point_percent": 98.40397116135395,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 91.77121021581371,
+      "full_1m_circle_with_15cm_wall_gap_percent": 93.20584083471539,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 5.345739348671913
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "inner10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 83.0,
+      "visible_area": 83.0,
+      "point_percent": 100.0,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 100.0,
+      "full_1m_circle_with_15cm_wall_gap_percent": 100.0,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 7.144650283553872
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "inner10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 83.0,
+      "visible_area": 81.70086956521739,
+      "point_percent": 98.43478260869566,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 98.10998610283897,
+      "full_1m_circle_with_15cm_wall_gap_percent": 99.8394612648488,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 2.8246502835538787
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "inner10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 83.0,
+      "visible_area": 83.0,
+      "point_percent": 100.0,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 97.59067935766096,
+      "full_1m_circle_with_15cm_wall_gap_percent": 97.45296849293983,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 2.4581461207986024
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "inner10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 83.0,
+      "visible_area": 79.97531107744274,
+      "point_percent": 96.35579647884667,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 89.96793440779892,
+      "full_1m_circle_with_15cm_wall_gap_percent": 93.72049968850735,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 0.0
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "inner10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 84.5,
+      "visible_area": 84.5,
+      "point_percent": 100.0,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 100.0,
+      "full_1m_circle_with_15cm_wall_gap_percent": 100.0,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 5.644650283553872
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "inner10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 84.5,
+      "visible_area": 83.17739130434782,
+      "point_percent": 98.43478260869564,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 98.1130240249003,
+      "full_1m_circle_with_15cm_wall_gap_percent": 99.84282921034148,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 1.3481285444234403
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "inner10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 84.5,
+      "visible_area": 83.64209783472435,
+      "point_percent": 98.98473116535426,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 96.48764263868037,
+      "full_1m_circle_with_15cm_wall_gap_percent": 97.50640272036064,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 1.8160482860742402
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "inner10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 84.5,
+      "visible_area": 79.97531107744274,
+      "point_percent": 94.64533855318668,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 88.15649948683654,
+      "full_1m_circle_with_15cm_wall_gap_percent": 92.65237428906225,
+      "red_cross_center_percent": 99.24950349965971,
+      "outside_search_m2": 0.0
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "outer10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 82.665,
+      "visible_area": 82.665,
+      "point_percent": 99.99999999999999,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 100.0,
+      "full_1m_circle_with_15cm_wall_gap_percent": 100.00000000000001,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 7.479650283553866
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "outer10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 82.665,
+      "visible_area": 81.92544427766893,
+      "point_percent": 99.10535810520648,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 98.8469987302572,
+      "full_1m_circle_with_15cm_wall_gap_percent": 99.83982200924616,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 2.600075571102341
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "outer10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 82.665,
+      "visible_area": 81.41674584529493,
+      "point_percent": 98.48998469158037,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 95.88091765844263,
+      "full_1m_circle_with_15cm_wall_gap_percent": 97.45909885690148,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 4.041400275503676
+    },
+    {
+      "route": "snake2_camera2p6",
+      "geometry": "outer10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 82.665,
+      "visible_area": 79.600446776306,
+      "point_percent": 96.29280442303997,
+      "interior_point_percent": 99.66769072289125,
+      "interior_missing_m2": 0.24521101557854988,
+      "full_1m_circle_percent": 89.87565999206217,
+      "full_1m_circle_with_15cm_wall_gap_percent": 91.94629084951981,
+      "red_cross_center_percent": 98.73642152183704,
+      "outside_search_m2": 0.3748643011367295
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "legacy_outer10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 75.83999999999999,
+      "visible_area": 75.83999999999999,
+      "point_percent": 100.0,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 100.0,
+      "full_1m_circle_with_15cm_wall_gap_percent": 100.0,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 17.35117202268431
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "legacy_outer10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 75.83999999999999,
+      "visible_area": 75.83999999999999,
+      "point_percent": 100.0,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 97.65632416569663,
+      "full_1m_circle_with_15cm_wall_gap_percent": 97.50885307858,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 11.64530245746694
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "legacy_outer10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 75.83999999999999,
+      "visible_area": 75.83999999999999,
+      "point_percent": 100.0,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 95.49607687571442,
+      "full_1m_circle_with_15cm_wall_gap_percent": 95.21462994902382,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 13.817253496133432
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "legacy_outer10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 75.83999999999999,
+      "visible_area": 75.83999999999999,
+      "point_percent": 100.0,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 87.3414205838836,
+      "full_1m_circle_with_15cm_wall_gap_percent": 86.54545681362329,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 8.216226539705858
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "inner10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 83.0,
+      "visible_area": 82.80227998628084,
+      "point_percent": 99.76178311600101,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 99.73531457333443,
+      "full_1m_circle_with_15cm_wall_gap_percent": 100.0,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 10.38889203640347
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "inner10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 83.0,
+      "visible_area": 80.5641304347826,
+      "point_percent": 97.06521739130434,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 94.6082324134736,
+      "full_1m_circle_with_15cm_wall_gap_percent": 97.43166952400064,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 6.921172022684326
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "inner10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 83.0,
+      "visible_area": 82.92955682466783,
+      "point_percent": 99.91512870441908,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 95.73606516871814,
+      "full_1m_circle_with_15cm_wall_gap_percent": 95.58342298090888,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 6.727696671465605
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "inner10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 83.0,
+      "visible_area": 80.84834187655771,
+      "point_percent": 97.40764081512978,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 85.58557495327302,
+      "full_1m_circle_with_15cm_wall_gap_percent": 87.49739953700589,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 3.207884663148135
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "inner10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 84.5,
+      "visible_area": 84.29870673302085,
+      "point_percent": 99.761783116001,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 99.73531457333446,
+      "full_1m_circle_with_15cm_wall_gap_percent": 100.0,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 8.89246528966345
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "inner10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 84.5,
+      "visible_area": 82.02010869565217,
+      "point_percent": 97.06521739130433,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 94.65113640047986,
+      "full_1m_circle_with_15cm_wall_gap_percent": 97.47980626453888,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 5.465193761814756
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "inner10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 84.5,
+      "visible_area": 84.4282837552341,
+      "point_percent": 99.91512870441905,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 95.82001751888758,
+      "full_1m_circle_with_15cm_wall_gap_percent": 95.67607844284785,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 5.228969740899316
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "inner10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 84.5,
+      "visible_area": 82.30945648878468,
+      "point_percent": 97.4076408151298,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 85.81780366372458,
+      "full_1m_circle_with_15cm_wall_gap_percent": 87.75764528350274,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 1.7467700509211852
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "outer10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 82.665,
+      "visible_area": 82.665,
+      "point_percent": 99.99999999999999,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 100.0,
+      "full_1m_circle_with_15cm_wall_gap_percent": 100.00000000000001,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 10.526172022684293
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "outer10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 82.665,
+      "visible_area": 81.04945652173913,
+      "point_percent": 98.04567413263065,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 95.6859050410589,
+      "full_1m_circle_with_15cm_wall_gap_percent": 97.7061896089797,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 6.435845935727801
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "outer10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 82.665,
+      "visible_area": 82.665,
+      "point_percent": 99.99999999999999,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 95.83607697014853,
+      "full_1m_circle_with_15cm_wall_gap_percent": 95.59190502729498,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 6.992253496133415
+    },
+    {
+      "route": "snake3_camera2p0",
+      "geometry": "outer10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 82.665,
+      "visible_area": 81.2148472795469,
+      "point_percent": 98.24574763146059,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 86.46121257736635,
+      "full_1m_circle_with_15cm_wall_gap_percent": 87.61075206082226,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 2.84137926015895
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "legacy_outer10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 75.83999999999999,
+      "visible_area": 74.56835126013303,
+      "point_percent": 98.32324796958471,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 94.33019672517091,
+      "full_1m_circle_with_15cm_wall_gap_percent": 95.75361298866815,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 16.924559892986085
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "legacy_outer10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 75.83999999999999,
+      "visible_area": 73.02347826086957,
+      "point_percent": 96.286231884058,
+      "interior_point_percent": 99.33001983604541,
+      "interior_missing_m2": 0.45116464240702103,
+      "full_1m_circle_percent": 88.93722567651858,
+      "full_1m_circle_with_15cm_wall_gap_percent": 90.56765175241877,
+      "red_cross_center_percent": 98.53007356843386,
+      "outside_search_m2": 12.82030245746693
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "legacy_outer10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 75.83999999999999,
+      "visible_area": 74.7258371794384,
+      "point_percent": 98.53090345390086,
+      "interior_point_percent": 100.0,
+      "interior_missing_m2": 0.0,
+      "full_1m_circle_percent": 90.04345930903244,
+      "full_1m_circle_with_15cm_wall_gap_percent": 90.99108854712655,
+      "red_cross_center_percent": 100.0,
+      "outside_search_m2": 12.411030152405399
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "legacy_outer10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 75.83999999999999,
+      "visible_area": 72.37678365542384,
+      "point_percent": 95.43352275240485,
+      "interior_point_percent": 98.06651373913974,
+      "interior_missing_m2": 1.302009648063307,
+      "full_1m_circle_percent": 84.70661806646989,
+      "full_1m_circle_with_15cm_wall_gap_percent": 85.66435519872836,
+      "red_cross_center_percent": 97.31603416742132,
+      "outside_search_m2": 8.248885171349633
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "inner10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 83.0,
+      "visible_area": 79.2108695652174,
+      "point_percent": 95.43478260869566,
+      "interior_point_percent": 98.8319137376856,
+      "interior_missing_m2": 0.8655519203749736,
+      "full_1m_circle_percent": 91.49712417962152,
+      "full_1m_circle_with_15cm_wall_gap_percent": 93.87428886243751,
+      "red_cross_center_percent": 98.07286844642627,
+      "outside_search_m2": 12.282041587901704
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "inner10_wall20",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 83.0,
+      "visible_area": 76.7208695652174,
+      "point_percent": 92.43478260869566,
+      "interior_point_percent": 97.25296636926456,
+      "interior_missing_m2": 2.0355519203749695,
+      "full_1m_circle_percent": 85.34663777898623,
+      "full_1m_circle_with_15cm_wall_gap_percent": 88.0126396429115,
+      "red_cross_center_percent": 95.78733949087633,
+      "outside_search_m2": 9.122911153119102
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "inner10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 83.0,
+      "visible_area": 79.23718808303965,
+      "point_percent": 95.46649166631283,
+      "interior_point_percent": 99.04175506920505,
+      "interior_missing_m2": 0.7100594937190522,
+      "full_1m_circle_percent": 87.4427751898269,
+      "full_1m_circle_with_15cm_wall_gap_percent": 89.70063288528294,
+      "red_cross_center_percent": 98.27944799559046,
+      "outside_search_m2": 7.899679248804131
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "inner10_wall20",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 83.0,
+      "visible_area": 74.36636269038844,
+      "point_percent": 89.5980273378174,
+      "interior_point_percent": 96.11548858915856,
+      "interior_missing_m2": 2.8784229554335163,
+      "full_1m_circle_percent": 79.20894431070835,
+      "full_1m_circle_with_15cm_wall_gap_percent": 83.41063615146203,
+      "red_cross_center_percent": 94.8166505189093,
+      "outside_search_m2": 6.259306136385012
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "inner10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 84.5,
+      "visible_area": 80.64239130434783,
+      "point_percent": 95.43478260869564,
+      "interior_point_percent": 98.83191373768558,
+      "interior_missing_m2": 0.882197149612954,
+      "full_1m_circle_percent": 91.56619287866039,
+      "full_1m_circle_with_15cm_wall_gap_percent": 93.95192779999431,
+      "red_cross_center_percent": 98.07286844642626,
+      "outside_search_m2": 10.850519848771267
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "inner10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 84.5,
+      "visible_area": 77.27899730925539,
+      "point_percent": 91.45443468550934,
+      "interior_point_percent": 97.25296636926453,
+      "interior_missing_m2": 2.0746971496129496,
+      "full_1m_circle_percent": 84.37060113161922,
+      "full_1m_circle_with_15cm_wall_gap_percent": 88.15403790959495,
+      "red_cross_center_percent": 95.78733949087632,
+      "outside_search_m2": 8.564783409081105
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "inner10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 84.5,
+      "visible_area": 79.23718808303965,
+      "point_percent": 93.77182021661497,
+      "interior_point_percent": 99.04175506920504,
+      "interior_missing_m2": 0.7237144839828801,
+      "full_1m_circle_percent": 85.68218240076999,
+      "full_1m_circle_with_15cm_wall_gap_percent": 89.38106691604307,
+      "red_cross_center_percent": 98.14852743706184,
+      "outside_search_m2": 7.899679248804131
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "inner10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 84.5,
+      "visible_area": 74.36636269038844,
+      "point_percent": 88.00752981111059,
+      "interior_point_percent": 95.08916688987668,
+      "interior_missing_m2": 3.7089067064206147,
+      "full_1m_circle_percent": 77.61413335143236,
+      "full_1m_circle_with_15cm_wall_gap_percent": 81.66076266576701,
+      "red_cross_center_percent": 93.06078662041097,
+      "outside_search_m2": 6.259306136385012
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "outer10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.0,
+      "search_area": 82.665,
+      "visible_area": 79.68804347826088,
+      "point_percent": 96.39877031181379,
+      "interior_point_percent": 99.35140218170352,
+      "interior_missing_m2": 0.47860033012096853,
+      "full_1m_circle_percent": 92.54878009486329,
+      "full_1m_circle_with_15cm_wall_gap_percent": 94.41100693959828,
+      "red_cross_center_percent": 98.57624926785478,
+      "outside_search_m2": 11.804867674858222
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "outer10_wall05",
+      "model": "measured",
+      "footprint_erosion_m": 0.15,
+      "search_area": 82.665,
+      "visible_area": 77.18304347826087,
+      "point_percent": 93.36846728151075,
+      "interior_point_percent": 97.75565750085248,
+      "interior_missing_m2": 1.6561003301209645,
+      "full_1m_circle_percent": 86.34856674132452,
+      "full_1m_circle_with_15cm_wall_gap_percent": 89.08439956387359,
+      "red_cross_center_percent": 96.7903482813567,
+      "outside_search_m2": 8.660737240075617
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "outer10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.0,
+      "search_area": 82.665,
+      "visible_area": 80.05974410482338,
+      "point_percent": 96.8484172319886,
+      "interior_point_percent": 99.56347586781364,
+      "interior_missing_m2": 0.32211115714032956,
+      "full_1m_circle_percent": 88.95004067105775,
+      "full_1m_circle_with_15cm_wall_gap_percent": 90.2204086487152,
+      "red_cross_center_percent": 98.78499195365947,
+      "outside_search_m2": 7.077123227020409
+    },
+    {
+      "route": "old_rectangle_camera2p6",
+      "geometry": "outer10_wall05",
+      "model": "calibration_K",
+      "footprint_erosion_m": 0.15,
+      "search_area": 82.665,
+      "visible_area": 75.75956168628346,
+      "point_percent": 91.64647878338288,
+      "interior_point_percent": 96.61475183784417,
+      "interior_missing_m2": 2.4979746188547938,
+      "full_1m_circle_percent": 81.45452175805306,
+      "full_1m_circle_with_15cm_wall_gap_percent": 84.95481800517608,
+      "red_cross_center_percent": 95.90755286764578,
+      "outside_search_m2": 4.866107140489981
+    }
+  ],
+  "assumptions": [
+    "flat ground; fixed yaw=0; straight motion between points; no occlusion",
+    "measured span retains principal point fractions of existing calibration",
+    "15cm rectangular erosion is sensitivity analysis, not a proven error bound",
+    "full 1m circle / axis-aligned square, not arbitrary rotated paper corners",
+    "all lane calculations exclude ingress, low revisit, corridor and return"
+  ]
+}
