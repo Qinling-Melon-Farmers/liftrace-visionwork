@@ -7,6 +7,11 @@
   <arg name="camera_info_topic" default="/camera/camera_info" />
   <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
   <arg name="map_frame" default="camera_init" />
+  <arg name="height_constraint_enabled" default="true" />
+  <param name="/navigation_height_constraint/enabled" value="$(arg height_constraint_enabled)" />
+  <param name="/navigation_height_constraint/frame_id" value="$(arg map_frame)" />
+  <param name="/navigation_height_constraint/limit_parameter" value="/external_planner_max_command_z" />
+
   <arg name="ground_z" default="-0.22" />
   <arg name="runtime_config" default="$(find uav_mission)/config/vcl06_horizontal_field_runtime.yaml" />
   <arg name="control_config" default="$(find uav_mission)/config/vcl06_horizontal_control.yaml" />
