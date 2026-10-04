@@ -31,6 +31,12 @@ with tempfile.TemporaryDirectory() as tmp:
   assert v['/fast_planner_node/manager/max_vel']==s['cruise_speed']
   assert v['/fast_planner_node/manager/max_acc']==s['cruise_acceleration']
   assert v['/fast_planner_node/sdf_map/virtual_ceil_height']==-.1
+  assert v['/navigation_height_constraint/enabled'] is True
+  assert v['/navigation_height_constraint/frame_id']=='camera_init'
+  assert v['/navigation_height_constraint/limit_parameter']=='/external_planner_max_command_z'
+  assert v['/navigation/planner_bridge/execution/odom_twist_frame']=='child'
+  assert v['/navigation/mission_manager/planner_line_preference/weight']==s.get('planner_line_preference_weight',2.0)
+
   assert [v['/fast_planner_node/sdf_map/'+k] for k in ('obstacles_inflation','obstacles_inflation_up','obstacles_inflation_down')]==[.25,.2,.1]
   if motion and s['motion_optimization'].get('moving_recovery',True):
    assert abs(v['/navigation/planner_bridge/target/recovery_height']-(ref['ground_z']+s['motion_optimization']['recovery_handoff_agl']))<1e-6
@@ -40,7 +46,7 @@ with tempfile.TemporaryDirectory() as tmp:
   if motion:
    assert v['/navigation/planner_bridge/motion_optimization/enabled']
    assert v['/navigation/mission_manager/motion_optimization/enabled']
-   assert v['/fast_planner_node/search/line_deviation_weight']==0.
+   assert v['/fast_planner_node/search/line_deviation_weight']==s.get('planner_line_preference_weight',2.0)
   if enabled=='true':
    assert v['/guarded_servo_proxy/raw_service_name']=='/legacy/Servo_raw'
    assert v['/guarded_servo_proxy/service_name']=='/Servo'

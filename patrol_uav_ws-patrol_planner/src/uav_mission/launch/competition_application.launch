@@ -15,6 +15,12 @@
   <arg name="actuator_mode" default="real" />
   <arg name="raw_servo_service" default="/legacy/Servo_raw" />
   <arg name="map_frame" default="camera_init" />
+  <arg name="height_constraint_enabled" default="true" />
+  <param name="/navigation_height_constraint/enabled" value="$(arg height_constraint_enabled)" />
+  <param name="/navigation_height_constraint/frame_id" value="$(arg map_frame)" />
+  <param name="/navigation_height_constraint/limit_parameter" value="/external_planner_max_command_z" />
+  <param name="/external_planner_max_command_z" value="$(arg max_command_z)" />
+
   <include file="$(find uav_vision)/launch/phase_d_board.launch">
     <arg name="model_path" value="$(arg model_path)" />
     <arg name="metadata_path" value="$(arg metadata_path)" />
@@ -79,6 +85,7 @@
       <arg name="planner_goal_topic" value="/fastplanner/goal" />
       <arg name="planner_status_topic" value="/planning/goal_status" />
       <arg name="odom_topic" value="/navigation/local_odom" />
+      <arg name="odom_twist_frame" value="child" />
     </include>
   </group>
   <include file="$(find uav_mission)/launch/release_guard.launch" if="$(arg enable_control_output)">

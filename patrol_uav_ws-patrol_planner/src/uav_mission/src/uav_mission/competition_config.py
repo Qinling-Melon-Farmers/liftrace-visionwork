@@ -14,6 +14,8 @@ from uav_mission.motion_optimization import MotionOptimization, optimize_post_ro
 
 
 def validate(settings, flight=False):
+    weight=float(settings.get('planner_line_preference_weight',2.0))
+    if not math.isfinite(weight) or not 0<=weight<=10:raise ValueError('invalid global line preference weight')
     motion=MotionOptimization(**settings.get('motion_optimization',{}))
     if motion.enabled:
         if motion.braking_speed_mps<settings['cruise_speed'] or motion.braking_accel_mps2>settings['cruise_acceleration']:
@@ -80,6 +82,8 @@ def generate(root,out,settings,fc_xyz,rig):
         requested=float(settings['survey_camera_agl'])
         if not math.isfinite(requested) or requested<=0 or abs(settings['high_agl']-(requested+camera_offset))>1e-6:
             raise ValueError('survey camera AGL and FC high_agl disagree with rig')
+    weight=float(settings.get('planner_line_preference_weight',2.0))
+    if not math.isfinite(weight) or not 0<=weight<=10:raise ValueError('invalid global line preference weight')
     motion=MotionOptimization(**settings.get('motion_optimization',{}))
     high=ground+settings['high_agl'];drop=ground+settings['drop_agl'];capture=ground+settings['landing_capture_agl'];cap=ground+settings['max_agl']
     if min(drop,ground+.4)<=.05:raise ValueError('legacy positive local-Z bounds not met')
@@ -129,6 +133,7 @@ def generate(root,out,settings,fc_xyz,rig):
         runtime['mission']['post_delivery_parameter_stages'].append(dict(
             after_completed_waypoints=motion_meta['corridor_points_count'],
             parameters={'/external_planner_max_command_z':max(ground+motion.corridor_max_agl,capture+.1)}))
+    runtime['planner_line_preference']={'weight':weight}
     runtime['search'].update(min_x=cover[0],max_x=cover[1],min_y=cover[2],max_y=cover[3],altitude=low,lane_spacing=settings['lane_spacing'],route_revision='competition-coverage')
     runtime['runtime'].update(start_mode='full',mission_id_prefix='competition')
     runtime['following_speed_profile']=copy.deepcopy(settings['following_speed_profile'])
@@ -178,13 +183,14 @@ def generate(root,out,settings,fc_xyz,rig):
     }
     if motion.enabled:
         overrides['/navigation/planner_bridge/motion_optimization']=copy.deepcopy(settings['motion_optimization'])
-        overrides['/fast_planner_node/search/line_deviation_weight']=0.
         if motion.moving_recovery:
             handoff=struct.unpack('f',struct.pack('f',ground+motion.recovery_handoff_agl))[0]
             control['uav_vision']['recovery_height']=handoff
             overrides['/navigation/planner_bridge/target/recovery_height']=handoff
             # Legacy climb setpoints stay high until a fresh, collision-checked
             # planner transaction takes over. No horizontal direct-control shortcut.
+    overrides['/fast_planner_node/search/line_deviation_weight']=weight
+    overrides['/navigation/planner_bridge/execution/odom_twist_frame']='child'
     for region,box in [('horizontal_avoidance',search),('search_region',search)]:
         for key,val in zip(('min_x','max_x','min_y','max_y'),box):overrides['/fast_planner_node/sdf_map/'+region+'/'+key]=val
     for name,data in [('runtime.yaml',runtime),('control.yaml',control),('overrides.yaml',overrides)]:
