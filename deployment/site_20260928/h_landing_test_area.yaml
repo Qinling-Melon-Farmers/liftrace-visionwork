@@ -1,4 +1,4 @@
-# H-only: manual arm, auto OFFBOARD/start at actual 1.0m takeoff; visual AUTO.LAND.
+# H-only: manual arm AND manual OFFBOARD; auto task start after stable 1.0m takeoff; visual AUTO.LAND.
 flight_area:
   center_bounds:
   - -0.35

@@ -1,0 +1,70 @@
+[
+  {
+    "trial": "visual_interrupt",
+    "site": "test_area.yaml",
+    "expected": "PASS",
+    "speed": 0.5,
+    "high_agl": 2.0,
+    "columns": false
+  },
+  {
+    "trial": "high_view",
+    "site": "test_area.yaml",
+    "expected": "PASS",
+    "speed": 0.5,
+    "high_agl": 2.0,
+    "columns": false
+  },
+  {
+    "trial": "landing",
+    "site": "h_landing_test_area.yaml",
+    "expected": "PASS",
+    "speed": 0.5,
+    "high_agl": 2.0,
+    "columns": false
+  },
+  {
+    "trial": "corridor_landing",
+    "site": "corridor_landing_test_area.yaml",
+    "expected": "REJECT_UNMEASURED_GEOMETRY",
+    "reason": "Fill corridor_waypoints with at least two measured waypoints; no default route is permitted"
+  },
+  {
+    "trial": "low_multi",
+    "site": "test_area.yaml",
+    "expected": "PASS",
+    "speed": 0.5,
+    "high_agl": 2.0,
+    "columns": false
+  },
+  {
+    "trial": "high_priority",
+    "site": "test_area.yaml",
+    "expected": "PASS",
+    "speed": 0.5,
+    "high_agl": 2.0,
+    "columns": false
+  },
+  {
+    "trial": "memory_only",
+    "site": "test_area.yaml",
+    "expected": "PASS",
+    "speed": 0.5,
+    "high_agl": 2.0,
+    "columns": false
+  },
+  {
+    "trial": "full_mission",
+    "site": "full_mission_test_area.yaml",
+    "expected": "REJECT_UNMEASURED_GEOMETRY",
+    "reason": "Fill corridor_waypoints with at least two measured waypoints; no default route is permitted"
+  },
+  {
+    "trial": "high_speed_capture",
+    "site": "test_area.yaml",
+    "expected": "PASS",
+    "speed": 1.2,
+    "high_agl": 2.0,
+    "columns": false
+  }
+]

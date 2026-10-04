@@ -1,4 +1,4 @@
-# Full mission: mock drops, manual arm, auto OFFBOARD/start; measured geometry required.
+# Full mission: mock drops, manual arm AND manual OFFBOARD; automatic task start after stable takeoff; measured geometry required.
 flight_area:
   center_bounds:
   - -0.35

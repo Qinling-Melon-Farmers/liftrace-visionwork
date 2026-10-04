@@ -1,4 +1,4 @@
-# Corridor/H: manual arm, auto OFFBOARD/start; measured geometry required below.
+# Corridor/H: manual arm AND manual OFFBOARD; automatic task start after stable takeoff; measured geometry required below.
 flight_area:
   center_bounds:
   - -0.35
