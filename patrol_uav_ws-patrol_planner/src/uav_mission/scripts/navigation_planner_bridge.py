@@ -203,6 +203,7 @@ class NavigationPlannerBridge:
             "~target/max_association_distance", 0.8))
         self._motion_options=MotionOptimization(**rospy.get_param('~motion_optimization', {}))
         self._moving_recovery=MovingRecoveryWindow()
+        self._odom_velocity_available=bool(rospy.get_param('~execution/odom_velocity_available',False))
         self._odom_twist_frame=rospy.get_param('~execution/odom_twist_frame','child')
         if self._odom_twist_frame not in ('header','child'):raise ValueError('invalid odom_twist_frame')
         self._recovery_height = float(rospy.get_param(
@@ -947,7 +948,9 @@ class NavigationPlannerBridge:
             if hasattr(self,'_moving_recovery'): self._moving_recovery.reset()
             return
 
-        if moving.enabled and moving.moving_recovery:
+        moving_allowed=(moving.enabled and moving.moving_recovery and
+                        getattr(self,'_odom_velocity_available',False))
+        if moving_allowed:
             if not self._moving_recovery.update(sample,transaction.release_ack_ns,now_ns,
                     moving.recovery_min_ack_seconds,moving.recovery_max_vz,
                     moving.recovery_min_samples,moving.recovery_max_odom_age):
@@ -960,7 +963,7 @@ class NavigationPlannerBridge:
         self._report_target_stage(
             "SUCCEEDED", "RECOVERY", now_ns,
             terminal=True,
-            reason=("release_recovery_motion_handoff" if moving.enabled and moving.moving_recovery
+            reason=("release_recovery_motion_handoff" if moving_allowed
                     else "release_recovery_confirmed"),
             evidence_source="patrol_control_recovery",
         )
