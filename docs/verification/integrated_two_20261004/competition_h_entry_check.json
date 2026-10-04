@@ -1,0 +1,14 @@
+{
+  "ground_z": -0.22,
+  "params": {
+    "/external_landing/auto_land_height": 0.33000000000000007,
+    "/external_landing/capture_height": 0.68,
+    "/fast_planner_node/manager/max_vel": 1.2,
+    "/fast_planner_node/optimization/max_vel": 1.2,
+    "/fast_planner_node/search/max_vel": 1.2,
+    "/land_height": 0.18000000000000002,
+    "/landing_detector/landing_enable_h_stroke_fallback": true
+  },
+  "nodes_started": false,
+  "source": "competition_application.launch expanded with generated formal config; synthetic field positions only"
+}

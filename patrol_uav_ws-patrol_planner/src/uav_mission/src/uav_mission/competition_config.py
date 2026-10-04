@@ -36,6 +36,8 @@ def validate(settings, flight=False):
     if not settings['low_agl']<settings['high_agl']<=settings['max_agl']:raise ValueError('altitude order')
     for k in ('site_confirmed','auto_start_after_arm','obstacle_columns_enabled'):
         if type(settings[k]) is not bool:raise ValueError('invalid '+k)
+    if type(settings.get('landing_enable_h_stroke_fallback')) is not bool:
+        raise ValueError('landing_enable_h_stroke_fallback must be an explicit boolean')
     if settings['alignment_mode'] not in ('legacy_static','measured'):raise ValueError('alignment mode')
     if settings.get('virtual_ceiling_enabled',False):raise ValueError('frozen field profile keeps virtual ceiling off')
     raw=settings['raw_servo_service']
@@ -103,6 +105,7 @@ def generate(root,out,settings,fc_xyz,rig):
         drop_map_frame=rig['mission_frame'],drop_camera_info_topic=settings['camera_info_topic'])
     control['external_landing'].update(frame=rig['mission_frame'],capture_height=capture,auto_land_height=ground+.55,detections_topic='/uav_vision/detections_mapped')
     overrides={
+        '/landing_detector/landing_enable_h_stroke_fallback':settings['landing_enable_h_stroke_fallback'],
         '/fast_planner_node/sdf_map/resolution':.10,
         '/fast_planner_node/sdf_map/map_size_x':settings['map_size'][0],'/fast_planner_node/sdf_map/map_size_y':settings['map_size'][1],'/fast_planner_node/sdf_map/map_size_z':settings['map_size'][2],
         '/fast_planner_node/sdf_map/visualization_rate':2.,

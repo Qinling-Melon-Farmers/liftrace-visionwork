@@ -42,6 +42,47 @@ class CompetitionTests(unittest.TestCase):
         self.assertEqual(rt['mission']['post_delivery_route'][-1][:2],rt['mission']['landing_xy'])
         self.assertAlmostEqual(rt['mission']['post_delivery_route'][-1][2],c['external_landing']['capture_height'])
         self.assertTrue(c['switch']['auto_land'])
+    def test_h_capture_agl_and_handoff_translate_with_ground_reference(self):
+        self.assertEqual(self.s['landing_capture_agl'],.9)
+        for capture_agl in (.9,1.8):
+            self.s['landing_capture_agl']=capture_agl
+            for z in (-.09,0.,.09):
+                with self.subTest(capture_agl=capture_agl,fc_z=z):
+                    ref,d=self.generate(z)
+                    ground=z-self.rig['fc_ground_clearance']
+                    landing=d['control']['external_landing']
+                    route=d['runtime']['mission']['post_delivery_route']
+                    self.assertAlmostEqual(ref['ground_z'],ground)
+                    self.assertAlmostEqual(landing['capture_height']-ground,capture_agl)
+                    self.assertAlmostEqual(route[-1][2],landing['capture_height'])
+                    self.assertEqual(route[-1][:2],d['runtime']['mission']['landing_xy'])
+                    self.assertAlmostEqual(route[-2][2]-ground,self.s['landing_transit_agl'])
+                    self.assertAlmostEqual(landing['auto_land_height']-ground,.55)
+                    self.assertAlmostEqual(d['control']['land_height']-ground,.4)
+                    self.assertLess(d['control']['land_height'],landing['auto_land_height'])
+                    self.assertLess(landing['auto_land_height'],landing['capture_height'])
+    def test_h_stroke_fallback_is_explicit_and_configurable(self):
+        self.assertIs(self.s['landing_enable_h_stroke_fallback'],True)
+        key='/landing_detector/landing_enable_h_stroke_fallback'
+        for enabled in (True,False):
+            with self.subTest(enabled=enabled):
+                self.s['landing_enable_h_stroke_fallback']=enabled
+                _,d=self.generate()
+                self.assertIs(d['overrides'][key],enabled)
+        for invalid in ('false','true',0,1,None):
+            with self.subTest(invalid=invalid):
+                self.s['landing_enable_h_stroke_fallback']=invalid
+                with self.assertRaisesRegex(ValueError,'landing_enable_h_stroke_fallback'):
+                    validate(self.s,flight=True)
+        del self.s['landing_enable_h_stroke_fallback']
+        with self.assertRaisesRegex(ValueError,'landing_enable_h_stroke_fallback'):
+            validate(self.s,flight=True)
+    def test_competition_h_profile_does_not_change_stage_or_global_defaults(self):
+        stage=yaml.safe_load((ROOT/'deployment/board_trials_4x4/03_h_landing/settings.yaml').read_text())
+        detector=yaml.safe_load((ROOT/'vision_ws/src/uav_vision/config/landing_detector.yaml').read_text())
+        self.assertEqual(stage['landing_capture_agl'],1.8)
+        self.assertNotIn('landing_enable_h_stroke_fallback',stage)
+        self.assertIs(detector['landing_enable_h_stroke_fallback'],False)
     def test_drop_scale_uses_flight_ground_reference_and_calibration(self):
         self.s['camera_info_topic']='/custom_camera/info'
         for z in (-.09, .09):

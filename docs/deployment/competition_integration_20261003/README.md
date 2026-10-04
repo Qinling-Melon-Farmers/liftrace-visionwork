@@ -1,5 +1,7 @@
 # 竞赛整机候选更新与操作（2026-10-03）
 
+> 2026-10-04入口订正：独立正赛H捕获模板对齐已通过研究组合，改为0.9m AGL并显式启用 `landing_enable_h_stroke_fallback: true`；不继承现场H专项1.8m或其他试飞组配置。已有 `field.yaml` 必须明确补上该布尔字段。配置/工作台32项检查与真实launch参数展开通过；0.22m地面参考下有效capture Z=0.68m，规划速度仍1.2m/s。见[展开结果](../../verification/integrated_two_20261004/competition_h_entry_check.json)。本轮未将独立正赛工程部署上板，不能用研究仿真PASS替代现场完整任务验收。
+
 本次在现有 `feat/r2026-competition-integrated` 合入板端 `713556e` 与视觉研究 `9dce2a0`；导航共享功能对应 `feat/high-view-liveness-20260919@01a6da4`。复用原空闲工作树 `/home/xhj/liftrace-worktrees/r2026-board-frame-fix`，未新建工作树。两次正常 merge 分别为 `00e9185`、`428259d`，保留来源历史。
 
 **整机代码链已接齐，属于待整场验收候选；不是已经完成正赛实飞验收。** 本轮不部署、不启动仿真、不开实机节点、不操作舵机。现场0928工程保持原样。main、r2026-main-integration和根目录liftrace未被覆盖。

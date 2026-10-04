@@ -7,7 +7,10 @@ high_agl: 2.6
 max_agl: 3.0
 drop_agl: 0.6
 landing_transit_agl: 1.0
-landing_capture_agl: 1.8
+# Align this entry with the validated research H profile; hardware acceptance is pending.
+# Stage flight profiles remain independent and keep their own H capture settings.
+landing_capture_agl: 0.9
+landing_enable_h_stroke_fallback: true
 cruise_speed: 1.2
 cruise_acceleration: 1.0
 lane_spacing: 0.7
