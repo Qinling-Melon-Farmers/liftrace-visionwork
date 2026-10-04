@@ -43,6 +43,9 @@ KinodynamicAstar::~KinodynamicAstar()
 int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, Eigen::Vector3d start_a,
                              Eigen::Vector3d end_pt, Eigen::Vector3d end_v, bool init, bool dynamic, double time_start)
 {
+  height_limit_ = referenceHeight();
+  if (!height_limit_.accepts(start_pt.z()) || !height_limit_.accepts(end_pt.z())) return NO_PATH;
+
   double requested_weight=0.;
   if(ros::param::getCached(line_deviation_param_,requested_weight) &&
       std::isfinite(requested_weight) && requested_weight>=0. && requested_weight<=10.)
@@ -228,6 +231,11 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
           continue;
         }
 
+        // Exact quadratic extremum check for every motion primitive.
+        if (!height_limit_.polynomial(cur_state(2),cur_state(5),0.5*um(2),0.,tau)) {
+          ++last_diagnostics_.rejected_collision;
+          continue;
+        }
         // Check safety
         Eigen::Vector3d pos;
         Eigen::Matrix<double, 6, 1> xt;
@@ -482,6 +490,7 @@ bool KinodynamicAstar::computeShotTraj(Eigen::VectorXd state1, Eigen::VectorXd s
   Eigen::MatrixXd Tm(4, 4);
   Tm << 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0;
 
+  if (!height_limit_.polynomial(coef(2,0),coef(2,1),coef(2,2),coef(2,3),t_d)) return false;
   /* ---------- forward checking of trajectory ---------- */
   const int samples = std::max(10, int(std::ceil(t_d / 0.02)));
   for (int sample = 1; sample <= samples; ++sample)

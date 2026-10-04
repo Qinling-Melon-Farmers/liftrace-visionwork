@@ -17,9 +17,13 @@ class MotionOptimization:
     recovery_handoff_agl: float = .9
     recovery_min_ack_seconds: float = .6
     recovery_max_vz: float = .6
+    recovery_min_samples: int = 3
+    recovery_max_odom_age: float = .20
     corridor_max_agl: float = 1.0
 
     def __post_init__(self):
+        if type(self.recovery_min_samples) is not int or self.recovery_min_samples<3:raise ValueError('recovery_min_samples must be >=3')
+        if not .05<=self.recovery_max_odom_age<=.5:raise ValueError('invalid recovery_max_odom_age')
         for name in ('enabled','dynamic_boundary','moving_recovery','diagonal_entry','merge_collinear_relays'):
             if type(getattr(self,name)) is not bool: raise ValueError(name+' must be boolean')
         names=('survey_line_weight','braking_speed_mps','braking_accel_mps2','reaction_seconds',
@@ -45,21 +49,20 @@ class MotionOptimization:
 
 class MovingRecoveryWindow:
     """Fresh post-ACK evidence at the minimum handoff plane, without stopping ascent."""
-    def __init__(self):
-        self.first=None
-        self.last=None
-    def reset(self):
-        self.first=None; self.last=None
-    def update(self, sample, ack_ns, now_ns, min_ack_seconds, max_vz):
-        valid=(sample.stamp_ns>=ack_ns and now_ns-ack_ns>=int(min_ack_seconds*1e9)
+    def __init__(self):self.reset()
+    def reset(self):self.first=None;self.last=None;self.count=0
+    def update(self,sample,ack_ns,now_ns,min_ack_seconds,max_vz,min_samples=3,max_age=.20):
+        valid=(0<=now_ns-sample.stamp_ns<=int(max_age*1e9) and sample.stamp_ns>=ack_ns
+               and now_ns-ack_ns>=int(min_ack_seconds*1e9)
+               and all(math.isfinite(v) for v in (sample.vx,sample.vy,sample.vz))
                and math.hypot(sample.vx,sample.vy)<=.25 and -.03<=sample.vz<=max_vz)
-        if not valid:
-            self.reset();return False
+        if not valid:self.reset();return False
         stamp=sample.stamp_ns
-        if self.last is not None and stamp<=self.last: return False
-        if self.last is None or stamp-self.last>200_000_000: self.first=stamp
-        self.last=stamp
-        return stamp-self.first>=150_000_000
+        if self.last is not None and stamp<self.last:self.reset();return False
+        if stamp==self.last:return False
+        if self.last is None or stamp-self.last>200_000_000:self.first=stamp;self.count=0
+        self.last=stamp;self.count+=1
+        return self.count>=min_samples and stamp-self.first>=150_000_000
 
 def optimize_post_route(points, options, corridor_points_count, wall_axis, wall_coordinates):
     """Collapse only explicitly low, collinear corridor relays; retain turns and H suffix.

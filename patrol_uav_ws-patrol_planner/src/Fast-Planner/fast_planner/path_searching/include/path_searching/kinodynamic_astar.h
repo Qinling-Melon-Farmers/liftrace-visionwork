@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <utility>
 #include "plan_env/edt_environment.h"
+#include "plan_env/reference_height.h"
 
 class KinodynamicSearchFixture;
 
@@ -136,6 +137,7 @@ class KinodynamicAstar {
   Eigen::Matrix<double, 6, 6> phi_;  // state transit matrix
   // shared_ptr<SDFMap> sdf_map;
   EDTEnvironment::Ptr edt_environment_;
+  ReferenceHeight height_limit_;
   bool is_shot_succ_ = false;
   Eigen::MatrixXd coef_shot_;
   double t_shot_;

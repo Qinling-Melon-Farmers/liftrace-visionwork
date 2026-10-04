@@ -108,6 +108,7 @@
     <arg name="planner_goal_topic" value="/fastplanner/goal" />
     <arg name="planner_status_topic" value="/planning/goal_status" />
     <arg name="odom_topic" value="/navigation/local_odom" />
+    <arg name="odom_twist_frame" value="child" />
   </include>
   </group>
   <include file="$(find uav_mission)/launch/release_guard.launch">

@@ -28,6 +28,7 @@ from uav_mission.profile_policy import load_profile
 from uav_mission.search_policy import SearchPolicy
 from uav_mission.execution_speed import FollowingSpeed
 from uav_mission.motion_optimization import MotionOptimization
+from uav_mission.motion_observations import FreshPoseWindow
 from uav_mission.corridor_speed import CorridorSpeed, CorridorSpeedConfig
 
 
@@ -108,6 +109,11 @@ class NavigationMissionManager:
         self._mission_counter = 0
         self._last_reason = "waiting_for_manual_start"
         self._last_status = ""
+        self._pose_speed_window=FreshPoseWindow()
+        self._pending_motion_action=None
+        self._parameter_stage_applied={}
+        self._height_namespace=rospy.get_param('~height_constraint_namespace','/navigation_height_constraint')
+        self._initialize_line_preference()
 
         self._profile_path = rospy.get_param("~profile/path")
         self._profile_name = rospy.get_param("~profile/name", "r2026")
@@ -533,13 +539,78 @@ class NavigationMissionManager:
             self._publish_status(force=True)
             return TriggerResponse(success=True, message=outcome.reason)
 
+    def _initialize_line_preference(self):
+        self._line_preference_weight=float(rospy.get_param('~planner_line_preference/weight',2.0))
+        if not math.isfinite(self._line_preference_weight) or not 0<=self._line_preference_weight<=10:
+            raise ValueError('invalid global line preference weight')
+        self._line_preference_parameter=rospy.get_param('~planner_line_preference/parameter','/fast_planner_node/search/line_deviation_weight')
+        rospy.set_param(self._line_preference_parameter,self._line_preference_weight)
+
+    def _motion_pose_ready(self, now):
+        if not hasattr(self,'_pose_speed_window'):self._pose_speed_window=FreshPoseWindow()
+        pose=getattr(self,'_pose',None)
+        stamp=pose.header.stamp.to_sec() if pose else 0.
+        valid=bool(pose and all(math.isfinite(v) for v in
+                   (pose.pose.position.x,pose.pose.position.y,pose.pose.position.z)))
+        ready=self._pose_speed_window.update(stamp if valid else 0.,now,self._pose_max_age)
+        if not ready:self._apply_stale_speed_override()
+        return ready
+
+    def _apply_stale_speed_override(self):
+        # Highest priority; never enlarge a pre-existing slow corridor lead.
+        for name in ('/traj_server/traj_server/target_dist','/px4_max_distance'):
+            current=float(rospy.get_param(name,.2))
+            rospy.set_param(name,min(current,.2) if math.isfinite(current) and current>0 else .2)
+        self._following_speed_state=None  # Force stage-appropriate selection after fresh recovery.
+
+    def _height_stage_ready(self, action):
+        if action.command!='RETURN_HOME' or not action.reason.startswith('post_delivery_route:'):return True
+        completed=self._runtime.core.post_delivery_route_index
+        stages=[x for x in rospy.get_param('~mission/post_delivery_parameter_stages',[])
+                if completed==int(x['after_completed_waypoints'])]
+        parameters={k:v for x in stages for k,v in x['parameters'].items()}
+        if not parameters:return True
+        ns=getattr(self,'_height_namespace','/navigation_height_constraint')
+        enabled=rospy.get_param(ns+'/enabled',False)
+        cap_name=rospy.get_param(ns+'/limit_parameter','/external_planner_max_command_z')
+        cap=parameters.get(cap_name)
+        if not hasattr(self,'_parameter_stage_applied'):self._parameter_stage_applied={}
+        key=(self._runtime.core.mission_id,action.decision_seq)
+        if enabled and cap is not None:
+            if not math.isfinite(float(cap)):raise ValueError('invalid height constraint')
+            if (self._pose is None or self._pose.header.frame_id!=rospy.get_param(ns+'/frame_id','')
+                    or self._pose.pose.position.z>float(cap)+1e-9):
+                self._last_reason='waiting_below_new_height_limit';return False
+        if key not in self._parameter_stage_applied:
+            for name,value in parameters.items():rospy.set_param(name,value)
+            self._parameter_stage_applied[key]=rospy.Time.now().to_sec()
+        if enabled and cap is not None:
+            applied=float(rospy.get_param(ns+'/planner_applied_max_z',float('nan')))
+            stamp=float(rospy.get_param(ns+'/planner_applied_stamp',-1.))
+            now=rospy.Time.now().to_sec()
+            if (not math.isfinite(applied) or abs(applied-float(cap))>1e-9
+                    or stamp<self._parameter_stage_applied[key] or not 0<=now-stamp<=.5
+                    or rospy.get_param(ns+'/planner_applied_frame','')!=self._pose.header.frame_id):
+                self._last_reason='waiting_planner_height_constraint_ack';return False
+        return True
+
     def _on_timer(self, _event):
         with self._lock:
             try:
-                if self._runtime is None or self._pose is None:
-                    self._publish_status()
-                    return
+                if self._runtime is None:
+                    self._publish_status();return
                 now = rospy.Time.now().to_sec()
+                if not self._motion_pose_ready(now):
+                    self._last_reason='waiting_fresh_pose_speed_guard'
+                    self._publish_status();return
+                pending=getattr(self,'_pending_motion_action',None)
+                if pending is not None:
+                    if now>=pending.deadline_at:
+                        self._pending_motion_action=None
+                        outcome=self._runtime.abort('parameter_stage_wait_timeout',now)
+                        self._publish_action(outcome.action)
+                    else:self._publish_action(pending)
+                    self._publish_status();return
                 core = self._runtime.core
                 if core.phase not in (
                         MissionPhase.COMPLETE, MissionPhase.ABORTED):
@@ -570,17 +641,13 @@ class NavigationMissionManager:
             return
         if action.command not in COMMAND_VALUES:
             raise ValueError("unsupported core command: %s" % action.command)
-        # This is the task owner's existing route cursor, not simulator truth.
-        # Stages are applied before publishing the next goal, after the prior
-        # waypoint has satisfied the normal execution arrival check.
-        if action.command == "RETURN_HOME" and action.reason.startswith("post_delivery_route:"):
-            completed = self._runtime.core.post_delivery_route_index
-            for stage in rospy.get_param("~mission/post_delivery_parameter_stages", []):
-                if completed == int(stage["after_completed_waypoints"]):
-                    for name, value in stage["parameters"].items():
-                        rospy.set_param(name, value)
-                    rospy.loginfo("Flight parameter stage after %d waypoints: %s",
-                                  completed, stage["parameters"])
+        if action.command in ('ABORT','HOLD'):
+            self._pending_motion_action=None
+        elif (not self._motion_pose_ready(rospy.Time.now().to_sec()) or
+              not self._height_stage_ready(action)):
+            self._pending_motion_action=action
+            return
+        else:self._pending_motion_action=None
         self._apply_following_speed(action, force=True)
         if rospy.get_param('~fixed_search_region/enabled',False):
             is_tail=action.command=='RETURN_HOME' and action.reason.startswith('post_delivery_route:')
@@ -633,14 +700,9 @@ class NavigationMissionManager:
 
     def _apply_following_speed(self, action, force=False):
         options=MotionOptimization(**rospy.get_param('~motion_optimization', {}))
-        if options.enabled:
-            survey=(action is not None and action.command in ('SEARCH','RESUME')
-                    and getattr(self._runtime,'stage','')=='SURVEY'
-                    and getattr(self._runtime,'ascent_verified',False))
-            weight=options.survey_line_weight if survey else 0.
-            if weight!=getattr(self,'_survey_line_weight',None):
-                rospy.set_param('/fast_planner_node/search/line_deviation_weight',weight)
-                self._survey_line_weight=weight
+        if getattr(getattr(self,'_pose_speed_window',None),'blocked',False):
+            self._apply_stale_speed_override();return
+        # Line preference is initialized independently and stays global.
         if action is None:
             return
         # An explicitly enabled speed profile owns these two parameters after

@@ -1,3 +1,4 @@
+#include <plan_env/reference_height.h>
 /**
 * This file is part of Fast-Planner.
 *
@@ -201,6 +202,12 @@ void bsplineCallback(plan_manage::BsplineConstPtr msg) {
 
   NonUniformBspline pos_traj(pos_pts, msg->order, 0.1);
   pos_traj.setKnot(knots);
+  const auto height=fast_planner::referenceHeight();
+  if (!height.controls(pos_pts) || (height.enabled && msg->goal_frame!=height.frame)) {
+    trajectory_interrupted_=true;stop_position_=odom_pos_;
+    ROS_WARN("Rejecting trajectory outside reference height constraint");
+    return;
+  }
 
   // parse yaw traj
 
@@ -342,6 +349,10 @@ void cmdCallback(const ros::TimerEvent& e) {
       std::isfinite(phase_lead) && phase_lead > 0.0)
     target_dist = phase_lead;
   if (!receive_traj_) return;
+  const auto height=fast_planner::referenceHeight();
+  if (!height.controls(traj_[0].getControlPoint()) && !trajectory_interrupted_) {
+    trajectory_interrupted_=true;stop_position_=odom_pos_;
+  }
   std::pair<double, double> yaw_yawdot(0, 0);
 
   const auto position = [](double t) -> Eigen::Vector3d {

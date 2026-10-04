@@ -1,0 +1,8 @@
+{
+  "repair_base": "2b0678b9",
+  "competition_base": "7ebe0d49",
+  "navigation_base": "8f2631be",
+  "board_trials_base": "47a76986",
+  "matrix_runtime": "2b0678b9",
+  "hardware_deployment": false
+}

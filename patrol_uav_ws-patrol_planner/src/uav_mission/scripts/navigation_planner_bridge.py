@@ -37,6 +37,7 @@ from uav_mission.planner_execution import (
     TargetIdentity,
 )
 from uav_mission.position_settle import PositionSettleWindow
+from uav_mission.motion_observations import odom_world_velocity
 from uav_mission.motion_optimization import MotionOptimization, MovingRecoveryWindow
 from uav_vision.msg import (
     AlignmentTargetContext, ReleaseEvidenceContext, TargetCandidateArray,
@@ -202,6 +203,8 @@ class NavigationPlannerBridge:
             "~target/max_association_distance", 0.8))
         self._motion_options=MotionOptimization(**rospy.get_param('~motion_optimization', {}))
         self._moving_recovery=MovingRecoveryWindow()
+        self._odom_twist_frame=rospy.get_param('~execution/odom_twist_frame','child')
+        if self._odom_twist_frame not in ('header','child'):raise ValueError('invalid odom_twist_frame')
         self._recovery_height = float(rospy.get_param(
             "~target/recovery_height", 0.95))
         self._recovery_settle_radius = float(rospy.get_param(
@@ -529,19 +532,19 @@ class NavigationPlannerBridge:
         )
 
     @staticmethod
-    def _odom_from_message(message):
+    def _odom_from_message(message, twist_frame="child"):
         position = message.pose.pose.position
         q = message.pose.pose.orientation
-        velocity = message.twist.twist.linear
+        vx,vy,vz = odom_world_velocity(message,twist_frame)
         return OdomSample(
             stamp_ns=_stamp_to_ns(message.header.stamp),
             frame_id=message.header.frame_id,
             x=position.x,
             y=position.y,
             z=position.z,
-            vx=velocity.x,
-            vy=velocity.y,
-            vz=velocity.z,
+            vx=vx,
+            vy=vy,
+            vz=vz,
             yaw=math.atan2(2.0 * (q.w * q.z + q.x * q.y),
                            1.0 - 2.0 * (q.y * q.y + q.z * q.z)),
         )
@@ -946,7 +949,8 @@ class NavigationPlannerBridge:
 
         if moving.enabled and moving.moving_recovery:
             if not self._moving_recovery.update(sample,transaction.release_ack_ns,now_ns,
-                    moving.recovery_min_ack_seconds,moving.recovery_max_vz):
+                    moving.recovery_min_ack_seconds,moving.recovery_max_vz,
+                    moving.recovery_min_samples,moving.recovery_max_odom_age):
                 return
         else:
             settle = self._recovery_settle.update(
@@ -1154,7 +1158,12 @@ class NavigationPlannerBridge:
                 return
             try:
                 now_ns = self._now_ns()
-                sample = self._odom_from_message(message)
+                try:
+                    sample = self._odom_from_message(message,getattr(self,"_odom_twist_frame","child"))
+                except (ValueError,TypeError,AttributeError) as error:
+                    self._moving_recovery.reset()
+                    rospy.logwarn_throttle(2.,'Odometry observation rejected: %s',error)
+                    return
                 self._last_odom = sample
                 outcome = self._executor.apply_odom(sample, now_ns)
                 self._apply_outcome(outcome)
