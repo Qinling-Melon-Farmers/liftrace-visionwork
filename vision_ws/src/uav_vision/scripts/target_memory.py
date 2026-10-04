@@ -44,7 +44,8 @@ class CandidateRecord:
                  'current_map_valid', 'map_point', 'map_frame',
                  'map_quality', 'map_weight',
                  'transform_age_sec', 'class_votes', 'class_max_confidence',
-                 'pending_class', 'pending_class_count')
+                 'pending_class', 'pending_class_count', 'pending_class_vote',
+                 'observed_class', 'observed_class_count')
 
     def __init__(self, cid, det, now):
         self.id = cid
@@ -78,6 +79,9 @@ class CandidateRecord:
         self.class_max_confidence = {det.class_name: det.class_confidence}
         self.pending_class = ""
         self.pending_class_count = 0
+        self.pending_class_vote = 0.0
+        self.observed_class = det.class_name
+        self.observed_class_count = 1
 
     @staticmethod
     def _class_vote_weight(det):
@@ -98,6 +102,7 @@ class CandidateRecord:
                 self.class_confidence, det.class_confidence)
             self.pending_class = ""
             self.pending_class_count = 0
+            self.pending_class_vote = 0.0
             return
 
         if (det.class_name not in STANDARD_CLASSES or
@@ -105,22 +110,31 @@ class CandidateRecord:
                 det.class_confidence < switch_min_confidence):
             self.pending_class = ""
             self.pending_class_count = 0
+            self.pending_class_vote = 0.0
             return
 
         if det.class_name == self.pending_class:
             self.pending_class_count += 1
+            self.pending_class_vote += vote
         else:
             self.pending_class = det.class_name
             self.pending_class_count = 1
+            self.pending_class_vote = vote
 
-        candidate_vote = self.class_votes.get(det.class_name, 0.0)
-        current_vote = self.class_votes.get(self.class_name, 0.0)
+        # A long high-view history must not veto sustained new low-view evidence.
+        # Retain cumulative votes for diagnostics/identity, but compare this
+        # consecutive challenge with a bounded incumbent evidence window.
+        candidate_vote = self.pending_class_vote
+        current_vote = min(self.class_votes.get(self.class_name, 0.0),
+                           max(0.001, float(self.class_confidence) *
+                               float(self.geometry_confidence)) * switch_frames)
         if (self.pending_class_count >= switch_frames and
                 candidate_vote >= current_vote * switch_vote_ratio):
             self.class_name = det.class_name
             self.class_confidence = self.class_max_confidence[det.class_name]
             self.pending_class = ""
             self.pending_class_count = 0
+            self.pending_class_vote = 0.0
 
     def _update_map(self, det):
         if not det.map_valid:
@@ -154,31 +168,52 @@ class CandidateRecord:
             return  # Duplicate/out-of-order source images are not new evidence.
         if max_gap_sec > 0.0 and (now - self.last_seen).to_sec() > max_gap_sec:
             self.reset_confirmation()
+        if self.observed_class == det.class_name:
+            self.observed_class_count += 1
+        else:
+            self.observed_class = det.class_name
+            self.observed_class_count = 1
+        previous_class = self.class_name
         self._update_class(det, switch_frames, switch_min_confidence,
                            switch_vote_ratio)
+        class_supported = det.class_name == self.class_name
+        if not class_supported or previous_class != self.class_name:
+            if self.state not in (ST_REJECTED, ST_EXPIRED):
+                self.state = ST_DETECTED
         self.geometry_confidence = max(self.geometry_confidence, det.geometry_confidence)
         self.roi = det.roi
         self.center_px = det.center_px
         self.last_center = (det.center_px.x, det.center_px.y)
         self.last_seen = now
         self.observe_count += 1
-        self.consecutive_observe_count += 1
+        self.consecutive_observe_count = (
+            self.observed_class_count if class_supported else 0)
         self.center_refined = det.center_refined
         self.center_source = det.center_source
         self.association_valid = det.association_valid
         self.reject_reason = det.reject_reason
         self.transform_age_sec = det.transform_age_sec
-        self.current_map_valid = det.map_valid
+        self.current_map_valid = det.map_valid and class_supported
         self._update_map(det)
         self._advance_state(confirm_frames)
 
     def merge_from(self, other):
         """Merge a converged duplicate without inventing extra hit streaks."""
-        # All records are reset to not-current before each detection frame.
-        # Thus OR keeps a valid projection produced by either duplicate in
-        # this frame, without reviving a merely historical valid map point.
-        self.current_map_valid = (
-            self.current_map_valid or other.current_map_valid)
+        conflicting_class = self.class_name != other.class_name
+        newer = other.last_seen.to_sec() > self.last_seen.to_sec()
+        same_stamp = other.last_seen.to_sec() == self.last_seen.to_sec()
+        if newer:
+            self.current_map_valid = other.current_map_valid
+            self.observed_class = other.observed_class
+            self.observed_class_count = other.observed_class_count
+            self.consecutive_observe_count = other.consecutive_observe_count
+            self.pending_class = other.pending_class
+            self.pending_class_count = other.pending_class_count
+            self.pending_class_vote = other.pending_class_vote
+        elif same_stamp:
+            self.current_map_valid = self.current_map_valid or other.current_map_valid
+            self.consecutive_observe_count = max(
+                self.consecutive_observe_count, other.consecutive_observe_count)
         if self.map_valid and other.map_valid:
             total_weight = self.map_weight + other.map_weight
             if total_weight > 0.0:
@@ -200,17 +235,8 @@ class CandidateRecord:
         for class_name, confidence in other.class_max_confidence.items():
             self.class_max_confidence[class_name] = max(
                 self.class_max_confidence.get(class_name, 0.0), confidence)
-        standard_votes = {
-            name: vote for name, vote in self.class_votes.items()
-            if name in STANDARD_CLASSES}
-        if standard_votes:
-            self.class_name = max(
-                standard_votes, key=lambda name: (
-                    standard_votes[name],
-                    self.class_max_confidence.get(name, 0.0)))
-            self.class_confidence = self.class_max_confidence[
-                self.class_name]
-
+        # Merging physical IDs is not new semantic evidence. In particular an
+        # old duplicate's accumulated class votes must not relabel fresh data.
         if other.last_seen.to_sec() > self.last_seen.to_sec():
             self.roi = other.roi
             self.center_px = other.center_px
@@ -223,12 +249,11 @@ class CandidateRecord:
         self.first_seen = min(self.first_seen, other.first_seen)
         self.last_seen = max(self.last_seen, other.last_seen)
         self.observe_count = max(self.observe_count, other.observe_count)
-        self.consecutive_observe_count = max(
-            self.consecutive_observe_count,
-            other.consecutive_observe_count)
         self.geometry_confidence = max(
             self.geometry_confidence, other.geometry_confidence)
         self.state = max(self.state, other.state)
+        if conflicting_class or self.observed_class != self.class_name:
+            self.reset_confirmation()
 
     def _advance_state(self, confirm_frames):
         if self.state == ST_REJECTED or self.state == ST_EXPIRED:
@@ -240,6 +265,8 @@ class CandidateRecord:
 
     def reset_confirmation(self):
         self.consecutive_observe_count = 0
+        self.observed_class_count = 0
+        self.pending_class_vote = 0.0
         self.current_map_valid = False
         self.pending_class = ""
         self.pending_class_count = 0
@@ -252,8 +279,10 @@ class CandidateRecord:
                 0.0 <= (now - self.last_seen).to_sec() <= max_gap_sec):
             return
         self.consecutive_observe_count = 0
+        self.observed_class_count = 0
         self.pending_class = ""
         self.pending_class_count = 0
+        self.pending_class_vote = 0.0
         if self.state != ST_CONFIRMED:
             self.state = ST_DETECTED
 
