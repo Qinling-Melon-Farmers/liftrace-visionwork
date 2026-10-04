@@ -1,0 +1,67 @@
+{
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/latest_six_rectangle_seed38_20261005_032449",
+  "guard_box_size": [
+    0.55,
+    0.55,
+    0.4
+  ],
+  "guard_box_pose": [
+    0.0,
+    0.0,
+    -0.02,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "scope": "Rotated simulated guard box versus conservative tree+pedestal convex horizontal hull, entire box above tree, 0.025m path interpolation; not a real-airframe certification.",
+  "trees": [
+    {
+      "tree": "juniper_Tree",
+      "samples": 1957,
+      "overlap_samples": 0,
+      "min_separating_axis_gap_m": 0.21591835430817474,
+      "time_s": 52.44925,
+      "fc_world_xyz": [
+        1.214650144405113,
+        2.4459324083081846,
+        2.8821773322694155
+      ]
+    },
+    {
+      "tree": "juniper_Tree_0",
+      "samples": 1957,
+      "overlap_samples": 0,
+      "min_separating_axis_gap_m": 0.65149600994721,
+      "time_s": 59.281000000000006,
+      "fc_world_xyz": [
+        1.5758233038500347,
+        -3.0003624703098253,
+        2.899218547709115
+      ]
+    },
+    {
+      "tree": "juniper_Tree_1",
+      "samples": 1957,
+      "overlap_samples": 0,
+      "min_separating_axis_gap_m": 0.17529029624904524,
+      "time_s": 39.574,
+      "fc_world_xyz": [
+        5.941013142049156,
+        2.2462089840192467,
+        2.898311080730124
+      ]
+    },
+    {
+      "tree": "juniper_Tree_2",
+      "samples": 1957,
+      "overlap_samples": 62,
+      "min_separating_axis_gap_m": -0.28843930354133684,
+      "time_s": 34.376999999999995,
+      "fc_world_xyz": [
+        5.99945426555146,
+        -2.007589953865054,
+        2.886054406254364
+      ]
+    }
+  ]
+}

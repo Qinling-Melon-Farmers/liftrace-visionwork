@@ -1,0 +1,46 @@
+{
+  "adapter_fault_reason": "",
+  "adapter_faulted": false,
+  "allow_live_goal_output": true,
+  "diagnostic_only_intents": [],
+  "execution_requested": true,
+  "executor": {
+    "active_command": "LAND",
+    "active_decision_seq": 30,
+    "active_handed_off": true,
+    "active_terminal": false,
+    "awaiting_cancel_goal_seq": 0,
+    "dwell_start_ns": 0,
+    "executor_event_seq": 131,
+    "fault_reason": "",
+    "faulted": false,
+    "last_decision_seq": 30,
+    "last_planner_event_seq": 126,
+    "mission_id": "vcl06-random-11-426000000-1",
+    "planner_accepted": false,
+    "trajectory_finished": false,
+    "trajectory_ready": false
+  },
+  "executor_id": "vcl06-planner-bridge-f876b822cf694227b38d81ba2c331ee7",
+  "gate_reason": "live_planner_output_enabled",
+  "landing_decision_seq": 30,
+  "landing_settle": {
+    "displacement_m": 0.0,
+    "elapsed_sec": 0.0,
+    "reason": "control_state_not_landing"
+  },
+  "last_reason": "executor_pending",
+  "live_goal_output_supported": true,
+  "output_enabled": true,
+  "planner_goal_topic": "/fastplanner/goal",
+  "target_transaction": {
+    "decision_seq": 0,
+    "phase": "IDLE",
+    "recovery_settle": {
+      "displacement_m": 0.0,
+      "elapsed_sec": 0.0,
+      "reason": "inactive"
+    },
+    "strict_context_observed": false
+  }
+}

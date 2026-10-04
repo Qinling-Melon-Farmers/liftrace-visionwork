@@ -1,0 +1,35 @@
+{
+  "note": "Compared before final report-only commits; all listed production files match simulation source 87258798. Later documentation commits do not change code.",
+  "copies": [
+    {
+      "copy": "high-research",
+      "branch": "feat/high-view-search-research",
+      "head": "bc92d13cd735031dca1052a6466ab8ce4c7bc5ca",
+      "different": []
+    },
+    {
+      "copy": "integrated",
+      "branch": "feat/r2026-competition-integrated",
+      "head": "d1b499181d66afc6b95f703616f705f5933e68b6",
+      "different": []
+    },
+    {
+      "copy": "board-tests",
+      "branch": "feat/board-deployment-flight-20260920",
+      "head": "f5adcb11fbdf4ee10f15b0e1b0646bc720cc30a9",
+      "different": []
+    },
+    {
+      "copy": "nav-reference",
+      "branch": "\u677f\u7aef\u53c2\u8003\u5206\u652f",
+      "head": "6cfdf6a830194993e326f6751f2450cb4f98dc78",
+      "different": []
+    },
+    {
+      "copy": "nav-liveness",
+      "branch": "feat/high-view-liveness-20260919",
+      "head": "c5ba7a7684ae7958802eff500432f9c054e92742",
+      "different": []
+    }
+  ]
+}

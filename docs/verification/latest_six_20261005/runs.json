@@ -1,0 +1,44 @@
+[
+  {
+    "seed": 31,
+    "label": "rectangle",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/latest_six_rectangle_seed31_20261005_023409",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/latest_six_20261005/generated/rectangle_31/rectangle_seed31/field.world",
+    "source": "87258798b4cb3545fa01558fda93a173d0b67f64"
+  },
+  {
+    "seed": 31,
+    "label": "snake2",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/latest_six_snake2_seed31_20261005_025002",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/latest_six_20261005/generated/snake2_31/snake2_seed31/field.world",
+    "source": "87258798b4cb3545fa01558fda93a173d0b67f64"
+  },
+  {
+    "seed": 31,
+    "label": "snake3",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/latest_six_snake3_seed31_20261005_030704",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/latest_six_20261005/generated/snake3_31/snake3_seed31/field.world",
+    "source": "87258798b4cb3545fa01558fda93a173d0b67f64"
+  },
+  {
+    "seed": 38,
+    "label": "rectangle",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/latest_six_rectangle_seed38_20261005_032449",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/latest_six_20261005/generated/rectangle_38/rectangle_seed38/field.world",
+    "source": "87258798b4cb3545fa01558fda93a173d0b67f64"
+  },
+  {
+    "seed": 38,
+    "label": "snake2",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/latest_six_snake2_seed38_20261005_034318",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/latest_six_20261005/generated/snake2_38/snake2_seed38/field.world",
+    "source": "87258798b4cb3545fa01558fda93a173d0b67f64"
+  },
+  {
+    "seed": 38,
+    "label": "snake3",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/latest_six_snake3_seed38_20261005_035440",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/latest_six_20261005/generated/snake3_38/snake3_seed38/field.world",
+    "source": "87258798b4cb3545fa01558fda93a173d0b67f64"
+  }
+]

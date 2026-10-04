@@ -1,0 +1,61 @@
+{
+  "videos": [
+    {
+      "seed": 31,
+      "variant": "rectangle",
+      "duration_s": 208.4,
+      "frames": 2084,
+      "decode_pass": true,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "seed": 31,
+      "variant": "snake2",
+      "duration_s": 231.7,
+      "frames": 2317,
+      "decode_pass": true,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "seed": 31,
+      "variant": "snake3",
+      "duration_s": 245.5,
+      "frames": 2455,
+      "decode_pass": true,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "seed": 38,
+      "variant": "rectangle",
+      "duration_s": 245.6,
+      "frames": 2456,
+      "decode_pass": true,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "seed": 38,
+      "variant": "snake2",
+      "duration_s": 134.7,
+      "frames": 1347,
+      "decode_pass": true,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "seed": 38,
+      "variant": "snake3",
+      "duration_s": 610.5,
+      "frames": 6105,
+      "decode_pass": true,
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "index_links_pass": true,
+  "analysis_script_syntax_pass": true,
+  "simulation_cleanup_all_pass": true
+}

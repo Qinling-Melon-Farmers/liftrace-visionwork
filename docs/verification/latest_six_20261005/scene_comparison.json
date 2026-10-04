@@ -1,0 +1,32 @@
+[
+  {
+    "seed": 31,
+    "variant": "rectangle",
+    "scene_models_equal": true
+  },
+  {
+    "seed": 31,
+    "variant": "snake2",
+    "scene_models_equal": true
+  },
+  {
+    "seed": 31,
+    "variant": "snake3",
+    "scene_models_equal": true
+  },
+  {
+    "seed": 38,
+    "variant": "rectangle",
+    "scene_models_equal": true
+  },
+  {
+    "seed": 38,
+    "variant": "snake2",
+    "scene_models_equal": true
+  },
+  {
+    "seed": 38,
+    "variant": "snake3",
+    "scene_models_equal": true
+  }
+]
