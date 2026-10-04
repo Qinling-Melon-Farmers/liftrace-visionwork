@@ -28,9 +28,13 @@ struct ReferenceHeight {
     return d<0 || (root((-2*c2+std::sqrt(d))/(6*c3)) && root((-2*c2-std::sqrt(d))/(6*c3)));
   }
 };
+inline const std::string& heightConstraintNamespace() {
+  static const std::string ns=[](){std::string n;ros::param::param<std::string>("~height_constraint_namespace",n,"/navigation_height_constraint");return n;}();
+  return ns;
+}
 inline ReferenceHeight referenceHeight() {
   ReferenceHeight h;
-  static const std::string ns=[](){std::string n;ros::param::param<std::string>("~height_constraint_namespace",n,"/navigation_height_constraint");return n;}();
+  const auto& ns=heightConstraintNamespace();
   ros::param::getCached(ns+"/enabled", h.enabled);
   if (!h.enabled) return h;
   std::string source;

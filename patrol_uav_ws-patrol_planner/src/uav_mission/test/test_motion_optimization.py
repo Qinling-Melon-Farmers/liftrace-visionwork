@@ -121,6 +121,7 @@ class BridgeMovingRecoveryTests(unittest.TestCase):
         events=[]
         obj=SimpleNamespace(_transaction=SimpleNamespace(phase='RECOVERY',release_ack_ns=1_000_000_000),
             _motion_options=MotionOptimization(enabled=enabled),_moving_recovery=MovingRecoveryWindow(),
+            _odom_velocity_available=True,
             _recovery_height=.68,_control_state=1,_control_state_receipt_ns=1_500_000_000,
             _align_mode='disabled',_align_mode_receipt_ns=1_500_000_000,
             _odom_rejection_reason=lambda s,n: '' if 0<=n-s.stamp_ns<=200_000_000 else 'stale',
@@ -135,6 +136,14 @@ class BridgeMovingRecoveryTests(unittest.TestCase):
             call(o,self.sample(2),2_000_000_000);call(o,self.sample(2.08),2_080_000_000);call(o,self.sample(2.16),2_160_000_000)
             self.assertEqual(len(events),int(enabled))
             if enabled:self.assertEqual(events[0][1]['reason'],'release_recovery_motion_handoff')
+    def test_missing_raw_lio_velocity_cannot_use_moving_recovery(self):
+        o,events,call=self.make_bridge()
+        o._odom_velocity_available=False
+        for t in (2.,2.08,2.16):
+            call(o,self.sample(t),int(t*1e9))
+        self.assertEqual(events,[])
+        self.assertEqual(o._moving_recovery.count,0)
+
     def test_control_handoff_freshness_and_altitude_still_required(self):
         for attr,value in [('_control_state',2),('_control_state_receipt_ns',500_000_000),
                            ('_align_mode','drop_circle'),('_align_mode_receipt_ns',500_000_000),

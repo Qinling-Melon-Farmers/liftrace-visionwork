@@ -8,8 +8,9 @@
   <arg name="planner_goal_topic" default="/navigation/fastplanner_goal" />
   <arg name="planner_status_topic" default="/planning/goal_status" />
   <arg name="odom_topic" default="/Odometry" />
-  <!-- Raw FAST-LIO publishes world-frame twist; MAVROS/adapter uses child-frame twist. -->
+  <!-- Current raw FAST-LIO omits twist: header is its convention, NOT valid velocity evidence. -->
   <arg name="odom_twist_frame" default="header" />
+  <arg name="odom_velocity_available" default="$(eval arg('odom_twist_frame') == 'child')" />
   <arg name="status_topic" default="/navigation/planner_bridge_status" />
   <arg name="mission_command_topic" default="/mission/command" />
   <arg name="targets_topic" default="/uav_vision/targets" />
@@ -31,6 +32,7 @@
       <rosparam command="load"
                 file="$(find uav_mission)/config/vcl06_planner_bridge.yaml" />
       <param name="execution/odom_twist_frame" value="$(arg odom_twist_frame)" />
+      <param name="execution/odom_velocity_available" value="$(arg odom_velocity_available)" />
       <param name="execution/enabled" value="$(arg execution_enabled)" />
       <param name="execution/allow_live_goal_output"
              value="$(arg allow_live_goal_output)" />
