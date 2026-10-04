@@ -3,6 +3,7 @@ import ast
 from pathlib import Path
 from types import SimpleNamespace
 from uav_mission.execution_speed import FollowingSpeed
+from uav_mission.motion_optimization import MotionOptimization
 
 
 class SpeedTests(unittest.TestCase):
@@ -37,7 +38,7 @@ class SpeedTests(unittest.TestCase):
         ros=SimpleNamespace(get_param=lambda k,default=None:values.get(k,default),set_param=lambda k,v:values.update({k:v}),
                             loginfo=lambda *args:None,Time=SimpleNamespace(now=lambda:SimpleNamespace(to_sec=lambda:100.)))
         obj=SimpleNamespace(_runtime=SimpleNamespace(core=SimpleNamespace(post_delivery_route_index=0)))
-        namespace=dict(rospy=ros,FollowingSpeed=FollowingSpeed)
+        namespace=dict(rospy=ros,FollowingSpeed=FollowingSpeed,MotionOptimization=MotionOptimization)
         exec(compile(ast.Module(body=[helper],type_ignores=[]),'speed helper','exec'),namespace)
         obj._apply_following_speed=lambda action,force=False:namespace['_apply_following_speed'](obj,action,force)
         exec(compile(ast.Module(body=body,type_ignores=[]),'speed stages','exec'),dict(rospy=ros,self=obj,FollowingSpeed=FollowingSpeed,

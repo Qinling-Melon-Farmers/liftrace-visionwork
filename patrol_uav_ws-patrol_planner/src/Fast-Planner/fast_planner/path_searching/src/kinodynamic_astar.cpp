@@ -22,6 +22,7 @@
 */
 
 #include <path_searching/kinodynamic_astar.h>
+#include <path_searching/line_preference.h>
 #include <sstream>
 #include <chrono>
 #include <plan_env/sdf_map.h>
@@ -42,6 +43,11 @@ KinodynamicAstar::~KinodynamicAstar()
 int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, Eigen::Vector3d start_a,
                              Eigen::Vector3d end_pt, Eigen::Vector3d end_v, bool init, bool dynamic, double time_start)
 {
+  double requested_weight=0.;
+  if(ros::param::getCached(line_deviation_param_,requested_weight) &&
+      std::isfinite(requested_weight) && requested_weight>=0. && requested_weight<=10.)
+    line_deviation_weight_=requested_weight;
+  else line_deviation_weight_=0.;
   last_diagnostics_ = SearchDiagnostics();
   last_diagnostics_.start_occupancy =
       edt_environment_->sdf_map_->getInflateOccupancy(start_pt);
@@ -260,6 +266,10 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
             flag_hight_ = 0.0;
         }
         tmp_g_score = (um.squaredNorm() + w_time_) * tau + cur_node->g_score + w_z_ * flag_hight_ * abs(cur_state(2) - pro_state(2));
+        // Soft preference only; every primitive above still passed 3-D occupancy.
+        // No straight-line shortcut or collision-test bypass.
+        tmp_g_score += lineDeviationCost(cur_state.head(3),cur_state.tail(3),um,tau,
+                                         start_pt,end_pt,line_deviation_weight_);
         // std::cout<<"g = "<<tau * um.squaredNorm()<<" , "<<tau * w_time_<<" , z = "<<w_z_ * flag_hight_ * abs(cur_state(2) - pro_state(2))<<std::endl;
 
         tmp_f_score = tmp_g_score + lambda_heu_ * estimateHeuristic(pro_state, end_state, time_to_goal);
@@ -370,6 +380,7 @@ void KinodynamicAstar::setParam(ros::NodeHandle& nh)
   nh.param("search/max_vel", max_vel_, -1.0);
   nh.param("search/max_acc", max_acc_, -1.0);
   nh.param("search/w_time", w_time_, -1.0);
+  line_deviation_param_=nh.resolveName("search/line_deviation_weight");
   nh.param("search/w_z", w_z_, -1.0);
   nh.param("search/horizon", horizon_, -1.0);
   nh.param("search/max_search_time", max_search_time_, 0.25);

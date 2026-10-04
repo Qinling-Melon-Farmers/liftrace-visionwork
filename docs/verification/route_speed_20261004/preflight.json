@@ -1,0 +1,66 @@
+[
+  {
+    "seed": 31,
+    "variant": "rectangle_baseline",
+    "nodes": 42,
+    "gate_doors": 3,
+    "status": "PASS",
+    "motion": false
+  },
+  {
+    "seed": 31,
+    "variant": "rectangle",
+    "nodes": 42,
+    "gate_doors": 3,
+    "status": "PASS",
+    "motion": true
+  },
+  {
+    "seed": 31,
+    "variant": "snake2",
+    "nodes": 42,
+    "gate_doors": 3,
+    "status": "PASS",
+    "motion": true
+  },
+  {
+    "seed": 31,
+    "variant": "snake3",
+    "nodes": 42,
+    "gate_doors": 3,
+    "status": "PASS",
+    "motion": true
+  },
+  {
+    "seed": 38,
+    "variant": "rectangle_baseline",
+    "nodes": 42,
+    "gate_doors": 3,
+    "status": "PASS",
+    "motion": false
+  },
+  {
+    "seed": 38,
+    "variant": "rectangle",
+    "nodes": 42,
+    "gate_doors": 3,
+    "status": "PASS",
+    "motion": true
+  },
+  {
+    "seed": 38,
+    "variant": "snake2",
+    "nodes": 42,
+    "gate_doors": 3,
+    "status": "PASS",
+    "motion": true
+  },
+  {
+    "seed": 38,
+    "variant": "snake3",
+    "nodes": 42,
+    "gate_doors": 3,
+    "status": "PASS",
+    "motion": true
+  }
+]

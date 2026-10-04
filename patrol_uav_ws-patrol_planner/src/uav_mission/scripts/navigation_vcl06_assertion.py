@@ -199,7 +199,7 @@ def _normalize_route(route):
     return tuple(result)
 
 
-def _normalize_doors(doors, route_size, expected_order=EXPECTED_DOOR_ORDER):
+def _normalize_doors(doors, route_size, expected_order=EXPECTED_DOOR_ORDER, allow_shared_route_indices=False):
     if (not isinstance(expected_order, (list, tuple)) or not expected_order or
             any(not isinstance(name, str) or not name for name in expected_order) or
             len(set(expected_order)) != len(expected_order)):
@@ -234,7 +234,7 @@ def _normalize_doors(doors, route_size, expected_order=EXPECTED_DOOR_ORDER):
         route_indices = tuple(int(item) for item in route_indices)
         if route_size and any(item > route_size for item in route_indices):
             raise ValueError("door[%d] route index out of range" % index)
-        if occupied_indices.intersection(route_indices):
+        if occupied_indices.intersection(route_indices) and not allow_shared_route_indices:
             raise ValueError("door route_indices overlap")
         occupied_indices.update(route_indices)
         if not all(_finite(item) for item in numeric):
@@ -277,7 +277,7 @@ class Vcl06GateReducer:
                  post_delivery_doors=(), landing_xy=(0.0, 0.0),
                  landing_h_tolerance=0.35, gate_scope="full",
                  expected_door_order=EXPECTED_DOOR_ORDER,
-                 low_height_region=None, ground_z=0.0, landing_observation_region=None, search_envelope_region=None):
+                 low_height_region=None, ground_z=0.0, landing_observation_region=None, search_envelope_region=None, allow_shared_door_route_indices=False):
         self.profile = str(profile)
         self.nav_feature_profile = str(nav_feature_profile)
         self.mission_frame = str(mission_frame)
@@ -313,7 +313,7 @@ class Vcl06GateReducer:
                 self.post_delivery_goal_tolerance <= 0.0):
             raise ValueError("post-delivery route configuration invalid")
         self.post_delivery_doors = _normalize_doors(
-            post_delivery_doors, len(self.post_delivery_route), expected_door_order)
+            post_delivery_doors, len(self.post_delivery_route), expected_door_order, allow_shared_door_route_indices)
         if self.post_delivery_route and not self.post_delivery_doors:
             raise ValueError("post-delivery route requires door gates")
         if (not isinstance(landing_xy, (list, tuple)) or
@@ -1288,6 +1288,7 @@ class NavigationVcl06AssertionNode:
                 "~post_delivery_gate/goal_tolerance", 0.18)),
             post_delivery_doors=rospy.get_param(
                 "~post_delivery_gate/doors", []),
+            allow_shared_door_route_indices=rospy.get_param('~post_delivery_gate/allow_shared_route_indices',False),
             expected_door_order=rospy.get_param(
                 "~post_delivery_gate/expected_door_order", list(EXPECTED_DOOR_ORDER)),
             landing_xy=rospy.get_param("~mission/landing_xy", [0.0, 0.0]),

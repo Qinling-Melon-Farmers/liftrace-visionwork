@@ -27,6 +27,7 @@ from uav_mission.msg import NavigationDecision, NavigationResult
 from uav_mission.profile_policy import load_profile
 from uav_mission.search_policy import SearchPolicy
 from uav_mission.execution_speed import FollowingSpeed
+from uav_mission.motion_optimization import MotionOptimization
 from uav_mission.corridor_speed import CorridorSpeed, CorridorSpeedConfig
 
 
@@ -631,6 +632,15 @@ class NavigationMissionManager:
         )
 
     def _apply_following_speed(self, action, force=False):
+        options=MotionOptimization(**rospy.get_param('~motion_optimization', {}))
+        if options.enabled:
+            survey=(action is not None and action.command in ('SEARCH','RESUME')
+                    and getattr(self._runtime,'stage','')=='SURVEY'
+                    and getattr(self._runtime,'ascent_verified',False))
+            weight=options.survey_line_weight if survey else 0.
+            if weight!=getattr(self,'_survey_line_weight',None):
+                rospy.set_param('/fast_planner_node/search/line_deviation_weight',weight)
+                self._survey_line_weight=weight
         if action is None:
             return
         # An explicitly enabled speed profile owns these two parameters after
@@ -645,6 +655,13 @@ class NavigationMissionManager:
             if boundary and boundary.enabled and getattr(self._runtime,'stage','')=='LOW_COVERAGE' and action.goal is not None:
                 xy=self._current_xy()
                 near_boundary=boundary.slow_coverage(xy,(action.goal.x,action.goal.y))
+            if (options.enabled and options.dynamic_boundary and boundary and boundary.enabled
+                    and action.goal is not None and getattr(self._runtime,'stage','') in
+                    ('REVISIT','DELIVERY','LOCAL_WALL_VERIFY')):
+                age=(rospy.Time.now()-self._pose.header.stamp).to_sec() if self._pose else float('inf')
+                near_boundary=options.boundary_slow(boundary,self._current_xy() if self._pose else None,
+                    (action.goal.x,action.goal.y),0<=age<=self._pose_max_age,
+                    getattr(self,'_following_speed_state',('',0))[0]=='BOUNDARY_REVISIT')
             selected=speed.select(action.command,action.reason,self._runtime.core.post_delivery_route_index,near_boundary)
             schedule_config=rospy.get_param('~corridor_speed_schedule', {})
             if schedule_config and action.command=='RETURN_HOME' and action.reason.startswith('post_delivery_route:') and self._runtime.core.post_delivery_route_index>=1:

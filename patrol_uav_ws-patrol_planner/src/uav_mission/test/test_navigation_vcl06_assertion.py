@@ -1162,3 +1162,17 @@ class PhysicalPoseGateTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SharedSegmentDoorTest(unittest.TestCase):
+    def test_two_physical_gates_on_one_route_segment(self):
+        doors=[dict(name='a',axis='y',coordinate=1.,direction='negative',route_indices=[1],lateral_min=-1.,lateral_max=1.,z_min=0.,z_max=1.2),dict(name='b',axis='y',coordinate=-1.,direction='negative',route_indices=[1],lateral_min=-1.,lateral_max=1.,z_min=0.,z_max=1.2)]
+        with self.assertRaises(ValueError):MODULE._normalize_doors(doors,1,['a','b'])
+        r=MODULE.Vcl06GateReducer(post_delivery_route=[[0,-2,.9]],post_delivery_doors=doors,expected_door_order=['a','b'],allow_shared_door_route_indices=True)
+        r.active_post_delivery_route_index=1
+        for y in (2.,.5,-.5,-2.):r.observe_pose(0.,y,.9,'camera_init')
+        self.assertEqual([d['name'] for d in r.door_crossings],['a','b'])
+        r=MODULE.Vcl06GateReducer(post_delivery_route=[[0,-2,.9]],post_delivery_doors=doors,expected_door_order=['a','b'],allow_shared_door_route_indices=True)
+        r.active_post_delivery_route_index=1
+        for y in (2.,.5):r.observe_pose(2.,y,.9,'camera_init')
+        self.assertIn('door_lateral_out_of_bounds:a',r.errors)
