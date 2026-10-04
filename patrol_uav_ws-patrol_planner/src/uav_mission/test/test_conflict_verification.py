@@ -49,6 +49,33 @@ class ConflictMotionTest(unittest.TestCase):
         self.assertEqual(out.action.command,'APPROACH');self.assertEqual(out.action.target_class,'panzer')
         self.assertEqual(self.r.core.started_at,100.)
 
+    def test_memory_record_relabels_before_low_view_dispatch(self):
+        import importlib.util
+        from pathlib import Path
+        root=Path(__file__).resolve().parents[4]
+        path=root/'vision_ws/src/uav_vision/test/test_memory_semantic_freshness.py'
+        spec=importlib.util.spec_from_file_location('semantic_fixture',path)
+        mem=importlib.util.module_from_spec(spec);spec.loader.exec_module(mem)
+        record=mem.long_history()
+        self.r._next_target(114.);self.fixture.finish(116.)
+        self.r.update_pose((1.,1.,1.18),117.,'camera_init')
+        for i in range(3):
+            now=117.+i*.1
+            mem.advance(record,'pillbox',now)
+            c=replace(candidate(target_id=record.id,class_name=record.class_name,
+                                now=now,x=1.,y=1.),state=record.state,
+                      map_valid=record.current_map_valid,
+                      consecutive_observe_count=record.consecutive_observe_count)
+            self.r.ingest([c],now)
+            if i<2:
+                self.assertIsNone(self.r.fresh_candidate)
+                self.assertIsNone(self.r.tick(now+.01,(1.,1.)).action)
+        out=self.r.tick(117.3,(1.,1.))
+        self.assertEqual(out.action.command,'SEARCH')
+        self.assertEqual(self.r.selected.xy,(3.,1.))
+        self.assertEqual(self.r.core.committed_slots,0)
+        self.assertEqual(self.r.memory.saved['pillbox'].xy,(1.,1.))
+
     def test_unreachable_hypothesis_advances_and_late_success_is_rejected(self):
         self.r._next_target(114.);old=self.r.core.active_action
         self.fixture.seq+=1
