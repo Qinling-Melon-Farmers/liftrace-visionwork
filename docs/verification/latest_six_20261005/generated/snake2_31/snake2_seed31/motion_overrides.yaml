@@ -1,0 +1,38 @@
+/fast_planner_node/search/line_deviation_weight: 2.0
+/navigation/planner_bridge/motion_optimization:
+  enabled: true
+  dynamic_boundary: true
+  moving_recovery: true
+  diagonal_entry: true
+  merge_collinear_relays: true
+  survey_line_weight: 2.0
+  braking_speed_mps: 1.2
+  braking_accel_mps2: 0.6
+  reaction_seconds: 0.3
+  boundary_reserve_m: 0.15
+  recovery_handoff_agl: 0.9
+  recovery_min_ack_seconds: 0.6
+  recovery_max_vz: 0.6
+  recovery_min_samples: 3
+  recovery_max_odom_age: 0.2
+  corridor_max_agl: 1.0
+/navigation/mission_manager/motion_optimization:
+  enabled: true
+  dynamic_boundary: true
+  moving_recovery: true
+  diagonal_entry: true
+  merge_collinear_relays: true
+  survey_line_weight: 2.0
+  braking_speed_mps: 1.2
+  braking_accel_mps2: 0.6
+  reaction_seconds: 0.3
+  boundary_reserve_m: 0.15
+  recovery_handoff_agl: 0.9
+  recovery_min_ack_seconds: 0.6
+  recovery_max_vz: 0.6
+  recovery_min_samples: 3
+  recovery_max_odom_age: 0.2
+  corridor_max_agl: 1.0
+/navigation/mission_manager/planner_line_preference/weight: 2.0
+/navigation/planner_bridge/target/recovery_height: 0.6800000071525574
+/uav_vision/recovery_height: 0.6800000071525574

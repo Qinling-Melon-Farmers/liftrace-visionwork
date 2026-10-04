@@ -1,0 +1,151 @@
+profile:
+  name: r2026
+mission:
+  frame: camera_init
+  candidate_max_age: 0.5
+  transform_max_age: 0.5
+  min_streak: 3
+  max_target_z: 4.0
+  max_attempts: 2
+  retry_cooldown: 20.0
+  timeout: 600.0
+  early_return_enabled: false
+  forced_return_at: 420.0
+  return_land_reserve: 180.0
+  delivery_reserve_per_slot: 70.0
+  path_factor: 1.5
+  nominal_speed: 0.5
+  decision_guard: 15.0
+  approach_altitude: 1.38
+  return_altitude: 1.18
+  target_action_timeout: 120.0
+  motion_action_timeout: 90.0
+  result_future_tolerance: 0.1
+  home_xy:
+  - 0.0
+  - -0.0
+  post_delivery_yaw: 0.0
+  post_delivery_route_revision: route-speed-snake2
+  landing_xy:
+  - 8.75
+  - -4.2
+  landing_anchor_tolerance: 0.05
+  post_delivery_route:
+  - - 6.9
+    - 4.25
+    - 0.68
+  - - 8.75
+    - 4.25
+    - 0.68
+  - - 8.75
+    - -2.3
+    - 0.68
+  - - 8.75
+    - -4.2
+    - 0.68
+  post_delivery_parameter_stages:
+  - after_completed_waypoints: 0
+    parameters:
+      /external_planner_max_command_z: 2.78
+      /navigation/planner_bridge/execution/arrival_position_tolerance: 0.12
+      /navigation/planner_bridge/execution/arrival_dwell: 0.8
+  - after_completed_waypoints: 1
+    parameters:
+      /external_planner_max_command_z: 0.78
+      /fast_planner_node/fsm/goal_adjustment_radius: 0.1
+search:
+  min_x: 0.4
+  max_x: 7.2
+  min_y: -4.25
+  max_y: 4.25
+  lane_spacing: 0.7
+  altitude: 1.18
+  route_revision: r2026-r61-full-search-area
+  max_failures_per_waypoint: 2
+readiness:
+  pose_max_age: 0.5
+  map_max_age: 2.0
+  stamp_future_tolerance: 0.05
+  require_map: true
+runtime:
+  tick_hz: 10.0
+  mission_id_prefix: vcl06-random
+corridor_speed_schedule:
+  axis: 1
+  wall_coordinates:
+  - -1.6
+  - 1.6
+  enter_distance_m: 0.75
+  exit_distance_m: 0.95
+  open_lead_m: 0.4
+  door_lead_m: 0.15
+  landing_radius_m: 0.8
+  entry_waypoints: 1
+fixed_search_region:
+  enabled: true
+motion_optimization:
+  enabled: true
+  dynamic_boundary: true
+  moving_recovery: true
+  diagonal_entry: true
+  merge_collinear_relays: true
+  survey_line_weight: 2.0
+  braking_speed_mps: 1.2
+  braking_accel_mps2: 0.6
+  reaction_seconds: 0.3
+  boundary_reserve_m: 0.15
+  recovery_handoff_agl: 0.9
+  recovery_min_ack_seconds: 0.6
+  recovery_max_vz: 0.6
+  recovery_min_samples: 3
+  recovery_max_odom_age: 0.2
+  corridor_max_agl: 1.0
+motion_optimization_metadata:
+  original:
+  - - 6.9
+    - 4.25
+    - 1.18
+  - - 6.9
+    - 4.25
+    - 0.68
+  - - 8.75
+    - 4.25
+    - 0.68
+  - - 8.75
+    - 2.3
+    - 0.68
+  - - 8.75
+    - 0.9
+    - 0.68
+  - - 8.75
+    - 0
+    - 0.68
+  - - 8.75
+    - -0.9
+    - 0.68
+  - - 8.75
+    - -2.3
+    - 0.68
+  - - 8.75
+    - -4.2
+    - 0.68
+  diagonal_entry: true
+  removed:
+  - - 6.9
+    - 4.25
+    - 1.18
+  - - 8.75
+    - 2.3
+    - 0.68
+  - - 8.75
+    - 0.9
+    - 0.68
+  - - 8.75
+    - 0
+    - 0.68
+  - - 8.75
+    - -0.9
+    - 0.68
+  corridor_points_count: 3
+planner_line_preference:
+  weight: 2.0

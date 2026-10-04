@@ -1,0 +1,31 @@
+<launch>
+  <arg name="scene_dir" />
+  <arg name="field_seed" />
+  <arg name="high_agl" default="2.76" />
+  <arg name="target_model_path" />
+  <include file="$(find uav_high_view)/launch/fov_inner_repair.launch">
+    <arg name="scene_dir" value="$(arg scene_dir)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="corridor_fast" value="true" />
+    <arg name="high_agl" value="$(arg high_agl)" />
+    <arg name="obstacle_inflation_xy" value="0.25" />
+    <arg name="presentation_recording" value="true" />
+    <arg name="gate_startup_wall_timeout" value="600" />
+    <arg name="field_model_states_timeout" value="600" />
+  </include>
+  <!-- Host throughput is not competition time; mission ROS limit stays 600s. -->
+  <param name="/navigation_vcl06_assertion/wall_timeout" value="6000.0" />
+  <!-- Corrected bounded middle-contour columns ON; 0.25 m XY inflation. -->
+  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/enabled" value="true" />
+  <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="-0.1" />
+  <node pkg="uav_vision_eval" type="camera_video_recorder.py" name="review_downward_recorder" output="screen">
+    <param name="image_topic" value="/downward_camera/image_raw" />
+    <param name="fps" value="10.0" />
+    <param name="output_path" value="$(optenv SIM_RUN_DIR)/downward.mp4" />
+  </node>
+  <!-- Offline center comparison: no image or cloud duplication. -->
+  <node pkg="rosbag" type="record" name="center_evidence_recorder" output="screen"
+        args="--lz4 -O $(optenv SIM_RUN_DIR)/vision_metrics.bag /tf /tf_static /uav_vision/detections_mapped /uav_vision/targets /uav_vision/selected_target /uav_vision/drop_offset /uav_vision/align_mode /mavros/local_position/pose /mission/release_result" />
+  <rosparam file="$(arg scene_dir)/motion_overrides.yaml" />
+</launch>
