@@ -15,6 +15,7 @@ class SurveyPolicy:
     recheck_observe_seconds: float = 5.
     recheck_shift_after_seconds: float = 1.
     recheck_shift_radius_m: float = .5
+    high_min_agl: float = 2.0
     high_max_agl: float = 3.0
     candidate_min_streak: int = 1
     min_interval_ns: int = 100000000
@@ -54,6 +55,6 @@ class SurveyPolicy:
         self.catalog_config('camera_init',600.)
 
     def catalog_config(self,frame,timeout):
-        return Config(frame=frame,hint_ttl_ns=int(timeout*1e9),high_max_agl=self.high_max_agl,
+        return Config(frame=frame,hint_ttl_ns=int(timeout*1e9),high_min_agl=self.high_min_agl,high_max_agl=self.high_max_agl,
                       min_interval_ns=self.min_interval_ns,min_span_ns=self.min_span_ns,
                       max_uncertainty_m=self.max_uncertainty_m)

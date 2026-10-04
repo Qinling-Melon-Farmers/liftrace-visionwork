@@ -64,7 +64,7 @@ def main():
         row['first_failure_analysis']=dict(terminal=gate['reason'],errors=gate.get('errors',[]),action_failures=failures,scope='Next preselected route or layout is a controlled comparison; this outcome retained')
         state['results'].append(row);state['active']=None;save()
         print(f'{variant} seed{seed}: {row["status"]}; reason={row["reason"]}; cleanup PASS',flush=True)
-        if gate['reason'] in ('startup_wall_timeout','field_status_fail'):
+        if gate['reason'] in ('startup_wall_timeout','field_status_fail') or '_exception:' in (run/'run.log').read_text(errors='replace'):
             state['status']='INFRA_STOP';save();raise SystemExit('Startup failure: analyze before another launch')
     state['status']='COMPLETE';save();print('Eight finished; no retries',flush=True)
 

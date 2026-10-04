@@ -8,7 +8,7 @@ fsm/min_replan_interval: 0.75
 sdf_map/virtual_ceil_height: 2.30
 # Fixed inflation, shared by all mission stages (meters); 0.55 m guard half-side.
 # These distances expand measured obstacle points, not the aircraft mesh.
-sdf_map/obstacles_inflation: 0.275
+sdf_map/obstacles_inflation: 0.25
 sdf_map/obstacles_inflation_up: 0.20
 sdf_map/obstacles_inflation_down: 0.10
 sdf_map/horizontal_avoidance/enabled: true
