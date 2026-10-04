@@ -135,9 +135,6 @@ LLController::~LLController(){}
 void LLController::initializeNode() {
 
     load_params();
-    std::string height_replan_topic;
-    nh_.param<std::string>("height_replan_topic",height_replan_topic,"/planning/replan");
-    height_replan_pub_=nh_.advertise<std_msgs::Empty>(height_replan_topic,1);
 
     waypoint_now = -1;
     waypoint_next = 0;
@@ -1127,15 +1124,19 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                 if (external_waiting_for_motion_) {
                     // A fresh sample from an old trajectory is not a new mission.
                     mavros_point_cmd = patrol_cmd;
-                } else if (have_planner_cmd && planner_cmd.pose.position.z > external_planner_max_command_z_) {
-                    // Never execute XY from a curve whose Z has been clipped.
-                    mavros_point_cmd = uav_pose;
-                    have_planner_cmd = false;
-                    height_replan_pub_.publish(std_msgs::Empty());
-                    height_replan_stamp_=ros::Time::now();
-                    ROS_WARN_THROTTLE(1.0,"[ExternalPlanner] height violation: holding and invalidating trajectory");
                 } else if (hasValidExternalPlannerCommand()) {
                     mavros_point_cmd = planner_cmd;
+                    if (mavros_point_cmd.pose.position.z >
+                            external_planner_max_command_z_) {
+                        ROS_WARN_THROTTLE(
+                            1.0,
+                            "[ExternalPlanner] capping command height=%.3f "
+                            "to %.3f while preserving horizontal progress",
+                            mavros_point_cmd.pose.position.z,
+                            external_planner_max_command_z_);
+                        mavros_point_cmd.pose.position.z =
+                            external_planner_max_command_z_;
+                    }
                 } else {
                     mavros_point_cmd = last_mavros_point_cmd;
                 }
@@ -1428,17 +1429,15 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     // the vehicle is already above the configured ceiling, that interpolation
     // can raise a previously capped planner command above the ceiling again.
     // Enforce the invariant on the final command sent to MAVROS as well.
-    if (external_mission_mode_ && mavros_point_cmd.pose.position.z > external_planner_max_command_z_) {
-        if (Drone_mode==Run_point) {
-            mavros_point_cmd=uav_pose;
-            have_planner_cmd=false;
-            if ((ros::Time::now()-height_replan_stamp_).toSec()>=0.2) {
-                height_replan_pub_.publish(std_msgs::Empty());height_replan_stamp_=ros::Time::now();
-            }
-        } else {
-            // Existing non-planner ceiling safeguard, e.g. recovery/takeoff.
-            mavros_point_cmd.pose.position.z=external_planner_max_command_z_;
-        }
+    if (external_mission_mode_ &&
+        mavros_point_cmd.pose.position.z > external_planner_max_command_z_) {
+        ROS_WARN_THROTTLE(
+            1.0,
+            "[ExternalPlanner] enforcing final command height=%.3f to %.3f "
+            "after distance interpolation",
+            mavros_point_cmd.pose.position.z,
+            external_planner_max_command_z_);
+        mavros_point_cmd.pose.position.z = external_planner_max_command_z_;
     }
 
     // 提取当前 yaw 和目标 yaw

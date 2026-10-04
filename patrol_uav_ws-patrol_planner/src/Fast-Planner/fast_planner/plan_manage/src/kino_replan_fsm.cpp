@@ -1,3 +1,4 @@
+#include <plan_env/reference_height.h>
 /**
 * This file is part of Fast-Planner.
 *
@@ -253,6 +254,23 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
   }
 
   const ros::Time now = ros::Time::now();
+  const auto height = referenceHeight();
+  if (height.enabled && height.valid) {
+    std::string ns;
+    ros::param::param<std::string>("~height_constraint_namespace",ns,"/navigation_height_constraint");
+    // Heartbeat ACK: stages wait for a post-request observation, not a stale latched value.
+    static double last_ack=-1;
+    if (now.toSec()-last_ack>=0.1 || now.toSec()<last_ack) {
+      ros::param::set(ns+"/planner_applied_max_z",height.max_z);
+      ros::param::set(ns+"/planner_applied_frame",height.frame);
+      ros::param::set(ns+"/planner_applied_stamp",now.toSec());
+      last_ack=now.toSec();
+    }
+  }
+  if (exec_state_==EXEC_TRAJ && !height.controls(planner_manager_->local_data_.position_traj_.getControlPoint())) {
+    replan_pub_.publish(std_msgs::Empty());
+    changeFSMExecState(REPLAN_TRAJ,"HEIGHT_CONSTRAINT");
+  }
   const auto fresh = [&now](const ros::Time& stamp, double age) {
     return !stamp.isZero() && (now-stamp).toSec() >= 0 && (now-stamp).toSec() <= age;
   };
@@ -436,7 +454,7 @@ void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
 
     const double minimum_clearance = planner_manager_->pp_.clearance_;
     auto clearance = [&](const Eigen::Vector3d& candidate) {
-      if (!edt_env->sdf_map_->isInMap(candidate) ||
+      if (!referenceHeight().accepts(candidate.z()) || !edt_env->sdf_map_->isInMap(candidate) ||
           edt_env->sdf_map_->getInflateOccupancy(candidate) != 0)
         return -std::numeric_limits<double>::infinity();
       Eigen::Vector3d point = candidate;
@@ -493,6 +511,12 @@ void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
 }
 
 bool KinoReplanFSM::callKinodynamicReplan() {
+  const auto height = referenceHeight();
+  if (!height.accepts(start_pt_.z()) || !height.accepts(end_pt_.z()) ||
+      (height.enabled && goal_status_tracker_.effectiveGoal().header.frame_id != height.frame)) {
+    next_planning_attempt_ = ros::Time::now()+ros::Duration(min_replan_interval_);
+    return false;
+  }
   bool plan_success =
       planner_manager_->kinodynamicReplan(start_pt_, start_vel_, start_acc_, end_pt_, end_vel_);
   next_planning_attempt_ = plan_success ? ros::Time(0) :

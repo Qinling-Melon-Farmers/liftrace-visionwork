@@ -32,11 +32,13 @@ class MotionTests(unittest.TestCase):
         for t in (1.1,1.2,1.5):self.assertFalse(w.update(self.sample(t),ack,int(t*1e9),.6,.6))
         self.assertFalse(w.update(self.sample(1.6),ack,1_600_000_000,.6,.6))
         self.assertFalse(w.update(self.sample(1.6),ack,1_700_000_000,.6,.6))
+        self.assertFalse(w.update(self.sample(1.68),ack,1_680_000_000,.6,.6))
         self.assertTrue(w.update(self.sample(1.76),ack,1_760_000_000,.6,.6))
     def test_recovery_gap_downward_or_fast_resets(self):
         w=MovingRecoveryWindow()
         for t,v in ((2.,.4),(2.1,.8),(2.2,.4),(2.3,-.2),(2.4,.4),(2.8,.4)):
             self.assertFalse(w.update(self.sample(t,v),1_000_000_000,int(t*1e9),.6,.6))
+        self.assertFalse(w.update(self.sample(2.88),1_000_000_000,2_880_000_000,.6,.6))
         self.assertTrue(w.update(self.sample(2.96),1_000_000_000,2_960_000_000,.6,.6))
     def test_relays_merge_without_erasing_turn_descent_h(self):
         points=[[6.7,4,1.4],[6.7,4,.9],[8.75,4,.9],[8.75,2.3,.9],
@@ -130,7 +132,7 @@ class BridgeMovingRecoveryTests(unittest.TestCase):
     def test_handoff_while_rising_only_in_opt_in_mode(self):
         for enabled in (False,True):
             o,events,call=self.make_bridge(enabled)
-            call(o,self.sample(2),2_000_000_000);call(o,self.sample(2.16),2_160_000_000)
+            call(o,self.sample(2),2_000_000_000);call(o,self.sample(2.08),2_080_000_000);call(o,self.sample(2.16),2_160_000_000)
             self.assertEqual(len(events),int(enabled))
             if enabled:self.assertEqual(events[0][1]['reason'],'release_recovery_motion_handoff')
     def test_control_handoff_freshness_and_altitude_still_required(self):
@@ -138,7 +140,7 @@ class BridgeMovingRecoveryTests(unittest.TestCase):
                            ('_align_mode','drop_circle'),('_align_mode_receipt_ns',500_000_000),
                            ('_recovery_height',1.)]:
             o,events,call=self.make_bridge();setattr(o,attr,value)
-            call(o,self.sample(2),2_000_000_000);call(o,self.sample(2.16),2_160_000_000)
+            call(o,self.sample(2),2_000_000_000);call(o,self.sample(2.08),2_080_000_000);call(o,self.sample(2.16),2_160_000_000)
             self.assertEqual(events,[],attr)
         o,events,call=self.make_bridge()
         call(o,self.sample(2),2_000_000_000);call(o,self.sample(2.16),2_600_000_000)
@@ -146,11 +148,11 @@ class BridgeMovingRecoveryTests(unittest.TestCase):
 
 
 class ManagerMotionTests(unittest.TestCase):
-    def test_actual_speed_helper_switches_line_cost_and_boundary_phases(self):
+    def test_actual_speed_helper_preserves_global_line_cost_and_switches_boundary_speed(self):
         from uav_mission.execution_speed import FollowingSpeed
         source=ROOT/'patrol_uav_ws-patrol_planner/src/uav_mission/scripts/navigation_mission_manager.py'
         method=next(n for n in ast.walk(ast.parse(source.read_text())) if isinstance(n,ast.FunctionDef) and n.name=='_apply_following_speed')
-        values={'~motion_optimization':{'enabled':True},
+        values={'/fast_planner_node/search/line_deviation_weight':2.,'~motion_optimization':{'enabled':True},
                 '~following_speed_profile':{'cruise_lead_m':1.}}
         class Clock:
             def to_sec(self):return 100.
@@ -168,7 +170,7 @@ class ManagerMotionTests(unittest.TestCase):
         call=ns['_apply_following_speed'];call(o,a)
         self.assertEqual(values['/fast_planner_node/search/line_deviation_weight'],2.)
         rt.stage='REVISIT';call(o,a)
-        self.assertEqual(values['/fast_planner_node/search/line_deviation_weight'],0.)
+        self.assertEqual(values['/fast_planner_node/search/line_deviation_weight'],2.)
         self.assertEqual(o._following_speed_state,('CRUISE',1.))
         xy[:]=[7.,0];call(o,a)
         self.assertEqual(o._following_speed_state,('BOUNDARY_REVISIT',.2))

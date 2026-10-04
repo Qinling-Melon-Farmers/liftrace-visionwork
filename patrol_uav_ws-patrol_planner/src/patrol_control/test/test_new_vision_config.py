@@ -193,16 +193,16 @@ class NewVisionConfigTest(unittest.TestCase):
             'nh_.param("external_planner_max_command_z", 3.5)', source)
         self.assertIn(
             "mavros_point_cmd.pose.position.z >", source)
-        self.assertIn("capping command height", source)
-        self.assertIn("preserving horizontal progress", source)
+        self.assertIn("height violation: holding and invalidating trajectory", source)
+        self.assertNotIn("preserving horizontal progress", source)
         distance_limit = source.index(
             "if (distance_to_target > px4_max_distance)")
-        final_guard = source.index("enforcing final command height")
+        final_guard = source.index("if (Drone_mode==Run_point)", distance_limit)
         publish = source.index("mavros_point_cmd_pub.publish")
         self.assertLess(distance_limit, final_guard)
         self.assertLess(final_guard, publish)
         self.assertIn(
-            "mavros_point_cmd.pose.position.z = "
+            "mavros_point_cmd.pose.position.z="
             "external_planner_max_command_z_",
             source[final_guard:publish],
         )

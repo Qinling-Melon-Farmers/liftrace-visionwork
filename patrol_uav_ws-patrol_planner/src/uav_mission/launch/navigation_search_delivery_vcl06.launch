@@ -1,4 +1,10 @@
 <launch>
+  <arg name="height_constraint_enabled" default="true" />
+  <arg name="height_constraint_frame" default="camera_init" />
+  <arg name="height_constraint_parameter" default="/external_planner_max_command_z" />
+  <param name="/navigation_height_constraint/enabled" value="$(arg height_constraint_enabled)" />
+  <param name="/navigation_height_constraint/frame_id" value="$(arg height_constraint_frame)" />
+  <param name="/navigation_height_constraint/limit_parameter" value="$(arg height_constraint_parameter)" />
   <arg name="manager_type" default="navigation_mission_manager.py" />
   <!-- Formal VCL06 integration chain.  The navigation manager is the only
        mission-policy owner and navigation_planner_bridge is the only
@@ -155,6 +161,7 @@
     <arg name="planner_goal_topic" value="/fastplanner/goal" />
     <arg name="planner_status_topic" value="/planning/goal_status" />
     <arg name="odom_topic" value="/mavros/local_position/odom" />
+    <arg name="odom_twist_frame" value="child" />
   </include>
 
   <include file="$(find uav_mission)/launch/navigation_mission_start_gate.launch">
