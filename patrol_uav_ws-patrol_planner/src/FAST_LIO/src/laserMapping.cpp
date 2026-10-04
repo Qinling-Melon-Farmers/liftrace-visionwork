@@ -36,6 +36,7 @@
 #include <mutex>
 #include <math.h>
 #include <cmath>
+#include <cstdint>
 #include <thread>
 #include <fstream>
 #include <csignal>
@@ -86,7 +87,7 @@ string prediction_imu_frame;
 ros::Publisher prediction_state_pub, realtime_pub;
 /**************************/
 
-float res_last[100000] = {0.0};
+vector<float> res_last;
 float DET_RANGE = 300.0f;
 const float MOV_THRESHOLD = 1.5f;
 double time_diff_lidar_to_imu = 0.0;
@@ -104,7 +105,8 @@ double filter_size_corner_min = 0, filter_size_surf_min = 0, filter_size_map_min
 double cube_len = 0, HALF_FOV_COS = 0, FOV_DEG = 0, total_distance = 0, lidar_end_time = 0, first_lidar_time = 0.0;
 int    effct_feat_num = 0, time_log_counter = 0, scan_count = 0, publish_count = 0;
 int    iterCount = 0, feats_down_size = 0, NUM_MAX_ITERATIONS = 0, laserCloudValidNum = 0, pcd_save_interval = -1, pcd_index = 0;
-bool   point_selected_surf[100000] = {0};
+// Each OpenMP worker owns a distinct byte; vector<bool> would share packed bits.
+vector<uint8_t> point_selected_surf;
 bool   lidar_pushed, flg_first_scan = true, flg_exit = false, flg_EKF_inited;
 bool   scan_pub_en = false, dense_pub_en = false, scan_body_pub_en = false;
 int lidar_type;
@@ -122,9 +124,9 @@ PointCloudXYZI::Ptr featsFromMap(new PointCloudXYZI());
 PointCloudXYZI::Ptr feats_undistort(new PointCloudXYZI());
 PointCloudXYZI::Ptr feats_down_body(new PointCloudXYZI());
 PointCloudXYZI::Ptr feats_down_world(new PointCloudXYZI());
-PointCloudXYZI::Ptr normvec(new PointCloudXYZI(100000, 1));
-PointCloudXYZI::Ptr laserCloudOri(new PointCloudXYZI(100000, 1));
-PointCloudXYZI::Ptr corr_normvect(new PointCloudXYZI(100000, 1));
+PointCloudXYZI::Ptr normvec(new PointCloudXYZI());
+PointCloudXYZI::Ptr laserCloudOri(new PointCloudXYZI());
+PointCloudXYZI::Ptr corr_normvect(new PointCloudXYZI());
 PointCloudXYZI::Ptr _featsArray;
 
 pcl::VoxelGrid<PointType> downSizeFilterSurf;
@@ -741,8 +743,12 @@ void publish_path(const ros::Publisher pubPath)
 void h_share_model(state_ikfom &s, esekfom::dyn_share_datastruct<double> &ekfom_data)
 {
     double match_start = omp_get_wtime();
-    laserCloudOri->clear(); 
-    corr_normvect->clear(); 
+    // Resize before parallel indexed writes. Preserve selection on cached
+    // nearest-neighbor iterations (converge=false); new slots start unselected.
+    point_selected_surf.resize(feats_down_size, 0);
+    res_last.resize(feats_down_size, 0.0f);
+    laserCloudOri->resize(feats_down_size);
+    corr_normvect->resize(feats_down_size);
     total_residual = 0.0; 
 
     /** closest surface search and residual computation **/
@@ -807,6 +813,10 @@ void h_share_model(state_ikfom &s, esekfom::dyn_share_datastruct<double> &ekfom_
             effct_feat_num ++;
         }
     }
+
+    // Compaction above writes valid elements, not merely reserved capacity.
+    laserCloudOri->resize(effct_feat_num);
+    corr_normvect->resize(effct_feat_num);
 
     if (effct_feat_num < 1)
     {
@@ -931,12 +941,8 @@ int main(int argc, char** argv)
 
     _featsArray.reset(new PointCloudXYZI());
 
-    memset(point_selected_surf, true, sizeof(point_selected_surf));
-    memset(res_last, -1000.0f, sizeof(res_last));
     downSizeFilterSurf.setLeafSize(filter_size_surf_min, filter_size_surf_min, filter_size_surf_min);
     downSizeFilterMap.setLeafSize(filter_size_map_min, filter_size_map_min, filter_size_map_min);
-    memset(point_selected_surf, true, sizeof(point_selected_surf));
-    memset(res_last, -1000.0f, sizeof(res_last));
 
     Lidar_T_wrt_IMU<<VEC_FROM_ARRAY(extrinT);
     Lidar_R_wrt_IMU<<MAT_FROM_ARRAY(extrinR);

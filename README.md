@@ -1,6 +1,6 @@
 # EV 连续性专项分支：2026-10-04
 
-本分支从最新整机 `e5fb382d` 派生，处理 LIO 实时性、EV 独立 IMU 预测与高度跳变恢复。已记录前线 FAST-LIO 并行改动待对照；预测原型仅输出观察话题，尚未替换机载输入。[实现与分支计划](docs/planning/ev_continuity_20261004/README.md) · [离线验证](docs/verification/ev_continuity_20261004/REPORT.md)。以下保留来源整机说明。
+本分支从最新整机 `e5fb382d` 派生，处理 LIO 实时性、EV 独立 IMU 预测与高度跳变恢复。前线 FAST-LIO 源码及构建清单已取回：0928 构建为三线程匹配，10月4日晚启动日志对应根目录 R64 的单线程匹配构建。现有线程选项已支持前线三线程；本轮仅修匹配容器边界并补生产回归，待主 review，不提交或部署。[前线对比与最小处置](docs/verification/ev_continuity_20261004/FRONTLINE_COMPARISON.md) · [实现与分支计划](docs/planning/ev_continuity_20261004/README.md) · [离线验证](docs/verification/ev_continuity_20261004/REPORT.md)。预测原型仍仅输出观察话题。以下保留来源整机说明。
 
 # 来源整机候选：2026-10-03
 

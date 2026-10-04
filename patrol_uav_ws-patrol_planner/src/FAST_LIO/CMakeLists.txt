@@ -111,6 +111,14 @@ catkin_install_python(PROGRAMS scripts/ev_shadow.py scripts/ev_predictor.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 if(CATKIN_ENABLE_TESTING)
+  add_executable(matching_buffers_test EXCLUDE_FROM_ALL
+    test/matching_buffers.cpp include/ikd-Tree/ikd_Tree.cpp src/preprocess.cpp)
+  # Bounds assertions catch clear()+operator[] even when capacity is retained.
+  target_compile_definitions(matching_buffers_test PRIVATE _GLIBCXX_ASSERTIONS)
+  add_dependencies(matching_buffers_test ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+  target_link_libraries(matching_buffers_test ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${PYTHON_LIBRARIES})
+  add_dependencies(tests matching_buffers_test)
+  add_test(NAME fast_lio_matching_buffers COMMAND matching_buffers_test)
   add_executable(imu_process_validity_test EXCLUDE_FROM_ALL test/imu_process_validity.cpp)
   target_include_directories(imu_process_validity_test PRIVATE src)
   add_dependencies(imu_process_validity_test ${catkin_EXPORTED_TARGETS} ${${PROJECT_NAME}_EXPORTED_TARGETS})
