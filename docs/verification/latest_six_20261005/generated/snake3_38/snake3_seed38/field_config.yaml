@@ -1,0 +1,91 @@
+mission_frame: camera_init
+class_profile: r2026
+spawn:
+  boundary_margin: 0.02
+  pair_gap: 0.05
+  layout_attempts: 64
+  static_model_radius: 0.55
+  initial_model_states_timeout: 90.0
+  verification_tolerance: 0.05
+  verification_timeout: 20.0
+  frozen_layout:
+  - class: tent
+    x: 4.903552720386706
+    y: -0.7097901586809439
+    yaw: -0.5104631215765241
+  - class: pillbox
+    x: 4.637907549512002
+    y: -3.299087092979983
+    yaw: -1.3350073273534653
+  - class: bridge
+    x: 4.03246791128931
+    y: 1.8622255968610357
+    yaw: -1.483686404960901
+  - class: panzer
+    x: 7.051180122148171
+    y: -4.132199576702979
+    yaw: -0.4178413177972766
+  - class: red_cross
+    x: 1.0449142017045958
+    y: -0.46466805710639125
+    yaw: 1.1904991244605725
+static_model_radii:
+  landing_h: 0.4
+  landing_h_clone: 0.4
+static_exclusion_boxes:
+- - -0.55
+  - -0.5
+  - -5.05
+  - 5.05
+- - 9.5
+  - 9.55
+  - -5.05
+  - 5.05
+- - -0.5
+  - 9.5
+  - -5.050000000000001
+  - -5.0
+- - -0.5
+  - 9.5
+  - 5.0
+  - 5.050000000000001
+- - 7.949999999999999
+  - 8.0
+  - -5.0
+  - 3.5
+- - 8.8
+  - 9.5
+  - 1.5750000000000002
+  - 1.625
+- - 8.0
+  - 8.7
+  - -1.625
+  - -1.5750000000000002
+static_exclusions:
+- name: combined_tree_0
+  world_x: 2.0
+  world_y: 1.8
+  radius: 0.43
+- name: combined_tree_1
+  world_x: 2.7
+  world_y: -1.8
+  radius: 0.43
+- name: combined_tree_2
+  world_x: 5.2
+  world_y: 1.5
+  radius: 0.43
+- name: combined_tree_3
+  world_x: 5.7
+  world_y: -1.7
+  radius: 0.43
+field:
+  min_x: -0.5
+  max_x: 9.5
+  min_y: -5.0
+  max_y: 5.0
+search_region:
+  min_x: -0.5
+  max_x: 7.95
+  min_y: -5.0
+  max_y: 5.0
+ignore_model_names: ground_plane,sun,toudi2,3,iris_mid360,preview_overhead,preview_aircraft,indoor_context,competition_overview_camera,presentation_overview_camera,presentation_follow_camera
