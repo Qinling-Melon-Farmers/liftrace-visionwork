@@ -5,6 +5,9 @@ int main(){
  assert(h.accepts(.68));assert(!h.accepts(.80));
  assert(!h.polynomial(.68,.8,-.8,0,1)); // endpoints below, mid-primitive peak above
  assert(h.polynomial(.68,.1,0,0,1));
+ // Genuine cubic: endpoints .68, internal maximum .68 + .4*(2/3)/sqrt(3) > .78.
+ assert(!h.polynomial(.68,.4,0,-.4,1));
+ assert(h.polynomial(.68,.1,0,-.1,1));
  Eigen::MatrixXd controls(4,3);controls.setZero();controls.col(2).setConstant(.68);
  assert(h.controls(controls));controls(1,2)=.9;assert(!h.controls(controls));
  h.valid=false;assert(!h.accepts(.6));assert(!h.controls(controls));
