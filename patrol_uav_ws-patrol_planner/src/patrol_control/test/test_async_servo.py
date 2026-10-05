@@ -42,7 +42,8 @@ struct ServoAction {
     struct Request {
         std::uint64_t request_id=0;
         unsigned int payload_slot=0, decision_seq=0, attempt=0, target_id=0;
-        std::string mission_id, target_class, align_mode;
+        std::string mission_id, target_class, align_mode, permission_epoch;
+        std::uint64_t permission_revision=0;
         double target_first_seen=0;
     };
     struct Response {
@@ -63,6 +64,7 @@ struct Transport {
     bool terminal=true;
     std::uint64_t last_request_id=0;
     unsigned int last_decision_seq=0;
+    std::string permission_epoch; std::uint64_t permission_revision=0;
     bool gated=false, released=false;
     std::mutex mutex; std::condition_variable cv;
 };
@@ -81,6 +83,8 @@ Duration operator-(Time, Time) { return Duration(); }
 struct ServiceClient {
     std::shared_ptr<Transport> impl;
     bool call(patrol_control::ServoAction& srv) {
+        impl->permission_epoch=srv.request.permission_epoch;
+        impl->permission_revision=srv.request.permission_revision;
         impl->last_request_id=srv.request.request_id;
         impl->last_decision_seq=srv.request.decision_seq;
         patrol_control::Servo legacy;
@@ -133,6 +137,9 @@ public:
     ros::ServiceClient servo_client, servo_action_client_;
     uav_vision::AlignmentTargetContext servo_alignment_context_;
     bool have_servo_alignment_context_=true;
+    struct { std::string permission_epoch="test"; std::uint64_t permission_revision=18; } release_authorization_;
+    bool permission_ready=true;
+    bool hasFreshMissionReleasePermission() const { return permission_ready; }
     unsigned int servo_alignment_decision_seq_=900, servo_alignment_target_id_=7;
     std::string servo_alignment_target_class_="panzer";
     void servoAlignmentContextCallback(const uav_vision::AlignmentTargetContext::ConstPtr&);
@@ -200,6 +207,7 @@ int main(int argc, char** argv) {
         assert(c.executeDropAction(1)==DropActionResult::kPending);
         assert(!c.drop_complete && !c.servo_complete.data);
         waitStarted(t);
+        assert(t->permission_epoch=="test" && t->permission_revision==18);
         int ticks=0; double largest_gap=0;
         auto previous=Clock::now(), next=previous;
         while (Clock::now()-start < std::chrono::milliseconds(1150)) {

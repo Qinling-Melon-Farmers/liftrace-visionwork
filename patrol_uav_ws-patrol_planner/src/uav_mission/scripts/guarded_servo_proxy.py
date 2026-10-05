@@ -49,6 +49,11 @@ class GuardedServoProxy:
 
     def _on_permission(self, msg):
         with self._lock:
+            old = self._permission
+            if (old is not None and getattr(msg, "permission_epoch", "") and
+                    msg.permission_epoch == getattr(old, "permission_epoch", "") and
+                    msg.permission_revision <= old.permission_revision):
+                return  # A replay cannot overwrite a newer denial/grant.
             self._permission = msg
             self._permission_changed.notify_all()
 
@@ -143,7 +148,7 @@ class GuardedServoProxy:
 
     def _await_permission(self, slot, fence=None, own_reservation=False,
                           previous=None):
-        """Wait only for temporal admission of the SAME fenced action.
+        """Wait for the requested revision, then temporal admission of its action.
 
         Caller holds _lock. Condition.wait releases it, so new permits and
         cancellation remain responsive. This is the service worker, never the
@@ -152,6 +157,27 @@ class GuardedServoProxy:
         deadline = time.monotonic() + self._permission_refresh_wait
         while True:
             permission = self._permission
+            if fence is not None:
+                epoch = str(getattr(fence, "permission_epoch", ""))
+                revision = int(getattr(fence, "permission_revision", 0))
+                key = action_identity(fence)
+                if not epoch or revision <= 0 or key is None:
+                    return permission, "request_permission_token_missing"
+                if key in self._revoked_actions:
+                    return permission, "alignment_action_revoked"
+                if slot in self._locked_slots or slot in self._completed_slots:
+                    return permission, "payload_slot_locked_uncertain"
+                if slot in self._inflight_slots and not own_reservation:
+                    return permission, "payload_slot_busy"
+                if permission is not None and epoch != getattr(permission, "permission_epoch", ""):
+                    return permission, "permission_epoch_changed"
+                if (permission is None or
+                        int(getattr(permission, "permission_revision", 0)) < revision):
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0.0:
+                        return permission, "permission_revision_not_received"
+                    self._permission_changed.wait(min(remaining, 0.01))
+                    continue
             reason = self._permission_reason(slot, rospy.Time.now(), permission,
                                              own_reservation=own_reservation)
             if permission is not None and fence is not None:
@@ -204,7 +230,8 @@ class GuardedServoProxy:
                 slot, fence, own_reservation=True, previous=permission)
             if reason:
                 self._inflight_slots.discard(slot)
-                self._publish_result(slot, False, reason, permission, NOT_STARTED)
+                self._publish_result(slot, False, reason,
+                                     fence if fence is not None else permission, NOT_STARTED)
                 return False, NOT_STARTED, reason
             self._consumed_permission_stamp = permission.header.stamp
             self._locked_slots.add(slot)

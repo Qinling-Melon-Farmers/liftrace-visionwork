@@ -1,3 +1,4 @@
+# Controller copy of the exact permission revision; no actuator authority here.
 # 任务/安全层给出的短时投放许可。视觉 evidence_valid 只是输入之一。
 Header header
 bool permitted

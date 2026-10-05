@@ -254,6 +254,9 @@ install(DIRECTORY launch config
 #############
 
 if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(test/test_permission_revision.py)
+  catkin_add_nosetests(test/test_stage_limit_retry_identity.py)
+  catkin_add_nosetests(test/test_high_view_terminal_status.py)
   catkin_add_nosetests(test/test_high_view_resume.py)
   catkin_add_nosetests(test/test_probe_limit_switch.py)
   catkin_add_nosetests(test/test_h_contact_record_only.py)

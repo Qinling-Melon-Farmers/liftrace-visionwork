@@ -8,6 +8,8 @@ lived ReleasePermission.  It never calls an actuator.
 import os
 import sys
 import threading
+import uuid
+from patrol_control.msg import ReleaseAuthorization
 
 import rospy
 from geometry_msgs.msg import PoseStamped
@@ -80,6 +82,11 @@ class ReleasePermissionArbiter:
         result_topic = rospy.get_param(
             "~result_topic", "/mission/release_result")
 
+        self._permission_epoch = uuid.uuid4().hex
+        self._permission_revision = 0
+        self._authorization_pub = rospy.Publisher(rospy.get_param(
+            "~authorization_topic", "/mission/release_authorization"),
+            ReleaseAuthorization, queue_size=1, latch=True)
         self._lock = threading.RLock()
         self._blocked_slots = set()
         self._called_actions = {}
@@ -458,6 +465,9 @@ class ReleasePermissionArbiter:
         permitted, reason, source = self._evaluate(now)
         msg = ReleasePermission()
         msg.header.stamp = now
+        self._permission_revision += 1
+        msg.permission_epoch = self._permission_epoch
+        msg.permission_revision = self._permission_revision
         msg.permitted = permitted
         msg.payload_slot = self._next_slot if self._next_slot <= 255 else 0
         msg.align_mode = self._align_mode
@@ -480,6 +490,13 @@ class ReleasePermissionArbiter:
         msg.valid_until = now + rospy.Duration(self._permission_lifetime)
         self._remember_authorization(msg)
         self._permission_pub.publish(msg)
+        authorization = ReleaseAuthorization()
+        for name in ("header", "permitted", "payload_slot", "align_mode", "target_id",
+                     "target_class", "evidence_stamp", "valid_until", "reason", "mission_id",
+                     "decision_seq", "attempt", "target_first_seen", "permission_epoch",
+                     "permission_revision"):
+            setattr(authorization, name, getattr(msg, name))
+        self._authorization_pub.publish(authorization)
         self._permission_state_pub.publish(Bool(data=permitted))
 
 
