@@ -5,6 +5,7 @@ existing pixel-scale test, compile the actual controller method bodies with
 transport doubles, then assert service calls and transaction state changes.
 """
 from pathlib import Path
+import io
 import subprocess
 import tempfile
 import unittest
@@ -200,7 +201,7 @@ void cancelled(const LLController& c) {
     assert(c.patrol_cmd.pose.position.z==c.uav_pose.pose.position.z);
 }
 int main(int argc, char** argv) {
-    assert(argc==2);
+    assert(argc==2 || argc==7);
     const std::string test=argv[1];
     if (test=="permission") {
         for (int bad=0; bad<9; ++bad) {
@@ -382,21 +383,49 @@ int main(int argc, char** argv) {
         LLController c;
         auto msg=std::make_shared<patrol_control::MissionCommand>();
         msg->command=patrol_control::MissionCommand::ALIGN;
-        msg->header.seq=42; msg->header.stamp=ros::Time::now();
+        msg->header.seq=1; msg->goal.header.seq=42;
+        msg->header.stamp=ros::Time::now();
         msg->target_id=7; msg->target_class="panzer";
         c.missionCommandCallback(msg);
         assert(c.detection_resets==1 && c.Drone_mode==Aligning);
+        assert(c.servo_alignment_decision_seq_==42);
         // Receipt time may change, but the same decision is still one action.
-        msg->header.stamp=ros::Time(101);
+        msg->header.seq=2; msg->header.stamp=ros::Time(101);
         c.missionCommandCallback(msg);
         assert(c.detection_resets==1);
-        msg->header.seq=43;
+        msg->goal.header.seq=43;
         c.missionCommandCallback(msg);
         assert(c.detection_resets==2);
-        // Compatibility fallback for old publishers with seq=0.
-        msg->header.seq=0; msg->header.stamp=ros::Time(102);
+        // Compatibility fallback for old publishers with nested seq=0.
+        msg->goal.header.seq=0; msg->header.stamp=ros::Time(102);
         c.missionCommandCallback(msg); c.missionCommandCallback(msg);
         assert(c.detection_resets==3);
+    } else if (test=="align_transport") {
+        assert(argc==7);
+        LLController c;
+        auto msg=std::make_shared<patrol_control::MissionCommand>();
+        msg->command=patrol_control::MissionCommand::ALIGN;
+        msg->target_id=7; msg->target_class="panzer";
+        msg->header.stamp=ros::Time::now();
+        // Values decoded from actual rospy.serialize_message packets in Python.
+        msg->header.seq=std::stoul(argv[2]);
+        msg->goal.header.seq=std::stoul(argv[3]);
+        const auto context_decision_seq=std::stoul(argv[6]);
+        assert(msg->header.seq!=msg->goal.header.seq);
+        c.missionCommandCallback(msg);
+        assert(c.Drone_mode==Aligning && c.detection_resets==1);
+        assert(c.servo_alignment_decision_seq_==context_decision_seq);
+        assert(c.servo_alignment_target_id_==7 && c.servo_alignment_target_class_=="panzer");
+        // Republishing the same decision changes transport seq, not action identity.
+        msg->header.seq=std::stoul(argv[4]);
+        msg->header.stamp=ros::Time(101);
+        c.missionCommandCallback(msg);
+        assert(c.detection_resets==1 && c.servo_alignment_decision_seq_==context_decision_seq);
+        // A new nested decision must replace the old identity even if transport seq repeats.
+        msg->goal.header.seq=std::stoul(argv[5]);
+        c.missionCommandCallback(msg);
+        assert(c.detection_resets==2 && c.servo_alignment_decision_seq_==msg->goal.header.seq);
+        assert(c.servo_alignment_decision_seq_!=context_decision_seq);
     } else if (test=="legacy") {
         for (bool simulation : {false,true}) {
             for (bool accepted : {false,true}) {
@@ -454,6 +483,41 @@ class ExternalLandingHandoffTest(unittest.TestCase):
 
     def test_repeated_align_cannot_reset_one_servo_action(self):
         self.run_case('align_identity')
+
+    def test_real_rospy_transport_preserves_nested_align_decision_identity(self):
+        from rospy.msg import serialize_message
+        from patrol_control.msg import MissionCommand
+        from uav_vision.msg import AlignmentTargetContext
+
+        decision_seq = 10
+        context = AlignmentTargetContext()
+        context.decision_seq = decision_seq
+
+        def received(transport_seq, stable_seq):
+            message = MissionCommand()
+            message.command = MissionCommand.ALIGN
+            message.target_id = 7
+            message.target_class = 'panzer'
+            message.header.seq = stable_seq
+            message.goal.header.seq = stable_seq
+            buffer = io.BytesIO()
+            serialize_message(buffer, transport_seq, message)
+            decoded = MissionCommand().deserialize(buffer.getvalue()[4:])
+            self.assertEqual(message.header.seq, transport_seq)
+            self.assertEqual(decoded.header.seq, transport_seq)
+            self.assertEqual(decoded.goal.header.seq, stable_seq)
+            self.assertEqual(decoded.target_id, 7)
+            self.assertEqual(decoded.target_class, 'panzer')
+            return decoded
+
+        first = received(3, decision_seq)
+        duplicate = received(4, decision_seq)
+        successor = received(4, decision_seq + 1)
+        subprocess.run([
+            str(self.binary), 'align_transport', str(first.header.seq),
+            str(first.goal.header.seq), str(duplicate.header.seq),
+            str(successor.goal.header.seq), str(context.decision_seq),
+        ], check=True)
 
     def run_case(self, name):
         subprocess.run([str(self.binary), name], check=True)

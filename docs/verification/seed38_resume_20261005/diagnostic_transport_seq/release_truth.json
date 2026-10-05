@@ -1,0 +1,25 @@
+[
+  {
+    "seed": 38,
+    "variant": "resume_off",
+    "drops": [],
+    "corridor_raw_coordinate_diagnostic": {
+      "planner_setpoint": {
+        "n": 0,
+        "max_recorded_z": null
+      },
+      "mavros_setpoint": {
+        "n": 0,
+        "max_recorded_z": null
+      },
+      "mavros_pose": {
+        "n": 0,
+        "max_recorded_z": null
+      },
+      "truth_pose": {
+        "n": 0,
+        "max_recorded_z": null
+      }
+    }
+  }
+]

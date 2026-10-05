@@ -27,7 +27,7 @@
   </node>
   <!-- Offline center comparison: no image or cloud duplication. -->
   <node pkg="rosbag" type="record" name="center_evidence_recorder" output="screen"
-        args="--lz4 -O $(optenv SIM_RUN_DIR)/vision_metrics.bag /tf /tf_static /uav_vision/detections_mapped /uav_vision/targets /uav_vision/selected_target /uav_vision/drop_offset /uav_vision/align_mode /mavros/local_position/pose /mission/release_result" />
+        args="--lz4 -O $(optenv SIM_RUN_DIR)/vision_metrics.bag /tf /tf_static /uav_vision/detections_mapped /uav_vision/targets /uav_vision/selected_target /uav_vision/drop_offset /uav_vision/align_mode /mavros/local_position/pose /mission/release_result /mission/command /uav_vision/alignment_target_context /uav_vision/release_evidence_context /mission/release_permission /mission/release_permission_active /mavros/state" />
   <rosparam file="$(arg scene_dir)/motion_overrides.yaml" />
   <param name="/navigation/mission_manager/high_view_full/policy/resume_survey_enabled" value="$(arg resume_survey_enabled)" />
 </launch>
