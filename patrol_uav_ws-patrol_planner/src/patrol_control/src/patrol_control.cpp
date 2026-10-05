@@ -2999,17 +2999,20 @@ void LLController::missionCommandCallback(
             }
             // Repeated ALIGN for an existing decision must not reset an
             // admitted servo transaction (nor resurrect it after takeover).
+            // rospy replaces the top-level Header.seq with its transport
+            // sequence; Bridge preserves the decision in the nested goal.
+            const auto alignment_decision_seq = msg->goal.header.seq;
             const bool same_alignment =
                 servo_alignment_target_id_ == msg->target_id &&
                 servo_alignment_target_class_ == msg->target_class &&
-                ((msg->header.seq != 0 &&
-                  servo_alignment_decision_seq_ == msg->header.seq) ||
-                 (msg->header.seq == 0 && !msg->header.stamp.isZero() &&
+                ((alignment_decision_seq != 0 &&
+                  servo_alignment_decision_seq_ == alignment_decision_seq) ||
+                 (alignment_decision_seq == 0 && !msg->header.stamp.isZero() &&
                   servo_alignment_stamp_ == msg->header.stamp));
             if (same_alignment) return;
             clearExternalLandingState(true);
             resetDetectionState();
-            servo_alignment_decision_seq_ = msg->header.seq;
+            servo_alignment_decision_seq_ = alignment_decision_seq;
             servo_alignment_target_id_ = msg->target_id;
             servo_alignment_target_class_ = msg->target_class;
             servo_alignment_stamp_ = msg->header.stamp;
