@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-05",
+  "source_implementation_commits": [
+    "c832f113",
+    "98038274"
+  ],
+  "targets": [
+    {
+      "worktree": "/home/xhj/liftrace-worktrees/r2026-high-view-sync",
+      "branch": "feat/high-view-search-research",
+      "remote": "origin",
+      "head": "7573fdb07324d97f1b840bef5a7a4c44b68e8bd7",
+      "verified": true
+    },
+    {
+      "worktree": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests",
+      "branch": "feat/board-deployment-flight-20260920",
+      "remote": "origin",
+      "head": "d511f84ad5c9ced3aac0adef9230a406044605c2",
+      "verified": true
+    },
+    {
+      "worktree": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix",
+      "branch": "feat/r2026-competition-integrated",
+      "remote": "origin",
+      "head": "3fef95792ba7dd020acd8bccc34c0f9536951ea6",
+      "verified": true
+    },
+    {
+      "worktree": "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919",
+      "branch": "feat/high-view-liveness-20260919",
+      "remote": "fork",
+      "head": "a5cd40bd470ba49545b268cc42c421afa1c2844a",
+      "verified": true
+    },
+    {
+      "worktree": "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919",
+      "branch": "feat/high-view-liveness-20260919",
+      "remote": "origin",
+      "head": "a5cd40bd470ba49545b268cc42c421afa1c2844a",
+      "verified": true
+    },
+    {
+      "worktree": "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+      "branch": "板端参考分支",
+      "remote": "origin",
+      "head": "5281fdb577292740029ae0686effb561377298f1",
+      "verified": true
+    },
+    {
+      "worktree": "/home/xhj/liftrace-worktrees/r2026-ev-continuity",
+      "branch": "feat/ev-continuity-20261004",
+      "remote": "origin",
+      "head": "b2632da28351e5f095804300e8abfa7dcf12dc0c",
+      "verified": true
+    }
+  ],
+  "board_deployed": false,
+  "dynamic_simulation_run": false,
+  "resume_enabled_by_default": false,
+  "ev_candidate_only": true
+}

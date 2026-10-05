@@ -47,3 +47,5 @@ ReleasePermission / ReleaseResult 增加固定动作身份与执行事实。它�
 - patrol_control 与 uav_mission Catkin构建通过，生成新的ServoAction及释放消息。
 - 独立EV候选32项及构建通过；部署小修16项、接触/Gate62项定向通过。
 - 无ROS/Gazebo/PX4/RViz残留；本轮没有新仿真或硬件操作。分支同步结果另见SYNC.md。
+
+同步副本补验：整机41个模块隔离运行共512项通过；板端专项42通过/2不适用，整机专项33通过/4不适用，整机控制及任务包构建通过。初次整进程Python/YAML异常及环境处理见[同步记录](SYNC.md)，这些结果不替代动态飞行验证。
