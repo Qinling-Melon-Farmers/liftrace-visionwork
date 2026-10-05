@@ -1,0 +1,37 @@
+[
+  {
+    "case": "FC_step_without_authoritative_event",
+    "ready": false,
+    "reason": "unexplained_fc_lio_disagreement",
+    "residual": [
+      0.40000000000000036,
+      0.0
+    ]
+  },
+  {
+    "case": "physical_ascent_with_supplied_synthetic_health",
+    "ready": true,
+    "task_z": 3.0999999999999996,
+    "body_agl": 3.32,
+    "source_is_synthetic": true
+  },
+  {
+    "case": "authoritative_reset_with_supplied_synthetic_health",
+    "ready": true,
+    "task_z": 2.7800000000000002,
+    "fc_command_z": 3.1799999999999997,
+    "generation": 1,
+    "old_permission_allowed": false,
+    "source_is_synthetic": true
+  },
+  {
+    "case": "untrusted_reset",
+    "ready": false,
+    "reason": "reset_source_or_epoch_unverified"
+  },
+  {
+    "case": "unhealthy_lio",
+    "ready": false,
+    "reason": "lio_unhealthy_or_uncalibrated"
+  }
+]
