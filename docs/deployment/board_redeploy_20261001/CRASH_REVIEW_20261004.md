@@ -78,7 +78,7 @@ ULog 中 24 条 `timesync_status` 的远端时间是板端 epoch。按
 | **13.329** | **134.252796** | 比力峰值 145.611 m/s²，强冲击特征；冲击对象需其他证据确认 | [sensor_combined_0.csv:2865](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/sensor_combined_0.csv:2865) |
 | **14.337** | **135.260515** | 主 EKF 0→1 | [estimator_selector_status_0.csv:19](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/estimator_selector_status_0.csv:19) |
 | 14.353 | 135.276877 | 融合输出 reset counter 增加，NED delta_z=-0.04433 m | [vehicle_local_position_0.csv:146](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/vehicle_local_position_0.csv:146) |
-| 15.294 | 136.217946 | 已非主实例的 EKF0 出现新 baro-height reset 事件 | [estimator_event_flags_0.csv:19](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/estimator_event_flags_0.csv:19) |
+| 15.294 | 136.217946 | 已非主实例的 EKF0 新事件批次同时含 EV 与 baro-height reset | [estimator_event_flags_0.csv:19](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/estimator_event_flags_0.csv:19) |
 | **18.652–18.663** | **139.575813–139.586399** | RC ACTION_KILL→Kill engaged→manual_lockdown=true | [key_events.csv:22](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/key_events.csv:22)、[actuator_armed_0.csv:61](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/actuator_armed_0.csv:61) |
 | 18.764 | 139.687233 | 首个记录到四路驱动输出全零的样本 | [actuator_outputs_1.csv:190](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/actuator_outputs_1.csv:190) |
 | 23.668 | 144.591695 | Disarmed by kill-switch；参数 COM_KILL_DISARM=5 s | [key_events.csv:26](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/key_events.csv:26) |
@@ -157,7 +157,7 @@ Motor 1→AUX1，Motor 3→AUX2，Motor 4→AUX3，Motor 2→AUX4。
 - t=14.337 s 主实例0→1，晚于 t=13.329 s强冲击。
 - t=14.353 s选择后的 vehicle_local_position 多个reset counter同时增加，Z 2→3，NED delta_z=-0.04433 m（向上+4.43 cm）；与实例切换相连，不能当成事前LIO超期造成的大幅EV高度重置。
 - `reset_hgt_to_ev=true` 在两个实例最初缓存快照中已经存在，不能把这个持留事件位的每次出现都算新重置。
-- 原实例0在失去主实例地位后，t=15.294 s出现新baro高度重置事件，其较低频位置记录随后出现z counter 2→4、delta_z约-4.219 m；实例1自身z counter保持2。这是冲击和切实例之后的非主实例行为，不能倒置为最初事故原因。
+- 原实例0在失去主实例地位后，t=15.294 s出现同时包含EV和baro高度重置的新事件批次，其较低频位置记录随后出现z counter 2→4、delta_z约-4.219 m；实例1自身z counter保持2。这是冲击和切实例之后的非主实例行为，不能倒置为最初事故原因。
 - 冲击后局部高度估计出现数米异常变化，不能用其曲线重建真实离地高度或实际“下穿地面”。先以姿态、角速度、比力、模式和输出时间顺序分析。
 
 来源：[estimator_status_flags_0.csv](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/estimator_status_flags_0.csv)、[estimator_status_flags_1.csv](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/estimator_status_flags_1.csv)、[estimator_selector_status_0.csv:19](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/estimator_selector_status_0.csv:19)、[vehicle_local_position_0.csv:146](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/vehicle_local_position_0.csv:146)、[estimator_event_flags_0.csv:19](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/estimator_event_flags_0.csv:19)、[estimator_local_position_0.csv](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/estimator_local_position_0.csv)。
@@ -210,7 +210,7 @@ Oct3旧bag显示300 ms外拒收与输入中断有关，说明该问题值得单�
 
 1. **优先复核起飞→巡航高度交接与动力跟踪裕量。** 1.8→0.8 m目标阶跃及最初减推力是明确背景；命令不对称、反向纠正未奏效及分配饱和是明确异常。实际电机/ESC/桨叶、接线/旋向、动力参数/重心和供电支路的根因仍不能仅用此次日志区分。
 2. **并行核查电源测量可信度。** 记录电压/电流异常与5 V轨/brick_valid的分别证据；未把current_a视作独立实测，也没有把connected=false视为物理掉电。70/71与72的差异保留。
-3. **今天不能归因于旧Oct3 EV重置机制。** 72号主EKF切换在冲击之后，selected Z变化仅4.43 cm；非主EKF后续baro reset不倒置为原因。
+3. **今天不能归因于旧Oct3 EV重置机制。** 72号主EKF切换在冲击之后，selected Z变化仅4.43 cm；非主EKF后续EV/baro reset不倒置为原因。
 4. **进一步区分硬件根因所需的数据：** ESC每路RPM/电流/错误与实际母线测量、接线位置确认、同步ROS源/桥/飞控时间戳、准确的最终设定点，以及视频中的触地/接管时刻。
 
 复现脚本：[analyze72.py](/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/field_update_20261004/crash72/analyze72.py)。它仅解析本地72号ULog，输出同目录。示例运行在已激活rl_drone后执行 `python -B logs/field_update_20261004/crash72/analyze72.py`；Windows宿主按仓库约定通过 `wsl -e bash -c '...'` 调用。CSV首行为字段名，报告链接行号对应本轮生成版本；原始日志未修改。
@@ -225,3 +225,8 @@ Oct3旧bag显示300 ms外拒收与输入中断有关，说明该问题值得单�
 - [关键事件表](crash72_20261004/key_events.csv)与[统计摘要](crash72_20261004/summary.json)
 
 原始ULog、完整CSV和分析脚本保留于本机试飞产物及 `logs/field_update_20261004/crash72/`，不随Git提交。
+
+
+## 2026-10-06补充核对
+
+[历史对比报告](../reset_motor_diagnosis_20261006/README.md)确认136.217946秒的非主EKF0新信息事件批次中`reset_hgt_to_ev`与`reset_hgt_to_baro`同时为1；不能因EV布尔位没有上升沿而排除同类新事件。时序仍在冲击和实例切换之后，不改变本报告的事故先后判断。新增对比还发现70/71及72失控前的一号持续高补偿，103虽减轻仍有偏置；详见新报告的动力表与现场检查建议。
