@@ -9,6 +9,7 @@ from uav_vision.msg import TargetDetectionArray
 from uav_mission.coverage_route import CoverageRoute
 from uav_mission.search_types import Waypoint
 from uav_mission.high_view_probe import ProbeConfig
+from uav_mission.high_view_stage_limits import HighViewStageMixin
 from uav_mission.boundary_revisit import BoundaryRevisit
 from uav_high_view.survey_policy import SurveyPolicy
 from uav_high_view.grid_cost import GridCost
@@ -20,7 +21,7 @@ from trial_config import HIGH_MODES,H_MODES
 path=Path(rospkg.RosPack().get_path('uav_mission'))/'scripts/navigation_mission_manager.py'
 spec=importlib.util.spec_from_file_location('board_existing_mission_shell',path);base=importlib.util.module_from_spec(spec);spec.loader.exec_module(base)
 
-class BoardManager(base.NavigationMissionManager):
+class BoardManager(HighViewStageMixin,base.NavigationMissionManager):
     def __init__(self, simulation=False):
         simulated_clock=rospy.get_param('/use_sim_time',False)
         if simulation:
@@ -28,6 +29,7 @@ class BoardManager(base.NavigationMissionManager):
                 raise RuntimeError('Simulation adapter requires sim clock, run directory and mock/none actuator')
         elif simulated_clock:raise RuntimeError('Board entry refuses simulated clock')
         self.mode=rospy.get_param('~trial/mode');self._grid_last=-1e9;self._camera_signature=None;self._low_limits_applied=False
+        self._high_stage_parameters=None;self._probe_limit_switch=None
         self._probe_pub=rospy.Publisher('/uav_high_view/probe_status',String,queue_size=1,latch=True)
         self._landing_pub=rospy.Publisher('/board_trials/landing_context',String,queue_size=1,latch=True)
         super().__init__()
@@ -38,7 +40,8 @@ class BoardManager(base.NavigationMissionManager):
         ordinary=super()._new_runtime()
         points=tuple(Waypoint(*p) for p in rospy.get_param('~trial/waypoints'))
         route=CoverageRoute(points,'board-trial-search',1)
-        self._low_limits_applied=False
+        self._low_limits_applied=None if self._high_stage_parameters is not None else False
+        self._probe_limit_switch=None
         if self.mode=='low_multi':return MultiDeliveryRuntime(ordinary.core,route,delivery_count=rospy.get_param('~trial/delivery_count',2))
         if self.mode not in HIGH_MODES:return SingleDeliveryRuntime(ordinary.core,route)
         cfg=dict(rospy.get_param('~high_view_probe/config'));cfg['survey_xy']=tuple(tuple(v) for v in cfg['survey_xy'])
@@ -101,11 +104,6 @@ class BoardManager(base.NavigationMissionManager):
         super()._publish_status(force)
         if self.mode in HIGH_MODES:self._probe_pub.publish(String(data=json.dumps(self._runtime.probe_status() if self._runtime else {'stage':'IDLE'},sort_keys=True)))
     def _publish_action(self,action):
-        if action is not None and self.mode in HIGH_MODES and self._runtime is not None and self._runtime.stage in ('REVISIT','LOW_COVERAGE') and not self._low_limits_applied:
-            limits=rospy.get_param('~high_view_probe/low_stage_parameters')
-            for item in limits:rospy.set_param(item['name'],item['value'])
-            if any(rospy.get_param(item['name'])!=item['value'] for item in limits):raise RuntimeError('Low-stage parameter readback failed')
-            self._low_limits_applied=True
         if action is not None and action.command=='LAND' and self.mode not in H_MODES:
             core=self._runtime.core;expected=0 if self.mode in ('memory_only','high_speed_capture') else (len(self._runtime.trial_manifest or {}) if self.mode in HIGH_MODES else getattr(self._runtime,'delivery_count',1))
             self._landing_pub.publish(String(data=json.dumps(dict(scope='board_trial_landing_after_mock',mode=self.mode,actuator_mode=rospy.get_param('~trial/actuator_mode','mock'),memory_count=len(getattr(self._runtime,'trial_manifest',None) or {}),memory_complete=self.mode=='memory_only' and action.reason=='board_memory_only_complete',capture_complete=self.mode=='high_speed_capture' and bool(getattr(self._runtime,'capture_complete',False)),mission_id=core.mission_id,decision_seq=action.decision_seq,frame=core.config.mission_frame,xy=list(core.config.landing_xy),z=core.config.return_altitude,expected=expected,committed=core.committed_slots,time=rospy.Time.now().to_sec()))))

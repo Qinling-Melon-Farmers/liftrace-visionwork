@@ -178,8 +178,10 @@ class FullTests(unittest.TestCase):
 
     def test_missing_top3_returns_verified_column_then_low_coverage(self):
         self.finish(103.);self.finish(106.);self.finish(109.)
-        self.assertFalse(self.r.done);self.assertEqual(self.r.stage,'RETURN_COLUMN')
-        self.finish(112.);self.finish(115.)
+        self.assertFalse(self.r.done);self.assertEqual(self.r.stage,'DESCENT_WAIT')
+        self.r.tick(111.,self.r._current_xy)
+        self.assertEqual(self.r.stage,'RETURN_COLUMN')
+        self.map(112.);self.finish(112.);self.map(115.);self.finish(115.)
         self.assertEqual(self.r.stage,'LOW_COVERAGE')
         self.assertEqual(self.r.core.started_at,100.)
         self.assertEqual(self.r.core.committed_slots,0)
@@ -422,7 +424,15 @@ class FullTests(unittest.TestCase):
 
     def test_no_map_cost_no_route_guess(self):
         self.top3();self.finish(103.);self.r.tick(104.,(0.,0.))
-        self.assertEqual(self.r.failure,'no_local_descent_route')
+        self.assertEqual(self.r.stage,'DESCENT_WAIT')
+        self.assertFalse(self.r.done)
+        out=self.r.tick(106.,self.r._current_xy)
+        self.assertEqual(self.r.stage,'DESCENT_WAIT')
+        self.assertTrue(self.r.done)
+        self.assertEqual(out.action.command,'ABORT')
+        self.assertEqual(self.r.core.phase,MissionPhase.ABORTED)
+        self.assertEqual(self.r.failure,'descent_motion_handoff_timeout')
+        self.assertIsNone(self.r.route.active)
 
     def test_blocked_terminal_does_not_prevent_clear_local_descent(self):
         self.top3();self.finish(103.);self.map(104.)
