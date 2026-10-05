@@ -1,0 +1,111 @@
+member,t,field,before,after,step,phase,armed,landed,primary,delta,z_enu_up_m,lp_gap_s
+26.7.6成功飞行，偏移/log_51_2026-7-5-16-48-40.ulg,104.417314,xy_reset_counter,5,6,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098926
+26.7.6成功飞行，偏移/log_51_2026-7-5-16-48-40.ulg,104.417314,vxy_reset_counter,5,6,1,landed_detected,1,1,0,"{""delta_vxy[0]"": -0.055865172296762466, ""delta_vxy[1]"": -0.040279824286699295}",,0.098926
+26.7.6成功飞行，偏移/log_51_2026-7-5-16-48-40.ulg,123.212415,xy_reset_counter,6,7,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098721
+26.7.6成功飞行，偏移/log_51_2026-7-5-16-48-40.ulg,123.212415,vxy_reset_counter,6,7,1,landed_detected,1,1,0,"{""delta_vxy[0]"": -2.5788660049438477, ""delta_vxy[1]"": 0.4317972958087921}",,0.098721
+26.7.6成功飞行，偏移/log_52_2026-7-5-16-50-26.ulg,218.150022,heading_reset_counter,2,3,1,airborne_detected,1,0,0,"{""delta_heading"": 2.220245122909546}",,0.09883
+26.7.6成功飞行，偏移/log_53_2026-7-5-16-55-00.ulg,464.386444,xy_reset_counter,14,15,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.099071
+26.7.6成功飞行，偏移/log_53_2026-7-5-16-55-00.ulg,464.386444,vxy_reset_counter,14,15,1,landed_detected,1,1,0,"{""delta_vxy[0]"": -0.0860888659954071, ""delta_vxy[1]"": 0.0022503098007291555}",,0.099071
+26.7.6成功飞行，偏移/log_53_2026-7-5-16-55-00.ulg,493.182456,heading_reset_counter,4,5,1,airborne_detected,1,0,0,"{""delta_heading"": -1.845241904258728}",,0.098869
+26.7.6成功飞行，偏移/log_53_2026-7-5-16-55-00.ulg,503.587482,xy_reset_counter,15,16,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098873
+26.7.6成功飞行，偏移/log_53_2026-7-5-16-55-00.ulg,503.587482,vxy_reset_counter,15,16,1,landed_detected,0,1,0,"{""delta_vxy[0]"": 8.04873275756836, ""delta_vxy[1]"": 6.684683799743652}",,0.098873
+26.7.6成功飞行，偏移/log_54_2026-7-5-16-57-16.ulg,639.724998,heading_reset_counter,6,7,1,airborne_detected,0,0,0,"{""delta_heading"": 0.09402887523174286}",,0.098936
+26.7.6成功飞行，偏移/log_54_2026-7-5-16-57-16.ulg,640.120711,xy_reset_counter,20,21,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098854
+26.7.6成功飞行，偏移/log_54_2026-7-5-16-57-16.ulg,640.120711,vxy_reset_counter,20,21,1,landed_detected,0,1,0,"{""delta_vxy[0]"": -0.7577715516090393, ""delta_vxy[1]"": -1.033308744430542}",,0.098854
+26.7.6成功飞行，偏移/log_55_2026-7-5-16-59-56.ulg,37.309245,xy_reset_counter,1,2,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098929
+26.7.6成功飞行，偏移/log_55_2026-7-5-16-59-56.ulg,37.309245,vxy_reset_counter,1,2,1,landed_detected,0,1,0,"{""delta_vxy[0]"": -2.2883620262145996, ""delta_vxy[1]"": 0.1602112352848053}",,0.098929
+26.7.6成功飞行，偏移/log_56_2026-7-5-17-00-14.ulg,55.655626,xy_reset_counter,3,4,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.099168
+26.7.6成功飞行，偏移/log_56_2026-7-5-17-00-14.ulg,55.655626,vxy_reset_counter,3,4,1,landed_detected,0,1,0,"{""delta_vxy[0]"": -0.048686593770980835, ""delta_vxy[1]"": 0.6647307276725769}",,0.099168
+26.7.6成功飞行，偏移/log_58_2026-7-5-17-01-38.ulg,138.041744,xy_reset_counter,10,11,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098869
+26.7.6成功飞行，偏移/log_58_2026-7-5-17-01-38.ulg,138.041744,vxy_reset_counter,10,11,1,landed_detected,0,1,0,"{""delta_vxy[0]"": 1.6349658966064453, ""delta_vxy[1]"": -2.331125259399414}",,0.098869
+26.7.6成功飞行，偏移/log_59_2026-7-5-17-02-06.ulg,165.605571,heading_reset_counter,1,2,1,landed_detected,0,1,0,"{""delta_heading"": -0.5441662073135376}",,0.098723
+26.7.6成功飞行，偏移/log_60_2026-7-5-17-02-30.ulg,167.99777,xy_reset_counter,12,13,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098863
+26.7.6成功飞行，偏移/log_60_2026-7-5-17-02-30.ulg,167.99777,vxy_reset_counter,12,13,1,landed_detected,1,1,0,"{""delta_vxy[0]"": -0.002974740695208311, ""delta_vxy[1]"": -0.002358887577429414}",,0.098863
+26.7.6成功飞行，偏移/log_60_2026-7-5-17-02-30.ulg,178.600595,heading_reset_counter,2,3,1,airborne_detected,1,0,0,"{""delta_heading"": 2.9955649375915527}",,0.098931
+26.7.6成功飞行，偏移/log_60_2026-7-5-17-02-30.ulg,189.697944,xy_reset_counter,13,14,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098938
+26.7.6成功飞行，偏移/log_60_2026-7-5-17-02-30.ulg,189.697944,vxy_reset_counter,13,14,1,landed_detected,0,1,0,"{""delta_vxy[0]"": -1.883568525314331, ""delta_vxy[1]"": 0.12423446029424667}",,0.098938
+26.7.6成功飞行，偏移/log_61_2026-7-5-17-06-24.ulg,423.078424,xy_reset_counter,17,18,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.089966
+26.7.6成功飞行，偏移/log_61_2026-7-5-17-06-24.ulg,423.078424,vxy_reset_counter,17,18,1,landed_detected,1,1,0,"{""delta_vxy[0]"": 0.2880533039569855, ""delta_vxy[1]"": -0.3678198456764221}",,0.089966
+26.7.6成功飞行，偏移/log_62_2026-7-5-17-07-22.ulg,470.859688,heading_reset_counter,4,5,1,airborne_detected,1,0,0,"{""delta_heading"": -0.32275059819221497}",,0.09892
+26.7.6成功飞行，偏移/log_62_2026-7-5-17-07-22.ulg,480.959039,xy_reset_counter,20,21,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098899
+26.7.6成功飞行，偏移/log_62_2026-7-5-17-07-22.ulg,480.959039,vxy_reset_counter,20,21,1,landed_detected,1,1,0,"{""delta_vxy[0]"": 1.1655423641204834, ""delta_vxy[1]"": 1.7820730209350586}",,0.098899
+26.7.6成功飞行，偏移/log_62_2026-7-5-17-07-22.ulg,481.759431,heading_reset_counter,5,6,1,airborne_detected,1,0,0,"{""delta_heading"": 2.050412178039551}",,0.098916
+26.7.6成功飞行，偏移/log_62_2026-7-5-17-07-22.ulg,483.162409,xy_reset_counter,21,22,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098981
+26.7.6成功飞行，偏移/log_62_2026-7-5-17-07-22.ulg,483.162409,vxy_reset_counter,21,22,1,landed_detected,0,1,0,"{""delta_vxy[0]"": 0.1314820647239685, ""delta_vxy[1]"": 0.015322797000408173}",,0.098981
+26.7.6成功飞行，偏移/log_63_2026-7-5-17-09-22.ulg,593.86786,xy_reset_counter,30,31,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.099062
+26.7.6成功飞行，偏移/log_63_2026-7-5-17-09-22.ulg,593.86786,vxy_reset_counter,30,31,1,landed_detected,1,1,0,"{""delta_vxy[0]"": -0.1543382853269577, ""delta_vxy[1]"": 0.11326906085014343}",,0.099062
+26.7.14成功自主起飞/log_182_2026-7-9-22-05-56.ulg,241.98281,xy_reset_counter,1,2,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098923
+26.7.14成功自主起飞/log_182_2026-7-9-22-05-56.ulg,241.98281,vxy_reset_counter,1,2,1,landed_detected,1,1,0,"{""delta_vxy[0]"": 0.01025240309536457, ""delta_vxy[1]"": 0.01387933548539877}",,0.098923
+26.7.14成功自主起飞/log_183_2026-7-9-23-09-34.ulg,40.949361,xy_reset_counter,1,2,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.089968
+26.7.14成功自主起飞/log_183_2026-7-9-23-09-34.ulg,40.949361,vxy_reset_counter,1,2,1,landed_detected,1,1,0,"{""delta_vxy[0]"": 0.013567015528678894, ""delta_vxy[1]"": 0.007636375725269318}",,0.089968
+921走廊避障前倾/log_530_2026-9-19-21-34-16.ulg,205.420889,heading_reset_counter,1,2,1,airborne_detected,1,0,0,"{""delta_heading"": -1.6823399066925049}",,0.098841
+921走廊避障前倾/log_7_UnknownDate.ulg,3.244849,heading_reset_counter,1,2,1,landed_detected,1,1,0,"{""delta_heading"": -0.004193638917058706}",,0.095908
+921走廊避障前倾/log_7_UnknownDate.ulg,3.54545,xy_reset_counter,1,2,1,landed_detected,0,1,1,"{""delta_xy[0]"": 0.001131355413235724, ""delta_xy[1]"": -0.00174640619661659}",,0.102759
+921走廊避障前倾/log_7_UnknownDate.ulg,3.54545,z_reset_counter,0,1,1,landed_detected,0,1,1,"{""delta_z"": -0.001544944941997528}",0.001544944941997528,0.102759
+921走廊避障前倾/log_7_UnknownDate.ulg,3.54545,vxy_reset_counter,1,2,1,landed_detected,0,1,1,"{""delta_vxy[0]"": 0.0056912717409431934, ""delta_vxy[1]"": -0.008096959441900253}",,0.102759
+921走廊避障前倾/log_7_UnknownDate.ulg,3.54545,vz_reset_counter,0,1,1,landed_detected,0,1,1,"{""delta_vz"": -0.0023154960945248604}",,0.102759
+921走廊避障前倾/log_7_UnknownDate.ulg,3.54545,heading_reset_counter,2,3,1,landed_detected,0,1,1,"{""delta_heading"": 0.014041423797607422}",,0.102759
+921走廊避障前倾/log_8_UnknownDate.ulg,3.846714,heading_reset_counter,1,2,1,landed_detected,0,1,0,"{""delta_heading"": -0.0018615046283230186}",,0.104821
+921走廊避障前倾/log_9_UnknownDate.ulg,25.191025,heading_reset_counter,2,3,1,airborne_detected,1,0,0,"{""delta_heading"": 0.07552432268857956}",,0.09884
+4d267725-1f38-42f3-ae1d-cdb08bdb5c54.ulg,184.739974,xy_reset_counter,16,17,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.107877
+4d267725-1f38-42f3-ae1d-cdb08bdb5c54.ulg,184.739974,vxy_reset_counter,16,17,1,landed_detected,0,1,0,"{""delta_vxy[0]"": 0.7649574875831604, ""delta_vxy[1]"": 0.1394462138414383}",,0.107877
+log_26_2026-7-5-14-15-40.ulg,425.353093,xy_reset_counter,8,9,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.099191
+log_26_2026-7-5-14-15-40.ulg,425.353093,vxy_reset_counter,8,9,1,landed_detected,1,1,0,"{""delta_vxy[0]"": 0.1788131445646286, ""delta_vxy[1]"": 0.0662975162267685}",,0.099191
+log_26_2026-7-5-14-15-40.ulg,427.655112,xy_reset_counter,9,10,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.10767
+log_26_2026-7-5-14-15-40.ulg,427.655112,vxy_reset_counter,9,10,1,landed_detected,1,1,0,"{""delta_vxy[0]"": 0.10014736652374268, ""delta_vxy[1]"": 0.02056828886270523}",,0.10767
+log_29_2026-7-5-14-59-46.ulg,173.892633,xy_reset_counter,4,5,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098922
+log_29_2026-7-5-14-59-46.ulg,173.892633,vxy_reset_counter,4,5,1,landed_detected,0,1,0,"{""delta_vxy[0]"": -3.267953872680664, ""delta_vxy[1]"": -0.4999525845050812}",,0.098922
+log_31_2026-7-5-15-00-26.ulg,206.925775,xy_reset_counter,5,6,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098768
+log_31_2026-7-5-15-00-26.ulg,206.925775,vxy_reset_counter,5,6,1,landed_detected,1,1,0,"{""delta_vxy[0]"": -0.13476191461086273, ""delta_vxy[1]"": -0.04377245903015137}",,0.098768
+log_31_2026-7-5-15-00-26.ulg,214.228499,xy_reset_counter,6,7,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098968
+log_31_2026-7-5-15-00-26.ulg,214.228499,vxy_reset_counter,6,7,1,landed_detected,0,1,0,"{""delta_vxy[0]"": -0.8434778451919556, ""delta_vxy[1]"": -0.3211764693260193}",,0.098968
+log_32_2026-7-5-15-01-04.ulg,228.096458,xy_reset_counter,7,8,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098968
+log_32_2026-7-5-15-01-04.ulg,228.096458,vxy_reset_counter,7,8,1,landed_detected,1,1,0,"{""delta_vxy[0]"": -0.11853612214326859, ""delta_vxy[1]"": -0.04153173789381981}",,0.098968
+log_32_2026-7-5-15-01-04.ulg,250.697116,xy_reset_counter,8,9,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.108007
+log_32_2026-7-5-15-01-04.ulg,250.697116,vxy_reset_counter,8,9,1,landed_detected,0,1,0,"{""delta_vxy[0]"": -5.176629543304443, ""delta_vxy[1]"": -1.021743655204773}",,0.108007
+log_34_2026-7-5-15-02-28.ulg,330.074522,xy_reset_counter,9,10,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.09892
+log_34_2026-7-5-15-02-28.ulg,330.074522,vxy_reset_counter,9,10,1,landed_detected,1,1,0,"{""delta_vxy[0]"": -0.1852719932794571, ""delta_vxy[1]"": -0.07775688171386719}",,0.09892
+log_35_2026-7-5-15-02-44.ulg,342.836348,xy_reset_counter,11,12,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098982
+log_35_2026-7-5-15-02-44.ulg,342.836348,vxy_reset_counter,11,12,1,landed_detected,1,1,0,"{""delta_vxy[0]"": -0.13592714071273804, ""delta_vxy[1]"": -0.04072893410921097}",,0.098982
+log_35_2026-7-5-15-02-44.ulg,346.334796,xy_reset_counter,12,13,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098975
+log_35_2026-7-5-15-02-44.ulg,346.334796,vxy_reset_counter,12,13,1,landed_detected,1,1,0,"{""delta_vxy[0]"": -0.10468441992998123, ""delta_vxy[1]"": -0.05007622763514519}",,0.098975
+log_36_2026-7-5-15-02-58.ulg,357.279869,xy_reset_counter,14,15,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.089967
+log_36_2026-7-5-15-02-58.ulg,357.279869,vxy_reset_counter,14,15,1,landed_detected,1,1,0,"{""delta_vxy[0]"": -0.12274976074695587, ""delta_vxy[1]"": -0.03737081587314606}",,0.089967
+log_37_2026-7-5-15-05-26.ulg,509.037076,heading_reset_counter,1,2,1,airborne_detected,1,0,0,"{""delta_heading"": 0.23495551943778992}",,0.107915
+log_37_2026-7-5-15-05-26.ulg,513.327272,xy_reset_counter,16,17,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.089935
+log_37_2026-7-5-15-05-26.ulg,513.327272,vxy_reset_counter,16,17,1,landed_detected,0,1,0,"{""delta_vxy[0]"": -2.777430295944214, ""delta_vxy[1]"": 0.7023850679397583}",,0.089935
+log_41_2026-7-5-15-18-20.ulg,56.078721,xy_reset_counter,6,7,1,landed_detected,0,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098862
+log_41_2026-7-5-15-18-20.ulg,56.078721,vxy_reset_counter,6,7,1,landed_detected,0,1,0,"{""delta_vxy[0]"": -0.653905987739563, ""delta_vxy[1]"": -1.0549118518829346}",,0.098862
+log_42_2026-7-5-15-18-58.ulg,92.504674,heading_reset_counter,2,3,1,landed_detected,0,1,0,"{""delta_heading"": 0.12511737644672394}",,0.099033
+log_43_2026-7-5-15-19-10.ulg,96.77077,xy_reset_counter,13,14,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.097411
+log_43_2026-7-5-15-19-10.ulg,96.77077,vxy_reset_counter,13,14,1,landed_detected,1,1,0,"{""delta_vxy[0]"": 0.015889817848801613, ""delta_vxy[1]"": -0.05481169372797012}",,0.097411
+log_44_2026-7-5-15-19-58.ulg,139.891671,xy_reset_counter,14,15,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.098939
+log_44_2026-7-5-15-19-58.ulg,139.891671,vxy_reset_counter,14,15,1,landed_detected,1,1,0,"{""delta_vxy[0]"": 0.006738760974258184, ""delta_vxy[1]"": -0.06861928850412369}",,0.098939
+log_44_2026-7-5-15-19-58.ulg,151.283537,xy_reset_counter,15,16,1,landed_detected,1,1,0,"{""delta_xy[0]"": 0.0, ""delta_xy[1]"": 0.0}",,0.089999
+log_44_2026-7-5-15-19-58.ulg,151.283537,vxy_reset_counter,15,16,1,landed_detected,1,1,0,"{""delta_vxy[0]"": 0.04593706876039505, ""delta_vxy[1]"": -0.14853234589099884}",,0.089999
+log_103_2026-10-5-20-08-42.ulg,288.126558,heading_reset_counter,3,4,1,airborne_detected,1,0,0,"{""delta_heading"": 1.4357502460479736}",,0.098902
+log_70_2026-10-4-11-59-42.ulg,403.907673,heading_reset_counter,4,5,1,airborne_detected,1,0,0,"{""delta_heading"": -1.96841561794281}",,0.10631
+log_71_2026-10-4-12-01-36.ulg,545.798921,heading_reset_counter,7,8,1,airborne_detected,1,0,1,"{""delta_heading"": 1.2963672876358032}",,0.09867
+log_72_2026-10-4-12-05-42.ulg,135.276877,xy_reset_counter,2,3,1,airborne_detected,1,0,1,"{""delta_xy[0]"": 0.06628637760877609, ""delta_xy[1]"": 0.008039593696594238}",,0.097537
+log_72_2026-10-4-12-05-42.ulg,135.276877,z_reset_counter,2,3,1,airborne_detected,1,0,1,"{""delta_z"": -0.044327497482299805}",0.044327497482299805,0.097537
+log_72_2026-10-4-12-05-42.ulg,135.276877,vxy_reset_counter,1,2,1,airborne_detected,1,0,1,"{""delta_vxy[0]"": 0.00899970531463623, ""delta_vxy[1]"": 0.048785820603370667}",,0.097537
+log_72_2026-10-4-12-05-42.ulg,135.276877,vz_reset_counter,1,2,1,airborne_detected,1,0,1,"{""delta_vz"": -0.15871453285217285}",,0.097537
+log_72_2026-10-4-12-05-42.ulg,135.276877,heading_reset_counter,1,2,1,airborne_detected,1,0,1,"{""delta_heading"": 0.01846247911453247}",,0.097537
+CONTEXT_OCT3_px4_log781.ulg,1086.054034,xy_reset_counter,3,4,1,airborne_detected,1,0,1,"{""delta_xy[0]"": -0.004944339394569397, ""delta_xy[1]"": -0.0011437088251113892}",,0.088724
+CONTEXT_OCT3_px4_log781.ulg,1086.054034,z_reset_counter,3,4,1,airborne_detected,1,0,1,"{""delta_z"": -0.07114916294813156}",0.07114916294813156,0.088724
+CONTEXT_OCT3_px4_log781.ulg,1086.557301,xy_reset_counter,4,5,1,airborne_detected,1,0,1,"{""delta_xy[0]"": -0.0008207857608795166, ""delta_xy[1]"": 0.0013187527656555176}",,0.098587
+CONTEXT_OCT3_px4_log781.ulg,1098.458428,xy_reset_counter,5,6,1,airborne_detected,1,0,1,"{""delta_xy[0]"": 0.016137119382619858, ""delta_xy[1]"": 0.008123219013214111}",,0.098505
+CONTEXT_OCT3_px4_log781.ulg,1098.458428,z_reset_counter,4,5,1,airborne_detected,1,0,1,"{""delta_z"": -0.13041245937347412}",0.13041245937347412,0.098505
+CONTEXT_OCT3_px4_log781.ulg,1099.060407,xy_reset_counter,6,7,1,airborne_detected,1,0,1,"{""delta_xy[0]"": 0.012069261632859707, ""delta_xy[1]"": 0.005905270576477051}",,0.098662
+CONTEXT_OCT3_px4_log781.ulg,1127.459747,xy_reset_counter,7,8,1,airborne_detected,1,0,1,"{""delta_xy[0]"": 0.034132182598114014, ""delta_xy[1]"": 0.017377138137817383}",,0.098572
+CONTEXT_OCT3_px4_log781.ulg,1127.459747,z_reset_counter,5,6,1,airborne_detected,1,0,1,"{""delta_z"": -0.37644171714782715}",0.37644171714782715,0.098572
+CONTEXT_OCT3_px4_log781.ulg,1128.061851,xy_reset_counter,8,9,1,airborne_detected,1,0,1,"{""delta_xy[0]"": 0.021983623504638672, ""delta_xy[1]"": 0.009656429290771484}",,0.098833
+CONTEXT_OCT3_px4_log781.ulg,1136.656004,xy_reset_counter,9,10,1,airborne_detected,1,0,1,"{""delta_xy[0]"": 0.03055882453918457, ""delta_xy[1]"": 0.015823841094970703}",,0.098543
+CONTEXT_OCT3_px4_log781.ulg,1136.656004,z_reset_counter,6,7,1,airborne_detected,1,0,1,"{""delta_z"": -0.524177074432373}",0.524177074432373,0.098543
+CONTEXT_OCT3_px4_log781.ulg,1137.257898,xy_reset_counter,10,11,1,airborne_detected,1,0,1,"{""delta_xy[0]"": 0.018883228302001953, ""delta_xy[1]"": 0.01027679443359375}",,0.098704
+CONTEXT_OCT3_px4_log781.ulg,1234.25656,xy_reset_counter,11,12,1,airborne_detected,1,0,1,"{""delta_xy[0]"": 0.017214953899383545, ""delta_xy[1]"": 0.013562202453613281}",,0.098516
+CONTEXT_OCT3_px4_log781.ulg,1234.25656,z_reset_counter,7,8,1,airborne_detected,1,0,1,"{""delta_z"": -0.2769674062728882}",0.2769674062728882,0.098516
+CONTEXT_OCT3_px4_log781.ulg,1234.661018,xy_reset_counter,12,13,1,airborne_detected,1,0,1,"{""delta_xy[0]"": 0.00939267873764038, ""delta_xy[1]"": 0.006949424743652344}",,0.098654
+CONTEXT_OCT3_px4_log781.ulg,1277.361914,xy_reset_counter,13,14,1,airborne_detected,1,0,1,"{""delta_xy[0]"": 0.000610988587141037, ""delta_xy[1]"": 0.004909459501504898}",,0.098565
+CONTEXT_OCT3_px4_log781.ulg,1277.361914,z_reset_counter,8,9,1,airborne_detected,1,0,1,"{""delta_z"": -0.029437899589538574}",0.029437899589538574,0.098565
+CONTEXT_OCT3_px4_log781.ulg,1277.963782,xy_reset_counter,14,15,1,airborne_detected,1,0,1,"{""delta_xy[0]"": 0.0022817589342594147, ""delta_xy[1]"": 0.0006155390292406082}",,0.108587
