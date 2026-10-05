@@ -1,0 +1,16 @@
+[
+  {
+    "seed": 31,
+    "label": "snake3",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed31_20261005_095902",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/snake3_camera2m_20261005/generated/snake3_31/snake3_seed31/field.world",
+    "source": "337b583689f46d907546d1d28a8fc52b13f47398"
+  },
+  {
+    "seed": 38,
+    "label": "snake3",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed38_20261005_101903",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/snake3_camera2m_20261005/generated/snake3_38/snake3_seed38/field.world",
+    "source": "337b583689f46d907546d1d28a8fc52b13f47398"
+  }
+]

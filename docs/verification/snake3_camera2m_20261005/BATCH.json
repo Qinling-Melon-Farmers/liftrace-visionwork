@@ -1,0 +1,126 @@
+{
+  "source": "337b583689f46d907546d1d28a8fc52b13f47398",
+  "cases": [
+    [
+      31,
+      "snake3"
+    ],
+    [
+      38,
+      "snake3"
+    ]
+  ],
+  "results": [
+    {
+      "seed": 31,
+      "variant": "snake3",
+      "source": "337b583689f46d907546d1d28a8fc52b13f47398",
+      "status": "FAIL",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed31_20261005_095902",
+      "command": [
+        "env",
+        "SIM_RUN_AUTHORIZED=1",
+        "SIM_NO_RECORD=1",
+        "SIM_REQUIRE_GATE=1",
+        "SIM_STORAGE_GUARD_PATH=/mnt/f",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=60s",
+        "7200s",
+        "bash",
+        "top_level_scripts/sim_run.sh",
+        "snake3_camera2m_snake3_seed31",
+        "bash",
+        "top_level_scripts/roslaunch_rl_drone.sh",
+        "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/snake3_camera2m_20261005/replay.launch",
+        "scene_dir:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/snake3_camera2m_20261005/generated/snake3_31/snake3_seed31",
+        "field_seed:=31",
+        "target_model_path:=/home/xhj/liftrace/deliverables/liftrace_five_class_20260928_models/flight_5cls_20260928.pt"
+      ],
+      "started_wall": 1791165541.9966362,
+      "pid": 26208,
+      "exit_code": 1,
+      "finished_wall": 1791166689.5936553,
+      "cleanup_pass": true,
+      "reason": "manager_failed",
+      "failed_checks": [
+        "contract_errors_zero",
+        "final_landed_on_ground",
+        "final_vehicle_disarmed",
+        "land_success",
+        "manager_complete",
+        "mission_ros_within_limit",
+        "return_before_land",
+        "unmatched_results_zero"
+      ],
+      "mission_s": null,
+      "drops": 3,
+      "first_failure_analysis": {
+        "terminal": "manager_failed",
+        "errors": [
+          "manager_failed",
+          "manager_aborted"
+        ],
+        "action_failures": []
+      }
+    },
+    {
+      "seed": 38,
+      "variant": "snake3",
+      "source": "337b583689f46d907546d1d28a8fc52b13f47398",
+      "status": "FAIL",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed38_20261005_101903",
+      "command": [
+        "env",
+        "SIM_RUN_AUTHORIZED=1",
+        "SIM_NO_RECORD=1",
+        "SIM_REQUIRE_GATE=1",
+        "SIM_STORAGE_GUARD_PATH=/mnt/f",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=60s",
+        "7200s",
+        "bash",
+        "top_level_scripts/sim_run.sh",
+        "snake3_camera2m_snake3_seed38",
+        "bash",
+        "top_level_scripts/roslaunch_rl_drone.sh",
+        "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/snake3_camera2m_20261005/replay.launch",
+        "scene_dir:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/snake3_camera2m_20261005/generated/snake3_38/snake3_seed38",
+        "field_seed:=38",
+        "target_model_path:=/home/xhj/liftrace/deliverables/liftrace_five_class_20260928_models/flight_5cls_20260928.pt"
+      ],
+      "started_wall": 1791166743.599613,
+      "pid": 32203,
+      "exit_code": 1,
+      "finished_wall": 1791169943.0828197,
+      "cleanup_pass": true,
+      "reason": "manager_failed",
+      "failed_checks": [
+        "contract_errors_zero",
+        "land_success",
+        "manager_complete",
+        "mission_ros_within_limit",
+        "return_before_land"
+      ],
+      "mission_s": null,
+      "drops": 3,
+      "first_failure_analysis": {
+        "terminal": "manager_failed",
+        "errors": [
+          "manager_failed",
+          "manager_aborted"
+        ],
+        "action_failures": [
+          {
+            "t": 611.449,
+            "decision": 30,
+            "reason": "landing_deadline_reached"
+          }
+        ]
+      }
+    }
+  ],
+  "active": null,
+  "status": "COMPLETE"
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "seed": 31,
+    "variant": "snake3",
+    "raw_gate": "FAIL",
+    "collision_count": 0,
+    "support_ros_s": 216.369,
+    "touchdown_mission_s": 204.517,
+    "abort_after_support_s": 7.731999999999999,
+    "terminal_reason": "probe_pose_exception:ValueError",
+    "tail_xyz_range_m": [
+      3.8357095277774533e-08,
+      4.9145174152442905e-08,
+      3.007889101680483e-08
+    ],
+    "final_truth_xy": [
+      8.826111933977165,
+      -4.286717093912934
+    ],
+    "physical_landing_accepted": true
+  },
+  {
+    "seed": 38,
+    "variant": "snake3",
+    "raw_gate": "FAIL",
+    "collision_count": 0,
+    "support_ros_s": 374.982,
+    "touchdown_mission_s": 363.54,
+    "abort_after_support_s": 236.46699999999993,
+    "terminal_reason": "safety_motion_timed_out",
+    "tail_xyz_range_m": [
+      0.0002817583087288966,
+      0.0008500283962362687,
+      0.003516485178554518
+    ],
+    "final_truth_xy": [
+      8.759123392998301,
+      -4.266881409847703
+    ],
+    "physical_landing_accepted": true
+  }
+]

@@ -1,0 +1,61 @@
+{
+  "assumptions": "Measured FOV extrapolation, nadir fixed yaw, complete ideal axis-aligned segments; no occlusion or detection probability. One-metre full board means axis-aligned square.",
+  "results": [
+    {
+      "label": "original_2.6m",
+      "camera_agl": 2.6,
+      "fc_agl": 2.76,
+      "footprint": [
+        5.086956521739131,
+        2.5434782608695654
+      ],
+      "path_m": 26.6,
+      "search_area_m2": 84.5,
+      "search_point_coverage": 0.998,
+      "legal_1m_target_center_visibility": 1.0,
+      "legal_1m_full_board_visibility": 0.9977777777777778
+    },
+    {
+      "label": "correct_2m",
+      "camera_agl": 2.0,
+      "fc_agl": 2.16,
+      "footprint": [
+        3.9130434782608696,
+        1.9565217391304348
+      ],
+      "path_m": 29.55,
+      "search_area_m2": 84.5,
+      "search_point_coverage": 0.992,
+      "legal_1m_target_center_visibility": 1.0,
+      "legal_1m_full_board_visibility": 0.9911111111111112
+    }
+  ],
+  "scene_checks": [
+    {
+      "seed": 31,
+      "unchanged_files": {
+        "field.world": true,
+        "field_config.yaml": true,
+        "motion_overrides.yaml": true,
+        "fast_runtime.yaml": true,
+        "fast_gate.yaml": true,
+        "frame_overrides.yaml": true,
+        "presentation.yaml": true
+      },
+      "targets_equal": true
+    },
+    {
+      "seed": 38,
+      "unchanged_files": {
+        "field.world": true,
+        "field_config.yaml": true,
+        "motion_overrides.yaml": true,
+        "fast_runtime.yaml": true,
+        "fast_gate.yaml": true,
+        "frame_overrides.yaml": true,
+        "presentation.yaml": true
+      },
+      "targets_equal": true
+    }
+  ]
+}

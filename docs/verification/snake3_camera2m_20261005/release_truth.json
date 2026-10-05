@@ -1,0 +1,128 @@
+[
+  {
+    "seed": 31,
+    "variant": "snake3",
+    "drops": [
+      {
+        "class_name": "red_cross",
+        "slot": 1,
+        "ros_s": 85.658,
+        "body_xy": [
+          7.474376139255703,
+          -0.9730047266352511
+        ],
+        "nearest_class": "red_cross",
+        "nearest_distance_m": 0.03317084026038551,
+        "label_matches": true,
+        "pose_age_s": 0.043000000000006366
+      },
+      {
+        "class_name": "bridge",
+        "slot": 2,
+        "ros_s": 121.363,
+        "body_xy": [
+          5.0436336589540085,
+          -3.736045980901635
+        ],
+        "nearest_class": "bridge",
+        "nearest_distance_m": 0.11420164019354931,
+        "label_matches": true,
+        "pose_age_s": 0.0040000000000048885
+      },
+      {
+        "class_name": "panzer",
+        "slot": 3,
+        "ros_s": 143.116,
+        "body_xy": [
+          3.9969196181068636,
+          -0.5606465939748579
+        ],
+        "nearest_class": "panzer",
+        "nearest_distance_m": 0.04814944934336434,
+        "label_matches": true,
+        "pose_age_s": 0.03100000000000591
+      }
+    ],
+    "corridor_raw_coordinate_diagnostic": {
+      "planner_setpoint": {
+        "n": 490,
+        "max_recorded_z": 0.705157458782196
+      },
+      "mavros_setpoint": {
+        "n": 395,
+        "max_recorded_z": 0.705157458782196
+      },
+      "mavros_pose": {
+        "n": 426,
+        "max_recorded_z": 0.7453142404556274
+      },
+      "truth_pose": {
+        "n": 499,
+        "max_recorded_z": 0.788740327073481
+      }
+    }
+  },
+  {
+    "seed": 38,
+    "variant": "snake3",
+    "drops": [
+      {
+        "class_name": "red_cross",
+        "slot": 1,
+        "ros_s": 85.834,
+        "body_xy": [
+          1.064281733311512,
+          -0.46367157133636494
+        ],
+        "nearest_class": "red_cross",
+        "nearest_distance_m": 0.019408999244545356,
+        "label_matches": true,
+        "pose_age_s": 0.03300000000000125
+      },
+      {
+        "class_name": "bridge",
+        "slot": 2,
+        "ros_s": 104.617,
+        "body_xy": [
+          3.9914287606069876,
+          1.796769871561355
+        ],
+        "nearest_class": "bridge",
+        "nearest_distance_m": 0.07725249777693738,
+        "label_matches": true,
+        "pose_age_s": 0.04800000000000182
+      },
+      {
+        "class_name": "panzer",
+        "slot": 3,
+        "ros_s": 298.914,
+        "body_xy": [
+          7.055532001980357,
+          -4.271952636932874
+        ],
+        "nearest_class": "panzer",
+        "nearest_distance_m": 0.13981976173220131,
+        "label_matches": true,
+        "pose_age_s": 0.01599999999996271
+      }
+    ],
+    "corridor_raw_coordinate_diagnostic": {
+      "planner_setpoint": {
+        "n": 491,
+        "max_recorded_z": 0.7466809153556824
+      },
+      "mavros_setpoint": {
+        "n": 405,
+        "max_recorded_z": 0.7466809153556824
+      },
+      "mavros_pose": {
+        "n": 429,
+        "max_recorded_z": 0.7917152047157288
+      },
+      "truth_pose": {
+        "n": 497,
+        "max_recorded_z": 0.8486737905307418
+      }
+    }
+  }
+]
