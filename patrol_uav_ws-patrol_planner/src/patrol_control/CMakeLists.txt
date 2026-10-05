@@ -64,6 +64,7 @@ find_package(OpenCV REQUIRED)
 add_message_files(
   FILES
   MissionCommand.msg
+  ReleaseAuthorization.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -210,6 +211,8 @@ if(TARGET ${PROJECT_NAME}-drop-action-test)
   target_link_libraries(${PROJECT_NAME}-drop-action-test ${catkin_LIBRARIES})
 endif()
 
+catkin_add_nosetests(test/test_boundary_cache.py)
+catkin_add_nosetests(test/test_authorization_gate.py)
 catkin_add_nosetests(test/test_async_servo.py)
 catkin_add_nosetests(test/test_no_legacy_servo_status_false.py)
 catkin_add_nosetests(test/test_new_vision_config.py)

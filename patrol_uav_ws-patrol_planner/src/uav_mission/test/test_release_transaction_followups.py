@@ -80,7 +80,7 @@ BR = classes('navigation_planner_bridge.py',
     dict(COMMON, MotionDecision=MotionDecision, ExtendedState=EXT,
          _stamp_to_ns=lambda s: s.to_nsec()))
 ARB = classes('release_permission_arbiter.py', ['ReleasePermissionArbiter'],
-    dict(COMMON, Bool=lambda **v:N(**v),ReleasePermission=Message))['ReleasePermissionArbiter']
+    dict(COMMON, Bool=lambda **v:N(**v),ReleasePermission=Message,ReleaseAuthorization=Message))['ReleasePermissionArbiter']
 
 
 def permission(seq=1, **fields):
@@ -89,6 +89,8 @@ def permission(seq=1, **fields):
     m.valid_until = Stamp(101.)
     m.evidence_stamp = Stamp(100.04)
     m.permitted = True
+    m.permission_epoch = 'arbiter-test'
+    m.permission_revision = seq
     m.payload_slot, m.target_id = 1, 7
     m.align_mode, m.target_class = 'drop_circle', 'bridge'
     m.mission_id, m.decision_seq, m.attempt = 'mission-1', seq, 1
@@ -191,7 +193,7 @@ class ProxyTests(unittest.TestCase):
     def test_service_discovery_failure_is_not_started_and_fresh_retry_can_complete(self):
         o=proxy(Raw(wait_fail=True));o._on_servo_request(N(req=1))
         self.assertEqual(o._result_pub.messages[-1].execution_state,NOT_STARTED)
-        o._raw_client=Raw();m=permission();m.header.stamp=Stamp(100.11)
+        o._raw_client=Raw();m=permission(permission_revision=2);m.header.stamp=Stamp(100.11)
         Clock.value=100.11;o._on_permission(m)
         self.assertTrue(o._on_servo_request(N(req=1)).res)
         self.assertEqual(o._raw_client.calls,1)
@@ -308,7 +310,7 @@ class ProxyTests(unittest.TestCase):
         o = proxy()
         o._permission.valid_until = Stamp(100.05)
         thread, answers = self.waiting_request(o)
-        o._on_permission(permission())
+        o._on_permission(permission(permission_revision=2))
         thread.join(1.)
         self.assertTrue(answers[0].res)
         self.assertEqual(o._raw_client.calls, 1)
@@ -357,7 +359,7 @@ class ProxyTests(unittest.TestCase):
         req = copy.deepcopy(o._permission); req.request_id = 73
         def discovery(timeout):
             Clock.value = 100.3
-            new = permission()
+            new = permission(permission_revision=2)
             new.header.stamp = Stamp(100.3)
             o._on_permission(new)
         o._raw_client.wait_for_service = discovery
@@ -493,6 +495,8 @@ class ArbiterTests(unittest.TestCase):
 
     def test_real_publish_path_retains_authorization_after_end(self):
         o=self.fixture();o._authorized_actions.clear();m=permission()
+        o._permission_epoch='arbiter-test';o._permission_revision=0
+        o._authorization_pub=Publisher()
         o._require_evidence_context=False;o._permission_lifetime=.25
         o._align_mode=m.align_mode;o._permission_pub=Publisher()
         o._evaluate=lambda now:(True,"permission_granted",dict(

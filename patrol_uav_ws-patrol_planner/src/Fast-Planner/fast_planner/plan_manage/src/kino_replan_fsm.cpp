@@ -264,8 +264,11 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
     static std::string acknowledged_id;
     static double acknowledged_limit=std::numeric_limits<double>::quiet_NaN();
     static std::string acknowledged_frame;
+    static bool acknowledged_has_nonce = false;
+    static int acknowledged_nonce = 0;
     // Cached request subscription: no 100Hz namespace queries or periodic
-    // parameter writes. One atomic ACK per request (also for an equal cap).
+    // parameter writes. One atomic ACK per request or explicit resend nonce.
+    // Requests without a nonce retain the shared-height legacy behavior.
     if (ros::param::getCached(ns+"/request",request) &&
         request.getType()==XmlRpc::XmlRpcValue::TypeStruct &&
         request.hasMember("id") && request.hasMember("max_z") && request.hasMember("frame") &&
@@ -275,12 +278,20 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
       const std::string id=static_cast<std::string>(request["id"]);
       const std::string frame=static_cast<std::string>(request["frame"]);
       const double cap=static_cast<double>(request["max_z"]);
+      const bool has_nonce=request.hasMember("resend_nonce");
+      const bool valid_nonce=!has_nonce ||
+          (request["resend_nonce"].getType()==XmlRpc::XmlRpcValue::TypeInt &&
+           static_cast<int>(request["resend_nonce"])>=0);
+      const int nonce=has_nonce && valid_nonce ? static_cast<int>(request["resend_nonce"]) : 0;
       if (!id.empty() && frame==height.frame && std::isfinite(cap) && std::abs(cap-height.max_z)<=1e-9 &&
-          (id!=acknowledged_id || cap!=acknowledged_limit || frame!=acknowledged_frame)) {
+          valid_nonce && (id!=acknowledged_id || cap!=acknowledged_limit || frame!=acknowledged_frame ||
+                         has_nonce!=acknowledged_has_nonce || (has_nonce && nonce!=acknowledged_nonce))) {
         XmlRpc::XmlRpcValue ack;
         ack["id"]=id;ack["max_z"]=cap;ack["frame"]=frame;ack["stamp"]=now.toSec();
+        if (has_nonce) ack["resend_nonce"]=nonce;
         ros::param::set(ns+"/ack",ack);
         acknowledged_id=id;acknowledged_limit=cap;acknowledged_frame=frame;
+        acknowledged_has_nonce=has_nonce;acknowledged_nonce=nonce;
       }
     }
   }

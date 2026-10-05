@@ -1,0 +1,39 @@
+只读恢复调查 — 2026-10-06
+
+结论：本轮不启用生产真实超高回入或纯虚拟柱退出。当前健康/坐标参考不足以稳健区分真实运动、FC reset、LIO跳变与失援。main的许可token transport、stage/cache修复可独立继续。仅放开起点、裁Z或clear障碍不能完整修复。
+
+范围：root=/home/xhj/liftrace-worktrees/r2026-high-view-search。生产测试固定966f6adf80050e2033e067cad1ab2b6dd41cbe66；连续性消费者固定b2632da2（完整ID在metadata.json）。调查中工作树出现并发修改，特别是控制/许可相关；测试不验收这些新修改。未改工作树/分支/生产配置，未启动ROS/SITL，未SSH。C++只链接系统C++/数学库，linkage.txt已核查无ROS/PCL链接。
+
+可靠LIO→task参考：当前有camera_init及IMU→机体偏移，没有持续验证的可靠参考生产者。localization.launch默认legacy_static单位map→camera_init；measured选项根据FC/LIO位姿残差估TF并平滑。它不提供权威reset事件、epoch或独立定位健康。lio_external_pose仅检查frame/stamp/有限值/姿态；FrameAdapter检查时间、TF和有限协方差；HighViewProbe位移门槛3*dt+0.25m也不判断坐标来源。FC/LIO通过EV融合相关，二者一致不能独自证明独立健康。
+
+连续性分支：TaskFrameBoundary消费FcReset/LioHealth和调用方提供的task_from_lio/task_from_fc/ground/标定确认；例子calibration_verified=false。ev_task_boundary.py明确只观察，依赖可信生产者，不从local_position阶跃猜reset，输出隔离候选话题。当前研究链未接入这些生产者和最终控制。PX4 FlightTask旧补丁防止历史reset重放，不生产ROS健康/reset事件。
+
+地图链：真实点云按ceil(inflation/resolution)盒膨胀；归档profile为r=.05m、XY=.25m、上=.20m、下=.10m。柱依据垂直支持、组件40–60%中带及有界凸包，UpwardObstacleColumns从膨胀后基底向上延伸。最终真实膨胀/柱/顶棚都写occupancy_buffer_inflate_，无持久来源mask。cloudCallback不把真实源填raw occupancy_buffer_，getOccupancy不能替代实体层。ESDF正负距离来自合并占用，getDistance还合入search-region距离；只豁免占用或清一位不改变实体净空与ESDF。
+
+限高链：FSM callKinodynamicReplan、kino search检查起终点；运动原语与shot检查二/三次极值；manager检查样条控制点凸包及20ms占用/距离采样；traj_server接收和执行重复凸包检查，失效时保持；patrol_control对超高规划命令保持当前位置、作废轨迹、重规划，最终Run_point也保持。stage request/ack仅确认规划约束，不是健康或恢复许可。
+
+离线17项C++断言通过；5项连续性调用案例通过：
+1. 同合成点(1,0,2.40)：仅实体图occ=0、ESDF=+1.00m；合并柱图occ=1、ESDF=-.25m；真实源(1,0,1)两图均占用。清该位后occ=0但ESDF仍-.25m。
+2. 柱内部起点到柱外：kino NO_PATH=3、start_occ=1、117次碰撞拒绝；实体图诊断对照REACH_END=2。没有把实体图比较接入生产恢复。
+3. cap2.98、start3.10→goal2.78：search=3、shot=false、单调下降polynomial=false。二次端点2.88/峰3.08拒绝；三次峰3.03396007178拒绝。
+4. 回入样条start3.10/控制点max3.16拒绝；曲线max2.98但控制点max3.04也拒绝。走廊cap .78/ground-.22（AGL1.00）时start1.00拒绝、goal.68接受。
+5. 附带边界：运行请求virtual_ceil_height=-.1不能关闭已缓存的positive 2.30；本次归档研究profile启动本已-.1，不能据此归因本轮故障。
+6. FC独跳+.40m无事件→unexplained_fc_lio_disagreement；合成健康FC/LIO真实上升→task z3.10/AGL3.32；合成权威+.40m reset与健康LIO→task z保持2.78、FC command z3.18、generation1、旧许可拒绝；非权威reset及unhealthy LIO均拒绝。
+
+测试边界：SDFMap函数原样提取，kino/B样条完整生产翻译单元编译；仅ROS参数/日志和消息搬运为内存stub。4×4m小图、合成点，不是整场回放/动态恢复验收。健康/reset/标定为明确合成输入，未证明生产者落地。生产源码从固定Git revision运行时提取，复现不需要归档旧源码或二进制。
+
+最小完整后续范围：
+A. 权威FC reset生产者：真实boot/epoch、各reset counter/delta及有效时间/frame/quality；定义事件组合、ENU/NED、回绕/缺口/重放/乱序与重启。不能用pose差分伪造authoritative。
+B. 独立LIO健康生产者与实测任务参考：初始化/匹配退化与质量、IMU覆盖、源stamp/年龄、epoch/跳变、已验证机体/相机外参及固定ground；新鲜Odometry或固定healthy=true不够。
+C. 同一坐标代次贯穿反馈、地图、候选/投影、目标、ground/限高和最终FC设定点；reset按明确变换转换或使旧产物失效，所有消费者按generation与时间边界拒绝旧消息。
+D. 真实膨胀/柱/顶棚边界分层与真实净空查询；保留观测覆盖/地图时效和代次。实体+虚拟重叠、未知/陈旧区域都不能当纯虚拟。恢复不得修改正常规划图或固定膨胀。
+E. 一个有界恢复事务，复用唯一任务/运动权威：冻结任务、旧轨迹与释放许可；证明真实超高才允许完整回入，考虑上升初速的制动上冲；证明纯柱才允许短暂最小实体净空退出。恢复许可贯穿FSM/kino/样条/server/最终控制，限制XY/Z、速度/加速度、地图版本、预算/有效期及安全终点，连续扫掠体检查；退出后不能再进入豁免区。
+F. 全程检查健康/epoch/map/command新鲜度与人工接管；异常/真实障碍/超时终止，不自动延长/重试；未知坐标不能强制下降或承诺物理悬停。多帧稳定且各执行层确认完成后恢复任务并重取视觉证据。后续仿真另需当轮明确授权。
+
+复现（Windows login:false）：
+wsl -e bash -c 'bash /tmp/recovery_review_20261006/reproduce.sh'
+prepare_offline.sh从Git固定revision在/tmp提取源码/stub；run_cpp.sh编译与调用；run_health.sh激活既有rl_drone并调用纯Python消费者，不安装依赖。
+
+建议main归档至docs/verification/message_recovery_20261006/recovery/：仅archive_payload中的REPORT.txt、reproduce.sh、prepare_offline.sh、run_cpp.sh、run_health.sh、小JSON/结果及linkage.txt。排除snapshot/、stubs/、生产/fixture生成C++、二进制。它们每次在/tmp重生成；不归档约28MB二进制/快照。本轮只准备/tmp的小payload，没有写工作树或提交。
+
+主线程转发：当前工具目录未提供send_input/parentcontext，本会话无法直接投递给main；此报告与最终回复可直接供main采纳。

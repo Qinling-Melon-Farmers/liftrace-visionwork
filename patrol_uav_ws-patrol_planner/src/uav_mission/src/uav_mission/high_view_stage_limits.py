@@ -14,6 +14,9 @@ class HighViewStageMixin:
         elif stage in ('SURVEY','RESUME_ASCEND','RESUME_JOIN','RETURN_COLUMN','LOCAL_DESCENT_TRANSIT','DESCEND'):
             low=False
         else:return True
+        now=rospy.Time.now().to_sec()
+        if now>=min(action.deadline_at,self._runtime.core.started_at+self._runtime.core.config.mission_timeout):
+            self._last_reason='probe_parameter_stage_deadline';return False
         if low==self._low_limits_applied and self._probe_limit_switch is None and stage not in ('RESUME_ASCEND','RESUME_JOIN'):return True
         limits=rospy.get_param('~high_view_probe/low_stage_parameters',[])
         if not limits:return not getattr(self._runtime,'resume_attempted',False)
@@ -32,26 +35,40 @@ class HighViewStageMixin:
         if enabled and cap is None:
             self._last_reason='probe_height_limit_parameter_missing'
             return False
-        now=rospy.Time.now().to_sec()
         if cap is not None:
             if not math.isfinite(cap):raise ValueError('nonfinite probe height cap')
             if (self._pose is None or self._pose.header.frame_id!=self._runtime.core.config.mission_frame
                     or not 0<=now-self._pose.header.stamp.to_sec()<=self._pose_max_age
                     or self._pose.pose.position.z>cap+1e-9):
                 self._last_reason='waiting_below_probe_height_limit';return False
-        key=(self._runtime.core.mission_id,action.decision_seq,low)
+        # A retry belongs to this transition only while its full parameter
+        # set and frame remain unchanged, including non-height parameters.
+        key=(self._runtime.core.mission_id,action.decision_seq,low,ns,
+             self._runtime.core.config.mission_frame,
+             tuple((x['name'],x['value']) for x in parameters))
         switch=self._probe_limit_switch
         if switch is None or switch['key']!=key:
             for x in parameters:rospy.set_param(x['name'],x['value'])
             if any(rospy.get_param(x['name'])!=x['value'] for x in parameters):
                 raise RuntimeError('probe stage parameter readback failed')
-            switch=dict(key=key,request=None);self._probe_limit_switch=switch
+            switch=dict(key=key,request=None,last_sent=None);self._probe_limit_switch=switch
         if enabled and cap is not None:
             request=switch['request']
-            if request is None or not 0<=now-request['stamp']<=.4:
-                request=dict(id='%s:probe:%s:%.9f'%(key[0],key[1],now),
+            if request is None:
+                # Retain the first-request timestamp: a delayed ACK must not
+                # be invalidated by retransmitting the same transition.
+                serial=getattr(self,'_probe_limit_request_serial',0)+1
+                self._probe_limit_request_serial=serial
+                request=dict(id='%s:probe:%s:%s:%.9f'%(key[0],key[1],serial,now),
                              max_z=cap,frame=self._runtime.core.config.mission_frame,stamp=now)
-                rospy.set_param(ns+'/request',request);switch['request']=request
+                switch['request']=request
+            if switch['last_sent'] is None or not 0<=now-switch['last_sent']<=.4:
+                # Only an explicit send advances this nonce. The planner can
+                # refresh an aged/lost ACK without periodic parameter writes.
+                nonce=getattr(self,'_probe_limit_resend_nonce',0)+1
+                self._probe_limit_resend_nonce=nonce
+                request=dict(request,resend_nonce=nonce);switch['request']=request
+                rospy.set_param(ns+'/request',request);switch['last_sent']=now
             ack=rospy.get_param(ns+'/ack',{})
             stamp=float(ack.get('stamp',-1.));applied=float(ack.get('max_z',float('nan')))
             if (ack.get('id')!=request['id'] or ack.get('frame')!=request['frame']
