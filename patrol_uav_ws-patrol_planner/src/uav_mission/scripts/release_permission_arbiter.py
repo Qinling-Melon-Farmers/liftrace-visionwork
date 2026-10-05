@@ -16,7 +16,7 @@ from std_msgs.msg import Bool, Int8, String
 from uav_mission.msg import ReleasePermission, ReleaseResult
 from uav_vision.msg import ReleaseEvidence, ReleaseEvidenceContext, AlignmentTargetContext
 from uav_mission.release_transactions import (
-    NOT_STARTED, COMPLETED, execution_fact, action_identity, result_terminal,
+    NOT_STARTED, RAW_CALL_STARTED, COMPLETED, execution_fact, action_identity, result_terminal,
 )
 
 _SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -83,6 +83,9 @@ class ReleasePermissionArbiter:
         self._lock = threading.RLock()
         self._blocked_slots = set()
         self._called_actions = {}
+        # Authorization history outlives the active alignment. Topic callbacks
+        # may deliver alignment-end before raw-start/completion.
+        self._authorized_actions = {}
         self._revoked_actions = set()
         self._evidence = None
         self._evidence_context = None
@@ -190,23 +193,55 @@ class ReleasePermissionArbiter:
             key = action_identity(msg)
             if getattr(self, "_require_evidence_context", False) and key is None:
                 return
-            c = self._commitment
-            expected = None if c is None else (c.mission_id, c.decision_seq,
-                c.attempt, c.payload_slot, c.target_id, c.target_first_seen_nsec, c.target_class)
-            previous = self._called_actions.get(int(msg.payload_slot))
-            if key is not None and key != expected and key != previous:
+            slot = int(msg.payload_slot)
+            if key is not None:
+                authorized = self._authorized_actions.get(key)
+                if authorized is None or str(msg.align_mode) != authorized["align_mode"]:
+                    return
+                execution_id = int(getattr(msg, "execution_id", 0))
+                if execution_id <= 0:
+                    return
+                if fact == NOT_STARTED:
+                    # A rejection has its own result id; it is not the identity
+                    # of a raw invocation. Never let it mask a later positive
+                    # execution fact for this previously authorized action.
+                    if result_terminal(msg):
+                        self._revoked_actions.add(key)
+                    return
+                if fact in (RAW_CALL_STARTED, COMPLETED):
+                    expected_execution = authorized["execution_id"]
+                    if expected_execution is not None and execution_id != expected_execution:
+                        return
+                    authorized["execution_id"] = execution_id
+            elif getattr(self, "_require_evidence_context", False):
                 return
             if fact != NOT_STARTED:
-                self._blocked_slots.add(int(msg.payload_slot))
-                self._called_actions[int(msg.payload_slot)] = key
+                self._blocked_slots.add(slot)
+                self._called_actions[slot] = key
             if fact != COMPLETED:
                 return
-            if msg.payload_slot in self._completed_slots or msg.payload_slot != self._next_slot:
+            if slot in self._completed_slots or slot != self._next_slot:
                 return
-            self._completed_slots.add(msg.payload_slot)
+            self._completed_slots.add(slot)
             self._released_targets.add((msg.align_mode, msg.target_id))
-            self._commitment = None
+            c = self._commitment
+            if c is not None and (key is None or (
+                    c.mission_id, c.decision_seq, c.attempt, c.payload_slot,
+                    c.target_id, c.target_first_seen_nsec, c.target_class) == key):
+                self._commitment = None
             self._next_slot += 1
+
+    def _remember_authorization(self, permission):
+        """Called under _lock, before publishing an actual granted permission.
+
+        History is kept for this arbiter process/mission lifetime. Revocation
+        prevents new permission but never erases an already authorized fact.
+        """
+        key = action_identity(permission)
+        if permission.permitted and key is not None:
+            self._authorized_actions.setdefault(key, {
+                "align_mode": str(permission.align_mode), "execution_id": None,
+            })
 
     @staticmethod
     def _stamp_age(now, stamp):
@@ -443,6 +478,7 @@ class ReleasePermissionArbiter:
             msg.target_id = context.semantic_target_id
             msg.target_class = context.semantic_target_class
         msg.valid_until = now + rospy.Duration(self._permission_lifetime)
+        self._remember_authorization(msg)
         self._permission_pub.publish(msg)
         self._permission_state_pub.publish(Bool(data=permitted))
 
