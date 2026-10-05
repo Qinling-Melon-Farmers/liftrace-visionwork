@@ -80,7 +80,7 @@ BR = classes('navigation_planner_bridge.py',
     dict(COMMON, MotionDecision=MotionDecision, ExtendedState=EXT,
          _stamp_to_ns=lambda s: s.to_nsec()))
 ARB = classes('release_permission_arbiter.py', ['ReleasePermissionArbiter'],
-    dict(COMMON, Bool=lambda **v:N(**v)))['ReleasePermissionArbiter']
+    dict(COMMON, Bool=lambda **v:N(**v),ReleasePermission=Message))['ReleasePermissionArbiter']
 
 
 def permission(seq=1, **fields):
@@ -361,8 +361,110 @@ class ArbiterTests(unittest.TestCase):
             attempt=m.attempt,payload_slot=m.payload_slot,target_id=m.target_id,
             target_first_seen_nsec=m.target_first_seen.to_nsec(),target_class=m.target_class)
         o._blocked_slots,o._completed_slots,o._released_targets,o._revoked_actions=set(),set(),set(),set()
-        o._called_actions={};o._next_slot=1;o._permission_state_pub=Publisher()
+        o._called_actions={};o._authorized_actions={};o._next_slot=1;o._permission_state_pub=Publisher()
+        o._remember_authorization(m)
         return o
+    def test_unknown_locks_slot_without_stealing_positive_execution_identity(self):
+        o=self.fixture();m=permission()
+        o._on_result(result(m,EXECUTION_UNKNOWN,execution_id=10))
+        self.assertEqual(o._blocked_slots,{1})
+        self.assertIsNone(o._authorized_actions[action_identity(m)]["execution_id"])
+        o._on_result(result(m,RAW_CALL_STARTED,False,execution_id=11))
+        o._on_result(result(m,NOT_STARTED,execution_id=12))
+        self.assertEqual(o._authorized_actions[action_identity(m)]["execution_id"],11)
+        o._on_result(result(m,execution_id=11))
+        self.assertEqual(o._next_slot,2)
+
+    def test_negative_result_id_cannot_mask_late_real_execution(self):
+        o=self.fixture();m=permission()
+        o._on_result(result(m,NOT_STARTED,execution_id=10))
+        self.assertIn(action_identity(m),o._revoked_actions)
+        self.assertIsNone(o._authorized_actions[action_identity(m)]["execution_id"])
+        o._on_result(result(m,RAW_CALL_STARTED,False,execution_id=11))
+        o._on_alignment_context(context(m))
+        o._on_result(result(m,execution_id=11))
+        self.assertEqual(o._next_slot,2)
+
+    def test_real_publish_path_retains_authorization_after_end(self):
+        o=self.fixture();o._authorized_actions.clear();m=permission()
+        o._require_evidence_context=False;o._permission_lifetime=.25
+        o._align_mode=m.align_mode;o._permission_pub=Publisher()
+        o._evaluate=lambda now:(True,"permission_granted",dict(
+            target_id=m.target_id,target_class=m.target_class,
+            evidence_stamp=m.evidence_stamp,mission_id=m.mission_id,
+            decision_seq=m.decision_seq,attempt=m.attempt,target_first_seen=m.target_first_seen))
+        old_duration=getattr(ROS,"Duration",None);ROS.Duration=Stamp
+        try:o._publish_permission(None)
+        finally:
+            if old_duration is None:del ROS.Duration
+            else:ROS.Duration=old_duration
+        self.assertTrue(o._permission_pub.messages[-1].permitted)
+        o._on_alignment_context(context(m))
+        o._on_result(result(m,RAW_CALL_STARTED,False,execution_id=30))
+        o._on_result(result(m,execution_id=30))
+        self.assertEqual(o._next_slot,2)
+
+    def test_all_start_end_success_orders_advance_exactly_once(self):
+        from itertools import permutations
+        for order in permutations(("start", "end", "success")):
+            with self.subTest(order=order):
+                o=self.fixture();m=permission()
+                for event in order:
+                    if event=="end":o._on_alignment_context(context(m))
+                    else:o._on_result(result(m,RAW_CALL_STARTED if event=="start" else COMPLETED,
+                                             terminal=event=="success",execution_id=19))
+                o._on_result(result(m,execution_id=19))
+                self.assertEqual(o._next_slot,2)
+                self.assertEqual(o._completed_slots,{1})
+                self.assertIn(action_identity(m),o._revoked_actions)
+                self.assertFalse(o._permission_state_pub.messages[-1].data)
+
+    def test_three_slots_with_end_before_results(self):
+        o=self.fixture()
+        for slot in (1,2,3):
+            m=permission(seq=slot,payload_slot=slot,target_id=slot+20)
+            o._remember_authorization(m)
+            o._on_alignment_context(context(m))
+            o._on_result(result(m,RAW_CALL_STARTED,False,execution_id=100+slot))
+            o._on_result(result(m,execution_id=100+slot))
+            o._on_result(result(m,execution_id=100+slot))
+            self.assertEqual(o._next_slot,slot+1)
+        self.assertEqual(o._completed_slots,{1,2,3})
+
+    def test_commitment_without_published_permission_cannot_authorize_result(self):
+        o=self.fixture();o._authorized_actions.clear()
+        o._on_result(result(permission()))
+        self.assertEqual(o._next_slot,1)
+        self.assertEqual(o._blocked_slots,set())
+
+    def test_denied_permission_is_not_historical_authorization(self):
+        o=self.fixture();o._authorized_actions.clear()
+        m=permission(permitted=False);o._remember_authorization(m)
+        o._on_alignment_context(context(m));o._on_result(result(m))
+        self.assertEqual(o._next_slot,1)
+
+    def test_execution_id_and_mode_must_match_authorized_action(self):
+        for change in (dict(execution_id=21),dict(align_mode="drop_red_cross")):
+            o=self.fixture();m=permission()
+            o._on_alignment_context(context(m))
+            o._on_result(result(m,RAW_CALL_STARTED,False,execution_id=20))
+            msg=result(m,execution_id=20)
+            for name,value in change.items():setattr(msg,name,value)
+            o._on_result(msg)
+            self.assertEqual(o._next_slot,1)
+            o._on_result(result(m,execution_id=20))
+            self.assertEqual(o._next_slot,2)
+
+    def test_late_completion_does_not_delete_different_current_commitment(self):
+        o=self.fixture();old=permission()
+        o._on_alignment_context(context(old))
+        new=N(mission_id="new",decision_seq=9,attempt=1,payload_slot=2,
+              target_id=8,target_first_seen_nsec=99*NS,target_class="panzer")
+        o._commitment=new
+        o._on_result(result(old))
+        self.assertIs(o._commitment,new)
+        self.assertEqual(o._next_slot,2)
+
     def test_uncertain_failure_blocks_permission_and_does_not_advance_slot(self):
         o=self.fixture();o._on_result(result(permission(),RAW_CALL_STARTED,False))
         self.assertEqual(o._blocked_slots,{1});self.assertEqual(o._next_slot,1)
