@@ -435,6 +435,9 @@ class MissionRuntimeTest(unittest.TestCase):
         self.start(runtime)
         runtime.ingest([candidate()], 100.0)
         target = runtime.tick(100.1, (0.0, 0.0)).action
+        admitted = runtime.apply_result(result_for(target, 1, status="STARTED",
+            stage="RELEASE", reason="raw_actuator_call_started"), 100.2, (1.0, 0.0))
+        self.assertTrue(admitted.accepted, admitted.reason)
         timed_out = runtime.tick(target.deadline_at, (1.0, 0.0))
         self.assertEqual(
             timed_out.reason, "target_action_timed_out_uncertain")
@@ -442,7 +445,7 @@ class MissionRuntimeTest(unittest.TestCase):
         self.assertEqual(runtime.core.slots[0].status, SlotStatus.QUARANTINED)
 
         reconciled = runtime.apply_result(
-            release_ack(target, 1),
+            release_ack(target, 2),
             target.deadline_at + 0.1,
             (1.0, 0.0),
         )
@@ -453,6 +456,34 @@ class MissionRuntimeTest(unittest.TestCase):
             runtime.core.active_action.decision_seq,
             timed_out.action.decision_seq,
         )
+
+    def test_permitted_timeout_missing_start_ack_still_reconciles_late_completion(self):
+        runtime = self.make_runtime()
+        self.start(runtime)
+        runtime.ingest([candidate()], 100.0)
+        target = runtime.tick(100.1, (0.0, 0.0)).action
+        permission = runtime.apply_result(result_for(target, 1, status="STARTED",
+            stage="ALIGNMENT", reason="strict_alignment_context_valid"), 100.2, (1.0, 0.0))
+        self.assertTrue(permission.accepted, permission.reason)
+        timed_out = runtime.tick(target.deadline_at, (1.0, 0.0))
+        self.assertEqual(timed_out.reason, "target_action_timed_out_uncertain")
+        self.assertEqual(runtime.core.slots[0].status, SlotStatus.QUARANTINED)
+        reconciled = runtime.apply_result(release_ack(target, 2),
+            target.deadline_at + 0.1, (1.0, 0.0))
+        self.assertTrue(reconciled.accepted, reconciled.reason)
+        self.assertEqual(reconciled.reason, "late_payload_committed")
+        self.assertEqual(runtime.core.slots[0].status, SlotStatus.COMMITTED)
+
+    def test_target_timeout_before_permission_frees_slot_and_resumes_route(self):
+        runtime = self.make_runtime()
+        self.start(runtime)
+        runtime.ingest([candidate()], 100.0)
+        target = runtime.tick(100.1, (0.0, 0.0)).action
+        timed_out = runtime.tick(target.deadline_at, (1.0, 0.0))
+        self.assertEqual(runtime.core.slots[0].status, SlotStatus.FREE)
+        self.assertEqual(timed_out.reason, "resume_interrupted_waypoint")
+        self.assertEqual(timed_out.action.command, "RESUME")
+        self.assertEqual(runtime.core.committed_slots, 0)
 
     def test_abort_retires_route_and_is_idempotent(self):
         runtime = self.make_runtime()

@@ -40,13 +40,17 @@ def apply_generated_motion(runtime,control,overrides,settings,ground):
             report['post_route']='Retained: provide measured corridor_geometry before merging relays/diagonal entry'
             return report
         if not isinstance(geometry,dict) or set(geometry)!={'wall_axis','wall_coordinates','entry_waypoints'}:raise ValueError('Measured corridor_geometry requires wall_axis, wall_coordinates and entry_waypoints')
+        # Geometry is measured relative to takeoff, just like corridor waypoints.
+        axis=geometry['wall_axis']
+        if type(axis) is not int or axis not in (0,1):raise ValueError('Invalid corridor wall axis')
+        walls=[coordinate+runtime['mission']['home_xy'][axis] for coordinate in geometry['wall_coordinates']]
         original=runtime['mission']['post_delivery_route'];count=len(settings['corridor_waypoints'])
         entry=geometry['entry_waypoints']
         if type(entry) is not int or not 1<=entry<=count:raise ValueError('Invalid corridor entry waypoint count')
         if any(p[2]>ground+options.corridor_max_agl+1e-6 for p in original[entry-1:count]):raise ValueError('Corridor waypoints exceed configured height cap')
         # Prevent removal of mandatory descent/turn/landing points. The helper only
         # removes strictly collinear horizontal relays and an explicit high/low pair.
-        route,detail=optimize_post_route(original,options,count,geometry['wall_axis'],geometry['wall_coordinates'])
+        route,detail=optimize_post_route(original,options,count,axis,walls)
         anchor=original[entry-1]
         # Entry transition must remain a waypoint; retain original route otherwise.
         if anchor not in route:
@@ -63,7 +67,7 @@ def apply_generated_motion(runtime,control,overrides,settings,ground):
         m['post_delivery_parameter_stages'].append(dict(after_completed_waypoints=detail['corridor_points_count'],parameters={
             '/external_planner_max_command_z':ground+settings.get('max_agl',2.9),
             '/navigation/planner_bridge/execution/max_goal_z':ground+settings.get('max_agl',2.9)}))
-        runtime['corridor_speed_schedule']=dict(axis=geometry['wall_axis'],wall_coordinates=geometry['wall_coordinates'],entry_waypoints=new_entry,open_lead_m=min(.6,runtime['following_speed_profile']['cruise_lead_m']),door_lead_m=min(.15,runtime['following_speed_profile']['corridor_lead_m']))
+        runtime['corridor_speed_schedule']=dict(axis=axis,wall_coordinates=walls,entry_waypoints=new_entry,open_lead_m=min(.6,runtime['following_speed_profile']['cruise_lead_m']),door_lead_m=min(.15,runtime['following_speed_profile']['corridor_lead_m']))
         from uav_mission.corridor_speed import CorridorSpeedConfig
         CorridorSpeedConfig(**runtime['corridor_speed_schedule'])
         report['post_route']=detail

@@ -7,6 +7,8 @@
  */
 #include "patrol_control/patrol_control.h"
 #include "patrol_control/Servo.h"
+#include "patrol_control/ServoAction.h"
+#include "patrol_control/servo_action_result.h"
 #include "patrol_control/near_wall_align.h"
 #include <tf/transform_listener.h>
 #include "tf2_ros/transform_broadcaster.h"
@@ -128,7 +130,10 @@ LLController::LLController(ros::NodeHandle nh):nh_(nh), drop_tf_listener_(drop_t
 
     std::cout << "\033[47;30m ---------------------------------- Start mission ---------------------------------- \033[0m" << std::endl;
 }
-LLController::~LLController(){}
+LLController::~LLController(){
+    cmd_timer.stop();
+    async_servo_.shutdown();
+}
 
 
 // 读取航路点，订阅无人机位置、圆环中心，发布目标点、投递装置动作指令
@@ -179,9 +184,6 @@ void LLController::initializeNode() {
             "/detect/land_mark_point", 1,
             &LLController::landMarkCallback, this);
     } else {
-        external_landing_state_sub_ = nh_.subscribe(
-            external_landing_state_topic_, 10,
-            &LLController::externalLandingStateCallback, this);
         landing_detections_sub_ = nh_.subscribe(
             external_landing_detections_topic_, 2,
             &LLController::landingDetectionsCallback, this);
@@ -233,7 +235,7 @@ void LLController::initializeNode() {
     }
 
     // 旧 topic 舵机控制只属于 legacy 入口。external 正式链仅使用
-    // permission-gated /Servo 服务及其同步 ACK。
+    // permission-gated /Servo 服务；独立 worker 等待真实 ACK。
     if (!external_mission_mode_) {
         servo1_pub_ = nh_.advertise<std_msgs::Bool>("/control1", 1);
         servo2_pub_ = nh_.advertise<std_msgs::Bool>("/control2", 1);
@@ -241,6 +243,14 @@ void LLController::initializeNode() {
     }
 
     servo_client = nh_.serviceClient<patrol_control::Servo>("Servo");
+    servo_action_client_ = nh_.serviceClient<patrol_control::ServoAction>(servo_action_service_);
+    if (external_mission_mode_) {
+        servo_alignment_context_sub_ = nh_.subscribe(
+            servo_alignment_context_topic_, 4, &LLController::servoAlignmentContextCallback, this);
+    }
+    external_landing_state_sub_ = nh_.subscribe(
+        external_landing_state_topic_, 10,
+        &LLController::externalLandingStateCallback, this);
 
     // 订阅对准反馈话题（从 alignment_control_converter 获取像素偏差）
     // alignment_feedback_sub_ = nh_.subscribe("/detect/pixel_offset", 1, &LLController::alignmentFeedbackCallback, this);
@@ -436,6 +446,9 @@ void LLController::externalLandingStateCallback(
     const mavros_msgs::State::ConstPtr& msg) {
     external_landing_mavros_state_ = *msg;
     external_landing_state_receipt_ = ros::Time::now();
+    if (!msg->connected || !msg->armed || msg->mode != "OFFBOARD") {
+        cancelDropAction();
+    }
     if (!external_mission_mode_ || !external_landing_active_) {
         return;
     }
@@ -1065,6 +1078,15 @@ void LLController::servoMarkyCallback(const std_msgs::Bool& msg) {
     ROS_INFO("\033[1;35m[servoMarkyCallback] Received servo_marky: %s\033[0m", servo_marky.data ? "true" : "false");
 }
 void LLController::cmdCallback(const ros::TimerEvent& event) {
+    // Polling never waits for the RPC. Result application stays on this control
+    // thread, even if visual permission has expired while the servo moves.
+    if (Drone_mode != Aligning ||
+        (!external_mission_mode_ && !detection_start_time.isZero() &&
+         !alignmentWindowOpen(false, (ros::Time::now() - detection_start_time).toSec(),
+                              waypoint_adjust_max_second_threshould))) {
+        cancelDropAction();
+    }
+    pollDropAction();
     double phase_lead = px4_max_distance;
     double phase_ceiling = external_planner_max_command_z_;
     if (nh_.getParamCached("px4_max_distance", phase_lead) &&
@@ -1686,6 +1708,14 @@ void LLController::load_params() {
     drop_height_threshold = nh_.param("drop_system/height_threshold", 0.2);
     drop_position_threshold_ = nh_.param(
         "drop_system/position_threshold", 0.15);
+    servo_action_service_ = nh_.param<std::string>(
+        "drop_system/servo_action_service", "/mission/servo_action");
+    servo_alignment_context_topic_ = nh_.param<std::string>(
+        "drop_system/servo_alignment_context_topic", "/uav_vision/alignment_target_context");
+    servo_call_timeout_sec_ = nh_.param("drop_system/servo_call_timeout_sec", 10.0);
+    if (!std::isfinite(servo_call_timeout_sec_) || servo_call_timeout_sec_ <= 0.0) {
+        throw std::invalid_argument("drop_system/servo_call_timeout_sec must be positive");
+    }
     drop_release_setpoint_height_ = nh_.param(
         "drop_system/release_setpoint_height", 0.10);
     drop_enabled = nh_.param("drop_system/enable_drop", true);
@@ -2146,7 +2176,7 @@ bool LLController::DynamicProcess()
                     should_drop = false;
                     if (!drop_complete) {
                         ROS_WARN_THROTTLE(1.0,
-                            "[DynamicProcess] Drop slot %d not acknowledged; retrying while conditions remain valid",
+                            "[DynamicProcess] Drop slot %d awaiting matching asynchronous ACK; no automatic repeat",
                             servo_id);
                         return false;
                     }
@@ -2482,7 +2512,7 @@ bool LLController::WayPointDetectDone()
                 should_drop = false;
                 if (!drop_complete) {
                     ROS_WARN_THROTTLE(1.0,
-                        "[WayPointDetectDone] Drop slot %d not acknowledged; retrying while conditions remain valid",
+                        "[WayPointDetectDone] Drop slot %d awaiting matching asynchronous ACK; no automatic repeat",
                         servo_id);
                     return false;
                 }
@@ -2946,6 +2976,7 @@ void LLController::missionCommandCallback(
                     "[ExternalLanding] refusing navigation command after AUTO.LAND handoff");
                 return;
             }
+            cancelDropAction();
             external_waiting_for_motion_ = false;
             have_planner_cmd = false;
             clearExternalLandingState(true);
@@ -2966,8 +2997,22 @@ void LLController::missionCommandCallback(
                     "[ExternalLanding] refusing ALIGN after AUTO.LAND handoff");
                 return;
             }
+            // Repeated ALIGN for an existing decision must not reset an
+            // admitted servo transaction (nor resurrect it after takeover).
+            const bool same_alignment =
+                servo_alignment_target_id_ == msg->target_id &&
+                servo_alignment_target_class_ == msg->target_class &&
+                ((msg->header.seq != 0 &&
+                  servo_alignment_decision_seq_ == msg->header.seq) ||
+                 (msg->header.seq == 0 && !msg->header.stamp.isZero() &&
+                  servo_alignment_stamp_ == msg->header.stamp));
+            if (same_alignment) return;
             clearExternalLandingState(true);
             resetDetectionState();
+            servo_alignment_decision_seq_ = msg->header.seq;
+            servo_alignment_target_id_ = msg->target_id;
+            servo_alignment_target_class_ = msg->target_class;
+            servo_alignment_stamp_ = msg->header.stamp;
             // Recovery changes the working height; every new target starts
             // from the configured capture height, including the second/third.
             align_height = external_alignment_capture_height_;
@@ -3118,70 +3163,138 @@ void LLController::applyDropSlotOffset(int servo_id, bool dynamic_target) {
     adjust_target_position[1] += offsets[servo_id - 1][1];
 }
 
-DropActionResult LLController::executeDropAction(int servo_id) {
-    servo_complete.data = false;
-    patrol_control::Servo srv;
-    srv.request.req = servo_id;
-
-    const bool service_call_ok = servo_id >= 1 && servo_id <= 3 &&
-                                 servo_client.call(srv);
-    const DropActionResult result = classifyDropAction(
-        servo_id, service_call_ok, service_call_ok && srv.response.res);
-    servo_complete.data = dropActionSucceeded(result);
-
-    switch (result) {
-        case DropActionResult::kSuccess:
-            ROS_INFO("\033[32m[DropSystem] Drop action %d received positive Servo ACK\033[0m",
-                     servo_id);
-            break;
-        case DropActionResult::kInvalidServoId:
-            ROS_ERROR("\033[31m[DropSystem] Invalid servo ID: %d\033[0m", servo_id);
-            break;
-        case DropActionResult::kServiceCallFailed:
-            ROS_ERROR("\033[31m[DropSystem] Servo service call failed for slot %d\033[0m",
-                      servo_id);
-            break;
-        case DropActionResult::kRejected:
-            ROS_WARN("\033[33m[DropSystem] Servo request rejected for slot %d\033[0m",
-                     servo_id);
-            break;
+void LLController::servoAlignmentContextCallback(
+    const uav_vision::AlignmentTargetContext::ConstPtr& msg) {
+    if (msg->schema_version != uav_vision::AlignmentTargetContext::SCHEMA_VERSION ||
+        msg->command != uav_vision::AlignmentTargetContext::ALIGN) return;
+    if (!msg->active) {
+        if (have_servo_alignment_context_ &&
+            msg->mission_id == servo_alignment_context_.mission_id &&
+            msg->decision_seq == servo_alignment_context_.decision_seq &&
+            msg->attempt == servo_alignment_context_.attempt &&
+            msg->payload_slot == servo_alignment_context_.payload_slot &&
+            msg->semantic_target_id == servo_alignment_context_.semantic_target_id &&
+            msg->semantic_target_first_seen == servo_alignment_context_.semantic_target_first_seen &&
+            msg->semantic_target_class == servo_alignment_context_.semantic_target_class) {
+            have_servo_alignment_context_ = false;
+            // Revocation blocks future submissions. The proxy owns the raw-call
+            // fence; do not discard an already queued RPC's terminal result.
+            // In particular ReleaseResult may precede the matching RPC reply.
+        }
+        return;
     }
-    // // 创建投递控制消息
-    // std_msgs::Bool drop_msg;
-    // drop_msg.data = true;
-
-    // // 选择对应的舵机发布器
-    // ros::Publisher* servo_pub = nullptr;
-    // std::string topic_name;
-
-    // switch (servo_id) {
-    //     case 1:
-    //         servo_pub = &servo1_pub_;
-    //         topic_name = "/control1";
-    //         break;
-    //     case 2:
-    //         servo_pub = &servo2_pub_;
-    //         topic_name = "/control2";
-    //         break;
-    //     case 3:
-    //         servo_pub = &servo3_pub_;
-    //         topic_name = "/control3";
-    //         break;
-    //     default:
-    //         ROS_ERROR("\033[31m[DropSystem] Invalid servo ID: %d\033[0m", servo_id);
-    //         return;
-    // }
-
-    // ROS_INFO("\033[32m[DropSystem] Executing drop action for servo %d\033[0m", servo_id);
-    // ROS_INFO("\033[32m[DropSystem] Publishing to topic: %s\033[0m", topic_name.c_str());
-
-    // // 发布投递命令，重复发布几次确保接收
-    // for (int i = 0; i < 5; i++) {
-    //     servo_pub->publish(drop_msg);
-    //     ros::Duration(0.1).sleep();  // 间隔100ms
-    // }
-    return result;
+    servo_alignment_context_ = *msg;
+    have_servo_alignment_context_ = true;
 }
+
+DropActionResult LLController::executeDropAction(int servo_id) {
+    if (servo_id < 1 || servo_id > 3) return DropActionResult::kInvalidServoId;
+    if (servo_action_attempted_) {
+        return servo_action_slot_ == servo_id ? servo_action_result_
+                                             : DropActionResult::kRejected;
+    }
+    // Receiving a fresh release permission is not permission to actuate after
+    // RC takeover/disarm/disconnect. Use the existing flight-state age gate.
+    if (!externalLandingControlReady(ros::Time::now())) return DropActionResult::kRejected;
+    servo_complete.data = false;
+    // Capture a client copy only, never this/controller flags. The worker's
+    // outcome is consumed by pollDropAction on the existing 20 Hz callback.
+    AsyncServo::Execute execute;
+    if (external_mission_mode_) {
+        const auto& context = servo_alignment_context_;
+        if (!have_servo_alignment_context_ || !context.active || !context.has_target ||
+            context.mission_id.empty() || context.decision_seq == 0 ||
+            context.semantic_target_first_seen.isZero() ||
+            context.decision_seq != servo_alignment_decision_seq_ ||
+            context.semantic_target_id != servo_alignment_target_id_ ||
+            context.semantic_target_class != servo_alignment_target_class_ ||
+            context.payload_slot != servo_id || context.deadline <= ros::Time::now()) {
+            return DropActionResult::kRejected;
+        }
+        patrol_control::ServoAction::Request request;
+        request.request_id = servo_action_id_;
+        request.payload_slot = servo_id;
+        request.mission_id = context.mission_id;
+        request.decision_seq = context.decision_seq;
+        request.attempt = context.attempt;
+        request.target_id = context.semantic_target_id;
+        request.target_first_seen = context.semantic_target_first_seen;
+        request.target_class = context.semantic_target_class;
+        request.align_mode = context.align_mode;
+        ros::ServiceClient client = servo_action_client_;
+        execute = [client, request](int) mutable {
+            patrol_control::ServoAction srv;
+            srv.request = request;
+            const bool ok = client.call(srv);
+            return classifyServoAction(request, ok, srv.response);
+        };
+    } else {
+        // Unchanged legacy bool service cannot unlock an uncertain failure.
+        ros::ServiceClient client = servo_client;
+        execute = [client](int slot) mutable {
+            patrol_control::Servo srv;
+            srv.request.req = slot;
+            const bool ok = client.call(srv);
+            return classifyDropAction(slot, ok, ok && srv.response.res);
+        };
+    }
+    const bool submitted = async_servo_.submit(
+        servo_action_id_, servo_id, servo_call_timeout_sec_, execute);
+    if (!submitted) return DropActionResult::kRejected;
+    servo_action_slot_ = servo_id;
+    servo_action_attempted_ = true;
+    servo_action_pending_ = true;
+    servo_action_result_ = DropActionResult::kPending;
+    ROS_INFO("[DropSystem] async Servo submitted action=%llu slot=%d",
+             static_cast<unsigned long long>(servo_action_id_), servo_id);
+    return DropActionResult::kPending;
+}
+
+void LLController::pollDropAction() {
+    if (!servo_action_pending_) return;
+    AsyncServo::Completion completion;
+    if (!async_servo_.poll(servo_action_id_, servo_action_slot_, &completion)) return;
+    servo_action_pending_ = false;
+    if (completion.status != AsyncServo::Status::kCompleted) {
+        servo_action_result_ = DropActionResult::kServiceCallFailed;
+        servo_complete.data = false;
+        ROS_ERROR("[DropSystem] Servo action=%llu slot=%d cancelled/timed out; no automatic retry",
+                  static_cast<unsigned long long>(completion.action), completion.slot);
+        return;
+    }
+    servo_action_result_ = completion.result;
+    if (completion.result == DropActionResult::kNotStarted) {
+        const bool unlocked = async_servo_.releaseNotStarted(completion.action, completion.slot);
+        servo_complete.data = false;
+        ROS_WARN("[DropSystem] fenced NOT_STARTED action=%llu slot=%d unlocked=%s; await new ALIGN",
+                 static_cast<unsigned long long>(completion.action), completion.slot,
+                 unlocked ? "true" : "false");
+        return;
+    }
+    servo_complete.data = dropActionSucceeded(completion.result);
+    if (!servo_complete.data) {
+        ROS_WARN("[DropSystem] Servo action=%llu slot=%d not acknowledged; no automatic retry",
+                 static_cast<unsigned long long>(completion.action), completion.slot);
+        return;
+    }
+    drop_complete = true;
+    if (detect_point_counter >= 0 &&
+        detect_point_counter < static_cast<int>(drop_completed.size())) {
+        drop_completed[detect_point_counter] = true;
+    }
+    ROS_INFO("[DropSystem] Drop action %d received positive Servo ACK (action=%llu)",
+             completion.slot, static_cast<unsigned long long>(completion.action));
+}
+
+void LLController::cancelDropAction() {
+    if (!servo_action_pending_) return;
+    async_servo_.cancel();
+    servo_action_pending_ = false;
+    servo_action_result_ = DropActionResult::kServiceCallFailed;
+    servo_complete.data = false;
+    ROS_WARN("[DropSystem] Servo action invalidated; in-flight physical call is never repeated");
+}
+
 void LLController::stopDropAction(int servo_id) {
 
     if (external_mission_mode_) {
@@ -3224,6 +3337,11 @@ void LLController::stopDropAction(int servo_id) {
 }
 
 void LLController::resetDropState() {
+    cancelDropAction();
+    ++servo_action_id_;
+    servo_action_slot_ = 0;
+    servo_action_attempted_ = false;
+    servo_action_result_ = DropActionResult::kPending;
     drop_condition_met = false;
     current_pixel_error = 1000.0;
     descent_completed = false;
@@ -3240,6 +3358,8 @@ void LLController::resetDropState() {
 //                       msg->x, msg->y, msg->z);
 // }
 void LLController::servoCompleteCallback(const std_msgs::Bool::ConstPtr& msg) {
+    // Untagged legacy completion must not acknowledge an RPC transaction.
+    if (servo_action_attempted_) return;
     if (ignore_servo_complete && msg->data == true) {
         ROS_INFO("\033[33m[ServoComplete] Ignoring servo complete signal during waypoint transition\033[0m");
         return;
@@ -3422,7 +3542,7 @@ bool LLController::CrossDetectionDone() {
                 should_drop = false;
                 if (!drop_complete) {
                     ROS_WARN_THROTTLE(1.0,
-                        "[CrossDetectionDone] Drop slot %d not acknowledged; retrying while conditions remain valid",
+                        "[CrossDetectionDone] Drop slot %d awaiting matching asynchronous ACK; no automatic repeat",
                         servo_id);
                     return false;
                 }
@@ -3479,6 +3599,11 @@ void LLController::resetCrossDetectionState() {
 }
 
 void LLController::resetDetectionState() {
+    cancelDropAction();
+    ++servo_action_id_;
+    servo_action_slot_ = 0;
+    servo_action_attempted_ = false;
+    servo_action_result_ = DropActionResult::kPending;
     // 重置所有检测相关状态
     first_call = true;
     times_detect = 0;

@@ -3,6 +3,7 @@
 #define _LL_CONTROLLER_NEW_H_
 
 #include "patrol_control/drop_action.h"
+#include "patrol_control/async_servo.h"
 
 #include <array>
 #include <map>
@@ -20,6 +21,7 @@
 #include <std_msgs/Int32.h>
 #include <std_msgs/Int8.h>
 #include <std_msgs/String.h>
+#include <uav_vision/AlignmentTargetContext.h>
 #include <uav_vision/DropOffset.h>
 #include <uav_vision/DropReady.h>
 #include <uav_vision/TargetCandidate.h>
@@ -115,6 +117,26 @@ private:
     ros::Subscriber servo_marky_sub_;
     ros::Subscriber cross_mark_sub_;
     ros::ServiceClient servo_client;
+    ros::ServiceClient servo_action_client_;
+    ros::Subscriber servo_alignment_context_sub_;
+    uav_vision::AlignmentTargetContext servo_alignment_context_;
+    bool have_servo_alignment_context_ = false;
+    std::string servo_action_service_ = "/mission/servo_action";
+    std::string servo_alignment_context_topic_ = "/uav_vision/alignment_target_context";
+    void servoAlignmentContextCallback(const uav_vision::AlignmentTargetContext::ConstPtr& msg);
+    AsyncServo async_servo_;
+    std::uint64_t servo_action_id_ = 1;
+    int servo_action_slot_ = 0;
+    bool servo_action_attempted_ = false;
+    bool servo_action_pending_ = false;
+    DropActionResult servo_action_result_ = DropActionResult::kPending;
+    double servo_call_timeout_sec_ = 10.0;
+    std::uint32_t servo_alignment_decision_seq_ = 0;
+    std::uint32_t servo_alignment_target_id_ = 0;
+    std::string servo_alignment_target_class_;
+    ros::Time servo_alignment_stamp_;
+    void pollDropAction();
+    void cancelDropAction();
     ros::Subscriber selected_target_sub_;
     ros::Subscriber drop_offset_sub_;
     ros::Subscriber drop_camera_info_sub_;

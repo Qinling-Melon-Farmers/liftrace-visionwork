@@ -49,10 +49,11 @@ struct Time {
     bool isZero() const { return value == 0; }
     static Time now() { return Time(clock); }
 };
+bool operator==(Time a, Time b) { return a.value == b.value; }
 Duration operator-(Time a, Time b) { return Duration{a.value - b.value}; }
 struct Publisher { int calls=0; template<typename T> void publish(const T&) {++calls;} };
 }
-struct Header { ros::Time stamp; std::string frame_id; };
+struct Header { unsigned int seq=0; ros::Time stamp; std::string frame_id; };
 struct Position { double x=0, y=0, z=0; };
 namespace geometry_msgs {
 using Point = Position;
@@ -76,6 +77,7 @@ namespace patrol_control {
 struct MissionCommand {
     using ConstPtr = std::shared_ptr<const MissionCommand>;
     enum { SEARCH, APPROACH, ALIGN, RESUME, RETURN_HOME, LAND };
+    Header header;
     int command=LAND, target_id=1;
     std::string target_class;
     geometry_msgs::PoseStamped goal;
@@ -144,6 +146,10 @@ public:
     TaskType current_task_type=MAIN_MISSION;
     ros::Publisher landing_detect_control_pub_;
     ModeService set_mode_client;
+    unsigned int servo_alignment_decision_seq_=0, servo_alignment_target_id_=0;
+    std::string servo_alignment_target_class_;
+    ros::Time servo_alignment_stamp_;
+    void cancelDropAction() {}
     void resetDetectionState() { ++detection_resets; }
     void publishLegacyVisionControl(ros::Publisher&, const std_msgs::Bool&) {}
     bool externalLandingMarkFresh(const ros::Time&) const;
@@ -372,6 +378,25 @@ int main(int argc, char** argv) {
         assert(c.set_mode_client.calls==0 && !c.flag_land);
         c=landing(); c.external_landing_active_=false; c.CallLand();
         assert(c.set_mode_client.calls==0 && !c.flag_land);
+    } else if (test=="align_identity") {
+        LLController c;
+        auto msg=std::make_shared<patrol_control::MissionCommand>();
+        msg->command=patrol_control::MissionCommand::ALIGN;
+        msg->header.seq=42; msg->header.stamp=ros::Time::now();
+        msg->target_id=7; msg->target_class="panzer";
+        c.missionCommandCallback(msg);
+        assert(c.detection_resets==1 && c.Drone_mode==Aligning);
+        // Receipt time may change, but the same decision is still one action.
+        msg->header.stamp=ros::Time(101);
+        c.missionCommandCallback(msg);
+        assert(c.detection_resets==1);
+        msg->header.seq=43;
+        c.missionCommandCallback(msg);
+        assert(c.detection_resets==2);
+        // Compatibility fallback for old publishers with seq=0.
+        msg->header.seq=0; msg->header.stamp=ros::Time(102);
+        c.missionCommandCallback(msg); c.missionCommandCallback(msg);
+        assert(c.detection_resets==3);
     } else if (test=="legacy") {
         for (bool simulation : {false,true}) {
             for (bool accepted : {false,true}) {
@@ -426,6 +451,9 @@ class ExternalLandingHandoffTest(unittest.TestCase):
             '-Wno-unused-parameter', '-fsanitize=undefined',
             '-fno-sanitize-recover=all', str(cpp), '-o', str(cls.binary),
         ], check=True)
+
+    def test_repeated_align_cannot_reset_one_servo_action(self):
+        self.run_case('align_identity')
 
     def run_case(self, name):
         subprocess.run([str(self.binary), name], check=True)

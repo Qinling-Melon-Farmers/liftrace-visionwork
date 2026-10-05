@@ -51,7 +51,7 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
                 "/planning/replan", "/mavros/cmd/arming"):
             self.assertNotIn(forbidden, self.source)
         self.assertIn("ExtendedState", self.source)
-        self.assertNotIn("from mavros_msgs.msg import State", self.source)
+        self.assertIn("State as FlightState", self.source)
 
     def test_live_planner_topic_requires_explicit_acknowledgement(self):
         self.assertIn(
@@ -225,8 +225,9 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
             "now_ns - self._control_state_receipt_ns", self.source)
         self.assertNotIn(
             "now_ns - self._align_mode_receipt_ns", self.source)
-        self.assertNotIn(
-            "now_ns - self._landed_state_receipt_ns", self.source)
+        self.assertIn("now_ns - self._landed_state_receipt_ns", self.source)
+        self.assertIn("flight_state_disconnected", self.source)
+        self.assertIn("landing_airborne_manual_takeover", self.source)
 
     def test_debug_recording_includes_odom_used_by_terminal_gates(self):
         recorder = next(
