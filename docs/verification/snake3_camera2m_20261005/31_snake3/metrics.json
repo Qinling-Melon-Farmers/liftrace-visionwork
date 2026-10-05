@@ -1,0 +1,1781 @@
+{
+  "label": "snake3",
+  "seed": 31,
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed31_20261005_095902",
+  "status": "FAIL",
+  "reason": "manager_failed",
+  "failed_checks": [
+    "contract_errors_zero",
+    "final_landed_on_ground",
+    "final_vehicle_disarmed",
+    "land_success",
+    "manager_complete",
+    "mission_ros_within_limit",
+    "return_before_land",
+    "unmatched_results_zero"
+  ],
+  "start_ros_s": 11.852,
+  "observed_end_ros_s": 224.779,
+  "completed_mission_s": null,
+  "landing_transaction_s": null,
+  "observed_duration_s": 212.927,
+  "xy_distance_m": 57.96252979384715,
+  "xyz_distance_m": 65.25350700850242,
+  "speed_xy_p95_mps": 0.8749970199462985,
+  "max_fc_agl_m": 2.358500239232604,
+  "releases": [
+    {
+      "ros_sec": 85.658,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 1,
+          "stamp": {
+            "stamp_ns": 85658000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 1,
+        "payload_slot": 1,
+        "align_mode": "drop_cross",
+        "target_id": 8,
+        "target_class": "red_cross",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    },
+    {
+      "ros_sec": 121.363,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 2,
+          "stamp": {
+            "stamp_ns": 121363000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 2,
+        "payload_slot": 2,
+        "align_mode": "drop_circle",
+        "target_id": 6,
+        "target_class": "bridge",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    },
+    {
+      "ros_sec": 143.116,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 3,
+          "stamp": {
+            "stamp_ns": 143116000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 3,
+        "payload_slot": 3,
+        "align_mode": "drop_circle",
+        "target_id": 4,
+        "target_class": "panzer",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    }
+  ],
+  "gate_metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 20,
+    "door_crossings": [
+      {
+        "lateral": 4.305885502729905,
+        "name": "corridor_entry",
+        "route_index": 2,
+        "z": 0.9732099172651275
+      },
+      {
+        "lateral": 9.080844324333148,
+        "name": "Wall_20",
+        "route_index": 3,
+        "z": 0.9535313071502834
+      },
+      {
+        "lateral": 9.08732630609177,
+        "name": "Wall_22",
+        "route_index": 3,
+        "z": 0.9499635689069349
+      }
+    ],
+    "height_violations": 0,
+    "landing_align_mode_seen": true,
+    "landing_h_mark_rejections": {
+      "source_before_land_decision": 1
+    },
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      8.75,
+      -4.2
+    ],
+    "latest_armed": true,
+    "latest_landed_state": 4,
+    "max_observed_height": 2.3588565509843145,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 9771,
+    "post_delivery_decision_indices": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "post_delivery_return_success_count": 4,
+    "post_delivery_route_revision": "route-speed-snake3",
+    "post_delivery_route_size": 4,
+    "recovery_success_count": 3,
+    "release_commit_count": 3,
+    "result_count": 94,
+    "search_envelope_violations": 0,
+    "selected_count": 1055,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 1,
+    "valid_landing_h_mark": {
+      "anchor_error_m": 0.03733048158106841,
+      "frame_id": "camera_init",
+      "stamp_ns": 214320000000,
+      "x": 8.713137156452403,
+      "y": -4.205890298859978,
+      "z": -0.22
+    }
+  },
+  "collisions": 0,
+  "sample_gap_count": 0,
+  "moving_xy_time_s": 176.73300000000006,
+  "nonmoving_xy_time_s": 36.18699999999995,
+  "moving_sample_threshold_mps": 0.03,
+  "moving_speed_xy_median_mps": 0.16774704265162574,
+  "moving_speed_xy_p95_mps": 0.880995858907983,
+  "high_view_final": {
+    "ascent_verified": true,
+    "ascent_waypoint_index": 1,
+    "ascent_xy": [
+      0.6,
+      0.05
+    ],
+    "boundary_policy": {
+      "bounds": [
+        -0.5,
+        7.95,
+        -5.0,
+        5.0
+      ],
+      "enabled": true,
+      "guard_side_m": 0.55,
+      "max_view_offset_m": 0.65,
+      "tracking_reserve_m": 0.03,
+      "yaw_budget_deg": 10.0
+    },
+    "boundary_rejections": 0,
+    "catalog_entries": 4,
+    "completion_policy": "COMPLETE_ROUTE_OR_SUPPORTED_TOP3",
+    "conflict_active": false,
+    "conflict_checked": [],
+    "conflict_locations": {},
+    "degraded_from": null,
+    "descent_debug": {
+      "current_blocked": false,
+      "current_xy": [
+        6.546612739562988,
+        -1.674973726272583
+      ],
+      "exit_blocked": false,
+      "map_stamp": 66.805,
+      "target_blocked": {
+        "bridge": false,
+        "panzer": false,
+        "red_cross": false
+      },
+      "time": 67.632
+    },
+    "descent_proposal": {
+      "candidates": 1,
+      "classes": [
+        "red_cross",
+        "bridge",
+        "panzer"
+      ],
+      "cost_m": 14.345941546018384,
+      "from_xy": [
+        6.546612739562988,
+        -1.674973726272583
+      ],
+      "kind": "CURRENT_COLUMN",
+      "map_stamp": 66.805,
+      "scope": "SENSED_OCCUPANCY_PROPOSAL_REQUIRES_3D_PLANNER",
+      "time": 67.632,
+      "xy": [
+        6.546612739562988,
+        -1.674973726272583
+      ]
+    },
+    "done": false,
+    "events": [
+      {
+        "original_deadline": 154.05700000000002,
+        "retired_seq": 8,
+        "stage": "SURVEY_INTERRUPTED_TOP3",
+        "support": {
+          "bridge": [
+            {
+              "distinct_image_stamps": [
+                35835000000,
+                35942000000
+              ],
+              "low_verified": false,
+              "revisit_support_count": 2,
+              "source": "bbox",
+              "source_stamp_ns": 35942000000,
+              "xy": [
+                0.6524670554478574,
+                2.4046783243525653
+              ]
+            },
+            {
+              "distinct_image_stamps": [
+                55491000000,
+                55650000000
+              ],
+              "low_verified": false,
+              "revisit_support_count": 5,
+              "source": "vision",
+              "source_stamp_ns": 66571000000,
+              "xy": [
+                4.980313013072689,
+                -3.7737276461826528
+              ]
+            }
+          ],
+          "panzer": [
+            {
+              "distinct_image_stamps": [
+                35642000000,
+                35869000000
+              ],
+              "low_verified": false,
+              "revisit_support_count": 2,
+              "source": "bbox",
+              "source_stamp_ns": 35869000000,
+              "xy": [
+                0.6314361940905509,
+                2.371560082441378
+              ]
+            },
+            {
+              "distinct_image_stamps": [
+                51630000000,
+                51736000000
+              ],
+              "low_verified": false,
+              "revisit_support_count": 5,
+              "source": "vision",
+              "source_stamp_ns": 53770000000,
+              "xy": [
+                3.964403377433554,
+                -0.6121779940859872
+              ]
+            }
+          ],
+          "pillbox": [
+            {
+              "distinct_image_stamps": [
+                33729000000,
+                33900000000
+              ],
+              "low_verified": false,
+              "revisit_support_count": 4,
+              "source": "vision",
+              "source_stamp_ns": 35477000000,
+              "xy": [
+                0.7195268987901156,
+                2.1874736992480117
+              ]
+            }
+          ],
+          "red_cross": [
+            {
+              "distinct_image_stamps": [
+                67361000000,
+                67496000000
+              ],
+              "low_verified": false,
+              "revisit_support_count": 2,
+              "source": "bbox",
+              "source_stamp_ns": 67538000000,
+              "xy": [
+                7.366033313593331,
+                -1.1288315255937666
+              ]
+            }
+          ],
+          "tent": [
+            {
+              "distinct_image_stamps": [
+                22805000000,
+                22924000000
+              ],
+              "low_verified": false,
+              "revisit_support_count": 5,
+              "source": "vision",
+              "source_stamp_ns": 28478000000,
+              "xy": [
+                0.5870401008157209,
+                -4.00633041557035
+              ]
+            }
+          ]
+        },
+        "time": 67.632
+      },
+      {
+        "stage": "DESCEND",
+        "time": 67.632
+      },
+      {
+        "boundary_margin_m": 0.3485753809367631,
+        "hint_xy": [
+          7.366033313593331,
+          -1.1288315255937666
+        ],
+        "stage": "REVISIT_VIEWPOINT",
+        "time": 71.456,
+        "uncertainty_m": 0.45,
+        "xy": [
+          7.151424619063237,
+          -1.1288315255937666
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 71.456
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 76.866
+      },
+      {
+        "stage": "DELIVERY",
+        "target": "red_cross",
+        "time": 76.931
+      },
+      {
+        "boundary_margin_m": 0.3485753809367631,
+        "hint_xy": [
+          4.980313013072689,
+          -3.7737276461826528
+        ],
+        "stage": "REVISIT_VIEWPOINT",
+        "time": 87.891,
+        "uncertainty_m": 0.2022170780364124,
+        "xy": [
+          4.980313013072689,
+          -3.7737276461826528
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 87.891
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 112.659
+      },
+      {
+        "stage": "DELIVERY",
+        "target": "bridge",
+        "time": 112.831
+      },
+      {
+        "boundary_margin_m": 0.3485753809367631,
+        "hint_xy": [
+          3.964403377433554,
+          -0.6121779940859872
+        ],
+        "stage": "REVISIT_VIEWPOINT",
+        "time": 124.791,
+        "uncertainty_m": 0.21995409526283866,
+        "xy": [
+          3.964403377433554,
+          -0.6121779940859872
+        ]
+      },
+      {
+        "stage": "REVISIT",
+        "time": 124.791
+      },
+      {
+        "stage": "REACQUIRE",
+        "time": 137.141
+      },
+      {
+        "stage": "DELIVERY",
+        "target": "panzer",
+        "time": 137.331
+      }
+    ],
+    "failure": "",
+    "fallback_started": null,
+    "first_hint_ready": {
+      "bridge": {
+        "evidence_count": 1,
+        "last_seen_ns": 55131000000,
+        "source": "bbox",
+        "time": 55.196,
+        "uncertainty_m": 0.45,
+        "xy": [
+          5.0110453074589465,
+          -3.56883573457617
+        ]
+      },
+      "panzer": {
+        "evidence_count": 1,
+        "last_seen_ns": 51303000000,
+        "source": "bbox",
+        "time": 51.344,
+        "uncertainty_m": 0.45,
+        "xy": [
+          3.9513783730849896,
+          -0.3833033011567314
+        ]
+      },
+      "red_cross": {
+        "evidence_count": 1,
+        "last_seen_ns": 67361000000,
+        "source": "bbox",
+        "time": 67.392,
+        "uncertainty_m": 0.45,
+        "xy": [
+          7.362136452433998,
+          -1.1941107532609556
+        ]
+      }
+    },
+    "local_wall_verify_used": false,
+    "low_limits_applied": true,
+    "navigation_conflicted_classes": [],
+    "navigation_memory_events": [
+      {
+        "reason": "epoch_or_clock_reset",
+        "time_ns": 11870000000
+      },
+      {
+        "class_name": "red_cross",
+        "reason": "low_view_location_resolved",
+        "time_ns": 76929000000,
+        "xy": [
+          7.375728024595796,
+          -1.0651730217612538
+        ]
+      },
+      {
+        "class_name": "bridge",
+        "reason": "low_view_location_resolved",
+        "time_ns": 112751000000,
+        "xy": [
+          4.997260890079971,
+          -3.7536647908958605
+        ]
+      },
+      {
+        "class_name": "bridge",
+        "reason": "low_view_location_resolved",
+        "time_ns": 112830000000,
+        "xy": [
+          4.997385970636265,
+          -3.7534881038290138
+        ]
+      },
+      {
+        "class_name": "panzer",
+        "reason": "low_view_location_resolved",
+        "time_ns": 137251000000,
+        "xy": [
+          3.9774196628674874,
+          -0.6203274983181527
+        ]
+      }
+    ],
+    "navigation_support": {
+      "bridge": [
+        {
+          "distinct_image_stamps": [
+            35835000000,
+            35942000000
+          ],
+          "low_verified": false,
+          "revisit_support_count": 2,
+          "source": "bbox",
+          "source_stamp_ns": 35942000000,
+          "xy": [
+            0.6524670554478574,
+            2.4046783243525653
+          ]
+        },
+        {
+          "distinct_image_stamps": [
+            55491000000,
+            55650000000
+          ],
+          "low_verified": true,
+          "revisit_support_count": 5,
+          "source": "vision",
+          "source_stamp_ns": 112746000000,
+          "xy": [
+            4.997385970636265,
+            -3.7534881038290138
+          ]
+        }
+      ],
+      "panzer": [
+        {
+          "distinct_image_stamps": [
+            35642000000,
+            35869000000
+          ],
+          "low_verified": false,
+          "revisit_support_count": 2,
+          "source": "bbox",
+          "source_stamp_ns": 35869000000,
+          "xy": [
+            0.6314361940905509,
+            2.371560082441378
+          ]
+        },
+        {
+          "distinct_image_stamps": [
+            51630000000,
+            51736000000
+          ],
+          "low_verified": true,
+          "revisit_support_count": 5,
+          "source": "vision",
+          "source_stamp_ns": 137148000000,
+          "xy": [
+            3.9774196628674874,
+            -0.6203274983181527
+          ]
+        }
+      ],
+      "pillbox": [
+        {
+          "distinct_image_stamps": [
+            33729000000,
+            33900000000
+          ],
+          "low_verified": false,
+          "revisit_support_count": 4,
+          "source": "vision",
+          "source_stamp_ns": 35477000000,
+          "xy": [
+            0.7195268987901156,
+            2.1874736992480117
+          ]
+        }
+      ],
+      "red_cross": [
+        {
+          "distinct_image_stamps": [
+            67361000000,
+            67496000000
+          ],
+          "low_verified": true,
+          "revisit_support_count": 2,
+          "source": "vision",
+          "source_stamp_ns": 76897000000,
+          "xy": [
+            7.375728024595796,
+            -1.0651730217612538
+          ]
+        }
+      ],
+      "tent": [
+        {
+          "distinct_image_stamps": [
+            22805000000,
+            22924000000
+          ],
+          "low_verified": false,
+          "revisit_support_count": 5,
+          "source": "vision",
+          "source_stamp_ns": 28478000000,
+          "xy": [
+            0.5870401008157209,
+            -4.00633041557035
+          ]
+        }
+      ]
+    },
+    "observation_counts": {
+      "accepted": 158,
+      "candidate:map_invalid": 155,
+      "candidate:profile_excluded": 12279,
+      "candidate:state_not_confirmed": 10080,
+      "candidate:streak_too_short": 3101,
+      "coarse_accepted": 432,
+      "duplicate_or_too_close": 200
+    },
+    "observe_until": 142.141,
+    "orders": [
+      {
+        "classes": [
+          "red_cross",
+          "bridge",
+          "panzer"
+        ],
+        "grid_length_m": 14.345941546018384,
+        "map_stamp": 66.805,
+        "scope": "INTERRUPTION_POINT_ROUTE",
+        "time": 67.632
+      },
+      {
+        "classes": [
+          "red_cross",
+          "bridge",
+          "panzer"
+        ],
+        "grid_length_m": 13.983809511662422,
+        "map_stamp": 71.101,
+        "scope": "COARSE_OCCUPANCY_COST_NOT_FLIGHT_APPROVAL",
+        "time": 71.456
+      },
+      {
+        "classes": [
+          "bridge",
+          "panzer"
+        ],
+        "grid_length_m": 13.471677477306457,
+        "map_stamp": 87.133,
+        "scope": "COARSE_OCCUPANCY_COST_NOT_FLIGHT_APPROVAL",
+        "time": 87.891
+      },
+      {
+        "classes": [
+          "panzer"
+        ],
+        "grid_length_m": null,
+        "map_stamp": 124.633,
+        "scope": "SINGLE_REMAINING_TARGET_REQUIRES_3D_PLANNER",
+        "time": 124.791
+      }
+    ],
+    "reacquired": {
+      "class_name": "panzer",
+      "hint_delta": 0.015357021382016374,
+      "last_seen_ns": 137148000000,
+      "target_id": 4,
+      "time": 137.251,
+      "xy": [
+        3.9774196628674874,
+        -0.6203274983181527
+      ]
+    },
+    "reacquisitions": [
+      {
+        "class_name": "red_cross",
+        "hint_delta": 0.06439248816139484,
+        "last_seen_ns": 76897000000,
+        "target_id": 8,
+        "time": 76.929,
+        "xy": [
+          7.375728024595796,
+          -1.0651730217612538
+        ]
+      },
+      {
+        "class_name": "bridge",
+        "hint_delta": 0.00021647971072055475,
+        "last_seen_ns": 112746000000,
+        "target_id": 6,
+        "time": 112.83,
+        "xy": [
+          4.997385970636265,
+          -3.7534881038290138
+        ]
+      },
+      {
+        "class_name": "panzer",
+        "hint_delta": 0.015357021382016374,
+        "last_seen_ns": 137148000000,
+        "target_id": 4,
+        "time": 137.251,
+        "xy": [
+          3.9774196628674874,
+          -0.6203274983181527
+        ]
+      }
+    ],
+    "recheck_shift_used": false,
+    "required_classes": [
+      "bridge",
+      "panzer",
+      "red_cross"
+    ],
+    "revisit_viewpoints": {
+      "panzer": [
+        3.964403377433554,
+        -0.6121779940859872
+      ]
+    },
+    "scope": "HIGH_VIEW_FULL_MISSION",
+    "selected": {
+      "class_name": "panzer",
+      "epoch": {
+        "calibration": "installed-camera-1280-v1",
+        "localization": "static-sitl-world",
+        "mission": "vcl06-random-11-852000000-1"
+      },
+      "evidence_count": 35,
+      "key": {
+        "first_seen_ns": 51416000000,
+        "source": "vision",
+        "target_id": 4
+      },
+      "last_seen_ns": 137148000000,
+      "role": "REVISIT_HINT_ONLY",
+      "uncertainty_m": 0.2,
+      "vote_fraction": 1.0,
+      "xy": [
+        3.9774196628674874,
+        -0.6203274983181527
+      ]
+    },
+    "skipped_survey_xy": [],
+    "slots_committed": 3,
+    "stage": "TAIL",
+    "succeeded": false,
+    "survey_policy": {
+      "candidate_min_streak": 1,
+      "coarse_enabled": true,
+      "coarse_interrupt_consistency_m": 0.5,
+      "coarse_interrupt_max_gap_ns": 1000000000,
+      "coarse_interrupt_min_interval_ns": 100000000,
+      "coarse_min_confidence": 0.6,
+      "coarse_uncertainty_m": 0.45,
+      "descent_max_candidates": 25,
+      "descent_radius_m": 1.5,
+      "direct_descent": true,
+      "high_max_agl": 3.3,
+      "high_min_agl": 2.0,
+      "interrupt_refined_classes": [],
+      "max_uncertainty_m": 0.45,
+      "min_interval_ns": 100000000,
+      "min_span_ns": 200000000,
+      "recheck_observe_seconds": 5.0,
+      "recheck_shift_after_seconds": 1.0,
+      "recheck_shift_radius_m": 0.5,
+      "survey_alternative_radius_m": 0.6,
+      "survey_progress_m": 0.15,
+      "survey_stall_seconds": 8.0
+    },
+    "top_hints": {
+      "bridge": {
+        "class_name": "bridge",
+        "epoch": {
+          "calibration": "installed-camera-1280-v1",
+          "localization": "static-sitl-world",
+          "mission": "vcl06-random-11-852000000-1"
+        },
+        "evidence_count": 82,
+        "key": {
+          "first_seen_ns": 55243000000,
+          "source": "vision",
+          "target_id": 6
+        },
+        "last_seen_ns": 112746000000,
+        "role": "REVISIT_HINT_ONLY",
+        "uncertainty_m": 0.2,
+        "vote_fraction": 1.0,
+        "xy": [
+          4.997385970636265,
+          -3.7534881038290138
+        ]
+      },
+      "panzer": {
+        "class_name": "panzer",
+        "epoch": {
+          "calibration": "installed-camera-1280-v1",
+          "localization": "static-sitl-world",
+          "mission": "vcl06-random-11-852000000-1"
+        },
+        "evidence_count": 35,
+        "key": {
+          "first_seen_ns": 51416000000,
+          "source": "vision",
+          "target_id": 4
+        },
+        "last_seen_ns": 137148000000,
+        "role": "REVISIT_HINT_ONLY",
+        "uncertainty_m": 0.2,
+        "vote_fraction": 1.0,
+        "xy": [
+          3.9774196628674874,
+          -0.6203274983181527
+        ]
+      },
+      "red_cross": {
+        "class_name": "red_cross",
+        "epoch": {
+          "calibration": "installed-camera-1280-v1",
+          "localization": "static-sitl-world",
+          "mission": "vcl06-random-11-852000000-1"
+        },
+        "evidence_count": 39,
+        "key": {
+          "first_seen_ns": 67538000000,
+          "source": "vision",
+          "target_id": 8
+        },
+        "last_seen_ns": 76897000000,
+        "role": "REVISIT_HINT_ONLY",
+        "uncertainty_m": 0.2,
+        "vote_fraction": 1.0,
+        "xy": [
+          7.375728024595796,
+          -1.0651730217612538
+        ]
+      }
+    },
+    "unreachable_classes": []
+  },
+  "target_hint_evaluation": {
+    "bridge": {
+      "hint_uncertainty_m": 0.2,
+      "low_fused_point_error_m": 0.1543269544226281,
+      "source_age_at_reacquisition_s": 0.0,
+      "final_retained_hint_error_m": 0.1543269544226281
+    },
+    "panzer": {
+      "hint_uncertainty_m": 0.2,
+      "low_fused_point_error_m": 0.1093595299248139,
+      "source_age_at_reacquisition_s": 0.0,
+      "final_retained_hint_error_m": 0.1093595299248139
+    },
+    "red_cross": {
+      "hint_uncertainty_m": 0.2,
+      "low_fused_point_error_m": 0.11516364447088481,
+      "source_age_at_reacquisition_s": 0.0,
+      "final_retained_hint_error_m": 0.11516364447088481
+    }
+  },
+  "commit_times": [
+    {
+      "t": 85.658,
+      "target": "red_cross",
+      "true_fc_xy_at_ack": [
+        7.475959666978238,
+        -0.9728677179664804
+      ],
+      "fc_target_distance_at_ack_m": 0.034740446217790356
+    },
+    {
+      "t": 121.363,
+      "target": "bridge",
+      "true_fc_xy_at_ack": [
+        5.043483975948195,
+        -3.7360916208972745
+      ],
+      "fc_target_distance_at_ack_m": 0.11431011660221126
+    },
+    {
+      "t": 143.116,
+      "target": "panzer",
+      "true_fc_xy_at_ack": [
+        3.996943335368415,
+        -0.561368797697852
+      ],
+      "fc_target_distance_at_ack_m": 0.04870931320361527
+    }
+  ],
+  "third_commit_s": 131.264,
+  "first_commit_s": 73.806,
+  "xy_distance_to_third_commit_m": 41.04820820254429,
+  "armed_ros_s": 3.982,
+  "airborne_ros_s": 4.78,
+  "touchdown_ros_s": null,
+  "disarmed_ros_s": null,
+  "airborne_to_touchdown_s": null,
+  "armed_to_third_commit_s": 139.13400000000001,
+  "touchdown_to_disarm_s": null,
+  "high_view_stage_changes": [
+    {
+      "name": "IDLE",
+      "t": 0.0
+    },
+    {
+      "name": "ASCEND",
+      "t": 11.852
+    },
+    {
+      "name": "SURVEY",
+      "t": 18.065
+    },
+    {
+      "name": "DESCEND",
+      "t": 67.79
+    },
+    {
+      "name": "REVISIT",
+      "t": 71.49
+    },
+    {
+      "name": "REACQUIRE",
+      "t": 76.866
+    },
+    {
+      "name": "DELIVERY",
+      "t": 76.971
+    },
+    {
+      "name": "REVISIT",
+      "t": 87.987
+    },
+    {
+      "name": "REACQUIRE",
+      "t": 112.671
+    },
+    {
+      "name": "DELIVERY",
+      "t": 112.895
+    },
+    {
+      "name": "REVISIT",
+      "t": 124.803
+    },
+    {
+      "name": "REACQUIRE",
+      "t": 137.146
+    },
+    {
+      "name": "DELIVERY",
+      "t": 137.368
+    },
+    {
+      "name": "TAIL",
+      "t": 145.045
+    }
+  ],
+  "sampled_phase_durations_s": {
+    "SEARCH": 0.004999999999981242,
+    "ASCEND": 6.213000000000001,
+    "SURVEY": 49.72500000000001,
+    "DESCEND": 3.6999999999999886,
+    "REVISIT": 42.403000000000006,
+    "REACQUIRE": 0.5510000000000019,
+    "APPROACH": 2.555000000000007,
+    "CAPTURE": 5.555999999999997,
+    "ALIGN": 14.792000000000016,
+    "RECOVERY": 7.581999999999994,
+    "CORRIDOR": 66.018,
+    "LAND": 13.149000000000001,
+    "ABORT": 0.6779999999999973
+  },
+  "sampled_phase_changes": [
+    {
+      "t": 11.852,
+      "phase": "SEARCH"
+    },
+    {
+      "t": 11.852,
+      "phase": "ASCEND"
+    },
+    {
+      "t": 18.065,
+      "phase": "SURVEY"
+    },
+    {
+      "t": 67.79,
+      "phase": "DESCEND"
+    },
+    {
+      "t": 71.49,
+      "phase": "REVISIT"
+    },
+    {
+      "t": 76.866,
+      "phase": "REACQUIRE"
+    },
+    {
+      "t": 76.971,
+      "phase": "APPROACH"
+    },
+    {
+      "t": 77.814,
+      "phase": "CAPTURE"
+    },
+    {
+      "t": 80.203,
+      "phase": "ALIGN"
+    },
+    {
+      "t": 85.658,
+      "phase": "RECOVERY"
+    },
+    {
+      "t": 87.983,
+      "phase": "SEARCH"
+    },
+    {
+      "t": 87.987,
+      "phase": "REVISIT"
+    },
+    {
+      "t": 112.671,
+      "phase": "REACQUIRE"
+    },
+    {
+      "t": 112.895,
+      "phase": "APPROACH"
+    },
+    {
+      "t": 113.812,
+      "phase": "CAPTURE"
+    },
+    {
+      "t": 115.577,
+      "phase": "ALIGN"
+    },
+    {
+      "t": 121.363,
+      "phase": "RECOVERY"
+    },
+    {
+      "t": 124.802,
+      "phase": "SEARCH"
+    },
+    {
+      "t": 124.803,
+      "phase": "REVISIT"
+    },
+    {
+      "t": 137.146,
+      "phase": "REACQUIRE"
+    },
+    {
+      "t": 137.368,
+      "phase": "APPROACH"
+    },
+    {
+      "t": 138.163,
+      "phase": "CAPTURE"
+    },
+    {
+      "t": 139.565,
+      "phase": "ALIGN"
+    },
+    {
+      "t": 143.116,
+      "phase": "RECOVERY"
+    },
+    {
+      "t": 144.934,
+      "phase": "CORRIDOR"
+    },
+    {
+      "t": 210.952,
+      "phase": "LAND"
+    },
+    {
+      "t": 224.101,
+      "phase": "ABORT"
+    }
+  ],
+  "speed_by_phase": {
+    "ASCEND": {
+      "median_mps": 0.09579716127013761,
+      "p95_mps": 0.3434508375912347,
+      "samples": 53
+    },
+    "SURVEY": {
+      "median_mps": 0.7837370722106531,
+      "p95_mps": 0.9296815350856462,
+      "samples": 472
+    },
+    "DESCEND": {
+      "median_mps": 0.27060774310595864,
+      "p95_mps": 0.8149815792980999,
+      "samples": 36
+    },
+    "REVISIT": {
+      "median_mps": 0.15463920460217512,
+      "p95_mps": 0.6763209907223161,
+      "samples": 397
+    },
+    "REACQUIRE": {
+      "median_mps": 0.1399889447454623,
+      "p95_mps": 0.14926083395904985,
+      "samples": 4
+    },
+    "APPROACH": {
+      "median_mps": 0.06049375448589121,
+      "p95_mps": 0.12190809978084616,
+      "samples": 24
+    },
+    "CAPTURE": {
+      "median_mps": 0.06850981884303231,
+      "p95_mps": 0.1344923185285603,
+      "samples": 55
+    },
+    "ALIGN": {
+      "median_mps": 0.0394535650674635,
+      "p95_mps": 0.047756364078573144,
+      "samples": 27
+    },
+    "RECOVERY": {
+      "median_mps": 0.03610131490813888,
+      "p95_mps": 0.04036189703549174,
+      "samples": 9
+    },
+    "CORRIDOR": {
+      "median_mps": 0.1511327500043491,
+      "p95_mps": 0.8290951191476655,
+      "samples": 621
+    },
+    "LAND": {
+      "median_mps": 0.03434264172134481,
+      "p95_mps": 0.039319985310745015,
+      "samples": 27
+    }
+  },
+  "following_speed_transitions": [
+    {
+      "t": 11.852,
+      "phase": "CRUISE",
+      "lead_m": 1.0
+    },
+    {
+      "t": 71.49,
+      "phase": "BOUNDARY_REVISIT",
+      "lead_m": 0.2
+    },
+    {
+      "t": 132.749,
+      "phase": "CRUISE",
+      "lead_m": 1.0
+    },
+    {
+      "t": 137.349,
+      "phase": "PRECISION",
+      "lead_m": 0.4
+    },
+    {
+      "t": 144.934,
+      "phase": "TRANSIT_TO_CORRIDOR",
+      "lead_m": 1.0
+    },
+    {
+      "t": 155.56,
+      "phase": "CORRIDOR_OPEN",
+      "lead_m": 0.4
+    },
+    {
+      "t": 169.142,
+      "phase": "DOOR",
+      "lead_m": 0.15
+    },
+    {
+      "t": 181.364,
+      "phase": "CORRIDOR_OPEN",
+      "lead_m": 0.4
+    },
+    {
+      "t": 186.446,
+      "phase": "DOOR",
+      "lead_m": 0.15
+    },
+    {
+      "t": 202.353,
+      "phase": "CORRIDOR_OPEN",
+      "lead_m": 0.4
+    },
+    {
+      "t": 205.464,
+      "phase": "H_APPROACH",
+      "lead_m": 0.15
+    },
+    {
+      "t": 210.935,
+      "phase": "TERMINAL",
+      "lead_m": 0.15
+    }
+  ],
+  "following_speed_stats": {
+    "CRUISE": {
+      "duration_s": 64.23799999999999,
+      "moving_samples": 605,
+      "median_mps": 0.6939164633132634,
+      "p95_mps": 0.9239336302661812
+    },
+    "BOUNDARY_REVISIT": {
+      "duration_s": 61.259,
+      "moving_samples": 449,
+      "median_mps": 0.14530645292573688,
+      "p95_mps": 0.18814118930454657
+    },
+    "PRECISION": {
+      "duration_s": 7.585000000000008,
+      "moving_samples": 24,
+      "median_mps": 0.05055358990343252,
+      "p95_mps": 0.07365886842805124
+    },
+    "TRANSIT_TO_CORRIDOR": {
+      "duration_s": 10.626000000000005,
+      "moving_samples": 94,
+      "median_mps": 0.7877655432447869,
+      "p95_mps": 0.8845355086088277
+    },
+    "CORRIDOR_OPEN": {
+      "duration_s": 21.774999999999977,
+      "moving_samples": 207,
+      "median_mps": 0.32622344735069075,
+      "p95_mps": 0.38260961794644316
+    },
+    "DOOR": {
+      "duration_s": 28.12900000000002,
+      "moving_samples": 267,
+      "median_mps": 0.11672602740125242,
+      "p95_mps": 0.21052784137244518
+    },
+    "H_APPROACH": {
+      "duration_s": 5.471000000000004,
+      "moving_samples": 53,
+      "median_mps": 0.1247004180358052,
+      "p95_mps": 0.28661400637541634
+    },
+    "TERMINAL": {
+      "duration_s": 13.843999999999994,
+      "moving_samples": 27,
+      "median_mps": 0.03434264172134481,
+      "p95_mps": 0.039319985310745015
+    }
+  },
+  "third_commit_to_corridor_entry_s": null,
+  "fast_corridor_transit_s": null,
+  "actions": [
+    {
+      "seq": 1,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 0.0,
+      "end": 3.8309999999999995,
+      "duration": 3.8309999999999995,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 2,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 3.847999998999999,
+      "end": 6.166999999999998,
+      "duration": 2.319000000999999,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 3,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 6.166999998999998,
+      "end": 14.161999999999999,
+      "duration": 7.995000001000001,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 4,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 14.169999998999998,
+      "end": 27.538,
+      "duration": 13.368000001000002,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 5,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 27.541999999,
+      "end": 34.232,
+      "duration": 6.690000001000001,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 6,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 34.239000000000004,
+      "end": 46.804,
+      "duration": 12.564999999999998,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 7,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 46.806,
+      "end": 52.199,
+      "duration": 5.393000000000001,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 8,
+      "command": 0,
+      "reason": "high_view_full:SURVEY",
+      "target": "",
+      "start": 52.205,
+      "end": 55.91,
+      "duration": 3.7049999999999983,
+      "terminal": null
+    },
+    {
+      "seq": 9,
+      "command": 0,
+      "reason": "high_view_full:DESCEND",
+      "target": "",
+      "start": 55.78,
+      "end": 59.602999999999994,
+      "duration": 3.8229999999999933,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 10,
+      "command": 0,
+      "reason": "high_view_full:REVISIT",
+      "target": "",
+      "start": 59.604,
+      "end": 65.008,
+      "duration": 5.403999999999996,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 11,
+      "command": 1,
+      "reason": "high_weight_search_interrupt",
+      "target": "red_cross",
+      "start": 65.07899999899999,
+      "end": 76.03099999999999,
+      "duration": 10.952000001000002,
+      "terminal": "release_recovery_motion_handoff"
+    },
+    {
+      "seq": 12,
+      "command": 0,
+      "reason": "high_view_full:REVISIT",
+      "target": "",
+      "start": 76.039,
+      "end": 100.78999999999999,
+      "duration": 24.75099999999999,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 13,
+      "command": 1,
+      "reason": "high_weight_search_interrupt",
+      "target": "bridge",
+      "start": 100.979,
+      "end": 112.926,
+      "duration": 11.947000000000003,
+      "terminal": "release_recovery_motion_handoff"
+    },
+    {
+      "seq": 14,
+      "command": 0,
+      "reason": "high_view_full:REVISIT",
+      "target": "",
+      "start": 112.93899999899999,
+      "end": 125.261,
+      "duration": 12.322000001000006,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 15,
+      "command": 1,
+      "reason": "high_weight_search_interrupt",
+      "target": "panzer",
+      "start": 125.478999999,
+      "end": 132.775,
+      "duration": 7.29600000100001,
+      "terminal": "release_recovery_motion_handoff"
+    },
+    {
+      "seq": 16,
+      "command": 4,
+      "reason": "post_delivery_route:1/4:route-speed-snake3:required_deliveries_complete",
+      "target": "",
+      "start": 132.779,
+      "end": 143.499,
+      "duration": 10.719999999999999,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 17,
+      "command": 4,
+      "reason": "post_delivery_route:2/4:route-speed-snake3:segment_complete",
+      "target": "",
+      "start": 143.501,
+      "end": 150.79999999999998,
+      "duration": 7.298999999999978,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 18,
+      "command": 4,
+      "reason": "post_delivery_route:3/4:route-speed-snake3:segment_complete",
+      "target": "",
+      "start": 150.801999999,
+      "end": 187.036,
+      "duration": 36.234000001,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 19,
+      "command": 4,
+      "reason": "post_delivery_route:4/4:route-speed-snake3:segment_complete",
+      "target": "",
+      "start": 187.044999999,
+      "end": 199.067,
+      "duration": 12.02200000100001,
+      "terminal": "motion_arrival_confirmed"
+    },
+    {
+      "seq": 20,
+      "command": 5,
+      "reason": "post_delivery_route_complete",
+      "target": "",
+      "start": 199.071,
+      "end": 212.249,
+      "duration": 13.177999999999997,
+      "terminal": null
+    },
+    {
+      "seq": 21,
+      "command": 7,
+      "reason": "probe_pose_exception:ValueError",
+      "target": "",
+      "start": 212.206999999,
+      "end": 212.927,
+      "duration": 0.7200000009999883,
+      "terminal": null
+    }
+  ],
+  "land_command_mission_s": 199.071,
+  "gate_terminal_ros_s": 224.142,
+  "contact_events": [],
+  "first_contact_ros_s": null,
+  "top3_interrupt_mission_s": 55.78,
+  "low_reacquisition_truth_errors": [
+    {
+      "class_name": "red_cross",
+      "error_m": 0.11516364447088481,
+      "time": 65.077
+    },
+    {
+      "class_name": "bridge",
+      "error_m": 0.1543269544226281,
+      "time": 100.978
+    },
+    {
+      "class_name": "panzer",
+      "error_m": 0.1093595299248139,
+      "time": 125.399
+    }
+  ],
+  "conflict_hypothesis_evaluation": {},
+  "coverage_fallback_started": null,
+  "conflict_checked": [],
+  "milestone_durations_s": {
+    "start_to_third_ack": 131.264,
+    "last_release_recovery": 1.8179999999999836,
+    "fast_transfer_to_staging": 10.640000000000015,
+    "staging_descent": 7.103999999999985,
+    "corridor_to_H": 48.274,
+    "H_landing": 13.826999999999998
+  },
+  "initial_planning": [
+    {
+      "goal_seq": 1,
+      "first_ros": 11.947,
+      "ready_delay_s": 0.6880000000000006,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 2,
+      "first_ros": 15.976,
+      "ready_delay_s": 0.29499999999999993,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 3,
+      "first_ros": 18.309,
+      "ready_delay_s": 0.2779999999999987,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 4,
+      "first_ros": 26.253,
+      "ready_delay_s": 0.2289999999999992,
+      "max_attempt": 3,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready",
+        "replanned_trajectory_ready",
+        "trajectory_replan_attempt"
+      ]
+    },
+    {
+      "goal_seq": 5,
+      "first_ros": 39.635,
+      "ready_delay_s": 0.19700000000000273,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 6,
+      "first_ros": 46.16,
+      "ready_delay_s": 0.2740000000000009,
+      "max_attempt": 3,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready",
+        "replanned_trajectory_ready",
+        "trajectory_replan_attempt"
+      ]
+    },
+    {
+      "goal_seq": 7,
+      "first_ros": 58.847,
+      "ready_delay_s": 0.2530000000000001,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 8,
+      "first_ros": 64.122,
+      "ready_delay_s": 0.2009999999999934,
+      "max_attempt": 3,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready",
+        "replanned_trajectory_ready",
+        "superseded_by_new_goal",
+        "trajectory_replan_attempt"
+      ]
+    },
+    {
+      "goal_seq": 9,
+      "first_ros": 67.992,
+      "ready_delay_s": 0.19400000000000261,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "replanned_trajectory_ready",
+        "trajectory_replan_attempt"
+      ]
+    },
+    {
+      "goal_seq": 10,
+      "first_ros": 71.659,
+      "ready_delay_s": 0.18099999999999739,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 11,
+      "first_ros": 77.125,
+      "ready_delay_s": 0.13299999999999557,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 12,
+      "first_ros": 88.224,
+      "ready_delay_s": 0.25499999999999545,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 13,
+      "first_ros": 113.005,
+      "ready_delay_s": 0.18600000000000705,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 14,
+      "first_ros": 124.853,
+      "ready_delay_s": 0.17200000000001125,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 15,
+      "first_ros": 137.404,
+      "ready_delay_s": 0.16300000000001091,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 16,
+      "first_ros": 145.176,
+      "ready_delay_s": 0.2650000000000148,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 17,
+      "first_ros": 155.706,
+      "ready_delay_s": 0.16600000000002524,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 18,
+      "first_ros": 162.707,
+      "ready_delay_s": 0.18700000000001182,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 19,
+      "first_ros": 198.987,
+      "ready_delay_s": 0.117999999999995,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_reached_after_local_trajectory",
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_ready"
+      ]
+    },
+    {
+      "goal_seq": 20,
+      "first_ros": 224.198,
+      "ready_delay_s": null,
+      "max_attempt": 1,
+      "reasons": [
+        "goal_received",
+        "new_trajectory_attempt",
+        "new_trajectory_attempt_failed"
+      ]
+    }
+  ],
+  "liveness_recovery_requests": 0,
+  "liveness_budget_exhausted": false,
+  "corridor_geometry": {
+    "max_agl_m": 1.008740327073481,
+    "max_combined_tilt_deg": 3.786824834747883,
+    "samples": 579,
+    "tilt_above15_samples": 0,
+    "cruise_max_combined_tilt_deg": 3.786824834747883,
+    "max_guard_top_agl_m": 1.1897218981804332
+  },
+  "landing_estimation": {
+    "lio_pose": {
+      "pre_contact_xy_error_max_m": 0.024248095499121575,
+      "pre_contact_z_error_max_m": 0.011610852172490839
+    },
+    "mavros_pose": {
+      "pre_contact_xy_error_max_m": 0.048780176580606883,
+      "pre_contact_z_error_max_m": 2.453093337005066
+    }
+  },
+  "hint_metric_note": "Final retained hints may already include low revisits. Initial high-view errors are reported separately by the center pipeline from event snapshots."
+}

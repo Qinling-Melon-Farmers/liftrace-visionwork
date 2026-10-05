@@ -1,0 +1,158 @@
+{
+  "videos": [
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed31_20261005_095902/downward.mp4",
+      "bytes": 15342969,
+      "metadata": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "mpeg4",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "1804"
+          }
+        ],
+        "format": {
+          "duration": "180.400000"
+        }
+      },
+      "decode_ok": true
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed31_20261005_095902/follow.mp4",
+      "bytes": 23222159,
+      "metadata": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "mpeg4",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "1585"
+          }
+        ],
+        "format": {
+          "duration": "158.500000"
+        }
+      },
+      "decode_ok": true
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed31_20261005_095902/overview.mp4",
+      "bytes": 6693357,
+      "metadata": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "mpeg4",
+            "width": 960,
+            "height": 960,
+            "nb_frames": "1585"
+          }
+        ],
+        "format": {
+          "duration": "158.500000"
+        }
+      },
+      "decode_ok": true
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed31_20261005_095902/presentation_review.mp4",
+      "bytes": 11668641,
+      "metadata": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "nb_frames": "2235"
+          }
+        ],
+        "format": {
+          "duration": "223.500000"
+        }
+      },
+      "decode_ok": true
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed38_20261005_101903/downward.mp4",
+      "bytes": 20236929,
+      "metadata": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "mpeg4",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "4967"
+          }
+        ],
+        "format": {
+          "duration": "496.700000"
+        }
+      },
+      "decode_ok": true
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed38_20261005_101903/follow.mp4",
+      "bytes": 50178813,
+      "metadata": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "mpeg4",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "4217"
+          }
+        ],
+        "format": {
+          "duration": "421.700000"
+        }
+      },
+      "decode_ok": true
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed38_20261005_101903/overview.mp4",
+      "bytes": 17039960,
+      "metadata": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "mpeg4",
+            "width": 960,
+            "height": 960,
+            "nb_frames": "4219"
+          }
+        ],
+        "format": {
+          "duration": "421.900000"
+        }
+      },
+      "decode_ok": true
+    },
+    {
+      "path": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed38_20261005_101903/presentation_review.mp4",
+      "bytes": 23688100,
+      "metadata": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "nb_frames": "6103"
+          }
+        ],
+        "format": {
+          "duration": "610.300000"
+        }
+      },
+      "decode_ok": true
+    }
+  ],
+  "html_local_links_checked": 30,
+  "all_exist": true
+}
