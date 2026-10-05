@@ -1,6 +1,7 @@
 <launch>
   <arg name="scene_dir" />
   <arg name="resume_survey_enabled" default="false" />
+  <arg name="stop_on_collision" default="false" />
   <arg name="field_seed" />
   <arg name="high_agl" default="2.16" />
   <arg name="target_model_path" />
@@ -30,4 +31,7 @@
         args="--lz4 -O $(optenv SIM_RUN_DIR)/vision_metrics.bag /tf /tf_static /uav_vision/detections_mapped /uav_vision/targets /uav_vision/selected_target /uav_vision/drop_offset /uav_vision/align_mode /mavros/local_position/pose /mission/release_result /mission/command /uav_vision/alignment_target_context /uav_vision/release_evidence_context /mission/release_permission /mission/release_permission_active /mavros/state" />
   <rosparam file="$(arg scene_dir)/motion_overrides.yaml" />
   <param name="/navigation/mission_manager/high_view_full/policy/resume_survey_enabled" value="$(arg resume_survey_enabled)" />
+  <!-- Correction run records collision FAIL while allowing flight completion.
+       Keep this after includes and scene YAML so it is the final override. -->
+  <param name="/navigation_vcl06_assertion/stop_on_collision" type="bool" value="$(arg stop_on_collision)" />
 </launch>

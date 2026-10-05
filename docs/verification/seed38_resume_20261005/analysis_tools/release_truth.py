@@ -4,7 +4,12 @@ H=Path(__file__).resolve().parents[4];D=H/'docs/verification/seed38_resume_20261
 results=[]
 for m in json.loads((D/'metrics.json').read_text()):
  run=Path(m['run']);truth=json.loads((D/(str(m['seed'])+'_'+m['label']+'_centers')/'center_summary.json').read_text())['truth'];poses=list(csv.DictReader((run/'truth_pose.csv').open()));drops=[]
+ seen=set()
  for event in m['releases']:
+  d=event['data']
+  key=(d.get('mission_id'),d.get('decision_seq'),d.get('attempt'),d.get('payload_slot'),d.get('execution_id'))
+  if not d.get('success') or not d.get('terminal') or d.get('execution_state')!=3 or key in seen:continue
+  seen.add(key)
   t=event['ros_sec'];p=min(poses,key=lambda r:abs(float(r['t'])-t));xy=[float(p['x']),float(p['y'])];tar=min(truth,key=lambda q:math.dist(xy,q['world_xy']))
   drops.append(dict(class_name=event['data']['target_class'],slot=event['data']['payload_slot'],ros_s=t,body_xy=xy,nearest_class=tar['class_name'],nearest_distance_m=math.dist(xy,tar['world_xy']),label_matches=event['data']['target_class']==tar['class_name'],pose_age_s=abs(float(p['t'])-t)))
  c={}
