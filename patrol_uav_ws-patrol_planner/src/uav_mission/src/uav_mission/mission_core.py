@@ -1022,6 +1022,19 @@ class MissionCore:
                 event.evidence_source.endswith(":NOT_STARTED"))
 
     @staticmethod
+    def _temporal_not_started_retry(event):
+        # Only a fenced proxy no-call fact with its original temporal reason
+        # may bypass target cooldown. Geometry/cancellation/unknown execution
+        # remain on the ordinary failure path; attempts and deadlines do not change.
+        source = event.evidence_source.split(":")
+        return (MissionCore._not_started_proof(event) and event.retryable and
+                len(source) == 3 and source[1].isdigit() and int(source[1]) > 0 and
+                event.reason in (
+                    "release_preflight_rejected:permission_clock_ahead",
+                    "release_preflight_rejected:permission_expired",
+                    "release_preflight_rejected:permission_stale"))
+
+    @staticmethod
     def _terminal_status_valid(event: ResultEvent) -> bool:
         return event.status in (
             "SUCCEEDED", "FAILED", "REJECTED", "CANCELLED", "TIMED_OUT")
@@ -1228,7 +1241,11 @@ class MissionCore:
             self.mission_failed = True
             return True, "candidate_release_state_uncertain", self._return_action(
                 "candidate_release_state_uncertain", now)
-        self.queue.fail(key, event.retryable, now, event.reason)
+        entry = self.queue.fail(key, event.retryable, now, event.reason)
+        if (entry.status == CandidateStatus.COOLDOWN and
+                self._temporal_not_started_retry(event)):
+            entry.cooldown_until = now
+            self.queue.refresh_cooldowns(now)
         slot.status = SlotStatus.FREE
         slot.candidate_key = None
         self.active_action = None
