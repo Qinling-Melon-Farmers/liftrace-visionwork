@@ -3,6 +3,7 @@ from dataclasses import replace
 import copy,tempfile,unittest,yaml,json
 from unittest.mock import Mock,patch
 import rospy
+import numpy as np
 from trial_manager import BoardManager,base
 from trial_config import generate,validate_settings,flight_geometry,apply_site_profile
 from trial_runtime import HighSpeedCaptureRuntime
@@ -41,6 +42,7 @@ class CaptureTests(unittest.TestCase):
         for patch in ({'actuator_mode':'real'},{'cruise_speed':1.1},{'cruise_acceleration':1.1},{'high_agl':2.6},{'terminal_hover_agl':.4},{'capture_round_trips':5},{'capture_line_xy':[[.8,0],[2,0]]},{'capture_line_xy':[[.8,0],[6,0]]},{'capture_line_xy':[[.8,0],[float('nan'),0]]}):
             s=self.settings();s.update(patch)
             with self.assertRaises(ValueError):validate_settings(s)
+    @unittest.skipUnless((ROOT/'deployment/site_20260928/test_area.yaml').exists(),'site-specific fixture only exists in board worktree')
     def test_capture_uses_same_site_route_as_priority_and_follows_site_changes(self):
         site=yaml.safe_load((ROOT/'deployment/site_20260928/test_area.yaml').read_text())
         priority=yaml.safe_load((BASE/'06_high_priority/settings.yaml').read_text())
@@ -65,6 +67,7 @@ class CaptureTests(unittest.TestCase):
             self.assertIn(action.command,('SEARCH','RETURN_HOME'));self.assertFalse(action.has_target)
             now+=2.
             r.update_pose((action.goal.x,action.goal.y,action.goal.z),now,'camera_init')
+            r.grid.update(np.array([[0.,0.,-.22]]),now,.18,2.8)
             out=r.apply_result(replace(result_for(action,seq+1,status='SUCCEEDED',terminal=True),mission_id='capture',event_stamp_ns=int(now*1e9)),now,(action.goal.x,action.goal.y))
         self.assertEqual(commands[-1],'LAND');self.assertEqual(r.core.committed_slots,0)
         self.assertTrue(r.capture_complete);self.assertEqual(r.trial_manifest,{})

@@ -204,6 +204,12 @@ def generate(root,out,settings,fc_xyz,rig):
     runtime['high_view_probe']=dict(config=dict(ground_z=ground,high_agl=settings['high_agl'],low_agl=settings['low_agl'],staging_xy=[x+area['staging_xy'][0],y+area['staging_xy'][1]],survey_xy=[point(a,b,0)[:2] for a,b in area['survey_xy']],source_key='board-inherited-camera-static-start'),camera_info_topic=settings.get('camera_info_topic','/camera/camera_info'))
     runtime['high_view_probe']['low_stage_parameters']=[dict(name=key,value=value) for key,value in {'/external_planner_max_command_z':max(ground+1.85,capture+.1) if h_landing else ground+1.85,'/fast_planner_node/sdf_map/virtual_ceil_height':(ground+2. if ceiling_enabled else -.1),'/fast_planner_node/fsm/goal_adjustment_radius':.15}.items()]
     runtime['high_view_full']=dict(policy=dict(high_min_agl=max(1.8,settings['high_agl']-.2),high_max_agl=settings['high_agl']+.2,coarse_enabled=True,coarse_min_confidence=.60,coarse_interrupt_min_interval_ns=100000000,coarse_interrupt_max_gap_ns=1000000000,coarse_interrupt_consistency_m=.5,interrupt_refined_classes=[],recheck_observe_seconds=5.,recheck_shift_after_seconds=1.,recheck_shift_radius_m=.5,candidate_min_streak=1,min_interval_ns=100000000,min_span_ns=200000000,max_uncertainty_m=.45,direct_descent=True,descent_radius_m=1.,descent_max_candidates=9,survey_stall_seconds=8.,survey_progress_m=.15,survey_alternative_radius_m=.3),grid=dict(bounds=bounds,resolution=.10,inflation=.25),boundary_policy=dict(enabled=True,bounds=target_bounds))
+    resume_enabled=settings.get('resume_survey_enabled',False)
+    if type(resume_enabled) is not bool:
+        raise ValueError('resume_survey_enabled must be boolean')
+    if resume_enabled and mode not in ('high_priority','high_view_full'):
+        raise ValueError('survey resume is only available for priority/full mission trials')
+    runtime['high_view_full']['policy']['resume_survey_enabled']=resume_enabled
     if high_mode:
         from uav_mission.high_view_probe import ProbeConfig
         from uav_high_view.survey_policy import SurveyPolicy

@@ -7,3 +7,16 @@ uint32 target_id
 string target_class
 bool success
 string reason
+
+# RAW_CALL_STARTED is conservative: bool raw cannot prove physical PWM began.
+uint8 EXECUTION_UNKNOWN=0
+uint8 NOT_STARTED=1
+uint8 RAW_CALL_STARTED=2
+uint8 COMPLETED=3
+uint8 execution_state
+bool terminal
+string mission_id
+uint32 decision_seq
+uint16 attempt
+time target_first_seen
+time evidence_stamp
