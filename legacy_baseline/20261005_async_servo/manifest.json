@@ -1,0 +1,221 @@
+{
+  "source_worktree": "/home/xhj/liftrace-worktrees/r2026-high-view-search",
+  "source_head": "8a48500c4e9444ca91032921d6fc84d681826055",
+  "files": [
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "35c55025c74aae051b10b6edeb7681c80ae8e21fa7bee85a627a83c3f64914c9",
+      "size": 7117
+    },
+    {
+      "path": "config/mavros_px4_sim.yaml",
+      "sha256": "f259d625de1488970fe0bc2cd4e670a80784481b3fb6e71bcf4dedb14533293e",
+      "size": 1196
+    },
+    {
+      "path": "config/patrol_real.yaml",
+      "sha256": "e065efb2194cfffbb73564be180532dd6b4bd94239b7d855bf273a528f9735ab",
+      "size": 3395
+    },
+    {
+      "path": "config/patrol_sim.yaml",
+      "sha256": "6808ed596751bae4ab67ad5c6429752a7df8e31fa19018d50390faa542b9316f",
+      "size": 3436
+    },
+    {
+      "path": "config/patrol_toudi3_new_vision.yaml",
+      "sha256": "b43bb90342cd23eed2b20f70c1854af6f77cc833048e5f7e2b8cbbaaee3d589b",
+      "size": 3853
+    },
+    {
+      "path": "config/patrol_toudi4_new_vision.yaml",
+      "sha256": "4884a1ca3495533ceff245f23e45f853a550510cc558acb288a78c2473dbd151",
+      "size": 3736
+    },
+    {
+      "path": "include/patrol_control/drop_action.h",
+      "sha256": "0846d9bbb37e7aa4a093214369bbbacb1975f18e492a3024b52b3278f81684eb",
+      "size": 3305
+    },
+    {
+      "path": "include/patrol_control/near_wall_align.h",
+      "sha256": "ac200e39996a7104c5aac5d66e3795628d57b877c0fa57113df46ecdb5b3d909",
+      "size": 2224
+    },
+    {
+      "path": "include/patrol_control/patrol_control.h",
+      "sha256": "0f0b7e5cffb3eaf45ac1a34609c8bf6995936367b52fd0331c488a98d030f9f8",
+      "size": 20044
+    },
+    {
+      "path": "launch/mavros_px4_sim.launch",
+      "sha256": "e2b1c70e008b7f7bfdefd0107fa58f23ec689baa10194024d1644ba09ec02010",
+      "size": 1144
+    },
+    {
+      "path": "launch/patrol_control_px4_sim.launch",
+      "sha256": "c0b756b87831f6e265b5d9f7b37e3d2e84fa6a532fbfed64f24dd67c3e15702c",
+      "size": 3064
+    },
+    {
+      "path": "launch/patrol_control_real.launch",
+      "sha256": "cff4337578ccc5d59f459c0794f5154b11503d554ff673d9bf6497597f4dfd53",
+      "size": 982
+    },
+    {
+      "path": "launch/patrol_control_sim.launch",
+      "sha256": "c7e1a053ad933705f2f1c522a26b8477d67323338b1261721cc49e04ea8a10fb",
+      "size": 1142
+    },
+    {
+      "path": "launch/patrol_full_competition_sim.launch",
+      "sha256": "453ae1b10b86cecd4a794fda49e6df30940d72d7d27851ef1cee19759aa79386",
+      "size": 6124
+    },
+    {
+      "path": "launch/patrol_world.launch",
+      "sha256": "25e22524026f72fc77b8c297691e0ad60b5a89691af3740fdbd89eeaf2f01064",
+      "size": 4605
+    },
+    {
+      "path": "launch/px4_toudi3_sitl.launch",
+      "sha256": "8f0f9d30ad02024323bb477531c44a660c864c427e0261386fd0aeb83524bd3a",
+      "size": 2261
+    },
+    {
+      "path": "launch/toudi3_full_competition_sim_new_vision.launch",
+      "sha256": "85ddecad7417847a9eec227689da2e3ef2184e41f4498fac01b3a17675992e66",
+      "size": 6181
+    },
+    {
+      "path": "models/iris_mid360_downward_camera/meshes/competition_guard_ring.obj",
+      "sha256": "8aa333f2d6b8a8d22bded4660424af0e341ead642c25d1c964809e0414bbe38b",
+      "size": 1526
+    },
+    {
+      "path": "models/iris_mid360_downward_camera/model.config",
+      "sha256": "b83d46823c760d1b84a85af47c9044513f559cdbacb5adcb3ac5896bd0ed37e8",
+      "size": 411
+    },
+    {
+      "path": "models/iris_mid360_downward_camera/model.sdf",
+      "sha256": "376c55692de908e2011385580a528cfcebf6effc85262f20c02746df834f2818",
+      "size": 4477
+    },
+    {
+      "path": "models/iris_mid360_downward_camera/model_ks2a543.sdf",
+      "sha256": "eb2d7b349da003a3fcb8c6b2145c7827a521b6a4aae2eeb0194ee9517625e3ec",
+      "size": 5223
+    },
+    {
+      "path": "msg/MissionCommand.msg",
+      "sha256": "821a3109b77b9ed6c60aee0c5329ca1edfce6cdaf883996639ab2009e9150ae6",
+      "size": 190
+    },
+    {
+      "path": "package.xml",
+      "sha256": "9c5772b23ce3e1c1a3fad2936515791c97ec0a68feffeb9a6efe648ff3f21896",
+      "size": 4736
+    },
+    {
+      "path": "rviz_config/patrol_nano.rviz",
+      "sha256": "498560220752aa7b27c681f4fb68460da43e09fe82709767f80eddc304249c19",
+      "size": 16874
+    },
+    {
+      "path": "rviz_config/patrol_pc.rviz",
+      "sha256": "3c502d907eb0c94a72a0855181e8c9ca0b5974c0919223b6c2a74ad39a1b4d52",
+      "size": 17081
+    },
+    {
+      "path": "scripts/odom_to_pose_relay.py",
+      "sha256": "273437443aacd47a443d239a0bb2e2110145741838fa383dcb56f265fa406472",
+      "size": 837
+    },
+    {
+      "path": "scripts/px4_sitl_start.py",
+      "sha256": "08d837ab8bec3a00072f75c8b4a78c7a512c2d2422f976e72dd84c6484770a03",
+      "size": 1754
+    },
+    {
+      "path": "scripts/spawn_model_delayed.py",
+      "sha256": "fc90304a6e63786175b639836109434c9ca2a04e29c371587215a2b766c78b33",
+      "size": 1397
+    },
+    {
+      "path": "src/node/patrol_control_node.cpp",
+      "sha256": "107273cfd18a7f90569e00b18748fc30514148631e013e3ad3cfde512c743971",
+      "size": 564
+    },
+    {
+      "path": "src/patrol_control.cpp",
+      "sha256": "ac056abc3d2d7fa48200a2d372588adc2c450657bcaeb5f89ee3e947888ef4f7",
+      "size": 167449
+    },
+    {
+      "path": "src/uav_arming_node.cpp",
+      "sha256": "56add59600789ccc9a4d1110a2d983c7272bd09726af81f5fdaac7675d9bf5d8",
+      "size": 2900
+    },
+    {
+      "path": "srv/Servo.srv",
+      "sha256": "a1d665869929c6c31fd9194eb89e76154b577bab1fe583095743e9acc8f9887f",
+      "size": 23
+    },
+    {
+      "path": "test/__pycache__/test_drop_height_scale.cpython-39.pyc",
+      "sha256": "b1427422ec601817a08acb13f7e960f39b5353b1954a555dbaa48c1cd3da8e4a",
+      "size": 11363
+    },
+    {
+      "path": "test/test_drop_action.cpp",
+      "sha256": "d9a3c169e5b4fae6d77c67b2e7e4f6f59ca92f952a1fa6074883abb6f4257383",
+      "size": 3387
+    },
+    {
+      "path": "test/test_drop_height_scale.py",
+      "sha256": "5a463846eb1d140a9495a9e35da817873cae1e3c61f5fe5aaf999370cc1f355e",
+      "size": 9946
+    },
+    {
+      "path": "test/test_external_alignment_fallback.py",
+      "sha256": "aa1ca5a13c2e4121c0c5f22450ddbc4ffaa36c34d13afdca2bac45c0d70349ab",
+      "size": 3618
+    },
+    {
+      "path": "test/test_external_landing_handoff.py",
+      "sha256": "dded2216c977c1019b7457af0d6b80a980ab0071261c3a65045a01c72414a2a8",
+      "size": 21572
+    },
+    {
+      "path": "test/test_near_wall_align.cpp",
+      "sha256": "0fe68d347035d1d9c4377cee332bc3028f08a3f3cab7dd22744fc791bc5a140c",
+      "size": 1074
+    },
+    {
+      "path": "test/test_new_vision_config.py",
+      "sha256": "e68937681fa81eb0e04484fc1a54fb46d0849b56bfb81b8b55e56035d53a1a6f",
+      "size": 11903
+    },
+    {
+      "path": "test/test_no_legacy_servo_status_false.py",
+      "sha256": "958100f6ccc8a536cc65ebc010fcfd454b2acffa0ada9b9a1247e831436d9442",
+      "size": 1299
+    },
+    {
+      "path": "test/test_px4_sitl_start.py",
+      "sha256": "cfd7ec22b9848397225b256f3fd53980f19290671fb7ae9667b43c984117c10d",
+      "size": 1028
+    },
+    {
+      "path": "test/test_recovery_hold.py",
+      "sha256": "21b7faf9c3561775a81399f711245c4760232f5a655d4251bc586738cfd777bd",
+      "size": 3114
+    },
+    {
+      "path": "test/test_takeoff_xy_hold.py",
+      "sha256": "78927e1e85b661eeba9c36374194930ba8417ac0d23cf6d96a7f737a168db5c1",
+      "size": 1798
+    }
+  ]
+}
