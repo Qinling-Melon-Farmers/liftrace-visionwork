@@ -410,6 +410,9 @@ class MissionCoreTest(unittest.TestCase):
     def test_uncommitted_target_timeout_quarantines_slot_and_returns(self):
         core = self.make_core()
         action = self.dispatch(core, candidate())
+        # This fixture models an already-open release permission, not CAPTURE timeout.
+        core._observe_target_stage(result_for(action, 1, stage="ALIGNMENT",
+            reason="strict_alignment_context_valid"))
         handled, reason, _ = core.expire_active(action.deadline_at - 0.1)
         self.assertFalse(handled)
         self.assertEqual(reason, "decision_not_expired")
@@ -426,6 +429,9 @@ class MissionCoreTest(unittest.TestCase):
     def test_deadline_is_exclusive(self):
         core = self.make_core()
         action = self.dispatch(core, candidate())
+        # This fixture models an already-open release permission, not CAPTURE timeout.
+        core._observe_target_stage(result_for(action, 1, stage="ALIGNMENT",
+            reason="strict_alignment_context_valid"))
         handled, reason, next_action = core.expire_active(action.deadline_at)
         self.assertTrue(handled)
         self.assertEqual(reason, "target_action_timed_out_uncertain")
@@ -453,6 +459,8 @@ class MissionCoreTest(unittest.TestCase):
 
         timeout_first = self.make_core()
         timeout_action = self.dispatch(timeout_first, candidate())
+        timeout_first._observe_target_stage(result_for(timeout_action, 1,
+            stage="ALIGNMENT", reason="strict_alignment_context_valid"))
         timeout_first.expire_active(timeout_action.deadline_at)
         accepted, reason, next_action = timeout_first.apply_result(
             result_for(
@@ -669,6 +677,9 @@ class MissionCoreTest(unittest.TestCase):
     def test_late_target_failure_cannot_release_slot_for_retry(self):
         core = self.make_core()
         action = self.dispatch(core, candidate())
+        # This fixture models an already-open release permission, not CAPTURE timeout.
+        core._observe_target_stage(result_for(action, 1, stage="ALIGNMENT",
+            reason="strict_alignment_context_valid"))
         accepted, reason, next_action = core.apply_result(
             result_for(
                 action,
@@ -772,6 +783,9 @@ class MissionCoreTest(unittest.TestCase):
     def test_late_release_ack_reconciles_quarantined_slot(self):
         core = self.make_core()
         action = self.dispatch(core, candidate())
+        # This fixture models an already-open release permission, not CAPTURE timeout.
+        core._observe_target_stage(result_for(action, 1, stage="ALIGNMENT",
+            reason="strict_alignment_context_valid"))
         core.expire_active(action.deadline_at + 0.1)
         accepted, reason, next_action = core.apply_result(
             release_ack(action, 1), action.deadline_at + 1.0)
@@ -785,6 +799,9 @@ class MissionCoreTest(unittest.TestCase):
     def test_quarantined_success_without_ack_stays_quarantined(self):
         core = self.make_core()
         action = self.dispatch(core, candidate())
+        # This fixture models an already-open release permission, not CAPTURE timeout.
+        core._observe_target_stage(result_for(action, 1, stage="ALIGNMENT",
+            reason="strict_alignment_context_valid"))
         core.expire_active(action.deadline_at + 0.1)
         invalid = result_for(
             action,
@@ -804,6 +821,9 @@ class MissionCoreTest(unittest.TestCase):
     def test_quarantined_negative_terminal_keeps_release_tombstone(self):
         core = self.make_core()
         action = self.dispatch(core, candidate())
+        # This fixture models an already-open release permission, not CAPTURE timeout.
+        core._observe_target_stage(result_for(action, 1, stage="ALIGNMENT",
+            reason="strict_alignment_context_valid"))
         core.expire_active(action.deadline_at)
         accepted, reason, _ = core.apply_result(
             result_for(
@@ -1178,7 +1198,7 @@ class MissionCoreTest(unittest.TestCase):
         abort = uncommitted.abort("executor_changed", 100.1)
         self.assertEqual(abort.command, "ABORT")
         self.assertEqual(
-            uncommitted.slots[0].status, SlotStatus.QUARANTINED)
+            uncommitted.slots[0].status, SlotStatus.FREE)
         self.assertEqual(
             uncommitted.queue.entries[action.candidate_key].status,
             CandidateStatus.EXHAUSTED,

@@ -9,7 +9,7 @@ def topics_for(settings):
     camera=settings.get("bag_image_topic", "/board_trials/recording/image/compressed") if float(settings.get("bag_image_hz",5.))>0 else camera_source(settings)
     info=settings.get("camera_info_topic","/camera/camera_info")
     topics = list(dict.fromkeys([camera,info,
-        "/tf","/tf_static","/rosout_agg","/Odometry","/mavros/vision_pose/pose",
+        "/tf","/tf_static","/rosout_agg","/Odometry","/laserMapping/realtime","/mavros/vision_pose/pose",
         "/mavros/local_position/pose","/mavros/local_position/odom",
         "/mavros/local_position/velocity_local","/mavros/state","/mavros/extended_state",
         "/mavros/statustext/recv","/mavros/setpoint_position/local","/mavros/setpoint_raw/target_local",

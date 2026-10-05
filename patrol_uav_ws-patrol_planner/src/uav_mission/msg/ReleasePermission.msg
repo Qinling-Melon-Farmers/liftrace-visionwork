@@ -8,3 +8,9 @@ string target_class
 time evidence_stamp
 time valid_until
 string reason
+
+# Fixed action fence. Empty mission_id retains the legacy isolated interface.
+string mission_id
+uint32 decision_seq
+uint16 attempt
+time target_first_seen

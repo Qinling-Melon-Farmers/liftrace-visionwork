@@ -15,6 +15,7 @@ from std_msgs.msg import String
 from uav_mission.contact_policy import (
     contact_episode_transition,
     relevant_contact_pairs,
+    update_contact_episode,
 )
 
 
@@ -63,22 +64,27 @@ class GazeboContactMonitor:
                 if state.info.startswith('guard_xy_m='):
                     try:self._guard_xy=float(state.info.split('=',1)[1])
                     except ValueError:pass
-            support=[s for s in message.states if any(p in s.collision1_name or p in s.collision2_name for p in self._ignored)]
-            if support:
-                details=self._contact_details(support)
-                force=max((v['total_force_norm_n'] for v in details),default=0.)
-                if not self._support_active:
-                    self._support_count+=1
-                    self._support_events.append(dict(ros_stamp=message.header.stamp.to_sec(),last_ros_stamp=message.header.stamp.to_sec(),details=details,peak_sampled_force_n=force))
-                    self._support_events=self._support_events[-64:]
-                else:
-                    event=self._support_events[-1];event['last_ros_stamp']=message.header.stamp.to_sec()
-                    if force>event['peak_sampled_force_n']:event['peak_sampled_force_n']=force;event['details']=details
-            self._support_active=bool(support)
+            stamp = message.header.stamp.to_sec()
             pairs = relevant_contact_pairs(
                 ((state.collision1_name, state.collision2_name)
-                 for state in message.states),
-                self._ignored)
+                 for state in message.states), self._ignored)
+            obstacles = [s for s in message.states
+                         if tuple(sorted((s.collision1_name,
+                                          s.collision2_name))) in pairs]
+            support = [s for s in message.states
+                       if tuple(sorted((s.collision1_name,
+                                        s.collision2_name))) not in pairs]
+            if support:
+                if not self._support_active:
+                    self._support_count += 1
+                    self._support_events.append({
+                        "sequence": self._support_count, "ros_stamp": stamp,
+                    })
+                update_contact_episode(
+                    self._support_events[-1], self._contact_details(support), stamp)
+            elif self._support_active:
+                self._support_events[-1]["ended_ros_stamp"] = stamp
+            self._support_active = bool(support)
             active, increment = contact_episode_transition(
                 self._active, pairs)
             self._ready = True
@@ -88,11 +94,14 @@ class GazeboContactMonitor:
                 self._actual_collision_count += increment
                 self._events.append({
                     "sequence": self._actual_collision_count,
-                    "ros_stamp": message.header.stamp.to_sec(),
+                    "ros_stamp": stamp,
                     "wall_time": time.time(),
-                    "pairs": [list(pair) for pair in pairs],
-                    "details": self._contact_details([s for s in message.states if tuple(sorted((s.collision1_name,s.collision2_name))) in pairs]),
                 })
+            if active:
+                update_contact_episode(
+                    self._events[-1], self._contact_details(obstacles), stamp)
+            elif self._active:
+                self._events[-1]["ended_ros_stamp"] = stamp
             self._active = active
             self._active_pairs = pairs
             self._publish()

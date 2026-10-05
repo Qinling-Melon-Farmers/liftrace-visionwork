@@ -915,8 +915,14 @@ class PlannerMotionExecutor:
             state.late_payload_commit_allowed and
             not state.payload_committed
         )
+        late_no_start = (state.terminal and state.retired and
+            state.late_payload_commit_allowed and not state.payload_committed and
+            terminal and status == "FAILED" and stage == "RELEASE" and retryable and
+            evidence_source.startswith("guarded_servo_proxy:") and
+            evidence_source.endswith(":NOT_STARTED") and
+            reason == "release_proven_not_started")
         if ((state.terminal or state.retired) and
-                not late_payload_commit):
+                not late_payload_commit and not late_no_start):
             return self._outcome(False, "target_transaction_not_active")
         if stage not in ("CAPTURE", "ALIGNMENT", "RELEASE", "RECOVERY"):
             return self._outcome(False, "target_stage_invalid")
@@ -960,10 +966,15 @@ class PlannerMotionExecutor:
             state.terminal = True
             state.retired = True
             state.late_payload_commit_allowed = (
-                status == "TIMED_OUT" and stage == "RELEASE" and
+                status in ("TIMED_OUT", "FAILED") and stage == "RELEASE" and
                 not state.payload_committed and not retryable and
-                reason == "release_result_deadline_reached"
+                (reason == "release_result_deadline_reached" or
+                 reason.startswith("release_ack_failed:"))
             )
+            if late_no_start:
+                state.late_payload_commit_allowed = False
+                if self._pending_release is state:
+                    self._pending_release = None
         return self._outcome(True, "target_stage_recorded", events=(event,))
 
     def report_landing(self, decision_seq: int, now_ns: int, status: str,

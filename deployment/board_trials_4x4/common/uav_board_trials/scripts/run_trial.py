@@ -26,7 +26,10 @@ def main():
         if a.trial!='high_speed_capture':p.error('Capture options are only valid for high_speed_capture')
         if a.capture_speed is not None:settings['cruise_speed']=a.capture_speed
         if a.capture_lighting is not None:settings['capture_lighting']=a.capture_lighting
-    if a.motion_optimized:settings['motion_optimization']={'enabled':True}
+    if a.motion_optimized:
+        motion=settings.get('motion_optimization',{})
+        if not isinstance(motion,dict):p.error('motion_optimization must be an object')
+        settings['motion_optimization']={**motion,'enabled':True}
     if a.survey_pattern:settings['survey_pattern']=a.survey_pattern
     if settings.get('actuator_mode','mock')!='mock':p.error('settings must default to mock; use --real-release explicitly')
     if a.real_release and (a.mode!='flight' or settings['mode'] in NO_DROP_MODES):p.error('--real-release requires a delivery flight module')

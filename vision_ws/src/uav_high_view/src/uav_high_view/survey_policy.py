@@ -5,6 +5,10 @@ from .core import Config
 
 @dataclass(frozen=True)
 class SurveyPolicy:
+    resume_survey_enabled: bool = False
+    resume_overlap_m: float = .30
+    resume_budget_seconds: float = 90.
+    descent_wait_seconds: float = 2.
     coarse_enabled: bool = False
     coarse_min_confidence: float = .60
     coarse_uncertainty_m: float = .45
@@ -29,7 +33,11 @@ class SurveyPolicy:
     survey_alternative_radius_m: float = .6
 
     def __post_init__(self):
-        if (type(self.coarse_enabled) is not bool or
+        if (type(self.resume_survey_enabled) is not bool or
+                not 0<=self.resume_overlap_m<=1. or
+                not 10<=self.resume_budget_seconds<=180. or
+                not 0<=self.descent_wait_seconds<=5. or
+                type(self.coarse_enabled) is not bool or
                 not .0 <= self.coarse_min_confidence <= 1.0 or
                 not .25 <= self.coarse_uncertainty_m <= .5 or
                 not 50000000<=self.coarse_interrupt_min_interval_ns<=250000000 or
