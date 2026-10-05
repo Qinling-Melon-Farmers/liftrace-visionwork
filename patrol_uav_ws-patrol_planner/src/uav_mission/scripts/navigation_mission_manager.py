@@ -576,26 +576,39 @@ class NavigationMissionManager:
         enabled=rospy.get_param(ns+'/enabled',False)
         cap_name=rospy.get_param(ns+'/limit_parameter','/external_planner_max_command_z')
         cap=parameters.get(cap_name)
+        frame=rospy.get_param(ns+'/frame_id','')
         if not hasattr(self,'_parameter_stage_applied'):self._parameter_stage_applied={}
         key=(self._runtime.core.mission_id,action.decision_seq)
         if enabled and cap is not None:
             if not math.isfinite(float(cap)):raise ValueError('invalid height constraint')
-            if (self._pose is None or self._pose.header.frame_id!=rospy.get_param(ns+'/frame_id','')
+            if (self._pose is None or self._pose.header.frame_id!=frame
                     or self._pose.pose.position.z>float(cap)+1e-9):
                 self._last_reason='waiting_below_new_height_limit';return False
-        if key not in self._parameter_stage_applied:
+        # One transaction per action and complete stage configuration. Reusing
+        # an action after a configuration/frame change requires a new ACK.
+        signature=(completed,ns,frame,bool(enabled),cap_name,parameters)
+        switch=self._parameter_stage_applied.get(key)
+        if switch is None or switch['signature']!=signature:
             for name,value in parameters.items():rospy.set_param(name,value)
-            self._parameter_stage_applied[key]=None
+            switch=dict(signature=signature,request=None,last_sent=None)
+            self._parameter_stage_applied[key]=switch
         if enabled and cap is not None:
             now=rospy.Time.now().to_sec()
-            request=self._parameter_stage_applied[key]
-            # Retransmit only while waiting and after the prior ACK could age
-            # out. Equal cap in another stage still gets a new request ID.
-            if request is None or not 0<=now-request['stamp']<=.4:
-                request=dict(id='%s:%s:%.9f'%(key[0],key[1],now),
-                             max_z=float(cap),frame=self._pose.header.frame_id,stamp=now)
+            request=switch['request']
+            if request is None:
+                serial=getattr(self,'_parameter_stage_request_serial',0)+1
+                self._parameter_stage_request_serial=serial
+                request=dict(id='%s:tail:%s:%s:%.9f'%(key[0],key[1],serial,now),
+                             max_z=float(cap),frame=frame,stamp=now)
+                switch['request']=request
+            # Retries preserve identity and first issue time. A separate nonce
+            # asks the planner to refresh its ACK without changing the deadline.
+            if switch['last_sent'] is None or not 0<=now-switch['last_sent']<=.4:
+                nonce=getattr(self,'_parameter_stage_resend_nonce',0)+1
+                self._parameter_stage_resend_nonce=nonce
+                request=dict(request,resend_nonce=nonce)
                 rospy.set_param(ns+'/request',request)
-                self._parameter_stage_applied[key]=request
+                switch['request']=request;switch['last_sent']=now
             ack=rospy.get_param(ns+'/ack',{})
             stamp=float(ack.get('stamp',-1.))
             applied=float(ack.get('max_z',float('nan')))
