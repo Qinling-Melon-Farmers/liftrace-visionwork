@@ -1,9 +1,11 @@
+#include "patrol_control/ReleaseAuthorization.h"
 #include <std_msgs/Empty.h>
 #ifndef _LL_CONTROLLER_NEW_H_
 #define _LL_CONTROLLER_NEW_H_
 
 #include "patrol_control/drop_action.h"
 #include "patrol_control/async_servo.h"
+#include "patrol_control/near_wall_align.h"
 
 #include <array>
 #include <map>
@@ -111,6 +113,9 @@ private:
     ros::Subscriber mavros_local_position_sub_;
     ros::ServiceClient land_client;
     ros::Timer cmd_timer;
+    ros::WallTimer near_wall_align_refresh_timer_;
+    NearWallAlignFence near_wall_align_fence_;
+    void refreshNearWallAlignFence(const ros::WallTimerEvent& event);
     ros::Subscriber class_sub_;
     // for auto.land
     ros::ServiceClient set_mode_client;
@@ -142,6 +147,9 @@ private:
     ros::Subscriber drop_camera_info_sub_;
     ros::Subscriber drop_ready_sub_;
     ros::Subscriber mission_release_permission_sub_;
+    ros::Subscriber release_authorization_sub_;
+    patrol_control::ReleaseAuthorization release_authorization_;
+    void releaseAuthorizationCallback(const patrol_control::ReleaseAuthorization::ConstPtr& msg);
     ros::Subscriber mission_command_sub_;
     ros::Subscriber landing_detections_sub_;
     ros::Subscriber external_landing_state_sub_;

@@ -88,10 +88,17 @@ NearWallAlignFence loadNearWallAlignFence(ros::NodeHandle& nh) {
     NearWallAlignFence fence;
     const std::string root =
         "/navigation/mission_manager/high_view_full/boundary_policy/";
-    nh.param(root + "enabled", fence.enabled, false);
-    if (!fence.enabled) return fence;
+    // Read every key before branching so startup primes ROS's cache even
+    // for disabled/malformed configurations. Fresh fence defaults also apply
+    // when a cached optional key is missing, deleted, or has the wrong type.
+    nh.getParamCached(root + "enabled", fence.enabled);
     XmlRpc::XmlRpcValue bounds;
-    if (!nh.getParam(root + "bounds", bounds) ||
+    const bool have_bounds = nh.getParamCached(root + "bounds", bounds);
+    nh.getParamCached(root + "guard_side_m", fence.side_m);
+    nh.getParamCached(root + "tracking_reserve_m", fence.tracking_reserve_m);
+    nh.getParamCached(root + "yaw_budget_deg", fence.yaw_budget_deg);
+    if (!fence.enabled) return fence;
+    if (!have_bounds ||
         bounds.getType() != XmlRpc::XmlRpcValue::TypeArray ||
         bounds.size() != 4) {
         fence.valid = false;
@@ -100,16 +107,12 @@ NearWallAlignFence loadNearWallAlignFence(ros::NodeHandle& nh) {
     for (int i = 0; i < 4; ++i) {
         if (!readNumber(bounds[i], &fence.bounds[i])) fence.valid = false;
     }
-    nh.param(root + "guard_side_m", fence.side_m, 0.55);
-    nh.param(root + "tracking_reserve_m", fence.tracking_reserve_m, 0.03);
-    nh.param(root + "yaw_budget_deg", fence.yaw_budget_deg, 10.0);
     fence.valid = fence.valid && fence.wellFormed();
     return fence;
 }
 
-bool nearWallAlignReleaseAllowed(ros::NodeHandle& nh,
+bool nearWallAlignReleaseAllowed(const NearWallAlignFence& fence,
                                  const geometry_msgs::PoseStamped& pose) {
-    const auto fence = loadNearWallAlignFence(nh);
     if (!fence.enabled) return true;
     const auto& p = pose.pose.position;
     const double yaw = tf::getYaw(pose.pose.orientation);
@@ -131,15 +134,33 @@ LLController::LLController(ros::NodeHandle nh):nh_(nh), drop_tf_listener_(drop_t
     std::cout << "\033[47;30m ---------------------------------- Start mission ---------------------------------- \033[0m" << std::endl;
 }
 LLController::~LLController(){
+    near_wall_align_refresh_timer_.stop();
     cmd_timer.stop();
     async_servo_.shutdown();
 }
 
 
 // 读取航路点，订阅无人机位置、圆环中心，发布目标点、投递装置动作指令
+void LLController::refreshNearWallAlignFence(const ros::WallTimerEvent&) {
+    // This callback and the control callbacks share the single-threaded spin
+    // queue. Replace the whole validated snapshot, including invalid/disabled
+    // states; retaining an old valid fence would hide runtime configuration.
+    near_wall_align_fence_ = loadNearWallAlignFence(nh_);
+    if (near_wall_align_fence_.enabled && !near_wall_align_fence_.wellFormed()) {
+        ROS_ERROR_THROTTLE(1.0, "[NearWallAlign] invalid boundary configuration");
+    }
+}
+
 void LLController::initializeNode() {
 
     load_params();
+    if (external_mission_mode_) {
+        // Prime before any control callback; refresh at 1 Hz wall time even
+        // when /clock is paused. No parameter-server reads in ALIGN/release.
+        refreshNearWallAlignFence(ros::WallTimerEvent());
+        near_wall_align_refresh_timer_ = nh_.createWallTimer(
+            ros::WallDuration(1.0), &LLController::refreshNearWallAlignFence, this);
+    }
     std::string height_replan_topic;
     nh_.param<std::string>("height_replan_topic",height_replan_topic,"/planning/replan");
     height_replan_pub_=nh_.advertise<std_msgs::Empty>(height_replan_topic,1);
@@ -279,6 +300,10 @@ void LLController::initializeNode() {
     mission_release_permission_sub_ = nh_.subscribe(
         mission_release_permission_topic_, 1,
         &LLController::missionReleasePermissionCallback, this);
+    release_authorization_sub_ = nh_.subscribe(
+        nh_.param<std::string>("uav_vision/release_authorization_topic",
+                               "/mission/release_authorization"), 1,
+        &LLController::releaseAuthorizationCallback, this);
     mission_command_sub_ = nh_.subscribe(
         mission_command_topic_, 4, &LLController::missionCommandCallback, this);
 
@@ -1491,7 +1516,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     // center.  Keep the final, post-interpolation ALIGN setpoint inside the
     // shared research boundary; visual evidence remains a separate gate.
     if (external_mission_mode_ && Drone_mode == Aligning) {
-        const auto fence = loadNearWallAlignFence(nh_);
+        const auto& fence = near_wall_align_fence_;
         if (fence.enabled) {
             if (!fence.wellFormed()) {
                 mavros_point_cmd = uav_pose;
@@ -2486,7 +2511,7 @@ bool LLController::WayPointDetectDone()
                 external_mission_mode_, legacy_geometry_ready,
                 require_vision_release_permission_, release_gate);
             if (external_mission_mode_ &&
-                !nearWallAlignReleaseAllowed(nh_, uav_pose)) should_drop = false;
+                !nearWallAlignReleaseAllowed(near_wall_align_fence_, uav_pose)) should_drop = false;
             if (!drop_complete && !should_drop) {
                 ROS_WARN_THROTTLE(
                     1.0,
@@ -2733,6 +2758,21 @@ bool LLController::hasFreshMissionReleasePermission() const
     if (!mission_release_permission_active_) {
         return false;
     }
+    if (external_mission_mode_) {
+        const auto& p = release_authorization_;
+        const auto& c = servo_alignment_context_;
+        const double age = (ros::Time::now() - p.header.stamp).toSec();
+        if (!have_servo_alignment_context_ || !c.active || !p.permitted ||
+            p.permission_epoch.empty() || p.permission_revision == 0 ||
+            p.header.stamp.isZero() || age < 0 || age > mission_release_permission_timeout_ ||
+            p.valid_until <= ros::Time::now() ||
+            p.mission_id != c.mission_id || p.decision_seq != c.decision_seq ||
+            p.attempt != c.attempt || p.payload_slot != c.payload_slot ||
+            p.target_id != c.semantic_target_id || p.target_class != c.semantic_target_class ||
+            p.target_first_seen != c.semantic_target_first_seen || p.align_mode != c.align_mode) {
+            return false;
+        }
+    }
     return (ros::Time::now() - latest_mission_release_permission_time_).toSec() <=
            mission_release_permission_timeout_;
 }
@@ -2945,11 +2985,24 @@ void LLController::dropReadyCallback(const uav_vision::DropReady::ConstPtr& msg)
 void LLController::missionReleasePermissionCallback(
     const std_msgs::Bool::ConstPtr& msg)
 {
+    if (external_mission_mode_) return;  // Bool remains legacy-only.
     latest_mission_release_permission_time_ = ros::Time::now();
     mission_release_permission_active_ = msg->data;
     ROS_INFO_THROTTLE(
         1.0, "[UavVision] mission release permission=%s",
         mission_release_permission_active_ ? "true" : "false");
+}
+
+void LLController::releaseAuthorizationCallback(
+    const patrol_control::ReleaseAuthorization::ConstPtr& msg)
+{
+    if (!external_mission_mode_) return;
+    if (msg->permission_epoch.empty() || msg->permission_revision == 0) return;
+    if (msg->permission_epoch == release_authorization_.permission_epoch &&
+        msg->permission_revision <= release_authorization_.permission_revision) return;
+    release_authorization_ = *msg;
+    latest_mission_release_permission_time_ = ros::Time::now();
+    mission_release_permission_active_ = msg->permitted;
 }
 
 void LLController::missionCommandCallback(
@@ -3214,7 +3267,10 @@ DropActionResult LLController::executeDropAction(int servo_id) {
             context.payload_slot != servo_id || context.deadline <= ros::Time::now()) {
             return DropActionResult::kRejected;
         }
+        if (!hasFreshMissionReleasePermission()) return DropActionResult::kRejected;
         patrol_control::ServoAction::Request request;
+        request.permission_epoch = release_authorization_.permission_epoch;
+        request.permission_revision = release_authorization_.permission_revision;
         request.request_id = servo_action_id_;
         request.payload_slot = servo_id;
         request.mission_id = context.mission_id;
@@ -3520,7 +3576,7 @@ bool LLController::CrossDetectionDone() {
                 external_mission_mode_, legacy_geometry_ready,
                 require_vision_release_permission_, release_gate);
             if (external_mission_mode_ &&
-                !nearWallAlignReleaseAllowed(nh_, uav_pose)) should_drop = false;
+                !nearWallAlignReleaseAllowed(near_wall_align_fence_, uav_pose)) should_drop = false;
             if (!drop_complete && !should_drop) {
                 ROS_WARN_THROTTLE(
                     1.0,

@@ -1,0 +1,8 @@
+{
+  "root": "/home/xhj/liftrace-worktrees/r2026-high-view-search",
+  "source_head": "966f6adf80050e2033e067cad1ab2b6dd41cbe66",
+  "continuity_source": "b2632da28351e5f095804300e8abfa7dcf12dc0c",
+  "main": "2f405bef1b980fc8ba7b99958185538f660e28ee",
+  "method": "unchanged source function extraction for SDFMap; full unchanged kino and bspline translation units; inert ROS/PCL message transport stubs; no ROS linkage",
+  "map_extent_note": "compact 4x4m fixture only; actual resolution/inflation/support/middle policy from archived seed38 profile; synthetic points, not a flight replay"
+}

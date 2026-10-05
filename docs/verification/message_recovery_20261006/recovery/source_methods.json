@@ -1,0 +1,110 @@
+[
+  {
+    "path": "plan_env/include/plan_env/sdf_map.h",
+    "signature": "inline int SDFMap::toAddress(const Eigen::Vector3i&",
+    "start_line": 306,
+    "end_line": 308
+  },
+  {
+    "path": "plan_env/include/plan_env/sdf_map.h",
+    "signature": "inline int SDFMap::toAddress(int&",
+    "start_line": 310,
+    "end_line": 312
+  },
+  {
+    "path": "plan_env/include/plan_env/sdf_map.h",
+    "signature": "inline void SDFMap::boundIndex",
+    "start_line": 314,
+    "end_line": 320
+  },
+  {
+    "path": "plan_env/include/plan_env/sdf_map.h",
+    "signature": "inline double SDFMap::getDistance(const Eigen::Vector3d&",
+    "start_line": 322,
+    "end_line": 329
+  },
+  {
+    "path": "plan_env/include/plan_env/sdf_map.h",
+    "signature": "inline double SDFMap::getDistance(const Eigen::Vector3i&",
+    "start_line": 331,
+    "end_line": 337
+  },
+  {
+    "path": "plan_env/include/plan_env/sdf_map.h",
+    "signature": "inline int SDFMap::getOccupancy(Eigen::Vector3d",
+    "start_line": 440,
+    "end_line": 447
+  },
+  {
+    "path": "plan_env/include/plan_env/sdf_map.h",
+    "signature": "inline int SDFMap::getInflateOccupancy",
+    "start_line": 449,
+    "end_line": 458
+  },
+  {
+    "path": "plan_env/include/plan_env/sdf_map.h",
+    "signature": "inline bool SDFMap::isInMap(const Eigen::Vector3d&",
+    "start_line": 468,
+    "end_line": 479
+  },
+  {
+    "path": "plan_env/include/plan_env/sdf_map.h",
+    "signature": "inline bool SDFMap::isInMap(const Eigen::Vector3i&",
+    "start_line": 481,
+    "end_line": 490
+  },
+  {
+    "path": "plan_env/include/plan_env/sdf_map.h",
+    "signature": "inline void SDFMap::posToIndex",
+    "start_line": 492,
+    "end_line": 494
+  },
+  {
+    "path": "plan_env/include/plan_env/sdf_map.h",
+    "signature": "inline void SDFMap::indexToPos",
+    "start_line": 496,
+    "end_line": 498
+  },
+  {
+    "path": "plan_env/src/sdf_map.cpp",
+    "signature": "void SDFMap::resetBuffer()",
+    "start_line": 253,
+    "end_line": 261
+  },
+  {
+    "path": "plan_env/src/sdf_map.cpp",
+    "signature": "void SDFMap::resetBuffer(Eigen::Vector3d",
+    "start_line": 263,
+    "end_line": 279
+  },
+  {
+    "path": "plan_env/src/sdf_map.cpp",
+    "signature": "void SDFMap::applyFlightCeiling",
+    "start_line": 823,
+    "end_line": 834
+  },
+  {
+    "path": "plan_env/src/sdf_map.cpp",
+    "signature": "void SDFMap::cloudCallback",
+    "start_line": 931,
+    "end_line": 1124
+  },
+  {
+    "path": "plan_env/src/sdf_map.cpp",
+    "signature": "void SDFMap::updateESDF3d",
+    "start_line": 316,
+    "end_line": 416
+  },
+  {
+    "path": "plan_env/src/sdf_map.cpp",
+    "signature": "void SDFMap::getRegion",
+    "start_line": 1427,
+    "end_line": 1429
+  },
+  {
+    "path": "plan_env/src/sdf_map.cpp",
+    "signature": "void SDFMap::fillESDF",
+    "start_line": 282,
+    "end_line": 314
+  }
+]

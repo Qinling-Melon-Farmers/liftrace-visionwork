@@ -65,6 +65,44 @@ class HighViewFull(HighViewProbe):
         self.descent_motion_until=None
         self.descent_motion_seq=None
 
+    @property
+    def done(self):
+        return self.core.phase in (MissionPhase.COMPLETE,MissionPhase.ABORTED)
+
+    @done.setter
+    def done(self,_value):
+        # HighViewProbe initializes/assigns segment flags. Full missions keep
+        # no copy: only accepted core transitions determine completion.
+        pass
+
+    @property
+    def succeeded(self):
+        return self.core.phase==MissionPhase.COMPLETE
+
+    @succeeded.setter
+    def succeeded(self,_value):
+        # Preserve the base probe's assignment API without a second authority.
+        pass
+
+    def _sync_core_metadata(self,reason=''):
+        # Full-mission success belongs to MissionCore's accepted LAND result.
+        # The single-revisit probe can finish by ABORT/hold; this runtime cannot.
+        phase=self.core.phase
+        if phase in (MissionPhase.POST_DELIVERY_ROUTE,MissionPhase.RETURN_HOME,
+                     MissionPhase.LAND,MissionPhase.COMPLETE):self.stage='TAIL'
+        if phase in (MissionPhase.COMPLETE,MissionPhase.ABORTED):
+            if phase==MissionPhase.COMPLETE:self.failure=''
+            elif not self.failure:
+                active=self.core.active_action
+                self.failure=(active.reason if active and active.command=='ABORT'
+                              else reason or 'mission_aborted')
+
+    def _outcome(self,accepted,reason,action=None,route_outcome=None,candidate_validations=()):
+        # Result callbacks may terminate the core before the next timer. The
+        # shell skips tick() for terminal phases, so update metadata here.
+        self._sync_core_metadata(reason)
+        return super()._outcome(accepted,reason,action,route_outcome,candidate_validations)
+
     def _candidate_validation_config(self):
         if self.stage=='SURVEY':
             return replace(self.core.config,min_streak=self.policy.candidate_min_streak)
@@ -896,13 +934,12 @@ class HighViewFull(HighViewProbe):
                 self.reacquired=None;self.fresh_candidate=None
                 return self._outcome(True,'waiting_for_fresh_delivery_candidate')
             # Original runtime executes APPROACH/release/recovery and tail.
-            result=super().tick(now,current_xy)
-            if self.core.phase in (MissionPhase.POST_DELIVERY_ROUTE,MissionPhase.RETURN_HOME,MissionPhase.LAND):self.stage='TAIL'
-            if self.core.phase==MissionPhase.COMPLETE:self.done=True;self.succeeded=True
-            return result
+            return super().tick(now,current_xy)
 
     def probe_status(self):
-        value=super().probe_status()
+        with self._lock:
+            self._sync_core_metadata()
+            value=super().probe_status()
         value.update(scope='HIGH_VIEW_FULL_MISSION',completion_policy='COMPLETE_ROUTE_OR_SUPPORTED_TOP3',
                      required_classes=sorted(self.required),top_hints={c:asdict(h) for c,h in self.top_hints.items()},
                      orders=list(self.orders),reacquisitions=list(self.completed_reacquisitions))
