@@ -29,6 +29,8 @@ def main():
     subprocess.run(['bash','top_level_scripts/check_sim_processes.sh'],cwd=R,check=True)
     seed,variant=CASES[a.case]
     scene=next(x['scene'] for x in json.loads((D/'scenes.json').read_text()) if x['seed']==seed and x['variant']==variant)
+    scene=str((R/scene).resolve())
+    if not (Path(scene)/'field.world').is_file():raise SystemExit('Scene missing')
     prefix=f'snake3_camera2m_{variant}_seed{seed}'
     before=set((R/'logs').glob(prefix+'_*'))
     cmd=['env','SIM_RUN_AUTHORIZED=1','SIM_NO_RECORD=1','SIM_REQUIRE_GATE=1','SIM_STORAGE_GUARD_PATH=/mnt/f',

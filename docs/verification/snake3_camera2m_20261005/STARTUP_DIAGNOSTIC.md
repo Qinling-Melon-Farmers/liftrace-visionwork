@@ -1,0 +1,5 @@
+# 启动诊断，不计有效方案对照
+
+首个启动b50ddee9使用相对scene_dir，presentation节点报field.world FileNotFoundError，场景未按预期加载，ROS15秒边界违规终止；不是2m三线方案的有效飞行。原run：logs/snake3_camera2m_snake3_seed31_20261005_095529，原状态保留startup_relative_path_failure.json。收尾零残留。
+
+修正：runner将scene_dir转换成存在的绝对目录，与上一批六轮入口保持一致；不改控制或验收门槛。按当前两轮补验授权，在此入口修正后重启seed31。
