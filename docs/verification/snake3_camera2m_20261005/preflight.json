@@ -1,0 +1,18 @@
+[
+  {
+    "seed": 31,
+    "variant": "snake3",
+    "nodes": 42,
+    "gate_doors": 3,
+    "status": "PASS",
+    "motion": true
+  },
+  {
+    "seed": 38,
+    "variant": "snake3",
+    "nodes": 42,
+    "gate_doors": 3,
+    "status": "PASS",
+    "motion": true
+  }
+]
