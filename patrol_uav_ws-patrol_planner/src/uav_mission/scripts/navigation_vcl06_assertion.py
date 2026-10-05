@@ -341,6 +341,7 @@ class Vcl06GateReducer:
         self.selected_classes = []
         self.accepted_classes = []
         self.statuses = {}
+        self.actual_collision_count = 0
         self.planner_goal_publishers = ()
         self.errors = []
         self.pose_samples = 0
@@ -786,6 +787,7 @@ class Vcl06GateReducer:
         elif name == "contact":
             count = payload.get("actual_collision_count")
             if isinstance(count, int) and count > 0:
+                self.actual_collision_count = max(self.actual_collision_count, count)
                 self._error("actual_collision")
         elif name == "bridge":
             if payload.get("adapter_faulted") is True:
@@ -1033,6 +1035,7 @@ class Vcl06GateReducer:
             "anchor_ready": self._ready_status(
                 anchor, self.nav_feature_profile),
             "contact_ready_zero": (
+                self.actual_collision_count == 0 and
                 contact.get("ready") is True and
                 contact.get("status") == "READY" and
                 _int_or(contact.get("actual_collision_count"), -1) == 0),
@@ -1078,6 +1081,7 @@ class Vcl06GateReducer:
             "zero_boundary_violations": self.boundary_violations == 0,
             "zero_height_violations": self.height_violations == 0,
             "zero_collisions": (
+                self.actual_collision_count == 0 and
                 _int_or(contact.get("actual_collision_count"), -1) == 0),
             "unmatched_results_zero": not self.unmatched_results,
             "contract_errors_zero": not self.errors,
@@ -1136,6 +1140,7 @@ class Vcl06GateReducer:
                     _int_or(manager.get("committed_slots"), -1) == 0),
             })
         metrics = {
+            "actual_collision_count": self.actual_collision_count,
             "decision_count": len(self.decisions),
             "result_count": len(self.results),
             "unmatched_result_count": len(self.unmatched_results),
@@ -1229,6 +1234,8 @@ class NavigationVcl06AssertionNode:
         self._mission_started_wall = None
         self._mission_started_ros = None
         self._observe_full_trial = bool(rospy.get_param("~observe_full_trial", False))
+        self._stop_on_collision = bool(rospy.get_param("~stop_on_collision", True))
+        self._recorded_collision_count = 0
         self._startup_wall_timeout = float(rospy.get_param(
             "~startup_wall_timeout", 180.0))
         self._wall_timeout = float(rospy.get_param("~wall_timeout", 650.0))
@@ -1575,20 +1582,36 @@ class NavigationVcl06AssertionNode:
     def _check_terminal(self, timeout_reason=""):
         if self._finished:
             return
-        if (self._observe_full_trial and self._mission_started_ros is not None
+        stop_on_collision = getattr(self, "_stop_on_collision", True)
+        if ((self._observe_full_trial or not stop_on_collision) and self._mission_started_ros is not None
                 and rospy.Time.now().to_sec() - self._mission_started_ros >= self.reducer.max_mission_sec):
             timeout_reason = timeout_reason or "full_trial_mission_timeout"
         report = self.reducer.report(timeout_reason=timeout_reason)
+        report["stop_on_collision"] = stop_on_collision
         if report["status"] == "WAITING":
+            return
+        if not stop_on_collision and "actual_collision" in report["errors"]:
+            # Persist the raw FAIL even when full-trial observation defers
+            # another error. Never turn recorded collisions into a PASS.
+            count = report["metrics"]["actual_collision_count"]
+            if count > getattr(self, "_recorded_collision_count", 0):
+                self._write_report(report)
+                self._recorded_collision_count = count
+        landed = (self.reducer.latest_landed_state == LANDED_STATE_ON_GROUND
+                  and self.reducer.latest_armed is False
+                  and self._mission_started_ros is not None)
+        if (not stop_on_collision and not timeout_reason and
+                set(report["errors"]) == {"actual_collision"} and
+                not landed and
+                not all(value for name, value in report["checks"].items()
+                        if name not in ("contact_ready_zero", "zero_collisions",
+                                        "contract_errors_zero"))):
             return
         if self._observe_full_trial:
             elapsed = (None if self._mission_started_ros is None else
                        rospy.Time.now().to_sec() - self._mission_started_ros)
             timed_out = elapsed is not None and elapsed >= self.reducer.max_mission_sec
-            landed = (self.reducer.latest_landed_state == LANDED_STATE_ON_GROUND
-                      and self.reducer.latest_armed is False
-                      and self._mission_started_ros is not None)
-            collision = "actual_collision" in report["errors"]
+            collision = stop_on_collision and "actual_collision" in report["errors"]
             if not (timed_out or landed or collision or timeout_reason or
                     report["status"] == "PASS"):
                 return

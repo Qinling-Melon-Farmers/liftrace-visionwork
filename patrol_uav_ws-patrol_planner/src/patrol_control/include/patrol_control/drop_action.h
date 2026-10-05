@@ -11,6 +11,8 @@ enum class DropActionResult {
     kInvalidServoId,
     kServiceCallFailed,
     kRejected,
+    kPending,  // Submitted, never an acknowledgement of physical completion.
+    kNotStarted,  // Matching, terminal fenced proxy proof; bool false is not proof.
 };
 
 inline DropActionResult classifyDropAction(int servo_id,

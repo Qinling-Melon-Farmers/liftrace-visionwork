@@ -28,6 +28,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 find_package(yaml-cpp REQUIRED)
+find_package(Threads REQUIRED)
 find_package(OpenCV REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -69,6 +70,7 @@ add_message_files(
 add_service_files(
   FILES
   Servo.srv
+  ServoAction.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -141,7 +143,7 @@ include_directories(/usr/include/eigen3)
 
 add_executable(patrol_control src/patrol_control.cpp src/node/patrol_control_node.cpp)
 add_dependencies(patrol_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(patrol_control yaml-cpp ${catkin_LIBRARIES})
+target_link_libraries(patrol_control yaml-cpp ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 # Simulation-only arming/OFFBOARD helper. It is not included by hardware
 # launch files.
@@ -208,6 +210,7 @@ if(TARGET ${PROJECT_NAME}-drop-action-test)
   target_link_libraries(${PROJECT_NAME}-drop-action-test ${catkin_LIBRARIES})
 endif()
 
+catkin_add_nosetests(test/test_async_servo.py)
 catkin_add_nosetests(test/test_no_legacy_servo_status_false.py)
 catkin_add_nosetests(test/test_new_vision_config.py)
 catkin_add_nosetests(test/test_px4_sitl_start.py)

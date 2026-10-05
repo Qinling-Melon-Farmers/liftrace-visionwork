@@ -1,6 +1,7 @@
 from pathlib import Path
 from dataclasses import replace
 import copy,tempfile,unittest,yaml
+import numpy as np
 from trial_config import generate,validate_settings,flight_geometry
 from trial_runtime import HighSpeedCaptureRuntime
 from trial_auto_land import trial_ready
@@ -48,6 +49,7 @@ class CaptureTests(unittest.TestCase):
             self.assertEqual(action.command,'SEARCH');self.assertFalse(action.has_target)
             now+=2.
             r.update_pose((action.goal.x,action.goal.y,action.goal.z),now,'camera_init')
+            r.grid.update(np.array([[0.,0.,-.22]]),now,.18,2.8)
             out=r.apply_result(replace(result_for(action,seq+1,status='SUCCEEDED',terminal=True),mission_id='capture',event_stamp_ns=int(now*1e9)),now,(action.goal.x,action.goal.y))
         self.assertEqual(commands[-1],'LAND');self.assertEqual(r.core.committed_slots,0)
         self.assertTrue(r.capture_complete);self.assertEqual(r.trial_manifest,{})

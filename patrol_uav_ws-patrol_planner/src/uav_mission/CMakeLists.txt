@@ -257,6 +257,10 @@ install(DIRECTORY launch config
 
 if(CATKIN_ENABLE_TESTING)
   catkin_add_nosetests(test/test_competition_hardware.py)
+  catkin_add_nosetests(test/test_high_view_resume.py)
+  catkin_add_nosetests(test/test_probe_limit_switch.py)
+  catkin_add_nosetests(test/test_h_contact_record_only.py)
+  catkin_add_nosetests(test/test_release_transaction_followups.py)
   catkin_add_nosetests(test/test_lio_external_pose.py)
   catkin_add_nosetests(test/test_navigation_frame_adapter.py)
   catkin_add_nosetests(test/test_map_camera_alignment.py)

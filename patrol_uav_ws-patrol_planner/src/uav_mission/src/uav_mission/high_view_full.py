@@ -52,6 +52,18 @@ class HighViewFull(HighViewProbe):
         self.local_wall_target=None
         self.unreachable_classes=set()
         self.degraded_from=None
+        self._survey_leg_start=self.ascent_xy
+        self.remaining_survey=()
+        self.survey_breakpoint=None
+        self.resume_attempted=False
+        self.resume_started=None
+        self.resume_until=None
+        self.resume_support={}
+        self.resume_completed=False
+        self.descent_wait_until=None
+        self.descent_wait_mode=None
+        self.descent_motion_until=None
+        self.descent_motion_seq=None
 
     def _candidate_validation_config(self):
         if self.stage=='SURVEY':
@@ -184,6 +196,149 @@ class HighViewFull(HighViewProbe):
                 if c in self.required and c not in self.core.queue.delivered_classes
                 and (c not in self.policy.interrupt_refined_classes or h.key.source!='bbox')}
 
+    def _save_remaining_survey(self,now):
+        """Keep the unfinished segment, not a shortcut to its far endpoint."""
+        if self.resume_attempted:return
+        points=list(self.route.waypoints[self.route.current_index:])
+        if self._alternative:
+            # The current alternative belongs to a failed segment. Keep that
+            # region in the existing low-level skipped-region treatment.
+            skipped=self._survey_original
+            if skipped is not None and skipped not in self.skipped_survey_xy:
+                self.skipped_survey_xy.append(skipped)
+            points=points[1:]
+            start=skipped or self._current_xy
+        else:
+            start=self._survey_leg_start
+        if not points:return
+        end=(points[0].x,points[0].y)
+        dx,dy=end[0]-start[0],end[1]-start[1]
+        length=math.hypot(dx,dy)
+        fraction=0. if length<1e-9 else max(0.,min(1.,
+            ((self._current_xy[0]-start[0])*dx+(self._current_xy[1]-start[1])*dy)/(length*length)))
+        fraction=max(0.,fraction-self.policy.resume_overlap_m/max(length,1e-9))
+        xy=(start[0]+fraction*dx,start[1]+fraction*dy)
+        self.remaining_survey=tuple(points)
+        self.survey_breakpoint=xy
+        self.events.append(dict(stage='SURVEY_REMAINDER_SAVED',time=now,
+            segment_start=start,interruption_xy=self._current_xy,rejoin_xy=xy,
+            remaining=[p.as_tuple() for p in points],failed_regions=list(self.skipped_survey_xy)))
+
+    def _resume_interrupt_hints(self,now):
+        """Two new, independent observations of still-needed, non-conflicting classes."""
+        if self.resume_started is None:return {}
+        missing=self.required-self.core.queue.delivered_classes-self.unreachable_classes
+        fresh={}
+        for cls,h in self._interrupt_top(now).items():
+            if cls not in missing or h.last_seen_ns<=int(self.resume_started*1e9):continue
+            if not 0<=now-h.last_seen_ns/1e9<=self.catalog.config.input_max_age_ns/1e9:continue
+            samples=self.resume_support.setdefault(cls,[])
+            if not samples or h.last_seen_ns>samples[-1][0]:
+                if samples:
+                    gap=h.last_seen_ns-samples[-1][0]
+                    if gap>self.policy.coarse_interrupt_max_gap_ns or math.dist(h.xy,samples[-1][1])>self.policy.coarse_interrupt_consistency_m:
+                        samples.clear()
+                    elif gap<self.policy.coarse_interrupt_min_interval_ns:
+                        continue
+                samples.append((h.last_seen_ns,h.xy))
+                self.resume_support[cls]=samples=samples[-2:]
+            if len(samples)>=2:fresh[cls]=h
+        return fresh
+
+    def _try_resume_survey(self,now):
+        if (not self.policy.resume_survey_enabled or self.resume_attempted or
+                not self.remaining_survey or self.survey_breakpoint is None or
+                not self.required-self.core.queue.delivered_classes-self.unreachable_classes or
+                self.core._next_free_slot() is None or
+                self.core.active_action is not None or self.route.active is not None):
+            return None
+        # Consume the single opportunity even if a safe return to altitude is
+        # not currently available: do not repeatedly climb after each low miss.
+        self.resume_attempted=True
+        self.resume_until=min(now+self.policy.resume_budget_seconds,
+                              self.core.started_at+self.core.config.mission_timeout)
+        grid=getattr(self,'descent_grid',self.grid)
+        proposal=propose_column(grid,self._current_xy,now,
+                               self.policy.descent_radius_m,self.policy.descent_max_candidates)
+        if (self.pose is None or not 0<=now-self.pose_stamp<=self.probe_config.pose_max_age or
+                self.resume_until-now<10. or proposal is None or proposal['kind']!='CURRENT_COLUMN'):
+            self.events.append(dict(stage='SURVEY_RESUME_UNAVAILABLE',time=now,
+                                    reason='no_fresh_clear_current_column_or_budget'))
+            return None
+        self.selected=None;self.reacquired=None;self.fresh_candidate=None
+        self._change_route('RESUME_ASCEND',[Waypoint(*self._current_xy,
+            self.probe_config.ground_z+self.probe_config.high_agl)],now)
+        self.events.append(dict(stage='SURVEY_RESUME_ONCE',time=now,
+            rejoin_xy=self.survey_breakpoint,remaining=[p.as_tuple() for p in self.remaining_survey],
+            original_deadline=self.core.started_at+self.core.config.mission_timeout))
+        return self._dispatch_route('SEARCH','resume_ascent',now)
+
+    def _resume_failed(self,now,reason):
+        self.resume_completed=True
+        self.events.append(dict(stage='SURVEY_RESUME_FAILED',time=now,reason=reason))
+        active=self.core.active_action
+        if active is not None:
+            if not self._route_binding_matches(active):return self._fail_closed('resume_binding_mismatch',now)
+            if not self._descent_map_fresh(now):
+                return self._finish(False,'resume_active_motion_map_stale',now)
+            # An issued replacement can still be waiting on pose/height ACK.
+            # Bound that publication handoff without inventing a pause command.
+            self.descent_motion_seq=active.decision_seq
+            self.descent_motion_until=min(now+2.,active.deadline_at,
+                                           self.core.started_at+self.core.config.mission_timeout)
+            self.descent_wait_until=now  # No second map-grace after the resume budget.
+        if (self.pose is not None and 0<=now-self.pose_stamp<=self.probe_config.pose_max_age and
+                self.pose[2]<=self.probe_config.ground_z+self.probe_config.low_agl+.2):
+            failed=self._retire_descent_motion(now)
+            if failed is not None:return failed
+            self.descent_wait_until=None;self.descent_wait_mode=None
+            return self._start_fallback(now,reason)
+        return self._retreat(now)
+
+    def _descent_map_fresh(self,now):
+        return self.grid.stamp is not None and 0<=now-self.grid.stamp<=2.
+
+    def _wait_for_descent(self,now,mode):
+        if self.descent_wait_until is None:
+            self.descent_wait_until=min(now+self.policy.descent_wait_seconds,
+                                       self.core.started_at+self.core.config.mission_timeout)
+            active=self.core.active_action
+            if active is not None:
+                if not self._route_binding_matches(active):return self._fail_closed('descent_motion_binding_mismatch',now)
+                # No resumable HOLD exists. Keep the accepted leg bound until
+                # replacement, or end safely through the existing ABORT chain.
+                self.descent_wait_until=min(self.descent_wait_until,now+2.,active.deadline_at)
+                self.descent_motion_until=self.descent_wait_until
+                self.descent_motion_seq=active.decision_seq
+            self.events.append(dict(stage='DESCENT_MAP_WAIT',time=now,mode=mode,
+                                    deadline=self.descent_wait_until,
+                                    motion='CONTINUING_ACCEPTED_LEG' if active is not None else 'NO_ACTIVE_LEG',
+                                    continuing_seq=active.decision_seq if active is not None else None))
+        self.descent_wait_mode=mode
+        if now<self.descent_wait_until:
+            self.stage='DESCENT_WAIT'
+            return self._outcome(True,'continuing_accepted_leg_for_descent_map' if self.core.active_action is not None else 'waiting_fresh_descent_proposal')
+        if self.core.active_action is not None and (mode=='return' or not self._descent_map_fresh(now)):
+            return self._finish(False,'descent_motion_handoff_timeout',now)
+        self.descent_wait_until=None;self.descent_wait_mode=None
+        if mode=='return':
+            return self._finish(False,'verified_return_column_unavailable',now)
+        failed=self._retire_descent_motion(now)
+        if failed is not None:return failed
+        self.events.append(dict(stage='LOCAL_DESCENT_FALLBACK_RETURN',time=now))
+        return HighViewProbe._retreat(self,now)
+
+    def _return_column_descent(self,now):
+        grid=getattr(self,'descent_grid',self.grid)
+        plan=propose_column(grid,self._current_xy,now,
+                            self.policy.descent_radius_m,self.policy.descent_max_candidates)
+        if plan is None or plan['kind']!='CURRENT_COLUMN':
+            return self._wait_for_descent(now,'return')
+        self.descent_wait_until=None;self.descent_wait_mode=None
+        self._change_route('DESCEND',[Waypoint(*self._current_xy,
+            self.probe_config.ground_z+self.probe_config.low_agl)],now)
+        return self._dispatch_route('SEARCH','verified_return_descent',now)
+
     def _consider_search_replacement(self,now):
         if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
             outcome=MissionRuntime._consider_search_replacement(self,now)
@@ -196,15 +351,17 @@ class HighViewFull(HighViewProbe):
                 self.events.append(dict(stage='DELIVERY',time=now,target=outcome.action.target_class,
                                         reason='local_wall_visual_confirmation'))
             return outcome
-        if self.stage=='SURVEY' and self.ascent_verified and set(self._interrupt_top(now))==self.required:
+        resume_hints=self._resume_interrupt_hints(now) if self.stage=='SURVEY' and self.resume_started is not None else {}
+        should_interrupt=(bool(resume_hints) if self.resume_started is not None else
+                          set(self._interrupt_top(now))==self.required) if self.stage=='SURVEY' else False
+        if self.stage=='SURVEY' and self.ascent_verified and should_interrupt:
             active=self.core.active_action
             if not self._route_binding_matches(active):return self._fail_closed('survey_binding_mismatch',now)
-            retired=self.route.interrupt(active.decision_seq)
-            if not retired.accepted:return self._fail_closed('survey_interrupt_failed',now)
-            # Same serialized replacement boundary as the original search
-            # interruption: targetless motion retires before the next sequence.
-            self.core.active_action=None
-            self.events.append(dict(stage='SURVEY_INTERRUPTED_TOP3',time=now,retired_seq=active.decision_seq,original_deadline=active.deadline_at,
+            self._save_remaining_survey(now)
+            if self.resume_started is not None:
+                self.resume_completed=True
+                for cls in resume_hints:self.revisit_counts[cls]=0
+            self.events.append(dict(stage='SURVEY_RESUME_FOUND_MISSING' if self.resume_started is not None else 'SURVEY_INTERRUPTED_TOP3',time=now,decision_seq=active.decision_seq,original_deadline=active.deadline_at,
                                     support=self.memory.support_status()))
             return self._retreat(now)
         if self.stage=='SURVEY' and self.ascent_verified:
@@ -222,6 +379,17 @@ class HighViewFull(HighViewProbe):
         return self._outcome(True,'full_motion_pending')
 
     def _finish_route(self,action,succeeded,now):
+        if self.stage=='DESCENT_WAIT':
+            outcome,failed=MissionRuntime._finish_route(self,action,succeeded,now)
+            if failed is not None:return outcome,failed
+            if not succeeded:return outcome,self._finish(False,'continued_descent_leg_failed',now)
+            self.descent_motion_until=None;self.descent_motion_seq=None
+            return outcome,None
+        if self.stage in ('RESUME_ASCEND','RESUME_JOIN'):
+            outcome,failed=MissionRuntime._finish_route(self,action,succeeded,now)
+            if failed is not None:return outcome,failed
+            if not succeeded:return outcome,self._resume_failed(now,'resume_motion_unreachable')
+            return outcome,None
         if self.stage=='REVISIT' and not succeeded:
             outcome,failed=MissionRuntime._finish_route(self,action,succeeded,now)
             if failed is not None:return outcome,failed
@@ -232,6 +400,7 @@ class HighViewFull(HighViewProbe):
             outcome,failed=MissionRuntime._finish_route(self,action,succeeded,now)
             if failed is not None:return outcome,failed
             if succeeded:
+                self._survey_leg_start=(action.goal.x,action.goal.y)
                 self._alternative=False;self._survey_original=None
             else:
                 candidates=[]
@@ -258,6 +427,16 @@ class HighViewFull(HighViewProbe):
             return outcome,None
         return super()._finish_route(action,succeeded,now)
 
+    def _retire_descent_motion(self,now):
+        active=self.core.active_action
+        if active is None:return None
+        if not self._route_binding_matches(active):return self._fail_closed('descent_motion_binding_mismatch',now)
+        retired=self.route.interrupt(active.decision_seq)
+        if not retired.accepted:return self._fail_closed('descent_motion_interrupt_failed',now)
+        self.core.active_action=None
+        self.events.append(dict(stage='DESCENT_MOTION_REPLACED',time=now,retired_seq=active.decision_seq))
+        return None
+
     def _retreat(self,now):
         self.top_hints=self._all_top(now)
         if not self.ascent_verified:return self._finish(False,'ascent_not_verified',now)
@@ -277,11 +456,10 @@ class HighViewFull(HighViewProbe):
             if plan is None:
                 plan=propose_column(descent_grid,self._current_xy,now,self.policy.descent_radius_m,self.policy.descent_max_candidates)
                 if plan is not None:self.events.append(dict(stage='DESCENT_COLUMN_WITHOUT_FULL_TOUR',time=now,xy=plan['xy']))
-            if plan is None and set(self.top_hints)!=self.required:
-                # Return along the already verified ascent column if the local
-                # coarse proposal is unavailable. Actual 3-D planner still owns motion.
-                return super()._retreat(now)
-            if plan is None:return self._finish(False,'no_local_descent_route',now)
+            if plan is None:return self._wait_for_descent(now,'local')
+            failed=self._retire_descent_motion(now)
+            if failed is not None:return failed
+            self.descent_wait_until=None;self.descent_wait_mode=None
             self.descent_proposal=dict(plan,time=now,from_xy=tuple(self._current_xy),map_stamp=self.grid.stamp,
                                        scope='SENSED_OCCUPANCY_PROPOSAL_REQUIRES_3D_PLANNER')
             self.orders.append(dict(time=now,classes=list(plan['classes']),grid_length_m=plan['cost_m'],
@@ -292,6 +470,8 @@ class HighViewFull(HighViewProbe):
             z=self.probe_config.ground_z+(self.probe_config.low_agl if direct else self.probe_config.high_agl)
             self._change_route(stage,[Waypoint(*plan['xy'],z)],now)
             return self._dispatch_route('SEARCH','local_descent',now)
+        failed=self._retire_descent_motion(now)
+        if failed is not None:return failed
         result=super()._retreat(now)
         self.selected=None
         return result
@@ -523,6 +703,8 @@ class HighViewFull(HighViewProbe):
         if check is not None:return check
         local=self._local_wall_recheck(now)
         if local is not None:return local
+        resume=self._try_resume_survey(now)
+        if resume is not None:return resume
         if self.fallback_route is None:return self._finish(False,'fallback_route_unavailable',now)
         points=list(self.fallback_route.waypoints)
         costs=self.grid.distances(self._current_xy) if self.grid.stamp is not None and 0<=now-self.grid.stamp<=2. else {}
@@ -543,6 +725,22 @@ class HighViewFull(HighViewProbe):
         return MissionRuntime._schedule_from_search(self,now,False)
 
     def _schedule_from_search(self,now,prefer_resume,route_outcome=None):
+        if self.stage=='DESCENT_WAIT':
+            return self._return_column_descent(now) if self.descent_wait_mode=='return' else self._retreat(now)
+        if self.stage=='RESUME_ASCEND' and self.route.is_complete:
+            self._change_route('RESUME_JOIN',[Waypoint(*self.survey_breakpoint,
+                self.probe_config.ground_z+self.probe_config.high_agl)],now)
+            return self._dispatch_route('SEARCH','resume_rejoin',now)
+        if self.stage=='RESUME_JOIN' and self.route.is_complete:
+            self.resume_started=now;self.resume_support={}
+            self._survey_leg_start=self.survey_breakpoint
+            self._change_route('SURVEY',self.remaining_survey,now)
+            self.events.append(dict(stage='SURVEY_RESUMED',time=now))
+            return self._dispatch_route('SEARCH','remaining_survey',now)
+        if self.stage=='SURVEY' and self.resume_started is not None and self.route.is_complete:
+            self.resume_completed=True
+        if self.stage=='RETURN_COLUMN' and self.route.is_complete:
+            return self._return_column_descent(now)
         if self.stage=='LOCAL_WALL_VERIFY' and self.route.is_complete:
             return self._finish_local_wall_recheck(now)
         if self.stage in ('LOW_COVERAGE','LOCAL_WALL_VERIFY'):
@@ -648,6 +846,22 @@ class HighViewFull(HighViewProbe):
 
     def tick(self,now,current_xy):
         with self._lock:
+            if self.stage=='DESCENT_WAIT':
+                now,failed=self._operation_time(now)
+                if failed is not None:return failed
+                self._set_current_xy(current_xy)
+                if now>=self.core.started_at+self.core.config.mission_timeout:
+                    return self.abort('descent_wait_mission_deadline',now)
+                if self.descent_motion_until is not None and now>=self.descent_motion_until:
+                    return self._wait_for_descent(now,self.descent_wait_mode)
+                return self._return_column_descent(now) if self.descent_wait_mode=='return' else self._retreat(now)
+            if (self.resume_attempted and not self.resume_completed and self.resume_until is not None
+                    and now>=self.resume_until and self.stage in ('RESUME_ASCEND','RESUME_JOIN','SURVEY')):
+                now,failed=self._operation_time(now)
+                if failed is not None:return failed
+                self._set_current_xy(current_xy)
+                active=self.core.active_action
+                return self._resume_failed(now,'resume_budget_exhausted')
             if self.stage=='REACQUIRE':
                 now,failed=self._operation_time(now)
                 if failed is not None:return failed
@@ -666,11 +880,17 @@ class HighViewFull(HighViewProbe):
                 if not validation[0].accepted:
                     self.reacquired=None;self.fresh_candidate=None
                     return self._outcome(True,'waiting_for_fresh_delivery_candidate')
-                action=self.core.choose(now,current_xy,False)
+                action=self.core.choose_confirmed(self.fresh_candidate,now,current_xy)
                 if action is not None:
                     if action.command!='APPROACH':return self._fail_closed('unexpected_delivery_dispatch',now)
                     action=self._bounded_approach(action,now)
-                    self.completed_reacquisitions.append(dict(self.reacquired))
+                    actual=action.target_snapshot
+                    if actual is None or actual.key!=self.fresh_candidate.key:
+                        return self._fail_closed('reacquired_identity_handoff_mismatch',now)
+                    self.completed_reacquisitions.append(dict(self.reacquired,
+                        target_id=actual.target_id,class_name=actual.class_name,
+                        first_seen_ns=actual.first_seen_ns,last_seen_ns=actual.last_seen_ns,
+                        xy=[actual.x,actual.y],selected_decision_seq=action.decision_seq))
                     self.stage='DELIVERY';self.events.append(dict(stage='DELIVERY',time=now,target=action.target_class))
                     return self._outcome(True,'fresh_ordered_delivery',action)
                 self.reacquired=None;self.fresh_candidate=None
@@ -694,6 +914,12 @@ class HighViewFull(HighViewProbe):
                      observe_until=self.observe_until,recheck_shift_used=self.recheck_shift_used,
                      fallback_started=self.fallback_started,descent_debug=self.descent_debug,
                      skipped_survey_xy=list(self.skipped_survey_xy),
+                     remaining_survey=[p.as_tuple() for p in self.remaining_survey],
+                     survey_breakpoint=self.survey_breakpoint,resume_attempted=self.resume_attempted,
+                     resume_started=self.resume_started,resume_completed=self.resume_completed,
+                     resume_until=self.resume_until,descent_wait_until=self.descent_wait_until,
+                     descent_motion_until=self.descent_motion_until,descent_motion_seq=self.descent_motion_seq,
+                     descent_wait_motion=('CONTINUING_ACCEPTED_LEG' if self.stage=='DESCENT_WAIT' and self.core.phase==MissionPhase.SEARCH and self.core.active_action is not None else 'NO_ACTIVE_LEG'),
                      local_wall_verify_used=self.local_wall_verify_used,
                      degraded_from=self.degraded_from,
                      unreachable_classes=sorted(self.unreachable_classes),

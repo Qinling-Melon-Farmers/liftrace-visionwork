@@ -144,6 +144,8 @@ class PriorityRevisitRuntime(FullCircleRuntime):
             if check is not None:return check
             local=self._local_wall_recheck(now)
             if local is not None:return local
+            resume=self._try_resume_survey(now)
+            if resume is not None:return resume
         return super()._start_fallback(now,reason)
     def probe_status(self):
         value=super().probe_status()

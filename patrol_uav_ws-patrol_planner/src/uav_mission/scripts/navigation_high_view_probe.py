@@ -8,6 +8,7 @@ import rospy
 from sensor_msgs.msg import CameraInfo
 from std_msgs.msg import String
 from uav_mission.high_view_probe import HighViewProbe, ProbeConfig
+from uav_mission.high_view_stage_limits import HighViewStageMixin
 
 # Catkin devel relay modules execute in an isolated dictionary and cannot be
 # imported for their classes. Load the sibling source/install script directly.
@@ -17,13 +18,15 @@ _spec.loader.exec_module(_base)
 NavigationMissionManager=_base.NavigationMissionManager
 
 
-class ProbeManager(NavigationMissionManager):
+class ProbeManager(HighViewStageMixin,NavigationMissionManager):
     def __init__(self, simulation_only=True):
         if simulation_only and (not rospy.get_param('/use_sim_time',False) or not os.environ.get('SIM_RUN_DIR')):
             raise RuntimeError('high-view probe is simulation-only')
         self._probe_pub=rospy.Publisher(rospy.get_param('~high_view_probe/status_topic','/uav_high_view/probe_status'),String,queue_size=1,latch=True)
         self._camera_signature=None
         self._low_limits_applied=False
+        self._high_stage_parameters=None
+        self._probe_limit_switch=None
         super().__init__()
         self._camera_sub=rospy.Subscriber(rospy.get_param('~high_view_probe/camera_info_topic','/downward_camera/camera_info'),CameraInfo,self._camera_info,queue_size=1)
 
@@ -51,15 +54,6 @@ class ProbeManager(NavigationMissionManager):
                     self._runtime.update_pose((p.x,p.y,p.z),message.header.stamp.to_sec(),message.header.frame_id)
                 except Exception as error:
                     self._handle_callback_exception('probe_pose',error)
-
-    def _publish_action(self,action):
-        if action is not None and self._runtime is not None and self._runtime.stage in ('REVISIT','LOW_COVERAGE') and not self._low_limits_applied:
-            limits=rospy.get_param('~high_view_probe/low_stage_parameters')
-            for item in limits:rospy.set_param(item["name"],item["value"])
-            if any(rospy.get_param(item["name"])!=item["value"] for item in limits):
-                raise RuntimeError('low-stage parameter readback failed')
-            self._low_limits_applied=True
-        super()._publish_action(action)
 
     def _publish_status(self,force=False):
         super()._publish_status(force)
