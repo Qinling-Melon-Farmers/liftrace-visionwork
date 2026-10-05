@@ -1372,7 +1372,9 @@ class NavigationPlannerBridge:
                 self._report_target_stage("FAILED",
                     "ALIGNMENT" if fact == NOT_STARTED else "RELEASE", now_ns,
                     terminal=True, retryable=(fact == NOT_STARTED),
-                    reason=(transaction.cancellation_reason or "release_preflight_rejected")
+                    reason=(transaction.cancellation_reason or
+                            ("release_preflight_rejected:%s" % message.reason
+                             if message.reason else "release_preflight_rejected"))
                            if fact == NOT_STARTED else "release_ack_failed:%s" % (message.reason or "unknown"),
                     evidence_source=source, transaction=transaction)
                 transaction.phase = "TERMINAL" if fact == NOT_STARTED else "RELEASE_UNCERTAIN"
