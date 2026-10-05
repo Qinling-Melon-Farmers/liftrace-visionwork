@@ -71,7 +71,7 @@ COMMON = dict(EXECUTION_UNKNOWN=EXECUTION_UNKNOWN, NOT_STARTED=NOT_STARTED, RAW_
               COMPLETED=COMPLETED, action_identity=action_identity,
               execution_fact=execution_fact, result_terminal=result_terminal,
               SemanticContradictionWindow=SemanticContradictionWindow,
-              threading=threading, math=math, dataclass=dataclass, rospy=ROS)
+              threading=threading, time=time, math=math, dataclass=dataclass, rospy=ROS)
 PROXY = classes('guarded_servo_proxy.py', ['GuardedServoProxy'], dict(COMMON,
     ReleaseResult=Message, ReleasePermission=Message, ServoResponse=lambda **v: N(**v),
     ServoActionResponse=lambda **v: N(**v)))['GuardedServoProxy']
@@ -131,6 +131,8 @@ def proxy(raw=None):
     o._inflight_slots, o._revoked_actions = set(), set()
     o._execution_id = 0
     o._lock, o._result_pub = threading.RLock(), Publisher()
+    o._permission_changed = threading.Condition(o._lock)
+    o._permission_refresh_wait = .1
     o._raw_wait_timeout, o._permission_max_age = .25, .5
     o._raw_client = raw or Raw()
     return o
@@ -267,6 +269,110 @@ class ProxyTests(unittest.TestCase):
         o._on_alignment_context(context(old))
         self.assertTrue(o._on_servo_request(N(req=1)).res)
         self.assertEqual(o._raw_client.calls,1)
+
+    @staticmethod
+    def waiting_request(o):
+        waiting = threading.Event()
+        original = o._permission_changed.wait
+        def observe_wait(timeout):
+            waiting.set()
+            return original(timeout)
+        o._permission_changed.wait = observe_wait
+        req = copy.deepcopy(o._permission)
+        req.request_id = 71
+        answers = []
+        thread = threading.Thread(target=lambda: answers.append(o._on_servo_action_request(req)))
+        thread.start()
+        if not waiting.wait(1.):
+            thread.join(1.)
+            raise AssertionError("request did not wait for clock/permission")
+        return thread, answers
+
+    def test_one_ms_future_permit_waits_without_revoking_confirmed_action(self):
+        o = proxy()
+        o._permission.header.stamp = Stamp(Clock.value + .001)
+        thread, answers = self.waiting_request(o)
+        self.assertEqual(o._raw_client.calls, 0)
+        self.assertEqual(o._result_pub.messages, [])
+        Clock.value += .001
+        o._on_permission(copy.deepcopy(o._permission))
+        thread.join(1.)
+        self.assertFalse(thread.is_alive())
+        self.assertTrue(answers[0].res)
+        self.assertEqual(o._raw_client.calls, 1)
+        self.assertEqual([m.execution_state for m in o._result_pub.messages],
+                         [RAW_CALL_STARTED, COMPLETED])
+        self.assertEqual(o._revoked_actions, set())
+
+    def test_expired_same_action_can_refresh_without_reacquiring_target(self):
+        o = proxy()
+        o._permission.valid_until = Stamp(100.05)
+        thread, answers = self.waiting_request(o)
+        o._on_permission(permission())
+        thread.join(1.)
+        self.assertTrue(answers[0].res)
+        self.assertEqual(o._raw_client.calls, 1)
+        self.assertEqual([m.execution_state for m in o._result_pub.messages],
+                         [RAW_CALL_STARTED, COMPLETED])
+
+    def test_clock_never_catches_up_is_bounded_not_started(self):
+        o = proxy()
+        o._permission_refresh_wait = .02
+        o._permission.header.stamp = Stamp(100.2)
+        req = copy.deepcopy(o._permission); req.request_id = 72
+        begin = time.monotonic()
+        response = o._on_servo_action_request(req)
+        self.assertLess(time.monotonic() - begin, .5)
+        self.assertEqual(response.execution_state, NOT_STARTED)
+        self.assertEqual(response.reason, "permission_clock_ahead")
+        self.assertEqual(o._raw_client.calls, 0)
+        self.assertEqual(o._locked_slots, set())
+
+    def test_revoke_during_clock_wait_does_not_start(self):
+        o = proxy()
+        o._permission.header.stamp = Stamp(100.101)
+        thread, answers = self.waiting_request(o)
+        o._on_alignment_context(context(o._permission))
+        thread.join(1.)
+        self.assertFalse(thread.is_alive())
+        self.assertFalse(answers[0].res)
+        self.assertEqual(o._raw_client.calls, 0)
+        self.assertTrue(all(m.execution_state == NOT_STARTED for m in o._result_pub.messages))
+
+    def test_changed_identity_or_geometry_during_wait_is_rejected(self):
+        for replacement in (permission(seq=2),
+                            permission(permitted=False, reason="release_altitude_invalid")):
+            o = proxy()
+            o._permission.header.stamp = Stamp(100.101)
+            thread, answers = self.waiting_request(o)
+            o._on_permission(replacement)
+            thread.join(1.)
+            self.assertFalse(thread.is_alive())
+            self.assertFalse(answers[0].res)
+            self.assertEqual(o._raw_client.calls, 0)
+
+    def test_discovery_uses_renewed_same_action_permission(self):
+        o = proxy()
+        o._permission.valid_until = Stamp(100.2)
+        req = copy.deepcopy(o._permission); req.request_id = 73
+        def discovery(timeout):
+            Clock.value = 100.3
+            new = permission()
+            new.header.stamp = Stamp(100.3)
+            o._on_permission(new)
+        o._raw_client.wait_for_service = discovery
+        response = o._on_servo_action_request(req)
+        self.assertTrue(response.res)
+        self.assertEqual(o._consumed_permission_stamp.to_sec(), 100.3)
+        self.assertEqual(o._raw_client.calls, 1)
+
+    def test_fresh_refresh_cannot_change_target_after_discovery(self):
+        o = proxy()
+        req = copy.deepcopy(o._permission); req.request_id = 74
+        o._raw_client.wait_for_service = lambda timeout: o._on_permission(permission(seq=2))
+        response = o._on_servo_action_request(req)
+        self.assertFalse(response.res)
+        self.assertEqual(o._raw_client.calls, 0)
 
     def test_legacy_false_means_unknown_and_true_means_completed(self):
         m=N(success=False);self.assertEqual(execution_fact(m),0)
