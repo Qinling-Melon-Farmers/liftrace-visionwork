@@ -1,0 +1,9 @@
+<launch>
+  <!-- Required measured reference; no automatic calibration or live activation. -->
+  <arg name="reference_file" />
+  <arg name="observer_namespace" default="/ev_task_boundary" />
+  <node pkg="uav_mission" type="ev_task_boundary.py" name="ev_task_boundary" output="screen">
+    <rosparam file="$(arg reference_file)" />
+    <param name="observer_namespace" value="$(arg observer_namespace)" />
+  </node>
+</launch>

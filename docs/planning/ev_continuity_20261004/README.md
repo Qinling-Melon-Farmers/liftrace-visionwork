@@ -1,5 +1,7 @@
 # EV 连续性与高度跳变专项
 
+2026-10-05 补充：[稳定任务坐标/reset 候选接口与 32 项离线检查](../../verification/flight_followups_20261005/EV_CONTINUITY.md)。新增观察组件统一反馈、固定地面、相机几何与最终 FC 设定点；可信 reset/独立健康生产者、标定和低层 HOLD 握手仍待接入验证。未进入正式入口，不能默认启用或跨分支投放；本轮交主代理记录提交。
+
 本分支 `feat/ev-continuity-20261004` 从最新整机分支 `feat/r2026-competition-integrated@e5fb382d` 派生，工作区为 `/home/xhj/liftrace-worktrees/r2026-ev-continuity`。基线已完成 seed31/38 两轮整机 SITL，但这不等于复现或解决实机 EV 超时重置。本分支用于定位性能、独立 IMU 预测和恢复控制的集中研发；当前尚不能替换机载 EV 输入。
 
 参考资料：用户提供的 `r2026-high-view-search/无人机高度跳变与整机恢复技术说明_20261003.pdf`，重点采用第 4–6 章及附录 B。原 PDF 留在原目录；未重新打包入 Git。实测依据见 [LIO 诊断](../../deployment/board_redeploy_20261001/LIO_POSE_DIAGNOSIS_20261003.md) 与其中链接的 ULog 复盘。

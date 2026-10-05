@@ -1,0 +1,33 @@
+{
+  "base": "df29c381",
+  "scope": "EV-only uncommitted observer",
+  "build": "uav_mission PASS",
+  "tests": [
+    {
+      "name": "task_frame_continuity",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "name": "ev_task_boundary",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0
+    }
+  ],
+  "launch_nodes": [
+    {
+      "package": "uav_mission",
+      "type": "ev_task_boundary.py",
+      "name": "ev_task_boundary"
+    }
+  ],
+  "example_calibration_verified": false,
+  "hardware_started": false,
+  "simulation_started": false,
+  "production_enabled": false,
+  "online_reset_producer_ready": false,
+  "lio_health_producer_ready": false,
+  "low_level_hold_handoff_validated": false
+}
