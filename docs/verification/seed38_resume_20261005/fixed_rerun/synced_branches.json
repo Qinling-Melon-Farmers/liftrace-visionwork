@@ -1,0 +1,44 @@
+[
+  {
+    "worktree": "/home/xhj/liftrace-worktrees/r2026-high-view-sync",
+    "branch": "feat/high-view-search-research",
+    "remote": "origin",
+    "head": "097762fe6bbbc0c40845a227b4efc25cf027c0eb",
+    "verified": true
+  },
+  {
+    "worktree": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests",
+    "branch": "feat/board-deployment-flight-20260920",
+    "remote": "origin",
+    "head": "ba2dfaf3719c0210f6e669f8e44a7575880fd1bd",
+    "verified": true
+  },
+  {
+    "worktree": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix",
+    "branch": "feat/r2026-competition-integrated",
+    "remote": "origin",
+    "head": "bbfd7c8a83faf4312c7ffec1675813f2bdb36742",
+    "verified": true
+  },
+  {
+    "worktree": "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919",
+    "branch": "feat/high-view-liveness-20260919",
+    "remote": "fork",
+    "head": "073a0cc909ad7de85639bf048003ee27d45ea21f",
+    "verified": true
+  },
+  {
+    "worktree": "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919",
+    "branch": "feat/high-view-liveness-20260919",
+    "remote": "origin",
+    "head": "073a0cc909ad7de85639bf048003ee27d45ea21f",
+    "verified": true
+  },
+  {
+    "worktree": "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+    "branch": "板端参考分支",
+    "remote": "origin",
+    "head": "c4709b0654385c7546d8bb7847b163d966532184",
+    "verified": true
+  }
+]

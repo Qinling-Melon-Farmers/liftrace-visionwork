@@ -42,7 +42,7 @@ def scene(ax,world,truth):
 prior.base.scene=scene
 
 
-def one(item):
+def one(item, pilot_dir=None):
     run=Path(item['run']);m=prior.analyze(item,D);out=D/(str(item['seed'])+'_'+item['label'])
     a=prior.base.csv4(run/'truth_pose.csv');start=m['start_ros_s'];end=m['observed_end_ros_s']
     ev=prior.base.events(run/'key_events.jsonl')
@@ -151,7 +151,7 @@ def one(item):
         ax.plot([p['header']['stamp']/1e9-start for p in rows],[p['stagnant_seconds'] for p in rows],lw=.6,label=label)
     ax.axhline(4,ls=':',color='red');ax.set(xlabel='Mission seconds',ylabel='No physical progress (s)',title='Progress watchdog; initial planning delays reported separately');ax.legend();ax.grid(alpha=.2)
     fig.tight_layout();fig.savefig(out/'progress.png',dpi=160);plt.close(fig)
-    pilot=D.parent/'fast_full_random_20260914/pilot'
+    pilot=Path(pilot_dir) if pilot_dir is not None else D.parent/'fast_full_random_20260914/pilot'
     for script,name in [('check_tree_overflight.py','tree_projection.json'),('check_body_projection.py','body_projection.json')]:
         subprocess.run([sys.executable,str(pilot/script),str(run),item['world'],'--out',str(out/name)],check=True,stdout=subprocess.DEVNULL)
     (out/'metrics.json').write_text(json.dumps(m,indent=2));return m

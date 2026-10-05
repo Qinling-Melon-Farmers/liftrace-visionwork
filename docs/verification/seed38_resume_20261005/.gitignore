@@ -1,0 +1,4 @@
+# Reproducible frame-level exports stay local; summaries/plots are versioned.
+**/center_samples.csv
+**/center_samples_by_phase.csv
+**/class_instance_associations.csv

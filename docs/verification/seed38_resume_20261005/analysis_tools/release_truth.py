@@ -1,6 +1,7 @@
 from pathlib import Path
-import json,csv,math
+import json,csv,math,argparse
 H=Path(__file__).resolve().parents[4];D=H/'docs/verification/seed38_resume_20261005'
+p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=D);a=p.parse_args();D=a.out
 results=[]
 for m in json.loads((D/'metrics.json').read_text()):
  run=Path(m['run']);truth=json.loads((D/(str(m['seed'])+'_'+m['label']+'_centers')/'center_summary.json').read_text())['truth'];poses=list(csv.DictReader((run/'truth_pose.csv').open()));drops=[]

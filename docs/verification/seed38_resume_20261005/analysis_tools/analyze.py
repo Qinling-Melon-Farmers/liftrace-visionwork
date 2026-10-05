@@ -2,9 +2,10 @@ from pathlib import Path
 import json,importlib.util,subprocess,sys,yaml,argparse,csv,math
 R=Path(__file__).resolve().parents[4]
 D=R/'docs/verification/seed38_resume_20261005';D.mkdir(exist_ok=True)
-parser=argparse.ArgumentParser();parser.add_argument('--seed',type=int);parser.add_argument('--skip-video',action='store_true');parser.add_argument('--refresh',action='store_true');a=parser.parse_args()
-batch=json.loads((R/'logs/seed38_resume_20261005_batch/matrix.json').read_text())
-items=[dict(seed=r['seed'],label=r['variant'],run=r['run'],world=str(R/f"docs/verification/seed38_resume_20261005/generated/{r['variant']}_{r['seed']}/{r['variant']}_seed{r['seed']}/field.world"),source=batch['source']) for r in batch['results'] if a.seed is None or r['seed']==a.seed]
+parser=argparse.ArgumentParser();parser.add_argument('--matrix',type=Path,default=R/'logs/seed38_resume_20261005_batch/matrix.json');parser.add_argument('--out',type=Path,default=D);parser.add_argument('--seed',type=int);parser.add_argument('--skip-video',action='store_true');parser.add_argument('--refresh',action='store_true');a=parser.parse_args()
+D=a.out;D.mkdir(parents=True,exist_ok=True)
+batch=json.loads(a.matrix.read_text())
+items=[dict(seed=r['seed'],label=r['variant'],run=r['run'],world=str(Path(r['scene'])/'field.world'),source=batch['source']) for r in batch['results'] if a.seed is None or r['seed']==a.seed]
 (D/'runs.json').write_text(json.dumps(items,indent=2))
 spec=importlib.util.spec_from_file_location('hist',R/'docs/verification/history_31_40_20260920/analyze_current.py')
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);m.D=D
@@ -23,7 +24,7 @@ m.prior.base.scene=scene_current
 metrics=[]
 for i in items:
  cache=D/(str(i['seed'])+'_'+i['label'])/'metrics.json'
- metrics.append(json.loads(cache.read_text()) if cache.exists() and not a.refresh else m.one(i))
+ metrics.append(json.loads(cache.read_text()) if cache.exists() and not a.refresh else m.one(i,pilot_dir=R/'docs/verification/fast_full_random_20260914/pilot'))
 for item,metric in zip(items,metrics):
  # The legacy tool reads mutable final hints: never label these as initial high views.
  for entry in metric.get('target_hint_evaluation',{}).values():
