@@ -1,0 +1,77 @@
+{
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/drop_precision_seed38_20261007_022323",
+  "source": "7d312fa252d02ee937640839b6aac8d74bd11ad7",
+  "final_status": "INTERRUPTED_DIAGNOSTIC_FAIL",
+  "raw_gate_status": null,
+  "gate_file_present": false,
+  "successful_releases": 2,
+  "recoveries": [
+    {
+      "ros_s": 73.27,
+      "decision": 9
+    },
+    {
+      "ros_s": 92.966,
+      "decision": 11
+    }
+  ],
+  "collision_count": 0,
+  "task_start_ros_s": 11.63,
+  "old_matched_mean_cm": 4.833,
+  "new_matched_mean_cm": 7.207624661150396,
+  "old_matched_max_cm": 7.725,
+  "new_matched_max_cm": 9.72190950103668,
+  "old_physical_touchdown_task_s": 363.54,
+  "new_physical_touchdown_task_s": null,
+  "exact_path": {
+    "status": "RECORDED_EXACT_PATH",
+    "bag": "logs/drop_precision_seed38_20261007_022323/vision_metrics.bag",
+    "counts": {
+      "all_offsets": 467,
+      "exact_schema": 467,
+      "fresh_exact_valid": 467
+    },
+    "valid_by_target": {
+      "0": 88,
+      "2": 74,
+      "8": 305
+    },
+    "note": "Parameter enablement plus these offsets demonstrate the visual experimental branch; control acceptance/actual release still need transaction logs."
+  },
+  "effective_flags": {
+    "exact_visual": true,
+    "exact_control": true,
+    "circle_quality_ordered_nms": false,
+    "slot_mode": "zero",
+    "stop_on_collision": false
+  },
+  "cleanup": "original_FAIL_then_supplementary_zero_check_PASS",
+  "third_slot": {
+    "approach_arrival": 113.366,
+    "alignment_accepted": 113.382,
+    "strict_valid": 114.998,
+    "arbiter_anchor_approx_xy": [
+      7.0068593025,
+      -4.2417464256
+    ],
+    "captured_source": 114.943,
+    "capture_entry": 115.022,
+    "captured_xy": [
+      7.018559384473214,
+      -4.227047670587916
+    ],
+    "captured_tolerance_m": 0.059202443808317184,
+    "last_fixed_goal_log": 118.67,
+    "exact_rejection": 118.686,
+    "first_updated_xy_log": 118.721,
+    "jumped_offset_source": 118.977,
+    "jumped_offset_receipt": 119.002,
+    "first_clamped_changed_goal_log": 119.02,
+    "first_permission_granted_receipt": 121.102,
+    "first_drift_denial_source": 121.301,
+    "first_drift_denial_receipt": 121.306,
+    "stopped_ros_s": 163.002,
+    "no_successful_recapture_observed": true,
+    "trigger": "Generic rejection; future 3ms context is consistent but not a proven predicate"
+  }
+}

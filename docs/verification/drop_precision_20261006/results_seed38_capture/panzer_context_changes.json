@@ -1,0 +1,211 @@
+{
+  "changes": [
+    {
+      "t": 113.062,
+      "kind": "evidence_context",
+      "active": false,
+      "reason": "alignment_context_inactive",
+      "distance": -1.0
+    },
+    {
+      "t": 113.38,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_geometry_missing",
+      "distance": -1.0
+    },
+    {
+      "t": 113.402,
+      "kind": "permission",
+      "permitted": false,
+      "reason": "no_release_commitment"
+    },
+    {
+      "t": 113.59,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_valid",
+      "distance": 0.01608927920460701
+    },
+    {
+      "t": 114.591,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_future_stamp",
+      "distance": -1.0
+    },
+    {
+      "t": 114.598,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_valid",
+      "distance": 0.017158351838588715
+    },
+    {
+      "t": 115.004,
+      "kind": "permission",
+      "permitted": false,
+      "reason": "release_altitude_invalid"
+    },
+    {
+      "t": 119.498,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_geometry_stale",
+      "distance": -1.0
+    },
+    {
+      "t": 119.502,
+      "kind": "permission",
+      "permitted": false,
+      "reason": "commitment_context_stale"
+    },
+    {
+      "t": 119.502,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_geometry_missing",
+      "distance": -1.0
+    },
+    {
+      "t": 119.553,
+      "kind": "permission",
+      "permitted": false,
+      "reason": "release_altitude_invalid"
+    },
+    {
+      "t": 121.102,
+      "kind": "permission",
+      "permitted": true,
+      "reason": "permission_granted_from_commitment"
+    },
+    {
+      "t": 121.306,
+      "kind": "permission",
+      "permitted": false,
+      "reason": "commitment_position_drift"
+    },
+    {
+      "t": 123.039,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_valid",
+      "distance": 0.40145447850227356
+    },
+    {
+      "t": 123.111,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_geometry_missing",
+      "distance": -1.0
+    },
+    {
+      "t": 123.206,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_valid",
+      "distance": 0.4001670777797699
+    },
+    {
+      "t": 124.199,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_geometry_stale",
+      "distance": -1.0
+    },
+    {
+      "t": 124.204,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_geometry_missing",
+      "distance": -1.0
+    },
+    {
+      "t": 124.914,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_valid",
+      "distance": 0.3629800081253052
+    },
+    {
+      "t": 124.994,
+      "kind": "evidence_context",
+      "active": true,
+      "reason": "alignment_context_geometry_missing",
+      "distance": -1.0
+    }
+  ],
+  "alignment_changes": [
+    {
+      "t": 113.362,
+      "m": {
+        "header": {
+          "seq": 244,
+          "stamp": {
+            "secs": 113,
+            "nsecs": 362000000
+          },
+          "frame_id": "camera_init"
+        },
+        "source": "vcl06-planner-bridge-1a8438908d6f4c27beee492b227e6bb3",
+        "schema_version": 1,
+        "active": true,
+        "mission_id": "vcl06-random-11-630000000-1",
+        "decision_seq": 15,
+        "deadline": {
+          "secs": 230,
+          "nsecs": 49000000
+        },
+        "command": 2,
+        "class_profile": "r2026",
+        "align_mode": "drop_circle",
+        "has_target": true,
+        "semantic_target_id": 7,
+        "semantic_target_first_seen": {
+          "secs": 109,
+          "nsecs": 840000000
+        },
+        "target_observation_stamp": {
+          "secs": 109,
+          "nsecs": 940000000
+        },
+        "semantic_target_class": "panzer",
+        "attempt": 1,
+        "payload_slot": 3,
+        "target_pose": {
+          "header": {
+            "seq": 15,
+            "stamp": {
+              "secs": 113,
+              "nsecs": 277000000
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 6.998952794397479,
+              "y": -4.216735170568129,
+              "z": -0.22000000000000006
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "max_association_distance_m": 0.800000011920929
+      }
+    }
+  ],
+  "total_context_changes_before_compaction": 87,
+  "final_change": {
+    "t": 163.239,
+    "kind": "evidence_context",
+    "active": true,
+    "reason": "alignment_context_valid",
+    "distance": 0.4116886854171753
+  },
+  "note": "Critical initial transitions; complete stream retained locally in ignored panzer_context_raw.jsonl."
+}

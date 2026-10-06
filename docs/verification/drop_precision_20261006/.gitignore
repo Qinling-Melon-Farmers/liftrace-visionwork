@@ -1,0 +1,3 @@
+results*_capture/*.jsonl
+results*_capture/stop_request.json
+results_seed31_capture/review_seed31_full.json

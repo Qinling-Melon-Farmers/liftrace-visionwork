@@ -124,3 +124,8 @@ git diff --check
 - 控制完整回归 **118/118 PASS**：`/tmp/drop_frozen_goal_full_control_tests.log`。
 - 增量 ROS 编译 `patrol_control` 退出 **0**：`/tmp/drop_frozen_goal_incremental_build.log`；`git diff --check` 通过。
 - 本轮修改 cpp、两个现有 headers、现有专属测试及本文；未改视觉/许可/配置，未启动仿真或 commit/push。交主代理审查提交后由 C 实跑；离线 PASS 不等于核心投影精度或三槽实跑验收。
+
+
+## 2026-10-07 动态验证后的状态
+
+本实现仍为默认关闭研究候选，不是可直接部署的验收版本。7d312fa2的31整场通过，但38第三槽暴露观测拒绝清除捕获后在低位重新追踪的缺口，且5次可配对释放中4次精度劣于历史；详见本目录REPORT.md、REVIEW.md。32/118项离线通过不覆盖该动态拒绝回退路径。本轮未继续修订生产或推广。

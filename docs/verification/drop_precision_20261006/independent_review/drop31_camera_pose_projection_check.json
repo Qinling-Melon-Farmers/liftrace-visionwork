@@ -1,0 +1,41 @@
+[
+  {
+    "class_name": "red_cross",
+    "source": 76.11,
+    "reproduction_error_m": 1.1312492413773161e-08,
+    "pose_effect_after_XY_bias_removed_cm": [
+      -3.504205925908188,
+      -1.5976863799873176
+    ],
+    "remaining_true_pose_projection_error_cm": [
+      -1.3188474377726855,
+      -6.952850336907323
+    ]
+  },
+  {
+    "class_name": "bridge",
+    "source": 110.724,
+    "reproduction_error_m": 1.3745620758170434e-08,
+    "pose_effect_after_XY_bias_removed_cm": [
+      -2.8369132851858936,
+      -1.8392530501051496
+    ],
+    "remaining_true_pose_projection_error_cm": [
+      -1.9538648171225859,
+      -8.480273989418707
+    ]
+  },
+  {
+    "class_name": "panzer",
+    "source": 132.908,
+    "reproduction_error_m": 1.0150366269325011e-10,
+    "pose_effect_after_XY_bias_removed_cm": [
+      -2.0455528655508814,
+      -0.4481638576351643
+    ],
+    "remaining_true_pose_projection_error_cm": [
+      -1.3878434331445533,
+      -5.807161707400987
+    ]
+  }
+]

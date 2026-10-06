@@ -1,0 +1,35 @@
+{
+  "stats": {
+    "circle": {
+      "total": 763,
+      "mismatch": 0,
+      "max_skew_s": 0
+    },
+    "tent": {
+      "total": 115,
+      "mismatch": 0,
+      "max_skew_s": 0
+    },
+    "pillbox": {
+      "total": 41,
+      "mismatch": 0,
+      "max_skew_s": 0
+    },
+    "panzer": {
+      "total": 191,
+      "mismatch": 0,
+      "max_skew_s": 0
+    },
+    "bridge": {
+      "total": 409,
+      "mismatch": 0,
+      "max_skew_s": 0
+    },
+    "red_cross": {
+      "total": 323,
+      "mismatch": 0,
+      "max_skew_s": 0
+    }
+  },
+  "examples": []
+}

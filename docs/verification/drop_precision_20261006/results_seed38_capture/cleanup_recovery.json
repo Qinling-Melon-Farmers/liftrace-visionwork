@@ -1,0 +1,19 @@
+{
+  "initial_wrapper_cleanup": "FAIL",
+  "initial_residual": {
+    "rosmaster": [
+      22776
+    ],
+    "rosout": [
+      22786
+    ]
+  },
+  "required_stop_called": true,
+  "required_stop_first_result": "FAIL while residuals were still exiting",
+  "later_precise_pids_present": false,
+  "later_check": "PASS",
+  "later_check_exit": 0,
+  "verification": "top_level_scripts/check_sim_processes.sh: No local ROS/Gazebo/PX4/RViz process remains.",
+  "wall": 1791311927.9183702,
+  "note": "Supplementary recovery only: original run.log cleanup FAIL and matrix INFRA_STOP remain unchanged."
+}

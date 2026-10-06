@@ -1,0 +1,254 @@
+{
+  "source": "7d312fa252d02ee937640839b6aac8d74bd11ad7",
+  "baseline_source": "337b583689f46d907546d1d28a8fc52b13f47398",
+  "cases": {
+    "31": {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/drop_precision_seed31_20261007_020102",
+      "source": "7d312fa252d02ee937640839b6aac8d74bd11ad7",
+      "final_status": "PASS",
+      "raw_gate_status": "PASS",
+      "gate_file_present": true,
+      "successful_releases": 3,
+      "recoveries": [
+        {
+          "ros_s": 83.762,
+          "decision": 11
+        },
+        {
+          "ros_s": 119.258,
+          "decision": 13
+        },
+        {
+          "ros_s": 138.56,
+          "decision": 15
+        }
+      ],
+      "collision_count": 0,
+      "task_start_ros_s": 11.842,
+      "old_matched_mean_cm": 6.517333333333333,
+      "new_matched_mean_cm": 8.450837628744953,
+      "old_matched_max_cm": 11.42,
+      "new_matched_max_cm": 15.406965011228435,
+      "old_physical_touchdown_task_s": 204.517,
+      "new_physical_touchdown_task_s": 201.98899999999998,
+      "exact_path": {
+        "status": "RECORDED_EXACT_PATH",
+        "bag": "logs/drop_precision_seed31_20261007_020102/vision_metrics.bag",
+        "counts": {
+          "all_offsets": 233,
+          "exact_schema": 233,
+          "fresh_exact_valid": 233
+        },
+        "valid_by_target": {
+          "8": 82,
+          "7": 98,
+          "5": 53
+        },
+        "note": "Parameter enablement plus these offsets demonstrate the visual experimental branch; control acceptance/actual release still need transaction logs."
+      },
+      "effective_flags": {
+        "exact_visual": true,
+        "exact_control": true,
+        "circle_quality_ordered_nms": false,
+        "slot_mode": "zero",
+        "stop_on_collision": false
+      },
+      "cleanup": "wrapper_PASS_zero_residual",
+      "gate_checks": {
+        "status": "PASS",
+        "reason": "all_checks_passed",
+        "failed_checks": []
+      },
+      "gate_metrics": {
+        "release_commit_count": 3,
+        "capture_started_count": 3,
+        "recovery_success_count": 3,
+        "post_delivery_return_success_count": 4,
+        "actual_collision_count": 0,
+        "latest_armed": false,
+        "latest_landed_state": 1,
+        "mission_ros_sec": 206.817,
+        "mission_wall_sec": 1021.5311510730007,
+        "simulation_realtime_factor": 0.20245784945741752,
+        "door_crossings": [
+          {
+            "lateral": 4.250773022050254,
+            "name": "corridor_entry",
+            "route_index": 2,
+            "z": 1.0294269221670984
+          },
+          {
+            "lateral": 9.154391657171152,
+            "name": "Wall_20",
+            "route_index": 3,
+            "z": 1.0035063556921315
+          },
+          {
+            "lateral": 9.127491193612364,
+            "name": "Wall_22",
+            "route_index": 3,
+            "z": 1.0123858957888372
+          }
+        ]
+      }
+    },
+    "38": {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/drop_precision_seed38_20261007_022323",
+      "source": "7d312fa252d02ee937640839b6aac8d74bd11ad7",
+      "final_status": "INTERRUPTED_DIAGNOSTIC_FAIL",
+      "raw_gate_status": null,
+      "gate_file_present": false,
+      "successful_releases": 2,
+      "recoveries": [
+        {
+          "ros_s": 73.27,
+          "decision": 9
+        },
+        {
+          "ros_s": 92.966,
+          "decision": 11
+        }
+      ],
+      "collision_count": 0,
+      "task_start_ros_s": 11.63,
+      "old_matched_mean_cm": 4.833,
+      "new_matched_mean_cm": 7.207624661150396,
+      "old_matched_max_cm": 7.725,
+      "new_matched_max_cm": 9.72190950103668,
+      "old_physical_touchdown_task_s": 363.54,
+      "new_physical_touchdown_task_s": null,
+      "exact_path": {
+        "status": "RECORDED_EXACT_PATH",
+        "bag": "logs/drop_precision_seed38_20261007_022323/vision_metrics.bag",
+        "counts": {
+          "all_offsets": 467,
+          "exact_schema": 467,
+          "fresh_exact_valid": 467
+        },
+        "valid_by_target": {
+          "0": 88,
+          "2": 74,
+          "8": 305
+        },
+        "note": "Parameter enablement plus these offsets demonstrate the visual experimental branch; control acceptance/actual release still need transaction logs."
+      },
+      "effective_flags": {
+        "exact_visual": true,
+        "exact_control": true,
+        "circle_quality_ordered_nms": false,
+        "slot_mode": "zero",
+        "stop_on_collision": false
+      },
+      "cleanup": "original_FAIL_then_supplementary_zero_check_PASS",
+      "third_slot": {
+        "approach_arrival": 113.366,
+        "alignment_accepted": 113.382,
+        "strict_valid": 114.998,
+        "arbiter_anchor_approx_xy": [
+          7.0068593025,
+          -4.2417464256
+        ],
+        "captured_source": 114.943,
+        "capture_entry": 115.022,
+        "captured_xy": [
+          7.018559384473214,
+          -4.227047670587916
+        ],
+        "captured_tolerance_m": 0.059202443808317184,
+        "last_fixed_goal_log": 118.67,
+        "exact_rejection": 118.686,
+        "first_updated_xy_log": 118.721,
+        "jumped_offset_source": 118.977,
+        "jumped_offset_receipt": 119.002,
+        "first_clamped_changed_goal_log": 119.02,
+        "first_permission_granted_receipt": 121.102,
+        "first_drift_denial_source": 121.301,
+        "first_drift_denial_receipt": 121.306,
+        "stopped_ros_s": 163.002,
+        "no_successful_recapture_observed": true,
+        "trigger": "Generic rejection; future 3ms context is consistent but not a proven predicate"
+      }
+    }
+  },
+  "rows": [
+    {
+      "seed": 31,
+      "target": "red_cross",
+      "slot": 1,
+      "ack_source_ros_s": 81.249,
+      "ack_task_s": 69.407,
+      "approach_start_ros_s": 73.811,
+      "old_ack_nearest_cm": 3.317,
+      "new_ack_nearest_cm": 6.613161113090146,
+      "old_ack_source_interpolated_cm": 3.474,
+      "new_ack_source_interpolated_cm": 6.646284919866692,
+      "correct_class": true,
+      "inside_nominal_board": true
+    },
+    {
+      "seed": 31,
+      "target": "bridge",
+      "slot": 2,
+      "ack_source_ros_s": 116.491,
+      "ack_task_s": 104.649,
+      "approach_start_ros_s": 108.361,
+      "old_ack_nearest_cm": 11.42,
+      "new_ack_nearest_cm": 15.406965011228435,
+      "old_ack_source_interpolated_cm": 11.431,
+      "new_ack_source_interpolated_cm": 15.378361769651264,
+      "correct_class": true,
+      "inside_nominal_board": true
+    },
+    {
+      "seed": 31,
+      "target": "panzer",
+      "slot": 3,
+      "ack_source_ros_s": 137.006,
+      "ack_task_s": 125.164,
+      "approach_start_ros_s": 131.421,
+      "old_ack_nearest_cm": 4.815,
+      "new_ack_nearest_cm": 3.33238676191628,
+      "old_ack_source_interpolated_cm": 4.871,
+      "new_ack_source_interpolated_cm": 3.3461065620470207,
+      "correct_class": true,
+      "inside_nominal_board": true
+    },
+    {
+      "seed": 38,
+      "target": "red_cross",
+      "slot": 1,
+      "ack_source_ros_s": 70.439,
+      "ack_task_s": 58.80899999999999,
+      "approach_start_ros_s": 62.569,
+      "old_ack_nearest_cm": 1.941,
+      "new_ack_nearest_cm": 4.693339821264111,
+      "old_ack_source_interpolated_cm": 1.861,
+      "new_ack_source_interpolated_cm": 4.703581929987849,
+      "correct_class": true,
+      "inside_nominal_board": true
+    },
+    {
+      "seed": 38,
+      "target": "bridge",
+      "slot": 2,
+      "ack_source_ros_s": 91.391,
+      "ack_task_s": 79.76100000000001,
+      "approach_start_ros_s": 85.678,
+      "old_ack_nearest_cm": 7.725,
+      "new_ack_nearest_cm": 9.72190950103668,
+      "old_ack_source_interpolated_cm": 7.927,
+      "new_ack_source_interpolated_cm": 9.771495662432834,
+      "correct_class": true,
+      "inside_nominal_board": true
+    }
+  ],
+  "conclusion": "DO_NOT_PROMOTE_DEFAULT",
+  "tested_release_count": 5,
+  "worse_than_paired_old_count": 4,
+  "matched_old_mean_cm": 5.8435999999999995,
+  "matched_new_mean_cm": 7.95355244170713,
+  "matched_old_max_cm": 11.42,
+  "matched_new_max_cm": 15.406965011228435,
+  "missing_release": "seed38 slot3 panzer: no error assigned; never imputed as zero",
+  "metric_note": "Model/body origin at mock ACK, not measured parcel detachment/impact. Historical nearest-receipt and source-interpolated columns are separate."
+}

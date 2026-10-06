@@ -1,0 +1,56 @@
+{
+  "frames": 574,
+  "fps": 10,
+  "common_ros_start": 1.172,
+  "common_ros_end": 163.213,
+  "max_image_age_s": [
+    0.2130000000000507,
+    0.2130000000000507
+  ],
+  "source_run": "logs/drop_precision_seed38_20261007_022323",
+  "source_segments_ros_s": [
+    [
+      60.43899999999999,
+      75.439
+    ],
+    [
+      81.391,
+      96.391
+    ],
+    [
+      110.0,
+      127.0
+    ],
+    [
+      153.213,
+      163.213
+    ]
+  ],
+  "precision_status": "INTERRUPTED_DIAGNOSTIC_FAIL",
+  "center_annotation": "Recorded image offsets within 120ms of image exposure only; no truth pixel projection or parcel impact",
+  "replay": false,
+  "synthetic_test": false,
+  "display_limit_counts": {
+    "4.0": 574
+  },
+  "display_over_limit_frames": 0,
+  "display_limits": {
+    "flight": 4.0,
+    "corridor": 1.2,
+    "wall": 4.0,
+    "corridor_bounds": [
+      8.0,
+      9.5,
+      -5.0,
+      5.0
+    ],
+    "landing_observation_region": {
+      "max_height": 1.2,
+      "max_x": 9.5,
+      "max_y": -2.1,
+      "min_x": 8,
+      "min_y": -5
+    }
+  },
+  "note": "Source-clock paired views; missing camera frames held. Display limit labels are user inputs, not new rule claims."
+}
