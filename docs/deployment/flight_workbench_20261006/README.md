@@ -5,6 +5,9 @@
 板端当前配置地址为 `orangepi@192.168.3.126`，部署根仍为
 `/home/orangepi/liftrace_board_trials_20260928`，个人 profile 可能覆盖默认值。
 
+2026-10-06接线配置追加：用户确认的电机接线现已登记；已在现有8791服务通过只读浏览器检查。
+刷新观察页即可载入，未重启后台或已有设备会话，也未发送飞行/执行机构指令。
+
 ## 启动与切组
 
 在 WSL 执行：
@@ -35,8 +38,22 @@ bash tools/flight_workbench/start_workbench.sh --open
 沿用另一个对话准备的终端启动流程，本页不下发动作。正在执行时可直接连接观看。
 
 1. 在页内查看当前低空诊断 `profile/stage/index/reason` 与录制进程状态。
-2. RC输出先按原始通道显示。若要四电机曲线，先逐路选择真实的RCOut数组通道并确认映射；
-   默认全部未映射。不能把 AUX1 或 ULog logical Motor1直接等同于RCOut第1项。
+2. 本机接线已按用户2026-10-06提供的表写入 `tools/flight_workbench/web/motor_wiring.json`。
+   对已登记的 `3.126` / `43.59` 与0928工程根，刷新页面自动载入，无需逐路重新选择：
+
+   | 逻辑电机 | 机臂（从机尾朝机头看） | 飞控口 | 当前RCOut原始通道（从1开始） |
+   |---|---|---|---:|
+   | Motor1 | 右前 | AUX1 | 17 |
+   | Motor2 | 左后 | AUX4 | 20 |
+   | Motor3 | 左前 | AUX2 | 18 |
+   | Motor4 | 右后 | AUX3 | 19 |
+
+   当前ULog活动输出为 `actuator_outputs` instance 1，对应MAVLink `port=1`；
+   [MAVROS1.20.1](https://github.com/mavlink/mavros/blob/1.20.1/mavros/src/plugins/rc_io.cpp#L152-L203)
+   在MAVLink2下每port占16路，因此AUX1从raw17开始。配置中的 `rc_layout` 显式记录port与协议宽度。
+   若协议、输出实例或接线改变，应重新核对并更新配置；未收到AUX通道时显示未观测，不借用MAIN通道。
+   其他SSH目标/工程根默认未映射；手动修改后点「确认本地四路映射」，当前页的手动覆盖不会被刷新遥测冲掉。
+   片段和JSON/CSV保留当时的接线、原始通道与配置来源。ESC物理映射另行核实。
 3. 选择本次观察组标签，点「开始本地片段」，观察后点「结束本地片段」。这个按钮只采集已收到的浏览器数据，
    不启动或停止无人机动作/板端录制。
 4. 比较不同片段的样本数量、输出、姿态、高度、电池和LIO趋势，导出JSON/CSV。

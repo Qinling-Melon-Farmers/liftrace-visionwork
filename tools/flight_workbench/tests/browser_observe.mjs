@@ -20,13 +20,25 @@ try{
   const run=async expression=>{const r=await call('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw new Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
   const test=async(name,expression)=>{assert.equal(await run(expression),true,name);checks.push(name);console.log('PASS '+name);};
   const navigate=async route=>{await call('Page.navigate',{url:base+route});for(let i=0;i<70;i++){
-    if(await run('typeof observationState!=="undefined" && observationState.configuration.profiles.length===3'))return;await sleep(100);}throw new Error(route+' did not load');};
+    if(await run('typeof observationState!=="undefined" && observationState.configuration.profiles.length===3 && observationState.wiring!==null'))return;await sleep(100);}throw new Error(route+' did not load');};
   await call('Network.enable');await call('Emulation.setDeviceMetricsOverride',{width:1680,height:1100,deviceScaleFactor:1,mobile:false});
   await navigate('/motor');
   await test('motor page is a large read-only page with three configured labels', `document.body.classList.contains('motor-page') && document.querySelector('#profile-select').options.length===3 && document.querySelector('#page-title').textContent.includes('电机')`);
-  await test('default mapping is unverified and page never includes camera elements', `observationState.mapping===null && [...document.querySelectorAll('[data-motor]')].every(s=>s.value==='') && !document.querySelector('img,video')`);
+  await test('confirmed wiring loads AUX bank and physical labels without camera elements', `
+    JSON.stringify(observationState.mapping)==='[17,20,18,19]' &&
+    [...document.querySelectorAll('[data-motor]')].map(s=>s.value).join(',')==='17,20,18,19' &&
+    ['M1 右前 · AUX1','M2 左后 · AUX4','M3 左前 · AUX2','M4 右后 · AUX3'].every(label=>document.querySelector('#legend-motors').textContent.includes(label)) &&
+    document.querySelector('#mapping-status').textContent.includes('按用户接线配置') && !document.querySelector('img,video')`);
+  await run(`obsSnapshot({connection:observationState.connection,observation:observationState.configuration});`);
+  await test('repeated snapshot preserves confirmed wiring', `JSON.stringify(observationState.mapping)==='[17,20,18,19]'`);
   await test('disconnected observer directs the user back to the main workbench', `document.querySelector('#connection-status').textContent.includes('回主页连接') && !document.querySelector('button[id*="flight"],button[id*="connect"]')`);
-  await run(`observationState.eventSource.close();observationState.stream='fixture';observationState.connection={state:'ok',host:'fixture-only'};
+  await run(`observationState.eventSource.close();
+    window.wiringAt=Date.now()/1000;window.wiringChannels=Array(32).fill(0);wiringChannels.splice(16,4,1100,1300,1400,1200);
+    obsStartSegment('hover',wiringAt);obsIngest({at:wiringAt,observe:{rc_out:{channels:wiringChannels}}},wiringAt);obsEndSegment(wiringAt+.1);obsRender();`);
+  await test('configured curves and segment statistics read the AUX bank in motor order', `
+    JSON.stringify(obsSummary(observationState.segments[0]).outputs.map(o=>o.stats.mean))==='[1100,1200,1300,1400]' &&
+    document.querySelector('#segment-table').textContent.includes('M2 左后 · AUX4 raw20')`);
+  await run(`document.querySelector('#reset-local').click();observationState.stream='fixture';obsSetConnection({state:'ok',host:'fixture-only'},true);
     window.makeTelemetry=(at,overrides={})=>({at,state:{connected:true,armed:true,mode:'OFFBOARD'},observe:{
       fc_pose:{frame:'map',stamp:at,source_age:.05,x:.1,y:.2,z:2.8,roll_deg:1,pitch_deg:2,yaw_deg:3},
       lio_pose:{frame:'camera_init',stamp:at,source_age:.1,x:1,y:2,z:3,roll_deg:4,pitch_deg:5,yaw_deg:6},
@@ -82,6 +94,9 @@ try{
     document.querySelector('#connection-status').textContent.includes('连接目标已改变') && !document.querySelector('#raw-outputs').textContent.includes('1100')`);
   await navigate('/observe');
   await test('observe page uses the same read-only data source with a distinct layout', `!document.body.classList.contains('motor-page') && document.querySelector('#page-title').textContent.includes('实时状态') && document.querySelectorAll('canvas').length===13`);
+  await test('both observation layouts load the same configured aircraft wiring', `JSON.stringify(observationState.mapping)==='[17,20,18,19]'`);
+  await run(`document.querySelector('#clear-mapping').click();obsSnapshot({connection:observationState.connection,observation:observationState.configuration});`);
+  await test('explicitly cleared wiring stays cleared after another snapshot', `observationState.mapping===null && document.querySelector('#legend-motors').children.length===0`);
   await test('notice explains 1Hz limits local Z and reset evidence', `document.body.textContent.includes('约1Hz') && document.body.textContent.includes('不能用它证明没有发生reset') && document.body.textContent.includes('不显示离地高度')`);
   const apiRequests=requests.filter(r=>r.url.startsWith(base+'/api/'));
   assert(apiRequests.length>=4 && apiRequests.every(r=>r.method==='GET' && ['/api/snapshot','/api/events'].includes(new URL(r.url).pathname)),'Only GET snapshot and SSE requests');
