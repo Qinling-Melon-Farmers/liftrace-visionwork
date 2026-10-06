@@ -4,6 +4,8 @@ high_agl: 2.6
 drop_agl: 0.6
 landing_transit_agl: 1.0
 landing_capture_agl: 1.2
+landing_handoff_mode: POSCTL
+landing_handoff_status_topic: /patrol_control/external_landing_handoff
 landing_xy:
 - 2.0
 - 0.0

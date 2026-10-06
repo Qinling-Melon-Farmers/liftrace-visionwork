@@ -19,6 +19,7 @@ def topics_for(settings):
         "/planning/progress",
         "/navigation/mission_command_raw","/navigation/mission_result","/navigation/mission_status",
         "/navigation/planner_bridge_status","/mission/command","/mission/control_ready","/detect/waypoint_mark_point","/detect/land_mark_point","/detect/point_class",
+        settings.get("landing_handoff_status_topic", "/patrol_control/external_landing_handoff"),
         "/uav_vision/detections","/uav_vision/detections_resolved","/uav_vision/detections_refined",
         "/uav_vision/detections_mapped","/uav_vision/navigation_hints","/uav_vision/targets",
         "/uav_vision/selected_target","/uav_vision/align_mode","/uav_vision/alignment_target_context","/uav_vision/release_evidence_context",
