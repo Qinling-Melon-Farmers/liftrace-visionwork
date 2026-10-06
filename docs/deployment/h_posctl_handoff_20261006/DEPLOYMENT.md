@@ -1,6 +1,6 @@
 # H专项POSCTL末段交接部署检查（2026-10-06）
 
-以下记录外部板端试飞工作树的部署与检查，不表示EV连续性分支整仓已部署。板端部署与检查已通过，本轮保持应用停止、未解锁，没有启动新一轮飞行。POSCTL末段由飞手用油门完成下降；这份检查不能代替无旋转实飞验收，也不表示AUTO.LAND根因已修复。
+板端部署与检查已通过，本轮保持应用停止、未解锁，没有启动新一轮飞行。POSCTL末段由飞手用油门完成下降；这份检查不能代替无旋转实飞验收，也不表示AUTO.LAND根因已修复。
 
 ## 部署版本与回滚
 
@@ -51,4 +51,7 @@
 
 `160434`轮原bag已取回，大小85,348,842字节，原始时长101.411585s；`tools/bag_replay/run.sh`离线生成原始相机、标注相机、轨迹和组合四段101.5s视频，完整解码和时长检查通过。入口 `logs/h_flight_review_20261006/replay_160434/index.html`。用户取消追加全高度点云回放，原bag与现有回放保留。
 
-AUTO.LAND回传目标航向连续增至约62.26°，目标X从1.98降至1.14m；切POSCTL后航向目标停止变化。历史EKF重置重放是源码支持的优先候选，今日ULog已由另一会话补取，新的根因诊断待主任务统一回流；本报告不将候选当作已定根因。详情见[YAW_DIAGNOSIS.md](YAW_DIAGNOSIS.md)；正常交接身份契约见[INTERFACE_PROPOSAL.md](INTERFACE_PROPOSAL.md)。
+AUTO.LAND回传目标航向连续增至约62.26°，目标X从1.98降至1.14m；切POSCTL后航向目标停止变化。今日对应ULog随后经LOG_REQUEST_DATA成功补取：本轮没有新增reset，历史heading delta仅−1.13°；有效零经纬度LAND目标及无全球参考与本地原点回拉相符，结合精确固件源码成为首要根因链。内部接受半径/航向锁初始化仍属源码推断，飞控固件和参数未改。详情见[YAW_DIAGNOSIS.md](YAW_DIAGNOSIS.md)；正常交接身份契约见[INTERFACE_PROPOSAL.md](INTERFACE_PROPOSAL.md)。
+
+
+2026-10-06后续对齐：另一会话已部署视觉提交 `f0ff8999`（H灰度形态分割），ARM构建与几何复跑通过，见[视觉部署报告](../../verification/h_morphology_20261006/DEPLOYMENT.md)。本报告的13项一致性检查记录POSCTL控制补丁部署当时的比较结果，后续视觉/说明修订独立记录；不声称各分支整仓相同。feature分支同步范围和既有EV测试限制见[BRANCH_SYNC.md](BRANCH_SYNC.md)。
