@@ -186,6 +186,11 @@ def build_group_command(config, group, mode, route=None, real_release=None,
         extra += " --resume-survey %s" % resume_survey
 
     if site_geometry is not None:
+        if 'survey_plan' in site_geometry:
+            pattern = wb_geometry.validate_geometry(site_geometry)['survey_plan']['pattern']
+            if survey_pattern is not None and survey_pattern != pattern:
+                raise ValueError('航线下拉选项与自动生成路线不一致，请重新生成')
+            survey_pattern = pattern
         if route != "module":raise ValueError("手动坐标需使用模块入口")
         overlay, prepare, clean = wb_geometry.overlay_command(site_config, folder, site_geometry, geometry_revision)
         selected = dict(group, site_config=overlay)

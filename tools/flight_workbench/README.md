@@ -266,3 +266,11 @@ node tools/flight_workbench/tests/browser_regression.mjs http://127.0.0.1:8793 <
 03/04/08本地硬件末段为H对准下降后POSCTL，飞手完成落地；本轮未上板。第五组与08运动优化默认开启但巡航上限仍0.5m/s。工作台优化复选框是显式开启，未勾选继承配置；09新卡片默认1.2m/s，可选1.0/0.5对照。完整说明见[九组速度与推广报告](../../docs/deployment/h_promotion_20261006/REPORT.md)。
 
 新增验证：tests/test_geometry.py（8项）与tests/browser_geometry.mjs（9项Edge离线检查）。
+
+## 2026-10-06 自动搜索航线与理想FOV图
+
+02/06/07/08/09任务卡片可展开实测坐标后勾选“按搜索区自动生成”。填写搜索矩形、内收量，选择矩形/两线/三线，输入镜头离地高度、相对FC的Z偏移及任务X/Y方向有效FOV。生成按钮同时提供蓝色覆盖、橙色盲区和FC目标高度。FOV可由实测地面宽度按2*atan(D/(2*h))换算为度，需核对相机安装方向。
+
+默认现场仍限高2m：偏移−0.16m时，镜头1.84m对应FC2m；镜头2m需要FC2.16m，会被原限高检查拒绝。扩大搜索区不自动扩大允许边界和地图；由可选flight_area按实测值配置。门口、走廊引导点和H不能由场地范围推断，08仍需手填。
+
+新API POST /api/survey/plan只算路线与理想几何覆盖；/api/trial/command生成运行overlay命令。板端检查会复核安装偏移和正式任务配置。范围内覆盖率不是避障后实际覆盖或完整靶标召回率。操作和部署记录见[完整报告](../../docs/deployment/survey_workbench_20261006/REPORT.md)。

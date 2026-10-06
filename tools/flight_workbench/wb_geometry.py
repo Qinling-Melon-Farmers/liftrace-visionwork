@@ -4,27 +4,33 @@ import hashlib
 import json
 import math
 import shlex
+import wb_survey
 
-FOLDERS = ('04_corridor_landing', '08_full_mission')
+CORRIDOR_FOLDERS = ('04_corridor_landing', '08_full_mission')
+SURVEY_FOLDERS = ('02_high_view_revisit','06_high_priority','07_memory_only','08_full_mission','09_high_speed_capture')
+FOLDERS = tuple(set(CORRIDOR_FOLDERS + SURVEY_FOLDERS))
 
 
 def validate_geometry(value):
-    if not isinstance(value, dict) or set(value) - {'corridor_waypoints', 'landing_xy', 'corridor_geometry', 'flight_area'}:
+    if not isinstance(value, dict) or set(value) - {'corridor_waypoints', 'landing_xy', 'corridor_geometry', 'flight_area','survey_plan'}:
         raise ValueError('只允许走廊航点、H坐标、墙面几何与flight_area；不修改速度或飞行模式')
     def number(v):
         return type(v) in (int, float) and math.isfinite(v)
     def vector(v, n):
         return isinstance(v, list) and len(v) == n and all(number(x) for x in v)
+    if not value:raise ValueError('场地坐标不能为空')
     points = value.get('corridor_waypoints')
-    if not isinstance(points, list) or not 2 <= len(points) <= 100:
+    has_corridor = 'corridor_waypoints' in value or 'landing_xy' in value
+    if has_corridor and (not isinstance(points, list) or not 2 <= len(points) <= 100):
         raise ValueError('走廊至少两个、最多100个有序航点')
-    for p in points:
+    for p in (points or []):
         if not isinstance(p, dict) or set(p) != {'x', 'y', 'agl'} or not all(number(x) for x in p.values()) or not 0 < p['agl'] <= 4:
             raise ValueError('每点必须为有限数值x/y/agl；agl为FC离地高度，0<agl≤4m')
-    if not vector(value.get('landing_xy'), 2):
+    if has_corridor and not vector(value.get('landing_xy'), 2):
         raise ValueError('必须填写两个有限数值的H中心坐标')
     geometry = value.get('corridor_geometry')
     if geometry is not None:
+        if not has_corridor:raise ValueError('墙面几何须配合走廊航点')
         if not isinstance(geometry, dict) or set(geometry) != {'wall_axis', 'wall_coordinates', 'entry_waypoints'}:
             raise ValueError('墙面几何需wall_axis/wall_coordinates/entry_waypoints')
         walls = geometry['wall_coordinates']
@@ -41,6 +47,7 @@ def validate_geometry(value):
         elif key == 'survey_xy':
             if not isinstance(v,list) or not 3<=len(v)<=100 or not all(vector(p,2) for p in v):raise ValueError('survey_xy需至少三个XY点')
         elif not vector(v,3 if key=='map_size' else 2):raise ValueError('无效'+key)
+    if 'survey_plan' in value:wb_survey.plan(value['survey_plan'])
     return json.loads(json.dumps(value, allow_nan=False))
 
 
@@ -50,6 +57,19 @@ REMOTE_WRITER = '''import base64,json,sys,pathlib,yaml,tempfile
 root=pathlib.Path.cwd().resolve()
 source=pathlib.Path(sys.argv[1]);dest=root/sys.argv[2]
 patch=json.loads(base64.b64decode(sys.argv[3]))
+sys.path.insert(0,str(root/"tools/flight_workbench"))
+from wb_geometry import validate_geometry
+patch=validate_geometry(patch)
+survey=patch.pop("survey_plan",None)
+rig=yaml.safe_load((root/"deployment/board_trials_4x4/common/uav_board_trials/config/known_rig.yaml").read_text())
+if survey is not None:
+ from wb_survey import plan
+ result=plan(survey)
+ offset=float(rig["body_to_imu_xyz"][2])+float(rig["imu_to_camera_xyz"][2])
+ if abs(offset-result["fc_to_camera_z"])>1e-6:raise ValueError("Camera vertical offset differs from deployed known_rig; review height conversion")
+ patch.setdefault("flight_area",{}).update(search_bounds=result["search_bounds"],survey_xy=result["route"])
+ patch["high_agl"]=result["high_agl"]
+ print("SURVEY_COVERAGE="+json.dumps(result))
 profile=yaml.safe_load(source.read_text()) or {}
 if not isinstance(profile,dict):raise ValueError("site profile must be an object")
 for key,value in patch.items():
@@ -75,10 +95,12 @@ print("MEASURED_SITE_OVERLAY="+str(dest))
 
 
 def overlay_command(source, folder, geometry, revision):
-    if folder not in FOLDERS:raise ValueError('手动场地坐标仅用于04走廊接H或08整场')
+    if folder not in FOLDERS:raise ValueError('该组不支持手动搜索/走廊坐标')
     if not isinstance(revision,str) or not revision.isascii() or not revision.isalnum() or not 1<=len(revision)<=32:
         raise ValueError('坐标草稿版本无效，请重新生成命令')
     clean=validate_geometry(geometry)
+    if 'survey_plan' in clean and folder not in SURVEY_FOLDERS:raise ValueError('该组没有高位搜索阶段')
+    if any(k in clean for k in ('landing_xy','corridor_waypoints','corridor_geometry')) and folder not in CORRIDOR_FOLDERS:raise ValueError('该组不使用走廊/H航点')
     data=json.dumps(clean,sort_keys=True,separators=(',',':'),allow_nan=False)
     token=hashlib.sha256((source+'\n'+folder+'\n'+revision+'\n'+data).encode()).hexdigest()[:20]
     relative='logs/flight_workbench/site_overlays/'+folder+'_'+token+'.yaml'

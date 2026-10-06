@@ -23,6 +23,7 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
+import wb_survey
 import wb_board
 import wb_status
 import wb_ssh
@@ -856,6 +857,8 @@ class Handler(BaseHTTPRequestHandler):
                     raise ValueError("会话不存在")
                 session.send_key(body.get("key", "C-c"))
                 return self._json({"ok": True})
+            if route == "/api/survey/plan":
+                return self._json({"ok": True, "plan": wb_survey.plan(body)})
             if route == "/api/trial/command":
                 return self._json(workbench.trial_command(body))
             if route == "/api/trial/start":

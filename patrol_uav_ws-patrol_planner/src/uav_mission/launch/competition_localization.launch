@@ -11,7 +11,13 @@
   <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
   <arg name="lio_config" default="$(find uav_mission)/config/mid360_hardware.yaml" />
   <rosparam file="$(arg lio_config)" />
-  <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen" />
+  <!-- Inherit the validated RK3588 big-core placement used by board trials. -->
+  <arg name="lio_omp_places" default="{4},{5},{6},{7}" />
+  <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen">
+    <env name="OMP_WAIT_POLICY" value="PASSIVE" />
+    <env name="OMP_PROC_BIND" value="close" />
+    <env name="OMP_PLACES" value="$(arg lio_omp_places)" />
+  </node>
   <rosparam file="$(find uav_mission)/config/competition/board_load.yaml" />
   <!-- Hardware supervisor starts mapping only after measured FC/LIO agreement.
        The existing SITL entry explicitly opts into its simultaneous startup. -->

@@ -286,13 +286,13 @@ groups:
     channel: module
     section: module
     name: "模块03 · H 视觉识别与降落"
-    plan: "低位接近前方约 2m 的 H，定点升高识别、视觉对齐，末段请求 AUTO.LAND。"
-    ending: "H对准下降后交接POSCTL，飞手完成落地（本地推广配置，待部署）"
+    plan: "低位接近前方约 2m 的 H，定点升高识别、视觉对齐，末段交接POSCTL，飞手落地。"
+    ending: "H对准下降后交接POSCTL，飞手完成落地"
     release: none
     motion_optimization_supported: true
     needs_servo: false
     site_config: "{site_dir}/h_landing_test_area.yaml"
-    notes: "READY 后飞手人工解锁并拨入 OFFBOARD，在实际 1.0m 起飞高度稳定后自动启动任务；H识别升至1.2m，启用H笔画兜底，与完整任务共用视觉对齐及AUTO.LAND交接。不要执行现场 start_test.sh 3（那是记忆组）。"
+    notes: "READY 后飞手人工解锁并拨入 OFFBOARD，在实际 1.0m 起飞高度稳定后自动启动任务；H识别升至1.2m，启用H笔画兜底，与完整任务共用视觉对齐及POSCTL交接。不要执行现场 start_test.sh 3（那是记忆组）。"
 
   - id: mod04
     key: "04"
@@ -301,7 +301,7 @@ groups:
     section: module
     name: "模块04 · 走廊避障接 H 降落"
     plan: "按实测走廊航点自主避障，再接近 H 并升高识别。"
-    ending: "H对准下降后交接POSCTL，飞手完成落地（本地推广配置，待部署）"
+    ending: "H对准下降后交接POSCTL，飞手完成落地"
     release: none
     motion_optimization_supported: true
     needs_servo: false
@@ -316,7 +316,7 @@ groups:
     section: module
     name: "模块08 · 整场（三投接走廊/H）"
     plan: "高位搜索、低空重访三投、走廊、H。"
-    ending: "H对准下降后交接POSCTL，飞手完成落地（本地推广配置，待部署）"
+    ending: "H对准下降后交接POSCTL，飞手完成落地"
     release: mock
     release_options: [mock, real]
     motion_optimization_supported: true
