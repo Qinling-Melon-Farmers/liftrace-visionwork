@@ -1,0 +1,56 @@
+{
+  "case": "synthetic_authoritative_fc_z_reset_0.524",
+  "observe_only": true,
+  "real_flight_validation": false,
+  "before": {
+    "body_agl": 0.6,
+    "camera_agl": 0.43999999999999995,
+    "ground_z": 0.0,
+    "fc_observed_z": 0.6,
+    "command_fc_z": 0.6,
+    "fc_height_error": 0.0,
+    "projected_ground_point": [
+      -0.088,
+      0.0,
+      0.0
+    ],
+    "generation": 0
+  },
+  "waiting": {
+    "accepted_reset": true,
+    "ready": false,
+    "projected_pose_inhibited": true,
+    "descent_inhibited": true,
+    "release_inhibited": true,
+    "fc_hold_request": {
+      "stamp": 1.21,
+      "frame": "map",
+      "xyz": [
+        0.0,
+        0.0,
+        1.124
+      ],
+      "xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "after": {
+    "body_agl": 0.6000000000000001,
+    "camera_agl": 0.44000000000000006,
+    "ground_z": 0.0,
+    "fc_observed_z": 1.124,
+    "command_fc_z": 1.124,
+    "fc_height_error": 0.0,
+    "projected_ground_point": [
+      -0.08800000000000002,
+      0.0,
+      0.0
+    ],
+    "generation": 1
+  },
+  "old_unmapped_setpoint_error": -0.5240000000000001
+}

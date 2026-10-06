@@ -1,0 +1,11 @@
+{
+  "offline": true,
+  "master_started": false,
+  "nodes_started": false,
+  "board_connected": false,
+  "tests": 65,
+  "failures": 0,
+  "errors": 0,
+  "messages": {},
+  "success": true
+}

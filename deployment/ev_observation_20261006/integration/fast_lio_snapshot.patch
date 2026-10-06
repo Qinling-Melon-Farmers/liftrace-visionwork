@@ -1,0 +1,161 @@
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/CMakeLists.txt
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/CMakeLists.txt
+@@ -84,11 +84,13 @@
+ add_message_files(
+   FILES
+   Pose6D.msg
++  PredictionState.msg
+ )
+ 
+ generate_messages(
+  DEPENDENCIES
+  geometry_msgs
++ std_msgs
+ )
+ 
+ catkin_package(
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/src/IMU_Processing.hpp
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/src/IMU_Processing.hpp
+@@ -62,6 +62,10 @@
+   double first_lidar_time;
+   int lidar_type;
+ 
++  // Immutable calibration metadata for an independent shadow IMU predictor.
++  double prediction_accel_scale() const { return G_m_s2 / mean_acc.norm(); }
++  bool prediction_initialized() const { return !imu_need_init_; }
++
+  private:
+   void IMU_init(const MeasureGroup &meas, esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, int &N);
+   void UndistortPcl(const MeasureGroup &meas, esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, PointCloudXYZI &pcl_in_out);
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/src/laserMapping.cpp
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/src/laserMapping.cpp
+@@ -59,6 +59,7 @@
+ #include <tf/transform_broadcaster.h>
+ #include <geometry_msgs/Vector3.h>
+ #include <livox_ros_driver2/CustomMsg.h>
++#include <fast_lio/PredictionState.h>
+ #include <diagnostic_msgs/DiagnosticArray.h>
+ #include <time.h>
+ #include "preprocess.h"
+@@ -79,7 +80,11 @@
+ bool   map_pub_en = false;
+ double map_publish_period = 1.0;
+ double map_shift_distance = 0.0;
+-ros::Publisher realtime_pub;
++bool prediction_state_en = false;
++bool prediction_clock_valid = true;
++uint64_t prediction_epoch = 0;
++string prediction_imu_frame;
++ros::Publisher prediction_state_pub, realtime_pub;
+ /**************************/
+ 
+ vector<float> res_last;
+@@ -297,6 +302,7 @@
+         lidar_buffer.clear();
+         time_buffer.clear();
+         lidar_pushed = false;
++        prediction_clock_valid = false;
+     }
+ 
+     PointCloudXYZI::Ptr  ptr(new PointCloudXYZI());
+@@ -322,6 +328,7 @@
+         lidar_buffer.clear();
+         time_buffer.clear();
+         lidar_pushed = false;
++        prediction_clock_valid = false;
+     }
+     last_timestamp_lidar = msg->header.stamp.toSec();
+     
+@@ -368,6 +375,7 @@
+     {
+         ROS_WARN("imu loop back, clear buffer");
+         imu_buffer.clear();
++        prediction_clock_valid = false;
+     }
+ 
+     last_timestamp_imu = timestamp;
+@@ -648,6 +656,43 @@
+     br.sendTransform( tf::StampedTransform( transform, odomAftMapped.header.stamp, "camera_init", "body" ) );
+ }
+ 
++void publish_prediction_state()
++{
++    if (!prediction_state_en || prediction_state_pub.getNumSubscribers() == 0) return;
++    fast_lio::PredictionState msg;
++    msg.header = odomAftMapped.header;
++    msg.imu_frame = prediction_imu_frame;
++    msg.epoch = prediction_epoch;
++    msg.valid = prediction_clock_valid && p_imu->prediction_initialized() && effct_feat_num >= 5;
++    msg.pose = odomAftMapped.pose.pose;
++    auto set_vector = [](geometry_msgs::Vector3 &out, const V3D &v) {
++        out.x=v.x(); out.y=v.y(); out.z=v.z();
++    };
++    set_vector(msg.velocity, state_point.vel);
++    set_vector(msg.gyro_bias, state_point.bg);
++    set_vector(msg.accel_bias, state_point.ba);
++    set_vector(msg.gravity, V3D(state_point.grav));
++    Eigen::Matrix<double, 18, 23> J = Eigen::Matrix<double, 18, 23>::Zero();
++    J.block<6, 6>(0, 0).setIdentity();
++    J.block<9, 9>(6, 12).setIdentity();
++    Eigen::Matrix<double, 3, 2> gravity_J;
++    Eigen::Matrix<double, 2, 1> zero = Eigen::Matrix<double, 2, 1>::Zero();
++    state_point.S2_Mx(gravity_J, zero, 21);
++    J.block<3, 2>(15, 21) = gravity_J;
++    Eigen::Matrix<double, 18, 18> P = J * kf.get_P() * J.transpose();
++    for (int i=0; i<18; ++i) for (int j=0; j<18; ++j) msg.covariance[i*18+j]=P(i,j);
++    for (int i=0; i<3; ++i) {
++        msg.process_noise[i]=p_imu->cov_gyr[i];
++        msg.process_noise[i+3]=p_imu->cov_acc[i];
++        msg.process_noise[i+6]=p_imu->cov_bias_gyr[i];
++        msg.process_noise[i+9]=p_imu->cov_bias_acc[i];
++    }
++    msg.accel_scale = p_imu->prediction_accel_scale();
++    msg.imu_time_offset = (time_sync_en && abs(timediff_lidar_wrt_imu)>0.1)
++        ? timediff_lidar_wrt_imu : -time_diff_lidar_to_imu;
++    prediction_state_pub.publish(msg);
++}
++
+ double thread_cpu_seconds()
+ {
+     timespec ts{};
+@@ -826,6 +871,10 @@
+     ros::init(argc, argv, "laserMapping");
+     ros::NodeHandle nh;
+     ros::NodeHandle private_nh("~");
++    private_nh.param<bool>("prediction_state_enabled", prediction_state_en, false);
++    private_nh.param<string>("prediction_imu_frame", prediction_imu_frame, "livox_frame");
++    prediction_epoch = ros::WallTime::now().toNSec();
++    prediction_state_pub = private_nh.advertise<fast_lio::PredictionState>("prediction_state", 1);
+     realtime_pub = private_nh.advertise<diagnostic_msgs::DiagnosticArray>("realtime", 1);
+ 
+     nh.param<bool>("publish/path_en",path_en, true);
+@@ -1051,6 +1100,7 @@
+ 
+             /******* Publish odometry *******/
+             publish_odometry(pubOdomAftMapped);
++            publish_prediction_state();
+ 
+             /*** add the feature points to map kdtree ***/
+             t3 = omp_get_wtime();
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/msg/PredictionState.msg
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/msg/PredictionState.msg
+@@ -0,0 +1,19 @@
++# Experimental shadow interface, not a MAVROS measurement.
++# Pose = T_LI (IMU in LIO world); velocity/gravity in L; biases in I.
++std_msgs/Header header
++string imu_frame
++uint64 epoch
++bool valid
++geometry_msgs/Pose pose
++geometry_msgs/Vector3 velocity
++geometry_msgs/Vector3 gyro_bias
++geometry_msgs/Vector3 accel_bias
++geometry_msgs/Vector3 gravity
++# Row-major error covariance: [p_L, right_rotation_I, v_L, bg_I, ba_I, g_L].
++float64[324] covariance
++# Same sample-noise variance convention as FAST-LIO, [gyro, acc, bg, ba].
++float64[12] process_noise
++# Apply raw_acc * accel_scale BEFORE subtracting accel_bias.
++float64 accel_scale
++# Corrected IMU stamp = raw stamp + imu_time_offset (same as slow path).
++float64 imu_time_offset

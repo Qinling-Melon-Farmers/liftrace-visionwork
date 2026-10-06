@@ -1,0 +1,17 @@
+{
+  "scope": "offline ROS serialization fixtures generated from actual schemas",
+  "fixture_sources": {
+    "uav_mission": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/patrol_uav_ws-patrol_planner/src/uav_mission/msg/ReleasePermission.msg",
+    "fast_lio": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/ev_observation_20261006/source/patrol_uav_ws-patrol_planner/src/FAST_LIO/msg/PredictionState.msg"
+  },
+  "tests": 18,
+  "failures": 0,
+  "errors": 0,
+  "success": true,
+  "catkin_build_verified": false,
+  "arm_build_verified": false,
+  "runtime_message_authority_verified": false,
+  "master_started": false,
+  "nodes_started": false,
+  "source_generation": "genpy; runtime preflight rejects this fixture location"
+}

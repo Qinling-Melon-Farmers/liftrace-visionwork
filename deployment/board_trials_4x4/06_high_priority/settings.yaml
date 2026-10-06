@@ -13,3 +13,6 @@ virtual_ceiling_enabled: false
 alignment_mode: legacy_static
 actuator_mode: mock
 raw_servo_service: /legacy/Servo_raw
+# Enabled for the 2026-10-06 board validation; keep module-specific safety gates.
+motion_optimization:
+  enabled: true

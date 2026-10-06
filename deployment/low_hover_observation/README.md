@@ -1,6 +1,6 @@
 # 低空电机观察试飞（独立于九组任务，2026-10-06）
 
-本入口只做自动低空动作和诊断采集，不验收识别/投递/整机算法。代码本轮仅本地准备和离线验证，未上板、未起飞。飞手手动解锁并**重新拨入OFFBOARD**后动作；只解锁不会开始。结束保持悬停，飞手切手动降落，脚本不会自动LAND、解锁、切模式或调用舵机。
+本入口只做自动低空动作和诊断采集，不验收识别/投递/整机算法。已于2026-10-06部署至 `/home/orangepi/liftrace_board_trials_20260928`，未起飞。飞手手动解锁并**重新拨入OFFBOARD**后动作；只解锁不会开始。结束保持悬停，飞手切手动降落，脚本不会自动LAND、解锁、切模式或调用舵机。
 
 ## 三种动作
 
@@ -42,6 +42,14 @@ roslaunch uav_mission mid360_driver2.launch \
 ```bash
 bash deployment/low_hover_observation/start.sh localization hover
 ```
+
+EV观察可选启用 `prediction_state_enabled:=true`，默认是 `false`：
+
+```bash
+bash deployment/low_hover_observation/start.sh localization hover prediction_state_enabled:=true
+```
+
+以上两条定位命令二选一，同一LIO不可重复启动；已有定位实例时不要再开第二套。
 
 启动前要求飞控连接且未解锁，拒绝重复LIO/EV和已有任务/相机/控制发布者。此launch复用已部署FAST-LIO配置、板端负载参数和`lio_external_pose.py`，不启用FreeDOM、相机、YOLO、导航任务、舵机或setpoint适配器。保持现有三线程构建，不调整EKF参数或300ms EV输入时效阈值。飞行中不要关闭定位终端。
 

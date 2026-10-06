@@ -1,0 +1,633 @@
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/CMakeLists.txt
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/CMakeLists.txt
+@@ -84,15 +84,17 @@
+ add_message_files(
+   FILES
+   Pose6D.msg
++  PredictionState.msg
+ )
+ 
+ generate_messages(
+  DEPENDENCIES
+  geometry_msgs
++ std_msgs
+ )
+ 
+ catkin_package(
+-  CATKIN_DEPENDS diagnostic_msgs livox_ros_driver2 geometry_msgs nav_msgs roscpp rospy std_msgs message_runtime
++  CATKIN_DEPENDS livox_ros_driver2 geometry_msgs nav_msgs roscpp rospy std_msgs message_runtime
+   DEPENDS EIGEN3 PCL
+   INCLUDE_DIRS
+ )
+@@ -104,6 +106,9 @@
+ )
+ target_link_libraries(fastlio_mapping ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${PYTHON_LIBRARIES})
+ target_include_directories(fastlio_mapping PRIVATE ${PYTHON_INCLUDE_DIRS})
++
++catkin_install_python(PROGRAMS scripts/ev_shadow.py scripts/ev_predictor.py
++  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+ 
+ if(CATKIN_ENABLE_TESTING)
+   add_executable(matching_buffers_test EXCLUDE_FROM_ALL
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/config/ev_shadow.yaml
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/config/ev_shadow.yaml
+@@ -0,0 +1,16 @@
++# EXPERIMENTAL ONLY: limits are offline test candidates, not flight acceptance.
++output_hz: 50.0
++status_hz: 2.0
++# Existing rig LIO IMU -> FC reference; verify against the deployed calibration.
++imu_to_body_xyz: [0.0, 0.0, -0.05]
++limits:
++  imu_gap: 0.025
++  output_age: 0.10
++  correction_age: 0.30
++  future_tolerance: 0.005
++  buffer_seconds: 0.8
++  buffer_samples: 1000
++  correction_position: 0.20
++  correction_angle: 0.17453292519943295
++  smoothing_tau: 0.15
++  position_sigma: 0.30
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/ev_shadow.launch
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/ev_shadow.launch
+@@ -0,0 +1,14 @@
++<launch>
++  <!-- Only an observer. Does NOT start LIO, MAVROS, flight control or simulation.
++       Start LIO with private prediction_state_enabled=true before collecting. -->
++  <arg name="imu_topic" default="/livox/imu" />
++  <arg name="state_topic" default="/laserMapping/prediction_state" />
++  <arg name="config" default="$(find fast_lio)/config/ev_shadow.yaml" />
++  <node pkg="fast_lio" type="ev_shadow.py" name="ev_shadow" output="screen">
++    <env name="OPENBLAS_NUM_THREADS" value="1" />
++    <env name="OMP_NUM_THREADS" value="1" />
++    <rosparam file="$(arg config)" />
++    <param name="imu_topic" value="$(arg imu_topic)" />
++    <param name="state_topic" value="$(arg state_topic)" />
++  </node>
++</launch>
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/msg/PredictionState.msg
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/msg/PredictionState.msg
+@@ -0,0 +1,19 @@
++# Experimental shadow interface, not a MAVROS measurement.
++# Pose = T_LI (IMU in LIO world); velocity/gravity in L; biases in I.
++std_msgs/Header header
++string imu_frame
++uint64 epoch
++bool valid
++geometry_msgs/Pose pose
++geometry_msgs/Vector3 velocity
++geometry_msgs/Vector3 gyro_bias
++geometry_msgs/Vector3 accel_bias
++geometry_msgs/Vector3 gravity
++# Row-major error covariance: [p_L, right_rotation_I, v_L, bg_I, ba_I, g_L].
++float64[324] covariance
++# Same sample-noise variance convention as FAST-LIO, [gyro, acc, bg, ba].
++float64[12] process_noise
++# Apply raw_acc * accel_scale BEFORE subtracting accel_bias.
++float64 accel_scale
++# Corrected IMU stamp = raw stamp + imu_time_offset (same as slow path).
++float64 imu_time_offset
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/package.xml
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/package.xml
+@@ -17,8 +17,8 @@
+   <author email="zhangji@cmu.edu">Ji Zhang</author>
+   
+   <buildtool_depend>catkin</buildtool_depend>
++  <build_depend>geometry_msgs</build_depend>
+   <build_depend>diagnostic_msgs</build_depend>
+-  <build_depend>geometry_msgs</build_depend>
+   <build_depend>nav_msgs</build_depend>
+   <build_depend>roscpp</build_depend>
+   <build_depend>rospy</build_depend>
+@@ -29,8 +29,9 @@
+   <build_depend>livox_ros_driver2</build_depend>
+   <build_depend>message_generation</build_depend>
+ 
++  <run_depend>geometry_msgs</run_depend>
+   <run_depend>diagnostic_msgs</run_depend>
+-  <run_depend>geometry_msgs</run_depend>
++  <run_depend>python3-numpy</run_depend>
+   <run_depend>nav_msgs</run_depend>
+   <run_depend>sensor_msgs</run_depend>
+   <run_depend>roscpp</run_depend>
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/scripts/ev_predictor.py
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/scripts/ev_predictor.py
+@@ -0,0 +1,277 @@
++#!/usr/bin/env python3
++"""Bounded IMU prediction with delayed LIO replay. Shadow experiments only.
++
++No FC feedback, ROS clock retiming, extrapolation past the newest IMU, or
++low-pass filtering of physical motion. The smoothing offset is only the
++same-time difference when a new LIO correction replaces the prediction.
++"""
++from collections import deque
++from dataclasses import dataclass, replace
++import math
++
++import numpy as np
++
++
++def skew(v):
++    x, y, z = v
++    return np.array([[0., -z, y], [z, 0., -x], [-y, x, 0.]])
++
++
++def exp_rot(v):
++    theta = float(np.linalg.norm(v))
++    k = skew(v)
++    if theta < 1e-8:
++        return np.eye(3) + k + 0.5 * k @ k
++    return np.eye(3) + math.sin(theta) / theta * k + (1-math.cos(theta))/theta**2 * k @ k
++
++
++def log_rot(r):
++    theta = math.acos(float(np.clip((np.trace(r)-1)/2, -1, 1)))
++    # Large corrections are rejected before this function is used.
++    v = np.array([r[2, 1]-r[1, 2], r[0, 2]-r[2, 0], r[1, 0]-r[0, 1]])
++    return 0.5*v if theta < 1e-8 else theta/(2*math.sin(theta))*v
++
++
++@dataclass(frozen=True)
++class Limits:
++    imu_gap: float = 0.025
++    output_age: float = 0.10
++    correction_age: float = 0.30
++    future_tolerance: float = 0.005
++    buffer_seconds: float = 0.8
++    buffer_samples: int = 1000
++    correction_position: float = 0.20
++    correction_angle: float = math.radians(10)
++    smoothing_tau: float = 0.15
++    position_sigma: float = 0.30
++
++    def __post_init__(self):
++        if any(not math.isfinite(float(v)) or float(v) <= 0 for v in vars(self).values()):
++            raise ValueError('all limits must be finite and positive')
++        if self.buffer_seconds <= self.correction_age or self.buffer_samples < 3:
++            raise ValueError('IMU cache must cover the permitted correction interval')
++
++
++@dataclass(frozen=True)
++class Imu:
++    t: float
++    acc: np.ndarray
++    gyro: np.ndarray
++    frame: str = 'livox_frame'
++
++
++@dataclass(frozen=True)
++class State:
++    t: float
++    p: np.ndarray
++    r: np.ndarray
++    v: np.ndarray
++    bg: np.ndarray
++    ba: np.ndarray
++    g: np.ndarray
++    cov: np.ndarray
++    noise: np.ndarray
++    scale: float = 1.0
++    offset: float = 0.0
++    epoch: int = 1
++    frame: str = 'camera_init'
++    imu_frame: str = 'livox_frame'
++
++
++def propagate(s, a, b):
++    """Midpoint strapdown integration, right attitude-error covariance."""
++    dt = b.t - a.t
++    w = (a.gyro+b.gyro)*0.5-s.bg
++    acc = (a.acc+b.acc)*0.5*s.scale-s.ba
++    r_mid = s.r @ exp_rot(w*dt*0.5)
++    world_acc = r_mid @ acc+s.g
++    f = np.zeros((18, 18))
++    f[0:3, 6:9] = np.eye(3)
++    f[3:6, 3:6] = -skew(w)
++    f[3:6, 9:12] = -np.eye(3)
++    f[6:9, 3:6] = -r_mid @ skew(acc)
++    f[6:9, 12:15] = -r_mid
++    f[6:9, 15:18] = np.eye(3)
++    a_mat = np.eye(18)+dt*f+0.5*dt*dt*(f@f)
++    g_mat = np.zeros((18, 12))
++    g_mat[3:6, 0:3] = -np.eye(3)
++    g_mat[6:9, 3:6] = -r_mid
++    g_mat[9:12, 6:9] = np.eye(3)
++    g_mat[12:15, 9:12] = np.eye(3)
++    # FAST-LIO's Q is per-sample variance (G*dt Q G*dt^T), not a density.
++    cov = a_mat @ s.cov @ a_mat.T + dt*dt*(g_mat*s.noise) @ g_mat.T
++    return replace(s, t=b.t, p=s.p+s.v*dt+0.5*world_acc*dt*dt,
++                   v=s.v+world_acc*dt, r=s.r @ exp_rot(w*dt),
++                   cov=(cov+cov.T)*0.5)
++
++
++class Predictor:
++    def __init__(self, limits=None):
++        self.limits = limits or Limits()
++        self.imu = deque()
++        self.state = None
++        self.pending = None
++        self.correction_t = None
++        self.last_now = None
++        self.fault = None
++        self.reason = 'waiting_for_state'
++        self.p_offset = np.zeros(3)
++        self.r_offset = np.zeros(3)
++        self.offset_t = 0.
++        self.stats = dict(imu_rejected=0, corrections_rejected=0, corrections=0, outputs=0)
++
++    def fail(self, reason):
++        # Explicit restart required after discontinuity. No silent auto-recovery.
++        self.fault = self.reason = reason
++        return False
++
++    def clock(self, now):
++        if not math.isfinite(now):
++            return self.fail('invalid_clock')
++        if self.last_now is not None and now < self.last_now-1e-6:
++            return self.fail('clock_regression')
++        self.last_now = now
++        return not self.fault
++
++    def add_imu(self, sample, now):
++        if not self.clock(now):
++            return False
++        if not all(np.all(np.isfinite(v)) for v in (sample.t, sample.acc, sample.gyro)):
++            return self.fail('invalid_imu')
++        if np.shape(sample.acc) != (3,) or np.shape(sample.gyro) != (3,):
++            return self.fail('invalid_imu_shape')
++        if self.imu and sample.t <= self.imu[-1].t:
++            self.stats['imu_rejected'] += 1
++            # Duplicate/late transport packets are ignored, not integrated twice.
++            self.reason = 'nonmonotonic_imu_rejected'
++            return False
++        self.imu.append(sample)
++        while len(self.imu) > self.limits.buffer_samples or (
++                len(self.imu) > 2 and self.imu[-1].t-self.imu[1].t > self.limits.buffer_seconds):
++            self.imu.popleft()
++        if self.pending is not None and sample.t+self.pending.offset >= self.pending.t:
++            self.correction(self.pending, now)
++        return True
++
++    def replay(self, s):
++        samples = [replace(x, t=x.t+s.offset) for x in self.imu]
++        if not samples or samples[-1].t < s.t:
++            raise ValueError('waiting_for_imu_coverage')
++        left = None
++        for right in samples:
++            if right.frame != s.imu_frame:
++                raise ValueError('imu_frame_mismatch')
++            if right.t <= s.t:
++                left = right
++                continue
++            if left is None:
++                raise ValueError('missing_imu_boundary')
++            if right.t-left.t > self.limits.imu_gap:
++                raise ValueError('imu_gap')
++            if left.t < s.t:
++                alpha = (s.t-left.t)/(right.t-left.t)
++                left = Imu(s.t, left.acc+(right.acc-left.acc)*alpha,
++                           left.gyro+(right.gyro-left.gyro)*alpha, left.frame)
++            s = propagate(s, left, right)
++            left = right
++        return s
++
++    def correction(self, s, now):
++        if not self.clock(now):
++            return False
++        values = (s.t, s.p, s.r, s.v, s.bg, s.ba, s.g, s.cov, s.noise, s.scale, s.offset)
++        if not all(np.all(np.isfinite(x)) for x in values) or s.scale <= 0:
++            return self.fail('invalid_state')
++        if (any(np.shape(x) != (3,) for x in (s.p, s.v, s.bg, s.ba, s.g)) or
++                s.r.shape != (3, 3) or s.cov.shape != (18, 18) or s.noise.shape != (12,)):
++            return self.fail('invalid_state_shape')
++        if (not np.allclose(s.r.T@s.r, np.eye(3), atol=1e-6) or
++                abs(np.linalg.det(s.r)-1) > 1e-6 or np.any(s.noise < 0) or
++                not np.allclose(s.cov, s.cov.T, atol=1e-8) or
++                np.linalg.eigvalsh(s.cov).min() < -1e-8):
++            return self.fail('invalid_state_covariance_or_rotation')
++        if self.state and (s.epoch, s.frame, s.imu_frame, s.offset, s.scale) != (
++                self.state.epoch, self.state.frame, self.state.imu_frame, self.state.offset, self.state.scale):
++            return self.fail('state_epoch_or_calibration_changed')
++        if self.correction_t is not None and s.t <= self.correction_t:
++            self.stats['corrections_rejected'] += 1
++            self.reason = 'nonmonotonic_correction_rejected'
++            return False
++        if self.pending is not None and s.t < self.pending.t:
++            self.stats['corrections_rejected'] += 1
++            self.reason = 'older_than_pending_correction'
++            return False
++        if not -self.limits.future_tolerance <= now-s.t <= self.limits.correction_age:
++            self.stats['corrections_rejected'] += 1
++            self.reason = 'stale_or_future_correction'
++            return False
++        if self.state and now-self.correction_t > self.limits.correction_age:
++            return self.fail('correction_timeout_requires_restart')
++        try:
++            new = self.replay(s)
++            if not -self.limits.future_tolerance <= now-new.t <= self.limits.output_age:
++                raise ValueError('stale_or_future_imu')
++            if self.state:
++                old = self.replay(self.state)
++                if abs(old.t-new.t) > 1e-7:
++                    raise ValueError('different_comparison_time')
++                decay = math.exp(-(old.t-self.offset_t)/self.limits.smoothing_tau)
++                dp = old.p+self.p_offset*decay-new.p
++                dr = exp_rot(self.r_offset*decay) @ old.r @ new.r.T
++                angle = math.acos(float(np.clip((np.trace(dr)-1)/2, -1, 1)))
++                raw_angle = math.acos(float(np.clip((np.trace(old.r@new.r.T)-1)/2, -1, 1)))
++                if (np.linalg.norm(old.p-new.p) > self.limits.correction_position or
++                        raw_angle > self.limits.correction_angle or
++                        np.linalg.norm(dp) > self.limits.correction_position or angle > self.limits.correction_angle):
++                    return self.fail('correction_jump_requires_restart')
++                self.p_offset, self.r_offset = dp, log_rot(dr)
++            self.state, self.correction_t, self.offset_t = new, s.t, new.t
++            self.pending = None
++            self.stats['corrections'] += 1
++            self.reason = 'tracking'
++            return True
++        except ValueError as exc:
++            if str(exc) == 'waiting_for_imu_coverage':
++                # Independent subscriptions may deliver a LIO snapshot before
++                # its last IMU packet. Keep only the newest snapshot, bounded by
++                # the SAME correction-age deadline; never extrapolate to it.
++                self.pending = s
++                self.reason = str(exc)
++                return False
++            self.stats['corrections_rejected'] += 1
++            if self.state:
++                return self.fail(str(exc))
++            self.reason = str(exc)
++            return False
++
++    def output(self, now):
++        if not self.clock(now) or self.state is None:
++            return None
++        if now-self.correction_t > self.limits.correction_age:
++            self.fail('correction_timeout_requires_restart')
++            return None
++        try:
++            new = self.replay(self.state)
++            if not -self.limits.future_tolerance <= now-new.t <= self.limits.output_age:
++                raise ValueError('stale_or_future_imu')
++            decay = math.exp(-(new.t-self.offset_t)/self.limits.smoothing_tau)
++            offset = self.p_offset*decay
++            # This conservative proxy includes smoothing displacement, but does
++            # not model correlation between repeated IMU predictions sent to EKF.
++            cov = new.cov.copy()
++            bias = np.zeros(18)
++            bias[:3] = offset
++            bias[3:6] = new.r.T @ (self.r_offset*decay)
++            cov += np.outer(bias, bias)
++            if np.linalg.eigvalsh(cov[:3, :3]).max() > self.limits.position_sigma**2:
++                raise ValueError('position_uncertainty_limit')
++            smooth = replace(new, p=new.p+offset, r=exp_rot(self.r_offset*decay)@new.r, cov=cov)
++            self.state = new
++            self.stats['outputs'] += 1
++            self.reason = 'tracking'
++            # Only pose is exported; smoothed velocity would need the derivative
++            # of the decaying offset, not the unmodified inertial velocity.
++            return new, smooth
++        except ValueError as exc:
++            self.fail(str(exc))
++            return None
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/scripts/ev_shadow.py
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/scripts/ev_shadow.py
+@@ -0,0 +1,115 @@
++#!/usr/bin/env python3
++"""Independent, observation-only IMU prediction. Never publishes to MAVROS."""
++import json
++import os
++import sys
++import threading
++
++import numpy as np
++import rospy
++from geometry_msgs.msg import PoseStamped
++from sensor_msgs.msg import Imu as ImuMsg
++from std_msgs.msg import String
++from tf.transformations import quaternion_matrix, quaternion_from_matrix
++from fast_lio.msg import PredictionState
++sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
++from ev_predictor import Predictor, Limits, State, Imu
++
++
++def vector(v):
++    return np.array([v.x, v.y, v.z], dtype=float)
++
++
++def snapshot(msg):
++    q = msg.pose.orientation
++    quat = np.array([q.x, q.y, q.z, q.w])
++    if not np.isfinite(quat).all() or abs(np.linalg.norm(quat)-1) > 1e-3:
++        raise ValueError('invalid_state_quaternion')
++    return State(msg.header.stamp.to_sec(), vector(msg.pose.position),
++                 quaternion_matrix(quat)[:3, :3], vector(msg.velocity),
++                 vector(msg.gyro_bias), vector(msg.accel_bias), vector(msg.gravity),
++                 np.array(msg.covariance).reshape(18, 18), np.array(msg.process_noise),
++                 msg.accel_scale, msg.imu_time_offset, msg.epoch,
++                 msg.header.frame_id, msg.imu_frame)
++
++
++class Shadow:
++    def __init__(self):
++        settings = rospy.get_param('~limits', {})
++        self.predictor = Predictor(Limits(**settings))
++        self.lock = threading.Lock()
++        self.last_stamp = None
++        self.last_status = 0.
++        self.rate = float(rospy.get_param('~output_hz', 50.))
++        self.status_rate = float(rospy.get_param('~status_hz', 2.))
++        if not np.isfinite(self.rate) or self.rate <= 0 or not np.isfinite(self.status_rate) or self.status_rate <= 0:
++            raise ValueError('rates must be finite and positive')
++        self.body_xyz = np.array(rospy.get_param('~imu_to_body_xyz', [0., 0., 0.]))
++        if self.body_xyz.shape != (3,) or not np.isfinite(self.body_xyz).all():
++            raise ValueError('invalid imu_to_body_xyz')
++        self.pubs = []
++        for name in ('~raw_pose', '~smooth_pose'):
++            resolved = rospy.resolve_name(name)
++            if not resolved.startswith('/ev_shadow/'):
++                raise ValueError('shadow outputs must stay under /ev_shadow, cannot drive flight')
++            self.pubs.append(rospy.Publisher(name, PoseStamped, queue_size=1))
++        self.status = rospy.Publisher('~status', String, queue_size=1)
++        self.imu_sub = rospy.Subscriber(rospy.get_param('~imu_topic'), ImuMsg, self.imu_cb,
++                                       queue_size=500, tcp_nodelay=True)
++        self.state_sub = rospy.Subscriber(rospy.get_param('~state_topic'), PredictionState,
++                                         self.state_cb, queue_size=1, tcp_nodelay=True)
++        self.timer = rospy.Timer(rospy.Duration(1/self.rate), self.tick)
++
++    def imu_cb(self, msg):
++        with self.lock:
++            self.predictor.add_imu(Imu(msg.header.stamp.to_sec(), vector(msg.linear_acceleration),
++                                      vector(msg.angular_velocity), msg.header.frame_id),
++                                   rospy.Time.now().to_sec())
++
++    def state_cb(self, msg):
++        with self.lock:
++            if not msg.valid:
++                if self.predictor.state is None:
++                    self.predictor.reason = 'waiting_for_valid_source_state'
++                else:
++                    self.predictor.fail('source_state_invalid')
++                return
++            try:
++                self.predictor.correction(snapshot(msg), rospy.Time.now().to_sec())
++            except (ValueError, TypeError) as exc:
++                self.predictor.fail(str(exc))
++
++    def tick(self, _event):
++        with self.lock:
++            now = rospy.Time.now().to_sec()
++            pair = self.predictor.output(now)
++            if pair is not None and (self.last_stamp is None or pair[0].t > self.last_stamp+1e-7):
++                self.last_stamp = pair[0].t
++                for state, pub in zip(pair, self.pubs):
++                    out = PoseStamped()
++                    out.header.frame_id = state.frame
++                    out.header.stamp = rospy.Time.from_sec(state.t)
++                    # Transform only the reference point, as in existing EV bridge.
++                    # Mounting rotation/world alignment are not guessed here.
++                    p = state.p+state.r@self.body_xyz
++                    out.pose.position.x, out.pose.position.y, out.pose.position.z = p
++                    mat = np.eye(4)
++                    mat[:3, :3] = state.r
++                    q = quaternion_from_matrix(mat)
++                    out.pose.orientation.x, out.pose.orientation.y, out.pose.orientation.z, out.pose.orientation.w = q
++                    pub.publish(out)
++            if now-self.last_status >= 1/self.status_rate or now < self.last_status:
++                self.last_status = now
++                s, c = self.predictor.state, self.predictor.correction_t
++                data = dict(reason=self.predictor.reason, fault=self.predictor.fault,
++                            shadow_only=True, valid=pair is not None,
++                            output_age=None if s is None else now-s.t,
++                            correction_age=None if c is None else now-c,
++                            imu_cache=len(self.predictor.imu), stats=self.predictor.stats)
++                self.status.publish(String(data=json.dumps(data, allow_nan=False)))
++
++
++if __name__ == '__main__':
++    rospy.init_node('ev_shadow')
++    Shadow()
++    rospy.spin()
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/src/IMU_Processing.hpp
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/src/IMU_Processing.hpp
+@@ -62,6 +62,10 @@
+   double first_lidar_time;
+   int lidar_type;
+ 
++  // Immutable calibration metadata for an independent shadow IMU predictor.
++  double prediction_accel_scale() const { return G_m_s2 / mean_acc.norm(); }
++  bool prediction_initialized() const { return !imu_need_init_; }
++
+  private:
+   void IMU_init(const MeasureGroup &meas, esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, int &N);
+   void UndistortPcl(const MeasureGroup &meas, esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, PointCloudXYZI &pcl_in_out);
+--- a/patrol_uav_ws-patrol_planner/src/FAST_LIO/src/laserMapping.cpp
++++ b/patrol_uav_ws-patrol_planner/src/FAST_LIO/src/laserMapping.cpp
+@@ -59,6 +59,7 @@
+ #include <tf/transform_broadcaster.h>
+ #include <geometry_msgs/Vector3.h>
+ #include <livox_ros_driver2/CustomMsg.h>
++#include <fast_lio/PredictionState.h>
+ #include <diagnostic_msgs/DiagnosticArray.h>
+ #include <time.h>
+ #include "preprocess.h"
+@@ -79,7 +80,11 @@
+ bool   map_pub_en = false;
+ double map_publish_period = 1.0;
+ double map_shift_distance = 0.0;
+-ros::Publisher realtime_pub;
++bool prediction_state_en = false;
++bool prediction_clock_valid = true;
++uint64_t prediction_epoch = 0;
++string prediction_imu_frame;
++ros::Publisher prediction_state_pub, realtime_pub;
+ /**************************/
+ 
+ vector<float> res_last;
+@@ -297,6 +302,7 @@
+         lidar_buffer.clear();
+         time_buffer.clear();
+         lidar_pushed = false;
++        prediction_clock_valid = false;
+     }
+ 
+     PointCloudXYZI::Ptr  ptr(new PointCloudXYZI());
+@@ -322,6 +328,7 @@
+         lidar_buffer.clear();
+         time_buffer.clear();
+         lidar_pushed = false;
++        prediction_clock_valid = false;
+     }
+     last_timestamp_lidar = msg->header.stamp.toSec();
+     
+@@ -368,6 +375,7 @@
+     {
+         ROS_WARN("imu loop back, clear buffer");
+         imu_buffer.clear();
++        prediction_clock_valid = false;
+     }
+ 
+     last_timestamp_imu = timestamp;
+@@ -648,6 +656,43 @@
+     br.sendTransform( tf::StampedTransform( transform, odomAftMapped.header.stamp, "camera_init", "body" ) );
+ }
+ 
++void publish_prediction_state()
++{
++    if (!prediction_state_en || prediction_state_pub.getNumSubscribers() == 0) return;
++    fast_lio::PredictionState msg;
++    msg.header = odomAftMapped.header;
++    msg.imu_frame = prediction_imu_frame;
++    msg.epoch = prediction_epoch;
++    msg.valid = prediction_clock_valid && p_imu->prediction_initialized() && effct_feat_num >= 5;
++    msg.pose = odomAftMapped.pose.pose;
++    auto set_vector = [](geometry_msgs::Vector3 &out, const V3D &v) {
++        out.x=v.x(); out.y=v.y(); out.z=v.z();
++    };
++    set_vector(msg.velocity, state_point.vel);
++    set_vector(msg.gyro_bias, state_point.bg);
++    set_vector(msg.accel_bias, state_point.ba);
++    set_vector(msg.gravity, V3D(state_point.grav));
++    Eigen::Matrix<double, 18, 23> J = Eigen::Matrix<double, 18, 23>::Zero();
++    J.block<6, 6>(0, 0).setIdentity();
++    J.block<9, 9>(6, 12).setIdentity();
++    Eigen::Matrix<double, 3, 2> gravity_J;
++    Eigen::Matrix<double, 2, 1> zero = Eigen::Matrix<double, 2, 1>::Zero();
++    state_point.S2_Mx(gravity_J, zero, 21);
++    J.block<3, 2>(15, 21) = gravity_J;
++    Eigen::Matrix<double, 18, 18> P = J * kf.get_P() * J.transpose();
++    for (int i=0; i<18; ++i) for (int j=0; j<18; ++j) msg.covariance[i*18+j]=P(i,j);
++    for (int i=0; i<3; ++i) {
++        msg.process_noise[i]=p_imu->cov_gyr[i];
++        msg.process_noise[i+3]=p_imu->cov_acc[i];
++        msg.process_noise[i+6]=p_imu->cov_bias_gyr[i];
++        msg.process_noise[i+9]=p_imu->cov_bias_acc[i];
++    }
++    msg.accel_scale = p_imu->prediction_accel_scale();
++    msg.imu_time_offset = (time_sync_en && abs(timediff_lidar_wrt_imu)>0.1)
++        ? timediff_lidar_wrt_imu : -time_diff_lidar_to_imu;
++    prediction_state_pub.publish(msg);
++}
++
+ double thread_cpu_seconds()
+ {
+     timespec ts{};
+@@ -826,6 +871,10 @@
+     ros::init(argc, argv, "laserMapping");
+     ros::NodeHandle nh;
+     ros::NodeHandle private_nh("~");
++    private_nh.param<bool>("prediction_state_enabled", prediction_state_en, false);
++    private_nh.param<string>("prediction_imu_frame", prediction_imu_frame, "livox_frame");
++    prediction_epoch = ros::WallTime::now().toNSec();
++    prediction_state_pub = private_nh.advertise<fast_lio::PredictionState>("prediction_state", 1);
+     realtime_pub = private_nh.advertise<diagnostic_msgs::DiagnosticArray>("realtime", 1);
+ 
+     nh.param<bool>("publish/path_en",path_en, true);
+@@ -1051,6 +1100,7 @@
+ 
+             /******* Publish odometry *******/
+             publish_odometry(pubOdomAftMapped);
++            publish_prediction_state();
+ 
+             /*** add the feature points to map kdtree ***/
+             t3 = omp_get_wtime();

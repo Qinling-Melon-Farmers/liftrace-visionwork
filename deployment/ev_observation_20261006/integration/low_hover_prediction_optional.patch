@@ -1,0 +1,18 @@
+--- a/deployment/low_hover_observation/localization.launch
++++ b/deployment/low_hover_observation/localization.launch
+@@ -1,4 +1,6 @@
+ <launch>
++  <arg name="enable_prediction_state" default="false"/>
++  <arg name="prediction_imu_frame" default="livox_frame"/>
+   <!-- Observation-only localization: no camera, mapping, planner, mission or servo. -->
+   <arg name="lio_config" default="$(find uav_mission)/config/mid360_hardware.yaml"/>
+   <arg name="board_load" default="$(dirname)/../board_trials_4x4/common/uav_board_trials/config/board_load.yaml"/>
+@@ -8,6 +10,8 @@
+   <rosparam file="$(arg lio_config)"/>
+   <rosparam file="$(arg board_load)"/>
+   <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen">
++    <param name="prediction_state_enabled" value="$(arg enable_prediction_state)"/>
++    <param name="prediction_imu_frame" value="$(arg prediction_imu_frame)"/>
+     <env name="OMP_WAIT_POLICY" value="PASSIVE"/>
+     <env name="OMP_PROC_BIND" value="close"/>
+     <env name="OMP_PLACES" value="$(arg lio_omp_places)"/>

@@ -1,0 +1,222 @@
+[
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/.gitignore",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/.gitmodules",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/CMakeLists.txt",
+    "difference": "modify"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/avia.yaml",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/ev_shadow.yaml",
+    "difference": "add"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/horizon.yaml",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/marsim.yaml",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/mid360.yaml",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/mid360_sim.yaml",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/ouster64.yaml",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/velodyne.yaml",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/Exp_mat.h",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/esekfom/esekfom.hpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/esekfom/util.hpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/build_manifold.hpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/src/SubManifold.hpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/src/mtkmath.hpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/src/vectview.hpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/startIdx.hpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/types/S2.hpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/types/SOn.hpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/types/vect.hpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/IKFoM_toolkit/mtk/types/wrapped_cv_mat.hpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/common_lib.h",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/ikd-Tree/README.md",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/ikd-Tree/ikd_Tree.cpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/ikd-Tree/ikd_Tree.h",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/local_map_shift.h",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/matplotlibcpp.h",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/so3_math.h",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/include/use-ikfom.hpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/ev_shadow.launch",
+    "difference": "add"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/gdb_debug_example.launch",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_avia.launch",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_horizon.launch",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_marsim.launch",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_mid360.launch",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_mid360_sim.launch",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_ouster64.launch",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/launch/mapping_velodyne.launch",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/msg/Pose6D.msg",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/msg/PredictionState.msg",
+    "difference": "add"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/package.xml",
+    "difference": "modify"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/rviz_cfg/.gitignore",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/rviz_cfg/loam_livox.rviz",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/scripts/ev_predictor.py",
+    "difference": "add"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/scripts/ev_shadow.py",
+    "difference": "add"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/src/IMU_Processing.hpp",
+    "difference": "modify"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/src/laserMapping.cpp",
+    "difference": "modify"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/src/preprocess.cpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/src/preprocess.h",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/test/imu_process_validity.cpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/test/local_map_shift.cpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/test/matching_buffers.cpp",
+    "difference": "same"
+  },
+  {
+    "path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/test/preprocess_inputs.cpp",
+    "difference": "same"
+  }
+]

@@ -84,11 +84,13 @@ include_directories(
 add_message_files(
   FILES
   Pose6D.msg
+  PredictionState.msg
 )
 
 generate_messages(
  DEPENDENCIES
  geometry_msgs
+ std_msgs
 )
 
 catkin_package(

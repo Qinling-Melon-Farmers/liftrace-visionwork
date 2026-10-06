@@ -1,0 +1,4 @@
+verification/.tmp/
+verification/synthetic_demo/*.png
+__pycache__/
+*.pyc

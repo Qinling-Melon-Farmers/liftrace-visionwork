@@ -62,6 +62,10 @@ class ImuProcess
   double first_lidar_time;
   int lidar_type;
 
+  // Immutable calibration metadata for an independent shadow IMU predictor.
+  double prediction_accel_scale() const { return G_m_s2 / mean_acc.norm(); }
+  bool prediction_initialized() const { return !imu_need_init_; }
+
  private:
   void IMU_init(const MeasureGroup &meas, esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, int &N);
   void UndistortPcl(const MeasureGroup &meas, esekfom::esekf<state_ikfom, 12, input_ikfom> &kf_state, PointCloudXYZI &pcl_in_out);

@@ -18,7 +18,9 @@ class MotionProfiles(unittest.TestCase):
             return [yaml.safe_load((Path(out)/f).read_text()) for f in ('runtime.yaml','control.yaml','overrides.yaml')]
     def test_all_nine_profiles_keep_release_and_height_limits(self):
         for trial in TRIAL_FOLDERS:
-            s=self.config(trial);before=self.generate(s)
+            s=self.config(trial)
+            self.assertTrue(s['motion_optimization']['enabled'])
+            s['motion_optimization']={**s['motion_optimization'],'enabled':False};before=self.generate(s)
             s['motion_optimization']={'enabled':True};after=self.generate(s)
             self.assertTrue(after[0]['motion_optimization']['enabled'])
             for key in ('align_height','drop_system','external_landing'):
