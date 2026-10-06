@@ -172,4 +172,19 @@ class ConflictTests(unittest.TestCase):
               ('/mavros/setpoint_trajectory/desired',['/other'])]
         self.assertEqual(len(conflicts(SimpleNamespace(getSystemState=lambda:(pubs,[],[])),'/test')),3)
 
+class SnapshotOrderTests(unittest.TestCase):
+    def test_callback_arriving_at_lock_uses_later_comparison_clock(self):
+        from flight import snapshot_clocked
+        data={}; clock=[10.]
+        class Lock:
+            def __enter__(self):
+                clock[0]+=.000076
+                data['pose']=(clock[0],clock[0])
+            def __exit__(self,*args):pass
+        snapshot,wall,now=snapshot_clocked(Lock(),data,lambda:clock[0],lambda:clock[0])
+        self.assertGreaterEqual(now,snapshot['pose'][0])
+        self.assertGreaterEqual(wall,snapshot['pose'][1])
+        data['pose']=(99.,99.)
+        self.assertNotEqual(snapshot['pose'],data['pose'])
+
 if __name__=='__main__':unittest.main()

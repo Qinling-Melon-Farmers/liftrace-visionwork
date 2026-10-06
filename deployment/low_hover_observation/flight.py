@@ -47,6 +47,14 @@ def valid_speed(message, frame, now, age, received_age):
     return speed if math.isfinite(speed) else math.inf
 
 
+def snapshot_clocked(lock, data, monotonic, ros_now):
+    # A callback can arrive while acquiring the lock. Sample clocks after the
+    # copied messages, so a newly received pose cannot appear to be in future.
+    with lock:
+        snapshot = dict(data)
+    return snapshot, monotonic(), ros_now()
+
+
 def conflicts(master, caller):
     pubs,subs,services=master.getSystemState()
     blocked=[]
@@ -167,8 +175,8 @@ def main():
         next_tick=time.monotonic();last_status=0.;announced=False;previous_stage=None
         print('PRESTREAM: keep disarmed for two seconds, then manually arm and switch OFFBOARD',flush=True)
         while not rospy.is_shutdown():
-            wall=time.monotonic();now=rospy.Time.now().to_sec()
-            with lock:snapshot=dict(data)
+            snapshot,wall,now=snapshot_clocked(
+                lock,data,time.monotonic,lambda:rospy.Time.now().to_sec())
             state,state_rx=snapshot.get('state',(None,0));msg,pose_rx=snapshot.get('pose',(None,0))
             state_fresh=state is not None and wall-state_rx<=c['state_max_age']
             connected=bool(state_fresh and state.connected)
