@@ -3,15 +3,24 @@
 import math
 import copy
 import threading
+from collections import deque
 
 import rospy
+import cv2
+import tf2_ros
+from geometry_msgs.msg import Point
 from std_msgs.msg import String
 from sensor_msgs.msg import CameraInfo
 from image_geometry import PinholeCameraModel
 
 from uav_vision.msg import (
     AlignmentTargetContext, DropOffset, DropReady, ReleaseEvidence,
-    ReleaseEvidenceContext, TargetCandidate, TargetCandidateArray,
+    ReleaseEvidenceContext, TargetCandidate, TargetCandidateArray, TargetDetectionArray,
+)
+from uav_vision.ground_projection import intersect_ground
+from uav_vision.drop_geometry_policy import (
+    ObservationFence, observation_age, calibrated_camera_info,
+    match_source_frame, slot_goal, pixel_equivalent_limit,
 )
 from uav_vision.alignment_context_policy import (
     COMMAND_ALIGN, associate_geometry, context_frozen_key,
@@ -74,6 +83,43 @@ class DropAligner:
         self._camera_model = PinholeCameraModel()
         self._camera_ready = False
         self._state_lock = threading.RLock()
+        self._frame_fence = ObservationFence()
+        self._exact_projection = bool(rospy.get_param("~exact_drop_projection", False))
+        self._mapped_frames = deque(maxlen=64)
+        self._calibrations = deque(maxlen=64)
+        self._projection_jacobians = {}
+        self._projection_principal_points = {}
+        self._pending_targets = None
+        if self._exact_projection:
+            if not self._require_alignment_context or not self._use_camera_info:
+                raise ValueError("exact_drop_projection requires alignment context and CameraInfo")
+            self._map_frame = rospy.get_param("~map_frame", "camera_init")
+            self._body_frame = rospy.get_param("~body_frame", "vision_body")
+            self._ground_z = float(rospy.get_param("~ground_z", 0.0))
+            # Zero inherits the existing pixel tolerance through exposure geometry.
+            self._max_error_m = float(rospy.get_param("~max_alignment_error_m", 0.0))
+            self._camera_info_max_skew = float(rospy.get_param("~camera_info_max_skew_sec", 0.10))
+            self._camera_info_mode = rospy.get_param("~camera_info_mode", "fixed")
+            self._allow_static_camera_info = bool(rospy.get_param("~allow_static_camera_info", True))
+            self._body_max_age = float(rospy.get_param("~body_pose_max_age_sec", 0.10))
+            self._tf_timeout = float(rospy.get_param("~tf_timeout", 0.05))
+            self._rectify_input_pixels = bool(rospy.get_param("~rectify_input_pixels", True))
+            self._slot_mode = rospy.get_param("~slot_compensation_mode", "physical_body_position")
+            # One source of measured extrinsics: the controller's parameter tree.
+            self._slot_parameter_ns = rospy.get_param("~slot_parameter_namespace", "/drop_system")
+            self._slot_positions_body = rospy.get_param("~slot_positions_body", [])
+            if (not self._map_frame or not self._body_frame or
+                    self._slot_mode not in ("zero", "physical_body_position", "legacy_body_target_shift") or
+                    self._camera_info_mode not in ("fixed", "per_frame") or
+                    not math.isfinite(self._ground_z) or
+                    not math.isfinite(self._max_error_m) or self._max_error_m < 0 or
+                    any(not math.isfinite(v) or v <= 0 for v in
+                        (self._camera_info_max_skew, self._body_max_age, self._tf_timeout))):
+                raise ValueError("invalid exact drop projection configuration")
+            self._tf_buffer = tf2_ros.Buffer(cache_time=rospy.Duration(30.0))
+            self._tf_listener = tf2_ros.TransformListener(self._tf_buffer)
+            rospy.Subscriber(rospy.get_param("~mapped_detections_topic", "/uav_vision/detections_mapped"),
+                             TargetDetectionArray, self._on_mapped_frame, queue_size=1)
 
         self._consecutive_ok = 0
         self._align_mode = self._default_mode
@@ -121,10 +167,119 @@ class DropAligner:
 
     def _on_camera_info(self, msg):
         with self._state_lock:
+            if getattr(self, "_exact_projection", False):
+                # Keep independent models: a newer callback must not mutate a
+                # calibration already paired with an earlier exposure.
+                info = copy.deepcopy(msg)
+                if info.header.stamp.to_sec() == 0 and self._calibrations:
+                    old = self._calibrations[-1][0]
+                    signature = lambda m: (m.header.frame_id, m.width, m.height,
+                                           tuple(m.K), tuple(m.P), tuple(m.R), tuple(m.D),
+                                           m.distortion_model, m.binning_x, m.binning_y,
+                                           m.roi.x_offset, m.roi.y_offset, m.roi.width, m.roi.height, m.roi.do_rectify)
+                    # A changed un-stamped calibration becomes effective at
+                    # receipt, never retroactively for earlier images.
+                    info.header.stamp = old.header.stamp if signature(old) == signature(info) else rospy.Time.now()
+                if not calibrated_camera_info(info, info.header.frame_id):
+                    self._calibrations.append((info, None))
+                    return
+                model = PinholeCameraModel()
+                model.fromCameraInfo(info)
+                self._calibrations.append((info, model))
             self._camera_model.fromCameraInfo(msg)
             self._target_cx = float(self._camera_model.cx())
             self._target_cy = float(self._camera_model.cy())
             self._camera_ready = True
+
+    def _on_mapped_frame(self, msg):
+        with self._state_lock:
+            self._mapped_frames.append(copy.deepcopy(msg))
+            pending = getattr(self, "_pending_targets", None)
+            if pending is not None:
+                self._pending_targets = None
+                self._on_targets_locked(pending)
+
+    def _project_current_target(self, target):
+        frame = next((f for f in reversed(self._mapped_frames)
+                      if f.header.stamp == target.last_seen), None)
+        if frame is None:
+            raise ValueError("source_observation_missing")
+        source_frame = match_source_frame(target, frame)
+        stamp = target.last_seen.to_sec()
+        eligible = [(info, model) for info, model in reversed(self._calibrations)
+                    if info.header.frame_id == source_frame and
+                    ((0 < info.header.stamp.to_sec() <= stamp and
+                      (self._camera_info_mode == "fixed" or
+                       stamp-info.header.stamp.to_sec() <= self._camera_info_max_skew)) or
+                     (info.header.stamp.to_sec() == 0 and self._allow_static_camera_info and
+                      self._camera_info_mode == "fixed"))]
+        if not eligible:
+            raise ValueError("camera_info_unavailable_at_exposure")
+        info, model = max(eligible, key=lambda item: item[0].header.stamp.to_sec())
+        if model is None or not calibrated_camera_info(info, source_frame):
+            raise ValueError("camera_info_invalid")
+        pixel = (float(target.center_px.x), float(target.center_px.y))
+        if not all(math.isfinite(v) for v in pixel) or not (
+                0 <= pixel[0] < info.width and 0 <= pixel[1] < info.height):
+            raise ValueError("pixel_invalid")
+        transform = self._tf_buffer.lookup_transform(
+            self._map_frame, source_frame, target.last_seen, rospy.Duration(self._tf_timeout))
+        # Exact lookup only. A dynamic timestamp mismatch is never accepted.
+        if (transform.header.stamp.to_sec() > 0 and
+                transform.header.stamp != target.last_seen):
+            raise ValueError("tf_not_at_exposure")
+        if transform.header.frame_id != self._map_frame or transform.child_frame_id != source_frame:
+            raise ValueError("tf_frame_mismatch")
+        t, q = transform.transform.translation, transform.transform.rotation
+        def project(raw_pixel):
+            rectified = model.rectifyPoint(raw_pixel) if (
+                self._rectify_input_pixels and any(abs(v) > 1e-12 for v in info.D)) else raw_pixel
+            return intersect_ground(model.projectPixelTo3dRay(rectified),
+                                    (t.x, t.y, t.z), (q.x, q.y, q.z, q.w), self._ground_z)
+        point = project(pixel)
+        left, right = project((pixel[0]-1, pixel[1])), project((pixel[0]+1, pixel[1]))
+        up, down = project((pixel[0], pixel[1]-1)), project((pixel[0], pixel[1]+1))
+        self._projection_jacobians[(target.id, target.last_seen.to_nsec())] = (
+            (right[0]-left[0])/2, (down[0]-up[0])/2,
+            (right[1]-left[1])/2, (down[1]-up[1])/2)
+        self._projection_principal_points[(target.id, target.last_seen.to_nsec())] = (model.cx(), model.cy())
+        current = copy.deepcopy(target)
+        current.header.frame_id = source_frame
+        current.header.stamp = target.last_seen
+        current.map_valid = True
+        current.map_frame = self._map_frame
+        current.map_point = Point(*point)
+        current.transform_age_sec = 0.0
+        return current
+
+    def _metric_goal(self, target):
+        # Latest *body* pose is used for present alignment and yaw compensation;
+        # target projection above always uses the exposure camera transform.
+        body = self._tf_buffer.lookup_transform(
+            self._map_frame, self._body_frame, rospy.Time(0), rospy.Duration(self._tf_timeout))
+        if (body.header.frame_id != self._map_frame or body.child_frame_id != self._body_frame or
+                observation_age(body.header.stamp.to_sec(), rospy.Time.now().to_sec()) > self._body_max_age):
+            raise ValueError("body_pose_stale_or_invalid")
+        t, q = body.transform.translation, body.transform.rotation
+        if not all(math.isfinite(v) for v in (q.x, q.y, q.z, q.w)) or abs(
+                q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w-1) > 1e-3:
+            raise ValueError("body_pose_invalid_quaternion")
+        context = self._alignment_context
+        offsets = [(0., 0.)]*3
+        if self._slot_mode == "physical_body_position":
+            offsets = self._slot_positions_body
+        elif self._slot_mode != "zero":
+            key = "dynamic_slot_offsets" if self._align_mode == "drop_cross" else "slot_offsets"
+            offsets = rospy.get_param(self._slot_parameter_ns+"/"+key)
+        if len(offsets) != 3 or any(len(value) != 2 for value in offsets):
+            raise ValueError("slot_offsets_invalid")
+        p = target.map_point
+        goal, error = slot_goal((p.x, p.y, p.z), (t.x, t.y, t.z), (q.x, q.y, q.z, q.w),
+                                int(context.payload_slot), offsets, self._slot_mode)
+        limit = self._max_error_m or pixel_equivalent_limit(
+            self._projection_jacobians[(target.id, target.last_seen.to_nsec())],
+            (goal[0]-t.x, goal[1]-t.y), self._max_offset_px)
+        return goal, error, limit
 
     def _sanitize_mode(self, mode):
         return mode if mode in VALID_ALIGN_MODES else "disabled"
@@ -168,14 +323,21 @@ class DropAligner:
                 self._clear_stability()
                 self._last_context_watchdog_reason = None
                 return
+            pending = getattr(self, "_pending_targets", None)
+            if pending is not None:
+                latest = max((t.last_seen.to_sec() for t in pending.targets), default=0.)
+                if observation_age(latest, rospy.Time.now().to_sec()) > self._target_max_age:
+                    self._pending_targets = None
+                    self._clear_stability()
+                    self._publish_state(None, False, ["source_observation_timeout"])
+                    self._last_context_watchdog_reason = "source_observation_timeout"
+                    return
             valid, reason = self._base_context_status()
             if valid:
                 if self._active_geometry_last_seen is not None:
-                    observation_age = max(
-                        0.0,
-                        (rospy.Time.now() -
-                         self._active_geometry_last_seen).to_sec())
-                    if observation_age > self._target_max_age:
+                    geometry_age = observation_age(
+                        self._active_geometry_last_seen.to_sec(), rospy.Time.now().to_sec())
+                    if geometry_age > self._target_max_age:
                         reason = "alignment_context_geometry_stale"
                         self._clear_stability()
                         if reason != self._last_context_watchdog_reason:
@@ -263,6 +425,20 @@ class DropAligner:
         if not candidates:
             return None, "stale observation", None
 
+        if getattr(self, "_exact_projection", False) and self._align_mode in ("drop_circle", "drop_cross"):
+            self._projection_jacobians.clear()
+            self._projection_principal_points.clear()
+            projected, failure = [], "projection_unavailable"
+            for target in candidates:
+                try:
+                    projected.append(self._project_current_target(target))
+                except (ValueError, TypeError, cv2.error, tf2_ros.LookupException,
+                        tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as error:
+                    failure = str(error) if isinstance(error, ValueError) else "tf_or_projection_unavailable"
+            candidates = projected
+            if not candidates:
+                return None, failure, None
+
         if self._require_alignment_context:
             matches = []
             mismatches = []
@@ -323,6 +499,24 @@ class DropAligner:
             self._publish_state(None, False, ["no_targets"])
             return
 
+        if getattr(self, "_exact_projection", False) and self._align_mode in ("drop_circle", "drop_cross"):
+            # Independent ROS topics have no callback ordering guarantee. Hold
+            # at most one pending candidate batch until its image metadata
+            # arrives. Do not reset/renew the previous evidence while waiting.
+            latest_ns = getattr(getattr(self, "_frame_fence", None), "latest", 0)
+            observations = [t.last_seen.to_nsec() for t in msg.targets if
+                            t.class_name in MODE_CLASS_MAP[self._align_mode] and
+                            t.state >= CONFIRMED_STATE and t.center_refined and
+                            self._observation_age(t) <= self._target_max_age and
+                            t.last_seen.to_nsec() > latest_ns]
+            available = {f.header.stamp.to_nsec() for f in self._mapped_frames}
+            if any(stamp not in available for stamp in observations):
+                pending = getattr(self, "_pending_targets", None)
+                pending_ns = max((t.last_seen.to_nsec() for t in pending.targets), default=0) if pending else 0
+                if max(observations) >= pending_ns:
+                    self._pending_targets = copy.deepcopy(msg)
+                return
+
         best, reason, chosen_context_status = self._choose_target(msg)
         if best is None:
             self._clear_stability()
@@ -348,6 +542,29 @@ class DropAligner:
                 best, False, [context_target_status[1]], context_target_status)
             return
 
+        age = self._observation_age(best)
+        if age > self._target_max_age:
+            self._clear_stability()
+            self._publish_state(
+                best, False, ["stale_observation"], context_target_status)
+            return
+
+        is_drop = self._align_mode in ("drop_circle", "drop_cross")
+        if is_drop:
+            if not hasattr(self, "_frame_fence"):
+                self._frame_fence = ObservationFence()
+            admission = self._frame_fence.accept(best.last_seen.to_nsec(), geometry_identity_key(best))
+            if admission in ("duplicate_observation", "out_of_order_observation"):
+                if admission == "duplicate_observation":
+                    # Preserve the original evidence without renewing its
+                    # timestamp or source freshness. Watchdog still expires it.
+                    return
+                # An older packet cannot revoke a newer accepted observation.
+                # Neither its receipt nor this ignored callback extends the lease.
+                return
+            if admission == "new_identity":
+                self._consecutive_ok = 0
+
         if self._require_alignment_context:
             current_geometry_key = geometry_identity_key(best)
             if (self._active_geometry_key is not None and
@@ -356,15 +573,11 @@ class DropAligner:
             self._active_geometry_key = current_geometry_key
             self._active_geometry_last_seen = best.last_seen
 
-        age = self._observation_age(best)
-        if age > self._target_max_age:
-            self._clear_stability()
-            self._publish_state(
-                best, False, ["stale_observation"], context_target_status)
-            return
-
-        dx = best.center_px.x - self._target_cx
-        dy = best.center_px.y - self._target_cy
+        cx, cy = self._target_cx, self._target_cy
+        if getattr(self, "_exact_projection", False) and is_drop:
+            cx, cy = self._projection_principal_points[(best.id, best.last_seen.to_nsec())]
+        dx = best.center_px.x - cx
+        dy = best.center_px.y - cy
         dist = (dx * dx + dy * dy) ** 0.5
 
         # 置信度低于阈值的，不发有效偏移
@@ -385,9 +598,26 @@ class DropAligner:
         offset.dy_px = dy
         offset.radius_px = best.center_px.z
         offset.quality = best.geometry_confidence
+        if getattr(self, "_exact_projection", False) and is_drop:
+            try:
+                goal, error, limit = self._metric_goal(best)
+            except (ValueError, TypeError, KeyError, tf2_ros.LookupException,
+                    tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                self._clear_stability()
+                self._publish_state(best, False, ["slot_or_body_geometry_invalid"], context_target_status)
+                return
+            offset.map_valid = True
+            offset.map_point = Point(*goal)
+            offset.map_frame = self._map_frame
+            offset.alignment_error_m = error
+            offset.alignment_tolerance_m = limit
+            offset.target_id = best.id
+            offset.target_first_seen = best.first_seen
+            aligned = error <= limit
+        else:
+            aligned = dist <= self._max_offset_px
         self._offset_pub.publish(offset)
 
-        aligned = dist <= self._max_offset_px
         if aligned:
             self._consecutive_ok += 1
         else:
@@ -403,9 +633,7 @@ class DropAligner:
 
     @staticmethod
     def _observation_age(target):
-        if target.last_seen.to_sec() <= 0.0:
-            return float("inf")
-        return max(0.0, (rospy.Time.now() - target.last_seen).to_sec())
+        return observation_age(target.last_seen.to_sec(), rospy.Time.now().to_sec())
 
     def _publish_state(self, target, aligned, rejection_reasons,
                        context_status=None):

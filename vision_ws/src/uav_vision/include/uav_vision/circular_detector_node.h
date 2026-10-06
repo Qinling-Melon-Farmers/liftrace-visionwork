@@ -76,6 +76,7 @@ private:
   double duplicate_center_ratio_;
   int max_candidates_;
   bool reject_border_clipped_;
+  bool quality_ordered_nms_;
 
   // 预处理
   int blur_kernel_size_;

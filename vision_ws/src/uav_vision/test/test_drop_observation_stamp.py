@@ -121,7 +121,7 @@ class DropObservationStampTest(unittest.TestCase):
         self.clock.return_value = rospy.Time.from_sec(100.1)
         self.publish(node, target)
         offsets = [call.args[0] for call in node._offset_pub.publish.call_args_list]
-        self.assertEqual(len(offsets), 2)
+        self.assertEqual(len(offsets), 1)
         self.assertTrue(all(offset.header.stamp == target.last_seen for offset in offsets))
         self.assertEqual(target.header.stamp, rospy.Time.from_sec(100.1))
 

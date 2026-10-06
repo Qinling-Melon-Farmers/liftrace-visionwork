@@ -1,0 +1,10 @@
+{
+  "base_snapshot": "legacy_baseline/20261006/posctl_handoff",
+  "source_worktree": "/home/xhj/liftrace-worktrees/r2026-high-view-search",
+  "source_revision": "798171f551db95fa7263f8f803cfe07fcb710d01",
+  "purpose": "Minimal incremental legacy protection before exact drop geometry patch; restore base then this delta",
+  "files_sha256": {
+    "src/patrol_control.cpp": "030cc1b6c393f322be11a74e21d74b0208e2e0c422cb7694c100dfa425a34ddc",
+    "include/patrol_control/patrol_control.h": "9accb0a6dc693117e39aaa6c01642ccd71d67f19bb151d7a2c75c181e0c08068"
+  }
+}

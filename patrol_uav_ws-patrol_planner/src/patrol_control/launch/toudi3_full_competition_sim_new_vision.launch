@@ -25,6 +25,10 @@
   <arg name="allow_latest_tf_fallback" default="false" />
   <arg name="max_latest_tf_age_sec" default="0.10" />
   <arg name="drop_stable_frames" default="5" />
+  <arg name="exact_drop_projection" default="false" />
+  <arg name="drop_body_frame" default="vision_body" />
+  <arg name="drop_camera_frame" default="downward_camera_optical_frame" />
+  <arg name="drop_max_alignment_error_m" default="0.0" />
   <arg name="class_profile" default="full" />
   <arg name="require_alignment_context" default="false" />
   <arg name="start_legacy_compat" default="true" />
@@ -86,6 +90,10 @@
   </include>
 
   <include file="$(find uav_vision)/launch/phase_d.launch">
+    <arg name="exact_drop_projection" value="$(arg exact_drop_projection)" />
+    <arg name="drop_body_frame" value="$(arg drop_body_frame)" />
+    <arg name="drop_slot_compensation_mode" value="zero" />
+    <arg name="drop_max_alignment_error_m" value="$(arg drop_max_alignment_error_m)" />
     <arg name="image_topic" value="$(arg camera_image_topic)" />
     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
     <arg name="target_detector_launch_prefix" value="$(arg vision_python)" />
@@ -101,4 +109,10 @@
          value="$(arg require_alignment_context)" />
     <arg name="start_legacy_compat" value="$(arg start_legacy_compat)" />
   </include>
+  <param name="uav_vision/drop_exact_projection_enabled" value="$(arg exact_drop_projection)" />
+  <param if="$(arg exact_drop_projection)" name="uav_vision/drop_exact_alignment_max_error_m" value="$(arg drop_max_alignment_error_m)" />
+  <param if="$(arg exact_drop_projection)" name="uav_vision/drop_map_frame" value="$(arg map_frame)" />
+  <param if="$(arg exact_drop_projection)" name="uav_vision/drop_camera_frame" value="$(arg drop_camera_frame)" />
+  <param if="$(arg exact_drop_projection)" name="uav_vision/drop_ground_z" value="$(arg ground_z)" />
+  <param if="$(arg exact_drop_projection)" name="uav_vision/drop_offset_timeout" value="0.5" />
 </launch>

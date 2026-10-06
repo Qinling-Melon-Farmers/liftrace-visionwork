@@ -1,4 +1,5 @@
 #include <uav_vision/circular_detector_node.h>
+#include <uav_vision/circle_geometry.h>
 
 #include <algorithm>
 #include <cmath>
@@ -47,6 +48,10 @@ void CircularDetectorNode::loadParameters()
   nh_.param("circle_duplicate_center_ratio", duplicate_center_ratio_, 0.45);
   nh_.param("circle_max_candidates", max_candidates_, 12);
   nh_.param("circle_reject_border_clipped", reject_border_clipped_, true);
+  // Offline comparisons found inner/outer-ring switching with the legacy
+  // vertex-count score. Keep the ranked candidate opt-in until centre quality
+  // is validated; do not silently change the calibrated confidence thresholds.
+  nh_.param("circle_quality_ordered_nms", quality_ordered_nms_, false);
 
   // 预处理
   nh_.param("circle_blur_kernel_size", blur_kernel_size_, 5);
@@ -217,6 +222,7 @@ bool CircularDetectorNode::detectBlueCircles(
     cv::Mat &debug_mask,
     std::vector<std::vector<cv::Point>> &contours)
 {
+  candidates.clear();
   cv::Mat hsv, mask;
   cv::Mat filtered = image;
   if (blur_kernel_size_ > 1) {
@@ -261,6 +267,8 @@ bool CircularDetectorNode::detectBlueCircles(
     if (clipped && reject_border_clipped_) continue;
 
     const double perimeter = std::max(1.0, 2.0 * CV_PI * r);
+    // Legacy score: SIMPLE vertex density is not visible arc coverage. Keep
+    // its calibrated scale; ellipseSupport provides separate offline metrics.
     const double contour_density = std::min(1.0,
         static_cast<double>(contour.size()) / (perimeter * 0.8));
     const double aspect_quality = std::min(1.0, ar);
@@ -271,28 +279,33 @@ bool CircularDetectorNode::detectBlueCircles(
     if (quality < min_quality_) continue;
 
     bool duplicate = false;
-    for (const CircleCandidate &kept : candidates) {
-      const double dx = kept.ellipse.center.x - ellipse.center.x;
-      const double dy = kept.ellipse.center.y - ellipse.center.y;
-      const double distance = std::sqrt(dx * dx + dy * dy);
-      const double duplicate_radius = std::max(kept.ellipse.size.width,
-                                                kept.ellipse.size.height) *
-                                      duplicate_center_ratio_;
-      if (distance < duplicate_radius) {
-        duplicate = true;
-        break;
+    if (!quality_ordered_nms_) {
+      for (const CircleCandidate &kept : candidates) {
+        const double dx = kept.ellipse.center.x - ellipse.center.x;
+        const double dy = kept.ellipse.center.y - ellipse.center.y;
+        const double distance = std::sqrt(dx * dx + dy * dy);
+        const double duplicate_radius = std::max(kept.ellipse.size.width,
+                                                 kept.ellipse.size.height) *
+                                       duplicate_center_ratio_;
+        if (distance < duplicate_radius) {
+          duplicate = true;
+          break;
+        }
       }
     }
-    if (!duplicate)
-      candidates.push_back(CircleCandidate{ellipse, quality});
+    if (!duplicate) candidates.push_back(CircleCandidate{ellipse, quality});
   }
 
-  std::sort(candidates.begin(), candidates.end(),
-            [](const CircleCandidate &a, const CircleCandidate &b) {
-              return a.quality > b.quality;
-            });
-  if (static_cast<int>(candidates.size()) > max_candidates_)
-    candidates.resize(max_candidates_);
+  if (quality_ordered_nms_) {
+    qualityOrderedCircleNms(candidates, duplicate_center_ratio_, max_candidates_);
+  } else {
+    std::sort(candidates.begin(), candidates.end(),
+              [](const CircleCandidate &a, const CircleCandidate &b) {
+                return a.quality > b.quality;
+              });
+    if (static_cast<int>(candidates.size()) > max_candidates_)
+      candidates.resize(std::max(0, max_candidates_));
+  }
   return !candidates.empty();
 }
 

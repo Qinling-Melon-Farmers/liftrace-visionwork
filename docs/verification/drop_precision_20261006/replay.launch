@@ -1,0 +1,53 @@
+<launch>
+  <!-- Evaluation-only wrapper. The original generated scenes remain frozen. -->
+  <arg name="scene_dir" />
+  <arg name="field_seed" />
+  <arg name="target_model_path" />
+  <arg name="high_agl" default="2.16" />
+  <arg name="resume_survey_enabled" default="false" />
+  <arg name="map_frame" default="camera_init" />
+  <arg name="body_frame" default="vision_body" />
+  <arg name="ground_z" default="-0.22" />
+  <arg name="camera_info_topic" default="/downward_camera/camera_info" />
+  <arg name="camera_frame" default="downward_camera_optical_frame" />
+  <!-- Zero inherits the existing pixel tolerance through exposure geometry;
+       it does NOT mean a zero-metre alignment threshold. No unreviewed 5 cm. -->
+  <arg name="drop_max_alignment_error_m" default="0.0" />
+  <include file="$(find uav_high_view)/../../../docs/verification/seed38_resume_20261005/replay.launch">
+    <arg name="scene_dir" value="$(arg scene_dir)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="high_agl" value="$(arg high_agl)" />
+    <arg name="resume_survey_enabled" value="$(arg resume_survey_enabled)" />
+    <arg name="stop_on_collision" value="false" />
+  </include>
+  <!-- Final overrides after ALL historical includes/YAML. -->
+  <!-- The quality-first ring candidate worsens synthetic center P95. -->
+  <param name="/circle_detector/circle_quality_ordered_nms" type="bool" value="false" />
+  <param name="/drop_aligner/exact_drop_projection" type="bool" value="true" />
+  <param name="/uav_vision/drop_exact_projection_enabled" type="bool" value="true" />
+  <param name="/drop_aligner/use_camera_info" type="bool" value="true" />
+  <param name="/drop_aligner/require_alignment_context" type="bool" value="true" />
+  <param name="/drop_aligner/map_frame" value="$(arg map_frame)" />
+  <param name="/drop_aligner/body_frame" value="$(arg body_frame)" />
+  <param name="/drop_aligner/ground_z" type="double" value="$(arg ground_z)" />
+  <param name="/drop_aligner/camera_info_topic" value="$(arg camera_info_topic)" />
+  <param name="/drop_aligner/rectify_input_pixels" type="bool" value="true" />
+  <param name="/drop_aligner/slot_compensation_mode" value="zero" />
+  <param name="/drop_aligner/slot_parameter_namespace" value="/drop_system" />
+  <rosparam param="/drop_aligner/slot_positions_body">[[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]</rosparam>
+  <param name="/drop_aligner/max_alignment_error_m" type="double" value="$(arg drop_max_alignment_error_m)" />
+  <param name="/uav_vision/drop_exact_alignment_max_error_m" type="double" value="$(arg drop_max_alignment_error_m)" />
+  <param name="/uav_vision/drop_map_frame" value="$(arg map_frame)" />
+  <param name="/uav_vision/drop_camera_frame" value="$(arg camera_frame)" />
+  <param name="/uav_vision/drop_camera_info_topic" value="$(arg camera_info_topic)" />
+  <param name="/uav_vision/drop_ground_z" type="double" value="$(arg ground_z)" />
+  <param name="/uav_vision/drop_offset_timeout" type="double" value="0.5" />
+  <param name="/target_map_projector/map_frame" value="$(arg map_frame)" />
+  <param name="/target_map_projector/ground_z" type="double" value="$(arg ground_z)" />
+  <param name="/target_map_projector/camera_info_topic" value="$(arg camera_info_topic)" />
+  <param name="/target_map_projector/rectify_input_pixels" type="bool" value="true" />
+  <rosparam param="/drop_system/slot_offsets">[[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]</rosparam>
+  <rosparam param="/drop_system/dynamic_slot_offsets">[[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]</rosparam>
+  <param name="/navigation_vcl06_assertion/stop_on_collision" type="bool" value="false" />
+</launch>

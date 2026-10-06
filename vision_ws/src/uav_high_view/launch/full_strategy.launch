@@ -9,6 +9,9 @@
   <arg name="runtime_config" />
   <arg name="gate_geometry_config" />
   <arg name="field_seed" default="32" />
+  <!-- Independent A/B switch; legacy defaults and hardware launch are unchanged. -->
+  <arg name="exact_drop_projection" default="false" />
+  <arg name="drop_max_alignment_error_m" default="0.0" />
   <arg name="ground_z" default="-0.22" />
   <arg name="high_agl" default="2.6" />
   <arg name="initial_plan_timeout" default="12.0" />
@@ -39,6 +42,21 @@
     <arg name="manager_type" value="navigation_high_view_full.py" />
     <arg name="initial_plan_timeout" value="$(arg initial_plan_timeout)" />
   </include>
+  <param name="/drop_aligner/exact_drop_projection" value="$(arg exact_drop_projection)" />
+  <param name="/uav_vision/drop_exact_projection_enabled" value="$(arg exact_drop_projection)" />
+  <group if="$(arg exact_drop_projection)">
+    <param name="/drop_aligner/require_alignment_context" value="true" />
+    <param name="/drop_aligner/map_frame" value="camera_init" />
+    <param name="/drop_aligner/body_frame" value="vision_body" />
+    <param name="/drop_aligner/ground_z" value="$(arg ground_z)" />
+    <param name="/drop_aligner/slot_compensation_mode" value="zero" />
+    <param name="/drop_aligner/max_alignment_error_m" value="$(arg drop_max_alignment_error_m)" />
+    <param name="/uav_vision/drop_exact_alignment_max_error_m" value="$(arg drop_max_alignment_error_m)" />
+    <param name="/uav_vision/drop_map_frame" value="camera_init" />
+    <param name="/uav_vision/drop_camera_frame" value="downward_camera_optical_frame" />
+    <param name="/uav_vision/drop_ground_z" value="$(arg ground_z)" />
+    <param name="/uav_vision/drop_offset_timeout" value="0.5" />
+  </group>
   <param name="/external_planner_max_command_z" value="$(eval float(arg('ground_z'))+3.0)" />
   <param name="/fast_planner_node/fsm/goal_adjustment_radius" value="$(arg high_goal_adjustment_radius)" />
   <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="$(eval float(arg('ground_z'))+3.1)" />

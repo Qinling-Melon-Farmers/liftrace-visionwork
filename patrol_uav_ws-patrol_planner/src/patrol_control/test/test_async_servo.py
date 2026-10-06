@@ -111,6 +111,7 @@ struct ServiceClient {
 namespace mavros_msgs {
 struct State {
     using ConstPtr=std::shared_ptr<const State>;
+    struct { ros::Time stamp=ros::Time(100); } header;
     bool connected=true, armed=true;
     std::string mode="OFFBOARD";
 };
@@ -139,6 +140,9 @@ public:
     bool have_servo_alignment_context_=true;
     struct { std::string permission_epoch="test"; std::uint64_t permission_revision=18; } release_authorization_;
     bool permission_ready=true;
+    bool drop_exact_projection_enabled_=false;
+    bool exact_geometry_ready=true;
+    bool exactDropReleaseReady() const { return exact_geometry_ready; }
     bool hasFreshMissionReleasePermission() const { return permission_ready; }
     unsigned int servo_alignment_decision_seq_=900, servo_alignment_target_id_=7;
     std::string servo_alignment_target_class_="panzer";
@@ -153,6 +157,11 @@ public:
     bool control_ready=true;
     bool external_mission_mode_=true, external_landing_active_=false;
     bool external_landing_auto_land_requested_=false, external_landing_cancelled_=false;
+    std::string external_landing_handoff_mode_="AUTO.LAND";
+    bool external_landing_handoff_observed_=false;
+    ros::Time external_landing_handoff_requested_at_;
+    double external_landing_mode_transition_timeout_sec_=10, external_landing_state_max_age_sec_=1;
+    void publishExternalLandingHandoff(const std::string&) {}
     mavros_msgs::State external_landing_mavros_state_;
     ros::Time external_landing_state_receipt_;
     bool externalLandingControlReady(const ros::Time&) const { return control_ready; }

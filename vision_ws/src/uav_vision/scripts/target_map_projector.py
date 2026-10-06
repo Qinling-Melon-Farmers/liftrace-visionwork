@@ -8,13 +8,13 @@ import copy
 import math
 
 import rospy
-import tf2_geometry_msgs  # noqa: F401 - 注册 geometry 消息的 TF 变换
 import tf2_ros
-from geometry_msgs.msg import Point, PointStamped
+from geometry_msgs.msg import Point
 from image_geometry import PinholeCameraModel
 from sensor_msgs.msg import CameraInfo
 
 from uav_vision.msg import TargetDetectionArray
+from uav_vision.ground_projection import intersect_ground
 
 
 class TargetMapProjector:
@@ -134,36 +134,16 @@ class TargetMapProjector:
         if not all(math.isfinite(value) for value in pixel):
             return False, "pixel_nonfinite"
         ray = self._camera_model.projectPixelTo3dRay(pixel)
-        origin = PointStamped()
-        origin.header.stamp = stamp
-        origin.header.frame_id = source_frame
-        origin.point = Point(0.0, 0.0, 0.0)
-        endpoint = PointStamped()
-        endpoint.header = origin.header
-        endpoint.point = Point(float(ray[0]), float(ray[1]), float(ray[2]))
-
-        map_origin = tf2_geometry_msgs.do_transform_point(origin, transform)
-        map_endpoint = tf2_geometry_msgs.do_transform_point(endpoint, transform)
-        direction = (
-            map_endpoint.point.x - map_origin.point.x,
-            map_endpoint.point.y - map_origin.point.y,
-            map_endpoint.point.z - map_origin.point.z,
-        )
-        if not all(math.isfinite(value) for value in direction + (
-                map_origin.point.x, map_origin.point.y, map_origin.point.z, self._ground_z)):
-            return False, "projection_nonfinite"
-        if abs(direction[2]) < self._ray_epsilon:
-            return False, "ray_parallel_ground"
-
-        scale = (self._ground_z - map_origin.point.z) / direction[2]
-        if scale <= 0.0:
-            return False, "intersection_behind_camera"
-
-        det.map_point = Point(
-            map_origin.point.x + scale * direction[0],
-            map_origin.point.y + scale * direction[1],
-            self._ground_z,
-        )
+        translation = transform.transform.translation
+        rotation = transform.transform.rotation
+        try:
+            point = intersect_ground(
+                ray, (translation.x, translation.y, translation.z),
+                (rotation.x, rotation.y, rotation.z, rotation.w),
+                self._ground_z, self._ray_epsilon)
+        except ValueError as error:
+            return False, str(error)
+        det.map_point = Point(*point)
         det.map_valid = True
         det.map_frame = self._map_frame
         det.map_quality = max(0.0, min(1.0, float(det.geometry_confidence)))

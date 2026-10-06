@@ -371,12 +371,6 @@ private:
     double mission_release_permission_timeout_ = 0.25;
     double pixel_to_meter_ratio_ = 0.0015;
     bool drop_metric_scale_enabled_ = false;
-    bool drop_exact_projection_enabled_ = false;
-    double drop_exact_alignment_max_error_m_ = 0.0;
-    ros::Time drop_projection_cutoff_;
-    ros::Time last_drop_projection_stamp_;
-    bool projectExactDropOffsetToTarget(const uav_vision::DropOffset& msg);
-    bool exactDropReleaseReady() const;
     bool drop_camera_info_valid_ = false;
     double drop_fx_ = 0.0;
     double drop_fy_ = 0.0;
