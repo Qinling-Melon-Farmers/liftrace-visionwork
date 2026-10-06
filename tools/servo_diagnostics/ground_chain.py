@@ -15,6 +15,7 @@ parser.add_argument('--raw-node',type=Path,required=True)
 parser.add_argument('--namespace',default='/ground_servo_check')
 parser.add_argument('--port',type=int,default=11329)
 parser.add_argument('--real-output',action='store_true',help='Initialize and pulse the three real servos; obtain operator authorization first')
+parser.add_argument('--left-pwm-device',choices=('fd8b0000.pwm','fd8b0010.pwm'),default='fd8b0000.pwm',help='Use PWM0/D2 candidate or explicitly select PWM1/D3 formal wiring')
 args=parser.parse_args()
 if not args.real_output:parser.error('This diagnostic requires explicitly selected --real-output')
 ROOT=args.root.resolve();OUT=args.out.resolve();OUT.mkdir(parents=True,exist_ok=True)
@@ -24,7 +25,8 @@ os.environ['ROS_MASTER_URI']='http://127.0.0.1:'+str(args.port)
 os.environ['ROS_IP']='127.0.0.1'
 os.environ.pop('ROS_HOSTNAME',None)
 failed=False
-devices=('febf0020.pwm','febf0030.pwm','fd8b0000.pwm')
+devices=('febf0020.pwm','febf0030.pwm',args.left_pwm_device)
+left_pin={'fd8b0000.pwm':'GPIO1_D2','fd8b0010.pwm':'GPIO1_D3'}[args.left_pwm_device]
 def channels():
  result={}
  for slot,device in enumerate(devices,1):
@@ -45,7 +47,7 @@ def spawn(name,args):
  p=subprocess.Popen(args,stdout=f,stderr=subprocess.STDOUT,start_new_session=True);children.append(p);return p
 def alarm(*_):raise TimeoutError('ground test wall timeout')
 signal.signal(signal.SIGALRM,alarm);signal.alarm(90)
-emit('PWM_mapping',channels={str(slot):str(p) for slot,p in channels().items()},left_pin='GPIO1_D2')
+emit('PWM_mapping',channels={str(slot):str(p) for slot,p in channels().items()},left_pin=left_pin,raw_node=str(args.raw_node.resolve()))
 def permission(msg):
  global latest
  latest=msg
