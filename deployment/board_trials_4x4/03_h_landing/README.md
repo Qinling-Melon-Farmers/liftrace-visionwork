@@ -62,3 +62,7 @@ bash deployment/board_trials_4x4/03_h_landing/start.sh flight --site-config depl
 
 
 2026-10-06 H视觉更新：已部署灰度自适应分割和H形态主判据，摆脱固定饱和度对偏色黑笔画的漏检；外圈优先、裁切笔画兜底继续启用。ARM构建、6项图形测试、464张实拍及60张构造图复跑通过，8项配置回归通过。保持本专项1.2m识别与POSCTL交接，04/08原高度与AUTO.LAND不变。参见[视觉部署报告](../../../docs/verification/h_morphology_20261006/DEPLOYMENT.md)；尚需新视觉与末段交接组合实飞。
+
+### 2026-10-06 H成功结果推广（本地，待上板）
+
+现场H成功由用户确认。03/04/08硬件使用形态检测及视觉对准下降，末段POSCTL交接飞手完成降落；不再按本页早期AUTO.LAND描述启动。仿真生成入口显式AUTO.LAND。各组原观察高度保持：03为FC离地1.2m，04/08为1.8m。04/08可在工作台填实测走廊/H/墙面坐标，须先配置检查再预览。参见[推广与九组参数报告](../../../docs/deployment/h_promotion_20261006/REPORT.md)。

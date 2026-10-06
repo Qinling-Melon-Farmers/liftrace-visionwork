@@ -10,6 +10,9 @@ def main():
     package=Path(__file__).resolve().parents[1];root=package.parents[3];out=Path(args.directory);out.mkdir(parents=True,exist_ok=True)
     settings=yaml.safe_load((root/'deployment/board_trials_4x4'/TRIAL_FOLDERS[args.trial]/'settings.yaml').read_text())
     settings['camera_info_topic']='/downward_camera/camera_info'
+    # Unattended SITL has no pilot for the hardware POSCTL terminal handoff.
+    if args.trial in ('landing','corridor_landing','full_mission'):
+        settings['landing_handoff_mode']='AUTO.LAND'
     if args.trial in ('corridor_landing','full_mission'):
         settings['corridor_waypoints']=[dict(x=x,y=1.1,agl=1.0) for x in (.65,1.20,1.8,2.20,2.8)]
         settings['landing_xy']=[3.1,1.1]
