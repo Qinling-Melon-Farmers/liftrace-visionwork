@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Liftrace 只读实时观察</title>
+<link rel="stylesheet" href="/static/observe.css">
+</head>
+<body>
+<header>
+  <div><a href="/" target="_blank" rel="noopener">← 飞行工作台</a><h1 id="page-title">实时状态曲线</h1></div>
+  <nav><a href="/observe" target="_blank" rel="noopener">实时状态</a><a href="/motor" target="_blank" rel="noopener">电机观察大页</a><span class="pill">只读 · 无相机</span></nav>
+  <p id="connection-status" role="status">等待工作台快照…</p>
+</header>
+<main>
+  <section class="notice">
+    本页只观看已运行节点的数据。需要连接时回工作台操作；这里不会启动节点、飞行、录包或改变飞控。
+    曲线是浏览器接收的约1Hz状态摘要，不能代替高频板端bag或飞控ULog，也不能用它证明没有发生reset。
+  </section>
+  <section id="status-panel" class="panel">
+    <h2>当前状态</h2><div id="status-grid" class="metrics"></div>
+    <p class="hint">FC local Z 是飞控坐标系高度；没有独立地面基准时不显示离地高度。FC、LIO、EV保持各自坐标系，未做TF变换或位置差计算。</p>
+  </section>
+  <section id="motor-panel" class="panel motor-panel">
+    <h2>原始输出与本地映射</h2>
+    <p class="hint">RC OUT 是飞控输出命令，不是电流或RPM。原始通道编号不代表电机编号；查明接线后选择并确认映射。ESC按原始index展示，不自动对应电机。</p>
+    <div id="mapping-controls" class="mapping-controls"></div>
+    <div class="controls"><button id="confirm-mapping" type="button">确认本地四路映射</button><button id="clear-mapping" type="button">清除映射</button><span id="mapping-status">四路映射未核实</span></div>
+    <div id="raw-outputs" class="raw-outputs">RC OUT：未观测</div>
+    <div class="chart-box"><h3>确认映射后的四路输出命令</h3><canvas id="chart-motors" aria-label="已确认映射四路输出曲线"></canvas><div id="legend-motors" class="legend"></div></div>
+    <h3>ESC原始遥测</h3><div id="esc-table"></div>
+  </section>
+  <section class="panel" id="record-panel">
+    <h2>浏览器本地观察片段</h2>
+    <p class="hint">hover / forward / square 只是本地比较标签。点击开始仅记录本页接收的数据，不执行对应动作，不启动板端录制。</p>
+    <div class="controls">
+      <label>片段标签 <select id="profile-select"></select></label>
+      <button id="segment-start" type="button">开始本地片段</button><button id="segment-end" type="button" disabled>结束本地片段</button>
+      <button id="export-json" type="button">下载JSON</button><button id="export-csv" type="button">下载CSV</button><button id="reset-local" type="button">重置本页记录</button>
+    </div>
+    <p id="profile-description" class="hint"></p><p id="record-status" role="status"></p><div id="segment-table" class="table-scroll"></div>
+  </section>
+  <section class="panel"><h2>位姿与目标 · 分坐标系</h2><div id="pose-charts" class="charts"></div></section>
+  <section class="panel"><h2>姿态 · 分坐标系</h2><div id="attitude-charts" class="charts"></div></section>
+  <section class="panel"><h2>电池与实时诊断</h2><div id="diagnostic-charts" class="charts"></div><div id="diagnostic-status"></div></section>
+  <section class="panel"><h2>配置的话题</h2><div id="topic-list" class="topic-list"></div></section>
+</main>
+<footer>只读观察；页面关闭不会停止板端节点。本地片段和映射只保留在此页面，下载文件可供飞后对比。</footer>
+<script src="/static/observe.js"></script>
+</body>
+</html>

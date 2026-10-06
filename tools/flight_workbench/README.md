@@ -5,14 +5,18 @@
 任务组选择与启动、初始化/READY 监视与回报、飞行日志与板端产物浏览。
 
 > 定位：**操作与观测工具**。它只启动现场既有入口命令，不下发解锁、不代替飞手接管、不改板端代码、不把口令写进仓库。
-> 自动任务入口在人工解锁后，可按该组配置请求 OFFBOARD、爬升并启动任务；界面不是新的任务状态机。
+> 当前入口要求飞手**人工解锁并拨入 OFFBOARD**；低空稳定后按该组配置自动启动任务，切换模式会取消自动时序。工作台不请求 OFFBOARD。
 > 工作台里的 READY 只是"应用链就绪"，不是起飞许可，也不是飞行验收结论。
 
 2026-10-02 review 已修复实投确认词、第6组速度、设备失败继续启动、旧遥测判就绪及收尾顺序。
 H/走廊/整场已适配人工解锁后的自动时序，10-02 已同步至旧板 43.59，尚未实飞验收；
 同步范围见 [旧板部署记录](../../docs/deployment/board_redeploy_20261001/DEPLOY_4359_20261002.md)。
 任务卡片已补齐「选择此组」按钮、标题点击和刷新后的选择记忆。
-具体按钮顺序、切组与更新范围见 [review与现场操作](../../docs/deployment/flight_workbench_20261002/REVIEW_AND_OPERATIONS.md)。
+已手动启动节点或正在飞行时，主页连接后点「实时观察」或「电机诊断」，分别打开
+只读大页 `/observe`、`/motor`，观看位姿/姿态、输出、LIO、电池及低空观察三组曲线。
+不新增相机/JPEG/视频路径；页内记录仅在浏览器完成，详见下方操作说明。
+当前按钮顺序、切组与更新范围见 [2026-10-06操作说明](../../docs/deployment/flight_workbench_20261006/README.md)。
+10-02 部署记录属于历史状态，不能据此认为板端已安装此轮更新；本轮只更新源码与工作台。
 
 ---
 
@@ -32,19 +36,19 @@ bash tools/flight_workbench/start_workbench.sh --port 8792 --open
 
 连接板端：
 
-1. 在页面顶栏的**板端地址**下拉里选现场地址（默认 `orangepi@192.168.43.59`），再点「连接」；
+1. 在页面顶栏的**板端地址**下拉里选现场地址（默认 `orangepi@192.168.3.126`），再点「连接」；
    或先用 `--password-file`／环境变量给一次口令：
    ```bash
    ORANGEPI_SSH_PASSWORD=... bash tools/flight_workbench/start_workbench.sh
    bash tools/flight_workbench/start_workbench.sh --password-file ~/.orangepi.pass   # 文件须在仓库外
    ```
 2. 「连接」窗口直接提供历史地址、自定义地址、用户名、端口和密码。自定义地址优先；支持 IP、主机名或 `user@host`。密码默认只留在服务进程内存，不写浏览器存储或文件。只有「连接设置」中明确勾选“记住口令”才保存到本机仓库外的 `~/.config/liftrace-flight-workbench/profile.json`（0600）。
-3. 地址默认取 `workbench.yaml` 的 `connection.host`（外场当前 `orangepi@192.168.43.59`）。
+3. 地址默认取 `workbench.yaml` 的 `connection.host`（当前 `orangepi@192.168.3.126`）。
    下拉里的历史地址来自现场部署记录与项目 memoir，选中即写回本机 profile（不改仓库文件）：
 
    | 地址 | 出处 |
    |---|---|
-   | `orangepi@192.168.43.59` | 外场当前，10-02 换回 28~30 日旧机 |
+    | `orangepi@192.168.43.59` | 10-02 换回 28~30 日旧机时的历史地址 |
    | `orangepi@192.168.43.99` | 2026-10-01 第五组实投 |
    | `orangepi@192.168.3.15` | 2026-10-01 现场操作手册 / 九组部署 |
    | `orangepi@192.168.156.193` | 2026-09-28 现场部署（当时的新 IP） |
@@ -71,7 +75,7 @@ bash tools/flight_workbench/start_workbench.sh --transport local --port 8793
 | 3 MID360 驱动 | 终端 tab「3 · MID360 驱动」 | `roslaunch uav_mission mid360_driver2.launch user_config_path:="$PWD/deployment/site_20260928/MID360_config.json"` |
 | 4 相机 | 终端 tab「4 · 下视相机」 | `bash deployment/board_trials_4x4/start_camera.sh /dev/video0` |
 | 5 舵机（可选） | 「5a · PWM 初始化」「5b · 舵机服务」 | `sudo bash .../init_pwm.sh`、`.../pwm_node1 /Servo:=/legacy/Servo_raw` |
-| 6 专项 flight 入口 | 任务组卡片「飞行」按钮 → 终端 tab「6 · 专项 flight 入口」 | `bash deployment/site_20260928/start_test.sh <组号> flight` 等 |
+| 6 专项 flight 入口 | 任务组卡片「飞行」按钮 → 终端 tab「6 · 专项 flight 入口」 | 模块 `start.sh flight`（模拟/无投递）或 `start_real.sh`（实投），显式带现场 YAML |
 | 7 状态监测 | 右栏状态面板 + 自动探针；终端 tab「7 · 状态监测」可手输命令 | 只读遥测 + 交互 shell |
 
 所有终端都会先 `cd <工程根>` 并 `source deployment/site_20260928/environment.sh`，与手册
@@ -86,29 +90,32 @@ bash tools/flight_workbench/start_workbench.sh --transport local --port 8793
    （`ROS master`、`connected=true`、`/livox/lidar`、`/camera/image_raw` 新鲜）。已经在跑的
    设备节点会被识别为"已在运行"而跳过，不重复叠加。舵机两个终端默认不在自动流程里，需单独点击
    （会复位机构，界面会弹确认）。
-3. 对应卡片先选「飞行 flight」模式、勾未解锁/起飞点确认；实投组输入「实投」，
+3. 对应卡片先点「选择此组」，选投递方式/路线等选项，点「配置检查（不启动节点）」确认有效。
+   再选「飞行 flight」模式、勾未解锁/起飞点确认；实投组输入「实投」，
    再点卡片底部「飞行（flight）」及弹窗「确认启动 flight」。设备启动本身不启动专项。
    随后等 READY。右栏阶段灯会走 `启动中 → 初始化中（定位/相机/坐标一致）→ 地图就绪（MAPPING_READY）
    → 就绪（READY）`，并实时显示 `pose_samples`、`camera_info`、`image_seen`、`compressed_fresh`、
    定位一致性原因、`distinct_clouds` 等关键量。**`INITIALIZING`、`MAPPING_READY` 都不等于 READY。**
 4. 出现 `fc_lio_disagreement` 时按手册处理：等飞控与 LIO 自行收敛，不要转动机身追数值。
-5. READY 后由飞手按现场流程解锁/进 OFFBOARD。现场版本会自动请求 OFFBOARD 并按低空稳定条件
-   自动启动任务（时间线显示 `AUTO_MISSION_START True`）。本地更新后的03/04/08也使用自动时序；
-   03按实际1.0m起飞高度判稳定，自动时序下不再点「启动任务」。10月2日已同步03/04/08自动时序；未更新的旧包仍须核对版本，不按旧说明重复手动启动。
+5. READY 后由飞手**人工解锁并拨入 OFFBOARD**，按低空稳定条件自动启动任务
+   （时间线显示 `AUTO_MISSION_START True`）。03/04/08也使用此时序；03按实际1.0m起飞高度判稳定。
+   自动时序下不再点「启动任务」。接管改模式后不会自动抢回控制或恢复任务。
 6. 结束时按手册落地停机：点「停止（Ctrl+C）」让 `run_trial.py` 走既有收尾（等 `BAG_CLOSED` 和
    应用退出），再断电。
 
 ### 2.2 任务组
 
-- **现场组号 1–6**（`deployment/site_20260928/start_test.sh`）：1 单投中断、2 连续两投、
+- **现场组号 1–6**：1 单投中断、2 连续两投、
   3 仅记忆、4 整圈重访投递、5 提前中断重访、6 高速拍摄采集。
-  该入口的 `flight` 对投递组会自动走 `start_real.sh`（真实舵机 `/legacy/Servo_raw`），
-  记忆组走 `start.sh`；界面会显示当前组是「实投/模拟/无投递」以及是否需要舵机。
+  工作台现在统一走对应模块入口，投递组可选模拟/实投；现场组原实投默认值保留。
+  `start_test.sh` 仍兼容旧命令，但不承担工作台新增参数。
 - **模块目录 01–09**（`deployment/board_trials_4x4/<目录>/start.sh`）：用于 H 降落（03）、
   走廊（04）、整场（08）等专项。04/08在各自独立 `*_test_area.yaml` 中填写实测走廊航点与H坐标，
-  **出厂留空时拒绝启动**。08看板默认模拟投递，三个H流程均不使用30cm终点悬停。
-- 每个卡片都能展开「命令预览」，看到将要执行的完整命令（可复制），也可只勾「配置检查」
-  跑 `--check-config`（不启动任何节点）。
+  **出厂留空时拒绝启动**。08默认模拟投递、可显式选择实投；三个H流程均不使用30cm终点悬停。
+- 每个卡片都能展开「命令预览」，看到将要执行的完整命令（可复制）。独立「配置检查（不启动节点）」
+  跑 `--check-config`，无需飞行确认；「预览（preview）」会启动地面应用链，二者不同。
+- 运动优化默认不加参数；搜索路线与高位续扫默认继承现场 YAML，未开启时不隐式改变飞行策略。
+  续扫仅第五组/整场可选。高速采集支持速度与光照标签（标签不改变曝光）。
 - 防护：`flight` 必须勾选"飞机已回到起飞点、未解锁、机头朝场内"；实投必须额外输入确认词
   **实投**；同一时刻只允许一个专项入口，重复启动会被拒绝。界面预览的命令会随启动请求一起回传
   后端做一致性校验，**不一致直接拒绝启动**，避免"给人看的命令"和"真正执行的命令"漂移。
@@ -117,6 +124,8 @@ bash tools/flight_workbench/start_workbench.sh --transport local --port 8793
 
 - 阶段机 + 事件时间线 + 告警（含"应该怎么做"的提示），全部来自 `run_trial.py` 的真实输出
   （`INITIALIZING`/`MAPPING_READY`/`READY`/`FLIGHT_STATUS`/`AUTO_*`/异常栈）。
+- 新鲜任务遥测区分 COMPLETE/ABORTED；飞控上锁不会被当作任务成功或已落地。显示30cm悬停交接和
+  LIO输出年龄/队列；缺失或过期显示未观测，不推断健康。诊断话题通过 `workbench.yaml` 配置。
 - READY、失败、上报事件都会即时提示；「声音提醒」打开后 READY/失败会有提示音。
 - 「生成回报」把当前阶段、时间线、告警、遥测整理成 Markdown，落到
   `~/.config/liftrace-flight-workbench/reports/`，可复制或下载，用于现场留档/群内回报。
@@ -138,11 +147,14 @@ bash tools/flight_workbench/start_workbench.sh --transport local --port 8793
 
 ```bash
 cd tools/flight_workbench
-python3 tests/test_status.py     # 29 项：阶段解析、告警节流、就绪判定、命令拼装、地址清单
-python3 tests/test_probe.py      # 10 项：板端探针（假 rospy，含"只订阅不下发"边界）
-python3 tests/test_review.py     # 16 项：实投请求、速度、编排失败/旧遥测、并发与收尾回归
+python3 tests/test_status.py     # 阶段解析、告警节流、就绪判定、命令拼装、地址清单
+python3 tests/test_probe.py      # 41项：假rospy、typed摘要、NaN/时钟/类型故障及只读边界
+python3 tests/test_review.py     # 实投请求、速度、编排失败/旧遥测、并发与收尾回归
+python3 tests/test_workbench_options.py # 新参数/实投约束/配置检查/ABORT与过期遥测
+python3 tests/test_board_version.py # 板端源码与生成消息接口一致性（全mock）
 python3 tests/selfcheck.py       # 23 项：纸板工程端到端（会话→编排→READY→回报→产物→SSE）
-python3 tests/smoke_http.py      # 15 项：真起服务，检查接口/静态文件/SSE/安全拒绝/地址切换
+python3 tests/smoke_http.py      # 20项：接口/静态页/SSE/确认拒绝/地址切换
+node tests/test_observe.js      # 只读曲线、映射、分组/截断、导出和过期数据
 ```
 
 `tests/fake_board/` 是纸板工程，按 `run_trial.py` 的真实输出格式回放一遍
@@ -158,11 +170,11 @@ python3 tests/smoke_http.py      # 15 项：真起服务，检查接口/静态�
 | 连接失败 / `ROOT=MISSING` | 换网络后地址变了；确认 `board_root` 是现场实际部署目录（当前 `/home/orangepi/liftrace_board_trials_20260928`）。 |
 | `SSH 层失败：Permission denied (publickey,password)` | 这块板没有我们任何免密公钥，且工作台没拿到口令。在「连接」里填 SSH 口令（勾「记住」存到本机 profile，0600），或把公钥装进板端 `~/.ssh/authorized_keys`。**没口令时工作台用 `BatchMode=yes` 立即失败并如实报错，不会再挂在口令提示上被误判成"板端文件缺失"。** |
 | `SSH 层失败：REMOTE HOST IDENTIFICATION HAS CHANGED` | 换板后 known_hosts 里还是旧指纹：确认是新板后 `ssh-keygen -R 192.168.43.59` 删掉旧记录再连。 |
-| `SSH 层失败：No route to host / Connection timed out` | 板端未上电或不同网段：先 ping 板子；地址在下拉里选对（现场 43.59）。 |
+| `SSH 层失败：No route to host / Connection timed out` | 板端未上电或不同网段：先 ping 板子；地址在下拉里选对（当前 3.126）。 |
 | 探针不上线（右上角灰） | 探针需要板端 ROS Python 与已 source 的环境；先确认 `环境脚本` 存在。探针未起来不影响终端操作，只是没有遥测。 |
 | 一键启动设备某步失败 | 看该步详情与对应终端输出；roscore 已存在会被跳过，MAVROS 串口按实际接线核对。 |
 | 初始化一直不过 | 检查飞机是否**未解锁且静置**、机头是否朝场内 +X、相机原始图/压缩图/CameraInfo 是否齐全；`fc_lio_disagreement` 时等收敛，不要转动机身。 |
-| READY 后飞机没动 | 正常：现场版本 READY 后仍需**人工解锁**；解锁后监督器才请求 OFFBOARD 并在低空稳定后启动任务。 |
+| READY 后飞机没动 | READY 仅应用就绪，仍需飞手**人工解锁并拨入 OFFBOARD**；稳定后入口自动启动任务。核对板端版本。 |
 | 04/08 组一启动就退出 | 走廊航点/H 坐标留空，入口按设计拒绝；补实测坐标后再启动。 |
 | 舵机按钮点了没反应 | 5a/5b 需要单独确认；`sudo` 提示会自动填口令（若配置了），也可在终端里手动输入。 |
 | 收尾 | 先落地上锁，再「停止（Ctrl+C）」，等应用退出与 `BAG_CLOSED`，确认无 `.bag.active` 再断电。现场1–6组末段是30cm悬停，须飞手落地。 |
@@ -180,6 +192,7 @@ tools/flight_workbench/
   wb_status.py          阶段解析、告警提示、就绪判定、回报文本（纯函数，可单测）
   board_probe.py        板端只读探针（只订阅话题/读节点与服务列表，每 1s 打一行 JSON）
   web/                  前端（原生 JS，无 CDN、无构建）
+    observe.html/js/css /observe和/motor共用的只读大页，不加载启动动作代码
   tests/                离线自检与纸板工程
   start_workbench.sh    启动脚本
 ```

@@ -71,7 +71,9 @@ class Workbench(object):
         self.trial = {"group_id": None, "group": None, "name": None, "mode": None,
                       "release": None, "real_release": False, "command": None,
                       "run_dir": None, "started_at": None, "check_config": False,
-                      "capture_speed": None, "route": None}
+                      "capture_speed": None, "capture_lighting": None,
+                      "motion_optimized": False, "survey_pattern": None,
+                      "resume_survey": None, "route": None}
         self.orchestration = {"running": False, "step": None, "started_at": None, "steps": [],
                               "cancel": False}
         self.board_state = {"logs": [], "preflight": None}
@@ -148,7 +150,7 @@ class Workbench(object):
             self.broadcast({"t": "stage", "stage": event["stage"]})
             name = event["stage"].get("name")
             if name == "READY":
-                self.toast("ok", "READY：应用链已就绪，可按现场流程人工解锁")
+                self.toast("ok", "READY：应用链已就绪，由飞手人工解锁并拨入 OFFBOARD")
             elif name == "FAILED":
                 self.toast("error", "专项入口失败，查看告警与终端日志")
         elif kind == "alert":
@@ -170,6 +172,16 @@ class Workbench(object):
             telemetry["at"] = time.time()
             with self.lock:
                 self.telemetry = telemetry
+            trial_session = self.sessions.get("trial")
+            if (self.trial.get("mode") == "flight" and not self.trial.get("check_config")
+                    and trial_session is not None and trial_session.state == "running"
+                    and self.stage.name in ("READY", "IN_FLIGHT", "DISARMED")):
+                for event in self.stage.observe_telemetry(
+                        telemetry, self.config["probe"].get("terminal_hover_topic", "")):
+                    if event["kind"] == "stage":
+                        self.broadcast({"t": "stage", "stage": event["stage"]})
+                    else:
+                        self._emit_event(event)
             self.broadcast({"t": "telemetry", "telemetry": telemetry})
             self._check_orchestration()
 
@@ -196,6 +208,8 @@ class Workbench(object):
                             "auto_password": bool(self.target.auto_password),
                             "saved_password": bool(self._profile.get("password_saved"))},
                 "groups": self._groups_snapshot(),
+                "observation": dict(self.config.get("observation", {}),
+                                    topics=self.config["probe"].get("observe_topics", {})),
                 "terminals": self._terminals_snapshot(),
                 "sessions": self.sessions.snapshots(),
                 "trial": dict(self.trial),
@@ -524,8 +538,13 @@ class Workbench(object):
         if group is None:
             raise ValueError("未知任务组 %s" % group_id)
         mode = body.get("mode", "flight")
-        real_release = bool(body.get("real_release"))
-        check_config = bool(body.get("check_config"))
+        real_release = body.get("real_release", group.get("release") == "real")
+        check_config = body.get("check_config", False)
+        motion_optimized = body.get("motion_optimized", False)
+        for key, value in (("real_release", real_release), ("check_config", check_config),
+                           ("motion_optimized", motion_optimized)):
+            if not isinstance(value, bool):
+                raise ValueError("%s 必须是布尔值" % key)
         route = body.get("route") or group.get("channel")
         # site/start_test.sh selects real hardware itself; never trust a client's
         # real_release=False to turn a delivery flight into a mock flight.
@@ -546,7 +565,8 @@ class Workbench(object):
         command_body, note = wb_board.build_group_command(
             self.config, group, mode, route=route, real_release=real_release,
             check_config=check_config, capture_speed=body.get("capture_speed"),
-            capture_lighting=body.get("capture_lighting"))
+            capture_lighting=body.get("capture_lighting"), motion_optimized=motion_optimized,
+            survey_pattern=body.get("survey_pattern"), resume_survey=body.get("resume_survey"))
         # 界面预览命令必须与后端实际命令一致，否则拒绝启动：防止"给人看的命令"与"真正执行的命令"漂移
         expected = str(body.get("expected_body") or "").strip()
         if expected and expected != command_body.strip():
@@ -562,7 +582,9 @@ class Workbench(object):
                                      "none" if group.get("release") == "none" else "mock"),
             "real_release": real_release, "command": command_body, "run_dir": None,
             "started_at": time.time(), "check_config": check_config,
-            "capture_speed": body.get("capture_speed"), "route": route, "note": note,
+            "capture_speed": body.get("capture_speed"), "capture_lighting": body.get("capture_lighting"),
+            "motion_optimized": motion_optimized, "survey_pattern": body.get("survey_pattern"),
+            "resume_survey": body.get("resume_survey"), "route": route, "note": note,
         }
         session = self.sessions.open("trial", "专项入口 · %s" % group.get("name"), command, self.target)
         self.broadcast({"t": "trial", "trial": dict(self.trial)})
@@ -707,6 +729,8 @@ class Handler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         route = parsed.path
         query = parse_qs(parsed.query)
+        if route in ("/observe", "/motor"):
+            return self._static("/static/observe.html")
         if route in ("/", "/index.html") or route.startswith("/static/"):
             return self._static(route)
         if route == "/api/snapshot":

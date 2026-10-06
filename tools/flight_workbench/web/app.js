@@ -793,20 +793,29 @@ function releaseBadge(release) {
 var REAL_RELEASE_FOLDERS = ['01_visual_interrupt', '02_high_view_revisit', '05_low_multi',
   '06_high_priority', '08_full_mission'];
 function shQuote(s) { return "'" + String(s).replace(/'/g, "'\\''") + "'"; }
+function shellArgQuote(s) {
+  s = String(s);
+  return s && /^[A-Za-z0-9_@%+=:,./-]+$/.test(s) ? s : "'" + s.replace(/'/g, "'\"'\"'") + "'";
+}
 
-function groupCommandBody(g, mode, realRelease, checkConfig, speed) {
+function groupCommandBody(g, mode, realRelease, checkConfig, speed, options) {
   var c = state.connection || {};
   var folder = g.folder || '';
   var siteDir = c.site_dir || 'deployment/site_20260928';
-  var siteConfig = g.site_config || siteDir + '/test_area.yaml';
+  var siteConfig = (g.site_config || siteDir + '/test_area.yaml').replace(/\{site_dir\}/g, siteDir);
   var route = g.channel || 'module';
   var moduleBase = 'deployment/board_trials_4x4/' + folder;
   var extra = '';
+  options = options || {};
   if (speed !== null && speed !== undefined) extra += ' --capture-speed ' + Number(speed).toFixed(1);
+  if (options.capture_lighting) extra += ' --capture-lighting ' + options.capture_lighting;
+  if (options.motion_optimized) extra += ' --motion-optimized';
+  if (options.survey_pattern) extra += ' --survey-pattern ' + options.survey_pattern;
+  if (options.resume_survey) extra += ' --resume-survey ' + options.resume_survey;
 
   // check_config 优先于 channel：后端只在“启动 ROS 节点”时才区分现场/模块入口
   if (checkConfig) {
-    return { body: 'bash ' + moduleBase + '/start.sh preview --site-config ' + siteConfig + extra + ' --check-config',
+    return { body: 'bash ' + moduleBase + '/start.sh preview --site-config ' + shellArgQuote(siteConfig) + extra + ' --check-config',
              note: '只做配置检查：按模块入口展开参数，不启动任何 ROS 节点' };
   }
   if (route === 'site') {
@@ -819,21 +828,21 @@ function groupCommandBody(g, mode, realRelease, checkConfig, speed) {
   if (realRelease && mode === 'flight') {
     var okFolder = REAL_RELEASE_FOLDERS.indexOf(folder) >= 0;
     return {
-      body: okFolder ? ('bash ' + moduleBase + '/start_real.sh --site-config ' + siteConfig + extra) : null,
+      body: okFolder ? ('bash ' + moduleBase + '/start_real.sh --site-config ' + shellArgQuote(siteConfig) + extra) : null,
       note: okFolder
         ? '模块实投入口：经释放许可代理调用现场 /legacy/Servo_raw（真实舵机）'
         : (folder + ' 没有 start_real.sh，不能走实投入口（后端会拒绝该组合）')
     };
   }
-  return { body: 'bash ' + moduleBase + '/start.sh ' + mode + ' --site-config ' + siteConfig + extra,
+  return { body: 'bash ' + moduleBase + '/start.sh ' + mode + ' --site-config ' + shellArgQuote(siteConfig) + extra,
            note: '模块入口：默认模拟投递（mock 舵机），不接 PWM' };
 }
 
-function buildTrialCommand(g, mode, realRelease, checkConfig, speed) {
+function buildTrialCommand(g, mode, realRelease, checkConfig, speed, options) {
   var c = state.connection || {};
   var root = c.board_root || '<board_root>';
   var env = c.env_script || '<env_script>';
-  var built = groupCommandBody(g, mode, realRelease, checkConfig, speed);
+  var built = groupCommandBody(g, mode, realRelease, checkConfig, speed, options);
   if (!built.body) {
     return '（该参数组合后端会拒绝启动：' + built.note + '）';
   }
@@ -855,8 +864,8 @@ function renderGroups() {
 
   if (!groups.length) { body.appendChild(el('p', 'empty', '等待快照…（/api/snapshot 的 groups 为空）')); return; }
 
-  appendGroupSection(body, '现场组号（1–6）', groups.filter(function (g) { return g.channel === 'site'; }));
-  appendGroupSection(body, '模块目录（01–09）', groups.filter(function (g) { return g.channel !== 'site'; }));
+  appendGroupSection(body, '现场组号（1–6）', groups.filter(function (g) { return (g.section || g.channel) === 'site'; }));
+  appendGroupSection(body, '专项模块与对照', groups.filter(function (g) { return (g.section || g.channel) !== 'site'; }));
 
   var others = groups.filter(function (g) { return g.channel && g.channel !== 'site' && g.channel !== 'module'; });
   if (others.length) appendGroupSection(body, '其他任务组', others);
@@ -872,7 +881,32 @@ function appendGroupSection(body, title, list) {
   list.forEach(function (g) { body.appendChild(groupCard(g)); });
 }
 
+function groupUI(g) {
+  var U = state.tabs[g.id] || (state.tabs[g.id] = {});
+  if (!U.mode) U.mode = 'preview';
+  if (!U.release) U.release = g.release || 'none';
+  if (g.speed_options && g.speed_options.length && U.speed == null) U.speed = g.speed_options[0];
+  return U;
+}
+
+function trialBody(g, mode, checkConfig) {
+  var U = groupUI(g);
+  var body = { group_id: g.id, mode: checkConfig ? 'preview' : mode,
+    real_release: !checkConfig && mode === 'flight' && U.release === 'real' };
+  if (checkConfig) body.check_config = true;
+  if (g.speed_options && g.speed_options.length && U.speed != null) body.capture_speed = U.speed;
+  if (g.lighting_options && U.lighting) body.capture_lighting = U.lighting;
+  if (g.motion_optimization_supported && U.motionOptimized) body.motion_optimized = true;
+  if (g.survey_patterns && U.pattern) body.survey_pattern = U.pattern;
+  if (g.resume_survey_supported && U.resume) body.resume_survey = U.resume;
+  if (!checkConfig) body.confirm = body.real_release ? '实投' : '启动试飞';
+  var built = groupCommandBody(g, body.mode, body.real_release, !!body.check_config, body.capture_speed, body);
+  if (built.body) body.expected_body = built.body;
+  return body;
+}
+
 function groupCard(g) {
+  var U = groupUI(g);
   var sel = state.selectedGroup === g.id;
   var card = el('div', 'grp-card' + (sel ? ' sel' : ''));
 
@@ -891,18 +925,55 @@ function groupCard(g) {
 
   // 徽标
   var badges = el('div', 'badges');
-  var rb = releaseBadge(g.release);
+  var rb = releaseBadge(U.release);
   badges.appendChild(el('span', rb.cls, rb.text));
-  if (g.needs_servo) badges.appendChild(el('span', 'badge', '需舵机'));
+  if (U.release === 'real') badges.appendChild(el('span', 'badge', '实投需舵机'));
   if (g.needs_waypoints) badges.appendChild(el('span', 'badge', '需实测航点'));
   if (g.manual_mission_start) badges.appendChild(el('span', 'badge', '手动启动任务'));
   card.appendChild(badges);
 
-  var U = state.tabs[g.id] || (state.tabs[g.id] = { mode: 'preview', armedOk: false, realConfirm: '', checkConfig: false, speed: null, cmdOpen: false });
-  if (!U.mode) U.mode = 'preview';
-  if (g.speed_options && g.speed_options.length && (U.speed === null || U.speed === undefined)) U.speed = g.speed_options[0];
-
   var ops = el('div', 'grp-ops');
+  function choiceRow(label, field, choices) {
+    var row = el('div', 'grp-row');
+    row.appendChild(el('span', 'lbl', label));
+    var select = el('select', 'grp-choice');
+    select.setAttribute('data-option', field);
+    choices.forEach(function (choice) {
+      var option = el('option', null, choice[1]); option.value = choice[0];
+      select.appendChild(option);
+    });
+    select.value = U[field] || '';
+    select.addEventListener('change', function () {
+      U[field] = select.value;
+      if (field === 'release') { U.realConfirm = ''; U.armedOk = false; }
+      renderGroups();
+    });
+    row.appendChild(select); ops.appendChild(row);
+  }
+  if (g.release_options && g.release_options.length) {
+    choiceRow('投递', 'release', g.release_options.map(function (v) { return [v, v === 'real' ? '真实投递 · 需双重确认' : '模拟投递 · mock']; }));
+  }
+  if (g.motion_optimization_supported) {
+    var motionRow = el('div', 'grp-row');
+    var motionLab = el('label', 'chk');
+    var motion = el('input'); motion.type = 'checkbox'; motion.checked = !!U.motionOptimized;
+    motion.setAttribute('data-option', 'motionOptimized');
+    motion.addEventListener('change', function () { U.motionOptimized = motion.checked; renderGroups(); });
+    motionLab.appendChild(motion); motionLab.appendChild(el('span', null, '启用运动优化（motion-optimized）'));
+    motionRow.appendChild(motionLab); ops.appendChild(motionRow);
+  }
+  if (g.survey_patterns && g.survey_patterns.length) {
+    choiceRow('搜索路线', 'pattern', [['', '继承现场配置']].concat(g.survey_patterns.map(function (v) { return [v, v]; })));
+  }
+  if (g.resume_survey_supported) {
+    choiceRow('高位续扫', 'resume', [['', '继承现场配置'], ['on', '开启续扫'], ['off', '关闭续扫']]);
+  }
+  if (g.lighting_options && g.lighting_options.length) {
+    choiceRow('光照标签', 'lighting', [['', '继承现场配置']].concat(g.lighting_options.map(function (v) {
+      return [v, { normal: '正常 normal', dim: '较暗 dim', unspecified: '未指定 unspecified' }[v] || v];
+    })));
+    ops.appendChild(el('div', 'tiny muted', '光照标签用于采集记录，不改变相机曝光。'));
+  }
 
   // 模式
   var modeRow = el('div', 'grp-row');
@@ -927,7 +998,7 @@ function groupCard(g) {
   }
 
   // 实投确认词
-  if (g.release === 'real' && U.mode === 'flight') {
+  if (U.release === 'real' && U.mode === 'flight') {
     var realRow = el('div', 'grp-row');
     realRow.appendChild(el('span', 'lbl', '实投确认词'));
     var inp = el('input'); inp.type = 'text'; inp.value = U.realConfirm || '';
@@ -935,7 +1006,7 @@ function groupCard(g) {
     inp.addEventListener('input', function () { U.realConfirm = inp.value; updateFlightBtn(); });
     realRow.appendChild(inp);
     ops.appendChild(realRow);
-    ops.appendChild(el('div', 'err-line', '该组 release=real：必须手工输入确认词「实投」才能点击飞行。'));
+    ops.appendChild(el('div', 'err-line', '真实投递：先输入「实投」，再确认完整命令后才会下发。'));
   }
 
   // 速度
@@ -951,27 +1022,22 @@ function groupCard(g) {
     ops.appendChild(el('div', 'warn-line', '速度选项属于「仅采集不投递」路径：只跑视觉采集，不下发投递。'));
   }
 
-  // 配置检查
-  var ccRow = el('div', 'grp-row');
-  var ccLab = el('label', 'chk');
-  var ccb = el('input'); ccb.type = 'checkbox'; ccb.checked = !!U.checkConfig;
-  ccb.addEventListener('change', function () { U.checkConfig = ccb.checked; renderGroups(); });
-  ccLab.appendChild(ccb);
-  ccLab.appendChild(el('span', null, '只做配置检查（check_config，不启动节点）'));
-  ccRow.appendChild(ccLab);
-  ops.appendChild(ccRow);
-
   if (g.needs_waypoints) ops.appendChild(el('div', 'warn-line', '航点留空时入口会拒绝启动，属预期。'));
 
   // 按钮
   var btnRow = el('div', 'grp-row');
   var previewBtn = el('button', 'btn btn-sm', '预览（preview）');
-  previewBtn.disabled = !connected();
+  previewBtn.disabled = !connected() || tSessRunning() || !!state.trialPending;
   previewBtn.addEventListener('click', function () { startTrial(g, 'preview'); });
+  var checkBtn = el('button', 'btn btn-sm', '配置检查（不启动节点）');
+  checkBtn.disabled = previewBtn.disabled;
+  checkBtn.title = '独立展开配置：mode=preview, check_config=true，不经过飞行或实投确认';
+  checkBtn.addEventListener('click', function () { startTrial(g, 'preview', true); });
 
   var flightBtn = el('button', 'btn btn-sm btn-danger', '飞行（flight）');
   btnRow.appendChild(previewBtn);
   btnRow.appendChild(flightBtn);
+  btnRow.appendChild(checkBtn);
   if (tSessRunning()) {
     var stopBtn = el('button', 'btn btn-sm', '停止（Ctrl+C）');
     stopBtn.title = 'POST /api/trial/stop {} → 向 trial 会话发送 INT（等同 Ctrl+C），不做任何自动降落';
@@ -1007,22 +1073,21 @@ function groupCard(g) {
 
   // flight 按钮启用条件
   function updateFlightBtn() {
-    var needReal = (g.release === 'real');
+    var needReal = (U.release === 'real');
     var realOk = !needReal || (U.realConfirm || '').trim() === '实投';
-    flightBtn.disabled = !connected() || !U.armedOk || !realOk;
+    flightBtn.disabled = !connected() || tSessRunning() || !!state.trialPending || !U.armedOk || !realOk;
     flightBtn.title = !connected() ? '未连接板端'
-      : (!U.armedOk ? '请先勾选飞行前确认（已回到起飞点、未解锁、机头朝场内）'
-        : (!realOk ? '该组 release=real，需输入确认词「实投」' : 'POST /api/trial/start {group_id,mode:"flight",...}'));
-    var parts = ['group_id=' + g.id, 'mode=' + U.mode, g.release ? ('release=' + g.release) : null];
-    if (U.checkConfig) parts.push('check_config=true');
-    if (U.speed !== null && U.speed !== undefined) parts.push('capture_speed=' + U.speed);
-    reqEl.textContent = '请求体：{' + parts.filter(Boolean).join(', ') + '}';
+      : (tSessRunning() || state.trialPending ? '专项正在运行或准备下发，先停止当前任务'
+        : (!U.armedOk ? '请先勾选飞行前确认（已回到起飞点、未解锁、机头朝场内）'
+          : (!realOk ? '真实投递需输入确认词「实投」' : 'POST /api/trial/start {group_id,mode:"flight",...}')));
+    reqEl.textContent = '请求体：' + JSON.stringify(trialBody(g, U.mode, false));
   }
   flightBtn.addEventListener('click', function () { startTrial(g, 'flight'); });
   updateFlightBtn();
 
   // 命令预览（始终可见）
-  var cmd = buildTrialCommand(g, U.mode, g.release === 'real', U.checkConfig, U.speed);
+  var request = trialBody(g, U.mode, false);
+  var cmd = buildTrialCommand(g, U.mode, request.real_release, false, request.capture_speed, request);
   var det = el('details', 'cmd-box');
   if (U.cmdOpen) det.open = true;
   det.addEventListener('toggle', function () { U.cmdOpen = det.open; });
@@ -1032,7 +1097,10 @@ function groupCard(g) {
   var cb2 = el('div', 'cmd-box-body');
   var pre = el('pre', 'cmd-pre', cmd);
   cb2.appendChild(pre);
-  cb2.appendChild(el('div', 'tiny muted wrap-any', '入口说明：' + groupCommandBody(g, U.mode, g.release === 'real', !!U.checkConfig, U.speed).note));
+  cb2.appendChild(el('div', 'tiny muted wrap-any', '入口说明：' + groupCommandBody(g, U.mode, request.real_release, false, request.capture_speed, request).note));
+  cb2.appendChild(el('div', 'tiny muted', '独立配置检查命令（不启动节点）：'));
+  var checkRequest = trialBody(g, 'preview', true);
+  cb2.appendChild(el('pre', 'cmd-pre', buildTrialCommand(g, 'preview', false, true, checkRequest.capture_speed, checkRequest)));
   var row = el('div', 'grp-row');
   row.appendChild(copyBtn(function () { return cmd; }, '试飞命令'));
   if (g.command) {
@@ -1269,6 +1337,11 @@ function renderMonitor() {
   var reportTop = oldReport ? oldReport.scrollTop : 0;
   var keepReport = state.reportText;
   clear(body);
+  var tel = state.telemetry || {};
+  var telemetryAt = Number(tel.at || tel.t || 0);
+  var telemetryAge = telemetryAt ? nowSec() - telemetryAt : null;
+  var telemetryFresh = telemetryAge !== null && telemetryAge >= -1 && telemetryAge <= 2;
+  var unobserved = telemetryAt ? '未观测（遥测已过期）' : '未观测';
 
   var stage = state.stage || {};
   var sname = stage.name || 'IDLE';
@@ -1290,11 +1363,15 @@ function renderMonitor() {
   sec.appendChild(secHead('关键状态'));
   var sb = el('div', 'sec-body');
   var kv = el('div', 'kv');
-  kvRow(kv, 'armed', stage.armed === true ? '已解锁' : '未解锁', stage.armed ? 'warn' : 'ok');
+  kvRow(kv, 'armed', telemetryFresh ? (stage.armed === true ? '已解锁' : (stage.armed === false ? '未解锁' : '未观测')) : unobserved,
+    telemetryFresh && stage.armed === false ? 'ok' : 'warn');
   kvRow(kv, 'ever_armed', stage.ever_armed ? '本次已解锁过' : '从未解锁');
   kvRow(kv, 'mode', stage.mode || '—');
   kvRow(kv, 'phase', stage.phase || '—');
   kvRow(kv, 'reason', stage.reason || '—');
+  kvRow(kv, '任务结果', stage.outcome === 'complete' ? '任务完成' : (stage.outcome === 'aborted' ? '任务中止' : '未确认'),
+    stage.outcome === 'aborted' ? 'warn' : '');
+  if (stage.pilot_action) kvRow(kv, '飞手操作', stage.pilot_action, 'warn');
   var align = stage.alignment || '—';
   kvRow(kv, '定位一致性', align + (stage.alignment_hint ? ('（' + stage.alignment_hint + '）') : ''),
     align === 'stable' ? 'ok' : (align === 'unstable' || align === 'bad' ? 'bad' : 'warn'));
@@ -1347,19 +1424,37 @@ function renderMonitor() {
   }
 
   // 设备与遥测
-  var tel = state.telemetry || {};
   var sd = el('div', 'sec');
   sd.appendChild(secHead('设备与遥测', 'master ' + (tel.master === true ? 'OK' : (tel.master === false ? '无' : '—'))));
   var sdb = el('div', 'sec-body');
   var kv3 = el('div', 'kv');
   kvRow(kv3, 'ROS master', tel.master === true ? '已就绪' : (tel.master === false ? '未就绪' : '—'), tel.master ? 'ok' : 'warn');
   kvRow(kv3, '节点数', (tel.nodes || []).length + (tel.nodes && tel.nodes.length ? ('（' + tel.nodes.slice(0, 4).join(', ') + (tel.nodes.length > 4 ? ' …' : '') + '）') : ''));
-  kvRow(kv3, '最后遥测', hhmmss(tel.at || tel.t));
+  kvRow(kv3, '最后遥测', telemetryAt ? hhmmss(telemetryAt) + (telemetryFresh ? '' : ' · 已过期') : '未观测', telemetryFresh ? '' : 'warn');
   var mst = tel.state || {};
-  kvRow(kv3, '飞控', 'connected=' + (mst.connected === true ? 'true' : 'false') + ' armed=' + (mst.armed === true ? 'true' : 'false') + ' mode=' + txt(mst.mode || '—'));
+  function observedBool(value) { return typeof value === 'boolean' ? String(value) : '未观测'; }
+  kvRow(kv3, '飞控', telemetryFresh
+    ? 'connected=' + observedBool(mst.connected) + ' armed=' + observedBool(mst.armed) + ' mode=' + txt(mst.mode || '未观测')
+    : unobserved, telemetryFresh ? '' : 'warn');
   if (tel.mission) kvRow(kv3, 'mission', txt(tel.mission.phase || '') + (tel.mission.reason ? (' · ' + tel.mission.reason) : ''));
   if (tel.probe_status) kvRow(kv3, '探针阶段', txt(tel.probe_status.scope || '') + ' / ' + txt(tel.probe_status.stage || ''));
   if (tel.extended && tel.extended.landed_state !== undefined) kvRow(kv3, 'landed_state', String(tel.extended.landed_state));
+  var hover = telemetryFresh ? tel.terminal_hover : null;
+  if (typeof hover === 'string') {
+    try { hover = JSON.parse(hover); } catch (e) { hover = { status: hover }; }
+  }
+  var hoverStage = hover && (hover.stage || hover.status || hover.state || hover.phase || '');
+  var hoverLabel = { DESCEND_TO_HOVER: '下降至收尾悬停', PILOT_HANDOFF: '交给飞手落地' }[hoverStage] || hoverStage;
+  kvRow(kv3, '收尾悬停', hover ? [hoverLabel, hover.reason || hover.message || ''].filter(Boolean).join(' · ') || JSON.stringify(hover) : (telemetryFresh ? '未观测' : unobserved), hover ? '' : 'warn');
+  var lio = telemetryFresh ? tel.lio_realtime || [] : [];
+  if (!lio.length) kvRow(kv3, 'LIO实时状态', telemetryFresh ? '未观测' : unobserved, 'warn');
+  lio.forEach(function (diag) {
+    var values = diag.values || {};
+    var metric = ['output_age_sec', 'lidar_queue', 'imu_queue'].filter(function (key) { return values[key] != null; })
+      .map(function (key) { return key + '=' + values[key]; }).join(' · ');
+    kvRow(kv3, 'LIO ' + (diag.name || '实时状态'), [diag.message, metric].filter(Boolean).join(' · ') || '未观测',
+      Number(diag.level) > 0 ? 'warn' : '');
+  });
   sdb.appendChild(kv3);
 
   var topics = tel.topics || {};
@@ -1493,16 +1588,18 @@ function missionStartSection(stage) {
   var trialRun = (tSess.state === 'running' || tSess.state === 'starting');
 
   var sec = el('div', 'sec');
-  sec.appendChild(secHead('启动任务（仅 READY 后）', '板端下发一次'));
+  sec.appendChild(secHead(manual ? '启动任务（仅 READY 后）' : '自动任务', manual ? '板端下发一次' : '飞手操作后由入口启动'));
   var sb = el('div', 'sec-body');
   sb.appendChild(el('div', 'tiny muted',
-    '板端执行一次：rosservice call /navigation/start_mission "{}"（请求体 {confirm:"启动任务"}）'));
+    manual ? '板端执行一次：rosservice call /navigation/start_mission "{}"（请求体 {confirm:"启动任务"}）'
+      : 'READY 后人工解锁、人工拨入 OFFBOARD；稳定条件满足后入口自动起飞并开始任务，接管会取消自动时序。'));
 
   var row = el('div', 'grp-row');
   var label = '启动任务（仅 READY 后）' + (manual && cur ? (' · ' + (cur.key || cur.id)) : '');
   var btn = el('button', 'btn btn-sm', label);
   var reason = '';
   if (!connected()) reason = '未连接板端，先连接';
+  else if (!manual) reason = '所选运行入口使用自动任务时序，无需手动下发';
   else if (!stageOk) reason = '当前阶段是 ' + st + '，只有 READY 之后才允许启动任务（后端会返回 400）';
   else if (!trialRun) reason = '专项入口未在运行：先启动对应任务组';
   else if (state.trial.mode !== 'flight' || state.trial.check_config) reason = 'preview/配置检查不能启动任务';
@@ -1526,7 +1623,7 @@ function missionStartSection(stage) {
   return sec;
 }
 
-/* 启动任务：人工在 READY、未解锁、trial 运行中按需触发；非自动流程 */
+/* 兼容显式 manual_mission_start 的旧入口；当前自动任务无需下发。 */
 function doMissionStart() {
   var stage = state.stage || {};
   var cmdText = 'POST /api/action/mission_start\n' + JSON.stringify({ confirm: '启动任务' })
@@ -1535,7 +1632,7 @@ function doMissionStart() {
     '只在 READY、飞手已解锁并进入 OFFBOARD、低空悬停稳定后调用一次；不要为催促重复调用。\n'
     + '当前阶段：' + txt(stage.name || '—') + ' · armed=' + (stage.armed ? 'true' : 'false')
     + ' · trial 会话=' + txt((state.sessions.trial || {}).state || '—') + '\n'
-    + '本工作台不会因此自动解锁或自动起飞；解锁与起飞仍由飞手手工完成。', '确认下发一次').then(function (res) {
+    + '飞手人工解锁并人工拨入 OFFBOARD；实际起飞方式以当前入口配置为准。', '确认下发一次').then(function (res) {
     if (!res || !res.confirmed) return;
     act(api.missionStart(), '启动任务').then(function (r) {
       if (!r) return;
@@ -1947,45 +2044,49 @@ function doReport() {
   });
 }
 
-function startTrial(g, mode) {
-  var U = state.tabs[g.id] || (state.tabs[g.id] = {});
-  var body = { group_id: g.id, mode: mode, real_release: false };
-  if (mode === 'flight') {
+function startTrial(g, mode, checkConfig) {
+  if (!connected()) { toast('warn', '先连接板端'); return; }
+  if (tSessRunning() || state.trialPending) { toast('warn', '当前专项正在运行或准备下发，请先停止当前任务'); return; }
+  var U = groupUI(g);
+  var body = trialBody(g, mode, checkConfig);
+  if (body.mode === 'flight') {
     if (!U.armedOk) { toast('warn', '飞行前必须先勾选「已确认飞机回到起飞点、未解锁、机头朝场内」'); return; }
-    body.real_release = (g.release === 'real');
-    if (g.release === 'real' && (U.realConfirm || '').trim() !== '实投') {
-      toast('warn', '该组 release=real：必须输入确认词「实投」');
+    if (body.real_release && (U.realConfirm || '').trim() !== '实投') {
+      toast('warn', '真实投递必须输入确认词「实投」');
       return;
     }
   }
-  if (U.checkConfig) body.check_config = true;
-  if (g.speed_options && g.speed_options.length && U.speed !== null && U.speed !== undefined) body.capture_speed = U.speed;
-  // 确认词按后端校验规则给：实投路径用「实投」，其余用「启动试飞」
-  body.confirm = body.real_release ? '实投' : '启动试飞';
-
-  var built = groupCommandBody(g, mode, body.real_release, !!body.check_config, body.capture_speed);
-  var cmd = buildTrialCommand(g, mode, body.real_release, !!body.check_config, body.capture_speed);
-  // 把界面预览的入口命令一起发回后端做一致性校验：不一致就拒绝启动（防止预览与真实命令漂移）
-  if (built.body) body.expected_body = built.body;
+  var built = groupCommandBody(g, body.mode, body.real_release, !!body.check_config, body.capture_speed, body);
+  if (!built.body) { toast('warn', built.note); return; }
+  var cmd = buildTrialCommand(g, body.mode, body.real_release, !!body.check_config, body.capture_speed, body);
   var note = '请求体：' + JSON.stringify(body) + '\n'
     + '入口说明：' + built.note + '\n'
     + '模式：' + (mode === 'flight' ? 'flight（飞行）' : 'preview（只采集，不下发）') + '\n'
-    + 'release=' + txt(g.release || 'none') + ' · needs_servo=' + (g.needs_servo ? 'true' : 'false')
+    + 'release=' + txt(U.release || 'none') + ' · needs_servo=' + (body.real_release ? 'true' : 'false')
     + ' · needs_waypoints=' + (g.needs_waypoints ? 'true' : 'false') + '\n'
     + (g.ending ? ('ending：' + g.ending + '\n') : '')
     + (mode === 'flight'
-      ? '飞行入口只启动板端既有 entry；解锁与起飞仍由飞手手工完成。'
+      ? 'READY 后由飞手人工解锁、人工拨入 OFFBOARD；入口在稳定条件满足后自动起飞并开始任务。飞手接管后自动时序取消。'
       : '预览模式只启动视觉采集与配置检查。');
 
-  confirmModal((mode === 'flight' ? '确认启动飞行试飞 · ' : '确认启动预览 · ') + g.name, cmd, note,
-    mode === 'flight' ? '确认启动 flight' : '确认启动 preview').then(function (res) {
+  state.trialPending = true;
+  scheduleRender();
+  var approval = checkConfig ? Promise.resolve({ confirmed: true })
+    : confirmModal((mode === 'flight' ? '确认启动飞行试飞 · ' : '确认启动预览 · ') + g.name, cmd, note,
+      mode === 'flight' ? '确认启动 flight' : '确认启动 preview');
+  return approval.then(function (res) {
     if (!res || !res.confirmed) return;
-    act(api.trialStart(body), '启动试飞').then(function (r) {
+    // Recheck after the dialog: a new snapshot may report a trial started elsewhere.
+    if (!connected() || tSessRunning()) { toast('warn', '连接或运行状态已变化，未下发新任务'); return; }
+    return act(api.trialStart(body), checkConfig ? '配置检查' : '启动试飞').then(function (r) {
       if (r && r.trial) state.trial = r.trial;
       if (r && r.ok) state.activeTerm = 'trial';
       scheduleRender();
-      if (r && r.ok) toast('ok', '试飞入口已下发：' + g.name);
+      if (r && r.ok) toast('ok', (checkConfig ? '配置检查已下发：' : '试飞入口已下发：') + g.name);
     });
+  }).finally(function () {
+    state.trialPending = false;
+    scheduleRender();
   });
 }
 

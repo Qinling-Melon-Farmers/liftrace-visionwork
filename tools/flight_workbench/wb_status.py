@@ -32,7 +32,7 @@ STAGE_LABELS = {
     "MAPPING_READY": "地图就绪（MAPPING_READY）",
     "READY": "就绪（READY，可人工解锁）",
     "IN_FLIGHT": "飞行中",
-    "DISARMED": "已上锁/落地",
+    "DISARMED": "已上锁（落地状态另查）",
     "STOPPED": "应用已退出",
     "FAILED": "失败",
 }
@@ -213,6 +213,10 @@ class StageTracker:
         self.last_status_at = None
         self.auto_sequence = None
         self.mission_start = None
+        self.outcome = None
+        self.terminal_hover = None
+        self.pilot_action = ""
+        self.auto_cancelled = False
         self.alerts = []
         self.timeline = []
         self._pending = ""
@@ -303,14 +307,16 @@ class StageTracker:
             events.append(self._timeline("配置检查通过（未启动任何 ROS 节点）", "ok"))
         elif name == "AUTO_SEQUENCE":
             self.auto_sequence = payload
-            events.append(self._timeline("自动时序：人工解锁 → OFFBOARD → 低空稳定 → 启动任务（不会自动解锁）", "info"))
+            events.append(self._timeline("自动时序：飞手人工解锁并拨入 OFFBOARD → 低空稳定 → 自动启动任务", "info"))
         elif name == "AUTO_CANCELLED":
+            self.auto_cancelled = True
+            self.pilot_action = "已接管；自动任务已取消"
             events.append(self._alert("warn", "飞手改了模式，程序不再抢回控制（AUTO_SEQUENCE_CANCELLED）",
                                       "接管优先；如需继续任务，由现场判断，不要在空中重启应用。",
                                       key="auto_cancelled", throttle=False))
         elif name == "AUTO_OFFBOARD_REQUEST":
             self.mission_start = self.mission_start or {}
-            events.append(self._timeline("已请求 OFFBOARD%s" % ("（已取消）" if "True" in payload else ""), "info"))
+            events.append(self._timeline("旧版入口日志：已请求 OFFBOARD%s" % ("（已取消）" if "True" in payload else ""), "info"))
         elif name == "AUTO_OFFBOARD_FAILED":
             events.append(self._alert("error", "请求 OFFBOARD 失败：%s" % payload,
                                       "服务失败不盲目重试；由飞手决定是否重试。", key="offboard_failed", throttle=False))
@@ -388,8 +394,69 @@ class StageTracker:
         elif self.ever_armed and self.name == "IN_FLIGHT":
             events.append(self.set_stage("DISARMED", {"mode": self.mode, "phase": self.phase}))
             events.append(self._timeline("飞控已上锁（armed=False），等待应用收尾", "info"))
+        events.extend(self._observe_outcome(self.phase, status.get("mission_failed", False)))
         events.append(self._event("stage", stage=self.snapshot()))
         return events
+
+    def _observe_outcome(self, phase, failed=False):
+        outcome = "aborted" if phase == "ABORTED" or failed is True else (
+            "complete" if phase == "COMPLETE" else None)
+        # ABORT 是本次运行的失败终态；后续上锁/收尾不会把它改成成功。
+        if not outcome or self.outcome == outcome or self.outcome == "aborted":
+            return []
+        self.outcome = outcome
+        if outcome == "aborted":
+            return [self._alert("error", "任务 ABORTED：%s" % (self.reason or "查看任务日志"),
+                                "接管后先落地；工作台不会自动恢复任务或重新请求控制。",
+                                key="mission_aborted", throttle=False)]
+        return [self._timeline("任务报告 COMPLETE；是否落地与上锁另查飞控状态", "ok")]
+
+    def observe_telemetry(self, telemetry, terminal_hover_topic="/board_trials/terminal_hover_status"):
+        """只消费当前运行的新鲜遥测；不因旧缓存/断链判定成功。"""
+        events = []
+        now = time.time()
+        if not telemetry.get("master") or now - telemetry.get("at", 0) > 2:
+            self.pilot_action = "飞控遥测过期，当前状态未观测"
+            self.terminal_hover = None
+            events.append(self._event("stage", stage=self.snapshot()))
+            return events
+        topics = telemetry.get("topics") or {}
+
+        def fresh(topic):
+            age = (topics.get(topic) or {}).get("age")
+            return isinstance(age, (int, float)) and 0 <= age <= 2 and (
+                self.ready_at is None or now - age >= self.ready_at)
+
+        if fresh("/mavros/state") and isinstance(telemetry.get("state"), dict):
+            state = telemetry["state"]
+            events.extend(self._on_flight_status(repr({"mode": state.get("mode"),
+                                                      "armed": state.get("armed")})))
+            if self.auto_cancelled:
+                self.pilot_action = "已接管；自动任务已取消"
+            elif self.ever_armed and not self.armed:
+                self.pilot_action = "已上锁，等待应用收尾"
+            elif not self.armed:
+                self.pilot_action = "等待飞手人工解锁并拨入 OFFBOARD"
+            elif self.mode != "OFFBOARD" and self.mission_start is None:
+                self.pilot_action = "等待飞手人工拨入 OFFBOARD"
+            else:
+                self.pilot_action = "观察任务；飞手可随时接管"
+        else:
+            self.pilot_action = "飞控遥测过期，当前状态未观测"
+        mission = telemetry.get("mission")
+        if fresh("/navigation/mission_status") and isinstance(mission, dict):
+            self.phase = mission.get("phase", self.phase)
+            self.reason = mission.get("reason", self.reason) or ""
+            events.extend(self._observe_outcome(self.phase, mission.get("mission_failed", False)))
+        hover = telemetry.get("terminal_hover")
+        if fresh(terminal_hover_topic) and isinstance(hover, dict):
+            self.terminal_hover = hover
+            if hover.get("stage") == "PILOT_HANDOFF" and self.armed:
+                self.pilot_action = "30cm 悬停等待飞手接管落地"
+        else:
+            self.terminal_hover = None
+        events.append(self._event("stage", stage=self.snapshot()))
+        return [event for event in events if event]
 
     def _alignment_alert(self, alignment):
         reason = alignment.get("reason")
@@ -455,6 +522,9 @@ class StageTracker:
             "run_dir": self.run_dir,
             "auto_sequence": self.auto_sequence,
             "mission_start": self.mission_start,
+            "outcome": self.outcome,
+            "terminal_hover": self.terminal_hover,
+            "pilot_action": self.pilot_action,
             "last_status_at": self.last_status_at,
             "history": self.history[-40:],
         }
@@ -478,6 +548,10 @@ def build_report(tracker, connection, trial, telemetry):
             lines.append("- 启动命令：`%s`" % trial["command"])
         if trial.get("run_dir"):
             lines.append("- 产物目录：`%s`" % trial["run_dir"])
+        options = {k: trial[k] for k in ("motion_optimized", "survey_pattern", "resume_survey",
+                                        "capture_speed", "capture_lighting") if trial.get(k) is not None}
+        if options:
+            lines.append("- 启动选项：%s" % json.dumps(options, ensure_ascii=False))
     lines.append("")
     lines.append("## 当前阶段")
     lines.append("")
@@ -487,6 +561,10 @@ def build_report(tracker, connection, trial, telemetry):
     lines.append("- 飞控：armed=%s mode=%s phase=%s reason=%s" % (
         stage.get("armed"), stage.get("mode"), stage.get("phase"), stage.get("reason") or "-"))
     lines.append("- 定位一致性：%s（%s）" % (stage.get("alignment") or "-", stage.get("alignment_hint") or "-"))
+    lines.append("- 任务结果：%s；飞手操作：%s" % (stage.get("outcome") or "未观测到终态",
+                                                   stage.get("pilot_action") or "未观测"))
+    if stage.get("terminal_hover"):
+        lines.append("- 悬停收尾：%s" % json.dumps(stage["terminal_hover"], ensure_ascii=False))
     detail = stage.get("detail") or {}
     if detail:
         keep = {k: detail[k] for k in ("pose_samples", "camera_info", "image_seen", "compressed_fresh",
@@ -501,6 +579,8 @@ def build_report(tracker, connection, trial, telemetry):
         mission = telemetry.get("mission")
         if mission:
             lines.append("- 任务状态：%s" % json.dumps(mission, ensure_ascii=False))
+        if telemetry.get("lio_realtime"):
+            lines.append("- LIO 实时诊断：%s" % json.dumps(telemetry["lio_realtime"], ensure_ascii=False))
     lines.append("")
     lines.append("## 阶段时间线")
     lines.append("")

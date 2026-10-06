@@ -17,11 +17,12 @@ for folder in $folders; do
   dir="$fake/deployment/board_trials_4x4/$folder"
   mkdir -p "$dir"
   for entry in start start_real; do
+    if [ "$entry" = start_real ]; then fake_mode=flight; else fake_mode='${1:-preview}'; fi
     cat >"$dir/$entry.sh" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
 script_dir="\$(cd "\${BASH_SOURCE[0]%/*}" && pwd)"
-mode="\${1:-preview}"
+mode="$fake_mode"
 exec bash "\$script_dir/../../../emit_transcript.sh" "$folder" "\$mode"
 EOF
     chmod +x "$dir/$entry.sh"

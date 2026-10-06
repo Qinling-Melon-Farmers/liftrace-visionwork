@@ -8,6 +8,7 @@ class Element {
   constructor(tag) { this.tagName = tag.toUpperCase(); this.children = []; this.handlers = {}; }
   appendChild(child) { this.children.push(child); child.parentNode = this; return child; }
   addEventListener(name, fn) { this.handlers[name] = fn; }
+  setAttribute(name, value) { this[name] = value; }
   closest(selector) {
     const tags = selector.split(',').map(tag => tag.toUpperCase());
     for (let node = this; node; node = node.parentNode) {
@@ -42,6 +43,19 @@ ctx.startTrial = () => { throw new Error('Selecting a card must never start a tr
 
 for (const group of groups) {
   const card = ctx.groupCard(group);
+  const descendants = node => [node,...node.children.flatMap(descendants)];
+  const controls = descendants(card).filter(node=>node['data-option']);
+  for (const [field,capability] of [['motionOptimized','motion_optimization_supported'],
+    ['pattern','survey_patterns'],['resume','resume_survey_supported'],['lighting','lighting_options'],['release','release_options']]) {
+    assert.strictEqual(controls.some(node=>node['data-option']===field),!!group[capability],`${group.id} ${field} capability`);
+  }
+  const release = controls.find(node=>node['data-option']==='release');
+  if(release && group.release_options.includes('real')) {
+    ctx.groupUI(group).realConfirm='实投';ctx.groupUI(group).armedOk=true;
+    release.value='mock';release.handlers.change();
+    assert.strictEqual(ctx.groupUI(group).realConfirm,'','Changing release resets the typed real confirmation');
+    assert.strictEqual(ctx.groupUI(group).armedOk,false,'Changing release resets the flight confirmation');
+  }
   const title = card.children[0].children[1];
   card.handlers.click({ target: title });
   assert.strictEqual(ctx.state.selectedGroup, group.id);
