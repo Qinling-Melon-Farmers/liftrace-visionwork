@@ -7,7 +7,7 @@
 <title>Liftrace 只读实时观察</title>
 <link rel="stylesheet" href="/static/observe.css">
 </head>
-<body>
+<body data-wiring-config="/static/motor_wiring.json">
 <header>
   <div><a href="/" target="_blank" rel="noopener">← 飞行工作台</a><h1 id="page-title">实时状态曲线</h1></div>
   <nav><a href="/observe" target="_blank" rel="noopener">实时状态</a><a href="/motor" target="_blank" rel="noopener">电机观察大页</a><span class="pill">只读 · 无相机</span></nav>
@@ -23,8 +23,9 @@
     <p class="hint">FC local Z 是飞控坐标系高度；没有独立地面基准时不显示离地高度。FC、LIO、EV保持各自坐标系，未做TF变换或位置差计算。</p>
   </section>
   <section id="motor-panel" class="panel motor-panel">
-    <h2>原始输出与本地映射</h2>
-    <p class="hint">RC OUT 是飞控输出命令，不是电流或RPM。原始通道编号不代表电机编号；查明接线后选择并确认映射。ESC按原始index展示，不自动对应电机。</p>
+    <h2>电机接线与原始输出</h2>
+    <p class="hint">RC OUT 是飞控输出命令，不是电流或RPM。已登记飞机自动载入用户确认的接线；其他目标需手动核实。ESC按原始index展示，不自动对应电机。</p>
+    <p id="wiring-status" class="hint">接线配置读取中…</p>
     <div id="mapping-controls" class="mapping-controls"></div>
     <div class="controls"><button id="confirm-mapping" type="button">确认本地四路映射</button><button id="clear-mapping" type="button">清除映射</button><span id="mapping-status">四路映射未核实</span></div>
     <div id="raw-outputs" class="raw-outputs">RC OUT：未观测</div>
@@ -46,7 +47,7 @@
   <section class="panel"><h2>电池与实时诊断</h2><div id="diagnostic-charts" class="charts"></div><div id="diagnostic-status"></div></section>
   <section class="panel"><h2>配置的话题</h2><div id="topic-list" class="topic-list"></div></section>
 </main>
-<footer>只读观察；页面关闭不会停止板端节点。本地片段和映射只保留在此页面，下载文件可供飞后对比。</footer>
+<footer>只读观察；页面关闭不会停止板端节点。用户接线由配置文件载入；手动覆盖和本地片段只保留在此页面，下载文件可供飞后对比。</footer>
 <script src="/static/observe.js"></script>
 </body>
 </html>
