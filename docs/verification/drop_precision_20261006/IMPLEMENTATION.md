@@ -98,3 +98,16 @@ git diff --check
 - `cmake --build patrol_uav_ws-patrol_planner/build --target patrol_control -- -j2` 增量 ROS 编译退出 **0**，最终日志 `/tmp/drop_commitment_incremental_build.log`。未启动二进制。全套测试只有既有 H 夹具的有符号比较警告。
 
 生产源码与测试已冻结，未 commit/push。下一步由主代理按其授权提交，并以同 seed31 验证锁后 setpoint 更新与有界承诺释放；本补丁不能据离线 PASS 宣称投递精度或实跑成功。
+
+## 2026-10-07：ACK 后恢复计数回归修复（已冻结）
+
+主代理反馈 `71dc1f54` 重跑在仿真 87.931 s 首次 ACK 成功，但 103 s 仍未上升。原因是 inactive context 清除几何时把 `count_aligning` 清零，阻断嵌套在该计数条件内的标准靶/红十字恢复分支。收到主代理确认 `check_sim_processes.sh` PASS、仿真零残留后才实施本补丁；运行诊断文档由 C 维护。
+
+唯一生产修改位于 `clearExactDropCommitment()`：始终清除物理容差锁存，但只在 `servo_action_pending_`、`drop_complete`、`servo_complete.data` 全部为 false 时清零对准计数。已提交 RPC 或已成功投递保留恢复入口；投递前撤销仍可清零重新捕获，inactive context 与授权撤销继续阻止新的释放。
+
+`test_exact_drop_control.py` 新增四项生产状态回归：标准靶/红十字分别执行 pending→inactive→ACK 和 pending→ACK→inactive。测试使用真实 `AsyncServo` worker、生产 `pollDropAction()`、完整 alignment 状态函数与 `externalMissionTick()`；传输替身受控返回成功。四项均断言撤销后不能再次释放、成功 ACK 后发出配置恢复高度、达到恢复高度后正常交接到 Run_point，以及模拟执行调用恰好一次。修补了此前固定返回 kPending、没有推进 ACK 的测试缺口。
+
+- 专属测试 **32/32 PASS**：`/tmp/drop_recovery_exact_tests.log`。
+- 控制全套 **118/118 PASS**：`/tmp/drop_recovery_full_control_tests.log`。
+- `patrol_control` 增量 ROS 编译退出 **0**：`/tmp/drop_recovery_incremental_build.log`。
+- `git diff --check` 通过；没有启动 ROS/SITL、调用实物执行机构或 commit/push。本轮只修改上述 cpp、专属测试及本文；后续动态验证交主代理安排。

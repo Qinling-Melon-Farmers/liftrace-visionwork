@@ -1,0 +1,106 @@
+{
+  "status": "INTERRUPTED_DIAGNOSTIC",
+  "raw_gate": "FAIL",
+  "raw_gate_reason": "actual_collision",
+  "source": "71dc1f540ae63b415d41e2ae69aa3150368c9476",
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/drop_precision_seed31_20261007_011730",
+  "successful_releases": 1,
+  "release_class": "red_cross",
+  "release_slot": 1,
+  "raw_start_s": 87.931,
+  "ack_s": 87.931,
+  "source_interpolated_error_cm": 1.6655401942673607,
+  "legacy_ack_error_cm": 1.549133480979192,
+  "old_seed31_same_metric_cm": 3.317,
+  "inside_nominal_board": true,
+  "current_release_goal": {
+    "t": "87.897",
+    "x": "7.4174017906188965",
+    "y": "-1.0198643207550049",
+    "z": "0.10000000149011612",
+    "qx": "0.0",
+    "qy": "0.0",
+    "qz": "0.0004918259431479913",
+    "qw": "0.9999998790536135"
+  },
+  "last_fc_pose_before_release": {
+    "t": "87.808",
+    "x": "7.447569847106934",
+    "y": "-0.969273567199707",
+    "z": "0.19227148592472076",
+    "qx": "0.0023647510101025074",
+    "qy": "-0.009698371139626778",
+    "qz": "-0.0005329047525716729",
+    "qw": "-0.999950081017092"
+  },
+  "last_exact_source_s": 87.138,
+  "last_exact_receipt_s": 87.179,
+  "last_exact_map_point": {
+    "x": 7.41740197380617,
+    "y": -1.0198642914347311,
+    "z": -0.22
+  },
+  "last_exact_error_m": 0.06004621088504791,
+  "last_exact_exposure_tolerance_m": 0.014062649570405483,
+  "retained_goal_age_at_ack_s": 0.7929999999999922,
+  "last_exact_goal_true_center_error_cm": 5.484477117113407,
+  "release_goal_to_last_exact_m": 1.8551888198020876e-07,
+  "last_fc_pose_to_last_exact_m": 0.05890264814178721,
+  "exact_offsets": 97,
+  "short_exact_truth_center_error_cm": {
+    "median": 9.084685351455995,
+    "p95": 9.789676891799122
+  },
+  "post_first_exact_goals": [
+    {
+      "t": "79.64",
+      "x": "7.353233214641408",
+      "y": "-1.0651027701594273",
+      "z": "1.347341084322296",
+      "qx": "0.0",
+      "qy": "0.0",
+      "qz": "5.094840070376256e-05",
+      "qw": "0.9999999987021302"
+    },
+    {
+      "t": "79.79",
+      "x": "7.375835740723944",
+      "y": "-1.0603995532132446",
+      "z": "1.363409377163667",
+      "qx": "0.0",
+      "qy": "0.0",
+      "qz": "4.452588045522476e-05",
+      "qw": "0.9999999990087229"
+    }
+  ],
+  "post_last_exact_goals": [
+    {
+      "t": "87.19",
+      "x": "7.4174017906188965",
+      "y": "-1.0198643207550049",
+      "z": "0.10000000149011612",
+      "qx": "0.0",
+      "qy": "0.0",
+      "qz": "0.0004918259431479913",
+      "qw": "0.9999998790536135"
+    },
+    {
+      "t": "87.341",
+      "x": "7.4174017906188965",
+      "y": "-1.0198643207550049",
+      "z": "0.10000000149011612",
+      "qx": "0.0",
+      "qy": "0.0",
+      "qz": "0.0004918259431479913",
+      "qw": "0.9999998790536135"
+    }
+  ],
+  "actual_collision_count": 3,
+  "stop_ros_s": 118.003,
+  "stop_wall": 1791307558.086984,
+  "stop_reason": "Main explicit stop: first ACK succeeded but context clear resets alignment counter and blocks existing post-release recovery; collisions remain record-only and are not termination reason.",
+  "wrapper_TERM_pid": 10798,
+  "cleanup_original": "FAIL",
+  "cleanup_recovered": true,
+  "comparison_limit": "Only first redcross release; no bridge/panzer releases or complete mission, no parcel impact. Offset age is reported truthfully: lock-after-descent continuation does not claim fresh images at ACK."
+}

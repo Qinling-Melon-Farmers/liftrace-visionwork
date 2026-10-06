@@ -3197,7 +3197,10 @@ bool LLController::projectExactDropOffsetToTarget(const uav_vision::DropOffset& 
 void LLController::clearExactDropCommitment()
 {
     capture_tolerance_m_ = 0.0;
-    if (drop_exact_projection_enabled_) count_aligning = 0;
+    // Revocation blocks new releases, but must not strand the recovery path
+    // after a physical RPC was submitted or positively acknowledged.
+    if (drop_exact_projection_enabled_ && !servo_action_pending_ &&
+        !drop_complete && !servo_complete.data) count_aligning = 0;
 }
 
 bool LLController::exactDropCommitmentMatches() const

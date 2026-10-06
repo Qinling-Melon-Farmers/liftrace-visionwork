@@ -1,0 +1,15 @@
+{
+  "recorded_wall": 1791307663.6051393,
+  "original_wrapper_cleanup": "FAIL",
+  "original_residual_pids": {
+    "rosmaster": 10953,
+    "rosout": 10963
+  },
+  "required_recovery_command": "bash top_level_scripts/stop_toudi3_sim.sh",
+  "required_recovery_result": "Local toudi3 SITL fully stopped; no managed process remains.",
+  "independent_recheck_command": "bash top_level_scripts/check_sim_processes.sh",
+  "independent_recheck_result": "No local ROS/Gazebo/PX4/RViz process remains.",
+  "final_zero_residual": true,
+  "original_batch_status_preserved": "INFRA_STOP",
+  "note": "Supplementary recovery after failed wrapper cleanup; original FAIL/matrix is not changed to PASS."
+}

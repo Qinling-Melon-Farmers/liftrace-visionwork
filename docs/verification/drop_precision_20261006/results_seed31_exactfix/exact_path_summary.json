@@ -1,0 +1,13 @@
+{
+  "status": "RECORDED_EXACT_PATH",
+  "bag": "logs/drop_precision_seed31_20261007_011730/vision_metrics.bag",
+  "counts": {
+    "all_offsets": 97,
+    "exact_schema": 97,
+    "fresh_exact_valid": 97
+  },
+  "valid_by_target": {
+    "8": 97
+  },
+  "note": "Parameter enablement plus these offsets demonstrate the visual experimental branch; control acceptance/actual release still need transaction logs."
+}

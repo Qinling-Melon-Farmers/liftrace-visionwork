@@ -18,6 +18,9 @@ PROGRAM=r'''
 #include <uav_vision/AlignmentTargetContext.h>
 #include <patrol_control/drop_geometry.h>
 #include <patrol_control/drop_action.h>
+#include <patrol_control/async_servo.h>
+#include <atomic>
+#include <future>
 #include <patrol_control/ReleaseAuthorization.h>
 #include <std_msgs/Bool.h>
 #include <vector>
@@ -36,6 +39,18 @@ double distance3d(double x,double y,double z,double a,double b,double d){return 
 #include <array>
 #include <cassert>
 #include <limits>
+
+// Copyable fixture handle; submission, completion and slot fencing use the real worker.
+struct TestWorker {
+  std::shared_ptr<AsyncServo> worker=std::make_shared<AsyncServo>();
+  bool poll(std::uint64_t action,int slot,AsyncServo::Completion* out){return worker->poll(action,slot,out);}
+  bool releaseNotStarted(std::uint64_t action,int slot){return worker->releaseNotStarted(action,slot);}
+};
+struct TestTransport {
+  std::atomic<int> calls{0};
+  std::promise<void> ack;
+  std::shared_future<void> ack_ready=ack.get_future().share();
+};
 
 class LLController {
 public:
@@ -89,7 +104,25 @@ public:
   struct Waypoint {double x=0,y=0,z=0,yaw=0;};
   std::vector<Waypoint> waypoint_list{Waypoint()};
   int release_submissions=0;
-  DropActionResult executeDropAction(int){++release_submissions;return DropActionResult::kPending;}
+  bool exercise_async=false,servo_action_pending_=false,servo_action_attempted_=false;
+  std::uint64_t servo_action_id_=1;
+  int servo_action_slot_=0;
+  DropActionResult servo_action_result_=DropActionResult::kPending;
+  TestWorker async_servo_;
+  std::shared_ptr<TestTransport> transport=std::make_shared<TestTransport>();
+  DropActionResult executeDropAction(int slot){
+    if(servo_action_attempted_) return servo_action_result_;
+    ++release_submissions;
+    if(exercise_async){
+      auto t=transport;
+      assert(async_servo_.worker->submit(servo_action_id_,slot,5,[t](int){
+        ++t->calls;t->ack_ready.wait();return DropActionResult::kSuccess;
+      }));
+      servo_action_slot_=slot;servo_action_pending_=true;servo_action_attempted_=true;
+    }
+    return DropActionResult::kPending;
+  }
+  void pollDropAction();
   void stopDropAction(int){}
   void resetDropState(){}
   void cleanupAfterCrossDrop(){}
@@ -222,6 +255,37 @@ int main(int argc,char **argv){
     authorize(c,false);c.externalMissionTick();
     assert(c.count_aligning==1 && c.capture_tolerance_m_==m->alignment_tolerance_m);
     assert(c.release_submissions==0);
+    if(test.find("recovery")!=std::string::npos){
+      c.exercise_async=true;authorize(c);c.externalMissionTick();
+      assert(c.servo_action_pending_ && c.release_submissions==1);
+      auto end=std::chrono::steady_clock::now()+std::chrono::seconds(2);
+      while(c.transport->calls==0 && std::chrono::steady_clock::now()<end)std::this_thread::yield();
+      assert(c.transport->calls==1);
+      auto inactive=boost::make_shared<uav_vision::AlignmentTargetContext>(c.servo_alignment_context_);
+      inactive->active=false;
+      const bool before=test.find("before")!=std::string::npos;
+      if(before){
+        c.servoAlignmentContextCallback(inactive);
+        assert(c.servo_action_pending_ && c.count_aligning==1 && c.capture_tolerance_m_==0);
+        c.externalMissionTick();assert(c.release_submissions==1 && !c.drop_complete);
+      }
+      c.transport->ack.set_value();
+      while(c.servo_action_pending_ && std::chrono::steady_clock::now()<end){
+        c.pollDropAction();std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      }
+      assert(!c.servo_action_pending_ && c.drop_complete && c.servo_complete.data && c.drop_completed[0]);
+      if(!before)c.servoAlignmentContextCallback(inactive);
+      assert(c.count_aligning==1 && c.capture_tolerance_m_==0 && !c.hasFreshMissionReleasePermission());
+      assert(!c.exactDropReleaseReady());
+      c.externalMissionTick();
+      const double recovery=cross?c.external_cross_recovery_setpoint_height_:c.external_standard_recovery_setpoint_height_;
+      assert(c.patrol_cmd.pose.position.z==recovery && c.Drone_mode==c.Aligning);
+      c.uav_pose.pose.position.z=c.external_recovery_height_+.01;
+      c.externalMissionTick();
+      assert(c.Drone_mode==c.Run_point && c.external_waiting_for_motion_ && c.detect_point_counter==1);
+      assert(c.patrol_cmd.pose.position.z==recovery && c.mavros_point_cmd.pose.position.z==recovery);
+      assert(c.release_submissions==1 && c.transport->calls==1);return 0;
+    }
     const auto capture_limit=c.capture_tolerance_m_;
     const auto original_stamp=c.latest_drop_offset_.header.stamp;
     const bool update=test=="state_standard_update" || test=="state_cross_update";
@@ -303,6 +367,7 @@ class ExactDropControlTest(unittest.TestCase):
                     'bool LLController::CrossDetectionDone()',
                     'bool LLController::WayPointDetectDone()',
                     'void LLController::externalMissionTick()',
+                    'void LLController::pollDropAction()',
                     'void LLController::dropOffsetCallback(',
                     'bool LLController::projectExactDropOffsetToTarget(',
                     'bool LLController::exactDropReleaseReady()',
@@ -314,7 +379,7 @@ class ExactDropControlTest(unittest.TestCase):
         folder=Path(cls.temp.name);program=folder/'test.cpp';program.write_text(PROGRAM.replace('PRODUCTION_METHODS',methods))
         cls.binary=folder/'test'
         flags=shlex.split(subprocess.check_output(['pkg-config','--cflags','--libs','roscpp','tf'],text=True))
-        subprocess.run(['g++','-std=c++14','-O0','-fsanitize=undefined','-fno-sanitize-recover=all',
+        subprocess.run(['g++','-std=c++14','-O0','-pthread','-fsanitize=undefined','-fno-sanitize-recover=all',
                         '-I',str(PACKAGE/'include'),'-I',str(ROOT/'vision_ws/devel/include'),
                         '-I',str(ROOT/'patrol_uav_ws-patrol_planner/devel/include'),
                         str(program),'-o',str(cls.binary),*flags],check=True)
@@ -348,6 +413,10 @@ class ExactDropControlTest(unittest.TestCase):
     def test_explicit_cancel_invalidates_capture(self):self.run_case('state_cancel')
     def test_new_action_invalidates_capture(self):self.run_case('state_new_action')
     def test_each_new_emitted_goal_keeps_current_body_clamp(self):self.run_case('state_command_clamp')
+    def test_cross_inactive_before_ack_recovers_and_hands_off_once(self):self.run_case('state_cross_recovery_before')
+    def test_cross_inactive_after_ack_recovers_and_hands_off_once(self):self.run_case('state_cross_recovery_after')
+    def test_standard_inactive_before_ack_recovers_and_hands_off_once(self):self.run_case('state_standard_recovery_before')
+    def test_standard_inactive_after_ack_recovers_and_hands_off_once(self):self.run_case('state_standard_recovery_after')
 
 
 if __name__=='__main__':unittest.main()
