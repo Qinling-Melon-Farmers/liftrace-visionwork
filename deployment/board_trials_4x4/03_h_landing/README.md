@@ -59,3 +59,6 @@ bash deployment/board_trials_4x4/03_h_landing/start.sh flight --site-config depl
 
 
 2026-10-06 POSCTL补丁部署确认：板端ARM控制器已重新编译链接，13个补丁文件一致，板端43项交接/配置测试及6次H配置展开通过。01–09不因本检查自动启动；当前H应用停止、未解锁，尚无此补丁实飞验收。03最终配置为POSCTL，飞手接续下降；完整版本/回滚/检查见[部署报告](../../../docs/deployment/h_posctl_handoff_20261006/DEPLOYMENT.md)。
+
+
+2026-10-06 H视觉更新：已部署灰度自适应分割和H形态主判据，摆脱固定饱和度对偏色黑笔画的漏检；外圈优先、裁切笔画兜底继续启用。ARM构建、6项图形测试、464张实拍及60张构造图复跑通过，8项配置回归通过。保持本专项1.2m识别与POSCTL交接，04/08原高度与AUTO.LAND不变。参见[视觉部署报告](../../../docs/verification/h_morphology_20261006/DEPLOYMENT.md)；尚需新视觉与末段交接组合实飞。
