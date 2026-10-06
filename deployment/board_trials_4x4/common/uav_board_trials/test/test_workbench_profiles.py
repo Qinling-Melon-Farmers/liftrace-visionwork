@@ -32,6 +32,40 @@ class Profiles(unittest.TestCase):
                 self.assertTrue(control['switch']['auto_land'])
                 self.assertEqual(control['drop_system']['enable_drop'], False)
                 self.assertAlmostEqual(control['external_landing']['capture_height']-ref['ground_z'], 1.2)
+                self.assertAlmostEqual(control['land_height']-ref['ground_z'], .40)
+                self.assertAlmostEqual(control['external_landing']['auto_land_height']-ref['ground_z'], .55)
+                overrides = yaml.safe_load((Path(tmp)/'overrides.yaml').read_text())
+                self.assertIs(overrides['/landing_detector/landing_enable_h_stroke_fallback'], True)
+
+    def test_h_and_complete_mission_share_landing_gates(self):
+        rig = yaml.safe_load((BASE/'common/uav_board_trials/config/known_rig.yaml').read_text())
+        gates = []
+        for folder, profile in [('03_h_landing','h_landing_test_area.yaml'),
+                                ('04_corridor_landing','corridor_landing_test_area.yaml'),
+                                ('08_full_mission','full_mission_test_area.yaml')]:
+            settings = self.settings(folder, profile)
+            if folder != '03_h_landing':
+                # Test geometry only; retain empty measured-site YAMLs on disk.
+                apply_site_profile(settings, dict(corridor_waypoints=[dict(x=.6,y=0.,agl=1.),
+                    dict(x=1.5,y=.4,agl=1.)], landing_xy=[2.5,0.]))
+            with tempfile.TemporaryDirectory() as tmp:
+                ref = generate(ROOT, tmp, settings, (0.,0.,-.05), rig)
+                control = yaml.safe_load((Path(tmp)/'control.yaml').read_text())
+                overrides = yaml.safe_load((Path(tmp)/'overrides.yaml').read_text())
+                self.assertIs(overrides['/landing_detector/landing_enable_h_stroke_fallback'], True)
+                self.assertTrue(control['switch']['auto_land'])
+                self.assertEqual(control['switch']['flag_landing_detect'], 1)
+                self.assertAlmostEqual(control['land_height']-ref['ground_z'], .40)
+                landing = dict(control['external_landing'])
+                self.assertAlmostEqual(landing.pop('capture_height')-ref['ground_z'], settings['landing_capture_agl'])
+                self.assertEqual(landing['detections_topic'], '/uav_vision/detections_mapped')
+                self.assertAlmostEqual(landing['auto_land_height']-ref['ground_z'], .55)
+                self.assertEqual(landing['alignment_tolerance'], .08)
+                self.assertEqual(landing['stable_frames'], 10)
+                self.assertEqual(landing['mark_max_age_sec'], .5)
+                gates.append(landing)
+        self.assertEqual(gates[0], gates[1])
+        self.assertEqual(gates[0], gates[2])
 
     def test_corridor_full_require_measured_geometry(self):
         for folder, profile in [('04_corridor_landing','corridor_landing_test_area.yaml'),

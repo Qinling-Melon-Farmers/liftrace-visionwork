@@ -12,7 +12,11 @@
 
 1. 原地起飞到FC离地1.0m，启动任务后先到(1.3,0)，再到H的大致位置(2.0,0)，仍保持1.0m。
 2. XY保持(2.0,0)，**单独升到1.2m**。该升高是明确的垂直航段，不依赖H先被识别，便于检验定点爬升。
-3. 进入原H视觉降落流程，要求新的合法H观测、稳定对齐和高度交接，再请求AUTO.LAND落到H上。
+3. 进入与08完整任务相同的H视觉降落流程，要求新的合法H观测、稳定对齐和高度交接，再请求AUTO.LAND落到H上。
+
+共同入口显式开启`/landing_detector/landing_enable_h_stroke_fallback=true`，覆盖03、04和08的LAND阶段。完整圆环及内部H校验仍优先，失败时才尝试H笔画兜底；默认预览/接近阶段保持检测关闭，进入真正LAND后再接受新帧。投影使用实际CameraInfo和图像时刻TF，保留现场相机安装外参。
+
+末端门槛与完整任务相同：XY误差不超过8cm，累计10个新的合法H帧，观测年龄不超过0.5s；满足后锁定地图H中心，向FC离地0.40m下降，在FC离地不超过0.55m且XY仍合格时请求AUTO.LAND。人工接管或链路失效会取消旧LAND事务，重新拨回OFFBOARD不会自动恢复该事务。高度以外不另造专项降落控制逻辑。
 
 前两个点只提供H附近的大致位置；最终对齐依靠CV，不把预设(2,0)当作识别成功。本套不启动释放许可/投递代理或mock服务，不执行任何投递。当前默认高度都已配好；H摆放约2m、低空1.0m、识别1.2m可在本目录`settings.yaml`集中调整，不需手动换算local Z。
 
@@ -21,18 +25,14 @@
 完成[公共准备](../README.md)并停止旧应用，MAVROS、driver2和标定相机先运行。
 
 ```bash
-bash deployment/board_trials_4x4/03_h_landing/start.sh preview
+bash deployment/board_trials_4x4/03_h_landing/start.sh preview --site-config deployment/site_20260928/h_landing_test_area.yaml
 # Ctrl+C退出preview后再运行：
-bash deployment/board_trials_4x4/03_h_landing/start.sh flight
+bash deployment/board_trials_4x4/03_h_landing/start.sh flight --site-config deployment/site_20260928/h_landing_test_area.yaml
 ```
 
-脚本继承公共已知外参，在未解锁静置时自动建立地面基准；飞控停地Z约0不需要人为改成地面真值。看到READY后由飞手按现场流程选择模式/解锁，确认1.0m悬停，再显式启动：
+脚本继承公共已知外参，在未解锁静置时自动建立地面基准；飞控停地Z约0不需要人为改成地面真值。现场入口加载`deployment/site_20260928/h_landing_test_area.yaml`，看到READY后由飞手人工解锁并拨入OFFBOARD，在1.0m起飞高度稳定后自动启动任务，不需再手动调用start_mission。未加载现场配置的直接模块入口，应核对实际auto_start_after_arm参数后使用。
 
-```bash
-rosservice call /navigation/start_mission "{}"
-```
-
-`preview`只看定位、地图、视觉与录像，不飞；`flight`接通飞控输出但不自动解锁/启动任务。不要与其他两套或旧整机同时启动。
+`preview`只看定位、地图和视觉，不飞；`flight`接通飞控输出，解锁及OFFBOARD均由飞手操作。板端默认不增加相机录像/JPEG编码。不要与其他两套或旧整机同时启动。
 
 ## 重点观察
 
