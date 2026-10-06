@@ -27,9 +27,11 @@ class Profiles(unittest.TestCase):
                 self.assertEqual(ref['takeoff_z'], control['waypoints'][0]['z'])
                 self.assertAlmostEqual(ref['takeoff_z']-ref['ground_z'], 1.)
                 self.assertNotAlmostEqual(ref['takeoff_z'], ref['low_z'], delta=.15)
+                runtime = yaml.safe_load((Path(tmp)/'runtime.yaml').read_text())
+                self.assertAlmostEqual(runtime['mission']['post_delivery_route'][-1][2]-ref['ground_z'], 1.2)
                 self.assertTrue(control['switch']['auto_land'])
                 self.assertEqual(control['drop_system']['enable_drop'], False)
-                self.assertAlmostEqual(control['external_landing']['capture_height']-ref['ground_z'], 1.8)
+                self.assertAlmostEqual(control['external_landing']['capture_height']-ref['ground_z'], 1.2)
 
     def test_corridor_full_require_measured_geometry(self):
         for folder, profile in [('04_corridor_landing','corridor_landing_test_area.yaml'),

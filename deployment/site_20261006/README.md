@@ -22,3 +22,5 @@ bash deployment/site_20261006/start_test.sh 5 preview --survey-pattern snake3 --
 授权现场飞行时，使用同一入口显式选择 `flight`；本轮只做配置/离线验证，没有执行飞行。记忆/采集/H不会启用投递。默认不启用续扫；若以后需独立验证，05现场优先组（目录06）及08支持显式 `--resume-survey on`。双线/三线可部署选用，但不等于同版实飞通过；矩形作为默认对照。
 
 不要在旧 site YAML 加 `survey_pattern` 或 `motion_optimization`：旧生成器的现场参数白名单不接受这两项。本目录通过现有CLI传入选项，从而保留现场子参数。不要从整机分支覆盖专项 `trial_motion.py`、板端OMP绑定、相机/槽位配置或舵机包。
+
+2026-10-06补充：[H专项FC 1.2m与板上待实飞更新清单](../../docs/deployment/board_refresh_20261006/H_1P2_AND_PENDING_FLIGHTS.md)。03识别高度已部署为1.2m，接近仍为1.0m，其他专项高度不变。

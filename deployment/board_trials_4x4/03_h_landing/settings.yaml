@@ -3,7 +3,7 @@ low_agl: 1.4
 high_agl: 2.6
 drop_agl: 0.6
 landing_transit_agl: 1.0
-landing_capture_agl: 1.8
+landing_capture_agl: 1.2  # FC center AGL; field H target is 0.80 x 0.80 m
 landing_xy:
 - 2.0
 - 0.0
