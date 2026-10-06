@@ -1,0 +1,26 @@
+# All heights are estimated FC-centre AGL, not local Z or lens AGL.
+frame: map
+mission_frame: camera_init
+fc_ground_clearance: 0.22  # Inherited known_rig; measure again after landing-gear changes.
+height_agl: 0.60
+climb_speed: 0.15
+horizontal_speed: 0.20
+max_setpoint_lead: 0.15
+arrival_tolerance: 0.08
+arrival_speed: 0.12
+arrival_dwell: 2.0
+hover_seconds: 10.0
+waypoint_seconds: 5.0
+pose_max_age: 0.30
+state_max_age: 2.5
+warmup_seconds: 2.0
+mission_timeout: 150.0
+max_distance_from_start: 2.0
+max_height_agl: 1.0
+jump_base_m: 0.20
+jump_speed_mps: 1.0
+yaw_jump_deg: 15.0
+profiles:
+  hover: []
+  forward: [[0.5, 0.0], [1.0, 0.0], [1.5, 0.0]]
+  square: [[1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]

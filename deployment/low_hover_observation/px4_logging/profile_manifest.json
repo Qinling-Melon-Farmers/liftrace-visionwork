@@ -1,0 +1,491 @@
+{
+  "firmware_revision": "30e763b6780061d70a14894e3e8b06e6a656f9b8",
+  "source": "https://github.com/PX4/PX4-Autopilot/blob/30e763b6780061d70a14894e3e8b06e6a656f9b8/src/modules/logger/logged_topics.cpp",
+  "hardware": "FMUv6C / non-constrained / SYS_HITL=0; no SITL-only defaults",
+  "logger_max_subscriptions": 255,
+  "mission_slots_reserved": 4,
+  "subscription_count": 232,
+  "estimator_instances": 2,
+  "default_names": [
+    "action_request",
+    "actuator_armed",
+    "actuator_controls_status_0",
+    "actuator_motors",
+    "actuator_outputs",
+    "actuator_servos",
+    "airspeed",
+    "airspeed_validated",
+    "airspeed_wind",
+    "autotune_attitude_control_status",
+    "aux_global_position",
+    "battery_status",
+    "camera_capture",
+    "camera_trigger",
+    "can_interface_status",
+    "cellular_status",
+    "commander_state",
+    "config_overrides",
+    "control_allocator_status",
+    "cpuload",
+    "differential_drive_control_output",
+    "differential_drive_setpoint",
+    "differential_pressure",
+    "distance_sensor",
+    "esc_status",
+    "estimator_aid_src_aux_global_position",
+    "estimator_attitude",
+    "estimator_baro_bias",
+    "estimator_ev_pos_bias",
+    "estimator_event_flags",
+    "estimator_global_position",
+    "estimator_gnss_hgt_bias",
+    "estimator_gps_status",
+    "estimator_innovation_test_ratios",
+    "estimator_innovation_variances",
+    "estimator_innovations",
+    "estimator_local_position",
+    "estimator_optical_flow_vel",
+    "estimator_rng_hgt_bias",
+    "estimator_selector_status",
+    "estimator_sensor_bias",
+    "estimator_states",
+    "estimator_status",
+    "estimator_status_flags",
+    "estimator_wind",
+    "external_ins_attitude",
+    "external_ins_global_position",
+    "external_ins_local_position",
+    "failsafe_flags",
+    "failure_detector_status",
+    "flaps_setpoint",
+    "flight_phase_estimation",
+    "follow_target",
+    "follow_target_estimator",
+    "follow_target_status",
+    "generator_status",
+    "gimbal_controls",
+    "gimbal_manager_set_attitude",
+    "goto_setpoint",
+    "gps_dump",
+    "gripper",
+    "heater_status",
+    "home_position",
+    "hover_thrust_estimate",
+    "input_rc",
+    "internal_combustion_engine_status",
+    "iridiumsbd_status",
+    "irlock_report",
+    "landing_gear",
+    "landing_gear_wheel",
+    "landing_target_pose",
+    "launch_detection_status",
+    "magnetometer_bias_estimate",
+    "manual_control_setpoint",
+    "manual_control_switches",
+    "mission_result",
+    "navigator_mission_item",
+    "npfg_status",
+    "offboard_control_mode",
+    "onboard_computer_status",
+    "parameter_update",
+    "position_controller_landing_status",
+    "position_controller_status",
+    "position_setpoint_triplet",
+    "pps_capture",
+    "px4io_status",
+    "radio_status",
+    "rate_ctrl_status",
+    "rpm",
+    "rtl_status",
+    "rtl_time_estimate",
+    "sensor_accel",
+    "sensor_airflow",
+    "sensor_baro",
+    "sensor_combined",
+    "sensor_correction",
+    "sensor_gnss_relative",
+    "sensor_gps",
+    "sensor_gyro",
+    "sensor_gyro_fft",
+    "sensor_hygrometer",
+    "sensor_mag",
+    "sensor_optical_flow",
+    "sensor_selection",
+    "sensors_status_imu",
+    "spoilers_setpoint",
+    "system_power",
+    "takeoff_status",
+    "tecs_status",
+    "telemetry_status",
+    "tiltrotor_extra_controls",
+    "timesync_status",
+    "trajectory_setpoint",
+    "transponder_report",
+    "vehicle_acceleration",
+    "vehicle_air_data",
+    "vehicle_angular_velocity",
+    "vehicle_attitude",
+    "vehicle_attitude_setpoint",
+    "vehicle_command",
+    "vehicle_command_ack",
+    "vehicle_constraints",
+    "vehicle_control_mode",
+    "vehicle_global_position",
+    "vehicle_gps_position",
+    "vehicle_imu",
+    "vehicle_imu_status",
+    "vehicle_land_detected",
+    "vehicle_local_position",
+    "vehicle_local_position_setpoint",
+    "vehicle_magnetometer",
+    "vehicle_optical_flow",
+    "vehicle_rates_setpoint",
+    "vehicle_roi",
+    "vehicle_status",
+    "vehicle_thrust_setpoint",
+    "vehicle_torque_setpoint",
+    "vtol_vehicle_status",
+    "wind",
+    "yaw_estimator_status"
+  ],
+  "default_expanded_subscription_count": 292,
+  "bounded_default_slots": [
+    {
+      "topic": "estimator_attitude",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_attitude",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_attitude",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_attitude",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_global_position",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_global_position",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_global_position",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_global_position",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_local_position",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_local_position",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_local_position",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_local_position",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_wind",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_wind",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_wind",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_wind",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_baro_bias",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_baro_bias",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_baro_bias",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_baro_bias",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_gnss_hgt_bias",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_gnss_hgt_bias",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_gnss_hgt_bias",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_gnss_hgt_bias",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_rng_hgt_bias",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_rng_hgt_bias",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_rng_hgt_bias",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_rng_hgt_bias",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_ev_pos_bias",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_ev_pos_bias",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_ev_pos_bias",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_ev_pos_bias",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_event_flags",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_event_flags",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_event_flags",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_event_flags",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_gps_status",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_gps_status",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_gps_status",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_gps_status",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_innovation_test_ratios",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_innovation_test_ratios",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_innovation_test_ratios",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_innovation_test_ratios",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_innovation_variances",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_innovation_variances",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_innovation_variances",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_innovation_variances",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_innovations",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_innovations",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_innovations",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_innovations",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_optical_flow_vel",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_optical_flow_vel",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_optical_flow_vel",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_optical_flow_vel",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_sensor_bias",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_sensor_bias",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_sensor_bias",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_sensor_bias",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_states",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_states",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_states",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_states",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_status",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_status",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_status",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_status",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_status_flags",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_status_flags",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_status_flags",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_status_flags",
+      "instance": 5
+    },
+    {
+      "topic": "yaw_estimator_status",
+      "instance": 2
+    },
+    {
+      "topic": "yaw_estimator_status",
+      "instance": 3
+    },
+    {
+      "topic": "yaw_estimator_status",
+      "instance": 4
+    },
+    {
+      "topic": "yaw_estimator_status",
+      "instance": 5
+    },
+    {
+      "topic": "estimator_aid_src_aux_global_position",
+      "instance": 2
+    },
+    {
+      "topic": "estimator_aid_src_aux_global_position",
+      "instance": 3
+    },
+    {
+      "topic": "estimator_aid_src_aux_global_position",
+      "instance": 4
+    },
+    {
+      "topic": "estimator_aid_src_aux_global_position",
+      "instance": 5
+    }
+  ],
+  "additional_or_faster": {
+    "vehicle_visual_odometry": 0,
+    "vehicle_odometry": 20,
+    "vehicle_attitude": 20,
+    "vehicle_local_position": 20,
+    "estimator_aid_src_ev_yaw": 20,
+    "estimator_aid_src_ev_hgt": 20,
+    "estimator_aid_src_baro_hgt": 20,
+    "estimator_aid_src_rng_hgt": 100,
+    "estimator_aid_src_gnss_hgt": 100,
+    "estimator_aid_src_gnss_yaw": 100,
+    "estimator_aid_src_mag": 100,
+    "estimator_aid_src_ev_pos": 20,
+    "estimator_aid_src_ev_vel": 20
+  },
+  "required_ground_check": "actual EKF instances must fit estimator_instances; SDLOG_PROFILE other bits replaced too",
+  "file_parser": "topic interval_ms instance; explicitly include instance to avoid all-instance expansion"
+}

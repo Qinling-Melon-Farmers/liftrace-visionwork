@@ -25,3 +25,7 @@ python tools/bag_replay/analyze_px4_ev.py /path/to/flight.ulg --output /path/to/
 ```
 
 不把日志中的计数变化单独当根因结论；继续核对当时融合状态、选中的EKF实例、输入时效以及日志丢失。详细步骤见[排查流程](../../docs/deployment/board_redeploy_20261001/LIO_PX4_DIAGNOSTIC_WORKFLOW_20261003.md)。
+
+## 2026-10-06：低空电机观察
+
+专用的0.6m悬停、分段前移、四边形入口及无图像诊断录制见[低空观察手册](../../deployment/low_hover_observation/README.md)。ULog工具扩展见[电机/重置查看器](ulg_motor_viewer/README.md)。本地准备不代表已部署或验收，不自动解锁、切模式、投递或降落。

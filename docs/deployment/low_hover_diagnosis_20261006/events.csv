@@ -1,0 +1,157 @@
+id,kind,instance,t,previous_t,field,before,after,delta,fields
+hover04,state_change,0,320.490704,319.691225,vehicle_land_detected.landed,1,0,,
+hover04,state_change,0,373.638942,373.3033,vehicle_land_detected.landed,0,1,,
+hover04,state_change,0,320.500571,320.490704,vehicle_land_detected.ground_contact,1,0,,
+hover04,state_change,0,372.947962,372.059738,vehicle_land_detected.ground_contact,0,1,,
+hover04,state_change,0,320.490704,319.691225,vehicle_land_detected.maybe_landed,1,0,,
+hover04,state_change,0,373.3033,372.947962,vehicle_land_detected.maybe_landed,0,1,,
+hover04,state_change,0,375.645759,375.436178,vehicle_status.arming_state,2,1,,
+hover04,state_change,0,319.148728,319.016235,vehicle_status.nav_state,0,2,,
+hover04,state_change,0,319.654285,319.148728,vehicle_status.nav_state,2,14,,
+hover04,state_change,0,369.782297,369.738177,vehicle_status.nav_state,14,2,,
+hover04,state_change,0,374.424588,374.336177,vehicle_status.nav_state,2,0,,
+hover04,state_change,0,375.645756,375.436175,actuator_armed.armed,1,0,,
+hover04,state_change,0,375.799291,375.645756,actuator_armed.manual_lockdown,0,1,,
+hover04,state_change,0,319.533575,317.509936,takeoff_status.takeoff_state,5,3,,
+hover04,state_change,0,320.056524,319.533575,takeoff_status.takeoff_state,3,4,,
+hover04,state_change,0,322.691921,320.056524,takeoff_status.takeoff_state,4,5,,
+hover04,state_change,0,373.648668,325.564008,takeoff_status.takeoff_state,5,3,,
+hover04,state_change,0,374.42851,373.658466,takeoff_status.takeoff_state,3,5,,
+hover04,state_change,0,375.652003,374.42851,takeoff_status.takeoff_state,5,1,,
+hover04,text_message,,317.502583,,,,,,[commander] Armed by RC (switch)
+hover04,text_message,,317.503664,,,,,,[logger] Start file log (type: full)
+hover04,text_message,,317.507294,,,,,,[logger] [logger] /fs/microsd/log/2026-10-05/18_47_12.ulg
+hover04,text_message,,317.509064,,,,,,[logger] Opened full log file: /fs/microsd/log/2026-10-05/18_47_12.ulg
+hover04,text_message,,320.501236,,,,,,[commander] Takeoff detected
+hover04,text_message,,328.014624,,,,,,[health_and_arming_checks] Battery 1: over voltage. Land now!
+hover04,text_message,,328.025332,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,328.37729,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,329.378741,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,329.598293,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,330.027732,,,,,,[health_and_arming_checks] Low battery level
+hover04,text_message,,331.688343,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,331.908296,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,332.118046,,,,,,[health_and_arming_checks] Low battery level
+hover04,text_message,,332.348401,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,334.207679,,,,,,[health_and_arming_checks] Low battery level
+hover04,text_message,,334.438268,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,334.658286,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,334.988455,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,335.208293,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,336.29796,,,,,,[health_and_arming_checks] Low battery level
+hover04,text_message,,337.408269,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,338.387612,,,,,,[health_and_arming_checks] Low battery level
+hover04,text_message,,340.46806,,,,,,[health_and_arming_checks] Low battery level
+hover04,text_message,,342.55766,,,,,,[health_and_arming_checks] Low battery level
+hover04,text_message,,344.218358,,,,,,[failsafe] Failsafe activated
+hover04,text_message,,344.647743,,,,,,[health_and_arming_checks] Low battery level
+hover04,text_message,,346.847651,,,,,,[health_and_arming_checks] Battery 1 disconnected
+hover04,text_message,,346.847772,,,,,,[health_and_arming_checks] Low battery level
+hover04,text_message,,348.937555,,,,,,[health_and_arming_checks] Low battery level
+hover04,text_message,,355.647628,,,,,,[health_and_arming_checks] Battery 1 disconnected
+hover04,text_message,,355.647749,,,,,,[health_and_arming_checks] Low battery level
+hover04,text_message,,357.737577,,,,,,[health_and_arming_checks] Low battery level
+hover04,text_message,,373.64325,,,,,,[commander] Landing detected
+hover04,text_message,,375.645303,,,,,,[commander] Disarmed by landing
+hover04,text_message,,375.799285,,,,,,[commander] Kill engaged
+above06,state_change,0,280.118716,279.319331,vehicle_land_detected.landed,1,0,,
+above06,state_change,0,317.968973,317.633538,vehicle_land_detected.landed,0,1,,
+above06,state_change,0,280.128403,280.118716,vehicle_land_detected.ground_contact,1,0,,
+above06,state_change,0,317.278165,316.508334,vehicle_land_detected.ground_contact,0,1,,
+above06,state_change,0,280.118716,279.319331,vehicle_land_detected.maybe_landed,1,0,,
+above06,state_change,0,317.633538,317.278165,vehicle_land_detected.maybe_landed,0,1,,
+above06,state_change,0,319.980601,319.562176,vehicle_status.arming_state,2,1,,
+above06,state_change,0,278.554365,278.532175,vehicle_status.nav_state,0,2,,
+above06,state_change,0,279.302282,279.060175,vehicle_status.nav_state,2,14,,
+above06,state_change,0,314.315302,314.282194,vehicle_status.nav_state,14,2,,
+above06,state_change,0,319.980598,319.562173,actuator_armed.armed,1,0,,
+above06,state_change,0,320.942262,320.502181,actuator_armed.manual_lockdown,0,1,,
+above06,state_change,0,278.559463,276.822322,takeoff_status.takeoff_state,5,3,,
+above06,state_change,0,279.319317,278.559463,takeoff_status.takeoff_state,3,4,,
+above06,state_change,0,282.319556,279.319317,takeoff_status.takeoff_state,4,5,,
+above06,state_change,0,317.978935,285.191725,takeoff_status.takeoff_state,5,3,,
+above06,state_change,0,319.982484,318.975657,takeoff_status.takeoff_state,3,1,,
+above06,text_message,,276.81844,,,,,,[commander] Armed by RC (switch)
+above06,text_message,,276.821439,,,,,,[logger] Start file log (type: full)
+above06,text_message,,276.824737,,,,,,[logger] [logger] /fs/microsd/log/2026-10-05/17_40_21.ulg
+above06,text_message,,276.827071,,,,,,[logger] Opened full log file: /fs/microsd/log/2026-10-05/17_40_21.ulg
+above06,text_message,,280.127798,,,,,,[commander] Takeoff detected
+above06,text_message,,285.242628,,,,,,[health_and_arming_checks] Battery 1: over voltage. Land now!
+above06,text_message,,285.253303,,,,,,[failsafe] Failsafe activated
+above06,text_message,,285.385305,,,,,,[failsafe] Failsafe activated
+above06,text_message,,285.627293,,,,,,[failsafe] Failsafe activated
+above06,text_message,,286.749309,,,,,,[failsafe] Failsafe activated
+above06,text_message,,288.971285,,,,,,[failsafe] Failsafe activated
+above06,text_message,,291.512611,,,,,,[health_and_arming_checks] Battery 1: over voltage. Land now!
+above06,text_message,,291.523341,,,,,,[failsafe] Failsafe activated
+above06,text_message,,292.535423,,,,,,[failsafe] Failsafe activated
+above06,text_message,,293.525824,,,,,,[health_and_arming_checks] Low battery level
+above06,text_message,,295.615738,,,,,,[health_and_arming_checks] Battery 1: over voltage. Land now!
+above06,text_message,,295.615859,,,,,,[health_and_arming_checks] Low battery level
+above06,text_message,,295.626292,,,,,,[failsafe] Failsafe activated
+above06,text_message,,296.616293,,,,,,[failsafe] Failsafe activated
+above06,text_message,,296.836286,,,,,,[failsafe] Failsafe activated
+above06,text_message,,297.705741,,,,,,[health_and_arming_checks] Low battery level
+above06,text_message,,300.015589,,,,,,[health_and_arming_checks] Battery 1: over voltage. Land now!
+above06,text_message,,300.01571,,,,,,[health_and_arming_checks] Low battery level
+above06,text_message,,300.026449,,,,,,[failsafe] Failsafe activated
+above06,text_message,,302.105643,,,,,,[health_and_arming_checks] Low battery level
+above06,text_message,,302.556605,,,,,,[failsafe] Failsafe activated
+above06,text_message,,303.986336,,,,,,[failsafe] Failsafe activated
+above06,text_message,,304.195551,,,,,,[health_and_arming_checks] Low battery level
+above06,text_message,,306.285589,,,,,,[health_and_arming_checks] Battery 1: over voltage. Land now!
+above06,text_message,,306.285832,,,,,,[health_and_arming_checks] Low battery level
+above06,text_message,,306.296264,,,,,,[failsafe] Failsafe activated
+above06,text_message,,306.736268,,,,,,[failsafe] Failsafe activated
+above06,text_message,,307.176293,,,,,,[failsafe] Failsafe activated
+above06,text_message,,308.056675,,,,,,[failsafe] Failsafe activated
+above06,text_message,,308.375514,,,,,,[health_and_arming_checks] Low battery level
+above06,text_message,,310.146331,,,,,,[failsafe] Failsafe activated
+above06,text_message,,310.465656,,,,,,[health_and_arming_checks] Low battery level
+above06,text_message,,312.346266,,,,,,[failsafe] Failsafe activated
+above06,text_message,,312.555841,,,,,,[health_and_arming_checks] Low battery level
+above06,text_message,,317.978235,,,,,,[commander] Landing detected
+above06,text_message,,319.980299,,,,,,[commander] Disarmed by landing
+above06,text_message,,319.983351,,,,,,"[vehicle_magnetometer] 0 (396321) EST:0 offset: [-0.078, -0.060, 0.040]->[-0.014, -0.056, 0.039] (full [0.172, -0.034, 0.019])"
+above06,text_message,,320.942257,,,,,,[commander] Kill engaged
+forward3,state_change,0,279.977703,279.175579,vehicle_land_detected.landed,1,0,,
+forward3,state_change,0,339.713684,339.37209,vehicle_land_detected.landed,0,1,,
+forward3,state_change,0,279.984961,279.977703,vehicle_land_detected.ground_contact,1,0,,
+forward3,state_change,0,339.013814,338.140121,vehicle_land_detected.ground_contact,0,1,,
+forward3,state_change,0,279.977703,279.175579,vehicle_land_detected.maybe_landed,1,0,,
+forward3,state_change,0,339.37209,339.013814,vehicle_land_detected.maybe_landed,0,1,,
+forward3,state_change,0,341.721574,341.413631,vehicle_status.arming_state,2,1,,
+forward3,state_change,0,278.61434,278.130173,vehicle_status.nav_state,0,2,,
+forward3,state_change,0,279.142373,279.120174,vehicle_status.nav_state,2,14,,
+forward3,state_change,0,335.869487,335.627194,vehicle_status.nav_state,14,2,,
+forward3,state_change,0,342.414286,342.161289,vehicle_status.nav_state,2,0,,
+forward3,state_change,0,341.721571,341.413628,actuator_armed.armed,1,0,,
+forward3,state_change,0,342.084838,341.721571,actuator_armed.manual_lockdown,0,1,,
+forward3,state_change,0,279.517504,278.662944,takeoff_status.takeoff_state,3,4,,
+forward3,state_change,0,282.179232,279.517504,takeoff_status.takeoff_state,4,5,,
+forward3,state_change,0,339.722724,285.056932,takeoff_status.takeoff_state,5,3,,
+forward3,text_message,,277.628643,,,,,,[commander] Armed by RC (switch)
+forward3,text_message,,277.632029,,,,,,[logger] Start file log (type: full)
+forward3,text_message,,277.635381,,,,,,[logger] [logger] /fs/microsd/log/2026-10-05/19_40_37.ulg
+forward3,text_message,,277.637216,,,,,,[logger] Opened full log file: /fs/microsd/log/2026-10-05/19_40_37.ulg
+forward3,text_message,,279.978233,,,,,,[commander] Takeoff detected
+forward3,text_message,,294.542524,,,,,,[health_and_arming_checks] Low battery level
+forward3,text_message,,294.553748,,,,,,[failsafe] Failsafe activated
+forward3,text_message,,302.47365,,,,,,[health_and_arming_checks] Battery 1: over voltage. Land now!
+forward3,text_message,,302.473772,,,,,,[health_and_arming_checks] Low battery level
+forward3,text_message,,302.484283,,,,,,[failsafe] Failsafe activated
+forward3,text_message,,304.563595,,,,,,[health_and_arming_checks] Low battery level
+forward3,text_message,,313.473593,,,,,,[health_and_arming_checks] Low battery level
+forward3,text_message,,313.484374,,,,,,[failsafe] Failsafe activated
+forward3,text_message,,313.594263,,,,,,[failsafe] Failsafe activated
+forward3,text_message,,318.863658,,,,,,[health_and_arming_checks] Battery 1: over voltage. Land now!
+forward3,text_message,,318.863843,,,,,,[health_and_arming_checks] Low battery level
+forward3,text_message,,318.874395,,,,,,[failsafe] Failsafe activated
+forward3,text_message,,320.953515,,,,,,[health_and_arming_checks] Low battery level
+forward3,text_message,,336.529561,,,,,,[health_and_arming_checks] Battery 1: over voltage. Land now!
+forward3,text_message,,336.529724,,,,,,[health_and_arming_checks] Low battery level
+forward3,text_message,,336.540264,,,,,,[failsafe] Failsafe activated
+forward3,text_message,,338.619802,,,,,,[health_and_arming_checks] Low battery level
+forward3,text_message,,339.719349,,,,,,[commander] Landing detected
+forward3,text_message,,341.721244,,,,,,[commander] Disarmed by landing
+forward3,text_message,,342.084833,,,,,,[commander] Kill engaged
