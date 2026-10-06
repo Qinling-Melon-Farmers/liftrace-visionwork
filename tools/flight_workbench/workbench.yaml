@@ -77,7 +77,8 @@ probe:
     - /mavros/set_mode
 
 observation:
-  # RCOut数组与实际Motor/AUX编号需现场核实，默认不映射。
+  # 未登记目标默认不映射；用户已确认的飞机接线由Web页读取web/motor_wiring.json。
+  # 接线配置静态加载，现场设备会话运行中也可刷新页面生效，无需重启后台。
   output_channels: [null, null, null, null]
   max_samples: 1800
   profiles:

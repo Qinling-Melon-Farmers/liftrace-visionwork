@@ -8,7 +8,8 @@ var observationState = {
   connection:{}, telemetry:null, configuration:{topics:{},profiles:[],max_samples:1800},
   stage:{}, trial:{}, trialSession:{}, connectionNotice:'',
   samples:[], segments:[], active:null, seq:0, dropped:0, segmentsDropped:0, lastAt:null,
-  draft:[null,null,null,null], mapping:null, channelCount:16, eventSource:null, stream:'等待连接'
+  draft:[null,null,null,null], mapping:null, mappingSource:null, wiring:null, wiringSuppressed:false,
+  channelCount:16, eventSource:null, stream:'等待连接'
 };
 function obsNumber(value) { return typeof value==='number' && Number.isFinite(value) ? value : null; }
 function obsNode(tag, text, cls) {
@@ -29,10 +30,43 @@ function obsSetConnection(patch, replace) {
   if((old.host||old.board_root) && before!==JSON.stringify([next.host||'',next.board_root||''])){
     obsEndSegment(Date.now()/1000);
     observationState.mapping=null;observationState.draft=[null,null,null,null];
+    observationState.mappingSource=null;observationState.wiringSuppressed=false;
     observationState.telemetry=null;observationState.lastAt=null;
-    observationState.connectionNotice='连接目标已改变：旧片段保留来源，图表切换至新目标；请重新核实四路映射。';
+    observationState.connectionNotice='连接目标已改变：旧片段保留来源，图表切换至新目标；已登记目标载入接线，其他目标需核实映射。';
   }
   observationState.connection=next;
+  obsApplyWiring();
+}
+function obsCurrentWiring() {
+  var wiring=observationState.wiring,c=observationState.connection;
+  return wiring && wiring.targets.some(function(t){return t.host===c.host && t.board_root===c.board_root;}) ? wiring : null;
+}
+function obsSetWiring(wiring) {
+  var layout=wiring && wiring.rc_layout,motors=wiring && wiring.motors;
+  if(!wiring || wiring.version!==1 || !wiring.confirmed_by || !Array.isArray(wiring.targets) || !wiring.targets.length ||
+      !wiring.targets.every(function(t){return t && typeof t.host==='string' && t.host && typeof t.board_root==='string' && t.board_root;}) ||
+      !layout || !Number.isInteger(layout.port) || layout.port<0 || ![8,16].includes(layout.channels_per_port) ||
+      !Array.isArray(motors) || motors.length!==4 || !motors.every(function(m,i){return m && m.motor===i+1 &&
+        typeof m.position==='string' && m.position && Number.isInteger(m.aux) && m.aux>0 && m.aux<=layout.channels_per_port;}) ||
+      new Set(motors.map(function(m){return m.aux;})).size!==4)return false;
+  var count=(layout.port+1)*layout.channels_per_port;
+  if(count>32)return false;
+  observationState.wiring=JSON.parse(JSON.stringify(wiring));
+  obsApplyWiring();return true;
+}
+function obsApplyWiring() {
+  var wiring=obsCurrentWiring();
+  if(!wiring || observationState.mapping || observationState.wiringSuppressed)return;
+  var layout=wiring.rc_layout;
+  observationState.channelCount=Math.max(observationState.channelCount,(layout.port+1)*layout.channels_per_port);
+  var channels=wiring.motors.map(function(m){return layout.port*layout.channels_per_port+m.aux;});
+  observationState.draft=channels.slice();observationState.mapping=channels;
+  observationState.mappingSource='user-confirmed-wiring';
+}
+function obsMotorLabel(index,wiring) {
+  if(wiring===undefined)wiring=obsCurrentWiring();
+  var motor=wiring && wiring.motors[index];
+  return 'M'+(index+1)+(motor?' '+motor.position+' · AUX'+motor.aux:'');
 }
 function obsPayload(value) {
   if(!value || typeof value!=='object')return null;
@@ -73,7 +107,8 @@ function obsIngest(tel, now) {
   var data=obsNormalized(tel,now);
   observationState.samples.push({seq:++observationState.seq,at:now,source_at:at,scope:obsScope(),
     source:{host:observationState.connection.host||'',board_root:observationState.connection.board_root||''},
-    mapping:observationState.mapping?observationState.mapping.slice():null,data:data});
+    mapping:observationState.mapping?observationState.mapping.slice():null,mapping_source:observationState.mappingSource,
+    wiring:obsCurrentWiring(),data:data});
   var limit=obsLimit();
   while(observationState.samples.length>limit){observationState.samples.shift();observationState.dropped++;}
   var channels=data.rc_out && data.rc_out.channels;
@@ -91,13 +126,14 @@ function obsValidMapping(channels) {
 }
 function obsConfirmMapping(channels) {
   if(!obsValidMapping(channels))return false;
-  observationState.mapping=channels.slice();return true;
+  observationState.mapping=channels.slice();observationState.mappingSource='manual';return true;
 }
 function obsStartSegment(profile, now) {
   if(observationState.active || !observationState.configuration.profiles.some(function(p){return p.id===profile;}))return false;
   observationState.active={profile:profile,start:now,startSeq:observationState.seq+1,
     scope:obsScope(),source:{host:observationState.connection.host||'',board_root:observationState.connection.board_root||''},
-    mapping:observationState.mapping ? observationState.mapping.slice() : null};
+    mapping:observationState.mapping ? observationState.mapping.slice() : null,
+    mapping_source:observationState.mappingSource,wiring:obsCurrentWiring()};
   return true;
 }
 function obsEndSegment(now) {
@@ -127,7 +163,8 @@ function obsSummary(segment) {
   var samples=observationState.samples.filter(function(s){return s.seq>=segment.startSeq && s.seq<=endSeq && s.scope===segment.scope;});
   var count=Math.max(0,endSeq-segment.startSeq+1);
   var result={profile:segment.profile,start:segment.start,end:segment.end||null,window_sec:(segment.end||Date.now()/1000)-segment.start,
-    sample_count:count,retained_count:samples.length,truncated:samples.length<count,mapping:segment.mapping,source:segment.source,poses:{},battery:{},outputs:[],output_deviation:[],lio_age_sec:null,states:[]};
+    sample_count:count,retained_count:samples.length,truncated:samples.length<count,mapping:segment.mapping,
+    mapping_source:segment.mapping_source,wiring:segment.wiring||null,source:segment.source,poses:{},battery:{},outputs:[],output_deviation:[],lio_age_sec:null,states:[]};
   OBS_POSES.forEach(function(pair){
     var frames=Array.from(new Set(samples.map(function(s){var p=s.data[pair[0]];return p&&p.frame;}).filter(Boolean)));
     var pose={frames:frames};
@@ -155,7 +192,7 @@ function obsCsvCell(value) { return '"'+String(value==null?'':value).replace(/"/
 function obsCSV() {
   var fields=['received_at','source_at','seq','host','board_root','profile','mode','armed','low_hover_stage'];
   OBS_POSES.forEach(function(pair){['frame','source_age','x','y','z','roll_deg','pitch_deg','yaw_deg'].forEach(function(k){fields.push(pair[0]+'_'+k);});});
-  fields=fields.concat(['battery_voltage','battery_current','battery_percentage','lio_output_age_sec','rc_out_raw_json','confirmed_mapping_json','selected_outputs_json','esc_status_json','esc_telemetry_json']);
+  fields=fields.concat(['battery_voltage','battery_current','battery_percentage','lio_output_age_sec','rc_out_raw_json','confirmed_mapping_json','selected_outputs_json','esc_status_json','esc_telemetry_json','mapping_source','motor_wiring_json']);
   var rows=[fields];
   observationState.samples.forEach(function(s){
     var segment=observationState.segments.concat(observationState.active?[observationState.active]:[]).find(function(p){return s.seq>=p.startSeq && s.seq<=(p.endSeq==null?observationState.seq:p.endSeq);});
@@ -164,7 +201,8 @@ function obsCSV() {
     OBS_POSES.forEach(function(pair){var pose=s.data[pair[0]]||{};['frame','source_age','x','y','z','roll_deg','pitch_deg','yaw_deg'].forEach(function(k){row.push(pose[k]);});});
     var bat=s.data.battery||{},map=segment?segment.mapping:s.mapping;
     row=row.concat([bat.voltage,bat.current,bat.percentage,obsLioAge(s.data),JSON.stringify(s.data.rc_out),JSON.stringify(map),
-      map?JSON.stringify(map.map(function(c){return obsRaw(s,c);})):'',JSON.stringify(s.data.esc_status),JSON.stringify(s.data.esc_telemetry)]);
+      map?JSON.stringify(map.map(function(c){return obsRaw(s,c);})):'',JSON.stringify(s.data.esc_status),JSON.stringify(s.data.esc_telemetry),
+      segment?segment.mapping_source:s.mapping_source,JSON.stringify(segment?segment.wiring:s.wiring)]);
     rows.push(row);
   });
   return '\uFEFF'+rows.map(function(row){return row.map(obsCsvCell).join(',');}).join('\r\n');
@@ -172,8 +210,9 @@ function obsCSV() {
 function obsJSON() {
   return JSON.stringify({format:'liftrace-browser-observation-v1',exported_at:new Date().toISOString(),
     connection:{host:observationState.connection.host},configuration:observationState.configuration,
-    output_semantics:'raw RC output commands, not current/RPM; mapping is manually confirmed in this browser',
-    mapping:observationState.mapping,dropped_samples:observationState.dropped,dropped_segments:observationState.segmentsDropped,samples:observationState.samples,
+    output_semantics:'raw RC output commands, not current/RPM; mapping is user-confirmed wiring or manual browser selection',
+    mapping:observationState.mapping,mapping_source:observationState.mappingSource,wiring:obsCurrentWiring(),
+    dropped_samples:observationState.dropped,dropped_segments:observationState.segmentsDropped,samples:observationState.samples,
     segments:observationState.segments.concat(observationState.active?[observationState.active]:[]).map(obsSummary)},null,2);
 }
 function obsDownload(content,type,extension) {
@@ -190,7 +229,8 @@ function obsConfigure(configuration) {
   Object.keys(observationState.configuration.topics||{}).forEach(function(k){topic.appendChild(obsNode('span',k+'：'+observationState.configuration.topics[k]));});
   if(!topic.children.length)topic.appendChild(obsNode('span','未配置观察话题'));
   var proposed=observationState.configuration.output_channels;
-  if(Array.isArray(proposed) && proposed.length===4 && !observationState.mapping)observationState.draft=proposed.slice();
+  obsApplyWiring();
+  if(Array.isArray(proposed) && proposed.length===4 && !observationState.mapping && !observationState.wiringSuppressed)observationState.draft=proposed.slice();
   obsMappingControls();obsProfileDescription();
 }
 function obsProfileDescription() {
@@ -203,14 +243,15 @@ function obsMappingControls() {
   if(root.contains(document.activeElement))return;
   obsClear(root);
   observationState.draft.forEach(function(selected,i){
-    var label=obsNode('label','电机 '+(i+1)+'（需核实）');
+    var label=obsNode('label',obsMotorLabel(i));
     var select=obsNode('select');select.setAttribute('data-motor',String(i+1));
     var blank=obsNode('option','未选择 / 未核实');blank.value='';select.appendChild(blank);
     for(var channel=1;channel<=observationState.channelCount;channel++){
       var option=obsNode('option','raw channel '+channel);option.value=String(channel);select.appendChild(option);
     }
     select.value=selected||'';
-    select.addEventListener('change',function(){observationState.draft[i]=select.value?Number(select.value):null;observationState.mapping=null;obsRender();});
+    select.addEventListener('change',function(){observationState.draft[i]=select.value?Number(select.value):null;
+      observationState.mapping=null;observationState.mappingSource=null;observationState.wiringSuppressed=true;obsRender();});
     label.appendChild(select);root.appendChild(label);
   });
 }
@@ -268,7 +309,7 @@ function obsRenderSegments() {
   if(!segments.length){root.appendChild(obsNode('p','暂无本地观察片段','hint'));return;}
   var rows=segments.map(function(segment){var s=obsSummary(segment),fc=s.poses.fc_pose;
     var poses=OBS_POSES.slice(0,3).map(function(pair){var p=s.poses[pair[0]];return pair[1]+' frame='+p.frames.join('/')+' local Z '+obsStatText(p.z)+'；roll '+obsStatText(p.roll_deg)+'；pitch '+obsStatText(p.pitch_deg)+'；yaw '+obsStatText(p.yaw_deg);}).join('\n');
-    var outputs=s.mapping ? s.outputs.map(function(o,i){return 'M'+(i+1)+' raw'+o.channel+' '+obsStatText(o.stats)+'；相对四路均值偏差 '+obsStatText(s.output_deviation[i].stats);}).join('\n') : '映射未核实，未生成电机四路统计';
+    var outputs=s.mapping ? s.outputs.map(function(o,i){return obsMotorLabel(i,s.wiring)+' raw'+o.channel+' '+obsStatText(o.stats)+'；相对四路均值偏差 '+obsStatText(s.output_deviation[i].stats);}).join('\n') : '映射未核实，未生成电机四路统计';
     return [s.profile+' · '+(s.source.host||'来源未观测')+'\n'+obsTime(s.start)+' → '+(s.end?obsTime(s.end):'记录中'),s.window_sec.toFixed(1)+'s / '+s.retained_count+'/'+s.sample_count+'样本'+(s.truncated?' · 已截断':''),poses,
       'LIO age '+obsStatText(s.lio_age_sec)+'\n电压 '+obsStatText(s.battery.voltage)+'\n电流 '+obsStatText(s.battery.current)+'\n电量 '+obsStatText(s.battery.percentage),outputs,s.states.join('\n')||'未观测'];
   });root.appendChild(obsTable(['片段 / 日期','时间窗 / 保留样本','分帧位姿 m / 姿态 °','LIO / 电池','四路输出命令','观测状态'],rows));
@@ -298,9 +339,14 @@ function obsRender() {
   var raw=obsById('raw-outputs');obsClear(raw);var channels=data.rc_out && data.rc_out.channels;
   if(Array.isArray(channels)&&channels.length)channels.forEach(function(value,i){raw.appendChild(obsNode('span','raw '+(i+1)+' = '+obsValue(obsNumber(value)), 'raw-channel'));});
   else raw.appendChild(obsNode('span','RC OUT：未观测','warn'));
-  obsMappingControls();obsById('mapping-status').textContent=observationState.mapping ? '已本地确认：'+observationState.mapping.map(function(c,i){return 'M'+(i+1)+'←raw'+c;}).join('，') : '四路映射未核实；不显示电机曲线';
+  var wiring=obsCurrentWiring();
+  obsById('wiring-status').textContent=wiring ? wiring.confirmed_by+' · '+wiring.view+'；'+wiring.rc_layout.description : '此连接目标没有已登记接线，请手动核实原始通道。';
+  obsMappingControls();obsById('mapping-status').textContent=observationState.mapping ?
+    (observationState.mappingSource==='user-confirmed-wiring'?'已按用户接线配置：':'已本地确认：')+
+    observationState.mapping.map(function(c,i){return obsMotorLabel(i)+'←raw'+c;}).join('，')+
+    (!Array.isArray(channels)?' · 等待RC OUT遥测':(observationState.mapping.some(function(c){return c>channels.length;})?' · 尚未收到所选原始通道':'')) : '四路映射未核实；不显示电机曲线';
   obsById('mapping-status').className=observationState.mapping?'':'warn';
-  obsPlot('motors',observationState.mapping ? observationState.mapping.map(function(channel,i){return {label:'M'+(i+1)+' · raw'+channel+'（输出命令）',value:function(s){return obsRaw(s,channel);}};}) : []);
+  obsPlot('motors',observationState.mapping ? observationState.mapping.map(function(channel,i){return {label:obsMotorLabel(i)+' · raw'+channel+'（输出命令）',value:function(s){return obsRaw(s,channel);}};}) : []);
   var esc=obsById('esc-table');obsClear(esc);var entries=[];
   ['esc_status','esc_telemetry'].forEach(function(key){var value=data[key];if(value && Array.isArray(value.entries))value.entries.forEach(function(entry,slot){entries.push([key,entry.index==null?'ESC条目 '+(Number.isInteger(entry.slot)?entry.slot+1:slot+1)+'（物理映射未核实）':'原始index '+entry.index,
     obsValue(obsNumber(entry.rpm)),obsValue(obsNumber(entry.voltage),'V'),obsValue(obsNumber(entry.current),'A'),obsValue(obsNumber(entry.temperature),'°C')]);});});
@@ -342,11 +388,16 @@ function obsInit() {
   obsById('segment-end').addEventListener('click',function(){obsEndSegment(Date.now()/1000);obsRender();});
   obsById('confirm-mapping').addEventListener('click',function(){if(!obsConfirmMapping(observationState.draft)){
     obsById('mapping-status').textContent='请选择4个不同且有效的原始通道，确认实际接线后再保存本地映射。';return;}obsRender();});
-  obsById('clear-mapping').addEventListener('click',function(){observationState.mapping=null;observationState.draft=[null,null,null,null];obsRender();});
+  obsById('clear-mapping').addEventListener('click',function(){observationState.mapping=null;observationState.draft=[null,null,null,null];
+    observationState.mappingSource=null;observationState.wiringSuppressed=true;obsRender();});
   obsById('reset-local').addEventListener('click',function(){observationState.samples=[];observationState.segments=[];observationState.active=null;observationState.dropped=0;observationState.segmentsDropped=0;obsRender();});
   obsById('export-json').addEventListener('click',function(){obsDownload(obsJSON(),'application/json','json');});
   obsById('export-csv').addEventListener('click',function(){obsDownload(obsCSV(),'text/csv;charset=utf-8','csv');});
   window.addEventListener('resize',obsRender);
+  var wiringURL=document.body.getAttribute('data-wiring-config');
+  if(wiringURL)window.fetch(wiringURL,{method:'GET',cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('wiring HTTP '+r.status);return r.json();})
+    .then(function(wiring){if(!obsSetWiring(wiring))throw new Error('Invalid motor wiring');obsRender();})
+    .catch(function(){obsById('wiring-status').textContent='接线配置读取失败，请手动核实映射。';});
   window.fetch('/api/snapshot',{method:'GET'}).then(function(r){if(!r.ok)throw new Error('snapshot HTTP '+r.status);return r.json();}).then(obsSnapshot).catch(function(){observationState.stream='快照读取失败';obsRender();});
   var events=new EventSource('/api/events');observationState.eventSource=events;
   events.onopen=function(){observationState.stream='已连接';obsRender();};
