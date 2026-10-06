@@ -3,17 +3,43 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <iostream>
+#include <dirent.h>
+#include <vector>
 
-PWMController::PWMController(int chip, int channel, const std::string& expectedDevice) :
-    basePath_("/sys/class/pwm/pwmchip" + std::to_string(chip)),
+namespace {
+bool matchesDevice(const std::string& path, const std::string& device) {
+    char* resolved = realpath(path.c_str(), nullptr);
+    const std::string actual = resolved ? resolved : "";
+    free(resolved);
+    return actual.find("/" + device + "/") != std::string::npos;
+}
+std::string controllerPath(int chip, const std::string& device, const std::string& root) {
+    if (chip >= 0) return root + "/pwmchip" + std::to_string(chip);
+    if (chip != -1 || device.empty() || device.find('/') != std::string::npos)
+        throw std::runtime_error("Automatic PWM selection requires one platform device address");
+    DIR* directory = opendir(root.c_str());
+    if (!directory) throw std::runtime_error("Cannot read PWM controllers: " + root);
+    std::vector<std::string> matches;
+    while (dirent* entry = readdir(directory)) {
+        const std::string name = entry->d_name;
+        if (name.compare(0, 7, "pwmchip") == 0 && matchesDevice(root + "/" + name, device))
+            matches.push_back(root + "/" + name);
+    }
+    closedir(directory);
+    if (matches.size() != 1)
+        throw std::runtime_error("Expected exactly one PWM controller for " + device + ", found " + std::to_string(matches.size()));
+    return matches.front();
+}
+}
+
+PWMController::PWMController(int chip, int channel, const std::string& expectedDevice,
+                             const std::string& sysfsRoot) :
+    basePath_(controllerPath(chip, expectedDevice, sysfsRoot)),
     pwmPath_(basePath_ + "/pwm" + std::to_string(channel)) {
 
     // Fail before touching sysfs if enumeration differs from the verified board.
     if (!expectedDevice.empty()) {
-        char* resolved = realpath(basePath_.c_str(), nullptr);
-        const std::string actual = resolved ? resolved : "";
-        free(resolved);
-        if (actual.find("/" + expectedDevice + "/") == std::string::npos)
+        if (!matchesDevice(basePath_, expectedDevice))
             throw std::runtime_error("PWM address mismatch: " + basePath_ + " expected " + expectedDevice);
     }
     // Channels and permissions belong to init_pwm.sh, not this process.

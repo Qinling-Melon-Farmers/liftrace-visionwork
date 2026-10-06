@@ -6,7 +6,9 @@
 
 class PWMController {
 public:
-    PWMController(int chip = 2, int channel = 0, const std::string& expectedDevice = "");
+    // chip=-1 resolves the unique controller by its platform address.
+    PWMController(int chip = 2, int channel = 0, const std::string& expectedDevice = "",
+                  const std::string& sysfsRoot = "/sys/class/pwm");
     ~PWMController();
 
     bool setPeriod(unsigned int period_ns);
@@ -14,6 +16,7 @@ public:
     bool setPolarity(const std::string& polarity);
     bool enable();
     bool disable();
+    const std::string& path() const { return pwmPath_; }
 
 private:
     std::string basePath_;

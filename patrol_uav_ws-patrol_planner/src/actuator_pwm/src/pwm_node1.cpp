@@ -2,9 +2,10 @@
  * 舵机投放节点（实机标定最终版，2026-09）
  *
  * Orange Pi 5 当前接线：
- *   req=1 后仓 Pin11 GPIO4_B2 pwmchip4（接线待确认），初始700000ns，投放1700000ns
- *   req=2 右仓 Pin7 GPIO1_C6 pwmchip5，初始1000000ns，投放2100000ns
- *   req=3 左仓 Pin16 GPIO1_D3 pwmchip0，初始1100000ns，投放2100000ns
+ *   req=1 后仓 Pin11 GPIO4_B2 PWM14_M1 febf0020，初始700000ns，投放1700000ns
+ *   req=2 右仓 Pin7 GPIO1_C6 PWM15_M2 febf0030，初始1000000ns，投放2100000ns
+ *   req=3 左仓 GPIO1_D2 PWM0_M1 fd8b0000，初始1100000ns，投放2100000ns
+ *   pwmchip编号由设备地址查找，不依赖启用overlay后的枚举顺序。
  *
  * 行为：
  *   1. 启动时三只舵机【依次】复位到各自初始位（间隔1s，避免同时动作造成电流冲击），
@@ -19,9 +20,9 @@
 #include "patrol_control/Servo.h"
 #include <ros/ros.h>
 
-PWMController pwm_front(4, 0, "febf0020.pwm"); // 后仓 Pin11，接线待确认
-PWMController pwm_left(5, 0, "febf0030.pwm"); // 右仓 Pin7
-PWMController pwm_right(0, 0, "fd8b0010.pwm"); // 左仓 Pin16
+PWMController pwm_front(-1, 0, "febf0020.pwm"); // 后仓 Pin11
+PWMController pwm_left(-1, 0, "febf0030.pwm"); // 右仓 Pin7
+PWMController pwm_right(-1, 0, "fd8b0000.pwm"); // 左仓 GPIO1_D2
 
 #include "actuator_pwm/CheckedPulse.h"
 
@@ -45,6 +46,7 @@ int main(int argc,char** argv) {
     PWMController* channels[]={&pwm_front,&pwm_left,&pwm_right};
     const unsigned initial[]={700000,1000000,1100000};
     for(int i=0;i<3;++i) {
+        ROS_INFO("Servo slot=%d PWM path=%s",i+1,channels[i]->path().c_str());
         if(!checkedInitialize(*channels[i],initial[i],[](){ros::WallDuration(1.0).sleep();})) {
             ROS_FATAL("Servo initialization failed at slot %d; raw service not advertised",i+1);
             return 1;
