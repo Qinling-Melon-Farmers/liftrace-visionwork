@@ -292,7 +292,7 @@ groups:
     motion_optimization_supported: true
     needs_servo: false
     site_config: "{site_dir}/h_landing_test_area.yaml"
-    notes: "READY 后飞手人工解锁并拨入 OFFBOARD，在实际 1.0m 起飞高度稳定后自动启动任务；H识别升至1.8m并视觉降落。不要执行现场 start_test.sh 3（那是记忆组）。"
+    notes: "READY 后飞手人工解锁并拨入 OFFBOARD，在实际 1.0m 起飞高度稳定后自动启动任务；H识别升至1.2m，启用H笔画兜底，与完整任务共用视觉对齐及AUTO.LAND交接。不要执行现场 start_test.sh 3（那是记忆组）。"
 
   - id: mod04
     key: "04"
