@@ -146,6 +146,11 @@ class LandingTransaction:
     target_pose: SemanticTargetPose
     command_sent_ns: int
     started: bool = False
+    wire_command_stamp_ns: int = 0
+    handoff_requested_ns: int = 0
+    handoff_observed_ns: int = 0
+    posctl_wait_started_ns: int = 0
+    posctl_authorized: bool = False
 
 
 def _stamp_to_ns(stamp):
@@ -326,6 +331,23 @@ class NavigationPlannerBridge:
         self._flight_state = None
         self._flight_state_receipt_ns = 0
         self._flight_state_source_ns = 0
+        self._landing_handoff_mode = str(rospy.get_param(
+            "~landing/handoff_mode", rospy.get_param("/external_landing/handoff_mode", "AUTO.LAND")))
+        if self._landing_handoff_mode not in ("AUTO.LAND", "POSCTL"):
+            raise ValueError("unsupported landing handoff mode")
+        self._landing_handoff_wait_ns = _seconds_to_ns("handoff_status_wait",
+            rospy.get_param("~landing/handoff_status_wait", 0.5))
+        if self._landing_handoff_wait_ns > 500_000_000:
+            raise ValueError("handoff status wait must not exceed 0.5 seconds")
+        self._landing_mode_transition_timeout_ns = _seconds_to_ns("mode_transition_timeout",
+            rospy.get_param("~landing/mode_transition_timeout_sec", rospy.get_param(
+                "/external_landing/mode_transition_timeout_sec", 2.5)))
+        # MAVROS State/ExtendedState arrive at 1 Hz on the board. Their LAND
+        # freshness must cover the existing settle dwell; odom keeps its own
+        # tighter executor gate.
+        self._landing_state_max_age_ns = _seconds_to_ns("landing_state_max_age",
+            rospy.get_param("~landing/state_max_age_sec", rospy.get_param(
+                "/external_landing/state_max_age_sec", 2.5)))
 
         self._planner_goal_topic = rospy.resolve_name("planner_goal")
         if (self._execution_requested and self._allow_live_goal_output and
@@ -375,6 +397,10 @@ class NavigationPlannerBridge:
         self._flight_state_sub = rospy.Subscriber(
             rospy.get_param("~flight_state_topic", "/mavros/state"), FlightState,
             self._on_flight_state, queue_size=2)
+        self._landing_handoff_sub = rospy.Subscriber(rospy.get_param(
+            "~landing/handoff_status_topic", rospy.get_param(
+                "/external_landing/handoff_status_topic", "/patrol_control/external_landing_handoff")),
+            String, self._on_landing_handoff, queue_size=4)
         self._timer = rospy.Timer(
             rospy.Duration.from_sec(1.0 / self._tick_hz), self._on_timer)
         self._last_reason = self._gate_reason
@@ -605,6 +631,10 @@ class NavigationPlannerBridge:
         message.header.stamp = now
         message.header.frame_id = self._mission_frame
         message.command = command
+        if command_name == "LAND":
+            # LAND has no target class. Its otherwise empty compatibility
+            # field carries the mission identity without changing the ROS MD5.
+            message.target_class = decision.mission_id
         target = decision.target
         if target is not None:
             message.target_id = int(target.target_id)
@@ -629,8 +659,10 @@ class NavigationPlannerBridge:
 
     def _publish_mission_command(self, decision, command_name,
                                  target_pose=None):
-        self._mission_command_pub.publish(self._mission_command_message(
-            decision, command_name, target_pose=target_pose))
+        message = self._mission_command_message(decision, command_name, target_pose=target_pose)
+        if command_name == "LAND" and self._landing is not None:
+            self._landing.wire_command_stamp_ns = _stamp_to_ns(message.goal.header.stamp)
+        self._mission_command_pub.publish(message)
 
     def _matching_target_pose(self, now_ns):
         transaction = self._transaction
@@ -1003,15 +1035,19 @@ class NavigationPlannerBridge:
         transaction.phase = "TERMINAL"
 
     def _update_landing(self, sample, now_ns):
+        self._check_landing_mode_handoff(now_ns)
         landing = self._landing
         if landing is None or not landing.started:
+            return
+        if self._landing_handoff_mode == "POSCTL" and not landing.posctl_authorized:
+            self._landing_settle.reset("awaiting_posctl_handoff_confirmation")
             return
         target = landing.target_pose
         horizontal_error = math.hypot(
             sample.x - target.x, sample.y - target.y)
         reason = self._odom_rejection_reason(sample, now_ns)
         state = self._flight_state
-        max_age = self._executor.config.odom_max_age_ns
+        max_age = self._landing_state_max_age_ns
         grounded = (self._landed_state == ExtendedState.LANDED_STATE_ON_GROUND and
                     self._landed_state_receipt_ns >= landing.command_sent_ns and
                     0 <= now_ns - self._landed_state_receipt_ns <= max_age and
@@ -1063,6 +1099,7 @@ class NavigationPlannerBridge:
         self._landing = None
 
     def _expire_handoff_if_due(self, now_ns):
+        self._check_landing_mode_handoff(now_ns)
         transaction = self._transaction
         snapshot = self._executor.snapshot()
         if (transaction is not None and transaction.near_wall_bounded and
@@ -1426,6 +1463,91 @@ class NavigationPlannerBridge:
             except Exception as error:  # pylint: disable=broad-except
                 self._handle_callback_exception("align_mode", error)
 
+    def _cancel_landing_handoff(self, now_ns, reason):
+        landing = self._landing
+        if landing is None:
+            return
+        outcome = self._executor.report_landing(landing.decision.decision_seq,
+            now_ns, "CANCELLED", True, reason)
+        if outcome.accepted:
+            self._apply_outcome(outcome)
+            self._landing = None
+        self._landing_settle.reset(reason)
+
+    def _check_landing_mode_handoff(self, now_ns):
+        landing = self._landing
+        state = self._flight_state
+        if landing is None or not landing.started or state is None:
+            return
+        ground_fresh = (self._landed_state == ExtendedState.LANDED_STATE_ON_GROUND and
+            0 <= now_ns - self._landed_state_receipt_ns <= self._landing_state_max_age_ns and
+            0 <= now_ns - self._landed_state_source_ns <= self._landing_state_max_age_ns)
+        if landing.posctl_authorized:
+            if str(state.mode) == "OFFBOARD":
+                self._cancel_landing_handoff(now_ns, "landing_offboard_after_posctl_handoff")
+            elif str(state.mode) != "POSCTL" and state.connected and state.armed and not ground_fresh:
+                self._cancel_landing_handoff(now_ns, "landing_airborne_manual_takeover")
+            return
+        if landing.posctl_wait_started_ns:
+            if (landing.handoff_requested_ns and landing.handoff_observed_ns >= landing.handoff_requested_ns
+                    and 0 <= now_ns - landing.handoff_requested_ns <= self._landing_mode_transition_timeout_ns
+                    and 0 <= now_ns - landing.handoff_observed_ns <= self._executor.config.odom_max_age_ns
+                    and str(state.mode) == "POSCTL" and state.connected
+                    and 0 <= now_ns - self._flight_state_receipt_ns <= self._landing_state_max_age_ns
+                    and 0 <= now_ns - self._flight_state_source_ns <= self._landing_state_max_age_ns):
+                landing.posctl_authorized = True
+                self._landing_settle.reset("posctl_handoff_confirmed_awaiting_ground")
+                return
+            if now_ns - landing.posctl_wait_started_ns >= self._landing_handoff_wait_ns:
+                self._cancel_landing_handoff(now_ns, "landing_airborne_manual_takeover")
+            return
+        if state.connected and str(state.mode) == "POSCTL" and self._landing_handoff_mode == "POSCTL":
+            landing.posctl_wait_started_ns = now_ns
+            self._check_landing_mode_handoff(now_ns)
+        elif (state.connected and state.armed and not ground_fresh and
+                str(state.mode) not in (("OFFBOARD", "AUTO.LAND")
+                    if self._landing_handoff_mode == "AUTO.LAND" else ("OFFBOARD",))):
+            self._cancel_landing_handoff(now_ns, "landing_airborne_manual_takeover")
+
+    def _on_landing_handoff(self, message):
+        with self._lock:
+            try:
+                landing = self._landing
+                if landing is None:
+                    return
+                payload = json.loads(message.data)
+                now_ns = self._now_ns()
+                if not isinstance(payload, dict):
+                    return
+                command_stamp = payload.get("command_stamp_ns")
+                event_stamp = payload.get("event_stamp_ns")
+                if (not isinstance(command_stamp, str) or not command_stamp.isascii() or not command_stamp.isdecimal()
+                        or not isinstance(event_stamp, str) or not event_stamp.isascii() or not event_stamp.isdecimal()):
+                    return
+                command_stamp = int(command_stamp)
+                event_stamp = int(event_stamp)
+                if (payload.get("mission_id") != landing.decision.mission_id
+                        or type(payload.get("decision_seq")) is not int
+                        or payload["decision_seq"] != landing.decision.decision_seq
+                        or command_stamp != landing.wire_command_stamp_ns
+                        or event_stamp < landing.wire_command_stamp_ns
+                        or not 0 <= now_ns - event_stamp <= self._executor.config.odom_max_age_ns
+                        or payload.get("mode") != self._landing_handoff_mode):
+                    return
+                stage = payload.get("stage")
+                if stage == "CANCELLED":
+                    self._cancel_landing_handoff(now_ns, "controller_landing_handoff_cancelled")
+                    return
+                if stage == "REQUESTED":
+                    landing.handoff_requested_ns = max(landing.handoff_requested_ns, event_stamp)
+                elif stage == "OBSERVED":
+                    landing.handoff_observed_ns = max(landing.handoff_observed_ns, event_stamp)
+                else:
+                    return
+                self._check_landing_mode_handoff(now_ns)
+            except (ValueError, TypeError):
+                return
+
     def _on_flight_state(self, message):
         with self._lock:
             try:
@@ -1433,19 +1555,7 @@ class NavigationPlannerBridge:
                 self._flight_state = message
                 self._flight_state_receipt_ns = now_ns
                 self._flight_state_source_ns = _stamp_to_ns(message.header.stamp)
-                landing = self._landing
-                ground_fresh = (self._landed_state == ExtendedState.LANDED_STATE_ON_GROUND and
-                    0 <= now_ns - self._landed_state_receipt_ns <= self._executor.config.odom_max_age_ns and
-                    0 <= now_ns - self._landed_state_source_ns <= self._executor.config.odom_max_age_ns)
-                if (landing is not None and landing.started and bool(message.connected) and
-                        bool(message.armed) and not ground_fresh and
-                        str(message.mode) not in ("OFFBOARD", "AUTO.LAND")):
-                    outcome = self._executor.report_landing(landing.decision.decision_seq,
-                        now_ns, "CANCELLED", True, "landing_airborne_manual_takeover")
-                    if outcome.accepted:
-                        self._apply_outcome(outcome)
-                        self._landing = None
-                    self._landing_settle.reset("airborne_manual_takeover")
+                self._check_landing_mode_handoff(now_ns)
             except Exception as error:
                 self._handle_callback_exception("flight_state", error)
 

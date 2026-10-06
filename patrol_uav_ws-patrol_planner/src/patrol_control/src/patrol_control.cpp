@@ -21,6 +21,8 @@
 #include <algorithm>
 #include <stdexcept>
 #include <vector>
+#include <sstream>
+#include <iomanip>
 
 int times_detect = 0;
 bool flag_takeoff_done = 0;
@@ -179,6 +181,8 @@ void LLController::initializeNode() {
     control_ready_pub_ =
         nh_.advertise<std_msgs::Bool>(control_ready_topic_, 1, true);
     publishControlReady(false);
+    external_landing_handoff_pub_ = nh_.advertise<std_msgs::String>(
+        external_landing_handoff_topic_, 4, true);
 
     // 订阅无人机当前位置
     pose_sub_ = nh_.subscribe("/mavros/local_position/pose", 1,&LLController::positionCallback, this);
@@ -467,6 +471,30 @@ bool LLController::externalLandingControlReady(const ros::Time& now) const {
            receipt_age <= external_landing_state_max_age_sec_;
 }
 
+void LLController::publishExternalLandingHandoff(const std::string& stage) {
+    if (external_landing_mission_id_.empty() || external_landing_decision_seq_ == 0 ||
+        external_landing_wire_command_stamp_.isZero()) return;
+    std::ostringstream quoted_id;
+    quoted_id << '"';
+    for (unsigned char ch : external_landing_mission_id_) {
+        if (ch == '"' || ch == '\\') quoted_id << '\\' << ch;
+        else if (ch < 0x20) quoted_id << "\\u" << std::hex << std::setw(4)
+            << std::setfill('0') << static_cast<unsigned int>(ch) << std::dec;
+        else quoted_id << ch;
+    }
+    quoted_id << '"';
+    std::ostringstream payload;
+    payload << "{\"mission_id\":" << quoted_id.str()
+        << ",\"decision_seq\":" << external_landing_decision_seq_
+        << ",\"command_stamp_ns\":\"" << external_landing_wire_command_stamp_.toNSec() << '"'
+        << ",\"event_stamp_ns\":\"" << ros::Time::now().toNSec() << '"'
+        << ",\"mode\":\"" << external_landing_handoff_mode_
+        << "\",\"stage\":\"" << stage << "\"}";
+    std_msgs::String status;
+    status.data = payload.str();
+    external_landing_handoff_pub_.publish(status);
+}
+
 void LLController::externalLandingStateCallback(
     const mavros_msgs::State::ConstPtr& msg) {
     external_landing_mavros_state_ = *msg;
@@ -477,22 +505,57 @@ void LLController::externalLandingStateCallback(
     if (!external_mission_mode_ || !external_landing_active_) {
         return;
     }
-    // AUTO.LAND is the expected mode transition after our successful request.
+    // Only our sent request authorizes the expected handoff transition.
     // Every other loss of OFFBOARD must latch even between two timer ticks.
-    if (external_landing_auto_land_requested_ && msg->mode == "AUTO.LAND") {
+    if (external_landing_auto_land_requested_ &&
+        msg->mode == external_landing_handoff_mode_) {
+        if (!external_landing_handoff_observed_ &&
+            (ros::Time::now() - external_landing_handoff_requested_at_).toSec() >
+                external_landing_mode_transition_timeout_sec_) {
+            failExternalLanding("handoff_mode_transition_timeout");
+            external_landing_cancelled_ = true;
+            return;
+        }
+        if (external_landing_handoff_mode_ == "POSCTL") {
+            const double age = (ros::Time::now() - msg->header.stamp).toSec();
+            if (!msg->connected || msg->header.stamp.isZero() || age < 0.0 ||
+                age > external_landing_state_max_age_sec_) {
+                failExternalLanding("handoff_state_not_ready_or_stale");
+                external_landing_cancelled_ = true;
+                return;
+            }
+        }
+        if (!external_landing_handoff_observed_) {
+            external_landing_handoff_observed_ = true;
+            publishExternalLandingHandoff("OBSERVED");
+            ROS_INFO("[ExternalLanding] handoff mode observed: %s",
+                     msg->mode.c_str());
+            if (external_landing_handoff_mode_ == "POSCTL") {
+                ROS_WARN("[ExternalLanding] POSCTL active; awaiting pilot descent and actual ON_GROUND/disarm");
+            }
+        }
         return;
     }
-    if (!msg->connected || !msg->armed || msg->mode != "OFFBOARD") {
+    if (!msg->connected || !msg->armed || msg->mode != "OFFBOARD" ||
+        (external_landing_handoff_observed_ &&
+         external_landing_handoff_mode_ == "POSCTL")) {
         failExternalLanding("flight_controller_control_lost");
         external_landing_cancelled_ = true;
     }
 }
 
 void LLController::clearExternalLandingState(bool disable_detector) {
+    if (external_landing_active_) publishExternalLandingHandoff("CANCELLED");
     external_landing_active_ = false;
     external_landing_new_mark_ = false;
     external_landing_alignment_complete_ = false;
     external_landing_auto_land_requested_ = false;
+    external_landing_handoff_observed_ = false;
+    external_landing_handoff_hold_height_ = 0.0;
+    external_landing_handoff_requested_at_ = ros::Time(0);
+    external_landing_wire_command_stamp_ = ros::Time(0);
+    external_landing_mission_id_.clear();
+    external_landing_decision_seq_ = 0;
     external_landing_cancelled_ = false;
     external_landing_stable_count_ = 0;
     external_landing_started_at_ = ros::Time(0);
@@ -536,6 +599,26 @@ void LLController::externalLandingTick() {
     }
 
     const ros::Time now = ros::Time::now();
+    if (external_landing_auto_land_requested_ && !external_landing_handoff_observed_ &&
+        (now - external_landing_handoff_requested_at_).toSec() >
+            external_landing_mode_transition_timeout_sec_) {
+        failExternalLanding("handoff_mode_transition_timeout");
+        external_landing_cancelled_ = true;
+        return;
+    }
+    if (external_landing_auto_land_requested_ && external_landing_handoff_mode_ == "POSCTL") {
+        const auto& state = external_landing_mavros_state_;
+        const double source_age = (now - state.header.stamp).toSec();
+        const double receipt_age = (now - external_landing_state_receipt_).toSec();
+        if (!state.connected || state.header.stamp.isZero() ||
+            external_landing_state_receipt_.isZero() || source_age < 0.0 || receipt_age < 0.0 ||
+            source_age > external_landing_state_max_age_sec_ ||
+            receipt_age > external_landing_state_max_age_sec_) {
+            failExternalLanding("handoff_state_not_ready_or_stale");
+            external_landing_cancelled_ = true;
+            return;
+        }
+    }
     if (!external_landing_auto_land_requested_ &&
         !externalLandingControlReady(now)) {
         failExternalLanding("flight_controller_state_not_ready_or_stale");
@@ -550,8 +633,15 @@ void LLController::externalLandingTick() {
     if (flag_land) {
         patrol_cmd.pose.position.x = external_landing_aligned_goal_.pose.position.x;
         patrol_cmd.pose.position.y = external_landing_aligned_goal_.pose.position.y;
-        patrol_cmd.pose.position.z = land_height;
+        patrol_cmd.pose.position.z = external_landing_handoff_mode_ == "POSCTL"
+            ? external_landing_handoff_hold_height_ : land_height;
         patrol_cmd.pose.orientation = external_landing_goal_.pose.orientation;
+        if (external_landing_handoff_mode_ == "POSCTL") {
+            ROS_INFO_THROTTLE(2.0,
+                "[ExternalLanding] POSCTL handoff requested=%s observed=%s; awaiting pilot landing",
+                external_landing_auto_land_requested_ ? "true" : "false",
+                external_landing_handoff_observed_ ? "true" : "false");
+        }
         return;
     }
     if ((now - external_landing_started_at_).toSec() >
@@ -629,7 +719,7 @@ void LLController::externalLandingTick() {
         if (!auto_land) {
             ROS_ERROR_THROTTLE(
                 2.0,
-                "[ExternalLanding] AUTO.LAND disabled by switch/auto_land");
+                "[ExternalLanding] landing handoff disabled by switch/auto_land");
             return;
         }
         if (external_landing_last_auto_land_attempt_.isZero() ||
@@ -1542,7 +1632,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     // std::cout<<"mavros_point_cmd.pose.position.x, mavros_point_cmd.pose.position.y, mavros_point_cmd.pose.position.z = "<<mavros_point_cmd.pose.position.x<<", "<<mavros_point_cmd.pose.position.y<<", "<<mavros_point_cmd.pose.position.z<<std::endl;
     last_mavros_point_cmd = mavros_point_cmd;
     // 判断是否已经降落，降落成功就锁桨
-    // External landing delegates disarm to PX4 AUTO.LAND and verifies it
+    // External landing waits for PX4/pilot disarm and verifies it
     // through MAVROS.  The legacy height-only force-disarm path is unsafe for
     // that contract because a bad local-z sample could stop motors in flight.
     if(!external_mission_mode_ && Drone_mode == Land &&
@@ -1578,21 +1668,26 @@ void LLController::CallLand() {
          external_landing_auto_land_requested_ ||
          !externalLandingControlReady(ros::Time::now()))) {
         ROS_WARN_THROTTLE(
-            1.0, "[ExternalLanding] AUTO.LAND blocked without fresh armed OFFBOARD ownership");
+            1.0, "[ExternalLanding] landing handoff blocked without fresh armed OFFBOARD ownership");
         return;
     }
     if (auto_land && (external_mission_mode_ || simulation_auto_land)) {
         mavros_msgs::SetMode auto_land_mode;
-        auto_land_mode.request.custom_mode = "AUTO.LAND";
+        auto_land_mode.request.custom_mode = external_mission_mode_
+            ? external_landing_handoff_mode_ : "AUTO.LAND";
         const bool mode_accepted =
             set_mode_client.call(auto_land_mode) &&
             auto_land_mode.response.mode_sent;
         if (mode_accepted) {
-            ROS_INFO("[PatrolControl] AUTO.LAND mode enabled");
+            ROS_INFO("[PatrolControl] %s request sent; awaiting MAVROS mode observation",
+                     auto_land_mode.request.custom_mode.c_str());
         } else {
-            ROS_WARN("[PatrolControl] AUTO.LAND request failed; keeping landing setpoint");
+            ROS_WARN("[PatrolControl] %s request failed; keeping landing setpoint",
+                     auto_land_mode.request.custom_mode.c_str());
         }
-        // PX4 controls the final descent; retain the last aligned height setpoint.
+        // AUTO.LAND descends automatically. POSCTL requires pilot descent;
+        // freeze the current Z before handoff so no further OFFBOARD descent
+        // is requested while waiting for the actual mode transition.
         align_height = land_height;
         if (external_mission_mode_ && !mode_accepted) {
             // External mission completion is observed through MAVROS landed
@@ -1603,6 +1698,13 @@ void LLController::CallLand() {
         }
         if (external_mission_mode_) {
             external_landing_auto_land_requested_ = true;
+            external_landing_handoff_requested_at_ = ros::Time::now();
+            publishExternalLandingHandoff("REQUESTED");
+            external_landing_handoff_hold_height_ = uav_pose.pose.position.z;
+            if (external_landing_handoff_mode_ == "POSCTL") {
+                patrol_cmd.pose.position.z = external_landing_handoff_hold_height_;
+                align_height = external_landing_handoff_hold_height_;
+            }
         }
     } else {
         if(!flag_landing_detect){
@@ -1700,6 +1802,12 @@ void LLController::load_params() {
         "external_landing/auto_land_height", 0.40);
     external_landing_auto_land_retry_sec_ = nh_.param(
         "external_landing/auto_land_retry_sec", 1.0);
+    external_landing_handoff_mode_ = nh_.param<std::string>(
+        "external_landing/handoff_mode", "AUTO.LAND");
+    external_landing_handoff_topic_ = nh_.param<std::string>(
+        "external_landing/handoff_status_topic", "/patrol_control/external_landing_handoff");
+    external_landing_mode_transition_timeout_sec_ = nh_.param(
+        "external_landing/mode_transition_timeout_sec", 2.5);
     external_landing_state_topic_ = nh_.param<std::string>(
         "external_landing/state_topic", "/mavros/state");
     // Match the board supervisor's mapping_startup.yaml state_max_age default.
@@ -1707,7 +1815,12 @@ void LLController::load_params() {
         "external_landing/state_max_age_sec", 2.5);
     external_landing_stable_frames_ = nh_.param(
         "external_landing/stable_frames", 10);
-    if (external_landing_frame_.empty() ||
+    if (external_landing_handoff_topic_.empty() ||
+        !std::isfinite(external_landing_mode_transition_timeout_sec_) ||
+        external_landing_mode_transition_timeout_sec_ <= 0.0 ||
+        (external_landing_handoff_mode_ != "AUTO.LAND" &&
+         external_landing_handoff_mode_ != "POSCTL") ||
+        external_landing_frame_.empty() ||
         (external_mission_mode_ &&
          (external_landing_detections_topic_.empty() ||
           external_landing_state_topic_.empty() ||
@@ -1859,12 +1972,13 @@ void LLController::load_params() {
              external_recovery_height_);
     ROS_INFO(
         "[ExternalLanding] frame=%s detections=%s capture=%.2f "
-        "handoff=%.2f land=%.2f "
+        "handoff=%.2f land=%.2f mode=%s "
         "tol=%.2f mark_age=%.2f stable=%d controller_watchdog=%.1f",
         external_landing_frame_.c_str(),
         external_landing_detections_topic_.c_str(),
         external_landing_capture_height_,
         external_landing_auto_land_height_, land_height,
+        external_landing_handoff_mode_.c_str(),
         external_landing_alignment_tolerance_,
         external_landing_mark_max_age_sec_, external_landing_stable_frames_,
         external_landing_watchdog_timeout_sec_);
@@ -3026,7 +3140,7 @@ void LLController::missionCommandCallback(
         case patrol_control::MissionCommand::RETURN_HOME:
             if (external_landing_auto_land_requested_) {
                 ROS_ERROR(
-                    "[ExternalLanding] refusing navigation command after AUTO.LAND handoff");
+                    "[ExternalLanding] refusing navigation command after landing handoff");
                 return;
             }
             cancelDropAction();
@@ -3047,7 +3161,7 @@ void LLController::missionCommandCallback(
         case patrol_control::MissionCommand::ALIGN: {
             if (external_landing_auto_land_requested_) {
                 ROS_ERROR(
-                    "[ExternalLanding] refusing ALIGN after AUTO.LAND handoff");
+                    "[ExternalLanding] refusing ALIGN after landing handoff");
                 return;
             }
             // Repeated ALIGN for an existing decision must not reset an
@@ -3116,6 +3230,12 @@ void LLController::missionCommandCallback(
                     2.0, "[ExternalLanding] duplicate or cancelled LAND command ignored");
                 return;
             }
+            if (external_landing_handoff_mode_ == "POSCTL" &&
+                (msg->target_class.empty() || msg->goal.header.seq == 0 ||
+                 msg->goal.header.stamp.isZero())) {
+                ROS_ERROR("[ExternalLanding] POSCTL LAND rejected without mission/decision/command identity");
+                return;
+            }
             resetDetectionState();
             if (msg->goal.header.frame_id != external_landing_frame_ ||
                 !std::isfinite(msg->goal.pose.position.x) ||
@@ -3144,9 +3264,14 @@ void LLController::missionCommandCallback(
             }
             external_landing_aligned_goal_ = external_landing_goal_;
             external_landing_active_ = true;
+            external_landing_mission_id_ = msg->target_class;
+            external_landing_decision_seq_ = msg->goal.header.seq;
+            external_landing_wire_command_stamp_ = msg->goal.header.stamp;
             external_landing_new_mark_ = false;
             external_landing_alignment_complete_ = false;
             external_landing_auto_land_requested_ = false;
+            external_landing_handoff_observed_ = false;
+            external_landing_handoff_hold_height_ = 0.0;
             external_landing_stable_count_ = 0;
             external_landing_started_at_ = ros::Time::now();
             external_landing_command_stamp_ = external_landing_started_at_;

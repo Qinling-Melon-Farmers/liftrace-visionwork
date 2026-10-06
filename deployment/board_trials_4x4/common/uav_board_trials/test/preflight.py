@@ -23,6 +23,7 @@ for folder in TRIAL_FOLDERS.values():
             assert values['/landing_detector/default_align_mode']=='disabled'
             assert values['/landing_detector/process_only_in_landing_mode'] is True
             if s['mode'] in H_MODES and enabled=='true':
+                assert values['/external_landing/handoff_mode']==s.get('landing_handoff_mode','AUTO.LAND')
                 assert values['/external_landing/detections_topic']=='/uav_vision/detections_mapped'
                 assert values['/external_landing/alignment_tolerance']==.08
                 assert values['/external_landing/stable_frames']==10
