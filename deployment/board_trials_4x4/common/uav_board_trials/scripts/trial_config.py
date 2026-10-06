@@ -248,6 +248,9 @@ def generate(root,out,settings,fc_xyz,rig):
         '/board_trials/actuator_mode':actuator,
         '/target_map_projector/coarse_navigation_enabled':high_mode,
         '/target_map_projector/coarse_min_confidence':.60,
+        # Loaded after Phase D's detector YAML in the common application launch.
+        # Standalone H, corridor+H and full-mission LAND use the same fallback.
+        '/landing_detector/landing_enable_h_stroke_fallback':h_landing,
         '/target_memory/search_confirmation_max_gap_sec':1.0,
         '/drop_aligner/stable_frames':5,
     }

@@ -18,6 +18,16 @@ for folder in TRIAL_FOLDERS.values():
         for enabled in ('false','true'):
             cfg=roslaunch.config.load_config_default([(str(P/'launch/application.launch'),[f'enable_control_output:={enabled}',f'mode:={s["mode"]}','model_path:=/test/model.rknn',f'generated_dir:={tmp}',f'ground_z:={ref["ground_z"]}',f'low_z:={ref["low_z"]}',f'cruise_speed:={s["cruise_speed"]}',f'cruise_acceleration:={s["cruise_acceleration"]}',f'terminal_hover_enabled:={str("terminal_hover_agl" in s).lower()}',f'max_command_z:={ref["ground_z"]+s.get("max_agl",2.9)}'])],11311,verbose=False)
             values={k:v.value for k,v in cfg.params.items()};nodes={n.name:n for n in cfg.nodes}
+            assert values['/landing_detector/landing_enable_h_stroke_fallback']==(s['mode'] in H_MODES)
+            assert values['/landing_detector/landing_enable_h_structure_check'] is True
+            assert values['/landing_detector/default_align_mode']=='disabled'
+            assert values['/landing_detector/process_only_in_landing_mode'] is True
+            if s['mode'] in H_MODES and enabled=='true':
+                assert values['/external_landing/detections_topic']=='/uav_vision/detections_mapped'
+                assert values['/external_landing/alignment_tolerance']==.08
+                assert values['/external_landing/stable_frames']==10
+                assert values['/external_landing/mark_max_age_sec']==.5
+                assert 'trial_auto_land' not in nodes and 'trial_terminal_hover' not in nodes
             assert values['/fast_planner_node/sdf_map/visualization_rate']==2.
             assert values['/fast_planner_node/manager/max_vel']==s['cruise_speed']
             assert s['cruise_speed']==(1. if s['mode']=='high_speed_capture' else .5)
@@ -68,6 +78,7 @@ for folder in TRIAL_FOLDERS.values():
                     return result
                 return default
             manager=BoardManager.__new__(BoardManager);manager.mode=s['mode'];manager._profile_name='r2026';manager._profile_path=str(R/'patrol_uav_ws-patrol_planner/src/uav_mission/config/competition_profiles.yaml')
+            manager._high_stage_parameters=None
             with patch('rospy.get_param',side_effect=get_param):actual=manager._new_runtime()
             rows.append(dict(folder=folder,trial=s['mode'],control_output=enabled,nodes=len(nodes),runtime=type(actual).__name__,passed=True))
         for enabled in ('false','true'):

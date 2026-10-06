@@ -1,7 +1,7 @@
 from pathlib import Path
 import os,sys,tempfile,subprocess,json
 import roslaunch,rospkg,yaml
-from trial_config import TRIAL_FOLDERS,mapping_profile
+from trial_config import TRIAL_FOLDERS,H_MODES,mapping_profile
 P=Path(__file__).resolve().parents[1];root=P.parents[3]
 roslaunch.substitution_args._rospack=rospkg.RosPack(ros_paths=[str(root/'vision_ws/src'),str(root/'patrol_uav_ws-patrol_planner/src'),'/opt/ros/noetic/share','/home/xhj/PX4-Autopilot','/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic'])
 rows=[]
@@ -13,6 +13,10 @@ for trial in TRIAL_FOLDERS:
         os.environ['SIM_RUN_DIR']=tmp
         cfg=roslaunch.config.load_config_default([(str(P/'launch/simulation.launch'),[f'generated_dir:={tmp}',f'trial:={trial}',f'mode:={settings["mode"]}','model_path:=/test.pt'])],11311,verbose=False)
         nodes={n.name:n for n in cfg.nodes};params={k:v.value for k,v in cfg.params.items()}
+        assert params['/landing_detector/landing_enable_h_stroke_fallback']==(settings['mode'] in H_MODES)
+        assert params['/landing_detector/landing_enable_h_structure_check'] is True
+        assert params['/landing_detector/default_align_mode']=='disabled'
+        assert params['/landing_detector/process_only_in_landing_mode'] is True
         assert nodes['mission_manager'].type=='trial_sim_manager.py'
         assert 'target_detector_rknn' not in nodes
         assert nodes['map_camera_alignment'].type=='static_transform_publisher'
