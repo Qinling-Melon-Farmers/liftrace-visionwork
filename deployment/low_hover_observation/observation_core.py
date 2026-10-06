@@ -27,6 +27,12 @@ def validate(config, profile):
     if any(not isinstance(config[k], (float,int)) or isinstance(config[k],bool)
            or not math.isfinite(config[k]) or config[k]<=0 for k in keys):
         raise ValueError('positive finite configuration required')
+    for key,default in [('ground_stable_seconds',2.0)]:
+        value=config.get(key,default)
+        if isinstance(value,bool) or not isinstance(value,(float,int)) or not math.isfinite(value) or value<=0:
+            raise ValueError('invalid ground stability configuration')
+    if not isinstance(config.get('require_fc_ev_yaw_agreement',False),bool):
+        raise ValueError('yaw agreement switch must be boolean')
     if not config['fc_ground_clearance'] < config['height_agl'] <= config['max_height_agl'] <= 1.2:
         raise ValueError('invalid low-flight FC height')
     if config['horizontal_speed']>.4 or config['climb_speed']>.3 or config['max_setpoint_lead']>.25:
@@ -44,7 +50,7 @@ def validate(config, profile):
 class Observation:
     def __init__(self, config, profile, origin, now):
         validate(config,profile)
-        self.c=config;self.origin=origin;self.goals=route(config,profile,origin)
+        self.c=config;self.profile=profile;self.origin=origin;self.goals=route(config,profile,origin)
         self.target=tuple(origin);self.stage='READY';self.reason='manual_arm_then_offboard'
         self.index=0;self.ready_at=now;self.started=None;self.previous_tick=now
         self.last_pose=None;self.last_stamp=None;self.arrival_since=None;self.dwell_since=None
@@ -67,16 +73,19 @@ class Observation:
         if self.stage=='READY':
             if not connected or not fresh or not math.isfinite(speed):
                 self.hold('ground_reference_invalid_restart_on_ground');return self.target
-            if not armed and fresh:self.target=tuple(pose)
-            if (armed and entered and connected and fresh
-                    and now-self.ready_at>=self.c['warmup_seconds']):
-                # Do not silently rebase a route after ground handling/movement.
-                if math.dist(pose[:3],self.origin[:3])>.10 or abs(angle_delta(pose[3],self.origin[3]))>math.radians(5):
-                    self.hold('start_reference_changed',pose)
-                else:
-                    self.stage='RUN';self.started=now;self.ever_started=True
-                    self.last_pose=tuple(pose);self.last_stamp=stamp
-                    self.reason='ascending_to_fc_agl'
+            # FC yaw may still converge on the ground. Only the position/ground
+            # reference is frozen at READY; lock heading on fresh pilot entry.
+            if math.dist(pose[:3],self.origin[:3])>.10:
+                self.hold('start_reference_changed',pose);return self.target
+            self.target=self.target[:3]+(pose[3],)
+            if not armed:self.target=tuple(pose)
+            if (armed and entered and now-self.ready_at>=self.c['warmup_seconds']):
+                self.origin=tuple(self.origin[:3])+(pose[3],)
+                self.goals=route(self.c,self.profile,self.origin)
+                self.target=tuple(pose)
+                self.stage='RUN';self.started=now;self.ever_started=True
+                self.last_pose=tuple(pose);self.last_stamp=stamp
+                self.reason='ascending_to_fc_agl'
             return self.target
         if self.stage=='HOLD_FOR_PILOT':return self.target
         if not connected or not fresh or not math.isfinite(speed):

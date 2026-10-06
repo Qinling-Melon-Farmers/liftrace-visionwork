@@ -187,4 +187,56 @@ class SnapshotOrderTests(unittest.TestCase):
         data['pose']=(99.,99.)
         self.assertNotEqual(snapshot['pose'],data['pose'])
 
+class GroundStabilityTests(unittest.TestCase):
+    def rows(self, start, end):
+        return [(0.,0.,0.,math.radians(start+(end-start)*i/75),10+i/30) for i in range(76)]
+    def test_position_still_but_yaw_converging_is_diagnostic(self):
+        from flight import ground_reference_stability
+        ok,detail=ground_reference_stability(self.rows(9.,6.87),12.5,{})
+        self.assertTrue(ok);self.assertGreater(detail['yaw_span_deg'],2.)
+    def test_stable_heading_and_pi_wrap_pass(self):
+        from flight import ground_reference_stability
+        for start,end in [(1.,.8),(179.9,180.1)]:
+            rows=self.rows(start,end)
+            rows=[(x,y,z,math.atan2(math.sin(a),math.cos(a)),t) for x,y,z,a,t in rows]
+            self.assertTrue(ground_reference_stability(rows,12.5,{})[0])
+    def test_short_window_and_translation_are_rejected(self):
+        from flight import ground_reference_stability
+        rows=self.rows(0.,0.)
+        self.assertFalse(ground_reference_stability(rows[-10:],12.5,{})[0])
+        rows[-1]=(.04,0.,0.,0.,12.5)
+        self.assertFalse(ground_reference_stability(rows,12.5,{})[0])
+    def test_heading_convergence_then_manual_offboard_locks_current_heading(self):
+        c=yaml.safe_load((Path(__file__).parent/'profiles.yaml').read_text())
+        for profile in ('hover','forward','square'):
+            o=Observation(c,profile,(0.,0.,0.,math.radians(6.87)),0.)
+            o.step(0.,o.origin,10.,True,False,'MANUAL')
+            current=(0.,0.,0.,math.radians(.77))
+            o.step(2.1,current,12.1,True,False,'MANUAL')
+            self.assertEqual(o.stage,'READY');self.assertFalse(o.ever_started)
+            o.step(2.2,current,12.2,True,True,'POSCTL')
+            self.assertEqual(o.stage,'READY')
+            o.step(2.3,current,12.3,True,True,'OFFBOARD')
+            self.assertEqual(o.stage,'RUN')
+            self.assertAlmostEqual(o.origin[3],current[3])
+            self.assertEqual(o.goals,route(c,profile,o.origin))
+            self.assertEqual(o.target,current)
+            o.step(2.4,current,12.4,True,True,'OFFBOARD')
+            self.assertGreater(o.target[2],current[2])
+    def test_fc_lio_yaw_difference_allowed_but_missing_and_stale_block(self):
+        import sys
+        from flight import agreement_config
+        scripts=Path(__file__).resolve().parents[1]/'board_trials_4x4/common/uav_board_trials/scripts'
+        sys.path.insert(0,str(scripts))
+        from mapping_startup import PoseAgreement
+        c=yaml.safe_load((Path(__file__).parent/'profiles.yaml').read_text())
+        a=PoseAgreement(agreement_config(c))
+        for t in (10.,11.,12.1):
+            ready,detail=a.update([(0.,0.,0.,1.,t)],[(0.,0.,0.,0.,t)],t,True)
+        self.assertTrue(ready);self.assertGreater(detail['yaw_delta_deg'],50)
+        self.assertFalse(a.update([(0.,0.,0.,1.,12.1)],[],12.2,True)[0])
+        self.assertFalse(a.update([(0.,0.,0.,1.,12.1)],[(0.,0.,0.,0.,12.1)],13.,True)[0])
+        strict=PoseAgreement(agreement_config(dict(c,require_fc_ev_yaw_agreement=True)))
+        self.assertFalse(strict.update([(0.,0.,0.,1.,13.)],[(0.,0.,0.,0.,13.)],13.,True)[0])
+
 if __name__=='__main__':unittest.main()

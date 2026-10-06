@@ -47,6 +47,27 @@ def valid_speed(message, frame, now, age, received_age):
     return speed if math.isfinite(speed) else math.inf
 
 
+def ground_reference_stability(rows, now, config):
+    required = float(config.get('ground_stable_seconds', 2.0))
+    recent = [v for v in rows if 0 <= now-v[4] <= required+0.5]
+    if len(recent) < 15 or recent[-1][4]-recent[0][4] < required:
+        return False, {'reason': 'ground_window_short'}
+    position_span = [max(v[i] for v in recent)-min(v[i] for v in recent) for i in range(3)]
+    reference = recent[0][3]
+    yaw = [math.atan2(math.sin(v[3]-reference), math.cos(v[3]-reference)) for v in recent]
+    yaw_span = math.degrees(max(yaw)-min(yaw))
+    stable = max(position_span) < .025
+    return stable, {'reason': 'stable' if stable else 'ground_still_converging',
+                    'position_span_m': position_span, 'yaw_span_deg': yaw_span,
+                    'sample_span_s': recent[-1][4]-recent[0][4], 'yaw_diagnostic_only': True}
+
+
+def agreement_config(config):
+    return dict(pose_max_age=config['pose_max_age'], pair_max_skew=.1,
+                position_tolerance=.2, stable_seconds=2.,
+                yaw_tolerance_deg=5. if config.get('require_fc_ev_yaw_agreement', False) else 180.)
+
+
 def snapshot_clocked(lock, data, monotonic, ros_now):
     # A callback can arrive while acquiring the lock. Sample clocks after the
     # copied messages, so a newly received pose cannot appear to be in future.
@@ -124,10 +145,10 @@ def main():
         if any(n in names for n in ('/laserMapping','/lio_external_pose')):
             raise RuntimeError('existing LIO/EV publisher; reuse it or stop on ground, never duplicate')
         print('LOCALIZATION_START_ALLOWED: ground/disarmed, no competing app');return
-    # The inherited comparison assumes the existing static identity map<->camera_init.
-    # No estimated transform is learned merely to hide FC/LIO disagreement.
-    agree=PoseAgreement(dict(pose_max_age=.3,pair_max_skew=.1,position_tolerance=.2,
-                             yaw_tolerance_deg=5.,stable_seconds=2.))
+    # This diagnostic route lives entirely in FC local coordinates, without an
+    # LIO map/planner. Heading convergence is recorded, not required by default.
+    # Keep positional agreement and time checks; never learn a hidden transform.
+    agree=PoseAgreement(agreement_config(c))
     output=args.output or ROOT/'logs'/('low_hover_'+args.profile+'_'+datetime.now().strftime('%Y%m%d_%H%M%S'))
     output.mkdir(parents=True,exist_ok=False)
     (output/'profile.yaml').write_text(yaml.safe_dump(c,sort_keys=False))
@@ -140,8 +161,8 @@ def main():
     try:
         until=time.monotonic()+90;last_print=0.
         while not stopping.is_set() and time.monotonic()<until and not rospy.is_shutdown():
-            now=rospy.Time.now().to_sec();wall=time.monotonic()
             with lock:
+                now=rospy.Time.now().to_sec();wall=time.monotonic()
                 state,rx=data.get('state',(None,0))
                 disarmed=state is not None and state.connected and not state.armed and wall-rx<=c['state_max_age']
                 ready,detail=agree.update(list(samples),list(ev_samples),now,disarmed)
@@ -150,11 +171,10 @@ def main():
                 speed=valid_speed(odom,c['frame'],now,c['pose_max_age'],wall-odom_rx)
             if recorder.poll() is not None:raise RuntimeError('diagnostic recorder failed before flight; see recorder.log')
             if not disarmed:raise RuntimeError('must remain connected and disarmed through initialization')
+            stable,ground_detail=ground_reference_stability(span,now,c)
             if wall-last_print>1:
+                detail=dict(detail,ground_stability=ground_detail)
                 print('WAIT_GROUND_REFERENCE',json.dumps(detail),flush=True);last_print=wall
-            recent=[v for v in span if 0<=now-v[4]<=2.]
-            stable=(len(recent)>=15 and recent[-1][4]-recent[0][4]>=1.5
-                    and all(max(v[i] for v in recent)-min(v[i] for v in recent)<.025 for i in range(3)))
             ready_file=output/'recording/recording_ready.json'
             recorder_ready=(ready_file.exists() and json.loads(ready_file.read_text()).get('ready') is True)
             if ready and stable and math.isfinite(speed) and recorder_ready:break
@@ -167,7 +187,9 @@ def main():
         metadata=dict(profile=args.profile,origin_fc_local=list(origin),ground_local_z=origin[2]-c['fc_ground_clearance'],
                       fc_ground_clearance=c['fc_ground_clearance'],planned_goals=controller.goals,
                       wall_time=time.time(),monotonic=time.monotonic(),ros_time=rospy.Time.now().to_sec(),
-                      purpose='motor_low_hover_observation_only',alignment='inherited_static_identity',
+                      purpose='motor_low_hover_observation_only',alignment='fc_local_route_position_agreement_only',
+                      require_fc_ev_yaw_agreement=c.get('require_fc_ev_yaw_agreement',False),
+                      heading_lock='fresh_manual_offboard_entry',
                       altitude_is_estimate_not_range_measurement=True)
         (output/'reference.json').write_text(json.dumps(metadata,indent=2))
         pub=rospy.Publisher(topics['setpoint'],PoseStamped,queue_size=1)
@@ -204,7 +226,8 @@ def main():
             if wall-last_status>=1 or controller.stage!=previous_stage:
                 status=dict(stage=controller.stage,reason=controller.reason,profile=args.profile,index=controller.index,
                             time=now,monotonic=wall,pose=pose,pose_stamp=stamp,pose_age=now-stamp if stamp else None,
-                            target=target,mode=mode,armed=armed,recorder_alive=not recorder_failed)
+                            target=target,mode=mode,armed=armed,recorder_alive=not recorder_failed,
+                            route_origin=controller.origin,heading_locked=controller.ever_started)
                 status_pub.publish(String(data=json.dumps(status)))
                 print(json.dumps(status),flush=True);last_status=wall;previous_stage=controller.stage
             if not announced and controller.stage=='READY' and connected and fresh and wall-controller.ready_at>=c['warmup_seconds']:
