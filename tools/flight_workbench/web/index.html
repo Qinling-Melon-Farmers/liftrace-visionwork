@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Liftrace 试飞验证看板</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header id="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">LT</span>
+    <span class="brand-title">Liftrace 试飞验证看板</span>
+    <span id="conn-chip" class="chip chip-unknown" title="SSH 连接状态"><span class="dot"></span><span id="conn-host">未配置</span></span>
+    <label class="tiny" for="host-select">SSH 地址</label>
+    <select id="host-select" class="host-select" title="板端 SSH 地址（历史地址来自现场部署记录与项目 memoir）"></select>
+    <span id="conn-detail" class="tiny muted"></span>
+  </div>
+  <div class="toolbar">
+    <button id="btn-connect" class="btn btn-primary" title="POST /api/connect {}">连接</button>
+    <button id="btn-config" class="btn" title="修改地址、工程目录与连接参数">连接设置</button>
+    <button id="btn-disconnect" class="btn" title="POST /api/disconnect {}">断开</button>
+    <span class="sep"></span>
+    <button id="btn-preflight" class="btn" title="POST /api/action/preflight {}">单实例检查</button>
+    <button id="btn-start-all" class="btn" title="POST /api/action/start_all {include_servo, confirm:&quot;启动设备&quot;}">一键启动设备</button>
+    <button id="btn-stop-all" class="btn btn-danger" title="POST /api/action/stop_all {}">全部停止</button>
+    <button id="btn-report" class="btn" title="POST /api/action/report {}">生成回报</button>
+    <a class="btn" href="/observe" target="_blank" rel="noopener">实时状态曲线 ↗</a>
+    <a class="btn" href="/motor" target="_blank" rel="noopener">低空电机观察 ↗</a>
+    <span class="sep"></span>
+    <label class="switch" title="阶段进入 READY / FAILED 时用 WebAudio 发出短提示音"><input type="checkbox" id="sw-sound"><span>声音提醒</span></label>
+    <label class="switch" title="终端与日志自动跟随最新输出"><input type="checkbox" id="sw-autoscroll" checked><span>自动滚动</span></label>
+  </div>
+  <div class="probe tiny" id="topbar-probe">master — · 节点 — · 遥测 —</div>
+</header>
+
+<div id="offline-banner" class="offline-banner hidden">先连接板端：当前未连接，所有启动类按钮已禁用。</div>
+
+<main id="layout">
+
+  <!-- 左栏 · 任务组 -->
+  <section id="pane-groups" class="pane">
+    <div class="pane-head">
+      <h2>任务组</h2>
+      <span class="tiny muted" id="groups-hint">trial 会话未运行</span>
+    </div>
+    <div class="pane-body" id="groups-body">
+      <p class="empty">等待快照…</p>
+    </div>
+  </section>
+
+  <!-- 中栏 · 终端 -->
+  <section id="pane-terminals" class="pane">
+    <div class="pane-head">
+      <h2>常驻终端</h2>
+      <span class="tiny muted" id="terminals-hint"></span>
+    </div>
+    <div id="term-tabs" class="term-tabs"></div>
+    <div id="term-body" class="term-body"></div>
+  </section>
+
+  <!-- 右栏 · 状态监视 -->
+  <section id="pane-monitor" class="pane">
+    <div class="pane-head">
+      <h2>状态监视</h2>
+      <span class="tiny muted">板端遥测约 1Hz</span>
+    </div>
+    <div class="pane-body" id="monitor-body">
+      <p class="empty">等待快照…</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- 底部抽屉 · 飞行日志 -->
+<section id="drawer">
+  <div class="drawer-head">
+    <div class="drawer-tabs">
+      <button class="dtab active" data-drawer="run">运行日志</button>
+      <button class="dtab" data-drawer="board">板端产物</button>
+      <button class="dtab" data-drawer="timeline">操作时间线</button>
+    </div>
+    <div class="drawer-tools" id="drawer-tools"></div>
+    <button id="btn-drawer" class="btn btn-ghost" title="折叠 / 展开日志抽屉">收起</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</section>
+
+<footer id="safety">
+  READY 只是应用就绪；飞手人工解锁并人工拨入 OFFBOARD，稳定条件满足后入口自动起飞并开始任务。飞手接管会取消自动时序。
+</footer>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<div id="modal-root" class="modal-root hidden"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

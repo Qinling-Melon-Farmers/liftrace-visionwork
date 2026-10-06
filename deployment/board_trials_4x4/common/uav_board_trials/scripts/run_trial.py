@@ -9,7 +9,9 @@ from trial_bag import TrialBag
 from mapping_startup import PoseAgreement,MapWarmup,VisionReadiness,startup_transport_pending
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('trial',choices=sorted(TRIAL_FOLDERS));p.add_argument('mode',choices=['preview','flight']);p.add_argument('--root',type=Path,required=True);p.add_argument('--model',type=Path);p.add_argument('--metadata',type=Path);p.add_argument('--check-config',action='store_true');p.add_argument('--site-config',type=Path);p.add_argument('--real-release',action='store_true');p.add_argument('--mapping-startup-config',type=Path);p.add_argument('--capture-speed',type=float,choices=(.5,1.,1.2));p.add_argument('--capture-lighting',choices=('normal','dim','unspecified'));p.add_argument('--motion-optimized',action='store_true');p.add_argument('--survey-pattern',choices=('rectangle','snake2','snake3'));a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('trial',choices=sorted(TRIAL_FOLDERS));p.add_argument('mode',choices=['preview','flight']);p.add_argument('--root',type=Path,required=True);p.add_argument('--model',type=Path);p.add_argument('--metadata',type=Path);p.add_argument('--check-config',action='store_true');p.add_argument('--site-config',type=Path);p.add_argument('--real-release',action='store_true');p.add_argument('--mapping-startup-config',type=Path);p.add_argument('--capture-speed',type=float,choices=(.5,1.,1.2));p.add_argument('--capture-lighting',choices=('normal','dim','unspecified'));p.add_argument('--motion-optimized',action='store_true');p.add_argument('--survey-pattern',choices=('rectangle','snake2','snake3'))
+    p.add_argument('--resume-survey',choices=('on','off'),help='Override interrupted survey resume for priority/full mission; omit to inherit settings')
+    a=p.parse_args()
     folder=TRIAL_FOLDERS[a.trial]
     base=a.root/'deployment/board_trials_4x4';settings=yaml.safe_load((base/folder/'settings.yaml').read_text());rig=yaml.safe_load((base/'common/uav_board_trials/config/known_rig.yaml').read_text())
     startup=yaml.safe_load((a.mapping_startup_config or base/'common/uav_board_trials/config/mapping_startup.yaml').read_text())
@@ -31,6 +33,14 @@ def main():
         if not isinstance(motion,dict):p.error('motion_optimization must be an object')
         settings['motion_optimization']={**motion,'enabled':True}
     if a.survey_pattern:settings['survey_pattern']=a.survey_pattern
+    if a.resume_survey is not None:
+        if a.trial not in ('high_priority','full_mission'):
+            p.error('--resume-survey is only valid for high_priority/full_mission')
+        settings['resume_survey_enabled']=a.resume_survey=='on'
+    resume=settings.get('resume_survey_enabled',False)
+    if type(resume) is not bool:p.error('resume_survey_enabled must be boolean')
+    if resume and a.trial not in ('high_priority','full_mission'):
+        p.error('survey resume is only available for priority/full mission trials')
     if settings.get('actuator_mode','mock')!='mock':p.error('settings must default to mock; use --real-release explicitly')
     if a.real_release and (a.mode!='flight' or settings['mode'] in NO_DROP_MODES):p.error('--real-release requires a delivery flight module')
     settings['actuator_mode']='real' if a.real_release else ('none' if settings['mode'] in NO_DROP_MODES else 'mock')
