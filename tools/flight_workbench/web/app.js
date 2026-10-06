@@ -904,7 +904,7 @@ function trialBody(g, mode, checkConfig) {
   if (g.motion_optimization_supported && U.motionOptimized) body.motion_optimized = true;
   if (g.survey_patterns && U.pattern) body.survey_pattern = U.pattern;
   if (g.resume_survey_supported && U.resume) body.resume_survey = U.resume;
-  if (g.needs_waypoints && U.geometryEnabled) {body.site_geometry=U.geometryValues || {};body.geometry_revision=U.geometryRevision || '';}
+  if ((g.needs_waypoints || g.survey_patterns || g.folder==='09_high_speed_capture') && U.geometryEnabled) {body.site_geometry=U.geometryValues || {};body.geometry_revision=U.geometryRevision || '';}
   if (!checkConfig) body.confirm = body.real_release ? '实投' : '启动试飞';
   var built = groupCommandBody(g, body.mode, body.real_release, !!body.check_config, body.capture_speed, body);
   if (built.body) body.expected_body = built.body;
@@ -919,7 +919,7 @@ function geometryPlanKey(g, mode, realRelease, checkConfig, speed, options) {
     options.geometry_revision, options.site_geometry]);
 }
 
-function geometryFromDraft(U) {
+function geometryFromDraft(U,g) {
   function row(text, count) {
     var parts = String(text || '').trim().split(/[\s,，]+/);
     if (!String(text || '').trim() || (count && parts.length !== count)) throw Error('坐标数量不正确');
@@ -930,9 +930,16 @@ function geometryFromDraft(U) {
   var points = String(U.geometryPoints || '').trim().split(/\n/).filter(function(v) { return v.trim(); }).map(function(line) {
     var p = row(line,3); return {x:p[0],y:p[1],agl:p[2]};
   });
-  if (points.length < 2) throw Error('至少填写两个走廊航点');
-  var result = {corridor_waypoints:points,landing_xy:row(U.geometryLanding,2)};
-  if (String(U.geometryWalls || '').trim()) {
+  var result = {};
+  if (!g || g.needs_waypoints) {
+    if (points.length < 2) throw Error('至少填写两个走廊航点');
+    result.corridor_waypoints=points;result.landing_xy=row(U.geometryLanding,2);
+  }
+  if (U.surveyEnabled) {
+    function value(key) { if(!String(U[key] || '').trim())throw Error('请填完整搜索高度、外参和FOV');return row(U[key],1)[0]; }
+    result.survey_plan={bounds:row(U.surveyBounds,4),inset:value('surveyInset'),pattern:U.pattern || 'rectangle',camera_agl:value('surveyCameraHeight'),fc_to_camera_z:value('surveyOffset'),fov_x_deg:value('surveyFovX'),fov_y_deg:value('surveyFovY')};
+  }
+  if ((!g || g.needs_waypoints) && String(U.geometryWalls || '').trim()) {
     var entry=Number(U.geometryEntry);
     if (!Number.isInteger(entry) || entry<1 || entry>points.length) throw Error('入口序号从1开始且不能超过航点数');
     result.corridor_geometry={wall_axis:Number(U.geometryAxis || 0),wall_coordinates:row(U.geometryWalls),entry_waypoints:entry};
@@ -941,22 +948,54 @@ function geometryFromDraft(U) {
   return result;
 }
 
+function renderSurveyCoverage(box,p) {
+  box.replaceChildren();
+  box.appendChild(el('p','tiny','镜头 '+p.camera_agl.toFixed(2)+'m → FC '+p.high_agl.toFixed(2)+'m；单帧视场X×Y '+p.footprint_xy.map(function(v){return v.toFixed(2);}).join('×')+'m；理想覆盖 '+p.covered_m2.toFixed(2)+' / '+p.area_m2.toFixed(2)+'m² ('+p.coverage_percent.toFixed(1)+'%)；航长 '+p.route_length_m.toFixed(1)+'m'));
+  var ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),b=p.bounds,pad=.25,scale=Math.max(b[1]-b[0],b[3]-b[2]);
+  svg.setAttribute('viewBox',[b[0]-pad,-b[3]-pad,b[1]-b[0]+2*pad,b[3]-b[2]+2*pad].join(' '));svg.setAttribute('role','img');svg.setAttribute('aria-label','搜索航线与理想视场覆盖');svg.style.width='100%';svg.style.maxHeight='300px';
+  function rect(r,fill){var e=document.createElementNS(ns,'rect');[['x',r[0]],['y',-r[3]],['width',r[1]-r[0]],['height',r[3]-r[2]],['fill',fill]].forEach(function(v){e.setAttribute(v[0],v[1]);});svg.appendChild(e);}
+  rect(b,'#2b4560');p.footprints.forEach(function(r){rect(r,'#346f96');});p.blind_rectangles.forEach(function(r){rect(r,'#a66b27');});
+  var line=document.createElementNS(ns,'polyline');line.setAttribute('points',p.route.map(function(v){return v[0]+','+(-v[1]);}).join(' '));line.setAttribute('fill','none');line.setAttribute('stroke','#f3f7ff');line.setAttribute('stroke-width',scale*.008);svg.appendChild(line);
+  var start=document.createElementNS(ns,'circle');start.setAttribute('cx',p.route[0][0]);start.setAttribute('cy',-p.route[0][1]);start.setAttribute('r',scale*.018);start.setAttribute('fill','#64ef9b');svg.appendChild(start);box.appendChild(svg);
+  box.appendChild(el('div','tiny muted','白线=设计航线，绿点=起点，蓝色=理想覆盖，橙色=盲区；图中向右为+X，向上为+Y。'));
+  p.warnings.forEach(function(w){box.appendChild(el('div','tiny muted',w));});
+}
+
 function geometryEditor(g,U,onChange) {
   var box=el('div','geometry-editor');
   var label=el('label','chk'), enabled=el('input');enabled.type='checkbox';enabled.checked=!!U.geometryEnabled;
   enabled.setAttribute('data-option','geometryEnabled');
-  label.appendChild(enabled);label.appendChild(el('span',null,'使用手动实测坐标（不覆盖原现场YAML）'));box.appendChild(label);
+  label.appendChild(enabled);label.appendChild(el('span',null,'使用实测坐标／自动搜索航线（保留原现场YAML）'));box.appendChild(label);
   enabled.addEventListener('change',function(){U.geometryEnabled=enabled.checked;U.geometryPlans={};renderGroups();});
   if (!U.geometryEnabled) return box;
-  box.appendChild(el('div','tiny muted','单位m；相对起飞点：+X朝场内、+Y向左，agl为FC中心离地高度。04是走廊接H，08是投递后走廊接H；不存在单独取消H的走廊组。'));
+  box.appendChild(el('div','tiny muted','单位m；相对起飞点：+X朝场内、+Y向左。走廊点agl为FC中心离地高度；自动搜索填写镜头离地高度，再按安装外参换算FC高度。'));
   function input(key,title,placeholder,multiline) {
     var wrap=el('label','geometry-field');wrap.appendChild(el('span',null,title));
     var field=el(multiline?'textarea':'input');field.value=U[key] || '';field.placeholder=placeholder;
     if(multiline)field.rows=key==='geometryPoints'?5:3;
     field.setAttribute('data-geometry',key);
-    field.addEventListener('input',function(){U[key]=field.value;U.geometryPlans={};U.geometryRevision=null;status.textContent='坐标已修改，请重新生成命令';onChange();});
+    field.addEventListener('input',function(){U[key]=field.value;U.geometryPlans={};U.geometryRevision=null;U.surveyPreview=null;coverage.replaceChildren();status.textContent='坐标已修改，请重新生成命令';onChange();});
     wrap.appendChild(field);box.appendChild(wrap);return field;
   }
+  var coverage=el('div','survey-coverage');
+  if (g.survey_patterns || g.folder==='09_high_speed_capture') {
+    var surveyLabel=el('label','chk'),survey=el('input');survey.type='checkbox';survey.checked=!!U.surveyEnabled;survey.setAttribute('data-option','surveyEnabled');
+    surveyLabel.appendChild(survey);surveyLabel.appendChild(el('span',null,'按搜索区自动生成，并计算理想FOV覆盖'));box.appendChild(surveyLabel);
+    survey.addEventListener('change',function(){U.surveyEnabled=survey.checked;U.geometryPlans={};U.surveyPreview=null;U.geometryRevision=null;renderGroups();});
+    if(U.surveyEnabled) {
+      var shape=el('select');shape.setAttribute('data-geometry','surveyPattern');
+      [['rectangle','矩形'],['snake2','两条扫描线'],['snake3','三条扫描线']].forEach(function(v){var o=el('option',null,v[1]);o.value=v[0];shape.appendChild(o);});shape.value=U.pattern || 'rectangle';
+      shape.addEventListener('change',function(){U.pattern=shape.value;U.geometryPlans={};U.surveyPreview=null;U.geometryRevision=null;renderGroups();});box.appendChild(shape);
+      input('surveyBounds','搜索区：xmin,xmax,ymin,ymax（不含走廊）','填写实测搜索矩形',false);
+      input('surveyInset','航线相对搜索边界内收（m）','填写机体中心内收距离',false);
+      input('surveyCameraHeight','镜头实际离地高度（m）','不是FC高度',false);
+      input('surveyOffset','镜头相对FC的Z偏移（m，向上为正）','核对known_rig；镜头在FC下方应为负',false);
+      input('surveyFovX','任务X方向有效视场角（度）','根据实测覆盖或标定填写',false);
+      input('surveyFovY','任务Y方向有效视场角（度）','按相机安装方向核对',false);
+      box.appendChild(el('div','tiny muted','FC高度=镜头高度−安装Z偏移；例如偏移−0.16时镜头2m需要FC 2.16m，原限高不会自动放宽。FOV可由2×atan(实测宽度÷2÷镜头高度)换算为度。'));
+    }
+  }
+  if (g.needs_waypoints) {
   input('geometryPoints','有序走廊航点：每行 x, y, agl','填写现场实测值，每行三个数，不含H观察爬升点',true);
   input('geometryLanding','H中心：x, y','填写终点H中心',false);
   var detail=el('div','tiny muted','可选：填写墙面几何后，现有运动优化才会尝试合并直线中继点/入口升降。坐标点本身不会自动启用这些条件。');box.appendChild(detail);
@@ -964,22 +1003,27 @@ function geometryEditor(g,U,onChange) {
   axis.addEventListener('change',function(){U.geometryAxis=axis.value;U.geometryPlans={};U.geometryRevision=null;onChange();});box.appendChild(axis);
   input('geometryWalls','墙面位置（沿所选轴，逗号分隔；可留空）','实测墙平面位置',false);
   input('geometryEntry','低入口在有序航点中的序号（从1开始）','填写对应序号',false);
+  }
   input('geometryArea','可选flight_area坐标覆盖（JSON对象；留空继承现场范围）','可填写center_bounds/target_bounds/search_bounds/staging_xy/survey_xy/map_size',true);
   box.appendChild(el('div','tiny muted','不扩大原场地时无需填写flight_area。扩大时需同时核对搜索区、规划地图尺寸和航线。所有点仍需通过原工程校验。'));
+  box.appendChild(coverage);
+  if(U.surveyPreview && U.surveyPreview.pattern===(U.pattern || 'rectangle'))renderSurveyCoverage(coverage,U.surveyPreview);
   var apply=el('button','btn btn-sm','生成并预览坐标命令（不连接飞机）');box.appendChild(apply);
   var status=el('div','tiny muted',U.geometryPlans && Object.keys(U.geometryPlans).length?'命令已生成；点击配置检查在板端核对合并结果。':'草稿尚未生成命令。');box.appendChild(status);
   apply.addEventListener('click',function(){
-    try { U.geometryValues=geometryFromDraft(U); } catch(e) {status.textContent=e.message;return;}
+    try { U.geometryValues=geometryFromDraft(U,g); } catch(e) {status.textContent=e.message;return;}
     U.geometryRevision=Date.now().toString(36);U.geometryPlans={};apply.disabled=true;status.textContent='正在本机生成命令…';
     var revision=U.geometryRevision;
     var requests=[trialBody(g,'preview',true),trialBody(g,'preview',false),trialBody(g,'flight',false)];
+    var coverageRequest=U.geometryValues.survey_plan ? fetch('/api/survey/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(U.geometryValues.survey_plan)}).then(function(r){return r.json().then(function(v){if(!r.ok || !v.ok)throw Error(v.error || '覆盖计算失败');return v.plan;});}) : Promise.resolve(null);
     Promise.all(requests.map(function(body){
       delete body.confirm;delete body.expected_body;
       return fetch('/api/trial/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
         .then(function(r){return r.json().then(function(v){if(!r.ok || !v.ok)throw Error(v.error || '命令生成失败');return v;});})
         .then(function(plan){return [geometryPlanKey(g,body.mode,body.real_release,!!body.check_config,body.capture_speed,body),plan];});
-    })).then(function(plans){
+    }).concat([coverageRequest])).then(function(plans){
       if(U.geometryRevision!==revision)return;
+      U.surveyPreview=plans.pop();
       plans.forEach(function(pair){U.geometryPlans[pair[0]]=pair[1];});renderGroups();
     }).catch(function(e){status.textContent=e.message;U.geometryPlans={};}).finally(function(){apply.disabled=false;onChange();});
   });
@@ -1102,9 +1146,9 @@ function groupCard(g) {
     ops.appendChild(el('div', 'warn-line', '速度选项属于「仅采集不投递」路径：只跑视觉采集，不下发投递。'));
   }
 
-  if (g.needs_waypoints) {
+  if (g.needs_waypoints || g.survey_patterns || g.folder==='09_high_speed_capture') {
     ops.appendChild(geometryEditor(g,U,function(){if(flightBtn)updateFlightBtn();}));
-    ops.appendChild(el('div','warn-line','航点未填写且未使用手动坐标时，原入口会拒绝启动。'));
+    if(g.needs_waypoints)ops.appendChild(el('div','warn-line','走廊/H航点仍需实测；自动搜索不会代填门口。'));
   }
 
   // 按钮
