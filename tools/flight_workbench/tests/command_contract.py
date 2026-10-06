@@ -12,7 +12,8 @@ for group in config['groups']:
             for speed in (group.get('speed_options') or [None]):
                 for real in ([False, True] if 'real' in group.get('release_options', []) else [False]):
                     variants = [dict()]
-                    variants.append(dict(motion_optimized=True))
+                    if not wb_board.is_observation(group):
+                        variants.append(dict(motion_optimized=True))
                     if group.get('survey_patterns'):
                         variants += [dict(motion_optimized=True, survey_pattern=p)
                                      for p in group['survey_patterns']]

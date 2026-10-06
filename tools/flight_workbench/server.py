@@ -174,7 +174,15 @@ class Workbench(object):
             with self.lock:
                 self.telemetry = telemetry
             trial_session = self.sessions.get("trial")
+            if (self.trial.get("route") == "low_observation" and self.trial.get("mode") == "flight"
+                    and not self.trial.get("check_config") and trial_session is not None
+                    and trial_session.state == "running"):
+                status = (telemetry.get("observe") or {}).get("low_hover")
+                if isinstance(status, dict):
+                    for event in self.stage.feed_line(json.dumps(status)):
+                        self._emit_event(event)
             if (self.trial.get("mode") == "flight" and not self.trial.get("check_config")
+                    and self.trial.get("route") != "low_observation"
                     and trial_session is not None and trial_session.state == "running"
                     and self.stage.name in ("READY", "IN_FLIGHT", "DISARMED")):
                 for event in self.stage.observe_telemetry(
@@ -278,6 +286,7 @@ class Workbench(object):
                 "error": None if result.get("ok") else result.get("detail")}
 
     def disconnect(self):
+        self.protect_observation_dependencies()
         self.sessions.close_all()
         self.connection.update({"state": "unknown", "detail": "已断开（会话已停止）"})
         self.broadcast({"t": "connection", "connection": self.connection})
@@ -401,11 +410,22 @@ class Workbench(object):
             raise ValueError("设备启动流程已在运行")
         if body.get("confirm") != "启动设备":
             raise ValueError("需要确认：启动设备命令会真实占用板端设备节点")
+        group = next((g for g in self.config.get("groups", []) if g["id"] == body.get("group_id")), None)
+        if body.get("group_id") and group is None:
+            raise ValueError("未知任务组")
+        observation = bool(group and wb_board.is_observation(group))
+        if observation and body.get("include_servo"):
+            raise ValueError("低空观察不启动舵机")
         include_servo = bool(body.get("include_servo"))
         order = [t for t in self.config.get("terminals", [])
                  if t.get("command") and t["id"] not in ("trial", "monitor")]
         if not include_servo:
             order = [t for t in order if not t.get("optional")]
+        if observation:
+            order = [t for t in self.config.get("terminals", [])
+                     if t["id"] in ("roscore", "mavros", "lidar", "observation_localization")]
+        else:
+            order = [t for t in order if t["id"] != "observation_localization"]
         self.orchestration = {"running": True, "step": None, "started_at": time.time(),
                               "cancel": False,
                               "steps": [{"id": t["id"], "title": t.get("title", t["id"]),
@@ -436,7 +456,7 @@ class Workbench(object):
                 existing = self.sessions.get(terminal["id"])
                 running = (existing is not None and existing.state in ("running", "starting"))
                 running = running or any(leftovers.get(key) for key in RUNNING_KEYS.get(terminal["id"], ()))
-                if terminal["id"] in ("lidar", "camera", "servo"):
+                if terminal["id"] in ("lidar", "camera", "servo", "observation_localization"):
                     spec = terminal.get("ready") or {}
                     running = running or (self.telemetry.get("at", 0) >= time.time() - 5
                                           and wb_status.ready_check(spec.get("kind"), spec, self.telemetry)[0])
@@ -519,6 +539,7 @@ class Workbench(object):
         return
 
     def stop_all(self):
+        self.protect_observation_dependencies()
         if self.orchestration.get("running"):
             self.orchestration["cancel"] = True
             self.toast("warn", "已请求取消设备启动流程")
@@ -528,6 +549,14 @@ class Workbench(object):
         return {"ok": True}
 
     # ---------- 任务组 ----------
+    def protect_observation_dependencies(self, sid=None):
+        trial = self.sessions.get("trial")
+        if (self.trial.get("route") == "low_observation"
+                and self.trial.get("mode") == "flight" and not self.trial.get("check_config")
+                and trial is not None and trial.state in ("starting", "running")
+                and (sid is None or sid in ("roscore", "mavros", "lidar", "observation_localization"))):
+            raise ValueError("低空观察 flight 尚未退出；先飞手手动落地上锁并等待 OBSERVATION_CLOSED，保留定位与MAVROS")
+
     def trial_command(self, body):
         """Pure command preview: usable offline, no connection or file writes."""
         group = next((g for g in self.config.get("groups", []) if g["id"] == body.get("group_id")), None)
@@ -559,6 +588,8 @@ class Workbench(object):
             if not isinstance(value, bool):
                 raise ValueError("%s 必须是布尔值" % key)
         route = body.get("route") or group.get("channel")
+        if wb_board.is_observation(group) and real_release:
+            raise ValueError("低空观察不支持真实投递")
         # site/start_test.sh selects real hardware itself; never trust a client's
         # real_release=False to turn a delivery flight into a mock flight.
         real_release = (mode == "flight" and not check_config and
@@ -589,6 +620,7 @@ class Workbench(object):
             raise ValueError("界面预览与后端实际命令不一致，已拒绝启动。后端实际命令：%s" % command_body)
         command = wb_board.terminal_wrapped_command(self.config, command_body)
         self.stage.reset()
+        self.stage.observation_mode = wb_board.is_observation(group)
         self.mission_start_attempted = False
         self.stage.note_action("任务组 %s（%s，%s）：%s" % (group["name"], mode, note, command_body), "info")
         self.trial = {
@@ -603,7 +635,11 @@ class Workbench(object):
             "resume_survey": body.get("resume_survey"), "route": route, "note": note,
             "site_geometry": body.get("site_geometry"), "geometry_revision": body.get("geometry_revision"),
         }
-        session = self.sessions.open("trial", "专项入口 · %s" % group.get("name"), command, self.target)
+        if wb_board.is_observation(group) and mode == "flight" and not check_config:
+            session = self.sessions.open("trial", "低空观察 · %s" % group.get("name"), command,
+                                         self.target, graceful_only=True)
+        else:
+            session = self.sessions.open("trial", "专项入口 · %s" % group.get("name"), command, self.target)
         self.broadcast({"t": "trial", "trial": dict(self.trial)})
         self.broadcast({"t": "stage", "stage": self.stage.snapshot()})
         self._journal({"action": "trial_start", "group": group_id, "mode": mode,
@@ -618,12 +654,17 @@ class Workbench(object):
             session.send_key("C-c")
         except Exception as error:
             raise ValueError("发送 Ctrl+C 失败：%s" % error)
-        self._emit_event(self.stage.note_action("已向专项入口发送 Ctrl+C，等待收尾（BAG_CLOSED）", "warn"))
+        detail = ("已请求保持等待飞手接管；落地上锁后等待 OBSERVATION_CLOSED，定位/MAVROS保留"
+                  if self.trial.get("route") == "low_observation" else
+                  "已发送 Ctrl+C；落地停机后等待 BAG_CLOSED 再断电")
+        self._emit_event(self.stage.note_action(detail, "warn"))
         self._journal({"action": "trial_stop"})
-        return {"ok": True, "detail": "已发送 Ctrl+C；落地停机后等待 BAG_CLOSED 再断电"}
+        return {"ok": True, "detail": detail}
 
     def mission_start(self, body):
         self._require_command_transport()
+        if self.trial.get("route") == "low_observation":
+            raise ValueError("低空观察没有任务管理器，由飞手人工解锁并重新拨入 OFFBOARD")
         if body.get("confirm") != "启动任务":
             raise ValueError("需要确认：仅在 READY 且飞手完成解锁/悬停后调用一次")
         state = self.stage.name
@@ -839,6 +880,7 @@ class Handler(BaseHTTPRequestHandler):
                 session.write(body.get("data", ""))
                 return self._json({"ok": True})
             if route == "/api/session/close":
+                workbench.protect_observation_dependencies(body.get("id"))
                 workbench.sessions.close(body.get("id"))
                 return self._json({"ok": True})
             if route == "/api/session/clear":
@@ -852,6 +894,7 @@ class Handler(BaseHTTPRequestHandler):
                     session.resize(body.get("rows", 36), body.get("cols", 140))
                 return self._json({"ok": True})
             if route == "/api/session/key":
+                workbench.protect_observation_dependencies(body.get("id"))
                 session = workbench.sessions.get(body.get("id"))
                 if session is None:
                     raise ValueError("会话不存在")

@@ -34,7 +34,10 @@ class LaunchOptionsTest(unittest.TestCase):
             self.assertNotIn('--motion-optimized', default)
             self.assertNotIn('--resume-survey', default)
             self.assertNotIn('--survey-pattern', default)
-            self.assertIn('--motion-optimized', self.command(gid, motion_optimized=True))
+            if wb_board.is_observation(self.groups[gid]):
+                with self.assertRaises(ValueError): self.command(gid, motion_optimized=True)
+            else:
+                self.assertIn('--motion-optimized', self.command(gid, motion_optimized=True))
 
     def test_pattern_and_resume_capabilities(self):
         for gid in ('site3', 'site4', 'site5', 'site6', 'mod08', 'mod06mock'):

@@ -195,6 +195,14 @@ terminals:
     desc: "板端交互式 shell（已 cd 到工程根并 source 现场环境）。可自己敲 rostopic/rosservice；工作台不会自动调用任务开始。"
     command: "exec bash -l"
 
+  - id: observation_localization
+    seq: 9
+    title: "观察 · 仅定位 / EV"
+    desc: "低空观察专用，仅 FAST-LIO 与 EV；保持运行直到动作退出，不启动建图、视觉、规划或舵机。"
+    command: "bash deployment/low_hover_observation/start.sh localization hover"
+    optional: true
+    ready: { kind: topic, topic: "/mavros/vision_pose/pose", timeout: 90 }
+
 # 保留现场组号；统一走模块入口，支持模拟/实投和显式策略参数。
 # section 仅控制卡片分区；channel 控制实际命令，旧 site 入口仍兼容。
 groups:
@@ -344,3 +352,42 @@ groups:
     needs_servo: false
     site_config: "{site_dir}/test_area.yaml"
     notes: "模拟投递：走模块 start.sh（不带 --real-release），不需要舵机终端；验收读 mock_service_calls / committed_mock_deliveries，不要读 committed_deliveries。"
+
+  - id: observation_hover
+    key: "观察1"
+    folder: low_hover_observation
+    channel: low_observation
+    section: observation
+    profile: hover
+    name: "低空观察1 · FC AGL 0.60m 悬停"
+    plan: "继承 hover：上升0.15m/s，稳定后观察10秒；静置FC离地0.22m时名义爬升0.38m。"
+    ending: "原地悬停，飞手手动降落上锁"
+    release: none
+    needs_servo: false
+    notes: "先完成悬停，再前移，最后矩形。仅诊断bag，无图像/点云/JPEG。READY后人工解锁并重新拨入OFFBOARD；Ctrl+C在空中只请求保持接管，不能强杀或停定位。"
+
+  - id: observation_forward
+    key: "观察2"
+    folder: low_hover_observation
+    channel: low_observation
+    section: observation
+    profile: forward
+    name: "低空观察2 · FC AGL 0.60m 短程前移"
+    plan: "继承 forward：沿初始机头前移0.5/1.0/1.5m，0.20m/s，每点观察5秒。"
+    ending: "最后一点悬停，无自动返航，飞手手动降落上锁"
+    release: none
+    needs_servo: false
+    notes: "先验收悬停。每轮落地上锁、回到起点并重新初始化；不启动任务管理器、视觉或舵机。"
+
+  - id: observation_rectangle
+    key: "观察3"
+    folder: low_hover_observation
+    channel: low_observation
+    section: observation
+    profile: square
+    name: "低空观察3 · FC AGL 0.60m 矩形"
+    plan: "继承 square：初始机头前方和左侧1m×1m四边形，0.20m/s，每点观察5秒。"
+    ending: "回起点上方悬停，飞手手动降落上锁"
+    release: none
+    needs_servo: false
+    notes: "先验收悬停与前移；矩形显示名称对应已有 square profile，不修改航路或阈值，无避障。"

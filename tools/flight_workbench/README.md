@@ -1,5 +1,22 @@
 # 试飞验证看板（flight_workbench）
 
+2026-10-06新增独立低空观察区，顺序为FC AGL 0.60m悬停、短程前移、矩形；分别原样调用
+`deployment/low_hover_observation/start.sh flight hover|forward|square`。先选择观察卡片再点一键设备，
+仅编排ROS、MAVROS、MID360与独立定位/EV终端，不启动相机、视觉、规划、任务管理器或舵机。
+配置检查和preview均调用原入口的离线preview，不使用九组的`--check-config`。
+
+flight沿用确认框及命令一致性检查，输出进入专项flight终端与运行日志。只有
+`READY_FOR_MANUAL_ARM_AND_OFFBOARD`表示预发完成；status JSON用于展示动作/保持/接管，
+不会采用常规Mission的相机/地图READY门槛。READY后飞手人工解锁并重新拨入OFFBOARD；
+结束继续悬停，飞手手动降落上锁。Ctrl+C仅请求保持接管，不超时强杀；观察入口尚未退出时
+拒绝全停、断连和关闭定位/MAVROS等依赖，也拒绝重跑，等待`OBSERVATION_CLOSED`后再操作。
+保留原诊断录包默认，不新增JPEG、图像或点云录制。矩形UI名称对应既有`square`，不修改profiles。
+
+新增离线回归为`tests/test_low_observation.py`。用既有rl_drone运行工作台测试时，如缺pexpect，
+可临时设置`PYTHONPATH=/usr/lib/python3/dist-packages`复用本机已有纯Python包，无需pip安装。
+实际运行仍依赖板端已有low_hover入口、现场ROS环境与FAST-LIO/EV；源码更新后本地工作台
+需重新加载配置，已有板端进程不会因刷新网页自动更新。此集成未初始化飞行或实机验证。
+
 把现场手册 [docs/deployment/flight_handover_20261001/OPERATIONS.md](../../docs/deployment/flight_handover_20261001/OPERATIONS.md)
 里的"6~7 个终端 + 等 READY + 看日志"变成浏览器里的点击操作：SSH 连接、各终端启动、
 任务组选择与启动、初始化/READY 监视与回报、飞行日志与板端产物浏览。

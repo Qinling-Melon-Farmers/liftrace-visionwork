@@ -121,7 +121,7 @@ try {
     state.connection.state='ok';state.sessions.trial={state:'stopped'};renderGroups();`);
   await test('original site IDs and module aliases remain clickable', `
     ['site1','site2','site3','site4','site5','site6','mod03','mod04','mod08','mod06mock'].every(id=>state.groups.some(g=>g.id===id)) &&
-    document.querySelectorAll('.grp-card').length===10`);
+    document.querySelectorAll('.grp-card').length===state.groups.length`);
   await test('resume controls only exist on groups 06 and 08', `
     [...document.querySelectorAll('.grp-card')].every((card,i)=>
       !!card.querySelector('[data-option="resume"]')===['06_high_priority','08_full_mission'].includes(state.groups[i].folder))`);

@@ -24,6 +24,11 @@ REAL_RELEASE_FOLDERS = ("01_visual_interrupt", "02_high_view_revisit", "05_low_m
 SURVEY_FOLDERS = ("02_high_view_revisit", "06_high_priority", "07_memory_only",
                   "08_full_mission", "09_high_speed_capture")
 RESUME_FOLDERS = ("06_high_priority", "08_full_mission")
+OBSERVATION_PROFILES = ("hover", "forward", "square")
+
+
+def is_observation(group):
+    return group.get("channel") == "low_observation"
 
 # ssh 层错误 → 现场可执行建议。ssh 失败时远端脚本根本不会执行，不能把"没有标记输出"
 # 解释成"板端目录/文件缺失"（换板后免密没配时最容易踩）。
@@ -154,6 +159,18 @@ def build_group_command(config, group, mode, route=None, real_release=None,
     folder = group.get("folder", "")
     site_dir = config["connection"].get("site_dir", "deployment/site_20260928")
     route = route or group.get("channel", "module")
+    if is_observation(group):
+        if route != "low_observation" or group.get("profile") not in OBSERVATION_PROFILES:
+            raise ValueError("非法低空观察入口或 profile")
+        if real_release or motion_optimized or any(value is not None for value in (
+                capture_speed, capture_lighting, survey_pattern, resume_survey,
+                site_geometry, geometry_revision)):
+            raise ValueError("低空观察继承原 profile，不支持投递或专项参数")
+        if not isinstance(check_config, bool):
+            raise ValueError("check_config 必须是布尔值")
+        return ("bash deployment/low_hover_observation/start.sh %s %s" % (
+                    "preview" if check_config else mode, group["profile"]),
+                "preview 为离线配置展开（无 ROS）；flight 仅观察动作和诊断录包，飞手人工解锁并重新拨入 OFFBOARD")
     if route not in ("site", "module"):
         raise ValueError("未知入口类型")
     site_config = substitute(variables["site_config"], variables)
@@ -328,12 +345,14 @@ class BoardClient(object):
                       % quote(self.abs_path("logs")))
         for group in self.config.get("groups", []):
             folder = group.get("folder", "")
-            base = self.abs_path("deployment/board_trials_4x4/%s" % folder)
+            base = self.abs_path("deployment/low_hover_observation" if is_observation(group)
+                                 else "deployment/board_trials_4x4/%s" % folder)
+            settings = "profiles.yaml" if is_observation(group) else "settings.yaml"
             script.append(
                 'printf "GROUP|%s|"; if [ -f %s/start.sh ]; then printf "start=1|"; else printf "start=0|"; fi; '
                 'if [ -f %s/start_real.sh ]; then printf "real=1|"; else printf "real=0|"; fi; '
-                'if [ -f %s/settings.yaml ]; then echo "settings=1"; else echo "settings=0"; fi'
-                % (folder, quote(base), quote(base), quote(base)))
+                'if [ -f %s/%s ]; then echo "settings=1"; else echo "settings=0"; fi'
+                % (folder, quote(base), quote(base), quote(base), settings))
         env_script = self.abs_path(self.config["connection"].get("env_script", ""))
         connection = self.config["connection"]
         site_dir = connection.get("site_dir", "deployment/site_20260928")
@@ -444,10 +463,10 @@ print("VERSION|"+json.dumps(report,separators=(",",":")))
                    or not groups.get(folder, {}).get("settings")]
         if missing:
             results.append({"name": "任务组入口", "ok": False,
-                            "detail": "start.sh/settings.yaml 缺失或未读到：%s" % "、".join(sorted(missing))})
+                            "detail": "start.sh/settings.yaml（观察组为profiles.yaml）缺失或未读到：%s" % "、".join(sorted(missing))})
         elif expected:
             results.append({"name": "任务组入口", "ok": True,
-                            "detail": "%d 个模块入口与 settings.yaml 均存在" % len(groups)})
+                            "detail": "%d 个入口与配置均存在（观察组为profiles.yaml）" % len(groups)})
         else:
             results.append({"name": "任务组入口", "ok": False, "detail": "unknown：未配置可检查的模块入口"})
         source = version.get("source") or {}
@@ -511,7 +530,7 @@ print("VERSION|"+json.dumps(report,separators=(",",":")))
     def list_logs(self, limit=40):
         script = "\n".join([
             "cd %s 2>/dev/null || exit 0" % quote(self.abs_path("logs")),
-            "for d in $(ls -1dt board_* 2>/dev/null | head -%d); do" % int(limit),
+            "for d in $(ls -1dt board_* low_hover_* 2>/dev/null | head -%d); do" % int(limit),
             '  [ -d "$d" ] || continue',
             '  echo "RUN|$d|$(stat -c %Y "$d" 2>/dev/null)"',
             '  find "$d" -maxdepth 1 -type f -printf "FILE|%f|%s\\n" 2>/dev/null | sort',

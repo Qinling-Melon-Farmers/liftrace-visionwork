@@ -196,6 +196,7 @@ class StageTracker:
         self.reset()
 
     def reset(self):
+        self.observation_mode = False
         self.name = "IDLE"
         self.since = None
         self.history = []
@@ -284,6 +285,10 @@ class StageTracker:
             return events
         if self.started_at is None:
             self.started_at = time.time()
+        if self.observation_mode:
+            observation = self._observation_line(text)
+            if observation is not None:
+                return [event for event in observation if event]
         name, payload = marker(text)
 
         if name == "INITIALIZING":
@@ -343,6 +348,45 @@ class StageTracker:
         return events
 
     # ---- 分项处理 ----
+    def _observation_line(self, text):
+        if text.startswith(("WAIT_GROUND_REFERENCE", "PRESTREAM:")):
+            return [self.set_stage("INITIALIZING", {"observation": text})]
+        if text.startswith("READY_FOR_MANUAL_ARM_AND_OFFBOARD"):
+            if self.phase in ("HOLD_FOR_PILOT", "TAKEN_OVER"):
+                return [self._timeline("READY已失效；本轮等待飞手接管/地面重初始化", "warn")]
+            self.pilot_action = "飞手人工解锁并重新拨入 OFFBOARD"
+            return [self.set_stage("READY"), self._timeline(text, "ok")]
+        if text.startswith("OBSERVATION_CLOSED "):
+            self.run_dir = text.partition(" ")[2].strip()
+            return [self.set_stage("STOPPED", {"run_dir": self.run_dir}),
+                    self._timeline("观察入口已退出；定位与 MAVROS 保留", "info")]
+        status = parse_probe_line(text)
+        if not status or status.get("stage") not in ("READY", "RUN", "FINISHED_HOVER", "HOLD_FOR_PILOT", "TAKEN_OVER"):
+            return None
+        previous = self.phase
+        self.phase = status["stage"]
+        self.reason = status.get("reason", "")
+        self.mode, self.armed = status.get("mode"), status.get("armed")
+        self.ever_armed = self.ever_armed or self.armed is True
+        self.last_status_at = time.time()
+        self.detail.update(status)
+        events = []
+        if self.phase == "RUN":
+            events.append(self.set_stage("IN_FLIGHT"))
+        elif self.phase in ("FINISHED_HOVER", "HOLD_FOR_PILOT", "TAKEN_OVER"):
+            events.append(self.set_stage("IN_FLIGHT" if self.armed is True else "INITIALIZING"))
+            self.pilot_action = ("观察路线结束，保持悬停等待飞手落地" if self.phase == "FINISHED_HOVER" else
+                                 "已接管，等待手动落地上锁" if self.phase == "TAKEN_OVER" else
+                                 "保持等待飞手接管：" + self.reason)
+            if self.phase != previous:
+                events.append(self._timeline(self.pilot_action, "warn"))
+            if self.phase == "HOLD_FOR_PILOT" and self.phase != previous:
+                events.append(self._alert("warn", self.pilot_action,
+                    "不自动切模式或降落；保留定位和MAVROS，落地上锁后等待OBSERVATION_CLOSED。",
+                    key="observation_hold"))
+        events.append(self._event("stage", stage=self.snapshot()))
+        return events
+
     def _on_initializing(self, payload):
         events = []
         detail = parse_python_payload(payload) or {}

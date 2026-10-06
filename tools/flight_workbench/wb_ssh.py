@@ -81,11 +81,12 @@ class Session(object):
 
     def __init__(self, sid, title, command, target, log_path=None,
                  on_output=None, on_state=None, on_note=None,
-                 dimensions=(36, 140), env=None):
+                 dimensions=(36, 140), env=None, graceful_only=False):
         self.id = sid
         self.title = title
         self.command = command
         self.target = target
+        self.graceful_only = graceful_only
         self.log_path = log_path
         self.on_output = on_output
         self.on_state = on_state
@@ -267,6 +268,9 @@ class Session(object):
     def close(self, wait=6.0):
         if self.child is None:
             return
+        if self.graceful_only and self.child.isalive():
+            self.send_key("C-c")
+            return  # Airborne observation keeps publishing until pilot takeover/disarm.
         if self.child.isalive():
             try:
                 self.child.send("\x03")
@@ -323,23 +327,31 @@ class SessionManager(object):
     def get(self, sid):
         return self.sessions.get(sid)
 
-    def open(self, sid, title, command, target, dimensions=None, keep_existing=True):
+    def open(self, sid, title, command, target, dimensions=None, keep_existing=True,
+             graceful_only=False):
         with self._lock:
             existing = self.sessions.get(sid)
             if existing is not None and existing.state in ("running", "starting"):
                 if keep_existing:
                     return existing
                 existing.close()
+                if existing.state in ("running", "starting"):
+                    raise ValueError("旧观察入口仍在收尾，不能替换会话")
             log_path = os.path.join(self.log_dir, "%s-%s.log" % (
                 sid, time.strftime("%Y%m%d_%H%M%S")))
             session = Session(sid, title, command, target, log_path=log_path,
                               on_output=self.on_output, on_state=self.on_state,
                               on_note=self.on_note,
-                              dimensions=dimensions or (36, 140))
+                              dimensions=dimensions or (36, 140), graceful_only=graceful_only)
             self.sessions[sid] = session
             return session.start()
 
     def close(self, sid, wait=6.0):
+        trial = self.sessions.get("trial")
+        if (sid in ("roscore", "mavros", "lidar", "observation_localization")
+                and trial is not None and getattr(trial, "graceful_only", False)
+                and trial.state in ("running", "starting")):
+            raise ValueError("观察入口尚未退出，请先手动落地上锁并等待 OBSERVATION_CLOSED；保留定位与飞控链路")
         session = self.sessions.get(sid)
         if session is None:
             return None
@@ -351,6 +363,10 @@ class SessionManager(object):
         order = (["trial"] if "trial" in self.sessions else [])
         order += [sid for sid in reversed(list(self.sessions)) if sid != "trial"]
         for sid in order:
+            if sid != "trial":
+                trial = self.sessions.get("trial")
+                if trial is not None and getattr(trial, "graceful_only", False) and trial.state in ("running", "starting"):
+                    raise ValueError("观察入口仍在保持/收尾，设备会话已保留；落地上锁并等待退出后再停止全部")
             try:
                 self.close(sid, wait=120.0 if sid == "trial" else 3.0)
             except Exception:

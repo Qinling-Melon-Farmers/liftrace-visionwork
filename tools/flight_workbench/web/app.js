@@ -218,7 +218,7 @@ var api = {
   connect: function (body) { return postJSON('/api/connect', body || {}); },
   disconnect: function () { return postJSON('/api/disconnect', {}); },
   preflight: function () { return postJSON('/api/action/preflight', {}); },
-  startAll: function (includeServo) { return postJSON('/api/action/start_all', { include_servo: !!includeServo, confirm: '启动设备' }); },
+  startAll: function (includeServo, groupId) { return postJSON('/api/action/start_all', { include_servo: !!includeServo, group_id: groupId, confirm: '启动设备' }); },
   stopAll: function () { return postJSON('/api/action/stop_all', {}); },
   missionStart: function () {
     // 后端要求确认词「启动任务」（仅在 READY 且飞手完成解锁/悬停后调用一次）
@@ -807,6 +807,15 @@ function groupCommandBody(g, mode, realRelease, checkConfig, speed, options) {
   var moduleBase = 'deployment/board_trials_4x4/' + folder;
   var extra = '';
   options = options || {};
+  if (g.channel === 'low_observation') {
+    if (['hover','forward','square'].indexOf(g.profile) < 0 || realRelease || speed != null ||
+        options.capture_lighting != null || options.motion_optimized || options.survey_pattern != null ||
+        options.resume_survey != null || options.site_geometry != null || options.geometry_revision != null) {
+      return {body:null,note:'低空观察继承原 profile，不支持投递或专项参数'};
+    }
+    return {body:'bash deployment/low_hover_observation/start.sh ' + (checkConfig ? 'preview' : mode) + ' ' + g.profile,
+      note:'preview 为离线配置展开（无 ROS）；flight 仅观察动作和诊断录包，飞手人工解锁并重新拨入 OFFBOARD'};
+  }
   if (options.site_geometry !== undefined) {
     var plans=groupUI(g).geometryPlans || {};
     return plans[geometryPlanKey(g,mode,realRelease,checkConfig,speed,options)] ||
@@ -870,9 +879,10 @@ function renderGroups() {
   if (!groups.length) { body.appendChild(el('p', 'empty', '等待快照…（/api/snapshot 的 groups 为空）')); return; }
 
   appendGroupSection(body, '现场组号（1–6）', groups.filter(function (g) { return (g.section || g.channel) === 'site'; }));
-  appendGroupSection(body, '专项模块与对照', groups.filter(function (g) { return (g.section || g.channel) !== 'site'; }));
+  appendGroupSection(body, '专项模块与对照', groups.filter(function (g) { return (g.section || g.channel) === 'module'; }));
+  appendGroupSection(body, '独立低空观察（顺序：悬停 → 前移 → 矩形）', groups.filter(function (g) { return g.section === 'observation'; }));
 
-  var others = groups.filter(function (g) { return g.channel && g.channel !== 'site' && g.channel !== 'module'; });
+  var others = groups.filter(function (g) { return g.channel && ['site','module','low_observation'].indexOf(g.channel) < 0; });
   if (others.length) appendGroupSection(body, '其他任务组', others);
   body.scrollTop = scrollTop;
 }
@@ -1473,10 +1483,17 @@ function renderMonitor() {
   var unobserved = telemetryAt ? '未观测（遥测已过期）' : '未观测';
 
   var stage = state.stage || {};
+  var runningGroup = (state.groups || []).find(function(g) { return g.id === state.trial.group_id; });
+  var selectedGroup = (state.groups || []).find(function(g) { return g.id === state.selectedGroup; });
+  var observationMode = (runningGroup || selectedGroup || {}).channel === 'low_observation';
   var sname = stage.name || 'IDLE';
   var card = el('div', 'stage-card c-' + (/^(IDLE|STARTING|INITIALIZING|MAPPING_READY|READY|IN_FLIGHT|DISARMED|STOPPED|FAILED)$/.test(sname) ? sname : 'unknown'));
   var head = el('div');
-  head.appendChild(el('div', 'stage-name', stage.label || STAGE_LABELS[sname] || sname));
+  var observationLabel = {INITIALIZING:'低空观察：等待地面参考 / 预发保持', READY:'低空观察 READY：等待人工解锁与重新拨入 OFFBOARD', IN_FLIGHT:'低空观察动作 / 保持 / 接管'};
+  if (observationMode && stage.phase === 'HOLD_FOR_PILOT') observationLabel[sname] = '低空观察：READY已撤销，保持等待飞手接管';
+  if (observationMode && stage.phase === 'FINISHED_HOVER') observationLabel[sname] = '低空观察路线结束：继续悬停，等待飞手落地';
+  if (observationMode && stage.phase === 'TAKEN_OVER') observationLabel[sname] = '低空观察已接管：等待落地上锁与入口收尾';
+  head.appendChild(el('div', 'stage-name', (observationMode && observationLabel[sname]) || stage.label || STAGE_LABELS[sname] || sname));
   head.appendChild(el('div', 'stage-sub', '阶段码 ' + sname + (stage.reason ? (' · 原因：' + stage.reason) : '')));
   card.appendChild(head);
   var elapsed = el('div', 'stage-elapsed', '已持续 ' + dur(nowSec() - (stage.since || nowSec())));
@@ -1498,11 +1515,11 @@ function renderMonitor() {
   kvRow(kv, 'mode', stage.mode || '—');
   kvRow(kv, 'phase', stage.phase || '—');
   kvRow(kv, 'reason', stage.reason || '—');
-  kvRow(kv, '任务结果', stage.outcome === 'complete' ? '任务完成' : (stage.outcome === 'aborted' ? '任务中止' : '未确认'),
+  kvRow(kv, observationMode ? '观察状态' : '任务结果', observationMode ? (stage.phase || '等待入口输出；不采用常规Mission门槛') : stage.outcome === 'complete' ? '任务完成' : (stage.outcome === 'aborted' ? '任务中止' : '未确认'),
     stage.outcome === 'aborted' ? 'warn' : '');
   if (stage.pilot_action) kvRow(kv, '飞手操作', stage.pilot_action, 'warn');
   var align = stage.alignment || '—';
-  kvRow(kv, '定位一致性', align + (stage.alignment_hint ? ('（' + stage.alignment_hint + '）') : ''),
+  if (!observationMode) kvRow(kv, '定位一致性', align + (stage.alignment_hint ? ('（' + stage.alignment_hint + '）') : ''),
     align === 'stable' ? 'ok' : (align === 'unstable' || align === 'bad' ? 'bad' : 'warn'));
   kvRow(kv, 'READY 时刻', stage.ready_at ? hhmmss(stage.ready_at) : '—');
   kvRow(kv, '开始时刻', stage.started_at ? hhmmss(stage.started_at) : '—');
@@ -1565,7 +1582,7 @@ function renderMonitor() {
   kvRow(kv3, '飞控', telemetryFresh
     ? 'connected=' + observedBool(mst.connected) + ' armed=' + observedBool(mst.armed) + ' mode=' + txt(mst.mode || '未观测')
     : unobserved, telemetryFresh ? '' : 'warn');
-  if (tel.mission) kvRow(kv3, 'mission', txt(tel.mission.phase || '') + (tel.mission.reason ? (' · ' + tel.mission.reason) : ''));
+  if (tel.mission && !observationMode) kvRow(kv3, 'mission', txt(tel.mission.phase || '') + (tel.mission.reason ? (' · ' + tel.mission.reason) : ''));
   if (tel.probe_status) kvRow(kv3, '探针阶段', txt(tel.probe_status.scope || '') + ' / ' + txt(tel.probe_status.stage || ''));
   if (tel.extended && tel.extended.landed_state !== undefined) kvRow(kv3, 'landed_state', String(tel.extended.landed_state));
   var hover = telemetryFresh ? tel.terminal_hover : null;
@@ -1574,7 +1591,12 @@ function renderMonitor() {
   }
   var hoverStage = hover && (hover.stage || hover.status || hover.state || hover.phase || '');
   var hoverLabel = { DESCEND_TO_HOVER: '下降至收尾悬停', PILOT_HANDOFF: '交给飞手落地' }[hoverStage] || hoverStage;
-  kvRow(kv3, '收尾悬停', hover ? [hoverLabel, hover.reason || hover.message || ''].filter(Boolean).join(' · ') || JSON.stringify(hover) : (telemetryFresh ? '未观测' : unobserved), hover ? '' : 'warn');
+  if (!observationMode) kvRow(kv3, '收尾悬停', hover ? [hoverLabel, hover.reason || hover.message || ''].filter(Boolean).join(' · ') || JSON.stringify(hover) : (telemetryFresh ? '未观测' : unobserved), hover ? '' : 'warn');
+  if (observationMode) {
+    var obs = telemetryFresh && tel.observe && tel.observe.low_hover;
+    kvRow(kv3, '低空status话题', obs ? JSON.stringify(obs) : unobserved);
+    kvRow(kv3, '就绪依据', '仅动作终端 READY_FOR_MANUAL_ARM_AND_OFFBOARD；status READY不替代预发完成');
+  }
   var lio = telemetryFresh ? tel.lio_realtime || [] : [];
   if (!lio.length) kvRow(kv3, 'LIO实时状态', telemetryFresh ? '未观测' : unobserved, 'warn');
   lio.forEach(function (diag) {
@@ -1594,7 +1616,7 @@ function renderMonitor() {
   });
   tb.appendChild(el('thead')).appendChild(th);
   var tbody = el('tbody');
-  TOPIC_WATCH.forEach(function (name) {
+  (observationMode ? ['/mavros/state','/mavros/local_position/pose','/Odometry','/mavros/vision_pose/pose','/low_hover_observation/status'] : TOPIC_WATCH).forEach(function (name) {
     var info = topics[name];
     var tr = el('tr');
     if (!info) { tr.className = 'miss'; tr.appendChild(el('td', 'mono', name)); tr.appendChild(el('td', 'num', '—')); tr.appendChild(el('td', 'num', '—')); tr.appendChild(el('td', 'num', '—')); }
@@ -1713,6 +1735,12 @@ function missionStartSection(stage) {
     if (gg.id === state.trial.group_id) cur = gg;
   });
   var manual = !!(cur && cur.manual_mission_start);
+  if (cur && cur.channel === 'low_observation') {
+    var observationSection = el('div','sec');
+    observationSection.appendChild(secHead('独立低空观察', cur.profile));
+    observationSection.appendChild(el('div','sec-body small', '无任务管理器。看到 READY_FOR_MANUAL_ARM_AND_OFFBOARD 后飞手人工解锁并重新拨入 OFFBOARD；路线结束继续悬停，飞手落地上锁。'));
+    return observationSection;
+  }
   var tSess = state.sessions.trial || {};
   var trialRun = (tSess.state === 'running' || tSess.state === 'starting');
 
@@ -2139,6 +2167,13 @@ function doPreflight() {
 }
 
 function doStartAll() {
+  var selected = (state.groups || []).find(function(g) { return g.id === state.selectedGroup; });
+  if (selected && selected.channel === 'low_observation') {
+    var devices = (state.terminals || []).filter(function(t) { return ['roscore','mavros','lidar','observation_localization'].indexOf(t.id) >= 0; });
+    return confirmModal('启动低空观察设备', devices.map(function(t) { return t.title + ' → ' + t.command; }).join('\n'),
+      '仅 ROS、MAVROS、雷达、定位/EV；已有新鲜设备跳过。本操作不启动观察 flight，随后点击卡片配置检查和飞行。', '确认启动设备')
+      .then(function(res) { if (res && res.confirmed) return act(api.startAll(false, selected.id), '启动低空观察设备'); });
+  }
   var servo = (state.terminals || []).filter(function (t) { return t.id !== 'roscore' && t.needs_servo; });
   var cmdText = 'POST /api/action/start_all\n' + JSON.stringify({ include_servo: '<bool>', confirm: '启动设备' });
   var note = '按顺序启动设备终端并逐项等待就绪：\n'
@@ -2148,7 +2183,7 @@ function doStartAll() {
     { name: 'include_servo', label: '包含舵机端子（需逐个确认）', type: 'checkbox', value: false }
   ], '确认启动').then(function (vals) {
     if (!vals) return;
-    act(api.startAll(vals.include_servo), '一键启动设备').then(function (r) {
+    act(api.startAll(vals.include_servo, selected && selected.id), '一键启动设备').then(function (r) {
       if (r && r.orchestration) state.orchestration = r.orchestration;
       renderMonitor();
     });
@@ -2197,6 +2232,11 @@ function startTrial(g, mode, checkConfig) {
     + (mode === 'flight'
       ? 'READY 后由飞手人工解锁、人工拨入 OFFBOARD；入口在稳定条件满足后自动起飞并开始任务。飞手接管后自动时序取消。'
       : '预览模式只启动视觉采集与配置检查。');
+  if (g.channel === 'low_observation') {
+    note = built.note + '\n' + g.plan + '\n' + g.ending + '\n'
+      + '配置检查与preview均离线展开原profiles.yaml，无节点/设定点。flight输出在专项flight终端。\n'
+      + '空中Ctrl+C只请求保持等待接管，定位/MAVROS继续运行；飞手落地上锁并等待OBSERVATION_CLOSED后才能重跑。';
+  }
 
   state.trialPending = true;
   scheduleRender();
@@ -2210,6 +2250,7 @@ function startTrial(g, mode, checkConfig) {
     return act(api.trialStart(body), checkConfig ? '配置检查' : '启动试飞').then(function (r) {
       if (r && r.trial) state.trial = r.trial;
       if (r && r.ok) state.activeTerm = 'trial';
+      if (r && r.ok && g.channel === 'low_observation' && body.mode === 'flight' && !checkConfig) U.armedOk = false;
       scheduleRender();
       if (r && r.ok) toast('ok', (checkConfig ? '配置检查已下发：' : '试飞入口已下发：') + g.name);
     });
@@ -2222,7 +2263,9 @@ function startTrial(g, mode, checkConfig) {
 function doTrialStop() {
   var cmdText = 'POST /api/trial/stop {}\n→ 向 trial 会话发送 SIGINT（等同 Ctrl+C），由现场入口自行收尾';
   confirmModal('停止试飞入口', cmdText,
-    '只是结束入口进程，不发送降落 / 上锁指令。飞机状态以飞控与飞手判断为准。', '停止试飞').then(function (res) {
+    state.trial.route === 'low_observation'
+      ? '空中只请求保持等待飞手接管，不强杀。飞手切手动、落地上锁后等待 OBSERVATION_CLOSED；期间保留定位和MAVROS，不能重跑。'
+      : '只是结束入口进程，不发送降落 / 上锁指令。飞机状态以飞控与飞手判断为准。', '停止试飞').then(function (res) {
     if (!res || !res.confirmed) return;
     act(api.trialStop(), '停止试飞');
   });
