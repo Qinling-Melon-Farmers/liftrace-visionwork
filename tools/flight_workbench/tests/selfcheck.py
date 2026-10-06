@@ -175,9 +175,9 @@ def main():
 
     # 5) 启动任务组并等阶段推进（带上界面预览命令，走一致性校验的正路径）
     workbench.start_trial({"group_id": "site5", "mode": "flight", "confirm": "实投", "real_release": True,
-                           "expected_body": "bash deployment/site_20260928/start_test.sh 5 flight"})
-    check("任务组命令按现场入口拼装",
-          workbench.trial["command"] == "bash deployment/site_20260928/start_test.sh 5 flight",
+                           "expected_body": "bash deployment/board_trials_4x4/06_high_priority/start_real.sh --site-config deployment/site_20260928/test_area.yaml"})
+    check("任务组命令按模块实投入口拼装",
+          workbench.trial["command"] == "bash deployment/board_trials_4x4/06_high_priority/start_real.sh --site-config deployment/site_20260928/test_area.yaml",
           workbench.trial["command"])
     reached = wait_until(lambda: workbench.stage.name == "STOPPED", timeout=30)
     names = [item["name"] for item in workbench.stage.history]

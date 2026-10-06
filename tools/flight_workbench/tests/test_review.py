@@ -41,14 +41,16 @@ class ReviewTests(unittest.TestCase):
 
     def test_site_real_release_cannot_be_bypassed_by_false_flag(self):
         with self.assertRaisesRegex(ValueError, '实投'):
-            self.wb.start_trial(dict(group_id='site5', mode='flight', confirm='启动试飞', real_release=False))
+            self.wb.start_trial(dict(group_id='site5', route='site', mode='flight',
+                                     confirm='启动试飞', real_release=False))
 
     def test_capture_speed_preview_and_flight(self):
         for mode in ('preview', 'flight'):
             for speed in (.5, 1., 1.2):
                 result = self.wb.start_trial(dict(group_id='site6', mode=mode,
                     capture_speed=speed, confirm='启动试飞'))
-                self.assertIn('6 %s --capture-speed %s' % (mode, speed), result['trial']['command'])
+                self.assertIn('09_high_speed_capture/start.sh %s' % mode, result['trial']['command'])
+                self.assertIn('--capture-speed %s' % speed, result['trial']['command'])
 
     def test_preview_never_selects_real_release(self):
         group = next(g for g in self.wb.config['groups'] if g['id'] == 'mod08')

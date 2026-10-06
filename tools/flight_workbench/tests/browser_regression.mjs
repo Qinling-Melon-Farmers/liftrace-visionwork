@@ -43,6 +43,8 @@ try {
   await call('Page.navigate',{url});
   for(let i=0;i<60;i++){if(await run('typeof state!=="undefined" && state.groups.length>=9'))break;await sleep(100);}
   await test('offline transport (no flight backend)', 'state.connection.transport === "local"');
+  await test('main toolbar opens both read-only observers in separate windows', `
+    ['/observe','/motor'].every(path=>{const a=document.querySelector('a[href="'+path+'"]');return a&&a.target==='_blank'&&a.rel.includes('noopener');})`);
   await run('state._es.close(); state._es=null; state.activeTerm="trial"; renderTerminals(); renderDrawer();');
   await run(`window.originalConnection=JSON.parse(JSON.stringify(state.connection));
     window.hostOptionCount=state.connection.host_options.length;
@@ -109,8 +111,70 @@ try {
     [...card.querySelectorAll('button')].find(b=>b.textContent==='飞行 flight').click();`);
   await test('switching preview/flight keeps the group scroll offset', 'Math.abs(groupBody.scrollTop-groupTop)<2');
   await run(`window.confirmInput=[...document.querySelectorAll('.grp-card')][4].querySelector('input[type=text]');
-    confirmInput.focus();confirmInput.value='实投';confirmInput.dispatchEvent(new Event('input',{bubbles:true}));scheduleRender();`);await sleep(100);
-  await test('parameter editing retains focus, value and scroll', `document.activeElement===confirmInput && confirmInput.value==='实投' && Math.abs(groupBody.scrollTop-groupTop)<2`);
+    confirmInput.focus();confirmInput.value='实投';confirmInput.dispatchEvent(new Event('input',{bubbles:true}));
+    window.editingTop=groupBody.scrollTop;scheduleRender();`);await sleep(100);
+  await test('parameter editing retains focus, value and scroll', `document.activeElement===confirmInput && confirmInput.value==='实投' && Math.abs(groupBody.scrollTop-editingTop)<2`);
+  await run(`document.activeElement.blur();window.oldTrialStart=api.trialStart;
+    window.stubTrials=[];window.stubModals=[];window.oldConfirmModal=confirmModal;
+    api.trialStart=async b=>{stubTrials.push(b);return {ok:true};};
+    confirmModal=async(...args)=>{stubModals.push(args);return {confirmed:true};};
+    state.connection.state='ok';state.sessions.trial={state:'stopped'};renderGroups();`);
+  await test('original site IDs and module aliases remain clickable', `
+    ['site1','site2','site3','site4','site5','site6','mod03','mod04','mod08','mod06mock'].every(id=>state.groups.some(g=>g.id===id)) &&
+    document.querySelectorAll('.grp-card').length===10`);
+  await test('resume controls only exist on groups 06 and 08', `
+    [...document.querySelectorAll('.grp-card')].every((card,i)=>
+      !!card.querySelector('[data-option="resume"]')===['06_high_priority','08_full_mission'].includes(state.groups[i].folder))`);
+  await run(`window.captureGroup=state.groups.find(g=>g.folder==='09_high_speed_capture');
+    Object.assign(groupUI(captureGroup),{speed:1.2,lighting:'dim',motionOptimized:true,pattern:'snake3'});
+    renderGroups();window.captureCard=[...document.querySelectorAll('.grp-card')].find(c=>c.querySelector('.grp-title').textContent===captureGroup.name);
+    window.patternSelect=captureCard.querySelector('[data-option="pattern"]');patternSelect.focus();scheduleRender();`);await sleep(100);
+  await test('new route control retains focus and selected value on telemetry refresh', `
+    document.activeElement===patternSelect && patternSelect.value==='snake3'`);
+  await test('capture command includes speed lighting motion and route in backend order', `
+    captureCard.querySelector('.cmd-pre').textContent.includes('--capture-speed 1.2 --capture-lighting dim --motion-optimized --survey-pattern snake3')`);
+  await run(`startTrial(captureGroup,'flight',true)`);
+  await test('independent config check skips flight confirmation and only sends preview/check', `
+    stubTrials.length===1 && stubModals.length===0 && stubTrials[0].mode==='preview' &&
+    stubTrials[0].check_config && !stubTrials[0].real_release && !stubTrials[0].confirm &&
+    stubTrials[0].expected_body.endsWith('--check-config')`);
+  await run(`(async()=>{state.sessions.trial={state:'running'};renderGroups();
+    await startTrial(captureGroup,'flight');await startTrial(captureGroup,'preview');await startTrial(captureGroup,'preview',true);})()`);
+  await test('running trial blocks every start action while cards remain browsable', `
+    stubTrials.length===1 && [...document.querySelectorAll('.grp-card')].every(c=>
+      [...c.querySelectorAll('button')].filter(b=>['预览（preview）','飞行（flight）','配置检查（不启动节点）'].includes(b.textContent)).every(b=>b.disabled)) &&
+    [...document.querySelectorAll('.grp-select')].some(b=>!b.disabled)`);
+  await run(`(async()=>{state.sessions.trial={state:'stopped'};window.releaseGroup=state.groups.find(g=>g.id==='site1');
+    Object.assign(groupUI(releaseGroup),{mode:'flight',release:'mock',armedOk:true,realConfirm:''});
+    await startTrial(releaseGroup,'flight');
+    groupUI(releaseGroup).release='real';await startTrial(releaseGroup,'flight');})()`);
+  await test('mock flight works and real flight cannot bypass typed confirmation', `
+    stubTrials.length===2 && stubTrials[1].real_release===false && !stubTrials[1].expected_body.includes('start_real.sh')`);
+  await run(`(async()=>{groupUI(releaseGroup).realConfirm='实投';await startTrial(releaseGroup,'flight');})()`);
+  await test('real flight uses the real entry after both confirmations', `
+    stubTrials.length===3 && stubTrials[2].real_release && stubTrials[2].confirm==='实投' &&
+    stubTrials[2].expected_body.includes('start_real.sh') && stubModals.length===2`);
+  await run(`state.stage=Object.assign({},state.stage,{outcome:'aborted',pilot_action:'等待人工拨入OFFBOARD'});
+    state.telemetry=Object.assign({},state.telemetry,{terminal_hover:null,lio_realtime:[]});renderMonitor();`);
+  await test('aborted outcome and missing LIO/hover observations are explicit', `
+    document.querySelector('#monitor-body').textContent.includes('任务中止') &&
+    document.querySelector('#monitor-body').textContent.includes('等待人工拨入OFFBOARD') &&
+    document.querySelector('#monitor-body').textContent.includes('未观测')`);
+  await run(`state.telemetry.at=Date.now()/1000;state.telemetry.terminal_hover=JSON.stringify({stage:'PILOT_HANDOFF'});
+    state.telemetry.lio_realtime=[{name:'FAST-LIO',level:1,message:'queue growing',
+      values:{output_age_sec:'0.31',lidar_queue:'4',imu_queue:'8'}}];renderMonitor();`);
+  await test('observed terminal handoff and LIO metrics are displayed', `
+    ['交给飞手落地','output_age_sec=0.31','lidar_queue=4','imu_queue=8'].every(v=>document.querySelector('#monitor-body').textContent.includes(v))`);
+  await run(`state.telemetry.at=Date.now()/1000-10;state.telemetry.state={connected:true,armed:false,mode:'OFFBOARD'};renderMonitor();`);
+  await test('stale telemetry suppresses cached flight state hover and LIO observations', `
+    document.querySelector('#monitor-body').textContent.includes('已过期') &&
+    !document.querySelector('#monitor-body').textContent.includes('connected=true') &&
+    !document.querySelector('#monitor-body').textContent.includes('output_age_sec=0.31') &&
+    !document.querySelector('#monitor-body').textContent.includes('交给飞手落地')`);
+  await run(`state.telemetry.at=Date.now()/1000;state.telemetry.state={};renderMonitor();`);
+  await test('missing flight state fields stay unobserved instead of false', `
+    document.querySelector('#monitor-body').textContent.includes('connected=未观测 armed=未观测 mode=未观测')`);
+  await run(`api.trialStart=oldTrialStart;confirmModal=oldConfirmModal;document.activeElement.blur();renderGroups();`);
   await run(`document.activeElement.blur(); window.monitor=document.querySelector('#monitor-body');
     monitor.scrollTop=350;window.monitorTop=monitor.scrollTop;renderMonitor();scheduleRender();`);await sleep(100);
   await test('status panel refresh does not scroll back to the top', 'monitorTop>0 && Math.abs(monitor.scrollTop-monitorTop)<2');
