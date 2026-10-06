@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Isolated ground evidence fixture -> production arbiter -> action proxy -> real PWM."""
 from pathlib import Path
-import argparse,os,sys,time,json,signal,subprocess,threading,fcntl,xmlrpc.client
+import argparse,os,sys,time,json,signal,subprocess,threading,fcntl,xmlrpc.client,traceback
 import rospy
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import String,Int8
@@ -129,8 +129,10 @@ try:
   p=latest;q=request(p,100+slot)
   wrong=request(p,200+slot);wrong.payload_slot=slot%3+1
   wrong_ack=call(wrong)
-  assert not wrong_ack.res and wrong_ack.execution_state==1
-  emit('wrong_slot_rejected',requested=wrong.payload_slot,authorized=slot,reason=wrong_ack.reason)
+  expected_state=ReleaseResult.EXECUTION_UNKNOWN if slot==3 else ReleaseResult.NOT_STARTED
+  expected_reason='payload_slot_locked_uncertain' if slot==3 else 'request_action_identity_mismatch'
+  assert not wrong_ack.res and wrong_ack.execution_state==expected_state and wrong_ack.reason==expected_reason, repr(wrong_ack)
+  emit('wrong_slot_rejected',requested=wrong.payload_slot,authorized=slot,state=wrong_ack.execution_state,reason=wrong_ack.reason)
   p=latest;q=request(p,100+slot)
   emit('release_start',slot=slot,permission_revision=p.permission_revision)
   start=time.monotonic();ack=call(q);elapsed=time.monotonic()-start
@@ -150,7 +152,7 @@ try:
  emit('PASS',scope='synthetic strict evidence -> production arbiter -> fenced action proxy -> physical PWM; no flight controller')
 except BaseException as e:
  failed=True
- emit('FAIL',error=repr(e))
+ emit('FAIL',error=repr(e),traceback=traceback.format_exc())
 finally:
  stop.set()
  try:rospy.signal_shutdown('ground check finished')
