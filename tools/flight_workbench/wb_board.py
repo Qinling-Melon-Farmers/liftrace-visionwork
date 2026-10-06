@@ -11,6 +11,7 @@ import re
 import time
 
 import yaml
+import wb_geometry
 
 from wb_ssh import run_once, quote
 
@@ -144,7 +145,8 @@ def group_variables(config, group, overrides=None):
 
 def build_group_command(config, group, mode, route=None, real_release=None,
                         check_config=False, capture_speed=None, capture_lighting=None,
-                        motion_optimized=False, survey_pattern=None, resume_survey=None):
+                        motion_optimized=False, survey_pattern=None, resume_survey=None,
+                        site_geometry=None, geometry_revision=None):
     """按现场手册拼出任务组启动命令。返回 (命令, 说明)。"""
     if mode not in ("preview", "flight"):
         raise ValueError("mode 必须是 preview 或 flight")
@@ -182,6 +184,16 @@ def build_group_command(config, group, mode, route=None, real_release=None,
         if folder not in RESUME_FOLDERS or resume_survey not in ("on", "off"):
             raise ValueError("高位续扫仅允许第五组/整场的 on 或 off")
         extra += " --resume-survey %s" % resume_survey
+
+    if site_geometry is not None:
+        if route != "module":raise ValueError("手动坐标需使用模块入口")
+        overlay, prepare, clean = wb_geometry.overlay_command(site_config, folder, site_geometry, geometry_revision)
+        selected = dict(group, site_config=overlay)
+        command, note = build_group_command(config, selected, mode, route=route,
+            real_release=real_release, check_config=check_config, capture_speed=capture_speed,
+            capture_lighting=capture_lighting, motion_optimized=motion_optimized,
+            survey_pattern=survey_pattern, resume_survey=resume_survey)
+        return prepare + " && " + command, "先验证实测坐标并生成独立现场配置；" + note
 
     if check_config:
         return ("bash %s/start.sh preview --site-config %s%s --check-config" % (module_base, quote(site_config), extra),

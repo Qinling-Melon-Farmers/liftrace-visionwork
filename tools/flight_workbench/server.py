@@ -527,6 +527,18 @@ class Workbench(object):
         return {"ok": True}
 
     # ---------- 任务组 ----------
+    def trial_command(self, body):
+        """Pure command preview: usable offline, no connection or file writes."""
+        group = next((g for g in self.config.get("groups", []) if g["id"] == body.get("group_id")), None)
+        if group is None:raise ValueError("未知任务组")
+        command, note = wb_board.build_group_command(self.config, group, body.get("mode", "preview"),
+            route=body.get("route"), real_release=body.get("real_release"),
+            check_config=body.get("check_config",False), capture_speed=body.get("capture_speed"),
+            capture_lighting=body.get("capture_lighting"), motion_optimized=body.get("motion_optimized",False),
+            survey_pattern=body.get("survey_pattern"), resume_survey=body.get("resume_survey"),
+            site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"))
+        return {"ok":True,"body":command,"note":note}
+
     def start_trial(self, body):
         with self.trial_lock:
             return self._start_trial(body)
@@ -566,9 +578,12 @@ class Workbench(object):
             self.config, group, mode, route=route, real_release=real_release,
             check_config=check_config, capture_speed=body.get("capture_speed"),
             capture_lighting=body.get("capture_lighting"), motion_optimized=motion_optimized,
-            survey_pattern=body.get("survey_pattern"), resume_survey=body.get("resume_survey"))
+            survey_pattern=body.get("survey_pattern"), resume_survey=body.get("resume_survey"),
+            site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"))
         # 界面预览命令必须与后端实际命令一致，否则拒绝启动：防止"给人看的命令"与"真正执行的命令"漂移
         expected = str(body.get("expected_body") or "").strip()
+        if body.get("site_geometry") is not None and not expected:
+            raise ValueError("手动坐标必须先生成并确认完整命令")
         if expected and expected != command_body.strip():
             raise ValueError("界面预览与后端实际命令不一致，已拒绝启动。后端实际命令：%s" % command_body)
         command = wb_board.terminal_wrapped_command(self.config, command_body)
@@ -585,6 +600,7 @@ class Workbench(object):
             "capture_speed": body.get("capture_speed"), "capture_lighting": body.get("capture_lighting"),
             "motion_optimized": motion_optimized, "survey_pattern": body.get("survey_pattern"),
             "resume_survey": body.get("resume_survey"), "route": route, "note": note,
+            "site_geometry": body.get("site_geometry"), "geometry_revision": body.get("geometry_revision"),
         }
         session = self.sessions.open("trial", "专项入口 · %s" % group.get("name"), command, self.target)
         self.broadcast({"t": "trial", "trial": dict(self.trial)})
@@ -840,6 +856,8 @@ class Handler(BaseHTTPRequestHandler):
                     raise ValueError("会话不存在")
                 session.send_key(body.get("key", "C-c"))
                 return self._json({"ok": True})
+            if route == "/api/trial/command":
+                return self._json(workbench.trial_command(body))
             if route == "/api/trial/start":
                 return self._json(workbench.start_trial(body))
             if route == "/api/trial/stop":

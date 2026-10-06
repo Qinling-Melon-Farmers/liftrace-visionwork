@@ -426,3 +426,8 @@ table.mini tr.miss td { color: var(--muted); }
 
 /* Scroll positions belong to the reader, not to DOM replacement/anchoring. */
 .pane-body, .term-out, .drawer-body { overflow-anchor: none; }
+
+.geometry-editor {border:1px solid var(--border,#405069);padding:10px;margin:8px 0;border-radius:6px;}
+.geometry-field {display:block;margin:8px 0;}
+.geometry-field span {display:block;margin-bottom:4px;}
+.geometry-field input,.geometry-field textarea {width:100%;box-sizing:border-box;font-family:monospace;}

@@ -220,8 +220,8 @@ tools/flight_workbench/
 - 大 bag（数百 MB）仍需 `scp`/`rsync` 回传；工作台只做 tail 与小文件下载。
 - 终端输出按帧批量解析，单帧超两万行的暴输出会短暂卡顿；每会话缓冲 5000 行。
 - 尚未接 PTY resize（面板尺寸变化不会同步 `stty`）；声音提示需要一次用户点击后才能播放。
-- 板端大文件与 ROS 日志仍由现场既有流程收集，工作台不改板端任何文件（只上传只读探针到
-  `logs/flight_workbench/`）。
+- 板端大文件与 ROS 日志仍由现场既有流程收集，工作台会上传只读探针；启用手动坐标后还会在
+  `logs/flight_workbench/site_overlays/`写独立运行配置，不覆盖原现场YAML。
 
 ## 2026-10-03 界面修复与离线复核
 
@@ -254,3 +254,15 @@ node tools/flight_workbench/tests/browser_regression.mjs http://127.0.0.1:8793 <
 当前SSH为 `orangepi@192.168.3.126`，Orange Pi 5。舵机实体包在部署根的 `patrol_uav_ws-patrol_planner/src/actuator_pwm`，二进制在同工作区 `devel/lib/actuator_pwm/pwm_node1`；当前电脑没有 `hardware_ws`。工作台默认已同步这两个路径，换电脑时必须按实际映射选择，不能套用5 Plus的2/3/4槽通道。历史SSH、自定义地址及密码入口保留；已保存的个人连接配置可能覆盖默认值，使用时选取当前地址。
 
 5a只准备权限和禁用输出；5b服务启动才依次复位三槽。两次地面工程链测试已得到三个真实PWM ACK，禁止将ACK写成有机械位置传感器的反馈。工作台服务仍关闭，本轮没有通过工作台启动飞行。
+
+## 2026-10-06 手工现场坐标与H结果推广
+
+04走廊接H、08整场卡片支持手填有序走廊点（每行x,y,agl）、H中心、墙面几何和可选flight_area JSON。米制、相对起飞点：+X朝场内，+Y向左；agl是FC中心离地高度。原工程自动生成H观察/下降尾段，不要重复加入走廊点。04本身就是走廊接H，未增加纯走廊任务。
+
+勾选手动输入 → 填实测值 → 本机生成并预览坐标命令 → 连接后的配置检查 → preview → 按原流程flight。配置检查在板端使用正式生成器展开并验证，生成logs/flight_workbench/site_overlays独立文件，原现场YAML不变。可选几何/范围留空继承原值。基础文件变化后需重新生成草稿版本，不能静默改写已预览的overlay。
+
+离线命令生成不连接飞机；页面草稿可跨卡片/状态更新保留，刷新整页不持久保存。新API POST /api/trial/command只生成字符串，启动仍需原确认及预览命令一致性检查。修改坐标或任务选项后请重新生成。
+
+03/04/08本地硬件末段为H对准下降后POSCTL，飞手完成落地；本轮未上板。第五组与08运动优化默认开启但巡航上限仍0.5m/s。工作台优化复选框是显式开启，未勾选继承配置；09新卡片默认1.2m/s，可选1.0/0.5对照。完整说明见[九组速度与推广报告](../../docs/deployment/h_promotion_20261006/REPORT.md)。
+
+新增验证：tests/test_geometry.py（8项）与tests/browser_geometry.mjs（9项Edge离线检查）。
