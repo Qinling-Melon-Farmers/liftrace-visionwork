@@ -56,3 +56,6 @@ bash deployment/board_trials_4x4/03_h_landing/start.sh flight --site-config depl
 2026-09-26共同更新：继承当前板端相机方向/槽位；起飞初始前视0.25m、巡航0.50m，限速仍0.5m/s。恢复目标高于交接门槛10cm；统一三维膨胀25/20/10cm，仅第二套增加中部柱，虚拟顶棚仍关闭。[原因与验证](../../../docs/planning/obstacle_board_alignment_20260926/REPORT.md)。本轮未重新上板。
 
 高度口径：`ground_z = 静置FC局部Z - fc_ground_clearance`，识别目标为`ground_z + 1.2`，不是固定local Z=1.2。现有静置FC离地0.22m、相机位于FC下方0.16m时，静置local Z=0对应识别local Z=0.98m，水平姿态镜头离地约1.04m。H检测按图像结构及相机/位姿投影，不通过写入0.8m靶宽推定高度；80cm真靶在该高度的完整视野与反光识别仍需现场验证。整机和走廊+H专项高度未被本次覆盖。
+
+
+2026-10-06 POSCTL补丁部署确认：板端ARM控制器已重新编译链接，13个补丁文件一致，板端43项交接/配置测试及6次H配置展开通过。01–09不因本检查自动启动；当前H应用停止、未解锁，尚无此补丁实飞验收。03最终配置为POSCTL，飞手接续下降；完整版本/回滚/检查见[部署报告](../../../docs/deployment/h_posctl_handoff_20261006/DEPLOYMENT.md)。
