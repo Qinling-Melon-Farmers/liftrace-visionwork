@@ -254,6 +254,16 @@ private:
     double external_landing_max_mark_offset_ = 0.60;
     double external_landing_auto_land_height_ = 0.40;
     double external_landing_auto_land_retry_sec_ = 1.0;
+    std::string external_landing_handoff_mode_ = "AUTO.LAND";
+    std::string external_landing_handoff_topic_ = "/patrol_control/external_landing_handoff";
+    ros::Publisher external_landing_handoff_pub_;
+    std::string external_landing_mission_id_;
+    unsigned int external_landing_decision_seq_ = 0;
+    ros::Time external_landing_wire_command_stamp_;
+    ros::Time external_landing_handoff_requested_at_;
+    double external_landing_mode_transition_timeout_sec_ = 2.5;
+    bool external_landing_handoff_observed_ = false;
+    double external_landing_handoff_hold_height_ = 0.0;
     std::string external_landing_state_topic_ = "/mavros/state";
     double external_landing_state_max_age_sec_ = 2.5;
     mavros_msgs::State external_landing_mavros_state_;
@@ -419,6 +429,7 @@ private:
     void externalMissionTick();
     void clearExternalLandingState(bool disable_detector);
     void externalLandingTick();
+    void publishExternalLandingHandoff(const std::string& stage);
     void failExternalLanding(const std::string& reason);
     bool externalLandingMarkFresh(const ros::Time& now) const;
     bool externalLandingControlReady(const ros::Time& now) const;

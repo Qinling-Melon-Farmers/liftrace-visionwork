@@ -4,6 +4,8 @@ high_agl: 2.6
 drop_agl: 0.6
 landing_transit_agl: 1.0
 landing_capture_agl: 1.2
+# POSCTL holds position/altitude; the pilot performs the remaining descent.
+landing_handoff_mode: POSCTL
 landing_xy:
 - 2.0
 - 0.0

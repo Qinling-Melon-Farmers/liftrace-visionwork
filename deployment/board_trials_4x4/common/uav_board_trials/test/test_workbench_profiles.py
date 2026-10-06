@@ -4,6 +4,7 @@ import tempfile
 import unittest
 import yaml
 from trial_config import apply_site_profile, generate, validate_settings
+from trial_bag import topics_for
 
 ROOT = Path(__file__).resolve().parents[5]
 BASE = ROOT/'deployment/board_trials_4x4'
@@ -34,6 +35,7 @@ class Profiles(unittest.TestCase):
                 self.assertAlmostEqual(control['external_landing']['capture_height']-ref['ground_z'], 1.2)
                 self.assertAlmostEqual(control['land_height']-ref['ground_z'], .40)
                 self.assertAlmostEqual(control['external_landing']['auto_land_height']-ref['ground_z'], .55)
+                self.assertEqual(control['external_landing']['handoff_mode'], 'POSCTL')
                 overrides = yaml.safe_load((Path(tmp)/'overrides.yaml').read_text())
                 self.assertIs(overrides['/landing_detector/landing_enable_h_stroke_fallback'], True)
 
@@ -57,6 +59,8 @@ class Profiles(unittest.TestCase):
                 self.assertEqual(control['switch']['flag_landing_detect'], 1)
                 self.assertAlmostEqual(control['land_height']-ref['ground_z'], .40)
                 landing = dict(control['external_landing'])
+                self.assertEqual(landing.pop('handoff_mode'),
+                                 'POSCTL' if folder == '03_h_landing' else 'AUTO.LAND')
                 self.assertAlmostEqual(landing.pop('capture_height')-ref['ground_z'], settings['landing_capture_agl'])
                 self.assertEqual(landing['detections_topic'], '/uav_vision/detections_mapped')
                 self.assertAlmostEqual(landing['auto_land_height']-ref['ground_z'], .55)
@@ -92,6 +96,36 @@ class Profiles(unittest.TestCase):
         settings = self.settings('03_h_landing','h_landing_test_area.yaml')
         with self.assertRaisesRegex(ValueError,'terminal_hover'):
             apply_site_profile(settings,dict(terminal_hover_agl=.3))
+
+    def test_handoff_mode_must_be_explicit_supported_h_mode(self):
+        settings = self.settings('03_h_landing','h_landing_test_area.yaml')
+        for mode in ('', 'OFFBOARD', 'MANUAL', None):
+            settings['landing_handoff_mode'] = mode
+            with self.assertRaisesRegex(ValueError,'landing_handoff_mode'):
+                validate_settings(settings)
+        apply_site_profile(settings, dict(landing_handoff_mode='AUTO.LAND'))
+        validate_settings(settings)
+        settings = yaml.safe_load((BASE/'01_visual_interrupt/settings.yaml').read_text())
+        settings['landing_handoff_mode'] = 'POSCTL'
+        with self.assertRaisesRegex(ValueError,'only applies'):
+            validate_settings(settings)
+
+    def test_custom_handoff_topic_matches_generated_control_and_bag(self):
+        settings = self.settings('03_h_landing', 'h_landing_test_area.yaml')
+        rig = yaml.safe_load((BASE/'common/uav_board_trials/config/known_rig.yaml').read_text())
+        for topic in ('/patrol_control/external_landing_handoff', '/site/h_landing_handoff'):
+            apply_site_profile(settings, dict(landing_handoff_status_topic=topic))
+            with tempfile.TemporaryDirectory() as tmp:
+                generate(ROOT, tmp, settings, (0., 0., 0.), rig)
+                control = yaml.safe_load((Path(tmp)/'control.yaml').read_text())
+                self.assertEqual(control['external_landing']['handoff_status_topic'], topic)
+                self.assertIn(topic, topics_for(settings))
+                if topic != '/patrol_control/external_landing_handoff':
+                    self.assertNotIn('/patrol_control/external_landing_handoff', topics_for(settings))
+        for topic in ('', 'relative', '/bad topic', None):
+            settings['landing_handoff_status_topic'] = topic
+            with self.assertRaisesRegex(ValueError, 'landing_handoff_status_topic'):
+                validate_settings(settings)
 
     def test_profile_does_not_change_mission_or_actuator(self):
         settings = self.settings('03_h_landing','h_landing_test_area.yaml')

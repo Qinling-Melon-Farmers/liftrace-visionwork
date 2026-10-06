@@ -6,6 +6,7 @@ transport doubles, then assert service calls and transaction state changes.
 """
 from pathlib import Path
 import io
+import json
 import subprocess
 import tempfile
 import unittest
@@ -35,12 +36,16 @@ PROGRAM = r'''
 #include <memory>
 #include <string>
 #include <vector>
+#include <sstream>
+#include <iomanip>
+#include <iostream>
 #define ROS_WARN_THROTTLE(...) ((void)0)
 #define ROS_INFO_THROTTLE(...) ((void)0)
 #define ROS_ERROR_THROTTLE(...) ((void)0)
 #define ROS_INFO(...) ((void)0)
 #define ROS_WARN(...) ((void)0)
 #define ROS_ERROR(...) ((void)0)
+namespace std_msgs { struct String; }
 namespace ros {
 double clock = 100;
 struct Duration { double value; double toSec() const { return value; } };
@@ -49,10 +54,16 @@ struct Time {
     explicit Time(double v = 0) : value(v) {}
     bool isZero() const { return value == 0; }
     static Time now() { return Time(clock); }
+    unsigned long long toNSec() const { return static_cast<unsigned long long>(value*1e9); }
 };
 bool operator==(Time a, Time b) { return a.value == b.value; }
 Duration operator-(Time a, Time b) { return Duration{a.value - b.value}; }
-struct Publisher { int calls=0; template<typename T> void publish(const T&) {++calls;} };
+struct Publisher {
+    int calls=0;
+    std::vector<std::string> statuses;
+    template<typename T> void publish(const T&) {++calls;}
+    void publish(const std_msgs::String&);
+};
 }
 struct Header { unsigned int seq=0; ros::Time stamp; std::string frame_id; };
 struct Position { double x=0, y=0, z=0; };
@@ -63,7 +74,10 @@ struct PoseStamped {
     struct { Position position; double orientation=0; } pose;
 };
 }
-namespace std_msgs { struct Empty {}; struct Bool { bool data=false; }; }
+namespace std_msgs { struct Empty {}; struct Bool { bool data=false; }; struct String { std::string data; }; }
+void ros::Publisher::publish(const std_msgs::String& message) {
+    ++calls; statuses.push_back(message.data);
+}
 namespace mavros_msgs {
 struct State {
     using ConstPtr = std::shared_ptr<const State>;
@@ -92,8 +106,10 @@ bool isQuaternionNormalized(double yaw, double tolerance=1e-6) { return std::isf
 struct ModeService {
     int calls=0;
     bool transport_ok=true, mode_sent=true;
+    std::vector<std::string> requests;
     bool call(mavros_msgs::SetMode& msg) {
-        assert(msg.request.custom_mode == "AUTO.LAND");
+        assert(msg.request.custom_mode == "AUTO.LAND" || msg.request.custom_mode == "POSCTL");
+        requests.push_back(msg.request.custom_mode);
         ++calls;
         msg.response.mode_sent=mode_sent;
         return transport_ok;
@@ -121,6 +137,14 @@ public:
     double external_landing_capture_height_=.75;
     double external_landing_auto_land_height_=.40;
     double external_landing_auto_land_retry_sec_=1;
+    std::string external_landing_handoff_mode_="AUTO.LAND";
+    bool external_landing_handoff_observed_=false;
+    double external_landing_handoff_hold_height_=0;
+    std::string external_landing_mission_id_;
+    unsigned int external_landing_decision_seq_=0;
+    ros::Time external_landing_wire_command_stamp_, external_landing_handoff_requested_at_;
+    double external_landing_mode_transition_timeout_sec_=2.5;
+    ros::Publisher external_landing_handoff_pub_;
     double external_planner_start_max_distance_=.6;
     double external_planner_cmd_timeout_=.5, external_planner_max_command_z_=3.5;
     double external_alignment_capture_height_=1.2;
@@ -159,6 +183,7 @@ public:
     void clearExternalLandingState(bool);
     void failExternalLanding(const std::string&);
     void externalLandingTick();
+    void publishExternalLandingHandoff(const std::string&);
     void CallLand();
     void missionCommandCallback(const patrol_control::MissionCommand::ConstPtr&);
     void plannercmdCallback(const geometry_msgs::PoseStamped&);
@@ -180,6 +205,8 @@ void command(LLController& c, int kind=patrol_control::MissionCommand::LAND) {
     auto msg=std::make_shared<patrol_control::MissionCommand>();
     msg->command=kind;
     msg->goal=c.uav_pose; msg->goal.header.frame_id="camera_init";
+    msg->target_class="test-mission"; msg->goal.header.seq=42;
+    msg->goal.header.stamp=ros::Time::now();
     c.missionCommandCallback(msg);
 }
 LLController landing(bool aligned=true) {
@@ -334,6 +361,86 @@ int main(int argc, char** argv) {
             state(c); command(c); c.externalLandingTick(); c.CallLand();
             assert(c.set_mode_client.calls==1); cancelled(c);
         }
+    } else if (test=="posctl_handoff") {
+        auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
+        c.externalLandingTick();
+        assert(c.set_mode_client.requests==std::vector<std::string>{"POSCTL"});
+        assert(c.flag_land && c.external_landing_auto_land_requested_);
+        assert(!c.external_landing_handoff_observed_);
+        assert(c.external_landing_handoff_pub_.calls==1);
+        assert(c.patrol_cmd.pose.position.z==.35 && c.align_height==.35);
+        // A service ACK does not prove POSCTL or landing. Until its heartbeat,
+        // hold the handoff height, block old navigation, and never request again.
+        state(c); c.uav_pose.pose.position.z=.34;
+        c.externalLandingTick(); c.CallLand(); command(c);
+        command(c,patrol_control::MissionCommand::RETURN_HOME);
+        command(c,patrol_control::MissionCommand::ALIGN);
+        assert(c.set_mode_client.calls==1 && c.Drone_mode==Land);
+        assert(c.patrol_cmd.pose.position.z==.35);
+        assert(!c.external_landing_handoff_observed_);
+        state(c,"POSCTL");
+        assert(c.external_landing_handoff_observed_ && !c.external_landing_cancelled_);
+        assert(c.external_landing_handoff_pub_.calls==2);
+        auto trajectory=c.uav_pose; trajectory.pose.position.x+=.10;
+        c.plannercmdCallback(trajectory);
+        ros::clock=230; state(c,"POSCTL"); c.uav_pose.pose.position.z=.1; c.externalLandingTick();
+        assert(c.Drone_mode==Land && c.patrol_cmd.pose.position.z==.35);
+        assert(c.set_mode_client.calls==1);
+        // Telemetry is the completion authority; disarm does not send another
+        // mode request or create a new LAND transaction in this controller.
+        state(c,"POSCTL",true,false); c.externalLandingTick(); c.CallLand();
+        assert(c.external_landing_active_ && !c.external_landing_cancelled_);
+        assert(c.set_mode_client.calls==1);
+    } else if (test=="posctl_takeover") {
+        for (const auto* mode : {"AUTO.LAND", "MANUAL", "ALTCTL"}) {
+            auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
+            c.externalLandingTick(); state(c,mode); cancelled(c);
+            state(c); command(c); c.externalLandingTick(); c.CallLand();
+            assert(c.set_mode_client.calls==1); cancelled(c);
+        }
+        auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
+        c.externalLandingTick(); state(c,"POSCTL");
+        state(c); cancelled(c); // Returning OFFBOARD cannot resume the old descent.
+        command(c); c.externalLandingTick(); c.CallLand();
+        assert(c.set_mode_client.calls==1); cancelled(c);
+        c=landing(false); c.external_landing_handoff_mode_="POSCTL";
+        state(c,"POSCTL"); cancelled(c); // Early pilot POSCTL still cancels.
+        assert(c.set_mode_client.calls==0);
+    } else if (test=="posctl_gates_retry") {
+        auto c=landing(false); c.external_landing_handoff_mode_="POSCTL";
+        c.externalLandingTick(); assert(c.set_mode_client.calls==0);
+        c.external_landing_alignment_complete_=true;
+        c.external_landing_aligned_goal_=c.uav_pose;
+        c.uav_pose.pose.position.z=.401; c.externalLandingTick();
+        assert(c.set_mode_client.calls==0);
+        c.uav_pose.pose.position.z=.35; c.uav_pose.pose.position.x+=.081;
+        c.externalLandingTick(); assert(c.set_mode_client.calls==0);
+        c.uav_pose.pose.position.x-=.081; c.set_mode_client.mode_sent=false;
+        c.externalLandingTick(); assert(c.set_mode_client.calls==1 && !c.flag_land);
+        ros::clock=100.9; c.externalLandingTick(); assert(c.set_mode_client.calls==1);
+        c.set_mode_client.mode_sent=true; ros::clock=101; state(c);
+        c.externalLandingTick(); assert(c.set_mode_client.calls==2 && c.flag_land);
+        assert(c.set_mode_client.requests==std::vector<std::string>({"POSCTL","POSCTL"}));
+    } else if (test=="status_json") {
+        auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
+        c.external_landing_mission_id_="test-\"mission";
+        c.externalLandingTick(); state(c,"POSCTL"); state(c,"MANUAL");
+        for (const auto& status : c.external_landing_handoff_pub_.statuses)
+            std::cout << status << '\n';
+    } else if (test=="posctl_timeout_identity") {
+        auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
+        c.externalLandingTick(); assert(c.external_landing_handoff_pub_.calls==1);
+        ros::clock=102.51; state(c); c.externalLandingTick(); cancelled(c);
+        assert(c.external_landing_handoff_pub_.calls==2); // CANCELLED after request.
+        c=landing(); c.external_landing_handoff_mode_="POSCTL";
+        c.externalLandingTick(); state(c,"POSCTL");
+        ros::clock=105.02; c.externalLandingTick(); cancelled(c); // Stale expected-mode state.
+        LLController missing;
+        missing.external_landing_handoff_mode_="POSCTL"; state(missing);
+        auto msg=std::make_shared<patrol_control::MissionCommand>();
+        msg->goal=missing.uav_pose; msg->goal.header.frame_id="camera_init";
+        missing.missionCommandCallback(msg);
+        assert(!missing.external_landing_active_ && missing.set_mode_client.calls==0);
     } else if (test=="planner_hold") {
         auto c=landing();
         auto old_trajectory=c.uav_pose;
@@ -431,11 +538,13 @@ int main(int argc, char** argv) {
             for (bool accepted : {false,true}) {
                 LLController c; c.external_mission_mode_=false;
                 c.simulation_auto_land=simulation;
+                c.external_landing_handoff_mode_="POSCTL"; // External-only parameter.
                 c.set_mode_client.mode_sent=accepted;
                 c.external_landing_cancelled_=true;
                 c.CallLand();
                 assert(c.flag_land);
                 assert(c.set_mode_client.calls==(simulation ? 1 : 0));
+                if (simulation) assert(c.set_mode_client.requests==std::vector<std::string>{"AUTO.LAND"});
                 assert(c.align_height==(simulation ? c.land_height : -1.));
                 state(c,"POSCTL"); assert(c.flag_land && c.Drone_mode==Run_point);
             }
@@ -453,6 +562,7 @@ class ExternalLandingHandoffTest(unittest.TestCase):
             'bool LLController::externalLandingMarkFresh(',
             'bool LLController::externalLandingControlReady(',
             'void LLController::externalLandingStateCallback(',
+            'void LLController::publishExternalLandingHandoff(',
             'void LLController::clearExternalLandingState(',
             'void LLController::failExternalLanding(',
             'void LLController::externalLandingTick(',
@@ -554,6 +664,30 @@ class ExternalLandingHandoffTest(unittest.TestCase):
 
     def test_manual_takeover_after_request_cannot_trigger_another_request(self):
         self.run_case('takeover_after_handoff')
+
+    def test_posctl_request_holds_z_until_observed_and_waits_for_pilot(self):
+        self.run_case('posctl_handoff')
+
+    def test_posctl_handoff_preserves_early_and_post_handoff_takeover_cancellation(self):
+        self.run_case('posctl_takeover')
+
+    def test_posctl_preserves_geometry_alignment_and_retry_gates(self):
+        self.run_case('posctl_gates_retry')
+
+    def test_posctl_requires_transaction_identity_and_mode_transition_freshness(self):
+        self.run_case('posctl_timeout_identity')
+
+    def test_actual_cpp_status_json_keeps_identity_and_integer_nanoseconds(self):
+        output = subprocess.check_output([str(self.binary), 'status_json'], text=True)
+        events = [json.loads(line) for line in output.splitlines()]
+        self.assertEqual([event['stage'] for event in events], ['REQUESTED', 'OBSERVED', 'CANCELLED'])
+        for event in events:
+            self.assertEqual(event['mission_id'], 'test-"mission')
+            self.assertEqual(event['decision_seq'], 42)
+            self.assertEqual(event['mode'], 'POSCTL')
+            self.assertIsInstance(event['command_stamp_ns'], str)
+            self.assertIsInstance(event['event_stamp_ns'], str)
+            self.assertEqual(int(event['command_stamp_ns']), 100_000_000_000)
 
     def test_planner_callback_and_timer_hold_after_takeover_until_new_mission(self):
         self.run_case('planner_hold')

@@ -17,6 +17,8 @@ for trial in TRIAL_FOLDERS:
         assert params['/landing_detector/landing_enable_h_structure_check'] is True
         assert params['/landing_detector/default_align_mode']=='disabled'
         assert params['/landing_detector/process_only_in_landing_mode'] is True
+        if settings['mode'] in H_MODES:
+            assert params['/external_landing/handoff_mode']==settings.get('landing_handoff_mode','AUTO.LAND')
         assert nodes['mission_manager'].type=='trial_sim_manager.py'
         assert 'target_detector_rknn' not in nodes
         assert nodes['map_camera_alignment'].type=='static_transform_publisher'
