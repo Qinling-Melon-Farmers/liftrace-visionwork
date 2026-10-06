@@ -36,12 +36,5 @@ inline bool sameDropAction(const Context& a, const Context& b) {
            a.align_mode == b.align_mode;
 }
 
-inline bool boundedExactDropUpdate(double x, double y, double previous_x,
-                                   double previous_y, double max_step) {
-    return std::isfinite(x) && std::isfinite(y) &&
-           std::isfinite(previous_x) && std::isfinite(previous_y) &&
-           std::isfinite(max_step) && max_step > 0.0 &&
-           std::hypot(x-previous_x, y-previous_y) <= max_step;
-}
 }
 #endif

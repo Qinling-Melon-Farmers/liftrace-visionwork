@@ -250,6 +250,25 @@ int main(int argc,char **argv){
       c.externalMissionTick();
       assert(c.capture_tolerance_m_==0 && c.count_aligning==0 && c.release_submissions==0);return 0;
     }
+    const bool update=test=="state_standard_update" || test=="state_cross_update";
+    if(update || test=="state_command_clamp"){
+      c.dropOffsetCallback(m);c.externalMissionTick(); // no stable readiness yet
+      auto n=boost::make_shared<uav_vision::DropOffset>(*m);n->header.stamp=ros::Time(99.95);
+      n->map_point.x+=.03;n->map_point.y+=.04;
+      if(test=="state_command_clamp"){
+        c.max_alignment_move_distance_=.5;c.uav_pose.pose.position.x=-1;
+      }
+      c.dropOffsetCallback(n);c.externalMissionTick();
+      assert(c.capture_tolerance_m_==0 && c.count_aligning==0);
+      if(test=="state_command_clamp"){
+        assert(std::abs(std::hypot(c.patrol_cmd.pose.position.x-c.uav_pose.pose.position.x,
+          c.patrol_cmd.pose.position.y-c.uav_pose.pose.position.y)-.5)<1e-9);
+        assert(c.latest_drop_offset_.map_point.x==n->map_point.x && !c.exactDropReleaseReady());return 0;
+      }
+      assert(c.adjust_target_position[0]==n->map_point.x && c.adjust_target_position[1]==n->map_point.y);
+      assert(c.patrol_cmd.pose.position.x==n->map_point.x && c.patrol_cmd.pose.position.y==n->map_point.y);
+      c.uav_pose.pose.position.x=n->map_point.x;c.uav_pose.pose.position.y=n->map_point.y;m=n;
+    }
     c.dropOffsetCallback(m);ready(c);
     // Capture precedes permission; initial denial cannot consume the geometry lock.
     authorize(c,false);c.externalMissionTick();
@@ -288,30 +307,38 @@ int main(int argc,char **argv){
     }
     const auto capture_limit=c.capture_tolerance_m_;
     const auto original_stamp=c.latest_drop_offset_.header.stamp;
-    const bool update=test=="state_standard_update" || test=="state_cross_update";
-    if(update || test=="state_command_clamp"){
-      auto n=boost::make_shared<uav_vision::DropOffset>(*m);n->header.stamp=ros::Time(99.95);
-      n->map_point.x+=.03;n->map_point.y+=.04;n->alignment_error_m=.05;n->alignment_tolerance_m=.001;
-      if(test=="state_command_clamp"){
-        c.max_alignment_move_distance_=.5;c.uav_pose.pose.position.x=-1;
+    const auto original_receipt=c.latest_drop_offset_time_;
+    if(update){
+      // Nine fresh low-view projections drift 0.27m in total. None may move
+      // either the actual descent command or the release-check goal.
+      for(int i=1;i<=9;++i){
+        ros::Time::setNow(ros::Time(100+.02*i));
+        auto n=boost::make_shared<uav_vision::DropOffset>(*m);n->header.stamp=ros::Time::now();
+        n->map_point.x+=.03*i;n->alignment_error_m=.03*i;n->alignment_tolerance_m=.001;
+        c.dropOffsetCallback(n);c.externalMissionTick();
+        assert(c.adjust_target_position[0]==m->map_point.x && c.adjust_target_position[1]==m->map_point.y);
+        assert(c.patrol_cmd.pose.position.x==m->map_point.x && c.patrol_cmd.pose.position.y==m->map_point.y);
+        assert(c.latest_drop_offset_.map_point.x==m->map_point.x);
+        assert(c.latest_drop_offset_.header.stamp==original_stamp && c.latest_drop_offset_time_==original_receipt);
+        assert(c.last_drop_projection_stamp_==n->header.stamp && c.capture_tolerance_m_==capture_limit);
       }
-      c.dropOffsetCallback(n);c.externalMissionTick();
-      if(update){
-        assert(c.adjust_target_position[0]==n->map_point.x && c.adjust_target_position[1]==n->map_point.y);
-        assert(c.patrol_cmd.pose.position.x==n->map_point.x && c.patrol_cmd.pose.position.y==n->map_point.y);
-      }else{
-        assert(std::abs(std::hypot(c.patrol_cmd.pose.position.x-c.uav_pose.pose.position.x,
-          c.patrol_cmd.pose.position.y-c.uav_pose.pose.position.y)-.5)<1e-9);
-        assert(c.latest_drop_offset_.map_point.x==n->map_point.x && !c.exactDropReleaseReady());return 0;
-      }
-      assert(c.capture_tolerance_m_==capture_limit && c.release_submissions==0);
-      c.uav_pose.pose.position.x=n->map_point.x;c.uav_pose.pose.position.y=n->map_point.y;
+      authorize(c);assert(c.exactDropReleaseReady());
+      c.uav_pose.pose.position.x=m->map_point.x+.27;assert(!c.exactDropReleaseReady());
+      c.uav_pose.pose.position.x=m->map_point.x;authorize(c,false);
     }
     if(test=="state_invalid" || test=="state_jump"){
       auto n=boost::make_shared<uav_vision::DropOffset>(*m);n->header.stamp=ros::Time(99.95);
       if(test=="state_invalid") n->map_valid=false;else n->map_point.x+=6;
-      c.dropOffsetCallback(n);assert(c.capture_tolerance_m_==0);authorize(c);c.externalMissionTick();
-      assert(c.release_submissions==0);return 0;
+      c.dropOffsetCallback(n);authorize(c);c.externalMissionTick();
+      if(test=="state_invalid"){
+        assert(c.capture_tolerance_m_==0 && c.release_submissions==0);
+        c.dropOffsetCallback(m);assert(c.capture_tolerance_m_==0 && !c.have_drop_offset_);
+      }else{
+        assert(c.capture_tolerance_m_==capture_limit && c.release_submissions==1);
+        assert(c.latest_drop_offset_.header.stamp==original_stamp && c.latest_drop_offset_time_==original_receipt);
+        assert(c.patrol_cmd.pose.position.x==m->map_point.x);
+      }
+      return 0;
     }
     if(test=="state_cancel" || test=="state_new_action"){
       auto ctx=boost::make_shared<uav_vision::AlignmentTargetContext>(c.servo_alignment_context_);
@@ -339,7 +366,7 @@ int main(int argc,char **argv){
     const bool permitted=test=="state_image_loss" || update;
     assert(c.release_submissions==(permitted?1:0));
     assert(c.capture_tolerance_m_==capture_limit);
-    assert(c.latest_drop_offset_.header.stamp==(update?ros::Time(99.95):original_stamp));
+    assert(c.latest_drop_offset_.header.stamp==original_stamp && c.latest_drop_offset_time_==original_receipt);
     if(test=="state_denied"){
       authorize(c);c.externalMissionTick();assert(c.release_submissions==1);
     }
@@ -394,8 +421,8 @@ class ExactDropControlTest(unittest.TestCase):
     def test_semantic_context_identity_and_cross_identity(self):self.run_case('context')
     def test_current_pose_movement_and_freshness_recheck(self):self.run_case('release')
     def test_default_legacy_path_and_offsets_preserved(self):self.run_case('legacy')
-    def test_actual_standard_locked_goal_update(self):self.run_case('state_standard_update')
-    def test_actual_cross_locked_goal_update(self):self.run_case('state_cross_update')
+    def test_standard_updates_before_descent_then_freezes_cumulative_drift(self):self.run_case('state_standard_update')
+    def test_cross_updates_before_descent_then_freezes_cumulative_drift(self):self.run_case('state_cross_update')
     def test_image_loss_after_stable_capture_can_release(self):self.run_case('state_image_loss')
     def test_initial_stale_observation_cannot_capture(self):self.run_case('state_initial_stale')
     def test_initial_unstable_observation_cannot_capture(self):self.run_case('state_initial_unstable')
@@ -409,10 +436,10 @@ class ExactDropControlTest(unittest.TestCase):
     def test_current_fc_pose_outside_captured_tolerance_blocks(self):self.run_case('state_pose_bad')
     def test_captured_deadline_cannot_extend_on_heartbeat(self):self.run_case('state_deadline')
     def test_malformed_new_geometry_invalidates_capture(self):self.run_case('state_invalid')
-    def test_unbounded_new_goal_invalidates_capture(self):self.run_case('state_jump')
+    def test_large_post_capture_goal_cannot_retarget_descent(self):self.run_case('state_jump')
     def test_explicit_cancel_invalidates_capture(self):self.run_case('state_cancel')
     def test_new_action_invalidates_capture(self):self.run_case('state_new_action')
-    def test_each_new_emitted_goal_keeps_current_body_clamp(self):self.run_case('state_command_clamp')
+    def test_pre_capture_emitted_goal_keeps_current_body_clamp(self):self.run_case('state_command_clamp')
     def test_cross_inactive_before_ack_recovers_and_hands_off_once(self):self.run_case('state_cross_recovery_before')
     def test_cross_inactive_after_ack_recovers_and_hands_off_once(self):self.run_case('state_cross_recovery_after')
     def test_standard_inactive_before_ack_recovers_and_hands_off_once(self):self.run_case('state_standard_recovery_before')

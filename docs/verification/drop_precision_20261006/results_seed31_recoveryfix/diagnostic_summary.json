@@ -1,0 +1,58 @@
+{
+  "status": "INTERRUPTED_DIAGNOSTIC_FAIL",
+  "source": "d393faef1b32193e75238cfbcdd91c2a29e8eea6",
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/drop_precision_seed31_20261007_013415",
+  "gate_file_present": false,
+  "successful_releases": 2,
+  "drops": [
+    {
+      "cls": "red_cross",
+      "slot": 1,
+      "ack_s": 81.381,
+      "source_time_error_cm": 4.33806109655554,
+      "legacy_ack_error_cm": 4.2834921715499865,
+      "inside_board": true,
+      "actual_goal": {
+        "t": "81.295",
+        "x": "7.4232940673828125",
+        "y": "-0.9950337409973145",
+        "z": "0.10000000149011612",
+        "qx": "0.0",
+        "qy": "0.0",
+        "qz": "0.00013094240732589008",
+        "qw": "0.999999991427043"
+      }
+    },
+    {
+      "cls": "bridge",
+      "slot": 2,
+      "ack_s": 117.231,
+      "source_time_error_cm": 11.683339181907284,
+      "legacy_ack_error_cm": 11.697536852928405,
+      "inside_board": true,
+      "actual_goal": {
+        "t": "117.145",
+        "x": "5.065831624238492",
+        "y": "-3.694958781554543",
+        "z": "0.10751276548842312",
+        "qx": "0.0",
+        "qy": "0.0",
+        "qz": "0.0003862925312872171",
+        "qw": "0.9999999253890374"
+      }
+    }
+  ],
+  "actual_collisions": 0,
+  "third_slot_reason": "commitment_position_drift",
+  "first_recovery_ros_s": 83.99,
+  "second_recovery_ros_s": 119.817,
+  "zero_residual_confirmed": true,
+  "original_runner_status": "INFRA_STOP",
+  "original_runner_residuals": {
+    "rosmaster": 20626,
+    "rosout": 20636
+  },
+  "subsequent_required_cleanup_command": "bash top_level_scripts/stop_toudi3_sim.sh",
+  "subsequent_independent_check_result": "No local ROS/Gazebo/PX4/RViz process remains.",
+  "note": "Original runner failure preserved; subsequent zero check is supplementary recovery, not a changed original PASS."
+}

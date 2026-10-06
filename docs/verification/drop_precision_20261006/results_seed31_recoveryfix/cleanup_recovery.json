@@ -1,0 +1,11 @@
+{
+  "original_runner_status": "INFRA_STOP",
+  "original_runner_residuals": {
+    "rosmaster": 20626,
+    "rosout": 20636
+  },
+  "subsequent_required_cleanup_command": "bash top_level_scripts/stop_toudi3_sim.sh",
+  "subsequent_independent_check_result": "No local ROS/Gazebo/PX4/RViz process remains.",
+  "zero_residual_confirmed": true,
+  "note": "Original runner failure preserved; subsequent zero check is supplementary recovery, not a changed original PASS."
+}

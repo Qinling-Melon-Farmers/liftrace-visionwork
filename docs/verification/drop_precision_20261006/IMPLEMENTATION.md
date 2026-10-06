@@ -78,7 +78,7 @@ git diff --check
 
 向导航权威 `liftrace-controlwork` 交接时同步上述 DropOffset 契约、对应控制最小补丁和 launch 开关，并标注本工作树未提交 diff 的后续正式 revision。几何 target ID 可更新，语义目标/决策/槽位/许可身份仍固定；map_point 新语义是已补偿 FC goal，不能再当原始靶心或叠加槽位。当前未写另一仓、不合并或推送。
 
-## 2026-10-07：锁后目标更新与有界释放承诺修复（已冻结）
+## 2026-10-07：锁后目标更新与有界释放承诺修复（历史策略，锁后更新已由下文撤回）
 
 修复前源码为 `8c4be8917ba68847b339d907ab794af9182e8a45`。seed31 已关闭运行 `logs/drop_precision_seed31_20261007_002621` 的 88 条 offset 中，锁定来源帧 77.645 的目标为 `(7.393637,-1.052990)`，最后来源帧 83.249 为 `(7.423729,-1.005712)`，相差 **0.05604 m**；后续实际 setpoint 仍保留前者。根因是 `CrossDetectionDone` 的局部静态 `waypoint_temp` 遮蔽回调更新的成员变量。另一个根因是精确释放门持续要求新鲜图像，阻断既有使命层有界下降承诺。该运行仍是修复前 FAIL，未作为补丁动态验收。
 
@@ -111,3 +111,16 @@ git diff --check
 - 控制全套 **118/118 PASS**：`/tmp/drop_recovery_full_control_tests.log`。
 - `patrol_control` 增量 ROS 编译退出 **0**：`/tmp/drop_recovery_incremental_build.log`。
 - `git diff --check` 通过；没有启动 ROS/SITL、调用实物执行机构或 commit/push。本轮只修改上述 cpp、专属测试及本文；后续动态验证交主代理安排。
+
+## 2026-10-07：收缩为稳定捕获后冻结目标（当前策略，已冻结）
+
+本轮选择性撤回未经验证的“下降后跟随新几何”。保留完整同帧投影、源时间去重及下降前持续更新；真实新鲜稳定捕获时，锁存已补偿绝对 XY、物理容差及固定 action。`latest_drop_offset_` 直接作为既有快照保存，不新增字段、flag、阈值、消息或任务系统。
+
+锁后新 offset 仍检查格式、几何、源时间与 action，并推进去重水位；合法包不再改写 marks、`waypoint_temp`、`latest_drop_offset_` 或其 source/receipt 时间。实际下降输出和释放距离复核使用同一捕获目标。无效新几何、新 action、明确取消仍阻断并清除几何锁存；pending/成功 ACK 的恢复计数保护保留。既有许可 0.20 m、deadline 及授权身份检查全部未改。
+
+删除无生产调用的 `boundedExactDropUpdate` helper。原两项锁后更新测试改为标准靶/红十字下降前更新、下降后九个新鲜帧累计偏移 0.27 m 仍冻结：断言实际 adjust/patrol 输出、释放校验绝对目标、原 source/receipt 时间全部不变，去重水位正常前进；FC 跑到偏移后的目标仍不能按锁存目标获得释放。四种 ACK/inactive 顺序恢复测试及授权正反测试保留。
+
+- 专属生产状态测试 **32/32 PASS**：`/tmp/drop_frozen_goal_exact_tests.log`。
+- 控制完整回归 **118/118 PASS**：`/tmp/drop_frozen_goal_full_control_tests.log`。
+- 增量 ROS 编译 `patrol_control` 退出 **0**：`/tmp/drop_frozen_goal_incremental_build.log`；`git diff --check` 通过。
+- 本轮修改 cpp、两个现有 headers、现有专属测试及本文；未改视觉/许可/配置，未启动仿真或 commit/push。交主代理审查提交后由 C 实跑；离线 PASS 不等于核心投影精度或三槽实跑验收。

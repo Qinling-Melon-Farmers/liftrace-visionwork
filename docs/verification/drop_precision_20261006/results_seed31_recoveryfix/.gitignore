@@ -1,0 +1,4 @@
+exact_offsets.jsonl
+stop_request.json
+panzer_frames/*
+!panzer_frames/panzer_center_transition.jpg

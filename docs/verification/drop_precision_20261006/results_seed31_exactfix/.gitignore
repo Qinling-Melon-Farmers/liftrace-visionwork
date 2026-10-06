@@ -1,0 +1,9 @@
+# Keep only compact review reports, metrics and cleanup recovery.
+# Raw JSONL and detailed context/stop samples remain local.
+*
+!.gitignore
+!REPORT.md
+!diagnostic_summary.json
+!precision.json
+!exact_path_summary.json
+!cleanup_recovery.json

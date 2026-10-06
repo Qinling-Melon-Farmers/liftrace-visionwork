@@ -3125,9 +3125,13 @@ void LLController::dropOffsetCallback(const uav_vision::DropOffset::ConstPtr& ms
             else have_waypoint_mark = false;
             return;
         }
+        last_drop_projection_stamp_ = msg->header.stamp;
+        // Validate/deduplicate later observations without replacing the stable
+        // descent snapshot or extending its original observation timestamps.
+        if (capture_tolerance_m_ > 0 || servo_action_pending_ ||
+            drop_complete || servo_complete.data) return;
         latest_drop_offset_ = *msg;
         latest_drop_offset_time_ = ros::Time::now();
-        last_drop_projection_stamp_ = msg->header.stamp;
         have_drop_offset_ = true;
         return;
     }
@@ -3163,11 +3167,8 @@ bool LLController::projectExactDropOffsetToTarget(const uav_vision::DropOffset& 
         return false;
     }
     if (uav_pose.header.frame_id != drop_map_frame_) return false;
-    if (capture_tolerance_m_ > 0 &&
-        (!exactDropCommitmentMatches() ||
-         !patrol_control::boundedExactDropUpdate(msg.map_point.x, msg.map_point.y,
-             latest_drop_offset_.map_point.x, latest_drop_offset_.map_point.y,
-             max_alignment_move_distance_))) return false;
+    if (capture_tolerance_m_ > 0) return exactDropCommitmentMatches();
+    if (servo_action_pending_ || drop_complete || servo_complete.data) return true;
     geometry_msgs::PoseStamped target;
     target.header.stamp = msg.header.stamp;
     target.header.frame_id = msg.map_frame;
@@ -3188,8 +3189,7 @@ bool LLController::projectExactDropOffsetToTarget(const uav_vision::DropOffset& 
         waypoint_mark_point = target;
         have_waypoint_mark = true;
     }
-    // During descent consume each new exact point instead of freezing the
-    // pre-descent point. Compensation has already happened in the aligner.
+    // Before descent, follow each fresh compensated absolute projection.
     waypoint_temp = target;
     return true;
 }
@@ -3239,9 +3239,10 @@ bool LLController::beginExactDropDescent()
     capture_tolerance_m_ = limit;
     exact_drop_goal_context_ = servo_alignment_context_;
     if (!exactDropCommitmentMatches()) { clearExactDropCommitment(); return false; }
-    // Retain this observation's physical tolerance. The absolute goal remains
-    // in latest_drop_offset_; waypoint_temp keeps the existing command clamp.
-    // Do not restamp image/evidence on descent.
+    // Freeze the compensated absolute XY, not a transient approach command.
+    // latest_drop_offset_ and its source/receipt times now remain unchanged.
+    waypoint_temp.pose.position.x = latest_drop_offset_.map_point.x;
+    waypoint_temp.pose.position.y = latest_drop_offset_.map_point.y;
     return true;
 }
 
