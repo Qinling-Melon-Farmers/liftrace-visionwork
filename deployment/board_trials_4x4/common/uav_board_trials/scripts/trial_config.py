@@ -19,13 +19,13 @@ def apply_site_profile(settings, profile):
              'terminal_hover_agl','auto_start_after_arm','initialization_timeout','obstacle_columns_enabled',
              'bag_image_hz','bag_image_topic','record_inflated_cloud','record_map_clouds'}
     if settings['mode'] in H_MODES:
-        allowed.add('landing_xy')
+        allowed.update(('landing_xy', 'landing_handoff_mode', 'landing_handoff_status_topic'))
     if settings.get('trial_kind') in ('corridor_landing','full_mission'):
         allowed.update(('corridor_waypoints','corridor_geometry'))
     if not isinstance(profile,dict) or set(profile)-allowed:
         raise ValueError('Unsupported site profile key')
     if settings['mode'] in H_MODES and 'terminal_hover_agl' in profile:
-        raise ValueError('H landing cannot use terminal_hover_agl; preserve visual AUTO.LAND')
+        raise ValueError('H landing cannot use terminal_hover_agl; preserve visual landing handoff')
     settings.update(profile)
     return settings
 
@@ -80,6 +80,17 @@ def flight_geometry(settings):
 def validate_settings(settings):
     if settings.get('mode') not in ('visual_interrupt','low_multi',*HIGH_MODES,'landing'):
         raise ValueError('Unknown trial mode')
+    if settings.get('landing_handoff_mode', 'AUTO.LAND') not in ('AUTO.LAND', 'POSCTL'):
+        raise ValueError('landing_handoff_mode must be AUTO.LAND or POSCTL')
+    if 'landing_handoff_mode' in settings and settings['mode'] not in H_MODES:
+        raise ValueError('landing_handoff_mode only applies to visual H landing')
+    if 'landing_handoff_status_topic' in settings:
+        topic = settings['landing_handoff_status_topic']
+        if settings['mode'] not in H_MODES:
+            raise ValueError('landing_handoff_status_topic only applies to visual H landing')
+        if (not isinstance(topic, str) or not topic.startswith('/') or len(topic) < 2
+                or any(not (ch.isascii() and (ch.isalnum() or ch in '/_')) for ch in topic)):
+            raise ValueError('Invalid landing_handoff_status_topic')
     if settings.get('actuator_mode','mock') not in ('mock','real','none'):
         raise ValueError('Unknown actuator_mode')
     if settings.get('actuator_mode')=='real' and settings['mode'] in NO_DROP_MODES:
@@ -228,7 +239,7 @@ def generate(root,out,settings,fc_xyz,rig):
     # Preserve the flight team's existing fixed-frame offsets; not a new calibration.
     for key in ('slot_offsets','dynamic_slot_offsets'):
         if key in rig:control['drop_system'][key]=copy.deepcopy(rig[key])
-    control['external_landing'].update(frame='camera_init',capture_height=capture if h_landing else low,auto_land_height=ground+.55,detections_topic='/uav_vision/detections_mapped' if h_landing else '/board_trials/h_disabled')
+    control['external_landing'].update(frame='camera_init',capture_height=capture if h_landing else low,auto_land_height=ground+.55,detections_topic='/uav_vision/detections_mapped' if h_landing else '/board_trials/h_disabled',handoff_mode=settings.get('landing_handoff_mode', 'AUTO.LAND'),handoff_status_topic=settings.get('landing_handoff_status_topic', '/patrol_control/external_landing_handoff'))
     overrides={
         '/fast_planner_node/sdf_map/resolution':.10,'/fast_planner_node/sdf_map/map_size_x':area['map_size'][0],'/fast_planner_node/sdf_map/map_size_y':area['map_size'][1],'/fast_planner_node/sdf_map/map_size_z':area['map_size'][2],
         '/fast_planner_node/sdf_map/visualization_rate':2.,

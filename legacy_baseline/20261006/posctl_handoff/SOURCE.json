@@ -1,0 +1,7 @@
+{
+  "source_url": "https://github.com/Qinling-Melon-Farmers/liftrace-visionwork.git",
+  "branch": "feat/board-deployment-flight-20260920",
+  "revision": "3defaac5b5c894b0649abceb8a261a9f6a27571b",
+  "destination_branch": "板端参考分支",
+  "purpose": "修改H末段可选POSCTL交接前保护旧patrol_control原包"
+}

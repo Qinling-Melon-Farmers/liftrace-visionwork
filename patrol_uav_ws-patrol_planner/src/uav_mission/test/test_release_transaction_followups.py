@@ -166,6 +166,12 @@ def bridge():
         target_pose=BR['SemanticTargetPose']('camera_init',1.,0.,0.,round(99.9 * NS)),
         align_mode='drop_circle',strict_evidence_stamp_ns=round(100.04 * NS))
     o._pending_release = o._landing = None
+    o._flight_state = None
+    o._flight_state_receipt_ns = o._flight_state_source_ns = 0
+    o._landing_handoff_mode = 'AUTO.LAND'
+    o._landing_handoff_wait_ns = 500_000_000
+    o._landing_mode_transition_timeout_ns = 2_500_000_000
+    o._landing_state_max_age_ns = 2_500_000_000
     o._recovery_settle = PositionSettleWindow(500_000_000,.15,500_000_000)
     o._landing_settle = PositionSettleWindow(200_000_000,.15,500_000_000)
     o._landing_height, o._landing_radius = .05, .25
@@ -745,10 +751,10 @@ class LandingTests(unittest.TestCase):
             if mode=='disconnected':o._flight_state.connected=False
             if mode=='airborne':o._landed_state=EXT.LANDED_STATE_IN_AIR
             if mode=='unaccepted':o._landing.started=False
-            if mode=='stale_ground':o._landed_state_receipt_ns=99*NS
-            if mode=='stale_state':o._flight_state_receipt_ns=99*NS
-            if mode=='stale_ground_source':o._landed_state_source_ns=99*NS
-            if mode=='stale_state_source':o._flight_state_source_ns=99*NS
+            if mode=='stale_ground':o._landed_state_receipt_ns=97*NS
+            if mode=='stale_state':o._flight_state_receipt_ns=97*NS
+            if mode=='stale_ground_source':o._landed_state_source_ns=97*NS
+            if mode=='stale_state_source':o._flight_state_source_ns=97*NS
             for i,t in enumerate((100.1,100.2,100.3,100.4)):
                 o._update_landing(self.sample(t,x=1.+i*.1 if mode=='moving' else 1.),round(t*NS))
             self.assertIsNotNone(o._landing,mode)
