@@ -1,5 +1,6 @@
 #include <uav_vision/landing_detector_node.h>
 #include <uav_vision/h_stroke_detector.h>
+#include <uav_vision/landing_h_mask.h>
 
 namespace uav_vision {
 
@@ -54,6 +55,11 @@ void LandingDetectorNode::loadParameters()
   nh_.param("landing_h_inner_scale", h_inner_scale_, 0.78);
   nh_.param("landing_h_saturation_max", h_saturation_max_, 90);
   nh_.param("landing_h_value_max", h_value_max_, 110);
+  nh_.param<std::string>("landing_h_segmentation", h_segmentation_, "grayscale_otsu");
+  nh_.param("landing_h_min_contrast", h_min_contrast_, 15.0);
+  if ((h_segmentation_ != "grayscale_otsu" && h_segmentation_ != "legacy_hsv") ||
+      !std::isfinite(h_min_contrast_) || h_min_contrast_ < 0.0 || h_min_contrast_ > 255.0)
+    throw std::invalid_argument("Invalid H segmentation configuration");
   nh_.param("landing_h_open_kernel_size", h_open_kernel_size_, 5);
   nh_.param("landing_h_close_kernel_size", h_close_kernel_size_, 7);
   nh_.param("landing_h_min_area_ratio", h_min_area_ratio_, 0.10);
@@ -185,6 +191,9 @@ bool LandingDetectorNode::detectLandingPad(
   debug_mask = binary.clone();
   cv::findContours(binary, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 
+  // Compute once per current image, not once per candidate ellipse.
+  const cv::Mat h_mask = landingHMask(image, h_segmentation_,
+      h_saturation_max_, h_value_max_, h_min_contrast_);
   cv::RotatedRect best_ellipse;
   double best_area = 0;
   double best_aspect_ratio = 0;
@@ -215,7 +224,7 @@ bool LandingDetectorNode::detectLandingPad(
 
     std::vector<double> h_metrics;
     if (enable_h_structure_check_ &&
-        !validateHStructure(image, ellipse, h_metrics)) {
+        !validateHStructure(h_mask, ellipse, h_metrics)) {
       continue;
     }
 
@@ -252,10 +261,7 @@ bool LandingDetectorNode::detectLandingPad(
     return true;
   }
   if (enable_h_stroke_fallback_) {
-    cv::Mat hsv, dark;
-    cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV);
-    cv::inRange(hsv, cv::Scalar(0,0,0),
-                cv::Scalar(180,h_saturation_max_,h_value_max_), dark);
+    cv::Mat dark = h_mask.clone();
     cv::morphologyEx(dark, dark, cv::MORPH_OPEN,
         cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3,3)));
     HStrokeObservation h;
@@ -272,7 +278,7 @@ bool LandingDetectorNode::detectLandingPad(
 }
 
 bool LandingDetectorNode::validateHStructure(
-    const cv::Mat &image, const cv::RotatedRect &ellipse,
+    const cv::Mat &h_mask, const cv::RotatedRect &ellipse,
     std::vector<double> &metrics) const
 {
   cv::RotatedRect inner = ellipse;
@@ -280,13 +286,10 @@ bool LandingDetectorNode::validateHStructure(
   inner.size.height = static_cast<float>(inner.size.height * h_inner_scale_);
   if (inner.size.width < 4.0f || inner.size.height < 4.0f) return false;
 
-  cv::Mat ellipse_mask = cv::Mat::zeros(image.size(), CV_8UC1);
+  cv::Mat ellipse_mask = cv::Mat::zeros(h_mask.size(), CV_8UC1);
   cv::ellipse(ellipse_mask, inner, cv::Scalar(255), cv::FILLED);
 
-  cv::Mat hsv, dark_neutral;
-  cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV);
-  cv::inRange(hsv, cv::Scalar(0, 0, 0),
-              cv::Scalar(180, h_saturation_max_, h_value_max_), dark_neutral);
+  cv::Mat dark_neutral = h_mask.clone();
   cv::bitwise_and(dark_neutral, ellipse_mask, dark_neutral);
 
   // Small specular gaps in black tape must not be expanded by the opening.
@@ -368,7 +371,14 @@ bool LandingDetectorNode::validateHStructure(
     }
   }
   metrics = best;
-  return !metrics.empty();
+  if (metrics.empty()) return false;
+  // Concavity alone also admits U/cross-like shapes. Require H strokes for
+  // morphology-first segmentation; a ring alone never supplies semantics.
+  if (h_segmentation_ == "grayscale_otsu") {
+    HStrokeObservation shape;
+    return detectHStrokes(dark_neutral, h_stroke_min_size_px_, shape);
+  }
+  return true;
 }
 
 cv::Mat LandingDetectorNode::drawDebug(

@@ -32,6 +32,10 @@ landing_enable_h_structure_check: true
 landing_enable_h_stroke_fallback: false
 landing_h_stroke_min_size_px: 24.0
 landing_h_inner_scale: 0.78
+# Primary identity comes from H strokes/notches, not the hue of black ink.
+# legacy_hsv is retained only for offline comparison/explicit rollback.
+landing_h_segmentation: grayscale_otsu
+landing_h_min_contrast: 15.0
 landing_h_saturation_max: 90
 landing_h_value_max: 110
 landing_h_open_kernel_size: 5

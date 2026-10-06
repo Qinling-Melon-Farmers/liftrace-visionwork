@@ -1,0 +1,95 @@
+{
+  "file": "h_quality_log36.ulg",
+  "bytes": 2492979,
+  "flight_match": {
+    "bag_events": [
+      {
+        "t": 0.002240419387817383,
+        "mode": "MANUAL",
+        "armed": false
+      },
+      {
+        "t": 32.96019911766052,
+        "mode": "MANUAL",
+        "armed": true
+      },
+      {
+        "t": 33.95816969871521,
+        "mode": "POSCTL",
+        "armed": true
+      },
+      {
+        "t": 34.95821022987366,
+        "mode": "OFFBOARD",
+        "armed": true
+      },
+      {
+        "t": 87.96130394935608,
+        "mode": "AUTO.LAND",
+        "armed": true
+      },
+      {
+        "t": 89.96375131607056,
+        "mode": "POSCTL",
+        "armed": true
+      },
+      {
+        "t": 93.9620771408081,
+        "mode": "POSCTL",
+        "armed": false
+      }
+    ],
+    "ulog_events": [
+      {
+        "t": 1525.623584,
+        "mode": 0
+      },
+      {
+        "t": 1526.858359,
+        "mode": 2
+      },
+      {
+        "t": 1527.507324,
+        "mode": 14
+      },
+      {
+        "t": 1580.880316,
+        "mode": 18
+      },
+      {
+        "t": 1582.563299,
+        "mode": 2
+      }
+    ],
+    "ulog_minus_bag_relative_seconds": 1492.734062910385,
+    "mode_event_offset_spread_s": 0.3698982805176456
+  },
+  "resets": {
+    "z_reset_counter": {
+      "first": 8,
+      "last": 8,
+      "changes": 0
+    },
+    "xy_reset_counter": {
+      "first": 61,
+      "last": 61,
+      "changes": 0
+    },
+    "heading_reset_counter": {
+      "first": 5,
+      "last": 5,
+      "changes": 0
+    }
+  },
+  "attitude_reset_changes": 0,
+  "h_capture_window": {
+    "bag_seconds": [
+      61.96,
+      85
+    ],
+    "abs_roll_deg_p95": 1.3014947175979614,
+    "abs_pitch_deg_p95": 1.7571560144424438,
+    "max_tilt_roll_deg": 1.6423641443252563,
+    "max_tilt_pitch_deg": 1.9144902229309082
+  }
+}
