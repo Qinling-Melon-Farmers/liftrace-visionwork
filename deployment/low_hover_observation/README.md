@@ -86,3 +86,7 @@ bash deployment/low_hover_observation/start.sh flight hover
 配套工具：[ULog查看器](../../tools/flight_logs/ulg_motor_viewer/README.md)、[飞控日志取回](../../tools/flight_logs/README.md)。三份新增历史日志分析见[诊断](../../docs/deployment/low_hover_diagnosis_20261006/README.md)。记录ROS时间、接收墙钟、单调时间及模式/解锁事件，板端日期有偏差时用事件对齐，不只按文件名匹配。
 
 录制器失败会停止新观察动作、提示接管；不会自动停止LIO或更改飞控模式。诊断记录不能恢复不存在的ESC电流、RPM或测距数据，缺项在分析中明确列出。
+
+
+### 2026-10-06现场绑核补充
+现场实测OMP_PLACES=cores会把LIO主线程及匹配工作线程固定到RK3588的0/1/2号A55小核，出现约1.01s输出年龄及8帧积压。改为可配置lio_omp_places={4},{5},{6},{7}后，实测输出年龄约0.039s、队列0，工作线程位于4/5/6；这是单次地面样本，不是长期时延分位数。两个板端定位launch现默认大核范围，可按硬件通过同名参数覆盖；匹配线程数仍为3。当前初始化未降低300ms时效或5度对齐门槛。

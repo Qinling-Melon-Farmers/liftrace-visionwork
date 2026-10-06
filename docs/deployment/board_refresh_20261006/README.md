@@ -71,3 +71,7 @@ bash deployment/ev_observation_20261006/start.sh check
 - 小型结果见[checks.json](checks.json)；全量构建/回归日志在本地`logs/board_refresh_20261006/`和板端`deployment_results/refresh_20261006/`。
 - 板端备份`~/board_deploy_backups/20261006_updates/`保留更新前文件、现场档案及旧控制完整快照。现场位姿策略、相机模型/外参、舵机包没有整包覆盖。
 - 沿用板端既有排除：trial_recorder.py、finish_recording.py、render_trial_replay.py不部署；它们留在本机做离线回放。普通九组仍按原轻量bag方案记录压缩图/小范围地图，低空观察完全不启用JPEG链。
+
+
+### 2026-10-06现场绑核补充
+现场实测OMP_PLACES=cores会把LIO主线程及匹配工作线程固定到RK3588的0/1/2号A55小核，出现约1.01s输出年龄及8帧积压。改为可配置lio_omp_places={4},{5},{6},{7}后，实测输出年龄约0.039s、队列0，工作线程位于4/5/6；这是单次地面样本，不是长期时延分位数。两个板端定位launch现默认大核范围，可按硬件通过同名参数覆盖；匹配线程数仍为3。当前初始化未降低300ms时效或5度对齐门槛。

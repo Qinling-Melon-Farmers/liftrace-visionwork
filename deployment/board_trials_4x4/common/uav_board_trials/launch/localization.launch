@@ -10,7 +10,7 @@
   <arg name="camera_quat_xyzw" default="0 1 0 0" />
   <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
   <arg name="lio_config" default="$(find uav_mission)/config/mid360_hardware.yaml" />
-  <arg name="lio_omp_places" default="cores" />
+  <arg name="lio_omp_places" default="{4},{5},{6},{7}" />
   <rosparam file="$(arg lio_config)" />
   <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen">
     <env name="OMP_WAIT_POLICY" value="PASSIVE" />

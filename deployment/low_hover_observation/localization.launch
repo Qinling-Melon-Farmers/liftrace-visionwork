@@ -3,7 +3,7 @@
   <arg name="lio_config" default="$(find uav_mission)/config/mid360_hardware.yaml"/>
   <arg name="board_load" default="$(dirname)/../board_trials_4x4/common/uav_board_trials/config/board_load.yaml"/>
   <arg name="prediction_state_enabled" default="false"/>
-  <arg name="lio_omp_places" default="cores"/>
+  <arg name="lio_omp_places" default="{4},{5},{6},{7}"/>
   <arg name="frame" default="camera_init"/>
   <arg name="imu_to_body_xyz" default="[0.0, 0.0, -0.05]"/>
   <rosparam file="$(arg lio_config)"/>
