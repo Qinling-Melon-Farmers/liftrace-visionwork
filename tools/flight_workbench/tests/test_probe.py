@@ -140,6 +140,9 @@ FAKE_MSGS = {
                 self.vtol_state = 0
         class RCOut:
             channels=[1100,1200,1300,1400]
+        class ActuatorControl:
+            group_mix=0
+            controls=[.1,.2,.3,.4,float('nan'),0.,0.,0.]
         class ESCStatusItem:
             rpm=1234
             voltage=14.7
@@ -199,7 +202,7 @@ def make_shim(root, master_up):
         write(path, body)
     # 把 msg.py 里的两个类重新导出到包级别
     write(os.path.join(root, "mavros_msgs", "msg", "__init__.py"),
-          "from .msg import State, ExtendedState, RCOut, ESCStatus, ESCTelemetry\n")
+          "from .msg import State, ExtendedState, RCOut, ActuatorControl, ESCStatus, ESCTelemetry\n")
     write(os.path.join(root, "std_msgs", "msg", "__init__.py"), "from .msg import String\n")
 
 
@@ -378,6 +381,58 @@ def main():
         probe=importlib.util.module_from_spec(spec);spec.loader.exec_module(probe)
         check('Recursive JSON safety keeps nested NaN/Inf finite',
               probe.json_safe({'a':[float('nan'),float('inf'),2.]})=={'a':[None,None,2.]})
+        _, actuator = run_probe(shim_up, '', '', ['--observe-topics', json.dumps({'actuator_target':'/mavros/target_actuator_control'})])
+        check('Actuator target remains a separate raw control group with finite fields',
+              actuator['observe']['actuator_target']==dict(group_mix=0,controls=[.1,.2,.3,.4,None,0.,0.,0.])
+              and 'rc_out' not in actuator['observe'])
+        diagnostic = probe.observation_diagnostic
+        subscribed = dict(subscribed=True, typed=True)
+        check('Publisher registration without packets is waiting, not receiving',
+              diagnostic('/rc', {'count':0,'age':None}, {'/rc':['/mavros']}, subscribed, None)['status']=='waiting_message')
+        check('Missing publisher is distinct from stale or malformed data',
+              diagnostic('/rc', {'count':0}, {}, subscribed, None)['status']=='no_publisher'
+              and diagnostic('/rc', {'count':1,'age':3}, {'/rc':['/mavros']}, subscribed, {})['status']=='stale'
+              and diagnostic('/rc', {'count':1,'age':.1}, {'/rc':['/mavros']}, subscribed, None)['status']=='parse_error')
+        check('Missing optional type and failed subscription are explicit',
+              diagnostic('/rc', {}, None, dict(subscribed=True,typed=False), None)['status']=='unsupported_type'
+              and diagnostic('/rc', {}, None, {}, None)['status']=='subscription_failed')
+        late=os.path.join(root,'late_publisher')
+        make_shim(late,True)
+        with open(os.path.join(late,'rospy.py'),encoding='utf-8') as handle:late_source=handle.read()
+        write(os.path.join(late,'rospy.py'),late_source+textwrap.dedent('''
+            import time
+            _sleeps=0
+            _subscriber=Subscriber
+            def Subscriber(topic,msg_type,callback,**kwargs):
+                if topic=='/mavros/rc/out':
+                    assert not any(row[0]==topic for row in Subscribers), 'duplicate healthy subscription'
+                    Subscribers.append((topic,msg_type,callback))
+                else:_subscriber(topic,msg_type,callback,**kwargs)
+            def is_shutdown():return _sleeps>=2
+            def sleep(seconds):
+                global _sleeps
+                _sleeps+=1
+                for topic,kind,callback in Subscribers:
+                    if topic=='/mavros/rc/out':callback(kind())
+            time.sleep=sleep
+        '''))
+        write(os.path.join(late,'rosgraph.py'),textwrap.dedent('''
+            import rospy
+            class Master:
+                def __init__(self,caller):pass
+                def getSystemState(self):
+                    return ([['/mavros/rc/out',['/mavros']]] if rospy._sleeps else [],[],[])
+        '''))
+        late_result=subprocess.run([sys.executable,os.path.join(TOOL_DIR,'board_probe.py'),
+                '--nodes-interval','0','--observe-topics',json.dumps({'rc_out':'/mavros/rc/out'})],
+                env=dict(os.environ,PYTHONPATH=late),capture_output=True,text=True,timeout=10)
+        late_rows=[json.loads(line) for line in late_result.stdout.splitlines() if line.startswith('{')]
+        check('Probe subscribed while MAVROS was offline receives a later publisher without duplicate subscriptions',
+              late_result.returncode==0 and len(late_rows)==2
+              and late_rows[0]['observe_status']['rc_out']['status']=='no_publisher'
+              and late_rows[0]['topics']['/mavros/rc/out']['count']==0
+              and late_rows[-1]['observe_status']['rc_out']['status']=='receiving'
+              and late_rows[-1]['observe']['rc_out']['channels']==[1100,1200,1300,1400],late_result.stderr[-200:])
         source = open(os.path.join(TOOL_DIR, "board_probe.py"), encoding="utf-8").read()
         check("探针不发布、不调用服务（源码边界）",
               "Publisher(" not in source and "ServiceProxy(" not in source

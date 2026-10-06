@@ -29,6 +29,7 @@ OBSERVE_TYPES = {
     'setpoint': ('geometry_msgs.msg', 'PoseStamped'),
     'battery': ('sensor_msgs.msg', 'BatteryState'),
     'rc_out': ('mavros_msgs.msg', 'RCOut'),
+    'actuator_target': ('mavros_msgs.msg', 'ActuatorControl'),
     'esc_status': ('mavros_msgs.msg', 'ESCStatus'),
     'esc_telemetry': ('mavros_msgs.msg', 'ESCTelemetry'),
     'low_hover': ('std_msgs.msg', 'String'),
@@ -95,9 +96,12 @@ class Tracker(object):
         return out
 
 
-def subscribe(rospy, topics, tracker, payloads, extractors):
+def subscribe(rospy, topics, tracker, payloads, extractors, subscriptions=None):
     """已注册类型的话题解析成 dict/str；其余只统计新鲜度。"""
+    subscriptions = {} if subscriptions is None else subscriptions
     for topic in topics:
+        if subscriptions.get(topic, {}).get('subscribed'):
+            continue  # rospy reconnects when a publisher appears/restarts.
         extractor = extractors.get(topic)
 
         def make_callback(name, extract):
@@ -113,12 +117,16 @@ def subscribe(rospy, topics, tracker, payloads, extractors):
 
         message_type = getattr(extractor, "msg_type", None) or rospy.AnyMsg
         try:
-            rospy.Subscriber(topic, message_type, make_callback(topic, extractor), queue_size=1)
+            handle = rospy.Subscriber(topic, message_type, make_callback(topic, extractor), queue_size=1)
+            subscriptions[topic] = dict(handle=handle, subscribed=True, typed=extractor is not None)
         except Exception as error:  # 类型不可用时退回通用订阅
             try:
-                rospy.Subscriber(topic, rospy.AnyMsg, make_callback(topic, None), queue_size=1)
+                handle = rospy.Subscriber(topic, rospy.AnyMsg, make_callback(topic, None), queue_size=1)
+                subscriptions[topic] = dict(handle=handle, subscribed=True, typed=False)
             except Exception:
+                subscriptions[topic] = dict(subscribed=False, typed=False)
                 sys.stderr.write("probe: cannot subscribe %s: %s\n" % (topic, error))
+    return subscriptions
 
 
 def read_payload(value):
@@ -215,6 +223,35 @@ def rc_out_extractor():
     return extract
 
 
+def actuator_target_extractor():
+    def extract(msg):
+        return {'group_mix': int(msg.group_mix),
+                'controls': [finite_number(v) for v in msg.controls]}
+    return extract
+
+
+def observation_diagnostic(topic, stats, publishers, subscription, value):
+    """Publisher registration and actual packet reception are separate facts."""
+    nodes = None if publishers is None else list(publishers.get(topic, []))
+    age = stats.get('age')
+    if not subscription.get('subscribed'):
+        status = 'subscription_failed'
+    elif not subscription.get('typed'):
+        status = 'unsupported_type'
+    elif nodes == []:
+        status = 'no_publisher'
+    elif not stats.get('count'):
+        status = 'waiting_message'
+    elif age is None or age < 0 or age > 2:
+        status = 'stale'
+    elif value is None:
+        status = 'parse_error'
+    else:
+        status = 'receiving'
+    return dict(topic=topic, status=status, publishers=nodes,
+                count=stats.get('count', 0), hz=stats.get('hz', 0), age=age)
+
+
 def esc_extractor(field):
     def extract(msg):
         entries = []
@@ -297,6 +334,8 @@ def main():
                 extractor = battery_extractor()
             elif key == 'rc_out':
                 extractor = rc_out_extractor()
+            elif key == 'actuator_target':
+                extractor = actuator_target_extractor()
             elif key in ('esc_status', 'esc_telemetry'):
                 extractor = esc_extractor(key)
             else:
@@ -319,6 +358,8 @@ def main():
     nodes = []
     node_read = 0.0
     started = False
+    subscriptions = {}
+    publishers = None
 
     def emitter(master, extra=None):
         row = {
@@ -327,6 +368,7 @@ def main():
             "probe": {"node": "/" + args.node_name, "host": hostname, "pid": os.getpid()},
             "topics": tracker.snapshot(),
             "observe": {key: None for key in args.observe_topics},
+            "observe_status": {},
         }
         if master:
             def fresh_payload(topic):
@@ -353,6 +395,9 @@ def main():
                     except Exception:
                         value['source_age'] = None
                 row['observe'][key] = value
+                row['observe_status'][key] = observation_diagnostic(
+                    topic, row['topics'].get(topic, {}), publishers,
+                    subscriptions.get(topic, {}), value)
         if extra:
             row.update(extra)
         try:
@@ -369,7 +414,7 @@ def main():
         if not started:
             try:
                 rospy.init_node(args.node_name, disable_signals=True, log_level=rospy.ERROR)
-                subscribe(rospy, topics, tracker, payloads, extractors)
+                subscribe(rospy, topics, tracker, payloads, extractors, subscriptions)
                 started = True
             except Exception as error:
                 emitter(False, {"error": "no ROS master: %s" % str(error)[:200]})
@@ -380,6 +425,14 @@ def main():
         now = time.time()
         if now - node_read >= float(args.nodes_interval):
             node_read = now
+            # Only retry failed registrations; healthy subscribers remain registered
+            # while MAVROS is offline and reconnect through rospy publisher updates.
+            subscribe(rospy, topics, tracker, payloads, extractors, subscriptions)
+            try:
+                import rosgraph
+                publishers = dict(rosgraph.Master('/' + args.node_name).getSystemState()[0])
+            except Exception:
+                publishers = None
             try:
                 import rosnode
                 nodes = sorted(rosnode.get_node_names())

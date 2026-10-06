@@ -22,6 +22,32 @@ H/走廊/整场已适配人工解锁后的自动时序，10-02 已同步至旧�
 其他连接目标默认不沿用；修改接线、输出实例或协议时需更新配置。只更新页面即可生效，不必重启设备会话。
 10-02 部署记录属于历史状态，不能据此认为板端已安装此轮更新；本轮只更新源码与工作台。
 
+电机页新增话题诊断：区分无发布者、已订阅但没有消息、消息过期、类型/解析失败及AUX输出bank缺失。
+探针在MAVROS离线时也预订阅配置话题，正常订阅由rospy在发布者出现或重启后接续；仅注册失败才重试。
+`/mavros/target_actuator_control`独立展示group及8个原始controls，不映射为四台电机，不替代RC OUT或ESC电流/RPM。
+已有工作台个人profile若缺此新增项，需在其`probe.observe_topics`添加
+`actuator_target: /mavros/target_actuator_control`。现存探针进程不会自动加载新代码和启动参数；重连只读探针后才生效，不能据源码更新宣称上游有电机遥测。
+
+只读采样清单（先在现场终端source原0928环境，不更改参数、消息间隔或启停设备）：
+
+```bash
+rosnode info /flight_workbench_probe
+rosnode info /mavros
+rostopic info /mavros/rc/out
+rostopic info /mavros/target_actuator_control
+rostopic info /mavros/esc_status
+rostopic info /mavros/esc_telemetry
+# 每条限时10秒；timeout=124代表窗口内未收到，不代表话题没登记
+timeout 10s rostopic echo -n 1 /mavros/rc/out
+timeout 10s rostopic echo -n 1 /mavros/target_actuator_control
+timeout 10s rostopic echo -n 1 /mavros/esc_status
+timeout 10s rostopic echo -n 1 /mavros/esc_telemetry
+```
+
+核对RC OUT的数组长度：当前已登记接线使用raw17/20/18/19，需要完整AUX bank；只收到8/16路不能改用MAIN曲线。
+若独立echo与探针都收不到，先按飞控到MAVROS的数据流缺失处理；有publisher登记不能证明有包。
+ESC硬件/固件没有回传时保留缺项。这里不调用set_message_interval/set_stream_rate或其他飞控服务。
+
 ---
 
 ## 1. 快速开始

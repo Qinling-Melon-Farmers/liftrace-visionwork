@@ -85,13 +85,24 @@ function obsNormalized(tel, now) {
     ['x','y','z','roll_deg','pitch_deg','yaw_deg'].forEach(function(k){result[k]=result.stale||result.unknown_age?null:obsNumber(pose[k]);});
     out[pair[0]]=result;
   });
-  ['battery','rc_out','esc_status','esc_telemetry','low_hover'].forEach(function(k){out[k]=obsPayload(raw[k]);});
+  ['battery','rc_out','actuator_target','esc_status','esc_telemetry','low_hover'].forEach(function(k){out[k]=obsPayload(raw[k]);});
   out.fc_state=obsFresh(tel,now) ? tel.state||{} : {};
   out.lio_realtime=obsFresh(tel,now) ? tel.lio_realtime||[] : [];
   out.mission=obsFresh(tel,now) ? tel.mission||{} : {};
   out.terminal_hover=obsFresh(tel,now) ? tel.terminal_hover : null;
   if(typeof out.terminal_hover==='string'){try{out.terminal_hover=JSON.parse(out.terminal_hover);}catch(e){out.terminal_hover=null;}}
   return out;
+}
+function obsTopicStatus(key, tel, now) {
+  if(!obsFresh(tel,now))return '探针遥测未观测或已过期';
+  var status=tel.observe_status && tel.observe_status[key];
+  if(!status)return '旧探针未提供话题诊断；请核对其启动参数和版本';
+  var names={subscription_failed:'订阅注册失败（探针会重试）',unsupported_type:'消息类型不可解析，仅统计包数',
+    no_publisher:'没有已登记发布者',waiting_message:'已订阅，尚未收到消息',stale:'消息已过期',
+    parse_error:'收到消息，但字段解析失败',receiving:'正在接收'};
+  var publishers=status.publishers==null?'发布者信息未知':(status.publishers.length?status.publishers.join(','):'无');
+  return (status.topic||key)+' · '+(names[status.status]||'状态未知')+' · 发布者 '+publishers+
+    ' · n='+status.count+' / '+status.hz+'Hz'+(status.age==null?'':' / '+status.age+'s');
 }
 function obsLimit() {
   var configured=Number(observationState.configuration.max_samples);
@@ -339,6 +350,12 @@ function obsRender() {
   var raw=obsById('raw-outputs');obsClear(raw);var channels=data.rc_out && data.rc_out.channels;
   if(Array.isArray(channels)&&channels.length)channels.forEach(function(value,i){raw.appendChild(obsNode('span','raw '+(i+1)+' = '+obsValue(obsNumber(value)), 'raw-channel'));});
   else raw.appendChild(obsNode('span','RC OUT：未观测','warn'));
+  raw.appendChild(obsNode('p',obsTopicStatus('rc_out',tel,now),'hint'));
+  if(Array.isArray(channels) && channels.length && observationState.mapping && observationState.mapping.some(function(c){return c>channels.length;}))
+    raw.appendChild(obsNode('p','RC OUT仅收到'+channels.length+'路；当前映射需要raw'+Math.max.apply(null,observationState.mapping)+'。AUX输出bank缺失，保留原映射，不改用MAIN通道。','warn'));
+  var target=data.actuator_target;
+  raw.appendChild(obsNode('p','ACTUATOR_CONTROL_TARGET：'+(target?'group='+target.group_mix+' / controls='+JSON.stringify(target.controls):'未观测')+'；原始控制组，不作为电机输出、RPM或电流。','hint'));
+  raw.appendChild(obsNode('p',obsTopicStatus('actuator_target',tel,now),'hint'));
   var wiring=obsCurrentWiring();
   obsById('wiring-status').textContent=wiring ? wiring.confirmed_by+' · '+wiring.view+'；'+wiring.rc_layout.description : '此连接目标没有已登记接线，请手动核实原始通道。';
   obsMappingControls();obsById('mapping-status').textContent=observationState.mapping ?
@@ -351,6 +368,7 @@ function obsRender() {
   ['esc_status','esc_telemetry'].forEach(function(key){var value=data[key];if(value && Array.isArray(value.entries))value.entries.forEach(function(entry,slot){entries.push([key,entry.index==null?'ESC条目 '+(Number.isInteger(entry.slot)?entry.slot+1:slot+1)+'（物理映射未核实）':'原始index '+entry.index,
     obsValue(obsNumber(entry.rpm)),obsValue(obsNumber(entry.voltage),'V'),obsValue(obsNumber(entry.current),'A'),obsValue(obsNumber(entry.temperature),'°C')]);});});
   esc.appendChild(entries.length?obsTable(['来源','ESC条目 / 原始index','RPM','电压','电流','温度'],entries):obsNode('p','ESC：未观测；不能从RC OUT推算电流或RPM。','hint'));
+  ['esc_status','esc_telemetry'].forEach(function(key){esc.appendChild(obsNode('p',obsTopicStatus(key,tel,now),'hint'));});
   OBS_POSES.forEach(function(pair){
     function series(keys){return keys.map(function(key){return {label:key,value:function(s){return s.data[pair[0]]&&s.data[pair[0]][key];},frame:function(s){return s.data[pair[0]]&&s.data[pair[0]].frame;}};});}
     obsPlot(pair[0],series(['x','y','z']));obsPlot(pair[0]+'-attitude',series(['roll_deg','pitch_deg','yaw_deg']));

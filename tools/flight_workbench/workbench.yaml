@@ -50,6 +50,7 @@ probe:
     setpoint: /mavros/setpoint_position/local
     battery: /mavros/battery
     rc_out: /mavros/rc/out
+    actuator_target: /mavros/target_actuator_control
     esc_status: /mavros/esc_status
     esc_telemetry: /mavros/esc_telemetry
     low_hover: /low_hover_observation/status
