@@ -367,7 +367,7 @@ function obsRender() {
   var esc=obsById('esc-table');obsClear(esc);var entries=[];
   ['esc_status','esc_telemetry'].forEach(function(key){var value=data[key];if(value && Array.isArray(value.entries))value.entries.forEach(function(entry,slot){entries.push([key,entry.index==null?'ESC条目 '+(Number.isInteger(entry.slot)?entry.slot+1:slot+1)+'（物理映射未核实）':'原始index '+entry.index,
     obsValue(obsNumber(entry.rpm)),obsValue(obsNumber(entry.voltage),'V'),obsValue(obsNumber(entry.current),'A'),obsValue(obsNumber(entry.temperature),'°C')]);});});
-  esc.appendChild(entries.length?obsTable(['来源','ESC条目 / 原始index','RPM','电压','电流','温度'],entries):obsNode('p','ESC：未观测；不能从RC OUT推算电流或RPM。','hint'));
+  esc.appendChild(entries.length?obsTable(['来源','ESC条目 / 原始index','RPM','电压','电流','温度'],entries):obsNode('p',wiring && wiring.esc_feedback===false ? '本机为单向控制链，没有ESC转速/电流/温度回传；RC OUT仅代表飞控输出指令。' : 'ESC：未观测；不能从RC OUT推算电流或RPM。','hint'));
   ['esc_status','esc_telemetry'].forEach(function(key){esc.appendChild(obsNode('p',obsTopicStatus(key,tel,now),'hint'));});
   OBS_POSES.forEach(function(pair){
     function series(keys){return keys.map(function(key){return {label:key,value:function(s){return s.data[pair[0]]&&s.data[pair[0]][key];},frame:function(s){return s.data[pair[0]]&&s.data[pair[0]].frame;}};});}

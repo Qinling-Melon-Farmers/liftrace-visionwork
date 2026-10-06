@@ -3,8 +3,14 @@
   "confirmed_by": "用户提供的实机接线表（2026-10-06）",
   "view": "从机尾朝机头看",
   "targets": [
-    {"host": "orangepi@192.168.3.126", "board_root": "/home/orangepi/liftrace_board_trials_20260928"},
-    {"host": "orangepi@192.168.43.59", "board_root": "/home/orangepi/liftrace_board_trials_20260928"}
+    {
+      "host": "orangepi@192.168.3.126",
+      "board_root": "/home/orangepi/liftrace_board_trials_20260928"
+    },
+    {
+      "host": "orangepi@192.168.43.59",
+      "board_root": "/home/orangepi/liftrace_board_trials_20260928"
+    }
   ],
   "rc_layout": {
     "port": 1,
@@ -16,9 +22,31 @@
     ]
   },
   "motors": [
-    {"motor": 1, "position": "右前", "aux": 1, "control_index": 0},
-    {"motor": 2, "position": "左后", "aux": 4, "control_index": 1},
-    {"motor": 3, "position": "左前", "aux": 2, "control_index": 2},
-    {"motor": 4, "position": "右后", "aux": 3, "control_index": 3}
-  ]
+    {
+      "motor": 1,
+      "position": "右前",
+      "aux": 1,
+      "control_index": 0
+    },
+    {
+      "motor": 2,
+      "position": "左后",
+      "aux": 4,
+      "control_index": 1
+    },
+    {
+      "motor": 3,
+      "position": "左前",
+      "aux": 2,
+      "control_index": 2
+    },
+    {
+      "motor": 4,
+      "position": "右后",
+      "aux": 3,
+      "control_index": 3
+    }
+  ],
+  "esc_feedback": false,
+  "esc_feedback_note": "现场确认电机/电调/飞控为单向控制链，无电调回传（2026-10-06）"
 }
