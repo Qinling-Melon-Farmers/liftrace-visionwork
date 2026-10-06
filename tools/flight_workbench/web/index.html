@@ -27,6 +27,8 @@
     <button id="btn-start-all" class="btn" title="POST /api/action/start_all {include_servo, confirm:&quot;启动设备&quot;}">一键启动设备</button>
     <button id="btn-stop-all" class="btn btn-danger" title="POST /api/action/stop_all {}">全部停止</button>
     <button id="btn-report" class="btn" title="POST /api/action/report {}">生成回报</button>
+    <a class="btn" href="/observe" target="_blank" rel="noopener">实时状态曲线 ↗</a>
+    <a class="btn" href="/motor" target="_blank" rel="noopener">低空电机观察 ↗</a>
     <span class="sep"></span>
     <label class="switch" title="阶段进入 READY / FAILED 时用 WebAudio 发出短提示音"><input type="checkbox" id="sw-sound"><span>声音提醒</span></label>
     <label class="switch" title="终端与日志自动跟随最新输出"><input type="checkbox" id="sw-autoscroll" checked><span>自动滚动</span></label>
@@ -87,7 +89,7 @@
 </section>
 
 <footer id="safety">
-  READY 只是应用就绪；工作台不解锁。人工解锁后，自动任务入口可按所选配置进入 OFFBOARD、起飞并启动任务；飞手负责接管。
+  READY 只是应用就绪；飞手人工解锁并人工拨入 OFFBOARD，稳定条件满足后入口自动起飞并开始任务。飞手接管会取消自动时序。
 </footer>
 
 <div id="toasts" class="toasts" aria-live="polite"></div>

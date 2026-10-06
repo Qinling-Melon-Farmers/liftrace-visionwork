@@ -20,6 +20,9 @@ DEFAULT_PROFILE_DIR = os.path.join(os.path.expanduser("~"), ".config", "liftrace
 
 REAL_RELEASE_FOLDERS = ("01_visual_interrupt", "02_high_view_revisit", "05_low_multi",
                         "06_high_priority", "08_full_mission")
+SURVEY_FOLDERS = ("02_high_view_revisit", "06_high_priority", "07_memory_only",
+                  "08_full_mission", "09_high_speed_capture")
+RESUME_FOLDERS = ("06_high_priority", "08_full_mission")
 
 # ssh 层错误 → 现场可执行建议。ssh 失败时远端脚本根本不会执行，不能把"没有标记输出"
 # 解释成"板端目录/文件缺失"（换板后免密没配时最容易踩）。
@@ -133,14 +136,15 @@ def group_variables(config, group, overrides=None):
     variables.update({
         "folder": group.get("folder", ""),
         "key": group.get("key", ""),
-        "site_config": group.get("site_config") or "deployment/site_20260928/test_area.yaml",
+        "site_config": group.get("site_config") or "{site_dir}/test_area.yaml",
     })
     variables.update(overrides or {})
     return variables
 
 
-def build_group_command(config, group, mode, route=None, real_release=False,
-                        check_config=False, capture_speed=None, capture_lighting=None):
+def build_group_command(config, group, mode, route=None, real_release=None,
+                        check_config=False, capture_speed=None, capture_lighting=None,
+                        motion_optimized=False, survey_pattern=None, resume_survey=None):
     """按现场手册拼出任务组启动命令。返回 (命令, 说明)。"""
     if mode not in ("preview", "flight"):
         raise ValueError("mode 必须是 preview 或 flight")
@@ -148,34 +152,52 @@ def build_group_command(config, group, mode, route=None, real_release=False,
     folder = group.get("folder", "")
     site_dir = config["connection"].get("site_dir", "deployment/site_20260928")
     route = route or group.get("channel", "module")
-    site_config = variables["site_config"]
+    if route not in ("site", "module"):
+        raise ValueError("未知入口类型")
+    site_config = substitute(variables["site_config"], variables)
+    if real_release is None:
+        real_release = group.get("release") == "real"
+    for name, value in (("real_release", real_release), ("check_config", check_config),
+                        ("motion_optimized", motion_optimized)):
+        if not isinstance(value, bool):
+            raise ValueError("%s 必须是布尔值" % name)
     module_base = "deployment/board_trials_4x4/%s" % folder
 
     extra = ""
     if capture_speed is not None:
-        if folder != "09_high_speed_capture" or isinstance(capture_speed, bool) or float(capture_speed) not in (.5, 1.):
-            raise ValueError("拍摄速度只允许第6组的 0.5/1.0 m/s")
+        if folder != "09_high_speed_capture" or isinstance(capture_speed, bool) or float(capture_speed) not in (.5, 1., 1.2):
+            raise ValueError("拍摄速度只允许第6组的 0.5/1.0/1.2 m/s")
         extra += " --capture-speed %.1f" % float(capture_speed)
-    if capture_lighting:
+    if capture_lighting is not None:
         if folder != "09_high_speed_capture" or capture_lighting not in ("normal", "dim", "unspecified"):
             raise ValueError("非法拍摄光照标签")
         extra += " --capture-lighting %s" % capture_lighting
+    if motion_optimized:
+        extra += " --motion-optimized"
+    if survey_pattern is not None:
+        if folder not in SURVEY_FOLDERS or survey_pattern not in ("rectangle", "snake2", "snake3"):
+            raise ValueError("该组不支持所选扫描路线")
+        extra += " --survey-pattern %s" % survey_pattern
+    if resume_survey is not None:
+        if folder not in RESUME_FOLDERS or resume_survey not in ("on", "off"):
+            raise ValueError("高位续扫仅允许第五组/整场的 on 或 off")
+        extra += " --resume-survey %s" % resume_survey
 
     if check_config:
-        return ("bash %s/start.sh preview --site-config %s%s --check-config" % (module_base, site_config, extra),
+        return ("bash %s/start.sh preview --site-config %s%s --check-config" % (module_base, quote(site_config), extra),
                 "只做配置检查：按模块入口展开参数，不启动任何 ROS 节点")
 
     if route == "site":
-        if extra and folder != "09_high_speed_capture":
-            raise ValueError("现场快捷入口只有拍摄组支持附加参数，请改用模块入口")
+        if motion_optimized or survey_pattern is not None or resume_survey is not None:
+            raise ValueError("现场快捷入口不支持优化参数，请改用模块入口")
         return ("bash %s/start_test.sh %s %s%s" % (site_dir, group.get("key"), mode, extra),
                 "现场快捷入口：flight 对投递组自动走 start_real.sh（真实舵机），记忆组走 start.sh")
     if real_release and mode == "flight":
-        if folder not in REAL_RELEASE_FOLDERS:
+        if folder not in REAL_RELEASE_FOLDERS or "real" not in group.get("release_options", ["mock", "real"]):
             raise ValueError("%s 没有 start_real.sh，不能走实投入口" % folder)
-        return ("bash %s/start_real.sh --site-config %s%s" % (module_base, site_config, extra),
+        return ("bash %s/start_real.sh --site-config %s%s" % (module_base, quote(site_config), extra),
                 "模块实投入口：经释放许可代理调用现场 /legacy/Servo_raw（真实舵机）")
-    return ("bash %s/start.sh %s --site-config %s%s" % (module_base, mode, site_config, extra),
+    return ("bash %s/start.sh %s --site-config %s%s" % (module_base, mode, quote(site_config), extra),
             "模块入口：默认模拟投递（mock 舵机），不接 PWM")
 
 
@@ -296,12 +318,72 @@ class BoardClient(object):
                 'if [ -f %s/settings.yaml ]; then echo "settings=1"; else echo "settings=0"; fi'
                 % (folder, quote(base), quote(base), quote(base)))
         env_script = self.abs_path(self.config["connection"].get("env_script", ""))
-        site_config = self.abs_path("deployment/site_20260928/test_area.yaml")
+        connection = self.config["connection"]
+        site_dir = connection.get("site_dir", "deployment/site_20260928")
+        site_config = self.abs_path(os.path.join(site_dir, "test_area.yaml"))
         script.append('if [ -f %s ]; then echo "SITECFG=OK"; else echo "SITECFG=MISSING"; fi' % quote(site_config))
+        # Only inspect the checkout and import generated type definitions. This
+        # does not query ROS, execute a service, or establish a running revision.
+        version_python = r'''import importlib,json,subprocess,sys
+from pathlib import Path
+root=Path(sys.argv[1])
+report={"source":{},"interfaces":{},"resume_cli":False}
+try:
+    head=subprocess.check_output(["git","-C",str(root),"rev-parse","--short","HEAD"],stderr=subprocess.DEVNULL,text=True).strip()
+    dirty=bool(subprocess.check_output(["git","-C",str(root),"status","--porcelain"],stderr=subprocess.DEVNULL,text=True).strip())
+    report["source"]={"head":head,"dirty":dirty}
+except Exception:
+    report["source"]={"error":"source Git revision unavailable"}
+try:
+    entry=root/"deployment/board_trials_4x4/common/uav_board_trials/scripts/run_trial.py"
+    report["resume_cli"]="--resume-survey" in entry.read_text(encoding="utf-8")
+except Exception:
+    report["resume_error"]="source trial entry unavailable"
+def fields(text):
+    result=[]
+    for line in text.splitlines():
+        line=line.split("#",1)[0].strip()
+        if not line or "=" in line:continue
+        parts=line.split()
+        if len(parts)!=2:raise ValueError("invalid source field declaration")
+        kind,name=parts
+        result.append((name,"std_msgs/Header" if kind=="Header" else kind))
+    return result
+def compare(source,generated,required):
+    for name,kind in required.items():
+        if (name,kind) not in source:raise ValueError("source missing latest field "+name+":"+kind)
+    actual=list(zip(generated.__slots__,generated._slot_types))
+    if actual!=source:raise ValueError("source/generated field names, order or types differ; rebuild complete message/service consumers")
+identity={"mission_id":"string","decision_seq":"uint32","attempt":"uint16","target_first_seen":"time","permission_epoch":"string","permission_revision":"uint64"}
+definitions=[("ReleaseAuthorization","patrol_control.msg","patrol_control/msg/ReleaseAuthorization.msg"),
+             ("ReleasePermission","uav_mission.msg","uav_mission/msg/ReleasePermission.msg"),
+             ("ServoAction","patrol_control.srv","patrol_control/srv/ServoAction.srv")]
+for name,module,path in definitions:
+    try:
+        text=(root/"patrol_uav_ws-patrol_planner/src"/path).read_text(encoding="utf-8")
+        generated=getattr(importlib.import_module(module),name)
+        expected_type=module.split(".")[0]+"/"+name
+        if generated._type!=expected_type:raise ValueError("wrong generated ROS type")
+        if name=="ServoAction":
+            request,response=text.split("---")
+            compare(fields(request),generated._request_class,dict(identity,request_id="uint64",payload_slot="uint8"))
+            compare(fields(response),generated._response_class,{"execution_state":"uint8","terminal":"bool","request_id":"uint64"})
+        else:
+            compare(fields(text),generated,dict(identity,payload_slot="uint8",permitted="bool"))
+        report["interfaces"][name]={"ok":True,"detail":"source/generated field schema matches"}
+    except Exception as error:
+        report["interfaces"][name]={"ok":False,"detail":type(error).__name__+": "+str(error)[:240]}
+print("VERSION|"+json.dumps(report,separators=(",",":")))
+'''
+        script.append("if cd %s && source %s >/dev/null 2>&1; then\n%s - %s <<'WBVERSION'\n%sWBVERSION\n"
+                      "else echo 'VERSION|{\"error\":\"site environment unavailable\"}'; fi" %
+                      (quote(self.root), quote(env_script), quote(connection.get("board_python", "/usr/bin/python3")),
+                       quote(self.root), version_python))
         code, output = self.run("\n".join(script), timeout=30.0)
         processes = {}
         groups = {}
         disk_free_kb = None
+        version = {}
         for line in output.splitlines():
             if line.startswith("PROC|"):
                 _, name, count = (line.split("|") + ["", ""])[:3]
@@ -316,32 +398,60 @@ class BoardClient(object):
                         "real": parts[3].endswith("1"),
                         "settings": len(parts) > 4 and parts[4].endswith("1"),
                     }
+            elif line.startswith("VERSION|"):
+                try:
+                    value = json.loads(line.partition("|")[2])
+                    if isinstance(value, dict):version = value
+                except (TypeError, ValueError):pass
         leftovers = {name: int(count) for name, count in processes.items() if count.isdigit() and int(count) > 0}
         free_gb = (float(disk_free_kb) / (1024.0 * 1024.0)) if disk_free_kb and disk_free_kb.isdigit() else None
         min_free = float(self.config["checks"].get("min_free_gb", 2.0))
         results = []
         results.append({"name": "板端登录与工程根", "ok": code == 0, "detail":
                         ("命令退出码 %s" % code) if code else "命令执行完成"})
-        results.append({"name": "现场范围配置", "ok": True, "detail":
-                        "deployment/site_20260928/test_area.yaml %s" % (
-                            "存在" if "SITECFG=OK" in output else "缺失（该组入口会用模块默认 4×4，请显式指定 --site-config）")})
+        results.append({"name": "现场范围配置", "ok": "SITECFG=OK" in output, "detail":
+                        "%s %s" % (site_config,
+                            "存在" if "SITECFG=OK" in output else "缺失或检查结果不可用；请显式指定有效 --site-config")})
         results.append({"name": "录像空间（≥%.1fGB）" % min_free, "ok":
-                        (free_gb is None or free_gb >= min_free),
+                        (free_gb is not None and free_gb >= min_free),
                         "detail": ("%.1fGB 可用" % free_gb) if free_gb is not None else "无法读取 df"})
         if leftovers:
             results.append({"name": "本机残留进程", "ok": False,
                             "detail": "；".join("%s×%d" % (k, v) for k, v in sorted(leftovers.items()))})
-        else:
+        elif len(processes) == len(self.config["checks"].get("process_names", [])) and all(v.isdigit() for v in processes.values()):
             results.append({"name": "本机残留进程", "ok": True, "detail": "无 roscore/roslaunch/gzserver/px4/mavros 残留"})
-        missing = [folder for folder, info in groups.items() if not info.get("start")]
+        else:
+            results.append({"name": "本机残留进程", "ok": False, "detail": "unknown：未取得完整进程检查结果"})
+        expected = {g.get("folder", "") for g in self.config.get("groups", [])}
+        missing = [folder for folder in expected if not groups.get(folder, {}).get("start")
+                   or not groups.get(folder, {}).get("settings")]
         if missing:
             results.append({"name": "任务组入口", "ok": False,
-                            "detail": "缺少 start.sh：%s" % "、".join(sorted(missing))})
-        else:
+                            "detail": "start.sh/settings.yaml 缺失或未读到：%s" % "、".join(sorted(missing))})
+        elif expected:
             results.append({"name": "任务组入口", "ok": True,
                             "detail": "%d 个模块入口与 settings.yaml 均存在" % len(groups)})
+        else:
+            results.append({"name": "任务组入口", "ok": False, "detail": "unknown：未配置可检查的模块入口"})
+        source = version.get("source") or {}
+        source_known = bool(source.get("head")) and isinstance(source.get("dirty"), bool)
+        results.append({"name": "源码版本（非运行版本）", "ok": source_known, "detail":
+                        ("HEAD %s；工作区%s；仅源码目录，未核实运行程序版本" %
+                         (source["head"], "有改动" if source.get("dirty") else "干净"))
+                        if source_known else "unknown：无法读取源码 Git HEAD/dirty"})
+        results.append({"name": "高位续扫 CLI", "ok": version.get("resume_cli") is True, "detail":
+                        "源码支持 --resume-survey on/off（默认继承）" if version.get("resume_cli") is True
+                        else "unknown/FAIL：源码入口不可用或未同步 --resume-survey"})
+        for name in ("ReleaseAuthorization", "ReleasePermission", "ServoAction"):
+            info = (version.get("interfaces") or {}).get(name) or {}
+            results.append({"name": "%s 生成接口" % name, "ok": info.get("ok") is True,
+                            "detail": ("源码与已生成字段类型/顺序一致；不代表运行二进制版本") if info.get("ok") is True
+                            else "FAIL：%s；需成套同步并重构建控制/任务及消费者，不能只同步 Python" %
+                            info.get("detail", version.get("error", "unknown：接口检查结果不可用"))})
+        results.append({"name": "LIO 配置提示（非运行证明）", "ok": True, "detail":
+                        "最新板端构建要求 FAST_LIO_MATCH_THREADS=3；本检查不证明编译缓存或实际运行线程"})
         return {"at": time.time(), "checks": results, "leftovers": leftovers,
-                "disk_free_gb": free_gb, "groups": groups, "raw": output}
+                "disk_free_gb": free_gb, "groups": groups, "version": version, "raw": output}
 
     # -- 探针 --
     def probe_local_source(self):
@@ -373,10 +483,12 @@ class BoardClient(object):
         topics = ",".join(probe.get("topics", []))
         services = ",".join(probe.get("services", []))
         env_script = self.abs_path(connection.get("env_script", ""))
-        return "cd %s && source %s >/dev/null 2>&1; exec %s %s --interval %s --topics %s --services %s" % (
+        return "cd %s && source %s >/dev/null 2>&1 && exec %s %s --interval %s --topics %s --services %s --terminal-hover-topic %s --lio-realtime-topic %s --observe-topics %s" % (
             quote(self.root), quote(env_script),
             quote(connection.get("board_python", "/usr/bin/python3")), quote(remote),
-            interval or probe.get("interval", 1.0), quote(topics), quote(services))
+            interval or probe.get("interval", 1.0), quote(topics), quote(services),
+            quote(probe.get("terminal_hover_topic", "")), quote(probe.get("lio_realtime_topic", "")),
+            quote(json.dumps(probe.get("observe_topics", {}), separators=(",", ":"))))
 
     # -- 日志与产物 --
     def list_logs(self, limit=40):

@@ -40,6 +40,19 @@ connection:
 probe:
   # 板端只读探针：只订阅、只统计新鲜度，不发布任何指令、不调用服务、不改飞行状态。
   interval: 1.0
+  terminal_hover_topic: /board_trials/terminal_hover_status
+  lio_realtime_topic: /laserMapping/realtime
+  # 只读小消息摘要；不新增图像订阅、编码、相机节点或视频录制。
+  observe_topics:
+    fc_pose: /mavros/local_position/pose
+    lio_pose: /Odometry
+    ev_pose: /mavros/vision_pose/pose
+    setpoint: /mavros/setpoint_position/local
+    battery: /mavros/battery
+    rc_out: /mavros/rc/out
+    esc_status: /mavros/esc_status
+    esc_telemetry: /mavros/esc_telemetry
+    low_hover: /low_hover_observation/status
   topics:
     - /mavros/state
     - /mavros/extended_state
@@ -54,12 +67,23 @@ probe:
     - /navigation/setpoint_mission
     - /uav_high_view/probe_status
     - /board_trials/auto_land_status
+    - /board_trials/terminal_hover_status
+    - /laserMapping/realtime
     - /uav_vision/detections
     - /uav_vision/targets
   services:
     - /legacy/Servo_raw
     - /navigation/start_mission
     - /mavros/set_mode
+
+observation:
+  # RCOut数组与实际Motor/AUX编号需现场核实，默认不映射。
+  output_channels: [null, null, null, null]
+  max_samples: 1800
+  profiles:
+    - {id: hover, name: "定点悬停", description: "估计FC离地0.60m；稳定后观察10秒，末段悬停等待飞手落地"}
+    - {id: forward, name: "前移观察", description: "初始机头前方0.5/1.0/1.5m；0.20m/s，每点观察5秒，无自动返航"}
+    - {id: square, name: "四边形观察", description: "前方与左侧1m×1m；0.20m/s，每点观察5秒，回起点上方悬停"}
 
 # 现场单实例检查：逐个精确进程名（不用 pgrep -f 组合模式，避免宿主侧引号被解释成管道）
 checks:
@@ -169,115 +193,152 @@ terminals:
     desc: "板端交互式 shell（已 cd 到工程根并 source 现场环境）。可自己敲 rostopic/rosservice；工作台不会自动调用任务开始。"
     command: "exec bash -l"
 
-# 任务组：channel=site 走现场快捷入口（1..6），channel=module 走 board_trials_4x4 目录入口
+# 保留现场组号；统一走模块入口，支持模拟/实投和显式策略参数。
+# section 仅控制卡片分区；channel 控制实际命令，旧 site 入口仍兼容。
 groups:
   - id: site1
     key: "1"
     folder: "01_visual_interrupt"
-    channel: site
+    channel: module
+    section: site
     name: "现场第1组 · 低空直飞中断单投"
     plan: "低空直飞，遇前方高权重靶中断、对齐、一次投递。"
     ending: "任务结束后下降至30cm悬停，飞手落地"
     release: real
+    release_options: [mock, real]
+    motion_optimization_supported: true
     needs_servo: true
 
   - id: site2
     key: "2"
     folder: "05_low_multi"
-    channel: site
+    channel: module
+    section: site
     name: "现场第2组 · 低空连续多投（默认两投）"
     plan: "低位搜索、中断、投递、恢复搜索，默认两投。"
     ending: "完成指定投递后下降至30cm悬停，飞手落地"
     release: real
+    release_options: [mock, real]
+    motion_optimization_supported: true
     needs_servo: true
 
   - id: site3
     key: "3"
     folder: "07_memory_only"
-    channel: site
+    channel: module
+    section: site
     name: "现场第3组 · 高位整圈仅记忆"
     plan: "完整高位环线，只检测记忆，规划下降。"
     ending: "完成记忆后下降至30cm悬停，飞手落地"
     release: none
+    motion_optimization_supported: true
+    survey_patterns: [rectangle, snake2, snake3]
     needs_servo: false
 
   - id: site4
     key: "4"
     folder: "02_high_view_revisit"
-    channel: site
+    channel: module
+    section: site
     name: "现场第4组 · 高位记忆后逐个重访投递"
     plan: "完整高位环线，冻结 1–3 个有效目标，低位逐个重访、对齐、投递。"
     ending: "已记忆目标投完后下降至30cm悬停，飞手落地"
     release: real
+    release_options: [mock, real]
+    motion_optimization_supported: true
+    survey_patterns: [rectangle, snake2, snake3]
     needs_servo: true
 
   - id: site5
     key: "5"
     folder: "06_high_priority"
-    channel: site
+    channel: module
+    section: site
     name: "现场第5组 · 高位提前中断后低位重访"
     plan: "高位搜索，满足支持条件后提前中断，低位复核与连续投递。"
     ending: "投递后先返起飞点，再下降至30cm悬停，飞手落地"
     release: real
+    release_options: [mock, real]
+    motion_optimization_supported: true
+    survey_patterns: [rectangle, snake2, snake3]
+    resume_survey_supported: true
     needs_servo: true
 
   - id: site6
     key: "6"
     folder: "09_high_speed_capture"
-    channel: site
+    channel: module
+    section: site
     name: "现场第6组 · 高速拍摄采集（不投递）"
-    plan: "按速度档采集五类靶与 H 负例，只采集不投递。"
-    ending: "采集完成后下降至30cm悬停，飞手落地"
+    plan: "沿第5组场内巡航航线，正赛1.2m/s档、2m高度，完整巡圈采集，不投递。"
+    ending: "采集完成后返起飞点，下降至30cm悬停，飞手落地"
     release: none
+    motion_optimization_supported: true
+    survey_patterns: [rectangle, snake2, snake3]
+    lighting_options: [normal, dim, unspecified]
     needs_servo: false
-    speed_options: [0.5, 1.0]
+    speed_options: [1.2, 1.0, 0.5]
 
   - id: mod03
     key: "03"
     folder: "03_h_landing"
     channel: module
+    section: module
     name: "模块03 · H 视觉识别与降落"
     plan: "低位接近前方约 2m 的 H，定点升高识别、视觉对齐，末段请求 AUTO.LAND。"
     ending: "降落到 H 上（不启动投递服务）"
     release: none
+    motion_optimization_supported: true
     needs_servo: false
-    site_config: "deployment/site_20260928/h_landing_test_area.yaml"
-    notes: "READY 后人工解锁并由飞手手动拨入 OFFBOARD，在实际 1.0m 起飞高度稳定后启动任务；H识别升至1.8m并视觉降落。不要执行现场 start_test.sh 3（那是记忆组）。"
+    site_config: "{site_dir}/h_landing_test_area.yaml"
+    notes: "READY 后飞手人工解锁并拨入 OFFBOARD，在实际 1.0m 起飞高度稳定后自动启动任务；H识别升至1.8m并视觉降落。不要执行现场 start_test.sh 3（那是记忆组）。"
 
   - id: mod04
     key: "04"
     folder: "04_corridor_landing"
     channel: module
+    section: module
     name: "模块04 · 走廊避障接 H 降落"
     plan: "按实测走廊航点自主避障，再接近 H 并升高识别。"
     ending: "降落到 H 上"
     release: none
+    motion_optimization_supported: true
     needs_servo: false
     needs_waypoints: true
-    site_config: "deployment/site_20260928/corridor_landing_test_area.yaml"
+    site_config: "{site_dir}/corridor_landing_test_area.yaml"
     notes: "走廊航点与 H 坐标出厂留空，未填写时入口会拒绝启动；这是预期行为，不要用仿真航点替代。"
 
   - id: mod08
     key: "08"
     folder: "08_full_mission"
     channel: module
+    section: module
     name: "模块08 · 整场（三投接走廊/H）"
     plan: "高位搜索、低空重访三投、走廊、H。"
     ending: "完整任务"
     release: mock
+    release_options: [mock, real]
+    motion_optimization_supported: true
+    survey_patterns: [rectangle, snake2, snake3]
+    resume_survey_supported: true
     needs_servo: false
     needs_waypoints: true
-    site_config: "deployment/site_20260928/full_mission_test_area.yaml"
+    site_config: "{site_dir}/full_mission_test_area.yaml"
     notes: "走廊引导点和 H 坐标必须实测填写，否则入口拒绝运行。"
 
   - id: mod06mock
     key: "06"
     folder: "06_high_priority"
     channel: module
+    section: module
     name: "模块06 · 第五组（模拟投递，不接舵机）"
     plan: "高位搜索提前中断、低位重访连续投递；mock 释放，验证任务链与返航收尾。"
     ending: "投完后先返起飞点，再下降至30cm悬停，飞手落地"
     release: mock
+    release_options: [mock]
+    motion_optimization_supported: true
+    survey_patterns: [rectangle, snake2, snake3]
+    resume_survey_supported: true
     needs_servo: false
-    site_config: "deployment/site_20260928/test_area.yaml"
+    site_config: "{site_dir}/test_area.yaml"
     notes: "模拟投递：走模块 start.sh（不带 --real-release），不需要舵机终端；验收读 mock_service_calls / committed_mock_deliveries，不要读 committed_deliveries。"

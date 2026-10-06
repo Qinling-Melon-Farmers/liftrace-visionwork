@@ -77,10 +77,16 @@ def main():
         check("快照包含终端/任务组/阶段字段",
               all(key in snapshot for key in ("terminals", "groups", "stage", "telemetry")),
               "terminals=%d groups=%d" % (len(snapshot.get("terminals", [])),
-                                          len(snapshot.get("groups", []))))
+                                           len(snapshot.get("groups", []))))
+        observation = snapshot.get('observation') or {}
+        check("观察页配置包含诊断组且不猜电机映射",
+              [p['id'] for p in observation.get('profiles', [])] == ['hover', 'forward', 'square']
+              and observation.get('output_channels') == [None]*4
+              and (observation.get('topics') or {}).get('low_hover') == '/low_hover_observation/status')
 
         for path, keyword in (("/", "<html"), ("/static/app.js", "EventSource"),
-                              ("/static/style.css", "{")):
+                               ("/static/style.css", "{"), ('/observe', '<html'), ('/motor', '<html'),
+                               ('/static/observe.js', 'EventSource'), ('/static/observe.css', '{')):
             status, body = request(path)
             check("GET %s" % path, status == 200 and keyword in body,
                   "HTTP %s，%d 字节" % (status, len(body)))
