@@ -1,0 +1,6 @@
+{
+  "local_revision": "3386365dc0c2cf99175bc66e66361a07f2cd33a8",
+  "board": "orangepi@192.168.3.126",
+  "board_root": "/home/orangepi/liftrace_board_trials_20260928",
+  "reason": "Before GPIO1_D3/PWM1 to GPIO1_D2/PWM0 actuator change; hardware legacy snapshot only"
+}
