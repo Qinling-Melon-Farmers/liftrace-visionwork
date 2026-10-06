@@ -54,7 +54,11 @@ def conflicts(master, caller):
         if (topic.startswith('/mavros/setpoint_') and '/target_' not in topic
                 or topic.startswith('/uav_vision/') or '/image' in topic
                 or topic.startswith('/camera/') or topic.startswith('/mission/')):
-            blocked += [(topic,n) for n in nodes if n!=caller]
+            # MAVROS advertises these FC feedback topics, not command inputs.
+            feedback = topic in ('/mavros/camera/image_captured',
+                                 '/mavros/setpoint_trajectory/desired')
+            blocked += [(topic,n) for n in nodes
+                        if n!=caller and not (feedback and n=='/mavros')]
     return blocked
 
 

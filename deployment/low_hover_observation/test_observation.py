@@ -157,4 +157,19 @@ class ObservationTests(unittest.TestCase):
         m.twist.twist.linear.x=math.nan
         self.assertTrue(math.isinf(valid_speed(m,'map',10.,.3,0.)))
 
+class ConflictTests(unittest.TestCase):
+    def test_mavros_feedback_is_not_an_input_publisher(self):
+        from flight import conflicts
+        from types import SimpleNamespace
+        pubs=[('/mavros/camera/image_captured',['/mavros']),
+              ('/mavros/setpoint_trajectory/desired',['/mavros']),
+              ('/mavros/setpoint_raw/target_local',['/mavros'])]
+        self.assertEqual(conflicts(SimpleNamespace(getSystemState=lambda:(pubs,[],[])),'/test'),[])
+    def test_real_command_and_camera_publishers_still_conflict(self):
+        from flight import conflicts
+        from types import SimpleNamespace
+        pubs=[('/mavros/setpoint_position/local',['/other']),('/camera/image_raw',['/camera_sdk']),
+              ('/mavros/setpoint_trajectory/desired',['/other'])]
+        self.assertEqual(len(conflicts(SimpleNamespace(getSystemState=lambda:(pubs,[],[])),'/test')),3)
+
 if __name__=='__main__':unittest.main()
