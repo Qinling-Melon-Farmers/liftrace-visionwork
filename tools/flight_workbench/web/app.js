@@ -807,6 +807,11 @@ function groupCommandBody(g, mode, realRelease, checkConfig, speed, options) {
   var moduleBase = 'deployment/board_trials_4x4/' + folder;
   var extra = '';
   options = options || {};
+  if (options.site_geometry !== undefined) {
+    var plans=groupUI(g).geometryPlans || {};
+    return plans[geometryPlanKey(g,mode,realRelease,checkConfig,speed,options)] ||
+      {body:null,note:'手动坐标或参数尚未生成匹配命令，请点击“生成并预览坐标命令”'};
+  }
   if (speed !== null && speed !== undefined) extra += ' --capture-speed ' + Number(speed).toFixed(1);
   if (options.capture_lighting) extra += ' --capture-lighting ' + options.capture_lighting;
   if (options.motion_optimized) extra += ' --motion-optimized';
@@ -899,12 +904,87 @@ function trialBody(g, mode, checkConfig) {
   if (g.motion_optimization_supported && U.motionOptimized) body.motion_optimized = true;
   if (g.survey_patterns && U.pattern) body.survey_pattern = U.pattern;
   if (g.resume_survey_supported && U.resume) body.resume_survey = U.resume;
+  if (g.needs_waypoints && U.geometryEnabled) {body.site_geometry=U.geometryValues || {};body.geometry_revision=U.geometryRevision || '';}
   if (!checkConfig) body.confirm = body.real_release ? '实投' : '启动试飞';
   var built = groupCommandBody(g, body.mode, body.real_release, !!body.check_config, body.capture_speed, body);
   if (built.body) body.expected_body = built.body;
   return body;
 }
 
+function geometryPlanKey(g, mode, realRelease, checkConfig, speed, options) {
+  var c = state.connection || {};
+  return JSON.stringify([g.id, c.host, c.board_root, c.site_dir, g.site_config,
+    mode, !!realRelease, !!checkConfig, speed || null, options.capture_lighting || null,
+    !!options.motion_optimized, options.survey_pattern || null, options.resume_survey || null,
+    options.geometry_revision, options.site_geometry]);
+}
+
+function geometryFromDraft(U) {
+  function row(text, count) {
+    var parts = String(text || '').trim().split(/[\s,，]+/);
+    if (!String(text || '').trim() || (count && parts.length !== count)) throw Error('坐标数量不正确');
+    var values = parts.map(Number);
+    if (values.some(function(v) { return !Number.isFinite(v); })) throw Error('请输入有限数值');
+    return values;
+  }
+  var points = String(U.geometryPoints || '').trim().split(/\n/).filter(function(v) { return v.trim(); }).map(function(line) {
+    var p = row(line,3); return {x:p[0],y:p[1],agl:p[2]};
+  });
+  if (points.length < 2) throw Error('至少填写两个走廊航点');
+  var result = {corridor_waypoints:points,landing_xy:row(U.geometryLanding,2)};
+  if (String(U.geometryWalls || '').trim()) {
+    var entry=Number(U.geometryEntry);
+    if (!Number.isInteger(entry) || entry<1 || entry>points.length) throw Error('入口序号从1开始且不能超过航点数');
+    result.corridor_geometry={wall_axis:Number(U.geometryAxis || 0),wall_coordinates:row(U.geometryWalls),entry_waypoints:entry};
+  }
+  if (String(U.geometryArea || '').trim()) result.flight_area=JSON.parse(U.geometryArea);
+  return result;
+}
+
+function geometryEditor(g,U,onChange) {
+  var box=el('div','geometry-editor');
+  var label=el('label','chk'), enabled=el('input');enabled.type='checkbox';enabled.checked=!!U.geometryEnabled;
+  enabled.setAttribute('data-option','geometryEnabled');
+  label.appendChild(enabled);label.appendChild(el('span',null,'使用手动实测坐标（不覆盖原现场YAML）'));box.appendChild(label);
+  enabled.addEventListener('change',function(){U.geometryEnabled=enabled.checked;U.geometryPlans={};renderGroups();});
+  if (!U.geometryEnabled) return box;
+  box.appendChild(el('div','tiny muted','单位m；相对起飞点：+X朝场内、+Y向左，agl为FC中心离地高度。04是走廊接H，08是投递后走廊接H；不存在单独取消H的走廊组。'));
+  function input(key,title,placeholder,multiline) {
+    var wrap=el('label','geometry-field');wrap.appendChild(el('span',null,title));
+    var field=el(multiline?'textarea':'input');field.value=U[key] || '';field.placeholder=placeholder;
+    if(multiline)field.rows=key==='geometryPoints'?5:3;
+    field.setAttribute('data-geometry',key);
+    field.addEventListener('input',function(){U[key]=field.value;U.geometryPlans={};U.geometryRevision=null;status.textContent='坐标已修改，请重新生成命令';onChange();});
+    wrap.appendChild(field);box.appendChild(wrap);return field;
+  }
+  input('geometryPoints','有序走廊航点：每行 x, y, agl','填写现场实测值，每行三个数，不含H观察爬升点',true);
+  input('geometryLanding','H中心：x, y','填写终点H中心',false);
+  var detail=el('div','tiny muted','可选：填写墙面几何后，现有运动优化才会尝试合并直线中继点/入口升降。坐标点本身不会自动启用这些条件。');box.appendChild(detail);
+  var axis=el('select');[['0','墙面常量轴X'],['1','墙面常量轴Y']].forEach(function(item){var o=el('option',null,item[1]);o.value=item[0];axis.appendChild(o);});axis.value=U.geometryAxis || '0';
+  axis.addEventListener('change',function(){U.geometryAxis=axis.value;U.geometryPlans={};U.geometryRevision=null;onChange();});box.appendChild(axis);
+  input('geometryWalls','墙面位置（沿所选轴，逗号分隔；可留空）','实测墙平面位置',false);
+  input('geometryEntry','低入口在有序航点中的序号（从1开始）','填写对应序号',false);
+  input('geometryArea','可选flight_area坐标覆盖（JSON对象；留空继承现场范围）','可填写center_bounds/target_bounds/search_bounds/staging_xy/survey_xy/map_size',true);
+  box.appendChild(el('div','tiny muted','不扩大原场地时无需填写flight_area。扩大时需同时核对搜索区、规划地图尺寸和航线。所有点仍需通过原工程校验。'));
+  var apply=el('button','btn btn-sm','生成并预览坐标命令（不连接飞机）');box.appendChild(apply);
+  var status=el('div','tiny muted',U.geometryPlans && Object.keys(U.geometryPlans).length?'命令已生成；点击配置检查在板端核对合并结果。':'草稿尚未生成命令。');box.appendChild(status);
+  apply.addEventListener('click',function(){
+    try { U.geometryValues=geometryFromDraft(U); } catch(e) {status.textContent=e.message;return;}
+    U.geometryRevision=Date.now().toString(36);U.geometryPlans={};apply.disabled=true;status.textContent='正在本机生成命令…';
+    var revision=U.geometryRevision;
+    var requests=[trialBody(g,'preview',true),trialBody(g,'preview',false),trialBody(g,'flight',false)];
+    Promise.all(requests.map(function(body){
+      delete body.confirm;delete body.expected_body;
+      return fetch('/api/trial/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+        .then(function(r){return r.json().then(function(v){if(!r.ok || !v.ok)throw Error(v.error || '命令生成失败');return v;});})
+        .then(function(plan){return [geometryPlanKey(g,body.mode,body.real_release,!!body.check_config,body.capture_speed,body),plan];});
+    })).then(function(plans){
+      if(U.geometryRevision!==revision)return;
+      plans.forEach(function(pair){U.geometryPlans[pair[0]]=pair[1];});renderGroups();
+    }).catch(function(e){status.textContent=e.message;U.geometryPlans={};}).finally(function(){apply.disabled=false;onChange();});
+  });
+  return box;
+}
 function groupCard(g) {
   var U = groupUI(g);
   var sel = state.selectedGroup === g.id;
@@ -959,7 +1039,7 @@ function groupCard(g) {
     var motion = el('input'); motion.type = 'checkbox'; motion.checked = !!U.motionOptimized;
     motion.setAttribute('data-option', 'motionOptimized');
     motion.addEventListener('change', function () { U.motionOptimized = motion.checked; renderGroups(); });
-    motionLab.appendChild(motion); motionLab.appendChild(el('span', null, '启用运动优化（motion-optimized）'));
+    motionLab.appendChild(motion); motionLab.appendChild(el('span', null, '显式开启运动优化（不勾选继承配置）'));
     motionRow.appendChild(motionLab); ops.appendChild(motionRow);
   }
   if (g.survey_patterns && g.survey_patterns.length) {
@@ -1022,7 +1102,10 @@ function groupCard(g) {
     ops.appendChild(el('div', 'warn-line', '速度选项属于「仅采集不投递」路径：只跑视觉采集，不下发投递。'));
   }
 
-  if (g.needs_waypoints) ops.appendChild(el('div', 'warn-line', '航点留空时入口会拒绝启动，属预期。'));
+  if (g.needs_waypoints) {
+    ops.appendChild(geometryEditor(g,U,function(){if(flightBtn)updateFlightBtn();}));
+    ops.appendChild(el('div','warn-line','航点未填写且未使用手动坐标时，原入口会拒绝启动。'));
+  }
 
   // 按钮
   var btnRow = el('div', 'grp-row');
@@ -1075,7 +1158,9 @@ function groupCard(g) {
   function updateFlightBtn() {
     var needReal = (U.release === 'real');
     var realOk = !needReal || (U.realConfirm || '').trim() === '实投';
-    flightBtn.disabled = !connected() || tSessRunning() || !!state.trialPending || !U.armedOk || !realOk;
+    var readyBody=trialBody(g,'flight',false);
+    var geometryReady=!U.geometryEnabled || !!readyBody.expected_body;
+    flightBtn.disabled = !connected() || tSessRunning() || !!state.trialPending || !U.armedOk || !realOk || !geometryReady;
     flightBtn.title = !connected() ? '未连接板端'
       : (tSessRunning() || state.trialPending ? '专项正在运行或准备下发，先停止当前任务'
         : (!U.armedOk ? '请先勾选飞行前确认（已回到起飞点、未解锁、机头朝场内）'

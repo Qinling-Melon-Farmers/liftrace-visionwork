@@ -13,3 +13,7 @@ virtual_ceiling_enabled: false
 alignment_mode: legacy_static
 actuator_mode: mock
 raw_servo_service: /legacy/Servo_raw
+
+# Promoted from the operator-confirmed H flight on 2026-10-06.
+# Pilot completes final descent after visual alignment and POSCTL handoff.
+landing_handoff_mode: POSCTL

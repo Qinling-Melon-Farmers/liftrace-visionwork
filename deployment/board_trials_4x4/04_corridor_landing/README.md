@@ -43,3 +43,7 @@ bash deployment/board_trials_4x4/04_corridor_landing/start.sh flight
 
 
 2026-09-26共同更新：继承当前板端相机方向/槽位；起飞初始前视0.25m、巡航0.50m，限速仍0.5m/s。恢复目标高于交接门槛10cm；统一三维膨胀25/20/10cm，仅第二套增加中部柱，虚拟顶棚仍关闭。[原因与验证](../../../docs/planning/obstacle_board_alignment_20260926/REPORT.md)。本轮未重新上板。
+
+### 2026-10-06 H成功结果推广（本地，待上板）
+
+现场H成功由用户确认。03/04/08硬件使用形态检测及视觉对准下降，末段POSCTL交接飞手完成降落；不再按本页早期AUTO.LAND描述启动。仿真生成入口显式AUTO.LAND。各组原观察高度保持：03为FC离地1.2m，04/08为1.8m。04/08可在工作台填实测走廊/H/墙面坐标，须先配置检查再预览。参见[推广与九组参数报告](../../../docs/deployment/h_promotion_20261006/REPORT.md)。

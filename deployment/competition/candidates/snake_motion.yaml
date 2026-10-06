@@ -118,3 +118,6 @@ motion_optimization:
   recovery_min_ack_seconds: 0.6
   recovery_max_vz: 0.6
   corridor_max_agl: 1.0
+
+# Hardware terminal handoff validated in the H trial; pilot completes landing.
+landing_handoff_mode: POSCTL

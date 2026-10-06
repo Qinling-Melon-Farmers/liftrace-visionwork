@@ -60,7 +60,7 @@ class Profiles(unittest.TestCase):
                 self.assertAlmostEqual(control['land_height']-ref['ground_z'], .40)
                 landing = dict(control['external_landing'])
                 self.assertEqual(landing.pop('handoff_mode'),
-                                 'POSCTL' if folder == '03_h_landing' else 'AUTO.LAND')
+                                 'POSCTL')
                 self.assertAlmostEqual(landing.pop('capture_height')-ref['ground_z'], settings['landing_capture_agl'])
                 self.assertEqual(landing['detections_topic'], '/uav_vision/detections_mapped')
                 self.assertAlmostEqual(landing['auto_land_height']-ref['ground_z'], .55)

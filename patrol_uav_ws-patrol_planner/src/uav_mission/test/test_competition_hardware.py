@@ -61,6 +61,17 @@ class CompetitionTests(unittest.TestCase):
                     self.assertAlmostEqual(d['control']['land_height']-ground,.4)
                     self.assertLess(d['control']['land_height'],landing['auto_land_height'])
                     self.assertLess(landing['auto_land_height'],landing['capture_height'])
+    def test_hardware_terminal_handoff_is_explicit_and_generated(self):
+        self.assertEqual(self.s['landing_handoff_mode'], 'POSCTL')
+        for mode in ('POSCTL', 'AUTO.LAND'):
+            self.s['landing_handoff_mode'] = mode
+            validate(self.s, flight=True)
+            _, docs = self.generate()
+            self.assertEqual(docs['control']['external_landing']['handoff_mode'], mode)
+        self.s['landing_handoff_mode'] = 'OFFBOARD'
+        with self.assertRaisesRegex(ValueError, 'landing_handoff_mode'):
+            validate(self.s, flight=True)
+
     def test_h_stroke_fallback_is_explicit_and_configurable(self):
         self.assertIs(self.s['landing_enable_h_stroke_fallback'],True)
         key='/landing_detector/landing_enable_h_stroke_fallback'
@@ -80,7 +91,7 @@ class CompetitionTests(unittest.TestCase):
     def test_competition_h_profile_does_not_change_stage_or_global_defaults(self):
         stage=yaml.safe_load((ROOT/'deployment/board_trials_4x4/03_h_landing/settings.yaml').read_text())
         detector=yaml.safe_load((ROOT/'vision_ws/src/uav_vision/config/landing_detector.yaml').read_text())
-        self.assertEqual(stage['landing_capture_agl'],1.8)
+        self.assertEqual(stage['landing_capture_agl'],1.2)
         self.assertNotIn('landing_enable_h_stroke_fallback',stage)
         self.assertIs(detector['landing_enable_h_stroke_fallback'],False)
     def test_drop_scale_uses_flight_ground_reference_and_calibration(self):

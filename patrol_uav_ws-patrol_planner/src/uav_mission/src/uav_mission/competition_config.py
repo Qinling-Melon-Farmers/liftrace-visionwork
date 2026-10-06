@@ -14,6 +14,8 @@ from uav_mission.motion_optimization import MotionOptimization, optimize_post_ro
 
 
 def validate(settings, flight=False):
+    if settings.get("landing_handoff_mode", "AUTO.LAND") not in ("AUTO.LAND", "POSCTL"):
+        raise ValueError("landing_handoff_mode must be AUTO.LAND or POSCTL")
     weight=float(settings.get('planner_line_preference_weight',2.0))
     if not math.isfinite(weight) or not 0<=weight<=10:raise ValueError('invalid global line preference weight')
     motion=MotionOptimization(**settings.get('motion_optimization',{}))
@@ -157,7 +159,7 @@ def generate(root,out,settings,fc_xyz,rig):
     control['uav_vision'].update(recovery_height=low,standard_recovery_setpoint_height=low+.1,cross_recovery_setpoint_height=low+.1,pixel_to_body_matrix=rig['pixel_to_body_matrix'],max_movement_distance=.15,
         drop_metric_scale_enabled=True,drop_ground_z=ground,
         drop_map_frame=rig['mission_frame'],drop_camera_info_topic=settings['camera_info_topic'])
-    control['external_landing'].update(frame=rig['mission_frame'],capture_height=capture,auto_land_height=ground+.55,detections_topic='/uav_vision/detections_mapped')
+    control['external_landing'].update(frame=rig['mission_frame'],capture_height=capture,auto_land_height=ground+.55,detections_topic='/uav_vision/detections_mapped',handoff_mode=settings.get('landing_handoff_mode','AUTO.LAND'))
     overrides={
         '/landing_detector/landing_enable_h_stroke_fallback':settings['landing_enable_h_stroke_fallback'],
         '/fast_planner_node/sdf_map/resolution':.10,

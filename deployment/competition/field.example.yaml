@@ -98,3 +98,6 @@ metadata_topic: /competition/run_metadata
 competition_recording: true
 mapping_profile: high
 supervisor_name: competition_supervisor
+
+# Hardware terminal handoff validated in the H trial; pilot completes landing.
+landing_handoff_mode: POSCTL
