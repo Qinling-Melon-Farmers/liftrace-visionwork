@@ -121,6 +121,8 @@ enum TaskType { MAIN_MISSION, CROSS_MISSION };
 class LLController {
 public:
     bool external_mission_mode_=true, external_waiting_for_motion_=false;
+    bool drop_exact_projection_enabled_=false;
+    void clearUavVisionAlignmentState() {}
     bool external_landing_active_=false, external_landing_new_mark_=false;
     bool external_landing_alignment_complete_=false;
     bool external_landing_auto_land_requested_=false, external_landing_cancelled_=false;

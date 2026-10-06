@@ -23,5 +23,25 @@ inline bool exactDropAligned(double target_x, double target_y,
            std::isfinite(limit) && limit > 0 &&
            std::hypot(target_x-body_x, target_y-body_y) <= limit;
 }
+
+// Immutable action identity, independent of heartbeat/evidence timestamps and
+// authorization revision. A geometry snapshot is not a new release authority.
+template<class Context>
+inline bool sameDropAction(const Context& a, const Context& b) {
+    return a.mission_id == b.mission_id && a.decision_seq == b.decision_seq &&
+           a.attempt == b.attempt && a.payload_slot == b.payload_slot &&
+           a.semantic_target_id == b.semantic_target_id &&
+           a.semantic_target_first_seen == b.semantic_target_first_seen &&
+           a.semantic_target_class == b.semantic_target_class &&
+           a.align_mode == b.align_mode;
+}
+
+inline bool boundedExactDropUpdate(double x, double y, double previous_x,
+                                   double previous_y, double max_step) {
+    return std::isfinite(x) && std::isfinite(y) &&
+           std::isfinite(previous_x) && std::isfinite(previous_y) &&
+           std::isfinite(max_step) && max_step > 0.0 &&
+           std::hypot(x-previous_x, y-previous_y) <= max_step;
+}
 }
 #endif

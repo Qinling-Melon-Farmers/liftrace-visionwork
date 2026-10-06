@@ -426,6 +426,11 @@ void LLController::externalMissionTick() {
     const bool align_done =
         (current_task_type == CROSS_MISSION) ? CrossDetectionDone()
                                              : WayPointDetectDone();
+    if (drop_exact_projection_enabled_ && !align_done) {
+        patrol_cmd.pose.position.x = adjust_target_position[0];
+        patrol_cmd.pose.position.y = adjust_target_position[1];
+        patrol_cmd.pose.position.z = align_height;
+    }
     if (align_done) {
         detect_enable_msg.data = false;
         publishLegacyVisionControl(detect_control_pub_, detect_enable_msg);
@@ -2603,14 +2608,17 @@ bool LLController::WayPointDetectDone()
             : dis_to_next_position <= 0.1;
         if(have_waypoint_mark &&
            count_aligning < required_alignment_samples &&
-           align_ok == 1 && alignment_ready){
+           align_ok == 1 && alignment_ready &&
+           (!drop_exact_projection_enabled_ || beginExactDropDescent())){
             ROS_INFO("\033[32m[CrossDetectionDone] dis_to_next_position: %.2f\033[0m", dis_to_next_position);
             count_aligning++;
             // down_flag = true;
             should_drop = false;
-            waypoint_temp.pose.position.x = waypoint_mark_point.pose.position.x;
-            waypoint_temp.pose.position.y = waypoint_mark_point.pose.position.y;
-            waypoint_temp.pose.orientation = waypoint_mark_point.pose.orientation;
+            if (!drop_exact_projection_enabled_) {
+                waypoint_temp.pose.position.x = waypoint_mark_point.pose.position.x;
+                waypoint_temp.pose.position.y = waypoint_mark_point.pose.position.y;
+                waypoint_temp.pose.orientation = waypoint_mark_point.pose.orientation;
+            }
         }
         if(count_aligning >= required_alignment_samples && align_ok == 1){
             ROS_INFO("\033[32m[CrossDetectionDone]waypoint_temp: %.2f, %.2f\033[0m", waypoint_temp.pose.position.x, waypoint_temp.pose.position.y);
@@ -2921,6 +2929,7 @@ DropReleaseGate LLController::currentDropReleaseGate() const
 
 void LLController::clearUavVisionAlignmentState()
 {
+    clearExactDropCommitment();
     drop_projection_cutoff_ = ros::Time::now();
     have_drop_offset_ = false;
     uav_drop_ready_ = false;
@@ -3105,6 +3114,7 @@ void LLController::dropOffsetCallback(const uav_vision::DropOffset::ConstPtr& ms
         if (!msg->header.stamp.isZero() &&
             msg->header.stamp <= last_drop_projection_stamp_) return;
         if (!projectExactDropOffsetToTarget(*msg)) {
+            clearExactDropCommitment();
             if (patrol_control::dropObservationFresh(msg->header.stamp.toSec(),
                     ros::Time::now().toSec(), drop_offset_timeout_))
                 last_drop_projection_stamp_ = msg->header.stamp;
@@ -3153,6 +3163,11 @@ bool LLController::projectExactDropOffsetToTarget(const uav_vision::DropOffset& 
         return false;
     }
     if (uav_pose.header.frame_id != drop_map_frame_) return false;
+    if (capture_tolerance_m_ > 0 &&
+        (!exactDropCommitmentMatches() ||
+         !patrol_control::boundedExactDropUpdate(msg.map_point.x, msg.map_point.y,
+             latest_drop_offset_.map_point.x, latest_drop_offset_.map_point.y,
+             max_alignment_move_distance_))) return false;
     geometry_msgs::PoseStamped target;
     target.header.stamp = msg.header.stamp;
     target.header.frame_id = msg.map_frame;
@@ -3179,19 +3194,64 @@ bool LLController::projectExactDropOffsetToTarget(const uav_vision::DropOffset& 
     return true;
 }
 
-bool LLController::exactDropReleaseReady() const
+void LLController::clearExactDropCommitment()
+{
+    capture_tolerance_m_ = 0.0;
+    if (drop_exact_projection_enabled_) count_aligning = 0;
+}
+
+bool LLController::exactDropCommitmentMatches() const
+{
+    const auto& c = servo_alignment_context_;
+    return capture_tolerance_m_ > 0 && have_servo_alignment_context_ && c.active && c.has_target &&
+           patrol_control::sameDropAction(exact_drop_goal_context_, c) &&
+           exact_drop_goal_context_.deadline > ros::Time::now() && c.deadline > ros::Time::now() &&
+           c.align_mode == current_align_mode_ && c.payload_slot == detect_point_counter + 1 &&
+           c.decision_seq == servo_alignment_decision_seq_ &&
+           c.semantic_target_id == servo_alignment_target_id_ &&
+           c.semantic_target_class == servo_alignment_target_class_;
+}
+
+bool LLController::beginExactDropDescent()
 {
     const double limit = drop_exact_alignment_max_error_m_ > 0
         ? std::min(double(latest_drop_offset_.alignment_tolerance_m), drop_exact_alignment_max_error_m_)
         : latest_drop_offset_.alignment_tolerance_m;
-    return have_drop_offset_ && hasFreshDropOffset() && uav_drop_ready_ &&
-           latest_drop_offset_.map_valid && uav_pose.header.frame_id == drop_map_frame_ &&
+    if (!hasFreshDropOffset() || !uav_drop_ready_ ||
+        latest_drop_ready_time_ < latest_drop_offset_time_ ||
+        !patrol_control::dropObservationFresh(latest_drop_ready_time_.toSec(),
+            ros::Time::now().toSec(), drop_offset_timeout_) ||
+        !latest_drop_offset_.map_valid || latest_drop_offset_.map_frame != drop_map_frame_ ||
+        servo_alignment_context_.mission_id.empty() ||
+        servo_alignment_context_.semantic_target_first_seen.isZero() ||
+        !patrol_control::dropObservationFresh(servo_alignment_context_.header.stamp.toSec(),
+            ros::Time::now().toSec(), drop_offset_timeout_) ||
+        uav_pose.header.frame_id != drop_map_frame_ ||
+        !patrol_control::dropObservationFresh(uav_pose.header.stamp.toSec(),
+            ros::Time::now().toSec(), drop_offset_timeout_) ||
+        latest_drop_offset_.alignment_error_m > limit ||
+        !patrol_control::exactDropAligned(latest_drop_offset_.map_point.x,
+            latest_drop_offset_.map_point.y, uav_pose.pose.position.x,
+            uav_pose.pose.position.y, limit)) return false;
+    capture_tolerance_m_ = limit;
+    exact_drop_goal_context_ = servo_alignment_context_;
+    if (!exactDropCommitmentMatches()) { clearExactDropCommitment(); return false; }
+    // Retain this observation's physical tolerance. The absolute goal remains
+    // in latest_drop_offset_; waypoint_temp keeps the existing command clamp.
+    // Do not restamp image/evidence on descent.
+    return true;
+}
+
+bool LLController::exactDropReleaseReady() const
+{
+    return exactDropCommitmentMatches() && hasFreshMissionReleasePermission() &&
+           latest_drop_offset_.map_valid && latest_drop_offset_.map_frame == drop_map_frame_ &&
+           uav_pose.header.frame_id == drop_map_frame_ &&
            patrol_control::dropObservationFresh(uav_pose.header.stamp.toSec(),
                 ros::Time::now().toSec(), drop_offset_timeout_) &&
-           latest_drop_offset_.alignment_error_m <= limit &&
            patrol_control::exactDropAligned(latest_drop_offset_.map_point.x,
                 latest_drop_offset_.map_point.y, uav_pose.pose.position.x,
-                uav_pose.pose.position.y, limit);
+                uav_pose.pose.position.y, capture_tolerance_m_);
 }
 
 void LLController::dropReadyCallback(const uav_vision::DropReady::ConstPtr& msg)
@@ -3202,7 +3262,8 @@ void LLController::dropReadyCallback(const uav_vision::DropReady::ConstPtr& msg)
     if (drop_exact_projection_enabled_ &&
         (current_align_mode_ == "drop_circle" || current_align_mode_ == "drop_cross")) {
         uav_drop_ready_ = uav_drop_ready_ && hasFreshDropOffset() &&
-                         !msg->header.stamp.isZero() &&
+                         patrol_control::dropObservationFresh(msg->header.stamp.toSec(),
+                             ros::Time::now().toSec(), drop_offset_timeout_) &&
                          msg->header.stamp >= latest_drop_offset_.header.stamp;
     }
     drop_condition_met = uav_drop_ready_;
@@ -3259,6 +3320,7 @@ void LLController::missionCommandCallback(
                 return;
             }
             cancelDropAction();
+            if (drop_exact_projection_enabled_) clearUavVisionAlignmentState();
             external_waiting_for_motion_ = false;
             have_planner_cmd = false;
             clearExternalLandingState(true);
@@ -3475,12 +3537,16 @@ void LLController::servoAlignmentContextCallback(
             msg->semantic_target_first_seen == servo_alignment_context_.semantic_target_first_seen &&
             msg->semantic_target_class == servo_alignment_context_.semantic_target_class) {
             have_servo_alignment_context_ = false;
+            if (drop_exact_projection_enabled_) clearUavVisionAlignmentState();
             // Revocation blocks future submissions. The proxy owns the raw-call
             // fence; do not discard an already queued RPC's terminal result.
             // In particular ReleaseResult may precede the matching RPC reply.
         }
         return;
     }
+    if (drop_exact_projection_enabled_ && have_servo_alignment_context_ &&
+        !patrol_control::sameDropAction(servo_alignment_context_, *msg))
+        clearUavVisionAlignmentState();
     servo_alignment_context_ = *msg;
     have_servo_alignment_context_ = true;
 }
@@ -3706,7 +3772,9 @@ bool LLController::CrossDetectionDone() {
     // 使用与圆环检测相同的逻辑，通过alignment_control_converter进行精确对准
     static ros::Time cross_start_time = ros::Time::now();
     bool should_drop = false;
-    static geometry_msgs::PoseStamped waypoint_temp;
+    static geometry_msgs::PoseStamped legacy_waypoint_temp;
+    geometry_msgs::PoseStamped& waypoint_temp = drop_exact_projection_enabled_
+        ? this->waypoint_temp : legacy_waypoint_temp;
     double dis_to_next_position = 0;
     static bool cross_first_call = true;
     static int cross_detect_times = 0;
@@ -3792,14 +3860,17 @@ bool LLController::CrossDetectionDone() {
            count_aligning < (external_mission_mode_ ? 1 : 50) &&
            (external_mission_mode_
                 ? (current_align_mode_ == "drop_cross" && uav_drop_ready_)
-                : dis_to_next_position <= 0.07)){
+                : dis_to_next_position <= 0.07) &&
+           (!drop_exact_projection_enabled_ || beginExactDropDescent())){
             ROS_INFO("\033[32m[CrossDetectionDone] dis_to_next_position: %.2f\033[0m", dis_to_next_position);
             count_aligning++;
             down_flag = true;
             should_drop = false;
-            waypoint_temp.pose.position.x = cross_mark_point.pose.position.x;
-            waypoint_temp.pose.position.y = cross_mark_point.pose.position.y;
-            waypoint_temp.pose.orientation = cross_mark_point.pose.orientation;
+            if (!drop_exact_projection_enabled_) {
+                waypoint_temp.pose.position.x = cross_mark_point.pose.position.x;
+                waypoint_temp.pose.position.y = cross_mark_point.pose.position.y;
+                waypoint_temp.pose.orientation = cross_mark_point.pose.orientation;
+            }
         }
         if(count_aligning >= (external_mission_mode_ ? 1 : 50)){
             ROS_INFO("\033[32m[CrossDetectionDone]waypoint_temp: %.2f, %.2f\033[0m", waypoint_temp.pose.position.x, waypoint_temp.pose.position.y);

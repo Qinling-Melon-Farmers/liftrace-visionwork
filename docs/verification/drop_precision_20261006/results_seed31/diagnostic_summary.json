@@ -1,0 +1,185 @@
+{
+  "status": "DIAGNOSTIC_FAIL",
+  "raw_status": "FAIL",
+  "raw_gate_reason": "actual_collision",
+  "source": "8c4be8917ba68847b339d907ab794af9182e8a45",
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/drop_precision_seed31_20261007_002621",
+  "first_approach_terminal_results": [
+    {
+      "ros_sec": 195.119,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 52,
+          "stamp": {
+            "stamp_ns": 195109000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-11-846000000-1",
+        "executor_id": "vcl06-planner-bridge-f200b74a8b91453ab9c2e3adc076212e",
+        "event_seq": 52,
+        "decision_seq": 11,
+        "command": 1,
+        "status": 7,
+        "stage": 4,
+        "terminal": true,
+        "retryable": false,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 8,
+        "target_first_seen": {
+          "stamp_ns": 64668000000
+        },
+        "target_class": "red_cross",
+        "attempt": 1,
+        "payload_slot": 1,
+        "reason": "release_result_deadline_reached",
+        "evidence_source": "target_transaction_executor"
+      }
+    },
+    {
+      "ros_sec": 195.123,
+      "kind": "result",
+      "data": {
+        "header": {
+          "seq": 53,
+          "stamp": {
+            "stamp_ns": 195121000000
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-random-11-846000000-1",
+        "executor_id": "vcl06-planner-bridge-f200b74a8b91453ab9c2e3adc076212e",
+        "event_seq": 53,
+        "decision_seq": 11,
+        "command": 1,
+        "status": 4,
+        "stage": 4,
+        "terminal": true,
+        "retryable": true,
+        "payload_committed": false,
+        "has_target": true,
+        "target_id": 8,
+        "target_first_seen": {
+          "stamp_ns": 64668000000
+        },
+        "target_class": "red_cross",
+        "attempt": 1,
+        "payload_slot": 1,
+        "reason": "release_proven_not_started",
+        "evidence_source": "guarded_servo_proxy:1:NOT_STARTED"
+      }
+    }
+  ],
+  "completed_transactions": 0,
+  "exact_count": 88,
+  "exact_receipt_span_s": [
+    76.481,
+    83.303
+  ],
+  "last_exact_source_s": 83.249,
+  "last_exact_center_error_m": 0.03935304500852073,
+  "short_exact_center_error_median_m": 0.09069066275285563,
+  "short_exact_center_error_p95_m": 0.09593790261559455,
+  "last_exact_alignment_error_m": 0.03339976444840431,
+  "last_exact_tolerance_m": 0.011339622549712658,
+  "wall_start_to_cleanup_s": 1074.2958312034607,
+  "final_progress_ros_s": 195.001,
+  "start_to_cleanup_average_rtf": 0.18151517890705546,
+  "host_total_gib": 31.63,
+  "host_free_gib_at129s": 8.04,
+  "wsl_available_gib_at101s": 9.413406372070312,
+  "wsl_swap_used_kib": 0,
+  "min_model_origin_z_in_align_csv_m": 0.02499386782679916,
+  "last_mavros_state": {
+    "header": {
+      "seq": 194,
+      "stamp": {
+        "secs": 195,
+        "nsecs": 123000000
+      },
+      "frame_id": ""
+    },
+    "connected": true,
+    "armed": true,
+    "guided": false,
+    "manual_input": false,
+    "mode": "OFFBOARD",
+    "system_status": 4
+  },
+  "actual_collision_count": 4,
+  "collisions": [
+    {
+      "start": 99.523,
+      "end": 99.567,
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "random_red_cross::link::collision"
+        ]
+      ],
+      "peak_depth_m": 5.982183219732651e-06
+    },
+    {
+      "start": 99.574,
+      "end": 99.627,
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "random_red_cross::link::collision"
+        ]
+      ],
+      "peak_depth_m": 1.2363590964348248e-06
+    },
+    {
+      "start": 99.637,
+      "end": 100.587,
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "random_red_cross::link::collision"
+        ]
+      ],
+      "peak_depth_m": 2.791832367621261e-06
+    },
+    {
+      "start": 102.848,
+      "end": 106.947,
+      "pairs": [
+        [
+          "iris_mid360::iris::base_link::competition_guard_collision",
+          "random_red_cross::link::collision"
+        ]
+      ],
+      "peak_depth_m": 2.757625981125722e-05
+    }
+  ],
+  "cleanup_pass": true,
+  "source_unchanged_during_run": true,
+  "runtime_projection": {
+    "status": "PASS",
+    "checks": 32,
+    "exact_visual": true,
+    "exact_control": true,
+    "body_frame": "vision_body",
+    "map_frame": "camera_init",
+    "ground_z": -0.22,
+    "slot_mode": "zero",
+    "tolerance_policy": "existing 30px exposure Jacobian; controller uses message tolerance",
+    "circle_quality_ordered_nms": false,
+    "stop_on_collision": false
+  },
+  "wrapper_term_sent": false,
+  "stop_note": "First deadline auto-terminated and wrapper completed before explicit TERM request; signal guard saw inactive batch and sent no signal.",
+  "live_sample_note": "Live capture crossed first terminal; disabled/align_disabled sample at195.369 is post-terminal. Preterminal stale samples are in closed-bag context snapshots.",
+  "comparison_note": "No new release/parcel impact; short exact map estimates cannot be compared as release precision or mission completion time.",
+  "raw_video_bytes": {
+    "downward.mp4": 14685440,
+    "overview.mp4": 5686132,
+    "follow.mp4": 14279326
+  },
+  "bag_bytes": 1986023
+}

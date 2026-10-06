@@ -26,7 +26,7 @@ header.stamp 是图像曝光时间，header.frame_id 是同帧源光学 frame。
 
 开关：视觉 `~exact_drop_projection`、控制 `/uav_vision/drop_exact_projection_enabled`，均默认 false。研究 `uav_high_view/full_strategy.launch` 和有效 Phase D/仿真包装器提供 A/B 接线；新模式要求 external guarded mission/context。正式整机模板由主代理后续适配，本工作树没有另造缺失模板。
 
-控制接收绝对投影，不以当前 yaw 再投影像素，保留每次 XY 移动上限。源时间和接收时间同时检查；旧包忽略且不延寿，新无效包阻断且旧合法包不能复活。释放前按最新位置/时间复核相同米制容差，继续要求原使命许可与飞行状态保护。精确模式跳过原 applyDropSlotOffset，避免两次补偿；当前代码 `current_pixel_error` 仅初始化/赋值，没有额外像素释放门槛。
+控制接收绝对投影，不以当前 yaw 再投影像素，保留每次 XY 移动上限。接收新几何时同时检查源时间和接收时间；旧包忽略且不延寿，新无效包阻断且旧合法包不能复活。下降入口从新鲜稳定观测锁存物理容差；锁后用当前新鲜 FC 位姿与保留的绝对目标复核距离，继续要求原使命许可与飞行状态保护，详见下方 2026-10-07 修复记录。精确模式跳过原 applyDropSlotOffset，避免两次补偿；当前代码 `current_pixel_error` 仅初始化/赋值，没有额外像素释放门槛。
 
 ## 安装外参与容差
 
@@ -76,6 +76,25 @@ git diff --check
 
 本补丁完成可运行仿真对照的编译/离线前置条件，不是动态投递精度验收。两轮同场景 A/B、真实 CameraInfo/TF 时效、槽位多 yaw 实测及机械带载落点仍待验证；没有人工中心真值的图像差异不能称真实精度提升。完整机体旋转包含倾斜，但不建模箱体自由落体速度、风或机构释放延迟。
 
-本次指定 gpt-6.1-sol 子代理被账户拒绝（不支持），遵守 AGENTS 未换其它模型。独立审查由会话主代理持续完成；未声称子代理验收通过。
-
 向导航权威 `liftrace-controlwork` 交接时同步上述 DropOffset 契约、对应控制最小补丁和 launch 开关，并标注本工作树未提交 diff 的后续正式 revision。几何 target ID 可更新，语义目标/决策/槽位/许可身份仍固定；map_point 新语义是已补偿 FC goal，不能再当原始靶心或叠加槽位。当前未写另一仓、不合并或推送。
+
+## 2026-10-07：锁后目标更新与有界释放承诺修复（已冻结）
+
+修复前源码为 `8c4be8917ba68847b339d907ab794af9182e8a45`。seed31 已关闭运行 `logs/drop_precision_seed31_20261007_002621` 的 88 条 offset 中，锁定来源帧 77.645 的目标为 `(7.393637,-1.052990)`，最后来源帧 83.249 为 `(7.423729,-1.005712)`，相差 **0.05604 m**；后续实际 setpoint 仍保留前者。根因是 `CrossDetectionDone` 的局部静态 `waypoint_temp` 遮蔽回调更新的成员变量。另一个根因是精确释放门持续要求新鲜图像，阻断既有使命层有界下降承诺。该运行仍是修复前 FAIL，未作为补丁动态验收。
+
+本次仅修改控制 cpp、`patrol_control.h`、`drop_geometry.h`、三个控制测试文件（`test_exact_drop_control.py`、`test_async_servo.py`、`test_external_landing_handoff.py`）及本文。后两项只补测试夹具字段；未修改消息、视觉、配置、使命许可权威或共享台账。
+
+- 红十字保留 legacy 静态缓存；精确模式引用成员 `this->waypoint_temp`。标准靶原本已用成员变量。精确模式在本次 alignment tick 后刷新实际 `patrol_cmd`，使锁后新目标直接进入控制输出。
+- 只在真正新鲜、稳定的下降入口锁存 `capture_tolerance_m_` 和固定 action/context。入口检查 offset、DropReady 源时间及接收时间、当前 FC 位姿和原物理容差；无需此刻已收到舵机许可，避免消息先后顺序破坏几何锁存。
+- 接受同 action 的新鲜合法绝对目标，仍用已有 `max_alignment_move_distance_` 约束相邻观测跳变以及每个输出目标相对当前机体的距离。释放距离使用未裁剪的绝对目标；新帧容差不覆盖入口锁存容差。
+- 锁后不再要求连续图像、旧 `alignment_error_m` 或 `uav_drop_ready_`。仍须当前 FC 位姿新鲜且距离在锁存容差内，以及原 `hasFreshMissionReleasePermission()` 的完整身份、epoch/revision、新鲜度和有效期限；固定 action 的原 deadline 也不可被 heartbeat 延长。
+- deny/expiry 立即阻断释放但不清几何；新 action、明确 context cancel 或新的无效几何清锁存。无效新包不能被旧包复活。没有刷新旧图像/证据时间戳，没有新增计时器或状态管理器。
+
+验证结果（全部离线，没有 ROS 节点、SITL 或执行机构启动）：
+
+- 控制完整回归 **114/114 PASS**，日志 `/tmp/drop_commitment_full_control_tests.log`；精确控制套件现为 **28 项**（原 9 + 新 19）。使用实际生成 ROS 消息、提取完整生产 `CrossDetectionDone` / `WayPointDetectDone` / `externalMissionTick` 和相关回调/门控，C++ UBSan；运输/发布/恢复支路为测试替身，释放通过表示进入测试提交入口，非实际舵机动作。
+- 状态测试覆盖标准靶及红十字锁后 0.05 m 合成新目标更新实际 adjust/patrol 输出；图像超时后合格位姿与新鲜许可可以提交；deny、expiry、错 action、陈旧许可、坏/陈旧 FC 位姿、deadline 到期、无效几何、过大跳变均不能提交。另覆盖初始陈旧/未稳定/未来 DropReady/未到位不能锁存，以及原机体移动限幅。0.05 m 是合成输入差值，不是实拍精度或落点误差。
+- 既有 `patrol_control-drop-action-test` **11/11 PASS**，日志 `/tmp/drop_commitment_gtest.log`。
+- `cmake --build patrol_uav_ws-patrol_planner/build --target patrol_control -- -j2` 增量 ROS 编译退出 **0**，最终日志 `/tmp/drop_commitment_incremental_build.log`。未启动二进制。全套测试只有既有 H 夹具的有符号比较警告。
+
+生产源码与测试已冻结，未 commit/push。下一步由主代理按其授权提交，并以同 seed31 验证锁后 setpoint 更新与有界承诺释放；本补丁不能据离线 PASS 宣称投递精度或实跑成功。

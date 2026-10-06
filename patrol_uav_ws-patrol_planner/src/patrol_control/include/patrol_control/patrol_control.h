@@ -375,7 +375,14 @@ private:
     double drop_exact_alignment_max_error_m_ = 0.0;
     ros::Time drop_projection_cutoff_;
     ros::Time last_drop_projection_stamp_;
+    // Geometry retained only after fresh stable descent entry. Release still
+    // belongs to the existing short-lived, action-bound authorization.
+    double capture_tolerance_m_ = 0.0;
+    uav_vision::AlignmentTargetContext exact_drop_goal_context_;
     bool projectExactDropOffsetToTarget(const uav_vision::DropOffset& msg);
+    bool beginExactDropDescent();
+    bool exactDropCommitmentMatches() const;
+    void clearExactDropCommitment();
     bool exactDropReleaseReady() const;
     bool drop_camera_info_valid_ = false;
     double drop_fx_ = 0.0;

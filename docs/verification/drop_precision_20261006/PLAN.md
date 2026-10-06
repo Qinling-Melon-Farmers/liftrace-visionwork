@@ -163,3 +163,22 @@ seed38步骤相同，只替换scene的31→38、seed参数38、case/center输出
 精度改善同时要求没有错类/错靶释放、时序门槛失效或明显任务退化；原始FAIL保留。没有新代码审查/编译通知前本代理仅准备。收到已编译/审查固定hash通知后，本代理作为唯一仿真操作代理先执行seed31；case38等待其独立明确评审通知后执行；同一FAIL先分析，不因自动continuation再启动或追加轮次。主代理负责共享记录、最终版本提交和推广决定。
 
 本轮本代理验证记录：projection_preflight --self-check PASS（两seed/32项参数各自验证/16冻结文件/旧runtime拒绝），runner dry-run通过；precision_eval.py verify PASS（3 baselines / 9 ACK metrics / 0 missing）；rospack解析H正确；check_sim_processes无残留；未启动仿真、未动生产/共享配置或REVIEW.md、未提交。
+## 2026-10-07 diagnostic FAIL and isolated corrective batch
+
+The original seed31 run ended automatically on its first release deadline at ROS195.119, release_proven_not_started at195.123, zero releases, four recorded collisions; wrapper cleanup PASS and tracked source unchanged during that run. This is diagnostic FAIL, not a completed precision case. See results_seed31/REPORT.md and the original logs/drop_precision_20261006_batch/matrix.json. Original logs/matrix remain intact. No case38 or retry has launched.
+
+Corrective preparation adds only --batch-name to this directory's runner. Allowed names are drop_precision_20261006_<lowercase suffix>, suffix length1..48 and characters a-z/0-9/_/-. No paths allowed. The default remains the original batch; reuse after source change is refused. Choose a NEW name for the reviewed correction; both cases share it. Dry-run is read-only and does not create the batch. New batch selection retains global sole-operator lock, pinned HEAD/build/tree checks, both exact switches, NMS=false, collision stop=false, zero slot and frozen scenes.
+
+After a NEW main compile/review/commit and explicit case0 launch notification (not authorized by this preparation text):
+
+```powershell
+wsl -e bash -c 'cd /home/xhj/liftrace-worktrees/r2026-high-view-search && source /opt/ros/noetic/setup.bash && source vision_ws/devel/setup.bash && source patrol_uav_ws-patrol_planner/devel/setup.bash --extend && source /home/xhj/miniconda3/etc/profile.d/conda.sh && conda activate rl_drone && python -B docs/verification/drop_precision_20261006/run_case.py --case 0 --batch-name drop_precision_20261006_exactfix_batch --reviewed-head FIX_REVIEWED_HEAD_REPLACE --execute-authorized'
+```
+
+Only after the corrective seed31 report and NEW explicit case38 launch notification:
+
+```powershell
+wsl -e bash -c 'cd /home/xhj/liftrace-worktrees/r2026-high-view-search && source /opt/ros/noetic/setup.bash && source vision_ws/devel/setup.bash && source patrol_uav_ws-patrol_planner/devel/setup.bash --extend && source /home/xhj/miniconda3/etc/profile.d/conda.sh && conda activate rl_drone && python -B docs/verification/drop_precision_20261006/run_case.py --case 1 --batch-name drop_precision_20261006_exactfix_batch --reviewed-head FIX_REVIEWED_HEAD_REPLACE --previous-run-reviewed CORRECTIVE_SEED31_RUN_PATH_REPLACE --execute-authorized'
+```
+
+Use NEW analysis destinations results_seed31_exactfix / results_seed38_exactfix; diagnostic results_seed31 is preserved. No heavy analysis videos for the diagnostic. The recorded live sample crossed terminal and its disabled state is not preterminal stale evidence; closed-bag samples at84/172/184/195.09 supply the preterminal context. Main owns shared change log and commits. Local Windows cwd C:\Users\ASUS and login:false avoid UNC exec startup delay; WSL remains explicit wsl -e bash -c.

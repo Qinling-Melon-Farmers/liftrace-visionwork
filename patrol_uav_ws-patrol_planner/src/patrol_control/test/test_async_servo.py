@@ -27,6 +27,7 @@ def method(source, signature):
 PROGRAM = r"""
 #include "patrol_control/async_servo.h"
 #include "patrol_control/servo_action_result.h"
+#include "patrol_control/drop_geometry.h"
 #include <atomic>
 #include <cassert>
 #include <condition_variable>
@@ -141,6 +142,9 @@ public:
     struct { std::string permission_epoch="test"; std::uint64_t permission_revision=18; } release_authorization_;
     bool permission_ready=true;
     bool drop_exact_projection_enabled_=false;
+    double capture_tolerance_m_=0;
+    uav_vision::AlignmentTargetContext exact_drop_goal_context_;
+    void clearUavVisionAlignmentState() { capture_tolerance_m_=0; }
     bool exact_geometry_ready=true;
     bool exactDropReleaseReady() const { return exact_geometry_ready; }
     bool hasFreshMissionReleasePermission() const { return permission_ready; }

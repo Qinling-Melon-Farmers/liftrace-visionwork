@@ -7,6 +7,7 @@ import argparse
 import fcntl
 import json
 import os
+import re
 from pathlib import Path
 import shlex
 import signal
@@ -16,7 +17,7 @@ from projection_preflight import (ROOT,D,MODEL,SEEDS,scene_for,load_launch,
                                   check_parameters,flatten,check_build)
 import yaml
 
-BATCH = ROOT/'logs/drop_precision_20261006_batch'
+DEFAULT_BATCH_NAME = 'drop_precision_20261006_batch'
 THREADS = dict(OPENCV_FOR_THREADS_NUM='1',OMP_NUM_THREADS='2',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='2')
 
 
@@ -46,18 +47,23 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--case',type=int,choices=(0,1),required=True)
     parser.add_argument('--model',type=Path,default=MODEL)
+    parser.add_argument('--batch-name',default=DEFAULT_BATCH_NAME,
+        help='Preserve prior results: drop_precision_20261006_<lowercase task suffix>, maximum 48 suffix characters')
     parser.add_argument('--dry-run',action='store_true')
     parser.add_argument('--execute-authorized',action='store_true')
     parser.add_argument('--reviewed-head',help='Exact commit reviewed/built by main before THIS batch')
     parser.add_argument('--previous-run-reviewed',type=Path,help='Case 1: exact prior run inspected for first failure')
     args=parser.parse_args()
+    if not re.fullmatch(r'drop_precision_20261006_[a-z0-9][a-z0-9_-]{0,47}',args.batch_name):
+        parser.error('Batch name must be a single drop_precision_20261006_<lowercase task suffix>; no paths')
+    batch=ROOT/'logs'/args.batch_name
     if args.dry_run and args.execute_authorized:
         parser.error('Dry-run cannot also execute')
     seed=SEEDS[args.case]
     preflight,params=load_launch(seed,args.model)
     cmd=command_for(seed,args.model)
     if not args.execute_authorized:
-        print(json.dumps(dict(mode='DRY_RUN',simulation_started=False,preflight=preflight,command=shlex.join(cmd)),indent=2))
+        print(json.dumps(dict(mode='DRY_RUN',simulation_started=False,batch=str(batch),preflight=preflight,command=shlex.join(cmd)),indent=2))
         return
     if not args.reviewed_head:
         parser.error('Execution requires main review/build notification and --reviewed-head')
@@ -75,15 +81,15 @@ def main():
     lock=open('/tmp/liftrace_drop_precision_20261006.lock','w')
     fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     subprocess.run(['bash','top_level_scripts/check_sim_processes.sh'],cwd=ROOT,check=True)
-    path=BATCH/'matrix.json'
-    state=json.loads(path.read_text()) if path.exists() else dict(source=head,cases=[[31,'precision'],[38,'precision']],results=[],active=None,status='READY')
+    path=batch/'matrix.json'
+    state=json.loads(path.read_text()) if path.exists() else dict(source=head,batch_name=args.batch_name,cases=[[31,'precision'],[38,'precision']],results=[],active=None,status='READY')
     if state['source']!=head or state.get('active') or len(state['results'])!=args.case or state['status'] not in ('READY','AWAITING_REVIEW'):
         raise SystemExit('Existing batch/source/order prevents overwrite or retry')
     if args.case==1:
         prior=state['results'][0]
         if not prior.get('cleanup_pass') or not args.previous_run_reviewed or args.previous_run_reviewed.resolve()!=Path(prior['run']).resolve():
             raise SystemExit('Inspect the exact seed31 run/first failure before case 1')
-    BATCH.mkdir(exist_ok=True)
+    batch.mkdir(exist_ok=True)
     def save():
         tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(state,indent=2)+'\n');tmp.replace(path)
     prefix=f'drop_precision_seed{seed}'
@@ -103,7 +109,7 @@ def main():
     signal.signal(signal.SIGHUP,interrupt)
     child=None
     try:
-        with (BATCH/f'precision_seed{seed}.log').open('x') as output:
+        with (batch/f'precision_seed{seed}.log').open('x') as output:
             child=subprocess.Popen(cmd,cwd=ROOT,env=env,stdout=output,stderr=subprocess.STDOUT,start_new_session=True)
             row['pid']=child.pid;save()
             runtime_signature=None
