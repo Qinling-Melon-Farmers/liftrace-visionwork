@@ -214,7 +214,13 @@ def main():
                     and 0<=time.monotonic()-state_rx[0]<float(startup['state_max_age'])):
                 if offboard_seen and s.mode!='OFFBOARD':
                     auto_cancelled=True
-                    print('AUTO_SEQUENCE_CANCELLED_PILOT_MODE_CHANGE',flush=True)
+                    if not start_attempted:
+                        print('AUTO_SEQUENCE_CANCELLED_PILOT_MODE_CHANGE',flush=True)
+                    else:
+                        # This watcher only prevents another start request;
+                        # the bridge decides whether an active LAND handoff
+                        # is expected or an actual manual cancellation.
+                        print('AUTO_START_WATCHER_STOPPED_AFTER_MISSION_START',flush=True)
                 elif s.mode=='OFFBOARD':
                     offboard_seen=True
                     with lock:

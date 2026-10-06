@@ -54,4 +54,4 @@
 AUTO.LAND回传目标航向连续增至约62.26°，目标X从1.98降至1.14m；切POSCTL后航向目标停止变化。今日对应ULog随后经LOG_REQUEST_DATA成功补取：本轮没有新增reset，历史heading delta仅−1.13°；有效零经纬度LAND目标及无全球参考与本地原点回拉相符，结合精确固件源码成为首要根因链。内部接受半径/航向锁初始化仍属源码推断，飞控固件和参数未改。详情见[YAW_DIAGNOSIS.md](YAW_DIAGNOSIS.md)；正常交接身份契约见[INTERFACE_PROPOSAL.md](INTERFACE_PROPOSAL.md)。
 
 
-2026-10-06后续对齐：同工作树另有视觉候选提交 `f0ff8999`（H灰度形态分割），其报告明确尚未上板；本报告的板端一致性覆盖本次13项POSCTL控制补丁。feature分支的控制同步范围和既有EV测试限制见[BRANCH_SYNC.md](BRANCH_SYNC.md)。
+2026-10-06后续对齐：另一会话已部署视觉提交 `f0ff8999`（H灰度形态分割），ARM构建与几何复跑通过，见[视觉部署报告](../../verification/h_morphology_20261006/DEPLOYMENT.md)。本报告的13项一致性检查记录POSCTL控制补丁部署当时的比较结果，后续视觉/说明修订独立记录；不声称各分支整仓相同。feature分支同步范围和既有EV测试限制见[BRANCH_SYNC.md](BRANCH_SYNC.md)。

@@ -15,4 +15,4 @@
 
 EV两个既有失败为 `test_recovery_hold.py` 的轨迹进度C++测试fixture缺符号，及 `test_external_mission_contract.py::test_external_landing_is_fresh_h_gated_and_fails_closed` 的旧源码契约断言；已在修改前HEAD复现。两个跳过是EV旧链没有来源分支的异步ALIGN能力。本次没有引入EV缺失的release_transactions投递实现，没有把这些结果记作整仓验收PASS；该研究分支未部署到飞机。
 
-所有上述运行及部署文档提交均已推送对应feature远端；独立视觉候选f0ff8999尚未在本轮板端部署。用户原有未跟踪产物/脚本保留。新ULog诊断是文档追加，不改变已通过检查的运行代码，不额外启动测试飞行。
+所有上述运行及部署文档提交均已推送对应feature远端；另一会话已部署独立H视觉f0ff8999并完成ARM/图形回归，详见视觉部署报告。用户原有未跟踪产物/脚本保留。新ULog诊断是文档追加，不改变已通过检查的运行代码，不额外启动测试飞行。
