@@ -188,16 +188,11 @@ public:
     void missionCommandCallback(const patrol_control::MissionCommand::ConstPtr&);
     void plannercmdCallback(const geometry_msgs::PoseStamped&);
     bool hasValidExternalPlannerCommand() const;
-    void holdExternalPlannerHeight(const char* source, double rejected_z);
-    static constexpr double external_planner_height_epsilon_=1e-9;
-    bool external_planner_height_hold_active_=false;
-    geometry_msgs::PoseStamped external_planner_height_hold_;
     void runPointTimerBranch();
 };
 PRODUCTION_METHODS
 void LLController::runPointTimerBranch() {
     assert(external_mission_mode_ && Drone_mode==Run_point);
-    bool external_planner_command_accepted=false;
     PRODUCTION_RUN_POINT_BRANCH
 }
 void state(LLController& c, const std::string& mode="OFFBOARD", bool connected=true, bool armed=true) {
@@ -448,16 +443,11 @@ int main(int argc, char** argv) {
         assert(!missing.external_landing_active_ && missing.set_mode_client.calls==0);
     } else if (test=="planner_hold") {
         auto c=landing();
-        // An old height latch must not survive cancellation, even when the
-        // cancellation path enters Run_point before the next timer tick.
-        c.external_planner_height_hold_active_=true;
-        c.external_planner_height_hold_.pose.position.x=9;
         auto old_trajectory=c.uav_pose;
         old_trajectory.pose.position.x+=.10;
         c.plannercmdCallback(old_trajectory);
         assert(c.hasValidExternalPlannerCommand());
         state(c,"POSCTL"); cancelled(c);
-        assert(!c.external_planner_height_hold_active_);
         const auto hold=c.patrol_cmd;
         for (int i=0; i<8; ++i) {
             ros::clock+=.05;
@@ -580,7 +570,6 @@ class ExternalLandingHandoffTest(unittest.TestCase):
             'void LLController::missionCommandCallback(',
             'void LLController::plannercmdCallback(',
             'bool LLController::hasValidExternalPlannerCommand(',
-            'void LLController::holdExternalPlannerHeight(',
         )
         methods = '\n'.join(production_method(source, item) for item in signatures)
         timer = production_method(source, 'void LLController::cmdCallback(')

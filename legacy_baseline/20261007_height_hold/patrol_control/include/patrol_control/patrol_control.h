@@ -246,10 +246,6 @@ private:
     ros::Publisher height_replan_pub_;
     ros::Time height_replan_stamp_;
     double external_planner_max_command_z_ = 3.5;
-    // Match Fast-Planner ReferenceHeight's numerical boundary (metres).
-    static constexpr double external_planner_height_epsilon_ = 1e-9;
-    bool external_planner_height_hold_active_ = false;
-    geometry_msgs::PoseStamped external_planner_height_hold_;
     std::string external_landing_frame_ = "camera_init";
     double external_landing_capture_height_ = 0.75;
     double external_landing_watchdog_timeout_sec_ = 120.0;
@@ -424,7 +420,6 @@ private:
     bool hasFreshDropOffset() const;
     bool hasFreshMissionReleasePermission() const;
     bool hasValidExternalPlannerCommand() const;
-    void holdExternalPlannerHeight(const char* source, double rejected_z);
     DropReleaseGate currentDropReleaseGate() const;
     void clearUavVisionAlignmentState();
     void updateGoalFromSelectedTarget(const std::string& class_name);

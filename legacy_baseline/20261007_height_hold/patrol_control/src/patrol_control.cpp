@@ -435,7 +435,6 @@ void LLController::externalMissionTick() {
         // Keep the completed recovery climb target, not a transient measured height.
         patrol_cmd.pose.position.z = align_height;
         external_waiting_for_motion_ = true;
-        external_planner_height_hold_active_ = false;
         patrol_cmd.header.frame_id = "camera_init";
         mavros_point_cmd = patrol_cmd;
         last_mavros_point_cmd = patrol_cmd;
@@ -584,7 +583,6 @@ void LLController::failExternalLanding(const std::string& reason) {
     have_planner_cmd = false;
     // Fresh samples of the previous trajectory cannot release this hold.
     external_waiting_for_motion_ = true;
-    external_planner_height_hold_active_ = false;
     Point_mode = Nothing_point;
     Drone_mode = Run_point;
     ROS_ERROR("[ExternalLanding] failed closed and holding position: %s",
@@ -1190,31 +1188,6 @@ bool LLController::hasValidExternalPlannerCommand() const {
         std::sqrt(distance_sq));
     return true;
 }
-void LLController::holdExternalPlannerHeight(const char* source, double rejected_z) {
-    if (!external_planner_height_hold_active_) {
-        // Capture once, including XY. Do not turn a rejected curve into a
-        // horizontal trajectory or force a descent from an over-limit pose.
-        external_planner_height_hold_ = uav_pose;
-        external_planner_height_hold_active_ = true;
-        height_replan_pub_.publish(std_msgs::Empty());
-        height_replan_stamp_ = ros::Time::now();
-    } else if ((ros::Time::now() - height_replan_stamp_).toSec() >= 0.2) {
-        height_replan_pub_.publish(std_msgs::Empty());
-        height_replan_stamp_ = ros::Time::now();
-    }
-    mavros_point_cmd = external_planner_height_hold_;
-    have_planner_cmd = false;
-    ROS_WARN_THROTTLE(1.0,
-        "[ExternalPlanner] height violation: holding and invalidating trajectory "
-        "source=%s planner_z=%.12f rejected_z=%.12f current_z=%.12f limit_z=%.12f "
-        "hold=(%.6f, %.6f, %.6f)",
-        source, planner_cmd.pose.position.z, rejected_z,
-        uav_pose.pose.position.z, external_planner_max_command_z_,
-        external_planner_height_hold_.pose.position.x,
-        external_planner_height_hold_.pose.position.y,
-        external_planner_height_hold_.pose.position.z);
-}
-
 void LLController::servoMarkyCallback(const std_msgs::Bool& msg) {
     servo_marky = msg;
     ROS_INFO("\033[1;35m[servoMarkyCallback] Received servo_marky: %s\033[0m", servo_marky.data ? "true" : "false");
@@ -1255,11 +1228,6 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
         (Drone_mode == Aligning || Drone_mode == Land)) {
         externalMissionTick();
     }
-    // A height hold belongs only to external planner navigation. ALIGN,
-    // takeoff and landing retain their existing motion authority.
-    if (!external_mission_mode_ || Drone_mode != Run_point)
-        external_planner_height_hold_active_ = false;
-    bool external_planner_command_accepted = false;
     publishAlignMode(desiredAlignMode());
     std_msgs::Int8 point_class_msg;
     point_class_msg.data = Drone_mode;
@@ -1296,17 +1264,15 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                 if (external_waiting_for_motion_) {
                     // A fresh sample from an old trajectory is not a new mission.
                     mavros_point_cmd = patrol_cmd;
-                } else if (have_planner_cmd && planner_cmd.pose.position.z >
-                           external_planner_max_command_z_ + external_planner_height_epsilon_) {
+                } else if (have_planner_cmd && planner_cmd.pose.position.z > external_planner_max_command_z_) {
                     // Never execute XY from a curve whose Z has been clipped.
-                    holdExternalPlannerHeight("planner", planner_cmd.pose.position.z);
+                    mavros_point_cmd = uav_pose;
+                    have_planner_cmd = false;
+                    height_replan_pub_.publish(std_msgs::Empty());
+                    height_replan_stamp_=ros::Time::now();
+                    ROS_WARN_THROTTLE(1.0,"[ExternalPlanner] height violation: holding and invalidating trajectory");
                 } else if (hasValidExternalPlannerCommand()) {
                     mavros_point_cmd = planner_cmd;
-                    // Keep the latch until the post-distance-limit command
-                    // also passes: an over-limit current pose can raise it.
-                    external_planner_command_accepted = true;
-                } else if (external_planner_height_hold_active_) {
-                    mavros_point_cmd = external_planner_height_hold_;
                 } else {
                     mavros_point_cmd = last_mavros_point_cmd;
                 }
@@ -1578,9 +1544,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     Eigen::Vector3d target_pos(mavros_point_cmd.pose.position.x, mavros_point_cmd.pose.position.y, mavros_point_cmd.pose.position.z);
     double distance_to_target = (target_pos - current_pos).norm();
     // 如果距离超过 px4_max_distance，则进行插值
-    if (distance_to_target > px4_max_distance &&
-        !(external_mission_mode_ && Drone_mode == Run_point &&
-          external_planner_height_hold_active_ && !external_planner_command_accepted)) {
+    if (distance_to_target > px4_max_distance) {
         Eigen::Vector3d direction = (target_pos - current_pos).normalized();
         Eigen::Vector3d new_pos = current_pos + direction * px4_max_distance;
         // 更新目标点为插值后的点位
@@ -1597,21 +1561,21 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
         mavros_point_cmd.pose.position.y = takeoff_point[1];
     }
 
-    // The distance limiter interpolates from the measured pose, which may
-    // already be above the ceiling. Reject its whole result, not just its Z.
-    // A latched hold can itself be above the ceiling; this is a stop request,
-    // not a claim that measured height or the FC local frame is safe/reset-free.
-    if (external_mission_mode_ && mavros_point_cmd.pose.position.z >
-        external_planner_max_command_z_ + external_planner_height_epsilon_) {
+    // The distance limiter interpolates from the current vehicle pose.  When
+    // the vehicle is already above the configured ceiling, that interpolation
+    // can raise a previously capped planner command above the ceiling again.
+    // Enforce the invariant on the final command sent to MAVROS as well.
+    if (external_mission_mode_ && mavros_point_cmd.pose.position.z > external_planner_max_command_z_) {
         if (Drone_mode==Run_point) {
-            holdExternalPlannerHeight("final", mavros_point_cmd.pose.position.z);
+            mavros_point_cmd=uav_pose;
+            have_planner_cmd=false;
+            if ((ros::Time::now()-height_replan_stamp_).toSec()>=0.2) {
+                height_replan_pub_.publish(std_msgs::Empty());height_replan_stamp_=ros::Time::now();
+            }
         } else {
             // Existing non-planner ceiling safeguard, e.g. recovery/takeoff.
             mavros_point_cmd.pose.position.z=external_planner_max_command_z_;
         }
-    } else if (external_mission_mode_ && Drone_mode == Run_point &&
-               external_planner_command_accepted) {
-        external_planner_height_hold_active_ = false;
     }
 
     // 提取当前 yaw 和目标 yaw
@@ -3227,7 +3191,6 @@ void LLController::missionCommandCallback(
             current_task_type = (msg->target_class == "red_cross")
                 ? CROSS_MISSION : MAIN_MISSION;
             Point_mode = Detect_point;
-            external_planner_height_hold_active_ = false;
             Drone_mode = Aligning;
             goal.clear();
             if (!msg->target_class.empty()) {
@@ -3326,7 +3289,6 @@ void LLController::missionCommandCallback(
             adjust_target_position[3] =
                 tf::getYaw(external_landing_goal_.pose.orientation);
             patrol_cmd = external_landing_goal_;
-            external_planner_height_hold_active_ = false;
             Drone_mode = Land;
             ROS_INFO(
                 "[PatrolControl] External LAND command accepted; awaiting fresh H evidence");

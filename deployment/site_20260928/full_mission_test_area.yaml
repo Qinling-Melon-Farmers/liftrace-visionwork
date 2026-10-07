@@ -52,7 +52,8 @@ search_line_x:
 - 6.0
 compressed_image_topic: /camera/image_raw/compressed
 high_agl: 2.0
-max_agl: 2.0
+# Keep tracking/replanning headroom above the FC 2.0m survey target.
+max_agl: 2.3
 auto_start_after_arm: true
 initialization_timeout: 300.0
 obstacle_columns_enabled: true

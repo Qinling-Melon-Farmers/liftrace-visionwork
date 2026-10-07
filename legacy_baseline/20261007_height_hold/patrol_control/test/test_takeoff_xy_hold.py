@@ -15,9 +15,7 @@ class TakeoffXYTest(unittest.TestCase):
 #define ROS_INFO_THROTTLE(...)
 struct Vec { double x,y,z; }; struct Pose { Vec position; }; struct Msg { Pose pose; };
 void run(int Drone_mode) {
-  const int Takeoff=0, Run_point=1;
-  bool external_mission_mode_=false, external_planner_height_hold_active_=false;
-  bool external_planner_command_accepted=false;
+  const int Takeoff=0;
   Msg uav_pose{{{-.325,-.278,.094}}},mavros_point_cmd{{{0,0,1.18}}};
   double px4_max_distance=.4; double takeoff_point[3]={0,0,1.18};
 '''+block+'''
