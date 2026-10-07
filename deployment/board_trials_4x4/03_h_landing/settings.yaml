@@ -13,6 +13,7 @@ landing_posctl:
   trigger_agl: 0.37
   xy_tolerance_m: 0.05
   height_tolerance_m: 0.02
+  capture_height_tolerance_m: 0.10  # 仅观察高位；低位高度容差仍为 ±0.02m。
   max_horizontal_speed_mps: 0.03
   max_vertical_speed_mps: 0.05
   stable_duration_sec: 0.5

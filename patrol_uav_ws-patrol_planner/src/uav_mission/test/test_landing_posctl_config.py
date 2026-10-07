@@ -98,6 +98,7 @@ class LowHConfigTests(unittest.TestCase):
         settings = copy.deepcopy(self.settings)
         settings['landing_posctl'].update(target_agl=.36, trigger_agl=.39,
             xy_tolerance_m=.04, height_tolerance_m=.015,
+            capture_height_tolerance_m=.12,
             max_horizontal_speed_mps=.025, max_vertical_speed_mps=.04,
             stable_duration_sec=.75, max_odom_age_sec=.15,
             max_sample_gap_sec=.15, min_samples=4)

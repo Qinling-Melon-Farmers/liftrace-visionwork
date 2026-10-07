@@ -1,6 +1,6 @@
 """硬件配置生成器共用的 POSCTL 低位 H 交接参数。
 
-H 捕获保持原 8cm、10 帧门槛；新增精度用于冻结 H 点附近的最终低位停稳，
+H 捕获保持原 8cm、10 帧门槛，高位停稳高度容差独立于最终低位交接，
 不使用下降中的残缺图形重定位。AUTO.LAND 保持原 0.40/0.55m 离地高度。
 """
 import math
@@ -11,6 +11,7 @@ DEFAULTS = dict(
     trigger_agl=0.37,
     xy_tolerance_m=0.05,
     height_tolerance_m=0.02,
+    capture_height_tolerance_m=0.10,
     max_horizontal_speed_mps=0.03,
     max_vertical_speed_mps=0.05,
     stable_duration_sec=0.5,

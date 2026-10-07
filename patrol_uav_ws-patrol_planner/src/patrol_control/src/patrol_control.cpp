@@ -1822,9 +1822,15 @@ void LLController::load_params() {
     drop_settle_config_.stable_duration_sec = 0.30;
     load_stability("drop_system/settle", &drop_settle_config_);
     load_stability("external_landing/posctl", &landing_settle_config_);
+    // 观察高位仅放宽高度可用范围；低位交接的高度、位置及速度门槛保持独立。
+    landing_capture_config_ = landing_settle_config_;
+    landing_capture_config_.height_tolerance_m = nh_.param(
+        "external_landing/posctl/capture_height_tolerance_m", 0.10);
+    if (!landing_capture_config_.valid())
+        throw std::invalid_argument("invalid H capture height tolerance");
     drop_capture_window_ = LandingHandoffStabilityWindow(drop_settle_config_);
     drop_release_window_ = LandingHandoffStabilityWindow(drop_settle_config_);
-    landing_capture_window_ = LandingHandoffStabilityWindow(landing_settle_config_);
+    landing_capture_window_ = LandingHandoffStabilityWindow(landing_capture_config_);
     landing_handoff_window_ = LandingHandoffStabilityWindow(landing_settle_config_);
 
     // 开关
@@ -3672,7 +3678,7 @@ bool LLController::landingMotionSettled(bool handoff, double xy_error) {
     sample.receipt_stamp_sec=motion_odom_receipt_.toSec();
     sample.height_m=motion_odom_.pose.pose.position.z;
     sample.max_handoff_height_m=handoff ? external_landing_auto_land_height_ :
-        external_landing_capture_height_+landing_settle_config_.height_tolerance_m;
+        external_landing_capture_height_+landing_capture_config_.height_tolerance_m;
     const auto& goal = handoff ? external_landing_aligned_goal_ : land_mark_point;
     sample.xy_error_m=std::max(xy_error, std::hypot(
         motion_odom_.pose.pose.position.x-goal.pose.position.x,

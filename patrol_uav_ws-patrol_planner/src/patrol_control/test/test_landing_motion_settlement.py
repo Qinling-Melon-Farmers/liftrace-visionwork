@@ -15,7 +15,7 @@ from test_external_landing_handoff import PROGRAM, PACKAGE, production_method
 
 
 FEEDBACK = r'''
-    patrol_control::LandingHandoffStabilityConfig landing_settle_config_;
+    patrol_control::LandingHandoffStabilityConfig landing_settle_config_, landing_capture_config_;
     patrol_control::LandingHandoffStabilityWindow landing_capture_window_, landing_handoff_window_;
     struct {
         Header header;
@@ -57,6 +57,9 @@ LLController hlanding() {
     c.external_landing_capture_height_=1.2;
     c.land_height=.35;
     c.external_landing_auto_land_height_=.37;
+    c.landing_capture_config_=c.landing_settle_config_;
+    c.landing_capture_config_.height_tolerance_m=.10;
+    c.landing_capture_window_=patrol_control::LandingHandoffStabilityWindow(c.landing_capture_config_);
     return c;
 }
 int main(int argc, char** argv) {
@@ -67,7 +70,7 @@ int main(int argc, char** argv) {
         assert(c.external_landing_stable_count_==0);
         feedback(c,100.125,1.2,0.,.10); c.externalLandingTick();
         assert(c.external_landing_stable_count_==0);
-        feedback(c,100.25,1.24); c.externalLandingTick();
+        feedback(c,100.25,1.31); c.externalLandingTick();
         assert(c.external_landing_stable_count_==0);
         for (int i=0;i<14;++i) {
             feedback(c,100.375+i*.125,1.2); c.externalLandingTick();
@@ -76,6 +79,34 @@ int main(int argc, char** argv) {
             assert(c.patrol_cmd.pose.position.z==(i==13 ? .35 : 1.2));
         }
         assert(c.set_mode_client.calls==0);
+    } else if (name=="capture_accepts_four_to_six_cm_height_error_only_at_high_view") {
+        // 真实高位窗口允许 4～6cm 高度偏差，仍需停稳 0.5s 和十张不同 H 图像。
+        for (int i=0;i<=55;++i) {
+            feedback(c,100+i*.05,1.2+(i%2 ? .04 : .06),0.,0.,i%5==0);
+            c.externalLandingTick();
+            assert(c.external_landing_stable_count_==(i<10 ? 0 : (i-10)/5+1));
+            assert(c.external_landing_alignment_complete_==(i==55));
+            assert(c.patrol_cmd.pose.position.z==(i==55 ? .35 : 1.2));
+            assert(c.set_mode_client.calls==0);
+        }
+    } else if (name=="low_handoff_still_rejects_four_to_six_cm_height_error") {
+        c.external_landing_alignment_complete_=true;
+        c.external_landing_aligned_goal_.pose.position={1,2,.35};
+        // 上偏超出 0.37 ceiling；下偏虽低于 ceiling，仍必须拒绝超出 ±0.02 的高度误差。
+        for (double error : {.04,.06,-.04,-.06}) {
+            for (int i=0;i<=10;++i) {
+                feedback(c,ros::clock+.05,.35+error,0.,0.,false);
+                assert(!c.landingMotionSettled(true,0));
+                c.externalLandingTick();
+                assert(c.set_mode_client.calls==0);
+            }
+        }
+        // 回到原低位目标后仍须重新形成完整 0.5s 窗口。
+        const double start=ros::clock+.05;
+        for (int i=0;i<=10;++i) {
+            feedback(c,start+i*.05,.35,0.,0.,false); c.externalLandingTick();
+            assert(c.set_mode_client.calls==(i==10 ? 1 : 0));
+        }
     } else if (name=="capture_20hz_with_four_h_frames_per_second") {
         // 控制与 odom 按 20Hz 更新，H 只有 4Hz；不能把图像间隔当作 odom 断流。
         for (int i=0;i<=55;++i) {
@@ -223,6 +254,8 @@ class ProductionHSettlementTests(unittest.TestCase):
 
 
 for _case in ('capture_center_speed_height_and_ten_frames',
+              'capture_accepts_four_to_six_cm_height_error_only_at_high_view',
+              'low_handoff_still_rejects_four_to_six_cm_height_error',
               'capture_20hz_with_four_h_frames_per_second',
               'capture_pending_3ms_preserves_window_and_four_hz_images',
               'handoff_pending_3ms_preserves_window_without_early_posctl',

@@ -125,7 +125,7 @@ private:
     geometry_msgs::Point compensated_target_center_;
     uav_vision::AlignmentTargetContext compensated_context_;
     ros::Time compensated_observation_stamp_;
-    LandingHandoffStabilityConfig drop_settle_config_, landing_settle_config_;
+    LandingHandoffStabilityConfig drop_settle_config_, landing_settle_config_, landing_capture_config_;
     LandingHandoffStabilityWindow drop_capture_window_, drop_release_window_;
     LandingHandoffStabilityWindow landing_capture_window_, landing_handoff_window_;
     void motionOdomCallback(const nav_msgs::Odometry::ConstPtr& msg);
