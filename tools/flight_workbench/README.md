@@ -1,5 +1,11 @@
 # 试飞验证看板（flight_workbench）
 
+前线可分发工作台 ZIP 说明见 [README_DISTRIBUTION.md](README_DISTRIBUTION.md)。在既有
+`rl_drone` 环境运行 `python tools/flight_workbench/build_zip.py` 即可打包当前工作台文件；
+使用明确文件清单，不包含个人状态、日志或板端工程，不要求提交后才能打包。
+Windows 通过 `start_windows.cmd` 使用已安装的默认 WSL 后端，不支持 Windows 原生 Python。
+离线解压启动检查：`python tools/flight_workbench/tests/test_distribution.py`。
+
 2026-10-06新增独立低空观察区，顺序为FC AGL 0.60m悬停、短程前移、矩形；分别原样调用
 `deployment/low_hover_observation/start.sh flight hover|forward|square`。先选择观察卡片再点一键设备，
 仅编排ROS、MAVROS、MID360与独立定位/EV终端，不启动相机、视觉、规划、任务管理器或舵机。
