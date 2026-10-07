@@ -1,0 +1,98 @@
+# 成功轮原始 settings：仅测试档案，不作正赛默认。
+mode: high_view_full
+low_agl: 1.4
+high_agl: 2.0
+drop_agl: 0.35
+landing_transit_agl: 1.0
+landing_capture_agl: 1.2
+landing_xy:
+- 7.7
+- -3.45
+cruise_speed: 0.5
+cruise_acceleration: 0.35
+virtual_ceiling_enabled: false
+alignment_mode: legacy_static
+actuator_mode: real
+raw_servo_service: /legacy/Servo_raw
+trial_kind: full_mission
+corridor_waypoints:
+- x: 6.5
+  y: 2.1
+  agl: 0.9
+- x: 7.7
+  y: 2.1
+  agl: 0.9
+- x: 7.7
+  y: 1.0
+  agl: 0.9
+- x: 7.7
+  y: -0.7
+  agl: 0.9
+- x: 7.7
+  y: -1.1
+  agl: 0.9
+- x: 7.7
+  y: -2.5
+  agl: 0.9
+- x: 7.7
+  y: -3.45
+  agl: 0.9
+motion_optimization:
+  enabled: true
+landing_handoff_mode: POSCTL
+motion_action_timeout: 60.0
+flight_area:
+  center_bounds:
+  - -0.35
+  - 8.25
+  - -3.75
+  - 2.7
+  target_bounds:
+  - -0.35
+  - 8.5
+  - -4.0
+  - 2.7
+  search_bounds:
+  - 0.4
+  - 5.8
+  - -2.4
+  - 2.7
+  staging_xy:
+  - 0.8
+  - 0.0
+  survey_xy:
+  - - 1.1
+    - -1.5
+  - - 5.0
+    - -1.5
+  - - 5.0
+    - 1.8
+  - - 1.1
+    - 1.8
+  - - 1.1
+    - -1.5
+  map_size:
+  - 18.0
+  - 12.0
+  - 4.0
+search_line_x:
+- 0.6
+- 1.2
+- 1.8
+- 2.4
+- 3.0
+- 3.6
+- 4.2
+- 4.8
+- 5.4
+compressed_image_topic: /camera/image_raw/compressed
+max_agl: 2.3
+auto_start_after_arm: true
+initialization_timeout: 300.0
+obstacle_columns_enabled: true
+corridor_geometry:
+  wall_axis: 1
+  wall_coordinates:
+  - 0.0
+  - -1.4
+  entry_waypoints: 1

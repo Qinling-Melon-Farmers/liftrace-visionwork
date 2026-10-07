@@ -1,0 +1,8 @@
+deployment/competition/check_wiring.py
+patrol_uav_ws-patrol_planner/src/actuator_pwm/tests/test_startup.cpp
+patrol_uav_ws-patrol_planner/src/patrol_control/test/test_external_landing_handoff.py
+patrol_uav_ws-patrol_planner/src/patrol_control/test/test_height_hold.py
+patrol_uav_ws-patrol_planner/src/patrol_control/test/test_new_vision_config.py
+patrol_uav_ws-patrol_planner/src/patrol_control/test/test_recovery_hold.py
+patrol_uav_ws-patrol_planner/src/patrol_control/test/test_takeoff_xy_hold.py
+patrol_uav_ws-patrol_planner/src/uav_mission/test/test_competition_release.py

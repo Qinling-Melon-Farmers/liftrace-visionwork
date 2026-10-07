@@ -11,3 +11,8 @@ install(TARGETS pwm_node1 RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 install(DIRECTORY launch/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
 install(PROGRAMS init_pwm.sh DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+if(CATKIN_ENABLE_TESTING)
+  add_executable(actuator_startup_tests tests/test_startup.cpp src/PWMController.cpp)
+  add_test(NAME actuator_startup_tests COMMAND actuator_startup_tests)
+endif()

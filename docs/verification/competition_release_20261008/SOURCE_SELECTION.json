@@ -1,0 +1,81 @@
+{
+  "copied": [
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp",
+      "destination": "patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/patrol_control.h",
+      "destination": "patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/patrol_control.h"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_height_hold.py",
+      "destination": "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_height_hold.py"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_external_landing_handoff.py",
+      "destination": "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_external_landing_handoff.py"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_new_vision_config.py",
+      "destination": "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_new_vision_config.py"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_recovery_hold.py",
+      "destination": "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_recovery_hold.py"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_takeoff_xy_hold.py",
+      "destination": "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_takeoff_xy_hold.py"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/actuator_startup_20261007/source/actuator_pwm/CMakeLists.txt",
+      "destination": "patrol_uav_ws-patrol_planner/src/actuator_pwm/CMakeLists.txt"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/actuator_startup_20261007/source/actuator_pwm/README.md",
+      "destination": "patrol_uav_ws-patrol_planner/src/actuator_pwm/README.md"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/actuator_startup_20261007/source/actuator_pwm/init_pwm.sh",
+      "destination": "patrol_uav_ws-patrol_planner/src/actuator_pwm/init_pwm.sh"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/actuator_startup_20261007/source/actuator_pwm/launch/launch_all.launch",
+      "destination": "patrol_uav_ws-patrol_planner/src/actuator_pwm/launch/launch_all.launch"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/actuator_startup_20261007/source/actuator_pwm/src/pwm_node1.cpp",
+      "destination": "patrol_uav_ws-patrol_planner/src/actuator_pwm/src/pwm_node1.cpp"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/actuator_startup_20261007/source/actuator_pwm/src/PWMController.cpp",
+      "destination": "patrol_uav_ws-patrol_planner/src/actuator_pwm/src/PWMController.cpp"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/actuator_startup_20261007/source/actuator_pwm/include/actuator_pwm/CheckedPulse.h",
+      "destination": "patrol_uav_ws-patrol_planner/src/actuator_pwm/include/actuator_pwm/CheckedPulse.h"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/actuator_startup_20261007/source/actuator_pwm/include/actuator_pwm/PWMController.h",
+      "destination": "patrol_uav_ws-patrol_planner/src/actuator_pwm/include/actuator_pwm/PWMController.h"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/actuator_startup_20261007/source/actuator_pwm/include/actuator_pwm/PassiveStartup.h",
+      "destination": "patrol_uav_ws-patrol_planner/src/actuator_pwm/include/actuator_pwm/PassiveStartup.h"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/actuator_startup_20261007/source/actuator_pwm/include/actuator_pwm/SlotCalibration.h",
+      "destination": "patrol_uav_ws-patrol_planner/src/actuator_pwm/include/actuator_pwm/SlotCalibration.h"
+    },
+    {
+      "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/actuator_startup_20261007/source/actuator_pwm/tests/test_startup.cpp",
+      "destination": "patrol_uav_ws-patrol_planner/src/actuator_pwm/tests/test_startup.cpp"
+    }
+  ],
+  "legacy_control_snapshot": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/legacy_baseline/20261007_height_hold",
+  "snapshot_source_and_header_equal_F_before": true,
+  "legacy_actuator_snapshot": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/legacy_baseline/20261007_servo_startup",
+  "lio": "F retains production three-worker matcher; B differences are EV snapshot/prediction only, excluded",
+  "no_board_contact": true
+}

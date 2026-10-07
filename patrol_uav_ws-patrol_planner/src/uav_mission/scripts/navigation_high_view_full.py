@@ -16,6 +16,7 @@ base=importlib.util.module_from_spec(spec);spec.loader.exec_module(base)
 
 
 class FullManager(base.ProbeManager):
+    runtime_type=HighViewFull
     def __init__(self, hardware=False):
         self._grid_last=-1e9
         super().__init__(simulation_only=not hardware)
@@ -50,7 +51,7 @@ class FullManager(base.ProbeManager):
         if config.get('staging_xy'):
             config['staging_xy']=tuple(config['staging_xy'])
         policy=SurveyPolicy(**dict(rospy.get_param('~high_view_full/policy',{})))
-        runtime=HighViewFull(ordinary.core,ProbeConfig(**config),policy,fallback_route=ordinary.route,
+        runtime=self.runtime_type(ordinary.core,ProbeConfig(**config),policy,fallback_route=ordinary.route,
                             boundary_policy=BoundaryRevisit(**dict(rospy.get_param('~high_view_full/boundary_policy',{}))))
         runtime.grid=GridCost(**dict(rospy.get_param('~high_view_full/grid',{})))
         runtime.descent_grid=GridCost(**dict(rospy.get_param('~high_view_full/grid',{})))

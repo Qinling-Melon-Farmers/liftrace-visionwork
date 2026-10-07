@@ -1,10 +1,13 @@
 <launch>
-  <!-- Supervisor owns initialization ordering and the single application chain.
-       Drivers/MAVROS/camera/physical raw actuator are started separately. -->
+  <!-- 监督器负责初始化顺序与唯一任务链；设备、MAVROS、相机、被动实体舵机另行启动。 -->
   <arg name="root" />
   <arg name="site_config" />
   <arg name="model_path" />
   <arg name="mode" default="preview" />
+  <arg name="motion_optimization" default="" />
+  <arg name="obstacle_columns" default="" />
+  <arg name="motion_action_timeout" default="" />
+  <arg name="runtime_options" default="$(eval (' --motion-optimization '+arg('motion_optimization') if arg('motion_optimization') else '')+(' --obstacle-columns '+arg('obstacle_columns') if arg('obstacle_columns') else '')+(' --motion-action-timeout '+arg('motion_action_timeout') if arg('motion_action_timeout') else ''))" />
   <node pkg="uav_mission" type="competition_supervisor.py" name="competition_supervisor" output="screen" required="true"
-        args="$(arg mode) --root $(arg root) --site-config $(arg site_config) --model $(arg model_path)" />
+        args="$(arg mode) --root $(arg root) --site-config $(arg site_config) --model $(arg model_path)$(arg runtime_options)" />
 </launch>

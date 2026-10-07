@@ -13,3 +13,12 @@ field.example及rectangle_motion/snake_motion候选显式使用landing_handoff_m
 ### 2026-10-06 本轮已补齐到0928工程
 
 独立入口及依赖已部署192.168.3.126原0928根目录，配置检查及完整接线展开通过；没有启动ROS/飞行。模板仍未确认且门口/H留空，不可直接flight。定位入口采用与专项相同的4–7号大核OpenMP环境，保留原三线程编译。参见[部署与工作台报告](../../docs/deployment/survey_workbench_20261006/REPORT.md)。
+
+
+### 2026-10-08 独立运行实现回收
+
+比赛模板与两个 candidates 的全部原始数值保留，新增中文测量说明；有限空间试飞的2m搜索、0.5m/s、0.35m/s²、短前视和60s预算没有推广为比赛默认。10月7日成功测试配置单独保留为 field_20261007_validated.yaml，不自动选择。
+
+已回收部署过的限高保持修复和实体PWM3左仓/后仓2100us释放、1700us锁止、被动启动。H仍为原比赛0.9m捕获及POSCTL交接，软件链验收不等同自主落地评分。三线程FAST-LIO、大核绑定和轻量bag保持现有实现。
+
+显式开关与离线生成接口见[CLI契约](../../docs/verification/competition_release_20261008/CLI_CONTRACT.md)，文件清单、测试及本地存档边界见[交接报告](../../docs/verification/competition_release_20261008/REPORT.md)。

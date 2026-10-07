@@ -14,3 +14,11 @@ bool checkedInitialize(PWM& pwm, unsigned duty, Wait wait) {
         !pwm.setPeriod(20000000) || !pwm.setPolarity("normal")) return false;
     return checkedPulse(pwm,duty,wait);
 }
+
+// Default startup is passive. Explicit reset retains the checked transaction.
+template<class PWM, class Wait>
+bool checkedStartup(PWM& pwm, unsigned initialDuty, Wait wait,
+                    bool initializeOnStartup = false) {
+    if (!initializeOnStartup) return pwm.validatePassiveStartup();
+    return checkedInitialize(pwm, initialDuty, wait);
+}

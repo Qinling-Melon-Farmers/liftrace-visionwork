@@ -1,0 +1,165 @@
+{
+  "goal": "运行实现对齐；刻意的有限场地参数差异不覆盖比赛参数，不要求生成值完全一致",
+  "comparison": [
+    {
+      "parameter": "low_agl",
+      "competition": 1.4,
+      "validated_test": 1.4,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "high_agl",
+      "competition": 2.6,
+      "validated_test": 2.0,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "max_agl",
+      "competition": 3.0,
+      "validated_test": 2.3,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "drop_agl",
+      "competition": 0.45,
+      "validated_test": 0.35,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "landing_transit_agl",
+      "competition": 1.0,
+      "validated_test": 1.0,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "landing_capture_agl",
+      "competition": 0.9,
+      "validated_test": 1.2,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "cruise_speed",
+      "competition": 1.2,
+      "validated_test": 0.5,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "cruise_acceleration",
+      "competition": 1.0,
+      "validated_test": 0.35,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "obstacle_columns_enabled",
+      "competition": true,
+      "validated_test": true,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "landing_handoff_mode",
+      "competition": "POSCTL",
+      "validated_test": "POSCTL",
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "mission/motion_action_timeout",
+      "competition": 90.0,
+      "validated_test": 60.0,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "mission/target_action_timeout",
+      "competition": 120.0,
+      "validated_test": 60.0,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "mission/forced_return_at",
+      "competition": 420.0,
+      "validated_test": 510.0,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "mission/return_land_reserve",
+      "competition": 180.0,
+      "validated_test": 45.0,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "mission/delivery_reserve_per_slot",
+      "competition": 70.0,
+      "validated_test": 25.0,
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "following_speed_profile",
+      "competition": {
+        "cruise_lead_m": 1.0,
+        "precision_lead_m": 0.4,
+        "corridor_lead_m": 0.15,
+        "corridor_after_waypoints": 1
+      },
+      "validated_test": {
+        "cruise_lead_m": 0.5,
+        "precision_lead_m": 0.25,
+        "corridor_lead_m": 0.25
+      },
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "survey_policy",
+      "competition": {
+        "coarse_enabled": true,
+        "coarse_min_confidence": 0.6,
+        "coarse_interrupt_min_interval_ns": 100000000,
+        "coarse_interrupt_max_gap_ns": 1000000000,
+        "coarse_interrupt_consistency_m": 0.5,
+        "interrupt_refined_classes": [],
+        "recheck_observe_seconds": 5.0,
+        "recheck_shift_after_seconds": 1.0,
+        "recheck_shift_radius_m": 0.5,
+        "candidate_min_streak": 1,
+        "min_interval_ns": 100000000,
+        "min_span_ns": 200000000,
+        "max_uncertainty_m": 0.45,
+        "direct_descent": true,
+        "descent_radius_m": 1.5,
+        "descent_max_candidates": 25,
+        "survey_stall_seconds": 8.0,
+        "survey_progress_m": 0.15,
+        "survey_alternative_radius_m": 0.6
+      },
+      "validated_test": {
+        "high_min_agl": 1.8,
+        "high_max_agl": 2.2,
+        "coarse_enabled": true,
+        "coarse_min_confidence": 0.6,
+        "coarse_interrupt_min_interval_ns": 100000000,
+        "coarse_interrupt_max_gap_ns": 1000000000,
+        "coarse_interrupt_consistency_m": 0.5,
+        "interrupt_refined_classes": [],
+        "recheck_observe_seconds": 5.0,
+        "recheck_shift_after_seconds": 1.0,
+        "recheck_shift_radius_m": 0.5,
+        "candidate_min_streak": 1,
+        "min_interval_ns": 100000000,
+        "min_span_ns": 200000000,
+        "max_uncertainty_m": 0.45,
+        "direct_descent": true,
+        "descent_radius_m": 1.0,
+        "descent_max_candidates": 9,
+        "survey_stall_seconds": 8.0,
+        "survey_progress_m": 0.15,
+        "survey_alternative_radius_m": 0.3,
+        "resume_survey_enabled": false
+      },
+      "classification": "preserved_competition_parameter"
+    },
+    {
+      "parameter": "motion_optimization/enabled",
+      "competition": false,
+      "validated_test": true,
+      "classification": "preserved_competition_parameter"
+    }
+  ]
+}

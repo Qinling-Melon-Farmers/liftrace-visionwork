@@ -196,7 +196,7 @@ class NewVisionConfigTest(unittest.TestCase):
         self.assertIn("height violation: holding and invalidating trajectory", source)
         self.assertNotIn("preserving horizontal progress", source)
         distance_limit = source.index(
-            "if (distance_to_target > px4_max_distance)")
+            "if (distance_to_target > px4_max_distance")
         final_guard = source.index("if (Drone_mode==Run_point)", distance_limit)
         publish = source.index("mavros_point_cmd_pub.publish")
         self.assertLess(distance_limit, final_guard)

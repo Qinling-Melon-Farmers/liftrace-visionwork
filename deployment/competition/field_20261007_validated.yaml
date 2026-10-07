@@ -1,0 +1,152 @@
+# 仅用于已验收有限测试场地的独立参考；不是正式比赛默认，不自动部署。
+# 来源：board_full_mission_20261007_221730/run_metadata.json 的实际 settings，
+# 不从本地旧 namedsite 取门前后点；两个门的前后 Y 为1.0/-0.7、-1.1/-2.5。
+# 保留高2m、投0.35m、H1.2m、速0.5m/s、加0.35m/s²、动作60s的测试妥协。
+# 本文件适配独立生成器：flight_bounds采用原 target_bounds 作外层许可边界；
+# 原飞行中心范围保留在 search_center_bounds；原始 settings完整另存验证目录。
+# 即使使用相同参考也不宣称生成输出或整机源码逐字等同成功轮，差异见报告。
+# agl为 FC 离地高度，XY以静止起飞参考为基准；换场地必须重新测量。
+# 必须显式 --site-config 指定本文件；入口从不默认选择它。
+site_confirmed: true
+mode: high_view_full
+low_agl: 1.4
+high_agl: 2.0
+max_agl: 2.3
+drop_agl: 0.35
+landing_transit_agl: 1.0
+landing_capture_agl: 1.2
+landing_enable_h_stroke_fallback: true
+cruise_speed: 0.5
+cruise_acceleration: 0.35
+lane_spacing: 1.2
+virtual_ceiling_enabled: false
+alignment_mode: legacy_static
+actuator_mode: real
+raw_servo_service: /legacy/Servo_raw
+auto_start_after_arm: true
+initialization_timeout: 300.0
+obstacle_columns_enabled: true
+flight_bounds: &id001
+- -0.35
+- 8.5
+- -4.0
+- 2.7
+search_center_bounds:
+- -0.35
+- 8.25
+- -3.75
+- 2.7
+target_bounds: *id001
+coverage_bounds:
+- 0.4
+- 5.8
+- -2.4
+- 2.7
+staging_xy:
+- 0.8
+- 0.0
+survey_xy:
+- - 1.1
+  - -1.5
+- - 5.0
+  - -1.5
+- - 5.0
+  - 1.8
+- - 1.1
+  - 1.8
+- - 1.1
+  - -1.5
+map_size:
+- 18.0
+- 12.0
+- 4.0
+corridor_waypoints:
+- x: 6.5
+  y: 2.1
+  agl: 0.9
+- x: 7.7
+  y: 2.1
+  agl: 0.9
+- x: 7.7
+  y: 1.0
+  agl: 0.9
+- x: 7.7
+  y: -0.7
+  agl: 0.9
+- x: 7.7
+  y: -1.1
+  agl: 0.9
+- x: 7.7
+  y: -2.5
+  agl: 0.9
+- x: 7.7
+  y: -3.45
+  agl: 0.9
+landing_xy:
+- 7.7
+- -3.45
+corridor_speed_schedule:
+  axis: 1
+  wall_coordinates:
+  - 0.0
+  - -1.4
+  entry_waypoints: 1
+  open_lead_m: 0.5
+  door_lead_m: 0.15
+following_speed_profile:
+  cruise_lead_m: 0.5
+  precision_lead_m: 0.25
+  corridor_lead_m: 0.25
+  corridor_after_waypoints: 1
+survey_policy:
+  coarse_enabled: true
+  coarse_min_confidence: 0.6
+  coarse_interrupt_min_interval_ns: 100000000
+  coarse_interrupt_max_gap_ns: 1000000000
+  coarse_interrupt_consistency_m: 0.5
+  interrupt_refined_classes: []
+  recheck_observe_seconds: 5.0
+  recheck_shift_after_seconds: 1.0
+  recheck_shift_radius_m: 0.5
+  candidate_min_streak: 1
+  min_interval_ns: 100000000
+  min_span_ns: 200000000
+  max_uncertainty_m: 0.45
+  direct_descent: true
+  descent_radius_m: 1.0
+  descent_max_candidates: 9
+  survey_stall_seconds: 8.0
+  survey_progress_m: 0.15
+  survey_alternative_radius_m: 0.3
+  resume_survey_enabled: false
+image_topic: /camera/image_raw
+camera_info_topic: /camera/camera_info
+compressed_image_topic: /camera/image_raw/compressed
+bag_image_topic: /competition/recording/image/compressed
+bag_image_hz: 5.0
+record_map_clouds: false
+record_inflated_cloud: true
+metadata_topic: /competition/run_metadata
+competition_recording: true
+mapping_profile: high
+supervisor_name: competition_supervisor
+landing_handoff_mode: POSCTL
+motion_action_timeout: 60.0
+motion_optimization:
+  enabled: true
+  dynamic_boundary: true
+  moving_recovery: true
+  diagonal_entry: true
+  merge_collinear_relays: true
+  survey_line_weight: 2.0
+  braking_speed_mps: 0.5
+  braking_accel_mps2: 0.35
+  reaction_seconds: 0.3
+  boundary_reserve_m: 0.15
+  recovery_handoff_agl: 0.9
+  recovery_min_ack_seconds: 0.6
+  recovery_max_vz: 0.6
+  recovery_min_samples: 3
+  recovery_max_odom_age: 0.2
+  corridor_max_agl: 1.0
+target_action_timeout: 60.0

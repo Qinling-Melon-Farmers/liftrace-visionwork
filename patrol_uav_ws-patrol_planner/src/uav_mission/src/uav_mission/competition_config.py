@@ -5,6 +5,7 @@ Corridor anchors/H must be measured; all local-Z values share one ground datum.
 """
 from pathlib import Path
 import copy,json,math,struct
+from dataclasses import asdict
 import yaml
 from uav_mission.high_view_probe import ProbeConfig
 from uav_high_view.survey_policy import SurveyPolicy
@@ -13,7 +14,29 @@ from uav_mission.corridor_speed import CorridorSpeedConfig
 from uav_mission.motion_optimization import MotionOptimization, optimize_post_route
 
 
+def apply_overrides(settings, motion=None, columns=None, motion_timeout=None):
+    """显式 CLI 覆盖；省略时逐项继承 YAML，不改比赛参数。"""
+    settings=copy.deepcopy(settings)
+    if motion is not None:
+        if motion not in ('on','off'):raise ValueError('invalid motion switch')
+        settings['motion_optimization']={**settings.get('motion_optimization',{}),'enabled':motion=='on'}
+    if columns is not None:
+        if columns not in ('on','off'):raise ValueError('invalid obstacle switch')
+        settings['obstacle_columns_enabled']=columns=='on'
+    if motion_timeout is not None:settings['motion_action_timeout']=motion_timeout
+    return settings
+
+
 def validate(settings, flight=False):
+    if not isinstance(settings,dict):raise ValueError('field configuration must be an object')
+    for key in ('motion_action_timeout','target_action_timeout'):
+        if key in settings:
+            value=settings[key]
+            if isinstance(value,bool) or not isinstance(value,(int,float)) or not math.isfinite(value) or not 0<value<=600:
+                raise ValueError('invalid '+key)
+    if settings.get('survey_policy',{}).get('resume_survey_enabled',False):
+        raise ValueError('competition does not enable experimental survey resume')
+
     if settings.get("landing_handoff_mode", "AUTO.LAND") not in ("AUTO.LAND", "POSCTL"):
         raise ValueError("landing_handoff_mode must be AUTO.LAND or POSCTL")
     weight=float(settings.get('planner_line_preference_weight',2.0))
@@ -47,7 +70,7 @@ def validate(settings, flight=False):
     if not inside([0.,0.]) or not inside(settings['staging_xy'],search):raise ValueError('invalid origin/staging')
     if not 1<=len(settings['survey_xy'])<=8 or any(not inside(p,search) for p in settings['survey_xy']):raise ValueError('survey outside search interior')
     if not inside([cover[0],cover[2]],search) or not inside([cover[1],cover[3]],search):raise ValueError('coverage outside search interior')
-    for key,lo,hi in [('low_agl',1.,1.8),('high_agl',2.,3.),('max_agl',2.,3.5),('drop_agl',.45,1.),('landing_transit_agl',.5,1.8),('landing_capture_agl',.8,2.),('cruise_speed',.1,1.2),('cruise_acceleration',.1,1.),('lane_spacing',.2,1.2)]:
+    for key,lo,hi in [('low_agl',1.,1.8),('high_agl',2.,3.),('max_agl',2.,3.5),('drop_agl',.35,1.),('landing_transit_agl',.5,1.8),('landing_capture_agl',.8,2.),('cruise_speed',.1,1.2),('cruise_acceleration',.1,1.),('lane_spacing',.2,1.2)]:
         if not finite(settings[key]) or not lo<=settings[key]<=hi:raise ValueError('invalid '+key)
     if not settings['low_agl']<settings['high_agl']<=settings['max_agl']:raise ValueError('altitude order')
     for k in ('site_confirmed','auto_start_after_arm','obstacle_columns_enabled'):
@@ -124,8 +147,11 @@ def generate(root,out,settings,fc_xyz,rig):
             '/fast_planner_node/sdf_map/virtual_ceil_height':-.1,
             '/navigation/planner_bridge/execution/arrival_position_tolerance':.12,
             '/navigation/planner_bridge/execution/arrival_dwell':.8})])
+    # 省略预算时保留原正式 runtime_base 的 90s/120s。
+    for key in ('motion_action_timeout','target_action_timeout'):
+        if key in settings:runtime['mission'][key]=float(settings[key])
+    runtime['motion_optimization']=asdict(motion)
     if motion.enabled:
-        runtime['motion_optimization']=copy.deepcopy(settings['motion_optimization'])
         runtime['motion_optimization_metadata']=motion_meta
         parameters=runtime['mission']['post_delivery_parameter_stages'][0]['parameters']
         parameters['/external_planner_max_command_z']=cap
@@ -184,13 +210,14 @@ def generate(root,out,settings,fc_xyz,rig):
         '/target_memory/search_confirmation_max_gap_sec':1.,'/drop_aligner/stable_frames':5,
     }
     if motion.enabled:
-        overrides['/navigation/planner_bridge/motion_optimization']=copy.deepcopy(settings['motion_optimization'])
         if motion.moving_recovery:
             handoff=struct.unpack('f',struct.pack('f',ground+motion.recovery_handoff_agl))[0]
             control['uav_vision']['recovery_height']=handoff
             overrides['/navigation/planner_bridge/target/recovery_height']=handoff
             # Legacy climb setpoints stay high until a fresh, collision-checked
             # planner transaction takes over. No horizontal direct-control shortcut.
+    # 显式关闭也覆盖 ROS 参数，避免继承上轮的 enabled=true。
+    overrides['/navigation/planner_bridge/motion_optimization']=asdict(motion)
     overrides['/fast_planner_node/search/line_deviation_weight']=weight
     overrides['/navigation/planner_bridge/execution/odom_twist_frame']='child'
     for region,box in [('horizontal_avoidance',search),('search_region',search)]:

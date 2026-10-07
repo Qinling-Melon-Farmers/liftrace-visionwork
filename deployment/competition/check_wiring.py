@@ -7,7 +7,7 @@ import yaml,roslaunch,rospkg
 from uav_mission.competition_config import generate
 R=Path(__file__).resolve().parents[2];M=R/'patrol_uav_ws-patrol_planner/src/uav_mission'
 roslaunch.substitution_args._rospack=rospkg.RosPack(ros_paths=[str(R/'vision_ws/src'),str(R/'patrol_uav_ws-patrol_planner/src'),'/opt/ros/noetic/share'])
-spec=importlib.util.spec_from_file_location('checked_full_manager',str(M/'scripts/navigation_high_view_full.py'))
+spec=importlib.util.spec_from_file_location('checked_full_manager',str(M/'scripts/navigation_competition_manager.py'))
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--profile',type=Path,default=R/'deployment/competition/field.example.yaml')
@@ -15,7 +15,8 @@ args=parser.parse_args()
 s=yaml.safe_load(args.profile.read_text())
 motion=s.get('motion_optimization',{}).get('enabled',False)
 # Offline fixture only; shipped field profile stays unconfirmed/without gate coordinates.
-s.update(site_confirmed=True,corridor_waypoints=[dict(x=6.7,y=4.,agl=1.4),dict(x=6.7,y=4.,agl=.9),dict(x=8.3,y=4.,agl=.9),dict(x=8.3,y=-4.,agl=.9)],landing_xy=[8.5,-4.2])
+if not s['site_confirmed']:
+ s.update(site_confirmed=True,corridor_waypoints=[dict(x=6.7,y=4.,agl=1.4),dict(x=6.7,y=4.,agl=.9),dict(x=8.3,y=4.,agl=.9),dict(x=8.3,y=-4.,agl=.9)],landing_xy=[8.5,-4.2])
 rig=yaml.safe_load((M/'config/competition/known_rig.yaml').read_text());rows=[]
 def load(name,args):return roslaunch.config.load_config_default([(str(M/'launch'/('competition_'+name+'.launch')),args)],11311,verbose=False)
 with tempfile.TemporaryDirectory() as tmp:
@@ -65,9 +66,9 @@ with tempfile.TemporaryDirectory() as tmp:
     for part in parts[:-1]:target=target.setdefault(part,{})
     target[parts[-1]]=val
    return result
-  manager=module.FullManager.__new__(module.FullManager);manager._profile_name='r2026';manager._profile_path=str(M/'config/competition_profiles.yaml')
+  manager=module.CompetitionManager.__new__(module.CompetitionManager);manager._profile_name='r2026';manager._profile_path=str(M/'config/competition_profiles.yaml')
   with patch('rospy.get_param',side_effect=get_param):runtime=manager._new_runtime()
-  assert type(runtime).__name__=='HighViewFull'
+  assert type(runtime).__name__=='HardwareFullRuntime'
   assert runtime.descent_grid is not runtime.grid
   rows.append(dict(control_output=enabled,runtime=type(runtime).__name__,nodes=len(cfg.nodes)))
  for mode in ('legacy_static','measured'):

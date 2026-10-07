@@ -5,42 +5,19 @@ import subprocess,tempfile,unittest
 
 class RecoveryHoldTest(unittest.TestCase):
     def test_old_trajectory_cannot_replace_recovery_hold(self):
-        src=(Path(__file__).resolve().parents[1]/'src/patrol_control.cpp').read_text()
-        start=src.index('                if (external_waiting_for_motion_) {')
-        end=src.index('                ROS_INFO_THROTTLE(5, "[PatrolControl] Forwarding external planner trajectory")',start)
-        branch=src[start:end]
-        code='''#include <cassert>
-#define ROS_WARN_THROTTLE(...)
-#define ROS_ERROR_THROTTLE(...)
-namespace std_msgs { struct Empty {}; }
-namespace ros { struct Time { static Time now(){return Time();} }; }
-struct Pub { int calls=0; template<typename T> void publish(const T&) { ++calls; } };
-struct P { double x,y,z; }; struct Pose { P position; }; struct Msg {Pose pose;};
-bool hasValidExternalPlannerCommand(){return true;}
-int main(){
-bool external_waiting_for_motion_=true, have_planner_cmd=true;
-Pub height_replan_pub_; ros::Time height_replan_stamp_;
-Msg uav_pose{{{3,4,.8}}};
-Msg patrol_cmd{{{1,2,1.2}}},mavros_point_cmd{},planner_cmd{{{9,9,.1}}},last_mavros_point_cmd{};
-double external_planner_max_command_z_=2.08;
-for(int i=0;i<100;i++){
-'''+branch+'''
-assert(mavros_point_cmd.pose.position.z==1.2);
-assert(mavros_point_cmd.pose.position.x==1);
-planner_cmd.pose.position.z-=.001;
+        from test_height_hold import compile_run, production_program
+        compile_run(production_program(r'''
+LLController c;c.external_waiting_for_motion_=true;
+c.patrol_cmd.pose.position.x=1;c.patrol_cmd.pose.position.y=2;c.patrol_cmd.pose.position.z=1.2;
+at(c,1,2,1.2);
+for(int i=0;i<100;++i){
+    send(c,9,9,.1);c.tick();expect(c,1,2,1.2);
 }
-external_waiting_for_motion_=false;
-'''+branch+'''
-assert(mavros_point_cmd.pose.position.x==9);
-planner_cmd.pose.position.z=2.5;
-'''+branch+'''
-assert(mavros_point_cmd.pose.position.x==3);
-assert(mavros_point_cmd.pose.position.y==4);
-assert(mavros_point_cmd.pose.position.z==.8);
-assert(!have_planner_cmd && height_replan_pub_.calls==1);
-}
-'''
-        self.compile_run(code)
+c.external_waiting_for_motion_=false;
+send(c,1.1,2,1.2);c.tick();expect(c,1.1,2,1.2);
+send(c,1.1,2,2.5);c.tick();expect(c,1,2,1.2);
+assert(!c.have_planner_cmd && c.height_replan_pub_.calls==1);
+'''))
 
     def test_tracking_loss_latches_position_until_new_trajectory(self):
         root=Path(__file__).resolve().parents[2]

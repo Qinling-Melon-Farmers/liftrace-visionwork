@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "full_build": {
+    "command": "BUILD_JOBS=2 bash deployment/competition/build.sh",
+    "log": "logs/competition_release_20261008/build_final.log",
+    "exit_code": 0,
+    "scope": "WSL x86_64 source build; no board compilation claimed"
+  },
+  "python_tests": {
+    "competition_hardware": 16,
+    "competition_release": 9,
+    "height_hold": 5,
+    "manual_offboard_start": 6,
+    "external_landing_handoff": 22,
+    "recovery_hold": 2,
+    "takeoff_xy_hold": 1,
+    "total": 61
+  },
+  "actuator_ctest": {
+    "target": "actuator_startup_tests",
+    "result": "PASS",
+    "scope": "production helpers with temporary mock sysfs; no real PWM"
+  },
+  "launch_expansion": {
+    "profiles": 4,
+    "application_control_modes": 2,
+    "localization_modes": 2,
+    "mapping": 1,
+    "ros_started": false
+  },
+  "shell_entry": {
+    "help": "PASS",
+    "unconfirmed_template_preview_check": "PASS",
+    "syntax": "PASS"
+  },
+  "lio": {
+    "match_threads": 3,
+    "compiled_flags": [
+      "MP_EN",
+      "MP_PROC_NUM=3"
+    ],
+    "omp_places": "{4},{5},{6},{7}",
+    "ev_prediction_connected": false
+  },
+  "competition_yaml_values_unchanged": true,
+  "no_git_commit": false,
+  "no_shared_changelog_edit": false,
+  "no_ros_or_sim_start": true,
+  "no_board_connection": true,
+  "authorized_followup": "append F changelog and commit/push feature; clean duplicate assignments with byte-identical output proof"
+}
