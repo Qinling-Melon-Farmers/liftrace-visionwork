@@ -2,6 +2,7 @@
 """Stage transitions and height evaluation must preserve the full mission."""
 import ast
 import copy
+import math
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
@@ -45,19 +46,20 @@ class FullLowCorridorTest(unittest.TestCase):
     def test_parameter_stage_runs_before_next_goal_and_not_during_search(self):
         tree = ast.parse((ROOT/'scripts/navigation_mission_manager.py').read_text())
         method = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)
-                      and n.name == '_publish_action')
-        stage = next(n for n in method.body if isinstance(n, ast.If)
-                     and isinstance(n.test, ast.BoolOp))
-        code = compile(ast.Module(body=[copy.deepcopy(stage)], type_ignores=[]), 'stage', 'exec')
+                      and n.name == '_height_stage_ready')
+        code = compile(ast.Module(body=[copy.deepcopy(method)], type_ignores=[]), 'stage', 'exec')
         writes = {}
-        ros = SimpleNamespace(get_param=lambda *_: CONFIG['mission']['post_delivery_parameter_stages'],
-                              set_param=lambda k,v: writes.update({k:v}), loginfo=lambda *_: None)
+        params={'~mission/post_delivery_parameter_stages':CONFIG['mission']['post_delivery_parameter_stages']}
+        ros = SimpleNamespace(get_param=lambda name,default=None:params.get(name,default),
+                              set_param=lambda k,v:writes.update({k:v}),
+                              Time=SimpleNamespace(now=lambda:SimpleNamespace(to_sec=lambda:10.)))
+        ns={'rospy':ros,'math':math};exec(code,ns)
         for command, completed in [('SEARCH',0), ('RETURN_HOME',0),
                                    ('RETURN_HOME',1), ('RETURN_HOME',2)]:
-            context = {'rospy':ros, 'self':SimpleNamespace(_runtime=SimpleNamespace(
-                core=SimpleNamespace(post_delivery_route_index=completed))),
-                'action':SimpleNamespace(command=command, reason='post_delivery_route:1/9:test')}
-            exec(code, context)
+            manager=SimpleNamespace(_runtime=SimpleNamespace(core=SimpleNamespace(
+                post_delivery_route_index=completed,mission_id='test')))
+            action=SimpleNamespace(command=command,decision_seq=completed+1,reason='post_delivery_route:1/9:test')
+            self.assertTrue(ns['_height_stage_ready'](manager,action))
             ceiling='/fast_planner_node/sdf_map/virtual_ceil_height'
             if command == 'SEARCH':
                 self.assertEqual(writes,{})
@@ -68,6 +70,16 @@ class FullLowCorridorTest(unittest.TestCase):
         route=CONFIG['mission']['post_delivery_route']
         self.assertEqual(route[0][:2],route[1][:2])
         self.assertAlmostEqual(route[1][2]-GROUND_Z,.40)
+
+    def test_stage_switch_preserves_fixed_inflation_without_waiting(self):
+        source = (ROOT/'scripts/navigation_mission_manager.py').read_text()
+        self.assertNotIn('post_delivery_obstacles_inflation', source)
+        self.assertNotIn('obstacles_inflation_applied', source)
+        self.assertNotIn('time.sleep', source)
+        params = yaml.safe_load((ROOT/'config/horizontal_planner.yaml').read_text())
+        self.assertEqual([params['sdf_map/'+k] for k in
+                         ('obstacles_inflation','obstacles_inflation_up','obstacles_inflation_down')],
+                         [.25,.20,.10])
 
     def test_low_ceiling_only_in_corridor_including_between_doors(self):
         region=CONFIG['post_delivery_gate']['low_height_region']

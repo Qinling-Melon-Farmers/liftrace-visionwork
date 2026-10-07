@@ -34,7 +34,7 @@
     <remap from="/odom_world" to="$(arg odometry_topic)"/>
     <remap from="/sdf_map/odom" to="$(arg odometry_topic)"/>
     <remap from="/sdf_map/cloud" to="$(arg cloud_topic)"/>
-    <remap from = "/sdf_map/pose"   to = "$(arg camera_pose_topic)"/> 
+    <remap from = "/sdf_map/pose"   to = "$(arg camera_pose_topic)"/>
     <remap from = "/sdf_map/depth" to = "$(arg depth_topic)"/>
 
     <!-- replanning method -->
@@ -57,9 +57,9 @@
     <param name="fsm/waypoint2_z" value="$(arg point2_z)" type="double"/>
 
     <param name="sdf_map/resolution"      value="0.10" />
-    <param name="sdf_map/map_size_x"   value="$(arg map_size_x_)" /> 
-    <param name="sdf_map/map_size_y"   value="$(arg map_size_y_)" /> 
-    <param name="sdf_map/map_size_z"   value="$(arg map_size_z_)" /> 
+    <param name="sdf_map/map_size_x"   value="$(arg map_size_x_)" />
+    <param name="sdf_map/map_size_y"   value="$(arg map_size_y_)" />
+    <param name="sdf_map/map_size_z"   value="$(arg map_size_z_)" />
     <param name="sdf_map/local_update_range_x"  value="6.5" />
     <param name="sdf_map/local_update_range_y"  value="6.5" />
     <param name="sdf_map/local_update_range_z"  value="5.0" />
@@ -97,7 +97,7 @@
     <param name="sdf_map/virtual_ceil_height"   value="2.5"/>
     <param name="sdf_map/show_occ_time"  value="false"/>
     <param name="sdf_map/show_esdf_time" value="false"/>
-    <param name="sdf_map/pose_type"     value="1"/>  
+    <param name="sdf_map/pose_type"     value="1"/>
     <param name="sdf_map/frame_id"      value="camera_init"/>
 
   <!-- planner manager -->

@@ -10,7 +10,8 @@ process_only_in_landing_mode: true
 landing_blur_kernel_size: 5
 
 # 自适应阈值
-landing_adaptive_block_size: 31
+# A larger local window keeps the broad, reflective ring connected at 1280x720.
+landing_adaptive_block_size: 81
 landing_adaptive_c: 10.0
 
 # 形态学
@@ -31,9 +32,15 @@ landing_enable_h_structure_check: true
 landing_enable_h_stroke_fallback: false
 landing_h_stroke_min_size_px: 24.0
 landing_h_inner_scale: 0.78
+# Primary identity comes from H strokes/notches, not the hue of black ink.
+# legacy_hsv is retained only for offline comparison/explicit rollback.
+landing_h_segmentation: grayscale_otsu
+landing_h_min_contrast: 15.0
 landing_h_saturation_max: 90
 landing_h_value_max: 110
 landing_h_open_kernel_size: 5
+# Fill tiny reflection cuts before opening; 1 disables this repair.
+landing_h_close_kernel_size: 7
 landing_h_min_area_ratio: 0.10
 landing_h_max_area_ratio: 0.70
 landing_h_min_aspect_ratio: 0.55

@@ -579,6 +579,12 @@ class MissionCore:
         self.profile = profile
         self.config = config or MissionConfig()
         self.queue = CandidateQueue(profile, self.config)
+        # Optional mission geometry admission, shared by every choose() path.
+        # Evaluate before reserving a payload slot, including queued candidates.
+        self.approach_admission = None
+        # A runtime may switch to lower-weight classes after a confirmed
+        # unreachable high-weight target, without changing the rule profile.
+        self.interrupt_class_override = None
         self.phase = MissionPhase.INIT
         self.mission_id = ""
         self.started_at = 0.0
@@ -586,7 +592,9 @@ class MissionCore:
         self.active_action: Optional[CoreAction] = None
         self.active_committed = False
         self.active_release_started = False
+        self.active_release_possible = False
         self.quarantined_actions: Dict[int, CoreAction] = {}
+        self._quarantined_raw_calls = set()
         self.executor_id: Optional[str] = None
         self.last_event_seq: Dict[str, int] = {}
         self.slots = [PayloadSlot(index=index) for index in
@@ -802,6 +810,9 @@ class MissionCore:
 
     def _candidate_fits(self, entry: CandidateEntry, now: float,
                         current_xy: Tuple[float, float]) -> bool:
+        if (self.approach_admission is not None and
+                not self.approach_admission(entry.snapshot)):
+            return False
         elapsed = self._elapsed(now)
         if not self.config.early_return_enabled:
             return elapsed < self.config.mission_timeout
@@ -827,7 +838,9 @@ class MissionCore:
             return self._return_action("forced_return_deadline", now)
 
         interrupt = self.queue.ranked(
-            now, current_xy, self.profile.interrupt_classes)
+            now, current_xy,
+            self.profile.interrupt_classes if self.interrupt_class_override is None
+            else self.interrupt_class_override)
         fallback = self.queue.ranked(now, current_xy)
         interrupt_entry = next(
             (item for item in interrupt
@@ -857,6 +870,40 @@ class MissionCore:
         if entry is None:
             return None
 
+        return self._dispatch_candidate(entry, reason, now)
+
+    def choose_confirmed(self, candidate: CandidateSnapshot, now: float,
+                         current_xy: Tuple[float, float]) -> Optional[CoreAction]:
+        """Dispatch exactly the just-reacquired identity; never rank a substitute.
+
+        ``None`` means the caller must keep verifying or select a new position.
+        In particular stale, terminal, cooling-down and invalidated identities
+        cannot be resurrected, even when another queued target has higher weight.
+        """
+        if (not math.isfinite(float(now)) or now < self.started_at or
+                len(current_xy) != 2 or
+                not all(math.isfinite(float(v)) for v in current_xy)):
+            raise ValueError("choose_confirmed requires a finite clock and position")
+        if (self.phase != MissionPhase.SEARCH or self.active_action is not None or
+                self.committed_slots >= self.profile.required_deliveries or
+                self._elapsed(now) >= self._search_cutoff()):
+            return None
+        if not validate_candidate(candidate, now, self.profile, self.config).accepted:
+            return None
+        self.queue.ingest(candidate, now)
+        self.queue.refresh_cooldowns(now)
+        entry = self.queue.entries.get(candidate.key)
+        if (entry is None or entry.status != CandidateStatus.PENDING or
+                entry.retry_forbidden or entry.reachable is False or
+                entry.snapshot.class_name != candidate.class_name or
+                entry.snapshot.class_name in self.queue.delivered_classes or
+                not validate_candidate(entry.snapshot, now, self.profile,
+                                       self.config).accepted or
+                not self._candidate_fits(entry, now, current_xy)):
+            return None
+        return self._dispatch_candidate(entry, "just_reacquired_candidate", now)
+
+    def _dispatch_candidate(self, entry, reason, now):
         slot = self._next_free_slot()
         if slot is None:
             return self._return_action("no_free_payload_slot", now)
@@ -866,6 +913,7 @@ class MissionCore:
         self.phase = MissionPhase.EXECUTING
         self.active_committed = False
         self.active_release_started = False
+        self.active_release_possible = False
         target = entry.reserved_snapshot
         goal = GoalSnapshot(
             self.config.mission_frame,
@@ -943,9 +991,48 @@ class MissionCore:
 
         if event.stage not in TARGET_STAGES:
             return "target_stage_invalid"
-        if event.stage in UNCERTAIN_RELEASE_STAGES:
+        not_started = self._not_started_proof(event)
+        if (event.reason == "strict_alignment_context_valid" or
+                (event.stage in UNCERTAIN_RELEASE_STAGES and not not_started)):
+            self.active_release_possible = True
+        if self._raw_call_fact(event):
             self.active_release_started = True
+        if not_started and not self.active_release_started:
+            self.active_release_possible = False
         return "accepted"
+
+    @staticmethod
+    def _raw_call_fact(event):
+        # A missing-ACK timeout says the call MAY have run; it is not an
+        # observed call. A later atomic proxy cancellation can still settle it.
+        if MissionCore._not_started_proof(event):
+            return False
+        return (event.payload_committed or event.stage == "RECOVERY" or
+                (event.stage == "RELEASE" and (
+                    (not event.terminal and event.status in ("STARTED", "PROGRESS")) or
+                    (event.evidence_source.startswith("guarded_servo_proxy:") and
+                     event.reason.startswith("release_ack_failed:")))))
+
+    @staticmethod
+    def _not_started_proof(event):
+        return (event.terminal and not event.payload_committed and
+                event.status in ("FAILED", "REJECTED", "CANCELLED", "TIMED_OUT") and
+                event.stage in ("ALIGNMENT", "RELEASE") and
+                event.evidence_source.startswith("guarded_servo_proxy:") and
+                event.evidence_source.endswith(":NOT_STARTED"))
+
+    @staticmethod
+    def _temporal_not_started_retry(event):
+        # Only a fenced proxy no-call fact with its original temporal reason
+        # may bypass target cooldown. Geometry/cancellation/unknown execution
+        # remain on the ordinary failure path; attempts and deadlines do not change.
+        source = event.evidence_source.split(":")
+        return (MissionCore._not_started_proof(event) and event.retryable and
+                len(source) == 3 and source[1].isdigit() and int(source[1]) > 0 and
+                event.reason in (
+                    "release_preflight_rejected:permission_clock_ahead",
+                    "release_preflight_rejected:permission_expired",
+                    "release_preflight_rejected:permission_stale"))
 
     @staticmethod
     def _terminal_status_valid(event: ResultEvent) -> bool:
@@ -1028,13 +1115,7 @@ class MissionCore:
         action = self.active_action
         self.active_action = None
         if action is not None and action.has_target and not self.active_committed:
-            entry = self.queue.entries[action.candidate_key]
-            if entry.status == CandidateStatus.EXECUTING:
-                self.queue.quarantine(
-                    action.candidate_key, "mission_aborted_uncertain")
-            slot = self.slots[action.payload_slot - 1]
-            slot.status = SlotStatus.QUARANTINED
-            self.quarantined_actions[action.decision_seq] = action
+            self._close_uncommitted_action(action, now, "mission_aborted")
         return self._abort_action(reason, now)
 
     def _apply_motion_result(self, action: CoreAction, event: ResultEvent,
@@ -1149,16 +1230,22 @@ class MissionCore:
         if event.status == "SUCCEEDED":
             return False, "success_without_payload_commit", None
         self._record_result_sequence(event)
-        if self.active_release_started:
+        if self.active_release_started or self.active_release_possible:
             self.queue.quarantine(key, event.reason or
                                   "release_state_uncertain")
             slot.status = SlotStatus.QUARANTINED
             self.quarantined_actions[action.decision_seq] = action
+            if self.active_release_started:
+                self._quarantined_raw_calls.add(action.decision_seq)
             self.active_action = None
             self.mission_failed = True
             return True, "candidate_release_state_uncertain", self._return_action(
                 "candidate_release_state_uncertain", now)
-        self.queue.fail(key, event.retryable, now, event.reason)
+        entry = self.queue.fail(key, event.retryable, now, event.reason)
+        if (entry.status == CandidateStatus.COOLDOWN and
+                self._temporal_not_started_retry(event)):
+            entry.cooldown_until = now
+            self.queue.refresh_cooldowns(now)
         slot.status = SlotStatus.FREE
         slot.candidate_key = None
         self.active_action = None
@@ -1169,9 +1256,22 @@ class MissionCore:
     def _apply_quarantined_result(
             self, action: CoreAction, event: ResultEvent
             ) -> Tuple[bool, str, Optional[CoreAction]]:
-        """Reconcile delayed evidence without making the slot reusable."""
+        """Reconcile late completion or a positively fenced no-call proof."""
 
+        proof = self._not_started_proof(event)
+        if proof and action.decision_seq not in self._quarantined_raw_calls:
+            slot = self.slots[action.payload_slot - 1]
+            entry = self.queue.entries[action.candidate_key]
+            entry.payload_slot = 0
+            entry.reserved_snapshot = None
+            slot.status = SlotStatus.FREE
+            slot.candidate_key = None
+            self._record_result_sequence(event)
+            self.quarantined_actions.pop(action.decision_seq, None)
+            return True, "late_release_proven_not_started", None
         slot = self.slots[action.payload_slot - 1]
+        if self._raw_call_fact(event):
+            self._quarantined_raw_calls.add(action.decision_seq)
         if event.payload_committed:
             if not self._is_payload_commit_event(event):
                 return False, "invalid_payload_commit_event", None
@@ -1203,6 +1303,21 @@ class MissionCore:
         # still reconcile the irreversible physical fact.
         return True, "quarantined_terminal_recorded", None
 
+    def _close_uncommitted_action(self, action, now, reason):
+        """Keep a slot only when an actuator call is possible or observed."""
+        slot = self.slots[action.payload_slot - 1]
+        if self.active_release_started or self.active_release_possible:
+            self.queue.quarantine(action.candidate_key, reason + "_uncertain")
+            slot.status = SlotStatus.QUARANTINED
+            self.quarantined_actions[action.decision_seq] = action
+            if self.active_release_started:
+                self._quarantined_raw_calls.add(action.decision_seq)
+            return True
+        self.queue.fail(action.candidate_key, False, now, reason + "_not_started")
+        slot.status = SlotStatus.FREE
+        slot.candidate_key = None
+        return False
+
     def _expire_action(self, action: CoreAction, now: float
                        ) -> Tuple[bool, str, Optional[CoreAction]]:
         """Reduce an already-identified lease expiry exactly once."""
@@ -1213,14 +1328,16 @@ class MissionCore:
                 self.mission_failed = True
                 return True, "committed_recovery_timed_out", self._return_action(
                     "committed_recovery_timed_out", now)
-            self.queue.quarantine(
-                action.candidate_key, "decision_timeout_uncertain")
-            slot = self.slots[action.payload_slot - 1]
-            slot.status = SlotStatus.QUARANTINED
-            self.quarantined_actions[action.decision_seq] = action
-            self.mission_failed = True
-            return True, "target_action_timed_out_uncertain", self._return_action(
-                "target_action_timed_out_uncertain", now)
+            uncertain = self._close_uncommitted_action(action, now, "decision_timeout")
+            if uncertain:
+                self.mission_failed = True
+                return True, "target_action_timed_out_uncertain", self._return_action(
+                    "target_action_timed_out_uncertain", now)
+            if self._elapsed(now) >= self._search_cutoff():
+                return True, "target_action_timed_out_not_started", self._return_action(
+                    "target_action_timed_out_not_started", now)
+            self.phase = MissionPhase.SEARCH
+            return True, "target_action_timed_out_not_started", None
         if action.command in ("SEARCH", "RESUME"):
             if self._elapsed(now) >= self._search_cutoff():
                 return True, "forced_return_deadline", self._return_action(
@@ -1283,6 +1400,9 @@ class MissionCore:
             return False, reason, None
         action = self.active_action
         if action.has_target:
+            reason = self._result_semantics_error(action, event)
+            if reason != "accepted":
+                return False, reason, None
             reason = self._observe_target_stage(event)
             if reason != "accepted":
                 return False, reason, None

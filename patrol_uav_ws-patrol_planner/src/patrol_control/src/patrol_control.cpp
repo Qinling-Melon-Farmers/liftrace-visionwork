@@ -7,6 +7,9 @@
  */
 #include "patrol_control/patrol_control.h"
 #include "patrol_control/Servo.h"
+#include "patrol_control/ServoAction.h"
+#include "patrol_control/servo_action_result.h"
+#include "patrol_control/near_wall_align.h"
 #include <tf/transform_listener.h>
 #include "tf2_ros/transform_broadcaster.h"
 #include <Eigen/Core>
@@ -18,6 +21,8 @@
 #include <algorithm>
 #include <stdexcept>
 #include <vector>
+#include <sstream>
+#include <iomanip>
 
 int times_detect = 0;
 bool flag_takeoff_done = 0;
@@ -81,9 +86,46 @@ bool loadSlotOffsets(ros::NodeHandle& nh, const std::string& param_name,
     return true;
 }
 
+NearWallAlignFence loadNearWallAlignFence(ros::NodeHandle& nh) {
+    NearWallAlignFence fence;
+    const std::string root =
+        "/navigation/mission_manager/high_view_full/boundary_policy/";
+    // Read every key before branching so startup primes ROS's cache even
+    // for disabled/malformed configurations. Fresh fence defaults also apply
+    // when a cached optional key is missing, deleted, or has the wrong type.
+    nh.getParamCached(root + "enabled", fence.enabled);
+    XmlRpc::XmlRpcValue bounds;
+    const bool have_bounds = nh.getParamCached(root + "bounds", bounds);
+    nh.getParamCached(root + "guard_side_m", fence.side_m);
+    nh.getParamCached(root + "tracking_reserve_m", fence.tracking_reserve_m);
+    nh.getParamCached(root + "yaw_budget_deg", fence.yaw_budget_deg);
+    if (!fence.enabled) return fence;
+    if (!have_bounds ||
+        bounds.getType() != XmlRpc::XmlRpcValue::TypeArray ||
+        bounds.size() != 4) {
+        fence.valid = false;
+        return fence;
+    }
+    for (int i = 0; i < 4; ++i) {
+        if (!readNumber(bounds[i], &fence.bounds[i])) fence.valid = false;
+    }
+    fence.valid = fence.valid && fence.wellFormed();
+    return fence;
+}
+
+bool nearWallAlignReleaseAllowed(const NearWallAlignFence& fence,
+                                 const geometry_msgs::PoseStamped& pose) {
+    if (!fence.enabled) return true;
+    const auto& p = pose.pose.position;
+    const double yaw = tf::getYaw(pose.pose.orientation);
+    if (fence.contains(p.x, p.y, yaw)) return true;
+    ROS_WARN_THROTTLE(1.0, "[NearWallAlign] release withheld: body center outside legal area");
+    return false;
+}
+
 }  // namespace
 
-LLController::LLController(ros::NodeHandle nh):nh_(nh) {
+LLController::LLController(ros::NodeHandle nh):nh_(nh), drop_tf_listener_(drop_tf_buffer_) {
     initializeNode();
 
     // 默认禁用圆形检测
@@ -93,13 +135,37 @@ LLController::LLController(ros::NodeHandle nh):nh_(nh) {
 
     std::cout << "\033[47;30m ---------------------------------- Start mission ---------------------------------- \033[0m" << std::endl;
 }
-LLController::~LLController(){}
+LLController::~LLController(){
+    near_wall_align_refresh_timer_.stop();
+    cmd_timer.stop();
+    async_servo_.shutdown();
+}
 
 
 // 读取航路点，订阅无人机位置、圆环中心，发布目标点、投递装置动作指令
+void LLController::refreshNearWallAlignFence(const ros::WallTimerEvent&) {
+    // This callback and the control callbacks share the single-threaded spin
+    // queue. Replace the whole validated snapshot, including invalid/disabled
+    // states; retaining an old valid fence would hide runtime configuration.
+    near_wall_align_fence_ = loadNearWallAlignFence(nh_);
+    if (near_wall_align_fence_.enabled && !near_wall_align_fence_.wellFormed()) {
+        ROS_ERROR_THROTTLE(1.0, "[NearWallAlign] invalid boundary configuration");
+    }
+}
+
 void LLController::initializeNode() {
 
     load_params();
+    if (external_mission_mode_) {
+        // Prime before any control callback; refresh at 1 Hz wall time even
+        // when /clock is paused. No parameter-server reads in ALIGN/release.
+        refreshNearWallAlignFence(ros::WallTimerEvent());
+        near_wall_align_refresh_timer_ = nh_.createWallTimer(
+            ros::WallDuration(1.0), &LLController::refreshNearWallAlignFence, this);
+    }
+    std::string height_replan_topic;
+    nh_.param<std::string>("height_replan_topic",height_replan_topic,"/planning/replan");
+    height_replan_pub_=nh_.advertise<std_msgs::Empty>(height_replan_topic,1);
 
     waypoint_now = -1;
     waypoint_next = 0;
@@ -115,6 +181,8 @@ void LLController::initializeNode() {
     control_ready_pub_ =
         nh_.advertise<std_msgs::Bool>(control_ready_topic_, 1, true);
     publishControlReady(false);
+    external_landing_handoff_pub_ = nh_.advertise<std_msgs::String>(
+        external_landing_handoff_topic_, 4, true);
 
     // 订阅无人机当前位置
     pose_sub_ = nh_.subscribe("/mavros/local_position/pose", 1,&LLController::positionCallback, this);
@@ -186,9 +254,13 @@ void LLController::initializeNode() {
     }
     point_class_pub_ = nh_.advertise<std_msgs::Int8>("/detect/point_class",1);
     align_mode_pub_ = nh_.advertise<std_msgs::String>("/uav_vision/align_mode", 1);
+    if (drop_metric_scale_enabled_) {
+        drop_camera_info_sub_ = nh_.subscribe(
+            drop_camera_info_topic_, 1, &LLController::dropCameraInfoCallback, this);
+    }
 
     // 旧 topic 舵机控制只属于 legacy 入口。external 正式链仅使用
-    // permission-gated /Servo 服务及其同步 ACK。
+    // permission-gated /Servo 服务；独立 worker 等待真实 ACK。
     if (!external_mission_mode_) {
         servo1_pub_ = nh_.advertise<std_msgs::Bool>("/control1", 1);
         servo2_pub_ = nh_.advertise<std_msgs::Bool>("/control2", 1);
@@ -196,6 +268,14 @@ void LLController::initializeNode() {
     }
 
     servo_client = nh_.serviceClient<patrol_control::Servo>("Servo");
+    servo_action_client_ = nh_.serviceClient<patrol_control::ServoAction>(servo_action_service_);
+    if (external_mission_mode_) {
+        servo_alignment_context_sub_ = nh_.subscribe(
+            servo_alignment_context_topic_, 4, &LLController::servoAlignmentContextCallback, this);
+    }
+    external_landing_state_sub_ = nh_.subscribe(
+        external_landing_state_topic_, 10,
+        &LLController::externalLandingStateCallback, this);
 
     // 订阅对准反馈话题（从 alignment_control_converter 获取像素偏差）
     // alignment_feedback_sub_ = nh_.subscribe("/detect/pixel_offset", 1, &LLController::alignmentFeedbackCallback, this);
@@ -224,6 +304,10 @@ void LLController::initializeNode() {
     mission_release_permission_sub_ = nh_.subscribe(
         mission_release_permission_topic_, 1,
         &LLController::missionReleasePermissionCallback, this);
+    release_authorization_sub_ = nh_.subscribe(
+        nh_.param<std::string>("uav_vision/release_authorization_topic",
+                               "/mission/release_authorization"), 1,
+        &LLController::releaseAuthorizationCallback, this);
     mission_command_sub_ = nh_.subscribe(
         mission_command_topic_, 4, &LLController::missionCommandCallback, this);
 
@@ -351,6 +435,7 @@ void LLController::externalMissionTick() {
         // Keep the completed recovery climb target, not a transient measured height.
         patrol_cmd.pose.position.z = align_height;
         external_waiting_for_motion_ = true;
+        external_planner_height_hold_active_ = false;
         patrol_cmd.header.frame_id = "camera_init";
         mavros_point_cmd = patrol_cmd;
         last_mavros_point_cmd = patrol_cmd;
@@ -374,11 +459,105 @@ bool LLController::externalLandingMarkFresh(const ros::Time& now) const {
            receipt_age <= external_landing_mark_max_age_sec_;
 }
 
+bool LLController::externalLandingControlReady(const ros::Time& now) const {
+    const auto& state = external_landing_mavros_state_;
+    if (!state.connected || !state.armed || state.mode != "OFFBOARD" ||
+        state.header.stamp.isZero() || external_landing_state_receipt_.isZero()) {
+        return false;
+    }
+    const double source_age = (now - state.header.stamp).toSec();
+    const double receipt_age = (now - external_landing_state_receipt_).toSec();
+    return source_age >= 0.0 && receipt_age >= 0.0 &&
+           source_age <= external_landing_state_max_age_sec_ &&
+           receipt_age <= external_landing_state_max_age_sec_;
+}
+
+void LLController::publishExternalLandingHandoff(const std::string& stage) {
+    if (external_landing_mission_id_.empty() || external_landing_decision_seq_ == 0 ||
+        external_landing_wire_command_stamp_.isZero()) return;
+    std::ostringstream quoted_id;
+    quoted_id << '"';
+    for (unsigned char ch : external_landing_mission_id_) {
+        if (ch == '"' || ch == '\\') quoted_id << '\\' << ch;
+        else if (ch < 0x20) quoted_id << "\\u" << std::hex << std::setw(4)
+            << std::setfill('0') << static_cast<unsigned int>(ch) << std::dec;
+        else quoted_id << ch;
+    }
+    quoted_id << '"';
+    std::ostringstream payload;
+    payload << "{\"mission_id\":" << quoted_id.str()
+        << ",\"decision_seq\":" << external_landing_decision_seq_
+        << ",\"command_stamp_ns\":\"" << external_landing_wire_command_stamp_.toNSec() << '"'
+        << ",\"event_stamp_ns\":\"" << ros::Time::now().toNSec() << '"'
+        << ",\"mode\":\"" << external_landing_handoff_mode_
+        << "\",\"stage\":\"" << stage << "\"}";
+    std_msgs::String status;
+    status.data = payload.str();
+    external_landing_handoff_pub_.publish(status);
+}
+
+void LLController::externalLandingStateCallback(
+    const mavros_msgs::State::ConstPtr& msg) {
+    external_landing_mavros_state_ = *msg;
+    external_landing_state_receipt_ = ros::Time::now();
+    if (!msg->connected || !msg->armed || msg->mode != "OFFBOARD") {
+        cancelDropAction();
+    }
+    if (!external_mission_mode_ || !external_landing_active_) {
+        return;
+    }
+    // Only our sent request authorizes the expected handoff transition.
+    // Every other loss of OFFBOARD must latch even between two timer ticks.
+    if (external_landing_auto_land_requested_ &&
+        msg->mode == external_landing_handoff_mode_) {
+        if (!external_landing_handoff_observed_ &&
+            (ros::Time::now() - external_landing_handoff_requested_at_).toSec() >
+                external_landing_mode_transition_timeout_sec_) {
+            failExternalLanding("handoff_mode_transition_timeout");
+            external_landing_cancelled_ = true;
+            return;
+        }
+        if (external_landing_handoff_mode_ == "POSCTL") {
+            const double age = (ros::Time::now() - msg->header.stamp).toSec();
+            if (!msg->connected || msg->header.stamp.isZero() || age < 0.0 ||
+                age > external_landing_state_max_age_sec_) {
+                failExternalLanding("handoff_state_not_ready_or_stale");
+                external_landing_cancelled_ = true;
+                return;
+            }
+        }
+        if (!external_landing_handoff_observed_) {
+            external_landing_handoff_observed_ = true;
+            publishExternalLandingHandoff("OBSERVED");
+            ROS_INFO("[ExternalLanding] handoff mode observed: %s",
+                     msg->mode.c_str());
+            if (external_landing_handoff_mode_ == "POSCTL") {
+                ROS_WARN("[ExternalLanding] POSCTL active; awaiting pilot descent and actual ON_GROUND/disarm");
+            }
+        }
+        return;
+    }
+    if (!msg->connected || !msg->armed || msg->mode != "OFFBOARD" ||
+        (external_landing_handoff_observed_ &&
+         external_landing_handoff_mode_ == "POSCTL")) {
+        failExternalLanding("flight_controller_control_lost");
+        external_landing_cancelled_ = true;
+    }
+}
+
 void LLController::clearExternalLandingState(bool disable_detector) {
+    if (external_landing_active_) publishExternalLandingHandoff("CANCELLED");
     external_landing_active_ = false;
     external_landing_new_mark_ = false;
     external_landing_alignment_complete_ = false;
     external_landing_auto_land_requested_ = false;
+    external_landing_handoff_observed_ = false;
+    external_landing_handoff_hold_height_ = 0.0;
+    external_landing_handoff_requested_at_ = ros::Time(0);
+    external_landing_wire_command_stamp_ = ros::Time(0);
+    external_landing_mission_id_.clear();
+    external_landing_decision_seq_ = 0;
+    external_landing_cancelled_ = false;
     external_landing_stable_count_ = 0;
     external_landing_started_at_ = ros::Time(0);
     external_landing_command_stamp_ = ros::Time(0);
@@ -403,6 +582,9 @@ void LLController::failExternalLanding(const std::string& reason) {
     mavros_point_cmd = patrol_cmd;
     last_mavros_point_cmd = patrol_cmd;
     have_planner_cmd = false;
+    // Fresh samples of the previous trajectory cannot release this hold.
+    external_waiting_for_motion_ = true;
+    external_planner_height_hold_active_ = false;
     Point_mode = Nothing_point;
     Drone_mode = Run_point;
     ROS_ERROR("[ExternalLanding] failed closed and holding position: %s",
@@ -410,8 +592,39 @@ void LLController::failExternalLanding(const std::string& reason) {
 }
 
 void LLController::externalLandingTick() {
+    if (external_landing_cancelled_) {
+        return;
+    }
     if (!external_landing_active_) {
         failExternalLanding("landing_state_not_initialized");
+        return;
+    }
+
+    const ros::Time now = ros::Time::now();
+    if (external_landing_auto_land_requested_ && !external_landing_handoff_observed_ &&
+        (now - external_landing_handoff_requested_at_).toSec() >
+            external_landing_mode_transition_timeout_sec_) {
+        failExternalLanding("handoff_mode_transition_timeout");
+        external_landing_cancelled_ = true;
+        return;
+    }
+    if (external_landing_auto_land_requested_ && external_landing_handoff_mode_ == "POSCTL") {
+        const auto& state = external_landing_mavros_state_;
+        const double source_age = (now - state.header.stamp).toSec();
+        const double receipt_age = (now - external_landing_state_receipt_).toSec();
+        if (!state.connected || state.header.stamp.isZero() ||
+            external_landing_state_receipt_.isZero() || source_age < 0.0 || receipt_age < 0.0 ||
+            source_age > external_landing_state_max_age_sec_ ||
+            receipt_age > external_landing_state_max_age_sec_) {
+            failExternalLanding("handoff_state_not_ready_or_stale");
+            external_landing_cancelled_ = true;
+            return;
+        }
+    }
+    if (!external_landing_auto_land_requested_ &&
+        !externalLandingControlReady(now)) {
+        failExternalLanding("flight_controller_state_not_ready_or_stale");
+        external_landing_cancelled_ = true;
         return;
     }
 
@@ -419,12 +632,18 @@ void LLController::externalLandingTick() {
     landing_enable.data = true;
     publishLegacyVisionControl(landing_detect_control_pub_, landing_enable);
 
-    const ros::Time now = ros::Time::now();
     if (flag_land) {
         patrol_cmd.pose.position.x = external_landing_aligned_goal_.pose.position.x;
         patrol_cmd.pose.position.y = external_landing_aligned_goal_.pose.position.y;
-        patrol_cmd.pose.position.z = land_height;
+        patrol_cmd.pose.position.z = external_landing_handoff_mode_ == "POSCTL"
+            ? external_landing_handoff_hold_height_ : land_height;
         patrol_cmd.pose.orientation = external_landing_goal_.pose.orientation;
+        if (external_landing_handoff_mode_ == "POSCTL") {
+            ROS_INFO_THROTTLE(2.0,
+                "[ExternalLanding] POSCTL handoff requested=%s observed=%s; awaiting pilot landing",
+                external_landing_auto_land_requested_ ? "true" : "false",
+                external_landing_handoff_observed_ ? "true" : "false");
+        }
         return;
     }
     if ((now - external_landing_started_at_).toSec() >
@@ -502,7 +721,7 @@ void LLController::externalLandingTick() {
         if (!auto_land) {
             ROS_ERROR_THROTTLE(
                 2.0,
-                "[ExternalLanding] AUTO.LAND disabled by switch/auto_land");
+                "[ExternalLanding] landing handoff disabled by switch/auto_land");
             return;
         }
         if (external_landing_last_auto_land_attempt_.isZero() ||
@@ -510,7 +729,6 @@ void LLController::externalLandingTick() {
                 external_landing_auto_land_retry_sec_) {
             external_landing_last_auto_land_attempt_ = now;
             CallLand();
-            external_landing_auto_land_requested_ = flag_land;
         }
     }
 }
@@ -972,11 +1190,45 @@ bool LLController::hasValidExternalPlannerCommand() const {
         std::sqrt(distance_sq));
     return true;
 }
+void LLController::holdExternalPlannerHeight(const char* source, double rejected_z) {
+    if (!external_planner_height_hold_active_) {
+        // Capture once, including XY. Do not turn a rejected curve into a
+        // horizontal trajectory or force a descent from an over-limit pose.
+        external_planner_height_hold_ = uav_pose;
+        external_planner_height_hold_active_ = true;
+        height_replan_pub_.publish(std_msgs::Empty());
+        height_replan_stamp_ = ros::Time::now();
+    } else if ((ros::Time::now() - height_replan_stamp_).toSec() >= 0.2) {
+        height_replan_pub_.publish(std_msgs::Empty());
+        height_replan_stamp_ = ros::Time::now();
+    }
+    mavros_point_cmd = external_planner_height_hold_;
+    have_planner_cmd = false;
+    ROS_WARN_THROTTLE(1.0,
+        "[ExternalPlanner] height violation: holding and invalidating trajectory "
+        "source=%s planner_z=%.12f rejected_z=%.12f current_z=%.12f limit_z=%.12f "
+        "hold=(%.6f, %.6f, %.6f)",
+        source, planner_cmd.pose.position.z, rejected_z,
+        uav_pose.pose.position.z, external_planner_max_command_z_,
+        external_planner_height_hold_.pose.position.x,
+        external_planner_height_hold_.pose.position.y,
+        external_planner_height_hold_.pose.position.z);
+}
+
 void LLController::servoMarkyCallback(const std_msgs::Bool& msg) {
     servo_marky = msg;
     ROS_INFO("\033[1;35m[servoMarkyCallback] Received servo_marky: %s\033[0m", servo_marky.data ? "true" : "false");
 }
 void LLController::cmdCallback(const ros::TimerEvent& event) {
+    // Polling never waits for the RPC. Result application stays on this control
+    // thread, even if visual permission has expired while the servo moves.
+    if (Drone_mode != Aligning ||
+        (!external_mission_mode_ && !detection_start_time.isZero() &&
+         !alignmentWindowOpen(false, (ros::Time::now() - detection_start_time).toSec(),
+                              waypoint_adjust_max_second_threshould))) {
+        cancelDropAction();
+    }
+    pollDropAction();
     double phase_lead = px4_max_distance;
     double phase_ceiling = external_planner_max_command_z_;
     if (nh_.getParamCached("px4_max_distance", phase_lead) &&
@@ -1003,6 +1255,11 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
         (Drone_mode == Aligning || Drone_mode == Land)) {
         externalMissionTick();
     }
+    // A height hold belongs only to external planner navigation. ALIGN,
+    // takeoff and landing retain their existing motion authority.
+    if (!external_mission_mode_ || Drone_mode != Run_point)
+        external_planner_height_hold_active_ = false;
+    bool external_planner_command_accepted = false;
     publishAlignMode(desiredAlignMode());
     std_msgs::Int8 point_class_msg;
     point_class_msg.data = Drone_mode;
@@ -1039,19 +1296,17 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                 if (external_waiting_for_motion_) {
                     // A fresh sample from an old trajectory is not a new mission.
                     mavros_point_cmd = patrol_cmd;
+                } else if (have_planner_cmd && planner_cmd.pose.position.z >
+                           external_planner_max_command_z_ + external_planner_height_epsilon_) {
+                    // Never execute XY from a curve whose Z has been clipped.
+                    holdExternalPlannerHeight("planner", planner_cmd.pose.position.z);
                 } else if (hasValidExternalPlannerCommand()) {
                     mavros_point_cmd = planner_cmd;
-                    if (mavros_point_cmd.pose.position.z >
-                            external_planner_max_command_z_) {
-                        ROS_WARN_THROTTLE(
-                            1.0,
-                            "[ExternalPlanner] capping command height=%.3f "
-                            "to %.3f while preserving horizontal progress",
-                            mavros_point_cmd.pose.position.z,
-                            external_planner_max_command_z_);
-                        mavros_point_cmd.pose.position.z =
-                            external_planner_max_command_z_;
-                    }
+                    // Keep the latch until the post-distance-limit command
+                    // also passes: an over-limit current pose can raise it.
+                    external_planner_command_accepted = true;
+                } else if (external_planner_height_hold_active_) {
+                    mavros_point_cmd = external_planner_height_hold_;
                 } else {
                     mavros_point_cmd = last_mavros_point_cmd;
                 }
@@ -1323,7 +1578,9 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     Eigen::Vector3d target_pos(mavros_point_cmd.pose.position.x, mavros_point_cmd.pose.position.y, mavros_point_cmd.pose.position.z);
     double distance_to_target = (target_pos - current_pos).norm();
     // 如果距离超过 px4_max_distance，则进行插值
-    if (distance_to_target > px4_max_distance) {
+    if (distance_to_target > px4_max_distance &&
+        !(external_mission_mode_ && Drone_mode == Run_point &&
+          external_planner_height_hold_active_ && !external_planner_command_accepted)) {
         Eigen::Vector3d direction = (target_pos - current_pos).normalized();
         Eigen::Vector3d new_pos = current_pos + direction * px4_max_distance;
         // 更新目标点为插值后的点位
@@ -1340,19 +1597,21 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
         mavros_point_cmd.pose.position.y = takeoff_point[1];
     }
 
-    // The distance limiter interpolates from the current vehicle pose.  When
-    // the vehicle is already above the configured ceiling, that interpolation
-    // can raise a previously capped planner command above the ceiling again.
-    // Enforce the invariant on the final command sent to MAVROS as well.
-    if (external_mission_mode_ &&
-        mavros_point_cmd.pose.position.z > external_planner_max_command_z_) {
-        ROS_WARN_THROTTLE(
-            1.0,
-            "[ExternalPlanner] enforcing final command height=%.3f to %.3f "
-            "after distance interpolation",
-            mavros_point_cmd.pose.position.z,
-            external_planner_max_command_z_);
-        mavros_point_cmd.pose.position.z = external_planner_max_command_z_;
+    // The distance limiter interpolates from the measured pose, which may
+    // already be above the ceiling. Reject its whole result, not just its Z.
+    // A latched hold can itself be above the ceiling; this is a stop request,
+    // not a claim that measured height or the FC local frame is safe/reset-free.
+    if (external_mission_mode_ && mavros_point_cmd.pose.position.z >
+        external_planner_max_command_z_ + external_planner_height_epsilon_) {
+        if (Drone_mode==Run_point) {
+            holdExternalPlannerHeight("final", mavros_point_cmd.pose.position.z);
+        } else {
+            // Existing non-planner ceiling safeguard, e.g. recovery/takeoff.
+            mavros_point_cmd.pose.position.z=external_planner_max_command_z_;
+        }
+    } else if (external_mission_mode_ && Drone_mode == Run_point &&
+               external_planner_command_accepted) {
+        external_planner_height_hold_active_ = false;
     }
 
     // 提取当前 yaw 和目标 yaw
@@ -1379,6 +1638,29 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     mavros_point_cmd.pose.orientation.z = sin(interpolated_yaw / 2.0);
     mavros_point_cmd.pose.orientation.w = cos(interpolated_yaw / 2.0);
 
+    // The target center can lie closer to a wall than the legal aircraft
+    // center.  Keep the final, post-interpolation ALIGN setpoint inside the
+    // shared research boundary; visual evidence remains a separate gate.
+    if (external_mission_mode_ && Drone_mode == Aligning) {
+        const auto& fence = near_wall_align_fence_;
+        if (fence.enabled) {
+            if (!fence.wellFormed()) {
+                mavros_point_cmd = uav_pose;
+                ROS_ERROR_THROTTLE(1.0, "[NearWallAlign] invalid boundary; holding pose");
+            } else {
+                const auto safe = fence.clamp(mavros_point_cmd.pose.position.x,
+                                               mavros_point_cmd.pose.position.y,
+                                               current_yaw, interpolated_yaw);
+                if (std::hypot(mavros_point_cmd.pose.position.x-safe.first,
+                               mavros_point_cmd.pose.position.y-safe.second) > 1e-4) {
+                    ROS_WARN_THROTTLE(1.0, "[NearWallAlign] clamped center to legal area");
+                }
+                mavros_point_cmd.pose.position.x = safe.first;
+                mavros_point_cmd.pose.position.y = safe.second;
+            }
+        }
+    }
+
     mavros_point_cmd.header.stamp = ros::Time::now();
     mavros_point_cmd.header.frame_id = "camera_init";
     mavros_point_cmd_pub.publish(mavros_point_cmd);
@@ -1386,7 +1668,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     // std::cout<<"mavros_point_cmd.pose.position.x, mavros_point_cmd.pose.position.y, mavros_point_cmd.pose.position.z = "<<mavros_point_cmd.pose.position.x<<", "<<mavros_point_cmd.pose.position.y<<", "<<mavros_point_cmd.pose.position.z<<std::endl;
     last_mavros_point_cmd = mavros_point_cmd;
     // 判断是否已经降落，降落成功就锁桨
-    // External landing delegates disarm to PX4 AUTO.LAND and verifies it
+    // External landing waits for PX4/pilot disarm and verifies it
     // through MAVROS.  The legacy height-only force-disarm path is unsafe for
     // that contract because a bad local-z sample could stop motors in flight.
     if(!external_mission_mode_ && Drone_mode == Land &&
@@ -1417,18 +1699,31 @@ void LLController::Lock() {
 }
 
 void LLController::CallLand() {
+    if (external_mission_mode_ &&
+        (!auto_land || !external_landing_active_ || external_landing_cancelled_ ||
+         external_landing_auto_land_requested_ ||
+         !externalLandingControlReady(ros::Time::now()))) {
+        ROS_WARN_THROTTLE(
+            1.0, "[ExternalLanding] landing handoff blocked without fresh armed OFFBOARD ownership");
+        return;
+    }
     if (auto_land && (external_mission_mode_ || simulation_auto_land)) {
         mavros_msgs::SetMode auto_land_mode;
-        auto_land_mode.request.custom_mode = "AUTO.LAND";
+        auto_land_mode.request.custom_mode = external_mission_mode_
+            ? external_landing_handoff_mode_ : "AUTO.LAND";
         const bool mode_accepted =
             set_mode_client.call(auto_land_mode) &&
             auto_land_mode.response.mode_sent;
         if (mode_accepted) {
-            ROS_INFO("[PatrolControl] AUTO.LAND mode enabled");
+            ROS_INFO("[PatrolControl] %s request sent; awaiting MAVROS mode observation",
+                     auto_land_mode.request.custom_mode.c_str());
         } else {
-            ROS_WARN("[PatrolControl] AUTO.LAND request failed; keeping landing setpoint");
+            ROS_WARN("[PatrolControl] %s request failed; keeping landing setpoint",
+                     auto_land_mode.request.custom_mode.c_str());
         }
-        // PX4 controls the final descent; retain the last aligned height setpoint.
+        // AUTO.LAND descends automatically. POSCTL requires pilot descent;
+        // freeze the current Z before handoff so no further OFFBOARD descent
+        // is requested while waiting for the actual mode transition.
         align_height = land_height;
         if (external_mission_mode_ && !mode_accepted) {
             // External mission completion is observed through MAVROS landed
@@ -1436,6 +1731,16 @@ void LLController::CallLand() {
             // of pretending that the landing handoff succeeded.
             flag_land = false;
             return;
+        }
+        if (external_mission_mode_) {
+            external_landing_auto_land_requested_ = true;
+            external_landing_handoff_requested_at_ = ros::Time::now();
+            publishExternalLandingHandoff("REQUESTED");
+            external_landing_handoff_hold_height_ = uav_pose.pose.position.z;
+            if (external_landing_handoff_mode_ == "POSCTL") {
+                patrol_cmd.pose.position.z = external_landing_handoff_hold_height_;
+                align_height = external_landing_handoff_hold_height_;
+            }
         }
     } else {
         if(!flag_landing_detect){
@@ -1533,11 +1838,30 @@ void LLController::load_params() {
         "external_landing/auto_land_height", 0.40);
     external_landing_auto_land_retry_sec_ = nh_.param(
         "external_landing/auto_land_retry_sec", 1.0);
+    external_landing_handoff_mode_ = nh_.param<std::string>(
+        "external_landing/handoff_mode", "AUTO.LAND");
+    external_landing_handoff_topic_ = nh_.param<std::string>(
+        "external_landing/handoff_status_topic", "/patrol_control/external_landing_handoff");
+    external_landing_mode_transition_timeout_sec_ = nh_.param(
+        "external_landing/mode_transition_timeout_sec", 2.5);
+    external_landing_state_topic_ = nh_.param<std::string>(
+        "external_landing/state_topic", "/mavros/state");
+    // Match the board supervisor's mapping_startup.yaml state_max_age default.
+    external_landing_state_max_age_sec_ = nh_.param(
+        "external_landing/state_max_age_sec", 2.5);
     external_landing_stable_frames_ = nh_.param(
         "external_landing/stable_frames", 10);
-    if (external_landing_frame_.empty() ||
+    if (external_landing_handoff_topic_.empty() ||
+        !std::isfinite(external_landing_mode_transition_timeout_sec_) ||
+        external_landing_mode_transition_timeout_sec_ <= 0.0 ||
+        (external_landing_handoff_mode_ != "AUTO.LAND" &&
+         external_landing_handoff_mode_ != "POSCTL") ||
+        external_landing_frame_.empty() ||
         (external_mission_mode_ &&
-         external_landing_detections_topic_.empty()) ||
+         (external_landing_detections_topic_.empty() ||
+          external_landing_state_topic_.empty() ||
+          !std::isfinite(external_landing_state_max_age_sec_) ||
+          external_landing_state_max_age_sec_ <= 0.0)) ||
         land_height <= 0.0 ||
         external_landing_capture_height_ <= external_landing_auto_land_height_ ||
         external_landing_auto_land_height_ < land_height ||
@@ -1558,6 +1882,14 @@ void LLController::load_params() {
     drop_height_threshold = nh_.param("drop_system/height_threshold", 0.2);
     drop_position_threshold_ = nh_.param(
         "drop_system/position_threshold", 0.15);
+    servo_action_service_ = nh_.param<std::string>(
+        "drop_system/servo_action_service", "/mission/servo_action");
+    servo_alignment_context_topic_ = nh_.param<std::string>(
+        "drop_system/servo_alignment_context_topic", "/uav_vision/alignment_target_context");
+    servo_call_timeout_sec_ = nh_.param("drop_system/servo_call_timeout_sec", 10.0);
+    if (!std::isfinite(servo_call_timeout_sec_) || servo_call_timeout_sec_ <= 0.0) {
+        throw std::invalid_argument("drop_system/servo_call_timeout_sec must be positive");
+    }
     drop_release_setpoint_height_ = nh_.param(
         "drop_system/release_setpoint_height", 0.10);
     drop_enabled = nh_.param("drop_system/enable_drop", true);
@@ -1571,10 +1903,30 @@ void LLController::load_params() {
         "uav_vision/release_permission_timeout", 0.25);
     external_recovery_height_ = nh_.param(
         "uav_vision/recovery_height", 0.95);
+    external_standard_recovery_setpoint_height_ = nh_.param(
+        "uav_vision/standard_recovery_setpoint_height", 1.20);
+    external_cross_recovery_setpoint_height_ = nh_.param(
+        "uav_vision/cross_recovery_setpoint_height", 1.15);
     mission_release_permission_topic_ = nh_.param<std::string>(
         "uav_vision/release_permission_state_topic",
         "/mission/release_permission_active");
     pixel_to_meter_ratio_ = nh_.param("uav_vision/pixel_to_meter_ratio", 0.0015);
+    drop_metric_scale_enabled_ = nh_.param(
+        "uav_vision/drop_metric_scale_enabled", false);
+    drop_camera_info_topic_ = nh_.param<std::string>(
+        "uav_vision/drop_camera_info_topic", "/camera/camera_info");
+    drop_camera_frame_ = nh_.param<std::string>(
+        "uav_vision/drop_camera_frame", "downward_camera_optical_frame");
+    drop_map_frame_ = nh_.param<std::string>(
+        "uav_vision/drop_map_frame", "camera_init");
+    drop_ground_z_ = nh_.param("uav_vision/drop_ground_z", 0.0);
+    drop_tf_max_age_sec_ = nh_.param("uav_vision/drop_tf_max_age_sec", 0.20);
+    if (drop_metric_scale_enabled_ &&
+        (drop_camera_info_topic_.empty() || drop_camera_frame_.empty() ||
+         drop_map_frame_.empty() || !std::isfinite(drop_ground_z_) ||
+         !std::isfinite(drop_tf_max_age_sec_) || drop_tf_max_age_sec_ <= 0.0)) {
+        throw std::invalid_argument("invalid drop camera metric-scale configuration");
+    }
     {
         XmlRpc::XmlRpcValue pixel_to_body_matrix;
         if (nh_.getParam("uav_vision/pixel_to_body_matrix", pixel_to_body_matrix) &&
@@ -1598,12 +1950,19 @@ void LLController::load_params() {
         !std::isfinite(drop_position_threshold_) ||
         !std::isfinite(drop_release_setpoint_height_) ||
         !std::isfinite(external_recovery_height_) ||
+        !std::isfinite(external_standard_recovery_setpoint_height_) ||
+        !std::isfinite(external_cross_recovery_setpoint_height_) ||
         drop_height_threshold <= 0.0 || drop_height_threshold > 1.0 ||
         drop_position_threshold_ <= 0.0 || drop_position_threshold_ > 1.0 ||
         drop_release_setpoint_height_ <= 0.05 ||
         drop_release_setpoint_height_ > drop_height_threshold ||
         external_recovery_height_ <= drop_height_threshold ||
-        external_recovery_height_ > align_height) {
+        external_recovery_height_ > align_height ||
+        (external_mission_mode_ &&
+         (external_standard_recovery_setpoint_height_ < external_recovery_height_ ||
+          external_cross_recovery_setpoint_height_ < external_recovery_height_ ||
+          external_standard_recovery_setpoint_height_ > external_planner_max_command_z_ ||
+          external_cross_recovery_setpoint_height_ > external_planner_max_command_z_))) {
         ROS_FATAL("[DropSystem] invalid release/recovery geometry parameters");
         throw std::invalid_argument("invalid drop_system geometry parameters");
     }
@@ -1629,6 +1988,10 @@ void LLController::load_params() {
     ROS_INFO("[UavVision] pixel_to_body_matrix: [%.2f %.2f; %.2f %.2f]",
              pixel_to_body_matrix_[0], pixel_to_body_matrix_[1],
              pixel_to_body_matrix_[2], pixel_to_body_matrix_[3]);
+    ROS_INFO("[UavVision] drop metric scale=%s CameraInfo=%s camera=%s map=%s ground_z=%.3f",
+             drop_metric_scale_enabled_ ? "height" : "legacy_radius",
+             drop_camera_info_topic_.c_str(), drop_camera_frame_.c_str(),
+             drop_map_frame_.c_str(), drop_ground_z_);
     ROS_INFO("\033[36m[UavVision] target radii(circle/cross/landing): %.2f / %.2f / %.2f m, tank interrupt: %s\033[0m",
              drop_circle_radius_m_, drop_cross_radius_m_, landing_pad_radius_m_,
              enable_selected_tank_interrupt_ ? "true" : "false");
@@ -1645,12 +2008,13 @@ void LLController::load_params() {
              external_recovery_height_);
     ROS_INFO(
         "[ExternalLanding] frame=%s detections=%s capture=%.2f "
-        "handoff=%.2f land=%.2f "
+        "handoff=%.2f land=%.2f mode=%s "
         "tol=%.2f mark_age=%.2f stable=%d controller_watchdog=%.1f",
         external_landing_frame_.c_str(),
         external_landing_detections_topic_.c_str(),
         external_landing_capture_height_,
         external_landing_auto_land_height_, land_height,
+        external_landing_handoff_mode_.c_str(),
         external_landing_alignment_tolerance_,
         external_landing_mark_max_age_sec_, external_landing_stable_frames_,
         external_landing_watchdog_timeout_sec_);
@@ -1987,7 +2351,7 @@ bool LLController::DynamicProcess()
                     should_drop = false;
                     if (!drop_complete) {
                         ROS_WARN_THROTTLE(1.0,
-                            "[DynamicProcess] Drop slot %d not acknowledged; retrying while conditions remain valid",
+                            "[DynamicProcess] Drop slot %d awaiting matching asynchronous ACK; no automatic repeat",
                             servo_id);
                         return false;
                     }
@@ -2001,7 +2365,7 @@ bool LLController::DynamicProcess()
                 if(servo_complete.data){
                     ROS_INFO("\033[33m[CrossDetectionDone] servo_complete.data: %d\033[0m", servo_complete.data);
                     down_flag = false;
-                    align_height = 1.15;
+                    align_height = external_mission_mode_ ? external_cross_recovery_setpoint_height_ : 1.15;
                     const double recovery_height = external_mission_mode_
                         ? external_recovery_height_ : 0.95;
                     if(uav_pose.pose.position.z >= recovery_height){
@@ -2296,6 +2660,8 @@ bool LLController::WayPointDetectDone()
             should_drop = dropReleaseReady(
                 external_mission_mode_, legacy_geometry_ready,
                 require_vision_release_permission_, release_gate);
+            if (external_mission_mode_ &&
+                !nearWallAlignReleaseAllowed(near_wall_align_fence_, uav_pose)) should_drop = false;
             if (!drop_complete && !should_drop) {
                 ROS_WARN_THROTTLE(
                     1.0,
@@ -2321,7 +2687,7 @@ bool LLController::WayPointDetectDone()
                 should_drop = false;
                 if (!drop_complete) {
                     ROS_WARN_THROTTLE(1.0,
-                        "[WayPointDetectDone] Drop slot %d not acknowledged; retrying while conditions remain valid",
+                        "[WayPointDetectDone] Drop slot %d awaiting matching asynchronous ACK; no automatic repeat",
                         servo_id);
                     return false;
                 }
@@ -2336,7 +2702,7 @@ bool LLController::WayPointDetectDone()
             if(servo_complete.data){
                 ROS_INFO("\033[33m[WayPointDetectDone] servo_complete.data: %d\033[0m", servo_complete.data);
                 // down_flag = false;
-                align_height = 1.2;
+                align_height = external_mission_mode_ ? external_standard_recovery_setpoint_height_ : 1.2;
                 const double recovery_height = external_mission_mode_
                     ? external_recovery_height_ : 1.0;
                 if(uav_pose.pose.position.z >= recovery_height){
@@ -2349,7 +2715,7 @@ bool LLController::WayPointDetectDone()
                     resetDropState();   // 重置投递状态
                     drop_complete = false;
                     servo_complete.data = false;
-                    align_height = 1.2;
+                    align_height = external_mission_mode_ ? external_standard_recovery_setpoint_height_ : 1.2;
                     time_temp = 0;
                     detect_point_counter++;
                     // drop_time_flag = false;
@@ -2542,6 +2908,21 @@ bool LLController::hasFreshMissionReleasePermission() const
     if (!mission_release_permission_active_) {
         return false;
     }
+    if (external_mission_mode_) {
+        const auto& p = release_authorization_;
+        const auto& c = servo_alignment_context_;
+        const double age = (ros::Time::now() - p.header.stamp).toSec();
+        if (!have_servo_alignment_context_ || !c.active || !p.permitted ||
+            p.permission_epoch.empty() || p.permission_revision == 0 ||
+            p.header.stamp.isZero() || age < 0 || age > mission_release_permission_timeout_ ||
+            p.valid_until <= ros::Time::now() ||
+            p.mission_id != c.mission_id || p.decision_seq != c.decision_seq ||
+            p.attempt != c.attempt || p.payload_slot != c.payload_slot ||
+            p.target_id != c.semantic_target_id || p.target_class != c.semantic_target_class ||
+            p.target_first_seen != c.semantic_target_first_seen || p.align_mode != c.align_mode) {
+            return false;
+        }
+    }
     return (ros::Time::now() - latest_mission_release_permission_time_).toSec() <=
            mission_release_permission_timeout_;
 }
@@ -2580,6 +2961,58 @@ void LLController::updateGoalFromSelectedTarget(const std::string& class_name)
     ROS_INFO("[UavVision] active standard target -> %s", class_name.c_str());
 }
 
+void LLController::dropCameraInfoCallback(
+    const sensor_msgs::CameraInfo::ConstPtr& msg)
+{
+    drop_camera_info_valid_ =
+        msg->width > 0 && msg->height > 0 &&
+        msg->header.frame_id == drop_camera_frame_ &&
+        std::isfinite(msg->K[0]) && msg->K[0] > 0.0 &&
+        std::isfinite(msg->K[4]) && msg->K[4] > 0.0;
+    if (!drop_camera_info_valid_) {
+        ROS_WARN_THROTTLE(5.0, "[UavVision] drop metric scale needs valid CameraInfo for %s",
+                          drop_camera_frame_.c_str());
+        return;
+    }
+    drop_fx_ = msg->K[0];
+    drop_fy_ = msg->K[4];
+}
+
+bool LLController::dropPixelScales(
+    const ros::Time& stamp, double* horizontal_meter_per_pixel,
+    double* vertical_meter_per_pixel)
+{
+    if (!drop_camera_info_valid_ || stamp.isZero()) {
+        ROS_WARN_THROTTLE(5.0, "[UavVision] drop metric scale needs CameraInfo and a stamped observation");
+        return false;
+    }
+    geometry_msgs::TransformStamped camera_pose;
+    try {
+        // Use the exposure timestamp, not the current height during descent.
+        camera_pose = drop_tf_buffer_.lookupTransform(
+            drop_map_frame_, drop_camera_frame_, stamp, ros::Duration(0.0));
+    } catch (const tf2::TransformException& error) {
+        ROS_WARN_THROTTLE(5.0, "[UavVision] drop camera TF unavailable: %s", error.what());
+        return false;
+    }
+    if (camera_pose.header.stamp.isZero() ||
+        std::abs((stamp - camera_pose.header.stamp).toSec()) > drop_tf_max_age_sec_) {
+        ROS_WARN_THROTTLE(5.0, "[UavVision] drop camera TF is stale");
+        return false;
+    }
+    // The existing camera TF follows FC pose and includes mounting translation.
+    const double height = camera_pose.transform.translation.z - drop_ground_z_;
+    if (!std::isfinite(height) || height <= 0.05) {
+        ROS_WARN_THROTTLE(5.0, "[UavVision] invalid drop camera-to-plane height: %.3f m", height);
+        return false;
+    }
+    *horizontal_meter_per_pixel = height / drop_fx_;
+    *vertical_meter_per_pixel = height / drop_fy_;
+    ROS_INFO_THROTTLE(2.0, "[UavVision] drop camera height=%.3f m scales=(%.6f, %.6f) m/px",
+                      height, *horizontal_meter_per_pixel, *vertical_meter_per_pixel);
+    return true;
+}
+
 void LLController::projectDropOffsetToTarget(const uav_vision::DropOffset& msg)
 {
     if (current_align_mode_ == "disabled") {
@@ -2605,14 +3038,25 @@ void LLController::projectDropOffsetToTarget(const uav_vision::DropOffset& msg)
         real_target_radius = landing_pad_radius_m_;
     }
 
-    double dynamic_pixel_to_meter_ratio = pixel_to_meter_ratio_;
-    if (radius_px > 10.0) {
-        dynamic_pixel_to_meter_ratio = real_target_radius / radius_px;
+    double horizontal_meter_per_pixel = pixel_to_meter_ratio_;
+    double vertical_meter_per_pixel = pixel_to_meter_ratio_;
+    const bool metric_drop = drop_metric_scale_enabled_ &&
+        (current_align_mode_ == "drop_circle" || current_align_mode_ == "drop_cross");
+    if (metric_drop) {
+        if (!dropPixelScales(msg.header.stamp, &horizontal_meter_per_pixel,
+                             &vertical_meter_per_pixel)) {
+            if (current_align_mode_ == "drop_cross") have_cross_mark = false;
+            else have_waypoint_mark = false;
+            return;
+        }
+    } else if (radius_px > 10.0) {
+        horizontal_meter_per_pixel = real_target_radius / radius_px;
+        vertical_meter_per_pixel = horizontal_meter_per_pixel;
     }
 
     const std::array<double, 2> body_offset =
         projectPixelOffsetToBody(pixel_error_x, pixel_error_y,
-                                 dynamic_pixel_to_meter_ratio,
+                                 horizontal_meter_per_pixel, vertical_meter_per_pixel,
                                  pixel_to_body_matrix_);
     const double yaw = tf::getYaw(uav_pose.pose.orientation);
     double world_offset_x = std::cos(yaw) * body_offset[0] -
@@ -2691,11 +3135,24 @@ void LLController::dropReadyCallback(const uav_vision::DropReady::ConstPtr& msg)
 void LLController::missionReleasePermissionCallback(
     const std_msgs::Bool::ConstPtr& msg)
 {
+    if (external_mission_mode_) return;  // Bool remains legacy-only.
     latest_mission_release_permission_time_ = ros::Time::now();
     mission_release_permission_active_ = msg->data;
     ROS_INFO_THROTTLE(
         1.0, "[UavVision] mission release permission=%s",
         mission_release_permission_active_ ? "true" : "false");
+}
+
+void LLController::releaseAuthorizationCallback(
+    const patrol_control::ReleaseAuthorization::ConstPtr& msg)
+{
+    if (!external_mission_mode_) return;
+    if (msg->permission_epoch.empty() || msg->permission_revision == 0) return;
+    if (msg->permission_epoch == release_authorization_.permission_epoch &&
+        msg->permission_revision <= release_authorization_.permission_revision) return;
+    release_authorization_ = *msg;
+    latest_mission_release_permission_time_ = ros::Time::now();
+    mission_release_permission_active_ = msg->permitted;
 }
 
 void LLController::missionCommandCallback(
@@ -2719,9 +3176,10 @@ void LLController::missionCommandCallback(
         case patrol_control::MissionCommand::RETURN_HOME:
             if (external_landing_auto_land_requested_) {
                 ROS_ERROR(
-                    "[ExternalLanding] refusing navigation command after AUTO.LAND handoff");
+                    "[ExternalLanding] refusing navigation command after landing handoff");
                 return;
             }
+            cancelDropAction();
             external_waiting_for_motion_ = false;
             have_planner_cmd = false;
             clearExternalLandingState(true);
@@ -2739,11 +3197,28 @@ void LLController::missionCommandCallback(
         case patrol_control::MissionCommand::ALIGN: {
             if (external_landing_auto_land_requested_) {
                 ROS_ERROR(
-                    "[ExternalLanding] refusing ALIGN after AUTO.LAND handoff");
+                    "[ExternalLanding] refusing ALIGN after landing handoff");
                 return;
             }
+            // Repeated ALIGN for an existing decision must not reset an
+            // admitted servo transaction (nor resurrect it after takeover).
+            // rospy replaces the top-level Header.seq with its transport
+            // sequence; Bridge preserves the decision in the nested goal.
+            const auto alignment_decision_seq = msg->goal.header.seq;
+            const bool same_alignment =
+                servo_alignment_target_id_ == msg->target_id &&
+                servo_alignment_target_class_ == msg->target_class &&
+                ((alignment_decision_seq != 0 &&
+                  servo_alignment_decision_seq_ == alignment_decision_seq) ||
+                 (alignment_decision_seq == 0 && !msg->header.stamp.isZero() &&
+                  servo_alignment_stamp_ == msg->header.stamp));
+            if (same_alignment) return;
             clearExternalLandingState(true);
             resetDetectionState();
+            servo_alignment_decision_seq_ = alignment_decision_seq;
+            servo_alignment_target_id_ = msg->target_id;
+            servo_alignment_target_class_ = msg->target_class;
+            servo_alignment_stamp_ = msg->header.stamp;
             // Recovery changes the working height; every new target starts
             // from the configured capture height, including the second/third.
             align_height = external_alignment_capture_height_;
@@ -2752,6 +3227,7 @@ void LLController::missionCommandCallback(
             current_task_type = (msg->target_class == "red_cross")
                 ? CROSS_MISSION : MAIN_MISSION;
             Point_mode = Detect_point;
+            external_planner_height_hold_active_ = false;
             Drone_mode = Aligning;
             goal.clear();
             if (!msg->target_class.empty()) {
@@ -2786,9 +3262,15 @@ void LLController::missionCommandCallback(
         }
 
         case patrol_control::MissionCommand::LAND: {
-            if (external_landing_active_) {
+            if (external_landing_active_ || external_landing_cancelled_) {
                 ROS_WARN_THROTTLE(
-                    2.0, "[ExternalLanding] duplicate LAND command ignored");
+                    2.0, "[ExternalLanding] duplicate or cancelled LAND command ignored");
+                return;
+            }
+            if (external_landing_handoff_mode_ == "POSCTL" &&
+                (msg->target_class.empty() || msg->goal.header.seq == 0 ||
+                 msg->goal.header.stamp.isZero())) {
+                ROS_ERROR("[ExternalLanding] POSCTL LAND rejected without mission/decision/command identity");
                 return;
             }
             resetDetectionState();
@@ -2819,9 +3301,14 @@ void LLController::missionCommandCallback(
             }
             external_landing_aligned_goal_ = external_landing_goal_;
             external_landing_active_ = true;
+            external_landing_mission_id_ = msg->target_class;
+            external_landing_decision_seq_ = msg->goal.header.seq;
+            external_landing_wire_command_stamp_ = msg->goal.header.stamp;
             external_landing_new_mark_ = false;
             external_landing_alignment_complete_ = false;
             external_landing_auto_land_requested_ = false;
+            external_landing_handoff_observed_ = false;
+            external_landing_handoff_hold_height_ = 0.0;
             external_landing_stable_count_ = 0;
             external_landing_started_at_ = ros::Time::now();
             external_landing_command_stamp_ = external_landing_started_at_;
@@ -2839,6 +3326,7 @@ void LLController::missionCommandCallback(
             adjust_target_position[3] =
                 tf::getYaw(external_landing_goal_.pose.orientation);
             patrol_cmd = external_landing_goal_;
+            external_planner_height_hold_active_ = false;
             Drone_mode = Land;
             ROS_INFO(
                 "[PatrolControl] External LAND command accepted; awaiting fresh H evidence");
@@ -2894,70 +3382,141 @@ void LLController::applyDropSlotOffset(int servo_id, bool dynamic_target) {
     adjust_target_position[1] += offsets[servo_id - 1][1];
 }
 
-DropActionResult LLController::executeDropAction(int servo_id) {
-    servo_complete.data = false;
-    patrol_control::Servo srv;
-    srv.request.req = servo_id;
-
-    const bool service_call_ok = servo_id >= 1 && servo_id <= 3 &&
-                                 servo_client.call(srv);
-    const DropActionResult result = classifyDropAction(
-        servo_id, service_call_ok, service_call_ok && srv.response.res);
-    servo_complete.data = dropActionSucceeded(result);
-
-    switch (result) {
-        case DropActionResult::kSuccess:
-            ROS_INFO("\033[32m[DropSystem] Drop action %d received positive Servo ACK\033[0m",
-                     servo_id);
-            break;
-        case DropActionResult::kInvalidServoId:
-            ROS_ERROR("\033[31m[DropSystem] Invalid servo ID: %d\033[0m", servo_id);
-            break;
-        case DropActionResult::kServiceCallFailed:
-            ROS_ERROR("\033[31m[DropSystem] Servo service call failed for slot %d\033[0m",
-                      servo_id);
-            break;
-        case DropActionResult::kRejected:
-            ROS_WARN("\033[33m[DropSystem] Servo request rejected for slot %d\033[0m",
-                     servo_id);
-            break;
+void LLController::servoAlignmentContextCallback(
+    const uav_vision::AlignmentTargetContext::ConstPtr& msg) {
+    if (msg->schema_version != uav_vision::AlignmentTargetContext::SCHEMA_VERSION ||
+        msg->command != uav_vision::AlignmentTargetContext::ALIGN) return;
+    if (!msg->active) {
+        if (have_servo_alignment_context_ &&
+            msg->mission_id == servo_alignment_context_.mission_id &&
+            msg->decision_seq == servo_alignment_context_.decision_seq &&
+            msg->attempt == servo_alignment_context_.attempt &&
+            msg->payload_slot == servo_alignment_context_.payload_slot &&
+            msg->semantic_target_id == servo_alignment_context_.semantic_target_id &&
+            msg->semantic_target_first_seen == servo_alignment_context_.semantic_target_first_seen &&
+            msg->semantic_target_class == servo_alignment_context_.semantic_target_class) {
+            have_servo_alignment_context_ = false;
+            // Revocation blocks future submissions. The proxy owns the raw-call
+            // fence; do not discard an already queued RPC's terminal result.
+            // In particular ReleaseResult may precede the matching RPC reply.
+        }
+        return;
     }
-    // // 创建投递控制消息
-    // std_msgs::Bool drop_msg;
-    // drop_msg.data = true;
-
-    // // 选择对应的舵机发布器
-    // ros::Publisher* servo_pub = nullptr;
-    // std::string topic_name;
-
-    // switch (servo_id) {
-    //     case 1:
-    //         servo_pub = &servo1_pub_;
-    //         topic_name = "/control1";
-    //         break;
-    //     case 2:
-    //         servo_pub = &servo2_pub_;
-    //         topic_name = "/control2";
-    //         break;
-    //     case 3:
-    //         servo_pub = &servo3_pub_;
-    //         topic_name = "/control3";
-    //         break;
-    //     default:
-    //         ROS_ERROR("\033[31m[DropSystem] Invalid servo ID: %d\033[0m", servo_id);
-    //         return;
-    // }
-
-    // ROS_INFO("\033[32m[DropSystem] Executing drop action for servo %d\033[0m", servo_id);
-    // ROS_INFO("\033[32m[DropSystem] Publishing to topic: %s\033[0m", topic_name.c_str());
-
-    // // 发布投递命令，重复发布几次确保接收
-    // for (int i = 0; i < 5; i++) {
-    //     servo_pub->publish(drop_msg);
-    //     ros::Duration(0.1).sleep();  // 间隔100ms
-    // }
-    return result;
+    servo_alignment_context_ = *msg;
+    have_servo_alignment_context_ = true;
 }
+
+DropActionResult LLController::executeDropAction(int servo_id) {
+    if (servo_id < 1 || servo_id > 3) return DropActionResult::kInvalidServoId;
+    if (servo_action_attempted_) {
+        return servo_action_slot_ == servo_id ? servo_action_result_
+                                             : DropActionResult::kRejected;
+    }
+    // Receiving a fresh release permission is not permission to actuate after
+    // RC takeover/disarm/disconnect. Use the existing flight-state age gate.
+    if (!externalLandingControlReady(ros::Time::now())) return DropActionResult::kRejected;
+    servo_complete.data = false;
+    // Capture a client copy only, never this/controller flags. The worker's
+    // outcome is consumed by pollDropAction on the existing 20 Hz callback.
+    AsyncServo::Execute execute;
+    if (external_mission_mode_) {
+        const auto& context = servo_alignment_context_;
+        if (!have_servo_alignment_context_ || !context.active || !context.has_target ||
+            context.mission_id.empty() || context.decision_seq == 0 ||
+            context.semantic_target_first_seen.isZero() ||
+            context.decision_seq != servo_alignment_decision_seq_ ||
+            context.semantic_target_id != servo_alignment_target_id_ ||
+            context.semantic_target_class != servo_alignment_target_class_ ||
+            context.payload_slot != servo_id || context.deadline <= ros::Time::now()) {
+            return DropActionResult::kRejected;
+        }
+        if (!hasFreshMissionReleasePermission()) return DropActionResult::kRejected;
+        patrol_control::ServoAction::Request request;
+        request.permission_epoch = release_authorization_.permission_epoch;
+        request.permission_revision = release_authorization_.permission_revision;
+        request.request_id = servo_action_id_;
+        request.payload_slot = servo_id;
+        request.mission_id = context.mission_id;
+        request.decision_seq = context.decision_seq;
+        request.attempt = context.attempt;
+        request.target_id = context.semantic_target_id;
+        request.target_first_seen = context.semantic_target_first_seen;
+        request.target_class = context.semantic_target_class;
+        request.align_mode = context.align_mode;
+        ros::ServiceClient client = servo_action_client_;
+        execute = [client, request](int) mutable {
+            patrol_control::ServoAction srv;
+            srv.request = request;
+            const bool ok = client.call(srv);
+            return classifyServoAction(request, ok, srv.response);
+        };
+    } else {
+        // Unchanged legacy bool service cannot unlock an uncertain failure.
+        ros::ServiceClient client = servo_client;
+        execute = [client](int slot) mutable {
+            patrol_control::Servo srv;
+            srv.request.req = slot;
+            const bool ok = client.call(srv);
+            return classifyDropAction(slot, ok, ok && srv.response.res);
+        };
+    }
+    const bool submitted = async_servo_.submit(
+        servo_action_id_, servo_id, servo_call_timeout_sec_, execute);
+    if (!submitted) return DropActionResult::kRejected;
+    servo_action_slot_ = servo_id;
+    servo_action_attempted_ = true;
+    servo_action_pending_ = true;
+    servo_action_result_ = DropActionResult::kPending;
+    ROS_INFO("[DropSystem] async Servo submitted action=%llu slot=%d",
+             static_cast<unsigned long long>(servo_action_id_), servo_id);
+    return DropActionResult::kPending;
+}
+
+void LLController::pollDropAction() {
+    if (!servo_action_pending_) return;
+    AsyncServo::Completion completion;
+    if (!async_servo_.poll(servo_action_id_, servo_action_slot_, &completion)) return;
+    servo_action_pending_ = false;
+    if (completion.status != AsyncServo::Status::kCompleted) {
+        servo_action_result_ = DropActionResult::kServiceCallFailed;
+        servo_complete.data = false;
+        ROS_ERROR("[DropSystem] Servo action=%llu slot=%d cancelled/timed out; no automatic retry",
+                  static_cast<unsigned long long>(completion.action), completion.slot);
+        return;
+    }
+    servo_action_result_ = completion.result;
+    if (completion.result == DropActionResult::kNotStarted) {
+        const bool unlocked = async_servo_.releaseNotStarted(completion.action, completion.slot);
+        servo_complete.data = false;
+        ROS_WARN("[DropSystem] fenced NOT_STARTED action=%llu slot=%d unlocked=%s; await new ALIGN",
+                 static_cast<unsigned long long>(completion.action), completion.slot,
+                 unlocked ? "true" : "false");
+        return;
+    }
+    servo_complete.data = dropActionSucceeded(completion.result);
+    if (!servo_complete.data) {
+        ROS_WARN("[DropSystem] Servo action=%llu slot=%d not acknowledged; no automatic retry",
+                 static_cast<unsigned long long>(completion.action), completion.slot);
+        return;
+    }
+    drop_complete = true;
+    if (detect_point_counter >= 0 &&
+        detect_point_counter < static_cast<int>(drop_completed.size())) {
+        drop_completed[detect_point_counter] = true;
+    }
+    ROS_INFO("[DropSystem] Drop action %d received positive Servo ACK (action=%llu)",
+             completion.slot, static_cast<unsigned long long>(completion.action));
+}
+
+void LLController::cancelDropAction() {
+    if (!servo_action_pending_) return;
+    async_servo_.cancel();
+    servo_action_pending_ = false;
+    servo_action_result_ = DropActionResult::kServiceCallFailed;
+    servo_complete.data = false;
+    ROS_WARN("[DropSystem] Servo action invalidated; in-flight physical call is never repeated");
+}
+
 void LLController::stopDropAction(int servo_id) {
 
     if (external_mission_mode_) {
@@ -3000,6 +3559,11 @@ void LLController::stopDropAction(int servo_id) {
 }
 
 void LLController::resetDropState() {
+    cancelDropAction();
+    ++servo_action_id_;
+    servo_action_slot_ = 0;
+    servo_action_attempted_ = false;
+    servo_action_result_ = DropActionResult::kPending;
     drop_condition_met = false;
     current_pixel_error = 1000.0;
     descent_completed = false;
@@ -3016,6 +3580,8 @@ void LLController::resetDropState() {
 //                       msg->x, msg->y, msg->z);
 // }
 void LLController::servoCompleteCallback(const std_msgs::Bool::ConstPtr& msg) {
+    // Untagged legacy completion must not acknowledge an RPC transaction.
+    if (servo_action_attempted_) return;
     if (ignore_servo_complete && msg->data == true) {
         ROS_INFO("\033[33m[ServoComplete] Ignoring servo complete signal during waypoint transition\033[0m");
         return;
@@ -3172,6 +3738,8 @@ bool LLController::CrossDetectionDone() {
             should_drop = dropReleaseReady(
                 external_mission_mode_, legacy_geometry_ready,
                 require_vision_release_permission_, release_gate);
+            if (external_mission_mode_ &&
+                !nearWallAlignReleaseAllowed(near_wall_align_fence_, uav_pose)) should_drop = false;
             if (!drop_complete && !should_drop) {
                 ROS_WARN_THROTTLE(
                     1.0,
@@ -3196,7 +3764,7 @@ bool LLController::CrossDetectionDone() {
                 should_drop = false;
                 if (!drop_complete) {
                     ROS_WARN_THROTTLE(1.0,
-                        "[CrossDetectionDone] Drop slot %d not acknowledged; retrying while conditions remain valid",
+                        "[CrossDetectionDone] Drop slot %d awaiting matching asynchronous ACK; no automatic repeat",
                         servo_id);
                     return false;
                 }
@@ -3210,7 +3778,7 @@ bool LLController::CrossDetectionDone() {
             if(servo_complete.data){
                 ROS_INFO("\033[33m[CrossDetectionDone] servo_complete.data: %d\033[0m", servo_complete.data);
                 down_flag = false;
-                align_height = 1.15;
+                align_height = external_mission_mode_ ? external_cross_recovery_setpoint_height_ : 1.15;
                 const double recovery_height = external_mission_mode_
                     ? external_recovery_height_ : 0.95;
                 if(uav_pose.pose.position.z >= recovery_height){
@@ -3253,6 +3821,11 @@ void LLController::resetCrossDetectionState() {
 }
 
 void LLController::resetDetectionState() {
+    cancelDropAction();
+    ++servo_action_id_;
+    servo_action_slot_ = 0;
+    servo_action_attempted_ = false;
+    servo_action_result_ = DropActionResult::kPending;
     // 重置所有检测相关状态
     first_call = true;
     times_detect = 0;
@@ -3301,7 +3874,7 @@ void LLController::cleanupAfterCrossDrop() {
     mission_interrupted = false;
 
     // 重置高度
-    align_height = 1.2;
+    align_height = external_mission_mode_ ? external_alignment_capture_height_ : 1.2;
 
     ROS_INFO("\033[32m[CleanupAfterCrossDrop] All states cleaned up after cross drop, ready for next mission\033[0m");
 }

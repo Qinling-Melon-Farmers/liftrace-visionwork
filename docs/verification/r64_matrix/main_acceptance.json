@@ -15,5 +15,7 @@
   ],
   "merge_source": "1c662cea60bada87a2223789fcf0cf80a6f3f0fc",
   "tag": "gate/r64-seed11-full",
-  "merge_mode": "--no-ff; retained branches"
+  "merge_mode": "--no-ff; retained branches",
+  "merge_commit": "7f67a68d9acc06ff541a8e2d91de0b22d89aaaba",
+  "main_repository": "Qinling-Melon-Farmers/liftrace-visionwork"
 }

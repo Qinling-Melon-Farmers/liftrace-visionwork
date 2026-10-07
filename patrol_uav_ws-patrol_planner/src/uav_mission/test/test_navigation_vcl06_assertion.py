@@ -737,6 +737,123 @@ class Vcl06GateReducerTest(unittest.TestCase):
                        "actual_collision", "bridge_output_disabled"):
             self.assertIn(reason, report["errors"])
 
+    def collision_node(self, stop_on_collision=False, observe_full_trial=False):
+        node = MODULE.NavigationVcl06AssertionNode.__new__(
+            MODULE.NavigationVcl06AssertionNode)
+        node._finished = False
+        node._observe_full_trial = observe_full_trial
+        node._stop_on_collision = stop_on_collision
+        node._recorded_collision_count = 0
+        node._mission_started_ros = None
+        node.exit_code = 1
+        node.reducer = MODULE.Vcl06GateReducer()
+        node._write_report = mock.Mock()
+        return node
+
+    def test_stop_on_collision_parameter_defaults_to_legacy_behavior(self):
+        fake_ros = mock.Mock()
+        fake_ros.get_param.side_effect = lambda _name, default=None: default
+        with mock.patch.object(MODULE, 'rospy', fake_ros), \
+                mock.patch.object(MODULE, 'rosgraph', mock.Mock()):
+            node = MODULE.NavigationVcl06AssertionNode()
+        self.assertTrue(node._stop_on_collision)
+        fake_ros.get_param.assert_any_call('~stop_on_collision', True)
+
+    def test_collision_still_stops_immediately_by_default(self):
+        node = self.collision_node(stop_on_collision=True, observe_full_trial=True)
+        node.reducer.observe_status('contact', {
+            'status': 'READY', 'ready': True, 'actual_collision_count': 1})
+        with mock.patch.object(MODULE, 'rospy', mock.Mock()) as fake_ros:
+            node._check_terminal()
+        self.assertTrue(node._finished)
+        self.assertEqual(node.exit_code, 1)
+        fake_ros.signal_shutdown.assert_called_once()
+        self.assertEqual(node._write_report.call_args[0][0]['status'], 'FAIL')
+
+    def test_record_only_persists_raw_failure_and_latched_collision_count(self):
+        node = self.collision_node()
+        with mock.patch.object(MODULE, 'rospy', mock.Mock()) as fake_ros:
+            for count in (1, 1, 2):
+                node.reducer.observe_status('contact', {
+                    'status': 'READY', 'ready': True,
+                    'actual_collision_count': count})
+                node._check_terminal()
+            self.assertFalse(node._finished)
+            fake_ros.signal_shutdown.assert_not_called()
+            self.assertEqual(node._write_report.call_count, 2)
+            node.reducer.observe_status('contact', {
+                'status': 'READY', 'ready': True, 'actual_collision_count': 0})
+            node._check_terminal()
+        report = node.reducer.report()
+        self.assertEqual(report['status'], 'FAIL')
+        self.assertEqual(report['metrics']['actual_collision_count'], 2)
+        self.assertFalse(report['checks']['zero_collisions'])
+        self.assertFalse(report['checks']['contact_ready_zero'])
+        raw = node._write_report.call_args[0][0]
+        self.assertEqual(raw['status'], 'FAIL')
+        self.assertFalse(raw['stop_on_collision'])
+        self.assertIn('actual_collision', raw['errors'])
+
+    def test_record_only_completed_task_finishes_fail(self):
+        node = self.collision_node()
+        node.reducer = build_passing_reducer()
+        node.reducer.observe_status('contact', {
+            'status': 'READY', 'ready': True, 'actual_collision_count': 1})
+        with mock.patch.object(MODULE, 'rospy', mock.Mock()) as fake_ros:
+            node._check_terminal()
+        self.assertTrue(node._finished)
+        self.assertEqual(node.exit_code, 1)
+        fake_ros.signal_shutdown.assert_called_once()
+        report = node._write_report.call_args[0][0]
+        self.assertEqual(report['status'], 'FAIL')
+        self.assertTrue(report['checks']['land_success'])
+
+    def test_record_only_does_not_defer_timeout_or_other_error(self):
+        for reason in ('mission_wall_timeout', 'field_boundary_violation'):
+            with self.subTest(reason=reason):
+                node = self.collision_node()
+                node.reducer.observe_status('contact', {
+                    'status': 'READY', 'ready': True, 'actual_collision_count': 1})
+                timeout = ''
+                if reason == 'field_boundary_violation':
+                    node.reducer.observe_pose(20., 0., 1., 'camera_init')
+                else:
+                    timeout = reason
+                with mock.patch.object(MODULE, 'rospy', mock.Mock()):
+                    node._check_terminal(timeout_reason=timeout)
+                self.assertTrue(node._finished)
+                self.assertEqual(node.exit_code, 1)
+                report = node._write_report.call_args[0][0]
+                self.assertIn(reason, report['errors'])
+                self.assertIn('actual_collision', report['errors'])
+
+    def test_record_only_enforces_ros_budget_without_full_trial(self):
+        node = self.collision_node()
+        node._mission_started_ros = 10.
+        node.reducer.observe_status('contact', {
+            'status': 'READY', 'ready': True, 'actual_collision_count': 1})
+        with mock.patch.object(MODULE, 'rospy', mock.Mock()) as fake_ros:
+            fake_ros.Time.now.return_value.to_sec.return_value = 610.
+            node._check_terminal()
+        self.assertTrue(node._finished)
+        self.assertEqual(node.exit_code, 1)
+        report = node._write_report.call_args[0][0]
+        self.assertIn('full_trial_mission_timeout', report['errors'])
+
+    def test_full_trial_with_other_error_still_records_collision_raw_fail(self):
+        node = self.collision_node(observe_full_trial=True)
+        node.reducer.observe_pose(20., 0., 1., 'camera_init')
+        node.reducer.observe_status('contact', {
+            'status': 'READY', 'ready': True, 'actual_collision_count': 1})
+        with mock.patch.object(MODULE, 'rospy', mock.Mock()) as fake_ros:
+            node._check_terminal()
+        self.assertFalse(node._finished)
+        fake_ros.signal_shutdown.assert_not_called()
+        raw = node._write_report.call_args[0][0]
+        self.assertEqual(raw['status'], 'FAIL')
+        self.assertIn('actual_collision', raw['errors'])
+        self.assertIn('field_boundary_violation', raw['errors'])
+
     def test_planner_goal_requires_one_expected_publisher(self):
         reducer = MODULE.Vcl06GateReducer()
         reducer.observe_planner_goal_publishers([
@@ -1150,7 +1267,8 @@ class PhysicalPoseGateTest(unittest.TestCase):
         node._check_terminal = mock.Mock()
         node.reducer = MODULE.Vcl06GateReducer()
         message = SimpleNamespace(name=['iris_mid360'], pose=[SimpleNamespace(
-            position=SimpleNamespace(x=-.493412, y=-1.772690, z=4.2))])
+            position=SimpleNamespace(x=-.493412, y=-1.772690, z=4.2),
+            orientation=SimpleNamespace(x=0.,y=0.,z=0.,w=1.))])
         with mock.patch.object(MODULE, 'rospy') as ros:
             ros.Time.now.return_value.to_nsec.return_value = 1000000000
             node._on_truth_pose(message)

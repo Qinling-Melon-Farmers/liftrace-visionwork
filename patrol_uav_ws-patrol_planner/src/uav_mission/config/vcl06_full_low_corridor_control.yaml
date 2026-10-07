@@ -77,6 +77,12 @@ uav_vision:
   selected_target_timeout: 1.0
   drop_offset_timeout: 1.0
   pixel_to_meter_ratio: 0.0015
+  drop_metric_scale_enabled: true
+  drop_camera_info_topic: /camera/camera_info
+  drop_camera_frame: downward_camera_optical_frame
+  drop_map_frame: camera_init
+  drop_ground_z: -0.22
+  drop_tf_max_age_sec: 0.20
   pixel_to_body_matrix:
   - 0.0
   - -1.0

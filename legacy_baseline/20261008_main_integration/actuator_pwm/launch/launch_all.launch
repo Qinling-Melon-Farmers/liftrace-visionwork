@@ -1,0 +1,5 @@
+<launch>
+  <node name="servo_controller1" pkg="actuator_pwm" type="pwm_node1" output="screen" />
+  <!-- <node name="servo_controller2" pkg="actuator_pwm" type="pwm_node2" output="screen" />
+  <node name="servo_controller3" pkg="actuator_pwm" type="pwm_node3" output="screen" /> -->
+</launch>

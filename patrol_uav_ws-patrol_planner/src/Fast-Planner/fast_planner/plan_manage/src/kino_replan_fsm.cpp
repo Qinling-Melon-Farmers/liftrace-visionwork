@@ -1,3 +1,4 @@
+#include <plan_env/reference_height.h>
 /**
 * This file is part of Fast-Planner.
 *
@@ -59,6 +60,7 @@ void KinoReplanFSM::init(ros::NodeHandle& nh) {
   trigger_     = false;
   have_target_ = false;
   have_odom_   = false;
+  odom_pos_.setZero(); odom_vel_.setZero();
   goal_status_tracker_.reset();
 
   /*  fsm param  */
@@ -77,6 +79,43 @@ void KinoReplanFSM::init(ros::NodeHandle& nh) {
     nh.param("fsm/waypoint" + to_string(i) + "_y", waypoints_[i][1], -1.0);
     nh.param("fsm/waypoint" + to_string(i) + "_z", waypoints_[i][2], -1.0);
   }
+
+  nh.param("fsm/liveness_enabled", liveness_enabled_, false);
+  nh.param("progress/enabled", progress_enabled_, false);
+  nh.param("fsm/server_hold_replan_enabled", server_hold_replan_enabled_, false);
+  nh.param("fsm/server_hold_seconds", server_hold_monitor_.window, 0.25);
+  nh.param("fsm/server_progress_max_age", server_hold_monitor_.max_age, 0.50);
+  nh.param("fsm/no_progress_seconds", motion_watchdog_.window, 4.0);
+  nh.param("fsm/no_progress_m", motion_watchdog_.movement, 0.04);
+  int recovery_budget = 2;
+  nh.param("fsm/recovery_budget", recovery_budget, 2);
+  nh.param("fsm/odom_max_age", odom_max_age_, 0.5);
+  nh.param("fsm/map_max_age", map_max_age_, 2.0);
+  if (!std::isfinite(motion_watchdog_.window) || motion_watchdog_.window < 2.0 ||
+      !std::isfinite(motion_watchdog_.movement) || motion_watchdog_.movement < 0.01 ||
+      recovery_budget < 1 || recovery_budget > 5 || odom_max_age_ <= 0 || map_max_age_ <= 0 ||
+      !std::isfinite(server_hold_monitor_.window) || server_hold_monitor_.window < 0.05 ||
+      server_hold_monitor_.window > 2.0 || !std::isfinite(server_hold_monitor_.max_age) ||
+      server_hold_monitor_.max_age < server_hold_monitor_.window ||
+      server_hold_monitor_.max_age > 2.0 || (server_hold_replan_enabled_ && !progress_enabled_))
+    throw std::invalid_argument("invalid motion watchdog configuration");
+  motion_watchdog_.budget = recovery_budget;
+  std::string mode_topic, map_topic, progress_topic;
+  nh.param<std::string>("fsm/controller_mode_topic", mode_topic, "/detect/point_class");
+  nh.param<std::string>("fsm/map_freshness_topic", map_topic, "/freedom/static_pointcloud");
+  nh.param<std::string>("progress/topic", progress_topic, "/planning/progress");
+  controller_sub_ = nh.subscribe<std_msgs::Int8>(mode_topic, 1,
+      [this](const std_msgs::Int8::ConstPtr& msg) {
+        controller_mode_ = msg->data; controller_stamp_ = ros::Time::now();
+      });
+  map_age_sub_ = nh.subscribe<sensor_msgs::PointCloud2>(map_topic, 1,
+      [this](const sensor_msgs::PointCloud2::ConstPtr& msg) {
+        if (msg->width && msg->height && !msg->header.stamp.isZero()) map_stamp_ = msg->header.stamp;
+      });
+  if (progress_enabled_) progress_pub_ = nh.advertise<plan_manage::TrajectoryProgress>(progress_topic, 20);
+  if (server_hold_replan_enabled_)
+    server_progress_sub_ = nh.subscribe<plan_manage::TrajectoryProgress>(
+        progress_topic, 20, &KinoReplanFSM::serverProgressCallback, this);
 
   /* initialize main modules */
   planner_manager_.reset(new FastPlannerManager);
@@ -125,6 +164,10 @@ void KinoReplanFSM::waypointCallback(const geometry_msgs::PoseStamped msg) {
   // +x motion from the default identity quaternion bends narrow-door paths.
   end_vel_.setZero();
   requested_end_pt_ = end_pt_;
+  motion_watchdog_.reset();
+  server_hold_monitor_.reset();
+  server_hold_replan_pending_ = false;
+  goal_has_trajectory_ = false;
   next_planning_attempt_ = ros::Time(0);
 
   geometry_msgs::PoseStamped effective_goal = msg;
@@ -160,7 +203,31 @@ void KinoReplanFSM::odometryCallback(const nav_msgs::OdometryConstPtr& msg) {
   odom_orient_.y() = msg->pose.pose.orientation.y;
   odom_orient_.z() = msg->pose.pose.orientation.z;
 
-  have_odom_ = true;
+  have_odom_ = odom_pos_.allFinite() && odom_vel_.allFinite();
+  odom_stamp_ = msg->header.stamp;
+}
+
+void KinoReplanFSM::serverProgressCallback(
+    const plan_manage::TrajectoryProgress::ConstPtr& msg) {
+  if (!server_hold_replan_enabled_ || msg->source != msg->SERVER ||
+      !have_target_ || !goal_has_trajectory_ || exec_state_ != EXEC_TRAJ ||
+      controller_mode_ != 1 || !std::isfinite(msg->odom_age) ||
+      msg->odom_age < 0.0 || msg->odom_age > odom_max_age_) return;
+
+  const ros::Time now = ros::Time::now();
+  const auto fresh = [&now](const ros::Time& stamp, double age) {
+    return !stamp.isZero() && (now - stamp).toSec() >= 0.0 &&
+        (now - stamp).toSec() <= age;
+  };
+  if (!fresh(controller_stamp_, 0.5) || !fresh(odom_stamp_, odom_max_age_) ||
+      !fresh(map_stamp_, map_max_age_)) return;
+
+  const LocalTrajData* info = &planner_manager_->local_data_;
+  const ServerHoldMonitor::Result result = server_hold_monitor_.observe(
+      now.toSec(), msg->header.stamp.toSec(), goal_status_tracker_.goalSeq(),
+      info->traj_id_, info->start_time_.toNSec(), msg->goal_seq, msg->traj_id,
+      msg->traj_start.toNSec(), msg->tracking_hold && !msg->interrupted);
+  if (result == ServerHoldMonitor::REPLAN) server_hold_replan_pending_ = true;
 }
 
 void KinoReplanFSM::changeFSMExecState(FSM_EXEC_STATE new_state, string pos_call) {
@@ -185,6 +252,99 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
     if (!trigger_) cout << "wait for goal." << endl;
     fsm_num = 0;
   }
+
+  const ros::Time now = ros::Time::now();
+  const auto height = referenceHeight();
+  static ros::Time height_request_polled;
+  if (height.enabled && height.valid && (height_request_polled.isZero() ||
+      (now-height_request_polled).toSec()>=0.1 || now<height_request_polled)) {
+    height_request_polled=now;
+    const auto& ns=heightConstraintNamespace();
+    XmlRpc::XmlRpcValue request;
+    static std::string acknowledged_id;
+    static double acknowledged_limit=std::numeric_limits<double>::quiet_NaN();
+    static std::string acknowledged_frame;
+    static bool acknowledged_has_nonce = false;
+    static int acknowledged_nonce = 0;
+    // Cached request subscription: no 100Hz namespace queries or periodic
+    // parameter writes. One atomic ACK per request or explicit resend nonce.
+    // Requests without a nonce retain the shared-height legacy behavior.
+    if (ros::param::getCached(ns+"/request",request) &&
+        request.getType()==XmlRpc::XmlRpcValue::TypeStruct &&
+        request.hasMember("id") && request.hasMember("max_z") && request.hasMember("frame") &&
+        request["id"].getType()==XmlRpc::XmlRpcValue::TypeString &&
+        request["max_z"].getType()==XmlRpc::XmlRpcValue::TypeDouble &&
+        request["frame"].getType()==XmlRpc::XmlRpcValue::TypeString) {
+      const std::string id=static_cast<std::string>(request["id"]);
+      const std::string frame=static_cast<std::string>(request["frame"]);
+      const double cap=static_cast<double>(request["max_z"]);
+      const bool has_nonce=request.hasMember("resend_nonce");
+      const bool valid_nonce=!has_nonce ||
+          (request["resend_nonce"].getType()==XmlRpc::XmlRpcValue::TypeInt &&
+           static_cast<int>(request["resend_nonce"])>=0);
+      const int nonce=has_nonce && valid_nonce ? static_cast<int>(request["resend_nonce"]) : 0;
+      if (!id.empty() && frame==height.frame && std::isfinite(cap) && std::abs(cap-height.max_z)<=1e-9 &&
+          valid_nonce && (id!=acknowledged_id || cap!=acknowledged_limit || frame!=acknowledged_frame ||
+                         has_nonce!=acknowledged_has_nonce || (has_nonce && nonce!=acknowledged_nonce))) {
+        XmlRpc::XmlRpcValue ack;
+        ack["id"]=id;ack["max_z"]=cap;ack["frame"]=frame;ack["stamp"]=now.toSec();
+        if (has_nonce) ack["resend_nonce"]=nonce;
+        ros::param::set(ns+"/ack",ack);
+        acknowledged_id=id;acknowledged_limit=cap;acknowledged_frame=frame;
+        acknowledged_has_nonce=has_nonce;acknowledged_nonce=nonce;
+      }
+    }
+  }
+  if (exec_state_==EXEC_TRAJ && !height.controls(planner_manager_->local_data_.position_traj_.getControlPoint())) {
+    replan_pub_.publish(std_msgs::Empty());
+    changeFSMExecState(REPLAN_TRAJ,"HEIGHT_CONSTRAINT");
+  }
+  const auto fresh = [&now](const ros::Time& stamp, double age) {
+    return !stamp.isZero() && (now-stamp).toSec() >= 0 && (now-stamp).toSec() <= age;
+  };
+  const bool motion = have_target_ && currentGoalDistance() > no_replan_thresh_ && goal_has_trajectory_ && controller_mode_ == 1 &&
+      fresh(controller_stamp_, 0.5) && have_odom_ && fresh(odom_stamp_, odom_max_age_) &&
+      fresh(map_stamp_, map_max_age_);
+  std::string progress_reason = motion ? "tracking" : "motion_or_inputs_inactive";
+  bool recovery_handled = false;
+  if (server_hold_replan_pending_) {
+    if (server_hold_replan_enabled_ && motion && exec_state_ == EXEC_TRAJ) {
+      server_hold_replan_pending_ = false;
+      const auto status = motion_watchdog_.requestRecovery(now.toSec());
+      recovery_handled = true;
+      if (status == MotionWatchdog::REPLAN) {
+        progress_reason = "server_tracking_hold_replan";
+        // traj_server is already holding the measured position. Keep that
+        // safe generation alive until a validated replacement is published.
+        changeFSMExecState(REPLAN_TRAJ, "SERVER_HOLD");
+      } else if (status == MotionWatchdog::EXHAUSTED) {
+        progress_reason = "server_hold_budget_exhausted";
+        replan_pub_.publish(std_msgs::Empty());
+        publishGoalStatus(goal_status_tracker_.record(
+            plan_manage::PlannerStatus::FAILED_ATTEMPT, progress_reason, now,
+            currentGoalDistance()));
+        have_target_ = false;
+        changeFSMExecState(WAIT_TARGET, "SERVER_HOLD");
+      }
+    }
+  }
+  if (liveness_enabled_ && !recovery_handled) {
+    const auto status = motion_watchdog_.observe(now.toSec(), odom_pos_, motion);
+    if (status == MotionWatchdog::REPLAN) {
+      progress_reason = "no_physical_progress_replan";
+      // Retire the old curve; never unlatch a hold without a newly validated curve.
+      replan_pub_.publish(std_msgs::Empty());
+      if (exec_state_ == EXEC_TRAJ) changeFSMExecState(REPLAN_TRAJ, "LIVENESS");
+    } else if (status == MotionWatchdog::EXHAUSTED && have_target_) {
+      progress_reason = "liveness_budget_exhausted";
+      replan_pub_.publish(std_msgs::Empty());
+      publishGoalStatus(goal_status_tracker_.record(plan_manage::PlannerStatus::FAILED_ATTEMPT,
+          progress_reason, now, currentGoalDistance()));
+      have_target_ = false;
+      changeFSMExecState(WAIT_TARGET, "LIVENESS");
+    }
+  }
+  publishProgress(progress_reason, motion);
 
   switch (exec_state_) {
     case INIT: {
@@ -246,8 +406,11 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
       const auto position = [info](double t) -> Eigen::Vector3d {
         return info->position_traj_.evaluateDeBoorT(t);
       };
+      double following_lead = 0.4;
+      ros::param::getCached("/traj_server/traj_server/target_dist", following_lead);
+      if (!std::isfinite(following_lead) || following_lead <= 0.0) following_lead=0.4;
       info->execution_time_ = projectProgress(
-          position, odom_pos_, info->execution_time_, info->duration_);
+          position, odom_pos_, info->execution_time_, info->duration_, std::min(0.4,following_lead));
       const double goal_distance = currentGoalDistance();
       if (goal_status_tracker_.canFinishWithin(goal_distance, no_replan_thresh_)) {
         publishGoalStatus(goal_status_tracker_.finish(
@@ -319,7 +482,7 @@ void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
 
     const double minimum_clearance = planner_manager_->pp_.clearance_;
     auto clearance = [&](const Eigen::Vector3d& candidate) {
-      if (!edt_env->sdf_map_->isInMap(candidate) ||
+      if (!referenceHeight().accepts(candidate.z()) || !edt_env->sdf_map_->isInMap(candidate) ||
           edt_env->sdf_map_->getInflateOccupancy(candidate) != 0)
         return -std::numeric_limits<double>::infinity();
       Eigen::Vector3d point = candidate;
@@ -343,7 +506,14 @@ void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
         if (exec_state_ == EXEC_TRAJ) changeFSMExecState(REPLAN_TRAJ, "SAFETY");
         visualization_->drawGoal(end_pt_, 0.3, Eigen::Vector4d(1, 0, 0, 1.0));
       } else {
-        ROS_WARN_THROTTLE(2.0, "No collision-free goal within requested waypoint neighborhood");
+        ROS_WARN_STREAM_THROTTLE(2.0,
+            "No collision-free goal within requested waypoint neighborhood"
+            << " requested=" << requested_end_pt_.transpose()
+            << " effective=" << end_pt_.transpose()
+            << " in_map=" << edt_env->sdf_map_->isInMap(requested_end_pt_)
+            << " inflated=" << edt_env->sdf_map_->getInflateOccupancy(requested_end_pt_)
+            << " clearance=" << current_clearance
+            << " radius=" << goal_adjustment_radius_);
         if (exec_state_ == EXEC_TRAJ) {
           replan_pub_.publish(std_msgs::Empty());
           changeFSMExecState(REPLAN_TRAJ, "SAFETY");
@@ -369,6 +539,12 @@ void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
 }
 
 bool KinoReplanFSM::callKinodynamicReplan() {
+  const auto height = referenceHeight();
+  if (!height.accepts(start_pt_.z()) || !height.accepts(end_pt_.z()) ||
+      (height.enabled && goal_status_tracker_.effectiveGoal().header.frame_id != height.frame)) {
+    next_planning_attempt_ = ros::Time::now()+ros::Duration(min_replan_interval_);
+    return false;
+  }
   bool plan_success =
       planner_manager_->kinodynamicReplan(start_pt_, start_vel_, start_acc_, end_pt_, end_vel_);
   next_planning_attempt_ = plan_success ? ros::Time(0) :
@@ -376,6 +552,8 @@ bool KinoReplanFSM::callKinodynamicReplan() {
 
   if (plan_success) {
 
+    goal_has_trajectory_ = true;
+    server_hold_replan_pending_ = false;
     planner_manager_->planYaw(start_yaw_);
 
     auto info = &planner_manager_->local_data_;
@@ -385,6 +563,8 @@ bool KinoReplanFSM::callKinodynamicReplan() {
     bspline.order      = 3;
     bspline.start_time = info->start_time_;
     bspline.traj_id    = info->traj_id_;
+    bspline.goal_stamp = goal_status_tracker_.effectiveGoal().header.stamp;
+    bspline.goal_frame = goal_status_tracker_.effectiveGoal().header.frame_id;
 
     Eigen::MatrixXd pos_pts = info->position_traj_.getControlPoint();
 
@@ -422,6 +602,25 @@ bool KinoReplanFSM::callKinodynamicReplan() {
     cout << "generate new traj fail." << endl;
     return false;
   }
+}
+
+void KinoReplanFSM::publishProgress(const std::string& reason, bool motion) {
+  const ros::Time now = ros::Time::now();
+  if (!progress_enabled_ || !goal_has_trajectory_) return;
+  if (reason == progress_reason_ && (now-progress_stamp_).toSec() < 0.1) return;
+  progress_stamp_ = now; progress_reason_ = reason;
+  const auto info = &planner_manager_->local_data_;
+  plan_manage::TrajectoryProgress m;
+  m.header.stamp=now; m.header.frame_id=goal_status_tracker_.effectiveGoal().header.frame_id;
+  m.source=m.FSM; m.goal_seq=goal_status_tracker_.goalSeq(); m.traj_id=info->traj_id_;
+  m.traj_start=info->start_time_; m.projection_t=info->execution_time_; m.duration=info->duration_;
+  auto point=[](const Eigen::Vector3d& v) { geometry_msgs::Point p; p.x=v.x();p.y=v.y();p.z=v.z();return p; };
+  m.odom=point(odom_pos_);
+  const Eigen::Vector3d projected=info->position_traj_.evaluateDeBoorT(info->execution_time_);
+  m.projection=point(projected); m.tracking_error=(projected-odom_pos_).norm();
+  m.motion_intent=motion; m.odom_age=(now-odom_stamp_).toSec(); m.map_age=(now-map_stamp_).toSec();
+  m.stagnant_seconds=motion_watchdog_.stagnant(now.toSec()); m.recoveries=motion_watchdog_.attempts();
+  m.reason=reason; progress_pub_.publish(m);
 }
 
 // KinoReplanFSM::

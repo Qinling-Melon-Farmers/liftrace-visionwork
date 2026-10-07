@@ -26,6 +26,10 @@ from uav_mission.mission_runtime import MissionRuntime
 from uav_mission.msg import NavigationDecision, NavigationResult
 from uav_mission.profile_policy import load_profile
 from uav_mission.search_policy import SearchPolicy
+from uav_mission.execution_speed import FollowingSpeed
+from uav_mission.motion_optimization import MotionOptimization
+from uav_mission.motion_observations import FreshPoseWindow
+from uav_mission.corridor_speed import CorridorSpeed, CorridorSpeedConfig
 
 
 COMMAND_NAMES = {
@@ -105,6 +109,13 @@ class NavigationMissionManager:
         self._mission_counter = 0
         self._last_reason = "waiting_for_manual_start"
         self._last_status = ""
+        self._pose_speed_window=FreshPoseWindow()
+        self._pending_motion_action=None
+        self._parameter_stage_applied={}
+        self._height_namespace=rospy.get_param('~height_constraint_namespace','/navigation_height_constraint')
+        if not rospy.has_param(self._height_namespace+'/request'):
+            rospy.set_param(self._height_namespace+'/request',dict(id='',max_z=0.,frame=''))
+        self._initialize_line_preference()
 
         self._profile_path = rospy.get_param("~profile/path")
         self._profile_name = rospy.get_param("~profile/name", "r2026")
@@ -530,33 +541,121 @@ class NavigationMissionManager:
             self._publish_status(force=True)
             return TriggerResponse(success=True, message=outcome.reason)
 
+    def _initialize_line_preference(self):
+        self._line_preference_weight=float(rospy.get_param('~planner_line_preference/weight',2.0))
+        if not math.isfinite(self._line_preference_weight) or not 0<=self._line_preference_weight<=10:
+            raise ValueError('invalid global line preference weight')
+        self._line_preference_parameter=rospy.get_param('~planner_line_preference/parameter','/fast_planner_node/search/line_deviation_weight')
+        rospy.set_param(self._line_preference_parameter,self._line_preference_weight)
+
+    def _motion_pose_ready(self, now):
+        if not hasattr(self,'_pose_speed_window'):self._pose_speed_window=FreshPoseWindow()
+        pose=getattr(self,'_pose',None)
+        stamp=pose.header.stamp.to_sec() if pose else 0.
+        valid=bool(pose and all(math.isfinite(v) for v in
+                   (pose.pose.position.x,pose.pose.position.y,pose.pose.position.z)))
+        ready=self._pose_speed_window.update(stamp if valid else 0.,now,self._pose_max_age)
+        if not ready:self._apply_stale_speed_override()
+        return ready
+
+    def _apply_stale_speed_override(self):
+        # Highest priority; never enlarge a pre-existing slow corridor lead.
+        for name in ('/traj_server/traj_server/target_dist','/px4_max_distance'):
+            current=float(rospy.get_param(name,.2))
+            rospy.set_param(name,min(current,.2) if math.isfinite(current) and current>0 else .2)
+        self._following_speed_state=None  # Force stage-appropriate selection after fresh recovery.
+
+    def _height_stage_ready(self, action):
+        if action.command!='RETURN_HOME' or not action.reason.startswith('post_delivery_route:'):return True
+        completed=self._runtime.core.post_delivery_route_index
+        stages=[x for x in rospy.get_param('~mission/post_delivery_parameter_stages',[])
+                if completed==int(x['after_completed_waypoints'])]
+        parameters={k:v for x in stages for k,v in x['parameters'].items()}
+        if not parameters:return True
+        ns=getattr(self,'_height_namespace','/navigation_height_constraint')
+        enabled=rospy.get_param(ns+'/enabled',False)
+        cap_name=rospy.get_param(ns+'/limit_parameter','/external_planner_max_command_z')
+        cap=parameters.get(cap_name)
+        frame=rospy.get_param(ns+'/frame_id','')
+        if not hasattr(self,'_parameter_stage_applied'):self._parameter_stage_applied={}
+        key=(self._runtime.core.mission_id,action.decision_seq)
+        if enabled and cap is not None:
+            if not math.isfinite(float(cap)):raise ValueError('invalid height constraint')
+            if (self._pose is None or self._pose.header.frame_id!=frame
+                    or self._pose.pose.position.z>float(cap)+1e-9):
+                self._last_reason='waiting_below_new_height_limit';return False
+        # One transaction per action and complete stage configuration. Reusing
+        # an action after a configuration/frame change requires a new ACK.
+        signature=(completed,ns,frame,bool(enabled),cap_name,parameters)
+        switch=self._parameter_stage_applied.get(key)
+        if switch is None or switch['signature']!=signature:
+            for name,value in parameters.items():rospy.set_param(name,value)
+            switch=dict(signature=signature,request=None,last_sent=None)
+            self._parameter_stage_applied[key]=switch
+        if enabled and cap is not None:
+            now=rospy.Time.now().to_sec()
+            request=switch['request']
+            if request is None:
+                serial=getattr(self,'_parameter_stage_request_serial',0)+1
+                self._parameter_stage_request_serial=serial
+                request=dict(id='%s:tail:%s:%s:%.9f'%(key[0],key[1],serial,now),
+                             max_z=float(cap),frame=frame,stamp=now)
+                switch['request']=request
+            # Retries preserve identity and first issue time. A separate nonce
+            # asks the planner to refresh its ACK without changing the deadline.
+            if switch['last_sent'] is None or not 0<=now-switch['last_sent']<=.4:
+                nonce=getattr(self,'_parameter_stage_resend_nonce',0)+1
+                self._parameter_stage_resend_nonce=nonce
+                request=dict(request,resend_nonce=nonce)
+                rospy.set_param(ns+'/request',request)
+                switch['request']=request;switch['last_sent']=now
+            ack=rospy.get_param(ns+'/ack',{})
+            stamp=float(ack.get('stamp',-1.))
+            applied=float(ack.get('max_z',float('nan')))
+            if (ack.get('id')!=request['id'] or not math.isfinite(applied)
+                    or abs(applied-float(cap))>1e-9 or stamp<request['stamp']
+                    or not 0<=now-stamp<=.5 or ack.get('frame')!=request['frame']):
+                self._last_reason='waiting_planner_height_constraint_ack';return False
+        return True
+
     def _on_timer(self, _event):
         with self._lock:
             try:
-                if self._runtime is None or self._pose is None:
-                    self._publish_status()
-                    return
+                if self._runtime is None:
+                    self._publish_status();return
                 now = rospy.Time.now().to_sec()
                 core = self._runtime.core
-                if core.phase not in (
-                        MissionPhase.COMPLETE, MissionPhase.ABORTED):
-                    ready, reason = self._readiness(now)
-                    if not ready:
-                        if reason in TRANSIENT_READINESS_FAILURES:
-                            # Do not turn one delayed transport sample into a
-                            # flight abort. Hold scheduling; the active action
-                            # and mission deadlines remain authoritative.
-                            self._last_reason = "runtime_waiting_for_%s" % reason
-                            self._publish_status()
-                            return
-                        outcome = self._runtime.abort(reason, now)
-                        self._last_reason = outcome.reason
-                        self._publish_action(outcome.action)
-                        self._publish_status(force=True)
-                        return
+                if core.phase in (MissionPhase.COMPLETE, MissionPhase.ABORTED):
+                    self._pending_motion_action=None
+                    self._publish_status();return
+                pending=getattr(self,'_pending_motion_action',None)
+                # The bridge never received this transaction: its own deadline
+                # cannot protect this wait. Check ours even during pose loss.
+                if pending is not None and now>=pending.deadline_at:
+                    self._pending_motion_action=None
+                    outcome=self._runtime.abort('parameter_stage_wait_timeout',now)
+                    self._last_reason=outcome.reason
+                    self._publish_action(outcome.action)
+                    self._publish_status(force=True);return
+                if not self._motion_pose_ready(now):
+                    self._last_reason='waiting_fresh_pose_speed_guard'
+                    self._publish_status();return
+                ready, reason = self._readiness(now)
+                if not ready:
+                    if reason in TRANSIENT_READINESS_FAILURES:
+                        self._last_reason = "runtime_waiting_for_%s" % reason
+                        self._publish_status();return
+                    outcome = self._runtime.abort(reason, now)
+                    self._last_reason = outcome.reason
+                    self._publish_action(outcome.action)
+                    self._publish_status(force=True);return
+                if pending is not None:
+                    self._publish_action(pending)
+                    self._publish_status();return
                 outcome = self._runtime.tick(now, self._current_xy())
                 self._last_reason = outcome.reason
                 self._publish_action(outcome.action)
+                self._apply_following_speed(self._runtime.core.active_action)
                 self._publish_status()
             except Exception as error:  # pylint: disable=broad-except
                 self._handle_callback_exception("timer", error)
@@ -566,17 +665,20 @@ class NavigationMissionManager:
             return
         if action.command not in COMMAND_VALUES:
             raise ValueError("unsupported core command: %s" % action.command)
-        # This is the task owner's existing route cursor, not simulator truth.
-        # Stages are applied before publishing the next goal, after the prior
-        # waypoint has satisfied the normal execution arrival check.
-        if action.command == "RETURN_HOME" and action.reason.startswith("post_delivery_route:"):
-            completed = self._runtime.core.post_delivery_route_index
-            for stage in rospy.get_param("~mission/post_delivery_parameter_stages", []):
-                if completed == int(stage["after_completed_waypoints"]):
-                    for name, value in stage["parameters"].items():
-                        rospy.set_param(name, value)
-                    rospy.loginfo("Flight parameter stage after %d waypoints: %s",
-                                  completed, stage["parameters"])
+        if action.command in ('ABORT','HOLD'):
+            self._pending_motion_action=None
+        elif (not self._motion_pose_ready(rospy.Time.now().to_sec()) or
+              not self._height_stage_ready(action)):
+            self._pending_motion_action=action
+            return
+        else:self._pending_motion_action=None
+        self._apply_following_speed(action, force=True)
+        if rospy.get_param('~fixed_search_region/enabled',False):
+            is_tail=action.command=='RETURN_HOME' and action.reason.startswith('post_delivery_route:')
+            if is_tail:
+                rospy.set_param('/fast_planner_node/sdf_map/search_region/enabled',False)
+            if action.command=='LAND':
+                rospy.set_param('/simulation/landing_phase_active',True)
         message = NavigationDecision()
         message.header.seq = int(action.decision_seq)
         message.header.stamp = rospy.Time.from_sec(action.issued_at)
@@ -620,6 +722,54 @@ class NavigationMissionManager:
             action.reason,
         )
 
+    def _apply_following_speed(self, action, force=False):
+        options=MotionOptimization(**rospy.get_param('~motion_optimization', {}))
+        if getattr(getattr(self,'_pose_speed_window',None),'blocked',False):
+            self._apply_stale_speed_override();return
+        # Line preference is initialized independently and stays global.
+        if action is None:
+            return
+        # An explicitly enabled speed profile owns these two parameters after
+        # legacy stage updates, so stage zero cannot accidentally slow transit.
+        speed_config=rospy.get_param('~following_speed_profile',{})
+        if speed_config:
+            speed=FollowingSpeed(**speed_config)
+            boundary=getattr(self._runtime,'boundary_policy',None)
+            near_boundary=bool(boundary and action.goal is not None and
+                               getattr(self._runtime,'stage','') in ('REVISIT','DELIVERY') and
+                               boundary.near((action.goal.x,action.goal.y)))
+            if boundary and boundary.enabled and getattr(self._runtime,'stage','')=='LOW_COVERAGE' and action.goal is not None:
+                xy=self._current_xy()
+                near_boundary=boundary.slow_coverage(xy,(action.goal.x,action.goal.y))
+            if (options.enabled and options.dynamic_boundary and boundary and boundary.enabled
+                    and action.goal is not None and getattr(self._runtime,'stage','') in
+                    ('REVISIT','DELIVERY','LOCAL_WALL_VERIFY')):
+                age=(rospy.Time.now()-self._pose.header.stamp).to_sec() if self._pose else float('inf')
+                previous=getattr(self,'_following_speed_state',None)
+                was_slow=bool(previous and previous[0]=='BOUNDARY_REVISIT')
+                near_boundary=options.boundary_slow(boundary,self._current_xy() if self._pose else None,
+                    (action.goal.x,action.goal.y),0<=age<=self._pose_max_age,
+                    was_slow)
+            selected=speed.select(action.command,action.reason,self._runtime.core.post_delivery_route_index,near_boundary)
+            schedule_config=rospy.get_param('~corridor_speed_schedule', {})
+            if schedule_config and action.command=='RETURN_HOME' and action.reason.startswith('post_delivery_route:') and self._runtime.core.post_delivery_route_index>=1:
+                if not hasattr(self,'_corridor_speed'):
+                    self._corridor_speed=CorridorSpeed(CorridorSpeedConfig(**schedule_config))
+                selected=self._corridor_speed.select(self._current_xy(),self._runtime.core.config.landing_xy,self._runtime.core.post_delivery_route_index)
+            if not force and selected==getattr(self,'_following_speed_state',None):
+                return
+            for name in ('/traj_server/traj_server/target_dist','/px4_max_distance'):
+                rospy.set_param(name,selected[1])
+                if abs(float(rospy.get_param(name))-selected[1])>1e-8:
+                    raise RuntimeError('following distance readback mismatch')
+            if selected!=getattr(self,'_following_speed_state',None):
+                self._following_speed_state=selected
+                history=getattr(self,'_following_speed_events',[])
+                history.append(dict(t=rospy.Time.now().to_sec(),phase=selected[0],lead_m=selected[1],
+                                    command=action.command,completed_waypoints=self._runtime.core.post_delivery_route_index))
+                self._following_speed_events=history[-32:]
+                rospy.loginfo('Following speed phase=%s lead=%.3fm',*selected)
+
     def _publish_status(self, force=False):
         payload = {
             "last_reason": self._last_reason,
@@ -627,6 +777,9 @@ class NavigationMissionManager:
             "profile": self._profile_name,
             "start_mode": self._start_mode,
         }
+        if getattr(self,'_following_speed_state',None):
+            payload['speed_phase'],payload['following_lead_m']=self._following_speed_state
+            payload['speed_transitions']=list(self._following_speed_events)
         if self._runtime is None:
             payload.update({"mission_id": "", "phase": "IDLE"})
         else:

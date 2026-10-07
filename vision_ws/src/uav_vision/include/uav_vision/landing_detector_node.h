@@ -31,7 +31,7 @@ private:
                         std::vector<double> &quality_metrics,
                         cv::Rect &best_bbox);
 
-  bool validateHStructure(const cv::Mat &image,
+  bool validateHStructure(const cv::Mat &h_mask,
                           const cv::RotatedRect &ellipse,
                           std::vector<double> &metrics) const;
 
@@ -75,7 +75,10 @@ private:
   double h_inner_scale_;
   int h_saturation_max_;
   int h_value_max_;
+  std::string h_segmentation_;
+  double h_min_contrast_;
   int h_open_kernel_size_;
+  int h_close_kernel_size_;
   double h_min_area_ratio_;
   double h_max_area_ratio_;
   double h_min_aspect_ratio_;

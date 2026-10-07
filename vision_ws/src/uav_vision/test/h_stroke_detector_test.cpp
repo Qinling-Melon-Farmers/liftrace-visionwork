@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <uav_vision/h_stroke_detector.h>
+#include <uav_vision/landing_h_mask.h>
 
 cv::Mat hMask() {
   cv::Mat m=cv::Mat::zeros(400,600,CV_8UC1);
@@ -37,3 +38,34 @@ TEST(HStroke, RejectsCircleCrossAndU) {
 }
 
 int main(int argc,char** argv){testing::InitGoogleTest(&argc,argv);return RUN_ALL_TESTS();}
+
+TEST(HSegmentation, TintedInkRemainsHWithExposureChanges) {
+  const auto silhouette = hMask();
+  for (const auto& ink : std::vector<cv::Scalar>{{25,20,55},{15,45,20},{50,20,15},{30,30,30}}) {
+    cv::Mat bgr(silhouette.size(),CV_8UC3,cv::Scalar(200,200,200));
+    bgr.setTo(ink,silhouette);
+    for (double gain : {0.45,0.75,1.0,1.2}) {
+      cv::Mat exposed;bgr.convertTo(exposed,-1,gain,5.0);
+      const auto mask=uav_vision::landingHMask(exposed,"grayscale_otsu",90,110,15.0);
+      uav_vision::HStrokeObservation h;
+      ASSERT_TRUE(uav_vision::detectHStrokes(mask,24,h));
+      EXPECT_NEAR(h.center.x,300,3);EXPECT_NEAR(h.center.y,200,3);
+    }
+  }
+}
+
+TEST(HSegmentation, UniformAndInsufficientContrastAreNotEvidence) {
+  for (int level : {0,50,128,255}) {
+    cv::Mat im(200,200,CV_8UC3,cv::Scalar::all(level));
+    EXPECT_EQ(0,cv::countNonZero(uav_vision::landingHMask(im,"grayscale_otsu",90,110,15)));
+  }
+  cv::Mat low(400,600,CV_8UC3,cv::Scalar::all(100));low.setTo(cv::Scalar::all(95),hMask());
+  EXPECT_EQ(0,cv::countNonZero(uav_vision::landingHMask(low,"grayscale_otsu",90,110,15)));
+}
+
+TEST(HSegmentation, LegacyColorGateIsOptionalNotMorphologyIdentity) {
+  cv::Mat im(400,600,CV_8UC3,cv::Scalar::all(200));im.setTo(cv::Scalar(25,20,55),hMask());
+  const auto legacy=uav_vision::landingHMask(im,"legacy_hsv",90,110,15);
+  EXPECT_EQ(0,cv::countNonZero(legacy));
+  EXPECT_THROW(uav_vision::landingHMask(im,"typo",90,110,15),std::invalid_argument);
+}

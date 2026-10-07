@@ -1,3 +1,4 @@
+#include <plan_env/reference_height.h>
 /**
 * This file is part of Fast-Planner.
 *
@@ -159,8 +160,24 @@ bool FastPlannerManager::kinodynamicReplan(Eigen::Vector3d start_pt, Eigen::Vect
 
   int status = kino_path_finder_->search(start_pt, start_vel, start_acc, end_pt, end_vel, true);
 
+  const auto log_search_diagnostics = [this](const char* phase) {
+    const auto& d = kino_path_finder_->getLastDiagnostics();
+    ROS_WARN_STREAM("kinodynamic " << phase
+        << " rejection summary start_occ=" << d.start_occupancy
+        << " goal_occ=" << d.goal_occupancy
+        << " candidates=" << d.candidates
+        << " accepted=" << d.accepted
+        << " same_voxel=" << d.rejected_same_voxel
+        << " collision=" << d.rejected_collision
+        << " velocity=" << d.rejected_velocity
+        << " closed=" << d.rejected_closed
+        << " parent_prune=" << d.pruned_same_parent
+        << " timed_out=" << d.timed_out);
+  };
+
   if (status == KinodynamicAstar::NO_PATH) {
     cout << "[kino replan]: kinodynamic search fail!" << endl;
+    log_search_diagnostics("initial");
 
     // retry searching with discontinuous initial state
     kino_path_finder_->reset();
@@ -168,6 +185,7 @@ bool FastPlannerManager::kinodynamicReplan(Eigen::Vector3d start_pt, Eigen::Vect
 
     if (status == KinodynamicAstar::NO_PATH) {
       cout << "[kino replan]: Can't find path." << endl;
+      log_search_diagnostics("retry");
       return false;
     } else {
       cout << "[kino replan]: retry search success." << endl;
@@ -246,6 +264,7 @@ bool FastPlannerManager::kinodynamicReplan(Eigen::Vector3d start_pt, Eigen::Vect
   // curve. Both candidates use the same complete clearance check.
   Eigen::Vector3d rejected_point = Eigen::Vector3d::Zero();
   const auto is_clear = [this, &rejected_point](NonUniformBspline& curve) {
+    if (!referenceHeight().controls(curve.getControlPoint())) return false;
     for (double t = 0.0; t <= curve.getTimeSum() + 0.02; t += 0.02) {
       Eigen::Vector3d point = curve.evaluateDeBoorT(std::min(t, curve.getTimeSum()));
       if (!point.allFinite() ||

@@ -5,6 +5,7 @@
 sensor_msgs/CameraInfo，位姿只使用源图像时间戳对应的 TF。
 """
 import copy
+import math
 
 import rospy
 import tf2_geometry_msgs  # noqa: F401 - 注册 geometry 消息的 TF 变换
@@ -39,6 +40,12 @@ class TargetMapProjector:
         self._rectify_input_pixels = bool(
             rospy.get_param("~rectify_input_pixels", True))
 
+        self._coarse_enabled = bool(rospy.get_param("~coarse_navigation_enabled", False))
+        self._coarse_min_confidence = float(rospy.get_param("~coarse_min_confidence", 0.60))
+        if not math.isfinite(self._coarse_min_confidence) or not 0.0 <= self._coarse_min_confidence <= 1.0:
+            raise ValueError("invalid coarse_min_confidence")
+        self._coarse_classes = frozenset(rospy.get_param(
+            "~coarse_classes", ["bridge", "panzer", "red_cross", "pillbox", "tent"]))
         self._camera_model = PinholeCameraModel()
         self._camera_ready = False
         self._camera_has_distortion = False
@@ -46,6 +53,12 @@ class TargetMapProjector:
         self._tf_listener = tf2_ros.TransformListener(self._tf_buffer)
         self._pub = rospy.Publisher(self._output_topic,
                                     TargetDetectionArray, queue_size=2)
+        if self._coarse_enabled:
+            self._coarse_pub = rospy.Publisher(
+                rospy.get_param("~coarse_output_topic", "/uav_vision/navigation_hints"),
+                TargetDetectionArray, queue_size=1)
+            rospy.Subscriber(rospy.get_param("~coarse_input_topic", "/uav_vision/detections"),
+                             TargetDetectionArray, self._on_coarse, queue_size=1)
         rospy.Subscriber(self._camera_info_topic, CameraInfo,
                          self._on_camera_info, queue_size=1)
         rospy.Subscriber(self._input_topic, TargetDetectionArray,
@@ -70,12 +83,12 @@ class TargetMapProjector:
             det.reject_reason = reason
             rospy.logdebug_throttle(5.0, "[TargetMapProjector] %s", reason)
 
-    def _project(self, det, stamp, source_frame):
+    def _project(self, det, stamp, source_frame, require_refined=True):
         if not self._camera_ready:
             return False, "camera_info_unavailable"
-        if not det.center_refined:
+        if require_refined and not det.center_refined:
             return False, det.reject_reason or "center_not_refined"
-        if not det.association_valid:
+        if require_refined and not det.association_valid:
             return False, det.reject_reason or "association_invalid"
         if not source_frame:
             return False, "image_frame_empty"
@@ -118,6 +131,8 @@ class TargetMapProjector:
         pixel = (float(det.center_px.x), float(det.center_px.y))
         if self._rectify_input_pixels and self._camera_has_distortion:
             pixel = self._camera_model.rectifyPoint(pixel)
+        if not all(math.isfinite(value) for value in pixel):
+            return False, "pixel_nonfinite"
         ray = self._camera_model.projectPixelTo3dRay(pixel)
         origin = PointStamped()
         origin.header.stamp = stamp
@@ -134,6 +149,9 @@ class TargetMapProjector:
             map_endpoint.point.y - map_origin.point.y,
             map_endpoint.point.z - map_origin.point.z,
         )
+        if not all(math.isfinite(value) for value in direction + (
+                map_origin.point.x, map_origin.point.y, map_origin.point.z, self._ground_z)):
+            return False, "projection_nonfinite"
         if abs(direction[2]) < self._ray_epsilon:
             return False, "ray_parallel_ground"
 
@@ -151,6 +169,39 @@ class TargetMapProjector:
         det.map_quality = max(0.0, min(1.0, float(det.geometry_confidence)))
         det.reject_reason = ""
         return True, ""
+
+    def _on_coarse(self, msg):
+        # Navigation hypotheses only: never publish on the refined/memory input.
+        if msg.source != "target_detector":
+            return
+        age = (rospy.Time.now() - msg.header.stamp).to_sec()
+        if msg.header.stamp.to_sec() <= 0.0 or not 0.0 <= age <= 0.5:
+            return
+        out = TargetDetectionArray()
+        out.header = msg.header
+        out.source = "coarse_navigation_projector"
+        out.completed_sources = list(msg.completed_sources)
+        for original in msg.detections:
+            confidence = float(original.class_confidence)
+            if (original.class_name not in self._coarse_classes or
+                    not math.isfinite(confidence) or
+                    not self._coarse_min_confidence <= confidence <= 1.0 or
+                    original.roi.width <= 0 or original.roi.height <= 0):
+                continue
+            det = copy.deepcopy(original)
+            det.center_px = Point(det.roi.x_offset + det.roi.width / 2.0,
+                                  det.roi.y_offset + det.roi.height / 2.0, 0.0)
+            det.center_source = "bbox_navigation_only"
+            det.center_refined = det.association_valid = det.geometry_verified = False
+            det.geometry_confidence = 0.0
+            self._invalidate(det, "")
+            ok, reason = self._project(det, msg.header.stamp, msg.header.frame_id,
+                                       require_refined=False)
+            if not ok:
+                self._invalidate(det, reason)
+            # map_quality remains zero: no geometry quality was measured.
+            out.detections.append(det)
+        self._coarse_pub.publish(out)
 
     def _on_detections(self, msg):
         out = TargetDetectionArray()

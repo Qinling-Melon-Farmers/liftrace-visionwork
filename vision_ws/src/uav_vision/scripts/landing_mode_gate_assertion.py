@@ -80,7 +80,7 @@ class LandingModeGateAssertion:
         center_x = 160
         center_y = 120
         if pattern in ("landing_h", "ring_only", "partial_h",
-                       "broken_ring_h"):
+                       "broken_ring_h", "glare_h"):
             for y_value in range(center_y - 72, center_y + 73):
                 for x_value in range(center_x - 72, center_x + 73):
                     dx = x_value - center_x
@@ -95,15 +95,21 @@ class LandingModeGateAssertion:
                 for x_value in range(x_min, x_max):
                     paint_black(x_value, y_value)
 
-        if pattern in ("landing_h", "partial_h", "broken_ring_h"):
+        if pattern in ("landing_h", "partial_h", "broken_ring_h", "glare_h"):
             paint_rectangle(130, 82, 142, 158)
             paint_rectangle(178, 82, 190, 158)
-        if pattern in ("landing_h", "broken_ring_h"):
+        if pattern in ("landing_h", "broken_ring_h", "glare_h"):
             paint_rectangle(130, 114, 190, 126)
 
         if pattern not in ("landing_h", "ring_only", "partial_h",
-                           "broken_ring_h"):
+                           "broken_ring_h", "glare_h"):
             raise ValueError("unknown landing test pattern: {}".format(pattern))
+        if pattern == "glare_h":
+            # Narrow specular stripe cuts the connecting bar in two.
+            for y in range(112, 128):
+                for x in range(158, 161):
+                    offset=(y*width+x)*3
+                    pixels[offset:offset+3]=b"\xff\xff\xff"
         return bytes(pixels)
 
     def _publish_image(self, pattern="background"):
@@ -178,6 +184,7 @@ class LandingModeGateAssertion:
         # uncoupled bars, and a half-ring remnant must remain negative even
         # while landing mode is active.
         self._assert_active_pattern("landing_h", True)
+        self._assert_active_pattern("glare_h", True)
         self._assert_active_pattern("background", False)
         self._assert_active_pattern("ring_only", False)
         self._assert_active_pattern("partial_h", False)

@@ -119,6 +119,7 @@ add_dependencies(landing_detector_node
 )
 
 catkin_install_python(PROGRAMS
+  scripts/landing_bag_replay.py
   scripts/placeholder_node.py
   scripts/detection_fusion.py
   scripts/detection_fusion_concurrency_assertion.py
@@ -148,6 +149,7 @@ catkin_install_python(PROGRAMS
   scripts/drop_aligner_freshness_assertion.py
   scripts/alignment_context_assertion.py
   scripts/video_replay_publisher.py
+  scripts/bag_detector_replay.py
   scripts/video_annotation_recorder.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

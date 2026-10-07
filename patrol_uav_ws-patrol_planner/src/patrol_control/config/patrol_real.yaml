@@ -1,5 +1,5 @@
 # 路点的模式：Pointmode {Takeoff_point , Detect_point, Nothing_point , Land_point};
-#                            0             1             2                3 
+#                            0             1             2                3
 
 # 单位：x(m), y(m), z(m), yaw(°,z轴正方向朝向自己,逆时针为正), pointmode(Takeoff_point/Detect_point/Nothing_point/Land_point), hover_time(s)
 # 路点必须加小数点
@@ -26,7 +26,7 @@ progressive_descent:
   min_detection_count: 5                    #开始渐进降高前需要的最少检测次数
 
 # threshould
-threshould: 
+threshould:
   takeoff_threshould: 0.3                   #判断是否到达起飞点的阈值
   waypoint_threshould: 0.3                  #判断是否到达路点点的阈值
   aligning_threshould: 0.15                 #判断是否到达对准点的阈值

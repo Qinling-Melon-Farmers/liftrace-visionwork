@@ -3,6 +3,7 @@
 # requires an explicit live-output acknowledgement in the launch arguments.
 
 execution:
+  odom_twist_frame: child
   enabled: false
   allow_live_goal_output: false
   executor_id_prefix: vcl06-planner-bridge

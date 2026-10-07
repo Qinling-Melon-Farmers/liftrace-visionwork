@@ -146,3 +146,25 @@ def plan_footprint_layout(rng, targets, occupied, search_bounds,
         if len(planned) == len(target_specs):
             return planned
     return None
+
+
+def frozen_footprint_layout(rows, targets, occupied, search_bounds, field_bounds,
+                            boundary_margin=0., pair_gap=0., offset_x=0., offset_y=0.,
+                            occupied_boxes=()):
+    """Validate explicit simulator-only fixtures with the same footprint rules."""
+    by_class={row['class']: row for row in rows}
+    if len(by_class)!=len(rows) or set(by_class)!={name for name,_ in targets}:
+        raise ValueError('frozen layout classes do not match profile')
+    trial=list(occupied);layout=[];yaws={}
+    for name,radius in targets:
+        row=by_class[name];x,y,yaw=(float(row[k]) for k in ('x','y','yaw'))
+        if not all(math.isfinite(v) for v in (x,y,yaw)):
+            raise ValueError('nonfinite frozen pose')
+        wx,wy=x+offset_x,y+offset_y
+        if not (footprint_inside_bounds(x,y,radius,search_bounds,boundary_margin)
+                and footprint_inside_bounds(x,y,radius,field_bounds,boundary_margin)
+                and footprint_clear_boxes(wx,wy,radius,occupied_boxes,boundary_margin)
+                and footprint_clear(wx,wy,radius,trial,pair_gap)):
+            raise ValueError('unsafe frozen target: '+name)
+        trial.append(Footprint(name,wx,wy,radius));layout.append((name,x,y));yaws[name]=yaw
+    return layout,yaws

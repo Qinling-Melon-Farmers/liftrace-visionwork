@@ -21,6 +21,7 @@ pose_topic: /mavros/local_position/pose
 control_state_topic: /detect/point_class
 permission_topic: /mission/release_permission
 permission_state_topic: /mission/release_permission_active
+authorization_topic: /mission/release_authorization
 result_topic: /mission/release_result
 
 # 正式 VCL06 显式开启；旧 VCL05/固定三投入口保持裸 ReleaseEvidence 行为。

@@ -337,7 +337,8 @@ class ExternalMissionContractTest(unittest.TestCase):
             for element in manager.findall("arg")
         }
         self.assertEqual(arguments["search_altitude"], "2.2")
-        node = manager.find(".//node[@type='navigation_mission_manager.py']")
+        self.assertEqual(arguments['manager_type'], 'navigation_mission_manager.py')
+        node = manager.find(".//node[@type='$(arg manager_type)']")
         altitude = next(
             item for item in node.findall("param")
             if item.attrib.get("name") == "search/altitude")
@@ -401,7 +402,8 @@ class ExternalMissionContractTest(unittest.TestCase):
         self.assertIn("failed closed and holding position", source)
         self.assertIn("if (external_mission_mode_ && !mode_accepted)", source)
         self.assertIn("flag_land = false;", source)
-        self.assertIn("duplicate LAND command ignored", source)
+        self.assertIn("if (external_landing_active_ || external_landing_cancelled_)", source)
+        self.assertIn("duplicate or cancelled LAND command ignored", source)
         self.assertIn(
             "if (external_mission_mode_ && external_landing_active_)",
             source)
