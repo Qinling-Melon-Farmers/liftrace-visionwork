@@ -145,6 +145,7 @@ public:
     double capture_tolerance_m_=0;
     uav_vision::AlignmentTargetContext exact_drop_goal_context_;
     void clearUavVisionAlignmentState() { capture_tolerance_m_=0; }
+    void stopExactDropAlignment(const char*) { clearUavVisionAlignmentState(); }
     bool exact_geometry_ready=true;
     bool exactDropReleaseReady() const { return exact_geometry_ready; }
     bool hasFreshMissionReleasePermission() const { return permission_ready; }

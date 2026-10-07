@@ -384,7 +384,6 @@ private:
     bool beginExactDropDescent();
     bool exactDropCommitmentMatches() const;
     void clearExactDropCommitment();
-    void stopExactDropAlignment(const char* reason);
     bool exactDropReleaseReady() const;
     bool drop_camera_info_valid_ = false;
     double drop_fx_ = 0.0;

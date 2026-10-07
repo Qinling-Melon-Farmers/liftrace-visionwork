@@ -411,15 +411,6 @@ void LLController::externalMissionTick() {
         return;
     }
 
-    if (drop_exact_projection_enabled_ &&
-        ((capture_tolerance_m_ > 0 && !exactDropCommitmentMatches()) ||
-         (have_servo_alignment_context_ &&
-          servo_alignment_context_.deadline <= ros::Time::now()))) {
-        stopExactDropAlignment("action_invalid_or_deadline");
-        if (Drone_mode != Aligning) return;
-        // An admitted RPC still owns its outcome and normal recovery.
-    }
-
     std_msgs::Bool detect_enable_msg;
     detect_enable_msg.data = true;
     publishLegacyVisionControl(detect_control_pub_, detect_enable_msg);
@@ -3120,17 +3111,13 @@ void LLController::dropOffsetCallback(const uav_vision::DropOffset::ConstPtr& ms
 {
     if (drop_exact_projection_enabled_ &&
         (current_align_mode_ == "drop_circle" || current_align_mode_ == "drop_cross")) {
-        if (Drone_mode != Aligning) return;
         if (!msg->header.stamp.isZero() &&
             msg->header.stamp <= last_drop_projection_stamp_) return;
         if (!projectExactDropOffsetToTarget(*msg)) {
-            // A rejected observation cannot revoke a captured descent or
-            // revive old pixels. Action cancellation is handled separately.
+            clearExactDropCommitment();
             if (patrol_control::dropObservationFresh(msg->header.stamp.toSec(),
                     ros::Time::now().toSec(), drop_offset_timeout_))
                 last_drop_projection_stamp_ = msg->header.stamp;
-            if (capture_tolerance_m_ > 0 || servo_action_pending_ ||
-                drop_complete || servo_complete.data) return;
             have_drop_offset_ = false;
             uav_drop_ready_ = false;
             drop_condition_met = false;
@@ -3158,46 +3145,29 @@ bool LLController::projectExactDropOffsetToTarget(const uav_vision::DropOffset& 
 {
     const auto& c = servo_alignment_context_;
     const double now = ros::Time::now().toSec();
-    const char* reason = nullptr;
-    if (!msg.map_valid) reason = "map_invalid";
-    else if (msg.map_frame != drop_map_frame_ ||
-             msg.header.frame_id != drop_camera_frame_) reason = "frame_mismatch";
-    else if (!patrol_control::dropObservationFresh(msg.header.stamp.toSec(), now, drop_offset_timeout_))
-        reason = "observation_time";
-    else if (msg.header.stamp <= last_drop_projection_stamp_ ||
-             msg.header.stamp < drop_projection_cutoff_) reason = "observation_order_or_cutoff";
-    else if (msg.target_first_seen.isZero() || msg.target_first_seen > msg.header.stamp)
-        reason = "observation_identity";
-    else if (!patrol_control::exactDropPointValid(msg.map_point.x, msg.map_point.y, msg.map_point.z,
-                                                drop_ground_z_, msg.quality, msg.alignment_error_m) ||
-             !std::isfinite(msg.alignment_tolerance_m) || msg.alignment_tolerance_m <= 0)
-        reason = "geometry_invalid";
-    else if (!have_servo_alignment_context_ || !c.active || !c.has_target)
-        reason = "context_inactive";
-    else if (c.deadline.toSec() <= now) reason = "context_deadline";
-    else if (!patrol_control::dropObservationFresh(c.header.stamp.toSec(), now, drop_offset_timeout_))
-        reason = "context_time";
-    else if (c.align_mode != current_align_mode_ ||
-             c.decision_seq != servo_alignment_decision_seq_ ||
-             c.semantic_target_id != servo_alignment_target_id_ ||
-             c.semantic_target_class != servo_alignment_target_class_ ||
-             c.payload_slot != detect_point_counter + 1)
-        reason = "context_action_mismatch";
-    else if (current_align_mode_ == "drop_cross" &&
-             (msg.target_id != c.semantic_target_id || msg.target_first_seen != c.semantic_target_first_seen))
-        reason = "cross_identity_mismatch";
-    else if (uav_pose.header.frame_id != drop_map_frame_) reason = "pose_frame_mismatch";
-    else if (capture_tolerance_m_ > 0 && !exactDropCommitmentMatches())
-        reason = "captured_action_mismatch_or_deadline";
-    if (reason) {
-        ROS_WARN_THROTTLE(1.0,
-            "[UavVision] exact projection rejected reason=%s observation_age=%.6f "
-            "context_age=%.6f deadline_remaining=%.6f captured=%s",
-            reason, now-msg.header.stamp.toSec(), now-c.header.stamp.toSec(),
-            c.deadline.toSec()-now, capture_tolerance_m_ > 0 ? "true" : "false");
+    if (!msg.map_valid || msg.map_frame != drop_map_frame_ ||
+        msg.header.frame_id != drop_camera_frame_ ||
+        !patrol_control::dropObservationFresh(msg.header.stamp.toSec(), now, drop_offset_timeout_) ||
+        msg.header.stamp <= last_drop_projection_stamp_ ||
+        msg.header.stamp < drop_projection_cutoff_ ||
+        msg.target_first_seen.isZero() || msg.target_first_seen > msg.header.stamp ||
+        !patrol_control::exactDropPointValid(msg.map_point.x, msg.map_point.y, msg.map_point.z,
+                                           drop_ground_z_, msg.quality, msg.alignment_error_m) ||
+        !std::isfinite(msg.alignment_tolerance_m) || msg.alignment_tolerance_m <= 0 ||
+        !have_servo_alignment_context_ || !c.active || !c.has_target ||
+        c.align_mode != current_align_mode_ || c.deadline <= ros::Time::now() ||
+        !patrol_control::dropObservationFresh(c.header.stamp.toSec(), now, drop_offset_timeout_) ||
+        c.decision_seq != servo_alignment_decision_seq_ ||
+        c.semantic_target_id != servo_alignment_target_id_ ||
+        c.semantic_target_class != servo_alignment_target_class_ ||
+        c.payload_slot != detect_point_counter + 1 ||
+        (current_align_mode_ == "drop_cross" &&
+         (msg.target_id != c.semantic_target_id || msg.target_first_seen != c.semantic_target_first_seen))) {
+        ROS_WARN_THROTTLE(1.0, "[UavVision] rejected stale/invalid/unbound exact drop projection");
         return false;
     }
-    if (capture_tolerance_m_ > 0) return true;
+    if (uav_pose.header.frame_id != drop_map_frame_) return false;
+    if (capture_tolerance_m_ > 0) return exactDropCommitmentMatches();
     if (servo_action_pending_ || drop_complete || servo_complete.data) return true;
     geometry_msgs::PoseStamped target;
     target.header.stamp = msg.header.stamp;
@@ -3222,31 +3192,6 @@ bool LLController::projectExactDropOffsetToTarget(const uav_vision::DropOffset& 
     // Before descent, follow each fresh compensated absolute projection.
     waypoint_temp = target;
     return true;
-}
-
-void LLController::stopExactDropAlignment(const char* reason)
-{
-    // Command and context topics can arrive in either order. A superseded
-    // context must not stop a newly selected ALIGN command.
-    const bool owns_alignment = capture_tolerance_m_ > 0 ||
-        (servo_alignment_context_.decision_seq == servo_alignment_decision_seq_ &&
-         servo_alignment_context_.semantic_target_id == servo_alignment_target_id_ &&
-         servo_alignment_context_.semantic_target_class == servo_alignment_target_class_);
-    clearUavVisionAlignmentState();
-    if (servo_action_pending_ || drop_complete || servo_complete.data) return;
-    if (!owns_alignment || Drone_mode != Aligning) return;
-    // Use the existing mission hold until a new motion/retry command arrives.
-    // Do not leave a cleared capture running the old low-altitude ALIGN loop.
-    patrol_cmd = uav_pose;
-    mavros_point_cmd = patrol_cmd;
-    last_mavros_point_cmd = patrol_cmd;
-    have_planner_cmd = false;
-    external_waiting_for_motion_ = true;
-    align_ok = false;
-    align_height = external_alignment_capture_height_;
-    Point_mode = Nothing_point;
-    Drone_mode = Run_point;
-    ROS_WARN_THROTTLE(1.0, "[UavVision] exact ALIGN stopped reason=%s; waiting for mission command", reason);
 }
 
 void LLController::clearExactDropCommitment()
@@ -3596,7 +3541,7 @@ void LLController::servoAlignmentContextCallback(
             msg->semantic_target_first_seen == servo_alignment_context_.semantic_target_first_seen &&
             msg->semantic_target_class == servo_alignment_context_.semantic_target_class) {
             have_servo_alignment_context_ = false;
-            if (drop_exact_projection_enabled_) stopExactDropAlignment("context_cancelled");
+            if (drop_exact_projection_enabled_) clearUavVisionAlignmentState();
             // Revocation blocks future submissions. The proxy owns the raw-call
             // fence; do not discard an already queued RPC's terminal result.
             // In particular ReleaseResult may precede the matching RPC reply.
@@ -3605,7 +3550,7 @@ void LLController::servoAlignmentContextCallback(
     }
     if (drop_exact_projection_enabled_ && have_servo_alignment_context_ &&
         !patrol_control::sameDropAction(servo_alignment_context_, *msg))
-        stopExactDropAlignment("context_action_changed");
+        clearUavVisionAlignmentState();
     servo_alignment_context_ = *msg;
     have_servo_alignment_context_ = true;
 }

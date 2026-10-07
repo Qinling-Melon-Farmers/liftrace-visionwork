@@ -1,0 +1,10 @@
+{
+  "source_revision": "82a91e453ab752f5751f2dd4dc0a1b6493e64cdb",
+  "source_worktree": "/home/xhj/liftrace-worktrees/r2026-high-view-search",
+  "base_snapshot": "legacy_baseline/20261006/drop_geometry_delta",
+  "purpose": "Minimal pre-change controller snapshot for captured descent rejection/exit fix",
+  "files_sha256": {
+    "src/patrol_control.cpp": "87f1a1a8c56f5657c23b65e9578788548c88b74060c8ccda151015549671c1f1",
+    "include/patrol_control/patrol_control.h": "2faf7efdc689206178bf427d623216e5873243ae9af9a245b2c83feec9ad9ef9"
+  }
+}
