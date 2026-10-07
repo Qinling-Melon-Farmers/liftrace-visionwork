@@ -1,0 +1,16 @@
+{
+  "profile_id": "drop_centered_d0_20261007",
+  "model_name": "iris_mid360_drop_centered_d0",
+  "camera_link": "downward_camera_link",
+  "sensor_name": "downward_camera",
+  "plugin_name": "downward_camera_controller",
+  "expected_image_size": [1280, 720],
+  "principal_point": [640.0, 360.0],
+  "distortion_center": [0.5, 0.5],
+  "D": [0.0, 0.0, 0.0, 0.0, 0.0],
+  "robot_namespace": "/",
+  "camera_name": "downward_camera",
+  "image_topic_name": "image_raw",
+  "camera_info_topic_name": "camera_info",
+  "optical_frame": "downward_camera_optical_frame"
+}

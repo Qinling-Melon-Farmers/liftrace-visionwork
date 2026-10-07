@@ -1,0 +1,12 @@
+{
+  "ground_z": -0.22,
+  "body_xy": [2.0, -1.0],
+  "camera_agl_m": [0.5, 1.0, 2.0, 3.0],
+  "body_rpy_deg": [[0, 0, 0], [10, 0, 0], [0, -12, 0], [8, -10, 35], [-10, 12, -70]],
+  "points_xy": [
+    [2.0, -1.0], [2.84, -1.0], [1.16, -1.0],
+    [2.0, -1.46], [2.0, -0.54],
+    [2.84, -1.46], [2.84, -0.54], [1.16, -1.46], [1.16, -0.54]
+  ],
+  "note": "Fixed world points across ALL heights/poses. At camera AGL=1m, level, these include center and four edges/corners. Other poses can move them out of view; no ground points are fitted to results. AGL is camera height, not FC height."
+}

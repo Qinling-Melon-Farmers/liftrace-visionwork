@@ -1,0 +1,61 @@
+{
+  "status": "PASS",
+  "checks": 32,
+  "exact_visual": true,
+  "exact_control": true,
+  "body_frame": "vision_body",
+  "map_frame": "camera_init",
+  "ground_z": -0.22,
+  "slot_mode": "zero",
+  "tolerance_policy": "existing 30px exposure Jacobian; controller uses message tolerance",
+  "circle_quality_ordered_nms": false,
+  "stop_on_collision": false,
+  "seed": 38,
+  "scene": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/snake3_camera2m_20261005/generated/snake3_38/snake3_seed38",
+  "frozen_scene_files": 8,
+  "overlays": {
+    "uav_mission": "/home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/src/uav_mission",
+    "uav_vision": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision",
+    "uav_high_view": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_high_view"
+  },
+  "nodes": 42,
+  "simulation_started": false,
+  "renderer_sdf": {
+    "status": "PASS",
+    "renderer_center": [
+      640.0,
+      360.0
+    ],
+    "renderer_D": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "published_K_expected": [
+      725.3510059644452,
+      0.0,
+      640.0,
+      0.0,
+      725.3510059644452,
+      360.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "published_D_expected": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "vehicle_sdf": "/tmp/drop_camera_20261007_82a91e45_reviewed/camera/model.sdf",
+  "spawn_args": "--delay 0.0 --retry-delay 2.0 --retries 4 -sdf -file /tmp/drop_camera_20261007_82a91e45_reviewed/camera/model.sdf -model iris_mid360 -x 0.0 -y 0.0 -z 0.225 -R 0.0 -P 0.0 -Y 0.0",
+  "runtime_camera_info": "NOT_OBSERVED",
+  "launch_file": "/tmp/drop_camera_20261007_82a91e45_reviewed/replay.launch",
+  "exact_projection": true,
+  "expanded_parameters_identical_to_historical_exactON_wrapper": true
+}
