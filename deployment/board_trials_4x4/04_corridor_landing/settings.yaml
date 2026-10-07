@@ -17,3 +17,16 @@ raw_servo_service: /legacy/Servo_raw
 # Promoted from the operator-confirmed H flight on 2026-10-06.
 # Pilot completes final descent after visual alignment and POSCTL handoff.
 landing_handoff_mode: POSCTL
+# 仅用于 POSCTL：静置 FC 离地 0.22m 时，目标处脚架名义间隙为 0.13m。
+# 最终停稳使用冻结 H 点；AUTO.LAND 不应用本参数块。
+landing_posctl:
+  target_agl: 0.35
+  trigger_agl: 0.37
+  xy_tolerance_m: 0.05
+  height_tolerance_m: 0.02
+  max_horizontal_speed_mps: 0.03
+  max_vertical_speed_mps: 0.05
+  stable_duration_sec: 0.5
+  max_odom_age_sec: 0.2
+  max_sample_gap_sec: 0.2
+  min_samples: 3

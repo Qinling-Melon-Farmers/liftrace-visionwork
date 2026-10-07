@@ -12,6 +12,7 @@ from uav_high_view.survey_policy import SurveyPolicy
 from uav_mission.execution_speed import FollowingSpeed
 from uav_mission.corridor_speed import CorridorSpeedConfig
 from uav_mission.motion_optimization import MotionOptimization, optimize_post_route
+from uav_mission.landing_posctl_config import validate_landing_posctl, landing_control_parameters
 
 
 def apply_overrides(settings, motion=None, columns=None, motion_timeout=None):
@@ -39,6 +40,7 @@ def validate(settings, flight=False):
 
     if settings.get("landing_handoff_mode", "AUTO.LAND") not in ("AUTO.LAND", "POSCTL"):
         raise ValueError("landing_handoff_mode must be AUTO.LAND or POSCTL")
+    validate_landing_posctl(settings)
     weight=float(settings.get('planner_line_preference_weight',2.0))
     if not math.isfinite(weight) or not 0<=weight<=10:raise ValueError('invalid global line preference weight')
     motion=MotionOptimization(**settings.get('motion_optimization',{}))
@@ -111,7 +113,9 @@ def generate(root,out,settings,fc_xyz,rig):
     if not math.isfinite(weight) or not 0<=weight<=10:raise ValueError('invalid global line preference weight')
     motion=MotionOptimization(**settings.get('motion_optimization',{}))
     high=ground+settings['high_agl'];drop=ground+settings['drop_agl'];capture=ground+settings['landing_capture_agl'];cap=ground+settings['max_agl']
-    if min(drop,ground+.4)<=.05:raise ValueError('legacy positive local-Z bounds not met')
+    land_z, handoff_z, posctl_stability = landing_control_parameters(settings, ground, float(rig['fc_ground_clearance']))
+    # 投递仍需本地 Z > 0.05m；降落只需 > 0，与控制器参数校验一致。
+    if drop<=.05 or land_z<=0.:raise ValueError('legacy positive local-Z bounds not met')
     point=lambda px,py,h:[x+px,y+py,h]
     shift=lambda box:[box[0]+x,box[1]+x,box[2]+y,box[3]+y]
     area=shift(settings['flight_bounds']);search=shift(settings['search_center_bounds']);target=shift(settings['target_bounds']);cover=shift(settings['coverage_bounds'])
@@ -178,14 +182,19 @@ def generate(root,out,settings,fc_xyz,rig):
     runtime['high_view_full']=dict(policy=policy,grid=dict(bounds=search,resolution=.10,inflation=.25),boundary_policy=dict(enabled=True,bounds=target))
     ProbeConfig(**runtime['high_view_probe']['config']);SurveyPolicy(**policy)
     control=yaml.safe_load((cfg/'control_base.yaml').read_text())
-    control.update(waypoints=[dict(x=x,y=y,z=low,yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=ground+.4,px4_max_distance=.4)
+    control.update(waypoints=[dict(x=x,y=y,z=low,yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=land_z,px4_max_distance=.4)
     control['switch'].update(auto_land=True,flag_landing_detect=1)
     control['drop_system'].update(enable_drop=True,release_setpoint_height=drop,height_threshold=drop+.1)
+    # 两套表均保留实测值，表示 FC 中心到投口的机体系杆臂，FLU 为前、左、上。
+    # 控制器减去经完整机体姿态旋转后的杆臂，不能按固定地图偏移直接相加。
+    control['drop_system'].update(slot_offset_semantics='body_flu_lever_arm', compensated_alignment=True)
     for key in ('slot_offsets','dynamic_slot_offsets'):control['drop_system'][key]=copy.deepcopy(rig[key])
     control['uav_vision'].update(recovery_height=low,standard_recovery_setpoint_height=low+.1,cross_recovery_setpoint_height=low+.1,pixel_to_body_matrix=rig['pixel_to_body_matrix'],max_movement_distance=.15,
         drop_metric_scale_enabled=True,drop_ground_z=ground,
         drop_map_frame=rig['mission_frame'],drop_camera_info_topic=settings['camera_info_topic'])
-    control['external_landing'].update(frame=rig['mission_frame'],capture_height=capture,auto_land_height=ground+.55,detections_topic='/uav_vision/detections_mapped',handoff_mode=settings.get('landing_handoff_mode','AUTO.LAND'))
+    control['external_landing'].update(frame=rig['mission_frame'],capture_height=capture,auto_land_height=handoff_z,detections_topic='/uav_vision/detections_mapped',handoff_mode=settings.get('landing_handoff_mode','AUTO.LAND'))
+    if posctl_stability is not None:
+        control['external_landing']['posctl'] = posctl_stability
     overrides={
         '/landing_detector/landing_enable_h_stroke_fallback':settings['landing_enable_h_stroke_fallback'],
         '/fast_planner_node/sdf_map/resolution':.10,

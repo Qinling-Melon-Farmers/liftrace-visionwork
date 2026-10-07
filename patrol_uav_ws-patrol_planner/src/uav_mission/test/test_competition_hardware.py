@@ -65,23 +65,27 @@ class CompetitionTests(unittest.TestCase):
         self.assertTrue(c['switch']['auto_land'])
     def test_h_capture_agl_and_handoff_translate_with_ground_reference(self):
         self.assertEqual(self.s['landing_capture_agl'],.9)
-        for capture_agl in (.9,1.8):
-            self.s['landing_capture_agl']=capture_agl
-            for z in (-.09,0.,.09):
-                with self.subTest(capture_agl=capture_agl,fc_z=z):
-                    ref,d=self.generate(z)
-                    ground=z-self.rig['fc_ground_clearance']
-                    landing=d['control']['external_landing']
-                    route=d['runtime']['mission']['post_delivery_route']
-                    self.assertAlmostEqual(ref['ground_z'],ground)
-                    self.assertAlmostEqual(landing['capture_height']-ground,capture_agl)
-                    self.assertAlmostEqual(route[-1][2],landing['capture_height'])
-                    self.assertEqual(route[-1][:2],d['runtime']['mission']['landing_xy'])
-                    self.assertAlmostEqual(route[-2][2]-ground,self.s['landing_transit_agl'])
-                    self.assertAlmostEqual(landing['auto_land_height']-ground,.55)
-                    self.assertAlmostEqual(d['control']['land_height']-ground,.4)
-                    self.assertLess(d['control']['land_height'],landing['auto_land_height'])
-                    self.assertLess(landing['auto_land_height'],landing['capture_height'])
+        # 两种模式都保留原 FC 基准样本，分别验证实际离地高度与参数隔离。
+        for mode,target,trigger in (('POSCTL',.35,.37),('AUTO.LAND',.4,.55)):
+            self.s['landing_handoff_mode']=mode
+            for capture_agl in (.9,1.8):
+                self.s['landing_capture_agl']=capture_agl
+                for z in (-.09,0.,.09):
+                    with self.subTest(mode=mode,capture_agl=capture_agl,fc_z=z):
+                        ref,d=self.generate(z)
+                        ground=z-self.rig['fc_ground_clearance']
+                        landing=d['control']['external_landing']
+                        route=d['runtime']['mission']['post_delivery_route']
+                        self.assertAlmostEqual(ref['ground_z'],ground)
+                        self.assertAlmostEqual(landing['capture_height']-ground,capture_agl)
+                        self.assertAlmostEqual(route[-1][2],landing['capture_height'])
+                        self.assertEqual(route[-1][:2],d['runtime']['mission']['landing_xy'])
+                        self.assertAlmostEqual(route[-2][2]-ground,self.s['landing_transit_agl'])
+                        self.assertAlmostEqual(landing['auto_land_height']-ground,trigger)
+                        self.assertAlmostEqual(d['control']['land_height']-ground,target)
+                        self.assertLess(d['control']['land_height'],landing['auto_land_height'])
+                        self.assertLess(landing['auto_land_height'],landing['capture_height'])
+                        self.assertEqual('posctl' in landing,mode=='POSCTL')
     def test_hardware_terminal_handoff_is_explicit_and_generated(self):
         self.assertEqual(self.s['landing_handoff_mode'], 'POSCTL')
         for mode in ('POSCTL', 'AUTO.LAND'):

@@ -29,6 +29,7 @@ add_message_files(
   TargetCandidate.msg
   TargetCandidateArray.msg
   DropOffset.msg
+  DropAlignmentFeedback.msg
   DropReady.msg
   ReleaseEvidence.msg
   AlignmentTargetContext.msg
@@ -86,6 +87,7 @@ if(CATKIN_ENABLE_TESTING)
   endif()
   find_package(rostest REQUIRED)
   catkin_add_nosetests(test/test_alignment_context_policy.py)
+  catkin_add_nosetests(test/test_compensated_drop_alignment.py)
   catkin_add_nosetests(test/test_detector_model_contract.py)
   catkin_add_nosetests(test/test_video_replay_contract.py)
   add_rostest(test/cross_geometry_regression.test)

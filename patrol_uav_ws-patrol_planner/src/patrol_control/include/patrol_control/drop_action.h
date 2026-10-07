@@ -44,16 +44,14 @@ inline bool canRequestDrop(bool require_mission_permission,
             gate.mission_permission_fresh);
 }
 
-// External missions delegate the physical release decision to the mission
-// release arbiter.  The legacy controller geometry remains available only for
-// standalone legacy routes; requiring both gates created a narrow overlap that
-// could reject an otherwise valid external release permission.
+// 任务许可与控制几何必须同时成立；外部模式不得绕过实际到位条件。
+// 最终异步调用入口还会核对已冻结的补偿目标和新鲜运动反馈。
 inline bool dropReleaseReady(bool external_mission_mode,
                              bool legacy_geometry_ready,
                              bool require_mission_permission,
                              const DropReleaseGate& gate) {
     if (external_mission_mode) {
-        return require_mission_permission &&
+        return legacy_geometry_ready && require_mission_permission &&
                gate.mission_permission_active &&
                gate.mission_permission_fresh;
     }

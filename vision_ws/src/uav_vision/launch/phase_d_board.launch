@@ -18,6 +18,7 @@
   <arg name="default_align_mode" default="disabled" />
   <arg name="class_profile" default="r2026" />
   <arg name="require_alignment_context" default="false" />
+  <arg name="require_compensated_alignment" default="$(arg require_alignment_context)" />
   <arg name="alignment_context_topic"
        default="/uav_vision/alignment_target_context" />
   <arg name="release_evidence_context_topic"
@@ -113,6 +114,8 @@
     <param name="class_profile" value="$(arg class_profile)" />
     <param name="require_alignment_context"
            value="$(arg require_alignment_context)" />
+    <param name="require_compensated_alignment"
+           value="$(arg require_compensated_alignment)" />
     <param name="alignment_context_topic"
            value="$(arg alignment_context_topic)" />
     <param name="release_evidence_context_topic"

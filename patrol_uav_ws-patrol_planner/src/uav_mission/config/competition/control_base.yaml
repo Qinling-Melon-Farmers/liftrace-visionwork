@@ -45,7 +45,25 @@ switch:
   flag_planner_px4: 0
   flag_landing_detect: 1
   auto_land: true
+# MAVROS里程计速度位于child机体系；控制器按同一消息完整姿态旋转。
+motion_feedback:
+  odom_topic: /mavros/local_position/odom
+  twist_frame: child
 drop_system:
+  # 在观察高度先对准补偿后的FC目标；冻结后下降，不追残缺图像。
+  slot_offset_semantics: body_flu_lever_arm
+  compensated_alignment: true
+  alignment_feedback_topic: /uav_vision/drop_alignment_feedback
+  # 释放许可仍须成立；以下是实际投口和FC的最终到位、低速稳定条件。
+  settle:
+    xy_tolerance_m: 0.04
+    height_tolerance_m: 0.05
+    max_horizontal_speed_mps: 0.05
+    max_vertical_speed_mps: 0.10
+    stable_duration_sec: 0.30
+    max_odom_age_sec: 0.20
+    max_sample_gap_sec: 0.20
+    min_samples: 3
   precision_threshold: 20.0
   height_threshold: 0.2
   position_threshold: 0.15
