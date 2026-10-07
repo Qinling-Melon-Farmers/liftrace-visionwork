@@ -972,31 +972,39 @@ function geometryPlanKey(g, mode, realRelease, checkConfig, speed, options) {
 }
 
 function geometryFromDraft(U,g) {
-  function row(text, count) {
-    var parts = String(text || '').trim().split(/[\s,，]+/);
-    if (!String(text || '').trim() || (count && parts.length !== count)) throw Error('坐标数量不正确');
+  function row(text, count, label) {
+    var raw = text == null ? '' : String(text).trim();
+    var parts = raw ? raw.split(/[\s,，]+/) : [];
+    if (!raw || (count && parts.length !== count)) {
+      throw Error(label + '：' + (count ? '需要' + count + '个数，实际' + parts.length + '个' : '请填写数值') + '（逗号或空格分隔，不带括号）');
+    }
     var values = parts.map(Number);
-    if (values.some(function(v) { return !Number.isFinite(v); })) throw Error('请输入有限数值');
+    if (values.some(function(v) { return !Number.isFinite(v); })) throw Error(label + '：请输入有限数值，不带括号或单位');
     return values;
   }
-  var points = String(U.geometryPoints || '').trim().split(/\n/).filter(function(v) { return v.trim(); }).map(function(line) {
-    var p = row(line,3); return {x:p[0],y:p[1],agl:p[2]};
-  });
-  var result = {};
+  var result = {}, points = [];
   if (!g || g.needs_waypoints) {
-    if (points.length < 2) throw Error('至少填写两个走廊航点');
-    result.corridor_waypoints=points;result.landing_xy=row(U.geometryLanding,2);
+    String(U.geometryPoints || '').split(/\r?\n/).forEach(function(line,index) {
+      if (!line.trim()) return;
+      var p = row(line,3,'走廊航点第' + (index+1) + '行');
+      points.push({x:p[0],y:p[1],agl:p[2]});
+    });
+    if (points.length < 2) throw Error('至少填写两个走廊航点，每行x, y, agl');
+    result.corridor_waypoints=points;result.landing_xy=row(U.geometryLanding,2,'H中心');
   }
   if (U.surveyEnabled) {
-    function value(key) { if(!String(U[key] || '').trim())throw Error('请填完整搜索高度、外参和FOV');return row(U[key],1)[0]; }
-    result.survey_plan={bounds:row(U.surveyBounds,4),inset:value('surveyInset'),pattern:U.pattern || 'rectangle',camera_agl:value('surveyCameraHeight'),fc_to_camera_z:value('surveyOffset'),fov_x_deg:value('surveyFovX'),fov_y_deg:value('surveyFovY')};
+    function value(key,label) { return row(U[key],1,label)[0]; }
+    result.survey_plan={bounds:row(U.surveyBounds,4,'搜索区范围'),inset:value('surveyInset','航线内收距离'),pattern:U.pattern || 'rectangle',camera_agl:value('surveyCameraHeight','镜头离地高度'),fc_to_camera_z:value('surveyOffset','镜头相对FC的Z偏移'),fov_x_deg:value('surveyFovX','任务X方向视场角'),fov_y_deg:value('surveyFovY','任务Y方向视场角')};
   }
   if ((!g || g.needs_waypoints) && String(U.geometryWalls || '').trim()) {
     var entry=Number(U.geometryEntry);
     if (!Number.isInteger(entry) || entry<1 || entry>points.length) throw Error('入口序号从1开始且不能超过航点数');
-    result.corridor_geometry={wall_axis:Number(U.geometryAxis || 0),wall_coordinates:row(U.geometryWalls),entry_waypoints:entry};
+    result.corridor_geometry={wall_axis:Number(U.geometryAxis || 0),wall_coordinates:row(U.geometryWalls,null,'墙面位置'),entry_waypoints:entry};
   }
-  if (String(U.geometryArea || '').trim()) result.flight_area=JSON.parse(U.geometryArea);
+  if (String(U.geometryArea || '').trim()) {
+    try { result.flight_area=JSON.parse(U.geometryArea); }
+    catch(e) { throw Error('flight_area：JSON格式错误，请使用完整JSON对象'); }
+  }
   return result;
 }
 
