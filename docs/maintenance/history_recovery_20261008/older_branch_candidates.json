@@ -1,0 +1,119 @@
+[
+  {
+    "branch": "feat/new-vision-coverage-search",
+    "head_at_last_observed_checkout": "31b38ad6a4179c5a32672a2968dd245368e1ce99",
+    "checkout_timestamp": 1786039407,
+    "object_exists": true,
+    "reachable_commits": 29,
+    "subject": "feat: 接通新视觉固定三投仿真",
+    "in_main_history": true
+  },
+  {
+    "branch": "feat/external-mission-coverage",
+    "head_at_last_observed_checkout": "f46d45fbc59822abc497d386ae858a48f5a4e2b4",
+    "checkout_timestamp": 1786625128,
+    "object_exists": true,
+    "reachable_commits": 47,
+    "subject": "chore: 统一仓库行尾为 LF 并同步 AGENTS.md 当前状态",
+    "in_main_history": true
+  },
+  {
+    "branch": "feat/vcl04-r6-bridge",
+    "head_at_last_observed_checkout": "81090b4aa029d5f96df4b1d864f0e059e6ef7b54",
+    "checkout_timestamp": 1786634641,
+    "object_exists": true,
+    "reachable_commits": 57,
+    "subject": "refactor: 断言接线共享累计事实函数并补单测与实跑归档",
+    "in_main_history": true
+  },
+  {
+    "branch": "feat/vcl05-search-delivery-strategy",
+    "head_at_last_observed_checkout": "7419a062f6c26cde8a93aeb1675325ab0bddd85e",
+    "checkout_timestamp": 1786646026,
+    "object_exists": true,
+    "reachable_commits": 76,
+    "subject": "fix: 红十字近场捕获改用自身几何证据",
+    "in_main_history": true
+  },
+  {
+    "branch": "chore/gate-tagging-convention",
+    "head_at_last_observed_checkout": "0e69fef0626ca95f835f0db5e88fe6ac69252217",
+    "checkout_timestamp": 1786637631,
+    "object_exists": true,
+    "reachable_commits": 59,
+    "subject": "docs: 合并后打 tag 复盘约定与历史合并补 tag",
+    "in_main_history": true
+  },
+  {
+    "branch": "chore/docs-progress-sync",
+    "head_at_last_observed_checkout": "0a41ee0c1cc696688af7f67a643de5ab88f6e897",
+    "checkout_timestamp": 1786638525,
+    "object_exists": true,
+    "reachable_commits": 61,
+    "subject": "docs: 全库文档进度同步（README/清单/责任边界/AGENTS）",
+    "in_main_history": true
+  },
+  {
+    "branch": "chore/docs-responsibility-remap",
+    "head_at_last_observed_checkout": "2dd1d91f96fb55a66d6f5d189746f163e0aa1829",
+    "checkout_timestamp": 1786639107,
+    "object_exists": true,
+    "reachable_commits": 63,
+    "subject": "docs: 按官方三组责任重排阻塞与全随机场地口径",
+    "in_main_history": true
+  },
+  {
+    "branch": "feat/oblique-camera-search-feasibility",
+    "head_at_last_observed_checkout": "b60a4d942ba7081d776bb81c434e18193a486b1b",
+    "checkout_timestamp": 1787212312,
+    "object_exists": true,
+    "reachable_commits": 79,
+    "subject": "feat: 增加斜下相机主动搜索效率对比",
+    "in_main_history": false
+  },
+  {
+    "branch": "feat/oblique-active-search-stability",
+    "head_at_last_observed_checkout": "ab6e447a9c984aa4a5a3fc2198c3a53434480fea",
+    "checkout_timestamp": 1787219606,
+    "object_exists": true,
+    "reachable_commits": 81,
+    "subject": "feat: 收口辅助搜索业务中断策略",
+    "in_main_history": false
+  },
+  {
+    "branch": "chore/freeze-oblique-camera-exploration",
+    "head_at_last_observed_checkout": "9889591a595114ada9a6cfc11233e31e2cbe7c93",
+    "checkout_timestamp": 1787498087,
+    "object_exists": true,
+    "reachable_commits": 78,
+    "subject": "docs: 冻结辅助相机探索并回归单下视主线",
+    "in_main_history": true
+  },
+  {
+    "branch": "feat/planner-map-20x20x5-sim",
+    "head_at_last_observed_checkout": "7c80844c775758437de1dec0a0854950e42dda6b",
+    "checkout_timestamp": 1787499436,
+    "object_exists": true,
+    "reachable_commits": 79,
+    "subject": "fix: 收敛仿真规划地图尺寸与膨胀参数",
+    "in_main_history": true
+  },
+  {
+    "branch": "feat/navigation-mission-visual-delivery",
+    "head_at_last_observed_checkout": "2ccd8a088e317541c30c51093c4220863fd73479",
+    "checkout_timestamp": 1787926054,
+    "object_exists": true,
+    "reachable_commits": 83,
+    "subject": "docs: 明确完整工程仓库来源与代码回流规则",
+    "in_main_history": true
+  },
+  {
+    "branch": "feat/vcl04-clean-rerun",
+    "head_at_last_observed_checkout": "af800567a9b9d6f929ec96f981be8b1a6574fed1",
+    "checkout_timestamp": 1787931069,
+    "object_exists": true,
+    "reachable_commits": 82,
+    "subject": "docs: V-CL-04 干净复跑收尾并按规划器外置口径关闭 Gate",
+    "in_main_history": true
+  }
+]

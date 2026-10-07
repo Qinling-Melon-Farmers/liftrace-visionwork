@@ -1,0 +1,92 @@
+{
+  "chore/docs-progress-sync": {
+    "merge": "b3eed4ad2e423270dfd58ac9df2a26225d650b5a",
+    "tip": "0a41ee0c1cc696688af7f67a643de5ab88f6e897",
+    "hits": []
+  },
+  "chore/docs-responsibility-remap": {
+    "merge": "9538368a2590305d17cb20c0fa4350ad0fc84331",
+    "tip": "2dd1d91f96fb55a66d6f5d189746f163e0aa1829",
+    "hits": []
+  },
+  "chore/freeze-oblique-camera-mainline": {
+    "merge": "d83e20730c1b1041f23b93712c46e725fdc57230",
+    "tip": "9889591a595114ada9a6cfc11233e31e2cbe7c93",
+    "hits": []
+  },
+  "chore/gate-tagging-convention": {
+    "merge": "8a4502beed3d50a7e26bb6ebe7d63b458724c277",
+    "tip": "0e69fef0626ca95f835f0db5e88fe6ac69252217",
+    "hits": []
+  },
+  "chore/planner-map-20x20x5-sim": {
+    "merge": "7a0b612dde046402cfcca981472b3a4af17f0780",
+    "tip": "7c80844c775758437de1dec0a0854950e42dda6b",
+    "hits": []
+  },
+  "chore/r56-model-assumptions": {
+    "merge": "31d0b2aaa2c5bd9f9554008e42301cfbde666cfa",
+    "tip": "90777842031a7db0fec66806bccbf5b627a05770",
+    "hits": []
+  },
+  "chore/r64-log-only": {
+    "merge": "466174d8dd1533d4aa0e3af6c0f9e1c96aa3ce3b",
+    "tip": "c451c14ce1ff0e6d47f9eaf139a5233651bc6bfa",
+    "hits": []
+  },
+  "chore/r64-readiness-code-size": {
+    "merge": "2f405bef1b980fc8ba7b99958185538f660e28ee",
+    "tip": "925e380efff67adb96789ec06232f39b3f0bf300",
+    "hits": []
+  },
+  "chore/r64-rqt-raster-remote": {
+    "merge": "d45d4f84406cd876891449a98b8f193325807e59",
+    "tip": "cefee116b6e4f7468b2a36a5c016239c1cfc7850",
+    "hits": []
+  },
+  "chore/r64-topology-time-plan": {
+    "merge": "ce63b8dda04c7a87c99bbf633d308bfc80f33065",
+    "tip": "d076e64ec37709c9adbc526f81a25d6ce5a3a424",
+    "hits": []
+  },
+  "chore/vision-navigation-integration-20260902": {
+    "merge": "1094db5541e5d57185fb9672560586152b764d23",
+    "tip": "1a494105064525c29ceb6e51a367f5a0d281ef05",
+    "hits": []
+  },
+  "gate/r64-seed11-full": {
+    "merge": "7f67a68d9acc06ff541a8e2d91de0b22d89aaaba",
+    "tip": "1c662cea60bada87a2223789fcf0cf80a6f3f0fc",
+    "hits": []
+  },
+  "gate/vcl02-newvision-fixed3": {
+    "merge": "d1f64364ed2f566c66ff662db151f416b35ad9f2",
+    "tip": "31b38ad6a4179c5a32672a2968dd245368e1ce99",
+    "hits": []
+  },
+  "gate/vcl03-external-coverage": {
+    "merge": "0ad8606211ce74dab740ea2a15629ebd5b09b57b",
+    "tip": "f46d45fbc59822abc497d386ae858a48f5a4e2b4",
+    "hits": []
+  },
+  "gate/vcl04-clean-rerun": {
+    "merge": "7e626ad93117765d6a76ae67fe70b0d42505f3c8",
+    "tip": "af800567a9b9d6f929ec96f981be8b1a6574fed1",
+    "hits": []
+  },
+  "gate/vcl04-r6-bridge": {
+    "merge": "30bf6fb48d778dbe1645204522d6fc16f7b40612",
+    "tip": "81090b4aa029d5f96df4b1d864f0e059e6ef7b54",
+    "hits": []
+  },
+  "gate/vcl05-search-delivery-strategy": {
+    "merge": "dc89e18db1a1af179a1cb2bd50b40e5f08728b9e",
+    "tip": "7419a062f6c26cde8a93aeb1675325ab0bddd85e",
+    "hits": []
+  },
+  "gate/vcl06-r56-full-competition": {
+    "merge": "a8dd207e166d8a42736cb450e748adfdb32cf267",
+    "tip": "514599f0892b7be8a6abeaf80f0ca2a4ac763582",
+    "hits": []
+  }
+}

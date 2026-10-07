@@ -1,0 +1,70 @@
+{
+  "status": "COMPLETE",
+  "logical_removed_bytes": 8397663125,
+  "logical_removed_gib": 7.820933242328465,
+  "removed_by_kind_bytes": {
+    "duplicate_ros_logs": 266962038,
+    "cache_or_tmp": 6556127091,
+    "obsolete_navigation_build": 566212981,
+    "worktree": 1008361015
+  },
+  "removed_worktrees": [
+    {
+      "kind": "worktree",
+      "path": "/home/xhj/liftrace-worktrees/r2026-main-integration",
+      "branch": "feat/r2026-main-integration",
+      "head": "4fb5ffcf244cc8b4bafe3b8c95d0e993a25edc33",
+      "remote_refs": [
+        "refs/remotes/origin/feat/r2026-main-integration"
+      ],
+      "bytes": 689414379
+    },
+    {
+      "kind": "worktree",
+      "path": "/home/xhj/liftrace-worktrees/r64-main-acceptance",
+      "branch": "(detached merge checkout)",
+      "head": "ce63b8dda04c7a87c99bbf633d308bfc80f33065",
+      "remote_refs": [
+        "refs/remotes/origin/main"
+      ],
+      "bytes": 159215834
+    },
+    {
+      "kind": "worktree",
+      "path": "/home/xhj/liftrace-worktrees/vdeploy-final-closeout-plan",
+      "branch": "feat/vdeploy-final-closeout-plan",
+      "head": "65172469299733faef3ac060a44cf53030039c55",
+      "remote_refs": [
+        "refs/remotes/origin/feat/vdeploy-final-closeout-plan"
+      ],
+      "bytes": 159730802
+    }
+  ],
+  "archived": [
+    {
+      "source": "/home/xhj/liftrace-worktrees/vdeploy-final-closeout-plan/logs",
+      "destination": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_archive/vdeploy-final-closeout-plan",
+      "bytes": 257798834
+    }
+  ],
+  "preserved": [
+    "/home/xhj/liftrace (user changes and original assets)",
+    "/home/xhj/liftrace-controlwork-worktrees/vcl06-planner-stop-ack (uncommitted work)",
+    "/home/xhj/liftrace-worktrees/r2026-competition-integrated (active integrated and flight records)",
+    "/home/xhj/liftrace-controlwork-worktrees/vcl06-local-full-mission (navigation source)",
+    "/home/xhj/liftrace-sim (active lightweight fork)",
+    "all git branches, conda environments, installed dependencies, weights, source images and unrelated /tmp projects"
+  ],
+  "trim": {
+    "exit_code": 0,
+    "output": "/: 922.7 GiB (990744219648 bytes) trimmed",
+    "scope": "filesystem discard only; not offline VHDX compaction"
+  },
+  "host_free_before_trim_bytes": 50477154304,
+  "host_free_after_trim_bytes": 50477154304,
+  "main_topology_plan_commit": "ce63b8dda04c7a87c99bbf633d308bfc80f33065",
+  "tag": "chore/r64-topology-time-plan",
+  "notes": [
+    "Navigation source retained; its old build referenced the removed visual worktree. Rebuild against the active integrated vision overlay before using that separate checkout."
+  ]
+}

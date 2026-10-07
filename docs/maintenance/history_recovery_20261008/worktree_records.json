@@ -1,0 +1,126 @@
+[
+  {
+    "kind": "worktree",
+    "path": "/home/xhj/liftrace-worktrees/r2026-main-integration",
+    "branch": "feat/r2026-main-integration",
+    "head": "4fb5ffcf244cc8b4bafe3b8c95d0e993a25edc33",
+    "remote_refs": [
+      "refs/remotes/origin/feat/r2026-main-integration"
+    ],
+    "bytes": 689414379,
+    "metadata": {
+      "commit": "4fb5ffcf244cc8b4bafe3b8c95d0e993a25edc33",
+      "author_name": "Qinling-Melon-Farmers",
+      "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "author_date": "2026-09-09T21:06:39+08:00",
+      "committer_name": "Qinling-Melon-Farmers",
+      "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "committer_date": "2026-09-09T21:06:39+08:00",
+      "parents": "1c662cea60bada87a2223789fcf0cf80a6f3f0fc",
+      "subject": "docs: 标注R64远端main验收及交付范围"
+    },
+    "current_containing_refs": [
+      "refs/heads/feat/r2026-main-integration",
+      "refs/remotes/origin/feat/r2026-main-integration"
+    ]
+  },
+  {
+    "kind": "worktree",
+    "path": "/home/xhj/liftrace-worktrees/r64-main-acceptance",
+    "branch": "(detached merge checkout)",
+    "head": "ce63b8dda04c7a87c99bbf633d308bfc80f33065",
+    "remote_refs": [
+      "refs/remotes/origin/main"
+    ],
+    "bytes": 159215834,
+    "metadata": {
+      "commit": "ce63b8dda04c7a87c99bbf633d308bfc80f33065",
+      "author_name": "Qinling-Melon-Farmers",
+      "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "author_date": "2026-09-09T21:52:23+08:00",
+      "committer_name": "Qinling-Melon-Farmers",
+      "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "committer_date": "2026-09-09T21:52:23+08:00",
+      "parents": "7f67a68d9acc06ff541a8e2d91de0b22d89aaaba d076e64ec37709c9adbc526f81a25d6ce5a3a424",
+      "subject": "docs: 保留分支合入R64拓扑与优化计划"
+    },
+    "current_containing_refs": [
+      "refs/heads/feat/r2026-main-integration",
+      "refs/heads/main",
+      "refs/heads/wt/r2026-board-vision-tests",
+      "refs/remotes/origin/main",
+      "refs/tags/archive/recovered-20261008/feat/competition-r64-log-only",
+      "refs/tags/archive/recovered-20261008/feat/competition-r64-raster-remote",
+      "refs/tags/archive/recovered-20261008/feat/competition-r64-readiness",
+      "refs/tags/chore/r64-log-only",
+      "refs/tags/chore/r64-readiness-code-size",
+      "refs/tags/chore/r64-rqt-raster-remote",
+      "refs/tags/chore/r64-topology-time-plan"
+    ]
+  },
+  {
+    "kind": "worktree",
+    "path": "/home/xhj/liftrace-worktrees/vdeploy-final-closeout-plan",
+    "branch": "feat/vdeploy-final-closeout-plan",
+    "head": "65172469299733faef3ac060a44cf53030039c55",
+    "remote_refs": [
+      "refs/remotes/origin/feat/vdeploy-final-closeout-plan"
+    ],
+    "bytes": 159730802,
+    "metadata": {
+      "commit": "65172469299733faef3ac060a44cf53030039c55",
+      "author_name": "Qinling-Melon-Farmers",
+      "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "author_date": "2026-09-09T21:06:39+08:00",
+      "committer_name": "Qinling-Melon-Farmers",
+      "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "committer_date": "2026-09-09T21:06:39+08:00",
+      "parents": "86146bcb022cb4162077a0f39eaee42462fafdca",
+      "subject": "docs: 标注R64远端main验收及交付范围"
+    },
+    "current_containing_refs": [
+      "refs/heads/feat/vdeploy-final-closeout-plan",
+      "refs/remotes/origin/feat/vdeploy-final-closeout-plan"
+    ]
+  },
+  {
+    "old_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated",
+    "archive": "/home/xhj/liftrace-archives/r2026-competition-integrated_20260915",
+    "head": "86e382d50ffa1d27bce0652ac4d576c73d0bfcec",
+    "preserved_ignored_files": 12527,
+    "compatibility_link": true,
+    "metadata": {
+      "commit": "86e382d50ffa1d27bce0652ac4d576c73d0bfcec",
+      "author_name": "Qinling-Melon-Farmers",
+      "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "author_date": "2026-09-11T16:20:56+08:00",
+      "committer_name": "Qinling-Melon-Farmers",
+      "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "committer_date": "2026-09-11T16:20:56+08:00",
+      "parents": "c369e6f80f7671d78b083550887ed689e4a4d920",
+      "subject": "docs: 记录driver2最终两包校验与开发分支同步"
+    },
+    "archive_exists": true,
+    "compatibility_symlink_now": true
+  },
+  {
+    "old_path": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research",
+    "archive": "/home/xhj/liftrace-archives/r2026-coverage-efficiency-research_20260915",
+    "head": "4da9614190834bf2af6b34a6a04d6577a01c875c",
+    "preserved_ignored_files": 4608,
+    "compatibility_link": true,
+    "metadata": {
+      "commit": "4da9614190834bf2af6b34a6a04d6577a01c875c",
+      "author_name": "Qinling-Melon-Farmers",
+      "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "author_date": "2026-09-12T07:32:05+08:00",
+      "committer_name": "Qinling-Melon-Farmers",
+      "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "committer_date": "2026-09-12T07:32:05+08:00",
+      "parents": "3d4403eb9f70aab81a795c8a0f9fafb8a58bcfbe",
+      "subject": "test: 汇总固定树箱随机靶门四轮提效验证"
+    },
+    "archive_exists": true,
+    "compatibility_symlink_now": true
+  }
+]

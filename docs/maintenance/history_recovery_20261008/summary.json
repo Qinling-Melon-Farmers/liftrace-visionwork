@@ -1,0 +1,61 @@
+{
+  "deleted_branch_names": 36,
+  "observation_only_branch_names": 1,
+  "historical_point_rows": 38,
+  "proposed_tags": 37,
+  "original_13_verified": 13,
+  "archive_directories": 7,
+  "archive_manifest_files": 182,
+  "archive_unique_observed_commits": 77,
+  "archive_missing_commits": 12,
+  "archive_present_commits": 65,
+  "created_tags": 35,
+  "bundle_path": "/home/xhj/liftrace-archives/20261008-history/liftrace-history-20261008.bundle",
+  "bundle_bytes": 274511258,
+  "bundle_mib": 261.79,
+  "bundle_ref_count": 107,
+  "excluded_noncommit_refs": 3,
+  "unique_bundle_commits": 908,
+  "bundle_verify": "PASS",
+  "independent_import_and_ref_comparison": "PASS",
+  "snapshot_time": "2026-10-07T17:08:01.538787+00:00",
+  "credential_path_name_check": "No exact known credential filenames in exported historical object paths; no external credential or config files copied",
+  "preexisting_refs_deleted": [],
+  "preexisting_refs_moved": [
+    "refs/remotes/origin/feat/board-deployment-flight-20260920",
+    "refs/remotes/origin/feat/ev-continuity-20261004"
+  ],
+  "original_commit_bytes_comparison": "PASS for all 38 indexed points and 2 already-restored heads",
+  "removed_worktree_records": 3,
+  "retired_worktree_records": 2,
+  "unique_indexed_historical_commits": 36,
+  "parallel_ref_updates": [
+    {
+      "ref": "refs/remotes/origin/feat/board-deployment-flight-20260920",
+      "before": "8813a7aa7d9cc229608565616d876b66c8bba501",
+      "latest_reflog": "8813a7aa7d9cc229608565616d876b66c8bba501 fe1332c03d21ed54649b1938a049660d9b623e0a Qinling-Melon-Farmers <xiaohuaijin@mail.nwpu.edu.cn> 1791392805 +0800\tupdate by push",
+      "reason": "parallel update by push; this recovery did not invoke fetch or push"
+    },
+    {
+      "ref": "refs/remotes/origin/feat/ev-continuity-20261004",
+      "before": "507e96bd8de1f0177de126f2b8aad7f5953f0f30",
+      "latest_reflog": "507e96bd8de1f0177de126f2b8aad7f5953f0f30 ec6187613d41605299a02992fe4ae662c25c5eb9 Qinling-Melon-Farmers <xiaohuaijin@mail.nwpu.edu.cn> 1791392835 +0800\tupdate by push",
+      "reason": "parallel update by push; this recovery did not invoke fetch or push"
+    }
+  ],
+  "cross_repository_followup": {
+    "checked_at_utc": "2026-10-07T17:16:23.869634+00:00",
+    "originally_absent_from_shared_repo": 12,
+    "found_in_navigation_repository": 12,
+    "found_in_liftrace_sim": 0,
+    "unlocated_in_specified_repositories": 0,
+    "details": "cross_repository_check.json"
+  },
+  "bundle_is_export_time_snapshot": true,
+  "post_snapshot_main_not_in_bundle": {
+    "reported_commit": "6cd0207fb5ea669416d01c06d6a1b65eac6730e9",
+    "current_main_at_check": "6cd0207fb5ea669416d01c06d6a1b65eac6730e9",
+    "exists_in_independent_bundle_import": false,
+    "bundle_ref_snapshot_main": "2f405bef1b980fc8ba7b99958185538f660e28ee"
+  }
+}

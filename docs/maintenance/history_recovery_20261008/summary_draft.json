@@ -1,0 +1,12 @@
+{
+  "deleted_branch_names": 36,
+  "observation_only_branch_names": 1,
+  "historical_point_rows": 38,
+  "proposed_tags": 37,
+  "original_13_verified": 13,
+  "archive_directories": 7,
+  "archive_manifest_files": 182,
+  "archive_unique_observed_commits": 77,
+  "archive_missing_commits": 12,
+  "archive_present_commits": 65
+}

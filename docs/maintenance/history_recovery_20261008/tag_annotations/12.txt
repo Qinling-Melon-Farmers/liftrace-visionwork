@@ -1,0 +1,11 @@
+2026-10-08 历史提交本地保全
+
+原分支：feat/full-random-five-seeds
+原提交：f2459e60fe5d313b10236f020d8f60ffc0a4d2d2
+界限：删除记录保存的精确 tip（按本地/远端分别归属）。
+原作者：Qinling-Melon-Farmers <xiaohuaijin@mail.nwpu.edu.cn>
+原作者日期：2026-09-10T13:00:29+08:00
+原提交者：Qinling-Melon-Farmers <xiaohuaijin@mail.nwpu.edu.cn>
+原提交日期：2026-09-10T13:00:29+08:00
+来源：/home/xhj/liftrace-worktrees/r2026-board-vision-tests/docs/verification/high_fast_five_20260915/cleanup_result.json#deleted_local (local)；/home/xhj/liftrace-worktrees/r2026-board-vision-tests/docs/verification/high_fast_five_20260915/cleanup_covered_stages.json#removed_refs (origin)
+保全标签为本次新增；原提交对象、作者时间和父子关系未重写。未恢复活跃分支，未推送。

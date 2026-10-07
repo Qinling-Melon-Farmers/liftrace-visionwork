@@ -1,0 +1,210 @@
+{
+  "retired_worktrees": [
+    {
+      "old_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated",
+      "archive": "/home/xhj/liftrace-archives/r2026-competition-integrated_20260915",
+      "head": "86e382d50ffa1d27bce0652ac4d576c73d0bfcec",
+      "preserved_ignored_files": 12527,
+      "compatibility_link": true
+    },
+    {
+      "old_path": "/home/xhj/liftrace-worktrees/r2026-coverage-efficiency-research",
+      "archive": "/home/xhj/liftrace-archives/r2026-coverage-efficiency-research_20260915",
+      "head": "4da9614190834bf2af6b34a6a04d6577a01c875c",
+      "preserved_ignored_files": 4608,
+      "compatibility_link": true
+    }
+  ],
+  "deleted_remote": [
+    {
+      "name": "chore/docs-progress-sync",
+      "sha": "0a41ee0c1cc696688af7f67a643de5ab88f6e897"
+    },
+    {
+      "name": "chore/docs-responsibility-remap",
+      "sha": "2dd1d91f96fb55a66d6f5d189746f163e0aa1829"
+    },
+    {
+      "name": "chore/freeze-oblique-camera-exploration",
+      "sha": "9889591a595114ada9a6cfc11233e31e2cbe7c93"
+    },
+    {
+      "name": "chore/gate-tagging-convention",
+      "sha": "0e69fef0626ca95f835f0db5e88fe6ac69252217"
+    },
+    {
+      "name": "feat/external-mission-coverage",
+      "sha": "f46d45fbc59822abc497d386ae858a48f5a4e2b4"
+    },
+    {
+      "name": "feat/navigation-mission-visual-delivery",
+      "sha": "8255aa4400ca1be1cb99c236adcb645861081c49"
+    },
+    {
+      "name": "feat/new-vision-coverage-search",
+      "sha": "31b38ad6a4179c5a32672a2968dd245368e1ce99"
+    },
+    {
+      "name": "feat/planner-map-20x20x5-sim",
+      "sha": "7c80844c775758437de1dec0a0854950e42dda6b"
+    },
+    {
+      "name": "feat/vcl04-clean-rerun",
+      "sha": "af800567a9b9d6f929ec96f981be8b1a6574fed1"
+    },
+    {
+      "name": "feat/vcl04-r6-bridge",
+      "sha": "81090b4aa029d5f96df4b1d864f0e059e6ef7b54"
+    },
+    {
+      "name": "feat/vcl05-search-delivery-strategy",
+      "sha": "7419a062f6c26cde8a93aeb1675325ab0bddd85e"
+    },
+    {
+      "name": "feat/vcl06-execution-integration",
+      "sha": "1a494105064525c29ceb6e51a367f5a0d281ef05"
+    },
+    {
+      "name": "feat/vcl06-next-integration",
+      "sha": "8341dd18b67bfb23510223257e2718f0fbd2d875"
+    },
+    {
+      "name": "feat/vdeploy-camera-extrinsic",
+      "sha": "f0b1b8be8df7a4ba716ff68b452eb522ef3b0c07"
+    },
+    {
+      "name": "feat/vsim04-ks2a543-camera-baseline",
+      "sha": "56f06670530b92b6403a5b52069ed4fa20ec5247"
+    },
+    {
+      "name": "feat/vsim04-navigation-handoff-final",
+      "sha": "bdf229693f0747754a3dbda00b38f8aaa339e604"
+    },
+    {
+      "name": "feat/vsim04-performance-surface",
+      "sha": "d6f4cc372c030558755703464a545e6140821cde"
+    },
+    {
+      "name": "feat/vsim04-video-cd-validation",
+      "sha": "96c47fdf99bbe9f35c9e6d69a294c17dab8fb062"
+    },
+    {
+      "name": "fix/vcl06-sim-lidar-map-readiness",
+      "sha": "b83342de6ab5649e57203662910393bd658505f9"
+    }
+  ],
+  "deleted_local": [
+    {
+      "name": "chore/docs-progress-sync",
+      "sha": "0a41ee0c1cc696688af7f67a643de5ab88f6e897"
+    },
+    {
+      "name": "chore/docs-responsibility-remap",
+      "sha": "2dd1d91f96fb55a66d6f5d189746f163e0aa1829"
+    },
+    {
+      "name": "chore/freeze-oblique-camera-exploration",
+      "sha": "9889591a595114ada9a6cfc11233e31e2cbe7c93"
+    },
+    {
+      "name": "chore/gate-tagging-convention",
+      "sha": "0e69fef0626ca95f835f0db5e88fe6ac69252217"
+    },
+    {
+      "name": "chore/local-delivery-check-20260911",
+      "sha": "d55939e51ed12c926e24bbae225d4905c05ffd3c"
+    },
+    {
+      "name": "docs/liftrace-sim-upstream",
+      "sha": "9bc376b8c7642fef19a4bb5ff7571a088b5cad76"
+    },
+    {
+      "name": "feat/external-mission-coverage",
+      "sha": "f46d45fbc59822abc497d386ae858a48f5a4e2b4"
+    },
+    {
+      "name": "feat/full-random-five-seeds",
+      "sha": "f2459e60fe5d313b10236f020d8f60ffc0a4d2d2"
+    },
+    {
+      "name": "feat/navigation-mission-visual-delivery",
+      "sha": "8255aa4400ca1be1cb99c236adcb645861081c49"
+    },
+    {
+      "name": "feat/new-vision-coverage-search",
+      "sha": "31b38ad6a4179c5a32672a2968dd245368e1ce99"
+    },
+    {
+      "name": "feat/planner-map-20x20x5-sim",
+      "sha": "7c80844c775758437de1dec0a0854950e42dda6b"
+    },
+    {
+      "name": "feat/search-planning-wait-bound",
+      "sha": "4195ef36c1b01d4d4ad286a4342469a2de420ea8"
+    },
+    {
+      "name": "feat/vcl04-clean-rerun",
+      "sha": "af800567a9b9d6f929ec96f981be8b1a6574fed1"
+    },
+    {
+      "name": "feat/vcl04-r6-bridge",
+      "sha": "81090b4aa029d5f96df4b1d864f0e059e6ef7b54"
+    },
+    {
+      "name": "feat/vcl05-search-delivery-strategy",
+      "sha": "7419a062f6c26cde8a93aeb1675325ab0bddd85e"
+    },
+    {
+      "name": "feat/vcl06-execution-integration",
+      "sha": "ad93d364ac7e34e4c58ddf40dce796042ffbfc96"
+    },
+    {
+      "name": "feat/vcl06-next-integration",
+      "sha": "8341dd18b67bfb23510223257e2718f0fbd2d875"
+    },
+    {
+      "name": "feat/vcl06-random-start-gate",
+      "sha": "2247b10ce53b76f919218b9dd5fdedf9c96c16b1"
+    },
+    {
+      "name": "feat/vcl06-vision-context",
+      "sha": "37cb2a91106c7c7b35e77aa9caf15b89aef97a20"
+    },
+    {
+      "name": "feat/vdeploy-camera-extrinsic",
+      "sha": "f0b1b8be8df7a4ba716ff68b452eb522ef3b0c07"
+    },
+    {
+      "name": "feat/vsim04-ks2a543-camera-baseline",
+      "sha": "56f06670530b92b6403a5b52069ed4fa20ec5247"
+    },
+    {
+      "name": "feat/vsim04-navigation-events",
+      "sha": "277a0a157c86bddc107dc103421cd68dc6989f95"
+    },
+    {
+      "name": "feat/vsim04-navigation-handoff-final",
+      "sha": "bdf229693f0747754a3dbda00b38f8aaa339e604"
+    },
+    {
+      "name": "feat/vsim04-performance-surface",
+      "sha": "d6f4cc372c030558755703464a545e6140821cde"
+    },
+    {
+      "name": "feat/vsim04-stability",
+      "sha": "0deeb1ecaa7c3deaba31c4ba3d98e51ca7429fa3"
+    },
+    {
+      "name": "feat/vsim04-video-cd-validation",
+      "sha": "96c47fdf99bbe9f35c9e6d69a294c17dab8fb062"
+    },
+    {
+      "name": "fix/pr3-premerge-hygiene",
+      "sha": "1a494105064525c29ceb6e51a367f5a0d281ef05"
+    },
+    {
+      "name": "fix/vcl06-sim-lidar-map-readiness",
+      "sha": "b83342de6ab5649e57203662910393bd658505f9"
+    }
+  ]
+}
