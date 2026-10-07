@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='utf-8'?>
+<launch>
+  <arg name="drop_max_alignment_error_m" default="0.0" />
+  <arg name="camera_frame" default="downward_camera_optical_frame" />
+  <arg name="camera_info_topic" default="/downward_camera/camera_info" />
+  <arg name="ground_z" default="-0.22" />
+  <arg name="body_frame" default="vision_body" />
+  <arg name="map_frame" default="camera_init" />
+  <arg name="resume_survey_enabled" default="false" />
+  <arg name="scene_dir" />
+  <arg name="target_model_path" />
+  <arg name="corridor_fast" default="true" />
+  <arg name="high_agl" default="2.6" />
+  <arg name="obstacle_inflation_xy" default="0.25" />
+  <arg name="field_seed" default="2672" />
+  <arg name="presentation_recording" default="true" />
+  <arg name="gate_startup_wall_timeout" default="600" />
+  <arg name="field_model_states_timeout" default="600" />
+  <arg name="detector_device" default="0" />
+  <arg name="runtime_config" default="$(eval arg('scene_dir') + ('/fast_runtime.yaml' if arg('corridor_fast') else '/baseline_runtime.yaml'))" />
+  <arg name="gate_config" default="$(eval arg('scene_dir') + ('/fast_gate.yaml' if arg('corridor_fast') else '/baseline_gate.yaml'))" />
+  <include file="$(find uav_high_view)/launch/fast_comparison.launch">
+    <arg name="strategy" value="true" />
+    <arg name="reliability_trial" value="true" />
+    <arg name="presentation_recording" value="$(arg presentation_recording)" />
+    <arg name="presentation_config" value="$(arg scene_dir)/presentation.yaml" />
+    <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+    <arg name="camera_extrinsic_quat_xyzw" value="0 1 0 0" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="high_agl" value="$(arg high_agl)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="world" value="$(arg scene_dir)/field.world" />
+    <arg name="field_config" value="$(arg scene_dir)/field_config.yaml" />
+    <arg name="runtime_config" value="$(arg runtime_config)" />
+    <arg name="gate_geometry_config" value="$(arg gate_config)" />
+  </include>
+  <rosparam file="$(arg scene_dir)/frame_overrides.yaml" />
+  <rosparam file="$(arg scene_dir)/repair_overrides.yaml" />
+  <param name="/fast_planner_node/sdf_map/obstacles_inflation" value="$(arg obstacle_inflation_xy)" />
+  <param name="/fast_planner_node/sdf_map/obstacles_inflation_up" value="0.20" />
+  <param name="/fast_planner_node/sdf_map/obstacles_inflation_down" value="0.10" />
+  <param name="/navigation/mission_manager/high_view_full/grid/inflation" value="$(arg obstacle_inflation_xy)" />
+  <param name="/fast_planner_node/sdf_map/search_region/boundary_policy_param" value="/navigation/mission_manager/high_view_full/boundary_policy" />
+  <param name="/navigation_vcl06_assertion/startup_wall_timeout" value="$(arg gate_startup_wall_timeout)" />
+  <param name="/random_field_spawner/spawn/initial_model_states_timeout" value="$(arg field_model_states_timeout)" />
+  <param name="/target_detector/device" value="$(arg detector_device)" />
+  <arg name="vehicle_sdf" />
+  <arg name="camera_contract" />
+  <param name="/navigation_vcl06_assertion/wall_timeout" value="6000.0" />
+  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/enabled" value="true" />
+  <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="-0.1" />
+  <node pkg="uav_vision_eval" type="camera_video_recorder.py" name="review_downward_recorder" output="screen">
+    <param name="image_topic" value="/downward_camera/image_raw" />
+    <param name="fps" value="10.0" />
+    <param name="output_path" value="$(optenv SIM_RUN_DIR)/downward.mp4" />
+  </node>
+  <node pkg="rosbag" type="record" name="center_evidence_recorder" output="screen" args="--lz4 -O $(optenv SIM_RUN_DIR)/vision_metrics.bag /tf /tf_static /uav_vision/detections_mapped /uav_vision/targets /uav_vision/selected_target /uav_vision/drop_offset /uav_vision/align_mode /mavros/local_position/pose /mission/release_result /mission/command /uav_vision/alignment_target_context /uav_vision/release_evidence_context /mission/release_permission /mission/release_permission_active /mavros/state /uav_vision/drop_ready /mavros/setpoint_position/local /mavros/extended_state /downward_camera/camera_info" />
+  <rosparam file="$(arg scene_dir)/motion_overrides.yaml" />
+  <param name="/navigation/mission_manager/high_view_full/policy/resume_survey_enabled" value="$(arg resume_survey_enabled)" />
+  <param name="/circle_detector/circle_quality_ordered_nms" type="bool" value="false" />
+  <param name="/drop_aligner/exact_drop_projection" type="bool" value="true" />
+  <param name="/uav_vision/drop_exact_projection_enabled" type="bool" value="true" />
+  <param name="/drop_aligner/use_camera_info" type="bool" value="true" />
+  <param name="/drop_aligner/require_alignment_context" type="bool" value="true" />
+  <param name="/drop_aligner/map_frame" value="$(arg map_frame)" />
+  <param name="/drop_aligner/body_frame" value="$(arg body_frame)" />
+  <param name="/drop_aligner/ground_z" type="double" value="$(arg ground_z)" />
+  <param name="/drop_aligner/camera_info_topic" value="$(arg camera_info_topic)" />
+  <param name="/drop_aligner/rectify_input_pixels" type="bool" value="true" />
+  <param name="/drop_aligner/slot_compensation_mode" value="zero" />
+  <param name="/drop_aligner/slot_parameter_namespace" value="/drop_system" />
+  <rosparam param="/drop_aligner/slot_positions_body">[[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]</rosparam>
+  <param name="/drop_aligner/max_alignment_error_m" type="double" value="$(arg drop_max_alignment_error_m)" />
+  <param name="/uav_vision/drop_exact_alignment_max_error_m" type="double" value="$(arg drop_max_alignment_error_m)" />
+  <param name="/uav_vision/drop_map_frame" value="$(arg map_frame)" />
+  <param name="/uav_vision/drop_camera_frame" value="$(arg camera_frame)" />
+  <param name="/uav_vision/drop_camera_info_topic" value="$(arg camera_info_topic)" />
+  <param name="/uav_vision/drop_ground_z" type="double" value="$(arg ground_z)" />
+  <param name="/uav_vision/drop_offset_timeout" type="double" value="0.5" />
+  <param name="/target_map_projector/map_frame" value="$(arg map_frame)" />
+  <param name="/target_map_projector/ground_z" type="double" value="$(arg ground_z)" />
+  <param name="/target_map_projector/camera_info_topic" value="$(arg camera_info_topic)" />
+  <param name="/target_map_projector/rectify_input_pixels" type="bool" value="true" />
+  <rosparam param="/drop_system/slot_offsets">[[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]</rosparam>
+  <rosparam param="/drop_system/dynamic_slot_offsets">[[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]</rosparam>
+  <param name="/navigation_vcl06_assertion/stop_on_collision" type="bool" value="false" />
+  <param name="/navigation_mission_start_gate/start_service" value="/drop_precision_camera_guard/start_mission_checked" />
+  <node pkg="rospy" type="/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/drop_precision_ab_20261007/camera_guard.py" name="drop_precision_camera_guard" output="screen" required="true" launch-prefix="/usr/bin/python3">
+    <param name="contract" value="$(arg camera_contract)" />
+    <param name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+    <param name="run_dir" value="$(optenv SIM_RUN_DIR)" />
+    <param name="image_topic" value="/downward_camera/image_raw" />
+    <param name="camera_info_topic" value="/downward_camera/camera_info" />
+    <param name="upstream_start_service" value="/navigation/start_mission" />
+    <param name="startup_wall_timeout" value="90.0" />
+    <param name="max_images" value="6" />
+  </node>
+</launch>

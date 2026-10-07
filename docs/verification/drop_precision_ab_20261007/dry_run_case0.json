@@ -1,0 +1,103 @@
+{
+  "mode": "DRY_RUN",
+  "simulation_started": false,
+  "cases": [
+    31,
+    38
+  ],
+  "variant": "EXACT_ON_ONLY",
+  "comparison": "historical reference; source and camera both change",
+  "batch": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/drop_precision_20261007_history_batch",
+  "preflight": {
+    "status": "PASS",
+    "checks": 32,
+    "exact_visual": true,
+    "exact_control": true,
+    "body_frame": "vision_body",
+    "map_frame": "camera_init",
+    "ground_z": -0.22,
+    "slot_mode": "zero",
+    "tolerance_policy": "existing 30px exposure Jacobian; controller uses message tolerance",
+    "circle_quality_ordered_nms": false,
+    "stop_on_collision": false,
+    "scope": "TWO_NEW_EXACT_ON_RUNS_WITH_HISTORICAL_REFERENCE_ONLY",
+    "seed": 31,
+    "scene": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/snake3_camera2m_20261005/generated/snake3_31/snake3_seed31",
+    "overlays": {
+      "uav_mission": "/home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/src/uav_mission",
+      "uav_vision": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision",
+      "uav_high_view": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_high_view"
+    },
+    "frozen_scene_files": 8,
+    "camera_contract": {
+      "scope": "SIMULATION_DROP_COMPARISON_ONLY",
+      "profile_id": "drop_centered_d0_20261007",
+      "simulation_started": false,
+      "camera_info_status": "EXPECTED_NOT_RUNTIME_MEASURED",
+      "width": 1280,
+      "height": 720,
+      "horizontal_fov": 1.44593453190313,
+      "vertical_fov": 0.9213848138025623,
+      "K": [
+        725.3510059644452,
+        0.0,
+        640.0,
+        0.0,
+        725.3510059644452,
+        360.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "D": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "R": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "P": [
+        725.3510059644452,
+        0.0,
+        640.0,
+        0.0,
+        0.0,
+        725.3510059644452,
+        360.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "distortion_model": "plumb_bob",
+      "frame_id": "downward_camera_optical_frame",
+      "camera_link_pose": "0 0 -0.16 0 1.5707963267948966 -1.5707963267948966",
+      "sensor_pose": "0 0 0 0 0 0",
+      "renderer": "symmetric perspective FOV; all five distortion terms zero",
+      "robot_namespace": "/",
+      "camera_name": "downward_camera",
+      "image_topic_name": "image_raw",
+      "camera_info_topic_name": "camera_info",
+      "template": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision_eval/models/iris_mid360_start_fov/model.sdf",
+      "profile": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision_eval/config/drop_camera_centered_d0.json",
+      "generated_sdf": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/drop_precision_ab_20261007/generated/camera_centered_d0/model.sdf"
+    },
+    "actual_spawn_args": "--delay 0.0 --retry-delay 2.0 --retries 4 -sdf -file /home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/drop_precision_ab_20261007/generated/camera_centered_d0/model.sdf -model iris_mid360 -x 0.0 -y 0.0 -z 0.225 -R 0.0 -P 0.0 -Y 0.0",
+    "node_count": 43,
+    "legacy_parameter_differences_excluding_camera_start_proxy": 0,
+    "startup_gate": "CameraInfo plus image dimensions before forwarding the original start Trigger"
+  },
+  "command": "env SIM_RUN_AUTHORIZED=1 SIM_NO_RECORD=1 SIM_REQUIRE_GATE=1 SIM_STORAGE_GUARD_PATH=/mnt/f timeout --signal=TERM --kill-after=60s 7200s bash top_level_scripts/sim_run.sh drop_precision_new_seed31 bash top_level_scripts/roslaunch_rl_drone.sh /home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/drop_precision_ab_20261007/replay.launch scene_dir:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/snake3_camera2m_20261005/generated/snake3_31/snake3_seed31 field_seed:=31 target_model_path:=/home/xhj/liftrace/deliverables/liftrace_five_class_20260928_models/flight_5cls_20260928.pt high_agl:=2.16 resume_survey_enabled:=false vehicle_sdf:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/drop_precision_ab_20261007/generated/camera_centered_d0/model.sdf camera_contract:=/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/drop_precision_ab_20261007/generated/camera_centered_d0/camera_contract.json"
+}
