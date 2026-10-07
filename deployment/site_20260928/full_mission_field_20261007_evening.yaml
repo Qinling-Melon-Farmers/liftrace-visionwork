@@ -1,14 +1,14 @@
-# Corridor shifted +1m X by field confirmation; search route unchanged.
-# Inner/outer walls X=7.3/8.7; H=(8.0,-3.45).
+# Confirmed inner/outer walls X=7.0/8.5; corridor and H X=7.7.
+# Search route unchanged; approach point remains X=6.5.
 flight_area:
   center_bounds:
   - -0.35
-  - 8.45
+  - 8.25
   - -3.75
   - 2.7
   target_bounds:
   - -0.35
-  - 8.7
+  - 8.5
   - -4.0
   - 2.7
   search_bounds:
@@ -51,28 +51,28 @@ auto_start_after_arm: true
 initialization_timeout: 300.0
 obstacle_columns_enabled: true
 landing_xy:
-- 8.0
+- 7.7
 - -3.45
 corridor_waypoints:
 - x: 6.5
   y: 2.1
   agl: 0.9
-- x: 8.0
+- x: 7.7
   y: 2.1
   agl: 0.9
-- x: 8.0
+- x: 7.7
   y: 0.5
   agl: 0.9
-- x: 8.0
+- x: 7.7
   y: -0.5
   agl: 0.9
-- x: 8.0
+- x: 7.7
   y: -0.9
   agl: 0.9
-- x: 8.0
+- x: 7.7
   y: -1.9
   agl: 0.9
-- x: 8.0
+- x: 7.7
   y: -3.45
   agl: 0.9
 corridor_geometry:
