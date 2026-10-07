@@ -6,6 +6,9 @@ deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_config.py
 docs/verification/high_view_slot_h_handoff_20261008/DYNAMIC_FULL.md
 docs/verification/high_view_slot_h_handoff_20261008/FILES.txt
 docs/verification/high_view_slot_h_handoff_20261008/REPORT.md
+docs/verification/slot_h_settlement_20261008/DYNAMIC_FULL.md
+docs/verification/slot_h_settlement_20261008/DYNAMIC_H.md
+docs/verification/slot_h_settlement_20261008/REPORT.md
 docs/仿真联调变更记录.md
 legacy_baseline/20261008/high_view_slot_h_handoff/CATKIN_IGNORE
 legacy_baseline/20261008/high_view_slot_h_handoff/FILES.txt
