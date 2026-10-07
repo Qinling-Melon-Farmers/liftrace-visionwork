@@ -28,6 +28,8 @@
        default="/uav_vision/release_evidence_context" />
   <arg name="drop_stable_frames" default="3" />
   <arg name="exact_drop_projection" default="false" />
+  <arg name="require_compensated_alignment"
+       default="$(eval arg('require_alignment_context') or arg('exact_drop_projection'))" />
   <arg name="drop_body_frame" default="vision_body" />
   <arg name="drop_slot_compensation_mode" default="physical_body_position" />
   <arg name="drop_slot_geometry_config" default="$(find uav_vision)/config/drop_geometry_hardware.yaml" />
@@ -130,6 +132,8 @@
     <param name="class_profile" value="$(arg class_profile)" />
     <param name="require_alignment_context"
            value="$(eval arg('require_alignment_context') or arg('exact_drop_projection'))" />
+    <param name="require_compensated_alignment"
+           value="$(arg require_compensated_alignment)" />
     <param name="alignment_context_topic"
            value="$(arg alignment_context_topic)" />
     <param name="release_evidence_context_topic"

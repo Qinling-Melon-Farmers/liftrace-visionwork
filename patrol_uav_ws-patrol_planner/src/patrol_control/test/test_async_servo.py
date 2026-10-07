@@ -136,6 +136,11 @@ struct Publisher { int calls=0; void publish(const Pose&) { ++calls; } };
 namespace patrol_control {
 class LLController {
 public:
+    bool compensated_alignment_enabled_=true, geometry_ready=true;
+    bool compensatedDropSettled(bool) { return geometry_ready; }
+    void publishCompensatedAlignment() {}
+
+
     ros::ServiceClient servo_client, servo_action_client_;
     uav_vision::AlignmentTargetContext servo_alignment_context_;
     bool have_servo_alignment_context_=true;
@@ -394,6 +399,14 @@ int main(int argc, char** argv) {
         c.external_mission_mode_=false; t->success=false; t->delay_ms=10; t->fact=1;
         assert(c.executeDropAction(1)==DropActionResult::kPending); finish(c);
         resetContext(c); assert(c.executeDropAction(1)==DropActionResult::kRejected && t->calls==1);
+    } else if (name=="geometry") {
+        c.geometry_ready=false;
+        assert(c.executeDropAction(1)==DropActionResult::kPending && t->calls==0);
+        assert(!c.servo_action_attempted_);
+        c.geometry_ready=true; t->delay_ms=10;
+        assert(c.executeDropAction(1)==DropActionResult::kPending);
+        waitStarted(t); c.geometry_ready=false; finish(c);
+        assert(c.executeDropAction(1)==DropActionResult::kSuccess && t->calls==1);
     } else if (name=="invalid") {
         c.control_ready=false;
         assert(c.executeDropAction(1)==DropActionResult::kRejected && t->calls==0);
@@ -435,6 +448,8 @@ class AsyncServoTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.folder.cleanup()
+
+    def test_geometry_wait_never_calls_servo_and_cannot_cancel_started_rpc(self): self.run_case("geometry")
 
     def test_mock_1s_servo_preserves_control_loop(self): self.run_case('continuity')
     def test_failed_ack_never_repeats_slot(self): self.run_case('failed')

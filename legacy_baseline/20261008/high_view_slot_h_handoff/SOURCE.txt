@@ -1,0 +1,3 @@
+H worktree: /home/xhj/liftrace-worktrees/r2026-high-view-search
+source HEAD: 62afbef8f9ff0a577b5db64a8e7d07c8767bf81c
+source package: patrol_uav_ws-patrol_planner/src/patrol_control

@@ -3,6 +3,7 @@
 No ROS master, node, flight controller, or hardware is started. As in the
 existing pixel-scale test, compile the actual controller method bodies with
 transport doubles, then assert service calls and transaction state changes.
+本文件仅用可控 stub 隔离停稳条件，真实 helper 由独立测试验证。
 """
 from pathlib import Path
 import io
@@ -56,6 +57,7 @@ struct Time {
     static Time now() { return Time(clock); }
     unsigned long long toNSec() const { return static_cast<unsigned long long>(value*1e9); }
 };
+bool operator<=(Time a, Time b) { return a.value <= b.value; }
 bool operator==(Time a, Time b) { return a.value == b.value; }
 Duration operator-(Time a, Time b) { return Duration{a.value - b.value}; }
 struct Publisher {
@@ -118,10 +120,18 @@ struct ModeService {
 enum Dronemode { Takeoff, Run_point, Aligning, Land, Hover };
 enum Pointmode { Takeoff_point, Detect_point, Nothing_point, Land_point };
 enum TaskType { MAIN_MISSION, CROSS_MISSION };
+struct SettlementWindowStub {
+    int resets=0;
+    void reset() { ++resets; }
+};
 class LLController {
 public:
     bool external_mission_mode_=true, external_waiting_for_motion_=false;
     bool drop_exact_projection_enabled_=false;
+    // Recovery stays disabled in this landing-only production-method fixture.
+    bool navigation_recovery_active_=false;
+    geometry_msgs::PoseStamped navigation_recovery_command_;
+    bool hasValidNavigationRecovery() const { return false; }
     void clearUavVisionAlignmentState() {}
     bool external_landing_active_=false, external_landing_new_mark_=false;
     bool external_landing_alignment_complete_=false;
@@ -130,6 +140,15 @@ public:
     bool flag_land=false, flag_takeoff_done=true, have_land_mark=false;
     bool have_planner_cmd=false, have_waypoint_mark=false, have_cross_mark=false;
     bool align_ok=false;
+    SettlementWindowStub landing_capture_window_, landing_handoff_window_;
+    bool landing_motion_settled_=true;
+    int capture_settle_calls_=0, handoff_settle_calls_=0;
+    bool motionTimePending() const { return false; }
+    bool landingMotionSettled(bool handoff, double) {
+        if (handoff) ++handoff_settle_calls_;
+        else ++capture_settle_calls_;
+        return landing_motion_settled_;
+    }
     int external_landing_stable_count_=0, external_landing_stable_frames_=10;
     int waypoint_next=0, detection_resets=0;
     double external_landing_state_max_age_sec_=2.5;
@@ -232,7 +251,37 @@ void cancelled(const LLController& c) {
 int main(int argc, char** argv) {
     assert(argc==2 || argc==7);
     const std::string test=argv[1];
-    if (test=="permission") {
+    if (test=="settlement_stub") {
+        auto c=landing(false); c.external_landing_handoff_mode_="POSCTL";
+        c.have_land_mark=true; c.land_mark_point=c.uav_pose;
+        c.external_landing_last_mark_stamp_=ros::Time::now();
+        c.external_landing_last_mark_receipt_=ros::Time::now();
+        c.landing_motion_settled_=false;
+        c.external_landing_new_mark_=true; c.externalLandingTick();
+        assert(c.capture_settle_calls_==1 && c.external_landing_stable_count_==0);
+        c.external_landing_alignment_complete_=true;
+        c.external_landing_aligned_goal_=c.uav_pose;
+        c.externalLandingTick();
+        assert(c.handoff_settle_calls_==1 && c.set_mode_client.calls==0);
+        c.landing_motion_settled_=true; c.externalLandingTick();
+        assert(c.set_mode_client.calls==1);
+        const auto capture_resets=c.landing_capture_window_.resets;
+        const auto handoff_resets=c.landing_handoff_window_.resets;
+        c.clearExternalLandingState(true);
+        assert(c.landing_capture_window_.resets==capture_resets+1);
+        assert(c.landing_handoff_window_.resets==handoff_resets+1);
+        auto legacy=landing(false);
+        legacy.landing_motion_settled_=false;
+        legacy.have_land_mark=true; legacy.land_mark_point=legacy.uav_pose;
+        for (int i=0; i<10; ++i) {
+            legacy.external_landing_new_mark_=true;
+            legacy.external_landing_last_mark_stamp_=ros::Time::now();
+            legacy.external_landing_last_mark_receipt_=ros::Time::now();
+            legacy.externalLandingTick();
+        }
+        assert(legacy.set_mode_client.calls==1);
+        assert(legacy.capture_settle_calls_==0 && legacy.handoff_settle_calls_==0);
+    } else if (test=="permission") {
         for (int bad=0; bad<9; ++bad) {
             auto c=landing();
             auto& s=c.external_landing_mavros_state_;
@@ -595,6 +644,9 @@ class ExternalLandingHandoffTest(unittest.TestCase):
 
     def test_repeated_align_cannot_reset_one_servo_action(self):
         self.run_case('align_identity')
+
+    def test_posctl_respects_settlement_stub_and_auto_land_bypasses_it(self):
+        self.run_case('settlement_stub')
 
     def test_real_rospy_transport_preserves_nested_align_decision_identity(self):
         from rospy.msg import serialize_message

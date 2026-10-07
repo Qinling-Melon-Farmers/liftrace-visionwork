@@ -25,6 +25,16 @@ slot_compensation_mode: physical_body_position
 # Empty fails closed unless the measured hardware profile or sim zero is selected.
 slot_positions_body: []
 
+# Explicit opt-in for slot compensation. Controller owns the compensated FC goal;
+# drop_circle/drop_cross use its feedback instead of requiring pixel centering.
+# This also requires a valid AlignmentTargetContext, regardless of the switch below.
+require_compensated_alignment: false
+drop_alignment_feedback_topic: /uav_vision/drop_alignment_feedback
+compensated_feedback_max_age: 0.5
+compensated_odom_max_age: 0.5
+# Cover the existing 0.5s observation window at 30Hz, including the newest frame.
+compensated_observation_cache_size: 16
+
 # 默认关闭；DropOffset 扩展后消费者仍须同步重新编译 ROS1 消息。
 # VCL06 coordinator 接线完成后显式设 true，并以固定频率续租同一冻结上下文。
 require_alignment_context: false

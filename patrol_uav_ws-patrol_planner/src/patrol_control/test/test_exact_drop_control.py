@@ -17,6 +17,9 @@ PROGRAM=r'''
 #include <uav_vision/DropReady.h>
 #include <uav_vision/AlignmentTargetContext.h>
 #include <patrol_control/drop_geometry.h>
+#include <patrol_control/drop_slot_geometry.h>
+#include <patrol_control/landing_handoff_stability.h>
+#include <nav_msgs/Odometry.h>
 #include <patrol_control/drop_action.h>
 #include <patrol_control/async_servo.h>
 #include <atomic>
@@ -55,6 +58,23 @@ struct TestTransport {
 class LLController {
 public:
   bool drop_exact_projection_enabled_=true, have_drop_offset_=false, uav_drop_ready_=false;
+  bool compensated_alignment_enabled_=false,compensated_goal_valid_=false,compensated_goal_frozen_=false;
+  geometry_msgs::PoseStamped compensated_fc_goal_;
+  geometry_msgs::Point compensated_target_center_;
+  uav_vision::AlignmentTargetContext compensated_context_;
+  ros::Time compensated_observation_stamp_,motion_odom_receipt_;
+  nav_msgs::Odometry motion_odom_;bool motion_odom_valid_=false;
+  std::string motion_twist_frame_="child";
+  LandingHandoffStabilityConfig drop_settle_config_,landing_settle_config_;
+  LandingHandoffStabilityWindow drop_capture_window_,drop_release_window_,landing_capture_window_,landing_handoff_window_;
+  void motionOdomCallback(const nav_msgs::Odometry::ConstPtr&);
+ const char* motionFeedbackStatus() const;
+ bool motionTimePending() const;
+  bool freshMotion(Eigen::Vector3d*,Eigen::Vector3d*,const char** = nullptr)const;
+  bool setCompensatedDropTarget(geometry_msgs::PoseStamped*);
+  bool compensatedDropSettled(bool,double* =nullptr,double* =nullptr);
+  bool freezeCompensatedDropTarget();
+  bool externalLandingControlReady(ros::Time)const{return true;}
   bool have_waypoint_mark=false,have_cross_mark=false,drop_condition_met=false;
   bool have_servo_alignment_context_=true;
   double drop_offset_timeout_=.5,drop_ground_z_=0,align_height=.38,max_alignment_move_distance_=5;
@@ -464,7 +484,48 @@ int main(int argc,char **argv){
     }
   }else if(test=="legacy"){
     c.drop_exact_projection_enabled_=false;c.dropOffsetCallback(m);assert(c.legacy_calls==1);
-    c.adjust_target_position[0]=1;c.applyDropSlotOffset(1,false);assert(c.adjust_target_position[0]==.88);
+    c.adjust_target_position[0]=1;c.applyDropSlotOffset(1,false);assert(c.adjust_target_position[0]==1.12);
+  }else if(test=="unified_circle" || test=="unified_cross"){
+    c.compensated_alignment_enabled_=true;c.first_call=false;c.align_ok=true;
+    c.drop_settle_config_.xy_tolerance_m=.04;c.drop_settle_config_.height_tolerance_m=.05;
+    c.drop_settle_config_.max_horizontal_speed_mps=.05;c.drop_settle_config_.max_vertical_speed_mps=.1;
+    c.drop_settle_config_.stable_duration_sec=.3;
+    c.drop_capture_window_=LandingHandoffStabilityWindow(c.drop_settle_config_);
+    c.drop_release_window_=LandingHandoffStabilityWindow(c.drop_settle_config_);
+    if(test=="unified_cross"){
+      c.current_align_mode_="drop_cross";c.current_task_type=c.CROSS_MISSION;
+      c.servo_alignment_target_class_="red_cross";c.servo_alignment_context_.semantic_target_class="red_cross";
+      c.servo_alignment_context_.align_mode="drop_cross";
+      m->target_id=c.servo_alignment_context_.semantic_target_id;
+      m->target_first_seen=c.servo_alignment_context_.semantic_target_first_seen;
+    }
+    for(int i=0;i<3;++i){
+      double now=100+i*.15625;ros::Time::setNow(ros::Time(now));
+      auto o=boost::make_shared<nav_msgs::Odometry>();o->header.stamp=ros::Time(now);
+      o->header.frame_id="camera_init";o->child_frame_id="body";
+      o->pose.pose.orientation.w=1.;o->pose.pose.position.x=.34;o->pose.pose.position.y=.0075;
+      o->pose.pose.position.z=c.external_alignment_capture_height_;
+      c.uav_pose.header=o->header;c.uav_pose.pose=o->pose.pose;c.motionOdomCallback(o);
+      c.servo_alignment_context_.header.stamp=ros::Time(now);
+      m->header.stamp=ros::Time(now);c.dropOffsetCallback(m);ready(c);
+      assert(std::abs(c.compensated_target_center_.x-.22)<1e-9);
+      assert(std::abs(c.compensated_fc_goal_.pose.position.x-.34)<1e-9);
+      assert(c.beginExactDropDescent()==(i==2));
+    }
+    assert(c.compensated_goal_frozen_ && c.capture_tolerance_m_==0);
+    if(test=="unified_cross")c.CrossDetectionDone();else c.WayPointDetectDone();
+    assert(c.count_aligning==1 && c.align_height==c.drop_release_setpoint_height_);
+    assert(std::abs(c.adjust_target_position[0]-.34)<1e-9);
+    auto stamp=c.compensated_observation_stamp_;
+    for(bool valid:{false,true}){
+      m->map_valid=valid;m->map_point.x=2.;m->header.stamp=ros::Time(100.4);
+      c.dropOffsetCallback(m);c.clearExactDropCommitment();
+      assert(c.compensated_goal_frozen_ && c.count_aligning==1 && c.compensated_observation_stamp_==stamp);
+      assert(std::abs(c.compensated_fc_goal_.pose.position.x-.34)<1e-9);
+    }
+    authorize(c);assert(c.currentDropReleaseGate().mission_permission_fresh);
+    // Old exact release predicate would compare the FC to raw center and fail.
+    assert(!c.exactDropReleaseReady());
   }else assert(false);
 }
 '''
@@ -474,7 +535,14 @@ class ExactDropControlTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         source=(PACKAGE/'src/patrol_control.cpp').read_text()
-        signatures=('bool LLController::hasFreshDropOffset()',
+        signatures=('void LLController::motionOdomCallback(',
+        'const char* LLController::motionFeedbackStatus(',
+        'bool LLController::motionTimePending(',
+                    'bool LLController::freshMotion(',
+                    'bool LLController::setCompensatedDropTarget(',
+                    'bool LLController::compensatedDropSettled(',
+                    'bool LLController::freezeCompensatedDropTarget(',
+                    'bool LLController::hasFreshDropOffset()',
                     'bool LLController::hasFreshMissionReleasePermission()',
                     'void LLController::releaseAuthorizationCallback(',
                     'void LLController::servoAlignmentContextCallback(',
@@ -500,12 +568,14 @@ class ExactDropControlTest(unittest.TestCase):
         cls.binary=folder/'test'
         flags=shlex.split(subprocess.check_output(['pkg-config','--cflags','--libs','roscpp','tf'],text=True))
         subprocess.run(['g++','-std=c++14','-O0','-pthread','-fsanitize=undefined','-fno-sanitize-recover=all',
-                        '-I',str(PACKAGE/'include'),'-I',str(ROOT/'vision_ws/devel/include'),
+                        '-I','/usr/include/eigen3','-I',str(PACKAGE/'include'),'-I',str(ROOT/'vision_ws/devel/include'),
                         '-I',str(ROOT/'patrol_uav_ws-patrol_planner/devel/include'),
                         str(program),'-o',str(cls.binary),*flags],check=True)
 
     def run_case(self,case):subprocess.run([str(self.binary),case],check=True)
     def test_absolute_projection_and_single_slot_compensation(self):self.run_case('projection')
+    def test_exact_circle_uses_single_fc_compensation_and_unified_freeze(self):self.run_case('unified_circle')
+    def test_exact_cross_uses_single_fc_compensation_and_unified_freeze(self):self.run_case('unified_cross')
     def test_duplicate_and_reorder_preserve_original_lease(self):self.run_case('reorder')
     def test_invalid_current_observation_blocks_without_pixel_fallback(self):self.run_case('invalid_current')
     def test_geometry_tracking_id_can_change_within_semantic_transaction(self):self.run_case('geometry_id')

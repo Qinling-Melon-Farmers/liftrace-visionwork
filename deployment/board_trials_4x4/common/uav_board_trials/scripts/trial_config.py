@@ -1,6 +1,7 @@
 """Generate all local-Z parameters from one stationary FC reference."""
 from pathlib import Path
 import math,copy,json,yaml,struct
+from uav_mission.landing_posctl_config import validate_landing_posctl, landing_control_parameters
 
 TRIAL_FOLDERS = {
     'visual_interrupt': '01_visual_interrupt', 'high_view': '02_high_view_revisit',
@@ -19,7 +20,7 @@ def apply_site_profile(settings, profile):
              'terminal_hover_agl','auto_start_after_arm','initialization_timeout','obstacle_columns_enabled',
              'bag_image_hz','bag_image_topic','record_inflated_cloud','record_map_clouds'}
     if settings['mode'] in H_MODES:
-        allowed.update(('landing_xy', 'landing_handoff_mode', 'landing_handoff_status_topic'))
+        allowed.update(('landing_xy', 'landing_handoff_mode', 'landing_handoff_status_topic', 'landing_posctl'))
     if settings.get('trial_kind') in ('corridor_landing','full_mission'):
         allowed.update(('corridor_waypoints','corridor_geometry'))
     if not isinstance(profile,dict) or set(profile)-allowed:
@@ -84,6 +85,9 @@ def validate_settings(settings):
         raise ValueError('landing_handoff_mode must be AUTO.LAND or POSCTL')
     if 'landing_handoff_mode' in settings and settings['mode'] not in H_MODES:
         raise ValueError('landing_handoff_mode only applies to visual H landing')
+    if 'landing_posctl' in settings and settings['mode'] not in H_MODES:
+        raise ValueError('landing_posctl only applies to visual H landing')
+    validate_landing_posctl(settings)
     if 'landing_handoff_status_topic' in settings:
         topic = settings['landing_handoff_status_topic']
         if settings['mode'] not in H_MODES:
@@ -178,7 +182,9 @@ def generate(root,out,settings,fc_xyz,rig):
     # Legacy align_height is float32, recovery_height is double. Use an
     # exactly representable shared value so equality cannot fail its guard.
     low=struct.unpack('f',struct.pack('f',low))[0]
-    if not .45<=settings['drop_agl']<=1.0 or min(drop,ground+.40)<=.05:raise ValueError('Legacy positive local-Z bounds not met')
+    land_z, handoff_z, posctl_stability = landing_control_parameters(settings, ground, float(rig['fc_ground_clearance']))
+    # 投递仍需本地 Z > 0.05m；降落只需 > 0，与控制器参数校验一致。
+    if not .45<=settings['drop_agl']<=1.0 or drop<=.05 or land_z<=0.:raise ValueError('Legacy positive local-Z bounds not met')
     point=lambda a,b,h:[x+a,y+b,h]
     runtime=yaml.safe_load((root/'docs/verification/fov_landing_inner_20260919/seed_2672/fast_runtime.yaml').read_text())
     m=runtime['mission'];m.update(home_xy=[x,y],landing_xy=[x+.6,y],approach_altitude=low,return_altitude=low,timeout=600. if mode=='high_view_full' else 300.,forced_return_at=510. if mode=='high_view_full' else 240.,post_delivery_route_revision='board-'+mode,
@@ -227,7 +233,7 @@ def generate(root,out,settings,fc_xyz,rig):
         ProbeConfig(**runtime['high_view_probe']['config'])
         SurveyPolicy(**runtime['high_view_full']['policy'])
     control=yaml.safe_load((root/'patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_horizontal_control.yaml').read_text())
-    control.update(waypoints=[dict(x=x,y=y,z=(ground+settings['landing_transit_agl'] if mode=='landing' else low),yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=ground+.40,px4_max_distance=.25)
+    control.update(waypoints=[dict(x=x,y=y,z=(ground+settings['landing_transit_agl'] if mode=='landing' else low),yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=land_z,px4_max_distance=.25)
     control['switch']['auto_land']=h_landing;control['drop_system'].update(enable_drop=drop_enabled,release_setpoint_height=drop,height_threshold=drop+.10)
     control['switch']['flag_landing_detect']=1 if h_landing else 0
     control['uav_vision'].update(recovery_height=low,
@@ -236,10 +242,14 @@ def generate(root,out,settings,fc_xyz,rig):
         drop_metric_scale_enabled=True,drop_ground_z=ground,
         drop_map_frame=rig['mission_frame'],
         drop_camera_info_topic=settings.get('camera_info_topic','/camera/camera_info'))
-    # Preserve the flight team's existing fixed-frame offsets; not a new calibration.
+    # 保留两套实测表：表示 FC 中心到投口的机体系杆臂，FLU 为前、左、上。
+    # 控制器减去经完整机体姿态旋转后的杆臂，不能按固定地图偏移直接相加。
+    control['drop_system'].update(slot_offset_semantics='body_flu_lever_arm', compensated_alignment=True)
     for key in ('slot_offsets','dynamic_slot_offsets'):
         if key in rig:control['drop_system'][key]=copy.deepcopy(rig[key])
-    control['external_landing'].update(frame='camera_init',capture_height=capture if h_landing else low,auto_land_height=ground+.55,detections_topic='/uav_vision/detections_mapped' if h_landing else '/board_trials/h_disabled',handoff_mode=settings.get('landing_handoff_mode', 'AUTO.LAND'),handoff_status_topic=settings.get('landing_handoff_status_topic', '/patrol_control/external_landing_handoff'))
+    control['external_landing'].update(frame='camera_init',capture_height=capture if h_landing else low,auto_land_height=handoff_z,detections_topic='/uav_vision/detections_mapped' if h_landing else '/board_trials/h_disabled',handoff_mode=settings.get('landing_handoff_mode', 'AUTO.LAND'),handoff_status_topic=settings.get('landing_handoff_status_topic', '/patrol_control/external_landing_handoff'))
+    if posctl_stability is not None:
+        control['external_landing']['posctl'] = posctl_stability
     overrides={
         '/fast_planner_node/sdf_map/resolution':.10,'/fast_planner_node/sdf_map/map_size_x':area['map_size'][0],'/fast_planner_node/sdf_map/map_size_y':area['map_size'][1],'/fast_planner_node/sdf_map/map_size_z':area['map_size'][2],
         '/fast_planner_node/sdf_map/visualization_rate':2.,
