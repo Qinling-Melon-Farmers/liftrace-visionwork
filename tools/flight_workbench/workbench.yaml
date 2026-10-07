@@ -223,6 +223,24 @@ terminals:
 # 保留现场组号；统一走模块入口，支持模拟/实投和显式策略参数。
 # section 仅控制卡片分区；channel 控制实际命令，旧 site 入口仍兼容。
 groups:
+  - id: competition
+    key: "正赛"
+    channel: competition
+    section: competition
+    name: "独立正赛 · 10×10 实测场地"
+    entry: "deployment/competition/start.sh"
+    site_config: "deployment/competition/field.example.yaml"
+    competition_config_options:
+      - {path: "deployment/competition/field.example.yaml", label: "默认比赛模板 · 10×10待实测确认"}
+      - {path: "deployment/competition/field_20261007_validated.yaml", label: "可选测试复现 · 非10×10正赛参数"}
+    plan: "默认比赛模板：高位2.6m、速度1.2m/s、加速度1.0m/s²、前视1.0/0.4/0.15m；场地尺寸、门口、H与路线须实测确认。"
+    ending: "依所选配置执行末段；POSCTL交接须飞手完成落地"
+    release: real
+    release_options: [real]
+    needs_servo: true
+    competition_options_supported: true
+    notes: "默认仅为未确认的正赛模板。昨晚成功轮是测试场地，不能作为10×10正赛坐标或验收；可另填测试示例路径，配置检查须展示实际有效参数。继承表示不传覆盖参数，开启/关闭显式传on/off。"
+
   - id: site1
     key: "1"
     folder: "01_visual_interrupt"

@@ -30,6 +30,8 @@ class LaunchOptionsTest(unittest.TestCase):
 
     def test_all_groups_preserve_defaults_and_accept_explicit_motion(self):
         for gid in self.groups:
+            if self.groups[gid].get('channel') == 'competition':
+                continue  # Independent CLI is covered by test_competition.py.
             default = self.command(gid)
             self.assertNotIn('--motion-optimized', default)
             self.assertNotIn('--resume-survey', default)

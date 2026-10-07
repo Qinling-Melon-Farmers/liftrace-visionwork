@@ -42,6 +42,16 @@ CONTENT_TYPES = {
 }
 
 # 顺序启动编排里每个终端对应的"已在运行"判据（避免重复启动设备节点）
+class WorkbenchHTTPServer(ThreadingHTTPServer):
+    """Windows must not allow two workbenches to share a listening port."""
+
+    def server_bind(self):
+        if os.name == "nt":
+            self.allow_reuse_address = False
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
+
+
 RUNNING_KEYS = {
     "roscore": ("roscore", "rosmaster"),
     "mavros": ("mavros_node",),
@@ -714,7 +724,9 @@ class Workbench(object):
             check_config=body.get("check_config",False), capture_speed=body.get("capture_speed"),
             capture_lighting=body.get("capture_lighting"), motion_optimized=body.get("motion_optimized",False),
             survey_pattern=body.get("survey_pattern"), resume_survey=body.get("resume_survey"),
-            site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"))
+            site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"),
+            motion_optimization=body.get("motion_optimization"), obstacle_columns=body.get("obstacle_columns"),
+            competition_config=body.get("competition_config"))
         return {"ok":True,"body":command,"note":note}
 
     def start_trial(self, body):
@@ -736,6 +748,9 @@ class Workbench(object):
             if not isinstance(value, bool):
                 raise ValueError("%s 必须是布尔值" % key)
         route = body.get("route") or group.get("channel")
+        if group.get("channel") == "competition" and mode == "flight" and not check_config:
+            if not real_release:
+                raise ValueError("独立正赛为实投入口，不支持模拟投递")
         if wb_board.is_observation(group) and real_release:
             raise ValueError("低空观察不支持真实投递")
         # site/start_test.sh selects real hardware itself; never trust a client's
@@ -759,7 +774,9 @@ class Workbench(object):
             check_config=check_config, capture_speed=body.get("capture_speed"),
             capture_lighting=body.get("capture_lighting"), motion_optimized=motion_optimized,
             survey_pattern=body.get("survey_pattern"), resume_survey=body.get("resume_survey"),
-            site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"))
+            site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"),
+            motion_optimization=body.get("motion_optimization"), obstacle_columns=body.get("obstacle_columns"),
+            competition_config=body.get("competition_config"))
         # 界面预览命令必须与后端实际命令一致，否则拒绝启动：防止"给人看的命令"与"真正执行的命令"漂移
         expected = str(body.get("expected_body") or "").strip()
         if body.get("site_geometry") is not None and not expected:
@@ -782,6 +799,8 @@ class Workbench(object):
             "motion_optimized": motion_optimized, "survey_pattern": body.get("survey_pattern"),
             "resume_survey": body.get("resume_survey"), "route": route, "note": note,
             "site_geometry": body.get("site_geometry"), "geometry_revision": body.get("geometry_revision"),
+            "motion_optimization": body.get("motion_optimization"), "obstacle_columns": body.get("obstacle_columns"),
+            "competition_config": body.get("competition_config") or group.get("site_config"),
         }
         if wb_board.is_observation(group) and mode == "flight" and not check_config:
             session = self.sessions.open("trial", "低空观察 · %s" % group.get("name"), command,
@@ -942,7 +961,12 @@ class Handler(BaseHTTPRequestHandler):
                 return self._error("日志专用后端未开放此接口", 404)
         if route == "/logs":
             return self._static("/static/logs.html")
-        if route in ("/observe", "/motor"):
+        if route == "/motor":
+            self.send_response(302)
+            self.send_header("Location", "/observe")
+            self.end_headers()
+            return
+        if route == "/observe":
             return self._static("/static/observe.html")
         if route in ("/", "/index.html") or route.startswith("/static/"):
             return self._static(route)
@@ -1142,7 +1166,7 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     parser = argparse.ArgumentParser(description="Liftrace 试飞验证看板")
     parser.add_argument("--host", default="127.0.0.1", help="监听地址（默认只监听本机）")
-    parser.add_argument("--port", type=int, default=8791)
+    parser.add_argument("--port", type=int, default=8771)
     parser.add_argument("--logs-only", action="store_true",
                         help="独立日志后端：禁用设备/任务控制和探针；推荐另选端口，不替换现有工作台")
     parser.add_argument("--config", default=wb_board.DEFAULT_CONFIG_PATH)
@@ -1188,7 +1212,7 @@ def main():
     port = options.port
     for _ in range(20):
         try:
-            server = ThreadingHTTPServer((options.host, port), Handler)
+            server = WorkbenchHTTPServer((options.host, port), Handler)
             break
         except OSError:
             port += 1

@@ -10,9 +10,9 @@ import zipfile
 TOOL = Path(__file__).resolve().parent
 ROOT = TOOL.parents[1]
 FILES = (
-    'server.py', 'wb_ssh.py', 'wb_board.py', 'wb_status.py', 'wb_logs.py',
+    'server.py', 'wb_ssh.py', 'wb_native_ssh.py', 'wb_board.py', 'wb_status.py', 'wb_logs.py',
     'wb_geometry.py', 'wb_survey.py', 'board_probe.py', 'workbench.yaml',
-    'start_workbench.sh', 'start_windows.cmd', 'start_windows.ps1',
+    'start_workbench.sh', 'start_windows.cmd', 'start_windows.bat', 'start_windows.ps1',
     'requirements.txt', 'README_DISTRIBUTION.md', 'README.md',
     'web/index.html', 'web/app.js', 'web/style.css',
     'web/observe.html', 'web/observe.js', 'web/observe.css',
@@ -44,7 +44,9 @@ def main():
         'source_head': git('rev-parse', 'HEAD'),
         'source_scope': 'current workbench files, including uncommitted edits',
         'modified_package_files': [p for p in FILES if git('status', '--porcelain', '--', str(TOOL / p))],
-        'platform': 'Linux / Windows with WSL; not native Windows Python',
+        'platform': 'Linux SSH/PTY; native Windows Python + Paramiko (no WSL)',
+        'default_port': 8771,
+        'auto_connect': False,
         'board_deployment_included': False,
         'files': ['README_FIRST.md' if p == 'README_DISTRIBUTION.md' else p for p in FILES],
     }
@@ -53,7 +55,7 @@ def main():
         for relative in FILES:
             name = 'README_FIRST.md' if relative == 'README_DISTRIBUTION.md' else relative
             payload = (TOOL / relative).read_bytes()
-            if relative == 'start_windows.cmd':
+            if relative in ('start_windows.cmd', 'start_windows.bat'):
                 payload = payload.replace(b'\r\n', b'\n').replace(b'\n', b'\r\n')
             elif relative == 'start_windows.ps1':
                 # Windows PowerShell 5.1 needs a BOM for Chinese extraction paths/docs.

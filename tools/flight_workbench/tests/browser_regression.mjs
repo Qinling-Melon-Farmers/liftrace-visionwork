@@ -43,8 +43,34 @@ try {
   await call('Page.navigate',{url});
   for(let i=0;i<60;i++){if(await run('typeof state!=="undefined" && state.groups.length>=9'))break;await sleep(100);}
   await test('offline transport (no flight backend)', 'state.connection.transport === "local"');
-  await test('main toolbar opens both read-only observers in separate windows', `
-    ['/observe','/motor'].every(path=>{const a=document.querySelector('a[href="'+path+'"]');return a&&a.target==='_blank'&&a.rel.includes('noopener');})`);
+  await test('realtime observer and logs use this origin; motor big page is removed', `
+    ['/observe','/logs'].every(path=>{const a=document.querySelector('a[href="'+path+'"]');return a&&a.target==='_blank'&&a.rel.includes('noopener')&&a.origin===location.origin;}) &&
+    !document.querySelector('a[href="/motor"]')`);
+  await test('competition defaults to the independent template and has three-state controls', `
+    state.groups.find(g=>g.id==='competition').site_config==='deployment/competition/field.example.yaml' &&
+    ['motionOptimization','obstacleColumns'].every(k=>{const s=document.querySelector('[data-option="'+k+'"]');return s&&s.options.length===3&&s.value==='';}) &&
+    document.querySelector('#groups-body').textContent.includes('比赛模板：高位2.6m')`);
+  await run(`window.cg=state.groups.find(g=>g.id==='competition');
+    groupUI(cg).motionOptimization='off';groupUI(cg).obstacleColumns='on';renderGroups();`);
+  await test('competition switches reach the actual check command', `
+    trialBody(cg,'preview',true).expected_body.includes('--motion-optimization off --obstacle-columns on --check-config') &&
+    trialBody(cg,'preview',true).motion_optimization==='off' && trialBody(cg,'preview',true).obstacle_columns==='on'`);
+  await run(`groupUI(cg).motionOptimization='';groupUI(cg).obstacleColumns='';renderGroups();`);
+  await test('switch inheritance omits overrides rather than displaying an enabled state', `
+    !trialBody(cg,'preview',true).expected_body.includes('--motion-optimization') &&
+    !trialBody(cg,'preview',true).expected_body.includes('--obstacle-columns')`);
+  await run(`window.preset=document.querySelector('[data-option="competitionPreset"]');
+    preset.value='deployment/competition/field_20261007_validated.yaml';preset.dispatchEvent(new Event('change'));`);
+  await test('test reproduction is explicitly optional and never the default competition config', `
+    trialBody(cg,'preview',true).expected_body.includes('field_20261007_validated.yaml') &&
+    document.querySelector('#groups-body').textContent.includes('当前选择测试场地复现') &&
+    cg.site_config==='deployment/competition/field.example.yaml' && !groupUI(cg).armedOk`);
+  await run(`document.querySelector('[data-option="competitionPreset"]').value=cg.site_config;
+    document.querySelector('[data-option="competitionPreset"]').dispatchEvent(new Event('change'));`);
+  if(process.argv[4]) {
+    const shot=await call('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+    fs.writeFileSync(process.argv[4],Buffer.from(shot.data,'base64'));
+  }
   await run('state._es.close(); state._es=null; state.activeTerm="trial"; renderTerminals(); renderDrawer();');
   await run(`window.originalConnection=JSON.parse(JSON.stringify(state.connection));
     window.hostOptionCount=state.connection.host_options.length;
@@ -160,7 +186,8 @@ try {
     document.querySelector('#monitor-body').textContent.includes('任务中止') &&
     document.querySelector('#monitor-body').textContent.includes('等待人工拨入OFFBOARD') &&
     document.querySelector('#monitor-body').textContent.includes('未观测')`);
-  await run(`state.telemetry.at=Date.now()/1000;state.telemetry.terminal_hover=JSON.stringify({stage:'PILOT_HANDOFF'});
+  await run(`state.telemetry.at=Date.now()/1000;state.telemetry.master=true;state.telemetry.probe_link={status:'live',usable:true};
+    state.sessions.probe={state:'running',exit_code:null};state.telemetry.terminal_hover=JSON.stringify({stage:'PILOT_HANDOFF'});
     state.telemetry.lio_realtime=[{name:'FAST-LIO',level:1,message:'queue growing',
       values:{output_age_sec:'0.31',lidar_queue:'4',imu_queue:'8'}}];renderMonitor();`);
   await test('observed terminal handoff and LIO metrics are displayed', `

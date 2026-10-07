@@ -398,9 +398,8 @@ function obsEvent(message) {
   else if(message.t==='session' && message.s==='trial'){observationState.trialSession=message.session||{};obsRender();}
 }
 function obsInit() {
-  var motor=window.location.pathname==='/motor';document.body.classList.toggle('motor-page',motor);
-  document.title=motor?'Liftrace 低空电机只读观察':'Liftrace 只读实时状态';obsById('page-title').textContent=motor?'低空电机观察 · 只读大页':'实时状态曲线 · 只读';
-  if(!motor){var panel=obsById('motor-panel');panel.parentNode.insertBefore(panel,obsById('record-panel').nextSibling);}
+  document.title='Liftrace 只读实时状态';obsById('page-title').textContent='实时状态与电机输出 · 只读';
+  var panel=obsById('motor-panel');panel.parentNode.insertBefore(panel,obsById('record-panel').nextSibling);
   obsCharts();obsMappingControls();
   obsById('profile-select').addEventListener('change',obsProfileDescription);
   obsById('segment-start').addEventListener('click',function(){obsStartSegment(obsById('profile-select').value,Date.now()/1000);obsRender();});

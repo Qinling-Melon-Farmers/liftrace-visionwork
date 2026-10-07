@@ -3,7 +3,8 @@
 前线可分发工作台 ZIP 说明见 [README_DISTRIBUTION.md](README_DISTRIBUTION.md)。在既有
 `rl_drone` 环境运行 `python tools/flight_workbench/build_zip.py` 即可打包当前工作台文件；
 使用明确文件清单，不包含个人状态、日志或板端工程，不要求提交后才能打包。
-Windows 通过 `start_windows.cmd` 使用已安装的默认 WSL 后端，不支持 Windows 原生 Python。
+Windows 通过 `start_windows.bat` / `start_windows.ps1` 使用原生 Python + Paramiko，无需 WSL；Linux 保留原 OpenSSH/PTY 实现。默认端口8771，日志/观察链接使用当前页面同源地址。
+独立正赛卡片指向 `deployment/competition/field.example.yaml`，保留比赛2.6m/1.2m/s/1.0m/s²与前视1.0/0.4/0.15；场地实测与确认必填，测试场地成功不是10×10正赛验收。运动优化/障碍柱的“继承/开/关”分别省略覆盖或传对应on/off CLI；配置检查展示真实有效参数。报告见 [本轮验证](../../docs/verification/workbench_release_20261008/REPORT.md)。
 离线解压启动检查：`python tools/flight_workbench/tests/test_distribution.py`。
 
 2026-10-07：SSH 登录与 sudo 是两次独立认证，SSH 成功不会给新终端继承 sudo 的认证缓存。
@@ -101,7 +102,7 @@ ESC硬件/固件没有回传时保留缺项。这里不调用set_message_interva
 
 ```bash
 cd /home/xhj/liftrace-worktrees/r2026-board-vision-tests
-bash tools/flight_workbench/start_workbench.sh              # 默认 127.0.0.1:8791
+bash tools/flight_workbench/start_workbench.sh              # 默认 127.0.0.1:8771
 # 或指定端口/自动开浏览器
 bash tools/flight_workbench/start_workbench.sh --port 8792 --open
 ```

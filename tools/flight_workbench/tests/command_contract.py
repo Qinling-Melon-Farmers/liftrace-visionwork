@@ -12,7 +12,13 @@ for group in config['groups']:
             for speed in (group.get('speed_options') or [None]):
                 for real in ([False, True] if 'real' in group.get('release_options', []) else [False]):
                     variants = [dict()]
-                    if not wb_board.is_observation(group):
+                    if group.get('channel') == 'competition':
+                        if mode == 'flight' and not check and not real:
+                            continue
+                        variants = [dict(motion_optimization=m, obstacle_columns=o)
+                                    for m in (None, 'on', 'off') for o in (None, 'on', 'off')]
+                        variants.append(dict(competition_config="deployment/custom field'; echo INVALID; #.yaml"))
+                    elif not wb_board.is_observation(group):
                         variants.append(dict(motion_optimized=True))
                     if group.get('survey_patterns'):
                         variants += [dict(motion_optimized=True, survey_pattern=p)

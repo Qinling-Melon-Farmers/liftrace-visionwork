@@ -1,0 +1,229 @@
+{
+  "source_root": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix",
+  "template": "deployment/competition/field.example.yaml",
+  "board_connected": false,
+  "competition_values": {
+    "high_agl": 2.6,
+    "cruise_speed": 1.2,
+    "cruise_acceleration": 1.0,
+    "following": [
+      1.0,
+      0.4,
+      0.15
+    ]
+  },
+  "cases": [
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field.example.yaml --check-config",
+      "motion": "inherit",
+      "columns": "inherit",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": false,
+        "motion_optimization": false,
+        "obstacle_columns": true,
+        "motion_action_timeout": 90.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field.example.yaml --obstacle-columns on --check-config",
+      "motion": "inherit",
+      "columns": "on",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": false,
+        "motion_optimization": false,
+        "obstacle_columns": true,
+        "motion_action_timeout": 90.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field.example.yaml --obstacle-columns off --check-config",
+      "motion": "inherit",
+      "columns": "off",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": false,
+        "motion_optimization": false,
+        "obstacle_columns": false,
+        "motion_action_timeout": 90.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field.example.yaml --motion-optimization on --check-config",
+      "result": "EXPECTED_REJECTION",
+      "reason": "Unmeasured competition template cannot enable motion optimization"
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field.example.yaml --motion-optimization on --obstacle-columns on --check-config",
+      "result": "EXPECTED_REJECTION",
+      "reason": "Unmeasured competition template cannot enable motion optimization"
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field.example.yaml --motion-optimization on --obstacle-columns off --check-config",
+      "result": "EXPECTED_REJECTION",
+      "reason": "Unmeasured competition template cannot enable motion optimization"
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field.example.yaml --motion-optimization off --check-config",
+      "motion": "off",
+      "columns": "inherit",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": false,
+        "motion_optimization": false,
+        "obstacle_columns": true,
+        "motion_action_timeout": 90.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field.example.yaml --motion-optimization off --obstacle-columns on --check-config",
+      "motion": "off",
+      "columns": "on",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": false,
+        "motion_optimization": false,
+        "obstacle_columns": true,
+        "motion_action_timeout": 90.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field.example.yaml --motion-optimization off --obstacle-columns off --check-config",
+      "motion": "off",
+      "columns": "off",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": false,
+        "motion_optimization": false,
+        "obstacle_columns": false,
+        "motion_action_timeout": 90.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field_20261007_validated.yaml --check-config",
+      "motion": "inherit",
+      "columns": "inherit",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": true,
+        "motion_optimization": true,
+        "obstacle_columns": true,
+        "motion_action_timeout": 60.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field_20261007_validated.yaml --obstacle-columns on --check-config",
+      "motion": "inherit",
+      "columns": "on",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": true,
+        "motion_optimization": true,
+        "obstacle_columns": true,
+        "motion_action_timeout": 60.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field_20261007_validated.yaml --obstacle-columns off --check-config",
+      "motion": "inherit",
+      "columns": "off",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": true,
+        "motion_optimization": true,
+        "obstacle_columns": false,
+        "motion_action_timeout": 60.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field_20261007_validated.yaml --motion-optimization on --check-config",
+      "motion": "on",
+      "columns": "inherit",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": true,
+        "motion_optimization": true,
+        "obstacle_columns": true,
+        "motion_action_timeout": 60.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field_20261007_validated.yaml --motion-optimization on --obstacle-columns on --check-config",
+      "motion": "on",
+      "columns": "on",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": true,
+        "motion_optimization": true,
+        "obstacle_columns": true,
+        "motion_action_timeout": 60.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field_20261007_validated.yaml --motion-optimization on --obstacle-columns off --check-config",
+      "motion": "on",
+      "columns": "off",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": true,
+        "motion_optimization": true,
+        "obstacle_columns": false,
+        "motion_action_timeout": 60.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field_20261007_validated.yaml --motion-optimization off --check-config",
+      "motion": "off",
+      "columns": "inherit",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": true,
+        "motion_optimization": false,
+        "obstacle_columns": true,
+        "motion_action_timeout": 60.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field_20261007_validated.yaml --motion-optimization off --obstacle-columns on --check-config",
+      "motion": "off",
+      "columns": "on",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": true,
+        "motion_optimization": false,
+        "obstacle_columns": true,
+        "motion_action_timeout": 60.0
+      }
+    },
+    {
+      "command": "bash deployment/competition/start.sh preview --site-config deployment/competition/field_20261007_validated.yaml --motion-optimization off --obstacle-columns off --check-config",
+      "motion": "off",
+      "columns": "off",
+      "effective": {
+        "status": "CONFIG_VALID",
+        "ros_started": false,
+        "site_confirmed": true,
+        "motion_optimization": false,
+        "obstacle_columns": false,
+        "motion_action_timeout": 60.0
+      }
+    }
+  ],
+  "unconfirmed_flight_rejected": true,
+  "result": "PASS"
+}

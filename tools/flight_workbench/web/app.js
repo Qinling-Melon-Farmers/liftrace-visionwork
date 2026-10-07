@@ -849,6 +849,20 @@ function groupCommandBody(g, mode, realRelease, checkConfig, speed, options) {
   var moduleBase = 'deployment/board_trials_4x4/' + folder;
   var extra = '';
   options = options || {};
+  if (route === 'competition') {
+    var field = options.competition_config == null ? g.site_config : options.competition_config;
+    if (typeof field !== 'string' || !field.trim() || /[\r\n\x00]/.test(field) ||
+        (mode === 'flight' && !checkConfig && !realRelease)) return {body:null,note:'独立正赛需要场地配置，flight仅支持实投'};
+    for (var pair of [['motion-optimization',options.motion_optimization],['obstacle-columns',options.obstacle_columns]]) {
+      if (pair[1] != null) {
+        if (['on','off'].indexOf(pair[1]) < 0) return {body:null,note:'开关仅支持on/off，省略继承YAML'};
+        extra += ' --' + pair[0] + ' ' + pair[1];
+      }
+    }
+    return {body:'bash ' + shellArgQuote(g.entry || 'deployment/competition/start.sh') + ' ' +
+      (checkConfig ? 'preview' : mode) + ' --site-config ' + shellArgQuote(field.trim()) + extra + (checkConfig ? ' --check-config' : ''),
+      note:'所选YAML为权威；继承不传覆盖，on/off显式覆盖。先配置检查核对有效参数；测试场地成功不代表10×10正赛。'};
+  }
   if (g.channel === 'low_observation') {
     if (['hover','forward','square'].indexOf(g.profile) < 0 || realRelease || speed != null ||
         options.capture_lighting != null || options.motion_optimized || options.survey_pattern != null ||
@@ -920,11 +934,12 @@ function renderGroups() {
 
   if (!groups.length) { body.appendChild(el('p', 'empty', '等待快照…（/api/snapshot 的 groups 为空）')); return; }
 
+  appendGroupSection(body, '独立正赛（先实测并确认场地）', groups.filter(function (g) { return g.channel === 'competition'; }));
   appendGroupSection(body, '现场组号（1–6）', groups.filter(function (g) { return (g.section || g.channel) === 'site'; }));
   appendGroupSection(body, '专项模块与对照', groups.filter(function (g) { return (g.section || g.channel) === 'module'; }));
   appendGroupSection(body, '独立低空观察（顺序：悬停 → 前移 → 矩形）', groups.filter(function (g) { return g.section === 'observation'; }));
 
-  var others = groups.filter(function (g) { return g.channel && ['site','module','low_observation'].indexOf(g.channel) < 0; });
+  var others = groups.filter(function (g) { return g.channel && ['site','module','low_observation','competition'].indexOf(g.channel) < 0; });
   if (others.length) appendGroupSection(body, '其他任务组', others);
   body.scrollTop = scrollTop;
 }
@@ -951,6 +966,11 @@ function trialBody(g, mode, checkConfig) {
   var body = { group_id: g.id, mode: checkConfig ? 'preview' : mode,
     real_release: !checkConfig && mode === 'flight' && U.release === 'real' };
   if (checkConfig) body.check_config = true;
+  if (g.competition_options_supported) {
+    if (U.motionOptimization) body.motion_optimization = U.motionOptimization;
+    if (U.obstacleColumns) body.obstacle_columns = U.obstacleColumns;
+    if (U.competitionConfig != null) body.competition_config = U.competitionConfig;
+  }
   if (g.speed_options && g.speed_options.length && U.speed != null) body.capture_speed = U.speed;
   if (g.lighting_options && U.lighting) body.capture_lighting = U.lighting;
   if (g.motion_optimization_supported && U.motionOptimized) body.motion_optimized = true;
@@ -1137,6 +1157,27 @@ function groupCard(g) {
   if (g.release_options && g.release_options.length) {
     choiceRow('投递', 'release', g.release_options.map(function (v) { return [v, v === 'real' ? '真实投递 · 需双重确认' : '模拟投递 · mock']; }));
   }
+  if (g.competition_options_supported) {
+    var presetRow=el('div','grp-row');presetRow.appendChild(el('span','lbl','配置来源'));
+    var preset=el('select','grp-choice');preset.setAttribute('data-option','competitionPreset');
+    var custom=el('option',null,'自定义路径（在下方填写）');custom.value='';preset.appendChild(custom);
+    (g.competition_config_options || []).forEach(function(item){var option=el('option',null,item.label);option.value=item.path;preset.appendChild(option);});
+    preset.value=U.competitionConfig == null ? g.site_config : U.competitionConfig;
+    preset.addEventListener('change',function(){if(preset.value){U.competitionConfig=preset.value;U.armedOk=false;U.realConfirm='';renderGroups();}});
+    presetRow.appendChild(preset);ops.appendChild(presetRow);
+    var configRow = el('div','grp-row');
+    configRow.appendChild(el('span','lbl','场地YAML'));
+    var field = el('input'); field.type='text'; field.setAttribute('data-option','competitionConfig');
+    field.value = U.competitionConfig == null ? g.site_config : U.competitionConfig;
+    field.addEventListener('change',function(){U.competitionConfig=field.value;renderGroups();});
+    configRow.appendChild(field);ops.appendChild(configRow);
+    if (U.competitionConfig === 'deployment/competition/field_20261007_validated.yaml') {
+      ops.appendChild(el('div','warn-line','当前选择测试场地复现：不是正赛默认参数，不能宣称10×10比赛验收；实际高度/速度以前述文件的配置检查为准。'));
+    }
+    choiceRow('运动优化','motionOptimization',[['','继承所选YAML'],['on','显式开启'],['off','显式关闭']]);
+    choiceRow('障碍柱','obstacleColumns',[['','继承所选YAML'],['on','显式开启'],['off','显式关闭']]);
+    ops.appendChild(el('div','warn-line','必填正赛实测场地与确认项；默认模板未确认。运动优化/障碍柱继承时不发送覆盖参数，当前有效值以配置检查输出为准；关闭障碍柱移除配置柱，不会关闭真实点云避障。'));
+  }
   if (g.motion_optimization_supported) {
     var motionRow = el('div', 'grp-row');
     var motionLab = el('label', 'chk');
@@ -1206,7 +1247,7 @@ function groupCard(g) {
     ops.appendChild(el('div', 'warn-line', '速度选项属于「仅采集不投递」路径：只跑视觉采集，不下发投递。'));
   }
 
-  if (g.needs_waypoints || g.survey_patterns || g.folder==='09_high_speed_capture') {
+  if (g.channel !== 'competition' && (g.needs_waypoints || g.survey_patterns || g.folder==='09_high_speed_capture')) {
     ops.appendChild(geometryEditor(g,U,function(){if(flightBtn)updateFlightBtn();}));
     if(g.needs_waypoints)ops.appendChild(el('div','warn-line','走廊/H航点仍需实测；自动搜索不会代填门口。'));
   }
@@ -1263,7 +1304,7 @@ function groupCard(g) {
     var needReal = (U.release === 'real');
     var realOk = !needReal || (U.realConfirm || '').trim() === '实投';
     var readyBody=trialBody(g,'flight',false);
-    var geometryReady=!U.geometryEnabled || !!readyBody.expected_body;
+    var geometryReady=(!U.geometryEnabled && g.channel !== 'competition') || !!readyBody.expected_body;
     flightBtn.disabled = !connected() || tSessRunning() || !!state.trialPending || !U.armedOk || !realOk || !geometryReady;
     flightBtn.title = !connected() ? '未连接板端'
       : (tSessRunning() || state.trialPending ? '专项正在运行或准备下发，先停止当前任务'

@@ -1,67 +1,51 @@
-# 前线试飞工作台：先读这里
+# 飞行工作台分发包
 
-本包只装笔记本侧工作台。无需克隆完整仓库，也不需要在笔记本安装 ROS、模型、相机或雷达驱动。启动后只监听 `127.0.0.1`，不会自动连接飞机；由用户在网页输入连接信息并点击连接。
+本包只包含笔记本侧工作台。无需完整工程、ROS、模型或 WSL。启动监听 localhost，等待用户点击连接；不会自动 SSH、启动设备、解锁或起飞。
 
-## Windows 使用
+## Windows 原生启动
 
-**支持 Windows 浏览器 + WSL Linux 后端，不支持 Windows 原生 Python。** 终端层依赖 Linux PTY、bash 和 OpenSSH。须先有可用 WSL Ubuntu，并设为默认发行版（`wsl --list --verbose` 可查看）。已装 WSL 的队员不用重复安装。
+使用已有 Windows Python 3.9+ 环境及 PyYAML、pexpect、Paramiko（版本范围见 requirements.txt）。pexpect 仅复用异常类型，Windows 不使用 Unix PTY。脚本检查依赖，不安装包或新建环境。本机已用 Windows Anaconda Python 3.12 验证，未在未安装 Python 的干净 Windows 上验证。
 
-1. 将 ZIP 完整解压到普通本地目录，例如 `C:\flight_workbench`；中文目录也可。不要在压缩包内直接双击，不要把解压目录放在 WSL 的网络路径下使用 Windows 启动脚本。
-2. 检查下节依赖已经安装在默认 WSL 中。双击 `start_windows.cmd`，保留弹出的终端窗口。
-3. 在 Windows 浏览器打开 `http://127.0.0.1:8791/`。默认端口被占用时，以终端打印的地址为准；更换端口可在 PowerShell 执行 `./start_windows.ps1 -Port 8792`。
-4. 只看界面且禁止设备命令：`./start_windows.ps1 -Transport local`。现场正常使用默认 `ssh`；这仍需网页点击连接后才会联络板端。
-5. 关闭工作台：先完成现场接管、落地与原入口收尾，再在本窗口按 Ctrl+C。刷新网页只重载页面，不重启设备/探针或应用链。
+1. 完整解压 ZIP 到本地目录，例如 C:\flight_workbench；支持中文和空格目录。
+2. 双击 start_windows.bat（start_windows.cmd 同效），或 PowerShell 执行：
+   `./start_windows.ps1 -Python D:\Anaconda3\python.exe -Open`
+3. 仅离线看页面：`./start_windows.ps1 -Transport local`。Windows local 模式禁止运行 Linux 设备命令。
+4. 默认请求 8771；以终端实际打印的 URL 为准。日志链接 /logs 与实时观察 /observe 跟随当前页面 host/port。端口被占用会顺延；可用 -Port 指定。
+5. 需要独立状态时用 `-ProfileDir C:\你的私有目录\workbench_state`。此处是 Windows 路径。包内没有密码、密钥或个人 profile。
+6. 正常收尾后 Ctrl+C；不在设备会话运行时替换后端。独立日志后端可用 `-LogsOnly -Port 8772`，不启动探针或设备。
 
-Windows 可通过 WSL localhost 转发访问后端。若系统禁用了此功能，需恢复 WSL localhost 转发；本包不开放局域网监听作为替代。
+Windows 用 Paramiko SSH channel 复用终端、Ctrl+C、resize 和二进制下载。支持内存密码、已有密钥/可用 agent；known_hosts 位于本用户 ~/.ssh/known_hosts。只在配置 StrictHostKeyChecking=accept-new 时接受并保存新指纹，指纹变化拒绝连接。没有自动导入 PuTTY saved sessions 或完整 OpenSSH config；页面须填准确 user@host/端口。加密私钥单独解密和不兼容的 agent 未验收。
 
-## Linux / WSL 依赖与启动
+Windows 无法核查远端 PTY 的 echo，因此不会自动填写 sudo 口令，5a 经确认后需终端手工认证；Linux 保留原有有限次数且确认 echo 关闭的应答。SSH 登录密码不出现在命令行、ZIP、终端日志或 URL。记住口令仍是用户明确可选操作，只写个人状态目录；不要把状态目录打包分享。
 
-后端需要 Python 3.9–3.12、`pexpect`、`PyYAML`，以及系统命令 `bash`、`ssh`、`scp`；Windows 启动脚本还用到 `wslpath` 和 `base64`。依赖版本范围见 `requirements.txt`。前端为随包原生 HTML/CSS/JS，无 Node、npm、CDN 或构建步骤。
+## Linux / WSL
 
-已有本项目环境优先使用：
+使用已有 rl_drone：
 
 ```bash
 source ~/miniconda3/etc/profile.d/conda.sh
 conda activate rl_drone
-cd /实际解压目录/liftrace_flight_workbench_时间戳
 bash start_workbench.sh
 ```
 
-Windows 脚本检测到 `~/miniconda3` 时使用其中已有的 `rl_drone`；不存在该环境则报错，须由本机维护者配置，不会自动新建环境。本机 conda 缺 `pexpect` 时，启动脚本可复用已安装的 `/usr/lib/python3/dist-packages` 纯 Python 包。
+Linux 需要 Python 3.9+、pexpect、PyYAML、bash、OpenSSH，无需 Paramiko。可用 WORKBENCH_PYTHON 指向已有环境。脚本可复用系统纯 Python 依赖，不安装任何包。
 
-新队员的普通 Ubuntu（非项目开发机）可由本机维护者通过发行版包管理器准备 `python3`、`python3-pexpect`、`python3-yaml`、`openssh-client`；Python 须满足上述版本。自行管理的 Python 环境可参考 `requirements.txt`。本包不会安装依赖，也不要在项目系统 Python 中 pip 安装。
+## 比赛与测试
 
-若本机已配置其他允许使用的 Python，用 `WORKBENCH_PYTHON=/实际/python bash start_workbench.sh`。Linux 原生用户在解压目录运行同一脚本；无需 Windows 启动脚本。
+独立正赛卡片调用 deployment/competition/start.sh，默认 YAML 是 deployment/competition/field.example.yaml。入口和模板由整机工程提供，未随本工具包部署。比赛参数保持既有高位 2.6m、速度 1.2m/s、加速度 1.0m/s²、前视 1.0/0.4/0.15m，具体有效参数以整机 YAML 展开为准。
 
-## 页面功能和现场使用
+正赛模板必须按 10×10 场地实测填写并确认门口、H、边界及路线。昨晚成功轮属于测试场地，不能作为正赛默认坐标或正赛验收。复现测试时另填 F 代理提供的测试示例路径，完整命令会显示实际文件。
 
-`/logs`提供常规轻量/纯诊断bag的显式录制、状态与下载，以及FC SD ULog索引、取回到板端和下载。ULog内部录制沿用FC设置随解锁开启，页面不改参数、不启动logger；不是MAVLink streaming录制。
+运动优化、障碍柱均有“继承所选 YAML / 显式开启 / 显式关闭”。继承不传覆盖参数；开启/关闭传 --motion-optimization on/off、--obstacle-columns on/off，须整机入口支持这两个 CLI。先用“配置检查”查看真实有效参数与来源，不以 UI 选中冒称配置已经生效。障碍柱关闭仅移除配置柱，真实点云避障仍依入口配置。工作台不修改飞行数值。
 
-现有8791还持有设备SSH会话时，不要重启它或把新静态页面覆盖到旧API。可在新包解压目录独立运行`bash start_workbench.sh --logs-only --host 127.0.0.1 --port 8792`，浏览器访问打印的地址。此模式禁止设备/任务控制，不启动probe，不自动SSH；点击连接后才进行只读检查。若需要复用临时profile内已保存的认证，加`--profile-dir /已核实的旧profile目录`；仅在旧进程内存的密码需重新输入，默认不保存。此命令不停止旧工作台或任何ROS节点。
+保留配置检查、preview、实投和原有双重确认/任务互斥。配置检查不启动 ROS；preview 可能启动地面应用链，现场应先配置检查。独立正赛 flight 只允许真实投递，后端拒绝伪装为 mock。
 
-主页保留现有现场任务卡、设备终端、配置检查、命令预览、状态/READY、运行日志、产物浏览、回报、手填坐标和搜索航线/FOV 图；`/observe` 为实时观察，`/motor` 为电机诊断。低空观察区三张卡片依次为 **FC AGL 0.60m 悬停、短程前移、矩形**，复用板端 `deployment/low_hover_observation/start.sh` 的 `hover / forward / square`。
+现有现场/专项卡片、低空观察三卡、日志录制下载、终端和状态保持可用。取消独立电机大页入口；/observe 保留实时位姿、电机原始输出、映射与 ESC 摘要；旧 /motor 跳转 /observe。RC OUT 是输出指令，不能等同电流/RPM；浏览器片段只记录已接收数据，不启动动作。
 
-选低空卡片再点一键设备，使用已有独立定位/EV 入口；不自动启动相机、视觉、规划、任务管理器或舵机。低空卡片的配置检查和 preview 都是原入口离线 preview。常规任务的 preview 可能启动地面应用链，先用独立配置检查。
+日志录制/索引/取回只在用户点击后调用现有脚本，下载失败或超时丢弃部分文件，没有断点续传。READY 是应用状态，飞手仍须依现场流程解锁/切 OFFBOARD/接管；保留低空观察收尾保护、舵机独立确认和 probe watchdog 边界。
 
-网页连接设置需核对 SSH 地址、用户名、端口、板端部署根和环境脚本。默认值来自现有现场工程，换飞机/网络必须改成实际值。密码默认只在内存中；不要勾选“记住口令”后把个人状态目录发给他人。连通网络和 OpenSSH 主机指纹问题需按现场既有流程解决。
+## 包边界
 
-SSH 登录和 sudo 提权是独立认证。5a 的中文/英文 sudo 提示现在只在已确认启动的初始化会话中自动复用内存连接口令，每会话最多一次；其他终端/一次性检查不自动提供 sudo 口令。口令不同、未提供口令、自动应答关闭或回显未关闭时仍需人工处理，不修改 sudoers。5a `exit 0`只表示软件检查成功；5b须使用默认不输出的硬件服务版本，只检查并提供接口，不自动复位。已运行5b时禁止再次5a初始化，需按现场流程退出旧服务，本工具不会自动杀它。
+白名单打包：服务、SSH 适配、配置、网页、只读探针、启动脚本和 manifest。没有板端工程、模型、密码、私钥、个人状态或运行日志。manifest 标明源码 HEAD 和未提交文件；此包不是板端发布或实飞验收。
 
-5a 是一次性初始化：未执行灰色、执行中黄色、exit 0 绿色「初始化成功」、非零退出红色；未知结果不判成功。绿色仅表示软件初始化成功，不代表物理动作反馈。常驻 5b 退出仍灰色「已退出」。两次手动执行 5a 会产生两份正常日志。
-
-初始化状态显示修复可刷新网页生效，不需要重启服务/重连 SSH；更新 sudo 应答代码需要在现场正常收尾后另行重启本地服务，不能在设备会话运行时为了更新而断连。
-终端 tab 与一键启动进度中的 5a 灯使用同一状态 class；初始化成功不改变任务 READY 状态。密钥由 ssh-agent 管理时继续沿用；若出现密钥 passphrase 提示，应手工输入密钥口令，不自动复用 SSH 登录密码。
-
-飞行与舵机按钮仍要求原确认；READY 只表示应用链就绪。低空观察等到 `READY_FOR_MANUAL_ARM_AND_OFFBOARD` 后由飞手人工解锁并重新拨入 OFFBOARD，结束继续悬停，由飞手接管落地上锁。Ctrl+C 请求保持接管，必须等 `OBSERVATION_CLOSED` 后才全停/断连。观察页的“本地片段”只记录浏览器已收到的数据，不触发飞机动作。
-
-手动坐标/自动搜索路线使用现有 API，板端仍需具备对应生成器与版本；理想 FOV 覆盖不是实际避障覆盖或目标召回率。电机映射只对配置登记的目标有效，RC 输出不能当作电流或 RPM。
-
-## 包内容与限制
-
-- 服务、SSH 会话层、状态/板端接口、几何/航线工具、只读探针、现场 YAML、完整静态网页、电机接线 JSON。
-- Linux 与 Windows→WSL 启动脚本、依赖说明、本说明和 `manifest.json`。清单标明来源 HEAD 及未提交工作台文件；不是板端发布版本。
-- 不含密码、私钥、个人 profile、会话、日志、bag、视频、模型、飞行工程或舵机包。不要把此包覆盖到板端。
-
-已有板端部署必须具备当前专项入口、ROS 环境、消息/服务与生成器。启动本地网页不能安装或更新板端，也不能证明板端已实飞验收。日志下载支持二进制与密码SSH，失败/超时不返回部分文件；大bag会占用本地后端和浏览器内存，断流或超时可分文件重试，当前没有断点续传。探针仅对非人工退出退避恢复；stop_all、Ctrl+C、退出130不恢复，75提示锁冲突；“只重连probe”不重启设备常驻服务。日志和probe重连入口按后端snapshot capability显示，旧内存后端刷新新静态页时隐藏未支持操作。
-
-个人状态默认保存在 `~/.config/liftrace-flight-workbench/`，与解压目录分开；不同用户的口令/记录不会从本包导入。本机已有 profile 可能覆盖包内默认地址，连接前应在页面核对。Linux 需要独立空状态可加 `--profile-dir /本机私有状态目录`；Windows 则用 `./start_windows.ps1 -ProfileDir /home/你的WSL用户名/workbench_state`，此参数填写 WSL 内路径。只监听 localhost；本包不提供群内公网访问链接。
+本轮 Windows 原生离线 UI/HTTP、解压启动及本机 SSH fixture 的验证结果见仓库 docs/verification/workbench_release_20261008/REPORT.md。未连接真实板端，未验收真实网络、ROS、舵机、飞行或大 bag 的现场传输。

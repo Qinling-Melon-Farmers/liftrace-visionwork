@@ -64,7 +64,7 @@ class DistributionTests(unittest.TestCase):
                         self.fail('Extracted service did not become ready')
                     self.assertEqual(snapshot['connection']['state'], 'unknown')
                     self.assertEqual(snapshot['sessions'], {})
-                    self.assertEqual(len(snapshot['groups']), 13)
+                    self.assertEqual(len(snapshot['groups']), 14)
                     observation = [g for g in snapshot['groups'] if g.get('channel') == 'low_observation']
                     self.assertEqual([g['profile'] for g in observation], ['hover', 'forward', 'square'])
                     for url in ('/', '/observe', '/motor', '/static/app.js', '/static/observe.js',

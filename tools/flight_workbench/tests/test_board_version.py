@@ -125,7 +125,7 @@ class BoardVersion(unittest.TestCase):
     def preflight(self,report=None,missing_settings=False,no_output=False):
         rows=['SITECFG=OK','DISK|4194304']
         rows+=['PROC|%s|0'%name for name in self.config['checks']['process_names']]
-        rows+=['GROUP|%s|start=1|real=1|settings=%s'%(g['folder'],'0' if missing_settings else '1') for g in self.config['groups']]
+        rows+=['GROUP|%s|start=1|real=1|settings=%s'%(g['folder'],'0' if missing_settings else '1') for g in self.config['groups'] if g.get('channel') != 'competition']
         if report is not None:rows.append('VERSION|'+json.dumps(report))
         with patch.object(self.board,'run',return_value=(1 if no_output else 0,'' if no_output else '\n'.join(rows))):
             return self.board.preflight()

@@ -182,11 +182,27 @@ class Session(object):
         self._open_log()
         self.state = "starting"
         self._emit_state()
-        self.child = pexpect.spawn(argv[0], argv[1:], encoding="utf-8",
-                                   codec_errors="replace", timeout=None,
-                                   env=self.env, dimensions=self.dimensions)
+        try:
+            if os.name == "nt":
+                from wb_native_ssh import ChannelChild
+                self.child = ChannelChild(self.target, self.command, self.dimensions)
+            else:
+                self.child = pexpect.spawn(argv[0], argv[1:], encoding="utf-8",
+                                           codec_errors="replace", timeout=None,
+                                           env=self.env, dimensions=self.dimensions)
+        except Exception:
+            self.state = "failed"
+            self.exit_code = 1
+            self.ended_at = time.time()
+            if self._log_handle:
+                self._log_handle.close()
+                self._log_handle = None
+            self._emit_state()
+            raise
         self._responder = PromptResponder(self.target, self.child,
                                           self.allow_sudo_password, self._note)
+        if os.name == "nt" and self.target.password:
+            self._responder.secrets.add(self.target.password)
         self.started_at = time.time()
         self.state = "running"
         self._emit_state()
@@ -444,6 +460,13 @@ class SessionManager(object):
 
 def run_once(target, command, timeout=30.0, log_prefix=None):
     """执行一次性远程命令，返回 (exit_code, 输出文本)。"""
+    if os.name == "nt":
+        from wb_native_ssh import run_bytes as native_run_bytes
+        code, output = native_run_bytes(target, command, timeout)
+        text = output.decode("utf-8", "replace")
+        if target.password:
+            text = text.replace(target.password, "[口令已隐藏]")
+        return code, text
     argv = target.remote_argv(command, force_tty=False)
     child = pexpect.spawn(argv[0], argv[1:], encoding="utf-8", codec_errors="replace",
                           timeout=timeout, env=dict(os.environ))
@@ -495,6 +518,9 @@ def run_bytes(target, command, timeout=60.0):
     supplies only SSH login answers from Target's in-memory/profile password.
     Unknown exit status, failure and timeout never return partial file bytes.
     """
+    if os.name == "nt":
+        from wb_native_ssh import run_bytes as native_run_bytes
+        return native_run_bytes(target, command, timeout)
     import socket
     import subprocess
     import sys
