@@ -108,8 +108,9 @@ def load_launch(seed, model, camera_dir):
     guards=[n for n in config.nodes if n.name=='drop_precision_camera_guard']
     if len(guards)!=1 or not guards[0].required:
         raise ValueError('Camera checker must be required')
-    if not os.access(D/'camera_guard.py',os.X_OK):
-        raise ValueError('Camera checker is not executable')
+    from roslib.packages import find_node
+    if not find_node(guards[0].package, guards[0].type):
+        raise ValueError('Camera checker cannot be resolved by actual ROS node lookup')
     result.update(seed=seed, scene=old_result['scene'], overlays=old_result['overlays'],
         frozen_scene_files=old_result['frozen_scene_files'], camera_contract=contract,
         actual_spawn_args=spawn[0].args, node_count=len(config.nodes),

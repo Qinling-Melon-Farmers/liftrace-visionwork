@@ -85,7 +85,7 @@
   <rosparam param="/drop_system/dynamic_slot_offsets">[[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]</rosparam>
   <param name="/navigation_vcl06_assertion/stop_on_collision" type="bool" value="false" />
   <param name="/navigation_mission_start_gate/start_service" value="/drop_precision_camera_guard/start_mission_checked" />
-  <node pkg="rospy" type="/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/drop_precision_ab_20261007/camera_guard.py" name="drop_precision_camera_guard" output="screen" required="true" launch-prefix="/usr/bin/python3">
+  <node pkg="uav_vision_eval" type="drop_research_camera_guard.py" name="drop_precision_camera_guard" output="screen" required="true" launch-prefix="/usr/bin/python3">
     <param name="contract" value="$(arg camera_contract)" />
     <param name="vehicle_sdf" value="$(arg vehicle_sdf)" />
     <param name="run_dir" value="$(optenv SIM_RUN_DIR)" />
