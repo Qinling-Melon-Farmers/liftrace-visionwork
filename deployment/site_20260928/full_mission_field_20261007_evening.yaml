@@ -1,0 +1,84 @@
+# Measured field 2026-10-07 evening: inner wall X=6.3, outer X=7.7.
+# Coordinates relative to takeoff FC: +X forward, +Y left.
+# Search right edge is Y=-2.4; H extends to Y=-3.45; tail bounds do not expand search.
+flight_area:
+  center_bounds:
+  - -0.35
+  - 7.45
+  - -3.75
+  - 2.7
+  target_bounds:
+  - -0.35
+  - 7.7
+  - -4.0
+  - 2.7
+  search_bounds:
+  - 0.4
+  - 5.8
+  - -2.4
+  - 2.7
+  staging_xy:
+  - 0.8
+  - 0.0
+  survey_xy:
+  - - 1.1
+    - -1.5
+  - - 5.0
+    - -1.5
+  - - 5.0
+    - 1.8
+  - - 1.1
+    - 1.8
+  - - 1.1
+    - -1.5
+  map_size:
+  - 18.0
+  - 12.0
+  - 4.0
+search_line_x:
+- 0.6
+- 1.2
+- 1.8
+- 2.4
+- 3.0
+- 3.6
+- 4.2
+- 4.8
+- 5.4
+compressed_image_topic: /camera/image_raw/compressed
+high_agl: 2.0
+max_agl: 2.3
+auto_start_after_arm: true
+initialization_timeout: 300.0
+obstacle_columns_enabled: true
+landing_xy:
+- 7.0
+- -3.45
+corridor_waypoints:
+- x: 5.5
+  y: 2.1
+  agl: 0.9
+- x: 7.0
+  y: 2.1
+  agl: 0.9
+- x: 7.0
+  y: 0.5
+  agl: 0.9
+- x: 7.0
+  y: -0.5
+  agl: 0.9
+- x: 7.0
+  y: -0.9
+  agl: 0.9
+- x: 7.0
+  y: -1.9
+  agl: 0.9
+- x: 7.0
+  y: -3.45
+  agl: 0.9
+corridor_geometry:
+  wall_axis: 1
+  wall_coordinates:
+  - 0.0
+  - -1.4
+  entry_waypoints: 1
