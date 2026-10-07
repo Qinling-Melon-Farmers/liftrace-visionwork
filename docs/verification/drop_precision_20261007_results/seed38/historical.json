@@ -1,0 +1,478 @@
+{
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/snake3_camera2m_snake3_seed38_20261005_101903",
+  "scene": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/snake3_camera2m_20261005/generated/snake3_38/snake3_seed38",
+  "raw_gate": "FAIL",
+  "reason": "manager_failed",
+  "failed_checks": [
+    "contract_errors_zero",
+    "land_success",
+    "manager_complete",
+    "mission_ros_within_limit",
+    "return_before_land"
+  ],
+  "truth_world_offset": [
+    0.0,
+    0.0,
+    0.22
+  ],
+  "offset_provenance": [
+    [
+      "/competition_key_recorder",
+      [
+        0.0,
+        0.0,
+        0.22
+      ]
+    ],
+    [
+      "/navigation_vcl06_assertion",
+      [
+        0.0,
+        0.0,
+        0.22
+      ]
+    ]
+  ],
+  "pose_gap_limit_s": 0.25,
+  "truth": [
+    {
+      "name": "random_tent",
+      "class_name": "tent",
+      "world_xy": [
+        4.9036,
+        -0.7098
+      ],
+      "yaw": -0.5105,
+      "half_side_m": 0.5,
+      "source": "recorded random_field_truth.yaml (rounded to 0.1 mm)",
+      "csv_xy": [
+        4.9036,
+        -0.7098
+      ]
+    },
+    {
+      "name": "random_pillbox",
+      "class_name": "pillbox",
+      "world_xy": [
+        4.6379,
+        -3.2991
+      ],
+      "yaw": -1.335,
+      "half_side_m": 0.5,
+      "source": "recorded random_field_truth.yaml (rounded to 0.1 mm)",
+      "csv_xy": [
+        4.6379,
+        -3.2991
+      ]
+    },
+    {
+      "name": "random_bridge",
+      "class_name": "bridge",
+      "world_xy": [
+        4.0325,
+        1.8622
+      ],
+      "yaw": -1.4837,
+      "half_side_m": 0.5,
+      "source": "recorded random_field_truth.yaml (rounded to 0.1 mm)",
+      "csv_xy": [
+        4.0325,
+        1.8622
+      ]
+    },
+    {
+      "name": "random_panzer",
+      "class_name": "panzer",
+      "world_xy": [
+        7.0512,
+        -4.1322
+      ],
+      "yaw": -0.4178,
+      "half_side_m": 0.5,
+      "source": "recorded random_field_truth.yaml (rounded to 0.1 mm)",
+      "csv_xy": [
+        7.0512,
+        -4.1322
+      ]
+    },
+    {
+      "name": "random_red_cross",
+      "class_name": "red_cross",
+      "world_xy": [
+        1.0449,
+        -0.4647
+      ],
+      "yaw": 1.1905,
+      "half_side_m": 0.175,
+      "source": "recorded random_field_truth.yaml (rounded to 0.1 mm)",
+      "csv_xy": [
+        1.0449,
+        -0.4647
+      ]
+    },
+    {
+      "name": "landing_h",
+      "class_name": "landing_pad",
+      "world_xy": [
+        0.0,
+        -0.0
+      ],
+      "yaw": -1.5707963267948966,
+      "half_side_m": 0.4,
+      "source": "frozen field.world H include pose",
+      "csv_xy": [
+        0.0,
+        -0.0
+      ]
+    },
+    {
+      "name": "landing_h_clone",
+      "class_name": "landing_pad",
+      "world_xy": [
+        8.75,
+        -4.2
+      ],
+      "yaw": 0.0,
+      "half_side_m": 0.4,
+      "source": "frozen field.world H include pose",
+      "csv_xy": [
+        8.75,
+        -4.2
+      ]
+    }
+  ],
+  "completed_transactions": 3,
+  "started_without_completed": [],
+  "duplicate_receipts": 0,
+  "other_release_receipts": [],
+  "drops": [
+    {
+      "identity": [
+        "legacy_run_local",
+        1,
+        1,
+        0,
+        "red_cross"
+      ],
+      "class_name": "red_cross",
+      "slot": 1,
+      "target_id": 0,
+      "raw_call_started": {
+        "status": "missing_event"
+      },
+      "completed": {
+        "source_ros_s": 85.834,
+        "receipt_ros_s": 85.834,
+        "receipt_minus_source_s": 0.0,
+        "pose": {
+          "status": "interpolated",
+          "xy": [
+            1.063473652825754,
+            -0.4635237746696026
+          ],
+          "bracket_gap_s": 0.10099999999999909,
+          "nearest_age_s": 0.03300000000000125,
+          "nearest_instance": "random_red_cross",
+          "nearest_class": "red_cross",
+          "nearest_error_m": 0.01861085933855583,
+          "label_matches": true,
+          "same_class_error_m": 0.01861085933855583,
+          "board_local_xy": [
+            0.007986648509265256,
+            -0.016810042561188288
+          ],
+          "inside_nominal_board": true
+        }
+      },
+      "raw_call_interval_s": null,
+      "legacy_ack_receipt_nearest": {
+        "t": 85.867,
+        "age_s": 0.03300000000000125,
+        "xy": [
+          1.064281733311512,
+          -0.46367157133636494
+        ],
+        "nearest_class": "red_cross",
+        "error_m": 0.019408999244545356,
+        "usable_age_le_025": true
+      }
+    },
+    {
+      "identity": [
+        "legacy_run_local",
+        2,
+        2,
+        1,
+        "bridge"
+      ],
+      "class_name": "bridge",
+      "slot": 2,
+      "target_id": 1,
+      "raw_call_started": {
+        "status": "missing_event"
+      },
+      "completed": {
+        "source_ros_s": 104.617,
+        "receipt_ros_s": 104.617,
+        "receipt_minus_source_s": 0.0,
+        "pose": {
+          "status": "interpolated",
+          "xy": [
+            3.9896334620943277,
+            1.7955205904152143
+          ],
+          "bracket_gap_s": 0.10099999999999909,
+          "nearest_age_s": 0.04800000000000182,
+          "nearest_instance": "random_bridge",
+          "nearest_class": "bridge",
+          "nearest_error_m": 0.07926968988581982,
+          "label_matches": true,
+          "same_class_error_m": 0.07926968988581982,
+          "board_local_xy": [
+            0.0626978625661817,
+            -0.048504244806266555
+          ],
+          "inside_nominal_board": true
+        }
+      },
+      "raw_call_interval_s": null,
+      "legacy_ack_receipt_nearest": {
+        "t": 104.569,
+        "age_s": 0.04800000000000182,
+        "xy": [
+          3.9914287606069876,
+          1.796769871561355
+        ],
+        "nearest_class": "bridge",
+        "error_m": 0.07725249777693738,
+        "usable_age_le_025": true
+      }
+    },
+    {
+      "identity": [
+        "legacy_run_local",
+        3,
+        3,
+        7,
+        "panzer"
+      ],
+      "class_name": "panzer",
+      "slot": 3,
+      "target_id": 7,
+      "raw_call_started": {
+        "status": "missing_event"
+      },
+      "completed": {
+        "source_ros_s": 298.914,
+        "receipt_ros_s": 298.914,
+        "receipt_minus_source_s": 0.0,
+        "pose": {
+          "status": "interpolated",
+          "xy": [
+            7.055260513715268,
+            -4.271865080055662
+          ],
+          "bracket_gap_s": 0.10099999999999909,
+          "nearest_age_s": 0.01599999999996271,
+          "nearest_instance": "random_panzer",
+          "nearest_class": "panzer",
+          "nearest_error_m": 0.13972409369391608,
+          "label_matches": true,
+          "same_class_error_m": 0.13972409369391608,
+          "board_local_xy": [
+            0.06038044388709238,
+            -0.12600406483357562
+          ],
+          "inside_nominal_board": true
+        }
+      },
+      "raw_call_interval_s": null,
+      "legacy_ack_receipt_nearest": {
+        "t": 298.898,
+        "age_s": 0.01599999999996271,
+        "xy": [
+          7.055532001980357,
+          -4.271952636932874
+        ],
+        "nearest_class": "panzer",
+        "error_m": 0.13981976173220131,
+        "usable_age_le_025": true
+      }
+    }
+  ],
+  "actual_collision_count": 0,
+  "support_events": [
+    {
+      "details": [
+        {
+          "info": "guard_xy_m=0.550000",
+          "max_depth_m": 9.830463054512871e-06,
+          "normals": [
+            [
+              -0.0,
+              0.0,
+              -1.0
+            ],
+            [
+              -0.0,
+              0.0,
+              -1.0
+            ],
+            [
+              -0.0,
+              0.0,
+              -1.0
+            ],
+            [
+              -0.0,
+              0.0,
+              -1.0
+            ]
+          ],
+          "pair": [
+            "landing_h::link::collision",
+            "iris_mid360::iris::base_link::competition_guard_collision"
+          ],
+          "positions": [
+            [
+              -0.2750000000003623,
+              -0.275000000001283,
+              0.004990169536945487
+            ],
+            [
+              -0.2749999999998948,
+              0.2749999999987166,
+              0.004990192132395049
+            ],
+            [
+              0.2750000000001045,
+              0.274999999998248,
+              0.0049902202240766766
+            ],
+            [
+              0.274999999999637,
+              -0.2750000000017516,
+              0.004990197628627115
+            ]
+          ],
+          "total_force_norm_n": 15.300054000000447
+        }
+      ],
+      "last_ros_stamp": 7.674,
+      "peak_sampled_force_n": 15.300054000000447,
+      "ros_stamp": 0.414
+    },
+    {
+      "details": [
+        {
+          "info": "guard_xy_m=0.500000",
+          "max_depth_m": 0.000266652495557291,
+          "normals": [
+            [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            [
+              -0.0,
+              -0.0,
+              -1.0
+            ]
+          ],
+          "pair": [
+            "landing_h_clone::link::collision",
+            "iris_mid360::iris::base_link::competition_guard_collision"
+          ],
+          "positions": [
+            [
+              8.510250355704086,
+              -4.51960178678549,
+              0.004733347504442709
+            ],
+            [
+              8.509420093952102,
+              -4.0196024811547755,
+              0.004804299788002526
+            ],
+            [
+              9.009419396957036,
+              -4.018772231843598,
+              0.004891939170893972
+            ],
+            [
+              9.01024965870902,
+              -4.518771537474312,
+              0.004820986887334157
+            ]
+          ],
+          "total_force_norm_n": 0.0
+        }
+      ],
+      "last_ros_stamp": 375.034,
+      "peak_sampled_force_n": 0.0,
+      "ros_stamp": 374.982
+    },
+    {
+      "details": [
+        {
+          "info": "guard_xy_m=0.500000",
+          "max_depth_m": 5.059559058329544e-06,
+          "normals": [
+            [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            [
+              -0.0,
+              -0.0,
+              -1.0
+            ],
+            [
+              -0.0,
+              -0.0,
+              -1.0
+            ]
+          ],
+          "pair": [
+            "landing_h_clone::link::collision",
+            "iris_mid360::iris::base_link::competition_guard_collision"
+          ],
+          "positions": [
+            [
+              8.50952304876894,
+              -4.517277819463169,
+              0.00499494044094167
+            ],
+            [
+              8.508728702220754,
+              -4.017278450450649,
+              0.004995742527203568
+            ],
+            [
+              9.009522417763987,
+              -4.516483472921841,
+              0.004999197919103816
+            ]
+          ],
+          "total_force_norm_n": 15.300092920707034
+        }
+      ],
+      "last_ros_stamp": 611.694,
+      "peak_sampled_force_n": 15.300092920707034,
+      "ros_stamp": 375.682
+    }
+  ],
+  "centers": {},
+  "note": "Body/model-origin XY center at mock execution/ACK. No physical detachment or parcel impact measurement; truth Pose ModelStates is stamped at recorder receipt."
+}

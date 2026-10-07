@@ -1,0 +1,858 @@
+{
+  "source_from_manifests": "66c36a9e6fab51c9e3cf942a9620fb11dfd70ccc",
+  "calibration_and_control_changed": true,
+  "promotion": "NOT_RECOMMENDED",
+  "cases": {
+    "31": {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/drop_precision_new_seed31_20261007_135022",
+      "source_start_ros_s": 11.602,
+      "raw_gate": "PASS",
+      "raw_gate_reason": "all_checks_passed",
+      "raw_gate_failed_checks": [],
+      "ack_count": 3,
+      "recoveries": 3,
+      "duplicate_receipts": 0,
+      "started_without_completed": [],
+      "other_release_receipts": [],
+      "actual_collision_episodes": 0,
+      "contact_groups": {},
+      "contact_events": [],
+      "peak_depth_mm": 0,
+      "peak_force_n": 0,
+      "longest_episode_s": 0,
+      "door_crossings": [
+        {
+          "lateral": 4.267786347795395,
+          "name": "corridor_entry",
+          "route_index": 2,
+          "z": 0.9835173943016294
+        },
+        {
+          "lateral": 9.078426888924488,
+          "name": "Wall_20",
+          "route_index": 3,
+          "z": 0.8817926614022605
+        },
+        {
+          "lateral": 9.066953695953917,
+          "name": "Wall_22",
+          "route_index": 3,
+          "z": 0.943747284569335
+        }
+      ],
+      "post_delivery_return_success_count": 4,
+      "physical_H_support": [
+        {
+          "details": [
+            {
+              "duration_sec": 0.021000000000015007,
+              "first_ros_stamp": 214.034,
+              "info": "guard_xy_m=0.500000",
+              "last_ros_stamp": 214.055,
+              "max_depth_m": 4.6191591531386054e-05,
+              "normals": [
+                [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ],
+                [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ]
+              ],
+              "pair": [
+                "iris_mid360::iris::base_link::competition_guard_collision",
+                "landing_h_clone::link::collision"
+              ],
+              "peak_depth_ros_stamp": 214.035,
+              "peak_force_ros_stamp": 214.034,
+              "positions": [
+                [
+                  8.531687344726945,
+                  -4.007040532867669,
+                  0.004953808408468614
+                ],
+                [
+                  9.031686630475788,
+                  -4.006196621874227,
+                  0.0049992493922854375
+                ]
+              ],
+              "sample_count": 3,
+              "total_force_norm_n": 172.30847263859403
+            }
+          ],
+          "duration_sec": 0.021000000000015007,
+          "ended_ros_stamp": 214.095,
+          "last_ros_stamp": 214.055,
+          "pairs": [
+            [
+              "iris_mid360::iris::base_link::competition_guard_collision",
+              "landing_h_clone::link::collision"
+            ]
+          ],
+          "peak_sampled_depth_m": 4.6191591531386054e-05,
+          "peak_sampled_force_n": 172.30847263859403,
+          "ros_stamp": 214.034,
+          "sample_count": 3,
+          "sequence": 2
+        },
+        {
+          "details": [
+            {
+              "duration_sec": 5.2239999999999895,
+              "first_ros_stamp": 214.751,
+              "info": "guard_xy_m=0.500000",
+              "last_ros_stamp": 219.975,
+              "max_depth_m": 1.5803090597068907e-05,
+              "normals": [
+                [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ],
+                [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ]
+              ],
+              "pair": [
+                "iris_mid360::iris::base_link::competition_guard_collision",
+                "landing_h_clone::link::collision"
+              ],
+              "peak_depth_ros_stamp": 214.815,
+              "peak_force_ros_stamp": 219.935,
+              "positions": [
+                [
+                  8.532380511367275,
+                  -3.9949763314097675,
+                  0.004984196909402931
+                ],
+                [
+                  9.03238014842888,
+                  -3.994373910884274,
+                  0.0049894671220493065
+                ]
+              ],
+              "sample_count": 263,
+              "total_force_norm_n": 15.300053999999932
+            }
+          ],
+          "duration_sec": 5.2239999999999895,
+          "last_ros_stamp": 219.975,
+          "pairs": [
+            [
+              "iris_mid360::iris::base_link::competition_guard_collision",
+              "landing_h_clone::link::collision"
+            ]
+          ],
+          "peak_sampled_depth_m": 1.5803090597068907e-05,
+          "peak_sampled_force_n": 15.300053999999932,
+          "ros_stamp": 214.751,
+          "sample_count": 263,
+          "sequence": 3
+        }
+      ],
+      "final_state": {
+        "ros_sec": 219.741,
+        "kind": "state",
+        "data": {
+          "header": {
+            "seq": 219,
+            "stamp": {
+              "stamp_ns": 219741000000
+            },
+            "frame_id": ""
+          },
+          "connected": true,
+          "armed": false,
+          "guided": false,
+          "manual_input": false,
+          "mode": "OFFBOARD",
+          "system_status": 3
+        }
+      },
+      "final_extended_state": {
+        "ros_sec": 217.536,
+        "kind": "extended_state",
+        "data": {
+          "header": {
+            "seq": 1083,
+            "stamp": {
+              "stamp_ns": 217536000000
+            },
+            "frame_id": ""
+          },
+          "vtol_state": 0,
+          "landed_state": 1
+        }
+      },
+      "final_mission": {
+        "ros_sec": 218.602,
+        "kind": "mission",
+        "data": {
+          "active_command": "",
+          "active_decision_seq": 0,
+          "committed_slots": 3,
+          "following_lead_m": 0.15,
+          "last_reason": "mission_complete",
+          "manual_start_required": true,
+          "mission_failed": false,
+          "mission_id": "vcl06-random-11-602000000-1",
+          "phase": "COMPLETE",
+          "post_delivery_route_complete": true,
+          "post_delivery_route_index": 4,
+          "post_delivery_route_revision": "route-speed-snake3",
+          "post_delivery_route_size": 4,
+          "profile": "r2026",
+          "route_active_decision_seq": 0,
+          "route_complete": true,
+          "route_index": 1,
+          "slot_status": [
+            "COMMITTED",
+            "COMMITTED",
+            "COMMITTED"
+          ],
+          "speed_phase": "TERMINAL",
+          "speed_transitions": [
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 11.648
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 0.2,
+              "phase": "BOUNDARY_REVISIT",
+              "t": 71.213
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 129.416
+            },
+            {
+              "command": "APPROACH",
+              "completed_waypoints": 0,
+              "lead_m": 0.4,
+              "phase": "PRECISION",
+              "t": 134.122
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "TRANSIT_TO_CORRIDOR",
+              "t": 142.267
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 1,
+              "lead_m": 0.4,
+              "phase": "CORRIDOR_OPEN",
+              "t": 153.674
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 2,
+              "lead_m": 0.15,
+              "phase": "DOOR",
+              "t": 167.635
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 2,
+              "lead_m": 0.4,
+              "phase": "CORRIDOR_OPEN",
+              "t": 179.428
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 2,
+              "lead_m": 0.15,
+              "phase": "DOOR",
+              "t": 184.52
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 3,
+              "lead_m": 0.4,
+              "phase": "CORRIDOR_OPEN",
+              "t": 199.917
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 3,
+              "lead_m": 0.15,
+              "phase": "H_APPROACH",
+              "t": 203.327
+            },
+            {
+              "command": "LAND",
+              "completed_waypoints": 4,
+              "lead_m": 0.15,
+              "phase": "TERMINAL",
+              "t": 208.574
+            }
+          ],
+          "start_mode": "full"
+        }
+      },
+      "source_ack_mean_cm": 6.774539504586757,
+      "historical_source_ack_mean_cm": 6.591995867453896,
+      "cleanup": {
+        "wrapper_original": "PASS",
+        "wrapper_original_lines": [
+          "SITL cleanup verification: PASS (no local ROS/Gazebo/PX4/RViz process remains)"
+        ],
+        "final_zero_residual": true,
+        "attempts": [
+          {
+            "script": "check_sim_processes.sh",
+            "exit_code": 0,
+            "output": "No local ROS/Gazebo/PX4/RViz process remains.\n",
+            "wall": 1791353199.7856674
+          }
+        ],
+        "note": "Original wrapper FAIL is preserved; later zero check is supplementary, never relabeled as original PASS."
+      }
+    },
+    "38": {
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/drop_precision_new_seed38_20261007_140702",
+      "source_start_ros_s": 11.823999999,
+      "raw_gate": "FAIL",
+      "raw_gate_reason": "actual_collision",
+      "raw_gate_failed_checks": [
+        "contact_ready_zero",
+        "contract_errors_zero",
+        "final_landed_on_ground",
+        "final_vehicle_disarmed",
+        "land_success",
+        "manager_complete",
+        "mission_ros_within_limit",
+        "return_before_land",
+        "zero_collisions"
+      ],
+      "ack_count": 3,
+      "recoveries": 3,
+      "duplicate_receipts": 0,
+      "started_without_completed": [],
+      "other_release_receipts": [],
+      "actual_collision_episodes": 11,
+      "contact_groups": {
+        "toudi2::juniper_Tree_1::link::collision": {
+          "episodes": 2,
+          "duration_sum_s": 0.02600000000001046,
+          "max_depth_mm": 0.387796397921589,
+          "max_force_n": 0.43788860061820717
+        },
+        "toudi2::Wall_22_north::Wall_22_north_collision": {
+          "episodes": 2,
+          "duration_sum_s": 2.6149999999999523,
+          "max_depth_mm": 1.0240936708285042,
+          "max_force_n": 3.747127724761944
+        },
+        "toudi2::Wall_9::Wall_9_collision": {
+          "episodes": 7,
+          "duration_sum_s": 4.033999999999992,
+          "max_depth_mm": 0.2339331585935571,
+          "max_force_n": 5.8494681454040744
+        }
+      },
+      "contact_events": [
+        {
+          "sequence": 1,
+          "start_ros_s": 285.473,
+          "duration_s": 0.012000000000000455,
+          "partners": [
+            "toudi2::juniper_Tree_1::link::collision"
+          ],
+          "peak_depth_mm": 0.12090612347891265,
+          "peak_force_n": 0.0
+        },
+        {
+          "sequence": 2,
+          "start_ros_s": 285.55,
+          "duration_s": 0.014000000000010004,
+          "partners": [
+            "toudi2::juniper_Tree_1::link::collision"
+          ],
+          "peak_depth_mm": 0.387796397921589,
+          "peak_force_n": 0.43788860061820717
+        },
+        {
+          "sequence": 3,
+          "start_ros_s": 329.588,
+          "duration_s": 2.016999999999996,
+          "partners": [
+            "toudi2::Wall_22_north::Wall_22_north_collision"
+          ],
+          "peak_depth_mm": 1.0090284764024322,
+          "peak_force_n": 3.747127724761944
+        },
+        {
+          "sequence": 4,
+          "start_ros_s": 335.446,
+          "duration_s": 0.5979999999999563,
+          "partners": [
+            "toudi2::Wall_22_north::Wall_22_north_collision"
+          ],
+          "peak_depth_mm": 1.0240936708285042,
+          "peak_force_n": 0.6456418288823345
+        },
+        {
+          "sequence": 5,
+          "start_ros_s": 337.389,
+          "duration_s": 0.1349999999999909,
+          "partners": [
+            "toudi2::Wall_9::Wall_9_collision"
+          ],
+          "peak_depth_mm": 0.2339331585935571,
+          "peak_force_n": 0.5694457399352078
+        },
+        {
+          "sequence": 6,
+          "start_ros_s": 337.569,
+          "duration_s": 1.474999999999966,
+          "partners": [
+            "toudi2::Wall_9::Wall_9_collision"
+          ],
+          "peak_depth_mm": 0.04012211767481441,
+          "peak_force_n": 5.8494681454040744
+        },
+        {
+          "sequence": 7,
+          "start_ros_s": 339.136,
+          "duration_s": 0.1490000000000009,
+          "partners": [
+            "toudi2::Wall_9::Wall_9_collision"
+          ],
+          "peak_depth_mm": 0.016114068058844383,
+          "peak_force_n": 1.6392767969017792
+        },
+        {
+          "sequence": 8,
+          "start_ros_s": 339.527,
+          "duration_s": 0.023000000000024556,
+          "partners": [
+            "toudi2::Wall_9::Wall_9_collision"
+          ],
+          "peak_depth_mm": 0.0029267846581131074,
+          "peak_force_n": 0.0
+        },
+        {
+          "sequence": 9,
+          "start_ros_s": 340.493,
+          "duration_s": 0.0,
+          "partners": [
+            "toudi2::Wall_9::Wall_9_collision"
+          ],
+          "peak_depth_mm": 0.004937714580082603,
+          "peak_force_n": 0.0
+        },
+        {
+          "sequence": 10,
+          "start_ros_s": 340.546,
+          "duration_s": 2.2379999999999995,
+          "partners": [
+            "toudi2::Wall_9::Wall_9_collision"
+          ],
+          "peak_depth_mm": 0.03126131141455851,
+          "peak_force_n": 1.3841207102491837
+        },
+        {
+          "sequence": 11,
+          "start_ros_s": 342.93,
+          "duration_s": 0.014000000000010004,
+          "partners": [
+            "toudi2::Wall_9::Wall_9_collision"
+          ],
+          "peak_depth_mm": 0.015569728829885332,
+          "peak_force_n": 0.0
+        }
+      ],
+      "peak_depth_mm": 1.0240936708285042,
+      "peak_force_n": 5.8494681454040744,
+      "longest_episode_s": 2.2379999999999995,
+      "door_crossings": [
+        {
+          "lateral": 4.211892481609493,
+          "name": "corridor_entry",
+          "route_index": 2,
+          "z": 0.9482693060717314
+        },
+        {
+          "lateral": 8.415196404095491,
+          "name": "Wall_20",
+          "route_index": 3,
+          "z": 0.9480862969564802
+        },
+        {
+          "lateral": 9.014268297759573,
+          "name": "Wall_22",
+          "route_index": 3,
+          "z": 0.924687020679481
+        }
+      ],
+      "post_delivery_return_success_count": 4,
+      "physical_H_support": [
+        {
+          "details": [
+            {
+              "duration_sec": 7.983000000000004,
+              "first_ros_stamp": 362.082,
+              "info": "guard_xy_m=0.500000",
+              "last_ros_stamp": 370.065,
+              "max_depth_m": 8.146458072262565e-05,
+              "normals": [
+                [
+                  -0.0,
+                  -0.0,
+                  -1.0
+                ]
+              ],
+              "pair": [
+                "iris_mid360::iris::base_link::competition_guard_collision",
+                "landing_h_clone::link::collision"
+              ],
+              "peak_depth_ros_stamp": 362.082,
+              "peak_force_ros_stamp": 362.144,
+              "positions": [
+                [
+                  8.516634418505156,
+                  -4.504242999475428,
+                  0.004918535419277375
+                ]
+              ],
+              "sample_count": 401,
+              "total_force_norm_n": 29.90559539612264
+            }
+          ],
+          "duration_sec": 7.983000000000004,
+          "last_ros_stamp": 370.065,
+          "pairs": [
+            [
+              "iris_mid360::iris::base_link::competition_guard_collision",
+              "landing_h_clone::link::collision"
+            ]
+          ],
+          "peak_sampled_depth_m": 8.146458072262565e-05,
+          "peak_sampled_force_n": 29.90559539612264,
+          "ros_stamp": 362.082,
+          "sample_count": 401,
+          "sequence": 2
+        }
+      ],
+      "final_state": {
+        "ros_sec": 361.933,
+        "kind": "state",
+        "data": {
+          "header": {
+            "seq": 361,
+            "stamp": {
+              "stamp_ns": 361939000000
+            },
+            "frame_id": ""
+          },
+          "connected": true,
+          "armed": true,
+          "guided": true,
+          "manual_input": false,
+          "mode": "AUTO.LAND",
+          "system_status": 4
+        }
+      },
+      "final_extended_state": {
+        "ros_sec": 361.543,
+        "kind": "extended_state",
+        "data": {
+          "header": {
+            "seq": 1802,
+            "stamp": {
+              "stamp_ns": 361542000000
+            },
+            "frame_id": ""
+          },
+          "vtol_state": 0,
+          "landed_state": 4
+        }
+      },
+      "final_mission": {
+        "ros_sec": 369.821,
+        "kind": "mission",
+        "data": {
+          "active_command": "ABORT",
+          "active_decision_seq": 31,
+          "committed_slots": 3,
+          "following_lead_m": 0.15,
+          "last_reason": "probe_pose_exception:ValueError",
+          "manual_start_required": true,
+          "mission_failed": true,
+          "mission_id": "vcl06-random-11-824000000-1",
+          "phase": "ABORTED",
+          "post_delivery_route_complete": true,
+          "post_delivery_route_index": 4,
+          "post_delivery_route_revision": "route-speed-snake3",
+          "post_delivery_route_size": 4,
+          "profile": "r2026",
+          "route_active_decision_seq": 0,
+          "route_complete": false,
+          "route_index": 11,
+          "slot_status": [
+            "COMMITTED",
+            "COMMITTED",
+            "COMMITTED"
+          ],
+          "speed_phase": "TERMINAL",
+          "speed_transitions": [
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 11.877
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 0.2,
+              "phase": "BOUNDARY_REVISIT",
+              "t": 58.34
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 66.659
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 0.2,
+              "phase": "BOUNDARY_REVISIT",
+              "t": 70.563
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 90.541
+            },
+            {
+              "command": "APPROACH",
+              "completed_waypoints": 0,
+              "lead_m": 0.4,
+              "phase": "PRECISION",
+              "t": 95.778
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 102.517
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 0.2,
+              "phase": "BOUNDARY_REVISIT",
+              "t": 106.425
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 110.518
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 0.2,
+              "phase": "BOUNDARY_REVISIT",
+              "t": 118.026
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 125.935
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 0.2,
+              "phase": "BOUNDARY_REVISIT",
+              "t": 133.728
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 0.2,
+              "phase": "BOUNDARY_REVISIT",
+              "t": 136.761
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 142.744
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 0.2,
+              "phase": "BOUNDARY_REVISIT",
+              "t": 150.07
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 158.291
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 0.2,
+              "phase": "BOUNDARY_REVISIT",
+              "t": 159.266
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 166.54
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 0.2,
+              "phase": "BOUNDARY_REVISIT",
+              "t": 171.729
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 181.233
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 0.2,
+              "phase": "BOUNDARY_REVISIT",
+              "t": 189.264
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "CRUISE",
+              "t": 218.264
+            },
+            {
+              "command": "SEARCH",
+              "completed_waypoints": 0,
+              "lead_m": 0.2,
+              "phase": "BOUNDARY_REVISIT",
+              "t": 223.176
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 0,
+              "lead_m": 1.0,
+              "phase": "TRANSIT_TO_CORRIDOR",
+              "t": 278.024
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 1,
+              "lead_m": 0.4,
+              "phase": "CORRIDOR_OPEN",
+              "t": 294.548
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 2,
+              "lead_m": 0.15,
+              "phase": "DOOR",
+              "t": 308.336
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 2,
+              "lead_m": 0.4,
+              "phase": "CORRIDOR_OPEN",
+              "t": 321.752
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 2,
+              "lead_m": 0.15,
+              "phase": "DOOR",
+              "t": 327.056
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 3,
+              "lead_m": 0.4,
+              "phase": "CORRIDOR_OPEN",
+              "t": 349.841
+            },
+            {
+              "command": "RETURN_HOME",
+              "completed_waypoints": 3,
+              "lead_m": 0.15,
+              "phase": "H_APPROACH",
+              "t": 352.656
+            },
+            {
+              "command": "LAND",
+              "completed_waypoints": 4,
+              "lead_m": 0.15,
+              "phase": "TERMINAL",
+              "t": 357.424
+            }
+          ],
+          "start_mode": "full"
+        }
+      },
+      "source_ack_mean_cm": 4.094768764777442,
+      "historical_source_ack_mean_cm": 7.920154763943057,
+      "cleanup": {
+        "wrapper_original": "PASS",
+        "wrapper_original_lines": [
+          "SITL cleanup verification: PASS (no local ROS/Gazebo/PX4/RViz process remains)"
+        ],
+        "final_zero_residual": true,
+        "attempts": [
+          {
+            "script": "check_sim_processes.sh",
+            "exit_code": 0,
+            "output": "No local ROS/Gazebo/PX4/RViz process remains.\n",
+            "wall": 1791354991.751893
+          }
+        ],
+        "note": "Original wrapper FAIL is preserved; later zero check is supplementary, never relabeled as original PASS."
+      },
+      "post_touchdown_software_exception_delay_s": 7.739000000000033
+    }
+  }
+}

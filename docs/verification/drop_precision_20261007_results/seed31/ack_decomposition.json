@@ -1,0 +1,414 @@
+[
+  {
+    "class_name": "red_cross",
+    "slot": 1,
+    "capture_source": 79.121,
+    "capture_receipt": 79.147,
+    "ack": 84.84,
+    "goal_xy": [
+      7.416583858487392,
+      -0.993716621204745
+    ],
+    "truth_xy": [
+      7.4413,
+      -0.9705
+    ],
+    "semantic_id": 8,
+    "geometry_id": 8,
+    "tolerance_m": 0.0569242462515831,
+    "poses": {
+      "fc_src": {
+        "xyz": [
+          7.3799214363098145,
+          -0.9803372845053673,
+          1.3180314525961876
+        ],
+        "bracket": [
+          79.095,
+          79.127
+        ],
+        "gap_s": 0.031999999999996476,
+        "nearest_age_s": 0.006000000000000227,
+        "endpoint_xy_span_m": 0.002363226751458113
+      },
+      "gt_src": {
+        "xyz": [
+          7.3714975182859845,
+          -0.9731272292067669,
+          1.3069585831585842
+        ],
+        "bracket": [
+          79.099,
+          79.207
+        ],
+        "gap_s": 0.10799999999998988,
+        "nearest_age_s": 0.02199999999999136,
+        "endpoint_xy_span_m": 0.008296610593653888
+      },
+      "fc_ack": {
+        "xyz": [
+          7.41912476675851,
+          -0.9466787270137242,
+          0.2852673726422434
+        ],
+        "bracket": [
+          84.827,
+          84.862
+        ],
+        "gap_s": 0.03499999999999659,
+        "nearest_age_s": 0.01300000000000523,
+        "endpoint_xy_span_m": 0.001076825800251136
+      },
+      "gt_ack": {
+        "xyz": [
+          7.446035306112113,
+          -0.9312590349729856,
+          0.29084107136670495
+        ],
+        "bracket": [
+          84.81,
+          84.911
+        ],
+        "gap_s": 0.10099999999999909,
+        "nearest_age_s": 0.030000000000001137,
+        "endpoint_xy_span_m": 0.004258839722607201
+      }
+    },
+    "vectors_m": {
+      "tracking": [
+        0.0025409082711176367,
+        0.04703789419102078
+      ],
+      "relative_projection": [
+        -0.033140059536437505,
+        -0.016006565906144576
+      ],
+      "localization_change": [
+        0.03533445737743257,
+        0.00820963674213826
+      ],
+      "source_bias": [
+        0.008423918023829913,
+        -0.007210055298600415
+      ],
+      "ack_bias": [
+        -0.026910539353602658,
+        -0.015419692040738675
+      ],
+      "raw_map_goal_error": [
+        -0.024716141512607592,
+        -0.02321662120474499
+      ],
+      "total": [
+        0.004735306112112703,
+        0.03924096502701446
+      ]
+    },
+    "norms_cm": {
+      "tracking": 4.710647200510669,
+      "relative_projection": 3.6803175110122934,
+      "localization_change": 3.6275639396094252,
+      "source_bias": 1.10881600043056,
+      "ack_bias": 3.1015222567845893,
+      "raw_map_goal_error": 3.39101629520688,
+      "total": 3.9525643071641277
+    },
+    "closure_m": [
+      0.0,
+      0.0
+    ],
+    "setpoint_match": {
+      "unique_float32_offset": true,
+      "samples": 44,
+      "direct_samples": 1,
+      "max_replay_residual_m": 0.003093360760520168,
+      "matched_within_1um": 43,
+      "unmatched_samples": [
+        {
+          "receipt": 83.672,
+          "residual_m": 0.003093360760520168
+        }
+      ],
+      "first_descent_sample": 79.215,
+      "lead_m": 0.20000000298023224,
+      "fc_receipt_window_s": [
+        -0.12,
+        0.002
+      ]
+    },
+    "note": "Capture identified from unique final command equality and descent limiter replay, not nearest observation. Geometry and semantic IDs differ by design."
+  },
+  {
+    "class_name": "bridge",
+    "slot": 2,
+    "capture_source": 113.71,
+    "capture_receipt": 113.791,
+    "ack": 119.216,
+    "goal_xy": [
+      5.052172103433972,
+      -3.6615406254597125
+    ],
+    "truth_xy": [
+      5.0953,
+      -3.6342
+    ],
+    "semantic_id": 6,
+    "geometry_id": 7,
+    "tolerance_m": 0.05773685872554779,
+    "poses": {
+      "fc_src": {
+        "xyz": [
+          5.059591016461773,
+          -3.709123234595022,
+          1.337203871819281
+        ],
+        "bracket": [
+          113.695,
+          113.726
+        ],
+        "gap_s": 0.03100000000000591,
+        "nearest_age_s": 0.015000000000000568,
+        "endpoint_xy_span_m": 0.0013628648520218735
+      },
+      "gt_src": {
+        "xyz": [
+          5.068293893812342,
+          -3.715025608473847,
+          1.3606586409178618
+        ],
+        "bracket": [
+          113.7,
+          113.802
+        ],
+        "gap_s": 0.10200000000000387,
+        "nearest_age_s": 0.009999999999990905,
+        "endpoint_xy_span_m": 0.004266653714573851
+      },
+      "fc_ack": {
+        "xyz": [
+          4.999258395164244,
+          -3.669000494864679,
+          0.2768873466599378
+        ],
+        "bracket": [
+          119.195,
+          119.226
+        ],
+        "gap_s": 0.03100000000000591,
+        "nearest_age_s": 0.010000000000005116,
+        "endpoint_xy_span_m": 0.0006060283725403945
+      },
+      "gt_ack": {
+        "xyz": [
+          4.994367766482843,
+          -3.679714448929471,
+          0.30609631903459755
+        ],
+        "bracket": [
+          119.194,
+          119.296
+        ],
+        "gap_s": 0.10200000000000387,
+        "nearest_age_s": 0.02199999999999136,
+        "endpoint_xy_span_m": 0.00266806788435434
+      }
+    },
+    "vectors_m": {
+      "tracking": [
+        -0.05291370826972841,
+        -0.007459869404966568
+      ],
+      "relative_projection": [
+        -0.034425019215458263,
+        -0.03324299933853769
+      ],
+      "localization_change": [
+        -0.013593506031970293,
+        -0.004811580185966946
+      ],
+      "source_bias": [
+        -0.008702877350569516,
+        0.005902373878825085
+      ],
+      "ack_bias": [
+        0.004890628681400777,
+        0.01071395406479203
+      ],
+      "raw_map_goal_error": [
+        -0.04312789656602778,
+        -0.02734062545971261
+      ],
+      "total": [
+        -0.10093223351715697,
+        -0.04551444892947121
+      ]
+    },
+    "norms_cm": {
+      "tracking": 5.34369738513801,
+      "relative_projection": 4.785581420273495,
+      "localization_change": 1.4419941405123755,
+      "source_bias": 1.0515611802671898,
+      "ack_bias": 1.177739617240643,
+      "raw_map_goal_error": 5.1063933091158145,
+      "total": 11.07198303110845
+    },
+    "closure_m": [
+      0.0,
+      0.0
+    ],
+    "setpoint_match": {
+      "unique_float32_offset": true,
+      "samples": 40,
+      "direct_samples": 1,
+      "max_replay_residual_m": 0.006169331289030531,
+      "matched_within_1um": 39,
+      "unmatched_samples": [
+        {
+          "receipt": 115.267,
+          "residual_m": 0.006169331289030531
+        }
+      ],
+      "first_descent_sample": 113.915,
+      "lead_m": 0.20000000298023224,
+      "fc_receipt_window_s": [
+        -0.12,
+        0.002
+      ]
+    },
+    "note": "Capture identified from unique final command equality and descent limiter replay, not nearest observation. Geometry and semantic IDs differ by design."
+  },
+  {
+    "class_name": "panzer",
+    "slot": 3,
+    "capture_source": 137.142,
+    "capture_receipt": 137.183,
+    "ack": 140.275,
+    "goal_xy": [
+      4.015879693067237,
+      -0.5353866280425947
+    ],
+    "truth_xy": [
+      4.0263,
+      -0.5225
+    ],
+    "semantic_id": 4,
+    "geometry_id": 5,
+    "tolerance_m": 0.06037917733192444,
+    "poses": {
+      "fc_src": {
+        "xyz": [
+          4.009893839699881,
+          -0.4794329915727887,
+          1.3997426543916973
+        ],
+        "bracket": [
+          137.12,
+          137.155
+        ],
+        "gap_s": 0.03499999999999659,
+        "nearest_age_s": 0.01300000000000523,
+        "endpoint_xy_span_m": 0.00043426987029864797
+      },
+      "gt_src": {
+        "xyz": [
+          4.001792896601562,
+          -0.4576794852851813,
+          1.4073957453870982
+        ],
+        "bracket": [
+          137.133,
+          137.236
+        ],
+        "gap_s": 0.10299999999998022,
+        "nearest_age_s": 0.00899999999998613,
+        "endpoint_xy_span_m": 0.0016982466302750494
+      },
+      "fc_ack": {
+        "xyz": [
+          4.0106641360691615,
+          -0.47735964144979226,
+          0.2837353450911375
+        ],
+        "bracket": [
+          140.259,
+          140.294
+        ],
+        "gap_s": 0.03500000000002501,
+        "nearest_age_s": 0.016000000000019554,
+        "endpoint_xy_span_m": 0.0011159960965538385
+      },
+      "gt_ack": {
+        "xyz": [
+          4.01027894790354,
+          -0.4719891949973971,
+          0.33950389171604334
+        ],
+        "bracket": [
+          140.21,
+          140.311
+        ],
+        "gap_s": 0.10099999999999909,
+        "nearest_age_s": 0.036000000000001364,
+        "endpoint_xy_span_m": 0.00399296845980602
+      }
+    },
+    "vectors_m": {
+      "tracking": [
+        -0.005215556998075854,
+        0.058026986592802476
+      ],
+      "relative_projection": [
+        -0.01852125003108185,
+        0.008866878245012588
+      ],
+      "localization_change": [
+        0.007715754932697827,
+        -0.01638305983521221
+      ],
+      "source_bias": [
+        0.008100943098319213,
+        -0.02175350628760736
+      ],
+      "ack_bias": [
+        0.00038518816562138625,
+        -0.00537044645239515
+      ],
+      "raw_map_goal_error": [
+        -0.010420306932762635,
+        -0.012886628042594772
+      ],
+      "total": [
+        -0.016021052096459876,
+        0.050510805002602854
+      ]
+    },
+    "norms_cm": {
+      "tracking": 5.826090634243047,
+      "relative_projection": 2.0534318409085968,
+      "localization_change": 1.8109045357102467,
+      "source_bias": 2.321293421537179,
+      "ack_bias": 0.5384242288472764,
+      "raw_map_goal_error": 1.6572506716884174,
+      "total": 5.2990711754876925
+    },
+    "closure_m": [
+      0.0,
+      0.0
+    ],
+    "setpoint_match": {
+      "unique_float32_offset": true,
+      "samples": 24,
+      "direct_samples": 5,
+      "max_replay_residual_m": 1.1102230246251565e-16,
+      "matched_within_1um": 24,
+      "unmatched_samples": [],
+      "first_descent_sample": 137.315,
+      "lead_m": 0.4000000059604645,
+      "fc_receipt_window_s": [
+        -0.12,
+        0.002
+      ]
+    },
+    "note": "Capture identified from unique final command equality and descent limiter replay, not nearest observation. Geometry and semantic IDs differ by design."
+  }
+]

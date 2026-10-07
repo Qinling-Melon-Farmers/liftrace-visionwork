@@ -1,0 +1,7 @@
+# Local bulk evidence; commit only explicitly selected compact reports/metrics.
+*.mp4
+*.jsonl
+*.png
+*.log
+*_draft.json
+__pycache__/

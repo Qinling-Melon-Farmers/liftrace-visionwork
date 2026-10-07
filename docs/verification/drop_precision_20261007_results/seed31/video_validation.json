@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "video": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/drop_precision_20261007_results/seed31/review_seed31_comparison.mp4",
+  "probe": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "r_frame_rate": "10/1",
+        "duration": "228.500000",
+        "nb_frames": "2285"
+      }
+    ]
+  },
+  "full_decode": "PASS",
+  "input_frame_counts": {
+    "follow": {
+      "csv_frames": 1543,
+      "video_frames": 1543
+    },
+    "overview": {
+      "csv_frames": 1544,
+      "video_frames": 1544
+    },
+    "downward": {
+      "csv_frames": 1815,
+      "video_frames": 1815
+    }
+  },
+  "visual_review": "ACK+0.3s red/bridge/panzer and final COMPLETE checked in local montage",
+  "source_clock_interval": [
+    1.275,
+    219.718
+  ],
+  "recorded_video_frames": 2205,
+  "comparison_slate_frames": 80,
+  "original_recorded_end_note": "Final shared image precedes disarm source stamp 219.741 by 23ms; disarm verified from event log, not invented video frames",
+  "threads": "Render nice15, OpenCV computation1, encoder2 initially; decoder pool restricted to two CPUs during render. Future adapter forces one decoder/encoder/BLAS thread. Validation encoder/decoder1.",
+  "historical_videos_reprocessed": false
+}

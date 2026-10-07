@@ -1,0 +1,51 @@
+{
+  "status": "PASS_WITH_SOURCE_VISIBILITY_LIMITATION",
+  "video": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/drop_precision_20261007_results/seed38/review_seed38_comparison.mp4",
+  "probe": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080,
+        "r_frame_rate": "10/1",
+        "duration": "380.800000",
+        "nb_frames": "3808"
+      }
+    ]
+  },
+  "full_decode": "PASS",
+  "input_frame_counts": {
+    "follow": {
+      "csv_frames": 2542,
+      "video_frames": 2542
+    },
+    "overview": {
+      "csv_frames": 2542,
+      "video_frames": 2542
+    },
+    "downward": {
+      "csv_frames": 3076,
+      "video_frames": 3076
+    }
+  },
+  "source_clock_interval": [
+    0.996,
+    369.746
+  ],
+  "recorded_video_frames": 3708,
+  "comparison_slate_frames": 100,
+  "abstract_frames": [
+    "red_cross ACK",
+    "bridge ACK",
+    "panzer ACK",
+    "Wall contact",
+    "H physical support",
+    "Last recorded frame"
+  ],
+  "final_evidence_note": "Video common end 369.746 precedes logged ABORT 369.821 by 75ms. Slate identifies later event as log evidence; no disarm invented.",
+  "threads": "Original render decoder1, encoder1, OpenCV1, BLAS1; final slate and decode at most4 threads after both SITL runs ended.",
+  "historical_videos_reprocessed": false,
+  "visual_review": "Completed: three ACK samples, wall contact, H support, last recorded frame, and comparison slate checked",
+  "source_visibility_limitation": "Original follow view largely obstructed by wall from third ACK into final phases. Contact and H support conclusions rely on logs/poses/contact data, not visual proof from the obstructed main panel."
+}

@@ -1,0 +1,135 @@
+{
+  "count": 11,
+  "groups": {
+    "toudi2::juniper_Tree_1::link::collision": {
+      "episodes": 2,
+      "duration_sum_s": 0.02600000000001046,
+      "max_depth_mm": 0.387796397921589,
+      "max_force_n": 0.43788860061820717
+    },
+    "toudi2::Wall_22_north::Wall_22_north_collision": {
+      "episodes": 2,
+      "duration_sum_s": 2.6149999999999523,
+      "max_depth_mm": 1.0240936708285042,
+      "max_force_n": 3.747127724761944
+    },
+    "toudi2::Wall_9::Wall_9_collision": {
+      "episodes": 7,
+      "duration_sum_s": 4.033999999999992,
+      "max_depth_mm": 0.2339331585935571,
+      "max_force_n": 5.8494681454040744
+    }
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "start_ros_s": 285.473,
+      "duration_s": 0.012000000000000455,
+      "partners": [
+        "toudi2::juniper_Tree_1::link::collision"
+      ],
+      "peak_depth_mm": 0.12090612347891265,
+      "peak_force_n": 0.0
+    },
+    {
+      "sequence": 2,
+      "start_ros_s": 285.55,
+      "duration_s": 0.014000000000010004,
+      "partners": [
+        "toudi2::juniper_Tree_1::link::collision"
+      ],
+      "peak_depth_mm": 0.387796397921589,
+      "peak_force_n": 0.43788860061820717
+    },
+    {
+      "sequence": 3,
+      "start_ros_s": 329.588,
+      "duration_s": 2.016999999999996,
+      "partners": [
+        "toudi2::Wall_22_north::Wall_22_north_collision"
+      ],
+      "peak_depth_mm": 1.0090284764024322,
+      "peak_force_n": 3.747127724761944
+    },
+    {
+      "sequence": 4,
+      "start_ros_s": 335.446,
+      "duration_s": 0.5979999999999563,
+      "partners": [
+        "toudi2::Wall_22_north::Wall_22_north_collision"
+      ],
+      "peak_depth_mm": 1.0240936708285042,
+      "peak_force_n": 0.6456418288823345
+    },
+    {
+      "sequence": 5,
+      "start_ros_s": 337.389,
+      "duration_s": 0.1349999999999909,
+      "partners": [
+        "toudi2::Wall_9::Wall_9_collision"
+      ],
+      "peak_depth_mm": 0.2339331585935571,
+      "peak_force_n": 0.5694457399352078
+    },
+    {
+      "sequence": 6,
+      "start_ros_s": 337.569,
+      "duration_s": 1.474999999999966,
+      "partners": [
+        "toudi2::Wall_9::Wall_9_collision"
+      ],
+      "peak_depth_mm": 0.04012211767481441,
+      "peak_force_n": 5.8494681454040744
+    },
+    {
+      "sequence": 7,
+      "start_ros_s": 339.136,
+      "duration_s": 0.1490000000000009,
+      "partners": [
+        "toudi2::Wall_9::Wall_9_collision"
+      ],
+      "peak_depth_mm": 0.016114068058844383,
+      "peak_force_n": 1.6392767969017792
+    },
+    {
+      "sequence": 8,
+      "start_ros_s": 339.527,
+      "duration_s": 0.023000000000024556,
+      "partners": [
+        "toudi2::Wall_9::Wall_9_collision"
+      ],
+      "peak_depth_mm": 0.0029267846581131074,
+      "peak_force_n": 0.0
+    },
+    {
+      "sequence": 9,
+      "start_ros_s": 340.493,
+      "duration_s": 0.0,
+      "partners": [
+        "toudi2::Wall_9::Wall_9_collision"
+      ],
+      "peak_depth_mm": 0.004937714580082603,
+      "peak_force_n": 0.0
+    },
+    {
+      "sequence": 10,
+      "start_ros_s": 340.546,
+      "duration_s": 2.2379999999999995,
+      "partners": [
+        "toudi2::Wall_9::Wall_9_collision"
+      ],
+      "peak_depth_mm": 0.03126131141455851,
+      "peak_force_n": 1.3841207102491837
+    },
+    {
+      "sequence": 11,
+      "start_ros_s": 342.93,
+      "duration_s": 0.014000000000010004,
+      "partners": [
+        "toudi2::Wall_9::Wall_9_collision"
+      ],
+      "peak_depth_mm": 0.015569728829885332,
+      "peak_force_n": 0.0
+    }
+  ]
+}
