@@ -18,7 +18,7 @@
 
 ## 部署状态与边界
 
-现场上限配置已写入192.168.43.59的0928目录，控制源码已传输。板端编译前的连接/未解锁检查未通过，随后网络中断；截至本记录，新的 ARM 可执行程序尚未生成，不能宣称运行补丁已生效。板端原包和原二进制保存在 `legacy_baseline/20261007_height_hold_field/`；本地快照在 `legacy_baseline/20261007_height_hold/`。
+现场上限配置及控制源码已写入192.168.43.59的0928目录。恢复网络、确认连接正常且未解锁后，板端 patrol_control 增量编译成功（ARM aarch64），已在实际 devel/lib/patrol_control/patrol_control 核实新增限高诊断字符串。编译日志：logs/height_margin_20261007/control_build.log。随后按用户要求停止所有工程运行节点；三路PWM enable均为0，未自动重启任务。新启动任务将加载补丁。板端原包和原二进制保存在 `legacy_baseline/20261007_height_hold_field/`；本地快照在 `legacy_baseline/20261007_height_hold/`。
 
 重新启动08任务会重新读取现场配置；无需为此次配置变更重启舵机、相机或雷达设备节点。控制补丁必须完成板端编译，并由新启动的任务加载后才生效。
 
