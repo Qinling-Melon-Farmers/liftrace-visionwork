@@ -1,6 +1,6 @@
 # 2026-10-08 三槽补偿与 H 停稳增量适配准备记录
 
-当前状态：F95ce 最终时序与 F5f117e18 高位高度分离均已适配，生产生成器/入口定向离线测试通过；本分支按授权提交并推远端，标注“待动态验收，未部署板端”。动态仍进行，不构成可飞/可投递验收。
+当前状态：已在原稳定分支适配基础上同步F33a521a8的H视觉/运动并行计数与DYNAMIC_FULL；本轮入口离线检查通过。状态为“待动态验收，未部署板端”：5f任务COMPLETE但碰撞GateFAIL，最新H33a仍待末报告。
 
 ## 来源与归属
 
@@ -97,3 +97,10 @@ F073 的实际文件清单含 deployment/board_trials_4x4/common/uav_board_trial
 主反馈 F5f buildPASS、control catkin125PASS。H040634已锁点并提出低位请求，但未观察到POSCTL模式而超时，另查仿真接线；F完整seed38正在进行。**待动态验收，未部署板端**，不记录H动态PASS，不把离线测试当作实投误差或比赛得分。
 
 本分支完成离线检查后按用户授权中文提交、正常推送必要远端；不操作main、不squash、不改写历史、不部署。
+
+
+## 后续收口：33a521a8 H视觉/运动并行累计
+
+新增独立记录[ADAPTATION_33a521a8.md](ADAPTATION_33a521a8.md)，本节与该记录给出当前状态，前述准备/发布过程保留历史含义。controller与两个H测试精确同步33a；视觉10图与运动0.5s并行计数，freeze仍需两项同时成立，阈值不变。DYNAMIC_FULL.md引用5f已完成的整场；不覆盖本枝共享REPORT。
+
+本轮本枝入口离线检查4 PASS；H运动测试收集10项、nose方法命名修复已同步，但本枝未执行C++用例/编译。F控制catkin135PASS和编译PASS为主反馈。5f full041818三投两门Hland上锁COMPLETE、413.573s，Gate因包络树0.144mm actual_collision仍FAIL；H045333真POSCTL模式交接成功；新H33a正在进行，未写最终H动态PASS。待动态验收，未部署板端。

@@ -1,0 +1,11 @@
+test_actual_generators_emit_feedback_motion_offsets_and_posctl (slot_entry_check.SlotHEntryWiring) ... ok
+test_controller_entries_load_generated_config_and_remap_motion_odom (slot_entry_check.SlotHEntryWiring) ... ok
+test_formal_visual_entries_enable_matching_feedback_and_cache (slot_entry_check.SlotHEntryWiring) ... ok
+test_high_capture_and_low_handoff_keep_independent_height_tolerances (slot_entry_check.SlotHEntryWiring) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.249s
+
+OK
+
+H motion test collection: 10; method names support nose discovery; C++ tests NOT executed locally.

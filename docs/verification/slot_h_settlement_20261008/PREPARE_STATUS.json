@@ -18,6 +18,8 @@
     "deployment/competition/field_20261007_validated.yaml",
     "docs/deployment/local_delivery_20261008/README.md",
     "docs/verification/slot_h_settlement_20261008/ADAPTATION.md",
+    "docs/verification/slot_h_settlement_20261008/ADAPTATION_33a521a8.md",
+    "docs/verification/slot_h_settlement_20261008/DYNAMIC_FULL.md",
     "docs/verification/slot_h_settlement_20261008/PREPARE_STATUS.json",
     "docs/verification/slot_h_settlement_20261008/SOURCE_5f117e18_REPORT.md",
     "docs/verification/slot_h_settlement_20261008/capture_height_5f117e18.patch",
@@ -26,6 +28,8 @@
     "docs/verification/slot_h_settlement_20261008/competition_preview/field_20261007_validated_fixture_control.yaml",
     "docs/verification/slot_h_settlement_20261008/competition_preview/rectangle_motion_fixture_control.yaml",
     "docs/verification/slot_h_settlement_20261008/competition_preview/snake_motion_fixture_control.yaml",
+    "docs/verification/slot_h_settlement_20261008/entry_33a521a8_status.json",
+    "docs/verification/slot_h_settlement_20261008/entry_33a521a8_tests.txt",
     "docs/verification/slot_h_settlement_20261008/generator_entry_test_status.json",
     "docs/verification/slot_h_settlement_20261008/generator_entry_tests.txt",
     "docs/verification/slot_h_settlement_20261008/offline_preview/03_h_landing/fc_z_0.0/auto_land.yaml",
@@ -194,7 +198,7 @@
   "source": "073c8f19d7b7a2aa6b88bc536e990af59523c4d4",
   "additional_source": "dbd6e3e2fafb7a9c00854a3bd38efa6a32d516a6",
   "legacy_baseline": "legacy_baseline/20261008/drop_slot_h_handoff",
-  "timing_followup": "FINAL_95CE182E_PLUS_5F117E18_SYNCED",
+  "timing_followup": "33A_H_PARALLEL_COUNT_SYNCED; FINAL_DYNAMIC_PENDING",
   "report": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/docs/verification/slot_h_settlement_20261008/ADAPTATION.md",
   "competition_preview_count": 12,
   "trial_reference_preview_count": 9,
@@ -288,5 +292,58 @@
   "local_passed": 39,
   "publication": "Authorized feature-branch commit/push after local tests; dynamic gate still pending",
   "index_unchanged_at_prepare": true,
-  "head_at_prepare": "397d10d961470c51ccf317e832dc8c72e02cb933"
+  "head_at_prepare": "397d10d961470c51ccf317e832dc8c72e02cb933",
+  "latest_source_commit": "33a521a8d1c627e40cfce0b620683977af91521f",
+  "h_parallel_sync": {
+    "source_commit": "33a521a8d1c627e40cfce0b620683977af91521f",
+    "local_parent": "538eb310fc29dca5281953af0878c7292bfc0065",
+    "runtime_test_paths": [
+      "patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp",
+      "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_external_landing_handoff.py",
+      "patrol_uav_ws-patrol_planner/src/patrol_control/test/test_landing_motion_settlement.py"
+    ],
+    "source_file_equality": true,
+    "local_entry_validation": {
+      "source": "33a521a8d1c627e40cfce0b620683977af91521f",
+      "success": true,
+      "entry_tests_run": 4,
+      "entry_tests_passed": 4,
+      "errors": 0,
+      "failures": 0,
+      "h_motion_collection": 10,
+      "nose_method_names_valid": true,
+      "cpp_tests_executed": false,
+      "ros_started": false,
+      "cpp_compiled": false,
+      "dynamic_final_h": "IN_PROGRESS_MAIN; NOT_PASS"
+    },
+    "source_validation": "F control catkin 135 PASS and build PASS reported by main",
+    "dynamic_full": {
+      "version": "5f117e18",
+      "task_complete": true,
+      "duration_seconds": 413.573,
+      "gate": "FAIL",
+      "error": "actual_collision",
+      "envelope_tree_penetration_mm": 0.144
+    },
+    "h045333_mode_handoff": "POSCTL_OBSERVED_SUCCESS",
+    "final_h33a": "IN_PROGRESS; FINAL_REPORT_PENDING",
+    "board_deployed": false,
+    "shared_report_overwritten": false,
+    "record": "docs/verification/slot_h_settlement_20261008/ADAPTATION_33a521a8.md"
+  },
+  "local_entry_tests_current": {
+    "source": "33a521a8d1c627e40cfce0b620683977af91521f",
+    "success": true,
+    "entry_tests_run": 4,
+    "entry_tests_passed": 4,
+    "errors": 0,
+    "failures": 0,
+    "h_motion_collection": 10,
+    "nose_method_names_valid": true,
+    "cpp_tests_executed": false,
+    "ros_started": false,
+    "cpp_compiled": false,
+    "dynamic_final_h": "IN_PROGRESS_MAIN; NOT_PASS"
+  }
 }
