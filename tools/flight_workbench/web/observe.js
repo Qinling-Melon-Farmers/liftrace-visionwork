@@ -21,7 +21,7 @@ function obsValue(value, unit) { return value==null ? '未观测' : (typeof valu
 function obsTime(t) { return t ? new Date(t*1000).toLocaleString() : '未观测'; }
 function obsFresh(tel, now) {
   var at=tel && obsNumber(tel.at || tel.t);
-  return at!==null && now-at>=-1 && now-at<=2;
+  return at!==null && now-at>=-1 && now-at<=2 && (!tel.probe_link || tel.probe_link.usable===true);
 }
 function obsScope() { return JSON.stringify([observationState.connection.host||'',observationState.connection.board_root||'']); }
 function obsSetConnection(patch, replace) {
@@ -392,6 +392,7 @@ function obsEvent(message) {
   if(message.t==='hello' || message.t==='snapshot')obsSnapshot(message.snapshot||{});
   else if(message.t==='connection'){obsSetConnection(message.connection,false);obsRender();}
   else if(message.t==='telemetry'){obsIngest(message.telemetry,Date.now()/1000);obsRender();}
+  else if(message.t==='probe'){observationState.telemetry=message.telemetry||null;obsRender();}
   else if(message.t==='stage'){observationState.stage=message.stage||{};obsRender();}
   else if(message.t==='trial'){observationState.trial=message.trial||{};obsRender();}
   else if(message.t==='session' && message.s==='trial'){observationState.trialSession=message.session||{};obsRender();}

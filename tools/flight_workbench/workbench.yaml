@@ -21,6 +21,7 @@ connection:
   # 历史外场 SSH 地址（来源：现场操作手册/部署记录与项目 memoir）。界面下拉可选，
   # 选中后写回 ~/.config/liftrace-flight-workbench/profile.json，不改本文件。
   host_options:
+    - { host: "orangepi@10.75.120.193", label: "2026-10-07 · 新网络候选（保留当前连接）" }
     - { host: "orangepi@192.168.3.126", label: "外场当前 · Orange Pi 5（2026-10-03）" }
     - { host: "orangepi@192.168.43.59", label: "2026-10-02 · 28~30日旧机网络" }
     - { host: "orangepi@192.168.43.99", label: "2026-10-01 第五组实投" }
@@ -36,6 +37,22 @@ connection:
     - "ServerAliveCountMax=4"
     - "-o"
     - "LogLevel=ERROR"
+
+logging:
+  # 仅用户点击后调用现有工程脚本，不部署脚本、不启动设备/任务。
+  bag_script: deployment/low_hover_observation/record_diagnostics.py
+  bag_config: deployment/low_hover_observation/recording.yaml
+  routine_script: deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_bag.py
+  routine_settings:
+    image_topic: /camera/image_raw
+    compressed_image_topic: /camera/image_raw/compressed
+    camera_info_topic: /camera/camera_info
+    bag_image_topic: /board_trials/recording/image/compressed
+    bag_image_hz: 5.0
+    record_map_clouds: false
+    record_inflated_cloud: true
+  ulog_script: tools/flight_logs/fetch_px4_ulog.py
+  mavros_namespace: /mavros
 
 probe:
   # 板端只读探针：只订阅、只统计新鲜度，不发布任何指令、不调用服务、不改飞行状态。
@@ -166,7 +183,7 @@ terminals:
     seq: 5
     title: "5a · 舵机 PWM 初始化（不输出脉冲）"
     desc: "只在需要真实投递时启动。导出/周期/权限/极性，不使能输出。"
-    confirm: "初始化会修改PWM导出、权限和周期；确认旧舵机进程已经退出。真正的三槽复位发生在5b服务启动时。"
+    confirm: "初始化会修改PWM导出、权限和周期，不输出脉冲、不复位机构；确认旧舵机进程已经退出。"
     optional: true
     command: "sudo bash {pwm_init_script}"
     params:
@@ -175,10 +192,10 @@ terminals:
   - id: servo
     seq: 6
     title: "5b · 舵机服务（真实释放接口）"
-    desc: "启动时依次复位三槽，再把真实 pwm 节点重映射到 /legacy/Servo_raw；投递组启动前入口会检查该服务类型为 patrol_control/Servo。"
-    confirm: "启动会依次复位三槽。确认地面未解锁、机构允许复位、无人处于动作范围且旧舵机进程已退出。"
+    desc: "默认仅检查硬件并提供 /legacy/Servo_raw 服务，不自动复位、不输出启动脉冲；投递组启动前检查服务类型为 patrol_control/Servo。"
+    confirm: "确认使用默认启动不输出的舵机服务版本、旧舵机进程已退出且地面未解锁。此按钮只启动检查/服务，不授权机构复位或释放；复位需独立明确操作。"
     optional: true
-    command: "{pwm_node} /Servo:=/legacy/Servo_raw"
+    command: "{pwm_node} _initialize_on_startup:=false /Servo:=/legacy/Servo_raw"
     params:
       pwm_node: "{board_root}/patrol_uav_ws-patrol_planner/devel/lib/actuator_pwm/pwm_node1"
     ready: { kind: service, service: "/legacy/Servo_raw", timeout: 60 }

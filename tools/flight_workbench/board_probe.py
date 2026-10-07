@@ -13,12 +13,14 @@
     python3 board_probe.py --interval 1.0 --topics /mavros/state,/camera/image_raw
 """
 import argparse
+import fcntl
 import importlib
 import json
 import math
 import os
 import socket
 import sys
+import tempfile
 import time
 
 
@@ -63,6 +65,7 @@ def parse_args():
     parser.add_argument("--interval", type=float, default=1.0)
     parser.add_argument("--nodes-interval", type=float, default=5.0)
     parser.add_argument("--node-name", default="flight_workbench_probe")
+    parser.add_argument("--lock-path", default="", help="可配置的探针独占锁文件")
     parser.add_argument("--once", action="store_true", help="打印一行后退出（自检用）")
     return parser.parse_args()
 
@@ -105,14 +108,22 @@ def subscribe(rospy, topics, tracker, payloads, extractors, subscriptions=None):
         extractor = extractors.get(topic)
 
         def make_callback(name, extract):
+            last_error = [None]
             def callback(msg):
                 tracker.observe(name)
                 if extract is None:
                     return
                 try:
                     payloads[name] = extract(msg)
-                except Exception:
+                    last_error[0] = None
+                except Exception as error:
                     payloads[name] = None
+                    reason = "%s: %s" % (type(error).__name__, str(error)[:180])
+                    if reason != last_error[0]:
+                        sys.stderr.write("PROBE_PARSE_ERROR topic=%s type=%s reason=%s\n" %
+                                         (name, type(msg).__name__, reason))
+                        sys.stderr.flush()
+                        last_error[0] = reason
             return callback
 
         message_type = getattr(extractor, "msg_type", None) or rospy.AnyMsg
@@ -283,8 +294,35 @@ def json_safe(value):
     return value
 
 
+def reexec_probe(delay):
+    """Reset partial rospy initialization without restarting any device node.
+
+    The current executable and argv survive; the probe lock is released by its
+    close-on-exec descriptor and reacquired by main(). Ctrl+C interrupts the delay.
+    """
+    time.sleep(delay)
+    os.execv(sys.executable, [sys.executable] + sys.argv)
+
+
 def main():
     args = parse_args()
+    lock_path = args.lock_path or os.path.join(
+        tempfile.gettempdir(), args.node_name.replace('/', '_') + '.lock')
+    try:
+        probe_lock = open(lock_path, 'a')
+        try:
+            fcntl.flock(probe_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except Exception:
+            probe_lock.close()
+            raise
+    except OSError as error:
+        sys.stderr.write("PROBE_LOCK_UNAVAILABLE: %s\n" % error)
+        return 75  # Existing owner must not be replaced by a duplicate ROS node.
+    with probe_lock:
+        return run_probe(args)
+
+
+def run_probe(args):
     topics = [t for t in args.topics.split(",") if t.strip()]
     services = [s for s in args.services.split(",") if s.strip()]
     payloads = {}
@@ -413,15 +451,35 @@ def main():
     while not rospy.is_shutdown():
         if not started:
             try:
-                rospy.init_node(args.node_name, disable_signals=True, log_level=rospy.ERROR)
+                # This master read does not initialize rospy. Do not enter
+                # init_node's irreversible state while roscore is still absent.
+                import rosnode
+                rosnode.get_node_names()
+            except Exception as error:
+                emitter(False, {"error": "waiting for ROS master: %s" % str(error)[:200]})
+                if args.once:
+                    return 1
+                time.sleep(interval)
+                continue
+            try:
+                rospy.init_node(args.node_name, disable_signals=True, disable_rosout=True, log_level=rospy.ERROR)
                 subscribe(rospy, topics, tracker, payloads, extractors, subscriptions)
                 started = True
             except Exception as error:
-                emitter(False, {"error": "no ROS master: %s" % str(error)[:200]})
+                # rospy sets _init_node_args before initializing ROS time. Once
+                # an init fails, a same-argument retry may return false success.
+                # Re-exec just this probe instead of retrying in poisoned globals.
+                delay = max(2.0, interval)
+                emitter(False, {"error": "ROS initialization failed: %s" % str(error)[:200],
+                                "init_state": "failed" if args.once else "restarting",
+                                "restart_delay": None if args.once else delay})
                 if args.once:
                     return 1
-                time.sleep(2.0)
-                continue
+                try:
+                    reexec_probe(delay)
+                except OSError as restart_error:
+                    emitter(False, {"error": "probe re-exec failed: %s" % str(restart_error)[:200]})
+                return 1
         now = time.time()
         if now - node_read >= float(args.nodes_interval):
             node_read = now
@@ -458,4 +516,10 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        # Preserve an operator's Ctrl+C intent; only the workbench may reconnect.
+        sys.stderr.write("PROBE_STOPPED reason=keyboard_interrupt\n")
+        sys.stderr.flush()
+        sys.exit(130)

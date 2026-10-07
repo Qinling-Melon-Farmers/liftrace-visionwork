@@ -488,38 +488,99 @@ def run_once(target, command, timeout=30.0, log_prefix=None):
 
 
 def run_bytes(target, command, timeout=60.0):
-    """执行一次性远程命令并返回原始字节（下载产物用，不做编码转换）。"""
+    """Download through pipes, with SSH auth on a separate askpass channel.
+
+    Never use a PTY for binary stdout (it merges prompts/stderr and maps LF to
+    CRLF). The helper contains no credential: a bounded local Unix socket
+    supplies only SSH login answers from Target's in-memory/profile password.
+    Unknown exit status, failure and timeout never return partial file bytes.
+    """
+    import socket
+    import subprocess
+    import sys
+    import tempfile
+
     argv = target.remote_argv(command, force_tty=False)
-    child = pexpect.spawn(argv[0], argv[1:], encoding=None, timeout=timeout,
-                          env=dict(os.environ))
-    chunks = []
-    deadline = time.time() + float(timeout)
-    try:
-        while True:
-            try:
-                data = child.read_nonblocking(size=65536, timeout=1.0)
-            except pexpect.TIMEOUT:
-                if not child.isalive() or time.time() > deadline:
-                    break
-                continue
-            except pexpect.EOF:
-                break
-            if not data:
-                if not child.isalive():
-                    break
-                continue
-            chunks.append(data)
-    finally:
-        code = None
+    env = dict(os.environ)
+    env.pop("SSH_ASKPASS", None)
+    env["SSH_ASKPASS_REQUIRE"] = "never"
+    with tempfile.TemporaryDirectory(prefix="wb-auth-") as directory:
+        listener = None
+        worker = None
+        stop = threading.Event()
+        if target.transport == "ssh" and target.password and target.auto_password:
+            address = os.path.join(directory, "answer.sock")
+            listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            listener.bind(address)
+            os.chmod(address, 0o600)
+            listener.listen(1)
+            listener.settimeout(.2)
+
+            def answer():
+                attempts = 0
+                while not stop.is_set():
+                    try:
+                        connection, _ = listener.accept()
+                    except socket.timeout:
+                        continue
+                    except OSError:
+                        break
+                    with connection:
+                        connection.settimeout(1)
+                        try:
+                            prompt = connection.recv(4096).decode("utf-8", "replace")
+                            # No sudo, application passwords or private-key passphrases.
+                            if PROMPT_PATTERNS[1].search(prompt) and attempts < 3:
+                                attempts += 1
+                                connection.sendall(target.password.encode("utf-8"))
+                        except (OSError, UnicodeError):
+                            pass
+
+            helper = os.path.join(directory, "askpass")
+            with open(helper, "w", encoding="utf-8") as handle:
+                handle.write("#!%s\n" % sys.executable +
+                             "import os, socket, sys\n"
+                             "with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:\n"
+                             "    s.settimeout(2)\n"
+                             "    s.connect(os.environ['WB_ASKPASS_SOCKET'])\n"
+                             "    s.sendall(sys.argv[1].encode('utf-8'))\n"
+                             "    chunks = []\n"
+                             "    while True:\n"
+                             "        data = s.recv(4096)\n"
+                             "        if not data: break\n"
+                             "        chunks.append(data)\n"
+                             "    if not chunks: sys.exit(1)\n"
+                             "    sys.stdout.buffer.write(b''.join(chunks) + b'\\n')\n")
+            os.chmod(helper, 0o700)
+            env.update(SSH_ASKPASS=helper, SSH_ASKPASS_REQUIRE="force",
+                       DISPLAY=env.get("DISPLAY") or ":wb", WB_ASKPASS_SOCKET=address)
+            worker = threading.Thread(target=answer, daemon=True)
+            worker.start()
+        child = None
         try:
-            if child.isalive():
-                child.close(force=True)
-            code = child.exitstatus
-            if code is None and child.signalstatus is not None:
-                code = 128 + int(child.signalstatus)
-        except Exception:
-            code = None
-    return (0 if code is None else code), b"".join(chunks)
+            child = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE, env=env, start_new_session=True)
+            try:
+                output, errors = child.communicate(timeout=float(timeout))
+            except subprocess.TimeoutExpired:
+                child.kill()  # Only this download's local SSH process, no ROS nodes.
+                child.communicate()
+                return 124, b"Download timed out; incomplete data discarded"
+            code = child.returncode
+            if code == 0:
+                return 0, output
+            error = errors or b"Download failed; incomplete data discarded"
+            if target.password:
+                error = error.replace(target.password.encode("utf-8"), b"[redacted]")
+            return (code if code is not None else 1), error[-2000:]
+        except OSError:
+            return 1, b"Cannot start download transport"
+        finally:
+            stop.set()
+            if worker:
+                worker.join(timeout=2)
+            if listener:
+                listener.close()
 
 
 def quote(text):

@@ -68,7 +68,8 @@ class DistributionTests(unittest.TestCase):
                     observation = [g for g in snapshot['groups'] if g.get('channel') == 'low_observation']
                     self.assertEqual([g['profile'] for g in observation], ['hover', 'forward', 'square'])
                     for url in ('/', '/observe', '/motor', '/static/app.js', '/static/observe.js',
-                                '/static/style.css', '/static/observe.css', '/static/motor_wiring.json'):
+                                '/static/style.css', '/static/observe.css', '/static/motor_wiring.json',
+                                '/logs', '/static/logs.js', '/static/logs.css'):
                         with urllib.request.urlopen(base + url, timeout=2) as response:
                             self.assertEqual(response.status, 200)
                             self.assertTrue(response.read())

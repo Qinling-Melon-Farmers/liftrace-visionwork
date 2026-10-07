@@ -1,0 +1,424 @@
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -6,7 +6,7 @@
+ 
+ |槽号|位置|PWM与设备地址|初始/释放脉宽ns|
+ |---|---|---|---|
+-|1|后仓，现场Pin11标记|febf0020.pwm|700000 / 1700000|
++|1|后仓，现场Pin11标记|febf0020.pwm|1700000 / 700000（现场确认伸出锁止、缩回开仓）|
+ |2|右仓，现场Pin7标记|febf0030.pwm|1000000 / 2100000|
+ |3|左仓，现场Pin15标记|fd8b0030.pwm（PWM3_M0）|1100000 / 2100000|
+ 
+@@ -35,7 +35,7 @@
+    本包仍能按地址正确定位后仓/右仓，但左仓会因 `fd8b0030.pwm` 缺失而拒绝启动（fail-closed）。
+ 
+ 补回已有的 CheckedPulse 修复：每一步 disable/duty/enable/disable 检查返回；sysfs 写入后读回；
+-三槽初始化全部成功才开放 raw 服务；退出只禁用输出、不 unexport；错误返回 False。
++三槽启动检查全部成功才开放 raw 服务；被动路径退出零写入，执行过写事务才在退出禁用输出；不 unexport；错误返回 False。
+ 此反馈确认的是 PWM 配置/操作，不是机械位置或实际载荷离机。
+ 
+ ## 服务接口（不可改）
+@@ -51,23 +51,28 @@
+ - 地面单测目录 `~/servo_ground_test_pwm3/` 用的是 `/ground_test/Servo`，那是地面测试专用名字，
+   **不要**带进飞行链。
+ 
+-## 现场启动
++## 启动被动化（2026-10-07）
+ 
+-明确允许机构复位后，先启动 roscore，然后在终端执行：
++`~initialize_on_startup` 默认 `false`，launch 同名参数也默认 `false`。
++三槽依次只读检查 `period=20000000`、`polarity=normal`、`enable=0`，
++并检查 period/duty_cycle/polarity/enable 的可写权限。启动不改 duty，不输出脉冲；
++任一读检查、权限、设备地址解析失败即退出，不注册 raw 服务，析构亦不写。
++被动模式不要求 duty=0，保留现有占空值；不会因 duty 保留后仓700000而开启输出。
++C++构造函数的第四参数仅为无硬件测试注入临时 sysfs 根目录，节点使用系统默认根目录。
+ 
+-```bash
+-cd ~/liftrace_board_trials_20260928
+-source deployment/site_20260928/environment.sh
+-sudo bash patrol_uav_ws-patrol_planner/src/actuator_pwm/init_pwm.sh
+-roslaunch actuator_pwm launch_all.launch
+-```
++已装载并机械锁止时必须保持默认 `false`。只有显式设为 `true` 才执行旧的
++逐步返回值检查复位事务（disable/duty0/period/polarity/disable/initial/enable/1s/disable）；
++该选项仅用于非装载的人工机构准备，不能作为装载后的启动或恢复方法。
++后仓锁止值已据现场反馈改为1700000ns，释放值改为700000ns；左右未改。
++`init_pwm.sh` 原样保留，脚本会配置/写 sysfs，并非被动启动的一部分；
++本次只部署源码并构建，不执行该脚本，不执行节点或任何服务请求。
+ 
+-初始化脚本只解析地址、导出通道、设置权限/周期/极性并关闭输出；**ROS服务启动会依次复位三个槽**。
+-不要用反复重启服务的方式重试投递，重启本来就会复位。正常任务必须经过许可代理，
+-不应在飞行中手动调用 raw。
++**当前旧服务PID不重启。** 覆盖源码、编译或修改ROS参数不会把新常量切入当前oldservice；
++默认被动启动和后仓新方向只对下次使用新二进制创建的进程生效。
++当前oldservice仍携带旧后仓释放1700000ns/启动700000ns，不可据此次编译视为已切换。
+ 
+ 构建：加载上述环境后执行 `cmake --build patrol_uav_ws-patrol_planner/build --target pwm_node1 -j2`，
+-或在工作空间执行 `catkin_make`。本包复用当前工程生成的 `patrol_control/Servo`，调用客户端同样需要 source 该工程环境。
++本次只构建该target，不执行整工程构建或服务重启。本包复用当前工程生成的 `patrol_control/Servo`，调用客户端同样需要 source 该工程环境。
+ 
+ ## 验证与限制
+ 
+@@ -77,3 +82,11 @@
+   `fd8b0030.pwm` 枚举为 pwmchip2，启动复位的三路输出最终均为 disabled，未发送投放请求。
+ - 本包尚未在 PWM3_M0 配置下做过完整投放验收；机械作动需要现场观察确认。
+ - 本轮没有改变飞行配置、没有改 `patrol_control` 状态机。
++
++## 本补丁本地验证
++
++独立 CMake 只编译 pwm_node1 和 actuator_startup_tests；CTest通过。
++无硬件测试覆盖只读配置/权限检查、默认zero writes、错误配置拒绝、
++显式复位事务与逐步故障、三槽投放常量及checkedPulse故障、生产控制器析构。
++生产控制器仅访问测试临时目录，inotify验证被动构造/启动/失败/析构没有IN_MODIFY，
++并实际观测配置文件读取。未运行实际ROS节点、SSH、PWM或仿真；未做真实释放测试。
+diff --git a/include/actuator_pwm/CheckedPulse.h b/include/actuator_pwm/CheckedPulse.h
+--- a/include/actuator_pwm/CheckedPulse.h
++++ b/include/actuator_pwm/CheckedPulse.h
+@@ -14,3 +14,11 @@
+         !pwm.setPeriod(20000000) || !pwm.setPolarity("normal")) return false;
+     return checkedPulse(pwm,duty,wait);
+ }
++
++// Default startup is passive. Explicit reset retains the checked transaction.
++template<class PWM, class Wait>
++bool checkedStartup(PWM& pwm, unsigned initialDuty, Wait wait,
++                    bool initializeOnStartup = false) {
++    if (!initializeOnStartup) return pwm.validatePassiveStartup();
++    return checkedInitialize(pwm, initialDuty, wait);
++}
+diff --git a/include/actuator_pwm/PWMController.h b/include/actuator_pwm/PWMController.h
+--- a/include/actuator_pwm/PWMController.h
++++ b/include/actuator_pwm/PWMController.h
+@@ -6,8 +6,11 @@
+ 
+ class PWMController {
+ public:
+-    PWMController(int chip = 2, int channel = 0, const std::string& expectedDevice = "");
++    PWMController(int chip = 2, int channel = 0, const std::string& expectedDevice = "",
++                  const std::string& sysfsRoot = "/sys/class/pwm");
+     ~PWMController();
++
++    bool validatePassiveStartup();
+ 
+     bool setPeriod(unsigned int period_ns);
+     bool setDutyCycle(unsigned int duty_cycle_ns);
+@@ -16,6 +19,7 @@
+     bool disable();
+ 
+ private:
++    bool writeAttempted_ = false;
+     std::string basePath_;
+     std::string pwmPath_;
+     bool writeSysfs(const std::string& file, const std::string& value);
+diff --git a/include/actuator_pwm/PassiveStartup.h b/include/actuator_pwm/PassiveStartup.h
+--- /dev/null
++++ b/include/actuator_pwm/PassiveStartup.h
+@@ -0,0 +1,31 @@
++#pragma once
++#include <fstream>
++#include <string>
++#include <unistd.h>
++
++// Reads/access checks only: never export, configure, enable or change duty.
++struct SysfsReadChecks {
++    bool read(const std::string& path, std::string& value) {
++        std::ifstream input(path);
++        std::string extra;
++        return bool(input >> value) && !(input >> extra);
++    }
++    bool writable(const std::string& path) {
++        return access(path.c_str(), W_OK) == 0;
++    }
++};
++
++template<class ReadChecks>
++bool checkedPassiveConfiguration(ReadChecks& checks, const std::string& path) {
++    const char* fields[] = {"period", "polarity", "enable"};
++    const char* expected[] = {"20000000", "normal", "0"};
++    for (int i=0; i<3; ++i) {
++        std::string actual;
++        if (!checks.read(path + "/" + fields[i], actual) || actual != expected[i])
++            return false;
++    }
++    const char* writable[] = {"period", "duty_cycle", "polarity", "enable"};
++    for (const char* field : writable)
++        if (!checks.writable(path + "/" + field)) return false;
++    return true;
++}
+diff --git a/include/actuator_pwm/SlotCalibration.h b/include/actuator_pwm/SlotCalibration.h
+--- /dev/null
++++ b/include/actuator_pwm/SlotCalibration.h
+@@ -0,0 +1,7 @@
++#pragma once
++namespace actuator_pwm {
++// req order: rear / right / left. All values in ns; period stays 20 ms.
++// Rear physically confirmed 2026-10-07: extended=locked, retracted=release.
++const unsigned kInitialDutyNs[] = {1700000, 1000000, 1100000};
++const unsigned kReleaseDutyNs[] = {700000, 2100000, 2100000};
++}
+diff --git a/launch/launch_all.launch b/launch/launch_all.launch
+--- a/launch/launch_all.launch
++++ b/launch/launch_all.launch
+@@ -1,6 +1,9 @@
+ <launch>
++  <!-- Loaded mechanisms: leave false. True is an explicit unloaded manual reset. -->
++  <arg name="initialize_on_startup" default="false" />
+   <!-- The permission proxy owns /Servo; the physical actuator is its raw backend. -->
+   <node name="servo_controller1" pkg="actuator_pwm" type="pwm_node1" output="screen">
++    <param name="initialize_on_startup" type="bool" value="$(arg initialize_on_startup)" />
+     <remap from="Servo" to="/legacy/Servo_raw" />
+   </node>
+ </launch>
+diff --git a/pwm_node1.cpp b/pwm_node1.cpp
+--- a/pwm_node1.cpp
++++ b/pwm_node1.cpp
+@@ -2,7 +2,7 @@
+  * 舵机投放节点（实机标定；2026-10-07 左仓改到 PWM3_M0）
+  *
+  * Orange Pi 5 当前接线（pwmchip 编号按硬件地址在运行时解析，不再写死）：
+- *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，初始 700000ns，投放 1700000ns
++ *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，锁止 1700000ns，投放 700000ns（2026-10-07现场确认）
+  *   req=2 右仓 Pin7  GPIO1_C6 febf0030.pwm，初始 1000000ns，投放 2100000ns
+  *   req=3 左仓 Pin15 GPIO0_D4 fd8b0030.pwm（PWM3_M0），初始 1100000ns，投放 2100000ns
+  *
+@@ -14,13 +14,13 @@
+  *   本节点按 /sys/class/pwm 的实际 device 地址解析编号，上述两种启动配置下都正确。
+  *
+  * 行为：
+- *   1. 启动时三只舵机【依次】复位到各自初始位（间隔1s，避免同时动作造成电流冲击），
+- *      到位后停止PWM输出（舱门由机械机构自保持，无需舵机保持力）；
+- *   2. 收到 /Servo 服务请求时：设置投放脉宽 -> enable -> 等待1s到位 -> 停止PWM输出；
+- *   3. 三槽初始化全部成功才开放服务；任一步失败则 ROS_FATAL 退出，不注册 raw 服务。
++ *   1. 默认 initialize_on_startup=false：只读验证三槽周期、极性、关闭状态与写权限；
++ *      不输出脉冲、不改 duty；已装载并机械锁止时必须使用此模式。
++ *   2. 仅显式 initialize_on_startup=true 才按旧事务依次复位（仅非装载人工复位）。
++ *   3. 收到许可代理请求仍执行受检查的1s投放事务；三槽启动检查通过才注册服务。
+  *
+  * 前置条件：开机后执行过一次 init_pwm.sh（解析地址、导出通道、设周期/极性、放开权限）。
+- *           本节点不导出通道、不 unexport，退出只关闭输出。
++ *           本节点不导出通道、不 unexport；有写事务时退出关闭输出，被动退出不写。
+  * 服务接口：/Servo (patrol_control/Servo)。launch_all.launch 将其重映射到
+  *           /legacy/Servo_raw，对外的 /Servo 由 guarded_servo_proxy 独占。
+  *           req=1/2/3 -> res=true 仅代表PWM操作被内核确认；不是机械投放证明。
+@@ -51,21 +51,19 @@
+ 
+ }  // namespace
+ 
+-PWMController pwm_front(findPWMChip("febf0020.pwm"), 0, "febf0020.pwm"); // 后仓 Pin11，接线待确认
+-PWMController pwm_left(findPWMChip("febf0030.pwm"), 0, "febf0030.pwm"); // 右仓 Pin7
+-PWMController pwm_right(findPWMChip("fd8b0030.pwm"), 0, "fd8b0030.pwm"); // 左仓 Pin15 PWM3_M0
++// Controllers are constructed inside main so failures are caught before advertising.
++PWMController* channels[3] = {nullptr, nullptr, nullptr};
+ 
+ #include "actuator_pwm/CheckedPulse.h"
++#include "actuator_pwm/SlotCalibration.h"
+ 
+ bool servocallback(patrol_control::Servo::Request &req, patrol_control::Servo::Response &res) {
+-    PWMController* channels[]={&pwm_front,&pwm_left,&pwm_right};
+-    const unsigned duties[]={1700000,2100000,2100000};
+     res.res=false;
+     if(req.req<1 || req.req>3) {
+         ROS_WARN("Invalid servo slot %d",req.req);
+         return true;
+     }
+-    res.res=checkedPulse(*channels[req.req-1],duties[req.req-1],
++    res.res=checkedPulse(*channels[req.req-1],actuator_pwm::kReleaseDutyNs[req.req-1],
+                         [](){ros::WallDuration(1.0).sleep();});
+     if(res.res) ROS_INFO("Servo slot=%d PWM acknowledged; physical release unverified",req.req);
+     else ROS_ERROR("Servo slot=%d PWM failed; do not commit release",req.req);
+@@ -74,16 +72,35 @@
+ int main(int argc,char** argv) {
+     ros::init(argc,argv,"pwm_controller");
+     ros::NodeHandle nh;
+-    PWMController* channels[]={&pwm_front,&pwm_left,&pwm_right};
+-    const unsigned initial[]={700000,1000000,1100000};
+-    for(int i=0;i<3;++i) {
+-        if(!checkedInitialize(*channels[i],initial[i],[](){ros::WallDuration(1.0).sleep();})) {
+-            ROS_FATAL("Servo initialization failed at slot %d; raw service not advertised",i+1);
+-            return 1;
++    ros::NodeHandle privateNh("~");
++    bool initializeOnStartup = false;
++    // Invalid parameter types must not silently fall back to a startup action.
++    if (privateNh.hasParam("initialize_on_startup") &&
++        !privateNh.getParam("initialize_on_startup", initializeOnStartup)) {
++        ROS_FATAL("initialize_on_startup must be bool; raw service not advertised");
++        return 1;
++    }
++    try {
++        PWMController pwm_front(findPWMChip("febf0020.pwm"), 0, "febf0020.pwm"); // rear Pin11
++        PWMController pwm_left(findPWMChip("febf0030.pwm"), 0, "febf0030.pwm"); // right Pin7
++        PWMController pwm_right(findPWMChip("fd8b0030.pwm"), 0, "fd8b0030.pwm"); // left Pin15 PWM3_M0
++        channels[0]=&pwm_front; channels[1]=&pwm_left; channels[2]=&pwm_right;
++        if (initializeOnStartup)
++            ROS_WARN("Explicit startup RESET selected: unloaded manual preparation only");
++        for(int i=0;i<3;++i) {
++            if(!checkedStartup(*channels[i],actuator_pwm::kInitialDutyNs[i],
++                               [](){ros::WallDuration(1.0).sleep();}, initializeOnStartup)) {
++                ROS_FATAL("Servo startup check failed at slot %d; raw service not advertised",i+1);
++                return 1;
++            }
+         }
++        ros::ServiceServer service=nh.advertiseService("Servo",servocallback);
++        ROS_INFO("Servo ready: rear=1 right=2 left=3; startup=%s",
++                 initializeOnStartup ? "explicit checked reset" : "passive read checks, no PWM writes");
++        ros::spin();
++    } catch (const std::exception& error) {
++        ROS_FATAL("Servo startup failed: %s; raw service not advertised",error.what());
++        return 1;
+     }
+-    ros::ServiceServer service=nh.advertiseService("Servo",servocallback);
+-    ROS_INFO("Servo ready: rear=1 right=2 left=3; initialization verified");
+-    ros::spin();
+     return 0;
+ }
+diff --git a/src/PWMController.cpp b/src/PWMController.cpp
+--- a/src/PWMController.cpp
++++ b/src/PWMController.cpp
+@@ -1,11 +1,13 @@
+ #include "actuator_pwm/PWMController.h"
++#include "actuator_pwm/PassiveStartup.h"
+ #include <unistd.h>
+ #include <cstdlib>
+ #include <stdexcept>
+ #include <iostream>
+ 
+-PWMController::PWMController(int chip, int channel, const std::string& expectedDevice) :
+-    basePath_("/sys/class/pwm/pwmchip" + std::to_string(chip)),
++PWMController::PWMController(int chip, int channel, const std::string& expectedDevice,
++                             const std::string& sysfsRoot) :
++    basePath_(sysfsRoot + "/pwmchip" + std::to_string(chip)),
+     pwmPath_(basePath_ + "/pwm" + std::to_string(channel)) {
+ 
+     // Fail before touching sysfs if enumeration differs from the verified board.
+@@ -22,7 +24,19 @@
+ }
+ 
+ PWMController::~PWMController() {
+-    disable();  // Keep exported channels and permissions across service restarts.
++    // Passive startup/failure must remain zero-write, including destruction.
++    if (writeAttempted_) disable();
++}
++
++bool PWMController::validatePassiveStartup() {
++    SysfsReadChecks checks;
++    if (!checkedPassiveConfiguration(checks, pwmPath_)) {
++        std::cerr << "Passive PWM validation failed: " << pwmPath_
++                  << "; require period=20000000, polarity=normal, enable=0 and writable attributes"
++                  << std::endl;
++        return false;
++    }
++    return true;
+ }
+ 
+ bool PWMController::setPeriod(unsigned int period_ns) {
+@@ -46,6 +60,7 @@
+ }
+ 
+ bool PWMController::writeSysfs(const std::string& file, const std::string& value) {
++    writeAttempted_ = true;
+     std::ofstream fs(file);
+     if (!fs.is_open()) {
+         std::cerr << "PWM open failed: " << file << std::endl;
+diff --git a/src/pwm_node1.cpp b/src/pwm_node1.cpp
+--- a/src/pwm_node1.cpp
++++ b/src/pwm_node1.cpp
+@@ -2,7 +2,7 @@
+  * 舵机投放节点（实机标定；2026-10-07 左仓改到 PWM3_M0）
+  *
+  * Orange Pi 5 当前接线（pwmchip 编号按硬件地址在运行时解析，不再写死）：
+- *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，初始 700000ns，投放 1700000ns
++ *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，锁止 1700000ns，投放 700000ns（2026-10-07现场确认）
+  *   req=2 右仓 Pin7  GPIO1_C6 febf0030.pwm，初始 1000000ns，投放 2100000ns
+  *   req=3 左仓 Pin15 GPIO0_D4 fd8b0030.pwm（PWM3_M0），初始 1100000ns，投放 2100000ns
+  *
+@@ -14,13 +14,13 @@
+  *   本节点按 /sys/class/pwm 的实际 device 地址解析编号，上述两种启动配置下都正确。
+  *
+  * 行为：
+- *   1. 启动时三只舵机【依次】复位到各自初始位（间隔1s，避免同时动作造成电流冲击），
+- *      到位后停止PWM输出（舱门由机械机构自保持，无需舵机保持力）；
+- *   2. 收到 /Servo 服务请求时：设置投放脉宽 -> enable -> 等待1s到位 -> 停止PWM输出；
+- *   3. 三槽初始化全部成功才开放服务；任一步失败则 ROS_FATAL 退出，不注册 raw 服务。
++ *   1. 默认 initialize_on_startup=false：只读验证三槽周期、极性、关闭状态与写权限；
++ *      不输出脉冲、不改 duty；已装载并机械锁止时必须使用此模式。
++ *   2. 仅显式 initialize_on_startup=true 才按旧事务依次复位（仅非装载人工复位）。
++ *   3. 收到许可代理请求仍执行受检查的1s投放事务；三槽启动检查通过才注册服务。
+  *
+  * 前置条件：开机后执行过一次 init_pwm.sh（解析地址、导出通道、设周期/极性、放开权限）。
+- *           本节点不导出通道、不 unexport，退出只关闭输出。
++ *           本节点不导出通道、不 unexport；有写事务时退出关闭输出，被动退出不写。
+  * 服务接口：/Servo (patrol_control/Servo)。launch_all.launch 将其重映射到
+  *           /legacy/Servo_raw，对外的 /Servo 由 guarded_servo_proxy 独占。
+  *           req=1/2/3 -> res=true 仅代表PWM操作被内核确认；不是机械投放证明。
+@@ -51,21 +51,19 @@
+ 
+ }  // namespace
+ 
+-PWMController pwm_front(findPWMChip("febf0020.pwm"), 0, "febf0020.pwm"); // 后仓 Pin11，接线待确认
+-PWMController pwm_left(findPWMChip("febf0030.pwm"), 0, "febf0030.pwm"); // 右仓 Pin7
+-PWMController pwm_right(findPWMChip("fd8b0030.pwm"), 0, "fd8b0030.pwm"); // 左仓 Pin15 PWM3_M0
++// Controllers are constructed inside main so failures are caught before advertising.
++PWMController* channels[3] = {nullptr, nullptr, nullptr};
+ 
+ #include "actuator_pwm/CheckedPulse.h"
++#include "actuator_pwm/SlotCalibration.h"
+ 
+ bool servocallback(patrol_control::Servo::Request &req, patrol_control::Servo::Response &res) {
+-    PWMController* channels[]={&pwm_front,&pwm_left,&pwm_right};
+-    const unsigned duties[]={1700000,2100000,2100000};
+     res.res=false;
+     if(req.req<1 || req.req>3) {
+         ROS_WARN("Invalid servo slot %d",req.req);
+         return true;
+     }
+-    res.res=checkedPulse(*channels[req.req-1],duties[req.req-1],
++    res.res=checkedPulse(*channels[req.req-1],actuator_pwm::kReleaseDutyNs[req.req-1],
+                         [](){ros::WallDuration(1.0).sleep();});
+     if(res.res) ROS_INFO("Servo slot=%d PWM acknowledged; physical release unverified",req.req);
+     else ROS_ERROR("Servo slot=%d PWM failed; do not commit release",req.req);
+@@ -74,16 +72,35 @@
+ int main(int argc,char** argv) {
+     ros::init(argc,argv,"pwm_controller");
+     ros::NodeHandle nh;
+-    PWMController* channels[]={&pwm_front,&pwm_left,&pwm_right};
+-    const unsigned initial[]={700000,1000000,1100000};
+-    for(int i=0;i<3;++i) {
+-        if(!checkedInitialize(*channels[i],initial[i],[](){ros::WallDuration(1.0).sleep();})) {
+-            ROS_FATAL("Servo initialization failed at slot %d; raw service not advertised",i+1);
+-            return 1;
++    ros::NodeHandle privateNh("~");
++    bool initializeOnStartup = false;
++    // Invalid parameter types must not silently fall back to a startup action.
++    if (privateNh.hasParam("initialize_on_startup") &&
++        !privateNh.getParam("initialize_on_startup", initializeOnStartup)) {
++        ROS_FATAL("initialize_on_startup must be bool; raw service not advertised");
++        return 1;
++    }
++    try {
++        PWMController pwm_front(findPWMChip("febf0020.pwm"), 0, "febf0020.pwm"); // rear Pin11
++        PWMController pwm_left(findPWMChip("febf0030.pwm"), 0, "febf0030.pwm"); // right Pin7
++        PWMController pwm_right(findPWMChip("fd8b0030.pwm"), 0, "fd8b0030.pwm"); // left Pin15 PWM3_M0
++        channels[0]=&pwm_front; channels[1]=&pwm_left; channels[2]=&pwm_right;
++        if (initializeOnStartup)
++            ROS_WARN("Explicit startup RESET selected: unloaded manual preparation only");
++        for(int i=0;i<3;++i) {
++            if(!checkedStartup(*channels[i],actuator_pwm::kInitialDutyNs[i],
++                               [](){ros::WallDuration(1.0).sleep();}, initializeOnStartup)) {
++                ROS_FATAL("Servo startup check failed at slot %d; raw service not advertised",i+1);
++                return 1;
++            }
+         }
++        ros::ServiceServer service=nh.advertiseService("Servo",servocallback);
++        ROS_INFO("Servo ready: rear=1 right=2 left=3; startup=%s",
++                 initializeOnStartup ? "explicit checked reset" : "passive read checks, no PWM writes");
++        ros::spin();
++    } catch (const std::exception& error) {
++        ROS_FATAL("Servo startup failed: %s; raw service not advertised",error.what());
++        return 1;
+     }
+-    ros::ServiceServer service=nh.advertiseService("Servo",servocallback);
+-    ROS_INFO("Servo ready: rear=1 right=2 left=3; initialization verified");
+-    ros::spin();
+     return 0;
+ }

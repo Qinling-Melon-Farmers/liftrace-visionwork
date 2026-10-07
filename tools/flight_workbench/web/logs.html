@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liftrace · 日志录制与下载</title>
+<link rel="stylesheet" href="/static/style.css"><link rel="stylesheet" href="/static/logs.css">
+</head>
+<body class="logs-page">
+<main>
+  <header><a class="btn" href="/">← 主工作台</a><h1>日志录制与下载</h1>
+    <p id="log-connection">读取当前连接…</p><button id="log-refresh" class="btn">刷新录制状态与文件</button>
+    <span id="log-at" class="muted"></span></header>
+  <p id="log-message" role="status" aria-live="polite"></p>
+  <section id="log-login" class="log-card" hidden><h2>独立日志连接</h2>
+    <p>此后端不启动或重连探针，不控制设备/任务节点。连接参数来自本机配置/profile；旧工作台只有内存密码时需在此输入，不读取其进程内存。</p>
+    <label for="log-host">板端 SSH 地址</label><input id="log-host" type="text" autocomplete="off">
+    <label for="log-password">SSH 密码（留空复用已保存的 profile 密码）</label><input id="log-password" type="password" autocomplete="off">
+    <label><input id="log-save-password" type="checkbox">明确保存到本机 profile（不默认保存）</label>
+    <button id="log-connect" class="btn">连接日志后端（不启动节点）</button>
+  </section>
+  <div class="log-grid">
+    <section class="log-card"><h2>ROS bag</h2>
+      <label for="bag-profile">录制档位</label>
+      <select id="bag-profile"><option value="routine">常规轻量：压缩图 5Hz + 膨胀点云 + 任务/视觉状态</option>
+        <option value="diagnostic">纯诊断：位姿、IMU、RC/电机输出；无图像/点云</option></select>
+      <p>常规档复用专项 TrialBag；纯诊断复用低空观察 recorder。只录数据。旧任务已内置录包时直接下载其产物；检测到 recorder 会拒绝再开包。</p>
+      <label for="bag-duration">最长时长（秒，1–900）</label>
+      <input id="bag-duration" type="number" min="1" max="900" step="1" value="300">
+      <button id="bag-start" class="btn btn-primary">开始轻量录制</button>
+    </section>
+    <section class="log-card"><h2>飞控 ULog</h2>
+      <p><strong>FC SD 内部录制</strong>由飞控现有 logger/SDLOG 设置决定。此页不启动或停止 FC logger；当前是否正在内部录制未验证。现场 2026-10-07 只读核实 SDLOG_MODE=0、SDLOG_PROFILE=1，模式 0 为解锁时录制。</p>
+      <p><strong>MAVLink streaming 录制：未接入。</strong>以下是已封闭 SD 日志的 MAVLink LOG_REQUEST_DATA 下载，仅连接且未解锁可用；可能暂时影响飞控日志模式，既有脚本结束时发送 END。</p>
+      <button id="ulog-index" class="btn">查询飞控日志索引</button>
+      <label for="ulog-select">已查询日志（飞控时间仅供匹配）</label><select id="ulog-select"><option value="">请查询或手填已核实 ID</option></select>
+      <label for="ulog-id">日志 ID（0–65534）</label><input id="ulog-id" type="number" min="0" max="65534" step="1" placeholder="先核实日志编号">
+      <button id="ulog-fetch" class="btn">取回飞控日志到板端</button>
+      <p>随后在文件列表下载到本机。索引查询依赖板端新版 --list --format json；旧版可手填 ID。不会替换板端脚本，也不会自动下载“最新”。</p>
+    </section>
+  </div>
+  <section class="log-card"><h2>工作台日志操作</h2><p id="log-recorders">尚未查询板端 recorder。</p>
+    <div id="log-jobs">尚未查询。工作台只停止自己登记并核对 PID/启动时间/命令的录制或下载进程。</div>
+    <p>断开连接或退出页面不会停止这些进程；bag 按所选时长结束，ULog 下载限时 600 秒。停止后等待文件封闭，再下载；不会停止旧任务的内置 bag。</p>
+  </section>
+  <section class="log-card"><h2>板端日志文件</h2>
+    <label for="log-filter">筛选文件名</label><input id="log-filter" type="search" placeholder="例如 .bag、.ulg 或场景名">
+    <p>显示 logs/ 下最近 150 个文件（最多检查 600 个目录，深度 5 层）。活动文件与 .part 不提供下载。下载文件保存到浏览器的本地下载目录。</p>
+    <div class="log-table"><table><thead><tr><th>相对路径</th><th>大小</th><th>修改时间</th><th>下载</th></tr></thead><tbody id="log-files"></tbody></table></div>
+  </section>
+</main><script src="/static/logs.js"></script>
+</body></html>

@@ -164,7 +164,7 @@ bash tools/flight_workbench/start_workbench.sh --transport local --port 8793
 2. 点「一键启动设备」（可选舵机）：按 roscore → MAVROS → 雷达 → 相机 顺序逐个启动并等待就绪
    （`ROS master`、`connected=true`、`/livox/lidar`、`/camera/image_raw` 新鲜）。已经在跑的
    设备节点会被识别为"已在运行"而跳过，不重复叠加。舵机两个终端默认不在自动流程里，需单独点击
-   （会复位机构，界面会弹确认）。
+   （5a 不输出初始化；5b 默认仅检查并提供服务，不自动复位，界面分别弹确认）。
 3. 对应卡片先点「选择此组」，选投递方式/路线等选项，点「配置检查（不启动节点）」确认有效。
    再选「飞行 flight」模式、勾未解锁/起飞点确认；实投组输入「实投」，
    再点卡片底部「飞行（flight）」及弹窗「确认启动 flight」。设备启动本身不启动专项。
@@ -324,7 +324,7 @@ node tools/flight_workbench/tests/browser_regression.mjs http://127.0.0.1:8793 <
 
 当前SSH为 `orangepi@192.168.3.126`，Orange Pi 5。舵机实体包在部署根的 `patrol_uav_ws-patrol_planner/src/actuator_pwm`，二进制在同工作区 `devel/lib/actuator_pwm/pwm_node1`；当前电脑没有 `hardware_ws`。工作台默认已同步这两个路径，换电脑时必须按实际映射选择，不能套用5 Plus的2/3/4槽通道。历史SSH、自定义地址及密码入口保留；已保存的个人连接配置可能覆盖默认值，使用时选取当前地址。
 
-5a只准备权限和禁用输出；5b服务启动才依次复位三槽。两次地面工程链测试已得到三个真实PWM ACK，禁止将ACK写成有机械位置传感器的反馈。工作台服务仍关闭，本轮没有通过工作台启动飞行。
+当时5a只准备权限和禁用输出，旧5b服务启动会依次复位三槽；该旧启动行为已于2026-10-07要求取消，当前5b约定为仅检查/提供服务、不自动复位。两次当时的地面工程链测试已得到三个真实PWM ACK，禁止将ACK写成有机械位置传感器的反馈。该历史轮工作台服务关闭，没有通过工作台启动飞行。
 
 ## 2026-10-06 手工现场坐标与H结果推广
 
@@ -345,3 +345,46 @@ node tools/flight_workbench/tests/browser_regression.mjs http://127.0.0.1:8793 <
 默认现场仍限高2m：偏移−0.16m时，镜头1.84m对应FC2m；镜头2m需要FC2.16m，会被原限高检查拒绝。扩大搜索区不自动扩大允许边界和地图；由可选flight_area按实测值配置。门口、走廊引导点和H不能由场地范围推断，08仍需手填。
 
 新API POST /api/survey/plan只算路线与理想几何覆盖；/api/trial/command生成运行overlay命令。板端检查会复核安装偏移和正式任务配置。范围内覆盖率不是避障后实际覆盖或完整靶标召回率。操作和部署记录见[完整报告](../../docs/deployment/survey_workbench_20261006/REPORT.md)。
+
+## 2026-10-07 日志操作页（本地实现，未现场运行）
+
+主工作台的「录制与下载」打开 `/logs`，沿用主工作台当前连接及 profile 内保存的密码。新增 `orangepi@10.75.120.193` 下拉候选，不覆盖当前 host 或个人连接档案。先在主工作台连接，再刷新状态/文件；页面不会自动启动录制、设备或任务。
+
+- **常规轻量 bag**：复用板端 `deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_bag.py` 的 `TrialBag`，压缩图默认5Hz、相机信息、任务/视觉/位姿状态及小范围 `/sdf_map/occupancy_inflate`；不录原始雷达或全图建图云。相机输入/节流输出通过 `workbench.yaml` 的 `logging.routine_settings` 配置。只是独立录制模块，不调用 `run_trial.py` 或飞行入口。
+- **纯诊断 bag**：复用 `deployment/low_hover_observation/record_diagnostics.py --output … --config deployment/low_hover_observation/recording.yaml --duration 秒`；继承现有类型白名单/队列/空间限制，无图像、点云、JPEG。
+- **开始/停止**：用户点击并确认后执行。默认300秒，可选1–900秒；工程已有recorder（包括旧任务内置rosbag）在场时拒绝重复开包。用板端独立锁串行创建，登记PID、启动时间和完整argv。停止仅对核对一致的工作台进程发SIGINT；常规bag模块随后只关闭自己创建的rosbag/throttle。未匹配的PID、旧任务bag及其他ROS节点不发送停止信号。
+- **ULog**：FC SD内部录制由既有logger/SDLOG设置控制，页面不启动/停止FC logger，不写参数，不发`logging_start`。页面未接入MAVLink streaming录制，也不声称实时得知FC内部logger状态。用户报告2026-10-07只读核实`SDLOG_MODE=0`、`SDLOG_PROFILE=1`，是该次现场信息，不是页面实时采样；mode0解锁时录制。
+- **飞控日志取回**：显式查询索引调用板端新版`fetch_px4_ulog.py --list --format json`；旧版不支持索引时提示手填已核实ID，不把FTP目录文件名冒称日志编号。取回调用`--log-id ID --output logs/flight_workbench_recordings/ulog_…/flight.ulg --timeout 600`，同时传配置中的`--namespace`；兼容旧/新下载CLI，不覆盖板端脚本。沿用其connected/disarmed门控、LOG_REQUEST_DATA和finally END，可能影响FC日志传输模式。最大编号不自动选中，不等同“本轮试飞”。取消也只向登记的该下载进程发SIGINT，保留`.part`。
+- **状态/下载**：工作台自有操作显示启动中、录制中、传输中、封闭或失败，保留原模块PASS/INCOMPLETE含义及输出；旧recorder只列进程，不冒称其READY。文件列表递归浏览工程`logs/`（150文件、600目录、深度5层），支持专项子目录及既有bag/ULog。筛选后点击下载到浏览器本地目录；工作台自有bag须有closed摘要，活动`.active`/`.part`和仍被打开写入的文件拒绝下载。仅允许安全相对路径并检查resolve仍位于logs内。
+
+下载沿用`wb_ssh.run_bytes`接口，改为stdout/stderr独立pipe；SSH登录通过临时私有Unix socket的askpass助手读取内存/profile密码，助手文件和环境变量不含密码。保留原PTY sudo/SSH修复；下载助手不应答sudo、应用密码或私钥passphrase。文件字节不做文本替换，另外用随机标记+长度+结束标记隔离shell启动输出，校验传输完整及下载期间文件未变化。失败/超时返回错误，不以部分数据报成功，不把凭据放入URL/错误日志。
+
+新API为`POST /api/recording/{status,start,stop,index}`及`GET /api/recording/download?path=相对路径`。同源/Host校验、连接状态、确认词与输入校验在服务端执行；查询与下载不自动开启设备。工作台操作尚未确认结束时拒绝切换连接；用户退出页面/断开SSH会话不会杀这些独立进程，bag时限和ULog下载时限仍生效。进程重启后可从板端登记文件核对状态，须先刷新再操作。
+
+本轮只在隔离本地fixture验证，没有SSH现场连接、录制、舵机操作、仿真或服务重启。probe集成依赖`board_probe.py`/`wb_status.py`当前接口；现场最新日志另行核查。只读比较`/tmp/fetch_px4_ulog_board_20261007.py`，未以本地旧版覆盖板端新版。
+
+最新现场澄清：8791的`/proc/5438/cmdline`为B/tools/flight_workbench/server.py，`--profile-dir /tmp/liftrace-workbench-frontline-ainjon1n/profile`；源码并非/tmp解压副本，Python内存仍是旧版。静态文件修改会立即影响该进程的页面，刷新不会更新Python API。日志入口和“只重连probe”默认隐藏，仅snapshot明确提供对应capability时显示；旧后端刷新页面不会展示这些未支持的操作。直接打开新日志静态页也会先检查snapshot，缺capability时只提示独立后端，不请求录制API。本次已把`wb_logs.py`、日志页三资源及本README加入打包白名单。此轮没有重启旧后端或硬件会话。5b描述/确认默认不输出，当前直接node命令显式传`_initialize_on_startup:=false`。现场launch也已部署支持`initialize_on_startup:=false`；两种CLI语法不能混用。被动启动版已编译并原子替换，原PID12271未重启，后仓现场确认锁止。不新增复位按钮。
+
+如需立即使用日志页，最简方式是从新解压目录**另开日志专用后端**（此处只是交接命令，本轮未执行）：
+
+```bash
+source /home/xhj/miniconda3/etc/profile.d/conda.sh
+conda activate rl_drone
+bash tools/flight_workbench/start_workbench.sh --logs-only --host 127.0.0.1 --port 8792
+```
+
+解压包根目录下入口改为`bash start_workbench.sh …`。浏览器访问新打印的端口（预期`http://127.0.0.1:8792/`）。该模式只开放连接/认证、日志状态/索引/录制/下载，不调用`ensure_probe`、不刷新设备preflight、拒绝设备/任务/舵机/stop_all/重连probe API；启动时不自动SSH。沿用本机profile及工程配置；若旧服务使用临时profile，可加`--profile-dir /已核实的旧profile目录`复用已保存认证，保持页面“保存密码”不勾选。操作者点击连接才执行只读工程/ROS Python检查。若密码未保存、仅存在于旧工作台进程内存，独立页需重新输入；不会读取旧进程内存，默认不保存新密码。停止独立日志后端不关闭旧8791的SSH会话，也不停止旧ROS节点；本页创建的录制/取回进程仍按既有时限/明确停止按钮收尾。也可等待旧工作台按现场流程正常退出后，下一次用新包完整启动。
+
+完整工作台另外接入只读探针watchdog：仅非人工退出以2/5/10/20/30秒退避重连probe；设备/任务/舵机常驻服务不会被watchdog重启。stop_all、断开、probe Ctrl+C/关闭/退出130均取消恢复；退出75提示独占锁冲突，保留原owner并停止自动重试。顶部「只重连 probe」是独立明确操作。snapshot、状态监视、实时曲线和ready判定使用`wb_status.probe_link_status()`的链路/时间状态；缓存过期或会话退出后不继续显示当前设备绿色状态。5a前后端均拒绝对已运行的5b服务再次初始化；提示先按现场流程退出旧服务，不自动杀进程。
+
+用户提供的现场说明：常驻服务启动一次，此轮保持原PID，没有通过本改动重启。15:38 stop_all/Ctrl+C与15:51板端重启造成的SSH中断应区分，后者静态eth0恢复稍晚；probe重连次数不等于常驻服务启动次数。现场雷达已恢复10Hz，statepose已恢复；本功能不把旧缓存或软件ACK当当前物理状态。大bag已有多次SSH断流，密码/二进制完整性修复不代表网络问题已解决；没有断点续传，失败/超时不给部分文件报成功。ULog55已另行取回`/tmp/fcu_log55.ulg`，本轮不读取或改写该现场文件。
+
+独立验证（已有conda + 系统已安装的纯Python依赖，不安装新包）：
+
+```bash
+source /home/xhj/miniconda3/etc/profile.d/conda.sh
+conda activate rl_drone
+PYTHONPATH=/usr/lib/python3/dist-packages python -m unittest discover -s tools/flight_workbench/tests -p 'test_logs*.py' -v
+PYTHONPATH=/usr/lib/python3/dist-packages python -m unittest discover -s tools/flight_workbench/tests -p test_binary_download.py -v
+PYTHONPATH=/usr/lib/python3/dist-packages python -m unittest discover -s tools/flight_workbench/tests -p test_auth_prompts.py -v
+```

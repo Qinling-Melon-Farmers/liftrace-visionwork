@@ -140,6 +140,7 @@ var state = {
   trial: {},
   stage: null,
   telemetry: null,
+  probe: {},
   orchestration: null,
   alerts: [],
   timeline: [],
@@ -218,6 +219,7 @@ var api = {
   connect: function (body) { return postJSON('/api/connect', body || {}); },
   disconnect: function () { return postJSON('/api/disconnect', {}); },
   preflight: function () { return postJSON('/api/action/preflight', {}); },
+  probeReconnect: function () { return postJSON('/api/action/probe_reconnect', {}); },
   startAll: function (includeServo, groupId) { return postJSON('/api/action/start_all', { include_servo: !!includeServo, group_id: groupId, confirm: '启动设备' }); },
   stopAll: function () { return postJSON('/api/action/stop_all', {}); },
   missionStart: function () {
@@ -594,6 +596,11 @@ var bus = {
         state.telemetry = msg.telemetry || null;
         scheduleRender();
         break;
+      case 'probe':
+        state.probe = msg.probe || {};
+        if (msg.telemetry) state.telemetry = msg.telemetry;
+        scheduleRender();
+        break;
       case 'alert':
         if (msg.alert) { state.alerts.unshift(msg.alert); if (state.alerts.length > ALERT_KEEP) state.alerts.pop(); renderMonitor(); }
         break;
@@ -656,12 +663,14 @@ function applySnapshot(snap) {
   state.trial = snap.trial || {};
   state.stage = snap.stage || null;
   state.telemetry = snap.telemetry || null;
+  state.probe = snap.probe || {};
   state.orchestration = snap.orchestration || null;
   state.alerts = (snap.alerts || []).slice(0, ALERT_KEEP);
   state.timeline = (snap.timeline || []).slice(0, TL_KEEP);
   state.board = snap.board || { logs: [], preflight: null };
   state.report = snap.report || null;
   state.reportText = (snap.report && snap.report.markdown) || '';
+  renderCapabilities();
 
   // 选择最近的组（记忆优先）
   var ids = state.groups.map(function (g) { return g.id; });
@@ -767,13 +776,46 @@ function renderTopbar() {
     var b = $(sel); if (b) b.disabled = off;
   });
 
-  var tel = state.telemetry || {};
-  var ms = state.snapshot ? state.snapshot.now : null;
-  var tAt = tel.at || tel.t || ms;
+  var view = probeView();
+  var tel = view.usable ? state.telemetry || {} : {};
+  var tAt = (state.telemetry || {}).at || (state.telemetry || {}).t;
   $('#topbar-probe').textContent = 'master ' + (tel.master === true ? 'OK' : (tel.master === false ? '无' : '—'))
     + ' · 节点 ' + (tel.nodes ? tel.nodes.length : '—')
-    + ' · 遥测 ' + hhmmss(tAt)
+    + ' · 遥测 ' + hhmmss(tAt) + ' · ' + view.detail
     + (tel.probe && tel.probe.node ? (' · 探针 ' + (tel.probe.host || '') + (tel.probe.pid ? ('#' + tel.probe.pid) : '')) : '');
+  var reconnect = $('#btn-probe-reconnect');
+  if (reconnect) reconnect.disabled = !supportsCapability('probe_reconnect') || !connected() || !!(state.sessions.probe && ['running','starting'].indexOf(state.sessions.probe.state) >= 0);
+}
+
+function supportsCapability(name) {
+  return !!(state.snapshot && state.snapshot.capabilities && state.snapshot.capabilities[name] === true);
+}
+
+function renderCapabilities() {
+  [['#link-recording', 'recording'], ['#btn-probe-reconnect', 'probe_reconnect']].forEach(function (item) {
+    var control = $(item[0]);
+    if (control) control.style.display = supportsCapability(item[1]) ? '' : 'none';
+  });
+}
+
+function probeView() {
+  var tel = state.telemetry || {}, link = tel.probe_link || (state.probe || {}).link || {};
+  var session = state.sessions.probe || {}, at = Number(tel.at || tel.t || 0);
+  var age = at ? nowSec() - at : null;
+  var fresh = age !== null && age >= 0 && age <= 3;
+  var terminal = ['failed','exited'].indexOf(session.state) >= 0;
+  var usable = fresh && tel.master === true && !terminal && session.exit_code !== 130 &&
+    (!link.status || link.usable === true);
+  var detail = link.detail || (usable ? '探针遥测新鲜' : '当前设备状态未观测');
+  if (!fresh && link.status === 'live') detail = '探针遥测已过期；当前设备状态未观测';
+  if (link.retrying) detail += ' · 仅probe退避恢复（第' + link.retry_count + '次）';
+  return {usable:usable, age:age, detail:detail};
+}
+
+function servoInitBlocked() {
+  var session = state.sessions.servo || {}, tel = state.telemetry || {};
+  return ['running','starting'].indexOf(session.state) >= 0 ||
+    (probeView().usable && !!(tel.services || {})['/legacy/Servo_raw']);
 }
 
 /* ==========================================================================
@@ -1333,8 +1375,10 @@ function renderTerminals() {
   var tool = el('div', 'term-tool');
   var startBtn = el('button', 'btn btn-sm btn-primary', '启动');
   startBtn.disabled = !connected() || t.id === 'trial' || st.state === 'running' || st.state === 'starting';
+  if (t.id === 'servo_init' && servoInitBlocked()) startBtn.disabled = true;
   if (t.id === 'trial') startBtn.textContent = '从任务组启动';
   startBtn.title = 'POST /api/session/open {id:"' + t.id + '"}' + (t.confirm ? '，需带 confirm:"确认"' : '') + '\n' + (t.command || '');
+  if (t.id === 'servo_init' && servoInitBlocked()) startBtn.title = '5b服务仍在运行，禁止重复5a初始化互踩；按现场流程先退出旧服务，不自动杀进程。';
   startBtn.addEventListener('click', function () { openTerminal(t); });
   var stopBtn = el('button', 'btn btn-sm', '停止');
   stopBtn.disabled = st.state === 'idle';
@@ -1487,10 +1531,12 @@ function renderMonitor() {
   var reportTop = oldReport ? oldReport.scrollTop : 0;
   var keepReport = state.reportText;
   clear(body);
-  var tel = state.telemetry || {};
-  var telemetryAt = Number(tel.at || tel.t || 0);
+  var rawTelemetry = state.telemetry || {}, view = probeView();
+  var telemetryAt = Number(rawTelemetry.at || rawTelemetry.t || 0);
   var telemetryAge = telemetryAt ? nowSec() - telemetryAt : null;
-  var telemetryFresh = telemetryAge !== null && telemetryAge >= -1 && telemetryAge <= 2;
+  var telemetryFresh = view.usable;
+  state._lastProbeUsable = telemetryFresh;
+  var tel = telemetryFresh ? rawTelemetry : {};
   var unobserved = telemetryAt ? '未观测（遥测已过期）' : '未观测';
 
   var stage = state.stage || {};
@@ -1587,6 +1633,7 @@ function renderMonitor() {
   sd.appendChild(secHead('设备与遥测', 'master ' + (tel.master === true ? 'OK' : (tel.master === false ? '无' : '—'))));
   var sdb = el('div', 'sec-body');
   var kv3 = el('div', 'kv');
+  kvRow(kv3, '探针链路', view.detail, telemetryFresh ? 'ok' : 'warn');
   kvRow(kv3, 'ROS master', tel.master === true ? '已就绪' : (tel.master === false ? '未就绪' : '—'), tel.master ? 'ok' : 'warn');
   kvRow(kv3, '节点数', (tel.nodes || []).length + (tel.nodes && tel.nodes.length ? ('（' + tel.nodes.slice(0, 4).join(', ') + (tel.nodes.length > 4 ? ' …' : '') + '）') : ''));
   kvRow(kv3, '最后遥测', telemetryAt ? hhmmss(telemetryAt) + (telemetryFresh ? '' : ' · 已过期') : '未观测', telemetryFresh ? '' : 'warn');
@@ -1821,6 +1868,7 @@ function nowSec() { return Date.now() / 1000; }
 
 /* 每秒刷新阶段持续时间（本地时钟，不用服务端时间） */
 function tickElapsed() {
+  if (probeView().usable !== state._lastProbeUsable) scheduleRender();
   var nodes = document.querySelectorAll('[data-elapsed-since]');
   for (var i = 0; i < nodes.length; i++) {
     var since = parseFloat(nodes[i].getAttribute('data-elapsed-since'));
@@ -2291,6 +2339,14 @@ function doTrialStop() {
 function bindUI() {
   $('#btn-connect').addEventListener('click', function () { doConnect(false); });
   $('#btn-config').addEventListener('click', doConfig);
+  var probeReconnect = $('#btn-probe-reconnect');
+  if (probeReconnect) probeReconnect.addEventListener('click', function () {
+    if (!supportsCapability('probe_reconnect')) return;
+    confirmModal('只重连 probe', 'POST /api/action/probe_reconnect {}',
+      '只连接只读遥测探针。设备/任务/舵机常驻服务不会重新启动；75锁冲突时保留已有实例。', '只重连 probe').then(function (res) {
+        if (res && res.confirmed) act(api.probeReconnect(), '探针重连');
+      });
+  });
   var hostSel = $('#host-select');
   if (hostSel) {
     hostSel.addEventListener('change', function () {

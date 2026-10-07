@@ -10,13 +10,14 @@ import zipfile
 TOOL = Path(__file__).resolve().parent
 ROOT = TOOL.parents[1]
 FILES = (
-    'server.py', 'wb_ssh.py', 'wb_board.py', 'wb_status.py',
+    'server.py', 'wb_ssh.py', 'wb_board.py', 'wb_status.py', 'wb_logs.py',
     'wb_geometry.py', 'wb_survey.py', 'board_probe.py', 'workbench.yaml',
     'start_workbench.sh', 'start_windows.cmd', 'start_windows.ps1',
-    'requirements.txt', 'README_DISTRIBUTION.md',
+    'requirements.txt', 'README_DISTRIBUTION.md', 'README.md',
     'web/index.html', 'web/app.js', 'web/style.css',
     'web/observe.html', 'web/observe.js', 'web/observe.css',
     'web/motor_wiring.json',
+    'web/logs.html', 'web/logs.js', 'web/logs.css',
 )
 
 

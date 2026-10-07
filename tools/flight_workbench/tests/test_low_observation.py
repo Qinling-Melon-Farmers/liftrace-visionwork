@@ -132,7 +132,7 @@ class ObservationTests(unittest.TestCase):
     def test_topic_json_updates_hold_and_takeover_no_mission_success(self):
         self.active()
         for stage in ('RUN','FINISHED_HOVER','HOLD_FOR_PILOT','TAKEN_OVER'):
-            self.wb._feed_probe(json.dumps(dict(observe=dict(low_hover=dict(
+            self.wb._feed_probe(json.dumps(dict(master=True, observe=dict(low_hover=dict(
                 stage=stage,reason='diagnostic',armed=True,mode='OFFBOARD'))))+'\n')
             self.assertEqual(self.wb.stage.phase,stage)
         self.assertIsNone(self.wb.stage.outcome)

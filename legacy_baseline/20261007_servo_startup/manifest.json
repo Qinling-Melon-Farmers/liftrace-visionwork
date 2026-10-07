@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-07",
+  "source": "/tmp/actuator_pwm_board_20261007/patrol_uav_ws-patrol_planner/src/actuator_pwm",
+  "origin": "read-only board retrieval supplied by primary agent; no SSH performed",
+  "snapshot": "actuator_pwm/",
+  "inventory": "FILES.txt",
+  "sha256": "SHA256SUMS",
+  "left_slot": "fd8b0030.pwm / Pin15 / PWM3_M0",
+  "scope": "original complete board package before passive-startup and confirmed rear calibration patch"
+}

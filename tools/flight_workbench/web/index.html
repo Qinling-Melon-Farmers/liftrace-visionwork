@@ -22,6 +22,7 @@
     <button id="btn-connect" class="btn btn-primary" title="POST /api/connect {}">连接</button>
     <button id="btn-config" class="btn" title="修改地址、工程目录与连接参数">连接设置</button>
     <button id="btn-disconnect" class="btn" title="POST /api/disconnect {}">断开</button>
+    <button id="btn-probe-reconnect" class="btn" style="display:none" title="仅重连只读probe，不重启设备/任务服务">只重连 probe</button>
     <span class="sep"></span>
     <button id="btn-preflight" class="btn" title="POST /api/action/preflight {}">单实例检查</button>
     <button id="btn-start-all" class="btn" title="POST /api/action/start_all {include_servo, confirm:&quot;启动设备&quot;}">一键启动设备</button>
@@ -29,6 +30,7 @@
     <button id="btn-report" class="btn" title="POST /api/action/report {}">生成回报</button>
     <a class="btn" href="/observe" target="_blank" rel="noopener">实时状态曲线 ↗</a>
     <a class="btn" href="/motor" target="_blank" rel="noopener">低空电机观察 ↗</a>
+    <a id="link-recording" class="btn" style="display:none" href="/logs" target="_blank" rel="noopener">录制与下载 ↗</a>
     <span class="sep"></span>
     <label class="switch" title="阶段进入 READY / FAILED 时用 WebAudio 发出短提示音"><input type="checkbox" id="sw-sound"><span>声音提醒</span></label>
     <label class="switch" title="终端与日志自动跟随最新输出"><input type="checkbox" id="sw-autoscroll" checked><span>自动滚动</span></label>
