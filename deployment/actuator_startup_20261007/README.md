@@ -2,7 +2,7 @@
 
 当前工作树：`/home/xhj/liftrace-worktrees/r2026-board-vision-tests`。
 只在本目录和 `legacy_baseline/20261007_servo_startup` 新增文件；不改GPIO1_D2或20261003冻结配置，
-不commit、不写共享变更台账。原包完整快照、manifest、文件清单与SHA256已先保存。
+原包完整快照、manifest、文件清单与SHA256已先保存。运行源码与新二进制已在板端部署，详见下方现场状态。
 
 ## 行为
 
@@ -70,3 +70,7 @@ wsl -e bash -c 'bash /home/xhj/liftrace-worktrees/r2026-board-vision-tests/deplo
 有写事务后的析构仍会关闭输出（只在临时文件中测试）。真实机构释放及下次启动尚未验收。
 
 两份补丁已在原包副本实际应用，逐文件比对与待上板source完全一致；原包SHA256核对全部通过。
+
+## 现场部署状态（2026-10-07）
+
+10.75.120.193的0928工程已同步运行文件，在logs/servo_passive_build_20261007独立ARM构建成功，再原子替换devel/lib/actuator_pwm/pwm_node1。部署前后运行PID均12271，没有重启原服务。该旧进程仍使用旧常量；下一次正常启动新进程才启用被动检查及后仓反向标定。旧源包、旧可执行及构建日志保留在同一logs目录。
