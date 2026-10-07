@@ -6,7 +6,7 @@ diff --git a/README.md b/README.md
  |槽号|位置|PWM与设备地址|初始/释放脉宽ns|
  |---|---|---|---|
 -|1|后仓，现场Pin11标记|febf0020.pwm|700000 / 1700000|
-+|1|后仓，现场Pin11标记|febf0020.pwm|1700000 / 700000（现场确认伸出锁止、缩回开仓）|
++|1|后仓，现场Pin11标记|febf0020.pwm|1700000 / 2100000（晚间用户指定释放2100µs；锁止不变）|
  |2|右仓，现场Pin7标记|febf0030.pwm|1000000 / 2100000|
  |3|左仓，现场Pin15标记|fd8b0030.pwm（PWM3_M0）|1100000 / 2100000|
  
@@ -43,7 +43,7 @@ diff --git a/README.md b/README.md
 +已装载并机械锁止时必须保持默认 `false`。只有显式设为 `true` 才执行旧的
 +逐步返回值检查复位事务（disable/duty0/period/polarity/disable/initial/enable/1s/disable）；
 +该选项仅用于非装载的人工机构准备，不能作为装载后的启动或恢复方法。
-+后仓锁止值已据现场反馈改为1700000ns，释放值改为700000ns；左右未改。
++后仓锁止值已据现场反馈改为1700000ns，释放值于晚间按用户要求改为2100000ns；左右未改。
 +`init_pwm.sh` 原样保留，脚本会配置/写 sysfs，并非被动启动的一部分；
 +本次只部署源码并构建，不执行该脚本，不执行节点或任何服务请求。
  
@@ -155,7 +155,7 @@ diff --git a/include/actuator_pwm/SlotCalibration.h b/include/actuator_pwm/SlotC
 +// req order: rear / right / left. All values in ns; period stays 20 ms.
 +// Rear physically confirmed 2026-10-07: extended=locked, retracted=release.
 +const unsigned kInitialDutyNs[] = {1700000, 1000000, 1100000};
-+const unsigned kReleaseDutyNs[] = {700000, 2100000, 2100000};
++const unsigned kReleaseDutyNs[] = {2100000, 2100000, 2100000};
 +}
 diff --git a/launch/launch_all.launch b/launch/launch_all.launch
 --- a/launch/launch_all.launch
@@ -178,7 +178,7 @@ diff --git a/pwm_node1.cpp b/pwm_node1.cpp
   *
   * Orange Pi 5 当前接线（pwmchip 编号按硬件地址在运行时解析，不再写死）：
 - *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，初始 700000ns，投放 1700000ns
-+ *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，锁止 1700000ns，投放 700000ns（2026-10-07现场确认）
++ *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，锁止 1700000ns，投放 2100000ns（2026-10-07现场确认）
   *   req=2 右仓 Pin7  GPIO1_C6 febf0030.pwm，初始 1000000ns，投放 2100000ns
   *   req=3 左仓 Pin15 GPIO0_D4 fd8b0030.pwm（PWM3_M0），初始 1100000ns，投放 2100000ns
   *
@@ -328,7 +328,7 @@ diff --git a/src/pwm_node1.cpp b/src/pwm_node1.cpp
   *
   * Orange Pi 5 当前接线（pwmchip 编号按硬件地址在运行时解析，不再写死）：
 - *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，初始 700000ns，投放 1700000ns
-+ *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，锁止 1700000ns，投放 700000ns（2026-10-07现场确认）
++ *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，锁止 1700000ns，投放 2100000ns（2026-10-07现场确认）
   *   req=2 右仓 Pin7  GPIO1_C6 febf0030.pwm，初始 1000000ns，投放 2100000ns
   *   req=3 左仓 Pin15 GPIO0_D4 fd8b0030.pwm（PWM3_M0），初始 1100000ns，投放 2100000ns
   *

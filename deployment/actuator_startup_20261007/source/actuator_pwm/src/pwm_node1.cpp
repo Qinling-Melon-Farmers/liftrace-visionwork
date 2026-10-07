@@ -2,7 +2,7 @@
  * 舵机投放节点（实机标定；2026-10-07 左仓改到 PWM3_M0）
  *
  * Orange Pi 5 当前接线（pwmchip 编号按硬件地址在运行时解析，不再写死）：
- *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，锁止 1700000ns，投放 700000ns（2026-10-07现场确认）
+ *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，锁止 1700000ns，投放 2100000ns（2026-10-07现场确认）
  *   req=2 右仓 Pin7  GPIO1_C6 febf0030.pwm，初始 1000000ns，投放 2100000ns
  *   req=3 左仓 Pin15 GPIO0_D4 fd8b0030.pwm（PWM3_M0），初始 1100000ns，投放 2100000ns
  *

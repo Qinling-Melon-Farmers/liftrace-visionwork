@@ -114,7 +114,7 @@ diff --git a/tests/test_startup.cpp b/tests/test_startup.cpp
 +
 +int main() {
 +    try {
-+        require(actuator_pwm::kInitialDutyNs[0]==1700000 && actuator_pwm::kReleaseDutyNs[0]==700000,"confirmed rear direction");
++        require(actuator_pwm::kInitialDutyNs[0]==1700000 && actuator_pwm::kReleaseDutyNs[0]==2100000,"field requested rear release 2100us");
 +        require(actuator_pwm::kInitialDutyNs[1]==1000000 && actuator_pwm::kInitialDutyNs[2]==1100000 &&
 +                actuator_pwm::kReleaseDutyNs[1]==2100000 && actuator_pwm::kReleaseDutyNs[2]==2100000,"right/left unchanged");
 +        int cases=2;
