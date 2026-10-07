@@ -1,4 +1,5 @@
 """Shared offline contracts; no ROS/Gazebo imports or control outputs."""
+import copy
 import importlib.util
 import json
 import math
@@ -70,6 +71,72 @@ def validate_camera_info(info, contract):
                 K=info['K'], D=info['D'], frame_id=info['frame_id'])
 
 
+def rpy_quaternion(rpy):
+    if len(rpy) != 3 or not all(math.isfinite(v) for v in rpy):
+        raise ValueError('Invalid runtime RPY')
+    r, p, y = (v / 2.0 for v in rpy)
+    cr, sr, cp, sp, cy, sy = math.cos(r), math.sin(r), math.cos(p), math.sin(p), math.cos(y), math.sin(y)
+    return (sr*cp*cy-cr*sp*sy, cr*sp*cy+sr*cp*sy,
+            cr*cp*sy-sr*sp*cy, cr*cp*cy+sr*sp*sy)
+
+
+def rotation_difference(actual_rpy, expected_rpy):
+    # q_expected^-1 * q_actual; atan2 remains accurate for tiny rotations.
+    x, y, z, w = rpy_quaternion(expected_rpy)
+    x, y, z = -x, -y, -z
+    a, b, c, d = rpy_quaternion(actual_rpy)
+    delta = (w*a+x*d+y*c-z*b, w*b-x*c+y*d+z*a,
+             w*c+x*b-y*a+z*d, w*d-x*a-y*b-z*c)
+    return 2.0 * math.atan2(math.sqrt(sum(v*v for v in delta[:3])), abs(delta[3]))
+
+
+def normalized_bool(value):
+    value = value.strip().lower() if isinstance(value, str) else None
+    if value in ('true', '1'):
+        return True
+    if value in ('false', '0'):
+        return False
+    raise ValueError('Invalid runtime SDF boolean')
+
+
+def validate_runtime_sdf(tree, contract):
+    # Accept ONLY the three reviewed serialization differences. Normalize a
+    # private copy, then apply the unchanged strict source contract validator.
+    normalized = copy.deepcopy(tree)
+    profile = json.loads(Path(contract['profile']).read_text(encoding='utf-8'))
+    link, sensor, camera, plugin = generator.camera_elements(normalized, profile)
+    actual_fov = float(camera.findtext('horizontal_fov'))
+    close([actual_fov], [contract['horizontal_fov']], 'runtime FOV', 1e-5)
+    camera.find('horizontal_fov').text = str(contract['horizontal_fov'])
+    pose_errors = {}
+    for node, field, label in ((link, 'camera_link_pose', 'camera mount'),
+                               (sensor, 'sensor_pose', 'sensor pose')):
+        actual = [float(v) for v in node.findtext('pose', '0 0 0 0 0 0').split()]
+        expected = [float(v) for v in contract[field].split()]
+        if len(actual) != 6 or len(expected) != 6:
+            raise ValueError('Invalid runtime pose: ' + label)
+        close(actual[:3], expected[:3], label + ' translation', 1e-12)
+        angle = rotation_difference(actual[3:], expected[3:])
+        # Runtime ToString emits these Euler values to five decimal places.
+        # Three component rounding bounds sum to 1.5e-5 rad; 2e-5 includes
+        # margin. This changes serialization comparison ONLY, not source/CI.
+        if not math.isfinite(angle) or angle > 2e-5:
+            raise ValueError('Camera contract mismatch: ' + label + ' rotation')
+        pose_errors[label] = angle
+        generator.put(node, 'pose', contract[field])
+    for field, expected in (('autoDistortion', True), ('borderCrop', False)):
+        if normalized_bool(plugin.findtext(field)) is not expected:
+            raise ValueError('Camera plugin mismatch: ' + field)
+        plugin.find(field).text = 'true' if expected else 'false'
+    result = validate_sdf(normalized, contract)
+    result.update(runtime_serialization_policy='FOV 1e-5 rad; serialized rotation angle 2e-5 rad; boolean normalization only',
+                  observed_hfov=actual_fov,
+                  observed_hfov_delta_rad=actual_fov-contract['horizontal_fov'],
+                  pose_rotation_errors_rad=pose_errors,
+                  source_sdf_and_camera_info_validation='UNCHANGED_STRICT')
+    return result
+
+
 def validate_world_sdf(text, contract, model_name):
     root = ET.fromstring(text)
     models = root.findall("world/model[@name='%s']" % model_name)
@@ -77,7 +144,7 @@ def validate_world_sdf(text, contract, model_name):
         raise ValueError('Runtime world must contain exactly one vehicle: ' + model_name)
     selected = ET.Element('sdf', version=root.get('version', '1.6'))
     selected.append(models[0])
-    result = validate_sdf(ET.ElementTree(selected), contract)
+    result = validate_runtime_sdf(ET.ElementTree(selected), contract)
     result.update(model_name=model_name, source='Gazebo world_sdf transport response')
     return result
 

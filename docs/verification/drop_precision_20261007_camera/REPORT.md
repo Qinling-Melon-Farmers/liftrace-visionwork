@@ -49,3 +49,12 @@
 ## 变更边界
 
 仅新增本报告目录内工具/说明/小型结果、视觉评测包的一份研究 JSON 和生成脚本。本任务未修改 `drop_precision_20261006` 历史内容、`run_case.py`、`patrol_control`、共享变更记录或 ROADMAP，未 commit、切换/修改其他分支。工作区中控制源码/测试及 legacy 快照为并行 agent 的改动，本任务没有碰这些文件。
+
+
+## 运行后补充：实际相机检查与序列化兼容
+
+两轮飞行源码固定为66c36a9e：seed31=`logs/drop_precision_new_seed31_20261007_135022`，seed38=`logs/drop_precision_new_seed38_20261007_140702`。实际图像/CameraInfo与world SDF均已读取。seed38取得118组同源时间戳配对；两轮均使用居中主点640/360、D0。此结论是运行配置核对，不替代像素层标定或释放误差评测。
+
+seed31原runtime检查FAIL保留：Gazebo序列化的FOV小数和等价Euler形式使原严格文本比较误报；实际序列化角差1.0985e-5rad，实时link-state与安装TF差5.2068e-6rad、平移6.12e-8m。修正只针对评测解析：runtime旋转角差2e-5rad、FOV差1e-5rad，兼容bool 1/0；源SDF及CameraInfo严格检查保持。运行期间用/tmp评测副本重查，三份31快照及38运行检查PASS，未改飞行控制或其参数。
+
+两轮收尾后才将这项评测工具修正纳入仓库，原失败/原始SDF/补充PASS均保留；保存原始响应移至验证之前，避免失败时丢失诊断内容。主代理再次执行180组数学与12项负例，并离线重验四份实际world SDF及两项人为失配，全部符合预期，见runtime_snapshot_review.json。

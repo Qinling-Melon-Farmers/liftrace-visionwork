@@ -1,0 +1,191 @@
+{
+  "status": "PASS",
+  "source_head": "66c36a9e",
+  "runtime_snapshot_checks": [
+    {
+      "file": "logs/drop_precision_new_seed31_20261007_135022/camera_runtime_review_20261007/pose_diagnosis/sample_00.world.sdf",
+      "result": {
+        "status": "PASS",
+        "renderer_center": [
+          640.0,
+          360.0
+        ],
+        "renderer_D": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "published_K_expected": [
+          725.3510059644452,
+          0.0,
+          640.0,
+          0.0,
+          725.3510059644452,
+          360.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "published_D_expected": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "runtime_serialization_policy": "FOV 1e-5 rad; serialized rotation angle 2e-5 rad; boolean normalization only",
+        "observed_hfov": 1.44593,
+        "observed_hfov_delta_rad": -4.531903130100545e-06,
+        "pose_rotation_errors_rad": {
+          "camera mount": 1.0985246599475448e-05,
+          "sensor pose": 0.0
+        },
+        "source_sdf_and_camera_info_validation": "UNCHANGED_STRICT",
+        "model_name": "iris_mid360",
+        "source": "Gazebo world_sdf transport response"
+      }
+    },
+    {
+      "file": "logs/drop_precision_new_seed31_20261007_135022/camera_runtime_review_20261007/pose_diagnosis/sample_02.world.sdf",
+      "result": {
+        "status": "PASS",
+        "renderer_center": [
+          640.0,
+          360.0
+        ],
+        "renderer_D": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "published_K_expected": [
+          725.3510059644452,
+          0.0,
+          640.0,
+          0.0,
+          725.3510059644452,
+          360.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "published_D_expected": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "runtime_serialization_policy": "FOV 1e-5 rad; serialized rotation angle 2e-5 rad; boolean normalization only",
+        "observed_hfov": 1.44593,
+        "observed_hfov_delta_rad": -4.531903130100545e-06,
+        "pose_rotation_errors_rad": {
+          "camera mount": 1.0985246599475448e-05,
+          "sensor pose": 0.0
+        },
+        "source_sdf_and_camera_info_validation": "UNCHANGED_STRICT",
+        "model_name": "iris_mid360",
+        "source": "Gazebo world_sdf transport response"
+      }
+    },
+    {
+      "file": "logs/drop_precision_new_seed31_20261007_135022/camera_runtime_review_20261007/pose_diagnosis/sample_01.world.sdf",
+      "result": {
+        "status": "PASS",
+        "renderer_center": [
+          640.0,
+          360.0
+        ],
+        "renderer_D": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "published_K_expected": [
+          725.3510059644452,
+          0.0,
+          640.0,
+          0.0,
+          725.3510059644452,
+          360.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "published_D_expected": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "runtime_serialization_policy": "FOV 1e-5 rad; serialized rotation angle 2e-5 rad; boolean normalization only",
+        "observed_hfov": 1.44593,
+        "observed_hfov_delta_rad": -4.531903130100545e-06,
+        "pose_rotation_errors_rad": {
+          "camera mount": 1.0985246599475448e-05,
+          "sensor pose": 0.0
+        },
+        "source_sdf_and_camera_info_validation": "UNCHANGED_STRICT",
+        "model_name": "iris_mid360",
+        "source": "Gazebo world_sdf transport response"
+      }
+    },
+    {
+      "file": "logs/drop_precision_new_seed38_20261007_140702/camera_runtime_review_20261007/runtime_world.sdf",
+      "result": {
+        "status": "PASS",
+        "renderer_center": [
+          640.0,
+          360.0
+        ],
+        "renderer_D": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "published_K_expected": [
+          725.3510059644452,
+          0.0,
+          640.0,
+          0.0,
+          725.3510059644452,
+          360.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "published_D_expected": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "runtime_serialization_policy": "FOV 1e-5 rad; serialized rotation angle 2e-5 rad; boolean normalization only",
+        "observed_hfov": 1.44593,
+        "observed_hfov_delta_rad": -4.531903130100545e-06,
+        "pose_rotation_errors_rad": {
+          "camera mount": 1.0985246599475448e-05,
+          "sensor pose": 0.0
+        },
+        "source_sdf_and_camera_info_validation": "UNCHANGED_STRICT",
+        "model_name": "iris_mid360",
+        "source": "Gazebo world_sdf transport response"
+      }
+    }
+  ],
+  "negative_rejected": [
+    "horizontal_fov",
+    "distortion/k1"
+  ],
+  "note": "Offline recheck of actual saved runtime SDF; no simulator started and no control parameter changed."
+}

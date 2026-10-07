@@ -74,10 +74,11 @@ def observe(args, contract):
         # Request the server's loaded SDF rather than trusting the disk path.
         response = subprocess.run([str(args.world_sdf_helper), args.world],
                                   capture_output=True, text=True, timeout=20, check=True)
-        runtime_sdf = validate_world_sdf(response.stdout, contract, args.model_name)
+        # Preserve the raw server response before any parsing/validation can fail.
         if args.world_sdf_output:
             with args.world_sdf_output.open('x', encoding='utf-8') as stream:
                 stream.write(response.stdout)
+        runtime_sdf = validate_world_sdf(response.stdout, contract, args.model_name)
         return dict(status='PASS', scope='RUNTIME_CONFIG_OBSERVATION_NOT_PIXEL_CALIBRATION',
                     simulation_started_by_this_tool=False, camera_info_samples=len(infos),
                     image_samples=len(images), exact_stamp_pairs=paired,
