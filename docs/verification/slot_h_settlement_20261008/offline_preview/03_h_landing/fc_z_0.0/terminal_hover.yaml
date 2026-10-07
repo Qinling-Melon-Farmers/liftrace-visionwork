@@ -1,0 +1,5 @@
+descent_speed: 0.15
+frame: camera_init
+ground_z: -0.22
+hover_agl: 0.3
+max_agl: 2.9

@@ -20,3 +20,17 @@ motion_optimization:
 # Promoted from the operator-confirmed H flight on 2026-10-06.
 # Pilot completes final descent after visual alignment and POSCTL handoff.
 landing_handoff_mode: POSCTL
+
+# 来源 073c8f19：低位 H POSCTL 停稳参数；现场其他参数保持本分支值。
+landing_posctl:
+  target_agl: 0.35
+  trigger_agl: 0.37
+  xy_tolerance_m: 0.05
+  height_tolerance_m: 0.02
+  capture_height_tolerance_m: 0.10  # 仅观察高位；低位高度容差仍为 ±0.02m。
+  max_horizontal_speed_mps: 0.03
+  max_vertical_speed_mps: 0.05
+  stable_duration_sec: 0.5
+  max_odom_age_sec: 0.2
+  max_sample_gap_sec: 0.2
+  min_samples: 3

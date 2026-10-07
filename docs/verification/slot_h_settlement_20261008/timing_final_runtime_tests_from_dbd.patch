@@ -1,0 +1,839 @@
+diff --git a/patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/patrol_control.h b/patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/patrol_control.h
+index d8907695..409072aa 100644
+--- a/patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/patrol_control.h
++++ b/patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/patrol_control.h
+@@ -129,7 +129,10 @@ private:
+     LandingHandoffStabilityWindow drop_capture_window_, drop_release_window_;
+     LandingHandoffStabilityWindow landing_capture_window_, landing_handoff_window_;
+     void motionOdomCallback(const nav_msgs::Odometry::ConstPtr& msg);
+-    bool freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angular) const;
++    const char* motionFeedbackStatus() const;
++    bool motionTimePending() const;
++    bool freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angular,
++                     const char** rejection = nullptr) const;
+     bool setCompensatedDropTarget(geometry_msgs::PoseStamped* target);
+     bool compensatedDropSettled(bool release, double* error = nullptr,
+                                 double* speed = nullptr);
+diff --git a/patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp b/patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp
+index 00eeb135..a03ae58f 100644
+--- a/patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp
++++ b/patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp
+@@ -690,6 +690,7 @@ void LLController::externalLandingTick() {
+     }
+ 
+     // 运动稳定窗按控制时钟消费新里程计；低帧率 H 图像不等于里程计断流。
++    const bool motion_pending = external_landing_handoff_mode_ == "POSCTL" && motionTimePending();
+     bool capture_settled = external_landing_handoff_mode_ != "POSCTL";
+     if (!external_landing_alignment_complete_ && external_landing_handoff_mode_ == "POSCTL") {
+         if (mark_fresh) {
+@@ -698,7 +699,7 @@ void LLController::externalLandingTick() {
+                 uav_pose.pose.position.y-land_mark_point.pose.position.y));
+         } else landing_capture_window_.reset();
+     }
+-    if (external_landing_new_mark_) {
++    if (external_landing_new_mark_ && !motion_pending) {
+         if (mark_fresh && !external_landing_alignment_complete_) {
+             const double horizontal_error = std::hypot(
+                 uav_pose.pose.position.x - land_mark_point.pose.position.x,
+@@ -3457,39 +3458,76 @@ void LLController::publishAlignMode(const std::string& mode)
+ }
+ 
+ void LLController::motionOdomCallback(const nav_msgs::Odometry::ConstPtr& msg) {
+-    // 重发旧帧不能计作新的停稳样本；同一来源的无效新帧立即撤销运动就绪。
++    // 明显异常的未来时间不能污染递增水位，阻断后续正常里程计。
++    const double future = (msg->header.stamp-ros::Time::now()).toSec();
++    if (future > std::min(drop_settle_config_.max_odom_age_sec,
++                          landing_settle_config_.max_odom_age_sec)) {
++        motion_odom_valid_ = false;
++        drop_capture_window_.reset(); drop_release_window_.reset();
++        landing_capture_window_.reset(); landing_handoff_window_.reset();
++        return;
++    }
+     if (!motion_odom_.header.stamp.isZero() && msg->header.stamp <= motion_odom_.header.stamp) return;
+     motion_odom_ = *msg;
+     motion_odom_receipt_ = ros::Time::now();
++    // 此标志只表示已有样本；每次使用仍检查完整内容和时效。
++    // 不能把“本节点 /clock 暂未追上”永久锁成样本无效。
+     motion_odom_valid_ = true;
+-    Eigen::Vector3d v, w;
+-    if (!freshMotion(&v, &w)) {
+-        motion_odom_valid_ = false;
++    const char* reason = motionFeedbackStatus();
++    if (reason && std::string(reason) != "motion_time_pending") {
++        if (std::string(reason) == "motion_numeric_invalid" ||
++            std::string(reason) == "motion_frame_invalid" ||
++            std::string(reason) == "motion_odom_missing") motion_odom_valid_ = false;
+         drop_capture_window_.reset(); drop_release_window_.reset();
+         landing_capture_window_.reset(); landing_handoff_window_.reset();
+     }
+ }
+ 
+-bool LLController::freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angular) const {
++const char* LLController::motionFeedbackStatus() const {
+     const auto& m = motion_odom_;
+-    const double now = ros::Time::now().toSec();
+-    const double age = now - m.header.stamp.toSec();
+-    const double receipt_age = now - motion_odom_receipt_.toSec();
+-    const double pose_age = now - uav_pose.header.stamp.toSec();
+-    if (!motion_odom_valid_ || m.header.stamp.isZero() || uav_pose.header.stamp.isZero() ||
+-        pose_age < 0.0 || pose_age > drop_settle_config_.max_odom_age_sec || age < 0.0 || receipt_age < 0.0 ||
+-        age > std::min(drop_settle_config_.max_odom_age_sec, landing_settle_config_.max_odom_age_sec) ||
+-        receipt_age > std::min(drop_settle_config_.max_odom_age_sec, landing_settle_config_.max_odom_age_sec) ||
+-        m.header.frame_id.empty() || m.header.frame_id != uav_pose.header.frame_id ||
+-        (motion_twist_frame_ == "child" && m.child_frame_id.empty())) return false;
++    if (!motion_odom_valid_ || m.header.stamp.isZero() || motion_odom_receipt_.isZero())
++        return "motion_odom_missing";
++    if (uav_pose.header.stamp.isZero()) return "motion_pose_missing";
++    if (m.header.frame_id.empty() || m.header.frame_id != uav_pose.header.frame_id ||
++        (motion_twist_frame_ == "child" && m.child_frame_id.empty())) return "motion_frame_invalid";
+     const auto& p = m.pose.pose.position;
+     const auto& q = m.pose.pose.orientation;
+-    Eigen::Quaterniond rotation(q.w,q.x,q.y,q.z);
+-    *velocity = Eigen::Vector3d(m.twist.twist.linear.x,m.twist.twist.linear.y,m.twist.twist.linear.z);
+-    *angular = Eigen::Vector3d(m.twist.twist.angular.x,m.twist.twist.angular.y,m.twist.twist.angular.z);
++    const Eigen::Quaterniond rotation(q.w,q.x,q.y,q.z);
++    const auto& v = m.twist.twist.linear;
++    const auto& w = m.twist.twist.angular;
+     if (!std::isfinite(p.x) || !std::isfinite(p.y) || !std::isfinite(p.z) ||
+         !rotation.coeffs().allFinite() || std::abs(rotation.norm()-1.0) > 0.01 ||
+-        !velocity->allFinite() || !angular->allFinite()) return false;
++        !Eigen::Vector3d(v.x,v.y,v.z).allFinite() ||
++        !Eigen::Vector3d(w.x,w.y,w.z).allFinite()) return "motion_numeric_invalid";
++    const double now = ros::Time::now().toSec();
++    const double age = now-m.header.stamp.toSec();
++    const double receipt_age = now-motion_odom_receipt_.toSec();
++    const double pose_age = now-uav_pose.header.stamp.toSec();
++    const double limit = std::min(drop_settle_config_.max_odom_age_sec,
++                                  landing_settle_config_.max_odom_age_sec);
++    if (age > limit || receipt_age > limit || pose_age > drop_settle_config_.max_odom_age_sec)
++        return "motion_feedback_stale";
++    if (age < -limit || receipt_age < -limit || pose_age < -limit)
++        return "motion_clock_invalid";
++    if (age < 0.0 || receipt_age < 0.0 || pose_age < 0.0) return "motion_time_pending";
++    return nullptr;
++}
++
++bool LLController::motionTimePending() const {
++    const char* reason = motionFeedbackStatus();
++    return reason && std::string(reason) == "motion_time_pending";
++}
++
++bool LLController::freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angular,
++                               const char** rejection) const {
++    const char* reason = motionFeedbackStatus();
++    if (rejection) *rejection = reason;
++    if (reason) return false;
++    const auto& m = motion_odom_;
++    const auto& q = m.pose.pose.orientation;
++    const Eigen::Quaterniond rotation(q.w,q.x,q.y,q.z);
++    *velocity = Eigen::Vector3d(m.twist.twist.linear.x,m.twist.twist.linear.y,m.twist.twist.linear.z);
++    *angular = Eigen::Vector3d(m.twist.twist.angular.x,m.twist.twist.angular.y,m.twist.twist.angular.z);
+     if (motion_twist_frame_ == "child") {
+         *velocity = rotation.normalized() * *velocity;
+         *angular = rotation.normalized() * *angular;
+@@ -3535,8 +3573,13 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
+         c.semantic_target_first_seen == b.semantic_target_first_seen && c.semantic_target_class == b.semantic_target_class &&
+         c.align_mode == b.align_mode && c.deadline > ros::Time::now();
+     if (!compensated_goal_valid_ || !bound || c.payload_slot < 1 || c.payload_slot > 3 ||
+-        Drone_mode != Aligning || !freshMotion(&velocity,&angular) ||
+-        (release && !compensated_goal_frozen_)) { window.reset(); return false; }
++        Drone_mode != Aligning || (release && !compensated_goal_frozen_)) { window.reset(); return false; }
++    const char* motion_reason = nullptr;
++    if (!freshMotion(&velocity,&angular,&motion_reason)) {
++        if (!motion_reason || std::string(motion_reason) != "motion_time_pending") window.reset();
++        ROS_INFO_THROTTLE(1.0, "[DropGeometry] motion wait: %s", motion_reason);
++        return false;
++    }
+     const auto& offsets = c.align_mode == "drop_cross" ? dynamic_drop_slot_offsets_ : drop_slot_offsets_;
+     const auto& q = motion_odom_.pose.pose.orientation;
+     if (!outletArmInMission(Eigen::Quaterniond(q.w,q.x,q.y,q.z),
+@@ -3570,7 +3613,7 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
+     sample.control_ready = externalLandingControlReady(ros::Time::now());
+     sample.feedback_valid = true;
+     const auto result = window.update(now,sample);
+-    if (release && !result.ready) ROS_INFO_THROTTLE(1.0,
++    if (!result.ready) ROS_INFO_THROTTLE(1.0,
+         "[DropGeometry] waiting: %s xy=%.3f speed=%.3f zerr=%.3f samples=%zu",
+         result.reason,xy_error,horizontal_speed,sample.z_error_m,result.sample_count);
+     return result.ready;
+@@ -3592,6 +3635,8 @@ bool LLController::freezeCompensatedDropTarget() {
+ 
+ void LLController::publishCompensatedAlignment() {
+     if (!external_mission_mode_ || !compensated_alignment_enabled_ || Drone_mode != Aligning) return;
++    // 暂未来到评估时刻的样本不形成错误的 invalid 反馈；旧反馈仍受原时效限制。
++    if (motionTimePending()) return;
+     double error = -1.0, speed = -1.0;
+     const bool ready = compensatedDropSettled(false,&error,&speed);
+     uav_vision::DropAlignmentFeedback feedback;
+@@ -3609,7 +3654,9 @@ void LLController::publishCompensatedAlignment() {
+     feedback.aligned=ready; feedback.frozen=compensated_goal_frozen_;
+     feedback.target_fc=compensated_fc_goal_.pose.position;
+     feedback.horizontal_error_m=error; feedback.horizontal_speed_mps=speed;
+-    feedback.reason=ready ? "compensated_settled" : "compensated_not_settled";
++    const char* motion_reason = motionFeedbackStatus();
++    feedback.reason=motion_reason ? motion_reason :
++        (ready ? "compensated_settled" : "compensated_not_settled");
+     compensated_alignment_pub_.publish(feedback);
+ }
+ 
+@@ -3617,7 +3664,10 @@ bool LLController::landingMotionSettled(bool handoff, double xy_error) {
+     auto& window = handoff ? landing_handoff_window_ : landing_capture_window_;
+     Eigen::Vector3d v,w;
+     LandingHandoffSample sample;
+-    sample.feedback_valid = freshMotion(&v,&w);
++    const char* motion_reason = nullptr;
++    sample.feedback_valid = freshMotion(&v,&w,&motion_reason);
++    if (!sample.feedback_valid && motion_reason &&
++        std::string(motion_reason) == "motion_time_pending") return false;
+     sample.source_stamp_sec=motion_odom_.header.stamp.toSec();
+     sample.receipt_stamp_sec=motion_odom_receipt_.toSec();
+     sample.height_m=motion_odom_.pose.pose.position.z;
+diff --git a/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_compensated_drop_geometry.py b/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_compensated_drop_geometry.py
+index 5c0f3d53..13933999 100644
+--- a/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_compensated_drop_geometry.py
++++ b/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_compensated_drop_geometry.py
+@@ -168,7 +168,9 @@ public:
+   latest_drop_ready_time_=ros::Time::now();
+  }
+  void motionOdomCallback(const nav_msgs::Odometry::ConstPtr&);
+- bool freshMotion(Eigen::Vector3d*,Eigen::Vector3d*)const;
++ const char* motionFeedbackStatus() const;
++ bool motionTimePending() const;
++ bool freshMotion(Eigen::Vector3d*,Eigen::Vector3d*,const char** =nullptr)const;
+  bool setCompensatedDropTarget(geometry_msgs::PoseStamped*);
+  bool compensatedDropSettled(bool,double* =nullptr,double* =nullptr);
+  bool freezeCompensatedDropTarget();
+@@ -332,6 +334,42 @@ int main(int argc,char**argv){
+   odom(c,101.3125,g.x,g.y,.35);assert(!c.compensatedDropSettled(true));
+   assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);
+   odom(c,101.375,g.x,g.y,.35);assert(c.compensatedDropSettled(true));
++ }else if(name=="future_sequence" || name=="future_pose_sequence"){
++  capture(c);const auto g=c.compensated_fc_goal_.pose.position;
++  for(int i=0;i<4;++i){
++   const double now=101+i*.125;odom(c,now,g.x,g.y,.35);
++   auto m=std::make_shared<nav_msgs::Odometry>(c.motion_odom_);
++   m->header.stamp=ros::Time(now+.003);
++   c.uav_pose.header.stamp=ros::Time(now+.003);
++   if(name=="future_sequence") c.motionOdomCallback(m);
++   Eigen::Vector3d v,w;const char* reason=nullptr;
++   assert(!c.freshMotion(&v,&w,&reason));
++   assert(reason&&std::string(reason)=="motion_time_pending");
++   assert(c.motionTimePending()&&!c.compensatedDropSettled(true));
++   assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);
++   ros::clock_sec=now+.004;
++   assert(c.freshMotion(&v,&w)&&!c.motionTimePending());
++   // Same retained sample becomes usable; no callback or stamp rewriting.
++   assert(c.compensatedDropSettled(true)==(i==3));
++   assert(c.compensatedDropSettled(true)==(i==3));
++  }
++ }else if(name=="future_watermark"){
++  capture(c);const auto g=c.compensated_fc_goal_.pose.position;
++  odom(c,101,g.x,g.y,.35);const double accepted=c.motion_odom_.header.stamp.toSec();
++  auto m=std::make_shared<nav_msgs::Odometry>(c.motion_odom_);m->header.stamp=ros::Time(500);
++  c.motionOdomCallback(m);assert(!c.motion_odom_valid_);
++  close(c.motion_odom_.header.stamp.toSec(),accepted);
++  Eigen::Vector3d v,w;assert(!c.freshMotion(&v,&w));
++  odom(c,101.125,g.x,g.y,.35);assert(c.freshMotion(&v,&w));
++  assert(!c.compensatedDropSettled(true));
++ }else if(name=="future_bad_numeric"){
++  capture(c);const auto g=c.compensated_fc_goal_.pose.position;
++  odom(c,101,g.x,g.y,.35);
++  auto m=std::make_shared<nav_msgs::Odometry>(c.motion_odom_);m->header.stamp=ros::Time(101.003);
++  m->twist.twist.linear.x=std::numeric_limits<double>::quiet_NaN();
++  c.motionOdomCallback(m);assert(!c.motion_odom_valid_&&!c.motionTimePending());
++  ros::clock_sec=101.004;Eigen::Vector3d v,w;assert(!c.freshMotion(&v,&w));
++  assert(!c.compensatedDropSettled(true));
+  }else if(name=="invalid_motion"){
+   odom(c,100,0,0,1);auto p=center(100);assert(c.setCompensatedDropTarget(&p));
+   auto m=std::make_shared<nav_msgs::Odometry>(c.motion_odom_);m->header.stamp=ros::Time(100.1);
+@@ -348,6 +386,8 @@ class CompensatedDropGeometryTests(unittest.TestCase):
+         source = (PACKAGE / 'src/patrol_control.cpp').read_text(encoding='utf-8')
+         signatures = (
+             'void LLController::motionOdomCallback(',
++            'const char* LLController::motionFeedbackStatus(',
++            'bool LLController::motionTimePending(',
+             'bool LLController::freshMotion(',
+             'bool LLController::setCompensatedDropTarget(',
+             'bool LLController::compensatedDropSettled(',
+@@ -398,6 +438,11 @@ class CompensatedDropGeometryTests(unittest.TestCase):
+     def test_duration_alone_still_needs_three_distinct_frames(self): self.run_case('frame_count')
+     def test_admitted_async_rpc_survives_new_frames_and_revocation(self): self.run_case('async')
+     def test_invalid_new_motion_revokes_readiness(self): self.run_case('invalid_motion')
++    def test_continuous_future_odom_waits_without_erasing_settlement(self): self.run_case('future_sequence')
++    def test_continuous_future_pose_waits_without_erasing_settlement(self): self.run_case('future_pose_sequence')
++    def test_far_future_stamp_does_not_poison_source_watermark(self): self.run_case('future_watermark')
++    def test_future_numeric_invalid_sample_cannot_recover_by_waiting(self): self.run_case('future_bad_numeric')
++
+ 
+ 
+ if __name__ == '__main__':
+diff --git a/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_external_landing_handoff.py b/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_external_landing_handoff.py
+index c49e2871..a950ffe4 100644
+--- a/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_external_landing_handoff.py
++++ b/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_external_landing_handoff.py
+@@ -136,6 +136,7 @@ public:
+     SettlementWindowStub landing_capture_window_, landing_handoff_window_;
+     bool landing_motion_settled_=true;
+     int capture_settle_calls_=0, handoff_settle_calls_=0;
++    bool motionTimePending() const { return false; }
+     bool landingMotionSettled(bool handoff, double) {
+         if (handoff) ++handoff_settle_calls_;
+         else ++capture_settle_calls_;
+diff --git a/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_landing_motion_settlement.py b/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_landing_motion_settlement.py
+index 894765d1..1d1dfe66 100644
+--- a/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_landing_motion_settlement.py
++++ b/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_landing_motion_settlement.py
+@@ -24,7 +24,11 @@ FEEDBACK = r'''
+     ros::Time motion_odom_receipt_;
+     Eigen::Vector3d feedback_velocity_{0,0,0};
+     bool feedback_valid_=true;
+-    bool freshMotion(Eigen::Vector3d* v, Eigen::Vector3d* w) const {
++    bool motion_time_pending_=false;
++    bool motionTimePending() const { return motion_time_pending_; }
++    bool freshMotion(Eigen::Vector3d* v, Eigen::Vector3d* w,
++                     const char** rejection=nullptr) const {
++        if (rejection) *rejection=motion_time_pending_ ? "motion_time_pending" : nullptr;
+         *v=feedback_velocity_; *w=Eigen::Vector3d::Zero(); return feedback_valid_;
+     }
+     bool landingMotionSettled(bool handoff, double xy_error);
+@@ -83,6 +87,61 @@ int main(int argc, char** argv) {
+             assert(c.patrol_cmd.pose.position.z==(i==55 ? .35 : 1.2));
+         }
+         assert(c.set_mode_client.calls==0);
++    } else if (name=="capture_pending_3ms_preserves_window_and_four_hz_images") {
++        // 每个 20Hz 运动样本先领先本节点时钟 3ms；4Hz H 帧在 pending tick 保留。
++        // 追时 tick 复用同一来源样本，不伪造新 odom 或新 H 图像。
++        for (int i=0;i<=55;++i) {
++            const double t=100+i*.05;
++            const bool new_h=i%5==0;
++            feedback(c,t,1.2,0.,0.,new_h);
++            c.motion_odom_.header.stamp=ros::Time(t+.003);
++            c.motion_time_pending_=true;
++            c.feedback_valid_=false;
++            const int before=c.external_landing_stable_count_;
++            assert(!c.landingMotionSettled(false,0));
++            c.externalLandingTick();
++            assert(c.external_landing_stable_count_==before);
++            assert(c.external_landing_new_mark_==new_h);
++            assert(!c.external_landing_alignment_complete_);
++            assert(c.patrol_cmd.pose.position.z==1.2);
++            assert(c.set_mode_client.calls==0);
++
++            ros::clock=t+.003;
++            state(c);
++            c.motion_time_pending_=false;
++            c.feedback_valid_=true;
++            c.externalLandingTick();
++            assert(!c.external_landing_new_mark_);
++            assert(c.external_landing_stable_count_==(i<10 ? 0 : (i-10)/5+1));
++            assert(c.external_landing_alignment_complete_==(i==55));
++            assert(c.patrol_cmd.pose.position.z==(i==55 ? .35 : 1.2));
++            assert(c.set_mode_client.calls==0);
++        }
++    } else if (name=="handoff_pending_3ms_preserves_window_without_early_posctl") {
++        c.external_landing_alignment_complete_=true;
++        c.external_landing_aligned_goal_.pose.position={1,2,.35};
++        // 低位连续样本均经历 pending；到满 0.5s 的最后样本也必须等时钟追上。
++        for (int i=0;i<=10;++i) {
++            const double t=100+i*.05;
++            feedback(c,t,.35,0.,0.,false);
++            c.motion_odom_.header.stamp=ros::Time(t+.003);
++            c.motion_time_pending_=true;
++            c.feedback_valid_=false;
++            assert(!c.landingMotionSettled(true,0));
++            c.externalLandingTick();
++            assert(c.external_landing_alignment_complete_);
++            assert(!c.external_landing_auto_land_requested_);
++            assert(c.patrol_cmd.pose.position.z==.35);
++            assert(c.set_mode_client.calls==0);
++
++            ros::clock=t+.003;
++            state(c);
++            c.motion_time_pending_=false;
++            c.feedback_valid_=true;
++            c.externalLandingTick();
++            assert(c.set_mode_client.calls==(i==10 ? 1 : 0));
++            assert(c.external_landing_auto_land_requested_==(i==10));
++        }
+     } else if (name=="capture_and_handoff_have_independent_windows") {
+         for (int i=0;i<5;++i) {
+             feedback(c,100+i*.125,1.2);
+@@ -165,6 +224,8 @@ class ProductionHSettlementTests(unittest.TestCase):
+ 
+ for _case in ('capture_center_speed_height_and_ten_frames',
+               'capture_20hz_with_four_h_frames_per_second',
++              'capture_pending_3ms_preserves_window_and_four_hz_images',
++              'handoff_pending_3ms_preserves_window_without_early_posctl',
+               'capture_and_handoff_have_independent_windows',
+               'low_handoff_rejects_speed_height_and_final_xy',
+               'latched_h_does_not_follow_cropped_or_missing_images'):
+diff --git a/vision_ws/src/uav_vision/scripts/drop_aligner.py b/vision_ws/src/uav_vision/scripts/drop_aligner.py
+index e7f8ae84..f8d76aab 100755
+--- a/vision_ws/src/uav_vision/scripts/drop_aligner.py
++++ b/vision_ws/src/uav_vision/scripts/drop_aligner.py
+@@ -3,6 +3,7 @@
+ import math
+ import copy
+ import threading
++import time
+ from collections import OrderedDict
+ 
+ import rospy
+@@ -55,10 +56,15 @@ class DropAligner:
+             rospy.get_param("~compensated_odom_max_age", 0.5))
+         self._compensated_observation_cache_size = int(
+             rospy.get_param("~compensated_observation_cache_size", 16))
++        self._compensated_future_wait = float(
++            rospy.get_param("~compensated_feedback_future_wait_sec", 0.1))
+         if (not all(math.isfinite(value) and value > 0.0 for value in (
+                 self._compensated_feedback_max_age, self._compensated_odom_max_age)) or
+                 not 1 <= self._compensated_observation_cache_size <= 64):
+             raise ValueError("compensated alignment requires positive finite ages and cache size 1..64")
++        if (not math.isfinite(self._compensated_future_wait) or
++                not 0.0 < self._compensated_future_wait <= 0.5):
++            raise ValueError("compensated_feedback_future_wait_sec must be in (0, 0.5]")
+         self._alignment_context_max_age = float(
+             rospy.get_param("~alignment_context_max_age", 0.5))
+         self._alignment_context_watchdog_rate = float(
+@@ -100,6 +106,8 @@ class DropAligner:
+         self._last_context_watchdog_reason = None
+         self._compensated_observations = OrderedDict()
+         self._compensated_feedback = None
++        self._pending_feedback = OrderedDict()
++        self._pending_context = None
+         # A monotonic watermark survives rejection/context changes: replaying an
+         # image can never restart or extend a streak, even after cache eviction.
+         self._last_counted_observation = None
+@@ -177,6 +185,8 @@ class DropAligner:
+ 
+     def _on_alignment_context(self, msg):
+         with self._state_lock:
++            if self._compensated_alignment_active():
++                self._drain_pending_context()
+             try:
+                 frozen_key = context_frozen_key(msg)
+             except (AttributeError, TypeError, ValueError, OverflowError):
+@@ -193,6 +203,17 @@ class DropAligner:
+                     "mission=%s decision=%u target=%u attempt=%u slot=%u",
+                     msg.mission_id, msg.decision_seq, msg.semantic_target_id,
+                     msg.attempt, msg.payload_slot)
++            if (self._compensated_alignment_active() and
++                    frozen_key == self._alignment_context_frozen_key and
++                    0.0 < (msg.header.stamp - rospy.Time.now()).to_sec() <= self._compensated_future_wait):
++                # Validate the full lease/data at its stated evaluation time;
++                # this does not admit it until our own clock reaches that time.
++                valid, _ = self._validate_context(msg, msg.header.stamp)
++                if valid:
++                    self._drain_pending_feedback()
++                    self._pending_context = (copy.deepcopy(msg), time.monotonic())
++                    return
++            self._pending_context = None
+             self._alignment_context = msg
+             changed = frozen_key != self._alignment_context_frozen_key
+             self._alignment_context_frozen_key = frozen_key
+@@ -203,6 +224,8 @@ class DropAligner:
+         with self._state_lock:
+             if not self._context_required():
+                 return
++            if self._compensated_alignment_active():
++                self._drain_pending_context()
+             if self._align_mode == "disabled":
+                 self._clear_stability()
+                 self._last_context_watchdog_reason = None
+@@ -210,6 +233,7 @@ class DropAligner:
+             valid, reason = self._base_context_status()
+             if valid:
+                 if self._compensated_alignment_active():
++                    self._drain_pending_feedback()
+                     self._publish_compensated_state()
+                     return
+                 if self._active_geometry_last_seen is not None:
+@@ -243,6 +267,8 @@ class DropAligner:
+         if getattr(self, "_require_compensated_alignment", False):
+             self._compensated_observations.clear()
+             self._compensated_feedback = None
++            self._pending_feedback.clear()
++            self._pending_context = None
+ 
+     def _target_sort_key(self, target):
+         return (target.geometry_confidence, target.class_confidence, target.observe_count)
+@@ -256,9 +282,12 @@ class DropAligner:
+         }.get(self._align_mode, "invalid mode")
+ 
+     def _base_context_status(self):
++        return self._validate_context(self._alignment_context, rospy.Time.now())
++
++    def _validate_context(self, context, now):
+         return validate_alignment_context(
+-            self._alignment_context,
+-            rospy.Time.now(),
++            context,
++            now,
+             self._class_profile,
+             self._allowed_alignment_commands,
+             self._align_mode,
+@@ -347,6 +376,8 @@ class DropAligner:
+ 
+     def _on_targets(self, msg):
+         with self._state_lock:
++            if self._compensated_alignment_active():
++                self._drain_pending_feedback()
+             self._on_targets_locked(msg)
+ 
+     def _on_targets_locked(self, msg):
+@@ -502,7 +533,7 @@ class DropAligner:
+             if self._stamp_reason(target.last_seen, self._target_max_age, "observation"):
+                 del self._compensated_observations[key]
+ 
+-    def _compensated_feedback_status(self, feedback):
++    def _compensated_feedback_status(self, feedback, defer_future=False):
+         valid, reason = self._base_context_status()
+         if not valid:
+             return None, reason, (False, reason, float("inf"))
+@@ -515,12 +546,16 @@ class DropAligner:
+             return None, "compensated_alignment_context_mismatch", None
+         if feedback.header.frame_id != context.target_pose.header.frame_id:
+             return None, "compensated_alignment_frame_mismatch", None
++        future_reason = None
+         for stamp, max_age, label in (
+                 (feedback.header.stamp, self._compensated_feedback_max_age, "feedback"),
+                 (feedback.observation_stamp, self._target_max_age, "observation"),
+                 (feedback.odom_stamp, self._compensated_odom_max_age, "odom")):
+             reason = self._stamp_reason(stamp, max_age, label)
+             if reason:
++                if defer_future and reason.endswith("_future"):
++                    future_reason = future_reason or reason
++                    continue
+                 return None, reason, None
+         if (feedback.observation_stamp > feedback.header.stamp or
+                 feedback.odom_stamp > feedback.header.stamp):
+@@ -544,49 +579,98 @@ class DropAligner:
+         status = self._context_status_for_target(target)
+         if not status[0]:
+             return target, status[1], status
+-        return target, None, status
++        return target, future_reason, status
++
++    def _drain_pending_context(self):
++        if self._pending_context is None:
++            return
++        context, received = self._pending_context
++        if context.header.stamp <= rospy.Time.now():
++            self._pending_context = None
++            self._alignment_context = context
++        elif time.monotonic() - received > self._compensated_future_wait:
++            self._pending_context = None
++
++    def _drain_pending_feedback(self):
++        self._drain_pending_context()
++        valid, reason = self._base_context_status()
++        if not valid:
++            self._clear_stability()
++            self._publish_state(None, False, [reason], (False, reason, float("inf")))
++            return
++        # Consume older messages before an incoming future heartbeat can replace
++        # them. All admission uses the unchanged message and ordinary age gates.
++        for key, (msg, received) in list(self._pending_feedback.items()):
++            if msg.header.stamp <= rospy.Time.now():
++                del self._pending_feedback[key]
++                self._apply_compensated_feedback(msg, *self._compensated_feedback_status(msg))
++            elif time.monotonic() - received > self._compensated_future_wait:
++                del self._pending_feedback[key]
++                self._apply_compensated_feedback(
++                    msg, None, "compensated_alignment_feedback_future_wait_expired", None)
+ 
+     def _on_drop_alignment_feedback(self, msg):
+         with self._state_lock:
+             if not self._compensated_alignment_active():
+                 return
++            self._drain_pending_feedback()
+             self._prune_compensated_observations()
+-            # A new valid sample must not inherit a streak whose previous
+-            # evidence expired between callbacks, even if the watchdog was
+-            # delayed. Keep the new image cache, but retire the old streak.
+-            if self._compensated_feedback is not None:
+-                _, previous_reason, _ = self._compensated_feedback_status(
+-                    self._compensated_feedback)
+-                if previous_reason:
+-                    self._consecutive_ok = 0
+-                    self._compensated_feedback = None
+             target, reason, status = self._compensated_feedback_status(msg)
+-            key = self._stamp_key(msg.observation_stamp)
+-            if (reason is None and self._last_counted_observation is not None and
+-                    key < self._last_counted_observation):
+-                reason = "compensated_alignment_observation_out_of_order"
+-            if reason:
++            if (reason == "compensated_alignment_feedback_future" and
++                    0.0 < (msg.header.stamp - rospy.Time.now()).to_sec() <= self._compensated_future_wait):
++                target, reason, status = self._compensated_feedback_status(msg, defer_future=True)
++                if reason == "compensated_alignment_feedback_future":
++                    key = (self._stamp_key(msg.header.stamp), self._stamp_key(msg.observation_stamp))
++                    if key not in self._pending_feedback:
++                        self._pending_feedback[key] = (copy.deepcopy(msg), time.monotonic())
++                    while len(self._pending_feedback) > 8:
++                        self._pending_feedback.popitem(last=False)
++                    self._publish_compensated_state()
++                    return
++            self._apply_compensated_feedback(msg, target, reason, status)
++
++    def _apply_compensated_feedback(self, msg, target, reason, status):
++        # Caller holds the callback lock, including when consuming pending data.
++        # A new valid sample must not inherit a streak whose previous
++        # evidence expired between callbacks, even if the watchdog was
++        # delayed. Keep the new image cache, but retire the old streak.
++        if self._compensated_feedback is not None:
++            _, previous_reason, _ = self._compensated_feedback_status(
++                self._compensated_feedback)
++            if previous_reason:
+                 self._consecutive_ok = 0
+                 self._compensated_feedback = None
+-                self._publish_state(target, False, [reason], status)
+-                return
+-            is_new_image = (self._last_counted_observation is None or
+-                            key > self._last_counted_observation)
+-            if not msg.aligned:
+-                self._consecutive_ok = 0
+-            elif is_new_image:
+-                self._consecutive_ok += 1
+-            if is_new_image:
+-                self._last_counted_observation = key
+-            self._compensated_feedback = copy.deepcopy(msg)
+-            self._publish_compensated_state()
++        key = self._stamp_key(msg.observation_stamp)
++        if (reason is None and self._last_counted_observation is not None and
++                key < self._last_counted_observation):
++            reason = "compensated_alignment_observation_out_of_order"
++        if reason:
++            self._consecutive_ok = 0
++            self._compensated_feedback = None
++            self._publish_state(target, False, [reason], status)
++            return
++        is_new_image = (self._last_counted_observation is None or
++                        key > self._last_counted_observation)
++        if not msg.aligned:
++            self._consecutive_ok = 0
++        elif is_new_image:
++            self._consecutive_ok += 1
++        if is_new_image:
++            self._last_counted_observation = key
++        self._compensated_feedback = copy.deepcopy(msg)
++        self._publish_compensated_state()
+ 
+     def _publish_compensated_state(self):
+-        # Only feedback callbacks count frames. Target republishes and watchdog
+-        # ticks may revoke readiness, but cannot turn a single image into a streak.
++        # Only admitted feedback counts source images. Republishes and watchdog
++        # ticks cannot turn a single image into a streak.
+         self._prune_compensated_observations()
+         feedback = self._compensated_feedback
+         if feedback is None:
++            if self._pending_feedback:
++                msg = next(iter(self._pending_feedback.values()))[0]
++                target = self._compensated_observations.get(self._stamp_key(msg.observation_stamp))
++                self._publish_state(target, False, ["compensated_alignment_feedback_pending"])
++                return
+             self._publish_state(None, False, ["compensated_alignment_feedback_missing"])
+             return
+         target, reason, status = self._compensated_feedback_status(feedback)
+diff --git a/vision_ws/src/uav_vision/test/test_compensated_drop_alignment.py b/vision_ws/src/uav_vision/test/test_compensated_drop_alignment.py
+index c3e1af18..e64a5d3c 100644
+--- a/vision_ws/src/uav_vision/test/test_compensated_drop_alignment.py
++++ b/vision_ws/src/uav_vision/test/test_compensated_drop_alignment.py
+@@ -50,6 +50,9 @@ class CompensatedDropAlignmentTest(unittest.TestCase):
+         patched = patch.object(ALIGNER.rospy.Time, "now", return_value=rospy.Time(100))
+         self.clock = patched.start()
+         self.addCleanup(patched.stop)
++        patched = patch.object(ALIGNER.time, "monotonic", return_value=0.0)
++        self.wall_clock = patched.start()
++        self.addCleanup(patched.stop)
+         self.node = ALIGNER.DropAligner()
+         self.node._on_align_mode(String(data="drop_circle"))
+         self.context = self.make_context()
+@@ -266,7 +269,7 @@ class CompensatedDropAlignmentTest(unittest.TestCase):
+             ("header", 99.49, "feedback_stale"),
+             ("observation_stamp", 99.49, "observation_stale"),
+             ("odom_stamp", 99.49, "odom_stale"),
+-            ("header", 100.1, "feedback_future"),
++            ("header", 100.2, "feedback_future"),
+             ("observation_stamp", 100.1, "observation_future"),
+             ("odom_stamp", 100.1, "odom_future"),
+             ("odom_stamp", 0.0, "odom_unstamped"),
+@@ -312,6 +315,178 @@ class CompensatedDropAlignmentTest(unittest.TestCase):
+                 self.assertFalse(self.ready().ready)
+                 self.assertEqual(self.ready().reason, "compensated_alignment_" + reason)
+ 
++    def test_continuous_20hz_feedback_and_same_action_context_3ms_ahead_do_not_starve(self):
++        originals = []
++        for index in range(20):
++            now = 100.0 + index * .05
++            self.clock.return_value = rospy.Time.from_sec(now)
++            self.wall_clock.return_value = index * .25  # Gazebo RTF approximately .2.
++            heartbeat = copy.deepcopy(self.context)
++            heartbeat.header.stamp = rospy.Time.from_sec(now + .003)
++            self.node._on_alignment_context(heartbeat)
++            target = self.target(now - .001)
++            self.observe(target)
++            feedback = self.feedback(target)
++            feedback.header.stamp = heartbeat.header.stamp
++            feedback.odom_stamp = target.last_seen
++            original = copy.deepcopy(feedback)
++            self.node._on_drop_alignment_feedback(feedback)
++            self.node._on_alignment_context_watchdog(None)
++            self.assertEqual(feedback, original)
++            self.assertEqual(self.node._consecutive_ok, index)
++            self.assertEqual(len(self.node._pending_feedback), 1)
++            self.assertEqual(self.ready().ready, index >= 2)
++            if self.node._compensated_feedback is not None:
++                self.assertLessEqual(self.node._compensated_feedback.header.stamp,
++                                     self.clock.return_value)
++            originals.append(original)
++        self.clock.return_value = originals[-1].header.stamp
++        self.wall_clock.return_value += .25
++        self.node._on_alignment_context_watchdog(None)
++        self.assertTrue(self.ready().ready)
++        self.assertEqual(self.node._consecutive_ok, 20)
++        self.assertEqual(self.node._compensated_feedback, originals[-1])
++        self.assertEqual(len(self.node._pending_feedback), 0)
++
++    def test_future_feedback_preserves_streak_then_counts_original_image_only_once(self):
++        self.align()
++        target = self.target(99.9)
++        self.observe(target)
++        feedback = self.feedback(target)
++        feedback.header.stamp = rospy.Time.from_sec(100.003)
++        for _ in range(5):
++            self.node._on_drop_alignment_feedback(feedback)
++            self.node._on_alignment_context_watchdog(None)
++        self.assertEqual(self.node._consecutive_ok, 1)
++        self.assertEqual(len(self.node._pending_feedback), 1)
++        self.assertFalse(self.ready().ready)
++        self.clock.return_value = feedback.header.stamp
++        self.wall_clock.return_value = .25
++        self.node._on_alignment_context_watchdog(None)
++        self.assertTrue(self.ready().ready)
++        self.assertEqual(self.node._compensated_feedback, feedback)
++        for _ in range(5):
++            self.node._on_drop_alignment_feedback(feedback)
++        self.assertEqual(self.node._consecutive_ok, 2)
++
++    def test_next_feedback_callback_consumes_old_pending_before_new_future_sample(self):
++        targets = [self.target(99.8 + index * .05) for index in range(4)]
++        for target in targets:
++            self.observe(target)
++        for index, target in enumerate(targets):
++            now = 100.0 + index * .05
++            self.clock.return_value = rospy.Time.from_sec(now)
++            self.wall_clock.return_value = index * .25
++            feedback = self.feedback(target)
++            feedback.header.stamp = rospy.Time.from_sec(now + .003)
++            feedback.odom_stamp = rospy.Time.from_sec(now - .001)
++            # No target/context/watchdog callbacks during this stream: progress
++            # must come from draining before the next feedback is enqueued.
++            self.node._on_drop_alignment_feedback(feedback)
++            self.assertEqual(self.node._consecutive_ok, index)
++            self.assertEqual(len(self.node._pending_feedback), 1)
++        self.assertTrue(self.ready().ready)
++        self.clock.return_value = feedback.header.stamp
++        self.node._on_alignment_context_watchdog(None)
++        self.assertEqual(self.node._consecutive_ok, 4)
++
++    def test_pending_context_is_consumed_before_old_heartbeat_age_check(self):
++        self.align()
++        self.align(99.9)
++        self.node._alignment_context_max_age = .01
++        self.clock.return_value = rospy.Time.from_sec(100.009)
++        heartbeat = copy.deepcopy(self.context)
++        heartbeat.header.stamp = rospy.Time.from_sec(100.012)
++        self.node._on_alignment_context(heartbeat)
++        self.assertEqual(self.node._alignment_context.header.stamp, rospy.Time(100))
++        self.clock.return_value = rospy.Time.from_sec(100.02)
++        self.wall_clock.return_value = .25
++        self.node._on_alignment_context_watchdog(None)
++        self.assertEqual(self.node._alignment_context, heartbeat)
++        self.assertEqual(self.node._consecutive_ok, 2)
++        self.assertTrue(self.ready().ready)
++
++    def test_future_feedback_intrinsic_errors_are_not_deferred(self):
++        for field, value, reason in (
++                ("valid", False, "feedback_invalid"),
++                ("horizontal_error_m", float("nan"), "metrics_invalid"),
++                ("horizontal_speed_mps", -1.0, "metrics_invalid"),
++                ("mission_id", "wrong-action", "context_mismatch"),
++                ("odom_stamp", rospy.Time.from_sec(100.004), "evaluation_precedes_source")):
++            with self.subTest(field=field):
++                self.node._last_counted_observation = None
++                target, _ = self.align()
++                feedback = self.feedback(target)
++                feedback.header.stamp = rospy.Time.from_sec(100.003)
++                setattr(feedback, field, value)
++                self.node._on_drop_alignment_feedback(feedback)
++                self.assertEqual(len(self.node._pending_feedback), 0)
++                self.assertEqual(self.node._consecutive_ok, 0)
++                self.assertEqual(self.ready().reason, "compensated_alignment_" + reason)
++
++    def test_context_identity_change_immediately_discards_pending_context_and_feedback(self):
++        target, _ = self.align()
++        self.align(99.9)
++        heartbeat = copy.deepcopy(self.context)
++        heartbeat.header.stamp = rospy.Time.from_sec(100.003)
++        self.node._on_alignment_context(heartbeat)
++        feedback = self.feedback(target)
++        feedback.header.stamp = heartbeat.header.stamp
++        self.node._on_drop_alignment_feedback(feedback)
++        changed = copy.deepcopy(heartbeat)
++        changed.decision_seq += 1
++        self.node._on_alignment_context(changed)
++        self.assertFalse(self.ready().ready)
++        self.assertEqual(self.node._consecutive_ok, 0)
++        self.assertIsNone(self.node._pending_context)
++        self.assertEqual(len(self.node._pending_feedback), 0)
++        self.clock.return_value = heartbeat.header.stamp
++        self.node._on_alignment_context_watchdog(None)
++        self.assertFalse(self.ready().ready)
++        self.assertIsNone(self.node._compensated_feedback)
++
++    def test_pending_feedback_keeps_source_age_and_deadline_gates(self):
++        target = self.target(99.503)
++        self.observe(target)
++        feedback = self.feedback(target)
++        feedback.header.stamp = rospy.Time.from_sec(100.01)
++        self.node._on_drop_alignment_feedback(feedback)
++        self.assertEqual(len(self.node._pending_feedback), 1)
++        self.clock.return_value = rospy.Time.from_sec(100.02)
++        self.node._on_alignment_context_watchdog(None)
++        self.assertEqual(len(self.node._pending_feedback), 0)
++        self.assertEqual(self.node._consecutive_ok, 0)
++        self.assertFalse(self.ready().ready)
++        self.assertIsNone(self.node._compensated_feedback)
++        self.clock.return_value = rospy.Time(100)
++        self.context.deadline = rospy.Time.from_sec(100.002)
++        self.node._on_alignment_context(self.context)
++        target = self.target(99.9)
++        self.observe(target)
++        feedback = self.feedback(target)
++        feedback.header.stamp = rospy.Time.from_sec(100.003)
++        self.node._on_drop_alignment_feedback(feedback)
++        self.assertEqual(len(self.node._pending_feedback), 1)
++        self.clock.return_value = feedback.header.stamp
++        self.node._on_alignment_context_watchdog(None)
++        self.assertEqual(len(self.node._pending_feedback), 0)
++        self.assertFalse(self.ready().ready)
++        self.assertEqual(self.ready().reason, "alignment_context_deadline_expired")
++
++    def test_future_pending_queue_is_bounded_and_wall_timeout_never_admits_future(self):
++        target, _ = self.align()
++        for index in range(12):
++            feedback = self.feedback(target)
++            feedback.header.stamp = rospy.Time.from_sec(100.001 + index * .001)
++            self.node._on_drop_alignment_feedback(feedback)
++        self.assertEqual(len(self.node._pending_feedback), 8)
++        self.assertEqual(self.node._consecutive_ok, 1)
++        self.wall_clock.return_value = .25  # ROS clock deliberately has not caught up.
++        self.node._on_alignment_context_watchdog(None)
++        self.assertEqual(len(self.node._pending_feedback), 0)
++        self.assertEqual(self.node._consecutive_ok, 0)
++        self.assertFalse(self.ready().ready)
++
+     def test_old_feedback_after_context_switch_cannot_reuse_stability(self):
+         self.align()
+         _, old_feedback = self.align(99.9)

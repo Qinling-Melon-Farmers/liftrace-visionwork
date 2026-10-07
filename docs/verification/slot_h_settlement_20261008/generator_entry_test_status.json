@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "tests_run": 41,
+  "passed": 39,
+  "skipped": [
+    {
+      "test": "test_app_uses_one_formal_manager_and_guard (slot_offline_2.CompetitionTests)",
+      "reason": "B 本次仅移植 competition 配置生成器，未引入完整 competition_application"
+    },
+    {
+      "test": "test_controller_and_servo_are_entity_sources (slot_offline_2.CompetitionTests)",
+      "reason": "B 保留原执行机构资产；本次未移植导航仓 pwm_node1 实体包"
+    }
+  ],
+  "failures": [],
+  "errors": [],
+  "test_files": [
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_landing_posctl_config.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_slot_h_entry_wiring.py",
+    "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_competition_hardware.py",
+    "deployment/board_trials_4x4/common/uav_board_trials/test/test_workbench_profiles.py",
+    "deployment/board_trials_4x4/common/uav_board_trials/test/test_deployment_followups.py"
+  ],
+  "ros_started": false,
+  "cpp_compiled": false,
+  "full_build_run": false
+}

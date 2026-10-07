@@ -6,6 +6,10 @@
 #include "patrol_control/drop_action.h"
 #include "patrol_control/async_servo.h"
 #include "patrol_control/near_wall_align.h"
+#include "patrol_control/drop_slot_geometry.h"
+#include "patrol_control/landing_handoff_stability.h"
+#include <nav_msgs/Odometry.h>
+#include <uav_vision/DropAlignmentFeedback.h>
 
 #include <array>
 #include <map>
@@ -109,6 +113,33 @@ private:
     ros::Subscriber land_mark_sub_;
     ros::Subscriber tank_status_sub_;
     ros::Subscriber pose_sub_;
+    ros::Subscriber motion_odom_sub_;
+    ros::Publisher compensated_alignment_pub_;
+    nav_msgs::Odometry motion_odom_;
+    ros::Time motion_odom_receipt_;
+    bool motion_odom_valid_ = false;
+    std::string motion_odom_topic_, motion_twist_frame_, compensated_alignment_topic_;
+    bool compensated_alignment_enabled_ = true;
+    bool compensated_goal_valid_ = false, compensated_goal_frozen_ = false;
+    geometry_msgs::PoseStamped compensated_fc_goal_;
+    geometry_msgs::Point compensated_target_center_;
+    uav_vision::AlignmentTargetContext compensated_context_;
+    ros::Time compensated_observation_stamp_;
+    LandingHandoffStabilityConfig drop_settle_config_, landing_settle_config_, landing_capture_config_;
+    LandingHandoffStabilityWindow drop_capture_window_, drop_release_window_;
+    LandingHandoffStabilityWindow landing_capture_window_, landing_handoff_window_;
+    void motionOdomCallback(const nav_msgs::Odometry::ConstPtr& msg);
+    const char* motionFeedbackStatus() const;
+    bool motionTimePending() const;
+    bool freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angular,
+                     const char** rejection = nullptr) const;
+    bool setCompensatedDropTarget(geometry_msgs::PoseStamped* target);
+    bool compensatedDropSettled(bool release, double* error = nullptr,
+                                double* speed = nullptr);
+    void publishCompensatedAlignment();
+    bool freezeCompensatedDropTarget();
+    bool landingMotionSettled(bool handoff, double xy_error);
+
     ros::Subscriber fastplanner_cmd_sub_, detect_sub_;
     ros::Subscriber mavros_local_position_sub_;
     ros::ServiceClient land_client;

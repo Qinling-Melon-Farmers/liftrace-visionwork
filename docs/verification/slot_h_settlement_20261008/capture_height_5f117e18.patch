@@ -1,0 +1,303 @@
+diff --git a/deployment/board_trials_4x4/03_h_landing/settings.yaml b/deployment/board_trials_4x4/03_h_landing/settings.yaml
+index cf9ff8e8..ab1549a9 100644
+--- a/deployment/board_trials_4x4/03_h_landing/settings.yaml
++++ b/deployment/board_trials_4x4/03_h_landing/settings.yaml
+@@ -13,6 +13,7 @@ landing_posctl:
+   trigger_agl: 0.37
+   xy_tolerance_m: 0.05
+   height_tolerance_m: 0.02
++  capture_height_tolerance_m: 0.10  # 仅观察高位；低位高度容差仍为 ±0.02m。
+   max_horizontal_speed_mps: 0.03
+   max_vertical_speed_mps: 0.05
+   stable_duration_sec: 0.5
+diff --git a/deployment/board_trials_4x4/04_corridor_landing/settings.yaml b/deployment/board_trials_4x4/04_corridor_landing/settings.yaml
+index c00b4861..6128f612 100644
+--- a/deployment/board_trials_4x4/04_corridor_landing/settings.yaml
++++ b/deployment/board_trials_4x4/04_corridor_landing/settings.yaml
+@@ -24,6 +24,7 @@ landing_posctl:
+   trigger_agl: 0.37
+   xy_tolerance_m: 0.05
+   height_tolerance_m: 0.02
++  capture_height_tolerance_m: 0.10  # 仅观察高位；低位高度容差仍为 ±0.02m。
+   max_horizontal_speed_mps: 0.03
+   max_vertical_speed_mps: 0.05
+   stable_duration_sec: 0.5
+diff --git a/deployment/board_trials_4x4/08_full_mission/settings.yaml b/deployment/board_trials_4x4/08_full_mission/settings.yaml
+index 4421a2c2..922696a2 100644
+--- a/deployment/board_trials_4x4/08_full_mission/settings.yaml
++++ b/deployment/board_trials_4x4/08_full_mission/settings.yaml
+@@ -24,6 +24,7 @@ landing_posctl:
+   trigger_agl: 0.37
+   xy_tolerance_m: 0.05
+   height_tolerance_m: 0.02
++  capture_height_tolerance_m: 0.10  # 仅观察高位；低位高度容差仍为 ±0.02m。
+   max_horizontal_speed_mps: 0.03
+   max_vertical_speed_mps: 0.05
+   stable_duration_sec: 0.5
+diff --git a/deployment/competition/candidates/rectangle_motion.yaml b/deployment/competition/candidates/rectangle_motion.yaml
+index b23a0b6a..0e7c5c1c 100644
+--- a/deployment/competition/candidates/rectangle_motion.yaml
++++ b/deployment/competition/candidates/rectangle_motion.yaml
+@@ -189,6 +189,7 @@ landing_posctl:
+   trigger_agl: 0.37
+   xy_tolerance_m: 0.05
+   height_tolerance_m: 0.02
++  capture_height_tolerance_m: 0.10  # 仅观察高位；低位高度容差仍为 ±0.02m。
+   max_horizontal_speed_mps: 0.03
+   max_vertical_speed_mps: 0.05
+   stable_duration_sec: 0.5
+diff --git a/deployment/competition/candidates/snake_motion.yaml b/deployment/competition/candidates/snake_motion.yaml
+index 3ccdf294..b26d4b9d 100644
+--- a/deployment/competition/candidates/snake_motion.yaml
++++ b/deployment/competition/candidates/snake_motion.yaml
+@@ -187,6 +187,7 @@ landing_posctl:
+   trigger_agl: 0.37
+   xy_tolerance_m: 0.05
+   height_tolerance_m: 0.02
++  capture_height_tolerance_m: 0.10  # 仅观察高位；低位高度容差仍为 ±0.02m。
+   max_horizontal_speed_mps: 0.03
+   max_vertical_speed_mps: 0.05
+   stable_duration_sec: 0.5
+diff --git a/deployment/competition/field.example.yaml b/deployment/competition/field.example.yaml
+index 7cd60c7e..c6276111 100644
+--- a/deployment/competition/field.example.yaml
++++ b/deployment/competition/field.example.yaml
+@@ -161,6 +161,7 @@ landing_posctl:
+   trigger_agl: 0.37
+   xy_tolerance_m: 0.05
+   height_tolerance_m: 0.02
++  capture_height_tolerance_m: 0.10  # 仅观察高位；低位高度容差仍为 ±0.02m。
+   max_horizontal_speed_mps: 0.03
+   max_vertical_speed_mps: 0.05
+   stable_duration_sec: 0.5
+diff --git a/deployment/competition/field_20261007_validated.yaml b/deployment/competition/field_20261007_validated.yaml
+index 3db3ec6e..f693b3b2 100644
+--- a/deployment/competition/field_20261007_validated.yaml
++++ b/deployment/competition/field_20261007_validated.yaml
+@@ -138,6 +138,7 @@ landing_posctl:
+   trigger_agl: 0.37
+   xy_tolerance_m: 0.05
+   height_tolerance_m: 0.02
++  capture_height_tolerance_m: 0.10  # 仅观察高位；低位高度容差仍为 ±0.02m。
+   max_horizontal_speed_mps: 0.03
+   max_vertical_speed_mps: 0.05
+   stable_duration_sec: 0.5
+diff --git a/docs/verification/slot_h_settlement_20261008/REPORT.md b/docs/verification/slot_h_settlement_20261008/REPORT.md
+index 104c7533..462f6721 100644
+--- a/docs/verification/slot_h_settlement_20261008/REPORT.md
++++ b/docs/verification/slot_h_settlement_20261008/REPORT.md
+@@ -2,7 +2,7 @@
+ 
+ 日期：2026-10-08。工作树：`/home/xhj/liftrace-worktrees/r2026-board-frame-fix`（F）。
+ 
+-**实现及整包编译已完成：控制包121项、视觉补偿反馈20项、H配置9项、正赛生成配置16项，共166项离线测试通过。真实Gazebo已获用户授权，尚待运行；本版本未部署板端。**
++**当前离线验证已通过：反馈时序修复后整包构建及控制包125项、视觉反馈28项通过；本次高低位高度容差分离的H真实窗口9项、配置生成9项通过。两次已起飞的诊断动态均未通过（032832第一槽未释放；040634 H请求POSCTL后交接超时），不能计动态PASS。本次容差分离后的整包构建与实跑由主代理接续；本版本未部署板端。**
+ 
+ 现有靶心检测器未改写。接口增加 `uav_vision/DropAlignmentFeedback`，控制器是唯一补偿FC目标来源；aligner只将同动作、同图像时间戳的补偿到位反馈并入既有视觉/类别/证据检查。新消息、发布端、消费端必须一起构建部署。
+ 
+@@ -90,7 +90,7 @@ H 的观察高位也须先在 H 中心低速停稳，再下降。高位停稳以
+ 
+ 目标 AGL、ceiling 与高度误差必须同时检查；不能仅凭高度误差容差将交接高度放宽到 ceiling 以上。AGL 与 FC 高度目标之间的转换沿用明确的机体高度基准，不把地图绝对 Z 当作 AGL。
+ 
+-本次 H 停稳交接针对 POSCTL 路径。**AUTO.LAND 保持旧行为。** 观察高位中心停稳后再下降及低位窗口门控的实现、交接瞬间速度与高度，均待同版验证。
++本次 H 停稳交接针对 POSCTL 路径。**AUTO.LAND 保持旧行为。** 高位使用独立参数`external_landing/posctl/capture_height_tolerance_m`（默认0.10m）；从低位配置复制独立高位配置，仅覆盖高度容差，窗口高度误差与高度上限都使用它。高位XY≤0.05m、水平速度≤0.03m/s、垂向速度≤0.05m/s、0.50s与10张视觉图像门槛不变。低位仍使用上表0.35/0.37m AGL与±0.02m，不由高位参数放宽。修复后的交接瞬间速度与高度待同版动态验证。
+ 
+ ## 历史来源与作者归属
+ 
+@@ -120,7 +120,9 @@ H 的观察高位也须先在 H 中心低速停稳，再下降。高位停稳以
+ 
+ 控制源码另发现：motionOdomCallback将freshMotion中的暂时时序失败锁成无效并清掉四个稳定窗；视觉将稍超前的控制反馈立即清窗。后续改为有界暂缓后按原时间戳复验，不改为当前时间、不放宽物理门槛。bag记录顺序不等同于每个节点回调顺序，因此未识别具体原因的invalid反馈仍保留不确定性。
+ 
+-以上前两次均未完成动态飞行，第三次为已起飞的诊断失败，不计为补偿或H验收通过。三扫描线复用正确镜头高度2.0m，对应FC AGL 2.16m。
++4. `logs/seed38_h_posctl_targeted_20261008_040634`：F `95ce182e`真实H-only诊断，使用`/tmp/seed38_slot_h_20261008/h_control.yaml`，地面基准local Z=-0.22m，POSCTL目标/阈值AGL=0.35/0.37m（local Z=0.13/0.15m），不是AUTO.LAND。ROS14.374秒进入H对准，高位指令local Z=0.68m；多次XY和速度已合格，但反馈高度比目标高约4～6cm，被复用的±0.02m高位高度容差拒绝。曾观察odom约0.725m，说明指令与反馈未到高位门槛，但不能据此断言是控制跟踪还是高度估计偏差。最终ROS46.474秒满足10帧并锁点，69.038秒发出一次POSCTL请求，71.574秒因`handoff_mode_transition_timeout`失败，任务进入ABORTED。**诊断失败、0次成功交接：请求1次，未观察到POSCTL，不能写成0次请求或始终未冻结。** 主代理停止本轮并清理；保留`slot_h_evidence.bag`、配置、run.log、live_progress与key_events，不删除或覆盖诊断数据。高位容差修复只处理不必要的高位阻塞，不能视为已修复后段模式交接超时。
++
++以上前两次均未完成动态飞行，第三、四次为已起飞的诊断失败，均不计为补偿或H验收通过。三扫描线复用正确镜头高度2.0m，对应FC AGL 2.16m。
+ 
+ ## 本轮软件验证
+ 
+@@ -145,3 +147,13 @@ H 的观察高位也须先在 H 中心低速停稳，再下降。高位停稳以
+ - H高位待处理图像在纯时间等待期间不被消耗，不计新帧也不清已有稳定窗；低位不提前交接。
+ 
+ 整包重新构建通过。生产方法提取测试19项、H motion连续测试7项、视觉反馈28项通过；完整控制包回归125项通过（0 errors / 0 failures / 0 skipped）；修复后真实仿真结果见后续记录。该修复的源码及离线通过不能替代修复后实跑。
++
++## H高低位高度容差分离的离线验证
++
++- 生产H tick与真实窗口9项通过：高位4～6cm高度误差可完成0.5s停稳及10帧锁点；超过高位0.10m仍拒绝，位置与速度门槛保留。
++- 同样4～6cm高度误差在低位仍拒绝；上偏超过0.37m ceiling被拒绝，下偏超过±0.02m也被拒绝。回到0.35m后重新形成完整0.5s窗口才允许请求。
++- 原有3ms pending、高位20Hz motion/4Hz H、冻结后残缺图形保持等连续用例继续通过。
++- 配置生成9项通过：默认与显式覆盖参数进入控制配置，非法数值拒绝，AUTO.LAND仍为原0.40/0.55m且不输出POSCTL稳定配置。
++- 本次没有重跑仿真、修改运行中参数或提交；整包build与后续H实跑由主代理统一执行并追加结果。
++
++主代理后续核验：高低位高度容差分离后，双工作区完整构建通过；控制层catkin统计125项、0失败。尚未将H模式请求等同成功交接，下一轮仍需检查POSCTL实际模式回执。
+diff --git "a/docs/\344\273\277\347\234\237\350\201\224\350\260\203\345\217\230\346\233\264\350\256\260\345\275\225.md" "b/docs/\344\273\277\347\234\237\350\201\224\350\260\203\345\217\230\346\233\264\350\256\260\345\275\225.md"
+index 238be9a3..efd75837 100644
+--- "a/docs/\344\273\277\347\234\237\350\201\224\350\260\203\345\217\230\346\233\264\350\256\260\345\275\225.md"
++++ "b/docs/\344\273\277\347\234\237\350\201\224\350\260\203\345\217\230\346\233\264\350\256\260\345\275\225.md"
+@@ -16145,3 +16145,16 @@ visionwork远端main已--no-ff合入7f67a68d9acc06ff541a8e2d91de0b22d89aaaba，
+ - 验证结果：整包构建通过；生产投递几何/时序19项、H motion7项、视觉28项通过；完整控制包125项通过（0错误/0失败/0跳过）。失败run `logs/seed38_slot12_h_autoland_20261008_032832`保留bag与配置，0次释放，不计PASS；统一停止脚本复查零残留。
+ - 遗留问题：修复后Gazebo与后续板端验证待完成，本轮未上板。
+ - 下一步：H专项交接及seed38连续三投回归，完成必要分支同步。
++
++
++## 2026-10-08 H观察高位与低位交接高度容差分离
++
++- 改动范围：patrol_control配置与H停稳调用、共用POSCTL配置生成模块、七份硬件/正赛模板、H真实窗口及配置测试、槽位/H报告。
++- 具体改动：新增`external_landing/posctl/capture_height_tolerance_m`默认0.10m，从低位配置复制独立高位对象，仅覆盖高度容差，并同时用于高位窗口高度误差与高度上限。高位XY0.05m、水平0.03m/s、垂向0.05m/s、0.5秒及10图门控保留；低位AGL0.35/0.37m与±0.02m全不变，AUTO.LAND原条件与默认配置不变。
++- 旧链保护：沿用本轮已保存的`legacy_baseline/20261008/drop_slot_h_handoff`原包快照；本次仅在已修改H停稳配置处追加最小补丁。
++- 验证结果：H生产tick与真实窗口9项、配置生成9项全部通过；包括高位4～6cm误差不阻断、同误差低位仍拒绝及重新计稳，原3ms pending与4Hz H用例继续通过。diff检查通过；未执行本次整包build、未启动新仿真，主代理统一构建与提交。
++- 动态诊断：保留`logs/seed38_h_posctl_targeted_20261008_040634/slot_h_evidence.bag`及全部既有产物。该轮ROS46.474秒锁点、69.038秒请求POSCTL、71.574秒模式交接超时，失败且0次成功交接（请求1次、未观察到POSCTL）；高位4～6cm反馈误差被原±0.02m条件阻塞较久，但不是整轮一直未锁点。
++- 遗留问题：040634后段模式交接超时未由本次高位容差修复覆盖；指令与反馈高度差的物理来源尚未确定，不能宣称已修好动态交接或板端表现。
++- 下一步：由主代理完成整包构建、相关catkin回归及新授权H专项实跑，追加结果后统一提交；不改本轮运行参数，不删除bag。
++
++本条补充验证：主代理完整双工作区构建PASS；控制catkin125项0失败；实际H诊断已到低位并请求POSCTL，模式交接超时原因另查，不宣称本补丁已经动态验收。
+diff --git a/patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/patrol_control.h b/patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/patrol_control.h
+index 409072aa..a9a51771 100644
+--- a/patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/patrol_control.h
++++ b/patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/patrol_control.h
+@@ -125,7 +125,7 @@ private:
+     geometry_msgs::Point compensated_target_center_;
+     uav_vision::AlignmentTargetContext compensated_context_;
+     ros::Time compensated_observation_stamp_;
+-    LandingHandoffStabilityConfig drop_settle_config_, landing_settle_config_;
++    LandingHandoffStabilityConfig drop_settle_config_, landing_settle_config_, landing_capture_config_;
+     LandingHandoffStabilityWindow drop_capture_window_, drop_release_window_;
+     LandingHandoffStabilityWindow landing_capture_window_, landing_handoff_window_;
+     void motionOdomCallback(const nav_msgs::Odometry::ConstPtr& msg);
+diff --git a/patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp b/patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp
+index a03ae58f..9d3313b2 100644
+--- a/patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp
++++ b/patrol_uav_ws-patrol_planner/src/patrol_control/src/patrol_control.cpp
+@@ -1822,9 +1822,15 @@ void LLController::load_params() {
+     drop_settle_config_.stable_duration_sec = 0.30;
+     load_stability("drop_system/settle", &drop_settle_config_);
+     load_stability("external_landing/posctl", &landing_settle_config_);
++    // 观察高位仅放宽高度可用范围；低位交接的高度、位置及速度门槛保持独立。
++    landing_capture_config_ = landing_settle_config_;
++    landing_capture_config_.height_tolerance_m = nh_.param(
++        "external_landing/posctl/capture_height_tolerance_m", 0.10);
++    if (!landing_capture_config_.valid())
++        throw std::invalid_argument("invalid H capture height tolerance");
+     drop_capture_window_ = LandingHandoffStabilityWindow(drop_settle_config_);
+     drop_release_window_ = LandingHandoffStabilityWindow(drop_settle_config_);
+-    landing_capture_window_ = LandingHandoffStabilityWindow(landing_settle_config_);
++    landing_capture_window_ = LandingHandoffStabilityWindow(landing_capture_config_);
+     landing_handoff_window_ = LandingHandoffStabilityWindow(landing_settle_config_);
+ 
+     // 开关
+@@ -3672,7 +3678,7 @@ bool LLController::landingMotionSettled(bool handoff, double xy_error) {
+     sample.receipt_stamp_sec=motion_odom_receipt_.toSec();
+     sample.height_m=motion_odom_.pose.pose.position.z;
+     sample.max_handoff_height_m=handoff ? external_landing_auto_land_height_ :
+-        external_landing_capture_height_+landing_settle_config_.height_tolerance_m;
++        external_landing_capture_height_+landing_capture_config_.height_tolerance_m;
+     const auto& goal = handoff ? external_landing_aligned_goal_ : land_mark_point;
+     sample.xy_error_m=std::max(xy_error, std::hypot(
+         motion_odom_.pose.pose.position.x-goal.pose.position.x,
+diff --git a/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_landing_motion_settlement.py b/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_landing_motion_settlement.py
+index 1d1dfe66..502c9ab3 100644
+--- a/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_landing_motion_settlement.py
++++ b/patrol_uav_ws-patrol_planner/src/patrol_control/test/test_landing_motion_settlement.py
+@@ -15,7 +15,7 @@ from test_external_landing_handoff import PROGRAM, PACKAGE, production_method
+ 
+ 
+ FEEDBACK = r'''
+-    patrol_control::LandingHandoffStabilityConfig landing_settle_config_;
++    patrol_control::LandingHandoffStabilityConfig landing_settle_config_, landing_capture_config_;
+     patrol_control::LandingHandoffStabilityWindow landing_capture_window_, landing_handoff_window_;
+     struct {
+         Header header;
+@@ -57,6 +57,9 @@ LLController hlanding() {
+     c.external_landing_capture_height_=1.2;
+     c.land_height=.35;
+     c.external_landing_auto_land_height_=.37;
++    c.landing_capture_config_=c.landing_settle_config_;
++    c.landing_capture_config_.height_tolerance_m=.10;
++    c.landing_capture_window_=patrol_control::LandingHandoffStabilityWindow(c.landing_capture_config_);
+     return c;
+ }
+ int main(int argc, char** argv) {
+@@ -67,7 +70,7 @@ int main(int argc, char** argv) {
+         assert(c.external_landing_stable_count_==0);
+         feedback(c,100.125,1.2,0.,.10); c.externalLandingTick();
+         assert(c.external_landing_stable_count_==0);
+-        feedback(c,100.25,1.24); c.externalLandingTick();
++        feedback(c,100.25,1.31); c.externalLandingTick();
+         assert(c.external_landing_stable_count_==0);
+         for (int i=0;i<14;++i) {
+             feedback(c,100.375+i*.125,1.2); c.externalLandingTick();
+@@ -76,6 +79,34 @@ int main(int argc, char** argv) {
+             assert(c.patrol_cmd.pose.position.z==(i==13 ? .35 : 1.2));
+         }
+         assert(c.set_mode_client.calls==0);
++    } else if (name=="capture_accepts_four_to_six_cm_height_error_only_at_high_view") {
++        // 真实高位窗口允许 4～6cm 高度偏差，仍需停稳 0.5s 和十张不同 H 图像。
++        for (int i=0;i<=55;++i) {
++            feedback(c,100+i*.05,1.2+(i%2 ? .04 : .06),0.,0.,i%5==0);
++            c.externalLandingTick();
++            assert(c.external_landing_stable_count_==(i<10 ? 0 : (i-10)/5+1));
++            assert(c.external_landing_alignment_complete_==(i==55));
++            assert(c.patrol_cmd.pose.position.z==(i==55 ? .35 : 1.2));
++            assert(c.set_mode_client.calls==0);
++        }
++    } else if (name=="low_handoff_still_rejects_four_to_six_cm_height_error") {
++        c.external_landing_alignment_complete_=true;
++        c.external_landing_aligned_goal_.pose.position={1,2,.35};
++        // 上偏超出 0.37 ceiling；下偏虽低于 ceiling，仍必须拒绝超出 ±0.02 的高度误差。
++        for (double error : {.04,.06,-.04,-.06}) {
++            for (int i=0;i<=10;++i) {
++                feedback(c,ros::clock+.05,.35+error,0.,0.,false);
++                assert(!c.landingMotionSettled(true,0));
++                c.externalLandingTick();
++                assert(c.set_mode_client.calls==0);
++            }
++        }
++        // 回到原低位目标后仍须重新形成完整 0.5s 窗口。
++        const double start=ros::clock+.05;
++        for (int i=0;i<=10;++i) {
++            feedback(c,start+i*.05,.35,0.,0.,false); c.externalLandingTick();
++            assert(c.set_mode_client.calls==(i==10 ? 1 : 0));
++        }
+     } else if (name=="capture_20hz_with_four_h_frames_per_second") {
+         // 控制与 odom 按 20Hz 更新，H 只有 4Hz；不能把图像间隔当作 odom 断流。
+         for (int i=0;i<=55;++i) {
+@@ -223,6 +254,8 @@ class ProductionHSettlementTests(unittest.TestCase):
+ 
+ 
+ for _case in ('capture_center_speed_height_and_ten_frames',
++              'capture_accepts_four_to_six_cm_height_error_only_at_high_view',
++              'low_handoff_still_rejects_four_to_six_cm_height_error',
+               'capture_20hz_with_four_h_frames_per_second',
+               'capture_pending_3ms_preserves_window_and_four_hz_images',
+               'handoff_pending_3ms_preserves_window_without_early_posctl',
+diff --git a/patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/landing_posctl_config.py b/patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/landing_posctl_config.py
+index cc0fa7fe..aa62b45e 100644
+--- a/patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/landing_posctl_config.py
++++ b/patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/landing_posctl_config.py
+@@ -1,6 +1,6 @@
+ """硬件配置生成器共用的 POSCTL 低位 H 交接参数。
+ 
+-H 捕获保持原 8cm、10 帧门槛；新增精度用于冻结 H 点附近的最终低位停稳，
++H 捕获保持原 8cm、10 帧门槛，高位停稳高度容差独立于最终低位交接，
+ 不使用下降中的残缺图形重定位。AUTO.LAND 保持原 0.40/0.55m 离地高度。
+ """
+ import math
+@@ -11,6 +11,7 @@ DEFAULTS = dict(
+     trigger_agl=0.37,
+     xy_tolerance_m=0.05,
+     height_tolerance_m=0.02,
++    capture_height_tolerance_m=0.10,
+     max_horizontal_speed_mps=0.03,
+     max_vertical_speed_mps=0.05,
+     stable_duration_sec=0.5,
+diff --git a/patrol_uav_ws-patrol_planner/src/uav_mission/test/test_landing_posctl_config.py b/patrol_uav_ws-patrol_planner/src/uav_mission/test/test_landing_posctl_config.py
+index d3d94f54..5ce487a2 100644
+--- a/patrol_uav_ws-patrol_planner/src/uav_mission/test/test_landing_posctl_config.py
++++ b/patrol_uav_ws-patrol_planner/src/uav_mission/test/test_landing_posctl_config.py
+@@ -98,6 +98,7 @@ class LowHConfigTests(unittest.TestCase):
+         settings = copy.deepcopy(self.settings)
+         settings['landing_posctl'].update(target_agl=.36, trigger_agl=.39,
+             xy_tolerance_m=.04, height_tolerance_m=.015,
++            capture_height_tolerance_m=.12,
+             max_horizontal_speed_mps=.025, max_vertical_speed_mps=.04,
+             stable_duration_sec=.75, max_odom_age_sec=.15,
+             max_sample_gap_sec=.15, min_samples=4)

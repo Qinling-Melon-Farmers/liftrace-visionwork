@@ -1,0 +1,270 @@
+{
+  "status": "PASS_OFFLINE_GENERATOR_AND_STATIC_WIRING",
+  "ros_started": false,
+  "cpp_compiled": false,
+  "preview_entry": "run_trial.py -> trial_config.generate (offline direct invocation; live preview CLI not run)",
+  "synthetic_reference": true,
+  "records": [
+    {
+      "folder": "03_h_landing",
+      "fixture": false,
+      "fc_local_z": 0.0,
+      "ground_z": -0.22,
+      "land_local_z": 0.12999999999999998,
+      "trigger_local_z": 0.15,
+      "posctl": {
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.02,
+        "capture_height_tolerance_m": 0.1,
+        "max_horizontal_speed_mps": 0.03,
+        "max_vertical_speed_mps": 0.05,
+        "stable_duration_sec": 0.5,
+        "max_odom_age_sec": 0.2,
+        "max_sample_gap_sec": 0.2,
+        "min_samples": 3
+      },
+      "motion_feedback": {
+        "odom_topic": "/mavros/local_position/odom",
+        "twist_frame": "child"
+      },
+      "effective_odom_topic": "/navigation/local_odom",
+      "drop_semantics": "body_flu_lever_arm",
+      "drop_compensated_alignment": true,
+      "generated_dir": "docs/verification/slot_h_settlement_20261008/offline_preview/03_h_landing/fc_z_0.0"
+    },
+    {
+      "folder": "03_h_landing",
+      "fixture": false,
+      "fc_local_z": -0.05,
+      "ground_z": -0.27,
+      "land_local_z": 0.07999999999999996,
+      "trigger_local_z": 0.09999999999999998,
+      "posctl": {
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.02,
+        "capture_height_tolerance_m": 0.1,
+        "max_horizontal_speed_mps": 0.03,
+        "max_vertical_speed_mps": 0.05,
+        "stable_duration_sec": 0.5,
+        "max_odom_age_sec": 0.2,
+        "max_sample_gap_sec": 0.2,
+        "min_samples": 3
+      },
+      "motion_feedback": {
+        "odom_topic": "/mavros/local_position/odom",
+        "twist_frame": "child"
+      },
+      "effective_odom_topic": "/navigation/local_odom",
+      "drop_semantics": "body_flu_lever_arm",
+      "drop_compensated_alignment": true,
+      "generated_dir": "docs/verification/slot_h_settlement_20261008/offline_preview/03_h_landing/fc_z_minus0.05"
+    },
+    {
+      "folder": "03_h_landing",
+      "fixture": false,
+      "fc_local_z": 0.09,
+      "ground_z": -0.13,
+      "land_local_z": 0.21999999999999997,
+      "trigger_local_z": 0.24,
+      "posctl": {
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.02,
+        "capture_height_tolerance_m": 0.1,
+        "max_horizontal_speed_mps": 0.03,
+        "max_vertical_speed_mps": 0.05,
+        "stable_duration_sec": 0.5,
+        "max_odom_age_sec": 0.2,
+        "max_sample_gap_sec": 0.2,
+        "min_samples": 3
+      },
+      "motion_feedback": {
+        "odom_topic": "/mavros/local_position/odom",
+        "twist_frame": "child"
+      },
+      "effective_odom_topic": "/navigation/local_odom",
+      "drop_semantics": "body_flu_lever_arm",
+      "drop_compensated_alignment": true,
+      "generated_dir": "docs/verification/slot_h_settlement_20261008/offline_preview/03_h_landing/fc_z_0.09"
+    },
+    {
+      "folder": "04_corridor_landing",
+      "fixture": true,
+      "fc_local_z": 0.0,
+      "ground_z": -0.22,
+      "land_local_z": 0.12999999999999998,
+      "trigger_local_z": 0.15,
+      "posctl": {
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.02,
+        "capture_height_tolerance_m": 0.1,
+        "max_horizontal_speed_mps": 0.03,
+        "max_vertical_speed_mps": 0.05,
+        "stable_duration_sec": 0.5,
+        "max_odom_age_sec": 0.2,
+        "max_sample_gap_sec": 0.2,
+        "min_samples": 3
+      },
+      "motion_feedback": {
+        "odom_topic": "/mavros/local_position/odom",
+        "twist_frame": "child"
+      },
+      "effective_odom_topic": "/navigation/local_odom",
+      "drop_semantics": "body_flu_lever_arm",
+      "drop_compensated_alignment": true,
+      "generated_dir": "docs/verification/slot_h_settlement_20261008/offline_preview/04_corridor_landing/fc_z_0.0"
+    },
+    {
+      "folder": "04_corridor_landing",
+      "fixture": true,
+      "fc_local_z": -0.05,
+      "ground_z": -0.27,
+      "land_local_z": 0.07999999999999996,
+      "trigger_local_z": 0.09999999999999998,
+      "posctl": {
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.02,
+        "capture_height_tolerance_m": 0.1,
+        "max_horizontal_speed_mps": 0.03,
+        "max_vertical_speed_mps": 0.05,
+        "stable_duration_sec": 0.5,
+        "max_odom_age_sec": 0.2,
+        "max_sample_gap_sec": 0.2,
+        "min_samples": 3
+      },
+      "motion_feedback": {
+        "odom_topic": "/mavros/local_position/odom",
+        "twist_frame": "child"
+      },
+      "effective_odom_topic": "/navigation/local_odom",
+      "drop_semantics": "body_flu_lever_arm",
+      "drop_compensated_alignment": true,
+      "generated_dir": "docs/verification/slot_h_settlement_20261008/offline_preview/04_corridor_landing/fc_z_minus0.05"
+    },
+    {
+      "folder": "04_corridor_landing",
+      "fixture": true,
+      "fc_local_z": 0.09,
+      "ground_z": -0.13,
+      "land_local_z": 0.21999999999999997,
+      "trigger_local_z": 0.24,
+      "posctl": {
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.02,
+        "capture_height_tolerance_m": 0.1,
+        "max_horizontal_speed_mps": 0.03,
+        "max_vertical_speed_mps": 0.05,
+        "stable_duration_sec": 0.5,
+        "max_odom_age_sec": 0.2,
+        "max_sample_gap_sec": 0.2,
+        "min_samples": 3
+      },
+      "motion_feedback": {
+        "odom_topic": "/mavros/local_position/odom",
+        "twist_frame": "child"
+      },
+      "effective_odom_topic": "/navigation/local_odom",
+      "drop_semantics": "body_flu_lever_arm",
+      "drop_compensated_alignment": true,
+      "generated_dir": "docs/verification/slot_h_settlement_20261008/offline_preview/04_corridor_landing/fc_z_0.09"
+    },
+    {
+      "folder": "08_full_mission",
+      "fixture": true,
+      "fc_local_z": 0.0,
+      "ground_z": -0.22,
+      "land_local_z": 0.12999999999999998,
+      "trigger_local_z": 0.15,
+      "posctl": {
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.02,
+        "capture_height_tolerance_m": 0.1,
+        "max_horizontal_speed_mps": 0.03,
+        "max_vertical_speed_mps": 0.05,
+        "stable_duration_sec": 0.5,
+        "max_odom_age_sec": 0.2,
+        "max_sample_gap_sec": 0.2,
+        "min_samples": 3
+      },
+      "motion_feedback": {
+        "odom_topic": "/mavros/local_position/odom",
+        "twist_frame": "child"
+      },
+      "effective_odom_topic": "/navigation/local_odom",
+      "drop_semantics": "body_flu_lever_arm",
+      "drop_compensated_alignment": true,
+      "generated_dir": "docs/verification/slot_h_settlement_20261008/offline_preview/08_full_mission/fc_z_0.0"
+    },
+    {
+      "folder": "08_full_mission",
+      "fixture": true,
+      "fc_local_z": -0.05,
+      "ground_z": -0.27,
+      "land_local_z": 0.07999999999999996,
+      "trigger_local_z": 0.09999999999999998,
+      "posctl": {
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.02,
+        "capture_height_tolerance_m": 0.1,
+        "max_horizontal_speed_mps": 0.03,
+        "max_vertical_speed_mps": 0.05,
+        "stable_duration_sec": 0.5,
+        "max_odom_age_sec": 0.2,
+        "max_sample_gap_sec": 0.2,
+        "min_samples": 3
+      },
+      "motion_feedback": {
+        "odom_topic": "/mavros/local_position/odom",
+        "twist_frame": "child"
+      },
+      "effective_odom_topic": "/navigation/local_odom",
+      "drop_semantics": "body_flu_lever_arm",
+      "drop_compensated_alignment": true,
+      "generated_dir": "docs/verification/slot_h_settlement_20261008/offline_preview/08_full_mission/fc_z_minus0.05"
+    },
+    {
+      "folder": "08_full_mission",
+      "fixture": true,
+      "fc_local_z": 0.09,
+      "ground_z": -0.13,
+      "land_local_z": 0.21999999999999997,
+      "trigger_local_z": 0.24,
+      "posctl": {
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.02,
+        "capture_height_tolerance_m": 0.1,
+        "max_horizontal_speed_mps": 0.03,
+        "max_vertical_speed_mps": 0.05,
+        "stable_duration_sec": 0.5,
+        "max_odom_age_sec": 0.2,
+        "max_sample_gap_sec": 0.2,
+        "min_samples": 3
+      },
+      "motion_feedback": {
+        "odom_topic": "/mavros/local_position/odom",
+        "twist_frame": "child"
+      },
+      "effective_odom_topic": "/navigation/local_odom",
+      "drop_semantics": "body_flu_lever_arm",
+      "drop_compensated_alignment": true,
+      "generated_dir": "docs/verification/slot_h_settlement_20261008/offline_preview/08_full_mission/fc_z_0.09"
+    }
+  ],
+  "checks": {
+    "custom_parameter_consumption": 3,
+    "auto_land_unchanged": 3,
+    "settings_preserved": 3,
+    "vision_launch": {
+      "phase_d.launch": {
+        "require_alignment_context": true,
+        "require_compensated_alignment": true,
+        "compensated_observation_cache_size": 16
+      },
+      "phase_d_board.launch": {
+        "require_alignment_context": true,
+        "require_compensated_alignment": true,
+        "compensated_observation_cache_size": 16
+      }
+    }
+  },
+  "dynamic_status": "PENDING_MAIN_GAZEBO_RESULT"
+}

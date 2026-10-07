@@ -1,0 +1,6 @@
+frame: camera_init
+landing_xy:
+- 0.6
+- 0.0
+cruise_z: 1.2699999809265137
+route_revision: board-landing

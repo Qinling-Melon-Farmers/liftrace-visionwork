@@ -1,0 +1,7 @@
+Before slot lever-arm and settled POSCTL handoff fixes.
+f79c2a82e727530f42a371dbf30805b310bbaf8f
+
+复用来源：视觉仓 liftrace-visionwork 073c8f19d7b7a2aa6b88bc536e990af59523c4d4 中的旧链保护快照。
+目标工作树：/home/xhj/liftrace-worktrees/r2026-board-vision-tests
+目标修改前 HEAD：397d10d961470c51ccf317e832dc8c72e02cb933
+对照：本目标 patrol_control 的源码、头文件及全部受版本管理包文件逐文件与 F 父 f79c2a82e727530f42a371dbf30805b310bbaf8f 一致；复用同一 FILES/SHA256SUMS，不另作无关文件哈希。

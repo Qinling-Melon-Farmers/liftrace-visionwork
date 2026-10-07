@@ -1,0 +1,24 @@
+{
+  "options": {
+    "enabled": true,
+    "dynamic_boundary": true,
+    "moving_recovery": false,
+    "diagonal_entry": true,
+    "merge_collinear_relays": true,
+    "survey_line_weight": 2.0,
+    "braking_speed_mps": 0.5,
+    "braking_accel_mps2": 0.35,
+    "reaction_seconds": 0.3,
+    "boundary_reserve_m": 0.15,
+    "recovery_handoff_agl": 0.9,
+    "recovery_min_ack_seconds": 0.6,
+    "recovery_max_vz": 0.6,
+    "recovery_min_samples": 3,
+    "recovery_max_odom_age": 0.2,
+    "corridor_max_agl": 1.0
+  },
+  "survey_pattern": "site_waypoints",
+  "scope": "RESEARCH_ONLY_NOT_DEPLOYED",
+  "post_route": "Retained: provide measured corridor_geometry before merging relays/diagonal entry",
+  "global_line_preference_weight": 2.0
+}
