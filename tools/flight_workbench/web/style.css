@@ -239,6 +239,7 @@ details.cmd-box[open] > summary::before { content: "▾"; }
 .ttab.active { color: #fff; background: #1d2735; border-color: #3a4a63; }
 .ttab .dot { width: 8px; height: 8px; border-radius: 50%; background: #4a5768; }
 .ttab .dot.running { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.ttab .dot.succeeded { background: var(--green); box-shadow: 0 0 6px var(--green); }
 .ttab .dot.starting { background: var(--amber); animation: pulse 1s infinite; }
 .ttab .dot.exited { background: #4a5768; }
 .ttab .dot.failed { background: var(--red); }
@@ -342,6 +343,9 @@ table.mini tr.miss td { color: var(--muted); }
 .step .sdot { width: 8px; height: 8px; border-radius: 50%; background: #4a5768; flex: 0 0 auto; }
 .step.s-running .sdot { background: var(--accent); animation: pulse 1s infinite; }
 .step.s-ok .sdot { background: var(--green); }
+.step.succeeded .sdot { background: var(--green); }
+.step.starting .sdot { background: var(--amber); animation: pulse 1s infinite; }
+.step.failed .sdot { background: var(--red); }
 .step.s-failed .sdot { background: var(--red); }
 .step.s-skipped .sdot { background: #5a6473; }
 .step .sdetail { color: var(--muted); font-size: 11px; }

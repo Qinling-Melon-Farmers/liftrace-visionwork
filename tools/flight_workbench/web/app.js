@@ -1283,6 +1283,15 @@ function termStatus(tid) {
   var st = s.state || 'idle';
   var cls = (st === 'running' || st === 'starting' || st === 'exited' || st === 'failed') ? st : 'idle';
   var label = { idle: '未启动', starting: '启动中', running: '运行中', exited: '已退出', failed: '失败' }[st] || st;
+  // 5a is a one-shot initialization, whereas 5b is a persistent service.
+  if (tid === 'servo_init') {
+    if (st === 'exited' && s.exit_code === 0) { cls = 'succeeded'; label = '初始化成功'; }
+    else if (st === 'failed' || (st === 'exited' && typeof s.exit_code === 'number')) {
+      cls = 'failed'; label = '初始化失败';
+    } else if (st === 'running' || st === 'starting') { cls = 'starting'; label = '初始化中'; }
+    else if (st === 'idle') label = '未初始化';
+    else if (st === 'exited') label = '已退出（初始化结果未知）';
+  }
   return { state: st, cls: cls, label: label, sess: s };
 }
 
@@ -1376,6 +1385,8 @@ function renderTerminals() {
   bodyBox.appendChild(tool);
 
   if (t.desc) bodyBox.appendChild(el('div', 'term-desc', t.desc));
+  if (t.id === 'servo_init') bodyBox.appendChild(el('div', 'term-desc',
+    '绿色仅表示软件初始化成功，不代表舵机物理动作反馈。'));
   if (t.confirm) bodyBox.appendChild(el('div', 'warn-line', '该终端启动前会弹确认框，确认文案：' + t.confirm));
 
   // 输出区（增量渲染，只追加）
@@ -1557,9 +1568,11 @@ function renderMonitor() {
     var sob = el('div', 'sec-body');
     var steps = el('div', 'steps');
     (orch.steps || []).forEach(function (s) {
-      var row = el('div', 'step s-' + (s.state || 'pending'));
+      var initStatus = s.id === 'servo_init' ? termStatus(s.id) : null;
+      var row = el('div', 'step ' + (initStatus ? initStatus.cls : 's-' + (s.state || 'pending')));
       row.appendChild(el('span', 'sdot'));
       row.appendChild(el('span', null, s.title || s.id));
+      if (initStatus) row.appendChild(el('span', 'sdetail', '· ' + initStatus.label));
       if (s.detail) row.appendChild(el('span', 'sdetail', '· ' + s.detail));
       steps.appendChild(row);
     });

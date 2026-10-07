@@ -196,6 +196,42 @@ try {
   await test('updating the first partial line does not duplicate it', `limitTerm.scrollEl.children[0].textContent==='first + more' && limitTerm.scrollEl.children.length===2`);
   await run(`limitTerm.append(Array.from({length:20},(_,i)=>'bounded '+i).join('\\n'));`);await sleep(60);
   await test('bounded terminal trimming preserves valid DOM indices', 'limitTerm.buf.length===10 && limitTerm.scrollEl.children.length===10 && limitTerm.scrollEl.lastChild.textContent==="bounded 19"');
+  await run(`state.activeTerm='servo_init';
+    state.sessions.servo_init={id:'servo_init',state:'exited',exit_code:0,started_at:1791350138.4908187,ended_at:1791350143.9172504};
+    window.beforeInitStage=state.stage.name;
+    state.orchestration={running:false,steps:[{id:'servo_init',title:'5a fixture',state:'pending'}]};
+    renderTerminals();renderMonitor();`);
+  await test('one-shot 5a exit zero shows a green software initialization success', `
+    document.querySelector('.ttab.active .dot').classList.contains('succeeded') &&
+    (()=>{let reference=document.createElement('span');reference.style.color='var(--green)';document.body.appendChild(reference);
+      let expected=getComputedStyle(reference).color;reference.remove();
+      return getComputedStyle(document.querySelector('.ttab.active .dot')).backgroundColor===expected;})() &&
+    document.querySelector('#term-body .term-meta').textContent.includes('初始化成功') &&
+    document.querySelector('#term-body').textContent.includes('不代表舵机物理动作反馈')`);
+  await test('5a orchestration step shares succeeded class without changing mission stage', `
+    document.querySelector('.step.succeeded .sdot') &&
+    getComputedStyle(document.querySelector('.step.succeeded .sdot')).backgroundColor===getComputedStyle(document.querySelector('.ttab.active .dot')).backgroundColor &&
+    document.querySelector('.step.succeeded').textContent.includes('初始化成功') && state.stage.name===beforeInitStage`);
+  await run(`bus.dispatch({t:'session',s:'servo_init',session:{id:'servo_init',state:'failed',exit_code:1}});`);await sleep(100);
+  await test('nonzero 5a event shows red initialization failure', `
+    document.querySelector('.ttab.active .dot').classList.contains('failed') &&
+    document.querySelector('#term-body .term-meta').textContent.includes('初始化失败')`);
+  await test('5a orchestration failure uses the same failed color class', `
+    document.querySelector('.step.failed .sdot') &&
+    getComputedStyle(document.querySelector('.step.failed .sdot')).backgroundColor===getComputedStyle(document.querySelector('.ttab.active .dot')).backgroundColor`);
+  await run(`state.sessions.servo_init={state:'running',exit_code:null};renderTerminals();`);
+  await test('running initialization stays pending rather than success', `
+    document.querySelector('.ttab.active .dot').classList.contains('starting') &&
+    document.querySelector('#term-body .term-meta').textContent.includes('初始化中')`);
+  await run(`delete state.sessions.servo_init;renderTerminals();`);
+  await test('never-run 5a is idle and labeled not initialized', `
+    document.querySelector('.ttab.active .dot').classList.contains('idle') &&
+    document.querySelector('#term-body .term-meta').textContent.includes('未初始化')`);
+  await run(`state.activeTerm='servo';state.sessions.servo={state:'exited',exit_code:0};renderTerminals();`);
+  await test('persistent 5b exiting zero does not get initialization success', `
+    document.querySelector('.ttab.active .dot').classList.contains('exited') &&
+    !document.querySelector('.ttab.active .dot').classList.contains('succeeded') &&
+    document.querySelector('#term-body .term-meta').textContent.includes('已退出')`);
   console.log(`${checks.length} browser checks passed; no SSH/ROS/flight requests sent`);
 } finally {
   if(socket && socket.readyState===WebSocket.OPEN) {

@@ -398,7 +398,12 @@ class Workbench(object):
         if terminal.get("confirm") and body.get("confirm") != "确认":
             raise ValueError("该终端需要现场确认：%s" % terminal["confirm"])
         command = wb_board.terminal_wrapped_command(self.config, wb_board.terminal_command(self.config, terminal))
-        session = self.sessions.open(sid, terminal.get("title", sid), command, self.target)
+        # Only the separately confirmed 5a init command may reuse a connection
+        # password for sudo. Shells/probes/other terminals and one-off checks cannot.
+        allow_sudo = (sid == "servo_init" and bool(terminal.get("confirm"))
+                      and terminal.get("command", "").strip().startswith("sudo bash "))
+        session = self.sessions.open(sid, terminal.get("title", sid), command, self.target,
+                                     allow_sudo_password=allow_sudo)
         item = self.stage.note_action("启动终端 %s：%s" % (sid, wb_board.terminal_command(self.config, terminal)))
         self._emit_event(item)
         self._journal({"action": "session_open", "session": sid, "command": command})

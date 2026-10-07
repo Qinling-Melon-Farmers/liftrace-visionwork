@@ -6,6 +6,28 @@
 Windows 通过 `start_windows.cmd` 使用已安装的默认 WSL 后端，不支持 Windows 原生 Python。
 离线解压启动检查：`python tools/flight_workbench/tests/test_distribution.py`。
 
+2026-10-07：SSH 登录与 sudo 是两次独立认证，SSH 成功不会给新终端继承 sudo 的认证缓存。
+旧应答器不识别中文 sudo 提示，故 5a 中文密码提示需要手输；5a `exit 0`、5b
+`Servo ready / initialization verified` 均为正常完成标志，不应因提示或重复显示判失败。
+现在仅在用户已确认的 5a 初始化会话中复用内存连接口令，识别 `[sudo] password for ...:`
+及中文「密码/密碼」提示（含全角冒号、ANSI 和分片）；sudo 每个会话最多自动应答一次。
+没有内存口令、关闭自动应答、口令不同/错误、PTY 回显未关闭时仍需人工处理；不改 sudoers。
+SSH 登录最多自动应答三次；任意 shell、探针、其他终端、一次性检查以及私钥 passphrase
+不会得到 sudo 自动口令。自动输入的口令不会放入命令行、日志、历史缓冲或 SSE 输出。
+
+用户确认执行了两次 5a 初始化，因此重复日志正常，不改执行/输出链路。
+5a 为一次性任务：未执行灰色「未初始化」、执行中黄色「初始化中」、exit 0 绿色
+「初始化成功」、非零退出红色「初始化失败」，未知退出结果仍不判成功。
+绿色仅表示软件初始化成功，无物理动作反馈；常驻 5b 退出仍灰色「已退出」。
+终端 tab 与一键启动进度中的 5a 灯共用同一个状态 class，不改任务 READY 阶段。
+状态修复兼容现有快照和 session 事件，刷新页面即可加载；无需重启服务或重连 SSH。
+sudo 自动应答属于 Python 服务改动，**仅网页刷新不会生效**，必须在设备全部完成正常收尾后
+由操作者另行重启本地工作台，再按既有确认启动 5a；不能为了应用修复断开正在运行的会话。
+本轮只用模拟 PTY 和隔离实例验证，没有现场 PWM/SSH 操作。
+
+定向自检：`python tools/flight_workbench/tests/test_auth_prompts.py`、
+`node tools/flight_workbench/tests/test_terminal_status.js`；无需板端。
+
 2026-10-06新增独立低空观察区，顺序为FC AGL 0.60m悬停、短程前移、矩形；分别原样调用
 `deployment/low_hover_observation/start.sh flight hover|forward|square`。先选择观察卡片再点一键设备，
 仅编排ROS、MAVROS、MID360与独立定位/EV终端，不启动相机、视觉、规划、任务管理器或舵机。

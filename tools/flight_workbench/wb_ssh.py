@@ -17,15 +17,75 @@ import pexpect
 
 PROMPT_PATTERNS = [
     re.compile(r"(?i)are you sure you want to continue connecting[^\n]*\?"),
-    re.compile(r"(?i)(?:password|passphrase)[^\n]*:\s*$"),
-    re.compile(r"(?i)\[sudo\] password for [^\n]*:\s*$"),
+    # SSH's login prompt; never treat a remote application's password as SSH auth.
+    re.compile(r"(?im)^\s*[^\r\n\s]+@[^\r\n\s]+['’]s password:\s*$"),
 ]
+SUDO_PROMPT = re.compile(r"(?im)^\s*\[sudo\][^\r\n]*(?:password|密码|密碼)[^\r\n]*[:：]\s*$")
 
 ANSI_PATTERN = re.compile(r"\x1b\[[0-9;?]*[a-zA-Z]|\x1b\][^\x07]*\x07|\x1b[=>]")
 
 
 def strip_ansi(text):
     return ANSI_PATTERN.sub("", text or "")
+
+
+class PromptResponder:
+    """Bounded SSH auth and explicitly authorized sudo, using memory only."""
+
+    def __init__(self, target, child, allow_sudo_password=False, note=None):
+        self.target = target
+        self.child = child
+        self.allow_sudo_password = allow_sudo_password
+        self.note = note or (lambda text: None)
+        self.attempts = {"host": 0, "ssh": 0, "sudo": 0}
+        self.notices = set()
+        self.secrets = set()
+
+    def _note_once(self, key, text):
+        if key not in self.notices:
+            self.notices.add(key)
+            self.note(text)
+
+    def answer(self, tail):
+        clean = strip_ansi(tail)
+        kind = "sudo" if SUDO_PROMPT.search(clean) else None
+        if kind is None:
+            for index, pattern in enumerate(PROMPT_PATTERNS):
+                if pattern.search(clean):
+                    kind = "host" if index == 0 else "ssh"
+                    break
+        if kind is None:
+            return False
+        if self.target.transport == "local":
+            return True
+        if kind == "sudo" and not self.allow_sudo_password:
+            return True
+        if not (self.target.password and self.target.auto_password):
+            if kind == "sudo":
+                self._note_once("manual", "sudo 需要独立认证；没有可复用的内存口令或自动应答已关闭，请手动输入。")
+            return True
+        limit = 3 if kind == "ssh" else 1
+        if self.attempts[kind] >= limit:
+            self._note_once(kind + "-limit", "自动认证次数已达上限；请检查口令并手动处理，不再自动重试。")
+            return True
+        self.attempts[kind] += 1
+        answer = "yes" if kind == "host" else self.target.password
+        if kind != "host":
+            # Do not type secrets into an echoing PTY. The output filter also
+            # handles a remote process echoing the secret back in split chunks.
+            self.secrets.add(answer)
+        try:
+            if kind != "host" and not self.child.waitnoecho(timeout=1.0):
+                self._note_once("echo", "PTY 回显未关闭，已跳过自动口令；请手动处理。")
+                return True
+            self.child.sendline(answer)
+        except (OSError, ValueError, pexpect.ExceptionPexpect):
+            self._note_once("send", "自动认证输入未发送，请手动处理。")
+            return True
+        self.note("已确认新的 SSH 主机指纹" if kind == "host" else
+                  "已为本次确认的 sudo 初始化填写内存连接口令（不显示口令）" if kind == "sudo" else
+                  "已填写 SSH 登录口令（不显示口令）")
+        return True
 
 
 class Target(object):
@@ -81,12 +141,14 @@ class Session(object):
 
     def __init__(self, sid, title, command, target, log_path=None,
                  on_output=None, on_state=None, on_note=None,
-                 dimensions=(36, 140), env=None, graceful_only=False):
+                 dimensions=(36, 140), env=None, graceful_only=False,
+                 allow_sudo_password=False):
         self.id = sid
         self.title = title
         self.command = command
         self.target = target
         self.graceful_only = graceful_only
+        self.allow_sudo_password = allow_sudo_password
         self.log_path = log_path
         self.on_output = on_output
         self.on_state = on_state
@@ -107,7 +169,8 @@ class Session(object):
         self.max_history_chars = 400000
         self.pending = ""
         self._tail = ""
-        self._last_prompt_at = 0.0
+        self._responder = None
+        self._redact_pending = ""
         self._log_handle = None
         self._lock = threading.RLock()
 
@@ -122,6 +185,8 @@ class Session(object):
         self.child = pexpect.spawn(argv[0], argv[1:], encoding="utf-8",
                                    codec_errors="replace", timeout=None,
                                    env=self.env, dimensions=self.dimensions)
+        self._responder = PromptResponder(self.target, self.child,
+                                          self.allow_sudo_password, self._note)
         self.started_at = time.time()
         self.state = "running"
         self._emit_state()
@@ -166,6 +231,25 @@ class Session(object):
     def _consume(self, data):
         self._tail = (self._tail + data)[-600:]
         self._maybe_answer_prompt()
+        self._publish(self._redact(data))
+
+    def _redact(self, data, final=False):
+        text = ("[口令已隐藏]" if final and self._redact_pending else self._redact_pending) + data
+        self._redact_pending = ""
+        secrets = self._responder.secrets if self._responder else ()
+        for secret in sorted(secrets, key=len, reverse=True):
+            text = text.replace(secret, "[口令已隐藏]")
+        if not final:
+            # Keep only an actual secret prefix, not an arbitrary output tail.
+            hold = max((n for secret in secrets for n in range(1, len(secret))
+                        if text.endswith(secret[:n])), default=0)
+            if hold:
+                self._redact_pending, text = text[-hold:], text[:-hold]
+        return text
+
+    def _publish(self, data):
+        if not data:
+            return
         with self._lock:
             self.seq += 1
             seq = self.seq
@@ -185,34 +269,15 @@ class Session(object):
             self.on_output(self.id, seq, data)
 
     def _maybe_answer_prompt(self):
-        if not (self.target.password and self.target.auto_password):
-            return
-        if self.target.transport == "local":
-            return
-        now = time.time()
-        if now - self._last_prompt_at < 2.0:
-            return
-        tail = strip_ansi(self._tail)
-        for index, pattern in enumerate(PROMPT_PATTERNS):
-            if pattern.search(tail):
-                answer = "yes" if index == 0 else self.target.password
-                self._last_prompt_at = now
-                try:
-                    self.child.sendline(answer)
-                except (OSError, ValueError):
-                    return
-                self._tail = ""
-                if index == 0:
-                    self._note("已确认新的 SSH 主机指纹")
-                else:
-                    self._note("已自动填写密码提示（不显示口令）")
-                return
+        if self._responder and self._responder.answer(self._tail):
+            self._tail = ""
 
     def _note(self, text):
         if self.on_note:
             self.on_note(self.id, text)
 
     def _finish(self):
+        self._publish(self._redact("", final=True))
         code = None
         try:
             if not self.child.isalive():
@@ -328,7 +393,7 @@ class SessionManager(object):
         return self.sessions.get(sid)
 
     def open(self, sid, title, command, target, dimensions=None, keep_existing=True,
-             graceful_only=False):
+             graceful_only=False, allow_sudo_password=False):
         with self._lock:
             existing = self.sessions.get(sid)
             if existing is not None and existing.state in ("running", "starting"):
@@ -342,7 +407,8 @@ class SessionManager(object):
             session = Session(sid, title, command, target, log_path=log_path,
                               on_output=self.on_output, on_state=self.on_state,
                               on_note=self.on_note,
-                              dimensions=dimensions or (36, 140), graceful_only=graceful_only)
+                              dimensions=dimensions or (36, 140), graceful_only=graceful_only,
+                              allow_sudo_password=allow_sudo_password)
             self.sessions[sid] = session
             return session.start()
 
@@ -383,6 +449,7 @@ def run_once(target, command, timeout=30.0, log_prefix=None):
                           timeout=timeout, env=dict(os.environ))
     chunks = []
     tail = ""
+    responder = PromptResponder(target, child)  # One-off checks never authorize sudo.
     deadline = time.time() + float(timeout)
     try:
         while True:
@@ -402,13 +469,8 @@ def run_once(target, command, timeout=30.0, log_prefix=None):
                 continue
             chunks.append(data)
             tail = (tail + data)[-600:]
-            if target.password and target.auto_password and target.transport != "local":
-                clean = strip_ansi(tail)
-                for index, pattern in enumerate(PROMPT_PATTERNS):
-                    if pattern.search(clean) and time.time() < deadline:
-                        child.sendline("yes" if index == 0 else target.password)
-                        tail = ""
-                        break
+            if time.time() < deadline and responder.answer(tail):
+                tail = ""
     finally:
         code = None
         try:
@@ -419,7 +481,10 @@ def run_once(target, command, timeout=30.0, log_prefix=None):
                 code = 128 + int(child.signalstatus)
         except Exception:
             code = None
-    return (0 if code is None else code), "".join(chunks)
+    output = "".join(chunks)
+    for secret in sorted(responder.secrets, key=len, reverse=True):
+        output = output.replace(secret, "[口令已隐藏]")
+    return (0 if code is None else code), output
 
 
 def run_bytes(target, command, timeout=60.0):
