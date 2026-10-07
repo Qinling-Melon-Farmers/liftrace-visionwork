@@ -181,7 +181,7 @@ def generate(root,out,settings,fc_xyz,rig):
     # Legacy align_height is float32, recovery_height is double. Use an
     # exactly representable shared value so equality cannot fail its guard.
     low=struct.unpack('f',struct.pack('f',low))[0]
-    if not .45<=settings['drop_agl']<=1.0 or min(drop,ground+.40)<=.05:raise ValueError('Legacy positive local-Z bounds not met')
+    if not .35<=settings['drop_agl']<=1.0 or min(drop,ground+.40)<=.05:raise ValueError('Drop AGL must be 0.35..1.0m and generated drop/land local Z must exceed 0.05m')
     point=lambda a,b,h:[x+a,y+b,h]
     runtime=yaml.safe_load((root/'docs/verification/fov_landing_inner_20260919/seed_2672/fast_runtime.yaml').read_text())
     m=runtime['mission'];m.update(home_xy=[x,y],landing_xy=[x+.6,y],approach_altitude=low,return_altitude=low,timeout=600. if mode=='high_view_full' else 300.,forced_return_at=510. if mode=='high_view_full' else 240.,post_delivery_route_revision='board-'+mode,

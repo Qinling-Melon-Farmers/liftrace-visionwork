@@ -1,9 +1,9 @@
 mode: high_view_full
 low_agl: 1.4
 high_agl: 2.6
-drop_agl: 0.45
+drop_agl: 0.35
 landing_transit_agl: 1.0
-landing_capture_agl: 1.8
+landing_capture_agl: 1.2
 landing_xy: null
 cruise_speed: 0.5
 cruise_acceleration: 0.35
