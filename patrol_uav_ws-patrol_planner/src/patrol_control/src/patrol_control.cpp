@@ -690,6 +690,7 @@ void LLController::externalLandingTick() {
     }
 
     // 运动稳定窗按控制时钟消费新里程计；低帧率 H 图像不等于里程计断流。
+    const bool motion_pending = external_landing_handoff_mode_ == "POSCTL" && motionTimePending();
     bool capture_settled = external_landing_handoff_mode_ != "POSCTL";
     if (!external_landing_alignment_complete_ && external_landing_handoff_mode_ == "POSCTL") {
         if (mark_fresh) {
@@ -698,7 +699,7 @@ void LLController::externalLandingTick() {
                 uav_pose.pose.position.y-land_mark_point.pose.position.y));
         } else landing_capture_window_.reset();
     }
-    if (external_landing_new_mark_) {
+    if (external_landing_new_mark_ && !motion_pending) {
         if (mark_fresh && !external_landing_alignment_complete_) {
             const double horizontal_error = std::hypot(
                 uav_pose.pose.position.x - land_mark_point.pose.position.x,
@@ -3457,39 +3458,76 @@ void LLController::publishAlignMode(const std::string& mode)
 }
 
 void LLController::motionOdomCallback(const nav_msgs::Odometry::ConstPtr& msg) {
-    // 重发旧帧不能计作新的停稳样本；同一来源的无效新帧立即撤销运动就绪。
+    // 明显异常的未来时间不能污染递增水位，阻断后续正常里程计。
+    const double future = (msg->header.stamp-ros::Time::now()).toSec();
+    if (future > std::min(drop_settle_config_.max_odom_age_sec,
+                          landing_settle_config_.max_odom_age_sec)) {
+        motion_odom_valid_ = false;
+        drop_capture_window_.reset(); drop_release_window_.reset();
+        landing_capture_window_.reset(); landing_handoff_window_.reset();
+        return;
+    }
     if (!motion_odom_.header.stamp.isZero() && msg->header.stamp <= motion_odom_.header.stamp) return;
     motion_odom_ = *msg;
     motion_odom_receipt_ = ros::Time::now();
+    // 此标志只表示已有样本；每次使用仍检查完整内容和时效。
+    // 不能把“本节点 /clock 暂未追上”永久锁成样本无效。
     motion_odom_valid_ = true;
-    Eigen::Vector3d v, w;
-    if (!freshMotion(&v, &w)) {
-        motion_odom_valid_ = false;
+    const char* reason = motionFeedbackStatus();
+    if (reason && std::string(reason) != "motion_time_pending") {
+        if (std::string(reason) == "motion_numeric_invalid" ||
+            std::string(reason) == "motion_frame_invalid" ||
+            std::string(reason) == "motion_odom_missing") motion_odom_valid_ = false;
         drop_capture_window_.reset(); drop_release_window_.reset();
         landing_capture_window_.reset(); landing_handoff_window_.reset();
     }
 }
 
-bool LLController::freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angular) const {
+const char* LLController::motionFeedbackStatus() const {
     const auto& m = motion_odom_;
-    const double now = ros::Time::now().toSec();
-    const double age = now - m.header.stamp.toSec();
-    const double receipt_age = now - motion_odom_receipt_.toSec();
-    const double pose_age = now - uav_pose.header.stamp.toSec();
-    if (!motion_odom_valid_ || m.header.stamp.isZero() || uav_pose.header.stamp.isZero() ||
-        pose_age < 0.0 || pose_age > drop_settle_config_.max_odom_age_sec || age < 0.0 || receipt_age < 0.0 ||
-        age > std::min(drop_settle_config_.max_odom_age_sec, landing_settle_config_.max_odom_age_sec) ||
-        receipt_age > std::min(drop_settle_config_.max_odom_age_sec, landing_settle_config_.max_odom_age_sec) ||
-        m.header.frame_id.empty() || m.header.frame_id != uav_pose.header.frame_id ||
-        (motion_twist_frame_ == "child" && m.child_frame_id.empty())) return false;
+    if (!motion_odom_valid_ || m.header.stamp.isZero() || motion_odom_receipt_.isZero())
+        return "motion_odom_missing";
+    if (uav_pose.header.stamp.isZero()) return "motion_pose_missing";
+    if (m.header.frame_id.empty() || m.header.frame_id != uav_pose.header.frame_id ||
+        (motion_twist_frame_ == "child" && m.child_frame_id.empty())) return "motion_frame_invalid";
     const auto& p = m.pose.pose.position;
     const auto& q = m.pose.pose.orientation;
-    Eigen::Quaterniond rotation(q.w,q.x,q.y,q.z);
-    *velocity = Eigen::Vector3d(m.twist.twist.linear.x,m.twist.twist.linear.y,m.twist.twist.linear.z);
-    *angular = Eigen::Vector3d(m.twist.twist.angular.x,m.twist.twist.angular.y,m.twist.twist.angular.z);
+    const Eigen::Quaterniond rotation(q.w,q.x,q.y,q.z);
+    const auto& v = m.twist.twist.linear;
+    const auto& w = m.twist.twist.angular;
     if (!std::isfinite(p.x) || !std::isfinite(p.y) || !std::isfinite(p.z) ||
         !rotation.coeffs().allFinite() || std::abs(rotation.norm()-1.0) > 0.01 ||
-        !velocity->allFinite() || !angular->allFinite()) return false;
+        !Eigen::Vector3d(v.x,v.y,v.z).allFinite() ||
+        !Eigen::Vector3d(w.x,w.y,w.z).allFinite()) return "motion_numeric_invalid";
+    const double now = ros::Time::now().toSec();
+    const double age = now-m.header.stamp.toSec();
+    const double receipt_age = now-motion_odom_receipt_.toSec();
+    const double pose_age = now-uav_pose.header.stamp.toSec();
+    const double limit = std::min(drop_settle_config_.max_odom_age_sec,
+                                  landing_settle_config_.max_odom_age_sec);
+    if (age > limit || receipt_age > limit || pose_age > drop_settle_config_.max_odom_age_sec)
+        return "motion_feedback_stale";
+    if (age < -limit || receipt_age < -limit || pose_age < -limit)
+        return "motion_clock_invalid";
+    if (age < 0.0 || receipt_age < 0.0 || pose_age < 0.0) return "motion_time_pending";
+    return nullptr;
+}
+
+bool LLController::motionTimePending() const {
+    const char* reason = motionFeedbackStatus();
+    return reason && std::string(reason) == "motion_time_pending";
+}
+
+bool LLController::freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angular,
+                               const char** rejection) const {
+    const char* reason = motionFeedbackStatus();
+    if (rejection) *rejection = reason;
+    if (reason) return false;
+    const auto& m = motion_odom_;
+    const auto& q = m.pose.pose.orientation;
+    const Eigen::Quaterniond rotation(q.w,q.x,q.y,q.z);
+    *velocity = Eigen::Vector3d(m.twist.twist.linear.x,m.twist.twist.linear.y,m.twist.twist.linear.z);
+    *angular = Eigen::Vector3d(m.twist.twist.angular.x,m.twist.twist.angular.y,m.twist.twist.angular.z);
     if (motion_twist_frame_ == "child") {
         *velocity = rotation.normalized() * *velocity;
         *angular = rotation.normalized() * *angular;
@@ -3535,8 +3573,13 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
         c.semantic_target_first_seen == b.semantic_target_first_seen && c.semantic_target_class == b.semantic_target_class &&
         c.align_mode == b.align_mode && c.deadline > ros::Time::now();
     if (!compensated_goal_valid_ || !bound || c.payload_slot < 1 || c.payload_slot > 3 ||
-        Drone_mode != Aligning || !freshMotion(&velocity,&angular) ||
-        (release && !compensated_goal_frozen_)) { window.reset(); return false; }
+        Drone_mode != Aligning || (release && !compensated_goal_frozen_)) { window.reset(); return false; }
+    const char* motion_reason = nullptr;
+    if (!freshMotion(&velocity,&angular,&motion_reason)) {
+        if (!motion_reason || std::string(motion_reason) != "motion_time_pending") window.reset();
+        ROS_INFO_THROTTLE(1.0, "[DropGeometry] motion wait: %s", motion_reason);
+        return false;
+    }
     const auto& offsets = c.align_mode == "drop_cross" ? dynamic_drop_slot_offsets_ : drop_slot_offsets_;
     const auto& q = motion_odom_.pose.pose.orientation;
     if (!outletArmInMission(Eigen::Quaterniond(q.w,q.x,q.y,q.z),
@@ -3570,7 +3613,7 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
     sample.control_ready = externalLandingControlReady(ros::Time::now());
     sample.feedback_valid = true;
     const auto result = window.update(now,sample);
-    if (release && !result.ready) ROS_INFO_THROTTLE(1.0,
+    if (!result.ready) ROS_INFO_THROTTLE(1.0,
         "[DropGeometry] waiting: %s xy=%.3f speed=%.3f zerr=%.3f samples=%zu",
         result.reason,xy_error,horizontal_speed,sample.z_error_m,result.sample_count);
     return result.ready;
@@ -3592,6 +3635,8 @@ bool LLController::freezeCompensatedDropTarget() {
 
 void LLController::publishCompensatedAlignment() {
     if (!external_mission_mode_ || !compensated_alignment_enabled_ || Drone_mode != Aligning) return;
+    // 暂未来到评估时刻的样本不形成错误的 invalid 反馈；旧反馈仍受原时效限制。
+    if (motionTimePending()) return;
     double error = -1.0, speed = -1.0;
     const bool ready = compensatedDropSettled(false,&error,&speed);
     uav_vision::DropAlignmentFeedback feedback;
@@ -3609,7 +3654,9 @@ void LLController::publishCompensatedAlignment() {
     feedback.aligned=ready; feedback.frozen=compensated_goal_frozen_;
     feedback.target_fc=compensated_fc_goal_.pose.position;
     feedback.horizontal_error_m=error; feedback.horizontal_speed_mps=speed;
-    feedback.reason=ready ? "compensated_settled" : "compensated_not_settled";
+    const char* motion_reason = motionFeedbackStatus();
+    feedback.reason=motion_reason ? motion_reason :
+        (ready ? "compensated_settled" : "compensated_not_settled");
     compensated_alignment_pub_.publish(feedback);
 }
 
@@ -3617,7 +3664,10 @@ bool LLController::landingMotionSettled(bool handoff, double xy_error) {
     auto& window = handoff ? landing_handoff_window_ : landing_capture_window_;
     Eigen::Vector3d v,w;
     LandingHandoffSample sample;
-    sample.feedback_valid = freshMotion(&v,&w);
+    const char* motion_reason = nullptr;
+    sample.feedback_valid = freshMotion(&v,&w,&motion_reason);
+    if (!sample.feedback_valid && motion_reason &&
+        std::string(motion_reason) == "motion_time_pending") return false;
     sample.source_stamp_sec=motion_odom_.header.stamp.toSec();
     sample.receipt_stamp_sec=motion_odom_receipt_.toSec();
     sample.height_m=motion_odom_.pose.pose.position.z;

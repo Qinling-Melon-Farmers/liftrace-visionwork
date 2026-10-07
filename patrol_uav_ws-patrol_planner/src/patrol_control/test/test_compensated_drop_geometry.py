@@ -168,7 +168,9 @@ public:
   latest_drop_ready_time_=ros::Time::now();
  }
  void motionOdomCallback(const nav_msgs::Odometry::ConstPtr&);
- bool freshMotion(Eigen::Vector3d*,Eigen::Vector3d*)const;
+ const char* motionFeedbackStatus() const;
+ bool motionTimePending() const;
+ bool freshMotion(Eigen::Vector3d*,Eigen::Vector3d*,const char** =nullptr)const;
  bool setCompensatedDropTarget(geometry_msgs::PoseStamped*);
  bool compensatedDropSettled(bool,double* =nullptr,double* =nullptr);
  bool freezeCompensatedDropTarget();
@@ -332,6 +334,42 @@ int main(int argc,char**argv){
   odom(c,101.3125,g.x,g.y,.35);assert(!c.compensatedDropSettled(true));
   assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);
   odom(c,101.375,g.x,g.y,.35);assert(c.compensatedDropSettled(true));
+ }else if(name=="future_sequence" || name=="future_pose_sequence"){
+  capture(c);const auto g=c.compensated_fc_goal_.pose.position;
+  for(int i=0;i<4;++i){
+   const double now=101+i*.125;odom(c,now,g.x,g.y,.35);
+   auto m=std::make_shared<nav_msgs::Odometry>(c.motion_odom_);
+   m->header.stamp=ros::Time(now+.003);
+   c.uav_pose.header.stamp=ros::Time(now+.003);
+   if(name=="future_sequence") c.motionOdomCallback(m);
+   Eigen::Vector3d v,w;const char* reason=nullptr;
+   assert(!c.freshMotion(&v,&w,&reason));
+   assert(reason&&std::string(reason)=="motion_time_pending");
+   assert(c.motionTimePending()&&!c.compensatedDropSettled(true));
+   assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);
+   ros::clock_sec=now+.004;
+   assert(c.freshMotion(&v,&w)&&!c.motionTimePending());
+   // Same retained sample becomes usable; no callback or stamp rewriting.
+   assert(c.compensatedDropSettled(true)==(i==3));
+   assert(c.compensatedDropSettled(true)==(i==3));
+  }
+ }else if(name=="future_watermark"){
+  capture(c);const auto g=c.compensated_fc_goal_.pose.position;
+  odom(c,101,g.x,g.y,.35);const double accepted=c.motion_odom_.header.stamp.toSec();
+  auto m=std::make_shared<nav_msgs::Odometry>(c.motion_odom_);m->header.stamp=ros::Time(500);
+  c.motionOdomCallback(m);assert(!c.motion_odom_valid_);
+  close(c.motion_odom_.header.stamp.toSec(),accepted);
+  Eigen::Vector3d v,w;assert(!c.freshMotion(&v,&w));
+  odom(c,101.125,g.x,g.y,.35);assert(c.freshMotion(&v,&w));
+  assert(!c.compensatedDropSettled(true));
+ }else if(name=="future_bad_numeric"){
+  capture(c);const auto g=c.compensated_fc_goal_.pose.position;
+  odom(c,101,g.x,g.y,.35);
+  auto m=std::make_shared<nav_msgs::Odometry>(c.motion_odom_);m->header.stamp=ros::Time(101.003);
+  m->twist.twist.linear.x=std::numeric_limits<double>::quiet_NaN();
+  c.motionOdomCallback(m);assert(!c.motion_odom_valid_&&!c.motionTimePending());
+  ros::clock_sec=101.004;Eigen::Vector3d v,w;assert(!c.freshMotion(&v,&w));
+  assert(!c.compensatedDropSettled(true));
  }else if(name=="invalid_motion"){
   odom(c,100,0,0,1);auto p=center(100);assert(c.setCompensatedDropTarget(&p));
   auto m=std::make_shared<nav_msgs::Odometry>(c.motion_odom_);m->header.stamp=ros::Time(100.1);
@@ -348,6 +386,8 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         source = (PACKAGE / 'src/patrol_control.cpp').read_text(encoding='utf-8')
         signatures = (
             'void LLController::motionOdomCallback(',
+            'const char* LLController::motionFeedbackStatus(',
+            'bool LLController::motionTimePending(',
             'bool LLController::freshMotion(',
             'bool LLController::setCompensatedDropTarget(',
             'bool LLController::compensatedDropSettled(',
@@ -398,6 +438,11 @@ class CompensatedDropGeometryTests(unittest.TestCase):
     def test_duration_alone_still_needs_three_distinct_frames(self): self.run_case('frame_count')
     def test_admitted_async_rpc_survives_new_frames_and_revocation(self): self.run_case('async')
     def test_invalid_new_motion_revokes_readiness(self): self.run_case('invalid_motion')
+    def test_continuous_future_odom_waits_without_erasing_settlement(self): self.run_case('future_sequence')
+    def test_continuous_future_pose_waits_without_erasing_settlement(self): self.run_case('future_pose_sequence')
+    def test_far_future_stamp_does_not_poison_source_watermark(self): self.run_case('future_watermark')
+    def test_future_numeric_invalid_sample_cannot_recover_by_waiting(self): self.run_case('future_bad_numeric')
+
 
 
 if __name__ == '__main__':

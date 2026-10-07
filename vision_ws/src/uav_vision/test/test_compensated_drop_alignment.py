@@ -50,6 +50,9 @@ class CompensatedDropAlignmentTest(unittest.TestCase):
         patched = patch.object(ALIGNER.rospy.Time, "now", return_value=rospy.Time(100))
         self.clock = patched.start()
         self.addCleanup(patched.stop)
+        patched = patch.object(ALIGNER.time, "monotonic", return_value=0.0)
+        self.wall_clock = patched.start()
+        self.addCleanup(patched.stop)
         self.node = ALIGNER.DropAligner()
         self.node._on_align_mode(String(data="drop_circle"))
         self.context = self.make_context()
@@ -266,7 +269,7 @@ class CompensatedDropAlignmentTest(unittest.TestCase):
             ("header", 99.49, "feedback_stale"),
             ("observation_stamp", 99.49, "observation_stale"),
             ("odom_stamp", 99.49, "odom_stale"),
-            ("header", 100.1, "feedback_future"),
+            ("header", 100.2, "feedback_future"),
             ("observation_stamp", 100.1, "observation_future"),
             ("odom_stamp", 100.1, "odom_future"),
             ("odom_stamp", 0.0, "odom_unstamped"),
@@ -311,6 +314,178 @@ class CompensatedDropAlignmentTest(unittest.TestCase):
                 self.node._on_drop_alignment_feedback(feedback)
                 self.assertFalse(self.ready().ready)
                 self.assertEqual(self.ready().reason, "compensated_alignment_" + reason)
+
+    def test_continuous_20hz_feedback_and_same_action_context_3ms_ahead_do_not_starve(self):
+        originals = []
+        for index in range(20):
+            now = 100.0 + index * .05
+            self.clock.return_value = rospy.Time.from_sec(now)
+            self.wall_clock.return_value = index * .25  # Gazebo RTF approximately .2.
+            heartbeat = copy.deepcopy(self.context)
+            heartbeat.header.stamp = rospy.Time.from_sec(now + .003)
+            self.node._on_alignment_context(heartbeat)
+            target = self.target(now - .001)
+            self.observe(target)
+            feedback = self.feedback(target)
+            feedback.header.stamp = heartbeat.header.stamp
+            feedback.odom_stamp = target.last_seen
+            original = copy.deepcopy(feedback)
+            self.node._on_drop_alignment_feedback(feedback)
+            self.node._on_alignment_context_watchdog(None)
+            self.assertEqual(feedback, original)
+            self.assertEqual(self.node._consecutive_ok, index)
+            self.assertEqual(len(self.node._pending_feedback), 1)
+            self.assertEqual(self.ready().ready, index >= 2)
+            if self.node._compensated_feedback is not None:
+                self.assertLessEqual(self.node._compensated_feedback.header.stamp,
+                                     self.clock.return_value)
+            originals.append(original)
+        self.clock.return_value = originals[-1].header.stamp
+        self.wall_clock.return_value += .25
+        self.node._on_alignment_context_watchdog(None)
+        self.assertTrue(self.ready().ready)
+        self.assertEqual(self.node._consecutive_ok, 20)
+        self.assertEqual(self.node._compensated_feedback, originals[-1])
+        self.assertEqual(len(self.node._pending_feedback), 0)
+
+    def test_future_feedback_preserves_streak_then_counts_original_image_only_once(self):
+        self.align()
+        target = self.target(99.9)
+        self.observe(target)
+        feedback = self.feedback(target)
+        feedback.header.stamp = rospy.Time.from_sec(100.003)
+        for _ in range(5):
+            self.node._on_drop_alignment_feedback(feedback)
+            self.node._on_alignment_context_watchdog(None)
+        self.assertEqual(self.node._consecutive_ok, 1)
+        self.assertEqual(len(self.node._pending_feedback), 1)
+        self.assertFalse(self.ready().ready)
+        self.clock.return_value = feedback.header.stamp
+        self.wall_clock.return_value = .25
+        self.node._on_alignment_context_watchdog(None)
+        self.assertTrue(self.ready().ready)
+        self.assertEqual(self.node._compensated_feedback, feedback)
+        for _ in range(5):
+            self.node._on_drop_alignment_feedback(feedback)
+        self.assertEqual(self.node._consecutive_ok, 2)
+
+    def test_next_feedback_callback_consumes_old_pending_before_new_future_sample(self):
+        targets = [self.target(99.8 + index * .05) for index in range(4)]
+        for target in targets:
+            self.observe(target)
+        for index, target in enumerate(targets):
+            now = 100.0 + index * .05
+            self.clock.return_value = rospy.Time.from_sec(now)
+            self.wall_clock.return_value = index * .25
+            feedback = self.feedback(target)
+            feedback.header.stamp = rospy.Time.from_sec(now + .003)
+            feedback.odom_stamp = rospy.Time.from_sec(now - .001)
+            # No target/context/watchdog callbacks during this stream: progress
+            # must come from draining before the next feedback is enqueued.
+            self.node._on_drop_alignment_feedback(feedback)
+            self.assertEqual(self.node._consecutive_ok, index)
+            self.assertEqual(len(self.node._pending_feedback), 1)
+        self.assertTrue(self.ready().ready)
+        self.clock.return_value = feedback.header.stamp
+        self.node._on_alignment_context_watchdog(None)
+        self.assertEqual(self.node._consecutive_ok, 4)
+
+    def test_pending_context_is_consumed_before_old_heartbeat_age_check(self):
+        self.align()
+        self.align(99.9)
+        self.node._alignment_context_max_age = .01
+        self.clock.return_value = rospy.Time.from_sec(100.009)
+        heartbeat = copy.deepcopy(self.context)
+        heartbeat.header.stamp = rospy.Time.from_sec(100.012)
+        self.node._on_alignment_context(heartbeat)
+        self.assertEqual(self.node._alignment_context.header.stamp, rospy.Time(100))
+        self.clock.return_value = rospy.Time.from_sec(100.02)
+        self.wall_clock.return_value = .25
+        self.node._on_alignment_context_watchdog(None)
+        self.assertEqual(self.node._alignment_context, heartbeat)
+        self.assertEqual(self.node._consecutive_ok, 2)
+        self.assertTrue(self.ready().ready)
+
+    def test_future_feedback_intrinsic_errors_are_not_deferred(self):
+        for field, value, reason in (
+                ("valid", False, "feedback_invalid"),
+                ("horizontal_error_m", float("nan"), "metrics_invalid"),
+                ("horizontal_speed_mps", -1.0, "metrics_invalid"),
+                ("mission_id", "wrong-action", "context_mismatch"),
+                ("odom_stamp", rospy.Time.from_sec(100.004), "evaluation_precedes_source")):
+            with self.subTest(field=field):
+                self.node._last_counted_observation = None
+                target, _ = self.align()
+                feedback = self.feedback(target)
+                feedback.header.stamp = rospy.Time.from_sec(100.003)
+                setattr(feedback, field, value)
+                self.node._on_drop_alignment_feedback(feedback)
+                self.assertEqual(len(self.node._pending_feedback), 0)
+                self.assertEqual(self.node._consecutive_ok, 0)
+                self.assertEqual(self.ready().reason, "compensated_alignment_" + reason)
+
+    def test_context_identity_change_immediately_discards_pending_context_and_feedback(self):
+        target, _ = self.align()
+        self.align(99.9)
+        heartbeat = copy.deepcopy(self.context)
+        heartbeat.header.stamp = rospy.Time.from_sec(100.003)
+        self.node._on_alignment_context(heartbeat)
+        feedback = self.feedback(target)
+        feedback.header.stamp = heartbeat.header.stamp
+        self.node._on_drop_alignment_feedback(feedback)
+        changed = copy.deepcopy(heartbeat)
+        changed.decision_seq += 1
+        self.node._on_alignment_context(changed)
+        self.assertFalse(self.ready().ready)
+        self.assertEqual(self.node._consecutive_ok, 0)
+        self.assertIsNone(self.node._pending_context)
+        self.assertEqual(len(self.node._pending_feedback), 0)
+        self.clock.return_value = heartbeat.header.stamp
+        self.node._on_alignment_context_watchdog(None)
+        self.assertFalse(self.ready().ready)
+        self.assertIsNone(self.node._compensated_feedback)
+
+    def test_pending_feedback_keeps_source_age_and_deadline_gates(self):
+        target = self.target(99.503)
+        self.observe(target)
+        feedback = self.feedback(target)
+        feedback.header.stamp = rospy.Time.from_sec(100.01)
+        self.node._on_drop_alignment_feedback(feedback)
+        self.assertEqual(len(self.node._pending_feedback), 1)
+        self.clock.return_value = rospy.Time.from_sec(100.02)
+        self.node._on_alignment_context_watchdog(None)
+        self.assertEqual(len(self.node._pending_feedback), 0)
+        self.assertEqual(self.node._consecutive_ok, 0)
+        self.assertFalse(self.ready().ready)
+        self.assertIsNone(self.node._compensated_feedback)
+        self.clock.return_value = rospy.Time(100)
+        self.context.deadline = rospy.Time.from_sec(100.002)
+        self.node._on_alignment_context(self.context)
+        target = self.target(99.9)
+        self.observe(target)
+        feedback = self.feedback(target)
+        feedback.header.stamp = rospy.Time.from_sec(100.003)
+        self.node._on_drop_alignment_feedback(feedback)
+        self.assertEqual(len(self.node._pending_feedback), 1)
+        self.clock.return_value = feedback.header.stamp
+        self.node._on_alignment_context_watchdog(None)
+        self.assertEqual(len(self.node._pending_feedback), 0)
+        self.assertFalse(self.ready().ready)
+        self.assertEqual(self.ready().reason, "alignment_context_deadline_expired")
+
+    def test_future_pending_queue_is_bounded_and_wall_timeout_never_admits_future(self):
+        target, _ = self.align()
+        for index in range(12):
+            feedback = self.feedback(target)
+            feedback.header.stamp = rospy.Time.from_sec(100.001 + index * .001)
+            self.node._on_drop_alignment_feedback(feedback)
+        self.assertEqual(len(self.node._pending_feedback), 8)
+        self.assertEqual(self.node._consecutive_ok, 1)
+        self.wall_clock.return_value = .25  # ROS clock deliberately has not caught up.
+        self.node._on_alignment_context_watchdog(None)
+        self.assertEqual(len(self.node._pending_feedback), 0)
+        self.assertEqual(self.node._consecutive_ok, 0)
+        self.assertFalse(self.ready().ready)
 
     def test_old_feedback_after_context_switch_cannot_reuse_stability(self):
         self.align()

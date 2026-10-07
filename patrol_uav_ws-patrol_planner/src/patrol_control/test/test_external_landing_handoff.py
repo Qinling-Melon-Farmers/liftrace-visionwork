@@ -136,6 +136,7 @@ public:
     SettlementWindowStub landing_capture_window_, landing_handoff_window_;
     bool landing_motion_settled_=true;
     int capture_settle_calls_=0, handoff_settle_calls_=0;
+    bool motionTimePending() const { return false; }
     bool landingMotionSettled(bool handoff, double) {
         if (handoff) ++handoff_settle_calls_;
         else ++capture_settle_calls_;

@@ -24,7 +24,11 @@ FEEDBACK = r'''
     ros::Time motion_odom_receipt_;
     Eigen::Vector3d feedback_velocity_{0,0,0};
     bool feedback_valid_=true;
-    bool freshMotion(Eigen::Vector3d* v, Eigen::Vector3d* w) const {
+    bool motion_time_pending_=false;
+    bool motionTimePending() const { return motion_time_pending_; }
+    bool freshMotion(Eigen::Vector3d* v, Eigen::Vector3d* w,
+                     const char** rejection=nullptr) const {
+        if (rejection) *rejection=motion_time_pending_ ? "motion_time_pending" : nullptr;
         *v=feedback_velocity_; *w=Eigen::Vector3d::Zero(); return feedback_valid_;
     }
     bool landingMotionSettled(bool handoff, double xy_error);
@@ -83,6 +87,61 @@ int main(int argc, char** argv) {
             assert(c.patrol_cmd.pose.position.z==(i==55 ? .35 : 1.2));
         }
         assert(c.set_mode_client.calls==0);
+    } else if (name=="capture_pending_3ms_preserves_window_and_four_hz_images") {
+        // 每个 20Hz 运动样本先领先本节点时钟 3ms；4Hz H 帧在 pending tick 保留。
+        // 追时 tick 复用同一来源样本，不伪造新 odom 或新 H 图像。
+        for (int i=0;i<=55;++i) {
+            const double t=100+i*.05;
+            const bool new_h=i%5==0;
+            feedback(c,t,1.2,0.,0.,new_h);
+            c.motion_odom_.header.stamp=ros::Time(t+.003);
+            c.motion_time_pending_=true;
+            c.feedback_valid_=false;
+            const int before=c.external_landing_stable_count_;
+            assert(!c.landingMotionSettled(false,0));
+            c.externalLandingTick();
+            assert(c.external_landing_stable_count_==before);
+            assert(c.external_landing_new_mark_==new_h);
+            assert(!c.external_landing_alignment_complete_);
+            assert(c.patrol_cmd.pose.position.z==1.2);
+            assert(c.set_mode_client.calls==0);
+
+            ros::clock=t+.003;
+            state(c);
+            c.motion_time_pending_=false;
+            c.feedback_valid_=true;
+            c.externalLandingTick();
+            assert(!c.external_landing_new_mark_);
+            assert(c.external_landing_stable_count_==(i<10 ? 0 : (i-10)/5+1));
+            assert(c.external_landing_alignment_complete_==(i==55));
+            assert(c.patrol_cmd.pose.position.z==(i==55 ? .35 : 1.2));
+            assert(c.set_mode_client.calls==0);
+        }
+    } else if (name=="handoff_pending_3ms_preserves_window_without_early_posctl") {
+        c.external_landing_alignment_complete_=true;
+        c.external_landing_aligned_goal_.pose.position={1,2,.35};
+        // 低位连续样本均经历 pending；到满 0.5s 的最后样本也必须等时钟追上。
+        for (int i=0;i<=10;++i) {
+            const double t=100+i*.05;
+            feedback(c,t,.35,0.,0.,false);
+            c.motion_odom_.header.stamp=ros::Time(t+.003);
+            c.motion_time_pending_=true;
+            c.feedback_valid_=false;
+            assert(!c.landingMotionSettled(true,0));
+            c.externalLandingTick();
+            assert(c.external_landing_alignment_complete_);
+            assert(!c.external_landing_auto_land_requested_);
+            assert(c.patrol_cmd.pose.position.z==.35);
+            assert(c.set_mode_client.calls==0);
+
+            ros::clock=t+.003;
+            state(c);
+            c.motion_time_pending_=false;
+            c.feedback_valid_=true;
+            c.externalLandingTick();
+            assert(c.set_mode_client.calls==(i==10 ? 1 : 0));
+            assert(c.external_landing_auto_land_requested_==(i==10));
+        }
     } else if (name=="capture_and_handoff_have_independent_windows") {
         for (int i=0;i<5;++i) {
             feedback(c,100+i*.125,1.2);
@@ -165,6 +224,8 @@ class ProductionHSettlementTests(unittest.TestCase):
 
 for _case in ('capture_center_speed_height_and_ten_frames',
               'capture_20hz_with_four_h_frames_per_second',
+              'capture_pending_3ms_preserves_window_and_four_hz_images',
+              'handoff_pending_3ms_preserves_window_without_early_posctl',
               'capture_and_handoff_have_independent_windows',
               'low_handoff_rejects_speed_height_and_final_xy',
               'latched_h_does_not_follow_cropped_or_missing_images'):

@@ -3,6 +3,7 @@
 import math
 import copy
 import threading
+import time
 from collections import OrderedDict
 
 import rospy
@@ -55,10 +56,15 @@ class DropAligner:
             rospy.get_param("~compensated_odom_max_age", 0.5))
         self._compensated_observation_cache_size = int(
             rospy.get_param("~compensated_observation_cache_size", 16))
+        self._compensated_future_wait = float(
+            rospy.get_param("~compensated_feedback_future_wait_sec", 0.1))
         if (not all(math.isfinite(value) and value > 0.0 for value in (
                 self._compensated_feedback_max_age, self._compensated_odom_max_age)) or
                 not 1 <= self._compensated_observation_cache_size <= 64):
             raise ValueError("compensated alignment requires positive finite ages and cache size 1..64")
+        if (not math.isfinite(self._compensated_future_wait) or
+                not 0.0 < self._compensated_future_wait <= 0.5):
+            raise ValueError("compensated_feedback_future_wait_sec must be in (0, 0.5]")
         self._alignment_context_max_age = float(
             rospy.get_param("~alignment_context_max_age", 0.5))
         self._alignment_context_watchdog_rate = float(
@@ -100,6 +106,8 @@ class DropAligner:
         self._last_context_watchdog_reason = None
         self._compensated_observations = OrderedDict()
         self._compensated_feedback = None
+        self._pending_feedback = OrderedDict()
+        self._pending_context = None
         # A monotonic watermark survives rejection/context changes: replaying an
         # image can never restart or extend a streak, even after cache eviction.
         self._last_counted_observation = None
@@ -177,6 +185,8 @@ class DropAligner:
 
     def _on_alignment_context(self, msg):
         with self._state_lock:
+            if self._compensated_alignment_active():
+                self._drain_pending_context()
             try:
                 frozen_key = context_frozen_key(msg)
             except (AttributeError, TypeError, ValueError, OverflowError):
@@ -193,6 +203,17 @@ class DropAligner:
                     "mission=%s decision=%u target=%u attempt=%u slot=%u",
                     msg.mission_id, msg.decision_seq, msg.semantic_target_id,
                     msg.attempt, msg.payload_slot)
+            if (self._compensated_alignment_active() and
+                    frozen_key == self._alignment_context_frozen_key and
+                    0.0 < (msg.header.stamp - rospy.Time.now()).to_sec() <= self._compensated_future_wait):
+                # Validate the full lease/data at its stated evaluation time;
+                # this does not admit it until our own clock reaches that time.
+                valid, _ = self._validate_context(msg, msg.header.stamp)
+                if valid:
+                    self._drain_pending_feedback()
+                    self._pending_context = (copy.deepcopy(msg), time.monotonic())
+                    return
+            self._pending_context = None
             self._alignment_context = msg
             changed = frozen_key != self._alignment_context_frozen_key
             self._alignment_context_frozen_key = frozen_key
@@ -203,6 +224,8 @@ class DropAligner:
         with self._state_lock:
             if not self._context_required():
                 return
+            if self._compensated_alignment_active():
+                self._drain_pending_context()
             if self._align_mode == "disabled":
                 self._clear_stability()
                 self._last_context_watchdog_reason = None
@@ -210,6 +233,7 @@ class DropAligner:
             valid, reason = self._base_context_status()
             if valid:
                 if self._compensated_alignment_active():
+                    self._drain_pending_feedback()
                     self._publish_compensated_state()
                     return
                 if self._active_geometry_last_seen is not None:
@@ -243,6 +267,8 @@ class DropAligner:
         if getattr(self, "_require_compensated_alignment", False):
             self._compensated_observations.clear()
             self._compensated_feedback = None
+            self._pending_feedback.clear()
+            self._pending_context = None
 
     def _target_sort_key(self, target):
         return (target.geometry_confidence, target.class_confidence, target.observe_count)
@@ -256,9 +282,12 @@ class DropAligner:
         }.get(self._align_mode, "invalid mode")
 
     def _base_context_status(self):
+        return self._validate_context(self._alignment_context, rospy.Time.now())
+
+    def _validate_context(self, context, now):
         return validate_alignment_context(
-            self._alignment_context,
-            rospy.Time.now(),
+            context,
+            now,
             self._class_profile,
             self._allowed_alignment_commands,
             self._align_mode,
@@ -347,6 +376,8 @@ class DropAligner:
 
     def _on_targets(self, msg):
         with self._state_lock:
+            if self._compensated_alignment_active():
+                self._drain_pending_feedback()
             self._on_targets_locked(msg)
 
     def _on_targets_locked(self, msg):
@@ -502,7 +533,7 @@ class DropAligner:
             if self._stamp_reason(target.last_seen, self._target_max_age, "observation"):
                 del self._compensated_observations[key]
 
-    def _compensated_feedback_status(self, feedback):
+    def _compensated_feedback_status(self, feedback, defer_future=False):
         valid, reason = self._base_context_status()
         if not valid:
             return None, reason, (False, reason, float("inf"))
@@ -515,12 +546,16 @@ class DropAligner:
             return None, "compensated_alignment_context_mismatch", None
         if feedback.header.frame_id != context.target_pose.header.frame_id:
             return None, "compensated_alignment_frame_mismatch", None
+        future_reason = None
         for stamp, max_age, label in (
                 (feedback.header.stamp, self._compensated_feedback_max_age, "feedback"),
                 (feedback.observation_stamp, self._target_max_age, "observation"),
                 (feedback.odom_stamp, self._compensated_odom_max_age, "odom")):
             reason = self._stamp_reason(stamp, max_age, label)
             if reason:
+                if defer_future and reason.endswith("_future"):
+                    future_reason = future_reason or reason
+                    continue
                 return None, reason, None
         if (feedback.observation_stamp > feedback.header.stamp or
                 feedback.odom_stamp > feedback.header.stamp):
@@ -544,49 +579,98 @@ class DropAligner:
         status = self._context_status_for_target(target)
         if not status[0]:
             return target, status[1], status
-        return target, None, status
+        return target, future_reason, status
+
+    def _drain_pending_context(self):
+        if self._pending_context is None:
+            return
+        context, received = self._pending_context
+        if context.header.stamp <= rospy.Time.now():
+            self._pending_context = None
+            self._alignment_context = context
+        elif time.monotonic() - received > self._compensated_future_wait:
+            self._pending_context = None
+
+    def _drain_pending_feedback(self):
+        self._drain_pending_context()
+        valid, reason = self._base_context_status()
+        if not valid:
+            self._clear_stability()
+            self._publish_state(None, False, [reason], (False, reason, float("inf")))
+            return
+        # Consume older messages before an incoming future heartbeat can replace
+        # them. All admission uses the unchanged message and ordinary age gates.
+        for key, (msg, received) in list(self._pending_feedback.items()):
+            if msg.header.stamp <= rospy.Time.now():
+                del self._pending_feedback[key]
+                self._apply_compensated_feedback(msg, *self._compensated_feedback_status(msg))
+            elif time.monotonic() - received > self._compensated_future_wait:
+                del self._pending_feedback[key]
+                self._apply_compensated_feedback(
+                    msg, None, "compensated_alignment_feedback_future_wait_expired", None)
 
     def _on_drop_alignment_feedback(self, msg):
         with self._state_lock:
             if not self._compensated_alignment_active():
                 return
+            self._drain_pending_feedback()
             self._prune_compensated_observations()
-            # A new valid sample must not inherit a streak whose previous
-            # evidence expired between callbacks, even if the watchdog was
-            # delayed. Keep the new image cache, but retire the old streak.
-            if self._compensated_feedback is not None:
-                _, previous_reason, _ = self._compensated_feedback_status(
-                    self._compensated_feedback)
-                if previous_reason:
-                    self._consecutive_ok = 0
-                    self._compensated_feedback = None
             target, reason, status = self._compensated_feedback_status(msg)
-            key = self._stamp_key(msg.observation_stamp)
-            if (reason is None and self._last_counted_observation is not None and
-                    key < self._last_counted_observation):
-                reason = "compensated_alignment_observation_out_of_order"
-            if reason:
+            if (reason == "compensated_alignment_feedback_future" and
+                    0.0 < (msg.header.stamp - rospy.Time.now()).to_sec() <= self._compensated_future_wait):
+                target, reason, status = self._compensated_feedback_status(msg, defer_future=True)
+                if reason == "compensated_alignment_feedback_future":
+                    key = (self._stamp_key(msg.header.stamp), self._stamp_key(msg.observation_stamp))
+                    if key not in self._pending_feedback:
+                        self._pending_feedback[key] = (copy.deepcopy(msg), time.monotonic())
+                    while len(self._pending_feedback) > 8:
+                        self._pending_feedback.popitem(last=False)
+                    self._publish_compensated_state()
+                    return
+            self._apply_compensated_feedback(msg, target, reason, status)
+
+    def _apply_compensated_feedback(self, msg, target, reason, status):
+        # Caller holds the callback lock, including when consuming pending data.
+        # A new valid sample must not inherit a streak whose previous
+        # evidence expired between callbacks, even if the watchdog was
+        # delayed. Keep the new image cache, but retire the old streak.
+        if self._compensated_feedback is not None:
+            _, previous_reason, _ = self._compensated_feedback_status(
+                self._compensated_feedback)
+            if previous_reason:
                 self._consecutive_ok = 0
                 self._compensated_feedback = None
-                self._publish_state(target, False, [reason], status)
-                return
-            is_new_image = (self._last_counted_observation is None or
-                            key > self._last_counted_observation)
-            if not msg.aligned:
-                self._consecutive_ok = 0
-            elif is_new_image:
-                self._consecutive_ok += 1
-            if is_new_image:
-                self._last_counted_observation = key
-            self._compensated_feedback = copy.deepcopy(msg)
-            self._publish_compensated_state()
+        key = self._stamp_key(msg.observation_stamp)
+        if (reason is None and self._last_counted_observation is not None and
+                key < self._last_counted_observation):
+            reason = "compensated_alignment_observation_out_of_order"
+        if reason:
+            self._consecutive_ok = 0
+            self._compensated_feedback = None
+            self._publish_state(target, False, [reason], status)
+            return
+        is_new_image = (self._last_counted_observation is None or
+                        key > self._last_counted_observation)
+        if not msg.aligned:
+            self._consecutive_ok = 0
+        elif is_new_image:
+            self._consecutive_ok += 1
+        if is_new_image:
+            self._last_counted_observation = key
+        self._compensated_feedback = copy.deepcopy(msg)
+        self._publish_compensated_state()
 
     def _publish_compensated_state(self):
-        # Only feedback callbacks count frames. Target republishes and watchdog
-        # ticks may revoke readiness, but cannot turn a single image into a streak.
+        # Only admitted feedback counts source images. Republishes and watchdog
+        # ticks cannot turn a single image into a streak.
         self._prune_compensated_observations()
         feedback = self._compensated_feedback
         if feedback is None:
+            if self._pending_feedback:
+                msg = next(iter(self._pending_feedback.values()))[0]
+                target = self._compensated_observations.get(self._stamp_key(msg.observation_stamp))
+                self._publish_state(target, False, ["compensated_alignment_feedback_pending"])
+                return
             self._publish_state(None, False, ["compensated_alignment_feedback_missing"])
             return
         target, reason, status = self._compensated_feedback_status(feedback)

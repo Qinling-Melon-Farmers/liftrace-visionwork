@@ -129,7 +129,10 @@ private:
     LandingHandoffStabilityWindow drop_capture_window_, drop_release_window_;
     LandingHandoffStabilityWindow landing_capture_window_, landing_handoff_window_;
     void motionOdomCallback(const nav_msgs::Odometry::ConstPtr& msg);
-    bool freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angular) const;
+    const char* motionFeedbackStatus() const;
+    bool motionTimePending() const;
+    bool freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angular,
+                     const char** rejection = nullptr) const;
     bool setCompensatedDropTarget(geometry_msgs::PoseStamped* target);
     bool compensatedDropSettled(bool release, double* error = nullptr,
                                 double* speed = nullptr);
