@@ -1,0 +1,37 @@
+{
+  "screenshots": [
+    {
+      "file": "01_home_special_cards.png",
+      "route": "/",
+      "url": "http://127.0.0.1:8771/",
+      "view": "Homepage and task cards, offline",
+      "width": 1920,
+      "height": 1600
+    },
+    {
+      "file": "02_competition_expanded.png",
+      "route": "/",
+      "url": "http://127.0.0.1:8771/",
+      "view": "Independent competition card, configuration and command expanded; formal defaults",
+      "width": 1920,
+      "height": 1600
+    },
+    {
+      "file": "03_realtime_observe.png",
+      "route": "/observe",
+      "url": "http://127.0.0.1:8771/observe",
+      "view": "Unified live observation, empty offline telemetry",
+      "width": 1905,
+      "height": 3065
+    },
+    {
+      "file": "04_logs.png",
+      "route": "/logs",
+      "url": "http://127.0.0.1:8771/logs",
+      "view": "Logs and recording page, offline",
+      "width": 1920,
+      "height": 1600
+    }
+  ],
+  "telemetry": "Empty offline state; no injected values; no board or ROS connection"
+}

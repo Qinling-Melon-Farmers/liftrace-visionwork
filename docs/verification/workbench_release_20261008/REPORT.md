@@ -1,5 +1,7 @@
 # 工作台升级交付与验证（2026-10-08）
 
+> 2026-10-08主代理补充：本文后续已统一提交并推送，运行/分析交付提交为 `0e1cd063`；下文“未提交/由主代理统一处理”等描述保留为子代理交接时状态，不代表当前仍未交付。最新完成范围见 [交付索引](../../deployment/local_delivery_20261008/README.md)。
+
 本轮只修改 B 工作树 `/home/xhj/liftrace-worktrees/r2026-board-vision-tests` 的 `tools/flight_workbench` 及相关 tests/docs。未提交、未推送、未合并，未改共享 ROADMAP/总联调台账。由主代理审查及统一处理；工作台留在 B，不能把整条分支合入视觉 main。
 
 开始时已读 B 的 AGENTS、README、ROADMAP、VALIDATION、ENVIRONMENT、INTERFACES，确认 Windows 宿主及 WSL 开发目录，所有 Linux 命令经 `wsl -e bash -c` 执行。初轮B HEAD为 `6fa70dee`；用户要求最终回归时，主代理已更新基线至 `fa5d6ead`，最终ZIP的manifest记录此HEAD。工作台改动仍未提交，本代理未执行commit。原有 bag_replay/试飞资产和其他代理新增报告未修改。
