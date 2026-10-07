@@ -3,6 +3,7 @@ deployment/board_trials_4x4/04_corridor_landing/settings.yaml
 deployment/board_trials_4x4/08_full_mission/settings.yaml
 deployment/board_trials_4x4/common/uav_board_trials/config/known_rig.yaml
 deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_config.py
+docs/verification/high_view_slot_h_handoff_20261008/DYNAMIC_FULL.md
 docs/verification/high_view_slot_h_handoff_20261008/FILES.txt
 docs/verification/high_view_slot_h_handoff_20261008/REPORT.md
 docs/仿真联调变更记录.md
