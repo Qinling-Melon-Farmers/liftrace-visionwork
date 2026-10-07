@@ -78,6 +78,9 @@ def flight_geometry(settings):
     return area
 
 def validate_settings(settings):
+    budget=settings.get('motion_action_timeout',30.)
+    if isinstance(budget,bool) or not isinstance(budget,(int,float)) or not math.isfinite(budget) or not 0<budget<=600:
+        raise ValueError('Invalid motion_action_timeout; expected seconds in (0,600]')
     if settings.get('mode') not in ('visual_interrupt','low_multi',*HIGH_MODES,'landing'):
         raise ValueError('Unknown trial mode')
     if settings.get('landing_handoff_mode', 'AUTO.LAND') not in ('AUTO.LAND', 'POSCTL'):
@@ -182,7 +185,7 @@ def generate(root,out,settings,fc_xyz,rig):
     point=lambda a,b,h:[x+a,y+b,h]
     runtime=yaml.safe_load((root/'docs/verification/fov_landing_inner_20260919/seed_2672/fast_runtime.yaml').read_text())
     m=runtime['mission'];m.update(home_xy=[x,y],landing_xy=[x+.6,y],approach_altitude=low,return_altitude=low,timeout=600. if mode=='high_view_full' else 300.,forced_return_at=510. if mode=='high_view_full' else 240.,post_delivery_route_revision='board-'+mode,
-        post_delivery_route=[point(.6,0,low)],post_delivery_parameter_stages=[],early_return_enabled=False,delivery_reserve_per_slot=25.,return_land_reserve=45.,nominal_speed=float(settings['cruise_speed']),motion_action_timeout=30.,target_action_timeout=60.)
+        post_delivery_route=[point(.6,0,low)],post_delivery_parameter_stages=[],early_return_enabled=False,delivery_reserve_per_slot=25.,return_land_reserve=45.,nominal_speed=float(settings['cruise_speed']),motion_action_timeout=float(settings.get('motion_action_timeout',30.)),target_action_timeout=60.)
     runtime.pop('corridor_speed_schedule',None);runtime.pop('fixed_search_region',None)
     sx0,sx1,sy0,sy1=area['search_bounds']
     runtime['search'].update(min_x=x+sx0,max_x=x+sx1,min_y=y+sy0,max_y=y+sy1,lane_spacing=1.2,altitude=low)
