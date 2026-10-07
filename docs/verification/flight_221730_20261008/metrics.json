@@ -1,0 +1,861 @@
+{
+  "scope": {
+    "run": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/board_full_mission_20261007_221730",
+    "bag_start_epoch": 1791382651.8270173,
+    "duration_s": 306.94410252571106,
+    "video_fps": 5,
+    "ground_z": -0.26349584877490995,
+    "user_acceptance": "test-field chain acceptance; not all automatic gates PASS",
+    "no_ulog": true,
+    "no_ground_truth": true,
+    "controls_or_extrinsics_changed": false,
+    "reference_bag": "20261006_160434, H detected / descent / manual takeover; not a known full autonomous success",
+    "geometry_runtime": "local extracted production C++ OpenCV; not measured board inference",
+    "installation_interpretation": "12cm measured magnitude preserved; lever-arm signs/frame shown conditionally, not calibrated from FC positions"
+  },
+  "camera_frames": 1404,
+  "videos": {
+    "camera_raw.mp4": {
+      "duration": "307.000000",
+      "size": "119071461"
+    },
+    "camera_annotated.mp4": {
+      "duration": "307.000000",
+      "size": "120321482"
+    },
+    "trajectory.mp4": {
+      "duration": "307.000000",
+      "size": "3762276"
+    },
+    "dashboard.mp4": {
+      "duration": "307.000000",
+      "size": "123621224"
+    }
+  },
+  "slots": [
+    {
+      "slot": 1,
+      "physical_label": "rear",
+      "target": "red_cross",
+      "decision_seq": 8,
+      "approach_t": 172.56770014762878,
+      "alignment_accepted_t": 173.69425654411316,
+      "alignment_valid_t": 179.83178544044495,
+      "call_t": 185.27523851394653,
+      "ack_t": 186.28370022773743,
+      "offset_camera_init_xy": [
+        -0.12,
+        0.0
+      ],
+      "frozen_alignment_xy": [
+        1.68893789768219,
+        0.10685396194458008
+      ],
+      "mapped_at_alignment_xy": [
+        1.7262111126118493,
+        0.13400004949192573
+      ],
+      "mapped_sample_count": 8,
+      "snapshots": [
+        {
+          "event": "call",
+          "t": 185.27523851394653,
+          "pose": [
+            1.601680874824524,
+            0.19057410955429077,
+            0.19960275292396545
+          ],
+          "setpoint": [
+            1.56893789768219,
+            0.10685396194458008,
+            0.08650415390729904
+          ],
+          "tracking_xy_m": [
+            0.032742977142333984,
+            0.0837201476097107
+          ],
+          "pose_age_s": 0.004979372024536133,
+          "setpoint_age_s": 0.03214430809020996,
+          "roll_pitch_yaw_deg": [
+            1.5159982987548544,
+            -2.1240299339808977,
+            -0.1510133117073113
+          ],
+          "target_estimate_xy": [
+            1.7262111126118493,
+            0.13400004949192573
+          ],
+          "body_minus_target_estimate_xy_m": [
+            -0.12453023778732542,
+            0.05657406006236504
+          ],
+          "configured_offset_in_body_xy_m": [
+            -0.11999958319185453,
+            -0.0003162811742449897
+          ],
+          "ideal_fc_offset_if_table_is_installation_xy_m": [
+            0.11999958319185453,
+            -0.0003162811742449897
+          ],
+          "conditional_outlet_xy": [
+            1.4816812916326694,
+            0.19089039072853575
+          ],
+          "conditional_outlet_minus_target_xy_m": [
+            -0.24452982097917997,
+            0.05689034123661002
+          ],
+          "source_image": {
+            "t": 185.29903507232666,
+            "stamp": 185.27986335754395,
+            "file": "frames/000847.jpg"
+          },
+          "authorization_reason": "permission_granted_from_commitment",
+          "authorization_age_s": 0.005122661590576172
+        },
+        {
+          "event": "ack",
+          "t": 186.28370022773743,
+          "pose": [
+            1.5567666292190552,
+            0.1716049611568451,
+            0.18959227204322815
+          ],
+          "setpoint": [
+            1.56893789768219,
+            0.10685396194458008,
+            0.08650415390729904
+          ],
+          "tracking_xy_m": [
+            -0.012171268463134766,
+            0.06475099921226501
+          ],
+          "pose_age_s": 0.01929640769958496,
+          "setpoint_age_s": 0.039325714111328125,
+          "roll_pitch_yaw_deg": [
+            1.4274323872988266,
+            -1.2870510157140287,
+            -0.45388225665466037
+          ],
+          "target_estimate_xy": [
+            1.7262111126118493,
+            0.13400004949192573
+          ],
+          "body_minus_target_estimate_xy_m": [
+            -0.16944448339279417,
+            0.03760491166491936
+          ],
+          "configured_offset_in_body_xy_m": [
+            -0.11999623478200747,
+            -0.000950598833020825
+          ],
+          "ideal_fc_offset_if_table_is_installation_xy_m": [
+            0.11999623478200747,
+            -0.000950598833020825
+          ],
+          "conditional_outlet_xy": [
+            1.4367703944370478,
+            0.1725555599898659
+          ],
+          "conditional_outlet_minus_target_xy_m": [
+            -0.28944071817480155,
+            0.038555510497940176
+          ],
+          "source_image": {
+            "t": 186.39428281784058,
+            "stamp": 186.35991144180298,
+            "file": "frames/000852.jpg"
+          },
+          "authorization_reason": "payload_execution_locked",
+          "authorization_age_s": 0.014047622680664062
+        }
+      ]
+    },
+    {
+      "slot": 2,
+      "physical_label": "right",
+      "target": "bridge",
+      "decision_seq": 10,
+      "approach_t": 195.5763440132141,
+      "alignment_accepted_t": 196.60737895965576,
+      "alignment_valid_t": 199.77685976028442,
+      "call_t": 204.40135836601257,
+      "ack_t": 205.40932750701904,
+      "offset_camera_init_xy": [
+        0.0,
+        -0.12
+      ],
+      "frozen_alignment_xy": [
+        2.7130634784698486,
+        -0.9849660444259644
+      ],
+      "mapped_at_alignment_xy": [
+        2.7705351681641517,
+        -0.965992441568731
+      ],
+      "mapped_sample_count": 7,
+      "snapshots": [
+        {
+          "event": "call",
+          "t": 204.40135836601257,
+          "pose": [
+            2.7160284519195557,
+            -1.0165718793869019,
+            0.20337338745594025
+          ],
+          "setpoint": [
+            2.7130634784698486,
+            -1.1049660444259644,
+            0.08650415390729904
+          ],
+          "tracking_xy_m": [
+            0.0029649734497070312,
+            0.0883941650390625
+          ],
+          "pose_age_s": 0.007029533386230469,
+          "setpoint_age_s": 0.007051944732666016,
+          "roll_pitch_yaw_deg": [
+            1.5325271572898014,
+            -1.7361849684776982,
+            -6.525929445161029
+          ],
+          "target_estimate_xy": [
+            2.7705351681641517,
+            -0.965992441568731
+          ],
+          "body_minus_target_estimate_xy_m": [
+            -0.05450671624459602,
+            -0.05057943781817087
+          ],
+          "configured_offset_in_body_xy_m": [
+            0.013638341672144321,
+            -0.11922246280141109
+          ],
+          "ideal_fc_offset_if_table_is_installation_xy_m": [
+            0.013638341672144321,
+            0.11922246280141109
+          ],
+          "conditional_outlet_xy": [
+            2.7023901102474115,
+            -1.135794342188313
+          ],
+          "conditional_outlet_minus_target_xy_m": [
+            -0.06814505791674019,
+            -0.169801900619582
+          ],
+          "source_image": {
+            "t": 204.4794888496399,
+            "stamp": 204.44588088989258,
+            "file": "frames/000934.jpg"
+          },
+          "authorization_reason": "permission_granted_from_commitment",
+          "authorization_age_s": 0.0321958065032959
+        },
+        {
+          "event": "ack",
+          "t": 205.40932750701904,
+          "pose": [
+            2.6999433040618896,
+            -1.0715417861938477,
+            0.22226430475711823
+          ],
+          "setpoint": [
+            2.7130634784698486,
+            -1.1049660444259644,
+            0.08650415390729904
+          ],
+          "tracking_xy_m": [
+            -0.013120174407958984,
+            0.0334242582321167
+          ],
+          "pose_age_s": 0.010045766830444336,
+          "setpoint_age_s": 0.014195680618286133,
+          "roll_pitch_yaw_deg": [
+            -0.02575220066762715,
+            -1.1662311497712627,
+            -4.821738218961198
+          ],
+          "target_estimate_xy": [
+            2.7705351681641517,
+            -0.965992441568731
+          ],
+          "body_minus_target_estimate_xy_m": [
+            -0.07059186410226204,
+            -0.10554934462511667
+          ],
+          "configured_offset_in_body_xy_m": [
+            0.010086709220831247,
+            -0.11957532478356225
+          ],
+          "ideal_fc_offset_if_table_is_installation_xy_m": [
+            0.010086709220831247,
+            0.11957532478356225
+          ],
+          "conditional_outlet_xy": [
+            2.6898565948410584,
+            -1.19111711097741
+          ],
+          "conditional_outlet_minus_target_xy_m": [
+            -0.08067857332309325,
+            -0.22512466940867892
+          ],
+          "source_image": {
+            "t": 205.35757088661194,
+            "stamp": 205.33773851394653,
+            "file": "frames/000938.jpg"
+          },
+          "authorization_reason": "payload_execution_locked",
+          "authorization_age_s": 0.04025864601135254
+        }
+      ]
+    },
+    {
+      "slot": 3,
+      "physical_label": "left",
+      "target": "panzer",
+      "decision_seq": 12,
+      "approach_t": 218.19135165214539,
+      "alignment_accepted_t": 219.14790391921997,
+      "alignment_valid_t": 220.72801160812378,
+      "call_t": 228.80928945541382,
+      "ack_t": 229.82438588142395,
+      "offset_camera_init_xy": [
+        0.0,
+        0.12
+      ],
+      "frozen_alignment_xy": [
+        3.9285683631896973,
+        0.6538218903541565
+      ],
+      "mapped_at_alignment_xy": [
+        3.9793844973627404,
+        0.6535651311050447
+      ],
+      "mapped_sample_count": 7,
+      "snapshots": [
+        {
+          "event": "call",
+          "t": 228.80928945541382,
+          "pose": [
+            3.9601786136627197,
+            0.8341779708862305,
+            0.14634588360786438
+          ],
+          "setpoint": [
+            3.9285683631896973,
+            0.7738218903541565,
+            0.08650415390729904
+          ],
+          "tracking_xy_m": [
+            0.03161025047302246,
+            0.060356080532073975
+          ],
+          "pose_age_s": 0.0059049129486083984,
+          "setpoint_age_s": 0.014888286590576172,
+          "roll_pitch_yaw_deg": [
+            1.3326139480446204,
+            -1.6173854749612169,
+            7.390395047588231
+          ],
+          "target_estimate_xy": [
+            3.9793844973627404,
+            0.6535651311050447
+          ],
+          "body_minus_target_estimate_xy_m": [
+            -0.01920588370002063,
+            0.1806128397811858
+          ],
+          "configured_offset_in_body_xy_m": [
+            0.015435522354547947,
+            0.11900312873887918
+          ],
+          "ideal_fc_offset_if_table_is_installation_xy_m": [
+            0.015435522354547947,
+            -0.11900312873887918
+          ],
+          "conditional_outlet_xy": [
+            3.9447430913081716,
+            0.9531810996251097
+          ],
+          "conditional_outlet_minus_target_xy_m": [
+            -0.03464140605456878,
+            0.299615968520065
+          ],
+          "source_image": {
+            "t": 228.73013758659363,
+            "stamp": 228.71390628814697,
+            "file": "frames/001045.jpg"
+          },
+          "authorization_reason": "permission_granted_from_commitment",
+          "authorization_age_s": 0.0425724983215332
+        },
+        {
+          "event": "ack",
+          "t": 229.82438588142395,
+          "pose": [
+            3.9294240474700928,
+            0.8053259253501892,
+            0.15584295988082886
+          ],
+          "setpoint": [
+            3.9285683631896973,
+            0.7738218903541565,
+            0.08650415390729904
+          ],
+          "tracking_xy_m": [
+            0.0008556842803955078,
+            0.031504034996032715
+          ],
+          "pose_age_s": 0.024409055709838867,
+          "setpoint_age_s": 0.029511690139770508,
+          "roll_pitch_yaw_deg": [
+            0.8333900834509298,
+            -1.6177339717898898,
+            6.084369449378257
+          ],
+          "target_estimate_xy": [
+            3.9793844973627404,
+            0.6535651311050447
+          ],
+          "body_minus_target_estimate_xy_m": [
+            -0.049960449892647585,
+            0.15176079424514455
+          ],
+          "configured_offset_in_body_xy_m": [
+            0.012719136893744095,
+            0.11932402757482752
+          ],
+          "ideal_fc_offset_if_table_is_installation_xy_m": [
+            0.012719136893744095,
+            -0.11932402757482752
+          ],
+          "conditional_outlet_xy": [
+            3.9167049105763487,
+            0.9246499529250167
+          ],
+          "conditional_outlet_minus_target_xy_m": [
+            -0.06267958678639163,
+            0.27108482181997207
+          ],
+          "source_image": {
+            "t": 229.82613730430603,
+            "stamp": 229.81206059455872,
+            "file": "frames/001050.jpg"
+          },
+          "authorization_reason": "payload_execution_locked",
+          "authorization_age_s": 0.006271839141845703
+        }
+      ]
+    }
+  ],
+  "h": [
+    {
+      "name": "221730",
+      "reference_scope": "test field chain acceptance",
+      "land_accepted_t": 288.59610533714294,
+      "raw_count": 87,
+      "mapped_count": 85,
+      "mapped_valid_count": 85,
+      "first_raw_receipt_t": 288.91312074661255,
+      "last_raw_receipt_t": 294.60572695732117,
+      "first_observation_after_land_s": 0.024538040161132812,
+      "source_gap_s": {
+        "n": 86,
+        "p50": 0.06545650959014893,
+        "p95": 0.11167711019515991,
+        "max": 0.2550175189971924
+      },
+      "receipt_minus_image_stamp_s": {
+        "n": 87,
+        "p50": 0.09188270568847656,
+        "p95": 0.14318242073059081,
+        "max": 0.2924773693084717
+      },
+      "map_median_xy": [
+        7.799844794135129,
+        -3.7636040117674354
+      ],
+      "map_radial_deviation_m": {
+        "n": 85,
+        "p50": 0.009664231855735284,
+        "p95": 0.021649206824185557,
+        "max": 0.038825296099461386
+      },
+      "tf_age_s": {
+        "n": 85,
+        "p50": 9.999999717180685e-10,
+        "p95": 9.999999717180685e-10,
+        "max": 9.999999717180685e-10
+      },
+      "sameframe_matched": 20,
+      "sampled_frames_in_raw_span": 27,
+      "comparability": "ROI includes board/background; no exposure/lux telemetry, no human truth",
+      "sameframe_geometry": {
+        "otsu": {
+          "before_land": {
+            "frames": 63,
+            "found": 20
+          },
+          "land_to_latch": {
+            "frames": 14,
+            "found": 14
+          },
+          "latch_to_handoff": {
+            "frames": 13,
+            "found": 13
+          },
+          "pilot_tail": {
+            "frames": 57,
+            "found": 0
+          }
+        },
+        "hsv": {
+          "before_land": {
+            "frames": 63,
+            "found": 1
+          },
+          "land_to_latch": {
+            "frames": 14,
+            "found": 8
+          },
+          "latch_to_handoff": {
+            "frames": 13,
+            "found": 5
+          },
+          "pilot_tail": {
+            "frames": 57,
+            "found": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "1006_160434",
+      "reference_scope": "H recognition/alignment, not autonomous success",
+      "land_accepted_t": 61.96577167510986,
+      "raw_count": 63,
+      "mapped_count": 63,
+      "mapped_valid_count": 63,
+      "first_raw_receipt_t": 62.410465478897095,
+      "last_raw_receipt_t": 84.9833128452301,
+      "first_observation_after_land_s": 0.2924783229827881,
+      "source_gap_s": {
+        "n": 62,
+        "p50": 0.17609763145446777,
+        "p95": 1.414472341537474,
+        "max": 3.9079134464263916
+      },
+      "receipt_minus_image_stamp_s": {
+        "n": 63,
+        "p50": 0.0887000560760498,
+        "p95": 0.121439528465271,
+        "max": 0.15221548080444336
+      },
+      "map_median_xy": [
+        1.9889073775492876,
+        -0.03615683639172429
+      ],
+      "map_radial_deviation_m": {
+        "n": 63,
+        "p50": 0.006900869413488153,
+        "p95": 0.013025278894141887,
+        "max": 0.018461539548048234
+      },
+      "tf_age_s": {
+        "n": 63,
+        "p50": 9.999999717180685e-10,
+        "p95": 9.999999717180685e-10,
+        "max": 9.999999717180685e-10
+      },
+      "sameframe_matched": 11,
+      "sampled_frames_in_raw_span": 103,
+      "comparability": "ROI includes board/background; no exposure/lux telemetry, no human truth"
+    }
+  ],
+  "handoff": {
+    "transitions": [
+      {
+        "t": 2.0503997802734375e-05,
+        "topic": "fc",
+        "value": {
+          "mode": "POSCTL",
+          "armed": false
+        }
+      },
+      {
+        "t": 97.56189227104187,
+        "topic": "fc",
+        "value": {
+          "mode": "MANUAL",
+          "armed": false
+        }
+      },
+      {
+        "t": 111.56356620788574,
+        "topic": "fc",
+        "value": {
+          "mode": "MANUAL",
+          "armed": true
+        }
+      },
+      {
+        "t": 114.56276226043701,
+        "topic": "fc",
+        "value": {
+          "mode": "OFFBOARD",
+          "armed": true
+        }
+      },
+      {
+        "t": 294.57749009132385,
+        "topic": "fc",
+        "value": {
+          "mode": "POSCTL",
+          "armed": true
+        }
+      },
+      {
+        "t": 299.5767505168915,
+        "topic": "fc",
+        "value": {
+          "mode": "MANUAL",
+          "armed": false
+        }
+      },
+      {
+        "t": 0.1699531078338623,
+        "topic": "landed",
+        "value": {
+          "landed_state": 1
+        }
+      },
+      {
+        "t": 115.56393671035767,
+        "topic": "landed",
+        "value": {
+          "landed_state": 2
+        }
+      },
+      {
+        "t": 296.77556228637695,
+        "topic": "landed",
+        "value": {
+          "landed_state": 1
+        }
+      }
+    ],
+    "handoff": [
+      {
+        "t": 294.4981253147125,
+        "mission_id": "board-high_view_full-1791382784-100555419-1",
+        "decision_seq": 18,
+        "command_stamp_ns": "1791382940405471801",
+        "event_stamp_ns": "1791382946322154585",
+        "mode": "POSCTL",
+        "stage": "REQUESTED"
+      },
+      {
+        "t": 294.577513217926,
+        "mission_id": "board-high_view_full-1791382784-100555419-1",
+        "decision_seq": 18,
+        "command_stamp_ns": "1791382940405471801",
+        "event_stamp_ns": "1791382946403697059",
+        "mode": "POSCTL",
+        "stage": "OBSERVED"
+      },
+      {
+        "t": 299.5768737792969,
+        "mission_id": "board-high_view_full-1791382784-100555419-1",
+        "decision_seq": 18,
+        "command_stamp_ns": "1791382940405471801",
+        "event_stamp_ns": "1791382951403367273",
+        "mode": "POSCTL",
+        "stage": "CANCELLED"
+      }
+    ]
+  },
+  "h_control_samples": [
+    {
+      "event": "land_accepted",
+      "t": 288.596,
+      "pose_xyz": [
+        7.729179382324219,
+        -3.4112167358398438,
+        0.8858809471130371
+      ],
+      "setpoint_xyz": [
+        7.688597945775837,
+        -3.4562729250639683,
+        0.93650415122509
+      ],
+      "fc_minus_h_median_xy_m": [
+        -0.07066541181091068,
+        0.35238727592759167
+      ],
+      "fc_distance_h_median_xy_m": 0.3594028278437361,
+      "roll_pitch_yaw_deg": [
+        0.14123538383792833,
+        -2.8081692932173103,
+        1.0184317662918712
+      ],
+      "pose_age_s": 0.0271008453369177,
+      "setpoint_age_s": 0.049358173370364966
+    },
+    {
+      "event": "alignment_latched",
+      "t": 291.594,
+      "pose_xyz": [
+        7.7780842781066895,
+        -3.69581937789917,
+        0.9565743803977966
+      ],
+      "setpoint_xyz": [
+        7.793539047241211,
+        -3.747833013534546,
+        0.9365041255950928
+      ],
+      "fc_minus_h_median_xy_m": [
+        -0.02176051602843998,
+        0.0677846338682655
+      ],
+      "fc_distance_h_median_xy_m": 0.07119182991382367,
+      "roll_pitch_yaw_deg": [
+        0.9526554694958557,
+        -1.7003592496619304,
+        -1.1062332016921756
+      ],
+      "pose_age_s": 0.02141131782531147,
+      "setpoint_age_s": 0.044392961502069284
+    },
+    {
+      "event": "handoff_requested",
+      "t": 294.498,
+      "pose_xyz": [
+        7.815021514892578,
+        -3.790072202682495,
+        0.2856954038143158
+      ],
+      "setpoint_xyz": [
+        7.792654514312744,
+        -3.7523417472839355,
+        0.1365041583776474
+      ],
+      "fc_minus_h_median_xy_m": [
+        0.015176720757448692,
+        -0.026468190915059697
+      ],
+      "fc_distance_h_median_xy_m": 0.03051062082727296,
+      "roll_pitch_yaw_deg": [
+        -1.4370299193198859,
+        -3.2476855007306216,
+        -1.6257905012720022
+      ],
+      "pose_age_s": 0.020455453872671114,
+      "setpoint_age_s": 0.05108103561400412
+    },
+    {
+      "event": "handoff_observed",
+      "t": 294.578,
+      "pose_xyz": [
+        7.817858695983887,
+        -3.7978079319000244,
+        0.27401816844940186
+      ],
+      "setpoint_xyz": [
+        7.792654489178004,
+        -3.752341782648108,
+        0.2856954038143158
+      ],
+      "fc_minus_h_median_xy_m": [
+        0.018013901848757286,
+        -0.034203920132588994
+      ],
+      "fc_distance_h_median_xy_m": 0.03865758414920917,
+      "roll_pitch_yaw_deg": [
+        -1.4301301561818427,
+        -3.070762099577198,
+        -2.007386503307127
+      ],
+      "pose_age_s": 0.0038785247802479716,
+      "setpoint_age_s": 0.03497736740109758
+    },
+    {
+      "event": "on_ground",
+      "t": 296.776,
+      "pose_xyz": [
+        7.897822856903076,
+        -3.8399786949157715,
+        -0.04489307850599289
+      ],
+      "setpoint_xyz": [
+        7.824282253806755,
+        -3.7788363738933652,
+        0.18586585932105695
+      ],
+      "fc_minus_h_median_xy_m": [
+        0.09797806276794674,
+        -0.07637468314833606
+      ],
+      "fc_distance_h_median_xy_m": 0.12422879299811473,
+      "roll_pitch_yaw_deg": [
+        1.1169242144391354,
+        -1.2218691950450467,
+        -2.951023291811484
+      ],
+      "pose_age_s": 0.0018722782135114358,
+      "setpoint_age_s": 0.03229162788392159
+    },
+    {
+      "event": "disarm_and_cancel",
+      "t": 299.577,
+      "pose_xyz": [
+        7.903610706329346,
+        -3.824674129486084,
+        -0.018946189433336258
+      ],
+      "setpoint_xyz": [
+        7.820097223033742,
+        -3.7702924929825334,
+        0.21024388991872867
+      ],
+      "fc_minus_h_median_xy_m": [
+        0.10376591219421627,
+        -0.061070117718648564
+      ],
+      "fc_distance_h_median_xy_m": 0.1204031719335807,
+      "roll_pitch_yaw_deg": [
+        1.076282894556031,
+        -1.235618174735947,
+        -2.936270933726765
+      ],
+      "pose_age_s": 0.008491374969480603,
+      "setpoint_age_s": 0.03468380165099916
+    },
+    {
+      "event": "record_end",
+      "t": 305.903,
+      "pose_xyz": [
+        7.905171871185303,
+        -3.8301007747650146,
+        -0.02449529431760311
+      ],
+      "setpoint_xyz": [
+        7.903610706329346,
+        -3.824674129486084,
+        -0.018946189433336258
+      ],
+      "fc_minus_h_median_xy_m": [
+        0.1053270770501733,
+        -0.06649676299757923
+      ],
+      "fc_distance_h_median_xy_m": 0.12456168210605284,
+      "roll_pitch_yaw_deg": [
+        1.0546924519896577,
+        -1.243813244552875,
+        -2.936429511939509
+      ],
+      "pose_age_s": 0.03327691841127489,
+      "setpoint_age_s": 3.259198310852071
+    }
+  ]
+}
