@@ -1,0 +1,32 @@
+[
+  {
+    "case": "column",
+    "nodes": [
+      "fast_planner_node",
+      "traj_server",
+      "patrol_control",
+      "navigation_recovery_fixture"
+    ],
+    "parameter_count": 175
+  },
+  {
+    "case": "buffer",
+    "nodes": [
+      "fast_planner_node",
+      "traj_server",
+      "patrol_control",
+      "navigation_recovery_fixture"
+    ],
+    "parameter_count": 175
+  },
+  {
+    "case": "height",
+    "nodes": [
+      "fast_planner_node",
+      "traj_server",
+      "patrol_control",
+      "navigation_recovery_fixture"
+    ],
+    "parameter_count": 175
+  }
+]

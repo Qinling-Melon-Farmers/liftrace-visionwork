@@ -1,0 +1,70 @@
+[==========] Running 31 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 31 tests from NavigationRecovery
+[ RUN      ] NavigationRecovery.DisabledByDefault
+[       OK ] NavigationRecovery.DisabledByDefault (0 ms)
+[ RUN      ] NavigationRecovery.PureColumnExitPreservesPositionVelocityAndOriginalGoal
+[       OK ] NavigationRecovery.PureColumnExitPreservesPositionVelocityAndOriginalGoal (0 ms)
+[ RUN      ] NavigationRecovery.NecessaryInflationAtStartCannotBeExempted
+[       OK ] NavigationRecovery.NecessaryInflationAtStartCannotBeExempted (0 ms)
+[ RUN      ] NavigationRecovery.ThinObstacleBetweenClearEndpointsIsRejected
+[       OK ] NavigationRecovery.ThinObstacleBetweenClearEndpointsIsRejected (0 ms)
+[ RUN      ] NavigationRecovery.InitialVelocityBrakingMustAlsoBeClear
+[       OK ] NavigationRecovery.InitialVelocityBrakingMustAlsoBeClear (0 ms)
+[ RUN      ] NavigationRecovery.HistoricalPointRecheckedAndNearestReachableChosen
+[       OK ] NavigationRecovery.HistoricalPointRecheckedAndNearestReachableChosen (0 ms)
+[ RUN      ] NavigationRecovery.UnknownCoverageIsNotFreeSpace
+[       OK ] NavigationRecovery.UnknownCoverageIsNotFreeSpace (0 ms)
+[ RUN      ] NavigationRecovery.UnknownSourceAndHardBoundaryCannotBeExempted
+[       OK ] NavigationRecovery.UnknownSourceAndHardBoundaryCannotBeExempted (0 ms)
+[ RUN      ] NavigationRecovery.FreshOdometryAloneCannotAuthorizeAnyRecovery
+[       OK ] NavigationRecovery.FreshOdometryAloneCannotAuthorizeAnyRecovery (0 ms)
+[ RUN      ] NavigationRecovery.FcOnlyResetDoesNotAuthorizeDescent
+[       OK ] NavigationRecovery.FcOnlyResetDoesNotAuthorizeDescent (0 ms)
+[ RUN      ] NavigationRecovery.TrustedTrueExcessAllowsBrakingThenReturn
+[       OK ] NavigationRecovery.TrustedTrueExcessAllowsBrakingThenReturn (0 ms)
+[ RUN      ] NavigationRecovery.HardCeilingStillRejectsBrakingOvershoot
+[       OK ] NavigationRecovery.HardCeilingStillRejectsBrakingOvershoot (0 ms)
+[ RUN      ] NavigationRecovery.ObstacleBelowRejectsVerticalReturn
+[       OK ] NavigationRecovery.ObstacleBelowRejectsVerticalReturn (0 ms)
+[ RUN      ] NavigationRecovery.CanSelectLateralExitInsteadOfOnlyClippingZ
+[       OK ] NavigationRecovery.CanSelectLateralExitInsteadOfOnlyClippingZ (0 ms)
+[ RUN      ] NavigationRecovery.NoReentryAfterLeavingVirtualRegion
+[       OK ] NavigationRecovery.NoReentryAfterLeavingVirtualRegion (0 ms)
+[ RUN      ] NavigationRecovery.StaleFutureFramesAndGenerationReject
+[       OK ] NavigationRecovery.StaleFutureFramesAndGenerationReject (0 ms)
+[ RUN      ] NavigationRecovery.TransactionLockAndTakeoverRejectAdmission
+[       OK ] NavigationRecovery.TransactionLockAndTakeoverRejectAdmission (0 ms)
+[ RUN      ] NavigationRecovery.ActionAndMissionDeadlinesAreNeverExtended
+[       OK ] NavigationRecovery.ActionAndMissionDeadlinesAreNeverExtended (0 ms)
+[ RUN      ] NavigationRecovery.InvalidAndFastStatesReject
+[       OK ] NavigationRecovery.InvalidAndFastStatesReject (0 ms)
+[ RUN      ] NavigationRecovery.TakeoverStopsWithoutPublishingFabricatedHold
+[       OK ] NavigationRecovery.TakeoverStopsWithoutPublishingFabricatedHold (0 ms)
+[ RUN      ] NavigationRecovery.FcEpochChangeInvalidatesInFlightCurve
+[       OK ] NavigationRecovery.FcEpochChangeInvalidatesInFlightCurve (0 ms)
+[ RUN      ] NavigationRecovery.NewObstacleInvalidatesPreviouslyClearCurve
+[       OK ] NavigationRecovery.NewObstacleInvalidatesPreviouslyClearCurve (0 ms)
+[ RUN      ] NavigationRecovery.TrackingFailureCannotLoopOnSameGoal
+[       OK ] NavigationRecovery.TrackingFailureCannotLoopOnSameGoal (0 ms)
+[ RUN      ] NavigationRecovery.ClockAndChangedDeadlineAbort
+[       OK ] NavigationRecovery.ClockAndChangedDeadlineAbort (0 ms)
+[ RUN      ] NavigationRecovery.ResumeRequiresSettledEndpointAndKeepsOriginalAction
+[       OK ] NavigationRecovery.ResumeRequiresSettledEndpointAndKeepsOriginalAction (1 ms)
+[ RUN      ] NavigationRecovery.ExactCubicCanUseExistingBsplineEvaluatorWithoutRefitting
+[       OK ] NavigationRecovery.ExactCubicCanUseExistingBsplineEvaluatorWithoutRefitting (0 ms)
+[ RUN      ] NavigationRecovery.ProductionHeightRecoveryUsesExistingFreshReference
+[       OK ] NavigationRecovery.ProductionHeightRecoveryUsesExistingFreshReference (0 ms)
+[ RUN      ] NavigationRecovery.OrdinaryBufferCanExitButNecessaryBodyClearanceCannot
+[       OK ] NavigationRecovery.OrdinaryBufferCanExitButNecessaryBodyClearanceCannot (0 ms)
+[ RUN      ] NavigationRecovery.NormalPlannerThresholdAndEndpointSlackAreNotRelaxed
+[       OK ] NavigationRecovery.NormalPlannerThresholdAndEndpointSlackAreNotRelaxed (0 ms)
+[ RUN      ] NavigationRecovery.ExitSelectionSkipsFreeButNonResumableNeighbor
+[       OK ] NavigationRecovery.ExitSelectionSkipsFreeButNonResumableNeighbor (0 ms)
+[ RUN      ] NavigationRecovery.ActualHandoffMustMeetNormalClearanceWithoutRenewingDeadline
+[       OK ] NavigationRecovery.ActualHandoffMustMeetNormalClearanceWithoutRenewingDeadline (0 ms)
+[----------] 31 tests from NavigationRecovery (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 31 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 31 tests.

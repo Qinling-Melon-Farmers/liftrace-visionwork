@@ -1,0 +1,11 @@
+<launch>
+  <!-- Full existing SITL chain, research candidate enabled. Main agent only.
+       This entry does not fabricate an occupied start or claim case coverage. -->
+  <arg name="scene_dir" /><arg name="field_seed" /><arg name="target_model_path" />
+  <include file="$(dirname)/../route_speed_20261004/replay.launch">
+    <arg name="scene_dir" value="$(arg scene_dir)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+  </include>
+  <rosparam file="$(dirname)/recovery_enabled.yaml" />
+</launch>

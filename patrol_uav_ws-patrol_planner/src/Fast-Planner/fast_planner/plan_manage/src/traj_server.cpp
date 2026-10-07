@@ -40,6 +40,18 @@
 #include <algorithm>
 #include <tf/tf.h>
 #include <plan_manage/trajectory_progress.h>
+#include <navigation_recovery_msgs/navigation_recovery_gate.h>
+#include <mavros_msgs/State.h>
+#include <std_msgs/Int8.h>
+
+navigation_recovery_msgs::NavigationRecoveryGate recovery_gate;
+navigation_recovery_msgs::NavigationRecoveryContext recovery_context;
+navigation_recovery_msgs::NavigationRecoveryCommand recovery_command;
+ros::Publisher recovery_execution_pub;
+bool recovery_engaged=false;
+int recovery_controller_mode=-1;
+mavros_msgs::State recovery_flight_state;
+ros::Time recovery_mode_stamp,recovery_flight_stamp;
 
 ros::Publisher cmd_vis_pub, pos_cmd_pub, traj_pub;
 double yaw_goal, current_yaw, max_distance = 3.0, target_dist = 0.2;
@@ -156,6 +168,7 @@ void drawCmd(const Eigen::Vector3d& pos, const Eigen::Vector3d& vec, const int& 
 }
 
 void bsplineCallback(plan_manage::BsplineConstPtr msg) {
+  if(recovery_engaged && msg->start_time<=recovery_command.started_at) return;
   if (require_goal_identity && (active_goal_stamp.isZero() ||
       msg->goal_stamp != active_goal_stamp || msg->goal_frame != active_goal_frame)) {
     // Independent ROS subscriptions can deliver the new curve before its goal.
@@ -234,6 +247,7 @@ void bsplineCallback(plan_manage::BsplineConstPtr msg) {
   tracking_hold_active_ = false;
 
   receive_traj_ = true;
+  recovery_engaged = false;
 }
 
 void replanCallback(std_msgs::Empty msg) {
@@ -342,6 +356,23 @@ void goalCallback(const geometry_msgs::PoseStamped msg)
 }
 
 void cmdCallback(const ros::TimerEvent& e) {
+  if (recovery_engaged) {
+    const auto now=ros::Time::now();
+    const auto fresh=[&](const ros::Time& t,double age){return !t.isZero() && now>=t && (now-t).toSec()<=age;};
+    const auto h=fast_planner::referenceHeight();
+    const bool owner=recovery_controller_mode==1 && fresh(recovery_mode_stamp,.5) &&
+        recovery_flight_state.connected && recovery_flight_state.armed &&
+        recovery_flight_state.mode=="OFFBOARD" && fresh(recovery_flight_stamp,2.5) &&
+        fresh(odom.header.stamp,.25) && recovery_command.goal_stamp==active_goal_stamp &&
+        (!h.enabled || (h.valid && std::abs(h.max_z-recovery_command.soft_max_z)<1e-9));
+    if(recovery_gate.accepts(recovery_command,recovery_context,now,odom_pos_,owner)) {
+      recovery_execution_pub.publish(recovery_command);
+      return; // the old curve cannot concurrently command the controller
+    }
+    auto cancelled=recovery_command;cancelled.active=false;cancelled.header.stamp=now;
+    recovery_execution_pub.publish(cancelled);
+    recovery_engaged=false;trajectory_interrupted_=true;stop_position_=odom_pos_;
+  }
   // Mission phase changes the existing following lead; cached reads do not
   // contact the parameter server on every 100 Hz tick.
   double phase_lead = target_dist;
@@ -464,6 +495,33 @@ int main(int argc, char** argv) {
   ros::init(argc, argv, "traj_server");
   ros::NodeHandle node;
   ros::NodeHandle nh("~");
+  recovery_gate.configure(nh);
+  std::string recovery_input,recovery_output,recovery_context_topic,recovery_state_topic,recovery_mode_topic;
+  nh.param<std::string>("navigation_recovery/command_topic",recovery_input,"/planning/recovery_command");
+  nh.param<std::string>("navigation_recovery/execution_topic",recovery_output,"/planning/recovery_execution");
+  nh.param<std::string>("navigation_recovery/context_topic",recovery_context_topic,"/planning/recovery_context");
+  nh.param<std::string>("navigation_recovery/state_topic",recovery_state_topic,"/mavros/state");
+  nh.param<std::string>("navigation_recovery/controller_mode_topic",recovery_mode_topic,"/detect/point_class");
+  ros::Subscriber recovery_sub,context_sub,mode_sub,state_sub;
+  if(recovery_gate.enabled) {
+    recovery_execution_pub=node.advertise<navigation_recovery_msgs::NavigationRecoveryCommand>(recovery_output,1);
+    context_sub=node.subscribe<navigation_recovery_msgs::NavigationRecoveryContext>(recovery_context_topic,1,
+      [&](const navigation_recovery_msgs::NavigationRecoveryContext::ConstPtr& m){
+        if(m->header.stamp>=recovery_context.header.stamp) recovery_context=*m;});
+    recovery_sub=node.subscribe<navigation_recovery_msgs::NavigationRecoveryCommand>(recovery_input,1,
+      [&](const navigation_recovery_msgs::NavigationRecoveryCommand::ConstPtr& m){
+        if(m->header.stamp<recovery_command.header.stamp || m->goal_stamp!=active_goal_stamp) return;
+        recovery_command=*m;recovery_engaged=m->active;
+        if(!m->active) {
+          recovery_execution_pub.publish(*m);
+          trajectory_interrupted_=true;stop_position_=odom_pos_;
+        }
+      });
+    mode_sub=node.subscribe<std_msgs::Int8>(recovery_mode_topic,1,
+      [&](const std_msgs::Int8::ConstPtr& m){recovery_controller_mode=m->data;recovery_mode_stamp=ros::Time::now();});
+    state_sub=node.subscribe<mavros_msgs::State>(recovery_state_topic,1,
+      [&](const mavros_msgs::State::ConstPtr& m){recovery_flight_state=*m;recovery_flight_stamp=ros::Time::now();});
+  }
 
   ros::Subscriber bspline_sub = node.subscribe("planning/bspline", 10, bsplineCallback);
   ros::Subscriber replan_sub = node.subscribe("planning/replan", 10, replanCallback);

@@ -1,0 +1,41 @@
+# Research candidate only. Every flight entry remains disabled unless included.
+navigation_recovery:
+  enabled: true
+  max_speed: 0.30
+  max_seconds: 8.0
+  hard_min_z: 0.05
+  hard_max_z: 3.50
+  max_height_excess: 0.25
+  state_topic: /mavros/state
+fast_planner_node:
+  navigation_recovery:
+    enabled: true
+    radius: 0.8
+    max_speed: 0.30
+    max_acceleration: 0.5
+    max_seconds: 8.0
+    max_input_age: 0.25
+    max_map_age: 0.5
+    tracking_error: 0.08
+    hard_min_z: 0.05
+    hard_max_z: 3.50
+    max_height_excess: 0.25
+  sdf_map:
+    recovery_layers_enabled: true
+    # Circumscribed XY radius of a 0.55 x 0.55m square, valid at any yaw.
+    # Confirm body/map vertical reference before using a different vehicle.
+    recovery_body_xy: 0.39
+    recovery_body_up: 0.20
+    recovery_body_down: 0.20
+traj_server:
+  navigation_recovery:
+    enabled: true
+    max_speed: 0.30
+    max_seconds: 8.0
+    hard_min_z: 0.05
+    hard_max_z: 3.50
+    max_height_excess: 0.25
+navigation:
+  planner_bridge:
+    navigation_recovery:
+      enabled: true

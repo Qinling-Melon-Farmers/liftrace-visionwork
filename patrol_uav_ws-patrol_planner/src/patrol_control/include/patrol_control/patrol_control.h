@@ -1,4 +1,5 @@
 #include "patrol_control/ReleaseAuthorization.h"
+#include "navigation_recovery_msgs/navigation_recovery_gate.h"
 #include <std_msgs/Empty.h>
 #ifndef _LL_CONTROLLER_NEW_H_
 #define _LL_CONTROLLER_NEW_H_
@@ -435,6 +436,12 @@ private:
     bool hasFreshDropOffset() const;
     bool hasFreshMissionReleasePermission() const;
     bool hasValidExternalPlannerCommand() const;
+    navigation_recovery_msgs::NavigationRecoveryGate navigation_recovery_gate_;
+    navigation_recovery_msgs::NavigationRecoveryContext navigation_recovery_context_;
+    navigation_recovery_msgs::NavigationRecoveryCommand navigation_recovery_command_;
+    ros::Subscriber navigation_recovery_sub_,navigation_recovery_context_sub_;
+    bool navigation_recovery_active_=false;
+    bool hasValidNavigationRecovery() const;
     DropReleaseGate currentDropReleaseGate() const;
     void clearUavVisionAlignmentState();
     void updateGoalFromSelectedTarget(const std::string& class_name);

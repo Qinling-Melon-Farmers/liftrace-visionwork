@@ -1,0 +1,26 @@
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from RecoveryGate
+[ RUN      ] RecoveryGate.ValidOverheightCommandPassesBothReceiverContract
+[       OK ] RecoveryGate.ValidOverheightCommandPassesBothReceiverContract (0 ms)
+[ RUN      ] RecoveryGate.DefaultDisabled
+[       OK ] RecoveryGate.DefaultDisabled (0 ms)
+[ RUN      ] RecoveryGate.DeadlineCannotExtendOriginalAction
+[       OK ] RecoveryGate.DeadlineCannotExtendOriginalAction (0 ms)
+[ RUN      ] RecoveryGate.LeaseBoundedEvenWithLongActionBudget
+[       OK ] RecoveryGate.LeaseBoundedEvenWithLongActionBudget (0 ms)
+[ RUN      ] RecoveryGate.StaleAndFutureCommandsRejected
+[       OK ] RecoveryGate.StaleAndFutureCommandsRejected (0 ms)
+[ RUN      ] RecoveryGate.GoalAndFrameIdentityMustMatch
+[       OK ] RecoveryGate.GoalAndFrameIdentityMustMatch (0 ms)
+[ RUN      ] RecoveryGate.OwnershipAndCancellationCannotBeExempted
+[       OK ] RecoveryGate.OwnershipAndCancellationCannotBeExempted (0 ms)
+[ RUN      ] RecoveryGate.HardHeightAndExcessStillBounded
+[       OK ] RecoveryGate.HardHeightAndExcessStillBounded (0 ms)
+[ RUN      ] RecoveryGate.SpeedDistanceAndNonFiniteReject
+[       OK ] RecoveryGate.SpeedDistanceAndNonFiniteReject (0 ms)
+[----------] 9 tests from RecoveryGate (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 9 tests.

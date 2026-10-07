@@ -1,0 +1,2 @@
+column handoff: rejected_x=.6 distance=0.1 chosen_x=0.3 distance=0.4 unchanged_clearance=.2
+PASS current production map + recovery checks=31

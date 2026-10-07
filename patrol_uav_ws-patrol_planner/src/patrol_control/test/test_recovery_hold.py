@@ -17,6 +17,8 @@ namespace ros { struct Time { static Time now(){return Time();} }; }
 struct Pub { int calls=0; template<typename T> void publish(const T&) { ++calls; } };
 struct P { double x,y,z; }; struct Pose { P position; }; struct Msg {Pose pose;};
 bool hasValidExternalPlannerCommand(){return true;}
+// Candidate disabled: the legacy regression must retain its original hold.
+bool hasValidNavigationRecovery(){return false;}
 int main(){
 bool external_waiting_for_motion_=true, have_planner_cmd=true;
 Pub height_replan_pub_; ros::Time height_replan_stamp_;

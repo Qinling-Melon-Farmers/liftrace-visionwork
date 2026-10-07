@@ -188,6 +188,26 @@ void LLController::initializeNode() {
     // 订阅无人机当前位置
     pose_sub_ = nh_.subscribe("/mavros/local_position/pose", 1,&LLController::positionCallback, this);
     fastplanner_cmd_sub_ = nh_.subscribe("/fastplanner/setpoint_position/local", 1,&LLController::plannercmdCallback, this);
+    navigation_recovery_gate_.configure(nh_);
+    if(navigation_recovery_gate_.enabled) {
+        std::string context_topic,execution_topic;
+        nh_.param<std::string>("navigation_recovery/context_topic",context_topic,"/planning/recovery_context");
+        nh_.param<std::string>("navigation_recovery/execution_topic",execution_topic,"/planning/recovery_execution");
+        navigation_recovery_context_sub_=nh_.subscribe<navigation_recovery_msgs::NavigationRecoveryContext>(context_topic,1,
+            [this](const navigation_recovery_msgs::NavigationRecoveryContext::ConstPtr& m){
+                if(m->header.stamp>=navigation_recovery_context_.header.stamp) navigation_recovery_context_=*m;
+            });
+        navigation_recovery_sub_=nh_.subscribe<navigation_recovery_msgs::NavigationRecoveryCommand>(execution_topic,1,
+            [this](const navigation_recovery_msgs::NavigationRecoveryCommand::ConstPtr& m){
+                if(m->header.stamp<navigation_recovery_command_.header.stamp) return;
+                navigation_recovery_command_=*m;
+                navigation_recovery_active_=m->active;
+                if(!m->active) { have_planner_cmd=false;return; }
+                if(!hasValidNavigationRecovery()) { have_planner_cmd=false;return; }
+                planner_cmd.header=m->header;planner_cmd.pose=m->pose;
+                have_planner_cmd=true;latest_planner_cmd_time_=ros::Time::now();
+            });
+    }
     mavros_point_cmd_pub = nh_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local", 50);//px4 直接接收
     if (!external_mission_mode_) {
         detect_sub_ = nh_.subscribe(
@@ -1029,6 +1049,8 @@ void LLController::patrol(){
 }
 
 void LLController::plannercmdCallback(const geometry_msgs::PoseStamped& msg) {
+    if(navigation_recovery_active_ && msg.header.stamp<=navigation_recovery_command_.header.stamp) return;
+    navigation_recovery_active_=false;
     have_planner_cmd = true;
     planner_cmd = msg;
     latest_planner_cmd_time_ = ros::Time::now();
@@ -1154,7 +1176,23 @@ bool isQuaternionNormalized(const geometry_msgs::Quaternion& q, double tolerance
     return std::abs(norm - 1.0) < tolerance;
 }
 
+bool LLController::hasValidNavigationRecovery() const {
+    const auto now=ros::Time::now();
+    const auto& state=external_landing_mavros_state_;
+    const double state_age=(now-external_landing_state_receipt_).toSec();
+    const double pose_age=(now-uav_pose.header.stamp).toSec();
+    const bool owner=external_mission_mode_ && navigation_recovery_active_ &&
+        Drone_mode==Run_point && !external_waiting_for_motion_ &&
+        state.connected && state.armed && state.mode=="OFFBOARD" &&
+        state_age>=0 && state_age<=external_landing_state_max_age_sec_ &&
+        !uav_pose.header.stamp.isZero() && pose_age>=0 && pose_age<=.25 &&
+        std::abs(navigation_recovery_command_.soft_max_z-external_planner_max_command_z_)<1e-6;
+    const Eigen::Vector3d p(uav_pose.pose.position.x,uav_pose.pose.position.y,uav_pose.pose.position.z);
+    return navigation_recovery_gate_.accepts(navigation_recovery_command_,navigation_recovery_context_,now,p,owner);
+}
+
 bool LLController::hasValidExternalPlannerCommand() const {
+    if(navigation_recovery_active_ && !hasValidNavigationRecovery()) return false;
     if (!have_planner_cmd) {
         ROS_WARN_THROTTLE(1.0, "[ExternalPlanner] no planner command received");
         return false;
@@ -1279,7 +1317,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                 if (external_waiting_for_motion_) {
                     // A fresh sample from an old trajectory is not a new mission.
                     mavros_point_cmd = patrol_cmd;
-                } else if (have_planner_cmd && planner_cmd.pose.position.z > external_planner_max_command_z_) {
+                } else if (have_planner_cmd && planner_cmd.pose.position.z > external_planner_max_command_z_ && !hasValidNavigationRecovery()) {
                     // Never execute XY from a curve whose Z has been clipped.
                     mavros_point_cmd = uav_pose;
                     have_planner_cmd = false;
@@ -1580,7 +1618,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     // the vehicle is already above the configured ceiling, that interpolation
     // can raise a previously capped planner command above the ceiling again.
     // Enforce the invariant on the final command sent to MAVROS as well.
-    if (external_mission_mode_ && mavros_point_cmd.pose.position.z > external_planner_max_command_z_) {
+    if (external_mission_mode_ && mavros_point_cmd.pose.position.z > external_planner_max_command_z_ && !hasValidNavigationRecovery()) {
         if (Drone_mode==Run_point) {
             mavros_point_cmd=uav_pose;
             have_planner_cmd=false;

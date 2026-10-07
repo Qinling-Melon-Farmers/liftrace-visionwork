@@ -24,6 +24,7 @@ from plan_manage.msg import PlannerStatus
 from std_msgs.msg import Int8, String
 
 from patrol_control.msg import MissionCommand
+from navigation_recovery_msgs.msg import NavigationRecoveryContext
 from uav_mission.msg import NavigationDecision, NavigationResult
 from uav_mission.msg import ReleaseResult
 from uav_mission.planner_execution import (
@@ -358,6 +359,11 @@ class NavigationPlannerBridge:
         self._output_enabled, self._gate_reason = self._evaluate_output_gate()
 
         self._goal_pub = None
+        self._recovery_context_pub = None
+        if rospy.get_param("~navigation_recovery/enabled", False):
+            self._recovery_context_pub = rospy.Publisher(
+                rospy.get_param("~navigation_recovery/context_topic", "/planning/recovery_context"),
+                NavigationRecoveryContext, queue_size=1, latch=True)
         if self._output_enabled:
             self._goal_pub = rospy.Publisher(
                 "planner_goal", PoseStamped, queue_size=1)
@@ -619,6 +625,12 @@ class NavigationPlannerBridge:
         message.pose.orientation.z = decision.goal.qz
         message.pose.orientation.w = decision.goal.qw
         self._goal_pub.publish(message)
+        if getattr(self, "_recovery_context_pub", None) is not None:
+            context = NavigationRecoveryContext()
+            context.header = message.header
+            context.deadline = _ns_to_stamp(decision.deadline_ns)
+            context.active = True
+            self._recovery_context_pub.publish(context)
 
     def _mission_command_message(self, decision, command_name,
                                  target_pose=None):
@@ -1217,6 +1229,14 @@ class NavigationPlannerBridge:
                     submitted_decision=(decision if outcome.accepted else None),
                 )
                 if outcome.accepted:
+                    if (getattr(self, "_recovery_context_pub", None) is not None and
+                            decision.command not in WIRE_GOAL_COMMANDS):
+                        context = NavigationRecoveryContext()
+                        context.header.stamp = _ns_to_stamp(decision.issued_at_ns)
+                        context.header.frame_id = self._mission_frame
+                        context.deadline = _ns_to_stamp(decision.deadline_ns)
+                        context.active = False
+                        self._recovery_context_pub.publish(context)
                     self._start_decision_handoff(decision, outcome, now_ns)
                     if self._transaction is not None and decision.command == "APPROACH":
                         self._transaction.near_wall_bounded = (

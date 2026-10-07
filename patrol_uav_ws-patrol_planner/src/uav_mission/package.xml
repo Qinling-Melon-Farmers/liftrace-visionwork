@@ -106,4 +106,5 @@
 
   </export>
   <exec_depend>uav_high_view</exec_depend>
+  <depend>navigation_recovery_msgs</depend>
 </package>

@@ -1,0 +1,4 @@
+[100%] Built target fast_planner_node
+[100%] Built target traj_server
+[100%] Built target patrol_control
+[100%] Built target navigation_recovery_mock

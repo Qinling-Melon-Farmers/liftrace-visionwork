@@ -54,6 +54,10 @@ using std::vector;
 #include <plan_manage/TrajectoryProgress.h>
 #include <std_msgs/Int8.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <plan_manage/navigation_recovery.h>
+#include <navigation_recovery_msgs/NavigationRecoveryContext.h>
+#include <navigation_recovery_msgs/NavigationRecoveryCommand.h>
+#include <mavros_msgs/State.h>
 
 namespace fast_planner {
 
@@ -138,6 +142,21 @@ private:
 
   /* helper functions */
   bool callKinodynamicReplan();        // front-end and back-end method
+  void initRecovery(ros::NodeHandle& nh);
+  bool tryRecovery();
+  void recoveryTick();
+  recovery::Context recoveryContext() const;
+  recovery::MapQuery recoveryMap();
+  void publishRecovery(bool active, const Eigen::Vector3d& p, const Eigen::Vector3d& v);
+  recovery::Config recovery_config_;
+  recovery::Transaction recovery_transaction_;
+  bool recovery_active_=false;
+  std::string odom_frame_;
+  navigation_recovery_msgs::NavigationRecoveryContext recovery_context_;
+  mavros_msgs::State recovery_fc_state_;
+  ros::Time recovery_fc_stamp_;
+  ros::Subscriber recovery_context_sub_,recovery_state_sub_;
+  ros::Publisher recovery_command_pub_;
   bool callTopologicalTraj(int step);  // topo path guided gradient-based
                                        // optimization; 1: new, 2: replan
   void changeFSMExecState(FSM_EXEC_STATE new_state, string pos_call);

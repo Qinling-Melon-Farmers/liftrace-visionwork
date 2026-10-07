@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "case": "column",
+  "reason": "recovered_and_reached_original_goal",
+  "scope": "production_map_fsm_server_controller_with_synthetic_plant",
+  "px4_sitl": false,
+  "hardware": false,
+  "original_goal": [
+    -0.5,
+    0.0,
+    2.4
+  ],
+  "final_position": [
+    -0.4040875373893455,
+    0.0,
+    2.399992459110395
+  ],
+  "fsm_commands": 652,
+  "server_commands": 743,
+  "controller_commands": 187,
+  "resumed_splines": 1,
+  "release_commands": 0
+}

@@ -1,0 +1,67 @@
+<launch>
+  <!-- Actual map/FSM/server/controller executables; synthetic plant only.
+       No MAVROS, FC, Gazebo, camera or hardware driver is launched. -->
+  <arg name="case" default="column" />
+  <arg name="start_x" default="$(eval 1.0 if arg('case') == 'column' else (0.60 if arg('case') == 'buffer' else 0.0))" />
+  <arg name="start_z" default="$(eval 3.10 if arg('case') == 'height' else (1.0 if arg('case') == 'buffer' else 2.4))" />
+  <include file="$(find plan_manage)/launch/patrol_planner_real.xml">
+    <arg name="map_size_x_" value="6.0" /><arg name="map_size_y_" value="6.0" /><arg name="map_size_z_" value="4.0" />
+    <arg name="odometry_topic" value="/recovery_fixture/odom" /><arg name="cloud_topic" value="/recovery_fixture/cloud" />
+    <arg name="camera_pose_topic" value="/recovery_fixture/unused_pose" /><arg name="depth_topic" value="/recovery_fixture/unused_depth" />
+    <arg name="cx" value="320.0" /><arg name="cy" value="240.0" /><arg name="fx" value="400.0" /><arg name="fy" value="400.0" />
+    <arg name="max_vel" value="0.5" /><arg name="max_acc" value="0.5" /><arg name="flight_type" value="1" />
+    <arg name="point_num" value="0" />
+    <arg name="point0_x" value="0" /><arg name="point0_y" value="0" /><arg name="point0_z" value="0" />
+    <arg name="point1_x" value="0" /><arg name="point1_y" value="0" /><arg name="point1_z" value="0" />
+    <arg name="point2_x" value="0" /><arg name="point2_y" value="0" /><arg name="point2_z" value="0" />
+  </include>
+  <node pkg="plan_manage" type="traj_server" name="traj_server" output="screen">
+    <remap from="/odom_world" to="/recovery_fixture/odom" />
+    <param name="traj_server/require_goal_identity" value="true" />
+    <param name="traj_server/target_dist" value="0.15" />
+    <param name="traj_server/adjust_distance_yaw" value="3.0" />
+    <param name="progress/enabled" value="true" />
+  </node>
+  <rosparam file="$(find patrol_control)/config/patrol_sim.yaml" />
+  <rosparam param="waypoints" subst_value="true">
+    - {x: $(arg start_x), y: 0.0, z: $(arg start_z), yaw: 0.0, pointmode: Takeoff_point, hover_time: 0.0}
+  </rosparam>
+  <param name="external_mission_mode" value="true" />
+  <param name="drop_system/enable_drop" value="false" />
+  <param name="external_planner_max_command_z" value="2.98" />
+  <param name="px4_max_distance" value="0.20" />
+  <param name="external_landing/state_topic" value="/recovery_fixture/state" />
+  <node pkg="patrol_control" type="patrol_control" name="patrol_control" output="screen">
+    <remap from="/mavros/local_position/pose" to="/recovery_fixture/pose" />
+    <remap from="/mavros/state" to="/recovery_fixture/state" />
+    <remap from="/mavros/setpoint_position/local" to="/recovery_fixture/setpoint" />
+    <remap from="/fastplanner/goal" to="/recovery_fixture/muted_legacy_goal" />
+  </node>
+  <rosparam file="$(dirname)/recovery_enabled.yaml" />
+  <!-- Fixture plant has exactly zero yaw and a fixed axis-aligned body box. -->
+  <param name="/fast_planner_node/sdf_map/recovery_body_xy" value="0.275" />
+  <param name="/navigation_recovery/state_topic" value="/recovery_fixture/state" />
+  <param name="/fast_planner_node/navigation_recovery/state_topic" value="/recovery_fixture/state" />
+  <param name="/traj_server/navigation_recovery/state_topic" value="/recovery_fixture/state" />
+  <param name="/navigation_height_constraint/enabled" value="true" />
+  <param name="/navigation_height_constraint/frame_id" value="camera_init" />
+  <param name="/fast_planner_node/sdf_map/frame_id" value="camera_init" />
+  <param name="/fast_planner_node/sdf_map/resolution" value="0.05" />
+  <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="-0.1" />
+  <param name="/fast_planner_node/sdf_map/search_region/enabled" value="false" />
+  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/enabled" value="$(eval arg('case') == 'column')" />
+  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/min_x" value="-2.0" />
+  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/max_x" value="2.0" />
+  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/min_y" value="-2.0" />
+  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/max_y" value="2.0" />
+  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/support_min_points" value="3" />
+  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/support_radius" value="0.15" />
+  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/support_min_vertical_span" value="0.20" />
+  <param name="/fast_planner_node/sdf_map/obstacles_inflation" value="$(eval 0.45 if arg('case') == 'buffer' else 0.30)" />
+  <param name="/fast_planner_node/fsm/allow_goal_adjustment" value="false" />
+  <param name="/fast_planner_node/progress/enabled" value="true" />
+  <node pkg="plan_manage" type="navigation_recovery_fixture.py" name="navigation_recovery_fixture" output="screen" required="true">
+    <param name="case" value="$(arg case)" />
+    <param name="start_x" value="$(arg start_x)" /><param name="start_z" value="$(arg start_z)" />
+  </node>
+</launch>

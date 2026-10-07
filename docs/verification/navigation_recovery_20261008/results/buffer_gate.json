@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "case": "buffer",
+  "reason": "recovered_and_reached_original_goal",
+  "scope": "production_map_fsm_server_controller_with_synthetic_plant",
+  "px4_sitl": false,
+  "hardware": false,
+  "original_goal": [
+    -0.5,
+    0.0,
+    1.0
+  ],
+  "final_position": [
+    -0.40025030917207927,
+    0.0,
+    0.999996003906599
+  ],
+  "fsm_commands": 442,
+  "server_commands": 443,
+  "controller_commands": 123,
+  "resumed_splines": 1,
+  "release_commands": 0
+}
