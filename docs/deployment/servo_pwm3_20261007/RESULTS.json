@@ -1,0 +1,130 @@
+{
+  "host": "192.168.43.59",
+  "ground_authorized": true,
+  "runs": [
+    {
+      "local_run": "logs/servo_field_pull_20261007_130155",
+      "board_run": "/home/orangepi/liftrace_board_trials_20260928/logs/servo_field_pull_20261007_130155",
+      "acks": [
+        {
+          "slot": 1,
+          "success": true,
+          "state": 3,
+          "reason": "raw_actuator_ack",
+          "elapsed_s": 1.0244339150000314
+        },
+        {
+          "slot": 2,
+          "success": true,
+          "state": 3,
+          "reason": "raw_actuator_ack",
+          "elapsed_s": 1.0436149109999633
+        },
+        {
+          "slot": 3,
+          "success": true,
+          "state": 3,
+          "reason": "raw_actuator_ack",
+          "elapsed_s": 1.0458511680000129
+        }
+      ],
+      "pwm_final": {
+        "1": {
+          "path": "/sys/class/pwm/pwmchip5/pwm0",
+          "enable": "0",
+          "duty_cycle": "1700000",
+          "period": "20000000"
+        },
+        "2": {
+          "path": "/sys/class/pwm/pwmchip6/pwm0",
+          "enable": "0",
+          "duty_cycle": "2100000",
+          "period": "20000000"
+        },
+        "3": {
+          "path": "/sys/class/pwm/pwmchip2/pwm0",
+          "enable": "0",
+          "duty_cycle": "2100000",
+          "period": "20000000"
+        }
+      },
+      "checks": [
+        "no_authorization_rejected",
+        "wrong_slot_rejected",
+        "duplicate_rejected",
+        "three_slots_committed"
+      ],
+      "cleanup": {
+        "no_flight_or_servo_process": true,
+        "outputs": {
+          "/sys/class/pwm/pwmchip6/pwm0/enable": "0",
+          "/sys/class/pwm/pwmchip2/pwm0/enable": "0",
+          "/sys/class/pwm/pwmchip5/pwm0/enable": "0"
+        }
+      }
+    },
+    {
+      "local_run": "logs/servo_field_pull_20261007_130608",
+      "board_run": "/home/orangepi/liftrace_board_trials_20260928/logs/servo_field_pull_20261007_130608",
+      "acks": [
+        {
+          "slot": 1,
+          "success": true,
+          "state": 3,
+          "reason": "raw_actuator_ack",
+          "elapsed_s": 1.0258517180000126
+        },
+        {
+          "slot": 2,
+          "success": true,
+          "state": 3,
+          "reason": "raw_actuator_ack",
+          "elapsed_s": 1.0538458390000187
+        },
+        {
+          "slot": 3,
+          "success": true,
+          "state": 3,
+          "reason": "raw_actuator_ack",
+          "elapsed_s": 1.0279653919999419
+        }
+      ],
+      "pwm_final": {
+        "1": {
+          "path": "/sys/class/pwm/pwmchip5/pwm0",
+          "enable": "0",
+          "duty_cycle": "1700000",
+          "period": "20000000"
+        },
+        "2": {
+          "path": "/sys/class/pwm/pwmchip6/pwm0",
+          "enable": "0",
+          "duty_cycle": "2100000",
+          "period": "20000000"
+        },
+        "3": {
+          "path": "/sys/class/pwm/pwmchip2/pwm0",
+          "enable": "0",
+          "duty_cycle": "2100000",
+          "period": "20000000"
+        }
+      },
+      "checks": [
+        "no_authorization_rejected",
+        "wrong_slot_rejected",
+        "duplicate_rejected",
+        "three_slots_committed"
+      ],
+      "cleanup": {
+        "no_flight_or_servo_process": true,
+        "outputs": {
+          "/sys/class/pwm/pwmchip6/pwm0/enable": "0",
+          "/sys/class/pwm/pwmchip2/pwm0/enable": "0",
+          "/sys/class/pwm/pwmchip5/pwm0/enable": "0"
+        }
+      }
+    }
+  ],
+  "physical_observation": "Operator confirmed all three compartments moved normally after second run.",
+  "scope": "Synthetic alignment evidence -> deployed arbiter -> fenced servo action proxy -> real driver/PWM. No flight controller, camera detector or flight control loop."
+}

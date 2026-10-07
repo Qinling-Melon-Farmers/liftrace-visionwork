@@ -15,7 +15,7 @@ parser.add_argument('--raw-node',type=Path,required=True)
 parser.add_argument('--namespace',default='/ground_servo_check')
 parser.add_argument('--port',type=int,default=11329)
 parser.add_argument('--real-output',action='store_true',help='Initialize and pulse the three real servos; obtain operator authorization first')
-parser.add_argument('--left-pwm-device',choices=('fd8b0000.pwm','fd8b0010.pwm'),default='fd8b0000.pwm',help='Use PWM0/D2 candidate or explicitly select PWM1/D3 formal wiring')
+parser.add_argument('--left-pwm-device',choices=('fd8b0000.pwm','fd8b0010.pwm','fd8b0030.pwm'),default='fd8b0000.pwm',help='Use PWM0/D2 candidate, explicitly select PWM1/D3 wiring, or select PWM3_M0/GPIO0_D4/Pin15 field wiring; this selects diagnostic mapping only, not raw driver wiring')
 args=parser.parse_args()
 if not args.real_output:parser.error('This diagnostic requires explicitly selected --real-output')
 ROOT=args.root.resolve();OUT=args.out.resolve();OUT.mkdir(parents=True,exist_ok=True)
@@ -26,7 +26,7 @@ os.environ['ROS_IP']='127.0.0.1'
 os.environ.pop('ROS_HOSTNAME',None)
 failed=False
 devices=('febf0020.pwm','febf0030.pwm',args.left_pwm_device)
-left_pin={'fd8b0000.pwm':'GPIO1_D2','fd8b0010.pwm':'GPIO1_D3'}[args.left_pwm_device]
+left_pin={'fd8b0000.pwm':'GPIO1_D2','fd8b0010.pwm':'GPIO1_D3','fd8b0030.pwm':'GPIO0_D4/Pin15'}[args.left_pwm_device]
 def channels():
  result={}
  for slot,device in enumerate(devices,1):
