@@ -33,6 +33,27 @@ class CompetitionTests(unittest.TestCase):
         for ai,bi in zip(ad['runtime']['mission']['post_delivery_route'],bd['runtime']['mission']['post_delivery_route']):self.assertAlmostEqual(bi[2]-ai[2],.1)
         for k in ('/release_permission_arbiter/min_release_altitude','/release_permission_arbiter/max_release_altitude','/external_planner_max_command_z'):self.assertAlmostEqual(bd['overrides'][k]-ad['overrides'][k],.1)
         self.assertEqual(ad['control']['align_height'],ad['control']['uav_vision']['recovery_height'])
+    def test_field_and_candidates_share_lowered_drop_height(self):
+        for name in ('field.example.yaml','candidates/snake_motion.yaml','candidates/rectangle_motion.yaml'):
+            settings=yaml.safe_load((ROOT/'deployment/competition'/name).read_text())
+            self.assertAlmostEqual(settings['drop_agl'],.45)
+            # Onsite confirmation and geometry are test fixtures only.
+            settings.update(site_confirmed=True,corridor_waypoints=copy.deepcopy(self.s['corridor_waypoints']),
+                            landing_xy=list(self.s['landing_xy']))
+            for fc_z in (-.05,.09):
+                with self.subTest(field=name,fc_z=fc_z):
+                    with tempfile.TemporaryDirectory() as path:
+                        ref=generate(ROOT,path,settings,(.02,-.01,fc_z),self.rig)
+                        control=yaml.safe_load((Path(path)/'control.yaml').read_text())
+                        overrides=yaml.safe_load((Path(path)/'overrides.yaml').read_text())
+                    ground=ref['ground_z'];drop=control['drop_system']
+                    self.assertTrue(drop['enable_drop'])
+                    self.assertAlmostEqual(ref['drop_z']-ground,.45)
+                    self.assertAlmostEqual(drop['release_setpoint_height']-ground,.45)
+                    self.assertAlmostEqual(drop['height_threshold']-ground,.55)
+                    self.assertAlmostEqual(overrides['/release_permission_arbiter/min_release_altitude']-ground,.37)
+                    self.assertAlmostEqual(overrides['/release_permission_arbiter/max_release_altitude']-ground,.57)
+
     def test_targets_are_searched_not_injected_and_h_is_final(self):
         ref,d=self.generate();rt=d['runtime'];c=d['control']
         self.assertEqual(rt['runtime']['start_mode'],'full')

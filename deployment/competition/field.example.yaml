@@ -5,7 +5,7 @@ mode: high_view_full
 low_agl: 1.4
 high_agl: 2.6
 max_agl: 3.0
-drop_agl: 0.6
+drop_agl: 0.45
 landing_transit_agl: 1.0
 # Align this entry with the validated research H profile; hardware acceptance is pending.
 # Stage flight profiles remain independent and keep their own H capture settings.
