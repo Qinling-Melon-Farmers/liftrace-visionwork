@@ -1,0 +1,26 @@
+{
+  "full": {
+    "nodes": 36,
+    "edges": 207,
+    "topics": 57,
+    "ellipse_only": true,
+    "edges_match_recorded_publishers_to_subscribers": true,
+    "svg_parsed": true
+  },
+  "core": {
+    "nodes": 22,
+    "edges": 63,
+    "topics": 34,
+    "ellipse_only": true,
+    "edges_match_recorded_publishers_to_subscribers": true,
+    "svg_parsed": true
+  },
+  "flight": {
+    "nodes": 23,
+    "edges": 75,
+    "topics": 37,
+    "ellipse_only": true,
+    "edges_match_recorded_publishers_to_subscribers": true,
+    "svg_parsed": true
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "archive": "/home/xhj/liftrace/actuator.zip",
+  "scope": "src/actuator_pwm only, not build/devel, no execution",
+  "cloc_version": "2.06",
+  "files": {
+    "CMakeLists.txt": {
+      "blank": 33,
+      "comment": 160,
+      "code": 38,
+      "language": "CMake"
+    },
+    "src/PWMController.cpp": {
+      "blank": 9,
+      "comment": 1,
+      "code": 33,
+      "language": "C++"
+    },
+    "package.xml": {
+      "blank": 12,
+      "comment": 36,
+      "code": 20,
+      "language": "XML"
+    },
+    "include/actuator_pwm/PWMController.h": {
+      "blank": 5,
+      "comment": 0,
+      "code": 19,
+      "language": "C/C++ Header"
+    },
+    "src/pwm_node1.cpp": {
+      "blank": 5,
+      "comment": 1,
+      "code": 19,
+      "language": "C++"
+    },
+    "src/pwm_node2.cpp": {
+      "blank": 5,
+      "comment": 1,
+      "code": 19,
+      "language": "C++"
+    },
+    "src/pwm_node3.cpp": {
+      "blank": 5,
+      "comment": 1,
+      "code": 19,
+      "language": "C++"
+    },
+    "launch/launch_all.launch": {
+      "blank": 0,
+      "comment": 0,
+      "code": 5,
+      "language": "XML"
+    },
+    "launch/control1.launch": {
+      "blank": 0,
+      "comment": 0,
+      "code": 3,
+      "language": "XML"
+    },
+    "launch/control2.launch": {
+      "blank": 0,
+      "comment": 0,
+      "code": 3,
+      "language": "XML"
+    },
+    "launch/control3.launch": {
+      "blank": 0,
+      "comment": 0,
+      "code": 3,
+      "language": "XML"
+    }
+  },
+  "sum": {
+    "blank": 74,
+    "comment": 200,
+    "code": 181,
+    "nFiles": 11
+  }
+}

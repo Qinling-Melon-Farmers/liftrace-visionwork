@@ -1,0 +1,55 @@
+{
+  "source": "rqt DOT from recorded R64 ROS graph",
+  "dpi": 144,
+  "background": "white",
+  "files": [
+    {
+      "file": "rqt_graph_nodes_only_full.png",
+      "width": 13235,
+      "height": 2608,
+      "bytes": 3734179,
+      "format": "PNG",
+      "decode_ok": true
+    },
+    {
+      "file": "rqt_graph_nodes_only_full.jpg",
+      "width": 13235,
+      "height": 2608,
+      "bytes": 2786919,
+      "format": "JPEG",
+      "decode_ok": true
+    },
+    {
+      "file": "rqt_graph_nodes_only_core.png",
+      "width": 5542,
+      "height": 2260,
+      "bytes": 988953,
+      "format": "PNG",
+      "decode_ok": true
+    },
+    {
+      "file": "rqt_graph_nodes_only_core.jpg",
+      "width": 5542,
+      "height": 2260,
+      "bytes": 819787,
+      "format": "JPEG",
+      "decode_ok": true
+    },
+    {
+      "file": "rqt_graph_nodes_only_flight.png",
+      "width": 6521,
+      "height": 2044,
+      "bytes": 967708,
+      "format": "PNG",
+      "decode_ok": true
+    },
+    {
+      "file": "rqt_graph_nodes_only_flight.jpg",
+      "width": 6521,
+      "height": 2044,
+      "bytes": 859085,
+      "format": "JPEG",
+      "decode_ok": true
+    }
+  ]
+}

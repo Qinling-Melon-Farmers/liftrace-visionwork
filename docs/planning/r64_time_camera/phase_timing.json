@@ -1,0 +1,381 @@
+{
+  "rows": [
+    {
+      "seed": 11,
+      "status": "PASS",
+      "target_wall_overlap": [],
+      "clock": "mission-manager-start to disarm or last record; not official referee timing",
+      "start_ros": 22.847,
+      "end_ros": 446.94,
+      "elapsed_s": 424.093,
+      "phase_duration_s": {
+        "SEARCH": 262.228,
+        "EXECUTING": 29.936999999999983,
+        "POST_DELIVERY_ROUTE": 118.78199999999998,
+        "LAND": 11.768000000000029,
+        "COMPLETE": 1.377999999999986
+      },
+      "release_ros": [
+        103.975,
+        232.816,
+        312.56
+      ],
+      "route_to_disarm_s": 131.921,
+      "land_to_disarm_s": 13.149000000000001
+    },
+    {
+      "seed": 1,
+      "status": "PASS",
+      "target_wall_overlap": [],
+      "clock": "mission-manager-start to disarm or last record; not official referee timing",
+      "start_ros": 22.836999999,
+      "end_ros": 434.971,
+      "elapsed_s": 412.134000001,
+      "phase_duration_s": {
+        "IDLE": 0.05600000100000102,
+        "SEARCH": 214.63099999999997,
+        "EXECUTING": 31.676000000000016,
+        "POST_DELIVERY_ROUTE": 152.851,
+        "LAND": 12.920000000000016
+      },
+      "release_ros": [
+        144.101,
+        163.962,
+        266.711
+      ],
+      "route_to_disarm_s": 165.776,
+      "land_to_disarm_s": 12.930000000000007
+    },
+    {
+      "seed": 2,
+      "status": "PASS",
+      "target_wall_overlap": [],
+      "clock": "mission-manager-start to disarm or last record; not official referee timing",
+      "start_ros": 22.439,
+      "end_ros": 476.346,
+      "elapsed_s": 453.907,
+      "phase_duration_s": {
+        "IDLE": 0.03399999999999892,
+        "SEARCH": 273.51899999999995,
+        "EXECUTING": 34.15900000000002,
+        "POST_DELIVERY_ROUTE": 131.67399999999998,
+        "LAND": 14.521000000000015
+      },
+      "release_ros": [
+        35.681,
+        187.753,
+        327.741
+      ],
+      "route_to_disarm_s": 146.209,
+      "land_to_disarm_s": 14.526999999999987
+    },
+    {
+      "seed": 3,
+      "status": "FAIL",
+      "target_wall_overlap": [],
+      "clock": "mission-manager-start to disarm or last record; not official referee timing",
+      "start_ros": 23.803,
+      "end_ros": 450.875,
+      "elapsed_s": 427.072,
+      "phase_duration_s": {
+        "SEARCH": 241.89799999999994,
+        "EXECUTING": 30.171000000000056,
+        "POST_DELIVERY_ROUTE": 145.243,
+        "LAND": 9.759999999999991
+      },
+      "release_ros": [
+        62.368,
+        216.055,
+        293.372
+      ],
+      "route_to_disarm_s": null,
+      "land_to_disarm_s": null
+    },
+    {
+      "seed": 4,
+      "status": "PASS",
+      "target_wall_overlap": [],
+      "clock": "mission-manager-start to disarm or last record; not official referee timing",
+      "start_ros": 22.829,
+      "end_ros": 493.903,
+      "elapsed_s": 471.074,
+      "phase_duration_s": {
+        "IDLE": 0.0259999999999998,
+        "SEARCH": 313.26800000000003,
+        "EXECUTING": 28.949999999999974,
+        "POST_DELIVERY_ROUTE": 115.06700000000001,
+        "LAND": 13.52600000000001,
+        "COMPLETE": 0.2370000000000232
+      },
+      "release_ros": [
+        78.738,
+        95.232,
+        362.477
+      ],
+      "route_to_disarm_s": 128.83000000000004,
+      "land_to_disarm_s": 13.766999999999996
+    },
+    {
+      "seed": 5,
+      "status": "FAIL",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "clock": "mission-manager-start to disarm or last record; not official referee timing",
+      "start_ros": 22.454999999,
+      "end_ros": 539.344,
+      "elapsed_s": 516.889000001,
+      "phase_duration_s": {
+        "IDLE": 0.04900000099999957,
+        "SEARCH": 333.52599999999995,
+        "EXECUTING": 149.68600000000004,
+        "RETURN_HOME": 26.615999999999985,
+        "LAND": 7.012000000000057
+      },
+      "release_ros": [
+        58.964,
+        231.606
+      ],
+      "route_to_disarm_s": null,
+      "land_to_disarm_s": 7.021000000000072
+    },
+    {
+      "seed": 6,
+      "status": "PASS",
+      "target_wall_overlap": [],
+      "clock": "mission-manager-start to disarm or last record; not official referee timing",
+      "start_ros": 23.871999999,
+      "end_ros": 479.755,
+      "elapsed_s": 455.88300000099997,
+      "phase_duration_s": {
+        "IDLE": 0.010000001000001646,
+        "SEARCH": 276.34700000000004,
+        "EXECUTING": 29.36399999999999,
+        "POST_DELIVERY_ROUTE": 136.428,
+        "LAND": 13.300000000000011,
+        "COMPLETE": 0.4339999999999691
+      },
+      "release_ros": [
+        128.235,
+        229.373,
+        327.164
+      ],
+      "route_to_disarm_s": 150.173,
+      "land_to_disarm_s": 13.742999999999995
+    },
+    {
+      "seed": 7,
+      "status": "FAIL",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "clock": "mission-manager-start to disarm or last record; not official referee timing",
+      "start_ros": 26.012,
+      "end_ros": 363.538,
+      "elapsed_s": 337.526,
+      "phase_duration_s": {
+        "SEARCH": 313.26800000000003,
+        "EXECUTING": 24.258000000000024
+      },
+      "release_ros": [
+        105.726,
+        325.12
+      ],
+      "route_to_disarm_s": null,
+      "land_to_disarm_s": null
+    },
+    {
+      "seed": 8,
+      "status": "PASS",
+      "target_wall_overlap": [
+        {
+          "target": "panzer",
+          "wall": "Wall_13"
+        }
+      ],
+      "clock": "mission-manager-start to disarm or last record; not official referee timing",
+      "start_ros": 22.62,
+      "end_ros": 466.744,
+      "elapsed_s": 444.124,
+      "phase_duration_s": {
+        "SEARCH": 267.08,
+        "EXECUTING": 30.78300000000001,
+        "POST_DELIVERY_ROUTE": 132.541,
+        "LAND": 13.720000000000027
+      },
+      "release_ros": [
+        34.758,
+        189.594,
+        318.259
+      ],
+      "route_to_disarm_s": 146.26100000000002,
+      "land_to_disarm_s": 13.725000000000023
+    },
+    {
+      "seed": 9,
+      "status": "PASS",
+      "target_wall_overlap": [],
+      "clock": "mission-manager-start to disarm or last record; not official referee timing",
+      "start_ros": 22.635999999,
+      "end_ros": 448.751,
+      "elapsed_s": 426.115000001,
+      "phase_duration_s": {
+        "IDLE": 0.03600000100000145,
+        "SEARCH": 214.51900000000003,
+        "EXECUTING": 29.979999999999976,
+        "POST_DELIVERY_ROUTE": 166.19800000000004,
+        "LAND": 14.190999999999974,
+        "COMPLETE": 1.190999999999974
+      },
+      "release_ros": [
+        37.408,
+        73.182,
+        264.869
+      ],
+      "route_to_disarm_s": 181.57999999999998,
+      "land_to_disarm_s": 15.388999999999953
+    },
+    {
+      "seed": 10,
+      "status": "PASS",
+      "target_wall_overlap": [],
+      "clock": "mission-manager-start to disarm or last record; not official referee timing",
+      "start_ros": 22.835999999,
+      "end_ros": 450.75,
+      "elapsed_s": 427.914000001,
+      "phase_duration_s": {
+        "IDLE": 1.000000082740371e-09,
+        "SEARCH": 261.89099999999996,
+        "EXECUTING": 32.434000000000026,
+        "POST_DELIVERY_ROUTE": 120.28800000000001,
+        "LAND": 13.300999999999988
+      },
+      "release_ros": [
+        59.373,
+        212.777,
+        314.844
+      ],
+      "route_to_disarm_s": 133.589,
+      "land_to_disarm_s": 13.310999999999979
+    }
+  ],
+  "summary": {
+    "all_pass": {
+      "seeds": [
+        11,
+        1,
+        2,
+        4,
+        6,
+        8,
+        9,
+        10
+      ],
+      "elapsed_s": {
+        "n": 8,
+        "min": 412.134000001,
+        "median": 436.0190000005,
+        "max": 471.074
+      },
+      "phases": {
+        "COMPLETE": {
+          "n": 8,
+          "min": 0,
+          "median": 0.1185000000000116,
+          "max": 1.377999999999986
+        },
+        "EXECUTING": {
+          "n": 8,
+          "min": 28.949999999999974,
+          "median": 30.381499999999992,
+          "max": 34.15900000000002
+        },
+        "IDLE": {
+          "n": 8,
+          "min": 0,
+          "median": 0.018000000500000723,
+          "max": 0.05600000100000102
+        },
+        "LAND": {
+          "n": 8,
+          "min": 11.768000000000029,
+          "median": 13.413499999999999,
+          "max": 14.521000000000015
+        },
+        "POST_DELIVERY_ROUTE": {
+          "n": 8,
+          "min": 115.06700000000001,
+          "median": 132.1075,
+          "max": 166.19800000000004
+        },
+        "SEARCH": {
+          "n": 8,
+          "min": 214.51900000000003,
+          "median": 264.654,
+          "max": 313.26800000000003
+        }
+      }
+    },
+    "legal_pass": {
+      "seeds": [
+        11,
+        1,
+        2,
+        4,
+        6,
+        9,
+        10
+      ],
+      "elapsed_s": {
+        "n": 7,
+        "min": 412.134000001,
+        "median": 427.914000001,
+        "max": 471.074
+      },
+      "phases": {
+        "COMPLETE": {
+          "n": 7,
+          "min": 0,
+          "median": 0.2370000000000232,
+          "max": 1.377999999999986
+        },
+        "EXECUTING": {
+          "n": 7,
+          "min": 28.949999999999974,
+          "median": 29.979999999999976,
+          "max": 34.15900000000002
+        },
+        "IDLE": {
+          "n": 7,
+          "min": 0,
+          "median": 0.0259999999999998,
+          "max": 0.05600000100000102
+        },
+        "LAND": {
+          "n": 7,
+          "min": 11.768000000000029,
+          "median": 13.300999999999988,
+          "max": 14.521000000000015
+        },
+        "POST_DELIVERY_ROUTE": {
+          "n": 7,
+          "min": 115.06700000000001,
+          "median": 131.67399999999998,
+          "max": 166.19800000000004
+        },
+        "SEARCH": {
+          "n": 7,
+          "min": 214.51900000000003,
+          "median": 262.228,
+          "max": 313.26800000000003
+        }
+      }
+    }
+  }
+}

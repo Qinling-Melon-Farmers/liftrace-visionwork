@@ -1,0 +1,5661 @@
+{
+  "scope": "OFFLINE_GEOMETRY_SCREENING_NOT_FLIGHT_OR_DETECTION",
+  "light_commit": "0708b8650beb6f9e43b35541c3e67e616b69e624",
+  "assumptions": {
+    "fc_agl_m": 1.4,
+    "offset_m": -0.16,
+    "nominal_speed_mps": 0.5,
+    "turn_penalty_s": 1,
+    "hold_s": 0.2,
+    "sample_hz": 10,
+    "clearance_m": 0.3,
+    "grid_m": 0.05,
+    "known_map": true,
+    "target_truth_not_used_to_build_routes": true,
+    "constant_attitude": true,
+    "refine_visibility": "center and four extreme points; >=3/5 unoccluded; not actual detector",
+    "early_delivery_interrupt_simulated": false,
+    "scope_search_only": true,
+    "invalid_seeds": [
+      5,
+      7,
+      8
+    ]
+  },
+  "summary": [
+    {
+      "profile": "x_raw_s0.70_yaw0_tree0.40",
+      "strategy": "x_raw",
+      "spacing_m": 0.7,
+      "yaw_deg": 0,
+      "tree_bbox_radius_m": 0.4,
+      "feasible": false,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 114.59999999999998,
+      "nominal_search_s": 252.19999999999996,
+      "all": {
+        "n": 11,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 5,
+        "all_five_center_layouts": 11,
+        "all_five_refine_layouts": 11,
+        "third_center_s": {
+          "n": 11,
+          "min": 37.24999999999999,
+          "median": 98.55,
+          "max": 126.25
+        }
+      },
+      "legal": {
+        "n": 8,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 5,
+        "all_five_center_layouts": 8,
+        "all_five_refine_layouts": 8,
+        "third_center_s": {
+          "n": 8,
+          "min": 37.24999999999999,
+          "median": 110.55000000000001,
+          "max": 126.25
+        }
+      }
+    },
+    {
+      "profile": "x_boundary_s0.70_yaw0_tree0.40",
+      "strategy": "x_boundary",
+      "spacing_m": 0.7,
+      "yaw_deg": 0,
+      "tree_bbox_radius_m": 0.4,
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 115.46549100061056,
+      "nominal_search_s": 265.93098200122114,
+      "all": {
+        "n": 11,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 4.818181818181818,
+        "all_five_center_layouts": 11,
+        "all_five_refine_layouts": 9,
+        "third_center_s": {
+          "n": 11,
+          "min": 37.2092485549133,
+          "median": 85.12550994164637,
+          "max": 113.23907563174274
+        }
+      },
+      "legal": {
+        "n": 8,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 4.75,
+        "all_five_center_layouts": 8,
+        "all_five_refine_layouts": 6,
+        "third_center_s": {
+          "n": 8,
+          "min": 37.2092485549133,
+          "median": 102.19656407195893,
+          "max": 113.23907563174274
+        }
+      }
+    },
+    {
+      "profile": "y_boundary_s0.70_yaw0_tree0.40",
+      "strategy": "y_boundary",
+      "spacing_m": 0.7,
+      "yaw_deg": 0,
+      "tree_bbox_radius_m": 0.4,
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "all": {
+        "n": 11,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 3.1818181818181817,
+        "all_five_center_layouts": 11,
+        "all_five_refine_layouts": 0,
+        "third_center_s": {
+          "n": 11,
+          "min": 28.85356688476182,
+          "median": 95.58536151535178,
+          "max": 154.3926145957539
+        }
+      },
+      "legal": {
+        "n": 8,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 3.25,
+        "all_five_center_layouts": 8,
+        "all_five_refine_layouts": 0,
+        "third_center_s": {
+          "n": 8,
+          "min": 31.95356688476182,
+          "median": 117.36343444025036,
+          "max": 154.3926145957539
+        }
+      }
+    },
+    {
+      "profile": "x_north_first_s0.70_yaw0_tree0.40",
+      "strategy": "x_north_first",
+      "spacing_m": 0.7,
+      "yaw_deg": 0,
+      "tree_bbox_radius_m": 0.4,
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 119.69780580547504,
+      "nominal_search_s": 275.39561161095,
+      "all": {
+        "n": 11,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 4.7272727272727275,
+        "all_five_center_layouts": 11,
+        "all_five_refine_layouts": 8,
+        "third_center_s": {
+          "n": 11,
+          "min": 24.441003865021564,
+          "median": 112.92809298926637,
+          "max": 155.1131401945022
+        }
+      },
+      "legal": {
+        "n": 8,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 4.625,
+        "all_five_center_layouts": 8,
+        "all_five_refine_layouts": 5,
+        "third_center_s": {
+          "n": 8,
+          "min": 31.8977772878039,
+          "median": 112.13414865792821,
+          "max": 134.11545233323048
+        }
+      }
+    },
+    {
+      "profile": "x_free_intervals_s0.70_yaw0_tree0.40",
+      "strategy": "x_free_intervals",
+      "spacing_m": 0.7,
+      "yaw_deg": 0,
+      "tree_bbox_radius_m": 0.4,
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 1.9860273225978185e-15,
+      "replanned_segments": 8,
+      "route_distance_m": 120.14394842686575,
+      "nominal_search_s": 295.2878968537315,
+      "all": {
+        "n": 11,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 5,
+        "all_five_center_layouts": 11,
+        "all_five_refine_layouts": 11,
+        "third_center_s": {
+          "n": 11,
+          "min": 37.2092485549133,
+          "median": 92.8206516813014,
+          "max": 147.9175512281662
+        }
+      },
+      "legal": {
+        "n": 8,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 5,
+        "all_five_center_layouts": 8,
+        "all_five_refine_layouts": 8,
+        "third_center_s": {
+          "n": 8,
+          "min": 37.2092485549133,
+          "median": 124.53860211294659,
+          "max": 147.9175512281662
+        }
+      }
+    },
+    {
+      "profile": "y_boundary_s0.70_yaw90_tree0.40",
+      "strategy": "y_boundary",
+      "spacing_m": 0.7,
+      "yaw_deg": 90,
+      "tree_bbox_radius_m": 0.4,
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "all": {
+        "n": 11,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 5,
+        "all_five_center_layouts": 11,
+        "all_five_refine_layouts": 11,
+        "third_center_s": {
+          "n": 11,
+          "min": 18.950000000000003,
+          "median": 92.57017140072847,
+          "max": 152.41594792908725
+        }
+      },
+      "legal": {
+        "n": 8,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 5,
+        "all_five_center_layouts": 8,
+        "all_five_refine_layouts": 8,
+        "third_center_s": {
+          "n": 8,
+          "min": 33.05356688476182,
+          "median": 93.51012024584259,
+          "max": 152.41594792908725
+        }
+      }
+    },
+    {
+      "profile": "x_boundary_s0.60_yaw0_tree0.40",
+      "strategy": "x_boundary",
+      "spacing_m": 0.6,
+      "yaw_deg": 0,
+      "tree_bbox_radius_m": 0.4,
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 124.27460578506415,
+      "nominal_search_s": 288.54921157012825,
+      "all": {
+        "n": 11,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 4.818181818181818,
+        "all_five_center_layouts": 11,
+        "all_five_refine_layouts": 9,
+        "third_center_s": {
+          "n": 11,
+          "min": 43.37225433526012,
+          "median": 110.97935498353488,
+          "max": 133.45331927913492
+        }
+      },
+      "legal": {
+        "n": 8,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 4.75,
+        "all_five_center_layouts": 8,
+        "all_five_refine_layouts": 6,
+        "third_center_s": {
+          "n": 8,
+          "min": 58.60231213872833,
+          "median": 118.14251892518229,
+          "max": 133.45331927913492
+        }
+      }
+    },
+    {
+      "profile": "x_boundary_s0.80_yaw0_tree0.40",
+      "strategy": "x_boundary",
+      "spacing_m": 0.8,
+      "yaw_deg": 0,
+      "tree_bbox_radius_m": 0.4,
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 98.22921836500744,
+      "nominal_search_s": 227.45843673001488,
+      "all": {
+        "n": 11,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 4.7272727272727275,
+        "all_five_center_layouts": 11,
+        "all_five_refine_layouts": 8,
+        "third_center_s": {
+          "n": 11,
+          "min": 37.409248554913304,
+          "median": 86.93911418405752,
+          "max": 115.14591237438628
+        }
+      },
+      "legal": {
+        "n": 8,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 4.625,
+        "all_five_center_layouts": 8,
+        "all_five_refine_layouts": 5,
+        "third_center_s": {
+          "n": 8,
+          "min": 37.409248554913304,
+          "median": 96.45412743833592,
+          "max": 115.14591237438628
+        }
+      }
+    },
+    {
+      "profile": "x_boundary_s1.00_yaw0_tree0.40",
+      "strategy": "x_boundary",
+      "spacing_m": 1.0,
+      "yaw_deg": 0,
+      "tree_bbox_radius_m": 0.4,
+      "feasible": true,
+      "original_collisions": 7,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 4,
+      "route_distance_m": 89.39658113568822,
+      "nominal_search_s": 203.79316227137645,
+      "all": {
+        "n": 11,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 4.545454545454546,
+        "all_five_center_layouts": 11,
+        "all_five_refine_layouts": 6,
+        "third_center_s": {
+          "n": 11,
+          "min": 37.8092485549133,
+          "median": 84.65498930199267,
+          "max": 90.51254543403272
+        }
+      },
+      "legal": {
+        "n": 8,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 4.5,
+        "all_five_center_layouts": 8,
+        "all_five_refine_layouts": 4,
+        "third_center_s": {
+          "n": 8,
+          "min": 37.8092485549133,
+          "median": 84.95283113921505,
+          "max": 90.51254543403272
+        }
+      }
+    },
+    {
+      "profile": "x_boundary_s0.70_yaw0_tree0.50",
+      "strategy": "x_boundary",
+      "spacing_m": 0.7,
+      "yaw_deg": 0,
+      "tree_bbox_radius_m": 0.5,
+      "feasible": true,
+      "original_collisions": 13,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 115.56975587156991,
+      "nominal_search_s": 266.1395117431399,
+      "all": {
+        "n": 11,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 4.545454545454546,
+        "all_five_center_layouts": 11,
+        "all_five_refine_layouts": 6,
+        "third_center_s": {
+          "n": 11,
+          "min": 37.2092485549133,
+          "median": 102.3109703124751,
+          "max": 112.20575409406382
+        }
+      },
+      "legal": {
+        "n": 8,
+        "mean_center_seen": 5,
+        "mean_refine_seen": 4.5,
+        "all_five_center_layouts": 8,
+        "all_five_refine_layouts": 4,
+        "third_center_s": {
+          "n": 8,
+          "min": 37.2092485549133,
+          "median": 102.81093183761837,
+          "max": 112.20575409406382
+        }
+      }
+    }
+  ],
+  "rows": [
+    {
+      "seed": 1,
+      "profile": "x_raw_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": false,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 114.59999999999998,
+      "nominal_search_s": 252.19999999999996,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 174.85,
+        "pillbox": 32.849999999999994,
+        "bridge": 79.24999999999999,
+        "panzer": 72.74999999999999,
+        "red_cross": 162.55
+      },
+      "first_refine_s": {
+        "tent": 210.75,
+        "pillbox": 64.35,
+        "bridge": 100.45,
+        "panzer": 106.95,
+        "red_cross": 162.95000000000002
+      },
+      "third_center_visible_s": 79.24999999999999
+    },
+    {
+      "seed": 2,
+      "profile": "x_raw_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": false,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 114.59999999999998,
+      "nominal_search_s": 252.19999999999996,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 155.15,
+        "pillbox": 118.35000000000001,
+        "bridge": 80.44999999999999,
+        "panzer": 205.05,
+        "red_cross": 2.55
+      },
+      "first_refine_s": {
+        "tent": 156.15,
+        "pillbox": 143.75000000000003,
+        "bridge": 99.15,
+        "panzer": 206.05,
+        "red_cross": 2.9499999999999997
+      },
+      "third_center_visible_s": 118.35000000000001
+    },
+    {
+      "seed": 3,
+      "profile": "x_raw_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": false,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 114.59999999999998,
+      "nominal_search_s": 252.19999999999996,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 125.35000000000001,
+        "pillbox": 105.95,
+        "bridge": 19.75,
+        "panzer": 161.15,
+        "red_cross": 115.35000000000001
+      },
+      "first_refine_s": {
+        "tent": 126.35000000000001,
+        "pillbox": 106.95,
+        "bridge": 36.24999999999999,
+        "panzer": 183.35,
+        "red_cross": 115.85000000000001
+      },
+      "third_center_visible_s": 115.35000000000001
+    },
+    {
+      "seed": 4,
+      "profile": "x_raw_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": false,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 114.59999999999998,
+      "nominal_search_s": 252.19999999999996,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 4.25,
+        "pillbox": 189.95000000000002,
+        "bridge": 32.849999999999994,
+        "panzer": 37.24999999999999,
+        "red_cross": 208.25
+      },
+      "first_refine_s": {
+        "tent": 5.25,
+        "pillbox": 190.95,
+        "bridge": 64.35,
+        "panzer": 60.04999999999999,
+        "red_cross": 208.65
+      },
+      "third_center_visible_s": 37.24999999999999
+    },
+    {
+      "seed": 5,
+      "profile": "x_raw_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": false,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 114.59999999999998,
+      "nominal_search_s": 252.19999999999996,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 24.75,
+        "pillbox": 38.55,
+        "bridge": 119.55000000000001,
+        "panzer": 43.55,
+        "red_cross": 206.75
+      },
+      "first_refine_s": {
+        "tent": 25.75,
+        "pillbox": 58.749999999999986,
+        "bridge": 142.55,
+        "panzer": 44.55,
+        "red_cross": 219.54999999999998
+      },
+      "third_center_visible_s": 43.55
+    },
+    {
+      "seed": 6,
+      "profile": "x_raw_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": false,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 114.59999999999998,
+      "nominal_search_s": 252.19999999999996,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 187.55,
+        "pillbox": 38.24999999999999,
+        "bridge": 162.15,
+        "panzer": 126.25,
+        "red_cross": 32.05
+      },
+      "first_refine_s": {
+        "tent": 188.55,
+        "pillbox": 59.04999999999999,
+        "bridge": 182.35,
+        "panzer": 127.25,
+        "red_cross": 64.64999999999999
+      },
+      "third_center_visible_s": 126.25
+    },
+    {
+      "seed": 7,
+      "profile": "x_raw_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": false,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 114.59999999999998,
+      "nominal_search_s": 252.19999999999996,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 2.55,
+        "pillbox": 58.94999999999999,
+        "bridge": 180.45000000000002,
+        "panzer": 45.14999999999999,
+        "red_cross": 200.35
+      },
+      "first_refine_s": {
+        "tent": 42.349999999999994,
+        "pillbox": 79.44999999999999,
+        "bridge": 205.15,
+        "panzer": 52.04999999999999,
+        "red_cross": 226.04999999999998
+      },
+      "third_center_visible_s": 58.94999999999999
+    },
+    {
+      "seed": 8,
+      "profile": "x_raw_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "panzer",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": false,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 114.59999999999998,
+      "nominal_search_s": 252.19999999999996,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 133.55,
+        "pillbox": 45.949999999999996,
+        "bridge": 98.55,
+        "panzer": 204.55,
+        "red_cross": 1.45
+      },
+      "first_refine_s": {
+        "tent": 169.75,
+        "pillbox": 51.34999999999999,
+        "bridge": 122.25,
+        "panzer": 205.55,
+        "red_cross": 1.9499999999999997
+      },
+      "third_center_visible_s": 98.55
+    },
+    {
+      "seed": 9,
+      "profile": "x_raw_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": false,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 114.59999999999998,
+      "nominal_search_s": 252.19999999999996,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 79.85,
+        "pillbox": 174.95000000000002,
+        "bridge": 119.35000000000001,
+        "panzer": 21.45,
+        "red_cross": 4.1499999999999995
+      },
+      "first_refine_s": {
+        "tent": 80.85,
+        "pillbox": 210.65,
+        "bridge": 142.75000000000003,
+        "panzer": 34.64999999999999,
+        "red_cross": 4.6499999999999995
+      },
+      "third_center_visible_s": 79.85
+    },
+    {
+      "seed": 10,
+      "profile": "x_raw_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": false,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 114.59999999999998,
+      "nominal_search_s": 252.19999999999996,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 36.449999999999996,
+        "pillbox": 187.95000000000002,
+        "bridge": 113.45,
+        "panzer": 168.55,
+        "red_cross": 19.25
+      },
+      "first_refine_s": {
+        "tent": 37.449999999999996,
+        "pillbox": 188.95000000000002,
+        "bridge": 148.65,
+        "panzer": 175.85,
+        "red_cross": 19.75
+      },
+      "third_center_visible_s": 113.45
+    },
+    {
+      "seed": 11,
+      "profile": "x_raw_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": false,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0,
+      "replanned_segments": 0,
+      "route_distance_m": 114.59999999999998,
+      "nominal_search_s": 252.19999999999996,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 121.25,
+        "pillbox": 107.65,
+        "bridge": 93.45,
+        "panzer": 49.04999999999999,
+        "red_cross": 172.42
+      },
+      "first_refine_s": {
+        "tent": 122.25,
+        "pillbox": 108.65,
+        "bridge": 127.45,
+        "panzer": 51.54999999999999,
+        "red_cross": 172.88666666666666
+      },
+      "third_center_visible_s": 107.65
+    },
+    {
+      "seed": 1,
+      "profile": "x_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 115.46549100061056,
+      "nominal_search_s": 265.93098200122114,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 185.18729309004686,
+        "pillbox": 32.83468208092486,
+        "bridge": 82.09910131448335,
+        "panzer": 73.73938563195588,
+        "red_cross": 170.74505052686214
+      },
+      "first_refine_s": {
+        "tent": 224.5926037795289,
+        "pillbox": 65.3915313272353,
+        "bridge": 106.2370855246266,
+        "panzer": 114.82674806429029,
+        "red_cross": 171.1428060444805
+      },
+      "third_center_visible_s": 82.09910131448335
+    },
+    {
+      "seed": 2,
+      "profile": "x_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 115.46549100061056,
+      "nominal_search_s": 265.93098200122114,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 163.2871345715181,
+        "pillbox": 107.63380898974627,
+        "bridge": 82.49079439860293,
+        "panzer": 189.9570965378577,
+        "red_cross": 2.520689655172414
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 151.8337270405966,
+        "bridge": 84.6478856122828,
+        "panzer": 219.8320381746486,
+        "red_cross": 3.0149425287356326
+      },
+      "third_center_visible_s": 107.63380898974627
+    },
+    {
+      "seed": 3,
+      "profile": "x_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 115.46549100061056,
+      "nominal_search_s": 265.93098200122114,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 100.25112781697082,
+        "pillbox": 112.85176386348974,
+        "bridge": 19.79075144508671,
+        "panzer": 169.25346733579335,
+        "red_cross": 111.30251679047775
+      },
+      "first_refine_s": {
+        "tent": 134.51465189608794,
+        "pillbox": 114.82674806429029,
+        "bridge": 36.31445086705203,
+        "panzer": null,
+        "red_cross": 111.68982855873075
+      },
+      "third_center_visible_s": 111.30251679047775
+    },
+    {
+      "seed": 4,
+      "profile": "x_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 115.46549100061056,
+      "nominal_search_s": 265.93098200122114,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 4.2011494252873565,
+        "pillbox": 202.5932708613909,
+        "bridge": 32.83468208092486,
+        "panzer": 37.2092485549133,
+        "red_cross": 222.0139640768854
+      },
+      "first_refine_s": {
+        "tent": 5.189655172413794,
+        "pillbox": 203.6787103252567,
+        "bridge": 65.3915313272353,
+        "panzer": 61.02681165951576,
+        "red_cross": 222.50985632739378
+      },
+      "third_center_visible_s": 37.2092485549133
+    },
+    {
+      "seed": 5,
+      "profile": "x_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 115.46549100061056,
+      "nominal_search_s": 265.93098200122114,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 24.761849710982663,
+        "pillbox": 38.50173410404625,
+        "bridge": 106.2370855246266,
+        "panzer": 43.57225433526012,
+        "red_cross": 220.62546577546198
+      },
+      "first_refine_s": {
+        "tent": 25.756069364161853,
+        "pillbox": 59.737235394053165,
+        "bridge": 150.6406634567816,
+        "panzer": 44.56647398843931,
+        "red_cross": 233.35785893606098
+      },
+      "third_center_visible_s": 43.57225433526012
+    },
+    {
+      "seed": 6,
+      "profile": "x_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 115.46549100061056,
+      "nominal_search_s": 265.93098200122114,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 198.9449066058448,
+        "pillbox": 38.20346820809249,
+        "bridge": 191.74577283078673,
+        "panzer": 99.95182993158802,
+        "red_cross": 32.03930635838151
+      },
+      "first_refine_s": {
+        "tent": 201.01444982304062,
+        "pillbox": 60.034829916852225,
+        "bridge": 192.739481882414,
+        "panzer": 135.4094495839492,
+        "red_cross": 65.68912585003436
+      },
+      "third_center_visible_s": 99.95182993158802
+    },
+    {
+      "seed": 7,
+      "profile": "x_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 115.46549100061056,
+      "nominal_search_s": 265.93098200122114,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 2.520689655172414,
+        "pillbox": 80.43440570697514,
+        "bridge": 190.85143468432221,
+        "panzer": 45.16300578034683,
+        "red_cross": 194.8262708908312
+      },
+      "first_refine_s": {
+        "tent": 42.27976878612717,
+        "pillbox": 81.51156168830398,
+        "bridge": 191.84514373594945,
+        "panzer": 52.02881568888769,
+        "red_cross": 195.32312541664484
+      },
+      "third_center_visible_s": 80.43440570697514
+    },
+    {
+      "seed": 8,
+      "profile": "x_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "panzer",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 115.46549100061056,
+      "nominal_search_s": 265.93098200122114,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 141.69268657816886,
+        "pillbox": 45.95838150289018,
+        "bridge": 85.12550994164637,
+        "panzer": 190.55332196883404,
+        "red_cross": 1.4333333333333336
+      },
+      "first_refine_s": {
+        "tent": 186.08163123651138,
+        "pillbox": 51.340678903110586,
+        "bridge": 105.43895783027249,
+        "panzer": 219.33614592414023,
+        "red_cross": 1.927586206896552
+      },
+      "third_center_visible_s": 85.12550994164637
+    },
+    {
+      "seed": 9,
+      "profile": "x_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 115.46549100061056,
+      "nominal_search_s": 265.93098200122114,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 81.90325477242357,
+        "pillbox": 185.2866639952096,
+        "bridge": 127.45569235851568,
+        "panzer": 21.381502890173415,
+        "red_cross": 4.2011494252873565
+      },
+      "first_refine_s": {
+        "tent": 82.88248748272251,
+        "pillbox": 224.49342532942723,
+        "bridge": 150.83950738741743,
+        "panzer": 34.624277456647405,
+        "red_cross": 4.695402298850575
+      },
+      "third_center_visible_s": 81.90325477242357
+    },
+    {
+      "seed": 10,
+      "profile": "x_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 115.46549100061056,
+      "nominal_search_s": 265.93098200122114,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 36.41387283236995,
+        "pillbox": 199.32982955978932,
+        "bridge": 113.23907563174274,
+        "panzer": 180.3177362153376,
+        "red_cross": 19.293641618497112
+      },
+      "first_refine_s": {
+        "tent": 37.40809248554913,
+        "pillbox": 201.4091550826282,
+        "bridge": 156.70540334117464,
+        "panzer": 186.18100214167413,
+        "red_cross": 19.79075144508671
+      },
+      "third_center_visible_s": 113.23907563174274
+    },
+    {
+      "seed": 11,
+      "profile": "x_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 115.46549100061056,
+      "nominal_search_s": 265.93098200122114,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 104.44129821232985,
+        "pillbox": 115.61669681260898,
+        "bridge": 89.71536374062853,
+        "panzer": 49.006666666666675,
+        "red_cross": 182.7601240168146
+      },
+      "first_refine_s": {
+        "tent": 130.43835131805326,
+        "pillbox": 116.70287634154718,
+        "bridge": 135.50887154926713,
+        "panzer": 51.537289413332616,
+        "red_cross": 183.22679068348125
+      },
+      "third_center_visible_s": 104.44129821232985
+    },
+    {
+      "seed": 1,
+      "profile": "y_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 25.221070065428545,
+        "pillbox": 186.41260779307322,
+        "bridge": 125.71594792908726,
+        "panzer": 200.22675463634977,
+        "red_cross": 91.7783210190104
+      },
+      "first_refine_s": {
+        "tent": 27.55356688476182,
+        "pillbox": 187.40317909735967,
+        "bridge": 126.71594792908726,
+        "panzer": null,
+        "red_cross": 92.17424620986944
+      },
+      "third_center_visible_s": 125.71594792908726
+    },
+    {
+      "seed": 2,
+      "profile": "y_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 205.12675463634974,
+        "pillbox": 142.21594792908726,
+        "bridge": 86.43333094241355,
+        "panzer": 95.58536151535178,
+        "red_cross": 2.520689655172414
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 165.40423210676704,
+        "bridge": 110.71869450799983,
+        "panzer": 98.3169097298809,
+        "red_cross": 3.0149425287356326
+      },
+      "third_center_visible_s": 95.58536151535178
+    },
+    {
+      "seed": 3,
+      "profile": "y_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 2,
+      "first_center_s": {
+        "tent": 50.55356688476182,
+        "pillbox": 200.92675463634976,
+        "bridge": 154.3926145957539,
+        "panzer": 130.41594792908725,
+        "red_cross": 180.96446561949782
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": null,
+        "bridge": 157.00774678475236,
+        "panzer": null,
+        "red_cross": 181.459751271641
+      },
+      "third_center_visible_s": 154.3926145957539
+    },
+    {
+      "seed": 4,
+      "profile": "y_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 3,
+      "first_center_s": {
+        "tent": 4.2011494252873565,
+        "pillbox": 213.82675463634976,
+        "bridge": 187.00695057564508,
+        "panzer": 122.91594792908727,
+        "red_cross": 56.753566884761824
+      },
+      "first_refine_s": {
+        "tent": 5.189655172413794,
+        "pillbox": null,
+        "bridge": 187.99752187993153,
+        "panzer": null,
+        "red_cross": 57.15356688476182
+      },
+      "third_center_visible_s": 122.91594792908727
+    },
+    {
+      "seed": 5,
+      "profile": "y_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 3,
+      "first_center_s": {
+        "tent": 224.92675463634976,
+        "pillbox": 88.01703170584966,
+        "bridge": 127.71594792908726,
+        "panzer": 45.15356688476182,
+        "red_cross": 60.45356688476182
+      },
+      "first_refine_s": {
+        "tent": 229.52675463634975,
+        "pillbox": null,
+        "bridge": null,
+        "panzer": 46.15356688476182,
+        "red_cross": 60.95356688476182
+      },
+      "third_center_visible_s": 88.01703170584966
+    },
+    {
+      "seed": 6,
+      "profile": "y_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 176.90466960185617,
+        "pillbox": 111.81092095141345,
+        "bridge": 92.37220880529895,
+        "panzer": 31.25356688476182,
+        "red_cross": 186.3135506626446
+      },
+      "first_refine_s": {
+        "tent": 207.52675463634975,
+        "pillbox": 123.71594792908726,
+        "bridge": null,
+        "panzer": 51.65356688476182,
+        "red_cross": 186.8088363147878
+      },
+      "third_center_visible_s": 111.81092095141345
+    },
+    {
+      "seed": 7,
+      "profile": "y_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 3,
+      "first_center_s": {
+        "tent": 2.520689655172414,
+        "pillbox": 124.41594792908727,
+        "bridge": 94.45006909095669,
+        "panzer": 36.65356688476182,
+        "red_cross": 139.11594792908727
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": null,
+        "bridge": 95.49075381331886,
+        "panzer": 37.65356688476182,
+        "red_cross": 171.54000369588653
+      },
+      "third_center_visible_s": 94.45006909095669
+    },
+    {
+      "seed": 8,
+      "profile": "y_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "panzer",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 3,
+      "first_center_s": {
+        "tent": 28.85356688476182,
+        "pillbox": 10.650000000000002,
+        "bridge": 88.11601300356442,
+        "panzer": 95.67996921738471,
+        "red_cross": 1.4333333333333336
+      },
+      "first_refine_s": {
+        "tent": 29.85356688476182,
+        "pillbox": null,
+        "bridge": null,
+        "panzer": 97.83400584801404,
+        "red_cross": 1.927586206896552
+      },
+      "third_center_visible_s": 28.85356688476182
+    },
+    {
+      "seed": 9,
+      "profile": "y_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 3,
+      "first_center_s": {
+        "tent": 86.5323122401283,
+        "pillbox": 25.314641191079335,
+        "bridge": 128.41594792908725,
+        "panzer": 187.99752187993153,
+        "red_cross": 4.2011494252873565
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 27.35356688476182,
+        "bridge": null,
+        "panzer": 192.0434002595473,
+        "red_cross": 4.695402298850575
+      },
+      "third_center_visible_s": 86.5323122401283
+    },
+    {
+      "seed": 10,
+      "profile": "y_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 148.71594792908726,
+        "pillbox": 177.68788451842525,
+        "bridge": 216.92675463634976,
+        "panzer": 27.85356688476182,
+        "red_cross": 151.31594792908726
+      },
+      "first_refine_s": {
+        "tent": 149.71594792908726,
+        "pillbox": null,
+        "bridge": 217.92675463634976,
+        "panzer": 28.85356688476182,
+        "red_cross": 154.3926145957539
+      },
+      "third_center_visible_s": 151.31594792908726
+    },
+    {
+      "seed": 11,
+      "profile": "y_boundary_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 2,
+      "first_center_s": {
+        "tent": 89.10582598071198,
+        "pillbox": 219.12675463634974,
+        "bridge": 31.95356688476182,
+        "panzer": 11.650000000000002,
+        "red_cross": 19.85
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 236.72675463634977,
+        "bridge": null,
+        "panzer": null,
+        "red_cross": 20.25
+      },
+      "third_center_visible_s": 31.95356688476182
+    },
+    {
+      "seed": 1,
+      "profile": "x_north_first_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 119.69780580547504,
+      "nominal_search_s": 275.39561161095,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 13.512954557363482,
+        "pillbox": 206.83264923163145,
+        "bridge": 134.11545233323048,
+        "panzer": 160.8796141829415,
+        "red_cross": 65.03502415609101
+      },
+      "first_refine_s": {
+        "tent": 15.098343614690524,
+        "pillbox": 207.915752003771,
+        "bridge": 155.31198412513803,
+        "panzer": 161.8738338361207,
+        "red_cross": 111.43944736800731
+      },
+      "third_center_visible_s": 134.11545233323048
+    },
+    {
+      "seed": 2,
+      "profile": "x_north_first_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 119.69780580547504,
+      "nominal_search_s": 275.39561161095,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 72.58858664785588,
+        "pillbox": 114.11900948627361,
+        "bridge": 3.702300804904972,
+        "panzer": 23.94388563683608,
+        "red_cross": 227.0357378104287
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 115.11143990044633,
+        "bridge": 198.9442309795872,
+        "panzer": 24.938122093207056,
+        "red_cross": 227.53273764957942
+      },
+      "third_center_visible_s": 72.58858664785588
+    },
+    {
+      "seed": 3,
+      "profile": "x_north_first_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 119.69780580547504,
+      "nominal_search_s": 275.39561161095,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 10.044915994460572,
+        "pillbox": 127.55360262224782,
+        "bridge": 221.07173974062013,
+        "panzer": 66.52585885841303,
+        "red_cross": 117.09630072879173
+      },
+      "first_refine_s": {
+        "tent": 140.08077025230563,
+        "pillbox": 161.8738338361207,
+        "bridge": 248.78058270921596,
+        "panzer": null,
+        "red_cross": 117.49327289446082
+      },
+      "third_center_visible_s": 117.09630072879173
+    },
+    {
+      "seed": 4,
+      "profile": "x_north_first_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 119.69780580547504,
+      "nominal_search_s": 275.39561161095,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 228.72553726354116,
+        "pillbox": 34.28394478309425,
+        "bridge": 206.93111312000778,
+        "panzer": 1.6290123541581878,
+        "red_cross": 20.76232897644895
+      },
+      "first_refine_s": {
+        "tent": 241.02566941441827,
+        "pillbox": 76.14317383388351,
+        "bridge": 219.580740223168,
+        "panzer": 223.95433880769428,
+        "red_cross": 21.160023558997338
+      },
+      "third_center_visible_s": 34.28394478309425
+    },
+    {
+      "seed": 5,
+      "profile": "x_north_first_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 119.69780580547504,
+      "nominal_search_s": 275.39561161095,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 216.20114131694314,
+        "pillbox": 1.135372246837525,
+        "bridge": 112.92809298926637,
+        "panzer": 229.321937070522,
+        "red_cross": 22.154260015368315
+      },
+      "first_refine_s": {
+        "tent": 253.75168097511192,
+        "pillbox": 2.2213804829429833,
+        "bridge": 113.92052340343908,
+        "panzer": 230.31593674882345,
+        "red_cross": 22.651378243553804
+      },
+      "third_center_visible_s": 112.92809298926637
+    },
+    {
+      "seed": 6,
+      "profile": "x_north_first_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 119.69780580547504,
+      "nominal_search_s": 275.39561161095,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 31.8977772878039,
+        "pillbox": 1.4315563112299226,
+        "bridge": 65.53196905686502,
+        "panzer": 11.531218235704676,
+        "red_cross": 207.62036033864203
+      },
+      "first_refine_s": {
+        "tent": 72.78736460816548,
+        "pillbox": 224.94833848599572,
+        "bridge": null,
+        "panzer": 140.9755679401669,
+        "red_cross": 208.11267978052365
+      },
+      "third_center_visible_s": 31.8977772878039
+    },
+    {
+      "seed": 7,
+      "profile": "x_north_first_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 119.69780580547504,
+      "nominal_search_s": 275.39561161095,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 227.13513777825887,
+        "pillbox": 155.1131401945022,
+        "bridge": 24.739274801932858,
+        "panzer": 190.78127049264702,
+        "red_cross": 28.61679698177967
+      },
+      "first_refine_s": {
+        "tent": 228.1291374565603,
+        "pillbox": 200.91039599377973,
+        "bridge": 65.63135803701982,
+        "panzer": 231.9063362341057,
+        "red_cross": 29.113915209965164
+      },
+      "third_center_visible_s": 155.1131401945022
+    },
+    {
+      "seed": 8,
+      "profile": "x_north_first_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "panzer",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 119.69780580547504,
+      "nominal_search_s": 275.39561161095,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 13.711128189529362,
+        "pillbox": 188.74304587116706,
+        "bridge": 5.479405191259359,
+        "panzer": 24.441003865021564,
+        "red_cross": 226.04173813212728
+      },
+      "first_refine_s": {
+        "tent": 104.86621971975944,
+        "pillbox": 233.67303120777964,
+        "bridge": 154.51660840259467,
+        "panzer": 25.435240321392545,
+        "red_cross": 243.3123746167304
+      },
+      "third_center_visible_s": 24.441003865021564
+    },
+    {
+      "seed": 9,
+      "profile": "x_north_first_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 119.69780580547504,
+      "nominal_search_s": 275.39561161095,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 3.4061167405125743,
+        "pillbox": 13.810215005612301,
+        "bridge": 113.12657907210091,
+        "panzer": 219.38194028750772,
+        "red_cross": 228.72553726354116
+      },
+      "first_refine_s": {
+        "tent": 199.53408048384495,
+        "pillbox": 15.098343614690524,
+        "bridge": 114.11900948627361,
+        "panzer": 220.37593996580915,
+        "red_cross": 240.52855958782868
+      },
+      "third_center_visible_s": 113.12657907210091
+    },
+    {
+      "seed": 10,
+      "profile": "x_north_first_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 119.69780580547504,
+      "nominal_search_s": 275.39561161095,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 203.47519919739773,
+        "pillbox": 32.19604822471519,
+        "bridge": 118.98191851571987,
+        "panzer": 13.512954557363482,
+        "red_cross": 247.28925322944718
+      },
+      "first_refine_s": {
+        "tent": 223.15913906505315,
+        "pillbox": 73.18492052878469,
+        "bridge": 120.07359197130985,
+        "panzer": 15.197430430773466,
+        "red_cross": 247.78636305603678
+      },
+      "third_center_visible_s": 118.98191851571987
+    },
+    {
+      "seed": 11,
+      "profile": "x_north_first_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 11,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 119.69780580547504,
+      "nominal_search_s": 275.39561161095,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 111.1417182437555,
+        "pillbox": 125.17082805577384,
+        "bridge": 11.828478683953497,
+        "panzer": 186.132970757059,
+        "red_cross": 14.900169982524645
+      },
+      "first_refine_s": {
+        "tent": 112.23339169934547,
+        "pillbox": 163.5640072465253,
+        "bridge": 141.0749899054848,
+        "panzer": 191.2710530689403,
+        "red_cross": 15.692864511188166
+      },
+      "third_center_visible_s": 111.1417182437555
+    },
+    {
+      "seed": 1,
+      "profile": "x_free_intervals_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 1.9860273225978185e-15,
+      "replanned_segments": 8,
+      "route_distance_m": 120.14394842686575,
+      "nominal_search_s": 295.2878968537315,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 202.09357885076122,
+        "pillbox": 32.83468208092486,
+        "bridge": 88.05450743461525,
+        "panzer": 77.13045139172624,
+        "red_cross": 184.21026629107
+      },
+      "first_refine_s": {
+        "tent": 253.93663904184757,
+        "pillbox": 68.80174768802252,
+        "bridge": 115.61322614946164,
+        "panzer": 128.56230877473007,
+        "red_cross": 184.60634472244254
+      },
+      "third_center_visible_s": 88.05450743461525
+    },
+    {
+      "seed": 2,
+      "profile": "x_free_intervals_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 1.9860273225978185e-15,
+      "replanned_segments": 8,
+      "route_distance_m": 120.14394842686575,
+      "nominal_search_s": 295.2878968537315,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 176.7837957028347,
+        "pillbox": 121.48711767338536,
+        "bridge": 89.32427487647571,
+        "panzer": 209.47700318666034,
+        "red_cross": 2.520689655172414
+      },
+      "first_refine_s": {
+        "tent": 177.7739917812661,
+        "pillbox": 165.3360483379928,
+        "bridge": 114.42433726057274,
+        "panzer": 249.23663904184758,
+        "red_cross": 3.0149425287356326
+      },
+      "third_center_visible_s": 121.48711767338536
+    },
+    {
+      "seed": 3,
+      "profile": "x_free_intervals_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 1.9860273225978185e-15,
+      "replanned_segments": 8,
+      "route_distance_m": 120.14394842686575,
+      "nominal_search_s": 295.2878968537315,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 147.0227535403049,
+        "pillbox": 127.59008655250784,
+        "bridge": 19.79075144508671,
+        "panzer": 182.72497217342294,
+        "red_cross": 122.93797948624004
+      },
+      "first_refine_s": {
+        "tent": 148.0169731934841,
+        "pillbox": 128.56230877473007,
+        "bridge": 36.31445086705203,
+        "panzer": 215.71312354337144,
+        "red_cross": 123.32487596966796
+      },
+      "third_center_visible_s": 127.59008655250784
+    },
+    {
+      "seed": 4,
+      "profile": "x_free_intervals_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 1.9860273225978185e-15,
+      "replanned_segments": 8,
+      "route_distance_m": 120.14394842686575,
+      "nominal_search_s": 295.2878968537315,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 4.2011494252873565,
+        "pillbox": 228.7647402817003,
+        "bridge": 32.83468208092486,
+        "panzer": 37.2092485549133,
+        "red_cross": 251.43663904184757
+      },
+      "first_refine_s": {
+        "tent": 5.189655172413794,
+        "pillbox": 229.73842449222664,
+        "bridge": 68.80174768802252,
+        "panzer": 64.44248842876326,
+        "red_cross": 251.83663904184758
+      },
+      "third_center_visible_s": 37.2092485549133
+    },
+    {
+      "seed": 5,
+      "profile": "x_free_intervals_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 1.9860273225978185e-15,
+      "replanned_segments": 8,
+      "route_distance_m": 120.14394842686575,
+      "nominal_search_s": 295.2878968537315,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 24.761849710982663,
+        "pillbox": 38.50173410404625,
+        "bridge": 141.1568575865477,
+        "panzer": 43.57225433526012,
+        "red_cross": 249.93663904184757
+      },
+      "first_refine_s": {
+        "tent": 25.756069364161853,
+        "pillbox": 63.1545254658003,
+        "bridge": 164.14298475417777,
+        "panzer": 44.56647398843931,
+        "red_cross": 262.81380667190535
+      },
+      "third_center_visible_s": 43.57225433526012
+    },
+    {
+      "seed": 6,
+      "profile": "x_free_intervals_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 1.9860273225978185e-15,
+      "replanned_segments": 8,
+      "route_distance_m": 120.14394842686575,
+      "nominal_search_s": 295.2878968537315,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 224.984072265506,
+        "pillbox": 38.20346820809249,
+        "bridge": 183.71516825185432,
+        "panzer": 147.9175512281662,
+        "red_cross": 32.03930635838151
+      },
+      "first_refine_s": {
+        "tent": 227.40158238696347,
+        "pillbox": 63.45174768802252,
+        "bridge": 214.71312354337144,
+        "panzer": 148.91177088134538,
+        "red_cross": 69.09896991024475
+      },
+      "third_center_visible_s": 147.9175512281662
+    },
+    {
+      "seed": 7,
+      "profile": "x_free_intervals_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 1.9860273225978185e-15,
+      "replanned_segments": 8,
+      "route_distance_m": 120.14394842686575,
+      "nominal_search_s": 295.2878968537315,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 2.520689655172414,
+        "pillbox": 63.35267361394845,
+        "bridge": 210.34752027437315,
+        "panzer": 45.16300578034683,
+        "red_cross": 241.38413928942137
+      },
+      "first_refine_s": {
+        "tent": 42.27976878612717,
+        "pillbox": 88.24985627182456,
+        "bridge": 211.31476148294294,
+        "panzer": 51.95,
+        "red_cross": 241.86775989370628
+      },
+      "third_center_visible_s": 63.35267361394845
+    },
+    {
+      "seed": 8,
+      "profile": "x_free_intervals_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "panzer",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 1.9860273225978185e-15,
+      "replanned_segments": 8,
+      "route_distance_m": 120.14394842686575,
+      "nominal_search_s": 295.2878968537315,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 155.19500787556504,
+        "pillbox": 45.95838150289018,
+        "bridge": 92.8206516813014,
+        "panzer": 209.96062379094522,
+        "red_cross": 1.4333333333333336
+      },
+      "first_refine_s": {
+        "tent": 196.93643599361835,
+        "pillbox": 51.25000000000001,
+        "bridge": 143.94067261544942,
+        "panzer": 248.73663904184758,
+        "red_cross": 1.927586206896552
+      },
+      "third_center_visible_s": 92.8206516813014
+    },
+    {
+      "seed": 9,
+      "profile": "x_free_intervals_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 1.9860273225978185e-15,
+      "replanned_segments": 8,
+      "route_distance_m": 120.14394842686575,
+      "nominal_search_s": 295.2878968537315,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 88.64055394624316,
+        "pillbox": 202.19119789838027,
+        "bridge": 140.95801365591186,
+        "panzer": 21.381502890173415,
+        "red_cross": 4.2011494252873565
+      },
+      "first_refine_s": {
+        "tent": 89.71497255089432,
+        "pillbox": 253.83663904184758,
+        "bridge": 164.3418286848136,
+        "panzer": 34.624277456647405,
+        "red_cross": 4.695402298850575
+      },
+      "third_center_visible_s": 88.64055394624316
+    },
+    {
+      "seed": 10,
+      "profile": "x_free_intervals_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 1.9860273225978185e-15,
+      "replanned_segments": 8,
+      "route_distance_m": 120.14394842686575,
+      "nominal_search_s": 295.2878968537315,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 36.41387283236995,
+        "pillbox": 224.984072265506,
+        "bridge": 135.0921177021546,
+        "panzer": 195.86262646980884,
+        "red_cross": 19.293641618497112
+      },
+      "first_refine_s": {
+        "tent": 37.40809248554913,
+        "pillbox": 227.79105607117398,
+        "bridge": 170.20772463857082,
+        "panzer": 203.0697693269517,
+        "red_cross": 19.79075144508671
+      },
+      "third_center_visible_s": 135.0921177021546
+    },
+    {
+      "seed": 11,
+      "profile": "x_free_intervals_s0.70_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 8,
+      "blocked_endpoints": 0,
+      "max_endpoint_shift_m": 1.9860273225978185e-15,
+      "replanned_segments": 8,
+      "route_distance_m": 120.14394842686575,
+      "nominal_search_s": 295.2878968537315,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 142.94645296227023,
+        "pillbox": 129.2428643302856,
+        "bridge": 98.37223612097159,
+        "panzer": 49.006666666666675,
+        "red_cross": 199.67429313647548
+      },
+      "first_refine_s": {
+        "tent": 143.94067261544942,
+        "pillbox": 130.31230877473007,
+        "bridge": 149.01119284666328,
+        "panzer": 51.45,
+        "red_cross": 200.14095980314215
+      },
+      "third_center_visible_s": 129.2428643302856
+    },
+    {
+      "seed": 1,
+      "profile": "y_boundary_s0.70_yaw90_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 21.25,
+        "pillbox": 187.5022362277883,
+        "bridge": 88.21499430127916,
+        "panzer": 184.62957944535762,
+        "red_cross": 92.57017140072847
+      },
+      "first_refine_s": {
+        "tent": 28.65356688476182,
+        "pillbox": 188.59186466250338,
+        "bridge": 127.51594792908726,
+        "panzer": 202.02675463634975,
+        "red_cross": 92.96609659158749
+      },
+      "third_center_visible_s": 92.57017140072847
+    },
+    {
+      "seed": 2,
+      "profile": "y_boundary_s0.70_yaw90_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 179.77578005435407,
+        "pillbox": 143.31594792908726,
+        "bridge": 87.2251813241316,
+        "panzer": 62.45170973686129,
+        "red_cross": 1.4333333333333336
+      },
+      "first_refine_s": {
+        "tent": 206.92675463634976,
+        "pillbox": 144.31594792908726,
+        "bridge": 88.31397559899392,
+        "panzer": 98.60665205900104,
+        "red_cross": 75.80101497718468
+      },
+      "third_center_visible_s": 87.2251813241316
+    },
+    {
+      "seed": 3,
+      "profile": "y_boundary_s0.70_yaw90_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 32.55356688476182,
+        "pillbox": 183.93617953235713,
+        "bridge": 150.71594792908726,
+        "panzer": 92.86711529387273,
+        "red_cross": 182.15315118464153
+      },
+      "first_refine_s": {
+        "tent": 52.35356688476182,
+        "pillbox": 202.72675463634977,
+        "bridge": 157.79581784753793,
+        "panzer": 132.31594792908726,
+        "red_cross": 182.54937970635612
+      },
+      "third_center_visible_s": 150.71594792908726
+    },
+    {
+      "seed": 4,
+      "profile": "y_boundary_s0.70_yaw90_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 3.1137931034482764,
+        "pillbox": 214.82675463634976,
+        "bridge": 188.0965790103602,
+        "panzer": 123.71594792908726,
+        "red_cross": 25.96963907063485
+      },
+      "first_refine_s": {
+        "tent": 45.15356688476182,
+        "pillbox": 242.92675463634976,
+        "bridge": 189.0871503146466,
+        "panzer": 124.71594792908726,
+        "red_cross": 27.35356688476182
+      },
+      "third_center_visible_s": 123.71594792908726
+    },
+    {
+      "seed": 5,
+      "profile": "y_boundary_s0.70_yaw90_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 226.02675463634975,
+        "pillbox": 83.8604604002583,
+        "bridge": 128.51594792908728,
+        "panzer": 37.85356688476182,
+        "red_cross": 58.05356688476182
+      },
+      "first_refine_s": {
+        "tent": 227.02675463634975,
+        "pillbox": 114.1939604643159,
+        "bridge": 129.51594792908728,
+        "panzer": 46.95356688476182,
+        "red_cross": 60.05356688476182
+      },
+      "third_center_visible_s": 83.8604604002583
+    },
+    {
+      "seed": 6,
+      "profile": "y_boundary_s0.70_yaw90_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 177.19837519556958,
+        "pillbox": 84.05636009639622,
+        "bridge": 94.45006909095669,
+        "panzer": 32.35356688476182,
+        "red_cross": 187.40317909735967
+      },
+      "first_refine_s": {
+        "tent": 179.3795515326395,
+        "pillbox": 124.51594792908726,
+        "bridge": 95.20693070722008,
+        "panzer": 52.45356688476182,
+        "red_cross": 187.8984647495029
+      },
+      "third_center_visible_s": 94.45006909095669
+    },
+    {
+      "seed": 7,
+      "profile": "y_boundary_s0.70_yaw90_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 75.02510290604286,
+        "pillbox": 125.21594792908726,
+        "bridge": 95.301538409253,
+        "panzer": 11.150000000000002,
+        "red_cross": 137.26594792908725
+      },
+      "first_refine_s": {
+        "tent": 83.27276131184453,
+        "pillbox": 126.21594792908726,
+        "bridge": 97.35110196614718,
+        "panzer": 38.753566884761824,
+        "red_cross": 137.73261459575392
+      },
+      "third_center_visible_s": 95.301538409253
+    },
+    {
+      "seed": 8,
+      "profile": "y_boundary_s0.70_yaw90_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "panzer",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 18.950000000000003,
+        "pillbox": 11.55,
+        "bridge": 88.90786338528247,
+        "panzer": 97.54426351889393,
+        "red_cross": 0.4448275862068966
+      },
+      "first_refine_s": {
+        "tent": 30.95356688476182,
+        "pillbox": 12.55,
+        "bridge": 89.89767636243003,
+        "panzer": 98.79981361174778,
+        "red_cross": 0.939080459770115
+      },
+      "third_center_visible_s": 18.950000000000003
+    },
+    {
+      "seed": 9,
+      "profile": "y_boundary_s0.70_yaw90_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 86.92823743098734,
+        "pillbox": 21.55,
+        "bridge": 129.21594792908726,
+        "panzer": 156.90923790190416,
+        "red_cross": 3.1137931034482764
+      },
+      "first_refine_s": {
+        "tent": 112.10880089052625,
+        "pillbox": 28.35356688476182,
+        "bridge": 144.11594792908727,
+        "panzer": 191.16337500738436,
+        "red_cross": 3.6080459770114945
+      },
+      "third_center_visible_s": 86.92823743098734
+    },
+    {
+      "seed": 10,
+      "profile": "y_boundary_s0.70_yaw90_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 122.61594792908727,
+        "pillbox": 177.19837519556958,
+        "bridge": 181.95503692378423,
+        "panzer": 19.950000000000003,
+        "red_cross": 152.41594792908725
+      },
+      "first_refine_s": {
+        "tent": 150.81594792908726,
+        "pillbox": 179.3795515326395,
+        "bridge": 219.02675463634975,
+        "panzer": 29.95356688476182,
+        "red_cross": 152.91594792908725
+      },
+      "third_center_visible_s": 152.41594792908725
+    },
+    {
+      "seed": 11,
+      "profile": "y_boundary_s0.70_yaw90_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 29,
+      "blocked_endpoints": 13,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 5,
+      "route_distance_m": 112.38837731817488,
+      "nominal_search_s": 261.7767546363498,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 89.99665766014479,
+        "pillbox": 220.32675463634976,
+        "bridge": 33.05356688476182,
+        "panzer": 12.450000000000001,
+        "red_cross": 20.65
+      },
+      "first_refine_s": {
+        "tent": 90.98647063729236,
+        "pillbox": 237.52675463634975,
+        "bridge": 34.05356688476182,
+        "panzer": 13.450000000000001,
+        "red_cross": 21.15
+      },
+      "third_center_visible_s": 33.05356688476182
+    },
+    {
+      "seed": 1,
+      "profile": "x_boundary_s0.60_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 124.27460578506415,
+      "nominal_search_s": 288.54921157012825,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 225.0047605244645,
+        "pillbox": 32.63468208092486,
+        "bridge": 101.9282457735539,
+        "panzer": 110.97935498353488,
+        "red_cross": 189.5665199205208
+      },
+      "first_refine_s": {
+        "tent": 229.99640493419997,
+        "pillbox": 63.97109826589596,
+        "bridge": 102.91042581845583,
+        "panzer": 121.06512623607438,
+        "red_cross": 189.9635583386849
+      },
+      "third_center_visible_s": 110.97935498353488
+    },
+    {
+      "seed": 2,
+      "profile": "x_boundary_s0.60_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 124.27460578506415,
+      "nominal_search_s": 288.54921157012825,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 197.11024986563888,
+        "pillbox": 125.51087028653825,
+        "bridge": 100.65141171518138,
+        "panzer": 233.7755002109972,
+        "red_cross": 2.520689655172414
+      },
+      "first_refine_s": {
+        "tent": 206.9338188997697,
+        "pillbox": 168.38894597029946,
+        "bridge": 101.73180976457351,
+        "panzer": 234.7699989680491,
+        "red_cross": 3.0149425287356326
+      },
+      "third_center_visible_s": 125.51087028653825
+    },
+    {
+      "seed": 3,
+      "profile": "x_boundary_s0.60_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 124.27460578506415,
+      "nominal_search_s": 288.54921157012825,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 132.5597937674678,
+        "pillbox": 119.99131671226486,
+        "bridge": 19.79075144508671,
+        "panzer": 191.05541398863622,
+        "red_cross": 121.55322147416962
+      },
+      "first_refine_s": {
+        "tent": 144.70802111480813,
+        "pillbox": 120.96750718845533,
+        "bridge": 36.11445086705203,
+        "panzer": null,
+        "red_cross": 122.7246500455982
+      },
+      "third_center_visible_s": 121.55322147416962
+    },
+    {
+      "seed": 4,
+      "profile": "x_boundary_s0.60_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 124.27460578506415,
+      "nominal_search_s": 288.54921157012825,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 4.2011494252873565,
+        "pillbox": 202.8363621905581,
+        "bridge": 32.63468208092486,
+        "panzer": 58.60231213872833,
+        "red_cross": 230.5931041884311
+      },
+      "first_refine_s": {
+        "tent": 5.189655172413794,
+        "pillbox": 247.12127360704798,
+        "bridge": 63.97109826589596,
+        "panzer": 59.59653179190752,
+        "red_cross": 264.8194411061242
+      },
+      "third_center_visible_s": 58.60231213872833
+    },
+    {
+      "seed": 5,
+      "profile": "x_boundary_s0.60_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 124.27460578506415,
+      "nominal_search_s": 288.54921157012825,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 24.761849710982663,
+        "pillbox": 38.30173410404625,
+        "bridge": 126.70223763542775,
+        "panzer": 43.37225433526012,
+        "red_cross": 262.93042376508373
+      },
+      "first_refine_s": {
+        "tent": 25.756069364161853,
+        "pillbox": 58.304046242774575,
+        "bridge": 150.57391706856538,
+        "panzer": 53.33294797687862,
+        "red_cross": 263.42753359167335
+      },
+      "third_center_visible_s": 43.37225433526012
+    },
+    {
+      "seed": 6,
+      "profile": "x_boundary_s0.60_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 124.27460578506415,
+      "nominal_search_s": 288.54921157012825,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 206.73403535004957,
+        "pillbox": 38.00346820809249,
+        "bridge": 214.01642641780109,
+        "panzer": 133.45331927913492,
+        "red_cross": 31.839306358381506
+      },
+      "first_refine_s": {
+        "tent": 243.68370885076374,
+        "pillbox": 58.60231213872833,
+        "bridge": null,
+        "panzer": 143.91264539226478,
+        "red_cross": 64.26936416184972
+      },
+      "third_center_visible_s": 133.45331927913492
+    },
+    {
+      "seed": 7,
+      "profile": "x_boundary_s0.60_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 124.27460578506415,
+      "nominal_search_s": 288.54921157012825,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 2.520689655172414,
+        "pillbox": 77.92065512666846,
+        "bridge": 234.57109921663871,
+        "panzer": 44.963005780346826,
+        "red_cross": 238.54909424484632
+      },
+      "first_refine_s": {
+        "tent": 42.079768786127175,
+        "pillbox": 103.69616985437739,
+        "bridge": 235.66504784939582,
+        "panzer": 51.642774566473996,
+        "red_cross": 239.04634362337228
+      },
+      "third_center_visible_s": 77.92065512666846
+    },
+    {
+      "seed": 8,
+      "profile": "x_boundary_s0.60_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "panzer",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 124.27460578506415,
+      "nominal_search_s": 288.54921157012825,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 176.64096909168674,
+        "pillbox": 45.75838150289018,
+        "bridge": 101.14250173763236,
+        "panzer": 234.27274958952316,
+        "red_cross": 1.4333333333333336
+      },
+      "first_refine_s": {
+        "tent": 183.4144008075119,
+        "pillbox": 50.946820809248564,
+        "bridge": 129.38281417042913,
+        "panzer": 235.26724834657506,
+        "red_cross": 1.927586206896552
+      },
+      "third_center_visible_s": 101.14250173763236
+    },
+    {
+      "seed": 9,
+      "profile": "x_boundary_s0.60_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 124.27460578506415,
+      "nominal_search_s": 288.54921157012825,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 101.33893774661274,
+        "pillbox": 229.10135605285325,
+        "bridge": 149.77854134602202,
+        "panzer": 21.381502890173415,
+        "red_cross": 4.2011494252873565
+      },
+      "first_refine_s": {
+        "tent": 102.32111779151467,
+        "pillbox": 230.09585480990515,
+        "bridge": 169.38316562347865,
+        "panzer": 34.4242774566474,
+        "red_cross": 4.695402298850575
+      },
+      "third_center_visible_s": 101.33893774661274
+    },
+    {
+      "seed": 10,
+      "profile": "x_boundary_s0.60_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 124.27460578506415,
+      "nominal_search_s": 288.54921157012825,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 36.213872832369944,
+        "pillbox": 206.3344682506093,
+        "bridge": 121.74845956940771,
+        "panzer": 182.52344247673057,
+        "red_cross": 19.293641618497112
+      },
+      "first_refine_s": {
+        "tent": 37.20809248554914,
+        "pillbox": 244.07399187825996,
+        "bridge": 163.5172696697214,
+        "panzer": 229.99640493419997,
+        "red_cross": 19.79075144508671
+      },
+      "third_center_visible_s": 121.74845956940771
+    },
+    {
+      "seed": 11,
+      "profile": "x_boundary_s0.60_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 9,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 124.27460578506415,
+      "nominal_search_s": 288.54921157012825,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 128.39000804635455,
+        "pillbox": 114.73181637619497,
+        "bridge": 95.70682657698877,
+        "panzer": 48.98461538461539,
+        "red_cross": 223.60627567642356
+      },
+      "first_refine_s": {
+        "tent": 148.88374365816074,
+        "pillbox": 119.30798337893152,
+        "bridge": 134.54540601561698,
+        "panzer": 89.55175929516452,
+        "red_cross": 224.7050851998843
+      },
+      "third_center_visible_s": 114.73181637619497
+    },
+    {
+      "seed": 1,
+      "profile": "x_boundary_s0.80_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 98.22921836500744,
+      "nominal_search_s": 227.45843673001488,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 182.438749946197,
+        "pillbox": 33.03468208092486,
+        "bridge": 85.86434689922173,
+        "panzer": 75.43423631562821,
+        "red_cross": 149.83532736847488
+      },
+      "first_refine_s": {
+        "tent": 183.50982288107767,
+        "pillbox": 65.84205809265192,
+        "bridge": 108.09793630414948,
+        "panzer": 115.63729103840518,
+        "red_cross": 150.23236578663898
+      },
+      "third_center_visible_s": 85.86434689922173
+    },
+    {
+      "seed": 2,
+      "profile": "x_boundary_s0.80_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 98.22921836500744,
+      "nominal_search_s": 227.45843673001488,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 157.37905731359297,
+        "pillbox": 109.19054798006569,
+        "bridge": 84.2762096341127,
+        "panzer": 176.69435730265607,
+        "red_cross": 2.520689655172414
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 128.25775341825351,
+        "bridge": 86.45058360004124,
+        "panzer": 177.6850767988713,
+        "red_cross": 3.0149425287356326
+      },
+      "third_center_visible_s": 109.19054798006569
+    },
+    {
+      "seed": 3,
+      "profile": "x_boundary_s0.80_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 98.22921836500744,
+      "nominal_search_s": 227.45843673001488,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 102.13823625369744,
+        "pillbox": 114.6545337103674,
+        "bridge": 19.79075144508671,
+        "panzer": 151.3242214365903,
+        "red_cross": 112.17039800529172
+      },
+      "first_refine_s": {
+        "tent": 135.31671295582578,
+        "pillbox": 115.63729103840518,
+        "bridge": 36.514450867052034,
+        "panzer": null,
+        "red_cross": 112.56771134198851
+      },
+      "third_center_visible_s": 112.17039800529172
+    },
+    {
+      "seed": 4,
+      "profile": "x_boundary_s0.80_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 98.22921836500744,
+      "nominal_search_s": 227.45843673001488,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 4.2011494252873565,
+        "pillbox": 163.1051696385122,
+        "bridge": 33.03468208092486,
+        "panzer": 37.409248554913304,
+        "red_cross": 179.86465969054484
+      },
+      "first_refine_s": {
+        "tent": 5.189655172413794,
+        "pillbox": 165.99600988210653,
+        "bridge": 34.02890173410405,
+        "panzer": 61.47305103655211,
+        "red_cross": 180.26094748903094
+      },
+      "third_center_visible_s": 37.409248554913304
+    },
+    {
+      "seed": 5,
+      "profile": "x_boundary_s0.80_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 98.22921836500744,
+      "nominal_search_s": 227.45843673001488,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 24.761849710982663,
+        "pillbox": 38.70173410404625,
+        "bridge": 107.99860796997528,
+        "panzer": 43.77225433526012,
+        "red_cross": 178.37858044622197
+      },
+      "first_refine_s": {
+        "tent": 25.756069364161853,
+        "pillbox": 60.18220804270444,
+        "bridge": 129.45081700206853,
+        "panzer": 44.766473988439316,
+        "red_cross": 222.53696627097855
+      },
+      "third_center_visible_s": 43.77225433526012
+    },
+    {
+      "seed": 6,
+      "profile": "x_boundary_s0.80_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 98.22921836500744,
+      "nominal_search_s": 227.45843673001488,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 167.57646906844116,
+        "pillbox": 38.40346820809249,
+        "bridge": 174.91106220946864,
+        "panzer": 101.34360958030383,
+        "red_cross": 32.23930635838151
+      },
+      "first_refine_s": {
+        "tent": 168.66303475904618,
+        "pillbox": 60.48009488743851,
+        "bridge": null,
+        "panzer": 136.21151064368703,
+        "red_cross": 66.139944937386
+      },
+      "third_center_visible_s": 101.34360958030383
+    },
+    {
+      "seed": 7,
+      "profile": "x_boundary_s0.80_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 98.22921836500744,
+      "nominal_search_s": 227.45843673001488,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 2.520689655172414,
+        "pillbox": 82.31122693067906,
+        "bridge": 175.80270975606234,
+        "panzer": 45.36300578034683,
+        "red_cross": 171.9389037208229
+      },
+      "first_refine_s": {
+        "tent": 42.479768786127174,
+        "pillbox": 83.29371828239587,
+        "bridge": 176.79342925227758,
+        "panzer": 46.35722543352602,
+        "red_cross": 172.43426346893054
+      },
+      "third_center_visible_s": 82.31122693067906
+    },
+    {
+      "seed": 8,
+      "profile": "x_boundary_s0.80_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "panzer",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 98.22921836500744,
+      "nominal_search_s": 227.45843673001488,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 142.69325455459784,
+        "pillbox": 46.15838150289018,
+        "bridge": 86.93911418405752,
+        "panzer": 176.0999256049269,
+        "red_cross": 1.4333333333333336
+      },
+      "first_refine_s": {
+        "tent": 143.68320825546598,
+        "pillbox": 51.74467375660463,
+        "bridge": 107.30330963075588,
+        "panzer": 177.09064510114217,
+        "red_cross": 1.927586206896552
+      },
+      "third_center_visible_s": 86.93911418405752
+    },
+    {
+      "seed": 9,
+      "profile": "x_boundary_s0.80_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 98.22921836500744,
+      "nominal_search_s": 227.45843673001488,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 83.68671482308261,
+        "pillbox": 182.34137967938966,
+        "bridge": 128.25775341825351,
+        "panzer": 21.381502890173415,
+        "red_cross": 4.2011494252873565
+      },
+      "first_refine_s": {
+        "tent": 85.86434689922173,
+        "pillbox": 183.41245261427034,
+        "bridge": 129.2519730714327,
+        "panzer": 34.82427745664741,
+        "red_cross": 4.695402298850575
+      },
+      "third_center_visible_s": 83.68671482308261
+    },
+    {
+      "seed": 10,
+      "profile": "x_boundary_s0.80_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 98.22921836500744,
+      "nominal_search_s": 227.45843673001488,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 36.61387283236995,
+        "pillbox": 167.0825755727116,
+        "bridge": 115.14591237438628,
+        "panzer": 142.79224992468465,
+        "red_cross": 19.293641618497112
+      },
+      "first_refine_s": {
+        "tent": 37.608092485549136,
+        "pillbox": 168.16914126331662,
+        "bridge": 123.38607711767548,
+        "panzer": 183.50982288107767,
+        "red_cross": 19.79075144508671
+      },
+      "third_center_visible_s": 115.14591237438628
+    },
+    {
+      "seed": 11,
+      "profile": "x_boundary_s0.80_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 10,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 6,
+      "route_distance_m": 98.22921836500744,
+      "nominal_search_s": 227.45843673001488,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 106.31002628901388,
+        "pillbox": 72.97520270218283,
+        "bridge": 91.56464529636798,
+        "panzer": 48.95000000000001,
+        "red_cross": 183.315082347463
+      },
+      "first_refine_s": {
+        "tent": 131.2404123777911,
+        "pillbox": 117.4062542288732,
+        "bridge": 102.13823625369744,
+        "panzer": 51.94273694082449,
+        "red_cross": 183.899303948307
+      },
+      "third_center_visible_s": 91.56464529636798
+    },
+    {
+      "seed": 1,
+      "profile": "x_boundary_s1.00_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 7,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 4,
+      "route_distance_m": 89.39658113568822,
+      "nominal_search_s": 203.79316227137645,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 144.24585687839627,
+        "pillbox": 33.43468208092486,
+        "bridge": 84.65498930199267,
+        "panzer": 77.05054286716268,
+        "red_cross": 129.15107537067692
+      },
+      "first_refine_s": {
+        "tent": 145.24035563544817,
+        "pillbox": 34.52832369942197,
+        "bridge": 85.64779542606726,
+        "panzer": 78.12435239097219,
+        "red_cross": 129.54944309517134
+      },
+      "third_center_visible_s": 84.65498930199267
+    },
+    {
+      "seed": 2,
+      "profile": "x_boundary_s1.00_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 7,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 4,
+      "route_distance_m": 89.39658113568822,
+      "nominal_search_s": 203.79316227137645,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 121.68168053640645,
+        "pillbox": 82.57009644143605,
+        "bridge": 85.94563726328963,
+        "panzer": 149.0194509122454,
+        "red_cross": 2.520689655172414
+      },
+      "first_refine_s": {
+        "tent": 122.67759984764251,
+        "pillbox": 109.62620680727822,
+        "bridge": null,
+        "panzer": 150.0139496692973,
+        "red_cross": 3.0149425287356326
+      },
+      "third_center_visible_s": 85.94563726328963
+    },
+    {
+      "seed": 3,
+      "profile": "x_boundary_s1.00_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 7,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 4,
+      "route_distance_m": 89.39658113568822,
+      "nominal_search_s": 203.79316227137645,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 89.6190199223656,
+        "pillbox": 77.05054286716268,
+        "bridge": 19.79075144508671,
+        "panzer": 127.65719640382282,
+        "red_cross": 78.61244762906743
+      },
+      "first_refine_s": {
+        "tent": 102.56724726970597,
+        "pillbox": 78.02673334335314,
+        "bridge": 36.914450867052025,
+        "panzer": null,
+        "red_cross": 79.783876200496
+      },
+      "third_center_visible_s": 78.61244762906743
+    },
+    {
+      "seed": 4,
+      "profile": "x_boundary_s1.00_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 7,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 4,
+      "route_distance_m": 89.39658113568822,
+      "nominal_search_s": 203.79316227137645,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 4.2011494252873565,
+        "pillbox": 119.28718946623776,
+        "bridge": 33.43468208092486,
+        "panzer": 37.8092485549133,
+        "red_cross": 145.8370548896793
+      },
+      "first_refine_s": {
+        "tent": 5.189655172413794,
+        "pillbox": 162.36522430829618,
+        "bridge": 34.42890173410405,
+        "panzer": 62.489810207970514,
+        "red_cross": 180.8633918073724
+      },
+      "third_center_visible_s": 37.8092485549133
+    },
+    {
+      "seed": 5,
+      "profile": "x_boundary_s1.00_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 7,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 4,
+      "route_distance_m": 89.39658113568822,
+      "nominal_search_s": 203.79316227137645,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 24.761849710982663,
+        "pillbox": 39.10173410404625,
+        "bridge": 83.76146379032555,
+        "panzer": 44.17225433526012,
+        "red_cross": 178.97437446633194
+      },
+      "first_refine_s": {
+        "tent": 25.756069364161853,
+        "pillbox": 40.09595375722544,
+        "bridge": 108.43314322346319,
+        "panzer": 45.166473988439314,
+        "red_cross": 179.47148429292153
+      },
+      "third_center_visible_s": 44.17225433526012
+    },
+    {
+      "seed": 6,
+      "profile": "x_boundary_s1.00_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 7,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 4,
+      "route_distance_m": 89.39658113568822,
+      "nominal_search_s": 203.79316227137645,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 157.9519519832714,
+        "pillbox": 38.80346820809249,
+        "bridge": 128.65311571505887,
+        "panzer": 90.51254543403272,
+        "red_cross": 32.63930635838151
+      },
+      "first_refine_s": {
+        "tent": 158.92765955201193,
+        "pillbox": 61.498164232776496,
+        "bridge": null,
+        "panzer": 101.77187154716262,
+        "red_cross": 33.136416184971104
+      },
+      "third_center_visible_s": 90.51254543403272
+    },
+    {
+      "seed": 7,
+      "profile": "x_boundary_s1.00_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 7,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 4,
+      "route_distance_m": 89.39658113568822,
+      "nominal_search_s": 203.79316227137645,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 2.520689655172414,
+        "pillbox": 83.860744402733,
+        "bridge": 149.8150499178869,
+        "panzer": 45.76300578034683,
+        "red_cross": 153.7930449460945
+      },
+      "first_refine_s": {
+        "tent": 42.979190751445095,
+        "pillbox": null,
+        "bridge": 150.90899855064401,
+        "panzer": 46.75722543352602,
+        "red_cross": 154.29029432462048
+      },
+      "third_center_visible_s": 83.860744402733
+    },
+    {
+      "seed": 8,
+      "profile": "x_boundary_s1.00_yaw0_tree0.40",
+      "target_wall_overlap": [
+        {
+          "target": "panzer",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 7,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 4,
+      "route_distance_m": 89.39658113568822,
+      "nominal_search_s": 203.79316227137645,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 136.3538799043638,
+        "pillbox": 46.55838150289018,
+        "bridge": 85.44923420125234,
+        "panzer": 149.51670029077135,
+        "red_cross": 1.4333333333333336
+      },
+      "first_refine_s": {
+        "tent": 138.31711044388086,
+        "pillbox": 47.55260115606937,
+        "bridge": 86.44204032532693,
+        "panzer": 150.51119904782325,
+        "red_cross": 1.927586206896552
+      },
+      "third_center_visible_s": 85.44923420125234
+    },
+    {
+      "seed": 9,
+      "profile": "x_boundary_s1.00_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 7,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 4,
+      "route_distance_m": 89.39658113568822,
+      "nominal_search_s": 203.79316227137645,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 85.25067297643743,
+        "pillbox": 144.34530675410144,
+        "bridge": 107.63776750091984,
+        "panzer": 21.381502890173415,
+        "red_cross": 4.2011494252873565
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 145.33980551115334,
+        "bridge": 108.63198715409904,
+        "panzer": 35.22427745664741,
+        "red_cross": 4.695402298850575
+      },
+      "third_center_visible_s": 85.25067297643743
+    },
+    {
+      "seed": 10,
+      "profile": "x_boundary_s1.00_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 7,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 4,
+      "route_distance_m": 89.39658113568822,
+      "nominal_search_s": 203.79316227137645,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 37.01387283236995,
+        "pillbox": 158.3422350107676,
+        "bridge": 78.80768572430553,
+        "panzer": 138.31711044388086,
+        "red_cross": 19.293641618497112
+      },
+      "first_refine_s": {
+        "tent": 38.00809248554914,
+        "pillbox": 159.31794257950816,
+        "bridge": 114.49788310785625,
+        "panzer": 145.24035563544817,
+        "red_cross": 19.79075144508671
+      },
+      "third_center_visible_s": 78.80768572430553
+    },
+    {
+      "seed": 11,
+      "profile": "x_boundary_s1.00_yaw0_tree0.40",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 7,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 4,
+      "route_distance_m": 89.39658113568822,
+      "nominal_search_s": 203.79316227137645,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 85.44923420125234,
+        "pillbox": 73.28268572430552,
+        "bridge": 90.61182604644019,
+        "panzer": 46.35953757225434,
+        "red_cross": 140.9483324377229
+      },
+      "first_refine_s": {
+        "tent": 106.74296981305856,
+        "pillbox": 76.36720953382934,
+        "bridge": 91.60463217051476,
+        "panzer": 52.74731822740789,
+        "red_cross": 141.34833243772292
+      },
+      "third_center_visible_s": 85.44923420125234
+    },
+    {
+      "seed": 1,
+      "profile": "x_boundary_s0.70_yaw0_tree0.50",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 13,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 115.56975587156991,
+      "nominal_search_s": 266.1395117431399,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 184.2462364417929,
+        "pillbox": 32.83468208092486,
+        "bridge": 103.11090875270433,
+        "panzer": 73.7846621383412,
+        "red_cross": 169.72871954530632
+      },
+      "first_refine_s": {
+        "tent": 224.79936408988348,
+        "pillbox": 65.41445351753309,
+        "bridge": 104.11083180299086,
+        "panzer": 112.78997569490782,
+        "red_cross": 191.7292065671381
+      },
+      "third_center_visible_s": 103.11090875270433
+    },
+    {
+      "seed": 2,
+      "profile": "x_boundary_s0.70_yaw0_tree0.50",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 13,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 115.56975587156991,
+      "nominal_search_s": 266.1395117431399,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 162.25915319326128,
+        "pillbox": 105.31073946333468,
+        "bridge": 101.91100109236051,
+        "panzer": 190.13509845792942,
+        "red_cross": 2.520689655172414
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 150.80364859093362,
+        "bridge": 102.91092414264702,
+        "panzer": 191.13141602618484,
+        "red_cross": 3.0149425287356326
+      },
+      "third_center_visible_s": 105.31073946333468
+    },
+    {
+      "seed": 3,
+      "profile": "x_boundary_s0.70_yaw0_tree0.50",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 13,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 115.56975587156991,
+      "nominal_search_s": 266.1395117431399,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 98.11129350127172,
+        "pillbox": 110.72051812490302,
+        "bridge": 19.79075144508671,
+        "panzer": 168.2348062748973,
+        "red_cross": 109.17293219119136
+      },
+      "first_refine_s": {
+        "tent": 132.44262968878436,
+        "pillbox": 112.78997569490782,
+        "bridge": 36.31445086705203,
+        "panzer": null,
+        "red_cross": 109.65655279547626
+      },
+      "third_center_visible_s": 109.17293219119136
+    },
+    {
+      "seed": 4,
+      "profile": "x_boundary_s0.70_yaw0_tree0.50",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 13,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 115.56975587156991,
+      "nominal_search_s": 266.1395117431399,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 4.2011494252873565,
+        "pillbox": 202.68247098649582,
+        "bridge": 32.83468208092486,
+        "panzer": 37.2092485549133,
+        "red_cross": 187.34010692516824
+      },
+      "first_refine_s": {
+        "tent": 5.189655172413794,
+        "pillbox": 203.7647977624743,
+        "bridge": 65.41445351753309,
+        "panzer": 61.044812902454176,
+        "red_cross": 222.71405401272432
+      },
+      "third_center_visible_s": 37.2092485549133
+    },
+    {
+      "seed": 5,
+      "profile": "x_boundary_s0.70_yaw0_tree0.50",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 13,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 115.56975587156991,
+      "nominal_search_s": 266.1395117431399,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 24.761849710982663,
+        "pillbox": 38.50173410404625,
+        "bridge": 104.11083180299086,
+        "panzer": 43.57225433526012,
+        "red_cross": 220.8273448952946
+      },
+      "first_refine_s": {
+        "tent": 25.756069364161853,
+        "pillbox": 59.75378272072631,
+        "bridge": 149.6105850071186,
+        "panzer": 44.56647398843931,
+        "red_cross": 233.56638867797975
+      },
+      "third_center_visible_s": 43.57225433526012
+    },
+    {
+      "seed": 6,
+      "profile": "x_boundary_s0.70_yaw0_tree0.50",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 13,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 115.56975587156991,
+      "nominal_search_s": 266.1395117431399,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 199.13468667463368,
+        "pillbox": 38.20346820809249,
+        "bridge": 191.82883832396365,
+        "panzer": 97.51133967109979,
+        "red_cross": 32.03930635838151
+      },
+      "first_refine_s": {
+        "tent": 201.10817749416347,
+        "pillbox": 60.05171276266351,
+        "bridge": null,
+        "panzer": 133.33741243039162,
+        "red_cross": 65.71238355947028
+      },
+      "third_center_visible_s": 97.51133967109979
+    },
+    {
+      "seed": 7,
+      "profile": "x_boundary_s0.70_yaw0_tree0.50",
+      "target_wall_overlap": [
+        {
+          "target": "red_cross",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 13,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 115.56975587156991,
+      "nominal_search_s": 266.1395117431399,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 2.520689655172414,
+        "pillbox": 79.56486957635502,
+        "bridge": 190.93215251253378,
+        "panzer": 45.16300578034683,
+        "red_cross": 194.91742278555552
+      },
+      "first_refine_s": {
+        "tent": 42.27976878612717,
+        "pillbox": null,
+        "bridge": 191.9284700807892,
+        "panzer": 52.02955151061376,
+        "red_cross": 195.41558156968324
+      },
+      "third_center_visible_s": 79.56486957635502
+    },
+    {
+      "seed": 8,
+      "profile": "x_boundary_s0.70_yaw0_tree0.50",
+      "target_wall_overlap": [
+        {
+          "target": "panzer",
+          "wall": "Wall_13"
+        }
+      ],
+      "feasible": true,
+      "original_collisions": 13,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 115.56975587156991,
+      "nominal_search_s": 266.1395117431399,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 140.66260812850587,
+        "pillbox": 45.95838150289018,
+        "bridge": 102.3109703124751,
+        "panzer": 190.63325724205714,
+        "red_cross": 1.4333333333333336
+      },
+      "first_refine_s": {
+        "tent": 185.1444569047083,
+        "pillbox": 51.34100266467006,
+        "bridge": 103.31089336276163,
+        "panzer": 219.5364386570532,
+        "red_cross": 1.927586206896552
+      },
+      "third_center_visible_s": 102.3109703124751
+    },
+    {
+      "seed": 9,
+      "profile": "x_boundary_s0.70_yaw0_tree0.50",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 13,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 115.56975587156991,
+      "nominal_search_s": 266.1395117431399,
+      "center_seen": 5,
+      "refine_seen": 4,
+      "first_center_s": {
+        "tent": 102.51095492253242,
+        "pillbox": 184.34603871545013,
+        "bridge": 105.21074715830603,
+        "panzer": 21.381502890173415,
+        "red_cross": 4.2011494252873565
+      },
+      "first_refine_s": {
+        "tent": null,
+        "pillbox": 224.70006361001876,
+        "bridge": 149.80942893775443,
+        "panzer": 34.624277456647405,
+        "red_cross": 4.695402298850575
+      },
+      "third_center_visible_s": 102.51095492253242
+    },
+    {
+      "seed": 10,
+      "profile": "x_boundary_s0.70_yaw0_tree0.50",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 13,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 115.56975587156991,
+      "nominal_search_s": 266.1395117431399,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 36.41387283236995,
+        "pillbox": 199.42417073362168,
+        "bridge": 112.20575409406382,
+        "panzer": 179.47644136182413,
+        "red_cross": 19.293641618497112
+      },
+      "first_refine_s": {
+        "tent": 37.40809248554913,
+        "pillbox": 201.50175086724656,
+        "bridge": 155.67532489151165,
+        "panzer": 185.24425917836558,
+        "red_cross": 19.79075144508671
+      },
+      "third_center_visible_s": 112.20575409406382
+    },
+    {
+      "seed": 11,
+      "profile": "x_boundary_s0.70_yaw0_tree0.50",
+      "target_wall_overlap": [],
+      "feasible": true,
+      "original_collisions": 13,
+      "blocked_endpoints": 1,
+      "max_endpoint_shift_m": 0.049999999999998934,
+      "replanned_segments": 7,
+      "route_distance_m": 115.56975587156991,
+      "nominal_search_s": 266.1395117431399,
+      "center_seen": 5,
+      "refine_seen": 5,
+      "first_center_s": {
+        "tent": 102.3109703124751,
+        "pillbox": 113.47156756255916,
+        "bridge": 97.11137045098519,
+        "panzer": 49.006666666666675,
+        "red_cross": 181.81712621033515
+      },
+      "first_refine_s": {
+        "tent": 128.36639719924017,
+        "pillbox": 114.64001076424718,
+        "bridge": 133.43683273501463,
+        "panzer": 91.51957625981133,
+        "red_cross": 182.28379287700182
+      },
+      "third_center_visible_s": 102.3109703124751
+    }
+  ],
+  "routes": {
+    "x_raw_s0.70_yaw0_tree0.40": [
+      [
+        0,
+        0,
+        1.4
+      ],
+      [
+        -4.3,
+        0.0,
+        1.4
+      ],
+      [
+        4.3,
+        0.0,
+        1.4
+      ],
+      [
+        4.3,
+        0.7,
+        1.4
+      ],
+      [
+        -4.3,
+        0.7,
+        1.4
+      ],
+      [
+        -4.3,
+        1.4,
+        1.4
+      ],
+      [
+        4.3,
+        1.4,
+        1.4
+      ],
+      [
+        4.3,
+        2.0999999999999996,
+        1.4
+      ],
+      [
+        -4.3,
+        2.0999999999999996,
+        1.4
+      ],
+      [
+        -4.3,
+        2.8,
+        1.4
+      ],
+      [
+        4.3,
+        2.8,
+        1.4
+      ],
+      [
+        4.3,
+        3.5,
+        1.4
+      ],
+      [
+        -4.3,
+        3.5,
+        1.4
+      ],
+      [
+        -4.3,
+        4.2,
+        1.4
+      ],
+      [
+        4.3,
+        4.2,
+        1.4
+      ],
+      [
+        4.3,
+        4.9,
+        1.4
+      ],
+      [
+        -4.3,
+        4.9,
+        1.4
+      ],
+      [
+        -4.3,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        4.3,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        4.3,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        7.000000000000001,
+        1.4
+      ],
+      [
+        4.3,
+        7.000000000000001,
+        1.4
+      ],
+      [
+        4.3,
+        7.1,
+        1.4
+      ],
+      [
+        -4.3,
+        7.1,
+        1.4
+      ]
+    ],
+    "x_boundary_s0.70_yaw0_tree0.40": [
+      [
+        8.881784197001252e-16,
+        0.0,
+        1.4
+      ],
+      [
+        -4.3,
+        0.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.7000000000000002,
+        1.4
+      ],
+      [
+        -4.3,
+        0.7000000000000002,
+        1.4
+      ],
+      [
+        -4.3,
+        1.4000000000000004,
+        1.4
+      ],
+      [
+        -1.6499999999999995,
+        1.25,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        1.4000000000000004,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        2.1,
+        1.4
+      ],
+      [
+        1.6500000000000004,
+        1.9500000000000002,
+        1.4
+      ],
+      [
+        -0.4499999999999993,
+        2.1,
+        1.4
+      ],
+      [
+        -1.1499999999999995,
+        2.75,
+        1.4
+      ],
+      [
+        -2.9999999999999996,
+        2.7,
+        1.4
+      ],
+      [
+        -4.3,
+        2.1,
+        1.4
+      ],
+      [
+        -4.3,
+        2.8000000000000003,
+        1.4
+      ],
+      [
+        1.5000000000000009,
+        3.45,
+        1.4
+      ],
+      [
+        3.000000000000001,
+        3.4000000000000004,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        2.8000000000000003,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        3.5,
+        1.4
+      ],
+      [
+        -4.3,
+        3.5,
+        1.4
+      ],
+      [
+        -4.3,
+        4.2,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.2,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.9,
+        1.4
+      ],
+      [
+        -1.3999999999999995,
+        4.45,
+        1.4
+      ],
+      [
+        -3.55,
+        4.550000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        4.9,
+        1.4
+      ],
+      [
+        -4.3,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        1.3000000000000007,
+        6.45,
+        1.4
+      ],
+      [
+        2.5500000000000007,
+        6.4,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        1.5000000000000009,
+        6.45,
+        1.4
+      ],
+      [
+        -4.3,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        7.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        7.1,
+        1.4
+      ]
+    ],
+    "y_boundary_s0.70_yaw0_tree0.40": [
+      [
+        8.881784197001252e-16,
+        0.0,
+        1.4
+      ],
+      [
+        -4.3,
+        0.0,
+        1.4
+      ],
+      [
+        -4.3,
+        7.1,
+        1.4
+      ],
+      [
+        -3.5999999999999996,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -3.5999999999999996,
+        0.0,
+        1.4
+      ],
+      [
+        -2.8999999999999995,
+        0.0,
+        1.4
+      ],
+      [
+        -2.8999999999999995,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -2.1999999999999997,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -2.55,
+        2.0,
+        1.4
+      ],
+      [
+        -2.4499999999999997,
+        0.5,
+        1.4
+      ],
+      [
+        -2.1999999999999997,
+        0.0,
+        1.4
+      ],
+      [
+        -1.4999999999999996,
+        0.0,
+        1.4
+      ],
+      [
+        -1.0499999999999998,
+        1.4500000000000002,
+        1.4
+      ],
+      [
+        -0.75,
+        5.1000000000000005,
+        1.4
+      ],
+      [
+        -0.7999999999999998,
+        5.95,
+        1.4
+      ],
+      [
+        -1.4999999999999996,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -0.7999999999999998,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -0.75,
+        0.050000000000000044,
+        1.4
+      ],
+      [
+        -0.7999999999999998,
+        0.0,
+        1.4
+      ],
+      [
+        -0.09999999999999964,
+        0.0,
+        1.4
+      ],
+      [
+        -0.09999999999999964,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        0.6000000000000005,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        0.6000000000000005,
+        0.0,
+        1.4
+      ],
+      [
+        1.3000000000000007,
+        0.0,
+        1.4
+      ],
+      [
+        1.0500000000000007,
+        2.45,
+        1.4
+      ],
+      [
+        0.9500000000000002,
+        6.4,
+        1.4
+      ],
+      [
+        1.3000000000000007,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        2.000000000000001,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        2.45,
+        6.3500000000000005,
+        1.4
+      ],
+      [
+        2.5500000000000007,
+        1.2000000000000002,
+        1.4
+      ],
+      [
+        2.000000000000001,
+        0.0,
+        1.4
+      ],
+      [
+        2.7,
+        0.0,
+        1.4
+      ],
+      [
+        2.7,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        3.4000000000000012,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        3.4000000000000012,
+        0.0,
+        1.4
+      ],
+      [
+        4.1000000000000005,
+        0.0,
+        1.4
+      ],
+      [
+        4.1000000000000005,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.0,
+        1.4
+      ]
+    ],
+    "x_north_first_s0.70_yaw0_tree0.40": [
+      [
+        8.881784197001252e-16,
+        0.0,
+        1.4
+      ],
+      [
+        -1.0999999999999996,
+        2.75,
+        1.4
+      ],
+      [
+        -4.3,
+        7.1,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.0,
+        1.4
+      ],
+      [
+        -4.3,
+        7.0,
+        1.4
+      ],
+      [
+        -4.3,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        3.6000000000000005,
+        6.45,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        2.3000000000000007,
+        6.45,
+        1.4
+      ],
+      [
+        -2.8,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        -4.3,
+        4.9,
+        1.4
+      ],
+      [
+        -1.9499999999999997,
+        4.45,
+        1.4
+      ],
+      [
+        3.9000000000000012,
+        4.7,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.9,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.2,
+        1.4
+      ],
+      [
+        -4.3,
+        4.2,
+        1.4
+      ],
+      [
+        -4.3,
+        3.5,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        3.5,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        2.8000000000000003,
+        1.4
+      ],
+      [
+        2.4000000000000004,
+        3.45,
+        1.4
+      ],
+      [
+        -3.3499999999999996,
+        3.25,
+        1.4
+      ],
+      [
+        -4.3,
+        2.8000000000000003,
+        1.4
+      ],
+      [
+        -4.3,
+        2.1,
+        1.4
+      ],
+      [
+        -2.3999999999999995,
+        2.75,
+        1.4
+      ],
+      [
+        0.40000000000000036,
+        2.6500000000000004,
+        1.4
+      ],
+      [
+        1.1500000000000004,
+        1.9500000000000002,
+        1.4
+      ],
+      [
+        4.250000000000001,
+        2.0500000000000003,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        2.1,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        1.4000000000000004,
+        1.4
+      ],
+      [
+        -3.75,
+        1.25,
+        1.4
+      ],
+      [
+        -4.3,
+        1.4000000000000004,
+        1.4
+      ],
+      [
+        -4.3,
+        0.7000000000000002,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.7000000000000002,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.0,
+        1.4
+      ],
+      [
+        -4.3,
+        0.0,
+        1.4
+      ]
+    ],
+    "x_free_intervals_s0.70_yaw0_tree0.40": [
+      [
+        8.881784197001252e-16,
+        0.0,
+        1.4
+      ],
+      [
+        -4.3,
+        0.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.7000000000000002,
+        1.4
+      ],
+      [
+        -4.3,
+        0.7000000000000002,
+        1.4
+      ],
+      [
+        -4.3,
+        1.4000000000000004,
+        1.4
+      ],
+      [
+        -2.55,
+        1.4000000000000004,
+        1.4
+      ],
+      [
+        -2.4999999999999996,
+        1.25,
+        1.4
+      ],
+      [
+        -1.0499999999999998,
+        1.3000000000000003,
+        1.4
+      ],
+      [
+        -1.0499999999999998,
+        1.4000000000000004,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        1.4000000000000004,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        2.1,
+        1.4
+      ],
+      [
+        2.5500000000000007,
+        2.1,
+        1.4
+      ],
+      [
+        2.500000000000001,
+        1.9500000000000002,
+        1.4
+      ],
+      [
+        1.0500000000000007,
+        2.0,
+        1.4
+      ],
+      [
+        1.0500000000000007,
+        2.1,
+        1.4
+      ],
+      [
+        -1.0499999999999998,
+        2.1,
+        1.4
+      ],
+      [
+        -1.0999999999999996,
+        2.75,
+        1.4
+      ],
+      [
+        -2.55,
+        2.7,
+        1.4
+      ],
+      [
+        -2.55,
+        2.1,
+        1.4
+      ],
+      [
+        -4.3,
+        2.1,
+        1.4
+      ],
+      [
+        -4.3,
+        2.8000000000000003,
+        1.4
+      ],
+      [
+        1.0500000000000007,
+        2.8000000000000003,
+        1.4
+      ],
+      [
+        1.1000000000000005,
+        3.45,
+        1.4
+      ],
+      [
+        2.5500000000000007,
+        3.4000000000000004,
+        1.4
+      ],
+      [
+        2.5500000000000007,
+        2.8000000000000003,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        2.8000000000000003,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        3.5,
+        1.4
+      ],
+      [
+        -4.3,
+        3.5,
+        1.4
+      ],
+      [
+        -4.3,
+        4.2,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.2,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.9,
+        1.4
+      ],
+      [
+        -0.75,
+        4.9,
+        1.4
+      ],
+      [
+        -0.7999999999999998,
+        4.45,
+        1.4
+      ],
+      [
+        -2.2499999999999996,
+        4.5,
+        1.4
+      ],
+      [
+        -2.2499999999999996,
+        4.9,
+        1.4
+      ],
+      [
+        -4.3,
+        4.9,
+        1.4
+      ],
+      [
+        -4.3,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        -2.2499999999999996,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        -2.1999999999999997,
+        5.95,
+        1.4
+      ],
+      [
+        -0.75,
+        5.9,
+        1.4
+      ],
+      [
+        -0.75,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        0.9500000000000002,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        1.0000000000000009,
+        4.95,
+        1.4
+      ],
+      [
+        2.45,
+        5.0,
+        1.4
+      ],
+      [
+        2.45,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        2.45,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        2.4000000000000004,
+        6.45,
+        1.4
+      ],
+      [
+        0.9500000000000002,
+        6.4,
+        1.4
+      ],
+      [
+        0.9500000000000002,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        7.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.0,
+        1.4
+      ],
+      [
+        -3.6499999999999995,
+        7.1,
+        1.4
+      ],
+      [
+        -4.3,
+        7.1,
+        1.4
+      ]
+    ],
+    "y_boundary_s0.70_yaw90_tree0.40": [
+      [
+        8.881784197001252e-16,
+        0.0,
+        1.4
+      ],
+      [
+        -4.3,
+        0.0,
+        1.4
+      ],
+      [
+        -4.3,
+        7.1,
+        1.4
+      ],
+      [
+        -3.5999999999999996,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -3.5999999999999996,
+        0.0,
+        1.4
+      ],
+      [
+        -2.8999999999999995,
+        0.0,
+        1.4
+      ],
+      [
+        -2.8999999999999995,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -2.1999999999999997,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -2.55,
+        2.0,
+        1.4
+      ],
+      [
+        -2.4499999999999997,
+        0.5,
+        1.4
+      ],
+      [
+        -2.1999999999999997,
+        0.0,
+        1.4
+      ],
+      [
+        -1.4999999999999996,
+        0.0,
+        1.4
+      ],
+      [
+        -1.0499999999999998,
+        1.4500000000000002,
+        1.4
+      ],
+      [
+        -0.75,
+        5.1000000000000005,
+        1.4
+      ],
+      [
+        -0.7999999999999998,
+        5.95,
+        1.4
+      ],
+      [
+        -1.4999999999999996,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -0.7999999999999998,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -0.75,
+        0.050000000000000044,
+        1.4
+      ],
+      [
+        -0.7999999999999998,
+        0.0,
+        1.4
+      ],
+      [
+        -0.09999999999999964,
+        0.0,
+        1.4
+      ],
+      [
+        -0.09999999999999964,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        0.6000000000000005,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        0.6000000000000005,
+        0.0,
+        1.4
+      ],
+      [
+        1.3000000000000007,
+        0.0,
+        1.4
+      ],
+      [
+        1.0500000000000007,
+        2.45,
+        1.4
+      ],
+      [
+        0.9500000000000002,
+        6.4,
+        1.4
+      ],
+      [
+        1.3000000000000007,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        2.000000000000001,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        2.45,
+        6.3500000000000005,
+        1.4
+      ],
+      [
+        2.5500000000000007,
+        1.2000000000000002,
+        1.4
+      ],
+      [
+        2.000000000000001,
+        0.0,
+        1.4
+      ],
+      [
+        2.7,
+        0.0,
+        1.4
+      ],
+      [
+        2.7,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        3.4000000000000012,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        3.4000000000000012,
+        0.0,
+        1.4
+      ],
+      [
+        4.1000000000000005,
+        0.0,
+        1.4
+      ],
+      [
+        4.1000000000000005,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.0,
+        1.4
+      ]
+    ],
+    "x_boundary_s0.60_yaw0_tree0.40": [
+      [
+        8.881784197001252e-16,
+        0.0,
+        1.4
+      ],
+      [
+        -4.3,
+        0.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.6000000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        0.6000000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        1.2000000000000002,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        1.2000000000000002,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        1.8000000000000003,
+        1.4
+      ],
+      [
+        -1.5999999999999996,
+        1.25,
+        1.4
+      ],
+      [
+        -3.2499999999999996,
+        1.3000000000000003,
+        1.4
+      ],
+      [
+        -4.3,
+        1.8000000000000003,
+        1.4
+      ],
+      [
+        -4.3,
+        2.4000000000000004,
+        1.4
+      ],
+      [
+        -2.2499999999999996,
+        2.75,
+        1.4
+      ],
+      [
+        0.40000000000000036,
+        2.6500000000000004,
+        1.4
+      ],
+      [
+        1.1500000000000004,
+        1.9500000000000002,
+        1.4
+      ],
+      [
+        3.45,
+        2.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        2.4000000000000004,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        3.0,
+        1.4
+      ],
+      [
+        2.3000000000000007,
+        3.45,
+        1.4
+      ],
+      [
+        -3.8999999999999995,
+        3.2,
+        1.4
+      ],
+      [
+        -4.3,
+        3.0,
+        1.4
+      ],
+      [
+        -4.3,
+        3.6000000000000005,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        3.6000000000000005,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.2,
+        1.4
+      ],
+      [
+        -4.3,
+        4.2,
+        1.4
+      ],
+      [
+        -4.3,
+        4.800000000000001,
+        1.4
+      ],
+      [
+        -1.8999999999999995,
+        4.45,
+        1.4
+      ],
+      [
+        4.1000000000000005,
+        4.7,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.800000000000001,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        5.4,
+        1.4
+      ],
+      [
+        2.2,
+        4.95,
+        1.4
+      ],
+      [
+        -1.0999999999999996,
+        4.45,
+        1.4
+      ],
+      [
+        -2.3499999999999996,
+        4.5,
+        1.4
+      ],
+      [
+        -4.3,
+        5.4,
+        1.4
+      ],
+      [
+        -4.3,
+        6.0,
+        1.4
+      ],
+      [
+        1.6500000000000004,
+        6.45,
+        1.4
+      ],
+      [
+        3.55,
+        6.3500000000000005,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        6.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        6.6000000000000005,
+        1.4
+      ],
+      [
+        -4.3,
+        6.6000000000000005,
+        1.4
+      ],
+      [
+        -4.3,
+        7.1,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.050000000000001,
+        1.4
+      ]
+    ],
+    "x_boundary_s0.80_yaw0_tree0.40": [
+      [
+        8.881784197001252e-16,
+        0.0,
+        1.4
+      ],
+      [
+        -4.3,
+        0.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.8,
+        1.4
+      ],
+      [
+        -4.3,
+        0.8,
+        1.4
+      ],
+      [
+        -4.3,
+        1.6,
+        1.4
+      ],
+      [
+        -2.2499999999999996,
+        1.25,
+        1.4
+      ],
+      [
+        4.1000000000000005,
+        1.5,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        1.6,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        2.4000000000000004,
+        1.4
+      ],
+      [
+        2.3000000000000007,
+        1.9500000000000002,
+        1.4
+      ],
+      [
+        -0.39999999999999947,
+        2.0500000000000003,
+        1.4
+      ],
+      [
+        -1.1499999999999995,
+        2.75,
+        1.4
+      ],
+      [
+        -3.6499999999999995,
+        2.7,
+        1.4
+      ],
+      [
+        -4.3,
+        2.4000000000000004,
+        1.4
+      ],
+      [
+        -4.3,
+        3.2,
+        1.4
+      ],
+      [
+        2.4000000000000004,
+        3.45,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        3.2,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.0,
+        1.4
+      ],
+      [
+        -4.3,
+        4.0,
+        1.4
+      ],
+      [
+        -4.3,
+        4.800000000000001,
+        1.4
+      ],
+      [
+        -1.8999999999999995,
+        4.45,
+        1.4
+      ],
+      [
+        4.1000000000000005,
+        4.7,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.800000000000001,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        2.3000000000000007,
+        6.45,
+        1.4
+      ],
+      [
+        -2.8,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        -4.3,
+        6.4,
+        1.4
+      ],
+      [
+        4.250000000000001,
+        6.45,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        6.4,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        7.1,
+        1.4
+      ]
+    ],
+    "x_boundary_s1.00_yaw0_tree0.40": [
+      [
+        8.881784197001252e-16,
+        0.0,
+        1.4
+      ],
+      [
+        -4.3,
+        0.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        1.0,
+        1.4
+      ],
+      [
+        -4.3,
+        1.0,
+        1.4
+      ],
+      [
+        -4.3,
+        2.0,
+        1.4
+      ],
+      [
+        -2.3999999999999995,
+        1.25,
+        1.4
+      ],
+      [
+        3.1000000000000005,
+        1.4500000000000002,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        2.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        3.0,
+        1.4
+      ],
+      [
+        2.3000000000000007,
+        3.45,
+        1.4
+      ],
+      [
+        -3.8999999999999995,
+        3.2,
+        1.4
+      ],
+      [
+        -4.3,
+        3.0,
+        1.4
+      ],
+      [
+        -4.3,
+        4.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        5.0,
+        1.4
+      ],
+      [
+        -1.2999999999999998,
+        4.45,
+        1.4
+      ],
+      [
+        -3.3499999999999996,
+        4.550000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        5.0,
+        1.4
+      ],
+      [
+        -4.3,
+        6.0,
+        1.4
+      ],
+      [
+        1.6500000000000004,
+        6.45,
+        1.4
+      ],
+      [
+        3.55,
+        6.3500000000000005,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        6.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.0,
+        1.4
+      ],
+      [
+        -4.3,
+        7.0,
+        1.4
+      ],
+      [
+        -4.3,
+        7.1,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.050000000000001,
+        1.4
+      ]
+    ],
+    "x_boundary_s0.70_yaw0_tree0.50": [
+      [
+        8.881784197001252e-16,
+        0.0,
+        1.4
+      ],
+      [
+        -4.3,
+        0.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        0.7000000000000002,
+        1.4
+      ],
+      [
+        -4.3,
+        0.7000000000000002,
+        1.4
+      ],
+      [
+        -4.3,
+        1.4000000000000004,
+        1.4
+      ],
+      [
+        -2.1999999999999997,
+        1.15,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        1.4000000000000004,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        2.1,
+        1.4
+      ],
+      [
+        -1.25,
+        1.15,
+        1.4
+      ],
+      [
+        -2.6499999999999995,
+        1.2000000000000002,
+        1.4
+      ],
+      [
+        -4.3,
+        2.1,
+        1.4
+      ],
+      [
+        -4.3,
+        2.8000000000000003,
+        1.4
+      ],
+      [
+        1.3500000000000005,
+        3.55,
+        1.4
+      ],
+      [
+        2.8,
+        3.5,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        2.8000000000000003,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        3.5,
+        1.4
+      ],
+      [
+        -4.25,
+        3.55,
+        1.4
+      ],
+      [
+        -4.3,
+        3.5,
+        1.4
+      ],
+      [
+        -4.3,
+        4.2,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.2,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        4.9,
+        1.4
+      ],
+      [
+        -1.1499999999999995,
+        4.3500000000000005,
+        1.4
+      ],
+      [
+        -3.2499999999999996,
+        4.4,
+        1.4
+      ],
+      [
+        -4.3,
+        4.9,
+        1.4
+      ],
+      [
+        -4.3,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        -2.0999999999999996,
+        6.050000000000001,
+        1.4
+      ],
+      [
+        1.2000000000000002,
+        6.550000000000001,
+        1.4
+      ],
+      [
+        2.5500000000000007,
+        6.5,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        5.6000000000000005,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        2.1000000000000005,
+        6.550000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        6.300000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        7.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.0,
+        1.4
+      ],
+      [
+        4.300000000000002,
+        7.050000000000001,
+        1.4
+      ],
+      [
+        -4.3,
+        7.1,
+        1.4
+      ]
+    ]
+  }
+}
