@@ -48,7 +48,7 @@ class CalibratedCameraProfileTest(unittest.TestCase):
 
     def test_image_and_camera_info_share_one_frame(self):
         source = SCRIPT.read_text(encoding="utf-8")
-        self.assertIn("img_msg.header.frame_id = frame_id", source)
+        self.assertIn("image_message.header.frame_id = frame_id", source)
         self.assertIn("compressed_msg.header.frame_id = frame_id", source)
         self.assertIn("camera_info.header.frame_id = frame_id", source)
         self.assertIn("actual_width != camera_info.width", source)
@@ -57,6 +57,14 @@ class CalibratedCameraProfileTest(unittest.TestCase):
         self.assertIn("cap.get(cv2.CAP_PROP_FPS)", source)
         self.assertIn(
             "if compressed_pub.get_num_connections() > 0:", source)
+
+    def test_raw_image_publication_has_no_binary_cv_bridge_dependency(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertNotIn("from cv_bridge", source)
+        self.assertNotIn("CvBridge()", source)
+        self.assertIn('image_message.encoding = "bgr8"', source)
+        self.assertIn("image_message.step = frame.strides[0]", source)
+        self.assertIn("image_message.data = frame.tobytes()", source)
 
 
 if __name__ == "__main__":

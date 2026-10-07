@@ -7,13 +7,19 @@ lived ReleasePermission.  It never calls an actuator.
 """
 import os
 import sys
+import threading
+import uuid
+from patrol_control.msg import ReleaseAuthorization
 
 import rospy
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Bool, Int8, String
 
 from uav_mission.msg import ReleasePermission, ReleaseResult
-from uav_vision.msg import ReleaseEvidence, ReleaseEvidenceContext
+from uav_vision.msg import ReleaseEvidence, ReleaseEvidenceContext, AlignmentTargetContext
+from uav_mission.release_transactions import (
+    NOT_STARTED, RAW_CALL_STARTED, COMPLETED, execution_fact, action_identity, result_terminal,
+)
 
 _SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 if _SCRIPT_DIR not in sys.path:
@@ -76,6 +82,18 @@ class ReleasePermissionArbiter:
         result_topic = rospy.get_param(
             "~result_topic", "/mission/release_result")
 
+        self._permission_epoch = uuid.uuid4().hex
+        self._permission_revision = 0
+        self._authorization_pub = rospy.Publisher(rospy.get_param(
+            "~authorization_topic", "/mission/release_authorization"),
+            ReleaseAuthorization, queue_size=1, latch=True)
+        self._lock = threading.RLock()
+        self._blocked_slots = set()
+        self._called_actions = {}
+        # Authorization history outlives the active alignment. Topic callbacks
+        # may deliver alignment-end before raw-start/completion.
+        self._authorized_actions = {}
+        self._revoked_actions = set()
         self._evidence = None
         self._evidence_context = None
         self._align_mode = "disabled"
@@ -113,6 +131,9 @@ class ReleasePermissionArbiter:
                          self._on_control_state, queue_size=2)
         rospy.Subscriber(result_topic, ReleaseResult,
                          self._on_result, queue_size=4)
+        rospy.Subscriber(rospy.get_param("~alignment_context_topic",
+                         "/uav_vision/alignment_target_context"), AlignmentTargetContext,
+                         self._on_alignment_context, queue_size=4)
         self._timer = rospy.Timer(
             rospy.Duration(1.0 / max(self._publish_rate, 1.0)),
             self._on_timer)
@@ -131,50 +152,103 @@ class ReleasePermissionArbiter:
             self._require_evidence_context)
 
     def _on_evidence(self, msg):
-        self._evidence = msg
-        self._maybe_establish_commitment()
+        with self._lock:
+            self._evidence = msg
+            self._maybe_establish_commitment()
 
     def _on_evidence_context(self, msg):
-        self._evidence_context = msg
-        self._evidence = msg.evidence
-        self._maybe_establish_commitment()
+        with self._lock:
+            self._evidence_context = msg
+            self._evidence = msg.evidence
+            self._maybe_establish_commitment()
 
     def _on_align_mode(self, msg):
-        self._align_mode = msg.data.strip()
-        self._maybe_establish_commitment()
+        with self._lock:
+            self._align_mode = msg.data.strip()
+            self._maybe_establish_commitment()
 
     def _on_pose(self, msg):
-        self._pose = msg
-        self._maybe_establish_commitment()
+        with self._lock:
+            self._pose = msg
+            self._maybe_establish_commitment()
 
     def _on_control_state(self, msg):
-        self._control_state = int(msg.data)
-        self._control_state_stamp = rospy.Time.now()
-        self._maybe_establish_commitment()
+        with self._lock:
+            self._control_state = int(msg.data)
+            self._control_state_stamp = rospy.Time.now()
+            self._maybe_establish_commitment()
+
+    def _on_alignment_context(self, msg):
+        if msg.active:
+            return
+        key = (str(msg.mission_id), int(msg.decision_seq), int(msg.attempt),
+               int(msg.payload_slot), int(msg.semantic_target_id),
+               int(msg.semantic_target_first_seen.to_nsec()), str(msg.semantic_target_class))
+        with self._lock:
+            self._revoked_actions.add(key)
+            c = self._commitment
+            if c is not None and (c.mission_id, c.decision_seq, c.attempt,
+                    c.payload_slot, c.target_id, c.target_first_seen_nsec, c.target_class) == key:
+                self._commitment = None
+            self._permission_state_pub.publish(Bool(data=False))
 
     def _on_result(self, msg):
-        if not msg.success:
-            return
-        if msg.payload_slot in self._completed_slots:
-            rospy.logwarn_throttle(
-                1.0, "[ReleaseArbiter] duplicate success for slot %d ignored",
-                msg.payload_slot)
-            return
-        if msg.payload_slot != self._next_slot:
-            rospy.logwarn(
-                "[ReleaseArbiter] out-of-order success slot=%d expected=%d ignored",
-                msg.payload_slot, self._next_slot)
-            return
-        self._completed_slots.add(msg.payload_slot)
-        self._released_targets.add((msg.align_mode, msg.target_id))
-        if (self._commitment is not None and
-                self._commitment.align_mode == msg.align_mode and
-                self._commitment.target_id == msg.target_id):
-            self._commitment = None
-        self._next_slot += 1
-        rospy.loginfo(
-            "[ReleaseArbiter] release committed slot=%d target=%s/%d next_slot=%d",
-            msg.payload_slot, msg.target_class, msg.target_id, self._next_slot)
+        with self._lock:
+            fact = execution_fact(msg)
+            if fact == COMPLETED and not result_terminal(msg):
+                return
+            key = action_identity(msg)
+            if getattr(self, "_require_evidence_context", False) and key is None:
+                return
+            slot = int(msg.payload_slot)
+            if key is not None:
+                authorized = self._authorized_actions.get(key)
+                if authorized is None or str(msg.align_mode) != authorized["align_mode"]:
+                    return
+                execution_id = int(getattr(msg, "execution_id", 0))
+                if execution_id <= 0:
+                    return
+                if fact == NOT_STARTED:
+                    # A rejection has its own result id; it is not the identity
+                    # of a raw invocation. Never let it mask a later positive
+                    # execution fact for this previously authorized action.
+                    if result_terminal(msg):
+                        self._revoked_actions.add(key)
+                    return
+                if fact in (RAW_CALL_STARTED, COMPLETED):
+                    expected_execution = authorized["execution_id"]
+                    if expected_execution is not None and execution_id != expected_execution:
+                        return
+                    authorized["execution_id"] = execution_id
+            elif getattr(self, "_require_evidence_context", False):
+                return
+            if fact != NOT_STARTED:
+                self._blocked_slots.add(slot)
+                self._called_actions[slot] = key
+            if fact != COMPLETED:
+                return
+            if slot in self._completed_slots or slot != self._next_slot:
+                return
+            self._completed_slots.add(slot)
+            self._released_targets.add((msg.align_mode, msg.target_id))
+            c = self._commitment
+            if c is not None and (key is None or (
+                    c.mission_id, c.decision_seq, c.attempt, c.payload_slot,
+                    c.target_id, c.target_first_seen_nsec, c.target_class) == key):
+                self._commitment = None
+            self._next_slot += 1
+
+    def _remember_authorization(self, permission):
+        """Called under _lock, before publishing an actual granted permission.
+
+        History is kept for this arbiter process/mission lifetime. Revocation
+        prevents new permission but never erases an already authorized fact.
+        """
+        key = action_identity(permission)
+        if permission.permitted and key is not None:
+            self._authorized_actions.setdefault(key, {
+                "align_mode": str(permission.align_mode), "execution_id": None,
+            })
 
     @staticmethod
     def _stamp_age(now, stamp):
@@ -296,6 +370,8 @@ class ReleasePermissionArbiter:
     def _evaluate(self, now):
         if self._next_slot > self._payload_slots:
             return False, "payload_exhausted", None
+        if self._next_slot in self._blocked_slots:
+            return False, "payload_execution_locked", None
         if self._align_mode not in MODE_TARGET_CLASS:
             return False, "mission_not_in_drop_stage", None
         if self._control_state is None:
@@ -368,13 +444,30 @@ class ReleasePermissionArbiter:
         altitude = self._pose.pose.position.z
         if altitude < self._min_altitude or altitude > self._max_altitude:
             return False, "release_altitude_invalid", source
+        if self._require_evidence_context:
+            context = self._evidence_context
+            source = dict(source, mission_id=context.mission_id,
+                          decision_seq=context.decision_seq, attempt=context.attempt,
+                          target_first_seen=context.semantic_target_first_seen)
+            fence = (str(context.mission_id), int(context.decision_seq), int(context.attempt),
+                     self._next_slot, source["target_id"],
+                     int(context.semantic_target_first_seen.to_nsec()), source["target_class"])
+            if fence in self._revoked_actions:
+                return False, "alignment_action_revoked", source
         return True, grant_reason, source
 
-    def _on_timer(self, _event):
+    def _on_timer(self, event):
+        with self._lock:
+            self._publish_permission(event)
+
+    def _publish_permission(self, _event):
         now = rospy.Time.now()
         permitted, reason, source = self._evaluate(now)
         msg = ReleasePermission()
         msg.header.stamp = now
+        self._permission_revision += 1
+        msg.permission_epoch = self._permission_epoch
+        msg.permission_revision = self._permission_revision
         msg.permitted = permitted
         msg.payload_slot = self._next_slot if self._next_slot <= 255 else 0
         msg.align_mode = self._align_mode
@@ -383,8 +476,27 @@ class ReleasePermissionArbiter:
             msg.target_id = source["target_id"]
             msg.target_class = source["target_class"]
             msg.evidence_stamp = source["evidence_stamp"]
+            if "mission_id" in source:
+                for name in ("mission_id", "decision_seq", "attempt", "target_first_seen"):
+                    setattr(msg, name, source[name])
+        if self._require_evidence_context and self._evidence_context is not None:
+            context = self._evidence_context
+            msg.mission_id = context.mission_id
+            msg.decision_seq = context.decision_seq
+            msg.attempt = context.attempt
+            msg.target_first_seen = context.semantic_target_first_seen
+            msg.target_id = context.semantic_target_id
+            msg.target_class = context.semantic_target_class
         msg.valid_until = now + rospy.Duration(self._permission_lifetime)
+        self._remember_authorization(msg)
         self._permission_pub.publish(msg)
+        authorization = ReleaseAuthorization()
+        for name in ("header", "permitted", "payload_slot", "align_mode", "target_id",
+                     "target_class", "evidence_stamp", "valid_until", "reason", "mission_id",
+                     "decision_seq", "attempt", "target_first_seen", "permission_epoch",
+                     "permission_revision"):
+            setattr(authorization, name, getattr(msg, name))
+        self._authorization_pub.publish(authorization)
         self._permission_state_pub.publish(Bool(data=permitted))
 
 

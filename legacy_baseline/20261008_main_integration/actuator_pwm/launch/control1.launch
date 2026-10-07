@@ -1,0 +1,3 @@
+<launch>
+  <node name="servo_controller1" pkg="actuator_pwm" type="pwm_node1" output="screen" />
+</launch>

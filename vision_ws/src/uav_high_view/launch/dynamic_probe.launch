@@ -1,0 +1,39 @@
+<launch>
+  <arg name="target_model_path" />
+  <arg name="world" />
+  <arg name="field_config" />
+  <arg name="field_seed" default="32" />
+  <arg name="high_agl" default="2.6" />
+  <arg name="ground_z" default="-0.22" />
+  <include file="$(find uav_mission)/launch/navigation_horizontal_search_vcl06.launch">
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="world" value="$(arg world)" />
+    <arg name="field_config" value="$(arg field_config)" />
+    <arg name="ground_z" value="$(arg ground_z)" />
+    <arg name="manager_type" value="navigation_high_view_probe.py" />
+    <arg name="start_hard_gate" value="false" />
+  </include>
+  <param name="/external_planner_max_command_z" value="$(eval float(arg('ground_z'))+3.0)" />
+  <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="$(eval float(arg('ground_z'))+3.1)" />
+  <param name="/navigation/planner_bridge/execution/max_goal_z" value="$(eval float(arg('ground_z'))+3.0)" />
+  <param name="/navigation/mission_manager/mission/motion_action_timeout" value="30.0" />
+  <param name="/fast_planner_node/manager/max_vel" value="0.8" />
+  <param name="/fast_planner_node/search/max_vel" value="0.8" />
+  <param name="/fast_planner_node/optimization/max_vel" value="0.8" />
+  <param name="/navigation/mission_manager/high_view_probe/config/ground_z" value="$(arg ground_z)" />
+  <param name="/navigation/mission_manager/high_view_probe/config/high_agl" value="$(arg high_agl)" />
+  <param name="/navigation/mission_manager/high_view_probe/config/low_agl" value="1.4" />
+  <param name="/navigation/mission_manager/high_view_probe/config/survey_budget" value="45.0" />
+  <rosparam param="/navigation/mission_manager/high_view_probe/config/survey_xy">[[-3.5,1.0],[3.5,1.0],[3.5,5.5],[-3.5,5.5]]</rosparam>
+  <arg name="low_command_max" value="$(eval float(arg('ground_z'))+1.75)" />
+  <arg name="low_map_max" value="$(eval float(arg('ground_z'))+1.85)" />
+  <rosparam param="/navigation/mission_manager/high_view_probe/low_stage_parameters" subst_value="true">
+    - {name: /external_planner_max_command_z, value: $(arg low_command_max)}
+    - {name: /fast_planner_node/sdf_map/virtual_ceil_height, value: $(arg low_map_max)}
+  </rosparam>
+  <node pkg="uav_high_view" type="high_view_probe_gate.py" name="high_view_probe_gate" output="screen" required="true">
+    <param name="max_fc_height" value="3.0" />
+    <param name="wall_timeout" value="1200.0" />
+  </node>
+</launch>

@@ -27,6 +27,7 @@
 #define _SDF_MAP_H
 
 #include <Eigen/Eigen>
+#include <plan_env/search_region.h>
 #include <Eigen/StdVector>
 #include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -105,8 +106,13 @@ struct MappingParameters {
   /* visualization and computation time display */
   double esdf_slice_height_, visualization_truncate_height_, virtual_ceil_height_, ground_height_;
   bool horizontal_avoidance_;
+  bool search_region_enabled_;
+  Eigen::Vector4d search_region_bounds_;
   double horizontal_min_x_, horizontal_max_x_, horizontal_min_y_, horizontal_max_y_;
   double horizontal_obstacle_min_z_, horizontal_floor_z_;
+  bool horizontal_column_middle_;
+  double horizontal_column_max_hull_span_, horizontal_column_max_fill_distance_;
+  double horizontal_column_low_ratio_, horizontal_column_high_ratio_;
   int horizontal_support_min_points_;
   double horizontal_support_radius_, horizontal_support_min_span_;
   bool show_esdf_time_, show_occ_time_;
@@ -318,13 +324,16 @@ inline double SDFMap::getDistance(const Eigen::Vector3d& pos) {
   posToIndex(pos, id);
   boundIndex(id);
 
-  return md_.distance_buffer_all_[toAddress(id)];
+  const double d = md_.distance_buffer_all_[toAddress(id)];
+  return mp_.search_region_enabled_ ? std::min(d, fast_planner::searchRegionDistance(pos, mp_.search_region_bounds_)) : d;
 }
 
 inline double SDFMap::getDistance(const Eigen::Vector3i& id) {
   Eigen::Vector3i id1 = id;
   boundIndex(id1);
-  return md_.distance_buffer_all_[toAddress(id1)];
+  const double d = md_.distance_buffer_all_[toAddress(id1)];
+  Eigen::Vector3d p; indexToPos(id1, p);
+  return mp_.search_region_enabled_ ? std::min(d, fast_planner::searchRegionDistance(p, mp_.search_region_bounds_)) : d;
 }
 
 inline bool SDFMap::isUnknown(const Eigen::Vector3i& id) {
@@ -438,6 +447,7 @@ inline int SDFMap::getOccupancy(Eigen::Vector3d pos) {
 }
 
 inline int SDFMap::getInflateOccupancy(Eigen::Vector3d pos) {
+  if (mp_.search_region_enabled_ && fast_planner::searchRegionDistance(pos, mp_.search_region_bounds_) <= 0.0) return 1;
   if (!isInMap(pos)) return -1;
   if (mp_.virtual_ceil_height_ > 0.0 && pos.z() >= mp_.virtual_ceil_height_) return 1;
 

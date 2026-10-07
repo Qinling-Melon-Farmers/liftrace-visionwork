@@ -1,13 +1,20 @@
+#include "patrol_control/ReleaseAuthorization.h"
+#include <std_msgs/Empty.h>
 #ifndef _LL_CONTROLLER_NEW_H_
 #define _LL_CONTROLLER_NEW_H_
 
 #include "patrol_control/drop_action.h"
+#include "patrol_control/async_servo.h"
+#include "patrol_control/near_wall_align.h"
 
 #include <array>
 #include <map>
 #include <mavros_msgs/SetMode.h>
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <sensor_msgs/CameraInfo.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/CommandLong.h>
@@ -16,6 +23,7 @@
 #include <std_msgs/Int32.h>
 #include <std_msgs/Int8.h>
 #include <std_msgs/String.h>
+#include <uav_vision/AlignmentTargetContext.h>
 #include <uav_vision/DropOffset.h>
 #include <uav_vision/DropReady.h>
 #include <uav_vision/TargetCandidate.h>
@@ -80,6 +88,8 @@ private:
     };
 
     ros::NodeHandle nh_;
+    tf2_ros::Buffer drop_tf_buffer_;
+    tf2_ros::TransformListener drop_tf_listener_;
     /** publish the goal waypoint to the avoidance **/
     ros::Publisher setplanner_goal_pub_;
     /** publish the flag that arouse the circle detection with task C**/
@@ -103,18 +113,46 @@ private:
     ros::Subscriber mavros_local_position_sub_;
     ros::ServiceClient land_client;
     ros::Timer cmd_timer;
+    ros::WallTimer near_wall_align_refresh_timer_;
+    NearWallAlignFence near_wall_align_fence_;
+    void refreshNearWallAlignFence(const ros::WallTimerEvent& event);
     ros::Subscriber class_sub_;
     // for auto.land
     ros::ServiceClient set_mode_client;
     ros::Subscriber servo_marky_sub_;
     ros::Subscriber cross_mark_sub_;
     ros::ServiceClient servo_client;
+    ros::ServiceClient servo_action_client_;
+    ros::Subscriber servo_alignment_context_sub_;
+    uav_vision::AlignmentTargetContext servo_alignment_context_;
+    bool have_servo_alignment_context_ = false;
+    std::string servo_action_service_ = "/mission/servo_action";
+    std::string servo_alignment_context_topic_ = "/uav_vision/alignment_target_context";
+    void servoAlignmentContextCallback(const uav_vision::AlignmentTargetContext::ConstPtr& msg);
+    AsyncServo async_servo_;
+    std::uint64_t servo_action_id_ = 1;
+    int servo_action_slot_ = 0;
+    bool servo_action_attempted_ = false;
+    bool servo_action_pending_ = false;
+    DropActionResult servo_action_result_ = DropActionResult::kPending;
+    double servo_call_timeout_sec_ = 10.0;
+    std::uint32_t servo_alignment_decision_seq_ = 0;
+    std::uint32_t servo_alignment_target_id_ = 0;
+    std::string servo_alignment_target_class_;
+    ros::Time servo_alignment_stamp_;
+    void pollDropAction();
+    void cancelDropAction();
     ros::Subscriber selected_target_sub_;
     ros::Subscriber drop_offset_sub_;
+    ros::Subscriber drop_camera_info_sub_;
     ros::Subscriber drop_ready_sub_;
     ros::Subscriber mission_release_permission_sub_;
+    ros::Subscriber release_authorization_sub_;
+    patrol_control::ReleaseAuthorization release_authorization_;
+    void releaseAuthorizationCallback(const patrol_control::ReleaseAuthorization::ConstPtr& msg);
     ros::Subscriber mission_command_sub_;
     ros::Subscriber landing_detections_sub_;
+    ros::Subscriber external_landing_state_sub_;
     // 舵机控制发布器
     ros::Publisher servo1_pub_;
     ros::Publisher servo2_pub_;
@@ -205,7 +243,13 @@ private:
         "/uav_vision/detections_mapped";
     double external_planner_cmd_timeout_ = 0.5;
     double external_planner_start_max_distance_ = 0.6;
+    ros::Publisher height_replan_pub_;
+    ros::Time height_replan_stamp_;
     double external_planner_max_command_z_ = 3.5;
+    // Match Fast-Planner ReferenceHeight's numerical boundary (metres).
+    static constexpr double external_planner_height_epsilon_ = 1e-9;
+    bool external_planner_height_hold_active_ = false;
+    geometry_msgs::PoseStamped external_planner_height_hold_;
     std::string external_landing_frame_ = "camera_init";
     double external_landing_capture_height_ = 0.75;
     double external_landing_watchdog_timeout_sec_ = 120.0;
@@ -214,11 +258,26 @@ private:
     double external_landing_max_mark_offset_ = 0.60;
     double external_landing_auto_land_height_ = 0.40;
     double external_landing_auto_land_retry_sec_ = 1.0;
+    std::string external_landing_handoff_mode_ = "AUTO.LAND";
+    std::string external_landing_handoff_topic_ = "/patrol_control/external_landing_handoff";
+    ros::Publisher external_landing_handoff_pub_;
+    std::string external_landing_mission_id_;
+    unsigned int external_landing_decision_seq_ = 0;
+    ros::Time external_landing_wire_command_stamp_;
+    ros::Time external_landing_handoff_requested_at_;
+    double external_landing_mode_transition_timeout_sec_ = 2.5;
+    bool external_landing_handoff_observed_ = false;
+    double external_landing_handoff_hold_height_ = 0.0;
+    std::string external_landing_state_topic_ = "/mavros/state";
+    double external_landing_state_max_age_sec_ = 2.5;
+    mavros_msgs::State external_landing_mavros_state_;
+    ros::Time external_landing_state_receipt_;
     int external_landing_stable_frames_ = 10;
     bool external_landing_active_ = false;
     bool external_landing_new_mark_ = false;
     bool external_landing_alignment_complete_ = false;
     bool external_landing_auto_land_requested_ = false;
+    bool external_landing_cancelled_ = false;
     int external_landing_stable_count_ = 0;
     geometry_msgs::PoseStamped external_landing_goal_;
     geometry_msgs::PoseStamped external_landing_aligned_goal_;
@@ -245,6 +304,8 @@ private:
     double drop_position_threshold_ = 0.15; // 旧链投递三维距离阈值（米）
     double drop_release_setpoint_height_ = 0.10; // 投递下降目标高度（米）
     double external_recovery_height_ = 0.95; // 外部投递恢复交接高度（米）
+    double external_standard_recovery_setpoint_height_ = 1.20;
+    double external_cross_recovery_setpoint_height_ = 1.15;
     double external_alignment_capture_height_ = 1.2; // Retain configured align_height across deliveries.
     bool drop_enabled = true;               // 投递功能是否启用
     bool cross_mark = true;
@@ -313,6 +374,19 @@ private:
     double drop_offset_timeout_ = 1.0;
     double mission_release_permission_timeout_ = 0.25;
     double pixel_to_meter_ratio_ = 0.0015;
+    bool drop_metric_scale_enabled_ = false;
+    bool drop_camera_info_valid_ = false;
+    double drop_fx_ = 0.0;
+    double drop_fy_ = 0.0;
+    double drop_ground_z_ = 0.0;
+    double drop_tf_max_age_sec_ = 0.20;
+    std::string drop_camera_info_topic_ = "/camera/camera_info";
+    std::string drop_camera_frame_ = "downward_camera_optical_frame";
+    std::string drop_map_frame_ = "camera_init";
+    void dropCameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr& msg);
+    bool dropPixelScales(const ros::Time& stamp,
+                         double* horizontal_meter_per_pixel,
+                         double* vertical_meter_per_pixel);
     std::array<double, 4> pixel_to_body_matrix_{{0.0, -1.0, -1.0, 0.0}};
     double max_alignment_move_distance_ = 0.5;
     double drop_circle_radius_m_ = 0.5;
@@ -350,6 +424,7 @@ private:
     bool hasFreshDropOffset() const;
     bool hasFreshMissionReleasePermission() const;
     bool hasValidExternalPlannerCommand() const;
+    void holdExternalPlannerHeight(const char* source, double rejected_z);
     DropReleaseGate currentDropReleaseGate() const;
     void clearUavVisionAlignmentState();
     void updateGoalFromSelectedTarget(const std::string& class_name);
@@ -359,8 +434,11 @@ private:
     void externalMissionTick();
     void clearExternalLandingState(bool disable_detector);
     void externalLandingTick();
+    void publishExternalLandingHandoff(const std::string& stage);
     void failExternalLanding(const std::string& reason);
     bool externalLandingMarkFresh(const ros::Time& now) const;
+    bool externalLandingControlReady(const ros::Time& now) const;
+    void externalLandingStateCallback(const mavros_msgs::State::ConstPtr& msg);
 
     void Lock();
     void CallLand();

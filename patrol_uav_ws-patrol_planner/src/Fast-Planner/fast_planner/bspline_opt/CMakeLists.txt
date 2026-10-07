@@ -28,19 +28,19 @@ catkin_package(
 #  DEPENDS system_lib
 )
 
-include_directories( 
-    SYSTEM 
-    include 
+include_directories(
+    SYSTEM
+    include
     ${catkin_INCLUDE_DIRS}
-    ${Eigen3_INCLUDE_DIRS} 
+    ${Eigen3_INCLUDE_DIRS}
     ${PCL_INCLUDE_DIRS}
-    ${NLOPT_INCLUDE_DIR}  
+    ${NLOPT_INCLUDE_DIR}
 )
 
-add_library( bspline_opt 
-    src/bspline_optimizer.cpp 
+add_library( bspline_opt
+    src/bspline_optimizer.cpp
     )
 target_link_libraries( bspline_opt
-    ${catkin_LIBRARIES} 
-    ${NLOPT_LIBRARY}   
+    ${catkin_LIBRARIES}
+    ${NLOPT_LIBRARY}
     )

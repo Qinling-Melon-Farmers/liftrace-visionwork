@@ -1,0 +1,23 @@
+<launch>
+  <!-- Hardware sensor only. Supply a device-specific SDK2 JSON; no flight/actuator nodes. -->
+  <arg name="user_config_path" />
+  <arg name="lidar_topic" default="/livox/lidar" />
+  <arg name="imu_topic" default="/livox/imu" />
+  <arg name="frame_id" default="livox_frame" />
+  <arg name="publish_freq" default="10.0" />
+  <!-- Upstream ROS1 driver reads these parameters from the root NodeHandle. -->
+  <param name="user_config_path" value="$(arg user_config_path)" type="string" />
+  <param name="xfer_format" value="1" />
+  <param name="multi_topic" value="0" />
+  <param name="data_src" value="0" />
+  <param name="publish_freq" value="$(arg publish_freq)" type="double" />
+  <param name="output_data_type" value="0" />
+  <param name="frame_id" value="$(arg frame_id)" type="string" />
+  <param name="enable_lidar_bag" value="false" />
+  <param name="enable_imu_bag" value="false" />
+  <node pkg="livox_ros_driver2" type="livox_ros_driver2_node"
+        name="livox_lidar_publisher2" output="screen" required="true">
+    <remap from="/livox/lidar" to="$(arg lidar_topic)" />
+    <remap from="/livox/imu" to="$(arg imu_topic)" />
+  </node>
+</launch>

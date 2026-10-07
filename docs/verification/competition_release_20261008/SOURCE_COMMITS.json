@@ -1,0 +1,54 @@
+{
+  "note": "仅列本次选择性传播涉及的来源，不代替项目完整贡献历史；本次未改作者、删除分支、squash或提交",
+  "commits": [
+    {
+      "commit": "7b6ca23765ef429f33d9f433e803038028796fd3",
+      "author": "Qinling-Melon-Farmers",
+      "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "authored_at": "2026-10-07T16:32:22+08:00",
+      "subject": "fix: 实机投递目标降至飞控离地四十五厘米"
+    },
+    {
+      "commit": "e1da9f10f7952a6f00d85e0faa50575a25cf8520",
+      "author": "Qinling-Melon-Farmers",
+      "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "authored_at": "2026-10-07T20:08:44+08:00",
+      "subject": "fix: 同步后仓两千一百微秒释放标定与现场复盘"
+    },
+    {
+      "commit": "d42c5a574ecbbb254c79a4ca1c2693b789eeb8c4",
+      "author": "Qinling-Melon-Farmers",
+      "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "authored_at": "2026-10-07T18:50:01+08:00",
+      "subject": "fix: 留出整场搜索高度余量并锁定超限保持点"
+    },
+    {
+      "commit": "8e740f56a3455b6c29fde1e24990d739c18326b5",
+      "author": "Qinling-Melon-Farmers",
+      "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "authored_at": "2026-10-07T16:36:19+08:00",
+      "subject": "fix: 恢复位姿遥测并接入日志管理和舵机被动启动"
+    },
+    {
+      "commit": "fd1019ec82f34298ff4637574e403ff7157190e7",
+      "author": "Qinling-Melon-Farmers",
+      "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "authored_at": "2026-10-06T16:44:08+08:00",
+      "subject": "fix: H专项末段POSCTL交接联动并回放偏航日志"
+    },
+    {
+      "commit": "3cc460ba6fd076dfa8415728283c9b9f7c056aa0",
+      "author": "Qinling-Melon-Farmers",
+      "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "authored_at": "2026-10-06T11:52:10+08:00",
+      "subject": "feat: 更新0928现场默认与三线程定位及独立EV观察套件"
+    },
+    {
+      "commit": "b668a4e84be0876c32f193ba99eb32a699397798",
+      "author": "Qinling-Melon-Farmers",
+      "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+      "authored_at": "2026-10-07T22:13:04+08:00",
+      "subject": "docs: 记录整场实飞验收与独立正赛及卡滞恢复计划"
+    }
+  ]
+}

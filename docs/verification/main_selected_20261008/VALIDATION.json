@@ -1,0 +1,12 @@
+{
+  "source": "f79c2a82e727530f42a371dbf30805b310bbaf8f",
+  "build_exit": 0,
+  "tests": 61,
+  "tests_passed": 61,
+  "profiles": 4,
+  "competition_yaml_equal_to_source": true,
+  "ros_started": false,
+  "board_connected": false,
+  "new_recovery_promoted": false,
+  "ev_prediction_promoted": false
+}

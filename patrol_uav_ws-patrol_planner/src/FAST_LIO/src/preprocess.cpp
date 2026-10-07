@@ -11,7 +11,7 @@ Preprocess::Preprocess()
   SCAN_RATE = 10;
   group_size = 8;
   disA = 0.01;
-  disA = 0.1; // B?
+  disB = 0.1;
   p2l_ratio = 225;
   limit_maxmid =6.25;
   limit_midmin =6.25;
@@ -41,7 +41,7 @@ void Preprocess::set(bool feat_en, int lid_type, double bld, int pfilt_num)
   point_filter_num = pfilt_num;
 }
 
-void Preprocess::process(const livox_ros_driver::CustomMsg::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out)
+void Preprocess::process(const livox_ros_driver2::CustomMsg::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out)
 {  
   avia_handler(msg);
   *pcl_out = pl_surf;
@@ -49,6 +49,15 @@ void Preprocess::process(const livox_ros_driver::CustomMsg::ConstPtr &msg, Point
 
 void Preprocess::process(const sensor_msgs::PointCloud2::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out)
 {
+  // PCL 1.10 conversion takes &points[0] even for an empty cloud.
+  if (msg->width == 0 || msg->height == 0)
+  {
+    pl_full.clear();
+    pl_corn.clear();
+    pl_surf.clear();
+    pcl_out->clear();
+    return;
+  }
   switch (time_unit)
   {
     case SEC:
@@ -89,7 +98,7 @@ void Preprocess::process(const sensor_msgs::PointCloud2::ConstPtr &msg, PointClo
   *pcl_out = pl_surf;
 }
 
-void Preprocess::avia_handler(const livox_ros_driver::CustomMsg::ConstPtr &msg)
+void Preprocess::avia_handler(const livox_ros_driver2::CustomMsg::ConstPtr &msg)
 {
   pl_surf.clear();
   pl_corn.clear();
@@ -234,6 +243,7 @@ void Preprocess::oust64_handler(const sensor_msgs::PointCloud2::ConstPtr &msg)
     {
       PointCloudXYZI &pl = pl_buff[j];
       int linesize = pl.size();
+      if (linesize < 2) continue;
       vector<orgtype> &types = typess[j];
       types.clear();
       types.resize(linesize);
@@ -494,10 +504,11 @@ void Preprocess::give_feature(pcl::PointCloud<PointType> &pl, vector<orgtype> &t
   }
   uint head = 0;
 
-  while(types[head].range < blind)
+  while(head < plsize && types[head].range < blind)
   {
     head++;
   }
+  if (head == plsize) return;
 
   // Surf
   plsize2 = (plsize > group_size) ? (plsize - group_size) : 0;
@@ -828,7 +839,11 @@ int Preprocess::plane_judge(const PointCloudXYZI &pl, vector<orgtype> &types, ui
   
   for(;;)
   {
-    if((i_cur >= pl.size()) || (i_nex >= pl.size())) break;
+    if((i_cur >= pl.size()) || (i_nex >= pl.size()))
+    {
+      curr_direct.setZero();
+      return 0;
+    }
 
     if(types[i_nex].range < blind)
     {
@@ -842,6 +857,13 @@ int Preprocess::plane_judge(const PointCloudXYZI &pl, vector<orgtype> &types, ui
     if(two_dis >= group_dis)
     {
       break;
+    }
+    // The last point has no next-point distance. An exhausted group is not
+    // a plane, and must never return pl.size() as an inclusive endpoint.
+    if (i_nex + 1 == pl.size())
+    {
+      curr_direct.setZero();
+      return 0;
     }
     disarr.push_back(types[i_nex].dista);
     i_nex++;

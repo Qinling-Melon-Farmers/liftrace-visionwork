@@ -1,0 +1,92 @@
+<launch>
+  <arg name="vehicle_sdf" default="$(find uav_vision_eval)/models/iris_mid360_ks2a543_installed/model.sdf" />
+  <arg name="camera_extrinsic_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
+  <arg name="target_model_path" />
+  <arg name="record_overview_video" default="false" />
+  <arg name="overview_z" default="7.0" />
+  <arg name="world" />
+  <arg name="field_config" />
+  <arg name="runtime_config" />
+  <arg name="gate_geometry_config" />
+  <arg name="field_seed" default="32" />
+  <arg name="ground_z" default="-0.22" />
+  <arg name="high_agl" default="2.6" />
+  <arg name="initial_plan_timeout" default="12.0" />
+  <arg name="resume_survey_enabled" default="false" />
+  <arg name="coarse_navigation_enabled" default="true" />
+  <arg name="coarse_min_confidence" default="0.60" />
+  <arg name="search_confirmation_max_gap_sec" default="1.0" />
+  <arg name="navigation_hints_topic" default="/uav_vision/navigation_hints" />
+  <arg name="staging_x" default="0.60" />
+  <arg name="staging_y" default="0.05" />
+  <!-- High survey may shift a waypoint sideways within the existing 0.35m
+       effective-goal contract. Never change Z or weaken full-height columns. -->
+  <arg name="high_goal_adjustment_radius" default="0.30" />
+  <arg name="low_goal_adjustment_radius" default="0.15" />
+  <include file="$(find uav_mission)/launch/navigation_horizontal_search_vcl06.launch">
+      <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
+      <arg name="camera_extrinsic_quat_xyzw" value="$(arg camera_extrinsic_quat_xyzw)" />
+    <arg name="target_model_path" value="$(arg target_model_path)" />
+    <arg name="record_overview_video" value="$(arg record_overview_video)" />
+    <arg name="overview_z" value="$(arg overview_z)" />
+    <arg name="overview_model_sdf" value="$(find uav_vision_eval)/models/competition_overview_camera_above_roof/model.sdf" />
+    <arg name="field_seed" value="$(arg field_seed)" />
+    <arg name="world" value="$(arg world)" />
+    <arg name="field_config" value="$(arg field_config)" />
+    <arg name="runtime_config" value="$(arg runtime_config)" />
+    <arg name="gate_geometry_config" value="$(arg gate_geometry_config)" />
+    <arg name="ground_z" value="$(arg ground_z)" />
+    <arg name="manager_type" value="navigation_high_view_full.py" />
+    <arg name="initial_plan_timeout" value="$(arg initial_plan_timeout)" />
+  </include>
+  <param name="/external_planner_max_command_z" value="$(eval float(arg('ground_z'))+3.0)" />
+  <param name="/fast_planner_node/fsm/goal_adjustment_radius" value="$(arg high_goal_adjustment_radius)" />
+  <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="$(eval float(arg('ground_z'))+3.1)" />
+  <param name="/navigation/planner_bridge/execution/max_goal_z" value="$(eval float(arg('ground_z'))+3.0)" />
+  <param name="/navigation/mission_manager/high_view_probe/config/ground_z" value="$(arg ground_z)" />
+  <param name="/navigation/mission_manager/high_view_probe/config/high_agl" value="$(arg high_agl)" />
+  <param name="/navigation/mission_manager/high_view_probe/config/low_agl" value="1.4" />
+  <!-- Leave the boundary at low altitude before climbing. The 3-D planner
+       still validates both legs against the same inflated map. -->
+  <rosparam param="/navigation/mission_manager/high_view_probe/config/staging_xy"
+            subst_value="true">[$(arg staging_x), $(arg staging_y)]</rosparam>
+  <rosparam param="/navigation/mission_manager/high_view_full/policy">
+    coarse_interrupt_min_interval_ns: 100000000
+    coarse_interrupt_max_gap_ns: 1000000000
+    coarse_interrupt_consistency_m: 0.5
+    interrupt_refined_classes: []
+    recheck_observe_seconds: 5.0
+    recheck_shift_after_seconds: 1.0
+    recheck_shift_radius_m: 0.5
+    candidate_min_streak: 1
+    min_interval_ns: 100000000
+    min_span_ns: 200000000
+    max_uncertainty_m: 0.45
+    direct_descent: true
+    descent_radius_m: 1.5
+    descent_max_candidates: 25
+    survey_stall_seconds: 8.0
+    survey_progress_m: 0.15
+    survey_alternative_radius_m: 0.6
+  </rosparam>
+  <param name="/navigation/mission_manager/high_view_full/policy/resume_survey_enabled" value="$(arg resume_survey_enabled)" />
+  <param name="/target_map_projector/coarse_navigation_enabled" value="$(arg coarse_navigation_enabled)" />
+  <param name="/target_map_projector/coarse_min_confidence" value="$(arg coarse_min_confidence)" />
+  <param name="/target_map_projector/coarse_output_topic" value="$(arg navigation_hints_topic)" />
+  <param name="/navigation/mission_manager/high_view_full/navigation_hints_topic" value="$(arg navigation_hints_topic)" />
+  <param name="/navigation/mission_manager/high_view_full/policy/coarse_enabled" value="$(arg coarse_navigation_enabled)" />
+  <param name="/navigation/mission_manager/high_view_full/policy/coarse_min_confidence" value="$(arg coarse_min_confidence)" />
+  <param name="/target_memory/search_confirmation_max_gap_sec" value="$(arg search_confirmation_max_gap_sec)" />
+  <!-- Closed high loop; normal completion or three-highest refined or two-image-supported hints ends it. -->
+  <rosparam param="/navigation/mission_manager/high_view_probe/config/survey_xy">[[-3.5,1.0],[3.5,1.0],[3.5,5.5],[-3.5,5.5],[-3.5,1.0]]</rosparam>
+  <arg name="low_command_max" value="$(eval float(arg('ground_z'))+1.85)" />
+  <arg name="low_map_max" value="$(eval float(arg('ground_z'))+2.0)" />
+  <!-- Retain full-height obstacle columns: competition search must route
+       horizontally around trees, including during the high survey. -->
+  <rosparam param="/navigation/mission_manager/high_view_probe/low_stage_parameters" subst_value="true">
+    - {name: /fast_planner_node/fsm/goal_adjustment_radius, value: $(arg low_goal_adjustment_radius)}
+    - {name: /external_planner_max_command_z, value: $(arg low_command_max)}
+    - {name: /fast_planner_node/sdf_map/virtual_ceil_height, value: $(arg low_map_max)}
+  </rosparam>
+  <node pkg="uav_high_view" type="high_view_status_recorder.py" name="high_view_status_recorder" output="screen" />
+</launch>

@@ -1,3 +1,5 @@
+# Livox ROS Driver2 + SDK2; xfer_format=1 (CustomMsg).
+# lidar_type=1 selects Livox processing, not driver version; simulation uses 4.
 # Real MID360 CustomMsg input and its own IMU. Factory IMU/lidar transform retained.
 common:
   lid_topic: /livox/lidar
@@ -31,6 +33,8 @@ mapping:
   - 0
   - 1
 publish:
+  map_publish_en: true
+  map_publish_hz: 1.0
   path_en: false
   scan_publish_en: true
   dense_publish_en: true

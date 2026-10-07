@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import rospy
 from sensor_msgs.msg import Image, CompressedImage, CameraInfo
-from cv_bridge import CvBridge
 import cv2
 import os
 import time
@@ -113,6 +112,26 @@ def rotate_image(image, angle):
         rospy.logwarn(f"不支持的旋转角度: {angle}. 仅支持 0, 90, 180, 270 度")
         return image
 
+
+def bgr8_to_image_message(frame, stamp, frame_id):
+    """将 OpenCV BGR8 帧转换为 ROS Image，避免引入二进制 cv_bridge。"""
+    if frame.dtype != np.uint8 or frame.ndim != 3 or frame.shape[2] != 3:
+        raise ValueError(
+            f"期望 uint8 BGR 三通道图像，实际 shape={frame.shape}, "
+            f"dtype={frame.dtype}")
+
+    frame = np.ascontiguousarray(frame)
+    image_message = Image()
+    image_message.header.stamp = stamp
+    image_message.header.frame_id = frame_id
+    image_message.height = frame.shape[0]
+    image_message.width = frame.shape[1]
+    image_message.encoding = "bgr8"
+    image_message.is_bigendian = 0
+    image_message.step = frame.strides[0]
+    image_message.data = frame.tobytes()
+    return image_message
+
 def publish_camera_feed():
     # 初始化 ROS 节点
     rospy.init_node('mjpeg_camera_publisher', anonymous=True)
@@ -200,9 +219,6 @@ def publish_camera_feed():
     camera_info_pub = rospy.Publisher(
         camera_info_topic, CameraInfo, queue_size=1)
     
-    # 初始化 OpenCV 到 ROS 的转换桥
-    bridge = CvBridge()
-
     # 图像保存参数计算
     save_interval = 1.0 / save_frequency if save_frequency > 0 else float('inf')
     last_save_time = time.time()
@@ -298,9 +314,8 @@ def publish_camera_feed():
             current_rostime = rospy.Time.now()
             
             # 发布原始图像
-            img_msg = bridge.cv2_to_imgmsg(frame, encoding="bgr8")
-            img_msg.header.stamp = current_rostime
-            img_msg.header.frame_id = frame_id
+            img_msg = bgr8_to_image_message(
+                frame, current_rostime, frame_id)
             image_pub.publish(img_msg)
             
             # 压缩图仅在确有订阅者时编码，正式视觉链只消费 raw 图时不承担

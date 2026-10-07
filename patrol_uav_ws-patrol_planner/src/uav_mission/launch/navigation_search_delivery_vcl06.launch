@@ -1,4 +1,11 @@
 <launch>
+  <arg name="height_constraint_enabled" default="true" />
+  <arg name="height_constraint_frame" default="camera_init" />
+  <arg name="height_constraint_parameter" default="/external_planner_max_command_z" />
+  <param name="/navigation_height_constraint/enabled" value="$(arg height_constraint_enabled)" />
+  <param name="/navigation_height_constraint/frame_id" value="$(arg height_constraint_frame)" />
+  <param name="/navigation_height_constraint/limit_parameter" value="$(arg height_constraint_parameter)" />
+  <arg name="manager_type" default="navigation_mission_manager.py" />
   <!-- Formal VCL06 integration chain.  The navigation manager is the only
        mission-policy owner and navigation_planner_bridge is the only
        /fastplanner/goal publisher.  Legacy adapters/managers are deliberately
@@ -22,6 +29,7 @@
   <arg name="search_altitude" default="2.4" />
   <arg name="waypoint_config" default="$(find patrol_control)/config/patrol_toudi4_new_vision.yaml" />
   <arg name="field_config" default="$(find uav_mission)/config/coverage_toudi3_random.yaml" />
+  <arg name="camera_extrinsic_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
   <arg name="camera_extrinsic_xyz" default="0 0 -0.05" />
   <arg name="planner_max_vel" default="1.0" />
   <arg name="planner_obstacles_inflation" default="0.20" />
@@ -78,6 +86,7 @@
     <arg name="world" value="$(arg world)" />
     <arg name="vehicle_sdf" value="$(arg vehicle_sdf)" />
     <arg name="waypoint_config" value="$(arg waypoint_config)" />
+    <arg name="camera_extrinsic_quat_xyzw" value="$(arg camera_extrinsic_quat_xyzw)" />
     <arg name="camera_extrinsic_xyz" value="$(arg camera_extrinsic_xyz)" />
     <arg name="camera_image_topic" value="$(arg camera_image_topic)" />
     <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
@@ -100,6 +109,10 @@
          value="$(arg external_planner_max_command_z)" />
     <arg name="enable_debug_image" value="$(arg enable_debug_image)" />
   </include>
+  <param name="/uav_vision/drop_camera_info_topic" value="$(arg camera_info_topic)" />
+  <param name="/uav_vision/drop_camera_frame" value="$(arg camera_optical_frame)" />
+  <param name="/uav_vision/drop_map_frame" value="camera_init" />
+  <param name="/uav_vision/drop_ground_z" value="$(arg ground_z)" />
 
   <node pkg="uav_mission" type="random_field_spawner.py"
         name="random_field_spawner" output="screen">
@@ -129,6 +142,7 @@
   </node>
 
   <include file="$(find uav_mission)/launch/navigation_mission_manager.launch">
+    <arg name="manager_type" value="$(arg manager_type)" />
     <arg name="runtime_config" value="$(arg runtime_config)" />
     <arg name="search_altitude" value="$(arg search_altitude)" />
     <arg name="start_mode" value="$(arg mission_start_mode)" />
@@ -147,6 +161,7 @@
     <arg name="planner_goal_topic" value="/fastplanner/goal" />
     <arg name="planner_status_topic" value="/planning/goal_status" />
     <arg name="odom_topic" value="/mavros/local_position/odom" />
+    <arg name="odom_twist_frame" value="child" />
   </include>
 
   <include file="$(find uav_mission)/launch/navigation_mission_start_gate.launch">

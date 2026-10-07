@@ -1,5 +1,9 @@
 <launch>
-  <node name="servo_controller1" pkg="actuator_pwm" type="pwm_node1" output="screen" />
-  <!-- <node name="servo_controller2" pkg="actuator_pwm" type="pwm_node2" output="screen" />
-  <node name="servo_controller3" pkg="actuator_pwm" type="pwm_node3" output="screen" /> -->
+  <!-- 装载快递时必须保持 false；true 只用于人工明确授权的空载复位。 -->
+  <arg name="initialize_on_startup" default="false" />
+  <!-- 许可代理提供 /Servo，实体舵机只提供受保护链调用的 raw 后端。 -->
+  <node name="servo_controller1" pkg="actuator_pwm" type="pwm_node1" output="screen">
+    <param name="initialize_on_startup" type="bool" value="$(arg initialize_on_startup)" />
+    <remap from="Servo" to="/legacy/Servo_raw" />
+  </node>
 </launch>

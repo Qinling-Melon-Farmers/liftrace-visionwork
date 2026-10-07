@@ -1,0 +1,370 @@
+{
+  "run_path": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/board_full_mission_20261007_221730",
+  "metadata_file": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/board_full_mission_20261007_221730/run_metadata.json",
+  "deployment": {
+    "source_revision": "3cc460ba6fd076dfa8415728283c9b9f7c056aa0",
+    "documentation_revision": "3cc460ba6fd076dfa8415728283c9b9f7c056aa0",
+    "deployment": "2026-10-06",
+    "site_files": [
+      "deployment/site_20260928/MID360_config.json"
+    ],
+    "model": "runtime_models/flight_5cls_20260928_fp16.rknn",
+    "metadata": "vision_ws/src/uav_vision/config/flight_5cls_20260928_metadata.yaml",
+    "default_actuator": "mock",
+    "build": "PASS",
+    "compiled_base_revision": "e1f067b",
+    "site_profile": "deployment/site_20260928/test_area.yaml",
+    "site_delivery": "real through guarded Servo; no direct release issued by deployment",
+    "incremental_built_revision": "3cc460ba6fd076dfa8415728283c9b9f7c056aa0",
+    "built_packages": "vision and navigation workspaces; all messages/services and consumers rebuilt",
+    "recording": "normal trials: lightweight bag; low_hover: diagnostics only, no camera/JPEG/cloud; EV: optional bounded small-message bag",
+    "excluded_onboard_video_scripts": [
+      "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_recorder.py",
+      "deployment/board_trials_4x4/common/uav_board_trials/scripts/finish_recording.py",
+      "deployment/board_trials_4x4/common/uav_board_trials/scripts/render_trial_replay.py"
+    ],
+    "validation": "ARM matching 10 PASS workers=3; board trials 103 PASS 2 SKIP; low_hover 46 PASS; site 10 PASS; EV numeric 64 PASS 1 SKIP; EV ROS 17 PASS 1 SKIP",
+    "flight_started": false,
+    "startup_fix_20260929": {
+      "source_revision": "78e7d5f4a77ce9bdc35509b8cfcf14c95cdf79e2",
+      "local_board_tests": 22,
+      "catkin_relay_import": "PASS",
+      "ground_ready_run": "board_memory_only_20260929_160721",
+      "flight_acceptance": "pending"
+    },
+    "source_branch": "feat/board-deployment-flight-20260920",
+    "update_20261006": {
+      "versions": [
+        {
+          "branch": "feat/board-deployment-flight-20260920",
+          "head": "3cc460ba6fd076dfa8415728283c9b9f7c056aa0",
+          "verified_remote": true
+        },
+        {
+          "branch": "板端参考分支",
+          "head": "6fb02e80ea24d72ee3b9a99790112fcd18127b63",
+          "verified_remote": true
+        }
+      ],
+      "ev_origin": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "fast_lio_match_threads": 3,
+      "production_matcher_workers_verified": 3,
+      "live_lio_started": false,
+      "motion_optimization_enabled": true,
+      "alternate_routes": [
+        "rectangle",
+        "snake2",
+        "snake3"
+      ],
+      "old_site_original_route_preserved": true,
+      "new_wrapper_default_release": "mock; explicit --real-release",
+      "old_site_delivery": "real unchanged",
+      "snapshot_enabled_default": false,
+      "ev_observers_connected_to_control": false,
+      "reset_calibration_verified": false,
+      "new_entry": "deployment/site_20261006/start_test.sh",
+      "low_observation": "deployment/low_hover_observation/start.sh",
+      "ev_observation": "deployment/ev_observation_20261006/start.sh",
+      "backup": "/home/orangepi/board_deploy_backups/20261006_updates",
+      "report": "docs/deployment/board_refresh_20261006/README.md",
+      "missing_field_geometry": [
+        "04_corridor_landing",
+        "08_full_mission"
+      ]
+    },
+    "low_hover_runtime_fix_20261006": {
+      "revision": "24ecb73a",
+      "feedback_fix": "b2880cd8",
+      "default_omp_places": "{4},{5},{6},{7}",
+      "active_localization_pid": 11581,
+      "active_hover_pid": 11879,
+      "ready_seen": true,
+      "runtime_modified": false
+    }
+  },
+  "ground_reference": {
+    "mode": "high_view_full",
+    "mapping_profile": "high",
+    "fc_xyz": [
+      -0.011402054224163294,
+      -0.006272925063967705,
+      -0.04349584877490997
+    ],
+    "ground_z": -0.26349584877490995,
+    "low_z": 1.1365041732788086,
+    "high_z": 1.73650415122509,
+    "drop_z": 0.08650415122509003,
+    "takeoff_z": 1.1365041732788086,
+    "known_rig": {
+      "mission_frame": "camera_init",
+      "mavros_frame": "map",
+      "body_to_imu_xyz": [
+        0.0,
+        0.0,
+        0.05
+      ],
+      "imu_to_camera_xyz": [
+        0.0,
+        0.0,
+        -0.21
+      ],
+      "camera_quat_xyzw": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "pixel_to_body_matrix": [
+        -1.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "fc_ground_clearance": 0.22,
+      "source": "Flight team minimal_delivery_test at fa621262 (camera rotation verified 20260923); slot offsets inherited; AGL uses measured stationary reference",
+      "slot_offsets": [
+        [
+          -0.12,
+          0.0
+        ],
+        [
+          0.0,
+          -0.12
+        ],
+        [
+          0.0,
+          0.12
+        ]
+      ],
+      "dynamic_slot_offsets": [
+        [
+          -0.12,
+          0.0
+        ],
+        [
+          0.0,
+          -0.12
+        ],
+        [
+          0.0,
+          0.12
+        ]
+      ]
+    },
+    "settings": {
+      "mode": "high_view_full",
+      "low_agl": 1.4,
+      "high_agl": 2.0,
+      "drop_agl": 0.35,
+      "landing_transit_agl": 1.0,
+      "landing_capture_agl": 1.2,
+      "landing_xy": [
+        7.7,
+        -3.45
+      ],
+      "cruise_speed": 0.5,
+      "cruise_acceleration": 0.35,
+      "virtual_ceiling_enabled": false,
+      "alignment_mode": "legacy_static",
+      "actuator_mode": "real",
+      "raw_servo_service": "/legacy/Servo_raw",
+      "trial_kind": "full_mission",
+      "corridor_waypoints": [
+        {
+          "x": 6.5,
+          "y": 2.1,
+          "agl": 0.9
+        },
+        {
+          "x": 7.7,
+          "y": 2.1,
+          "agl": 0.9
+        },
+        {
+          "x": 7.7,
+          "y": 1.0,
+          "agl": 0.9
+        },
+        {
+          "x": 7.7,
+          "y": -0.7,
+          "agl": 0.9
+        },
+        {
+          "x": 7.7,
+          "y": -1.1,
+          "agl": 0.9
+        },
+        {
+          "x": 7.7,
+          "y": -2.5,
+          "agl": 0.9
+        },
+        {
+          "x": 7.7,
+          "y": -3.45,
+          "agl": 0.9
+        }
+      ],
+      "motion_optimization": {
+        "enabled": true
+      },
+      "landing_handoff_mode": "POSCTL",
+      "motion_action_timeout": 60.0,
+      "flight_area": {
+        "center_bounds": [
+          -0.35,
+          8.25,
+          -3.75,
+          2.7
+        ],
+        "target_bounds": [
+          -0.35,
+          8.5,
+          -4.0,
+          2.7
+        ],
+        "search_bounds": [
+          0.4,
+          5.8,
+          -2.4,
+          2.7
+        ],
+        "staging_xy": [
+          0.8,
+          0.0
+        ],
+        "survey_xy": [
+          [
+            1.1,
+            -1.5
+          ],
+          [
+            5.0,
+            -1.5
+          ],
+          [
+            5.0,
+            1.8
+          ],
+          [
+            1.1,
+            1.8
+          ],
+          [
+            1.1,
+            -1.5
+          ]
+        ],
+        "map_size": [
+          18.0,
+          12.0,
+          4.0
+        ]
+      },
+      "search_line_x": [
+        0.6,
+        1.2,
+        1.8,
+        2.4,
+        3.0,
+        3.6,
+        4.2,
+        4.8,
+        5.4
+      ],
+      "compressed_image_topic": "/camera/image_raw/compressed",
+      "max_agl": 2.3,
+      "auto_start_after_arm": true,
+      "initialization_timeout": 300.0,
+      "obstacle_columns_enabled": true,
+      "corridor_geometry": {
+        "wall_axis": 1,
+        "wall_coordinates": [
+          0.0,
+          -1.4
+        ],
+        "entry_waypoints": 1
+      }
+    }
+  },
+  "known_rig": {
+    "mission_frame": "camera_init",
+    "mavros_frame": "map",
+    "body_to_imu_xyz": [
+      0.0,
+      0.0,
+      0.05
+    ],
+    "imu_to_camera_xyz": [
+      0.0,
+      0.0,
+      -0.21
+    ],
+    "camera_quat_xyzw": [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    "pixel_to_body_matrix": [
+      -1.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "fc_ground_clearance": 0.22,
+    "source": "Flight team minimal_delivery_test at fa621262 (camera rotation verified 20260923); slot offsets inherited; AGL uses measured stationary reference",
+    "slot_offsets": [
+      [
+        -0.12,
+        0.0
+      ],
+      [
+        0.0,
+        -0.12
+      ],
+      [
+        0.0,
+        0.12
+      ]
+    ],
+    "dynamic_slot_offsets": [
+      [
+        -0.12,
+        0.0
+      ],
+      [
+        0.0,
+        -0.12
+      ],
+      [
+        0.0,
+        0.12
+      ]
+    ]
+  },
+  "mapping_startup": {
+    "pose_topic": "/navigation/local_pose",
+    "lio_pose_topic": "/mavros/vision_pose/pose",
+    "cloud_topic": "/freedom/static_pointcloud",
+    "frame": "camera_init",
+    "pose_max_age": 0.3,
+    "state_max_age": 2.5,
+    "pair_max_skew": 0.1,
+    "position_tolerance": 0.2,
+    "yaw_tolerance_deg": 5.0,
+    "stable_seconds": 2.0,
+    "map_warmup_seconds": 3.0,
+    "map_max_age": 1.5,
+    "map_timeout": 30.0,
+    "vision_max_age": 1.0,
+    "vision_detection_topics": [
+      "/uav_vision/detections",
+      "/uav_vision/detections_refined",
+      "/uav_vision/detections_mapped"
+    ],
+    "vision_targets_topic": "/uav_vision/targets"
+  },
+  "status": "local_archive_only_no_new_hardware_verification"
+}

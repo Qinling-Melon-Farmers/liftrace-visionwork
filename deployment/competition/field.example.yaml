@@ -1,0 +1,156 @@
+# 正式比赛待测量模板：约10m×10m场地；不是2026-10-07有限测试场地默认。
+# 所有 XY 以开机后固定任务坐标系 camera_init 的起飞参考为原点，单位 m；
+# 当前约定 +X 沿场地纵向、+Y 为初始机头左侧；起飞航向/实测场地必须确认一致。
+# 四元素边界顺序为 [min_x,max_x,min_y,max_y]；FC 静止参考由监督器测量，不手填 local Z。
+# agl 表示 FC 离地高度。当前相机在 FC 下方0.16m：相机离地高度 = FC agl - 0.16m。
+# 机架 FC 静止离地0.22m，因此生成 ground_z = 测得 FC local Z - 0.22m；
+# 控制/投递/H/软件限高均从同一 ground_z 生成，不能混用 CameraInfo 的相机高度。
+# 规则场地上限4m不是飞控 local Z 上限；还需给整机顶部、定位误差与制动留净空。
+# 门洞约0.80m且开口随机：测墙平面、通口横向中心及入口/出口净空，
+# corridor_waypoints 填门前/门后通过点，不把墙面上的门中心当作停车航点。
+# 必填 corridor_waypoints 与 landing_xy；坐标核对完毕再设 site_confirmed=true。
+# 省略 CLI 开关时继承 YAML。motion_optimization 未配置即关闭，障碍柱按下方值。
+# 动作预算默认保持 runtime_base：运动90s、目标120s；若显式需要，可添加
+# motion_action_timeout/target_action_timeout（0<秒数<=600），或 --motion-action-timeout。
+# 不通过测试归档替换搜索高度、速度、加速度、前视距离或预算；新恢复未推广。
+# 必填确认：现场测量完毕后改 true；false 禁止飞行，允许离线检查。
+site_confirmed: false
+# 完整搜索、三投、走廊与 H 末段任务；不提供靶标坐标。
+mode: high_view_full
+# 低位搜索/复核及既有投后爬升的 FC 离地高度，单位 m。
+low_agl: 1.4
+# 高位搜索 FC 离地高度；正式比赛值保留，不套用有限测试场地的 2m。
+high_agl: 2.6
+# 软件 FC 离地限高；必须高于搜索高度，并结合机身顶部净空满足规则 4m。
+max_agl: 3.0
+# 释放平面为 FC 离地高度；不是相机高度，不套用测试的 0.35m。
+drop_agl: 0.45
+# H 前水平转场的 FC 离地高度；保持既有比赛配置。
+landing_transit_agl: 1.0
+# H 视觉捕获的 FC 离地高度；保留比赛值，测试的 1.2m不自动推广。
+landing_capture_agl: 0.9
+# 启用 H 内部笔画辅助判据；仍需原证据/新鲜度/稳定帧门控。
+landing_enable_h_stroke_fallback: true
+# 规划速度上限 m/s；不是保证实测速度，不套用测试的 0.5m/s。
+cruise_speed: 1.2
+# 规划加速度上限 m/s²；保留比赛值，不套用测试的 0.35m/s²。
+cruise_acceleration: 1.0
+# 低位兜底覆盖航线间距 m；不是测试工作台的搜索线列表。
+lane_spacing: 0.7
+# 保留 false；关闭额外虚拟天花板不取消 FC 软件限高或实体避障。
+virtual_ceiling_enabled: false
+# 沿用现场已验收静态坐标对齐；换安装/初始航向须另行确认 TF。
+alignment_mode: legacy_static
+# 实体舵机经许可代理释放；单独启动被动 raw 服务不自动释放。
+actuator_mode: real
+# 真实后端服务；公开 /Servo 由许可代理独占，禁止直接请求 raw 投递。
+raw_servo_service: /legacy/Servo_raw
+# 仅人工解锁并切 OFFBOARD 后，稳定起飞悬停再自动请求任务；入口不自动解锁。
+auto_start_after_arm: true
+# 地面静止参考与视觉初始化等待秒数，不是运动动作预算。
+initialization_timeout: 180
+# 障碍禁越柱开关；CLI --obstacle-columns on/off 可覆盖，off 保留实体三维避障。
+obstacle_columns_enabled: true
+# 飞行中心允许区域 [min_x,max_x,min_y,max_y]；以下为名义约10×10场地，须按起飞点实测。
+flight_bounds:
+- -0.5
+- 9.5
+- -4.8
+- 4.8
+# 搜索/重访中心区域；不含走廊，须为机身、树箱及墙留足净空。
+search_center_bounds:
+- -0.1
+- 7.05
+- -4.35
+- 4.35
+# 视觉记忆/目标确认区域；不得填靶标真值或超出场地边界。
+target_bounds:
+- -0.5
+- 7.4
+- -4.8
+- 4.8
+# 低位兜底覆盖区域，必须在搜索中心范围内。
+coverage_bounds:
+- 0.4
+- 6.8
+- -4.1
+- 4.1
+# 高位升高前低位暂驻点 [x,y]，须确认整机净空。
+staging_xy:
+- 0.6
+- 0.05
+# 高位搜索航点 [x,y]，顺序有意义；不是靶标坐标，保留现有比赛路线。
+survey_xy:
+- - 1.0
+  - -3.5
+- - 5.5
+  - -3.5
+- - 5.5
+  - 3.5
+- - 1.0
+  - 3.5
+- - 1.0
+  - -3.5
+# 规划地图尺寸 [x,y,z] m；相对固定任务坐标原点覆盖所有航点。
+map_size:
+- 22.0
+- 12.0
+- 4.0
+# 必填：按通过顺序填写 {x,y,agl}；agl 是 FC 离地高度。
+corridor_waypoints: []
+# 必填：现场实测 H 中心 [x,y]；不是起飞点、门中心或占位默认值。
+landing_xy: null
+# 候选开运动优化前必填墙平面/速度阶段；null 时不得强行打开优化。
+corridor_speed_schedule: null
+# 跟随前视距离 m：巡航/精密/走廊独立配置；保留比赛值，不复制测试短前视。
+following_speed_profile:
+  cruise_lead_m: 1.0
+  precision_lead_m: 0.4
+  corridor_lead_m: 0.15
+  corridor_after_waypoints: 1
+# 继承比赛视觉搜索证据策略；不启用新恢复，不改变释放门槛。
+survey_policy:
+  coarse_enabled: true
+  coarse_min_confidence: 0.6
+  coarse_interrupt_min_interval_ns: 100000000
+  coarse_interrupt_max_gap_ns: 1000000000
+  coarse_interrupt_consistency_m: 0.5
+  interrupt_refined_classes: []
+  recheck_observe_seconds: 5.0
+  recheck_shift_after_seconds: 1.0
+  recheck_shift_radius_m: 0.5
+  candidate_min_streak: 1
+  min_interval_ns: 100000000
+  min_span_ns: 200000000
+  max_uncertainty_m: 0.45
+  direct_descent: true
+  descent_radius_m: 1.5
+  descent_max_candidates: 25
+  survey_stall_seconds: 8.0
+  survey_progress_m: 0.15
+  survey_alternative_radius_m: 0.6
+# 实时相机原图话题；仅用于现有视觉链。
+image_topic: /camera/image_raw
+# 实际标定 CameraInfo 话题；必须与图像分辨率/光学 frame 一致。
+camera_info_topic: /camera/camera_info
+# 已有压缩流输入；不在板端新增视频编码。
+compressed_image_topic: /camera/image_raw/compressed
+# 轻量录包压缩图节流输出，与相机输入必须不同。
+bag_image_topic: /competition/recording/image/compressed
+# 轻量压缩图录包频率；不降低视觉识别订阅频率。
+bag_image_hz: 5.0
+# 正式轻量档保持 false，不录全图和原始雷达。
+record_map_clouds: false
+# 保留局部膨胀点云用于复盘。
+record_inflated_cloud: true
+# 本次实际配置/来源的记录话题。
+metadata_topic: /competition/run_metadata
+# 过滤试飞专用话题；运行不依赖 board_trials。
+competition_recording: true
+# 板端建图负载档；初始化先定位，稳定后才开 FreeDOM。
+mapping_profile: high
+# 独立整机监督器节点名；不能与试飞任务并行运行。
+supervisor_name: competition_supervisor
+
+# 沿用已验收 POSCTL 视觉下降交接；飞手完成末段，不等同已验收自主落地得分。
+landing_handoff_mode: POSCTL

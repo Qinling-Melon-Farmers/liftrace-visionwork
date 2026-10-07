@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "scope": "remove two redundant assignments only",
+  "profiles": [
+    {
+      "profile": "field.example.yaml",
+      "status": "byte_equal_generated_outputs"
+    },
+    {
+      "profile": "candidates/rectangle_motion.yaml",
+      "status": "byte_equal_generated_outputs"
+    },
+    {
+      "profile": "candidates/snake_motion.yaml",
+      "status": "byte_equal_generated_outputs"
+    },
+    {
+      "profile": "field_20261007_validated.yaml",
+      "status": "byte_equal_generated_outputs"
+    }
+  ]
+}

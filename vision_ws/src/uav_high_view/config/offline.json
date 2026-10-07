@@ -1,0 +1,12 @@
+{
+  "scope": "OFFLINE_ONLY_NO_FLIGHT_OUTPUT",
+  "profile_source": "uav_mission/config/competition_profiles.yaml@86e382d",
+  "weights": {"tent": 1.0, "pillbox": 1.5, "bridge": 2.0, "panzer": 2.5, "red_cross": 10.0},
+  "catalog": {"frame": "camera_init", "capacity": 16, "observations": 8,
+    "min_hits": 3, "min_span_ns": 500000000, "min_interval_ns": 250000000,
+    "input_max_age_ns": 500000000, "tf_max_age_ns": 100000000,
+    "hint_ttl_ns": 60000000000, "max_observation_gap_ns": 2000000000,
+    "vote_fraction": 0.8, "min_confidence": 0.7, "min_quality": 0.5,
+    "max_uncertainty_m": 0.25, "high_min_agl": 2.0, "high_max_agl": 3.0,
+    "max_revisits": 2}
+}

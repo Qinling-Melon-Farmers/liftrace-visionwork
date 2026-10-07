@@ -22,6 +22,7 @@
 */
 
 #include <path_searching/kinodynamic_astar.h>
+#include <path_searching/line_preference.h>
 #include <sstream>
 #include <chrono>
 #include <plan_env/sdf_map.h>
@@ -42,6 +43,19 @@ KinodynamicAstar::~KinodynamicAstar()
 int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, Eigen::Vector3d start_a,
                              Eigen::Vector3d end_pt, Eigen::Vector3d end_v, bool init, bool dynamic, double time_start)
 {
+  height_limit_ = referenceHeight();
+  if (!height_limit_.accepts(start_pt.z()) || !height_limit_.accepts(end_pt.z())) return NO_PATH;
+
+  double requested_weight=0.;
+  if(ros::param::getCached(line_deviation_param_,requested_weight) &&
+      std::isfinite(requested_weight) && requested_weight>=0. && requested_weight<=10.)
+    line_deviation_weight_=requested_weight;
+  else line_deviation_weight_=0.;
+  last_diagnostics_ = SearchDiagnostics();
+  last_diagnostics_.start_occupancy =
+      edt_environment_->sdf_map_->getInflateOccupancy(start_pt);
+  last_diagnostics_.goal_occupancy =
+      edt_environment_->sdf_map_->getInflateOccupancy(end_pt);
   const auto search_started = std::chrono::steady_clock::now();
   const auto timed_out = [&]() {
     return std::chrono::duration<double>(std::chrono::steady_clock::now() - search_started).count()
@@ -49,7 +63,7 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
   };
   // An occupied endpoint cannot become a valid local trajectory by searching
   // farther away. Return to the callback queue so the next cloud can refresh it.
-  if (edt_environment_->sdf_map_->getInflateOccupancy(end_pt) != 0) {
+  if (last_diagnostics_.goal_occupancy != 0) {
     ROS_WARN_THROTTLE(1.0, "kinodynamic goal occupied or outside map");
     return NO_PATH;
   }
@@ -96,6 +110,7 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
   while (!open_set_.empty())
   {
     if (timed_out()) {
+      last_diagnostics_.timed_out = true;
       ROS_WARN_THROTTLE(1.0, "kinodynamic search reached wall-time budget");
       return NO_PATH;
     }
@@ -143,6 +158,12 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
     if (init_search)
     {
       inputs.push_back(start_acc_);
+      const Eigen::Vector3d toward_goal = end_pt - start_pt;
+      if (toward_goal.norm() > 1e-6) {
+        const Eigen::Vector3d goal_biased_acc = toward_goal.normalized() * max_acc_;
+        if ((goal_biased_acc - start_acc_).norm() > 1e-6)
+          inputs.push_back(goal_biased_acc);
+      }
       for (double tau = time_res_init * init_max_tau_; tau <= init_max_tau_ + 1e-3;
            tau += time_res_init * init_max_tau_)
         durations.push_back(tau);
@@ -165,7 +186,11 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
     for (int i = 0; i < inputs.size(); ++i)
       for (int j = 0; j < durations.size(); ++j)
       {
-        if (timed_out()) return NO_PATH;
+        if (timed_out()) {
+          last_diagnostics_.timed_out = true;
+          return NO_PATH;
+        }
+        ++last_diagnostics_.candidates;
         um = inputs[i];
         double tau = durations[j];
         stateTransit(cur_state, pro_state, um, tau);
@@ -179,6 +204,7 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
         PathNodePtr pro_node = dynamic ? expanded_nodes_.find(pro_id, pro_t_id) : expanded_nodes_.find(pro_id);
         if (pro_node != NULL && pro_node->node_state == IN_CLOSE_SET)
         {
+          ++last_diagnostics_.rejected_closed;
           if (init_search)
             std::cout << "close" << std::endl;
           continue;
@@ -188,6 +214,7 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
         Eigen::Vector3d pro_v = pro_state.tail(3);
         if (fabs(pro_v(0)) > max_vel_ || fabs(pro_v(1)) > max_vel_ || fabs(pro_v(2)) > max_vel_)
         {
+          ++last_diagnostics_.rejected_velocity;
           if (init_search)
             std::cout << "vel" << std::endl;
           continue;
@@ -198,11 +225,17 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
         int diff_time = pro_t_id - cur_node->time_idx;
         if (diff.norm() == 0 && ((!dynamic) || diff_time == 0))
         {
+          ++last_diagnostics_.rejected_same_voxel;
           if (init_search)
             std::cout << "same" << std::endl;
           continue;
         }
 
+        // Exact quadratic extremum check for every motion primitive.
+        if (!height_limit_.polynomial(cur_state(2),cur_state(5),0.5*um(2),0.,tau)) {
+          ++last_diagnostics_.rejected_collision;
+          continue;
+        }
         // Check safety
         Eigen::Vector3d pos;
         Eigen::Matrix<double, 6, 1> xt;
@@ -223,6 +256,7 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
         }
         if (is_occ)
         {
+          ++last_diagnostics_.rejected_collision;
           if (init_search)
             std::cout << "safe" << std::endl;
           continue;
@@ -240,6 +274,10 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
             flag_hight_ = 0.0;
         }
         tmp_g_score = (um.squaredNorm() + w_time_) * tau + cur_node->g_score + w_z_ * flag_hight_ * abs(cur_state(2) - pro_state(2));
+        // Soft preference only; every primitive above still passed 3-D occupancy.
+        // No straight-line shortcut or collision-test bypass.
+        tmp_g_score += lineDeviationCost(cur_state.head(3),cur_state.tail(3),um,tau,
+                                         start_pt,end_pt,line_deviation_weight_);
         // std::cout<<"g = "<<tau * um.squaredNorm()<<" , "<<tau * w_time_<<" , z = "<<w_z_ * flag_hight_ * abs(cur_state(2) - pro_state(2))<<std::endl;
 
         tmp_f_score = tmp_g_score + lambda_heu_ * estimateHeuristic(pro_state, end_state, time_to_goal);
@@ -252,6 +290,7 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
           if ((pro_id - expand_node->index).norm() == 0 && ((!dynamic) || pro_t_id == expand_node->time_idx))
           {
             prune = true;
+            ++last_diagnostics_.pruned_same_parent;
             if (tmp_f_score < expand_node->f_score)
             {
               expand_node->f_score = tmp_f_score;
@@ -293,6 +332,7 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
               expanded_nodes_.insert(pro_id, pro_node);
 
             tmp_expand_nodes.push_back(pro_node);
+            ++last_diagnostics_.accepted;
 
             use_node_num_ += 1;
             if (use_node_num_ == allocate_num_)
@@ -328,6 +368,16 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
   cout << "open set empty, no path!" << endl;
   cout << "use node num: " << use_node_num_ << endl;
   cout << "iter num: " << iter_num_ << endl;
+  ROS_WARN_STREAM_THROTTLE(1.0,
+      "kinodynamic rejection summary start_occ=" << last_diagnostics_.start_occupancy
+      << " goal_occ=" << last_diagnostics_.goal_occupancy
+      << " candidates=" << last_diagnostics_.candidates
+      << " accepted=" << last_diagnostics_.accepted
+      << " same_voxel=" << last_diagnostics_.rejected_same_voxel
+      << " collision=" << last_diagnostics_.rejected_collision
+      << " velocity=" << last_diagnostics_.rejected_velocity
+      << " closed=" << last_diagnostics_.rejected_closed
+      << " parent_prune=" << last_diagnostics_.pruned_same_parent);
   return NO_PATH;
 }
 
@@ -338,6 +388,7 @@ void KinodynamicAstar::setParam(ros::NodeHandle& nh)
   nh.param("search/max_vel", max_vel_, -1.0);
   nh.param("search/max_acc", max_acc_, -1.0);
   nh.param("search/w_time", w_time_, -1.0);
+  line_deviation_param_=nh.resolveName("search/line_deviation_weight");
   nh.param("search/w_z", w_z_, -1.0);
   nh.param("search/horizon", horizon_, -1.0);
   nh.param("search/max_search_time", max_search_time_, 0.25);
@@ -439,6 +490,7 @@ bool KinodynamicAstar::computeShotTraj(Eigen::VectorXd state1, Eigen::VectorXd s
   Eigen::MatrixXd Tm(4, 4);
   Tm << 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0;
 
+  if (!height_limit_.polynomial(coef(2,0),coef(2,1),coef(2,2),coef(2,3),t_d)) return false;
   /* ---------- forward checking of trajectory ---------- */
   const int samples = std::max(10, int(std::ceil(t_d / 0.02)));
   for (int sample = 1; sample <= samples; ++sample)
