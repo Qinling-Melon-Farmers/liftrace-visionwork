@@ -256,7 +256,9 @@ int main(int argc, char** argv) {
         c.external_landing_last_mark_receipt_=ros::Time::now();
         c.landing_motion_settled_=false;
         c.external_landing_new_mark_=true; c.externalLandingTick();
-        assert(c.capture_settle_calls_==1 && c.external_landing_stable_count_==0);
+        // 视觉帧可先累计；运动尚未合格时不得锁点或请求模式。
+        assert(c.capture_settle_calls_==1 && c.external_landing_stable_count_==1);
+        assert(!c.external_landing_alignment_complete_ && c.set_mode_client.calls==0);
         c.external_landing_alignment_complete_=true;
         c.external_landing_aligned_goal_=c.uav_pose;
         c.externalLandingTick();

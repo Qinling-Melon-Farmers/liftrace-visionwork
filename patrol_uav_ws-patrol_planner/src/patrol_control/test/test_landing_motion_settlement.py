@@ -66,27 +66,27 @@ int main(int argc, char** argv) {
     assert(argc==2); const std::string name=argv[1];
     auto c=hlanding();
     if (name=="capture_center_speed_height_and_ten_frames") {
-        feedback(c,100,1.2,.06); c.externalLandingTick();
+        feedback(c,100,1.2,.10); c.externalLandingTick();
         assert(c.external_landing_stable_count_==0);
         feedback(c,100.125,1.2,0.,.10); c.externalLandingTick();
-        assert(c.external_landing_stable_count_==0);
+        assert(c.external_landing_stable_count_==1);
         feedback(c,100.25,1.31); c.externalLandingTick();
-        assert(c.external_landing_stable_count_==0);
-        for (int i=0;i<14;++i) {
+        assert(c.external_landing_stable_count_==2);
+        for (int i=0;i<8;++i) {
             feedback(c,100.375+i*.125,1.2); c.externalLandingTick();
-            assert(c.external_landing_alignment_complete_==(i==13));
-            assert(c.external_landing_stable_count_==(i<4 ? 0 : i-3));
-            assert(c.patrol_cmd.pose.position.z==(i==13 ? .35 : 1.2));
+            assert(c.external_landing_alignment_complete_==(i==7));
+            assert(c.external_landing_stable_count_==i+3);
+            assert(c.patrol_cmd.pose.position.z==(i==7 ? .35 : 1.2));
         }
         assert(c.set_mode_client.calls==0);
     } else if (name=="capture_accepts_four_to_six_cm_height_error_only_at_high_view") {
         // 真实高位窗口允许 4～6cm 高度偏差，仍需停稳 0.5s 和十张不同 H 图像。
-        for (int i=0;i<=55;++i) {
+        for (int i=0;i<=45;++i) {
             feedback(c,100+i*.05,1.2+(i%2 ? .04 : .06),0.,0.,i%5==0);
             c.externalLandingTick();
-            assert(c.external_landing_stable_count_==(i<10 ? 0 : (i-10)/5+1));
-            assert(c.external_landing_alignment_complete_==(i==55));
-            assert(c.patrol_cmd.pose.position.z==(i==55 ? .35 : 1.2));
+            assert(c.external_landing_stable_count_==i/5+1);
+            assert(c.external_landing_alignment_complete_==(i==45));
+            assert(c.patrol_cmd.pose.position.z==(i==45 ? .35 : 1.2));
             assert(c.set_mode_client.calls==0);
         }
     } else if (name=="low_handoff_still_rejects_four_to_six_cm_height_error") {
@@ -109,19 +109,19 @@ int main(int argc, char** argv) {
         }
     } else if (name=="capture_20hz_with_four_h_frames_per_second") {
         // 控制与 odom 按 20Hz 更新，H 只有 4Hz；不能把图像间隔当作 odom 断流。
-        for (int i=0;i<=55;++i) {
+        for (int i=0;i<=45;++i) {
             const bool new_h=i%5==0;
             feedback(c,100+i*.05,1.2,0.,0.,new_h);
             c.externalLandingTick();
-            assert(c.external_landing_stable_count_==(i<10 ? 0 : (i-10)/5+1));
-            assert(c.external_landing_alignment_complete_==(i==55));
-            assert(c.patrol_cmd.pose.position.z==(i==55 ? .35 : 1.2));
+            assert(c.external_landing_stable_count_==i/5+1);
+            assert(c.external_landing_alignment_complete_==(i==45));
+            assert(c.patrol_cmd.pose.position.z==(i==45 ? .35 : 1.2));
         }
         assert(c.set_mode_client.calls==0);
     } else if (name=="capture_pending_3ms_preserves_window_and_four_hz_images") {
         // 每个 20Hz 运动样本先领先本节点时钟 3ms；4Hz H 帧在 pending tick 保留。
         // 追时 tick 复用同一来源样本，不伪造新 odom 或新 H 图像。
-        for (int i=0;i<=55;++i) {
+        for (int i=0;i<=45;++i) {
             const double t=100+i*.05;
             const bool new_h=i%5==0;
             feedback(c,t,1.2,0.,0.,new_h);
@@ -143,9 +143,29 @@ int main(int argc, char** argv) {
             c.feedback_valid_=true;
             c.externalLandingTick();
             assert(!c.external_landing_new_mark_);
-            assert(c.external_landing_stable_count_==(i<10 ? 0 : (i-10)/5+1));
-            assert(c.external_landing_alignment_complete_==(i==55));
-            assert(c.patrol_cmd.pose.position.z==(i==55 ? .35 : 1.2));
+            assert(c.external_landing_stable_count_==i/5+1);
+            assert(c.external_landing_alignment_complete_==(i==45));
+            assert(c.patrol_cmd.pose.position.z==(i==45 ? .35 : 1.2));
+            assert(c.set_mode_client.calls==0);
+        }
+    } else if (name=="capture_speed_excursions_preserve_visual_frames") {
+        // 4Hz 十张独立 H 图与 20Hz 运动窗并行；短时超速不得清视觉计数。
+        for (int i=0;i<=45;++i) {
+            feedback(c,100+i*.05,1.2,0.,(i==10 || i==30) ? .10 : 0.,i%5==0);
+            c.externalLandingTick();
+            assert(c.external_landing_stable_count_==i/5+1);
+            assert(c.external_landing_alignment_complete_==(i==45));
+            assert(c.patrol_cmd.pose.position.z==(i==45 ? .35 : 1.2));
+            assert(c.set_mode_client.calls==0);
+        }
+        c=hlanding();
+        // 十图已齐仍不能带速度下降；之后必须形成全新的完整 0.5s 窗口。
+        for (int i=0;i<=60;++i) {
+            feedback(c,100+i*.05,1.2,0.,i<=45 ? .10 : 0.,i%5==0);
+            c.externalLandingTick();
+            assert(c.external_landing_stable_count_==i/5+1);
+            assert(c.external_landing_alignment_complete_==(i==60));
+            assert(c.patrol_cmd.pose.position.z==(i==60 ? .35 : 1.2));
             assert(c.set_mode_client.calls==0);
         }
     } else if (name=="handoff_pending_3ms_preserves_window_without_early_posctl") {
@@ -253,17 +273,26 @@ class ProductionHSettlementTests(unittest.TestCase):
         subprocess.run([str(self.binary), name], check=True, timeout=10)
 
 
+def _make_case_test(name):
+    def test_case(self):
+        self.run_case(name)
+    # nose按方法自身名称发现测试；仅setattr改属性名会漏收原名为lambda的方法。
+    test_case.__name__ = 'test_' + name
+    test_case.__qualname__ = 'ProductionHSettlementTests.' + test_case.__name__
+    return test_case
+
+
 for _case in ('capture_center_speed_height_and_ten_frames',
               'capture_accepts_four_to_six_cm_height_error_only_at_high_view',
               'low_handoff_still_rejects_four_to_six_cm_height_error',
               'capture_20hz_with_four_h_frames_per_second',
               'capture_pending_3ms_preserves_window_and_four_hz_images',
+              'capture_speed_excursions_preserve_visual_frames',
               'handoff_pending_3ms_preserves_window_without_early_posctl',
               'capture_and_handoff_have_independent_windows',
               'low_handoff_rejects_speed_height_and_final_xy',
               'latched_h_does_not_follow_cropped_or_missing_images'):
-    setattr(ProductionHSettlementTests, 'test_' + _case,
-            lambda self, name=_case: self.run_case(name))
+    setattr(ProductionHSettlementTests, 'test_' + _case, _make_case_test(_case))
 
 
 if __name__ == '__main__':

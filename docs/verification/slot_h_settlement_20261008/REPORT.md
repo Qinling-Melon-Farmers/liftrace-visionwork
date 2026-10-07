@@ -157,3 +157,25 @@ H 的观察高位也须先在 H 中心低速停稳，再下降。高位停稳以
 - 本次没有重跑仿真、修改运行中参数或提交；整包build与后续H实跑由主代理统一执行并追加结果。
 
 主代理后续核验：高低位高度容差分离后，双工作区完整构建通过；控制层catkin统计125项、0失败。尚未将H模式请求等同成功交接，下一轮仍需检查POSCTL实际模式回执。
+
+## 2026-10-08 H中杆专项实际交接与视觉/运动并行累计
+
+本节更新前文“尚待交接回执”的状态，仅针对H专项；整场结果由主代理另记。`logs/seed38_h_posctl_targeted_20261008_045333`已实际进入POSCTL，统一包装器收尾PASS，主代理确认零残留。原bag保留，独立结果位于同目录`h_posctl_manual_result.json`。
+
+- 直接读取`slot_h_evidence.bag`：REQUESTED事件45.881s（bag记录45.883s），OBSERVED事件及首条真实MAVROS POSCTL状态均46.777s；POSCTL状态8条，仍armed/connected。中杆消息4578条，全部`x=y=r=0、z=500、buttons=0`。本轮只验证交接，未模拟飞手下降，未验证触地或自主降落。
+- 本轮ULog `px4/log/2026-10-07/20_53_58.ulg`的在线只读检查：30.588s手动输入valid=1、data_source=3、throttle=0，manual_control_signal_lost=0。脚本12.036s启用前曾等待MAVROS参数缓存，日志报Unknown parameter to get，随后只读COM_RC_IN_MODE成功且integer=1；未改飞控参数。
+- `run.log`首次capture settling在14.161s，十帧锁点在36.461s，高位共等待22.300s。期间确有位置/速度不合格；不能把全部等待都归因于串行门控。源码确认原计数条件包含capture_settled，4Hz图像下理想无扰动也需先0.5s运动窗再收九个图像间隔，约2.75s。
+- 停止后只迁移两处if条件：视觉连续计数按原fresh H与XY条件递增/清零，锁点条件同时要求十图与当前capture_settled。速度短超限仍重建运动窗，保留视觉计数；新鲜度、XY、速度、0.5s、至少三个递增源样本、低位0.35/0.37m与±0.02m全部不变。锁点仍在新鲜图像处理处，不重复计图。AUTO.LAND的capture_settled一直true，行为等价。
+- 直接执行生产方法及真实C++窗口的H测试10项通过，新增一个连续用例同时覆盖4Hz H/20Hz motion短时超速不清十图、十图已齐仍不能提前下降且需重建完整0.5s窗；原高低位容差、3ms pending、冻结后不追残缺图形继续通过。旧HANDOFF交易stub断言由“未停稳计数为0”改为“视觉计数为1但不锁点/不请求”，23项在ROS overlay中全通过；diff检查通过。
+
+本次未自行运行整包构建、仿真或提交。主代理已完成控制构建；先前全控制测试中这一旧stub断言报错已修正并定向通过，全包结果及并行累计修复后的最后H实跑由主代理追加。045333是修复前的成功交接，不能替代修复后动态验证。
+
+### H真实窗口测试的nose发现修复
+
+主代理发现catkin原H motion XML为tests=0；此前直接unittest10项通过只说明用例可执行，不代表catkin实际收集。根因是动态setattr虽然使用test_属性名，方法自身__name__仍为lambda，nose漏收。现改为闭包工厂，显式设置各方法__name__与__qualname__，不改测试内容。CMake已有`catkin_add_nosetests(test/test_landing_motion_settlement.py)`，无需新增或重复注册。
+
+已按catkin使用的系统`/usr/bin/nosetests3 -P --process-timeout=60`加xunit参数执行该文件，实际10项全部通过；`/tmp/h_motion_nose_20261008.xml`为tests=10、errors=0、failures=0、skip=0。全控制catkin XML需由主代理重新生成后统计，不能再引用旧tests=0的文件作为覆盖证据。本次未提交。
+
+主代理最终编译/测试：patrol_control增量构建通过；修复nose对动态lambda测试方法的漏收后，catkin实际运行135项、0错误/失败/跳过（其中H真实窗口10项）。旧125统计未包含这10项，不能按包含H窗口理解。并行计窗之后仅需复测POSCTL H；完整三投/AUTO.LAND运行仍对应5f117e18，该路径capture_settled恒true，未被两处条件迁移改变。
+
+整场动态详见[DYNAMIC_FULL.md](DYNAMIC_FULL.md)：三投、两门、H落地上锁均完成，413.573秒；原始Gate因一次0.144mm保护包络/树接触FAIL，保留原判定，不改写为整场零碰撞PASS。

@@ -704,13 +704,14 @@ void LLController::externalLandingTick() {
             const double horizontal_error = std::hypot(
                 uav_pose.pose.position.x - land_mark_point.pose.position.x,
                 uav_pose.pose.position.y - land_mark_point.pose.position.y);
-            if (horizontal_error <= external_landing_alignment_tolerance_ && capture_settled) {
+            // 视觉十帧与运动停稳并行累计，短时速度超限只重置运动窗口。
+            if (horizontal_error <= external_landing_alignment_tolerance_) {
                 ++external_landing_stable_count_;
             } else {
                 external_landing_stable_count_ = 0;
             }
             if (external_landing_stable_count_ >=
-                external_landing_stable_frames_) {
+                external_landing_stable_frames_ && capture_settled) {
                 external_landing_alignment_complete_ = true;
                 external_landing_aligned_goal_ = land_mark_point;
                 external_landing_aligned_goal_.pose.position.z = land_height;
