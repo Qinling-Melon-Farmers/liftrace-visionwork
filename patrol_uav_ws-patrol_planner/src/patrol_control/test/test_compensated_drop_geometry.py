@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+import yaml
 
 # catkin/nose 按包名导入，unittest 按目录导入；两种入口都显式定位同目录测试工具。
 import sys
@@ -373,7 +374,27 @@ int main(int argc,char**argv){
   m.dx_px=900;c.projectDropOffsetToTarget(m);close(c.compensated_fc_goal_.pose.position.x,x);
   m.header.stamp=ros::Time(99);c.projectDropOffsetToTarget(m);close(c.compensated_fc_goal_.pose.position.x,x);
   m.header.stamp=ros::Time(101);c.projectDropOffsetToTarget(m);close(c.compensated_fc_goal_.pose.position.x,x);
- }else if(name=="xy"||name=="speed"||name=="angular"){
+  }else if(name=="configured_settle"){
+   capture(c);const auto g=c.compensated_fc_goal_.pose.position;
+   CONFIGURED_DROP
+   c.drop_release_window_=LandingHandoffStabilityWindow(c.drop_settle_config_);
+   close(c.drop_settle_config_.xy_tolerance_m,.06);
+   close(c.drop_settle_config_.max_horizontal_speed_mps,.08);
+   close(c.drop_settle_config_.stable_duration_sec,.30);
+   assert(c.drop_settle_config_.min_samples==3);
+   for(int i=0;i<3;++i){odom(c,101+i*.15625,g.x+.061,g.y,.35,.07);
+    assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);}
+   for(int i=0;i<3;++i){odom(c,102+i*.15625,g.x+.055,g.y,.35,.081);
+    assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);}
+   // Three fresh samples below the new limits still require the full 0.30s.
+   for(int i=0;i<3;++i){odom(c,103+i*.05,g.x+.055,g.y,.35,.07);
+    assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);}
+   odom(c,103.25,g.x+.055,g.y,.35,.07);
+   assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);
+   odom(c,103.3125,g.x+.055,g.y,.35,.07);
+   assert(c.executeDropAction(1)==DropActionResult::kPending&&c.servo_action_attempted_);
+   finish(c,t);assert(c.executeDropAction(1)==DropActionResult::kSuccess&&t->calls==1);
+  }else if(name=="xy"||name=="speed"||name=="angular"){
   capture(c);const auto g=c.compensated_fc_goal_.pose.position;
   for(int i=0;i<5;++i){odom(c,101+i*.15625,g.x+(name=="xy"?.06:0),g.y,.35,
     name=="speed"?.051:0,0,geometry_msgs::Quaternion(),name=="angular"?.5:0);
@@ -520,6 +541,13 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         start = source.index('    drop_settle_config_.xy_tolerance_m =')
         end = source.index('    load_stability(', start)
         defaults = source[start:end]
+        root_config = PACKAGE.parent / 'uav_mission/config'
+        configured = yaml.safe_load((root_config / 'competition/control_base.yaml').read_text())['drop_system']['settle']
+        trial = yaml.safe_load((root_config / 'vcl06_horizontal_control.yaml').read_text())['drop_system']['settle']
+        if configured != trial:
+            raise AssertionError('formal and trial drop settlement must agree')
+        configured_assignments = '\n'.join(
+            f'c.drop_settle_config_.{key} = {value};' for key, value in configured.items())
         cls.folder = tempfile.TemporaryDirectory(prefix='compensated-drop-')
         cls.addClassCleanup(cls.folder.cleanup)
         root = Path(cls.folder.name)
@@ -533,6 +561,7 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         guard_start = source.index('    if (compensated_alignment_enabled_ &&', source.index('void LLController::externalMissionTick()'))
         guard_end = source.index('    std_msgs::Bool detect_enable_msg;', guard_start)
         cpp.write_text(PROGRAM.replace('METHODS', production).replace('DEFAULTS', defaults)
+                       .replace('CONFIGURED_DROP', configured_assignments)
                        .replace('EXTERNAL_GUARD', source[guard_start:guard_end])
                        .replace('CIRCLE_DESCENT', circle).replace('CROSS_DESCENT', cross), encoding='utf-8')
         cls.binary = root / 'test'
@@ -557,6 +586,7 @@ class CompensatedDropGeometryTests(unittest.TestCase):
     def test_descent_invalid_visual_frames_preserve_frozen_target(self): self.run_case('vision_frozen')
     def test_duplicate_stale_future_visual_frames_cannot_retarget(self): self.run_case('vision_replay')
     def test_six_cm_error_blocks_real_rpc_submission(self): self.run_case('xy')
+    def test_configured_six_cm_and_point_zero_eight_speed_keep_duration_and_rpc_gates(self): self.run_case('configured_settle')
     def test_horizontal_speed_blocks_real_rpc_submission(self): self.run_case('speed')
     def test_angular_motion_of_outlet_blocks_real_rpc_submission(self): self.run_case('angular')
     def test_three_distinct_odom_and_duration_before_rpc(self): self.run_case('samples')

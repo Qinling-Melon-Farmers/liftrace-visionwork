@@ -84,6 +84,33 @@ class CompetitionLaunchParameters(unittest.TestCase):
         self.assertNotIn("/px4_max_distance", values)
         self.assertEqual(values["/traj_server/traj_server/target_dist"], .4)
 
+    def test_generated_drop_settlement_reaches_final_launch_without_changing_h(self):
+        values = self.application(True)
+        control = yaml.safe_load((self.out / "control.yaml").read_text())
+        expected = dict(xy_tolerance_m=.06, height_tolerance_m=.05,
+                        max_horizontal_speed_mps=.08, max_vertical_speed_mps=.10,
+                        stable_duration_sec=.30, max_odom_age_sec=.20,
+                        max_sample_gap_sec=.20, min_samples=3)
+        self.assertEqual(control["drop_system"]["settle"], expected)
+        for key, value in expected.items():
+            self.assertEqual(values["/drop_system/settle/" + key], value)
+        self.assertEqual(values["/external_landing/posctl/xy_tolerance_m"], .05)
+        self.assertEqual(values["/external_landing/posctl/stable_duration_sec"], .15)
+
+    def test_generated_drop_parameters_are_authoritative_in_the_loaded_launch(self):
+        before = self.application(True)
+        control = yaml.safe_load((self.out / "control.yaml").read_text())
+        control["drop_system"]["settle"].update(
+            xy_tolerance_m=.055, max_horizontal_speed_mps=.075)
+        (self.out / "control.yaml").write_text(yaml.safe_dump(control))
+        after = self.application(True)
+        self.assertEqual(after["/drop_system/settle/xy_tolerance_m"], .055)
+        self.assertEqual(after["/drop_system/settle/max_horizontal_speed_mps"], .075)
+        changed = {key for key in before.keys() | after.keys()
+                   if before.get(key) != after.get(key)}
+        self.assertEqual(changed, {"/drop_system/settle/xy_tolerance_m",
+                                   "/drop_system/settle/max_horizontal_speed_mps"})
+
     def test_legacy_include_keeps_its_explicit_limit(self):
         values = self.load(
             ROOT / "patrol_uav_ws-patrol_planner/src/patrol_control/launch/patrol_control_px4_sim.launch",

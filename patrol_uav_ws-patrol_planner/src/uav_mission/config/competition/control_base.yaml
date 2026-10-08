@@ -56,9 +56,9 @@ drop_system:
   alignment_feedback_topic: /uav_vision/drop_alignment_feedback
   # 释放许可仍须成立；以下是实际投口和FC的最终到位、低速稳定条件。
   settle:
-    xy_tolerance_m: 0.04
+    xy_tolerance_m: 0.06
     height_tolerance_m: 0.05
-    max_horizontal_speed_mps: 0.05
+    max_horizontal_speed_mps: 0.08
     max_vertical_speed_mps: 0.10
     stable_duration_sec: 0.30
     max_odom_age_sec: 0.20
