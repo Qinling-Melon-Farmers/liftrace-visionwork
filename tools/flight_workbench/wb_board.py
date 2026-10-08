@@ -167,7 +167,7 @@ def build_group_command(config, group, mode, route=None, real_release=None,
         if route != "competition":
             raise ValueError("正赛卡片仅允许独立 competition 入口")
         if any(value is not None for value in (capture_speed, capture_lighting, survey_pattern,
-                resume_survey, site_geometry, geometry_revision)) or motion_optimized:
+                site_geometry, geometry_revision)) or motion_optimized:
             raise ValueError("正赛使用独立场地配置和 on/off 开关，不接受专项参数")
         if not isinstance(check_config, bool) or (real_release is not None and not isinstance(real_release, bool)):
             raise ValueError("check_config / real_release 必须是布尔值")
@@ -178,7 +178,7 @@ def build_group_command(config, group, mode, route=None, real_release=None,
         if not isinstance(field, str) or not field.strip() or any(ch in field for ch in "\r\n\x00"):
             raise ValueError("请填写独立正赛场地配置路径")
         extra = ""
-        for option, value in (("motion-optimization", motion_optimization), ("obstacle-columns", obstacle_columns)):
+        for option, value in (("motion-optimization", motion_optimization), ("resume-survey", resume_survey), ("obstacle-columns", obstacle_columns)):
             if value is not None:
                 if value not in ("on", "off"):
                     raise ValueError("%s 只允许 on/off；省略表示继承所选 YAML" % option)

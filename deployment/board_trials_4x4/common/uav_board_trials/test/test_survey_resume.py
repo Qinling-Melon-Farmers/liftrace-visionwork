@@ -11,13 +11,13 @@ from uav_mission.search_types import Waypoint
 from uav_high_view.survey_policy import SurveyPolicy
 
 class TrialResumeTests(unittest.TestCase):
-    def test_generator_opt_in_only_priority_and_full_mission(self):
+    def test_generator_default_only_priority_and_full_mission(self):
         fixture=motion.MotionProfiles()
         for mode in ('high_priority','full_mission'):
             s=fixture.config(mode)
-            self.assertFalse(fixture.generate(s)[0]['high_view_full']['policy']['resume_survey_enabled'])
-            s['resume_survey_enabled']=True
             self.assertTrue(fixture.generate(s)[0]['high_view_full']['policy']['resume_survey_enabled'])
+            s['resume_survey_enabled']=False
+            self.assertFalse(fixture.generate(s)[0]['high_view_full']['policy']['resume_survey_enabled'])
         for mode in ('high_view','memory_only','high_speed_capture','landing','low_multi'):
             s=fixture.config(mode);s['resume_survey_enabled']=True
             with self.assertRaises(ValueError):fixture.generate(s)

@@ -651,6 +651,7 @@ function onStage(stage) {
     else if (stage.name === 'FAILED') beep('error');
   }
   renderMonitor();
+  scheduleRender();
 }
 
 function applySnapshot(snap) {
@@ -853,7 +854,7 @@ function groupCommandBody(g, mode, realRelease, checkConfig, speed, options) {
     var field = options.competition_config == null ? g.site_config : options.competition_config;
     if (typeof field !== 'string' || !field.trim() || /[\r\n\x00]/.test(field) ||
         (mode === 'flight' && !checkConfig && !realRelease)) return {body:null,note:'独立正赛需要场地配置，flight仅支持实投'};
-    for (var pair of [['motion-optimization',options.motion_optimization],['obstacle-columns',options.obstacle_columns]]) {
+    for (var pair of [['motion-optimization',options.motion_optimization],['resume-survey',options.resume_survey],['obstacle-columns',options.obstacle_columns]]) {
       if (pair[1] != null) {
         if (['on','off'].indexOf(pair[1]) < 0) return {body:null,note:'开关仅支持on/off，省略继承YAML'};
         extra += ' --' + pair[0] + ' ' + pair[1];
@@ -951,6 +952,21 @@ function appendGroupSection(body, title, list) {
   h.appendChild(el('span', 'muted tiny', list.length + ' 组'));
   body.appendChild(h);
   list.forEach(function (g) { body.appendChild(groupCard(g)); });
+}
+
+function competitionEffectiveConfig(g,options,stage,trial) {
+  var actual=(stage || {}).effective_config;
+  var matches=trial && trial.group_id===g.id &&
+    (trial.competition_config || g.site_config)===(options.competition_config || g.site_config) &&
+    (trial.motion_optimization || null)===(options.motion_optimization || null) &&
+    (trial.resume_survey || null)===(options.resume_survey || null) &&
+    (trial.obstacle_columns || null)===(options.obstacle_columns || null);
+  return actual && matches ? effectiveConfigText(actual) : '当前所选配置的有效值尚未确认：先运行配置检查。复选框和选项只表示请求。';
+}
+
+function effectiveConfigText(actual) {
+  var source=actual.source==='generated_runtime' ? '运行已生成配置' : '离线配置检查';
+  return source + '：运动优化=' + (actual.motion_optimization ? '开启' : '关闭') + '；高位续扫=' + (actual.resume_survey ? '开启' : '关闭') + (actual.generation_ready===false ? '；实测场地/墙面未确认，尚不可生成飞行配置' : '') + (actual.runtime_path ? '；' + actual.runtime_path : '');
 }
 
 function groupUI(g) {
@@ -1175,6 +1191,7 @@ function groupCard(g) {
       ops.appendChild(el('div','warn-line','当前选择测试场地复现：不是正赛默认参数，不能宣称10×10比赛验收；实际高度/速度以前述文件的配置检查为准。'));
     }
     choiceRow('运动优化','motionOptimization',[['','继承所选YAML'],['on','显式开启'],['off','显式关闭']]);
+    ops.appendChild(el('div','tiny muted','模板默认开启运动优化与高位续扫；两项独立。继承的实际值由所选YAML和配置检查决定。'));
     choiceRow('障碍柱','obstacleColumns',[['','继承所选YAML'],['on','显式开启'],['off','显式关闭']]);
     ops.appendChild(el('div','warn-line','必填正赛实测场地与确认项；默认模板未确认。运动优化/障碍柱继承时不发送覆盖参数，当前有效值以配置检查输出为准；关闭障碍柱移除配置柱，不会关闭真实点云避障。'));
   }
@@ -1198,6 +1215,12 @@ function groupCard(g) {
       return [v, { normal: '正常 normal', dim: '较暗 dim', unspecified: '未指定 unspecified' }[v] || v];
     })));
     ops.appendChild(el('div', 'tiny muted', '光照标签用于采集记录，不改变相机曝光。'));
+  }
+
+  if (g.competition_options_supported) {
+    var selectedOptions=trialBody(g,'preview',true);
+    ops.appendChild(el('div','tiny muted','所选配置：' + (selectedOptions.competition_config || g.site_config) + '；运动优化=' + (selectedOptions.motion_optimization || '继承') + '；高位续扫=' + (selectedOptions.resume_survey || '继承')));
+    ops.appendChild(el('div','tiny muted',competitionEffectiveConfig(g,selectedOptions,state.stage,state.trial)));
   }
 
   // 模式

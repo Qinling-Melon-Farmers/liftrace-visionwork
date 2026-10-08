@@ -44,6 +44,12 @@ class CompetitionCommandTests(unittest.TestCase):
                                 self.assertEqual(argv[argv.index(flag)+1], value)
                         self.assertEqual('--check-config' in argv, check)
 
+    def test_resume_does_not_toggle_motion(self):
+        for resume in ('on','off'):
+            argv=shlex.split(self.command(resume_survey=resume))
+            self.assertEqual(argv[argv.index('--resume-survey')+1],resume)
+            self.assertNotIn('--motion-optimization',argv)
+
     def test_untrusted_config_path_remains_single_argument(self):
         path = "deployment/test field'; echo INVALID; #.yaml"
         argv = shlex.split(self.command(competition_config=path))
@@ -51,7 +57,7 @@ class CompetitionCommandTests(unittest.TestCase):
         self.assertNotIn('echo', argv)
 
     def test_reject_fake_options_and_mock_flight(self):
-        for options in (dict(motion_optimization=True), dict(obstacle_columns='true'),
+        for options in (dict(motion_optimization=True), dict(resume_survey=True), dict(obstacle_columns='true'),
                         dict(motion_optimized=True), dict(competition_config=''),
                         dict(competition_config='field\n.yaml'), dict(route='module'),
                         dict(survey_pattern='snake3'), dict(site_geometry={})):
@@ -86,11 +92,12 @@ class CompetitionRequestTests(unittest.TestCase):
 
     def test_selected_overrides_reach_actual_command_and_trial(self):
         body = dict(group_id='competition', mode='flight', real_release=True, confirm='实投',
-                    motion_optimization='off', obstacle_columns='on')
+                    motion_optimization='off', resume_survey='on', obstacle_columns='on')
         body['expected_body'] = self.wb.trial_command(body)['body']
         result = self.wb.start_trial(body)
         self.assertEqual(result['trial']['command'], body['expected_body'])
         self.assertEqual(result['trial']['motion_optimization'], 'off')
+        self.assertEqual(result['trial']['resume_survey'], 'on')
         self.assertEqual(result['trial']['obstacle_columns'], 'on')
         self.assertEqual(result['trial']['release'], 'real')
 

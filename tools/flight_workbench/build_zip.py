@@ -43,6 +43,7 @@ def main():
         'source_branch': git('branch', '--show-current'),
         'source_head': git('rev-parse', 'HEAD'),
         'source_scope': 'current workbench files, including uncommitted edits',
+        'release_channel': 'local_candidate; not deployed to board',
         'modified_package_files': [p for p in FILES if git('status', '--porcelain', '--', str(TOOL / p))],
         'platform': 'Linux SSH/PTY; native Windows Python + Paramiko (no WSL)',
         'default_port': 8771,
@@ -50,6 +51,7 @@ def main():
         'board_deployment_included': False,
         'files': ['README_FIRST.md' if p == 'README_DISTRIBUTION.md' else p for p in FILES],
     }
+    manifest['release_status']=('local_candidate_pending_commit' if manifest['modified_package_files'] else 'committed_source')+'; not a board deployment'
     output.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(output, 'x', compression=zipfile.ZIP_DEFLATED) as archive:
         for relative in FILES:

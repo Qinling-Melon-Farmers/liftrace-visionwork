@@ -266,6 +266,7 @@ class StageTracker:
         self.since = None
         self.history = []
         self.detail = {}
+        self.effective_config = None
         self.alignment = None
         self.armed = None
         self.ever_armed = False
@@ -354,6 +355,20 @@ class StageTracker:
             observation = self._observation_line(text)
             if observation is not None:
                 return [event for event in observation if event]
+        # Only supervisor output confirms effective values; client selections never do.
+        if text.startswith('CONFIG_EFFECTIVE ') or text.startswith('{'):
+            try:
+                decoded=json.loads(text.split(' ',1)[1] if text.startswith('CONFIG_EFFECTIVE ') else text)
+            except (ValueError,TypeError):
+                decoded=None
+            if isinstance(decoded,dict) and (text.startswith('CONFIG_EFFECTIVE ') or decoded.get('status')=='CONFIG_VALID'):
+                if type(decoded.get('motion_optimization')) is bool and type(decoded.get('resume_survey')) is bool:
+                    self.effective_config=decoded
+                    events.append(self._event('stage',stage=self.snapshot()))
+                    events.append(self._timeline('有效配置：'+json.dumps(decoded,ensure_ascii=False),'ok'))
+                if decoded.get('status')=='CONFIG_VALID':
+                    events.append(self._timeline('配置检查通过（未启动任何 ROS 节点）','ok'))
+                return [event for event in events if event]
         name, payload = marker(text)
 
         if name == "INITIALIZING":
@@ -628,6 +643,7 @@ class StageTracker:
             "alignment": self.alignment,
             "alignment_hint": ALIGNMENT_HINTS.get(self.alignment, ""),
             "detail": self.detail,
+            "effective_config": self.effective_config,
             "run_dir": self.run_dir,
             "auto_sequence": self.auto_sequence,
             "mission_start": self.mission_start,
@@ -658,10 +674,13 @@ def build_report(tracker, connection, trial, telemetry):
         if trial.get("run_dir"):
             lines.append("- 产物目录：`%s`" % trial["run_dir"])
         options = {k: trial[k] for k in ("motion_optimized", "survey_pattern", "resume_survey",
-                                        "capture_speed", "capture_lighting") if trial.get(k) is not None}
+                                        "capture_speed", "capture_lighting", "motion_optimization", "obstacle_columns", "competition_config") if trial.get(k) is not None}
         if options:
             lines.append("- 启动选项：%s" % json.dumps(options, ensure_ascii=False))
     lines.append("")
+    if stage.get("effective_config"):
+        lines.append("- 已观测有效配置：%s" % json.dumps(stage["effective_config"],ensure_ascii=False))
+        lines.append("")
     lines.append("## 当前阶段")
     lines.append("")
     lines.append("- 阶段：**%s**（%s）" % (stage["label"], stage["name"]))

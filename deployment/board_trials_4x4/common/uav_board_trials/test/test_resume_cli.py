@@ -71,7 +71,7 @@ class ResumeCLI(unittest.TestCase):
                 if inherited is not None:settings['resume_survey_enabled']=inherited
                 code,stdout,stderr,seen=self.invoke('high_priority',settings)
                 self.assertEqual(code,0,stderr)
-                if inherited is None:self.assertNotIn('resume_survey_enabled',seen[0])
+                if inherited is None:self.assertIs(seen[0]['resume_survey_enabled'],True)
                 else:self.assertIs(seen[0]['resume_survey_enabled'],inherited)
 
     def test_all_other_groups_reject_explicit_on_and_off_in_check_config(self):

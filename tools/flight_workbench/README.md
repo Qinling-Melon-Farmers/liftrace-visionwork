@@ -4,7 +4,7 @@
 `rl_drone` 环境运行 `python tools/flight_workbench/build_zip.py` 即可打包当前工作台文件；
 使用明确文件清单，不包含个人状态、日志或板端工程，不要求提交后才能打包。
 Windows 通过 `start_windows.bat` / `start_windows.ps1` 使用原生 Python + Paramiko，无需 WSL；Linux 保留原 OpenSSH/PTY 实现。默认端口8771，日志/观察链接使用当前页面同源地址。
-独立正赛卡片指向 `deployment/competition/field.example.yaml`，保留比赛2.6m/1.2m/s/1.0m/s²与前视1.0/0.4/0.15；场地实测与确认必填，测试场地成功不是10×10正赛验收。运动优化/障碍柱的“继承/开/关”分别省略覆盖或传对应on/off CLI；配置检查展示真实有效参数。报告见 [本轮验证](../../docs/verification/workbench_release_20261008/REPORT.md)。
+独立正赛卡片指向 `deployment/competition/field.example.yaml`，保留比赛2.6m/1.2m/s/1.0m/s²与前视1.0/0.4/0.15；场地实测与确认必填，测试场地成功不是10×10正赛验收。运动优化/高位续扫/障碍柱的“继承/开/关”分别省略覆盖或传对应on/off CLI。正式模板默认开启运动优化和高位续扫，历史测试复现保留原值。两项独立，不能从运动优化开关推断续扫。配置检查与运行生成结果分别显示实际值；尚无监督器输出或已改变选择时显示“尚未确认”。报告见 [本轮验证](../../docs/verification/workbench_release_20261008/REPORT.md)。
 离线解压启动检查：`python tools/flight_workbench/tests/test_distribution.py`。
 
 2026-10-07：SSH 登录与 sudo 是两次独立认证，SSH 成功不会给新终端继承 sudo 的认证缓存。

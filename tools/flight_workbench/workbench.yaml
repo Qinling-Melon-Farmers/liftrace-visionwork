@@ -239,6 +239,7 @@ groups:
     release_options: [real]
     needs_servo: true
     competition_options_supported: true
+    resume_survey_supported: true
     notes: "默认仅为未确认的正赛模板。昨晚成功轮是测试场地，不能作为10×10正赛坐标或验收；可另填测试示例路径，配置检查须展示实际有效参数。继承表示不传覆盖参数，开启/关闭显式传on/off。"
 
   - id: site1

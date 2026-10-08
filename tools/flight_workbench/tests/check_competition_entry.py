@@ -40,24 +40,21 @@ def main():
         competition_values=dict(high_agl=2.6, cruise_speed=1.2, cruise_acceleration=1., following=[1., .4, .15]), cases=[])
     for site in (group['site_config'], 'deployment/competition/field_20261007_validated.yaml'):
       site_settings = yaml.safe_load((root / site).read_text(encoding='utf-8'))
-      for motion, columns in itertools.product((None, 'on', 'off'), repeat=2):
+      for motion, columns, resume in itertools.product((None, 'on', 'off'), repeat=3):
         command, _ = wb_board.build_group_command(config, group, 'preview', check_config=True,
-            motion_optimization=motion, obstacle_columns=columns, competition_config=site)
+            motion_optimization=motion, obstacle_columns=columns, resume_survey=resume, competition_config=site)
         # Exercise the real Python CLI with exactly the workbench-generated
         # arguments. The shell wrapper only supplies root and board ROS env.
         argv = shlex.split(command)
         result = subprocess.run([sys.executable, str(entry), *argv[2:], '--root', str(root)],
                                 cwd=root, env=env, capture_output=True, text=True, timeout=20)
-        if site == group['site_config'] and motion == 'on':
-            assert result.returncode != 0 and 'measured corridor wall planes' in result.stderr
-            report['cases'].append(dict(command=command, result='EXPECTED_REJECTION',
-                reason='Unmeasured competition template cannot enable motion optimization'))
-            continue
         assert result.returncode == 0, result.stdout + result.stderr
         effective = json.loads(result.stdout.strip())
         assert effective['ros_started'] is False and effective['site_confirmed'] == site_settings['site_confirmed']
         expected_motion = site_settings.get('motion_optimization', {}).get('enabled', False) if motion is None else motion == 'on'
         expected_columns = site_settings['obstacle_columns_enabled'] if columns is None else columns == 'on'
+        expected_resume=site_settings.get('survey_policy',{}).get('resume_survey_enabled',False) if resume is None else resume=='on'
+        assert effective['resume_survey'] == expected_resume
         assert effective['motion_optimization'] == expected_motion
         assert effective['obstacle_columns'] == expected_columns
         if site != group['site_config']:
@@ -68,10 +65,14 @@ def main():
                 assert generated.returncode == 0, generated.stdout + generated.stderr
                 runtime = yaml.safe_load((Path(tmp) / 'runtime.yaml').read_text())
                 overrides = yaml.safe_load((Path(tmp) / 'overrides.yaml').read_text())
+                assert runtime['high_view_full']['policy']['resume_survey_enabled'] == expected_resume
+                reference=json.loads((Path(tmp)/'ground_reference.json').read_text())
+                assert reference['effective_config']['resume_survey']==expected_resume
+                assert reference['effective_config']['motion_optimization']==expected_motion
                 assert runtime['motion_optimization']['enabled'] == expected_motion
                 assert overrides['/navigation/planner_bridge/motion_optimization']['enabled'] == expected_motion
                 assert overrides['/fast_planner_node/sdf_map/horizontal_avoidance/enabled'] == expected_columns
-        report['cases'].append(dict(command=command, motion=motion or 'inherit', columns=columns or 'inherit', effective=effective))
+        report['cases'].append(dict(command=command, motion=motion or 'inherit', columns=columns or 'inherit', resume=resume or 'inherit', effective=effective))
     result = subprocess.run([sys.executable, str(entry), 'flight', '--root', str(root),
         '--site-config', group['site_config'], '--check-config'], cwd=root, env=env,
         capture_output=True, text=True, timeout=20)
@@ -80,7 +81,7 @@ def main():
     report['result'] = 'PASS'
     a.output.parent.mkdir(parents=True, exist_ok=True)
     a.output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
-    print('PASS 18 actual CLI combinations (3 expected unmeasured-template rejections); official values retained; unconfirmed flight rejected; ROS not started')
+    print('PASS 54 actual CLI combinations, 27 generated-runtime expansions; motion/resume independent; unconfirmed flight rejected; ROS not started')
 
 
 if __name__ == '__main__':

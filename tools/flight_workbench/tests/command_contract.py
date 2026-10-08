@@ -15,15 +15,15 @@ for group in config['groups']:
                     if group.get('channel') == 'competition':
                         if mode == 'flight' and not check and not real:
                             continue
-                        variants = [dict(motion_optimization=m, obstacle_columns=o)
-                                    for m in (None, 'on', 'off') for o in (None, 'on', 'off')]
+                        variants = [dict(motion_optimization=m, obstacle_columns=o,resume_survey=r)
+                                    for m in (None, 'on', 'off') for o in (None, 'on', 'off') for r in (None, 'on', 'off')]
                         variants.append(dict(competition_config="deployment/custom field'; echo INVALID; #.yaml"))
                     elif not wb_board.is_observation(group):
                         variants.append(dict(motion_optimized=True))
                     if group.get('survey_patterns'):
                         variants += [dict(motion_optimized=True, survey_pattern=p)
                                      for p in group['survey_patterns']]
-                    if group.get('resume_survey_supported'):
+                    if group.get('resume_survey_supported') and group.get('channel') != 'competition':
                         variants += [dict(motion_optimized=True, survey_pattern='snake3', resume_survey=r)
                                      for r in ('on', 'off')]
                     if group.get('lighting_options'):

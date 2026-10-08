@@ -37,3 +37,6 @@ landing_posctl:
   max_odom_age_sec: 0.2
   max_sample_gap_sec: 0.2
   min_samples: 3
+
+# Resume at most once with original mission budget and existing fresh-map checks.
+resume_survey_enabled: true
