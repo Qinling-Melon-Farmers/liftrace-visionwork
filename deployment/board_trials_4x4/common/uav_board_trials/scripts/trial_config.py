@@ -105,7 +105,14 @@ def validate_settings(settings):
     raw=settings.get('raw_servo_service','/legacy/Servo_raw')
     if not isinstance(raw,str) or not raw.startswith('/') or raw in ('/Servo','/board_trials/Servo','/board_trials/mock_servo'):
         raise ValueError('raw_servo_service must be an independent absolute hardware service')
-    for key,lo,hi in [('low_agl',1.,1.8),('high_agl',2.,2.8),('landing_transit_agl',.5,1.8),('landing_capture_agl',.5,2.0),('cruise_speed',.1,1.2 if settings['mode']=='high_speed_capture' else .5),('cruise_acceleration',.1,1.0 if settings['mode']=='high_speed_capture' else .5)]:
+    profile=settings.get('speed_profile','limited')
+    if profile not in ('limited','competition') or (profile=='competition' and settings.get('trial_kind')!='full_mission'):
+        raise ValueError('Competition speed profile only applies to 08 full mission')
+    fast=settings['mode']=='high_speed_capture' or profile=='competition'
+    if 'following_speed_profile' in settings:
+        from uav_mission.execution_speed import FollowingSpeed
+        FollowingSpeed(**settings['following_speed_profile'])
+    for key,lo,hi in [('low_agl',1.,1.8),('high_agl',2.,2.8),('landing_transit_agl',.5,1.8),('landing_capture_agl',.5,2.0),('cruise_speed',.1,1.2 if fast else .5),('cruise_acceleration',.1,1.0 if fast else .5)]:
         v=settings.get(key)
         if isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(v) or not lo<=v<=hi:
             raise ValueError('Invalid '+key)
@@ -187,7 +194,7 @@ def generate(root,out,settings,fc_xyz,rig):
     low=struct.unpack('f',struct.pack('f',low))[0]
     land_z, handoff_z, posctl_stability = landing_control_parameters(settings, ground, float(rig['fc_ground_clearance']))
     # 投递仍需本地 Z > 0.05m；降落只需 > 0，与控制器参数校验一致。
-    if not .45<=settings['drop_agl']<=1.0 or drop<=.05 or land_z<=0.:raise ValueError('Legacy positive local-Z bounds not met')
+    if not .35<=settings['drop_agl']<=1.0 or drop<=.05 or land_z<=0.:raise ValueError('Legacy positive local-Z bounds not met')
     point=lambda a,b,h:[x+a,y+b,h]
     runtime=yaml.safe_load((root/'docs/verification/fov_landing_inner_20260919/seed_2672/fast_runtime.yaml').read_text())
     m=runtime['mission'];m.update(home_xy=[x,y],landing_xy=[x+.6,y],approach_altitude=low,return_altitude=low,timeout=600. if mode=='high_view_full' else 300.,forced_return_at=510. if mode=='high_view_full' else 240.,post_delivery_route_revision='board-'+mode,
@@ -204,6 +211,12 @@ def generate(root,out,settings,fc_xyz,rig):
         runtime['trial']['capture']=dict(speed=settings['cruise_speed'],lighting=settings.get('capture_lighting','unspecified'),
             route='flight_area.survey_xy',survey_xy=copy.deepcopy(area['survey_xy']))
     runtime['following_speed_profile']=dict(cruise_lead_m=(min(float(settings['cruise_speed']),1.0) if mode=='high_speed_capture' else .50),precision_lead_m=.25,corridor_lead_m=.25)
+    if 'following_speed_profile' in settings:
+        runtime['following_speed_profile']=copy.deepcopy(settings['following_speed_profile'])
+    if settings.get('trial_kind') in ('corridor_landing','full_mission'):
+        # Without measured planes use the slow corridor lead; never assume wall geometry.
+        runtime['following_speed_profile']['precision_lead_m']=max(.4,runtime['following_speed_profile']['precision_lead_m'])
+        runtime['following_speed_profile']['corridor_lead_m']=.4
     if mode=='landing':
         hx,hy=settings['landing_xy'];transit=ground+settings['landing_transit_agl']
         m.update(landing_xy=[x+hx,y+hy],return_altitude=capture,post_delivery_route=[point(max(.6,hx-.7),hy,transit),point(hx,hy,transit),point(hx,hy,capture)])
@@ -288,6 +301,20 @@ def generate(root,out,settings,fc_xyz,rig):
         '/target_memory/search_confirmation_max_gap_sec':1.0,
         '/drop_aligner/stable_frames':5,
     }
+    for namespace,velocity,acceleration in (('manager','max_vel','max_acc'),('search','max_vel','max_acc'),('optimization','max_vel','max_acc'),('bspline','limit_vel','limit_acc')):
+        overrides['/fast_planner_node/'+namespace+'/'+velocity]=float(settings['cruise_speed'])
+        overrides['/fast_planner_node/'+namespace+'/'+acceleration]=float(settings['cruise_acceleration'])
+    if settings.get('speed_profile')=='competition':
+        # Same initial precision lead and planner-start gate as the F competition entry.
+        # SEARCH/APPROACH/boundary/corridor distances are selected by runtime afterwards.
+        overrides['/traj_server/traj_server/target_dist']=.4
+        overrides['/external_planner_start_max_distance']=1.2
+        control['px4_max_distance']=.4
+    # 最后加载的 overrides 覆盖父 launch 默认值，保证控制前视继承所选速度档。
+    overrides['/px4_max_distance']=control['px4_max_distance']
+    from uav_mission.navigation_recovery_config import recovery_parameters
+    # Trials declare recovery off explicitly, including residual ROS-master parameters.
+    overrides.update(recovery_parameters({},ground))
     from trial_motion import apply_generated_motion
     motion_report=apply_generated_motion(runtime,control,overrides,settings,ground)
     (out/'motion_profile.json').write_text(json.dumps(motion_report,indent=2))

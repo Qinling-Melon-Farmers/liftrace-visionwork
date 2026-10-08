@@ -98,7 +98,7 @@ class TrialTests(unittest.TestCase):
         for settings_file in sorted(base.glob('*/settings.yaml')):
             settings=yaml.safe_load(settings_file.read_text())
             dropping=settings['mode'] not in ('landing','memory_only','high_speed_capture')
-            self.assertAlmostEqual(settings['drop_agl'],.45 if dropping else .6)
+            self.assertAlmostEqual(settings['drop_agl'],.35 if dropping else .6)
             if settings.get('trial_kind') in ('corridor_landing','full_mission'):
                 # Pure generation fixture; never fill measured deployable geometry on disk.
                 settings.update(corridor_waypoints=[dict(x=.6,y=0.,agl=1.),
@@ -116,10 +116,10 @@ class TrialTests(unittest.TestCase):
                     self.assertAlmostEqual(overrides['/release_permission_arbiter/min_release_altitude']-ground,settings['drop_agl']-.08)
                     self.assertAlmostEqual(overrides['/release_permission_arbiter/max_release_altitude']-ground,settings['drop_agl']+.12)
                     if dropping:
-                        self.assertAlmostEqual(ref['drop_z']-ground,.45)
-                        self.assertAlmostEqual(drop['height_threshold']-ground,.55)
-                        self.assertAlmostEqual(overrides['/release_permission_arbiter/min_release_altitude']-ground,.37)
-                        self.assertAlmostEqual(overrides['/release_permission_arbiter/max_release_altitude']-ground,.57)
+                        self.assertAlmostEqual(ref['drop_z']-ground,.35)
+                        self.assertAlmostEqual(drop['height_threshold']-ground,.45)
+                        self.assertAlmostEqual(overrides['/release_permission_arbiter/min_release_altitude']-ground,.27)
+                        self.assertAlmostEqual(overrides['/release_permission_arbiter/max_release_altitude']-ground,.47)
 
     def test_python38_syntax(self):
         for p in (ROOT/'deployment/board_trials_4x4/common/uav_board_trials/scripts').glob('*.py'):ast.parse(p.read_text(),feature_version=8)

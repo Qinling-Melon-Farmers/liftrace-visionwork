@@ -31,3 +31,7 @@ landing_posctl:
   max_odom_age_sec: 0.2
   max_sample_gap_sec: 0.2
   min_samples: 3
+
+# 与B已通过的试飞入口一致：运动优化默认开启；导航故障恢复仍由生成器显式关闭。
+motion_optimization:
+  enabled: true

@@ -35,10 +35,10 @@ class CompetitionTests(unittest.TestCase):
         for k in ('/release_permission_arbiter/min_release_altitude','/release_permission_arbiter/max_release_altitude','/external_planner_max_command_z'):self.assertAlmostEqual(bd['overrides'][k]-ad['overrides'][k],.1)
         self.assertEqual(ad['control']['align_height'],ad['control']['uav_vision']['recovery_height'])
     def test_field_and_candidates_share_lowered_drop_height(self):
-        for name in ('field.example.yaml','candidates/snake_motion.yaml','candidates/rectangle_motion.yaml'):
+        for name in ('field.example.yaml','candidates/snake_motion.yaml','candidates/rectangle_motion.yaml','candidates/snake3_motion.yaml'):
             settings=yaml.safe_load((ROOT/'deployment/competition'/name).read_text())
             settings.setdefault('motion_optimization', {})['enabled']=False
-            self.assertAlmostEqual(settings['drop_agl'],.45)
+            self.assertAlmostEqual(settings['drop_agl'],.35)
             # Onsite confirmation and geometry are test fixtures only.
             settings.update(site_confirmed=True,corridor_waypoints=copy.deepcopy(self.s['corridor_waypoints']),
                             landing_xy=list(self.s['landing_xy']))
@@ -50,11 +50,64 @@ class CompetitionTests(unittest.TestCase):
                         overrides=yaml.safe_load((Path(path)/'overrides.yaml').read_text())
                     ground=ref['ground_z'];drop=control['drop_system']
                     self.assertTrue(drop['enable_drop'])
-                    self.assertAlmostEqual(ref['drop_z']-ground,.45)
-                    self.assertAlmostEqual(drop['release_setpoint_height']-ground,.45)
-                    self.assertAlmostEqual(drop['height_threshold']-ground,.55)
-                    self.assertAlmostEqual(overrides['/release_permission_arbiter/min_release_altitude']-ground,.37)
-                    self.assertAlmostEqual(overrides['/release_permission_arbiter/max_release_altitude']-ground,.57)
+                    self.assertAlmostEqual(ref['drop_z']-ground,.35)
+                    self.assertAlmostEqual(drop['release_setpoint_height']-ground,.35)
+                    self.assertAlmostEqual(drop['height_threshold']-ground,.45)
+                    self.assertAlmostEqual(overrides['/release_permission_arbiter/min_release_altitude']-ground,.27)
+                    self.assertAlmostEqual(overrides['/release_permission_arbiter/max_release_altitude']-ground,.47)
+
+
+    def test_formal_profiles_generate_requested_heights_leads_and_switches(self):
+        from uav_mission.corridor_speed import CorridorSpeed,CorridorSpeedConfig
+        from uav_mission.execution_speed import FollowingSpeed
+        for name in ('field.example.yaml','candidates/rectangle_motion.yaml',
+                     'candidates/snake_motion.yaml','candidates/snake3_motion.yaml'):
+            settings=yaml.safe_load((ROOT/'deployment/competition'/name).read_text())
+            validate(settings)
+            with self.assertRaises(ValueError):validate(settings,flight=True)
+            settings.update(site_confirmed=True,corridor_waypoints=copy.deepcopy(self.s['corridor_waypoints']),
+                            landing_xy=list(self.s['landing_xy']))
+            for fc_xyz in ((0.,0.,0.),(.02,-.01,.09)):
+                with self.subTest(profile=name,reference=fc_xyz),tempfile.TemporaryDirectory() as path:
+                    ref=generate(ROOT,path,settings,fc_xyz,self.rig)
+                    rt=yaml.safe_load((Path(path)/'runtime.yaml').read_text())
+                    ov=yaml.safe_load((Path(path)/'overrides.yaml').read_text())
+                    self.assertAlmostEqual(ov['/external_planner_max_command_z']-ref['ground_z'],3.2)
+                    self.assertAlmostEqual(ov['/navigation/planner_bridge/execution/max_goal_z']-ref['ground_z'],3.2)
+                    self.assertAlmostEqual(rt['mission']['post_delivery_parameter_stages'][0]['parameters']['/external_planner_max_command_z']-ref['ground_z'],3.2)
+                    self.assertIs(rt['motion_optimization']['enabled'],True)
+                    self.assertIs(rt['high_view_full']['policy']['resume_survey_enabled'],True)
+                    self.assertIs(ov['/navigation_recovery/enabled'],False)
+                    schedule=rt['corridor_speed_schedule']
+                    self.assertEqual((schedule['open_lead_m'],schedule['door_lead_m']),(.6,.4))
+                    self.assertEqual(schedule['wall_coordinates'],[-1.6+fc_xyz[1],1.6+fc_xyz[1]])
+                    corridor=CorridorSpeed(CorridorSpeedConfig(**schedule))
+                    completed=schedule['entry_waypoints'];landing=rt['mission']['landing_xy']
+                    self.assertEqual(corridor.select((8.,fc_xyz[1]),landing,completed),('CORRIDOR_OPEN',.6))
+                    self.assertEqual(corridor.select((8.,1.6+fc_xyz[1]),landing,completed),('DOOR',.4))
+                    self.assertEqual(corridor.select(landing,landing,completed),('H_APPROACH',.4))
+                    follow=FollowingSpeed(**rt['following_speed_profile'])
+                    self.assertEqual(follow.select('SEARCH','',0),('CRUISE',1.))
+                    self.assertEqual(follow.select('APPROACH','',0),('PRECISION',.4))
+                    self.assertEqual(follow.select('LAND','',0),('TERMINAL',.4))
+
+    def test_snake3_uses_recorded_route_and_rig_checked_camera_height(self):
+        settings=yaml.safe_load((ROOT/'deployment/competition/candidates/snake3_motion.yaml').read_text())
+        recorded=yaml.safe_load((ROOT/'docs/planning/serpentine_20261004/route_candidates.yaml').read_text())
+        route=next(p for p in recorded['route_candidates'] if p['name']=='snake3_camera2p0')
+        self.assertEqual(settings['survey_xy'],route['xy'])
+        self.assertEqual(settings['high_agl'],route['fc_agl'])
+        self.assertEqual(settings['survey_camera_agl'],route['camera_agl'])
+        settings.update(site_confirmed=True,corridor_waypoints=copy.deepcopy(self.s['corridor_waypoints']),
+                        landing_xy=list(self.s['landing_xy']))
+        with tempfile.TemporaryDirectory() as path:
+            ref=generate(ROOT,path,settings,(.02,-.01,.09),self.rig)
+            rt=yaml.safe_load((Path(path)/'runtime.yaml').read_text())
+            self.assertAlmostEqual(ref['high_z']-ref['ground_z'],2.16)
+            self.assertEqual(rt['high_view_probe']['config']['survey_xy'],
+                             [[x+.02,y-.01] for x,y in route['xy']])
+            settings['high_agl']=2.
+            with self.assertRaisesRegex(ValueError,'camera AGL'):generate(ROOT,path,settings,(0.,0.,0.),self.rig)
 
     def test_targets_are_searched_not_injected_and_h_is_final(self):
         ref,d=self.generate();rt=d['runtime'];c=d['control']
@@ -72,7 +125,7 @@ class CompetitionTests(unittest.TestCase):
             self.s['landing_handoff_mode']=mode
             for capture_agl in (.9,1.8):
                 self.s['landing_capture_agl']=capture_agl
-                for z in (-.09,0.,.09):
+                for z in (-.05,0.,.09):
                     with self.subTest(mode=mode,capture_agl=capture_agl,fc_z=z):
                         ref,d=self.generate(z)
                         ground=z-self.rig['fc_ground_clearance']
@@ -123,7 +176,7 @@ class CompetitionTests(unittest.TestCase):
         self.assertIs(detector['landing_enable_h_stroke_fallback'],False)
     def test_drop_scale_uses_flight_ground_reference_and_calibration(self):
         self.s['camera_info_topic']='/custom_camera/info'
-        for z in (-.09, .09):
+        for z in (-.05, .09):
             ref,docs=self.generate(z)
             vision=docs['control']['uav_vision']
             self.assertTrue(vision['drop_metric_scale_enabled'])

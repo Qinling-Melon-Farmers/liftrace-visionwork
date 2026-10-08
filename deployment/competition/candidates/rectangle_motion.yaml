@@ -1,4 +1,4 @@
-# 未完成整场验收的比赛运动候选，数值原样保留，不能自动作为正赛默认。
+# 正式可选运动模板；须现场测量，本轮模板未实测，不自动替换入口所选 YAML。
 # 正式比赛待测量模板：约10m×10m场地；不是2026-10-07有限测试场地默认。
 # 所有 XY 以开机后固定任务坐标系 camera_init 的起飞参考为原点，单位 m；
 # 当前约定 +X 沿场地纵向、+Y 为初始机头左侧；起飞航向/实测场地必须确认一致。
@@ -13,7 +13,7 @@
 # 省略 CLI 开关时继承 YAML：运动优化与高位续扫默认开启，分别可用 on/off 覆盖。
 # 动作预算默认保持 runtime_base：运动90s、目标120s；若显式需要，可添加
 # motion_action_timeout/target_action_timeout（0<秒数<=600），或 --motion-action-timeout。
-# 保留比赛高度/速度/预算；运动优化需实测墙平面后才能生成飞行配置。
+# 正式投递 FC AGL 0.35m、软件限高3.2m；规划速度/加速度与任务预算保持原值。
 # 必填确认：现场测量完毕后改 true；false 禁止飞行，允许离线检查。
 site_confirmed: false
 # 完整搜索、三投、走廊与 H 末段任务；不提供靶标坐标。
@@ -23,9 +23,9 @@ low_agl: 1.4
 # 高位搜索 FC 离地高度；正式比赛值保留，不套用有限测试场地的 2m。
 high_agl: 2.76
 # 软件 FC 离地限高；必须高于搜索高度，并结合机身顶部净空满足规则 4m。
-max_agl: 3.0
-# 释放平面为 FC 离地高度；不是相机高度，不套用测试的 0.35m。
-drop_agl: 0.45
+max_agl: 3.2
+# 正式释放平面为 FC 离地0.35m；不是相机高度或投口离地高度。
+drop_agl: 0.35
 # H 前水平转场的 FC 离地高度；保持既有比赛配置。
 landing_transit_agl: 1.0
 # H 视觉捕获的 FC 离地高度；保留比赛值，测试的 1.2m不自动推广。
@@ -101,7 +101,8 @@ map_size:
 corridor_waypoints: []
 # 必填：现场实测 H 中心 [x,y]；不是起飞点、门中心或占位默认值。
 landing_xy: null
-# 候选开运动优化前必填墙平面/速度阶段；null 时不得强行打开优化。
+# 走廊前视单位 m，不是速度 m/s；快档0.6、门前/下降/近H慢档0.4。
+# 墙平面 Y=±1.6m 沿用既有设计名义值，非现场测量；必须复测/改写后确认场地。
 corridor_speed_schedule:
   axis: 1
   wall_coordinates:
@@ -109,15 +110,19 @@ corridor_speed_schedule:
   - 1.6
   enter_distance_m: 0.75
   exit_distance_m: 0.95
-  open_lead_m: 0.4
-  door_lead_m: 0.15
+  open_lead_m: 0.6
+  door_lead_m: 0.4
   landing_radius_m: 0.8
-# 跟随前视距离 m：巡航/精密/走廊独立配置；保留比赛值，不复制测试短前视。
+# 跟随前视距离 m：巡航1.0、精密0.4；走廊兜底及LAND/HOLD/ABORT共用慢档0.4。
+# 走廊快慢切换由上方调度生成；不改变规划速度上限1.2m/s或加速度1.0m/s²。
 following_speed_profile:
   cruise_lead_m: 1.0
   precision_lead_m: 0.4
-  corridor_lead_m: 0.15
+  corridor_lead_m: 0.4
   corridor_after_waypoints: 1
+# 正式导航故障恢复保持关闭；运动优化内的投后爬升交接不受此开关替代。
+navigation_recovery:
+  enabled: false
 # 保留视觉证据门槛；高位续扫最多一次，保留原任务总预算。
 survey_policy:
   resume_survey_enabled: true
@@ -164,7 +169,7 @@ mapping_profile: high
 supervisor_name: competition_supervisor
 # 候选相机离地高度；FC high_agl = 相机高度 + 当前机架垂直偏移0.16m。
 survey_camera_agl: 2.6
-# 既有运动优化候选开关；默认模板未开启，CLI on/off 显式覆盖，不是新恢复。
+# 运动优化默认开启；CLI on/off 显式覆盖，不是导航故障恢复开关。
 motion_optimization:
   enabled: true
   dynamic_boundary: true

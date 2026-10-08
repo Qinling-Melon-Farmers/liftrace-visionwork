@@ -174,7 +174,7 @@ terminals:
     seq: 4
     title: "4 · 下视相机"
     desc: "需要同时有原始图、压缩图和 CameraInfo；按实际设备节点调整视频节点。"
-    command: "bash deployment/board_trials_4x4/start_camera.sh {video_device}"
+    command: "bash deployment/competition/start_camera.sh {video_device}"
     params:
       video_device: "/dev/video0"
     ready: { kind: topic, topic: "/camera/image_raw", timeout: 60 }
@@ -232,8 +232,11 @@ groups:
     site_config: "deployment/competition/field.example.yaml"
     competition_config_options:
       - {path: "deployment/competition/field.example.yaml", label: "默认比赛模板 · 10×10待实测确认"}
+      - {path: "deployment/competition/candidates/rectangle_motion.yaml", label: "正式候选 · 四边形 · 待现场实测"}
+      - {path: "deployment/competition/candidates/snake_motion.yaml", label: "正式候选 · 两线往返 · 待现场实测"}
+      - {path: "deployment/competition/candidates/snake3_motion.yaml", label: "正式候选 · 三扫描线 · 待现场实测"}
       - {path: "deployment/competition/field_20261007_validated.yaml", label: "可选测试复现 · 非10×10正赛参数"}
-    plan: "默认比赛模板：高位2.6m、速度1.2m/s、加速度1.0m/s²、前视1.0/0.4/0.15m；场地尺寸、门口、H与路线须实测确认。"
+    plan: "默认比赛模板：FC高位2.6m、规划上限1.2m/s与1.0m/s²、搜索/接近前视1.0/0.4m、走廊前视0.6/0.4m、投递FC AGL 0.35m、FC软件限高3.2m；场地尺寸、门口、H与路线须实测确认。"
     ending: "依所选配置执行末段；POSCTL交接须飞手完成落地"
     release: real
     release_options: [real]
@@ -369,8 +372,11 @@ groups:
     resume_survey_supported: true
     needs_servo: false
     needs_waypoints: true
-    site_config: "{site_dir}/full_mission_test_area.yaml"
-    notes: "走廊引导点和 H 坐标必须实测填写，否则入口拒绝运行。"
+    site_config: "deployment/board_trials_4x4/08_full_mission/site_20261007_221730.yaml"
+    speed_profile_options:
+      - {value: "", label: "有限空间规划 · 0.5m/s / 0.35m/s²"}
+      - {value: "competition", label: "08正赛速度 · 1.2m/s / 1.0m/s² · 原现场几何"}
+    notes: "采用最后221730现场metadata几何；不是10×10正赛场地。两档同一几何/FC高2m，走廊快0.6慢0.4m；更换场地重新测量。正赛速度版默认开运动优化/高位续扫，仍可显式覆盖续扫。"
 
   - id: mod06mock
     key: "06"

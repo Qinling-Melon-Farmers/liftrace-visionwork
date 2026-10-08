@@ -62,7 +62,7 @@ motion_feedback:
   odom_topic: /mavros/local_position/odom
   twist_frame: child
 drop_system:
-  # 在观察高度先对准补偿后的FC目标；冻结后下降，不追残缺图像。
+  # 视觉确认并冻结靶心后，槽位补偿与下降并行；最终到位且低速稳定后才释放，不追残缺图像。
   slot_offset_semantics: body_flu_lever_arm
   compensated_alignment: true
   alignment_feedback_topic: /uav_vision/drop_alignment_feedback

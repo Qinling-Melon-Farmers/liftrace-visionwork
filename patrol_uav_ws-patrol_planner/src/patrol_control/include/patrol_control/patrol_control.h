@@ -8,8 +8,6 @@
 #include "patrol_control/async_servo.h"
 #include "patrol_control/near_wall_align.h"
 #include "patrol_control/drop_slot_geometry.h"
-#include "patrol_control/drop_descent_clearance.h"
-#include <sensor_msgs/PointCloud2.h>
 #include "patrol_control/landing_handoff_stability.h"
 #include <nav_msgs/Odometry.h>
 #include <uav_vision/DropAlignmentFeedback.h>
@@ -141,11 +139,6 @@ private:
                                 double* speed = nullptr);
     void publishCompensatedAlignment();
     bool freezeCompensatedDropTarget();
-    void dropClearanceMapCallback(const sensor_msgs::PointCloud2::ConstPtr& msg);
-    bool compensatedDropPathClear() const;
-    DropDescentClearance drop_clearance_guard_;
-    ros::Subscriber drop_clearance_map_sub_;
-    std::string drop_clearance_map_topic_;
     bool landingMotionSettled(bool handoff, double xy_error);
 
     ros::Subscriber fastplanner_cmd_sub_, detect_sub_;

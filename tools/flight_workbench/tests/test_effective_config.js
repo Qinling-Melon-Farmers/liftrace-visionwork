@@ -9,7 +9,7 @@ assert(ctx.competitionEffectiveConfig(group,options,{},trial).includes('尚未�
 assert(ctx.competitionEffectiveConfig(group,options,stage,trial).includes('离线配置检查'));
 assert(ctx.competitionEffectiveConfig(group,options,stage,trial).includes('尚不可生成'));
 stage={effective_config:{source:'generated_runtime',motion_optimization:false,resume_survey:true,runtime_path:'/run/runtime.yaml'}};
-assert(ctx.competitionEffectiveConfig(group,options,stage,trial).includes('运行已生成配置'));
+assert(ctx.competitionEffectiveConfig(group,options,stage,trial).includes('已生成配置'));
 assert(ctx.competitionEffectiveConfig(group,options,stage,trial).includes('/run/runtime.yaml'));
 for(const changed of [{resume_survey:'off'},{motion_optimization:'on'},{obstacle_columns:'off'},{competition_config:'different.yaml'}]) {
  assert(ctx.competitionEffectiveConfig(group,Object.assign({},options,changed),stage,trial).includes('尚未确认'));

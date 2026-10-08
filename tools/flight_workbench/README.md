@@ -4,7 +4,7 @@
 `rl_drone` 环境运行 `python tools/flight_workbench/build_zip.py` 即可打包当前工作台文件；
 使用明确文件清单，不包含个人状态、日志或板端工程，不要求提交后才能打包。
 Windows 通过 `start_windows.bat` / `start_windows.ps1` 使用原生 Python + Paramiko，无需 WSL；Linux 保留原 OpenSSH/PTY 实现。默认端口8771，日志/观察链接使用当前页面同源地址。
-独立正赛卡片指向 `deployment/competition/field.example.yaml`，保留比赛2.6m/1.2m/s/1.0m/s²与前视1.0/0.4/0.15；场地实测与确认必填，测试场地成功不是10×10正赛验收。运动优化/高位续扫/障碍柱的“继承/开/关”分别省略覆盖或传对应on/off CLI。正式模板默认开启运动优化和高位续扫，历史测试复现保留原值。两项独立，不能从运动优化开关推断续扫。配置检查与运行生成结果分别显示实际值；尚无监督器输出或已改变选择时显示“尚未确认”。报告见 [本轮验证](../../docs/verification/workbench_release_20261008/REPORT.md)。
+独立正赛卡片指向 `deployment/competition/field.example.yaml`，保留比赛FC高位2.6m、规划1.2m/s/1.0m/s²、搜索/接近前视1.0/0.4m、走廊前视0.6/0.4m、投递FC AGL 0.35m与FC软件限高3.2m；场地实测与确认必填，测试场地成功不是10×10正赛验收。运动优化/高位续扫/障碍柱的“继承/开/关”分别省略覆盖或传对应on/off CLI。正式模板默认开启运动优化和高位续扫，历史测试复现保留原值。两项独立，不能从运动优化开关推断续扫。配置检查与运行生成结果分别显示实际值；尚无监督器输出或已改变选择时显示“尚未确认”。报告见 [本轮验证](../../docs/verification/workbench_release_20261008/REPORT.md)。
 离线解压启动检查：`python tools/flight_workbench/tests/test_distribution.py`。
 
 2026-10-07：SSH 登录与 sudo 是两次独立认证，SSH 成功不会给新终端继承 sudo 的认证缓存。
@@ -149,7 +149,7 @@ bash tools/flight_workbench/start_workbench.sh --transport local --port 8793
 | 1 roscore | 终端 tab「1 · roscore」 | `roscore` |
 | 2 MAVROS | 终端 tab「2 · MAVROS」 | `roslaunch mavros px4.launch fcu_url:=/dev/ttyACM0:57600` |
 | 3 MID360 驱动 | 终端 tab「3 · MID360 驱动」 | `roslaunch uav_mission mid360_driver2.launch user_config_path:="$PWD/deployment/site_20260928/MID360_config.json"` |
-| 4 相机 | 终端 tab「4 · 下视相机」 | `bash deployment/board_trials_4x4/start_camera.sh /dev/video0` |
+| 4 相机 | 终端 tab「4 · 下视相机」 | `bash deployment/competition/start_camera.sh /dev/video0` |
 | 5 舵机（可选） | 「5a · PWM 初始化」「5b · 舵机服务」 | `sudo bash .../init_pwm.sh`、`.../pwm_node1 /Servo:=/legacy/Servo_raw` |
 | 6 专项 flight 入口 | 任务组卡片「飞行」按钮 → 终端 tab「6 · 专项 flight 入口」 | 模块 `start.sh flight`（模拟/无投递）或 `start_real.sh`（实投），显式带现场 YAML |
 | 7 状态监测 | 右栏状态面板 + 自动探针；终端 tab「7 · 状态监测」可手输命令 | 只读遥测 + 交互 shell |
@@ -389,3 +389,20 @@ PYTHONPATH=/usr/lib/python3/dist-packages python -m unittest discover -s tools/f
 PYTHONPATH=/usr/lib/python3/dist-packages python -m unittest discover -s tools/flight_workbench/tests -p test_binary_download.py -v
 PYTHONPATH=/usr/lib/python3/dist-packages python -m unittest discover -s tools/flight_workbench/tests -p test_auth_prompts.py -v
 ```
+
+## 2026-10-08 第08组速度与独立工程入口
+
+第08组固定使用 `deployment/board_trials_4x4/08_full_mission/site_20261007_221730.yaml`；
+来源是昨日最后221730轮 metadata，不是旧 namedsite。下拉可选有限空间规划0.5/0.35，
+或显式传 `--speed-profile competition` 选择1.2/1.0和前视1.0/0.4/0.2m。
+两档保留同一现场几何、FC高位2m和本组H观察高度；昨日现场不是10×10正赛场地。
+0.6/0.4是走廊前视距离m，1.2/1.0是规划速度/加速度上限，不是实测速度。
+仅配置检查走 `--check-config`，普通preview仍会启动节点。
+
+独立正赛下拉包含 `deployment/competition/candidates/rectangle_motion.yaml`、
+`snake_motion.yaml` 和 `snake3_motion.yaml`，以各文件配置和场地确认状态为准。
+
+相机按钮共用 `bash deployment/competition/start_camera.sh {video_device}`；
+该入口仍启动同一标定launch。默认0928工程的 `connection.env_script` 保留。
+若连接独立工程根目录，在连接设置中将此项改为
+`deployment/competition/environment.sh`，同时填写实际工程根目录；不自动切根目录。

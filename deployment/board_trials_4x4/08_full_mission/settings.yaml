@@ -1,9 +1,9 @@
 mode: high_view_full
 low_agl: 1.4
 high_agl: 2.6
-drop_agl: 0.45
+drop_agl: 0.35
 landing_transit_agl: 1.0
-landing_capture_agl: 1.8
+landing_capture_agl: 1.2
 landing_xy: null
 cruise_speed: 0.5
 cruise_acceleration: 0.35
@@ -34,3 +34,10 @@ landing_posctl:
 
 # Resume at most once with original mission budget and existing fresh-map checks.
 resume_survey_enabled: true
+
+# 与B已通过的试飞入口一致：运动优化默认开启；导航故障恢复仍由生成器显式关闭。
+motion_optimization:
+  enabled: true
+
+# 与B整场试飞入口一致，单个运动动作预算为60秒。
+motion_action_timeout: 60.0

@@ -1,3 +1,5 @@
+# 三扫描线正式可选模板，本轮模板未实测；选择 candidates/snake3_motion.yaml。
+# 航点/镜头高度来源：docs/planning/serpentine_20261004/PLAN.md 第20行及 route_candidates.yaml。
 # 正式可选运动模板；须现场测量，本轮模板未实测，不自动替换入口所选 YAML。
 # 正式比赛待测量模板：约10m×10m场地；不是2026-10-07有限测试场地默认。
 # 所有 XY 以开机后固定任务坐标系 camera_init 的起飞参考为原点，单位 m；
@@ -20,8 +22,9 @@ site_confirmed: false
 mode: high_view_full
 # 低位搜索/复核及既有投后爬升的 FC 离地高度，单位 m。
 low_agl: 1.4
-# 高位搜索 FC 离地高度；正式比赛值保留，不套用有限测试场地的 2m。
-high_agl: 2.76
+# 三线镜头离地2.00m；当前机架镜头低于FC0.16m，FC离地2.16m。
+# 生成器用 known_rig 外参校验两种高度；不把2.00m当FC高度。
+high_agl: 2.16
 # 软件 FC 离地限高；必须高于搜索高度，并结合机身顶部净空满足规则 4m。
 max_agl: 3.2
 # 正式释放平面为 FC 离地0.35m；不是相机高度或投口离地高度。
@@ -80,16 +83,20 @@ coverage_bounds:
 staging_xy:
 - 0.6
 - 0.05
-# 高位搜索航点 [x,y]，顺序有意义；不是靶标坐标，保留现有比赛路线。
+# 三条沿±Y扫描线，换道沿+X；六航点按设计原顺序，不闭合返回起点。
 survey_xy:
-- - 1.8
-  - -3.7
-- - 1.8
-  - 3.9
-- - 5.6
-  - 3.9
-- - 5.6
-  - -3.7
+- - 1.0
+  - -3.95
+- - 1.0
+  - 4.1
+- - 3.7
+  - 4.1
+- - 3.7
+  - -3.95
+- - 6.4
+  - -3.95
+- - 6.4
+  - 4.1
 # 规划地图尺寸 [x,y,z] m；相对固定任务坐标原点覆盖所有航点。
 map_size:
 - 22.0
@@ -166,7 +173,7 @@ mapping_profile: high
 # 独立整机监督器节点名；不能与试飞任务并行运行。
 supervisor_name: competition_supervisor
 # 候选相机离地高度；FC high_agl = 相机高度 + 当前机架垂直偏移0.16m。
-survey_camera_agl: 2.6
+survey_camera_agl: 2.0
 # 运动优化默认开启；CLI on/off 显式覆盖，不是导航故障恢复开关。
 motion_optimization:
   enabled: true

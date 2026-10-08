@@ -153,7 +153,7 @@ def build_group_command(config, group, mode, route=None, real_release=None,
                         check_config=False, capture_speed=None, capture_lighting=None,
                         motion_optimized=False, survey_pattern=None, resume_survey=None,
                         site_geometry=None, geometry_revision=None,
-                        motion_optimization=None, obstacle_columns=None, competition_config=None):
+                        motion_optimization=None, obstacle_columns=None, competition_config=None, speed_profile=None):
     """按现场手册拼出任务组启动命令。返回 (命令, 说明)。"""
     if mode not in ("preview", "flight"):
         raise ValueError("mode 必须是 preview 或 flight")
@@ -167,7 +167,7 @@ def build_group_command(config, group, mode, route=None, real_release=None,
         if route != "competition":
             raise ValueError("正赛卡片仅允许独立 competition 入口")
         if any(value is not None for value in (capture_speed, capture_lighting, survey_pattern,
-                site_geometry, geometry_revision)) or motion_optimized:
+                site_geometry, geometry_revision, speed_profile)) or motion_optimized:
             raise ValueError("正赛使用独立场地配置和 on/off 开关，不接受专项参数")
         if not isinstance(check_config, bool) or (real_release is not None and not isinstance(real_release, bool)):
             raise ValueError("check_config / real_release 必须是布尔值")
@@ -196,7 +196,7 @@ def build_group_command(config, group, mode, route=None, real_release=None,
             raise ValueError("非法低空观察入口或 profile")
         if real_release or motion_optimized or any(value is not None for value in (
                 capture_speed, capture_lighting, survey_pattern, resume_survey,
-                site_geometry, geometry_revision)):
+                site_geometry, geometry_revision, speed_profile)):
             raise ValueError("低空观察继承原 profile，不支持投递或专项参数")
         if not isinstance(check_config, bool):
             raise ValueError("check_config 必须是布尔值")
@@ -215,6 +215,10 @@ def build_group_command(config, group, mode, route=None, real_release=None,
     module_base = "deployment/board_trials_4x4/%s" % folder
 
     extra = ""
+    if speed_profile is not None:
+        if folder != "08_full_mission" or route != "module" or speed_profile not in ("limited", "competition"):
+            raise ValueError("08速度版本只支持模块08的 limited/competition")
+        extra += " --speed-profile " + speed_profile
     if capture_speed is not None:
         if folder != "09_high_speed_capture" or isinstance(capture_speed, bool) or float(capture_speed) not in (.5, 1., 1.2):
             raise ValueError("拍摄速度只允许第6组的 0.5/1.0/1.2 m/s")
@@ -246,7 +250,7 @@ def build_group_command(config, group, mode, route=None, real_release=None,
         command, note = build_group_command(config, selected, mode, route=route,
             real_release=real_release, check_config=check_config, capture_speed=capture_speed,
             capture_lighting=capture_lighting, motion_optimized=motion_optimized,
-            survey_pattern=survey_pattern, resume_survey=resume_survey)
+            survey_pattern=survey_pattern, resume_survey=resume_survey, speed_profile=speed_profile)
         return prepare + " && " + command, "先验证实测坐标并生成独立现场配置；" + note
 
     if check_config:

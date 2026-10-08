@@ -53,7 +53,7 @@ try {
   await run(`document.activeElement.blur();renderGroups();window.findApply=()=>Array.from(document.querySelectorAll('button')).find(b=>b.textContent.includes('生成并预览坐标命令'));findApply().click();`);
   for(let i=0;i<60;i++){if(await run('Object.keys(u.geometryPlans||{}).length===3'))break;await sleep(100);}
   await test('pure offline plan produces all three commands', 'Object.keys(u.geometryPlans||{}).length===3');
-  await test('command contains dedicated overlay and preserves original site', `trialBody(g,'flight',false).expected_body.includes('site_overlays/08_full_mission_') && trialBody(g,'flight',false).expected_body.includes('full_mission_test_area.yaml')`);
+  await test('command contains dedicated overlay and preserves original site', `trialBody(g,'flight',false).expected_body.includes('site_overlays/08_full_mission_') && trialBody(g,'flight',false).expected_body.includes('site_20261007_221730.yaml')`);
   await test('no trial created by planning', `!state.trial.group_id && !state.sessions.trial`);
   await run(`window.p=document.querySelector('[data-geometry="geometryLanding"]');p.value='3,0';p.dispatchEvent(new Event('input',{bubbles:true}));`);
   await test('editing invalidates old command', `!trialBody(g,'flight',false).expected_body && Object.keys(u.geometryPlans).length===0`);
