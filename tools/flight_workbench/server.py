@@ -354,6 +354,14 @@ class Workbench(object):
 
     def _update_config(self, body):
         connection = self.config["connection"]
+        body = dict(body)
+        proposed = dict(connection)
+        for key in ("host", "board_root", "site_dir", "env_script", "model", "metadata"):
+            if body.get(key):
+                proposed[key] = body[key]
+        if wb_board.is_competition_connection(proposed):
+            # Validate before resetting state or saving any part of the request.
+            body.update(wb_board.competition_asset_paths(proposed))
         changed = any(body.get(k) not in (None, "", connection.get(k))
                       for k in ("host", "port", "board_root", "site_dir", "env_script", "model", "metadata"))
         if changed and (self.orchestration.get("running") or any(

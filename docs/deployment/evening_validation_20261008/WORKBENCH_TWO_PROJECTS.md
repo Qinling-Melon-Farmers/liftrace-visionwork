@@ -41,7 +41,7 @@
 }
 ```
 
-model/metadata也属于全局连接设置。本轮保留现有08值；独立工程须按主代理实际部署清单核对其工程内的模型与metadata，再成套保存，不凭历史打包说明猜测文件名。配置文件均优先使用所属工程内相对路径，不用另一个工程的绝对路径。
+model/metadata也属于全局连接设置。当前两者为根内相对路径；切独立工程时按主代理实际部署清单核对根内文件后成套保存。选择competition环境后，API会将所选根内绝对model/metadata转为相对路径；其他工程绝对路径及`../`越界路径会拒绝整个请求，不部分保存。配置文件均使用所属工程内路径，不用另一个工程的绝对路径。
 
 ## 防止串源
 
@@ -52,7 +52,7 @@ model/metadata也属于全局连接设置。本轮保留现有08值；独立工�
 3. 使用上面的独立正赛请求保存成套参数，然后读取 `/api/snapshot`，确认root/env均属于独立工程，再选择正赛卡片。返回08也必须保存整套0928参数。
 4. `/api/trial/command`仅返回入口命令body，不包含外层root。核对时必须结合快照的root/env；实际会话包装为 `cd <board_root> && source <board_root>/<env_script> && <body>`。不能只看body就认为已切源。
 5. 独立正赛environment会检查uav_mission/uav_vision/uav_high_view/camera_sdk/actuator_pwm的rospack路径必须落在独立根内。0928environment没有相同逐包守卫；其板端构建/overlay来源由主代理完成后检查。本轮不source任何板端环境。
-6. 现有雷达终端仍固定引用当前根下 `deployment/site_20260928/MID360_config.json`，通用preflight仍检查site_dir下的test_area.yaml。独立工程是否带这些设备配置需要按部署清单核对；正赛根设置site_dir=deployment/competition后，不能把通用test_area缺项误判成正赛场地配置缺项，也不能为消除告警借用0928工程的文件。本轮不启动这些终端。
+6. 现有雷达终端引用当前根下 `deployment/site_20260928/MID360_config.json`；用户已确认独立工程内有实测副本，不引用旧root。preflight现按competition环境检查根内`deployment/competition/field.example.yaml`的文件/模板状态、独立入口及competition_supervisor续扫CLI，不要求test_area.yaml或其他专项模块。`site_confirmed=false`保留“待实测确认”，true也仅报告文件声明，不代替场地/有效飞行配置验收。08仍检查原test_area及模块。
 
 ## 待构建完成的调用清单（未执行）
 
@@ -72,4 +72,4 @@ model/metadata也属于全局连接设置。本轮保留现有08值；独立工�
 
 正式模板尚未实测确认时，只能检查展开结果，不能宣称可生成飞行配置。需要生成runtime时使用主代理确认的实测正赛YAML与参考位姿；模板本身不能代替这些数据。后续preview检查结束恢复0928配置，用户仍先测试08。
 
-本轮不调用 `/api/connect`、`/api/action/preflight`、`/api/action/start_all`、`/api/session/open`、`/api/trial/start` 或 `/api/action/mission_start`，不操作PWM/舵机/飞控。后续HTTP生成/preview本身不构成真实飞行授权。
+最初准备阶段不调用连接/预检/入口接口。0928 ARM构建于21:29通过后，用户已明确授权通过HTTP实际SSH执行mod08的competition及limited两档`preview --check-config`，仅配置检查，不启动应用/READY/设备。无需调用`/api/connect`（该接口会自动启动探针/预检）；独立正赛继续等待其构建完成。主代理独立master11418的软件测试不由工作台启动或停止。HTTP生成/preview不构成真实飞行授权。
