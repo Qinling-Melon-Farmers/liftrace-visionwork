@@ -26,8 +26,12 @@ class NativeSSHTests(unittest.TestCase):
         self.addCleanup(home.stop)
         self.key = paramiko.RSAKey.generate(2048)
 
-    def fixture(self, payload=b'fixture\x00\xff\r\n\n', code=0, delay=0):
+    def fixture(self, payload=b'fixture\x00\xff\r\n\n', code=0, delay=0, use_key=False):
         pm = self.paramiko
+        client_key = pm.RSAKey.generate(2048) if use_key else None
+        key_path = Path(self.tmp.name) / 'client key'
+        if client_key:
+            client_key.write_private_key_file(str(key_path))
         listener = socket.socket()
         listener.bind(('127.0.0.1', 0))
         listener.listen(1)
@@ -38,9 +42,11 @@ class NativeSSHTests(unittest.TestCase):
         errors = []
         class Fixture(pm.ServerInterface):
             def check_auth_password(self, username, password):
-                return pm.AUTH_SUCCESSFUL if username == 'fixture' and password == 'fixture-only-secret' else pm.AUTH_FAILED
+                return pm.AUTH_SUCCESSFUL if not use_key and username == 'fixture' and password == 'fixture-only-secret' else pm.AUTH_FAILED
+            def check_auth_publickey(self, username, key):
+                return pm.AUTH_SUCCESSFUL if use_key and username == 'fixture' and key.asbytes() == client_key.asbytes() else pm.AUTH_FAILED
             def get_allowed_auths(self, username):
-                return 'password'
+                return 'publickey' if use_key else 'password'
             def check_channel_request(self, kind, chanid):
                 return pm.OPEN_SUCCEEDED if kind == 'session' else pm.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
             def check_channel_pty_request(self, *args):
@@ -83,8 +89,19 @@ class NativeSSHTests(unittest.TestCase):
         worker.start()
         self.addCleanup(lambda: ended.wait(5))
         target = wb_ssh.Target('fixture@127.0.0.1', port=port,
-            password='fixture-only-secret', ssh_options=['-o','StrictHostKeyChecking=accept-new'])
+            password=None if use_key else 'fixture-only-secret',
+            identity_file=str(key_path) if use_key else '',
+            ssh_options=['-o','StrictHostKeyChecking=accept-new'])
         return target, requested, errors
+
+    def test_explicit_private_key_authenticates_without_password(self):
+        target, requested, errors = self.fixture(b'KEY_FIXTURE_DONE\n', use_key=True)
+        self.assertIsNone(target.password)
+        code, result = wb_ssh.run_bytes(target, 'fixture-key', timeout=5)
+        self.assertEqual(code, 0)
+        self.assertEqual(result, b'KEY_FIXTURE_DONE\n')
+        self.assertEqual(requested, [b'fixture-key'])
+        self.assertEqual(errors, [])
 
     def test_binary_bytes_and_host_key_persistence(self):
         payload = bytes(range(256)) * 1024
