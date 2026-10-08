@@ -2807,8 +2807,11 @@ bool LLController::WayPointDetectDone()
                 drop_release_setpoint_height_);
             ROS_INFO("\033[32m[CrossDetectionDone] should_drop: %d, drop_complete: %d, uav_pose.pose.position.z: %.2f\033[0m", should_drop, drop_complete, uav_pose.pose.position.z);
             const bool legacy_geometry_ready =
-                uav_pose.pose.position.z <= drop_height_threshold &&
-                ttt <= drop_position_threshold_ && !drop_complete;
+                !drop_complete &&
+                ((external_mission_mode_ && compensated_alignment_enabled_)
+                    ? compensatedDropSettled(true)
+                    : (uav_pose.pose.position.z <= drop_height_threshold &&
+                       ttt <= drop_position_threshold_));
             const DropReleaseGate release_gate = currentDropReleaseGate();
             should_drop = dropReleaseReady(
                 external_mission_mode_, legacy_geometry_ready,
@@ -4181,8 +4184,11 @@ bool LLController::CrossDetectionDone() {
                 drop_release_setpoint_height_);
             ROS_INFO("\033[32m[CrossDetectionDone] should_drop: %d, drop_complete: %d, uav_pose.pose.position.z: %.2f\033[0m", should_drop, drop_complete, uav_pose.pose.position.z);
             const bool legacy_geometry_ready =
-                uav_pose.pose.position.z <= drop_height_threshold &&
-                ttt <= drop_position_threshold_ && !drop_complete;
+                !drop_complete &&
+                ((external_mission_mode_ && compensated_alignment_enabled_)
+                    ? compensatedDropSettled(true)
+                    : (uav_pose.pose.position.z <= drop_height_threshold &&
+                       ttt <= drop_position_threshold_));
             const DropReleaseGate release_gate = currentDropReleaseGate();
             should_drop = dropReleaseReady(
                 external_mission_mode_, legacy_geometry_ready,

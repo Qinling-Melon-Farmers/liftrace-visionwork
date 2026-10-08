@@ -20,6 +20,7 @@ PACKAGE = Path(__file__).resolve().parents[1]
 
 PROGRAM = r'''
 #include "patrol_control/drop_slot_geometry.h"
+#include "patrol_control/drop_action.h"
 #include "patrol_control/landing_handoff_stability.h"
 #include "patrol_control/async_servo.h"
 #include "patrol_control/servo_action_result.h"
@@ -148,6 +149,11 @@ public:
  double external_alignment_capture_height_=1,drop_release_setpoint_height_=.35;
  double drop_height_threshold=.45,align_height=1;
  bool uav_drop_ready_=true,control_ready=true,permission_ready=true,should_drop=false;
+ double drop_position_threshold_=.15; bool require_vision_release_permission_=true;
+ DropReleaseGate currentDropReleaseGate() const {return {permission_ready,permission_ready};}
+ static double distance3d(double x,double y,double z,double tx,double ty,double tz){
+  return std::hypot(std::hypot(x-tx,y-ty),z-tz);
+ }
  double dis_to_next_position=0;
  enum {Run_point,Aligning}; int Drone_mode=Aligning;
  std::array<std::array<double,2>,3> drop_slot_offsets_{{{{-.12,0}},{{0,-.12}},{{0,.12}}}};
@@ -198,6 +204,8 @@ public:
  void resetDropState();void clearUavVisionAlignmentState();void resetDetectionState();
  void advanceCircle(){int servo_id=1; CIRCLE_DESCENT }
  void advanceCross(){int servo_id=1; CROSS_DESCENT }
+ bool circleReleaseReady(){ CIRCLE_RELEASE return should_drop; }
+ bool crossReleaseReady(){ CROSS_RELEASE return should_drop; }
 };
 METHODS
 }
@@ -359,6 +367,49 @@ int main(int argc,char**argv){
    close(c.compensated_target_center_.x,2);close(c.compensated_fc_goal_.pose.position.x,g.x);}
   finish(c,t);
   assert(c.executeDropAction(1)==DropActionResult::kSuccess&&t->calls==1);
+ }else if(name=="outer_circle"||name=="outer_cross"||
+          name=="outer_reject_circle"||name=="outer_reject_cross"){
+  const bool cross=name=="outer_cross"||name=="outer_reject_cross";
+  const bool reject=name=="outer_reject_circle"||name=="outer_reject_cross";
+  c.current_align_mode_=cross?"drop_cross":"drop_circle";
+  c.servo_alignment_context_.align_mode=c.current_align_mode_;
+  capture(c);c.waypoint_temp=center(100);
+  const auto g=c.compensated_fc_goal_.pose.position;
+  auto outer=[&]{return cross?c.crossReleaseReady():c.circleReleaseReady();};
+  odom(c,101,g.x,g.y,.45);
+  const auto p=c.uav_pose.pose.position;
+  assert(LLController::distance3d(p.x,p.y,p.z,2,3,.35)>.15);
+  assert(outer());  // Production outer gate no longer measures to the raw center.
+  if(!reject){
+   assert(c.executeDropAction(1)==DropActionResult::kPending&&c.servo_action_attempted_);
+   finish(c,t);assert(t->calls==1);
+   assert(!outer()); // Original !drop_complete still prevents a second request.
+  }else{
+   odom(c,101.01,g.x+.041,g.y,.40);assert(!outer());
+   odom(c,101.02,g.x,g.y,.451);assert(!outer());
+   odom(c,101.03,g.x,g.y,.349);assert(!outer());
+   odom(c,101.04,g.x,g.y,.45);assert(outer());
+   ros::clock_sec=101.25;assert(!outer()); // Source and receipt are now stale.
+   odom(c,101.26,g.x,g.y,.45);c.permission_ready=false;assert(!outer());
+   assert(c.executeDropAction(1)==DropActionResult::kRejected);
+   c.permission_ready=true;c.control_ready=false;assert(!outer());
+   c.control_ready=true;c.drop_complete=true;assert(!outer());c.drop_complete=false;
+   assert(outer()); // Final admission checks permission again after the outer gate.
+   c.permission_ready=false;assert(c.executeDropAction(1)==DropActionResult::kRejected);
+   assert(!c.servo_action_attempted_&&t->calls==0);
+  }
+ }else if(name=="outer_legacy"){
+  for(bool cross:{false,true}){
+   auto outer=[&]{return cross?c.crossReleaseReady():c.circleReleaseReady();};
+   c.waypoint_temp=center(100);
+   for(bool external:{false,true}){
+    c.external_mission_mode_=external;c.compensated_alignment_enabled_=!external;
+    c.compensated_goal_valid_=false; // A legacy gate never demands a frozen target.
+    odom(c,101,2.12,3,.45);assert(!outer());
+    odom(c,101.01,2.12,3,.35);assert(outer());
+    c.drop_complete=true;assert(!outer());c.drop_complete=false;
+   }
+  }
  }else if(name=="vision_frozen"){
   capture(c);auto saved=c.compensated_fc_goal_;auto stamp=c.compensated_observation_stamp_;
   for(int i=0;i<3;++i){uav_vision::DropOffset m;m.header.stamp=ros::Time(101+i*.1);
@@ -607,11 +658,18 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         cross_start = source.index('        if(have_cross_mark &&', source.index('bool LLController::CrossDetectionDone()'))
         cross_end = source.index('            double ttt = distance3d(', cross_start)
         cross = source[cross_start:cross_end] + '}'
+        def outer_release(signature):
+            body = method(source, signature)
+            start = body.index('            double ttt = distance3d(')
+            end = body.index('            if (external_mission_mode_ &&', start)
+            return body[start:end]
         guard_start = source.index('    if (compensated_alignment_enabled_ &&', source.index('void LLController::externalMissionTick()'))
         guard_end = source.index('    std_msgs::Bool detect_enable_msg;', guard_start)
         cpp.write_text(PROGRAM.replace('METHODS', production).replace('DEFAULTS', defaults)
                        .replace('CONFIGURED_DROP', configured_assignments)
                        .replace('EXTERNAL_GUARD', source[guard_start:guard_end])
+                       .replace('CIRCLE_RELEASE', outer_release('bool LLController::WayPointDetectDone('))
+                       .replace('CROSS_RELEASE', outer_release('bool LLController::CrossDetectionDone('))
                        .replace('CIRCLE_DESCENT', circle).replace('CROSS_DESCENT', cross), encoding='utf-8')
         cls.binary = root / 'test'
         subprocess.run([
@@ -633,6 +691,11 @@ class CompensatedDropGeometryTests(unittest.TestCase):
     def test_circle_without_map_or_new_images_settles_and_releases_once(self): self.run_case('no_map_circle')
     def test_cross_without_map_or_new_images_settles_and_releases_once(self): self.run_case('no_map_cross')
     def test_descent_invalid_visual_frames_preserve_frozen_target(self): self.run_case('vision_frozen')
+    def test_circle_outer_gate_releases_compensated_outlet_beyond_raw_center_distance(self): self.run_case('outer_circle')
+    def test_cross_outer_gate_releases_compensated_outlet_beyond_raw_center_distance(self): self.run_case('outer_cross')
+    def test_circle_outer_gate_and_final_admission_keep_geometry_freshness_and_permission(self): self.run_case('outer_reject_circle')
+    def test_cross_outer_gate_and_final_admission_keep_geometry_freshness_and_permission(self): self.run_case('outer_reject_cross')
+    def test_both_legacy_outer_gates_keep_original_distance_and_completed_guard(self): self.run_case('outer_legacy')
     def test_duplicate_stale_future_visual_frames_cannot_retarget(self): self.run_case('vision_replay')
     def test_six_cm_error_blocks_real_rpc_submission(self): self.run_case('xy')
     def test_configured_six_cm_releases_immediately_without_speed_gate(self): self.run_case('configured_settle')
