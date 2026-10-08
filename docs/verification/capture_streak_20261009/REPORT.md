@@ -1,4 +1,4 @@
-# 冻结前捕获计数衔接（2026-10-09，仅F源码）
+# 冻结前捕获计数衔接（2026-10-09）
 
 原捕获要求保持5个独立新图像、像素偏差≤30px。仅补偿投递的冻结前分支允许：同一缓存图像被重复检查至过期时立即撤销ready和有效证据，但在短间隔内保留此前合格图像计数；新图像和匹配控制反馈均通过原新鲜性／身份／几何检查后才能继续计数。缓存图像不会变成新的计数，也不会被包装成新鲜证据。
 
@@ -12,7 +12,7 @@
 
 代码中年龄来自目标`last_seen`，DropOffset和控制反馈保留同一原始观测时间；target_memory在检测回调发布，没有等待额外memory定时器。不能通过刷新header来消除上游延迟，也不绕过匹配控制反馈。此补丁消除的是“缓存过期反复清零”导致的重新累计，没有宣称修好0.43秒上游处理延迟。
 
-两轮bag缺少`drop_alignment_feedback`，不能精确恢复当时该回调的接收顺序、有效性和定位年龄；时间反推由Sagan独立处理。优先从相关targets的`last_seen`或ReleaseEvidenceContext的`geometry_target_last_seen`识别源图像；`release_evidence.header－observation_age`只能近似时间，不能把重复发布计成独立图像。生产回调的合成序列验证功能，不是新ALIGN到投递耗时或节时实测。
+两轮bag缺少`drop_alignment_feedback`，不能精确恢复当时该回调的接收顺序、有效性和定位年龄；时间反推见本批投递效率说明及试飞轮次报告。优先从相关targets的`last_seen`或ReleaseEvidenceContext的`geometry_target_last_seen`识别源图像；`release_evidence.header－observation_age`只能近似时间，不能把重复发布计成独立图像。生产回调的合成序列验证功能，不是新ALIGN到投递耗时或节时实测。
 
 ## 离线验证与运行命令
 
