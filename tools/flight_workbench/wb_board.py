@@ -713,6 +713,8 @@ def apply_profile(config, profile):
     for key, target in mapping.items():
         if profile.get(key) not in (None, ""):
             config["connection"][target] = profile[key]
+    if isinstance(profile.get("identity_file"), str):
+        config["connection"]["identity_file"] = profile["identity_file"]
     if profile.get("auto_password") is not None:
         config["connection"]["auto_password"] = bool(profile["auto_password"])
     return config

@@ -92,7 +92,7 @@ class Target(object):
     """连接目标（工作台进程内共享一份口令）。"""
 
     def __init__(self, host="orangepi@192.168.3.15", port=22, ssh_options=None,
-                 password=None, auto_password=True, connect_timeout=12, transport="ssh"):
+                 password=None, auto_password=True, connect_timeout=12, transport="ssh", identity_file=""):
         self.host = host
         self.port = int(port or 22)
         self.ssh_options = list(ssh_options or [])
@@ -100,6 +100,7 @@ class Target(object):
         self.auto_password = bool(auto_password)
         self.connect_timeout = float(connect_timeout or 12)
         self.transport = transport or "ssh"
+        self.identity_file = identity_file or ""
 
     @property
     def user(self):
@@ -112,6 +113,8 @@ class Target(object):
         if self.port and self.port != 22:
             argv += ["-p", str(self.port)]
         argv += ["-o", "ConnectTimeout=%d" % int(self.connect_timeout)]
+        if self.identity_file:
+            argv += ["-i", os.path.expanduser(self.identity_file), "-o", "IdentitiesOnly=yes"]
         if not self.password:
             # 没有口令可用时不要挂在交互口令提示上：让 ssh 立刻失败，界面才能如实报
             # "认证失败/指纹不一致/网络不通"，而不是被误判成"板端文件缺失"。

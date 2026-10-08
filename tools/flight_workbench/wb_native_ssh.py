@@ -25,8 +25,10 @@ def connect(target):
     try:
         client.connect(host[1], port=target.port, username=host[0],
                        password=target.password if target.auto_password else None,
+                       key_filename=str(Path(target.identity_file).expanduser()) if target.identity_file else None,
                        timeout=target.connect_timeout, auth_timeout=target.connect_timeout,
-                       banner_timeout=target.connect_timeout, look_for_keys=True, allow_agent=True)
+                       banner_timeout=target.connect_timeout,
+                       look_for_keys=not bool(target.identity_file), allow_agent=not bool(target.identity_file))
         client.get_transport().set_keepalive(15)
         return client
     except Exception:

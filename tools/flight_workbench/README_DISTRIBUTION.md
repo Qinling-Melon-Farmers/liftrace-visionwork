@@ -16,6 +16,10 @@
 
 Windows 用 Paramiko SSH channel 复用终端、Ctrl+C、resize 和二进制下载。支持内存密码、已有密钥/可用 agent；known_hosts 位于本用户 ~/.ssh/known_hosts。只在配置 StrictHostKeyChecking=accept-new 时接受并保存新指纹，指纹变化拒绝连接。没有自动导入 PuTTY saved sessions 或完整 OpenSSH config；页面须填准确 user@host/端口。加密私钥单独解密和不兼容的 agent 未验收。
 
+连接设置支持`identity_file`本机私钥路径：WSL/OpenSSH使用该文件并限制密钥选择，Windows/Paramiko将其作为key_filename；留空恢复默认密钥/agent。路径保存到使用者的本机profile，ZIP不含私钥或个人profile，Windows需填写Windows可访问路径，不能直接沿用WSL的/home路径。仅保存连接参数不自动连接、不启动探针或设备。
+
+独立正赛环境的通用预检检查根内field.example.yaml的存在及site_confirmed文件声明，不要求08的test_area.yaml或专项模块；模板检查不代表现场确认或飞行配置验收。切独立根时model/metadata必须属于该根，根内绝对路径会转成相对路径，根外或越界路径拒绝保存。
+
 Windows 无法核查远端 PTY 的 echo，因此不会自动填写 sudo 口令，5a 经确认后需终端手工认证；Linux 保留原有有限次数且确认 echo 关闭的应答。SSH 登录密码不出现在命令行、ZIP、终端日志或 URL。记住口令仍是用户明确可选操作，只写个人状态目录；不要把状态目录打包分享。
 
 ## Linux / WSL

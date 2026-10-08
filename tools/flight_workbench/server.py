@@ -70,6 +70,7 @@ class Workbench(object):
             auto_password=config["connection"].get("auto_password", True),
             connect_timeout=config["connection"].get("connect_timeout", 12),
             transport=options.get("transport", "ssh"),
+            identity_file=config["connection"].get("identity_file", ""),
         )
         self.board = wb_board.BoardClient(config, self.target)
         self.logs = wb_logs.LogsClient(self.board)
@@ -243,6 +244,7 @@ class Workbench(object):
                     "board_root": self.config["connection"].get("board_root"),
                     "site_dir": self.config["connection"].get("site_dir"),
                     "env_script": self.config["connection"].get("env_script"),
+                    "identity_file": self.target.identity_file,
                     "model": self.config["connection"].get("model"),
                     "metadata": self.config["connection"].get("metadata"),
                     "transport": self.target.transport,
@@ -334,7 +336,7 @@ class Workbench(object):
     def _save_profile(self, password=False):
         profile = dict(self._profile)
         connection = self.config["connection"]
-        for key in ("host", "board_root", "site_dir", "env_script", "model", "metadata"):
+        for key in ("host", "board_root", "site_dir", "env_script", "model", "metadata", "identity_file"):
             profile[key] = connection.get(key)
         profile["port"] = connection.get("port", 22)
         profile["auto_password"] = bool(self.target.auto_password)
@@ -355,6 +357,9 @@ class Workbench(object):
     def _update_config(self, body):
         connection = self.config["connection"]
         body = dict(body)
+        if "identity_file" in body and (not isinstance(body["identity_file"], str)
+                                        or any(c in body["identity_file"] for c in "\r\n\x00")):
+            raise ValueError("identity_file 必须是本机私钥路径；留空使用默认 SSH 认证")
         proposed = dict(connection)
         for key in ("host", "board_root", "site_dir", "env_script", "model", "metadata"):
             if body.get(key):
@@ -364,6 +369,7 @@ class Workbench(object):
             body.update(wb_board.competition_asset_paths(proposed))
         changed = any(body.get(k) not in (None, "", connection.get(k))
                       for k in ("host", "port", "board_root", "site_dir", "env_script", "model", "metadata"))
+        changed = changed or ("identity_file" in body and body["identity_file"] != connection.get("identity_file", ""))
         if changed and (self.orchestration.get("running") or any(
                 s.state in ("running", "starting") for s in self.sessions.sessions.values())):
             raise ValueError("会话仍在运行；请落地、收尾并断开后再修改板端地址或工程参数")
@@ -388,6 +394,10 @@ class Workbench(object):
             connection["auto_password"] = bool(body["auto_password"])
         if body.get("host"):
             self.target.host = body["host"]
+        if "identity_file" in body:
+            connection["identity_file"] = body["identity_file"]
+            self.target.identity_file = body["identity_file"]
+        if body.get("host") or "identity_file" in body:
             # 从「板端地址」下拉选中的地址要落到本机 profile，下次启动仍是它（不写回仓库配置）
             if not self.options.get("logs_only"):
                 self._save_profile(password=False)

@@ -2272,6 +2272,7 @@ function doConfig() {
   var cmdText = 'POST /api/config\n' + JSON.stringify({
     host: '<host>', user: '<user>', port: '<port>', board_root: '<board_root>',
     site_dir: '<site_dir>', env_script: '<env_script>', model: '<model>', metadata: '<metadata>',
+    identity_file: '<local_private_key_path>',
     auto_password: '<bool>', save_password: '<bool>'
   }, null, 2);
   formModal('连接参数（engineer only）', cmdText,
@@ -2285,6 +2286,7 @@ function doConfig() {
       { name: 'board_root', label: 'board_root', value: c.board_root || '' },
       { name: 'site_dir', label: 'site_dir', value: c.site_dir || '' },
       { name: 'env_script', label: 'env_script', value: c.env_script || '' },
+      { name: 'identity_file', label: '本机私钥路径（可留空）', value: c.identity_file || '' },
       { name: 'model', label: 'model', value: c.model || '' },
       { name: 'metadata', label: 'metadata', value: c.metadata || '' },
       { name: 'password', label: '口令（可选）', type: 'password' },
