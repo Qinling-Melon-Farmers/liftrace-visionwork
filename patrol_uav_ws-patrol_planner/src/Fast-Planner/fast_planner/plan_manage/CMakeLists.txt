@@ -93,3 +93,7 @@ if(CATKIN_ENABLE_TESTING)
     target_link_libraries(planner_status_schema_test ${catkin_LIBRARIES})
   endif()
 endif()
+
+if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(test/test_navigation_recovery_velocity.py)
+endif()

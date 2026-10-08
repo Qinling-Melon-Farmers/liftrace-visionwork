@@ -151,7 +151,8 @@ private:
   recovery::Config recovery_config_;
   recovery::Transaction recovery_transaction_;
   bool recovery_active_=false;
-  std::string odom_frame_;
+  std::string odom_frame_, recovery_odom_child_frame_;
+  std::string recovery_odom_twist_frame_="child";
   navigation_recovery_msgs::NavigationRecoveryContext recovery_context_;
   mavros_msgs::State recovery_fc_state_;
   ros::Time recovery_fc_stamp_;

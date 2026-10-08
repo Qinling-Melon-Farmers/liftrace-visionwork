@@ -17,6 +17,9 @@ void KinoReplanFSM::initRecovery(ros::NodeHandle& nh) {
   nh.param("navigation_recovery/tracking_error",c.tracking_error,.08);
   // The Oct-8 integration deliberately uses existing localisation, no EV/reset
   // producer or predictor. Timestamp/frame checks remain mandatory.
+  nh.param<std::string>("navigation_recovery/odom_twist_frame", recovery_odom_twist_frame_, "child");
+  if (recovery_odom_twist_frame_!="child" && recovery_odom_twist_frame_!="world")
+    throw std::invalid_argument("recovery odom_twist_frame must be child or world");
   c.require_reference_attestation=false;
   if (!c.valid()) throw std::invalid_argument("invalid recovery configuration");
   recovery_transaction_=recovery::Transaction(c);
@@ -44,7 +47,9 @@ recovery::Context KinoReplanFSM::recoveryContext() const {
   x.mission_deadline=x.action_deadline;
   x.soft_max_z=height.enabled && height.valid ? height.max_z : recovery_config_.hard_max_z;
   x.goal=goal_status_tracker_.effectiveGoal().header.stamp.toNSec();
-  x.position=odom_pos_;x.velocity=odom_vel_;x.goal_position=end_pt_;
+  x.position=odom_pos_;x.goal_position=end_pt_;
+  x.velocity_error=recovery::parentVelocity(odom_vel_,odom_orient_,
+      recovery_odom_child_frame_,recovery_odom_twist_frame_,x.velocity);
   const auto fresh=[&](const ros::Time& stamp,double age){
     return !stamp.isZero() && now>=stamp && (now-stamp).toSec()<=age;};
   x.offboard=recovery_fc_state_.connected && recovery_fc_state_.armed &&

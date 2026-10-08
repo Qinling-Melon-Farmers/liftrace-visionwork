@@ -211,6 +211,7 @@ void KinoReplanFSM::odometryCallback(const nav_msgs::OdometryConstPtr& msg) {
   have_odom_ = odom_pos_.allFinite() && odom_vel_.allFinite();
   odom_stamp_ = msg->header.stamp;
   odom_frame_ = msg->header.frame_id;
+  recovery_odom_child_frame_ = msg->child_frame_id;
 }
 
 void KinoReplanFSM::serverProgressCallback(

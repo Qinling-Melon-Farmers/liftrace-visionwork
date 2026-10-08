@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -54,10 +55,29 @@ struct Evidence {
   bool coverage_verified = false;
 };
 
+// Recovery velocities must share the task frame with the certified curve.
+// Keep ordinary-planner twist interpretation outside this opt-in adapter.
+inline std::string parentVelocity(const Vec& raw, const Eigen::Quaterniond& rotation,
+                                  const std::string& child_frame,
+                                  const std::string& twist_frame, Vec& result) {
+  result.setConstant(std::numeric_limits<double>::quiet_NaN());
+  if (!raw.allFinite()) return "recovery_velocity_nonfinite";
+  // Both modes publish the measured attitude, so reject unusable orientation
+  // before consuming a recovery attempt even when twist is already in world.
+  if (!rotation.coeffs().allFinite() || std::abs(rotation.norm()-1.)>.01)
+    return "recovery_orientation_invalid";
+  if (twist_frame == "world") { result=raw;return ""; }
+  if (twist_frame != "child") return "recovery_twist_frame_invalid";
+  if (child_frame.empty()) return "recovery_child_frame_missing";
+  result=rotation.normalized()*raw;
+  return "";
+}
+
 struct Context {
   double now = 0, action_deadline = 0, mission_deadline = 0, soft_max_z = 0;
   uint64_t goal = 0;  // immutable action identity, not a trajectory sequence
   Vec position = Vec::Zero(), velocity = Vec::Zero(), goal_position = Vec::Zero();
+  std::string velocity_error;
   bool offboard = false, navigation_owner = false, takeover = false;
   bool release_transaction_active = false;
   Evidence evidence;
@@ -109,6 +129,7 @@ inline bool fresh(double now, double stamp, double age) {
 
 inline std::string admission(const Config& c, const Context& x) {
   if (!c.enabled) return "disabled";
+  if (!x.velocity_error.empty()) return x.velocity_error;
   if (!c.valid() || !std::isfinite(x.now) || !std::isfinite(x.soft_max_z) ||
       !std::isfinite(x.action_deadline) || !std::isfinite(x.mission_deadline) ||
       !x.position.allFinite() || !x.velocity.allFinite() || !x.goal_position.allFinite())

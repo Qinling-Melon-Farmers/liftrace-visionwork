@@ -265,4 +265,38 @@ TEST(NavigationRecovery, ActualHandoffMustMeetNormalClearanceWithoutRenewingDead
   EXPECT_EQ(expired.step(x,q,p,v),Transaction::FAILED);
   EXPECT_EQ(expired.reason(),"deadline_or_clock");
 }
+TEST(NavigationRecovery, ChildVelocityUsesCompleteParentRotation) {
+  const double pi=std::acos(-1.);Vec actual;
+  const Eigen::Quaterniond yaw(Eigen::AngleAxisd(pi/2.,Vec::UnitZ()));
+  EXPECT_EQ(parentVelocity(Vec(1,2,3),yaw,"base_link","child",actual),"");
+  EXPECT_LT((actual-Vec(-2,1,3)).norm(),1e-12);
+  const Eigen::Quaterniond tilted(Eigen::AngleAxisd(pi/6.,Vec::UnitX()));
+  EXPECT_EQ(parentVelocity(Vec(1,2,3),tilted,"base_link","child",actual),"");
+  EXPECT_LT((actual-Vec(1,2*std::cos(pi/6.)-3*.5,1+3*std::cos(pi/6.))).norm(),1e-12);
+  const Eigen::Quaterniond combined=yaw*Eigen::Quaterniond(Eigen::AngleAxisd(pi/2.,Vec::UnitY()));
+  EXPECT_EQ(parentVelocity(Vec(1,2,3),combined,"base_link","child",actual),"");
+  EXPECT_LT((actual-Vec(-2,3,-1)).norm(),1e-12);
+}
+TEST(NavigationRecovery, WorldVelocityRemainsUnrotatedForExplicitLegacyFixture) {
+  Vec actual;const Eigen::Quaterniond yaw(Eigen::AngleAxisd(std::acos(-1.)/2.,Vec::UnitZ()));
+  EXPECT_EQ(parentVelocity(Vec(1,2,3),yaw,"","world",actual),"");
+  EXPECT_LT((actual-Vec(1,2,3)).norm(),1e-12);
+}
+TEST(NavigationRecovery, InvalidChildVelocityCannotAdmitRecovery) {
+  Vec actual;auto x=context();const auto valid=Eigen::Quaterniond::Identity();
+  x.velocity_error=parentVelocity(Vec(1,0,0),valid,"","child",actual);
+  EXPECT_EQ(admission(config(),x),"recovery_child_frame_missing");
+  for(const auto& q:{Eigen::Quaterniond(0,0,0,0),Eigen::Quaterniond(2,0,0,0),
+                    Eigen::Quaterniond(std::numeric_limits<double>::quiet_NaN(),0,0,0)}) {
+    for(const auto* frame:{"child","world"}) {
+      x.velocity_error=parentVelocity(Vec(1,0,0),q,"base_link",frame,actual);
+      EXPECT_EQ(admission(config(),x),"recovery_orientation_invalid");
+      EXPECT_FALSE(actual.allFinite());
+    }
+  }
+  x.velocity_error=parentVelocity(Vec(std::numeric_limits<double>::quiet_NaN(),0,0),
+      valid,"base_link","child",actual);
+  EXPECT_EQ(admission(config(),x),"recovery_velocity_nonfinite");
+  EXPECT_FALSE(actual.allFinite());
+}
 int main(int argc,char** argv) { testing::InitGoogleTest(&argc,argv);return RUN_ALL_TESTS(); }
