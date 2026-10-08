@@ -56,11 +56,22 @@ class LaunchOptionsTest(unittest.TestCase):
     def test_dynamic_site_dir_is_one_shell_argument(self):
         self.config['connection']['site_dir'] = "deployment/field test'; echo INVALID; #"
         for gid, name in [('site5', 'test_area.yaml'), ('mod03', 'h_landing_test_area.yaml'),
-                          ('mod04', 'corridor_landing_test_area.yaml'), ('mod08', 'full_mission_test_area.yaml')]:
+                          ('mod04', 'corridor_landing_test_area.yaml')]:
             argv = shlex.split(self.command(gid))
             self.assertEqual(argv[argv.index('--site-config')+1],
                              self.config['connection']['site_dir']+'/'+name)
             self.assertNotIn('echo', argv)
+
+    def test_full_mission_fixed_latest_site_and_explicit_speed(self):
+        self.config['connection']['site_dir'] = 'deployment/older_site'
+        argv = shlex.split(self.command('mod08', speed_profile='competition'))
+        self.assertEqual(argv[argv.index('--site-config')+1],
+            'deployment/board_trials_4x4/08_full_mission/site_20261007_221730.yaml')
+        self.assertEqual(argv[argv.index('--speed-profile')+1], 'competition')
+        self.assertIn('--speed-profile limited', self.command('mod08', speed_profile='limited'))
+        for gid in ('mod04', 'site6', 'competition'):
+            with self.assertRaises(ValueError):
+                self.command(gid, speed_profile='competition')
 
     def test_capture_labels_and_invalid_inputs(self):
         self.assertIn('--capture-speed 0.5 --capture-lighting dim',

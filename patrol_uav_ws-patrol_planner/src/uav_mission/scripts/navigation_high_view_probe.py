@@ -19,8 +19,8 @@ NavigationMissionManager=_base.NavigationMissionManager
 
 
 class ProbeManager(HighViewStageMixin,NavigationMissionManager):
-    def __init__(self):
-        if not rospy.get_param('/use_sim_time',False) or not os.environ.get('SIM_RUN_DIR'):
+    def __init__(self, simulation_only=True):
+        if simulation_only and (not rospy.get_param('/use_sim_time',False) or not os.environ.get('SIM_RUN_DIR')):
             raise RuntimeError('high-view probe is simulation-only')
         self._probe_pub=rospy.Publisher(rospy.get_param('~high_view_probe/status_topic','/uav_high_view/probe_status'),String,queue_size=1,latch=True)
         self._camera_signature=None

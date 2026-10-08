@@ -1,0 +1,209 @@
+# 三扫描线正式可选模板，本轮模板未实测；选择 candidates/snake3_motion.yaml。
+# 航点/镜头高度来源：docs/planning/serpentine_20261004/PLAN.md 第20行及 route_candidates.yaml。
+# 正式可选运动模板；须现场测量，本轮模板未实测，不自动替换入口所选 YAML。
+# 正式比赛待测量模板：约10m×10m场地；不是2026-10-07有限测试场地默认。
+# 所有 XY 以开机后固定任务坐标系 camera_init 的起飞参考为原点，单位 m；
+# 当前约定 +X 沿场地纵向、+Y 为初始机头左侧；起飞航向/实测场地必须确认一致。
+# 四元素边界顺序为 [min_x,max_x,min_y,max_y]；FC 静止参考由监督器测量，不手填 local Z。
+# agl 表示 FC 离地高度。当前相机在 FC 下方0.16m：相机离地高度 = FC agl - 0.16m。
+# 机架 FC 静止离地0.22m，因此生成 ground_z = 测得 FC local Z - 0.22m；
+# 控制/投递/H/软件限高均从同一 ground_z 生成，不能混用 CameraInfo 的相机高度。
+# 规则场地上限4m不是飞控 local Z 上限；还需给整机顶部、定位误差与制动留净空。
+# 门洞约0.80m且开口随机：测墙平面、通口横向中心及入口/出口净空，
+# corridor_waypoints 填门前/门后通过点，不把墙面上的门中心当作停车航点。
+# 必填 corridor_waypoints 与 landing_xy；坐标核对完毕再设 site_confirmed=true。
+# 省略 CLI 开关时继承 YAML：运动优化与高位续扫默认开启，分别可用 on/off 覆盖。
+# 动作预算默认保持 runtime_base：运动90s、目标120s；若显式需要，可添加
+# motion_action_timeout/target_action_timeout（0<秒数<=600），或 --motion-action-timeout。
+# 正式投递 FC AGL 0.35m、软件限高3.2m；规划速度/加速度与任务预算保持原值。
+# 必填确认：现场测量完毕后改 true；false 禁止飞行，允许离线检查。
+site_confirmed: false
+# 完整搜索、三投、走廊与 H 末段任务；不提供靶标坐标。
+mode: high_view_full
+# 低位搜索/复核及既有投后爬升的 FC 离地高度，单位 m。
+low_agl: 1.4
+# 三线镜头离地2.00m；当前机架镜头低于FC0.16m，FC离地2.16m。
+# 生成器用 known_rig 外参校验两种高度；不把2.00m当FC高度。
+high_agl: 2.16
+# 软件 FC 离地限高；必须高于搜索高度，并结合机身顶部净空满足规则 4m。
+max_agl: 3.2
+# 正式释放平面为 FC 离地0.35m；不是相机高度或投口离地高度。
+drop_agl: 0.35
+# H 前水平转场的 FC 离地高度；保持既有比赛配置。
+landing_transit_agl: 1.0
+# H 视觉捕获的 FC 离地高度；保留比赛值，测试的 1.2m不自动推广。
+landing_capture_agl: 0.9
+# 启用 H 内部笔画辅助判据；仍需原证据/新鲜度/稳定帧门控。
+landing_enable_h_stroke_fallback: true
+# 规划速度上限 m/s；不是保证实测速度，不套用测试的 0.5m/s。
+cruise_speed: 1.2
+# 规划加速度上限 m/s²；保留比赛值，不套用测试的 0.35m/s²。
+cruise_acceleration: 1.0
+# 低位兜底覆盖航线间距 m；不是测试工作台的搜索线列表。
+lane_spacing: 0.7
+# 保留 false；关闭额外虚拟天花板不取消 FC 软件限高或实体避障。
+virtual_ceiling_enabled: false
+# 沿用现场已验收静态坐标对齐；换安装/初始航向须另行确认 TF。
+alignment_mode: legacy_static
+# 实体舵机经许可代理释放；单独启动被动 raw 服务不自动释放。
+actuator_mode: real
+# 真实后端服务；公开 /Servo 由许可代理独占，禁止直接请求 raw 投递。
+raw_servo_service: /legacy/Servo_raw
+# 仅人工解锁并切 OFFBOARD 后，稳定起飞悬停再自动请求任务；入口不自动解锁。
+auto_start_after_arm: true
+# 地面静止参考与视觉初始化等待秒数，不是运动动作预算。
+initialization_timeout: 180
+# 障碍禁越柱开关；CLI --obstacle-columns on/off 可覆盖，off 保留实体三维避障。
+obstacle_columns_enabled: true
+# 飞行中心允许区域 [min_x,max_x,min_y,max_y]；以下为名义约10×10场地，须按起飞点实测。
+flight_bounds:
+- -0.5
+- 9.5
+- -5.0
+- 5.0
+# 搜索/重访中心区域；不含走廊，须为机身、树箱及墙留足净空。
+search_center_bounds:
+- -0.1
+- 7.55
+- -4.55
+- 4.55
+# 视觉记忆/目标确认区域；不得填靶标真值或超出场地边界。
+target_bounds:
+- -0.5
+- 7.95
+- -5.0
+- 5.0
+# 低位兜底覆盖区域，必须在搜索中心范围内。
+coverage_bounds:
+- 0.4
+- 7.2
+- -4.25
+- 4.25
+# 高位升高前低位暂驻点 [x,y]，须确认整机净空。
+staging_xy:
+- 0.6
+- 0.05
+# 三条沿±Y扫描线，换道沿+X；六航点按设计原顺序，不闭合返回起点。
+survey_xy:
+- - 1.0
+  - -3.95
+- - 1.0
+  - 4.1
+- - 3.7
+  - 4.1
+- - 3.7
+  - -3.95
+- - 6.4
+  - -3.95
+- - 6.4
+  - 4.1
+# 规划地图尺寸 [x,y,z] m；相对固定任务坐标原点覆盖所有航点。
+map_size:
+- 22.0
+- 12.0
+- 4.0
+# 必填：按通过顺序填写 {x,y,agl}；agl 是 FC 离地高度。
+corridor_waypoints: []
+# 必填：现场实测 H 中心 [x,y]；不是起飞点、门中心或占位默认值。
+landing_xy: null
+# 走廊前视单位 m，不是速度 m/s；快档0.6、门前/下降/近H慢档0.4。
+# 墙平面 Y=±1.6m 沿用既有设计名义值，非现场测量；必须复测/改写后确认场地。
+corridor_speed_schedule:
+  axis: 1
+  wall_coordinates:
+  - -1.6
+  - 1.6
+  enter_distance_m: 0.75
+  exit_distance_m: 0.95
+  open_lead_m: 0.6
+  door_lead_m: 0.4
+  landing_radius_m: 0.8
+# 跟随前视距离 m：巡航1.0、精密0.4；走廊兜底及LAND/HOLD/ABORT共用慢档0.4。
+# 走廊快慢切换由上方调度生成；不改变规划速度上限1.2m/s或加速度1.0m/s²。
+following_speed_profile:
+  cruise_lead_m: 1.0
+  precision_lead_m: 0.4
+  corridor_lead_m: 0.4
+  corridor_after_waypoints: 1
+# 正式导航故障恢复保持关闭；运动优化内的投后爬升交接不受此开关替代。
+navigation_recovery:
+  enabled: false
+# 保留视觉证据门槛；高位续扫最多一次，保留原任务总预算。
+survey_policy:
+  resume_survey_enabled: true
+  coarse_enabled: true
+  coarse_min_confidence: 0.6
+  coarse_interrupt_min_interval_ns: 100000000
+  coarse_interrupt_max_gap_ns: 1000000000
+  coarse_interrupt_consistency_m: 0.5
+  interrupt_refined_classes: []
+  recheck_observe_seconds: 5.0
+  recheck_shift_after_seconds: 1.0
+  recheck_shift_radius_m: 0.5
+  candidate_min_streak: 1
+  min_interval_ns: 100000000
+  min_span_ns: 200000000
+  max_uncertainty_m: 0.45
+  direct_descent: true
+  descent_radius_m: 1.5
+  descent_max_candidates: 25
+  survey_stall_seconds: 8.0
+  survey_progress_m: 0.15
+  survey_alternative_radius_m: 0.6
+# 实时相机原图话题；仅用于现有视觉链。
+image_topic: /camera/image_raw
+# 实际标定 CameraInfo 话题；必须与图像分辨率/光学 frame 一致。
+camera_info_topic: /camera/camera_info
+# 已有压缩流输入；不在板端新增视频编码。
+compressed_image_topic: /camera/image_raw/compressed
+# 轻量录包压缩图节流输出，与相机输入必须不同。
+bag_image_topic: /competition/recording/image/compressed
+# 轻量压缩图录包频率；不降低视觉识别订阅频率。
+bag_image_hz: 5.0
+# 正式轻量档保持 false，不录全图和原始雷达。
+record_map_clouds: false
+# 保留局部膨胀点云用于复盘。
+record_inflated_cloud: true
+# 本次实际配置/来源的记录话题。
+metadata_topic: /competition/run_metadata
+# 过滤试飞专用话题；运行不依赖 board_trials。
+competition_recording: true
+# 板端建图负载档；初始化先定位，稳定后才开 FreeDOM。
+mapping_profile: high
+# 独立整机监督器节点名；不能与试飞任务并行运行。
+supervisor_name: competition_supervisor
+# 候选相机离地高度；FC high_agl = 相机高度 + 当前机架垂直偏移0.16m。
+survey_camera_agl: 2.0
+# 运动优化默认开启；CLI on/off 显式覆盖，不是导航故障恢复开关。
+motion_optimization:
+  enabled: true
+  dynamic_boundary: true
+  moving_recovery: true
+  diagonal_entry: true
+  merge_collinear_relays: true
+  survey_line_weight: 2.0
+  braking_speed_mps: 1.2
+  braking_accel_mps2: 0.6
+  reaction_seconds: 0.3
+  boundary_reserve_m: 0.15
+  recovery_handoff_agl: 0.9
+  recovery_min_ack_seconds: 0.6
+  recovery_max_vz: 0.6
+  corridor_max_agl: 1.0
+
+# 沿用已验收 POSCTL 视觉下降交接；飞手完成末段，不等同已验收自主落地得分。
+landing_handoff_mode: POSCTL
+# 仅用于 POSCTL：静置 FC 离地 0.22m 时，目标处脚架名义间隙为 0.13m。
+# 低位短确认使用冻结H点并允许受控缓降；AUTO.LAND不应用本参数块。
+landing_posctl:
+  target_agl: 0.35
+  trigger_agl: 0.37
+  xy_tolerance_m: 0.05
+  height_tolerance_m: 0.02
+  capture_height_tolerance_m: 0.10  # 高位独立容差；低位仅保留安全下界和显式请求上限。
+  max_horizontal_speed_mps: 0.08
+  max_vertical_speed_mps: 0.10
+  stable_duration_sec: 0.15
+  max_odom_age_sec: 0.2
+  max_sample_gap_sec: 0.2
+  min_samples: 3

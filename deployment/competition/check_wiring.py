@@ -18,7 +18,10 @@ motion_options=MotionOptimization(**s.get('motion_optimization',{}))
 motion=motion_options.enabled
 # Offline fixture only; shipped field profile stays unconfirmed/without gate coordinates.
 if not s['site_confirmed']:
- s.update(corridor_speed_schedule=dict(axis=1,wall_coordinates=[-1.6,1.6],entry_waypoints=1),site_confirmed=True,corridor_waypoints=[dict(x=6.7,y=4.,agl=1.4),dict(x=6.7,y=4.,agl=.9),dict(x=8.3,y=4.,agl=.9),dict(x=8.3,y=-4.,agl=.9)],landing_xy=[8.5,-4.2])
+ # 只补离线测试坐标，不覆盖模板调度，否则会误验旧快慢前视默认值。
+ if not s.get('corridor_speed_schedule'):
+  s['corridor_speed_schedule']=dict(axis=1,wall_coordinates=[-1.6,1.6],entry_waypoints=1)
+ s.update(site_confirmed=True,corridor_waypoints=[dict(x=6.7,y=4.,agl=1.4),dict(x=6.7,y=4.,agl=.9),dict(x=8.3,y=4.,agl=.9),dict(x=8.3,y=-4.,agl=.9)],landing_xy=[8.5,-4.2])
 rig=yaml.safe_load((M/'config/competition/known_rig.yaml').read_text());rows=[]
 def load(name,args):return roslaunch.config.load_config_default([(str(M/'launch'/('competition_'+name+'.launch')),args)],11311,verbose=False)
 with tempfile.TemporaryDirectory() as tmp:
@@ -34,6 +37,14 @@ with tempfile.TemporaryDirectory() as tmp:
   assert v['/fast_planner_node/manager/max_vel']==s['cruise_speed']
   assert v['/fast_planner_node/manager/max_acc']==s['cruise_acceleration']
   assert v['/fast_planner_node/sdf_map/virtual_ceil_height']==-.1
+  assert v['/external_planner_max_command_z']==ref['ground_z']+s['max_agl']
+  assert v['/navigation/planner_bridge/execution/max_goal_z']==ref['ground_z']+s['max_agl']
+  assert v['/navigation_recovery/enabled']==s.get('navigation_recovery',{}).get('enabled',False)
+  assert v['/navigation/mission_manager/following_speed_profile/corridor_lead_m']==s['following_speed_profile']['corridor_lead_m']
+  schedule=s.get('corridor_speed_schedule')
+  if schedule:
+   for key in ('open_lead_m','door_lead_m'):
+    assert v['/navigation/mission_manager/corridor_speed_schedule/'+key]==schedule[key]
   assert v['/navigation_height_constraint/enabled'] is True
   assert v['/navigation_height_constraint/frame_id']=='camera_init'
   assert v['/navigation_height_constraint/limit_parameter']=='/external_planner_max_command_z'
@@ -54,6 +65,7 @@ with tempfile.TemporaryDirectory() as tmp:
    assert v['/guarded_servo_proxy/raw_service_name']=='/legacy/Servo_raw'
    assert v['/guarded_servo_proxy/service_name']=='/Servo'
    assert v['/external_landing/auto_land_height']<v['/external_landing/capture_height']
+   assert abs(v['/drop_system/release_setpoint_height']-(ref['ground_z']+s['drop_agl']))<1e-6
   metadata=yaml.safe_load(Path(v['/target_detector_rknn/metadata_path']).read_text())
   assert list(metadata['names'].values())==['bridge','panzer','pillbox','tent','red_cross']
   def get_param(key,default=None):

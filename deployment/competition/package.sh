@@ -10,6 +10,7 @@ git -C "$ROOT" archive --format=tar -o "$DEST" HEAD \
   patrol_uav_ws-patrol_planner \
   vision_ws/src/CMakeLists.txt vision_ws/src/uav_vision vision_ws/src/uav_high_view vision_ws/src/camera_sdk \
   deployment/competition top_level_scripts/build_competition.sh \
-  docs/deployment/competition_integration_20261003
+  docs/deployment/competition_integration_20261003 \
+  docs/deployment/evening_validation_20261008
 printf 'SOURCE_REVISION=%s\n' "$(git -C "$ROOT" rev-parse HEAD)"
 printf 'Archive: %s\nAdd runtime_models and a measured field.yaml before field startup.\n' "$DEST"

@@ -26,6 +26,8 @@ for group in config['groups']:
                     if group.get('resume_survey_supported') and group.get('channel') != 'competition':
                         variants += [dict(motion_optimized=True, survey_pattern='snake3', resume_survey=r)
                                      for r in ('on', 'off')]
+                    if group.get('speed_profile_options'):
+                        variants += [dict(speed_profile=p) for p in ('limited','competition')]
                     if group.get('lighting_options'):
                         variants += [dict(capture_lighting=l) for l in group['lighting_options']]
                     for options in variants:

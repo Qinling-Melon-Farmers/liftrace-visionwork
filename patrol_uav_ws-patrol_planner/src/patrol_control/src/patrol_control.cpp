@@ -11,7 +11,6 @@
 #include "patrol_control/servo_action_result.h"
 #include "patrol_control/near_wall_align.h"
 #include <tf/transform_listener.h>
-#include <sensor_msgs/point_cloud2_iterator.h>
 #include "tf2_ros/transform_broadcaster.h"
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -192,10 +191,6 @@ void LLController::initializeNode() {
         &LLController::motionOdomCallback, this);
     compensated_alignment_pub_ = nh_.advertise<uav_vision::DropAlignmentFeedback>(
         compensated_alignment_topic_, 4);
-    if (external_mission_mode_ && compensated_alignment_enabled_) {
-        drop_clearance_map_sub_ = nh_.subscribe(drop_clearance_map_topic_, 1,
-            &LLController::dropClearanceMapCallback, this);
-    }
     fastplanner_cmd_sub_ = nh_.subscribe("/fastplanner/setpoint_position/local", 1,&LLController::plannercmdCallback, this);
     navigation_recovery_gate_.configure(nh_);
     if(navigation_recovery_gate_.enabled) {
@@ -456,16 +451,6 @@ void LLController::externalMissionTick() {
             drop_capture_window_.reset(); drop_release_window_.reset();
             return;
         }
-    }
-
-    if (compensated_alignment_enabled_ && compensated_goal_frozen_ &&
-        !servo_action_attempted_ && !compensatedDropPathClear()) {
-        // A stale/invalid/occupied map cannot authorize further descent.
-        // Keep the transaction frozen and let the existing mission deadline
-        // recover or choose another target; never recapture a low partial image.
-        patrol_cmd = uav_pose;
-        drop_release_window_.reset();
-        return;
     }
 
     std_msgs::Bool detect_enable_msg;
@@ -1879,16 +1864,6 @@ void LLController::load_params() {
     motion_twist_frame_ = nh_.param<std::string>("motion_feedback/twist_frame", "child");
     compensated_alignment_topic_ = nh_.param<std::string>("drop_system/alignment_feedback_topic", "/uav_vision/drop_alignment_feedback");
     compensated_alignment_enabled_ = nh_.param("drop_system/compensated_alignment", true);
-    drop_clearance_map_topic_ = nh_.param<std::string>(
-        "drop_system/clearance/map_topic", "/freedom/static_pointcloud");
-    drop_clearance_guard_.max_age_sec = nh_.param("drop_system/clearance/map_max_age_sec", 2.0);
-    drop_clearance_guard_.cache_radius_m = nh_.param("drop_system/clearance/local_radius_m", 2.0);
-    drop_clearance_guard_.voxel_size_m = nh_.param("drop_system/clearance/voxel_size_m", 0.10);
-    drop_clearance_guard_.body_xy_radius_m = nh_.param("drop_system/clearance/body_xy_radius_m", 0.39);
-    drop_clearance_guard_.body_up_m = nh_.param("drop_system/clearance/body_up_m", 0.20);
-    drop_clearance_guard_.body_down_m = nh_.param("drop_system/clearance/body_down_m", 0.22);
-    if (drop_clearance_map_topic_.empty() || !drop_clearance_guard_.configured())
-        throw std::invalid_argument("invalid final drop clearance configuration");
     const auto semantics = nh_.param<std::string>("drop_system/slot_offset_semantics", "body_flu_lever_arm");
     if (motion_odom_topic_.empty() || compensated_alignment_topic_.empty() ||
         (motion_twist_frame_ != "child" && motion_twist_frame_ != "header") ||
@@ -3654,26 +3629,6 @@ bool LLController::setCompensatedDropTarget(geometry_msgs::PoseStamped* target) 
     const Eigen::Vector2d center(target->pose.position.x,target->pose.position.y);
     if (!center.allFinite()) return false;
     const Eigen::Vector2d fc = compensatedFcXY(center,arm);
-    const double current_yaw = tf::getYaw(uav_pose.pose.orientation);
-    const double target_yaw = tf::getYaw(target->pose.orientation);
-    // Reject an impossible compensated endpoint before it can be frozen.
-    // Clamping the command later would leave an unreachable release target.
-    const double body_margin = drop_clearance_guard_.body_xy_radius_m + near_wall_align_fence_.tracking_reserve_m;
-    const auto& bounds = near_wall_align_fence_.bounds;
-    const bool outside_body_boundary = near_wall_align_fence_.enabled &&
-        (fc.x() < bounds[0]+body_margin || fc.x() > bounds[1]-body_margin ||
-         fc.y() < bounds[2]+body_margin || fc.y() > bounds[3]-body_margin);
-    if (outside_body_boundary || !near_wall_align_fence_.contains(fc.x(),fc.y(),current_yaw) ||
-        !near_wall_align_fence_.contains(fc.x(),fc.y(),target_yaw)) {
-        compensated_goal_valid_ = false;
-        have_waypoint_mark = have_cross_mark = false;
-        uav_drop_ready_ = false;
-        adjust_target_position[0] = uav_pose.pose.position.x;
-        adjust_target_position[1] = uav_pose.pose.position.y;
-        drop_release_window_.reset();
-        ROS_WARN_THROTTLE(1.0, "[DropGeometry] compensated target rejected outside legal boundary; awaiting mission retry");
-        return false;
-    }
     compensated_target_center_ = target->pose.position;
     compensated_fc_goal_ = *target;
     compensated_fc_goal_.pose.position.x = fc.x();
@@ -3753,77 +3708,9 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
     return result.ready;
 }
 
-void LLController::dropClearanceMapCallback(const sensor_msgs::PointCloud2::ConstPtr& msg) {
-    auto& guard = drop_clearance_guard_;
-    guard.ready = false;
-    guard.points.clear();
-    const std::size_t count = static_cast<std::size_t>(msg->width) * msg->height;
-    if (count == 0 || count > 250000 || msg->height != 1 || msg->is_bigendian ||
-        msg->point_step == 0 || static_cast<std::size_t>(msg->row_step) < static_cast<std::size_t>(msg->width) * msg->point_step ||
-        msg->data.size() < static_cast<std::size_t>(msg->row_step) * msg->height ||
-        msg->header.stamp.isZero() || msg->header.frame_id != uav_pose.header.frame_id)
-        return;
-    // Prime one local cache per cloud, rather than scan the full cloud in every
-    // image or control callback. No empty source map establishes readiness.
-    guard.cache_center = Eigen::Vector2d(uav_pose.pose.position.x,uav_pose.pose.position.y);
-    if (!guard.cache_center.allFinite()) return;
-    for (const char* name : {"x","y","z"}) {
-        const auto field = std::find_if(msg->fields.begin(),msg->fields.end(),
-            [name](const sensor_msgs::PointField& value) { return value.name == name; });
-        if (field == msg->fields.end() || field->datatype != sensor_msgs::PointField::FLOAT32 ||
-            field->count != 1 || field->offset + sizeof(float) > msg->point_step) return;
-    }
-    std::size_t finite_points = 0;
-    try {
-        sensor_msgs::PointCloud2ConstIterator<float> x(*msg,"x"), y(*msg,"y"), z(*msg,"z");
-        for (std::size_t i = 0; i < count; ++i, ++x, ++y, ++z) {
-            const Eigen::Vector3d p(*x,*y,*z);
-            if (!p.allFinite()) continue;
-            ++finite_points;
-            if (std::abs(p.x()-guard.cache_center.x()) <= guard.cache_radius_m &&
-                std::abs(p.y()-guard.cache_center.y()) <= guard.cache_radius_m)
-                guard.points.push_back(p);
-        }
-    } catch (const std::exception&) { guard.points.clear(); return; }
-    guard.source_stamp = msg->header.stamp.toSec();
-    guard.receipt_stamp = ros::Time::now().toSec();
-    guard.frame = msg->header.frame_id;
-    guard.ready = finite_points > 0;
-}
-
-bool LLController::compensatedDropPathClear() const {
-    const auto& p = uav_pose.pose.position;
-    const auto& g = compensated_fc_goal_.pose.position;
-    const double yaw = tf::getYaw(uav_pose.pose.orientation);
-    const double goal_yaw = tf::getYaw(compensated_fc_goal_.pose.orientation);
-    if (!compensated_goal_valid_ ||
-        !near_wall_align_fence_.contains(p.x,p.y,yaw) ||
-        !near_wall_align_fence_.contains(g.x,g.y,yaw) ||
-        !near_wall_align_fence_.contains(g.x,g.y,goal_yaw)) {
-        ROS_WARN_THROTTLE(1.0,"[DropGeometry] descent rejected: drop_path_outside_boundary");
-        return false;
-    }
-    const double margin = std::max(drop_clearance_guard_.body_xy_radius_m +
-        near_wall_align_fence_.tracking_reserve_m,std::max(
-        near_wall_align_fence_.margin(yaw),near_wall_align_fence_.margin(goal_yaw)));
-    const auto& bounds = near_wall_align_fence_.bounds;
-    if (near_wall_align_fence_.enabled &&
-        (std::min(p.x,g.x) < bounds[0]+margin || std::max(p.x,g.x) > bounds[1]-margin ||
-         std::min(p.y,g.y) < bounds[2]+margin || std::max(p.y,g.y) > bounds[3]-margin)) {
-        ROS_WARN_THROTTLE(1.0,"[DropGeometry] descent rejected: drop_body_outside_boundary");
-        return false;
-    }
-    const char* reason = drop_clearance_guard_.rejection(ros::Time::now().toSec(),
-        uav_pose.header.frame_id,Eigen::Vector3d(p.x,p.y,p.z),
-        Eigen::Vector2d(compensated_target_center_.x,compensated_target_center_.y),
-        Eigen::Vector2d(g.x,g.y),drop_release_setpoint_height_,margin);
-    if (reason) ROS_WARN_THROTTLE(1.0,"[DropGeometry] descent rejected: %s; awaiting mission retry",reason);
-    return reason == nullptr;
-}
-
 bool LLController::freezeCompensatedDropTarget() {
     if (compensated_goal_frozen_) return true;
-    if (!compensatedDropSettled(false) || !compensatedDropPathClear()) return false;
+    if (!compensatedDropSettled(false)) return false;
     const double age = (ros::Time::now()-latest_drop_ready_time_).toSec();
     if (!uav_drop_ready_ || age < 0.0 || age > drop_offset_timeout_) return false;
     compensated_goal_frozen_ = true;
@@ -3950,13 +3837,8 @@ DropActionResult LLController::executeDropAction(int servo_id) {
         return servo_action_slot_ == servo_id ? servo_action_result_
                                              : DropActionResult::kRejected;
     }
-    if (external_mission_mode_ && compensated_alignment_enabled_) {
-        if (!compensatedDropPathClear()) {
-            drop_release_window_.reset();
-            return DropActionResult::kPending;
-        }
-        if (!compensatedDropSettled(true)) return DropActionResult::kPending;
-    }
+    if (external_mission_mode_ && compensated_alignment_enabled_ &&
+        !compensatedDropSettled(true)) return DropActionResult::kPending;
     // Receiving a fresh release permission is not permission to actuate after
     // RC takeover/disarm/disconnect. Use the existing flight-state age gate.
     if (!externalLandingControlReady(ros::Time::now())) return DropActionResult::kRejected;

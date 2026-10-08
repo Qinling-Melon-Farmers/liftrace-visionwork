@@ -867,7 +867,7 @@ function groupCommandBody(g, mode, realRelease, checkConfig, speed, options) {
   if (g.channel === 'low_observation') {
     if (['hover','forward','square'].indexOf(g.profile) < 0 || realRelease || speed != null ||
         options.capture_lighting != null || options.motion_optimized || options.survey_pattern != null ||
-        options.resume_survey != null || options.site_geometry != null || options.geometry_revision != null) {
+        options.resume_survey != null || options.site_geometry != null || options.geometry_revision != null || options.speed_profile != null) {
       return {body:null,note:'低空观察继承原 profile，不支持投递或专项参数'};
     }
     return {body:'bash deployment/low_hover_observation/start.sh ' + (checkConfig ? 'preview' : mode) + ' ' + g.profile,
@@ -880,6 +880,11 @@ function groupCommandBody(g, mode, realRelease, checkConfig, speed, options) {
   }
   if (speed !== null && speed !== undefined) extra += ' --capture-speed ' + Number(speed).toFixed(1);
   if (options.capture_lighting) extra += ' --capture-lighting ' + options.capture_lighting;
+  if (options.speed_profile != null) {
+    if (folder !== '08_full_mission' || route !== 'module' || ['limited','competition'].indexOf(options.speed_profile) < 0)
+      return {body:null,note:'08速度版本只支持limited/competition'};
+    extra += ' --speed-profile ' + options.speed_profile;
+  }
   if (options.motion_optimized) extra += ' --motion-optimized';
   if (options.survey_pattern) extra += ' --survey-pattern ' + options.survey_pattern;
   if (options.resume_survey) extra += ' --resume-survey ' + options.resume_survey;
@@ -960,13 +965,21 @@ function competitionEffectiveConfig(g,options,stage,trial) {
     (trial.competition_config || g.site_config)===(options.competition_config || g.site_config) &&
     (trial.motion_optimization || null)===(options.motion_optimization || null) &&
     (trial.resume_survey || null)===(options.resume_survey || null) &&
-    (trial.obstacle_columns || null)===(options.obstacle_columns || null);
+    (trial.obstacle_columns || null)===(options.obstacle_columns || null) &&
+    (trial.speed_profile || null)===(options.speed_profile || null) &&
+    (trial.survey_pattern || null)===(options.survey_pattern || null) &&
+    !!trial.motion_optimized===!!options.motion_optimized;
   return actual && matches ? effectiveConfigText(actual) : '当前所选配置的有效值尚未确认：先运行配置检查。复选框和选项只表示请求。';
 }
 
 function effectiveConfigText(actual) {
-  var source=actual.source==='generated_runtime' ? '运行已生成配置' : '离线配置检查';
-  return source + '：运动优化=' + (actual.motion_optimization ? '开启' : '关闭') + '；高位续扫=' + (actual.resume_survey ? '开启' : '关闭') + (actual.generation_ready===false ? '；实测场地/墙面未确认，尚不可生成飞行配置' : '') + (actual.runtime_path ? '；' + actual.runtime_path : '');
+  var source=actual.source==='generated_runtime' ? '已生成配置' : '离线配置检查';
+  var speeds=actual.planning ? '；规划上限=' + actual.planning.max_vel + 'm/s / ' + actual.planning.max_acc + 'm/s²' : '';
+  if (actual.following) speeds += '；前视=' + actual.following.cruise_lead_m + '/' + actual.following.precision_lead_m + '/' + actual.following.boundary_lead_m + 'm';
+  if (actual.initial_distances) speeds += '；初始化限幅/轨迹前视/规划启动=' + actual.initial_distances.controller_limit_m + '/' + actual.initial_distances.traj_target_dist_m + '/' + actual.initial_distances.planner_start_max_distance_m + 'm';
+  if (actual.corridor) speeds += '；走廊快/慢=' + actual.corridor.open_lead_m + '/' + actual.corridor.door_lead_m + 'm';
+  if (actual.drop_agl != null) speeds += '；投递FC AGL=' + actual.drop_agl + 'm';
+  return source + speeds + '：运动优化=' + (actual.motion_optimization ? '开启' : '关闭') + '；高位续扫=' + (actual.resume_survey ? '开启' : '关闭') + (actual.generation_ready===false ? '；实测场地/墙面未确认，尚不可生成飞行配置' : '') + (actual.runtime_path ? '；' + actual.runtime_path : '');
 }
 
 function groupUI(g) {
@@ -987,6 +1000,7 @@ function trialBody(g, mode, checkConfig) {
     if (U.obstacleColumns) body.obstacle_columns = U.obstacleColumns;
     if (U.competitionConfig != null) body.competition_config = U.competitionConfig;
   }
+  if (g.speed_profile_options && U.speedProfile) body.speed_profile = U.speedProfile;
   if (g.speed_options && g.speed_options.length && U.speed != null) body.capture_speed = U.speed;
   if (g.lighting_options && U.lighting) body.capture_lighting = U.lighting;
   if (g.motion_optimization_supported && U.motionOptimized) body.motion_optimized = true;
@@ -1003,7 +1017,7 @@ function geometryPlanKey(g, mode, realRelease, checkConfig, speed, options) {
   var c = state.connection || {};
   return JSON.stringify([g.id, c.host, c.board_root, c.site_dir, g.site_config,
     mode, !!realRelease, !!checkConfig, speed || null, options.capture_lighting || null,
-    !!options.motion_optimized, options.survey_pattern || null, options.resume_survey || null,
+    !!options.motion_optimized, options.survey_pattern || null, options.resume_survey || null, options.speed_profile || null,
     options.geometry_revision, options.site_geometry]);
 }
 
@@ -1194,6 +1208,11 @@ function groupCard(g) {
     ops.appendChild(el('div','tiny muted','模板默认开启运动优化与高位续扫；两项独立。继承的实际值由所选YAML和配置检查决定。'));
     choiceRow('障碍柱','obstacleColumns',[['','继承所选YAML'],['on','显式开启'],['off','显式关闭']]);
     ops.appendChild(el('div','warn-line','必填正赛实测场地与确认项；默认模板未确认。运动优化/障碍柱继承时不发送覆盖参数，当前有效值以配置检查输出为准；关闭障碍柱移除配置柱，不会关闭真实点云避障。'));
+  }
+  if (g.speed_profile_options) {
+    choiceRow('08速度版本','speedProfile',g.speed_profile_options.map(function(item){return [item.value,item.label];}));
+    ops.appendChild(el('div','warn-line','沿用2026-10-07最后221730现场几何与FC高2m；不是10×10正赛场地。1.2/1.0为配置上限，尚未实飞验收。距离单位m，不是实测速度。'));
+    ops.appendChild(el('div','tiny muted',competitionEffectiveConfig(g,trialBody(g,'preview',true),state.stage,state.trial)));
   }
   if (g.motion_optimization_supported) {
     var motionRow = el('div', 'grp-row');

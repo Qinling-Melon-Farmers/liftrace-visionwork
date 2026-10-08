@@ -1,0 +1,10 @@
+{
+  "source_worktree": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix",
+  "source_commit": "fce6f23c0d4c4591ec7ec41656a90fa802e08814",
+  "source_branch": "feat/r2026-competition-integrated",
+  "source_package": "patrol_uav_ws-patrol_planner/src/patrol_control",
+  "file_count": 57,
+  "created_at": "2026-10-08T16:34:43.283149+08:00",
+  "owner": "F control agent only; B agent must not modify this snapshot",
+  "purpose": "pre-change F control snapshot before removing mandatory final-drop pointcloud clearance; no B runtime source changes"
+}
