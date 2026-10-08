@@ -28,6 +28,7 @@ import wb_board
 import wb_status
 import wb_ssh
 import wb_logs
+import wb_ulog
 from wb_ssh import SessionManager, Target, run_once
 
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
@@ -74,6 +75,7 @@ class Workbench(object):
         )
         self.board = wb_board.BoardClient(config, self.target)
         self.logs = wb_logs.LogsClient(self.board)
+        self.ulogs = wb_ulog.ULogLibrary(PROFILE_DIR)
         self.log_dir = os.path.join(PROFILE_DIR, "logs")
         self.report_dir = os.path.join(PROFILE_DIR, "reports")
         self.sessions = SessionManager(self.log_dir, on_output=self._on_output,
@@ -976,8 +978,29 @@ class Handler(BaseHTTPRequestHandler):
         if self.workbench.options.get("logs_only"):
             if route in ("/", "/index.html", "/logs"):
                 return self._static("/static/logs.html")
-            if not (route.startswith("/static/") or route in ("/api/snapshot", "/api/recording/download")):
+            if not (route.startswith(("/static/", "/api/ulog/")) or route in ("/api/snapshot", "/api/recording/download")):
                 return self._error("日志专用后端未开放此接口", 404)
+        if route.startswith("/api/ulog/"):
+            try:
+                self._same_origin()
+                if route == "/api/ulog/library":
+                    return self._json(self.workbench.ulogs.catalog())
+                if route == "/api/ulog/file":
+                    identifier = (query.get("id") or [""])[0]
+                    name = (query.get("name") or [""])[0]
+                    target = self.workbench.ulogs.artifact(identifier, name)
+                    payload = target.read_bytes()
+                    self.send_response(200)
+                    self.send_header("Content-Type", CONTENT_TYPES.get(target.suffix, "application/octet-stream"))
+                    self.send_header("Content-Length", str(len(payload)))
+                    self.send_header("Cache-Control", "no-store")
+                    if target.suffix != ".png":
+                        self.send_header("Content-Disposition", 'attachment; filename="%s"' % target.name)
+                    self.end_headers()
+                    return self.wfile.write(payload)
+                return self._error("未知 ULog 接口", 404)
+            except (ValueError, OSError) as error:
+                return self._error(error)
         if route == "/logs":
             return self._static("/static/logs.html")
         if route == "/motor":
@@ -1079,12 +1102,41 @@ class Handler(BaseHTTPRequestHandler):
     # -- POST --
     def do_POST(self):
         route = urlparse(self.path).path
+        if route == "/api/ulog/upload":
+            try:
+                length = int(self.headers.get("Content-Length") or 0)
+                if not 0 <= length <= wb_ulog.MAX_BYTES:
+                    raise ValueError("ULog 大小需为16字节至128 MiB")
+                query = parse_qs(urlparse(self.path).query)
+                payload = self.rfile.read(length)
+                # Drain bounded requests before rejecting so closing the socket
+                # does not reset the client's JSON error response on Linux.
+                self._same_origin()
+                if length < 16:
+                    raise ValueError("ULog 大小需为16字节至128 MiB")
+                if len(payload) != length:
+                    raise ValueError("上传未完成，请重试")
+                return self._json(self.workbench.ulogs.ingest(
+                    (query.get("name") or [""])[0], payload))
+            except (ValueError, OSError) as error:
+                return self._error(error)
         try:
             body = self._body()
         except ValueError as error:
             return self._error(error)
         workbench = self.workbench
         try:
+            if route == "/api/ulog/board":
+                self._logs_access()
+                if not isinstance(body, dict):
+                    raise ValueError("请求体必须是 JSON 对象")
+                path = wb_logs.relative_path(body.get("path"))
+                if not path.lower().endswith(".ulg"):
+                    raise ValueError("请选择已封闭的 .ulg 文件")
+                code, payload = workbench.logs.download(path)
+                if code:
+                    raise ValueError("板端 ULog 下载失败；未导入不完整文件")
+                return self._json(workbench.ulogs.ingest(path.rsplit("/", 1)[-1], payload))
             if workbench.options.get("logs_only"):
                 self._same_origin()
                 if not isinstance(body, dict):

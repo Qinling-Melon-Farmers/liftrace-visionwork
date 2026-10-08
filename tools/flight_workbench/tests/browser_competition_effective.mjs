@@ -66,11 +66,18 @@ try {
   await test('DOM test kept backend empty and offline', `state.connection.transport==='local' && Object.keys(state.sessions).length===0`);
   console.log(JSON.stringify({result:'PASS',checks,board_connected:false,simulated_display_evidence:true}));
 } finally {
-  if(socket)socket.close();
+  if(socket&&socket.readyState===WebSocket.OPEN){socket.send(JSON.stringify({id:++seq,method:'Browser.close'}));await sleep(1000);socket.close();}
   if(child.exitCode===null) {
     if(process.platform==='win32') {const {spawnSync}=await import('node:child_process');spawnSync('taskkill',['/PID',String(child.pid),'/T','/F'],{windowsHide:true});}
     else child.kill('SIGTERM');
   }
   const tempRoot=path.resolve(os.tmpdir());const target=path.resolve(profile);
-  if(target.startsWith(tempRoot+path.sep)&&path.basename(target).startsWith('liftrace-ui-regression-'))fs.rmSync(target,{recursive:true,force:true});
+  if(target.startsWith(tempRoot+path.sep)&&path.basename(target).startsWith('liftrace-ui-regression-')){
+    // Let Windows deliver exit events between attempts instead of blocking its
+    // message loop while Chromium releases profile files.
+    for(let attempt=0;attempt<30;attempt++){
+      try{fs.rmSync(target,{recursive:true,force:true});break;}
+      catch(error){if(attempt===29)throw error;await sleep(100);}
+    }
+  }
 }

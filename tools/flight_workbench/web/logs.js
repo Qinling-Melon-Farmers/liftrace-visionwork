@@ -1,5 +1,5 @@
 'use strict';
-const logState = {connection: {}, data: null, busy: false, checkedAt: 0, supported: false};
+const logState = {connection: {}, data: null, busy: false, checkedAt: 0, supported: false, pendingUlog: null};
 const logById = id => document.getElementById(id);
 function logNode(tag, text) { const n = document.createElement(tag); if (text != null) n.textContent = String(text); return n; }
 function logSize(n) { return (n / 1048576).toFixed(2) + ' MiB · ' + n + ' bytes'; }
@@ -16,7 +16,8 @@ function logButtons() {
   const transfer = logState.data && logState.data.recorders.some(p => p.kind === 'ulog');
   logById('bag-start').disabled = offline || logState.busy || !logState.data || active || conflict ||
     !logState.data.available[logById('bag-profile').value === 'routine' ? 'routine' : 'bag'];
-  logById('ulog-fetch').disabled = offline || logState.busy || !logState.data || active || transfer || !logState.data.available.ulog;
+  logById('ulog-fetch').disabled = offline || logState.busy || !logState.data || active || transfer || !logState.data.available.ulog ||
+    !logById('ulog-id').value;
   logById('ulog-index').disabled = offline || logState.busy || active || transfer;
   logById('log-refresh').disabled = logState.busy;
   logById('log-connect').disabled = logState.busy;
@@ -33,6 +34,10 @@ function logFiles() {
     if (f.downloadable && logState.connection.state === 'ok') {
       const button = logNode('button', '下载到本机'); button.className = 'btn';
       button.onclick = () => logDownload(f); cell.append(button);
+      if (f.path.toLowerCase().endsWith('.ulg') && typeof ulogBoardView === 'function') {
+        const view = logNode('button', '查看 ULog'); view.className = 'btn';
+        view.onclick = () => ulogBoardView(f); cell.append(view);
+      }
     } else cell.textContent = f.downloadable ? '请先连接' : '活动或未封闭';
     row.append(cell); body.append(row);
   }
@@ -77,17 +82,33 @@ async function logRefreshData() {
   logState.connection = snapshot.connection;
   if (before !== JSON.stringify([snapshot.connection.host, snapshot.connection.board_root])) {
     logState.data = null; logState.checkedAt = 0;
+    logState.pendingUlog = null;
     logById('ulog-select').replaceChildren(logNode('option', '请查询或手填已核实 ID')); logById('ulog-id').value = '';
   }
   if (snapshot.connection.state !== 'ok') { logState.data = null; logRender(); return; }
   logState.data = await logAPI('/api/recording/status', {});
   logState.checkedAt = Date.now(); logRender();
+  if (logState.pendingUlog) {
+    const job = logState.data.jobs.find(j => j.id === logState.pendingUlog);
+    if (job && job.state === 'complete') {
+      const file = logState.data.files.find(f => f.path === 'flight_workbench_recordings/' + job.id + '/flight.ulg' && f.downloadable);
+      if (file && typeof ulogBoardView === 'function') {
+        logState.pendingUlog = null; await ulogBoardView(file);
+      }
+    } else if (job && !job.active) {
+      logState.pendingUlog = null;
+      throw new Error('飞控日志下载失败或未封闭；请检查该日志操作输出');
+    }
+  }
 }
 async function logAction(path, body) {
   if (logState.busy) return;
   logState.busy = true; logButtons(); logById('log-message').textContent = '正在操作…';
   try {
-    if (path) await logAPI(path, body);
+    if (path) {
+      const result = await logAPI(path, body);
+      if (path === '/api/recording/start' && body.kind === 'ulog') logState.pendingUlog = result.id;
+    }
     await logRefreshData(); logById('log-message').textContent = '状态已刷新。';
   } catch (error) {
     logState.data = null; logById('log-message').textContent = error.message + '；请刷新核实，避免重复启动。';
@@ -96,14 +117,18 @@ async function logAction(path, body) {
 async function logIndex() {
   if (logState.busy || !window.confirm('查询飞控日志索引？仅在未解锁时执行，会发送 LOG_REQUEST_LIST 并在结束时 END。')) return;
   logState.busy = true; logButtons(); logById('log-message').textContent = '正在查询飞控索引…';
+  logById('ulog-id').value = '';
+  const placeholder = logNode('option', '请选择要匹配的飞控日志'); placeholder.value = '';
+  logById('ulog-select').replaceChildren(placeholder);
   try {
     const data = await logAPI('/api/recording/index', {confirm: '查询飞控日志索引'}), select = logById('ulog-select');
-    select.replaceChildren(logNode('option', '请选择要匹配的飞控日志'));
     for (const entry of data.entries.slice().reverse()) {
       const option = logNode('option', 'ID ' + entry.log_id + ' · ' + (entry.time_beijing || '飞控时间未知') + ' · ' + logSize(entry.bytes));
       option.value = entry.log_id; select.append(option);
     }
-    logById('log-message').textContent = '索引已查询；请按解锁时间和运动匹配试飞，不自动选择最大编号。';
+    const partial = data.entries.some(entry => entry.index_complete === false);
+    logById('log-message').textContent = (partial ? '仅收到部分索引，可刷新重查。' : '索引已查询。') +
+      '请选择日志后点击下载并查看，ID自动带入；按解锁时间和运动匹配试飞，不自动选择最大编号。';
   } catch (error) { logById('log-message').textContent = error.message; }
   finally { logState.busy = false; logButtons(); }
 }
@@ -143,7 +168,8 @@ function logInit() {
       logAction('/api/recording/start', {kind: 'bag', profile: logById('bag-profile').value, duration, confirm: '开始轻量录制'});
   };
   logById('ulog-index').onclick = logIndex;
-  logById('ulog-select').onchange = () => { logById('ulog-id').value = logById('ulog-select').value; };
+  logById('ulog-select').onchange = () => { logById('ulog-id').value = logById('ulog-select').value; logButtons(); };
+  logById('ulog-id').oninput = logButtons;
   logById('ulog-fetch').onclick = () => {
     const raw = logById('ulog-id').value, log_id = Number(raw);
     if (!raw || !Number.isInteger(log_id) || log_id < 0 || log_id > 65534) { logById('log-message').textContent = '请输入已核实的日志 ID。'; return; }

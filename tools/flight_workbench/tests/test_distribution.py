@@ -29,7 +29,7 @@ class DistributionTests(unittest.TestCase):
                 names = archive.namelist()
                 prefix = names[0].split('/')[0]
                 expected = {prefix + '/' + ('README_FIRST.md' if f == 'README_DISTRIBUTION.md' else f)
-                            for f in build_zip.FILES} | {prefix + '/manifest.json'}
+                            for f in build_zip.SOURCES} | {prefix + '/manifest.json'}
                 self.assertEqual(set(names), expected)
                 self.assertTrue(all(not Path(n).is_absolute() and '..' not in Path(n).parts for n in names))
                 manifest = json.loads(archive.read(prefix + '/manifest.json'))
@@ -69,7 +69,7 @@ class DistributionTests(unittest.TestCase):
                     self.assertEqual([g['profile'] for g in observation], ['hover', 'forward', 'square'])
                     for url in ('/', '/observe', '/motor', '/static/app.js', '/static/observe.js',
                                 '/static/style.css', '/static/observe.css', '/static/motor_wiring.json',
-                                '/logs', '/static/logs.js', '/static/logs.css'):
+                                '/logs', '/static/logs.js', '/static/logs.css', '/static/ulog.js', '/api/ulog/library'):
                         with urllib.request.urlopen(base + url, timeout=2) as response:
                             self.assertEqual(response.status, 200)
                             self.assertTrue(response.read())

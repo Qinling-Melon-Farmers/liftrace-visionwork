@@ -1,3 +1,6 @@
 pexpect>=4.8,<5
 PyYAML>=5.3,<7
 paramiko>=2.8,<5; sys_platform == 'win32'
+# Offline ULog viewer: pyulog 1.2.4 core sources included with BSD license.
+numpy>=1.23,<3
+matplotlib>=3.5,<4

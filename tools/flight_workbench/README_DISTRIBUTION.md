@@ -4,7 +4,7 @@
 
 ## Windows 原生启动
 
-使用已有 Windows Python 3.9+ 环境及 PyYAML、pexpect、Paramiko（版本范围见 requirements.txt）。pexpect 仅复用异常类型，Windows 不使用 Unix PTY。脚本检查依赖，不安装包或新建环境。本机已用 Windows Anaconda Python 3.12 验证，未在未安装 Python 的干净 Windows 上验证。
+使用已有 Windows Python 3.9+ 环境及 PyYAML、pexpect、Paramiko（版本范围见 requirements.txt）；离线 ULog 分析另需已有 numpy、matplotlib。pyulog 1.2.4 的读取源码及 BSD 许可随包提供，优先使用环境内已安装版本，无需另装 pyulog。pexpect 仅复用异常类型，Windows 不使用 Unix PTY。脚本检查依赖，不安装包或新建环境。本机已用 Windows Anaconda Python 3.12 验证，未在未安装 Python 的干净 Windows 上验证。
 
 1. 完整解压 ZIP 到本地目录，例如 C:\flight_workbench；支持中文和空格目录。
 2. 双击 start_windows.bat（start_windows.cmd 同效），或 PowerShell 执行：
@@ -49,6 +49,18 @@ Linux 需要 Python 3.9+、pexpect、PyYAML、bash、OpenSSH，无需 Paramiko�
 现有现场/专项卡片、低空观察三卡、日志录制下载、终端和状态保持可用。取消独立电机大页入口；/observe 保留实时位姿、电机原始输出、映射与 ESC 摘要；旧 /motor 跳转 /observe。RC OUT 是输出指令，不能等同电流/RPM；浏览器片段只记录已接收数据，不启动动作。
 
 日志录制/索引/取回只在用户点击后调用现有脚本，下载失败或超时丢弃部分文件，没有断点续传。READY 是应用状态，飞手仍须依现场流程解锁/切 OFFBOARD/接管；保留低空观察收尾保护、舵机独立确认和 probe watchdog 边界。
+
+## 2026-10-09：ULog 小工具并入工作台
+
+日志页 `/logs` 新增本地 ULog 查看器，沿用 `tools/飞控日志小工具.zip` 的列表选取与轨迹查看思路；轨迹处理改为无需 Tk 的网页图像导出，复用已有电机/姿态/RC/电池/EKF 分析。原 ZIP 的 SSH 设置和下载目录不导入本包。
+
+离线查看：用 `-Transport local` 启动，打开日志页，选择已完整下载的 `.ulg`（可多选，单份最大 128 MiB），点击“导入并分析”。无需 SSH、ROS 或日志 ID。本机状态目录的 `ulog_library/` 保存原文件和结果；保持同一 `-ProfileDir`，下次从“已导入/下载的 ULog”直接选择。分析在独立子进程串行执行；上次服务中断的分析显示失败，可重新导入。
+
+可查看轨迹俯视/三维/局部高度和电机诊断图，点击图像打开原图；可下载原始 ULog、CSV、摘要及分析 ZIP。轨迹以首个有效位置为原点，NED 转 ENU，位置重置、无效位置及大于 0.5 秒间隙断线。局部位置/高度是估计值；电机是指令量。分析 ZIP 仅含派生图表和数据，原始日志通过单独按钮保存。
+
+现场取回：连接后明确点击“查询飞控日志索引”，从返回列表选择日志，ID 自动带入，再点击“下载选中飞控日志并查看”。保持页面打开，文件封闭后自动取回本机并分析。旧取回脚本无需替换；索引辅助代码通过现有 SSH 链在板端内存中执行。只接受飞控真实 `LOG_ENTRY` ID，部分索引会提示重查；手填 ID 保留为可选入口。飞控查询/下载仍要求新鲜、已连接且未解锁状态，测试只使用 mock，未执行现场取回验收。
+
+本次已使用已有 `board_full_mission_20261008_223632_log70.ulg` 做 WSL 与 Windows 原生离线 HTTP 上传/解析/导出验证；Windows 使用随包 pyulog 副本。真实试飞日志只作为外部测试输入，不随分发包或 Git 提交。
 
 ## 包边界
 

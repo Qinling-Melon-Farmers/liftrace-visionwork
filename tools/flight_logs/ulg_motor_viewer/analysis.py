@@ -10,7 +10,14 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
-from pyulog import ULog
+try:
+    from pyulog import ULog
+except ModuleNotFoundError as error:
+    if error.name != 'pyulog':
+        raise
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent / 'vendor'))
+    from pyulog import ULog
 
 TOPICS = (
     'actuator_motors', 'actuator_outputs', 'actuator_armed', 'vehicle_status',

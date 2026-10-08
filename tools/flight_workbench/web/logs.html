@@ -11,6 +11,19 @@
     <p id="log-connection">读取当前连接…</p><button id="log-refresh" class="btn">刷新录制状态与文件</button>
     <span id="log-at" class="muted"></span></header>
   <p id="log-message" role="status" aria-live="polite"></p>
+  <section class="log-card"><h2>本地 ULog 查看器</h2>
+    <p>选择已下载、已封闭的 .ulg 即可查看，不需要 logID 或板端连接。文件保存在本机工作台状态目录；下次可从列表直接选择。电机曲线为命令量，位置/高度为估计，不能据此认定实际推力或离地高度。</p>
+    <label for="ulog-local-files">添加本地 ULog（可多选，单份上限128 MiB）</label>
+    <input id="ulog-local-files" type="file" accept=".ulg" multiple>
+    <button id="ulog-local-add" class="btn">导入并分析</button>
+    <button id="ulog-library-refresh" class="btn">刷新本地列表</button>
+    <label for="ulog-library">已导入/下载的 ULog</label><select id="ulog-library"><option value="">尚未导入</option></select>
+    <p id="ulog-local-message" role="status" aria-live="polite"></p>
+    <div id="ulog-result" hidden><h3 id="ulog-title"></h3>
+      <div id="ulog-exports"></div><details><summary>摘要、缺失字段与比较限制</summary><pre id="ulog-summary"></pre></details>
+      <p>点击图像在新标签页查看原图并放大。</p><div id="ulog-images"></div>
+    </div>
+  </section>
   <section id="log-login" class="log-card" hidden><h2>独立日志连接</h2>
     <p>此后端不启动或重连探针，不控制设备/任务节点。连接参数来自本机配置/profile；旧工作台只有内存密码时需在此输入，不读取其进程内存。</p>
     <label for="log-host">板端 SSH 地址</label><input id="log-host" type="text" autocomplete="off">
@@ -33,9 +46,11 @@
       <p><strong>MAVLink streaming 录制：未接入。</strong>以下是已封闭 SD 日志的 MAVLink LOG_REQUEST_DATA 下载，仅连接且未解锁可用；可能暂时影响飞控日志模式，既有脚本结束时发送 END。</p>
       <button id="ulog-index" class="btn">查询飞控日志索引</button>
       <label for="ulog-select">已查询日志（飞控时间仅供匹配）</label><select id="ulog-select"><option value="">请查询或手填已核实 ID</option></select>
-      <label for="ulog-id">日志 ID（0–65534）</label><input id="ulog-id" type="number" min="0" max="65534" step="1" placeholder="先核实日志编号">
-      <button id="ulog-fetch" class="btn">取回飞控日志到板端</button>
-      <p>随后在文件列表下载到本机。索引查询依赖板端新版 --list --format json；旧版可手填 ID。不会替换板端脚本，也不会自动下载“最新”。</p>
+      <details><summary>手工输入已核实 ID（可选）</summary>
+        <label for="ulog-id">日志 ID（0–65534，列表选择会自动填写）</label><input id="ulog-id" type="number" min="0" max="65534" step="1" placeholder="由列表选择自动带入">
+      </details>
+      <button id="ulog-fetch" class="btn">下载选中飞控日志并查看</button>
+      <p>复用小工具“列表选择→自动带入ID→下载”流程。下载完成后自动取回本机并分析，无需手填ID；页面需保持打开。索引代码在板端内存执行，旧取回脚本也可使用，不覆盖板端文件，不自动选择“最新”。</p>
     </section>
   </div>
   <section class="log-card"><h2>工作台日志操作</h2><p id="log-recorders">尚未查询板端 recorder。</p>
@@ -47,5 +62,5 @@
     <p>显示 logs/ 下最近 150 个文件（最多检查 600 个目录，深度 5 层）。活动文件与 .part 不提供下载。下载文件保存到浏览器的本地下载目录。</p>
     <div class="log-table"><table><thead><tr><th>相对路径</th><th>大小</th><th>修改时间</th><th>下载</th></tr></thead><tbody id="log-files"></tbody></table></div>
   </section>
-</main><script src="/static/logs.js"></script>
+</main><script src="/static/ulog.js"></script><script src="/static/logs.js"></script>
 </body></html>

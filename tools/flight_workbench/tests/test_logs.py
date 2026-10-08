@@ -125,10 +125,18 @@ class RemoteTests(unittest.TestCase):
         request = self.request('index')
         script = self.root / request['ulog_script']; script.parent.mkdir(parents=True)
         script.write_text('parser.add_argument("--list-dir")')
-        with patch('subprocess.Popen') as spawn:
-            with self.assertRaisesRegex(ValueError, 'does not support'):
-                self.ns['action'](request)
-            spawn.assert_not_called()
+        original = script.read_text()
+        fake = Mock(returncode=0)
+        fake.communicate.return_value = (b'[{"log_id": 17, "bytes": 1234}]', b'')
+        with patch('subprocess.Popen', return_value=fake) as spawn:
+            result = self.ns['action'](request)
+            self.assertEqual(result['entries'][0]['log_id'], 17)
+            args = spawn.call_args.args[0]
+            self.assertEqual(args[1], '-c')
+            self.assertIn('LOG_REQUEST_LIST', args[2])
+            self.assertIn('--list', args)
+            self.assertIn('--workbench-index-marker', args)
+        self.assertEqual(script.read_text(), original)
 
     def test_request_validation_and_failures_do_not_become_success(self):
         for body in ({'kind': 'streaming'}, {'kind': 'bag', 'confirm': 'wrong'},

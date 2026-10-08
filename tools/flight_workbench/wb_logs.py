@@ -4,6 +4,7 @@ import json
 import re
 import threading
 import uuid
+from pathlib import Path
 
 from wb_ssh import quote, run_bytes
 
@@ -46,7 +47,8 @@ def processes():
                 kind = "bag"
             elif "rosbag" in names and "record" in args:
                 kind = "bag"
-            elif any(name.startswith("fetch_px4_ulog") and name.endswith(".py") for name in names):
+            elif (any(name.startswith("fetch_px4_ulog") and name.endswith(".py") for name in names)
+                  or "--workbench-index-marker" in args):
                 kind = "ulog"
             if kind:
                 found.append({"pid": int(entry.name), "kind": kind})
@@ -174,16 +176,16 @@ def action(request):
                               "routine": (board / request["routine_script"]).is_file(),
                               "ulog": (board / request["ulog_script"]).is_file()}}
     if operation == "index":
-        script = inside(board, board / request["ulog_script"])
-        # Detect the newer board CLI locally; do not deploy/replace it or fall
-        # back to old FTP listing (FTP names are not LOG_REQUEST_DATA IDs).
-        text = script.read_text(encoding="utf-8")
-        if '"--list"' not in text or '"--format"' not in text:
-            raise ValueError("Board script does not support --list --format json; enter a verified ID")
         if any(p["kind"] == "ulog" for p in processes()):
             raise ValueError("ULog transfer in progress; index request refused")
-        child = subprocess.Popen([request["python"], str(script), "--namespace", request["namespace"],
-                                  "--list", "--format", "json", "--list-timeout", "15", "--timeout", "20"],
+        # Run the bundled index-only helper in memory. Older board fetch scripts
+        # keep downloading unchanged; no deployment or board-file replacement.
+        source = request.get("index_source")
+        if not source:
+            raise ValueError("Missing bundled FC index helper; no IDs inferred")
+        child = subprocess.Popen([request["python"], "-c", source, "--namespace", request["namespace"],
+                                  "--list", "--format", "json", "--list-timeout", "15", "--timeout", "20",
+                                  "--workbench-index-marker"],
                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
         try:
             output, _ = child.communicate(timeout=40)
@@ -315,6 +317,12 @@ class LogsClient:
         if not re.fullmatch(r"/[A-Za-z][A-Za-z0-9_/]*", result["namespace"]):
             raise ValueError("非法 MAVROS namespace")
         result.update(values)
+        if operation == "index":
+            tool = Path(__file__).resolve().parent
+            helper = tool / "ulog_viewer" / "px4_log_index.py"
+            if not helper.is_file():
+                helper = tool.parent / "flight_logs" / "px4_log_index.py"
+            result["index_source"] = helper.read_text(encoding="utf-8")
         return result
 
     def command(self, payload):

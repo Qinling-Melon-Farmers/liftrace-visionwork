@@ -46,10 +46,20 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--namespace", default="/mavros")
     parser.add_argument("--list-dir", default="/fs/microsd/log")
+    parser.add_argument("--list", "--list-logs", action="store_true", help="Query actual MAVLink log IDs")
+    parser.add_argument("--format", choices=("json", "text"), default="json")
+    parser.add_argument("--list-timeout", type=float, default=15)
     parser.add_argument("--log-id", type=int, help="Explicit ID from the FCU log index")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--timeout", type=float, default=600)
     args = parser.parse_args()
+    if args.list:
+        if args.log_id is not None or args.output is not None:
+            parser.error("--list cannot be combined with --log-id/--output")
+        from px4_log_index import main as list_main
+        list_main(["--namespace", args.namespace, "--list", "--format", args.format,
+                   "--list-timeout", str(args.list_timeout), "--timeout", str(args.timeout)])
+        return
     if not math.isfinite(args.timeout) or args.timeout <= 0:
         parser.error("--timeout must be finite and positive")
     if args.log_id is not None and not 0 <= args.log_id < 65535:
