@@ -378,11 +378,11 @@ int main(int argc,char**argv){
    capture(c);const auto g=c.compensated_fc_goal_.pose.position;
    CONFIGURED_DROP
    c.drop_release_window_=LandingHandoffStabilityWindow(c.drop_settle_config_);
-   close(c.drop_settle_config_.xy_tolerance_m,.06);
-   for(int i=0;i<3;++i){odom(c,101+i*.15625,g.x+.061,g.y,.35,.07);
+   close(c.drop_settle_config_.xy_tolerance_m,.04);
+   for(int i=0;i<3;++i){odom(c,101+i*.15625,g.x+.041,g.y,.35,.07);
     assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);}
    // A single current sample is enough after the original visual capture.
-   odom(c,103,g.x+.055,g.y,.35,.20);
+   odom(c,103,g.x+.035,g.y,.35,.20);
    assert(c.executeDropAction(1)==DropActionResult::kPending&&c.servo_action_attempted_);
    finish(c,t);assert(c.executeDropAction(1)==DropActionResult::kSuccess&&t->calls==1);
   }else if(name=="height_band"){
@@ -398,10 +398,19 @@ int main(int argc,char**argv){
    CONFIGURED_DROP
    odom(c,101,g.x,g.y,.40,.08);
    assert(c.compensatedDropSettled(true));
-   odom(c,101.01,g.x+.059,g.y,.40);
+   odom(c,101.01,g.x+.039,g.y,.40);
    assert(c.compensatedDropSettled(true));
-   odom(c,101.02,g.x+.061,g.y,.40);
+   odom(c,101.02,g.x+.041,g.y,.40);
    assert(!c.compensatedDropSettled(true));
+   // Equality must not pass; use the measured error as the exact threshold.
+   double measured=0;
+   c.compensatedDropSettled(true,&measured);
+   c.drop_settle_config_.xy_tolerance_m=measured;
+   assert(!c.compensatedDropSettled(true));
+   c.drop_settle_config_.xy_tolerance_m=.04;
+   // Earlier height-only and later position-only satisfaction cannot latch.
+   odom(c,101.021,g.x+.05,g.y,.40);assert(!c.compensatedDropSettled(true));
+   odom(c,101.022,g.x,g.y,.46);assert(!c.compensatedDropSettled(true));
    odom(c,101.03,g.x,g.y,.40,.081);
    assert(c.compensatedDropSettled(true));
    odom(c,101.04,g.x,g.y,.40);

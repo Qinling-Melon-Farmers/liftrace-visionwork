@@ -59,7 +59,7 @@ drop_system:
   # height_tolerance_m、两项速度、stable_duration_sec、max_sample_gap_sec、min_samples
   # 仅兼容保留，不参与补偿投递放行；调这些字段不能改变投递行为。H使用独立配置。
   settle:
-    xy_tolerance_m: 0.06
+    xy_tolerance_m: 0.04  # FC及投口误差均严格小于4cm，首次当前到位即可
     height_tolerance_m: 0.05
     max_horizontal_speed_mps: 0.08
     max_vertical_speed_mps: 0.10

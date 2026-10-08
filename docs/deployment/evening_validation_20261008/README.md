@@ -15,7 +15,7 @@
 
 ### 2026-10-09 补偿投递末段简化（仅F源码，尚未上板）
 
-原捕获5帧／30px、冻结靶心、旋转减12cm杆臂、原任务边界、45秒commit、20cm漂移及slot幂等保留。冻结后当前新鲜反馈满足FC与投口XY误差均≤6cm、localZ在`release_setpoint_height`至`height_threshold`闭区间（当前入口FC AGL0.35～0.45m），即可进入原释放许可及异步调用链。高度仍使用已有起飞参考换算，不硬编码AGL为localZ。取消额外0.30秒／3帧窗口与对称±5cm高度要求；水平、垂直及投口角运动速度仅诊断，不按数值门槛拒绝。定位／姿态有效性、反馈新鲜性、冻结身份、控制权限、取消、防重复和NOT_STARTED锁继续成立，H独立逻辑不变。
+原捕获5帧／30px、冻结靶心、旋转减12cm杆臂、原任务边界、45秒commit、20cm漂移及slot幂等保留。冻结后当前新鲜反馈满足FC与投口XY误差均＜4cm、localZ在`release_setpoint_height`至`height_threshold`闭区间（当前入口FC AGL0.35～0.45m），即可进入原释放许可及异步调用链。高度仍使用已有起飞参考换算，不硬编码AGL为localZ。取消额外0.30秒／3帧窗口与对称±5cm高度要求；水平、垂直及投口角运动速度仅诊断，不按数值门槛拒绝。定位／姿态有效性、反馈新鲜性、冻结身份、控制权限、取消、防重复和NOT_STARTED锁继续成立，H独立逻辑不变。
 
 两份base YAML保留兼容字段并明确注释：drop专属`height_tolerance_m`、两项速度、`stable_duration_sec`、`max_sample_gap_sec`、`min_samples`不参与补偿投递放行，仅`xy_tolerance_m`和`max_odom_age_sec`继续生效。C++旧fallback数值未改，但速度／稳窗字段不再构成放行条件。本次必须重编译`patrol_control`；实际入口仍须重新生成配置。以下10月8日内容为当时的配置修改记录，当前补偿末段以本节为准。
 
@@ -91,3 +91,5 @@ Windows补充验证：已从交付ZIP实际解压，原生Python/BAT启动、HTT
 
 
 补偿终点补充修复及新版endpoint源码包见[说明](ENDPOINT_BOUNDARY.md)。WSL工作台已更新并运行于 http://127.0.0.1:8771/ ，与Windows evening包一致；本次仍未上板。
+
+2026-10-09后续指令：最终XY门槛恢复为严格＜4cm；与0.35～0.45m高度在同一份当前新鲜反馈同时满足即可。不得锁存曾经分别达标，也不累计停稳。前述6cm及速度／稳窗参数比较保留为历史分析，不能用于当前放行口径。冻结前的5张独立图像累计另补短暂缓存过期衔接，不修改靶心检测。

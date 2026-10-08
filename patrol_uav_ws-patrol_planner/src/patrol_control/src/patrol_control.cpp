@@ -3706,7 +3706,7 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
     // or another duration/sample-count window.
     if (!release) return externalLandingControlReady(ros::Time::now());
     const bool ready = std::isfinite(xy_error) && std::isfinite(horizontal_speed) &&
-        std::isfinite(pos.z) && xy_error <= drop_settle_config_.xy_tolerance_m &&
+        std::isfinite(pos.z) && xy_error < drop_settle_config_.xy_tolerance_m &&
         pos.z >= drop_release_setpoint_height_ && pos.z <= drop_height_threshold &&
         externalLandingControlReady(ros::Time::now());
     if (!ready) ROS_INFO_THROTTLE(1.0,
