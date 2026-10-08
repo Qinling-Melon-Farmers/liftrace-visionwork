@@ -1,0 +1,73 @@
+[
+  {
+    "name": "main",
+    "root": "/home/xhj/liftrace",
+    "branch": "main",
+    "head": "6cd0207fb5ea669416d01c06d6a1b65eac6730e9",
+    "remote": {
+      "origin": "6cd0207fb5ea669416d01c06d6a1b65eac6730e9"
+    },
+    "tracked_status": ""
+  },
+  {
+    "name": "F",
+    "root": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix",
+    "branch": "feat/r2026-competition-integrated",
+    "head": "87fb2726cd3a2078b5ee32a2d448bdaae7f9ee70",
+    "remote": {
+      "origin": "87fb2726cd3a2078b5ee32a2d448bdaae7f9ee70"
+    },
+    "tracked_status": ""
+  },
+  {
+    "name": "B",
+    "root": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests",
+    "branch": "feat/board-deployment-flight-20260920",
+    "head": "f8bc9b0d7f2961f6fb89fcd0c4eb8616eefbee08",
+    "remote": {
+      "origin": "f8bc9b0d7f2961f6fb89fcd0c4eb8616eefbee08"
+    },
+    "tracked_status": ""
+  },
+  {
+    "name": "H",
+    "root": "/home/xhj/liftrace-worktrees/r2026-high-view-search",
+    "branch": "feat/high-view-route-speed-20261004",
+    "head": "4a3f5244b96e209a6749f0ebfd834e32f6a77976",
+    "remote": {
+      "origin": "4a3f5244b96e209a6749f0ebfd834e32f6a77976"
+    },
+    "tracked_status": ""
+  },
+  {
+    "name": "EV",
+    "root": "/home/xhj/liftrace-worktrees/r2026-ev-continuity",
+    "branch": "feat/ev-continuity-20261004",
+    "head": "ec6187613d41605299a02992fe4ae662c25c5eb9",
+    "remote": {
+      "origin": "ec6187613d41605299a02992fe4ae662c25c5eb9"
+    },
+    "tracked_status": ""
+  },
+  {
+    "name": "NAVL",
+    "root": "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919",
+    "branch": "feat/high-view-liveness-20260919",
+    "head": "f8795273e69e2c88852bea24d5690acab315f288",
+    "remote": {
+      "fork": "e3ae668e1c2d4fd0c50efbc5e18e7c29554fe744",
+      "origin": "f8795273e69e2c88852bea24d5690acab315f288"
+    },
+    "tracked_status": ""
+  },
+  {
+    "name": "NAVB",
+    "root": "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+    "branch": "板端参考分支",
+    "head": "02a9c340b0807f63b323fc59d321e31c03b94f79",
+    "remote": {
+      "origin": "02a9c340b0807f63b323fc59d321e31c03b94f79"
+    },
+    "tracked_status": ""
+  }
+]
