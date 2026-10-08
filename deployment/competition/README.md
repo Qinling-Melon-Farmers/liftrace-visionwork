@@ -22,3 +22,18 @@ field.example及rectangle_motion/snake_motion候选显式使用landing_handoff_m
 已回收部署过的限高保持修复和实体PWM3左仓/后仓2100us释放、1700us锁止、被动启动。H仍为原比赛0.9m捕获及POSCTL交接，软件链验收不等同自主落地评分。三线程FAST-LIO、大核绑定和轻量bag保持现有实现。
 
 显式开关与离线生成接口见[CLI契约](../../docs/verification/competition_release_20261008/CLI_CONTRACT.md)，文件清单、测试及本地存档边界见[交接报告](../../docs/verification/competition_release_20261008/REPORT.md)。
+
+
+### 2026-10-08 默认运动优化与高位续扫
+
+按本轮要求，正式 `field.example.yaml` 与两份候选默认开启运动优化和高位续扫。二者独立：`--motion-optimization on/off` 仅覆盖运动策略，`--resume-survey on/off` 仅覆盖 `survey_policy.resume_survey_enabled`；省略逐项继承所选 YAML。`field_20261007_validated.yaml` 保留历史实跑原值（运动优化开启、续扫关闭），不把新默认写成昨晚已验收。
+
+高位续扫复用共有整场实现：最多一次、原任务总截止时间、当前位置安全竖直上升、回接未完成搜索段并保留重叠，仍要求新鲜位姿/地图和新的缺失类别证据。恢复原高位限高必须经过规划器限高 ACK；不修改释放门槛。当前新增正赛配置接线已离线验证，续扫未在昨晚整场实跑中开启，本轮未启动仿真或实机。
+
+未确认模板允许 `preview --check-config` 展示继承或覆盖后的有效值，输出 `source=validated_settings` 和 `generation_ready=false`。缺实测门/H/墙面不能生成或飞行；不会填入假墙坐标。实际生成后的输出为 `CONFIG_EFFECTIVE`，包含 `runtime.yaml`/`overrides.yaml` 路径及生成配置中的开关值；工作台分别显示“离线配置检查”与“运行已生成配置”。改变 YAML 路径或开关后，旧结果不能确认新选择。
+
+### 2026-10-08 高位等待简化与本地恢复候选
+
+[本轮整机说明](../../docs/verification/flight_candidate_simplification_20261008/REPORT.md)：投递删除高位重复释放级停稳，保留固定靶心、完整旋转槽位补偿与最终4cm/0.05m/s/0.30秒释放检查。H恢复原高位确认，低位保留0.35m目标/0.37m请求上限，0.08m/s水平速度、0.10m/s垂直速度、0.15秒新鲜反馈允许缓降；微小未来状态改为有限暂缓。
+
+三类恢复已接入独立 `candidates/recovery_validated_field_local.yaml`（10月7日有限场地几何），不改历史validated配置；仅该本地候选显式开启恢复，正式模板仍关闭。运动优化/高位续扫默认开启。实验投影未纳入；本轮仅本地构建与离线验证，暂不上板。

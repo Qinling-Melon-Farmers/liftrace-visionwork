@@ -1,3 +1,4 @@
+# Legacy two-round-trip line migrated to equivalent survey points; no new flight acceptance.
 mode: high_speed_capture
 low_agl: 1.4
 high_agl: 2.0
@@ -30,25 +31,17 @@ flight_area:
   - -1.5
   - 1.5
   staging_xy:
-  - 0.6
+  - 0.8
   - 0.0
   survey_xy:
-  - - 0.8
-    - -1.1
-  - - 3.2
-    - -1.1
-  - - 5.5
-    - -1.1
-  - - 5.5
+  - - 5.2
     - 0.0
-  - - 5.5
-    - 1.1
-  - - 3.2
-    - 1.1
   - - 0.8
-    - 1.1
+    - 0.0
+  - - 5.2
+    - 0.0
   - - 0.8
-    - -1.1
+    - 0.0
   map_size:
   - 16.0
   - 6.0
@@ -71,9 +64,3 @@ auto_start_after_arm: true
 initialization_timeout: 300.0
 obstacle_columns_enabled: false
 capture_lighting: unspecified
-capture_line_xy:
-- - 0.8
-  - 0.0
-- - 5.2
-  - 0.0
-capture_round_trips: 2

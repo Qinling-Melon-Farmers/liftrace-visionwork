@@ -200,6 +200,54 @@ class Handoff(unittest.TestCase):
         bridge._update_landing(NS(x=1., y=2., z=.2, stamp_ns=bridge.t), bridge.t)
         self.assertFalse(bridge.outcomes)  # A stale flight state cannot complete.
 
+    def test_future_five_ms_defers_authorization_then_rechecks_original_source(self):
+        bridge = self.bridge()
+        self.event(bridge, 'REQUESTED'); self.event(bridge, 'OBSERVED')
+        source = bridge.t + 5_000_000
+        receipt = bridge.t
+        self.state(bridge, header=NS(stamp=source))
+        self.assertFalse(bridge._landing.posctl_authorized)
+        bridge.t += 4_000_000
+        bridge._check_landing_mode_handoff(bridge.t)
+        self.assertFalse(bridge._landing.posctl_authorized)
+        bridge.t += 1_000_000
+        bridge._check_landing_mode_handoff(bridge.t)
+        self.assertTrue(bridge._landing.posctl_authorized)
+        self.assertEqual(bridge._flight_state_source_ns, source)
+        self.assertEqual(bridge._flight_state_receipt_ns, receipt)
+        self.assertFalse(bridge.outcomes)
+        bridge.t += 8_000_000_000
+        self.state(bridge, header=NS(stamp=bridge.t+5_000_000))
+        self.assertIsNotNone(bridge._landing)
+        bridge.t += 5_000_000
+        bridge._check_landing_mode_handoff(bridge.t)
+        self.assertFalse(bridge.outcomes)
+
+    def test_future_pending_at_wait_boundary_does_not_cancel_or_mask_mode_change(self):
+        bridge = self.bridge()
+        self.event(bridge, 'REQUESTED'); self.event(bridge, 'OBSERVED')
+        self.state(bridge, header=NS(stamp=bridge.t+5_000_000))
+        # Pending is a bounded timing defer, never an authorization shortcut.
+        bridge._landing.posctl_wait_started_ns = bridge.t - 500_000_000
+        bridge._check_landing_mode_handoff(bridge.t)
+        self.assertIsNotNone(bridge._landing)
+        self.assertFalse(bridge._landing.posctl_authorized)
+        bridge.t += 5_000_000
+        bridge._check_landing_mode_handoff(bridge.t)
+        self.assertTrue(bridge._landing.posctl_authorized)
+        self.state(bridge, 'MANUAL', header=NS(stamp=bridge.t+5_000_000))
+        self.assertIsNone(bridge._landing)
+        self.assertEqual(bridge.outcomes[0][2], 'CANCELLED')
+
+    def test_large_future_at_wait_boundary_does_not_create_unbounded_pending(self):
+        bridge = self.bridge()
+        self.event(bridge, 'REQUESTED'); self.event(bridge, 'OBSERVED')
+        self.state(bridge, header=NS(stamp=bridge.t+201_000_000))
+        bridge._landing.posctl_wait_started_ns = bridge.t - 500_000_000
+        bridge._check_landing_mode_handoff(bridge.t)
+        self.assertIsNone(bridge._landing)
+        self.assertEqual(bridge.outcomes[0][2], 'CANCELLED')
+
     def test_normal_ground_disarm_keeps_handoff_but_stale_ground_cannot_complete(self):
         bridge = self.bridge()
         self.authorize(bridge)

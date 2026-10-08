@@ -140,6 +140,7 @@ var state = {
   trial: {},
   stage: null,
   telemetry: null,
+  probe: {},
   orchestration: null,
   alerts: [],
   timeline: [],
@@ -218,7 +219,8 @@ var api = {
   connect: function (body) { return postJSON('/api/connect', body || {}); },
   disconnect: function () { return postJSON('/api/disconnect', {}); },
   preflight: function () { return postJSON('/api/action/preflight', {}); },
-  startAll: function (includeServo) { return postJSON('/api/action/start_all', { include_servo: !!includeServo, confirm: '启动设备' }); },
+  probeReconnect: function () { return postJSON('/api/action/probe_reconnect', {}); },
+  startAll: function (includeServo, groupId) { return postJSON('/api/action/start_all', { include_servo: !!includeServo, group_id: groupId, confirm: '启动设备' }); },
   stopAll: function () { return postJSON('/api/action/stop_all', {}); },
   missionStart: function () {
     // 后端要求确认词「启动任务」（仅在 READY 且飞手完成解锁/悬停后调用一次）
@@ -594,6 +596,11 @@ var bus = {
         state.telemetry = msg.telemetry || null;
         scheduleRender();
         break;
+      case 'probe':
+        state.probe = msg.probe || {};
+        if (msg.telemetry) state.telemetry = msg.telemetry;
+        scheduleRender();
+        break;
       case 'alert':
         if (msg.alert) { state.alerts.unshift(msg.alert); if (state.alerts.length > ALERT_KEEP) state.alerts.pop(); renderMonitor(); }
         break;
@@ -644,6 +651,7 @@ function onStage(stage) {
     else if (stage.name === 'FAILED') beep('error');
   }
   renderMonitor();
+  scheduleRender();
 }
 
 function applySnapshot(snap) {
@@ -656,12 +664,14 @@ function applySnapshot(snap) {
   state.trial = snap.trial || {};
   state.stage = snap.stage || null;
   state.telemetry = snap.telemetry || null;
+  state.probe = snap.probe || {};
   state.orchestration = snap.orchestration || null;
   state.alerts = (snap.alerts || []).slice(0, ALERT_KEEP);
   state.timeline = (snap.timeline || []).slice(0, TL_KEEP);
   state.board = snap.board || { logs: [], preflight: null };
   state.report = snap.report || null;
   state.reportText = (snap.report && snap.report.markdown) || '';
+  renderCapabilities();
 
   // 选择最近的组（记忆优先）
   var ids = state.groups.map(function (g) { return g.id; });
@@ -767,13 +777,46 @@ function renderTopbar() {
     var b = $(sel); if (b) b.disabled = off;
   });
 
-  var tel = state.telemetry || {};
-  var ms = state.snapshot ? state.snapshot.now : null;
-  var tAt = tel.at || tel.t || ms;
+  var view = probeView();
+  var tel = view.usable ? state.telemetry || {} : {};
+  var tAt = (state.telemetry || {}).at || (state.telemetry || {}).t;
   $('#topbar-probe').textContent = 'master ' + (tel.master === true ? 'OK' : (tel.master === false ? '无' : '—'))
     + ' · 节点 ' + (tel.nodes ? tel.nodes.length : '—')
-    + ' · 遥测 ' + hhmmss(tAt)
+    + ' · 遥测 ' + hhmmss(tAt) + ' · ' + view.detail
     + (tel.probe && tel.probe.node ? (' · 探针 ' + (tel.probe.host || '') + (tel.probe.pid ? ('#' + tel.probe.pid) : '')) : '');
+  var reconnect = $('#btn-probe-reconnect');
+  if (reconnect) reconnect.disabled = !supportsCapability('probe_reconnect') || !connected() || !!(state.sessions.probe && ['running','starting'].indexOf(state.sessions.probe.state) >= 0);
+}
+
+function supportsCapability(name) {
+  return !!(state.snapshot && state.snapshot.capabilities && state.snapshot.capabilities[name] === true);
+}
+
+function renderCapabilities() {
+  [['#link-recording', 'recording'], ['#btn-probe-reconnect', 'probe_reconnect']].forEach(function (item) {
+    var control = $(item[0]);
+    if (control) control.style.display = supportsCapability(item[1]) ? '' : 'none';
+  });
+}
+
+function probeView() {
+  var tel = state.telemetry || {}, link = tel.probe_link || (state.probe || {}).link || {};
+  var session = state.sessions.probe || {}, at = Number(tel.at || tel.t || 0);
+  var age = at ? nowSec() - at : null;
+  var fresh = age !== null && age >= 0 && age <= 3;
+  var terminal = ['failed','exited'].indexOf(session.state) >= 0;
+  var usable = fresh && tel.master === true && !terminal && session.exit_code !== 130 &&
+    (!link.status || link.usable === true);
+  var detail = link.detail || (usable ? '探针遥测新鲜' : '当前设备状态未观测');
+  if (!fresh && link.status === 'live') detail = '探针遥测已过期；当前设备状态未观测';
+  if (link.retrying) detail += ' · 仅probe退避恢复（第' + link.retry_count + '次）';
+  return {usable:usable, age:age, detail:detail};
+}
+
+function servoInitBlocked() {
+  var session = state.sessions.servo || {}, tel = state.telemetry || {};
+  return ['running','starting'].indexOf(session.state) >= 0 ||
+    (probeView().usable && !!(tel.services || {})['/legacy/Servo_raw']);
 }
 
 /* ==========================================================================
@@ -807,6 +850,29 @@ function groupCommandBody(g, mode, realRelease, checkConfig, speed, options) {
   var moduleBase = 'deployment/board_trials_4x4/' + folder;
   var extra = '';
   options = options || {};
+  if (route === 'competition') {
+    var field = options.competition_config == null ? g.site_config : options.competition_config;
+    if (typeof field !== 'string' || !field.trim() || /[\r\n\x00]/.test(field) ||
+        (mode === 'flight' && !checkConfig && !realRelease)) return {body:null,note:'独立正赛需要场地配置，flight仅支持实投'};
+    for (var pair of [['motion-optimization',options.motion_optimization],['resume-survey',options.resume_survey],['obstacle-columns',options.obstacle_columns]]) {
+      if (pair[1] != null) {
+        if (['on','off'].indexOf(pair[1]) < 0) return {body:null,note:'开关仅支持on/off，省略继承YAML'};
+        extra += ' --' + pair[0] + ' ' + pair[1];
+      }
+    }
+    return {body:'bash ' + shellArgQuote(g.entry || 'deployment/competition/start.sh') + ' ' +
+      (checkConfig ? 'preview' : mode) + ' --site-config ' + shellArgQuote(field.trim()) + extra + (checkConfig ? ' --check-config' : ''),
+      note:'所选YAML为权威；继承不传覆盖，on/off显式覆盖。先配置检查核对有效参数；测试场地成功不代表10×10正赛。'};
+  }
+  if (g.channel === 'low_observation') {
+    if (['hover','forward','square'].indexOf(g.profile) < 0 || realRelease || speed != null ||
+        options.capture_lighting != null || options.motion_optimized || options.survey_pattern != null ||
+        options.resume_survey != null || options.site_geometry != null || options.geometry_revision != null) {
+      return {body:null,note:'低空观察继承原 profile，不支持投递或专项参数'};
+    }
+    return {body:'bash deployment/low_hover_observation/start.sh ' + (checkConfig ? 'preview' : mode) + ' ' + g.profile,
+      note:'preview 为离线配置展开（无 ROS）；flight 仅观察动作和诊断录包，飞手人工解锁并重新拨入 OFFBOARD'};
+  }
   if (options.site_geometry !== undefined) {
     var plans=groupUI(g).geometryPlans || {};
     return plans[geometryPlanKey(g,mode,realRelease,checkConfig,speed,options)] ||
@@ -869,10 +935,12 @@ function renderGroups() {
 
   if (!groups.length) { body.appendChild(el('p', 'empty', '等待快照…（/api/snapshot 的 groups 为空）')); return; }
 
+  appendGroupSection(body, '独立正赛（先实测并确认场地）', groups.filter(function (g) { return g.channel === 'competition'; }));
   appendGroupSection(body, '现场组号（1–6）', groups.filter(function (g) { return (g.section || g.channel) === 'site'; }));
-  appendGroupSection(body, '专项模块与对照', groups.filter(function (g) { return (g.section || g.channel) !== 'site'; }));
+  appendGroupSection(body, '专项模块与对照', groups.filter(function (g) { return (g.section || g.channel) === 'module'; }));
+  appendGroupSection(body, '独立低空观察（顺序：悬停 → 前移 → 矩形）', groups.filter(function (g) { return g.section === 'observation'; }));
 
-  var others = groups.filter(function (g) { return g.channel && g.channel !== 'site' && g.channel !== 'module'; });
+  var others = groups.filter(function (g) { return g.channel && ['site','module','low_observation','competition'].indexOf(g.channel) < 0; });
   if (others.length) appendGroupSection(body, '其他任务组', others);
   body.scrollTop = scrollTop;
 }
@@ -884,6 +952,21 @@ function appendGroupSection(body, title, list) {
   h.appendChild(el('span', 'muted tiny', list.length + ' 组'));
   body.appendChild(h);
   list.forEach(function (g) { body.appendChild(groupCard(g)); });
+}
+
+function competitionEffectiveConfig(g,options,stage,trial) {
+  var actual=(stage || {}).effective_config;
+  var matches=trial && trial.group_id===g.id &&
+    (trial.competition_config || g.site_config)===(options.competition_config || g.site_config) &&
+    (trial.motion_optimization || null)===(options.motion_optimization || null) &&
+    (trial.resume_survey || null)===(options.resume_survey || null) &&
+    (trial.obstacle_columns || null)===(options.obstacle_columns || null);
+  return actual && matches ? effectiveConfigText(actual) : '当前所选配置的有效值尚未确认：先运行配置检查。复选框和选项只表示请求。';
+}
+
+function effectiveConfigText(actual) {
+  var source=actual.source==='generated_runtime' ? '运行已生成配置' : '离线配置检查';
+  return source + '：运动优化=' + (actual.motion_optimization ? '开启' : '关闭') + '；高位续扫=' + (actual.resume_survey ? '开启' : '关闭') + (actual.generation_ready===false ? '；实测场地/墙面未确认，尚不可生成飞行配置' : '') + (actual.runtime_path ? '；' + actual.runtime_path : '');
 }
 
 function groupUI(g) {
@@ -899,6 +982,11 @@ function trialBody(g, mode, checkConfig) {
   var body = { group_id: g.id, mode: checkConfig ? 'preview' : mode,
     real_release: !checkConfig && mode === 'flight' && U.release === 'real' };
   if (checkConfig) body.check_config = true;
+  if (g.competition_options_supported) {
+    if (U.motionOptimization) body.motion_optimization = U.motionOptimization;
+    if (U.obstacleColumns) body.obstacle_columns = U.obstacleColumns;
+    if (U.competitionConfig != null) body.competition_config = U.competitionConfig;
+  }
   if (g.speed_options && g.speed_options.length && U.speed != null) body.capture_speed = U.speed;
   if (g.lighting_options && U.lighting) body.capture_lighting = U.lighting;
   if (g.motion_optimization_supported && U.motionOptimized) body.motion_optimized = true;
@@ -920,31 +1008,39 @@ function geometryPlanKey(g, mode, realRelease, checkConfig, speed, options) {
 }
 
 function geometryFromDraft(U,g) {
-  function row(text, count) {
-    var parts = String(text || '').trim().split(/[\s,，]+/);
-    if (!String(text || '').trim() || (count && parts.length !== count)) throw Error('坐标数量不正确');
+  function row(text, count, label) {
+    var raw = text == null ? '' : String(text).trim();
+    var parts = raw ? raw.split(/[\s,，]+/) : [];
+    if (!raw || (count && parts.length !== count)) {
+      throw Error(label + '：' + (count ? '需要' + count + '个数，实际' + parts.length + '个' : '请填写数值') + '（逗号或空格分隔，不带括号）');
+    }
     var values = parts.map(Number);
-    if (values.some(function(v) { return !Number.isFinite(v); })) throw Error('请输入有限数值');
+    if (values.some(function(v) { return !Number.isFinite(v); })) throw Error(label + '：请输入有限数值，不带括号或单位');
     return values;
   }
-  var points = String(U.geometryPoints || '').trim().split(/\n/).filter(function(v) { return v.trim(); }).map(function(line) {
-    var p = row(line,3); return {x:p[0],y:p[1],agl:p[2]};
-  });
-  var result = {};
+  var result = {}, points = [];
   if (!g || g.needs_waypoints) {
-    if (points.length < 2) throw Error('至少填写两个走廊航点');
-    result.corridor_waypoints=points;result.landing_xy=row(U.geometryLanding,2);
+    String(U.geometryPoints || '').split(/\r?\n/).forEach(function(line,index) {
+      if (!line.trim()) return;
+      var p = row(line,3,'走廊航点第' + (index+1) + '行');
+      points.push({x:p[0],y:p[1],agl:p[2]});
+    });
+    if (points.length < 2) throw Error('至少填写两个走廊航点，每行x, y, agl');
+    result.corridor_waypoints=points;result.landing_xy=row(U.geometryLanding,2,'H中心');
   }
   if (U.surveyEnabled) {
-    function value(key) { if(!String(U[key] || '').trim())throw Error('请填完整搜索高度、外参和FOV');return row(U[key],1)[0]; }
-    result.survey_plan={bounds:row(U.surveyBounds,4),inset:value('surveyInset'),pattern:U.pattern || 'rectangle',camera_agl:value('surveyCameraHeight'),fc_to_camera_z:value('surveyOffset'),fov_x_deg:value('surveyFovX'),fov_y_deg:value('surveyFovY')};
+    function value(key,label) { return row(U[key],1,label)[0]; }
+    result.survey_plan={bounds:row(U.surveyBounds,4,'搜索区范围'),inset:value('surveyInset','航线内收距离'),pattern:U.pattern || 'rectangle',camera_agl:value('surveyCameraHeight','镜头离地高度'),fc_to_camera_z:value('surveyOffset','镜头相对FC的Z偏移'),fov_x_deg:value('surveyFovX','任务X方向视场角'),fov_y_deg:value('surveyFovY','任务Y方向视场角')};
   }
   if ((!g || g.needs_waypoints) && String(U.geometryWalls || '').trim()) {
     var entry=Number(U.geometryEntry);
     if (!Number.isInteger(entry) || entry<1 || entry>points.length) throw Error('入口序号从1开始且不能超过航点数');
-    result.corridor_geometry={wall_axis:Number(U.geometryAxis || 0),wall_coordinates:row(U.geometryWalls),entry_waypoints:entry};
+    result.corridor_geometry={wall_axis:Number(U.geometryAxis || 0),wall_coordinates:row(U.geometryWalls,null,'墙面位置'),entry_waypoints:entry};
   }
-  if (String(U.geometryArea || '').trim()) result.flight_area=JSON.parse(U.geometryArea);
+  if (String(U.geometryArea || '').trim()) {
+    try { result.flight_area=JSON.parse(U.geometryArea); }
+    catch(e) { throw Error('flight_area：JSON格式错误，请使用完整JSON对象'); }
+  }
   return result;
 }
 
@@ -1077,6 +1173,28 @@ function groupCard(g) {
   if (g.release_options && g.release_options.length) {
     choiceRow('投递', 'release', g.release_options.map(function (v) { return [v, v === 'real' ? '真实投递 · 需双重确认' : '模拟投递 · mock']; }));
   }
+  if (g.competition_options_supported) {
+    var presetRow=el('div','grp-row');presetRow.appendChild(el('span','lbl','配置来源'));
+    var preset=el('select','grp-choice');preset.setAttribute('data-option','competitionPreset');
+    var custom=el('option',null,'自定义路径（在下方填写）');custom.value='';preset.appendChild(custom);
+    (g.competition_config_options || []).forEach(function(item){var option=el('option',null,item.label);option.value=item.path;preset.appendChild(option);});
+    preset.value=U.competitionConfig == null ? g.site_config : U.competitionConfig;
+    preset.addEventListener('change',function(){if(preset.value){U.competitionConfig=preset.value;U.armedOk=false;U.realConfirm='';renderGroups();}});
+    presetRow.appendChild(preset);ops.appendChild(presetRow);
+    var configRow = el('div','grp-row');
+    configRow.appendChild(el('span','lbl','场地YAML'));
+    var field = el('input'); field.type='text'; field.setAttribute('data-option','competitionConfig');
+    field.value = U.competitionConfig == null ? g.site_config : U.competitionConfig;
+    field.addEventListener('change',function(){U.competitionConfig=field.value;renderGroups();});
+    configRow.appendChild(field);ops.appendChild(configRow);
+    if (U.competitionConfig === 'deployment/competition/field_20261007_validated.yaml') {
+      ops.appendChild(el('div','warn-line','当前选择测试场地复现：不是正赛默认参数，不能宣称10×10比赛验收；实际高度/速度以前述文件的配置检查为准。'));
+    }
+    choiceRow('运动优化','motionOptimization',[['','继承所选YAML'],['on','显式开启'],['off','显式关闭']]);
+    ops.appendChild(el('div','tiny muted','模板默认开启运动优化与高位续扫；两项独立。继承的实际值由所选YAML和配置检查决定。'));
+    choiceRow('障碍柱','obstacleColumns',[['','继承所选YAML'],['on','显式开启'],['off','显式关闭']]);
+    ops.appendChild(el('div','warn-line','必填正赛实测场地与确认项；默认模板未确认。运动优化/障碍柱继承时不发送覆盖参数，当前有效值以配置检查输出为准；关闭障碍柱移除配置柱，不会关闭真实点云避障。'));
+  }
   if (g.motion_optimization_supported) {
     var motionRow = el('div', 'grp-row');
     var motionLab = el('label', 'chk');
@@ -1097,6 +1215,12 @@ function groupCard(g) {
       return [v, { normal: '正常 normal', dim: '较暗 dim', unspecified: '未指定 unspecified' }[v] || v];
     })));
     ops.appendChild(el('div', 'tiny muted', '光照标签用于采集记录，不改变相机曝光。'));
+  }
+
+  if (g.competition_options_supported) {
+    var selectedOptions=trialBody(g,'preview',true);
+    ops.appendChild(el('div','tiny muted','所选配置：' + (selectedOptions.competition_config || g.site_config) + '；运动优化=' + (selectedOptions.motion_optimization || '继承') + '；高位续扫=' + (selectedOptions.resume_survey || '继承')));
+    ops.appendChild(el('div','tiny muted',competitionEffectiveConfig(g,selectedOptions,state.stage,state.trial)));
   }
 
   // 模式
@@ -1146,7 +1270,7 @@ function groupCard(g) {
     ops.appendChild(el('div', 'warn-line', '速度选项属于「仅采集不投递」路径：只跑视觉采集，不下发投递。'));
   }
 
-  if (g.needs_waypoints || g.survey_patterns || g.folder==='09_high_speed_capture') {
+  if (g.channel !== 'competition' && (g.needs_waypoints || g.survey_patterns || g.folder==='09_high_speed_capture')) {
     ops.appendChild(geometryEditor(g,U,function(){if(flightBtn)updateFlightBtn();}));
     if(g.needs_waypoints)ops.appendChild(el('div','warn-line','走廊/H航点仍需实测；自动搜索不会代填门口。'));
   }
@@ -1203,7 +1327,7 @@ function groupCard(g) {
     var needReal = (U.release === 'real');
     var realOk = !needReal || (U.realConfirm || '').trim() === '实投';
     var readyBody=trialBody(g,'flight',false);
-    var geometryReady=!U.geometryEnabled || !!readyBody.expected_body;
+    var geometryReady=(!U.geometryEnabled && g.channel !== 'competition') || !!readyBody.expected_body;
     flightBtn.disabled = !connected() || tSessRunning() || !!state.trialPending || !U.armedOk || !realOk || !geometryReady;
     flightBtn.title = !connected() ? '未连接板端'
       : (tSessRunning() || state.trialPending ? '专项正在运行或准备下发，先停止当前任务'
@@ -1273,6 +1397,15 @@ function termStatus(tid) {
   var st = s.state || 'idle';
   var cls = (st === 'running' || st === 'starting' || st === 'exited' || st === 'failed') ? st : 'idle';
   var label = { idle: '未启动', starting: '启动中', running: '运行中', exited: '已退出', failed: '失败' }[st] || st;
+  // 5a is a one-shot initialization, whereas 5b is a persistent service.
+  if (tid === 'servo_init') {
+    if (st === 'exited' && s.exit_code === 0) { cls = 'succeeded'; label = '初始化成功'; }
+    else if (st === 'failed' || (st === 'exited' && typeof s.exit_code === 'number')) {
+      cls = 'failed'; label = '初始化失败';
+    } else if (st === 'running' || st === 'starting') { cls = 'starting'; label = '初始化中'; }
+    else if (st === 'idle') label = '未初始化';
+    else if (st === 'exited') label = '已退出（初始化结果未知）';
+  }
   return { state: st, cls: cls, label: label, sess: s };
 }
 
@@ -1314,8 +1447,10 @@ function renderTerminals() {
   var tool = el('div', 'term-tool');
   var startBtn = el('button', 'btn btn-sm btn-primary', '启动');
   startBtn.disabled = !connected() || t.id === 'trial' || st.state === 'running' || st.state === 'starting';
+  if (t.id === 'servo_init' && servoInitBlocked()) startBtn.disabled = true;
   if (t.id === 'trial') startBtn.textContent = '从任务组启动';
   startBtn.title = 'POST /api/session/open {id:"' + t.id + '"}' + (t.confirm ? '，需带 confirm:"确认"' : '') + '\n' + (t.command || '');
+  if (t.id === 'servo_init' && servoInitBlocked()) startBtn.title = '5b服务仍在运行，禁止重复5a初始化互踩；按现场流程先退出旧服务，不自动杀进程。';
   startBtn.addEventListener('click', function () { openTerminal(t); });
   var stopBtn = el('button', 'btn btn-sm', '停止');
   stopBtn.disabled = st.state === 'idle';
@@ -1366,6 +1501,8 @@ function renderTerminals() {
   bodyBox.appendChild(tool);
 
   if (t.desc) bodyBox.appendChild(el('div', 'term-desc', t.desc));
+  if (t.id === 'servo_init') bodyBox.appendChild(el('div', 'term-desc',
+    '绿色仅表示软件初始化成功，不代表舵机物理动作反馈。'));
   if (t.confirm) bodyBox.appendChild(el('div', 'warn-line', '该终端启动前会弹确认框，确认文案：' + t.confirm));
 
   // 输出区（增量渲染，只追加）
@@ -1466,17 +1603,26 @@ function renderMonitor() {
   var reportTop = oldReport ? oldReport.scrollTop : 0;
   var keepReport = state.reportText;
   clear(body);
-  var tel = state.telemetry || {};
-  var telemetryAt = Number(tel.at || tel.t || 0);
+  var rawTelemetry = state.telemetry || {}, view = probeView();
+  var telemetryAt = Number(rawTelemetry.at || rawTelemetry.t || 0);
   var telemetryAge = telemetryAt ? nowSec() - telemetryAt : null;
-  var telemetryFresh = telemetryAge !== null && telemetryAge >= -1 && telemetryAge <= 2;
+  var telemetryFresh = view.usable;
+  state._lastProbeUsable = telemetryFresh;
+  var tel = telemetryFresh ? rawTelemetry : {};
   var unobserved = telemetryAt ? '未观测（遥测已过期）' : '未观测';
 
   var stage = state.stage || {};
+  var runningGroup = (state.groups || []).find(function(g) { return g.id === state.trial.group_id; });
+  var selectedGroup = (state.groups || []).find(function(g) { return g.id === state.selectedGroup; });
+  var observationMode = (runningGroup || selectedGroup || {}).channel === 'low_observation';
   var sname = stage.name || 'IDLE';
   var card = el('div', 'stage-card c-' + (/^(IDLE|STARTING|INITIALIZING|MAPPING_READY|READY|IN_FLIGHT|DISARMED|STOPPED|FAILED)$/.test(sname) ? sname : 'unknown'));
   var head = el('div');
-  head.appendChild(el('div', 'stage-name', stage.label || STAGE_LABELS[sname] || sname));
+  var observationLabel = {INITIALIZING:'低空观察：等待地面参考 / 预发保持', READY:'低空观察 READY：等待人工解锁与重新拨入 OFFBOARD', IN_FLIGHT:'低空观察动作 / 保持 / 接管'};
+  if (observationMode && stage.phase === 'HOLD_FOR_PILOT') observationLabel[sname] = '低空观察：READY已撤销，保持等待飞手接管';
+  if (observationMode && stage.phase === 'FINISHED_HOVER') observationLabel[sname] = '低空观察路线结束：继续悬停，等待飞手落地';
+  if (observationMode && stage.phase === 'TAKEN_OVER') observationLabel[sname] = '低空观察已接管：等待落地上锁与入口收尾';
+  head.appendChild(el('div', 'stage-name', (observationMode && observationLabel[sname]) || stage.label || STAGE_LABELS[sname] || sname));
   head.appendChild(el('div', 'stage-sub', '阶段码 ' + sname + (stage.reason ? (' · 原因：' + stage.reason) : '')));
   card.appendChild(head);
   var elapsed = el('div', 'stage-elapsed', '已持续 ' + dur(nowSec() - (stage.since || nowSec())));
@@ -1498,11 +1644,11 @@ function renderMonitor() {
   kvRow(kv, 'mode', stage.mode || '—');
   kvRow(kv, 'phase', stage.phase || '—');
   kvRow(kv, 'reason', stage.reason || '—');
-  kvRow(kv, '任务结果', stage.outcome === 'complete' ? '任务完成' : (stage.outcome === 'aborted' ? '任务中止' : '未确认'),
+  kvRow(kv, observationMode ? '观察状态' : '任务结果', observationMode ? (stage.phase || '等待入口输出；不采用常规Mission门槛') : stage.outcome === 'complete' ? '任务完成' : (stage.outcome === 'aborted' ? '任务中止' : '未确认'),
     stage.outcome === 'aborted' ? 'warn' : '');
   if (stage.pilot_action) kvRow(kv, '飞手操作', stage.pilot_action, 'warn');
   var align = stage.alignment || '—';
-  kvRow(kv, '定位一致性', align + (stage.alignment_hint ? ('（' + stage.alignment_hint + '）') : ''),
+  if (!observationMode) kvRow(kv, '定位一致性', align + (stage.alignment_hint ? ('（' + stage.alignment_hint + '）') : ''),
     align === 'stable' ? 'ok' : (align === 'unstable' || align === 'bad' ? 'bad' : 'warn'));
   kvRow(kv, 'READY 时刻', stage.ready_at ? hhmmss(stage.ready_at) : '—');
   kvRow(kv, '开始时刻', stage.started_at ? hhmmss(stage.started_at) : '—');
@@ -1540,9 +1686,11 @@ function renderMonitor() {
     var sob = el('div', 'sec-body');
     var steps = el('div', 'steps');
     (orch.steps || []).forEach(function (s) {
-      var row = el('div', 'step s-' + (s.state || 'pending'));
+      var initStatus = s.id === 'servo_init' ? termStatus(s.id) : null;
+      var row = el('div', 'step ' + (initStatus ? initStatus.cls : 's-' + (s.state || 'pending')));
       row.appendChild(el('span', 'sdot'));
       row.appendChild(el('span', null, s.title || s.id));
+      if (initStatus) row.appendChild(el('span', 'sdetail', '· ' + initStatus.label));
       if (s.detail) row.appendChild(el('span', 'sdetail', '· ' + s.detail));
       steps.appendChild(row);
     });
@@ -1557,6 +1705,7 @@ function renderMonitor() {
   sd.appendChild(secHead('设备与遥测', 'master ' + (tel.master === true ? 'OK' : (tel.master === false ? '无' : '—'))));
   var sdb = el('div', 'sec-body');
   var kv3 = el('div', 'kv');
+  kvRow(kv3, '探针链路', view.detail, telemetryFresh ? 'ok' : 'warn');
   kvRow(kv3, 'ROS master', tel.master === true ? '已就绪' : (tel.master === false ? '未就绪' : '—'), tel.master ? 'ok' : 'warn');
   kvRow(kv3, '节点数', (tel.nodes || []).length + (tel.nodes && tel.nodes.length ? ('（' + tel.nodes.slice(0, 4).join(', ') + (tel.nodes.length > 4 ? ' …' : '') + '）') : ''));
   kvRow(kv3, '最后遥测', telemetryAt ? hhmmss(telemetryAt) + (telemetryFresh ? '' : ' · 已过期') : '未观测', telemetryFresh ? '' : 'warn');
@@ -1565,7 +1714,7 @@ function renderMonitor() {
   kvRow(kv3, '飞控', telemetryFresh
     ? 'connected=' + observedBool(mst.connected) + ' armed=' + observedBool(mst.armed) + ' mode=' + txt(mst.mode || '未观测')
     : unobserved, telemetryFresh ? '' : 'warn');
-  if (tel.mission) kvRow(kv3, 'mission', txt(tel.mission.phase || '') + (tel.mission.reason ? (' · ' + tel.mission.reason) : ''));
+  if (tel.mission && !observationMode) kvRow(kv3, 'mission', txt(tel.mission.phase || '') + (tel.mission.reason ? (' · ' + tel.mission.reason) : ''));
   if (tel.probe_status) kvRow(kv3, '探针阶段', txt(tel.probe_status.scope || '') + ' / ' + txt(tel.probe_status.stage || ''));
   if (tel.extended && tel.extended.landed_state !== undefined) kvRow(kv3, 'landed_state', String(tel.extended.landed_state));
   var hover = telemetryFresh ? tel.terminal_hover : null;
@@ -1574,7 +1723,12 @@ function renderMonitor() {
   }
   var hoverStage = hover && (hover.stage || hover.status || hover.state || hover.phase || '');
   var hoverLabel = { DESCEND_TO_HOVER: '下降至收尾悬停', PILOT_HANDOFF: '交给飞手落地' }[hoverStage] || hoverStage;
-  kvRow(kv3, '收尾悬停', hover ? [hoverLabel, hover.reason || hover.message || ''].filter(Boolean).join(' · ') || JSON.stringify(hover) : (telemetryFresh ? '未观测' : unobserved), hover ? '' : 'warn');
+  if (!observationMode) kvRow(kv3, '收尾悬停', hover ? [hoverLabel, hover.reason || hover.message || ''].filter(Boolean).join(' · ') || JSON.stringify(hover) : (telemetryFresh ? '未观测' : unobserved), hover ? '' : 'warn');
+  if (observationMode) {
+    var obs = telemetryFresh && tel.observe && tel.observe.low_hover;
+    kvRow(kv3, '低空status话题', obs ? JSON.stringify(obs) : unobserved);
+    kvRow(kv3, '就绪依据', '仅动作终端 READY_FOR_MANUAL_ARM_AND_OFFBOARD；status READY不替代预发完成');
+  }
   var lio = telemetryFresh ? tel.lio_realtime || [] : [];
   if (!lio.length) kvRow(kv3, 'LIO实时状态', telemetryFresh ? '未观测' : unobserved, 'warn');
   lio.forEach(function (diag) {
@@ -1594,7 +1748,7 @@ function renderMonitor() {
   });
   tb.appendChild(el('thead')).appendChild(th);
   var tbody = el('tbody');
-  TOPIC_WATCH.forEach(function (name) {
+  (observationMode ? ['/mavros/state','/mavros/local_position/pose','/Odometry','/mavros/vision_pose/pose','/low_hover_observation/status'] : TOPIC_WATCH).forEach(function (name) {
     var info = topics[name];
     var tr = el('tr');
     if (!info) { tr.className = 'miss'; tr.appendChild(el('td', 'mono', name)); tr.appendChild(el('td', 'num', '—')); tr.appendChild(el('td', 'num', '—')); tr.appendChild(el('td', 'num', '—')); }
@@ -1713,6 +1867,12 @@ function missionStartSection(stage) {
     if (gg.id === state.trial.group_id) cur = gg;
   });
   var manual = !!(cur && cur.manual_mission_start);
+  if (cur && cur.channel === 'low_observation') {
+    var observationSection = el('div','sec');
+    observationSection.appendChild(secHead('独立低空观察', cur.profile));
+    observationSection.appendChild(el('div','sec-body small', '无任务管理器。看到 READY_FOR_MANUAL_ARM_AND_OFFBOARD 后飞手人工解锁并重新拨入 OFFBOARD；路线结束继续悬停，飞手落地上锁。'));
+    return observationSection;
+  }
   var tSess = state.sessions.trial || {};
   var trialRun = (tSess.state === 'running' || tSess.state === 'starting');
 
@@ -1780,6 +1940,7 @@ function nowSec() { return Date.now() / 1000; }
 
 /* 每秒刷新阶段持续时间（本地时钟，不用服务端时间） */
 function tickElapsed() {
+  if (probeView().usable !== state._lastProbeUsable) scheduleRender();
   var nodes = document.querySelectorAll('[data-elapsed-since]');
   for (var i = 0; i < nodes.length; i++) {
     var since = parseFloat(nodes[i].getAttribute('data-elapsed-since'));
@@ -2139,6 +2300,13 @@ function doPreflight() {
 }
 
 function doStartAll() {
+  var selected = (state.groups || []).find(function(g) { return g.id === state.selectedGroup; });
+  if (selected && selected.channel === 'low_observation') {
+    var devices = (state.terminals || []).filter(function(t) { return ['roscore','mavros','lidar','observation_localization'].indexOf(t.id) >= 0; });
+    return confirmModal('启动低空观察设备', devices.map(function(t) { return t.title + ' → ' + t.command; }).join('\n'),
+      '仅 ROS、MAVROS、雷达、定位/EV；已有新鲜设备跳过。本操作不启动观察 flight，随后点击卡片配置检查和飞行。', '确认启动设备')
+      .then(function(res) { if (res && res.confirmed) return act(api.startAll(false, selected.id), '启动低空观察设备'); });
+  }
   var servo = (state.terminals || []).filter(function (t) { return t.id !== 'roscore' && t.needs_servo; });
   var cmdText = 'POST /api/action/start_all\n' + JSON.stringify({ include_servo: '<bool>', confirm: '启动设备' });
   var note = '按顺序启动设备终端并逐项等待就绪：\n'
@@ -2148,7 +2316,7 @@ function doStartAll() {
     { name: 'include_servo', label: '包含舵机端子（需逐个确认）', type: 'checkbox', value: false }
   ], '确认启动').then(function (vals) {
     if (!vals) return;
-    act(api.startAll(vals.include_servo), '一键启动设备').then(function (r) {
+    act(api.startAll(vals.include_servo, selected && selected.id), '一键启动设备').then(function (r) {
       if (r && r.orchestration) state.orchestration = r.orchestration;
       renderMonitor();
     });
@@ -2197,6 +2365,11 @@ function startTrial(g, mode, checkConfig) {
     + (mode === 'flight'
       ? 'READY 后由飞手人工解锁、人工拨入 OFFBOARD；入口在稳定条件满足后自动起飞并开始任务。飞手接管后自动时序取消。'
       : '预览模式只启动视觉采集与配置检查。');
+  if (g.channel === 'low_observation') {
+    note = built.note + '\n' + g.plan + '\n' + g.ending + '\n'
+      + '配置检查与preview均离线展开原profiles.yaml，无节点/设定点。flight输出在专项flight终端。\n'
+      + '空中Ctrl+C只请求保持等待接管，定位/MAVROS继续运行；飞手落地上锁并等待OBSERVATION_CLOSED后才能重跑。';
+  }
 
   state.trialPending = true;
   scheduleRender();
@@ -2210,6 +2383,7 @@ function startTrial(g, mode, checkConfig) {
     return act(api.trialStart(body), checkConfig ? '配置检查' : '启动试飞').then(function (r) {
       if (r && r.trial) state.trial = r.trial;
       if (r && r.ok) state.activeTerm = 'trial';
+      if (r && r.ok && g.channel === 'low_observation' && body.mode === 'flight' && !checkConfig) U.armedOk = false;
       scheduleRender();
       if (r && r.ok) toast('ok', (checkConfig ? '配置检查已下发：' : '试飞入口已下发：') + g.name);
     });
@@ -2222,7 +2396,9 @@ function startTrial(g, mode, checkConfig) {
 function doTrialStop() {
   var cmdText = 'POST /api/trial/stop {}\n→ 向 trial 会话发送 SIGINT（等同 Ctrl+C），由现场入口自行收尾';
   confirmModal('停止试飞入口', cmdText,
-    '只是结束入口进程，不发送降落 / 上锁指令。飞机状态以飞控与飞手判断为准。', '停止试飞').then(function (res) {
+    state.trial.route === 'low_observation'
+      ? '空中只请求保持等待飞手接管，不强杀。飞手切手动、落地上锁后等待 OBSERVATION_CLOSED；期间保留定位和MAVROS，不能重跑。'
+      : '只是结束入口进程，不发送降落 / 上锁指令。飞机状态以飞控与飞手判断为准。', '停止试飞').then(function (res) {
     if (!res || !res.confirmed) return;
     act(api.trialStop(), '停止试飞');
   });
@@ -2235,6 +2411,14 @@ function doTrialStop() {
 function bindUI() {
   $('#btn-connect').addEventListener('click', function () { doConnect(false); });
   $('#btn-config').addEventListener('click', doConfig);
+  var probeReconnect = $('#btn-probe-reconnect');
+  if (probeReconnect) probeReconnect.addEventListener('click', function () {
+    if (!supportsCapability('probe_reconnect')) return;
+    confirmModal('只重连 probe', 'POST /api/action/probe_reconnect {}',
+      '只连接只读遥测探针。设备/任务/舵机常驻服务不会重新启动；75锁冲突时保留已有实例。', '只重连 probe').then(function (res) {
+        if (res && res.confirmed) act(api.probeReconnect(), '探针重连');
+      });
+  });
   var hostSel = $('#host-select');
   if (hostSel) {
     hostSel.addEventListener('change', function () {

@@ -1,4 +1,5 @@
 #include "patrol_control/ReleaseAuthorization.h"
+#include "navigation_recovery_msgs/navigation_recovery_gate.h"
 #include <std_msgs/Empty.h>
 #ifndef _LL_CONTROLLER_NEW_H_
 #define _LL_CONTROLLER_NEW_H_
@@ -7,6 +8,8 @@
 #include "patrol_control/async_servo.h"
 #include "patrol_control/near_wall_align.h"
 #include "patrol_control/drop_slot_geometry.h"
+#include "patrol_control/drop_descent_clearance.h"
+#include <sensor_msgs/PointCloud2.h>
 #include "patrol_control/landing_handoff_stability.h"
 #include <nav_msgs/Odometry.h>
 #include <uav_vision/DropAlignmentFeedback.h>
@@ -138,6 +141,11 @@ private:
                                 double* speed = nullptr);
     void publishCompensatedAlignment();
     bool freezeCompensatedDropTarget();
+    void dropClearanceMapCallback(const sensor_msgs::PointCloud2::ConstPtr& msg);
+    bool compensatedDropPathClear() const;
+    DropDescentClearance drop_clearance_guard_;
+    ros::Subscriber drop_clearance_map_sub_;
+    std::string drop_clearance_map_topic_;
     bool landingMotionSettled(bool handoff, double xy_error);
 
     ros::Subscriber fastplanner_cmd_sub_, detect_sub_;
@@ -455,6 +463,12 @@ private:
     bool hasFreshDropOffset() const;
     bool hasFreshMissionReleasePermission() const;
     bool hasValidExternalPlannerCommand() const;
+    navigation_recovery_msgs::NavigationRecoveryGate navigation_recovery_gate_;
+    navigation_recovery_msgs::NavigationRecoveryContext navigation_recovery_context_;
+    navigation_recovery_msgs::NavigationRecoveryCommand navigation_recovery_command_;
+    ros::Subscriber navigation_recovery_sub_,navigation_recovery_context_sub_;
+    bool navigation_recovery_active_=false;
+    bool hasValidNavigationRecovery() const;
     void holdExternalPlannerHeight(const char* source, double rejected_z);
     DropReleaseGate currentDropReleaseGate() const;
     void clearUavVisionAlignmentState();

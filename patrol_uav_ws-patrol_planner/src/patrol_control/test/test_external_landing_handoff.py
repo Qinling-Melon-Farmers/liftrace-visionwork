@@ -58,6 +58,7 @@ struct Time {
     unsigned long long toNSec() const { return static_cast<unsigned long long>(value*1e9); }
 };
 bool operator==(Time a, Time b) { return a.value == b.value; }
+bool operator<=(Time a, Time b) { return a.value <= b.value; }
 Duration operator-(Time a, Time b) { return Duration{a.value - b.value}; }
 struct Publisher {
     int calls=0;
@@ -202,6 +203,11 @@ public:
     void missionCommandCallback(const patrol_control::MissionCommand::ConstPtr&);
     void plannercmdCallback(const geometry_msgs::PoseStamped&);
     bool hasValidExternalPlannerCommand() const;
+    // Recovery is not engaged by these H tests; its receiving gate is tested separately.
+    bool navigation_recovery_active_=false;
+    struct { Header header; } navigation_recovery_command_;
+    bool hasValidNavigationRecovery() const { return false; }
+
     void holdExternalPlannerHeight(const char* source, double rejected_z);
     static constexpr double external_planner_height_epsilon_=1e-9;
     bool external_planner_height_hold_active_=false;
@@ -256,8 +262,8 @@ int main(int argc, char** argv) {
         c.external_landing_last_mark_receipt_=ros::Time::now();
         c.landing_motion_settled_=false;
         c.external_landing_new_mark_=true; c.externalLandingTick();
-        // 视觉帧可先累计；运动尚未合格时不得锁点或请求模式。
-        assert(c.capture_settle_calls_==1 && c.external_landing_stable_count_==1);
+        // 视觉帧按原条件累计，高位不调用运动窗；低位请求仍受独立门槛约束。
+        assert(c.capture_settle_calls_==0 && c.external_landing_stable_count_==1);
         assert(!c.external_landing_alignment_complete_ && c.set_mode_client.calls==0);
         c.external_landing_alignment_complete_=true;
         c.external_landing_aligned_goal_=c.uav_pose;
@@ -478,6 +484,60 @@ int main(int argc, char** argv) {
         c.externalLandingTick(); state(c,"POSCTL"); state(c,"MANUAL");
         for (const auto& status : c.external_landing_handoff_pub_.statuses)
             std::cout << status << '\n';
+    } else if (test=="posctl_future_5ms_callback_and_timer_catchup") {
+        auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
+        c.externalLandingTick();
+        auto msg=std::make_shared<mavros_msgs::State>();
+        msg->connected=msg->armed=true; msg->mode="POSCTL";
+        msg->header.stamp=ros::Time(100.005);
+        c.externalLandingStateCallback(msg);
+        assert(c.external_landing_active_ && !c.external_landing_cancelled_);
+        assert(!c.external_landing_handoff_observed_);
+        c.externalLandingTick();
+        assert(!c.external_landing_handoff_observed_ && c.external_landing_handoff_pub_.calls==1);
+        ros::clock=100.004; c.externalLandingTick();
+        assert(!c.external_landing_handoff_observed_);
+        ros::clock=100.005; c.externalLandingTick();
+        assert(c.external_landing_handoff_observed_ && !c.external_landing_cancelled_);
+        assert(c.external_landing_handoff_pub_.calls==2);
+        assert(c.external_landing_mavros_state_.header.stamp==ros::Time(100.005));
+        assert(c.external_landing_state_receipt_==ros::Time(100));
+        // The observed-handoff monitoring path used to cancel at ~+8 seconds.
+        ros::clock=108; msg->header.stamp=ros::Time(108.005);
+        c.externalLandingStateCallback(msg); c.externalLandingTick();
+        assert(c.external_landing_active_ && !c.external_landing_cancelled_);
+        ros::clock=108.005; c.externalLandingTick();
+        assert(c.external_landing_active_ && c.external_landing_handoff_pub_.calls==2);
+        assert(c.external_landing_state_receipt_==ros::Time(108));
+        ros::clock=110.506; c.externalLandingTick(); cancelled(c);
+    } else if (test=="posctl_future_bound_and_takeover_remain_closed") {
+        for (int kind=0;kind<4;++kind) {
+            ros::clock=100;
+            auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
+            c.externalLandingTick(); state(c,"POSCTL");
+            auto msg=std::make_shared<mavros_msgs::State>();
+            msg->connected=msg->armed=true; msg->mode="POSCTL";
+            msg->header.stamp=ros::Time(100.005);
+            if (kind==0) msg->header.stamp=ros::Time(100.201);
+            if (kind==1) msg->mode="MANUAL";
+            if (kind==2) msg->mode="OFFBOARD";
+            if (kind==3) msg->connected=false;
+            c.externalLandingStateCallback(msg); cancelled(c);
+        }
+        // Timer itself must bound waiting, including injected receipt-age failures.
+        ros::clock=100;
+        auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
+        c.externalLandingTick(); state(c,"POSCTL");
+        c.external_landing_mavros_state_.header.stamp=ros::Time(100.005);
+        c.external_landing_state_receipt_=ros::Time(99.799);
+        c.externalLandingTick(); cancelled(c);
+        // A pre-request future OFFBOARD state pauses acquisition, never cancels.
+        ros::clock=100; c=landing(false); c.external_landing_handoff_mode_="POSCTL";
+        c.external_landing_mavros_state_.header.stamp=ros::Time(100.005);
+        c.externalLandingTick();
+        assert(c.external_landing_active_ && !c.external_landing_cancelled_);
+        ros::clock=100.005; c.externalLandingTick();
+        assert(c.external_landing_active_ && c.set_mode_client.calls==0);
     } else if (test=="posctl_timeout_identity") {
         auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
         c.externalLandingTick(); assert(c.external_landing_handoff_pub_.calls==1);
@@ -736,6 +796,12 @@ class ExternalLandingHandoffTest(unittest.TestCase):
 
     def test_posctl_requires_transaction_identity_and_mode_transition_freshness(self):
         self.run_case('posctl_timeout_identity')
+
+    def test_posctl_future_five_ms_rechecks_original_state_after_clock_catchup(self):
+        self.run_case('posctl_future_5ms_callback_and_timer_catchup')
+
+    def test_posctl_future_pending_is_bounded_and_never_masks_takeover(self):
+        self.run_case('posctl_future_bound_and_takeover_remain_closed')
 
     def test_actual_cpp_status_json_keeps_identity_and_integer_nanoseconds(self):
         output = subprocess.check_output([str(self.binary), 'status_json'], text=True)

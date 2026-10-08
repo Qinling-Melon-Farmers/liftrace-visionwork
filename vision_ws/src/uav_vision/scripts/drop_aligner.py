@@ -651,7 +651,8 @@ class DropAligner:
             return
         is_new_image = (self._last_counted_observation is None or
                         key > self._last_counted_observation)
-        if not msg.aligned:
+        aligned = self._compensated_evidence_aligned(target, msg)
+        if not aligned:
             self._consecutive_ok = 0
         elif is_new_image:
             self._consecutive_ok += 1
@@ -659,6 +660,19 @@ class DropAligner:
             self._last_counted_observation = key
         self._compensated_feedback = copy.deepcopy(msg)
         self._publish_compensated_state()
+
+    def _compensated_evidence_aligned(self, target, feedback):
+        if feedback.frozen:
+            # A compensated outlet intentionally moves the target away from
+            # the principal point. Keep capture evidence bound to the frozen
+            # target; executeDropAction separately enforces the final physical
+            # window. Identity and freshness checks above still apply.
+            return feedback.aligned
+        # Capture retains the reliable visual centering criterion and counts
+        # distinct images, independent of a release-level high-altitude window.
+        dx = target.center_px.x - self._target_cx
+        dy = target.center_px.y - self._target_cy
+        return math.hypot(dx, dy) <= self._max_offset_px
 
     def _publish_compensated_state(self):
         # Only admitted feedback counts source images. Republishes and watchdog
@@ -679,12 +693,14 @@ class DropAligner:
             self._compensated_feedback = None
             self._publish_state(target, False, [reason], status)
             return
+        aligned = self._compensated_evidence_aligned(target, feedback)
         reasons = []
-        if not feedback.aligned:
-            reasons.append("compensated_alignment_not_aligned")
+        if not aligned:
+            reasons.append("compensated_alignment_not_aligned" if feedback.frozen
+                           else "offset_exceeds_limit")
         elif self._consecutive_ok < self._stable_frames:
             reasons.append("insufficient_stable_frames")
-        self._publish_state(target, feedback.aligned, reasons, status)
+        self._publish_state(target, aligned, reasons, status)
 
     @staticmethod
     def _observation_age(target):

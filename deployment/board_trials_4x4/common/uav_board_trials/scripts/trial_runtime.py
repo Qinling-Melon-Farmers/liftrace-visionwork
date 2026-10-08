@@ -172,7 +172,8 @@ class FullMissionTrialRuntime(HighViewFull):
 
 
 class HighSpeedCaptureRuntime(MemoryOnlyRuntime):
-    """Fixed capture passes; record hints without requiring one or visiting it."""
+    """Survey capture; return home without target revisit or delivery."""
+    return_to_takeoff_before_land=True
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
         self.capture_complete=False

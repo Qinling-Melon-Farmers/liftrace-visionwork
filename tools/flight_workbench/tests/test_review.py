@@ -95,7 +95,7 @@ class ReviewTests(unittest.TestCase):
         terms = [t for t in self.wb.config['terminals'] if t['id'] in ('lidar', 'camera')]
         self.wb.orchestration['steps'] = [dict(id=t['id'], state='pending') for t in terms]
         self.wb.board_state['preflight'] = {'leftovers': {}}
-        self.wb.telemetry = {'at': time.time(), 'topics': {
+        self.wb.telemetry = {'at': time.time(), 'master': True, 'topics': {
             '/livox/lidar': dict(age=.1, count=5), '/camera/image_raw': dict(age=.1, count=5)}}
         with patch.object(self.wb, 'ensure_probe'), patch.object(self.wb, '_wait_ready', return_value=(True, 'fresh')):
             self.wb._run_orchestration(terms)

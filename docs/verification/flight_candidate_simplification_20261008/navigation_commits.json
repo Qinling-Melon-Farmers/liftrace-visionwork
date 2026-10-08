@@ -1,0 +1,16 @@
+[
+  {
+    "root": "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919",
+    "branch": "feat/high-view-liveness-20260919",
+    "before": "e3ae668e1c2d4fd0c50efbc5e18e7c29554fe744",
+    "commit": "95020d15584a99fed0786b744842a312d9d65510",
+    "changed_paths": 129
+  },
+  {
+    "root": "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+    "branch": "\u677f\u7aef\u53c2\u8003\u5206\u652f",
+    "before": "ec672fe84ac6ee3f834ac8f4e4f914f7e86d34fa",
+    "commit": "66506d154291ddba8619be782499fe32bdeba879",
+    "changed_paths": 119
+  }
+]

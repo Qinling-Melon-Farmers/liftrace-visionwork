@@ -176,6 +176,44 @@ class CompensatedDropAlignmentTest(unittest.TestCase):
                 self.assertTrue(wrapped.semantic_geometry_match)
                 self.assertEqual(wrapped.payload_slot, 2)
 
+    def test_capture_keeps_original_centering_without_release_level_motion_gate(self):
+        for mode in ("drop_circle", "drop_cross"):
+            with self.subTest(mode=mode):
+                self.node._on_align_mode(String(data=mode))
+                self.context = self.make_context(mode)
+                self.node._on_alignment_context(self.context)
+                self.node._last_counted_observation = None
+                for stamp in (99.8, 99.9):
+                    target = self.target(stamp)
+                    target.center_px.x = 640
+                    self.observe(target)
+                    feedback = self.feedback(target)
+                    feedback.frozen = False
+                    feedback.aligned = False  # No high release-level settlement.
+                    feedback.horizontal_error_m = .12
+                    feedback.horizontal_speed_mps = .20
+                    self.node._on_drop_alignment_feedback(feedback)
+                self.assertTrue(self.ready().ready)
+                self.assertEqual(self.evidence().stable_frames, 2)
+                # The same frozen capture permits the intentional nonzero pixel
+                # displacement, while final physical release is controller-owned.
+                feedback.frozen = True
+                feedback.aligned = True
+                self.node._on_drop_alignment_feedback(feedback)
+                self.assertTrue(self.ready().ready)
+                self.assertEqual(self.evidence().stable_frames, 2)
+
+    def test_unfrozen_capture_rejects_uncentered_target_despite_valid_controller(self):
+        for stamp in (99.8, 99.9):
+            target = self.target(stamp)  # 120px, outside original 20px limit.
+            self.observe(target)
+            feedback = self.feedback(target)
+            feedback.frozen = False
+            self.node._on_drop_alignment_feedback(feedback)
+        self.assertFalse(self.ready().ready)
+        self.assertEqual(self.ready().reason, "offset_exceeds_limit")
+        self.assertEqual(self.node._consecutive_ok, 0)
+
     def test_source_is_cached_before_offset_publish_can_trigger_feedback(self):
         for stamp in (99.8, 99.9):
             target = self.target(stamp)

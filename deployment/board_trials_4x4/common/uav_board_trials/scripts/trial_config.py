@@ -22,7 +22,7 @@ def apply_site_profile(settings, profile):
     if settings['mode'] in H_MODES:
         allowed.update(('landing_xy', 'landing_handoff_mode', 'landing_handoff_status_topic', 'landing_posctl'))
     if settings.get('trial_kind') in ('corridor_landing','full_mission'):
-        allowed.add('corridor_waypoints')
+        allowed.update(('corridor_waypoints','corridor_geometry'))
     if not isinstance(profile,dict) or set(profile)-allowed:
         raise ValueError('Unsupported site profile key')
     if settings['mode'] in H_MODES and 'terminal_hover_agl' in profile:
@@ -43,13 +43,9 @@ def flight_geometry(settings):
     custom=settings.get("flight_area",{})
     if not isinstance(custom,dict) or set(custom)-set(defaults):raise ValueError("Unknown flight_area fields")
     area=dict(defaults,**custom)
-    if settings.get('mode') == 'high_speed_capture':
-        line=settings.get('capture_line_xy')
-        trips=settings.get('capture_round_trips',2)
-        if not isinstance(line,list) or len(line)!=2 or type(trips) is not int or not 1<=trips<=4:
-            raise ValueError('capture requires two endpoints and 1..4 round trips')
-        area['staging_xy']=line[0]
-        area['survey_xy']=[copy.deepcopy(p) for _ in range(trips) for p in (line[1],line[0])]
+    if settings.get('mode') == 'high_speed_capture' and any(
+            key in settings for key in ('capture_line_xy','capture_round_trips')):
+        raise ValueError('Capture now uses flight_area staging_xy/survey_xy; remove obsolete line settings')
     def finite(v):return not isinstance(v,bool) and isinstance(v,(int,float)) and math.isfinite(v)
     for key in ("center_bounds","target_bounds","search_bounds"):
         v=area[key]
@@ -62,14 +58,20 @@ def flight_geometry(settings):
     if not all(inside(v,target) for v in ([bounds[0],bounds[2]],[bounds[1],bounds[3]])):
         raise ValueError("target_bounds must contain center_bounds")
     if not all(inside(v) for v in ([search[0],search[2]],[search[1],search[3]])):raise ValueError("Search bounds outside flight_area")
+    if 'survey_pattern' in settings:
+        if settings['mode'] not in HIGH_MODES:raise ValueError('Survey pattern only applies to high-view modules')
+        from uav_mission.survey_routes import survey_route
+        old=area['survey_xy'];xs=[min(v[0] for v in old),max(v[0] for v in old)]
+        if settings['survey_pattern']=='snake3':xs.insert(1,sum(xs)/2)
+        area['survey_xy']=survey_route(settings['survey_pattern'],xs,min(v[1] for v in old),max(v[1] for v in old),start_high=old[0][1]>sum(v[1] for v in old)/len(old))
     points=area["survey_xy"]
     if not isinstance(points,list) or len(points)<(2 if settings.get('mode')=='high_speed_capture' else 3) or any(not inside(v) for v in points):raise ValueError("Survey point outside flight_area")
     if settings.get('mode')=='high_speed_capture':
-        line=settings['capture_line_xy']
-        if any(not (bounds[0]+.3<=p[0]<=bounds[1]-.3 and bounds[2]+.3<=p[1]<=bounds[3]-.3) for p in line):
-            raise ValueError('Capture endpoints require 0.30m inset inside center bounds')
-        if math.dist(*line)<max(3.9,settings['cruise_speed']**2/settings['cruise_acceleration']+settings['cruise_speed']):
-            raise ValueError('Capture leg too short for acceleration and one-second sampling (minimum 3.9m)')
+        if any(not (bounds[0]+.3<=p[0]<=bounds[1]-.3 and bounds[2]+.3<=p[1]<=bounds[3]-.3)
+               for p in [area['staging_xy'],*points]):
+            raise ValueError('Capture points require 0.30m inset inside center bounds')
+        # Short survey legs are intentional. Speed acceptance uses measured
+        # moving windows; completing the route does not prove cruise speed.
     size=area["map_size"]
     if not isinstance(size,list) or len(size)!=3 or not all(finite(v) and v>0 for v in size):raise ValueError("Invalid map_size")
     if max(abs(bounds[0]),abs(bounds[1]))+.3>=size[0]/2 or max(abs(bounds[2]),abs(bounds[3]))+.3>=size[1]/2:
@@ -77,6 +79,9 @@ def flight_geometry(settings):
     return area
 
 def validate_settings(settings):
+    budget=settings.get('motion_action_timeout',30.)
+    if isinstance(budget,bool) or not isinstance(budget,(int,float)) or not math.isfinite(budget) or not 0<budget<=600:
+        raise ValueError('Invalid motion_action_timeout; expected seconds in (0,600]')
     if settings.get('mode') not in ('visual_interrupt','low_multi',*HIGH_MODES,'landing'):
         raise ValueError('Unknown trial mode')
     if settings.get('landing_handoff_mode', 'AUTO.LAND') not in ('AUTO.LAND', 'POSCTL'):
@@ -100,13 +105,13 @@ def validate_settings(settings):
     raw=settings.get('raw_servo_service','/legacy/Servo_raw')
     if not isinstance(raw,str) or not raw.startswith('/') or raw in ('/Servo','/board_trials/Servo','/board_trials/mock_servo'):
         raise ValueError('raw_servo_service must be an independent absolute hardware service')
-    for key,lo,hi in [('low_agl',1.,1.8),('high_agl',2.,2.8),('landing_transit_agl',.5,1.8),('landing_capture_agl',.5,2.0),('cruise_speed',.1,1. if settings['mode']=='high_speed_capture' else .5),('cruise_acceleration',.1,.5)]:
+    for key,lo,hi in [('low_agl',1.,1.8),('high_agl',2.,2.8),('landing_transit_agl',.5,1.8),('landing_capture_agl',.5,2.0),('cruise_speed',.1,1.2 if settings['mode']=='high_speed_capture' else .5),('cruise_acceleration',.1,1.0 if settings['mode']=='high_speed_capture' else .5)]:
         v=settings.get(key)
         if isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(v) or not lo<=v<=hi:
             raise ValueError('Invalid '+key)
     if settings['mode']=='high_speed_capture':
-        if settings['cruise_speed'] not in (.5,1.) or settings.get('high_agl')!=2. or settings.get('max_agl')!=2.:
-            raise ValueError('Capture uses 0.5/1.0m/s and 2.0m high/cap')
+        if settings['cruise_speed'] not in (.5,1.,1.2) or settings.get('high_agl')!=2. or settings.get('max_agl')!=2.:
+            raise ValueError('Capture uses 0.5/1.0/1.2m/s and 2.0m high/cap')
         if settings.get('terminal_hover_agl')!=.3:
             raise ValueError('Capture requires 0.30m terminal hover')
         if settings.get('capture_lighting','unspecified') not in ('normal','dim','unspecified'):
@@ -125,6 +130,8 @@ def validate_settings(settings):
     if settings['high_agl']>max_agl:raise ValueError('high altitude exceeds cap')
     if 'terminal_hover_agl' in settings and not .25<=settings['terminal_hover_agl']<=.5:raise ValueError('invalid terminal hover')
     if type(settings.get('obstacle_columns_enabled',True)) is not bool:raise ValueError('invalid obstacle column flag')
+    from trial_motion import motion_options
+    motion_options(settings)
     area=flight_geometry(settings);cb=area['center_bounds']
     if settings['mode'] in H_MODES and settings.get('trial_kind') not in ('corridor_landing','full_mission'):
         landing=settings.get('landing_xy')
@@ -184,7 +191,7 @@ def generate(root,out,settings,fc_xyz,rig):
     point=lambda a,b,h:[x+a,y+b,h]
     runtime=yaml.safe_load((root/'docs/verification/fov_landing_inner_20260919/seed_2672/fast_runtime.yaml').read_text())
     m=runtime['mission'];m.update(home_xy=[x,y],landing_xy=[x+.6,y],approach_altitude=low,return_altitude=low,timeout=600. if mode=='high_view_full' else 300.,forced_return_at=510. if mode=='high_view_full' else 240.,post_delivery_route_revision='board-'+mode,
-        post_delivery_route=[point(.6,0,low)],post_delivery_parameter_stages=[],early_return_enabled=False,delivery_reserve_per_slot=25.,return_land_reserve=45.,nominal_speed=float(settings['cruise_speed']),motion_action_timeout=30.,target_action_timeout=60.)
+        post_delivery_route=[point(.6,0,low)],post_delivery_parameter_stages=[],early_return_enabled=False,delivery_reserve_per_slot=25.,return_land_reserve=45.,nominal_speed=float(settings['cruise_speed']),motion_action_timeout=float(settings.get('motion_action_timeout',30.)),target_action_timeout=60.)
     runtime.pop('corridor_speed_schedule',None);runtime.pop('fixed_search_region',None)
     sx0,sx1,sy0,sy1=area['search_bounds']
     runtime['search'].update(min_x=x+sx0,max_x=x+sx1,min_y=y+sy0,max_y=y+sy1,lane_spacing=1.2,altitude=low)
@@ -195,8 +202,8 @@ def generate(root,out,settings,fc_xyz,rig):
     runtime['trial']=dict(mode=mode,waypoints=line,camera_info_topic=settings.get('camera_info_topic','/camera/camera_info'),delivery_count=settings.get('delivery_count',2),actuator_mode=actuator)
     if mode=='high_speed_capture':
         runtime['trial']['capture']=dict(speed=settings['cruise_speed'],lighting=settings.get('capture_lighting','unspecified'),
-            round_trips=settings['capture_round_trips'],line_xy=settings['capture_line_xy'])
-    runtime['following_speed_profile']=dict(cruise_lead_m=(float(settings['cruise_speed']) if mode=='high_speed_capture' else .50),precision_lead_m=.25,corridor_lead_m=.25)
+            route='flight_area.survey_xy',survey_xy=copy.deepcopy(area['survey_xy']))
+    runtime['following_speed_profile']=dict(cruise_lead_m=(min(float(settings['cruise_speed']),1.0) if mode=='high_speed_capture' else .50),precision_lead_m=.25,corridor_lead_m=.25)
     if mode=='landing':
         hx,hy=settings['landing_xy'];transit=ground+settings['landing_transit_agl']
         m.update(landing_xy=[x+hx,y+hy],return_altitude=capture,post_delivery_route=[point(max(.6,hx-.7),hy,transit),point(hx,hy,transit),point(hx,hy,capture)])
@@ -260,7 +267,7 @@ def generate(root,out,settings,fc_xyz,rig):
         '/fast_planner_node/sdf_map/obstacles_inflation_up':.20,
         '/fast_planner_node/sdf_map/obstacles_inflation_down':.10,
         '/traj_server/traj_server/target_dist':.25,
-        '/external_planner_start_max_distance':(max(.75,float(settings['cruise_speed'])+.25) if mode=='high_speed_capture' else .75),
+        '/external_planner_start_max_distance':(max(.75,min(float(settings['cruise_speed']),1.0)+.25) if mode=='high_speed_capture' else .75),
         '/external_planner_max_command_z':ground+settings.get('max_agl',2.9),'/navigation/planner_bridge/execution/max_goal_z':ground+settings.get('max_agl',2.9),
         '/navigation/planner_bridge/execution/arrival_position_tolerance':.12,'/navigation/planner_bridge/execution/arrival_dwell':.8,
         '/navigation/planner_bridge/execution/initial_plan_timeout':12.,
@@ -281,6 +288,9 @@ def generate(root,out,settings,fc_xyz,rig):
         '/target_memory/search_confirmation_max_gap_sec':1.0,
         '/drop_aligner/stable_frames':5,
     }
+    from trial_motion import apply_generated_motion
+    motion_report=apply_generated_motion(runtime,control,overrides,settings,ground)
+    (out/'motion_profile.json').write_text(json.dumps(motion_report,indent=2))
     (out/'terminal_hover.yaml').write_text(yaml.safe_dump(dict(frame='camera_init',ground_z=ground,hover_agl=settings.get('terminal_hover_agl',.3),max_agl=settings.get('max_agl',2.9),descent_speed=.15)))
     for name,data in [('runtime.yaml',runtime),('control.yaml',control),('overrides.yaml',overrides),('auto_land.yaml',dict(frame='camera_init',landing_xy=[x+.6,y],cruise_z=low,route_revision='board-'+mode))]:
         (out/name).write_text(yaml.safe_dump(data,sort_keys=False))

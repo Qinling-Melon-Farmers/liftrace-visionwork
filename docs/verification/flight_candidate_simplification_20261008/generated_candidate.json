@@ -1,0 +1,21 @@
+{
+  "candidate": "recovery_validated_field_local.yaml",
+  "ros_started": false,
+  "board_connected": false,
+  "checks": [
+    "candidate independently enables all recovery consumers and layer producer",
+    "explicit off clears all recovery paths, not stale prior ROS true",
+    "formal defaults motion/resume on; unvalidated recovery opt-in"
+  ],
+  "generated_effective_config": {
+    "source": "generated_runtime",
+    "motion_optimization": true,
+    "resume_survey": true,
+    "obstacle_columns": true,
+    "navigation_recovery": true,
+    "runtime_path": "/tmp/local-candidate-prjq5y00/runtime.yaml",
+    "overrides_path": "/tmp/local-candidate-prjq5y00/overrides.yaml"
+  },
+  "ground_z": -0.22,
+  "result": "PASS"
+}

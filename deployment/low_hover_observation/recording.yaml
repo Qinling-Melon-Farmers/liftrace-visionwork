@@ -1,0 +1,40 @@
+# Exact names and allowed wire types. No regex/all-topics/automatic discovery.
+version: 1
+status_topic: /low_hover_observation/status
+max_duration_s: 900  # duration=0 means external stop, with this safety ceiling
+diagnostic_hz: 1
+discovery_interval_s: 2
+queue_messages: 1024
+queue_bytes: 16777216
+max_message_bytes: 65536
+subscriber_queue_size: 10
+snapshot_timeout_s: 3
+min_free_space_bytes: 1073741824  # 1 GiB; check at startup and every diagnostic tick
+topics:
+  - {name: /Odometry, types: [nav_msgs/Odometry]}
+  - {name: /laserMapping/realtime, types: [diagnostic_msgs/DiagnosticArray]}
+  - {name: /rosout_agg, types: [rosgraph_msgs/Log]}
+  - {name: /mavros/vision_pose/pose, types: [geometry_msgs/PoseStamped]}
+  - {name: /mavros/local_position/pose, types: [geometry_msgs/PoseStamped]}
+  - {name: /mavros/local_position/odom, types: [nav_msgs/Odometry]}
+  - {name: /mavros/local_position/velocity_local, types: [geometry_msgs/TwistStamped]}
+  - {name: /mavros/local_position/velocity_body, types: [geometry_msgs/TwistStamped]}
+  - {name: /mavros/imu/data, types: [sensor_msgs/Imu]}
+  - {name: /mavros/state, types: [mavros_msgs/State]}
+  - {name: /mavros/extended_state, types: [mavros_msgs/ExtendedState]}
+  - {name: /mavros/rc/in, types: [mavros_msgs/RCIn]}
+  - {name: /mavros/rc/out, types: [mavros_msgs/RCOut]}
+  - {name: /mavros/battery, types: [sensor_msgs/BatteryState]}
+  - {name: /mavros/esc_telemetry, types: [mavros_msgs/ESCTelemetry]}
+  - {name: /mavros/esc_info, types: [mavros_msgs/ESCInfo]}
+  - {name: /mavros/esc_status, types: [mavros_msgs/ESCStatus]}
+  - {name: /mavros/timesync_status, types: [mavros_msgs/TimesyncStatus]}
+  - {name: /mavros/statustext/recv, types: [mavros_msgs/StatusText]}
+  - {name: /mavros/setpoint_raw/target_attitude, types: [mavros_msgs/AttitudeTarget]}
+  - {name: /mavros/setpoint_raw/target_local, types: [mavros_msgs/PositionTarget]}
+  - {name: /mavros/setpoint_raw/attitude, types: [mavros_msgs/AttitudeTarget]}
+  - {name: /mavros/setpoint_raw/local, types: [mavros_msgs/PositionTarget]}
+  - {name: /mavros/setpoint_position/local, types: [geometry_msgs/PoseStamped]}
+  - {name: /mavros/setpoint_attitude/attitude, types: [geometry_msgs/PoseStamped]}
+  - {name: /mavros/setpoint_attitude/thrust, types: [mavros_msgs/Thrust]}
+  - {name: /low_hover_observation/status, types: [std_msgs/String]}

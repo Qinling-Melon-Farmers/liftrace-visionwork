@@ -24,6 +24,7 @@ from plan_manage.msg import PlannerStatus
 from std_msgs.msg import Int8, String
 
 from patrol_control.msg import MissionCommand
+from navigation_recovery_msgs.msg import NavigationRecoveryContext
 from uav_mission.msg import NavigationDecision, NavigationResult
 from uav_mission.msg import ReleaseResult
 from uav_mission.planner_execution import (
@@ -358,6 +359,11 @@ class NavigationPlannerBridge:
         self._output_enabled, self._gate_reason = self._evaluate_output_gate()
 
         self._goal_pub = None
+        self._recovery_context_pub = None
+        if rospy.get_param("~navigation_recovery/enabled", False):
+            self._recovery_context_pub = rospy.Publisher(
+                rospy.get_param("~navigation_recovery/context_topic", "/planning/recovery_context"),
+                NavigationRecoveryContext, queue_size=1, latch=True)
         if self._output_enabled:
             self._goal_pub = rospy.Publisher(
                 "planner_goal", PoseStamped, queue_size=1)
@@ -619,6 +625,12 @@ class NavigationPlannerBridge:
         message.pose.orientation.z = decision.goal.qz
         message.pose.orientation.w = decision.goal.qw
         self._goal_pub.publish(message)
+        if getattr(self, "_recovery_context_pub", None) is not None:
+            context = NavigationRecoveryContext()
+            context.header = message.header
+            context.deadline = _ns_to_stamp(decision.deadline_ns)
+            context.active = True
+            self._recovery_context_pub.publish(context)
 
     def _mission_command_message(self, decision, command_name,
                                  target_pose=None):
@@ -1217,6 +1229,14 @@ class NavigationPlannerBridge:
                     submitted_decision=(decision if outcome.accepted else None),
                 )
                 if outcome.accepted:
+                    if (getattr(self, "_recovery_context_pub", None) is not None and
+                            decision.command not in WIRE_GOAL_COMMANDS):
+                        context = NavigationRecoveryContext()
+                        context.header.stamp = _ns_to_stamp(decision.issued_at_ns)
+                        context.header.frame_id = self._mission_frame
+                        context.deadline = _ns_to_stamp(decision.deadline_ns)
+                        context.active = False
+                        self._recovery_context_pub.publish(context)
                     self._start_decision_handoff(decision, outcome, now_ns)
                     if self._transaction is not None and decision.command == "APPROACH":
                         self._transaction.near_wall_bounded = (
@@ -1489,6 +1509,15 @@ class NavigationPlannerBridge:
                 self._cancel_landing_handoff(now_ns, "landing_airborne_manual_takeover")
             return
         if landing.posctl_wait_started_ns:
+            source_age = now_ns - self._flight_state_source_ns
+            receipt_age = now_ns - self._flight_state_receipt_ns
+            pending_limit = min(200_000_000, self._landing_state_max_age_ns)
+            # Defer only the expected mode's small future stamp; retain its
+            # original timestamp and revalidate on timer/odom after clock catchup.
+            if (str(state.mode) == "POSCTL" and state.connected and state.armed
+                    and -pending_limit <= source_age < 0
+                    and 0 <= receipt_age <= pending_limit):
+                return
             if (landing.handoff_requested_ns and landing.handoff_observed_ns >= landing.handoff_requested_ns
                     and 0 <= now_ns - landing.handoff_requested_ns <= self._landing_mode_transition_timeout_ns
                     and 0 <= now_ns - landing.handoff_observed_ns <= self._executor.config.odom_max_age_ns

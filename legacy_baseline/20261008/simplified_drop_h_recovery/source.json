@@ -1,0 +1,5 @@
+{
+  "source_commit": "b520ee663179287a17ef6e6342aad1d8475075ee",
+  "purpose": "minimal drop/H simplification and navigation recovery adaptation; protected pre-change production control",
+  "file_count": 56
+}

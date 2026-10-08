@@ -137,6 +137,10 @@ class LLController {
 public:
     bool compensated_alignment_enabled_=true, geometry_ready=true;
     bool compensatedDropSettled(bool) { return geometry_ready; }
+    // This suite isolates async transport; the separate compensated-drop suite
+    // executes real clearance and settlement over maps and odometry.
+    bool compensatedDropPathClear() const { return true; }
+    struct { void reset() {} } drop_release_window_;
     void publishCompensatedAlignment() {}
     std::string external_landing_handoff_mode_="AUTO.LAND";
     bool external_landing_handoff_observed_=false;

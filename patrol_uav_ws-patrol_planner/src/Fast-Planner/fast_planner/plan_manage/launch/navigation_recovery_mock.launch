@@ -1,0 +1,6 @@
+<launch>
+  <!-- Independent synthetic plant only; no production planner/control nodes. -->
+  <arg name="case" default="column" />
+  <node pkg="plan_manage" type="navigation_recovery_mock" name="navigation_recovery_mock"
+        args="--case $(arg case)" output="screen" required="true" />
+</launch>

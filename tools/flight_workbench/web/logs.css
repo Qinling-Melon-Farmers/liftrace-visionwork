@@ -1,0 +1,20 @@
+.logs-page {overflow:auto;height:auto;min-height:100vh}
+.logs-page main {max-width:1180px;margin:auto;padding:24px}
+.logs-page header {display:block;position:static;height:auto}
+.logs-page h1 {font-size:24px;margin:16px 0}
+.logs-page h2 {font-size:18px;margin:0 0 12px}
+.logs-page p {line-height:1.6;overflow-wrap:anywhere}
+.log-grid {display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.log-card {background:var(--panel,#17212c);border:1px solid #344557;border-radius:10px;padding:18px;margin:16px 0}
+.log-card label {display:block;margin:12px 0 6px}
+.log-card input,.log-card select {max-width:100%;padding:8px;margin-right:8px}
+.log-card select {width:100%}
+.log-card pre {white-space:pre-wrap;overflow-wrap:anywhere;max-height:200px;overflow:auto}
+.log-job {border-top:1px solid #344557;padding:12px 0}
+.log-table {overflow:auto}
+.log-table table {width:100%;border-collapse:collapse}
+.log-table td,.log-table th {text-align:left;border-bottom:1px solid #344557;padding:10px;font-size:13px}
+.log-table td:first-child {overflow-wrap:anywhere;min-width:180px}
+#log-message {min-height:24px;color:#f5b965}
+.logs-page button:disabled {opacity:.5;cursor:not-allowed}
+@media(max-width:760px){.log-grid{grid-template-columns:1fr}.logs-page main{padding:12px}}

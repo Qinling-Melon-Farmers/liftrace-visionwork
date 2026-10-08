@@ -232,7 +232,7 @@ class CommandBuildTest(unittest.TestCase):
         self.assertIn("/home/orangepi/liftrace_board_trials_20260928/deployment/site_20260928/"
                       "MID360_config.json", wb_board.terminal_command(CONFIG, lidar))
         servo = next(t for t in CONFIG["terminals"] if t["id"] == "servo")
-        self.assertIn("patrol_uav_ws-patrol_planner/devel/lib/actuator_pwm/pwm_node1 /Servo:=/legacy/Servo_raw",
+        self.assertIn("patrol_uav_ws-patrol_planner/devel/lib/actuator_pwm/pwm_node1 _initialize_on_startup:=false /Servo:=/legacy/Servo_raw",
                       wb_board.terminal_command(CONFIG, servo))
         camera = next(t for t in CONFIG["terminals"] if t["id"] == "camera")
         self.assertTrue(wb_board.terminal_command(CONFIG, camera).endswith("/dev/video0"))
@@ -270,7 +270,8 @@ class HostOptionsTest(unittest.TestCase):
             self.assertIn(host, hosts)
         self.assertEqual(len(hosts), len(set(hosts)), "地址清单不应重复")
         self.assertTrue(all(item["label"] for item in options), "每项都应有出处说明")
-        self.assertEqual(hosts[0], CONFIG["connection"]["host"], "当前地址应排在最前")
+        self.assertEqual(hosts[0], "orangepi@10.75.120.193", "新增现场候选排在最前，不覆盖默认连接")
+        self.assertIn(CONFIG["connection"]["host"], hosts, "当前默认连接仍保留")
 
     def test_host_options_helper_handles_strings_and_custom_current(self):
         config = {"connection": {"host": "orangepi@10.0.0.9",

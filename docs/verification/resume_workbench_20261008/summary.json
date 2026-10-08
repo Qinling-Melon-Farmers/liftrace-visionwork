@@ -1,0 +1,84 @@
+{
+  "result": "PASS",
+  "board_connected": false,
+  "ros_started": false,
+  "simulation_started": false,
+  "checks": {
+    "competition_cli_combinations": 54,
+    "generated_runtime_expansions": 27,
+    "frontend_command_and_request_cases": 552,
+    "production_policy_budget_height_ack_tests": 42,
+    "workbench_competition_tests": 10,
+    "effective_output_parser_tests": 2,
+    "trial_resume_cli_tests": 7,
+    "workbench_option_tests": 16,
+    "stage_parser_tests": 34,
+    "frontend_effective_config": "PASS",
+    "competition_application_launch_expansion": "PASS; 13/16 nodes; HardwareFullRuntime policy resume true"
+  },
+  "historical_run": {
+    "name": "board_full_mission_20261007_221730",
+    "motion_optimization": true,
+    "resume_survey": false,
+    "committed_slots": 3,
+    "result_json": "INCOMPLETE",
+    "supervisor_end_reason": "landed_after_flight"
+  },
+  "scope": "Offline wiring and UI regression only; no new flight/dynamics acceptance",
+  "workbench_source_revision": "4ae68a3c338971db81443c13a33682188d100186",
+  "windows_release": {
+    "zip": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deliverables/liftrace_flight_workbench_windows_20261008_motion_resume_4ae68a3c.zip",
+    "entries": 28,
+    "bytes": 167949,
+    "report": "workbench_windows_4ae68a3c/result.json",
+    "result": "PASS",
+    "board_connected": false,
+    "owned_process_stopped": true,
+    "owned_port_closed": true
+  },
+  "f_full_workbench_compatibility": {
+    "result": "PASS",
+    "python_tests": 204,
+    "linux_platform_skips": 5,
+    "windows_native_mock_tests": 5,
+    "javascript_scripts": 8,
+    "frontend_command_request_cases": 552,
+    "low_hover_tests": 54,
+    "common_generator_tests": 20,
+    "actual_trial_cli_cases": 12,
+    "route_equivalence": "PASS; four actual generated segments match original legacy two-round-trip endpoints; speed 1.0 m/s and acceleration 0.35 unchanged",
+    "dependency_scope": {
+      "source_revision": "4ae68a3c338971db81443c13a33682188d100186",
+      "additions": [
+        "deployment/low_hover_observation/README.md",
+        "deployment/low_hover_observation/flight.py",
+        "deployment/low_hover_observation/localization.launch",
+        "deployment/low_hover_observation/observation_core.py",
+        "deployment/low_hover_observation/profiles.yaml",
+        "deployment/low_hover_observation/px4_logging/README.md",
+        "deployment/low_hover_observation/px4_logging/default_topics_30e763b.cpp.txt",
+        "deployment/low_hover_observation/px4_logging/logger_topics.txt",
+        "deployment/low_hover_observation/px4_logging/prepare_profile.py",
+        "deployment/low_hover_observation/px4_logging/profile_manifest.json",
+        "deployment/low_hover_observation/record_diagnostics.py",
+        "deployment/low_hover_observation/recording.yaml",
+        "deployment/low_hover_observation/start.sh",
+        "deployment/low_hover_observation/test_observation.py",
+        "deployment/low_hover_observation/test_recording.py",
+        "tools/flight_logs/fetch_px4_ulog.py",
+        "tools/flight_logs/README.md",
+        "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_motion.py"
+      ],
+      "targeted_existing_changes": [
+        "deployment/board_trials_4x4/common/uav_board_trials/scripts/run_trial.py",
+        "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_config.py",
+        "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_runtime.py",
+        "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_manager.py",
+        "deployment/board_trials_4x4/09_high_speed_capture/settings.yaml"
+      ],
+      "preserved": "F shared hardware_session architecture; H/drop compensation/navigation recovery configs and existing field defaults; no profile/session/assets copied"
+    },
+    "report": "f_offline_compatibility.json",
+    "new_flight_acceptance": false
+  }
+}

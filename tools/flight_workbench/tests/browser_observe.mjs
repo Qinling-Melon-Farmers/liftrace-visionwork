@@ -23,7 +23,7 @@ try{
     if(await run('typeof observationState!=="undefined" && observationState.configuration.profiles.length===3 && observationState.wiring!==null'))return;await sleep(100);}throw new Error(route+' did not load');};
   await call('Network.enable');await call('Emulation.setDeviceMetricsOverride',{width:1680,height:1100,deviceScaleFactor:1,mobile:false});
   await navigate('/motor');
-  await test('motor page is a large read-only page with three configured labels', `document.body.classList.contains('motor-page') && document.querySelector('#profile-select').options.length===3 && document.querySelector('#page-title').textContent.includes('电机')`);
+  await test('legacy motor route resolves to the unified realtime observer', `location.pathname==='/observe' && !document.body.classList.contains('motor-page') && document.querySelector('#profile-select').options.length===3 && document.querySelector('#page-title').textContent.includes('电机')`);
   await test('confirmed wiring loads AUX bank and physical labels without camera elements', `
     JSON.stringify(observationState.mapping)==='[17,20,18,19]' &&
     [...document.querySelectorAll('[data-motor]')].map(s=>s.value).join(',')==='17,20,18,19' &&
@@ -93,7 +93,7 @@ try{
     observationState.mapping===null && observationState.active===null && observationState.samples.some(s=>s.source.host==='fixture-only') &&
     document.querySelector('#connection-status').textContent.includes('连接目标已改变') && !document.querySelector('#raw-outputs').textContent.includes('1100')`);
   await navigate('/observe');
-  await test('observe page uses the same read-only data source with a distinct layout', `!document.body.classList.contains('motor-page') && document.querySelector('#page-title').textContent.includes('实时状态') && document.querySelectorAll('canvas').length===13`);
+  await test('unified observe page retains realtime and motor charts', `!document.body.classList.contains('motor-page') && document.querySelector('#page-title').textContent.includes('实时状态') && document.querySelectorAll('canvas').length===13`);
   await test('both observation layouts load the same configured aircraft wiring', `JSON.stringify(observationState.mapping)==='[17,20,18,19]'`);
   await run(`document.querySelector('#clear-mapping').click();obsSnapshot({connection:observationState.connection,observation:observationState.configuration});`);
   await test('explicitly cleared wiring stays cleared after another snapshot', `observationState.mapping===null && document.querySelector('#legend-motors').children.length===0`);

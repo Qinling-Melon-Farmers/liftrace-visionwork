@@ -28,6 +28,8 @@ const ctx = {
 };
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname, '../web/app.js'), 'utf8'), ctx);
+// applySnapshot also refreshes optional toolbar capabilities.
+ctx.document.querySelector = () => null;
 const contract = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const groups = [...new Map(contract.cases.map(c => [c.group.id, c.group])).values()];
 ctx.state.connection = contract.connection;

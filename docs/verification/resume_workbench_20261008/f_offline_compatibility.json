@@ -1,0 +1,266 @@
+{
+  "python": {
+    "result": "PASS",
+    "tests": 204,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 5,
+    "seconds": 12.115,
+    "failed_tests": []
+  },
+  "real_board_connected": false,
+  "real_ros_started": false,
+  "simulation_started": false,
+  "browser_repeated": false,
+  "javascript": {
+    "result": "PASS",
+    "scripts": 8,
+    "cases": [
+      {
+        "file": "test_effective_config.js",
+        "result": "PASS",
+        "output": "PASS config evidence, separate check/runtime sources, changed selections invalidate display"
+      },
+      {
+        "file": "test_frontend.js",
+        "result": "PASS",
+        "output": "PASS 552 command parity cases, 552 mocked UI requests, independent config check, running/pending/confirmation guards, IME focus protection"
+      },
+      {
+        "file": "test_geometry_parser.js",
+        "result": "PASS",
+        "output": "coordinate draft parser: 16 checks PASS"
+      },
+      {
+        "file": "test_group_selection.js",
+        "result": "PASS",
+        "output": "PASS 14 group selections, persisted snapshots/reload, explicit button, 7 nested controls, running trial unchanged and correct mission label"
+      },
+      {
+        "file": "test_logs_frontend.js",
+        "result": "PASS",
+        "output": "PASS: offline, duplicate bag, owned stop, explicit index/download, input, size and target changes"
+      },
+      {
+        "file": "test_observe.js",
+        "result": "PASS",
+        "output": "PASS observer: confirmed AUX wiring and bank offset, target scope, manual override, historical mapping, bounded recording, stale data, JSON/CSV and read-only contract"
+      },
+      {
+        "file": "test_pose_probe_frontend.js",
+        "result": "PASS",
+        "output": "PASS: pose parse-error label, packet rate, missing pose, independent battery, freshness and recovery; detailed exception is tested in probe stderr"
+      },
+      {
+        "file": "test_terminal_status.js",
+        "result": "PASS",
+        "output": "PASS 9 one-shot states via snapshot and SSE; 5 persistent terminals keep exited semantics"
+      }
+    ]
+  },
+  "scope": "Offline source imports and generator/mock tests; no ROS nodes, SITL, board connection, hardware action or repeated browser",
+  "windows_native_ssh": {
+    "result": "PASS",
+    "tests": 5,
+    "transport": "in-process loopback SSH mocks; no board",
+    "covers_linux_skips": 5
+  },
+  "additional_tests": {
+    "low_hover": {
+      "result": "PASS",
+      "tests": 54,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "failed_tests": []
+    },
+    "common_generator": {
+      "result": "PASS",
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "failed_tests": []
+    }
+  },
+  "actual_generated_configuration": {
+    "route_equivalence": {
+      "result": "PASS",
+      "actual_four_segments": [
+        [
+          [
+            0.81,
+            -0.01
+          ],
+          [
+            5.21,
+            -0.01
+          ]
+        ],
+        [
+          [
+            5.21,
+            -0.01
+          ],
+          [
+            0.81,
+            -0.01
+          ]
+        ],
+        [
+          [
+            0.81,
+            -0.01
+          ],
+          [
+            5.21,
+            -0.01
+          ]
+        ],
+        [
+          [
+            5.21,
+            -0.01
+          ],
+          [
+            0.81,
+            -0.01
+          ]
+        ]
+      ],
+      "speed": 1.0,
+      "acceleration": 0.35,
+      "new_flight_acceptance": false
+    },
+    "trial_cli_actual_generation": {
+      "result": "PASS",
+      "cases": [
+        {
+          "trial": "high_priority",
+          "motion_option": false,
+          "resume_option": null,
+          "actual_motion": false,
+          "actual_resume": true
+        },
+        {
+          "trial": "high_priority",
+          "motion_option": false,
+          "resume_option": "on",
+          "actual_motion": false,
+          "actual_resume": true
+        },
+        {
+          "trial": "high_priority",
+          "motion_option": false,
+          "resume_option": "off",
+          "actual_motion": false,
+          "actual_resume": false
+        },
+        {
+          "trial": "high_priority",
+          "motion_option": true,
+          "resume_option": null,
+          "actual_motion": true,
+          "actual_resume": true
+        },
+        {
+          "trial": "high_priority",
+          "motion_option": true,
+          "resume_option": "on",
+          "actual_motion": true,
+          "actual_resume": true
+        },
+        {
+          "trial": "high_priority",
+          "motion_option": true,
+          "resume_option": "off",
+          "actual_motion": true,
+          "actual_resume": false
+        },
+        {
+          "trial": "full_mission",
+          "motion_option": false,
+          "resume_option": null,
+          "actual_motion": false,
+          "actual_resume": true
+        },
+        {
+          "trial": "full_mission",
+          "motion_option": false,
+          "resume_option": "on",
+          "actual_motion": false,
+          "actual_resume": true
+        },
+        {
+          "trial": "full_mission",
+          "motion_option": false,
+          "resume_option": "off",
+          "actual_motion": false,
+          "actual_resume": false
+        },
+        {
+          "trial": "full_mission",
+          "motion_option": true,
+          "resume_option": null,
+          "actual_motion": true,
+          "actual_resume": true
+        },
+        {
+          "trial": "full_mission",
+          "motion_option": true,
+          "resume_option": "on",
+          "actual_motion": true,
+          "actual_resume": true
+        },
+        {
+          "trial": "full_mission",
+          "motion_option": true,
+          "resume_option": "off",
+          "actual_motion": true,
+          "actual_resume": false
+        }
+      ],
+      "run_session": "mocked; only generator executed"
+    }
+  },
+  "dependency_sync": {
+    "source_revision": "4ae68a3c338971db81443c13a33682188d100186",
+    "additions": [
+      "deployment/low_hover_observation/README.md",
+      "deployment/low_hover_observation/flight.py",
+      "deployment/low_hover_observation/localization.launch",
+      "deployment/low_hover_observation/observation_core.py",
+      "deployment/low_hover_observation/profiles.yaml",
+      "deployment/low_hover_observation/px4_logging/README.md",
+      "deployment/low_hover_observation/px4_logging/default_topics_30e763b.cpp.txt",
+      "deployment/low_hover_observation/px4_logging/logger_topics.txt",
+      "deployment/low_hover_observation/px4_logging/prepare_profile.py",
+      "deployment/low_hover_observation/px4_logging/profile_manifest.json",
+      "deployment/low_hover_observation/record_diagnostics.py",
+      "deployment/low_hover_observation/recording.yaml",
+      "deployment/low_hover_observation/start.sh",
+      "deployment/low_hover_observation/test_observation.py",
+      "deployment/low_hover_observation/test_recording.py",
+      "tools/flight_logs/fetch_px4_ulog.py",
+      "tools/flight_logs/README.md",
+      "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_motion.py"
+    ],
+    "targeted_existing_changes": [
+      "deployment/board_trials_4x4/common/uav_board_trials/scripts/run_trial.py",
+      "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_config.py",
+      "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_runtime.py",
+      "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_manager.py",
+      "deployment/board_trials_4x4/09_high_speed_capture/settings.yaml"
+    ],
+    "preserved": "F shared hardware_session architecture; H/drop compensation/navigation recovery configs and existing field defaults; no profile/session/assets copied"
+  },
+  "fixture_sync": [
+    "tools/flight_workbench/tests/test_logs_frontend.js",
+    "tools/flight_workbench/tests/test_terminal_status.js",
+    "tools/flight_workbench/tests/test_geometry.py",
+    "deployment/board_trials_4x4/common/uav_board_trials/test/test_high_speed_capture.py",
+    "deployment/board_trials_4x4/common/uav_board_trials/test/test_workbench_profiles.py"
+  ],
+  "landing_generator_assertions": "POSCTL target/trigger 0.35/0.37 m and AUTO.LAND original 0.40/0.55 m checked separately, production helper unchanged",
+  "launcher_existing_service": "No revision detection or old-service stop; tries requested port through +19, prints actual URL; use the new launcher console URL"
+}

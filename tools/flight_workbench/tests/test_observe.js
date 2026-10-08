@@ -49,6 +49,16 @@ assert(old.fc_pose.stale && old.fc_pose.z===null && old.fc_pose.source_age===.31
 const unknownTime=tel(201);unknownTime.observe.fc_pose.source_age=null;
 assert(ctx.obsNormalized(unknownTime,201).fc_pose.unknown_age && ctx.obsNormalized(unknownTime,201).fc_pose.z===null,'Unknown source time never becomes fresh pose');
 assert.strictEqual(ctx.obsNormalized(tel(200),203).fc_pose,null,'Telemetry older than 2s is not current');
+const waiting=tel(202,{observe_status:{rc_out:{topic:'/mavros/rc/out',status:'waiting_message',publishers:['/mavros'],count:0,hz:0,age:null}}});
+assert(ctx.obsTopicStatus('rc_out',waiting,202).includes('尚未收到消息'));
+waiting.observe_status.rc_out.status='no_publisher';waiting.observe_status.rc_out.publishers=[];
+assert(ctx.obsTopicStatus('rc_out',waiting,202).includes('没有已登记发布者'));
+assert(ctx.obsTopicStatus('rc_out',waiting,205).includes('已过期'));
+assert(ctx.obsTopicStatus('rc_out',tel(202),202).includes('旧探针'));
+const controlOnly=tel(203);controlOnly.observe.rc_out=null;
+controlOnly.observe.actuator_target={group_mix:0,controls:[.1,.2,.3,.4,0,0,0,0]};
+assert.deepStrictEqual(plain(ctx.obsNormalized(controlOnly,203).actuator_target),controlOnly.observe.actuator_target);
+assert.strictEqual(ctx.obsRaw({data:ctx.obsNormalized(controlOnly,203)},17),null,'Actuator target never substitutes for raw motor outputs');
 assert(!ctx.obsIngest(tel(200),203),'Expired telemetry does not enter curve samples');
 assert.strictEqual(ctx.obsStats([null,undefined,NaN,Infinity]).count,0);
 assert.strictEqual(ctx.obsStats([null,4,6]).mean,5);

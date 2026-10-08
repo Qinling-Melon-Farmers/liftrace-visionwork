@@ -54,13 +54,15 @@ double clock=100;
 struct Duration { double value; double toSec() const { return value; } };
 struct Time { double value=0; static Time now(){return Time{clock};} };
 Duration operator-(Time a, Time b){return Duration{a.value-b.value};}
+bool operator<=(Time a, Time b){return a.value<=b.value;}
 struct Publisher { int calls=0; template<class T> void publish(const T&){++calls;} };
 }
 namespace geometry_msgs {
 struct Point { double x=0,y=0,z=0; };
 struct Quaternion { double x=0,y=0,z=0,w=1; };
 struct Pose { Point position; Quaternion orientation; };
-struct PoseStamped { Pose pose; };
+struct Header { ros::Time stamp; };
+struct PoseStamped { Header header; Pose pose; };
 }
 enum Mode { Takeoff, Run_point, Aligning, Land };
 class LLController {
@@ -68,6 +70,11 @@ public:
     bool external_mission_mode_=true, external_waiting_for_motion_=false;
     bool have_planner_cmd=false, external_planner_height_hold_active_=false;
     bool external_planner_command_accepted=false;
+    // Height HOLD cases run with no recovery transaction; its admission is
+    // independently covered by the production receive-gate tests.
+    bool navigation_recovery_active_=false;
+    struct RecoveryCommand { geometry_msgs::Header header; } navigation_recovery_command_;
+    bool hasValidNavigationRecovery() const { return false; }
     double external_planner_max_command_z_=2.0;
     double external_planner_cmd_timeout_=.5, external_planner_start_max_distance_=.6;
     double px4_max_distance=.4, takeoff_point[3]={0,0,1.2};

@@ -44,8 +44,14 @@ class GeometryTests(unittest.TestCase):
         import yaml
         with tempfile.TemporaryDirectory() as td:
             root=Path(td)
-            for folder in ('deployment','patrol_uav_ws-patrol_planner','vision_ws','docs','tools'):
+            for folder in ('patrol_uav_ws-patrol_planner','vision_ws','docs','tools'):
                 (root/folder).symlink_to(repo/folder,target_is_directory=True)
+            modules=root/'deployment/board_trials_4x4';modules.mkdir(parents=True)
+            (modules/'common').symlink_to(repo/'deployment/board_trials_4x4/common',target_is_directory=True)
+            module=modules/'08_full_mission';module.mkdir()
+            settings=yaml.safe_load((repo/'deployment/board_trials_4x4/08_full_mission/settings.yaml').read_text())
+            settings.setdefault('motion_optimization',{})['enabled']=True
+            (module/'settings.yaml').write_text(yaml.safe_dump(settings))
             source=root/'site.yaml';source.write_text((repo/'deployment/site_20260928/full_mission_test_area.yaml').read_text())
             patch=dict(self.patch,corridor_waypoints=[dict(x=.6,y=0.,agl=.9),dict(x=2.,y=0.,agl=1.2)],corridor_geometry=dict(wall_axis=0,wall_coordinates=[1.4],entry_waypoints=1))
             target,cmd,_=wb_geometry.overlay_command(str(source),'08_full_mission',patch,'badmotion')

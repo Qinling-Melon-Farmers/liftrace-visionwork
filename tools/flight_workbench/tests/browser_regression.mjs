@@ -43,8 +43,34 @@ try {
   await call('Page.navigate',{url});
   for(let i=0;i<60;i++){if(await run('typeof state!=="undefined" && state.groups.length>=9'))break;await sleep(100);}
   await test('offline transport (no flight backend)', 'state.connection.transport === "local"');
-  await test('main toolbar opens both read-only observers in separate windows', `
-    ['/observe','/motor'].every(path=>{const a=document.querySelector('a[href="'+path+'"]');return a&&a.target==='_blank'&&a.rel.includes('noopener');})`);
+  await test('realtime observer and logs use this origin; motor big page is removed', `
+    ['/observe','/logs'].every(path=>{const a=document.querySelector('a[href="'+path+'"]');return a&&a.target==='_blank'&&a.rel.includes('noopener')&&a.origin===location.origin;}) &&
+    !document.querySelector('a[href="/motor"]')`);
+  await test('competition defaults to the independent template and has three-state controls', `
+    state.groups.find(g=>g.id==='competition').site_config==='deployment/competition/field.example.yaml' &&
+    ['motionOptimization','obstacleColumns'].every(k=>{const s=document.querySelector('[data-option="'+k+'"]');return s&&s.options.length===3&&s.value==='';}) &&
+    document.querySelector('#groups-body').textContent.includes('比赛模板：高位2.6m')`);
+  await run(`window.cg=state.groups.find(g=>g.id==='competition');
+    groupUI(cg).motionOptimization='off';groupUI(cg).obstacleColumns='on';renderGroups();`);
+  await test('competition switches reach the actual check command', `
+    trialBody(cg,'preview',true).expected_body.includes('--motion-optimization off --obstacle-columns on --check-config') &&
+    trialBody(cg,'preview',true).motion_optimization==='off' && trialBody(cg,'preview',true).obstacle_columns==='on'`);
+  await run(`groupUI(cg).motionOptimization='';groupUI(cg).obstacleColumns='';renderGroups();`);
+  await test('switch inheritance omits overrides rather than displaying an enabled state', `
+    !trialBody(cg,'preview',true).expected_body.includes('--motion-optimization') &&
+    !trialBody(cg,'preview',true).expected_body.includes('--obstacle-columns')`);
+  await run(`window.preset=document.querySelector('[data-option="competitionPreset"]');
+    preset.value='deployment/competition/field_20261007_validated.yaml';preset.dispatchEvent(new Event('change'));`);
+  await test('test reproduction is explicitly optional and never the default competition config', `
+    trialBody(cg,'preview',true).expected_body.includes('field_20261007_validated.yaml') &&
+    document.querySelector('#groups-body').textContent.includes('当前选择测试场地复现') &&
+    cg.site_config==='deployment/competition/field.example.yaml' && !groupUI(cg).armedOk`);
+  await run(`document.querySelector('[data-option="competitionPreset"]').value=cg.site_config;
+    document.querySelector('[data-option="competitionPreset"]').dispatchEvent(new Event('change'));`);
+  if(process.argv[4]) {
+    const shot=await call('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+    fs.writeFileSync(process.argv[4],Buffer.from(shot.data,'base64'));
+  }
   await run('state._es.close(); state._es=null; state.activeTerm="trial"; renderTerminals(); renderDrawer();');
   await run(`window.originalConnection=JSON.parse(JSON.stringify(state.connection));
     window.hostOptionCount=state.connection.host_options.length;
@@ -121,7 +147,7 @@ try {
     state.connection.state='ok';state.sessions.trial={state:'stopped'};renderGroups();`);
   await test('original site IDs and module aliases remain clickable', `
     ['site1','site2','site3','site4','site5','site6','mod03','mod04','mod08','mod06mock'].every(id=>state.groups.some(g=>g.id===id)) &&
-    document.querySelectorAll('.grp-card').length===10`);
+    document.querySelectorAll('.grp-card').length===state.groups.length`);
   await test('resume controls only exist on groups 06 and 08', `
     [...document.querySelectorAll('.grp-card')].every((card,i)=>
       !!card.querySelector('[data-option="resume"]')===['06_high_priority','08_full_mission'].includes(state.groups[i].folder))`);
@@ -160,7 +186,8 @@ try {
     document.querySelector('#monitor-body').textContent.includes('任务中止') &&
     document.querySelector('#monitor-body').textContent.includes('等待人工拨入OFFBOARD') &&
     document.querySelector('#monitor-body').textContent.includes('未观测')`);
-  await run(`state.telemetry.at=Date.now()/1000;state.telemetry.terminal_hover=JSON.stringify({stage:'PILOT_HANDOFF'});
+  await run(`state.telemetry.at=Date.now()/1000;state.telemetry.master=true;state.telemetry.probe_link={status:'live',usable:true};
+    state.sessions.probe={state:'running',exit_code:null};state.telemetry.terminal_hover=JSON.stringify({stage:'PILOT_HANDOFF'});
     state.telemetry.lio_realtime=[{name:'FAST-LIO',level:1,message:'queue growing',
       values:{output_age_sec:'0.31',lidar_queue:'4',imu_queue:'8'}}];renderMonitor();`);
   await test('observed terminal handoff and LIO metrics are displayed', `
@@ -196,6 +223,42 @@ try {
   await test('updating the first partial line does not duplicate it', `limitTerm.scrollEl.children[0].textContent==='first + more' && limitTerm.scrollEl.children.length===2`);
   await run(`limitTerm.append(Array.from({length:20},(_,i)=>'bounded '+i).join('\\n'));`);await sleep(60);
   await test('bounded terminal trimming preserves valid DOM indices', 'limitTerm.buf.length===10 && limitTerm.scrollEl.children.length===10 && limitTerm.scrollEl.lastChild.textContent==="bounded 19"');
+  await run(`state.activeTerm='servo_init';
+    state.sessions.servo_init={id:'servo_init',state:'exited',exit_code:0,started_at:1791350138.4908187,ended_at:1791350143.9172504};
+    window.beforeInitStage=state.stage.name;
+    state.orchestration={running:false,steps:[{id:'servo_init',title:'5a fixture',state:'pending'}]};
+    renderTerminals();renderMonitor();`);
+  await test('one-shot 5a exit zero shows a green software initialization success', `
+    document.querySelector('.ttab.active .dot').classList.contains('succeeded') &&
+    (()=>{let reference=document.createElement('span');reference.style.color='var(--green)';document.body.appendChild(reference);
+      let expected=getComputedStyle(reference).color;reference.remove();
+      return getComputedStyle(document.querySelector('.ttab.active .dot')).backgroundColor===expected;})() &&
+    document.querySelector('#term-body .term-meta').textContent.includes('初始化成功') &&
+    document.querySelector('#term-body').textContent.includes('不代表舵机物理动作反馈')`);
+  await test('5a orchestration step shares succeeded class without changing mission stage', `
+    document.querySelector('.step.succeeded .sdot') &&
+    getComputedStyle(document.querySelector('.step.succeeded .sdot')).backgroundColor===getComputedStyle(document.querySelector('.ttab.active .dot')).backgroundColor &&
+    document.querySelector('.step.succeeded').textContent.includes('初始化成功') && state.stage.name===beforeInitStage`);
+  await run(`bus.dispatch({t:'session',s:'servo_init',session:{id:'servo_init',state:'failed',exit_code:1}});`);await sleep(100);
+  await test('nonzero 5a event shows red initialization failure', `
+    document.querySelector('.ttab.active .dot').classList.contains('failed') &&
+    document.querySelector('#term-body .term-meta').textContent.includes('初始化失败')`);
+  await test('5a orchestration failure uses the same failed color class', `
+    document.querySelector('.step.failed .sdot') &&
+    getComputedStyle(document.querySelector('.step.failed .sdot')).backgroundColor===getComputedStyle(document.querySelector('.ttab.active .dot')).backgroundColor`);
+  await run(`state.sessions.servo_init={state:'running',exit_code:null};renderTerminals();`);
+  await test('running initialization stays pending rather than success', `
+    document.querySelector('.ttab.active .dot').classList.contains('starting') &&
+    document.querySelector('#term-body .term-meta').textContent.includes('初始化中')`);
+  await run(`delete state.sessions.servo_init;renderTerminals();`);
+  await test('never-run 5a is idle and labeled not initialized', `
+    document.querySelector('.ttab.active .dot').classList.contains('idle') &&
+    document.querySelector('#term-body .term-meta').textContent.includes('未初始化')`);
+  await run(`state.activeTerm='servo';state.sessions.servo={state:'exited',exit_code:0};renderTerminals();`);
+  await test('persistent 5b exiting zero does not get initialization success', `
+    document.querySelector('.ttab.active .dot').classList.contains('exited') &&
+    !document.querySelector('.ttab.active .dot').classList.contains('succeeded') &&
+    document.querySelector('#term-body .term-meta').textContent.includes('已退出')`);
   console.log(`${checks.length} browser checks passed; no SSH/ROS/flight requests sent`);
 } finally {
   if(socket && socket.readyState===WebSocket.OPEN) {

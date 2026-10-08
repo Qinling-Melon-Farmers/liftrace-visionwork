@@ -43,17 +43,18 @@ class CaptureTests(unittest.TestCase):
         r.start('capture',100.,(0.,0.));return r
     def test_empty_scene_finishes_route_descent_then_land_without_approach(self):
         r=self.runtime();now=100.;commands=[]
-        for seq in range(16):
+        for seq in range(20):
             action=r.core.active_action;commands.append(action.command)
             if action.command=='LAND':break
-            self.assertEqual(action.command,'SEARCH');self.assertFalse(action.has_target)
+            self.assertIn(action.command,('SEARCH','RETURN_HOME'));self.assertFalse(action.has_target)
             now+=2.
             r.update_pose((action.goal.x,action.goal.y,action.goal.z),now,'camera_init')
             r.grid.update(np.array([[0.,0.,-.22]]),now,.18,2.8)
             out=r.apply_result(replace(result_for(action,seq+1,status='SUCCEEDED',terminal=True),mission_id='capture',event_stamp_ns=int(now*1e9)),now,(action.goal.x,action.goal.y))
         self.assertEqual(commands[-1],'LAND');self.assertEqual(r.core.committed_slots,0)
         self.assertTrue(r.capture_complete);self.assertEqual(r.trial_manifest,{})
-        self.assertEqual(r.core.active_action.reason,'board_high_speed_capture_complete')
+        self.assertIn('RETURN_HOME',commands)
+        self.assertEqual(tuple(r.core.config.landing_xy),(0.,0.))
     def test_targets_do_not_interrupt_capture(self):
         r=self.runtime();r.ascent_verified=True;r.update_pose((.8,0,1.78),101.,'camera_init')
         r.ingest([candidate(class_name='red_cross',now=101.,x=2.,y=0)],101.)

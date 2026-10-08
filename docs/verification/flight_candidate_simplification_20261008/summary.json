@@ -1,0 +1,62 @@
+{
+  "result": "PASS",
+  "scope": "local candidate build and offline integration; no flight or dynamics acceptance",
+  "board_connected": false,
+  "deployed": false,
+  "ros_master_started": false,
+  "simulation_started": false,
+  "baseline": "b520ee66",
+  "recovery_source": "62afbef8",
+  "builds": {
+    "vision_ws": "PASS",
+    "navigation_ws": "PASS; final incremental build includes velocity-frame guard and milestone logs"
+  },
+  "checks": {
+    "control_catkin": {
+      "tests": 142,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    "recovery_core": 34,
+    "recovery_map": 31,
+    "recovery_receive_gate": 9,
+    "recovery_velocity_frame": 10,
+    "recovery_bridge_and_config": 7,
+    "formal_hardware_generator": 16,
+    "formal_release_cli": 10,
+    "navigation_bridge_contract": 18,
+    "h_production_window": 10,
+    "h_handoff": 25,
+    "drop_geometry_clearance": 24,
+    "drop_aligner": 30,
+    "image_source_stamp": 5,
+    "async_servo": 24
+  },
+  "note": "Counts overlap control_catkin; do not sum them as independent cases. Windows/CLI survey coverage reported separately in ../resume_workbench_20261008/summary.json.",
+  "next_gate": "same-field timing/last-blocking-condition comparison; directed real-physics recovery cases; not automatically authorized",
+  "board_candidate_B": {
+    "vision_build": "PASS",
+    "navigation_build": "PASS; final logs included",
+    "control_catkin": 142,
+    "hardware_config_pass": 15,
+    "hardware_config_skip": 1,
+    "skip_reason": "local checkout lacks the original PWM entity package; no hardware acceptance inferred"
+  },
+  "navigation_feature_commits": [
+    {
+      "root": "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919",
+      "branch": "feat/high-view-liveness-20260919",
+      "before": "e3ae668e1c2d4fd0c50efbc5e18e7c29554fe744",
+      "commit": "95020d15584a99fed0786b744842a312d9d65510",
+      "changed_paths": 129
+    },
+    {
+      "root": "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+      "branch": "\u677f\u7aef\u53c2\u8003\u5206\u652f",
+      "before": "ec672fe84ac6ee3f834ac8f4e4f914f7e86d34fa",
+      "commit": "66506d154291ddba8619be782499fe32bdeba879",
+      "changed_paths": 119
+    }
+  ]
+}

@@ -13,12 +13,14 @@
     python3 board_probe.py --interval 1.0 --topics /mavros/state,/camera/image_raw
 """
 import argparse
+import fcntl
 import importlib
 import json
 import math
 import os
 import socket
 import sys
+import tempfile
 import time
 
 
@@ -29,6 +31,7 @@ OBSERVE_TYPES = {
     'setpoint': ('geometry_msgs.msg', 'PoseStamped'),
     'battery': ('sensor_msgs.msg', 'BatteryState'),
     'rc_out': ('mavros_msgs.msg', 'RCOut'),
+    'actuator_target': ('mavros_msgs.msg', 'ActuatorControl'),
     'esc_status': ('mavros_msgs.msg', 'ESCStatus'),
     'esc_telemetry': ('mavros_msgs.msg', 'ESCTelemetry'),
     'low_hover': ('std_msgs.msg', 'String'),
@@ -62,6 +65,7 @@ def parse_args():
     parser.add_argument("--interval", type=float, default=1.0)
     parser.add_argument("--nodes-interval", type=float, default=5.0)
     parser.add_argument("--node-name", default="flight_workbench_probe")
+    parser.add_argument("--lock-path", default="", help="可配置的探针独占锁文件")
     parser.add_argument("--once", action="store_true", help="打印一行后退出（自检用）")
     return parser.parse_args()
 
@@ -95,30 +99,45 @@ class Tracker(object):
         return out
 
 
-def subscribe(rospy, topics, tracker, payloads, extractors):
+def subscribe(rospy, topics, tracker, payloads, extractors, subscriptions=None):
     """已注册类型的话题解析成 dict/str；其余只统计新鲜度。"""
+    subscriptions = {} if subscriptions is None else subscriptions
     for topic in topics:
+        if subscriptions.get(topic, {}).get('subscribed'):
+            continue  # rospy reconnects when a publisher appears/restarts.
         extractor = extractors.get(topic)
 
         def make_callback(name, extract):
+            last_error = [None]
             def callback(msg):
                 tracker.observe(name)
                 if extract is None:
                     return
                 try:
                     payloads[name] = extract(msg)
-                except Exception:
+                    last_error[0] = None
+                except Exception as error:
                     payloads[name] = None
+                    reason = "%s: %s" % (type(error).__name__, str(error)[:180])
+                    if reason != last_error[0]:
+                        sys.stderr.write("PROBE_PARSE_ERROR topic=%s type=%s reason=%s\n" %
+                                         (name, type(msg).__name__, reason))
+                        sys.stderr.flush()
+                        last_error[0] = reason
             return callback
 
         message_type = getattr(extractor, "msg_type", None) or rospy.AnyMsg
         try:
-            rospy.Subscriber(topic, message_type, make_callback(topic, extractor), queue_size=1)
+            handle = rospy.Subscriber(topic, message_type, make_callback(topic, extractor), queue_size=1)
+            subscriptions[topic] = dict(handle=handle, subscribed=True, typed=extractor is not None)
         except Exception as error:  # 类型不可用时退回通用订阅
             try:
-                rospy.Subscriber(topic, rospy.AnyMsg, make_callback(topic, None), queue_size=1)
+                handle = rospy.Subscriber(topic, rospy.AnyMsg, make_callback(topic, None), queue_size=1)
+                subscriptions[topic] = dict(handle=handle, subscribed=True, typed=False)
             except Exception:
+                subscriptions[topic] = dict(subscribed=False, typed=False)
                 sys.stderr.write("probe: cannot subscribe %s: %s\n" % (topic, error))
+    return subscriptions
 
 
 def read_payload(value):
@@ -215,6 +234,35 @@ def rc_out_extractor():
     return extract
 
 
+def actuator_target_extractor():
+    def extract(msg):
+        return {'group_mix': int(msg.group_mix),
+                'controls': [finite_number(v) for v in msg.controls]}
+    return extract
+
+
+def observation_diagnostic(topic, stats, publishers, subscription, value):
+    """Publisher registration and actual packet reception are separate facts."""
+    nodes = None if publishers is None else list(publishers.get(topic, []))
+    age = stats.get('age')
+    if not subscription.get('subscribed'):
+        status = 'subscription_failed'
+    elif not subscription.get('typed'):
+        status = 'unsupported_type'
+    elif nodes == []:
+        status = 'no_publisher'
+    elif not stats.get('count'):
+        status = 'waiting_message'
+    elif age is None or age < 0 or age > 2:
+        status = 'stale'
+    elif value is None:
+        status = 'parse_error'
+    else:
+        status = 'receiving'
+    return dict(topic=topic, status=status, publishers=nodes,
+                count=stats.get('count', 0), hz=stats.get('hz', 0), age=age)
+
+
 def esc_extractor(field):
     def extract(msg):
         entries = []
@@ -246,8 +294,35 @@ def json_safe(value):
     return value
 
 
+def reexec_probe(delay):
+    """Reset partial rospy initialization without restarting any device node.
+
+    The current executable and argv survive; the probe lock is released by its
+    close-on-exec descriptor and reacquired by main(). Ctrl+C interrupts the delay.
+    """
+    time.sleep(delay)
+    os.execv(sys.executable, [sys.executable] + sys.argv)
+
+
 def main():
     args = parse_args()
+    lock_path = args.lock_path or os.path.join(
+        tempfile.gettempdir(), args.node_name.replace('/', '_') + '.lock')
+    try:
+        probe_lock = open(lock_path, 'a')
+        try:
+            fcntl.flock(probe_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except Exception:
+            probe_lock.close()
+            raise
+    except OSError as error:
+        sys.stderr.write("PROBE_LOCK_UNAVAILABLE: %s\n" % error)
+        return 75  # Existing owner must not be replaced by a duplicate ROS node.
+    with probe_lock:
+        return run_probe(args)
+
+
+def run_probe(args):
     topics = [t for t in args.topics.split(",") if t.strip()]
     services = [s for s in args.services.split(",") if s.strip()]
     payloads = {}
@@ -297,6 +372,8 @@ def main():
                 extractor = battery_extractor()
             elif key == 'rc_out':
                 extractor = rc_out_extractor()
+            elif key == 'actuator_target':
+                extractor = actuator_target_extractor()
             elif key in ('esc_status', 'esc_telemetry'):
                 extractor = esc_extractor(key)
             else:
@@ -319,6 +396,8 @@ def main():
     nodes = []
     node_read = 0.0
     started = False
+    subscriptions = {}
+    publishers = None
 
     def emitter(master, extra=None):
         row = {
@@ -327,6 +406,7 @@ def main():
             "probe": {"node": "/" + args.node_name, "host": hostname, "pid": os.getpid()},
             "topics": tracker.snapshot(),
             "observe": {key: None for key in args.observe_topics},
+            "observe_status": {},
         }
         if master:
             def fresh_payload(topic):
@@ -353,6 +433,9 @@ def main():
                     except Exception:
                         value['source_age'] = None
                 row['observe'][key] = value
+                row['observe_status'][key] = observation_diagnostic(
+                    topic, row['topics'].get(topic, {}), publishers,
+                    subscriptions.get(topic, {}), value)
         if extra:
             row.update(extra)
         try:
@@ -368,18 +451,46 @@ def main():
     while not rospy.is_shutdown():
         if not started:
             try:
-                rospy.init_node(args.node_name, disable_signals=True, log_level=rospy.ERROR)
-                subscribe(rospy, topics, tracker, payloads, extractors)
-                started = True
+                # This master read does not initialize rospy. Do not enter
+                # init_node's irreversible state while roscore is still absent.
+                import rosnode
+                rosnode.get_node_names()
             except Exception as error:
-                emitter(False, {"error": "no ROS master: %s" % str(error)[:200]})
+                emitter(False, {"error": "waiting for ROS master: %s" % str(error)[:200]})
                 if args.once:
                     return 1
-                time.sleep(2.0)
+                time.sleep(interval)
                 continue
+            try:
+                rospy.init_node(args.node_name, disable_signals=True, disable_rosout=True, log_level=rospy.ERROR)
+                subscribe(rospy, topics, tracker, payloads, extractors, subscriptions)
+                started = True
+            except Exception as error:
+                # rospy sets _init_node_args before initializing ROS time. Once
+                # an init fails, a same-argument retry may return false success.
+                # Re-exec just this probe instead of retrying in poisoned globals.
+                delay = max(2.0, interval)
+                emitter(False, {"error": "ROS initialization failed: %s" % str(error)[:200],
+                                "init_state": "failed" if args.once else "restarting",
+                                "restart_delay": None if args.once else delay})
+                if args.once:
+                    return 1
+                try:
+                    reexec_probe(delay)
+                except OSError as restart_error:
+                    emitter(False, {"error": "probe re-exec failed: %s" % str(restart_error)[:200]})
+                return 1
         now = time.time()
         if now - node_read >= float(args.nodes_interval):
             node_read = now
+            # Only retry failed registrations; healthy subscribers remain registered
+            # while MAVROS is offline and reconnect through rospy publisher updates.
+            subscribe(rospy, topics, tracker, payloads, extractors, subscriptions)
+            try:
+                import rosgraph
+                publishers = dict(rosgraph.Master('/' + args.node_name).getSystemState()[0])
+            except Exception:
+                publishers = None
             try:
                 import rosnode
                 nodes = sorted(rosnode.get_node_names())
@@ -405,4 +516,10 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        # Preserve an operator's Ctrl+C intent; only the workbench may reconnect.
+        sys.stderr.write("PROBE_STOPPED reason=keyboard_interrupt\n")
+        sys.stderr.flush()
+        sys.exit(130)

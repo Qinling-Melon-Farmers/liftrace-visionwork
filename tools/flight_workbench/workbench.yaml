@@ -21,6 +21,7 @@ connection:
   # 历史外场 SSH 地址（来源：现场操作手册/部署记录与项目 memoir）。界面下拉可选，
   # 选中后写回 ~/.config/liftrace-flight-workbench/profile.json，不改本文件。
   host_options:
+    - { host: "orangepi@10.75.120.193", label: "2026-10-07 · 新网络候选（保留当前连接）" }
     - { host: "orangepi@192.168.3.126", label: "外场当前 · Orange Pi 5（2026-10-03）" }
     - { host: "orangepi@192.168.43.59", label: "2026-10-02 · 28~30日旧机网络" }
     - { host: "orangepi@192.168.43.99", label: "2026-10-01 第五组实投" }
@@ -37,6 +38,22 @@ connection:
     - "-o"
     - "LogLevel=ERROR"
 
+logging:
+  # 仅用户点击后调用现有工程脚本，不部署脚本、不启动设备/任务。
+  bag_script: deployment/low_hover_observation/record_diagnostics.py
+  bag_config: deployment/low_hover_observation/recording.yaml
+  routine_script: deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_bag.py
+  routine_settings:
+    image_topic: /camera/image_raw
+    compressed_image_topic: /camera/image_raw/compressed
+    camera_info_topic: /camera/camera_info
+    bag_image_topic: /board_trials/recording/image/compressed
+    bag_image_hz: 5.0
+    record_map_clouds: false
+    record_inflated_cloud: true
+  ulog_script: tools/flight_logs/fetch_px4_ulog.py
+  mavros_namespace: /mavros
+
 probe:
   # 板端只读探针：只订阅、只统计新鲜度，不发布任何指令、不调用服务、不改飞行状态。
   interval: 1.0
@@ -50,6 +67,7 @@ probe:
     setpoint: /mavros/setpoint_position/local
     battery: /mavros/battery
     rc_out: /mavros/rc/out
+    actuator_target: /mavros/target_actuator_control
     esc_status: /mavros/esc_status
     esc_telemetry: /mavros/esc_telemetry
     low_hover: /low_hover_observation/status
@@ -165,7 +183,7 @@ terminals:
     seq: 5
     title: "5a · 舵机 PWM 初始化（不输出脉冲）"
     desc: "只在需要真实投递时启动。导出/周期/权限/极性，不使能输出。"
-    confirm: "初始化会修改PWM导出、权限和周期；确认旧舵机进程已经退出。真正的三槽复位发生在5b服务启动时。"
+    confirm: "初始化会修改PWM导出、权限和周期，不输出脉冲、不复位机构；确认旧舵机进程已经退出。"
     optional: true
     command: "sudo bash {pwm_init_script}"
     params:
@@ -174,10 +192,10 @@ terminals:
   - id: servo
     seq: 6
     title: "5b · 舵机服务（真实释放接口）"
-    desc: "启动时依次复位三槽，再把真实 pwm 节点重映射到 /legacy/Servo_raw；投递组启动前入口会检查该服务类型为 patrol_control/Servo。"
-    confirm: "启动会依次复位三槽。确认地面未解锁、机构允许复位、无人处于动作范围且旧舵机进程已退出。"
+    desc: "默认仅检查硬件并提供 /legacy/Servo_raw 服务，不自动复位、不输出启动脉冲；投递组启动前检查服务类型为 patrol_control/Servo。"
+    confirm: "确认使用默认启动不输出的舵机服务版本、旧舵机进程已退出且地面未解锁。此按钮只启动检查/服务，不授权机构复位或释放；复位需独立明确操作。"
     optional: true
-    command: "{pwm_node} /Servo:=/legacy/Servo_raw"
+    command: "{pwm_node} _initialize_on_startup:=false /Servo:=/legacy/Servo_raw"
     params:
       pwm_node: "{board_root}/patrol_uav_ws-patrol_planner/devel/lib/actuator_pwm/pwm_node1"
     ready: { kind: service, service: "/legacy/Servo_raw", timeout: 60 }
@@ -194,9 +212,36 @@ terminals:
     desc: "板端交互式 shell（已 cd 到工程根并 source 现场环境）。可自己敲 rostopic/rosservice；工作台不会自动调用任务开始。"
     command: "exec bash -l"
 
+  - id: observation_localization
+    seq: 9
+    title: "观察 · 仅定位 / EV"
+    desc: "低空观察专用，仅 FAST-LIO 与 EV；保持运行直到动作退出，不启动建图、视觉、规划或舵机。"
+    command: "bash deployment/low_hover_observation/start.sh localization hover"
+    optional: true
+    ready: { kind: topic, topic: "/mavros/vision_pose/pose", timeout: 90 }
+
 # 保留现场组号；统一走模块入口，支持模拟/实投和显式策略参数。
 # section 仅控制卡片分区；channel 控制实际命令，旧 site 入口仍兼容。
 groups:
+  - id: competition
+    key: "正赛"
+    channel: competition
+    section: competition
+    name: "独立正赛 · 10×10 实测场地"
+    entry: "deployment/competition/start.sh"
+    site_config: "deployment/competition/field.example.yaml"
+    competition_config_options:
+      - {path: "deployment/competition/field.example.yaml", label: "默认比赛模板 · 10×10待实测确认"}
+      - {path: "deployment/competition/field_20261007_validated.yaml", label: "可选测试复现 · 非10×10正赛参数"}
+    plan: "默认比赛模板：高位2.6m、速度1.2m/s、加速度1.0m/s²、前视1.0/0.4/0.15m；场地尺寸、门口、H与路线须实测确认。"
+    ending: "依所选配置执行末段；POSCTL交接须飞手完成落地"
+    release: real
+    release_options: [real]
+    needs_servo: true
+    competition_options_supported: true
+    resume_survey_supported: true
+    notes: "默认仅为未确认的正赛模板。昨晚成功轮是测试场地，不能作为10×10正赛坐标或验收；可另填测试示例路径，配置检查须展示实际有效参数。继承表示不传覆盖参数，开启/关闭显式传on/off。"
+
   - id: site1
     key: "1"
     folder: "01_visual_interrupt"
@@ -343,3 +388,42 @@ groups:
     needs_servo: false
     site_config: "{site_dir}/test_area.yaml"
     notes: "模拟投递：走模块 start.sh（不带 --real-release），不需要舵机终端；验收读 mock_service_calls / committed_mock_deliveries，不要读 committed_deliveries。"
+
+  - id: observation_hover
+    key: "观察1"
+    folder: low_hover_observation
+    channel: low_observation
+    section: observation
+    profile: hover
+    name: "低空观察1 · FC AGL 0.60m 悬停"
+    plan: "继承 hover：上升0.15m/s，稳定后观察10秒；静置FC离地0.22m时名义爬升0.38m。"
+    ending: "原地悬停，飞手手动降落上锁"
+    release: none
+    needs_servo: false
+    notes: "先完成悬停，再前移，最后矩形。仅诊断bag，无图像/点云/JPEG。READY后人工解锁并重新拨入OFFBOARD；Ctrl+C在空中只请求保持接管，不能强杀或停定位。"
+
+  - id: observation_forward
+    key: "观察2"
+    folder: low_hover_observation
+    channel: low_observation
+    section: observation
+    profile: forward
+    name: "低空观察2 · FC AGL 0.60m 短程前移"
+    plan: "继承 forward：沿初始机头前移0.5/1.0/1.5m，0.20m/s，每点观察5秒。"
+    ending: "最后一点悬停，无自动返航，飞手手动降落上锁"
+    release: none
+    needs_servo: false
+    notes: "先验收悬停。每轮落地上锁、回到起点并重新初始化；不启动任务管理器、视觉或舵机。"
+
+  - id: observation_rectangle
+    key: "观察3"
+    folder: low_hover_observation
+    channel: low_observation
+    section: observation
+    profile: square
+    name: "低空观察3 · FC AGL 0.60m 矩形"
+    plan: "继承 square：初始机头前方和左侧1m×1m四边形，0.20m/s，每点观察5秒。"
+    ending: "回起点上方悬停，飞手手动降落上锁"
+    release: none
+    needs_servo: false
+    notes: "先验收悬停与前移；矩形显示名称对应已有 square profile，不修改航路或阈值，无避障。"

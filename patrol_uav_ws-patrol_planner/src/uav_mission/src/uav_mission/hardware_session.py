@@ -127,6 +127,8 @@ def run_session(a,settings,rig,startup,generate,launch_package,launch_prefix='',
             distinct_clouds=warmup.count,alignment=alignment)
         print('MAPPING_READY',run_metadata['mapping_startup_result'],flush=True)
         record_metadata(reference)
+        if 'effective_config' in reference:
+            print('CONFIG_EFFECTIVE '+json.dumps(reference['effective_config']),flush=True)
         subs[-1].unregister()
         (out/'camera_info.json').write_text(json.dumps(dict(width=c.width,height=c.height,K=list(c.K),D=list(c.D),frame=c.header.frame_id),indent=2))
         args=['enable_control_output:='+str(a.mode=='flight').lower(),f'mode:={settings["mode"]}',f'model_path:={model}',f'metadata_path:={metadata}',f'generated_dir:={out}',f'ground_z:={reference["ground_z"]}',f'low_z:={reference["low_z"]}']

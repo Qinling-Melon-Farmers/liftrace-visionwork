@@ -5,6 +5,7 @@ import argparse,importlib.util,json,tempfile
 from unittest.mock import patch
 import yaml,roslaunch,rospkg
 from uav_mission.competition_config import generate
+from uav_mission.motion_optimization import MotionOptimization
 R=Path(__file__).resolve().parents[2];M=R/'patrol_uav_ws-patrol_planner/src/uav_mission'
 roslaunch.substitution_args._rospack=rospkg.RosPack(ros_paths=[str(R/'vision_ws/src'),str(R/'patrol_uav_ws-patrol_planner/src'),'/opt/ros/noetic/share'])
 spec=importlib.util.spec_from_file_location('checked_full_manager',str(M/'scripts/navigation_competition_manager.py'))
@@ -13,10 +14,11 @@ parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--profile',type=Path,default=R/'deployment/competition/field.example.yaml')
 args=parser.parse_args()
 s=yaml.safe_load(args.profile.read_text())
-motion=s.get('motion_optimization',{}).get('enabled',False)
+motion_options=MotionOptimization(**s.get('motion_optimization',{}))
+motion=motion_options.enabled
 # Offline fixture only; shipped field profile stays unconfirmed/without gate coordinates.
 if not s['site_confirmed']:
- s.update(site_confirmed=True,corridor_waypoints=[dict(x=6.7,y=4.,agl=1.4),dict(x=6.7,y=4.,agl=.9),dict(x=8.3,y=4.,agl=.9),dict(x=8.3,y=-4.,agl=.9)],landing_xy=[8.5,-4.2])
+ s.update(corridor_speed_schedule=dict(axis=1,wall_coordinates=[-1.6,1.6],entry_waypoints=1),site_confirmed=True,corridor_waypoints=[dict(x=6.7,y=4.,agl=1.4),dict(x=6.7,y=4.,agl=.9),dict(x=8.3,y=4.,agl=.9),dict(x=8.3,y=-4.,agl=.9)],landing_xy=[8.5,-4.2])
 rig=yaml.safe_load((M/'config/competition/known_rig.yaml').read_text());rows=[]
 def load(name,args):return roslaunch.config.load_config_default([(str(M/'launch'/('competition_'+name+'.launch')),args)],11311,verbose=False)
 with tempfile.TemporaryDirectory() as tmp:
@@ -39,8 +41,8 @@ with tempfile.TemporaryDirectory() as tmp:
   assert v['/navigation/mission_manager/planner_line_preference/weight']==s.get('planner_line_preference_weight',2.0)
 
   assert [v['/fast_planner_node/sdf_map/'+k] for k in ('obstacles_inflation','obstacles_inflation_up','obstacles_inflation_down')]==[.25,.2,.1]
-  if motion and s['motion_optimization'].get('moving_recovery',True):
-   assert abs(v['/navigation/planner_bridge/target/recovery_height']-(ref['ground_z']+s['motion_optimization']['recovery_handoff_agl']))<1e-6
+  if motion and motion_options.moving_recovery:
+   assert abs(v['/navigation/planner_bridge/target/recovery_height']-(ref['ground_z']+motion_options.recovery_handoff_agl))<1e-6
    if enabled=='true':assert v['/navigation/planner_bridge/target/recovery_height']==v['/uav_vision/recovery_height']
   else:
    assert v['/navigation/planner_bridge/target/recovery_height']==v['/navigation/mission_manager/mission/approach_altitude']
@@ -68,6 +70,7 @@ with tempfile.TemporaryDirectory() as tmp:
    return result
   manager=module.CompetitionManager.__new__(module.CompetitionManager);manager._profile_name='r2026';manager._profile_path=str(M/'config/competition_profiles.yaml')
   with patch('rospy.get_param',side_effect=get_param):runtime=manager._new_runtime()
+  assert runtime.policy.resume_survey_enabled==s.get('survey_policy',{}).get('resume_survey_enabled',False)
   assert type(runtime).__name__=='HardwareFullRuntime'
   assert runtime.descent_grid is not runtime.grid
   rows.append(dict(control_output=enabled,runtime=type(runtime).__name__,nodes=len(cfg.nodes)))

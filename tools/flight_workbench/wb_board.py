@@ -7,6 +7,7 @@
 import base64
 import json
 import os
+import posixpath
 import re
 import time
 
@@ -24,6 +25,11 @@ REAL_RELEASE_FOLDERS = ("01_visual_interrupt", "02_high_view_revisit", "05_low_m
 SURVEY_FOLDERS = ("02_high_view_revisit", "06_high_priority", "07_memory_only",
                   "08_full_mission", "09_high_speed_capture")
 RESUME_FOLDERS = ("06_high_priority", "08_full_mission")
+OBSERVATION_PROFILES = ("hover", "forward", "square")
+
+
+def is_observation(group):
+    return group.get("channel") == "low_observation"
 
 # ssh 层错误 → 现场可执行建议。ssh 失败时远端脚本根本不会执行，不能把"没有标记输出"
 # 解释成"板端目录/文件缺失"（换板后免密没配时最容易踩）。
@@ -146,7 +152,8 @@ def group_variables(config, group, overrides=None):
 def build_group_command(config, group, mode, route=None, real_release=None,
                         check_config=False, capture_speed=None, capture_lighting=None,
                         motion_optimized=False, survey_pattern=None, resume_survey=None,
-                        site_geometry=None, geometry_revision=None):
+                        site_geometry=None, geometry_revision=None,
+                        motion_optimization=None, obstacle_columns=None, competition_config=None):
     """按现场手册拼出任务组启动命令。返回 (命令, 说明)。"""
     if mode not in ("preview", "flight"):
         raise ValueError("mode 必须是 preview 或 flight")
@@ -154,6 +161,48 @@ def build_group_command(config, group, mode, route=None, real_release=None,
     folder = group.get("folder", "")
     site_dir = config["connection"].get("site_dir", "deployment/site_20260928")
     route = route or group.get("channel", "module")
+    if group.get("channel") == "competition":
+        if not isinstance(motion_optimized, bool):
+            raise ValueError("motion_optimized 必须是布尔值")
+        if route != "competition":
+            raise ValueError("正赛卡片仅允许独立 competition 入口")
+        if any(value is not None for value in (capture_speed, capture_lighting, survey_pattern,
+                site_geometry, geometry_revision)) or motion_optimized:
+            raise ValueError("正赛使用独立场地配置和 on/off 开关，不接受专项参数")
+        if not isinstance(check_config, bool) or (real_release is not None and not isinstance(real_release, bool)):
+            raise ValueError("check_config / real_release 必须是布尔值")
+        # This entry is real-only. A client must not relabel it as mock.
+        if mode == "flight" and not check_config and real_release is False:
+            raise ValueError("独立正赛为实投入口，不支持模拟投递")
+        field = competition_config if competition_config is not None else group.get("site_config")
+        if not isinstance(field, str) or not field.strip() or any(ch in field for ch in "\r\n\x00"):
+            raise ValueError("请填写独立正赛场地配置路径")
+        extra = ""
+        for option, value in (("motion-optimization", motion_optimization), ("resume-survey", resume_survey), ("obstacle-columns", obstacle_columns)):
+            if value is not None:
+                if value not in ("on", "off"):
+                    raise ValueError("%s 只允许 on/off；省略表示继承所选 YAML" % option)
+                extra += " --%s %s" % (option, value)
+        entry = group.get("entry", "deployment/competition/start.sh")
+        command = "bash %s %s --site-config %s%s" % (
+            quote(entry), "preview" if check_config else mode, quote(field.strip()), extra)
+        if check_config:
+            command += " --check-config"
+        return command, "独立正赛实投：所选 YAML 为参数权威；省略开关继承 YAML，on/off 显式覆盖。模板未确认且必填坐标为空；成功测试场地不代表 10×10 正赛。先执行配置检查核对有效参数。"
+    if any(value is not None for value in (motion_optimization, obstacle_columns, competition_config)):
+        raise ValueError("on/off 开关及正赛配置路径仅支持独立正赛卡片")
+    if is_observation(group):
+        if route != "low_observation" or group.get("profile") not in OBSERVATION_PROFILES:
+            raise ValueError("非法低空观察入口或 profile")
+        if real_release or motion_optimized or any(value is not None for value in (
+                capture_speed, capture_lighting, survey_pattern, resume_survey,
+                site_geometry, geometry_revision)):
+            raise ValueError("低空观察继承原 profile，不支持投递或专项参数")
+        if not isinstance(check_config, bool):
+            raise ValueError("check_config 必须是布尔值")
+        return ("bash deployment/low_hover_observation/start.sh %s %s" % (
+                    "preview" if check_config else mode, group["profile"]),
+                "preview 为离线配置展开（无 ROS）；flight 仅观察动作和诊断录包，飞手人工解锁并重新拨入 OFFBOARD")
     if route not in ("site", "module"):
         raise ValueError("未知入口类型")
     site_config = substitute(variables["site_config"], variables)
@@ -223,7 +272,7 @@ def supervisor_command(config, body):
     connection = config["connection"]
     return "cd %s && source %s && %s" % (
         quote(connection.get("board_root", ".")),
-        quote(os.path.join(connection.get("board_root", "."), connection.get("env_script", ""))),
+        quote(posixpath.join(connection.get("board_root", "."), connection.get("env_script", ""))),
         body)
 
 
@@ -231,7 +280,7 @@ def terminal_wrapped_command(config, body):
     connection = config["connection"]
     return "cd %s && source %s && %s" % (
         quote(connection.get("board_root", ".")),
-        quote(os.path.join(connection.get("board_root", "."), connection.get("env_script", ""))),
+        quote(posixpath.join(connection.get("board_root", "."), connection.get("env_script", ""))),
         body)
 
 
@@ -251,7 +300,7 @@ class BoardClient(object):
         return self.config["connection"].get("board_root", "")
 
     def abs_path(self, relative):
-        return os.path.join(self.root, relative)
+        return posixpath.join(self.root, relative)
 
     # -- 连接自检 --
     def test_connection(self):
@@ -327,17 +376,25 @@ class BoardClient(object):
         script.append('if [ -d %s ]; then echo "LOGSDIR=OK"; else echo "LOGSDIR=MISSING"; fi'
                       % quote(self.abs_path("logs")))
         for group in self.config.get("groups", []):
+            if group.get("channel") == "competition":
+                entry = self.abs_path(group.get("entry", "deployment/competition/start.sh"))
+                field = self.abs_path(group.get("site_config", "deployment/competition/field.example.yaml"))
+                script.append('if [ -f %s ] && [ -f %s ]; then echo "COMPETITION=OK"; else echo "COMPETITION=MISSING"; fi'
+                              % (quote(entry), quote(field)))
+                continue
             folder = group.get("folder", "")
-            base = self.abs_path("deployment/board_trials_4x4/%s" % folder)
+            base = self.abs_path("deployment/low_hover_observation" if is_observation(group)
+                                 else "deployment/board_trials_4x4/%s" % folder)
+            settings = "profiles.yaml" if is_observation(group) else "settings.yaml"
             script.append(
                 'printf "GROUP|%s|"; if [ -f %s/start.sh ]; then printf "start=1|"; else printf "start=0|"; fi; '
                 'if [ -f %s/start_real.sh ]; then printf "real=1|"; else printf "real=0|"; fi; '
-                'if [ -f %s/settings.yaml ]; then echo "settings=1"; else echo "settings=0"; fi'
-                % (folder, quote(base), quote(base), quote(base)))
+                'if [ -f %s/%s ]; then echo "settings=1"; else echo "settings=0"; fi'
+                % (folder, quote(base), quote(base), quote(base), settings))
         env_script = self.abs_path(self.config["connection"].get("env_script", ""))
         connection = self.config["connection"]
         site_dir = connection.get("site_dir", "deployment/site_20260928")
-        site_config = self.abs_path(os.path.join(site_dir, "test_area.yaml"))
+        site_config = self.abs_path(posixpath.join(site_dir, "test_area.yaml"))
         script.append('if [ -f %s ]; then echo "SITECFG=OK"; else echo "SITECFG=MISSING"; fi' % quote(site_config))
         # Only inspect the checkout and import generated type definitions. This
         # does not query ROS, execute a service, or establish a running revision.
@@ -439,18 +496,22 @@ print("VERSION|"+json.dumps(report,separators=(",",":")))
             results.append({"name": "本机残留进程", "ok": True, "detail": "无 roscore/roslaunch/gzserver/px4/mavros 残留"})
         else:
             results.append({"name": "本机残留进程", "ok": False, "detail": "unknown：未取得完整进程检查结果"})
-        expected = {g.get("folder", "") for g in self.config.get("groups", [])}
+        expected = {g.get("folder", "") for g in self.config.get("groups", []) if g.get("channel") != "competition"}
         missing = [folder for folder in expected if not groups.get(folder, {}).get("start")
                    or not groups.get(folder, {}).get("settings")]
         if missing:
             results.append({"name": "任务组入口", "ok": False,
-                            "detail": "start.sh/settings.yaml 缺失或未读到：%s" % "、".join(sorted(missing))})
+                            "detail": "start.sh/settings.yaml（观察组为profiles.yaml）缺失或未读到：%s" % "、".join(sorted(missing))})
         elif expected:
             results.append({"name": "任务组入口", "ok": True,
-                            "detail": "%d 个模块入口与 settings.yaml 均存在" % len(groups)})
+                            "detail": "%d 个入口与配置均存在（观察组为profiles.yaml）" % len(groups)})
         else:
             results.append({"name": "任务组入口", "ok": False, "detail": "unknown：未配置可检查的模块入口"})
         source = version.get("source") or {}
+        if any(g.get("channel") == "competition" for g in self.config.get("groups", [])):
+            results.append({"name": "独立正赛入口与模板", "ok": "COMPETITION=OK" in output,
+                            "detail": "仅核查文件存在；场地确认、有效参数及CLI支持须执行独立配置检查" if "COMPETITION=OK" in output
+                                      else "独立正赛入口/模板缺失或未读到；不以08专项代替"})
         source_known = bool(source.get("head")) and isinstance(source.get("dirty"), bool)
         results.append({"name": "源码版本（非运行版本）", "ok": source_known, "detail":
                         ("HEAD %s；工作区%s；仅源码目录，未核实运行程序版本" %
@@ -511,7 +572,7 @@ print("VERSION|"+json.dumps(report,separators=(",",":")))
     def list_logs(self, limit=40):
         script = "\n".join([
             "cd %s 2>/dev/null || exit 0" % quote(self.abs_path("logs")),
-            "for d in $(ls -1dt board_* 2>/dev/null | head -%d); do" % int(limit),
+            "for d in $(ls -1dt board_* low_hover_* 2>/dev/null | head -%d); do" % int(limit),
             '  [ -d "$d" ] || continue',
             '  echo "RUN|$d|$(stat -c %Y "$d" 2>/dev/null)"',
             '  find "$d" -maxdepth 1 -type f -printf "FILE|%f|%s\\n" 2>/dev/null | sort',
@@ -536,12 +597,12 @@ print("VERSION|"+json.dumps(report,separators=(",",":")))
         return runs
 
     def tail(self, run, name, lines=200):
-        path = self.abs_path(os.path.join("logs", run, name))
+        path = self.abs_path(posixpath.join("logs", run, name))
         code, output = self.run("tail -n %d -- %s" % (int(lines), quote(path)), timeout=25.0)
         return {"ok": code == 0, "text": output, "path": path}
 
     def read_file(self, run, name, max_bytes=2000000):
-        path = self.abs_path(os.path.join("logs", run, name))
+        path = self.abs_path(posixpath.join("logs", run, name))
         code, output = self.run("if [ -f %s ]; then head -c %d -- %s; else echo __MISSING__; fi"
                                 % (quote(path), int(max_bytes), quote(path)), timeout=40.0)
         return {"ok": code == 0 and "__MISSING__" not in output, "text": output, "path": path}

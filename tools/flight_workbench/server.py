@@ -27,6 +27,7 @@ import wb_survey
 import wb_board
 import wb_status
 import wb_ssh
+import wb_logs
 from wb_ssh import SessionManager, Target, run_once
 
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
@@ -41,6 +42,16 @@ CONTENT_TYPES = {
 }
 
 # 顺序启动编排里每个终端对应的"已在运行"判据（避免重复启动设备节点）
+class WorkbenchHTTPServer(ThreadingHTTPServer):
+    """Windows must not allow two workbenches to share a listening port."""
+
+    def server_bind(self):
+        if os.name == "nt":
+            self.allow_reuse_address = False
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
+
+
 RUNNING_KEYS = {
     "roscore": ("roscore", "rosmaster"),
     "mavros": ("mavros_node",),
@@ -61,6 +72,7 @@ class Workbench(object):
             transport=options.get("transport", "ssh"),
         )
         self.board = wb_board.BoardClient(config, self.target)
+        self.logs = wb_logs.LogsClient(self.board)
         self.log_dir = os.path.join(PROFILE_DIR, "logs")
         self.report_dir = os.path.join(PROFILE_DIR, "reports")
         self.sessions = SessionManager(self.log_dir, on_output=self._on_output,
@@ -80,6 +92,13 @@ class Workbench(object):
         self.board_state = {"logs": [], "preflight": None}
         self.report = {"path": None, "markdown": None}
         self.probe_state = {"uploaded": False, "detail": "未部署"}
+        self.probe_lock = threading.RLock()
+        self._probe_stop_requested = False
+        self._probe_conflict = False
+        self._probe_timer = None
+        self._probe_retry_at = None
+        self._probe_retries = 0
+        self._probe_generation = 0
         self.clients = []
         self.lock = threading.RLock()
         self.trial_lock = threading.RLock()
@@ -130,6 +149,19 @@ class Workbench(object):
 
     def _on_state(self, sid, snapshot):
         self.broadcast({"t": "session", "s": sid, "session": snapshot})
+        if sid == "probe":
+            if snapshot.get("state") in ("exited", "failed"):
+                code = snapshot.get("exit_code")
+                if code == 130:
+                    self.stop_probe_recovery()
+                elif code == 75:
+                    with self.probe_lock:
+                        self._probe_conflict = True
+                        self._cancel_probe_retry()
+                    self.toast("warn", "探针独占锁冲突（75）：保留已有探针，不抢占；核实后可只重连 probe")
+                elif not self._probe_stop_requested:
+                    self._schedule_probe_retry()
+            self._publish_probe_link()
         if snapshot.get("state") in ("exited", "failed") and sid == "trial":
             if snapshot.get("state") == "failed":
                 self._emit_event(self.stage.set_stage("FAILED", {"exit_code": snapshot.get("exit_code")}))
@@ -171,10 +203,21 @@ class Workbench(object):
             if telemetry is None:
                 continue
             telemetry["at"] = time.time()
+            with self.probe_lock:
+                self._probe_retries = 0
+            telemetry["probe_link"] = self.probe_link(telemetry)
             with self.lock:
                 self.telemetry = telemetry
             trial_session = self.sessions.get("trial")
-            if (self.trial.get("mode") == "flight" and not self.trial.get("check_config")
+            if (telemetry["probe_link"].get("usable") and self.trial.get("route") == "low_observation" and self.trial.get("mode") == "flight"
+                    and not self.trial.get("check_config") and trial_session is not None
+                    and trial_session.state == "running"):
+                status = (telemetry.get("observe") or {}).get("low_hover")
+                if isinstance(status, dict):
+                    for event in self.stage.feed_line(json.dumps(status)):
+                        self._emit_event(event)
+            if (telemetry["probe_link"].get("usable") and self.trial.get("mode") == "flight" and not self.trial.get("check_config")
+                    and self.trial.get("route") != "low_observation"
                     and trial_session is not None and trial_session.state == "running"
                     and self.stage.name in ("READY", "IN_FLIGHT", "DISARMED")):
                 for event in self.stage.observe_telemetry(
@@ -191,6 +234,8 @@ class Workbench(object):
         with self.lock:
             return {
                 "ok": True,
+                "logs_only": bool(self.options.get("logs_only")),
+                "capabilities": {"recording": True, "probe_reconnect": not bool(self.options.get("logs_only"))},
                 "now": time.time(),
                 "connection": dict(self.connection, **{
                     "user": self.target.user, "host": self.target.host,
@@ -215,14 +260,14 @@ class Workbench(object):
                 "sessions": self.sessions.snapshots(),
                 "trial": dict(self.trial),
                 "stage": self.stage.snapshot(),
-                "telemetry": self.telemetry,
+                "telemetry": self.current_telemetry(),
                 "orchestration": {k: v for k, v in self.orchestration.items() if k != "cancel"},
                 "alerts": self.stage.alerts[-40:],
                 "timeline": self.stage.timeline[-80:],
                 "board": {"logs": self.board_state["logs"] if include_logs else [],
                           "preflight": self.board_state["preflight"]},
                 "report": self.report,
-                "probe": self.probe_state,
+                "probe": dict(self.probe_state, link=self.probe_link()),
             }
 
     def _groups_snapshot(self):
@@ -267,8 +312,9 @@ class Workbench(object):
             elif body.get("save_password"):
                 self._save_profile(password=False)
             self.stage.note_action("已连接板端 %s（%s）" % (self.target.host, self.target.transport), "ok")
-            self.ensure_probe()
-            threading.Thread(target=self.refresh_preflight, name="wb-preflight").start()
+            if not self.options.get("logs_only"):
+                self.ensure_probe(explicit=True)
+                threading.Thread(target=self.refresh_preflight, name="wb-preflight").start()
         else:
             self.connection.update({"state": "failed", "detail": result.get("detail", "连接失败")})
             self.toast("error", "连接失败：%s" % result.get("detail"))
@@ -278,6 +324,8 @@ class Workbench(object):
                 "error": None if result.get("ok") else result.get("detail")}
 
     def disconnect(self):
+        self.protect_observation_dependencies()
+        self.stop_probe_recovery()
         self.sessions.close_all()
         self.connection.update({"state": "unknown", "detail": "已断开（会话已停止）"})
         self.broadcast({"t": "connection", "connection": self.connection})
@@ -300,13 +348,23 @@ class Workbench(object):
             self.toast("warn", "档案保存失败：%s" % error)
 
     def update_config(self, body):
+        # Keep an in-flight log request bound to one connection/root.
+        with self.logs.lock:
+            return self._update_config(body)
+
+    def _update_config(self, body):
         connection = self.config["connection"]
         changed = any(body.get(k) not in (None, "", connection.get(k))
                       for k in ("host", "port", "board_root", "site_dir", "env_script", "model", "metadata"))
         if changed and (self.orchestration.get("running") or any(
                 s.state in ("running", "starting") for s in self.sessions.sessions.values())):
             raise ValueError("会话仍在运行；请落地、收尾并断开后再修改板端地址或工程参数")
+        if changed and self.logs.active():
+            raise ValueError("日志操作尚未确认结束；请在日志页停止或刷新状态后再切换连接")
         if changed:
+            self.stop_probe_recovery()
+            self.probe_state = {"uploaded": False, "detail": "连接目标已改变"}
+            self.logs.cached = None
             self.telemetry = {}
             self.board_state = {"logs": [], "preflight": None}
             self.stage.reset()
@@ -323,7 +381,8 @@ class Workbench(object):
         if body.get("host"):
             self.target.host = body["host"]
             # 从「板端地址」下拉选中的地址要落到本机 profile，下次启动仍是它（不写回仓库配置）
-            self._save_profile(password=False)
+            if not self.options.get("logs_only"):
+                self._save_profile(password=False)
         if body.get("password"):
             self.target.password = body["password"]
         if body.get("save_password"):
@@ -335,30 +394,121 @@ class Workbench(object):
                             bool(self._profile.get("password_saved"))}}
 
     # ---------- 探针 ----------
-    def ensure_probe(self):
+    def probe_link(self, telemetry=None):
+        session = self.sessions.get("probe")
+        link = wb_status.probe_link_status(
+            self.telemetry if telemetry is None else telemetry,
+            session.snapshot() if session else None,
+            stop_requested=self._probe_stop_requested)
+        if self._probe_conflict:
+            link.update(status="conflict", fresh=False, usable=False,
+                        detail="探针独占锁冲突（75）；未抢占已有实例，请核实后只重连 probe")
+        link.update(retrying=self._probe_timer is not None,
+                    retry_at=self._probe_retry_at, retry_count=self._probe_retries)
+        return link
+
+    def current_telemetry(self):
+        return dict(self.telemetry, probe_link=self.probe_link())
+
+    def _publish_probe_link(self):
+        self.broadcast({"t": "probe", "probe": dict(self.probe_state, link=self.probe_link()),
+                        "telemetry": self.current_telemetry()})
+
+    def _cancel_probe_retry(self):
+        self._probe_generation += 1
+        if self._probe_timer:
+            self._probe_timer.cancel()
+        self._probe_timer = None
+        self._probe_retry_at = None
+
+    def stop_probe_recovery(self):
+        self._probe_stop_requested = True
+        with self.probe_lock:
+            self._cancel_probe_retry()
+        self._publish_probe_link()
+
+    def _schedule_probe_retry(self):
+        with self.probe_lock:
+            if (self._probe_stop_requested or self._probe_conflict or self._probe_timer is not None
+                    or self.connection.get("state") != "ok" or self.target.transport != "ssh"):
+                return
+            delays = (2, 5, 10, 20, 30)
+            delay = delays[min(self._probe_retries, len(delays) - 1)]
+            self._probe_retries += 1
+            generation = self._probe_generation
+            scope = (self.target.host, self.board.root)
+            self._probe_retry_at = time.time() + delay
+
+            def retry():
+                with self.probe_lock:
+                    if (generation != self._probe_generation or self._probe_stop_requested
+                            or self._probe_conflict or scope != (self.target.host, self.board.root)
+                            or self.connection.get("state") != "ok"):
+                        return
+                    self._probe_timer = None
+                    self._probe_retry_at = None
+                    self.ensure_probe()
+            self._probe_timer = threading.Timer(delay, retry)
+            self._probe_timer.daemon = True
+            self._probe_timer.start()
+        self._publish_probe_link()
+
+    def ensure_probe(self, explicit=False):
+        with self.probe_lock:
+            return self._ensure_probe(explicit)
+
+    def _ensure_probe(self, explicit=False):
+        if self.options.get("logs_only"):
+            return False
         if self.target.transport != "ssh":
             self.probe_state = {"uploaded": False, "detail": "本机自检模式：不部署板端探针"}
+            return False
+        if explicit:
+            self._cancel_probe_retry()
+            self._probe_stop_requested = False
+            self._probe_conflict = False
+            self._probe_retries = 0
+        if self._probe_stop_requested or self._probe_conflict or self.connection.get("state") != "ok":
             return False
         session = self.sessions.get("probe")
         if session is not None and session.state in ("running", "starting"):
             return True
         try:
-            self.board.upload_probe()
-            self.probe_state = {"uploaded": True, "detail": "探针已上传"}
+            if not self.probe_state.get("uploaded"):
+                self.board.upload_probe()
+                self.probe_state = {"uploaded": True, "detail": "探针已上传"}
         except Exception as error:
             self.probe_state = {"uploaded": False, "detail": "探针上传失败：%s" % str(error)[:200]}
             self.toast("warn", self.probe_state["detail"])
+            self._schedule_probe_retry()
             return False
         command = self.board.probe_command()
-        self.sessions.open("probe", "板端探针（只读遥测）", command, self.target,
-                           dimensions=(24, 120))
+        if self._probe_stop_requested or self._probe_conflict:
+            return False
+        self._probe_buffer = ""
+        self.telemetry = {}
+        try:
+            self.sessions.open("probe", "板端探针（只读遥测）", command, self.target,
+                               dimensions=(24, 120))
+        except Exception:
+            self._schedule_probe_retry()
+            return False
+        self._publish_probe_link()
         return True
+
+    def reconnect_probe(self):
+        if self.connection.get("state") != "ok" or self.target.transport != "ssh":
+            raise ValueError("请先连接板端；只重连探针不启动设备")
+        ok = self.ensure_probe(explicit=True)
+        self._emit_event(self.stage.note_action("仅请求重连只读 probe；未重启设备或任务服务", "info"))
+        return {"ok": ok, "probe": dict(self.probe_state, link=self.probe_link()),
+                "error": None if ok else "探针重连失败，查看退避状态"}
 
     # ---------- 前置检查 ----------
     def refresh_preflight(self):
         try:
             preflight = self.board.preflight()
-            conflicts = wb_status.conflict_nodes(self.telemetry,
+            conflicts = wb_status.conflict_nodes(self.current_telemetry(),
                                                  self.config["checks"].get("conflict_nodes", []))
             preflight["conflicts"] = conflicts
             with self.lock:
@@ -374,6 +524,8 @@ class Workbench(object):
     # ---------- 终端 ----------
     def _require_command_transport(self):
         """自检模式（transport=local）默认只用于界面预览，避免误在本机拉起 roscore 等节点。"""
+        if self.options.get("logs_only"):
+            raise ValueError("日志专用后端禁止设备控制、探针和任务入口")
         if self.target.transport == "local" and not self.options.get("allow_local_commands"):
             raise ValueError("当前是 --transport local 自检模式：只用于界面预览。"
                              "确实要在本机执行这些命令请加 --allow-local-commands；连板端请用默认 ssh。")
@@ -388,8 +540,22 @@ class Workbench(object):
             raise ValueError("%s 由任务组面板生成命令，请用「启动」按钮" % sid)
         if terminal.get("confirm") and body.get("confirm") != "确认":
             raise ValueError("该终端需要现场确认：%s" % terminal["confirm"])
+        if sid == "servo_init":
+            running = self.sessions.get("servo")
+            tel = self.current_telemetry()
+            if ((running is not None and running.state in ("running", "starting"))
+                    or (tel["probe_link"].get("usable") and (tel.get("services") or {}).get("/legacy/Servo_raw"))):
+                raise ValueError("5b舵机服务仍在运行，禁止再次5a初始化互踩；须先按现场流程退出旧服务，不自动杀进程")
+        existing = self.sessions.get(sid)
+        if existing is not None and existing.state in ("running", "starting"):
+            return {"ok": True, "already_running": True, "session": existing.snapshot()}
         command = wb_board.terminal_wrapped_command(self.config, wb_board.terminal_command(self.config, terminal))
-        session = self.sessions.open(sid, terminal.get("title", sid), command, self.target)
+        # Only the separately confirmed 5a init command may reuse a connection
+        # password for sudo. Shells/probes/other terminals and one-off checks cannot.
+        allow_sudo = (sid == "servo_init" and bool(terminal.get("confirm"))
+                      and terminal.get("command", "").strip().startswith("sudo bash "))
+        session = self.sessions.open(sid, terminal.get("title", sid), command, self.target,
+                                     allow_sudo_password=allow_sudo)
         item = self.stage.note_action("启动终端 %s：%s" % (sid, wb_board.terminal_command(self.config, terminal)))
         self._emit_event(item)
         self._journal({"action": "session_open", "session": sid, "command": command})
@@ -401,11 +567,22 @@ class Workbench(object):
             raise ValueError("设备启动流程已在运行")
         if body.get("confirm") != "启动设备":
             raise ValueError("需要确认：启动设备命令会真实占用板端设备节点")
+        group = next((g for g in self.config.get("groups", []) if g["id"] == body.get("group_id")), None)
+        if body.get("group_id") and group is None:
+            raise ValueError("未知任务组")
+        observation = bool(group and wb_board.is_observation(group))
+        if observation and body.get("include_servo"):
+            raise ValueError("低空观察不启动舵机")
         include_servo = bool(body.get("include_servo"))
         order = [t for t in self.config.get("terminals", [])
                  if t.get("command") and t["id"] not in ("trial", "monitor")]
         if not include_servo:
             order = [t for t in order if not t.get("optional")]
+        if observation:
+            order = [t for t in self.config.get("terminals", [])
+                     if t["id"] in ("roscore", "mavros", "lidar", "observation_localization")]
+        else:
+            order = [t for t in order if t["id"] != "observation_localization"]
         self.orchestration = {"running": True, "step": None, "started_at": time.time(),
                               "cancel": False,
                               "steps": [{"id": t["id"], "title": t.get("title", t["id"]),
@@ -436,16 +613,16 @@ class Workbench(object):
                 existing = self.sessions.get(terminal["id"])
                 running = (existing is not None and existing.state in ("running", "starting"))
                 running = running or any(leftovers.get(key) for key in RUNNING_KEYS.get(terminal["id"], ()))
-                if terminal["id"] in ("lidar", "camera", "servo"):
+                if terminal["id"] in ("lidar", "camera", "servo", "observation_localization"):
                     spec = terminal.get("ready") or {}
                     running = running or (self.telemetry.get("at", 0) >= time.time() - 5
-                                          and wb_status.ready_check(spec.get("kind"), spec, self.telemetry)[0])
+                                          and wb_status.ready_check(spec.get("kind"), spec, self.current_telemetry())[0])
                 try:
                     if running:
                         step["detail"] = "板端已有同名进程，跳过重复启动"
                     elif terminal.get("confirm") and not self.options.get("auto_confirm_servo"):
                         step["state"] = "skipped"
-                        step["detail"] = "需要单独确认（会复位机构）：请手动启动"
+                        step["detail"] = "需要单独确认：5a不输出初始化，5b仅检查/服务，请手动启动"
                         publish()
                         continue
                     else:
@@ -491,7 +668,7 @@ class Workbench(object):
             if time.time() - self.telemetry.get("at", self.telemetry.get("t", 0)) > 5:
                 ok, detail = False, "等待新鲜板端遥测（探针可能断开）"
             else:
-                ok, detail = wb_status.ready_check(spec_kind, ready, self.telemetry)
+                ok, detail = wb_status.ready_check(spec_kind, ready, self.current_telemetry())
             if detail != last:
                 last = detail
                 step = next((s for s in self.orchestration["steps"]
@@ -519,6 +696,8 @@ class Workbench(object):
         return
 
     def stop_all(self):
+        self.protect_observation_dependencies()
+        self.stop_probe_recovery()
         if self.orchestration.get("running"):
             self.orchestration["cancel"] = True
             self.toast("warn", "已请求取消设备启动流程")
@@ -528,6 +707,14 @@ class Workbench(object):
         return {"ok": True}
 
     # ---------- 任务组 ----------
+    def protect_observation_dependencies(self, sid=None):
+        trial = self.sessions.get("trial")
+        if (self.trial.get("route") == "low_observation"
+                and self.trial.get("mode") == "flight" and not self.trial.get("check_config")
+                and trial is not None and trial.state in ("starting", "running")
+                and (sid is None or sid in ("roscore", "mavros", "lidar", "observation_localization"))):
+            raise ValueError("低空观察 flight 尚未退出；先飞手手动落地上锁并等待 OBSERVATION_CLOSED，保留定位与MAVROS")
+
     def trial_command(self, body):
         """Pure command preview: usable offline, no connection or file writes."""
         group = next((g for g in self.config.get("groups", []) if g["id"] == body.get("group_id")), None)
@@ -537,7 +724,9 @@ class Workbench(object):
             check_config=body.get("check_config",False), capture_speed=body.get("capture_speed"),
             capture_lighting=body.get("capture_lighting"), motion_optimized=body.get("motion_optimized",False),
             survey_pattern=body.get("survey_pattern"), resume_survey=body.get("resume_survey"),
-            site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"))
+            site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"),
+            motion_optimization=body.get("motion_optimization"), obstacle_columns=body.get("obstacle_columns"),
+            competition_config=body.get("competition_config"))
         return {"ok":True,"body":command,"note":note}
 
     def start_trial(self, body):
@@ -559,6 +748,11 @@ class Workbench(object):
             if not isinstance(value, bool):
                 raise ValueError("%s 必须是布尔值" % key)
         route = body.get("route") or group.get("channel")
+        if group.get("channel") == "competition" and mode == "flight" and not check_config:
+            if not real_release:
+                raise ValueError("独立正赛为实投入口，不支持模拟投递")
+        if wb_board.is_observation(group) and real_release:
+            raise ValueError("低空观察不支持真实投递")
         # site/start_test.sh selects real hardware itself; never trust a client's
         # real_release=False to turn a delivery flight into a mock flight.
         real_release = (mode == "flight" and not check_config and
@@ -580,7 +774,9 @@ class Workbench(object):
             check_config=check_config, capture_speed=body.get("capture_speed"),
             capture_lighting=body.get("capture_lighting"), motion_optimized=motion_optimized,
             survey_pattern=body.get("survey_pattern"), resume_survey=body.get("resume_survey"),
-            site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"))
+            site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"),
+            motion_optimization=body.get("motion_optimization"), obstacle_columns=body.get("obstacle_columns"),
+            competition_config=body.get("competition_config"))
         # 界面预览命令必须与后端实际命令一致，否则拒绝启动：防止"给人看的命令"与"真正执行的命令"漂移
         expected = str(body.get("expected_body") or "").strip()
         if body.get("site_geometry") is not None and not expected:
@@ -589,6 +785,7 @@ class Workbench(object):
             raise ValueError("界面预览与后端实际命令不一致，已拒绝启动。后端实际命令：%s" % command_body)
         command = wb_board.terminal_wrapped_command(self.config, command_body)
         self.stage.reset()
+        self.stage.observation_mode = wb_board.is_observation(group)
         self.mission_start_attempted = False
         self.stage.note_action("任务组 %s（%s，%s）：%s" % (group["name"], mode, note, command_body), "info")
         self.trial = {
@@ -602,8 +799,14 @@ class Workbench(object):
             "motion_optimized": motion_optimized, "survey_pattern": body.get("survey_pattern"),
             "resume_survey": body.get("resume_survey"), "route": route, "note": note,
             "site_geometry": body.get("site_geometry"), "geometry_revision": body.get("geometry_revision"),
+            "motion_optimization": body.get("motion_optimization"), "obstacle_columns": body.get("obstacle_columns"),
+            "competition_config": body.get("competition_config") or group.get("site_config"),
         }
-        session = self.sessions.open("trial", "专项入口 · %s" % group.get("name"), command, self.target)
+        if wb_board.is_observation(group) and mode == "flight" and not check_config:
+            session = self.sessions.open("trial", "低空观察 · %s" % group.get("name"), command,
+                                         self.target, graceful_only=True)
+        else:
+            session = self.sessions.open("trial", "专项入口 · %s" % group.get("name"), command, self.target)
         self.broadcast({"t": "trial", "trial": dict(self.trial)})
         self.broadcast({"t": "stage", "stage": self.stage.snapshot()})
         self._journal({"action": "trial_start", "group": group_id, "mode": mode,
@@ -618,12 +821,17 @@ class Workbench(object):
             session.send_key("C-c")
         except Exception as error:
             raise ValueError("发送 Ctrl+C 失败：%s" % error)
-        self._emit_event(self.stage.note_action("已向专项入口发送 Ctrl+C，等待收尾（BAG_CLOSED）", "warn"))
+        detail = ("已请求保持等待飞手接管；落地上锁后等待 OBSERVATION_CLOSED，定位/MAVROS保留"
+                  if self.trial.get("route") == "low_observation" else
+                  "已发送 Ctrl+C；落地停机后等待 BAG_CLOSED 再断电")
+        self._emit_event(self.stage.note_action(detail, "warn"))
         self._journal({"action": "trial_stop"})
-        return {"ok": True, "detail": "已发送 Ctrl+C；落地停机后等待 BAG_CLOSED 再断电"}
+        return {"ok": True, "detail": detail}
 
     def mission_start(self, body):
         self._require_command_transport()
+        if self.trial.get("route") == "low_observation":
+            raise ValueError("低空观察没有任务管理器，由飞手人工解锁并重新拨入 OFFBOARD")
         if body.get("confirm") != "启动任务":
             raise ValueError("需要确认：仅在 READY 且飞手完成解锁/悬停后调用一次")
         state = self.stage.name
@@ -653,7 +861,7 @@ class Workbench(object):
     # ---------- 回报 ----------
     def make_report(self):
         markdown = self.stage.report(self.snapshot(include_logs=False)["connection"], self.trial,
-                                     self.telemetry)
+                                     self.current_telemetry())
         if not os.path.isdir(self.report_dir):
             os.makedirs(self.report_dir, mode=0o700)
         name = "%s_%s.md" % (time.strftime("%Y%m%d_%H%M%S"),
@@ -746,7 +954,19 @@ class Handler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         route = parsed.path
         query = parse_qs(parsed.query)
-        if route in ("/observe", "/motor"):
+        if self.workbench.options.get("logs_only"):
+            if route in ("/", "/index.html", "/logs"):
+                return self._static("/static/logs.html")
+            if not (route.startswith("/static/") or route in ("/api/snapshot", "/api/recording/download")):
+                return self._error("日志专用后端未开放此接口", 404)
+        if route == "/logs":
+            return self._static("/static/logs.html")
+        if route == "/motor":
+            self.send_response(302)
+            self.send_header("Location", "/observe")
+            self.end_headers()
+            return
+        if route == "/observe":
             return self._static("/static/observe.html")
         if route in ("/", "/index.html") or route.startswith("/static/"):
             return self._static(route)
@@ -758,20 +978,53 @@ class Handler(BaseHTTPRequestHandler):
             run = (query.get("run") or [""])[0]
             name = (query.get("file") or [""])[0]
             return self._download(run, name)
+        if route == "/api/recording/download":
+            try:
+                self._logs_access()
+                return self._download_path((query.get("path") or [""])[0])
+            except ValueError as error:
+                return self._error(error)
         return self._error("未知路径 %s" % route, 404)
 
     def _download(self, run, name):
-        if not run or not name or "/" in name:
-            return self._error("参数不合法")
-        path = self.workbench.board.abs_path(os.path.join("logs", run, name))
-        code, output = wb_ssh.run_bytes(self.workbench.target, "cat -- %s" % wb_ssh.quote(path),
-                                        timeout=120.0)
+        try:
+            self._logs_access()
+            wb_logs.relative_path(run)
+            wb_logs.relative_path(name)
+            if "/" in run or "/" in name:
+                raise ValueError("参数不合法")
+            return self._download_path(run + "/" + name)
+        except ValueError as error:
+            return self._error(error)
+
+    def _same_origin(self):
+        """Keep log actions/downloads same-origin and connected; no credentials in URLs."""
+        host = self.headers.get("Host", "")
+        parsed = urlparse("http://" + host)
+        if (parsed.hostname not in ("localhost", "127.0.0.1", "::1", self.server.server_address[0])
+                or parsed.port != self.server.server_port):
+            raise ValueError("日志接口只允许工作台本机地址")
+        origin = self.headers.get("Origin")
+        if (origin and origin != "http://" + host) or self.headers.get("Sec-Fetch-Site") == "cross-site":
+            raise ValueError("日志操作必须来自工作台同源页面")
+
+    def _logs_access(self):
+        self._same_origin()
+        if self.workbench.connection.get("state") != "ok":
+            raise ValueError("请先在主工作台连接板端")
+        if self.workbench.target.transport == "local" and not self.workbench.options.get("allow_local_commands"):
+            raise ValueError("本机离线模式禁止执行日志命令")
+
+    def _download_path(self, path):
+        code, output = self.workbench.logs.download(path)
         if code != 0:
-            return self._error("读取失败：%s" % output[:200], 500)
+            return self._error("下载失败或超时，未返回不完整文件；请检查连接和文件封闭状态", 502)
+        name = path.rsplit("/", 1)[-1]
         self.send_response(200)
         self.send_header("Content-Type", "application/octet-stream")
         self.send_header("Content-Disposition", 'attachment; filename="%s"' % name)
         self.send_header("Content-Length", str(len(output)))
+        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(output)
 
@@ -813,6 +1066,26 @@ class Handler(BaseHTTPRequestHandler):
             return self._error(error)
         workbench = self.workbench
         try:
+            if workbench.options.get("logs_only"):
+                self._same_origin()
+                if not isinstance(body, dict):
+                    raise ValueError("请求体必须是 JSON 对象")
+                if not (route.startswith("/api/recording/") or route in ("/api/connect", "/api/config")):
+                    return self._error("日志专用后端禁止设备/任务/探针控制", 404)
+                if route == "/api/config" and set(body) - {"host", "password", "auto_password", "save_password"}:
+                    raise ValueError("日志专用连接仅允许地址和认证字段；工程路径沿用配置/profile")
+            if route.startswith("/api/recording/"):
+                self._logs_access()
+                if not isinstance(body, dict):
+                    raise ValueError("请求体必须是 JSON 对象")
+                if route == "/api/recording/status":
+                    return self._json(workbench.logs.status())
+                if route == "/api/recording/start":
+                    return self._json(workbench.logs.start(body))
+                if route == "/api/recording/stop":
+                    return self._json(workbench.logs.stop(body))
+                if route == "/api/recording/index":
+                    return self._json(workbench.logs.index(body))
             if route == "/api/config":
                 return self._json(workbench.update_config(body))
             if route == "/api/connect":
@@ -822,6 +1095,9 @@ class Handler(BaseHTTPRequestHandler):
             if route == "/api/action/preflight":
                 preflight = workbench.refresh_preflight()
                 return self._json({"ok": True, "board": {"preflight": preflight}})
+            if route == "/api/action/probe_reconnect":
+                self._logs_access()  # Same-origin, connected, no offline execution.
+                return self._json(workbench.reconnect_probe())
             if route == "/api/action/start_all":
                 return self._json(workbench.open_all_devices(body))
             if route == "/api/action/stop_all":
@@ -836,9 +1112,15 @@ class Handler(BaseHTTPRequestHandler):
                 session = workbench.sessions.get(body.get("id"))
                 if session is None:
                     raise ValueError("会话不存在")
-                session.write(body.get("data", ""))
+                data = body.get("data", "")
+                if body.get("id") == "probe" and any(key in data for key in ("\x03", "\x04")):
+                    workbench.stop_probe_recovery()
+                session.write(data)
                 return self._json({"ok": True})
             if route == "/api/session/close":
+                workbench.protect_observation_dependencies(body.get("id"))
+                if body.get("id") == "probe":
+                    workbench.stop_probe_recovery()
                 workbench.sessions.close(body.get("id"))
                 return self._json({"ok": True})
             if route == "/api/session/clear":
@@ -852,9 +1134,12 @@ class Handler(BaseHTTPRequestHandler):
                     session.resize(body.get("rows", 36), body.get("cols", 140))
                 return self._json({"ok": True})
             if route == "/api/session/key":
+                workbench.protect_observation_dependencies(body.get("id"))
                 session = workbench.sessions.get(body.get("id"))
                 if session is None:
                     raise ValueError("会话不存在")
+                if body.get("id") == "probe" and body.get("key", "C-c") in ("C-c", "C-d", "C-\\"):
+                    workbench.stop_probe_recovery()
                 session.send_key(body.get("key", "C-c"))
                 return self._json({"ok": True})
             if route == "/api/survey/plan":
@@ -881,7 +1166,9 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     parser = argparse.ArgumentParser(description="Liftrace 试飞验证看板")
     parser.add_argument("--host", default="127.0.0.1", help="监听地址（默认只监听本机）")
-    parser.add_argument("--port", type=int, default=8791)
+    parser.add_argument("--port", type=int, default=8771)
+    parser.add_argument("--logs-only", action="store_true",
+                        help="独立日志后端：禁用设备/任务控制和探针；推荐另选端口，不替换现有工作台")
     parser.add_argument("--config", default=wb_board.DEFAULT_CONFIG_PATH)
     parser.add_argument("--transport", default="ssh", choices=("ssh", "local"),
                         help="local 用于离线界面预览：默认拒绝执行设备/入口命令")
@@ -894,7 +1181,7 @@ def main():
                         help="状态目录（profile/日志/回报）；默认 ~/.config/liftrace-flight-workbench，"
                              "自检或离线预览时指向临时目录可避免动到真实状态")
     parser.add_argument("--auto-confirm-servo", action="store_true",
-                        help="一键启动设备时把舵机两个可选终端也纳入流程（会复位机构，需现场确认）")
+                        help="一键启动设备时包含需确认的舵机终端（5a不输出初始化、5b仅检查/服务）")
     options = parser.parse_args()
 
     global PROFILE_DIR
@@ -918,13 +1205,14 @@ def main():
         "transport": options.transport,
         "auto_confirm_servo": options.auto_confirm_servo,
         "allow_local_commands": options.allow_local_commands,
+        "logs_only": options.logs_only,
     })
     Handler.workbench = workbench
 
     port = options.port
     for _ in range(20):
         try:
-            server = ThreadingHTTPServer((options.host, port), Handler)
+            server = WorkbenchHTTPServer((options.host, port), Handler)
             break
         except OSError:
             port += 1
@@ -939,6 +1227,8 @@ def main():
     print("  板端目标：%s（%s）" % (workbench.target.describe(), workbench.target.host))
     print("  工程根目录：%s" % config["connection"].get("board_root"))
     print("  状态目录：%s" % PROFILE_DIR)
+    if options.logs_only:
+        print("  日志专用模式：不启动探针；设备/任务控制接口已禁用，保留旧工作台会话。")
     print("  提醒：只启动现场既有入口命令；不自动解锁、不自动起飞、不代替飞手接管。")
     print("=" * 68)
     sys.stdout.flush()
@@ -951,6 +1241,7 @@ def main():
         server.serve_forever()
     except KeyboardInterrupt:
         print("\n收尾：停止全部会话 …")
+        workbench.stop_probe_recovery()
         workbench.sessions.close_all()
         server.shutdown()
 

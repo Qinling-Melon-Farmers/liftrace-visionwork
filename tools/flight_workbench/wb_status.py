@@ -9,6 +9,7 @@
 """
 import ast
 import json
+import math
 import re
 import time
 
@@ -138,14 +139,41 @@ def parse_python_payload(text):
 
 def parse_probe_line(line):
     """解析 board_probe.py 的一行 JSON；不是 JSON 就返回 None。"""
-    line = (line or "").strip()
+    if not isinstance(line, str):
+        return None
+    # PTY shells may prepend CSI/OSC controls or a UTF-8 BOM to the JSON line.
+    line = re.sub(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\))", "", line)
+    line = line.strip().lstrip("\ufeff").strip()
     if not line.startswith("{"):
         return None
     try:
         value = json.loads(line)
-    except ValueError:
+    except (ValueError, RecursionError):
         return None
-    return value if isinstance(value, dict) else None
+    if not isinstance(value, dict):
+        return None
+    if "master" in value and not isinstance(value["master"], bool):
+        return None
+    for field in ("topics", "services", "state", "extended", "observe", "observe_status", "ros_env", "probe"):
+        if value.get(field) is not None and not isinstance(value[field], dict):
+            return None
+    if any(not isinstance(info, dict) for info in (value.get("topics") or {}).values()):
+        return None
+
+    def finite_json(item):
+        # Python accepts NaN/Infinity and overflowing exponents; browser JSON does not.
+        if isinstance(item, float) and not math.isfinite(item):
+            return None
+        if isinstance(item, dict):
+            return {key: finite_json(child) for key, child in item.items()}
+        if isinstance(item, list):
+            return [finite_json(child) for child in item]
+        return item
+
+    try:
+        return finite_json(value)
+    except RecursionError:
+        return None
 
 
 def failure_hint(text):
@@ -154,6 +182,43 @@ def failure_hint(text):
         if match:
             return hint, match.group(1) if match.groups() else ""
     return None, ""
+
+
+def probe_link_status(telemetry, session=None, now=None, max_age=3.0, stop_requested=False):
+    """Pure display state; never reconnects or touches a device.
+
+    `at` is the workbench receive time, not the board clock. Pass the probe session
+    snapshot and an explicit stop flag from the server, which owns user intent.
+    Exit 130 preserves interrupt intent. A 255 exit alone does not distinguish
+    Ctrl+C from a transport failure or a board reboot.
+    """
+    telemetry = telemetry or {}
+    session = session or {}
+    now = time.time() if now is None else now
+    at = telemetry.get("at")
+    age = (now - at if isinstance(at, (int, float)) and not isinstance(at, bool)
+           and math.isfinite(at) else None)
+    state = session.get("state")
+    stopped = (stop_requested or session.get("stop_requested") is True
+               or session.get("exit_code") == 130)
+    fresh = age is not None and 0 <= age <= max_age
+    if stopped:
+        status, detail = "stopped", "探针已停止；需手动重连探针"
+    elif state in ("failed", "exited"):
+        status, detail = "disconnected", "探针会话已退出（exit=%s）；需重连探针" % session.get("exit_code")
+    elif (state == "starting" or at is None or
+          (isinstance(session.get("started_at"), (int, float)) and age is not None
+           and at < session["started_at"])):
+        status, detail = "waiting", "等待探针遥测"
+    elif not fresh:
+        status, detail = "stale", "探针遥测已过期；当前设备状态未观测"
+    elif telemetry.get("master") is not True:
+        status, detail = "no_master", telemetry.get("error") or "探针在线，ROS master 未就绪"
+    else:
+        status, detail = "live", "探针遥测新鲜"
+    fresh = fresh and status in ("live", "no_master")
+    return {"status": status, "fresh": fresh, "usable": status == "live",
+            "age": age, "detail": detail, "exit_code": session.get("exit_code")}
 
 
 def marker(text):
@@ -196,10 +261,12 @@ class StageTracker:
         self.reset()
 
     def reset(self):
+        self.observation_mode = False
         self.name = "IDLE"
         self.since = None
         self.history = []
         self.detail = {}
+        self.effective_config = None
         self.alignment = None
         self.armed = None
         self.ever_armed = False
@@ -284,6 +351,24 @@ class StageTracker:
             return events
         if self.started_at is None:
             self.started_at = time.time()
+        if self.observation_mode:
+            observation = self._observation_line(text)
+            if observation is not None:
+                return [event for event in observation if event]
+        # Only supervisor output confirms effective values; client selections never do.
+        if text.startswith('CONFIG_EFFECTIVE ') or text.startswith('{'):
+            try:
+                decoded=json.loads(text.split(' ',1)[1] if text.startswith('CONFIG_EFFECTIVE ') else text)
+            except (ValueError,TypeError):
+                decoded=None
+            if isinstance(decoded,dict) and (text.startswith('CONFIG_EFFECTIVE ') or decoded.get('status')=='CONFIG_VALID'):
+                if type(decoded.get('motion_optimization')) is bool and type(decoded.get('resume_survey')) is bool:
+                    self.effective_config=decoded
+                    events.append(self._event('stage',stage=self.snapshot()))
+                    events.append(self._timeline('有效配置：'+json.dumps(decoded,ensure_ascii=False),'ok'))
+                if decoded.get('status')=='CONFIG_VALID':
+                    events.append(self._timeline('配置检查通过（未启动任何 ROS 节点）','ok'))
+                return [event for event in events if event]
         name, payload = marker(text)
 
         if name == "INITIALIZING":
@@ -343,6 +428,45 @@ class StageTracker:
         return events
 
     # ---- 分项处理 ----
+    def _observation_line(self, text):
+        if text.startswith(("WAIT_GROUND_REFERENCE", "PRESTREAM:")):
+            return [self.set_stage("INITIALIZING", {"observation": text})]
+        if text.startswith("READY_FOR_MANUAL_ARM_AND_OFFBOARD"):
+            if self.phase in ("HOLD_FOR_PILOT", "TAKEN_OVER"):
+                return [self._timeline("READY已失效；本轮等待飞手接管/地面重初始化", "warn")]
+            self.pilot_action = "飞手人工解锁并重新拨入 OFFBOARD"
+            return [self.set_stage("READY"), self._timeline(text, "ok")]
+        if text.startswith("OBSERVATION_CLOSED "):
+            self.run_dir = text.partition(" ")[2].strip()
+            return [self.set_stage("STOPPED", {"run_dir": self.run_dir}),
+                    self._timeline("观察入口已退出；定位与 MAVROS 保留", "info")]
+        status = parse_probe_line(text)
+        if not status or status.get("stage") not in ("READY", "RUN", "FINISHED_HOVER", "HOLD_FOR_PILOT", "TAKEN_OVER"):
+            return None
+        previous = self.phase
+        self.phase = status["stage"]
+        self.reason = status.get("reason", "")
+        self.mode, self.armed = status.get("mode"), status.get("armed")
+        self.ever_armed = self.ever_armed or self.armed is True
+        self.last_status_at = time.time()
+        self.detail.update(status)
+        events = []
+        if self.phase == "RUN":
+            events.append(self.set_stage("IN_FLIGHT"))
+        elif self.phase in ("FINISHED_HOVER", "HOLD_FOR_PILOT", "TAKEN_OVER"):
+            events.append(self.set_stage("IN_FLIGHT" if self.armed is True else "INITIALIZING"))
+            self.pilot_action = ("观察路线结束，保持悬停等待飞手落地" if self.phase == "FINISHED_HOVER" else
+                                 "已接管，等待手动落地上锁" if self.phase == "TAKEN_OVER" else
+                                 "保持等待飞手接管：" + self.reason)
+            if self.phase != previous:
+                events.append(self._timeline(self.pilot_action, "warn"))
+            if self.phase == "HOLD_FOR_PILOT" and self.phase != previous:
+                events.append(self._alert("warn", self.pilot_action,
+                    "不自动切模式或降落；保留定位和MAVROS，落地上锁后等待OBSERVATION_CLOSED。",
+                    key="observation_hold"))
+        events.append(self._event("stage", stage=self.snapshot()))
+        return events
+
     def _on_initializing(self, payload):
         events = []
         detail = parse_python_payload(payload) or {}
@@ -519,6 +643,7 @@ class StageTracker:
             "alignment": self.alignment,
             "alignment_hint": ALIGNMENT_HINTS.get(self.alignment, ""),
             "detail": self.detail,
+            "effective_config": self.effective_config,
             "run_dir": self.run_dir,
             "auto_sequence": self.auto_sequence,
             "mission_start": self.mission_start,
@@ -549,10 +674,13 @@ def build_report(tracker, connection, trial, telemetry):
         if trial.get("run_dir"):
             lines.append("- 产物目录：`%s`" % trial["run_dir"])
         options = {k: trial[k] for k in ("motion_optimized", "survey_pattern", "resume_survey",
-                                        "capture_speed", "capture_lighting") if trial.get(k) is not None}
+                                        "capture_speed", "capture_lighting", "motion_optimization", "obstacle_columns", "competition_config") if trial.get(k) is not None}
         if options:
             lines.append("- 启动选项：%s" % json.dumps(options, ensure_ascii=False))
     lines.append("")
+    if stage.get("effective_config"):
+        lines.append("- 已观测有效配置：%s" % json.dumps(stage["effective_config"],ensure_ascii=False))
+        lines.append("")
     lines.append("## 当前阶段")
     lines.append("")
     lines.append("- 阶段：**%s**（%s）" % (stage["label"], stage["name"]))
@@ -572,14 +700,23 @@ def build_report(tracker, connection, trial, telemetry):
         if keep:
             lines.append("- 关键量：%s" % json.dumps(keep, ensure_ascii=False))
     if telemetry:
-        state = telemetry.get("state") or {}
+        if telemetry.get("error"):
+            lines.append("- 遥测错误：%s" % telemetry["error"])
+        if telemetry.get("ros_env"):
+            lines.append("- 探针 ROS 环境：%s" % json.dumps(telemetry["ros_env"], ensure_ascii=False))
+        link = telemetry.get("probe_link")
+        usable = (("at" not in telemetry or probe_link_status(telemetry)["usable"])
+                  and (not isinstance(link, dict) or link.get("usable") is True))
+        if not usable:
+            lines.append("- 遥测已停止或过期，缓存仅供历史查看，当前设备状态未观测")
+        state = (telemetry.get("state") or {}) if usable else {}
         if state:
             lines.append("- 遥测飞控状态：connected=%s armed=%s mode=%s" % (
                 state.get("connected"), state.get("armed"), state.get("mode")))
-        mission = telemetry.get("mission")
+        mission = telemetry.get("mission") if usable else None
         if mission:
             lines.append("- 任务状态：%s" % json.dumps(mission, ensure_ascii=False))
-        if telemetry.get("lio_realtime"):
+        if usable and telemetry.get("lio_realtime"):
             lines.append("- LIO 实时诊断：%s" % json.dumps(telemetry["lio_realtime"], ensure_ascii=False))
     lines.append("")
     lines.append("## 阶段时间线")
@@ -620,6 +757,12 @@ def ready_check(kind, spec, telemetry):
     """返回 (是否就绪, 说明)。telemetry 为 board_probe 的最新一条。"""
     spec = spec or {}
     telemetry = telemetry or {}
+    link = telemetry.get("probe_link")
+    if isinstance(link, dict) and link.get("usable") is not True:
+        return False, link.get("detail") or "探针遥测不可用"
+    if (telemetry.get("master") is False or
+            ("at" in telemetry and not probe_link_status(telemetry)["fresh"])):
+        return False, "探针遥测过期或未就绪；当前设备状态未观测"
     if kind == "ros_master":
         if telemetry.get("master"):
             return True, "ROS master 已就绪"
@@ -627,7 +770,7 @@ def ready_check(kind, spec, telemetry):
     if kind == "mavros_connected":
         state = telemetry.get("state") or {}
         age = ((telemetry.get("topics") or {}).get("/mavros/state") or {}).get("age")
-        if state.get("connected") and age is not None and 0 <= age <= 2:
+        if state.get("connected") and isinstance(age, (int, float)) and not isinstance(age, bool) and 0 <= age <= 2:
             return True, "MAVROS 已连接飞控（mode=%s armed=%s）" % (state.get("mode"), state.get("armed"))
         return False, "等待 MAVROS 连接飞控（当前 connected=%s）" % state.get("connected")
     if kind == "topic":
@@ -636,7 +779,7 @@ def ready_check(kind, spec, telemetry):
         if not info:
             return False, "等待话题 %s" % topic
         age = info.get("age")
-        if age is not None and age <= 2.0 and info.get("count"):
+        if isinstance(age, (int, float)) and not isinstance(age, bool) and 0 <= age <= 2.0 and info.get("count"):
             return True, "%s 新鲜（%.1fs 前，%.1fHz）" % (topic, age, info.get("hz") or 0.0)
         return False, "等待 %s 数据（age=%s）" % (topic, age)
     if kind == "service":

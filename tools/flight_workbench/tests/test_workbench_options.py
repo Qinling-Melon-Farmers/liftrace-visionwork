@@ -30,11 +30,16 @@ class LaunchOptionsTest(unittest.TestCase):
 
     def test_all_groups_preserve_defaults_and_accept_explicit_motion(self):
         for gid in self.groups:
+            if self.groups[gid].get('channel') == 'competition':
+                continue  # Independent CLI is covered by test_competition.py.
             default = self.command(gid)
             self.assertNotIn('--motion-optimized', default)
             self.assertNotIn('--resume-survey', default)
             self.assertNotIn('--survey-pattern', default)
-            self.assertIn('--motion-optimized', self.command(gid, motion_optimized=True))
+            if wb_board.is_observation(self.groups[gid]):
+                with self.assertRaises(ValueError): self.command(gid, motion_optimized=True)
+            else:
+                self.assertIn('--motion-optimized', self.command(gid, motion_optimized=True))
 
     def test_pattern_and_resume_capabilities(self):
         for gid in ('site3', 'site4', 'site5', 'site6', 'mod08', 'mod06mock'):

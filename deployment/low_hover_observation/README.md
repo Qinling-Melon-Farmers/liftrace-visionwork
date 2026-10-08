@@ -1,0 +1,110 @@
+# 低空电机观察试飞（独立于九组任务，2026-10-06）
+
+本入口只做自动低空动作和诊断采集，不验收识别/投递/整机算法。已于2026-10-06部署至 `/home/orangepi/liftrace_board_trials_20260928`，未起飞。飞手手动解锁并**重新拨入OFFBOARD**后动作；只解锁不会开始。结束保持悬停，飞手切手动降落，脚本不会自动LAND、解锁、切模式或调用舵机。
+
+## 三种动作
+
+| profile | 动作 | 高度 / 速度 | 结束 |
+|---|---|---|---|
+| `hover` | 起飞至指定高度，稳定后观察10秒 | FC中心估计离地0.60m；上升0.15m/s | 原地悬停，等待手动降落 |
+| `forward` | 先悬停观察，再沿初始机头方向前移0.5、1.0、1.5m；每点观察5秒 | 同高度；水平0.20m/s | 最后一点悬停，无自动返航 |
+| `square` | 先悬停观察，再飞1m×1m四边形；每点观察5秒 | 同高度；水平0.20m/s；机头指向不主动改变 | 回起点上方悬停 |
+
+参数统一在[profiles.yaml](profiles.yaml)。四边形在初始机头的前方与左侧展开，整个1m×1m区域及起飞点需要现场净空；这是无避障的专用观察轨迹，没有启动Fast-Planner。停顿是为了看电机与姿态，不沿用竞赛不停点提速。
+
+**高度不是从静置位置再爬升0.60m。** 默认继承FC静置离地0.22m：采集初始FC local Z，地面基准=初始Z−0.22，目标Z=地面基准+0.60。因此名义爬升0.38m。相机外参不参与。起落架/机架改变后先测量并改`fc_ground_clearance`；输出是估计FC高度，不是独立测距真值。现场用尺/外部视频记录实际离地高度，不能用同一条FC曲线反证它本身准确。
+
+## 启动顺序
+
+每个板端终端先执行（0928原目录，不新建部署工程）：
+
+```bash
+cd ~/liftrace_board_trials_20260928
+source deployment/site_20260928/environment.sh
+```
+
+1. ROS master：没有运行时才执行`roscore`。
+2. MAVROS：沿用现场已验证串口；此前配置是：
+
+```bash
+roslaunch mavros px4.launch fcu_url:=/dev/ttyACM0:57600
+```
+
+3. 雷达驱动：
+
+```bash
+roslaunch uav_mission mid360_driver2.launch \
+  user_config_path:="$PWD/deployment/site_20260928/MID360_config.json"
+```
+
+4. 仅定位和EV输入：
+
+```bash
+bash deployment/low_hover_observation/start.sh localization hover
+```
+
+EV观察可选启用 `prediction_state_enabled:=true`，默认是 `false`：
+
+```bash
+bash deployment/low_hover_observation/start.sh localization hover prediction_state_enabled:=true
+```
+
+以上两条定位命令二选一，同一LIO不可重复启动；已有定位实例时不要再开第二套。
+
+启动前要求飞控连接且未解锁，拒绝重复LIO/EV和已有任务/相机/控制发布者。此launch复用已部署FAST-LIO配置、板端负载参数和`lio_external_pose.py`，不启用FreeDOM、相机、YOLO、导航任务、舵机或setpoint适配器。保持现有三线程构建，不调整EKF参数或300ms EV输入时效阈值。飞行中不要关闭定位终端。
+
+5. 地面确认飞控SD卡ULog录制已准备，按[补录说明](px4_logging/README.md)补充必要字段，然后启动本轮动作及独立诊断录制进程：
+
+```bash
+# 可以先离线预览，不连接ROS、不发控制
+bash deployment/low_hover_observation/start.sh preview hover
+
+# 每次只选一个；一轮落地上锁后再重新初始化下一轮
+bash deployment/low_hover_observation/start.sh flight hover
+# bash deployment/low_hover_observation/start.sh flight forward
+# bash deployment/low_hover_observation/start.sh flight square
+```
+
+默认需5个终端/窗格（ROS、MAVROS、雷达、定位、动作+录制）；已有前三项时只增开后两项。脚本不启动相机、压缩图、JPEG relay、MP4或常规九组bag入口，也不启动PWM。先停止旧的视觉/任务应用和相机录制进程，程序会检查冲突，不会擅自杀掉它们。预览模式不需要ROS；如本机用conda，可设置`BOARD_PYTHON=/home/xhj/miniconda3/envs/rl_drone/bin/python`。
+
+定位/XML入口已做静态展开确认，仅有FAST-LIO和EV桥两个节点；17项动作回归、29项录制/profile离线检查及20项分析工具测试通过；GUI冒烟和三份ULog无显示批处理通过。这些结果不等于完成真实飞行或闭环SITL。
+
+低空观察航路直接使用FC本地坐标，不经过LIO地图或规划器。默认不要求FC与EV航向融合完成：`require_fc_ev_yaw_agreement: false`，航向差持续记录，地面航向波动仅诊断。仍要求两路消息新鲜、时间配对及位置差≤0.20m持续2秒，FC位置稳定采样至少2秒。READY期间目标航向跟随当前FC估计；飞手手动拨入OFFBOARD时才锁定本轮航向，并以该航向生成前移/四边形路线。起飞位置与地面高度参考不重置，移动超过0.10m仍要求重新初始化。此策略不等于正赛地图坐标可以不对齐，也不是空中reset补偿。需要恢复旧航向一致性门槛时，可显式设`require_fc_ev_yaw_agreement: true`。通过后预发保持目标，看到`READY_FOR_MANUAL_ARM_AND_OFFBOARD`再由现场飞手解锁、拨入OFFBOARD。若启动时飞控已是OFFBOARD，需要先切出再切入；不会因沿用旧模式而自动起飞。READY后断流会锁定参考失效，需在地面退出并重新初始化，不能恢复几条消息就沿用旧参考起飞。
+
+## 飞行中与结束
+
+- 悬停/前移/四边形均采用30Hz位置目标，发布路径没有舵机服务等待或磁盘写入。前视最多0.15m，不按时间盲目前移。
+- `FINISHED_HOVER`表示观察路线结束，继续悬停；飞手切出OFFBOARD后不再发布飞行目标，也不会自行恢复任务。手动降落上锁后动作程序关闭本轮录制。LIO和MAVROS由各自终端继续运行。
+- `HOLD_FOR_PILOT`表示停止继续路线，等待接管。例如定位/EV变旧、估计位姿明显跳变、范围超出或观察期限耗尽。它只是受限观察的接管机制，**不是完整FC reset补偿方案**，不能据此保证任意错误定位下物理位置不动。
+- 空中按动作终端Ctrl+C只请求保持等待接管，不立即结束设定点发布；切手动并落地上锁后才正常退出。强杀进程、断电或ROS整体退出不在此保证内。
+- 0.6m很低，地效、载荷偏置和安装状态会影响电机命令；记录实际硬件/载荷/电源条件，不能仅根据某路控制值较高判定电机损坏。
+
+## 录制产物和分析
+
+`logs/low_hover_<profile>_<time>/`保存配置、地面参考、规划观察点、结束原因和`recording/`诊断bag；不录图像或点云。必要数据包括两路位姿、EV输入、LIO实时耗时、IMU、遥控模式、目标位置/姿态、电池和可用ESC遥测。标准MAVROS不一定提供EKF所有拒绝与reset字段，因此**飞控SD卡ULog仍是主要依据**；飞后取回，不在空中经MAVLink下载。
+
+配套工具：[ULog查看器](../../tools/flight_logs/ulg_motor_viewer/README.md)、[飞控日志取回](../../tools/flight_logs/README.md)。三份新增历史日志分析见[诊断](../../docs/deployment/low_hover_diagnosis_20261006/README.md)。记录ROS时间、接收墙钟、单调时间及模式/解锁事件，板端日期有偏差时用事件对齐，不只按文件名匹配。
+
+录制器失败会停止新观察动作、提示接管；不会自动停止LIO或更改飞控模式。诊断记录不能恢复不存在的ESC电流、RPM或测距数据，缺项在分析中明确列出。
+
+
+### 2026-10-06现场绑核补充
+现场实测OMP_PLACES=cores会把LIO主线程及匹配工作线程固定到RK3588的0/1/2号A55小核，出现约1.01s输出年龄及8帧积压。改为可配置lio_omp_places={4},{5},{6},{7}后，实测输出年龄约0.039s、队列0，工作线程位于4/5/6；这是单次地面样本，不是长期时延分位数。两个板端定位launch现默认大核范围，可按硬件通过同名参数覆盖；匹配线程数仍为3。该次绑核修复没有调整时效与航向门槛；后续仅低空观察入口的航向规则按下节调整。
+
+
+### 2026-10-06未起飞复盘与航向处理
+134110轮在READY至人工OFFBOARD间，FC航向6.87°→0.77°，位置仅变2.03mm；旧冻结航向门槛触发start_reference_changed，未进入RUN。现改为上述OFFBOARD入口锁定航向，保留人工切模式、位置变化、时效及空中跳变检查。54项低空回归通过，真实状态序列离线重放在同一切入点进入RUN；尚未实飞验证。日志已取回，见[本轮说明](../../docs/deployment/low_hover_diagnosis_20261006/FAILED_HOVER_134110.md)。
+
+
+### 2026-10-06工作台启动入口
+
+浏览器工作台新增“低空观察”三张任务卡，依次为0.6m悬停、短距离前移、1m四边形；卡片直接调用本目录已有脚本和profiles.yaml，不改变飞行参数。
+
+1. 先选择对应低空观察卡片，再连接现场机载电脑。可以先点配置预览；预览不发控制命令。
+2. 若设备尚未启动，使用该组的设备启动流程：ROS master → MAVROS → MID360 → 低空定位。已有同一套节点时先核对，避免重复启动。该流程不启动相机、YOLO、规划器或舵机。
+3. 点击flight启动本轮观察及诊断记录；在右侧入口终端等待本轮明确的`READY_FOR_MANUAL_ARM_AND_OFFBOARD`。工作台加载完成、连接成功及历史READY均不表示当前飞机已经READY。
+4. 飞手手动解锁并拨入OFFBOARD。仅解锁不会启动路线。三组均沿用上表高度、速度和结束悬停方式。
+5. 看到`FINISHED_HOVER`后由飞手切手动、降落并上锁，等待`OBSERVATION_CLOSED`后再启动下一组。前移组不自动返航；四边形组回起点上方。
+6. 动作中停止入口只请求保持并等待接管，不能用关闭工作台/定位/MAVROS代替手动降落。右侧输出和实时观察页用于查看本轮状态；电机页显示的是已有的飞控输出，单向电调不会凭此产生RPM或电流遥测。
+
+工作台详细操作见[工作台手册](../../tools/flight_workbench/README.md)。本次接入没有自动初始化或启动任何实飞；由现场操作者点击。低空动作与录制离线回归54项通过，界面接线验证不替代三组实飞验收。
