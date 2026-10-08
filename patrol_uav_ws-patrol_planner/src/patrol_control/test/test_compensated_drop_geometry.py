@@ -1,8 +1,9 @@
 """Run production compensated-drop methods and async worker with offline transport.
 
-No ROS imports, generated messages, master, simulation or hardware are required.
-Only message/time/transport boundaries are doubles; geometry, settlement and RPC
-admission/polling are extracted from this checkout or included from its headers.
+No ROS nodes, master, simulation or hardware are required. Controller message/
+time/transport boundaries use doubles; the separate map-parser binary uses the
+installed sensor_msgs C++ types and ROS time without a node. Geometry, settlement,
+FSM descent branches and RPC admission/polling execute this checkout's code.
 """
 from pathlib import Path
 import subprocess
@@ -19,6 +20,8 @@ PACKAGE = Path(__file__).resolve().parents[1]
 
 PROGRAM = r'''
 #include "patrol_control/drop_slot_geometry.h"
+#include "patrol_control/near_wall_align.h"
+#include "patrol_control/drop_descent_clearance.h"
 #include "patrol_control/landing_handoff_stability.h"
 #include "patrol_control/async_servo.h"
 #include "patrol_control/servo_action_result.h"
@@ -32,6 +35,7 @@ PROGRAM = r'''
 #include <vector>
 #define ROS_INFO(...) ((void)0)
 #define ROS_INFO_THROTTLE(...) ((void)0)
+#define ROS_WARN_THROTTLE(...) ((void)0)
 #define ROS_WARN(...) ((void)0)
 #define ROS_ERROR(...) ((void)0)
 #define ROS_DEBUG(...) ((void)0)
@@ -119,9 +123,11 @@ class LLController {
 public:
  bool external_mission_mode_=true,compensated_alignment_enabled_=true;
  bool compensated_goal_valid_=false,compensated_goal_frozen_=false;
- geometry_msgs::PoseStamped uav_pose,compensated_fc_goal_,waypoint_mark_point;
+ geometry_msgs::PoseStamped uav_pose,compensated_fc_goal_,waypoint_mark_point,waypoint_temp;
  geometry_msgs::PoseStamped cross_mark_point,land_mark_point;
  geometry_msgs::Point compensated_target_center_;
+ NearWallAlignFence near_wall_align_fence_;
+ DropDescentClearance drop_clearance_guard_;
  uav_vision::AlignmentTargetContext compensated_context_,servo_alignment_context_;
  ros::Time compensated_observation_stamp_,motion_odom_receipt_,latest_drop_ready_time_;
  nav_msgs::Odometry motion_odom_; bool motion_odom_valid_=false;
@@ -133,7 +139,8 @@ public:
  double mission_release_permission_timeout_=.25,drop_offset_timeout_=.5;
  double external_alignment_capture_height_=1,drop_release_setpoint_height_=.35;
  double drop_height_threshold=.4,align_height=1;
- bool uav_drop_ready_=true,control_ready=true,permission_ready=true;
+ bool uav_drop_ready_=true,control_ready=true,permission_ready=true,should_drop=false;
+ double dis_to_next_position=0;
  enum {Run_point,Aligning}; int Drone_mode=Aligning;
  std::array<std::array<double,2>,3> drop_slot_offsets_{{{{-.12,0}},{{0,-.12}},{{0,.12}}}};
  std::array<std::array<double,2>,3> dynamic_drop_slot_offsets_=drop_slot_offsets_;
@@ -174,11 +181,14 @@ public:
  bool setCompensatedDropTarget(geometry_msgs::PoseStamped*);
  bool compensatedDropSettled(bool,double* =nullptr,double* =nullptr);
  bool freezeCompensatedDropTarget();
+ bool compensatedDropPathClear()const;
  void applyDropSlotOffset(int,bool);
  void projectDropOffsetToTarget(const uav_vision::DropOffset&);
  void servoAlignmentContextCallback(const uav_vision::AlignmentTargetContext::ConstPtr&);
  DropActionResult executeDropAction(int); void pollDropAction();void cancelDropAction();
  void resetDropState();void clearUavVisionAlignmentState();void resetDetectionState();
+ void advanceCircle(){int servo_id=1; CIRCLE_DESCENT }
+ void advanceCross(){int servo_id=1; CROSS_DESCENT }
 };
 METHODS
 }
@@ -197,6 +207,11 @@ void odom(LLController&c,double t,double x,double y,double z,double vx=0,double 
  m->twist.twist.linear={vx,vy,0};m->twist.twist.angular={0,0,wz};
  c.uav_pose.header.stamp=ros::Time(t);c.uav_pose.pose=m->pose.pose;
  c.motionOdomCallback(m);
+ // Transport supplies a fresh nonempty map with all occupied points above the
+ // local descent envelope; no production cloud parser is replaced by this.
+ c.drop_clearance_guard_.ready=true;c.drop_clearance_guard_.frame="camera_init";
+ c.drop_clearance_guard_.source_stamp=c.drop_clearance_guard_.receipt_stamp=t;
+ c.drop_clearance_guard_.cache_center={x,y};c.drop_clearance_guard_.points={{x,y,10}};
 }
 geometry_msgs::PoseStamped center(double t){
  geometry_msgs::PoseStamped p;p.header.stamp=ros::Time(t);p.pose.position={2,3,1};return p;
@@ -204,9 +219,10 @@ geometry_msgs::PoseStamped center(double t){
 void capture(LLController&c){
  odom(c,100,2,3,1);auto p=center(100);assert(c.setCompensatedDropTarget(&p));
  const auto g=c.compensated_fc_goal_.pose.position;
- for(int i=0;i<3;++i){odom(c,100+(i+1)*.15625,g.x,g.y,1);
-  c.latest_drop_ready_time_=ros::Time::now();
-  assert(c.freezeCompensatedDropTarget()==(i==2));}
+ // Reliable visual capture is already ready; full 12cm correction may
+ // remain while descent starts. It never bypasses final release settlement.
+ c.latest_drop_ready_time_=ros::Time::now();
+ assert(c.freezeCompensatedDropTarget());
  assert(c.compensated_goal_frozen_);
 }
 void finish(LLController&c,const std::shared_ptr<Transport>&t){
@@ -233,19 +249,66 @@ int main(int argc,char**argv){
     const double ay=std::sin(yaw)*std::cos(pitch)*f+
       (std::sin(yaw)*std::sin(pitch)*std::sin(roll)+std::cos(yaw)*std::cos(roll))*l;
     for(int n=0;n<5;++n){auto p=center(100);assert(d.setCompensatedDropTarget(&p));
-     close(p.pose.position.x,2-ax);close(p.pose.position.y,3-ay);
+     close(p.pose.position.x,2);close(p.pose.position.y,3);
+     close(d.compensated_fc_goal_.pose.position.x,2-ax);close(d.compensated_fc_goal_.pose.position.y,3-ay);
      d.applyDropSlotOffset(slot,mode=="drop_cross");
      close(d.adjust_target_position[0],2-ax);close(d.adjust_target_position[1],3-ay);
      close(d.compensated_target_center_.x,2);close(d.compensated_target_center_.y,3);}
    }
  }else if(name=="capture"){
+  odom(c,100,2,3,1,.12);auto p=center(100);assert(c.setCompensatedDropTarget(&p));
+  c.uav_drop_ready_=false;assert(!c.freezeCompensatedDropTarget());
+  c.uav_drop_ready_=true;assert(c.freezeCompensatedDropTarget());
+  assert(c.compensated_goal_frozen_);
+  // Full arm correction and high-altitude speed are not descent prerequisites.
+  c.applyDropSlotOffset(1,false);close(c.adjust_target_position[0],2.12);
+  close(c.compensated_target_center_.x,2);
+  assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);
+ }else if(name=="circle_descent" || name=="cross_descent"){
+  const bool cross=name=="cross_descent";c.current_align_mode_=cross?"drop_cross":"drop_circle";
+  c.servo_alignment_context_.align_mode=c.current_align_mode_;
+  odom(c,100,2,3,1,.12);auto p=center(100);assert(c.setCompensatedDropTarget(&p));
+  c.waypoint_mark_point=c.cross_mark_point=p;
+  c.have_waypoint_mark=!cross;c.have_cross_mark=cross;
+  c.uav_drop_ready_=false;
+  if(cross)c.advanceCross();else c.advanceCircle();
+  assert(!c.compensated_goal_frozen_&&c.count_aligning==0);close(c.align_height,1);
+  c.uav_drop_ready_=true;
+  if(cross)c.advanceCross();else c.advanceCircle();
+  assert(c.compensated_goal_frozen_&&c.count_aligning==1);
+  close(c.align_height,.35);close(c.adjust_target_position[0],2.12);close(c.adjust_target_position[1],3);
+  assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);
+  // Repeated ticks do not accumulate 12cm again, and preserve the target.
+  for(int i=0;i<5;++i){if(cross)c.advanceCross();else c.advanceCircle();
+   close(c.adjust_target_position[0],2.12);close(c.compensated_target_center_.x,2);}
+ }else if(name=="boundary"){
+  odom(c,100,2,3,1);c.near_wall_align_fence_.enabled=true;
+  c.near_wall_align_fence_.bounds={{-4,2.4,-4,4}};
+  auto p=center(100);assert(!c.setCompensatedDropTarget(&p));
+  assert(!c.compensated_goal_valid_&&!c.uav_drop_ready_&&!c.have_waypoint_mark);
+  assert(!c.freezeCompensatedDropTarget());
+  assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);
+ }else if(name=="clearance"){
   odom(c,100,2,3,1);auto p=center(100);assert(c.setCompensatedDropTarget(&p));
-  assert(!c.freezeCompensatedDropTarget()); // Camera centered, outlet is not.
-  const auto g=c.compensated_fc_goal_.pose.position;
-  for(int i=0;i<3;++i){odom(c,100+(i+1)*.125,g.x,g.y,.35);assert(!c.freezeCompensatedDropTarget());}
-  for(int i=0;i<3;++i){odom(c,100.5+i*.15625,g.x,g.y,1);
-   c.compensated_observation_stamp_=ros::Time::now();c.latest_drop_ready_time_=ros::Time::now();
-   assert(c.freezeCompensatedDropTarget()==(i==2));}
+  assert(c.compensatedDropPathClear());
+  c.drop_clearance_guard_.points={{2.06,3,.6}}; // Interior of short diagonal, endpoints clear.
+  assert(!c.compensatedDropPathClear()&&!c.freezeCompensatedDropTarget());
+  assert(!c.compensated_goal_frozen_);c.drop_clearance_guard_.points={{2,3,10}};
+  c.drop_clearance_guard_.source_stamp=97.9;assert(!c.freezeCompensatedDropTarget());
+  c.drop_clearance_guard_.source_stamp=100;c.drop_clearance_guard_.ready=false;
+  assert(!c.freezeCompensatedDropTarget());c.drop_clearance_guard_.ready=true;
+  c.drop_clearance_guard_.frame="wrong_frame";assert(!c.freezeCompensatedDropTarget());
+  c.drop_clearance_guard_.frame="camera_init";
+  c.drop_clearance_guard_.cache_center={0,0};assert(!c.freezeCompensatedDropTarget());
+  c.drop_clearance_guard_.cache_center={2,3};assert(c.freezeCompensatedDropTarget());
+  for(int i=0;i<3;++i){odom(c,101+i*.15625,2.12,3,.35);
+   c.drop_clearance_guard_.points={{2.12,3,.35}};
+   assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);}
+  assert(c.compensated_goal_frozen_); // Rejected map does not unlock/reacquire.
+  // Fresh clear map is necessary but does not replace final physical window.
+  odom(c,102,2.12,3,.35);assert(c.compensatedDropPathClear());
+  assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);
+
  }else if(name=="vision_frozen"){
   capture(c);auto saved=c.compensated_fc_goal_;auto stamp=c.compensated_observation_stamp_;
   for(int i=0;i<3;++i){uav_vision::DropOffset m;m.header.stamp=ros::Time(101+i*.1);
@@ -309,7 +372,7 @@ int main(int argc,char**argv){
   ctx->header.stamp=ros::Time::now();c.servoAlignmentContextCallback(ctx);
   odom(c,100.5,2,3,1);ctx->header.stamp=ros::Time::now();c.servoAlignmentContextCallback(ctx);
   p=center(100.5);assert(c.setCompensatedDropTarget(&p));
-  assert(!c.compensatedDropSettled(false)&&!c.compensatedDropSettled(true));
+  assert(c.compensatedDropSettled(false)&&!c.compensatedDropSettled(true));
  }else if(name=="pose_stale"){
   capture(c);const auto g=c.compensated_fc_goal_.pose.position;
   odom(c,101,g.x,g.y,.35);Eigen::Vector3d v,w;
@@ -380,6 +443,60 @@ int main(int argc,char**argv){
 '''
 
 
+CLOUD_PROGRAM = r'''
+#include "patrol_control/drop_descent_clearance.h"
+#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/point_cloud2_iterator.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <ros/time.h>
+#include <cassert>
+#include <limits>
+namespace patrol_control {
+class LLController {
+public:
+ DropDescentClearance drop_clearance_guard_;
+ geometry_msgs::PoseStamped uav_pose;
+ void dropClearanceMapCallback(const sensor_msgs::PointCloud2::ConstPtr&);
+};
+CALLBACK
+}
+int main() {
+ using namespace patrol_control;
+ ros::Time::init();ros::Time::setNow(ros::Time(100));
+ LLController c;c.uav_pose.header.frame_id="camera_init";c.uav_pose.pose.position.x=2;c.uav_pose.pose.position.y=3;
+ sensor_msgs::PointCloud2::Ptr m(new sensor_msgs::PointCloud2);
+ m->header.frame_id="camera_init";m->header.stamp=ros::Time(99);
+ sensor_msgs::PointCloud2Modifier modifier(*m);modifier.setPointCloud2FieldsByString(1,"xyz");modifier.resize(3);
+ sensor_msgs::PointCloud2Iterator<float> x(*m,"x"),y(*m,"y"),z(*m,"z");
+ *x=2;*y=3;*z=.6;++x;++y;++z;
+ *x=20;*y=30;*z=.6;++x;++y;++z;
+ *x=std::numeric_limits<float>::quiet_NaN();*y=3;*z=.6;
+ c.dropClearanceMapCallback(m);assert(c.drop_clearance_guard_.ready);
+ assert(c.drop_clearance_guard_.points.size()==1);
+ assert(c.drop_clearance_guard_.source_stamp==99&&c.drop_clearance_guard_.receipt_stamp==100);
+ auto check=[&](){return c.drop_clearance_guard_.rejection(100,"camera_init",{2,3,1},{2,3},{2.12,3},.35,.42);};
+ assert(std::string(check())=="drop_path_occupied");
+ // New valid but wholly remote nonempty map caches zero local points; admission
+ // is bounded by the stated populated-map coverage assumption, never emptiness.
+ sensor_msgs::PointCloud2Iterator<float> px(*m,"x");*px=20;
+ c.dropClearanceMapCallback(m);assert(c.drop_clearance_guard_.ready&&c.drop_clearance_guard_.points.empty());
+ assert(check()==nullptr);
+ m->header.stamp=ros::Time(97);c.dropClearanceMapCallback(m);
+ assert(std::string(check())=="drop_map_stale");
+ m->header.stamp=ros::Time(101);c.dropClearanceMapCallback(m);
+ assert(std::string(check())=="drop_map_future");
+ m->header.stamp=ros::Time(0);c.dropClearanceMapCallback(m);assert(!c.drop_clearance_guard_.ready);
+ m->header.stamp=ros::Time(99);m->header.frame_id="wrong";c.dropClearanceMapCallback(m);assert(!c.drop_clearance_guard_.ready);
+ m->header.frame_id="camera_init";m->fields[0].datatype=sensor_msgs::PointField::FLOAT64;
+ c.dropClearanceMapCallback(m);assert(!c.drop_clearance_guard_.ready);
+ m->fields[0].datatype=sensor_msgs::PointField::FLOAT32;m->width=250001;
+ c.dropClearanceMapCallback(m);assert(!c.drop_clearance_guard_.ready&&c.drop_clearance_guard_.points.empty());
+ m->width=3;m->data.resize(1);c.dropClearanceMapCallback(m);assert(!c.drop_clearance_guard_.ready);
+ modifier.resize(0);c.dropClearanceMapCallback(m);assert(!c.drop_clearance_guard_.ready);
+}
+'''
+
+
 class CompensatedDropGeometryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -392,6 +509,7 @@ class CompensatedDropGeometryTests(unittest.TestCase):
             'bool LLController::setCompensatedDropTarget(',
             'bool LLController::compensatedDropSettled(',
             'bool LLController::freezeCompensatedDropTarget(',
+            'bool LLController::compensatedDropPathClear(',
             'void LLController::applyDropSlotOffset(',
             'void LLController::projectDropOffsetToTarget(',
             'void LLController::servoAlignmentContextCallback(',
@@ -411,8 +529,27 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         cls.addClassCleanup(cls.folder.cleanup)
         root = Path(cls.folder.name)
         cpp = root / 'test.cpp'
-        cpp.write_text(PROGRAM.replace('METHODS', production).replace('DEFAULTS', defaults), encoding='utf-8')
+        circle_start = source.index('        const int required_alignment_samples =', source.index('bool LLController::WayPointDetectDone()'))
+        circle_end = source.index('            double ttt = distance3d(', circle_start)
+        circle = source[circle_start:circle_end] + '}'
+        cross_start = source.index('        if(have_cross_mark &&', source.index('bool LLController::CrossDetectionDone()'))
+        cross_end = source.index('            double ttt = distance3d(', cross_start)
+        cross = source[cross_start:cross_end] + '}'
+        cpp.write_text(PROGRAM.replace('METHODS', production).replace('DEFAULTS', defaults)
+                       .replace('CIRCLE_DESCENT', circle).replace('CROSS_DESCENT', cross), encoding='utf-8')
         cls.binary = root / 'test'
+        callback = method(source, 'void LLController::dropClearanceMapCallback(')
+        cloud_cpp = root / 'cloud.cpp'
+        cloud_cpp.write_text(CLOUD_PROGRAM.replace('CALLBACK', callback), encoding='utf-8')
+        cls.cloud_binary = root / 'cloud'
+        subprocess.run([
+            'g++', '-std=c++14', '-O1', '-fsanitize=undefined',
+            '-fno-sanitize-recover=all', '-I', str(PACKAGE / 'include'),
+            '-I', '/usr/include/eigen3', '-I', '/opt/ros/noetic/include',
+            str(cloud_cpp), '-L', '/opt/ros/noetic/lib',
+            '-Wl,-rpath,/opt/ros/noetic/lib', '-lrostime', '-lcpp_common',
+            '-o', str(cls.cloud_binary),
+        ], check=True, timeout=60)
         subprocess.run([
             'g++', '-std=c++14', '-O1', '-pthread', '-fsanitize=undefined',
             '-fno-sanitize-recover=all', '-I', str(PACKAGE / 'include'),
@@ -423,8 +560,16 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         result = subprocess.run([str(self.binary), name], capture_output=True, text=True, timeout=5)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_actual_cloud_parser_rejects_empty_bad_oversize_stale_future_maps(self):
+        result = subprocess.run([str(self.cloud_binary)], capture_output=True, text=True, timeout=5)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_three_physical_arms_yaw_and_tilt_without_accumulation(self): self.run_case('arms')
-    def test_observation_height_and_compensated_position_before_freeze(self): self.run_case('capture')
+    def test_visual_capture_freezes_before_full_arm_correction_and_settlement(self): self.run_case('capture')
+    def test_circle_fsm_starts_arm_correction_and_descent_after_visual_capture(self): self.run_case('circle_descent')
+    def test_cross_fsm_starts_arm_correction_and_descent_after_visual_capture(self): self.run_case('cross_descent')
+    def test_local_map_clearance_is_required_at_freeze_and_rpc_admission(self): self.run_case('clearance')
+    def test_compensated_endpoint_outside_boundary_is_rejected_without_rpc(self): self.run_case('boundary')
     def test_descent_invalid_visual_frames_preserve_frozen_target(self): self.run_case('vision_frozen')
     def test_duplicate_stale_future_visual_frames_cannot_retarget(self): self.run_case('vision_replay')
     def test_six_cm_error_blocks_real_rpc_submission(self): self.run_case('xy')

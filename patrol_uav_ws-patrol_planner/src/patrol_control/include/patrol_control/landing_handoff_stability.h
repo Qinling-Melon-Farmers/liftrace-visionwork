@@ -38,6 +38,8 @@ struct LandingHandoffSample {
     // 不能直接以机体系 XY 速度代替地图系水平速度。
     double horizontal_speed_mps = 0.0;
     double vertical_speed_mps = 0.0;
+    // Low H handoff permits controlled descent in the configured safe height band.
+    bool controlled_descent = false;
     bool alignment_latched = false;
     bool control_ready = false;
     bool feedback_valid = false;
@@ -88,7 +90,10 @@ public:
             return reject("above_handoff_height");
         if (sample.xy_error_m > config_.xy_tolerance_m)
             return reject("xy_error");
-        if (std::abs(sample.z_error_m) > config_.height_tolerance_m)
+        // In low handoff, ceiling is explicit above; keep the target-relative
+        // lower safety bound without requiring a symmetric hover around target Z.
+        if (sample.z_error_m < -config_.height_tolerance_m ||
+            (!sample.controlled_descent && sample.z_error_m > config_.height_tolerance_m))
             return reject("height_error");
         if (sample.horizontal_speed_mps > config_.max_horizontal_speed_mps)
             return reject("horizontal_speed");

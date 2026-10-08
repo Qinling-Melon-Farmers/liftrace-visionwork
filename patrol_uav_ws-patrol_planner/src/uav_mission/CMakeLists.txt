@@ -196,6 +196,8 @@ catkin_install_python(PROGRAMS
   scripts/map_camera_alignment.py
   scripts/lio_external_pose.py
   scripts/navigation_mission_start_gate.py
+  scripts/navigation_competition_manager.py
+  scripts/competition_supervisor.py
   scripts/navigation_high_view_full.py
   scripts/navigation_high_view_probe.py
   scripts/navigation_mission_manager.py
@@ -254,6 +256,8 @@ install(DIRECTORY launch config
 #############
 
 if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(test/test_competition_release.py)
+  catkin_add_nosetests(test/test_competition_hardware.py)
   catkin_add_nosetests(test/test_permission_revision.py)
   catkin_add_nosetests(test/test_stage_limit_retry_identity.py)
   catkin_add_nosetests(test/test_high_view_terminal_status.py)
@@ -281,6 +285,8 @@ if(CATKIN_ENABLE_TESTING)
   catkin_add_nosetests(test/test_release_commitment.py)
   catkin_add_nosetests(test/test_planner_mission_contract.py)
   catkin_add_nosetests(test/test_navigation_planner_bridge_contract.py)
+  catkin_add_nosetests(test/test_navigation_recovery_config.py)
+  catkin_add_nosetests(test/test_navigation_recovery_bridge.py)
   catkin_add_nosetests(test/test_navigation_vcl06_assertion.py)
   catkin_add_nosetests(test/test_staggered_corridor_gate.py)
   catkin_add_nosetests(test/test_sim_lidar_map_contract.py)

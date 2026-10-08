@@ -13,14 +13,18 @@ from uav_mission.execution_speed import FollowingSpeed
 from uav_mission.corridor_speed import CorridorSpeedConfig
 from uav_mission.motion_optimization import MotionOptimization, optimize_post_route
 from uav_mission.landing_posctl_config import validate_landing_posctl, landing_control_parameters
+from uav_mission.navigation_recovery_config import recovery_parameters
 
 
-def apply_overrides(settings, motion=None, columns=None, motion_timeout=None):
+def apply_overrides(settings, motion=None, columns=None, motion_timeout=None, resume=None):
     """显式 CLI 覆盖；省略时逐项继承 YAML，不改比赛参数。"""
     settings=copy.deepcopy(settings)
     if motion is not None:
         if motion not in ('on','off'):raise ValueError('invalid motion switch')
         settings['motion_optimization']={**settings.get('motion_optimization',{}),'enabled':motion=='on'}
+    if resume is not None:
+        if resume not in ('on','off'):raise ValueError('invalid resume switch')
+        settings['survey_policy']={**settings.get('survey_policy',{}),'resume_survey_enabled':resume=='on'}
     if columns is not None:
         if columns not in ('on','off'):raise ValueError('invalid obstacle switch')
         settings['obstacle_columns_enabled']=columns=='on'
@@ -35,12 +39,13 @@ def validate(settings, flight=False):
             value=settings[key]
             if isinstance(value,bool) or not isinstance(value,(int,float)) or not math.isfinite(value) or not 0<value<=600:
                 raise ValueError('invalid '+key)
-    if settings.get('survey_policy',{}).get('resume_survey_enabled',False):
-        raise ValueError('competition does not enable experimental survey resume')
+    if type(settings.get('survey_policy',{}).get('resume_survey_enabled',False)) is not bool:
+        raise ValueError('resume_survey_enabled must be boolean')
 
     if settings.get("landing_handoff_mode", "AUTO.LAND") not in ("AUTO.LAND", "POSCTL"):
         raise ValueError("landing_handoff_mode must be AUTO.LAND or POSCTL")
     validate_landing_posctl(settings)
+    recovery_parameters(settings, 0.)  # Validate finite opt-in before ROS starts.
     weight=float(settings.get('planner_line_preference_weight',2.0))
     if not math.isfinite(weight) or not 0<=weight<=10:raise ValueError('invalid global line preference weight')
     motion=MotionOptimization(**settings.get('motion_optimization',{}))
@@ -49,7 +54,7 @@ def validate(settings, flight=False):
             raise ValueError('braking model must not overstate commanded dynamics')
         if motion.moving_recovery and not settings['drop_agl']+.15<=motion.recovery_handoff_agl<=settings['low_agl']:
             raise ValueError('recovery handoff must clear release height before low transit')
-        if not settings.get('corridor_speed_schedule'):
+        if (flight or settings.get('site_confirmed')) and not settings.get('corridor_speed_schedule'):
             raise ValueError('motion optimization needs measured corridor wall planes')
         if settings['landing_transit_agl']>motion.corridor_max_agl:
             raise ValueError('H transit exceeds corridor cap')
@@ -231,8 +236,14 @@ def generate(root,out,settings,fc_xyz,rig):
     overrides['/navigation/planner_bridge/execution/odom_twist_frame']='child'
     for region,box in [('horizontal_avoidance',search),('search_region',search)]:
         for key,val in zip(('min_x','max_x','min_y','max_y'),box):overrides['/fast_planner_node/sdf_map/'+region+'/'+key]=val
+    overrides.update(recovery_parameters(settings, ground))
     for name,data in [('runtime.yaml',runtime),('control.yaml',control),('overrides.yaml',overrides)]:
         (out/name).write_text(yaml.safe_dump(data,sort_keys=False))
     reference=dict(mode='high_view_full',mapping_profile='high',fc_xyz=[x,y,z],ground_z=ground,low_z=low,high_z=high,drop_z=drop,takeoff_z=low,known_rig=rig,settings=settings)
+    reference['effective_config']=dict(source='generated_runtime',motion_optimization=runtime['motion_optimization']['enabled'],
+        resume_survey=runtime['high_view_full']['policy'].get('resume_survey_enabled',False),
+        obstacle_columns=overrides['/fast_planner_node/sdf_map/horizontal_avoidance/enabled'],
+        navigation_recovery=overrides['/navigation_recovery/enabled'],
+        runtime_path=str(out/'runtime.yaml'),overrides_path=str(out/'overrides.yaml'))
     (out/'ground_reference.json').write_text(json.dumps(reference,indent=2))
     return reference

@@ -1,0 +1,99 @@
+<launch>
+  <arg name="terminal_hover_enabled" default="false" />
+  <arg name="max_command_z" default="$(eval float(arg('ground_z'))+2.9)" />
+  <arg name="enable_control_output" default="false" />
+  <arg name="cruise_speed" default="0.5" />
+  <arg name="cruise_acceleration" default="0.35" />
+  <arg name="mode" default="high_view_full" />
+  <arg name="model_path" />
+  <arg name="metadata_path" default="$(find uav_vision)/config/flight_5cls_20260928_metadata.yaml" />
+  <arg name="generated_dir" />
+  <arg name="ground_z" />
+  <arg name="low_z" />
+  <arg name="image_topic" default="/camera/image_raw" />
+  <arg name="camera_info_topic" default="/camera/camera_info" />
+  <arg name="actuator_mode" default="real" />
+  <arg name="raw_servo_service" default="/legacy/Servo_raw" />
+  <arg name="map_frame" default="camera_init" />
+  <arg name="height_constraint_enabled" default="true" />
+  <param name="/navigation_height_constraint/enabled" value="$(arg height_constraint_enabled)" />
+  <param name="/navigation_height_constraint/frame_id" value="$(arg map_frame)" />
+  <param name="/navigation_height_constraint/limit_parameter" value="/external_planner_max_command_z" />
+  <param name="/external_planner_max_command_z" value="$(arg max_command_z)" />
+
+  <include file="$(find uav_vision)/launch/phase_d_board.launch">
+    <arg name="model_path" value="$(arg model_path)" />
+    <arg name="metadata_path" value="$(arg metadata_path)" />
+    <arg name="image_topic" value="$(arg image_topic)" />
+    <arg name="camera_info_topic" value="$(arg camera_info_topic)" />
+    <arg name="map_frame" value="$(arg map_frame)" />
+    <arg name="ground_z" value="$(arg ground_z)" />
+    <arg name="class_profile" value="r2026" />
+    <arg name="require_alignment_context" value="true" />
+    <arg name="start_legacy_compat" value="false" />
+    <arg name="enable_debug_image" value="false" />
+  </include>
+  <group>
+    <remap from="/Servo" to="/Servo" />
+    <remap from="/mavros/local_position/pose" to="/navigation/local_pose" />
+    <remap from="/mavros/local_position/odom" to="/navigation/local_odom" />
+    <remap from="/mavros/setpoint_position/local" to="/navigation/setpoint_mission" />
+    <include file="$(find patrol_control)/launch/patrol_control_px4_sim.launch" if="$(arg enable_control_output)">
+      <arg name="rviz" value="false" />
+      <arg name="waypoint_mode" value="false" />
+      <arg name="external_mission_mode" value="true" />
+      <arg name="simulation_auto_land" value="false" />
+      <arg name="start_waypoint_generator" value="false" />
+      <arg name="waypoint_config" value="$(arg generated_dir)/control.yaml" />
+      <arg name="planner_max_vel" value="$(arg cruise_speed)" />
+      <arg name="planner_max_acc" value="$(arg cruise_acceleration)" />
+      <arg name="planner_obstacles_inflation" value="0.25" />
+      <arg name="planner_clearance_threshold" value="0.025" />
+      <arg name="px4_max_distance" value="0.25" />
+      <arg name="external_planner_max_command_z" value="$(arg max_command_z)" />
+    </include>
+    <include file="$(find plan_manage)/launch/patrol_planner_px4_sim.launch" unless="$(arg enable_control_output)">
+      <arg name="max_vel" value="$(arg cruise_speed)" />
+      <arg name="max_acc" value="$(arg cruise_acceleration)" />
+      <arg name="obstacles_inflation" value=".25" />
+      <arg name="clearance_threshold" value=".025" />
+      <arg name="start_waypoint_generator" value="false" />
+      <arg name="map_size_x" value="10." />
+      <arg name="map_size_y" value="6." />
+      <arg name="map_size_z" value="3.8" />
+    </include>
+    <param name="/uav_vision/drop_camera_info_topic" value="$(arg camera_info_topic)" />
+    <param name="/uav_vision/drop_map_frame" value="$(arg map_frame)" />
+    <param name="/uav_vision/drop_ground_z" value="$(arg ground_z)" />
+    <rosparam ns="/fast_planner_node" file="$(find uav_mission)/config/horizontal_planner.yaml" />
+    <group ns="navigation">
+      <node pkg="uav_mission" type="navigation_competition_manager.py" name="mission_manager" output="screen" required="true">
+        <rosparam file="$(arg generated_dir)/runtime.yaml" />
+        <param name="profile/path" value="$(find uav_mission)/config/competition_profiles.yaml" />
+        <remap from="candidates" to="/uav_vision/targets" />
+        <remap from="pose" to="/navigation/local_pose" />
+        <remap from="map" to="/freedom/static_pointcloud" />
+        <remap from="mission_result" to="/navigation/mission_result" />
+        <remap from="mission_command_raw" to="/navigation/mission_command_raw" />
+        <remap from="mission_status" to="/navigation/mission_status" />
+      <param name="hardware_reference_ready" value="true" /></node>
+    </group>
+    <include file="$(find uav_mission)/launch/navigation_planner_bridge.launch">
+      <arg name="execution_enabled" value="$(arg enable_control_output)" />
+      <arg name="allow_live_goal_output" value="$(arg enable_control_output)" />
+      <arg name="required" value="true" />
+      <arg name="planner_goal_topic" value="/fastplanner/goal" />
+      <arg name="planner_status_topic" value="/planning/goal_status" />
+      <arg name="odom_topic" value="/navigation/local_odom" />
+      <arg name="odom_twist_frame" value="child" />
+    </include>
+  </group>
+  <include file="$(find uav_mission)/launch/release_guard.launch" if="$(arg enable_control_output)">
+    <arg name="raw_service_name" value="$(arg raw_servo_service)" />
+    <arg name="require_evidence_context" value="true" />
+    <arg name="class_profile" value="r2026" />
+    <arg name="pose_topic" value="/navigation/local_pose" />
+    <arg name="public_service_name" value="/Servo" />
+  </include>
+  <rosparam file="$(arg generated_dir)/overrides.yaml" />
+  </launch>

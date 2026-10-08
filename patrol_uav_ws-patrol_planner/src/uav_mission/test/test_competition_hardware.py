@@ -11,6 +11,7 @@ PKG=ROOT/'patrol_uav_ws-patrol_planner/src/uav_mission'
 class CompetitionTests(unittest.TestCase):
     def setUp(self):
         self.s=yaml.safe_load((ROOT/'deployment/competition/field.example.yaml').read_text())
+        self.s.setdefault('motion_optimization', {})['enabled']=False
         self.rig=yaml.safe_load((PKG/'config/competition/known_rig.yaml').read_text())
         self.s.update(site_confirmed=True,corridor_waypoints=[dict(x=6.7,y=4.,agl=1.4),dict(x=6.7,y=4.,agl=.9),dict(x=8.3,y=4.,agl=.9),dict(x=8.3,y=-4.,agl=.9)],landing_xy=[8.5,-4.2])
     def generate(self,z=0.):
@@ -36,6 +37,7 @@ class CompetitionTests(unittest.TestCase):
     def test_field_and_candidates_share_lowered_drop_height(self):
         for name in ('field.example.yaml','candidates/snake_motion.yaml','candidates/rectangle_motion.yaml'):
             settings=yaml.safe_load((ROOT/'deployment/competition'/name).read_text())
+            settings.setdefault('motion_optimization', {})['enabled']=False
             self.assertAlmostEqual(settings['drop_agl'],.45)
             # Onsite confirmation and geometry are test fixtures only.
             settings.update(site_confirmed=True,corridor_waypoints=copy.deepcopy(self.s['corridor_waypoints']),
@@ -160,7 +162,6 @@ class CompetitionTests(unittest.TestCase):
         probe.pose=None;probe.pose_stamp=None
         probe.update_pose((0.,0.,2.),10.,'camera_init')
         with self.assertRaisesRegex(ValueError,'pose discontinuity'):probe.update_pose((0.,0.,2.45),10.03,'camera_init')
-    @unittest.skip("B 本次仅移植 competition 配置生成器，未引入完整 competition_application")
     def test_app_uses_one_formal_manager_and_guard(self):
         tree=ET.parse(PKG/'launch/competition_application.launch')
         nodes=tree.findall('.//node')

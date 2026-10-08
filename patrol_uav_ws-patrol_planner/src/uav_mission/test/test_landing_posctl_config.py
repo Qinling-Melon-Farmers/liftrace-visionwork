@@ -21,6 +21,8 @@ class LowHConfigTests(unittest.TestCase):
     def setUp(self):
         self.rig = yaml.safe_load((TRIAL / 'config/known_rig.yaml').read_text())
         self.settings = yaml.safe_load((ROOT / 'deployment/competition/field.example.yaml').read_text())
+        # H configuration fixtures isolate motion policy and need no wall-plane measurements.
+        self.settings.setdefault('motion_optimization', {})['enabled'] = False
         self.settings.update(site_confirmed=True,
             corridor_waypoints=[dict(x=6.7,y=4.,agl=1.4),dict(x=6.7,y=4.,agl=.9),
                                 dict(x=8.3,y=4.,agl=.9),dict(x=8.3,y=-4.,agl=.9)],
@@ -78,7 +80,12 @@ class LowHConfigTests(unittest.TestCase):
             with self.subTest(file=str(file)):
                 settings = yaml.safe_load(file.read_text())
                 self.assertEqual(settings['landing_handoff_mode'], 'POSCTL')
-                self.assertEqual(settings['landing_posctl'], DEFAULTS)
+                expected = dict(DEFAULTS)
+                if file.name == 'field_20261007_validated.yaml':
+                    # This confirmed field file is the preserved historical snapshot.
+                    expected.update(max_horizontal_speed_mps=.03,
+                                    max_vertical_speed_mps=.05, stable_duration_sec=.5)
+                self.assertEqual(settings['landing_posctl'], expected)
 
     def test_slot_semantics_and_compensation_preserve_both_measured_tables(self):
         trial = yaml.safe_load((ROOT / 'deployment/board_trials_4x4/03_h_landing/settings.yaml').read_text())

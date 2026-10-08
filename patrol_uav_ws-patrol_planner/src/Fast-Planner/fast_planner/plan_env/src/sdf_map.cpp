@@ -171,6 +171,16 @@ void SDFMap::initMap(ros::NodeHandle& nh) {
   md_.occupancy_buffer_ = vector<double>(buffer_size, mp_.clamp_min_log_ - mp_.unknown_flag_);
   md_.occupancy_buffer_neg = vector<char>(buffer_size, 0);
   md_.occupancy_buffer_inflate_ = vector<char>(buffer_size, 0);
+  nh.param("sdf_map/recovery_layers_enabled", recovery_layers_enabled_, false);
+  nh.param("sdf_map/recovery_body_xy", recovery_body_xy_, -1.);
+  nh.param("sdf_map/recovery_body_up", recovery_body_up_, -1.);
+  nh.param("sdf_map/recovery_body_down", recovery_body_down_, -1.);
+  if (recovery_layers_enabled_ &&
+      (!std::isfinite(recovery_body_xy_) || recovery_body_xy_<=0 ||
+       !std::isfinite(recovery_body_up_) || recovery_body_up_<=0 ||
+       !std::isfinite(recovery_body_down_) || recovery_body_down_<=0))
+    throw std::invalid_argument("recovery requires configured body clearance");
+  if (recovery_layers_enabled_) md_.recovery_sources_.assign(buffer_size, 0);
 
   md_.distance_buffer_ = vector<double>(buffer_size, 10000);
   md_.distance_buffer_neg_ = vector<double>(buffer_size, 10000);
@@ -261,6 +271,7 @@ void SDFMap::resetBuffer() {
 }
 
 void SDFMap::resetBuffer(Eigen::Vector3d min_pos, Eigen::Vector3d max_pos) {
+  recovery_layers_valid_ = false;
 
   Eigen::Vector3i min_id, max_id;
   posToIndex(min_pos, min_id);
@@ -274,6 +285,7 @@ void SDFMap::resetBuffer(Eigen::Vector3d min_pos, Eigen::Vector3d max_pos) {
     for (int y = min_id(1); y <= max_id(1); ++y)
       for (int z = min_id(2); z <= max_id(2); ++z) {
         md_.occupancy_buffer_inflate_[toAddress(x, y, z)] = 0;
+        if (recovery_layers_enabled_) md_.recovery_sources_[toAddress(x,y,z)] = 0;
         md_.distance_buffer_[toAddress(x, y, z)] = 10000;
       }
 }
@@ -714,6 +726,8 @@ Eigen::Vector3d SDFMap::closetPointInMap(const Eigen::Vector3d& pt, const Eigen:
 }
 
 void SDFMap::clearAndInflateLocalMap() {
+  // The depth path has not supplied a classified cloud snapshot.
+  recovery_layers_valid_ = false;
   /*clear outside local*/
   const int vec_margin = 5;
   // Eigen::Vector3i min_vec_margin = min_vec - Eigen::Vector3i(vec_margin,
@@ -929,6 +943,7 @@ void SDFMap::odomCallback(const nav_msgs::OdometryConstPtr& odom) {
 }
 
 void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
+  recovery_layers_valid_ = false;
   node_.getParamCached("sdf_map/search_region/enabled", mp_.search_region_enabled_);
   // Apply phase ceiling before rebuilding the local occupancy map. The
   // existing resetBuffer below clears prior ceiling cells each cloud update.
@@ -1067,8 +1082,33 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
              y <= std::min(mp_.map_voxel_num_.y() - 1, center.y() + inf_step); ++y) {
           std::fill(md_.occupancy_buffer_inflate_.begin() + toAddress(x,y,low_z),
                     md_.occupancy_buffer_inflate_.begin() + toAddress(x,y,high_z) + 1, 1);
+          if (recovery_layers_enabled_)
+            std::fill(md_.recovery_sources_.begin() + toAddress(x,y,low_z),
+                      md_.recovery_sources_.begin() + toAddress(x,y,high_z) + 1, 8);
           if (column) horizontal_columns.mark(x, y, low_z);
         }
+    }
+  }
+
+  // Reclassify necessary body clearance from the actual input geometry.
+  // This can be larger than normal inflation; it is never shrunk to fit a
+  // requested exit. The remaining normal inflation is extra BUFFER (8).
+  if (recovery_layers_enabled_) {
+    const int xy=std::ceil(recovery_body_xy_/mp_.resolution_);
+    const int up=std::ceil(recovery_body_up_/mp_.resolution_);
+    const int down=std::ceil(recovery_body_down_/mp_.resolution_);
+    for (const auto& point:latest_cloud.points) {
+      const Eigen::Vector3d p(point.x,point.y,point.z);
+      if (!p.allFinite() || !isInMap(p)) continue;
+      const Eigen::Vector3d deviation=p-md_.camera_pos_;
+      if (std::abs(deviation.x())>=mp_.local_update_range_.x() ||
+          std::abs(deviation.y())>=mp_.local_update_range_.y() ||
+          (!mp_.horizontal_avoidance_ && std::abs(deviation.z())>=mp_.local_update_range_.z())) continue;
+      Eigen::Vector3i index;posToIndex(p,index);
+      for(int x=std::max(0,index.x()-xy);x<=std::min(mp_.map_voxel_num_.x()-1,index.x()+xy);++x)
+        for(int y=std::max(0,index.y()-xy);y<=std::min(mp_.map_voxel_num_.y()-1,index.y()+xy);++y)
+          for(int z=std::max(0,index.z()-down);z<=std::min(mp_.map_voxel_num_.z()-1,index.z()+up);++z)
+            md_.recovery_sources_[toAddress(x,y,z)] |= 1;
     }
   }
 
@@ -1114,13 +1154,56 @@ void SDFMap::cloudCallback(const sensor_msgs::PointCloud2ConstPtr& img) {
         // Extrude the selected measured footprint upward. In middle-band mode
         // lower outer branches keep only real 3-D inflation; passing above
         // those edges is intentionally allowed by the selected field policy.
-        for (int z = std::max(low, horizontal_columns.bottom(x, y)); z <= high; ++z)
+        for (int z = std::max(low, horizontal_columns.bottom(x, y)); z <= high; ++z) {
             md_.occupancy_buffer_inflate_[toAddress(x, y, z)] = 1;
+            if (recovery_layers_enabled_) md_.recovery_sources_[toAddress(x,y,z)] |= 2;
+        }
     md_.local_bound_min_(2) = 0;
     md_.local_bound_max_(2) = mp_.map_voxel_num_(2) - 1;
   }
   applyFlightCeiling();
   md_.esdf_need_update_ = true;
+  if (recovery_layers_enabled_) {
+    // Exclude patch edges: sources just outside the rebuild window may have
+    // inflation extending inward. Neither a timestamp nor this box establishes
+    // observed free space; the recovery adapter needs independent coverage.
+    const double xy_margin=std::max(inf_step*mp_.resolution_,recovery_body_xy_)+mp_.resolution_;
+    const Eigen::Vector3d margin(xy_margin,xy_margin,
+        std::max(std::max(inf_step_z_up,inf_step_z_down)*mp_.resolution_,
+                 std::max(recovery_body_up_,recovery_body_down_))+mp_.resolution_);
+    recovery_min_ = rebuild_min.cwiseMax(mp_.map_min_boundary_) + margin;
+    recovery_max_ = rebuild_max.cwiseMin(mp_.map_max_boundary_) - margin;
+    recovery_stamp_ = img->header.stamp;
+    ++recovery_revision_;
+    recovery_layers_valid_ = !recovery_stamp_.isZero();
+  }
+}
+
+int SDFMap::recoverySources(const Eigen::Vector3d& low, const Eigen::Vector3d& high) {
+  if (!recovery_layers_enabled_ || !recovery_layers_valid_ ||
+      !low.allFinite() || !high.allFinite() || (low.array()>high.array()).any() ||
+      (low.array()<=recovery_min_.array()).any() ||
+      (high.array()>=recovery_max_.array()).any()) return -1;
+  int mask = 0;
+  if ((mp_.search_region_enabled_ &&
+       (fast_planner::searchRegionDistance(low,mp_.search_region_bounds_)<=0 ||
+        fast_planner::searchRegionDistance(high,mp_.search_region_bounds_)<=0)) ||
+      (mp_.virtual_ceil_height_>0 && high.z()>=mp_.virtual_ceil_height_)) mask |= 4;
+  Eigen::Vector3i first,last;
+  // Closed boxes include both adjacent cells at an exact voxel face.
+  const Eigen::Vector3d epsilon=Eigen::Vector3d::Constant(1e-8);
+  posToIndex(low-epsilon,first);posToIndex(high+epsilon,last);
+  if (!isInMap(first) || !isInMap(last)) return -1;
+  for (int x=first.x();x<=last.x();++x)
+    for (int y=first.y();y<=last.y();++y)
+      for (int z=first.z();z<=last.z();++z) {
+        const int address=toAddress(x,y,z);
+        const int source=md_.recovery_sources_[address];
+        // Other occupancy writers do not have recovery provenance.
+        if (md_.occupancy_buffer_inflate_[address] && !source) mask |= 4;
+        mask |= source;
+      }
+  return mask;
 }
 
 void SDFMap::publishMap() {

@@ -106,4 +106,7 @@
 
   </export>
   <exec_depend>uav_high_view</exec_depend>
+  <exec_depend>navigation_recovery_msgs</exec_depend>
+  <exec_depend>topic_tools</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
 </package>

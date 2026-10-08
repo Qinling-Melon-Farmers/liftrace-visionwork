@@ -10,10 +10,10 @@
 # 门洞约0.80m且开口随机：测墙平面、通口横向中心及入口/出口净空，
 # corridor_waypoints 填门前/门后通过点，不把墙面上的门中心当作停车航点。
 # 必填 corridor_waypoints 与 landing_xy；坐标核对完毕再设 site_confirmed=true。
-# 省略 CLI 开关时继承 YAML。motion_optimization 未配置即关闭，障碍柱按下方值。
+# 省略 CLI 开关时继承 YAML：运动优化与高位续扫默认开启，分别可用 on/off 覆盖。
 # 动作预算默认保持 runtime_base：运动90s、目标120s；若显式需要，可添加
 # motion_action_timeout/target_action_timeout（0<秒数<=600），或 --motion-action-timeout。
-# 不通过测试归档替换搜索高度、速度、加速度、前视距离或预算；新恢复未推广。
+# 保留比赛高度/速度/预算；运动优化需实测墙平面后才能生成飞行配置。
 # 必填确认：现场测量完毕后改 true；false 禁止飞行，允许离线检查。
 site_confirmed: false
 # 完整搜索、三投、走廊与 H 末段任务；不提供靶标坐标。
@@ -116,8 +116,9 @@ following_speed_profile:
   precision_lead_m: 0.4
   corridor_lead_m: 0.15
   corridor_after_waypoints: 1
-# 继承比赛视觉搜索证据策略；不启用新恢复，不改变释放门槛。
+# 保留视觉证据门槛；高位续扫最多一次，保留原任务总预算。
 survey_policy:
+  resume_survey_enabled: true
   coarse_enabled: true
   coarse_min_confidence: 0.6
   coarse_interrupt_min_interval_ns: 100000000
@@ -188,9 +189,9 @@ landing_posctl:
   xy_tolerance_m: 0.05
   height_tolerance_m: 0.02
   capture_height_tolerance_m: 0.10  # 仅观察高位；低位高度容差仍为 ±0.02m。
-  max_horizontal_speed_mps: 0.03
-  max_vertical_speed_mps: 0.05
-  stable_duration_sec: 0.5
+  max_horizontal_speed_mps: 0.08
+  max_vertical_speed_mps: 0.10
+  stable_duration_sec: 0.15
   max_odom_age_sec: 0.2
   max_sample_gap_sec: 0.2
   min_samples: 3

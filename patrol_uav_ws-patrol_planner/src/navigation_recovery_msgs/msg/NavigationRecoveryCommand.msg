@@ -1,0 +1,9 @@
+Header header
+geometry_msgs/Pose pose
+geometry_msgs/Vector3 velocity
+time goal_stamp
+time started_at
+time deadline
+uint64 recovery_id
+float64 soft_max_z
+bool active

@@ -11,6 +11,7 @@
 #include "patrol_control/servo_action_result.h"
 #include "patrol_control/near_wall_align.h"
 #include <tf/transform_listener.h>
+#include <sensor_msgs/point_cloud2_iterator.h>
 #include "tf2_ros/transform_broadcaster.h"
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -191,7 +192,31 @@ void LLController::initializeNode() {
         &LLController::motionOdomCallback, this);
     compensated_alignment_pub_ = nh_.advertise<uav_vision::DropAlignmentFeedback>(
         compensated_alignment_topic_, 4);
+    if (external_mission_mode_ && compensated_alignment_enabled_) {
+        drop_clearance_map_sub_ = nh_.subscribe(drop_clearance_map_topic_, 1,
+            &LLController::dropClearanceMapCallback, this);
+    }
     fastplanner_cmd_sub_ = nh_.subscribe("/fastplanner/setpoint_position/local", 1,&LLController::plannercmdCallback, this);
+    navigation_recovery_gate_.configure(nh_);
+    if(navigation_recovery_gate_.enabled) {
+        std::string context_topic,execution_topic;
+        nh_.param<std::string>("navigation_recovery/context_topic",context_topic,"/planning/recovery_context");
+        nh_.param<std::string>("navigation_recovery/execution_topic",execution_topic,"/planning/recovery_execution");
+        navigation_recovery_context_sub_=nh_.subscribe<navigation_recovery_msgs::NavigationRecoveryContext>(context_topic,1,
+            [this](const navigation_recovery_msgs::NavigationRecoveryContext::ConstPtr& m){
+                if(m->header.stamp>=navigation_recovery_context_.header.stamp) navigation_recovery_context_=*m;
+            });
+        navigation_recovery_sub_=nh_.subscribe<navigation_recovery_msgs::NavigationRecoveryCommand>(execution_topic,1,
+            [this](const navigation_recovery_msgs::NavigationRecoveryCommand::ConstPtr& m){
+                if(m->header.stamp<navigation_recovery_command_.header.stamp) return;
+                navigation_recovery_command_=*m;
+                navigation_recovery_active_=m->active;
+                if(!m->active) { have_planner_cmd=false;return; }
+                if(!hasValidNavigationRecovery()) { have_planner_cmd=false;return; }
+                planner_cmd.header=m->header;planner_cmd.pose=m->pose;
+                have_planner_cmd=true;latest_planner_cmd_time_=ros::Time::now();
+            });
+    }
     mavros_point_cmd_pub = nh_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local", 50);//px4 直接接收
     if (!external_mission_mode_) {
         detect_sub_ = nh_.subscribe(
@@ -433,6 +458,16 @@ void LLController::externalMissionTick() {
         }
     }
 
+    if (compensated_alignment_enabled_ && compensated_goal_frozen_ &&
+        !servo_action_attempted_ && !compensatedDropPathClear()) {
+        // A stale/invalid/occupied map cannot authorize further descent.
+        // Keep the transaction frozen and let the existing mission deadline
+        // recover or choose another target; never recapture a low partial image.
+        patrol_cmd = uav_pose;
+        drop_release_window_.reset();
+        return;
+    }
+
     std_msgs::Bool detect_enable_msg;
     detect_enable_msg.data = true;
     publishLegacyVisionControl(detect_control_pub_, detect_enable_msg);
@@ -533,21 +568,28 @@ void LLController::externalLandingStateCallback(
     // Every other loss of OFFBOARD must latch even between two timer ticks.
     if (external_landing_auto_land_requested_ &&
         msg->mode == external_landing_handoff_mode_) {
-        if (!external_landing_handoff_observed_ &&
-            (ros::Time::now() - external_landing_handoff_requested_at_).toSec() >
-                external_landing_mode_transition_timeout_sec_) {
-            failExternalLanding("handoff_mode_transition_timeout");
-            external_landing_cancelled_ = true;
-            return;
-        }
         if (external_landing_handoff_mode_ == "POSCTL") {
-            const double age = (ros::Time::now() - msg->header.stamp).toSec();
+            const ros::Time now = ros::Time::now();
+            const double age = (now - msg->header.stamp).toSec();
+            const double receipt_age = (now - external_landing_state_receipt_).toSec();
+            const double pending_limit = std::min(0.20, external_landing_state_max_age_sec_);
+            // Keep the original source/receipt stamps; recheck on a later tick.
+            if (msg->connected && !msg->header.stamp.isZero() &&
+                age < 0.0 && age >= -pending_limit &&
+                receipt_age >= 0.0 && receipt_age <= pending_limit) return;
             if (!msg->connected || msg->header.stamp.isZero() || age < 0.0 ||
                 age > external_landing_state_max_age_sec_) {
                 failExternalLanding("handoff_state_not_ready_or_stale");
                 external_landing_cancelled_ = true;
                 return;
             }
+        }
+        if (!external_landing_handoff_observed_ &&
+            (ros::Time::now() - external_landing_handoff_requested_at_).toSec() >
+                external_landing_mode_transition_timeout_sec_) {
+            failExternalLanding("handoff_mode_transition_timeout");
+            external_landing_cancelled_ = true;
+            return;
         }
         if (!external_landing_handoff_observed_) {
             external_landing_handoff_observed_ = true;
@@ -626,17 +668,19 @@ void LLController::externalLandingTick() {
     }
 
     const ros::Time now = ros::Time::now();
-    if (external_landing_auto_land_requested_ && !external_landing_handoff_observed_ &&
-        (now - external_landing_handoff_requested_at_).toSec() >
-            external_landing_mode_transition_timeout_sec_) {
-        failExternalLanding("handoff_mode_transition_timeout");
-        external_landing_cancelled_ = true;
-        return;
-    }
+    const auto& state = external_landing_mavros_state_;
+    const double source_age = (now - state.header.stamp).toSec();
+    const double receipt_age = (now - external_landing_state_receipt_).toSec();
+    const double pending_limit = std::min(0.20, external_landing_state_max_age_sec_);
+    const bool expected_state = state.connected &&
+        ((state.armed && state.mode == "OFFBOARD" && !external_landing_handoff_observed_) ||
+         (external_landing_auto_land_requested_ && state.mode == external_landing_handoff_mode_));
+    // Only timing is pending; unexpected mode/disconnection still fail in callback.
+    if (external_landing_handoff_mode_ == "POSCTL" && expected_state &&
+        !state.header.stamp.isZero() && !external_landing_state_receipt_.isZero() &&
+        source_age < 0.0 && source_age >= -pending_limit &&
+        receipt_age >= 0.0 && receipt_age <= pending_limit) return;
     if (external_landing_auto_land_requested_ && external_landing_handoff_mode_ == "POSCTL") {
-        const auto& state = external_landing_mavros_state_;
-        const double source_age = (now - state.header.stamp).toSec();
-        const double receipt_age = (now - external_landing_state_receipt_).toSec();
         if (!state.connected || state.header.stamp.isZero() ||
             external_landing_state_receipt_.isZero() || source_age < 0.0 || receipt_age < 0.0 ||
             source_age > external_landing_state_max_age_sec_ ||
@@ -645,6 +689,20 @@ void LLController::externalLandingTick() {
             external_landing_cancelled_ = true;
             return;
         }
+        if (!external_landing_handoff_observed_ && state.mode == "POSCTL" &&
+            (external_landing_state_receipt_ - external_landing_handoff_requested_at_).toSec() <=
+                external_landing_mode_transition_timeout_sec_) {
+            external_landing_handoff_observed_ = true;
+            publishExternalLandingHandoff("OBSERVED");
+            ROS_INFO("[ExternalLanding] POSCTL source clock caught up; awaiting actual landing");
+        }
+    }
+    if (external_landing_auto_land_requested_ && !external_landing_handoff_observed_ &&
+        (now - external_landing_handoff_requested_at_).toSec() >
+            external_landing_mode_transition_timeout_sec_) {
+        failExternalLanding("handoff_mode_transition_timeout");
+        external_landing_cancelled_ = true;
+        return;
     }
     if (!external_landing_auto_land_requested_ &&
         !externalLandingControlReady(now)) {
@@ -689,17 +747,9 @@ void LLController::externalLandingTick() {
         external_landing_stable_count_ = 0;
     }
 
-    // 运动稳定窗按控制时钟消费新里程计；低帧率 H 图像不等于里程计断流。
-    const bool motion_pending = external_landing_handoff_mode_ == "POSCTL" && motionTimePending();
-    bool capture_settled = external_landing_handoff_mode_ != "POSCTL";
-    if (!external_landing_alignment_complete_ && external_landing_handoff_mode_ == "POSCTL") {
-        if (mark_fresh) {
-            capture_settled = landingMotionSettled(false, std::hypot(
-                uav_pose.pose.position.x-land_mark_point.pose.position.x,
-                uav_pose.pose.position.y-land_mark_point.pose.position.y));
-        } else landing_capture_window_.reset();
-    }
-    if (external_landing_new_mark_ && !motion_pending) {
+    // Original acquisition: ten fresh H frames and XY alignment, then freeze.
+    // High-view height tolerance remains independent knowledge, not a motion window.
+    if (external_landing_new_mark_) {
         if (mark_fresh && !external_landing_alignment_complete_) {
             const double horizontal_error = std::hypot(
                 uav_pose.pose.position.x - land_mark_point.pose.position.x,
@@ -711,15 +761,20 @@ void LLController::externalLandingTick() {
                 external_landing_stable_count_ = 0;
             }
             if (external_landing_stable_count_ >=
-                external_landing_stable_frames_ && capture_settled) {
+                external_landing_stable_frames_) {
                 external_landing_alignment_complete_ = true;
                 external_landing_aligned_goal_ = land_mark_point;
                 external_landing_aligned_goal_.pose.position.z = land_height;
                 external_landing_aligned_goal_.pose.orientation =
                     external_landing_goal_.pose.orientation;
                 ROS_INFO(
-                    "[ExternalLanding] fresh H alignment latched with %d frames",
-                    external_landing_stable_count_);
+                    "[ExternalLanding] fresh H alignment latched with %d frames "
+                    "stage=enter_descend decision=%u center=(%.4f,%.4f) capture_z=%.4f descent_z=%.4f "
+                    "handoff_ceiling_z=%.4f observed_fc_z=%.4f",
+                    external_landing_stable_count_,external_landing_decision_seq_,
+                    external_landing_aligned_goal_.pose.position.x,
+                    external_landing_aligned_goal_.pose.position.y,external_landing_capture_height_,
+                    land_height,external_landing_auto_land_height_,uav_pose.pose.position.z);
             }
         }
         external_landing_new_mark_ = false;
@@ -1054,6 +1109,8 @@ void LLController::patrol(){
 }
 
 void LLController::plannercmdCallback(const geometry_msgs::PoseStamped& msg) {
+    if(navigation_recovery_active_ && msg.header.stamp<=navigation_recovery_command_.header.stamp) return;
+    navigation_recovery_active_=false;
     have_planner_cmd = true;
     planner_cmd = msg;
     latest_planner_cmd_time_ = ros::Time::now();
@@ -1179,7 +1236,23 @@ bool isQuaternionNormalized(const geometry_msgs::Quaternion& q, double tolerance
     return std::abs(norm - 1.0) < tolerance;
 }
 
+bool LLController::hasValidNavigationRecovery() const {
+    const auto now=ros::Time::now();
+    const auto& state=external_landing_mavros_state_;
+    const double state_age=(now-external_landing_state_receipt_).toSec();
+    const double pose_age=(now-uav_pose.header.stamp).toSec();
+    const bool owner=external_mission_mode_ && navigation_recovery_active_ &&
+        Drone_mode==Run_point && !external_waiting_for_motion_ &&
+        state.connected && state.armed && state.mode=="OFFBOARD" &&
+        state_age>=0 && state_age<=external_landing_state_max_age_sec_ &&
+        !uav_pose.header.stamp.isZero() && pose_age>=0 && pose_age<=.25 &&
+        std::abs(navigation_recovery_command_.soft_max_z-external_planner_max_command_z_)<1e-6;
+    const Eigen::Vector3d p(uav_pose.pose.position.x,uav_pose.pose.position.y,uav_pose.pose.position.z);
+    return navigation_recovery_gate_.accepts(navigation_recovery_command_,navigation_recovery_context_,now,p,owner);
+}
+
 bool LLController::hasValidExternalPlannerCommand() const {
+    if(navigation_recovery_active_ && !hasValidNavigationRecovery()) return false;
     if (!have_planner_cmd) {
         ROS_WARN_THROTTLE(1.0, "[ExternalPlanner] no planner command received");
         return false;
@@ -1336,7 +1409,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
                     // A fresh sample from an old trajectory is not a new mission.
                     mavros_point_cmd = patrol_cmd;
                 } else if (have_planner_cmd && planner_cmd.pose.position.z >
-                           external_planner_max_command_z_ + external_planner_height_epsilon_) {
+                           external_planner_max_command_z_ + external_planner_height_epsilon_ && !hasValidNavigationRecovery()) {
                     // Never execute XY from a curve whose Z has been clipped.
                     holdExternalPlannerHeight("planner", planner_cmd.pose.position.z);
                 } else if (hasValidExternalPlannerCommand()) {
@@ -1641,7 +1714,7 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     // A latched hold can itself be above the ceiling; this is a stop request,
     // not a claim that measured height or the FC local frame is safe/reset-free.
     if (external_mission_mode_ && mavros_point_cmd.pose.position.z >
-        external_planner_max_command_z_ + external_planner_height_epsilon_) {
+        external_planner_max_command_z_ + external_planner_height_epsilon_ && !hasValidNavigationRecovery()) {
         if (Drone_mode==Run_point) {
             holdExternalPlannerHeight("final", mavros_point_cmd.pose.position.z);
         } else {
@@ -1756,6 +1829,14 @@ void LLController::CallLand() {
         if (mode_accepted) {
             ROS_INFO("[PatrolControl] %s request sent; awaiting MAVROS mode observation",
                      auto_land_mode.request.custom_mode.c_str());
+            if (external_mission_mode_) ROS_INFO(
+                "[ExternalLanding] handoff_request_accepted mode=%s decision=%u "
+                "fc_z=%.4f target_z=%.4f ceiling_z=%.4f xy_error=%.4f pose_source=%.6f",
+                auto_land_mode.request.custom_mode.c_str(),external_landing_decision_seq_,
+                uav_pose.pose.position.z,land_height,external_landing_auto_land_height_,
+                std::hypot(uav_pose.pose.position.x-external_landing_aligned_goal_.pose.position.x,
+                           uav_pose.pose.position.y-external_landing_aligned_goal_.pose.position.y),
+                uav_pose.header.stamp.toSec());
         } else {
             ROS_WARN("[PatrolControl] %s request failed; keeping landing setpoint",
                      auto_land_mode.request.custom_mode.c_str());
@@ -1798,6 +1879,16 @@ void LLController::load_params() {
     motion_twist_frame_ = nh_.param<std::string>("motion_feedback/twist_frame", "child");
     compensated_alignment_topic_ = nh_.param<std::string>("drop_system/alignment_feedback_topic", "/uav_vision/drop_alignment_feedback");
     compensated_alignment_enabled_ = nh_.param("drop_system/compensated_alignment", true);
+    drop_clearance_map_topic_ = nh_.param<std::string>(
+        "drop_system/clearance/map_topic", "/freedom/static_pointcloud");
+    drop_clearance_guard_.max_age_sec = nh_.param("drop_system/clearance/map_max_age_sec", 2.0);
+    drop_clearance_guard_.cache_radius_m = nh_.param("drop_system/clearance/local_radius_m", 2.0);
+    drop_clearance_guard_.voxel_size_m = nh_.param("drop_system/clearance/voxel_size_m", 0.10);
+    drop_clearance_guard_.body_xy_radius_m = nh_.param("drop_system/clearance/body_xy_radius_m", 0.39);
+    drop_clearance_guard_.body_up_m = nh_.param("drop_system/clearance/body_up_m", 0.20);
+    drop_clearance_guard_.body_down_m = nh_.param("drop_system/clearance/body_down_m", 0.22);
+    if (drop_clearance_map_topic_.empty() || !drop_clearance_guard_.configured())
+        throw std::invalid_argument("invalid final drop clearance configuration");
     const auto semantics = nh_.param<std::string>("drop_system/slot_offset_semantics", "body_flu_lever_arm");
     if (motion_odom_topic_.empty() || compensated_alignment_topic_.empty() ||
         (motion_twist_frame_ != "child" && motion_twist_frame_ != "header") ||
@@ -1822,6 +1913,9 @@ void LLController::load_params() {
     drop_settle_config_.max_vertical_speed_mps = 0.10;
     drop_settle_config_.stable_duration_sec = 0.30;
     load_stability("drop_system/settle", &drop_settle_config_);
+    landing_settle_config_.max_horizontal_speed_mps = 0.08;
+    landing_settle_config_.max_vertical_speed_mps = 0.10;
+    landing_settle_config_.stable_duration_sec = 0.15;
     load_stability("external_landing/posctl", &landing_settle_config_);
     // 观察高位仅放宽高度可用范围；低位交接的高度、位置及速度门槛保持独立。
     landing_capture_config_ = landing_settle_config_;
@@ -3559,10 +3653,33 @@ bool LLController::setCompensatedDropTarget(geometry_msgs::PoseStamped* target) 
         offsets[c.payload_slot-1][0], offsets[c.payload_slot-1][1], &arm)) return false;
     const Eigen::Vector2d center(target->pose.position.x,target->pose.position.y);
     if (!center.allFinite()) return false;
-    compensated_target_center_ = target->pose.position;
     const Eigen::Vector2d fc = compensatedFcXY(center,arm);
-    target->pose.position.x = fc.x(); target->pose.position.y = fc.y();
+    const double current_yaw = tf::getYaw(uav_pose.pose.orientation);
+    const double target_yaw = tf::getYaw(target->pose.orientation);
+    // Reject an impossible compensated endpoint before it can be frozen.
+    // Clamping the command later would leave an unreachable release target.
+    const double body_margin = drop_clearance_guard_.body_xy_radius_m + near_wall_align_fence_.tracking_reserve_m;
+    const auto& bounds = near_wall_align_fence_.bounds;
+    const bool outside_body_boundary = near_wall_align_fence_.enabled &&
+        (fc.x() < bounds[0]+body_margin || fc.x() > bounds[1]-body_margin ||
+         fc.y() < bounds[2]+body_margin || fc.y() > bounds[3]-body_margin);
+    if (outside_body_boundary || !near_wall_align_fence_.contains(fc.x(),fc.y(),current_yaw) ||
+        !near_wall_align_fence_.contains(fc.x(),fc.y(),target_yaw)) {
+        compensated_goal_valid_ = false;
+        have_waypoint_mark = have_cross_mark = false;
+        uav_drop_ready_ = false;
+        adjust_target_position[0] = uav_pose.pose.position.x;
+        adjust_target_position[1] = uav_pose.pose.position.y;
+        drop_release_window_.reset();
+        ROS_WARN_THROTTLE(1.0, "[DropGeometry] compensated target rejected outside legal boundary; awaiting mission retry");
+        return false;
+    }
+    compensated_target_center_ = target->pose.position;
     compensated_fc_goal_ = *target;
+    compensated_fc_goal_.pose.position.x = fc.x();
+    compensated_fc_goal_.pose.position.y = fc.y();
+    // Keep the existing visual capture over the target center. Once it is
+    // confirmed, the frozen compensated XY and descent are commanded together.
     compensated_context_ = c;
     compensated_observation_stamp_ = target->header.stamp;
     compensated_goal_valid_ = true;
@@ -3606,6 +3723,10 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
     const double source_age = now-compensated_observation_stamp_.toSec();
     // 冻结后不刷新靶心时间；释放仍依赖原有有界许可，而不是强求低空完整图像。
     if (!release && (source_age < 0.0 || source_age > drop_offset_timeout_)) {window.reset(); return false;}
+    // Capture keeps visual identity/geometry/freshness, but does not wait for
+    // release-level position, velocity, height or a motion stability window.
+    // The complete window below is mandatory only at physical release.
+    if (!release) return externalLandingControlReady(ros::Time::now());
     LandingHandoffSample sample;
     sample.source_stamp_sec = motion_odom_.header.stamp.toSec();
     sample.receipt_stamp_sec = motion_odom_receipt_.toSec();
@@ -3623,20 +3744,96 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
     if (!result.ready) ROS_INFO_THROTTLE(1.0,
         "[DropGeometry] waiting: %s xy=%.3f speed=%.3f zerr=%.3f samples=%zu",
         result.reason,xy_error,horizontal_speed,sample.z_error_m,result.sample_count);
+    else ROS_INFO(
+        "[DropGeometry] release_window_ready slot=%u decision=%u fc_xy_error=%.4f outlet_xy_error=%.4f "
+        "horizontal_speed=%.4f vz=%.4f fc_z=%.4f release_z=%.4f ceiling_z=%.4f span=%.4f samples=%zu odom=%.6f",
+        c.payload_slot,c.decision_seq,fc_error,outlet_error,horizontal_speed,velocity.z(),
+        pos.z,target_z,sample.max_handoff_height_m,result.stable_for_sec,result.sample_count,
+        sample.source_stamp_sec);
     return result.ready;
+}
+
+void LLController::dropClearanceMapCallback(const sensor_msgs::PointCloud2::ConstPtr& msg) {
+    auto& guard = drop_clearance_guard_;
+    guard.ready = false;
+    guard.points.clear();
+    const std::size_t count = static_cast<std::size_t>(msg->width) * msg->height;
+    if (count == 0 || count > 250000 || msg->height != 1 || msg->is_bigendian ||
+        msg->point_step == 0 || static_cast<std::size_t>(msg->row_step) < static_cast<std::size_t>(msg->width) * msg->point_step ||
+        msg->data.size() < static_cast<std::size_t>(msg->row_step) * msg->height ||
+        msg->header.stamp.isZero() || msg->header.frame_id != uav_pose.header.frame_id)
+        return;
+    // Prime one local cache per cloud, rather than scan the full cloud in every
+    // image or control callback. No empty source map establishes readiness.
+    guard.cache_center = Eigen::Vector2d(uav_pose.pose.position.x,uav_pose.pose.position.y);
+    if (!guard.cache_center.allFinite()) return;
+    for (const char* name : {"x","y","z"}) {
+        const auto field = std::find_if(msg->fields.begin(),msg->fields.end(),
+            [name](const sensor_msgs::PointField& value) { return value.name == name; });
+        if (field == msg->fields.end() || field->datatype != sensor_msgs::PointField::FLOAT32 ||
+            field->count != 1 || field->offset + sizeof(float) > msg->point_step) return;
+    }
+    std::size_t finite_points = 0;
+    try {
+        sensor_msgs::PointCloud2ConstIterator<float> x(*msg,"x"), y(*msg,"y"), z(*msg,"z");
+        for (std::size_t i = 0; i < count; ++i, ++x, ++y, ++z) {
+            const Eigen::Vector3d p(*x,*y,*z);
+            if (!p.allFinite()) continue;
+            ++finite_points;
+            if (std::abs(p.x()-guard.cache_center.x()) <= guard.cache_radius_m &&
+                std::abs(p.y()-guard.cache_center.y()) <= guard.cache_radius_m)
+                guard.points.push_back(p);
+        }
+    } catch (const std::exception&) { guard.points.clear(); return; }
+    guard.source_stamp = msg->header.stamp.toSec();
+    guard.receipt_stamp = ros::Time::now().toSec();
+    guard.frame = msg->header.frame_id;
+    guard.ready = finite_points > 0;
+}
+
+bool LLController::compensatedDropPathClear() const {
+    const auto& p = uav_pose.pose.position;
+    const auto& g = compensated_fc_goal_.pose.position;
+    const double yaw = tf::getYaw(uav_pose.pose.orientation);
+    const double goal_yaw = tf::getYaw(compensated_fc_goal_.pose.orientation);
+    if (!compensated_goal_valid_ ||
+        !near_wall_align_fence_.contains(p.x,p.y,yaw) ||
+        !near_wall_align_fence_.contains(g.x,g.y,yaw) ||
+        !near_wall_align_fence_.contains(g.x,g.y,goal_yaw)) {
+        ROS_WARN_THROTTLE(1.0,"[DropGeometry] descent rejected: drop_path_outside_boundary");
+        return false;
+    }
+    const double margin = std::max(drop_clearance_guard_.body_xy_radius_m +
+        near_wall_align_fence_.tracking_reserve_m,std::max(
+        near_wall_align_fence_.margin(yaw),near_wall_align_fence_.margin(goal_yaw)));
+    const auto& bounds = near_wall_align_fence_.bounds;
+    if (near_wall_align_fence_.enabled &&
+        (std::min(p.x,g.x) < bounds[0]+margin || std::max(p.x,g.x) > bounds[1]-margin ||
+         std::min(p.y,g.y) < bounds[2]+margin || std::max(p.y,g.y) > bounds[3]-margin)) {
+        ROS_WARN_THROTTLE(1.0,"[DropGeometry] descent rejected: drop_body_outside_boundary");
+        return false;
+    }
+    const char* reason = drop_clearance_guard_.rejection(ros::Time::now().toSec(),
+        uav_pose.header.frame_id,Eigen::Vector3d(p.x,p.y,p.z),
+        Eigen::Vector2d(compensated_target_center_.x,compensated_target_center_.y),
+        Eigen::Vector2d(g.x,g.y),drop_release_setpoint_height_,margin);
+    if (reason) ROS_WARN_THROTTLE(1.0,"[DropGeometry] descent rejected: %s; awaiting mission retry",reason);
+    return reason == nullptr;
 }
 
 bool LLController::freezeCompensatedDropTarget() {
     if (compensated_goal_frozen_) return true;
-    if (!compensatedDropSettled(false)) return false;
+    if (!compensatedDropSettled(false) || !compensatedDropPathClear()) return false;
     const double age = (ros::Time::now()-latest_drop_ready_time_).toSec();
     if (!uav_drop_ready_ || age < 0.0 || age > drop_offset_timeout_) return false;
     compensated_goal_frozen_ = true;
     drop_release_window_.reset();
-    ROS_INFO("[DropGeometry] frozen slot=%u center=(%.3f,%.3f) FC=(%.3f,%.3f) source=%.6f",
+    ROS_INFO("[DropGeometry] frozen slot=%u center=(%.3f,%.3f) FC=(%.3f,%.3f) source=%.6f "
+        "stage=enter_descend decision=%u capture_z=%.4f release_z=%.4f observed_fc_z=%.4f",
         compensated_context_.payload_slot, compensated_target_center_.x,compensated_target_center_.y,
         compensated_fc_goal_.pose.position.x,compensated_fc_goal_.pose.position.y,
-        compensated_observation_stamp_.toSec());
+        compensated_observation_stamp_.toSec(),compensated_context_.decision_seq,
+        external_alignment_capture_height_,drop_release_setpoint_height_,uav_pose.pose.position.z);
     return true;
 }
 
@@ -3663,7 +3860,8 @@ void LLController::publishCompensatedAlignment() {
     feedback.horizontal_error_m=error; feedback.horizontal_speed_mps=speed;
     const char* motion_reason = motionFeedbackStatus();
     feedback.reason=motion_reason ? motion_reason :
-        (ready ? "compensated_settled" : "compensated_not_settled");
+        (ready ? (compensated_goal_frozen_ ? "frozen_capture_geometry_valid" : "capture_geometry_valid") :
+                 "compensated_not_ready");
     compensated_alignment_pub_.publish(feedback);
 }
 
@@ -3685,6 +3883,7 @@ bool LLController::landingMotionSettled(bool handoff, double xy_error) {
         motion_odom_.pose.pose.position.x-goal.pose.position.x,
         motion_odom_.pose.pose.position.y-goal.pose.position.y));
     sample.z_error_m=sample.height_m-(handoff ? land_height : external_landing_capture_height_);
+    sample.controlled_descent=handoff;
     sample.horizontal_speed_mps=sample.feedback_valid ? v.head<2>().norm() : 0.0;
     sample.vertical_speed_mps=sample.feedback_valid ? v.z() : 0.0;
     sample.alignment_latched=handoff ? external_landing_alignment_complete_ : true;
@@ -3692,6 +3891,13 @@ bool LLController::landingMotionSettled(bool handoff, double xy_error) {
     const auto result=window.update(ros::Time::now().toSec(),sample);
     if (!result.ready) ROS_INFO_THROTTLE(1.0,"[ExternalLanding] %s settling: %s xy=%.3f speed=%.3f zerr=%.3f",
         handoff ? "low handoff" : "capture",result.reason,xy_error,sample.horizontal_speed_mps,sample.z_error_m);
+    else ROS_INFO(
+        "[ExternalLanding] %s window_ready decision=%u xy_error=%.4f horizontal_speed=%.4f vz=%.4f "
+        "fc_z=%.4f target_z=%.4f ceiling_z=%.4f span=%.4f samples=%zu odom=%.6f",
+        handoff ? "low handoff" : "capture",external_landing_decision_seq_,sample.xy_error_m,
+        sample.horizontal_speed_mps,sample.vertical_speed_mps,sample.height_m,
+        handoff ? land_height : external_landing_capture_height_,sample.max_handoff_height_m,
+        result.stable_for_sec,result.sample_count,sample.source_stamp_sec);
     return result.ready;
 }
 
@@ -3744,8 +3950,13 @@ DropActionResult LLController::executeDropAction(int servo_id) {
         return servo_action_slot_ == servo_id ? servo_action_result_
                                              : DropActionResult::kRejected;
     }
-    if (external_mission_mode_ && compensated_alignment_enabled_ &&
-        !compensatedDropSettled(true)) return DropActionResult::kPending;
+    if (external_mission_mode_ && compensated_alignment_enabled_) {
+        if (!compensatedDropPathClear()) {
+            drop_release_window_.reset();
+            return DropActionResult::kPending;
+        }
+        if (!compensatedDropSettled(true)) return DropActionResult::kPending;
+    }
     // Receiving a fresh release permission is not permission to actuate after
     // RC takeover/disarm/disconnect. Use the existing flight-state age gate.
     if (!externalLandingControlReady(ros::Time::now())) return DropActionResult::kRejected;
@@ -3801,8 +4012,11 @@ DropActionResult LLController::executeDropAction(int servo_id) {
     servo_action_attempted_ = true;
     servo_action_pending_ = true;
     servo_action_result_ = DropActionResult::kPending;
-    ROS_INFO("[DropSystem] async Servo submitted action=%llu slot=%d",
-             static_cast<unsigned long long>(servo_action_id_), servo_id);
+    ROS_INFO("[DropSystem] async Servo submitted action=%llu slot=%d "
+        "stage=release_rpc decision=%u observed_fc_z=%.4f release_z=%.4f pose_source=%.6f",
+        static_cast<unsigned long long>(servo_action_id_),servo_id,
+        servo_alignment_context_.decision_seq,uav_pose.pose.position.z,
+        drop_release_setpoint_height_,uav_pose.header.stamp.toSec());
     return DropActionResult::kPending;
 }
 
