@@ -1,0 +1,88 @@
+{
+  "url": "http://127.0.0.1:8771/",
+  "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests",
+  "head_b": "c457284965f8067a3a5b1a40738858e76782b75a",
+  "head_f": "0a675d96ef8d28b7086209eaa30a3fd68a4b3587",
+  "pid": 12108,
+  "commands": {
+    "08_competition": "bash deployment/board_trials_4x4/08_full_mission/start.sh preview --site-config deployment/board_trials_4x4/08_full_mission/site_20261007_221730.yaml --speed-profile competition --check-config",
+    "08_limited": "bash deployment/board_trials_4x4/08_full_mission/start.sh preview --site-config deployment/board_trials_4x4/08_full_mission/site_20261007_221730.yaml --speed-profile limited --check-config",
+    "competition_snake3": "bash deployment/competition/start.sh preview --site-config deployment/competition/candidates/snake3_motion.yaml --check-config"
+  },
+  "checks": [
+    {
+      "tree": "B",
+      "matching_runtime_files": 27,
+      "normalized_windows_launchers": true
+    },
+    {
+      "tree": "F",
+      "matching_runtime_files": 27,
+      "normalized_windows_launchers": true
+    },
+    {
+      "http_file": "app.js",
+      "zip_identical": true
+    },
+    {
+      "http_file": "observe.js",
+      "zip_identical": true
+    },
+    {
+      "http_file": "logs.js",
+      "zip_identical": true
+    }
+  ],
+  "zip": "liftrace_flight_workbench_windows_20261008_evening.zip",
+  "result": "PASS",
+  "board_connected": false,
+  "sessions": {},
+  "trial_started": false,
+  "site_config": "deployment/board_trials_4x4/08_full_mission/site_20261007_221730.yaml",
+  "speed_options": [
+    {
+      "value": "",
+      "label": "有限空间规划 · 0.5m/s / 0.35m/s²"
+    },
+    {
+      "value": "competition",
+      "label": "08正赛速度 · 1.2m/s / 1.0m/s² · 原现场几何"
+    }
+  ],
+  "competition_options": [
+    {
+      "path": "deployment/competition/field.example.yaml",
+      "label": "默认比赛模板 · 10×10待实测确认"
+    },
+    {
+      "path": "deployment/competition/candidates/rectangle_motion.yaml",
+      "label": "正式候选 · 四边形 · 待现场实测"
+    },
+    {
+      "path": "deployment/competition/candidates/snake_motion.yaml",
+      "label": "正式候选 · 两线往返 · 待现场实测"
+    },
+    {
+      "path": "deployment/competition/candidates/snake3_motion.yaml",
+      "label": "正式候选 · 三扫描线 · 待现场实测"
+    },
+    {
+      "path": "deployment/competition/field_20261007_validated.yaml",
+      "label": "可选测试复现 · 非10×10正赛参数"
+    }
+  ],
+  "camera": {
+    "id": "camera",
+    "seq": 4,
+    "title": "4 · 下视相机",
+    "desc": "需要同时有原始图、压缩图和 CameraInfo；按实际设备节点调整视频节点。",
+    "command": "bash deployment/competition/start_camera.sh /dev/video0",
+    "ready": {
+      "kind": "topic",
+      "topic": "/camera/image_raw",
+      "timeout": 60
+    },
+    "state": "idle",
+    "has_ready": true
+  }
+}
