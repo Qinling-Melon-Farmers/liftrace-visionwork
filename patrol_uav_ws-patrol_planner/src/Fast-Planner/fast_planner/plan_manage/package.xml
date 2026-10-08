@@ -87,4 +87,6 @@
 
   </export>
   <depend>navigation_recovery_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>quadrotor_msgs</depend>
 </package>
