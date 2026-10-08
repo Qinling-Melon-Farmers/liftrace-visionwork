@@ -435,12 +435,10 @@ void LLController::externalMissionTick() {
         return;
     }
 
-    if (compensated_alignment_enabled_ &&
-        (compensated_goal_valid_ || compensated_target_outside_boundary_) && !servo_action_attempted_) {
+    if (compensated_alignment_enabled_ && compensated_goal_valid_ && !servo_action_attempted_) {
         const auto& c = servo_alignment_context_;
         const auto& b = compensated_context_;
-        if (compensated_target_outside_boundary_ ||
-            !have_servo_alignment_context_ || !c.active || c.deadline <= ros::Time::now() ||
+        if (!have_servo_alignment_context_ || !c.active || c.deadline <= ros::Time::now() ||
             c.mission_id != b.mission_id || c.decision_seq != b.decision_seq || c.attempt != b.attempt ||
             c.payload_slot != b.payload_slot || c.semantic_target_id != b.semantic_target_id ||
             c.semantic_target_first_seen != b.semantic_target_first_seen || c.semantic_target_class != b.semantic_target_class) {
@@ -3614,8 +3612,7 @@ bool LLController::freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angul
 }
 
 bool LLController::setCompensatedDropTarget(geometry_msgs::PoseStamped* target) {
-    if (compensated_goal_frozen_ || compensated_target_outside_boundary_ || servo_action_attempted_)
-        return false;
+    if (compensated_goal_frozen_) return false;
     const auto& c = servo_alignment_context_;
     const double context_age = (ros::Time::now()-c.header.stamp).toSec();
     if (!have_servo_alignment_context_ || !c.active || !c.has_target ||
@@ -3640,23 +3637,6 @@ bool LLController::setCompensatedDropTarget(geometry_msgs::PoseStamped* target) 
     // confirmed, the frozen compensated XY and descent are commanded together.
     compensated_context_ = c;
     compensated_observation_stamp_ = target->header.stamp;
-    // 只复用最终指令已有的边界：同一中心范围、机体尺寸及当前/目标航向余量。
-    // 不截断补偿终点冒充正确投口，也不引入点云或额外机体包络。
-    const double current_yaw = tf::getYaw(uav_pose.pose.orientation);
-    const double target_yaw = tf::getYaw(target->pose.orientation);
-    if (!near_wall_align_fence_.contains(fc.x(),fc.y(),current_yaw) ||
-        !near_wall_align_fence_.contains(fc.x(),fc.y(),target_yaw)) {
-        compensated_goal_valid_ = false;
-        compensated_target_outside_boundary_ = true;
-        have_waypoint_mark = have_cross_mark = false;
-        uav_drop_ready_ = false;
-        drop_capture_window_.reset();
-        drop_release_window_.reset();
-        ROS_WARN("[DropGeometry] compensated_target_outside_boundary slot=%u decision=%u "
-                 "center=(%.3f,%.3f) fc=(%.3f,%.3f); hold and cancel this alignment",
-                 c.payload_slot,c.decision_seq,center.x(),center.y(),fc.x(),fc.y());
-        return false;
-    }
     compensated_goal_valid_ = true;
     return true;
 }
@@ -3766,8 +3746,7 @@ void LLController::publishCompensatedAlignment() {
     feedback.target_fc=compensated_fc_goal_.pose.position;
     feedback.horizontal_error_m=error; feedback.horizontal_speed_mps=speed;
     const char* motion_reason = motionFeedbackStatus();
-    feedback.reason=compensated_target_outside_boundary_ ? "compensated_target_outside_boundary" :
-        motion_reason ? motion_reason :
+    feedback.reason=motion_reason ? motion_reason :
         (ready ? (compensated_goal_frozen_ ? "frozen_capture_geometry_valid" : "capture_geometry_valid") :
                  "compensated_not_ready");
     compensated_alignment_pub_.publish(feedback);
@@ -4010,7 +3989,6 @@ void LLController::stopDropAction(int servo_id) {
 }
 
 void LLController::resetDropState() {
-    compensated_target_outside_boundary_ = false;
     compensated_goal_valid_ = compensated_goal_frozen_ = false;
     compensated_observation_stamp_ = ros::Time(0);
     drop_capture_window_.reset();
@@ -4278,7 +4256,6 @@ void LLController::resetCrossDetectionState() {
 }
 
 void LLController::resetDetectionState() {
-    compensated_target_outside_boundary_ = false;
     compensated_goal_valid_ = compensated_goal_frozen_ = false;
     compensated_observation_stamp_ = ros::Time(0);
     drop_capture_window_.reset();

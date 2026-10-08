@@ -11,3 +11,10 @@ Mission Manager负责搜索、目标事务、投后路线和降落；Planner Bri
 全图含Gazebo、布设/碰撞/Gate评测及两路录像；真值和观察节点不进入实机飞行入口。仅飞行图移除它们，不虚构本轮未注册的设备。板端使用`target_detector_rknn`替代SITL的`target_detector`；MAVROS、相机、雷达和机械服务按设备配套。此图不证明板端实时链已验收。
 
 当前R64：seed11完整PASS，十seed原始7/10完整PASS，5/7/8有旧布设压墙，生成器已修但新矩阵未重跑；seed3近地落地仍失败。[矩阵报告](verification/r64_matrix/REPORT.md)。随机门实验已完成五seed，2/5整场PASS、RL未采样；辅助相机仍未启用，[本轮仅作计划与离线比较](planning/r64_time_camera/PLAN.md)。
+
+
+## 2026-10-08 补偿终点不可达反馈
+
+`patrol_control`冻结前复用原NearWallAlignFence判定补偿FC终点。不可达时仍使用`uav_vision/DropAlignmentFeedback`，不增加消息类型：`reason=compensated_target_outside_boundary`，`valid/aligned/frozen=false`；携带原观测时间、完整任务/决策/尝试/槽位/目标身份和未裁剪FC终点。此原因是本次对准已锁存的不可执行事实，不是释放许可，也不代表沿途净空检查。
+
+Planner Bridge从`~target/alignment_feedback_topic`读取；未配置时沿用控制端`/drop_system/alignment_feedback_topic`，最终默认`/uav_vision/drop_alignment_feedback`。只接收当前对准事务的匹配、新鲜报告，原观测不被重新盖时间戳。通过已有CANCEL_PENDING和对准撤销消息请求代理取消，由原ReleaseResult未执行证明结束失败动作并释放槽位预留；已经开始执行或不匹配的报告不得覆盖真实执行事实。保留既有失败候选冷却、预算及后续选点机制，不另建恢复层。

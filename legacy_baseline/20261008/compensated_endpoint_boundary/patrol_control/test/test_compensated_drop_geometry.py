@@ -22,7 +22,6 @@ PROGRAM = r'''
 #include "patrol_control/landing_handoff_stability.h"
 #include "patrol_control/async_servo.h"
 #include "patrol_control/servo_action_result.h"
-#include "patrol_control/near_wall_align.h"
 #include <array>
 #include <atomic>
 #include <cassert>
@@ -77,13 +76,6 @@ struct AlignmentTargetContext {
  ros::Time semantic_target_first_seen=ros::Time(90),deadline=ros::Time(200);
 };
 struct DropOffset {ros::Header header; double dx_px=0,dy_px=0,radius_px=0;};
-struct DropAlignmentFeedback {
- ros::Header header; ros::Time observation_stamp,odom_stamp,semantic_target_first_seen;
- std::string mission_id,semantic_target_class,align_mode,reason;
- unsigned int decision_seq=0,attempt=0,payload_slot=0,semantic_target_id=0;
- bool valid=false,aligned=false,frozen=false;
- geometry_msgs::Point target_fc; double horizontal_error_m=-1,horizontal_speed_mps=-1;
-};
 }
 namespace tf {
 double getYaw(const geometry_msgs::Quaternion&q){
@@ -128,10 +120,6 @@ class LLController {
 public:
  bool external_mission_mode_=true,compensated_alignment_enabled_=true;
  bool compensated_goal_valid_=false,compensated_goal_frozen_=false;
- bool compensated_target_outside_boundary_=false,guard_proceeded=false;
- NearWallAlignFence near_wall_align_fence_;
- struct { uav_vision::DropAlignmentFeedback last; void publish(const uav_vision::DropAlignmentFeedback& m){last=m;} } compensated_alignment_pub_;
- geometry_msgs::PoseStamped patrol_cmd;
  geometry_msgs::PoseStamped uav_pose,compensated_fc_goal_,waypoint_mark_point,waypoint_temp;
  geometry_msgs::PoseStamped cross_mark_point,land_mark_point;
  geometry_msgs::Point compensated_target_center_;
@@ -188,8 +176,6 @@ public:
  bool setCompensatedDropTarget(geometry_msgs::PoseStamped*);
  bool compensatedDropSettled(bool,double* =nullptr,double* =nullptr);
  bool freezeCompensatedDropTarget();
- void publishCompensatedAlignment();
- void advanceExternalGuard(){ EXTERNAL_GUARD guard_proceeded=true; }
  void applyDropSlotOffset(int,bool);
  void projectDropOffsetToTarget(const uav_vision::DropOffset&);
  void servoAlignmentContextCallback(const uav_vision::AlignmentTargetContext::ConstPtr&);
@@ -258,55 +244,6 @@ int main(int argc,char**argv){
      close(d.adjust_target_position[0],2-ax);close(d.adjust_target_position[1],3-ay);
      close(d.compensated_target_center_.x,2);close(d.compensated_target_center_.y,3);}
    }
- }else if(name=="boundary"){
-  for(const std::string mode:{"drop_circle","drop_cross"})for(int slot=1;slot<=3;++slot)
-   for(double yaw:{0.,std::acos(-1)/2}){
-    LLController d;d.servo_client.impl=d.servo_action_client_.impl=t;
-    d.current_align_mode_=mode;d.servo_alignment_context_.align_mode=mode;
-    d.servo_alignment_context_.payload_slot=slot;
-    auto& fence=d.near_wall_align_fence_;fence.enabled=true;fence.bounds={{0,4,0,4}};
-    odom(d,100,2,2,1,0,0,attitude(yaw));
-    auto p=center(100);p.pose.position={2,2,1};p.pose.orientation=attitude(yaw);
-    assert(d.setCompensatedDropTarget(&p));
-    // Move the observed center 4cm inside the legal FC edge, while the
-    // physical outlet requires a further 12cm correction toward that edge.
-    const double dx=d.compensated_fc_goal_.pose.position.x-2;
-    const double dy=d.compensated_fc_goal_.pose.position.y-2;
-    const double margin=fence.margin(yaw);
-    if(std::abs(dx)>.1)p.pose.position.x=dx>0?4-margin-.04:margin+.04;
-    else p.pose.position.y=dy>0?4-margin-.04:margin+.04;
-    assert(fence.contains(p.pose.position.x,p.pose.position.y,yaw));
-    assert(!d.setCompensatedDropTarget(&p));
-    assert(d.compensated_target_outside_boundary_&&!d.compensated_goal_valid_&&!d.compensated_goal_frozen_);
-    const auto rejected=d.compensated_fc_goal_.pose.position;
-    const auto clamped=fence.clamp(rejected.x,rejected.y,yaw,yaw);
-    close(std::hypot(rejected.x-clamped.first,rejected.y-clamped.second),.08);
-    // No clipped endpoint is accepted as correctly compensated; no descent.
-    d.advanceExternalGuard();assert(!d.guard_proceeded);
-    close(d.patrol_cmd.pose.position.x,2);close(d.patrol_cmd.pose.position.y,2);close(d.align_height,1);
-    d.uav_drop_ready_=true;assert(!d.freezeCompensatedDropTarget());
-    assert(d.executeDropAction(slot)==DropActionResult::kPending&&t->calls==0);
-    d.publishCompensatedAlignment();const auto feedback=d.compensated_alignment_pub_.last;
-    assert(feedback.reason=="compensated_target_outside_boundary"&&!feedback.valid&&!feedback.aligned&&!feedback.frozen);
-    assert(feedback.mission_id==d.servo_alignment_context_.mission_id&&feedback.payload_slot==slot&&feedback.decision_seq==9);
-    close(feedback.target_fc.x,rejected.x);close(feedback.target_fc.y,rejected.y);
-    // An unrelated new center cannot revive the failed attempt. A complete
-    // existing action reset is required before accepting the next target.
-    p.pose.position={2,2,1};assert(!d.setCompensatedDropTarget(&p));
-    d.resetDetectionState();assert(!d.compensated_target_outside_boundary_);
-    assert(d.setCompensatedDropTarget(&p));d.uav_drop_ready_=true;
-    assert(d.freezeCompensatedDropTarget());
-    p.pose.position={10,10,1};assert(!d.setCompensatedDropTarget(&p));
-    assert(d.compensated_goal_frozen_&&!d.compensated_target_outside_boundary_);
-   }
- }else if(name=="boundary_yaw"){
-  auto& fence=c.near_wall_align_fence_;fence.enabled=true;fence.bounds={{0,4,0,4}};
-  odom(c,100,2,2,1);auto p=center(100);p.pose.position={4-fence.margin(0)-.12-.001,2,1};
-  // The current-yaw endpoint is legal, but the commanded 45deg body margin
-  // would cause the same final-command clamp. Check both existing margins.
-  p.pose.orientation=attitude(std::acos(-1)/4);
-  assert(fence.contains(p.pose.position.x+.12,2,0));
-  assert(!c.setCompensatedDropTarget(&p)&&c.compensated_target_outside_boundary_);
  }else if(name=="capture"){
   odom(c,100,2,3,1,.12);auto p=center(100);assert(c.setCompensatedDropTarget(&p));
   c.uav_drop_ready_=false;assert(!c.freezeCompensatedDropTarget());
@@ -504,7 +441,6 @@ class CompensatedDropGeometryTests(unittest.TestCase):
             'bool LLController::setCompensatedDropTarget(',
             'bool LLController::compensatedDropSettled(',
             'bool LLController::freezeCompensatedDropTarget(',
-            'void LLController::publishCompensatedAlignment(',
             'void LLController::applyDropSlotOffset(',
             'void LLController::projectDropOffsetToTarget(',
             'void LLController::servoAlignmentContextCallback(',
@@ -530,10 +466,7 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         cross_start = source.index('        if(have_cross_mark &&', source.index('bool LLController::CrossDetectionDone()'))
         cross_end = source.index('            double ttt = distance3d(', cross_start)
         cross = source[cross_start:cross_end] + '}'
-        guard_start = source.index('    if (compensated_alignment_enabled_ &&', source.index('void LLController::externalMissionTick()'))
-        guard_end = source.index('    std_msgs::Bool detect_enable_msg;', guard_start)
         cpp.write_text(PROGRAM.replace('METHODS', production).replace('DEFAULTS', defaults)
-                       .replace('EXTERNAL_GUARD', source[guard_start:guard_end])
                        .replace('CIRCLE_DESCENT', circle).replace('CROSS_DESCENT', cross), encoding='utf-8')
         cls.binary = root / 'test'
         subprocess.run([
@@ -547,8 +480,6 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_three_physical_arms_yaw_and_tilt_without_accumulation(self): self.run_case('arms')
-    def test_outside_endpoint_holds_reports_and_cannot_freeze_or_release(self): self.run_case('boundary')
-    def test_endpoint_uses_current_and_commanded_yaw_margin(self): self.run_case('boundary_yaw')
     def test_visual_capture_freezes_before_full_arm_correction_and_settlement(self): self.run_case('capture')
     def test_circle_fsm_starts_arm_correction_and_descent_after_visual_capture(self): self.run_case('circle_descent')
     def test_cross_fsm_starts_arm_correction_and_descent_after_visual_capture(self): self.run_case('cross_descent')

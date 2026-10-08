@@ -1,0 +1,230 @@
+{
+  "source_branch": "feat/r2026-competition-integrated",
+  "source_head": "0a675d96ef8d28b7086209eaa30a3fd68a4b3587",
+  "files": [
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "1504070c1487ffc4b33169e12549c4645adf529860710db67448c5c385b26dc3"
+    },
+    {
+      "path": "config/mavros_px4_sim.yaml",
+      "sha256": "f259d625de1488970fe0bc2cd4e670a80784481b3fb6e71bcf4dedb14533293e"
+    },
+    {
+      "path": "config/patrol_real.yaml",
+      "sha256": "e065efb2194cfffbb73564be180532dd6b4bd94239b7d855bf273a528f9735ab"
+    },
+    {
+      "path": "config/patrol_sim.yaml",
+      "sha256": "6808ed596751bae4ab67ad5c6429752a7df8e31fa19018d50390faa542b9316f"
+    },
+    {
+      "path": "config/patrol_toudi3_new_vision.yaml",
+      "sha256": "b43bb90342cd23eed2b20f70c1854af6f77cc833048e5f7e2b8cbbaaee3d589b"
+    },
+    {
+      "path": "config/patrol_toudi4_new_vision.yaml",
+      "sha256": "4884a1ca3495533ceff245f23e45f853a550510cc558acb288a78c2473dbd151"
+    },
+    {
+      "path": "docs/SERVO_ACTION_INTERFACE.md",
+      "sha256": "dc6310e21132fff60d6d863ccd59f23334524863b231a87e91c3a8e1f59b2081"
+    },
+    {
+      "path": "include/patrol_control/async_servo.h",
+      "sha256": "975b57f6f63618f397f621d7f9afa76b83944c862b9abd84fdde94fba68eec4e"
+    },
+    {
+      "path": "include/patrol_control/drop_action.h",
+      "sha256": "025435b3a2cae57dd3bd25af25d6700c9a12d9cbcbeb753ba75c4260a2133d49"
+    },
+    {
+      "path": "include/patrol_control/drop_slot_geometry.h",
+      "sha256": "92f28d7b095439d4af17eab7cb8415cdb1600d86f909b9e2db07314e276652c5"
+    },
+    {
+      "path": "include/patrol_control/landing_handoff_stability.h",
+      "sha256": "d507f6c3ff35862bff7faf229118d7a9686ebcd2dc2c0ea99b105028f60f38b6"
+    },
+    {
+      "path": "include/patrol_control/near_wall_align.h",
+      "sha256": "ac200e39996a7104c5aac5d66e3795628d57b877c0fa57113df46ecdb5b3d909"
+    },
+    {
+      "path": "include/patrol_control/patrol_control.h",
+      "sha256": "770297a36479b194cc5dd953f25389de0c95d7c55cce0f3dfcd6ef051479dfc1"
+    },
+    {
+      "path": "include/patrol_control/servo_action_result.h",
+      "sha256": "828ab6ad9ac56907ee6dc1dd4a704ac5e19adf6175bd12af01103a3cc47d2bc7"
+    },
+    {
+      "path": "launch/mavros_px4_sim.launch",
+      "sha256": "e2b1c70e008b7f7bfdefd0107fa58f23ec689baa10194024d1644ba09ec02010"
+    },
+    {
+      "path": "launch/patrol_control_px4_sim.launch",
+      "sha256": "c0b756b87831f6e265b5d9f7b37e3d2e84fa6a532fbfed64f24dd67c3e15702c"
+    },
+    {
+      "path": "launch/patrol_control_real.launch",
+      "sha256": "cff4337578ccc5d59f459c0794f5154b11503d554ff673d9bf6497597f4dfd53"
+    },
+    {
+      "path": "launch/patrol_control_sim.launch",
+      "sha256": "c7e1a053ad933705f2f1c522a26b8477d67323338b1261721cc49e04ea8a10fb"
+    },
+    {
+      "path": "launch/patrol_full_competition_sim.launch",
+      "sha256": "453ae1b10b86cecd4a794fda49e6df30940d72d7d27851ef1cee19759aa79386"
+    },
+    {
+      "path": "launch/patrol_world.launch",
+      "sha256": "25e22524026f72fc77b8c297691e0ad60b5a89691af3740fdbd89eeaf2f01064"
+    },
+    {
+      "path": "launch/px4_toudi3_sitl.launch",
+      "sha256": "8f0f9d30ad02024323bb477531c44a660c864c427e0261386fd0aeb83524bd3a"
+    },
+    {
+      "path": "launch/toudi3_full_competition_sim_new_vision.launch",
+      "sha256": "85ddecad7417847a9eec227689da2e3ef2184e41f4498fac01b3a17675992e66"
+    },
+    {
+      "path": "models/iris_mid360_downward_camera/meshes/competition_guard_ring.obj",
+      "sha256": "8aa333f2d6b8a8d22bded4660424af0e341ead642c25d1c964809e0414bbe38b"
+    },
+    {
+      "path": "models/iris_mid360_downward_camera/model.config",
+      "sha256": "b83d46823c760d1b84a85af47c9044513f559cdbacb5adcb3ac5896bd0ed37e8"
+    },
+    {
+      "path": "models/iris_mid360_downward_camera/model.sdf",
+      "sha256": "376c55692de908e2011385580a528cfcebf6effc85262f20c02746df834f2818"
+    },
+    {
+      "path": "models/iris_mid360_downward_camera/model_ks2a543.sdf",
+      "sha256": "eb2d7b349da003a3fcb8c6b2145c7827a521b6a4aae2eeb0194ee9517625e3ec"
+    },
+    {
+      "path": "msg/MissionCommand.msg",
+      "sha256": "821a3109b77b9ed6c60aee0c5329ca1edfce6cdaf883996639ab2009e9150ae6"
+    },
+    {
+      "path": "msg/ReleaseAuthorization.msg",
+      "sha256": "42c4702e9188c736b904db90dd22b796bae0f2f058e9e2039b0c95c227fba197"
+    },
+    {
+      "path": "package.xml",
+      "sha256": "2e0a8c524d4839ab04d09c3477d5511cf25b53224b4a6eded4fa5d41464254a2"
+    },
+    {
+      "path": "rviz_config/patrol_nano.rviz",
+      "sha256": "498560220752aa7b27c681f4fb68460da43e09fe82709767f80eddc304249c19"
+    },
+    {
+      "path": "rviz_config/patrol_pc.rviz",
+      "sha256": "3c502d907eb0c94a72a0855181e8c9ca0b5974c0919223b6c2a74ad39a1b4d52"
+    },
+    {
+      "path": "scripts/odom_to_pose_relay.py",
+      "sha256": "273437443aacd47a443d239a0bb2e2110145741838fa383dcb56f265fa406472"
+    },
+    {
+      "path": "scripts/px4_sitl_start.py",
+      "sha256": "08d837ab8bec3a00072f75c8b4a78c7a512c2d2422f976e72dd84c6484770a03"
+    },
+    {
+      "path": "scripts/spawn_model_delayed.py",
+      "sha256": "fc90304a6e63786175b639836109434c9ca2a04e29c371587215a2b766c78b33"
+    },
+    {
+      "path": "src/node/patrol_control_node.cpp",
+      "sha256": "107273cfd18a7f90569e00b18748fc30514148631e013e3ad3cfde512c743971"
+    },
+    {
+      "path": "src/patrol_control.cpp",
+      "sha256": "5a33ea8de92a8328efdedb7e47055f1f39637abb71710fec008a646bf9c881ba"
+    },
+    {
+      "path": "src/uav_arming_node.cpp",
+      "sha256": "56add59600789ccc9a4d1110a2d983c7272bd09726af81f5fdaac7675d9bf5d8"
+    },
+    {
+      "path": "srv/Servo.srv",
+      "sha256": "a1d665869929c6c31fd9194eb89e76154b577bab1fe583095743e9acc8f9887f"
+    },
+    {
+      "path": "srv/ServoAction.srv",
+      "sha256": "48722e8f20a7186bbda77eea589620389017aa23af642087d127513eea694091"
+    },
+    {
+      "path": "test/test_async_servo.py",
+      "sha256": "56164b95a42ab2cc961354cceb98e7b4a3059de73856068b3fc775e30dff34f9"
+    },
+    {
+      "path": "test/test_authorization_gate.py",
+      "sha256": "b5a73ad5b305f3c25f7906111c0e441a3c0c56694c3af1b2779bf1911293a502"
+    },
+    {
+      "path": "test/test_boundary_cache.py",
+      "sha256": "23450c8af9804ce4cd18a4291713306202b1080f6d2d1714dd1a895ea0064229"
+    },
+    {
+      "path": "test/test_compensated_drop_geometry.py",
+      "sha256": "4ea511e19f90cb9fc34b13fd24d43a1802835624b78df6c4a761d0ce23cac8c7"
+    },
+    {
+      "path": "test/test_drop_action.cpp",
+      "sha256": "d3bb63810b360929cea5db2c85720d49ceef8888bffaedcead11482f161b8bf9"
+    },
+    {
+      "path": "test/test_drop_height_scale.py",
+      "sha256": "5a463846eb1d140a9495a9e35da817873cae1e3c61f5fe5aaf999370cc1f355e"
+    },
+    {
+      "path": "test/test_external_alignment_fallback.py",
+      "sha256": "aa1ca5a13c2e4121c0c5f22450ddbc4ffaa36c34d13afdca2bac45c0d70349ab"
+    },
+    {
+      "path": "test/test_external_landing_handoff.py",
+      "sha256": "6f543c4a826836c292ec47563d41f5068ad0c7031de2fef5c65a431de4ff619f"
+    },
+    {
+      "path": "test/test_height_hold.py",
+      "sha256": "dcdd574f641ac4b7783b4b38aba5d07c861b1db7b5024809de3a26f8a0b7c371"
+    },
+    {
+      "path": "test/test_landing_handoff_stability.py",
+      "sha256": "ba8989a2dbc013fa17ff92d3478257a55adb83bb9b01049257d675ba4a16bdc5"
+    },
+    {
+      "path": "test/test_landing_motion_settlement.py",
+      "sha256": "10b4c96d4286788003b07cb244ec7d371bc859af4ddb590e1f376d539810d10a"
+    },
+    {
+      "path": "test/test_near_wall_align.cpp",
+      "sha256": "0fe68d347035d1d9c4377cee332bc3028f08a3f3cab7dd22744fc791bc5a140c"
+    },
+    {
+      "path": "test/test_new_vision_config.py",
+      "sha256": "1e95c73f868e2b47e64b46a808ac6b4686c57dd0bb7fc1ba8300c88470f28e00"
+    },
+    {
+      "path": "test/test_no_legacy_servo_status_false.py",
+      "sha256": "958100f6ccc8a536cc65ebc010fcfd454b2acffa0ada9b9a1247e831436d9442"
+    },
+    {
+      "path": "test/test_px4_sitl_start.py",
+      "sha256": "cfd7ec22b9848397225b256f3fd53980f19290671fb7ae9667b43c984117c10d"
+    },
+    {
+      "path": "test/test_recovery_hold.py",
+      "sha256": "901606162e50a89e549b3fc5e93d69e5d7f1e4c46d0f31835e875180f9236d03"
+    },
+    {
+      "path": "test/test_takeoff_xy_hold.py",
+      "sha256": "a9a79a417403eb8e96964b3cc43eb55f7f47dd1fac1b82f2c36cae0d745e5f3c"
+    }
+  ]
+}
