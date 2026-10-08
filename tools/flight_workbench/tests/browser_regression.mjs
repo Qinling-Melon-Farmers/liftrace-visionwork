@@ -48,8 +48,10 @@ try {
     !document.querySelector('a[href="/motor"]')`);
   await test('competition defaults to the independent template and has three-state controls', `
     state.groups.find(g=>g.id==='competition').site_config==='deployment/competition/field.example.yaml' &&
-    ['motionOptimization','obstacleColumns'].every(k=>{const s=document.querySelector('[data-option="'+k+'"]');return s&&s.options.length===3&&s.value==='';}) &&
-    document.querySelector('#groups-body').textContent.includes('比赛模板：高位2.6m')`);
+    ['motionOptimization','resume','obstacleColumns'].every(k=>{const s=document.querySelector('[data-option="'+k+'"]');return s&&s.options.length===3&&s.value==='';}) &&
+    ['FC高位2.6m','走廊前视0.6/0.4m','投递FC AGL 0.35m','FC软件限高3.2m'].every(value=>
+      [...document.querySelectorAll('.grp-card')].find(card=>
+        card.querySelector('.grp-title').textContent===state.groups.find(g=>g.id==='competition').name).textContent.includes(value))`);
   await run(`window.cg=state.groups.find(g=>g.id==='competition');
     groupUI(cg).motionOptimization='off';groupUI(cg).obstacleColumns='on';renderGroups();`);
   await test('competition switches reach the actual check command', `
@@ -148,9 +150,9 @@ try {
   await test('original site IDs and module aliases remain clickable', `
     ['site1','site2','site3','site4','site5','site6','mod03','mod04','mod08','mod06mock'].every(id=>state.groups.some(g=>g.id===id)) &&
     document.querySelectorAll('.grp-card').length===state.groups.length`);
-  await test('resume controls only exist on groups 06 and 08', `
+  await test('resume controls match independent competition and groups 06/08', `
     [...document.querySelectorAll('.grp-card')].every((card,i)=>
-      !!card.querySelector('[data-option="resume"]')===['06_high_priority','08_full_mission'].includes(state.groups[i].folder))`);
+      !!card.querySelector('[data-option="resume"]')===(state.groups[i].id==='competition' || ['06_high_priority','08_full_mission'].includes(state.groups[i].folder)))`);
   await run(`window.captureGroup=state.groups.find(g=>g.folder==='09_high_speed_capture');
     Object.assign(groupUI(captureGroup),{speed:1.2,lighting:'dim',motionOptimized:true,pattern:'snake3'});
     renderGroups();window.captureCard=[...document.querySelectorAll('.grp-card')].find(c=>c.querySelector('.grp-title').textContent===captureGroup.name);
