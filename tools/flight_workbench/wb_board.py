@@ -26,6 +26,29 @@ SURVEY_FOLDERS = ("02_high_view_revisit", "06_high_priority", "07_memory_only",
                   "08_full_mission", "09_high_speed_capture")
 RESUME_FOLDERS = ("06_high_priority", "08_full_mission")
 OBSERVATION_PROFILES = ("hover", "forward", "square")
+COMPETITION_ENV_SCRIPT = "deployment/competition/environment.sh"
+
+
+def is_competition_connection(connection):
+    return connection.get("env_script") == COMPETITION_ENV_SCRIPT
+
+
+def competition_asset_paths(connection):
+    """Keep model/metadata inside the selected project; never borrow another root."""
+    root = posixpath.normpath(connection.get("board_root", ""))
+    if not posixpath.isabs(root):
+        raise ValueError("独立正赛 board_root 必须是绝对路径")
+    paths = {}
+    for key in ("model", "metadata"):
+        value = connection.get(key)
+        if not isinstance(value, str) or not value.strip() or any(c in value for c in "\r\n\x00\\"):
+            raise ValueError("独立正赛 %s 必须填写工程内相对路径" % key)
+        relative = posixpath.relpath(value, root) if posixpath.isabs(value) else value
+        relative = posixpath.normpath(relative)
+        if relative in (".", "..") or relative.startswith("../") or ":" in relative:
+            raise ValueError("独立正赛 %s 不得引用其他工程；请填写当前根内相对路径" % key)
+        paths[key] = relative
+    return paths
 
 
 def is_observation(group):
@@ -373,13 +396,17 @@ class BoardClient(object):
 
     # -- 单实例检查 --
     def preflight(self):
+        connection = self.config["connection"]
+        competition = is_competition_connection(connection)
+        selected_groups = [g for g in self.config.get("groups", [])
+                           if not competition or g.get("channel") == "competition"]
         script = []
         for name in self.config["checks"].get("process_names", []):
             script.append('printf "PROC|%s|"; pgrep -x %s | wc -l' % (name, quote(name)))
         script.append('df -Pk %s 2>/dev/null | tail -1 | awk \'{print "DISK|"$4}\'' % quote(self.root))
         script.append('if [ -d %s ]; then echo "LOGSDIR=OK"; else echo "LOGSDIR=MISSING"; fi'
                       % quote(self.abs_path("logs")))
-        for group in self.config.get("groups", []):
+        for group in selected_groups:
             if group.get("channel") == "competition":
                 entry = self.abs_path(group.get("entry", "deployment/competition/start.sh"))
                 field = self.abs_path(group.get("site_config", "deployment/competition/field.example.yaml"))
@@ -395,11 +422,27 @@ class BoardClient(object):
                 'if [ -f %s/start_real.sh ]; then printf "real=1|"; else printf "real=0|"; fi; '
                 'if [ -f %s/%s ]; then echo "settings=1"; else echo "settings=0"; fi'
                 % (folder, quote(base), quote(base), quote(base), settings))
-        env_script = self.abs_path(self.config["connection"].get("env_script", ""))
-        connection = self.config["connection"]
+        env_script = self.abs_path(connection.get("env_script", ""))
         site_dir = connection.get("site_dir", "deployment/site_20260928")
-        site_config = self.abs_path(posixpath.join(site_dir, "test_area.yaml"))
+        site_config = self.abs_path("deployment/competition/field.example.yaml" if competition
+                                    else posixpath.join(site_dir, "test_area.yaml"))
         script.append('if [ -f %s ]; then echo "SITECFG=OK"; else echo "SITECFG=MISSING"; fi' % quote(site_config))
+        if competition:
+            # Read the template only. Do not generate configuration or contact ROS.
+            field_python = r'''import json,sys
+try:
+    import yaml
+    with open(sys.argv[1],encoding="utf-8") as handle:
+        field=yaml.safe_load(handle)
+    confirmed=field.get("site_confirmed") if isinstance(field,dict) else None
+    if not isinstance(confirmed,bool):raise ValueError("site_confirmed must be a YAML boolean")
+    report={"ok":True,"site_confirmed":confirmed}
+except Exception as error:
+    report={"ok":False,"detail":type(error).__name__+": "+str(error)[:200]}
+print("FIELD|"+json.dumps(report,separators=(",",":")))
+'''
+            script.append("%s - %s <<'WBFIELD'\n%sWBFIELD" %
+                          (quote(connection.get("board_python", "/usr/bin/python3")), quote(site_config), field_python))
         # Only inspect the checkout and import generated type definitions. This
         # does not query ROS, execute a service, or establish a running revision.
         version_python = r'''import importlib,json,subprocess,sys
@@ -413,7 +456,7 @@ try:
 except Exception:
     report["source"]={"error":"source Git revision unavailable"}
 try:
-    entry=root/"deployment/board_trials_4x4/common/uav_board_trials/scripts/run_trial.py"
+    entry=root/(sys.argv[2] if len(sys.argv)>2 else "deployment/board_trials_4x4/common/uav_board_trials/scripts/run_trial.py")
     report["resume_cli"]="--resume-survey" in entry.read_text(encoding="utf-8")
 except Exception:
     report["resume_error"]="source trial entry unavailable"
@@ -453,15 +496,18 @@ for name,module,path in definitions:
         report["interfaces"][name]={"ok":False,"detail":type(error).__name__+": "+str(error)[:240]}
 print("VERSION|"+json.dumps(report,separators=(",",":")))
 '''
-        script.append("if cd %s && source %s >/dev/null 2>&1; then\n%s - %s <<'WBVERSION'\n%sWBVERSION\n"
+        cli_source = ("patrol_uav_ws-patrol_planner/src/uav_mission/scripts/competition_supervisor.py" if competition
+                      else "deployment/board_trials_4x4/common/uav_board_trials/scripts/run_trial.py")
+        script.append("if cd %s && source %s >/dev/null 2>&1; then\n%s - %s %s <<'WBVERSION'\n%sWBVERSION\n"
                       "else echo 'VERSION|{\"error\":\"site environment unavailable\"}'; fi" %
                       (quote(self.root), quote(env_script), quote(connection.get("board_python", "/usr/bin/python3")),
-                       quote(self.root), version_python))
+                       quote(self.root), quote(cli_source), version_python))
         code, output = self.run("\n".join(script), timeout=30.0)
         processes = {}
         groups = {}
         disk_free_kb = None
         version = {}
+        field_state = {}
         for line in output.splitlines():
             if line.startswith("PROC|"):
                 _, name, count = (line.split("|") + ["", ""])[:3]
@@ -481,15 +527,28 @@ print("VERSION|"+json.dumps(report,separators=(",",":")))
                     value = json.loads(line.partition("|")[2])
                     if isinstance(value, dict):version = value
                 except (TypeError, ValueError):pass
+            elif line.startswith("FIELD|"):
+                try:
+                    value = json.loads(line.partition("|")[2])
+                    if isinstance(value, dict):field_state = value
+                except (TypeError, ValueError):pass
         leftovers = {name: int(count) for name, count in processes.items() if count.isdigit() and int(count) > 0}
         free_gb = (float(disk_free_kb) / (1024.0 * 1024.0)) if disk_free_kb and disk_free_kb.isdigit() else None
         min_free = float(self.config["checks"].get("min_free_gb", 2.0))
         results = []
         results.append({"name": "板端登录与工程根", "ok": code == 0, "detail":
                         ("命令退出码 %s" % code) if code else "命令执行完成"})
-        results.append({"name": "现场范围配置", "ok": "SITECFG=OK" in output, "detail":
+        results.append({"name": "正赛场地模板文件" if competition else "现场范围配置", "ok": "SITECFG=OK" in output, "detail":
                         "%s %s" % (site_config,
                             "存在" if "SITECFG=OK" in output else "缺失或检查结果不可用；请显式指定有效 --site-config")})
+        if competition:
+            field_known = field_state.get("ok") is True and isinstance(field_state.get("site_confirmed"), bool)
+            results.append({"name": "正赛模板状态（非场地验收）", "ok": field_known, "detail":
+                            ("site_confirmed=%s（%s）；仅文件声明，未验证实测几何或飞行配置" %
+                             (str(field_state["site_confirmed"]).lower(),
+                              "待实测确认" if not field_state["site_confirmed"] else "文件声明已确认"))
+                            if field_known else "unknown：%s；不能认定场地已确认" %
+                            field_state.get("detail", "模板状态未读到")})
         results.append({"name": "录像空间（≥%.1fGB）" % min_free, "ok":
                         (free_gb is not None and free_gb >= min_free),
                         "detail": ("%.1fGB 可用" % free_gb) if free_gb is not None else "无法读取 df"})
@@ -500,10 +559,13 @@ print("VERSION|"+json.dumps(report,separators=(",",":")))
             results.append({"name": "本机残留进程", "ok": True, "detail": "无 roscore/roslaunch/gzserver/px4/mavros 残留"})
         else:
             results.append({"name": "本机残留进程", "ok": False, "detail": "unknown：未取得完整进程检查结果"})
-        expected = {g.get("folder", "") for g in self.config.get("groups", []) if g.get("channel") != "competition"}
+        expected = {g.get("folder", "") for g in selected_groups if g.get("channel") != "competition"}
         missing = [folder for folder in expected if not groups.get(folder, {}).get("start")
                    or not groups.get(folder, {}).get("settings")]
-        if missing:
+        if competition:
+            results.append({"name": "任务组入口", "ok": bool(selected_groups) and "COMPETITION=OK" in output,
+                            "detail": "仅检查独立正赛入口与模板，不要求08或其他专项模块"})
+        elif missing:
             results.append({"name": "任务组入口", "ok": False,
                             "detail": "start.sh/settings.yaml（观察组为profiles.yaml）缺失或未读到：%s" % "、".join(sorted(missing))})
         elif expected:
@@ -512,7 +574,7 @@ print("VERSION|"+json.dumps(report,separators=(",",":")))
         else:
             results.append({"name": "任务组入口", "ok": False, "detail": "unknown：未配置可检查的模块入口"})
         source = version.get("source") or {}
-        if any(g.get("channel") == "competition" for g in self.config.get("groups", [])):
+        if any(g.get("channel") == "competition" for g in selected_groups):
             results.append({"name": "独立正赛入口与模板", "ok": "COMPETITION=OK" in output,
                             "detail": "仅核查文件存在；场地确认、有效参数及CLI支持须执行独立配置检查" if "COMPETITION=OK" in output
                                       else "独立正赛入口/模板缺失或未读到；不以08专项代替"})
@@ -533,7 +595,8 @@ print("VERSION|"+json.dumps(report,separators=(",",":")))
         results.append({"name": "LIO 配置提示（非运行证明）", "ok": True, "detail":
                         "最新板端构建要求 FAST_LIO_MATCH_THREADS=3；本检查不证明编译缓存或实际运行线程"})
         return {"at": time.time(), "checks": results, "leftovers": leftovers,
-                "disk_free_gb": free_gb, "groups": groups, "version": version, "raw": output}
+                "disk_free_gb": free_gb, "groups": groups, "version": version,
+                "field_template": field_state, "raw": output}
 
     # -- 探针 --
     def probe_local_source(self):
