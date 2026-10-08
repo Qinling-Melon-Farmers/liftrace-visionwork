@@ -92,6 +92,10 @@ class DropAligner:
         self._stable_frames = rospy.get_param("~stable_frames", 3)
         self._min_confidence = rospy.get_param("~min_confidence", 0.6)
         self._target_max_age = float(rospy.get_param("~target_max_age", 0.5))
+        # This bounds capture history, not the age of evidence allowed to act.
+        self._capture_max_gap = float(rospy.get_param("~capture_max_gap_sec", 1.0))
+        if not math.isfinite(self._capture_max_gap) or self._capture_max_gap <= 0.0:
+            raise ValueError("capture_max_gap_sec must be positive and finite")
         self._camera_model = PinholeCameraModel()
         self._camera_ready = False
         self._state_lock = threading.RLock()
@@ -111,6 +115,7 @@ class DropAligner:
         # A monotonic watermark survives rejection/context changes: replaying an
         # image can never restart or extend a streak, even after cache eviction.
         self._last_counted_observation = None
+        self._capture_last_good_observation = None
 
         self._offset_pub = rospy.Publisher("/uav_vision/drop_offset",
                                            DropOffset, queue_size=1)
@@ -262,6 +267,7 @@ class DropAligner:
 
     def _clear_stability(self):
         self._consecutive_ok = 0
+        self._capture_last_good_observation = None
         self._active_geometry_key = None
         self._active_geometry_last_seen = None
         if getattr(self, "_require_compensated_alignment", False):
@@ -401,7 +407,16 @@ class DropAligner:
 
         best, reason, chosen_context_status = self._choose_target(msg)
         if best is None:
-            self._clear_stability()
+            same_cached_capture = (
+                self._compensated_alignment_active() and reason == "stale observation" and
+                any(geometry_identity_key(target) == self._active_geometry_key and
+                    self._preserve_capture_on_stale(
+                        "compensated_alignment_observation_stale", target.last_seen)
+                    for target in msg.targets))
+            if same_cached_capture:
+                self._compensated_feedback = None
+            else:
+                self._clear_stability()
             normalized_reason = (reason or self._mode_reason()).replace(" ", "_")
             context_failure = None
             if normalized_reason.startswith("alignment_context_"):
@@ -450,12 +465,24 @@ class DropAligner:
                 best, False, ["low_confidence"], context_target_status)
             return
 
+        capture_rejected = False
         if self._compensated_alignment_active():
             visual_reason = self._compensated_visual_reason(best)
             if visual_reason:
                 self._clear_stability()
                 self._publish_state(best, False, [visual_reason], context_target_status)
                 return
+            key = self._stamp_key(best.last_seen)
+            if (self._capture_last_good_observation is not None and
+                    key > self._last_counted_observation and dist > self._max_offset_px):
+                # A genuinely new off-center image ends capture immediately,
+                # even before its controller feedback arrives. Older feedback
+                # must not restore readiness while the aircraft is correcting it.
+                self._consecutive_ok = 0
+                self._capture_last_good_observation = None
+                self._compensated_feedback = None
+                self._last_counted_observation = key
+                capture_rejected = True
             self._cache_compensated_observation(best)
 
         offset = DropOffset()
@@ -472,6 +499,9 @@ class DropAligner:
         self._offset_pub.publish(offset)
 
         if self._compensated_alignment_active():
+            if capture_rejected:
+                self._publish_state(best, False, ["offset_exceeds_limit"], context_target_status)
+                return
             self._publish_compensated_state()
             return
 
@@ -631,21 +661,26 @@ class DropAligner:
 
     def _apply_compensated_feedback(self, msg, target, reason, status):
         # Caller holds the callback lock, including when consuming pending data.
-        # A new valid sample must not inherit a streak whose previous
-        # evidence expired between callbacks, even if the watchdog was
-        # delayed. Keep the new image cache, but retire the old streak.
+        self._expire_capture_streak()
+        # An expired cached capture revokes readiness, but is not a new image
+        # failing centering. Frozen release feedback retains its old reset rules.
         if self._compensated_feedback is not None:
             _, previous_reason, _ = self._compensated_feedback_status(
                 self._compensated_feedback)
             if previous_reason:
-                self._consecutive_ok = 0
+                if not self._preserve_capture_on_stale(
+                        previous_reason, self._compensated_feedback.observation_stamp):
+                    self._consecutive_ok = 0
+                    self._capture_last_good_observation = None
                 self._compensated_feedback = None
         key = self._stamp_key(msg.observation_stamp)
         if (reason is None and self._last_counted_observation is not None and
                 key < self._last_counted_observation):
             reason = "compensated_alignment_observation_out_of_order"
         if reason:
-            self._consecutive_ok = 0
+            if msg.frozen or not self._preserve_capture_on_stale(reason, msg.observation_stamp):
+                self._consecutive_ok = 0
+                self._capture_last_good_observation = None
             self._compensated_feedback = None
             self._publish_state(target, False, [reason], status)
             return
@@ -654,12 +689,30 @@ class DropAligner:
         aligned = self._compensated_evidence_aligned(target, msg)
         if not aligned:
             self._consecutive_ok = 0
+            self._capture_last_good_observation = None
         elif is_new_image:
             self._consecutive_ok += 1
+            self._capture_last_good_observation = None if msg.frozen else copy.deepcopy(msg.observation_stamp)
+        if msg.frozen:
+            self._capture_last_good_observation = None
         if is_new_image:
             self._last_counted_observation = key
         self._compensated_feedback = copy.deepcopy(msg)
         self._publish_compensated_state()
+
+    def _expire_capture_streak(self):
+        stamp = self._capture_last_good_observation
+        if stamp is not None:
+            gap = (rospy.Time.now() - stamp).to_sec()
+            if gap < 0.0 or gap > self._capture_max_gap:
+                self._consecutive_ok = 0
+                self._capture_last_good_observation = None
+
+    def _preserve_capture_on_stale(self, reason, stamp):
+        self._expire_capture_streak()
+        return (reason == "compensated_alignment_observation_stale" and
+                self._capture_last_good_observation is not None and
+                stamp == self._capture_last_good_observation)
 
     def _compensated_evidence_aligned(self, target, feedback):
         if feedback.frozen:
@@ -677,6 +730,7 @@ class DropAligner:
     def _publish_compensated_state(self):
         # Only admitted feedback counts source images. Republishes and watchdog
         # ticks cannot turn a single image into a streak.
+        self._expire_capture_streak()
         self._prune_compensated_observations()
         feedback = self._compensated_feedback
         if feedback is None:
@@ -689,7 +743,9 @@ class DropAligner:
             return
         target, reason, status = self._compensated_feedback_status(feedback)
         if reason:
-            self._consecutive_ok = 0
+            if not self._preserve_capture_on_stale(reason, feedback.observation_stamp):
+                self._consecutive_ok = 0
+                self._capture_last_good_observation = None
             self._compensated_feedback = None
             self._publish_state(target, False, [reason], status)
             return

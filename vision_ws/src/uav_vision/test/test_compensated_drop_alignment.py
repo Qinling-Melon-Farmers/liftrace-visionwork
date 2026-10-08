@@ -148,6 +148,132 @@ class CompensatedDropAlignmentTest(unittest.TestCase):
         self.node._on_drop_alignment_feedback(feedback)
         return target, feedback
 
+    def capture_clock(self, now):
+        self.clock.return_value = rospy.Time.from_sec(now)
+        self.context.header.stamp = self.clock.return_value
+        self.node._on_alignment_context(copy.deepcopy(self.context))
+
+    def capture_image(self, source, receipt, offset=10., target_id=42):
+        self.capture_clock(receipt)
+        target = self.target(source)
+        target.id = target_id
+        target.center_px.x = self.node._target_cx + offset
+        self.observe(target)
+        feedback = self.feedback(target)
+        feedback.frozen = False
+        feedback.header.stamp = self.clock.return_value
+        feedback.odom_stamp = rospy.Time.from_sec(receipt - .001)
+        self.node._on_drop_alignment_feedback(feedback)
+        return target, feedback
+
+    def capture_four_images(self):
+        self.node._stable_frames = 5
+        self.node._max_offset_px = 30.
+        for index in range(4):
+            pair = self.capture_image(100. + index * .1, 100.43 + index * .1)
+            self.assertEqual(self.node._consecutive_ok, index + 1)
+            self.assertFalse(self.ready().ready)
+        return pair
+
+    def test_capture_four_images_survive_expired_cache_until_fifth_fresh_image(self):
+        target, feedback = self.capture_four_images()
+        self.capture_clock(100.81)
+        self.node._on_alignment_context_watchdog(None)
+        self.assertEqual(self.ready().reason, "compensated_alignment_observation_stale")
+        self.assertFalse(self.ready().ready)
+        self.assertFalse(self.evidence().evidence_valid)
+        self.assertEqual(self.node._consecutive_ok, 4)
+        self.observe(target)  # Same memory snapshot is now stale as well.
+        self.node._on_drop_alignment_feedback(feedback)
+        self.assertEqual(self.node._consecutive_ok, 4)
+        self.assertFalse(self.ready().ready)
+        fifth, _ = self.capture_image(100.4, 100.83)
+        self.assertEqual(self.node._consecutive_ok, 5)
+        self.assertTrue(self.ready().ready)
+        self.assertAlmostEqual(self.evidence().observation_age_sec, .43, places=5)
+        self.assertEqual(self.node._compensated_feedback.observation_stamp, fifth.last_seen)
+        self.capture_clock(100.91)
+        self.node._on_alignment_context_watchdog(None)
+        self.assertFalse(self.ready().ready)
+        self.assertEqual(self.node._consecutive_ok, 5)
+
+    def test_capture_long_dropout_resets_even_with_no_new_feedback(self):
+        target, feedback = self.capture_four_images()
+        self.capture_clock(101.31)
+        for _ in range(3):
+            self.node._on_alignment_context_watchdog(None)
+            self.observe(target)
+            self.node._on_drop_alignment_feedback(feedback)
+        self.assertEqual(self.node._consecutive_ok, 0)
+        self.assertFalse(self.ready().ready)
+        self.capture_image(101.1, 101.53)
+        self.assertEqual(self.node._consecutive_ok, 1)
+        self.assertFalse(self.ready().ready)
+
+    def test_capture_long_dropout_resets_when_watchdog_is_delayed(self):
+        self.capture_four_images()
+        self.capture_image(101.1, 101.53)
+        self.assertEqual(self.node._consecutive_ok, 1)
+        self.assertFalse(self.ready().ready)
+
+    def test_capture_new_geometry_and_new_action_cannot_inherit_four_images(self):
+        self.capture_four_images()
+        self.capture_image(100.4, 100.83, target_id=43)
+        self.assertEqual(self.node._consecutive_ok, 1)
+        self.assertFalse(self.ready().ready)
+        self.context.decision_seq += 1
+        self.node._on_alignment_context(copy.deepcopy(self.context))
+        self.assertEqual(self.node._consecutive_ok, 0)
+        self.capture_image(100.5, 100.93, target_id=43)
+        self.assertEqual(self.node._consecutive_ok, 1)
+
+    def test_capture_new_image_over_thirty_pixels_resets_streak(self):
+        self.capture_four_images()
+        self.capture_image(100.4, 100.83, offset=30.01)
+        self.assertEqual(self.node._consecutive_ok, 0)
+        self.assertEqual(self.ready().reason, "offset_exceeds_limit")
+        self.capture_image(100.5, 100.93, offset=30.)
+        self.assertEqual(self.node._consecutive_ok, 1)
+        self.assertFalse(self.ready().ready)
+
+    def test_capture_new_off_center_image_resets_before_controller_feedback(self):
+        _, old_feedback = self.capture_four_images()
+        self.capture_clock(100.75)  # Previous evidence is still fresh.
+        bad = self.target(100.4)
+        bad.center_px.x = self.node._target_cx + 30.01
+        self.observe(bad)
+        self.assertEqual(self.node._consecutive_ok, 0)
+        self.assertEqual(self.ready().reason, "offset_exceeds_limit")
+        self.node._on_drop_alignment_feedback(old_feedback)
+        self.assertFalse(self.ready().ready)
+        self.assertEqual(self.node._consecutive_ok, 0)
+
+    def test_capture_duplicate_messages_neither_count_nor_extend_gap(self):
+        target, feedback = self.capture_four_images()
+        original = copy.deepcopy(feedback)
+        for now in (100.75, 100.79, 100.81, 101.0, 101.31):
+            self.capture_clock(now)
+            self.observe(target)
+            self.node._on_drop_alignment_feedback(feedback)
+            self.node._on_alignment_context_watchdog(None)
+            self.assertEqual(feedback, original)
+            self.assertEqual(self.node._consecutive_ok, 4 if now < 101.3 else 0)
+            self.assertFalse(self.ready().ready)
+
+    def test_capture_new_expired_image_does_not_preserve_old_streak(self):
+        self.capture_four_images()
+        self.capture_image(100.31, 100.9)
+        self.assertEqual(self.node._consecutive_ok, 0)
+        self.assertFalse(self.ready().ready)
+
+    def test_capture_stale_odom_still_resets_instead_of_extending_history(self):
+        _, feedback = self.capture_four_images()
+        self.node._compensated_odom_max_age = .01
+        self.capture_clock(100.75)
+        self.node._on_alignment_context_watchdog(None)
+        self.assertEqual(self.ready().reason, "compensated_alignment_odom_stale")
+        self.assertEqual(self.node._consecutive_ok, 0)
+
     def test_intentional_12cm_offset_is_ready_only_from_distinct_feedback_images(self):
         for mode in ("drop_circle", "drop_cross"):
             with self.subTest(mode=mode):
