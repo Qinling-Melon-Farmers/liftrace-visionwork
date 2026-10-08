@@ -1,4 +1,7 @@
-/* Run concatenated after web/logs.js; mocked DOM/fetch, no server or board. */
+/* Supports standalone or concatenated execution; mocked DOM/fetch only. */
+if (typeof logInit === 'undefined') {
+  require('vm').runInThisContext(require('fs').readFileSync(require('path').join(__dirname,'../web/logs.js'),'utf8'));
+}
 const assert = require('assert');
 class LogElement {
   constructor(tag) { this.tagName=tag;this.childNodes=[];this.dataset={};this.value='';this.textContent='';this.disabled=false; }

@@ -1,6 +1,6 @@
 // Exercise actual status projection for snapshots and SSE, without HTTP/devices.
 const fs=require('fs'),vm=require('vm'),path=require('path'),assert=require('assert');
-const ctx={document:{readyState:'loading',addEventListener(){}},window:{},console};
+const ctx={document:{readyState:'loading',addEventListener(){},querySelector(){return null;}},window:{},console};
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/app.js'),'utf8'),ctx);
 ctx.initTermsFromSnapshot=()=>{};ctx.scheduleRender=()=>{};ctx.setSse=()=>{};
