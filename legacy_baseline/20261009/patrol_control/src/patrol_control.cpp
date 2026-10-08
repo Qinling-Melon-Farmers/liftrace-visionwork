@@ -1889,8 +1889,6 @@ void LLController::load_params() {
     drop_settle_config_.max_horizontal_speed_mps = 0.05;
     drop_settle_config_.max_vertical_speed_mps = 0.10;
     drop_settle_config_.stable_duration_sec = 0.30;
-    // Drop uses only xy_tolerance_m and max_odom_age_sec. Other shared
-    // config fields remain load-compatible, but do not gate compensated drop.
     load_stability("drop_system/settle", &drop_settle_config_);
     landing_settle_config_.max_horizontal_speed_mps = 0.08;
     landing_settle_config_.max_vertical_speed_mps = 0.10;
@@ -3702,22 +3700,32 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
     if (!release && (source_age < 0.0 || source_age > drop_offset_timeout_)) {window.reset(); return false;}
     // Capture keeps visual identity/geometry/freshness, but does not wait for
     // release-level position, velocity, height or a motion stability window.
-    // Frozen release uses the current fresh motion sample, without recapture
-    // or another duration/sample-count window.
+    // The complete window below is mandatory only at physical release.
     if (!release) return externalLandingControlReady(ros::Time::now());
-    const bool ready = std::isfinite(xy_error) && std::isfinite(horizontal_speed) &&
-        std::isfinite(pos.z) && xy_error <= drop_settle_config_.xy_tolerance_m &&
-        pos.z >= drop_release_setpoint_height_ && pos.z <= drop_height_threshold &&
-        externalLandingControlReady(ros::Time::now());
-    if (!ready) ROS_INFO_THROTTLE(1.0,
-        "[DropGeometry] waiting: xy=%.3f speed=%.3f vz=%.3f fc_z=%.3f floor_z=%.3f ceiling_z=%.3f",
-        xy_error,horizontal_speed,velocity.z(),pos.z,drop_release_setpoint_height_,drop_height_threshold);
+    LandingHandoffSample sample;
+    sample.source_stamp_sec = motion_odom_.header.stamp.toSec();
+    sample.receipt_stamp_sec = motion_odom_receipt_.toSec();
+    sample.height_m = pos.z;
+    const double target_z = release ? drop_release_setpoint_height_ : external_alignment_capture_height_;
+    sample.max_handoff_height_m = release ? drop_height_threshold : target_z + drop_settle_config_.height_tolerance_m;
+    sample.xy_error_m = xy_error;
+    sample.z_error_m = pos.z-target_z;
+    sample.horizontal_speed_mps = horizontal_speed;
+    sample.vertical_speed_mps = velocity.z();
+    sample.alignment_latched = true;
+    sample.control_ready = externalLandingControlReady(ros::Time::now());
+    sample.feedback_valid = true;
+    const auto result = window.update(now,sample);
+    if (!result.ready) ROS_INFO_THROTTLE(1.0,
+        "[DropGeometry] waiting: %s xy=%.3f speed=%.3f zerr=%.3f samples=%zu",
+        result.reason,xy_error,horizontal_speed,sample.z_error_m,result.sample_count);
     else ROS_INFO(
-        "[DropGeometry] release_ready slot=%u decision=%u fc_xy_error=%.4f outlet_xy_error=%.4f "
-        "horizontal_speed=%.4f vz=%.4f fc_z=%.4f floor_z=%.4f ceiling_z=%.4f odom=%.6f",
+        "[DropGeometry] release_window_ready slot=%u decision=%u fc_xy_error=%.4f outlet_xy_error=%.4f "
+        "horizontal_speed=%.4f vz=%.4f fc_z=%.4f release_z=%.4f ceiling_z=%.4f span=%.4f samples=%zu odom=%.6f",
         c.payload_slot,c.decision_seq,fc_error,outlet_error,horizontal_speed,velocity.z(),
-        pos.z,drop_release_setpoint_height_,drop_height_threshold,motion_odom_.header.stamp.toSec());
-    return ready;
+        pos.z,target_z,sample.max_handoff_height_m,result.stable_for_sec,result.sample_count,
+        sample.source_stamp_sec);
+    return result.ready;
 }
 
 bool LLController::freezeCompensatedDropTarget() {
