@@ -55,10 +55,10 @@ try {
   await test('checked state shows actual values and incomplete measurement', `document.querySelector('#groups-body').textContent.includes('离线配置检查：运动优化=关闭；高位续扫=开启') && document.querySelector('#groups-body').textContent.includes('尚不可生成飞行配置')`);
   if(process.argv[4]) {const s=await call('Page.captureScreenshot',{format:'png'});fs.writeFileSync(process.argv[4]+'_checked.png',Buffer.from(s.data,'base64'));}
   await run(`state.stage=Object.assign({},state.stage,{effective_config:{source:'generated_runtime',motion_optimization:false,resume_survey:true,runtime_path:'/logs/offline-fixture/runtime.yaml'}});renderGroups();`);
-  await test('generated state shows actual runtime source and path', `document.querySelector('#groups-body').textContent.includes('运行已生成配置：运动优化=关闭；高位续扫=开启') && document.querySelector('#groups-body').textContent.includes('/logs/offline-fixture/runtime.yaml')`);
+  await test('generated state shows actual runtime source and path', `document.querySelector('#groups-body').textContent.includes('已生成配置：运动优化=关闭；高位续扫=开启') && document.querySelector('#groups-body').textContent.includes('/logs/offline-fixture/runtime.yaml')`);
   if(process.argv[4]) {const s=await call('Page.captureScreenshot',{format:'png'});fs.writeFileSync(process.argv[4]+'_generated.png',Buffer.from(s.data,'base64'));}
   await run(`const select=document.querySelector('[data-option="resume"]');select.value='off';select.dispatchEvent(new Event('change'));`);
-  await test('changing resume clears the old confirmation', `document.querySelector('#groups-body').textContent.includes('有效值尚未确认') && !document.querySelector('#groups-body').textContent.includes('运行已生成配置：')`);
+  await test('changing resume clears the old confirmation', `document.querySelector('#groups-body').textContent.includes('有效值尚未确认') && !document.querySelector('#groups-body').textContent.includes('已生成配置：')`);
   await run(`groupUI(cg).resume='on';groupUI(cg).motionOptimization='on';renderGroups();`);
   await test('changing motion clears the old confirmation', `document.querySelector('#groups-body').textContent.includes('有效值尚未确认')`);
   await run(`groupUI(cg).motionOptimization='off';groupUI(cg).competitionConfig='different.yaml';renderGroups();`);

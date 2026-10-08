@@ -91,6 +91,11 @@ def main():
                 result = subprocess.run(['node', str(test), base, str(browser), str(args.report_dir / 'windows_ui.png')], capture_output=True, text=True, timeout=90)
                 (args.report_dir / 'windows_browser.log').write_text(result.stdout + result.stderr, encoding='utf-8')
                 check('native Edge DOM regression', result.returncode == 0)
+                result = subprocess.run(['node', str(Path(__file__).with_name('browser_competition_effective.mjs')),
+                    base, str(browser), str(args.report_dir / 'windows_effective')],
+                    capture_output=True, text=True, timeout=90)
+                (args.report_dir / 'windows_effective.log').write_text(result.stdout + result.stderr, encoding='utf-8')
+                check('native Edge effective configuration regression', result.returncode == 0)
                 result = subprocess.run(['node', str(Path(__file__).with_name('browser_observe.mjs')), base, str(browser)],
                                         capture_output=True, text=True, timeout=90)
                 (args.report_dir / 'windows_observe.log').write_text(result.stdout + result.stderr, encoding='utf-8')
