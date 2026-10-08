@@ -1,25 +1,36 @@
-# External Mission Manager owns all search/target/return waypoints.
-# The single takeoff seed below initializes the existing executor.
+# toudi4_copy.world 的新视觉固定三投兼容路线。
+#
+# 仅用于先验证“新视觉证据 -> 旧控制状态机 -> 安全 mock 投递”的固定点闭环。
+# 飞机从主 H world=(-0.493412,-1.772690) 生成，MAVROS/camera_init 本地
+# 原点为 H。目标坐标按 local = world - main_H 计算；旧 toudi3 配置原样
+# 保留。新视觉候选已经是地图坐标，因此不再叠加旧槽位补偿。
+
 goal_list: ["bridge", "panzer", "pillbox", "tent", "tank"]
 
 waypoints:
-  - {x: 0.0, y: 0.0, z: 1.4, yaw: 0.0, pointmode: "Takeoff_point", hover_time: 0.0}
+  - {x: 0.000, y: 0.000, z: 2.000, yaw: 0.0, pointmode: "Takeoff_point", hover_time: 0.0}
+  - {x: -0.081, y: 2.293, z: 1.500, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+  - {x: -1.600, y: 2.477, z: 1.500, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+  - {x: 1.769, y: 2.354, z: 1.500, yaw: 0.0, pointmode: "Detect_point", hover_time: 5.0}
+  - {x: 0.000, y: 0.000, z: 1.500, yaw: 0.0, pointmode: "Nothing_point", hover_time: 2.0}
+  - {x: 0.000, y: 0.000, z: 1.000, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  - {x: 0.000, y: 0.000, z: 0.800, yaw: 0.0, pointmode: "Nothing_point", hover_time: 0.0}
+  - {x: 0.000, y: 0.000, z: 0.800, yaw: 0.0, pointmode: "Land_point", hover_time: 0.0}
 
-waypoint_skipping_index: 0
+waypoint_skipping_index: 3
 land_height: 0.30
-align_height: 1.60
+align_height: 1.20
 px4_max_distance: 0.20
 max_yaw_change: 0.20
 
-# 外部 Mission Manager 的 H 降落配置。
-# 外部任务由 switch/auto_land=true 启用 AUTO.LAND；
+# 外部 Mission Manager 的终局降落合同。仅在正式 SITL 的
+# simulation/enable_auto_land=true 且 switch/auto_land=1 时请求 AUTO.LAND；
 # H 证据必须来自 camera_init、晚于 LAND 命令并持续满足新鲜度与稳定帧数。
 external_landing:
   frame: camera_init
   # 正式链直接消费视觉 typed map detection；旧 PoseStamped 仅留 legacy 模式。
   detections_topic: /uav_vision/detections_mapped
-  # 1 m H + installed camera: acquire the complete ring before descent.
-  capture_height: 1.60
+  capture_height: 0.75
   auto_land_height: 0.40
   alignment_tolerance: 0.08
   max_mark_offset: 0.60
@@ -30,9 +41,13 @@ external_landing:
   # 的全场时限，不再另设“重捕”事务截止。
   watchdog_timeout_sec: 120.0
 
-# The formal chain descends after drop_ready through patrol_control. The
-# legacy alignment_control_converter is absent; its progressive_descent
-# parameters do not control this run. The launch uses a 0.40 m position lead.
+progressive_descent:
+  enable: true
+  target_height: 0.40
+  intermediate_height: 0.70
+  descent_duration: 5.0
+  final_descent_duration: 2.0
+  min_detection_count: 5
 
 alignment:
   threshold: 20.0
@@ -57,28 +72,7 @@ switch:
   # does not reject the XmlRpc integer and silently fall back to false.
   auto_land: true
 
-# MAVROS里程计速度位于child机体系；控制器按同一消息完整姿态旋转。
-motion_feedback:
-  odom_topic: /mavros/local_position/odom
-  twist_frame: child
 drop_system:
-  # 视觉确认并冻结靶心后，槽位补偿与下降并行；最终到位且低速稳定后才释放，不追残缺图像。
-  slot_offset_semantics: body_flu_lever_arm
-  compensated_alignment: true
-  alignment_feedback_topic: /uav_vision/drop_alignment_feedback
-  # 补偿投递只使用 xy_tolerance_m 和 max_odom_age_sec：当前到位即可调用原许可链。
-  # 高度使用 release_setpoint_height 至 height_threshold 的闭区间，不要求停稳。
-  # height_tolerance_m、两项速度、stable_duration_sec、max_sample_gap_sec、min_samples
-  # 仅兼容保留，不参与补偿投递放行；调这些字段不能改变投递行为。H使用独立配置。
-  settle:
-    xy_tolerance_m: 0.04  # FC及投口误差均严格小于4cm，首次当前到位即可
-    height_tolerance_m: 0.05
-    max_horizontal_speed_mps: 0.08
-    max_vertical_speed_mps: 0.10
-    stable_duration_sec: 0.30
-    max_odom_age_sec: 0.20
-    max_sample_gap_sec: 0.20
-    min_samples: 3
   precision_threshold: 20.0
   height_threshold: 0.20
   position_threshold: 0.15
@@ -97,12 +91,6 @@ uav_vision:
   selected_target_timeout: 1.0
   drop_offset_timeout: 1.0
   pixel_to_meter_ratio: 0.0015
-  drop_metric_scale_enabled: true
-  drop_camera_info_topic: /camera/camera_info
-  drop_camera_frame: downward_camera_optical_frame
-  drop_map_frame: camera_init
-  drop_ground_z: -0.22
-  drop_tf_max_age_sec: 0.20
   # 新机架安装方向：图像向右=-body_y，图像向下=-body_x。
   pixel_to_body_matrix: [0.0, -1.0, -1.0, 0.0]
   max_movement_distance: 0.5

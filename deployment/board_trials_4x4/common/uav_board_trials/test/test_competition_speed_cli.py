@@ -59,6 +59,15 @@ class CompetitionSpeedCLI(unittest.TestCase):
                           posctl['stable_duration_sec']),(.08,.10,.15))
         self.assertEqual(control['external_landing']['handoff_mode'],'POSCTL')
 
+    def assert_drop_settle(self,control):
+        self.assertEqual(control['drop_system']['settle'],dict(
+            xy_tolerance_m=.04,height_tolerance_m=.05,
+            max_horizontal_speed_mps=.08,max_vertical_speed_mps=.10,
+            stable_duration_sec=.30,max_odom_age_sec=.20,
+            max_sample_gap_sec=.20,min_samples=3))
+        self.assertIs(control['drop_system']['compensated_alignment'],True)
+        self.assertIs(control['uav_vision']['require_release_permission'],True)
+
     def test_08_two_profiles_keep_last_scene_and_today_h(self):
         results={p:self.cli('full_mission',p) for p in ('limited','competition')}
         site=yaml.safe_load(SITE.read_text())
@@ -74,6 +83,7 @@ class CompetitionSpeedCLI(unittest.TestCase):
             self.assertTrue(r['motion_optimization']['enabled'])
             self.assertTrue(r['high_view_full']['policy']['resume_survey_enabled'])
             self.assert_corridor(r);self.assert_h(c,1.,1.2)
+            self.assert_drop_settle(c)
             self.assertAlmostEqual(c['drop_system']['release_setpoint_height']-(REFERENCE[2]-.22),.35)
             vel,acc=(1.2,1.) if profile=='competition' else (.5,.35)
             for ns,v,a in [('manager','max_vel','max_acc'),('search','max_vel','max_acc'),
@@ -132,6 +142,11 @@ class CompetitionSpeedCLI(unittest.TestCase):
                 roslaunch.xmlloader.XmlLoader().load(
                     str(SCRIPTS.parent/'launch/application.launch'),config,argv=args,verbose=False)
                 values={key:param.value for key,param in config.params.items()}
+                self.assert_drop_settle(control)
+                for key,value in control['drop_system']['settle'].items():
+                    self.assertEqual(values['/drop_system/settle/'+key],value)
+                self.assertEqual(values['/external_landing/posctl/xy_tolerance_m'],.05)
+                self.assertEqual(values['/external_landing/posctl/stable_duration_sec'],.15)
                 self.assertEqual((values['/px4_max_distance'],
                     values['/traj_server/traj_server/target_dist'],
                     values['/external_planner_start_max_distance']),expected)
@@ -168,6 +183,7 @@ class CompetitionSpeedCLI(unittest.TestCase):
             self.assertEqual(e['drop_agl'],.35)
             self.assertAlmostEqual(c['drop_system']['release_setpoint_height']-(REFERENCE[2]-.22),.35)
             self.assertTrue(c['drop_system']['enable_drop'])
+            self.assert_drop_settle(c)
             self.assertEqual((c['px4_max_distance'],o['/traj_server/traj_server/target_dist'],
                               o['/external_planner_start_max_distance']),(.25,.25,.75))
 
