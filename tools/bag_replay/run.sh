@@ -2,7 +2,7 @@
 set -euo pipefail
 tool_dir=$(cd -- "${BASH_SOURCE[0]%/*}" && pwd)
 if (( $# < 2 )); then
-  echo 'Usage: bash run.sh INPUT.bag OUTPUT_DIR [--fps 10] [--frame map] [--topics topics.json]'
+  echo 'Usage: bash run.sh INPUT.bag OUTPUT_DIR [--fps 10] [--frame map] [--encoder cpu|auto|nvenc] [--topics topics.json]'
   exit 2
 fi
 bag=$1

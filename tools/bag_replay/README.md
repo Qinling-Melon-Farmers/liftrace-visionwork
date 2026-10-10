@@ -20,6 +20,45 @@ REPLAY_PYTHON=/path/to/your/env/bin/python bash run.sh flight.bag replay_output
 
 ROS不在默认位置时可设置`ROS_SETUP`；ROS读取解释器可设置`ROS_PYTHON`。不要在系统Python中额外安装ML包。先验证依赖，再运行；本工具不会自动安装软件。
 
+## 编码选择与效率
+
+默认 `--encoder cpu`：保持 FFmpeg/libx264 的 veryfast、CRF 23 配置。相机缩放结果和曲线坐标增加小缓存，向编码器传帧使用 buffer，减少重复缩放、坐标计算和整帧复制。OpenCV 解码、画框、地图、曲线及拼接仍在 CPU 上；NVENC 仅负责 H.264 编码，BGR 到 YUV 转换和传帧也仍有 CPU 开销。
+
+```bash
+# 默认 CPU；未安装 NVIDIA 驱动的机器也适用
+bash run.sh flight.bag replay_output --encoder cpu
+# 显式选择按能力探测 GPU；失败自动回退 CPU
+bash run.sh flight.bag replay_output --encoder auto
+# 要求 NVENC；预检失败直接报错
+bash run.sh flight.bag replay_output --encoder nvenc
+```
+
+`auto`/`nvenc` 会以实际输出尺寸，同时打开三路或四路 FFmpeg/NVENC 会话，每路编码并解码两帧；仅列出编码器或单会话通过不足以算可用。会话占满、驱动缺失等原因会记录到日志及 `summary.json` 的 `encoding` 字段。`auto` 按编码能力选择，不测试谁更快，因此不保证优于 CPU。显式 `cpu` 不做 GPU 预检。NVENC 使用 fast/VBR/CQ 23；它与 CPU 的压缩画质、体积不保证完全一致。
+
+正式编码中途失败会返回非零并标记 `render_status=failed`；不在中途拼接 CPU 视频或把截断文件当作成功。仅全部编码器正常完成且收到预期帧数才将 `.partial.mp4` 晋升为正式视频；失败时保留原始导出图片和诊断信息，可换新输出目录用 CPU 重做。`verify` 用 FFmpeg **一次完整解码**的 progress 帧数，再读取 ffprobe 元数据交叉检查尺寸、帧数和时长，不再用 `ffprobe -count_frames` 重复全片解码。1 倍速重采样、检测匹配与 TF 时效规则保持不变。
+
+2026-10-10，RTX4060 Laptop/WSL 的最新真实 bag 145～170 秒片段（25 秒、10fps、四路各 250 帧）两次对照，渲染耗时中位数如下：
+
+| 版本 | 渲染秒 | 一次完整解码校验秒 |
+|---|---:|---:|
+| 旧版 CPU | 10.722 | 1.542 |
+| 新版 CPU | 9.831 | 1.604 |
+| 新版 NVENC | 11.792 | 1.989 |
+
+此片新版 CPU 渲染耗时约减少 8.3%，仅是两次中位数，**不保证全 bag 或其他机器同样提速**。NVENC 四会话可用，但本次未体现总耗时收益，故默认 CPU。四路首、中、末帧旧/新 CPU 解码后逐像素一致；全部视频完整解码、帧数、尺寸、时长通过。详细结果见仓库根相对路径 `docs/verification/replay_gpu_20261010/REPORT.md`。
+
+`summary.json.timings` 分别记录 CPU 画面生成、传帧/等待、编码器收尾和总渲染耗时；GPU 预检另记 `encoding.probe_seconds`。编码器与 CPU 绘制可重叠，传帧等待包含管道传输、格式转换及编码回压，不能当作纯 GPU 编码时间。
+
+离线 helper/既有契约测试（不启动 ROS）：
+
+```bash
+python -m unittest test_core test_encoder -v
+# 可选：只测短合成片，输出目录必须是新目录
+python test_encoder.py --benchmark /tmp/replay_encoder_short --duration 8
+```
+
+打包时 `bag_replay.py` 必须与新增的 `video_encoder.py` 同目录；`test_encoder.py` 是测试和短合成基准工具，不是运行依赖。
+
 ## 产物
 
 | 文件 | 内容 |

@@ -1,0 +1,14 @@
+{
+  "old_cpu": {
+    "render_seconds": 10.72240233549985,
+    "verify_seconds": 1.5421944780000558
+  },
+  "new_cpu": {
+    "render_seconds": 9.83129439000004,
+    "verify_seconds": 1.6036542435000456
+  },
+  "nvenc": {
+    "render_seconds": 11.791533522500004,
+    "verify_seconds": 1.9890789659999655
+  }
+}

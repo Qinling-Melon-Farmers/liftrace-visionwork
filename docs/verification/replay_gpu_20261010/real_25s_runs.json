@@ -1,0 +1,112 @@
+[
+  {
+    "variant": "old_cpu",
+    "round": 0,
+    "render_seconds": 10.958081827999877,
+    "verify_seconds": 1.5617928050000955,
+    "timings": null,
+    "encoding": null,
+    "path": "/tmp/replay_real_encoder_20261010/old_cpu_0"
+  },
+  {
+    "variant": "new_cpu",
+    "round": 0,
+    "render_seconds": 10.355572209000002,
+    "verify_seconds": 1.4333250810000209,
+    "timings": {
+      "frame_drawing_seconds": 3.3854990869995163,
+      "encoder_pipe_seconds": 6.471412198000962,
+      "encoder_finalize_seconds": 0.2314945439998155,
+      "render_wall_seconds": 10.338987020999866
+    },
+    "encoding": {
+      "requested": "cpu",
+      "effective": "cpu",
+      "codec": "libx264",
+      "reason": "CPU explicitly requested",
+      "probe_sessions": 0,
+      "probe_seconds": 0.0,
+      "rendering": "CPU OpenCV",
+      "midstream_fallback": false
+    },
+    "path": "/tmp/replay_real_encoder_20261010/new_cpu_0"
+  },
+  {
+    "variant": "nvenc",
+    "round": 0,
+    "render_seconds": 12.715080252000007,
+    "verify_seconds": 2.049883574999967,
+    "timings": {
+      "frame_drawing_seconds": 3.415728140998681,
+      "encoder_pipe_seconds": 7.243379900001855,
+      "encoder_finalize_seconds": 0.16844379200006188,
+      "render_wall_seconds": 12.680339120000099
+    },
+    "encoding": {
+      "requested": "nvenc",
+      "effective": "nvenc",
+      "codec": "h264_nvenc",
+      "reason": "NVENC encoded and decoded 2 frames on each of 4 concurrent actual-sized streams",
+      "probe_sessions": 4,
+      "probe_seconds": 1.6076815890000944,
+      "rendering": "CPU OpenCV",
+      "midstream_fallback": false
+    },
+    "path": "/tmp/replay_real_encoder_20261010/nvenc_0"
+  },
+  {
+    "variant": "nvenc",
+    "round": 1,
+    "render_seconds": 10.867986793,
+    "verify_seconds": 1.9282743569999639,
+    "timings": {
+      "frame_drawing_seconds": 2.8906509500000084,
+      "encoder_pipe_seconds": 5.883383261998006,
+      "encoder_finalize_seconds": 0.16481230499994126,
+      "render_wall_seconds": 10.845344232999878
+    },
+    "encoding": {
+      "requested": "nvenc",
+      "effective": "nvenc",
+      "codec": "h264_nvenc",
+      "reason": "NVENC encoded and decoded 2 frames on each of 4 concurrent actual-sized streams",
+      "probe_sessions": 4,
+      "probe_seconds": 1.6291311960001167,
+      "rendering": "CPU OpenCV",
+      "midstream_fallback": false
+    },
+    "path": "/tmp/replay_real_encoder_20261010/nvenc_1"
+  },
+  {
+    "variant": "new_cpu",
+    "round": 1,
+    "render_seconds": 9.307016571000077,
+    "verify_seconds": 1.7739834060000703,
+    "timings": {
+      "frame_drawing_seconds": 3.0367922140012524,
+      "encoder_pipe_seconds": 5.741244230997836,
+      "encoder_finalize_seconds": 0.2465161289999287,
+      "render_wall_seconds": 9.28613896800016
+    },
+    "encoding": {
+      "requested": "cpu",
+      "effective": "cpu",
+      "codec": "libx264",
+      "reason": "CPU explicitly requested",
+      "probe_sessions": 0,
+      "probe_seconds": 0.0,
+      "rendering": "CPU OpenCV",
+      "midstream_fallback": false
+    },
+    "path": "/tmp/replay_real_encoder_20261010/new_cpu_1"
+  },
+  {
+    "variant": "old_cpu",
+    "round": 1,
+    "render_seconds": 10.486722842999825,
+    "verify_seconds": 1.522596151000016,
+    "timings": null,
+    "encoding": null,
+    "path": "/tmp/replay_real_encoder_20261010/old_cpu_1"
+  }
+]

@@ -5,6 +5,7 @@ import csv
 import json
 import math
 import subprocess
+import time
 from pathlib import Path
 
 TOPICS=dict(camera='/camera/image_raw/compressed',odom='/mavros/local_position/odom',pose='/mavros/local_position/pose',setpoint='/mavros/setpoint_position/local',goal='/fastplanner/goal',trajectory='/planning_vis/trajectory',cloud='/sdf_map/occupancy_inflate',raw='/uav_vision/detections',resolved='/uav_vision/detections_resolved',refined='/uav_vision/detections_refined',mapped='/uav_vision/detections_mapped',targets='/uav_vision/targets',selected='/uav_vision/selected_target',mission='/navigation/mission_status',mode='/uav_vision/align_mode',fc='/mavros/state',release='/mission/release_result',result='/navigation/mission_result',command='/navigation/mission_command_raw',evidence='/uav_vision/release_evidence',permission='/mission/release_permission_active',offset='/uav_vision/drop_offset',tf='/tf',tf_static='/tf_static')
@@ -103,9 +104,19 @@ class TransformTree:
         return None
 
 def render(a):
+    started=time.perf_counter()
     import cv2
     import numpy as np
+    from video_encoder import VideoEncoders,select_encoder
     out=Path(a.out).resolve();d=json.loads((out/'data.json').read_text());rows=d['rows'];lines={k:Timeline(v) for k,v in rows.items()}
+    fps=a.fps;count=math.ceil(d['duration']*fps)
+    sizes=dict(camera_raw=(1280,720),camera_annotated=(1280,1080),trajectory=(1280,1080),dashboard=(1920,1080))
+    if not d['frames']:sizes.pop('camera_raw')
+    requested=getattr(a,'encoder','cpu')
+    status=dict(bag=d['bag'],duration=d['duration'],fps=fps,frames=count,video_files=[],render_status='preparing',encoding=dict(requested=requested,effective=None,reason='Not selected yet'))
+    def save_status(): (out/'summary.json').write_text(json.dumps(status,indent=2,ensure_ascii=False))
+    save_status()
+    (out/'validation.json').unlink(missing_ok=True)
     cv2.setNumThreads(2);tree=TransformTree(rows,d['start']);warnings=set()
     def convert(points,frame,t):
         mat=tree.matrix(frame,a.frame,t)
@@ -176,32 +187,44 @@ def render(a):
         txt(img,'cyan=actual orange=last plan pink=setpoint yellow=goal',12,h-38,scale=.39)
         txt(img,'gray=inflated cloud slice +/-0.3m; green=last valid target',12,h-16,scale=.39)
         return img
+    curve_cache={}
     def curves(t,w,h):
         img=canvas(w,h)
         for j,(values,label) in enumerate([(motion[:,3] if len(mt) else [],'FC local height (m)'),(speeds,'XY speed (m/s), pose difference')]):
             y0=j*h//2;bottom=y0+h//2-25;top=y0+28;left=50;right=w-15
             txt(img,label,12,y0+20,scale=.43)
             if len(mt):
-                vmax=max(float(np.max(values)),.1);vmin=min(float(np.min(values)),0);span=max(vmax-vmin,.1)
-                pts=np.column_stack((left+mt/d['duration']*(right-left),bottom-(np.asarray(values)-vmin)/span*(bottom-top))).astype(np.int32)
+                cache_key=(w,h,j)
+                if cache_key not in curve_cache:
+                    vmax=max(float(np.max(values)),.1);vmin=min(float(np.min(values)),0);span=max(vmax-vmin,.1)
+                    curve_cache[cache_key]=np.column_stack((left+mt/d['duration']*(right-left),bottom-(np.asarray(values)-vmin)/span*(bottom-top))).astype(np.int32)
+                pts=curve_cache[cache_key]
                 cv2.polylines(img,[pts],False,(120,120,120),1);cv2.polylines(img,[pts[mt<=t]],False,(255,220,40),2)
                 x=int(left+t/d['duration']*(right-left));cv2.line(img,(x,top),(x,bottom),(230,230,230),1)
                 txt(img,f'{np.interp(t,mt,values):.2f}',w-65,y0+20,(255,220,40),.46)
         return img
-    fps=a.fps;count=math.ceil(d['duration']*fps);writers={}
-    for name,size in [('camera_raw',(1280,720)),('camera_annotated',(1280,1080)),('trajectory',(1280,1080)),('dashboard',(1920,1080))]:
-        if name=='camera_raw' and not d['frames']:continue
-        writers[name]=subprocess.Popen(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','rawvideo','-pix_fmt','bgr24','-s',f'{size[0]}x{size[1]}','-r',str(fps),'-i','-','-an','-c:v','libx264','-threads','2','-preset','veryfast','-crf','23','-pix_fmt','yuv420p','-movflags','+faststart',str(out/(name+'.mp4'))],stdin=subprocess.PIPE)
-    last_file=None;raw_image=None
+    try:
+        selection=select_encoder(requested,sizes,fps)
+    except Exception as error:
+        status.update(render_status='failed',error=str(error))
+        status['encoding']['reason']=str(error);save_status();raise
+    status.update(render_status='rendering',encoding=selection);save_status()
+    writers=VideoEncoders(out,sizes,fps,selection['effective'],count)
+    last_file=None;raw_image=None;resized_image=None
+    drawing_seconds=pipe_seconds=0.
     with (out/'video_frames.csv').open('w') as f:
         csvout=csv.writer(f);csvout.writerow(['frame','bag_seconds','image_seconds','matched_results'])
         try:
+          with writers:
             for i in range(count):
+                frame_started=time.perf_counter()
                 t=i/fps;fr=frame_line.row(t)
                 if fr:
-                    if last_file!=fr['file']:raw_image=cv2.imread(str(out/fr['file']));last_file=fr['file']
+                    if last_file!=fr['file']:
+                        raw_image=cv2.imread(str(out/fr['file']));last_file=fr['file']
+                        resized_image=cv2.resize(raw_image,(1280,720)) if raw_image is not None else None
                     if raw_image is None:raise ValueError('Cannot decode '+fr['file'])
-                    raw=cv2.resize(raw_image,(1280,720));sx=1280/raw_image.shape[1];sy=720/raw_image.shape[0]
+                    raw=resized_image;sx=1280/raw_image.shape[1];sy=720/raw_image.shape[0]
                 else:raw=canvas(1280,720);txt(raw,'Camera not recorded / not yet available',100,300);sx=sy=1
                 annotated=raw.copy();matched=[]
                 if fr:
@@ -250,15 +273,17 @@ def render(a):
                 for n,line in enumerate(texts[:10]):txt(panel,line[:155],12,25+n*34,scale=.52)
                 ann=np.vstack((annotated,panel));mp=map_panel(t,640,720);cv=curves(t,640,360)
                 dashboard=np.hstack((ann,np.vstack((mp,cv))));trajectory=np.vstack((map_panel(t,1280,720),curves(t,1280,360)))
+                drawing_seconds+=time.perf_counter()-frame_started
+                pipe_started=time.perf_counter()
                 for name,img in [('camera_raw',raw),('camera_annotated',ann),('trajectory',trajectory),('dashboard',dashboard)]:
-                    if name in writers:writers[name].stdin.write(img.tobytes())
+                    if name in sizes:writers.write(name,img)
+                pipe_seconds+=time.perf_counter()-pipe_started
                 csvout.writerow([i,t,fr['stamp'] if fr else '',len(matched)])
                 if i in (int(22.7*fps),int(50.3*fps)):cv2.imwrite(str(out/f'preview_{i}.jpg'),dashboard)
                 if i%300==0:print(f'Render {i}/{count}',flush=True)
-        finally:
-            codes=[]
-            for p in writers.values():p.stdin.close();codes.append(p.wait())
-            if any(codes):raise RuntimeError('Video encoding failed')
+        except BaseException as error:
+            status.update(render_status='failed',error=str(error))
+            save_status();raise
     classes={}
     for key in ('raw','mapped','targets'):
         for r in rows[key]:
@@ -270,8 +295,8 @@ def render(a):
     events.sort(key=lambda r:r['t'])
     with (out/'events.csv').open('w') as f:
         w=csv.DictWriter(f,fieldnames=['t','topic','reason','target']);w.writeheader();w.writerows(events)
-    summary=dict(bag=d['bag'],duration=d['duration'],fps=fps,frames=count,display_frame=a.frame,missing=d['missing'],warnings=sorted(warnings),classes=classes,video_files=[n+'.mp4' for n in writers])
-    (out/'summary.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False))
+    summary=dict(bag=d['bag'],duration=d['duration'],fps=fps,frames=count,display_frame=a.frame,missing=d['missing'],warnings=sorted(warnings),classes=classes,video_files=[n+'.mp4' for n in sizes],render_status='completed',encoding=selection,
+                 timings=dict(frame_drawing_seconds=drawing_seconds,encoder_pipe_seconds=pipe_seconds,encoder_finalize_seconds=writers.finish_seconds,render_wall_seconds=time.perf_counter()-started),video_sizes=sizes)
     np.savetxt(out/'motion.csv',np.column_stack((motion,speeds)),delimiter=',',header='bag_seconds,x,y,z,xy_speed',comments='')
     with (out/'target_coordinates.csv').open('w') as f:
         w=csv.writer(f);w.writerow(['bag_seconds','class','id','frame','map_valid','x','y','z','state'])
@@ -283,16 +308,31 @@ def render(a):
     report+=['','时序见events.csv，完整指标见summary.json。灰色地图仅显示当前位置高度±0.3m的稀疏膨胀点云；规划曲线是最近记录Marker，缺失时不猜测。高度为位姿坐标系Z，非独立离地测距。','']
     (out/'REPORT.md').write_text('\n'.join(report))
     html='<!doctype html><meta charset="utf-8"><title>Bag replay</title><style>body{background:#16191e;color:white;max-width:1500px;margin:20px auto;font:18px sans-serif}video{width:100%}a{color:#8cf}button{margin:5px;padding:8px}</style><h1>Bag 多画面离线回放</h1><p>1倍速。仅展示记录证据；目标坐标为最后有效历史位置。</p><video id="v" controls src="dashboard.mp4"></video>'
-    for name in writers:html+=f'<button onclick="v.src=\'{name}.mp4\';v.play()">{name}</button>'
+    for name in sizes:html+=f'<button onclick="v.src=\'{name}.mp4\';v.play()">{name}</button>'
     html+='<p><a href="REPORT.md">报告</a> · <a href="events.csv">事件时间线</a> · <a href="summary.json">指标/缺失话题</a></p>'
     (out/'index.html').write_text(html)
+    summary['timings']['render_wall_seconds']=time.perf_counter()-started
+    (out/'summary.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False))
+    print(f'Render timings (overlapping pipeline): {summary["timings"]}',flush=True)
 
 def verify(a):
+    started=time.perf_counter()
     out=Path(a.out).resolve();s=json.loads((out/'summary.json').read_text());results={}
+    (out/'validation.json').unlink(missing_ok=True)
+    if s.get('render_status','completed')!='completed' or not s['video_files']:raise ValueError('Render did not complete; refusing video success/cleanup')
     for name in s['video_files']:
         p=out/name
-        subprocess.run(['ffmpeg','-v','error','-i',str(p),'-f','null','-'],check=True)
-        info=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration,size','-of','json',str(p)]))['format']
+        decode_started=time.perf_counter()
+        decoded=subprocess.run(['ffmpeg','-v','error','-xerror','-i',str(p),'-map','0:v:0','-vsync','0','-progress','pipe:1','-nostats','-f','null','-'],stdout=subprocess.PIPE,text=True,check=True)
+        frame_counts=[int(line.split('=',1)[1]) for line in decoded.stdout.splitlines() if line.startswith('frame=')]
+        if not frame_counts or frame_counts[-1]!=s['frames']:raise ValueError('Video frame count mismatch: '+name)
+        decode_seconds=time.perf_counter()-decode_started
+        metadata_started=time.perf_counter()
+        probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0','-show_entries','format=duration,size:stream=nb_frames,width,height','-of','json',str(p)]));info=probe['format'];stream=probe['streams'][0]
+        if stream.get('nb_frames') not in (None,'N/A') and int(stream['nb_frames'])!=s['frames']:raise ValueError('Video metadata frame count mismatch: '+name)
+        size=s.get('video_sizes',{}).get(Path(name).stem)
+        if size and [stream['width'],stream['height']]!=size:raise ValueError('Video dimensions mismatch: '+name)
+        info.update(decoded_frames=frame_counts[-1],decode_seconds=decode_seconds,metadata_seconds=time.perf_counter()-metadata_started)
         if abs(float(info['duration'])-s['duration'])>1/s['fps']+.03:raise ValueError('Video duration mismatch')
         results[name]=info
     (out/'validation.json').write_text(json.dumps(results,indent=2))
@@ -304,10 +344,11 @@ def verify(a):
             if p.parent!=folder:raise ValueError('Unexpected frame path')
             if p.is_file():p.unlink()
         if folder.exists() and not any(folder.iterdir()):folder.rmdir()
-    print('All videos decoded; duration checks passed.',flush=True)
+    print(f'All videos decoded once; frame/dimension/duration checks passed ({time.perf_counter()-started:.3f}s).',flush=True)
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('mode',choices=['export','render','verify']);p.add_argument('--bag');p.add_argument('--out',required=True);p.add_argument('--fps',type=int,default=10);p.add_argument('--frame',default='map');p.add_argument('--topics')
+    p.add_argument('--encoder',choices=['auto','cpu','nvenc'],default='cpu',help='Video encoding only (default CPU); auto probes concurrent NVENC sessions, then falls back to CPU')
     p.add_argument('--keep-frames',action='store_true');a=p.parse_args()
     if not 1<=a.fps<=30:p.error('fps must be 1..30')
     if a.mode=='export' and not a.bag:p.error('export requires --bag')
