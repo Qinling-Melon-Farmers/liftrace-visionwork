@@ -31,6 +31,11 @@ class DistributionTests(unittest.TestCase):
                 expected = {prefix + '/' + ('README_FIRST.md' if f == 'README_DISTRIBUTION.md' else f)
                             for f in build_zip.SOURCES} | {prefix + '/manifest.json'}
                 self.assertEqual(set(names), expected)
+                for file in ('wb_replay.py', 'web/replay.html', 'web/replay.js',
+                             'bag_replay/run.sh', 'bag_replay/bag_replay.py', 'bag_replay/video_encoder.py'):
+                    self.assertIn(prefix + '/' + file, names)
+                self.assertFalse(any('merge_bags.py' in name for name in names))
+                self.assertIn(prefix + '/ulog_viewer/vendor/pyulog/core.py', names)
                 self.assertTrue(all(not Path(n).is_absolute() and '..' not in Path(n).parts for n in names))
                 manifest = json.loads(archive.read(prefix + '/manifest.json'))
                 self.assertFalse(manifest['board_deployment_included'])
@@ -69,10 +74,15 @@ class DistributionTests(unittest.TestCase):
                     self.assertEqual([g['profile'] for g in observation], ['hover', 'forward', 'square'])
                     for url in ('/', '/observe', '/motor', '/static/app.js', '/static/observe.js',
                                 '/static/style.css', '/static/observe.css', '/static/motor_wiring.json',
-                                '/logs', '/static/logs.js', '/static/logs.css', '/static/ulog.js', '/api/ulog/library'):
+                                '/logs', '/static/logs.js', '/static/logs.css', '/static/ulog.js', '/api/ulog/library',
+                                '/replay', '/static/replay.js', '/api/replay/library'):
                         with urllib.request.urlopen(base + url, timeout=2) as response:
                             self.assertEqual(response.status, 200)
                             self.assertTrue(response.read())
+                    with urllib.request.urlopen(base + '/api/replay/library', timeout=2) as response:
+                        replay = json.load(response)
+                    self.assertEqual(set(replay['roots']), {'data', 'generated'})
+                    self.assertEqual(replay['bags'], [])
                     body = json.dumps(dict(group_id='observation_hover', mode='preview',
                                            check_config=True)).encode()
                     req = urllib.request.Request(base + '/api/trial/command', data=body,

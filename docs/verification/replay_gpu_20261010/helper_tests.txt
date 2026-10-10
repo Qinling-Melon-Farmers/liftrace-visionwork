@@ -1,0 +1,30 @@
+test_dynamic_tf_age_and_future (test_core.ReplayContracts) ... ok
+test_missing_optional_topics_render_without_fabricated_camera (test_core.ReplayContracts) ... Encoder cpu -> cpu (libx264): CPU selected; NVENC probe skipped. Drawing: CPU OpenCV.
+Render 0/1
+Render timings (overlapping pipeline): {'frame_drawing_seconds': 0.02529968699991514, 'encoder_pipe_seconds': 0.03896409600019979, 'encoder_finalize_seconds': 0.032610582999950566, 'render_wall_seconds': 0.1247711179998987}
+All videos decoded once; frame/dimension/duration checks passed (0.231s).
+ok
+test_pixels_require_near_image_stamp (test_core.ReplayContracts) ... ok
+test_state_never_reads_future (test_core.ReplayContracts) ... ok
+test_transform_rotation_translation_inverse (test_core.ReplayContracts) ... ok
+test_unknown_frame_is_not_identity (test_core.ReplayContracts) ... ok
+test_actual_probe_failure_falls_back_and_reaps_children (test_encoder.EncoderContracts) ... Encoder auto -> cpu (libx264): NVENC concurrent probe failed: Video encoding failed (no midstream fallback): camera: exit=9, frames=2/2; NVENC session limit; dashboard: exit=9, frames=2/2; NVENC session limit. Drawing: CPU OpenCV.
+ok
+test_auto_preserves_concurrency_failure_reason (test_encoder.EncoderContracts) ... Encoder auto -> cpu (libx264): session capacity exceeded. Drawing: CPU OpenCV.
+ok
+test_cpu_does_not_probe (test_encoder.EncoderContracts) ... Encoder cpu -> cpu (libx264): CPU selected; NVENC probe skipped. Drawing: CPU OpenCV.
+ok
+test_cpu_outputs_complete_frames (test_encoder.EncoderContracts) ... ok
+test_decode_frame_mismatch_prevents_success_and_cleanup (test_encoder.EncoderContracts) ... Encoder cpu -> cpu (libx264): CPU selected; NVENC probe skipped. Drawing: CPU OpenCV.
+Render 0/2
+Render timings (overlapping pipeline): {'frame_drawing_seconds': 0.02929135199974553, 'encoder_pipe_seconds': 0.06774613799962026, 'encoder_finalize_seconds': 0.06558099699986997, 'render_wall_seconds': 0.1850348960001611}
+ok
+test_early_eof_with_zero_exit_is_not_promoted (test_encoder.EncoderContracts) ... ok
+test_explicit_nvenc_does_not_hide_probe_failure (test_encoder.EncoderContracts) ... ok
+test_midstream_failure_invalidates_summary_and_retains_images (test_encoder.EncoderContracts) ... Encoder cpu -> cpu (libx264): CPU selected; NVENC probe skipped. Drawing: CPU OpenCV.
+ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 1.101s
+
+OK

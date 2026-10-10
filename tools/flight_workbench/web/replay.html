@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Liftrace · Bag 离线回放</title><link rel="stylesheet" href="/static/style.css"><link rel="stylesheet" href="/static/logs.css"></head>
+<body class="logs-page"><main>
+<header><a class="btn" href="/">← 主工作台</a> <a class="btn" href="/logs">ULog / 日志</a><h1>Bag 离线回放</h1></header>
+<p>只读取本地已封闭的 ROS1 bag，生成记录数据的视频与报告。不连接板端、不启动 ROS 节点、不重新推理模型。已有结果可直接打开。</p>
+<p id="replay-message" role="status" aria-live="polite"></p>
+<section class="log-card"><h2>本地库与依赖</h2><p id="replay-capabilities">正在检查本机依赖…</p>
+<button id="replay-refresh" class="btn">刷新本地库</button><details><summary>预定数据根</summary><pre id="replay-roots"></pre></details>
+<p>只能选择服务启动配置中的目录，不接受网页任意路径。解压包默认扫描包内 data/；Windows 原生仅查看已生成回放，生成需在已有 ROS Noetic 的 WSL/Linux 后端进行。</p></section>
+<section class="log-card"><h2>启动离线生成</h2><label for="replay-bag">发现的本地 bag</label><select id="replay-bag"></select>
+<label for="replay-fps">视频帧率（1–30）</label><input id="replay-fps" type="number" min="1" max="30" step="1" value="10">
+<label for="replay-frame">显示坐标系（与 bag 记录一致）</label><input id="replay-frame" value="camera_init">
+<label for="replay-encoder">视频编码</label><select id="replay-encoder"><option value="cpu">CPU（推荐，cpu）</option><option value="auto">自动 GPU / CPU（auto）</option><option value="nvenc">NVIDIA NVENC（nvenc）</option></select>
+<p>GPU 仅参与视频编码，不加速 OpenCV 画面绘制；本机短片对照中 NVENC 更慢，因此默认 CPU。auto 的可用性与回退由回放工具检查；实际编码器和错误请查看作业日志。每次生成使用新目录，同一输出库只允许一个任务；刷新网页不会重启任务。</p>
+<button id="replay-start" class="btn btn-primary" disabled>生成回放</button></section>
+<section class="log-card"><h2>离线作业进度与日志</h2><p>导出阶段没有百分比；渲染进度来自工具输出，视频校验结束才标记完成。</p><div id="replay-jobs"></div></section>
+<section class="log-card"><h2>已有回放播放器</h2><p>仅显示含 summary.json、validation.json 及完整视频文件的目录，包括既有 analysis/；不必重复生成。播放器支持相对资源与长视频拖动。</p>
+<label for="replay-results">已生成结果</label><select id="replay-results"></select><a id="replay-open" class="btn" hidden target="_blank" rel="noopener">打开播放器 ↗</a></section>
+</main><script src="/static/replay.js"></script></body></html>

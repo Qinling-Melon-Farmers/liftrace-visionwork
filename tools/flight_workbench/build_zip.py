@@ -11,13 +11,14 @@ TOOL = Path(__file__).resolve().parent
 ROOT = TOOL.parents[1]
 FILES = (
     'server.py', 'wb_ssh.py', 'wb_native_ssh.py', 'wb_board.py', 'wb_status.py', 'wb_logs.py', 'wb_ulog.py',
-    'wb_geometry.py', 'wb_survey.py', 'board_probe.py', 'workbench.yaml',
+    'wb_geometry.py', 'wb_survey.py', 'wb_replay.py', 'board_probe.py', 'workbench.yaml',
     'start_workbench.sh', 'start_windows.cmd', 'start_windows.bat', 'start_windows.ps1',
-    'requirements.txt', 'README_DISTRIBUTION.md', 'README.md',
+    'requirements.txt', 'README_DISTRIBUTION.md', 'README.md', 'REPLAY_INTEGRATION.md',
     'web/index.html', 'web/app.js', 'web/style.css',
     'web/observe.html', 'web/observe.js', 'web/observe.css',
     'web/motor_wiring.json',
     'web/logs.html', 'web/logs.js', 'web/logs.css', 'web/ulog.js',
+    'web/replay.html', 'web/replay.js',
 )
 SOURCES = {relative: TOOL / relative for relative in FILES}
 VIEWER = ROOT / 'tools/flight_logs/ulg_motor_viewer'
@@ -27,6 +28,11 @@ for relative in ('analysis.py', 'plotting.py', 'trajectory.py', 'README.md',
     SOURCES['ulog_viewer/' + relative] = VIEWER / relative
 for relative in ('px4_log_index.py', 'fetch_px4_ulog.py'):
     SOURCES['ulog_viewer/' + relative] = ROOT / 'tools/flight_logs' / relative
+for relative in ('run.sh', 'bag_replay.py', 'README.md', 'analyze_lio_flight.py',
+                 'analyze_px4_ev.py', 'landing_compare.py', 'h_geometry_offline.py',
+                 'video_encoder.py'):
+    # Explicit allowlist: never sweep untracked merge_bags.py into a release.
+    SOURCES['bag_replay/' + relative] = ROOT / 'tools/bag_replay' / relative
 
 
 def git(*args):
@@ -52,7 +58,7 @@ def main():
         'source_scope': 'current workbench files, including uncommitted edits',
         'release_channel': 'local_candidate; not deployed to board',
         'modified_package_files': [p for p, source in SOURCES.items() if git('status', '--porcelain', '--', str(source))],
-        'platform': 'Same source for WSL/Linux SSH and native Windows Python + Paramiko; offline ULog viewer',
+        'platform': 'WSL/Linux and native Windows workbench; offline ULog and existing bag replay viewer; bag generation requires ROS Noetic on WSL/Linux',
         'default_port': 8771,
         'auto_connect': False,
         'board_deployment_included': False,

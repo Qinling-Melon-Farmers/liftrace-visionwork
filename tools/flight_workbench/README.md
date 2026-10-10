@@ -7,6 +7,13 @@ Windows 通过 `start_windows.bat` / `start_windows.ps1` 使用原生 Python + P
 独立正赛卡片指向 `deployment/competition/field.example.yaml`，保留比赛FC高位2.6m、规划1.2m/s/1.0m/s²、搜索/接近前视1.0/0.4m、走廊前视0.6/0.4m、投递FC AGL 0.35m与FC软件限高3.2m；场地实测与确认必填，测试场地成功不是10×10正赛验收。运动优化/高位续扫/障碍柱的“继承/开/关”分别省略覆盖或传对应on/off CLI。正式模板默认开启运动优化和高位续扫，历史测试复现保留原值。两项独立，不能从运动优化开关推断续扫。配置检查与运行生成结果分别显示实际值；尚无监督器输出或已改变选择时显示“尚未确认”。报告见 [本轮验证](../../docs/verification/workbench_release_20261008/REPORT.md)。
 离线解压启动检查：`python tools/flight_workbench/tests/test_distribution.py`。
 
+2026-10-10：主页和日志页新增 [Bag 离线回放](/replay) 独立入口，详见
+[回放集成与验证](REPLAY_INTEGRATION.md)。默认发现本仓 `试飞产物/`、工作台 `data/` 和本机
+状态目录的已生成结果；`logs/` 不默认扫描，需在启动 YAML 的 `replay.data_roots` 显式加入。
+已有 1008 等 `analysis/` 播放器直接打开，不重新生成。生成仅在本机 ROS Noetic/WSL/Linux
+环境可用，Windows 原生只查看已有结果；CPU 为默认编码，NVENC 只加速编码，不加速 OpenCV。
+不需 SSH 连接，`--transport local` 和 `--logs-only` 均支持本地回放；原 ULog 功能保留。
+
 2026-10-07：SSH 登录与 sudo 是两次独立认证，SSH 成功不会给新终端继承 sudo 的认证缓存。
 旧应答器不识别中文 sudo 提示，故 5a 中文密码提示需要手输；5a `exit 0`、5b
 `Servo ready / initialization verified` 均为正常完成标志，不应因提示或重复显示判失败。

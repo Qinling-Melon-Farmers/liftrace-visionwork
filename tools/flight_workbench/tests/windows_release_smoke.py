@@ -67,12 +67,17 @@ def main():
                 comp = next(g for g in groups if g['id'] == 'competition')
                 check('independent unconfirmed competition template', comp['site_config'] == 'deployment/competition/field.example.yaml')
                 for path in ('/', '/logs', '/observe', '/static/app.js', '/static/observe.js', '/static/logs.js',
-                             '/static/ulog.js', '/api/ulog/library'):
+                             '/static/ulog.js', '/api/ulog/library', '/replay',
+                             '/static/replay.js', '/api/replay/library'):
                     with urllib.request.urlopen(base + path, timeout=2) as response:
                         data = response.read()
                         check('GET ' + path, response.status == 200 and bool(data))
                         if path == '/':
                             check('same-origin logs link and no motor page link', b'href="/logs"' in data and b'href="/motor"' not in data)
+                        if path == '/api/replay/library':
+                            capability = json.loads(data)['capabilities']
+                            check('native replay viewer available without claiming ROS generation',
+                                  capability['view'] and not capability['generate'])
                 with urllib.request.urlopen(base + '/motor', timeout=2) as response:
                     check('legacy motor route redirects to realtime observation', response.url == base + '/observe')
                 body = dict(group_id='competition', mode='preview', check_config=True,

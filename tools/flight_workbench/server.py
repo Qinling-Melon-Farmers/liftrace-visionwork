@@ -15,13 +15,15 @@ import argparse
 import json
 import os
 import queue
+import re
+import mimetypes
 import socket
 import sys
 import threading
 import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse, unquote
 
 import wb_survey
 import wb_board
@@ -29,6 +31,7 @@ import wb_status
 import wb_ssh
 import wb_logs
 import wb_ulog
+import wb_replay
 from wb_ssh import SessionManager, Target, run_once
 
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
@@ -76,6 +79,7 @@ class Workbench(object):
         self.board = wb_board.BoardClient(config, self.target)
         self.logs = wb_logs.LogsClient(self.board)
         self.ulogs = wb_ulog.ULogLibrary(PROFILE_DIR)
+        self.replays = wb_replay.ReplayLibrary(PROFILE_DIR, config.get('replay'))
         self.log_dir = os.path.join(PROFILE_DIR, "logs")
         self.report_dir = os.path.join(PROFILE_DIR, "reports")
         self.sessions = SessionManager(self.log_dir, on_output=self._on_output,
@@ -971,10 +975,102 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     # -- GET --
+    def _replay_file(self, target, head=False):
+        # Stream bounded chunks; never read a long video into server memory.
+        with target.open('rb') as stream:
+            size = os.fstat(stream.fileno()).st_size
+            start, end, status = 0, size - 1, 200
+            requested = self.headers.get('Range')
+            if requested:
+                match = re.fullmatch(r'bytes=(\d*)-(\d*)', requested.strip())
+                valid = bool(match and (match[1] or match[2]) and size)
+                if valid:
+                    if match[1]:
+                        start = int(match[1])
+                        end = min(int(match[2]), size - 1) if match[2] else size - 1
+                    else:
+                        length = int(match[2])
+                        valid = length > 0
+                        start = max(0, size - length)
+                    valid = valid and start < size and start <= end
+                if not valid:
+                    self.send_response(416)
+                    self.send_header('Content-Range', 'bytes */%d' % size)
+                    self.send_header('Content-Length', '0')
+                    self.send_header('Accept-Ranges', 'bytes')
+                    self.end_headers()
+                    return
+                status = 206
+            length = max(0, end - start + 1)
+            self.send_response(status)
+            self.send_header('Content-Type', CONTENT_TYPES.get(target.suffix.lower())
+                             or mimetypes.guess_type(str(target))[0] or 'application/octet-stream')
+            self.send_header('Content-Length', str(length))
+            self.send_header('Accept-Ranges', 'bytes')
+            self.send_header('Cache-Control', 'no-store')
+            self.send_header('X-Content-Type-Options', 'nosniff')
+            # Existing replay HTML uses inline controls. Restrict it to local assets
+            # and block access to the workbench's device/control APIs from that page.
+            self.send_header('Content-Security-Policy', "sandbox allow-scripts; default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'none'")
+            if status == 206:
+                self.send_header('Content-Range', 'bytes %d-%d/%d' % (start, end, size))
+            self.end_headers()
+            if head:
+                return
+            stream.seek(start)
+            try:
+                while length:
+                    chunk = stream.read(min(length, 1024 * 1024))
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+                    length -= len(chunk)
+            except (BrokenPipeError, ConnectionResetError):
+                pass
+
+    def _replay_result(self, route, head=False):
+        try:
+            # CSP-sandboxed players have an opaque origin. Only read-only
+            # artifacts may accept it; all API actions retain strict origin checks.
+            self._same_origin(allow_artifact=True)
+            key, separator, value = unquote(route[len('/replay/result/'):]).partition('/')
+            if not separator:
+                raise ValueError('缺少结果目录路径')
+            value = value[:-1] if value.endswith('/') else value
+            target = self.workbench.replays.artifact(key, value)
+            if target.name == 'index.html' and not route.endswith(('/', '/index.html')):
+                self.send_response(302)
+                self.send_header('Location', route + '/')
+                self.send_header('Content-Length', '0')
+                self.end_headers()
+                return
+            return self._replay_file(target, head)
+        except (ValueError, OSError) as error:
+            return self._error(error)
+
+    def do_HEAD(self):
+        route = urlparse(self.path).path
+        if route.startswith('/replay/result/'):
+            return self._replay_result(route, head=True)
+        self.send_response(404)
+        self.send_header('Content-Length', '0')
+        self.end_headers()
+
     def do_GET(self):
         parsed = urlparse(self.path)
         route = parsed.path
         query = parse_qs(parsed.query)
+        if route == '/replay':
+            return self._static('/static/replay.html')
+        if route.startswith('/replay/result/'):
+            return self._replay_result(route)
+        if route in ('/api/replay/library', '/api/replay/jobs'):
+            try:
+                self._same_origin()
+                return self._json(self.workbench.replays.catalog() if route.endswith('/library')
+                                  else {'ok': True, 'jobs': self.workbench.replays.jobs()})
+            except (ValueError, OSError) as error:
+                return self._error(error)
         if self.workbench.options.get("logs_only"):
             if route in ("/", "/index.html", "/logs"):
                 return self._static("/static/logs.html")
@@ -1039,7 +1135,7 @@ class Handler(BaseHTTPRequestHandler):
         except ValueError as error:
             return self._error(error)
 
-    def _same_origin(self):
+    def _same_origin(self, allow_artifact=False):
         """Keep log actions/downloads same-origin and connected; no credentials in URLs."""
         host = self.headers.get("Host", "")
         parsed = urlparse("http://" + host)
@@ -1047,7 +1143,9 @@ class Handler(BaseHTTPRequestHandler):
                 or parsed.port != self.server.server_port):
             raise ValueError("日志接口只允许工作台本机地址")
         origin = self.headers.get("Origin")
-        if (origin and origin != "http://" + host) or self.headers.get("Sec-Fetch-Site") == "cross-site":
+        opaque = allow_artifact and origin == 'null'
+        if (origin and origin != "http://" + host and not opaque) or (
+                self.headers.get("Sec-Fetch-Site") == "cross-site" and not allow_artifact):
             raise ValueError("日志操作必须来自工作台同源页面")
 
     def _logs_access(self):
@@ -1126,6 +1224,9 @@ class Handler(BaseHTTPRequestHandler):
             return self._error(error)
         workbench = self.workbench
         try:
+            if route == '/api/replay/start':
+                self._same_origin()
+                return self._json(workbench.replays.start(body))
             if route == "/api/ulog/board":
                 self._logs_access()
                 if not isinstance(body, dict):
@@ -1312,6 +1413,7 @@ def main():
         server.serve_forever()
     except KeyboardInterrupt:
         print("\n收尾：停止全部会话 …")
+        workbench.replays.close()
         workbench.stop_probe_recovery()
         workbench.sessions.close_all()
         server.shutdown()

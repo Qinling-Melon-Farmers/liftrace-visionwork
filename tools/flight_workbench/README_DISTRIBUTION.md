@@ -2,6 +2,11 @@
 
 本包只包含笔记本侧工作台。无需完整工程、ROS、模型或 WSL。启动监听 localhost，等待用户点击连接；不会自动 SSH、启动设备、解锁或起飞。
 
+Bag 回放入口 `/replay` 可发现并播放已有结果，查看功能同样无需 ROS/WSL。
+**离线生成 bag 视频另需 WSL/Linux 中已有 ROS Noetic、FFmpeg/ffprobe 和渲染环境**；Windows
+原生工作台只显示已有结果与依赖提示，不自动调用 WSL 或安装依赖。CPU 默认，auto/NVENC
+可选；GPU 仅编码，不加速 OpenCV 绘制。原 ULog 上传、解析和导出功能保留。
+
 ## Windows 原生启动
 
 使用已有 Windows Python 3.9+ 环境及 PyYAML、pexpect、Paramiko（版本范围见 requirements.txt）；离线 ULog 分析另需已有 numpy、matplotlib。pyulog 1.2.4 的读取源码及 BSD 许可随包提供，优先使用环境内已安装版本，无需另装 pyulog。pexpect 仅复用异常类型，Windows 不使用 Unix PTY。脚本检查依赖，不安装包或新建环境。本机已用 Windows Anaconda Python 3.12 验证，未在未安装 Python 的干净 Windows 上验证。
@@ -65,5 +70,13 @@ Linux 需要 Python 3.9+、pexpect、PyYAML、bash、OpenSSH，无需 Paramiko�
 ## 包边界
 
 白名单打包：服务、SSH 适配、配置、网页、只读探针、启动脚本和 manifest。没有板端工程、模型、密码、私钥、个人状态或运行日志。manifest 标明源码 HEAD 和未提交文件；此包不是板端发布或实飞验收。
+
+白名单另含 `bag_replay/run.sh`、`bag_replay.py`、`video_encoder.py` 及工具分析脚本/说明；
+不打包 `merge_bags.py`、原始 bag、已有回放视频或个人库。解压后把完整结果目录放在包内
+`data/`，或在 `workbench.yaml` 配置 `replay.data_roots` 的本地目录后重新启动服务；只能从
+这些预定根目录选取。播放器目录需保留 `index.html`、`summary.json`、`validation.json`
+和所有视频，相对资源通过目录 URL 提供，支持 HTTP Range 与拖动。渲染中或缺失视频的目录
+不列为可用结果。工作台作业存于个人状态目录 `replay_library/`，可从页面查看进度与日志。
+普通浏览器刷新不重启任务；服务退出中断的任务不会误报完成。
 
 本轮 Windows 原生离线 UI/HTTP、解压启动及本机 SSH fixture 的验证结果见仓库 docs/verification/workbench_release_20261008/REPORT.md。未连接真实板端，未验收真实网络、ROS、舵机、飞行或大 bag 的现场传输。

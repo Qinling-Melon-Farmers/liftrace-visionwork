@@ -84,7 +84,9 @@ class ULogLibrary:
         data['state'] = 'analyzing'
         self._save(directory, data)
         try:
-            result = subprocess.run([sys.executable, str(Path(__file__).resolve()), '--analyze',
+            # The terminal launcher may add system Python packages for pexpect.
+            # Do not let that PYTHONPATH shadow this interpreter's NumPy/Mpl.
+            result = subprocess.run([sys.executable, '-E', str(Path(__file__).resolve()), '--analyze',
                                      str(directory), str(VIEWER)], capture_output=True, timeout=180)
             if result.returncode:
                 reason = result.stderr.decode('utf-8', 'replace')

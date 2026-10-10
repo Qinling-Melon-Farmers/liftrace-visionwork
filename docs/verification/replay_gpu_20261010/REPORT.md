@@ -36,7 +36,7 @@ NVENC 预检分别花费 1.608 / 1.629 秒，计入总渲染时间；实际编�
 
 verify 从一次 FFmpeg 全片解码的 `-progress` 获取实际帧数，再用 ffprobe 仅读 metadata 尺寸、时长、`nb_frames`；没有 `ffprobe -count_frames` 的第二次全片解码。旧 summary 仍可核验。
 
-最终 `python -m unittest test_core test_encoder -v` **14/14 PASS**（1.101 秒），包括：CPU 跳过探测、能力失败自动回退、显式 NVENC 拒绝假成功、真实失败子进程回收、完整 CPU 编码、0 退出码但帧数不足不晋升、中途失败及保留图片、验证帧数失败与陈旧成功记录作废，另保留时序匹配、坐标变换及无相机契约。见 [测试日志](helper_tests.log)。`bash -n run.sh` 通过。
+最终 `python -m unittest test_core test_encoder -v` **14/14 PASS**（1.101 秒），包括：CPU 跳过探测、能力失败自动回退、显式 NVENC 拒绝假成功、真实失败子进程回收、完整 CPU 编码、0 退出码但帧数不足不晋升、中途失败及保留图片、验证帧数失败与陈旧成功记录作废，另保留时序匹配、坐标变换及无相机契约。见 [测试日志](helper_tests.txt)。`bash -n run.sh` 通过。
 
 打包运行依赖新增 **`tools/bag_replay/video_encoder.py`**，必须与 `bag_replay.py` 同目录；`test_encoder.py` 是可附带的测试与短合成基准工具。本轮不修改 workbench；主代理同步工作台默认 CPU 和 build_zip 依赖。独立生产 HTTP 三秒真实片测试已由主代理通过，结果在 `/home/xhj/liftrace-deliverables/workbench_replay_20261010/http_smoke/result.json`，本轮未重复。
 
