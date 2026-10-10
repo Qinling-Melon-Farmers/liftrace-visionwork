@@ -336,6 +336,7 @@ private:
     double drop_height_threshold = 0.2;     // 旧链投递高度阈值（米）
     double drop_position_threshold_ = 0.15; // 旧链投递三维距离阈值（米）
     double drop_release_setpoint_height_ = 0.10; // 投递下降目标高度（米）
+    double drop_release_min_height_ = 0.10; // 独立释放下限；未配置时沿用下降目标
     double external_recovery_height_ = 0.95; // 外部投递恢复交接高度（米）
     double external_standard_recovery_setpoint_height_ = 1.20;
     double external_cross_recovery_setpoint_height_ = 1.15;

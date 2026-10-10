@@ -236,7 +236,7 @@ groups:
       - {path: "deployment/competition/candidates/snake_motion.yaml", label: "正式候选 · 两线往返 · 待现场实测"}
       - {path: "deployment/competition/candidates/snake3_motion.yaml", label: "正式候选 · 三扫描线 · 待现场实测"}
       - {path: "deployment/competition/field_20261007_validated.yaml", label: "可选测试复现 · 非10×10正赛参数"}
-    plan: "默认比赛模板：FC高位2.6m、规划上限1.2m/s与1.0m/s²、搜索/接近前视1.0/0.4m、走廊前视0.6/0.4m、投递FC AGL 0.35m、FC软件限高3.2m；场地尺寸、门口、H与路线须实测确认。"
+    plan: "默认比赛模板：FC高位2.6m、规划上限1.2m/s与1.0m/s²、搜索/接近前视1.0/0.4m、走廊前视0.6/0.4m、投递下降目标FC AGL 0.40m（释放窗口0.35～0.45m）、FC软件限高3.2m；场地尺寸、门口、H与路线须实测确认。"
     ending: "依所选配置执行末段；POSCTL交接须飞手完成落地"
     release: real
     release_options: [real]

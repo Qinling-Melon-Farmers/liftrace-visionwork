@@ -84,7 +84,11 @@ class CompetitionSpeedCLI(unittest.TestCase):
             self.assertTrue(r['high_view_full']['policy']['resume_survey_enabled'])
             self.assert_corridor(r);self.assert_h(c,1.,1.2)
             self.assert_drop_settle(c)
-            self.assertAlmostEqual(c['drop_system']['release_setpoint_height']-(REFERENCE[2]-.22),.35)
+            self.assertAlmostEqual(c['drop_system']['release_setpoint_height']-(REFERENCE[2]-.22),.40)
+            self.assertAlmostEqual(c['drop_system']['release_min_height']-(REFERENCE[2]-.22),.35)
+            self.assertAlmostEqual(c['drop_system']['height_threshold']-(REFERENCE[2]-.22),.45)
+            self.assertAlmostEqual(o['/release_permission_arbiter/min_release_altitude']-(REFERENCE[2]-.22),.27)
+            self.assertAlmostEqual(o['/release_permission_arbiter/max_release_altitude']-(REFERENCE[2]-.22),.47)
             vel,acc=(1.2,1.) if profile=='competition' else (.5,.35)
             for ns,v,a in [('manager','max_vel','max_acc'),('search','max_vel','max_acc'),
                            ('optimization','max_vel','max_acc'),('bspline','limit_vel','limit_acc')]:
@@ -145,6 +149,8 @@ class CompetitionSpeedCLI(unittest.TestCase):
                 self.assert_drop_settle(control)
                 for key,value in control['drop_system']['settle'].items():
                     self.assertEqual(values['/drop_system/settle/'+key],value)
+                for key,agl in [('release_setpoint_height',.40),('release_min_height',.35),('height_threshold',.45)]:
+                    self.assertAlmostEqual(values['/drop_system/'+key]-reference['ground_z'],agl)
                 self.assertEqual(values['/external_landing/posctl/xy_tolerance_m'],.05)
                 self.assertEqual(values['/external_landing/posctl/stable_duration_sec'],.15)
                 self.assertEqual((values['/px4_max_distance'],
@@ -177,11 +183,13 @@ class CompetitionSpeedCLI(unittest.TestCase):
                 self.assert_corridor(r)
                 self.assertEqual(len(r['mission']['post_delivery_route']),len(s['corridor_waypoints'])+2)
 
-    def test_all_actual_delivery_groups_generate_035(self):
+    def test_all_actual_delivery_groups_target_040_and_release_within_035_045(self):
         for trial in ('visual_interrupt','high_view','low_multi','high_priority'):
             e,r,c,o=self.cli(trial,site=False)
-            self.assertEqual(e['drop_agl'],.35)
-            self.assertAlmostEqual(c['drop_system']['release_setpoint_height']-(REFERENCE[2]-.22),.35)
+            self.assertEqual(e['drop_agl'],.40)
+            self.assertAlmostEqual(c['drop_system']['release_setpoint_height']-(REFERENCE[2]-.22),.40)
+            self.assertAlmostEqual(c['drop_system']['release_min_height']-(REFERENCE[2]-.22),.35)
+            self.assertAlmostEqual(c['drop_system']['height_threshold']-(REFERENCE[2]-.22),.45)
             self.assertTrue(c['drop_system']['enable_drop'])
             self.assert_drop_settle(c)
             self.assertEqual((c['px4_max_distance'],o['/traj_server/traj_server/target_dist'],

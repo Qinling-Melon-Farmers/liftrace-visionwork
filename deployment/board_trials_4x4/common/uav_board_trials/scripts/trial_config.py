@@ -2,6 +2,7 @@
 from pathlib import Path
 import math,copy,json,yaml,struct
 from uav_mission.landing_posctl_config import validate_landing_posctl, landing_control_parameters
+from uav_mission.drop_height_config import release_heights
 
 TRIAL_FOLDERS = {
     'visual_interrupt': '01_visual_interrupt', 'high_view': '02_high_view_revisit',
@@ -79,6 +80,7 @@ def flight_geometry(settings):
     return area
 
 def validate_settings(settings):
+    release_heights(settings)
     budget=settings.get('motion_action_timeout',30.)
     if isinstance(budget,bool) or not isinstance(budget,(int,float)) or not math.isfinite(budget) or not 0<budget<=600:
         raise ValueError('Invalid motion_action_timeout; expected seconds in (0,600]')
@@ -189,12 +191,13 @@ def generate(root,out,settings,fc_xyz,rig):
     ceiling_enabled=bool(settings.get('virtual_ceiling_enabled',False))
     if not all(math.isfinite(v) for v in (x,y,z,ground)) or abs(x)>.3 or abs(y)>.3 or abs(z)>.3:raise ValueError('Unexpected camera_init origin; inspect localization before flight')
     low=ground+float(settings['low_agl']);high=ground+float(settings['high_agl']);drop=ground+float(settings['drop_agl']);capture=ground+float(settings['landing_capture_agl'])
+    release_min,release_max,permission_min,permission_max=release_heights(settings)
     # Legacy align_height is float32, recovery_height is double. Use an
     # exactly representable shared value so equality cannot fail its guard.
     low=struct.unpack('f',struct.pack('f',low))[0]
     land_z, handoff_z, posctl_stability = landing_control_parameters(settings, ground, float(rig['fc_ground_clearance']))
     # 投递仍需本地 Z > 0.05m；降落只需 > 0，与控制器参数校验一致。
-    if not .35<=settings['drop_agl']<=1.0 or drop<=.05 or land_z<=0.:raise ValueError('Legacy positive local-Z bounds not met')
+    if not .35<=settings['drop_agl']<=1.0 or drop<=.05 or ground+release_min<=.05 or land_z<=0.:raise ValueError('Legacy positive local-Z bounds not met')
     point=lambda a,b,h:[x+a,y+b,h]
     runtime=yaml.safe_load((root/'docs/verification/fov_landing_inner_20260919/seed_2672/fast_runtime.yaml').read_text())
     m=runtime['mission'];m.update(home_xy=[x,y],landing_xy=[x+.6,y],approach_altitude=low,return_altitude=low,timeout=600. if mode=='high_view_full' else 300.,forced_return_at=510. if mode=='high_view_full' else 240.,post_delivery_route_revision='board-'+mode,
@@ -250,7 +253,8 @@ def generate(root,out,settings,fc_xyz,rig):
         SurveyPolicy(**runtime['high_view_full']['policy'])
     control=yaml.safe_load((root/'patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_horizontal_control.yaml').read_text())
     control.update(waypoints=[dict(x=x,y=y,z=(ground+settings['landing_transit_agl'] if mode=='landing' else low),yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=land_z,px4_max_distance=.25)
-    control['switch']['auto_land']=h_landing;control['drop_system'].update(enable_drop=drop_enabled,release_setpoint_height=drop,height_threshold=drop+.10)
+    control['switch']['auto_land']=h_landing;control['drop_system'].update(enable_drop=drop_enabled,
+        release_setpoint_height=drop,release_min_height=ground+release_min,height_threshold=ground+release_max)
     control['switch']['flag_landing_detect']=1 if h_landing else 0
     control['uav_vision'].update(recovery_height=low,
         standard_recovery_setpoint_height=low+.10,cross_recovery_setpoint_height=low+.10,
@@ -291,7 +295,7 @@ def generate(root,out,settings,fc_xyz,rig):
         '/fast_planner_node/progress/enabled':True,'/traj_server/progress/enabled':True,
         '/traj_server/traj_server/require_goal_identity':True,
         '/navigation/planner_bridge/target/recovery_height':low,
-        '/release_permission_arbiter/pose_topic':'/navigation/local_pose','/release_permission_arbiter/min_release_altitude':drop-.08,'/release_permission_arbiter/max_release_altitude':drop+.12,
+        '/release_permission_arbiter/pose_topic':'/navigation/local_pose','/release_permission_arbiter/min_release_altitude':ground+permission_min,'/release_permission_arbiter/max_release_altitude':ground+permission_max,
         '/board_trials/ground_z':ground,'/board_trials/fc_on_ground_z':z,'/board_trials/mock_only':actuator=='mock',
         '/board_trials/actuator_mode':actuator,
         '/target_map_projector/coarse_navigation_enabled':high_mode,

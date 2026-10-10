@@ -2044,6 +2044,8 @@ void LLController::load_params() {
     }
     drop_release_setpoint_height_ = nh_.param(
         "drop_system/release_setpoint_height", 0.10);
+    drop_release_min_height_ = nh_.param(
+        "drop_system/release_min_height", drop_release_setpoint_height_);
     drop_enabled = nh_.param("drop_system/enable_drop", true);
     descent_stable_duration = nh_.param("drop_system/descent_stable_duration", 2.0);
     if (!loadSlotOffsets(nh_, "drop_system/slot_offsets", &drop_slot_offsets_) ||
@@ -2101,12 +2103,15 @@ void LLController::load_params() {
     if (!std::isfinite(drop_height_threshold) ||
         !std::isfinite(drop_position_threshold_) ||
         !std::isfinite(drop_release_setpoint_height_) ||
+        !std::isfinite(drop_release_min_height_) ||
         !std::isfinite(external_recovery_height_) ||
         !std::isfinite(external_standard_recovery_setpoint_height_) ||
         !std::isfinite(external_cross_recovery_setpoint_height_) ||
         drop_height_threshold <= 0.0 || drop_height_threshold > 1.0 ||
         drop_position_threshold_ <= 0.0 || drop_position_threshold_ > 1.0 ||
         drop_release_setpoint_height_ <= 0.05 ||
+        drop_release_min_height_ <= 0.05 ||
+        drop_release_min_height_ > drop_release_setpoint_height_ ||
         drop_release_setpoint_height_ > drop_height_threshold ||
         external_recovery_height_ <= drop_height_threshold ||
         external_recovery_height_ > align_height ||
@@ -2124,6 +2129,8 @@ void LLController::load_params() {
     ROS_INFO("\033[32m[DropSystem] Legacy release geometry: z<=%.3f m, distance<=%.3f m; descent setpoint=%.3f m\033[0m",
              drop_height_threshold, drop_position_threshold_,
              drop_release_setpoint_height_);
+    ROS_INFO("[DropSystem] Compensated release height window: [%.3f, %.3f] m; descent setpoint=%.3f m",
+             drop_release_min_height_, drop_height_threshold, drop_release_setpoint_height_);
     ROS_INFO("\033[32m[DropSystem] Descent stable duration: %.1f s\033[0m", descent_stable_duration);
     for (int slot = 0; slot < 3; ++slot) {
         ROS_INFO("[DropSystem] slot %d offsets standard=(%.3f, %.3f) dynamic=(%.3f, %.3f)",
@@ -3710,16 +3717,16 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
     if (!release) return externalLandingControlReady(ros::Time::now());
     const bool ready = std::isfinite(xy_error) && std::isfinite(horizontal_speed) &&
         std::isfinite(pos.z) && xy_error < drop_settle_config_.xy_tolerance_m &&
-        pos.z >= drop_release_setpoint_height_ && pos.z <= drop_height_threshold &&
+        pos.z >= drop_release_min_height_ && pos.z <= drop_height_threshold &&
         externalLandingControlReady(ros::Time::now());
     if (!ready) ROS_INFO_THROTTLE(1.0,
         "[DropGeometry] waiting: xy=%.3f speed=%.3f vz=%.3f fc_z=%.3f floor_z=%.3f ceiling_z=%.3f",
-        xy_error,horizontal_speed,velocity.z(),pos.z,drop_release_setpoint_height_,drop_height_threshold);
+        xy_error,horizontal_speed,velocity.z(),pos.z,drop_release_min_height_,drop_height_threshold);
     else ROS_INFO(
         "[DropGeometry] release_ready slot=%u decision=%u fc_xy_error=%.4f outlet_xy_error=%.4f "
         "horizontal_speed=%.4f vz=%.4f fc_z=%.4f floor_z=%.4f ceiling_z=%.4f odom=%.6f",
         c.payload_slot,c.decision_seq,fc_error,outlet_error,horizontal_speed,velocity.z(),
-        pos.z,drop_release_setpoint_height_,drop_height_threshold,motion_odom_.header.stamp.toSec());
+        pos.z,drop_release_min_height_,drop_height_threshold,motion_odom_.header.stamp.toSec());
     return ready;
 }
 

@@ -98,7 +98,7 @@ class TrialTests(unittest.TestCase):
         for settings_file in sorted(base.glob('*/settings.yaml')):
             settings=yaml.safe_load(settings_file.read_text())
             dropping=settings['mode'] not in ('landing','memory_only','high_speed_capture')
-            self.assertAlmostEqual(settings['drop_agl'],.35 if dropping else .6)
+            self.assertAlmostEqual(settings['drop_agl'],.40 if dropping else .6)
             if settings.get('trial_kind') in ('corridor_landing','full_mission'):
                 # Pure generation fixture; never fill measured deployable geometry on disk.
                 settings.update(corridor_waypoints=[dict(x=.6,y=0.,agl=1.),
@@ -112,11 +112,12 @@ class TrialTests(unittest.TestCase):
                     ground=ref['ground_z'];drop=control['drop_system']
                     self.assertEqual(drop['enable_drop'],dropping)
                     self.assertAlmostEqual(drop['release_setpoint_height']-ground,settings['drop_agl'])
-                    self.assertAlmostEqual(drop['height_threshold']-ground,settings['drop_agl']+.10)
-                    self.assertAlmostEqual(overrides['/release_permission_arbiter/min_release_altitude']-ground,settings['drop_agl']-.08)
-                    self.assertAlmostEqual(overrides['/release_permission_arbiter/max_release_altitude']-ground,settings['drop_agl']+.12)
+                    self.assertAlmostEqual(drop['release_min_height']-ground,.35 if dropping else settings['drop_agl'])
+                    self.assertAlmostEqual(drop['height_threshold']-ground,.45 if dropping else settings['drop_agl']+.10)
+                    self.assertAlmostEqual(overrides['/release_permission_arbiter/min_release_altitude']-ground,.27 if dropping else settings['drop_agl']-.08)
+                    self.assertAlmostEqual(overrides['/release_permission_arbiter/max_release_altitude']-ground,.47 if dropping else settings['drop_agl']+.12)
                     if dropping:
-                        self.assertAlmostEqual(ref['drop_z']-ground,.35)
+                        self.assertAlmostEqual(ref['drop_z']-ground,.40)
                         self.assertAlmostEqual(drop['height_threshold']-ground,.45)
                         self.assertAlmostEqual(overrides['/release_permission_arbiter/min_release_altitude']-ground,.27)
                         self.assertAlmostEqual(overrides['/release_permission_arbiter/max_release_altitude']-ground,.47)
