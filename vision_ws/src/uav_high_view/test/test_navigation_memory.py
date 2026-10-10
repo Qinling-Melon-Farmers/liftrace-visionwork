@@ -30,6 +30,25 @@ class MemoryTests(unittest.TestCase):
         self.put(self.h(source='vision'),self.h((3.,3.),source='vision',key=2))
         self.assertFalse(self.m.interrupt_hints(10*N))
         self.assertEqual(len(self.m.verification_hints(10*N)['panzer']),2)
+    def test_nonpreferred_weak_location_keeps_competing_class_suspended(self):
+        for t in (10.,10.2):
+            self.put(self.h((-.056,1.043),t),
+                     self.h((-.067,1.048),t,cls='bridge',key=2))
+        self.assertEqual(self.m.suspended,{'panzer','bridge'})
+        # A refined panzer elsewhere wins its class ranking. It does not
+        # resolve the old overlapping panzer/bridge labels at this location.
+        refined=self.h((1.139,-1.213),11.,source='vision',key=4)
+        self.put(refined)
+        self.assertEqual(self.m.saved['panzer'],refined)
+        self.assertIn('bridge',self.m.suspended)
+        self.assertEqual(self.m.interrupt_hints(11*N),{'panzer':refined})
+        self.assertIn('bridge',self.m.verification_hints(11*N))
+        self.assertIn('bridge',self.m.revisit_hints(11*N))
+        # Positive low evidence of bridge at that location removes the local
+        # competing panzer and permits two physically distinct classes again.
+        bridge=self.h((-.067,1.048),12.,cls='bridge',source='vision',key=2)
+        self.assertTrue(self.m.resolve_low(bridge,12*N))
+        self.assertEqual(self.m.interrupt_hints(12*N),{'panzer':refined,'bridge':bridge})
     def test_coarse_competing_locations_remain_ambiguous_even_with_two_frames(self):
         self.put(self.h(),self.h((3.,3.),key=2))
         self.put(self.h(t=10.2),self.h((3.,3.),10.2,key=2))

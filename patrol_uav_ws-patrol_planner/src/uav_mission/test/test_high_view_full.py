@@ -176,6 +176,22 @@ class FullTests(unittest.TestCase):
         self.assertFalse(self.r.core.active_action.has_target)
         self.assertEqual(set(self.r.top_hints),{'bridge','panzer','red_cross'})
 
+    def test_duplicate_panzer_ids_and_red_cross_do_not_complete_needed_classes(self):
+        for t in (101.,101.3,101.6):
+            self.r.update_pose((0.,0.,2.38),t,'camera_init')
+            self.r.ingest([replace(candidate(target_id=i,class_name=c,now=t,x=x,y=1.),
+                                   first_seen_ns=99_000_000_000)
+                           for i,c,x in ((10,'panzer',1.),(11,'panzer',1.1),
+                                         (12,'red_cross',3.))],t)
+        self.finish(103.);active=self.r.core.active_action
+        self.map(104.);self.r.tick(104.,(0.,0.))
+        self.assertEqual(len(self.r.catalog.entries),3)
+        self.assertNotIn('bridge',self.r._interrupt_top(104.))
+        self.assertEqual(self.r.stage,'SURVEY')
+        self.assertIs(self.r.core.active_action,active)
+        self.assertFalse(self.r.remaining_survey)
+        self.assertEqual(self.r.core.committed_slots,0)
+
     def test_missing_top3_returns_verified_column_then_low_coverage(self):
         self.finish(103.);self.finish(106.);self.finish(109.)
         self.assertFalse(self.r.done);self.assertEqual(self.r.stage,'DESCENT_WAIT')
