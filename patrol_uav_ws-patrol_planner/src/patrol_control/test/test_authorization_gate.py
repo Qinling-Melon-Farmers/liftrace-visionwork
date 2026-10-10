@@ -4,6 +4,10 @@ import shlex
 import subprocess
 import tempfile
 import unittest
+# catkin/nose 按包名导入，unittest 按目录导入；两种入口都显式定位同目录测试工具。
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_async_servo import method
 P=Path(__file__).resolve().parents[1]
 PROGRAM=r'''

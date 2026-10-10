@@ -1,0 +1,22 @@
+Current checkout helpers: /home/xhj/liftrace/vision_ws/src/uav_vision/src/uav_vision ; /home/xhj/liftrace/patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/__init__.py
+test_all_heights_translate_with_ground_reference (test_competition_hardware.CompetitionTests) ... ok
+test_app_uses_one_formal_manager_and_guard (test_competition_hardware.CompetitionTests) ... ok
+test_bag_is_local_cloud_and_no_direct_video (test_competition_hardware.CompetitionTests) ... ok
+test_competition_h_profile_does_not_change_stage_or_global_defaults (test_competition_hardware.CompetitionTests) ... ok
+test_controller_and_servo_are_entity_sources (test_competition_hardware.CompetitionTests) ... ok
+test_drop_scale_uses_flight_ground_reference_and_calibration (test_competition_hardware.CompetitionTests) ... ok
+test_field_and_candidates_share_lowered_drop_height (test_competition_hardware.CompetitionTests) ... ok
+test_h_capture_agl_and_handoff_translate_with_ground_reference (test_competition_hardware.CompetitionTests) ... ok
+test_h_stroke_fallback_is_explicit_and_configurable (test_competition_hardware.CompetitionTests) ... ok
+test_hardware_terminal_handoff_is_explicit_and_generated (test_competition_hardware.CompetitionTests) ... ok
+test_missing_corridor_or_h_is_rejected_before_ros (test_competition_hardware.CompetitionTests) ... ok
+test_outside_survey_and_invalid_altitudes_rejected (test_competition_hardware.CompetitionTests) ... ok
+test_search_stays_inside_then_corridor_opens (test_competition_hardware.CompetitionTests) ... ok
+test_shared_guard_still_rejects_jump (test_competition_hardware.CompetitionTests) ... ok
+test_targets_are_searched_not_injected_and_h_is_final (test_competition_hardware.CompetitionTests) ... ok
+test_unmeasured_example_can_check_but_cannot_fly (test_competition_hardware.CompetitionTests) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 1.119s
+
+OK

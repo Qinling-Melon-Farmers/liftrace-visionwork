@@ -54,13 +54,15 @@ double clock=100;
 struct Duration { double value; double toSec() const { return value; } };
 struct Time { double value=0; static Time now(){return Time{clock};} };
 Duration operator-(Time a, Time b){return Duration{a.value-b.value};}
+bool operator<=(Time a, Time b){return a.value<=b.value;}
 struct Publisher { int calls=0; template<class T> void publish(const T&){++calls;} };
 }
 namespace geometry_msgs {
 struct Point { double x=0,y=0,z=0; };
 struct Quaternion { double x=0,y=0,z=0,w=1; };
 struct Pose { Point position; Quaternion orientation; };
-struct PoseStamped { Pose pose; };
+struct Header { ros::Time stamp; };
+struct PoseStamped { Header header; Pose pose; };
 }
 enum Mode { Takeoff, Run_point, Aligning, Land };
 class LLController {

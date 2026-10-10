@@ -3,6 +3,7 @@
 No ROS master, node, flight controller, or hardware is started. As in the
 existing pixel-scale test, compile the actual controller method bodies with
 transport doubles, then assert service calls and transaction state changes.
+本文件仅用可控 stub 隔离停稳条件，真实 helper 由独立测试验证。
 """
 from pathlib import Path
 import io
@@ -57,6 +58,7 @@ struct Time {
     unsigned long long toNSec() const { return static_cast<unsigned long long>(value*1e9); }
 };
 bool operator==(Time a, Time b) { return a.value == b.value; }
+bool operator<=(Time a, Time b) { return a.value <= b.value; }
 Duration operator-(Time a, Time b) { return Duration{a.value - b.value}; }
 struct Publisher {
     int calls=0;
@@ -118,6 +120,10 @@ struct ModeService {
 enum Dronemode { Takeoff, Run_point, Aligning, Land, Hover };
 enum Pointmode { Takeoff_point, Detect_point, Nothing_point, Land_point };
 enum TaskType { MAIN_MISSION, CROSS_MISSION };
+struct SettlementWindowStub {
+    int resets=0;
+    void reset() { ++resets; }
+};
 class LLController {
 public:
     bool external_mission_mode_=true, external_waiting_for_motion_=false;
@@ -128,6 +134,15 @@ public:
     bool flag_land=false, flag_takeoff_done=true, have_land_mark=false;
     bool have_planner_cmd=false, have_waypoint_mark=false, have_cross_mark=false;
     bool align_ok=false;
+    SettlementWindowStub landing_capture_window_, landing_handoff_window_;
+    bool landing_motion_settled_=true;
+    int capture_settle_calls_=0, handoff_settle_calls_=0;
+    bool motionTimePending() const { return false; }
+    bool landingMotionSettled(bool handoff, double) {
+        if (handoff) ++handoff_settle_calls_;
+        else ++capture_settle_calls_;
+        return landing_motion_settled_;
+    }
     int external_landing_stable_count_=0, external_landing_stable_frames_=10;
     int waypoint_next=0, detection_resets=0;
     double external_landing_state_max_age_sec_=2.5;
@@ -235,7 +250,39 @@ void cancelled(const LLController& c) {
 int main(int argc, char** argv) {
     assert(argc==2 || argc==7);
     const std::string test=argv[1];
-    if (test=="permission") {
+    if (test=="settlement_stub") {
+        auto c=landing(false); c.external_landing_handoff_mode_="POSCTL";
+        c.have_land_mark=true; c.land_mark_point=c.uav_pose;
+        c.external_landing_last_mark_stamp_=ros::Time::now();
+        c.external_landing_last_mark_receipt_=ros::Time::now();
+        c.landing_motion_settled_=false;
+        c.external_landing_new_mark_=true; c.externalLandingTick();
+        // 视觉帧按原条件累计，高位不调用运动窗；低位请求仍受独立门槛约束。
+        assert(c.capture_settle_calls_==0 && c.external_landing_stable_count_==1);
+        assert(!c.external_landing_alignment_complete_ && c.set_mode_client.calls==0);
+        c.external_landing_alignment_complete_=true;
+        c.external_landing_aligned_goal_=c.uav_pose;
+        c.externalLandingTick();
+        assert(c.handoff_settle_calls_==1 && c.set_mode_client.calls==0);
+        c.landing_motion_settled_=true; c.externalLandingTick();
+        assert(c.set_mode_client.calls==1);
+        const auto capture_resets=c.landing_capture_window_.resets;
+        const auto handoff_resets=c.landing_handoff_window_.resets;
+        c.clearExternalLandingState(true);
+        assert(c.landing_capture_window_.resets==capture_resets+1);
+        assert(c.landing_handoff_window_.resets==handoff_resets+1);
+        auto legacy=landing(false);
+        legacy.landing_motion_settled_=false;
+        legacy.have_land_mark=true; legacy.land_mark_point=legacy.uav_pose;
+        for (int i=0; i<10; ++i) {
+            legacy.external_landing_new_mark_=true;
+            legacy.external_landing_last_mark_stamp_=ros::Time::now();
+            legacy.external_landing_last_mark_receipt_=ros::Time::now();
+            legacy.externalLandingTick();
+        }
+        assert(legacy.set_mode_client.calls==1);
+        assert(legacy.capture_settle_calls_==0 && legacy.handoff_settle_calls_==0);
+    } else if (test=="permission") {
         for (int bad=0; bad<9; ++bad) {
             auto c=landing();
             auto& s=c.external_landing_mavros_state_;
@@ -432,6 +479,60 @@ int main(int argc, char** argv) {
         c.externalLandingTick(); state(c,"POSCTL"); state(c,"MANUAL");
         for (const auto& status : c.external_landing_handoff_pub_.statuses)
             std::cout << status << '\n';
+    } else if (test=="posctl_future_5ms_callback_and_timer_catchup") {
+        auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
+        c.externalLandingTick();
+        auto msg=std::make_shared<mavros_msgs::State>();
+        msg->connected=msg->armed=true; msg->mode="POSCTL";
+        msg->header.stamp=ros::Time(100.005);
+        c.externalLandingStateCallback(msg);
+        assert(c.external_landing_active_ && !c.external_landing_cancelled_);
+        assert(!c.external_landing_handoff_observed_);
+        c.externalLandingTick();
+        assert(!c.external_landing_handoff_observed_ && c.external_landing_handoff_pub_.calls==1);
+        ros::clock=100.004; c.externalLandingTick();
+        assert(!c.external_landing_handoff_observed_);
+        ros::clock=100.005; c.externalLandingTick();
+        assert(c.external_landing_handoff_observed_ && !c.external_landing_cancelled_);
+        assert(c.external_landing_handoff_pub_.calls==2);
+        assert(c.external_landing_mavros_state_.header.stamp==ros::Time(100.005));
+        assert(c.external_landing_state_receipt_==ros::Time(100));
+        // The observed-handoff monitoring path used to cancel at ~+8 seconds.
+        ros::clock=108; msg->header.stamp=ros::Time(108.005);
+        c.externalLandingStateCallback(msg); c.externalLandingTick();
+        assert(c.external_landing_active_ && !c.external_landing_cancelled_);
+        ros::clock=108.005; c.externalLandingTick();
+        assert(c.external_landing_active_ && c.external_landing_handoff_pub_.calls==2);
+        assert(c.external_landing_state_receipt_==ros::Time(108));
+        ros::clock=110.506; c.externalLandingTick(); cancelled(c);
+    } else if (test=="posctl_future_bound_and_takeover_remain_closed") {
+        for (int kind=0;kind<4;++kind) {
+            ros::clock=100;
+            auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
+            c.externalLandingTick(); state(c,"POSCTL");
+            auto msg=std::make_shared<mavros_msgs::State>();
+            msg->connected=msg->armed=true; msg->mode="POSCTL";
+            msg->header.stamp=ros::Time(100.005);
+            if (kind==0) msg->header.stamp=ros::Time(100.201);
+            if (kind==1) msg->mode="MANUAL";
+            if (kind==2) msg->mode="OFFBOARD";
+            if (kind==3) msg->connected=false;
+            c.externalLandingStateCallback(msg); cancelled(c);
+        }
+        // Timer itself must bound waiting, including injected receipt-age failures.
+        ros::clock=100;
+        auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
+        c.externalLandingTick(); state(c,"POSCTL");
+        c.external_landing_mavros_state_.header.stamp=ros::Time(100.005);
+        c.external_landing_state_receipt_=ros::Time(99.799);
+        c.externalLandingTick(); cancelled(c);
+        // A pre-request future OFFBOARD state pauses acquisition, never cancels.
+        ros::clock=100; c=landing(false); c.external_landing_handoff_mode_="POSCTL";
+        c.external_landing_mavros_state_.header.stamp=ros::Time(100.005);
+        c.externalLandingTick();
+        assert(c.external_landing_active_ && !c.external_landing_cancelled_);
+        ros::clock=100.005; c.externalLandingTick();
+        assert(c.external_landing_active_ && c.set_mode_client.calls==0);
     } else if (test=="posctl_timeout_identity") {
         auto c=landing(); c.external_landing_handoff_mode_="POSCTL";
         c.externalLandingTick(); assert(c.external_landing_handoff_pub_.calls==1);
@@ -605,6 +706,9 @@ class ExternalLandingHandoffTest(unittest.TestCase):
     def test_repeated_align_cannot_reset_one_servo_action(self):
         self.run_case('align_identity')
 
+    def test_posctl_respects_settlement_stub_and_auto_land_bypasses_it(self):
+        self.run_case('settlement_stub')
+
     def test_real_rospy_transport_preserves_nested_align_decision_identity(self):
         from rospy.msg import serialize_message
         from patrol_control.msg import MissionCommand
@@ -687,6 +791,12 @@ class ExternalLandingHandoffTest(unittest.TestCase):
 
     def test_posctl_requires_transaction_identity_and_mode_transition_freshness(self):
         self.run_case('posctl_timeout_identity')
+
+    def test_posctl_future_five_ms_rechecks_original_state_after_clock_catchup(self):
+        self.run_case('posctl_future_5ms_callback_and_timer_catchup')
+
+    def test_posctl_future_pending_is_bounded_and_never_masks_takeover(self):
+        self.run_case('posctl_future_bound_and_takeover_remain_closed')
 
     def test_actual_cpp_status_json_keeps_identity_and_integer_nanoseconds(self):
         output = subprocess.check_output([str(self.binary), 'status_json'], text=True)

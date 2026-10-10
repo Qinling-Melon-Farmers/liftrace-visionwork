@@ -1,0 +1,38 @@
+# 圆形检测参数配置 - 严格约束版本
+circle_detection:
+  # 霍夫圆检测参数 - 更严格的圆形检测
+  min_radius: 300     # 提高最小半径，只检测较大的圆形
+  max_radius: 400.0    # 降低最大半径，避免检测过大的噪声
+  param1: 100.0        # 提高边缘检测阈值，要求更清晰的边缘
+  param2: 50.0         # 提高累加器阈值，要求更圆的形状
+  min_dist: 120        # 提高圆心最小距离，避免重复检测
+  
+  # 圆形质量评估参数
+  circularity_threshold: 0.85    # 圆形度阈值，要求更接近完美圆形
+  aspect_ratio_threshold: 0.9    # 长宽比阈值，要求更接近圆形
+  contour_area_ratio: 0.7        # 轮廓面积与理想圆形面积比
+  
+  # 图像预处理参数
+  threshold_enabled: true        # 启用阈值处理
+  histogram_equalization: true   # 启用直方图均衡化提高对比度
+  gaussian_blur: true           # 启用高斯模糊减少噪声
+  blur_kernel_size: 5           # 高斯模糊核大小
+
+# 检测控制参数
+detection:
+  enabled: true
+  debug: true  # 启用调试模式
+  show_image: true  # 是否显示检测结果图像
+  max_fps: 20       # 降低处理帧率，提高检测质量
+
+# 对准控制参数
+alignment:
+  threshold: 15.0    # 提高对准阈值（像素），减少微小调整
+  max_speed: 0.3     # 降低最大控制速度，更平稳的对准
+
+# 相机参数（1280x720分辨率）
+camera:
+  fx: 479.652738
+  fy: 482.690306
+  cx: 657.45208
+  cy: 364.6207 

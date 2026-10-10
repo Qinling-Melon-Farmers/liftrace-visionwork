@@ -44,7 +44,7 @@ from uav_mission.release_transactions import (
 from uav_mission.motion_observations import odom_world_velocity
 from uav_mission.motion_optimization import MotionOptimization, MovingRecoveryWindow
 from uav_vision.msg import (
-    AlignmentTargetContext, ReleaseEvidenceContext, TargetCandidateArray,
+    AlignmentTargetContext, DropAlignmentFeedback, ReleaseEvidenceContext, TargetCandidateArray,
 )
 
 _SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -384,6 +384,11 @@ class NavigationPlannerBridge:
         self._evidence_context_sub = rospy.Subscriber(
             "release_evidence_context", ReleaseEvidenceContext,
             self._on_release_evidence_context, queue_size=2)
+        self._drop_alignment_feedback_sub = rospy.Subscriber(
+            rospy.get_param("~target/alignment_feedback_topic", rospy.get_param(
+                "/drop_system/alignment_feedback_topic",
+                "/uav_vision/drop_alignment_feedback")),
+            DropAlignmentFeedback, self._on_drop_alignment_feedback, queue_size=4)
         self._release_result_sub = rospy.Subscriber(
             "release_result", ReleaseResult,
             self._on_release_result, queue_size=4)
@@ -1317,6 +1322,59 @@ class NavigationPlannerBridge:
             except Exception as error:  # pylint: disable=broad-except
                 self._handle_callback_exception("targets", error)
 
+    def _on_drop_alignment_feedback(self, message):
+        with self._lock:
+            if not self._output_enabled:
+                return
+            tx = self._transaction
+            if (tx is None or tx.phase not in ("ALIGN_COMMAND_SENT", "ALIGNMENT") or
+                    tx.raw_call_observed or tx.target_pose is None):
+                return
+            try:
+                decision, target, pose = tx.decision, tx.decision.target, tx.target_pose
+                now_ns = self._now_ns()
+                if (message.reason != "compensated_target_outside_boundary" or
+                        message.valid or message.aligned or message.frozen or
+                        message.header.frame_id != self._mission_frame or
+                        pose.frame_id != self._mission_frame or
+                        message.mission_id != decision.mission_id or
+                        message.decision_seq != decision.decision_seq or
+                        message.attempt != target.attempt or
+                        message.payload_slot != target.payload_slot or
+                        message.semantic_target_id != target.target_id or
+                        _stamp_to_ns(message.semantic_target_first_seen) != target.first_seen_ns or
+                        message.semantic_target_class != target.class_name or
+                        message.align_mode != tx.align_mode or
+                        tx.align_mode not in ("drop_circle", "drop_cross") or
+                        now_ns >= decision.deadline_ns):
+                    return
+                stamp_ns = _stamp_to_ns(message.header.stamp)
+                observation_ns = _stamp_to_ns(message.observation_stamp)
+                odom_ns = _stamp_to_ns(message.odom_stamp)
+                for source_ns, max_age_ns in (
+                        (stamp_ns, int(self._context_max_age * 1_000_000_000)),
+                        (odom_ns, self._executor.config.odom_max_age_ns)):
+                    if (source_ns <= 0 or source_ns < decision.issued_at_ns or
+                            source_ns > stamp_ns or source_ns > now_ns or
+                            now_ns - source_ns > max_age_ns):
+                        return
+                # This is a latched rejection, not live visual release evidence:
+                # its original image may age while the controller repeats reports.
+                if (observation_ns <= 0 or observation_ns < decision.issued_at_ns or
+                        observation_ns > stamp_ns):
+                    return
+                x, y, z = (float(message.target_fc.x), float(message.target_fc.y),
+                           float(message.target_fc.z))
+                if not all(math.isfinite(v) for v in (x, y, z)):
+                    return
+            except (AttributeError, TypeError, ValueError, OverflowError):
+                return
+            # The proxy serializes revocation with raw-call admission. Only its
+            # NOT_STARTED receipt can release the reservation and fail this action.
+            tx.cancellation_reason = "compensated_target_outside_boundary"
+            tx.phase = "CANCEL_PENDING"
+            self._publish_alignment_context(False, now_ns)
+
     def _on_release_evidence_context(self, message):
         with self._lock:
             try:
@@ -1489,6 +1547,15 @@ class NavigationPlannerBridge:
                 self._cancel_landing_handoff(now_ns, "landing_airborne_manual_takeover")
             return
         if landing.posctl_wait_started_ns:
+            source_age = now_ns - self._flight_state_source_ns
+            receipt_age = now_ns - self._flight_state_receipt_ns
+            pending_limit = min(200_000_000, self._landing_state_max_age_ns)
+            # Defer only the expected mode's small future stamp; retain its
+            # original timestamp and revalidate on timer/odom after clock catchup.
+            if (str(state.mode) == "POSCTL" and state.connected and state.armed
+                    and -pending_limit <= source_age < 0
+                    and 0 <= receipt_age <= pending_limit):
+                return
             if (landing.handoff_requested_ns and landing.handoff_observed_ns >= landing.handoff_requested_ns
                     and 0 <= now_ns - landing.handoff_requested_ns <= self._landing_mode_transition_timeout_ns
                     and 0 <= now_ns - landing.handoff_observed_ns <= self._executor.config.odom_max_age_ns
