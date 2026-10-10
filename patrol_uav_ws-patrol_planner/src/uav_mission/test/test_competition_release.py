@@ -42,7 +42,22 @@ class ReleaseEntryTests(unittest.TestCase):
     def test_existing_competition_values_preserved(self):
         original=json.loads((REPORT/'original_competition_parameters.json').read_text())
         for name,data in original.items():
-            self.assertEqual(yaml.safe_load((ROOT/name).read_text()),data,name)
+            current=yaml.safe_load((ROOT/name).read_text())
+            if 'field_20261007_validated' not in name:
+                data=copy.deepcopy(data)
+                data.setdefault('motion_optimization',{})['enabled']=True
+                data['survey_policy']['resume_survey_enabled']=True
+                # 仅推广本轮授权高度/前视，其余原检测值仍逐项比较。
+                data.update(drop_agl=.35,max_agl=3.2)
+                data.pop('navigation_recovery', None)
+                data['following_speed_profile']['corridor_lead_m']=.4
+                schedule=data.get('corridor_speed_schedule') or dict(
+                    axis=1,wall_coordinates=[-1.6,1.6],enter_distance_m=.75,
+                    exit_distance_m=.95,landing_radius_m=.8)
+                data['corridor_speed_schedule']={**schedule,'open_lead_m':.6,'door_lead_m':.4}
+            # Snapshot predates the separately tested POSCTL settlement block.
+            if 'landing_posctl' not in data:current.pop('landing_posctl',None)
+            self.assertEqual(current,data,name)
 
     def test_no_cli_switch_changes_yaml(self):
         self.assertEqual(apply_overrides(self.s),self.s)
@@ -61,6 +76,22 @@ class ReleaseEntryTests(unittest.TestCase):
         self.assertTrue(d['overrides']['/fast_planner_node/sdf_map/horizontal_avoidance/enabled'])
         self.assertEqual(d['control']['uav_vision']['recovery_height'],d['control']['align_height'])
 
+    def test_default_motion_and_resume_are_independent_and_generated(self):
+        self.assertIs(self.s['motion_optimization']['enabled'],True)
+        self.assertIs(self.s['survey_policy']['resume_survey_enabled'],True)
+        for motion in ('on','off'):
+            for resume in ('on','off'):
+                with self.subTest(motion=motion,resume=resume):
+                    s=apply_overrides(self.fixture(),motion=motion,resume=resume)
+                    docs=self.generate(s)
+                    self.assertIs(docs['runtime']['motion_optimization']['enabled'],motion=='on')
+                    self.assertIs(docs['overrides']['/navigation/planner_bridge/motion_optimization']['enabled'],motion=='on')
+                    self.assertIs(docs['runtime']['high_view_full']['policy']['resume_survey_enabled'],resume=='on')
+        historical=yaml.safe_load((ROOT/'deployment/competition/field_20261007_validated.yaml').read_text())
+        self.assertIs(historical['survey_policy']['resume_survey_enabled'],False)
+        # An inherited historic off remains off until explicitly overridden.
+        self.assertIs(self.generate(historical)['runtime']['high_view_full']['policy']['resume_survey_enabled'],False)
+
     def test_default_budget_and_explicit_timeout(self):
         s=self.fixture();d=self.generate(s)
         self.assertEqual(d['runtime']['mission']['motion_action_timeout'],90.)
@@ -69,13 +100,16 @@ class ReleaseEntryTests(unittest.TestCase):
         self.assertEqual(d['runtime']['mission']['motion_action_timeout'],60.)
         self.assertEqual(d['runtime']['mission']['target_action_timeout'],120.)
 
-    def test_bad_budgets_and_experimental_resume_refused(self):
+    def test_bad_budgets_and_non_boolean_resume_refused(self):
         for value in (True,0.,-1.,601.,float('nan'),float('inf'),'60'):
             for key in ('motion_action_timeout','target_action_timeout'):
                 with self.subTest(value=value,key=key),self.assertRaises(ValueError):
                     validate(dict(self.s,**{key:value}))
         s=copy.deepcopy(self.s);s['survey_policy']['resume_survey_enabled']=True
-        with self.assertRaisesRegex(ValueError,'experimental'):validate(s)
+        validate(s)
+        for invalid in ('true',1,None):
+            s['survey_policy']['resume_survey_enabled']=invalid
+            with self.assertRaisesRegex(ValueError,'must be boolean'):validate(s)
 
     def test_validated_test_is_explicit_and_retains_updated_door_points(self):
         s=yaml.safe_load((ROOT/'deployment/competition/field_20261007_validated.yaml').read_text())

@@ -96,4 +96,7 @@
     <arg name="public_service_name" value="/Servo" />
   </include>
   <rosparam file="$(arg generated_dir)/overrides.yaml" />
+  <!-- The generated control limit owns this formal entry after legacy includes. -->
+  <param name="/px4_max_distance" type="double" if="$(arg enable_control_output)"
+         command="&quot;$(optenv BOARD_PYTHON /usr/bin/python3)&quot; -c &quot;import sys, yaml; print(yaml.safe_load(open(sys.argv[1]))['px4_max_distance'])&quot; &quot;$(arg generated_dir)/control.yaml&quot;" />
   </launch>

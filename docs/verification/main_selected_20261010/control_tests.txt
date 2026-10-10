@@ -1,0 +1,129 @@
+Current checkout helpers: /home/xhj/liftrace/vision_ws/src/uav_vision/src/uav_vision ; /home/xhj/liftrace/patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/__init__.py
+test_admitted_async_rpc_survives_new_frames_and_revocation (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_all_three_slots_release_once_at_each_accepted_height (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_angular_speed_alone_does_not_block_real_rpc_submission (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_both_legacy_outer_gates_keep_original_distance_and_completed_guard (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_cancel_and_original_permission_still_block_release (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_circle_fsm_starts_arm_correction_and_descent_after_visual_capture (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_circle_outer_gate_and_final_admission_keep_geometry_freshness_and_permission (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_circle_outer_gate_releases_compensated_outlet_beyond_raw_center_distance (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_circle_without_map_or_new_images_settles_and_releases_once (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_closed_height_band_accepts_035_040_045_and_rejects_outside (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_configured_six_cm_releases_immediately_without_speed_gate (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_continuous_future_odom_waits_without_erasing_settlement (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_continuous_future_pose_waits_without_erasing_settlement (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_cross_fsm_starts_arm_correction_and_descent_after_visual_capture (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_cross_outer_gate_and_final_admission_keep_geometry_freshness_and_permission (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_cross_outer_gate_releases_compensated_outlet_beyond_raw_center_distance (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_cross_without_map_or_new_images_settles_and_releases_once (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_current_xy_and_control_gate_with_speed_diagnostics_only (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_descent_invalid_visual_frames_preserve_frozen_target (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_duplicate_odom_does_not_refresh_age_and_expired_odom_blocks (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_duplicate_stale_future_visual_frames_cannot_retarget (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_endpoint_uses_current_and_commanded_yaw_margin (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_far_future_stamp_does_not_poison_source_watermark (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_future_numeric_invalid_sample_cannot_recover_by_waiting (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_horizontal_speed_does_not_block_real_rpc_submission (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_invalid_new_motion_revokes_readiness (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_new_context_cannot_reuse_previous_freeze (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_outside_endpoint_holds_reports_and_cannot_freeze_or_release (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_release_ignores_drop_duration_frames_gap_and_symmetric_height_tolerance (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_single_current_odom_admits_rpc (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_six_cm_error_blocks_real_rpc_submission (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_stale_future_missing_pose_blocks_release_despite_fresh_odom (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_three_physical_arms_yaw_and_tilt_without_accumulation (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_visual_capture_freezes_before_full_arm_correction_and_settlement (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_final_xy_and_observed_flight_speed (test_landing_handoff_stability.HandoffStabilityTests) ... ok
+test_gaps_and_clock_reversal (test_landing_handoff_stability.HandoffStabilityTests) ... ok
+test_height_bound_and_target_error (test_landing_handoff_stability.HandoffStabilityTests) ... ok
+test_nonfinite_and_invalid_config (test_landing_handoff_stability.HandoffStabilityTests) ... ok
+test_ownership_and_feedback_loss (test_landing_handoff_stability.HandoffStabilityTests) ... ok
+test_settle_and_reset (test_landing_handoff_stability.HandoffStabilityTests) ... ok
+test_short_image_gap_does_not_revoke_anchor (test_landing_handoff_stability.HandoffStabilityTests) ... ok
+test_source_samples_and_duration (test_landing_handoff_stability.HandoffStabilityTests) ... ok
+test_stale_future_or_invalid_stamp (test_landing_handoff_stability.HandoffStabilityTests) ... ok
+test_vertical_speed_both_signs (test_landing_handoff_stability.HandoffStabilityTests) ... ok
+test_capture_20hz_feedback_four_hz_images_parallel (test_landing_motion_settlement.ProductionHSettlementTests) ... ok
+test_capture_original_ten_fresh_h_and_xy_without_motion_window (test_landing_motion_settlement.ProductionHSettlementTests) ... ok
+test_capture_stale_h_and_bad_xy_reset_visual_count (test_landing_motion_settlement.ProductionHSettlementTests) ... ok
+test_high_capture_independent_height_tolerance_knowledge (test_landing_motion_settlement.ProductionHSettlementTests) ... ok
+test_latched_h_does_not_follow_cropped_or_missing_images (test_landing_motion_settlement.ProductionHSettlementTests) ... ok
+test_low_accepts_controlled_descent_after_point_fifteen_seconds (test_landing_motion_settlement.ProductionHSettlementTests) ... ok
+test_low_ceiling_lower_bound_xy_and_fast_motion_reject (test_landing_motion_settlement.ProductionHSettlementTests) ... ok
+test_low_duplicate_source_does_not_accumulate_dwell (test_landing_motion_settlement.ProductionHSettlementTests) ... ok
+test_low_odom_gap_restarts_fresh_feedback_window (test_landing_motion_settlement.ProductionHSettlementTests) ... ok
+test_low_pending_3ms_keeps_window_without_early_posctl (test_landing_motion_settlement.ProductionHSettlementTests) ... ok
+/tmp/h_rc_handoff_test_1vsuxpq5/handoff.cpp: In member function ‘void LLController::missionCommandCallback(const ConstPtr&)’:
+/tmp/h_rc_handoff_test_1vsuxpq5/handoff.cpp:609:44: warning: comparison of integer expressions of different signedness: ‘unsigned int’ and ‘const int’ [-Wsign-compare]
+  609 |                 servo_alignment_target_id_ == msg->target_id &&
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/tmp/h_rc_handoff_test_1vsuxpq5/handoff.cpp: In member function ‘void LLController::runPointTimerBranch()’:
+/tmp/h_rc_handoff_test_1vsuxpq5/handoff.cpp:824:10: warning: variable ‘external_planner_command_accepted’ set but not used [-Wunused-but-set-variable]
+  824 |     bool external_planner_command_accepted=false;
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+test_actual_cpp_status_json_keeps_identity_and_integer_nanoseconds (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_auto_land_handoff_does_not_reissue_on_disarmed_or_disconnected_state (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_disabled_or_inactive_external_landing_cannot_request_mode (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_disconnection_and_disarming_cancel_pending_land (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_existing_ten_fresh_h_frames_remain_required (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_existing_xy_and_height_gates_remain_required (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_failed_requests_retry_only_before_takeover (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_fresh_connected_armed_offboard_is_required_at_service_boundary (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_freshness_boundary_allows_exactly_one_successful_request (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_manual_takeover_after_request_cannot_trigger_another_request (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_mode_takeover_between_ticks_cancels_and_blocks_duplicate_land (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_nonexternal_landing_preserves_legacy_success_and_failure_behavior (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_only_a_new_mission_transaction_can_clear_cancellation (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_planner_callback_and_timer_hold_after_takeover_until_new_mission (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_posctl_future_five_ms_rechecks_original_state_after_clock_catchup (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_posctl_future_pending_is_bounded_and_never_masks_takeover (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_posctl_handoff_preserves_early_and_post_handoff_takeover_cancellation (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_posctl_preserves_geometry_alignment_and_retry_gates (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_posctl_request_holds_z_until_observed_and_waits_for_pilot (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_posctl_requires_transaction_identity_and_mode_transition_freshness (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_posctl_respects_settlement_stub_and_auto_land_bypasses_it (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_real_rospy_transport_preserves_nested_align_decision_identity (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_rejected_request_can_succeed_on_retry_and_never_repeat_after_success (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_repeated_align_cannot_reset_one_servo_action (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_state_timeout_cannot_resume_on_a_later_offboard_heartbeat (test_external_landing_handoff.ExternalLandingHandoffTest) ... ok
+test_actual_planner_uses_same_numerical_boundary (test_height_hold.HeightHoldTest) ... ok
+test_final_interpolation_rejects_whole_result_until_safe_replacement (test_height_hold.HeightHoldTest) ... ok
+test_first_rejection_above_ceiling_does_not_force_descent (test_height_hold.HeightHoldTest) ... ok
+test_numeric_boundary_and_invalid_samples_cannot_unlock (test_height_hold.HeightHoldTest) ... ok
+test_rejection_latches_xyz_across_drift_and_new_invalid_commands (test_height_hold.HeightHoldTest) ... ok
+test_all_three_slots_work_once (test_async_servo.AsyncServoTest) ... ok
+test_cancelled_unknown_cannot_unlock_on_new_submit (test_async_servo.AsyncServoTest) ... ok
+test_completion_matches_action_and_slot_and_is_consumed_once (test_async_servo.AsyncServoTest) ... ok
+test_controller_new_align_before_rpc_proof_can_retry (test_async_servo.AsyncServoTest) ... ok
+test_failed_ack_never_repeats_slot (test_async_servo.AsyncServoTest) ... ok
+test_geometry_wait_never_calls_servo_and_cannot_cancel_started_rpc (test_async_servo.AsyncServoTest) ... ok
+test_inactive_context_before_not_started_rpc_allows_new_align (test_async_servo.AsyncServoTest) ... ok
+test_inactive_context_before_success_rpc_preserves_completion (test_async_servo.AsyncServoTest) ... ok
+test_invalid_admission_never_calls_transport (test_async_servo.AsyncServoTest) ... ok
+test_late_terminal_not_started_can_prove_zero_raw_calls (test_async_servo.AsyncServoTest) ... ok
+test_legacy_bool_false_is_not_not_started (test_async_servo.AsyncServoTest) ... ok
+test_mock_1s_servo_preserves_control_loop (test_async_servo.AsyncServoTest) ... ok
+test_new_align_before_old_proof_reaps_without_control_poll (test_async_servo.AsyncServoTest) ... ok
+test_nonterminal_proof_cannot_unlock (test_async_servo.AsyncServoTest) ... ok
+test_not_started_unlocks_only_for_new_align (test_async_servo.AsyncServoTest) ... ok
+test_old_action_result_cannot_complete_new_slot (test_async_servo.AsyncServoTest) ... ok
+test_shutdown_with_blocked_call_is_nonblocking_and_owns_lifetime (test_async_servo.AsyncServoTest) ... ok
+test_takeover_invalidates_late_ack (test_async_servo.AsyncServoTest) ... ok
+test_throwing_transport_is_failure (test_async_servo.AsyncServoTest) ... ok
+test_timeout_locks_slot_and_does_not_wait (test_async_servo.AsyncServoTest) ... ok
+test_transport_failure_never_repeats_slot (test_async_servo.AsyncServoTest) ... ok
+test_wrong_mission_context_cannot_start_rpc (test_async_servo.AsyncServoTest) ... ok
+test_wrong_request_id_cannot_unlock (test_async_servo.AsyncServoTest) ... ok
+test_wrong_slot_cannot_unlock (test_async_servo.AsyncServoTest) ... ok
+test_bool_is_legacy_only (test_authorization_gate.AuthorizationGateTests) ... ok
+test_identity (test_authorization_gate.AuthorizationGateTests) ... ok
+test_missing_context (test_authorization_gate.AuthorizationGateTests) ... ok
+test_new_epoch (test_authorization_gate.AuthorizationGateTests) ... ok
+test_revocation_replay (test_authorization_gate.AuthorizationGateTests) ... ok
+test_temporal (test_authorization_gate.AuthorizationGateTests) ... ok
+
+----------------------------------------------------------------------
+Ran 114 tests in 21.394s
+
+OK
+mock_setpoints=23 max_gap_s=0.0502835 calls=1

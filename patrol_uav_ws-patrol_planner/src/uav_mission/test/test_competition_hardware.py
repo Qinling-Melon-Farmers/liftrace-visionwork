@@ -3,6 +3,7 @@ from pathlib import Path
 import yaml
 from uav_mission.competition_config import validate,generate
 from uav_mission.hardware_bag import topics_for
+from uav_mission.motion_optimization import MotionOptimization
 from uav_mission.high_view_probe import HighViewProbe,ProbeConfig
 
 ROOT=Path(__file__).resolve().parents[4]
@@ -32,11 +33,14 @@ class CompetitionTests(unittest.TestCase):
         for name in ('low_z','high_z','drop_z','ground_z','takeoff_z'):self.assertAlmostEqual(b[name]-a[name],.1,places=6)
         for ai,bi in zip(ad['runtime']['mission']['post_delivery_route'],bd['runtime']['mission']['post_delivery_route']):self.assertAlmostEqual(bi[2]-ai[2],.1)
         for k in ('/release_permission_arbiter/min_release_altitude','/release_permission_arbiter/max_release_altitude','/external_planner_max_command_z'):self.assertAlmostEqual(bd['overrides'][k]-ad['overrides'][k],.1)
-        self.assertEqual(ad['control']['align_height'],ad['control']['uav_vision']['recovery_height'])
+        motion=MotionOptimization(**self.s.get('motion_optimization', {}))
+        recovery_agl=(motion.recovery_handoff_agl if motion.enabled and motion.moving_recovery
+                      else self.s['low_agl'])
+        self.assertAlmostEqual(ad['control']['uav_vision']['recovery_height']-a['ground_z'],recovery_agl)
     def test_field_and_candidates_share_lowered_drop_height(self):
-        for name in ('field.example.yaml','candidates/snake_motion.yaml','candidates/rectangle_motion.yaml'):
+        for name in ('field.example.yaml','candidates/snake_motion.yaml','candidates/rectangle_motion.yaml','candidates/snake3_motion.yaml'):
             settings=yaml.safe_load((ROOT/'deployment/competition'/name).read_text())
-            self.assertAlmostEqual(settings['drop_agl'],.45)
+            self.assertAlmostEqual(settings['drop_agl'],.35)
             # Onsite confirmation and geometry are test fixtures only.
             settings.update(site_confirmed=True,corridor_waypoints=copy.deepcopy(self.s['corridor_waypoints']),
                             landing_xy=list(self.s['landing_xy']))
@@ -48,11 +52,11 @@ class CompetitionTests(unittest.TestCase):
                         overrides=yaml.safe_load((Path(path)/'overrides.yaml').read_text())
                     ground=ref['ground_z'];drop=control['drop_system']
                     self.assertTrue(drop['enable_drop'])
-                    self.assertAlmostEqual(ref['drop_z']-ground,.45)
-                    self.assertAlmostEqual(drop['release_setpoint_height']-ground,.45)
-                    self.assertAlmostEqual(drop['height_threshold']-ground,.55)
-                    self.assertAlmostEqual(overrides['/release_permission_arbiter/min_release_altitude']-ground,.37)
-                    self.assertAlmostEqual(overrides['/release_permission_arbiter/max_release_altitude']-ground,.57)
+                    self.assertAlmostEqual(ref['drop_z']-ground,.35)
+                    self.assertAlmostEqual(drop['release_setpoint_height']-ground,.35)
+                    self.assertAlmostEqual(drop['height_threshold']-ground,.45)
+                    self.assertAlmostEqual(overrides['/release_permission_arbiter/min_release_altitude']-ground,.27)
+                    self.assertAlmostEqual(overrides['/release_permission_arbiter/max_release_altitude']-ground,.47)
 
     def test_targets_are_searched_not_injected_and_h_is_final(self):
         ref,d=self.generate();rt=d['runtime'];c=d['control']
@@ -67,7 +71,7 @@ class CompetitionTests(unittest.TestCase):
         self.assertEqual(self.s['landing_capture_agl'],.9)
         for capture_agl in (.9,1.8):
             self.s['landing_capture_agl']=capture_agl
-            for z in (-.09,0.,.09):
+            for z in (-.05,0.,.09):
                 with self.subTest(capture_agl=capture_agl,fc_z=z):
                     ref,d=self.generate(z)
                     ground=z-self.rig['fc_ground_clearance']
@@ -78,8 +82,8 @@ class CompetitionTests(unittest.TestCase):
                     self.assertAlmostEqual(route[-1][2],landing['capture_height'])
                     self.assertEqual(route[-1][:2],d['runtime']['mission']['landing_xy'])
                     self.assertAlmostEqual(route[-2][2]-ground,self.s['landing_transit_agl'])
-                    self.assertAlmostEqual(landing['auto_land_height']-ground,.55)
-                    self.assertAlmostEqual(d['control']['land_height']-ground,.4)
+                    self.assertAlmostEqual(landing['auto_land_height']-ground,.37)
+                    self.assertAlmostEqual(d['control']['land_height']-ground,.35)
                     self.assertLess(d['control']['land_height'],landing['auto_land_height'])
                     self.assertLess(landing['auto_land_height'],landing['capture_height'])
     def test_hardware_terminal_handoff_is_explicit_and_generated(self):
@@ -121,7 +125,7 @@ class CompetitionTests(unittest.TestCase):
         self.assertIs(detector['landing_enable_h_stroke_fallback'],False)
     def test_drop_scale_uses_flight_ground_reference_and_calibration(self):
         self.s['camera_info_topic']='/custom_camera/info'
-        for z in (-.09, .09):
+        for z in (-.05, .09):
             ref,docs=self.generate(z)
             vision=docs['control']['uav_vision']
             self.assertTrue(vision['drop_metric_scale_enabled'])

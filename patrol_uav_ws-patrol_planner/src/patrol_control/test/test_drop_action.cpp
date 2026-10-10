@@ -42,13 +42,14 @@ TEST(DropActionTest, VisionModeRequiresFreshMissionPermission) {
   EXPECT_TRUE(patrol_control::canRequestDrop(true, gate));
 }
 
-TEST(DropActionTest, ExternalReleaseUsesOnlyFreshMissionPermission) {
+TEST(DropActionTest, ExternalReleaseRequiresGeometryAndFreshMissionPermission) {
   patrol_control::DropReleaseGate gate{};
   EXPECT_FALSE(patrol_control::dropReleaseReady(true, true, false, gate));
   EXPECT_FALSE(patrol_control::dropReleaseReady(true, true, true, gate));
   gate.mission_permission_active = true;
   gate.mission_permission_fresh = true;
-  EXPECT_TRUE(patrol_control::dropReleaseReady(true, false, true, gate));
+  EXPECT_FALSE(patrol_control::dropReleaseReady(true, false, true, gate));
+  EXPECT_TRUE(patrol_control::dropReleaseReady(true, true, true, gate));
 }
 
 TEST(DropActionTest, LegacyReleaseKeepsGeometryAndOptionalPermission) {

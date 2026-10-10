@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "profile": "deployment/competition/field.example.yaml",
+  "applications": [
+    {
+      "control_output": "false",
+      "runtime": "HardwareFullRuntime",
+      "nodes": 13
+    },
+    {
+      "control_output": "true",
+      "runtime": "HardwareFullRuntime",
+      "nodes": 16
+    }
+  ],
+  "localization_modes": 2,
+  "mapping": 1,
+  "ros_started": false
+}
+{"status": "CONFIG_VALID", "ros_started": false, "site_confirmed": false, "motion_optimization": true, "resume_survey": true, "source": "validated_settings", "site_config": "deployment/competition/field.example.yaml", "generation_ready": false, "obstacle_columns": true, "motion_action_timeout": 90.0}
+{
+  "status": "PASS",
+  "profile": "deployment/competition/candidates/rectangle_motion.yaml",
+  "applications": [
+    {
+      "control_output": "false",
+      "runtime": "HardwareFullRuntime",
+      "nodes": 13
+    },
+    {
+      "control_output": "true",
+      "runtime": "HardwareFullRuntime",
+      "nodes": 16
+    }
+  ],
+  "localization_modes": 2,
+  "mapping": 1,
+  "ros_started": false
+}
+{"status": "CONFIG_VALID", "ros_started": false, "site_confirmed": false, "motion_optimization": true, "resume_survey": true, "source": "validated_settings", "site_config": "deployment/competition/candidates/rectangle_motion.yaml", "generation_ready": false, "obstacle_columns": true, "motion_action_timeout": 90.0}
+{
+  "status": "PASS",
+  "profile": "deployment/competition/candidates/snake_motion.yaml",
+  "applications": [
+    {
+      "control_output": "false",
+      "runtime": "HardwareFullRuntime",
+      "nodes": 13
+    },
+    {
+      "control_output": "true",
+      "runtime": "HardwareFullRuntime",
+      "nodes": 16
+    }
+  ],
+  "localization_modes": 2,
+  "mapping": 1,
+  "ros_started": false
+}
+{"status": "CONFIG_VALID", "ros_started": false, "site_confirmed": false, "motion_optimization": true, "resume_survey": true, "source": "validated_settings", "site_config": "deployment/competition/candidates/snake_motion.yaml", "generation_ready": false, "obstacle_columns": true, "motion_action_timeout": 90.0}
+{
+  "status": "PASS",
+  "profile": "deployment/competition/candidates/snake3_motion.yaml",
+  "applications": [
+    {
+      "control_output": "false",
+      "runtime": "HardwareFullRuntime",
+      "nodes": 13
+    },
+    {
+      "control_output": "true",
+      "runtime": "HardwareFullRuntime",
+      "nodes": 16
+    }
+  ],
+  "localization_modes": 2,
+  "mapping": 1,
+  "ros_started": false
+}
+{"status": "CONFIG_VALID", "ros_started": false, "site_confirmed": false, "motion_optimization": true, "resume_survey": true, "source": "validated_settings", "site_config": "deployment/competition/candidates/snake3_motion.yaml", "generation_ready": false, "obstacle_columns": true, "motion_action_timeout": 90.0}

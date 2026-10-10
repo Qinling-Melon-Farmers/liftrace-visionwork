@@ -1,0 +1,4 @@
+Source: /home/xhj/liftrace
+Branch: feat/r2026-main-integration
+HEAD: 6cd0207f
+Snapshot: tracked patrol_control package before verified drop/H integration

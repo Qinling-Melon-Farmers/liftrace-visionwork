@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-10",
+  "baseline": "6cd0207f",
+  "source_F": "673e830c",
+  "source_B": "4c0f36ae",
+  "field_validation": "User confirmed successful alignment/delivery flight; latest bag not collected this turn",
+  "build": {
+    "command": "BUILD_JOBS=2 bash deployment/competition/build.sh",
+    "exit_code": 0,
+    "platform": "WSL x86_64",
+    "log": "logs/main_selected_20261010/build_final.log"
+  },
+  "tests": {
+    "control": 114,
+    "mission": 129,
+    "vision": 50,
+    "unique_total": 293,
+    "final_fixture_recheck": 16,
+    "all_passed": true
+  },
+  "profiles": [
+    "field.example",
+    "rectangle_motion",
+    "snake_motion",
+    "snake3_motion"
+  ],
+  "ros_started": false,
+  "exclusions": [
+    "navigation_recovery",
+    "EV prediction",
+    "experimental projection activation",
+    "YOLO field execution candidate",
+    "board_trials",
+    "workbench distribution"
+  ],
+  "branch_policy": "existing integration branch; no-ff merge; retain feature refs and source commits"
+}

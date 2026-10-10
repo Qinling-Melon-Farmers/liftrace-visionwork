@@ -3,6 +3,8 @@
 import math
 import copy
 import threading
+import time
+from collections import OrderedDict
 
 import rospy
 from std_msgs.msg import String
@@ -10,7 +12,7 @@ from sensor_msgs.msg import CameraInfo
 from image_geometry import PinholeCameraModel
 
 from uav_vision.msg import (
-    AlignmentTargetContext, DropOffset, DropReady, ReleaseEvidence,
+    AlignmentTargetContext, DropAlignmentFeedback, DropOffset, DropReady, ReleaseEvidence,
     ReleaseEvidenceContext, TargetCandidate, TargetCandidateArray,
 )
 from uav_vision.alignment_context_policy import (
@@ -44,6 +46,25 @@ class DropAligner:
             "/uav_vision/release_evidence_context")
         self._require_alignment_context = bool(
             rospy.get_param("~require_alignment_context", False))
+        self._require_compensated_alignment = bool(
+            rospy.get_param("~require_compensated_alignment", False))
+        self._drop_alignment_feedback_topic = rospy.get_param(
+            "~drop_alignment_feedback_topic", "/uav_vision/drop_alignment_feedback")
+        self._compensated_feedback_max_age = float(
+            rospy.get_param("~compensated_feedback_max_age", 0.5))
+        self._compensated_odom_max_age = float(
+            rospy.get_param("~compensated_odom_max_age", 0.5))
+        self._compensated_observation_cache_size = int(
+            rospy.get_param("~compensated_observation_cache_size", 16))
+        self._compensated_future_wait = float(
+            rospy.get_param("~compensated_feedback_future_wait_sec", 0.1))
+        if (not all(math.isfinite(value) and value > 0.0 for value in (
+                self._compensated_feedback_max_age, self._compensated_odom_max_age)) or
+                not 1 <= self._compensated_observation_cache_size <= 64):
+            raise ValueError("compensated alignment requires positive finite ages and cache size 1..64")
+        if (not math.isfinite(self._compensated_future_wait) or
+                not 0.0 < self._compensated_future_wait <= 0.5):
+            raise ValueError("compensated_feedback_future_wait_sec must be in (0, 0.5]")
         self._alignment_context_max_age = float(
             rospy.get_param("~alignment_context_max_age", 0.5))
         self._alignment_context_watchdog_rate = float(
@@ -59,7 +80,7 @@ class DropAligner:
             raise ValueError("allowed_alignment_commands must not be empty")
         if self._alignment_context_max_age < 0.0:
             raise ValueError("alignment_context_max_age must be >= 0")
-        if (self._require_alignment_context and
+        if ((self._require_alignment_context or self._require_compensated_alignment) and
                 self._alignment_context_watchdog_rate <= 0.0):
             raise ValueError(
                 "alignment_context_watchdog_rate must be > 0 in strict mode")
@@ -71,6 +92,10 @@ class DropAligner:
         self._stable_frames = rospy.get_param("~stable_frames", 3)
         self._min_confidence = rospy.get_param("~min_confidence", 0.6)
         self._target_max_age = float(rospy.get_param("~target_max_age", 0.5))
+        # This bounds capture history, not the age of evidence allowed to act.
+        self._capture_max_gap = float(rospy.get_param("~capture_max_gap_sec", 1.0))
+        if not math.isfinite(self._capture_max_gap) or self._capture_max_gap <= 0.0:
+            raise ValueError("capture_max_gap_sec must be positive and finite")
         self._camera_model = PinholeCameraModel()
         self._camera_ready = False
         self._state_lock = threading.RLock()
@@ -83,6 +108,14 @@ class DropAligner:
         self._active_geometry_key = None
         self._active_geometry_last_seen = None
         self._last_context_watchdog_reason = None
+        self._compensated_observations = OrderedDict()
+        self._compensated_feedback = None
+        self._pending_feedback = OrderedDict()
+        self._pending_context = None
+        # A monotonic watermark survives rejection/context changes: replaying an
+        # image can never restart or extend a streak, even after cache eviction.
+        self._last_counted_observation = None
+        self._capture_last_good_observation = None
 
         self._offset_pub = rospy.Publisher("/uav_vision/drop_offset",
                                            DropOffset, queue_size=1)
@@ -103,11 +136,15 @@ class DropAligner:
         rospy.Subscriber(
             self._alignment_context_topic, AlignmentTargetContext,
             self._on_alignment_context, queue_size=1)
+        if self._require_compensated_alignment:
+            rospy.Subscriber(
+                self._drop_alignment_feedback_topic, DropAlignmentFeedback,
+                self._on_drop_alignment_feedback, queue_size=1)
         if self._use_camera_info:
             rospy.Subscriber(self._camera_info_topic, CameraInfo,
                              self._on_camera_info, queue_size=1)
         self._alignment_context_watchdog = None
-        if self._require_alignment_context:
+        if self._require_alignment_context or self._require_compensated_alignment:
             self._alignment_context_watchdog = rospy.Timer(
                 rospy.Duration(1.0 / self._alignment_context_watchdog_rate),
                 self._on_alignment_context_watchdog)
@@ -129,12 +166,22 @@ class DropAligner:
     def _sanitize_mode(self, mode):
         return mode if mode in VALID_ALIGN_MODES else "disabled"
 
+    def _compensated_alignment_active(self):
+        return (getattr(self, "_require_compensated_alignment", False) and
+                self._align_mode in ("drop_circle", "drop_cross"))
+
+    def _context_required(self):
+        return self._require_alignment_context or self._compensated_alignment_active()
+
     def _on_align_mode(self, msg):
         with self._state_lock:
             new_mode = self._sanitize_mode(msg.data.strip())
             if new_mode != self._align_mode:
+                was_compensated = self._compensated_alignment_active()
                 self._align_mode = new_mode
                 self._clear_stability()
+                if was_compensated or self._compensated_alignment_active():
+                    self._publish_state(None, False, ["compensated_alignment_mode_changed"])
                 rospy.loginfo("[DropAligner] align mode -> %s", self._align_mode)
 
     def _on_selected_target(self, msg):
@@ -143,6 +190,8 @@ class DropAligner:
 
     def _on_alignment_context(self, msg):
         with self._state_lock:
+            if self._compensated_alignment_active():
+                self._drain_pending_context()
             try:
                 frozen_key = context_frozen_key(msg)
             except (AttributeError, TypeError, ValueError, OverflowError):
@@ -151,7 +200,7 @@ class DropAligner:
                     frozen_key != self._alignment_context_frozen_key):
                 # Optional mode is a byte-compatible diagnostic tap: receiving
                 # or replacing context must not perturb the legacy streak.
-                if self._require_alignment_context:
+                if self._context_required():
                     self._clear_stability()
                     self._last_context_watchdog_reason = None
                 rospy.loginfo(
@@ -159,17 +208,39 @@ class DropAligner:
                     "mission=%s decision=%u target=%u attempt=%u slot=%u",
                     msg.mission_id, msg.decision_seq, msg.semantic_target_id,
                     msg.attempt, msg.payload_slot)
+            if (self._compensated_alignment_active() and
+                    frozen_key == self._alignment_context_frozen_key and
+                    0.0 < (msg.header.stamp - rospy.Time.now()).to_sec() <= self._compensated_future_wait):
+                # Validate the full lease/data at its stated evaluation time;
+                # this does not admit it until our own clock reaches that time.
+                valid, _ = self._validate_context(msg, msg.header.stamp)
+                if valid:
+                    self._drain_pending_feedback()
+                    self._pending_context = (copy.deepcopy(msg), time.monotonic())
+                    return
+            self._pending_context = None
             self._alignment_context = msg
+            changed = frozen_key != self._alignment_context_frozen_key
             self._alignment_context_frozen_key = frozen_key
+            if changed and self._compensated_alignment_active():
+                self._publish_state(None, False, ["compensated_alignment_context_changed"])
 
     def _on_alignment_context_watchdog(self, _event):
         with self._state_lock:
+            if not self._context_required():
+                return
+            if self._compensated_alignment_active():
+                self._drain_pending_context()
             if self._align_mode == "disabled":
                 self._clear_stability()
                 self._last_context_watchdog_reason = None
                 return
             valid, reason = self._base_context_status()
             if valid:
+                if self._compensated_alignment_active():
+                    self._drain_pending_feedback()
+                    self._publish_compensated_state()
+                    return
                 if self._active_geometry_last_seen is not None:
                     observation_age = max(
                         0.0,
@@ -196,8 +267,14 @@ class DropAligner:
 
     def _clear_stability(self):
         self._consecutive_ok = 0
+        self._capture_last_good_observation = None
         self._active_geometry_key = None
         self._active_geometry_last_seen = None
+        if getattr(self, "_require_compensated_alignment", False):
+            self._compensated_observations.clear()
+            self._compensated_feedback = None
+            self._pending_feedback.clear()
+            self._pending_context = None
 
     def _target_sort_key(self, target):
         return (target.geometry_confidence, target.class_confidence, target.observe_count)
@@ -211,9 +288,12 @@ class DropAligner:
         }.get(self._align_mode, "invalid mode")
 
     def _base_context_status(self):
+        return self._validate_context(self._alignment_context, rospy.Time.now())
+
+    def _validate_context(self, context, now):
         return validate_alignment_context(
-            self._alignment_context,
-            rospy.Time.now(),
+            context,
+            now,
             self._class_profile,
             self._allowed_alignment_commands,
             self._align_mode,
@@ -233,7 +313,7 @@ class DropAligner:
             return None, "align disabled", None
 
         allowed_classes = MODE_CLASS_MAP.get(self._align_mode, set())
-        if (not self._require_alignment_context and
+        if (not self._context_required() and
                 self._align_mode == "drop_cross" and
                 self._selected_target is not None):
             for target in msg.targets:
@@ -263,7 +343,7 @@ class DropAligner:
         if not candidates:
             return None, "stale observation", None
 
-        if self._require_alignment_context:
+        if self._context_required():
             matches = []
             mismatches = []
             for target in candidates:
@@ -302,6 +382,8 @@ class DropAligner:
 
     def _on_targets(self, msg):
         with self._state_lock:
+            if self._compensated_alignment_active():
+                self._drain_pending_feedback()
             self._on_targets_locked(msg)
 
     def _on_targets_locked(self, msg):
@@ -311,7 +393,7 @@ class DropAligner:
             return
 
         context_status = self._base_context_status()
-        if self._require_alignment_context and not context_status[0]:
+        if self._context_required() and not context_status[0]:
             self._clear_stability()
             self._publish_state(
                 None, False, [context_status[1]],
@@ -325,7 +407,16 @@ class DropAligner:
 
         best, reason, chosen_context_status = self._choose_target(msg)
         if best is None:
-            self._clear_stability()
+            same_cached_capture = (
+                self._compensated_alignment_active() and reason == "stale observation" and
+                any(geometry_identity_key(target) == self._active_geometry_key and
+                    self._preserve_capture_on_stale(
+                        "compensated_alignment_observation_stale", target.last_seen)
+                    for target in msg.targets))
+            if same_cached_capture:
+                self._compensated_feedback = None
+            else:
+                self._clear_stability()
             normalized_reason = (reason or self._mode_reason()).replace(" ", "_")
             context_failure = None
             if normalized_reason.startswith("alignment_context_"):
@@ -336,23 +427,23 @@ class DropAligner:
 
         context_target_status = chosen_context_status or \
             self._context_status_for_target(best)
-        if (self._require_alignment_context and reason and
+        if (self._context_required() and reason and
                 reason.startswith("alignment_context_")):
             self._clear_stability()
             self._publish_state(
                 best, False, [reason], context_target_status)
             return
-        if self._require_alignment_context and not context_target_status[0]:
+        if self._context_required() and not context_target_status[0]:
             self._clear_stability()
             self._publish_state(
                 best, False, [context_target_status[1]], context_target_status)
             return
 
-        if self._require_alignment_context:
+        if self._context_required():
             current_geometry_key = geometry_identity_key(best)
             if (self._active_geometry_key is not None and
                     current_geometry_key != self._active_geometry_key):
-                self._consecutive_ok = 0
+                self._clear_stability()
             self._active_geometry_key = current_geometry_key
             self._active_geometry_last_seen = best.last_seen
 
@@ -374,6 +465,26 @@ class DropAligner:
                 best, False, ["low_confidence"], context_target_status)
             return
 
+        capture_rejected = False
+        if self._compensated_alignment_active():
+            visual_reason = self._compensated_visual_reason(best)
+            if visual_reason:
+                self._clear_stability()
+                self._publish_state(best, False, [visual_reason], context_target_status)
+                return
+            key = self._stamp_key(best.last_seen)
+            if (self._capture_last_good_observation is not None and
+                    key > self._last_counted_observation and dist > self._max_offset_px):
+                # A genuinely new off-center image ends capture immediately,
+                # even before its controller feedback arrives. Older feedback
+                # must not restore readiness while the aircraft is correcting it.
+                self._consecutive_ok = 0
+                self._capture_last_good_observation = None
+                self._compensated_feedback = None
+                self._last_counted_observation = key
+                capture_rejected = True
+            self._cache_compensated_observation(best)
+
         offset = DropOffset()
         offset.header = best.header
         if self._align_mode in ("drop_circle", "drop_cross"):
@@ -386,6 +497,13 @@ class DropAligner:
         offset.radius_px = best.center_px.z
         offset.quality = best.geometry_confidence
         self._offset_pub.publish(offset)
+
+        if self._compensated_alignment_active():
+            if capture_rejected:
+                self._publish_state(best, False, ["offset_exceeds_limit"], context_target_status)
+                return
+            self._publish_compensated_state()
+            return
 
         aligned = dist <= self._max_offset_px
         if aligned:
@@ -400,6 +518,245 @@ class DropAligner:
         elif not ready:
             reasons.append("insufficient_stable_frames")
         self._publish_state(best, aligned, reasons, context_target_status)
+
+    @staticmethod
+    def _stamp_key(stamp):
+        return int(stamp.secs), int(stamp.nsecs)
+
+    @staticmethod
+    def _stamp_reason(stamp, maximum_age, label):
+        seconds = stamp.to_sec()
+        age = (rospy.Time.now() - stamp).to_sec()
+        if not math.isfinite(seconds) or seconds <= 0.0:
+            return "compensated_alignment_" + label + "_unstamped"
+        if age < 0.0:
+            return "compensated_alignment_" + label + "_future"
+        if age > maximum_age:
+            return "compensated_alignment_" + label + "_stale"
+        return None
+
+    def _compensated_visual_reason(self, target):
+        if (target.class_name not in MODE_CLASS_MAP.get(self._align_mode, set()) or
+                target.state < CONFIRMED_STATE or not target.center_refined):
+            return "compensated_alignment_geometry_invalid"
+        values = (target.class_confidence, target.geometry_confidence,
+                  target.center_px.x, target.center_px.y, target.center_px.z)
+        if not all(math.isfinite(float(value)) for value in values):
+            return "compensated_alignment_geometry_non_finite"
+        if (target.class_confidence < self._min_confidence or
+                target.geometry_confidence < self._min_confidence):
+            return "compensated_alignment_geometry_low_confidence"
+        return self._stamp_reason(target.last_seen, self._target_max_age, "observation")
+
+    def _cache_compensated_observation(self, target):
+        # Keep the first selected snapshot for each exact source image stamp.
+        # A memory heartbeat must not rewrite the image/context it refers to.
+        self._prune_compensated_observations()
+        key = self._stamp_key(target.last_seen)
+        if key not in self._compensated_observations:
+            self._compensated_observations[key] = copy.deepcopy(target)
+        while len(self._compensated_observations) > self._compensated_observation_cache_size:
+            self._compensated_observations.popitem(last=False)
+
+    def _prune_compensated_observations(self):
+        for key, target in list(self._compensated_observations.items()):
+            if self._stamp_reason(target.last_seen, self._target_max_age, "observation"):
+                del self._compensated_observations[key]
+
+    def _compensated_feedback_status(self, feedback, defer_future=False):
+        valid, reason = self._base_context_status()
+        if not valid:
+            return None, reason, (False, reason, float("inf"))
+        context = self._alignment_context
+        # Compare every action and semantic identity field, including legal ID 0.
+        fields = ("mission_id", "decision_seq", "attempt", "payload_slot",
+                  "semantic_target_id", "semantic_target_first_seen",
+                  "semantic_target_class", "align_mode")
+        if any(getattr(feedback, name) != getattr(context, name) for name in fields):
+            return None, "compensated_alignment_context_mismatch", None
+        if feedback.header.frame_id != context.target_pose.header.frame_id:
+            return None, "compensated_alignment_frame_mismatch", None
+        future_reason = None
+        for stamp, max_age, label in (
+                (feedback.header.stamp, self._compensated_feedback_max_age, "feedback"),
+                (feedback.observation_stamp, self._target_max_age, "observation"),
+                (feedback.odom_stamp, self._compensated_odom_max_age, "odom")):
+            reason = self._stamp_reason(stamp, max_age, label)
+            if reason:
+                if defer_future and reason.endswith("_future"):
+                    future_reason = future_reason or reason
+                    continue
+                return None, reason, None
+        if (feedback.observation_stamp > feedback.header.stamp or
+                feedback.odom_stamp > feedback.header.stamp):
+            return None, "compensated_alignment_evaluation_precedes_source", None
+        if not feedback.valid:
+            return None, "compensated_alignment_feedback_invalid", None
+        values = (feedback.target_fc.x, feedback.target_fc.y, feedback.target_fc.z,
+                  feedback.horizontal_error_m, feedback.horizontal_speed_mps)
+        if (not all(math.isfinite(float(value)) for value in values) or
+                feedback.horizontal_error_m < 0.0 or feedback.horizontal_speed_mps < 0.0):
+            return None, "compensated_alignment_metrics_invalid", None
+        target = self._compensated_observations.get(
+            self._stamp_key(feedback.observation_stamp))
+        if target is None:
+            return None, "compensated_alignment_observation_not_cached", None
+        if geometry_identity_key(target) != self._active_geometry_key:
+            return target, "compensated_alignment_geometry_changed", None
+        reason = self._compensated_visual_reason(target)
+        if reason:
+            return target, reason, None
+        status = self._context_status_for_target(target)
+        if not status[0]:
+            return target, status[1], status
+        return target, future_reason, status
+
+    def _drain_pending_context(self):
+        if self._pending_context is None:
+            return
+        context, received = self._pending_context
+        if context.header.stamp <= rospy.Time.now():
+            self._pending_context = None
+            self._alignment_context = context
+        elif time.monotonic() - received > self._compensated_future_wait:
+            self._pending_context = None
+
+    def _drain_pending_feedback(self):
+        self._drain_pending_context()
+        valid, reason = self._base_context_status()
+        if not valid:
+            self._clear_stability()
+            self._publish_state(None, False, [reason], (False, reason, float("inf")))
+            return
+        # Consume older messages before an incoming future heartbeat can replace
+        # them. All admission uses the unchanged message and ordinary age gates.
+        for key, (msg, received) in list(self._pending_feedback.items()):
+            if msg.header.stamp <= rospy.Time.now():
+                del self._pending_feedback[key]
+                self._apply_compensated_feedback(msg, *self._compensated_feedback_status(msg))
+            elif time.monotonic() - received > self._compensated_future_wait:
+                del self._pending_feedback[key]
+                self._apply_compensated_feedback(
+                    msg, None, "compensated_alignment_feedback_future_wait_expired", None)
+
+    def _on_drop_alignment_feedback(self, msg):
+        with self._state_lock:
+            if not self._compensated_alignment_active():
+                return
+            self._drain_pending_feedback()
+            self._prune_compensated_observations()
+            target, reason, status = self._compensated_feedback_status(msg)
+            if (reason == "compensated_alignment_feedback_future" and
+                    0.0 < (msg.header.stamp - rospy.Time.now()).to_sec() <= self._compensated_future_wait):
+                target, reason, status = self._compensated_feedback_status(msg, defer_future=True)
+                if reason == "compensated_alignment_feedback_future":
+                    key = (self._stamp_key(msg.header.stamp), self._stamp_key(msg.observation_stamp))
+                    if key not in self._pending_feedback:
+                        self._pending_feedback[key] = (copy.deepcopy(msg), time.monotonic())
+                    while len(self._pending_feedback) > 8:
+                        self._pending_feedback.popitem(last=False)
+                    self._publish_compensated_state()
+                    return
+            self._apply_compensated_feedback(msg, target, reason, status)
+
+    def _apply_compensated_feedback(self, msg, target, reason, status):
+        # Caller holds the callback lock, including when consuming pending data.
+        self._expire_capture_streak()
+        # An expired cached capture revokes readiness, but is not a new image
+        # failing centering. Frozen release feedback retains its old reset rules.
+        if self._compensated_feedback is not None:
+            _, previous_reason, _ = self._compensated_feedback_status(
+                self._compensated_feedback)
+            if previous_reason:
+                if not self._preserve_capture_on_stale(
+                        previous_reason, self._compensated_feedback.observation_stamp):
+                    self._consecutive_ok = 0
+                    self._capture_last_good_observation = None
+                self._compensated_feedback = None
+        key = self._stamp_key(msg.observation_stamp)
+        if (reason is None and self._last_counted_observation is not None and
+                key < self._last_counted_observation):
+            reason = "compensated_alignment_observation_out_of_order"
+        if reason:
+            if msg.frozen or not self._preserve_capture_on_stale(reason, msg.observation_stamp):
+                self._consecutive_ok = 0
+                self._capture_last_good_observation = None
+            self._compensated_feedback = None
+            self._publish_state(target, False, [reason], status)
+            return
+        is_new_image = (self._last_counted_observation is None or
+                        key > self._last_counted_observation)
+        aligned = self._compensated_evidence_aligned(target, msg)
+        if not aligned:
+            self._consecutive_ok = 0
+            self._capture_last_good_observation = None
+        elif is_new_image:
+            self._consecutive_ok += 1
+            self._capture_last_good_observation = None if msg.frozen else copy.deepcopy(msg.observation_stamp)
+        if msg.frozen:
+            self._capture_last_good_observation = None
+        if is_new_image:
+            self._last_counted_observation = key
+        self._compensated_feedback = copy.deepcopy(msg)
+        self._publish_compensated_state()
+
+    def _expire_capture_streak(self):
+        stamp = self._capture_last_good_observation
+        if stamp is not None:
+            gap = (rospy.Time.now() - stamp).to_sec()
+            if gap < 0.0 or gap > self._capture_max_gap:
+                self._consecutive_ok = 0
+                self._capture_last_good_observation = None
+
+    def _preserve_capture_on_stale(self, reason, stamp):
+        self._expire_capture_streak()
+        return (reason == "compensated_alignment_observation_stale" and
+                self._capture_last_good_observation is not None and
+                stamp == self._capture_last_good_observation)
+
+    def _compensated_evidence_aligned(self, target, feedback):
+        if feedback.frozen:
+            # A compensated outlet intentionally moves the target away from
+            # the principal point. Keep capture evidence bound to the frozen
+            # target; executeDropAction separately enforces the final physical
+            # window. Identity and freshness checks above still apply.
+            return feedback.aligned
+        # Capture retains the reliable visual centering criterion and counts
+        # distinct images, independent of a release-level high-altitude window.
+        dx = target.center_px.x - self._target_cx
+        dy = target.center_px.y - self._target_cy
+        return math.hypot(dx, dy) <= self._max_offset_px
+
+    def _publish_compensated_state(self):
+        # Only admitted feedback counts source images. Republishes and watchdog
+        # ticks cannot turn a single image into a streak.
+        self._expire_capture_streak()
+        self._prune_compensated_observations()
+        feedback = self._compensated_feedback
+        if feedback is None:
+            if self._pending_feedback:
+                msg = next(iter(self._pending_feedback.values()))[0]
+                target = self._compensated_observations.get(self._stamp_key(msg.observation_stamp))
+                self._publish_state(target, False, ["compensated_alignment_feedback_pending"])
+                return
+            self._publish_state(None, False, ["compensated_alignment_feedback_missing"])
+            return
+        target, reason, status = self._compensated_feedback_status(feedback)
+        if reason:
+            if not self._preserve_capture_on_stale(reason, feedback.observation_stamp):
+                self._consecutive_ok = 0
+                self._capture_last_good_observation = None
+            self._compensated_feedback = None
+            self._publish_state(target, False, [reason], status)
+            return
+        aligned = self._compensated_evidence_aligned(target, feedback)
+        reasons = []
+        if not aligned:
+            reasons.append("compensated_alignment_not_aligned" if feedback.frozen
+                           else "offset_exceeds_limit")
+        elif self._consecutive_ok < self._stable_frames:
+            reasons.append("insufficient_stable_frames")
+        self._publish_state(target, aligned, reasons, status)
 
     @staticmethod
     def _observation_age(target):
@@ -436,7 +793,7 @@ class DropAligner:
             evidence.observation_fresh and aligned and
             self._consecutive_ok >= self._stable_frames and
             not rejection_reasons and
-            (not self._require_alignment_context or context_status[0])
+            (not self._context_required() or context_status[0])
         )
         self._evidence_pub.publish(evidence)
         self._publish_evidence_context(evidence, target, context_status)
