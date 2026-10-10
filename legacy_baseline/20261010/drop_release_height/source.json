@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-10",
+  "source_worktree": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests",
+  "source_branch": "feat/board-deployment-flight-20260920",
+  "source_head": "d06b20c513c95ad877b7f66611e9442a184061dd",
+  "source_package_status": "",
+  "storage_worktree": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix",
+  "storage_branch": "feat/r2026-competition-integrated",
+  "storage_head": "673e830c2fb554c8a1935d6842dff508167f84a3",
+  "file_count": 56,
+  "purpose": "Pre-change full patrol_control package for independent descent target and release minimum; no commit/push"
+}
