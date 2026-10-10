@@ -14,7 +14,8 @@ def apply_speed_profile(root, settings, trial, profile):
         values = yaml.safe_load(path.read_text(encoding='utf-8'))
         allowed = {'cruise_speed', 'cruise_acceleration', 'drop_agl',
                    'following_speed_profile', 'motion_optimization', 'resume_survey_enabled'}
-        if not isinstance(values, dict) or set(values) != allowed:
+        window = {'release_min_agl', 'release_max_agl'}
+        if not isinstance(values, dict) or set(values)-allowed-window or not allowed <= set(values):
             raise ValueError('08 speed overlay must not contain geometry or H settings')
         settings.update(copy.deepcopy(values))
     return settings

@@ -48,7 +48,7 @@ class ReleaseEntryTests(unittest.TestCase):
                 data.setdefault('motion_optimization',{})['enabled']=True
                 data['survey_policy']['resume_survey_enabled']=True
                 # 仅推广本轮授权高度/前视与显式恢复关闭，其余原检测值仍逐项比较。
-                data.update(drop_agl=.35,max_agl=3.2,navigation_recovery={'enabled':False})
+                data.update(drop_agl=.40,release_min_agl=.35,release_max_agl=.45,max_agl=3.2,navigation_recovery={'enabled':False})
                 data['following_speed_profile']['corridor_lead_m']=.4
                 schedule=data.get('corridor_speed_schedule') or dict(
                     axis=1,wall_coordinates=[-1.6,1.6],enter_distance_m=.75,

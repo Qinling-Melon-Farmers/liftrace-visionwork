@@ -42,8 +42,9 @@ class DropHeightScaleTest(unittest.TestCase):
 #define ROS_INFO_THROTTLE(...) ((void)0)
 namespace ros {
 struct Duration { double value; explicit Duration(double v):value(v){} double toSec() const{return value;} };
-struct Time { double value=0; explicit Time(double v=0):value(v){} bool isZero()const{return value==0;} };
+struct Time { double value=0; explicit Time(double v=0):value(v){} bool isZero()const{return value==0;} static Time now(){return Time(10);} };
 Duration operator-(Time a,Time b){return Duration(a.value-b.value);}
+bool operator<=(Time a,Time b){return a.value<=b.value;}
 }
 struct Header { ros::Time stamp; std::string frame_id; };
 struct Position { double x=0,y=0,z=0; };
@@ -74,6 +75,10 @@ class LLController {
 public:
   bool drop_metric_scale_enabled_=true,drop_camera_info_valid_=false;
   bool external_mission_mode_=true,external_landing_active_=false;
+  // This fixture covers pixel scaling; compensated geometry has its own tests.
+  bool compensated_alignment_enabled_=false,compensated_goal_frozen_=false;
+  double drop_offset_timeout_=.5;
+  ros::Time compensated_observation_stamp_;
   bool have_waypoint_mark=false,have_cross_mark=false,have_land_mark=false;
   double drop_fx_=0,drop_fy_=0,drop_ground_z_=-.22,drop_tf_max_age_sec_=.20;
   double pixel_to_meter_ratio_=.0015,drop_circle_radius_m_=.5,drop_cross_radius_m_=.175,landing_pad_radius_m_=.30;
@@ -85,6 +90,7 @@ public:
   void dropCameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr&);
   bool dropPixelScales(const ros::Time&,double*,double*);
   void projectDropOffsetToTarget(const uav_vision::DropOffset&);
+  bool setCompensatedDropTarget(geometry_msgs::PoseStamped*){assert(false);return false;}
 };
 using patrol_control::projectPixelOffsetToBody;
 PRODUCTION_METHODS

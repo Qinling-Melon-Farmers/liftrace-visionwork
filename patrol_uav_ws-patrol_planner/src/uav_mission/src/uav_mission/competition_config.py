@@ -14,6 +14,7 @@ from uav_mission.corridor_speed import CorridorSpeedConfig
 from uav_mission.motion_optimization import MotionOptimization, optimize_post_route
 from uav_mission.landing_posctl_config import validate_landing_posctl, landing_control_parameters
 from uav_mission.navigation_recovery_config import recovery_parameters
+from uav_mission.drop_height_config import release_heights
 
 
 def apply_overrides(settings, motion=None, columns=None, motion_timeout=None, resume=None):
@@ -34,6 +35,7 @@ def apply_overrides(settings, motion=None, columns=None, motion_timeout=None, re
 
 def validate(settings, flight=False):
     if not isinstance(settings,dict):raise ValueError('field configuration must be an object')
+    release_heights(settings)
     for key in ('motion_action_timeout','target_action_timeout'):
         if key in settings:
             value=settings[key]
@@ -118,9 +120,10 @@ def generate(root,out,settings,fc_xyz,rig):
     if not math.isfinite(weight) or not 0<=weight<=10:raise ValueError('invalid global line preference weight')
     motion=MotionOptimization(**settings.get('motion_optimization',{}))
     high=ground+settings['high_agl'];drop=ground+settings['drop_agl'];capture=ground+settings['landing_capture_agl'];cap=ground+settings['max_agl']
+    release_min,release_max,permission_min,permission_max=release_heights(settings)
     land_z, handoff_z, posctl_stability = landing_control_parameters(settings, ground, float(rig['fc_ground_clearance']))
     # 投递仍需本地 Z > 0.05m；降落只需 > 0，与控制器参数校验一致。
-    if drop<=.05 or land_z<=0.:raise ValueError('legacy positive local-Z bounds not met')
+    if drop<=.05 or ground+release_min<=.05 or land_z<=0.:raise ValueError('legacy positive local-Z bounds not met')
     point=lambda px,py,h:[x+px,y+py,h]
     shift=lambda box:[box[0]+x,box[1]+x,box[2]+y,box[3]+y]
     area=shift(settings['flight_bounds']);search=shift(settings['search_center_bounds']);target=shift(settings['target_bounds']);cover=shift(settings['coverage_bounds'])
@@ -189,7 +192,8 @@ def generate(root,out,settings,fc_xyz,rig):
     control=yaml.safe_load((cfg/'control_base.yaml').read_text())
     control.update(waypoints=[dict(x=x,y=y,z=low,yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=land_z,px4_max_distance=.4)
     control['switch'].update(auto_land=True,flag_landing_detect=1)
-    control['drop_system'].update(enable_drop=True,release_setpoint_height=drop,height_threshold=drop+.1)
+    control['drop_system'].update(enable_drop=True,release_setpoint_height=drop,
+        release_min_height=ground+release_min,height_threshold=ground+release_max)
     # 两套表均保留实测值，表示 FC 中心到投口的机体系杆臂，FLU 为前、左、上。
     # 控制器减去经完整机体姿态旋转后的杆臂，不能按固定地图偏移直接相加。
     control['drop_system'].update(slot_offset_semantics='body_flu_lever_arm', compensated_alignment=True)
@@ -219,7 +223,7 @@ def generate(root,out,settings,fc_xyz,rig):
         '/fast_planner_node/fsm/server_hold_seconds':.25,'/fast_planner_node/fsm/server_progress_max_age':.5,
         '/fast_planner_node/progress/enabled':True,'/traj_server/progress/enabled':True,'/traj_server/traj_server/require_goal_identity':True,
         '/navigation/planner_bridge/target/recovery_height':low,
-        '/release_permission_arbiter/pose_topic':'/navigation/local_pose','/release_permission_arbiter/min_release_altitude':drop-.08,'/release_permission_arbiter/max_release_altitude':drop+.12,
+        '/release_permission_arbiter/pose_topic':'/navigation/local_pose','/release_permission_arbiter/min_release_altitude':ground+permission_min,'/release_permission_arbiter/max_release_altitude':ground+permission_max,
         '/target_map_projector/coarse_navigation_enabled':True,'/target_map_projector/coarse_min_confidence':policy['coarse_min_confidence'],
         '/target_memory/search_confirmation_max_gap_sec':1.,'/drop_aligner/stable_frames':5,
     }

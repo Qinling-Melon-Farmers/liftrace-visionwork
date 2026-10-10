@@ -31,6 +31,7 @@ PROGRAM = r'''
 #include <condition_variable>
 #include <limits>
 #include <memory>
+#include <map>
 #include <string>
 #include <vector>
 #define ROS_INFO(...) ((void)0)
@@ -146,7 +147,12 @@ public:
  unsigned int servo_alignment_decision_seq_=9,servo_alignment_target_id_=7;
  std::string servo_alignment_target_class_="panzer";
  double mission_release_permission_timeout_=.25,drop_offset_timeout_=.5;
- double external_alignment_capture_height_=1,drop_release_setpoint_height_=.35;
+ double external_alignment_capture_height_=1,drop_release_setpoint_height_=.40;
+ double drop_release_min_height_=.35;
+ struct { std::map<std::string,double> values;
+  double param(const std::string& key,double fallback){auto it=values.find(key);return it==values.end()?fallback:it->second;}
+ } nh_;
+ void loadReleaseHeights(){RELEASE_HEIGHT_PARAMETERS}
  double drop_height_threshold=.45,align_height=1;
  bool uav_drop_ready_=true,control_ready=true,permission_ready=true,should_drop=false;
  double drop_position_threshold_=.15; bool require_vision_release_permission_=true;
@@ -337,7 +343,7 @@ int main(int argc,char**argv){
   c.uav_drop_ready_=true;
   if(cross)c.advanceCross();else c.advanceCircle();
   assert(c.compensated_goal_frozen_&&c.count_aligning==1);
-  close(c.align_height,.35);close(c.adjust_target_position[0],2.12);close(c.adjust_target_position[1],3);
+  close(c.align_height,.40);close(c.adjust_target_position[0],2.12);close(c.adjust_target_position[1],3);
   assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);
   // Repeated ticks do not accumulate 12cm again, and preserve the target.
   for(int i=0;i<5;++i){if(cross)c.advanceCross();else c.advanceCircle();
@@ -350,7 +356,7 @@ int main(int argc,char**argv){
   c.have_waypoint_mark=!cross;c.have_cross_mark=cross;
   if(cross)c.advanceCross();else c.advanceCircle();
   assert(c.compensated_goal_frozen_&&c.count_aligning==1);
-  close(c.align_height,.35);close(c.adjust_target_position[0],2.12);
+  close(c.align_height,.40);close(c.adjust_target_position[0],2.12);
   const auto g=c.compensated_fc_goal_.pose.position;
   const auto observation=c.compensated_observation_stamp_;
   // No map callback or further image is delivered. Existing mission permission
@@ -399,6 +405,7 @@ int main(int argc,char**argv){
    assert(!c.servo_action_attempted_&&t->calls==0);
   }
  }else if(name=="outer_legacy"){
+  c.drop_release_setpoint_height_=.35;c.drop_release_min_height_=.35;
   for(bool cross:{false,true}){
    auto outer=[&]{return cross?c.crossReleaseReady():c.circleReleaseReady();};
    c.waypoint_temp=center(100);
@@ -436,14 +443,27 @@ int main(int argc,char**argv){
    odom(c,103,g.x+.035,g.y,.35,.20);
    assert(c.executeDropAction(1)==DropActionResult::kPending&&c.servo_action_attempted_);
    finish(c,t);assert(c.executeDropAction(1)==DropActionResult::kSuccess&&t->calls==1);
+  }else if(name=="height_config_compat"){
+   c.loadReleaseHeights();close(c.drop_release_setpoint_height_,.10);close(c.drop_release_min_height_,.10);
+   c.nh_.values["drop_system/release_setpoint_height"]=.40;
+   c.loadReleaseHeights();close(c.drop_release_setpoint_height_,.40);close(c.drop_release_min_height_,.40);
+   c.nh_.values["drop_system/release_min_height"]=.35;
+   c.loadReleaseHeights();close(c.drop_release_setpoint_height_,.40);close(c.drop_release_min_height_,.35);
+   capture(c);const auto g=c.compensated_fc_goal_.pose.position;
+   odom(c,101,g.x,g.y,.375);assert(c.compensatedDropSettled(true));
   }else if(name=="height_band"){
    capture(c);const auto g=c.compensated_fc_goal_.pose.position;
    CONFIGURED_DROP
    int i=0;
-   for(double z:{.349,.35,.40,.45,.451}){
+   close(c.drop_release_setpoint_height_,.40);
+   for(double z:{.349,.35,.375,.40,.425,.45,.451}){
     odom(c,101+(i++)*.01,g.x,g.y,z);
     assert(c.compensatedDropSettled(true)==(z>=.35&&z<=.45));
    }
+   // Omitted release_min_height follows the legacy setpoint at parameter load.
+   c.drop_release_min_height_=c.drop_release_setpoint_height_;
+   odom(c,102,g.x,g.y,.375);assert(!c.compensatedDropSettled(true));
+   odom(c,102.01,g.x,g.y,.40);assert(c.compensatedDropSettled(true));
   }else if(name=="current_limits"){
    capture(c);const auto g=c.compensated_fc_goal_.pose.position;
    CONFIGURED_DROP
@@ -641,6 +661,9 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         start = source.index('    drop_settle_config_.xy_tolerance_m =')
         end = source.index('    load_stability(', start)
         defaults = source[start:end]
+        height_start = source.index('    drop_release_setpoint_height_ = nh_.param(')
+        height_end = source.index('    drop_enabled =', height_start)
+        height_parameters = source[height_start:height_end]
         root_config = PACKAGE.parent / 'uav_mission/config'
         configured = yaml.safe_load((root_config / 'competition/control_base.yaml').read_text())['drop_system']['settle']
         trial = yaml.safe_load((root_config / 'vcl06_horizontal_control.yaml').read_text())['drop_system']['settle']
@@ -666,6 +689,7 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         guard_start = source.index('    if (compensated_alignment_enabled_ &&', source.index('void LLController::externalMissionTick()'))
         guard_end = source.index('    std_msgs::Bool detect_enable_msg;', guard_start)
         cpp.write_text(PROGRAM.replace('METHODS', production).replace('DEFAULTS', defaults)
+                       .replace('RELEASE_HEIGHT_PARAMETERS', height_parameters)
                        .replace('CONFIGURED_DROP', configured_assignments)
                        .replace('EXTERNAL_GUARD', source[guard_start:guard_end])
                        .replace('CIRCLE_RELEASE', outer_release('bool LLController::WayPointDetectDone('))
@@ -700,6 +724,7 @@ class CompensatedDropGeometryTests(unittest.TestCase):
     def test_six_cm_error_blocks_real_rpc_submission(self): self.run_case('xy')
     def test_configured_six_cm_releases_immediately_without_speed_gate(self): self.run_case('configured_settle')
     def test_closed_height_band_accepts_035_040_045_and_rejects_outside(self): self.run_case('height_band')
+    def test_release_floor_parameter_defaults_to_setpoint_for_legacy_config(self): self.run_case('height_config_compat')
     def test_current_xy_and_control_gate_with_speed_diagnostics_only(self): self.run_case('current_limits')
     def test_all_three_slots_release_once_at_each_accepted_height(self): self.run_case('slots_once')
     def test_cancel_and_original_permission_still_block_release(self): self.run_case('cancel_permission')

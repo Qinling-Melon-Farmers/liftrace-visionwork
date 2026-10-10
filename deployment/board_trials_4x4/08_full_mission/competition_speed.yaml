@@ -1,7 +1,9 @@
 # 08 正赛速度版；同一现场几何与 FC 高2m，仅提升速度/跟随距离，不代表正赛验收。
 cruise_speed: 1.2
 cruise_acceleration: 1.0
-drop_agl: 0.35
+drop_agl: 0.40
+release_min_agl: 0.35
+release_max_agl: 0.45
 following_speed_profile:
   cruise_lead_m: 1.0
   precision_lead_m: 0.4
