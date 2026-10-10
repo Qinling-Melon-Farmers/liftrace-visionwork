@@ -1,0 +1,827 @@
+{
+  "bag": {
+    "bag": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/flight_debug_0.bag",
+    "size": 315953470,
+    "mtime_ns": 1791639671204181800,
+    "ctime_ns": 1791639673352154948,
+    "start": 1791637586.1186128,
+    "end": 1791637818.8416312,
+    "duration": 232.72301840782166,
+    "recorded_local_start": "2026-10-10T21:06:26.118613",
+    "recorded_local_end": "2026-10-10T21:10:18.841631",
+    "mtime_local": "2026-10-10T21:41:11.204182",
+    "topics": {
+      "/Odometry": {
+        "type": "nav_msgs/Odometry",
+        "count": 2285
+      },
+      "/board_trials/recording/image/compressed": {
+        "type": "sensor_msgs/CompressedImage",
+        "count": 1062
+      },
+      "/board_trials/run_metadata": {
+        "type": "std_msgs/String",
+        "count": 2
+      },
+      "/camera/camera_info": {
+        "type": "sensor_msgs/CameraInfo",
+        "count": 6619
+      },
+      "/detect/point_class": {
+        "type": "std_msgs/Int8",
+        "count": 4017
+      },
+      "/fastplanner/goal": {
+        "type": "geometry_msgs/PoseStamped",
+        "count": 9
+      },
+      "/laserMapping/realtime": {
+        "type": "diagnostic_msgs/DiagnosticArray",
+        "count": 2285
+      },
+      "/mavros/extended_state": {
+        "type": "mavros_msgs/ExtendedState",
+        "count": 1164
+      },
+      "/mavros/local_position/odom": {
+        "type": "nav_msgs/Odometry",
+        "count": 6980
+      },
+      "/mavros/local_position/pose": {
+        "type": "geometry_msgs/PoseStamped",
+        "count": 6981
+      },
+      "/mavros/local_position/velocity_local": {
+        "type": "geometry_msgs/TwistStamped",
+        "count": 6981
+      },
+      "/mavros/setpoint_position/local": {
+        "type": "geometry_msgs/PoseStamped",
+        "count": 4017
+      },
+      "/mavros/setpoint_raw/target_local": {
+        "type": "mavros_msgs/PositionTarget",
+        "count": 1111
+      },
+      "/mavros/state": {
+        "type": "mavros_msgs/State",
+        "count": 234
+      },
+      "/mavros/vision_pose/pose": {
+        "type": "geometry_msgs/PoseStamped",
+        "count": 2281
+      },
+      "/mission/command": {
+        "type": "patrol_control/MissionCommand",
+        "count": 10
+      },
+      "/mission/control_ready": {
+        "type": "std_msgs/Bool",
+        "count": 2
+      },
+      "/mission/release_authorization": {
+        "type": "patrol_control/ReleaseAuthorization",
+        "count": 4008
+      },
+      "/mission/release_permission": {
+        "type": "uav_mission/ReleasePermission",
+        "count": 4008
+      },
+      "/mission/release_permission_active": {
+        "type": "std_msgs/Bool",
+        "count": 4009
+      },
+      "/navigation/local_odom": {
+        "type": "nav_msgs/Odometry",
+        "count": 5901
+      },
+      "/navigation/local_pose": {
+        "type": "geometry_msgs/PoseStamped",
+        "count": 6898
+      },
+      "/navigation/mission_command_raw": {
+        "type": "uav_mission/NavigationDecision",
+        "count": 9
+      },
+      "/navigation/mission_result": {
+        "type": "uav_mission/NavigationResult",
+        "count": 37
+      },
+      "/navigation/mission_status": {
+        "type": "std_msgs/String",
+        "count": 1726
+      },
+      "/navigation/planner_bridge_status": {
+        "type": "std_msgs/String",
+        "count": 95
+      },
+      "/navigation/setpoint_mission": {
+        "type": "geometry_msgs/PoseStamped",
+        "count": 4017
+      },
+      "/planning/bspline": {
+        "type": "plan_manage/Bspline",
+        "count": 10
+      },
+      "/planning/goal_status": {
+        "type": "plan_manage/PlannerStatus",
+        "count": 38
+      },
+      "/planning/pos_cmd": {
+        "type": "quadrotor_msgs/PositionCommand",
+        "count": 9011
+      },
+      "/planning/progress": {
+        "type": "plan_manage/TrajectoryProgress",
+        "count": 1529
+      },
+      "/planning_vis/trajectory": {
+        "type": "visualization_msgs/Marker",
+        "count": 78
+      },
+      "/rosout_agg": {
+        "type": "rosgraph_msgs/Log",
+        "count": 13918
+      },
+      "/sdf_map/occupancy_inflate": {
+        "type": "sensor_msgs/PointCloud2",
+        "count": 399
+      },
+      "/tf": {
+        "type": "tf2_msgs/TFMessage",
+        "count": 9184
+      },
+      "/tf_static": {
+        "type": "tf2_msgs/TFMessage",
+        "count": 4
+      },
+      "/uav_high_view/probe_status": {
+        "type": "std_msgs/String",
+        "count": 3477
+      },
+      "/uav_vision/align_mode": {
+        "type": "std_msgs/String",
+        "count": 4017
+      },
+      "/uav_vision/alignment_target_context": {
+        "type": "uav_vision/AlignmentTargetContext",
+        "count": 1022
+      },
+      "/uav_vision/detections": {
+        "type": "uav_vision/TargetDetectionArray",
+        "count": 13759
+      },
+      "/uav_vision/detections_mapped": {
+        "type": "uav_vision/TargetDetectionArray",
+        "count": 5490
+      },
+      "/uav_vision/detections_refined": {
+        "type": "uav_vision/TargetDetectionArray",
+        "count": 5493
+      },
+      "/uav_vision/detections_resolved": {
+        "type": "uav_vision/TargetDetectionArray",
+        "count": 5496
+      },
+      "/uav_vision/drop_offset": {
+        "type": "uav_vision/DropOffset",
+        "count": 172
+      },
+      "/uav_vision/drop_ready": {
+        "type": "uav_vision/DropReady",
+        "count": 5223
+      },
+      "/uav_vision/navigation_hints": {
+        "type": "uav_vision/TargetDetectionArray",
+        "count": 3742
+      },
+      "/uav_vision/perf": {
+        "type": "diagnostic_msgs/DiagnosticArray",
+        "count": 3753
+      },
+      "/uav_vision/release_evidence": {
+        "type": "uav_vision/ReleaseEvidence",
+        "count": 5219
+      },
+      "/uav_vision/release_evidence_context": {
+        "type": "uav_vision/ReleaseEvidenceContext",
+        "count": 5219
+      },
+      "/uav_vision/selected_target": {
+        "type": "uav_vision/TargetCandidate",
+        "count": 556
+      },
+      "/uav_vision/targets": {
+        "type": "uav_vision/TargetCandidateArray",
+        "count": 3258
+      }
+    }
+  },
+  "ground_z": -0.27773900821805,
+  "align_t": 177.5600152015686,
+  "freeze_t": 179.91585111618042,
+  "align_to_freeze_sec": 2.3558359146118164,
+  "freeze_log": "[DropGeometry] frozen slot=1 center=(1.088,-1.299) FC=(1.208,-1.303) source=1791637765.887511 stage=enter_descend decision=9 capture_z=1.1223 release_z=0.0723 observed_fc_z=1.2062",
+  "first_both_xy_lt_4cm": {
+    "t": 212.38494443893433,
+    "source_t": 212.33440613746643,
+    "age": 0.05053830146789551,
+    "x": 1.1788973808288574,
+    "y": -1.2764078378677368,
+    "z": 0.05668352544307709,
+    "agl": 0.33442253366112706,
+    "fc_error": 0.039422145165999296,
+    "outlet_error": 0.03972860133595799,
+    "both_xy": true,
+    "height_ok": false
+  },
+  "first_height_035_045": {
+    "t": 191.33701944351196,
+    "source_t": 191.3066484928131,
+    "age": 0.03037095069885254,
+    "x": 1.1675167083740234,
+    "y": -1.1684402227401733,
+    "z": 0.16894900798797607,
+    "agl": 0.44668801620602605,
+    "fc_error": 0.1405177232846021,
+    "outlet_error": 0.14156660429081788,
+    "both_xy": false,
+    "height_ok": true
+  },
+  "first_joint_geometry": null,
+  "freeze_to_joint_sec": null,
+  "align_to_joint_sec": null,
+  "joint_geometry_samples": 0,
+  "first_permission_t": 191.1163046360016,
+  "permission_transitions": [
+    {
+      "t": 28.061951637268066,
+      "state": {
+        "permitted": false,
+        "reason": "mission_not_in_drop_stage"
+      }
+    },
+    {
+      "t": 177.60982155799866,
+      "state": {
+        "permitted": false,
+        "reason": "no_release_commitment"
+      }
+    },
+    {
+      "t": 179.91083097457886,
+      "state": {
+        "permitted": false,
+        "reason": "release_altitude_invalid"
+      }
+    },
+    {
+      "t": 187.8610279560089,
+      "state": {
+        "permitted": false,
+        "reason": "commitment_position_drift"
+      }
+    },
+    {
+      "t": 190.5593843460083,
+      "state": {
+        "permitted": false,
+        "reason": "release_altitude_invalid"
+      }
+    },
+    {
+      "t": 191.1163046360016,
+      "state": {
+        "permitted": true,
+        "reason": "permission_granted_from_commitment"
+      }
+    },
+    {
+      "t": 221.72747588157654,
+      "state": {
+        "permitted": false,
+        "reason": "release_altitude_invalid"
+      }
+    }
+  ],
+  "ready_reason_counts": {
+    "compensated_alignment_mode_changed": 1,
+    "compensated_alignment_context_mismatch": 5,
+    "no_confirmed_refined_target": 3,
+    "compensated_alignment_feedback_missing": 1068,
+    "offset_exceeds_limit": 106,
+    "insufficient_stable_frames": 12,
+    "evidence_valid": 24,
+    "compensated_alignment_observation_stale": 950,
+    "alignment_context_geometry_frame_mismatch": 18,
+    "stale_observation": 694
+  },
+  "valid_release_evidence_count": 24,
+  "first_valid_release_evidence_t": 179.86705446243286,
+  "context_identity_transitions": [
+    {
+      "t": 177.5581657886505,
+      "state": {
+        "active": true,
+        "mission_id": "board-high_view_full-1791637724-029161453-1",
+        "decision_seq": 9,
+        "attempt": 1,
+        "payload_slot": 1,
+        "semantic_target_id": 4,
+        "semantic_target_class": "panzer",
+        "geometry_target_id": null,
+        "has_target": true,
+        "align_mode": "drop_circle"
+      }
+    }
+  ],
+  "last_context": {
+    "t": 228.58621311187744,
+    "m": {
+      "header": {
+        "seq": 1022,
+        "stamp": {
+          "secs": 1791637814,
+          "nsecs": 702058553
+        },
+        "frame_id": "camera_init"
+      },
+      "source": "vcl06-planner-bridge-bc7e1ef2a21e4e81881d57238c5e16a1",
+      "schema_version": 1,
+      "active": true,
+      "mission_id": "board-high_view_full-1791637724-029161453-1",
+      "decision_seq": 9,
+      "deadline": {
+        "secs": 1791637822,
+        "nsecs": 708907365
+      },
+      "command": 2,
+      "class_profile": "r2026",
+      "align_mode": "drop_circle",
+      "has_target": true,
+      "semantic_target_id": 4,
+      "semantic_target_first_seen": {
+        "secs": 1791637734,
+        "nsecs": 179783582
+      },
+      "target_observation_stamp": {
+        "secs": 1791637762,
+        "nsecs": 573690652
+      },
+      "semantic_target_class": "panzer",
+      "attempt": 1,
+      "payload_slot": 1,
+      "target_pose": {
+        "header": {
+          "seq": 9,
+          "stamp": {
+            "secs": 1791637763,
+            "nsecs": 548345327
+          },
+          "frame_id": "camera_init"
+        },
+        "pose": {
+          "position": {
+            "x": 1.1379528631471505,
+            "y": -1.2122271952505037,
+            "z": -0.27773900821805025
+          },
+          "orientation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0,
+            "w": 1.0
+          }
+        }
+      },
+      "max_association_distance_m": 0.800000011920929
+    }
+  },
+  "controller_log_counts": {
+    "[DropGeometry] waiting:": 48,
+    "[DropGeometry] motion wait:": 0,
+    "[DropGeometry] release_ready": 0,
+    "Waiting for release authority": 48
+  },
+  "servo_runtime_logs": [],
+  "mission_transitions": [
+    {
+      "t": 28.08159565925598,
+      "state": {
+        "phase": "IDLE",
+        "active_command": null,
+        "committed_slots": null
+      }
+    },
+    {
+      "t": 138.22777128219604,
+      "state": {
+        "phase": "SEARCH",
+        "active_command": "SEARCH",
+        "committed_slots": 0
+      }
+    },
+    {
+      "t": 176.44514155387878,
+      "state": {
+        "phase": "SEARCH",
+        "active_command": "",
+        "committed_slots": 0
+      }
+    },
+    {
+      "t": 176.66190719604492,
+      "state": {
+        "phase": "EXECUTING",
+        "active_command": "APPROACH",
+        "committed_slots": 0
+      }
+    }
+  ],
+  "fc_transitions": [
+    {
+      "t": 0.0007846355438232422,
+      "state": {
+        "armed": false,
+        "mode": "MANUAL"
+      }
+    },
+    {
+      "t": 86.33437585830688,
+      "state": {
+        "armed": true,
+        "mode": "MANUAL"
+      }
+    },
+    {
+      "t": 87.3332748413086,
+      "state": {
+        "armed": true,
+        "mode": "POSCTL"
+      }
+    },
+    {
+      "t": 96.33351421356201,
+      "state": {
+        "armed": false,
+        "mode": "OFFBOARD"
+      }
+    },
+    {
+      "t": 97.33245897293091,
+      "state": {
+        "armed": false,
+        "mode": "MANUAL"
+      }
+    },
+    {
+      "t": 124.34500432014465,
+      "state": {
+        "armed": true,
+        "mode": "MANUAL"
+      }
+    },
+    {
+      "t": 125.3330774307251,
+      "state": {
+        "armed": true,
+        "mode": "OFFBOARD"
+      }
+    },
+    {
+      "t": 221.3324863910675,
+      "state": {
+        "armed": true,
+        "mode": "POSCTL"
+      }
+    },
+    {
+      "t": 225.33420515060425,
+      "state": {
+        "armed": false,
+        "mode": "POSCTL"
+      }
+    },
+    {
+      "t": 226.34636855125427,
+      "state": {
+        "armed": false,
+        "mode": "MANUAL"
+      }
+    }
+  ],
+  "landed_transitions": [
+    {
+      "t": 0.11773014068603516,
+      "state": {
+        "landed_state": 1
+      }
+    },
+    {
+      "t": 126.128990650177,
+      "state": {
+        "landed_state": 2
+      }
+    },
+    {
+      "t": 223.12588024139404,
+      "state": {
+        "landed_state": 1
+      }
+    }
+  ],
+  "mission_last": {
+    "active_command": "APPROACH",
+    "active_decision_seq": 9,
+    "committed_slots": 0,
+    "following_lead_m": 0.2,
+    "last_reason": "probe_observations",
+    "manual_start_required": true,
+    "mission_failed": false,
+    "mission_id": "board-high_view_full-1791637724-029161453-1",
+    "phase": "EXECUTING",
+    "post_delivery_route_complete": false,
+    "post_delivery_route_index": 0,
+    "post_delivery_route_revision": "board-full_mission-motion-opt",
+    "post_delivery_route_size": 5,
+    "profile": "r2026",
+    "route_active_decision_seq": 0,
+    "route_complete": true,
+    "route_index": 1,
+    "slot_status": [
+      "RESERVED",
+      "FREE",
+      "FREE"
+    ],
+    "speed_phase": "BOUNDARY_REVISIT",
+    "speed_transitions": [
+      {
+        "command": "SEARCH",
+        "completed_waypoints": 0,
+        "lead_m": 1.0,
+        "phase": "CRUISE",
+        "t": 1791637724.3104486
+      },
+      {
+        "command": "SEARCH",
+        "completed_waypoints": 0,
+        "lead_m": 1.0,
+        "phase": "CRUISE",
+        "t": 1791637749.8842297
+      },
+      {
+        "command": "SEARCH",
+        "completed_waypoints": 0,
+        "lead_m": 1.0,
+        "phase": "CRUISE",
+        "t": 1791637759.216044
+      },
+      {
+        "command": "SEARCH",
+        "completed_waypoints": 0,
+        "lead_m": 0.2,
+        "phase": "BOUNDARY_REVISIT",
+        "t": 1791637760.3749924
+      }
+    ],
+    "start_mode": "full"
+  },
+  "mission_last_receipt": 228.43613505363464,
+  "last_result": {
+    "t": 179.88684558868408,
+    "m": {
+      "header": {
+        "seq": 37,
+        "stamp": {
+          "secs": 1791637766,
+          "nsecs": 4347085
+        },
+        "frame_id": "camera_init"
+      },
+      "schema_version": 1,
+      "mission_id": "board-high_view_full-1791637724-029161453-1",
+      "executor_id": "vcl06-planner-bridge-bc7e1ef2a21e4e81881d57238c5e16a1",
+      "event_seq": 37,
+      "decision_seq": 9,
+      "command": 1,
+      "status": 1,
+      "stage": 3,
+      "terminal": false,
+      "retryable": false,
+      "payload_committed": false,
+      "has_target": true,
+      "target_id": 4,
+      "target_first_seen": {
+        "secs": 1791637734,
+        "nsecs": 179783582
+      },
+      "target_class": "panzer",
+      "attempt": 1,
+      "payload_slot": 1,
+      "reason": "strict_alignment_context_valid",
+      "evidence_source": "uav_vision_release_context"
+    }
+  },
+  "detection_counts": {
+    "raw": {
+      "messages": 13759,
+      "classes": {
+        "red_cross": 990,
+        "panzer": 2885,
+        "tent": 49,
+        "circle": 1022,
+        "bridge": 7
+      }
+    },
+    "resolved": {
+      "messages": 5496,
+      "classes": {
+        "panzer": 2817,
+        "tent": 48,
+        "circle": 1010,
+        "bridge": 7,
+        "red_cross": 48
+      }
+    },
+    "refined": {
+      "messages": 5493,
+      "classes": {
+        "panzer": 2817,
+        "tent": 48,
+        "circle": 1010,
+        "bridge": 7,
+        "red_cross": 48
+      }
+    },
+    "mapped": {
+      "messages": 5490,
+      "classes": {
+        "panzer": 2817,
+        "tent": 48,
+        "circle": 1010,
+        "bridge": 7,
+        "red_cross": 48
+      }
+    }
+  },
+  "detector_active_diagnostics": {
+    "frames": {
+      "min": 2060.0,
+      "p50": 2831.0,
+      "p95": 3524.8999999999996,
+      "p99": 3586.58,
+      "max": 3602.0
+    },
+    "detections": {
+      "min": 0.0,
+      "p50": 1.0,
+      "p95": 2.0,
+      "p99": 2.0,
+      "max": 3.0
+    },
+    "processing_ms": {
+      "min": 42.705,
+      "p50": 50.761,
+      "p95": 66.8698,
+      "p99": 78.80681999999993,
+      "max": 95.212
+    },
+    "inference_ms": {
+      "min": 36.814,
+      "p50": 42.168,
+      "p95": 53.517599999999995,
+      "p99": 62.91613999999999,
+      "max": 76.161
+    },
+    "fps_ema": {
+      "min": 15.061,
+      "p50": 18.971,
+      "p95": 20.154,
+      "p99": 20.558,
+      "max": 21.351
+    }
+  },
+  "lio_active_diagnostics": {
+    "output_age_sec": {
+      "min": 0.02543,
+      "p50": 0.047493,
+      "p95": 0.074955,
+      "p99": 0.09003510000000003,
+      "max": 0.131908
+    },
+    "iteration_wall_sec": {
+      "min": 0.018994,
+      "p50": 0.039434,
+      "p95": 0.0657325,
+      "p99": 0.08056770000000002,
+      "max": 0.125875
+    },
+    "main_thread_cpu_sec": {
+      "min": 0.016219,
+      "p50": 0.021326,
+      "p95": 0.0248975,
+      "p99": 0.02707450000000001,
+      "max": 0.029925
+    },
+    "callbacks_wall_sec": {
+      "min": 9e-06,
+      "p50": 0.002425,
+      "p95": 0.0056545,
+      "p99": 0.012127100000000007,
+      "max": 0.029745
+    },
+    "imu_map_downsample_sec": {
+      "min": 0.001299,
+      "p50": 0.001803,
+      "p95": 0.0059735,
+      "p99": 0.011869000000000025,
+      "max": 0.018243
+    },
+    "icp_sec": {
+      "min": 0.014658,
+      "p50": 0.031564,
+      "p95": 0.053276000000000004,
+      "p99": 0.06547450000000002,
+      "max": 0.113186
+    },
+    "map_insert_sec": {
+      "min": 0.000507,
+      "p50": 0.001258,
+      "p95": 0.003944,
+      "p99": 0.010509600000000003,
+      "max": 0.022793
+    },
+    "outputs_sec": {
+      "min": 0.000165,
+      "p50": 0.000499,
+      "p95": 0.0013185,
+      "p99": 0.003517400000000002,
+      "max": 0.024876
+    },
+    "map_delete_sec": {
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.002768
+    },
+    "lidar_queue": {
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    },
+    "imu_queue": {
+      "min": 1.0,
+      "p50": 1.0,
+      "p95": 3.0,
+      "p99": 4.0,
+      "max": 7.0
+    },
+    "oldest_scan_age_sec": {
+      "min": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0,
+      "max": 0.0
+    },
+    "imu_coverage_stamp": {
+      "min": 1791637724.329427,
+      "p50": 1791637765.837431,
+      "p95": 1791637803.1844764,
+      "p99": 1791637806.5057294,
+      "max": 1791637807.336643
+    }
+  },
+  "fusion_incomplete_logs": 24,
+  "camera_images": 1062,
+  "camera_receipt_gap_sec": {
+    "min": 0.18949127197265625,
+    "p50": 0.21640229225158691,
+    "p95": 0.24486064910888672,
+    "p99": 0.26237263679504397,
+    "max": 0.2838902473449707
+  },
+  "camera_stamp_gap_sec": {
+    "min": 0.17211198806762695,
+    "p50": 0.21786189079284668,
+    "p95": 0.24622821807861328,
+    "p99": 0.26116690635681156,
+    "max": 0.28716230392456055
+  },
+  "nav_odom_age_active": {
+    "min": 0.005719423294067383,
+    "p50": 0.044202327728271484,
+    "p95": 0.07272281646728515,
+    "p99": 0.08423314094543446,
+    "max": 0.10968804359436035
+  },
+  "limitations": [
+    "Frozen center and FC goal are rounded to 1 mm by rosout.",
+    "Reconstructed geometry is not logged DropAlignmentFeedback or exact controller callback order.",
+    "Ground reference is a stationary estimate, not independent range/landing truth.",
+    "No ReleaseResult/Servo service response topic, no parcel landing ground truth, no ULog for this run located.",
+    "Bag metadata deployment source dates to 2026-10-08; cannot identify updated ARM binary from that metadata alone."
+  ]
+}
