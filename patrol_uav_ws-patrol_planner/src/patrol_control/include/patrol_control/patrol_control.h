@@ -128,6 +128,7 @@ private:
     uav_vision::AlignmentTargetContext compensated_context_;
     ros::Time compensated_observation_stamp_;
     LandingHandoffStabilityConfig drop_settle_config_, landing_settle_config_, landing_capture_config_;
+    double drop_red_cross_xy_tolerance_m_ = 0.04;
     LandingHandoffStabilityWindow drop_capture_window_, drop_release_window_;
     LandingHandoffStabilityWindow landing_capture_window_, landing_handoff_window_;
     void motionOdomCallback(const nav_msgs::Odometry::ConstPtr& msg);
@@ -136,6 +137,7 @@ private:
     bool freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angular,
                      const char** rejection = nullptr) const;
     bool setCompensatedDropTarget(geometry_msgs::PoseStamped* target);
+    double compensatedDropXYTolerance() const;
     bool compensatedDropSettled(bool release, double* error = nullptr,
                                 double* speed = nullptr);
     void publishCompensatedAlignment();
