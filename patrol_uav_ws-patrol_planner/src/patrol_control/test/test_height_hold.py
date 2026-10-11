@@ -30,6 +30,7 @@ def production_program(main):
     epsilon = next(line.strip() for line in header.splitlines()
                    if 'static constexpr double external_planner_height_epsilon_' in line)
     methods = '\n'.join(production_method(source, sig) for sig in (
+        'double validatedTakeoffZLead(',
         'bool isQuaternionNormalized(',
         'void LLController::plannercmdCallback(',
         'bool LLController::hasValidExternalPlannerCommand(',
@@ -78,6 +79,7 @@ public:
     double external_planner_max_command_z_=2.0;
     double external_planner_cmd_timeout_=.5, external_planner_start_max_distance_=.6;
     double px4_max_distance=.4, takeoff_point[3]={0,0,1.2};
+    double takeoff_z_lead_m_=0.;
     EPSILON
     Mode Drone_mode=Run_point;
     ros::Publisher height_replan_pub_;

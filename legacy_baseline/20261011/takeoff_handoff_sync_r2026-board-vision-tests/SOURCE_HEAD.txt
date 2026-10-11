@@ -1,0 +1,3 @@
+0b904bb39b36bf0a8542b9a363556250a9922062
+source_revision=421e6023d69e7026e3151770d8b647ec793004df
+source_branch=liftrace_board_trial_20260928
