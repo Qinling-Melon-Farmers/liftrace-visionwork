@@ -9,6 +9,9 @@ waypoint_skipping_index: 0
 land_height: 0.30
 align_height: 1.60
 px4_max_distance: 0.20
+# 起飞专用 Z 领先距离（米），不是速度；0 回退旧通用 3D 限幅。
+# 0.6 为尚未实飞候选，不保证缩短起飞响应时间。
+takeoff_z_lead_m: 0.0
 max_yaw_change: 0.20
 
 # 外部 Mission Manager 的 H 降落配置。

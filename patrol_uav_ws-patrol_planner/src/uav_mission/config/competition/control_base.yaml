@@ -15,6 +15,9 @@ waypoint_skipping_index: 0
 land_height: 0.3
 align_height: 1.6
 px4_max_distance: 0.2
+# 起飞专用 Z 领先距离（米），不是速度；0 回退旧通用 3D 限幅。
+# 0.6 为尚未实飞候选，不保证缩短起飞响应时间。
+takeoff_z_lead_m: 0.6
 max_yaw_change: 0.2
 external_landing:
   frame: camera_init

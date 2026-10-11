@@ -80,6 +80,9 @@ def flight_geometry(settings):
     return area
 
 def validate_settings(settings):
+    lead=settings.get('takeoff_z_lead_m',0.)
+    if isinstance(lead,bool) or not isinstance(lead,(int,float)) or not math.isfinite(lead) or not (lead==0 or .4<=lead<=.6):
+        raise ValueError('takeoff_z_lead_m must be 0 or [0.4, 0.6] metres')
     release_heights(settings)
     budget=settings.get('motion_action_timeout',30.)
     if isinstance(budget,bool) or not isinstance(budget,(int,float)) or not math.isfinite(budget) or not 0<budget<=600:
@@ -253,6 +256,7 @@ def generate(root,out,settings,fc_xyz,rig):
         SurveyPolicy(**runtime['high_view_full']['policy'])
     control=yaml.safe_load((root/'patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_horizontal_control.yaml').read_text())
     control.update(waypoints=[dict(x=x,y=y,z=(ground+settings['landing_transit_agl'] if mode=='landing' else low),yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=land_z,px4_max_distance=.25)
+    control['takeoff_z_lead_m']=float(settings.get('takeoff_z_lead_m',0.))
     control['switch']['auto_land']=h_landing;control['drop_system'].update(enable_drop=drop_enabled,
         release_setpoint_height=drop,release_min_height=ground+release_min,height_threshold=ground+release_max)
     control['switch']['flag_landing_detect']=1 if h_landing else 0
@@ -324,6 +328,7 @@ def generate(root,out,settings,fc_xyz,rig):
     motion_report=apply_generated_motion(runtime,control,overrides,settings,ground)
     (out/'motion_profile.json').write_text(json.dumps(motion_report,indent=2))
     (out/'terminal_hover.yaml').write_text(yaml.safe_dump(dict(frame='camera_init',ground_z=ground,hover_agl=settings.get('terminal_hover_agl',.3),max_agl=settings.get('max_agl',2.9),descent_speed=.15)))
+    overrides['/takeoff_z_lead_m']=control['takeoff_z_lead_m']
     for name,data in [('runtime.yaml',runtime),('control.yaml',control),('overrides.yaml',overrides),('auto_land.yaml',dict(frame='camera_init',landing_xy=[x+.6,y],cruise_z=low,route_revision='board-'+mode))]:
         (out/name).write_text(yaml.safe_dump(data,sort_keys=False))
     reference=dict(mode=mode,mapping_profile=mapping_profile(settings),fc_xyz=[x,y,z],ground_z=ground,low_z=low,high_z=high,drop_z=drop,takeoff_z=control['waypoints'][0]['z'],known_rig=rig,settings=settings)
