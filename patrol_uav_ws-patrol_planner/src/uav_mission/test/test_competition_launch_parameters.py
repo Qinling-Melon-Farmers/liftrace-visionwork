@@ -55,6 +55,8 @@ class CompetitionLaunchParameters(unittest.TestCase):
         values = self.application(True)
         control = yaml.safe_load((self.out / "control.yaml").read_text())
         self.assertEqual(control["px4_max_distance"], .4)
+        self.assertEqual(control['takeoff_z_lead_m'], .6)
+        self.assertEqual(values['/takeoff_z_lead_m'], .6)
         self.assertEqual(values["/px4_max_distance"], control["px4_max_distance"])
         self.assertEqual(values["/traj_server/traj_server/target_dist"], .4)
         self.assertEqual(values["/external_planner_start_max_distance"], 1.2)
@@ -78,6 +80,18 @@ class CompetitionLaunchParameters(unittest.TestCase):
         changed = {key for key in before.keys() | after.keys()
                    if before.get(key) != after.get(key)}
         self.assertEqual(changed, {"/px4_max_distance"})
+
+    def test_takeoff_setting_override_reaches_final_launch_without_other_changes(self):
+        before=self.application(True)
+        rig=yaml.safe_load((PACKAGE / 'config/competition/known_rig.yaml').read_text())
+        for lead in (0.,.4,.6):
+            with self.subTest(lead=lead):
+                settings={**self.settings,'takeoff_z_lead_m':lead}
+                generate(ROOT,self.out,settings,(0.,0.,0.),rig)
+                after=self.application(True)
+                self.assertEqual(after['/takeoff_z_lead_m'],lead)
+                changed={key for key in before.keys() | after.keys() if before.get(key)!=after.get(key)}
+                self.assertEqual(changed,{'/takeoff_z_lead_m'} if lead!=.6 else set())
 
     def test_preview_keeps_control_limit_absent(self):
         values = self.application(False)

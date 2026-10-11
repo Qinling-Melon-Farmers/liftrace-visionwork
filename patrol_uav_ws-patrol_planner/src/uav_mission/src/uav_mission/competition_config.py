@@ -36,6 +36,9 @@ def apply_overrides(settings, motion=None, columns=None, motion_timeout=None, re
 def validate(settings, flight=False):
     if not isinstance(settings,dict):raise ValueError('field configuration must be an object')
     release_heights(settings)
+    lead=settings.get('takeoff_z_lead_m',0.)
+    if isinstance(lead,bool) or not isinstance(lead,(int,float)) or not math.isfinite(lead) or not (lead==0 or .4<=lead<=.6):
+        raise ValueError('takeoff_z_lead_m must be 0 or [0.4, 0.6] metres')
     for key in ('motion_action_timeout','target_action_timeout'):
         if key in settings:
             value=settings[key]
@@ -191,6 +194,8 @@ def generate(root,out,settings,fc_xyz,rig):
     ProbeConfig(**runtime['high_view_probe']['config']);SurveyPolicy(**policy)
     control=yaml.safe_load((cfg/'control_base.yaml').read_text())
     control.update(waypoints=[dict(x=x,y=y,z=low,yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=land_z,px4_max_distance=.4)
+    if 'takeoff_z_lead_m' in settings:
+        control['takeoff_z_lead_m']=float(settings['takeoff_z_lead_m'])
     control['switch'].update(auto_land=True,flag_landing_detect=1)
     control['drop_system'].update(enable_drop=True,release_setpoint_height=drop,
         release_min_height=ground+release_min,height_threshold=ground+release_max)
@@ -236,6 +241,7 @@ def generate(root,out,settings,fc_xyz,rig):
             # planner transaction takes over. No horizontal direct-control shortcut.
     # 显式关闭也覆盖 ROS 参数，避免继承上轮的 enabled=true。
     overrides['/navigation/planner_bridge/motion_optimization']=asdict(motion)
+    overrides['/takeoff_z_lead_m']=control.get('takeoff_z_lead_m',0.)
     overrides['/fast_planner_node/search/line_deviation_weight']=weight
     overrides['/navigation/planner_bridge/execution/odom_twist_frame']='child'
     for region,box in [('horizontal_avoidance',search),('search_region',search)]:

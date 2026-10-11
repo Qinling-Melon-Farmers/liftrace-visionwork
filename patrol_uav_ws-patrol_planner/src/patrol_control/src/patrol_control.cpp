@@ -62,6 +62,12 @@ bool readNumber(const XmlRpc::XmlRpcValue& value, double* output) {
     return false;
 }
 
+// Metres of Z lookahead, not a velocity. Zero preserves the legacy 3-D path.
+double validatedTakeoffZLead(double requested) {
+    return std::isfinite(requested) && requested >= 0.4 && requested <= 0.6
+        ? requested : 0.0;
+}
+
 bool loadSlotOffsets(ros::NodeHandle& nh, const std::string& param_name,
                      std::array<std::array<double, 2>, 3>* offsets) {
     XmlRpc::XmlRpcValue value;
@@ -1677,7 +1683,15 @@ void LLController::cmdCallback(const ros::TimerEvent& event) {
     Eigen::Vector3d target_pos(mavros_point_cmd.pose.position.x, mavros_point_cmd.pose.position.y, mavros_point_cmd.pose.position.z);
     double distance_to_target = (target_pos - current_pos).norm();
     // 如果距离超过 px4_max_distance，则进行插值
-    if (distance_to_target > px4_max_distance &&
+    const double takeoff_lead = validatedTakeoffZLead(takeoff_z_lead_m_);
+    if (Drone_mode == Takeoff && takeoff_lead > 0.0 &&
+        std::isfinite(current_pos.z()) && std::isfinite(takeoff_point[2])) {
+        // Mutually exclusive with 3-D limiting: a 0.4 m general limit must
+        // not truncate the dedicated 0.6 m Z lookahead. Keep the final ceiling.
+        const double dz = static_cast<double>(takeoff_point[2]) - current_pos.z();
+        mavros_point_cmd.pose.position.z = current_pos.z() +
+            std::max(-takeoff_lead, std::min(takeoff_lead, dz));
+    } else if (distance_to_target > px4_max_distance &&
         !(external_mission_mode_ && Drone_mode == Run_point &&
           external_planner_height_hold_active_ && !external_planner_command_accepted)) {
         Eigen::Vector3d direction = (target_pos - current_pos).normalized();
@@ -1973,6 +1987,19 @@ void LLController::load_params() {
     // 参数
     land_height = nh_.param("land_height", 0.3);//降落时调整的固定高度
     px4_max_distance = nh_.param("px4_max_distance", 1.2);
+    {
+        XmlRpc::XmlRpcValue value;
+        double requested = 0.0;
+        const bool supplied = nh_.getParam("takeoff_z_lead_m", value);
+        const bool numeric = !supplied || readNumber(value, &requested);
+        takeoff_z_lead_m_ = numeric ? validatedTakeoffZLead(requested) : 0.0;
+        if (supplied && (!numeric || (requested != 0.0 && takeoff_z_lead_m_ == 0.0))) {
+            ROS_WARN("[Takeoff] invalid takeoff_z_lead_m; using legacy 3-D limit (0)");
+        }
+        ROS_INFO("[Takeoff] takeoff_z_lead_m=%.3f m (0=legacy 3-D); "
+                 "distance, not speed; flight candidate, no time-saving guarantee",
+                 takeoff_z_lead_m_);
+    }
     max_yaw_change = nh_.param("max_yaw_change", 0.3);
     align_height = nh_.param("align_height", 1.0);
     external_alignment_capture_height_ = align_height;

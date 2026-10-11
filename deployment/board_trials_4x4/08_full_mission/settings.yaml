@@ -43,3 +43,7 @@ motion_optimization:
 
 # 与B整场试飞入口一致，单个运动动作预算为60秒。
 motion_action_timeout: 60.0
+
+# 起飞专用Z领先量，单位米（非m/s）；候选未实飞，不保证节时。
+# 0回退旧通用三维限幅；启用范围[0.4,0.6]。
+takeoff_z_lead_m: 0.6
