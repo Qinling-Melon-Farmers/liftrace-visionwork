@@ -61,11 +61,12 @@ class CompetitionSpeedCLI(unittest.TestCase):
 
     def assert_drop_settle(self,control):
         self.assertEqual(control['drop_system']['settle'],dict(
-            xy_tolerance_m=.06,red_cross_xy_tolerance_m=.06,red_cross_xy_tolerance_m=.04,height_tolerance_m=.05,
+            xy_tolerance_m=.06,red_cross_xy_tolerance_m=.04,height_tolerance_m=.05,
             max_horizontal_speed_mps=.08,max_vertical_speed_mps=.10,
             stable_duration_sec=.30,max_odom_age_sec=.20,
             max_sample_gap_sec=.20,min_samples=3))
         self.assertIs(control['drop_system']['compensated_alignment'],True)
+        self.assertIs(control['drop_system']['compensate_before_descent'],True)
         self.assertIs(control['uav_vision']['require_release_permission'],True)
 
     def test_08_two_profiles_keep_last_scene_and_today_h(self):

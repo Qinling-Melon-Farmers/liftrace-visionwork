@@ -1,0 +1,84 @@
+test_admitted_async_rpc_survives_new_frames_and_revocation (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_all_three_slots_release_once_at_each_accepted_height (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_angular_speed_alone_does_not_block_real_rpc_submission (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_both_legacy_outer_gates_keep_original_distance_and_completed_guard (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_bound_standard_red_cross_and_unknown_class_thresholds (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_cancel_after_descent_uses_existing_hold_guard_and_never_releases (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_cancel_and_original_permission_still_block_release (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_circle_fsm_starts_arm_correction_and_descent_after_visual_capture (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_circle_outer_gate_and_final_admission_keep_geometry_freshness_and_permission (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_circle_outer_gate_releases_compensated_outlet_beyond_raw_center_distance (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_circle_without_map_or_new_images_settles_and_releases_once (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_closed_height_band_accepts_035_040_045_and_rejects_outside (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_configured_six_cm_releases_immediately_without_speed_gate (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_continuous_future_odom_waits_without_erasing_settlement (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_continuous_future_pose_waits_without_erasing_settlement (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_cross_fsm_starts_arm_correction_and_descent_after_visual_capture (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_cross_outer_gate_and_final_admission_keep_geometry_freshness_and_permission (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_cross_outer_gate_releases_compensated_outlet_beyond_raw_center_distance (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_cross_without_map_or_new_images_settles_and_releases_once (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_current_xy_and_control_gate_with_speed_diagnostics_only (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_descent_invalid_visual_frames_preserve_frozen_target (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_duplicate_odom_does_not_refresh_age_and_expired_odom_blocks (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_duplicate_stale_future_visual_frames_cannot_retarget (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_endpoint_uses_current_and_commanded_yaw_margin (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_far_future_stamp_does_not_poison_source_watermark (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_five_cm_standard_admits_rpc_but_red_cross_never_calls (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_future_numeric_invalid_sample_cannot_recover_by_waiting (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_horizontal_speed_does_not_block_real_rpc_submission (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_invalid_context_cancel_expired_motion_and_control_block_descent_entry (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_invalid_new_motion_revokes_readiness (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_live_class_change_cannot_loosen_frozen_transaction (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_new_action_resets_descent_phase_via_both_existing_reset_paths (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_new_context_cannot_reuse_previous_freeze (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_outside_endpoint_holds_reports_and_cannot_freeze_or_release (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_red_cross_default_and_invalid_parameter_values (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_red_cross_parameter_is_independent_and_unknown_remains_capped (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_release_floor_parameter_defaults_to_setpoint_for_legacy_config (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_release_ignores_drop_duration_frames_gap_and_symmetric_height_tolerance (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_semantic_class_not_geometry_mode_selects_threshold (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_serial_circle_and_cross_hold_then_descend_once_without_visual_or_speed_wait (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_serial_default_and_explicit_compatibility_parameter (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_serial_entry_checks_actual_outlet_and_later_stale_motion_does_not_climb (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_serial_service_requires_descent_entry_even_if_initial_height_is_in_window (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_single_current_odom_admits_rpc (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_six_cm_error_blocks_real_rpc_submission (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_stale_future_missing_pose_blocks_release_despite_fresh_odom (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_standard_and_red_cross_exact_threshold_equality_rejected (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_three_physical_arms_yaw_and_tilt_without_accumulation (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+test_visual_capture_freezes_before_full_arm_correction_and_settlement (test_compensated_drop_geometry.CompensatedDropGeometryTests) ... ok
+
+----------------------------------------------------------------------
+Ran 49 tests in 4.708s
+
+OK
+test_all_three_slots_work_once (test_async_servo.AsyncServoTest) ... ok
+test_cancelled_unknown_cannot_unlock_on_new_submit (test_async_servo.AsyncServoTest) ... ok
+test_completion_matches_action_and_slot_and_is_consumed_once (test_async_servo.AsyncServoTest) ... ok
+test_controller_new_align_before_rpc_proof_can_retry (test_async_servo.AsyncServoTest) ... ok
+test_failed_ack_never_repeats_slot (test_async_servo.AsyncServoTest) ... ok
+test_geometry_wait_never_calls_servo_and_cannot_cancel_started_rpc (test_async_servo.AsyncServoTest) ... ok
+test_inactive_context_before_not_started_rpc_allows_new_align (test_async_servo.AsyncServoTest) ... ok
+test_inactive_context_before_success_rpc_preserves_completion (test_async_servo.AsyncServoTest) ... ok
+test_invalid_admission_never_calls_transport (test_async_servo.AsyncServoTest) ... ok
+test_late_terminal_not_started_can_prove_zero_raw_calls (test_async_servo.AsyncServoTest) ... ok
+test_legacy_bool_false_is_not_not_started (test_async_servo.AsyncServoTest) ... ok
+test_mock_1s_servo_preserves_control_loop (test_async_servo.AsyncServoTest) ... ok
+test_new_align_before_old_proof_reaps_without_control_poll (test_async_servo.AsyncServoTest) ... ok
+test_nonterminal_proof_cannot_unlock (test_async_servo.AsyncServoTest) ... ok
+test_not_started_unlocks_only_for_new_align (test_async_servo.AsyncServoTest) ... ok
+test_old_action_result_cannot_complete_new_slot (test_async_servo.AsyncServoTest) ... ok
+test_shutdown_with_blocked_call_is_nonblocking_and_owns_lifetime (test_async_servo.AsyncServoTest) ... ok
+test_takeover_invalidates_late_ack (test_async_servo.AsyncServoTest) ... ok
+test_throwing_transport_is_failure (test_async_servo.AsyncServoTest) ... ok
+test_timeout_locks_slot_and_does_not_wait (test_async_servo.AsyncServoTest) ... ok
+test_transport_failure_never_repeats_slot (test_async_servo.AsyncServoTest) ... ok
+test_wrong_mission_context_cannot_start_rpc (test_async_servo.AsyncServoTest) ... ok
+test_wrong_request_id_cannot_unlock (test_async_servo.AsyncServoTest) ... ok
+test_wrong_slot_cannot_unlock (test_async_servo.AsyncServoTest) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 3.585s
+
+OK
+mock_setpoints=23 max_gap_s=0.0501502 calls=1

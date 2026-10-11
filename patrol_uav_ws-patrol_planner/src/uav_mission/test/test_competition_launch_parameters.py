@@ -87,11 +87,12 @@ class CompetitionLaunchParameters(unittest.TestCase):
     def test_generated_drop_settlement_reaches_final_launch_without_changing_h(self):
         values = self.application(True)
         control = yaml.safe_load((self.out / "control.yaml").read_text())
-        expected = dict(xy_tolerance_m=.06,red_cross_xy_tolerance_m=.06, red_cross_xy_tolerance_m=.04, height_tolerance_m=.05,
+        expected = dict(xy_tolerance_m=.06,red_cross_xy_tolerance_m=.04, height_tolerance_m=.05,
                         max_horizontal_speed_mps=.08, max_vertical_speed_mps=.10,
                         stable_duration_sec=.30, max_odom_age_sec=.20,
                         max_sample_gap_sec=.20, min_samples=3)
         self.assertEqual(control["drop_system"]["settle"], expected)
+        self.assertIs(values["/drop_system/compensate_before_descent"], True)
         for key, value in expected.items():
             self.assertEqual(values["/drop_system/settle/" + key], value)
         self.assertEqual(values["/external_landing/posctl/xy_tolerance_m"], .05)
