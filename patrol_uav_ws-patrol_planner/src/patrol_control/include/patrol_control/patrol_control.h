@@ -122,6 +122,7 @@ private:
     std::string motion_odom_topic_, motion_twist_frame_, compensated_alignment_topic_;
     bool compensated_alignment_enabled_ = true;
     bool compensated_goal_valid_ = false, compensated_goal_frozen_ = false;
+    bool drop_compensate_before_descent_ = true, drop_descent_started_ = false;
     bool compensated_target_outside_boundary_ = false;
     geometry_msgs::PoseStamped compensated_fc_goal_;
     geometry_msgs::Point compensated_target_center_;
@@ -139,7 +140,8 @@ private:
     bool setCompensatedDropTarget(geometry_msgs::PoseStamped* target);
     double compensatedDropXYTolerance() const;
     bool compensatedDropSettled(bool release, double* error = nullptr,
-                                double* speed = nullptr);
+                                double* speed = nullptr, bool require_release_height = true);
+    double compensatedDropCommandHeight();
     void publishCompensatedAlignment();
     bool freezeCompensatedDropTarget();
     bool landingMotionSettled(bool handoff, double xy_error);

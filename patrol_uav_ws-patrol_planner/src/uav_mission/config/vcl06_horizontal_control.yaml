@@ -62,6 +62,7 @@ motion_feedback:
   odom_topic: /mavros/local_position/odom
   twist_frame: child
 drop_system:
+  compensate_before_descent: true  # 冻结后先高位补偿，当前双XY到位即单向下降
   # 视觉确认并冻结靶心后，槽位补偿与下降并行；最终到位且低速稳定后才释放，不追残缺图像。
   slot_offset_semantics: body_flu_lever_arm
   compensated_alignment: true

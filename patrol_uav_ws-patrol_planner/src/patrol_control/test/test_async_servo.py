@@ -136,6 +136,8 @@ namespace patrol_control {
 class LLController {
 public:
     bool compensated_alignment_enabled_=true, geometry_ready=true;
+    // Async-only fixture uses explicit simultaneous compatibility mode.
+    bool drop_compensate_before_descent_=false, drop_descent_started_=false;
     bool compensatedDropSettled(bool) { return geometry_ready; }
     void publishCompensatedAlignment() {}
     std::string external_landing_handoff_mode_="AUTO.LAND";
