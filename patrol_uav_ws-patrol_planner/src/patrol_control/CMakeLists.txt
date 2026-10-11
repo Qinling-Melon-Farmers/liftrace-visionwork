@@ -213,6 +213,7 @@ if(TARGET ${PROJECT_NAME}-drop-action-test)
 endif()
 
 catkin_add_nosetests(test/test_height_hold.py)
+catkin_add_nosetests(test/test_takeoff_handoff.py)
 catkin_add_nosetests(test/test_boundary_cache.py)
 catkin_add_nosetests(test/test_authorization_gate.py)
 catkin_add_nosetests(test/test_async_servo.py)

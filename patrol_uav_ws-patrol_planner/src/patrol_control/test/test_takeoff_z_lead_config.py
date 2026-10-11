@@ -33,12 +33,12 @@ def generated(fn,s):
 
 class TakeoffSettings(unittest.TestCase):
     @unittest.skipUnless(HAS_TRIAL, 'this branch has no trial frontend')
-    def test_all_nine_groups_only_08_opts_in(self):
+    def test_all_nine_groups_default_to_legacy(self):
         files=sorted(BASE.glob('*/settings.yaml'));self.assertEqual(len(files),9)
         for file in files:
             with self.subTest(group=file.parent.name):
                 _,c,o=generated(trial_generate,trial_settings(file))
-                expected=.6 if file.parent.name=='08_full_mission' else 0.
+                expected=0.
                 self.assertEqual(c['takeoff_z_lead_m'],expected)
                 self.assertEqual(o['/takeoff_z_lead_m'],expected)
 
@@ -53,7 +53,7 @@ class TakeoffSettings(unittest.TestCase):
                 self.assertEqual(after[0],before[0])
                 self.assertEqual(after[1]['takeoff_z_lead_m'],lead)
                 self.assertEqual(after[2]['/takeoff_z_lead_m'],lead)
-                after[1]['takeoff_z_lead_m']=.6;after[2]['/takeoff_z_lead_m']=.6
+                after[1]['takeoff_z_lead_m']=0.;after[2]['/takeoff_z_lead_m']=0.
                 self.assertEqual(after,before)
         del s['takeoff_z_lead_m']
         self.assertEqual(generated(trial_generate,s)[1]['takeoff_z_lead_m'],0.)
@@ -61,14 +61,14 @@ class TakeoffSettings(unittest.TestCase):
     @unittest.skipUnless(HAS_FORMAL, 'this branch has no competition frontend')
     def test_formal_default_and_settings_override(self):
         s=formal_settings();before=generated(formal_generate,s)
-        self.assertEqual(before[1]['takeoff_z_lead_m'],.6)
-        self.assertEqual(before[2]['/takeoff_z_lead_m'],.6)
+        self.assertEqual(before[1]['takeoff_z_lead_m'],0.)
+        self.assertEqual(before[2]['/takeoff_z_lead_m'],0.)
         for lead in (0.,.4,.6):
             after=generated(formal_generate,{**s,'takeoff_z_lead_m':lead})
             self.assertEqual(after[0],before[0])
             self.assertEqual(after[1]['takeoff_z_lead_m'],lead)
             self.assertEqual(after[2]['/takeoff_z_lead_m'],lead)
-            after[1]['takeoff_z_lead_m']=.6;after[2]['/takeoff_z_lead_m']=.6
+            after[1]['takeoff_z_lead_m']=0.;after[2]['/takeoff_z_lead_m']=0.
             self.assertEqual(after,before)
 
     @unittest.skipUnless(HAS_TRIAL, 'this branch has no trial frontend')
@@ -80,18 +80,18 @@ class TakeoffSettings(unittest.TestCase):
         rospack=rospkg.RosPack(ros_paths=[str(BASE/'common'),str(ROOT/'vision_ws/src'),str(ROOT/'patrol_uav_ws-patrol_planner/src'),'/opt/ros/noetic/share'])
         for profile in ('limited','competition'):
             baseline=None
-            for lead in (.6,0.,.4):
+            for lead in (None,.6,0.,.4):
                 with self.subTest(profile=profile,lead=lead),tempfile.TemporaryDirectory() as path:
                     s=trial_settings(BASE/'08_full_mission/settings.yaml')
                     apply_speed_profile(ROOT,s,'full_mission',profile)
-                    s['takeoff_z_lead_m']=lead
+                    if lead is not None:s['takeoff_z_lead_m']=lead
                     reference=trial_generate(ROOT,path,s,(0.,0.,0.),RIG)
                     args=['enable_control_output:=true','simulation:=false','mode:=high_view_full','model_path:=/offline-test.rknn','generated_dir:='+path,'ground_z:='+str(reference['ground_z']),'low_z:='+str(reference['low_z']),'cruise_speed:='+str(s['cruise_speed']),'cruise_acceleration:='+str(s['cruise_acceleration'])]
                     config=roslaunch.config.ROSLaunchConfig()
                     with patch.object(roslaunch.substitution_args,'_rospack',rospack):
                         roslaunch.xmlloader.XmlLoader().load(str(scripts.parent/'launch/application.launch'),config,argv=args,verbose=False)
                     values={key:param.value for key,param in config.params.items()}
-                    self.assertEqual(values['/takeoff_z_lead_m'],lead)
+                    self.assertEqual(values['/takeoff_z_lead_m'],0. if lead is None else lead)
                     # Existing branch-specific generic lead is checked below by
                     # comparing final launch parameters for 0/.4/.6 overrides.
                     if baseline is None:baseline=values
@@ -99,7 +99,7 @@ class TakeoffSettings(unittest.TestCase):
                         changed={key for key in baseline.keys() | values.keys() if baseline.get(key)!=values.get(key)}
                         # Generated temporary paths are expected to differ between loads.
                         changed={key for key in changed if not (isinstance(values.get(key),str) and path in values[key])}
-                        self.assertEqual(changed,{'/takeoff_z_lead_m'})
+                        self.assertEqual(changed,{'/takeoff_z_lead_m'} if lead else set())
 
     def test_invalid_settings_are_rejected_before_launch(self):
         checks=[]
