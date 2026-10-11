@@ -1,0 +1,11 @@
+{
+  "authority":"Primary agent visually checked each original image; approximate ROI for class/association, not precise bounding-box AP truth.",
+  "image_size_wh":[1280,720],
+  "reviews":[
+    {"frame":"frame_000184.jpg","truth":"tent","roi_xyxy":[144,330,369,557]},
+    {"frame":"frame_000194.jpg","truth":"panzer","roi_xyxy":[458,378,661,583]},
+    {"frame":"frame_000219.jpg","truth":"pillbox","roi_xyxy":[812,301,998,483]},
+    {"frame":"frame_000262.jpg","truth":"bridge","roi_xyxy":[538,170,810,439]},
+    {"frame":"frame_000349.jpg","truth":"red_cross","roi_xyxy":[522,280,714,469],"note":"Red-cross paper on bridge background. Final truth red_cross; bridge texture at the same location is not a second independent target."}
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "review_authority": "Primary agent reviewed 81 full-frame contact tiles, all 9 crop pages and all 7 overlay pages; explicit class corrections from primary agent visual review. Data agent also checked overlay pages 02-06 and all crop pages, and the full original for manual box 041. Primary agent subsequently confirmed manual box 041 and false-box removals without stopping training.",
+  "scope": "Center black circle plus internal graphic for all five classes, including red_cross. No outer blue/white ring or full board.",
+  "excluded_frame_ordinals": [19,39,54,63,76],
+  "excluded_reason": "Identifiable class structure of an edge target insufficient for complete annotation; exclude whole frame pending review.",
+  "removed_boxes": ["013_2","078_3"],
+  "classes": {
+    "bridge": "011_2 012_1 013_1 014_1 020_2 021_1 032_1 033_1 041_1 047_1 048_1 049_1 050_2 057_2 068_1 069_1 078_2 079_1",
+    "panzer": "004_1 005_1 006_1 022_2 023_1 024_1 025_1 026_1 027_1 042_1 043_1 044_1 045_1 057_1 058_1 059_1 060_1 062_2 073_1 074_1",
+    "pillbox": "014_2 015_1 016_1 017_1 018_1 019_2 032_2 033_2 034_1 035_1 036_1 037_1 038_1 039_2 050_1 051_1 052_1 053_1 054_1 064_2 065_1 066_1 067_1 076_1 077_1 078_1",
+    "tent": "007_1 008_1 009_1 010_1 011_1 012_2 027_2 028_1 029_1 030_1 031_1 045_2 046_1 047_2 060_2 061_1 062_1 070_1 071_1 072_1 080_1 081_1",
+    "red_cross": "001_1 002_1 019_1 020_1 021_2 022_1 039_1 040_1 054_2 055_1 056_1 063_1 064_1 075_1"
+  },
+  "added_boxes": {"041": [{"box_id":"041_manual_panzer","class_name":"panzer","xyxy":[638,261,720,558],"review_status":"visually_reviewed","reason":"Missed visible cropped vehicle center circle on right edge; manually reviewed full original."}]}
+}
