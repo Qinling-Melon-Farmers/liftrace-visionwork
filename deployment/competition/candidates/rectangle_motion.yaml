@@ -129,7 +129,7 @@ navigation_recovery:
 survey_policy:
   resume_survey_enabled: true
   coarse_enabled: true
-  coarse_min_confidence: 0.6
+  coarse_min_confidence: 0.75
   coarse_interrupt_min_interval_ns: 100000000
   coarse_interrupt_max_gap_ns: 1000000000
   coarse_interrupt_consistency_m: 0.5
