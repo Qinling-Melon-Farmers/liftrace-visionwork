@@ -11,10 +11,10 @@ class MotionProfiles(unittest.TestCase):
         if trial in ('corridor_landing','full_mission'):
             s.update(corridor_waypoints=[dict(x=.6,y=0,agl=.9),dict(x=1.2,y=0,agl=.9),dict(x=1.8,y=0,agl=.9),dict(x=2.4,y=0,agl=.9)],landing_xy=[2.8,0])
         return s
-    def generate(self,s):
+    def generate(self,s,fc_xyz=(0,0,0)):
         rig=yaml.safe_load((BASE/'common/uav_board_trials/config/known_rig.yaml').read_text())
         with tempfile.TemporaryDirectory() as out:
-            generate(ROOT,out,s,(0,0,0),rig)
+            self.reference=generate(ROOT,out,s,fc_xyz,rig)
             return [yaml.safe_load((Path(out)/f).read_text()) for f in ('runtime.yaml','control.yaml','overrides.yaml')]
     def test_all_nine_profiles_keep_release_and_height_limits(self):
         for trial in TRIAL_FOLDERS:
@@ -41,11 +41,40 @@ class MotionProfiles(unittest.TestCase):
     def test_corridor_merges_only_measured_low_prefix_and_preserves_h(self):
         s=self.config('full_mission');before=self.generate(s)[0]['mission']['post_delivery_route']
         s.update(motion_optimization={'enabled':True},corridor_geometry=dict(wall_axis=0,wall_coordinates=[1.4,2.1],entry_waypoints=1))
-        r,c,o=self.generate(s);m=r['mission'];self.assertEqual(m['post_delivery_route'],[before[0],before[3],*before[4:]])
+        r,c,o=self.generate(s);m=r['mission'];self.assertEqual(m['post_delivery_route'],before)
         CorridorSpeedConfig(**r['corridor_speed_schedule'])
         stages=m['post_delivery_parameter_stages'];self.assertEqual(stages[-2]['after_completed_waypoints'],1)
-        self.assertEqual(stages[-1]['after_completed_waypoints'],2)
+        self.assertEqual(stages[-1]['after_completed_waypoints'],4)
         self.assertLess(stages[-2]['parameters']['/external_planner_max_command_z'],stages[-1]['parameters']['/external_planner_max_command_z'])
+    def test_protected_count_restores_h_caps_after_diagonal_and_relay_removals(self):
+        for diagonal,count,entry in ((True,4,1),(False,5,2)):
+            with self.subTest(diagonal=diagonal):
+                s=self.config('full_mission')
+                s.update(corridor_waypoints=[dict(x=.6,y=0,agl=1.4)]+[
+                    dict(x=x,y=0,agl=.9) for x in (.6,.9,1.2,1.8,2.4)],
+                    motion_optimization=dict(enabled=True,diagonal_entry=diagonal,merge_collinear_relays=True),
+                    corridor_geometry=dict(wall_axis=0,wall_coordinates=[1.4,2.1],entry_waypoints=2))
+                original=copy.deepcopy(s);original['motion_optimization']['enabled']=False
+                fc=(.2,-.2,.1)
+                before=self.generate(original,fc)[0]['mission']['post_delivery_route']
+                r,c,o=self.generate(s,fc);m=r['mission'];stages=m['post_delivery_parameter_stages']
+                self.assertEqual(len(m['post_delivery_route']),count+len(before[6:]))
+                self.assertEqual(m['post_delivery_route'][count:],before[6:])
+                for x in (1.2,1.8,2.4):
+                    self.assertTrue(any(abs(p[0]-fc[0]-x)<1e-6 for p in m['post_delivery_route'][:count]))
+                self.assertFalse(any(abs(p[0]-fc[0]-.9)<1e-6 for p in m['post_delivery_route'][:count]))
+                self.assertEqual(r['corridor_speed_schedule']['entry_waypoints'],entry)
+                self.assertEqual(stages[-2]['after_completed_waypoints'],entry)
+                self.assertEqual(stages[-1]['after_completed_waypoints'],count)
+                ground=self.reference['ground_z']
+                for completed in range(entry,count):
+                    active=[stage for stage in stages if stage['after_completed_waypoints']<=completed][-1]
+                    for key in ('/external_planner_max_command_z','/navigation/planner_bridge/execution/max_goal_z'):
+                        self.assertAlmostEqual(active['parameters'][key],ground+1.)
+                active=[stage for stage in stages if stage['after_completed_waypoints']<=count][-1]
+                for key in ('/external_planner_max_command_z','/navigation/planner_bridge/execution/max_goal_z'):
+                    self.assertAlmostEqual(active['parameters'][key],ground+s.get('max_agl',2.9))
+
     def test_corridor_without_measured_planes_keeps_all_points(self):
         s=self.config('full_mission');before=self.generate(s);s['motion_optimization']={'enabled':True};after=self.generate(s)
         self.assertEqual(before[0]['mission']['post_delivery_route'],after[0]['mission']['post_delivery_route'])
