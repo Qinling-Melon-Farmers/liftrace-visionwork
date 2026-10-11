@@ -398,6 +398,18 @@ void LLController::positionCallback(const geometry_msgs::PoseStamped& msg) {
             if (!external_mission_mode_) {
                 NextPoint();
             } else {
+                // Retain the mission endpoint, not the last limited setpoint.
+                // The existing mission wait ignores old planner samples until
+                // an external motion command releases it. Limiting affects
+                // each output, never this retained endpoint.
+                patrol_cmd = uav_pose;
+                patrol_cmd.pose.position.x = takeoff_point[0];
+                patrol_cmd.pose.position.y = takeoff_point[1];
+                patrol_cmd.pose.position.z = takeoff_point[2];
+                patrol_cmd.pose.orientation = tf::createQuaternionMsgFromYaw(waypoint_list[0].yaw);
+                external_waiting_for_motion_ = true;
+                mavros_point_cmd = patrol_cmd;
+                last_mavros_point_cmd = patrol_cmd;
                 ROS_INFO("[PatrolControl] Takeoff complete; waiting for external mission commands");
             }
             Drone_mode = Run_point;
