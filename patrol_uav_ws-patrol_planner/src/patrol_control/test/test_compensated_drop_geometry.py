@@ -153,6 +153,8 @@ public:
   double param(const std::string& key,double fallback){auto it=values.find(key);return it==values.end()?fallback:it->second;}
  } nh_;
  void loadReleaseHeights(){RELEASE_HEIGHT_PARAMETERS}
+ double drop_red_cross_xy_tolerance_m_=.04;
+ void loadRedCrossXYTolerance(){RED_CROSS_PARAMETERS}
  double drop_height_threshold=.45,align_height=1;
  bool uav_drop_ready_=true,control_ready=true,permission_ready=true,should_drop=false;
  double drop_position_threshold_=.15; bool require_vision_release_permission_=true;
@@ -189,6 +191,7 @@ public:
  int times_detect=0,count_aligning=0;std::string latest_drop_ready_reason_;
  LLController(){
   DEFAULTS
+  loadRedCrossXYTolerance();
   drop_capture_window_=LandingHandoffStabilityWindow(drop_settle_config_);
   drop_release_window_=LandingHandoffStabilityWindow(drop_settle_config_);
   servo_alignment_context_.header.stamp=ros::Time::now();
@@ -199,6 +202,7 @@ public:
  bool motionTimePending() const;
  bool freshMotion(Eigen::Vector3d*,Eigen::Vector3d*,const char** =nullptr)const;
  bool setCompensatedDropTarget(geometry_msgs::PoseStamped*);
+ double compensatedDropXYTolerance() const;
  bool compensatedDropSettled(bool,double* =nullptr,double* =nullptr);
  bool freezeCompensatedDropTarget();
  void publishCompensatedAlignment();
@@ -253,7 +257,62 @@ void finish(LLController&c,const std::shared_ptr<Transport>&t){
 int main(int argc,char**argv){
  assert(argc==2);const std::string name=argv[1];ros::clock_sec=100;
  LLController c;auto t=std::make_shared<Transport>();c.servo_client.impl=c.servo_action_client_.impl=t;
- if(name=="arms"){
+ if(name=="class_thresholds"){
+  for(const std::string cls:{"tent","pillbox","bridge","panzer","red_cross","","circle","tank","PILLBOX"}){
+   ros::clock_sec=100;LLController d;d.servo_alignment_context_.semantic_target_class=cls;
+   d.servo_alignment_target_class_=cls;capture(d);const auto g=d.compensated_fc_goal_.pose.position;
+   const bool standard=cls=="tent"||cls=="pillbox"||cls=="bridge"||cls=="panzer";
+   odom(d,101,g.x+.05,g.y,.40,.5);assert(d.compensatedDropSettled(true)==standard);
+   odom(d,101.01,g.x+.039,g.y,.40);assert(d.compensatedDropSettled(true));
+   odom(d,101.02,g.x+.061,g.y,.40);assert(!d.compensatedDropSettled(true));
+  }
+ }else if(name=="class_mode"){
+  for(const std::string cls:{"panzer","red_cross"})for(const std::string mode:{"drop_circle","drop_cross"}){
+   ros::clock_sec=100;LLController d;d.servo_alignment_context_.semantic_target_class=cls;
+   d.servo_alignment_target_class_=cls;d.servo_alignment_context_.align_mode=mode;d.current_align_mode_=mode;
+   capture(d);const auto g=d.compensated_fc_goal_.pose.position;odom(d,101,g.x+.05,g.y,.40);
+   assert(d.compensatedDropSettled(true)==(cls=="panzer"));
+  }
+ }else if(name=="class_binding"){
+  c.servo_alignment_context_.semantic_target_class="red_cross";c.servo_alignment_target_class_="red_cross";
+  capture(c);const auto g=c.compensated_fc_goal_.pose.position;odom(c,101,g.x+.05,g.y,.40);
+  assert(!c.compensatedDropSettled(true));
+  c.servo_alignment_context_.semantic_target_class="panzer";
+  assert(!c.compensatedDropSettled(true)); // Changed live class cannot loosen frozen transaction.
+ }else if(name=="class_parameters"){
+  c.nh_.values["drop_system/settle/red_cross_xy_tolerance_m"]=.03;c.loadRedCrossXYTolerance();
+  c.servo_alignment_context_.semantic_target_class="red_cross";c.servo_alignment_target_class_="red_cross";
+  capture(c);const auto g=c.compensated_fc_goal_.pose.position;
+  odom(c,101,g.x+.035,g.y,.40);assert(!c.compensatedDropSettled(true));
+  odom(c,101.01,g.x+.025,g.y,.40);assert(c.compensatedDropSettled(true));
+  c.compensated_context_.semantic_target_class="tank";
+  c.drop_red_cross_xy_tolerance_m_=.08;close(c.compensatedDropXYTolerance(),.04);
+  c.drop_red_cross_xy_tolerance_m_=.03;close(c.compensatedDropXYTolerance(),.03);
+ }else if(name=="red_parameters_invalid"){
+  c.loadRedCrossXYTolerance();close(c.drop_red_cross_xy_tolerance_m_,.04);
+  for(double value:{0.,-.01,std::numeric_limits<double>::quiet_NaN(),std::numeric_limits<double>::infinity()}){
+   c.nh_.values["drop_system/settle/red_cross_xy_tolerance_m"]=value;
+   bool threw=false;try{c.loadRedCrossXYTolerance();}catch(const std::invalid_argument&){threw=true;}assert(threw);
+  }
+ }else if(name=="class_boundary"){
+  for(const std::string cls:{"panzer","red_cross"}){
+   ros::clock_sec=100;LLController d;d.servo_alignment_context_.semantic_target_class=cls;
+   d.servo_alignment_target_class_=cls;capture(d);const auto g=d.compensated_fc_goal_.pose.position;
+   odom(d,101,g.x+(cls=="panzer"?.06:.04),g.y,.40);double error=0;d.compensatedDropSettled(true,&error);
+   if(cls=="panzer")d.drop_settle_config_.xy_tolerance_m=error;else d.drop_red_cross_xy_tolerance_m_=error;
+   assert(!d.compensatedDropSettled(true)); // Exact equality is always refused.
+  }
+ }else if(name=="class_rpc"){
+  for(const std::string cls:{"pillbox","red_cross"}){
+   ros::clock_sec=100;LLController d;auto transport=std::make_shared<Transport>();
+   d.servo_client.impl=d.servo_action_client_.impl=transport;
+   d.servo_alignment_context_.semantic_target_class=cls;d.servo_alignment_target_class_=cls;
+   capture(d);const auto g=d.compensated_fc_goal_.pose.position;odom(d,101,g.x+.05,g.y,.40,.5);
+   assert(d.executeDropAction(1)==DropActionResult::kPending);
+   assert(d.servo_action_attempted_==(cls=="pillbox"));
+   if(cls=="pillbox")finish(d,transport);else assert(transport->calls==0);
+  }
+ }else if(name=="arms"){
   const double pi=std::acos(-1),tilt=7.39*pi/180;
   for(const std::string mode:{"drop_circle","drop_cross"})for(int slot=1;slot<=3;++slot)
    for(double yaw:{0.,pi/2,-pi/2})for(double pitch:{0.,tilt,-tilt}){
@@ -391,7 +450,7 @@ int main(int argc,char**argv){
    finish(c,t);assert(t->calls==1);
    assert(!outer()); // Original !drop_complete still prevents a second request.
   }else{
-   odom(c,101.01,g.x+.041,g.y,.40);assert(!outer());
+   odom(c,101.01,g.x+.061,g.y,.40);assert(!outer());
    odom(c,101.02,g.x,g.y,.451);assert(!outer());
    odom(c,101.03,g.x,g.y,.349);assert(!outer());
    odom(c,101.04,g.x,g.y,.45);assert(outer());
@@ -436,11 +495,11 @@ int main(int argc,char**argv){
    capture(c);const auto g=c.compensated_fc_goal_.pose.position;
    CONFIGURED_DROP
    c.drop_release_window_=LandingHandoffStabilityWindow(c.drop_settle_config_);
-   close(c.drop_settle_config_.xy_tolerance_m,.04);
-   for(int i=0;i<3;++i){odom(c,101+i*.15625,g.x+.041,g.y,.35,.07);
+   close(c.drop_settle_config_.xy_tolerance_m,.06);
+   for(int i=0;i<3;++i){odom(c,101+i*.15625,g.x+.061,g.y,.35,.07);
     assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);}
    // A single current sample is enough after the original visual capture.
-   odom(c,103,g.x+.035,g.y,.35,.20);
+   odom(c,103,g.x+.055,g.y,.35,.20);
    assert(c.executeDropAction(1)==DropActionResult::kPending&&c.servo_action_attempted_);
    finish(c,t);assert(c.executeDropAction(1)==DropActionResult::kSuccess&&t->calls==1);
   }else if(name=="height_config_compat"){
@@ -469,18 +528,18 @@ int main(int argc,char**argv){
    CONFIGURED_DROP
    odom(c,101,g.x,g.y,.40,.08);
    assert(c.compensatedDropSettled(true));
-   odom(c,101.01,g.x+.039,g.y,.40);
+   odom(c,101.01,g.x+.059,g.y,.40);
    assert(c.compensatedDropSettled(true));
-   odom(c,101.02,g.x+.041,g.y,.40);
+   odom(c,101.02,g.x+.061,g.y,.40);
    assert(!c.compensatedDropSettled(true));
    // Equality must not pass; use the measured error as the exact threshold.
    double measured=0;
    c.compensatedDropSettled(true,&measured);
    c.drop_settle_config_.xy_tolerance_m=measured;
    assert(!c.compensatedDropSettled(true));
-   c.drop_settle_config_.xy_tolerance_m=.04;
+   c.drop_settle_config_.xy_tolerance_m=.06;
    // Earlier height-only and later position-only satisfaction cannot latch.
-   odom(c,101.021,g.x+.05,g.y,.40);assert(!c.compensatedDropSettled(true));
+   odom(c,101.021,g.x+.07,g.y,.40);assert(!c.compensatedDropSettled(true));
    odom(c,101.022,g.x,g.y,.46);assert(!c.compensatedDropSettled(true));
    odom(c,101.03,g.x,g.y,.40,.081);
    assert(c.compensatedDropSettled(true));
@@ -520,14 +579,14 @@ int main(int argc,char**argv){
    assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);
   }else if(name=="xy"||name=="speed"||name=="angular"){
   capture(c);const auto g=c.compensated_fc_goal_.pose.position;
-  for(int i=0;i<5;++i){odom(c,101+i*.15625,g.x+(name=="xy"?.06:0),g.y,.35,
+  for(int i=0;i<5;++i){odom(c,101+i*.15625,g.x+(name=="xy"?.061:0),g.y,.35,
     name=="speed"?.051:0,0,geometry_msgs::Quaternion(),name=="angular"?.5:0);
    assert(c.executeDropAction(1)==DropActionResult::kPending);
    assert(c.servo_action_attempted_==(name!="xy"));}
   if(name!="xy")finish(c,t);
  }else if(name=="samples"||name=="async"){
   capture(c);const auto g=c.compensated_fc_goal_.pose.position;
-  close(c.drop_settle_config_.xy_tolerance_m,.04);close(c.drop_settle_config_.max_horizontal_speed_mps,.05);
+  close(c.drop_settle_config_.xy_tolerance_m,.06);close(c.drop_settle_config_.max_horizontal_speed_mps,.05);
   close(c.drop_settle_config_.stable_duration_sec,.3);assert(c.drop_settle_config_.min_samples==3);
   for(int i=0;i<3;++i){odom(c,101+i*.15625,g.x,g.y,.35);
    assert(c.executeDropAction(1)==DropActionResult::kPending);assert(c.servo_action_attempted_);}
@@ -643,6 +702,7 @@ class CompensatedDropGeometryTests(unittest.TestCase):
             'bool LLController::motionTimePending(',
             'bool LLController::freshMotion(',
             'bool LLController::setCompensatedDropTarget(',
+            'double LLController::compensatedDropXYTolerance(',
             'bool LLController::compensatedDropSettled(',
             'bool LLController::freezeCompensatedDropTarget(',
             'void LLController::publishCompensatedAlignment(',
@@ -661,6 +721,9 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         start = source.index('    drop_settle_config_.xy_tolerance_m =')
         end = source.index('    load_stability(', start)
         defaults = source[start:end]
+        red_start = source.index('    drop_red_cross_xy_tolerance_m_ = nh_.param(')
+        red_end = source.index('    landing_settle_config_.max_horizontal_speed_mps', red_start)
+        red_parameters = source[red_start:red_end]
         height_start = source.index('    drop_release_setpoint_height_ = nh_.param(')
         height_end = source.index('    drop_enabled =', height_start)
         height_parameters = source[height_start:height_end]
@@ -670,7 +733,8 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         if configured != trial:
             raise AssertionError('formal and trial drop settlement must agree')
         configured_assignments = '\n'.join(
-            f'c.drop_settle_config_.{key} = {value};' for key, value in configured.items())
+            (f'c.drop_red_cross_xy_tolerance_m_ = {value};' if key == 'red_cross_xy_tolerance_m'
+             else f'c.drop_settle_config_.{key} = {value};') for key, value in configured.items())
         cls.folder = tempfile.TemporaryDirectory(prefix='compensated-drop-')
         cls.addClassCleanup(cls.folder.cleanup)
         root = Path(cls.folder.name)
@@ -690,6 +754,7 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         guard_end = source.index('    std_msgs::Bool detect_enable_msg;', guard_start)
         cpp.write_text(PROGRAM.replace('METHODS', production).replace('DEFAULTS', defaults)
                        .replace('RELEASE_HEIGHT_PARAMETERS', height_parameters)
+                       .replace('RED_CROSS_PARAMETERS', red_parameters)
                        .replace('CONFIGURED_DROP', configured_assignments)
                        .replace('EXTERNAL_GUARD', source[guard_start:guard_end])
                        .replace('CIRCLE_RELEASE', outer_release('bool LLController::WayPointDetectDone('))
@@ -706,6 +771,13 @@ class CompensatedDropGeometryTests(unittest.TestCase):
         result = subprocess.run([str(self.binary), name], capture_output=True, text=True, timeout=5)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_bound_standard_red_cross_and_unknown_class_thresholds(self): self.run_case('class_thresholds')
+    def test_semantic_class_not_geometry_mode_selects_threshold(self): self.run_case('class_mode')
+    def test_live_class_change_cannot_loosen_frozen_transaction(self): self.run_case('class_binding')
+    def test_red_cross_parameter_is_independent_and_unknown_remains_capped(self): self.run_case('class_parameters')
+    def test_red_cross_default_and_invalid_parameter_values(self): self.run_case('red_parameters_invalid')
+    def test_standard_and_red_cross_exact_threshold_equality_rejected(self): self.run_case('class_boundary')
+    def test_five_cm_standard_admits_rpc_but_red_cross_never_calls(self): self.run_case('class_rpc')
     def test_three_physical_arms_yaw_and_tilt_without_accumulation(self): self.run_case('arms')
     def test_outside_endpoint_holds_reports_and_cannot_freeze_or_release(self): self.run_case('boundary')
     def test_endpoint_uses_current_and_commanded_yaw_margin(self): self.run_case('boundary_yaw')
