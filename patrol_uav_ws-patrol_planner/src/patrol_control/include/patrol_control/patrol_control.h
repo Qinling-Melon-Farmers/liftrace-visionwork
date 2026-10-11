@@ -248,6 +248,7 @@ private:
 
     float land_height = 0.3;
     float px4_max_distance = 1.2;
+    double takeoff_z_lead_m_ = 0.0;  // Opt-in [0.4, 0.6] m; zero is legacy.
     float max_yaw_change = 0.2;
 
     int waypoint_next = 0;

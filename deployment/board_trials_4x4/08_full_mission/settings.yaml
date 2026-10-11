@@ -31,3 +31,7 @@ landing_posctl:
   max_odom_age_sec: 0.2
   max_sample_gap_sec: 0.2
   min_samples: 3
+
+# 起飞专用Z领先量，单位米（非m/s）；候选未实飞，不保证节时。
+# 0回退旧通用三维限幅；启用范围[0.4,0.6]。
+takeoff_z_lead_m: 0.6
