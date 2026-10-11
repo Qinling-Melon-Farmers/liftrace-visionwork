@@ -1,10 +1,10 @@
 # 控制补丁收尾结果（2026-10-11）
 
-门点保护、起飞专用Z领先已完成独立审查、独立提交并同步到六个本地功能分支；六支控制目标实际编译及链接均通过。**本轮仅离线测试与构建：无仿真、板端连接、部署、实飞或GPU任务。未执行push。**
+门点保护、起飞专用Z领先已完成独立审查、独立提交并同步并推送到六个功能分支；六支控制目标实际编译及链接均通过。**本轮仅离线测试与构建：无仿真、板端连接、部署、实飞或GPU任务。推送结果见文末。**
 
 ## 提交与验证
 
-导航0928为源头：门点Popper、起飞Beauvoir交接后停止修改，James负责最终审查修正、分开记录/提交、同步与构建。下表为完整commit，两个补丁各自可回退。
+门点保护与起飞专用Z领先两补丁均以导航0928为源头，完成审查、分开记录/提交、同步与构建。下表为完整commit，两个补丁各自可回退。
 
 | 工作树 | 门点commit | 起飞commit | 门点tests | 起飞tests | 控制链接 |
 | --- | --- | --- | --- | --- | --- |
@@ -53,3 +53,21 @@ B代码入口行号：motion_optimization.py:67；patrol_control.cpp:66（校验
 B主仓main仍3d72e3e92625a953fd43e0dcd9a4db974e1f813f（旧默认释放高度0.35m），导航main仍a68925d15293e5510e2b4351c6b3d9bc5aa136ab；main/EV/PX4未改。0928/reference候选正式及08配置保持drop_agl=0.40m及既有0.35～0.45m释放窗口，这两个补丁未改投递参数。此次新增0.6m是Takeoff领先距离，与0.40m释放高度不同。**候选源码不等于已部署版**；本轮未连接板端核实运行revision，不能由旧manifest或当前HEAD认定包内完整运行版本。
 
 门点保护不保证无撞击，第一门实物中心/门框真值仍未闭合，无法将混合高度点云空洞写成free。起飞动态速度、姿态、ready达成时间及节时尚无本补丁实飞数据。下一步经明确运行授权后，以同一场地先核实门前后锚点与真实净空，再单因素对照takeoff_z_lead_m=0与候选（0.4～0.6）；0可直接恢复原generic。不得据这些测试宣布Gate实飞通过。
+
+## 分支推送结果（2026-10-11）
+
+用户已授权必要feature分支远端同步。本次显式推送各功能分支对应ref，无force、无tags或其他分支推送；七个远端分支更新均成功，逐项ls-remote回读HEAD一致。
+
+| 工作树 | 远端 | 分支 | 首次推送HEAD | 回读 |
+| --- | --- | --- | --- | --- |
+| B/integrated | origin | feat/r2026-competition-integrated | 74edf2f258cb619aadfceb140fbfdf813bfc612f | PASS |
+| B/board | origin | feat/board-deployment-flight-20260920 | b19e190b86d69df0b1569ee98fa8e8d203a6164a | PASS |
+| B/high-view | origin | feat/high-view-route-speed-20261004 | d2552f1ab9cd8511f9b1fe72ecda038ff5154dbe | PASS |
+| N/0928 | origin | liftrace_board_trial_20260928 | b19010c381a720565a94d3f64b2e36c7733e69d9 | PASS |
+| N/reference | origin | 板端参考分支 | 99174139f7add846716229681706095f4e03adf0 | PASS |
+| N/high-view | origin | feat/high-view-liveness-20260919 | 3ac089c5cc924f42dacebc3ebaa7617c87febfbc | PASS |
+| N/high-view | fork | feat/high-view-liveness-20260919 | 3ac089c5cc924f42dacebc3ebaa7617c87febfbc | PASS |
+
+表中B/board为首次推送b19e190b；随后仅本报告与docs/仿真联调变更记录.md追加独立docs提交并推送同一origin分支，本报告所在提交为这次报告更新revision。最终B远端HEAD回执记录于/tmp/control_push_20261011/final_B.tsv；首次七项回执results.tsv及push_*.log在同目录。
+
+导航liveness按既有origin+fork双远端同步；导航0928及reference推送origin。main/EV未改或推送；B模型未提交脚本/docs、其余代理文件及资产均未暂存或纳入提交。本次仅文档与Git远端同步，未重跑构建/测试、未仿真或实飞。
