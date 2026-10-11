@@ -44,9 +44,69 @@ class MotionTests(unittest.TestCase):
         points=[[6.7,4,1.4],[6.7,4,.9],[8.75,4,.9],[8.75,2.3,.9],
                 [8.75,.9,.9],[8.75,0,.9],[8.75,-.9,.9],[8.75,-2.3,.9],[8.75,-4.2,1.]]
         out,meta=optimize_post_route(points,MotionOptimization(enabled=True),8,1,[-1.6,1.6])
-        self.assertEqual(out,[[6.7,4,.9],[8.75,4,.9],[8.75,-2.3,.9],[8.75,-4.2,1.]])
-        self.assertTrue(meta['diagonal_entry']);self.assertEqual(meta['corridor_points_count'],3)
+        self.assertEqual(out,[points[i] for i in (1,2,3,4,6,7,8)])
+        self.assertEqual(meta['retained_original_indices'],[1,2,3,4,6,7,8])
+        self.assertEqual(meta['protected_original_indices'],[3,4,6,7])
+        self.assertTrue(meta['diagonal_entry']);self.assertEqual(meta['corridor_points_count'],6)
         self.assertEqual(points[0],[6.7,4,1.4])
+    def test_field_seven_points_keep_both_doors_with_merge_enabled(self):
+        points=[[6.5,2.1,.9]]+[[7.7,y,.9] for y in (2.1,1.,-.7,-1.1,-2.5,-3.45)]
+        out,meta=optimize_post_route(points,MotionOptimization(enabled=True),7,1,[0.,-1.4])
+        self.assertEqual(out,points)
+        self.assertEqual(meta['protected_original_indices'],[2,3,4,5])
+        self.assertEqual([(c['before_original_index'],c['after_original_index'])
+                          for c in meta['protected_crossings']],[(2,3),(4,5)])
+
+    def test_reverse_repeated_crossings_protect_each_visit_not_coordinates(self):
+        points=[[0,y,.9] for y in (3,2,1,-1,-2,-3,-2,-1,1,2,3)]
+        out,meta=optimize_post_route(points,MotionOptimization(enabled=True),len(points),1,[0.])
+        self.assertEqual(meta['protected_original_indices'],[2,3,7,8])
+        self.assertEqual(meta['retained_original_indices'],[0,2,3,5,7,8,10])
+        self.assertEqual(out,[points[i] for i in (0,2,3,5,7,8,10)])
+
+    def test_multiwall_same_segment_and_reverse_slanted_route(self):
+        # Both walls lie in one slanted segment; each direction keeps its anchors.
+        points=[[x,2*x,.9] for x in (-3,-2,-1,3,4,5)]
+        for route in (points,list(reversed(points))):
+            with self.subTest(route=route):
+                out,meta=optimize_post_route(route,MotionOptimization(enabled=True),6,0,[0.,2.])
+                self.assertEqual(out,[route[i] for i in (0,2,3,5)])
+                self.assertEqual(meta['protected_original_indices'],[2,3])
+                self.assertEqual(len(meta['protected_crossings']),2)
+
+    def test_on_wall_runs_keep_nearest_strict_side_anchors(self):
+        points=[[0,y,.9] for y in (3,2,1,0,0,-1,-2,-3)]
+        out,meta=optimize_post_route(points,MotionOptimization(enabled=True),8,1,[0.])
+        self.assertEqual(meta['protected_original_indices'],[2,3,4,5])
+        self.assertEqual(meta['protected_crossings'][0]['on_wall_original_indices'],[3,4])
+        self.assertEqual(out,[points[i] for i in (0,2,3,4,5,7)])
+
+    def test_wall_touch_is_retained_without_reporting_crossing(self):
+        points=[[0,y,.9] for y in (2,1,0,1,2)]
+        out,meta=optimize_post_route(points,MotionOptimization(enabled=True),5,1,[0.])
+        self.assertEqual(meta['protected_crossings'],[])
+        self.assertEqual(meta['protected_original_indices'],[2])
+        self.assertEqual(out,[points[i] for i in (0,2,4)])
+
+    def test_diagonal_entry_on_wall_preserves_explicit_height_change(self):
+        points=[[0,0,1.4],[0,0,.9],[0,1,.9],[0,2,1.2]]
+        out,meta=optimize_post_route(points,MotionOptimization(enabled=True),3,1,[0.])
+        self.assertEqual(out,points)
+        self.assertFalse(meta['diagonal_entry'])
+
+    def test_height_changes_and_h_suffix_remain(self):
+        points=[[0,y,z] for y,z in ((4,.9),(3,.9),(2,1.),(1,1.),(-1,1.),(-2,1.2),(-3,1.2))]
+        out,meta=optimize_post_route(points,MotionOptimization(enabled=True),6,1,[0.])
+        self.assertEqual(out,points)
+        self.assertEqual(meta['corridor_points_count'],6)
+
+    def test_crossing_into_h_suffix_keeps_nearest_pre_wall_anchor(self):
+        points=[[0,y,.9] for y in (3,2,1,0,-1,-2)]
+        out,meta=optimize_post_route(points,MotionOptimization(enabled=True),4,1,[0.])
+        self.assertEqual(out,[points[i] for i in (0,2,3,4,5)])
+        self.assertEqual(meta['corridor_points_count'],3)
+        self.assertEqual(meta['protected_original_indices'],[2,3,4])
+
     def test_disabled_preserves_route_and_reversal_not_removed(self):
         points=[[0,0,.9],[0,2,.9],[0,1,.9]]
         self.assertEqual(optimize_post_route(points,MotionOptimization(),3,1,[1.6])[0],points)
@@ -73,9 +133,9 @@ class CandidateTests(unittest.TestCase):
             dict(x=8.75,y=-.9,agl=.9),dict(x=8.75,y=-2.3,agl=.9)],
             landing_xy=[8.75,-4.2])
         self.rig=yaml.safe_load((ROOT/'patrol_uav_ws-patrol_planner/src/uav_mission/config/competition/known_rig.yaml').read_text())
-    def gen(self):
+    def gen(self,fc_xyz=(0,0,0)):
         with tempfile.TemporaryDirectory() as p:
-            ref=self.generate(ROOT,p,self.s,(0,0,0),self.rig)
+            ref=self.generate(ROOT,p,self.s,fc_xyz,self.rig)
             data={n:yaml.safe_load((Path(p)/(n+'.yaml')).read_text()) for n in ('runtime','control','overrides')}
         return ref,data
     def test_camera_height_recovery_and_post_entry_caps_wired(self):
@@ -86,13 +146,51 @@ class CandidateTests(unittest.TestCase):
         self.assertEqual(d['overrides']['/navigation/planner_bridge/target/recovery_height'],
                          d['control']['uav_vision']['recovery_height'])
         stages=d['runtime']['mission']['post_delivery_parameter_stages']
-        self.assertAlmostEqual(stages[0]['parameters']['/external_planner_max_command_z']-g,3.)
+        self.assertAlmostEqual(stages[0]['parameters']['/external_planner_max_command_z']-g,self.s['max_agl'])
         self.assertEqual(stages[1]['after_completed_waypoints'],1)
         self.assertAlmostEqual(stages[1]['parameters']['/external_planner_max_command_z']-g,1.)
         self.assertEqual(d['runtime']['corridor_speed_schedule']['entry_waypoints'],1)
         self.assertEqual(d['runtime']['mission']['post_delivery_route'][0][:2],[6.7,4.])
-        self.assertEqual(len(d['runtime']['mission']['post_delivery_route']),5)
+        self.assertEqual(len(d['runtime']['mission']['post_delivery_route']),8)
         self.assertTrue(d['control']['uav_vision']['require_release_permission'])
+    def test_protected_count_drives_h_stage_with_and_without_diagonal_entry(self):
+        self.s['landing_capture_agl']=1.2
+        for diagonal,count,entry in ((True,6,1),(False,7,2)):
+            with self.subTest(diagonal=diagonal):
+                self.s['motion_optimization']['diagonal_entry']=diagonal
+                ref,d=self.gen((.2,-.2,.1))
+                runtime=d['runtime'];meta=runtime['motion_optimization_metadata']
+                m=runtime['mission'];stages=m['post_delivery_parameter_stages']
+                self.assertEqual(meta['corridor_points_count'],count)
+                self.assertEqual(stages[1]['after_completed_waypoints'],entry)
+                self.assertEqual(stages[2]['after_completed_waypoints'],count)
+                self.assertEqual(m['post_delivery_route'][count:],meta['original'][8:])
+                low=ref['ground_z']+self.s['motion_optimization']['corridor_max_agl']
+                for completed in range(entry,count):
+                    active=[s for s in stages if s['after_completed_waypoints']<=completed][-1]
+                    self.assertAlmostEqual(active['parameters']['/external_planner_max_command_z'],low)
+                self.assertEqual([s for s in stages if s['after_completed_waypoints']<=count][-1],stages[2])
+                self.assertAlmostEqual(stages[2]['parameters']['/external_planner_max_command_z'],
+                    max(low,m['post_delivery_route'][-1][2]+.1))
+
+    def test_field_route_generator_keeps_doors_merges_ordinary_relay_and_h_stage(self):
+        self.s['corridor_waypoints']=[dict(x=6.5,y=2.1,agl=.9)]+[
+            dict(x=7.7,y=y,agl=.9) for y in (2.1,1.,-.7,-1.1,-2.5,-3.,-3.45)]
+        self.s['landing_xy']=[7.7,-3.45]
+        self.s['corridor_speed_schedule']['wall_coordinates']=[0.,-1.4]
+        for fc in ((0,0,0),(.2,-.2,.1)):
+            with self.subTest(fc=fc):
+                ref,d=self.gen(fc);r=d['runtime'];m=r['mission'];meta=r['motion_optimization_metadata']
+                self.assertTrue(r['motion_optimization']['merge_collinear_relays'])
+                self.assertEqual(meta['protected_original_indices'],[2,3,4,5])
+                self.assertEqual(meta['corridor_points_count'],7)
+                self.assertEqual(meta['retained_original_indices'][:7],[0,1,2,3,4,5,7])
+                self.assertEqual(m['post_delivery_route'][7:],meta['original'][8:])
+                self.assertEqual(m['post_delivery_parameter_stages'][-1]['after_completed_waypoints'],7)
+                self.assertEqual(r['corridor_speed_schedule']['wall_coordinates'],[fc[1],fc[1]-1.4])
+                self.assertAlmostEqual(m['post_delivery_parameter_stages'][-1]['parameters'][
+                    '/external_planner_max_command_z'],max(ref['ground_z']+1.,m['post_delivery_route'][-1][2]+.1))
+
     def test_turn_off_diagonal_retains_height_stop(self):
         self.s['motion_optimization']['diagonal_entry']=False
         _,d=self.gen()
