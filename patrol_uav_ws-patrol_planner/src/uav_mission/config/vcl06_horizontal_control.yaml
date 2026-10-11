@@ -62,13 +62,16 @@ motion_feedback:
   odom_topic: /mavros/local_position/odom
   twist_frame: child
 drop_system:
-  # 在观察高度先对准补偿后的FC目标；冻结后下降，不追残缺图像。
+  compensate_before_descent: true  # 冻结后先高位补偿，XY到位后单向下降
+  # 可靠视觉确认后冻结补偿目标；最终释放核对当前FC和投口位置。
   slot_offset_semantics: body_flu_lever_arm
   compensated_alignment: true
   alignment_feedback_topic: /uav_vision/drop_alignment_feedback
-  # 释放许可仍须成立；以下是实际投口和FC的最终到位、低速稳定条件。
+  # 原释放许可仍须成立；仅XY及motion新鲜度参与补偿投递放行。
+  # 速度、停稳时长和样本数仅保留配置兼容；H仍使用独立稳定窗。
   settle:
-    xy_tolerance_m: 0.04
+    xy_tolerance_m: 0.06  # 标准靶严格小于6cm
+    red_cross_xy_tolerance_m: 0.04  # 红十字及未知类别不放宽
     height_tolerance_m: 0.05
     max_horizontal_speed_mps: 0.05
     max_vertical_speed_mps: 0.10
@@ -80,6 +83,7 @@ drop_system:
   height_threshold: 0.20
   position_threshold: 0.15
   release_setpoint_height: 0.10
+  release_min_height: 0.10  # 保持本分支高度；接口允许独立下限
   enable_drop: true
   descent_stable_duration: 2.0
   slot_offsets: [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]

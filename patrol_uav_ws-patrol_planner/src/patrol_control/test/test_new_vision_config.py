@@ -23,6 +23,32 @@ PLANNER_REAL_XML = ROOT / "src/Fast-Planner/fast_planner/plan_manage/launch/patr
 
 
 class NewVisionConfigTest(unittest.TestCase):
+
+    def test_formal_drop_class_thresholds_and_heights_in_both_loaded_configs(self):
+        for name in ("vcl06_horizontal_control.yaml",
+                     "vcl06_full_low_corridor_control.yaml"):
+            with self.subTest(config=name):
+                values = yaml.safe_load((ROOT / "src/uav_mission/config" / name).read_text(encoding="utf-8"))
+                drop = values["drop_system"]
+                self.assertTrue(drop["compensate_before_descent"])
+                self.assertEqual(drop["settle"]["xy_tolerance_m"], .06)
+                self.assertEqual(drop["settle"]["red_cross_xy_tolerance_m"], .04)
+                # This synchronization adds an interface, not the board's global height profile.
+                self.assertEqual(drop["release_setpoint_height"], .10)
+                self.assertEqual(drop["release_min_height"], .10)
+                self.assertEqual(drop["height_threshold"], .20)
+                self.assertEqual(values["px4_max_distance"], .20)
+                self.assertTrue(values["uav_vision"]["require_release_permission"])
+
+    def test_h_capture_and_recovery_profiles_remain_branch_specific(self):
+        base = ROOT / "src/uav_mission/config"
+        horizontal = yaml.safe_load((base / "vcl06_horizontal_control.yaml").read_text(encoding="utf-8"))
+        full = yaml.safe_load((base / "vcl06_full_low_corridor_control.yaml").read_text(encoding="utf-8"))
+        self.assertEqual(horizontal["external_landing"]["capture_height"], 1.60)
+        self.assertEqual(full["external_landing"]["capture_height"], .28)
+        self.assertEqual(horizontal["uav_vision"]["recovery_height"], .95)
+        self.assertEqual(full["uav_vision"]["recovery_height"], .95)
+
     def test_controller_has_compatibility_switch_with_legacy_default(self):
         source = CONTROL_CPP.read_text(encoding="utf-8")
         self.assertIn(

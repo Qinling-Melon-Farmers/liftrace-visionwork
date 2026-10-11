@@ -137,6 +137,7 @@ namespace patrol_control {
 class LLController {
 public:
     bool compensated_alignment_enabled_=true, geometry_ready=true;
+    bool drop_compensate_before_descent_=true,drop_descent_started_=true;
     bool compensatedDropSettled(bool) { return geometry_ready; }
     void publishCompensatedAlignment() {}
 

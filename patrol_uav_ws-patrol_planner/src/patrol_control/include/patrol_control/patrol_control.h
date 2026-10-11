@@ -122,11 +122,13 @@ private:
     std::string motion_odom_topic_, motion_twist_frame_, compensated_alignment_topic_;
     bool compensated_alignment_enabled_ = true;
     bool compensated_goal_valid_ = false, compensated_goal_frozen_ = false;
+    bool drop_compensate_before_descent_ = true, drop_descent_started_ = false;
     geometry_msgs::PoseStamped compensated_fc_goal_;
     geometry_msgs::Point compensated_target_center_;
     uav_vision::AlignmentTargetContext compensated_context_;
     ros::Time compensated_observation_stamp_;
     LandingHandoffStabilityConfig drop_settle_config_, landing_settle_config_, landing_capture_config_;
+    double drop_red_cross_xy_tolerance_m_ = 0.04;
     LandingHandoffStabilityWindow drop_capture_window_, drop_release_window_;
     LandingHandoffStabilityWindow landing_capture_window_, landing_handoff_window_;
     void motionOdomCallback(const nav_msgs::Odometry::ConstPtr& msg);
@@ -135,8 +137,10 @@ private:
     bool freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angular,
                      const char** rejection = nullptr) const;
     bool setCompensatedDropTarget(geometry_msgs::PoseStamped* target);
+    double compensatedDropXYTolerance() const;
     bool compensatedDropSettled(bool release, double* error = nullptr,
-                                double* speed = nullptr);
+                                double* speed = nullptr, bool require_release_height = true);
+    double compensatedDropCommandHeight();
     void publishCompensatedAlignment();
     bool freezeCompensatedDropTarget();
     bool landingMotionSettled(bool handoff, double xy_error);
@@ -331,6 +335,7 @@ private:
     double drop_height_threshold = 0.2;     // 旧链投递高度阈值（米）
     double drop_position_threshold_ = 0.15; // 旧链投递三维距离阈值（米）
     double drop_release_setpoint_height_ = 0.10; // 投递下降目标高度（米）
+    double drop_release_min_height_ = 0.10; // 独立释放下限，未配置时沿用下降目标
     double external_recovery_height_ = 0.95; // 外部投递恢复交接高度（米）
     double external_standard_recovery_setpoint_height_ = 1.20;
     double external_cross_recovery_setpoint_height_ = 1.15;

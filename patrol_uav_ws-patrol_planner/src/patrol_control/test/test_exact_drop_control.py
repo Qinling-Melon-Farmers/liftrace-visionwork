@@ -72,7 +72,11 @@ public:
  bool motionTimePending() const;
   bool freshMotion(Eigen::Vector3d*,Eigen::Vector3d*,const char** = nullptr)const;
   bool setCompensatedDropTarget(geometry_msgs::PoseStamped*);
-  bool compensatedDropSettled(bool,double* =nullptr,double* =nullptr);
+  double drop_red_cross_xy_tolerance_m_=.04,drop_release_min_height_=.35;
+  bool drop_compensate_before_descent_=true,drop_descent_started_=false;
+  double compensatedDropXYTolerance() const;
+  double compensatedDropCommandHeight();
+  bool compensatedDropSettled(bool,double* =nullptr,double* =nullptr,bool =true);
   bool freezeCompensatedDropTarget();
   bool externalLandingControlReady(ros::Time)const{return true;}
   bool have_waypoint_mark=false,have_cross_mark=false,drop_condition_met=false;
@@ -510,7 +514,7 @@ int main(int argc,char **argv){
       m->header.stamp=ros::Time(now);c.dropOffsetCallback(m);ready(c);
       assert(std::abs(c.compensated_target_center_.x-.22)<1e-9);
       assert(std::abs(c.compensated_fc_goal_.pose.position.x-.34)<1e-9);
-      assert(c.beginExactDropDescent()==(i==2));
+      assert(c.beginExactDropDescent());
     }
     assert(c.compensated_goal_frozen_ && c.capture_tolerance_m_==0);
     if(test=="unified_cross")c.CrossDetectionDone();else c.WayPointDetectDone();
@@ -540,6 +544,8 @@ class ExactDropControlTest(unittest.TestCase):
         'bool LLController::motionTimePending(',
                     'bool LLController::freshMotion(',
                     'bool LLController::setCompensatedDropTarget(',
+                    'double LLController::compensatedDropXYTolerance(',
+                    'double LLController::compensatedDropCommandHeight(',
                     'bool LLController::compensatedDropSettled(',
                     'bool LLController::freezeCompensatedDropTarget(',
                     'bool LLController::hasFreshDropOffset()',

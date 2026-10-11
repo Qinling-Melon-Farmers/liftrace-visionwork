@@ -47,10 +47,17 @@ switch:
   flag_landing_detect: 1
   auto_land: true
 drop_system:
+  compensate_before_descent: true  # 冻结后先高位补偿，XY到位后单向下降
+  # 正式补偿投递：当前XY到位，原许可放行；不额外等待速度/停稳窗。
+  settle:
+    xy_tolerance_m: 0.06
+    red_cross_xy_tolerance_m: 0.04
+    max_odom_age_sec: 0.20
   precision_threshold: 20.0
   height_threshold: 0.2
   position_threshold: 0.15
   release_setpoint_height: 0.1
+  release_min_height: 0.1  # 保持本分支高度；不覆盖高位/恢复参数
   enable_drop: true
   descent_stable_duration: 2.0
   slot_offsets:
