@@ -1,0 +1,157 @@
+{
+  "status": "PASS",
+  "original_applied": 49,
+  "resolved_conflicts": 9,
+  "missing_entries_preserved": 17,
+  "remaining_conflicts": 0,
+  "total_cross_branch_tests": 307,
+  "b_generation_recheck": 56,
+  "ros_started": false,
+  "results": [
+    {
+      "root": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix",
+      "generation_tests": 56,
+      "targeted_tests": 17,
+      "tests": 73,
+      "status": "PASS",
+      "remaining_failures": 0,
+      "trial_entry": true,
+      "formal_entry": true,
+      "patch": "/tmp/lookahead_adapt/r2026-board-frame-fix_adaptation.patch"
+    },
+    {
+      "root": "/home/xhj/liftrace-worktrees/r2026-high-view-search",
+      "generation_tests": 41,
+      "targeted_tests": 9,
+      "tests": 50,
+      "status": "PASS",
+      "remaining_failures": 0,
+      "trial_entry": true,
+      "formal_entry": false,
+      "patch": "/tmp/lookahead_adapt/r2026-high-view-search_adaptation.patch"
+    },
+    {
+      "root": "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+      "generation_tests": 56,
+      "targeted_tests": 9,
+      "tests": 65,
+      "status": "PASS",
+      "remaining_failures": 0,
+      "trial_entry": true,
+      "formal_entry": true,
+      "patch": "/tmp/lookahead_adapt/drop-height-board-reference-20261003_adaptation.patch"
+    },
+    {
+      "root": "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919",
+      "generation_tests": 33,
+      "targeted_tests": 9,
+      "tests": 42,
+      "status": "PASS",
+      "remaining_failures": 0,
+      "trial_entry": false,
+      "formal_entry": true,
+      "patch": "/tmp/lookahead_adapt/high-view-liveness-20260919_adaptation.patch"
+    },
+    {
+      "root": "/home/xhj/liftrace-controlwork-worktrees/board-trial-20260928",
+      "generation_tests": 56,
+      "targeted_tests": 21,
+      "tests": 77,
+      "status": "PASS",
+      "remaining_failures": 0,
+      "trial_entry": true,
+      "formal_entry": true,
+      "patch": "/tmp/lookahead_adapt/board-trial-20260928_adaptation.patch"
+    },
+    {
+      "root": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests",
+      "generation_tests": 56,
+      "targeted_tests": 0,
+      "tests": 56,
+      "status": "PASS",
+      "remaining_failures": 0,
+      "trial_entry": true,
+      "formal_entry": true,
+      "patch": "/tmp/lookahead_adapt/r2026-board-vision-tests_adaptation.patch"
+    }
+  ],
+  "changed_files": [
+    {
+      "root": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix",
+      "file": "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_config.py",
+      "reason": "CONFLICT_ADAPTATION"
+    },
+    {
+      "root": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix",
+      "file": "deployment/board_trials_4x4/common/uav_board_trials/test/test_high_speed_capture.py",
+      "reason": "CONFLICT_ADAPTATION"
+    },
+    {
+      "root": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix",
+      "file": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/navigation_following_config.py",
+      "reason": "EXPLICIT_USER_DOCSTRING_CORRECTION"
+    },
+    {
+      "root": "/home/xhj/liftrace-worktrees/r2026-high-view-search",
+      "file": "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_config.py",
+      "reason": "CONFLICT_ADAPTATION"
+    },
+    {
+      "root": "/home/xhj/liftrace-worktrees/r2026-high-view-search",
+      "file": "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_motion.py",
+      "reason": "CONFLICT_ADAPTATION"
+    },
+    {
+      "root": "/home/xhj/liftrace-worktrees/r2026-high-view-search",
+      "file": "deployment/board_trials_4x4/common/uav_board_trials/scripts/run_trial.py",
+      "reason": "CONFLICT_ADAPTATION"
+    },
+    {
+      "root": "/home/xhj/liftrace-worktrees/r2026-high-view-search",
+      "file": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/navigation_following_config.py",
+      "reason": "EXPLICIT_USER_DOCSTRING_CORRECTION"
+    },
+    {
+      "root": "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+      "file": "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_config.py",
+      "reason": "CONFLICT_ADAPTATION"
+    },
+    {
+      "root": "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+      "file": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/navigation_following_config.py",
+      "reason": "EXPLICIT_USER_DOCSTRING_CORRECTION"
+    },
+    {
+      "root": "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919",
+      "file": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/navigation_following_config.py",
+      "reason": "EXPLICIT_USER_DOCSTRING_CORRECTION"
+    },
+    {
+      "root": "/home/xhj/liftrace-controlwork-worktrees/board-trial-20260928",
+      "file": "deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_config.py",
+      "reason": "CONFLICT_ADAPTATION"
+    },
+    {
+      "root": "/home/xhj/liftrace-controlwork-worktrees/board-trial-20260928",
+      "file": "deployment/board_trials_4x4/common/uav_board_trials/test/test_competition_speed_cli.py",
+      "reason": "CONFLICT_ADAPTATION"
+    },
+    {
+      "root": "/home/xhj/liftrace-controlwork-worktrees/board-trial-20260928",
+      "file": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_competition_launch_parameters.py",
+      "reason": "CONFLICT_ADAPTATION"
+    },
+    {
+      "root": "/home/xhj/liftrace-controlwork-worktrees/board-trial-20260928",
+      "file": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/navigation_following_config.py",
+      "reason": "EXPLICIT_USER_DOCSTRING_CORRECTION"
+    },
+    {
+      "root": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests",
+      "file": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/navigation_following_config.py",
+      "reason": "EXPLICIT_USER_DOCSTRING_CORRECTION"
+    }
+  ],
+  "preserved": "branch field geometry/heights/anchors/admission distance and release/runtime parameters",
+  "dynamic_acceptance": "1.0/0.6 affects generic controller limits during takeoff and ordinary direct descent; not flight-validated"
+}

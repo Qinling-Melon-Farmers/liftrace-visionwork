@@ -62,7 +62,10 @@ def main():
     try:validate_settings(settings)
     except ValueError as error:p.error(str(error))
     if a.check_config:
-        print('CONFIG_VALID; no ROS nodes started');return
+        from uav_mission.navigation_following_config import navigation_following_profile
+        print('CONFIG_VALID; no ROS nodes started')
+        print(json.dumps(dict(following=navigation_following_profile(settings.get('following_speed_profile')))))
+        return
     import rospy,rosnode,tf2_ros
     from geometry_msgs.msg import PoseStamped
     from sensor_msgs.msg import CameraInfo,Image,CompressedImage,PointCloud2

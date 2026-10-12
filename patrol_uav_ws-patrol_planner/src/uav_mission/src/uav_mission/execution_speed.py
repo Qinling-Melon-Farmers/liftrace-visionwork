@@ -10,12 +10,17 @@ class FollowingSpeed:
     corridor_lead_m: float = .15
     corridor_after_waypoints: int = 1
     boundary_lead_m: float = .20
+    # Board generation opts in; legacy profiles keep their SEARCH behaviour.
+    low_coverage_lead_m: float = None
 
     def __post_init__(self):
         values=(self.cruise_lead_m,self.precision_lead_m,self.corridor_lead_m)
         if (not all(math.isfinite(v) for v in values)
                 or not .05<=self.corridor_lead_m<=self.precision_lead_m<=self.cruise_lead_m<=1.5
                 or not math.isfinite(self.boundary_lead_m) or not .05<=self.boundary_lead_m<=self.precision_lead_m
+                or (self.low_coverage_lead_m is not None and
+                    (not math.isfinite(self.low_coverage_lead_m) or
+                     not .05<=self.low_coverage_lead_m<=self.precision_lead_m))
                 or type(self.corridor_after_waypoints) is not int
                 or self.corridor_after_waypoints!=1):
             raise ValueError('invalid following speed profile')
@@ -24,6 +29,8 @@ class FollowingSpeed:
         if near_boundary and command in ('SEARCH','RESUME','APPROACH'):
             return 'BOUNDARY_REVISIT',self.boundary_lead_m
         if command in ('SEARCH','RESUME'):
+            if reason=='high_view_full:LOW_COVERAGE' and self.low_coverage_lead_m is not None:
+                return 'LOW_COVERAGE',self.low_coverage_lead_m
             return 'CRUISE',self.cruise_lead_m
         if command=='RETURN_HOME' and reason.startswith('post_delivery_route:'):
             if completed<self.corridor_after_waypoints:return 'TRANSIT_TO_CORRIDOR',self.cruise_lead_m
