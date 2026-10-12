@@ -744,7 +744,8 @@ class Workbench(object):
             survey_pattern=body.get("survey_pattern"), resume_survey=body.get("resume_survey"),
             site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"),
             motion_optimization=body.get("motion_optimization"), obstacle_columns=body.get("obstacle_columns"),
-            competition_config=body.get("competition_config"), speed_profile=body.get("speed_profile"))
+            competition_config=body.get("competition_config"), speed_profile=body.get("speed_profile"),
+            landing_config=body.get("landing_config"))
         return {"ok":True,"body":command,"note":note}
 
     def start_trial(self, body):
@@ -794,7 +795,8 @@ class Workbench(object):
             survey_pattern=body.get("survey_pattern"), resume_survey=body.get("resume_survey"),
             site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"),
             motion_optimization=body.get("motion_optimization"), obstacle_columns=body.get("obstacle_columns"),
-            competition_config=body.get("competition_config"), speed_profile=body.get("speed_profile"))
+            competition_config=body.get("competition_config"), speed_profile=body.get("speed_profile"),
+            landing_config=body.get("landing_config"))
         # 界面预览命令必须与后端实际命令一致，否则拒绝启动：防止"给人看的命令"与"真正执行的命令"漂移
         expected = str(body.get("expected_body") or "").strip()
         if body.get("site_geometry") is not None and not expected:
@@ -815,6 +817,7 @@ class Workbench(object):
             "started_at": time.time(), "check_config": check_config,
             "capture_speed": body.get("capture_speed"), "capture_lighting": body.get("capture_lighting"),
             "speed_profile": body.get("speed_profile"),
+            "landing_config": body.get("landing_config"),
             "motion_optimized": motion_optimized, "survey_pattern": body.get("survey_pattern"),
             "resume_survey": body.get("resume_survey"), "route": route, "note": note,
             "site_geometry": body.get("site_geometry"), "geometry_revision": body.get("geometry_revision"),

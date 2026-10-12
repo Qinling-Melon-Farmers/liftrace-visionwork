@@ -11,9 +11,14 @@ from mapping_startup import PoseAgreement,MapWarmup,VisionReadiness
 def main():
     p=argparse.ArgumentParser();p.add_argument('trial',choices=sorted(TRIAL_FOLDERS));p.add_argument('mode',choices=['preview','flight']);p.add_argument('--root',type=Path,required=True);p.add_argument('--model',type=Path);p.add_argument('--metadata',type=Path);p.add_argument('--check-config',action='store_true');p.add_argument('--site-config',type=Path);p.add_argument('--real-release',action='store_true');p.add_argument('--mapping-startup-config',type=Path);p.add_argument('--capture-speed',type=float,choices=(.5,1.,1.2));p.add_argument('--capture-lighting',choices=('normal','dim','unspecified'));p.add_argument('--motion-optimized',action='store_true');p.add_argument('--survey-pattern',choices=('rectangle','snake2','snake3'))
     p.add_argument('--resume-survey',choices=('on','off'),help='Override interrupted survey resume for priority/full mission; omit to inherit settings')
+    p.add_argument('--landing-alignment-mode',choices=('low','high'),help='H landing only: low keeps ten-frame capture; high aligns for 1s; descent policy is selected separately')
     p.add_argument('--speed-profile',choices=('limited','competition'),help='08 only: same measured field, explicit planning/following speeds')
     p.add_argument('--generate-config',type=Path,help='With --check-config: write configuration only, never start ROS')
     p.add_argument('--reference-fc',type=float,nargs=3,metavar=('X','Y','Z'),help='Stationary reference for offline generation')
+    p.add_argument('--landing-descent-mode',type=int,choices=(1,2,3,4),help='H descent: 1 XYZ, 2 frozen XY + Z ramp, 3 zero XY velocity + Z ramp, 4 OFFBOARD touchdown (requires OFFBOARD handoff)')
+    p.add_argument('--landing-descent-speed-mps',type=float,help='H descent profile speed; default 0.20m/s; mode 4 controller uses landing_offboard.descent_speed separately')
+    p.add_argument('--landing-handoff-mode',choices=('AUTO.LAND','POSCTL','OFFBOARD'),help='OFFBOARD must be paired with descent mode 4')
+    p.add_argument('--landing-config',type=Path,help='Optional small H candidate override YAML; preserves site geometry and defaults')
     a=p.parse_args()
     if a.generate_config and (not a.check_config or a.reference_fc is None):
         p.error('--generate-config requires --check-config and --reference-fc X Y Z')
@@ -35,6 +40,16 @@ def main():
         from trial_speed_profiles import apply_speed_profile
         try:apply_speed_profile(a.root,settings,a.trial,a.speed_profile)
         except ValueError as error:p.error(str(error))
+    if a.landing_config:
+        if settings['mode'] not in ('landing','high_view_full'):p.error('--landing-config only applies to visual H landing')
+        from uav_mission.landing_offboard_config import apply_landing_override
+        try:settings=apply_landing_override(settings,yaml.safe_load(a.landing_config.read_text()))
+        except ValueError as error:p.error(str(error))
+    if a.landing_handoff_mode is not None:settings['landing_handoff_mode']=a.landing_handoff_mode
+    if a.landing_descent_mode is not None:settings['landing_descent_mode']=a.landing_descent_mode
+    if a.landing_descent_speed_mps is not None:settings['landing_descent_speed_mps']=a.landing_descent_speed_mps
+    if a.landing_alignment_mode is not None:
+        settings['landing_alignment_mode']=a.landing_alignment_mode
     if a.capture_speed is not None or a.capture_lighting is not None:
         if a.trial!='high_speed_capture':p.error('Capture options are only valid for high_speed_capture')
         if a.capture_speed is not None:settings['cruise_speed']=a.capture_speed

@@ -176,7 +176,8 @@ def build_group_command(config, group, mode, route=None, real_release=None,
                         check_config=False, capture_speed=None, capture_lighting=None,
                         motion_optimized=False, survey_pattern=None, resume_survey=None,
                         site_geometry=None, geometry_revision=None,
-                        motion_optimization=None, obstacle_columns=None, competition_config=None, speed_profile=None):
+                        motion_optimization=None, obstacle_columns=None, competition_config=None, speed_profile=None,
+                        landing_config=None):
     """按现场手册拼出任务组启动命令。返回 (命令, 说明)。"""
     if mode not in ("preview", "flight"):
         raise ValueError("mode 必须是 preview 或 flight")
@@ -184,6 +185,15 @@ def build_group_command(config, group, mode, route=None, real_release=None,
     folder = group.get("folder", "")
     site_dir = config["connection"].get("site_dir", "deployment/site_20260928")
     route = route or group.get("channel", "module")
+    landing_extra = ''
+    if landing_config is not None:
+        if (not isinstance(landing_config, str) or not landing_config.strip()
+                or any(ch in landing_config for ch in '\r\n\x00')):
+            raise ValueError('invalid landing_config path')
+        if not (route == 'competition' and group.get('channel') == 'competition'
+                or route == 'module' and folder in ('03_h_landing', '04_corridor_landing', '08_full_mission')):
+            raise ValueError('landing_config only applies to H module or competition entries')
+        landing_extra = ' --landing-config ' + quote(landing_config.strip())
     if group.get("channel") == "competition":
         if not isinstance(motion_optimized, bool):
             raise ValueError("motion_optimized 必须是布尔值")
@@ -200,7 +210,7 @@ def build_group_command(config, group, mode, route=None, real_release=None,
         field = competition_config if competition_config is not None else group.get("site_config")
         if not isinstance(field, str) or not field.strip() or any(ch in field for ch in "\r\n\x00"):
             raise ValueError("请填写独立正赛场地配置路径")
-        extra = ""
+        extra = landing_extra
         for option, value in (("motion-optimization", motion_optimization), ("resume-survey", resume_survey), ("obstacle-columns", obstacle_columns)):
             if value is not None:
                 if value not in ("on", "off"):
@@ -237,7 +247,7 @@ def build_group_command(config, group, mode, route=None, real_release=None,
             raise ValueError("%s 必须是布尔值" % name)
     module_base = "deployment/board_trials_4x4/%s" % folder
 
-    extra = ""
+    extra = landing_extra
     if speed_profile is not None:
         if folder != "08_full_mission" or route != "module" or speed_profile not in ("limited", "competition"):
             raise ValueError("08速度版本只支持模块08的 limited/competition")
@@ -273,7 +283,8 @@ def build_group_command(config, group, mode, route=None, real_release=None,
         command, note = build_group_command(config, selected, mode, route=route,
             real_release=real_release, check_config=check_config, capture_speed=capture_speed,
             capture_lighting=capture_lighting, motion_optimized=motion_optimized,
-            survey_pattern=survey_pattern, resume_survey=resume_survey, speed_profile=speed_profile)
+            survey_pattern=survey_pattern, resume_survey=resume_survey, speed_profile=speed_profile,
+            landing_config=landing_config)
         return prepare + " && " + command, "先验证实测坐标并生成独立现场配置；" + note
 
     if check_config:
