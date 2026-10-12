@@ -156,6 +156,7 @@ public:
  } nh_;
  void loadReleaseHeights(){RELEASE_HEIGHT_PARAMETERS}
  double drop_red_cross_xy_tolerance_m_=.04;
+ double drop_pre_descent_xy_tolerance_m_=.06,drop_pre_descent_red_cross_xy_tolerance_m_=.04;
  void loadRedCrossXYTolerance(){RED_CROSS_PARAMETERS}
  double drop_height_threshold=.45,align_height=1;
  bool uav_drop_ready_=true,control_ready=true,permission_ready=true,should_drop=false;
@@ -210,7 +211,7 @@ public:
  bool motionTimePending() const;
  bool freshMotion(Eigen::Vector3d*,Eigen::Vector3d*,const char** =nullptr)const;
  bool setCompensatedDropTarget(geometry_msgs::PoseStamped*);
- double compensatedDropXYTolerance() const;
+ double compensatedDropXYTolerance(bool=true) const;
  bool compensatedDropTimeoutReady();
  bool compensatedDropSettled(bool,double* =nullptr,double* =nullptr,bool=true);
  double compensatedDropCommandHeight();
@@ -346,6 +347,34 @@ int main(int argc,char**argv){
    d.uav_drop_ready_=true;d.latest_drop_ready_time_=ros::Time(102);
    assert(d.freezeCompensatedDropTarget());close(d.compensatedDropCommandHeight(),1);
    assert(!d.drop_descent_started_);
+  }
+ }else if(name=="balanced_normal"){
+  serial_test=true;
+  for(const std::string cls:{"bridge","red_cross"}){
+   ros::clock_sec=100;LLController d;auto transport=std::make_shared<Transport>();
+   d.servo_client.impl=d.servo_action_client_.impl=transport;
+   d.servo_alignment_context_.semantic_target_class=cls;d.servo_alignment_target_class_=cls;
+   d.drop_settle_config_.xy_tolerance_m=.10;d.drop_red_cross_xy_tolerance_m_=.06;
+   d.drop_alignment_started_=d.drop_timeout_last_check_=ros::Time(100);
+   capture(d);const auto g=d.compensated_fc_goal_.pose.position;
+   const double loose=cls=="bridge"?.09:.05, tight=cls=="bridge"?.05:.03;
+   odom(d,101,g.x+loose,g.y,1);close(d.compensatedDropCommandHeight(),1);
+   assert(!d.drop_descent_started_); // Relaxed final gate must not relax initial compensation.
+   odom(d,101.01,g.x+tight,g.y,1,.25);close(d.compensatedDropCommandHeight(),.4);
+   assert(d.drop_descent_started_); // A single current sample, no speed/dwell wait.
+   odom(d,102,g.x+loose,g.y,.43,.25);assert(d.compensatedDropSettled(true));
+   assert(!d.compensatedDropTimeoutReady()); // Normal release before twenty seconds.
+   d.permission_ready=false;assert(d.executeDropAction(1)==DropActionResult::kRejected);
+   assert(transport->calls==0);d.permission_ready=true;
+   assert(d.executeDropAction(1)==DropActionResult::kPending);finish(d,transport);
+   assert(transport->calls==1);d.executeDropAction(1);assert(transport->calls==1);
+  }
+ }else if(name=="balanced_pre_parameters"){
+  for(const std::string key:{"drop_system/pre_descent/xy_tolerance_m","drop_system/pre_descent/red_cross_xy_tolerance_m"}){
+   for(double value:{0.,-.1,std::numeric_limits<double>::quiet_NaN()}){
+    LLController d;d.nh_.values[key]=value;bool threw=false;
+    try{d.loadDropSequenceConfig();}catch(const std::invalid_argument&){threw=true;}assert(threw);
+   }
   }
  }else if(name=="serial_config"){
   assert(c.drop_compensate_before_descent_);
@@ -598,11 +627,11 @@ int main(int argc,char**argv){
    capture(c);const auto g=c.compensated_fc_goal_.pose.position;
    CONFIGURED_DROP
    c.drop_release_window_=LandingHandoffStabilityWindow(c.drop_settle_config_);
-   close(c.drop_settle_config_.xy_tolerance_m,.06);
-   for(int i=0;i<3;++i){odom(c,101+i*.15625,g.x+.061,g.y,.35,.07);
+   close(c.drop_settle_config_.xy_tolerance_m,.10);
+   for(int i=0;i<3;++i){odom(c,101+i*.15625,g.x+.101,g.y,.35,.07);
     assert(c.executeDropAction(1)==DropActionResult::kPending&&!c.servo_action_attempted_&&t->calls==0);}
    // A single current sample is enough after the original visual capture.
-   odom(c,103,g.x+.055,g.y,.35,.20);
+   odom(c,103,g.x+.095,g.y,.35,.20);
    assert(c.executeDropAction(1)==DropActionResult::kPending&&c.servo_action_attempted_);
    finish(c,t);assert(c.executeDropAction(1)==DropActionResult::kSuccess&&t->calls==1);
   }else if(name=="height_config_compat"){
@@ -631,9 +660,9 @@ int main(int argc,char**argv){
    CONFIGURED_DROP
    odom(c,101,g.x,g.y,.40,.08);
    assert(c.compensatedDropSettled(true));
-   odom(c,101.01,g.x+.059,g.y,.40);
+   odom(c,101.01,g.x+.099,g.y,.40);
    assert(c.compensatedDropSettled(true));
-   odom(c,101.02,g.x+.061,g.y,.40);
+   odom(c,101.02,g.x+.101,g.y,.40);
    assert(!c.compensatedDropSettled(true));
    // Equality must not pass; use the measured error as the exact threshold.
    double measured=0;
@@ -933,6 +962,8 @@ class CompensatedDropGeometryTests(unittest.TestCase):
     def test_invalid_context_cancel_expired_motion_and_control_block_descent_entry(self): self.run_case('serial_invalid')
     def test_cancel_after_descent_uses_existing_hold_guard_and_never_releases(self): self.run_case('serial_cancel_after_descent')
     def test_new_action_resets_descent_phase_via_both_existing_reset_paths(self): self.run_case('serial_reset')
+    def test_balanced_normal_release_before_timeout_without_weakening_pre_compensation(self): self.run_case('balanced_normal')
+    def test_pre_descent_parameters_reject_invalid(self): self.run_case('balanced_pre_parameters')
     def test_serial_default_and_explicit_compatibility_parameter(self): self.run_case('serial_config')
     def test_serial_entry_checks_actual_outlet_and_later_stale_motion_does_not_climb(self): self.run_case('serial_outlet')
     def test_bound_standard_red_cross_and_unknown_class_thresholds(self): self.run_case('class_thresholds')
@@ -958,7 +989,7 @@ class CompensatedDropGeometryTests(unittest.TestCase):
     def test_both_legacy_outer_gates_keep_original_distance_and_completed_guard(self): self.run_case('outer_legacy')
     def test_duplicate_stale_future_visual_frames_cannot_retarget(self): self.run_case('vision_replay')
     def test_six_cm_error_blocks_real_rpc_submission(self): self.run_case('xy')
-    def test_configured_six_cm_releases_immediately_without_speed_gate(self): self.run_case('configured_settle')
+    def test_configured_ten_cm_releases_immediately_without_speed_gate(self): self.run_case('configured_settle')
     def test_closed_height_band_accepts_035_040_045_and_rejects_outside(self): self.run_case('height_band')
     def test_release_floor_parameter_defaults_to_setpoint_for_legacy_config(self): self.run_case('height_config_compat')
     def test_current_xy_and_control_gate_with_speed_diagnostics_only(self): self.run_case('current_limits')
