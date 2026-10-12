@@ -145,6 +145,7 @@ private:
                      const char** rejection = nullptr) const;
     bool setCompensatedDropTarget(geometry_msgs::PoseStamped* target);
     double compensatedDropXYTolerance() const;
+    bool compensatedDropTimeoutReady();
     bool compensatedDropSettled(bool release, double* error = nullptr,
                                 double* speed = nullptr, bool require_release_height = true);
     double compensatedDropCommandHeight();
@@ -179,6 +180,11 @@ private:
     bool servo_action_pending_ = false;
     DropActionResult servo_action_result_ = DropActionResult::kPending;
     double servo_call_timeout_sec_ = 10.0;
+    // 同一次ALIGN的末段兜底；不替代捕获、补偿、下降和原有许可。
+    bool drop_release_timeout_enabled_ = true;
+    double drop_release_timeout_sec_ = 20.0;
+    ros::Time drop_alignment_started_, drop_timeout_last_check_;
+    bool drop_timeout_clock_invalid_ = false;
     std::uint32_t servo_alignment_decision_seq_ = 0;
     std::uint32_t servo_alignment_target_id_ = 0;
     std::string servo_alignment_target_class_;

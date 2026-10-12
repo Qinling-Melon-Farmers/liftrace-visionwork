@@ -135,6 +135,15 @@ struct Publisher { int calls=0; void publish(const Pose&) { ++calls; } };
 namespace patrol_control {
 class LLController {
 public:
+    // H mode4 is outside this async drop fixture; keep its transport branch inactive.
+    struct { int mode=1; } landing_descent_config_;
+    bool externalLandingOffboardStateReady(ros::Time) const { return false; }
+    bool externalLandingOffboardDescentReady() const { return false; }
+    void externalLandingOffboardTick() {}
+    void publishExternalLandingOffboardSetpoint() {}
+    bool vertical_landing=false;
+    std::string external_landing_frame_="camera_init";
+    Publisher landing_vertical_cmd_pub_;
     bool compensated_alignment_enabled_=true, geometry_ready=true;
     // Async-only fixture uses explicit simultaneous compatibility mode.
     bool drop_compensate_before_descent_=false, drop_descent_started_=false;

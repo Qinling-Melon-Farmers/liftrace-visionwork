@@ -184,6 +184,10 @@ public:
  AsyncServo async_servo_; std::uint64_t servo_action_id_=1;
  int servo_action_slot_=0; bool servo_action_attempted_=false,servo_action_pending_=false;
  DropActionResult servo_action_result_=DropActionResult::kPending;
+ bool drop_release_timeout_enabled_=true;
+ double drop_release_timeout_sec_=20;
+ ros::Time drop_alignment_started_, drop_timeout_last_check_;
+ bool drop_timeout_clock_invalid_=false;
  double servo_call_timeout_sec_=10; struct {bool data=false;}servo_complete;
  bool drop_complete=false; int detect_point_counter=0; std::vector<bool>drop_completed{false,false,false};
  struct {std::string permission_epoch="epoch";std::uint64_t permission_revision=1;}release_authorization_;
@@ -207,6 +211,7 @@ public:
  bool freshMotion(Eigen::Vector3d*,Eigen::Vector3d*,const char** =nullptr)const;
  bool setCompensatedDropTarget(geometry_msgs::PoseStamped*);
  double compensatedDropXYTolerance() const;
+ bool compensatedDropTimeoutReady();
  bool compensatedDropSettled(bool,double* =nullptr,double* =nullptr,bool=true);
  double compensatedDropCommandHeight();
  bool freezeCompensatedDropTarget();
@@ -263,7 +268,7 @@ void finish(LLController&c,const std::shared_ptr<Transport>&t){
 }
 int main(int argc,char**argv){
  assert(argc==2);const std::string name=argv[1];ros::clock_sec=100;
- serial_test=name.find("serial_")==0;
+ serial_test=name.find("serial_")==0 || name.find("timeout_")==0;
  LLController c;if(!serial_test)c.drop_compensate_before_descent_=false;
  auto t=std::make_shared<Transport>();c.servo_client.impl=c.servo_action_client_.impl=t;
  if(name=="serial_sequence"){
@@ -785,6 +790,51 @@ int main(int argc,char**argv){
   auto m=std::make_shared<nav_msgs::Odometry>(c.motion_odom_);m->header.stamp=ros::Time(100.1);
   m->twist.twist.linear.x=std::numeric_limits<double>::quiet_NaN();ros::clock_sec=100.1;
   c.motionOdomCallback(m);assert(!c.motion_odom_valid_&&!c.freezeCompensatedDropTarget());
+ }else if(name=="timeout_circle" || name=="timeout_cross"){
+  const bool cross=name=="timeout_cross";
+  c.current_align_mode_=cross?"drop_cross":"drop_circle";
+  c.servo_alignment_context_.align_mode=c.current_align_mode_;
+  c.servo_alignment_context_.semantic_target_class=cross?"red_cross":"panzer";
+  c.servo_alignment_target_class_=c.servo_alignment_context_.semantic_target_class;
+  c.drop_alignment_started_=c.drop_timeout_last_check_=ros::Time(100);
+  odom(c,100,2,3,1);auto p=center(100);assert(c.setCompensatedDropTarget(&p));
+  assert(c.freezeCompensatedDropTarget());const auto g=c.compensated_fc_goal_.pose.position;
+  odom(c,120,g.x+.08,g.y,1);
+  // Twenty seconds never skips the serial compensation step, even after freeze.
+  close(c.compensatedDropCommandHeight(),1);assert(!c.drop_descent_started_);
+  assert(!c.compensatedDropSettled(true));
+  odom(c,120.01,g.x,g.y,1);close(c.compensatedDropCommandHeight(),.4);
+  assert(c.drop_descent_started_);
+  odom(c,120.02,g.x+.08,g.y,.46);assert(!c.compensatedDropSettled(true));
+  odom(c,120.03,g.x+.08,g.y,.34);assert(!c.compensatedDropSettled(true));
+  odom(c,120.04,g.x+.08,g.y,.40);
+  c.drop_release_timeout_enabled_=false;assert(!c.compensatedDropSettled(true));
+  c.drop_release_timeout_enabled_=true;
+  c.permission_ready=false;assert(!c.compensatedDropSettled(true));
+  c.permission_ready=true;c.control_ready=false;assert(!c.compensatedDropSettled(true));
+  c.control_ready=true;assert(c.compensatedDropSettled(true));
+  // Cancellation/context mismatch and stale feedback still reject the fallback.
+  c.servo_alignment_context_.active=false;assert(!c.compensatedDropSettled(true));
+  c.servo_alignment_context_.active=true;c.servo_alignment_context_.attempt++;
+  assert(!c.compensatedDropSettled(true));c.servo_alignment_context_.attempt--;
+  ros::clock_sec=122;assert(!c.compensatedDropSettled(true));
+  odom(c,122,g.x+.08,g.y,.40);assert(c.compensatedDropSettled(true));
+  // A clock rewind disables timeout for this action, not just until clock catches up.
+  odom(c,121,g.x+.08,g.y,.40);assert(!c.compensatedDropTimeoutReady());
+  odom(c,123,g.x+.08,g.y,.40);assert(!c.compensatedDropSettled(true));
+  c.resetDropState();assert(c.drop_alignment_started_.isZero()&&!c.drop_timeout_clock_invalid_);
+ }else if(name=="timeout_once"){
+  c.drop_alignment_started_=c.drop_timeout_last_check_=ros::Time(100);
+  odom(c,100,2,3,1);auto p=center(100);assert(c.setCompensatedDropTarget(&p));
+  assert(c.freezeCompensatedDropTarget());const auto g=c.compensated_fc_goal_.pose.position;
+  odom(c,101,g.x,g.y,1);close(c.compensatedDropCommandHeight(),.4);
+  odom(c,119.99,g.x+.08,g.y,.4);assert(!c.compensatedDropSettled(true));
+  odom(c,120,g.x+.08,g.y,.4);assert(c.compensatedDropSettled(true));
+  assert(c.executeDropAction(1)==DropActionResult::kPending&&c.servo_action_attempted_);
+  for(int i=0;i<20;++i)c.executeDropAction(1);
+  finish(c,t);
+  assert(t->calls==1&&c.drop_complete&&c.servo_complete.data);
+  assert(c.executeDropAction(1)==DropActionResult::kSuccess&&t->calls==1);
  }else assert(false);
 }
 '''
@@ -801,6 +851,7 @@ class CompensatedDropGeometryTests(unittest.TestCase):
             'bool LLController::freshMotion(',
             'bool LLController::setCompensatedDropTarget(',
             'double LLController::compensatedDropXYTolerance(',
+            'bool LLController::compensatedDropTimeoutReady(',
             'bool LLController::compensatedDropSettled(',
             'double LLController::compensatedDropCommandHeight(',
             'bool LLController::freezeCompensatedDropTarget(',
@@ -872,6 +923,10 @@ class CompensatedDropGeometryTests(unittest.TestCase):
     def run_case(self, name):
         result = subprocess.run([str(self.binary), name], capture_output=True, text=True, timeout=5)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_timeout_circle_preserves_capture_descent_height_and_permission(self): self.run_case('timeout_circle')
+    def test_timeout_cross_preserves_capture_descent_height_and_permission(self): self.run_case('timeout_cross')
+    def test_timeout_admits_one_async_call_only_at_twenty_seconds(self): self.run_case('timeout_once')
 
     def test_serial_circle_and_cross_hold_then_descend_once_without_visual_or_speed_wait(self): self.run_case('serial_sequence')
     def test_serial_service_requires_descent_entry_even_if_initial_height_is_in_window(self): self.run_case('serial_admission')
