@@ -29,9 +29,9 @@ class CaptureTests(unittest.TestCase):
                 ref=generate(ROOT,path,s,(.01,-.01,0.),rig)
                 rt=yaml.safe_load((Path(path)/'runtime.yaml').read_text());ctrl=yaml.safe_load((Path(path)/'control.yaml').read_text());ov=yaml.safe_load((Path(path)/'overrides.yaml').read_text())
                 self.assertFalse(ctrl['drop_system']['enable_drop']);self.assertEqual(rt['trial']['actuator_mode'],'none')
-                self.assertEqual(rt['following_speed_profile']['cruise_lead_m'],min(speed,1.))
-                self.assertEqual(rt['following_speed_profile']['precision_lead_m'],.4)
-                self.assertEqual(rt['following_speed_profile']['corridor_lead_m'],.15)
+                self.assertEqual(rt['following_speed_profile']['cruise_lead_m'],1.)
+                self.assertEqual(rt['following_speed_profile']['precision_lead_m'],.6)
+                self.assertEqual(rt['following_speed_profile']['corridor_lead_m'],.6)
                 self.assertGreater(ov['/external_planner_start_max_distance'],speed)
                 self.assertAlmostEqual(ov['/external_planner_max_command_z']-ref['ground_z'],2.)
                 points=rt['high_view_probe']['config']['survey_xy']

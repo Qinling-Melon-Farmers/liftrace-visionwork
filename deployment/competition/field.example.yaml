@@ -102,7 +102,7 @@ map_size:
 corridor_waypoints: []
 # 必填：现场实测 H 中心 [x,y]；不是起飞点、门中心或占位默认值。
 landing_xy: null
-# 走廊前视单位 m，不是速度 m/s；快档0.6、门前/下降/近H慢档0.4。
+# 走廊规划前视单位 m；开阔段、门前、下降与近H导航统一0.6。
 # 墙平面 Y=±1.6m 沿用既有设计名义值，非现场测量；必须复测/改写后确认场地。
 corridor_speed_schedule:
   axis: 1
@@ -112,14 +112,16 @@ corridor_speed_schedule:
   enter_distance_m: 0.75
   exit_distance_m: 0.95
   open_lead_m: 0.6
-  door_lead_m: 0.4
+  door_lead_m: 0.6
   landing_radius_m: 0.8
-# 跟随前视距离 m：巡航1.0、精密0.4；走廊兜底及LAND/HOLD/ABORT共用慢档0.4。
-# 走廊快慢切换由上方调度生成；不改变规划速度上限1.2m/s或加速度1.0m/s²。
+# 规划跟随前视距离 m：巡航1.0，其余导航档0.6；H/投递直接控制另用原参数。
+# 不改变规划速度上限1.2m/s或加速度1.0m/s²。
 following_speed_profile:
   cruise_lead_m: 1.0
-  precision_lead_m: 0.4
-  corridor_lead_m: 0.4
+  precision_lead_m: 0.6
+  boundary_lead_m: 0.6
+  low_coverage_lead_m: 0.6
+  corridor_lead_m: 0.6
   corridor_after_waypoints: 1
 # 正式导航故障恢复保持关闭；运动优化内的投后爬升交接不受此开关替代。
 navigation_recovery:

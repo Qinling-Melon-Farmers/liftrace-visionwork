@@ -54,11 +54,11 @@ class CompetitionLaunchParameters(unittest.TestCase):
     def test_flight_uses_generated_limit_and_preserves_speed_parameters(self):
         values = self.application(True)
         control = yaml.safe_load((self.out / "control.yaml").read_text())
-        self.assertEqual(control["px4_max_distance"], .4)
+        self.assertEqual(control["px4_max_distance"], .6)
         self.assertEqual(control['takeoff_z_lead_m'], 0.)
         self.assertEqual(values['/takeoff_z_lead_m'], 0.)
         self.assertEqual(values["/px4_max_distance"], control["px4_max_distance"])
-        self.assertEqual(values["/traj_server/traj_server/target_dist"], .4)
+        self.assertEqual(values["/traj_server/traj_server/target_dist"], .6)
         self.assertEqual(values["/external_planner_start_max_distance"], 1.2)
         for namespace, velocity, acceleration in (
                 ("manager", "max_vel", "max_acc"),
@@ -96,7 +96,7 @@ class CompetitionLaunchParameters(unittest.TestCase):
     def test_preview_keeps_control_limit_absent(self):
         values = self.application(False)
         self.assertNotIn("/px4_max_distance", values)
-        self.assertEqual(values["/traj_server/traj_server/target_dist"], .4)
+        self.assertEqual(values["/traj_server/traj_server/target_dist"], .6)
 
     def test_generated_drop_settlement_reaches_final_launch_without_changing_h(self):
         values = self.application(True)

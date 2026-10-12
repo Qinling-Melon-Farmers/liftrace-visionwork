@@ -73,20 +73,17 @@ def main():
     try:validate_settings(settings)
     except ValueError as error:p.error(str(error))
     if a.check_config:
-        following=dict(settings.get('following_speed_profile') or
-            (dict(cruise_lead_m=min(settings['cruise_speed'],1.),precision_lead_m=.4,corridor_lead_m=.15)
-             if settings['mode']=='high_speed_capture' else dict(cruise_lead_m=.5,precision_lead_m=.25,boundary_lead_m=.2,corridor_lead_m=.25)))
-        if settings.get('trial_kind') in ('corridor_landing','full_mission'):
-            following.update(precision_lead_m=max(.4,following['precision_lead_m']),corridor_lead_m=.4)
+        from uav_mission.navigation_following_config import navigation_following_profile
+        following=navigation_following_profile(settings.get('following_speed_profile'))
         result=dict(status='CONFIG_VALID',source='validated_settings',
             motion_optimization=settings.get('motion_optimization',{}).get('enabled',False),
             resume_survey=settings.get('resume_survey_enabled',False),
             generation_ready=True, speed_profile=settings.get('speed_profile','limited'),
             planning=dict(max_vel=settings['cruise_speed'],max_acc=settings['cruise_acceleration']),
-            initial_distances=(dict(controller_limit_m=.4,traj_target_dist_m=.4,planner_start_max_distance_m=1.2)
-                if settings.get('speed_profile')=='competition' else dict(controller_limit_m=.25,traj_target_dist_m=.25,planner_start_max_distance_m=(max(.75,min(settings['cruise_speed'],1.)+.25) if settings['mode']=='high_speed_capture' else .75))),
+            initial_distances=(dict(controller_limit_m=.6,traj_target_dist_m=.6,planner_start_max_distance_m=1.2)
+                if settings.get('speed_profile')=='competition' else dict(controller_limit_m=.6,traj_target_dist_m=.6,planner_start_max_distance_m=(max(.75,min(settings['cruise_speed'],1.)+.25) if settings['mode']=='high_speed_capture' else .75))),
             following=following,
-            corridor=dict(open_lead_m=.6,door_lead_m=.4) if settings.get('corridor_geometry') else None,
+            corridor=dict(open_lead_m=.6,door_lead_m=.6) if settings.get('corridor_geometry') else None,
             drop_agl=settings['drop_agl'],high_agl=settings['high_agl'],
             landing_capture_agl=settings['landing_capture_agl'],
             landing_posctl=settings.get('landing_posctl'), settings=settings)
