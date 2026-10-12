@@ -2136,6 +2136,10 @@ void LLController::load_params() {
     // config fields remain load-compatible, but do not gate compensated drop.
     load_stability("drop_system/settle", &drop_settle_config_);
     drop_compensate_before_descent_ = nh_.param("drop_system/compensate_before_descent", true);
+    drop_release_timeout_enabled_ = nh_.param("drop_system/release_timeout/enabled", true);
+    drop_release_timeout_sec_ = nh_.param("drop_system/release_timeout/after_sec", 20.0);
+    if (!std::isfinite(drop_release_timeout_sec_) || drop_release_timeout_sec_ <= 0.0)
+        throw std::invalid_argument("drop release timeout must be finite and positive");
     drop_red_cross_xy_tolerance_m_ = nh_.param(
         "drop_system/settle/red_cross_xy_tolerance_m", 0.04);
     if (!std::isfinite(drop_red_cross_xy_tolerance_m_) || drop_red_cross_xy_tolerance_m_ <= 0.0)
@@ -3689,6 +3693,9 @@ void LLController::missionCommandCallback(
             servo_alignment_target_id_ = msg->target_id;
             servo_alignment_target_class_ = msg->target_class;
             servo_alignment_stamp_ = msg->header.stamp;
+            // 重复ALIGN在上方返回，不让心跳重置20秒计时。
+            drop_alignment_started_ = drop_timeout_last_check_ = ros::Time::now();
+            drop_timeout_clock_invalid_ = false;
             // Recovery changes the working height; every new target starts
             // from the configured capture height, including the second/third.
             align_height = external_alignment_capture_height_;
@@ -3988,8 +3995,22 @@ double LLController::compensatedDropXYTolerance() const {
     return std::min(0.04, drop_red_cross_xy_tolerance_m_);
 }
 
+bool LLController::compensatedDropTimeoutReady() {
+    const ros::Time now = ros::Time::now();
+    if (!std::isfinite(now.toSec()) || (!drop_alignment_started_.isZero() &&
+        (now - drop_timeout_last_check_).toSec() < 0.0)) drop_timeout_clock_invalid_ = true;
+    drop_timeout_last_check_ = now;
+    return drop_release_timeout_enabled_ && !drop_alignment_started_.isZero() &&
+        !drop_timeout_clock_invalid_ &&
+        (now - drop_alignment_started_).toSec() >= drop_release_timeout_sec_ &&
+        external_mission_mode_ && compensated_alignment_enabled_ &&
+        compensated_goal_frozen_ && drop_descent_started_ &&
+        hasFreshMissionReleasePermission();
+}
+
 bool LLController::compensatedDropSettled(bool release, double* error, double* speed,
                                       bool require_release_height) {
+    const bool timeout_ready = compensatedDropTimeoutReady();
     auto& window = release ? drop_release_window_ : drop_capture_window_;
     const auto& c = servo_alignment_context_;
     const auto& b = compensated_context_;
@@ -4032,8 +4053,10 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
     // or another duration/sample-count window.
     if (!release) return externalLandingControlReady(ros::Time::now());
     const double xy_tolerance = compensatedDropXYTolerance();
+    // 只放宽最终精细水平误差；高位串行补偿仍须先真实到位。
+    const bool timeout_release = require_release_height && timeout_ready;
     const bool ready = std::isfinite(xy_error) && std::isfinite(horizontal_speed) &&
-        std::isfinite(pos.z) && xy_error < xy_tolerance &&
+        std::isfinite(pos.z) && (xy_error < xy_tolerance || timeout_release) &&
         (!require_release_height ||
          (pos.z >= drop_release_min_height_ && pos.z <= drop_height_threshold)) &&
         externalLandingControlReady(ros::Time::now());
@@ -4042,6 +4065,11 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
         "xy_tolerance=%.3f class=%s",
         xy_error,horizontal_speed,velocity.z(),pos.z,drop_release_min_height_,drop_height_threshold,
         xy_tolerance,b.semantic_target_class.c_str());
+    else if (require_release_height && timeout_release && xy_error >= xy_tolerance)
+        ROS_WARN_THROTTLE(1.0, "[DropTimeout] compensated_low_release slot=%u decision=%u "
+            "align_elapsed=%.3f xy=%.4f fc_z=%.4f; original permission and height remain required",
+            c.payload_slot, c.decision_seq, (ros::Time::now()-drop_alignment_started_).toSec(),
+            xy_error,pos.z);
     else if (require_release_height) ROS_INFO(
         "[DropGeometry] release_ready slot=%u decision=%u fc_xy_error=%.4f outlet_xy_error=%.4f "
         "horizontal_speed=%.4f vz=%.4f fc_z=%.4f floor_z=%.4f ceiling_z=%.4f odom=%.6f "
@@ -4208,6 +4236,7 @@ void LLController::servoAlignmentContextCallback(
             msg->semantic_target_first_seen == servo_alignment_context_.semantic_target_first_seen &&
             msg->semantic_target_class == servo_alignment_context_.semantic_target_class) {
             have_servo_alignment_context_ = false;
+            drop_alignment_started_ = ros::Time();
             // Revocation blocks future submissions. The proxy owns the raw-call
             // fence; do not discard an already queued RPC's terminal result.
             // In particular ReleaseResult may precede the matching RPC reply.
@@ -4378,6 +4407,8 @@ void LLController::stopDropAction(int servo_id) {
 }
 
 void LLController::resetDropState() {
+    drop_alignment_started_ = drop_timeout_last_check_ = ros::Time();
+    drop_timeout_clock_invalid_ = false;
     compensated_target_outside_boundary_ = false;
     compensated_goal_valid_ = compensated_goal_frozen_ = false;
     drop_descent_started_ = false;
@@ -4651,6 +4682,8 @@ void LLController::resetCrossDetectionState() {
 }
 
 void LLController::resetDetectionState() {
+    drop_alignment_started_ = drop_timeout_last_check_ = ros::Time();
+    drop_timeout_clock_invalid_ = false;
     compensated_target_outside_boundary_ = false;
     compensated_goal_valid_ = compensated_goal_frozen_ = false;
     drop_descent_started_ = false;

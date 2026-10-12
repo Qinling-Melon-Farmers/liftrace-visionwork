@@ -135,6 +135,15 @@ struct Publisher { int calls=0; void publish(const Pose&) { ++calls; } };
 namespace patrol_control {
 class LLController {
 public:
+    // H mode4 is outside this async drop fixture; keep its transport branch inactive.
+    struct { int mode=1; } landing_descent_config_;
+    bool externalLandingOffboardStateReady(ros::Time) const { return false; }
+    bool externalLandingOffboardDescentReady() const { return false; }
+    void externalLandingOffboardTick() {}
+    void publishExternalLandingOffboardSetpoint() {}
+    bool vertical_landing=false;
+    std::string external_landing_frame_="camera_init";
+    Publisher landing_vertical_cmd_pub_;
     bool compensated_alignment_enabled_=true, geometry_ready=true;
     // Async-only fixture uses explicit simultaneous compatibility mode.
     bool drop_compensate_before_descent_=false, drop_descent_started_=false;
@@ -150,6 +159,7 @@ public:
     ros::ServiceClient servo_client, servo_action_client_;
     uav_vision::AlignmentTargetContext servo_alignment_context_;
     bool have_servo_alignment_context_=true;
+    ros::Time drop_alignment_started_;
     struct { std::string permission_epoch="test"; std::uint64_t permission_revision=18; } release_authorization_;
     bool permission_ready=true;
     bool hasFreshMissionReleasePermission() const { return permission_ready; }
