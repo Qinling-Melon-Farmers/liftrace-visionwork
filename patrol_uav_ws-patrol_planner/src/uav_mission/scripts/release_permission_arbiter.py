@@ -5,6 +5,7 @@ The vision node publishes ReleaseEvidence.  This arbiter adds mission mode,
 vehicle pose, payload sequencing and replay checks, then publishes a short
 lived ReleasePermission.  It never calls an actuator.
 """
+import math
 import os
 import sys
 import threading
@@ -386,6 +387,12 @@ class ReleasePermissionArbiter:
         pose_age = self._stamp_age(now, self._pose.header.stamp)
         if pose_age > self._pose_timeout:
             return False, "stale_vehicle_pose", None
+
+        p = self._pose.pose.position
+        if (not all(math.isfinite(v) for v in (p.x, p.y, p.z)) or
+                (now - self._pose.header.stamp).to_sec() < 0 or
+                (now - self._control_state_stamp).to_sec() < 0):
+            return False, "invalid_vehicle_feedback", None
 
         current_valid, current_reason, source = \
             self._current_evidence_source(now)

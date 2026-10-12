@@ -65,6 +65,11 @@ motion_feedback:
   odom_topic: /mavros/local_position/odom
   twist_frame: child
 drop_system:
+  # 从进入 ALIGN 起计时；仅对已冻结、已下降且当前原高度窗口和原许可成立的事务，
+  # 满20秒后解除精细XY等待；高度窗口、其他门槛及H控制保持原参数。
+  release_timeout:
+    enabled: true
+    after_sec: 20.0
   compensate_before_descent: true  # 冻结后先高位补偿，XY到位后单向下降
   # 可靠视觉确认后冻结补偿目标；最终释放核对当前FC和投口位置。
   slot_offset_semantics: body_flu_lever_arm

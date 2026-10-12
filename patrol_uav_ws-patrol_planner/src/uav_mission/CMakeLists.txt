@@ -300,3 +300,5 @@ endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+catkin_add_nosetests(test/test_drop_timeout.py)
