@@ -4236,6 +4236,7 @@ void LLController::servoAlignmentContextCallback(
             msg->semantic_target_first_seen == servo_alignment_context_.semantic_target_first_seen &&
             msg->semantic_target_class == servo_alignment_context_.semantic_target_class) {
             have_servo_alignment_context_ = false;
+            drop_alignment_started_ = ros::Time();
             // Revocation blocks future submissions. The proxy owns the raw-call
             // fence; do not discard an already queued RPC's terminal result.
             // In particular ReleaseResult may precede the matching RPC reply.

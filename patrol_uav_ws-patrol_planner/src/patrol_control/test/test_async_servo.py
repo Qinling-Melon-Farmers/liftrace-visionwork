@@ -159,6 +159,7 @@ public:
     ros::ServiceClient servo_client, servo_action_client_;
     uav_vision::AlignmentTargetContext servo_alignment_context_;
     bool have_servo_alignment_context_=true;
+    ros::Time drop_alignment_started_;
     struct { std::string permission_epoch="test"; std::uint64_t permission_revision=18; } release_authorization_;
     bool permission_ready=true;
     bool hasFreshMissionReleasePermission() const { return permission_ready; }
