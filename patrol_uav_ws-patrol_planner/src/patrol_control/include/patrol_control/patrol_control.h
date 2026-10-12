@@ -9,6 +9,12 @@
 #include "patrol_control/near_wall_align.h"
 #include "patrol_control/drop_slot_geometry.h"
 #include "patrol_control/landing_handoff_stability.h"
+#include "patrol_control/landing_high_alignment.h"
+#include "patrol_control/drop_descent_profile.h"
+#include "patrol_control/offboard_landing.h"
+#include "patrol_control/async_landing_disarm.h"
+#include <mavros_msgs/ExtendedState.h>
+#include <mavros_msgs/PositionTarget.h>
 #include <nav_msgs/Odometry.h>
 #include <uav_vision/DropAlignmentFeedback.h>
 
@@ -189,6 +195,23 @@ private:
     ros::Subscriber mission_command_sub_;
     ros::Subscriber landing_detections_sub_;
     ros::Subscriber external_landing_state_sub_;
+    ros::Subscriber external_landing_extended_state_sub_;
+    ros::ServiceClient external_landing_disarm_client_;
+    AsyncLandingDisarm external_landing_disarm_worker_;
+    OffboardLandingConfig offboard_landing_config_;
+    OffboardGroundConfirmation offboard_ground_confirmation_;
+    std::string external_landing_extended_state_topic_ = "/mavros/extended_state";
+    std::string external_landing_disarm_service_ = "/mavros/cmd/arming";
+    ros::Time external_landing_last_disarm_attempt_;
+    ros::Time external_landing_disarmed_pending_at_;
+    ros::Publisher external_landing_offboard_setpoint_pub_;
+    std::string external_landing_offboard_setpoint_topic_ = "/navigation/landing_setpoint_touchdown";
+    bool external_landing_offboard_floor_reached_ = false;
+    bool externalLandingOffboardDescentReady();
+    void publishExternalLandingOffboardSetpoint();
+    bool externalLandingOffboardStateReady(const ros::Time& now) const;
+    void externalLandingOffboardTick();
+    void externalLandingExtendedStateCallback(const mavros_msgs::ExtendedState::ConstPtr& msg);
     // 舵机控制发布器
     ros::Publisher servo1_pub_;
     ros::Publisher servo2_pub_;
@@ -284,6 +307,13 @@ private:
     ros::Time height_replan_stamp_;
     double external_planner_max_command_z_ = 3.5;
     std::string external_landing_frame_ = "camera_init";
+    std::string external_landing_alignment_mode_ = "low";
+    LandingHighAlignmentWindow landing_high_alignment_window_;
+    ros::Publisher landing_vertical_cmd_pub_;
+    // Reuse only the mathematical ramp; H has its own config and transaction.
+    DropDescentConfig landing_descent_config_;
+    DropDescentProfile landing_descent_profile_;
+    bool highLandingAlignmentReady();
     double external_landing_capture_height_ = 0.75;
     double external_landing_watchdog_timeout_sec_ = 120.0;
     double external_landing_mark_max_age_sec_ = 0.5;

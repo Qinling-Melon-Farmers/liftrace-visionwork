@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import threading
 from unittest.mock import Mock, patch
 import numpy as np
 import rospy
@@ -19,6 +20,8 @@ class FrameTests(unittest.TestCase):
         self.node = adapter.FrameAdapter.__new__(adapter.FrameAdapter)
         self.node.max_age, self.node.future, self.node.wait = .3, .05, .08
         self.node.buffer = Mock()
+        self.node.command_lock = threading.Lock()
+        self.node.last_command_stamp = rospy.Time(0)
         self.tf = TransformStamped()
         self.tf.header.stamp = rospy.Time(10)
         self.tf.transform.translation.x = 3
@@ -87,6 +90,27 @@ class FrameTests(unittest.TestCase):
     def test_reject_invalid_orientation(self):
         self.msg.pose.orientation.w = 0; self.call()
         self.pub.publish.assert_not_called()
+
+    def test_vertical_command_converts_z_and_yaw_with_zero_xy_velocity(self):
+        self.tf.transform.translation.z = -.22
+        self.msg.pose.position.z = .35
+        with patch.object(rospy.Time, 'now', return_value=rospy.Time(10)), patch.object(rospy, 'logwarn_throttle'):
+            self.node.callback(self.msg, ('map', 'camera_init', self.pub, 'landing_vertical'))
+        out = self.pub.publish.call_args[0][0]
+        self.assertEqual(out.header.frame_id, 'camera_init')
+        self.assertEqual(out.header.stamp, self.msg.header.stamp)
+        self.assertAlmostEqual(out.position.z, .13)
+        self.assertAlmostEqual(out.yaw, np.pi/2)
+        self.assertEqual(out.type_mask, 2531)
+        self.assertEqual(out.velocity.x, 0.)
+        self.assertEqual(out.velocity.y, 0.)
+
+    def test_vertical_command_rejects_tilted_frame(self):
+        self.tf.transform.rotation.x = .05
+        with patch.object(rospy.Time, 'now', return_value=rospy.Time(10)), patch.object(rospy, 'logwarn_throttle'):
+            self.node.callback(self.msg, ('map', 'camera_init', self.pub, 'landing_vertical'))
+        self.pub.publish.assert_not_called()
+        self.assertEqual(self.node.last_command_stamp, rospy.Time(0))
 
 
 if __name__ == '__main__':

@@ -86,12 +86,15 @@ geometry_msgs::PoseStamped planner_cmd,external_planner_height_hold_,waypoint_ma
 ros::Time latest_planner_cmd_time_,height_replan_stamp_;
 Publisher height_replan_pub_;
 Flag detect_enable_msg_temp;int detect_control_pub_=0,landing_detect_control_pub_=0;
-Publisher mavros_point_cmd_pub;
+Publisher mavros_point_cmd_pub,landing_vertical_cmd_pub_;
+std::string external_landing_frame_="camera_init";
 static Eigen::Vector3f toEigen(const geometry_msgs::Point&p){return {float(p.x),float(p.y),float(p.z)};}
 void NextPoint(){}void patrol(){}void publishControlReady(bool v){ready=v;}
 void publishLegacyVisionControl(int,Flag){}void cancelDropAction(){}
 void clearExternalLandingState(bool){}void resetDetectionState(){}
 void clearUavVisionAlignmentState(){}
+bool externalLandingOffboardDescentReady()const{return false;}
+void publishExternalLandingOffboardSetpoint(){}
 bool hasValidNavigationRecovery()const{return false;}
 void holdExternalPlannerHeight(const char*,double){
  if(!external_planner_height_hold_active_)external_planner_height_hold_=uav_pose;
@@ -103,7 +106,7 @@ void missionCommandCallback(const patrol_control::MissionCommand::ConstPtr&);
 void tick();
 };
 '''+position+valid+navigation
-        code += 'void LLController::tick(){bool external_planner_command_accepted=false;\nswitch(Drone_mode){\n'
+        code += 'void LLController::tick(){bool external_planner_command_accepted=false;\nconst bool independent_landing=false,vertical_landing=false;\nswitch(Drone_mode){\n'
         code += takeoff+running+'default:break;\n}\n'+limiter+yaw+publish+'\n}\n'
         code += r'''
 void close(double a,double b){assert(std::abs(a-b)<1e-9);}

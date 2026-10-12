@@ -154,6 +154,7 @@ public:
  LandingHandoffStabilityConfig drop_settle_config_,landing_settle_config_;
  LandingHandoffStabilityWindow drop_capture_window_,drop_release_window_;
  LandingHandoffStabilityWindow landing_capture_window_,landing_handoff_window_;
+ LandingHandoffStabilityWindow landing_high_alignment_window_; // reset-only H dependency
  bool drop_metric_scale_enabled_=false; double drop_circle_radius_m_=.5,drop_cross_radius_m_=.175;
  double landing_pad_radius_m_=.5,pixel_to_meter_ratio_=.001,max_alignment_move_distance_=1;
  std::array<double,4> pixel_to_body_matrix_{{1,0,0,1}};

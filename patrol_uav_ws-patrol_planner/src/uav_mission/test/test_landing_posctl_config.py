@@ -144,6 +144,47 @@ class LowHConfigTests(unittest.TestCase):
         self.assertAlmostEqual(trigger, .33)
         self.assertIsNone(stable)
 
+    def test_h_alignment_and_descent_selectors_preserve_existing_parameters(self):
+        before_defaults = copy.deepcopy(DEFAULTS)
+        _, baseline = self.generated(trial_generate, self.settings)
+        for alignment in ('low', 'high'):
+            for mode in (1, 2, 3):
+                with self.subTest(alignment=alignment, mode=mode):
+                    settings = copy.deepcopy(self.settings)
+                    settings.update(landing_alignment_mode=alignment,
+                                    landing_descent_mode=mode,
+                                    landing_descent_speed_mps=.17)
+                    _, control = self.generated(trial_generate, settings)
+                    landing = control['external_landing']
+                    self.assertEqual(landing['alignment_mode'], alignment)
+                    self.assertEqual(landing['descent'],
+                                     dict(mode=mode, speed_mps=.17, max_step_dt_sec=.20))
+                    self.assertEqual(control['drop_system'], baseline['drop_system'])
+                    self.assertEqual(DEFAULTS, before_defaults)
+                    expected = copy.deepcopy(baseline)
+                    actual = copy.deepcopy(control)
+                    for value in (expected, actual):
+                        value['external_landing'].pop('alignment_mode')
+                        value['external_landing'].pop('descent')
+                    self.assertEqual(actual, expected)
+
+    def test_h_selectors_validate_and_do_not_enter_non_h_trials(self):
+        for changes in (dict(landing_alignment_mode='unknown'),
+                        dict(landing_alignment_mode='high', landing_handoff_mode='AUTO.LAND'),
+                        dict(landing_descent_mode=True), dict(landing_descent_mode=0),
+                        dict(landing_descent_speed_mps=0), dict(landing_descent_speed_mps=float('nan'))):
+            settings = copy.deepcopy(self.settings)
+            settings.update(changes)
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                validate_settings(settings)
+        non_h = yaml.safe_load((ROOT / 'deployment/board_trials_4x4/01_visual_interrupt/settings.yaml').read_text())
+        for key, value in (('landing_alignment_mode', 'high'),
+                           ('landing_descent_mode', 2), ('landing_descent_speed_mps', .17)):
+            settings = copy.deepcopy(non_h)
+            settings[key] = value
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError, 'visual H landing'):
+                validate_settings(settings)
+
     def test_site_override_only_applies_to_h_modes(self):
         h = yaml.safe_load((ROOT / 'deployment/board_trials_4x4/03_h_landing/settings.yaml').read_text())
         apply_site_profile(h, {'landing_posctl': {'xy_tolerance_m':.04}})
