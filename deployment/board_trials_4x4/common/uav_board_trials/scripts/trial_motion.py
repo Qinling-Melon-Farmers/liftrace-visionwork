@@ -36,7 +36,7 @@ def apply_generated_motion(runtime,control,overrides,settings,ground):
         if type(axis) is not int or axis not in (0,1):raise ValueError('Invalid corridor wall axis')
         walls=[coordinate+runtime['mission']['home_xy'][axis] for coordinate in geometry['wall_coordinates']]
         runtime['corridor_speed_schedule']=dict(axis=axis,wall_coordinates=walls,
-            entry_waypoints=geometry['entry_waypoints'],open_lead_m=.6,door_lead_m=.4)
+            entry_waypoints=geometry['entry_waypoints'],open_lead_m=.6,door_lead_m=.6)
         from uav_mission.corridor_speed import CorridorSpeedConfig
         CorridorSpeedConfig(**runtime['corridor_speed_schedule'])
     if not options.enabled:return report
@@ -78,7 +78,7 @@ def apply_generated_motion(runtime,control,overrides,settings,ground):
         m['post_delivery_parameter_stages'].append(dict(after_completed_waypoints=detail['corridor_points_count'],parameters={
             '/external_planner_max_command_z':ground+settings.get('max_agl',2.9),
             '/navigation/planner_bridge/execution/max_goal_z':ground+settings.get('max_agl',2.9)}))
-        runtime['corridor_speed_schedule']=dict(axis=axis,wall_coordinates=walls,entry_waypoints=new_entry,open_lead_m=.6,door_lead_m=.4)
+        runtime['corridor_speed_schedule']=dict(axis=axis,wall_coordinates=walls,entry_waypoints=new_entry,open_lead_m=.6,door_lead_m=.6)
         from uav_mission.corridor_speed import CorridorSpeedConfig
         CorridorSpeedConfig(**runtime['corridor_speed_schedule'])
         report['post_route']=detail

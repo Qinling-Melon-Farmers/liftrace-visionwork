@@ -39,16 +39,16 @@ class CompetitionSpeedCLI(unittest.TestCase):
 
     def assert_corridor(self,runtime):
         following=FollowingSpeed(**runtime['following_speed_profile'])
-        self.assertEqual(following.corridor_lead_m,.4)
+        self.assertEqual(following.corridor_lead_m,.6)
         schedule=CorridorSpeedConfig(**runtime['corridor_speed_schedule'])
-        self.assertEqual((schedule.open_lead_m,schedule.door_lead_m),(.6,.4))
+        self.assertEqual((schedule.open_lead_m,schedule.door_lead_m),(.6,.6))
         # Shift measured scene by the real FC reference; select real stage behaviour.
         speed=CorridorSpeed(schedule)
         home=runtime['mission']['home_xy'];h=runtime['mission']['landing_xy']
-        self.assertEqual(speed.select((home[0]+7.7,home[1]+1.2),h,0)[1],.4)
+        self.assertEqual(speed.select((home[0]+7.7,home[1]+1.2),h,0)[1],.6)
         self.assertEqual(speed.select((home[0]+7.7,home[1]+1.2),h,2)[1],.6)
-        self.assertEqual(speed.select((home[0]+7.7,home[1]+.1),h,2)[1],.4)
-        self.assertEqual(speed.select(h,h,8)[1],.4)
+        self.assertEqual(speed.select((home[0]+7.7,home[1]+.1),h,2)[1],.6)
+        self.assertEqual(speed.select(h,h,8)[1],.6)
 
     def assert_h(self,control,transit,capture):
         ground=REFERENCE[2]-.22
@@ -95,7 +95,7 @@ class CompetitionSpeedCLI(unittest.TestCase):
                 self.assertEqual(o['/fast_planner_node/'+ns+'/'+v],vel)
                 self.assertEqual(o['/fast_planner_node/'+ns+'/'+a],acc)
             self.assertEqual(e['planning'],dict(max_vel=vel,max_acc=acc))
-            initial=(.4,.4,1.2) if profile=='competition' else (.25,.25,.75)
+            initial=(.6,.6,1.2) if profile=='competition' else (.6,.6,.75)
             self.assertEqual((c['px4_max_distance'],o['/traj_server/traj_server/target_dist'],
                               o['/external_planner_start_max_distance']),initial)
         _,r,c,o=results['competition']
@@ -105,9 +105,9 @@ class CompetitionSpeedCLI(unittest.TestCase):
         self.assertEqual(r['motion_optimization']['braking_speed_mps'],1.2)
         self.assertEqual(r['motion_optimization']['braking_accel_mps2'],.6)
         self.assertEqual(o['/navigation/planner_bridge/motion_optimization']['braking_accel_mps2'],.6)
-        self.assertEqual(results['competition'][0]['initial_distances'],dict(controller_limit_m=.4,traj_target_dist_m=.4,planner_start_max_distance_m=1.2))
+        self.assertEqual(results['competition'][0]['initial_distances'],dict(controller_limit_m=.6,traj_target_dist_m=.6,planner_start_max_distance_m=1.2))
         f=FollowingSpeed(**r['following_speed_profile'])
-        self.assertEqual((f.cruise_lead_m,f.precision_lead_m,f.boundary_lead_m),(1.,.4,.2))
+        self.assertEqual((f.cruise_lead_m,f.precision_lead_m,f.boundary_lead_m),(1.,.6,.6))
         self.assertEqual(results['limited'][1]['mission']['post_delivery_route'],
                          r['mission']['post_delivery_route'])
         self.assertEqual(results['limited'][1]['high_view_probe']['config'],
@@ -118,7 +118,13 @@ class CompetitionSpeedCLI(unittest.TestCase):
             meta=json.loads((archive/'run_metadata.json').read_text())
             for key,value in site.items():self.assertEqual(value,meta['settings'][key],key)
             old=yaml.safe_load((archive/'runtime.yaml').read_text())
-            self.assertEqual(old['mission']['post_delivery_route'],r['mission']['post_delivery_route'])
+            # The archived runtime merged gate anchors; current route must retain
+            # every measured anchor while preserving the original H suffix.
+            self.assertEqual(old['mission']['post_delivery_route'][-2:],r['mission']['post_delivery_route'][-2:])
+            for point in site['corridor_waypoints']:
+                expected=[REFERENCE[0]+point['x'],REFERENCE[1]+point['y'],
+                          REFERENCE[2]-.22+point['agl']]
+                self.assertIn(expected,r['mission']['post_delivery_route'])
             self.assertEqual(old['high_view_probe']['config'],r['high_view_probe']['config'])
 
     def test_real_xml_loader_final_parameters_follow_generated_control(self):
@@ -129,7 +135,7 @@ class CompetitionSpeedCLI(unittest.TestCase):
             str(ROOT/'deployment/board_trials_4x4/common'),str(ROOT/'vision_ws/src'),
             str(ROOT/'patrol_uav_ws-patrol_planner/src'),'/opt/ros/noetic/share'])
         rig=yaml.safe_load((BASE/'common/uav_board_trials/config/known_rig.yaml').read_text())
-        for profile,expected in [('limited',(.25,.25,.75)),('competition',(.4,.4,1.2))]:
+        for profile,expected in [('limited',(.6,.6,.75)),('competition',(.6,.6,1.2))]:
             with self.subTest(profile=profile), tempfile.TemporaryDirectory() as tmp:
                 settings=yaml.safe_load((BASE/'08_full_mission/settings.yaml').read_text())
                 apply_site_profile(settings,yaml.safe_load(SITE.read_text()))
@@ -168,7 +174,7 @@ class CompetitionSpeedCLI(unittest.TestCase):
         self.assert_corridor(r);self.assert_h(c,1.4,1.8)
         self.assertEqual(e['settings']['landing_transit_agl'],1.4)
         self.assertEqual((c['px4_max_distance'],o['/traj_server/traj_server/target_dist'],
-                          o['/external_planner_start_max_distance']),(.25,.25,.75))
+                          o['/external_planner_start_max_distance']),(.6,.6,.75))
         self.assertFalse(c['drop_system']['enable_drop'])
 
     def test_corridor_schedule_also_applies_with_motion_disabled(self):
@@ -193,7 +199,7 @@ class CompetitionSpeedCLI(unittest.TestCase):
             self.assertTrue(c['drop_system']['enable_drop'])
             self.assert_drop_settle(c)
             self.assertEqual((c['px4_max_distance'],o['/traj_server/traj_server/target_dist'],
-                              o['/external_planner_start_max_distance']),(.25,.25,.75))
+                              o['/external_planner_start_max_distance']),(.6,.6,.75))
 
     def test_fixed_site_does_not_inherit_old_h_or_drop_override(self):
         from trial_config import validate_settings

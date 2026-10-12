@@ -221,13 +221,8 @@ def generate(root,out,settings,fc_xyz,rig):
     if mode=='high_speed_capture':
         runtime['trial']['capture']=dict(speed=settings['cruise_speed'],lighting=settings.get('capture_lighting','unspecified'),
             route='flight_area.survey_xy',survey_xy=copy.deepcopy(area['survey_xy']))
-    runtime['following_speed_profile']=dict(cruise_lead_m=(min(float(settings['cruise_speed']),1.0) if mode=='high_speed_capture' else .50),precision_lead_m=.25,corridor_lead_m=.25)
-    if 'following_speed_profile' in settings:
-        runtime['following_speed_profile']=copy.deepcopy(settings['following_speed_profile'])
-    if settings.get('trial_kind') in ('corridor_landing','full_mission'):
-        # Without measured planes use the slow corridor lead; never assume wall geometry.
-        runtime['following_speed_profile']['precision_lead_m']=max(.4,runtime['following_speed_profile']['precision_lead_m'])
-        runtime['following_speed_profile']['corridor_lead_m']=.4
+    from uav_mission.navigation_following_config import navigation_following_profile
+    runtime['following_speed_profile']=navigation_following_profile(settings.get('following_speed_profile'))
     if mode=='landing':
         hx,hy=settings['landing_xy'];transit=ground+settings['landing_transit_agl']
         m.update(landing_xy=[x+hx,y+hy],return_altitude=capture,post_delivery_route=[point(max(.6,hx-.7),hy,transit),point(hx,hy,transit),point(hx,hy,capture)])
@@ -259,7 +254,7 @@ def generate(root,out,settings,fc_xyz,rig):
         ProbeConfig(**runtime['high_view_probe']['config'])
         SurveyPolicy(**runtime['high_view_full']['policy'])
     control=yaml.safe_load((root/'patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_horizontal_control.yaml').read_text())
-    control.update(waypoints=[dict(x=x,y=y,z=(ground+settings['landing_transit_agl'] if mode=='landing' else low),yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=land_z,px4_max_distance=.25)
+    control.update(waypoints=[dict(x=x,y=y,z=(ground+settings['landing_transit_agl'] if mode=='landing' else low),yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=land_z,px4_max_distance=.6)
     control['takeoff_z_lead_m']=float(settings.get('takeoff_z_lead_m',0.))
     control['switch']['auto_land']=h_landing;control['drop_system'].update(enable_drop=drop_enabled,
         release_setpoint_height=drop,release_min_height=ground+release_min,height_threshold=ground+release_max)
@@ -295,7 +290,7 @@ def generate(root,out,settings,fc_xyz,rig):
         '/fast_planner_node/sdf_map/obstacles_inflation':.25,
         '/fast_planner_node/sdf_map/obstacles_inflation_up':.20,
         '/fast_planner_node/sdf_map/obstacles_inflation_down':.10,
-        '/traj_server/traj_server/target_dist':.25,
+        '/traj_server/traj_server/target_dist':.6,
         '/external_planner_start_max_distance':(max(.75,min(float(settings['cruise_speed']),1.0)+.25) if mode=='high_speed_capture' else .75),
         '/external_planner_max_command_z':ground+settings.get('max_agl',2.9),'/navigation/planner_bridge/execution/max_goal_z':ground+settings.get('max_agl',2.9),
         '/navigation/planner_bridge/execution/arrival_position_tolerance':.12,'/navigation/planner_bridge/execution/arrival_dwell':.8,
@@ -321,11 +316,8 @@ def generate(root,out,settings,fc_xyz,rig):
         overrides['/fast_planner_node/'+namespace+'/'+velocity]=float(settings['cruise_speed'])
         overrides['/fast_planner_node/'+namespace+'/'+acceleration]=float(settings['cruise_acceleration'])
     if settings.get('speed_profile')=='competition':
-        # Same initial precision lead and planner-start gate as the F competition entry.
-        # SEARCH/APPROACH/boundary/corridor distances are selected by runtime afterwards.
-        overrides['/traj_server/traj_server/target_dist']=.4
+        # Preserve the competition first-command admission distance.
         overrides['/external_planner_start_max_distance']=1.2
-        control['px4_max_distance']=.4
     # 最后加载的 overrides 覆盖父 launch 默认值，保证控制前视继承所选速度档。
     overrides['/px4_max_distance']=control['px4_max_distance']
     if settings.get('landing_handoff_mode') == 'OFFBOARD':

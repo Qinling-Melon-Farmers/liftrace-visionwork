@@ -35,9 +35,9 @@ def main():
     assert settings['site_confirmed'] is False
     assert settings['corridor_waypoints'] == [] and settings['landing_xy'] is None
     assert (settings['high_agl'], settings['cruise_speed'], settings['cruise_acceleration']) == (2.6, 1.2, 1.0)
-    assert [settings['following_speed_profile'][k] for k in ('cruise_lead_m','precision_lead_m','corridor_lead_m')] == [1., .4, .15]
+    assert [settings['following_speed_profile'][k] for k in ('cruise_lead_m','precision_lead_m','boundary_lead_m','corridor_lead_m')] == [1., .6, .6, .6]
     report = dict(source_root=str(root), template=group['site_config'], board_connected=False,
-        competition_values=dict(high_agl=2.6, cruise_speed=1.2, cruise_acceleration=1., following=[1., .4, .15]), cases=[])
+        competition_values=dict(high_agl=2.6, cruise_speed=1.2, cruise_acceleration=1., following=[1., .6, .6, .6]), cases=[])
     for site in (group['site_config'], 'deployment/competition/field_20261007_validated.yaml'):
       site_settings = yaml.safe_load((root / site).read_text(encoding='utf-8'))
       for motion, columns, resume in itertools.product((None, 'on', 'off'), repeat=3):

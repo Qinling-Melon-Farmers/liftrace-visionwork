@@ -11,6 +11,7 @@ from uav_mission.high_view_probe import ProbeConfig
 from uav_high_view.survey_policy import SurveyPolicy
 from uav_mission.execution_speed import FollowingSpeed
 from uav_mission.corridor_speed import CorridorSpeedConfig
+from uav_mission.navigation_following_config import navigation_following_profile, navigation_corridor_schedule
 from uav_mission.motion_optimization import MotionOptimization, optimize_post_route
 from uav_mission.landing_posctl_config import validate_landing_posctl, landing_control_parameters, landing_descent_parameters
 from uav_mission.landing_offboard_config import landing_offboard_parameters
@@ -178,9 +179,9 @@ def generate(root,out,settings,fc_xyz,rig):
     runtime['planner_line_preference']={'weight':weight}
     runtime['search'].update(min_x=cover[0],max_x=cover[1],min_y=cover[2],max_y=cover[3],altitude=low,lane_spacing=settings['lane_spacing'],route_revision='competition-coverage')
     runtime['runtime'].update(start_mode='full',mission_id_prefix='competition')
-    runtime['following_speed_profile']=copy.deepcopy(settings['following_speed_profile'])
+    runtime['following_speed_profile']=navigation_following_profile(settings['following_speed_profile'])
     if settings.get('corridor_speed_schedule'):
-        schedule=copy.deepcopy(settings['corridor_speed_schedule'])
+        schedule=navigation_corridor_schedule(settings['corridor_speed_schedule'])
         schedule['wall_coordinates']=[v+(x if schedule['axis']==0 else y) for v in schedule['wall_coordinates']]
         if motion.enabled: schedule['entry_waypoints']=motion_meta['entry_completed_waypoints']
         runtime['corridor_speed_schedule']=schedule
@@ -192,7 +193,7 @@ def generate(root,out,settings,fc_xyz,rig):
     runtime['high_view_full']=dict(policy=policy,grid=dict(bounds=search,resolution=.10,inflation=.25),boundary_policy=dict(enabled=True,bounds=target))
     ProbeConfig(**runtime['high_view_probe']['config']);SurveyPolicy(**policy)
     control=yaml.safe_load((cfg/'control_base.yaml').read_text())
-    control.update(waypoints=[dict(x=x,y=y,z=low,yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=land_z,px4_max_distance=.4)
+    control.update(waypoints=[dict(x=x,y=y,z=low,yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=land_z,px4_max_distance=.6)
     if 'takeoff_z_lead_m' in settings:
         control['takeoff_z_lead_m']=float(settings['takeoff_z_lead_m'])
     control['switch'].update(auto_land=True,flag_landing_detect=1)
@@ -223,7 +224,7 @@ def generate(root,out,settings,fc_xyz,rig):
         '/fast_planner_node/sdf_map/obstacles_inflation':.25,'/fast_planner_node/sdf_map/obstacles_inflation_up':.20,'/fast_planner_node/sdf_map/obstacles_inflation_down':.10,
         '/fast_planner_node/sdf_map/search_region/enabled':True,
         '/fast_planner_node/fsm/goal_adjustment_radius':.3,
-        '/traj_server/traj_server/target_dist':.4,'/external_planner_start_max_distance':1.2,
+        '/traj_server/traj_server/target_dist':.6,'/external_planner_start_max_distance':1.2,
         '/external_planner_max_command_z':cap,'/navigation/planner_bridge/execution/max_goal_z':cap,
         '/navigation/planner_bridge/execution/initial_plan_timeout':12.,'/navigation/planner_bridge/execution/search_initial_plan_timeout':12.,
         '/fast_planner_node/fsm/liveness_enabled':True,'/fast_planner_node/fsm/server_hold_replan_enabled':True,

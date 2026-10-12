@@ -81,17 +81,17 @@ class CompetitionTests(unittest.TestCase):
                     self.assertIs(rt['high_view_full']['policy']['resume_survey_enabled'],True)
                     self.assertIs(ov['/navigation_recovery/enabled'],False)
                     schedule=rt['corridor_speed_schedule']
-                    self.assertEqual((schedule['open_lead_m'],schedule['door_lead_m']),(.6,.4))
+                    self.assertEqual((schedule['open_lead_m'],schedule['door_lead_m']),(.6,.6))
                     self.assertEqual(schedule['wall_coordinates'],[-1.6+fc_xyz[1],1.6+fc_xyz[1]])
                     corridor=CorridorSpeed(CorridorSpeedConfig(**schedule))
                     completed=schedule['entry_waypoints'];landing=rt['mission']['landing_xy']
                     self.assertEqual(corridor.select((8.,fc_xyz[1]),landing,completed),('CORRIDOR_OPEN',.6))
-                    self.assertEqual(corridor.select((8.,1.6+fc_xyz[1]),landing,completed),('DOOR',.4))
-                    self.assertEqual(corridor.select(landing,landing,completed),('H_APPROACH',.4))
+                    self.assertEqual(corridor.select((8.,1.6+fc_xyz[1]),landing,completed),('DOOR',.6))
+                    self.assertEqual(corridor.select(landing,landing,completed),('H_APPROACH',.6))
                     follow=FollowingSpeed(**rt['following_speed_profile'])
                     self.assertEqual(follow.select('SEARCH','',0),('CRUISE',1.))
-                    self.assertEqual(follow.select('APPROACH','',0),('PRECISION',.4))
-                    self.assertEqual(follow.select('LAND','',0),('TERMINAL',.4))
+                    self.assertEqual(follow.select('APPROACH','',0),('PRECISION',.6))
+                    self.assertEqual(follow.select('LAND','',0),('TERMINAL',.6))
 
     def test_snake3_uses_recorded_route_and_rig_checked_camera_height(self):
         settings=yaml.safe_load((ROOT/'deployment/competition/candidates/snake3_motion.yaml').read_text())
