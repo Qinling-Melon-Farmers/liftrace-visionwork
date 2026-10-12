@@ -34,9 +34,9 @@ class LowHConfigTests(unittest.TestCase):
             control = yaml.safe_load((Path(path) / 'control.yaml').read_text())
         return ref, control
 
-    def check_profile(self, ref, control, mode):
+    def check_profile(self, ref, control, mode, posctl_target=.35):
         landing = control['external_landing']
-        target, trigger = (.35, .37) if mode == 'POSCTL' else (.40, .55)
+        target, trigger = (posctl_target, .37) if mode == 'POSCTL' else (.40, .55)
         self.assertAlmostEqual(control['land_height'] - ref['ground_z'], target)
         self.assertAlmostEqual(landing['auto_land_height'] - ref['ground_z'], trigger)
         self.assertEqual(landing['alignment_tolerance'], .08)
@@ -68,7 +68,8 @@ class LowHConfigTests(unittest.TestCase):
                 with self.subTest(name=name, mode=mode):
                     settings['landing_handoff_mode'] = mode
                     ref, control = self.generated(trial_generate, settings)
-                    self.check_profile(ref, control, mode)
+                    self.check_profile(ref, control, mode,
+                                       .30 if name in ('03_h_landing', '08_full_mission') else .35)
 
     def test_all_hardware_templates_explicitly_declare_the_same_candidate(self):
         files = [ROOT / 'deployment/board_trials_4x4' / name / 'settings.yaml'
@@ -81,6 +82,8 @@ class LowHConfigTests(unittest.TestCase):
                 settings = yaml.safe_load(file.read_text())
                 self.assertEqual(settings['landing_handoff_mode'], 'POSCTL')
                 expected = dict(DEFAULTS)
+                if file.parent.name in ('03_h_landing', '08_full_mission'):
+                    expected['target_agl'] = .30
                 if file.name == 'field_20261007_validated.yaml':
                     # This confirmed field file is the preserved historical snapshot.
                     expected.update(max_horizontal_speed_mps=.03,

@@ -24,7 +24,7 @@
 
 速度仅从 [competition_speed.yaml](competition_speed.yaml) 覆盖规划、前视、投递高度与两个开关。
 H观察/转场高度取本组 `settings.yaml`，不继承历史 validated 中的旧H门槛；
-今天的 POSCTL 参数为目标/触发0.35/0.37m、水平/垂直速度阈值0.08/0.10m/s、稳定0.15s。
+2026-10-12本地待飞候选的 POSCTL 参数为目标/触发0.30/0.37m、水平/垂直速度阈值0.08/0.10m/s、稳定0.15s。
 
 离线检查通过真实CLI，下面命令**不启动任何ROS节点**：
 

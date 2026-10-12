@@ -70,3 +70,6 @@ bash deployment/board_trials_4x4/03_h_landing/start.sh flight --site-config depl
 ### 2026-10-06 后续部署状态
 
 上述H交接推广现已部署192.168.3.126原0928工程并通过配置检查，未启动新试飞。工作台已增加搜索范围自动航线与FOV图，04走廊点及08走廊/H仍需实测。详见[本次部署报告](../../../docs/deployment/survey_workbench_20261006/REPORT.md)。
+
+
+2026-10-12本地待飞候选：`landing_posctl.target_agl=0.30`（FC离地），交接上限`trigger_agl=0.37`不变。其余锁点、位置和速度要求不变；未上板、未实飞，不代表已验证OFFBOARD直接触地。
