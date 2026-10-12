@@ -5,6 +5,7 @@ H 捕获保持原 8cm、10 帧新鲜图像与位置冻结，不增加高位运�
 不使用下降中的残缺图形重定位。AUTO.LAND 保持原 0.40/0.55m 离地高度。
 """
 import math
+from uav_mission.landing_offboard_config import validate_landing_offboard, landing_offboard_parameters
 
 
 DEFAULTS = dict(
@@ -22,7 +23,25 @@ DEFAULTS = dict(
 )
 
 
+def landing_descent_parameters(settings):
+    mode = settings.get('landing_descent_mode', 1)
+    speed = settings.get('landing_descent_speed_mps', 0.20)
+    if type(mode) is not int or mode not in (1, 2, 3, 4):
+        raise ValueError('landing_descent_mode must be 1, 2, 3 or 4')
+    validate_landing_offboard(settings)
+    if (isinstance(speed, bool) or not isinstance(speed, (int, float)) or
+            not math.isfinite(speed) or not 0.0 < speed <= 1.0):
+        raise ValueError('landing_descent_speed_mps must be in (0, 1]')
+    return dict(mode=mode, speed_mps=float(speed), max_step_dt_sec=0.20)
+
+
 def validate_landing_posctl(settings):
+    landing_descent_parameters(settings)
+    mode = settings.get('landing_alignment_mode', 'low')
+    if mode not in ('low', 'high'):
+        raise ValueError('landing_alignment_mode must be low or high')
+    if mode == 'high' and settings.get('landing_handoff_mode', 'AUTO.LAND') not in ('POSCTL', 'OFFBOARD'):
+        raise ValueError('high H alignment requires POSCTL or OFFBOARD')
     supplied = settings.get('landing_posctl', {})
     if not isinstance(supplied, dict) or set(supplied) - set(DEFAULTS):
         raise ValueError('invalid landing_posctl fields')
@@ -46,6 +65,10 @@ def validate_landing_posctl(settings):
 
 def landing_control_parameters(settings, ground_z, fc_ground_clearance):
     values = validate_landing_posctl(settings)
+    if settings.get('landing_handoff_mode', 'AUTO.LAND') == 'OFFBOARD':
+        landing_offboard_parameters(settings, ground_z, fc_ground_clearance)
+        # Staging only. Mode 4 derives touchdown Z from ground + clearance - overtravel.
+        return ground_z + 0.30, ground_z + 0.37, None
     if settings.get('landing_handoff_mode', 'AUTO.LAND') != 'POSCTL':
         return ground_z + 0.40, ground_z + 0.55, None
     if (not math.isfinite(fc_ground_clearance) or fc_ground_clearance <= 0

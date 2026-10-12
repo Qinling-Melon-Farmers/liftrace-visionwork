@@ -74,7 +74,8 @@ def run_session(a,settings,rig,startup,generate,launch_package,launch_prefix='',
     signal.signal(signal.SIGINT,interrupted);signal.signal(signal.SIGTERM,interrupted)
     try:
         bag=TrialBag(out,settings,env);bag.start();record_metadata()
-        local=launch('localization',['start_mapping:=false','map_frame:='+startup['frame'],'mapping_profile:='+settings.get('mapping_profile','high'),'alignment_mode:='+settings.get('alignment_mode','measured'),'enable_control_output:='+str(a.mode=='flight').lower(),'body_to_imu_xyz:='+' '.join(map(str,rig['body_to_imu_xyz'])),'imu_to_camera_z:='+str(rig['imu_to_camera_xyz'][2]),'camera_quat_xyzw:='+' '.join(map(str,rig['camera_quat_xyzw']))])
+        local=launch('localization',['start_mapping:=false','map_frame:='+startup['frame'],'mapping_profile:='+settings.get('mapping_profile','high'),'alignment_mode:='+settings.get('alignment_mode','measured'),'enable_control_output:='+str(a.mode=='flight').lower(),'body_to_imu_xyz:='+' '.join(map(str,rig['body_to_imu_xyz'])),'imu_to_camera_z:='+str(rig['imu_to_camera_xyz'][2]),'camera_quat_xyzw:='+' '.join(map(str,rig['camera_quat_xyzw'])),
+            'landing_touchdown_setpoint_topic:='+settings.get('landing_offboard', {}).get('setpoint_topic', '/navigation/landing_setpoint_touchdown')])
         until=time.monotonic()+float(settings.get("initialization_timeout",90));reference=None;last_wait_log=0.
         while time.monotonic()<until:
             if local.poll() is not None:raise RuntimeError('Localization launch exited; inspect localization.log')

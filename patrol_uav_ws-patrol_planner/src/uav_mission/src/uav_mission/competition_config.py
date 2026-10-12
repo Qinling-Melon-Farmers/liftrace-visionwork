@@ -12,7 +12,8 @@ from uav_high_view.survey_policy import SurveyPolicy
 from uav_mission.execution_speed import FollowingSpeed
 from uav_mission.corridor_speed import CorridorSpeedConfig
 from uav_mission.motion_optimization import MotionOptimization, optimize_post_route
-from uav_mission.landing_posctl_config import validate_landing_posctl, landing_control_parameters
+from uav_mission.landing_posctl_config import validate_landing_posctl, landing_control_parameters, landing_descent_parameters
+from uav_mission.landing_offboard_config import landing_offboard_parameters
 from uav_mission.navigation_recovery_config import recovery_parameters
 from uav_mission.drop_height_config import release_heights
 
@@ -47,8 +48,6 @@ def validate(settings, flight=False):
     if type(settings.get('survey_policy',{}).get('resume_survey_enabled',False)) is not bool:
         raise ValueError('resume_survey_enabled must be boolean')
 
-    if settings.get("landing_handoff_mode", "AUTO.LAND") not in ("AUTO.LAND", "POSCTL"):
-        raise ValueError("landing_handoff_mode must be AUTO.LAND or POSCTL")
     validate_landing_posctl(settings)
     recovery_parameters(settings, 0.)  # Validate finite opt-in before ROS starts.
     weight=float(settings.get('planner_line_preference_weight',2.0))
@@ -209,6 +208,9 @@ def generate(root,out,settings,fc_xyz,rig):
     control['external_landing'].update(frame=rig['mission_frame'],capture_height=capture,auto_land_height=handoff_z,detections_topic='/uav_vision/detections_mapped',handoff_mode=settings.get('landing_handoff_mode','AUTO.LAND'))
     if posctl_stability is not None:
         control['external_landing']['posctl'] = posctl_stability
+    control['external_landing']['alignment_mode'] = settings.get('landing_alignment_mode', 'low')
+    control['external_landing']['descent'] = landing_descent_parameters(settings)
+    control['external_landing'].update(landing_offboard_parameters(settings, ground, float(rig['fc_ground_clearance'])))
     overrides={
         '/landing_detector/landing_enable_h_stroke_fallback':settings['landing_enable_h_stroke_fallback'],
         '/fast_planner_node/sdf_map/resolution':.10,
@@ -242,6 +244,8 @@ def generate(root,out,settings,fc_xyz,rig):
     # 显式关闭也覆盖 ROS 参数，避免继承上轮的 enabled=true。
     overrides['/navigation/planner_bridge/motion_optimization']=asdict(motion)
     overrides['/takeoff_z_lead_m']=control.get('takeoff_z_lead_m',0.)
+    if settings.get('landing_handoff_mode') == 'OFFBOARD':
+        overrides['/navigation_frame_adapter/landing_touchdown_setpoint_topic'] = control['external_landing']['offboard_setpoint_topic']
     overrides['/fast_planner_node/search/line_deviation_weight']=weight
     overrides['/navigation/planner_bridge/execution/odom_twist_frame']='child'
     for region,box in [('horizontal_avoidance',search),('search_region',search)]:

@@ -4,6 +4,7 @@ import argparse,json
 from pathlib import Path
 import yaml
 from uav_mission.competition_config import validate,generate,apply_overrides
+from uav_mission.landing_offboard_config import apply_landing_override
 from uav_mission.hardware_session import run_session
 
 def main():
@@ -11,6 +12,7 @@ def main():
     p.add_argument('mode',choices=('preview','flight'),help='preview 预览；flight 使用真实受保护投递链')
     p.add_argument('--root',type=Path,required=True)
     p.add_argument('--site-config',type=Path,required=True,help='现场测量 YAML；不会自动选择测试场地')
+    p.add_argument('--landing-config',type=Path,help='可选 H 候选覆盖 YAML；保留所选场地和原默认参数')
     p.add_argument('--model',type=Path)
     p.add_argument('--metadata',type=Path)
     p.add_argument('--motion-optimization',choices=('on','off'),help='显式覆盖运动优化；省略继承 YAML')
@@ -27,6 +29,8 @@ def main():
     a.trial='competition';a.real_release=a.mode=='flight'
     try:
         settings=apply_overrides(yaml.safe_load(a.site_config.read_text()),a.motion_optimization,a.obstacle_columns,a.motion_action_timeout,resume=a.resume_survey)
+        if a.landing_config:
+            settings=apply_landing_override(settings,yaml.safe_load(a.landing_config.read_text()))
         validate(settings,flight=a.mode=='flight' or not a.check_config or a.output_dir is not None)
     except ValueError as error:p.error(str(error))
     cfg=a.root/'patrol_uav_ws-patrol_planner/src/uav_mission/config/competition'
