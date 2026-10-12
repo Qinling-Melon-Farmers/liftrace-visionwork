@@ -146,6 +146,7 @@ public:
  double mission_release_permission_timeout_=.25,drop_offset_timeout_=.5;
  double external_alignment_capture_height_=1,drop_release_setpoint_height_=.35;
  double drop_release_min_height_=.35,drop_red_cross_xy_tolerance_m_=.04;
+ double drop_pre_descent_xy_tolerance_m_=.06,drop_pre_descent_red_cross_xy_tolerance_m_=.04;
  double drop_height_threshold=.4,align_height=1;
  bool uav_drop_ready_=true,control_ready=true,permission_ready=true;
  enum {Run_point,Aligning}; int Drone_mode=Aligning;
@@ -191,7 +192,7 @@ public:
  bool motionTimePending() const;
  bool freshMotion(Eigen::Vector3d*,Eigen::Vector3d*,const char** =nullptr)const;
  bool setCompensatedDropTarget(geometry_msgs::PoseStamped*);
- double compensatedDropXYTolerance() const;
+ double compensatedDropXYTolerance(bool=true) const;
  bool compensatedDropTimeoutReady();
  bool compensatedDropSettled(bool,double* =nullptr,double* =nullptr,bool =true);
  double compensatedDropCommandHeight();
@@ -264,6 +265,27 @@ if(name=="serial_sequence"){
    assert(!d.compensatedDropSettled(true));
    d.servo_alignment_context_.deadline=ros::Time(101);
    tick();close(d.align_height,.35);assert(!d.compensatedDropSettled(true));
+  }
+ }else if(name=="balanced_normal"){
+
+  for(const std::string cls:{"bridge","red_cross"}){
+   ros::clock_sec=100;LLController d;auto transport=std::make_shared<Transport>();
+   d.servo_client.impl=d.servo_action_client_.impl=transport;
+   d.servo_alignment_context_.semantic_target_class=cls;d.servo_alignment_target_class_=cls;
+   d.drop_settle_config_.xy_tolerance_m=.10;d.drop_red_cross_xy_tolerance_m_=.06;
+   d.drop_alignment_started_=d.drop_timeout_last_check_=ros::Time(100);
+   capture(d);d.drop_descent_started_=false;const auto g=d.compensated_fc_goal_.pose.position;
+   const double loose=cls=="bridge"?.09:.05, tight=cls=="bridge"?.05:.03;
+   odom(d,101,g.x+loose,g.y,1);close(d.compensatedDropCommandHeight(),1);
+   assert(!d.drop_descent_started_); // Relaxed final gate must not relax initial compensation.
+   odom(d,101.01,g.x+tight,g.y,1,.25);close(d.compensatedDropCommandHeight(),.35);
+   assert(d.drop_descent_started_); // A single current sample, no speed/dwell wait.
+   odom(d,102,g.x+loose,g.y,.39,.25);assert(d.compensatedDropSettled(true));
+   assert(!d.compensatedDropTimeoutReady()); // Normal release before twenty seconds.
+   d.permission_ready=false;assert(d.executeDropAction(1)==DropActionResult::kRejected);
+   assert(transport->calls==0);d.permission_ready=true;
+   assert(d.executeDropAction(1)==DropActionResult::kPending);finish(d,transport);
+   assert(transport->calls==1);d.executeDropAction(1);assert(transport->calls==1);
   }
  }else if(name=="serial_admission"){
   capture(c);c.drop_descent_started_=false;const auto g=c.compensated_fc_goal_.pose.position;
@@ -621,6 +643,7 @@ class CompensatedDropGeometryTests(unittest.TestCase):
 
 
 
+    def test_balanced_release_uses_relaxed_final_but_original_pre_compensation(self): self.run_case('balanced_normal')
     def test_serial_both_branches_hold_high_then_descend_without_visual_refresh_or_climb(self): self.run_case('serial_sequence')
     def test_serial_service_cannot_admit_before_descent_even_if_already_low(self): self.run_case('serial_admission')
     def test_serial_identity_deadline_control_cancel_and_stale_motion_block_start(self): self.run_case('serial_invalid')

@@ -2081,6 +2081,13 @@ void LLController::load_params() {
     // fresh motion; speed, duration and sample-count windows remain H-only.
     load_stability("drop_system/settle", &drop_settle_config_);
     drop_compensate_before_descent_ = nh_.param("drop_system/compensate_before_descent", true);
+    // 下降前确认与末段释放独立：不能因末段放宽而尚未补偿就下降。
+    drop_pre_descent_xy_tolerance_m_ = nh_.param("drop_system/pre_descent/xy_tolerance_m", 0.06);
+    drop_pre_descent_red_cross_xy_tolerance_m_ = nh_.param(
+        "drop_system/pre_descent/red_cross_xy_tolerance_m", 0.04);
+    if (!std::isfinite(drop_pre_descent_xy_tolerance_m_) || drop_pre_descent_xy_tolerance_m_ <= 0.0 ||
+        !std::isfinite(drop_pre_descent_red_cross_xy_tolerance_m_) || drop_pre_descent_red_cross_xy_tolerance_m_ <= 0.0)
+        throw std::invalid_argument("invalid pre-descent XY tolerance");
     drop_release_timeout_enabled_ = nh_.param("drop_system/release_timeout/enabled", true);
     drop_release_timeout_sec_ = nh_.param("drop_system/release_timeout/after_sec", 20.0);
     if (!std::isfinite(drop_release_timeout_sec_) || drop_release_timeout_sec_ <= 0.0)
@@ -4134,7 +4141,14 @@ bool LLController::setCompensatedDropTarget(geometry_msgs::PoseStamped* target) 
     return true;
 }
 
-double LLController::compensatedDropXYTolerance() const {
+double LLController::compensatedDropXYTolerance(bool release) const {
+    if (!release) {
+        const auto& cls = compensated_context_.semantic_target_class;
+        if (cls == "tent" || cls == "pillbox" || cls == "bridge" || cls == "panzer")
+            return drop_pre_descent_xy_tolerance_m_;
+        if (cls == "red_cross") return drop_pre_descent_red_cross_xy_tolerance_m_;
+        return std::min(0.04, drop_pre_descent_red_cross_xy_tolerance_m_);
+    }
     // Only the bound mission class may select the standard-board tolerance.
     const auto& cls = compensated_context_.semantic_target_class;
     if (cls == "tent" || cls == "pillbox" || cls == "bridge" || cls == "panzer")
@@ -4202,7 +4216,7 @@ bool LLController::compensatedDropSettled(bool release, double* error, double* s
     // Frozen release uses the current fresh motion sample, without recapture
     // or another duration/sample-count window.
     if (!release) return externalLandingControlReady(ros::Time::now());
-    const double xy_tolerance = compensatedDropXYTolerance();
+    const double xy_tolerance = compensatedDropXYTolerance(require_release_height);
     // 只放宽最终精细水平误差；高位串行补偿仍须先真实到位。
     const bool timeout_release = require_release_height && timeout_ready;
     const bool ready = std::isfinite(xy_error) && std::isfinite(horizontal_speed) &&
@@ -4241,7 +4255,7 @@ double LLController::compensatedDropCommandHeight() {
         ROS_INFO("[DropGeometry] descent_started slot=%u decision=%u xy_tolerance=%.3f class=%s "
                  "capture_z=%.4f release_z=%.4f serial=%s",
                  compensated_context_.payload_slot, compensated_context_.decision_seq,
-                 compensatedDropXYTolerance(), compensated_context_.semantic_target_class.c_str(),
+                 compensatedDropXYTolerance(false), compensated_context_.semantic_target_class.c_str(),
                  external_alignment_capture_height_, drop_release_setpoint_height_,
                  drop_compensate_before_descent_ ? "true" : "false");
         return drop_release_setpoint_height_;

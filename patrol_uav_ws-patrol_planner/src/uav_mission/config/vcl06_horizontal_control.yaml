@@ -70,7 +70,11 @@ drop_system:
   release_timeout:
     enabled: true
     after_sec: 20.0
-  compensate_before_descent: true  # 冻结后先高位补偿，XY到位后单向下降
+  # 先确认补偿，再锁定下降；末段跟踪反弹不再要求同样的精细位置。
+  pre_descent:
+    xy_tolerance_m: 0.06
+    red_cross_xy_tolerance_m: 0.04
+  compensate_before_descent: true  # 当前补偿到位即下降，不要求速度或累计停稳
   # 可靠视觉确认后冻结补偿目标；最终释放核对当前FC和投口位置。
   slot_offset_semantics: body_flu_lever_arm
   compensated_alignment: true
@@ -78,8 +82,8 @@ drop_system:
   # 原释放许可仍须成立；仅XY及motion新鲜度参与补偿投递放行。
   # 速度、停稳时长和样本数仅保留配置兼容；H仍使用独立稳定窗。
   settle:
-    xy_tolerance_m: 0.06  # 标准靶严格小于6cm
-    red_cross_xy_tolerance_m: 0.04  # 红十字及未知类别不放宽
+    xy_tolerance_m: 0.10  # 标准靶末段容差10cm；下降前仍先完成6cm补偿
+    red_cross_xy_tolerance_m: 0.06  # 红十字末段独立6cm；下降前仍4cm
     height_tolerance_m: 0.05
     max_horizontal_speed_mps: 0.05
     max_vertical_speed_mps: 0.10
