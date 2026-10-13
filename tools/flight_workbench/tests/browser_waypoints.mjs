@@ -44,7 +44,7 @@ try {
   for(let i=0;i<60;i++){if(await run('typeof state!=="undefined" && state.groups.length>=9'))break;await sleep(100);}
 
   const until=async expression=>{for(let i=0;i<100;i++){try{if(await run(expression))return;}catch{}await sleep(100);}throw Error('timeout: '+expression);};
-  const shot=async name=>{if(process.argv[4]){const r=await call('Page.captureScreenshot',{format:'png'});fs.writeFileSync(process.argv[4]+'_'+name+'.png',Buffer.from(r.data,'base64'));}};
+  const shot=async name=>{if(process.argv[4]){await run('(()=>{const t=document.querySelector(".waypoint-dialog iframe")?.contentDocument?.getElementById("toast");if(t)t.hidden=true;})()');const r=await call('Page.captureScreenshot',{format:'png'});fs.writeFileSync(process.argv[4]+'_'+name+'.png',Buffer.from(r.data,'base64'));}};
   await test('starts offline with no sessions', 'state.connection.transport==="local" && Object.keys(state.sessions).length===0');
   await run('state.selectedGroup="competition";renderGroups();');
   await until('!!document.querySelector(".grp-card.sel .waypoint-open")');
@@ -54,16 +54,46 @@ try {
   const inside=expr=>'document.querySelector(".waypoint-dialog iframe").contentWindow.eval('+JSON.stringify(expr)+')';
   await until('!!document.querySelector(".waypoint-dialog iframe") && '+inside('typeof site!=="undefined" && !!site'));
   await test('competition loads its own unconfirmed empty template', inside('site.site_confirmed===false && site.landing_xy===null && site.corridor_waypoints.length===0'));
-  await run(inside('site.flight_area.search_bounds=[.6,7.2,-3.7,1.6];site.flight_area.coverage_bounds=[.7,7.1,-3.6,1.5];render();'));
+  await test('opens with coordinate guide and selection-only mode',inside('currentStep===1 && mode==="select" && !document.querySelectorAll("[data-panel]")[0].hidden && document.querySelector(".coordinate-guide").textContent.includes("前3，右1")'));
+  await shot('guide');
+  await run(inside('document.querySelectorAll("[data-bound=search_bounds]")[0].value="0.6";document.querySelectorAll("[data-bound=search_bounds]")[0].dispatchEvent(new Event("input"));'));
+  await test('named coordinate field updates numeric schema without translating origin',inside('site.flight_area.search_bounds[0]===.6 && currentStep===1 && site.high_agl===2.6'));
+  await run(inside('document.querySelectorAll("[data-bound=search_bounds]")[0].value="";document.querySelectorAll("[data-bound=search_bounds]")[0].dispatchEvent(new Event("input"));'));
+  await until(inside('document.getElementById("export").disabled && !document.getElementById("map-status").hidden'));
+  await test('incomplete bounds block save and identify stale preview',inside('site.flight_area.search_bounds[0]===null && document.getElementById("export").disabled'));
+  await run(inside('document.getElementById("undo").click();'));
+  await test('undo restores complete original range',inside('site.flight_area.search_bounds[0]!==null && document.getElementById("map-status").hidden'));
+  await run(inside('site.flight_area.search_bounds=[.6,7.2,-3.7,1.6];site.flight_area.coverage_bounds=[.7,7.1,-3.6,1.5];render();document.querySelectorAll("[data-step]")[1].click();'));
+  await test('step navigation exposes generator without changing coordinates',inside('currentStep===2 && mode==="select" && !document.querySelectorAll("[data-panel]")[1].hidden'));
+
   for(const [pattern,count] of [['rectangle',5],['snake2',4],['snake3',6]]) {
     await run(inside('document.getElementById("route-pattern").value='+JSON.stringify(pattern)+';document.getElementById("route-inset").value="0.2";document.getElementById("generate-route").click();'));
     await sleep(300);
     await until(inside('!document.getElementById("generate-route").disabled && site.flight_area.survey_xy.length==='+count));
     await test(pattern+' generates inside asymmetric bounds with original height',inside('site.high_agl===2.6 && site.max_agl===3.2 && Math.abs(Math.min(...site.flight_area.survey_xy.map(p=>p[1]))+3.5)<1e-8'));
   }
-  await run(inside('site.corridor_waypoints=[{x:8,y:2,agl:.9},{x:8,y:-2,agl:.9}];site.landing_xy=[8,-2];render();'));
+  await test('map distinguishes point kinds and shows traversal arrows',inside('!!document.querySelector("[data-route-arrow=survey]") && document.getElementById("map").textContent.includes("搜1")'));
+  await run(inside('document.querySelector("[data-pattern=rectangle]").click();'));
+  await test('route illustration selects matching shape',inside('document.getElementById("route-pattern").value==="rectangle" && document.querySelector("[data-pattern=rectangle]").getAttribute("aria-pressed")==="true"'));
+  await run(inside('document.querySelector("[data-pattern=snake3]").click();site.corridor_waypoints=[{x:8,y:2,agl:.9},{x:8,y:-2,agl:.9}];site.landing_xy=[8,-2];render();'));
+
   await until(inside('!document.getElementById("export").disabled'));
   await shot('map');
+  await run(inside('document.querySelectorAll("[data-step]")[2].click();'));
+  await test('door diagram and point editing shown together',inside('currentStep===3 && !document.getElementById("point-inspector").hidden && !!document.querySelector(".door-guide") && document.getElementById("map").textContent.includes("廊1")'));
+  await shot('corridor');
+  await run(inside('document.querySelector("[data-mode=landing]").click();'));
+  const clickXY=await run(`(()=>{const f=document.querySelector('.waypoint-dialog iframe'),b=f.getBoundingClientRect(),p=f.contentWindow.eval('(()=>{const xy=screen(7.8,-1);const p=map.createSVGPoint();p.x=xy[0];p.y=xy[1];const q=p.matrixTransform(map.getScreenCTM());return {x:q.x,y:q.y};})()');return {x:b.left+p.x,y:b.top+p.y};})()`);
+  await call('Input.dispatchMouseEvent',{type:'mousePressed',...clickXY,button:'left',clickCount:1});
+  await call('Input.dispatchMouseEvent',{type:'mouseReleased',...clickXY,button:'left',clickCount:1});
+  await test('actual map click preserves metric coordinates at current viewport',inside('Math.abs(site.landing_xy[0]-7.8)<.001 && site.landing_xy[1]===-1'));
+  await run(inside('document.getElementById("undo").click();'));
+  await test('undo restores H after graphical edit',inside('site.landing_xy[0]===8 && site.landing_xy[1]===-2'));
+  await run(inside('document.querySelectorAll("[data-step]")[3].click();'));
+
+  await test('final step explains local draft and preserves original flight values',inside('!document.querySelectorAll("[data-panel]")[3].hidden && document.getElementById("point-inspector").hidden && site.high_agl===2.6 && site.max_agl===3.2'));
+  await until(inside('!document.getElementById("export").disabled'));
+  await shot('save');
   await run(inside('document.getElementById("export").click()'));
   await until('!document.querySelector(".waypoint-dialog")');
   await until('Object.keys(groupUI(state.groups.find(g=>g.id==="competition")).geometryPlans||{}).length===3');
