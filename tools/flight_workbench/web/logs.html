@@ -4,14 +4,14 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Liftrace · 日志录制与下载</title>
 <link rel="stylesheet" href="/static/style.css"><link rel="stylesheet" href="/static/logs.css">
-</head>
-<body class="logs-page">
+<link rel="stylesheet" href="/static/workbench-design.css"></head>
+<body class="logs-page"><nav class="workspace-nav" aria-label="工作台导航"><a class="workspace-brand" href="/"><svg viewBox="0 0 60 48" fill="none" aria-hidden="true"><path d="M4 37H23V13H44V37H56" stroke="currentColor" stroke-width="2.5"/><circle cx="4" cy="37" r="3" fill="currentColor"/><circle cx="44" cy="13" r="5" stroke="currentColor" stroke-width="2"/><path d="M37 9L44 3L51 9" stroke="currentColor" stroke-width="2"/></svg><span>飞行工作台</span><small>Liftrace 飞行验证</small></a><div class="workspace-links"><a href="/" >飞行控制</a><a href="/logs" aria-current="page">日志录制与下载</a><a href="/replay" >回放与曲线分析</a></div><p class="nav-note">从现场记录到离线复核<br>同一份日志，清晰的证据。</p></nav>
 <main>
   <header><a class="btn" href="/">← 主工作台</a><h1>日志录制与下载</h1>
     <p id="log-connection">读取当前连接…</p><button id="log-refresh" class="btn">刷新录制状态与文件</button>
     <span id="log-at" class="muted"></span></header>
   <p id="log-message" role="status" aria-live="polite"></p>
-  <p><a class="btn" href="/replay" target="_blank" rel="noopener">本地 Bag 离线回放 / 已生成播放器 ↗</a> 无需板端连接。</p>
+  <p><a class="btn" href="/replay" target="_blank" rel="noopener">本地回放与投递 / 降落分析</a> 无需板端连接。</p>
   <section class="log-card"><h2>本地 ULog 查看器</h2>
     <p>选择已下载、已封闭的 .ulg 即可查看，不需要 logID 或板端连接。文件保存在本机工作台状态目录；下次可从列表直接选择。电机曲线为命令量，位置/高度为估计，不能据此认定实际推力或离地高度。</p>
     <label for="ulog-local-files">添加本地 ULog（可多选，单份上限128 MiB）</label>
@@ -59,9 +59,10 @@
     <p>断开连接或退出页面不会停止这些进程；bag 按所选时长结束，ULog 下载限时 600 秒。停止后等待文件封闭，再下载；不会停止旧任务的内置 bag。</p>
   </section>
   <section class="log-card"><h2>板端日志文件</h2>
+    <p>bag 下载到本机时自动命名，如 <code>1013-1530-投递H2D1-H降落vhD2.bag</code>。H/D 分别表示水平调整/下降模式，时间取该日志的记录时间；缺失模式标为“未知”。</p>
     <label for="log-filter">筛选文件名</label><input id="log-filter" type="search" placeholder="例如 .bag、.ulg 或场景名">
     <p>显示 logs/ 下最近 150 个文件（最多检查 600 个目录，深度 5 层）。活动文件与 .part 不提供下载。下载文件保存到浏览器的本地下载目录。</p>
     <div class="log-table"><table><thead><tr><th>相对路径</th><th>大小</th><th>修改时间</th><th>下载</th></tr></thead><tbody id="log-files"></tbody></table></div>
   </section>
-</main><script src="/static/ulog.js"></script><script src="/static/logs.js"></script>
+</main><script src="/static/downloads.js"></script><script src="/static/ulog.js"></script><script src="/static/logs.js"></script>
 </body></html>

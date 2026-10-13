@@ -47,7 +47,8 @@ class RemoteTests(unittest.TestCase):
         status = self.ns['action'](self.request('status'))
         self.assertEqual(len(status['files']), 2)
         self.assertTrue(next(f for f in status['files'] if f['path'].endswith('.bag'))['downloadable'])
-        self.assertFalse(next(f for f in status['files'] if f['path'].endswith('.active'))['downloadable'])
+        self.assertTrue(next(f for f in status['files'] if f['path'].endswith('.active'))['downloadable'])
+        self.assertTrue(next(f for f in status['files'] if f['path'].endswith('.active'))['snapshot'])
 
     def test_path_validation_and_symlink_escape(self):
         for path in ('', '/tmp/file.bag', '../secret', 'run/../secret', 'run//file', 'run/.secret',
@@ -183,6 +184,7 @@ class HttpTests(unittest.TestCase):
         with patch.object(server, 'PROFILE_DIR', self.tmp.name), patch.object(wb_board, 'load_profile', return_value={}):
             self.wb = server.Workbench(wb_board.load_config(), {'transport': 'ssh', 'password': 'memory-only'})
         self.wb.logs = Mock()
+        self.wb.logs.download_filename.side_effect = lambda path: path.rsplit('/', 1)[-1]
         self.wb.logs.lock = threading.RLock()
         self.wb.logs.active.return_value = False
         self.wb.logs.status.return_value = {'ok': True, 'jobs': [], 'files': [], 'recorders': []}

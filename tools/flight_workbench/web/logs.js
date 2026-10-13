@@ -32,8 +32,9 @@ function logFiles() {
     row.append(logNode('td', f.path), logNode('td', logSize(f.size)), logNode('td', new Date(f.mtime * 1000).toLocaleString()));
     const cell = logNode('td');
     if (f.downloadable && logState.connection.state === 'ok') {
-      const button = logNode('button', '下载到本机'); button.className = 'btn';
-      button.onclick = () => logDownload(f); cell.append(button);
+      const button = logNode('button', f.snapshot ? '下载快照到本机' : '下载到本机'); button.className = 'btn';
+      logDownloads.bind(button, '/api/recording/download?path=' + encodeURIComponent(f.path),
+        f.path.split('/').pop(), f.size, f.path); cell.append(button);
       if (f.path.toLowerCase().endsWith('.ulg') && typeof ulogBoardView === 'function') {
         const view = logNode('button', '查看 ULog'); view.className = 'btn';
         view.onclick = () => ulogBoardView(f); cell.append(view);
@@ -131,19 +132,6 @@ async function logIndex() {
       '请选择日志后点击下载并查看，ID自动带入；按解锁时间和运动匹配试飞，不自动选择最大编号。';
   } catch (error) { logById('log-message').textContent = error.message; }
   finally { logState.busy = false; logButtons(); }
-}
-async function logDownload(file) {
-  logById('log-message').textContent = '正在下载 ' + file.path + '…';
-  try {
-    const response = await fetch('/api/recording/download?path=' + encodeURIComponent(file.path), {cache: 'no-store'});
-    if (!response.ok) { const error = await response.json(); throw new Error(error.error || '下载失败'); }
-    const blob = await response.blob();
-    if (blob.size !== file.size) throw new Error('文件大小与查询时不一致，请刷新后重试');
-    const url = URL.createObjectURL(blob), a = logNode('a');
-    a.href = url; a.download = file.path.split('/').pop(); document.body.append(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 30000);
-    logById('log-message').textContent = '已交给浏览器保存：' + a.download;
-  } catch (error) { logById('log-message').textContent = error.message; }
 }
 function logInit() {
   logById('log-connect').onclick = async () => {

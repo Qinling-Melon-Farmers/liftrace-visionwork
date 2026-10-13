@@ -19,6 +19,19 @@ FILES = (
     'web/motor_wiring.json',
     'web/logs.html', 'web/logs.js', 'web/logs.css', 'web/ulog.js',
     'web/replay.html', 'web/replay.js',
+    'wb_waypoints.py', 'wb_waypoint_validation.py', 'wb_competition_geometry.py',
+    'wb_log_names.py', 'wb_offline_support.py', 'WAYPOINT_EDITOR.md', 'FRONTEND_DESIGN.md',
+    'web/waypoint-bridge.js', 'web/waypoint-bridge.css', 'web/waypoint-map.js',
+    'web/waypoint-map.html', 'web/waypoint-map.css', 'web/workbench-design.css',
+    'web/offline.js', 'web/offline.css', 'web/downloads.js',
+    'offline_replay/ros1_bridge.py', 'offline_replay/run.py', 'offline_replay/bag_replay.py', 'offline_replay/ffmpeg_support.py',
+    'offline_replay/flight_analysis.py', 'offline_replay/render_options.py', 'offline_replay/target_timeline.py',
+    'waypoint_templates/module04.yaml', 'waypoint_templates/module08.yaml',
+    'waypoint_templates/competition/field.example.yaml',
+    'waypoint_templates/competition/candidates/rectangle_motion.yaml',
+    'waypoint_templates/competition/candidates/snake_motion.yaml',
+    'waypoint_templates/competition/candidates/snake3_motion.yaml',
+    'waypoint_templates/competition/field_20261007_validated.yaml',
 )
 SOURCES = {relative: TOOL / relative for relative in FILES}
 VIEWER = ROOT / 'tools/flight_logs/ulg_motor_viewer'
@@ -58,7 +71,7 @@ def main():
         'source_scope': 'current workbench files, including uncommitted edits',
         'release_channel': 'local_candidate; not deployed to board',
         'modified_package_files': [p for p, source in SOURCES.items() if git('status', '--porcelain', '--', str(source))],
-        'platform': 'WSL/Linux and native Windows workbench; offline ULog and existing bag replay viewer; bag generation requires ROS Noetic on WSL/Linux',
+        'platform': 'WSL/Linux and native Windows workbench; native offline replay requires optional rosbags/OpenCV/SciPy/FFmpeg; legacy ROS replay retained',
         'default_port': 8771,
         'auto_connect': False,
         'board_deployment_included': False,

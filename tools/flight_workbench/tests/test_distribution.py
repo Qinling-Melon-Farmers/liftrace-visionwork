@@ -32,6 +32,8 @@ class DistributionTests(unittest.TestCase):
                             for f in build_zip.SOURCES} | {prefix + '/manifest.json'}
                 self.assertEqual(set(names), expected)
                 for file in ('wb_replay.py', 'web/replay.html', 'web/replay.js',
+                             'wb_waypoints.py', 'wb_competition_geometry.py', 'web/waypoint-map.js',
+                             'offline_replay/run.py', 'wb_offline_support.py',
                              'bag_replay/run.sh', 'bag_replay/bag_replay.py', 'bag_replay/video_encoder.py'):
                     self.assertIn(prefix + '/' + file, names)
                 self.assertFalse(any('merge_bags.py' in name for name in names))
@@ -81,7 +83,7 @@ class DistributionTests(unittest.TestCase):
                             self.assertTrue(response.read())
                     with urllib.request.urlopen(base + '/api/replay/library', timeout=2) as response:
                         replay = json.load(response)
-                    self.assertEqual(set(replay['roots']), {'data', 'generated'})
+                    self.assertEqual(set(replay['roots']), {'data', 'generated', 'imports'})
                     self.assertEqual(replay['bags'], [])
                     body = json.dumps(dict(group_id='observation_hover', mode='preview',
                                            check_config=True)).encode()
@@ -91,6 +93,15 @@ class DistributionTests(unittest.TestCase):
                         planned = json.load(response)
                     self.assertTrue(planned['ok'])
                     self.assertIn('preview hover', planned['body'])
+                    req = urllib.request.Request(base + '/api/waypoints/context',
+                        data=json.dumps(dict(group_id='competition')).encode(),
+                        headers={'Content-Type':'application/json'})
+                    with urllib.request.urlopen(req,timeout=2) as response:
+                        context=json.load(response)
+                    self.assertEqual(context['editor_kind'],'competition')
+                    self.assertFalse(context['site']['site_confirmed'])
+                    with urllib.request.urlopen(base+'/observe',timeout=2) as response:
+                        self.assertNotIn('id="motor-panel"',response.read().decode())
                     # Previewing a command must not open a terminal; attempting to
                     # execute even a preview is refused in this offline service.
                     req = urllib.request.Request(base + '/api/trial/start', data=body,

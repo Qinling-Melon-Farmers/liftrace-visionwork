@@ -1,20 +1,28 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Liftrace · Bag 离线回放</title><link rel="stylesheet" href="/static/style.css"><link rel="stylesheet" href="/static/logs.css"></head>
-<body class="logs-page"><main>
-<header><a class="btn" href="/">← 主工作台</a> <a class="btn" href="/logs">ULog / 日志</a><h1>Bag 离线回放</h1></header>
-<p>只读取本地已封闭的 ROS1 bag，生成记录数据的视频与报告。不连接板端、不启动 ROS 节点、不重新推理模型。已有结果可直接打开。</p>
-<p id="replay-message" role="status" aria-live="polite"></p>
-<section class="log-card"><h2>本地库与依赖</h2><p id="replay-capabilities">正在检查本机依赖…</p>
-<button id="replay-refresh" class="btn">刷新本地库</button><details><summary>预定数据根</summary><pre id="replay-roots"></pre></details>
-<p>只能选择服务启动配置中的目录，不接受网页任意路径。解压包默认扫描包内 data/；Windows 原生仅查看已生成回放，生成需在已有 ROS Noetic 的 WSL/Linux 后端进行。</p></section>
-<section class="log-card"><h2>启动离线生成</h2><label for="replay-bag">发现的本地 bag</label><select id="replay-bag"></select>
-<label for="replay-fps">视频帧率（1–30）</label><input id="replay-fps" type="number" min="1" max="30" step="1" value="10">
-<label for="replay-frame">显示坐标系（与 bag 记录一致）</label><input id="replay-frame" value="camera_init">
-<label for="replay-encoder">视频编码</label><select id="replay-encoder"><option value="cpu">CPU（推荐，cpu）</option><option value="auto">自动 GPU / CPU（auto）</option><option value="nvenc">NVIDIA NVENC（nvenc）</option></select>
-<p>GPU 仅参与视频编码，不加速 OpenCV 画面绘制；本机短片对照中 NVENC 更慢，因此默认 CPU。auto 的可用性与回退由回放工具检查；实际编码器和错误请查看作业日志。每次生成使用新目录，同一输出库只允许一个任务；刷新网页不会重启任务。</p>
-<button id="replay-start" class="btn btn-primary" disabled>生成回放</button></section>
-<section class="log-card"><h2>离线作业进度与日志</h2><p>导出阶段没有百分比；渲染进度来自工具输出，视频校验结束才标记完成。</p><div id="replay-jobs"></div></section>
-<section class="log-card"><h2>已有回放播放器</h2><p>仅显示含 summary.json、validation.json 及完整视频文件的目录，包括既有 analysis/；不必重复生成。播放器支持相对资源与长视频拖动。</p>
-<label for="replay-results">已生成结果</label><select id="replay-results"></select><a id="replay-open" class="btn" hidden target="_blank" rel="noopener">打开播放器 ↗</a></section>
-</main><script src="/static/replay.js"></script></body></html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light">
+<title>日志回放与分析 · 飞行工作台</title><link rel="stylesheet" href="/static/style.css"><link rel="stylesheet" href="/static/workbench-design.css"><link rel="stylesheet" href="/static/offline.css"></head>
+<body class="offline-page"><nav class="workspace-nav" aria-label="工作台导航"><a class="workspace-brand" href="/"><svg viewBox="0 0 60 48" fill="none" aria-hidden="true"><path d="M4 37H23V13H44V37H56" stroke="currentColor" stroke-width="2.5"/><circle cx="4" cy="37" r="3" fill="currentColor"/><circle cx="44" cy="13" r="5" stroke="currentColor" stroke-width="2"/><path d="M37 9L44 3L51 9" stroke="currentColor" stroke-width="2"/></svg><span>飞行工作台</span><small>Liftrace 飞行验证</small></a><div class="workspace-links"><a href="/" >飞行控制</a><a href="/logs" >日志录制与下载</a><a href="/replay" aria-current="page">回放与曲线分析</a></div><p class="nav-note">从现场记录到离线复核<br>同一份日志，清晰的证据。</p></nav>
+<main class="offline-main">
+<header class="offline-header"><div><h1>日志回放与分析</h1><p>把一次飞行的记录变成可回看的过程。选择本地日志，导出视频，或复核投递与降落曲线。</p></div><span class="local-badge">本机离线处理</span></header>
+<p id="replay-message" class="notice" role="status" aria-live="polite"></p>
+<div class="offline-grid"><section class="work-surface"><div class="surface-head"><h2>日志与导出内容</h2><button id="replay-refresh" class="btn">刷新</button></div><div class="surface-body">
+<div class="source-actions"><button id="replay-pick-bag" class="btn">选择本机日志</button><label class="btn" for="replay-upload">导入 bag 文件</label><input id="replay-upload" type="file" accept=".bag" hidden></div>
+<label class="field" for="replay-bag"><span>当前 ROS1 bag</span><select id="replay-bag"><option value="">请选择或导入日志</option></select></label>
+<div id="replay-source-detail" class="source-detail">选择已封闭的 ROS1 .bag 文件。导入会保留原文件。</div>
+<div class="flow-tabs" role="tablist" aria-label="导出内容"><button id="tab-video" class="flow-tab" role="tab" aria-controls="flow-video" aria-selected="true" tabindex="0" data-mode="video">视频回放</button><button id="tab-analysis" class="flow-tab" role="tab" aria-controls="flow-analysis" aria-selected="false" tabindex="-1" data-mode="analysis">投递 / 降落曲线</button></div>
+<div id="flow-video" role="tabpanel" aria-labelledby="tab-video">
+<div class="field-pair"><label class="field" for="replay-fps"><span>视频帧率</span><input id="replay-fps" type="number" min="1" max="30" step="1" value="10"></label><label class="field" for="replay-frame"><span>轨迹坐标系</span><input id="replay-frame" value="camera_init" maxlength="128"></label></div>
+<label class="field" for="replay-encoder"><span>编码方式</span><select id="replay-encoder"><option value="cpu">CPU</option><option value="auto">自动选择 GPU / CPU</option><option value="nvenc">NVIDIA NVENC</option></select></label>
+<div class="field-pair"><label class="field" for="replay-video-set"><span>导出视频</span><select id="replay-video-set"><option value="dashboard">仅汇报视频</option><option value="all">全部回放视频</option></select></label><label class="field" for="replay-speed"><span>编码速度</span><select id="replay-speed"><option value="balanced">均衡</option><option value="fast">快速</option></select></label></div>
+<label class="field" for="video-output"><span>视频导出文件夹</span></label><div class="destination-row"><select id="video-output"><option value="generated">工作台本地结果库</option></select><button class="btn pick-output" data-for="video-output">选择文件夹</button></div><p class="hint">每次导出创建独立子文件夹，保留之前的结果。</p>
+<p id="replay-capabilities" class="capability">正在检查视频生成环境…</p><button id="replay-start" class="btn btn-primary primary-action" disabled>导出视频回放</button>
+</div>
+<div id="flow-analysis" role="tabpanel" aria-labelledby="tab-analysis" hidden>
+<div class="analysis-includes"><div><strong>投递过程</strong><p>实际与指令高度、水平误差、投递许可，以及下降和成功应答时刻。</p></div><div><strong>降落模式</strong><p>配置与实际模式分别展示，结合飞控模式切换和落地状态确认执行证据。</p></div><div><strong>曲线与报告</strong><p>导出 PNG、HTML 报告、JSON 摘要与水平误差 CSV。没有记录的阶段明确标注。</p></div></div>
+<label class="field" for="analysis-output"><span>曲线导出文件夹</span></label><div class="destination-row"><select id="analysis-output"><option value="generated">工作台本地结果库</option></select><button class="btn pick-output" data-for="analysis-output">选择文件夹</button></div><p class="hint">分析完成后自动打开 HTML 报告。曲线只导出 PNG。</p>
+<p id="analysis-capabilities" class="capability">正在检查曲线分析环境…</p><button id="analysis-start" class="btn btn-primary primary-action" disabled>导出分析曲线与报告</button>
+</div><details class="root-list"><summary>本地库目录与数据来源</summary><pre id="replay-roots"></pre></details>
+</div></section>
+<div><section class="work-surface"><div class="surface-head"><h2>导出任务</h2><button id="replay-stop" class="btn btn-danger" disabled>停止导出</button></div><div id="replay-jobs" class="surface-body"><div class="empty-state"><h3>让飞行记录留下可复核的过程</h3><p>从左侧选择一份日志，然后选择导出视频或曲线。任务开始后，这里会显示实际阶段与进度。</p></div></div></section>
+<section class="work-surface result-library"><div class="surface-head"><h2>结果库</h2><span class="hint">已验证完成的导出</span></div><div class="surface-body"><div class="result-controls"><select id="replay-results" aria-label="已生成结果"><option value="">尚无结果</option></select><a id="replay-open" class="btn" hidden target="_blank" rel="noopener">打开结果</a></div><p class="library-note">视频通过完整解码与时长校验后入库；分析报告与图像完成导出后入库。</p></div></section></div>
+</div></main><script src="/static/offline.js"></script></body></html>

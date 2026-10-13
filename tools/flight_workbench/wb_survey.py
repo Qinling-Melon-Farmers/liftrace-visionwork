@@ -4,6 +4,24 @@ import math
 PATTERNS=('rectangle','snake2','snake3')
 FIELDS={'bounds','inset','pattern','camera_agl','fc_to_camera_z','fov_x_deg','fov_y_deg'}
 
+
+def route_points(bounds, inset, pattern):
+    """按相对起飞点的搜索范围生成路线，不改变坐标原点、飞行高度或速度。"""
+    def number(v): return type(v) in (int,float) and math.isfinite(v)
+    if not isinstance(bounds,list) or len(bounds)!=4 or not all(number(v) for v in bounds):
+        raise ValueError('搜索区需[xmin,xmax,ymin,ymax]四个有限数值')
+    x0,x1,y0,y1=bounds
+    if pattern not in PATTERNS: raise ValueError('未知搜索路线')
+    if not number(inset) or not (x0<x1 and y0<y1 and 0<=inset<min(x1-x0,y1-y0)/2):
+        raise ValueError('搜索区或内收距离无效')
+    xa,xb=x0+inset,x1-inset;ya,yb=y0+inset,y1-inset
+    if pattern=='rectangle': return [[xa,ya],[xb,ya],[xb,yb],[xa,yb],[xa,ya]]
+    lanes=[xa,(xa+xb)/2,xb] if pattern=='snake3' else [xa,xb]
+    route=[]
+    for i,x in enumerate(lanes): route.extend([[x,ya if i%2==0 else yb],[x,yb if i%2==0 else ya]])
+    return route
+
+
 def plan(spec):
     if not isinstance(spec,dict) or set(spec)!=FIELDS:
         raise ValueError('搜索设计需bounds/inset/pattern/camera_agl/fc_to_camera_z/fov_x_deg/fov_y_deg')
@@ -21,10 +39,7 @@ def plan(spec):
     if not all(1<spec[k]<179 for k in ('fov_x_deg','fov_y_deg')):raise ValueError('FOV必须为1至179度之间的有效角度')
     xa,xb=x0+inset,x1-inset;ya,yb=y0+inset,y1-inset
     lanes=[xa,xb] if pattern!='snake3' else [xa,(xa+xb)/2,xb]
-    if pattern=='rectangle':route=[[xa,ya],[xb,ya],[xb,yb],[xa,yb],[xa,ya]]
-    else:
-        route=[]
-        for i,x in enumerate(lanes):route.extend([[x,ya if i%2==0 else yb],[x,yb if i%2==0 else ya]])
+    route=route_points(bounds,inset,pattern)
     fx=2*height*math.tan(math.radians(spec['fov_x_deg'])/2)
     fy=2*height*math.tan(math.radians(spec['fov_y_deg'])/2)
     footprints=[]

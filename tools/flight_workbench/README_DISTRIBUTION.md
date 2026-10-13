@@ -2,14 +2,14 @@
 
 本包只包含笔记本侧工作台。无需完整工程、ROS、模型或 WSL。启动监听 localhost，等待用户点击连接；不会自动 SSH、启动设备、解锁或起飞。
 
-Bag 回放入口 `/replay` 可发现并播放已有结果，查看功能同样无需 ROS/WSL。
-**离线生成 bag 视频另需 WSL/Linux 中已有 ROS Noetic、FFmpeg/ffprobe 和渲染环境**；Windows
-原生工作台只显示已有结果与依赖提示，不自动调用 WSL 或安装依赖。CPU 默认，auto/NVENC
-可选；GPU 仅编码，不加速 OpenCV 绘制。原 ULog 上传、解析和导出功能保留。
+Bag 回放入口 `/replay` 可发现、播放已有结果，也可导入本机 bag 生成回放和分析。
+前线新增的原生离线后端支持 Windows/Linux，不要求 WSL；需现有 Python 3.10+、
+rosbags、NumPy、SciPy、OpenCV、Matplotlib，以及 FFmpeg/ffprobe。依赖不足时页面会提示；
+工作台不自动安装依赖。WSL 可使用已有 ROS1 读取环境。原 ULog 上传、解析和导出保留。
 
 ## Windows 原生启动
 
-使用已有 Windows Python 3.9+ 环境及 PyYAML、pexpect、Paramiko（版本范围见 requirements.txt）；离线 ULog 分析另需已有 numpy、matplotlib。pyulog 1.2.4 的读取源码及 BSD 许可随包提供，优先使用环境内已安装版本，无需另装 pyulog。pexpect 仅复用异常类型，Windows 不使用 Unix PTY。脚本检查依赖，不安装包或新建环境。本机已用 Windows Anaconda Python 3.12 验证，未在未安装 Python 的干净 Windows 上验证。
+使用已有 Windows Python 3.10+ 环境及 PyYAML、pexpect、Paramiko（版本范围见 requirements.txt）；离线 ULog 分析另需已有 numpy、matplotlib。pyulog 1.2.4 的读取源码及 BSD 许可随包提供，优先使用环境内已安装版本，无需另装 pyulog。pexpect 仅复用异常类型，Windows 不使用 Unix PTY。脚本检查依赖，不安装包或新建环境。本机已用 Windows Anaconda Python 3.12 验证，未在未安装 Python 的干净 Windows 上验证。
 
 1. 完整解压 ZIP 到本地目录，例如 C:\flight_workbench；支持中文和空格目录。
 2. 双击 start_windows.bat（start_windows.cmd 同效），或 PowerShell 执行：
@@ -41,7 +41,7 @@ Linux 需要 Python 3.9+、pexpect、PyYAML、bash、OpenSSH，无需 Paramiko�
 
 ## 比赛与测试
 
-独立正赛卡片调用 deployment/competition/start.sh，默认 YAML 是 deployment/competition/field.example.yaml。入口和模板由整机工程提供，未随本工具包部署。10月8日晚候选为规划速度1.2m/s、加速度1.0m/s²，搜索前视1.0m、精调0.4m、走廊快/慢0.6/0.4m，投递FC离地0.35m、高位软件上限3.2m。基础模板FC高2.6m；矩形/双线候选镜头2.6m（FC2.76m）；三线候选镜头2m（FC2.16m）。具体有效参数以实际生成配置为准。
+独立正赛卡片调用 deployment/competition/start.sh，默认 YAML 是 deployment/competition/field.example.yaml。入口和模板由整机工程提供，未随本工具包部署。10月8日晚候选为规划速度1.2m/s、加速度1.0m/s²，搜索前视1.0m、其余导航档0.6m，投递下降目标FC离地0.40m（释放窗口0.35～0.45m）、高位软件上限3.2m。基础模板FC高2.6m；矩形/双线候选镜头2.6m（FC2.76m）；三线候选镜头2m（FC2.16m）。具体有效参数以实际生成配置为准。
 
 08整场卡新增“正赛速度验证”选择，默认仍选“有限场地速度”。两者均使用10月7日22:17:30成功轮现场坐标，搜索FC高2m、走廊0.9m、到H后观察1.2m，场地不因速度选择而改变。新投递补偿及H低位交接随同版板端代码生效；工作台ZIP不会自行更新板端代码。运动优化、高位续扫默认开启；尚未验收的脱困恢复默认关闭。
 
@@ -51,7 +51,7 @@ Linux 需要 Python 3.9+、pexpect、PyYAML、bash、OpenSSH，无需 Paramiko�
 
 保留配置检查、preview、实投和原有双重确认/任务互斥。配置检查不启动 ROS；preview 可能启动地面应用链，现场应先配置检查。独立正赛 flight 只允许真实投递，后端拒绝伪装为 mock。
 
-现有现场/专项卡片、低空观察三卡、日志录制下载、终端和状态保持可用。取消独立电机大页入口；/observe 保留实时位姿、电机原始输出、映射与 ESC 摘要；旧 /motor 跳转 /observe。RC OUT 是输出指令，不能等同电流/RPM；浏览器片段只记录已接收数据，不启动动作。
+现有现场/专项卡片、低空观察三卡、日志录制下载、终端和状态保持可用。取消独立电机大页入口；/observe 保留实时位姿、姿态、电池与诊断；旧 /motor 跳转 /observe。实时电机面板已移除，ULog离线电机分析保留；浏览器片段只记录已接收数据，不启动动作。
 
 日志录制/索引/取回只在用户点击后调用现有脚本，下载失败或超时丢弃部分文件，没有断点续传。READY 是应用状态，飞手仍须依现场流程解锁/切 OFFBOARD/接管；保留低空观察收尾保护、舵机独立确认和 probe watchdog 边界。
 
@@ -78,5 +78,29 @@ Linux 需要 Python 3.9+、pexpect、PyYAML、bash、OpenSSH，无需 Paramiko�
 和所有视频，相对资源通过目录 URL 提供，支持 HTTP Range 与拖动。渲染中或缺失视频的目录
 不列为可用结果。工作台作业存于个人状态目录 `replay_library/`，可从页面查看进度与日志。
 普通浏览器刷新不重启任务；服务退出中断的任务不会误报完成。
+新增原生离线实现位于 offline_replay/；打包只包含程序，不含原始飞行bag或视频。
 
 本轮 Windows 原生离线 UI/HTTP、解压启动及本机 SSH fixture 的验证结果见仓库 docs/verification/workbench_release_20261008/REPORT.md。未连接真实板端，未验收真实网络、ROS、舵机、飞行或大 bag 的现场传输。
+
+
+## 2026-10-13：前线界面与正赛地图编辑
+
+已整合前线“飞行工作台.zip”的浅色导航、04/08地图编辑、下载及离线分析改进，
+保留本地 H 候选配置参数。Windows 与 WSL 使用同一份源码和分发包。
+
+独立正赛卡片也可点击“地图调整航点”：选择搜索点、走廊门前/门后点、准备点、H点后
+输入坐标或拖动；可编辑飞行/目标/搜索/低空覆盖范围与地图尺寸。
+已连接时读取所选板端 YAML；离线只使用包内对应参考模板并明确提示，未知文件不以其他
+模板代替。模板的空走廊和 H 必须填完；“现场已实测确认”由操作者明确勾选，保存不自动
+确认。草稿按板端、工程、组别和所选 YAML 隔离，切换来源不携带旧草稿。
+
+保存并用于本组仅保存本机草稿、生成命令。配置检查/preview/flight 使用同一坐标覆盖；
+执行时在工程 logs/flight_workbench/site_overlays/ 生成独立 YAML，不覆盖原文件。
+正赛覆盖经原 competition_config 校验，调用 deployment/competition/start.sh；
+不依赖板端的08测试模块或新工作台模块，也不改变速度、投递补偿、H策略和模型。
+只读配置检查不启动 ROS，preview/flight 仍沿用原确认与互斥。
+
+实时状态曲线 /observe 已移除电机接线、RC OUT、ESC和电机曲线面板，保留位姿、
+姿态、电池、LIO诊断及浏览器片段导出。ULog离线电机分析和板端录制不受此界面调整影响。
+
+本包是笔记本侧工作台，不能代替板端工程部署；没有自动连接、解锁或起飞。

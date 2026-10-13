@@ -1,6 +1,7 @@
 """Run the small frontend contract fixture with an already installed Node."""
 from pathlib import Path
 import shutil
+import json
 import subprocess
 import unittest
 
@@ -15,7 +16,7 @@ class FrontendTests(unittest.TestCase):
                     node = str(candidate); break
         if not node: self.skipTest('No installed Node; no packages installed for this check')
         tool = Path(__file__).resolve().parents[1]
-        source = (tool / 'web/logs.js').read_text(encoding='utf-8') + '\n' + (
+        source = 'global.__workbench_downloads_source = ' + json.dumps((tool/'web/downloads.js').read_text(encoding='utf-8')) + ';\n' + (tool / 'web/logs.js').read_text(encoding='utf-8') + '\n' + (
             tool / 'tests/test_logs_frontend.js').read_text(encoding='utf-8')
         result = subprocess.run([node, '-'], input=source, text=True, encoding='utf-8',
                                 capture_output=True, timeout=15)

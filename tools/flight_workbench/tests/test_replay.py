@@ -45,7 +45,12 @@ class ReplayTests(unittest.TestCase):
         with patch.object(server, 'PROFILE_DIR', str(self.root / 'profile')):
             self.wb = server.Workbench(config, {'transport': 'local', 'logs_only': True})
         self.library = self.wb.replays
-        self.library.cached_capabilities = {'generate': True, 'view': True, 'detail': 'fixture only'}
+        self.library.cached_capabilities = {'generate': True, 'analysis': True, 'view': True,
+                                            'detail': 'fixture only', 'analysis_detail': 'fixture only'}
+        capability_probe = patch.object(wb_replay.native, 'dependencies',
+                                        return_value=self.library.cached_capabilities)
+        capability_probe.start()
+        self.addCleanup(capability_probe.stop)
         class Handler(server.Handler):
             workbench = self.wb
         self.http = server.WorkbenchHTTPServer(('127.0.0.1', 0), Handler)
@@ -155,15 +160,17 @@ class ReplayTests(unittest.TestCase):
             self.assertEqual(self.library.catalog()['results'], [])
             self.assertEqual(self.request(media)[0], 400)
 
-    def test_native_windows_view_only_and_pythonpath_cleanup(self):
+    def test_missing_native_dependencies_keep_viewing_and_pythonpath_cleanup(self):
         self.library.cached_capabilities = None
-        with patch.object(wb_replay, 'IS_WINDOWS', True), patch.object(wb_replay.subprocess, 'run') as run:
-            caps = self.library.capabilities()
+        unavailable = {'generate': False, 'analysis': False, 'view': True,
+                       'detail': 'Windows 缺少 rosbags', 'analysis_detail': '缺少读取库'}
+        with patch.object(wb_replay.native, 'dependencies', return_value=unavailable), patch.object(wb_replay.subprocess, 'Popen') as spawn:
+            caps = self.library.capabilities(refresh=True)
             self.assertFalse(caps['generate'])
             self.assertTrue(caps['view'])
             self.assertIn('Windows', caps['detail'])
             self.assertEqual(self.start()[0], 400)
-            run.assert_not_called()
+            spawn.assert_not_called()
             self.assertEqual(len(self.library.catalog()['results']), 1)
         with patch.dict(os.environ, {'PYTHONPATH': '/custom:/usr/lib/python3/dist-packages/:/another'}):
             env = wb_replay.worker_environment()
@@ -196,8 +203,7 @@ class ReplayTests(unittest.TestCase):
     def test_owned_worker_progress_encoder_exclusion_and_verified_completion(self):
         tool = self.root / 'fake_tool'
         tool.mkdir()
-        (tool / 'run.sh').write_text('exec "$REPLAY_PYTHON" "${BASH_SOURCE[0]%/*}/worker.py" "$@"\n')
-        (tool / 'worker.py').write_text('''import json, os, pathlib, sys, time
+        (tool / 'run.py').write_text('''import json, os, pathlib, sys, time
 out = pathlib.Path(sys.argv[2]); out.mkdir()
 options = dict(zip(sys.argv[3::2], sys.argv[4::2]))
 print('Exported 2 camera images')
@@ -260,7 +266,8 @@ print('All videos decoded; duration checks passed.')
     def test_real_dependency_probe_ignores_workbench_system_pythonpath(self):
         library = wb_replay.ReplayLibrary(self.root / 'dependency-profile')
         with patch.dict(os.environ, {'PYTHONPATH': '/usr/lib/python3/dist-packages'}):
-            caps = library.capabilities()
+            import wb_offline_support
+            caps = wb_offline_support.dependencies(wb_replay.worker_environment())
         self.assertTrue(caps['generate'], caps)
 
 

@@ -7,6 +7,7 @@ import uuid
 from pathlib import Path
 
 from wb_ssh import quote, run_bytes
+from wb_log_names import REMOTE_INFO, download_name
 
 # This stdlib-only code runs through the existing SSH client, not an installed
 # board daemon. Status/download are read-only; only clicked actions create files.
@@ -127,7 +128,8 @@ def catalog(root, current_jobs):
                 continue
             stat = path.stat()
             files.append({"path": path.relative_to(root).as_posix(), "size": stat.st_size,
-                          "mtime": stat.st_mtime, "downloadable": file_closed(root, path, current_jobs)})
+                          "mtime": stat.st_mtime, "snapshot": path.name.endswith(".bag.active"),
+                          "downloadable": path.name.endswith(".bag.active") or file_closed(root, path, current_jobs)})
         if visited >= 600:
             break
     return sorted(files, key=lambda f: f["mtime"], reverse=True)[:150]
@@ -137,35 +139,51 @@ def action(request):
     root = inside(board, board / "logs")
     directory = inside(root, root / "flight_workbench_recordings")
     operation = request["operation"]
+    if operation == "download_info":
+        path = inside(root, root / request["path"])
+        if not path.is_file():
+            raise ValueError("File missing")
+        return {"ok": True, "info": download_info(root, path)}
     if operation == "download":
         path = inside(root, root / request["path"])
-        if not path.is_file() or not file_closed(root, path, jobs(directory)):
+        snapshot = path.name.endswith(".bag.active")
+        if not path.is_file() or (not snapshot and not file_closed(root, path, jobs(directory))):
             raise ValueError("File missing, recording still active, or file not finalized")
-        before = path.stat()
         with path.open("rb") as stream:
-            # Reject bags still opened for writing, including legacy internal bag.
-            for proc in Path("/proc").iterdir():
-                if not proc.name.isdigit():
-                    continue
-                try:
-                    descriptors = list((proc / "fd").iterdir())
-                except OSError:
-                    continue
-                for fd in descriptors:
-                    try:
-                        if fd.resolve() == path:
-                            info = (proc / "fdinfo" / fd.name).read_text()
-                            flags = next(int(line.split()[1], 8) for line in info.splitlines() if line.startswith("flags:"))
-                            if flags & os.O_ACCMODE:
-                                raise ValueError("File is still open for writing")
-                    except (OSError, StopIteration):
+            before = os.fstat(stream.fileno())
+            if not snapshot:
+                # Finalized files must remain closed and unchanged.
+                for proc in Path("/proc").iterdir():
+                    if not proc.name.isdigit():
                         continue
-            import shutil
+                    try:
+                        descriptors = list((proc / "fd").iterdir())
+                    except OSError:
+                        continue
+                    for fd in descriptors:
+                        try:
+                            if fd.resolve() == path:
+                                info = (proc / "fdinfo" / fd.name).read_text()
+                                flags = next(int(line.split()[1], 8) for line in info.splitlines() if line.startswith("flags:"))
+                                if flags & os.O_ACCMODE:
+                                    raise ValueError("File is still open for writing")
+                        except (OSError, StopIteration):
+                            continue
             sys.stdout.buffer.write(("WB_BINARY_" + request["nonce"] + " " + str(before.st_size) + "\n").encode("ascii"))
-            shutil.copyfileobj(stream, sys.stdout.buffer, length=1024*1024)
+            # A recording may grow: copy only the prefix present when opened.
+            remaining = before.st_size
+            while remaining:
+                block = stream.read(min(1024*1024, remaining))
+                if not block:
+                    raise ValueError("File truncated during download; discard incomplete data")
+                sys.stdout.buffer.write(block)
+                remaining -= len(block)
             sys.stdout.buffer.flush()
-        after = path.stat()
-        if (before.st_ino, before.st_size, before.st_mtime_ns) != (after.st_ino, after.st_size, after.st_mtime_ns):
+            after = os.fstat(stream.fileno()) if snapshot else path.stat()
+        if snapshot:
+            if before.st_ino != after.st_ino or after.st_size < before.st_size:
+                raise ValueError("Snapshot source truncated; discard incomplete data")
+        elif (before.st_ino, before.st_size, before.st_mtime_ns) != (after.st_ino, after.st_size, after.st_mtime_ns):
             raise ValueError("File changed during download; discard incomplete data")
         sys.stdout.buffer.write(("\nWB_END_" + request["nonce"] + "\n").encode("ascii"))
         return None
@@ -326,7 +344,7 @@ class LogsClient:
         return result
 
     def command(self, payload):
-        source = REMOTE + "\nROUTINE_WORKER = " + repr(ROUTINE_WORKER) + "\nrequest = " + repr(payload) + "\n"
+        source = REMOTE_INFO + "\n" + REMOTE + "\nROUTINE_WORKER = " + repr(ROUTINE_WORKER) + "\nrequest = " + repr(payload) + "\n"
         if payload["operation"] == "download":
             source += "action(request)\n"
         else:
@@ -399,6 +417,17 @@ class LogsClient:
             raise ValueError("需要明确点击停止日志操作")
         with self.lock:
             return self.execute("stop", id=job)
+
+    def download_filename(self, path):
+        path = relative_path(path)
+        if not path.endswith((".bag", ".bag.active")):
+            return path.rsplit("/", 1)[-1]
+        try:
+            with self.lock:
+                result = self.execute("download_info", path=path)
+            return download_name(path, result.get("info", {}))
+        except Exception:
+            return path.rsplit("/", 1)[-1]
 
     def download(self, path):
         path = relative_path(path)

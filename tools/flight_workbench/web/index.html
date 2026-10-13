@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="dark">
-<title>Liftrace 试飞验证看板</title>
+<meta name="color-scheme" content="light">
+<title>飞行验证工作台</title>
 <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
+<link rel="stylesheet" href="/static/workbench-design.css"><link rel="stylesheet" href="/static/waypoint-bridge.css"></head>
+<body class="console-page"><nav class="workspace-nav" aria-label="工作台导航"><a class="workspace-brand" href="/"><svg viewBox="0 0 60 48" fill="none" aria-hidden="true"><path d="M4 37H23V13H44V37H56" stroke="currentColor" stroke-width="2.5"/><circle cx="4" cy="37" r="3" fill="currentColor"/><circle cx="44" cy="13" r="5" stroke="currentColor" stroke-width="2"/><path d="M37 9L44 3L51 9" stroke="currentColor" stroke-width="2"/></svg><span>飞行工作台</span><small>Liftrace 飞行验证</small></a><div class="workspace-links"><a href="/" aria-current="page">飞行控制</a><a href="/logs" >日志录制与下载</a><a href="/replay" >回放与曲线分析</a></div><p class="nav-note">从现场记录到离线复核<br>同一份日志，清晰的证据。</p></nav>
 
 <header id="topbar">
   <div class="brand">
     <span class="brand-mark" aria-hidden="true">LT</span>
-    <span class="brand-title">Liftrace 试飞验证看板</span>
+    <span class="brand-title">飞行验证工作台</span>
     <span id="conn-chip" class="chip chip-unknown" title="SSH 连接状态"><span class="dot"></span><span id="conn-host">未配置</span></span>
     <label class="tiny" for="host-select">SSH 地址</label>
     <select id="host-select" class="host-select" title="板端 SSH 地址（历史地址来自现场部署记录与项目 memoir）"></select>
@@ -30,7 +30,7 @@
     <button id="btn-report" class="btn" title="POST /api/action/report {}">生成回报</button>
     <a class="btn" href="/observe" target="_blank" rel="noopener">实时状态曲线 ↗</a>
     <a id="link-recording" class="btn" style="display:none" href="/logs" target="_blank" rel="noopener">录制与下载 ↗</a>
-    <a class="btn" href="/replay" target="_blank" rel="noopener">Bag 离线回放 ↗</a>
+    <a class="btn" href="/replay" target="_blank" rel="noopener">回放与曲线分析</a>
     <span class="sep"></span>
     <label class="switch" title="阶段进入 READY / FAILED 时用 WebAudio 发出短提示音"><input type="checkbox" id="sw-sound"><span>声音提醒</span></label>
     <label class="switch" title="终端与日志自动跟随最新输出"><input type="checkbox" id="sw-autoscroll" checked><span>自动滚动</span></label>
@@ -97,6 +97,8 @@
 <div id="toasts" class="toasts" aria-live="polite"></div>
 <div id="modal-root" class="modal-root hidden"></div>
 
+<script src="/static/downloads.js"></script>
+<script src="/static/waypoint-bridge.js"></script>
 <script src="/static/app.js"></script>
 </body>
 </html>

@@ -9,6 +9,9 @@ class LogElement {
   replaceChildren(...nodes) { this.childNodes=nodes; }
   remove() {}
   click() { this.clicked=true; }
+  setAttribute() {}
+  get children() { return this.childNodes; }
+  classList = {add() {}};
 }
 const ids={};
 for(const id of ['log-connection','log-refresh','log-at','log-message','bag-profile','bag-duration','bag-start',
@@ -24,6 +27,21 @@ global.URL={createObjectURL:b=>{saved.push(b);return 'blob:fixture';},revokeObje
 let fixtureConnection={state:'unknown',host:'orangepi@fixture',board_root:'/fixture'};
 let fixtureStatus={ok:true,jobs:[],recorders:[],files:[],available:{bag:true,routine:true,ulog:true}};
 let downloadSize=3;
+global.clearInterval=()=>{};
+class DownloadXHR {
+  open(method,path) { this.path=path; }
+  getResponseHeader(name) { return name==='Content-Length' ? String(downloadSize) : null; }
+  send() { calls.push({path:this.path}); this.status=200;this.response={size:downloadSize};
+    Promise.resolve().then(()=>this.onload()); }
+}
+global.XMLHttpRequest=DownloadXHR;
+require('vm').runInThisContext(global.__workbench_downloads_source || require('fs').readFileSync(require('path').join(__dirname,'../web/downloads.js'),'utf8'));
+global.logDownloads=window.logDownloads;
+async function logDownload(file) {
+  const button=new LogElement('button');
+  logDownloads.bind(button,'/api/recording/download?path='+encodeURIComponent(file.path),file.path.split('/').pop(),file.size);
+  button.onclick(); await settle();
+}
 let fixtureCapabilities={recording:true};
 global.fetch=async(path,options)=>{
   const body=options&&options.body?JSON.parse(options.body):undefined;calls.push({path,body});
@@ -64,7 +82,8 @@ const settle=()=>new Promise(resolve=>setImmediate(resolve));
   ids['bag-duration'].value='60';ids['bag-profile'].value='diagnostic';ids['bag-start'].onclick();await settle();
   assert(calls.some(c=>c.path==='/api/recording/start'&&c.body.profile==='diagnostic'&&c.body.duration===60));
   await logDownload({path:'board_fixture/closed.bag',size:4});assert.equal(saved.length,0);
-  assert(ids['log-message'].textContent.includes('不一致'));
+  const texts=[];function collect(n){texts.push(n.textContent);n.childNodes.forEach(collect);}collect(document.body);
+  assert(texts.some(t=>t.includes('不一致')));
   await logDownload({path:'board_fixture/closed.bag',size:3});assert.equal(saved.length,1);
   assert(calls.some(c=>c.path==='/api/recording/download?path=board_fixture%2Fclosed.bag'));
   ids['ulog-id'].value='7';fixtureConnection={...fixtureConnection,host:'orangepi@new-fixture'};await logAction();

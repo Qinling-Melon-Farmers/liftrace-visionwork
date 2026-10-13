@@ -150,6 +150,11 @@ def main():
                         base, str(browser)], capture_output=True, text=True, encoding='utf-8', timeout=90)
                     (args.report_dir / 'windows_ulog_browser.log').write_text(result.stdout + result.stderr, encoding='utf-8')
                     check('native Edge real ULog history and charts', result.returncode == 0)
+                result = subprocess.run(['node', str(Path(__file__).with_name('browser_waypoints.mjs')),
+                    base, str(browser), str(args.report_dir / 'windows_map')],
+                    capture_output=True, text=True, encoding='utf-8', timeout=90)
+                (args.report_dir / 'windows_map.log').write_text(result.stdout + result.stderr, encoding='utf-8')
+                check('native Edge competition map and three routes', result.returncode == 0)
                 # The main backend occupies 8771. A second, strictly offline
                 # backend must report its actual fallback port, with /logs
                 # still relative to that origin. No connect/start API is used.

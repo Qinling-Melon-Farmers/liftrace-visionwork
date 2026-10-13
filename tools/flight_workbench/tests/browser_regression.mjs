@@ -44,12 +44,12 @@ try {
   for(let i=0;i<60;i++){if(await run('typeof state!=="undefined" && state.groups.length>=9'))break;await sleep(100);}
   await test('offline transport (no flight backend)', 'state.connection.transport === "local"');
   await test('realtime observer and logs use this origin; motor big page is removed', `
-    ['/observe','/logs'].every(path=>{const a=document.querySelector('a[href="'+path+'"]');return a&&a.target==='_blank'&&a.rel.includes('noopener')&&a.origin===location.origin;}) &&
+    ['/observe','/logs'].every(path=>{const a=document.querySelector('a[href="'+path+'"]');return a&&a.origin===location.origin&&(a.target!=='_blank'||a.rel.includes('noopener'));}) &&
     !document.querySelector('a[href="/motor"]')`);
   await test('competition defaults to the independent template and has three-state controls', `
     state.groups.find(g=>g.id==='competition').site_config==='deployment/competition/field.example.yaml' &&
     ['motionOptimization','resume','obstacleColumns'].every(k=>{const s=document.querySelector('[data-option="'+k+'"]');return s&&s.options.length===3&&s.value==='';}) &&
-    ['FC高位2.6m','走廊前视0.6/0.4m','投递FC AGL 0.35m','FC软件限高3.2m'].every(value=>
+    ['FC高位2.6m','搜索/其余导航前视1.0/0.6m','投递下降目标FC AGL 0.40m','FC软件限高3.2m'].every(value=>
       [...document.querySelectorAll('.grp-card')].find(card=>
         card.querySelector('.grp-title').textContent===state.groups.find(g=>g.id==='competition').name).textContent.includes(value))`);
   await run(`window.cg=state.groups.find(g=>g.id==='competition');

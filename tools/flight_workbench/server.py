@@ -30,8 +30,10 @@ import wb_board
 import wb_status
 import wb_ssh
 import wb_logs
+from wb_log_names import attachment_header
 import wb_ulog
 import wb_replay
+import wb_waypoints
 from wb_ssh import SessionManager, Target, run_once
 
 WEB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
@@ -1041,7 +1043,7 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError('缺少结果目录路径')
             value = value[:-1] if value.endswith('/') else value
             target = self.workbench.replays.artifact(key, value)
-            if target.name == 'index.html' and not route.endswith(('/', '/index.html')):
+            if target.name in ('index.html', 'analysis_report.html') and not route.endswith(('/', '/index.html', '/analysis_report.html')):
                 self.send_response(302)
                 self.send_header('Location', route + '/')
                 self.send_header('Content-Length', '0')
@@ -1162,10 +1164,10 @@ class Handler(BaseHTTPRequestHandler):
         code, output = self.workbench.logs.download(path)
         if code != 0:
             return self._error("下载失败或超时，未返回不完整文件；请检查连接和文件封闭状态", 502)
-        name = path.rsplit("/", 1)[-1]
+        name = self.workbench.logs.download_filename(path)
         self.send_response(200)
         self.send_header("Content-Type", "application/octet-stream")
-        self.send_header("Content-Disposition", 'attachment; filename="%s"' % name)
+        self.send_header("Content-Disposition", attachment_header(name))
         self.send_header("Content-Length", str(len(output)))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
@@ -1203,6 +1205,14 @@ class Handler(BaseHTTPRequestHandler):
     # -- POST --
     def do_POST(self):
         route = urlparse(self.path).path
+        if route == '/api/replay/upload':
+            try:
+                self._same_origin()
+                length = int(self.headers.get('Content-Length') or 0)
+                query = parse_qs(urlparse(self.path).query)
+                return self._json(self.workbench.replays.ingest(self.rfile, length, (query.get('name') or [''])[0]))
+            except (ValueError, OSError) as error:
+                return self._error(error)
         if route == "/api/ulog/upload":
             try:
                 length = int(self.headers.get("Content-Length") or 0)
@@ -1227,6 +1237,13 @@ class Handler(BaseHTTPRequestHandler):
             return self._error(error)
         workbench = self.workbench
         try:
+            if route == '/api/replay/select-local':
+                self._same_origin()
+                return self._json(workbench.replays.select_local(body))
+            if route == '/api/replay/stop':
+                self._same_origin()
+                workbench.replays.close()
+                return self._json({'ok': True})
             if route == '/api/replay/start':
                 self._same_origin()
                 return self._json(workbench.replays.start(body))
@@ -1319,6 +1336,23 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"ok": True})
             if route == "/api/survey/plan":
                 return self._json({"ok": True, "plan": wb_survey.plan(body)})
+            if route.startswith('/api/waypoints/'):
+                self._same_origin()
+                if route == '/api/waypoints/route':
+                    return self._json(wb_waypoints.route(workbench, body))
+                if route == '/api/waypoints/draft':
+                    return self._json(wb_waypoints.draft(workbench, body))
+                if route == '/api/waypoints/context':
+                    return self._json(wb_waypoints.context(workbench, body))
+                if route == '/api/waypoints/save':
+                    return self._json(wb_waypoints.save(workbench, body))
+                if route == '/api/waypoints/disable':
+                    return self._json(wb_waypoints.disable(workbench, body))
+                if route == '/api/waypoints/preview':
+                    return self._json(wb_waypoints.preview(workbench, body))
+                if route == '/api/waypoints/import':
+                    return self._json(wb_waypoints.import_site(workbench, body))
+                raise ValueError('未知航点编辑接口')
             if route == "/api/trial/command":
                 return self._json(workbench.trial_command(body))
             if route == "/api/trial/start":

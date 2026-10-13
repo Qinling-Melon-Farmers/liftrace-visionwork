@@ -4,7 +4,7 @@
 `rl_drone` 环境运行 `python tools/flight_workbench/build_zip.py` 即可打包当前工作台文件；
 使用明确文件清单，不包含个人状态、日志或板端工程，不要求提交后才能打包。
 Windows 通过 `start_windows.bat` / `start_windows.ps1` 使用原生 Python + Paramiko，无需 WSL；Linux 保留原 OpenSSH/PTY 实现。默认端口8771，日志/观察链接使用当前页面同源地址。
-独立正赛卡片指向 `deployment/competition/field.example.yaml`，保留比赛FC高位2.6m、规划1.2m/s/1.0m/s²、搜索/接近前视1.0/0.4m、走廊前视0.6/0.4m、投递FC AGL 0.35m与FC软件限高3.2m；场地实测与确认必填，测试场地成功不是10×10正赛验收。运动优化/高位续扫/障碍柱的“继承/开/关”分别省略覆盖或传对应on/off CLI。正式模板默认开启运动优化和高位续扫，历史测试复现保留原值。两项独立，不能从运动优化开关推断续扫。配置检查与运行生成结果分别显示实际值；尚无监督器输出或已改变选择时显示“尚未确认”。报告见 [本轮验证](../../docs/verification/workbench_release_20261008/REPORT.md)。
+独立正赛卡片指向 `deployment/competition/field.example.yaml`，保留比赛FC高位2.6m、规划1.2m/s/1.0m/s²、搜索前视1.0m、其余导航前视0.6m、投递下降目标FC AGL 0.40m（释放窗口0.35～0.45m）与FC软件限高3.2m；场地实测与确认必填，测试场地成功不是10×10正赛验收。运动优化/高位续扫/障碍柱的“继承/开/关”分别省略覆盖或传对应on/off CLI。正式模板默认开启运动优化和高位续扫，历史测试复现保留原值。两项独立，不能从运动优化开关推断续扫。配置检查与运行生成结果分别显示实际值；尚无监督器输出或已改变选择时显示“尚未确认”。报告见 [本轮验证](../../docs/verification/workbench_release_20261008/REPORT.md)。
 离线解压启动检查：`python tools/flight_workbench/tests/test_distribution.py`。
 
 2026-10-10：主页和日志页新增 [Bag 离线回放](/replay) 独立入口，详见
@@ -413,3 +413,26 @@ PYTHONPATH=/usr/lib/python3/dist-packages python -m unittest discover -s tools/f
 该入口仍启动同一标定launch。默认0928工程的 `connection.env_script` 保留。
 若连接独立工程根目录，在连接设置中将此项改为
 `deployment/competition/environment.sh`，同时填写实际工程根目录；不自动切根目录。
+
+
+## 2026-10-13：前线界面与正赛地图编辑
+
+已整合前线“飞行工作台.zip”的浅色导航、04/08地图编辑、下载及离线分析改进，
+保留本地 H 候选配置参数。Windows 与 WSL 使用同一份源码和分发包。
+
+独立正赛卡片也可点击“地图调整航点”：选择搜索点、走廊门前/门后点、准备点、H点后
+输入坐标或拖动；可编辑飞行/目标/搜索/低空覆盖范围与地图尺寸。
+已连接时读取所选板端 YAML；离线只使用包内对应参考模板并明确提示，未知文件不以其他
+模板代替。模板的空走廊和 H 必须填完；“现场已实测确认”由操作者明确勾选，保存不自动
+确认。草稿按板端、工程、组别和所选 YAML 隔离，切换来源不携带旧草稿。
+
+保存并用于本组仅保存本机草稿、生成命令。配置检查/preview/flight 使用同一坐标覆盖；
+执行时在工程 logs/flight_workbench/site_overlays/ 生成独立 YAML，不覆盖原文件。
+正赛覆盖经原 competition_config 校验，调用 deployment/competition/start.sh；
+不依赖板端的08测试模块或新工作台模块，也不改变速度、投递补偿、H策略和模型。
+只读配置检查不启动 ROS，preview/flight 仍沿用原确认与互斥。
+
+实时状态曲线 /observe 已移除电机接线、RC OUT、ESC和电机曲线面板，保留位姿、
+姿态、电池、LIO诊断及浏览器片段导出。ULog离线电机分析和板端录制不受此界面调整影响。
+
+本包是笔记本侧工作台，不能代替板端工程部署；没有自动连接、解锁或起飞。

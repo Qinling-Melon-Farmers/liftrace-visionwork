@@ -850,6 +850,18 @@ function groupCommandBody(g, mode, realRelease, checkConfig, speed, options) {
   var moduleBase = 'deployment/board_trials_4x4/' + folder;
   var extra = '';
   options = options || {};
+  if (options.landing_config != null) {
+    if (typeof options.landing_config!=='string' || !options.landing_config.trim() || /[\r\n\x00]/.test(options.landing_config) ||
+        !(route==='competition' || (route==='module' && ['03_h_landing','04_corridor_landing','08_full_mission'].indexOf(folder)>=0))) {
+      return {body:null,note:'landing_config需要有效路径，且仅用于H模块或正赛'};
+    }
+    extra=' --landing-config '+shellArgQuote(options.landing_config.trim());
+  }
+  if (options.site_geometry !== undefined) {
+    var plans=groupUI(g).geometryPlans || {};
+    return plans[geometryPlanKey(g,mode,realRelease,checkConfig,speed,options)] ||
+      {body:null,note:'手动坐标或参数尚未生成匹配命令，请点击“生成并预览坐标命令”'};
+  }
   if (route === 'competition') {
     var field = options.competition_config == null ? g.site_config : options.competition_config;
     if (typeof field !== 'string' || !field.trim() || /[\r\n\x00]/.test(field) ||
@@ -872,11 +884,6 @@ function groupCommandBody(g, mode, realRelease, checkConfig, speed, options) {
     }
     return {body:'bash deployment/low_hover_observation/start.sh ' + (checkConfig ? 'preview' : mode) + ' ' + g.profile,
       note:'preview 为离线配置展开（无 ROS）；flight 仅观察动作和诊断录包，飞手人工解锁并重新拨入 OFFBOARD'};
-  }
-  if (options.site_geometry !== undefined) {
-    var plans=groupUI(g).geometryPlans || {};
-    return plans[geometryPlanKey(g,mode,realRelease,checkConfig,speed,options)] ||
-      {body:null,note:'手动坐标或参数尚未生成匹配命令，请点击“生成并预览坐标命令”'};
   }
   if (speed !== null && speed !== undefined) extra += ' --capture-speed ' + Number(speed).toFixed(1);
   if (options.capture_lighting) extra += ' --capture-lighting ' + options.capture_lighting;
@@ -968,7 +975,10 @@ function competitionEffectiveConfig(g,options,stage,trial) {
     (trial.obstacle_columns || null)===(options.obstacle_columns || null) &&
     (trial.speed_profile || null)===(options.speed_profile || null) &&
     (trial.survey_pattern || null)===(options.survey_pattern || null) &&
-    !!trial.motion_optimized===!!options.motion_optimized;
+    !!trial.motion_optimized===!!options.motion_optimized &&
+    (trial.landing_config || null)===(options.landing_config || null) &&
+    (trial.geometry_revision || null)===(options.geometry_revision || null) &&
+    JSON.stringify(trial.site_geometry || null)===JSON.stringify(options.site_geometry || null);
   return actual && matches ? effectiveConfigText(actual) : '当前所选配置的有效值尚未确认：先运行配置检查。复选框和选项只表示请求。';
 }
 
@@ -987,6 +997,7 @@ function groupUI(g) {
   if (!U.mode) U.mode = 'preview';
   if (!U.release) U.release = g.release || 'none';
   if (g.speed_options && g.speed_options.length && U.speed == null) U.speed = g.speed_options[0];
+  if (window.WaypointWorkbench) WaypointWorkbench.restore(g,U);
   return U;
 }
 
@@ -1000,13 +1011,16 @@ function trialBody(g, mode, checkConfig) {
     if (U.obstacleColumns) body.obstacle_columns = U.obstacleColumns;
     if (U.competitionConfig != null) body.competition_config = U.competitionConfig;
   }
-  if (g.speed_profile_options && U.speedProfile) body.speed_profile = U.speedProfile;
-  if (g.speed_options && g.speed_options.length && U.speed != null) body.capture_speed = U.speed;
-  if (g.lighting_options && U.lighting) body.capture_lighting = U.lighting;
-  if (g.motion_optimization_supported && U.motionOptimized) body.motion_optimized = true;
-  if (g.survey_patterns && U.pattern) body.survey_pattern = U.pattern;
+  if (g.channel !== 'competition') {
+    if (g.speed_profile_options && U.speedProfile) body.speed_profile = U.speedProfile;
+    if (g.speed_options && g.speed_options.length && U.speed != null) body.capture_speed = U.speed;
+    if (g.lighting_options && U.lighting) body.capture_lighting = U.lighting;
+    if (g.motion_optimization_supported && U.motionOptimized) body.motion_optimized = true;
+    if (g.survey_patterns && U.pattern) body.survey_pattern = U.pattern;
+  }
   if (g.resume_survey_supported && U.resume) body.resume_survey = U.resume;
-  if ((g.needs_waypoints || g.survey_patterns || g.folder==='09_high_speed_capture') && U.geometryEnabled) {body.site_geometry=U.geometryValues || {};body.geometry_revision=U.geometryRevision || '';}
+  if(U.landingConfig && (g.channel==='competition' || (g.channel==='module' && ['03_h_landing','04_corridor_landing','08_full_mission'].indexOf(g.folder)>=0)))body.landing_config=U.landingConfig;
+  if ((g.channel==='competition' || g.needs_waypoints || g.survey_patterns || g.folder==='09_high_speed_capture') && U.geometryEnabled) {body.site_geometry=U.geometryValues || {};body.geometry_revision=U.geometryRevision || '';}
   if (!checkConfig) body.confirm = body.real_release ? '实投' : '启动试飞';
   var built = groupCommandBody(g, body.mode, body.real_release, !!body.check_config, body.capture_speed, body);
   if (built.body) body.expected_body = built.body;
@@ -1018,7 +1032,8 @@ function geometryPlanKey(g, mode, realRelease, checkConfig, speed, options) {
   return JSON.stringify([g.id, c.host, c.board_root, c.site_dir, g.site_config,
     mode, !!realRelease, !!checkConfig, speed || null, options.capture_lighting || null,
     !!options.motion_optimized, options.survey_pattern || null, options.resume_survey || null, options.speed_profile || null,
-    options.geometry_revision, options.site_geometry]);
+    options.competition_config || null, options.motion_optimization || null, options.obstacle_columns || null,
+    options.landing_config || null, options.geometry_revision, options.site_geometry]);
 }
 
 function geometryFromDraft(U,g) {
@@ -1033,7 +1048,8 @@ function geometryFromDraft(U,g) {
     return values;
   }
   var result = {}, points = [];
-  if (!g || g.needs_waypoints) {
+  var competition=g && g.channel==='competition';
+  if (!g || g.needs_waypoints || competition) {
     String(U.geometryPoints || '').split(/\r?\n/).forEach(function(line,index) {
       if (!line.trim()) return;
       var p = row(line,3,'走廊航点第' + (index+1) + '行');
@@ -1042,11 +1058,11 @@ function geometryFromDraft(U,g) {
     if (points.length < 2) throw Error('至少填写两个走廊航点，每行x, y, agl');
     result.corridor_waypoints=points;result.landing_xy=row(U.geometryLanding,2,'H中心');
   }
-  if (U.surveyEnabled) {
+  if (U.surveyEnabled && !competition) {
     function value(key,label) { return row(U[key],1,label)[0]; }
     result.survey_plan={bounds:row(U.surveyBounds,4,'搜索区范围'),inset:value('surveyInset','航线内收距离'),pattern:U.pattern || 'rectangle',camera_agl:value('surveyCameraHeight','镜头离地高度'),fc_to_camera_z:value('surveyOffset','镜头相对FC的Z偏移'),fov_x_deg:value('surveyFovX','任务X方向视场角'),fov_y_deg:value('surveyFovY','任务Y方向视场角')};
   }
-  if ((!g || g.needs_waypoints) && String(U.geometryWalls || '').trim()) {
+  if ((!g || g.needs_waypoints || competition) && String(U.geometryWalls || '').trim()) {
     var entry=Number(U.geometryEntry);
     if (!Number.isInteger(entry) || entry<1 || entry>points.length) throw Error('入口序号从1开始且不能超过航点数');
     result.corridor_geometry={wall_axis:Number(U.geometryAxis || 0),wall_coordinates:row(U.geometryWalls,null,'墙面位置'),entry_waypoints:entry};
@@ -1054,6 +1070,16 @@ function geometryFromDraft(U,g) {
   if (String(U.geometryArea || '').trim()) {
     try { result.flight_area=JSON.parse(U.geometryArea); }
     catch(e) { throw Error('flight_area：JSON格式错误，请使用完整JSON对象'); }
+  }
+  if (competition) {
+    if (!result.flight_area || Array.isArray(result.flight_area) || typeof result.flight_area!=='object') throw Error('正赛需要完整flight_area坐标');
+    var area={};
+    for (var key of ['center_bounds','target_bounds','search_bounds','coverage_bounds','staging_xy','survey_xy','map_size']) {
+      if (!Array.isArray(result.flight_area[key])) throw Error('正赛flight_area缺少'+key);
+      area[key]=result.flight_area[key];
+    }
+    result.flight_area=area;
+    result.site_confirmed=U.geometrySiteConfirmed===true;
   }
   return result;
 }
@@ -1073,23 +1099,27 @@ function renderSurveyCoverage(box,p) {
 
 function geometryEditor(g,U,onChange) {
   var box=el('div','geometry-editor');
+  var competition=g.channel==='competition';
+  function invalidate(){U.geometryPlans={};U.geometryRevision=null;U.armedOk=false;U.realConfirm='';}
+  if(window.WaypointWorkbench && WaypointWorkbench.supported(g))box.appendChild(WaypointWorkbench.button(g,U));
   var label=el('label','chk'), enabled=el('input');enabled.type='checkbox';enabled.checked=!!U.geometryEnabled;
   enabled.setAttribute('data-option','geometryEnabled');
-  label.appendChild(enabled);label.appendChild(el('span',null,'使用实测坐标／自动搜索航线（保留原现场YAML）'));box.appendChild(label);
-  enabled.addEventListener('change',function(){U.geometryEnabled=enabled.checked;U.geometryPlans={};renderGroups();});
+  label.appendChild(enabled);label.appendChild(el('span',null,competition?'使用实测坐标草稿（保留所选正赛YAML）':'使用实测坐标／自动搜索航线（保留原现场YAML）'));box.appendChild(label);
+  enabled.addEventListener('change',function(){U.geometryEnabled=enabled.checked;invalidate();renderGroups();});
   if (!U.geometryEnabled) return box;
-  box.appendChild(el('div','tiny muted','单位m；相对起飞点：+X朝场内、+Y向左。走廊点agl为FC中心离地高度；自动搜索填写镜头离地高度，再按安装外参换算FC高度。'));
+  box.appendChild(el('div','tiny muted',competition?'先打开地图读取所选配置，再微调坐标。+X朝场内、+Y向左；高度、速度和H策略继承所选配置。':'单位m；相对起飞点：+X朝场内、+Y向左。走廊点agl为FC中心离地高度；自动搜索填写镜头离地高度，再按安装外参换算FC高度。'));
   function input(key,title,placeholder,multiline) {
     var wrap=el('label','geometry-field');wrap.appendChild(el('span',null,title));
     var field=el(multiline?'textarea':'input');field.value=U[key] || '';field.placeholder=placeholder;
     if(multiline)field.rows=key==='geometryPoints'?5:3;
     field.setAttribute('data-geometry',key);
-    field.addEventListener('input',function(){U[key]=field.value;U.geometryPlans={};U.geometryRevision=null;U.surveyPreview=null;coverage.replaceChildren();status.textContent='坐标已修改，请重新生成命令';onChange();});
+    field.addEventListener('input',function(){U[key]=field.value;invalidate();U.surveyPreview=null;coverage.replaceChildren();status.textContent='坐标已修改，请重新生成命令';onChange();});
     wrap.appendChild(field);box.appendChild(wrap);return field;
   }
   var coverage=el('div','survey-coverage');
-  if (g.survey_patterns || g.folder==='09_high_speed_capture') {
+  if (!competition && (g.survey_patterns || g.folder==='09_high_speed_capture')) {
     var surveyLabel=el('label','chk'),survey=el('input');survey.type='checkbox';survey.checked=!!U.surveyEnabled;survey.setAttribute('data-option','surveyEnabled');
+    if(U.waypointDraftApplied&&U.geometryEnabled){survey.disabled=true;survey.title='当前采用地图手工搜索点；使用原现场配置后可恢复自动搜索生成';}
     surveyLabel.appendChild(survey);surveyLabel.appendChild(el('span',null,'按搜索区自动生成，并计算理想FOV覆盖'));box.appendChild(surveyLabel);
     survey.addEventListener('change',function(){U.surveyEnabled=survey.checked;U.geometryPlans={};U.surveyPreview=null;U.geometryRevision=null;renderGroups();});
     if(U.surveyEnabled) {
@@ -1105,24 +1135,30 @@ function geometryEditor(g,U,onChange) {
       box.appendChild(el('div','tiny muted','FC高度=镜头高度−安装Z偏移；例如偏移−0.16时镜头2m需要FC 2.16m，原限高不会自动放宽。FOV可由2×atan(实测宽度÷2÷镜头高度)换算为度。'));
     }
   }
-  if (g.needs_waypoints) {
+  if (g.needs_waypoints || competition) {
   input('geometryPoints','有序走廊航点：每行 x, y, agl','填写现场实测值，每行三个数，不含H观察爬升点',true);
   input('geometryLanding','H中心：x, y','填写终点H中心',false);
   var detail=el('div','tiny muted','可选：填写墙面几何后，现有运动优化才会尝试合并直线中继点/入口升降。坐标点本身不会自动启用这些条件。');box.appendChild(detail);
   var axis=el('select');[['0','墙面常量轴X'],['1','墙面常量轴Y']].forEach(function(item){var o=el('option',null,item[1]);o.value=item[0];axis.appendChild(o);});axis.value=U.geometryAxis || '0';
-  axis.addEventListener('change',function(){U.geometryAxis=axis.value;U.geometryPlans={};U.geometryRevision=null;onChange();});box.appendChild(axis);
+  axis.addEventListener('change',function(){U.geometryAxis=axis.value;invalidate();onChange();});box.appendChild(axis);
   input('geometryWalls','墙面位置（沿所选轴，逗号分隔；可留空）','实测墙平面位置',false);
   input('geometryEntry','低入口在有序航点中的序号（从1开始）','填写对应序号',false);
   }
-  input('geometryArea','可选flight_area坐标覆盖（JSON对象；留空继承现场范围）','可填写center_bounds/target_bounds/search_bounds/staging_xy/survey_xy/map_size',true);
+  input('geometryArea',competition?'完整flight_area坐标（JSON对象，含coverage_bounds）':'可选flight_area坐标覆盖（JSON对象；留空继承现场范围）','center_bounds/target_bounds/search_bounds/coverage_bounds/staging_xy/survey_xy/map_size',true);
+  if(competition){
+    var confirmedLabel=el('label','chk'),confirmed=el('input');confirmed.type='checkbox';confirmed.checked=U.geometrySiteConfirmed===true;confirmed.setAttribute('data-geometry','site_confirmed');
+    confirmedLabel.appendChild(confirmed);confirmedLabel.appendChild(el('span',null,'已实测并确认正赛场地（site_confirmed）'));box.appendChild(confirmedLabel);
+    confirmed.addEventListener('change',function(){U.geometrySiteConfirmed=confirmed.checked;invalidate();status.textContent='确认状态已修改，请重新生成命令';onChange();});
+  }
   box.appendChild(el('div','tiny muted','不扩大原场地时无需填写flight_area。扩大时需同时核对搜索区、规划地图尺寸和航线。所有点仍需通过原工程校验。'));
   box.appendChild(coverage);
   if(U.surveyPreview && U.surveyPreview.pattern===(U.pattern || 'rectangle'))renderSurveyCoverage(coverage,U.surveyPreview);
   var apply=el('button','btn btn-sm','生成并预览坐标命令（不连接飞机）');box.appendChild(apply);
+  apply.setAttribute('data-waypoint-command',g.id);
   var status=el('div','tiny muted',U.geometryPlans && Object.keys(U.geometryPlans).length?'命令已生成；点击配置检查在板端核对合并结果。':'草稿尚未生成命令。');box.appendChild(status);
   apply.addEventListener('click',function(){
     try { U.geometryValues=geometryFromDraft(U,g); } catch(e) {status.textContent=e.message;return;}
-    U.geometryRevision=Date.now().toString(36);U.geometryPlans={};apply.disabled=true;status.textContent='正在本机生成命令…';
+    invalidate();U.geometryRevision=Date.now().toString(36);apply.disabled=true;status.textContent='正在本机生成命令…';
     var revision=U.geometryRevision;
     var requests=[trialBody(g,'preview',true),trialBody(g,'preview',false),trialBody(g,'flight',false)];
     var coverageRequest=U.geometryValues.survey_plan ? fetch('/api/survey/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(U.geometryValues.survey_plan)}).then(function(r){return r.json().then(function(v){if(!r.ok || !v.ok)throw Error(v.error || '覆盖计算失败');return v.plan;});}) : Promise.resolve(null);
@@ -1135,7 +1171,7 @@ function geometryEditor(g,U,onChange) {
       if(U.geometryRevision!==revision)return;
       U.surveyPreview=plans.pop();
       plans.forEach(function(pair){U.geometryPlans[pair[0]]=pair[1];});renderGroups();
-    }).catch(function(e){status.textContent=e.message;U.geometryPlans={};}).finally(function(){apply.disabled=false;onChange();});
+    }).catch(function(e){if(U.geometryRevision===revision){status.textContent=e.message;U.geometryPlans={};}}).finally(function(){apply.disabled=false;onChange();});
   });
   return box;
 }
@@ -1177,9 +1213,10 @@ function groupCard(g) {
       select.appendChild(option);
     });
     select.value = U[field] || '';
+    if(field==='pattern'&&U.waypointDraftApplied&&U.geometryEnabled){select.disabled=true;select.title='地图手工搜索点已启用，不再自动生成矩形或蛇形';}
     select.addEventListener('change', function () {
       U[field] = select.value;
-      if (field === 'release') { U.realConfirm = ''; U.armedOk = false; }
+      U.realConfirm = ''; U.armedOk = false;
       renderGroups();
     });
     row.appendChild(select); ops.appendChild(row);
@@ -1187,19 +1224,24 @@ function groupCard(g) {
   if (g.release_options && g.release_options.length) {
     choiceRow('投递', 'release', g.release_options.map(function (v) { return [v, v === 'real' ? '真实投递 · 需双重确认' : '模拟投递 · mock']; }));
   }
+  if(g.channel==='competition' || (g.channel==='module' && ['03_h_landing','04_corridor_landing','08_full_mission'].indexOf(g.folder)>=0)) {
+    var landingRow=el('label','geometry-field');landingRow.appendChild(el('span',null,'H策略配置（landing_config；留空继承）'));
+    var landingField=el('input');landingField.type='text';landingField.value=U.landingConfig || '';landingField.setAttribute('data-option','landingConfig');
+    landingField.addEventListener('change',function(){U.landingConfig=landingField.value;U.armedOk=false;U.realConfirm='';renderGroups();});landingRow.appendChild(landingField);ops.appendChild(landingRow);
+  }
   if (g.competition_options_supported) {
     var presetRow=el('div','grp-row');presetRow.appendChild(el('span','lbl','配置来源'));
     var preset=el('select','grp-choice');preset.setAttribute('data-option','competitionPreset');
     var custom=el('option',null,'自定义路径（在下方填写）');custom.value='';preset.appendChild(custom);
     (g.competition_config_options || []).forEach(function(item){var option=el('option',null,item.label);option.value=item.path;preset.appendChild(option);});
     preset.value=U.competitionConfig == null ? g.site_config : U.competitionConfig;
-    preset.addEventListener('change',function(){if(preset.value){U.competitionConfig=preset.value;U.armedOk=false;U.realConfirm='';renderGroups();}});
+    preset.addEventListener('change',function(){if(preset.value){if(U.competitionConfig!==preset.value&&window.WaypointWorkbench)WaypointWorkbench.clearDraft(U);U.competitionConfig=preset.value;U.armedOk=false;U.realConfirm='';renderGroups();}});
     presetRow.appendChild(preset);ops.appendChild(presetRow);
     var configRow = el('div','grp-row');
     configRow.appendChild(el('span','lbl','场地YAML'));
     var field = el('input'); field.type='text'; field.setAttribute('data-option','competitionConfig');
     field.value = U.competitionConfig == null ? g.site_config : U.competitionConfig;
-    field.addEventListener('change',function(){U.competitionConfig=field.value;renderGroups();});
+    field.addEventListener('change',function(){if(U.competitionConfig!==field.value&&window.WaypointWorkbench)WaypointWorkbench.clearDraft(U);U.competitionConfig=field.value;U.armedOk=false;U.realConfirm='';renderGroups();});
     configRow.appendChild(field);ops.appendChild(configRow);
     if (U.competitionConfig === 'deployment/competition/field_20261007_validated.yaml') {
       ops.appendChild(el('div','warn-line','当前选择测试场地复现：不是正赛默认参数，不能宣称10×10比赛验收；实际高度/速度以前述文件的配置检查为准。'));
@@ -1209,12 +1251,12 @@ function groupCard(g) {
     choiceRow('障碍柱','obstacleColumns',[['','继承所选YAML'],['on','显式开启'],['off','显式关闭']]);
     ops.appendChild(el('div','warn-line','必填正赛实测场地与确认项；默认模板未确认。运动优化/障碍柱继承时不发送覆盖参数，当前有效值以配置检查输出为准；关闭障碍柱移除配置柱，不会关闭真实点云避障。'));
   }
-  if (g.speed_profile_options) {
+  if (g.channel !== 'competition' && g.speed_profile_options) {
     choiceRow('08速度版本','speedProfile',g.speed_profile_options.map(function(item){return [item.value,item.label];}));
     ops.appendChild(el('div','warn-line','沿用2026-10-07最后221730现场几何与FC高2m；不是10×10正赛场地。1.2/1.0为配置上限，尚未实飞验收。距离单位m，不是实测速度。'));
     ops.appendChild(el('div','tiny muted',competitionEffectiveConfig(g,trialBody(g,'preview',true),state.stage,state.trial)));
   }
-  if (g.motion_optimization_supported) {
+  if (g.channel !== 'competition' && g.motion_optimization_supported) {
     var motionRow = el('div', 'grp-row');
     var motionLab = el('label', 'chk');
     var motion = el('input'); motion.type = 'checkbox'; motion.checked = !!U.motionOptimized;
@@ -1223,13 +1265,13 @@ function groupCard(g) {
     motionLab.appendChild(motion); motionLab.appendChild(el('span', null, '显式开启运动优化（不勾选继承配置）'));
     motionRow.appendChild(motionLab); ops.appendChild(motionRow);
   }
-  if (g.survey_patterns && g.survey_patterns.length) {
+  if (g.channel !== 'competition' && g.survey_patterns && g.survey_patterns.length) {
     choiceRow('搜索路线', 'pattern', [['', '继承现场配置']].concat(g.survey_patterns.map(function (v) { return [v, v]; })));
   }
   if (g.resume_survey_supported) {
     choiceRow('高位续扫', 'resume', [['', '继承现场配置'], ['on', '开启续扫'], ['off', '关闭续扫']]);
   }
-  if (g.lighting_options && g.lighting_options.length) {
+  if (g.channel !== 'competition' && g.lighting_options && g.lighting_options.length) {
     choiceRow('光照标签', 'lighting', [['', '继承现场配置']].concat(g.lighting_options.map(function (v) {
       return [v, { normal: '正常 normal', dim: '较暗 dim', unspecified: '未指定 unspecified' }[v] || v];
     })));
@@ -1277,7 +1319,7 @@ function groupCard(g) {
   }
 
   // 速度
-  if (g.speed_options && g.speed_options.length) {
+  if (g.channel !== 'competition' && g.speed_options && g.speed_options.length) {
     var spRow = el('div', 'grp-row');
     spRow.appendChild(el('span', 'lbl', '速度'));
     g.speed_options.forEach(function (s) {
@@ -1289,7 +1331,7 @@ function groupCard(g) {
     ops.appendChild(el('div', 'warn-line', '速度选项属于「仅采集不投递」路径：只跑视觉采集，不下发投递。'));
   }
 
-  if (g.channel !== 'competition' && (g.needs_waypoints || g.survey_patterns || g.folder==='09_high_speed_capture')) {
+  if (g.channel==='competition' || g.needs_waypoints || g.survey_patterns || g.folder==='09_high_speed_capture') {
     ops.appendChild(geometryEditor(g,U,function(){if(flightBtn)updateFlightBtn();}));
     if(g.needs_waypoints)ops.appendChild(el('div','warn-line','走廊/H航点仍需实测；自动搜索不会代填门口。'));
   }
@@ -2058,9 +2100,9 @@ function renderDrawer() {
           });
         });
         row.appendChild(v);
-        var dl = el('a', 'btn btn-sm btn-ghost', '下载');
-        dl.href = '/api/logs/download?' + qs({ run: run.run, file: fl.name });
-        dl.setAttribute('download', fl.name);
+        var dl = el('button', 'btn btn-sm btn-ghost', '下载');
+        logDownloads.bind(dl, '/api/logs/download?' + qs({ run: run.run, file: fl.name }),
+          fl.name, fl.size, run.run + '/' + fl.name);
         row.appendChild(dl);
         body.appendChild(row);
       });
@@ -2401,6 +2443,10 @@ function startTrial(g, mode, checkConfig) {
     if (!res || !res.confirmed) return;
     // Recheck after the dialog: a new snapshot may report a trial started elsewhere.
     if (!connected() || tSessRunning()) { toast('warn', '连接或运行状态已变化，未下发新任务'); return; }
+    if (JSON.stringify(trialBody(g,mode,checkConfig))!==JSON.stringify(body) ||
+        (body.mode==='flight' && (!U.armedOk || (body.real_release && (U.realConfirm||'').trim()!=='实投')))) {
+      toast('warn','坐标、配置或飞行确认已变化，请重新确认命令');return;
+    }
     return act(api.trialStart(body), checkConfig ? '配置检查' : '启动试飞').then(function (r) {
       if (r && r.trial) state.trial = r.trial;
       if (r && r.ok) state.activeTerm = 'trial';

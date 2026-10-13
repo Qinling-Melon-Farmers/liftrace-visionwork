@@ -12,11 +12,9 @@ button,select { font:inherit; color:var(--text); background:#23364d; border:1px 
 button { cursor:pointer; } button:disabled { opacity:.45; cursor:default; } button:focus-visible,select:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
 .metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:8px; }
 .metric { background:#101b2b; padding:10px 12px; border-radius:6px; overflow-wrap:anywhere; } .metric b { display:block; color:var(--muted); font-size:12px; font-weight:normal; } .metric span { font-size:16px; }
-.mapping-controls { display:flex; flex-wrap:wrap; gap:12px; margin:14px 0; } .mapping-controls label { display:flex; flex-direction:column; gap:4px; }
-.raw-outputs { display:flex; flex-wrap:wrap; gap:6px; padding:12px 0; } .raw-channel { font-family:ui-monospace,monospace; background:#0e1929; padding:5px 8px; border-radius:4px; }
 .charts { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:14px; } .chart-box { min-width:0; padding:10px; background:#0e1828; border:1px solid var(--line); border-radius:6px; }
-canvas { display:block; width:100%; height:240px; } .motor-page #chart-motors { height:370px; } .motor-page .motor-panel { border-color:#527399; }
+canvas { display:block; width:100%; height:240px; }
 .legend { display:flex; gap:12px; flex-wrap:wrap; font:12px ui-monospace,monospace; color:var(--muted); min-height:20px; margin-top:5px; } .warn { color:#ffcb7a; }
-table { width:100%; border-collapse:collapse; font-size:12px; } th,td { text-align:left; padding:8px; border-bottom:1px solid var(--line); vertical-align:top; } th { color:var(--muted); font-weight:normal; } td { overflow-wrap:anywhere; white-space:pre-line; } .table-scroll { overflow:auto; margin-top:14px; } .table-scroll td { min-width:140px; } .table-scroll td:nth-child(3),.table-scroll td:nth-child(5) { min-width:280px; }
+table { width:100%; border-collapse:collapse; font-size:12px; } th,td { text-align:left; padding:8px; border-bottom:1px solid var(--line); vertical-align:top; } th { color:var(--muted); font-weight:normal; } td { overflow-wrap:anywhere; white-space:pre-line; } .table-scroll { overflow:auto; margin-top:14px; } .table-scroll td { min-width:140px; } .table-scroll td:nth-child(3) { min-width:280px; }
 .topic-list { display:flex; flex-wrap:wrap; gap:8px 18px; font:12px ui-monospace,monospace; color:var(--muted); }
-@media(max-width:700px) { header,main { padding:12px; } .panel,.notice { padding:12px; } h1 { font-size:18px; } .charts { grid-template-columns:1fr; } canvas { height:210px; } .motor-page #chart-motors { height:280px; } }
+@media(max-width:700px) { header,main { padding:12px; } .panel,.notice { padding:12px; } h1 { font-size:18px; } .charts { grid-template-columns:1fr; } canvas { height:210px; } }

@@ -200,7 +200,7 @@ def build_group_command(config, group, mode, route=None, real_release=None,
         if route != "competition":
             raise ValueError("正赛卡片仅允许独立 competition 入口")
         if any(value is not None for value in (capture_speed, capture_lighting, survey_pattern,
-                site_geometry, geometry_revision, speed_profile)) or motion_optimized:
+                speed_profile)) or motion_optimized:
             raise ValueError("正赛使用独立场地配置和 on/off 开关，不接受专项参数")
         if not isinstance(check_config, bool) or (real_release is not None and not isinstance(real_release, bool)):
             raise ValueError("check_config / real_release 必须是布尔值")
@@ -210,6 +210,12 @@ def build_group_command(config, group, mode, route=None, real_release=None,
         field = competition_config if competition_config is not None else group.get("site_config")
         if not isinstance(field, str) or not field.strip() or any(ch in field for ch in "\r\n\x00"):
             raise ValueError("请填写独立正赛场地配置路径")
+        prepare = None
+        if site_geometry is not None:
+            from wb_competition_geometry import overlay_command
+            field, prepare, _ = overlay_command(field.strip(), site_geometry, geometry_revision)
+        elif geometry_revision is not None:
+            raise ValueError("geometry_revision requires site_geometry")
         extra = landing_extra
         for option, value in (("motion-optimization", motion_optimization), ("resume-survey", resume_survey), ("obstacle-columns", obstacle_columns)):
             if value is not None:
@@ -221,6 +227,8 @@ def build_group_command(config, group, mode, route=None, real_release=None,
             quote(entry), "preview" if check_config else mode, quote(field.strip()), extra)
         if check_config:
             command += " --check-config"
+        if prepare:
+            command = prepare + " && " + command
         return command, "独立正赛实投：所选 YAML 为参数权威；省略开关继承 YAML，on/off 显式覆盖。模板未确认且必填坐标为空；成功测试场地不代表 10×10 正赛。先执行配置检查核对有效参数。"
     if any(value is not None for value in (motion_optimization, obstacle_columns, competition_config)):
         raise ValueError("on/off 开关及正赛配置路径仅支持独立正赛卡片")

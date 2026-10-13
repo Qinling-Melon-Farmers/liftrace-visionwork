@@ -109,10 +109,15 @@ def run_bytes(target, command, timeout):
             if time.monotonic() >= deadline:
                 return 124, b'Download timed out; incomplete data discarded'
             # Drain both streams each iteration, even if stdout stays busy.
+            # Keep receiving immediately while data is available; sleeping after
+            # every 64 KiB unnecessarily throttles large bag downloads.
+            received = False
             if channel.recv_ready():
-                output.extend(channel.recv(65536))
+                output.extend(channel.recv(1024 * 1024))
+                received = True
             if channel.recv_stderr_ready():
                 errors.extend(channel.recv_stderr(65536))
+                received = True
             if channel.exit_status_ready() and not channel.recv_ready() and not channel.recv_stderr_ready():
                 code = channel.recv_exit_status()
                 if code == 0:
@@ -123,7 +128,8 @@ def run_bytes(target, command, timeout):
                 return code if code > 0 else 1, error[-2000:]
             if channel.closed and not channel.exit_status_ready():
                 return 1, b'SSH disconnected; incomplete data discarded'
-            time.sleep(.01)
+            if not received:
+                time.sleep(.001)
     except Exception as error:
         message = ('Native SSH failed: ' + type(error).__name__).encode('ascii', 'replace')
         return 1, message
