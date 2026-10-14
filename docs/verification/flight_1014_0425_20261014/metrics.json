@@ -1,0 +1,72 @@
+{
+  "bag": "1014-0425-投递H2D2-H降落vhD2.bag",
+  "start_epoch": 1791923122.167234,
+  "landing_command_t": 271.205,
+  "posctl_first_record_t": 296.178,
+  "landing_wait_sec": 24.973000000000013,
+  "landing_mode": "vh / descent 2 / POSCTL",
+  "capture_agl_m": 1.2,
+  "low_target_agl_m": 0.35,
+  "posctl_trigger_agl_m": 0.4,
+  "setpoint_agl_range_m": [
+    1.2000000232644379,
+    1.2000000232644379
+  ],
+  "new_H_observations": 253,
+  "mapped_valid_H": 253,
+  "H_receive_age_sec_median_p95_max": [
+    0.12410449981689453,
+    0.2412364482879638,
+    0.5254065990447998
+  ],
+  "H_after276_xy_median": [
+    8.376615368759198,
+    -3.0835898866110676
+  ],
+  "H_after276_radial_scatter_m_p95_max": [
+    0.036787600922881185,
+    0.04498839339607074
+  ],
+  "reconstructed_ticks": 484,
+  "image_older_than_200ms_ticks": 188,
+  "geometry_speed_qualified_ticks": 200,
+  "image_age_failed_among_geometry_speed_qualified": 75,
+  "source_revision": "2adc69bf9ae7cc3b62cbd88f06ba61034c20f427",
+  "previous_local_revision": "e340976740b131b401460431e88123ba407fc158",
+  "remote_new_reachable_commits": 29,
+  "geometry_speed_longest_spans_sec": [
+    [
+      3.099595785140991,
+      280.7898952960968,
+      283.8894910812378
+    ],
+    [
+      2.3987460136413574,
+      291.14068818092346,
+      293.5394341945648
+    ],
+    [
+      2.050013542175293,
+      285.23966336250305,
+      287.28967690467834
+    ],
+    [
+      1.1999289989471436,
+      289.6895384788513,
+      290.88946747779846
+    ]
+  ],
+  "all_basic_gates_longest_span_sec": [
+    0.8002305030822754,
+    291.78941559791565,
+    292.5896461009979
+  ],
+  "production_gate": {
+    "qualified_evaluations": 0,
+    "first_qualification_t": null
+  },
+  "H_age_and_gap_500ms_sensitivity": {
+    "qualified_evaluations": 62,
+    "first_qualification_t": 281.889475107193
+  }
+}
