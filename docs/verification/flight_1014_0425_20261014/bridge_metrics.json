@@ -1,0 +1,101 @@
+{
+  "bag_start_epoch": 1791923122.167234,
+  "frame": "camera_init/map (identity between them)",
+  "plot_relative_origin": [
+    -0.0045494735240936,
+    -0.006116796983405948
+  ],
+  "ground_z": -0.20592633428052062,
+  "K": [
+    725.3510059644434,
+    0.0,
+    631.6718631370258,
+    0.0,
+    723.3403562845087,
+    397.5663813311627,
+    0.0,
+    0.0,
+    1.0
+  ],
+  "D": [
+    0.0058668600963917095,
+    0.01791054954675837,
+    -0.0010064115869294274,
+    0.0014715593681005204,
+    -0.026485100937585344
+  ],
+  "fc_agl": 2.0,
+  "lens_agl": 1.84,
+  "route": [
+    [
+      1.1,
+      -1.5
+    ],
+    [
+      5.0,
+      -1.5
+    ],
+    [
+      5.0,
+      1.8
+    ],
+    [
+      1.1,
+      1.8
+    ],
+    [
+      1.1,
+      -1.5
+    ]
+  ],
+  "search_bounds": [
+    0.4,
+    5.8,
+    -2.4,
+    2.7
+  ],
+  "ideal_footprint_xy_m": [
+    3.2469797113860372,
+    1.8315029549919395
+  ],
+  "ideal_central_gap_xy_bounds": [
+    2.7023638467651097,
+    3.3553841353790723,
+    -0.6798081591934448,
+    0.7886888858146157
+  ],
+  "ideal_gap_dimensions_m": [
+    0.6530202886139627,
+    1.4684970450080606
+  ],
+  "ideal_model_note": "Flat ground, level, yaw=0, pinhole, continuous commanded rectangle. Gap is not an asserted actual missed patch. Right plot uses recorded TF + distortion at selected instants.",
+  "high_bridge_refined_rows": 75,
+  "high_bridge_reject_reasons": {
+    "circle_association_missing": 75
+  },
+  "high_bridge_rois_touch_border": 74,
+  "first_bridge_hint": {
+    "receipt_sec": 164.56828713417053,
+    "image_sec": 164.49478340148926,
+    "confidence": 0.81103515625,
+    "map_point": {
+      "x": 2.4350966150413824,
+      "y": 0.8409894141578689,
+      "z": -0.20592633428052068
+    },
+    "center_source": "bbox_navigation_only",
+    "geometry_verified": false
+  },
+  "first_bridge_map_valid": {
+    "receipt_sec": 216.12313961982727,
+    "image_sec": 216.0382215976715,
+    "confidence": 0.88916015625,
+    "map_point": {
+      "x": 2.400886543554672,
+      "y": 1.0062317056426036,
+      "z": -0.20592633428052068
+    },
+    "center_source": "circle_geometry",
+    "geometry_verified": true
+  }
+}
