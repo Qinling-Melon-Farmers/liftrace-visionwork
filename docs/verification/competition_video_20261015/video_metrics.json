@@ -1,0 +1,822 @@
+{
+  "video": {
+    "input": "/home/xhj/liftrace/vision_ws/test_data/比赛场地实录1.mp4",
+    "fps": 29.98616363804077,
+    "decoded_frames": 903,
+    "duration_sec": 30.113888888888887,
+    "width": 1280,
+    "height": 576
+  },
+  "model": {
+    "model": "/home/xhj/liftrace-deliverables/new_video_20261011/final/best.pt",
+    "video": "/home/xhj/liftrace/vision_ws/test_data/比赛场地实录1.mp4",
+    "names": {
+      "0": "bridge",
+      "1": "panzer",
+      "2": "pillbox",
+      "3": "tent",
+      "4": "red_cross"
+    },
+    "params": {
+      "imgsz": 640,
+      "conf": 0.5,
+      "iou": 0.45,
+      "agnostic_nms": false,
+      "rect": false,
+      "half": false,
+      "augment": false,
+      "max_det": 300,
+      "device": 0,
+      "verbose": false,
+      "save": false
+    },
+    "frames": 903,
+    "fps": 29.98616363804077,
+    "wall_seconds": 31.305448275000117,
+    "box_counts": {
+      "0.5": {
+        "red_cross": 138,
+        "panzer": 143,
+        "pillbox": 91,
+        "bridge": 99,
+        "tent": 44
+      },
+      "0.7": {
+        "red_cross": 125,
+        "panzer": 133,
+        "pillbox": 85,
+        "bridge": 98,
+        "tent": 42
+      },
+      "0.75": {
+        "red_cross": 120,
+        "pillbox": 84,
+        "panzer": 130,
+        "bridge": 98,
+        "tent": 41
+      },
+      "0.8": {
+        "red_cross": 113,
+        "pillbox": 80,
+        "panzer": 125,
+        "bridge": 96,
+        "tent": 40
+      }
+    },
+    "scope": "PT CUDA square letterbox640, classwise NMS0.45. Same training model as exported RKNN where matching asset exists; not NPU timing or flight validation. No exhaustive ground truth."
+  },
+  "geometry": {
+    "counts": {
+      "circle_frames": 19,
+      "circle_candidates": 19,
+      "red_cross_frames": 7,
+      "landing_frames": 2
+    },
+    "frame_count": 61,
+    "geometry_wall_seconds": 1.5340302350000456,
+    "dimensions": [
+      [
+        1280,
+        576
+      ]
+    ],
+    "positive_frames": {
+      "circle": [
+        270,
+        285,
+        300,
+        315,
+        330,
+        345,
+        360,
+        435,
+        450,
+        465,
+        480,
+        495,
+        615,
+        630,
+        660,
+        675,
+        690,
+        735,
+        750
+      ],
+      "red_cross": [
+        195,
+        210,
+        825,
+        855,
+        870,
+        885,
+        900
+      ],
+      "landing": [
+        90,
+        105
+      ]
+    },
+    "timing_ms": {
+      "circle_ms": {
+        "median": 1.980923,
+        "p95": 2.541442
+      },
+      "cross_ms": {
+        "median": 4.114396,
+        "p95": 5.326959
+      },
+      "landing_ms": {
+        "median": 14.935453,
+        "p95": 18.28008
+      }
+    }
+  },
+  "chain": {
+    "sample_frames": 61,
+    "search_geometric_counts": {
+      "red_cross": 7,
+      "circle": 19,
+      "pillbox": 5,
+      "panzer": 7,
+      "bridge": 5,
+      "tent": 2
+    },
+    "search_semantic_geometric_counts": {
+      "red_cross": 7,
+      "pillbox": 5,
+      "panzer": 7,
+      "bridge": 5,
+      "tent": 2
+    },
+    "landing_outputs": 2,
+    "map_valid_count": 0,
+    "scope": "Same-frame production fusion and refiner methods; pure in-memory publishers capture outputs. No ROS scheduling or TF/map/target memory/control/release. H sampled with default geometry params, mode gating tested separately."
+  },
+  "focus_frames": [
+    {
+      "frame": 300,
+      "t": 10.004614248800294,
+      "raw_yolo": [
+        {
+          "class_name": "panzer",
+          "confidence": 0.889447808265686,
+          "xyxy": [
+            346.6337890625,
+            137.97686767578125,
+            624.34912109375,
+            415.49261474609375
+          ]
+        }
+      ],
+      "search_mode": [
+        {
+          "class_name": "circle",
+          "class_confidence": 0.801583706519,
+          "geometry_confidence": 0.801583706519,
+          "geometry_verified": true,
+          "center_refined": true,
+          "association_valid": true,
+          "center_source": "circle_geometry",
+          "reject_reason": "",
+          "xy": [
+            487.569519043,
+            276.381439209
+          ],
+          "radius": 176.676956177,
+          "map_valid": false
+        },
+        {
+          "class_name": "panzer",
+          "class_confidence": 0.889447808265686,
+          "geometry_confidence": 0.801583706519,
+          "geometry_verified": true,
+          "center_refined": true,
+          "association_valid": true,
+          "center_source": "circle_geometry",
+          "reject_reason": "",
+          "xy": [
+            487.569519043,
+            276.381439209
+          ],
+          "radius": 176.676956177,
+          "map_valid": false
+        }
+      ],
+      "landing_mode": []
+    },
+    {
+      "frame": 360,
+      "t": 12.005537098560355,
+      "raw_yolo": [
+        {
+          "class_name": "panzer",
+          "confidence": 0.8861217498779297,
+          "xyxy": [
+            240.13954162597656,
+            320.01123046875,
+            546.4417724609375,
+            576.0
+          ]
+        }
+      ],
+      "search_mode": [
+        {
+          "class_name": "circle",
+          "class_confidence": 0.855525427647,
+          "geometry_confidence": 0.855525427647,
+          "geometry_verified": true,
+          "center_refined": true,
+          "association_valid": true,
+          "center_source": "circle_geometry",
+          "reject_reason": "",
+          "xy": [
+            394.870483398,
+            468.025390625
+          ],
+          "radius": 209.412231445,
+          "map_valid": false
+        },
+        {
+          "class_name": "panzer",
+          "class_confidence": 0.8861217498779297,
+          "geometry_confidence": 0.855525427647,
+          "geometry_verified": true,
+          "center_refined": true,
+          "association_valid": true,
+          "center_source": "circle_geometry",
+          "reject_reason": "",
+          "xy": [
+            394.870483398,
+            468.025390625
+          ],
+          "radius": 209.412231445,
+          "map_valid": false
+        }
+      ],
+      "landing_mode": []
+    }
+  ],
+  "manual_review": {
+    "scope": "Independent manual review of 21 requested suspicious frame boxes, with full source frames, cropped ROIs, and adjacent-frame object continuity. No inference/training/ROS; not exhaustive full-video ground truth.",
+    "prediction_file": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/competition_video_20261015/v8_predictions.json",
+    "source_video": "/home/xhj/liftrace/vision_ws/test_data/比赛场地实录1.mp4",
+    "model": "/home/xhj/liftrace-deliverables/new_video_20261011/final/best.pt",
+    "source_decode": "OpenCV raw decoded 1280x576, no image rotation or rescaling before inspecting full frames",
+    "groups": [
+      {
+        "name": "pillbox_entry_misread_panzer",
+        "frames": 3,
+        "frame_ids": [
+          261,
+          262,
+          263
+        ],
+        "t_start": 8.704014396456257,
+        "t_end": 8.770711824781593,
+        "max_confidence": 0.7268202900886536,
+        "count_above_075": 0,
+        "wrong_top1_frames": 3,
+        "manual_result": "confirmed wrong class, not inferred from time alone"
+      },
+      {
+        "name": "pillbox_main_misread_panzer",
+        "frames": 15,
+        "frame_ids": [
+          300,
+          318,
+          319,
+          357,
+          358,
+          359,
+          360,
+          361,
+          365,
+          366,
+          367,
+          368,
+          369,
+          370,
+          371
+        ],
+        "t_start": 10.004614248800294,
+        "t_end": 12.372372954349698,
+        "max_confidence": 0.9051744341850281,
+        "count_above_075": 10,
+        "wrong_top1_frames": 11,
+        "manual_result": "confirmed wrong class, not inferred from time alone"
+      },
+      {
+        "name": "panzer_entry_misread_bridge",
+        "frames": 1,
+        "frame_ids": [
+          647
+        ],
+        "t_start": 21.57661806324597,
+        "t_end": 21.57661806324597,
+        "max_confidence": 0.5861742496490479,
+        "count_above_075": 0,
+        "wrong_top1_frames": 1,
+        "manual_result": "confirmed wrong class, not inferred from time alone"
+      },
+      {
+        "name": "panzer_exit_misread_red_cross",
+        "frames": 2,
+        "frame_ids": [
+          762,
+          763
+        ],
+        "t_start": 25.41172019195275,
+        "t_end": 25.445068906115416,
+        "max_confidence": 0.5222827196121216,
+        "count_above_075": 0,
+        "wrong_top1_frames": 2,
+        "manual_result": "confirmed wrong class, not inferred from time alone"
+      }
+    ],
+    "reviewed_wrong_boxes": [
+      {
+        "frame": 261,
+        "t": 8.704014396456257,
+        "predicted_class": "panzer",
+        "confidence": 0.6195509433746338,
+        "above_075": false,
+        "xyxy": [
+          370.00531005859375,
+          1.060882568359375,
+          614.8555908203125,
+          100.54464721679688
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "entry_top",
+        "source_frame": "/tmp/competition_review_1015/frame_0261.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0261_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 262,
+        "t": 8.737363110618924,
+        "predicted_class": "panzer",
+        "confidence": 0.7268202900886536,
+        "above_075": false,
+        "xyxy": [
+          365.18817138671875,
+          0.77117919921875,
+          621.0889282226562,
+          116.16986083984375
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "entry_top",
+        "source_frame": "/tmp/competition_review_1015/frame_0262.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0262_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 263,
+        "t": 8.770711824781593,
+        "predicted_class": "panzer",
+        "confidence": 0.722898006439209,
+        "above_075": false,
+        "xyxy": [
+          366.29388427734375,
+          2.56060791015625,
+          622.2352905273438,
+          130.54644775390625
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "entry_top",
+        "source_frame": "/tmp/competition_review_1015/frame_0263.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0263_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 300,
+        "t": 10.004614248800294,
+        "predicted_class": "panzer",
+        "confidence": 0.9051744341850281,
+        "above_075": true,
+        "xyxy": [
+          346.7152099609375,
+          138.02215576171875,
+          624.1149291992188,
+          415.41387939453125
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "full_inner_picture",
+        "source_frame": "/tmp/competition_review_1015/frame_0300.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0300_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 318,
+        "t": 10.604891103728313,
+        "predicted_class": "panzer",
+        "confidence": 0.5476835370063782,
+        "above_075": false,
+        "xyxy": [
+          247.3519744873047,
+          188.3863525390625,
+          537.3799438476562,
+          470.8773193359375
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "full_inner_picture",
+        "source_frame": "/tmp/competition_review_1015/frame_0318.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0318_1.jpg",
+        "same_object_correct_class_also_present": true,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 319,
+        "t": 10.63823981789098,
+        "predicted_class": "panzer",
+        "confidence": 0.6082531213760376,
+        "above_075": false,
+        "xyxy": [
+          232.91668701171875,
+          186.17041015625,
+          525.1196899414062,
+          466.190673828125
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "full_inner_picture",
+        "source_frame": "/tmp/competition_review_1015/frame_0319.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0319_1.jpg",
+        "same_object_correct_class_also_present": true,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 357,
+        "t": 11.90549095607235,
+        "predicted_class": "panzer",
+        "confidence": 0.5393552184104919,
+        "above_075": false,
+        "xyxy": [
+          312.42498779296875,
+          296.02044677734375,
+          610.1607055664062,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "exit_bottom",
+        "source_frame": "/tmp/competition_review_1015/frame_0357.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0357_1.jpg",
+        "same_object_correct_class_also_present": true,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 358,
+        "t": 11.93883967023502,
+        "predicted_class": "panzer",
+        "confidence": 0.8777583837509155,
+        "above_075": true,
+        "xyxy": [
+          291.016845703125,
+          305.014892578125,
+          589.7080078125,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "exit_bottom",
+        "source_frame": "/tmp/competition_review_1015/frame_0358.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0358_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 359,
+        "t": 11.972188384397686,
+        "predicted_class": "panzer",
+        "confidence": 0.5198084115982056,
+        "above_075": false,
+        "xyxy": [
+          268.97357177734375,
+          311.5869140625,
+          569.2461547851562,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "exit_bottom",
+        "source_frame": "/tmp/competition_review_1015/frame_0359.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0359_1.jpg",
+        "same_object_correct_class_also_present": true,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 360,
+        "t": 12.005537098560355,
+        "predicted_class": "panzer",
+        "confidence": 0.8901235461235046,
+        "above_075": true,
+        "xyxy": [
+          240.367919921875,
+          320.0799560546875,
+          546.4369506835938,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "exit_bottom",
+        "source_frame": "/tmp/competition_review_1015/frame_0360.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0360_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 361,
+        "t": 12.038885812723022,
+        "predicted_class": "panzer",
+        "confidence": 0.8713253140449524,
+        "above_075": true,
+        "xyxy": [
+          212.5045166015625,
+          332.3443603515625,
+          516.7869873046875,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "exit_bottom",
+        "source_frame": "/tmp/competition_review_1015/frame_0361.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0361_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 365,
+        "t": 12.172280669373693,
+        "predicted_class": "panzer",
+        "confidence": 0.595705509185791,
+        "above_075": false,
+        "xyxy": [
+          99.0301513671875,
+          357.2010498046875,
+          408.9859619140625,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "exit_bottom",
+        "source_frame": "/tmp/competition_review_1015/frame_0365.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0365_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 366,
+        "t": 12.20562938353636,
+        "predicted_class": "panzer",
+        "confidence": 0.8124271631240845,
+        "above_075": true,
+        "xyxy": [
+          78.15087890625,
+          368.01141357421875,
+          386.43450927734375,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "exit_bottom",
+        "source_frame": "/tmp/competition_review_1015/frame_0366.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0366_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 367,
+        "t": 12.238978097699027,
+        "predicted_class": "panzer",
+        "confidence": 0.8815325498580933,
+        "above_075": true,
+        "xyxy": [
+          46.83233642578125,
+          376.16162109375,
+          355.3249816894531,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "exit_bottom",
+        "source_frame": "/tmp/competition_review_1015/frame_0367.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0367_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 368,
+        "t": 12.272326811861696,
+        "predicted_class": "panzer",
+        "confidence": 0.813671350479126,
+        "above_075": true,
+        "xyxy": [
+          19.468536376953125,
+          386.8570556640625,
+          326.1343688964844,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "exit_bottom",
+        "source_frame": "/tmp/competition_review_1015/frame_0368.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0368_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 369,
+        "t": 12.305675526024363,
+        "predicted_class": "panzer",
+        "confidence": 0.8215299844741821,
+        "above_075": true,
+        "xyxy": [
+          1.3231201171875,
+          404.13214111328125,
+          285.17462158203125,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "exit_bottom_left",
+        "source_frame": "/tmp/competition_review_1015/frame_0369.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0369_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 370,
+        "t": 12.339024240187031,
+        "predicted_class": "panzer",
+        "confidence": 0.860073983669281,
+        "above_075": true,
+        "xyxy": [
+          2.008758544921875,
+          433.8519287109375,
+          232.08865356445312,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "exit_bottom_left",
+        "source_frame": "/tmp/competition_review_1015/frame_0370.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0370_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 371,
+        "t": 12.372372954349698,
+        "predicted_class": "panzer",
+        "confidence": 0.755541205406189,
+        "above_075": true,
+        "xyxy": [
+          0.0,
+          472.451904296875,
+          193.3101806640625,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "pillbox",
+        "certainty": "high",
+        "visibility": "exit_bottom_left",
+        "source_frame": "/tmp/competition_review_1015/frame_0371.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0371_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Visible bunker arch/entrance in full inner picture and matching blue-white board tracked through adjacent source frames."
+      },
+      {
+        "frame": 647,
+        "t": 21.57661806324597,
+        "predicted_class": "bridge",
+        "confidence": 0.5861742496490479,
+        "above_075": false,
+        "xyxy": [
+          169.85198974609375,
+          0.0,
+          386.99237060546875,
+          63.93414306640625
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "panzer",
+        "certainty": "high",
+        "visibility": "entry_top",
+        "source_frame": "/tmp/competition_review_1015/frame_0647.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0647_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Same vehicle picture/blue-white board recognizable in adjacent full source frames (660,690,750); current detection is on the entering/exiting cropped vehicle picture. No red cross visible in 762/763."
+      },
+      {
+        "frame": 762,
+        "t": 25.41172019195275,
+        "predicted_class": "red_cross",
+        "confidence": 0.5141094326972961,
+        "above_075": false,
+        "xyxy": [
+          0.0,
+          313.1549072265625,
+          69.42921447753906,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "panzer",
+        "certainty": "high",
+        "visibility": "exit_left",
+        "source_frame": "/tmp/competition_review_1015/frame_0762.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0762_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Same vehicle picture/blue-white board recognizable in adjacent full source frames (660,690,750); current detection is on the entering/exiting cropped vehicle picture. No red cross visible in 762/763."
+      },
+      {
+        "frame": 763,
+        "t": 25.445068906115416,
+        "predicted_class": "red_cross",
+        "confidence": 0.5222827196121216,
+        "above_075": false,
+        "xyxy": [
+          0.0,
+          330.61669921875,
+          46.335418701171875,
+          576.0
+        ],
+        "verdict": "confirmed_wrong_class",
+        "actual_object": "panzer",
+        "certainty": "high",
+        "visibility": "exit_left",
+        "source_frame": "/tmp/competition_review_1015/frame_0763.jpg",
+        "crop": "/tmp/competition_review_1015/crop_0763_0.jpg",
+        "same_object_correct_class_also_present": false,
+        "rotation_note": "Handheld camera rotates in-plane; no autorotation or geometric correction applied. Exact roll angle not measured.",
+        "rationale": "Same vehicle picture/blue-white board recognizable in adjacent full source frames (660,690,750); current detection is on the entering/exiting cropped vehicle picture. No red cross visible in 762/763."
+      }
+    ],
+    "h_0_to_5s": {
+      "frames": 150,
+      "time_first": 0.0,
+      "time_last": 4.96895841023748,
+      "boxes": 0,
+      "detections": [],
+      "visual_check_frames": [
+        0,
+        60,
+        120
+      ],
+      "conclusion": "No YOLO detection at conf>=0.5 in all recorded predictions from 0 to 5s; inspected scene contains H, no false positive. This does not measure sub-threshold logits or H geometry detection."
+    },
+    "summary": {
+      "confirmed_wrong_boxes": 21,
+      "above_075": 10,
+      "uncertain": 0,
+      "important": "Full inner pillbox picture at frame300 (10.004614s) misread panzer0.905174. Not all mistakes are crop-only; threshold0.75 retains10 pillbox-as-panzer boxes. Four frames have simultaneous stronger correct pillbox and weaker wrong panzer detections; classwise NMS allows both.",
+      "geometry_boundary": "Whether wrong class survives production fusion/refiner/HINT memory must be checked by primary; no blanket claim that these boxes authorize delivery."
+    },
+    "review_artifacts": "/tmp/competition_review_1015"
+  }
+}
