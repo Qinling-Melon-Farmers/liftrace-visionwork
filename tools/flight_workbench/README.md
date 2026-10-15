@@ -342,7 +342,7 @@ node tools/flight_workbench/tests/browser_regression.mjs http://127.0.0.1:8793 <
 
 离线命令生成不连接飞机；页面草稿可跨卡片/状态更新保留，刷新整页不持久保存。新API POST /api/trial/command只生成字符串，启动仍需原确认及预览命令一致性检查。修改坐标或任务选项后请重新生成。
 
-03/04/08本地硬件末段为H对准下降后POSCTL，飞手完成落地；本轮未上板。第五组与08运动优化默认开启但巡航上限仍0.5m/s。工作台优化复选框是显式开启，未勾选继承配置；09新卡片默认1.2m/s，可选1.0/0.5对照。完整说明见[九组速度与推广报告](../../docs/deployment/h_promotion_20261006/REPORT.md)。
+03/04/08本地硬件末段为H对准下降后POSCTL，飞手完成落地；本轮未上板。08当前默认competition规划1.2m/s、1.0m/s²，H捕获/对准FC1.1m；第五组沿其配置。工作台优化复选框是显式开启，未勾选继承配置；09新卡片默认1.2m/s，可选1.0/0.5对照。完整说明见[九组速度与推广报告](../../docs/deployment/h_promotion_20261006/REPORT.md)。
 
 新增验证：tests/test_geometry.py（8项）与tests/browser_geometry.mjs（9项Edge离线检查）。
 
@@ -399,12 +399,12 @@ PYTHONPATH=/usr/lib/python3/dist-packages python -m unittest discover -s tools/f
 
 ## 2026-10-08 第08组速度与独立工程入口
 
-第08组固定使用 `deployment/board_trials_4x4/08_full_mission/site_20261007_221730.yaml`；
-来源是昨日最后221730轮 metadata，不是旧 namedsite。下拉可选有限空间规划0.5/0.35，
-或显式传 `--speed-profile competition` 选择1.2/1.0和前视1.0/0.4/0.2m。
-两档保留同一现场几何、FC高位2m和本组H观察高度；昨日现场不是10×10正赛场地。
-0.6/0.4是走廊前视距离m，1.2/1.0是规划速度/加速度上限，不是实测速度。
-仅配置检查走 `--check-config`，普通preview仍会启动节点。
+08默认使用`deployment/board_trials_4x4/08_full_mission/site_waypoint_map_20261015.yaml`，
+高位FC2.6m，默认正赛档competition 1.2m/s、1.0m/s²；H捕获/对准FC1.1m。
+备用10使用其目录下同名现场YAML，牛耕/回字与1.8/1.9m可选，默认同样competition。
+无需手填或开启实测坐标，显式手动override优先；08仍可显式选择有限空间档对照。
+0.6/0.4为走廊前视距离m，1.2/1.0是规划速度/加速度上限，不是实测速度。
+配置检查走`--check-config`；普通preview是实际入口，可能启动应用链。
 
 独立正赛下拉包含 `deployment/competition/candidates/rectangle_motion.yaml`、
 `snake_motion.yaml` 和 `snake3_motion.yaml`，以各文件配置和场地确认状态为准。

@@ -1,21 +1,21 @@
-# 2026-10-15 低位整场备份交付
+# 2026-10-15 现场工作台完整交付
 
-导航0928已推送`2f0c932a`，需要先更新这一提交再使用工作台新卡片。当前未上板、未新增仿真/实飞；默认模拟投递。
+[Windows/WSL完整工作台ZIP](flight_workbench_20261015_low_coverage_shapes.zip)
 
-- 导航仓：`sakelier/liftrace-controlwork`，分支`liftrace_board_trial_20260928`。
-- 新入口：`deployment/board_trials_4x4/10_low_coverage_full/start.sh`。
-- 默认配置：同目录`settings.yaml`；测量地图参考：`site_waypoint_map_20261015.yaml`。必须确认实际场地，导入/保存地图后再生成任务命令。
-- 工作台卡片：**备用10 · 低位遍历整场**，选择**牛耕/回字形**、**FC1.8/1.9m**。默认limited速度0.5m/s、0.35m/s²；运动优化和移动恢复继承08。
-- 投递：08与10目标0.25m，08原窗口0.10～0.43m。没有把所有独立正赛/其他专项默认参数一律覆盖。
+本包保留完整前线UI、默认地图preview兼容修复及低位搜索地图显示。解压到独立目录后Windows运行start_windows.cmd，WSL使用包内启动脚本。包内不含本机profile、凭据、会话或录制日志，不会自动连接板端或部署设备。
 
-## 工作台下载
+- 08默认`deployment/board_trials_4x4/08_full_mission/site_waypoint_map_20261015.yaml`：高位FC2.6m、max3.2m、rectangle。
+- 备用10默认其目录下同名YAML，可选牛耕/回字与FC1.8/1.9m。
+- 无需导入或手填地图，未勾手动时直接用板端已确认YAML；显式manual override优先。
+- 三套路线默认competition：规划1.2m/s、1.0m/s²，H捕获/对准FC1.1m；08显式有限空间档仅作对照。
+- 投递目标FC0.25m，08/10释放窗口当前0.10～0.45m；其他投递/H策略继承板端。
 
-[Windows/WSL同包：保留前线新版UI并加入备用10](flight_workbench_20261015_low_coverage_shapes.zip)
+工作台代码在视觉试飞分支tools/flight_workbench；完整前线副本额外保留既有UI功能。板端导航更新由主代理部署，23100bcb五组合无site配置生成CONFIG_VALID由主代理报告。
 
-解压后Windows运行包内`start_windows.cmd`，WSL按包内README启动。不要从压缩包预览/临时目录直接运行；旧用户连接信息可以重新填写，分发包不含凭据、会话和录制日志。源码工作台位于本分支`tools/flight_workbench`；此ZIP是在用户前线新版UI上同步同一新卡片和启动修复的完整交付。
+## 当前在线使用
 
-[路线/FOV图与详细参数](../../verification/low_coverage_backup_20261015/README.md) · [新增LIO积压分析](../../verification/flight_1015_1656_lio_20261015/REPORT.md) · [当前投递/H模式梳理](../../verification/flight_1015_1501_20261015/CURRENT_DROP_LANDING_MODES.md)
+刷新`http://127.0.0.1:8771/?ui=20261015-live2`加载版本化脚本。真实SSH/probe已恢复live/fresh；08及备用10四组合页面预览命令与当前后端纯API完全一致。旧后端若不支持显式速度参数，前端省略覆盖并继承板端已确认competition；无需中断活跃设备会话。操作者再决定是否执行配置检查或实际入口，未由本agent代点启动。
 
-导航相关89+4项测试通过；两份工作台各8项新增回归通过，前线总回归16通过/3依赖跳过；两图案两高度四组生产CLI展开和浏览器9场景通过。下载包不是新的飞行验收结论。
+两份工作台定向单测各9项通过、完整前线浏览器9场景通过，低位地图测试随包；这些软件验证不代表新路线实飞验收。pure trial/command只生成命令，卡片preview可能启动应用链。
 
-2026-10-15现场默认更新：本页同路径ZIP已替换为完整前线最新版，源功能提交34e589f1。08默认08_full_mission/site_waypoint_map_20261015.yaml（高位2.6m/rectangle），备用10默认10_low_coverage_full同名地图，不勾手动即可选择牛耕/回字及1.8/1.9m；手动override优先。08/10默认competition 1.2m/s、1.0m/s²，H捕获/对准1.1m继承板端。SSH只读probe真实连接通过；现有8771的设备会话保留，常驻后端需协调收尾后重载才能使用最终磁盘版本，不应在运行设备时直接替换进程。板端check-config及部署由主代理负责。
+[路线与FOV参考](../../verification/low_coverage_backup_20261015/README.md) · [LIO积压分析](../../verification/flight_1015_1656_lio_20261015/REPORT.md)
