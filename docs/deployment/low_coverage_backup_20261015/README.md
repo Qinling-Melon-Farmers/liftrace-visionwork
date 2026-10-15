@@ -19,3 +19,5 @@
 两份工作台定向单测各9项通过、完整前线浏览器9场景通过，低位地图测试随包；这些软件验证不代表新路线实飞验收。pure trial/command只生成命令，卡片preview可能启动应用链。
 
 [路线与FOV参考](../../verification/low_coverage_backup_20261015/README.md) · [LIO积压分析](../../verification/flight_1015_1656_lio_20261015/REPORT.md)
+
+最终包：126项，493242字节；包含地图补丁1280f48b及可读提示db301780。Noether两版地图测试与主代理截图目视通过。运行记录仅代表验证时刻；最新会话可能已退出，请以实时状态和日志为准，不以旧READY推断当前状态。
