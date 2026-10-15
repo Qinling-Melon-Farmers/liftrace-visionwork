@@ -133,7 +133,7 @@ function geometry(){
   $('geometry').replaceChildren();
   const specs=[
     ['FC飞行边界','center_bounds','FC中心允许运动的范围，须包含起飞原点与走廊/H；不是直接照抄物理外墙。'],
-    ['搜索范围 · 蓝框','search_bounds','高位搜索航点的生成范围，通常不含走廊。'],
+    ['搜索范围 · 蓝框','search_bounds',lowCoverageContext?'低位路线使用此实测范围，按卡片形状及内收/间距生成；不使用旧高位航点。':'高位搜索航点的生成范围，通常不含走廊。'],
     ['目标范围 · 绿框','target_bounds',competition()?'用于目标位置筛选，需在飞行边界内。':'用于目标位置筛选；本试飞模板要求它包含FC飞行边界。'],
     ...(competition()?[['低空覆盖范围 · 紫框','coverage_bounds','没有足够线索时低空补搜的范围，需位于搜索范围内。']]:[]),
     ['规划地图尺寸','map_size','地图X/Y以原点为中心。不是填边界坐标；尺寸不足会在检查中提示。']
@@ -191,7 +191,7 @@ $('cancel-map').onclick=()=>window.parent.postMessage({type:'waypoint-cancel'},l
 window.addEventListener('message',event=>{
   if(event.origin!==location.origin||event.source!==window.parent)return;
   if(event.data?.type==='waypoint-context'){
-    if(event.data.context.folder==='10_low_coverage_full'&&!lowCoverageContext){lowCoverageContext=event.data.context;document.querySelectorAll('[data-mode=survey]').forEach(b=>b.hidden=true);const generate=document.getElementById('generate-route');if(generate)generate.hidden=true;const notice=document.createElement('p');notice.className='warn-line';notice.textContent='备用牛耕候选：搜索范围是coverage_bounds；路线由板端模块生成。卡片选择FC 1.8/1.9m（不是镜头高度）。保留现有门/H点，不表示已补齐门前门后引导。导入后请点击保存并用于本组。';document.querySelector('header').after(notice);}
+    if(event.data.context.folder==='10_low_coverage_full'&&!lowCoverageContext){lowCoverageContext=event.data.context;document.querySelectorAll('[data-mode=survey]').forEach(b=>b.hidden=true);const generate=document.getElementById('generate-route');if(generate)generate.hidden=true;const notice=document.createElement('p');notice.className='warn-line';notice.hidden=true;notice.textContent='备用牛耕候选：搜索范围是coverage_bounds；路线由板端模块生成。卡片选择FC 1.8/1.9m（不是镜头高度）。保留现有门/H点，不表示已补齐门前门后引导。导入后请点击保存并用于本组。';document.querySelector('header').after(notice);}
 
     if(initialSite)return;
     context=event.data.context;site=normalize(context.site);if(competition())site.site_confirmed=site.site_confirmed===true;initialSite=structuredClone(site);history=[];selected=null;
@@ -204,3 +204,45 @@ window.addEventListener('message',event=>{
 });
 window.addEventListener('resize',()=>{if(site)draw();});
 window.parent.postMessage({type:'waypoint-ready'},location.origin);
+
+// Low-coverage endpoints are a read-only overlay, separate from editable survey_xy.
+const drawGeometryMap=draw;
+draw=function(){
+  drawGeometryMap();
+  if(!lowCoverageContext||!site)return;
+  let note=document.getElementById('coverage-route-summary');
+  if(!note){note=document.createElement('p');note.id='coverage-route-summary';note.className='warn-line';document.querySelector('header').after(note);}
+  map.querySelectorAll('[data-coverage-overlay]').forEach(el=>el.remove());
+  try{
+    const route=WaypointCoverage.route(site,lowCoverageContext);
+    const group=document.createElementNS('http://www.w3.org/2000/svg','g');group.setAttribute('data-coverage-overlay','');group.setAttribute('pointer-events','none');map.append(group);
+    const add=(tag,attrs,text)=>{const el=svg(tag,attrs,text);group.append(el);return el;};
+    add('polyline',{points:route.points.map(p=>screen(...p).join(',')).join(' '),fill:'none',stroke:colors.survey,'stroke-width':3,'stroke-linejoin':'round','data-coverage-route':route.source});
+    const seen=new Set();
+    route.points.forEach((p,i)=>{
+      const key=p.join(',');if(seen.has(key))return;seen.add(key);
+      const indices=route.points.flatMap((q,j)=>q[0]===p[0]&&q[1]===p[1]?[j+1]:[]);
+      const [x,y]=screen(...p);
+      const marker=add('circle',{cx:x,cy:y,r:indices.length>1?22:16,fill:'white',stroke:colors.survey,'stroke-width':2,'data-coverage-point':i,'data-world-x':p[0],'data-world-y':p[1]});
+      const title=document.createElementNS('http://www.w3.org/2000/svg','title');title.textContent='搜'+indices.join('/')+' · ('+p.join(', ')+') · FC '+route.agl+'m';marker.append(title);
+      add('text',{x,y:y+4,'text-anchor':'middle',fill:colors.survey,'font-size':11,'font-weight':600},'搜'+indices.join('/'));
+    });
+    for(let i=1;i<route.points.length;i++){
+      const [ax,ay]=screen(...route.points[i-1]),[bx,by]=screen(...route.points[i]),dx=bx-ax,dy=by-ay,len=Math.hypot(dx,dy);if(len<30)continue;
+      const ux=dx/len,uy=dy/len,x=(ax+bx)/2,y=(ay+by)/2;
+      add('path',{d:'M'+(x-ux*6-uy*5)+','+(y-uy*6+ux*5)+' L'+(x+ux*3)+','+(y+uy*3)+' L'+(x-ux*6+uy*5)+','+(y-uy*6-ux*5),fill:'none',stroke:colors.survey,'stroke-width':2,'data-coverage-arrow':i});
+    }
+    group.dataset.waypoints=JSON.stringify(route.points);group.dataset.agl=route.agl;
+    note.textContent=(route.source==='site.search_waypoints_xy'?'显式搜索点':route.pattern==='nested_rectangles'?'低位回字形':'低位牛耕')+' · '+route.points.length+'点 · FC '+route.agl+'m · '+route.source+'。蓝线按板端顺序显示（含圈间折点），只读预览；走廊/H独立保留。';
+  }catch(error){note.textContent='低位搜索线未生成：'+error.message;}
+  const panel=document.querySelector('[data-panel="2"]');
+  if(panel){
+    for(const child of panel.children)child.hidden=child.tagName!=='H2'&&child.id!=='height-summary';
+    panel.querySelector('h2').textContent='② 低位搜索路线预览';
+    $('height-summary').textContent=note.textContent+' 形状和FC高度在主卡片选择；可在第①步修改范围。';
+    document.querySelector('[data-step="2"] small').textContent='牛耕 / 回字形 · 只读预览';
+    if(currentStep===2){$('point-inspector').hidden=true;$('hint').textContent='蓝色搜索线按当前卡片选择生成；编辑范围后自动更新，走廊/H可在第③步调整。';}
+    const group=map.querySelector('[data-coverage-overlay]');
+    $('draft-summary').textContent='低位搜索 '+(group?JSON.parse(group.dataset.waypoints).length:'未生成')+' 点 · 走廊 '+site.corridor_waypoints.length+' 点。形状和FC高度继承主卡片；旧survey_xy不作为低位搜索线。';
+  }
+};

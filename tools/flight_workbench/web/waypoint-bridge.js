@@ -25,7 +25,15 @@
     request('draft',identity(g,U)).then(data=>{if(U.waypointLoadedScope!==key||scope(g,U)!==key)return;if(data.draft&&data.draft.enabled!==false){populate(g,U,{...data.draft,source:data.draft.source??data.source,scope:data.draft.scope??data.scope});renderGroups();generate(g);}}).catch(e=>{if(U.waypointLoadedScope===key)U.waypointLoadError=e.message;});
   }
   function close(){if(dialog){dialog.close();dialog.remove();}dialog=frame=active=null;}
-  function sendContext(){if(active?.context&&frame)frame.contentWindow.postMessage({type:'waypoint-context',context:active.context},location.origin);}
+  function sendContext(){
+    if(!active?.context||!frame)return;
+    const context={...active.context};
+    if(active.g.folder==='10_low_coverage_full'){
+      context.coverage_pattern=active.U.coveragePattern||'lawnmower';
+      context.coverage_agl=Number(active.U.coverageHeight||1.8);
+    }
+    frame.contentWindow.postMessage({type:'waypoint-context',context},location.origin);
+  }
   async function open(g,U){
     if(tSessRunning()||state.trialPending){alert('任务正在运行或等待确认，请结束后再调整航点。');return;}
     close();dialog=document.createElement('dialog');dialog.className='waypoint-dialog';dialog.setAttribute('aria-label','飞行前调整航点');
