@@ -173,6 +173,7 @@ def group_variables(config, group, overrides=None):
 
 
 def build_group_command(config, group, mode, route=None, real_release=None,
+                        coverage_agl=None, coverage_pattern=None,
                         check_config=False, capture_speed=None, capture_lighting=None,
                         motion_optimized=False, survey_pattern=None, resume_survey=None,
                         site_geometry=None, geometry_revision=None,
@@ -181,6 +182,18 @@ def build_group_command(config, group, mode, route=None, real_release=None,
     """按现场手册拼出任务组启动命令。返回 (命令, 说明)。"""
     if mode not in ("preview", "flight"):
         raise ValueError("mode 必须是 preview 或 flight")
+    if group.get("folder") == "10_low_coverage_full":
+        import wb_low_coverage
+        if locals().get('flight_settings') is not None or locals().get('landing_config') is not None:
+            raise ValueError('备用遍历当前继承08投递/H参数，不接受额外覆盖')
+        return wb_low_coverage.build_command(config,group,mode,route=route,real_release=real_release,
+            check_config=check_config,site_geometry=site_geometry,geometry_revision=geometry_revision,
+            coverage_agl=coverage_agl,coverage_pattern=coverage_pattern,motion_optimized=motion_optimized,capture_speed=capture_speed,
+            capture_lighting=capture_lighting,survey_pattern=survey_pattern,resume_survey=resume_survey,
+            motion_optimization=motion_optimization,obstacle_columns=obstacle_columns,
+            competition_config=competition_config,speed_profile=speed_profile)
+    if coverage_agl is not None or coverage_pattern is not None:
+        raise ValueError("coverage参数只适用于备用遍历模块10")
     variables = group_variables(config, group)
     folder = group.get("folder", "")
     site_dir = config["connection"].get("site_dir", "deployment/site_20260928")

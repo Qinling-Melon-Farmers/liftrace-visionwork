@@ -1,4 +1,5 @@
 'use strict';
+let lowCoverageContext=null;
 let site, context, mode='select', selected=null, history=[], drag=null, previewTimer, previewVersion=0;
 const $=id=>document.getElementById(id), map=$('map');
 const colors={survey:'#1769a4',corridor:'#ca6821',staging:'#667c8e',landing:'#107c72'};
@@ -58,7 +59,7 @@ function coordinateSite(value){
   for(const key of ['center_bounds','target_bounds','search_bounds','coverage_bounds','staging_xy','survey_xy','map_size'])if(Object.hasOwn(value.flight_area||{},key))next.flight_area[key]=structuredClone(value.flight_area[key]);
   return normalize(next);
 }
-function points(kind){if(kind==='survey')return site.flight_area.survey_xy;if(kind==='corridor')return site.corridor_waypoints.map(p=>[p.x,p.y]);return [kind==='staging'?site.flight_area.staging_xy:site.landing_xy].filter(Boolean);}
+function points(kind){if(kind==='survey'&&lowCoverageContext)return [];if(kind==='survey')return site.flight_area.survey_xy;if(kind==='corridor')return site.corridor_waypoints.map(p=>[p.x,p.y]);return [kind==='staging'?site.flight_area.staging_xy:site.landing_xy].filter(Boolean);}
 function activeKind(){return mode==='select'?(selected?.kind||'corridor'):mode;}
 function updatePoint(kind,i,x,y){if(kind==='survey')site.flight_area.survey_xy[i]=[x,y];else if(kind==='corridor')Object.assign(site.corridor_waypoints[i],{x,y});else site[kind==='landing'?'landing_xy':'flight_area']=kind==='landing'?[x,y]:{...site.flight_area,staging_xy:[x,y]};}
 function screen(x,y){return [left+x*scale,bottom-y*scale];}
@@ -154,7 +155,7 @@ function geometry(){
   }
   const g=site.corridor_geometry||{wall_axis:1,wall_coordinates:[],entry_waypoints:1};$('wall-axis').value=g.wall_axis;$('walls').value=(g.wall_coordinates||[]).join(', ');$('entry').value=g.entry_waypoints;
 }
-async function api(url,body){const r=await fetch(url,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{});if(!r.ok){const e=await r.json();throw new Error(e.error||'读取失败');}return r;}
+async function api(url,body){if(lowCoverageContext&&body)body.group_id=lowCoverageContext.group_id;const r=await fetch(url,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{});if(!r.ok){const e=await r.json();throw new Error(e.error||'读取失败');}return r;}
 function preview(){const version=++previewVersion;clearTimeout(previewTimer);$('export').disabled=true;previewTimer=setTimeout(async()=>{try{const data=await(await api('/api/waypoints/preview',{...identity(),site:coordinateSite(site)})).json();if(version!==previewVersion)return;if(data.ok===false)throw Error(data.error||'坐标检查失败');const errors=(data.errors||[]).map(readableError);checkSummary(errors);$('preview').textContent=data.yaml;$('validation').className=errors.length?'invalid':'';$('validation').replaceChildren();for(const text of errors.length?errors:['坐标检查通过，可保存到工作台']){const p=document.createElement('div');p.textContent=text;$('validation').append(p);}$('export').disabled=!!errors.length;}catch(e){if(version!==previewVersion)return;$('validation').className='invalid';$('validation').textContent=e.message;checkSummary([e.message]);}},180);}
 function render(){draw();list();geometry();draftSummary();patternSelection();preview();$('undo').disabled=!history.length;}
 map.addEventListener('pointerdown',event=>{const target=event.target.closest('[data-kind]');if(target){selected={kind:target.dataset.kind,i:Number(target.dataset.index)};mode='select';showStep(['survey','staging'].includes(selected.kind)?2:3);document.querySelectorAll('[data-mode]').forEach(button=>button.classList.toggle('active',button.dataset.mode==='select'));$('hint').textContent='已选中'+names[selected.kind]+'，在坐标面板输入数值微调，也可继续拖动。';drag={...selected,start:world(event),moved:false};map.setPointerCapture(event.pointerId);draw();list();return;}if(mode==='select')return;const [x,y]=world(event).map(snapped);remember();if(mode==='corridor'){site.corridor_waypoints.push({x,y,agl:Number($('default-agl').value)});selected={kind:mode,i:site.corridor_waypoints.length-1};}else if(mode==='survey'){site.flight_area.survey_xy.push([x,y]);selected={kind:mode,i:site.flight_area.survey_xy.length-1};}else{updatePoint(mode,0,x,y);selected={kind:mode,i:0};}render();});
@@ -190,6 +191,8 @@ $('cancel-map').onclick=()=>window.parent.postMessage({type:'waypoint-cancel'},l
 window.addEventListener('message',event=>{
   if(event.origin!==location.origin||event.source!==window.parent)return;
   if(event.data?.type==='waypoint-context'){
+    if(event.data.context.folder==='10_low_coverage_full'&&!lowCoverageContext){lowCoverageContext=event.data.context;document.querySelectorAll('[data-mode=survey]').forEach(b=>b.hidden=true);const generate=document.getElementById('generate-route');if(generate)generate.hidden=true;const notice=document.createElement('p');notice.className='warn-line';notice.textContent='备用牛耕候选：搜索范围是coverage_bounds；路线由板端模块生成。卡片选择FC 1.8/1.9m（不是镜头高度）。保留现有门/H点，不表示已补齐门前门后引导。导入后请点击保存并用于本组。';document.querySelector('header').after(notice);}
+
     if(initialSite)return;
     context=event.data.context;site=normalize(context.site);if(competition())site.site_confirmed=site.site_confirmed===true;initialSite=structuredClone(site);history=[];selected=null;
     if(competition()){

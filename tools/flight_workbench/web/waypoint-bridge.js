@@ -1,7 +1,7 @@
 /* A map draft enters the existing geometry-command pipeline, never a flight API. */
 (function(){
   'use strict';
-  const supported=g=>g.channel==='competition'||(g.channel==='module'&&['04_corridor_landing','08_full_mission'].includes(g.folder));
+  const supported=g=>g.channel==='competition'||(g.channel==='module'&&['10_low_coverage_full','04_corridor_landing','08_full_mission'].includes(g.folder));
   const source=(g,U)=>g.channel==='competition'?(U.competitionConfig??g.site_config):g.site_config;
   const identity=(g,U)=>({group_id:g.id,...(g.channel==='competition'?{competition_config:source(g,U)}:{})});
   const scope=(g,U)=>JSON.stringify([state.connection?.host,state.connection?.board_root,state.connection?.site_dir,g.id,source(g,U)]);

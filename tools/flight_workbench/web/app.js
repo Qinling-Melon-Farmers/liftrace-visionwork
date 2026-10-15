@@ -1389,6 +1389,7 @@ function groupCard(g) {
     var realOk = !needReal || (U.realConfirm || '').trim() === '实投';
     var readyBody=trialBody(g,'flight',false);
     var geometryReady=(!U.geometryEnabled && g.channel !== 'competition') || !!readyBody.expected_body;
+    if(g.low_coverage_backup)geometryReady=!!(U.geometryEnabled && readyBody.expected_body);
     flightBtn.disabled = !connected() || tSessRunning() || !!state.trialPending || !U.armedOk || !realOk || !geometryReady;
     flightBtn.title = !connected() ? '未连接板端'
       : (tSessRunning() || state.trialPending ? '专项正在运行或准备下发，先停止当前任务'

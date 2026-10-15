@@ -378,6 +378,23 @@ groups:
       - {value: "competition", label: "08正赛速度 · 1.2m/s / 1.0m/s² · 原现场几何"}
     notes: "采用最后221730现场metadata几何；不是10×10正赛场地。两档同一几何/FC高2m，走廊快0.6慢0.4m；更换场地重新测量。正赛速度版默认开运动优化/高位续扫，仍可显式覆盖续扫。"
 
+  - id: mod10backup
+    key: "10备份"
+    folder: "10_low_coverage_full"
+    channel: module
+    section: module
+    name: "备用10 · 低空遍历全场（牛耕/回字形，候选未实飞）"
+    plan: "FC 1.8/1.9m牛耕或回字形搜索，高权重目标中断投递，投递目标FC 0.25m，完成后接原走廊/H链路。"
+    ending: "H模式继承08；按有效配置完成下降和交接"
+    release: mock
+    release_options: [mock, real]
+    motion_optimization_supported: true
+    needs_servo: false
+    needs_waypoints: true
+    low_coverage_backup: true
+    site_config: "deployment/board_trials_4x4/10_low_coverage_full/site_waypoint_map_20261015.yaml"
+    notes: "候选备份，默认limited规划上限0.5m/s、0.35m/s²，运动优化及moving_recovery继承模块。默认牛耕/FC离地1.8m，可选回字形/1.9m；不是镜头高度。新模块按测量范围动态生成，参考牛耕3线6点29.8m（间距2.6m）、回字形11点45.5m（独立圈内收1.8m）；FOV理论地面面积覆盖在FC1.8m为99.42%、FC1.9m为100%，非实飞检出率。虚拟柱/虚拟天花板关闭，实体点云避障保留。导入实测地图后必须保存用于本组并生成命令；现有5个走廊点不代表完整成对门引导。原08/正赛入口与路线选择不变。"
+
   - id: mod06mock
     key: "06"
     folder: "06_high_priority"

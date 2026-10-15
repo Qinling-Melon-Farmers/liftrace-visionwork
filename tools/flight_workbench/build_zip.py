@@ -13,6 +13,7 @@ FILES = (
     'server.py', 'wb_ssh.py', 'wb_native_ssh.py', 'wb_board.py', 'wb_status.py', 'wb_logs.py', 'wb_ulog.py',
     'wb_geometry.py', 'wb_survey.py', 'wb_replay.py', 'board_probe.py', 'workbench.yaml',
     'start_workbench.sh', 'start_windows.cmd', 'start_windows.bat', 'start_windows.ps1',
+    'wb_low_coverage.py', 'LOW_COVERAGE_BACKUP.md', 'web/low-coverage.js', 'waypoint_templates/module10.yaml',
     'requirements.txt', 'README_DISTRIBUTION.md', 'README.md', 'REPLAY_INTEGRATION.md',
     'web/index.html', 'web/app.js', 'web/style.css',
     'web/observe.html', 'web/observe.js', 'web/observe.css',
