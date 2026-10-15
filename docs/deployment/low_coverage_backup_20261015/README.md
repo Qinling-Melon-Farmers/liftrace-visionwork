@@ -17,3 +17,5 @@
 [路线/FOV图与详细参数](../../verification/low_coverage_backup_20261015/README.md) · [新增LIO积压分析](../../verification/flight_1015_1656_lio_20261015/REPORT.md) · [当前投递/H模式梳理](../../verification/flight_1015_1501_20261015/CURRENT_DROP_LANDING_MODES.md)
 
 导航相关89+4项测试通过；两份工作台各8项新增回归通过，前线总回归16通过/3依赖跳过；两图案两高度四组生产CLI展开和浏览器9场景通过。下载包不是新的飞行验收结论。
+
+2026-10-15现场默认更新：本页同路径ZIP已替换为完整前线最新版，源功能提交34e589f1。08默认08_full_mission/site_waypoint_map_20261015.yaml（高位2.6m/rectangle），备用10默认10_low_coverage_full同名地图，不勾手动即可选择牛耕/回字及1.8/1.9m；手动override优先。08/10默认competition 1.2m/s、1.0m/s²，H捕获/对准1.1m继承板端。SSH只读probe真实连接通过；现有8771的设备会话保留，常驻后端需协调收尾后重载才能使用最终磁盘版本，不应在运行设备时直接替换进程。板端check-config及部署由主代理负责。
