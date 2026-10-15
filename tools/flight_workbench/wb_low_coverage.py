@@ -98,7 +98,7 @@ print('LOW_COVERAGE_SITE_OVERLAY='+str(dest))
     return dest,'python3 -c '+shlex.quote(script)+' '+shlex.quote(dest)+' '+shlex.quote(base64.b64encode(data.encode()).decode())
 
 def build_command(config,group,mode,*,route=None,real_release=None,check_config=False,
-                  site_geometry=None,geometry_revision=None,coverage_agl=None,coverage_pattern=None,motion_optimized=False,**options):
+                  site_geometry=None,geometry_revision=None,coverage_agl=None,coverage_pattern=None,motion_optimized=False,speed_profile=None,**options):
     if mode not in ('preview','flight') or (route or group.get('channel'))!='module':raise ValueError('备用遍历只支持模块preview/flight入口')
     if config.get('simulation',{}).get('enabled'):raise ValueError('备用遍历候选尚未接入工作台SITL入口')
     if type(check_config) is not bool or type(motion_optimized) is not bool or real_release is not None and type(real_release) is not bool:raise ValueError('入口开关需布尔值')
@@ -106,17 +106,24 @@ def build_command(config,group,mode,*,route=None,real_release=None,check_config=
     pattern="lawnmower" if coverage_pattern is None else coverage_pattern
     if not isinstance(pattern,str) or pattern not in ("lawnmower","nested_rectangles"):
         raise ValueError("备用搜索形状仅支持lawnmower或nested_rectangles")
+    speed_profile='competition' if speed_profile is None else speed_profile
+    if speed_profile not in ('competition','limited'):raise ValueError('速度档仅支持competition或limited')
     agl=height(1.8 if coverage_agl is None else coverage_agl)
-    if site_geometry is None:raise ValueError('备用遍历必须先导入/确认实测地图，并生成本组坐标命令')
-    dest,writer=overlay_command(site_geometry,geometry_revision,agl)
-    common=' --site-config '+shlex.quote(dest)+' --coverage-agl %.1f'%agl+' --coverage-pattern '+pattern
+    writer=None
+    if site_geometry is None:
+        if geometry_revision is not None:raise ValueError('手动地图版本缺少地图内容')
+        dest=group.get('site_config')
+        if not isinstance(dest,str) or not dest.strip() or any(c in dest for c in '\r\n\x00'):raise ValueError('缺少有效板端默认地图路径')
+    else:
+        dest,writer=overlay_command(site_geometry,geometry_revision,agl)
+    common=' --site-config '+shlex.quote(dest)+' --coverage-agl %.1f'%agl+' --coverage-pattern '+pattern+' --speed-profile '+speed_profile
     if motion_optimized:common+=' --motion-optimized'
     check='bash '+ENTRY+' preview'+common+' --check-config'
     real=group.get('release')=='real' if real_release is None else real_release
     if check_config:body=check
     elif mode=='flight':body=check+' && bash '+ENTRY+' flight'+common+(' --real-release' if real else '')
     else:body='bash '+ENTRY+' preview'+common
-    return writer+' && '+body,'候选未实飞：%s，FC %.1fm；使用原地图测量bounds，沿Y长线/横向内收0.6m/牛耕间距2.6m/回字形圈内收1.8m由新模块动态生成；虚拟柱/虚拟天花板关闭，实体避障保留；飞行前检查同一地图，投递/H继承08。'%('牛耕' if pattern=='lawnmower' else '回字形',agl)
+    return (writer+' && '+body if writer else body),'候选未实飞：%s，FC %.1fm；使用原地图测量bounds，沿Y长线/横向内收0.6m/牛耕间距2.6m/回字形圈内收1.8m由新模块动态生成；虚拟柱/虚拟天花板关闭，实体避障保留；飞行前检查同一地图，投递/H继承08。'%('牛耕' if pattern=='lawnmower' else '回字形',agl)
 
 
 def _identity(workbench,body):

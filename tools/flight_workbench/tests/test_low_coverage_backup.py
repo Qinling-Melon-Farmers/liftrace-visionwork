@@ -36,7 +36,7 @@ class CoverageBackupTests(unittest.TestCase):
             self.assertIn('preview --site-config',command)
             self.assertLess(command.index('--check-config'),command.index(' flight --site-config'))
             self.assertNotIn('--real-release',command)
-            self.assertNotIn('--speed-profile',command)
+            self.assertIn('--speed-profile competition',command)
             self.assertIn('--real-release',self.command(agl,True))
             self.assertNotIn('08_full_mission/start',command)
         self.assertNotEqual(self.command(1.8),self.command(1.9))
@@ -55,10 +55,39 @@ class CoverageBackupTests(unittest.TestCase):
     def test_unsupported_options_and_missing_geometry_do_not_fall_back(self):
         for agl in (.18,1.4,2.,True,float('nan')):
             with self.assertRaises(ValueError):self.command(agl)
-        with self.assertRaises(ValueError):wb_board.build_group_command(self.config,self.group,'preview',coverage_agl=1.8)
+        self.assertIn(self.group['site_config'],wb_board.build_group_command(self.config,self.group,'preview',coverage_agl=1.8)[0])
         with self.assertRaises(ValueError):wb_board.build_group_command(self.config,self.group,'preview',coverage_agl=1.8,site_geometry=self.site,geometry_revision='r1',survey_pattern='rectangle')
         old=next(g for g in self.config['groups'] if g['id']=='mod08')
         with self.assertRaises(ValueError):wb_board.build_group_command(self.config,old,'preview',coverage_agl=1.8)
+    def test_board_default_and_explicit_manual_override(self):
+        for pattern in ('lawnmower','nested_rectangles'):
+            for agl in (1.8,1.9):
+                command=wb_board.build_group_command(self.config,self.group,'flight',coverage_agl=agl,coverage_pattern=pattern,real_release=False)[0]
+                self.assertIn('--site-config '+self.group['site_config'],command)
+                self.assertIn('--coverage-agl '+str(agl),command)
+                self.assertIn('--coverage-pattern '+pattern,command)
+                self.assertNotIn('python3 -c',command)
+                self.assertIn('--speed-profile competition',command)
+                self.assertNotIn('--real-release',command)
+                self.assertLess(command.index('--check-config'),command.index(' flight --site-config'))
+        limited=wb_board.build_group_command(self.config,self.group,'preview',speed_profile='limited')[0]
+        self.assertIn('--speed-profile limited',limited)
+        manual=self.command()
+        self.assertIn('site_overlays/',manual)
+        self.assertNotIn('--site-config '+self.group['site_config'],manual)
+        with self.assertRaises(ValueError):
+            wb_board.build_group_command(self.config,self.group,'preview',site_geometry={},geometry_revision='broken')
+        old=next(g for g in self.config['groups'] if g['id']=='mod08')
+        self.assertEqual(old['default_speed_profile'],'competition')
+        self.assertIn('--speed-profile competition',wb_board.build_group_command(self.config,old,'preview',speed_profile=old['default_speed_profile'])[0])
+        self.assertIn('--speed-profile limited',wb_board.build_group_command(self.config,old,'preview',speed_profile='limited')[0])
+        for mode in ('preview','flight'):
+            command=wb_board.build_group_command(self.config,old,mode)[0]
+            self.assertIn('08_full_mission/site_waypoint_map_20261015.yaml',command)
+            self.assertNotIn('full_mission_test_area',command)
+            self.assertNotIn('site_20261007',command)
+            self.assertNotIn('--survey-pattern',command)
+
     def test_import_save_and_context_reuse_the_exact_saved_draft(self):
         body={'group_id':self.group['id']}
         imported=low.map_action(self.wb,'import',dict(body,text=yaml.safe_dump(self.raw)))

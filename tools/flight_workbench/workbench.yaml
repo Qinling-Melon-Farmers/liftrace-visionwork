@@ -372,11 +372,12 @@ groups:
     resume_survey_supported: true
     needs_servo: false
     needs_waypoints: true
-    site_config: "deployment/board_trials_4x4/08_full_mission/site_20261007_221730.yaml"
+    site_config: "deployment/board_trials_4x4/08_full_mission/site_waypoint_map_20261015.yaml"
+    default_speed_profile: competition
     speed_profile_options:
-      - {value: "", label: "有限空间规划 · 0.5m/s / 0.35m/s²"}
+      - {value: "limited", label: "有限空间规划 · 0.5m/s / 0.35m/s²"}
       - {value: "competition", label: "08正赛速度 · 1.2m/s / 1.0m/s² · 原现场几何"}
-    notes: "采用最后221730现场metadata几何；不是10×10正赛场地。两档同一几何/FC高2m，走廊快0.6慢0.4m；更换场地重新测量。正赛速度版默认开运动优化/高位续扫，仍可显式覆盖续扫。"
+    notes: "默认采用板端已确认20261015地图、FC高2.6m及rectangle；无须手填，手动覆盖优先。两档同一几何，走廊快0.6慢0.4m；更换场地重新测量。正赛速度版默认开运动优化/高位续扫，仍可显式覆盖续扫。"
 
   - id: mod10backup
     key: "10备份"
@@ -392,8 +393,9 @@ groups:
     needs_servo: false
     needs_waypoints: true
     low_coverage_backup: true
+    default_speed_profile: competition
     site_config: "deployment/board_trials_4x4/10_low_coverage_full/site_waypoint_map_20261015.yaml"
-    notes: "候选备份，默认limited规划上限0.5m/s、0.35m/s²，运动优化及moving_recovery继承模块。默认牛耕/FC离地1.8m，可选回字形/1.9m；不是镜头高度。新模块按测量范围动态生成，参考牛耕3线6点29.8m（间距2.6m）、回字形11点45.5m（独立圈内收1.8m）；FOV理论地面面积覆盖在FC1.8m为99.42%、FC1.9m为100%，非实飞检出率。虚拟柱/虚拟天花板关闭，实体点云避障保留。导入实测地图后必须保存用于本组并生成命令；现有5个走廊点不代表完整成对门引导。原08/正赛入口与路线选择不变。"
+    notes: "候选备份，默认competition规划上限1.2m/s、1.0m/s²，H捕获/对准FC1.1m继承板端YAML，运动优化及moving_recovery继承模块。默认牛耕/FC离地1.8m，可选回字形/1.9m；不是镜头高度。新模块按测量范围动态生成，参考牛耕3线6点29.8m（间距2.6m）、回字形11点45.5m（独立圈内收1.8m）；FOV理论地面面积覆盖在FC1.8m为99.42%、FC1.9m为100%，非实飞检出率。虚拟柱/虚拟天花板关闭，实体点云避障保留。默认直接使用板端本组20261015现场YAML；可选手动覆盖，覆盖时须保存用于本组并生成命令；现有5个走廊点不代表完整成对门引导。原08/正赛入口与路线选择不变。"
 
   - id: mod06mock
     key: "06"

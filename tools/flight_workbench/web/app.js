@@ -996,6 +996,7 @@ function groupUI(g) {
   var U = state.tabs[g.id] || (state.tabs[g.id] = {});
   if (!U.mode) U.mode = 'preview';
   if (!U.release) U.release = g.release || 'none';
+  if (U.speedProfile == null && g.default_speed_profile) U.speedProfile = g.default_speed_profile;
   if (g.speed_options && g.speed_options.length && U.speed == null) U.speed = g.speed_options[0];
   if (window.WaypointWorkbench) WaypointWorkbench.restore(g,U);
   return U;
@@ -1198,7 +1199,7 @@ function groupCard(g) {
   var rb = releaseBadge(U.release);
   badges.appendChild(el('span', rb.cls, rb.text));
   if (U.release === 'real') badges.appendChild(el('span', 'badge', '实投需舵机'));
-  if (g.needs_waypoints) badges.appendChild(el('span', 'badge', '需实测航点'));
+  if (g.needs_waypoints) badges.appendChild(el('span', 'badge', ['08_full_mission','10_low_coverage_full'].includes(g.folder)?'默认现场地图 · 可手动覆盖':'需实测航点'));
   if (g.manual_mission_start) badges.appendChild(el('span', 'badge', '手动启动任务'));
   card.appendChild(badges);
 
@@ -1333,7 +1334,7 @@ function groupCard(g) {
 
   if (g.channel==='competition' || g.needs_waypoints || g.survey_patterns || g.folder==='09_high_speed_capture') {
     ops.appendChild(geometryEditor(g,U,function(){if(flightBtn)updateFlightBtn();}));
-    if(g.needs_waypoints)ops.appendChild(el('div','warn-line','走廊/H航点仍需实测；自动搜索不会代填门口。'));
+    if(g.needs_waypoints)ops.appendChild(el('div','warn-line',['08_full_mission','10_low_coverage_full'].includes(g.folder)?'未勾手动时使用板端本组已确认的现场YAML；手动覆盖须生成并核对命令。':'走廊/H航点仍需实测；自动搜索不会代填门口。'));
   }
 
   // 按钮
@@ -1389,7 +1390,7 @@ function groupCard(g) {
     var realOk = !needReal || (U.realConfirm || '').trim() === '实投';
     var readyBody=trialBody(g,'flight',false);
     var geometryReady=(!U.geometryEnabled && g.channel !== 'competition') || !!readyBody.expected_body;
-    if(g.low_coverage_backup)geometryReady=!!(U.geometryEnabled && readyBody.expected_body);
+    if(g.low_coverage_backup)geometryReady=!!readyBody.expected_body;
     flightBtn.disabled = !connected() || tSessRunning() || !!state.trialPending || !U.armedOk || !realOk || !geometryReady;
     flightBtn.title = !connected() ? '未连接板端'
       : (tSessRunning() || state.trialPending ? '专项正在运行或准备下发，先停止当前任务'
