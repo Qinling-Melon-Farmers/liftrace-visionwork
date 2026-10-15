@@ -996,7 +996,7 @@ function groupUI(g) {
   var U = state.tabs[g.id] || (state.tabs[g.id] = {});
   if (!U.mode) U.mode = 'preview';
   if (!U.release) U.release = g.release || 'none';
-  if (U.speedProfile == null && g.default_speed_profile) U.speedProfile = g.default_speed_profile;
+  if (U.speedProfile == null && (g.default_speed_profile || g.folder==='08_full_mission')) U.speedProfile = g.default_speed_profile || 'competition';
   if (g.speed_options && g.speed_options.length && U.speed == null) U.speed = g.speed_options[0];
   if (window.WaypointWorkbench) WaypointWorkbench.restore(g,U);
   return U;

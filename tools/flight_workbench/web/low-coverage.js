@@ -2,10 +2,25 @@
 (function(){
   'use strict';
   const isBackup=g=>g?.folder==='10_low_coverage_full';
+  let speedAPI='explicit',speedScope=null;
+  const originalSnapshot=applySnapshot;
+  applySnapshot=function(snap){
+    originalSnapshot(snap);
+    const g=(snap.groups||[]).find(isBackup),c=snap.connection||{},scope=JSON.stringify([c.host,c.board_root]);
+    if(!g||speedScope===scope)return;speedScope=scope;
+    fetch('/api/trial/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({group_id:g.id,mode:'preview',coverage_agl:1.8,coverage_pattern:'lawnmower',speed_profile:'competition'})})
+      .then(async r=>{const data=await r.json();if(speedScope!==scope)return;if(r.ok&&data.ok!==false){speedAPI='explicit';return;}
+        const fallback=await fetch('/api/trial/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({group_id:g.id,mode:'preview',coverage_agl:1.8,coverage_pattern:'lawnmower'})});
+        const inherited=await fallback.json();if(speedScope===scope&&fallback.ok&&inherited.ok!==false){speedAPI='inherit';groupUI(g).geometryPlans={};renderGroups();}
+      }).catch(()=>{});
+  };
+  // Older running backends emit this advisory even for a confirmed default map.
+  const originalToast=toast;
+  toast=function(kind,message){if(typeof message==='string'&&message.includes('的走廊航点/H 坐标必须实测填写')&&(state.groups||[]).some(g=>['08_full_mission','10_low_coverage_full'].includes(g.folder)&&message.startsWith(g.name)&&!groupUI(g).geometryEnabled))return;return originalToast.apply(this,arguments);};
   const originalUI=groupUI;
   groupUI=function(g){const U=originalUI(g);if(isBackup(g)){if(U.coverageHeight==null)U.coverageHeight='1.8';if(U.coveragePattern==null)U.coveragePattern='lawnmower';}return U;};
   const originalBody=trialBody;
-  trialBody=function(g,mode,check){const body=originalBody(g,mode,check);if(isBackup(g)){body.speed_profile=groupUI(g).speedProfile||'competition';body.coverage_agl=Number(groupUI(g).coverageHeight||1.8);body.coverage_pattern=groupUI(g).coveragePattern||'lawnmower';delete body.expected_body;const built=groupCommandBody(g,body.mode,body.real_release,!!body.check_config,body.capture_speed,body);if(built.body)body.expected_body=built.body;}return body;};
+  trialBody=function(g,mode,check){const body=originalBody(g,mode,check);if(isBackup(g)){if(speedAPI==='inherit')delete body.speed_profile;else body.speed_profile=groupUI(g).speedProfile||'competition';body.coverage_agl=Number(groupUI(g).coverageHeight||1.8);body.coverage_pattern=groupUI(g).coveragePattern||'lawnmower';delete body.expected_body;const built=groupCommandBody(g,body.mode,body.real_release,!!body.check_config,body.capture_speed,body);if(built.body)body.expected_body=built.body;}return body;};
   const originalKey=geometryPlanKey;
   geometryPlanKey=function(g,mode,real,check,speed,options){const key=originalKey(g,mode,real,check,speed,options);return isBackup(g)?key+'|coverage-agl='+Number(options.coverage_agl??groupUI(g).coverageHeight??1.8)+'|coverage-pattern='+(options.coverage_pattern??groupUI(g).coveragePattern??'lawnmower')+'|speed-profile='+(options.speed_profile??groupUI(g).speedProfile??'competition'):key;};
   const originalCommand=groupCommandBody;
@@ -16,10 +31,10 @@
     if(!U.geometryEnabled && options.site_geometry == null){
       const agl=Number(options.coverage_agl??U.coverageHeight??1.8),pattern=options.coverage_pattern??U.coveragePattern??'lawnmower';
       if(![1.8,1.9].includes(agl)||!['lawnmower','nested_rectangles'].includes(pattern)||!g.site_config)return {body:null,note:'默认地图、形状或FC高度无效'};
-      const common=' --site-config '+shellArgQuote(g.site_config)+' --coverage-agl '+agl.toFixed(1)+' --coverage-pattern '+pattern+' --speed-profile '+(options.speed_profile??U.speedProfile??'competition')+(options.motion_optimized?' --motion-optimized':'');
+      const common=' --site-config '+shellArgQuote(g.site_config)+' --coverage-agl '+agl.toFixed(1)+' --coverage-pattern '+pattern+(speedAPI==='inherit'?'':' --speed-profile '+(options.speed_profile??U.speedProfile??'competition'))+(options.motion_optimized?' --motion-optimized':'');
       const entry='bash deployment/board_trials_4x4/10_low_coverage_full/start.sh';
       const checked=entry+' preview'+common+' --check-config';
-      return {body:check?checked:mode==='flight'?checked+' && '+entry+' flight'+common+(real?' --real-release':''):entry+' preview'+common,note:'使用板端已确认的本组默认YAML；手动覆盖可选。飞行前检查同一配置。'};
+      return {body:check?checked:mode==='flight'?checked+' && '+entry+' flight'+common+(real?' --real-release':''):entry+' preview'+common,note:'使用板端已确认的本组默认YAML和正赛档competition；旧后端省略速度覆盖并继承板端已确认的1.2/1.0。手动覆盖可选。飞行前检查同一配置。'};
     }
     return plans[geometryPlanKey(g,mode,real,check,speed,options)]||{body:null,note:'手动覆盖：保存并用于本组，再生成匹配形状与FC 1.8/1.9m的命令；未启用手动时直接使用板端默认地图。'};
   };

@@ -791,7 +791,7 @@ class Workbench(object):
             expected_confirm = "实投" if real_release else "启动试飞"
             if body.get("confirm") != expected_confirm:
                 raise ValueError("飞行模式必须确认：飞机已回到起飞点、未解锁、机头朝场内")
-        if group.get("needs_waypoints") and not check_config and body.get("confirm") != "实投":
+        if group.get("needs_waypoints") and group.get("folder") not in ("08_full_mission", "10_low_coverage_full") and not check_config and body.get("confirm") != "实投":
             # 仍然允许，但给出明确提醒：入口自身会拒绝空航点
             self.toast("warn", "%s 的走廊航点/H 坐标必须实测填写，留空时入口会拒绝启动（预期行为）" % group["name"])
         current = self.sessions.get("trial")
