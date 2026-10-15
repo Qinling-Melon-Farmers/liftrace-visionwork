@@ -1,0 +1,536 @@
+diff --git a/web/app.js b/web/app.js
+--- a/web/app.js
++++ b/web/app.js
+@@ -980,6 +980,8 @@
+     (trial.speed_profile || null)===(options.speed_profile || null) &&
+     (trial.survey_pattern || null)===(options.survey_pattern || null) &&
+     !!trial.motion_optimized===!!options.motion_optimized &&
++    (trial.geometry_revision || null)===(options.geometry_revision || null) &&
++    JSON.stringify(trial.site_geometry || null)===JSON.stringify(options.site_geometry || null) &&
+     JSON.stringify(trial.flight_settings || null)===JSON.stringify(options.flight_settings || null);
+   return actual && matches ? effectiveConfigText(actual) : '当前所选配置的有效值尚未确认：先运行配置检查。复选框和选项只表示请求。';
+ }
+@@ -2518,6 +2520,7 @@
+       + '空中Ctrl+C只请求保持等待接管，定位/MAVROS继续运行；飞手落地上锁并等待OBSERVATION_CLOSED后才能重跑。';
+   }
+ 
++  var requestSignature = JSON.stringify(body);
+   state.trialPending = true;
+   scheduleRender();
+   var approval = checkConfig ? Promise.resolve({ confirmed: true })
+@@ -2527,6 +2530,10 @@
+     if (!res || !res.confirmed) return;
+     // Recheck after the dialog: a new snapshot may report a trial started elsewhere.
+     if (!connected() || tSessRunning()) { toast('warn', '连接或运行状态已变化，未下发新任务'); return; }
++    if (JSON.stringify(trialBody(g,mode,checkConfig))!==requestSignature ||
++        (body.mode==='flight' && (!U.armedOk || (body.real_release && (U.realConfirm||'').trim()!=='实投')))) {
++      toast('warn','坐标、配置或飞行确认已变化，请重新确认命令');return;
++    }
+     return act(api.trialStart(body), checkConfig ? '配置检查' : '启动试飞').then(function (r) {
+       if (r && r.trial) state.trial = r.trial;
+       if (r && r.ok) state.activeTerm = 'trial';
+diff --git a/web/competition_geometry.js b/web/competition_geometry.js
+--- a/web/competition_geometry.js
++++ b/web/competition_geometry.js
+@@ -92,6 +92,16 @@
+   var input=el('input');input.type='file';input.accept='.yaml,.yml';input.hidden=true;var importButton=el('button','btn btn-sm','从本机导入航点 YAML');importButton.disabled=tSessRunning();importButton.onclick=function(){input.click();};
+   input.onchange=function(){var f=input.files[0];if(!f)return;if(f.size>2097152){toast('warn','YAML最大2MiB');return;}f.text().then(function(text){open({name:f.name,text:text});});input.value='';};box.appendChild(importButton);box.appendChild(input);
+   box.appendChild(el('p','tiny muted',u.geometryEnabled?'已应用本机地图草稿；请核对下方命令并运行配置检查。':'点击地图布点，或导入正赛航点YAML；操作窗口与任务08相同。'));
++  if(u.geometryEnabled){
++    var rebuild=el('button','btn btn-sm','重新生成坐标命令（不连接飞机）');
++    var status=el('p','tiny muted','刷新页面或修改选项后，请重新生成匹配命令，再执行配置检查。');
++    rebuild.disabled=tSessRunning() || !!state.trialPending;
++    rebuild.onclick=function(){
++      rebuild.disabled=true;
++      FlightSettings.generate(g,u,status).catch(function(e){status.textContent=e.message;}).finally(function(){rebuild.disabled=false;});
++    };
++    box.appendChild(rebuild);box.appendChild(status);
++  }
+   if(u.geometryEnabled){var reset=el('button','btn btn-sm','使用原现场配置');reset.disabled=tSessRunning();reset.onclick=function(){u.geometryEnabled=false;competitionChanged(u);try{localStorage.setItem('competitionDraft:'+key,JSON.stringify({geometry:u.competitionDraft,enabled:false}));}catch(e){}renderGroups();};box.appendChild(reset);}
+   return box;
+ }
+diff --git a/wb_geometry.py b/wb_geometry.py
+--- a/wb_geometry.py
++++ b/wb_geometry.py
+@@ -1,117 +1,117 @@
+-"""Measured site overlays for existing 04/08 entries; no hardware operations."""
+-import base64
+-from datetime import datetime, timedelta, timezone
+-import json
+-import math
+-import shlex
+-import wb_survey
+-
+-CORRIDOR_FOLDERS = ('04_corridor_landing', '05_low_multi', '08_full_mission')
+-SURVEY_FOLDERS = ('02_high_view_revisit','06_high_priority','07_memory_only','08_full_mission','09_high_speed_capture')
+-FOLDERS = tuple(set(CORRIDOR_FOLDERS + SURVEY_FOLDERS))
+-
+-
+-def validate_geometry(value):
+-    if not isinstance(value, dict) or set(value) - {'corridor_waypoints', 'landing_xy', 'corridor_geometry', 'flight_area','survey_plan','search_waypoints_xy','high_agl','low_agl','max_agl'}:
+-        raise ValueError('只允许走廊航点、H坐标、墙面几何与flight_area；不修改速度或飞行模式')
+-    def number(v):
+-        return type(v) in (int, float) and math.isfinite(v)
+-    def vector(v, n):
+-        return isinstance(v, list) and len(v) == n and all(number(x) for x in v)
+-    if not value:raise ValueError('场地坐标不能为空')
+-    for key, lo, hi in (('high_agl',2.0,2.8),('low_agl',1.0,1.8),('max_agl',2.0,3.5)):
+-        if key in value and (not number(value[key]) or not lo <= value[key] <= hi):raise ValueError(key+' 高度超出允许范围')
+-    points = value.get('corridor_waypoints')
+-    has_corridor = 'corridor_waypoints' in value or 'landing_xy' in value
+-    if has_corridor and (not isinstance(points, list) or not 2 <= len(points) <= 100):
+-        raise ValueError('走廊至少两个、最多100个有序航点')
+-    for p in (points or []):
+-        if not isinstance(p, dict) or set(p) != {'x', 'y', 'agl'} or not all(number(x) for x in p.values()) or not 0 < p['agl'] <= 4:
+-            raise ValueError('每点必须为有限数值x/y/agl；agl为FC离地高度，0<agl≤4m')
+-    if has_corridor and not vector(value.get('landing_xy'), 2):
+-        raise ValueError('必须填写两个有限数值的H中心坐标')
+-    geometry = value.get('corridor_geometry')
+-    if geometry is not None:
+-        if not has_corridor:raise ValueError('墙面几何须配合走廊航点')
+-        if not isinstance(geometry, dict) or set(geometry) != {'wall_axis', 'wall_coordinates', 'entry_waypoints'}:
+-            raise ValueError('墙面几何需wall_axis/wall_coordinates/entry_waypoints')
+-        walls = geometry['wall_coordinates']
+-        if (type(geometry['wall_axis']) is not int or geometry['wall_axis'] not in (0, 1)
+-                or not isinstance(walls, list) or not 1 <= len(walls) <= 20 or not all(number(v) for v in walls)
+-                or type(geometry['entry_waypoints']) is not int or not 1 <= geometry['entry_waypoints'] <= len(points)):
+-            raise ValueError('墙面轴0=X/1=Y，墙位置需实测；入口序号从1起且不超过航点数')
+-    area = value.get('flight_area', {})
+-    if not isinstance(area, dict) or set(area) - {'center_bounds','target_bounds','search_bounds','staging_xy','survey_xy','map_size'}:
+-        raise ValueError('未知flight_area字段')
+-    for key, v in area.items():
+-        if key.endswith('_bounds'):
+-            if not vector(v,4) or v[0]>=v[1] or v[2]>=v[3]:raise ValueError('范围格式为[xmin,xmax,ymin,ymax]')
+-        elif key == 'survey_xy':
+-            if not isinstance(v,list) or not 3<=len(v)<=100 or not all(vector(p,2) for p in v):raise ValueError('survey_xy需至少三个XY点')
+-        elif not vector(v,3 if key=='map_size' else 2):raise ValueError('无效'+key)
+-    if 'search_waypoints_xy' in value:
+-        search=value['search_waypoints_xy']
+-        if not isinstance(search,list) or not 2<=len(search)<=100 or not all(vector(v,2) for v in search):
+-            raise ValueError('低空搜索需2～100个有限XY航点')
+-    if 'survey_plan' in value:wb_survey.plan(value['survey_plan'])
+-    return json.loads(json.dumps(value, allow_nan=False))
+-
+-
+-# Runs only when an operator submits preview/check/flight. The command plan itself
+-# is pure/local. Keep the field file intact; merge an immutable run overlay.
+-REMOTE_WRITER = '''import base64,json,sys,pathlib,yaml,tempfile
+-root=pathlib.Path.cwd().resolve()
+-source=pathlib.Path(sys.argv[1]);dest=root/sys.argv[2]
+-patch=json.loads(base64.b64decode(sys.argv[3]))
+-sys.path.insert(0,str(root/"tools/flight_workbench"))
+-from wb_geometry import validate_geometry
+-patch=validate_geometry(patch)
+-survey=patch.pop("survey_plan",None)
+-rig=yaml.safe_load((root/"deployment/board_trials_4x4/common/uav_board_trials/config/known_rig.yaml").read_text())
+-if survey is not None:
+- from wb_survey import plan
+- result=plan(survey)
+- offset=float(rig["body_to_imu_xyz"][2])+float(rig["imu_to_camera_xyz"][2])
+- if abs(offset-result["fc_to_camera_z"])>1e-6:raise ValueError("Camera vertical offset differs from deployed known_rig; review height conversion")
+- patch.setdefault("flight_area",{}).update(search_bounds=result["search_bounds"],survey_xy=result["route"])
+- patch["high_agl"]=result["high_agl"]
+- print("SURVEY_COVERAGE="+json.dumps(result))
+-profile=yaml.safe_load(source.read_text()) or {}
+-if not isinstance(profile,dict):raise ValueError("site profile must be an object")
+-for key,value in patch.items():
+- if key=="flight_area":profile[key]=dict(profile.get(key,{}) or {},**value)
+- else:profile[key]=value
+-# Use production validation before creating a deployable overlay, and retain the
+-# module's own task/release/default settings. No ROS nodes are started here.
+-sys.path[:0]=[str(root/"deployment/board_trials_4x4/common/uav_board_trials/scripts"),str(root/"patrol_uav_ws-patrol_planner/src/uav_mission/src"),str(root/"vision_ws/src/uav_high_view/src")]
+-from trial_config import apply_site_profile,validate_settings,generate
+-settings=yaml.safe_load((root/"deployment/board_trials_4x4"/sys.argv[4]/"settings.yaml").read_text())
+-apply_site_profile(settings,profile);validate_settings(settings)
+-rig=yaml.safe_load((root/"deployment/board_trials_4x4/common/uav_board_trials/config/known_rig.yaml").read_text())
+-with tempfile.TemporaryDirectory(prefix="workbench_geometry_") as tmp:
+- generate(root,tmp,settings,(0.,0.,0.),rig)
+-if root not in dest.resolve().parents:raise ValueError("overlay path outside workspace")
+-dest.parent.mkdir(parents=True,exist_ok=True)
+-content=yaml.safe_dump(profile,sort_keys=False)
+-if dest.exists() and dest.read_text()!=content:raise ValueError("same-minute overlay exists with different content; regenerate next minute (existing file preserved)")
+-if not dest.exists():
+- with dest.open("x") as f:f.write(content)
+-print("MEASURED_SITE_OVERLAY="+str(dest))
+-'''
+-
+-
+-def overlay_command(source, folder, geometry, revision):
+-    if folder not in FOLDERS:raise ValueError('该组不支持手动搜索/走廊坐标')
+-    if not isinstance(revision,str) or not revision.isascii() or not revision.isalnum() or not 1<=len(revision)<=32:
+-        raise ValueError('坐标草稿版本无效，请重新生成命令')
+-    clean=validate_geometry(geometry)
+-    if 'survey_plan' in clean and folder not in SURVEY_FOLDERS:raise ValueError('该组没有高位搜索阶段')
+-    if any(k in clean for k in ('landing_xy','corridor_waypoints','corridor_geometry')) and folder not in CORRIDOR_FOLDERS:raise ValueError('该组不使用走廊/H航点')
+-    if 'search_waypoints_xy' in clean and folder!='05_low_multi':raise ValueError('低空XY航点仅适用于任务二')
+-    if any(key in clean for key in ('high_agl','low_agl')) and folder not in ('05_low_multi','08_full_mission'):raise ValueError('搜索高度仅适用于任务二或任务08地图')
+-    data=json.dumps(clean,sort_keys=True,separators=(',',':'),allow_nan=False)
+-    token=datetime.now(timezone(timedelta(hours=8))).strftime('%m%d-%H%M')
+-    relative='logs/flight_workbench/site_overlays/'+folder+'_'+token+'.yaml'
+-    payload=base64.b64encode(data.encode()).decode()
+-    command='python3 -c '+shlex.quote(REMOTE_WRITER)+' '+shlex.quote(source)+' '+shlex.quote(relative)+' '+shlex.quote(payload)+' '+shlex.quote(folder)
+-    return relative, command, clean
++"""Measured site overlays for existing 04/08 entries; no hardware operations."""
++import base64
++import hashlib
++import json
++import math
++import shlex
++import wb_survey
++
++CORRIDOR_FOLDERS = ('04_corridor_landing', '05_low_multi', '08_full_mission')
++SURVEY_FOLDERS = ('02_high_view_revisit','06_high_priority','07_memory_only','08_full_mission','09_high_speed_capture')
++FOLDERS = tuple(set(CORRIDOR_FOLDERS + SURVEY_FOLDERS))
++
++
++def validate_geometry(value):
++    if not isinstance(value, dict) or set(value) - {'corridor_waypoints', 'landing_xy', 'corridor_geometry', 'flight_area','survey_plan','search_waypoints_xy','high_agl','low_agl','max_agl'}:
++        raise ValueError('只允许走廊航点、H坐标、墙面几何与flight_area；不修改速度或飞行模式')
++    def number(v):
++        return type(v) in (int, float) and math.isfinite(v)
++    def vector(v, n):
++        return isinstance(v, list) and len(v) == n and all(number(x) for x in v)
++    if not value:raise ValueError('场地坐标不能为空')
++    for key, lo, hi in (('high_agl',2.0,2.8),('low_agl',1.0,1.8),('max_agl',2.0,3.5)):
++        if key in value and (not number(value[key]) or not lo <= value[key] <= hi):raise ValueError(key+' 高度超出允许范围')
++    points = value.get('corridor_waypoints')
++    has_corridor = 'corridor_waypoints' in value or 'landing_xy' in value
++    if has_corridor and (not isinstance(points, list) or not 2 <= len(points) <= 100):
++        raise ValueError('走廊至少两个、最多100个有序航点')
++    for p in (points or []):
++        if not isinstance(p, dict) or set(p) != {'x', 'y', 'agl'} or not all(number(x) for x in p.values()) or not 0 < p['agl'] <= 4:
++            raise ValueError('每点必须为有限数值x/y/agl；agl为FC离地高度，0<agl≤4m')
++    if has_corridor and not vector(value.get('landing_xy'), 2):
++        raise ValueError('必须填写两个有限数值的H中心坐标')
++    geometry = value.get('corridor_geometry')
++    if geometry is not None:
++        if not has_corridor:raise ValueError('墙面几何须配合走廊航点')
++        if not isinstance(geometry, dict) or set(geometry) != {'wall_axis', 'wall_coordinates', 'entry_waypoints'}:
++            raise ValueError('墙面几何需wall_axis/wall_coordinates/entry_waypoints')
++        walls = geometry['wall_coordinates']
++        if (type(geometry['wall_axis']) is not int or geometry['wall_axis'] not in (0, 1)
++                or not isinstance(walls, list) or not 1 <= len(walls) <= 20 or not all(number(v) for v in walls)
++                or type(geometry['entry_waypoints']) is not int or not 1 <= geometry['entry_waypoints'] <= len(points)):
++            raise ValueError('墙面轴0=X/1=Y，墙位置需实测；入口序号从1起且不超过航点数')
++    area = value.get('flight_area', {})
++    if not isinstance(area, dict) or set(area) - {'center_bounds','target_bounds','search_bounds','staging_xy','survey_xy','map_size'}:
++        raise ValueError('未知flight_area字段')
++    for key, v in area.items():
++        if key.endswith('_bounds'):
++            if not vector(v,4) or v[0]>=v[1] or v[2]>=v[3]:raise ValueError('范围格式为[xmin,xmax,ymin,ymax]')
++        elif key == 'survey_xy':
++            if not isinstance(v,list) or not 3<=len(v)<=100 or not all(vector(p,2) for p in v):raise ValueError('survey_xy需至少三个XY点')
++        elif not vector(v,3 if key=='map_size' else 2):raise ValueError('无效'+key)
++    if 'search_waypoints_xy' in value:
++        search=value['search_waypoints_xy']
++        if not isinstance(search,list) or not 2<=len(search)<=100 or not all(vector(v,2) for v in search):
++            raise ValueError('低空搜索需2～100个有限XY航点')
++    if 'survey_plan' in value:wb_survey.plan(value['survey_plan'])
++    return json.loads(json.dumps(value, allow_nan=False))
++
++
++# Runs only when an operator submits preview/check/flight. The command plan itself
++# is pure/local. Keep the field file intact; merge an immutable run overlay.
++REMOTE_WRITER = '''import base64,json,sys,pathlib,yaml,tempfile
++root=pathlib.Path.cwd().resolve()
++source=pathlib.Path(sys.argv[1]);dest=root/sys.argv[2]
++patch=json.loads(base64.b64decode(sys.argv[3]))
++sys.path.insert(0,str(root/"tools/flight_workbench"))
++from wb_geometry import validate_geometry
++patch=validate_geometry(patch)
++survey=patch.pop("survey_plan",None)
++rig=yaml.safe_load((root/"deployment/board_trials_4x4/common/uav_board_trials/config/known_rig.yaml").read_text())
++if survey is not None:
++ from wb_survey import plan
++ result=plan(survey)
++ offset=float(rig["body_to_imu_xyz"][2])+float(rig["imu_to_camera_xyz"][2])
++ if abs(offset-result["fc_to_camera_z"])>1e-6:raise ValueError("Camera vertical offset differs from deployed known_rig; review height conversion")
++ patch.setdefault("flight_area",{}).update(search_bounds=result["search_bounds"],survey_xy=result["route"])
++ patch["high_agl"]=result["high_agl"]
++ print("SURVEY_COVERAGE="+json.dumps(result))
++profile=yaml.safe_load(source.read_text()) or {}
++if not isinstance(profile,dict):raise ValueError("site profile must be an object")
++for key,value in patch.items():
++ if key=="flight_area":profile[key]=dict(profile.get(key,{}) or {},**value)
++ else:profile[key]=value
++# Use production validation before creating a deployable overlay, and retain the
++# module's own task/release/default settings. No ROS nodes are started here.
++sys.path[:0]=[str(root/"deployment/board_trials_4x4/common/uav_board_trials/scripts"),str(root/"patrol_uav_ws-patrol_planner/src/uav_mission/src"),str(root/"vision_ws/src/uav_high_view/src")]
++from trial_config import apply_site_profile,validate_settings,generate
++settings=yaml.safe_load((root/"deployment/board_trials_4x4"/sys.argv[4]/"settings.yaml").read_text())
++apply_site_profile(settings,profile);validate_settings(settings)
++rig=yaml.safe_load((root/"deployment/board_trials_4x4/common/uav_board_trials/config/known_rig.yaml").read_text())
++with tempfile.TemporaryDirectory(prefix="workbench_geometry_") as tmp:
++ generate(root,tmp,settings,(0.,0.,0.),rig)
++if root not in dest.resolve().parents:raise ValueError("overlay path outside workspace")
++dest.parent.mkdir(parents=True,exist_ok=True)
++content=yaml.safe_dump(profile,sort_keys=False)
++if dest.exists() and dest.read_text()!=content:raise ValueError("site source changed; reload the source and regenerate the command (existing file preserved)")
++if not dest.exists():
++ with dest.open("x") as f:f.write(content)
++print("MEASURED_SITE_OVERLAY="+str(dest))
++'''
++
++
++def overlay_command(source, folder, geometry, revision):
++    if folder not in FOLDERS:raise ValueError('该组不支持手动搜索/走廊坐标')
++    if not isinstance(revision,str) or not revision.isascii() or not revision.isalnum() or not 1<=len(revision)<=32:
++        raise ValueError('坐标草稿版本无效，请重新生成命令')
++    clean=validate_geometry(geometry)
++    if 'survey_plan' in clean and folder not in SURVEY_FOLDERS:raise ValueError('该组没有高位搜索阶段')
++    if any(k in clean for k in ('landing_xy','corridor_waypoints','corridor_geometry')) and folder not in CORRIDOR_FOLDERS:raise ValueError('该组不使用走廊/H航点')
++    if 'search_waypoints_xy' in clean and folder!='05_low_multi':raise ValueError('低空XY航点仅适用于任务二')
++    if any(key in clean for key in ('high_agl','low_agl')) and folder not in ('05_low_multi','08_full_mission'):raise ValueError('搜索高度仅适用于任务二或任务08地图')
++    data=json.dumps(clean,sort_keys=True,separators=(',',':'),allow_nan=False)
++    token=hashlib.sha256((source+'\n'+folder+'\n'+revision+'\n'+data).encode()).hexdigest()[:20]
++    relative='logs/flight_workbench/site_overlays/'+folder+'_'+token+'.yaml'
++    payload=base64.b64encode(data.encode()).decode()
++    command='python3 -c '+shlex.quote(REMOTE_WRITER)+' '+shlex.quote(source)+' '+shlex.quote(relative)+' '+shlex.quote(payload)+' '+shlex.quote(folder)
++    return relative, command, clean
+diff --git a/wb_competition_geometry.py b/wb_competition_geometry.py
+--- a/wb_competition_geometry.py
++++ b/wb_competition_geometry.py
+@@ -5,7 +5,6 @@
+ import math
+ import shlex
+ import base64
+-from datetime import datetime, timedelta, timezone
+ 
+ 
+ def validate_patch(value):
+@@ -56,7 +55,8 @@
+         raise ValueError('请重新生成坐标命令')
+     clean = validate_patch(geometry)
+     data = json.dumps(clean, sort_keys=True, separators=(',', ':'), allow_nan=False)
+-    token = datetime.now(timezone(timedelta(hours=8))).strftime('%m%d-%H%M')
++    identity = json.dumps([source, revision, clean, motion, columns, resume], sort_keys=True, separators=(',', ':'), allow_nan=False)
++    token = hashlib.sha256(identity.encode()).hexdigest()[:20]
+     relative = 'logs/flight_workbench/site_overlays/competition_' + token + '.yaml'
+     script = 'import pathlib,sys,json,base64,hashlib,math,tempfile,yaml\n' + inspect.getsource(validate_patch) + '''
+ root=pathlib.Path.cwd().resolve()
+@@ -80,7 +80,7 @@
+  with tempfile.TemporaryDirectory() as tmp:generate(root,tmp,effective,(0.,0.,0.),rig)
+ content=yaml.safe_dump(settings,sort_keys=False,allow_unicode=True)
+ dest.parent.mkdir(parents=True,exist_ok=True)
+-if dest.exists() and dest.read_text(encoding='utf-8')!=content:raise ValueError('同一分钟的运行配置已存在且内容不同，请下一分钟重新生成命令；原配置未覆盖')
++if dest.exists() and dest.read_text(encoding='utf-8')!=content:raise ValueError('源配置已变化，请重新读取场地并生成命令；原运行配置未覆盖')
+ if not dest.exists():
+  with dest.open('x',encoding='utf-8') as handle:handle.write(content)
+ print('COMPETITION_SITE_OVERLAY='+str(dest))
+diff --git a/tests/new_start_ui_browser.cjs b/tests/new_start_ui_browser.cjs
+new file mode 100644
+--- /dev/null
++++ b/tests/new_start_ui_browser.cjs
+@@ -0,0 +1,114 @@
++/* Node >=22 + Chromium/Edge. Only mock APIs and static files; no backend/SSH/ROS.
++ * Windows: node tests/new_start_ui_browser.cjs "C:\...\msedge.exe" [web-root]
++ */
++'use strict';
++const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),http=require('node:http'),assert=require('node:assert/strict'),{spawn}=require('node:child_process');
++const root=path.resolve(process.argv[3]||path.join(__dirname,'../web')),browser=process.argv[2];
++if(!browser)throw Error('Pass a Chromium/Edge executable path');
++const geometry={flight_area:{center_bounds:[-1,9,-5,5],target_bounds:[0,8,-4,4],search_bounds:[0,7,-4,4],coverage_bounds:[0,7,-4,4],staging_xy:[1,0],survey_xy:[[1,0],[2,0]],map_size:[20,20,5]},corridor_waypoints:[{x:6,y:0,agl:.9},{x:7,y:0,agl:.9}],landing_xy:[8,-3],high_agl:2.6,low_agl:1.4};
++const groups=[
++ {id:'competition',channel:'competition',name:'competition fixture',release:'real',release_options:['real'],site_config:'deployment/competition/field_10x10_default.yaml',competition_options_supported:true,resume_survey_supported:true},
++ {id:'mod08',channel:'module',folder:'08_full_mission',name:'module fixture',release:'mock',release_options:['mock','real'],needs_waypoints:true,site_config:'deployment/board_trials_4x4/08_full_mission/site_20261007_221730.yaml',resume_survey_supported:true,speed_profile_options:[{value:'',label:'limited'},{value:'competition',label:'competition'}]}
++],requests=[];
++const server=http.createServer(async(req,res)=>{
++ try{
++  const u=new URL(req.url,'http://localhost');
++  if(u.pathname.startsWith('/api/')){
++   let raw='';for await(const chunk of req)raw+=chunk;const body=raw?JSON.parse(raw):{};requests.push({url:u.pathname,body});let data={ok:true};
++   if(u.pathname==='/api/snapshot')data={ok:true,connection:{state:'ok',host:'mock-board.invalid',board_root:'/mock',site_dir:'deployment/site_20260928'},groups,terminals:[],sessions:{},trial:{},stage:{name:'IDLE'}};
++   else if(u.pathname==='/api/competition/config-summary')data={ok:true,source:'offline_reference',values:{geometry}};
++   else if(u.pathname==='/api/trial/command')data={ok:true,body:'MOCK_REVIEWED '+JSON.stringify(body),note:'mock only'};
++   else if(u.pathname==='/api/waypoints/draft')data={ok:true,draft:null};
++   else if(u.pathname==='/api/trial/start')data={ok:true,trial:{mock:true}};
++   res.setHeader('Content-Type','application/json');res.end(JSON.stringify(data));return;
++  }
++  const file=u.pathname==='/'?'index.html':u.pathname.replace(/^\/static\//,''),target=path.resolve(root,file);
++  if(!target.startsWith(root+path.sep)){res.writeHead(403);res.end();return;}
++  res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json'})[path.extname(file)]||'text/plain');res.end(fs.readFileSync(target));
++ }catch(e){res.writeHead(500);res.end(String(e));}
++});
++const sleep=ms=>new Promise(r=>setTimeout(r,ms));let child,socket,profile;
++(async()=>{
++ await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;
++ profile=fs.mkdtempSync(path.join(os.tmpdir(),'workbench-mock-ui-'));
++ child=spawn(browser,['--headless=new','--disable-gpu','--no-first-run','--no-default-browser-check','--disable-background-networking','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{windowsHide:true,stdio:'ignore'});
++ let port;for(let i=0;i<100;i++){try{port=Number(fs.readFileSync(path.join(profile,'DevToolsActivePort'),'utf8').split('\n')[0]);break;}catch{}await sleep(100);}assert(port,'Browser debugger must become available');
++ const pages=await(await fetch('http://127.0.0.1:'+port+'/json/list')).json();socket=new WebSocket(pages.find(x=>x.type==='page').webSocketDebuggerUrl);
++ await new Promise((r,j)=>{socket.onopen=r;socket.onerror=j;});let seq=0;const pending=new Map(),pageErrors=[];
++ socket.onmessage=event=>{const v=JSON.parse(event.data);if(v.method==='Runtime.exceptionThrown')pageErrors.push(v.params.exceptionDetails.text);const p=pending.get(v.id);if(p){pending.delete(v.id);clearTimeout(p.timer);v.error?p.reject(Error(JSON.stringify(v.error))):p.resolve(v.result);}};
++ const call=(method,params={})=>new Promise((resolve,reject)=>{const id=++seq;pending.set(id,{resolve,reject,timer:setTimeout(()=>reject(Error(method+' timed out')),15000)});socket.send(JSON.stringify({id,method,params}));});
++ const evaluate=async expression=>{const r=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description||r.exceptionDetails.text);return r.result.value;};
++ await call('Runtime.enable');await call('Page.enable');
++ await call('Page.addScriptToEvaluateOnNewDocument',{source:"window.EventSource=class {addEventListener(){} close(){}};const mockFetch=window.fetch.bind(window);window.fetch=(url,opts)=>{if(new URL(url,location.href).origin!==location.origin)throw Error('External requests forbidden');return mockFetch(url,opts);};window.fixtureGeometry="+JSON.stringify(geometry)+";"});
++ await call('Page.navigate',{url:origin});
++ for(let i=0;i<100;i++){if(await evaluate("typeof state!=='undefined'&&state.groups.length===2&&!!document.querySelector('.grp-card')"))break;await sleep(50);}
++ const results=await evaluate(String.raw`(async()=>{
++ const out=[],check=(v,m)=>{if(!v)throw Error(m);},wait=()=>new Promise(r=>setTimeout(r,100));
++ const c=state.groups.find(g=>g.id==='competition'),m=state.groups.find(g=>g.id==='mod08');
++ const card=g=>Array.from(document.querySelectorAll('.grp-card')).find(n=>n.textContent.includes(g.name));
++ const flight=g=>Array.from(card(g).querySelectorAll('button')).find(n=>n.textContent==='飞行（flight）');
++ const run=async(name,fn)=>{try{await fn();out.push({name,ok:true});}catch(e){out.push({name,ok:false,error:e.message});}};
++ await wait();
++ await run('normal gates: preview, confirmation, disconnect, running, pending, real release',async()=>{
++  const u=groupUI(c);check(flight(c).disabled,'initial confirmation gate');
++  u.mode='flight';u.armedOk=true;u.realConfirm='实投';renderGroups();check(!flight(c).disabled,'plain confirmed competition is enabled');
++  for(const gate of ['offline','running','pending','real']){
++   if(gate==='offline')state.connection.state='unknown';if(gate==='running')state.sessions.trial={state:'running'};if(gate==='pending')state.trialPending=true;if(gate==='real')u.realConfirm='';
++   renderGroups();check(flight(c).disabled,'gate '+gate);
++   state.connection.state='ok';state.sessions={};state.trialPending=false;u.realConfirm='实投';
++  }renderGroups();
++ });
++ await run('persisted competition map can regenerate after reload and option change',async()=>{
++  const u=groupUI(c),key=competitionDraftScope(c);
++  localStorage.setItem('competitionDraft:'+key,JSON.stringify({geometry:window.fixtureGeometry,enabled:true}));
++  delete u.competitionDraft;u.geometryEnabled=false;u.geometryPlans={};renderGroups();
++  u.mode='flight';u.armedOk=true;u.realConfirm='实投';renderGroups();
++  check(flight(c).disabled,'restored draft must await command generation');
++  const rebuild=Array.from(card(c).querySelectorAll('button')).find(n=>n.textContent.includes('重新生成坐标'));
++  check(rebuild,'restored draft has no visible regenerate action');
++  rebuild.click();await wait();u.armedOk=true;u.realConfirm='实投';renderGroups();
++  check(!flight(c).disabled,'generated command enables flight');
++  u.resume='off';renderGroups();check(flight(c).disabled,'changed switch must invalidate matching command');
++  Array.from(card(c).querySelectorAll('button')).find(n=>n.textContent.includes('重新生成坐标')).click();await wait();renderGroups();
++  check(!flight(c).disabled,'changed options can regenerate without saving map again');
++  check(trialBody(c,'flight',false).site_geometry.landing_xy[0]===8,'saved geometry retained');
++ });
++ await run('regenerated competition sends the reviewed coordinates to mock start',async()=>{
++  const u=groupUI(c);u.armedOk=true;u.realConfirm='实投';
++  const expected=trialBody(c,'flight',false),savedConfirm=confirmModal;
++  confirmModal=async()=>({confirmed:true});
++  try{await startTrial(c,'flight');check(state.trial.mock===true,'mock start did not accept the reviewed request');check(expected.site_geometry.landing_xy[0]===8,'reviewed H coordinate retained');check(!state.trialPending,'pending gate released after successful mock start');}
++  finally{confirmModal=savedConfirm;}
++ });
++ await run('module regenerated request contains edited XY and search heights',async()=>{
++  const u=groupUI(m);u.mode='flight';u.release='mock';u.geometryEnabled=true;u.geometryValues={high_agl:2.6,low_agl:1.4};u.waypointDraftApplied=true;
++  u.geometryPoints='6, 0, 0.9\n7, 0, 0.9';u.geometryLanding='7.6, -3';u.geometryArea=JSON.stringify(window.fixtureGeometry.flight_area);renderGroups();
++  card(m).querySelector('[data-waypoint-command]').click();await wait();u.armedOk=true;renderGroups();
++  const body=trialBody(m,'flight',false);check(!flight(m).disabled,'module generated command enables flight');
++  check(body.expected_body.includes('7.6'),'edited H coordinate reaches reviewed command');
++  check(body.site_geometry.high_agl===2.6&&body.site_geometry.low_agl===1.4,'search heights retained');
++ });
++ await run('effective config rejects a different geometry revision',async()=>{
++  const options={site_geometry:{landing_xy:[8,-3]},geometry_revision:'new'},trial={group_id:m.id,site_geometry:{landing_xy:[7,-3]},geometry_revision:'old'};
++  check(competitionEffectiveConfig(m,options,{effective_config:{motion_optimization:true,resume_survey:true}},trial).includes('尚未确认'),'stale geometry reported as current effective config');
++ });
++ await run('confirmation cannot send options changed while dialog is open',async()=>{
++  const u=groupUI(m);u.geometryEnabled=false;u.flightSettings=null;u.mode='flight';u.release='mock';u.armedOk=true;u.resume='';
++  const savedConfirm=confirmModal,savedStart=api.trialStart;let approve,calls=0;
++  confirmModal=()=>new Promise(r=>approve=r);api.trialStart=async()=>{calls++;return {ok:true};};
++  try{const done=startTrial(m,'flight');u.resume='off';approve({confirmed:true});await done;check(calls===0,'stale approved request was sent');check(!state.trialPending,'pending gate released');}
++  finally{confirmModal=savedConfirm;api.trialStart=savedStart;state.trialPending=false;}
++ });
++ await run('command generation rejects a changed board scope',async()=>{
++  const u=groupUI(m);u.flightSettings={drop_agl:.4};u.geometryPlans={};u.resume='';const savedFetch=fetch,savedHost=state.connection.host;let finish=[];
++  window.fetch=(url,opts)=>url==='/api/trial/command'?new Promise(resolve=>finish.push(()=>resolve({ok:true,json:async()=>({ok:true,body:'STALE_BOARD_COMMAND'})}))):savedFetch(url,opts);
++  let rejected=false;
++  try{const task=FlightSettings.generate(m,u,document.createElement('p')).catch(()=>rejected=true);state.connection.host='another-mock.invalid';finish.forEach(f=>f());await task;check(rejected,'changed-board command generation was accepted');check(!Object.values(u.geometryPlans).some(p=>p.body==='STALE_BOARD_COMMAND'),'old board commands entered new board cache');}
++  finally{state.connection.host=savedHost;window.fetch=savedFetch;}
++ });
++ return out;
++})()`);
++ console.log(JSON.stringify({webRoot:root,results,pageErrors,commandRequests:requests.filter(r=>r.url==='/api/trial/command').length,mockTrialStarts:requests.filter(r=>r.url==='/api/trial/start').length},null,2));
++ if(results.some(r=>!r.ok)||pageErrors.length)process.exitCode=1;
++ await call('Browser.close').catch(()=>{});
++})().catch(e=>{console.error(e);process.exitCode=1;}).finally(()=>{socket?.close();child?.kill();server.closeAllConnections();server.close();});
+diff --git a/tests/test_launch_contract_regression.py b/tests/test_launch_contract_regression.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_launch_contract_regression.py
+@@ -0,0 +1,62 @@
++"""Preview/start consistency without SSH, ROS or actuator execution."""
++import copy
++from datetime import datetime, timedelta, timezone
++from pathlib import Path
++from types import SimpleNamespace
++from unittest.mock import patch
++import tempfile
++import unittest
++import sys
++import yaml
++sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
++import server, wb_board, wb_geometry, wb_competition_geometry, wb_config_summary
++
++class LaunchContractRegression(unittest.TestCase):
++    def setUp(self):
++        self.tmp=tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
++        for obj,name in [(server,'PROFILE_DIR'),(wb_board,'DEFAULT_PROFILE_DIR')]:
++            p=patch.object(obj,name,self.tmp.name);p.start();self.addCleanup(p.stop)
++        self.wb=server.Workbench(wb_board.load_config(),{'transport':'ssh'})
++        self.wb.connection['state']='ok'
++        p=patch.object(self.wb.board,'run',side_effect=AssertionError('no remote calls in regression'))
++        p.start();self.addCleanup(p.stop)
++        self.root=Path(__file__).resolve().parents[1]
++    def cases(self):
++        site=yaml.safe_load((self.root/'waypoint_templates/module08.yaml').read_text())
++        module={k:copy.deepcopy(site[k]) for k in ('flight_area','corridor_waypoints','landing_xy','high_agl','low_agl','max_agl') if k in site}
++        field=yaml.safe_load((self.root/'competition_templates/deployment/competition/field_10x10_default.yaml').read_text())
++        formal=wb_config_summary.summarize(field)['geometry']
++        group=next(g for g in self.wb.config['groups'] if g['channel']=='competition')
++        return [(wb_geometry,dict(group_id='mod08',route='module',mode='flight',real_release=False,confirm='启动试飞',site_geometry=module,geometry_revision='sameDraft1')),
++                (wb_competition_geometry,dict(group_id=group['id'],route='competition',mode='flight',real_release=True,confirm='实投',site_geometry=formal,geometry_revision='sameDraft1'))]
++    def test_preview_then_start_after_minute_rollover(self):
++        for module,body in self.cases():
++            with self.subTest(group=body['group_id']),patch.object(module,'datetime',create=True) as clock:
++                clock.now.return_value=datetime(2026,10,15,15,0,59,tzinfo=timezone(timedelta(hours=8)))
++                preview=self.wb.trial_command(body)['body']
++                clock.now.return_value=datetime(2026,10,15,15,1,1,tzinfo=timezone(timedelta(hours=8)))
++                session=SimpleNamespace(snapshot=lambda:{'state':'running'})
++                with patch.object(self.wb.sessions,'open',return_value=session) as opened:
++                    result=self.wb.start_trial(dict(body,expected_body=preview))
++                    self.assertTrue(result['ok']);opened.assert_called_once()
++                    self.assertEqual(result['trial']['command'],preview)
++    def test_coordinate_revision_and_source_are_bound_without_wall_clock(self):
++        geometry={'high_agl':2.6}
++        one=wb_geometry.overlay_command('field.yaml','08_full_mission',geometry,'r1')[0]
++        self.assertEqual(one,wb_geometry.overlay_command('field.yaml','08_full_mission',geometry,'r1')[0])
++        for source,change,rev in [('field.yaml',{'high_agl':2.7},'r1'),('other.yaml',geometry,'r1'),('field.yaml',geometry,'r2')]:
++            self.assertNotEqual(one,wb_geometry.overlay_command(source,'08_full_mission',change,rev)[0])
++    def test_formal_switches_have_separate_immutable_outputs(self):
++        _,body=self.cases()[1];g=body['site_geometry']
++        one=wb_competition_geometry.overlay_command('field.yaml',g,'r1',motion='on')[0]
++        for change in ({'motion':'off'},{'motion':'on','columns':'off'},{'motion':'on','resume':'off'}):
++            self.assertNotEqual(one,wb_competition_geometry.overlay_command('field.yaml',g,'r1',**change)[0])
++    def test_changed_preview_still_rejected_before_session(self):
++        _,body=self.cases()[0]
++        expected=self.wb.trial_command(body)['body']
++        changed=copy.deepcopy(body);changed['site_geometry']['high_agl']=2.7
++        with patch.object(self.wb.sessions,'open') as opened,self.assertRaisesRegex(ValueError,'不一致'):
++            self.wb.start_trial(dict(changed,expected_body=expected))
++        opened.assert_not_called()
++
++if __name__=='__main__':unittest.main(verbosity=2)
+\ No newline at end of file
+diff --git a/FIXES_20261015.md b/FIXES_20261015.md
+new file mode 100644
+--- /dev/null
++++ b/FIXES_20261015.md
+@@ -0,0 +1,25 @@
++# 飞行工作台启动修复说明（2026-10-15）
++
++本包是原工作台的局部修复版；仅调整四个生产文件，并附两项回归测试。
++
++## 修复内容
++
++- web/competition_geometry.js：恢复本机已保存地图后，增加“重新生成坐标命令（不连接飞机）”，可按当前运动优化、障碍柱、高位续扫及参数选项重新生成匹配命令。
++- web/app.js：有效配置核对加入地图内容与草稿版本；确认弹窗返回后，再核对当前坐标、选项和飞行/实投确认，变化后要求重新确认。
++- wb_geometry.py、wb_competition_geometry.py：以来源路径、草稿版本、坐标及适用开关生成稳定的配置文件标识，替代按分钟命名。同一请求跨分钟保持同一命令，同分钟修改生成不同路径；已有配置内容不符时仍拒绝覆盖。
++
++## 预期操作流程
++
++1. 选择正确的任务组和场地配置，核对地图航点、H 坐标及当前选项。
++2. 刷新页面恢复草稿，或修改选项后，点击“重新生成坐标命令（不连接飞机）”；任务模块使用原有的生成坐标命令入口。
++3. 核对新命令，再按原流程执行配置检查。仅勾选选项并不代表实际配置已经验证。
++4. 由操作员完成必要的飞行/实投确认，再确认启动弹窗。弹窗期间修改坐标或选项时，应重新生成并确认。
++
++解压到新的独立目录后使用原启动脚本。此包未替换正在运行的旧工作台；不要为验包启动第二套服务。既有 manifest.json 保留历史基线信息，本说明描述本次增量。
++
++## 本次验证与打包范围
++
++- Python 定向回归：22 项通过、4 项跳过（缺少测试指定的源工程）。
++- Edge 无头浏览器：7 项 mock API 测试通过，无页面异常。
++- SSH/会话操作使用 mock；无硬件连接、实飞、实投或板端部署验证，也未声明完整测试套件通过。
++- 包内排除 Git 元数据、缓存、用户 profiles/凭据、日志、临时目录、备份、历史浏览器记录及预览截图。工程自带的连接配置/航点模板保留；它们不代表现场已经核对。
