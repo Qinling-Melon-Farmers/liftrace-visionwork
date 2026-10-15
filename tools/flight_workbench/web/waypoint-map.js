@@ -233,7 +233,7 @@ draw=function(){
       add('path',{d:'M'+(x-ux*6-uy*5)+','+(y-uy*6+ux*5)+' L'+(x+ux*3)+','+(y+uy*3)+' L'+(x-ux*6+uy*5)+','+(y-uy*6-ux*5),fill:'none',stroke:colors.survey,'stroke-width':2,'data-coverage-arrow':i});
     }
     group.dataset.waypoints=JSON.stringify(route.points);group.dataset.agl=route.agl;
-    note.textContent=(route.source==='site.search_waypoints_xy'?'显式搜索点':route.pattern==='nested_rectangles'?'低位回字形':'低位牛耕')+' · '+route.points.length+'点 · FC '+route.agl+'m · '+route.source+'。蓝线按板端顺序显示（含圈间折点），只读预览；走廊/H独立保留。';
+    note.textContent=(route.pattern==='nested_rectangles'?'回字形':'牛耕')+' · '+route.points.length+'点 · FC '+route.agl+'m · '+(route.source==='site.search_waypoints_xy'?'显式点':'按现场范围自动生成')+'。蓝线按顺序显示（含圈间折点），只读预览；走廊/H独立保留。';
   }catch(error){note.textContent='低位搜索线未生成：'+error.message;}
   const panel=document.querySelector('[data-panel="2"]');
   if(panel){
