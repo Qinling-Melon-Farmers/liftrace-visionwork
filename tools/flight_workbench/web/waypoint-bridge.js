@@ -2,8 +2,8 @@
 (function(){
   'use strict';
   const supported=g=>g.channel==='competition'||(g.channel==='module'&&['10_low_coverage_full','04_corridor_landing','08_full_mission'].includes(g.folder));
-  const source=(g,U)=>g.channel==='competition'?(U.competitionConfig??g.site_config):g.site_config;
-  const identity=(g,U)=>({group_id:g.id,...(g.channel==='competition'?{competition_config:source(g,U)}:{})});
+  const source=(g,U)=>g.channel==='competition'?(U.competitionConfig??g.site_config):g.folder==='10_low_coverage_full'?window.lowCoverageSite(g,U.coveragePattern,!!U.coverageShiftback):g.site_config;
+  const identity=(g,U)=>({group_id:g.id,...(g.folder==='10_low_coverage_full'?{coverage_pattern:U.coveragePattern||'lawnmower',coverage_shiftback:!!U.coverageShiftback}:{}),...(g.channel==='competition'?{competition_config:source(g,U)}:{})});
   const scope=(g,U)=>JSON.stringify([state.connection?.host,state.connection?.board_root,state.connection?.site_dir,g.id,source(g,U)]);
   let dialog,frame,active;
   function invalidate(U){U.geometryRevision=null;U.geometryPlans={};U.armedOk=false;U.realConfirm='';}
@@ -22,7 +22,7 @@
     // Changing board/root never transfers the preceding board's map draft.
     if((U.waypointLoadedScope&&U.waypointLoadedScope!==key)||(U.waypointDraftScope&&U.waypointDraftScope!==key))clearDraft(U);
     U.waypointLoadedScope=key;
-    request('draft',identity(g,U)).then(data=>{if(U.waypointLoadedScope!==key||scope(g,U)!==key)return;if(data.draft&&data.draft.enabled!==false){populate(g,U,{...data.draft,source:data.draft.source??data.source,scope:data.draft.scope??data.scope});renderGroups();generate(g);}}).catch(e=>{if(U.waypointLoadedScope===key)U.waypointLoadError=e.message;});
+    request('draft',identity(g,U)).then(data=>{if(U.waypointLoadedScope!==key||scope(g,U)!==key)return;if(g.folder==='10_low_coverage_full'&&data.source!==window.lowCoverageSite(g,U.coveragePattern,!!U.coverageShiftback))throw Error('后端地图来源不一致，请重载工作台');if(data.draft&&data.draft.enabled!==false){populate(g,U,{...data.draft,source:data.draft.source??data.source,scope:data.draft.scope??data.scope});renderGroups();generate(g);}}).catch(e=>{if(U.waypointLoadedScope===key)U.waypointLoadError=e.message;});
   }
   function close(){if(dialog){dialog.close();dialog.remove();}dialog=frame=active=null;}
   function sendContext(){
@@ -36,13 +36,14 @@
   }
   async function open(g,U){
     if(tSessRunning()||state.trialPending){alert('任务正在运行或等待确认，请结束后再调整航点。');return;}
+    if((['04_corridor_landing','08_full_mission'].includes(g.folder)&&!g.exact_site_reference)||(g.folder==='10_low_coverage_full'&&!window.lowCoverageSite(g,U.coveragePattern,!!U.coverageShiftback))){alert('后端未加载新现场配置，请在会话结束后重载工作台');return;}
     close();dialog=document.createElement('dialog');dialog.className='waypoint-dialog';dialog.setAttribute('aria-label','飞行前调整航点');
     const head=document.createElement('div');head.className='waypoint-dialog-head';const title=document.createElement('strong');title.textContent=g.name+' · 地图调整';const cancel=document.createElement('button');cancel.className='btn';cancel.textContent='关闭';cancel.onclick=close;head.append(title,cancel);
     const note=document.createElement('p');note.className='waypoint-dialog-note';note.textContent='正在读取所选现场配置与本机草稿…';
     frame=document.createElement('iframe');frame.title='航点地图与坐标微调';frame.src='/static/waypoint-map.html';
     dialog.append(head,note,frame);document.body.append(dialog);dialog.showModal();dialog.addEventListener('cancel',close);
     const key=scope(g,U);active={g,U,key,note};const task=active;
-    try{const context=await request('context',{...identity(g,U),...(U.geometryEnabled&&U.geometryValues?{site_geometry:U.geometryValues}:{})});if(active!==task||scope(g,U)!==key)return;active.context={...context,...identity(g,U)};note.textContent=(context.origin||'所选配置')+' · '+context.source;sendContext();}
+    try{const context=await request('context',{...identity(g,U),...(U.geometryEnabled&&U.geometryValues?{site_geometry:U.geometryValues}:{})});if(active!==task||scope(g,U)!==key)return;if(context.source!==source(g,U))throw Error('后端地图来源与所选文件不一致，请重载工作台；未使用旧地图');active.context={...context,...identity(g,U)};note.textContent=(context.origin||'所选配置')+' · '+context.source;sendContext();}
     catch(e){if(active===task){note.textContent=e.message;note.classList.add('error');}}
   }
   window.addEventListener('message',async event=>{

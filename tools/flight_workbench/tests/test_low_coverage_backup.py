@@ -63,7 +63,7 @@ class CoverageBackupTests(unittest.TestCase):
         for pattern in ('lawnmower','nested_rectangles'):
             for agl in (1.8,1.9):
                 command=wb_board.build_group_command(self.config,self.group,'flight',coverage_agl=agl,coverage_pattern=pattern,real_release=False)[0]
-                self.assertIn('--site-config '+self.group['site_config'],command)
+                self.assertIn('--site-config '+self.group['site_configs_by_pattern'][pattern],command)
                 self.assertIn('--coverage-agl '+str(agl),command)
                 self.assertIn('--coverage-pattern '+pattern,command)
                 self.assertNotIn('python3 -c',command)
@@ -83,7 +83,7 @@ class CoverageBackupTests(unittest.TestCase):
         self.assertIn('--speed-profile limited',wb_board.build_group_command(self.config,old,'preview',speed_profile='limited')[0])
         for mode in ('preview','flight'):
             command=wb_board.build_group_command(self.config,old,mode)[0]
-            self.assertIn('08_full_mission/site_waypoint_map_20261015.yaml',command)
+            self.assertIn('08_full_mission/site_waypoint_map_20261016.yaml',command)
             self.assertNotIn('full_mission_test_area',command)
             self.assertNotIn('site_20261007',command)
             self.assertNotIn('--survey-pattern',command)

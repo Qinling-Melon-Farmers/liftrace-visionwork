@@ -354,8 +354,9 @@ groups:
     motion_optimization_supported: true
     needs_servo: false
     needs_waypoints: true
-    site_config: "{site_dir}/corridor_landing_test_area.yaml"
-    notes: "走廊航点与 H 坐标出厂留空，未填写时入口会拒绝启动；这是预期行为，不要用仿真航点替代。"
+    exact_site_reference: true
+    site_config: "deployment/board_trials_4x4/04_corridor_landing/site_waypoint_map_20261016.yaml"
+    notes: "默认采用20261016最新现场6个走廊点及H(7.51,-3.85)、H捕获1.1m；板端须部署同名文件，手动覆盖优先。"
 
   - id: mod08
     key: "08"
@@ -372,12 +373,13 @@ groups:
     resume_survey_supported: true
     needs_servo: false
     needs_waypoints: true
-    site_config: "deployment/board_trials_4x4/08_full_mission/site_waypoint_map_20261015.yaml"
+    exact_site_reference: true
+    site_config: "deployment/board_trials_4x4/08_full_mission/site_waypoint_map_20261016.yaml"
     default_speed_profile: competition
     speed_profile_options:
       - {value: "limited", label: "有限空间规划 · 0.5m/s / 0.35m/s²"}
       - {value: "competition", label: "08正赛速度 · 1.2m/s / 1.0m/s² · 原现场几何"}
-    notes: "默认采用板端已确认20261015地图、FC高2.6m及rectangle；无须手填，手动覆盖优先。两档同一几何，走廊快0.6慢0.4m；更换场地重新测量。正赛速度版默认开运动优化/高位续扫，仍可显式覆盖续扫。"
+    notes: "默认选择20261016地图（板端部署待核对）、FC高2.6m及rectangle；无须手填，手动覆盖优先。两档同一几何，走廊快0.6慢0.4m；更换场地重新测量。正赛速度版默认开运动优化/高位续扫，仍可显式覆盖续扫。"
 
   - id: mod10backup
     key: "10备份"
@@ -394,8 +396,14 @@ groups:
     needs_waypoints: true
     low_coverage_backup: true
     default_speed_profile: competition
-    site_config: "deployment/board_trials_4x4/10_low_coverage_full/site_waypoint_map_20261015.yaml"
-    notes: "候选备份，默认competition规划上限1.2m/s、1.0m/s²，H捕获/对准FC1.1m继承板端YAML，运动优化及moving_recovery继承模块。默认牛耕/FC离地1.8m，可选回字形/1.9m；不是镜头高度。新模块按测量范围动态生成，参考牛耕3线6点29.8m（间距2.6m）、回字形11点45.5m（独立圈内收1.8m）；FOV理论地面面积覆盖在FC1.8m为99.42%、FC1.9m为100%，非实飞检出率。虚拟柱/虚拟天花板关闭，实体点云避障保留。默认直接使用板端本组20261015现场YAML；可选手动覆盖，覆盖时须保存用于本组并生成命令；现有5个走廊点不代表完整成对门引导。原08/正赛入口与路线选择不变。"
+    site_config: "deployment/board_trials_4x4/10_low_coverage_full/site_lawnmower_20261016.yaml"
+    site_configs_shiftback_by_pattern:
+      lawnmower: "deployment/board_trials_4x4/10_low_coverage_full/site_lawnmower_shiftback_1m_20261016.yaml"
+      nested_rectangles: "deployment/board_trials_4x4/10_low_coverage_full/site_nested_rectangles_shiftback_1m_20261016.yaml"
+    site_configs_by_pattern:
+      lawnmower: "deployment/board_trials_4x4/10_low_coverage_full/site_lawnmower_20261016.yaml"
+      nested_rectangles: "deployment/board_trials_4x4/10_low_coverage_full/site_nested_rectangles_20261016.yaml"
+    notes: "候选备份，默认competition规划上限1.2m/s、1.0m/s²，H捕获/对准FC1.1m继承板端YAML，运动优化及moving_recovery继承模块。默认牛耕/FC离地1.8m，可选回字形/1.9m；不是镜头高度。优先保留现场文件显式六点或两框，参考牛耕3线6点29.8m（间距2.6m）、回字形11点45.5m（独立圈内收1.8m）；理想FOV参考随默认/后移和高度选项显示，手动几何覆盖需重算，非实飞检出率。虚拟柱/虚拟天花板关闭，实体点云避障保留。默认直接使用板端本组20261016现场YAML（按形状选择独立文件）；可选手动覆盖，覆盖时须保存用于本组并生成命令；最新6个走廊点随现场文件读取。原08/正赛入口与路线选择不变。"
 
   - id: mod06mock
     key: "06"

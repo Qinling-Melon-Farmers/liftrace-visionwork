@@ -7,6 +7,7 @@ from pathlib import Path
 import threading
 import uuid
 import yaml
+import wb_site_sources
 import wb_board
 import wb_geometry
 import wb_competition_geometry as competition
@@ -70,8 +71,11 @@ def context(workbench, body):
                     wb_board.quote(snippet), wb_board.quote(workbench.board.root), wb_board.quote(source))
         code, output = workbench.board.run(command, timeout=20)
         lines = [line for line in output.splitlines() if line.startswith('WB_WAYPOINT_SITE=')]
-        if code or not lines: raise ValueError('无法读取所选板端现场配置；请检查路径与连接，未使用示例代替板端文件')
+        if code or not lines: raise ValueError('所选新场地文件未部署或无法读取；请检查路径与连接，不回退旧地图')
         site = json.loads(lines[-1].split('=', 1)[1]); origin = '板端所选现场配置'
+    elif group.get('exact_site_reference'):
+        site = wb_site_sources.reference(source)
+        origin = '随包所选文件离线副本（未核对板端部署）'
     else:
         if group.get('channel') == 'competition':
             prefix = 'deployment/competition/'

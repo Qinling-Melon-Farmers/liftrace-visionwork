@@ -8,11 +8,12 @@ from pathlib import Path
 import shlex
 import uuid
 import yaml
+import wb_site_sources
 
 FOLDER = '10_low_coverage_full'
 ENTRY = 'deployment/board_trials_4x4/'+FOLDER+'/start.sh'
 FIELDS = ('flight_area','corridor_waypoints','landing_xy','corridor_geometry',
-          'landing_transit_agl','landing_capture_agl','max_agl')
+          'landing_transit_agl','landing_capture_agl','max_agl','search_waypoints_xy','coverage_rectangles','coverage_scan_axis','coverage_cross_inset','coverage_lane_spacing','coverage_loop_inset')
 
 def height(value):
     if type(value) not in (int,float) or value not in (1.8,1.9):
@@ -33,7 +34,7 @@ def normalize_site(raw, base=None):
             corridor_waypoints=raw['corridor_waypoints'],landing_xy=raw['landing_xy'])
         if raw.get('corridor_speed_schedule'):
             g=raw['corridor_speed_schedule'];site['corridor_geometry']=dict(wall_axis=g['axis'],wall_coordinates=g['wall_coordinates'],entry_waypoints=g['entry_waypoints'])
-        for key in ('landing_transit_agl','landing_capture_agl','max_agl'):
+        for key in ('landing_transit_agl','landing_capture_agl','max_agl','search_waypoints_xy','coverage_rectangles','coverage_scan_axis','coverage_cross_inset','coverage_lane_spacing','coverage_loop_inset'):
             if key in raw:site[key]=raw[key]
         # 原高位搜索中心范围和四边形只归档展示，不用作牛耕路线。
         site['_low_coverage_original']=copy.deepcopy(raw)
@@ -74,6 +75,19 @@ def patch_from_site(site):
     g=site.get('corridor_geometry')
     if g is not None:
         if not isinstance(g,dict) or set(g)!={'wall_axis','wall_coordinates','entry_waypoints'} or type(g['wall_axis']) is not int or g['wall_axis'] not in (0,1) or not isinstance(g['wall_coordinates'],list) or not g['wall_coordinates'] or not all(finite(v) for v in g['wall_coordinates']) or type(g['entry_waypoints']) is not int or not 1<=g['entry_waypoints']<=len(points):raise ValueError('门墙轴、坐标或入口序号无效')
+    if 'search_waypoints_xy' in site:
+        points=site['search_waypoints_xy']
+        if not isinstance(points,list) or not 2<=len(points)<=100 or any(not inside(p,search) for p in points):raise ValueError('显式搜索点须位于搜索范围内')
+    if 'coverage_rectangles' in site:
+        boxes=site['coverage_rectangles']
+        if not isinstance(boxes,list) or len(boxes)!=2:raise ValueError('回字形需要两个框')
+        for b in boxes:
+            if not isinstance(b,list) or len(b)!=4 or not all(finite(v) for v in b) or b[0]>=b[1] or b[2]>=b[3] or not inside([b[0],b[2]],search) or not inside([b[1],b[3]],search):raise ValueError('回字框须位于搜索范围内')
+        outer_box,inner=boxes
+        if not (outer_box[0]<inner[0]<inner[1]<outer_box[1] and outer_box[2]<inner[2]<inner[3]<outer_box[3]):raise ValueError('回字内框须严格位于外框内')
+    if 'coverage_scan_axis' in site and site['coverage_scan_axis'] not in ('x','y'):raise ValueError('无效扫描轴')
+    for key in ('coverage_cross_inset','coverage_lane_spacing','coverage_loop_inset'):
+        if key in site and (not finite(site[key]) or site[key]<=0):raise ValueError('无效路线间距')
     return {k:copy.deepcopy(site[k]) for k in FIELDS if k in site}
 
 def overlay_command(site, revision, agl):
@@ -98,7 +112,7 @@ print('LOW_COVERAGE_SITE_OVERLAY='+str(dest))
     return dest,'python3 -c '+shlex.quote(script)+' '+shlex.quote(dest)+' '+shlex.quote(base64.b64encode(data.encode()).decode())
 
 def build_command(config,group,mode,*,route=None,real_release=None,check_config=False,
-                  site_geometry=None,geometry_revision=None,coverage_agl=None,coverage_pattern=None,motion_optimized=False,speed_profile=None,**options):
+                  site_geometry=None,geometry_revision=None,coverage_agl=None,coverage_pattern=None,coverage_shiftback=False,motion_optimized=False,speed_profile=None,**options):
     if mode not in ('preview','flight') or (route or group.get('channel'))!='module':raise ValueError('备用遍历只支持模块preview/flight入口')
     if config.get('simulation',{}).get('enabled'):raise ValueError('备用遍历候选尚未接入工作台SITL入口')
     if type(check_config) is not bool or type(motion_optimized) is not bool or real_release is not None and type(real_release) is not bool:raise ValueError('入口开关需布尔值')
@@ -109,10 +123,11 @@ def build_command(config,group,mode,*,route=None,real_release=None,check_config=
     speed_profile='competition' if speed_profile is None else speed_profile
     if speed_profile not in ('competition','limited'):raise ValueError('速度档仅支持competition或limited')
     agl=height(1.8 if coverage_agl is None else coverage_agl)
+    if type(coverage_shiftback) is not bool:raise ValueError('coverage_shiftback must be boolean')
     writer=None
     if site_geometry is None:
         if geometry_revision is not None:raise ValueError('手动地图版本缺少地图内容')
-        dest=group.get('site_config')
+        dest=wb_site_sources.selected_site(group,pattern,coverage_shiftback)
         if not isinstance(dest,str) or not dest.strip() or any(c in dest for c in '\r\n\x00'):raise ValueError('缺少有效板端默认地图路径')
     else:
         dest,writer=overlay_command(site_geometry,geometry_revision,agl)
@@ -123,14 +138,14 @@ def build_command(config,group,mode,*,route=None,real_release=None,check_config=
     if check_config:body=check
     elif mode=='flight':body=check+' && bash '+ENTRY+' flight'+common+(' --real-release' if real else '')
     else:body='bash '+ENTRY+' preview'+common
-    return (writer+' && '+body if writer else body),'候选未实飞：%s，FC %.1fm；使用原地图测量bounds，沿Y长线/横向内收0.6m/牛耕间距2.6m/回字形圈内收1.8m由新模块动态生成；虚拟柱/虚拟天花板关闭，实体避障保留；飞行前检查同一地图，投递/H继承08。'%('牛耕' if pattern=='lawnmower' else '回字形',agl)
+    return (writer+' && '+body if writer else body),'候选未实飞：%s，FC %.1fm；使用所选现场文件，显式搜索点/两框优先；仅无显式路线时按范围生成；虚拟柱/虚拟天花板关闭，实体避障保留；飞行前检查同一地图，投递/H继承08。'%('牛耕' if pattern=='lawnmower' else '回字形',agl)
 
 
 def _identity(workbench,body):
     import wb_board
     g=next((g for g in workbench.config.get('groups',[]) if g['id']==body.get('group_id') and g.get('folder')==FOLDER),None)
     if g is None:raise ValueError('未知备用遍历组')
-    source=g.get('site_config','')
+    source=wb_site_sources.selected_site(g,body.get('coverage_pattern'),body.get('coverage_shiftback',False))
     scope=hashlib.sha256(json.dumps([workbench.target.host,workbench.board.root,g['id'],source]).encode()).hexdigest()[:24]
     return g,source,scope,Path(wb_board.profile_path('waypoint_drafts'))/(scope+'.json')
 
@@ -143,17 +158,18 @@ def map_action(workbench,action,body):
         return dict(ok=True,scope=scope,source=source,draft=data)
     if action=='context':
         loaded=map_action(workbench,'draft',body)
-        site=yaml.safe_load((Path(__file__).parent/'waypoint_templates/module10.yaml').read_text(encoding='utf-8'))
-        origin='随包实测waypoint_map参考；须导入现场最新地图并执行配置检查'
+        site=None
+        origin='随包所选文件离线副本（未核对板端部署）'
         if workbench.connection.get('state')=='ok' and workbench.target.transport!='local':
             import wb_board
             code,output=workbench.board.run('cat -- '+wb_board.quote(workbench.board.abs_path(source)),timeout=20)
-            if code:raise ValueError('无法读取所选板端实测地图；请核对路径，不使用参考文件代替')
+            if code:raise ValueError('所选新场地文件未部署或无法读取：'+source+'；不回退旧地图')
             site=normalize_site(yaml.safe_load(output));origin='板端所选实测地图'
+        if site is None:site=wb_site_sources.reference(source)
         if loaded['draft'] and loaded['draft'].get('enabled',True):site=copy.deepcopy(loaded['draft']['patch'])
         if body.get('site_geometry'):site=copy.deepcopy(body['site_geometry'])
         site=normalize_site(site);patch_from_site(site)
-        return dict(ok=True,folder=FOLDER,editor_kind='module',group_id=g['id'],site=site,source=source,scope=scope,origin=origin,name=g['name'],draft=loaded['draft'])
+        return dict(ok=True,folder=FOLDER,editor_kind='module',coverage_pattern=body.get('coverage_pattern') or 'lawnmower',coverage_shiftback=body.get('coverage_shiftback',False),group_id=g['id'],site=site,source=source,scope=scope,origin=origin,name=g['name'],draft=loaded['draft'])
     if action=='preview':
         try:patch=patch_from_site(body.get('site'));errors=[]
         except (ValueError,KeyError,TypeError) as error:patch={};errors=[str(error)]

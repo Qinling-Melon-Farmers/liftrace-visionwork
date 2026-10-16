@@ -2,7 +2,7 @@
 import math
 import yaml
 
-ALLOWED = {'flight_area', 'search_line_x', 'compressed_image_topic', 'high_agl', 'max_agl',
+ALLOWED = {'low_agl', 'landing_transit_agl', 'landing_capture_agl', 'survey_pattern', 'flight_area', 'search_line_x', 'compressed_image_topic', 'high_agl', 'max_agl',
            'terminal_hover_agl', 'auto_start_after_arm', 'initialization_timeout', 'obstacle_columns_enabled',
            'bag_image_hz', 'bag_image_topic', 'record_inflated_cloud', 'record_map_clouds',
            'landing_xy', 'landing_handoff_mode', 'landing_handoff_status_topic', 'landing_posctl',
@@ -35,7 +35,7 @@ def validate(site):
     if center:
         if not inside([0, 0], center): errors.append('飞行边界必须包含起飞原点')
         if not inside(area.get('staging_xy'), center): errors.append('准备点必须位于飞行边界内')
-        for key, outer, inner in [('target_bounds', boxes.get('target_bounds'), center), ('search_bounds', center, boxes.get('search_bounds'))]:
+        for key, outer, inner in [('target_bounds', center, boxes.get('target_bounds')) if 'survey_pattern' in site else ('target_bounds', boxes.get('target_bounds'), center), ('search_bounds', center, boxes.get('search_bounds'))]:
             if outer and inner and not all(inside(p, outer) for p in ([inner[0], inner[2]], [inner[1], inner[3]])):
                 errors.append(key + ' 的范围包含关系不正确')
         landing = site.get('landing_xy')
@@ -53,8 +53,8 @@ def validate(site):
         errors.append('地图 XY 尺寸不足：需覆盖飞行边界并预留 0.30m 起飞参考偏差')
     high = site.get('high_agl')
     cap = site.get('max_agl')
-    if not finite(high) or not 2 <= high <= 3: errors.append('高位搜索 AGL 须为 2.0～3.0m')
-    if not finite(cap) or (finite(high) and cap < high): errors.append('最大高度须不低于高位搜索高度')
+    if 'high_agl' in site and (not finite(high) or not 2 <= high <= 3): errors.append('高位搜索 AGL 须为 2.0～3.0m')
+    if 'max_agl' in site and (not finite(cap) or (finite(high) and cap < high)): errors.append('最大高度须不低于高位搜索高度')
     if isinstance(size, list) and len(size) == 3 and all(finite(v) for v in size) and finite(cap) and size[2] <= cap + .1:
         errors.append('地图 Z 尺寸须大于最大 AGL + 0.10m')
     points = site.get('corridor_waypoints')
@@ -84,7 +84,7 @@ def validate(site):
                     if isinstance(point, dict) and finite(point.get('agl', 1.4)) and point.get('agl', 1.4) > 1.0:
                         errors.append('默认运动优化的走廊高度上限为 1.0m；入口交接点及之后的 AGL 请设为 ≤1.0m'); break
     line = site.get('search_line_x')
-    if not isinstance(line, list) or len(line) < 2 or not all(finite(v) for v in line) or any(a >= b for a, b in zip(line, line[1:])) or (center and any(not max(.35, center[0]) <= v <= center[1] for v in line)):
+    if line is not None and (not isinstance(line, list) or len(line) < 2 or not all(finite(v) for v in line) or any(a >= b for a, b in zip(line, line[1:])) or (center and any(not max(.35, center[0]) <= v <= center[1] for v in line))):
         errors.append('search_line_x 须为飞行边界内递增的至少两个 X 坐标')
     return errors
 

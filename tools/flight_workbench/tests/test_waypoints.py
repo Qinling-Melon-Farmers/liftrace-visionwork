@@ -39,7 +39,7 @@ class WaypointTests(unittest.TestCase):
         waypoints.disable(self.wb, dict(group_id='mod08',scope=data['scope']))
         context = waypoints.context(self.wb, {'group_id':'mod08'})
         self.assertFalse(context['draft']['enabled'])
-        self.assertEqual(context['site']['corridor_waypoints'][3]['y'],-.9)
+        self.assertEqual(context['site']['corridor_waypoints'][3]['y'],-.43)
 
     def test_board_root_and_group_isolation(self):
         self.save()
@@ -79,6 +79,8 @@ class WaypointTests(unittest.TestCase):
         from trial_config import apply_site_profile,validate_settings
         settings=yaml.safe_load((repository/'deployment/board_trials_4x4/08_full_mission/settings.yaml').read_text(encoding='utf-8'))
         base=yaml.safe_load((repository/'deployment/board_trials_4x4/08_full_mission/site_20261007_221730.yaml').read_text(encoding='utf-8'))
+        # This regression targets the retained legacy module, not the new nav revision.
+        next(g for g in self.wb.config['groups'] if g['id']=='mod08')['exact_site_reference']=False
         merged=waypoints.merge(base,self.save()['patch'])
         apply_site_profile(settings,merged);validate_settings(settings)
         self.assertEqual(merged['corridor_waypoints'][3]['y'], -.85)
