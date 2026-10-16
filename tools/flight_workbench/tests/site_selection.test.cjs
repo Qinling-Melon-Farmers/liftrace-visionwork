@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const data=JSON.parse(fs.readFileSync(0,'utf8')),U={},requests=[];
-const sandbox={window:{addEventListener(){}},globalThis:null,applySnapshot(){},toast(){},groupUI(){return U;},trialBody(){return {};},geometryPlanKey(){return 'base';},groupCommandBody(){return {body:'original'};},geometryFromDraft(){return {};},geometryEditor(){},renderGroups(){},shellArgQuote:s=>/^[a-zA-Z0-9_./-]+$/.test(s)?s:"'"+s.replaceAll("'","'\\''")+"'",state:{connection:{host:'test',board_root:'/board',site_dir:'site'}},fetch:async(path,options)=>{requests.push(JSON.parse(options.body));return {ok:true,json:async()=>({ok:true,source:'OLD-SOURCE',draft:null})};},document:{},console};
+const sandbox={window:{addEventListener(){}},globalThis:null,applySnapshot(){},toast(){},groupUI(){return U;},trialBody(){return {};},geometryPlanKey(){return 'base';},groupCommandBody(){return {body:'original'};},geometryFromDraft(){return {};},geometryEditor(){},groupCard(){},renderGroups(){},shellArgQuote:s=>/^[a-zA-Z0-9_./-]+$/.test(s)?s:"'"+s.replaceAll("'","'\\''")+"'",state:{tabs:{[data.group.id]:U},connection:{host:'test',board_root:'/board',site_dir:'site'}},fetch:async(path,options)=>{requests.push(JSON.parse(options.body));return {ok:true,json:async()=>({ok:true,source:'OLD-SOURCE',draft:null})};},document:{},console};
 sandbox.globalThis=sandbox;vm.createContext(sandbox);
 vm.runInContext(fs.readFileSync('web/low-coverage.js','utf8'),sandbox);
 for(const [shiftback,height,value] of [[false,1.8,'88.56%'],[false,1.9,'89.91%'],[true,1.8,'99.74%'],[true,1.9,'100%']]){assert.ok(sandbox.window.lowCoverageReference({coverageShiftback:shiftback,coverageHeight:height}).includes(value));}
@@ -20,3 +20,8 @@ U.coveragePattern='lawnmower';sandbox.window.WaypointWorkbench.restore(data.grou
 U.coveragePattern='nested_rectangles';sandbox.window.WaypointWorkbench.restore(data.group,U);
 assert.notEqual(U.waypointLoadedScope,first);assert.deepEqual(requests.map(r=>r.coverage_pattern),['lawnmower','nested_rectangles']);
 setImmediate(()=>{assert.ok(U.waypointLoadError.includes('后端地图来源不一致'));console.log('PASS: 32 frontend/backend commands, explicit map routes, manual override, source scopes and stale backend rejection');});
+
+// 真实groupUI会恢复草稿：scope不得通过groupUI再次进入restore。
+U.waypointLoadedScope=null;
+sandbox.groupUI=function(g){sandbox.window.WaypointWorkbench.restore(g,U);return U;};
+assert.doesNotThrow(()=>sandbox.groupUI(data.group));

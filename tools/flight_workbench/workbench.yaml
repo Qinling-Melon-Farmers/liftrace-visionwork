@@ -8,7 +8,7 @@ version: 1
 connection:
   # 外场当前地址（2026-10-03，Orange Pi 5，已验收三槽许可链）；换网/换板时改这里，
   # 或在界面的「板端地址」下拉里直接切换（下拉项来自下面的 host_options）。
-  host: "orangepi@192.168.3.126"
+  host: "orangepi@192.168.43.99"
   port: 22
   board_root: "/home/orangepi/liftrace_board_trials_20260928"
   site_dir: "deployment/site_20260928"
@@ -404,6 +404,22 @@ groups:
       lawnmower: "deployment/board_trials_4x4/10_low_coverage_full/site_lawnmower_20261016.yaml"
       nested_rectangles: "deployment/board_trials_4x4/10_low_coverage_full/site_nested_rectangles_20261016.yaml"
     notes: "候选备份，默认competition规划上限1.2m/s、1.0m/s²，H捕获/对准FC1.1m继承板端YAML，运动优化及moving_recovery继承模块。默认牛耕/FC离地1.8m，可选回字形/1.9m；不是镜头高度。优先保留现场文件显式六点或两框，参考牛耕3线6点29.8m（间距2.6m）、回字形11点45.5m（独立圈内收1.8m）；理想FOV参考随默认/后移和高度选项显示，手动几何覆盖需重算，非实飞检出率。虚拟柱/虚拟天花板关闭，实体点云避障保留。默认直接使用板端本组20261016现场YAML（按形状选择独立文件）；可选手动覆盖，覆盖时须保存用于本组并生成命令；最新6个走廊点随现场文件读取。原08/正赛入口与路线选择不变。"
+
+  - id: mod11release
+    key: "11"
+    folder: "11_low_release_test"
+    channel: module
+    section: module
+    low_release_test: true
+    name: "临时11 · 无靶低空单次释放"
+    plan: "READY后飞手人工解锁并拨入OFFBOARD，到FC离地0.60m后自动前移1m，悬停5s；下降目标FC 0.45m，低于0.50m释放所选仓一次，无需另点启动任务。"
+    ending: "释放后原地悬停，等待飞手人工接管、落地上锁"
+    release: mock
+    release_options: [mock, real]
+    default_slot: 1
+    needs_servo: false
+    needs_waypoints: false
+    notes: "独立无靶测试，不修改正常投递目标检查。默认mock不动机构；真实flight需输入实投确认词，复用已有5b服务，不自动启动真实PWM、不复位。仓位：后1/右2/左3。preview/check仅配置，无节点/设定点/释放。空中停止仅请求保持等待接管，保留定位与MAVROS。"
 
   - id: mod06mock
     key: "06"

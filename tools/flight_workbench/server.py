@@ -28,6 +28,7 @@ from urllib.parse import parse_qs, urlparse, unquote
 import wb_survey
 import wb_board
 import wb_low_coverage
+import wb_low_release
 import wb_status
 import wb_ssh
 import wb_logs
@@ -219,7 +220,7 @@ class Workbench(object):
             with self.lock:
                 self.telemetry = telemetry
             trial_session = self.sessions.get("trial")
-            if (telemetry["probe_link"].get("usable") and self.trial.get("route") == "low_observation" and self.trial.get("mode") == "flight"
+            if (telemetry["probe_link"].get("usable") and self.observation_trial() and self.trial.get("mode") == "flight"
                     and not self.trial.get("check_config") and trial_session is not None
                     and trial_session.state == "running"):
                 status = (telemetry.get("observe") or {}).get("low_hover")
@@ -227,7 +228,7 @@ class Workbench(object):
                     for event in self.stage.feed_line(json.dumps(status)):
                         self._emit_event(event)
             if (telemetry["probe_link"].get("usable") and self.trial.get("mode") == "flight" and not self.trial.get("check_config")
-                    and self.trial.get("route") != "low_observation"
+                    and not self.observation_trial()
                     and trial_session is not None and trial_session.state == "running"
                     and self.stage.name in ("READY", "IN_FLIGHT", "DISARMED")):
                 for event in self.stage.observe_telemetry(
@@ -600,12 +601,14 @@ class Workbench(object):
         observation = bool(group and wb_board.is_observation(group))
         if observation and body.get("include_servo"):
             raise ValueError("低空观察不启动舵机")
+        if group and wb_low_release.is_group(group) and body.get("include_servo"):
+            raise ValueError("独立低空释放设备按钮仅启动定位链；实投由卡片显式确认")
         include_servo = bool(body.get("include_servo"))
         order = [t for t in self.config.get("terminals", [])
                  if t.get("command") and t["id"] not in ("trial", "monitor")]
         if not include_servo:
             order = [t for t in order if not t.get("optional")]
-        if observation:
+        if group and wb_board.uses_observation_flow(group):
             order = [t for t in self.config.get("terminals", [])
                      if t["id"] in ("roscore", "mavros", "lidar", "observation_localization")]
         else:
@@ -734,9 +737,13 @@ class Workbench(object):
         return {"ok": True}
 
     # ---------- 任务组 ----------
+    def observation_trial(self):
+        return (self.trial.get("route") == "low_observation"
+                or self.trial.get("low_release_test") is True)
+
     def protect_observation_dependencies(self, sid=None):
         trial = self.sessions.get("trial")
-        if (self.trial.get("route") == "low_observation"
+        if (self.observation_trial()
                 and self.trial.get("mode") == "flight" and not self.trial.get("check_config")
                 and trial is not None and trial.state in ("starting", "running")
                 and (sid is None or sid in ("roscore", "mavros", "lidar", "observation_localization"))):
@@ -754,7 +761,7 @@ class Workbench(object):
             site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"),
             motion_optimization=body.get("motion_optimization"), obstacle_columns=body.get("obstacle_columns"),
             coverage_agl=body.get("coverage_agl"), coverage_pattern=body.get("coverage_pattern"), coverage_shiftback=body.get("coverage_shiftback",False), competition_config=body.get("competition_config"), speed_profile=body.get("speed_profile"),
-            landing_config=body.get("landing_config"))
+            landing_config=body.get("landing_config"), slot=body.get("slot"))
         return {"ok":True,"body":command,"note":note}
 
     def start_trial(self, body):
@@ -805,7 +812,7 @@ class Workbench(object):
             site_geometry=body.get("site_geometry"), geometry_revision=body.get("geometry_revision"),
             motion_optimization=body.get("motion_optimization"), obstacle_columns=body.get("obstacle_columns"),
             coverage_agl=body.get("coverage_agl"), coverage_pattern=body.get("coverage_pattern"), coverage_shiftback=body.get("coverage_shiftback",False), competition_config=body.get("competition_config"), speed_profile=body.get("speed_profile"),
-            landing_config=body.get("landing_config"))
+            landing_config=body.get("landing_config"), slot=body.get("slot"))
         # 界面预览命令必须与后端实际命令一致，否则拒绝启动：防止"给人看的命令"与"真正执行的命令"漂移
         expected = str(body.get("expected_body") or "").strip()
         if body.get("site_geometry") is not None and not expected:
@@ -814,7 +821,7 @@ class Workbench(object):
             raise ValueError("界面预览与后端实际命令不一致，已拒绝启动。后端实际命令：%s" % command_body)
         command = wb_board.terminal_wrapped_command(self.config, command_body)
         self.stage.reset()
-        self.stage.observation_mode = wb_board.is_observation(group)
+        self.stage.observation_mode = wb_board.uses_observation_flow(group)
         self.mission_start_attempted = False
         self.stage.note_action("任务组 %s（%s，%s）：%s" % (group["name"], mode, note, command_body), "info")
         self.trial = {
@@ -824,6 +831,8 @@ class Workbench(object):
                                      "none" if group.get("release") == "none" else "mock"),
             "real_release": real_release, "command": command_body, "run_dir": None,
             "started_at": time.time(), "check_config": check_config,
+            "low_release_test": wb_low_release.is_group(group),
+            "slot": body.get("slot", group.get("default_slot")),
             "capture_speed": body.get("capture_speed"), "capture_lighting": body.get("capture_lighting"),
             "coverage_agl": body.get("coverage_agl"), "coverage_pattern": body.get("coverage_pattern"), "coverage_shiftback": body.get("coverage_shiftback",False), "speed_profile": body.get("speed_profile"),
             "landing_config": body.get("landing_config"),
@@ -833,7 +842,7 @@ class Workbench(object):
             "motion_optimization": body.get("motion_optimization"), "obstacle_columns": body.get("obstacle_columns"),
             "competition_config": body.get("competition_config") or group.get("site_config"),
         }
-        if wb_board.is_observation(group) and mode == "flight" and not check_config:
+        if wb_board.uses_observation_flow(group) and mode == "flight" and not check_config:
             session = self.sessions.open("trial", "低空观察 · %s" % group.get("name"), command,
                                          self.target, graceful_only=True)
         else:
@@ -853,7 +862,7 @@ class Workbench(object):
         except Exception as error:
             raise ValueError("发送 Ctrl+C 失败：%s" % error)
         detail = ("已请求保持等待飞手接管；落地上锁后等待 OBSERVATION_CLOSED，定位/MAVROS保留"
-                  if self.trial.get("route") == "low_observation" else
+                  if self.observation_trial() else
                   "已发送 Ctrl+C；落地停机后等待 BAG_CLOSED 再断电")
         self._emit_event(self.stage.note_action(detail, "warn"))
         self._journal({"action": "trial_stop"})
@@ -861,7 +870,9 @@ class Workbench(object):
 
     def mission_start(self, body):
         self._require_command_transport()
-        if self.trial.get("route") == "low_observation":
+        if self.trial.get("low_release_test") is True:
+            raise ValueError("独立低空释放由飞手人工解锁并拨入OFFBOARD，到FC离地0.60m后自动开始动作，无需另点启动任务")
+        if self.observation_trial():
             raise ValueError("低空观察没有任务管理器，由飞手人工解锁并重新拨入 OFFBOARD")
         if body.get("confirm") != "启动任务":
             raise ValueError("需要确认：仅在 READY 且飞手完成解锁/悬停后调用一次")

@@ -13,6 +13,7 @@ import time
 
 import yaml
 import wb_geometry
+import wb_low_release
 
 from wb_ssh import run_once, quote
 
@@ -53,6 +54,10 @@ def competition_asset_paths(connection):
 
 def is_observation(group):
     return group.get("channel") == "low_observation"
+
+
+def uses_observation_flow(group):
+    return is_observation(group) or wb_low_release.is_group(group)
 
 # ssh 层错误 → 现场可执行建议。ssh 失败时远端脚本根本不会执行，不能把"没有标记输出"
 # 解释成"板端目录/文件缺失"（换板后免密没配时最容易踩）。
@@ -178,10 +183,23 @@ def build_group_command(config, group, mode, route=None, real_release=None,
                         motion_optimized=False, survey_pattern=None, resume_survey=None,
                         site_geometry=None, geometry_revision=None,
                         motion_optimization=None, obstacle_columns=None, competition_config=None, speed_profile=None,
-                        landing_config=None):
+                        landing_config=None, slot=None):
     """按现场手册拼出任务组启动命令。返回 (命令, 说明)。"""
     if mode not in ("preview", "flight"):
         raise ValueError("mode 必须是 preview 或 flight")
+    if group.get("folder") == wb_low_release.FOLDER or group.get("low_release_test"):
+        return wb_low_release.build_command(config, group, mode, route=route,
+            real_release=real_release, check_config=check_config, slot=slot,
+            capture_speed=capture_speed, capture_lighting=capture_lighting,
+            motion_optimized=motion_optimized, survey_pattern=survey_pattern,
+            resume_survey=resume_survey, site_geometry=site_geometry,
+            geometry_revision=geometry_revision, motion_optimization=motion_optimization,
+            obstacle_columns=obstacle_columns, competition_config=competition_config,
+            speed_profile=speed_profile, landing_config=landing_config,
+            coverage_agl=coverage_agl, coverage_pattern=coverage_pattern,
+            coverage_shiftback=coverage_shiftback)
+    if slot is not None:
+        raise ValueError("slot 仅适用于独立低空释放模块11")
     if group.get("folder") == "10_low_coverage_full":
         import wb_low_coverage
         if locals().get('flight_settings') is not None or locals().get('landing_config') is not None:

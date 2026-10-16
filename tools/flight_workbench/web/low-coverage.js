@@ -67,4 +67,23 @@
     box.appendChild(el('div','tiny muted','默认直接使用板端本组现场YAML，无须开启手动或填坐标。可选手动覆盖：仅导入或保存文件不会应用任务。请在地图内点击“保存并用于本组”，再核对生成命令中的10_low_coverage_full、--coverage-agl与--coverage-pattern。飞行命令会先执行同一份地图的--check-config。'));
     return box;
   };
+
+  // 路线选择放在卡片最前面；不藏在手动地图编辑内部。
+  const originalCard=groupCard;
+  groupCard=function(g){
+    const card=originalCard(g);if(!isBackup(g))return card;
+    const U=groupUI(g),panel=el('div','low-coverage-options');
+    panel.setAttribute('data-panel','low-coverage-options');
+    panel.appendChild(el('strong',null,'备用10：选择搜索路线与现场YAML'));
+    for(const field of ['coveragePattern','coverageShiftback','coverageHeight']){
+      const control=card.querySelector('[data-option="'+field+'"]');
+      if(control)panel.appendChild(control.closest('label'));
+    }
+    panel.appendChild(el('div','tiny muted wrap-any','当前YAML：'+(window.lowCoverageSite(g,U.coveragePattern,!!U.coverageShiftback)||'未登记，请更新后端配置')));
+    panel.appendChild(el('div','tiny muted','后移1m只改变搜索点，走廊与H不变；这是可选路线，默认不后移。负X表示起飞点后方，仍须在目标/机体边界内。'));
+    if(U.geometryEnabled)panel.appendChild(el('div','warn-line','当前有手动地图覆盖。请先关闭“使用实测坐标／自动搜索航线”以切换登记YAML，避免旧草稿覆盖所选路线。'));
+    card.querySelector('.grp-ops').prepend(panel);return card;
+  };
+  const build=document.getElementById&&document.getElementById('workbench-build');
+  if(build)build.textContent='工作台 2026-10-16 · 路线选择与临时释放版 · 当前地址 '+location.host+'（不同端口可能是另一版本）';
 })();

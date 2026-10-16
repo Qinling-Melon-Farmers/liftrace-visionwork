@@ -1,8 +1,10 @@
 {
-  "archive": "/home/xhj/liftrace-deliverables/workbench_distribution_20261016/flight_workbench_20261016_latest.zip",
-  "files": 176,
-  "bytes": 693073,
+  "archive": "/home/xhj/liftrace-deliverables/workbench_distribution_20261016/flight_workbench_20261016_routes_release.zip",
+  "files": 181,
+  "bytes": 707773,
   "integrity": "PASS",
-  "source_comparison": "No application changes versus 09:23 package",
-  "board_deployment_included": false
+  "source_comparison": "Current runtime bytes, not previous ZIP payload",
+  "module11_board": "192.168.43.99:/home/orangepi/liftrace_board_trials_20260928",
+  "board_source": "fec20b54",
+  "real_actuation": false
 }
