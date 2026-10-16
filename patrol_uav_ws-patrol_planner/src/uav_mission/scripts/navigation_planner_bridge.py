@@ -813,6 +813,7 @@ class NavigationPlannerBridge:
         transaction.phase = "CAPTURE"
         transaction.capture_started_ns = now_ns
         self._try_begin_alignment(now_ns)
+        self._check_capture_contradiction(now_ns)
 
     def _try_begin_alignment(self, now_ns):
         transaction = self._transaction
@@ -822,6 +823,7 @@ class NavigationPlannerBridge:
         if target_pose is None:
             return
         transaction.target_pose = target_pose
+        transaction.contradiction_window = None
         transaction.align_mode = (
             "drop_cross" if transaction.decision.target.class_name ==
             "red_cross" else "drop_circle")
@@ -1300,6 +1302,63 @@ class NavigationPlannerBridge:
             except Exception as error:  # pylint: disable=broad-except
                 self._handle_callback_exception("odom", error)
 
+    def _check_capture_contradiction(self, now_ns):
+        """End an unaligned, uninvoked transaction when its identity changes class.
+
+        CAPTURE has not published an alignment context or release authority.
+        Later stages must retain the proxy cancellation/NOT_STARTED handshake.
+        """
+        tx = self._transaction
+        if (tx is None or tx.phase != "CAPTURE" or tx.target_pose is not None or
+                tx.raw_call_observed or getattr(tx, "release_invocation_observed", False) or
+                tx.strict_evidence_stamp_ns or tx.release_execution_id or
+                tx.release_ack_ns or now_ns >= tx.decision.deadline_ns):
+            return
+        snapshot = self._executor.snapshot()
+        if (not snapshot.active_handed_off or snapshot.active_terminal or
+                snapshot.active_decision_seq != tx.decision.decision_seq):
+            return
+        if tx.contradiction_window is None:
+            tx.contradiction_window = SemanticContradictionWindow(
+                self._contradiction_min_frames, self._contradiction_min_span_ns,
+                self._capture_max_age_ns)
+        target, goal = tx.decision.target, tx.decision.goal
+        valid = []
+        for candidate in self._latest_candidates:
+            try:
+                stamp = _stamp_to_ns(candidate.last_seen)
+                values = (float(candidate.map_point.x), float(candidate.map_point.y),
+                          float(candidate.map_point.z), float(candidate.class_confidence))
+                if (int(candidate.id) != target.target_id or
+                        _stamp_to_ns(candidate.first_seen) != target.first_seen_ns or
+                        not all(math.isfinite(v) for v in values) or
+                        not candidate.map_valid or not candidate.association_valid or
+                        candidate.reject_reason or int(candidate.state) != 2 or
+                        candidate.map_frame != self._mission_frame or
+                        stamp <= target.observation_ns or stamp > now_ns or
+                        now_ns - stamp > self._capture_max_age_ns or
+                        math.hypot(values[0] - goal.x, values[1] - goal.y) >
+                        self._contradiction_radius or
+                        values[3] < self._contradiction_confidence or
+                        candidate.class_name not in
+                        ("tent", "pillbox", "bridge", "panzer", "red_cross")):
+                    continue
+                valid.append((stamp, str(candidate.class_name)))
+            except (AttributeError, TypeError, ValueError, OverflowError):
+                continue
+        newest = max((stamp for stamp, _ in valid), default=0)
+        classes = {label for stamp, label in valid if stamp == newest}
+        if len(classes) != 1 or target.class_name in classes:
+            tx.contradiction_window.reset()
+            return
+        label = next(iter(classes))
+        if tx.contradiction_window.update(label, newest, now_ns):
+            tx.cancellation_reason = "capture_semantic_contradiction:%s" % label
+            self._report_target_stage(
+                "FAILED", "CAPTURE", now_ns, terminal=True, retryable=True,
+                reason=tx.cancellation_reason)
+            tx.phase = "TERMINAL"
+
     def _check_alignment_contradiction(self, now_ns):
         tx = self._transaction
         if (tx is None or tx.phase not in ("ALIGN_COMMAND_SENT", "ALIGNMENT") or
@@ -1348,6 +1407,7 @@ class NavigationPlannerBridge:
                 if self._output_enabled:
                     now_ns = self._now_ns()
                     self._try_begin_alignment(now_ns)
+                    self._check_capture_contradiction(now_ns)
                     self._check_alignment_contradiction(now_ns)
             except Exception as error:  # pylint: disable=broad-except
                 self._handle_callback_exception("targets", error)

@@ -25,3 +25,13 @@ FC搜索AGL1.8m，正赛规划1.2m/s、1.0m/s²。第一投桥梁后仓：进入
 - 第二轮：[详细报告](../../../试飞产物/board_full_mission_20261016_162935/analysis/REPORT.md)、[占用对照图](../../../试飞产物/board_full_mission_20261016_162935/analysis/two_run_occupancy.png)、[回放](../../../试飞产物/board_full_mission_20261016_162935/replay/index.html)。原104,251,392字节active文件完整取回，只对副本恢复；得到133.606秒/56,035条有效消息，尾部缺失，没有完整结束状态。
 
 两轮均未进入走廊与H。所有回放是已录制消息的重建，不是重新运行视觉推理。分析过程未改变板端飞行控制参数或启停节点。
+
+## CAPTURE最小修复与核验
+
+导航来源：liftrace-controlwork/liftrace_board_trial_20260928，ed1289be。仅补齐尚未发ALIGN/机构调用的CAPTURE改类退出；复用3张独立新图像、150ms跨度、高置信度及同id/first_seen/附近位置一致性条件。确认后FAILED/CAPTURE，释放预留槽位，立即RESUME搜索；20秒是该候选重新调度的冷却，不是飞机额外悬停20秒。原冻结类别不修改，已开始调用的动作不走快捷退出。
+
+旧版等到deadline亦会释放槽位并恢复搜索，但同身份候选将EXHAUSTED；提前明确改类则允许按最新类别有限重试。地堡不是高权重中断类，通常待覆盖完成再参与兜底调度。
+
+导航分支192项定向测试通过；视觉试飞分支定向移植后188项通过（本分支旧事务类没有release_invocation_observed，采用显式兼容读取并保留raw调用/执行ID/ACK等保护）。导航额外契约检查23项通过、1项既存100644可执行位断言失败，未改变该既存权限。
+
+把第一轮实际targets消息及原整数时间戳输入修复后的生产CAPTURE检查，约t=208.026s触发capture_semantic_contradiction:pillbox，距CAPTURE约0.197秒。它只验证观测驱动的退出，不是修复后整场飞行结果。实际部署与实飞尚未完成；未修改现场运行节点。
