@@ -1,0 +1,166 @@
+{
+  "date": "2026-10-06",
+  "source_root_recorded": "/home/xhj/liftrace-worktrees/r2026-ev-continuity",
+  "source_branch": "feat/ev-continuity-20261004",
+  "source_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+  "board_base_commit": "7a7cb6c0a4b7d3b629c82ea238c35bfe9b11300d",
+  "source_worktree_status": "",
+  "files": [
+    {
+      "destination": "source/patrol_uav_ws-patrol_planner/src/FAST_LIO/scripts/ev_predictor.py",
+      "origin_path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/scripts/ev_predictor.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/patrol_uav_ws-patrol_planner/src/FAST_LIO/scripts/ev_shadow.py",
+      "origin_path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/scripts/ev_shadow.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/patrol_uav_ws-patrol_planner/src/FAST_LIO/config/ev_shadow.yaml",
+      "origin_path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/config/ev_shadow.yaml",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/patrol_uav_ws-patrol_planner/src/FAST_LIO/msg/PredictionState.msg",
+      "origin_path": "patrol_uav_ws-patrol_planner/src/FAST_LIO/msg/PredictionState.msg",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/__init__.py",
+      "origin_path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/__init__.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/task_frame_continuity.py",
+      "origin_path": "patrol_uav_ws-patrol_planner/src/uav_mission/src/uav_mission/task_frame_continuity.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/patrol_uav_ws-patrol_planner/src/uav_mission/scripts/ev_task_boundary.py",
+      "origin_path": "patrol_uav_ws-patrol_planner/src/uav_mission/scripts/ev_task_boundary.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/patrol_uav_ws-patrol_planner/src/uav_mission/config/ev_task_boundary.example.yaml",
+      "origin_path": "patrol_uav_ws-patrol_planner/src/uav_mission/config/ev_task_boundary.example.yaml",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/patrol_uav_ws-patrol_planner/src/uav_mission/test/test_task_frame_continuity.py",
+      "origin_path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_task_frame_continuity.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/patrol_uav_ws-patrol_planner/src/uav_mission/test/test_ev_task_boundary.py",
+      "origin_path": "patrol_uav_ws-patrol_planner/src/uav_mission/test/test_ev_task_boundary.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/tools/ev_continuity/test_predictor.py",
+      "origin_path": "tools/ev_continuity/test_predictor.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/tools/ev_continuity/test_transport.py",
+      "origin_path": "tools/ev_continuity/test_transport.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/tools/ev_continuity/offline_demo.py",
+      "origin_path": "tools/ev_continuity/offline_demo.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/tools/ev_continuity/replay_bag.py",
+      "origin_path": "tools/ev_continuity/replay_bag.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/tools/ev_continuity/bag_timing.py",
+      "origin_path": "tools/ev_continuity/bag_timing.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "source/tools/ev_continuity/task_boundary_case.py",
+      "origin_path": "tools/ev_continuity/task_boundary_case.py",
+      "origin_commit": "69216afdafd65df9b298fb7c18e7d1a84eeca31f",
+      "verbatim": true
+    },
+    {
+      "destination": "contracts/ReleasePermission.msg",
+      "origin_path": "patrol_uav_ws-patrol_planner/src/uav_mission/msg/ReleasePermission.msg",
+      "origin_commit": "7a7cb6c0a4b7d3b629c82ea238c35bfe9b11300d",
+      "verbatim": true,
+      "runtime": "generated from this same board workspace; not vendored code"
+    }
+  ],
+  "deployment_executed": false,
+  "nodes_started": false,
+  "default_mode": "preview",
+  "new_workspace": false,
+  "production_ev_enabled": false,
+  "prediction_state_enabled_default": false,
+  "main_agent_integration": {
+    "status": "four snapshot files integrated by main agent; ARM message/LIO build reported complete; real matching test in progress",
+    "files": [
+      "patrol_uav_ws-patrol_planner/src/FAST_LIO/msg/PredictionState.msg",
+      "patrol_uav_ws-patrol_planner/src/FAST_LIO/CMakeLists.txt",
+      "patrol_uav_ws-patrol_planner/src/FAST_LIO/src/IMU_Processing.hpp",
+      "patrol_uav_ws-patrol_planner/src/FAST_LIO/src/laserMapping.cpp"
+    ],
+    "base_patch_frozen": true,
+    "prediction_state_enabled_default": false,
+    "single_lio": true,
+    "low_hover_argument": "prediction_state_enabled:=true",
+    "low_hover_default": false,
+    "first_arm_build_user_report": "all packages compiled; 105 checks: 103 pass, 2 skip; MP_EN MP_PROC_NUM=3 -fopenmp and libgomp confirmed",
+    "first_arm_build_independently_checked_here": false,
+    "second_arm_build_verified_here": false
+  },
+  "suite_validation": {
+    "pure_and_isolation_tests": 65,
+    "pure_and_isolation_failures": 0,
+    "offline_ros_schema_fixture_tests": 18,
+    "offline_ros_schema_fixture_failures": 0,
+    "rosout_disabled": true,
+    "all_prediction_and_status_outputs_guarded": true,
+    "exact_output_remaps_rejected": true,
+    "recorder_preview_passed": true,
+    "recorder_implementation": "deployment/low_hover_observation/record_diagnostics.py",
+    "runtime_current_devel_preflight": "local stale ReleasePermission rejected; board check delegated to main agent",
+    "online_master_or_nodes_started": false,
+    "real_bag_recording_verified": false
+  },
+  "calibration_verified": false,
+  "required_match_threads": 3,
+  "generated_message_authority": "current board workspace",
+  "missing_online_contracts": [
+    "authoritative FC reset",
+    "independent LIO health"
+  ],
+  "excluded": [
+    "EV ReleasePermission.msg",
+    "build",
+    "devel",
+    "__pycache__",
+    "formal launch/config changes",
+    "LIO startup",
+    "MAVROS/flight/actuator commands"
+  ]
+}

@@ -1,0 +1,35 @@
+group,event,round1_s,round2_s
+takeoff,"首爬升 setpoint（此时尚未 OFFBOARD）",51.767,41.032
+takeoff,"armed 状态首见",67.253,71.042
+takeoff,"OFFBOARD 接管首见",69.253,74.041
+takeoff,"FC IN_AIR 状态首见",70.029,74.574
+takeoff,"相对静止基准升高5cm",74.233,79.772
+takeoff,"相对静止基准升高10cm",75.040,80.375
+takeoff,"control_ready=true",80.302,85.345
+takeoff,"首 SEARCH/暂存位指令",82.745,87.997
+takeoff,"爬至2m高位指令",87.068,91.674
+takeoff,"FC进入高位目标±10cm",89.213,93.444
+takeoff,"首扫描线指令（decision=3）",90.633,95.068
+takeoff,"probe ascent_verified 首见",90.663,95.089
+handoff,"搜索结束/中断事件（节点时间）",107.482,135.874
+handoff,"DESCEND阶段首见（接收时间）",108.100,136.389
+handoff,"下高指令派发",108.565,136.778
+handoff,"对应首条 Bspline",108.633,137.063
+handoff,"实际Z下降5cm",108.959,137.377
+handoff,"实际高度进入1.4m±10cm",110.691,139.311
+handoff,"下降 motion_arrival_confirmed",112.692,140.314
+handoff,"下一目标 bridge/REVISIT 指令",113.825,141.087
+handoff,"下一目标对应首条 Bspline",113.889,141.202
+handoff,"朝该目标实际推进5cm",114.444,141.775
+handoff,"该目标 motion_arrival_confirmed",120.968,153.061
+duration,"OFFBOARD→升高5cm",4.980,5.731
+duration,"升高5cm→control ready",6.069,5.573
+duration,"control ready→首SEARCH",2.443,2.652
+duration,"首SEARCH→高位确认",7.918,7.093
+duration,"下高派发→首轨迹",0.068,0.285
+duration,"下高派发→下降到达确认",4.127,3.536
+duration,"低位±10cm→下降到达确认",2.001,1.004
+duration,"下降确认→下一目标派发",1.133,0.773
+duration,"下一目标派发→首轨迹",0.064,0.115
+duration,"下一目标派发→实际推进5cm",0.619,0.688
+duration,"下一目标派发→该目标到达确认",7.143,11.974

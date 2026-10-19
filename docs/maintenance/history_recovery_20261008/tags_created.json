@@ -1,0 +1,284 @@
+[
+  {
+    "tag": "archive/recovered-20261008/chore/docs-progress-sync",
+    "commit": "0a41ee0c1cc696688af7f67a643de5ab88f6e897",
+    "branch": "chore/docs-progress-sync",
+    "historical_names_at_same_point": [
+      "chore/docs-progress-sync"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/chore/docs-responsibility-remap",
+    "commit": "2dd1d91f96fb55a66d6f5d189746f163e0aa1829",
+    "branch": "chore/docs-responsibility-remap",
+    "historical_names_at_same_point": [
+      "chore/docs-responsibility-remap"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/chore/freeze-oblique-camera-exploration",
+    "commit": "9889591a595114ada9a6cfc11233e31e2cbe7c93",
+    "branch": "chore/freeze-oblique-camera-exploration",
+    "historical_names_at_same_point": [
+      "chore/freeze-oblique-camera-exploration"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/chore/gate-tagging-convention",
+    "commit": "0e69fef0626ca95f835f0db5e88fe6ac69252217",
+    "branch": "chore/gate-tagging-convention",
+    "historical_names_at_same_point": [
+      "chore/gate-tagging-convention"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/chore/local-delivery-check-20260911",
+    "commit": "d55939e51ed12c926e24bbae225d4905c05ffd3c",
+    "branch": "chore/local-delivery-check-20260911",
+    "historical_names_at_same_point": [
+      "chore/local-delivery-check-20260911"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/docs/liftrace-sim-upstream",
+    "commit": "9bc376b8c7642fef19a4bb5ff7571a088b5cad76",
+    "branch": "docs/liftrace-sim-upstream",
+    "historical_names_at_same_point": [
+      "docs/liftrace-sim-upstream"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/competition-r64-log-only",
+    "commit": "c451c14ce1ff0e6d47f9eaf139a5233651bc6bfa",
+    "branch": "feat/competition-r64-log-only",
+    "historical_names_at_same_point": [
+      "feat/competition-r64-log-only"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/competition-r64-raster-remote",
+    "commit": "cefee116b6e4f7468b2a36a5c016239c1cfc7850",
+    "branch": "feat/competition-r64-raster-remote",
+    "historical_names_at_same_point": [
+      "feat/competition-r64-raster-remote"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/competition-r64-readiness",
+    "commit": "925e380efff67adb96789ec06232f39b3f0bf300",
+    "branch": "feat/competition-r64-readiness",
+    "historical_names_at_same_point": [
+      "feat/competition-r64-readiness"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/competition-r64-topology-plan",
+    "commit": "d076e64ec37709c9adbc526f81a25d6ce5a3a424",
+    "branch": "feat/competition-r64-topology-plan",
+    "historical_names_at_same_point": [
+      "feat/competition-r64-topology-plan"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/external-mission-coverage",
+    "commit": "f46d45fbc59822abc497d386ae858a48f5a4e2b4",
+    "branch": "feat/external-mission-coverage",
+    "historical_names_at_same_point": [
+      "feat/external-mission-coverage"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/full-random-five-seeds",
+    "commit": "f2459e60fe5d313b10236f020d8f60ffc0a4d2d2",
+    "branch": "feat/full-random-five-seeds",
+    "historical_names_at_same_point": [
+      "feat/full-random-five-seeds"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/livox-driver2-integration",
+    "commit": "86e382d50ffa1d27bce0652ac4d576c73d0bfcec",
+    "branch": "feat/livox-driver2-integration",
+    "historical_names_at_same_point": [
+      "feat/livox-driver2-integration"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/navigation-mission-visual-delivery",
+    "commit": "8255aa4400ca1be1cb99c236adcb645861081c49",
+    "branch": "feat/navigation-mission-visual-delivery",
+    "historical_names_at_same_point": [
+      "feat/navigation-mission-visual-delivery"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/new-vision-coverage-search",
+    "commit": "31b38ad6a4179c5a32672a2968dd245368e1ce99",
+    "branch": "feat/new-vision-coverage-search",
+    "historical_names_at_same_point": [
+      "feat/new-vision-coverage-search"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/oblique-active-search-stability",
+    "commit": "ab6e447a9c984aa4a5a3fc2198c3a53434480fea",
+    "branch": "feat/oblique-active-search-stability",
+    "historical_names_at_same_point": [
+      "feat/oblique-active-search-stability"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/oblique-camera-search-feasibility",
+    "commit": "b60a4d942ba7081d776bb81c434e18193a486b1b",
+    "branch": "feat/oblique-camera-search-feasibility",
+    "historical_names_at_same_point": [
+      "feat/oblique-camera-search-feasibility",
+      "feat/oblique-camera-single-yolo-gate"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/planner-map-20x20x5-sim",
+    "commit": "7c80844c775758437de1dec0a0854950e42dda6b",
+    "branch": "feat/planner-map-20x20x5-sim",
+    "historical_names_at_same_point": [
+      "feat/planner-map-20x20x5-sim"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/search-planning-wait-bound",
+    "commit": "4195ef36c1b01d4d4ad286a4342469a2de420ea8",
+    "branch": "feat/search-planning-wait-bound",
+    "historical_names_at_same_point": [
+      "feat/search-planning-wait-bound"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vcl04-clean-rerun",
+    "commit": "af800567a9b9d6f929ec96f981be8b1a6574fed1",
+    "branch": "feat/vcl04-clean-rerun",
+    "historical_names_at_same_point": [
+      "feat/vcl04-clean-rerun"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vcl04-r6-bridge",
+    "commit": "81090b4aa029d5f96df4b1d864f0e059e6ef7b54",
+    "branch": "feat/vcl04-r6-bridge",
+    "historical_names_at_same_point": [
+      "feat/vcl04-r6-bridge"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vcl05-search-delivery-strategy",
+    "commit": "7419a062f6c26cde8a93aeb1675325ab0bddd85e",
+    "branch": "feat/vcl05-search-delivery-strategy",
+    "historical_names_at_same_point": [
+      "feat/vcl05-search-delivery-strategy"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vcl06-execution-integration/origin",
+    "commit": "1a494105064525c29ceb6e51a367f5a0d281ef05",
+    "branch": "feat/vcl06-execution-integration",
+    "historical_names_at_same_point": [
+      "feat/vcl06-execution-integration",
+      "fix/pr3-premerge-hygiene"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vcl06-execution-integration/local",
+    "commit": "ad93d364ac7e34e4c58ddf40dce796042ffbfc96",
+    "branch": "feat/vcl06-execution-integration",
+    "historical_names_at_same_point": [
+      "feat/vcl06-execution-integration"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vcl06-next-integration",
+    "commit": "8341dd18b67bfb23510223257e2718f0fbd2d875",
+    "branch": "feat/vcl06-next-integration",
+    "historical_names_at_same_point": [
+      "feat/vcl06-next-integration"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vcl06-random-start-gate",
+    "commit": "2247b10ce53b76f919218b9dd5fdedf9c96c16b1",
+    "branch": "feat/vcl06-random-start-gate",
+    "historical_names_at_same_point": [
+      "feat/vcl06-random-start-gate"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vcl06-vision-context",
+    "commit": "37cb2a91106c7c7b35e77aa9caf15b89aef97a20",
+    "branch": "feat/vcl06-vision-context",
+    "historical_names_at_same_point": [
+      "feat/vcl06-vision-context"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vdeploy-camera-extrinsic",
+    "commit": "f0b1b8be8df7a4ba716ff68b452eb522ef3b0c07",
+    "branch": "feat/vdeploy-camera-extrinsic",
+    "historical_names_at_same_point": [
+      "feat/vdeploy-camera-extrinsic"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vsim04-ks2a543-camera-baseline",
+    "commit": "56f06670530b92b6403a5b52069ed4fa20ec5247",
+    "branch": "feat/vsim04-ks2a543-camera-baseline",
+    "historical_names_at_same_point": [
+      "feat/vsim04-ks2a543-camera-baseline"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vsim04-navigation-events",
+    "commit": "277a0a157c86bddc107dc103421cd68dc6989f95",
+    "branch": "feat/vsim04-navigation-events",
+    "historical_names_at_same_point": [
+      "feat/vsim04-navigation-events"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vsim04-navigation-handoff-final",
+    "commit": "bdf229693f0747754a3dbda00b38f8aaa339e604",
+    "branch": "feat/vsim04-navigation-handoff-final",
+    "historical_names_at_same_point": [
+      "feat/vsim04-navigation-handoff-final"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vsim04-performance-surface",
+    "commit": "d6f4cc372c030558755703464a545e6140821cde",
+    "branch": "feat/vsim04-performance-surface",
+    "historical_names_at_same_point": [
+      "feat/vsim04-performance-surface"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vsim04-stability",
+    "commit": "0deeb1ecaa7c3deaba31c4ba3d98e51ca7429fa3",
+    "branch": "feat/vsim04-stability",
+    "historical_names_at_same_point": [
+      "feat/vsim04-stability"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/feat/vsim04-video-cd-validation",
+    "commit": "96c47fdf99bbe9f35c9e6d69a294c17dab8fb062",
+    "branch": "feat/vsim04-video-cd-validation",
+    "historical_names_at_same_point": [
+      "feat/vsim04-video-cd-validation"
+    ]
+  },
+  {
+    "tag": "archive/recovered-20261008/fix/vcl06-sim-lidar-map-readiness",
+    "commit": "b83342de6ab5649e57203662910393bd658505f9",
+    "branch": "fix/vcl06-sim-lidar-map-readiness",
+    "historical_names_at_same_point": [
+      "fix/vcl06-sim-lidar-map-readiness"
+    ]
+  }
+]

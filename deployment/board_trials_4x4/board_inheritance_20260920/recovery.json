@@ -1,0 +1,14 @@
+[
+  {
+    "source": "/home/orangepi/liftrace_r64_onboard_405bda42/logs/corridor_diag_20260919_211759_mQqb2D/navigation_0.bag.active",
+    "copy": "/tmp/board_recovered_review/navigation_0.bag.recovered.bag",
+    "start": 1789823881.0708766,
+    "end": 1789823955.8515768
+  },
+  {
+    "source": "/home/orangepi/liftrace_r64_onboard_405bda42/logs/corridor_map_20260919_211802_hFU9rN/obstacle_map_8.bag",
+    "copy": "/tmp/board_recovered_review/obstacle_map_8.bag.recovered.bag",
+    "start": 1789823912.5697558,
+    "end": 1789823915.3053913
+  }
+]

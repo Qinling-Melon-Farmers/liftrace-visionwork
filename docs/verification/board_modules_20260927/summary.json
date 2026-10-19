@@ -1,0 +1,435 @@
+[
+  {
+    "contact_count": 0,
+    "checks": {
+      "no_collision": true,
+      "contact_sensor_ready": true,
+      "video_recorded": true
+    },
+    "final_truth_xyz": null,
+    "trial": "visual_interrupt",
+    "status": "PASS",
+    "committed": 1,
+    "expected": 1,
+    "mission_s": 27.677,
+    "reason": "landed_after_flight",
+    "run": "logs/board8_01_visual_interrupt_20260927_171550",
+    "videos": {
+      "report_replay": {
+        "width": 1280,
+        "height": 720,
+        "r_frame_rate": "5/1",
+        "duration": "40.800000",
+        "nb_frames": "204"
+      },
+      "overview": {
+        "width": 1280,
+        "height": 960,
+        "r_frame_rate": "5/1",
+        "duration": "31.600000",
+        "nb_frames": "158"
+      },
+      "camera_raw": {
+        "width": 640,
+        "height": 360,
+        "r_frame_rate": "5/1",
+        "duration": "40.800000",
+        "nb_frames": "204"
+      },
+      "camera_annotated": {
+        "width": 640,
+        "height": 444,
+        "r_frame_rate": "5/1",
+        "duration": "40.800000",
+        "nb_frames": "204"
+      }
+    },
+    "recorded_sim_s": 41.406000000000006,
+    "path_m": 3.3940553002643608,
+    "max_estimated_agl_m": 1.4985559892654419
+  },
+  {
+    "contact_count": 0,
+    "checks": {
+      "survey_and_descent_observed": true,
+      "no_collision": true,
+      "contact_sensor_ready": true,
+      "video_recorded": true
+    },
+    "final_truth_xyz": null,
+    "trial": "high_view",
+    "status": "PASS",
+    "committed": 3,
+    "expected": 3,
+    "mission_s": 111.61500000000001,
+    "reason": "landed_after_flight",
+    "run": "logs/board8_02_high_view_20260927_172021",
+    "videos": {
+      "report_replay": {
+        "width": 1280,
+        "height": 720,
+        "r_frame_rate": "5/1",
+        "duration": "125.600000",
+        "nb_frames": "628"
+      },
+      "overview": {
+        "width": 1280,
+        "height": 960,
+        "r_frame_rate": "5/1",
+        "duration": "93.200000",
+        "nb_frames": "466"
+      },
+      "camera_raw": {
+        "width": 640,
+        "height": 360,
+        "r_frame_rate": "5/1",
+        "duration": "125.600000",
+        "nb_frames": "628"
+      },
+      "camera_annotated": {
+        "width": 640,
+        "height": 444,
+        "r_frame_rate": "5/1",
+        "duration": "125.600000",
+        "nb_frames": "628"
+      }
+    },
+    "recorded_sim_s": 125.3,
+    "path_m": 18.822625566607975,
+    "max_estimated_agl_m": 2.690090389251709
+  },
+  {
+    "contact_count": 0,
+    "checks": {
+      "no_collision": true,
+      "contact_sensor_ready": true,
+      "video_recorded": true
+    },
+    "final_truth_xyz": null,
+    "trial": "landing",
+    "status": "PASS",
+    "committed": 0,
+    "expected": 0,
+    "mission_s": 34.22,
+    "reason": "landed_after_flight",
+    "run": "logs/board8_03_landing_20260927_172727",
+    "videos": {
+      "report_replay": {
+        "width": 1280,
+        "height": 720,
+        "r_frame_rate": "5/1",
+        "duration": "47.200000",
+        "nb_frames": "236"
+      },
+      "overview": {
+        "width": 1280,
+        "height": 960,
+        "r_frame_rate": "5/1",
+        "duration": "35.200000",
+        "nb_frames": "176"
+      },
+      "camera_raw": {
+        "width": 640,
+        "height": 360,
+        "r_frame_rate": "5/1",
+        "duration": "47.200000",
+        "nb_frames": "236"
+      },
+      "camera_annotated": {
+        "width": 640,
+        "height": 444,
+        "r_frame_rate": "5/1",
+        "duration": "47.200000",
+        "nb_frames": "236"
+      }
+    },
+    "recorded_sim_s": 47.08,
+    "path_m": 3.444638368152973,
+    "max_estimated_agl_m": 1.8523720216751098
+  },
+  {
+    "contact_count": 2,
+    "checks": {
+      "no_collision": false,
+      "contact_sensor_ready": true,
+      "video_recorded": true
+    },
+    "final_truth_xyz": [
+      2.8239638773292377,
+      0.9901083836631697,
+      1.0495664281513613
+    ],
+    "trial": "corridor_landing",
+    "status": "INCOMPLETE",
+    "committed": 0,
+    "expected": 0,
+    "mission_s": 28.308,
+    "reason": "obstacle_contact",
+    "run": "logs/board8_04_corridor_landing_20260927_173237",
+    "videos": {
+      "report_replay": {
+        "width": 1280,
+        "height": 720,
+        "r_frame_rate": "5/1",
+        "duration": "42.600000",
+        "nb_frames": "213"
+      },
+      "overview": {
+        "width": 1280,
+        "height": 960,
+        "r_frame_rate": "5/1",
+        "duration": "31.400000",
+        "nb_frames": "157"
+      },
+      "camera_raw": {
+        "width": 640,
+        "height": 360,
+        "r_frame_rate": "5/1",
+        "duration": "42.600000",
+        "nb_frames": "213"
+      },
+      "camera_annotated": {
+        "width": 640,
+        "height": 444,
+        "r_frame_rate": "5/1",
+        "duration": "42.600000",
+        "nb_frames": "213"
+      }
+    },
+    "recorded_sim_s": 42.525999999999996,
+    "path_m": 4.522928977394141,
+    "max_estimated_agl_m": 1.2835926723480224,
+    "truth_path_m": 4.535439108370728,
+    "truth_max_height_m": 1.3305250289767336,
+    "truth_speed_p95_m_s": 0.3465814425987221
+  },
+  {
+    "contact_count": 0,
+    "checks": {
+      "no_collision": true,
+      "contact_sensor_ready": true,
+      "video_recorded": true
+    },
+    "final_truth_xyz": [
+      2.7310204619694116,
+      -0.17601606819677432,
+      0.22493636281228074
+    ],
+    "trial": "low_multi",
+    "status": "PASS",
+    "committed": 2,
+    "expected": 2,
+    "mission_s": 45.056,
+    "reason": "landed_after_flight",
+    "run": "logs/board8_05_low_multi_20260927_173632",
+    "videos": {
+      "report_replay": {
+        "width": 1280,
+        "height": 720,
+        "r_frame_rate": "5/1",
+        "duration": "59.200000",
+        "nb_frames": "296"
+      },
+      "overview": {
+        "width": 1280,
+        "height": 960,
+        "r_frame_rate": "5/1",
+        "duration": "44.400000",
+        "nb_frames": "222"
+      },
+      "camera_raw": {
+        "width": 640,
+        "height": 360,
+        "r_frame_rate": "5/1",
+        "duration": "59.200000",
+        "nb_frames": "296"
+      },
+      "camera_annotated": {
+        "width": 640,
+        "height": 444,
+        "r_frame_rate": "5/1",
+        "duration": "59.200000",
+        "nb_frames": "296"
+      }
+    },
+    "recorded_sim_s": 59.028999999999996,
+    "path_m": 4.675903234679814,
+    "max_estimated_agl_m": 1.4956775617599487,
+    "truth_path_m": 4.557343336693889,
+    "truth_max_height_m": 1.5345179004009535,
+    "truth_speed_p95_m_s": 0.29485413726269655
+  },
+  {
+    "contact_count": 0,
+    "checks": {
+      "survey_and_descent_observed": true,
+      "early_interrupt_observed": true,
+      "no_collision": true,
+      "contact_sensor_ready": true,
+      "video_recorded": true
+    },
+    "final_truth_xyz": [
+      1.0140270824779547,
+      -0.9922008178379079,
+      0.22497714604347369
+    ],
+    "trial": "high_priority",
+    "status": "PASS",
+    "committed": 3,
+    "expected": 3,
+    "mission_s": 103.43799999999999,
+    "reason": "landed_after_flight",
+    "run": "logs/board8_06_high_priority_20260927_174228",
+    "videos": {
+      "report_replay": {
+        "width": 1280,
+        "height": 720,
+        "r_frame_rate": "5/1",
+        "duration": "117.200000",
+        "nb_frames": "586"
+      },
+      "overview": {
+        "width": 1280,
+        "height": 960,
+        "r_frame_rate": "5/1",
+        "duration": "84.600000",
+        "nb_frames": "423"
+      },
+      "camera_raw": {
+        "width": 640,
+        "height": 360,
+        "r_frame_rate": "5/1",
+        "duration": "117.200000",
+        "nb_frames": "586"
+      },
+      "camera_annotated": {
+        "width": 640,
+        "height": 444,
+        "r_frame_rate": "5/1",
+        "duration": "117.200000",
+        "nb_frames": "586"
+      }
+    },
+    "recorded_sim_s": 117.004,
+    "path_m": 13.262163793491682,
+    "max_estimated_agl_m": 2.689460725784302,
+    "truth_path_m": 13.243502650922771,
+    "truth_max_height_m": 2.7453281451742617,
+    "truth_speed_p95_m_s": 0.4084605500943972
+  },
+  {
+    "contact_count": 0,
+    "checks": {
+      "no_approach": true,
+      "survey_and_descent_observed": true,
+      "no_collision": true,
+      "contact_sensor_ready": true,
+      "video_recorded": true
+    },
+    "final_truth_xyz": [
+      1.0118616371900546,
+      -1.0734380926169282,
+      0.21999358546469772
+    ],
+    "trial": "memory_only",
+    "status": "PASS",
+    "committed": 0,
+    "expected": 0,
+    "mission_s": 50.656,
+    "reason": "landed_after_flight",
+    "run": "logs/board8_07_memory_only_20260927_174935",
+    "videos": {
+      "report_replay": {
+        "width": 1280,
+        "height": 720,
+        "r_frame_rate": "5/1",
+        "duration": "64.400000",
+        "nb_frames": "322"
+      },
+      "overview": {
+        "width": 1280,
+        "height": 960,
+        "r_frame_rate": "5/1",
+        "duration": "48.800000",
+        "nb_frames": "244"
+      },
+      "camera_raw": {
+        "width": 640,
+        "height": 360,
+        "r_frame_rate": "5/1",
+        "duration": "64.400000",
+        "nb_frames": "322"
+      },
+      "camera_annotated": {
+        "width": 640,
+        "height": 444,
+        "r_frame_rate": "5/1",
+        "duration": "64.400000",
+        "nb_frames": "322"
+      }
+    },
+    "recorded_sim_s": 64.50200000000001,
+    "path_m": 11.185193268176132,
+    "max_estimated_agl_m": 2.686747045516968,
+    "truth_path_m": 11.042375335683747,
+    "truth_max_height_m": 2.746009681847991,
+    "truth_speed_p95_m_s": 0.43648838597370415
+  },
+  {
+    "contact_count": 2,
+    "checks": {
+      "survey_and_descent_observed": true,
+      "no_collision": false,
+      "contact_sensor_ready": true,
+      "video_recorded": true
+    },
+    "final_truth_xyz": [
+      1.8131240710977374,
+      1.0341767066352348,
+      0.9170187455034632
+    ],
+    "trial": "full_mission",
+    "status": "INCOMPLETE",
+    "committed": 3,
+    "expected": 3,
+    "mission_s": 95.64699999999999,
+    "reason": "obstacle_contact",
+    "run": "logs/board8_08_full_mission_20260927_175414",
+    "videos": {
+      "report_replay": {
+        "width": 1280,
+        "height": 720,
+        "r_frame_rate": "5/1",
+        "duration": "109.200000",
+        "nb_frames": "546"
+      },
+      "overview": {
+        "width": 1280,
+        "height": 960,
+        "r_frame_rate": "5/1",
+        "duration": "82.600000",
+        "nb_frames": "413"
+      },
+      "camera_raw": {
+        "width": 640,
+        "height": 360,
+        "r_frame_rate": "5/1",
+        "duration": "109.200000",
+        "nb_frames": "546"
+      },
+      "camera_annotated": {
+        "width": 640,
+        "height": 444,
+        "r_frame_rate": "5/1",
+        "duration": "109.200000",
+        "nb_frames": "546"
+      }
+    },
+    "recorded_sim_s": 109.294,
+    "path_m": 11.439966941749882,
+    "max_estimated_agl_m": 2.698613376617432,
+    "truth_path_m": 11.657544341092333,
+    "truth_max_height_m": 2.7431729115568415,
+    "truth_speed_p95_m_s": 0.370456354785836
+  }
+]

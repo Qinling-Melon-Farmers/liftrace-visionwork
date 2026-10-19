@@ -1,5 +1,7 @@
 # 实机入口与待验收工作
 
+2026-09-10全随机五seed已完成：2/5完整PASS、4/5三投、3/5两门和9点投后路线；五组靶板布设合法，seed31降落碰墙、33第二门前规划失败、34搜索耗时导致600秒截尾。算法和参数冻结，未补跑。[完整报告与20张图](verification/full_random_five_20260910/REPORT.md)。本批仍是笔记本SITL，实机验收未新增。
+
 当前R64机载包用于部署联调准备：新机架/地图seed11已完整37/37 SITL PASS；十seed原始7/10完整PASS，5/7/8存在旧布设压墙且生成器已修。合法seed3近地降落仍失败，板端/实机完整验收尚未回传。R60/R61/R62结果按历史范围阅读，不能继续称当前尚无完整仿真成功，也不能称已稳定实机放飞。用户已安排队员准备实机，后续闭环清单见[就绪度与代码规模评估](engineering/READINESS_CONTRIBUTION_LOC_20260909.md)。
 
 `competition_hardware.launch`为应用入口，RKNN视觉、LIO/FreeDOM、Planner、任务与控制共用已有链。它不加载Gazebo、真值/接触评测、mock、自动解锁辅助或PX4仿真参数写入。MAVROS、真实MID360驱动及机械`/legacy/Servo_raw`由设备侧配套；相机包已包含`camera_calibrated_1280x720.launch`和标定。

@@ -1,0 +1,45 @@
+# 任务二：低空搜索/多投 -> 走廊在线避障 -> H视觉降落；投递参数保持任务二自身值。
+mode: low_multi_full
+low_agl: 1.4
+high_agl: 2.6
+drop_agl: 0.3
+release_min_agl: 0.28
+release_max_agl: 0.35
+landing_transit_agl: 1.0
+landing_capture_agl: 1.2
+landing_xy: null
+cruise_speed: 0.5
+cruise_acceleration: 0.35
+virtual_ceiling_enabled: false
+alignment_mode: legacy_static
+search_line_x:
+- 0.6
+- 1.2
+- 1.8
+- 2.4
+- 3.0
+actuator_mode: mock
+raw_servo_service: /legacy/Servo_raw
+delivery_count: 2
+motion_optimization:
+  enabled: true
+trial_kind: low_multi_corridor
+corridor_waypoints: []
+motion_action_timeout: 60.0
+ordinary_waypoint_dwell_enabled: false
+landing_handoff_mode: POSCTL
+landing_alignment_mode: vh
+landing_descent_mode: 2
+landing_descent_speed_mps: 1.0
+landing_posctl:
+  target_agl: 0.35
+  trigger_agl: 0.4
+  xy_tolerance_m: 0.05
+  height_tolerance_m: 0.05
+  capture_height_tolerance_m: 0.1
+  max_horizontal_speed_mps: 0.1
+  max_vertical_speed_mps: 0.1
+  stable_duration_sec: 0.15
+  max_odom_age_sec: 0.2
+  max_sample_gap_sec: 0.2
+  min_samples: 3

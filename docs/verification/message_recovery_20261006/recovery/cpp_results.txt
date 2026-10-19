@@ -1,0 +1,22 @@
+RESULT physical_vs_column real_occ=0 merged_occ=1 real_esdf=1 merged_esdf=-0.25 raw_occupancy=0
+RESULT clear_only_stale_esdf occ=0 esdf=-0.25
+origin_:   -2   -2 -0.2
+map size:   4   4 3.8
+open set empty, no path!
+use node num: 1
+iter num: 1
+RESULT virtual_column_exit_current status=3 start_occ=1 rejected_collision=117
+origin_:   -2   -2 -0.2
+map size:   4   4 3.8
+RESULT real_only_diagnostic_not_enabled_policy status=2
+origin_:   -2   -2 -0.2
+map size:   4   4 3.8
+RESULT overheight_reentry_current cap=2.98 start=3.10 goal=2.78 search=3 shot=0 monotone_polynomial=0
+RESULT internal_extrema quadratic_endpoints=2.88 quadratic_peak=3.08 allowed=0 cubic_peak=3.03396007178 cubic_allowed=0
+RESULT reentry_spline_controls start_z=3.1 controls_max=3.16 allowed=0
+RESULT conservative_control_hull curve_max=2.98 controls_max=3.04 allowed=0
+RESULT corridor_cap local_cap=0.78 ground=-0.22 agl_cap=1.00 start_local=1.00 start_allowed=0 goal_local=0.68 goal_allowed=1
+RESULT runtime_disable_ceiling requested=-0.1 cached=2.3 occ_at_2.4=1
+origin_:   -2   -2 -0.2
+map size:   4   4 3.8
+RESULT completed checks=17

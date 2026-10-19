@@ -1,0 +1,24 @@
+task: detect
+imgsz:
+- 640
+- 640
+channels: 3
+input_layout: NHWC
+input_color_space: RGB
+input_dtype: float32
+input_normalize: true
+box_format: xywh
+output_channels: 9
+output_contract: yolo11_decoded_no_objectness
+names:
+  0: bridge
+  1: panzer
+  2: pillbox
+  3: tent
+  4: red_cross
+description: Five-class candidate; H excluded from positive classes
+version: flight_5cls_new_video_v8_20261011
+model_file: flight_5cls_new_video_v8_20261011_fp16.rknn
+candidate: true
+hardware_validated: false
+rknn_float_dtype: float16

@@ -120,6 +120,7 @@ void KinoReplanFSM::init(ros::NodeHandle& nh) {
   /* initialize main modules */
   planner_manager_.reset(new FastPlannerManager);
   planner_manager_->initPlanModules(nh);
+  initRecovery(nh);
   visualization_.reset(new PlanningVisualization(nh));
 
   /* callback */
@@ -137,6 +138,10 @@ void KinoReplanFSM::init(ros::NodeHandle& nh) {
 }
 
 void KinoReplanFSM::waypointCallback(const geometry_msgs::PoseStamped msg) {
+  if (recovery_active_) {
+    publishRecovery(false,odom_pos_,Eigen::Vector3d::Zero());
+    recovery_active_=false;
+  }
   double phase_radius = goal_adjustment_radius_;
   if (ros::param::getCached("~fsm/goal_adjustment_radius", phase_radius) &&
       std::isfinite(phase_radius) && phase_radius >= 0.0)
@@ -205,6 +210,8 @@ void KinoReplanFSM::odometryCallback(const nav_msgs::OdometryConstPtr& msg) {
 
   have_odom_ = odom_pos_.allFinite() && odom_vel_.allFinite();
   odom_stamp_ = msg->header.stamp;
+  odom_frame_ = msg->header.frame_id;
+  recovery_odom_child_frame_ = msg->child_frame_id;
 }
 
 void KinoReplanFSM::serverProgressCallback(
@@ -255,6 +262,7 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
 
   const ros::Time now = ros::Time::now();
   const auto height = referenceHeight();
+  if (recovery_active_) { recoveryTick();return; }
   static ros::Time height_request_polled;
   if (height.enabled && height.valid && (height_request_polled.isZero() ||
       (now-height_request_polled).toSec()>=0.1 || now<height_request_polled)) {
@@ -475,6 +483,7 @@ void KinoReplanFSM::execFSMCallback(const ros::TimerEvent& e) {
 }
 
 void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
+  if (recovery_active_) return; // same complete recovery certificate checked at 100 Hz
   LocalTrajData* info = &planner_manager_->local_data_;
 
   if (have_target_ && allow_goal_adjustment_) {
@@ -540,6 +549,12 @@ void KinoReplanFSM::checkCollisionCallback(const ros::TimerEvent& e) {
 
 bool KinoReplanFSM::callKinodynamicReplan() {
   const auto height = referenceHeight();
+  if (recovery_config_.enabled &&
+      (!height.accepts(start_pt_.z()) ||
+       planner_manager_->edt_environment_->sdf_map_->getInflateOccupancy(start_pt_)!=0)) {
+    next_planning_attempt_=ros::Time::now()+ros::Duration(min_replan_interval_);
+    return tryRecovery();
+  }
   if (!height.accepts(start_pt_.z()) || !height.accepts(end_pt_.z()) ||
       (height.enabled && goal_status_tracker_.effectiveGoal().header.frame_id != height.frame)) {
     next_planning_attempt_ = ros::Time::now()+ros::Duration(min_replan_interval_);

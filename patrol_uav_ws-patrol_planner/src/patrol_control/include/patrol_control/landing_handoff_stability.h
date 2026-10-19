@@ -40,6 +40,10 @@ struct LandingHandoffSample {
     double vertical_speed_mps = 0.0;
     // Low H handoff permits controlled descent in the configured safe height band.
     bool controlled_descent = false;
+    // Only the H low handoff opts out; delivery and capture retain their gate.
+    bool check_vertical_speed = true;
+    // Opt out only for low H handoff; capture and delivery keep XY/speed gates.
+    bool check_horizontal_motion = true;
     bool alignment_latched = false;
     bool control_ready = false;
     bool feedback_valid = false;
@@ -88,16 +92,18 @@ public:
             return reject("invalid_feedback");
         if (sample.height_m > sample.max_handoff_height_m)
             return reject("above_handoff_height");
-        if (sample.xy_error_m > config_.xy_tolerance_m)
+        if (sample.check_horizontal_motion && sample.xy_error_m > config_.xy_tolerance_m)
             return reject("xy_error");
         // In low handoff, ceiling is explicit above; keep the target-relative
         // lower safety bound without requiring a symmetric hover around target Z.
         if (sample.z_error_m < -config_.height_tolerance_m ||
             (!sample.controlled_descent && sample.z_error_m > config_.height_tolerance_m))
             return reject("height_error");
-        if (sample.horizontal_speed_mps > config_.max_horizontal_speed_mps)
+        if (sample.check_horizontal_motion &&
+            sample.horizontal_speed_mps > config_.max_horizontal_speed_mps)
             return reject("horizontal_speed");
-        if (std::abs(sample.vertical_speed_mps) > config_.max_vertical_speed_mps)
+        if (sample.check_vertical_speed &&
+            std::abs(sample.vertical_speed_mps) > config_.max_vertical_speed_mps)
             return reject("vertical_speed");
         if (active_ && (now_sec < last_now_ ||
                         sample.source_stamp_sec < last_source_ ||

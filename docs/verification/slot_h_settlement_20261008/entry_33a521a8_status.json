@@ -1,0 +1,14 @@
+{
+  "source": "33a521a8d1c627e40cfce0b620683977af91521f",
+  "success": true,
+  "entry_tests_run": 4,
+  "entry_tests_passed": 4,
+  "errors": 0,
+  "failures": 0,
+  "h_motion_collection": 10,
+  "nose_method_names_valid": true,
+  "cpp_tests_executed": false,
+  "ros_started": false,
+  "cpp_compiled": false,
+  "dynamic_final_h": "IN_PROGRESS_MAIN; NOT_PASS"
+}

@@ -1,4 +1,3 @@
-# 释放许可只在短时窗口内成立；所有超时均按拒绝处理。
 evidence_timeout: 0.50       # release_evidence 最大年龄 [s]
 pose_timeout: 0.50           # 飞机位姿最大年龄 [s]
 control_state_timeout: 0.50  # 旧 patrol_control 状态最大年龄 [s]

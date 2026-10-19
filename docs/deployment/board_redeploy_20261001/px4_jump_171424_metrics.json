@@ -1,0 +1,572 @@
+{
+  "case": "2026-10-03 17:14:24 real flight; new ULog does not match the three noon flights",
+  "bag": "logs/board_high_priority_20261003_171424/flight_debug_0.bag",
+  "ulog": "logs/board_high_priority_20261003_171424/ulog/px4_log781.ulg",
+  "firmware": "30e763b6780061d70a14894e3e8b06e6a656f9b8",
+  "release_hex": "0x10f00ff",
+  "hardware": "PX4_FMU_V6C",
+  "full_ulog_start_boot_sec": 1076.608494,
+  "full_ulog_end_boot_sec": 1283.754692,
+  "alignment": {
+    "ros_epoch_minus_boot_sec": 1791017970.233053,
+    "exact_xyz_matches": 606,
+    "residual_ms_quantiles_min_p05_p50_p95_max": [
+      -5.129098892211914,
+      -4.346072673797607,
+      0.0,
+      2.82973051071167,
+      3.4024715423583984
+    ],
+    "local_position_logged_interval_p50_sec": 0.098681
+  },
+  "selector": {
+    "primary_instances": [
+      1
+    ],
+    "instance_changed_count_values": [
+      2
+    ]
+  },
+  "logger_dropout_count": 0,
+  "absent_topics": [
+    "vehicle_visual_odometry",
+    "estimator_aid_src_ev_hgt"
+  ],
+  "vertical_resets": [
+    {
+      "first_logged_counter_boot_sec": 1086.054034,
+      "first_logged_counter_clock": "17:17:36.287",
+      "height_restart_boot_sec": 1086.00485,
+      "height_restart_clock": "17:17:36.237",
+      "vision_stopped_boot_sec": 1085.797446,
+      "vision_stopped_clock": "17:17:36.030",
+      "yaw_restart_boot_sec": 1086.51804,
+      "yaw_restart_clock": "17:17:36.751",
+      "yaw_after_height_ms": 513.189999999895,
+      "counter_before": 3,
+      "counter_after": 4,
+      "delta_z_ned_m": -0.07114916294813156,
+      "delta_z_enu_up_m": 0.07114916294813156
+    },
+    {
+      "first_logged_counter_boot_sec": 1098.458428,
+      "first_logged_counter_clock": "17:17:48.691",
+      "height_restart_boot_sec": 1098.399396,
+      "height_restart_clock": "17:17:48.632",
+      "vision_stopped_boot_sec": 1098.300515,
+      "vision_stopped_clock": "17:17:48.533",
+      "yaw_restart_boot_sec": 1098.991324,
+      "yaw_restart_clock": "17:17:49.224",
+      "yaw_after_height_ms": 591.9280000000526,
+      "counter_before": 4,
+      "counter_after": 5,
+      "delta_z_ned_m": -0.13041245937347412,
+      "delta_z_enu_up_m": 0.13041245937347412
+    },
+    {
+      "first_logged_counter_boot_sec": 1127.459747,
+      "first_logged_counter_clock": "17:18:17.692",
+      "height_restart_boot_sec": 1127.400778,
+      "height_restart_clock": "17:18:17.633",
+      "vision_stopped_boot_sec": 1127.291985,
+      "vision_stopped_clock": "17:18:17.525",
+      "yaw_restart_boot_sec": 1127.99266,
+      "yaw_restart_clock": "17:18:18.225",
+      "yaw_after_height_ms": 591.8819999999414,
+      "counter_before": 5,
+      "counter_after": 6,
+      "delta_z_ned_m": -0.37644171714782715,
+      "delta_z_enu_up_m": 0.37644171714782715
+    },
+    {
+      "first_logged_counter_boot_sec": 1136.656004,
+      "first_logged_counter_clock": "17:18:26.889",
+      "height_restart_boot_sec": 1136.606961,
+      "height_restart_clock": "17:18:26.840",
+      "vision_stopped_boot_sec": 1136.49813,
+      "vision_stopped_clock": "17:18:26.731",
+      "yaw_restart_boot_sec": 1137.198729,
+      "yaw_restart_clock": "17:18:27.431",
+      "yaw_after_height_ms": 591.7680000000018,
+      "counter_before": 6,
+      "counter_after": 7,
+      "delta_z_ned_m": -0.524177074432373,
+      "delta_z_enu_up_m": 0.524177074432373
+    },
+    {
+      "first_logged_counter_boot_sec": 1234.25656,
+      "first_logged_counter_clock": "17:20:04.489",
+      "height_restart_boot_sec": 1234.217277,
+      "height_restart_clock": "17:20:04.450",
+      "vision_stopped_boot_sec": 1233.99014,
+      "vision_stopped_clock": "17:20:04.223",
+      "yaw_restart_boot_sec": 1234.592001,
+      "yaw_restart_clock": "17:20:04.825",
+      "yaw_after_height_ms": 374.7240000000147,
+      "counter_before": 7,
+      "counter_after": 8,
+      "delta_z_ned_m": -0.2769674062728882,
+      "delta_z_enu_up_m": 0.2769674062728882
+    },
+    {
+      "first_logged_counter_boot_sec": 1277.361914,
+      "first_logged_counter_clock": "17:20:47.594",
+      "height_restart_boot_sec": 1277.332425,
+      "height_restart_clock": "17:20:47.565",
+      "vision_stopped_boot_sec": 1277.184287,
+      "vision_stopped_clock": "17:20:47.417",
+      "yaw_restart_boot_sec": 1277.884811,
+      "yaw_restart_clock": "17:20:48.117",
+      "yaw_after_height_ms": 552.3859999998422,
+      "counter_before": 8,
+      "counter_after": 9,
+      "delta_z_ned_m": -0.029437899589538574,
+      "delta_z_enu_up_m": 0.029437899589538574
+    }
+  ],
+  "large_jumps_and_rotation_models": [
+    {
+      "ros_jump_clock": "17:18:17.639",
+      "ros_jump_receipt_epoch": 1791019097.639442,
+      "fc_z_before_m": 1.8214306831359863,
+      "fc_z_after_m": 2.195122718811035,
+      "ros_jump_z_enu_up_m": 0.37369203567504883,
+      "ulog_reset_z_enu_up_m": 0.37644171714782715,
+      "ev_receipt_clock": "17:18:17.611",
+      "ev_sample_clock": "17:18:17.440",
+      "ev_position_enu_m": [
+        3.239730421875958,
+        -0.7145715379103733,
+        1.9305743703412588
+      ],
+      "ev_receipt_age_sec": 0.17142915725708008,
+      "quaternion_pair_header_skew_ms": -6.811380386352539,
+      "rotation_error_euler_xyz_deg": [
+        -1.3748935689890194,
+        -4.366521072357649,
+        -0.9359660022979591
+      ],
+      "rotated_ev_z_m": 2.188173727002627,
+      "rotated_ev_minus_fc_post_z_m": -0.006948991808408245,
+      "rotation_added_z_m": 0.25759935666136813,
+      "fc_vz_at_jump_mps": -0.0968097448348999,
+      "command_at_jump_m": [
+        3.2037734432844447,
+        -0.7939552783034742,
+        1.743699808344245
+      ],
+      "ev_gaps": [
+        {
+          "start": "17:18:16.389",
+          "end": "17:18:16.608",
+          "gap": 0.21928024291992188,
+          "previous_sample": "17:18:16.337",
+          "next_sample": "17:18:16.437",
+          "sample_gap": 0.1003267765045166,
+          "previous_age": 0.05195498466491699,
+          "next_age": 0.17090845108032227
+        },
+        {
+          "start": "17:18:17.016",
+          "end": "17:18:17.329",
+          "gap": 0.312363862991333,
+          "previous_sample": "17:18:16.937",
+          "next_sample": "17:18:17.036",
+          "sample_gap": 0.09849739074707031,
+          "previous_age": 0.07912778854370117,
+          "next_age": 0.29299426078796387
+        },
+        {
+          "start": "17:18:17.329",
+          "end": "17:18:17.523",
+          "gap": 0.19402527809143066,
+          "previous_sample": "17:18:17.036",
+          "next_sample": "17:18:17.237",
+          "sample_gap": 0.20145320892333984,
+          "previous_age": 0.29299426078796387,
+          "next_age": 0.2855663299560547
+        }
+      ],
+      "missing_lio_near_jump": [
+        {
+          "clock": "17:18:17.472",
+          "age": 0.33438849449157715
+        }
+      ]
+    },
+    {
+      "ros_jump_clock": "17:18:26.869",
+      "ros_jump_receipt_epoch": 1791019106.869773,
+      "fc_z_before_m": 1.791798710823059,
+      "fc_z_after_m": 2.3139190673828125,
+      "ros_jump_z_enu_up_m": 0.5221203565597534,
+      "ulog_reset_z_enu_up_m": 0.524177074432373,
+      "ev_receipt_clock": "17:18:26.836",
+      "ev_sample_clock": "17:18:26.638",
+      "ev_position_enu_m": [
+        5.589056933541113,
+        -1.0469887000690445,
+        1.8624723854063039
+      ],
+      "ev_receipt_age_sec": 0.197767972946167,
+      "quaternion_pair_header_skew_ms": -8.38017463684082,
+      "rotation_error_euler_xyz_deg": [
+        -1.311331952542531,
+        -4.4267378242844115,
+        -1.445623245013121
+      ],
+      "rotated_ev_z_m": 2.3117064265537843,
+      "rotated_ev_minus_fc_post_z_m": -0.0022126408290281674,
+      "rotation_added_z_m": 0.44923404114748045,
+      "fc_vz_at_jump_mps": -0.0538303405046463,
+      "command_at_jump_m": [
+        5.5037734432844445,
+        -1.0939552783034743,
+        1.743699808344245
+      ],
+      "ev_gaps": [
+        {
+          "start": "17:18:26.117",
+          "end": "17:18:26.353",
+          "gap": 0.23644804954528809,
+          "previous_sample": "17:18:26.037",
+          "next_sample": "17:18:26.136",
+          "sample_gap": 0.09963583946228027,
+          "previous_age": 0.08012747764587402,
+          "next_age": 0.21693968772888184
+        },
+        {
+          "start": "17:18:26.524",
+          "end": "17:18:26.726",
+          "gap": 0.20250630378723145,
+          "previous_sample": "17:18:26.237",
+          "next_sample": "17:18:26.437",
+          "sample_gap": 0.20020031929016113,
+          "previous_age": 0.28719592094421387,
+          "next_age": 0.2895019054412842
+        }
+      ],
+      "missing_lio_near_jump": [
+        {
+          "clock": "17:18:26.655",
+          "age": 0.318056583404541
+        }
+      ]
+    }
+  ],
+  "absolute_attitude_difference": {
+    "ground_before_arming": {
+      "samples": 823,
+      "euler_xyz_p05_p50_p95_deg": [
+        [
+          -1.8298087082490944,
+          -4.0404466528507506,
+          -1.7710748448172848
+        ],
+        [
+          -1.7828490868960714,
+          -2.5324603654678084,
+          4.008557849981482
+        ],
+        [
+          -1.6611913887909793,
+          -2.486882122419371,
+          63.161089642960924
+        ]
+      ],
+      "header_skew_max_ms": 20.006179809570312
+    },
+    "armed": {
+      "samples": 2047,
+      "euler_xyz_p05_p50_p95_deg": [
+        [
+          -1.7045712822664336,
+          -4.442739357497998,
+          -1.8495614700416134
+        ],
+        [
+          -1.510472944546261,
+          -4.342783019845106,
+          -0.4129954194491956
+        ],
+        [
+          -1.265792732818393,
+          -4.1028081332682165,
+          0.6652656386129986
+        ]
+      ],
+      "header_skew_max_ms": 19.461631774902344
+    }
+  },
+  "parameters": {
+    "BAT1_A_PER_V": 36.367515563964844,
+    "BAT1_CAPACITY": -1.0,
+    "BAT1_I_CHANNEL": -1,
+    "BAT1_N_CELLS": 6,
+    "BAT1_R_INTERNAL": 0.004999999888241291,
+    "BAT1_SOURCE": 0,
+    "BAT1_V_CHANNEL": -1,
+    "BAT1_V_CHARGED": 4.199999809265137,
+    "BAT1_V_DIV": 19.306367874145508,
+    "BAT1_V_EMPTY": 3.5999999046325684,
+    "BAT1_V_LOAD_DROP": 0.10000000149011612,
+    "EKF2_BARO_CTRL": 1,
+    "EKF2_BARO_DELAY": 0.0,
+    "EKF2_BARO_GATE": 5.0,
+    "EKF2_BARO_NOISE": 3.5,
+    "EKF2_DELAY_MAX": 200.0,
+    "EKF2_EVA_NOISE": 0.10000000149011612,
+    "EKF2_EVP_GATE": 5.0,
+    "EKF2_EVP_NOISE": 0.10000000149011612,
+    "EKF2_EVV_GATE": 3.0,
+    "EKF2_EVV_NOISE": 0.10000000149011612,
+    "EKF2_EV_CTRL": 15,
+    "EKF2_EV_DELAY": 0.0,
+    "EKF2_EV_NOISE_MD": 0,
+    "EKF2_EV_POS_X": 0.0,
+    "EKF2_EV_POS_Y": 0.0,
+    "EKF2_EV_POS_Z": 0.0,
+    "EKF2_EV_QMIN": 0,
+    "EKF2_GPS_CTRL": 0,
+    "EKF2_HGT_REF": 3,
+    "EKF2_IMU_POS_X": 0.0,
+    "EKF2_IMU_POS_Y": 0.0,
+    "EKF2_IMU_POS_Z": 0.0,
+    "EKF2_RNG_CTRL": 1,
+    "SDLOG_MODE": 0,
+    "SDLOG_PROFILE": 1,
+    "SENS_BOARD_ROT": 0,
+    "SENS_BOARD_X_OFF": -2.484478235244751,
+    "SENS_BOARD_Y_OFF": -2.3257622718811035,
+    "SENS_BOARD_Z_OFF": 0.0
+  },
+  "changed_parameters": [],
+  "bag_tf": {
+    "tf_topics": [
+      "/tf",
+      "/tf_static"
+    ],
+    "transforms": [
+      {
+        "first_receipt_sec": 1791018866.2254252,
+        "first": {
+          "topic": "/tf_static",
+          "parent": "map",
+          "child": "camera_init",
+          "translation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "changes": 0,
+        "last": {
+          "topic": "/tf_static",
+          "parent": "map",
+          "child": "camera_init",
+          "translation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      },
+      {
+        "first_receipt_sec": 1791018866.2259881,
+        "first": {
+          "topic": "/tf_static",
+          "parent": "vision_body",
+          "child": "mapping_imu",
+          "translation": [
+            0.0,
+            0.0,
+            0.05
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "changes": 0,
+        "last": {
+          "topic": "/tf_static",
+          "parent": "vision_body",
+          "child": "mapping_imu",
+          "translation": [
+            0.0,
+            0.0,
+            0.05
+          ],
+          "quaternion": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      },
+      {
+        "first_receipt_sec": 1791018866.8669171,
+        "first": {
+          "topic": "/tf",
+          "parent": "map",
+          "child": "vision_body",
+          "translation": [
+            -0.001194688375107944,
+            -0.003003023099154234,
+            -0.2926231324672699
+          ],
+          "quaternion": [
+            -0.019803127954860094,
+            0.016881193961082498,
+            -0.9945107773356701,
+            -0.10134715486626607
+          ]
+        },
+        "changes": 11805,
+        "last": {
+          "topic": "/tf",
+          "parent": "map",
+          "child": "vision_body",
+          "translation": [
+            -0.08699093014001846,
+            0.012671848759055138,
+            -0.026437345892190933
+          ],
+          "quaternion": [
+            0.012410985115181064,
+            0.036577808927221525,
+            -0.02667511974418133,
+            -0.9988976320629266
+          ]
+        }
+      }
+    ]
+  },
+  "ros_lio_topic": {
+    "count": 3918,
+    "receipt_age_sec": {
+      "min": 0.03817343711853027,
+      "p50": 0.0655142068862915,
+      "p95": 0.14368280172348,
+      "p99": 0.4274349427223195,
+      "max": 1.2787601947784424
+    },
+    "age_over_limit": 58,
+    "armed_count": 2060,
+    "armed_age_sec": {
+      "min": 0.03817343711853027,
+      "p50": 0.07122552394866943,
+      "p95": 0.15448499917984007,
+      "p99": 0.28407494068145767,
+      "max": 0.4154186248779297
+    },
+    "armed_age_over_limit": 14,
+    "receipt_gap_max_sec": 0.5365307331085205,
+    "armed_receipt_gap_max_sec": 0.3880610466003418,
+    "header_rewinds": 0,
+    "jumps": []
+  },
+  "ros_ev_topic": {
+    "count": 3860,
+    "receipt_age_sec": {
+      "min": 0.038199663162231445,
+      "p50": 0.06643950939178467,
+      "p95": 0.13085094690322877,
+      "p99": 0.2102890753746029,
+      "max": 0.3018960952758789
+    },
+    "age_over_limit": 1,
+    "armed_count": 2047,
+    "armed_age_sec": {
+      "min": 0.038199663162231445,
+      "p50": 0.07237720489501953,
+      "p95": 0.15027313232421863,
+      "p99": 0.2348379707336423,
+      "max": 0.3018960952758789
+    },
+    "armed_age_over_limit": 1,
+    "receipt_gap_max_sec": 2.851327419281006,
+    "armed_receipt_gap_max_sec": 0.6354036331176758,
+    "header_rewinds": 0,
+    "jumps": []
+  },
+  "ros_lio_not_forwarded": {
+    "count": 58,
+    "armed_count": 13,
+    "receipt_age_sec": {
+      "min": 0.08102655410766602,
+      "p50": 0.6412665843963623,
+      "p95": 1.2310413002967835,
+      "p99": 1.275418312549591,
+      "max": 1.2787601947784424
+    },
+    "note": "Header membership, not proof of input packet loss; inspect bridge limits and bag boundaries."
+  },
+  "state_transitions": [
+    {
+      "t": 1791018865.4193816,
+      "armed": false,
+      "mode": "MANUAL"
+    },
+    {
+      "t": 1791019047.726862,
+      "armed": true,
+      "mode": "POSCTL"
+    },
+    {
+      "t": 1791019048.7268205,
+      "armed": true,
+      "mode": "OFFBOARD"
+    },
+    {
+      "t": 1791019250.7341576,
+      "armed": true,
+      "mode": "POSCTL"
+    },
+    {
+      "t": 1791019253.733534,
+      "armed": false,
+      "mode": "MANUAL"
+    }
+  ],
+  "battery": {
+    "cell_count_values": [
+      6
+    ],
+    "voltage_min_p50_p95_max_v": [
+      13.64124870300293,
+      20.9644775390625,
+      25.90573616027832,
+      31.605663299560547
+    ],
+    "connected_change_count": 10,
+    "warning_change_count": 19,
+    "battery_log_messages": 86,
+    "failsafe_activated_log_messages": 73,
+    "vehicle_status_failsafe_values": [
+      0
+    ]
+  },
+  "limitations": [
+    "Quaternion rotation is a ROS-based numerical explanation, not an exact replay of PX4 filtered q_error or raw EV samples.",
+    "A fixed attitude difference can include startup-world tilt and IMU-to-body extrinsic or calibration effects; physical cause not measured.",
+    "ROS bag receipt ages are not bridge callback ages or PX4 receive/sample ages.",
+    "Matching selected estimator flags/events confirms EV stop/restart/reset; missing raw EV prevents packet-by-packet timing diagnosis.",
+    "Battery telemetry is anomalous; physical pack voltage and power-module calibration were not measured."
+  ]
+}

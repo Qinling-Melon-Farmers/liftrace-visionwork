@@ -1,0 +1,68 @@
+# 2026-10-15用户已打点地图；备份只新增牛耕，原门/H/S/边界保留。
+flight_bounds:
+- -0.5
+- 9.5
+- -4.8
+- 4.8
+search_center_bounds:
+- -0.1
+- 7.05
+- -4.35
+- 4.35
+target_bounds:
+- -0.5
+- 7.4
+- -4.8
+- 4.8
+coverage_bounds:
+- 0.4
+- 6.8
+- -4.1
+- 4.1
+staging_xy:
+- 0.6
+- 0.05
+survey_xy:
+- - 1
+  - -3.5
+- - 5.5
+  - -3.5
+- - 5.5
+  - 3.5
+- - 1
+  - 3.5
+- - 1
+  - -3.5
+corridor_waypoints:
+- x: 6.9
+  y: 3.4
+  agl: 0.9
+- x: 8.3
+  y: 3.4
+  agl: 0.9
+- x: 8.3
+  y: 1.9
+  agl: 0.9
+- x: 8.3
+  y: -0.4
+  agl: 0.9
+- x: 8.3
+  y: -3.5
+  agl: 0.9
+landing_xy:
+- 8.3
+- -3.5
+high_agl: 2.6
+low_agl: 1.4
+landing_transit_agl: 1
+landing_capture_agl: 0.9
+map_size:
+- 22
+- 12
+- 4
+corridor_speed_schedule:
+  axis: 1
+  wall_coordinates:
+  - -1.6
+  - 1.6
+  entry_waypoints: 1

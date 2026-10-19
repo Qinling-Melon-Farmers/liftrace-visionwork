@@ -1,0 +1,1402 @@
+{
+  "scope": "Actual FC XY versus scenario target model centre at successful mock ACK; not parcel impact accuracy",
+  "samples": [
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_px4_seed11_20260909_151207",
+      "label": "11",
+      "class_name": "panzer",
+      "slot": 1,
+      "ros_stamp": 103.972,
+      "actual_fc_xy": [
+        -3.8525623243089826,
+        1.9634714079066669
+      ],
+      "target_xy": [
+        -3.8964,
+        1.9576
+      ],
+      "dx_m": 0.043837675691017264,
+      "dy_m": 0.005871407906666848,
+      "error_m": 0.04422912208937994
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_px4_seed11_20260909_151207",
+      "label": "11",
+      "class_name": "bridge",
+      "slot": 2,
+      "ros_stamp": 232.809,
+      "actual_fc_xy": [
+        -2.9951322167092305,
+        3.6165313719840606
+      ],
+      "target_xy": [
+        -3.0273,
+        3.6465
+      ],
+      "dx_m": 0.032167783290769414,
+      "dy_m": -0.02996862801593947,
+      "error_m": 0.04396458741987301
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_px4_seed11_20260909_151207",
+      "label": "11",
+      "class_name": "red_cross",
+      "slot": 3,
+      "ros_stamp": 312.557,
+      "actual_fc_xy": [
+        -3.816341326196252,
+        6.117600237872378
+      ],
+      "target_xy": [
+        -3.9296,
+        6.0581
+      ],
+      "dx_m": 0.11325867380374799,
+      "dy_m": 0.05950023787237857,
+      "error_m": 0.12793672458935873
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed01_20260909_154735",
+      "label": "1",
+      "class_name": "panzer",
+      "slot": 1,
+      "ros_stamp": 144.101,
+      "actual_fc_xy": [
+        3.2863524484254403,
+        3.002498351390848
+      ],
+      "target_xy": [
+        3.2233,
+        3.0054
+      ],
+      "dx_m": 0.06305244842544022,
+      "dy_m": -0.0029016486091517635,
+      "error_m": 0.06311917947101175
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed01_20260909_154735",
+      "label": "1",
+      "class_name": "bridge",
+      "slot": 2,
+      "ros_stamp": 163.961,
+      "actual_fc_xy": [
+        0.01920757961020251,
+        3.172486986776729
+      ],
+      "target_xy": [
+        -0.0438,
+        3.1409
+      ],
+      "dx_m": 0.06300757961020251,
+      "dy_m": 0.03158698677672911,
+      "error_m": 0.07048186165226672
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed01_20260909_154735",
+      "label": "1",
+      "class_name": "red_cross",
+      "slot": 3,
+      "ros_stamp": 266.71,
+      "actual_fc_xy": [
+        -0.4542092453674314,
+        5.327607648231204
+      ],
+      "target_xy": [
+        -0.5243,
+        5.3445
+      ],
+      "dx_m": 0.07009075463256859,
+      "dy_m": -0.016892351768795777,
+      "error_m": 0.07209761045446425
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed02_20260909_161313",
+      "label": "2",
+      "class_name": "red_cross",
+      "slot": 1,
+      "ros_stamp": 35.681,
+      "actual_fc_xy": [
+        -1.611573418475277,
+        0.6452058844779363
+      ],
+      "target_xy": [
+        -1.6786,
+        0.6072
+      ],
+      "dx_m": 0.06702658152472307,
+      "dy_m": 0.03800588447793629,
+      "error_m": 0.07705199469086174
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed02_20260909_161313",
+      "label": "2",
+      "class_name": "bridge",
+      "slot": 2,
+      "ros_stamp": 187.753,
+      "actual_fc_xy": [
+        -0.5538392065299043,
+        2.653003998148027
+      ],
+      "target_xy": [
+        -0.6656,
+        2.6876
+      ],
+      "dx_m": 0.11176079347009571,
+      "dy_m": -0.03459600185197331,
+      "error_m": 0.11699298398283176
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed02_20260909_161313",
+      "label": "2",
+      "class_name": "panzer",
+      "slot": 3,
+      "ros_stamp": 327.741,
+      "actual_fc_xy": [
+        -1.0645585964336242,
+        6.636638512178816
+      ],
+      "target_xy": [
+        -1.1519,
+        6.7235
+      ],
+      "dx_m": 0.08734140356637576,
+      "dy_m": -0.0868614878211833,
+      "error_m": 0.12318051324561889
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed03_20260909_163846",
+      "label": "3",
+      "class_name": "bridge",
+      "slot": 1,
+      "ros_stamp": 62.366,
+      "actual_fc_xy": [
+        1.502076681122824,
+        0.8080538599609887
+      ],
+      "target_xy": [
+        1.3351,
+        0.72
+      ],
+      "dx_m": 0.16697668112282416,
+      "dy_m": 0.08805385996098869,
+      "error_m": 0.18877153994398282
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed03_20260909_163846",
+      "label": "3",
+      "class_name": "red_cross",
+      "slot": 2,
+      "ros_stamp": 216.055,
+      "actual_fc_xy": [
+        2.5991000773175545,
+        4.283143257561575
+      ],
+      "target_xy": [
+        2.479,
+        4.2879
+      ],
+      "dx_m": 0.12010007731755445,
+      "dy_m": -0.0047567424384249435,
+      "error_m": 0.12019423933911338
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed03_20260909_163846",
+      "label": "3",
+      "class_name": "panzer",
+      "slot": 3,
+      "ros_stamp": 293.372,
+      "actual_fc_xy": [
+        0.29257503554583775,
+        5.485722467357886
+      ],
+      "target_xy": [
+        0.2225,
+        5.5041
+      ],
+      "dx_m": 0.07007503554583774,
+      "dy_m": -0.018377532642114502,
+      "error_m": 0.07244476732492422
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed04_20260909_170148",
+      "label": "4",
+      "class_name": "bridge",
+      "slot": 1,
+      "ros_stamp": 78.738,
+      "actual_fc_xy": [
+        2.612138688885061,
+        1.3007230303644466
+      ],
+      "target_xy": [
+        2.5456,
+        1.2976
+      ],
+      "dx_m": 0.06653868888506098,
+      "dy_m": 0.0031230303644464996,
+      "error_m": 0.06661193914907591
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed04_20260909_170148",
+      "label": "4",
+      "class_name": "panzer",
+      "slot": 2,
+      "ros_stamp": 95.231,
+      "actual_fc_xy": [
+        0.4232598033028828,
+        1.7625321004014114
+      ],
+      "target_xy": [
+        0.3521,
+        1.7411
+      ],
+      "dx_m": 0.0711598033028828,
+      "dy_m": 0.021432100401411303,
+      "error_m": 0.07431724250617176
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed04_20260909_170148",
+      "label": "4",
+      "class_name": "red_cross",
+      "slot": 3,
+      "ros_stamp": 362.477,
+      "actual_fc_xy": [
+        -2.6307524642499143,
+        7.020212977758253
+      ],
+      "target_xy": [
+        -2.7418,
+        7.0126
+      ],
+      "dx_m": 0.11104753575008575,
+      "dy_m": 0.007612977758252981,
+      "error_m": 0.11130818759873069
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed05_20260909_173017",
+      "label": "5",
+      "class_name": "panzer",
+      "slot": 1,
+      "ros_stamp": 58.964,
+      "actual_fc_xy": [
+        -2.7485474623428363,
+        1.267136155958352
+      ],
+      "target_xy": [
+        -2.7892,
+        1.2454
+      ],
+      "dx_m": 0.04065253765716381,
+      "dy_m": 0.021736155958351988,
+      "error_m": 0.046098690803676005
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed05_20260909_173017",
+      "label": "5",
+      "class_name": "bridge",
+      "slot": 2,
+      "ros_stamp": 231.606,
+      "actual_fc_xy": [
+        0.44148474771522905,
+        4.112205472576019
+      ],
+      "target_xy": [
+        0.4201,
+        4.1489
+      ],
+      "dx_m": 0.02138474771522908,
+      "dy_m": -0.036694527423981604,
+      "error_m": 0.04247111698217194
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed06_20260909_175752",
+      "label": "6",
+      "class_name": "red_cross",
+      "slot": 1,
+      "ros_stamp": 128.235,
+      "actual_fc_xy": [
+        3.0370317960438125,
+        1.6177280062853423
+      ],
+      "target_xy": [
+        2.9292,
+        1.6507
+      ],
+      "dx_m": 0.10783179604381266,
+      "dy_m": -0.032971993714657755,
+      "error_m": 0.11276013749350362
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed06_20260909_175752",
+      "label": "6",
+      "class_name": "panzer",
+      "slot": 2,
+      "ros_stamp": 229.365,
+      "actual_fc_xy": [
+        -2.9100297745537715,
+        3.9086704894293165
+      ],
+      "target_xy": [
+        -2.9473,
+        3.9843
+      ],
+      "dx_m": 0.03727022544622827,
+      "dy_m": -0.07562951057068368,
+      "error_m": 0.08431424893796917
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed06_20260909_175752",
+      "label": "6",
+      "class_name": "bridge",
+      "slot": 3,
+      "ros_stamp": 327.164,
+      "actual_fc_xy": [
+        -0.24726413950671666,
+        5.654366700792524
+      ],
+      "target_xy": [
+        -0.2856,
+        5.6538
+      ],
+      "dx_m": 0.03833586049328336,
+      "dy_m": 0.0005667007925236334,
+      "error_m": 0.03834004889862206
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed07_20260909_182205",
+      "label": "7",
+      "class_name": "panzer",
+      "slot": 1,
+      "ros_stamp": 105.726,
+      "actual_fc_xy": [
+        -3.58920408212488,
+        1.2714955716369358
+      ],
+      "target_xy": [
+        -3.6115,
+        1.3082
+      ],
+      "dx_m": 0.022295917875120086,
+      "dy_m": -0.0367044283630642,
+      "error_m": 0.04294558202368913
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed07_20260909_182205",
+      "label": "7",
+      "class_name": "bridge",
+      "slot": 2,
+      "ros_stamp": 325.119,
+      "actual_fc_xy": [
+        -0.6389905514431361,
+        6.269060270666133
+      ],
+      "target_xy": [
+        -0.7246,
+        6.1975
+      ],
+      "dx_m": 0.08560944855686392,
+      "dy_m": 0.07156027066613291,
+      "error_m": 0.11157889594372465
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed08_20260909_184028",
+      "label": "8",
+      "class_name": "red_cross",
+      "slot": 1,
+      "ros_stamp": 34.756,
+      "actual_fc_xy": [
+        -1.1022395146721855,
+        0.47318343166227167
+      ],
+      "target_xy": [
+        -1.1609,
+        0.4212
+      ],
+      "dx_m": 0.05866048532781454,
+      "dy_m": 0.05198343166227165,
+      "error_m": 0.07837939592954778
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed08_20260909_184028",
+      "label": "8",
+      "class_name": "bridge",
+      "slot": 2,
+      "ros_stamp": 189.594,
+      "actual_fc_xy": [
+        -0.3705520473214444,
+        3.549163910424718
+      ],
+      "target_xy": [
+        -0.4499,
+        3.5094
+      ],
+      "dx_m": 0.0793479526785556,
+      "dy_m": 0.03976391042471805,
+      "error_m": 0.08875396423001793
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed08_20260909_184028",
+      "label": "8",
+      "class_name": "panzer",
+      "slot": 3,
+      "ros_stamp": 318.258,
+      "actual_fc_xy": [
+        -0.7810029413080648,
+        6.760208451768056
+      ],
+      "target_xy": [
+        -0.8864,
+        6.8067
+      ],
+      "dx_m": 0.10539705869193516,
+      "dy_m": -0.0464915482319439,
+      "error_m": 0.11519550354902917
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed09_20260909_190805",
+      "label": "9",
+      "class_name": "red_cross",
+      "slot": 1,
+      "ros_stamp": 37.408,
+      "actual_fc_xy": [
+        -2.45409141405427,
+        0.37162237015961697
+      ],
+      "target_xy": [
+        -2.5151,
+        0.3987
+      ],
+      "dx_m": 0.06100858594572989,
+      "dy_m": -0.027077629840383033,
+      "error_m": 0.0667476261515742
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed09_20260909_190805",
+      "label": "9",
+      "class_name": "panzer",
+      "slot": 2,
+      "ros_stamp": 73.182,
+      "actual_fc_xy": [
+        2.27109567886615,
+        0.7507665815326202
+      ],
+      "target_xy": [
+        2.1606,
+        0.773
+      ],
+      "dx_m": 0.11049567886614975,
+      "dy_m": -0.022233418467379806,
+      "error_m": 0.11271033645960302
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed09_20260909_190805",
+      "label": "9",
+      "class_name": "bridge",
+      "slot": 3,
+      "ros_stamp": 264.869,
+      "actual_fc_xy": [
+        0.5688658823759941,
+        4.4658407904191915
+      ],
+      "target_xy": [
+        0.521,
+        4.4949
+      ],
+      "dx_m": 0.047865882375994095,
+      "dy_m": -0.029059209580808876,
+      "error_m": 0.055996253062985175
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed10_20260909_193259",
+      "label": "10",
+      "class_name": "red_cross",
+      "slot": 1,
+      "ros_stamp": 59.373,
+      "actual_fc_xy": [
+        1.1584945485829976,
+        -0.14576766958811146
+      ],
+      "target_xy": [
+        1.0879,
+        -0.1415
+      ],
+      "dx_m": 0.07059454858299752,
+      "dy_m": -0.004267669588111478,
+      "error_m": 0.07072342817871945
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed10_20260909_193259",
+      "label": "10",
+      "class_name": "bridge",
+      "slot": 2,
+      "ros_stamp": 212.785,
+      "actual_fc_xy": [
+        3.547616369161393,
+        4.37704924098478
+      ],
+      "target_xy": [
+        3.4575,
+        4.3858
+      ],
+      "dx_m": 0.0901163691613931,
+      "dy_m": -0.0087507590152196,
+      "error_m": 0.09054024394806394
+    },
+    {
+      "group": "R64",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_r64_matrix_seed10_20260909_193259",
+      "label": "10",
+      "class_name": "panzer",
+      "slot": 3,
+      "ros_stamp": 314.844,
+      "actual_fc_xy": [
+        -3.4275307787788782,
+        5.755349011234501
+      ],
+      "target_xy": [
+        -3.5234,
+        5.7195
+      ],
+      "dx_m": 0.09586922122112185,
+      "dy_m": 0.03584901123450113,
+      "error_m": 0.10235262177411865
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed31_20260910_101159",
+      "label": "31",
+      "class_name": "bridge",
+      "slot": 1,
+      "ros_stamp": 62.48,
+      "actual_fc_xy": [
+        1.6929236360766264,
+        0.636530592526739
+      ],
+      "target_xy": [
+        1.5568,
+        0.6063
+      ],
+      "dx_m": 0.13612363607662648,
+      "dy_m": 0.030230592526739097,
+      "error_m": 0.1394400696472846
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed31_20260910_101159",
+      "label": "31",
+      "class_name": "red_cross",
+      "slot": 2,
+      "ros_stamp": 146.112,
+      "actual_fc_xy": [
+        4.329044569365503,
+        2.765461297480132
+      ],
+      "target_xy": [
+        4.2221,
+        2.7639
+      ],
+      "dx_m": 0.10694456936550267,
+      "dy_m": 0.0015612974801317847,
+      "error_m": 0.1069559655493525
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed31_20260910_101159",
+      "label": "31",
+      "class_name": "panzer",
+      "slot": 3,
+      "ros_stamp": 204.502,
+      "actual_fc_xy": [
+        0.43159547882979205,
+        3.0973294164011445
+      ],
+      "target_xy": [
+        0.3424,
+        3.1268
+      ],
+      "dx_m": 0.08919547882979206,
+      "dy_m": -0.02947058359885535,
+      "error_m": 0.09393800477619804
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed32_20260910_103344",
+      "label": "32",
+      "class_name": "bridge",
+      "slot": 1,
+      "ros_stamp": 63.845,
+      "actual_fc_xy": [
+        2.5675922557260535,
+        0.5366339879063513
+      ],
+      "target_xy": [
+        2.4506,
+        0.5239
+      ],
+      "dx_m": 0.11699225572605343,
+      "dy_m": 0.012733987906351274,
+      "error_m": 0.11768322883006474
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed32_20260910_103344",
+      "label": "32",
+      "class_name": "red_cross",
+      "slot": 2,
+      "ros_stamp": 83.402,
+      "actual_fc_xy": [
+        4.40046025423934,
+        1.178334936652906
+      ],
+      "target_xy": [
+        4.353,
+        1.1335
+      ],
+      "dx_m": 0.04746025423933986,
+      "dy_m": 0.04483493665290594,
+      "error_m": 0.06528895218283769
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed32_20260910_103344",
+      "label": "32",
+      "class_name": "panzer",
+      "slot": 3,
+      "ros_stamp": 343.778,
+      "actual_fc_xy": [
+        3.306380234560344,
+        6.240361177241564
+      ],
+      "target_xy": [
+        3.2913,
+        6.2763
+      ],
+      "dx_m": 0.015080234560343797,
+      "dy_m": -0.035938822758436295,
+      "error_m": 0.03897451033248892
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147",
+      "label": "33",
+      "class_name": "panzer",
+      "slot": 1,
+      "ros_stamp": 110.442,
+      "actual_fc_xy": [
+        -1.785878870948332,
+        2.0063415499336057
+      ],
+      "target_xy": [
+        -1.9076,
+        2.005
+      ],
+      "dx_m": 0.12172112905166799,
+      "dy_m": 0.0013415499336058012,
+      "error_m": 0.12172852177627547
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147",
+      "label": "33",
+      "class_name": "bridge",
+      "slot": 2,
+      "ros_stamp": 164.795,
+      "actual_fc_xy": [
+        0.3279130658323382,
+        3.1016125998046955
+      ],
+      "target_xy": [
+        0.2714,
+        3.1066
+      ],
+      "dx_m": 0.05651306583233823,
+      "dy_m": -0.0049874001953043035,
+      "error_m": 0.0567327134066256
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147",
+      "label": "33",
+      "class_name": "red_cross",
+      "slot": 3,
+      "ros_stamp": 225.201,
+      "actual_fc_xy": [
+        4.203026358997103,
+        3.99476729494936
+      ],
+      "target_xy": [
+        4.1087,
+        4.0004
+      ],
+      "dx_m": 0.09432635899710284,
+      "dy_m": -0.005632705050639952,
+      "error_m": 0.09449438802298171
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330",
+      "label": "34",
+      "class_name": "panzer",
+      "slot": 1,
+      "ros_stamp": 485.577,
+      "actual_fc_xy": [
+        -2.2594017253675234,
+        3.937584263807025
+      ],
+      "target_xy": [
+        -2.3499,
+        3.9709
+      ],
+      "dx_m": 0.0904982746324765,
+      "dy_m": -0.03331573619297501,
+      "error_m": 0.09643586464347716
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330",
+      "label": "34",
+      "class_name": "red_cross",
+      "slot": 2,
+      "ros_stamp": 520.955,
+      "actual_fc_xy": [
+        4.2928698221996635,
+        4.239348411976766
+      ],
+      "target_xy": [
+        4.164,
+        4.2692
+      ],
+      "dx_m": 0.1288698221996638,
+      "dy_m": -0.02985158802323351,
+      "error_m": 0.1322820788364086
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed35_20260910_120409",
+      "label": "35",
+      "class_name": "panzer",
+      "slot": 1,
+      "ros_stamp": 39.665,
+      "actual_fc_xy": [
+        -1.568749606014834,
+        0.7074480374925625
+      ],
+      "target_xy": [
+        -1.6801,
+        0.7721
+      ],
+      "dx_m": 0.11135039398516589,
+      "dy_m": -0.06465196250743754,
+      "error_m": 0.1287586365907731
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed35_20260910_120409",
+      "label": "35",
+      "class_name": "red_cross",
+      "slot": 2,
+      "ros_stamp": 54.749,
+      "actual_fc_xy": [
+        -3.2136479841427192,
+        0.08170838656057228
+      ],
+      "target_xy": [
+        -3.2242,
+        0.0963
+      ],
+      "dx_m": 0.010552015857280939,
+      "dy_m": -0.01459161343942772,
+      "error_m": 0.018007226921933205
+    },
+    {
+      "group": "full_random_31_35",
+      "run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed35_20260910_120409",
+      "label": "35",
+      "class_name": "bridge",
+      "slot": 3,
+      "ros_stamp": 165.474,
+      "actual_fc_xy": [
+        2.476324595144952,
+        2.393884810100279
+      ],
+      "target_xy": [
+        2.4035,
+        2.4508
+      ],
+      "dx_m": 0.07282459514495176,
+      "dy_m": -0.056915189899720886,
+      "error_m": 0.09242705501825438
+    },
+    {
+      "group": "paired_32_34",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed32_20260914_015313",
+      "label": "baseline",
+      "class_name": "bridge",
+      "slot": 1,
+      "ros_stamp": 160.277,
+      "actual_fc_xy": [
+        -3.6701340781559617,
+        3.6519552037110934
+      ],
+      "target_xy": [
+        -3.8377,
+        3.6223
+      ],
+      "dx_m": 0.16756592184403818,
+      "dy_m": 0.029655203711093314,
+      "error_m": 0.1701698247944939
+    },
+    {
+      "group": "paired_32_34",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed32_20260914_015313",
+      "label": "baseline",
+      "class_name": "panzer",
+      "slot": 2,
+      "ros_stamp": 196.424,
+      "actual_fc_xy": [
+        3.3802432983058748,
+        3.7103485643094993
+      ],
+      "target_xy": [
+        3.2935,
+        3.7347
+      ],
+      "dx_m": 0.0867432983058749,
+      "dy_m": -0.0243514356905008,
+      "error_m": 0.09009657163938369
+    },
+    {
+      "group": "paired_32_34",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed32_20260914_015313",
+      "label": "baseline",
+      "class_name": "red_cross",
+      "slot": 3,
+      "ros_stamp": 334.191,
+      "actual_fc_xy": [
+        4.339594950842114,
+        6.585596330455027
+      ],
+      "target_xy": [
+        4.2691,
+        6.6426
+      ],
+      "dx_m": 0.07049495084211443,
+      "dy_m": -0.05700366954497316,
+      "error_m": 0.09065846036539905
+    },
+    {
+      "group": "paired_32_34",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed32_20260914_012723",
+      "label": "strategy",
+      "class_name": "bridge",
+      "slot": 1,
+      "ros_stamp": 105.598,
+      "actual_fc_xy": [
+        -3.793579715491708,
+        3.559069750802785
+      ],
+      "target_xy": [
+        -3.8377,
+        3.6223
+      ],
+      "dx_m": 0.044120284508291974,
+      "dy_m": -0.0632302491972152,
+      "error_m": 0.07710164666616766
+    },
+    {
+      "group": "paired_32_34",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed32_20260914_012723",
+      "label": "strategy",
+      "class_name": "panzer",
+      "slot": 2,
+      "ros_stamp": 135.847,
+      "actual_fc_xy": [
+        3.431186340266031,
+        3.81648919946375
+      ],
+      "target_xy": [
+        3.2935,
+        3.7347
+      ],
+      "dx_m": 0.13768634026603133,
+      "dy_m": 0.08178919946375007,
+      "error_m": 0.1601468121592636
+    },
+    {
+      "group": "paired_32_34",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed32_20260914_012723",
+      "label": "strategy",
+      "class_name": "red_cross",
+      "slot": 3,
+      "ros_stamp": 153.982,
+      "actual_fc_xy": [
+        4.362523257358156,
+        6.59647368878754
+      ],
+      "target_xy": [
+        4.2691,
+        6.6426
+      ],
+      "dx_m": 0.09342325735815571,
+      "dy_m": -0.04612631121245947,
+      "error_m": 0.10418993042265101
+    },
+    {
+      "group": "paired_32_34",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed34_20260914_025732",
+      "label": "baseline",
+      "class_name": "bridge",
+      "slot": 1,
+      "ros_stamp": 22.58,
+      "actual_fc_xy": [
+        -1.7240762577021398,
+        0.2426373010296853
+      ],
+      "target_xy": [
+        -1.8606,
+        0.2657
+      ],
+      "dx_m": 0.13652374229786024,
+      "dy_m": -0.023062698970314682,
+      "error_m": 0.13845800913926182
+    },
+    {
+      "group": "paired_32_34",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed34_20260914_025732",
+      "label": "baseline",
+      "class_name": "panzer",
+      "slot": 2,
+      "ros_stamp": 215.94,
+      "actual_fc_xy": [
+        -2.2231664463527494,
+        3.9206081325225486
+      ],
+      "target_xy": [
+        -2.3499,
+        3.9709
+      ],
+      "dx_m": 0.12673355364725047,
+      "dy_m": -0.05029186747745129,
+      "error_m": 0.13634759093739074
+    },
+    {
+      "group": "paired_32_34",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed34_20260914_025732",
+      "label": "baseline",
+      "class_name": "red_cross",
+      "slot": 3,
+      "ros_stamp": 272.445,
+      "actual_fc_xy": [
+        3.318110428917571,
+        5.994082387354034
+      ],
+      "target_xy": [
+        3.2529,
+        5.9838
+      ],
+      "dx_m": 0.06521042891757123,
+      "dy_m": 0.010282387354034306,
+      "error_m": 0.06601611567876449
+    },
+    {
+      "group": "paired_32_34",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed34_20260914_023010",
+      "label": "strategy",
+      "class_name": "panzer",
+      "slot": 1,
+      "ros_stamp": 106.333,
+      "actual_fc_xy": [
+        -2.3011778129077176,
+        3.921014599559546
+      ],
+      "target_xy": [
+        -2.3499,
+        3.9709
+      ],
+      "dx_m": 0.048722187092282265,
+      "dy_m": -0.049885400440453864,
+      "error_m": 0.06973094501123436
+    },
+    {
+      "group": "paired_32_34",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed34_20260914_023010",
+      "label": "strategy",
+      "class_name": "bridge",
+      "slot": 2,
+      "ros_stamp": 128.675,
+      "actual_fc_xy": [
+        -1.738022129601188,
+        0.21455975201369998
+      ],
+      "target_xy": [
+        -1.8606,
+        0.2657
+      ],
+      "dx_m": 0.12257787039881207,
+      "dy_m": -0.051140247986300014,
+      "error_m": 0.13281814362355857
+    },
+    {
+      "group": "paired_32_34",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_local_strategy_seed34_20260914_023010",
+      "label": "strategy",
+      "class_name": "red_cross",
+      "slot": 3,
+      "ros_stamp": 160.272,
+      "actual_fc_xy": [
+        3.3998987679734327,
+        6.004003468043798
+      ],
+      "target_xy": [
+        3.2529,
+        5.9838
+      ],
+      "dx_m": 0.1469987679734328,
+      "dy_m": 0.0202034680437988,
+      "error_m": 0.14838065206321185
+    },
+    {
+      "group": "previous2672",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/reliability_seed2672_20260919_175901",
+      "label": "reliability_high_fast",
+      "class_name": "bridge",
+      "slot": 1,
+      "ros_stamp": 60.464,
+      "actual_fc_xy": [
+        -0.9575324590555597,
+        5.640151117151669
+      ],
+      "target_xy": [
+        -1.0838,
+        5.5824
+      ],
+      "dx_m": 0.12626754094444037,
+      "dy_m": 0.05775111715166936,
+      "error_m": 0.13884769867888255
+    },
+    {
+      "group": "previous2672",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/reliability_seed2672_20260919_175901",
+      "label": "reliability_high_fast",
+      "class_name": "panzer",
+      "slot": 2,
+      "ros_stamp": 104.532,
+      "actual_fc_xy": [
+        2.655176543830611,
+        3.303358023944188
+      ],
+      "target_xy": [
+        2.5969,
+        3.3168
+      ],
+      "dx_m": 0.05827654383061098,
+      "dy_m": -0.013441976055811988,
+      "error_m": 0.05980670765997863
+    },
+    {
+      "group": "previous2672",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/reliability_seed2672_20260919_175901",
+      "label": "reliability_high_fast",
+      "class_name": "red_cross",
+      "slot": 3,
+      "ros_stamp": 122.483,
+      "actual_fc_xy": [
+        -2.08628420398047,
+        0.7026806774026517
+      ],
+      "target_xy": [
+        -2.1641,
+        0.7243
+      ],
+      "dx_m": 0.07781579601953004,
+      "dy_m": -0.021619322597348334,
+      "error_m": 0.08076319223335171
+    },
+    {
+      "group": "currentABC",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_A_recheck_20260919_202737",
+      "label": "A_baseline",
+      "class_name": "red_cross",
+      "slot": 1,
+      "ros_stamp": 74.445,
+      "actual_fc_xy": [
+        0.8221745264982423,
+        2.1159249864628684
+      ],
+      "target_xy": [
+        0.7243,
+        2.1641
+      ],
+      "dx_m": 0.09787452649824224,
+      "dy_m": -0.048175013537131495,
+      "error_m": 0.10908828931905534
+    },
+    {
+      "group": "currentABC",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_A_recheck_20260919_202737",
+      "label": "A_baseline",
+      "class_name": "bridge",
+      "slot": 2,
+      "ros_stamp": 91.015,
+      "actual_fc_xy": [
+        5.677652544137058,
+        1.0645412878557117
+      ],
+      "target_xy": [
+        5.5824,
+        1.0838
+      ],
+      "dx_m": 0.09525254413705841,
+      "dy_m": -0.019258712144288426,
+      "error_m": 0.09717996273943937
+    },
+    {
+      "group": "currentABC",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_A_recheck_20260919_202737",
+      "label": "A_baseline",
+      "class_name": "panzer",
+      "slot": 3,
+      "ros_stamp": 121.074,
+      "actual_fc_xy": [
+        3.4079253737287343,
+        -2.6503548796098717
+      ],
+      "target_xy": [
+        3.3168,
+        -2.5969
+      ],
+      "dx_m": 0.09112537372873408,
+      "dy_m": -0.0534548796098715,
+      "error_m": 0.10564685462098394
+    },
+    {
+      "group": "currentABC",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_B_corridor_20260919_205129",
+      "label": "B_corridor",
+      "class_name": "red_cross",
+      "slot": 1,
+      "ros_stamp": 71.904,
+      "actual_fc_xy": [
+        0.8292805574890801,
+        2.1327313707982496
+      ],
+      "target_xy": [
+        0.7243,
+        2.1641
+      ],
+      "dx_m": 0.10498055748908008,
+      "dy_m": -0.03136862920175032,
+      "error_m": 0.10956691265484736
+    },
+    {
+      "group": "currentABC",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_B_corridor_20260919_205129",
+      "label": "B_corridor",
+      "class_name": "bridge",
+      "slot": 2,
+      "ros_stamp": 88.552,
+      "actual_fc_xy": [
+        5.663274218858152,
+        1.1205222152623013
+      ],
+      "target_xy": [
+        5.5824,
+        1.0838
+      ],
+      "dx_m": 0.0808742188581526,
+      "dy_m": 0.03672221526230124,
+      "error_m": 0.08882094555726795
+    },
+    {
+      "group": "currentABC",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_B_corridor_20260919_205129",
+      "label": "B_corridor",
+      "class_name": "panzer",
+      "slot": 3,
+      "ros_stamp": 107.605,
+      "actual_fc_xy": [
+        3.3593319734714036,
+        -2.6526715357719977
+      ],
+      "target_xy": [
+        3.3168,
+        -2.5969
+      ],
+      "dx_m": 0.04253197347140336,
+      "dy_m": -0.05577153577199745,
+      "error_m": 0.07013866957491673
+    },
+    {
+      "group": "currentABC",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_C_high3_20260919_210945",
+      "label": "C_high3",
+      "class_name": "red_cross",
+      "slot": 1,
+      "ros_stamp": 74.737,
+      "actual_fc_xy": [
+        0.8244876215602549,
+        2.123649307471314
+      ],
+      "target_xy": [
+        0.7243,
+        2.1641
+      ],
+      "dx_m": 0.10018762156025485,
+      "dy_m": -0.04045069252868583,
+      "error_m": 0.10804544432761208
+    },
+    {
+      "group": "currentABC",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_C_high3_20260919_210945",
+      "label": "C_high3",
+      "class_name": "bridge",
+      "slot": 2,
+      "ros_stamp": 90.938,
+      "actual_fc_xy": [
+        5.6541574603600315,
+        1.087433005782646
+      ],
+      "target_xy": [
+        5.5824,
+        1.0838
+      ],
+      "dx_m": 0.07175746036003172,
+      "dy_m": 0.003633005782645915,
+      "error_m": 0.07184936915755254
+    },
+    {
+      "group": "currentABC",
+      "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_C_high3_20260919_210945",
+      "label": "C_high3",
+      "class_name": "panzer",
+      "slot": 3,
+      "ros_stamp": 112.799,
+      "actual_fc_xy": [
+        3.460238608812985,
+        -2.64331090839685
+      ],
+      "target_xy": [
+        3.3168,
+        -2.5969
+      ],
+      "dx_m": 0.14343860881298465,
+      "dy_m": -0.04641090839684958,
+      "error_m": 0.1507600972287601
+    }
+  ],
+  "groups": {
+    "R64": {
+      "n": 31,
+      "p50_m": 0.07705199469086174,
+      "p95_m": 0.12555861891748882,
+      "max_m": 0.18877153994398282,
+      "within_5cm": 6,
+      "within_10cm": 20,
+      "within_15cm": 30
+    },
+    "full_random_31_35": {
+      "n": 14,
+      "p50_m": 0.09546512633322943,
+      "p95_m": 0.1347873756202152,
+      "max_m": 0.1394400696472846,
+      "within_5cm": 2,
+      "within_10cm": 8,
+      "within_15cm": 14
+    },
+    "paired_32_34": {
+      "n": 12,
+      "p50_m": 0.11850403702310479,
+      "p95_m": 0.16465716784511725,
+      "max_m": 0.1701698247944939,
+      "within_5cm": 0,
+      "within_10cm": 5,
+      "within_15cm": 10
+    },
+    "previous2672": {
+      "n": 3,
+      "p50_m": 0.08076319223335171,
+      "p95_m": 0.13303924803432945,
+      "max_m": 0.13884769867888255,
+      "within_5cm": 0,
+      "within_10cm": 2,
+      "within_15cm": 3
+    },
+    "currentABC": {
+      "n": 9,
+      "p50_m": 0.10564685462098394,
+      "p95_m": 0.134282823399195,
+      "max_m": 0.1507600972287601,
+      "within_5cm": 0,
+      "within_10cm": 4,
+      "within_15cm": 8
+    }
+  },
+  "classes": {
+    "bridge": {
+      "n": 23,
+      "p50_m": 0.09054024394806394,
+      "p95_m": 0.16709684927977295,
+      "max_m": 0.18877153994398282,
+      "within_5cm": 3,
+      "within_10cm": 14,
+      "within_15cm": 21
+    },
+    "panzer": {
+      "n": 24,
+      "p50_m": 0.09201728820779087,
+      "p95_m": 0.14859822128505468,
+      "max_m": 0.1601468121592636,
+      "within_5cm": 4,
+      "within_10cm": 14,
+      "within_15cm": 22
+    },
+    "red_cross": {
+      "n": 22,
+      "p50_m": 0.09934215922281636,
+      "p95_m": 0.1320648111240561,
+      "max_m": 0.14838065206321185,
+      "within_5cm": 1,
+      "within_10cm": 11,
+      "within_15cm": 22
+    }
+  },
+  "all": {
+    "n": 69,
+    "p50_m": 0.09242705501825438,
+    "p95_m": 0.14980831916254078,
+    "max_m": 0.18877153994398282,
+    "within_5cm": 8,
+    "within_10cm": 39,
+    "within_15cm": 65
+  },
+  "missing": []
+}

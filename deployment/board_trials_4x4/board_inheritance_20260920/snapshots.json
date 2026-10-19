@@ -1,0 +1,56 @@
+[
+  {
+    "file": "0_static_pointcloud.npz",
+    "t": 1789823889.7855284,
+    "topic": "/freedom/static_pointcloud",
+    "frame": "camera_init",
+    "source": "/home/orangepi/liftrace_r64_onboard_405bda42/logs/corridor_map_20260919_211802_hFU9rN/obstacle_map_0.bag",
+    "all_points": 60781,
+    "retained": 3850
+  },
+  {
+    "file": "0_occupancy_inflate.npz",
+    "t": 1789823889.954538,
+    "topic": "/sdf_map/occupancy_inflate",
+    "frame": "camera_init",
+    "source": "/home/orangepi/liftrace_r64_onboard_405bda42/logs/corridor_map_20260919_211802_hFU9rN/obstacle_map_0.bag",
+    "all_points": 1319573,
+    "retained": 76602
+  },
+  {
+    "file": "1_occupancy_inflate.npz",
+    "t": 1789823912.5680897,
+    "topic": "/sdf_map/occupancy_inflate",
+    "frame": "camera_init",
+    "source": "/home/orangepi/liftrace_r64_onboard_405bda42/logs/corridor_map_20260919_211802_hFU9rN/obstacle_map_7.bag",
+    "all_points": 1835850,
+    "retained": 110578
+  },
+  {
+    "file": "1_static_pointcloud.npz",
+    "t": 1789823912.4340565,
+    "topic": "/freedom/static_pointcloud",
+    "frame": "camera_init",
+    "source": "/home/orangepi/liftrace_r64_onboard_405bda42/logs/corridor_map_20260919_211802_hFU9rN/obstacle_map_7.bag",
+    "all_points": 90295,
+    "retained": 5537
+  },
+  {
+    "file": "2_static_pointcloud.npz",
+    "t": 1789823915.3053913,
+    "topic": "/freedom/static_pointcloud",
+    "frame": "camera_init",
+    "source": "/tmp/board_recovered_review/obstacle_map_8.bag.recovered.bag",
+    "all_points": 94624,
+    "retained": 5627
+  },
+  {
+    "file": "2_occupancy_inflate.npz",
+    "t": 1789823914.999139,
+    "topic": "/sdf_map/occupancy_inflate",
+    "frame": "camera_init",
+    "source": "/tmp/board_recovered_review/obstacle_map_8.bag.recovered.bag",
+    "all_points": 1838136,
+    "retained": 110358
+  }
+]

@@ -1,0 +1,14 @@
+# RViz-only static map relay. The planner remains on /freedom/static_pointcloud.
+input_topic: /freedom/static_pointcloud
+output_topic: /freedom/static_pointcloud_viz
+input_queue_size: 1
+output_queue_size: 1
+max_rate_hz: 0.5
+voxel_leaf_size: 0.20
+
+# preserve_input keeps the incoming map frame. override requires frame_id_override.
+frame_policy: preserve_input
+frame_id_override: ""
+
+# preserve_input, now_if_zero, or now. now_if_zero supplies a stamp for legacy FreeDOM output.
+stamp_policy: now_if_zero

@@ -34,6 +34,71 @@ def odom(stamp, speed=0.0):
                       speed, 0.0, 0.0)
 
 class PlannerMotionExecutorTest(unittest.TestCase):
+    def test_fixed_waypoint_position_only_dwell_and_position_reset(self):
+        for command in ('SEARCH', 'RESUME', 'RETURN_HOME'):
+            with self.subTest(command=command):
+                executor = self.make()
+                executor.config = replace(executor.config,
+                    position_only_arrival_goals=((1., 2., 2.2),),
+                    position_only_arrival_dwell_enabled=True)
+                self.dispatch(executor, decision(command=command))
+                start = self.finish(executor) + 10_000_000
+                self.assertEqual(executor.apply_odom(odom(start, 1.), start).reason,
+                                 'arrival_dwell_pending')
+                outside = replace(odom(start+100_000_000, 1.), x=1.5)
+                self.assertEqual(executor.apply_odom(outside, outside.stamp_ns).reason,
+                                 'arrival_threshold_not_met')
+                start += 200_000_000
+                for offset in (0, 100_000_000, 200_000_000, 299_000_000):
+                    now = start + offset
+                    self.assertEqual(executor.apply_odom(odom(now, 1.), now).reason,
+                                     'arrival_dwell_pending')
+                now = start + 300_000_000
+                out = executor.apply_odom(odom(now, 1.), now)
+                self.assertTrue(any(e.status == 'SUCCEEDED' for e in out.events))
+
+    def test_fixed_waypoint_dwell_off_checks_position_without_waiting_or_speed(self):
+        for command in ('SEARCH', 'RESUME', 'RETURN_HOME'):
+            with self.subTest(command=command):
+                executor = self.make()
+                executor.config = replace(executor.config,
+                    position_only_arrival_goals=((1., 2., 2.2),))
+                self.assertFalse(executor.config.position_only_arrival_dwell_enabled)
+                self.dispatch(executor, decision(command=command))
+                now = self.finish(executor) + 10_000_000
+                outside = replace(odom(now, 1.), x=1.5)
+                self.assertEqual(executor.apply_odom(outside, now).reason,
+                                 'arrival_threshold_not_met')
+                now += 10_000_000
+                out = executor.apply_odom(odom(now, 1.), now)
+                self.assertTrue(any(e.status == 'SUCCEEDED' for e in out.events))
+
+    def test_dwell_switch_rejects_non_boolean_values(self):
+        for value in ('false', 0, None):
+            with self.assertRaises(ValueError):
+                PlannerMotionConfig(position_only_arrival_dwell_enabled=value)
+
+    def test_position_only_policy_preserves_target_and_unlisted_motion(self):
+        for command, goals in (('APPROACH', ((1., 2., 2.2),)),
+                               ('SEARCH', ((5., 2., 2.2),)),
+                               ('ABORT', ((1., 2., 2.2),))):
+            with self.subTest(command=command):
+                executor = self.make()
+                executor.config = replace(executor.config,
+                    position_only_arrival_goals=goals, arrival_dwell_ns=800_000_000)
+                self.dispatch(executor, decision(command=command))
+                start = self.finish(executor) + 10_000_000
+                self.assertEqual(executor.apply_odom(odom(start, 1.), start).reason,
+                                 'arrival_threshold_not_met')
+                start += 100_000_000
+                for offset in range(0, 800_000_000, 100_000_000):
+                    now = start + offset
+                    self.assertEqual(executor.apply_odom(odom(now), now).reason,
+                                     'arrival_dwell_pending')
+                now = start + 800_000_000
+                out = executor.apply_odom(odom(now), now)
+                self.assertTrue(out.events or out.handoff)
+
     def test_return_heading_must_settle_before_advancing(self):
         executor = PlannerMotionExecutor(PlannerMotionConfig(
             arrival_distance_m=.25, arrival_dwell_ns=100_000_000,

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<!-- Debug and raw PWM services are mutually exclusive. Run init_pwm.sh first. -->
+<launch>
+  <node name="servo_debug_node" pkg="actuator_pwm" type="servo_debug_node.py"
+        output="screen" required="true" />
+</launch>

@@ -1,0 +1,8 @@
+[
+  {
+    "seed": 32,
+    "label": "return_column_v1",
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_strategy_seed32_20260914_010237",
+    "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/high_view_render_20260913/seed_32/field.world"
+  }
+]

@@ -1,0 +1,20 @@
+# toudi4_copy.world 的第一版任务参数。
+# 场地外墙约为 x=[-4.41, 3.44]、y=[-2.83, 6.87]，搜索边界向内收缩
+# 约 0.8 m；2.2 m 高度下，下视相机窄边地面覆盖约 1.90 m。
+search:
+  min_x: -3.6
+  max_x: 2.6
+  min_y: -2.0
+  max_y: 6.0
+  lane_spacing: 1.2
+  altitude: 2.2
+
+target:
+  # 原巡逻检测航点采用 1.2 m；该高度也能提高 0.5 m 目标板的像素尺寸。
+  approach_altitude: 1.2
+  hold_duration: 3.0
+  minimum_state: 2
+
+arrival:
+  # 与 patrol_sim.yaml 中的 waypoint_threshould 保持一致。
+  threshold: 0.3

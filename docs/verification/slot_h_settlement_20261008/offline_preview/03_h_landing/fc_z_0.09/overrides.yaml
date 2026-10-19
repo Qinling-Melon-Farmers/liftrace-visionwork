@@ -1,0 +1,72 @@
+/fast_planner_node/sdf_map/resolution: 0.1
+/fast_planner_node/sdf_map/map_size_x: 10.0
+/fast_planner_node/sdf_map/map_size_y: 6.0
+/fast_planner_node/sdf_map/map_size_z: 3.8
+/fast_planner_node/sdf_map/visualization_rate: 2.0
+/fast_planner_node/sdf_map/local_update_range_x: 4.5
+/fast_planner_node/sdf_map/local_update_range_y: 3.0
+/fast_planner_node/sdf_map/local_update_range_z: 3.0
+/fast_planner_node/sdf_map/ground_height: -0.23
+/fast_planner_node/sdf_map/virtual_ceil_height: -0.1
+/fast_planner_node/sdf_map/horizontal_avoidance/min_x: -0.35
+/fast_planner_node/sdf_map/horizontal_avoidance/max_x: 3.4
+/fast_planner_node/sdf_map/horizontal_avoidance/min_y: -1.4
+/fast_planner_node/sdf_map/horizontal_avoidance/max_y: 1.4
+/fast_planner_node/sdf_map/horizontal_avoidance/floor_z: -0.03
+/fast_planner_node/sdf_map/horizontal_avoidance/obstacle_min_z: 0.27
+/fast_planner_node/sdf_map/horizontal_avoidance/enabled: false
+/fast_planner_node/sdf_map/search_region/enabled: true
+/fast_planner_node/sdf_map/search_region/min_x: -0.35
+/fast_planner_node/sdf_map/search_region/max_x: 3.4
+/fast_planner_node/sdf_map/search_region/min_y: -1.4
+/fast_planner_node/sdf_map/search_region/max_y: 1.4
+/fast_planner_node/sdf_map/obstacles_inflation: 0.25
+/fast_planner_node/sdf_map/obstacles_inflation_up: 0.2
+/fast_planner_node/sdf_map/obstacles_inflation_down: 0.1
+/traj_server/traj_server/target_dist: 0.25
+/external_planner_start_max_distance: 0.75
+/external_planner_max_command_z: 2.77
+/navigation/planner_bridge/execution/max_goal_z: 2.77
+/navigation/planner_bridge/execution/arrival_position_tolerance: 0.12
+/navigation/planner_bridge/execution/arrival_dwell: 0.8
+/navigation/planner_bridge/execution/initial_plan_timeout: 12.0
+/navigation/planner_bridge/execution/search_initial_plan_timeout: 12.0
+/fast_planner_node/fsm/liveness_enabled: true
+/fast_planner_node/fsm/server_hold_replan_enabled: true
+/fast_planner_node/fsm/server_hold_seconds: 0.25
+/fast_planner_node/fsm/server_progress_max_age: 0.5
+/fast_planner_node/progress/enabled: true
+/traj_server/progress/enabled: true
+/traj_server/traj_server/require_goal_identity: true
+/navigation/planner_bridge/target/recovery_height: 1.2699999809265137
+/release_permission_arbiter/pose_topic: /navigation/local_pose
+/release_permission_arbiter/min_release_altitude: 0.38999999999999996
+/release_permission_arbiter/max_release_altitude: 0.59
+/board_trials/ground_z: -0.13
+/board_trials/fc_on_ground_z: 0.09
+/board_trials/mock_only: false
+/board_trials/actuator_mode: none
+/target_map_projector/coarse_navigation_enabled: false
+/target_map_projector/coarse_min_confidence: 0.6
+/landing_detector/landing_enable_h_stroke_fallback: true
+/target_memory/search_confirmation_max_gap_sec: 1.0
+/drop_aligner/stable_frames: 5
+/fast_planner_node/search/line_deviation_weight: 2.0
+/navigation/planner_bridge/motion_optimization:
+  enabled: true
+  dynamic_boundary: true
+  moving_recovery: false
+  diagonal_entry: true
+  merge_collinear_relays: true
+  survey_line_weight: 2.0
+  braking_speed_mps: 0.5
+  braking_accel_mps2: 0.35
+  reaction_seconds: 0.3
+  boundary_reserve_m: 0.15
+  recovery_handoff_agl: 0.9
+  recovery_min_ack_seconds: 0.6
+  recovery_max_vz: 0.6
+  recovery_min_samples: 3
+  recovery_max_odom_age: 0.2
+  corridor_max_agl: 1.0
+/navigation/planner_bridge/execution/odom_twist_frame: child

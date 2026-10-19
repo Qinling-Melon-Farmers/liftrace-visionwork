@@ -8,6 +8,7 @@ project(patrol_control)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  navigation_recovery_msgs
   geometry_msgs
   mavros
   mavros_msgs
@@ -65,6 +66,7 @@ add_message_files(
   FILES
   MissionCommand.msg
   ReleaseAuthorization.msg
+  ReleaseInvocation.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -72,6 +74,7 @@ add_service_files(
   FILES
   Servo.srv
   ServoAction.srv
+  SetServoDuty.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -212,13 +215,19 @@ if(TARGET ${PROJECT_NAME}-drop-action-test)
 endif()
 
 catkin_add_nosetests(test/test_height_hold.py)
+catkin_add_nosetests(test/test_takeoff_handoff.py)
 catkin_add_nosetests(test/test_boundary_cache.py)
 catkin_add_nosetests(test/test_authorization_gate.py)
 catkin_add_nosetests(test/test_async_servo.py)
-catkin_add_nosetests(test/test_external_landing_handoff.py)
-catkin_add_nosetests(test/test_landing_motion_settlement.py)
-catkin_add_nosetests(test/test_landing_handoff_stability.py)
 catkin_add_nosetests(test/test_compensated_drop_geometry.py)
+catkin_add_nosetests(test/test_drop_local_z_bounds.py)
+catkin_add_nosetests(test/test_forced_drop.py)
+catkin_add_nosetests(test/test_landing_handoff_stability.py)
+catkin_add_nosetests(test/test_landing_motion_settlement.py)
+catkin_add_nosetests(test/test_landing_descent_modes.py)
+catkin_add_nosetests(test/test_external_landing_handoff.py)
+catkin_add_nosetests(test/test_landing_coordinate_fallback.py)
+catkin_add_nosetests(test/test_offboard_landing.py)
 catkin_add_nosetests(test/test_no_legacy_servo_status_false.py)
 catkin_add_nosetests(test/test_new_vision_config.py)
 catkin_add_nosetests(test/test_px4_sitl_start.py)

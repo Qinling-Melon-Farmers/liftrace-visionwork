@@ -34,8 +34,8 @@ class SearchPolicy:
             self.min_y ,
             self.max_x ,
             self.max_y ,
-            self.lane_spacing,
-            self.altitude
+            self.lane_spacing, 
+            self.altitude 
             )
 
         if not all(math.isfinite(value) for value in values):
@@ -101,9 +101,9 @@ class SearchPolicy:
     def coverage_ratio(self):
         if not self._waypoints:
             return 1.0
-
+    
         ratio = self._current_index / len(self._waypoints)
-
+    
         return min(ratio, 1.0)
 
     def advance(self):

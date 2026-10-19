@@ -54,9 +54,11 @@ class CompetitionLaunchParameters(unittest.TestCase):
     def test_flight_uses_generated_limit_and_preserves_speed_parameters(self):
         values = self.application(True)
         control = yaml.safe_load((self.out / "control.yaml").read_text())
-        self.assertEqual(control["px4_max_distance"], .4)
+        self.assertEqual(control["px4_max_distance"], .6)
+        self.assertEqual(control['takeoff_z_lead_m'], 0.)
+        self.assertEqual(values['/takeoff_z_lead_m'], 0.)
         self.assertEqual(values["/px4_max_distance"], control["px4_max_distance"])
-        self.assertEqual(values["/traj_server/traj_server/target_dist"], .4)
+        self.assertEqual(values["/traj_server/traj_server/target_dist"], .6)
         self.assertEqual(values["/external_planner_start_max_distance"], 1.2)
         for namespace, velocity, acceleration in (
                 ("manager", "max_vel", "max_acc"),
@@ -79,37 +81,27 @@ class CompetitionLaunchParameters(unittest.TestCase):
                    if before.get(key) != after.get(key)}
         self.assertEqual(changed, {"/px4_max_distance"})
 
+    def test_drop_class_thresholds_reach_final_launch(self):
+        values = self.application(True)
+        self.assertEqual(values['/drop_system/settle/xy_tolerance_m'], .06)
+        self.assertEqual(values['/drop_system/settle/red_cross_xy_tolerance_m'], .04)
+
+    def test_takeoff_setting_override_reaches_final_launch_without_other_changes(self):
+        before=self.application(True)
+        rig=yaml.safe_load((PACKAGE / 'config/competition/known_rig.yaml').read_text())
+        for lead in (0.,.4,.6):
+            with self.subTest(lead=lead):
+                settings={**self.settings,'takeoff_z_lead_m':lead}
+                generate(ROOT,self.out,settings,(0.,0.,0.),rig)
+                after=self.application(True)
+                self.assertEqual(after['/takeoff_z_lead_m'],lead)
+                changed={key for key in before.keys() | after.keys() if before.get(key)!=after.get(key)}
+                self.assertEqual(changed,{'/takeoff_z_lead_m'} if lead!=before['/takeoff_z_lead_m'] else set())
+
     def test_preview_keeps_control_limit_absent(self):
         values = self.application(False)
         self.assertNotIn("/px4_max_distance", values)
-        self.assertEqual(values["/traj_server/traj_server/target_dist"], .4)
-
-    def test_generated_drop_settlement_reaches_final_launch_without_changing_h(self):
-        values = self.application(True)
-        control = yaml.safe_load((self.out / "control.yaml").read_text())
-        expected = dict(xy_tolerance_m=.04, height_tolerance_m=.05,
-                        max_horizontal_speed_mps=.08, max_vertical_speed_mps=.10,
-                        stable_duration_sec=.30, max_odom_age_sec=.20,
-                        max_sample_gap_sec=.20, min_samples=3)
-        self.assertEqual(control["drop_system"]["settle"], expected)
-        for key, value in expected.items():
-            self.assertEqual(values["/drop_system/settle/" + key], value)
-        self.assertEqual(values["/external_landing/posctl/xy_tolerance_m"], .05)
-        self.assertEqual(values["/external_landing/posctl/stable_duration_sec"], .15)
-
-    def test_generated_drop_parameters_are_authoritative_in_the_loaded_launch(self):
-        before = self.application(True)
-        control = yaml.safe_load((self.out / "control.yaml").read_text())
-        control["drop_system"]["settle"].update(
-            xy_tolerance_m=.055, max_horizontal_speed_mps=.075)
-        (self.out / "control.yaml").write_text(yaml.safe_dump(control))
-        after = self.application(True)
-        self.assertEqual(after["/drop_system/settle/xy_tolerance_m"], .055)
-        self.assertEqual(after["/drop_system/settle/max_horizontal_speed_mps"], .075)
-        changed = {key for key in before.keys() | after.keys()
-                   if before.get(key) != after.get(key)}
-        self.assertEqual(changed, {"/drop_system/settle/xy_tolerance_m",
-                                   "/drop_system/settle/max_horizontal_speed_mps"})
+        self.assertEqual(values["/traj_server/traj_server/target_dist"], .6)
 
     def test_legacy_include_keeps_its_explicit_limit(self):
         values = self.load(

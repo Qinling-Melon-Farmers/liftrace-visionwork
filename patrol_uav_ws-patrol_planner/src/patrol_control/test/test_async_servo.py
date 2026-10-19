@@ -73,6 +73,7 @@ struct Time {
     double value;
     Time(double v=0):value(v) {}
     bool isZero() const { return value==0; }
+    double toSec()const{return value;}
     static Time now() { return Time(100); }
     operator double() const { return value; }
 };
@@ -128,14 +129,27 @@ struct AlignmentTargetContext {
 };
 }
 struct Bool { bool data=false; };
-struct Pose {
-    struct { ros::Time stamp; std::string frame_id; } header;
+struct Header{ros::Time stamp;std::string frame_id;};
+namespace mavros_msgs {
+struct PositionTarget {
+ enum {FRAME_LOCAL_NED=1,IGNORE_PZ=4,IGNORE_VX=8,IGNORE_VY=16,IGNORE_AFX=64,IGNORE_AFY=128,IGNORE_AFZ=256,IGNORE_YAW_RATE=2048};
+ Header header;
+ struct XYZ{double x=0,y=0,z=0;}position,velocity;
+ int coordinate_frame=0,type_mask=0;double yaw=0;
 };
-struct Publisher { int calls=0; void publish(const Pose&) { ++calls; } };
+}
+namespace tf {double getYaw(int){return 0;}}
+struct Pose {
+    Header header;
+    struct {mavros_msgs::PositionTarget::XYZ position;int orientation=0;}pose;
+};
+struct Publisher { int calls=0; template<typename T>void publish(const T&) { ++calls; } };
 namespace patrol_control {
 class LLController {
 public:
     bool compensated_alignment_enabled_=true, geometry_ready=true;
+    // Async-only fixture uses explicit simultaneous compatibility mode.
+    bool drop_compensate_before_descent_=false, drop_descent_started_=false;
     bool compensatedDropSettled(bool) { return geometry_ready; }
     void publishCompensatedAlignment() {}
     std::string external_landing_handoff_mode_="AUTO.LAND";
@@ -156,11 +170,21 @@ public:
     void servoAlignmentContextCallback(const uav_vision::AlignmentTargetContext::ConstPtr&);
     enum { Run_point, Aligning };
     int Drone_mode=Aligning;
-    ros::Time detection_start_time;
+    ros::Time detection_start_time, drop_alignment_started_, drop_descent_started_at_;
     double waypoint_adjust_max_second_threshould=15;
     Pose mavros_point_cmd;
     Publisher mavros_point_cmd_pub;
     void timerPublicationPath();
+    // Transport-only fixture: existing H/raw branches stay inactive.
+    struct { int mode=1; } landing_descent_config_;
+    bool vertical_landing=false, zero_velocity_drop=false, vertical_speed_drop=false;
+    double drop_vz_command=0;
+    std::string external_landing_frame_="camera_init";
+    Publisher landing_vertical_cmd_pub_, drop_vertical_cmd_pub_,drop_velocity_cmd_pub_;
+    bool externalLandingOffboardStateReady(ros::Time) const { return true; }
+    void externalLandingOffboardTick() {}
+    bool externalLandingOffboardDescentReady() const { return false; }
+    void publishExternalLandingOffboardSetpoint() {}
     bool control_ready=true;
     bool external_mission_mode_=true, external_landing_active_=false;
     bool external_landing_auto_land_requested_=false, external_landing_cancelled_=false;
@@ -169,7 +193,16 @@ public:
     bool externalLandingControlReady(const ros::Time&) const { return control_ready; }
     void externalLandingStateCallback(const mavros_msgs::State::ConstPtr&);
     void failExternalLanding(const std::string&) {}
+    struct {void pause(double){}}drop_descent_profile_;
     AsyncServo async_servo_;
+    std::array<AsyncServo,3> no_ack_servo_workers_;
+    bool drop_recover_without_ack_=false, drop_recovery_started_=false;
+    double drop_recovery_delay_sec_=0.0; // legacy fixtures test the zero-delay policy
+    uav_vision::AlignmentTargetContext servo_invocation_context_;
+    int invocation_events=0;
+    void publishDropInvocation(){++invocation_events;}
+    AsyncServo& servoWorkerForSlot(int);
+    void beginDropRecoveryWithoutAck();
     std::uint64_t servo_action_id_=1;
     int servo_action_slot_=0;
     bool servo_action_attempted_=false, servo_action_pending_=false;
@@ -209,11 +242,60 @@ void resetContext(LLController& c) {
     c.servo_action_attempted_=false; c.servo_action_slot_=0;
     c.servo_action_result_=DropActionResult::kPending;
     c.drop_complete=false; c.servo_complete.data=false;
+    c.drop_recovery_started_=false;
 }
 int main(int argc, char** argv) {
     assert(argc==2); const std::string name=argv[1];
     auto t=std::make_shared<Transport>(); LLController c; c.servo_client.impl=t; c.servo_action_client_.impl=t;
-    if (name=="continuity") {
+    if (name=="delay_fast_ack" || name=="delay_failure" || name=="delay_hung") {
+        c.drop_recover_without_ack_=true;c.drop_recovery_delay_sec_=0.5;
+        t->delay_ms=0;t->success=(name!="delay_failure");t->gated=(name=="delay_hung");
+        assert(c.executeDropAction(1)==DropActionResult::kPending);
+        waitStarted(t);c.pollDropAction();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));c.pollDropAction();
+        assert(!c.drop_recovery_started_&&!c.drop_complete&&!c.servo_complete.data);
+        assert(c.invocation_events==0);
+        if(!t->gated)assert(!c.servo_action_pending_);
+        const auto until=Clock::now()+std::chrono::seconds(2);
+        while(!c.drop_recovery_started_&&Clock::now()<until){
+            c.pollDropAction();std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        }
+        assert(c.drop_recovery_started_&&c.drop_complete&&!c.servo_complete.data);
+        assert(c.servoWorkerForSlot(1).invocationElapsedSec(c.servo_action_id_,1)>=0.5);
+        assert(c.invocation_events==1&&t->calls==1);
+        c.pollDropAction();assert(c.invocation_events==1);
+        if(t->gated)release(t);finish(c);
+    } else if (name=="no_ack_recovery") {
+        c.drop_recover_without_ack_=true;t->gated=true;
+        assert(c.executeDropAction(1)==DropActionResult::kPending);
+        waitStarted(t);c.pollDropAction();
+        assert(c.drop_recovery_started_&&c.drop_complete&&!c.servo_complete.data);
+        assert(c.invocation_events==1);
+        for(int i=0;i<10;++i){c.pollDropAction();c.executeDropAction(1);}
+        assert(t->calls==1&&c.invocation_events==1);
+        // A hung first RPC cannot prevent sending the second slot.
+        resetContext(c);c.servo_alignment_context_.payload_slot=2;
+        auto second=std::make_shared<Transport>();second->gated=true;
+        c.servo_action_client_.impl=second;
+        assert(c.executeDropAction(2)==DropActionResult::kPending);
+        waitStarted(second);c.pollDropAction();
+        assert(c.drop_recovery_started_&&c.drop_complete&&!c.servo_complete.data);
+        assert(c.invocation_events==2&&t->calls==1&&second->calls==1);
+        release(t);release(second);finish(c);
+    } else if (name=="no_ack_failure") {
+        c.drop_recover_without_ack_=true;t->success=false;t->delay_ms=10;
+        assert(c.executeDropAction(1)==DropActionResult::kPending);
+        waitStarted(t);finish(c);
+        assert(c.drop_recovery_started_&&c.drop_complete&&!c.servo_complete.data);
+        assert(c.invocation_events==1&&t->calls==1);
+    } else if (name=="no_ack_guards") {
+        c.drop_recover_without_ack_=true;c.geometry_ready=false;
+        assert(c.executeDropAction(1)==DropActionResult::kPending);
+        assert(!c.drop_recovery_started_&&c.invocation_events==0&&t->calls==0);
+        c.geometry_ready=true;c.permission_ready=false;
+        assert(c.executeDropAction(1)==DropActionResult::kRejected);
+        assert(!c.drop_recovery_started_&&c.invocation_events==0&&t->calls==0);
+    } else if (name=="continuity") {
         const auto start=Clock::now();
         assert(c.executeDropAction(1)==DropActionResult::kPending);
         assert(!c.drop_complete && !c.servo_complete.data);
@@ -413,10 +495,18 @@ int main(int argc, char** argv) {
 
 
 class AsyncServoTest(unittest.TestCase):
+    def test_delay_even_when_ack_returns_early(self): self.run_case("delay_fast_ack")
+    def test_delay_failure_still_recovers(self): self.run_case("delay_failure")
+    def test_delay_hung_call_does_not_wait_ack(self): self.run_case("delay_hung")
+    def test_no_ack_recovers_once_and_old_hung_rpc_cannot_block_next_slot(self): self.run_case("no_ack_recovery")
+    def test_no_ack_failure_still_keeps_recovery_without_synthesizing_ack(self): self.run_case("no_ack_failure")
+    def test_no_ack_preserves_geometry_and_permission_before_invocation(self): self.run_case("no_ack_guards")
     @classmethod
     def setUpClass(cls):
         source = (PACKAGE / 'src/patrol_control.cpp').read_text()
         methods = '\n'.join(method(source, signature) for signature in (
+            'AsyncServo& LLController::servoWorkerForSlot(',
+            'void LLController::beginDropRecoveryWithoutAck(',
             'DropActionResult LLController::executeDropAction(',
             'void LLController::pollDropAction(',
             'void LLController::cancelDropAction(',

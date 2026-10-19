@@ -1,0 +1,130 @@
+[
+  {
+    "folder": "01_visual_interrupt",
+    "trial": "visual_interrupt",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "01_visual_interrupt",
+    "trial": "visual_interrupt",
+    "control_output": "true",
+    "nodes": 19,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "02_high_view_revisit",
+    "trial": "high_view",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "FullCircleRuntime",
+    "passed": true
+  },
+  {
+    "folder": "02_high_view_revisit",
+    "trial": "high_view",
+    "control_output": "true",
+    "nodes": 19,
+    "runtime": "FullCircleRuntime",
+    "passed": true
+  },
+  {
+    "folder": "03_h_landing",
+    "trial": "landing",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "03_h_landing",
+    "trial": "landing",
+    "control_output": "true",
+    "nodes": 15,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "04_corridor_landing",
+    "trial": "landing",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "04_corridor_landing",
+    "trial": "landing",
+    "control_output": "true",
+    "nodes": 15,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "05_low_multi",
+    "trial": "low_multi",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "MultiDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "05_low_multi",
+    "trial": "low_multi",
+    "control_output": "true",
+    "nodes": 19,
+    "runtime": "MultiDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "06_high_priority",
+    "trial": "high_priority",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "PriorityRevisitRuntime",
+    "passed": true
+  },
+  {
+    "folder": "06_high_priority",
+    "trial": "high_priority",
+    "control_output": "true",
+    "nodes": 19,
+    "runtime": "PriorityRevisitRuntime",
+    "passed": true
+  },
+  {
+    "folder": "07_memory_only",
+    "trial": "memory_only",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "MemoryOnlyRuntime",
+    "passed": true
+  },
+  {
+    "folder": "07_memory_only",
+    "trial": "memory_only",
+    "control_output": "true",
+    "nodes": 16,
+    "runtime": "MemoryOnlyRuntime",
+    "passed": true
+  },
+  {
+    "folder": "08_full_mission",
+    "trial": "high_view_full",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "FullMissionTrialRuntime",
+    "passed": true
+  },
+  {
+    "folder": "08_full_mission",
+    "trial": "high_view_full",
+    "control_output": "true",
+    "nodes": 18,
+    "runtime": "FullMissionTrialRuntime",
+    "passed": true
+  }
+]

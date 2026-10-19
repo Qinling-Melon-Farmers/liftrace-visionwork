@@ -1,0 +1,158 @@
+{
+  "circle": [
+    {
+      "replay": "logs/ring_capture_update_20261003/171424.json",
+      "threshold": 0.8,
+      "mapped_circle_samples": 1691,
+      "score_pass": 20,
+      "new_score_pass": 0,
+      "new_score_pass_fresh": 0,
+      "newly_observed_confirmed_frames": 0,
+      "fresh_confirmed_frames": 0,
+      "windows": [
+        {
+          "start": 280.0785562992096,
+          "end": 338.4309515953064,
+          "first_confirmed": null,
+          "first_fresh_confirmed": null,
+          "fresh_frames": 0
+        }
+      ],
+      "extra_centre_agreement": {
+        "paired": 0,
+        "unpaired": 0,
+        "median_m": null,
+        "p95_m": null
+      },
+      "scope": "Production TargetMemory replay of recorded mapped frames with arrival-time mode switches; metrics only for armed OFFBOARD drop_circle windows; only circle score changed. No detector rerun, flight, alignment-context or release simulation; H remains 0.80."
+    },
+    {
+      "replay": "logs/ring_capture_update_20261003/171424.json",
+      "threshold": 0.75,
+      "mapped_circle_samples": 1691,
+      "score_pass": 1691,
+      "new_score_pass": 1671,
+      "new_score_pass_fresh": 491,
+      "newly_observed_confirmed_frames": 490,
+      "fresh_confirmed_frames": 490,
+      "windows": [
+        {
+          "start": 280.0785562992096,
+          "end": 338.4309515953064,
+          "first_confirmed": 280.6311779022217,
+          "first_fresh_confirmed": 280.6311779022217,
+          "fresh_frames": 490
+        }
+      ],
+      "extra_centre_agreement": {
+        "paired": 73,
+        "unpaired": 1598,
+        "median_m": 0.0011296298523463513,
+        "p95_m": 0.0038628010500951584
+      },
+      "scope": "Production TargetMemory replay of recorded mapped frames with arrival-time mode switches; metrics only for armed OFFBOARD drop_circle windows; only circle score changed. No detector rerun, flight, alignment-context or release simulation; H remains 0.80."
+    },
+    {
+      "replay": "logs/ring_capture_update_20261003/173929.json",
+      "threshold": 0.8,
+      "mapped_circle_samples": 0,
+      "score_pass": 0,
+      "new_score_pass": 0,
+      "new_score_pass_fresh": 0,
+      "newly_observed_confirmed_frames": 0,
+      "fresh_confirmed_frames": 0,
+      "windows": [],
+      "extra_centre_agreement": {
+        "paired": 0,
+        "unpaired": 0,
+        "median_m": null,
+        "p95_m": null
+      },
+      "scope": "Production TargetMemory replay of recorded mapped frames with arrival-time mode switches; metrics only for armed OFFBOARD drop_circle windows; only circle score changed. No detector rerun, flight, alignment-context or release simulation; H remains 0.80."
+    },
+    {
+      "replay": "logs/ring_capture_update_20261003/173929.json",
+      "threshold": 0.75,
+      "mapped_circle_samples": 0,
+      "score_pass": 0,
+      "new_score_pass": 0,
+      "new_score_pass_fresh": 0,
+      "newly_observed_confirmed_frames": 0,
+      "fresh_confirmed_frames": 0,
+      "windows": [],
+      "extra_centre_agreement": {
+        "paired": 0,
+        "unpaired": 0,
+        "median_m": null,
+        "p95_m": null
+      },
+      "scope": "Production TargetMemory replay of recorded mapped frames with arrival-time mode switches; metrics only for armed OFFBOARD drop_circle windows; only circle score changed. No detector rerun, flight, alignment-context or release simulation; H remains 0.80."
+    },
+    {
+      "replay": "logs/ring_capture_update_20261003/175604.json",
+      "threshold": 0.8,
+      "mapped_circle_samples": 790,
+      "score_pass": 771,
+      "new_score_pass": 0,
+      "new_score_pass_fresh": 0,
+      "newly_observed_confirmed_frames": 193,
+      "fresh_confirmed_frames": 193,
+      "windows": [
+        {
+          "start": 232.27230191230774,
+          "end": 260.41536498069763,
+          "first_confirmed": 232.78007411956787,
+          "first_fresh_confirmed": 232.78007411956787,
+          "fresh_frames": 119
+        },
+        {
+          "start": 295.9664897918701,
+          "end": 317.44307136535645,
+          "first_confirmed": 296.7214369773865,
+          "first_fresh_confirmed": 296.7214369773865,
+          "fresh_frames": 74
+        }
+      ],
+      "extra_centre_agreement": {
+        "paired": 0,
+        "unpaired": 0,
+        "median_m": null,
+        "p95_m": null
+      },
+      "scope": "Production TargetMemory replay of recorded mapped frames with arrival-time mode switches; metrics only for armed OFFBOARD drop_circle windows; only circle score changed. No detector rerun, flight, alignment-context or release simulation; H remains 0.80."
+    },
+    {
+      "replay": "logs/ring_capture_update_20261003/175604.json",
+      "threshold": 0.75,
+      "mapped_circle_samples": 790,
+      "score_pass": 786,
+      "new_score_pass": 15,
+      "new_score_pass_fresh": 5,
+      "newly_observed_confirmed_frames": 199,
+      "fresh_confirmed_frames": 199,
+      "windows": [
+        {
+          "start": 232.27230191230774,
+          "end": 260.41536498069763,
+          "first_confirmed": 232.78007411956787,
+          "first_fresh_confirmed": 232.78007411956787,
+          "fresh_frames": 125
+        },
+        {
+          "start": 295.9664897918701,
+          "end": 317.44307136535645,
+          "first_confirmed": 296.7214369773865,
+          "first_fresh_confirmed": 296.7214369773865,
+          "fresh_frames": 74
+        }
+      ],
+      "extra_centre_agreement": {
+        "paired": 14,
+        "unpaired": 1,
+        "median_m": 0.07366296244741086,
+        "p95_m": 0.21828608569914637
+      },
+      "scope": "Production TargetMemory replay of recorded mapped frames with arrival-time mode switches; metrics only for armed OFFBOARD drop_circle windows; only circle score changed. No detector rerun, flight, alignment-context or release simulation; H remains 0.80."
+    }
+  ]
+}

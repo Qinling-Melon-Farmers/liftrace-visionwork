@@ -5,6 +5,7 @@ import argparse,importlib.util,json,tempfile
 from unittest.mock import patch
 import yaml,roslaunch,rospkg
 from uav_mission.competition_config import generate
+from uav_mission.navigation_following_config import navigation_following_profile, navigation_corridor_schedule
 from uav_mission.motion_optimization import MotionOptimization
 R=Path(__file__).resolve().parents[2];M=R/'patrol_uav_ws-patrol_planner/src/uav_mission'
 roslaunch.substitution_args._rospack=rospkg.RosPack(ros_paths=[str(R/'vision_ws/src'),str(R/'patrol_uav_ws-patrol_planner/src'),'/opt/ros/noetic/share'])
@@ -39,11 +40,14 @@ with tempfile.TemporaryDirectory() as tmp:
   assert v['/fast_planner_node/sdf_map/virtual_ceil_height']==-.1
   assert v['/external_planner_max_command_z']==ref['ground_z']+s['max_agl']
   assert v['/navigation/planner_bridge/execution/max_goal_z']==ref['ground_z']+s['max_agl']
-  assert v['/navigation/mission_manager/following_speed_profile/corridor_lead_m']==s['following_speed_profile']['corridor_lead_m']
+  assert v['/navigation_recovery/enabled']==s.get('navigation_recovery',{}).get('enabled',False)
+  following=navigation_following_profile(s['following_speed_profile'])
+  for key,value in following.items():
+   assert v['/navigation/mission_manager/following_speed_profile/'+key]==value
   schedule=s.get('corridor_speed_schedule')
   if schedule:
    for key in ('open_lead_m','door_lead_m'):
-    assert v['/navigation/mission_manager/corridor_speed_schedule/'+key]==schedule[key]
+    assert v['/navigation/mission_manager/corridor_speed_schedule/'+key]==navigation_corridor_schedule(schedule)[key]
   assert v['/navigation_height_constraint/enabled'] is True
   assert v['/navigation_height_constraint/frame_id']=='camera_init'
   assert v['/navigation_height_constraint/limit_parameter']=='/external_planner_max_command_z'

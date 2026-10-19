@@ -1,0 +1,8 @@
+# 牛耕1.8/1.9米专用；传感器相对Z和光线投射Z裁剪复用高位3.2米范围。
+# FreeDOM启动时加载，不会在飞行中动态重载；不改变实体占据和射线清理算法。
+sensor:
+  max_range: 6.0
+  max_z: 3.2
+map:
+  raycast_max_range: 6.0
+  raycast_max_z: 3.2

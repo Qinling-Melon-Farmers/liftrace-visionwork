@@ -1,0 +1,107 @@
+{
+  "ground_z": -0.21564697546884418,
+  "virtual_ceiling_enabled": false,
+  "max_agl": 3.2,
+  "windows": [
+    {
+      "seconds": [
+        62,
+        68
+      ],
+      "target_agl": 2.0,
+      "fc_agl_min_med_max": [
+        2.2170722417347135,
+        2.2569640807621183,
+        2.292834752034396
+      ],
+      "fc_minus_goal_min_med_max": [
+        0.2170722417347135,
+        0.2569640807621183,
+        0.29283475203439613
+      ],
+      "sent_command_agl_min_med_max": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "fc_position_average_vz": -0.0009006530065021639,
+      "reported_fc_mean_vz": -0.2366994052297539,
+      "lio_position_average_vz": 0.002321761616343914
+    },
+    {
+      "seconds": [
+        70,
+        78
+      ],
+      "target_agl": 2.0,
+      "fc_agl_min_med_max": [
+        2.1624802283756437,
+        2.206053965520114,
+        2.2447593144886198
+      ],
+      "fc_minus_goal_min_med_max": [
+        0.1624802283756437,
+        0.2060539655201139,
+        0.24475931448861976
+      ],
+      "sent_command_agl_min_med_max": [
+        2.0000000000000004,
+        2.0000000000000004,
+        2.0000000000000004
+      ],
+      "fc_position_average_vz": -0.004115419524769733,
+      "reported_fc_mean_vz": -0.20116494254519543,
+      "lio_position_average_vz": -0.00860998376810099
+    },
+    {
+      "seconds": [
+        90,
+        100
+      ],
+      "target_agl": 1.4,
+      "fc_agl_min_med_max": [
+        1.5257807902805507,
+        1.5450296930782497,
+        1.5664843253605067
+      ],
+      "fc_minus_goal_min_med_max": [
+        0.12578079028055078,
+        0.14502969307824976,
+        0.16648432536050684
+      ],
+      "sent_command_agl_min_med_max": [
+        1.4,
+        1.4,
+        1.4
+      ],
+      "fc_position_average_vz": -0.0015498214498417822,
+      "reported_fc_mean_vz": -0.14661264022191364,
+      "lio_position_average_vz": -0.0008399331275050593
+    },
+    {
+      "seconds": [
+        112,
+        117
+      ],
+      "target_agl": 1.4,
+      "fc_agl_min_med_max": [
+        1.3977272443287074,
+        1.412020974587649,
+        1.4353175096027553
+      ],
+      "fc_minus_goal_min_med_max": [
+        -0.0022727556712924812,
+        0.01202097458764917,
+        0.03531750960275537
+      ],
+      "sent_command_agl_min_med_max": [
+        1.399999969433993,
+        1.399999969433993,
+        1.399999969433993
+      ],
+      "fc_position_average_vz": 0.0016119580354192072,
+      "reported_fc_mean_vz": -0.0082709237349142,
+      "lio_position_average_vz": -0.0015075421582778136
+    }
+  ]
+}

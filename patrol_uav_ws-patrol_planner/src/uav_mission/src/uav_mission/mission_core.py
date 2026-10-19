@@ -12,6 +12,7 @@ from numbers import Real
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 from .profile_policy import CompetitionProfile
+from .release_transactions import invocation_consumes_slot
 
 
 CONFIRMED_STATE = 2
@@ -1048,7 +1049,8 @@ class MissionCore:
             not event.terminal and
             not event.retryable and
             bool(event.evidence_source.strip()) and
-            event.reason == "release_ack_success"
+            (event.reason == "release_ack_success" or
+             invocation_consumes_slot(event.reason, event.evidence_source))
         )
 
     def _result_semantics_error(self, action: CoreAction,

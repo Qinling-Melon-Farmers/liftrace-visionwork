@@ -1,0 +1,26 @@
+[
+  {
+    "seed": 32,
+    "both_gate_pass": true,
+    "third_commit_s_gain_s": 179.783,
+    "third_commit_s_gain_percent": 55.80983128191597,
+    "completed_mission_s_gain_s": 178.98400000000004,
+    "completed_mission_s_gain_percent": 33.820083745257215,
+    "xy_distance_gain_m": 58.13256854891333,
+    "xy_distance_gain_percent": 50.62520956934434,
+    "third_xy_gain_m": 57.90402010253979,
+    "third_xy_gain_percent": 61.51873289902101
+  },
+  {
+    "seed": 34,
+    "both_gate_pass": false,
+    "third_commit_s_gain_s": 112.569000001,
+    "third_commit_s_gain_percent": 43.16180163897763,
+    "completed_mission_s_gain_s": null,
+    "completed_mission_s_gain_percent": null,
+    "xy_distance_gain_m": null,
+    "xy_distance_gain_percent": null,
+    "third_xy_gain_m": 35.99871051189365,
+    "third_xy_gain_percent": 47.97069858223858
+  }
+]

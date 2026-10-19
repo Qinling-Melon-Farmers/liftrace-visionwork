@@ -1,0 +1,160 @@
+{
+  "cpu": {
+    "render_wall_seconds": 2.558953673999895,
+    "validation_seconds": 0.6406195389999993,
+    "summary": {
+      "bag": "synthetic-encoder-benchmark",
+      "duration": 8.0,
+      "fps": 10,
+      "frames": 80,
+      "display_frame": "map",
+      "missing": [
+        "odom",
+        "setpoint",
+        "goal",
+        "trajectory",
+        "raw",
+        "resolved",
+        "refined",
+        "mapped",
+        "targets",
+        "selected",
+        "mission",
+        "mode",
+        "fc",
+        "release",
+        "result",
+        "command",
+        "evidence",
+        "permission",
+        "offset",
+        "tf",
+        "tf_static"
+      ],
+      "warnings": [],
+      "classes": {},
+      "video_files": [
+        "camera_raw.mp4",
+        "camera_annotated.mp4",
+        "trajectory.mp4",
+        "dashboard.mp4"
+      ],
+      "render_status": "completed",
+      "encoding": {
+        "requested": "cpu",
+        "effective": "cpu",
+        "codec": "libx264",
+        "reason": "CPU explicitly requested",
+        "probe_sessions": 0,
+        "probe_seconds": 0.0,
+        "rendering": "CPU OpenCV",
+        "midstream_fallback": false
+      },
+      "timings": {
+        "frame_drawing_seconds": 0.7021376439986398,
+        "encoder_pipe_seconds": 1.5047067309990325,
+        "encoder_finalize_seconds": 0.08167542800015326,
+        "render_wall_seconds": 2.5576456549999875
+      },
+      "video_sizes": {
+        "camera_raw": [
+          1280,
+          720
+        ],
+        "camera_annotated": [
+          1280,
+          1080
+        ],
+        "trajectory": [
+          1280,
+          1080
+        ],
+        "dashboard": [
+          1920,
+          1080
+        ]
+      }
+    },
+    "encode_only_seconds": 1.6820439390000956,
+    "encode_only_validation_seconds": 0.8046404219999204
+  },
+  "nvenc": {
+    "render_wall_seconds": 4.241364062000002,
+    "validation_seconds": 0.7144375100001525,
+    "summary": {
+      "bag": "synthetic-encoder-benchmark",
+      "duration": 8.0,
+      "fps": 10,
+      "frames": 80,
+      "display_frame": "map",
+      "missing": [
+        "odom",
+        "setpoint",
+        "goal",
+        "trajectory",
+        "raw",
+        "resolved",
+        "refined",
+        "mapped",
+        "targets",
+        "selected",
+        "mission",
+        "mode",
+        "fc",
+        "release",
+        "result",
+        "command",
+        "evidence",
+        "permission",
+        "offset",
+        "tf",
+        "tf_static"
+      ],
+      "warnings": [],
+      "classes": {},
+      "video_files": [
+        "camera_raw.mp4",
+        "camera_annotated.mp4",
+        "trajectory.mp4",
+        "dashboard.mp4"
+      ],
+      "render_status": "completed",
+      "encoding": {
+        "requested": "nvenc",
+        "effective": "nvenc",
+        "codec": "h264_nvenc",
+        "reason": "NVENC encoded and decoded 2 frames on each of 4 concurrent actual-sized streams",
+        "probe_sessions": 4,
+        "probe_seconds": 1.3408981600000516,
+        "rendering": "CPU OpenCV",
+        "midstream_fallback": false
+      },
+      "timings": {
+        "frame_drawing_seconds": 0.7249559990007128,
+        "encoder_pipe_seconds": 2.0159469290001653,
+        "encoder_finalize_seconds": 0.1147778389999985,
+        "render_wall_seconds": 4.239558557999999
+      },
+      "video_sizes": {
+        "camera_raw": [
+          1280,
+          720
+        ],
+        "camera_annotated": [
+          1280,
+          1080
+        ],
+        "trajectory": [
+          1280,
+          1080
+        ],
+        "dashboard": [
+          1920,
+          1080
+        ]
+      }
+    },
+    "encode_only_seconds": 2.3942734879999534,
+    "encode_only_validation_seconds": 0.7323451750000913
+  }
+}

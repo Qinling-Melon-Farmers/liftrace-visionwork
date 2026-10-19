@@ -106,4 +106,5 @@
     <!-- Other tools can request additional information be placed here -->
 
   </export>
+  <depend>navigation_recovery_msgs</depend>
 </package>

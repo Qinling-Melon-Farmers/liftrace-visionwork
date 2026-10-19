@@ -1,0 +1,18 @@
+{
+  "camera_raw.mp4": {
+    "duration": "189.300000",
+    "size": "91921325"
+  },
+  "camera_annotated.mp4": {
+    "duration": "189.300000",
+    "size": "94457851"
+  },
+  "trajectory.mp4": {
+    "duration": "189.300000",
+    "size": "2113001"
+  },
+  "dashboard.mp4": {
+    "duration": "189.300000",
+    "size": "96286717"
+  }
+}

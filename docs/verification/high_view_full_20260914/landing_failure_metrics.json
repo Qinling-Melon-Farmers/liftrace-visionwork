@@ -1,0 +1,29 @@
+{
+  "contact_ros_s": 471.985,
+  "contact_pairs": [
+    [
+      "iris_mid360::iris::base_link::competition_guard_collision",
+      "toudi2::Wall_11::Wall_11_collision"
+    ]
+  ],
+  "truth_fc_xyz_at_contact": [
+    4.520463662271734,
+    8.747212213409428,
+    0.6750112526766833
+  ],
+  "mavros_fc_xyz_at_contact": [
+    4.227879493467271,
+    8.408962741974863,
+    -0.1837661388997108
+  ],
+  "lio_fc_xyz_at_contact": [
+    4.510439223528398,
+    8.711459001891631,
+    0.6585499096593006
+  ],
+  "mavros_xy_error_m": 0.4472339441061704,
+  "mavros_z_error_m": 0.8587773915763941,
+  "lio_xy_error_m": 0.03713194724163008,
+  "lio_z_error_m": 0.016461343017382668,
+  "limitation": "Interpolated telemetry shows separation and rebound near ground; does not establish estimator/dynamics root cause or strategy causality."
+}

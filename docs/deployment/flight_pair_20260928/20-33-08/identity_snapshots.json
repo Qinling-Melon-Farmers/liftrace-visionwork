@@ -1,0 +1,164 @@
+{
+  "early": {
+    "t": 23.44719362258911,
+    "stamp": 23.193435668945312,
+    "q": {
+      "header": {
+        "seq": 0,
+        "stamp": {
+          "secs": 1790512411,
+          "nsecs": 943215370
+        },
+        "frame_id": ""
+      },
+      "id": 1,
+      "class_name": "bridge",
+      "class_confidence": 0.9150390625,
+      "geometry_confidence": 0.93212890625,
+      "roi": {
+        "x_offset": 760,
+        "y_offset": 577,
+        "height": 142,
+        "width": 210,
+        "do_rectify": false
+      },
+      "center_px": {
+        "x": 867.4797973632812,
+        "y": 674.7120361328125,
+        "z": 141.85748291015625
+      },
+      "center_refined": true,
+      "center_source": "circle_geometry",
+      "association_valid": true,
+      "reject_reason": "",
+      "map_valid": true,
+      "map_point": {
+        "x": 1.8010042840581986,
+        "y": -1.3959378753221336,
+        "z": -0.21999999999999997
+      },
+      "map_frame": "camera_init",
+      "map_quality": 0.8106868863105774,
+      "transform_age_sec": 0.0,
+      "state": 2,
+      "observe_count": 8,
+      "consecutive_observe_count": 3,
+      "first_seen": {
+        "secs": 1790512410,
+        "nsecs": 85130691
+      },
+      "last_seen": {
+        "secs": 1790512411,
+        "nsecs": 943215370
+      }
+    }
+  },
+  "low": {
+    "t": 30.261565446853638,
+    "stamp": 30.01311755180359,
+    "q": {
+      "header": {
+        "seq": 0,
+        "stamp": {
+          "secs": 1790512418,
+          "nsecs": 762897253
+        },
+        "frame_id": ""
+      },
+      "id": 1,
+      "class_name": "panzer",
+      "class_confidence": 0.96435546875,
+      "geometry_confidence": 0.93212890625,
+      "roi": {
+        "x_offset": 546,
+        "y_offset": 226,
+        "height": 306,
+        "width": 300,
+        "do_rectify": false
+      },
+      "center_px": {
+        "x": 699.1343994140625,
+        "y": 377.69622802734375,
+        "z": 182.35801696777344
+      },
+      "center_refined": true,
+      "center_source": "circle_geometry",
+      "association_valid": true,
+      "reject_reason": "",
+      "map_valid": true,
+      "map_point": {
+        "x": 1.7959526231333203,
+        "y": -1.395874536542037,
+        "z": -0.21999999999999997
+      },
+      "map_frame": "camera_init",
+      "map_quality": 0.806498110294342,
+      "transform_age_sec": 0.0,
+      "state": 2,
+      "observe_count": 13,
+      "consecutive_observe_count": 3,
+      "first_seen": {
+        "secs": 1790512410,
+        "nsecs": 85130691
+      },
+      "last_seen": {
+        "secs": 1790512418,
+        "nsecs": 762897253
+      }
+    }
+  },
+  "late": {
+    "t": 126.38299989700317,
+    "stamp": 126.02167820930481,
+    "q": {
+      "header": {
+        "seq": 0,
+        "stamp": {
+          "secs": 1790512514,
+          "nsecs": 771457910
+        },
+        "frame_id": ""
+      },
+      "id": 5,
+      "class_name": "bridge",
+      "class_confidence": 0.9365234375,
+      "geometry_confidence": 0.8486341238021851,
+      "roi": {
+        "x_offset": 668,
+        "y_offset": 118,
+        "height": 192,
+        "width": 186,
+        "do_rectify": false
+      },
+      "center_px": {
+        "x": 760.1246948242188,
+        "y": 212.91073608398438,
+        "z": 147.07591247558594
+      },
+      "center_refined": true,
+      "center_source": "circle_geometry",
+      "association_valid": true,
+      "reject_reason": "",
+      "map_valid": true,
+      "map_point": {
+        "x": 1.2724852043712995,
+        "y": 1.3183622131374988,
+        "z": -0.22
+      },
+      "map_frame": "camera_init",
+      "map_quality": 0.8360611200332642,
+      "transform_age_sec": 9.999999717180685e-10,
+      "state": 2,
+      "observe_count": 5,
+      "consecutive_observe_count": 3,
+      "first_seen": {
+        "secs": 1790512513,
+        "nsecs": 760834217
+      },
+      "last_seen": {
+        "secs": 1790512514,
+        "nsecs": 771457910
+      }
+    }
+  }
+}

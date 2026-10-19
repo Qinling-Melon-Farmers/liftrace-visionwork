@@ -1,0 +1,137 @@
+"""Verify the ZIP as a standalone extracted workbench, without SSH or devices."""
+import json
+import os
+from pathlib import Path
+import socket
+import subprocess
+import sys
+import tempfile
+import time
+import unittest
+import urllib.error
+import urllib.request
+import zipfile
+
+TOOL = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(TOOL))
+import build_zip
+
+
+class DistributionTests(unittest.TestCase):
+    def test_allowlist_and_standalone_launch(self):
+        with tempfile.TemporaryDirectory(prefix='wb-distribution-') as tmp:
+            tmp = Path(tmp)
+            archive_path = tmp / 'frontline.zip'
+            subprocess.run([sys.executable, str(TOOL / 'build_zip.py'), '--output',
+                            str(archive_path)], check=True, capture_output=True)
+            with zipfile.ZipFile(archive_path) as archive:
+                self.assertIsNone(archive.testzip())
+                names = archive.namelist()
+                prefix = names[0].split('/')[0]
+                expected = {prefix + '/' + ('README_FIRST.md' if f == 'README_DISTRIBUTION.md' else f)
+                            for f in build_zip.SOURCES} | {prefix + '/manifest.json'}
+                self.assertEqual(set(names), expected)
+                for file in ('wb_replay.py', 'web/replay.html', 'web/replay.js',
+                             'wb_waypoints.py', 'wb_competition_geometry.py', 'web/waypoint-map.js',
+                             'wb_low_release.py', 'wb_site_sources.py',
+                             'offline_replay/run.py', 'wb_offline_support.py',
+                             'bag_replay/run.sh', 'bag_replay/bag_replay.py', 'bag_replay/video_encoder.py'):
+                    self.assertIn(prefix + '/' + file, names)
+                self.assertIn(prefix + '/bag_replay/merge_bags.py', names)
+                self.assertIn(prefix + '/ulog_viewer/vendor/pyulog/core.py', names)
+                self.assertTrue(all(not Path(n).is_absolute() and '..' not in Path(n).parts for n in names))
+                manifest = json.loads(archive.read(prefix + '/manifest.json'))
+                self.assertFalse(manifest['board_deployment_included'])
+                self.assertIn('uncommitted', manifest['source_scope'])
+                self.assertIn(b'\r\n', archive.read(prefix + '/start_windows.cmd'))
+                self.assertTrue(archive.read(prefix + '/start_windows.ps1').startswith(b'\xef\xbb\xbf'))
+                archive.extractall(tmp / 'extracted space')
+            package = tmp / 'extracted space' / prefix
+            # Resolve every configured offline site from the extracted package.
+            code = '''import yaml, wb_site_sources
+from pathlib import Path
+config = yaml.safe_load(Path('workbench.yaml').read_text())
+for group in config['groups']:
+    sources = []
+    if group.get('site_config', '').startswith('deployment/board_trials_4x4/'):
+        sources.append(group['site_config'])
+    for key in ('site_configs_by_pattern', 'site_configs_shiftback_by_pattern'):
+        sources.extend(group.get(key, {}).values())
+    for source in sources:
+        assert isinstance(wb_site_sources.reference(source), dict), source
+'''
+            subprocess.run([sys.executable, '-c', code], cwd=package,
+                           check=True, capture_output=True, timeout=15)
+            with socket.socket() as probe:
+                probe.bind(('127.0.0.1', 0))
+                port = probe.getsockname()[1]
+            base = 'http://127.0.0.1:%d' % port
+            env = dict(os.environ, WORKBENCH_PYTHON=sys.executable)
+            # Start from outside the source repository; no allow-local-commands.
+            with (tmp / 'server.log').open('w') as log:
+                process = subprocess.Popen(['bash', str(package / 'start_workbench.sh'),
+                                            '--host', '127.0.0.1', '--port', str(port),
+                                            '--transport', 'local', '--profile-dir', str(tmp / 'state')],
+                                           cwd=tmp, env=env, stdout=log, stderr=subprocess.STDOUT)
+                try:
+                    for _ in range(100):
+                        if process.poll() is not None:
+                            self.fail((tmp / 'server.log').read_text())
+                        try:
+                            with urllib.request.urlopen(base + '/api/snapshot', timeout=.5) as response:
+                                snapshot = json.load(response)
+                            break
+                        except OSError:
+                            time.sleep(.1)
+                    else:
+                        self.fail('Extracted service did not become ready')
+                    self.assertEqual(snapshot['connection']['state'], 'unknown')
+                    self.assertEqual(snapshot['sessions'], {})
+                    self.assertEqual({g['id'] for g in snapshot['groups']},
+                                     {g['id'] for g in __import__('yaml').safe_load((TOOL / 'workbench.yaml').read_text(encoding='utf-8'))['groups']})
+                    observation = [g for g in snapshot['groups'] if g.get('channel') == 'low_observation']
+                    self.assertEqual([g['profile'] for g in observation], ['hover', 'forward', 'square'])
+                    for url in ('/', '/observe', '/motor', '/static/app.js', '/static/observe.js',
+                                '/static/style.css', '/static/observe.css', '/static/motor_wiring.json',
+                                '/logs', '/static/logs.js', '/static/logs.css', '/static/ulog.js', '/api/ulog/library',
+                                '/replay', '/static/replay.js', '/api/replay/library'):
+                        with urllib.request.urlopen(base + url, timeout=2) as response:
+                            self.assertEqual(response.status, 200)
+                            self.assertTrue(response.read())
+                    with urllib.request.urlopen(base + '/api/replay/library', timeout=2) as response:
+                        replay = json.load(response)
+                    self.assertEqual(set(replay['roots']), {'data', 'generated', 'imports'})
+                    self.assertEqual(replay['bags'], [])
+                    body = json.dumps(dict(group_id='observation_hover', mode='preview',
+                                           check_config=True)).encode()
+                    req = urllib.request.Request(base + '/api/trial/command', data=body,
+                                                 headers={'Content-Type': 'application/json'})
+                    with urllib.request.urlopen(req, timeout=2) as response:
+                        planned = json.load(response)
+                    self.assertTrue(planned['ok'])
+                    self.assertIn('preview hover', planned['body'])
+                    req = urllib.request.Request(base + '/api/waypoints/context',
+                        data=json.dumps(dict(group_id='competition')).encode(),
+                        headers={'Content-Type':'application/json'})
+                    with urllib.request.urlopen(req,timeout=2) as response:
+                        context=json.load(response)
+                    self.assertEqual(context['editor_kind'],'competition')
+                    self.assertFalse(context['site']['site_confirmed'])
+                    with urllib.request.urlopen(base+'/observe',timeout=2) as response:
+                        self.assertNotIn('id="motor-panel"',response.read().decode())
+                    # Previewing a command must not open a terminal; attempting to
+                    # execute even a preview is refused in this offline service.
+                    req = urllib.request.Request(base + '/api/trial/start', data=body,
+                                                 headers={'Content-Type': 'application/json'})
+                    with self.assertRaises(urllib.error.HTTPError) as caught:
+                        urllib.request.urlopen(req, timeout=2)
+                    self.assertEqual(caught.exception.code, 400)
+                    with urllib.request.urlopen(base + '/api/snapshot', timeout=2) as response:
+                        self.assertEqual(json.load(response)['sessions'], {})
+                finally:
+                    process.terminate()
+                    process.wait(timeout=5)
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

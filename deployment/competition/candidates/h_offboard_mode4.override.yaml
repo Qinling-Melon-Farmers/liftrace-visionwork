@@ -1,0 +1,13 @@
+# 仅新增 H mode4 候选；通过 --landing-config 叠加到既有现场配置。
+# 不复制场地，不改变 mode1/2/3、POSCTL 或 AUTO.LAND 默认值。
+landing_handoff_mode: OFFBOARD
+landing_descent_mode: 4
+# 沿用所选配置的 low/high 对准；两者均可用于 mode4。
+# mode4仅用下方descent_speed；不覆盖mode2/3的profile速度默认0.20。
+landing_offboard:
+  descent_speed: 0.30
+  touchdown_overtravel: 0.04
+  ground_confirm_duration: 0.3
+  state_max_age: 2.5
+  disarm_retry: 1.0
+  setpoint_topic: /navigation/landing_setpoint_touchdown

@@ -1,0 +1,65 @@
+{
+  "predeclared_seeds": [
+    31,
+    32,
+    33,
+    34,
+    35
+  ],
+  "door_seed_rule": "1000 + field_seed",
+  "obstacle_seed_rule": "2000 + field_seed",
+  "selected_without_flight_outcomes": true,
+  "checks": [
+    {
+      "seed": 31,
+      "pattern": "LL",
+      "tree_wall_overlap": false,
+      "offline_target_admission": true,
+      "door_clear_widths": [
+        0.8,
+        0.8
+      ]
+    },
+    {
+      "seed": 32,
+      "pattern": "RR",
+      "tree_wall_overlap": false,
+      "offline_target_admission": true,
+      "door_clear_widths": [
+        0.8,
+        0.8
+      ]
+    },
+    {
+      "seed": 33,
+      "pattern": "LR",
+      "tree_wall_overlap": false,
+      "offline_target_admission": true,
+      "door_clear_widths": [
+        0.8,
+        0.8
+      ]
+    },
+    {
+      "seed": 34,
+      "pattern": "LL",
+      "tree_wall_overlap": false,
+      "offline_target_admission": true,
+      "door_clear_widths": [
+        0.8,
+        0.8
+      ]
+    },
+    {
+      "seed": 35,
+      "pattern": "RR",
+      "tree_wall_overlap": false,
+      "offline_target_admission": true,
+      "door_clear_widths": [
+        0.8,
+        0.8
+      ]
+    }
+  ],
+  "flight_runtime_identical": true
+}

@@ -1,0 +1,58 @@
+{
+  "allowed_classes": [
+    "tent",
+    "pillbox",
+    "bridge",
+    "panzer",
+    "red_cross"
+  ],
+  "component": "random_field_spawner",
+  "compound_exclusions": [
+    "combined_tree_0",
+    "combined_tree_1",
+    "combined_tree_2",
+    "combined_tree_3"
+  ],
+  "expected_models": [
+    "random_tent",
+    "random_pillbox",
+    "random_bridge",
+    "random_panzer",
+    "random_red_cross"
+  ],
+  "footprint_valid": true,
+  "layout_attempts": 64,
+  "model_roots": [
+    "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models",
+    "/home/xhj/liftrace-worktrees/r2026-competition-integrated/simulation_assets/models",
+    "/home/xhj/PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models",
+    "/home/xhj/liftrace-worktrees/r2026-competition-integrated/vision_ws/src/uav_vision_eval/models",
+    "/home/xhj/liftrace-worktrees/r2026-competition-integrated/simulation_assets/models"
+  ],
+  "occupied_footprint_count": 6,
+  "profile": "r2026",
+  "ready": true,
+  "reason": "models_verified_and_truth_written",
+  "seed": 33,
+  "spawned_models": [
+    "random_bridge",
+    "random_panzer",
+    "random_pillbox",
+    "random_red_cross",
+    "random_tent"
+  ],
+  "static_model_radii": {
+    "landing_h": 0.5,
+    "landing_h_clone": 0.5
+  },
+  "status": "READY",
+  "truth_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147/random_field_truth.yaml",
+  "updated_wall_time": 1789011187.6717923,
+  "verified_models": [
+    "random_bridge",
+    "random_panzer",
+    "random_pillbox",
+    "random_red_cross",
+    "random_tent"
+  ]
+}

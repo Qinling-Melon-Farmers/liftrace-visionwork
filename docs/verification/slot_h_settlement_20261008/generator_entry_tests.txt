@@ -1,0 +1,46 @@
+test_all_hardware_templates_explicitly_declare_the_same_candidate (slot_offline_0.LowHConfigTests) ... ok
+test_competition_modes_translate_the_same_ground_reference (slot_offline_0.LowHConfigTests) ... ok
+test_invalid_values_order_and_unknown_keys_fail_before_generation (slot_offline_0.LowHConfigTests) ... ok
+test_missing_block_uses_candidate_only_for_posctl (slot_offline_0.LowHConfigTests) ... ok
+test_site_override_only_applies_to_h_modes (slot_offline_0.LowHConfigTests) ... ok
+test_slot_semantics_and_compensation_preserve_both_measured_tables (slot_offline_0.LowHConfigTests) ... ok
+test_speed_error_duration_and_height_overrides_reach_control (slot_offline_0.LowHConfigTests) ... ok
+test_stationary_clearance_and_existing_local_z_limit_are_enforced (slot_offline_0.LowHConfigTests) ... ok
+test_three_h_trial_templates_keep_auto_land_isolated (slot_offline_0.LowHConfigTests) ... ok
+test_actual_generators_emit_feedback_motion_offsets_and_posctl (slot_offline_1.SlotHEntryWiring) ... ok
+test_controller_entries_load_generated_config_and_remap_motion_odom (slot_offline_1.SlotHEntryWiring) ... ok
+test_formal_visual_entries_enable_matching_feedback_and_cache (slot_offline_1.SlotHEntryWiring) ... ok
+test_high_capture_and_low_handoff_keep_independent_height_tolerances (slot_offline_1.SlotHEntryWiring) ... ok
+test_all_heights_translate_with_ground_reference (slot_offline_2.CompetitionTests) ... ok
+test_app_uses_one_formal_manager_and_guard (slot_offline_2.CompetitionTests) ... skipped 'B 本次仅移植 competition 配置生成器，未引入完整 competition_application'
+test_bag_is_local_cloud_and_no_direct_video (slot_offline_2.CompetitionTests) ... ok
+test_competition_h_profile_does_not_change_stage_or_global_defaults (slot_offline_2.CompetitionTests) ... ok
+test_controller_and_servo_are_entity_sources (slot_offline_2.CompetitionTests) ... skipped 'B 保留原执行机构资产；本次未移植导航仓 pwm_node1 实体包'
+test_drop_scale_uses_flight_ground_reference_and_calibration (slot_offline_2.CompetitionTests) ... ok
+test_field_and_candidates_share_lowered_drop_height (slot_offline_2.CompetitionTests) ... ok
+test_h_capture_agl_and_handoff_translate_with_ground_reference (slot_offline_2.CompetitionTests) ... ok
+test_h_stroke_fallback_is_explicit_and_configurable (slot_offline_2.CompetitionTests) ... ok
+test_hardware_terminal_handoff_is_explicit_and_generated (slot_offline_2.CompetitionTests) ... ok
+test_missing_corridor_or_h_is_rejected_before_ros (slot_offline_2.CompetitionTests) ... ok
+test_outside_survey_and_invalid_altitudes_rejected (slot_offline_2.CompetitionTests) ... ok
+test_search_stays_inside_then_corridor_opens (slot_offline_2.CompetitionTests) ... ok
+test_shared_guard_still_rejects_jump (slot_offline_2.CompetitionTests) ... ok
+test_targets_are_searched_not_injected_and_h_is_final (slot_offline_2.CompetitionTests) ... ok
+test_unmeasured_example_can_check_but_cannot_fly (slot_offline_2.CompetitionTests) ... ok
+test_cannot_import_terminal_hover_into_h_profiles (slot_offline_3.Profiles) ... ok
+test_corridor_full_require_measured_geometry (slot_offline_3.Profiles) ... ok
+test_custom_handoff_topic_matches_generated_control_and_bag (slot_offline_3.Profiles) ... ok
+test_h_and_complete_mission_share_landing_gates (slot_offline_3.Profiles) ... ok
+test_h_auto_hover_uses_actual_takeoff_height (slot_offline_3.Profiles) ... ok
+test_h_center_must_be_finite_and_inside_flight_area (slot_offline_3.Profiles) ... ok
+test_handoff_mode_must_be_explicit_supported_h_mode (slot_offline_3.Profiles) ... ok
+test_profile_does_not_change_mission_or_actuator (slot_offline_3.Profiles) ... ok
+test_cli_enables_without_discarding_policy_then_generates (slot_offline_4.DeploymentFollowups) ... ok
+test_cli_rejects_malformed_policy_instead_of_overwriting (slot_offline_4.DeploymentFollowups) ... ok
+test_wall_axis_rejected_before_using_reference (slot_offline_4.DeploymentFollowups) ... ok
+test_wall_planes_follow_takeoff_offset_on_each_axis (slot_offline_4.DeploymentFollowups) ... ok
+
+----------------------------------------------------------------------
+Ran 41 tests in 16.834s
+
+OK (skipped=2)

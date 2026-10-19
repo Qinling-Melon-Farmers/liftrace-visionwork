@@ -1,0 +1,57 @@
+{
+  "status": "PASS",
+  "generated": "/tmp/evening_08_main_generated",
+  "planning": [
+    1.2,
+    1.0
+  ],
+  "following": {
+    "cruise_lead_m": 1.0,
+    "precision_lead_m": 0.4,
+    "boundary_lead_m": 0.2,
+    "corridor_lead_m": 0.4
+  },
+  "corridor": {
+    "axis": 1,
+    "wall_coordinates": [
+      0.0,
+      -1.4
+    ],
+    "entry_waypoints": 1,
+    "open_lead_m": 0.6,
+    "door_lead_m": 0.4
+  },
+  "drop_fc_agl": 0.35,
+  "h": {
+    "xy_tolerance_m": 0.05,
+    "height_tolerance_m": 0.02,
+    "capture_height_tolerance_m": 0.1,
+    "max_horizontal_speed_mps": 0.08,
+    "max_vertical_speed_mps": 0.1,
+    "stable_duration_sec": 0.15,
+    "max_odom_age_sec": 0.2,
+    "max_sample_gap_sec": 0.2,
+    "min_samples": 3
+  },
+  "high_fc_agl": 2.0,
+  "motion": {
+    "enabled": true,
+    "dynamic_boundary": true,
+    "moving_recovery": true,
+    "diagonal_entry": true,
+    "merge_collinear_relays": true,
+    "survey_line_weight": 2.0,
+    "braking_speed_mps": 1.2,
+    "braking_accel_mps2": 0.6,
+    "reaction_seconds": 0.3,
+    "boundary_reserve_m": 0.15,
+    "recovery_handoff_agl": 0.9,
+    "recovery_min_ack_seconds": 0.6,
+    "recovery_max_vz": 0.6,
+    "recovery_min_samples": 3,
+    "recovery_max_odom_age": 0.2,
+    "corridor_max_agl": 1.0
+  },
+  "survey_resume": true,
+  "recovery": false
+}

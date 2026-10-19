@@ -1,0 +1,49 @@
+{
+  "board_reference": {
+    "repository": "https://github.com/sakelier/liftrace-controlwork.git",
+    "branch": "板载代码",
+    "revision": "48541a7a8d91a2993711a10b556f7028504c3e1c"
+  },
+  "local_base": "c52089a",
+  "publish_branch": "板端参考分支",
+  "changes": {
+    "fast_lio": {
+      "feature_extract_enable": true,
+      "cube_side_length": 20.0,
+      "det_range": 6.0,
+      "det_range_reason": "cube/2 must exceed 1.5*det_range"
+    },
+    "freedom": {
+      "voxel_depth": 2,
+      "low": [
+        6.0,
+        -1.0,
+        2.0
+      ],
+      "high": [
+        6.0,
+        -1.0,
+        3.2
+      ],
+      "corridor": [
+        5.0,
+        -1.0,
+        1.5
+      ]
+    },
+    "inflation_m": [
+      0.25,
+      0.2,
+      0.1
+    ]
+  },
+  "validation": {
+    "unit": 24,
+    "board_application_expansions": 16,
+    "board_localization_expansions": 16,
+    "simulation_expansions": 8,
+    "build": "passed: vision_ws + patrol_uav_ws-patrol_planner (WSL, -j2)",
+    "new_sitl": false,
+    "hardware_run": false
+  }
+}

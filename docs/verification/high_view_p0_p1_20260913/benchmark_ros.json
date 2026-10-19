@@ -1,0 +1,17 @@
+{
+  "scope": "SYNTHETIC_X86_CORE_ONLY_NOT_ORANGEPI_OR_ROS",
+  "python": "3.8.10",
+  "catalog_16x8": {
+    "iterations": 500,
+    "median_ms": 1.1446634998719674,
+    "p95_ms": 2.272320999963995,
+    "cpu_ms_per_call": 1.254979944
+  },
+  "routes_5p3": {
+    "iterations": 1000,
+    "median_ms": 0.3200725002443505,
+    "p95_ms": 0.3772909999497642,
+    "cpu_ms_per_call": 0.32514973699999994
+  },
+  "process_peak_rss_mib": 12.25
+}

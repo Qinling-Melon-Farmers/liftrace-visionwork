@@ -1,0 +1,22 @@
+{
+  "vision_main_before": "3d72e3e9",
+  "vision_trial": "a880b518",
+  "navigation_0928": "ed1289be",
+  "navigation_copied_prefixes": [
+    "patrol_uav_ws-patrol_planner/src/uav_mission/",
+    "patrol_uav_ws-patrol_planner/src/patrol_control/",
+    "patrol_uav_ws-patrol_planner/src/actuator_pwm/",
+    "patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/",
+    "deployment/board_trials_4x4/",
+    "deployment/low_hover_observation/"
+  ],
+  "vision_selected_files": 3316,
+  "navigation_files": 553,
+  "retained": "main original assets and history; FAST_LIO remains verified main (no frozen EV additions)",
+  "validation": "See VALIDATION.md; native build and selected entry checks passed; historical broad suite retains failures",
+  "additional_files": {
+    "deployment/competition/field_10x10_default.yaml": "navigation liftrace_board_trial_20260928@ed1289be",
+    "docs/planning/serpentine_20261004/route_candidates.yaml": "vision integration worktree f008730a",
+    "runtime_models": "external final v8 20261011; packaged, not Git"
+  }
+}

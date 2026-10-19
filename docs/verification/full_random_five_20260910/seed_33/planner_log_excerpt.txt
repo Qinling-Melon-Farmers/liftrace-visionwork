@@ -1,0 +1,7 @@
+[WARN] [1789010503.188065979, 394.357000000]: No collision-free goal within requested waypoint neighborhood
+[WARN] [1789010503.188342729, 394.357000000]: kinodynamic goal occupied or outside map
+[WARN] [1789010508.248900330, 395.944000000]: kinodynamic goal occupied or outside map
+[WARN] [1789010510.056150736, 396.560000000]: No collision-free goal within requested waypoint neighborhood
+[WARN] [1789010513.102046794, 397.557000000]: kinodynamic goal occupied or outside map
+[WARN] [1789010516.654030049, 398.722000000]: No collision-free goal within requested waypoint neighborhood
+[WARN] [1789010518.103152284, 399.167000000]: kinodynamic goal occupied or outside map

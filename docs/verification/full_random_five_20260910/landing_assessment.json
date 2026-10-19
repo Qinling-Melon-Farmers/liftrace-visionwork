@@ -1,0 +1,67 @@
+[
+  {
+    "seed": 31,
+    "original_gate": "FAIL",
+    "on_ground_ros": null,
+    "mission_to_on_ground_s": null,
+    "post_route_to_on_ground_s": null,
+    "land_to_on_ground_s": null,
+    "disarm_ros": null,
+    "autonomous_finish_zone_landing_observed": false,
+    "only_missing_disarm": false,
+    "rotor_rpm_directly_measured": false,
+    "basis": "ON_GROUND after autonomous LAND plus recorded terminal envelope inside finish circle; disarm is reported separately, not a scoring prerequisite"
+  },
+  {
+    "seed": 32,
+    "original_gate": "PASS",
+    "on_ground_ros": 531.962,
+    "mission_to_on_ground_s": 509.328,
+    "post_route_to_on_ground_s": 185.628,
+    "land_to_on_ground_s": 11.422000000000025,
+    "disarm_ros": 534.765,
+    "autonomous_finish_zone_landing_observed": true,
+    "only_missing_disarm": false,
+    "rotor_rpm_directly_measured": false,
+    "basis": "ON_GROUND after autonomous LAND plus recorded terminal envelope inside finish circle; disarm is reported separately, not a scoring prerequisite"
+  },
+  {
+    "seed": 33,
+    "original_gate": "FAIL",
+    "on_ground_ros": null,
+    "mission_to_on_ground_s": null,
+    "post_route_to_on_ground_s": null,
+    "land_to_on_ground_s": null,
+    "disarm_ros": null,
+    "autonomous_finish_zone_landing_observed": false,
+    "only_missing_disarm": false,
+    "rotor_rpm_directly_measured": false,
+    "basis": "ON_GROUND after autonomous LAND plus recorded terminal envelope inside finish circle; disarm is reported separately, not a scoring prerequisite"
+  },
+  {
+    "seed": 34,
+    "original_gate": "FAIL",
+    "on_ground_ros": null,
+    "mission_to_on_ground_s": null,
+    "post_route_to_on_ground_s": null,
+    "land_to_on_ground_s": null,
+    "disarm_ros": null,
+    "autonomous_finish_zone_landing_observed": false,
+    "only_missing_disarm": false,
+    "rotor_rpm_directly_measured": false,
+    "basis": "ON_GROUND after autonomous LAND plus recorded terminal envelope inside finish circle; disarm is reported separately, not a scoring prerequisite"
+  },
+  {
+    "seed": 35,
+    "original_gate": "PASS",
+    "on_ground_ros": 362.726,
+    "mission_to_on_ground_s": 339.889000001,
+    "post_route_to_on_ground_s": 194.685,
+    "land_to_on_ground_s": 6.5049999999999955,
+    "disarm_ros": 364.739,
+    "autonomous_finish_zone_landing_observed": true,
+    "only_missing_disarm": false,
+    "rotor_rpm_directly_measured": false,
+    "basis": "ON_GROUND after autonomous LAND plus recorded terminal envelope inside finish circle; disarm is reported separately, not a scoring prerequisite"
+  }
+]

@@ -1,0 +1,15 @@
+allow_live_goal_output: true
+approach_arrival_position_tolerance: 0.35
+arrival_dwell: 0.5
+arrival_position_tolerance: 0.18
+arrival_speed_tolerance: 0.2
+effective_goal_max_offset: 0.35
+enabled: true
+executor_id_prefix: vcl06-planner-bridge
+max_goal_z: 2.5
+mission_frame: camera_init
+odom_max_age: 0.5
+planner_accept_timeout: 5.0
+source_future_tolerance: 0.1
+tick_hz: 20.0
+

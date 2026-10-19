@@ -1,0 +1,12 @@
+{
+  "bag": "试飞产物/flight_debug_2026-09-27-19-41-57_0.bag",
+  "board_repository": "https://github.com/sakelier/liftrace-controlwork.git",
+  "board_branch": "板载代码",
+  "remote_revision": "48541a7a8d91a2993711a10b556f7028504c3e1c",
+  "deployed_revision": "unknown; actual waypoints differ from remote defaults",
+  "analysis_base": "b1c95cb65bf9b8cc79cae0637d153963503fcf69",
+  "source_inventory": "../../../logs/flight_review_20260927_194157/inventory.json",
+  "source_snapshot": "../../../logs/flight_review_20260927_194157/source",
+  "hardware_or_simulation_run": false,
+  "online_code_changed": false
+}

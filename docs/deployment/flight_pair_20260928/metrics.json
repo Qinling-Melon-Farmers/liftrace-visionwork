@@ -1,0 +1,2626 @@
+{
+  "20-23-54": {
+    "duration": 150.79128551483154,
+    "camera_frames": 4318,
+    "source_start": 1790511834.599481,
+    "search_local_z": [
+      1.8
+    ],
+    "search_x_max": 7.2,
+    "estimated_ground_z": -0.36689767360687253,
+    "estimated_search_agl": [
+      2.1668976736068726
+    ],
+    "max_local_z": 1.8921663761138916,
+    "max_agl": 2.259064049720764,
+    "detector_messages": 1206,
+    "detector_counts": {
+      "red_cross": 337,
+      "bridge": 38,
+      "panzer": 129
+    },
+    "lag_p50": 0.31139612197875977,
+    "lag_p95": 0.42875730991363525,
+    "targets": {
+      "0:circle": {
+        "first": 17.60501980781555,
+        "last": 150.71676754951477,
+        "max_count": 168,
+        "max_streak": 30,
+        "first_confirmed": 18.016640186309814,
+        "first_actionable": null
+      },
+      "1:bridge": {
+        "first": 19.450206995010376,
+        "last": 32.575653076171875,
+        "max_count": 8,
+        "max_streak": 3,
+        "first_confirmed": 20.115630626678467,
+        "first_actionable": 20.115630626678467
+      },
+      "2:red_cross": {
+        "first": 21.092873573303223,
+        "last": 150.71676754951477,
+        "max_count": 207,
+        "max_streak": 145,
+        "first_confirmed": 21.252655506134033,
+        "first_actionable": 21.252655506134033
+      },
+      "3:circle": {
+        "first": 21.092873573303223,
+        "last": 150.71676754951477,
+        "max_count": 76,
+        "max_streak": 44,
+        "first_confirmed": 21.252655506134033,
+        "first_actionable": null
+      },
+      "1:panzer": {
+        "first": 32.68202447891235,
+        "last": 150.71676754951477,
+        "max_count": 116,
+        "max_streak": 49,
+        "first_confirmed": 32.68202447891235,
+        "first_actionable": 32.68202447891235
+      },
+      "4:circle": {
+        "first": 128.25938034057617,
+        "last": 150.71676754951477,
+        "max_count": 22,
+        "max_streak": 22,
+        "first_confirmed": 128.44764518737793,
+        "first_actionable": null
+      },
+      "5:bridge": {
+        "first": 128.35474348068237,
+        "last": 150.71676754951477,
+        "max_count": 21,
+        "max_streak": 21,
+        "first_confirmed": 128.55233335494995,
+        "first_actionable": 128.55233335494995
+      }
+    },
+    "commands": [
+      {
+        "t": 0.003377676010131836,
+        "header": {
+          "seq": 2,
+          "stamp": {
+            "secs": 1790511829,
+            "nsecs": 554318904
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790511829-554318904-1",
+        "decision_seq": 1,
+        "deadline": {
+          "secs": 1790511889,
+          "nsecs": 554318904
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "secs": 1790511829,
+              "nsecs": 554318904
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 1.8
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_start"
+      },
+      {
+        "t": 9.27164912223816,
+        "header": {
+          "seq": 3,
+          "stamp": {
+            "secs": 1790511843,
+            "nsecs": 857747316
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790511829-554318904-1",
+        "decision_seq": 2,
+        "deadline": {
+          "secs": 1790511903,
+          "nsecs": 857747316
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "secs": 1790511843,
+              "nsecs": 857747316
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.0,
+              "y": -1.5,
+              "z": 1.8
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_waypoint"
+      },
+      {
+        "t": 13.172156572341919,
+        "header": {
+          "seq": 4,
+          "stamp": {
+            "secs": 1790511847,
+            "nsecs": 760196685
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790511829-554318904-1",
+        "decision_seq": 3,
+        "deadline": {
+          "secs": 1790511907,
+          "nsecs": 760196685
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 3,
+            "stamp": {
+              "secs": 1790511847,
+              "nsecs": 760196685
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 4.0,
+              "y": -1.5,
+              "z": 1.8
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_waypoint"
+      },
+      {
+        "t": 20.233235597610474,
+        "header": {
+          "seq": 5,
+          "stamp": {
+            "secs": 1790511854,
+            "nsecs": 799477338
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790511829-554318904-1",
+        "decision_seq": 4,
+        "deadline": {
+          "secs": 1790511944,
+          "nsecs": 799477338
+        },
+        "command": 1,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": true,
+        "target_id": 1,
+        "target_first_seen": {
+          "secs": 1790511853,
+          "nsecs": 677705287
+        },
+        "target_observation_stamp": {
+          "secs": 1790511854,
+          "nsecs": 510104417
+        },
+        "target_class": "bridge",
+        "attempt": 1,
+        "payload_slot": 1,
+        "goal": {
+          "header": {
+            "seq": 4,
+            "stamp": {
+              "secs": 1790511854,
+              "nsecs": 799477338
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 2.014604351431495,
+              "y": -1.3159926871196208,
+              "z": 1.0
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "high_weight_search_interrupt"
+      },
+      {
+        "t": 65.4476842880249,
+        "header": {
+          "seq": 6,
+          "stamp": {
+            "secs": 1790511900,
+            "nsecs": 16173601
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790511829-554318904-1",
+        "decision_seq": 5,
+        "deadline": {
+          "secs": 1790511990,
+          "nsecs": 16173601
+        },
+        "command": 1,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": true,
+        "target_id": 2,
+        "target_first_seen": {
+          "secs": 1790511855,
+          "nsecs": 293430089
+        },
+        "target_observation_stamp": {
+          "secs": 1790511857,
+          "nsecs": 377314805
+        },
+        "target_class": "red_cross",
+        "attempt": 1,
+        "payload_slot": 2,
+        "goal": {
+          "header": {
+            "seq": 5,
+            "stamp": {
+              "secs": 1790511900,
+              "nsecs": 16173601
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 4.063860921994799,
+              "y": -0.9952209511164194,
+              "z": 1.0
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "high_weight_search_interrupt"
+      },
+      {
+        "t": 99.9948673248291,
+        "header": {
+          "seq": 7,
+          "stamp": {
+            "secs": 1790511934,
+            "nsecs": 554990530
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790511829-554318904-1",
+        "decision_seq": 6,
+        "deadline": {
+          "secs": 1790511994,
+          "nsecs": 554990530
+        },
+        "command": 3,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 6,
+            "stamp": {
+              "secs": 1790511934,
+              "nsecs": 554990530
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 4.0,
+              "y": -1.5,
+              "z": 1.8
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "resume_interrupted_waypoint"
+      },
+      {
+        "t": 103.14834451675415,
+        "header": {
+          "seq": 8,
+          "stamp": {
+            "secs": 1790511937,
+            "nsecs": 720104217
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790511829-554318904-1",
+        "decision_seq": 7,
+        "deadline": {
+          "secs": 1790511997,
+          "nsecs": 720104217
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 7,
+            "stamp": {
+              "secs": 1790511937,
+              "nsecs": 720104217
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 7.2,
+              "y": -1.5,
+              "z": 1.8
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_waypoint"
+      },
+      {
+        "t": 109.50983953475952,
+        "header": {
+          "seq": 9,
+          "stamp": {
+            "secs": 1790511944,
+            "nsecs": 92420101
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790511829-554318904-1",
+        "decision_seq": 8,
+        "deadline": {
+          "secs": 1790512004,
+          "nsecs": 92420101
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 8,
+            "stamp": {
+              "secs": 1790511944,
+              "nsecs": 92420101
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 7.2,
+              "y": 1.5,
+              "z": 1.8
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_waypoint"
+      },
+      {
+        "t": 119.38717770576477,
+        "header": {
+          "seq": 10,
+          "stamp": {
+            "secs": 1790511953,
+            "nsecs": 973304510
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790511829-554318904-1",
+        "decision_seq": 9,
+        "deadline": {
+          "secs": 1790512013,
+          "nsecs": 973304510
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 9,
+            "stamp": {
+              "secs": 1790511953,
+              "nsecs": 973304510
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 4.0,
+              "y": 1.5,
+              "z": 1.8
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_waypoint"
+      },
+      {
+        "t": 126.4995985031128,
+        "header": {
+          "seq": 11,
+          "stamp": {
+            "secs": 1790511961,
+            "nsecs": 80849885
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790511829-554318904-1",
+        "decision_seq": 10,
+        "deadline": {
+          "secs": 1790512021,
+          "nsecs": 80849885
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 10,
+            "stamp": {
+              "secs": 1790511961,
+              "nsecs": 80849885
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.0,
+              "y": 1.5,
+              "z": 1.8
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_waypoint"
+      },
+      {
+        "t": 133.88159012794495,
+        "header": {
+          "seq": 12,
+          "stamp": {
+            "secs": 1790511968,
+            "nsecs": 451527595
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790511829-554318904-1",
+        "decision_seq": 11,
+        "deadline": {
+          "secs": 1790512028,
+          "nsecs": 451527595
+        },
+        "command": 4,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 11,
+            "stamp": {
+              "secs": 1790511968,
+              "nsecs": 451527595
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 1.8
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_complete_insufficient_candidates"
+      },
+      {
+        "t": 140.12459230422974,
+        "header": {
+          "seq": 13,
+          "stamp": {
+            "secs": 1790511974,
+            "nsecs": 647850513
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790511829-554318904-1",
+        "decision_seq": 12,
+        "deadline": {
+          "secs": 1790512429,
+          "nsecs": 554318904
+        },
+        "command": 5,
+        "class_profile": "r2026",
+        "has_goal": false,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 12,
+            "stamp": {
+              "secs": 1790511974,
+              "nsecs": 647850513
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "return_home_complete"
+      }
+    ],
+    "results": [
+      {
+        "t": 4.859063148498535,
+        "seq": 1,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 9.258790731430054,
+        "seq": 1,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 9.296294689178467,
+        "seq": 2,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 9.296302318572998,
+        "seq": 2,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 9.296799421310425,
+        "seq": 2,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 12.866983890533447,
+        "seq": 2,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 13.16065788269043,
+        "seq": 2,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 13.179204225540161,
+        "seq": 3,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 13.182048559188843,
+        "seq": 3,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 13.244877338409424,
+        "seq": 3,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 20.23743486404419,
+        "seq": 4,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 20.242807626724243,
+        "seq": 4,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 20.245835304260254,
+        "seq": 4,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 28.600699186325073,
+        "seq": 4,
+        "reason": "approach_arrival_confirmed"
+      },
+      {
+        "t": 30.540169715881348,
+        "seq": 4,
+        "reason": "patrol_control_alignment_accepted"
+      },
+      {
+        "t": 40.91026854515076,
+        "seq": 4,
+        "reason": "strict_alignment_context_valid"
+      },
+      {
+        "t": 62.818629026412964,
+        "seq": 4,
+        "reason": "release_ack_success"
+      },
+      {
+        "t": 65.4174427986145,
+        "seq": 4,
+        "reason": "release_recovery_confirmed"
+      },
+      {
+        "t": 65.45651602745056,
+        "seq": 5,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 65.45699000358582,
+        "seq": 5,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 65.47793173789978,
+        "seq": 5,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 71.62102961540222,
+        "seq": 5,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 72.21675205230713,
+        "seq": 5,
+        "reason": "approach_arrival_confirmed"
+      },
+      {
+        "t": 72.23040533065796,
+        "seq": 5,
+        "reason": "patrol_control_alignment_accepted"
+      },
+      {
+        "t": 75.89669156074524,
+        "seq": 5,
+        "reason": "strict_alignment_context_valid"
+      },
+      {
+        "t": 96.51848149299622,
+        "seq": 5,
+        "reason": "release_ack_success"
+      },
+      {
+        "t": 99.95574021339417,
+        "seq": 5,
+        "reason": "release_recovery_confirmed"
+      },
+      {
+        "t": 99.99861931800842,
+        "seq": 6,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 100.00129556655884,
+        "seq": 6,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 100.01235508918762,
+        "seq": 6,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 103.12353849411011,
+        "seq": 6,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 103.15506863594055,
+        "seq": 7,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 103.15900421142578,
+        "seq": 7,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 103.19053173065186,
+        "seq": 7,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 108.65787482261658,
+        "seq": 7,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 109.49236845970154,
+        "seq": 7,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 109.51720595359802,
+        "seq": 8,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 109.52446293830872,
+        "seq": 8,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 109.55006575584412,
+        "seq": 8,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 119.37410140037537,
+        "seq": 8,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 119.39699172973633,
+        "seq": 9,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 119.43203210830688,
+        "seq": 9,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 119.48533487319946,
+        "seq": 9,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 126.48385882377625,
+        "seq": 9,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 126.51599192619324,
+        "seq": 10,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 126.5204393863678,
+        "seq": 10,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 126.55599689483643,
+        "seq": 10,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 133.8552644252777,
+        "seq": 10,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 133.8959367275238,
+        "seq": 11,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 133.9236240386963,
+        "seq": 11,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 133.92732334136963,
+        "seq": 11,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 140.04780411720276,
+        "seq": 11,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 140.18369317054749,
+        "seq": 12,
+        "reason": "patrol_control_landing_accepted"
+      },
+      {
+        "t": 148.37407565116882,
+        "seq": 12,
+        "reason": "landed_state_and_settle_confirmed"
+      }
+    ],
+    "release": [
+      {
+        "t": 62.81883406639099,
+        "header": {
+          "seq": 1,
+          "stamp": {
+            "secs": 1790511897,
+            "nsecs": 416488170
+          },
+          "frame_id": ""
+        },
+        "execution_id": 1,
+        "payload_slot": 1,
+        "align_mode": "drop_circle",
+        "target_id": 1,
+        "target_class": "bridge",
+        "success": true,
+        "reason": "raw_actuator_ack",
+        "fc_local_z": 0.10760815972589723,
+        "estimated_fc_agl": 0.47450583333276974
+      },
+      {
+        "t": 96.51720190048218,
+        "header": {
+          "seq": 2,
+          "stamp": {
+            "secs": 1790511931,
+            "nsecs": 115567922
+          },
+          "frame_id": ""
+        },
+        "execution_id": 2,
+        "payload_slot": 2,
+        "align_mode": "drop_cross",
+        "target_id": 2,
+        "target_class": "red_cross",
+        "success": true,
+        "reason": "raw_actuator_ack",
+        "fc_local_z": 0.06664413476710643,
+        "estimated_fc_agl": 0.43354180837397893
+      }
+    ],
+    "commitments": [
+      {
+        "t": 40.910218715667725,
+        "m": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "secs": 1790511875,
+              "nsecs": 503451585
+            },
+            "frame_id": ""
+          },
+          "align_mode": "drop_circle",
+          "target_present": true,
+          "target_id": 0,
+          "target_class": "circle",
+          "target_confirmed": true,
+          "geometry_verified": true,
+          "center_refined": true,
+          "observation_fresh": true,
+          "observation_age_sec": 0.3317856788635254,
+          "aligned": true,
+          "stable_frames": 3,
+          "evidence_valid": true,
+          "rejection_reasons": []
+        }
+      },
+      {
+        "t": 75.89664030075073,
+        "m": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "secs": 1790511910,
+              "nsecs": 490862131
+            },
+            "frame_id": ""
+          },
+          "align_mode": "drop_cross",
+          "target_present": true,
+          "target_id": 2,
+          "target_class": "red_cross",
+          "target_confirmed": true,
+          "geometry_verified": true,
+          "center_refined": true,
+          "observation_fresh": true,
+          "observation_age_sec": 0.3070080280303955,
+          "aligned": true,
+          "stable_frames": 3,
+          "evidence_valid": true,
+          "rejection_reasons": []
+        }
+      }
+    ],
+    "landed_changes": [
+      {
+        "t": 0.00016427040100097656,
+        "state": 1
+      },
+      {
+        "t": 2.137688636779785,
+        "state": 2
+      },
+      {
+        "t": 147.3320438861847,
+        "state": 1
+      }
+    ],
+    "fc_changes": [
+      {
+        "t": 0.0,
+        "mode": "MANUAL",
+        "armed": false
+      },
+      {
+        "t": 0.3715074062347412,
+        "mode": "MANUAL",
+        "armed": true
+      },
+      {
+        "t": 1.3701233863830566,
+        "mode": "OFFBOARD",
+        "armed": true
+      },
+      {
+        "t": 141.37037229537964,
+        "mode": "POSCTL",
+        "armed": true
+      },
+      {
+        "t": 146.36495184898376,
+        "mode": "MANUAL",
+        "armed": true
+      },
+      {
+        "t": 147.3671362400055,
+        "mode": "MANUAL",
+        "armed": false
+      }
+    ],
+    "physical_target_estimates": {
+      "panzer": [
+        1.966564957786059,
+        -1.3067805440937394,
+        -0.22
+      ],
+      "red_cross": [
+        4.068533167795056,
+        -0.9194671513291319,
+        -0.22
+      ],
+      "bridge": [
+        2.2996435671527458,
+        1.30967493113088,
+        -0.22
+      ]
+    },
+    "first_bridge_action": 20.233235597610474,
+    "first_panzer_valid": 32.68202447891235,
+    "first_panzer_valid_after_arrival": 4.08132529258728,
+    "early_bridge_valid": 20.115630626678467,
+    "late_bridge_valid": 128.55233335494995,
+    "late_bridge_valid_count": 19,
+    "late_bridge_last_valid": 131.64858198165894,
+    "reserved_class_mismatch_before_ack": 30.136809587478638,
+    "final": {
+      "active_command": "",
+      "active_decision_seq": 0,
+      "committed_slots": 2,
+      "following_lead_m": 0.25,
+      "last_reason": "candidates_ingested",
+      "manual_start_required": true,
+      "mission_failed": false,
+      "mission_id": "vcl06-1790511829-554318904-1",
+      "phase": "COMPLETE",
+      "post_delivery_route_complete": true,
+      "post_delivery_route_index": 0,
+      "post_delivery_route_revision": "direct-home-v1",
+      "post_delivery_route_size": 0,
+      "profile": "r2026",
+      "route_active_decision_seq": 0,
+      "route_complete": true,
+      "route_index": 7,
+      "slot_status": [
+        "COMMITTED",
+        "COMMITTED",
+        "FREE"
+      ],
+      "speed_phase": "TERMINAL",
+      "speed_transitions": [
+        {
+          "command": "SEARCH",
+          "lead_m": 0.8,
+          "phase": "CRUISE",
+          "t": 1790511829.6227798
+        },
+        {
+          "command": "APPROACH",
+          "lead_m": 0.4,
+          "phase": "PRECISION",
+          "t": 1790511854.8139975
+        },
+        {
+          "command": "RESUME",
+          "lead_m": 0.8,
+          "phase": "CRUISE",
+          "t": 1790511934.5715208
+        },
+        {
+          "command": "RETURN_HOME",
+          "lead_m": 0.4,
+          "phase": "PRECISION",
+          "t": 1790511968.4761333
+        },
+        {
+          "command": "LAND",
+          "lead_m": 0.25,
+          "phase": "TERMINAL",
+          "t": 1790511974.710808
+        }
+      ],
+      "start_mode": "full"
+    }
+  },
+  "20-33-08": {
+    "duration": 155.25444507598877,
+    "camera_frames": 4534,
+    "source_start": 1790512388.7497797,
+    "search_local_z": [
+      1.6
+    ],
+    "search_x_max": 6.0,
+    "estimated_ground_z": -0.31018291532993314,
+    "estimated_search_agl": [
+      1.9101829153299332
+    ],
+    "max_local_z": 1.7630324363708496,
+    "max_agl": 2.0732153517007825,
+    "detector_messages": 1216,
+    "detector_counts": {
+      "bridge": 97,
+      "red_cross": 326,
+      "panzer": 104,
+      "tank": 1
+    },
+    "lag_p50": 0.3205430507659912,
+    "lag_p95": 0.4384804368019104,
+    "targets": {
+      "0:circle": {
+        "first": 21.039158582687378,
+        "last": 155.17630910873413,
+        "max_count": 156,
+        "max_streak": 84,
+        "first_confirmed": 21.277815103530884,
+        "first_actionable": null
+      },
+      "1:panzer": {
+        "first": 21.70972180366516,
+        "last": 155.17630910873413,
+        "max_count": 98,
+        "max_streak": 58,
+        "first_confirmed": 30.261565446853638,
+        "first_actionable": 30.261565446853638
+      },
+      "1:bridge": {
+        "first": 23.44719362258911,
+        "last": 30.169695377349854,
+        "max_count": 12,
+        "max_streak": 4,
+        "first_confirmed": 23.44719362258911,
+        "first_actionable": 23.44719362258911
+      },
+      "2:red_cross": {
+        "first": 60.940364599227905,
+        "last": 155.17630910873413,
+        "max_count": 249,
+        "max_streak": 209,
+        "first_confirmed": 61.21736478805542,
+        "first_actionable": 61.21736478805542
+      },
+      "3:circle": {
+        "first": 60.940364599227905,
+        "last": 155.17630910873413,
+        "max_count": 60,
+        "max_streak": 37,
+        "first_confirmed": 61.21736478805542,
+        "first_actionable": null
+      },
+      "4:circle": {
+        "first": 125.1586184501648,
+        "last": 155.17630910873413,
+        "max_count": 53,
+        "max_streak": 50,
+        "first_confirmed": 125.440114736557,
+        "first_actionable": null
+      },
+      "5:bridge": {
+        "first": 125.27805995941162,
+        "last": 155.17630910873413,
+        "max_count": 44,
+        "max_streak": 42,
+        "first_confirmed": 126.38299989700317,
+        "first_actionable": 126.38299989700317
+      }
+    },
+    "commands": [
+      {
+        "t": 0.0004951953887939453,
+        "header": {
+          "seq": 2,
+          "stamp": {
+            "secs": 1790512379,
+            "nsecs": 692730426
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 1,
+        "deadline": {
+          "secs": 1790512439,
+          "nsecs": 692730426
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "secs": 1790512379,
+              "nsecs": 692730426
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 1.6
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_start"
+      },
+      {
+        "t": 15.044874668121338,
+        "header": {
+          "seq": 3,
+          "stamp": {
+            "secs": 1790512403,
+            "nsecs": 782045841
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 2,
+        "deadline": {
+          "secs": 1790512463,
+          "nsecs": 782045841
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "secs": 1790512403,
+              "nsecs": 782045841
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.0,
+              "y": -1.5,
+              "z": 1.6
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_waypoint"
+      },
+      {
+        "t": 19.246256828308105,
+        "header": {
+          "seq": 4,
+          "stamp": {
+            "secs": 1790512407,
+            "nsecs": 980760812
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 3,
+        "deadline": {
+          "secs": 1790512467,
+          "nsecs": 980760812
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 3,
+            "stamp": {
+              "secs": 1790512407,
+              "nsecs": 980760812
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 4.0,
+              "y": -1.5,
+              "z": 1.6
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_waypoint"
+      },
+      {
+        "t": 23.62811851501465,
+        "header": {
+          "seq": 5,
+          "stamp": {
+            "secs": 1790512412,
+            "nsecs": 285780429
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 4,
+        "deadline": {
+          "secs": 1790512502,
+          "nsecs": 285780429
+        },
+        "command": 1,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": true,
+        "target_id": 1,
+        "target_first_seen": {
+          "secs": 1790512410,
+          "nsecs": 85130691
+        },
+        "target_observation_stamp": {
+          "secs": 1790512411,
+          "nsecs": 943215370
+        },
+        "target_class": "bridge",
+        "attempt": 1,
+        "payload_slot": 1,
+        "goal": {
+          "header": {
+            "seq": 4,
+            "stamp": {
+              "secs": 1790512412,
+              "nsecs": 285780429
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 1.8010042840581986,
+              "y": -1.3959378753221336,
+              "z": 1.0
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "high_weight_search_interrupt"
+      },
+      {
+        "t": 57.470210313797,
+        "header": {
+          "seq": 6,
+          "stamp": {
+            "secs": 1790512446,
+            "nsecs": 182198524
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 5,
+        "deadline": {
+          "secs": 1790512506,
+          "nsecs": 182198524
+        },
+        "command": 3,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 5,
+            "stamp": {
+              "secs": 1790512446,
+              "nsecs": 182198524
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 4.0,
+              "y": -1.5,
+              "z": 1.6
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "resume_interrupted_waypoint"
+      },
+      {
+        "t": 61.269691705703735,
+        "header": {
+          "seq": 7,
+          "stamp": {
+            "secs": 1790512449,
+            "nsecs": 984408617
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 6,
+        "deadline": {
+          "secs": 1790512539,
+          "nsecs": 984408617
+        },
+        "command": 1,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": true,
+        "target_id": 2,
+        "target_first_seen": {
+          "secs": 1790512449,
+          "nsecs": 404264926
+        },
+        "target_observation_stamp": {
+          "secs": 1790512449,
+          "nsecs": 589884757
+        },
+        "target_class": "red_cross",
+        "attempt": 1,
+        "payload_slot": 2,
+        "goal": {
+          "header": {
+            "seq": 6,
+            "stamp": {
+              "secs": 1790512449,
+              "nsecs": 984408617
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 4.019205015310184,
+              "y": -1.1132166574193594,
+              "z": 1.0
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "high_weight_search_interrupt"
+      },
+      {
+        "t": 99.07212114334106,
+        "header": {
+          "seq": 8,
+          "stamp": {
+            "secs": 1790512487,
+            "nsecs": 783912181
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 7,
+        "deadline": {
+          "secs": 1790512547,
+          "nsecs": 783912181
+        },
+        "command": 3,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 7,
+            "stamp": {
+              "secs": 1790512487,
+              "nsecs": 783912181
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 4.0,
+              "y": -1.5,
+              "z": 1.6
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "resume_interrupted_waypoint"
+      },
+      {
+        "t": 101.81150364875793,
+        "header": {
+          "seq": 9,
+          "stamp": {
+            "secs": 1790512490,
+            "nsecs": 550713300
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 8,
+        "deadline": {
+          "secs": 1790512550,
+          "nsecs": 550713300
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 8,
+            "stamp": {
+              "secs": 1790512490,
+              "nsecs": 550713300
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 6.0,
+              "y": -1.5,
+              "z": 1.6
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_waypoint"
+      },
+      {
+        "t": 108.59378862380981,
+        "header": {
+          "seq": 10,
+          "stamp": {
+            "secs": 1790512497,
+            "nsecs": 327090740
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 9,
+        "deadline": {
+          "secs": 1790512557,
+          "nsecs": 327090740
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 9,
+            "stamp": {
+              "secs": 1790512497,
+              "nsecs": 327090740
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 6.0,
+              "y": 1.5,
+              "z": 1.6
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_waypoint"
+      },
+      {
+        "t": 116.54314947128296,
+        "header": {
+          "seq": 11,
+          "stamp": {
+            "secs": 1790512505,
+            "nsecs": 271076440
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 10,
+        "deadline": {
+          "secs": 1790512565,
+          "nsecs": 271076440
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 10,
+            "stamp": {
+              "secs": 1790512505,
+              "nsecs": 271076440
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 4.0,
+              "y": 1.5,
+              "z": 1.6
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_waypoint"
+      },
+      {
+        "t": 121.60667514801025,
+        "header": {
+          "seq": 12,
+          "stamp": {
+            "secs": 1790512510,
+            "nsecs": 338756084
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 11,
+        "deadline": {
+          "secs": 1790512570,
+          "nsecs": 338756084
+        },
+        "command": 0,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 11,
+            "stamp": {
+              "secs": 1790512510,
+              "nsecs": 338756084
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.0,
+              "y": 1.5,
+              "z": 1.6
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_waypoint"
+      },
+      {
+        "t": 129.06905126571655,
+        "header": {
+          "seq": 13,
+          "stamp": {
+            "secs": 1790512517,
+            "nsecs": 803007841
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 12,
+        "deadline": {
+          "secs": 1790512577,
+          "nsecs": 803007841
+        },
+        "command": 4,
+        "class_profile": "r2026",
+        "has_goal": true,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 12,
+            "stamp": {
+              "secs": 1790512517,
+              "nsecs": 803007841
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 1.8
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "coverage_complete_insufficient_candidates"
+      },
+      {
+        "t": 135.44523239135742,
+        "header": {
+          "seq": 14,
+          "stamp": {
+            "secs": 1790512524,
+            "nsecs": 162514209
+          },
+          "frame_id": "camera_init"
+        },
+        "schema_version": 1,
+        "mission_id": "vcl06-1790512379-692730426-1",
+        "decision_seq": 13,
+        "deadline": {
+          "secs": 1790512979,
+          "nsecs": 692730426
+        },
+        "command": 5,
+        "class_profile": "r2026",
+        "has_goal": false,
+        "has_target": false,
+        "target_id": 0,
+        "target_first_seen": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_observation_stamp": {
+          "secs": 0,
+          "nsecs": 0
+        },
+        "target_class": "",
+        "attempt": 0,
+        "payload_slot": 0,
+        "goal": {
+          "header": {
+            "seq": 13,
+            "stamp": {
+              "secs": 1790512524,
+              "nsecs": 162514209
+            },
+            "frame_id": "camera_init"
+          },
+          "pose": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "orientation": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0,
+              "w": 1.0
+            }
+          }
+        },
+        "reason": "return_home_complete"
+      }
+    ],
+    "results": [
+      {
+        "t": 3.436589002609253,
+        "seq": 1,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 6.547327518463135,
+        "seq": 1,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 10.27020788192749,
+        "seq": 1,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 15.033524751663208,
+        "seq": 1,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 15.052480459213257,
+        "seq": 2,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 15.055067539215088,
+        "seq": 2,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 15.081799268722534,
+        "seq": 2,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 19.232189416885376,
+        "seq": 2,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 19.261972665786743,
+        "seq": 3,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 19.277828693389893,
+        "seq": 3,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 19.419150829315186,
+        "seq": 3,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 23.636168003082275,
+        "seq": 4,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 23.754146814346313,
+        "seq": 4,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 23.78438401222229,
+        "seq": 4,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 29.268269062042236,
+        "seq": 4,
+        "reason": "approach_arrival_confirmed"
+      },
+      {
+        "t": 30.092939138412476,
+        "seq": 4,
+        "reason": "patrol_control_alignment_accepted"
+      },
+      {
+        "t": 37.5453987121582,
+        "seq": 4,
+        "reason": "strict_alignment_context_valid"
+      },
+      {
+        "t": 54.86033821105957,
+        "seq": 4,
+        "reason": "release_ack_success"
+      },
+      {
+        "t": 57.432106733322144,
+        "seq": 4,
+        "reason": "release_recovery_confirmed"
+      },
+      {
+        "t": 57.48711800575256,
+        "seq": 5,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 57.48970675468445,
+        "seq": 5,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 57.514771461486816,
+        "seq": 5,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 61.27333641052246,
+        "seq": 6,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 61.31449604034424,
+        "seq": 6,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 61.31450867652893,
+        "seq": 6,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 64.25379467010498,
+        "seq": 6,
+        "reason": "approach_arrival_confirmed"
+      },
+      {
+        "t": 64.26448440551758,
+        "seq": 6,
+        "reason": "patrol_control_alignment_accepted"
+      },
+      {
+        "t": 77.88606548309326,
+        "seq": 6,
+        "reason": "strict_alignment_context_valid"
+      },
+      {
+        "t": 96.18700003623962,
+        "seq": 6,
+        "reason": "release_ack_success"
+      },
+      {
+        "t": 99.03404116630554,
+        "seq": 6,
+        "reason": "release_recovery_confirmed"
+      },
+      {
+        "t": 99.08338570594788,
+        "seq": 7,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 99.0833945274353,
+        "seq": 7,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 99.09837627410889,
+        "seq": 7,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 101.80370283126831,
+        "seq": 7,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 101.8281044960022,
+        "seq": 8,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 101.82993412017822,
+        "seq": 8,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 101.8453299999237,
+        "seq": 8,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 108.5761411190033,
+        "seq": 8,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 108.59895610809326,
+        "seq": 9,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 108.61313843727112,
+        "seq": 9,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 108.64124011993408,
+        "seq": 9,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 110.26952719688416,
+        "seq": 9,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 116.52110314369202,
+        "seq": 9,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 116.54828906059265,
+        "seq": 10,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 116.5787763595581,
+        "seq": 10,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 116.58495616912842,
+        "seq": 10,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 121.58976006507874,
+        "seq": 10,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 121.61154651641846,
+        "seq": 11,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 121.63357186317444,
+        "seq": 11,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 121.66303563117981,
+        "seq": 11,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 129.05352568626404,
+        "seq": 11,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 129.084481716156,
+        "seq": 12,
+        "reason": "planner_goal_dispatched"
+      },
+      {
+        "t": 129.08449387550354,
+        "seq": 12,
+        "reason": "planner_goal_accepted"
+      },
+      {
+        "t": 129.10356187820435,
+        "seq": 12,
+        "reason": "planner_trajectory_ready"
+      },
+      {
+        "t": 135.41202878952026,
+        "seq": 12,
+        "reason": "motion_arrival_confirmed"
+      },
+      {
+        "t": 135.4815034866333,
+        "seq": 13,
+        "reason": "patrol_control_landing_accepted"
+      },
+      {
+        "t": 142.12195420265198,
+        "seq": 13,
+        "reason": "landed_state_and_settle_confirmed"
+      }
+    ],
+    "release": [
+      {
+        "t": 54.858317375183105,
+        "header": {
+          "seq": 1,
+          "stamp": {
+            "secs": 1790512443,
+            "nsecs": 606529712
+          },
+          "frame_id": ""
+        },
+        "execution_id": 1,
+        "payload_slot": 1,
+        "align_mode": "drop_circle",
+        "target_id": 1,
+        "target_class": "bridge",
+        "success": true,
+        "reason": "raw_actuator_ack",
+        "fc_local_z": 0.15987317173954857,
+        "estimated_fc_agl": 0.4700560870694817
+      },
+      {
+        "t": 96.18206000328064,
+        "header": {
+          "seq": 2,
+          "stamp": {
+            "secs": 1790512484,
+            "nsecs": 929117441
+          },
+          "frame_id": ""
+        },
+        "execution_id": 2,
+        "payload_slot": 2,
+        "align_mode": "drop_cross",
+        "target_id": 2,
+        "target_class": "red_cross",
+        "success": true,
+        "reason": "raw_actuator_ack",
+        "fc_local_z": 0.13546261514978733,
+        "estimated_fc_agl": 0.44564553047972044
+      }
+    ],
+    "commitments": [
+      {
+        "t": 37.54333019256592,
+        "m": {
+          "header": {
+            "seq": 1,
+            "stamp": {
+              "secs": 1790512426,
+              "nsecs": 286354541
+            },
+            "frame_id": ""
+          },
+          "align_mode": "drop_circle",
+          "target_present": true,
+          "target_id": 0,
+          "target_class": "circle",
+          "target_confirmed": true,
+          "geometry_verified": true,
+          "center_refined": true,
+          "observation_fresh": true,
+          "observation_age_sec": 0.2461085319519043,
+          "aligned": true,
+          "stable_frames": 3,
+          "evidence_valid": true,
+          "rejection_reasons": []
+        }
+      },
+      {
+        "t": 77.88289308547974,
+        "m": {
+          "header": {
+            "seq": 2,
+            "stamp": {
+              "secs": 1790512466,
+              "nsecs": 629631996
+            },
+            "frame_id": ""
+          },
+          "align_mode": "drop_cross",
+          "target_present": true,
+          "target_id": 2,
+          "target_class": "red_cross",
+          "target_confirmed": true,
+          "geometry_verified": true,
+          "center_refined": true,
+          "observation_fresh": true,
+          "observation_age_sec": 0.3408839702606201,
+          "aligned": true,
+          "stable_frames": 3,
+          "evidence_valid": true,
+          "rejection_reasons": []
+        }
+      }
+    ],
+    "landed_changes": [
+      {
+        "t": 0.0004191398620605469,
+        "state": 2
+      },
+      {
+        "t": 141.07564449310303,
+        "state": 1
+      }
+    ],
+    "fc_changes": [
+      {
+        "t": 0.00036597251892089844,
+        "mode": "OFFBOARD",
+        "armed": true
+      },
+      {
+        "t": 136.97955107688904,
+        "mode": "POSCTL",
+        "armed": true
+      },
+      {
+        "t": 142.9818890094757,
+        "mode": "POSCTL",
+        "armed": false
+      },
+      {
+        "t": 144.9806022644043,
+        "mode": "MANUAL",
+        "armed": false
+      }
+    ],
+    "physical_target_estimates": {
+      "panzer": [
+        1.7356650804244893,
+        -1.3864549876959822,
+        -0.22
+      ],
+      "red_cross": [
+        3.889200647139732,
+        -1.1185749805652905,
+        -0.22
+      ],
+      "bridge": [
+        1.1667755284487713,
+        1.284148682307709,
+        -0.22
+      ]
+    },
+    "first_bridge_action": 23.62811851501465,
+    "first_panzer_valid": 30.261565446853638,
+    "first_panzer_valid_after_arrival": 0.9932963848114014,
+    "early_bridge_valid": 23.44719362258911,
+    "late_bridge_valid": 126.38299989700317,
+    "late_bridge_valid_count": 40,
+    "late_bridge_last_valid": 131.48771834373474,
+    "reserved_class_mismatch_before_ack": 24.596751928329468,
+    "final": {
+      "active_command": "",
+      "active_decision_seq": 0,
+      "committed_slots": 2,
+      "following_lead_m": 0.25,
+      "last_reason": "mission_complete",
+      "manual_start_required": true,
+      "mission_failed": false,
+      "mission_id": "vcl06-1790512379-692730426-1",
+      "phase": "COMPLETE",
+      "post_delivery_route_complete": true,
+      "post_delivery_route_index": 0,
+      "post_delivery_route_revision": "direct-home-v1",
+      "post_delivery_route_size": 0,
+      "profile": "r2026",
+      "route_active_decision_seq": 0,
+      "route_complete": true,
+      "route_index": 7,
+      "slot_status": [
+        "COMMITTED",
+        "COMMITTED",
+        "FREE"
+      ],
+      "speed_phase": "TERMINAL",
+      "speed_transitions": [
+        {
+          "command": "SEARCH",
+          "lead_m": 0.8,
+          "phase": "CRUISE",
+          "t": 1790512379.841164
+        },
+        {
+          "command": "APPROACH",
+          "lead_m": 0.4,
+          "phase": "PRECISION",
+          "t": 1790512412.3137698
+        },
+        {
+          "command": "RESUME",
+          "lead_m": 0.8,
+          "phase": "CRUISE",
+          "t": 1790512446.2101455
+        },
+        {
+          "command": "APPROACH",
+          "lead_m": 0.4,
+          "phase": "PRECISION",
+          "t": 1790512450.0110638
+        },
+        {
+          "command": "RESUME",
+          "lead_m": 0.8,
+          "phase": "CRUISE",
+          "t": 1790512487.8122222
+        },
+        {
+          "command": "RETURN_HOME",
+          "lead_m": 0.4,
+          "phase": "PRECISION",
+          "t": 1790512517.8101587
+        },
+        {
+          "command": "LAND",
+          "lead_m": 0.25,
+          "phase": "TERMINAL",
+          "t": 1790512524.184924
+        }
+      ],
+      "start_mode": "full"
+    }
+  }
+}

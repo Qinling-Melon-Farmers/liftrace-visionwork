@@ -1,0 +1,26 @@
+{
+  "revision": "91459e1a421f72c1635ada3e834798e815dec6f0",
+  "test_result": {
+    "test": "patrol_control/test/test_landing_motion_settlement.py",
+    "tests_run": 12,
+    "status": "PASS",
+    "duration_sec": 2.976,
+    "note": "Summary of the already completed run; original stdout was returned in chat, no log file was saved. No tests rerun for this archive."
+  },
+  "replay_result": {
+    "samples": 484,
+    "ready": 62,
+    "first_ready_bag_relative_sec": 281.889475107193,
+    "max_mark_age_sec": 0.5,
+    "input": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/\u8bd5\u98de\u4ea7\u7269/analysis_1014_0425/numeric/gate_input.txt",
+    "output": "/tmp/h_landing_tip_91459e1a/replay_latest.csv",
+    "header_unmodified": true
+  },
+  "independent_competition_default": {
+    "target_agl_m": 0.35,
+    "trigger_agl_m": 0.4,
+    "alignment_mode": "non_vh",
+    "descent_mode": 1
+  },
+  "scope": "Offline only; no ROS, simulation, hardware, source changes or commits."
+}

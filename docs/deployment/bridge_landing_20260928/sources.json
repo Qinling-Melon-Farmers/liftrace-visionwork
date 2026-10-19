@@ -1,0 +1,306 @@
+{
+  "repository": "https://github.com/sakelier/liftrace-controlwork.git",
+  "branch": "板载代码",
+  "revision": "d1fe025a8fb48d33e6db89b287053daa9c036bfb",
+  "files": 198,
+  "analysis_revision": "b2185c8ce28ec01c223a3950437fee56dbadaaa0",
+  "bags": [
+    {
+      "bag": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/flight_debug_2026-09-28-17-16-41_0.bag",
+      "start": 1790587001.978578,
+      "duration": 127.55239009857178,
+      "topics": {
+        "/camera/camera_info": {
+          "type": "sensor_msgs/CameraInfo",
+          "count": 3726
+        },
+        "/camera/image_raw/compressed": {
+          "type": "sensor_msgs/CompressedImage",
+          "count": 3725
+        },
+        "/detect/point_class": {
+          "type": "std_msgs/Int8",
+          "count": 2470
+        },
+        "/fastplanner/goal": {
+          "type": "geometry_msgs/PoseStamped",
+          "count": 5
+        },
+        "/mavros/extended_state": {
+          "type": "mavros_msgs/ExtendedState",
+          "count": 639
+        },
+        "/mavros/local_position/odom": {
+          "type": "nav_msgs/Odometry",
+          "count": 3831
+        },
+        "/mavros/local_position/pose": {
+          "type": "geometry_msgs/PoseStamped",
+          "count": 3832
+        },
+        "/mavros/setpoint_position/local": {
+          "type": "geometry_msgs/PoseStamped",
+          "count": 2469
+        },
+        "/mavros/state": {
+          "type": "mavros_msgs/State",
+          "count": 129
+        },
+        "/mission/command": {
+          "type": "patrol_control/MissionCommand",
+          "count": 7
+        },
+        "/mission/release_commitment_evidence": {
+          "type": "uav_vision/ReleaseEvidence",
+          "count": 1
+        },
+        "/mission/release_permission": {
+          "type": "uav_mission/ReleasePermission",
+          "count": 2554
+        },
+        "/mission/release_permission_active": {
+          "type": "std_msgs/Bool",
+          "count": 2555
+        },
+        "/mission/release_result": {
+          "type": "uav_mission/ReleaseResult",
+          "count": 1
+        },
+        "/navigation/mission_command_raw": {
+          "type": "uav_mission/NavigationDecision",
+          "count": 6
+        },
+        "/navigation/mission_result": {
+          "type": "uav_mission/NavigationResult",
+          "count": 43
+        },
+        "/navigation/mission_status": {
+          "type": "std_msgs/String",
+          "count": 2108
+        },
+        "/navigation/planner_bridge_status": {
+          "type": "std_msgs/String",
+          "count": 121
+        },
+        "/planning/bspline": {
+          "type": "plan_manage/Bspline",
+          "count": 6
+        },
+        "/planning_vis/trajectory": {
+          "type": "visualization_msgs/Marker",
+          "count": 48
+        },
+        "/sdf_map/occupancy_inflate": {
+          "type": "sensor_msgs/PointCloud2",
+          "count": 250
+        },
+        "/tf": {
+          "type": "tf2_msgs/TFMessage",
+          "count": 5072
+        },
+        "/tf_static": {
+          "type": "tf2_msgs/TFMessage",
+          "count": 4
+        },
+        "/uav_vision/align_mode": {
+          "type": "std_msgs/String",
+          "count": 2468
+        },
+        "/uav_vision/alignment_target_context": {
+          "type": "uav_vision/AlignmentTargetContext",
+          "count": 1819
+        },
+        "/uav_vision/detections": {
+          "type": "uav_vision/TargetDetectionArray",
+          "count": 8439
+        },
+        "/uav_vision/detections_mapped": {
+          "type": "uav_vision/TargetDetectionArray",
+          "count": 3721
+        },
+        "/uav_vision/detections_refined": {
+          "type": "uav_vision/TargetDetectionArray",
+          "count": 3723
+        },
+        "/uav_vision/detections_resolved": {
+          "type": "uav_vision/TargetDetectionArray",
+          "count": 3722
+        },
+        "/uav_vision/drop_offset": {
+          "type": "uav_vision/DropOffset",
+          "count": 197
+        },
+        "/uav_vision/drop_ready": {
+          "type": "uav_vision/DropReady",
+          "count": 1091
+        },
+        "/uav_vision/release_evidence": {
+          "type": "uav_vision/ReleaseEvidence",
+          "count": 1091
+        },
+        "/uav_vision/release_evidence_context": {
+          "type": "uav_vision/ReleaseEvidenceContext",
+          "count": 1092
+        },
+        "/uav_vision/selected_target": {
+          "type": "uav_vision/TargetCandidate",
+          "count": 726
+        },
+        "/uav_vision/targets": {
+          "type": "uav_vision/TargetCandidateArray",
+          "count": 1076
+        }
+      }
+    },
+    {
+      "bag": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/flight_debug_2026-09-28-17-34-47_0.bag",
+      "start": 1790588087.5125744,
+      "duration": 167.07964706420898,
+      "topics": {
+        "/camera/camera_info": {
+          "type": "sensor_msgs/CameraInfo",
+          "count": 4875
+        },
+        "/camera/image_raw/compressed": {
+          "type": "sensor_msgs/CompressedImage",
+          "count": 4875
+        },
+        "/detect/point_class": {
+          "type": "std_msgs/Int8",
+          "count": 2517
+        },
+        "/fastplanner/goal": {
+          "type": "geometry_msgs/PoseStamped",
+          "count": 11
+        },
+        "/mavros/extended_state": {
+          "type": "mavros_msgs/ExtendedState",
+          "count": 836
+        },
+        "/mavros/local_position/odom": {
+          "type": "nav_msgs/Odometry",
+          "count": 5014
+        },
+        "/mavros/local_position/pose": {
+          "type": "geometry_msgs/PoseStamped",
+          "count": 5015
+        },
+        "/mavros/setpoint_position/local": {
+          "type": "geometry_msgs/PoseStamped",
+          "count": 2516
+        },
+        "/mavros/state": {
+          "type": "mavros_msgs/State",
+          "count": 168
+        },
+        "/mission/command": {
+          "type": "patrol_control/MissionCommand",
+          "count": 14
+        },
+        "/mission/release_commitment_evidence": {
+          "type": "uav_vision/ReleaseEvidence",
+          "count": 3
+        },
+        "/mission/release_permission": {
+          "type": "uav_mission/ReleasePermission",
+          "count": 3341
+        },
+        "/mission/release_permission_active": {
+          "type": "std_msgs/Bool",
+          "count": 3342
+        },
+        "/mission/release_result": {
+          "type": "uav_mission/ReleaseResult",
+          "count": 2
+        },
+        "/navigation/mission_command_raw": {
+          "type": "uav_mission/NavigationDecision",
+          "count": 12
+        },
+        "/navigation/mission_result": {
+          "type": "uav_mission/NavigationResult",
+          "count": 52
+        },
+        "/navigation/mission_status": {
+          "type": "std_msgs/String",
+          "count": 2066
+        },
+        "/navigation/planner_bridge_status": {
+          "type": "std_msgs/String",
+          "count": 145
+        },
+        "/planning/bspline": {
+          "type": "plan_manage/Bspline",
+          "count": 13
+        },
+        "/planning_vis/trajectory": {
+          "type": "visualization_msgs/Marker",
+          "count": 100
+        },
+        "/sdf_map/occupancy_inflate": {
+          "type": "sensor_msgs/PointCloud2",
+          "count": 256
+        },
+        "/tf": {
+          "type": "tf2_msgs/TFMessage",
+          "count": 6290
+        },
+        "/tf_static": {
+          "type": "tf2_msgs/TFMessage",
+          "count": 4
+        },
+        "/uav_vision/align_mode": {
+          "type": "std_msgs/String",
+          "count": 2514
+        },
+        "/uav_vision/alignment_target_context": {
+          "type": "uav_vision/AlignmentTargetContext",
+          "count": 2172
+        },
+        "/uav_vision/detections": {
+          "type": "uav_vision/TargetDetectionArray",
+          "count": 11097
+        },
+        "/uav_vision/detections_mapped": {
+          "type": "uav_vision/TargetDetectionArray",
+          "count": 4863
+        },
+        "/uav_vision/detections_refined": {
+          "type": "uav_vision/TargetDetectionArray",
+          "count": 4861
+        },
+        "/uav_vision/detections_resolved": {
+          "type": "uav_vision/TargetDetectionArray",
+          "count": 4861
+        },
+        "/uav_vision/drop_offset": {
+          "type": "uav_vision/DropOffset",
+          "count": 403
+        },
+        "/uav_vision/drop_ready": {
+          "type": "uav_vision/DropReady",
+          "count": 1088
+        },
+        "/uav_vision/release_evidence": {
+          "type": "uav_vision/ReleaseEvidence",
+          "count": 1088
+        },
+        "/uav_vision/release_evidence_context": {
+          "type": "uav_vision/ReleaseEvidenceContext",
+          "count": 1088
+        },
+        "/uav_vision/selected_target": {
+          "type": "uav_vision/TargetCandidate",
+          "count": 736
+        },
+        "/uav_vision/targets": {
+          "type": "uav_vision/TargetCandidateArray",
+          "count": 1061
+        }
+      }
+    }
+  ],
+  "online_code_modified": false,
+  "model_identity": "unknown; six-class output contract still observed",
+  "pilot_feedback": "reported no takeover; model version uncertain"
+}

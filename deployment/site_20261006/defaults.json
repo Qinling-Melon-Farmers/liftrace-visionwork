@@ -1,0 +1,6 @@
+{
+  "motion_optimized": true,
+  "survey_pattern": "rectangle",
+  "capture_speed": 0.5,
+  "site_directory": "deployment/site_20260928"
+}

@@ -1,0 +1,24 @@
+{
+  "file": "local_map_failure_1.json",
+  "ros_sec": 360.211,
+  "goal": [
+    -0.9000000000000001,
+    8.35,
+    0.23
+  ],
+  "clouds": {
+    "inflated_map": {
+      "n": 129403,
+      "stamp": 0.0,
+      "error": null,
+      "nearest_goal_3d_m": 0.1013656634912615
+    },
+    "static_map": {
+      "n": 2994,
+      "stamp": 360.286,
+      "error": null,
+      "nearest_goal_3d_m": 0.41853140439964265
+    }
+  },
+  "raw_local_path": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147/local_map_failure_1.json"
+}

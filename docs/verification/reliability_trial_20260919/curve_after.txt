@@ -1,0 +1,18 @@
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from TrajectoryProgress
+[ RUN      ] TrajectoryProgress.DoesNotJumpToLaterLoopBranch
+[       OK ] TrajectoryProgress.DoesNotJumpToLaterLoopBranch (0 ms)
+[ RUN      ] TrajectoryProgress.LostTrackingDoesNotSelectEndpoint
+[       OK ] TrajectoryProgress.LostTrackingDoesNotSelectEndpoint (0 ms)
+[ RUN      ] TrajectoryProgress.TightTurnInsideSphereStillHasBoundedArc
+[       OK ] TrajectoryProgress.TightTurnInsideSphereStillHasBoundedArc (0 ms)
+[ RUN      ] TrajectoryProgress.ProgressIsMonotonicAndIncludesEndpoint
+[       OK ] TrajectoryProgress.ProgressIsMonotonicAndIncludesEndpoint (0 ms)
+[ RUN      ] TrajectoryProgress.Seed36SlowInitialCurveDoesNotTrapProjectionBehindLookahead
+[       OK ] TrajectoryProgress.Seed36SlowInitialCurveDoesNotTrapProjectionBehindLookahead (32 ms)
+[----------] 5 tests from TrajectoryProgress (32 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (32 ms total)
+[  PASSED  ] 5 tests.

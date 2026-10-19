@@ -1,0 +1,50 @@
+# H policy values below mirror 08; start.sh/run_trial.py reload landing_* (except XY) from 08 at launch.
+mode: landing
+low_agl: 1.4
+high_agl: 2.6
+drop_agl: 0.6
+landing_transit_agl: 1.0
+landing_capture_agl: 1.2  # FC center AGL; field H target is 0.80 x 0.80 m
+# POSCTL holds position/altitude; the pilot performs the remaining descent.
+landing_handoff_mode: POSCTL
+# non_vh preserves ten-frame capture; vh: <=6cm, <0.1m/s for 1s; descent mode is independent.
+landing_alignment_mode: vh
+# 1: XYZ; 2: frozen H XY + Z ramp; 3: VX=VY=0 + Z ramp.
+landing_descent_mode: 2
+landing_descent_speed_mps: 1.0
+landing_xy:
+- 2.0
+- 0.0
+cruise_speed: 0.5
+cruise_acceleration: 0.35
+virtual_ceiling_enabled: false
+alignment_mode: legacy_static
+actuator_mode: mock
+raw_servo_service: /legacy/Servo_raw
+# Enabled for the 2026-10-06 board validation; keep module-specific safety gates.
+motion_optimization:
+  enabled: true
+
+# 来源 073c8f19：低位 H POSCTL 停稳参数；现场其他参数保持本分支值。
+landing_posctl:
+  target_agl: 0.35
+  trigger_agl: 0.50
+  xy_tolerance_m: 0.05
+  height_tolerance_m: 0.05
+  capture_height_tolerance_m: 0.10  # Independent legacy capture-height tolerance.
+  max_horizontal_speed_mps: 0.10
+  max_vertical_speed_mps: 0.10 # Compatibility field; not checked during H handoff.
+  stable_duration_sec: 0.15
+  max_odom_age_sec: 0.2
+  max_sample_gap_sec: 0.2
+  min_samples: 3
+
+# 显式镜像08的坐标H兜底；运行入口仍从08继承，现场覆盖优先级不变。
+landing_coordinate_fallback:
+  enabled: true
+  wait_sec: 10.0
+  arrival_xy_tolerance_m: 0.20
+  arrival_z_tolerance_m: 0.15
+  descend_xy_tolerance_m: 0.08
+  max_horizontal_speed_mps: 0.10
+  stable_duration_sec: 0.30

@@ -1,0 +1,7 @@
+# 异步舵机稳定决策号接线修复
+Bridge正式命令已有goal.header.seq=decision_seq；ROS顶层header.seq是发布序号，不保证等于决策号。控制器ALIGN现在采用嵌套goal.header.seq建立、重复判定及比对对准身份。原target/slot/mission/deadline/飞控状态与服务反馈保护保留，不修改消息格式或舵机接口。
+
+验证：实际rospy.serialize_message将decision=10的顶层seq改为3/4，而nested仍为10；将解码数值送入实际C++ missionCommandCallback，确认同决策重复消息不重置动作、新nested决策才重置。控制63项回归通过，含该真实序列化用例及1秒服务worker测试（mock setpoint最大间隔约50ms，仅离线）。五包Catkin构建通过。
+
+修复前快照：视觉板端分支527a3ba8，legacy_baseline/20261005_servo_transport_sequence。
+诊断轮16a344f2保留于diagnostic_transport_seq；正式两轮使用同一修正版，不混比。

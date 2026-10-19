@@ -1,0 +1,468 @@
+[
+  {
+    "run": "/home/orangepi/liftrace_r64_onboard_405bda42/logs/corridor_diag_20260919_195804_hdw2Un",
+    "start": 1789819085.0957265,
+    "end": 1789819187.2860653,
+    "goals": [
+      {
+        "seq": 1,
+        "requested": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "reasons": {
+          "superseded_by_new_goal": 1
+        },
+        "failed": 0,
+        "ready": 0
+      },
+      {
+        "seq": 2,
+        "requested": {
+          "x": 2.0,
+          "y": 0.37,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 1.9,
+          "y": 0.37,
+          "z": 0.3
+        },
+        "reasons": {
+          "goal_received": 1,
+          "trajectory_replan_attempt": 2,
+          "replanned_trajectory_ready": 2,
+          "goal_reached_after_local_trajectory": 1
+        },
+        "failed": 0,
+        "ready": 2
+      },
+      {
+        "seq": 3,
+        "requested": {
+          "x": 4.0,
+          "y": -0.37,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 4.0,
+          "y": -0.37,
+          "z": 0.3
+        },
+        "reasons": {
+          "goal_received": 1,
+          "new_trajectory_attempt": 1,
+          "new_trajectory_attempt_failed": 78,
+          "new_trajectory_retry": 77
+        },
+        "failed": 78,
+        "ready": 0,
+        "first_failed": 1789819127.883408,
+        "last_failed": 1789819186.687704,
+        "failure_span": 58.804296016693115,
+        "failures_in_offboard": 62,
+        "offboard_wait_pose_mean": [
+          1.9035960178279399,
+          0.3710259624462032,
+          0.32217939767106696
+        ],
+        "offboard_wait_pose_span": [
+          0.0820612907409668,
+          0.1334933042526245,
+          0.19682933390140533
+        ]
+      }
+    ],
+    "state_changes": [
+      [
+        1789819085.09949,
+        "POSCTL",
+        false
+      ],
+      [
+        1789819091.2075248,
+        "POSCTL",
+        true
+      ],
+      [
+        1789819092.2064402,
+        "OFFBOARD",
+        true
+      ],
+      [
+        1789819175.2102757,
+        "POSCTL",
+        true
+      ],
+      [
+        1789819182.2109253,
+        "POSCTL",
+        false
+      ]
+    ],
+    "planner_log_counts": {
+      "kinodynamic goal occupied or outside map": 39,
+      "No collision-free goal within requested waypoint neighborhood": 30
+    },
+    "bsplines_after_first_failure": 0,
+    "figure": "flight_stall_1.png"
+  },
+  {
+    "run": "/home/orangepi/liftrace_r64_onboard_405bda42/logs/corridor_diag_20260919_200417_DBd2IE",
+    "start": 1789819458.4316711,
+    "end": 1789819538.687536,
+    "goals": [
+      {
+        "seq": 1,
+        "requested": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "reasons": {
+          "superseded_by_new_goal": 1
+        },
+        "failed": 0,
+        "ready": 0
+      },
+      {
+        "seq": 2,
+        "requested": {
+          "x": 2.0,
+          "y": 0.37,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 2.0,
+          "y": 0.37,
+          "z": 0.3
+        },
+        "reasons": {
+          "goal_received": 1,
+          "trajectory_replan_attempt": 1,
+          "replanned_trajectory_ready": 1,
+          "superseded_by_new_goal": 1
+        },
+        "failed": 0,
+        "ready": 1
+      },
+      {
+        "seq": 3,
+        "requested": {
+          "x": 4.0,
+          "y": -0.37,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 4.0,
+          "y": -0.37,
+          "z": 0.3
+        },
+        "reasons": {
+          "goal_received": 1,
+          "trajectory_replan_attempt": 1,
+          "trajectory_replan_attempt_failed": 1,
+          "new_trajectory_retry": 39,
+          "new_trajectory_attempt_failed": 39
+        },
+        "failed": 39,
+        "ready": 0,
+        "first_failed": 1789819504.5329912,
+        "last_failed": 1789819538.5451725,
+        "failure_span": 34.01218128204346,
+        "failures_in_offboard": 26,
+        "offboard_wait_pose_mean": [
+          2.003661579822176,
+          0.3661820617452938,
+          0.3040752432978333
+        ],
+        "offboard_wait_pose_span": [
+          0.11660504341125488,
+          0.17263934016227722,
+          0.2737225517630577
+        ]
+      }
+    ],
+    "state_changes": [
+      [
+        1789819458.5285585,
+        "POSCTL",
+        false
+      ],
+      [
+        1789819461.219071,
+        "POSCTL",
+        true
+      ],
+      [
+        1789819463.219056,
+        "OFFBOARD",
+        true
+      ],
+      [
+        1789819528.221182,
+        "POSCTL",
+        true
+      ],
+      [
+        1789819534.223832,
+        "POSCTL",
+        false
+      ]
+    ],
+    "planner_log_counts": {
+      "kinodynamic goal occupied or outside map": 20,
+      "No collision-free goal within requested waypoint neighborhood": 16
+    },
+    "bsplines_after_first_failure": 0,
+    "figure": "flight_stall_2.png"
+  },
+  {
+    "run": "/home/orangepi/liftrace_r64_onboard_405bda42/logs/corridor_diag_20260919_211336_FF0lTu",
+    "start": 1789823618.204354,
+    "end": 1789823729.7785947,
+    "goals": [
+      {
+        "seq": 1,
+        "requested": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "reasons": {
+          "superseded_by_new_goal": 1
+        },
+        "failed": 0,
+        "ready": 0
+      },
+      {
+        "seq": 2,
+        "requested": {
+          "x": 2.0,
+          "y": 0.37,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 2.0,
+          "y": 0.37,
+          "z": 0.3
+        },
+        "reasons": {
+          "goal_received": 1,
+          "trajectory_replan_attempt": 1,
+          "replanned_trajectory_ready": 1,
+          "superseded_by_new_goal": 1
+        },
+        "failed": 0,
+        "ready": 1
+      },
+      {
+        "seq": 3,
+        "requested": {
+          "x": 4.0,
+          "y": -0.37,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 4.0,
+          "y": -0.37,
+          "z": 0.3
+        },
+        "reasons": {
+          "goal_received": 1,
+          "trajectory_replan_attempt": 1,
+          "trajectory_replan_attempt_failed": 1,
+          "new_trajectory_retry": 75,
+          "new_trajectory_attempt_failed": 75
+        },
+        "failed": 75,
+        "ready": 0,
+        "first_failed": 1789823664.2102418,
+        "last_failed": 1789823729.65616,
+        "failure_span": 65.4459183216095,
+        "failures_in_offboard": 21,
+        "offboard_wait_pose_mean": [
+          2.030049032483782,
+          0.3817577838897705,
+          0.30583329745967475
+        ],
+        "offboard_wait_pose_span": [
+          0.08160841464996338,
+          0.12588798999786377,
+          0.4821779802441597
+        ]
+      }
+    ],
+    "state_changes": [
+      [
+        1789823618.2062428,
+        "POSCTL",
+        false
+      ],
+      [
+        1789823626.7067165,
+        "MANUAL",
+        false
+      ],
+      [
+        1789823627.7047715,
+        "POSCTL",
+        false
+      ],
+      [
+        1789823628.7067738,
+        "OFFBOARD",
+        true
+      ],
+      [
+        1789823684.7077239,
+        "POSCTL",
+        true
+      ],
+      [
+        1789823690.7056365,
+        "POSCTL",
+        false
+      ]
+    ],
+    "planner_log_counts": {
+      "No collision-free goal within requested waypoint neighborhood": 32,
+      "kinodynamic goal occupied or outside map": 44
+    },
+    "bsplines_after_first_failure": 0,
+    "figure": "flight_stall_3.png"
+  },
+  {
+    "run": "/home/orangepi/liftrace_r64_onboard_405bda42/logs/corridor_diag_20260919_211759_mQqb2D",
+    "start": 1789823881.0708766,
+    "end": 1789823955.8515768,
+    "goals": [
+      {
+        "seq": 1,
+        "requested": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "reasons": {
+          "superseded_by_new_goal": 1
+        },
+        "failed": 0,
+        "ready": 0
+      },
+      {
+        "seq": 2,
+        "requested": {
+          "x": 2.0,
+          "y": 0.37,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 2.0,
+          "y": 0.37,
+          "z": 0.3
+        },
+        "reasons": {
+          "goal_received": 1,
+          "trajectory_replan_attempt": 1,
+          "replanned_trajectory_ready": 1,
+          "goal_reached_after_local_trajectory": 1
+        },
+        "failed": 0,
+        "ready": 1
+      },
+      {
+        "seq": 3,
+        "requested": {
+          "x": 4.0,
+          "y": -0.37,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 4.0,
+          "y": -0.37,
+          "z": 0.3
+        },
+        "reasons": {
+          "goal_received": 1,
+          "new_trajectory_attempt": 1,
+          "new_trajectory_ready": 1,
+          "superseded_by_new_goal": 1
+        },
+        "failed": 0,
+        "ready": 1
+      },
+      {
+        "seq": 4,
+        "requested": {
+          "x": 5.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "effective": {
+          "x": 5.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "reasons": {
+          "goal_received": 1,
+          "trajectory_replan_attempt": 1,
+          "replanned_trajectory_ready": 1,
+          "goal_reached_after_local_trajectory": 1
+        },
+        "failed": 0,
+        "ready": 1
+      }
+    ],
+    "state_changes": [
+      [
+        1789823881.0709436,
+        "POSCTL",
+        false
+      ],
+      [
+        1789823885.7149692,
+        "POSCTL",
+        true
+      ],
+      [
+        1789823887.7125514,
+        "OFFBOARD",
+        true
+      ],
+      [
+        1789823945.7174187,
+        "POSCTL",
+        true
+      ],
+      [
+        1789823951.7217672,
+        "POSCTL",
+        false
+      ]
+    ],
+    "planner_log_counts": {},
+    "figure": "flight_stall_4.png"
+  }
+]

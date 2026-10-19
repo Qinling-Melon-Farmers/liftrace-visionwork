@@ -1,0 +1,36 @@
+[
+  {
+    "commit": "cefa6b2ae8d69c820b4dcb88b5116a4e0d7b5678",
+    "author_name": "Qinling-Melon-Farmers",
+    "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+    "author_date": "2026-10-06T01:56:06+08:00",
+    "committer_name": "Qinling-Melon-Farmers",
+    "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+    "committer_date": "2026-10-06T01:56:06+08:00",
+    "parents": "f77b9b5d74ff5e3c6565346beb4e5f02d1b3115e",
+    "subject": "fix: 补齐投后走廊与收尾限高重发身份",
+    "branch": "feat/high-view-search-research",
+    "current_refs": [
+      "refs/heads/feat/high-view-search-research",
+      "refs/remotes/origin/feat/high-view-search-research",
+      "refs/tags/archive/20261008/high-view-search-research"
+    ]
+  },
+  {
+    "commit": "d523c53cc5a29f8ec492a2256c2ca2e22e293998",
+    "author_name": "Qinling-Melon-Farmers",
+    "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+    "author_date": "2026-10-05T01:12:37+08:00",
+    "committer_name": "Qinling-Melon-Farmers",
+    "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+    "committer_date": "2026-10-05T01:12:37+08:00",
+    "parents": "746efc8bc417c343a89e42762b5ed40044373686",
+    "subject": "fix: 补齐恢复选档与限高等待检查并缓存规划回执",
+    "branch": "feat/motion-constraints-20261004",
+    "current_refs": [
+      "refs/heads/feat/motion-constraints-20261004",
+      "refs/remotes/origin/feat/motion-constraints-20261004",
+      "refs/tags/archive/20261008/motion-constraints-20261004"
+    ]
+  }
+]

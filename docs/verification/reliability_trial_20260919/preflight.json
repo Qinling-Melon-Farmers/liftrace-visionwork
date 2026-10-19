@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "seed": 2672,
+  "python": "/home/xhj/miniconda3/envs/rl_drone/bin/python",
+  "source_owners": {
+    "uav_mission": "/home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/src/uav_mission",
+    "uav_vision": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_vision",
+    "uav_high_view": "/home/xhj/liftrace-worktrees/r2026-high-view-search/vision_ws/src/uav_high_view",
+    "plan_manage": "/home/xhj/liftrace-worktrees/r2026-high-view-search/patrol_uav_ws-patrol_planner/src/Fast-Planner/fast_planner/plan_manage"
+  },
+  "headless": true,
+  "overview": true,
+  "overview_z": 7.0,
+  "gate_height_unchanged": 0.7,
+  "navigation_columns_full_height": true,
+  "scope": "Static scene and launch checks only"
+}

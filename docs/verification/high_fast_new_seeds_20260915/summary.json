@@ -1,0 +1,30 @@
+{
+  "seeds": [
+    36,
+    37,
+    38,
+    39,
+    40
+  ],
+  "loop_ok": 3,
+  "loop_total": 5,
+  "deliveries_total": 14,
+  "releases_total": 13,
+  "survey_interrupt_times": [
+    60.601,
+    44.2,
+    45.1,
+    46.1,
+    51.8
+  ],
+  "third_commit_times": [
+    101.04000000100001,
+    76.27799999999999,
+    null,
+    79.095000001,
+    null
+  ],
+  "collisions": 2,
+  "gate_pass": 2,
+  "doors_total": 8
+}

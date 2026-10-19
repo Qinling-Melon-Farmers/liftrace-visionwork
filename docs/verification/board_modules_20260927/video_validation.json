@@ -1,0 +1,402 @@
+[
+  {
+    "trial": "visual_interrupt",
+    "videos": {
+      "report_replay": {
+        "path": "logs/board8_01_visual_interrupt_20260927_171550/generated/report_replay.mp4",
+        "frames": 204,
+        "fps": 5.0,
+        "duration_s": 40.8,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "overview": {
+        "path": "logs/board8_01_visual_interrupt_20260927_171550/generated/overview.mp4",
+        "frames": 158,
+        "fps": 5.0,
+        "duration_s": 31.6,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_raw": {
+        "path": "logs/board8_01_visual_interrupt_20260927_171550/generated/camera_raw_h264.mp4",
+        "frames": 204,
+        "fps": 5.0,
+        "duration_s": 40.8,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_annotated": {
+        "path": "logs/board8_01_visual_interrupt_20260927_171550/generated/camera_annotated_h264.mp4",
+        "frames": 204,
+        "fps": 5.0,
+        "duration_s": 40.8,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    "camera_record_ros_span_s": 40.602
+  },
+  {
+    "trial": "high_view",
+    "videos": {
+      "report_replay": {
+        "path": "logs/board8_02_high_view_20260927_172021/generated/report_replay.mp4",
+        "frames": 628,
+        "fps": 5.0,
+        "duration_s": 125.6,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "overview": {
+        "path": "logs/board8_02_high_view_20260927_172021/generated/overview.mp4",
+        "frames": 466,
+        "fps": 5.0,
+        "duration_s": 93.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_raw": {
+        "path": "logs/board8_02_high_view_20260927_172021/generated/camera_raw_h264.mp4",
+        "frames": 628,
+        "fps": 5.0,
+        "duration_s": 125.6,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_annotated": {
+        "path": "logs/board8_02_high_view_20260927_172021/generated/camera_annotated_h264.mp4",
+        "frames": 628,
+        "fps": 5.0,
+        "duration_s": 125.6,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    "camera_record_ros_span_s": 125.396
+  },
+  {
+    "trial": "landing",
+    "videos": {
+      "report_replay": {
+        "path": "logs/board8_03_landing_20260927_172727/generated/report_replay.mp4",
+        "frames": 236,
+        "fps": 5.0,
+        "duration_s": 47.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "overview": {
+        "path": "logs/board8_03_landing_20260927_172727/generated/overview.mp4",
+        "frames": 176,
+        "fps": 5.0,
+        "duration_s": 35.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_raw": {
+        "path": "logs/board8_03_landing_20260927_172727/generated/camera_raw_h264.mp4",
+        "frames": 236,
+        "fps": 5.0,
+        "duration_s": 47.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_annotated": {
+        "path": "logs/board8_03_landing_20260927_172727/generated/camera_annotated_h264.mp4",
+        "frames": 236,
+        "fps": 5.0,
+        "duration_s": 47.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    "camera_record_ros_span_s": 47.007
+  },
+  {
+    "trial": "corridor_landing",
+    "videos": {
+      "report_replay": {
+        "path": "logs/board8_04_corridor_landing_20260927_173237/generated/report_replay.mp4",
+        "frames": 213,
+        "fps": 5.0,
+        "duration_s": 42.6,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "overview": {
+        "path": "logs/board8_04_corridor_landing_20260927_173237/generated/overview.mp4",
+        "frames": 157,
+        "fps": 5.0,
+        "duration_s": 31.4,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_raw": {
+        "path": "logs/board8_04_corridor_landing_20260927_173237/generated/camera_raw_h264.mp4",
+        "frames": 213,
+        "fps": 5.0,
+        "duration_s": 42.6,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_annotated": {
+        "path": "logs/board8_04_corridor_landing_20260927_173237/generated/camera_annotated_h264.mp4",
+        "frames": 213,
+        "fps": 5.0,
+        "duration_s": 42.6,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    "camera_record_ros_span_s": 42.405
+  },
+  {
+    "trial": "low_multi",
+    "videos": {
+      "report_replay": {
+        "path": "logs/board8_05_low_multi_20260927_173632/generated/report_replay.mp4",
+        "frames": 296,
+        "fps": 5.0,
+        "duration_s": 59.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "overview": {
+        "path": "logs/board8_05_low_multi_20260927_173632/generated/overview.mp4",
+        "frames": 222,
+        "fps": 5.0,
+        "duration_s": 44.4,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_raw": {
+        "path": "logs/board8_05_low_multi_20260927_173632/generated/camera_raw_h264.mp4",
+        "frames": 296,
+        "fps": 5.0,
+        "duration_s": 59.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_annotated": {
+        "path": "logs/board8_05_low_multi_20260927_173632/generated/camera_annotated_h264.mp4",
+        "frames": 296,
+        "fps": 5.0,
+        "duration_s": 59.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    "camera_record_ros_span_s": 59.001
+  },
+  {
+    "trial": "high_priority",
+    "videos": {
+      "report_replay": {
+        "path": "logs/board8_06_high_priority_20260927_174228/generated/report_replay.mp4",
+        "frames": 586,
+        "fps": 5.0,
+        "duration_s": 117.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "overview": {
+        "path": "logs/board8_06_high_priority_20260927_174228/generated/overview.mp4",
+        "frames": 423,
+        "fps": 5.0,
+        "duration_s": 84.6,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_raw": {
+        "path": "logs/board8_06_high_priority_20260927_174228/generated/camera_raw_h264.mp4",
+        "frames": 586,
+        "fps": 5.0,
+        "duration_s": 117.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_annotated": {
+        "path": "logs/board8_06_high_priority_20260927_174228/generated/camera_annotated_h264.mp4",
+        "frames": 586,
+        "fps": 5.0,
+        "duration_s": 117.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    "camera_record_ros_span_s": 117.002
+  },
+  {
+    "trial": "memory_only",
+    "videos": {
+      "report_replay": {
+        "path": "logs/board8_07_memory_only_20260927_174935/generated/report_replay.mp4",
+        "frames": 322,
+        "fps": 5.0,
+        "duration_s": 64.4,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "overview": {
+        "path": "logs/board8_07_memory_only_20260927_174935/generated/overview.mp4",
+        "frames": 244,
+        "fps": 5.0,
+        "duration_s": 48.8,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_raw": {
+        "path": "logs/board8_07_memory_only_20260927_174935/generated/camera_raw_h264.mp4",
+        "frames": 322,
+        "fps": 5.0,
+        "duration_s": 64.4,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_annotated": {
+        "path": "logs/board8_07_memory_only_20260927_174935/generated/camera_annotated_h264.mp4",
+        "frames": 322,
+        "fps": 5.0,
+        "duration_s": 64.4,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    "camera_record_ros_span_s": 64.2
+  },
+  {
+    "trial": "full_mission",
+    "videos": {
+      "report_replay": {
+        "path": "logs/board8_08_full_mission_20260927_175414/generated/report_replay.mp4",
+        "frames": 546,
+        "fps": 5.0,
+        "duration_s": 109.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "overview": {
+        "path": "logs/board8_08_full_mission_20260927_175414/generated/overview.mp4",
+        "frames": 413,
+        "fps": 5.0,
+        "duration_s": 82.6,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_raw": {
+        "path": "logs/board8_08_full_mission_20260927_175414/generated/camera_raw_h264.mp4",
+        "frames": 546,
+        "fps": 5.0,
+        "duration_s": 109.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      },
+      "camera_annotated": {
+        "path": "logs/board8_08_full_mission_20260927_175414/generated/camera_annotated_h264.mp4",
+        "frames": 546,
+        "fps": 5.0,
+        "duration_s": 109.2,
+        "sample_decode": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    "camera_record_ros_span_s": 109.003
+  }
+]

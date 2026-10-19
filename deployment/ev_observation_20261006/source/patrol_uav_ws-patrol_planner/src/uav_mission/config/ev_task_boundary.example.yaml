@@ -1,0 +1,31 @@
+# SYNTHETIC example for offline cases only; not measured board calibration.
+# The required false gate prevents this example from enabling the reference.
+reference:
+  calibration_verified: false
+  task_frame: ev_candidate_task
+  fc_frame: map
+  lio_frame: camera_init
+  fc_epoch: REQUIRE_PX4_BOOT_ID
+  lio_epoch: REQUIRE_LIO_GENERATION
+  initial_reset_counter: 0  # Replace with authoritative baseline event sequence.
+  ground_z: 0.0           # Synthetic task-plane height, NOT board ground.
+  task_from_fc:
+    xyz: [0.0, 0.0, 0.0]
+    xyzw: [0.0, 0.0, 0.0, 1.0]
+  task_from_lio:
+    xyz: [0.0, 0.0, 0.0]
+    xyzw: [0.0, 0.0, 0.0, 1.0]
+  body_to_camera:
+    xyz: [0.0, 0.0, -0.16]
+    xyzw: [0.0, 1.0, 0.0, 0.0]
+# Unvalidated candidate observation thresholds; do not change flight safeguards.
+limits:
+  max_age: 0.20
+  future_tolerance: 0.02
+  sync_slop: 0.04
+  reset_max_age: 0.20
+  residual_position: 0.08
+  residual_angle_rad: 0.05235987756
+  sample_count: 3
+  sample_span: 0.10
+  sample_gap: 0.20

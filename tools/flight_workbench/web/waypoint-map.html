@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>航点地图 · 分步设置</title><link rel="stylesheet" href="/static/waypoint-map.css"></head>
+<body>
+<header><div class="brand"><div class="brand-mark" aria-hidden="true">↗</div><div><h1>现场航点地图</h1><p>先看方向、再填范围，最后按飞行顺序布点 · 单位均为米</p></div></div><div class="actions"><label class="button">导入 YAML<input id="import" type="file" accept=".yaml,.yml" hidden></label><button id="reset">恢复打开时的坐标</button><button id="cancel-map">关闭</button><button id="export" class="primary" disabled>保存到工作台</button></div></header>
+<nav class="steps" aria-label="航点设置步骤"><button data-step="1" class="active" aria-current="step"><b>1</b><span>坐标与范围<small>起飞点不必居中</small></span></button><button data-step="2"><b>2</b><span>搜索路线<small>矩形 / 两线 / 三线</small></span></button><button data-step="3"><b>3</b><span>走廊与 H<small>按顺序标门前、门后</small></span></button><button data-step="4"><b>4</b><span>检查与保存<small>生成草稿，再运行检查</small></span></button></nav>
+<main><section class="map-pane">
+<div class="map-orientation"><strong>地图右 → +X 机头前方</strong><strong>地图上 ↑ +Y 机身左侧</strong><span>不是地理北向图；起飞原点固定</span></div>
+<div class="toolbar" role="group" aria-label="地图操作"><button data-mode="select" class="active">选择 / 拖动</button><button data-mode="survey">＋ 搜索点</button><button data-mode="staging">设置准备点 S</button><button data-mode="corridor">＋ 走廊点</button><button data-mode="landing">设置 H 中心</button></div>
+<div class="map-head"><span id="hint">先在右侧确认范围。默认只选择已有点，不会误加航点。</span><div><label>吸附 <select id="snap"><option value="0.1">0.10 m</option><option value="0.05">0.05 m</option><option value="0.01">0.01 m</option><option value="0">关闭</option></select></label><button id="undo">撤销</button></div></div>
+<div class="map-wrap"><svg id="map" viewBox="0 0 1000 730" role="img" aria-label="起飞点为原点，右为X前方、上为Y左侧的米制航点地图"></svg><span id="cursor">X —　Y —</span><div id="map-status" hidden role="status">范围数值尚未填完整，暂时显示上一次有效地图。</div></div>
+<div class="legend"><span class="survey">搜1…：高位搜索顺序</span><span class="corridor">廊1…：走廊顺序</span><span class="landing">H：终点中心</span><span>灰框：FC飞行边界</span><span class="search-box">蓝框：搜索范围</span><span class="target-box">绿框：目标范围</span><span class="coverage-box" id="coverage-legend">紫框：低空覆盖</span><span>长虚线：墙平面参考</span></div>
+<p class="map-note">箭头只表示航点顺序，连线不是最终避障轨迹。墙线没有画门洞，不能据此判断能否穿过；请以实测门洞和机载地图为准。</p>
+</section>
+<aside>
+<section data-panel="1" class="panel"><div class="section-title"><h2>① 看懂方向，填写范围</h2><span class="badge">原点不移动</span></div>
+<div class="coordinate-guide">
+<svg viewBox="0 0 380 165" role="img" aria-label="起飞原点向右为前方X正，向上为左侧Y正；前方3米右侧1米是3,-1"><defs><marker id="guide-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10" fill="#1769a4"/></marker></defs><path d="M54 88H347 M94 132V17" stroke="#1769a4" stroke-width="2" marker-end="url(#guide-arrow)"/><path d="M94 88L276 88L276 126" fill="none" stroke="#ca6821" stroke-dasharray="4 4"/><path d="M86 80L107 88L86 96L90 88Z" fill="#203a50"/><circle cx="276" cy="126" r="5" fill="#ca6821"/><text x="111" y="106">起飞 (0,0)</text><text x="104" y="25">+Y 左</text><text x="295" y="77">+X 前</text><text x="24" y="77">−X 后</text><text x="39" y="148">−Y 右</text><text x="212" y="151" fill="#a34d10">(3, −1)：前3，右1</text></svg>
+<p>站在飞机后面朝机头看：前方是 +X，左边是 +Y。<b>图上机头朝右，别把图的上方当作机头。</b></p>
+</div>
+<details class="example"><summary>起飞点不在中间，怎么换算？</summary><p>例：前9m、后1m、左2m、右4m。相对起飞点的物理外框为 <b>X −1～9，Y −4～2</b>。左右不相等完全正常，无需平移原点。</p><p>下方“FC飞行边界”应在物理外框内留出机体与跟踪余量；搜索区还要避开走廊。这个例子不会自动写入配置。</p></details>
+<div id="geometry"></div>
+<p class="small">已有值来自当前所选配置。只改本次现场确实变化的范围，地图尺寸需包住全部航点。</p>
+</section>
+<section data-panel="2" class="panel route-generator" hidden><h2>② 生成搜索路线</h2><p class="intro">用第①步的蓝色搜索范围生成，随后可拖点微调。</p>
+<label>路线形状<select id="route-pattern"><option value="rectangle">矩形 · 5点，回到起点</option><option value="snake2">两条扫描线 · 4点</option><option value="snake3">三条扫描线 · 6点</option></select></label>
+<div class="pattern-cards" role="group" aria-label="搜索形状示意">
+<button data-pattern="rectangle" class="active" aria-pressed="true"><svg viewBox="0 0 100 65" aria-hidden="true"><path d="M18 49H82V15H18V49"/><path class="arrow" d="M52 46L59 49L52 52"/><circle cx="18" cy="49" r="4"/></svg>矩形</button>
+<button data-pattern="snake2" aria-pressed="false"><svg viewBox="0 0 100 65" aria-hidden="true"><path d="M20 50V15H80V50"/><path class="arrow" d="M77 41L80 48L83 41"/><circle cx="20" cy="50" r="4"/></svg>两线</button>
+<button data-pattern="snake3" aria-pressed="false"><svg viewBox="0 0 100 65" aria-hidden="true"><path d="M16 50V15H50V50H84V15"/><path class="arrow" d="M81 24L84 17L87 24"/><circle cx="16" cy="50" r="4"/></svg>三线</button></div>
+<label>航线相对搜索边界再内收 / m<input id="route-inset" type="number" min="0" step="0.05" value="0"></label><p class="small">例如 0.20：四条边各内收20cm；0 表示沿蓝框边界。只是航点内收，不自动计算完整相机覆盖。</p>
+<button id="generate-route" class="primary">生成 / 替换搜索点</button><p id="height-summary" class="notice"></p>
+<p class="small">生成只替换搜索点，不改走廊、H、高度或速度。准备点 S 是进入搜索前的过渡位置，可用上方按钮单独设置。</p>
+</section>
+<section data-panel="3" class="panel" hidden><h2>③ 沿实际飞行顺序布点</h2><p class="intro">点“＋走廊点”，依次点击门前 → 门后 → 下一道门前 → 门后 → H区。再点“设置H中心”。</p>
+<svg class="door-guide" viewBox="0 0 380 123" role="img" aria-label="门前点与门后点对着同一门洞，最后到H区；仅示意，不自动生成"><path d="M38 58H340" stroke="#ca6821" stroke-width="2" stroke-dasharray="5 3"/><path d="M124 6V37 M124 79V103 M254 6V37 M254 79V103" stroke="#798b98" stroke-width="9"/><g fill="#ca6821"><circle cx="71" cy="58" r="7"/><circle cx="173" cy="58" r="7"/><circle cx="217" cy="58" r="7"/><circle cx="293" cy="58" r="7"/></g><g fill="#fff" stroke="#107c72" stroke-width="2"><circle cx="347" cy="58" r="15"/></g><g fill="#203a50" text-anchor="middle"><text x="71" y="83">门前1</text><text x="173" y="83">门后2</text><text x="217" y="34">门前3</text><text x="293" y="34">门后4</text><text x="347" y="64">H</text><text x="124" y="119">第一门</text><text x="254" y="119">第二门</text></g></svg>
+<p class="small">示意图不是现场航线。每对门前/门后点须对着实测门洞中心；不要把墙上实心位置当航点。AGL 是 <b>FC中心离地高度</b>，不是脚架或镜头高度。</p>
+<details class="example"><summary>可选：填写墙面与低入口交接点</summary><label>墙面常量轴<select id="wall-axis"><option value="1">Y：墙位于 y = 某值</option><option value="0">X：墙位于 x = 某值</option></select></label><label>这些墙的坐标 / m（逗号分隔）<input id="walls" placeholder="例：0.0, -1.4"></label><label>低入口交接点是廊几？（从1开始）<input id="entry" type="number" min="1" step="1"></label><p class="small">X常量墙在图上竖直，Y常量墙在图上水平；这里只填同一方向的相关墙，不能把四周不同方向的墙混进一组。入口序号指完成哪个走廊点后切换走廊限高。</p><p id="wall-note" class="small">穿墙面前后的航点使用原工程保护规则；此表只是几何参考，不能代替真实避障。低入口交接点及之后的高度默认不超过1.0m。</p></details>
+</section>
+<section id="point-inspector" class="inspector" hidden><div class="section-title"><h2 id="list-title">走廊航点</h2><span id="count"></span></div><p id="list-note"></p><div class="defaults"><label>新增走廊点 AGL / m<input id="default-agl" type="number" value="0.9" min="0.5" max="1" step="0.05"></label><button id="clear">清空当前路线</button></div><div id="points"></div><div class="route-actions"><button id="close-route">闭合搜索路线</button><button id="join-h">末点 XY 设到 H</button></div></section>
+<section data-panel="4" class="panel export-box" hidden><h2>④ 核对，然后保存</h2><div id="draft-summary" class="notice"></div><ol class="check-list"><li>核对正负方向、边界和各航点顺序。</li><li>逐门核对门前/门后点和FC高度；H点是终点靶心。</li><li>保存后回到卡片运行“配置检查”，再预览实际生成参数与航路。</li></ol><input id="filename" value="site_waypoints.yaml" hidden><div id="validation" role="status"></div><details><summary>展开生成的 YAML</summary><pre id="preview"></pre></details><p class="small">“保存到工作台”只保存本机草稿并生成命令，不立即发给飞机、不启动飞行，也不覆盖原现场YAML。实际启动仍沿用卡片上的检查与确认流程。</p></section>
+<div class="step-actions"><button id="step-prev">上一步</button><span id="step-position">1 / 4</span><button id="step-next" class="primary">下一步：搜索路线 →</button></div>
+<div id="check-status" role="status" class="check-status">正在读取配置…</div>
+</aside></main><div id="toast" role="status" hidden></div><script src="/static/waypoint-coverage.js"></script><script src="/static/waypoint-map.js"></script></body></html>

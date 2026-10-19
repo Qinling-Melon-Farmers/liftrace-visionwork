@@ -1,0 +1,145 @@
+{
+  "calibration_source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/docs/verification/flight_1014_0425_20261014/bridge_metrics.json",
+  "K": [
+    725.3510059644434,
+    0.0,
+    631.6718631370258,
+    0.0,
+    723.3403562845087,
+    397.5663813311627,
+    0.0,
+    0.0,
+    1.0
+  ],
+  "D": [
+    0.0058668600963917095,
+    0.01791054954675837,
+    -0.0010064115869294274,
+    0.0014715593681005204,
+    -0.026485100937585344
+  ],
+  "image_size": [
+    1280,
+    720
+  ],
+  "camera_z_from_fc": -0.16,
+  "fov_task_xy_deg": {
+    "pinhole": [
+      82.84173239137257,
+      52.81955237549945
+    ],
+    "with_D": [
+      82.67056586479885,
+      52.70905524081919
+    ]
+  },
+  "inscribed_scale": 0.9919133415428202,
+  "heights": [
+    {
+      "fc_agl": 2.16,
+      "lens_agl": 2.0,
+      "pinhole_xy": [
+        3.5293257732456924,
+        1.9907640815129777
+      ],
+      "D_inscribed_xy": [
+        3.5007853211333324,
+        1.974665452316961
+      ],
+      "D_inscribed_bounds": [
+        -1.773170019380955,
+        1.7276153017523774,
+        -1.090361941968497,
+        0.884303510348464
+      ]
+    },
+    {
+      "fc_agl": 2.6,
+      "lens_agl": 2.44,
+      "pinhole_xy": [
+        4.305777443359744,
+        2.4287321794458325
+      ],
+      "D_inscribed_xy": [
+        4.270958091782665,
+        2.409091851826692
+      ],
+      "D_inscribed_bounds": [
+        -2.1632674236447653,
+        2.1076906681379004,
+        -1.330241569201566,
+        1.078850282625126
+      ]
+    },
+    {
+      "fc_agl": 2.76,
+      "lens_agl": 2.5999999999999996,
+      "pinhole_xy": [
+        4.588123505219399,
+        2.5879933059668705
+      ],
+      "D_inscribed_xy": [
+        4.551020917473331,
+        2.5670650880120487
+      ],
+      "D_inscribed_bounds": [
+        -2.305121025195241,
+        2.24589989227809,
+        -1.4174705245590458,
+        1.149594563453003
+      ]
+    },
+    {
+      "fc_agl": 3.0,
+      "lens_agl": 2.84,
+      "pinhole_xy": [
+        5.011642598008883,
+        2.8268849957484283
+      ],
+      "D_inscribed_xy": [
+        4.971115156009332,
+        2.8040249422900843
+      ],
+      "D_inscribed_bounds": [
+        -2.517901427520956,
+        2.4532137284883757,
+        -1.5483139575952656,
+        1.255710984694819
+      ]
+    }
+  ],
+  "rectangle_relative_to_search_min": [
+    [
+      2.4,
+      0.8
+    ],
+    [
+      5.7,
+      0.8
+    ],
+    [
+      5.7,
+      9.1
+    ],
+    [
+      2.4,
+      9.1
+    ],
+    [
+      2.4,
+      0.8
+    ]
+  ],
+  "route_length": 23.2,
+  "rotated_1m_board_extra_margins_x": {
+    "left": 0.11790142752095623,
+    "right": 0.15321372848837633,
+    "middle_each_side": 0.12845079681811844
+  },
+  "conditions": [
+    "level downward camera; fixed nominal yaw; flat ground",
+    "whole target board inside search bounds",
+    "FOV model estimate, not measured effective detection FOV",
+    "no obstacle clearance, attitude or tracking guarantee; no flight config modified"
+  ]
+}

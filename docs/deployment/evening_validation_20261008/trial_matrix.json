@@ -1,0 +1,226 @@
+{
+  "status": "PASS",
+  "root": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests",
+  "generator": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/deployment/board_trials_4x4/common/uav_board_trials/scripts/trial_config.py",
+  "reference_fc": [
+    0,
+    0,
+    0
+  ],
+  "ground_z": -0.22,
+  "ros_started": false,
+  "repo_modified_by_check": false,
+  "fixture_source": "deployment/board_trials_4x4/common/uav_board_trials/test/test_modules.py:40",
+  "fixture_04_08": {
+    "corridor_waypoints": [
+      {
+        "x": 0.6,
+        "y": 0.0
+      },
+      {
+        "x": 2.0,
+        "y": 0.0
+      }
+    ],
+    "landing_xy": [
+      2.8,
+      0.0
+    ]
+  },
+  "shared_slot_order": [
+    "rear",
+    "right",
+    "left"
+  ],
+  "shared_slot_offsets_body_flu_m": [
+    [
+      -0.12,
+      0.0
+    ],
+    [
+      0.0,
+      -0.12
+    ],
+    [
+      0.0,
+      0.12
+    ]
+  ],
+  "shared_drop_settle": {
+    "xy_tolerance_m": 0.04,
+    "height_tolerance_m": 0.05,
+    "max_horizontal_speed_mps": 0.05,
+    "max_vertical_speed_mps": 0.1,
+    "stable_duration_sec": 0.3,
+    "max_odom_age_sec": 0.2,
+    "max_sample_gap_sec": 0.2,
+    "min_samples": 3
+  },
+  "full_orientation_source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/patrol_uav_ws-patrol_planner/src/patrol_control/include/patrol_control/drop_slot_geometry.h",
+  "full_orientation_control_lines": [
+    3626,
+    3663
+  ],
+  "rows": [
+    {
+      "group": "01_visual_interrupt",
+      "fixture": false,
+      "actuator": "real",
+      "generated": true,
+      "drop_enabled": true,
+      "drop_agl": 0.35,
+      "drop_local_z": 0.13,
+      "release_threshold_agl": 0.45,
+      "slots_match": true,
+      "settle_match": true,
+      "full_orientation": true,
+      "navigation_recovery": false
+    },
+    {
+      "group": "02_high_view_revisit",
+      "fixture": false,
+      "actuator": "real",
+      "generated": true,
+      "drop_enabled": true,
+      "drop_agl": 0.35,
+      "drop_local_z": 0.13,
+      "release_threshold_agl": 0.45,
+      "slots_match": true,
+      "settle_match": true,
+      "full_orientation": true,
+      "navigation_recovery": false
+    },
+    {
+      "group": "03_h_landing",
+      "fixture": false,
+      "actuator": "none",
+      "generated": true,
+      "drop_enabled": false,
+      "drop_agl": 0.6,
+      "drop_local_z": 0.38,
+      "release_threshold_agl": 0.7,
+      "slots_match": true,
+      "settle_match": true,
+      "full_orientation": true,
+      "navigation_recovery": false,
+      "H": {
+        "mode": "POSCTL",
+        "target_agl": 0.35,
+        "trigger_agl": 0.37,
+        "max_xy_mps": 0.08,
+        "max_vz_mps": 0.1,
+        "stable_sec": 0.15,
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.02,
+        "capture_height_tolerance_m": 0.1
+      }
+    },
+    {
+      "group": "04_corridor_landing",
+      "fixture": true,
+      "actuator": "none",
+      "generated": true,
+      "drop_enabled": false,
+      "drop_agl": 0.6,
+      "drop_local_z": 0.38,
+      "release_threshold_agl": 0.7,
+      "slots_match": true,
+      "settle_match": true,
+      "full_orientation": true,
+      "navigation_recovery": false,
+      "H": {
+        "mode": "POSCTL",
+        "target_agl": 0.35,
+        "trigger_agl": 0.37,
+        "max_xy_mps": 0.08,
+        "max_vz_mps": 0.1,
+        "stable_sec": 0.15,
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.02,
+        "capture_height_tolerance_m": 0.1
+      }
+    },
+    {
+      "group": "05_low_multi",
+      "fixture": false,
+      "actuator": "real",
+      "generated": true,
+      "drop_enabled": true,
+      "drop_agl": 0.35,
+      "drop_local_z": 0.13,
+      "release_threshold_agl": 0.45,
+      "slots_match": true,
+      "settle_match": true,
+      "full_orientation": true,
+      "navigation_recovery": false
+    },
+    {
+      "group": "06_high_priority",
+      "fixture": false,
+      "actuator": "real",
+      "generated": true,
+      "drop_enabled": true,
+      "drop_agl": 0.35,
+      "drop_local_z": 0.13,
+      "release_threshold_agl": 0.45,
+      "slots_match": true,
+      "settle_match": true,
+      "full_orientation": true,
+      "navigation_recovery": false
+    },
+    {
+      "group": "07_memory_only",
+      "fixture": false,
+      "actuator": "none",
+      "generated": true,
+      "drop_enabled": false,
+      "drop_agl": 0.6,
+      "drop_local_z": 0.38,
+      "release_threshold_agl": 0.7,
+      "slots_match": true,
+      "settle_match": true,
+      "full_orientation": true,
+      "navigation_recovery": false
+    },
+    {
+      "group": "08_full_mission",
+      "fixture": true,
+      "actuator": "real",
+      "generated": true,
+      "drop_enabled": true,
+      "drop_agl": 0.35,
+      "drop_local_z": 0.13,
+      "release_threshold_agl": 0.45,
+      "slots_match": true,
+      "settle_match": true,
+      "full_orientation": true,
+      "navigation_recovery": false,
+      "H": {
+        "mode": "POSCTL",
+        "target_agl": 0.35,
+        "trigger_agl": 0.37,
+        "max_xy_mps": 0.08,
+        "max_vz_mps": 0.1,
+        "stable_sec": 0.15,
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.02,
+        "capture_height_tolerance_m": 0.1
+      }
+    },
+    {
+      "group": "09_high_speed_capture",
+      "fixture": false,
+      "actuator": "none",
+      "generated": true,
+      "drop_enabled": false,
+      "drop_agl": 0.6,
+      "drop_local_z": 0.38,
+      "release_threshold_agl": 0.7,
+      "slots_match": true,
+      "settle_match": true,
+      "full_orientation": true,
+      "navigation_recovery": false
+    }
+  ],
+  "issues": []
+}

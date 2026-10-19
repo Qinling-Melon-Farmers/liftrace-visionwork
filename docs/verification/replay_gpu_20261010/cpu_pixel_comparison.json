@@ -1,0 +1,70 @@
+{
+  "camera_raw": [
+    {
+      "frame": 0,
+      "equal": true,
+      "max_absolute_channel_difference": 0
+    },
+    {
+      "frame": 125,
+      "equal": true,
+      "max_absolute_channel_difference": 0
+    },
+    {
+      "frame": 249,
+      "equal": true,
+      "max_absolute_channel_difference": 0
+    }
+  ],
+  "camera_annotated": [
+    {
+      "frame": 0,
+      "equal": true,
+      "max_absolute_channel_difference": 0
+    },
+    {
+      "frame": 125,
+      "equal": true,
+      "max_absolute_channel_difference": 0
+    },
+    {
+      "frame": 249,
+      "equal": true,
+      "max_absolute_channel_difference": 0
+    }
+  ],
+  "trajectory": [
+    {
+      "frame": 0,
+      "equal": true,
+      "max_absolute_channel_difference": 0
+    },
+    {
+      "frame": 125,
+      "equal": true,
+      "max_absolute_channel_difference": 0
+    },
+    {
+      "frame": 249,
+      "equal": true,
+      "max_absolute_channel_difference": 0
+    }
+  ],
+  "dashboard": [
+    {
+      "frame": 0,
+      "equal": true,
+      "max_absolute_channel_difference": 0
+    },
+    {
+      "frame": 125,
+      "equal": true,
+      "max_absolute_channel_difference": 0
+    },
+    {
+      "frame": 249,
+      "equal": true,
+      "max_absolute_channel_difference": 0
+    }
+  ]
+}

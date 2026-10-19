@@ -25,7 +25,9 @@ high_agl: 2.76
 # 软件 FC 离地限高；必须高于搜索高度，并结合机身顶部净空满足规则 4m。
 max_agl: 3.2
 # 正式释放平面为 FC 离地0.35m；不是相机高度或投口离地高度。
-drop_agl: 0.35
+drop_agl: 0.40
+release_min_agl: 0.35
+release_max_agl: 0.45
 # H 前水平转场的 FC 离地高度；保持既有比赛配置。
 landing_transit_agl: 1.0
 # H 视觉捕获的 FC 离地高度；保留比赛值，测试的 1.2m不自动推广。
@@ -118,12 +120,14 @@ following_speed_profile:
   precision_lead_m: 0.4
   corridor_lead_m: 0.4
   corridor_after_waypoints: 1
-# 导航脱困恢复尚未纳入main；原投后爬升交接保留。
+# 正式导航故障恢复保持关闭；运动优化内的投后爬升交接不受此开关替代。
+navigation_recovery:
+  enabled: false
 # 保留视觉证据门槛；高位续扫最多一次，保留原任务总预算。
 survey_policy:
   resume_survey_enabled: true
   coarse_enabled: true
-  coarse_min_confidence: 0.6
+  coarse_min_confidence: 0.75
   coarse_interrupt_min_interval_ns: 100000000
   coarse_interrupt_max_gap_ns: 1000000000
   coarse_interrupt_consistency_m: 0.5
@@ -185,13 +189,13 @@ motion_optimization:
 # 沿用已验收 POSCTL 视觉下降交接；飞手完成末段，不等同已验收自主落地得分。
 landing_handoff_mode: POSCTL
 # 仅用于 POSCTL：静置 FC 离地 0.22m 时，目标处脚架名义间隙为 0.13m。
-# 低位短确认使用冻结H点并允许受控缓降；AUTO.LAND不应用本参数块。
+# 最终停稳使用冻结 H 点；AUTO.LAND 不应用本参数块。
 landing_posctl:
   target_agl: 0.35
   trigger_agl: 0.37
   xy_tolerance_m: 0.05
   height_tolerance_m: 0.02
-  capture_height_tolerance_m: 0.10  # 高位独立容差；低位仅保留安全下界和显式请求上限。
+  capture_height_tolerance_m: 0.10  # 仅观察高位；低位高度容差仍为 ±0.02m。
   max_horizontal_speed_mps: 0.08
   max_vertical_speed_mps: 0.10
   stable_duration_sec: 0.15

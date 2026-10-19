@@ -1,0 +1,29 @@
+[reset] time: 3.28852 ms
+[kino replan]: -----------------------
+start:   -4.31354 -0.0353812    1.22441, 0.00609192  -0.084759  -0.043127, 0 0 0
+goal: 4.3    0 1.18, 0 0 0
+[INFO] [1789011350.564180026, 42.875000000]: lidar_transform: pointcloud recieved,19768 points
+[build scan map] time: 3.22422 ms
+[scan removal] time: 1.94324 ms
+[raycast enhancement] time: 74.7196 ms
+[raycast] time: 16.602 ms
+[map removal] time: 0.063723 ms
+[staticspace integration] time: 1.00911 ms
+[remove map out of bound] time: 0.000578 ms
+[reset] time: 2.27374 ms
+[kino replan]: kinodynamic search fail!
+[INFO] [1789011350.829067758, 42.981000000]: lidar_transform: pointcloud recieved,19734 points
+[build scan map] time: 3.06524 ms
+[scan removal] time: 3.02516 ms
+[raycast enhancement] time: 86.927 ms
+[raycast] time: 12.9467 ms
+[map removal] time: 0.025538 ms
+[staticspace integration] time: 1.05234 ms
+[remove map out of bound] time: 0.000643 ms
+[reset] time: 2.67209 ms
+[kino replan]: Can't find path.
+generate new traj fail.
+[FSM]: from GEN_NEW_TRAJ to GEN_NEW_TRAJ
+[INFO] [1789011351.131115471, 43.061000000]: lidar_transform: pointcloud recieved,19723 points
+[build scan map] time: 3.07743 ms
+[scan removal] time: 2.18704 ms

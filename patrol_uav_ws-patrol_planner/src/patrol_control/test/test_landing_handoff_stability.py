@@ -81,6 +81,15 @@ int main(int argc, char** argv) {
             auto s = sample(100); s.vertical_speed_mps = vz;
             assert(std::strcmp(w.update(100.02, s).reason, "vertical_speed") == 0);
         }
+        // Only explicit H handoff opt-out bypasses the vertical speed gate.
+        for (double vz : {-1.0, 1.0}) {
+            w.reset();
+            for (int i=0;i<5;++i) {
+                auto s=sample(101+i*.125);
+                s.vertical_speed_mps=vz; s.check_vertical_speed=false;
+                assert(w.update(s.source_stamp_sec+.02,s).ready==(i==4));
+            }
+        }
     } else if (name == "stale_future_or_invalid_stamp") {
         for (int kind = 0; kind < 5; ++kind) {
             settled(w, 100); auto s = sample(100.625);

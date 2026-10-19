@@ -1,0 +1,9 @@
+{
+  "deleted_local_refs": 36,
+  "deleted_remote_refs": 26,
+  "retired_worktrees": 2,
+  "remaining_worktrees": 3,
+  "historical_data_access": "PASS",
+  "removed_ref_verification": "PASS",
+  "canonical_competition_base": "86e382d"
+}

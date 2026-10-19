@@ -1,0 +1,16 @@
+# EXPERIMENTAL ONLY: limits are offline test candidates, not flight acceptance.
+output_hz: 50.0
+status_hz: 2.0
+# Existing rig LIO IMU -> FC reference; verify against the deployed calibration.
+imu_to_body_xyz: [0.0, 0.0, -0.05]
+limits:
+  imu_gap: 0.025
+  output_age: 0.10
+  correction_age: 0.30
+  future_tolerance: 0.005
+  buffer_seconds: 0.8
+  buffer_samples: 1000
+  correction_position: 0.20
+  correction_angle: 0.17453292519943295
+  smoothing_tau: 0.15
+  position_sigma: 0.30

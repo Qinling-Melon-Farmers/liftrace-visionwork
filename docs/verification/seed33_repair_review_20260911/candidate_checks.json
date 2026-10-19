@@ -1,0 +1,227 @@
+[
+  {
+    "snapshot": 2,
+    "ros_sec": 394.357,
+    "trials": [
+      {
+        "z": 0.18,
+        "radius": 0.1,
+        "total": 13,
+        "outside_snapshot": 0,
+        "unoccupied": []
+      },
+      {
+        "z": 0.18,
+        "radius": 0.2,
+        "total": 49,
+        "outside_snapshot": 0,
+        "unoccupied": []
+      },
+      {
+        "z": 0.18,
+        "radius": 0.3,
+        "total": 113,
+        "outside_snapshot": 0,
+        "unoccupied": [
+          {
+            "xyz": [
+              2.3,
+              8.049999999999999,
+              0.18
+            ],
+            "nearest_occupied_center_m": 0.035706942248435444,
+            "distance_to_original_goal": 0.3041381265149117
+          },
+          {
+            "xyz": [
+              2.5,
+              8.15,
+              0.18
+            ],
+            "nearest_occupied_center_m": 0.03570720933065235,
+            "distance_to_original_goal": 0.2872281323269011
+          }
+        ]
+      },
+      {
+        "z": 0.23,
+        "radius": 0.1,
+        "total": 13,
+        "outside_snapshot": 0,
+        "unoccupied": []
+      },
+      {
+        "z": 0.23,
+        "radius": 0.2,
+        "total": 49,
+        "outside_snapshot": 0,
+        "unoccupied": []
+      },
+      {
+        "z": 0.23,
+        "radius": 0.3,
+        "total": 113,
+        "outside_snapshot": 0,
+        "unoccupied": [
+          {
+            "xyz": [
+              2.3,
+              8.049999999999999,
+              0.23
+            ],
+            "nearest_occupied_center_m": 0.03570694266575414,
+            "distance_to_original_goal": 0.3000000000000007
+          },
+          {
+            "xyz": [
+              2.5,
+              8.15,
+              0.23
+            ],
+            "nearest_occupied_center_m": 0.03570720974796792,
+            "distance_to_original_goal": 0.2828427124746186
+          }
+        ]
+      },
+      {
+        "z": 0.28,
+        "radius": 0.1,
+        "total": 13,
+        "outside_snapshot": 0,
+        "unoccupied": []
+      },
+      {
+        "z": 0.28,
+        "radius": 0.2,
+        "total": 49,
+        "outside_snapshot": 0,
+        "unoccupied": []
+      },
+      {
+        "z": 0.28,
+        "radius": 0.3,
+        "total": 113,
+        "outside_snapshot": 0,
+        "unoccupied": [
+          {
+            "xyz": [
+              2.3,
+              8.049999999999999,
+              0.28
+            ],
+            "nearest_occupied_center_m": 0.03570694099648084,
+            "distance_to_original_goal": 0.3041381265149117
+          },
+          {
+            "xyz": [
+              2.5,
+              8.15,
+              0.28
+            ],
+            "nearest_occupied_center_m": 0.03570720807870711,
+            "distance_to_original_goal": 0.2872281323269011
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "snapshot": 3,
+    "ros_sec": 484.4,
+    "trials": [
+      {
+        "z": 0.18,
+        "radius": 0.1,
+        "total": 13,
+        "outside_snapshot": 1,
+        "unoccupied": []
+      },
+      {
+        "z": 0.18,
+        "radius": 0.2,
+        "total": 49,
+        "outside_snapshot": 13,
+        "unoccupied": []
+      },
+      {
+        "z": 0.18,
+        "radius": 0.3,
+        "total": 113,
+        "outside_snapshot": 39,
+        "unoccupied": [
+          {
+            "xyz": [
+              2.3,
+              8.049999999999999,
+              0.18
+            ],
+            "nearest_occupied_center_m": 0.035706942248435444,
+            "distance_to_original_goal": 0.3041381265149117
+          }
+        ]
+      },
+      {
+        "z": 0.23,
+        "radius": 0.1,
+        "total": 13,
+        "outside_snapshot": 1,
+        "unoccupied": []
+      },
+      {
+        "z": 0.23,
+        "radius": 0.2,
+        "total": 49,
+        "outside_snapshot": 13,
+        "unoccupied": []
+      },
+      {
+        "z": 0.23,
+        "radius": 0.3,
+        "total": 113,
+        "outside_snapshot": 39,
+        "unoccupied": [
+          {
+            "xyz": [
+              2.3,
+              8.049999999999999,
+              0.23
+            ],
+            "nearest_occupied_center_m": 0.03570694266575414,
+            "distance_to_original_goal": 0.3000000000000007
+          }
+        ]
+      },
+      {
+        "z": 0.28,
+        "radius": 0.1,
+        "total": 13,
+        "outside_snapshot": 1,
+        "unoccupied": []
+      },
+      {
+        "z": 0.28,
+        "radius": 0.2,
+        "total": 49,
+        "outside_snapshot": 13,
+        "unoccupied": []
+      },
+      {
+        "z": 0.28,
+        "radius": 0.3,
+        "total": 113,
+        "outside_snapshot": 39,
+        "unoccupied": [
+          {
+            "xyz": [
+              2.3,
+              8.049999999999999,
+              0.28
+            ],
+            "nearest_occupied_center_m": 0.03570694099648084,
+            "distance_to_original_goal": 0.3041381265149117
+          }
+        ]
+      }
+    ]
+  }
+]

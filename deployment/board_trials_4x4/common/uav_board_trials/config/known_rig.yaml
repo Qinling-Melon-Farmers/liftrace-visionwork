@@ -1,0 +1,40 @@
+mission_frame: camera_init
+mavros_frame: map
+body_to_imu_xyz:
+- 0.0
+- 0.0
+- 0.05
+imu_to_camera_xyz:
+- 0.0
+- 0.0
+- -0.21
+camera_quat_xyzw:
+- 0.0
+- 1.0
+- 0.0
+- 0.0
+pixel_to_body_matrix:
+- -1.0
+- 0.0
+- 0.0
+- 1.0
+fc_ground_clearance: 0.22
+source: Flight team minimal_delivery_test at fa621262 (camera rotation verified 20260923);
+  slot offsets inherited; AGL uses measured stationary reference
+# 三槽依次为后、右、左；表项是 FC→投口的机体系水平安装杆臂（前为+X、左为+Y）。
+# 保留实测12cm。控制器先按完整姿态旋转，再从靶心减去杆臂；不能直接加到地图XY。
+# 垂直杆臂尚未测量，本表只含XY，计算中Z按0处理。
+slot_offsets:
+- - -0.12
+  - 0.0
+- - 0.0
+  - -0.12
+- - 0.0
+  - 0.12
+dynamic_slot_offsets:
+- - -0.12
+  - 0.0
+- - 0.0
+  - -0.12
+- - 0.0
+  - 0.12

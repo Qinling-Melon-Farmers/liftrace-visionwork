@@ -1,0 +1,348 @@
+{
+  "calibration": [
+    725.3510059644434,
+    0.0,
+    631.6718631370258,
+    0.0,
+    723.3403562845087,
+    397.5663813311627,
+    0.0,
+    0.0,
+    1.0
+  ],
+  "assumptions": "Flat ground, nadir, yaw=0; raw image letterbox 1280x720 to 640x640. Geometric only.",
+  "height_table": [
+    {
+      "fc_agl": 1.4,
+      "optical_agl": 1.24,
+      "fov_long": 2.188181979412329,
+      "fov_short": 1.234273730538046,
+      "standard_board_1m_input_px": 291.66949850181805,
+      "red_cross_035m_input_px": 102.08432447563631
+    },
+    {
+      "fc_agl": 2.0,
+      "optical_agl": 1.84,
+      "fov_long": 3.2469797113860372,
+      "fov_short": 1.8315029549919393,
+      "standard_board_1m_input_px": 196.55987942513823,
+      "red_cross_035m_input_px": 68.79595779879838
+    },
+    {
+      "fc_agl": 2.4,
+      "optical_agl": 2.2399999999999998,
+      "fov_long": 3.9528448660351754,
+      "fov_short": 2.2296557712945346,
+      "standard_board_1m_input_px": 161.45990095636358,
+      "red_cross_035m_input_px": 56.510965334727246
+    },
+    {
+      "fc_agl": 2.6,
+      "optical_agl": 2.44,
+      "fov_long": 4.305777443359744,
+      "fov_short": 2.4287321794458325,
+      "standard_board_1m_input_px": 148.22548284518624,
+      "red_cross_035m_input_px": 51.87891899581518
+    },
+    {
+      "fc_agl": 2.8,
+      "optical_agl": 2.6399999999999997,
+      "fov_long": 4.658710020684314,
+      "fov_short": 2.62780858759713,
+      "standard_board_1m_input_px": 136.9962795993388,
+      "red_cross_035m_input_px": 47.94869785976858
+    },
+    {
+      "fc_agl": 3.0,
+      "optical_agl": 2.84,
+      "fov_long": 5.011642598008883,
+      "fov_short": 2.826884995748428,
+      "standard_board_1m_input_px": 127.34865427544169,
+      "red_cross_035m_input_px": 44.57202899640459
+    }
+  ],
+  "roi": [
+    -4.3,
+    4.3,
+    0,
+    7.1
+  ],
+  "grid_m": 0.05,
+  "routes": {
+    "inner_loop": [
+      [
+        -3,
+        1.2
+      ],
+      [
+        3,
+        1.2
+      ],
+      [
+        3,
+        5.9
+      ],
+      [
+        -3,
+        5.9
+      ],
+      [
+        -3,
+        1.2
+      ]
+    ],
+    "loop_plus_center": [
+      [
+        -3,
+        1.2
+      ],
+      [
+        3,
+        1.2
+      ],
+      [
+        3,
+        5.9
+      ],
+      [
+        -3,
+        5.9
+      ],
+      [
+        -3,
+        1.2
+      ],
+      [
+        0,
+        1.2
+      ],
+      [
+        0,
+        5.9
+      ]
+    ],
+    "two_lanes_yaw90": [
+      [
+        -3.4,
+        1.9
+      ],
+      [
+        3.4,
+        1.9
+      ],
+      [
+        3.4,
+        5.2
+      ],
+      [
+        -3.4,
+        5.2
+      ]
+    ],
+    "four_lanes_yaw90": [
+      [
+        -2.8,
+        0.8
+      ],
+      [
+        2.8,
+        0.8
+      ],
+      [
+        2.8,
+        2.65
+      ],
+      [
+        -2.8,
+        2.65
+      ],
+      [
+        -2.8,
+        4.5
+      ],
+      [
+        2.8,
+        4.5
+      ],
+      [
+        2.8,
+        6.35
+      ],
+      [
+        -2.8,
+        6.35
+      ]
+    ]
+  },
+  "sweep_results": [
+    {
+      "route": "inner_loop",
+      "fc_agl": 2.4,
+      "border_crop_fraction": 0,
+      "geometric_point_coverage": 0.9132410743530953,
+      "route_length": 21.4
+    },
+    {
+      "route": "inner_loop",
+      "fc_agl": 2.4,
+      "border_crop_fraction": 0.1,
+      "geometric_point_coverage": 0.8003603013429413,
+      "route_length": 21.4
+    },
+    {
+      "route": "inner_loop",
+      "fc_agl": 2.6,
+      "border_crop_fraction": 0,
+      "geometric_point_coverage": 0.9534883720930233,
+      "route_length": 21.4
+    },
+    {
+      "route": "inner_loop",
+      "fc_agl": 2.6,
+      "border_crop_fraction": 0.1,
+      "geometric_point_coverage": 0.8415083524402227,
+      "route_length": 21.4
+    },
+    {
+      "route": "inner_loop",
+      "fc_agl": 3.0,
+      "border_crop_fraction": 0,
+      "geometric_point_coverage": 0.9941860465116279,
+      "route_length": 21.4
+    },
+    {
+      "route": "inner_loop",
+      "fc_agl": 3.0,
+      "border_crop_fraction": 0.1,
+      "geometric_point_coverage": 0.9226989846053063,
+      "route_length": 21.4
+    },
+    {
+      "route": "loop_plus_center",
+      "fc_agl": 2.4,
+      "border_crop_fraction": 0,
+      "geometric_point_coverage": 0.9408778250900753,
+      "route_length": 29.099999999999998
+    },
+    {
+      "route": "loop_plus_center",
+      "fc_agl": 2.4,
+      "border_crop_fraction": 0.1,
+      "geometric_point_coverage": 0.846053062561415,
+      "route_length": 29.099999999999998
+    },
+    {
+      "route": "loop_plus_center",
+      "fc_agl": 2.6,
+      "border_crop_fraction": 0,
+      "geometric_point_coverage": 0.9695381591876843,
+      "route_length": 29.099999999999998
+    },
+    {
+      "route": "loop_plus_center",
+      "fc_agl": 2.6,
+      "border_crop_fraction": 0.1,
+      "geometric_point_coverage": 0.8814281035047494,
+      "route_length": 29.099999999999998
+    },
+    {
+      "route": "loop_plus_center",
+      "fc_agl": 3.0,
+      "border_crop_fraction": 0,
+      "geometric_point_coverage": 0.9941860465116279,
+      "route_length": 29.099999999999998
+    },
+    {
+      "route": "loop_plus_center",
+      "fc_agl": 3.0,
+      "border_crop_fraction": 0.1,
+      "geometric_point_coverage": 0.9490664919751065,
+      "route_length": 29.099999999999998
+    },
+    {
+      "route": "two_lanes_yaw90",
+      "fc_agl": 2.4,
+      "border_crop_fraction": 0,
+      "geometric_point_coverage": 0.6828119882083197,
+      "route_length": 16.9
+    },
+    {
+      "route": "two_lanes_yaw90",
+      "fc_agl": 2.4,
+      "border_crop_fraction": 0.1,
+      "geometric_point_coverage": 0.5672289551261055,
+      "route_length": 16.9
+    },
+    {
+      "route": "two_lanes_yaw90",
+      "fc_agl": 2.6,
+      "border_crop_fraction": 0,
+      "geometric_point_coverage": 0.7319030461840812,
+      "route_length": 16.9
+    },
+    {
+      "route": "two_lanes_yaw90",
+      "fc_agl": 2.6,
+      "border_crop_fraction": 0.1,
+      "geometric_point_coverage": 0.6067802161808058,
+      "route_length": 16.9
+    },
+    {
+      "route": "two_lanes_yaw90",
+      "fc_agl": 3.0,
+      "border_crop_fraction": 0,
+      "geometric_point_coverage": 0.8161644284310514,
+      "route_length": 16.9
+    },
+    {
+      "route": "two_lanes_yaw90",
+      "fc_agl": 3.0,
+      "border_crop_fraction": 0.1,
+      "geometric_point_coverage": 0.6945627251883394,
+      "route_length": 16.9
+    },
+    {
+      "route": "four_lanes_yaw90",
+      "fc_agl": 2.4,
+      "border_crop_fraction": 0,
+      "geometric_point_coverage": 1.0,
+      "route_length": 27.950000000000003
+    },
+    {
+      "route": "four_lanes_yaw90",
+      "fc_agl": 2.4,
+      "border_crop_fraction": 0.1,
+      "geometric_point_coverage": 0.9864068129708483,
+      "route_length": 27.950000000000003
+    },
+    {
+      "route": "four_lanes_yaw90",
+      "fc_agl": 2.6,
+      "border_crop_fraction": 0,
+      "geometric_point_coverage": 1.0,
+      "route_length": 27.950000000000003
+    },
+    {
+      "route": "four_lanes_yaw90",
+      "fc_agl": 2.6,
+      "border_crop_fraction": 0.1,
+      "geometric_point_coverage": 1.0,
+      "route_length": 27.950000000000003
+    },
+    {
+      "route": "four_lanes_yaw90",
+      "fc_agl": 3.0,
+      "border_crop_fraction": 0,
+      "geometric_point_coverage": 1.0,
+      "route_length": 27.950000000000003
+    },
+    {
+      "route": "four_lanes_yaw90",
+      "fc_agl": 3.0,
+      "border_crop_fraction": 0.1,
+      "geometric_point_coverage": 1.0,
+      "route_length": 27.950000000000003
+    }
+  ],
+  "caveats": "Point coverage only, no obstacles, tilt, target size, detector or initial transit. Cropping 10% each border is a sensitivity case, not a calibrated usable FOV."
+}

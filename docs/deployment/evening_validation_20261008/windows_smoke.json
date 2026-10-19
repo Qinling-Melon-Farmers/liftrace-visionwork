@@ -1,0 +1,32 @@
+{
+  "platform": "win32",
+  "python": "3.12.7 | packaged by Anaconda, Inc. | (main, Oct  4 2024, 13:17:27) [MSC v.1929 64 bit (AMD64)]",
+  "executable": "D:\\Anaconda3\\python.exe",
+  "package": "C:\\Users\\ASUS\\Downloads\\liftrace_workbench_evening_20261008\\liftrace_flight_workbench_20261008_093058",
+  "launcher": "bat",
+  "checks": [
+    "no automatic connection or sessions",
+    "independent unconfirmed competition template",
+    "GET /",
+    "same-origin logs link and no motor page link",
+    "GET /logs",
+    "GET /observe",
+    "GET /static/app.js",
+    "GET /static/observe.js",
+    "GET /static/logs.js",
+    "legacy motor route redirects to realtime observation",
+    "native command preview reaches real CLI without backslashes",
+    "offline execution blocked",
+    "still no sessions",
+    "native Edge DOM regression",
+    "native Edge effective configuration regression",
+    "native Edge realtime observer regression",
+    "occupied port selects a different actual URL",
+    "fallback logs link uses the actual backend origin",
+    "fallback same-origin logs page serves successfully"
+  ],
+  "board_connected": false,
+  "url": "http://127.0.0.1:8771",
+  "fallback_url": "http://127.0.0.1:8772",
+  "result": "PASS"
+}

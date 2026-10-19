@@ -1,35 +1,18 @@
 /*
- * 舵机投放节点（实机标定；2026-10-07 左仓改到 PWM3_M0）
- *
- * Orange Pi 5 当前接线（pwmchip 编号按硬件地址在运行时解析，不再写死）：
- *   req=1 后仓 Pin11 GPIO4_B2 febf0020.pwm，锁止 1700000ns，投放 2100000ns（2026-10-07现场确认）
- *   req=2 右仓 Pin7  GPIO1_C6 febf0030.pwm，初始 1000000ns，投放 2100000ns
- *   req=3 左仓 Pin15 GPIO0_D4 fd8b0030.pwm（PWM3_M0），初始 1100000ns，投放 2100000ns
- *
- * 为什么不再写死 pwmchip 号：
- *   左仓原先用 fd8b0010.pwm（PWM1 / Pin16），但现场左仓舵机实际接在
- *   Pin15 = GPIO0_D4 = PWM3_M0。PWM3 默认在设备树中未启用，因此左仓初始化
- *   一直没有输出。启用 pwm3-m0 叠加层后内核枚举顺序变化
- *   （后仓=chip5、右仓=chip6、左仓=chip2），原写死的 4/5/0 全部失效。
- *   本节点按 /sys/class/pwm 的实际 device 地址解析编号，上述两种启动配置下都正确。
- *
- * 行为：
- *   1. 默认 initialize_on_startup=false：只读验证三槽周期、极性、关闭状态与写权限；
- *      不输出脉冲、不改 duty；已装载并机械锁止时必须使用此模式。
- *   2. 仅显式 initialize_on_startup=true 才按旧事务依次复位（仅非装载人工复位）。
- *   3. 收到许可代理请求仍执行受检查的1s投放事务；三槽启动检查通过才注册服务。
- *
- * 前置条件：开机后执行过一次 init_pwm.sh（解析地址、导出通道、设周期/极性、放开权限）。
- *           本节点不导出通道、不 unexport；有写事务时退出关闭输出，被动退出不写。
- * 服务接口：/Servo (patrol_control/Servo)。launch_all.launch 将其重映射到
- *           /legacy/Servo_raw，对外的 /Servo 由 guarded_servo_proxy 独占。
- *           req=1/2/3 -> res=true 仅代表PWM操作被内核确认；不是机械投放证明。
+ * Orange Pi 5 Plus servo backend, 2026-10-11.
+ * req=1 rear: physical Pin16 GPIO3_B5 PWM12_M0 febf0000.pwm
+ * req=2 right: physical Pin7 GPIO1_D6 PWM14_M2 febf0020.pwm
+ * req=3 left: physical Pin18 GPIO3_B6 PWM13_M0 febf0010.pwm
+ * See BoardWiring.h and SlotCalibration.h; pulse values require mechanism validation.
+ * Default startup is read-only; /legacy/Servo_raw is advertised only after all checks.
  */
 #include "actuator_pwm/PWMController.h"
+#include "actuator_pwm/HardwareLock.h"
 #include "patrol_control/Servo.h"
 #include <ros/ros.h>
 
 #include <cstdlib>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 
@@ -56,6 +39,7 @@ PWMController* channels[3] = {nullptr, nullptr, nullptr};
 
 #include "actuator_pwm/CheckedPulse.h"
 #include "actuator_pwm/SlotCalibration.h"
+#include "actuator_pwm/BoardWiring.h"
 
 bool servocallback(patrol_control::Servo::Request &req, patrol_control::Servo::Response &res) {
     res.res=false;
@@ -70,21 +54,29 @@ bool servocallback(patrol_control::Servo::Request &req, patrol_control::Servo::R
     return true;
 }
 int main(int argc,char** argv) {
-    ros::init(argc,argv,"pwm_controller");
-    ros::NodeHandle nh;
-    ros::NodeHandle privateNh("~");
-    bool initializeOnStartup = false;
-    // Invalid parameter types must not silently fall back to a startup action.
-    if (privateNh.hasParam("initialize_on_startup") &&
-        !privateNh.getParam("initialize_on_startup", initializeOnStartup)) {
-        ROS_FATAL("initialize_on_startup must be bool; raw service not advertised");
-        return 1;
-    }
     try {
-        PWMController pwm_front(findPWMChip("febf0020.pwm"), 0, "febf0020.pwm"); // rear Pin11
-        PWMController pwm_left(findPWMChip("febf0030.pwm"), 0, "febf0030.pwm"); // right Pin7
-        PWMController pwm_right(findPWMChip("fd8b0030.pwm"), 0, "fd8b0030.pwm"); // left Pin15 PWM3_M0
-        channels[0]=&pwm_front; channels[1]=&pwm_left; channels[2]=&pwm_right;
+        // Own PWM before ROS registration can replace a same-name node.
+        actuator_pwm::HardwareLock hardwareLock;
+        ros::init(argc,argv,"pwm_controller");
+        ros::NodeHandle nh;
+        ros::NodeHandle privateNh("~");
+        bool initializeOnStartup = false;
+        // Invalid parameter types must not silently fall back to a startup action.
+        if (privateNh.hasParam("initialize_on_startup") &&
+            !privateNh.getParam("initialize_on_startup", initializeOnStartup)) {
+            ROS_FATAL("initialize_on_startup must be bool; raw service not advertised");
+            return 1;
+        }
+        std::ifstream boardModel("/proc/device-tree/model");
+        std::string model((std::istreambuf_iterator<char>(boardModel)), std::istreambuf_iterator<char>());
+        if (model.find("OPi 5 Plus") == std::string::npos && model.find("Orange Pi 5 Plus") == std::string::npos) {
+            ROS_FATAL("This actuator configuration requires Orange Pi 5 Plus; raw service not advertised");
+            return 1;
+        }
+        PWMController rear(findPWMChip(actuator_pwm::kPwmDevices[0]), 0, actuator_pwm::kPwmDevices[0]);
+        PWMController right(findPWMChip(actuator_pwm::kPwmDevices[1]), 0, actuator_pwm::kPwmDevices[1]);
+        PWMController left(findPWMChip(actuator_pwm::kPwmDevices[2]), 0, actuator_pwm::kPwmDevices[2]);
+        channels[0]=&rear; channels[1]=&right; channels[2]=&left;
         if (initializeOnStartup)
             ROS_WARN("Explicit startup RESET selected: unloaded manual preparation only");
         for(int i=0;i<3;++i) {

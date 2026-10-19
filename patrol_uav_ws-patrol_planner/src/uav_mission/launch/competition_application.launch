@@ -6,7 +6,7 @@
   <arg name="cruise_acceleration" default="0.35" />
   <arg name="mode" default="high_view_full" />
   <arg name="model_path" />
-  <arg name="metadata_path" default="$(find uav_vision)/config/flight_5cls_20260928_metadata.yaml" />
+  <arg name="metadata_path" default="$(find uav_vision)/config/flight_5cls_new_video_v8_20261011_metadata.yaml" />
   <arg name="generated_dir" />
   <arg name="ground_z" />
   <arg name="low_z" />

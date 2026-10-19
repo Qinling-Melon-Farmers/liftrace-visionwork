@@ -1,0 +1,71 @@
+[
+  {
+    "snapshot": 0,
+    "goal": [
+      4.0,
+      -0.37,
+      0.3
+    ],
+    "raw_nearest_distance": 0.3386648067347393,
+    "raw_nearest_point": [
+      4.030669212341309,
+      -0.4024277925491333,
+      -0.03571072220802307
+    ],
+    "goal_nearest_occupied_center": [
+      4.025000095367432,
+      -0.375,
+      0.125
+    ],
+    "candidate_count": 29,
+    "candidate_same_voxel_occupied": 0,
+    "min_nearest_center_distance": 0.17684736453813518,
+    "max_nearest_center_distance": 0.22643982925870612
+  },
+  {
+    "snapshot": 1,
+    "goal": [
+      4.0,
+      -0.37,
+      0.3
+    ],
+    "raw_nearest_distance": 0.31370645155058774,
+    "raw_nearest_point": [
+      4.062562942504883,
+      -0.29414597153663635,
+      0.0021010534837841988
+    ],
+    "goal_nearest_occupied_center": [
+      3.9749999046325684,
+      -0.375,
+      0.125
+    ],
+    "candidate_count": 29,
+    "candidate_same_voxel_occupied": 0,
+    "min_nearest_center_distance": 0.17684736453813518,
+    "max_nearest_center_distance": 0.17684740565693946
+  },
+  {
+    "snapshot": 2,
+    "goal": [
+      4.0,
+      -0.37,
+      0.3
+    ],
+    "raw_nearest_distance": 0.31370645155058774,
+    "raw_nearest_point": [
+      4.062562942504883,
+      -0.29414597153663635,
+      0.0021010534837841988
+    ],
+    "goal_nearest_occupied_center": [
+      4.025000095367432,
+      -0.375,
+      0.125
+    ],
+    "candidate_count": 29,
+    "candidate_same_voxel_occupied": 0,
+    "min_nearest_center_distance": 0.17684736453813518,
+    "max_nearest_center_distance": 0.17684740565693946
+  }
+]

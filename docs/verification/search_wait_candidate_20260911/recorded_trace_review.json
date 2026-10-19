@@ -1,0 +1,60 @@
+{
+  "limit_seconds": 20,
+  "scope": "Counterfactual initial-wait screening, not a closed-loop replay or predicted new score",
+  "seeds": [
+    {
+      "seed": 31,
+      "affected_initial_search_decisions": [],
+      "max_recorded_first_trajectory_delay": 0.620000000000001
+    },
+    {
+      "seed": 32,
+      "affected_initial_search_decisions": [],
+      "max_recorded_first_trajectory_delay": 0.6649999999999991
+    },
+    {
+      "seed": 33,
+      "affected_initial_search_decisions": [],
+      "max_recorded_first_trajectory_delay": 0.5280000000000022
+    },
+    {
+      "seed": 34,
+      "affected_initial_search_decisions": [
+        {
+          "decision_seq": 2,
+          "command": 0,
+          "start_ros": 42.618,
+          "original_span": 90.019,
+          "ready_delay": null
+        },
+        {
+          "decision_seq": 3,
+          "command": 3,
+          "start_ros": 132.637,
+          "original_span": 90.017,
+          "ready_delay": null
+        },
+        {
+          "decision_seq": 4,
+          "command": 0,
+          "start_ros": 222.654,
+          "original_span": 90.00299999999999,
+          "ready_delay": null
+        },
+        {
+          "decision_seq": 5,
+          "command": 3,
+          "start_ros": 312.657,
+          "original_span": 90.024,
+          "ready_delay": null
+        }
+      ],
+      "max_recorded_first_trajectory_delay": 0.5190000000000019
+    },
+    {
+      "seed": 35,
+      "affected_initial_search_decisions": [],
+      "max_recorded_first_trajectory_delay": 0.8399999999999999
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+# Review-only exact names; this file does not start a recorder.
+/livox/imu
+/laserMapping/prediction_state
+/laserMapping/realtime
+/Odometry
+/mavros/vision_pose/pose
+/mavros/local_position/odom
+/mavros/state
+/ev_shadow/raw_pose
+/ev_shadow/smooth_pose
+/ev_shadow/status
+/ev_task_boundary/status

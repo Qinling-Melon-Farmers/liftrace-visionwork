@@ -1,0 +1,164 @@
+{
+  "scope": "Actual target_memory callbacks; original mapped observations and align modes. No detector rerun or simulated future trajectory.",
+  "frames": 4202,
+  "near_original_reacquisition": [
+    {
+      "t": 79.229,
+      "observations": [
+        {
+          "label": "pillbox",
+          "confidence": 0.9543096423149109,
+          "geometry": 0.8236709833145142
+        }
+      ],
+      "before": [
+        {
+          "id": 1,
+          "label": "panzer",
+          "state": 2,
+          "streak": 55,
+          "map_valid": true,
+          "last_seen": 79.229
+        }
+      ],
+      "after": [
+        {
+          "id": 1,
+          "label": "pillbox",
+          "state": 2,
+          "streak": 55,
+          "map_valid": true,
+          "last_seen": 79.229
+        }
+      ]
+    },
+    {
+      "t": 79.32,
+      "observations": [
+        {
+          "label": "pillbox",
+          "confidence": 0.9569405913352966,
+          "geometry": 0.8187162280082703
+        }
+      ],
+      "before": [
+        {
+          "id": 1,
+          "label": "panzer",
+          "state": 2,
+          "streak": 56,
+          "map_valid": true,
+          "last_seen": 79.32
+        }
+      ],
+      "after": [
+        {
+          "id": 1,
+          "label": "pillbox",
+          "state": 2,
+          "streak": 56,
+          "map_valid": true,
+          "last_seen": 79.32
+        }
+      ]
+    },
+    {
+      "t": 79.362,
+      "observations": [
+        {
+          "label": "pillbox",
+          "confidence": 0.9588167071342468,
+          "geometry": 0.8237424492835999
+        }
+      ],
+      "before": [
+        {
+          "id": 1,
+          "label": "panzer",
+          "state": 2,
+          "streak": 57,
+          "map_valid": true,
+          "last_seen": 79.362
+        }
+      ],
+      "after": [
+        {
+          "id": 1,
+          "label": "pillbox",
+          "state": 2,
+          "streak": 57,
+          "map_valid": true,
+          "last_seen": 79.362
+        }
+      ]
+    },
+    {
+      "t": 79.4,
+      "observations": [
+        {
+          "label": "pillbox",
+          "confidence": 0.9576643109321594,
+          "geometry": 0.8166902661323547
+        }
+      ],
+      "before": [
+        {
+          "id": 1,
+          "label": "panzer",
+          "state": 2,
+          "streak": 58,
+          "map_valid": true,
+          "last_seen": 79.4
+        }
+      ],
+      "after": [
+        {
+          "id": 1,
+          "label": "pillbox",
+          "state": 2,
+          "streak": 58,
+          "map_valid": true,
+          "last_seen": 79.4
+        }
+      ]
+    },
+    {
+      "t": 79.434,
+      "observations": [
+        {
+          "label": "pillbox",
+          "confidence": 0.9585906863212585,
+          "geometry": 0.829844057559967
+        }
+      ],
+      "before": [
+        {
+          "id": 1,
+          "label": "panzer",
+          "state": 2,
+          "streak": 59,
+          "map_valid": true,
+          "last_seen": 79.434
+        }
+      ],
+      "after": [
+        {
+          "id": 1,
+          "label": "pillbox",
+          "state": 2,
+          "streak": 59,
+          "map_valid": true,
+          "last_seen": 79.434
+        }
+      ]
+    }
+  ],
+  "wrong_panzer_frames_in_window": {
+    "before": 72,
+    "after": 0
+  },
+  "first_confirmed_pillbox_in_window": {
+    "before": 80.43,
+    "after": 76.447
+  }
+}

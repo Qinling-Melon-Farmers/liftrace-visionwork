@@ -1,0 +1,11 @@
+{
+  "png_decode_pass": true,
+  "png_count": 20,
+  "relative_report_links_pass": true,
+  "analysis_script_syntax_pass": true,
+  "large_raw_logs_not_in_report": true,
+  "landing_reassessment_completed": true,
+  "no_disarm_only_failure": true,
+  "simulation_runs": 5,
+  "no_extra_runs": true
+}

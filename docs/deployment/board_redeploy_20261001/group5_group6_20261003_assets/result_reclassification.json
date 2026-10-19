@@ -1,0 +1,29 @@
+{
+  "173929": {
+    "status": "INCOMPLETE",
+    "trial": "high_priority",
+    "expected_deliveries": 3,
+    "committed_deliveries": 0,
+    "manual_terminal_landed": false,
+    "validation_scope": "trial",
+    "original_status": "INCOMPLETE"
+  },
+  "175604": {
+    "status": "PASS",
+    "trial": "high_priority",
+    "expected_deliveries": 3,
+    "committed_deliveries": 3,
+    "manual_terminal_landed": true,
+    "validation_scope": "trial",
+    "original_status": "INCOMPLETE"
+  },
+  "181136": {
+    "status": "CAPTURED",
+    "trial": "high_speed_capture",
+    "expected_deliveries": 0,
+    "committed_deliveries": 0,
+    "manual_terminal_landed": true,
+    "validation_scope": "capture_route_and_manual_end_only",
+    "original_status": "CAPTURED"
+  }
+}

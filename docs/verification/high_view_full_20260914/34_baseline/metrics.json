@@ -1,0 +1,324 @@
+{
+  "label": "baseline",
+  "seed": 34,
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_full_frozen_baseline_seed34_20260914_025732",
+  "status": "FAIL",
+  "reason": "actual_collision",
+  "failed_checks": [
+    "contact_ready_zero",
+    "contract_errors_zero",
+    "final_landed_on_ground",
+    "final_vehicle_disarmed",
+    "land_success",
+    "manager_complete",
+    "mission_ros_within_limit",
+    "return_before_land",
+    "zero_collisions"
+  ],
+  "start_ros_s": 11.632999999,
+  "observed_end_ros_s": 472.518,
+  "completed_mission_s": null,
+  "landing_transaction_s": null,
+  "observed_duration_s": 460.885000001,
+  "xy_distance_m": 95.45181694247279,
+  "xyz_distance_m": 104.00837213939583,
+  "speed_xy_p95_mps": 0.36545337322517657,
+  "max_fc_agl_m": 1.762238514977336,
+  "releases": [
+    {
+      "ros_sec": 22.58,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 1,
+          "stamp": {
+            "stamp_ns": 22580000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 1,
+        "payload_slot": 1,
+        "align_mode": "drop_circle",
+        "target_id": 1,
+        "target_class": "bridge",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    },
+    {
+      "ros_sec": 215.946,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 2,
+          "stamp": {
+            "stamp_ns": 215940000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 2,
+        "payload_slot": 2,
+        "align_mode": "drop_circle",
+        "target_id": 6,
+        "target_class": "panzer",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    },
+    {
+      "ros_sec": 272.449,
+      "kind": "release",
+      "data": {
+        "header": {
+          "seq": 3,
+          "stamp": {
+            "stamp_ns": 272445000000
+          },
+          "frame_id": ""
+        },
+        "execution_id": 3,
+        "payload_slot": 3,
+        "align_mode": "drop_cross",
+        "target_id": 9,
+        "target_class": "red_cross",
+        "success": true,
+        "reason": "raw_actuator_ack"
+      }
+    }
+  ],
+  "gate_metrics": {
+    "approach_command_count": 3,
+    "boundary_violations": 0,
+    "capture_started_count": 3,
+    "decision_count": 31,
+    "door_crossings": [
+      {
+        "lateral": -4.025600973544758,
+        "name": "corridor_entry",
+        "route_index": 3,
+        "z": 0.4398056673897946
+      },
+      {
+        "lateral": 8.751621420477946,
+        "name": "Wall_20",
+        "route_index": 5,
+        "z": 0.4244406438241258
+      },
+      {
+        "lateral": 8.68264972030157,
+        "name": "Wall_22",
+        "route_index": 8,
+        "z": 0.46773932480486186
+      }
+    ],
+    "height_violations": 0,
+    "landing_align_mode_seen": true,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      4.2,
+      8.5
+    ],
+    "latest_armed": true,
+    "latest_landed_state": 4,
+    "max_observed_height": 1.762266558890018,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 21580,
+    "post_delivery_decision_indices": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "post_delivery_return_success_count": 9,
+    "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+    "post_delivery_route_size": 9,
+    "recovery_success_count": 3,
+    "release_commit_count": 3,
+    "result_count": 158,
+    "selected_count": 1116,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": {
+      "anchor_error_m": 0.02259631165592483,
+      "frame_id": "camera_init",
+      "stamp_ns": 470231000000,
+      "x": 4.2214545370854175,
+      "y": 8.492908022920078,
+      "z": -0.22
+    }
+  },
+  "collisions": 1,
+  "sample_gap_count": 0,
+  "moving_xy_time_s": 417.494,
+  "nonmoving_xy_time_s": 43.365999999999936,
+  "moving_sample_threshold_mps": 0.03,
+  "moving_speed_xy_median_mps": 0.25339218365092253,
+  "moving_speed_xy_p95_mps": 0.36646894619265585,
+  "target_hint_evaluation": {},
+  "commit_times": [
+    {
+      "t": 22.58,
+      "target": "bridge",
+      "true_fc_xy_at_ack": [
+        -1.7240762577021398,
+        0.2426373010296853
+      ],
+      "fc_target_distance_at_ack_m": 0.13845800913926182
+    },
+    {
+      "t": 215.938,
+      "target": "panzer",
+      "true_fc_xy_at_ack": [
+        -2.2232025099412858,
+        3.920562574173118
+      ],
+      "fc_target_distance_at_ack_m": 0.1363308858111573
+    },
+    {
+      "t": 272.44,
+      "target": "red_cross",
+      "true_fc_xy_at_ack": [
+        3.318195674784948,
+        5.994128637524211
+      ],
+      "fc_target_distance_at_ack_m": 0.06610753284405851
+    }
+  ],
+  "third_commit_s": 260.807000001,
+  "first_commit_s": 10.947000000999997,
+  "xy_distance_to_third_commit_m": 75.04312335618638,
+  "armed_ros_s": 3.7880000000000003,
+  "airborne_ros_s": 4.589,
+  "touchdown_ros_s": null,
+  "disarmed_ros_s": null,
+  "airborne_to_touchdown_s": null,
+  "armed_to_third_commit_s": 268.652,
+  "touchdown_to_disarm_s": null,
+  "high_view_stage_changes": [],
+  "sampled_phase_durations_s": {
+    "SEARCH": 234.45200000000003,
+    "APPROACH": 9.24499999999998,
+    "CAPTURE": 1.0969999999999764,
+    "ALIGN": 11.322,
+    "RECOVERY": 7.071000000000051,
+    "CORRIDOR": 186.17999999999995,
+    "LAND": 11.451999999999998
+  },
+  "sampled_phase_changes": [
+    {
+      "t": 11.699,
+      "phase": "SEARCH"
+    },
+    {
+      "t": 16.407,
+      "phase": "APPROACH"
+    },
+    {
+      "t": 18.519,
+      "phase": "CAPTURE"
+    },
+    {
+      "t": 18.669,
+      "phase": "ALIGN"
+    },
+    {
+      "t": 22.58,
+      "phase": "RECOVERY"
+    },
+    {
+      "t": 24.736,
+      "phase": "SEARCH"
+    },
+    {
+      "t": 209.002,
+      "phase": "APPROACH"
+    },
+    {
+      "t": 212.118,
+      "phase": "CAPTURE"
+    },
+    {
+      "t": 212.85,
+      "phase": "ALIGN"
+    },
+    {
+      "t": 215.946,
+      "phase": "RECOVERY"
+    },
+    {
+      "t": 218.423,
+      "phase": "SEARCH"
+    },
+    {
+      "t": 263.901,
+      "phase": "APPROACH"
+    },
+    {
+      "t": 267.918,
+      "phase": "CAPTURE"
+    },
+    {
+      "t": 268.133,
+      "phase": "ALIGN"
+    },
+    {
+      "t": 272.448,
+      "phase": "RECOVERY"
+    },
+    {
+      "t": 274.886,
+      "phase": "CORRIDOR"
+    },
+    {
+      "t": 461.066,
+      "phase": "LAND"
+    }
+  ],
+  "speed_by_phase": {
+    "SEARCH": {
+      "median_mps": 0.3353812006582448,
+      "p95_mps": 0.37378280725722174,
+      "samples": 2281
+    },
+    "APPROACH": {
+      "median_mps": 0.29819384063352716,
+      "p95_mps": 0.3521179360116108,
+      "samples": 91
+    },
+    "CAPTURE": {
+      "median_mps": 0.04862258982715641,
+      "p95_mps": 0.08762630534725419,
+      "samples": 10
+    },
+    "ALIGN": {
+      "median_mps": 0.03882704434735235,
+      "p95_mps": 0.06700007542988298,
+      "samples": 34
+    },
+    "RECOVERY": {
+      "median_mps": 0.03062599485852326,
+      "p95_mps": 0.03248118220314128,
+      "samples": 6
+    },
+    "CORRIDOR": {
+      "median_mps": 0.12005286493080836,
+      "p95_mps": 0.14869084228714566,
+      "samples": 1545
+    },
+    "LAND": {
+      "median_mps": 0.09898205168530264,
+      "p95_mps": 0.5235926775123039,
+      "samples": 89
+    }
+  }
+}

@@ -1,0 +1,124 @@
+<launch>
+  <arg name="cruise_agl" default="0.50" />
+  <arg name="enable_control_output" default="false" />
+  <arg name="auto_land_after_route" default="true" />
+  <arg name="model_path" default="unused" />
+  <arg name="metadata_path" default="$(find uav_vision)/config/merged_standard_6cls_metadata.yaml" />
+  <arg name="image_topic" default="/camera/image_raw" />
+  <arg name="camera_info_topic" default="/camera/camera_info" />
+  <arg name="start_camera" default="false" />
+  <arg name="video_devices" default="/dev/video0" />
+  <arg name="camera_capture_fps" default="30" />
+  <arg name="camera_publish_rate" default="30" />
+  <arg name="start_yolo_live_view" default="false" />
+  <arg name="show_yolo_window" default="false" />
+  <arg name="yolo_debug_topic" default="/uav_vision/yolo_debug" />
+  <arg name="camera_optical_frame" default="downward_camera_optical_frame" />
+  <arg name="map_frame" default="camera_init" />
+  <arg name="ground_z" />
+  <arg name="cruise_z" value="$(eval float(arg('ground_z')) + float(arg('cruise_agl')))" />
+  <arg name="runtime_config" default="$(find uav_mission)/config/obstacle_4x4/runtime.yaml" />
+  <arg name="control_config" default="$(find uav_mission)/config/obstacle_4x4/control.yaml" />
+  <arg name="lio_config" default="$(find uav_mission)/config/mid360_hardware.yaml" />
+  <arg name="body_to_imu_xyz" default="0 0 0.05" />
+  <arg name="imu_to_camera_z" default="-0.21" />
+  <arg name="camera_quat_xyzw" default="-0.70710678 0.70710678 0 0" />
+  <arg name="raw_servo_service" default="/legacy/Servo_raw" />
+  <arg name="enable_debug_image" default="false" />
+  <rosparam file="$(arg lio_config)" />
+  <param name="feature_extract_enable" value="false" />
+  <param name="point_filter_num" value="3" />
+  <param name="max_iteration" value="3" />
+  <param name="filter_size_surf" value="0.15" />
+  <param name="filter_size_map" value="0.15" />
+  <param name="cube_side_length" value="1000.0" />
+  <param name="runtime_pos_log_enable" value="false" />
+  <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen" />
+  <include file="$(find freedom)/launch/run_freedom_mid360.launch">
+    <arg name="enable_static_pointcloud_viz" value="false" />
+  </include>
+  <param name="/freedom/sensor_tf_frame" value="mapping_imu" />
+  <rosparam ns="/freedom" file="$(find uav_mission)/config/competition_freedom.yaml" />
+  <param name="/freedom/map_tf_frame" value="$(arg map_frame)" />
+  <node pkg="uav_mission" type="lio_external_pose.py" name="lio_external_pose" output="screen">
+    <param name="frame" value="$(arg map_frame)" />
+    <rosparam param="imu_to_body_xyz" subst_value="true">$(eval [-float(v) for v in arg('body_to_imu_xyz').split()])</rosparam>
+  </node>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="map_camera_alignment"
+        args="0 0 0 0 0 0 1 $(arg map_frame) map" />
+  <node pkg="uav_mission" type="navigation_frame_adapter.py" name="navigation_frame_adapter" output="screen" required="true">
+    <param name="local_frame" value="map" />
+    <param name="mission_frame" value="$(arg map_frame)" />
+    <param name="enable_setpoints" value="$(arg enable_control_output)" />
+  </node>
+  <node pkg="uav_mission" type="pose_tf_broadcaster.py" name="vision_pose_tf" output="screen">
+    <param name="pose_topic" value="/mavros/local_position/pose" />
+    <param name="parent_frame" value="map" />
+    <param name="child_frame" value="vision_body" />
+  </node>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="mapping_imu_extrinsic" args="$(arg body_to_imu_xyz) 0 0 0 1 vision_body mapping_imu" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="downward_camera_extrinsic" args="0 0 $(arg imu_to_camera_z) $(arg camera_quat_xyzw) mapping_imu $(arg camera_optical_frame)" />
+  <group>
+    <remap from="/mavros/local_position/pose" to="/navigation/local_pose" />
+    <remap from="/mavros/local_position/odom" to="/navigation/local_odom" />
+    <remap from="/mavros/setpoint_position/local" to="/navigation/setpoint_mission" />
+    <include file="$(find patrol_control)/launch/patrol_control_px4_sim.launch" if="$(arg enable_control_output)">
+      <arg name="rviz" value="false" />
+      <arg name="waypoint_mode" value="false" />
+      <arg name="external_mission_mode" value="true" />
+      <arg name="simulation_auto_land" value="false" />
+      <arg name="start_waypoint_generator" value="false" />
+      <arg name="waypoint_config" value="$(arg control_config)" />
+      <arg name="planner_max_vel" value="0.80" />
+      <arg name="planner_max_acc" value="0.80" />
+      <arg name="planner_obstacles_inflation" value="0.10" />
+      <arg name="planner_clearance_threshold" value="0.025" />
+      <arg name="px4_max_distance" value="0.15" />
+      <arg name="external_planner_max_command_z" value="$(eval float(arg('ground_z')) + 0.65)" />
+    </include>
+    <include file="$(find plan_manage)/launch/patrol_planner_px4_sim.launch" unless="$(arg enable_control_output)">
+      <arg name="max_vel" value="0.80" />
+      <arg name="max_acc" value="0.80" />
+      <arg name="obstacles_inflation" value="0.10" />
+      <arg name="clearance_threshold" value="0.025" />
+      <arg name="start_waypoint_generator" value="false" />
+      <arg name="map_size_x" value="6.0" />
+      <arg name="map_size_y" value="10.0" />
+      <arg name="map_size_z" value="1.5" />
+    </include>
+    <rosparam ns="/fast_planner_node" file="$(find uav_mission)/config/obstacle_4x4/planner.yaml" />
+    <include file="$(find uav_mission)/launch/navigation_mission_manager.launch">
+      <arg name="runtime_config" value="$(arg runtime_config)" />
+      <arg name="search_altitude" value="$(eval float(arg('ground_z')) + float(arg('cruise_agl')))" />
+      <arg name="pose_topic" value="/navigation/local_pose" />
+      <arg name="start_mode" value="post_delivery" />
+    </include>
+    <include file="$(find uav_mission)/launch/navigation_planner_bridge.launch">
+      <arg name="execution_enabled" value="$(arg enable_control_output)" />
+      <arg name="allow_live_goal_output" value="$(arg enable_control_output)" />
+      <arg name="required" value="true" />
+      <arg name="planner_goal_topic" value="/fastplanner/goal" />
+      <arg name="planner_status_topic" value="/planning/goal_status" />
+      <arg name="odom_topic" value="/navigation/local_odom" />
+    </include>
+  </group>
+  <param name="/align_height" value="$(eval float(arg('ground_z')) + float(arg('cruise_agl')))" />
+  <param name="/uav_vision/recovery_height" value="$(eval float(arg('ground_z')) + float(arg('cruise_agl')))" />
+  <param name="/external_landing/capture_height" value="$(eval float(arg('ground_z')) + float(arg('cruise_agl')))" />
+  <param name="/navigation/mission_manager/mission/approach_altitude" value="$(eval float(arg('ground_z')) + float(arg('cruise_agl')))" />
+  <param name="/navigation/mission_manager/mission/return_altitude" value="$(eval float(arg('ground_z')) + float(arg('cruise_agl')))" />
+  <param name="/fast_planner_node/sdf_map/ground_height" value="$(eval float(arg('ground_z')) - 0.10)" />
+  <param name="/fast_planner_node/sdf_map/virtual_ceil_height" value="-0.1" />
+  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/obstacle_min_z" value="$(eval float(arg('ground_z')) + 0.10)" />
+  <param name="/fast_planner_node/sdf_map/horizontal_avoidance/floor_z" value="$(eval float(arg('ground_z')) + 0.10)" />
+  <rosparam param="/waypoints" subst_value="true">[{x: 0.0, y: 0.0, z: $(arg cruise_z), yaw: 0.0, pointmode: Takeoff_point, hover_time: 0.0}]</rosparam>
+  <rosparam param="/navigation/mission_manager/mission/post_delivery_route" subst_value="true">[[0, 0.6, $(arg cruise_z)], [-1.4, 1.0, $(arg cruise_z)], [-1.4, 2.0, $(arg cruise_z)], [1.4, 2.0, $(arg cruise_z)], [1.4, 3.4, $(arg cruise_z)], [-1.4, 3.4, $(arg cruise_z)], [-1.4, 2.0, $(arg cruise_z)], [1.4, 2.0, $(arg cruise_z)], [0, 0.6, $(arg cruise_z)]]</rosparam>
+  <group if="$(eval arg('enable_control_output') and arg('auto_land_after_route'))">
+    <node pkg="uav_mission" type="obstacle_test_auto_land.py" name="obstacle_test_auto_land" output="screen" required="true">
+      <param name="frame" value="$(arg map_frame)" />
+      <param name="cruise_z" value="$(arg cruise_z)" />
+      <param name="route_revision" value="hardware-obstacle-4x4-r2" />
+      <rosparam param="landing_xy">[0.0, 0.6]</rosparam>
+    </node>
+  </group>
+</launch> 
