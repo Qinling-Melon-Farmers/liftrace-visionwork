@@ -1,0 +1,37 @@
+# 2026-10-19 最终归档模型
+
+整机传承包默认使用 `flight_5cls_new_video_v8_20261011`（YOLO11n、五类、640输入、FP16 RKNN）。类别顺序为 bridge、panzer、pillbox、tent、red_cross；H不属于YOLO正类。权重放在 `runtime_models/flight_5cls_new_video_v8_20261011/`，同源metadata在该目录及 `vision_ws/src/uav_vision/config/flight_5cls_new_video_v8_20261011_metadata.yaml`。
+
+metadata保留训练导出时candidate/hardware_validated原始字段，不伪改历史结论。10月16日run_metadata确认该版本实飞运行；不等于全部五类独立真值精度或板端完整验收。最终数据集、效果和局限见 `docs/closeout_20261019/TECHNICAL_HANDOVER.md`。Git不存权重，完整传承包和独立模型数据包包含真实文件。
+
+以下为旧版本历史清单，不能用作最终模型类别顺序或精度声明。
+
+# 模型与YAML位置
+
+2026-09-11核对实际R64两包后修订。正式入口所需YAML没有漏打；此前runtime_models只有权重，类别元数据位于ROS包的config目录。为避免单独拷贝权重时漏掉元数据，修订包在runtime_models另附一份同源元数据。
+
+| 文件 | 用途 |
+|---|---|
+| runtime_models/flight_5cls_20260928_fp16.rknn | 机载包的RK3588/NPU权重 |
+| runtime_models/flight_5cls_20260928.pt | 仿真包的笔记本YOLO权重，checkpoint自带模型结构与类别 |
+| runtime_models/flight_5cls_20260928_metadata.yaml | 修订包附带的五类顺序（不含tank，red_cross=4）、640×640输入和预处理描述；便于单独拷模型 |
+| vision_ws/src/uav_vision/config/flight_5cls_20260928_metadata.yaml | 正式ROS板端入口实际默认读取的元数据，内容与上份相同 |
+| vision_ws/src/uav_vision/config/target_detector_rknn.yaml | RKNN输入/推理阈值运行配置 |
+| vision_ws/src/uav_vision/config/target_detector.yaml | 仿真YOLO推理配置 |
+| vision_ws/src/camera_sdk/param/calibration_1280x720.yaml | camera_calibrated_1280x720.launch实际读取的相机标定 |
+| patrol_uav_ws-patrol_planner/src/uav_mission/config/ | LIO/任务/控制/规划配套YAML |
+
+五类顺序（不含tank，red_cross=4）为0 bridge、1 panzer、2 pillbox、3 tent、4 tank、5 red_cross。正式比赛r2026仍按当前规则过滤tank；不能自行重排names。FP32选用float32/RGB/NHWC、normalize=true，与已选择模型配套。
+
+板端入口链为competition_hardware.launch→phase_d_board.launch→config/flight_5cls_20260928_metadata.yaml。两个旧视觉包装入口board_camera_vision.launch/control_handoff_board.launch的metadata路径已改到config，并要求显式传model_path，避免默认指向包内不存在的uav_vision/models权重。若只拷.rknn到其它工程，必须同时携带metadata并正确指定；PT推理不另需训练用data.yaml或架构yaml。
+
+Gazebo模型位于仿真包的vision_ws/src/uav_vision_eval/models与simulation_assets/models：按入口需要SDF/world、model.config、网格和材质，并不要求每个模型有yaml。有些机架直接用-file加载SDF，不依赖模型浏览器的model.config。修订仿真包明确附带optional_models/D435i、fpv_cam、tanke供历史对照；它们不进入默认今年场景。
+
+机载包不含Gazebo世界/飞机模型，这是部署范围选择。PX4及Gazebo插件、MID360插件和扫描CSV、板端RKNN runtime及设备驱动仍是外部环境依赖，包不是完整系统镜像。
+
+历史patrol_full_competition_sim.launch的默认patrol_toudi4.yaml是旧配置名，当前精简树不保留该配置。正式入口已经显式覆盖waypoint_config，运行所需文件存在；不要将这个旧launch不带参数裸启动当作当前交付入口。
+
+旧092f63d8压缩包保留，不回写其源码版本或历史结果。修订包只修路径和随包资源，包含已有五seed报告，不代表修好了近地/随机门/搜索失败，也没有新仿真或实机验证。
+
+
+2026-09-28：当前入口默认五分类候选元数据。权重单独交付，不随git克隆；以打包清单的实际文件名为准。新RKNN须配套五类metadata，回退旧权重时也须显式回退六类metadata。工具链模拟器验证不替代板端NPU实测。

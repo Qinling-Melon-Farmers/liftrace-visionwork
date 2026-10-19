@@ -9,17 +9,22 @@ class TakeoffXYTest(unittest.TestCase):
         start=source.index('    Eigen::Vector3d current_pos(uav_pose.pose.position.x')
         end=source.index('    // The distance limiter interpolates',start)
         block=source[start:end]
+        helper_start=source.index('double validatedTakeoffZLead(')
+        helper_end=source.index('\n}',helper_start)+2
+        helper=source[helper_start:helper_end]
         code='''#include <Eigen/Dense>
 #include <cassert>
 #include <cmath>
 #define ROS_INFO_THROTTLE(...)
 struct Vec { double x,y,z; }; struct Pose { Vec position; }; struct Msg { Pose pose; };
+'''+helper+'''
 void run(int Drone_mode) {
   const int Takeoff=0, Run_point=1;
   bool external_mission_mode_=false, external_planner_height_hold_active_=false;
   bool external_planner_command_accepted=false;
   Msg uav_pose{{{-.325,-.278,.094}}},mavros_point_cmd{{{0,0,1.18}}};
-  double px4_max_distance=.4; double takeoff_point[3]={0,0,1.18};
+  double px4_max_distance=.4; double takeoff_z_lead_m_=0.;
+  double takeoff_point[3]={0,0,1.18};
 '''+block+'''
   if(Drone_mode==Takeoff) {
     assert(mavros_point_cmd.pose.position.x==0 && mavros_point_cmd.pose.position.y==0);

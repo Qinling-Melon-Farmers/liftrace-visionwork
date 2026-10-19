@@ -1,0 +1,118 @@
+{
+  "mode": "landing",
+  "mapping_profile": "corridor",
+  "fc_xyz": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "ground_z": -0.22,
+  "low_z": 1.1799999475479126,
+  "high_z": 2.38,
+  "drop_z": 0.38,
+  "takeoff_z": 1.18,
+  "known_rig": {
+    "mission_frame": "camera_init",
+    "mavros_frame": "map",
+    "body_to_imu_xyz": [
+      0.0,
+      0.0,
+      0.05
+    ],
+    "imu_to_camera_xyz": [
+      0.0,
+      0.0,
+      -0.21
+    ],
+    "camera_quat_xyzw": [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    "pixel_to_body_matrix": [
+      -1.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "fc_ground_clearance": 0.22,
+    "source": "Flight team minimal_delivery_test at fa621262 (camera rotation verified 20260923); slot offsets inherited; AGL uses measured stationary reference",
+    "slot_offsets": [
+      [
+        -0.12,
+        0.0
+      ],
+      [
+        0.0,
+        -0.12
+      ],
+      [
+        0.0,
+        0.12
+      ]
+    ],
+    "dynamic_slot_offsets": [
+      [
+        -0.12,
+        0.0
+      ],
+      [
+        0.0,
+        -0.12
+      ],
+      [
+        0.0,
+        0.12
+      ]
+    ]
+  },
+  "settings": {
+    "mode": "landing",
+    "trial_kind": "corridor_landing",
+    "corridor_waypoints": [
+      {
+        "x": 0.6,
+        "y": 0.0,
+        "agl": 1.0
+      },
+      {
+        "x": 1.5,
+        "y": 0.4,
+        "agl": 1.0
+      }
+    ],
+    "landing_xy": [
+      2.5,
+      0.0
+    ],
+    "low_agl": 1.4,
+    "high_agl": 2.6,
+    "drop_agl": 0.6,
+    "landing_transit_agl": 1.4,
+    "landing_capture_agl": 1.8,
+    "cruise_speed": 0.5,
+    "cruise_acceleration": 0.35,
+    "virtual_ceiling_enabled": false,
+    "alignment_mode": "legacy_static",
+    "actuator_mode": "mock",
+    "raw_servo_service": "/legacy/Servo_raw",
+    "motion_optimization": {
+      "enabled": true
+    },
+    "landing_handoff_mode": "POSCTL",
+    "landing_posctl": {
+      "target_agl": 0.35,
+      "trigger_agl": 0.37,
+      "xy_tolerance_m": 0.05,
+      "height_tolerance_m": 0.02,
+      "capture_height_tolerance_m": 0.1,
+      "max_horizontal_speed_mps": 0.03,
+      "max_vertical_speed_mps": 0.05,
+      "stable_duration_sec": 0.5,
+      "max_odom_age_sec": 0.2,
+      "max_sample_gap_sec": 0.2,
+      "min_samples": 3
+    }
+  }
+}

@@ -3,6 +3,8 @@
 #include <gazebo/common/Plugin.hh>
 #include <gazebo/common/Events.hh>
 #include <gazebo/physics/Collision.hh>
+#include <gazebo/physics/BoxShape.hh>
+#include <cmath>
 #include <gazebo/physics/ContactManager.hh>
 #include <gazebo/physics/PhysicsEngine.hh>
 #include <gazebo/physics/World.hh>
@@ -29,6 +31,17 @@ class ContactEnvelopePlugin : public ModelPlugin {
     if (!link) gzthrow("Contact envelope link is missing");
     const auto collision = link->GetCollision(config->Get<std::string>("collision_name"));
     if (!collision) gzthrow("Contact envelope collision is missing");
+    guard_shape_ = boost::dynamic_pointer_cast<physics::BoxShape>(collision->GetShape());
+    if (guard_shape_) guard_xy_ = guard_shape_->Size().X();
+    if (config->HasElement("landing_size_xy")) {
+      landing_xy_ = config->Get<double>("landing_size_xy");
+      if (!guard_shape_ || !std::isfinite(landing_xy_) || landing_xy_ <= 0.0 ||
+          landing_xy_ > guard_shape_->Size().X() || landing_xy_ > guard_shape_->Size().Y() ||
+          !config->HasElement("landing_phase_param"))
+        gzthrow("Invalid landing-only guard dimensions/phase parameter");
+      landing_phase_param_ = config->Get<std::string>("landing_phase_param");
+    }
+
 
     // Gazebo's ray space has category GZ_SENSOR_COLLIDE and excludes that
     // category. Both masks are needed: world/body collisions still match.
@@ -109,6 +122,24 @@ class ContactEnvelopePlugin : public ModelPlugin {
       state.collision1_name = contact.collision1();
       state.collision2_name = contact.collision2();
       state.depths.assign(contact.depth().begin(), contact.depth().end());
+      state.info = "guard_xy_m=" + std::to_string(guard_xy_);
+      for (int i=0; i<contact.position_size(); ++i) {
+        geometry_msgs::Vector3 p; p.x=contact.position(i).x(); p.y=contact.position(i).y(); p.z=contact.position(i).z();
+        state.contact_positions.push_back(p);
+      }
+      for (int i=0; i<contact.normal_size(); ++i) {
+        geometry_msgs::Vector3 p; p.x=contact.normal(i).x(); p.y=contact.normal(i).y(); p.z=contact.normal(i).z();
+        state.contact_normals.push_back(p);
+      }
+      for (int i=0; i<contact.wrench_size(); ++i) {
+        const auto &w=contact.wrench(i).body_1_wrench();
+        geometry_msgs::Wrench out;
+        out.force.x=w.force().x(); out.force.y=w.force().y(); out.force.z=w.force().z();
+        out.torque.x=w.torque().x(); out.torque.y=w.torque().y(); out.torque.z=w.torque().z();
+        state.wrenches.push_back(out);
+        state.total_wrench.force.x += out.force.x; state.total_wrench.force.y += out.force.y; state.total_wrench.force.z += out.force.z;
+      }
+
       pending_[std::make_pair(state.collision1_name, state.collision2_name)] = state;
     }
   }
@@ -117,7 +148,20 @@ class ContactEnvelopePlugin : public ModelPlugin {
     const auto now = world_->SimTime();
     if ((now - last_publish_).Double() < 0.02) return;
     last_publish_ = now;
+    // Only shrink XY once after the task owner enters LAND. Keep Z/support
+    // height and inertia unchanged; do not expand again while on the ground.
+    bool landing=false;
+    if (!landing_switched_ && !landing_phase_param_.empty() && ros_node_->getParamCached(landing_phase_param_,landing) && landing) {
+      std::lock_guard<std::mutex> lock(mutex_);
+      const auto original=guard_shape_->Size();
+      guard_shape_->SetSize(ignition::math::Vector3d(landing_xy_,landing_xy_,original.Z()));
+      guard_xy_=landing_xy_; landing_switched_=true;
+      gzmsg << "Landing guard XY switched to " << landing_xy_ << " m at sim " << now.Double() << "; Z unchanged\n";
+    }
+
+
     gazebo_msgs::ContactsState out;
+    out.header.frame_id = "world";
     {
       std::lock_guard<std::mutex> lock(mutex_);
       out.header.stamp = pending_.empty() ? ros::Time(now.sec, now.nsec) : first_contact_stamp_;
@@ -129,6 +173,10 @@ class ContactEnvelopePlugin : public ModelPlugin {
     publisher_.publish(out);
   }
 
+  physics::BoxShapePtr guard_shape_;
+  double guard_xy_=0.55, landing_xy_=0.0;
+  bool landing_switched_=false;
+  std::string landing_phase_param_;
   physics::WorldPtr world_;
   transport::NodePtr node_;
   transport::SubscriberPtr subscriber_;

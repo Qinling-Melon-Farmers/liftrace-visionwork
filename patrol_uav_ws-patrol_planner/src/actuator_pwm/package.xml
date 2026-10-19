@@ -61,6 +61,8 @@
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>patrol_control</exec_depend>
+  <depend>std_srvs</depend>
+  <test_depend>python3-nose</test_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

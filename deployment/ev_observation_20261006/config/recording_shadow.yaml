@@ -1,0 +1,24 @@
+# Additional small-message bag; shares the low-hover bounded recorder implementation.
+version: 1
+status_topic: /ev_shadow/status
+max_duration_s: 600
+diagnostic_hz: 1
+discovery_interval_s: 2
+queue_messages: 4096
+queue_bytes: 16777216
+max_message_bytes: 65536
+subscriber_queue_size: 100
+snapshot_timeout_s: 3
+min_free_space_bytes: 1073741824
+topics:
+  - {name: /livox/imu, types: [sensor_msgs/Imu]}
+  - {name: /laserMapping/prediction_state, types: [fast_lio/PredictionState]}
+  - {name: /laserMapping/realtime, types: [diagnostic_msgs/DiagnosticArray]}
+  - {name: /Odometry, types: [nav_msgs/Odometry]}
+  - {name: /mavros/vision_pose/pose, types: [geometry_msgs/PoseStamped]}
+  - {name: /mavros/local_position/odom, types: [nav_msgs/Odometry]}
+  - {name: /mavros/state, types: [mavros_msgs/State]}
+  - {name: /ev_shadow/raw_pose, types: [geometry_msgs/PoseStamped]}
+  - {name: /ev_shadow/smooth_pose, types: [geometry_msgs/PoseStamped]}
+  - {name: /ev_shadow/status, types: [std_msgs/String]}
+  - {name: /ev_task_boundary/status, types: [std_msgs/String]}

@@ -1,11 +1,20 @@
 #!/bin/bash
 set -euo pipefail
 [[ $EUID -eq 0 ]] || { echo 'Run: sudo bash init_pwm.sh'; exit 1; }
-# 舵机三路 PWM 初始化。按硬件地址解析 pwmchip 编号，不写死编号：
-#   后仓 febf0020.pwm / 右仓 febf0030.pwm / 左仓 fd8b0030.pwm (PWM3_M0, Pin15)
-# 只导出通道、设周期与极性、放开权限并关闭输出；本脚本不驱动舵机。
+# Orange Pi 5 Plus: rear Pin16 PWM12_M0, right Pin7 PWM14_M2, left Pin18 PWM13_M0.
+# Configuration only: output is disabled; never use this script as a loaded-mechanism reset.
+model=$(tr -d '\0' < /proc/device-tree/model)
+[[ "$model" == *"OPi 5 Plus"* || "$model" == *"Orange Pi 5 Plus"* ]] || { echo 'Orange Pi 5 Plus required'; exit 2; }
+# One permanent inode shared with raw/debug services. Never unlink/replace it.
+lock_path=/run/lock/liftrace-servo.lock
+[[ ! -L "$lock_path" ]] || { echo 'Refusing symlink PWM lock'; exit 2; }
+exec {servo_lock_fd}>>"$lock_path"
+flock -n "$servo_lock_fd" || { echo 'PWM occupied by raw/debug/initialization; no PWM changes'; exit 2; }
+owner=${SUDO_USER:-root}
+chown "$owner" "$lock_path"
+chmod 600 "$lock_path"
 chips=()
-for dev in febf0020.pwm febf0030.pwm fd8b0030.pwm; do
+for dev in febf0000.pwm febf0020.pwm febf0010.pwm; do
   found=''
   for p in /sys/class/pwm/pwmchip*; do
     resolved=$(readlink -f "$p")

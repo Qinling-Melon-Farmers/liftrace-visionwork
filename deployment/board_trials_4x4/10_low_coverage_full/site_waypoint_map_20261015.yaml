@@ -1,0 +1,65 @@
+# 来源：用户waypoint_map.yaml（2026-10-15读取的几何），原文件只读。
+# 搜索改用coverage_bounds牛耕；只保留原5个走廊点，不补造门前门后点。
+# H捕获高度按用户最新要求使用FC1.1米；覆盖08默认1.2米，其他H策略继承08。
+# 高位survey_xy为完整现场几何的兼容字段，此备份不执行高位航线。
+flight_area:
+  center_bounds:
+  - -0.5
+  - 9.5
+  - -4.8
+  - 4.8
+  target_bounds:
+  - -0.5
+  - 7.4
+  - -4.8
+  - 4.8
+  search_bounds:
+  - 0.4
+  - 6.8
+  - -4.1
+  - 4.1
+  staging_xy:
+  - 0.6
+  - 0.05
+  survey_xy:
+  - - 1
+    - -3.5
+  - - 5.5
+    - -3.5
+  - - 5.5
+    - 3.5
+  - - 1
+    - 3.5
+  - - 1
+    - -3.5
+  map_size:
+  - 22
+  - 12
+  - 4
+corridor_waypoints:
+- x: 6.9
+  y: 3.4
+  agl: 0.9
+- x: 8.3
+  y: 3.4
+  agl: 0.9
+- x: 8.3
+  y: 1.9
+  agl: 0.9
+- x: 8.3
+  y: -0.4
+  agl: 0.9
+- x: 8.3
+  y: -3.5
+  agl: 0.9
+landing_xy:
+- 8.3
+- -3.5
+landing_transit_agl: 1
+landing_capture_agl: 1.1
+corridor_geometry:
+  wall_axis: 1
+  wall_coordinates:
+  - -1.6
+  - 1.6
+  entry_waypoints: 1

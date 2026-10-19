@@ -1,0 +1,32 @@
+[
+  {
+    "copy": "high-research",
+    "branch": "feat/high-view-search-research",
+    "head": "a936dfd65f8163fb71b63aa756e3d021eae6eeb3",
+    "different": []
+  },
+  {
+    "copy": "integrated",
+    "branch": "feat/r2026-competition-integrated",
+    "head": "d1b499181d66afc6b95f703616f705f5933e68b6",
+    "different": []
+  },
+  {
+    "copy": "board-tests",
+    "branch": "feat/board-deployment-flight-20260920",
+    "head": "823c1ea7422b42f1d75ecf04f8c7a987bb9d8e13",
+    "different": []
+  },
+  {
+    "copy": "nav-reference",
+    "branch": "\u677f\u7aef\u53c2\u8003\u5206\u652f",
+    "head": "15a4d739b02c3a8db91f314f73b58c35c0ab5495",
+    "different": []
+  },
+  {
+    "copy": "nav-liveness",
+    "branch": "feat/high-view-liveness-20260919",
+    "head": "c5ba7a7684ae7958802eff500432f9c054e92742",
+    "different": []
+  }
+]

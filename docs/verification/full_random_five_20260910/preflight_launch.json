@@ -1,0 +1,1115 @@
+{
+  "cases": [
+    {
+      "seed": 31,
+      "nodes": [
+        {
+          "package": "uav_vision_eval",
+          "type": "competition_key_recorder.py",
+          "name": "competition_key_recorder"
+        },
+        {
+          "package": "tf2_ros",
+          "type": "static_transform_publisher",
+          "name": "downward_camera_extrinsic"
+        },
+        {
+          "package": "uav_mission",
+          "type": "pose_tf_broadcaster.py",
+          "name": "vision_pose_tf"
+        },
+        {
+          "package": "px4",
+          "type": "px4",
+          "name": "sitl"
+        },
+        {
+          "package": "gazebo_ros",
+          "type": "gzserver",
+          "name": "gazebo"
+        },
+        {
+          "package": "patrol_control",
+          "type": "spawn_model_delayed.py",
+          "name": "vehicle_spawn_LAPTOP_TDR4FKQ6_27116_2838338179562790373"
+        },
+        {
+          "package": "mavros",
+          "type": "mavros_node",
+          "name": "mavros"
+        },
+        {
+          "package": "patrol_control",
+          "type": "uav_arming_node",
+          "name": "uav_arming_node"
+        },
+        {
+          "package": "patrol_control",
+          "type": "patrol_control",
+          "name": "patrol_control"
+        },
+        {
+          "package": "plan_manage",
+          "type": "fast_planner_node",
+          "name": "fast_planner_node"
+        },
+        {
+          "package": "plan_manage",
+          "type": "traj_server",
+          "name": "traj_server"
+        },
+        {
+          "package": "fast_lio",
+          "type": "fastlio_mapping",
+          "name": "laserMapping"
+        },
+        {
+          "package": "freedom",
+          "type": "freedom_node",
+          "name": "freedom"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_detector.py",
+          "name": "target_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "cross_detector_node",
+          "name": "cross_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "circle_detector_node",
+          "name": "circle_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "landing_detector_node",
+          "name": "landing_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "detection_fusion.py",
+          "name": "detection_fusion"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_refiner.py",
+          "name": "target_refiner"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_map_projector.py",
+          "name": "target_map_projector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_memory.py",
+          "name": "target_memory"
+        },
+        {
+          "package": "uav_vision",
+          "type": "drop_aligner.py",
+          "name": "drop_aligner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "release_permission_arbiter.py",
+          "name": "release_permission_arbiter"
+        },
+        {
+          "package": "uav_mission",
+          "type": "guarded_servo_proxy.py",
+          "name": "guarded_servo_proxy"
+        },
+        {
+          "package": "uav_mission",
+          "type": "mock_raw_servo_server.py",
+          "name": "mock_raw_servo_server"
+        },
+        {
+          "package": "uav_mission",
+          "type": "visual_delivery_audit.py",
+          "name": "visual_delivery_audit"
+        },
+        {
+          "package": "uav_mission",
+          "type": "random_field_spawner.py",
+          "name": "random_field_spawner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "planner_anchor_spawner.py",
+          "name": "planner_anchor_spawner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "gazebo_contact_monitor.py",
+          "name": "gazebo_contact_monitor"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_mission_manager.py",
+          "name": "mission_manager"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_planner_bridge.py",
+          "name": "planner_bridge"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_mission_start_gate.py",
+          "name": "navigation_mission_start_gate"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_vcl06_assertion.py",
+          "name": "navigation_vcl06_assertion"
+        },
+        {
+          "package": "uav_mission",
+          "type": "lio_external_pose.py",
+          "name": "lio_external_pose"
+        },
+        {
+          "package": "tf2_ros",
+          "type": "static_transform_publisher",
+          "name": "mapping_imu_extrinsic"
+        }
+      ],
+      "gate_doors": [
+        {
+          "name": "corridor_entry",
+          "axis": "y",
+          "coordinate": 7.5,
+          "direction": "positive",
+          "route_indices": [
+            3
+          ],
+          "lateral_min": -4.8,
+          "lateral_max": -3.3,
+          "z_min": 0.0,
+          "z_max": 0.7
+        },
+        {
+          "name": "Wall_20",
+          "axis": "x",
+          "coordinate": -1.6,
+          "direction": "positive",
+          "route_indices": [
+            5
+          ],
+          "lateral_min": 8.3,
+          "lateral_max": 9.1,
+          "z_min": 0.0,
+          "z_max": 0.7
+        },
+        {
+          "name": "Wall_22",
+          "axis": "x",
+          "coordinate": 1.6,
+          "direction": "positive",
+          "route_indices": [
+            8
+          ],
+          "lateral_min": 8.3,
+          "lateral_max": 9.1,
+          "z_min": 0.0,
+          "z_max": 0.7
+        }
+      ],
+      "launch_static_pass": true
+    },
+    {
+      "seed": 32,
+      "nodes": [
+        {
+          "package": "uav_vision_eval",
+          "type": "competition_key_recorder.py",
+          "name": "competition_key_recorder"
+        },
+        {
+          "package": "tf2_ros",
+          "type": "static_transform_publisher",
+          "name": "downward_camera_extrinsic"
+        },
+        {
+          "package": "uav_mission",
+          "type": "pose_tf_broadcaster.py",
+          "name": "vision_pose_tf"
+        },
+        {
+          "package": "px4",
+          "type": "px4",
+          "name": "sitl"
+        },
+        {
+          "package": "gazebo_ros",
+          "type": "gzserver",
+          "name": "gazebo"
+        },
+        {
+          "package": "patrol_control",
+          "type": "spawn_model_delayed.py",
+          "name": "vehicle_spawn_LAPTOP_TDR4FKQ6_27116_7424738163216942604"
+        },
+        {
+          "package": "mavros",
+          "type": "mavros_node",
+          "name": "mavros"
+        },
+        {
+          "package": "patrol_control",
+          "type": "uav_arming_node",
+          "name": "uav_arming_node"
+        },
+        {
+          "package": "patrol_control",
+          "type": "patrol_control",
+          "name": "patrol_control"
+        },
+        {
+          "package": "plan_manage",
+          "type": "fast_planner_node",
+          "name": "fast_planner_node"
+        },
+        {
+          "package": "plan_manage",
+          "type": "traj_server",
+          "name": "traj_server"
+        },
+        {
+          "package": "fast_lio",
+          "type": "fastlio_mapping",
+          "name": "laserMapping"
+        },
+        {
+          "package": "freedom",
+          "type": "freedom_node",
+          "name": "freedom"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_detector.py",
+          "name": "target_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "cross_detector_node",
+          "name": "cross_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "circle_detector_node",
+          "name": "circle_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "landing_detector_node",
+          "name": "landing_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "detection_fusion.py",
+          "name": "detection_fusion"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_refiner.py",
+          "name": "target_refiner"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_map_projector.py",
+          "name": "target_map_projector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_memory.py",
+          "name": "target_memory"
+        },
+        {
+          "package": "uav_vision",
+          "type": "drop_aligner.py",
+          "name": "drop_aligner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "release_permission_arbiter.py",
+          "name": "release_permission_arbiter"
+        },
+        {
+          "package": "uav_mission",
+          "type": "guarded_servo_proxy.py",
+          "name": "guarded_servo_proxy"
+        },
+        {
+          "package": "uav_mission",
+          "type": "mock_raw_servo_server.py",
+          "name": "mock_raw_servo_server"
+        },
+        {
+          "package": "uav_mission",
+          "type": "visual_delivery_audit.py",
+          "name": "visual_delivery_audit"
+        },
+        {
+          "package": "uav_mission",
+          "type": "random_field_spawner.py",
+          "name": "random_field_spawner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "planner_anchor_spawner.py",
+          "name": "planner_anchor_spawner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "gazebo_contact_monitor.py",
+          "name": "gazebo_contact_monitor"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_mission_manager.py",
+          "name": "mission_manager"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_planner_bridge.py",
+          "name": "planner_bridge"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_mission_start_gate.py",
+          "name": "navigation_mission_start_gate"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_vcl06_assertion.py",
+          "name": "navigation_vcl06_assertion"
+        },
+        {
+          "package": "uav_mission",
+          "type": "lio_external_pose.py",
+          "name": "lio_external_pose"
+        },
+        {
+          "package": "tf2_ros",
+          "type": "static_transform_publisher",
+          "name": "mapping_imu_extrinsic"
+        }
+      ],
+      "gate_doors": [
+        {
+          "name": "corridor_entry",
+          "axis": "y",
+          "coordinate": 7.5,
+          "direction": "positive",
+          "route_indices": [
+            3
+          ],
+          "lateral_min": -4.8,
+          "lateral_max": -3.3,
+          "z_min": 0.0,
+          "z_max": 0.7
+        },
+        {
+          "name": "Wall_20",
+          "axis": "x",
+          "coordinate": -1.6,
+          "direction": "positive",
+          "route_indices": [
+            5
+          ],
+          "lateral_min": 7.6,
+          "lateral_max": 8.4,
+          "z_min": 0.0,
+          "z_max": 0.7
+        },
+        {
+          "name": "Wall_22",
+          "axis": "x",
+          "coordinate": 1.6,
+          "direction": "positive",
+          "route_indices": [
+            8
+          ],
+          "lateral_min": 7.6,
+          "lateral_max": 8.4,
+          "z_min": 0.0,
+          "z_max": 0.7
+        }
+      ],
+      "launch_static_pass": true
+    },
+    {
+      "seed": 33,
+      "nodes": [
+        {
+          "package": "uav_vision_eval",
+          "type": "competition_key_recorder.py",
+          "name": "competition_key_recorder"
+        },
+        {
+          "package": "tf2_ros",
+          "type": "static_transform_publisher",
+          "name": "downward_camera_extrinsic"
+        },
+        {
+          "package": "uav_mission",
+          "type": "pose_tf_broadcaster.py",
+          "name": "vision_pose_tf"
+        },
+        {
+          "package": "px4",
+          "type": "px4",
+          "name": "sitl"
+        },
+        {
+          "package": "gazebo_ros",
+          "type": "gzserver",
+          "name": "gazebo"
+        },
+        {
+          "package": "patrol_control",
+          "type": "spawn_model_delayed.py",
+          "name": "vehicle_spawn_LAPTOP_TDR4FKQ6_27116_2484977744756786428"
+        },
+        {
+          "package": "mavros",
+          "type": "mavros_node",
+          "name": "mavros"
+        },
+        {
+          "package": "patrol_control",
+          "type": "uav_arming_node",
+          "name": "uav_arming_node"
+        },
+        {
+          "package": "patrol_control",
+          "type": "patrol_control",
+          "name": "patrol_control"
+        },
+        {
+          "package": "plan_manage",
+          "type": "fast_planner_node",
+          "name": "fast_planner_node"
+        },
+        {
+          "package": "plan_manage",
+          "type": "traj_server",
+          "name": "traj_server"
+        },
+        {
+          "package": "fast_lio",
+          "type": "fastlio_mapping",
+          "name": "laserMapping"
+        },
+        {
+          "package": "freedom",
+          "type": "freedom_node",
+          "name": "freedom"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_detector.py",
+          "name": "target_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "cross_detector_node",
+          "name": "cross_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "circle_detector_node",
+          "name": "circle_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "landing_detector_node",
+          "name": "landing_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "detection_fusion.py",
+          "name": "detection_fusion"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_refiner.py",
+          "name": "target_refiner"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_map_projector.py",
+          "name": "target_map_projector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_memory.py",
+          "name": "target_memory"
+        },
+        {
+          "package": "uav_vision",
+          "type": "drop_aligner.py",
+          "name": "drop_aligner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "release_permission_arbiter.py",
+          "name": "release_permission_arbiter"
+        },
+        {
+          "package": "uav_mission",
+          "type": "guarded_servo_proxy.py",
+          "name": "guarded_servo_proxy"
+        },
+        {
+          "package": "uav_mission",
+          "type": "mock_raw_servo_server.py",
+          "name": "mock_raw_servo_server"
+        },
+        {
+          "package": "uav_mission",
+          "type": "visual_delivery_audit.py",
+          "name": "visual_delivery_audit"
+        },
+        {
+          "package": "uav_mission",
+          "type": "random_field_spawner.py",
+          "name": "random_field_spawner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "planner_anchor_spawner.py",
+          "name": "planner_anchor_spawner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "gazebo_contact_monitor.py",
+          "name": "gazebo_contact_monitor"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_mission_manager.py",
+          "name": "mission_manager"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_planner_bridge.py",
+          "name": "planner_bridge"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_mission_start_gate.py",
+          "name": "navigation_mission_start_gate"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_vcl06_assertion.py",
+          "name": "navigation_vcl06_assertion"
+        },
+        {
+          "package": "uav_mission",
+          "type": "lio_external_pose.py",
+          "name": "lio_external_pose"
+        },
+        {
+          "package": "tf2_ros",
+          "type": "static_transform_publisher",
+          "name": "mapping_imu_extrinsic"
+        }
+      ],
+      "gate_doors": [
+        {
+          "name": "corridor_entry",
+          "axis": "y",
+          "coordinate": 7.5,
+          "direction": "positive",
+          "route_indices": [
+            3
+          ],
+          "lateral_min": -4.8,
+          "lateral_max": -3.3,
+          "z_min": 0.0,
+          "z_max": 0.7
+        },
+        {
+          "name": "Wall_20",
+          "axis": "x",
+          "coordinate": -1.6,
+          "direction": "positive",
+          "route_indices": [
+            5
+          ],
+          "lateral_min": 8.3,
+          "lateral_max": 9.1,
+          "z_min": 0.0,
+          "z_max": 0.7
+        },
+        {
+          "name": "Wall_22",
+          "axis": "x",
+          "coordinate": 1.6,
+          "direction": "positive",
+          "route_indices": [
+            8
+          ],
+          "lateral_min": 7.6,
+          "lateral_max": 8.4,
+          "z_min": 0.0,
+          "z_max": 0.7
+        }
+      ],
+      "launch_static_pass": true
+    },
+    {
+      "seed": 34,
+      "nodes": [
+        {
+          "package": "uav_vision_eval",
+          "type": "competition_key_recorder.py",
+          "name": "competition_key_recorder"
+        },
+        {
+          "package": "tf2_ros",
+          "type": "static_transform_publisher",
+          "name": "downward_camera_extrinsic"
+        },
+        {
+          "package": "uav_mission",
+          "type": "pose_tf_broadcaster.py",
+          "name": "vision_pose_tf"
+        },
+        {
+          "package": "px4",
+          "type": "px4",
+          "name": "sitl"
+        },
+        {
+          "package": "gazebo_ros",
+          "type": "gzserver",
+          "name": "gazebo"
+        },
+        {
+          "package": "patrol_control",
+          "type": "spawn_model_delayed.py",
+          "name": "vehicle_spawn_LAPTOP_TDR4FKQ6_27116_4669681224977401442"
+        },
+        {
+          "package": "mavros",
+          "type": "mavros_node",
+          "name": "mavros"
+        },
+        {
+          "package": "patrol_control",
+          "type": "uav_arming_node",
+          "name": "uav_arming_node"
+        },
+        {
+          "package": "patrol_control",
+          "type": "patrol_control",
+          "name": "patrol_control"
+        },
+        {
+          "package": "plan_manage",
+          "type": "fast_planner_node",
+          "name": "fast_planner_node"
+        },
+        {
+          "package": "plan_manage",
+          "type": "traj_server",
+          "name": "traj_server"
+        },
+        {
+          "package": "fast_lio",
+          "type": "fastlio_mapping",
+          "name": "laserMapping"
+        },
+        {
+          "package": "freedom",
+          "type": "freedom_node",
+          "name": "freedom"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_detector.py",
+          "name": "target_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "cross_detector_node",
+          "name": "cross_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "circle_detector_node",
+          "name": "circle_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "landing_detector_node",
+          "name": "landing_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "detection_fusion.py",
+          "name": "detection_fusion"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_refiner.py",
+          "name": "target_refiner"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_map_projector.py",
+          "name": "target_map_projector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_memory.py",
+          "name": "target_memory"
+        },
+        {
+          "package": "uav_vision",
+          "type": "drop_aligner.py",
+          "name": "drop_aligner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "release_permission_arbiter.py",
+          "name": "release_permission_arbiter"
+        },
+        {
+          "package": "uav_mission",
+          "type": "guarded_servo_proxy.py",
+          "name": "guarded_servo_proxy"
+        },
+        {
+          "package": "uav_mission",
+          "type": "mock_raw_servo_server.py",
+          "name": "mock_raw_servo_server"
+        },
+        {
+          "package": "uav_mission",
+          "type": "visual_delivery_audit.py",
+          "name": "visual_delivery_audit"
+        },
+        {
+          "package": "uav_mission",
+          "type": "random_field_spawner.py",
+          "name": "random_field_spawner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "planner_anchor_spawner.py",
+          "name": "planner_anchor_spawner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "gazebo_contact_monitor.py",
+          "name": "gazebo_contact_monitor"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_mission_manager.py",
+          "name": "mission_manager"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_planner_bridge.py",
+          "name": "planner_bridge"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_mission_start_gate.py",
+          "name": "navigation_mission_start_gate"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_vcl06_assertion.py",
+          "name": "navigation_vcl06_assertion"
+        },
+        {
+          "package": "uav_mission",
+          "type": "lio_external_pose.py",
+          "name": "lio_external_pose"
+        },
+        {
+          "package": "tf2_ros",
+          "type": "static_transform_publisher",
+          "name": "mapping_imu_extrinsic"
+        }
+      ],
+      "gate_doors": [
+        {
+          "name": "corridor_entry",
+          "axis": "y",
+          "coordinate": 7.5,
+          "direction": "positive",
+          "route_indices": [
+            3
+          ],
+          "lateral_min": -4.8,
+          "lateral_max": -3.3,
+          "z_min": 0.0,
+          "z_max": 0.7
+        },
+        {
+          "name": "Wall_20",
+          "axis": "x",
+          "coordinate": -1.6,
+          "direction": "positive",
+          "route_indices": [
+            5
+          ],
+          "lateral_min": 8.3,
+          "lateral_max": 9.1,
+          "z_min": 0.0,
+          "z_max": 0.7
+        },
+        {
+          "name": "Wall_22",
+          "axis": "x",
+          "coordinate": 1.6,
+          "direction": "positive",
+          "route_indices": [
+            8
+          ],
+          "lateral_min": 8.3,
+          "lateral_max": 9.1,
+          "z_min": 0.0,
+          "z_max": 0.7
+        }
+      ],
+      "launch_static_pass": true
+    },
+    {
+      "seed": 35,
+      "nodes": [
+        {
+          "package": "uav_vision_eval",
+          "type": "competition_key_recorder.py",
+          "name": "competition_key_recorder"
+        },
+        {
+          "package": "tf2_ros",
+          "type": "static_transform_publisher",
+          "name": "downward_camera_extrinsic"
+        },
+        {
+          "package": "uav_mission",
+          "type": "pose_tf_broadcaster.py",
+          "name": "vision_pose_tf"
+        },
+        {
+          "package": "px4",
+          "type": "px4",
+          "name": "sitl"
+        },
+        {
+          "package": "gazebo_ros",
+          "type": "gzserver",
+          "name": "gazebo"
+        },
+        {
+          "package": "patrol_control",
+          "type": "spawn_model_delayed.py",
+          "name": "vehicle_spawn_LAPTOP_TDR4FKQ6_27116_432000770635724353"
+        },
+        {
+          "package": "mavros",
+          "type": "mavros_node",
+          "name": "mavros"
+        },
+        {
+          "package": "patrol_control",
+          "type": "uav_arming_node",
+          "name": "uav_arming_node"
+        },
+        {
+          "package": "patrol_control",
+          "type": "patrol_control",
+          "name": "patrol_control"
+        },
+        {
+          "package": "plan_manage",
+          "type": "fast_planner_node",
+          "name": "fast_planner_node"
+        },
+        {
+          "package": "plan_manage",
+          "type": "traj_server",
+          "name": "traj_server"
+        },
+        {
+          "package": "fast_lio",
+          "type": "fastlio_mapping",
+          "name": "laserMapping"
+        },
+        {
+          "package": "freedom",
+          "type": "freedom_node",
+          "name": "freedom"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_detector.py",
+          "name": "target_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "cross_detector_node",
+          "name": "cross_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "circle_detector_node",
+          "name": "circle_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "landing_detector_node",
+          "name": "landing_detector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "detection_fusion.py",
+          "name": "detection_fusion"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_refiner.py",
+          "name": "target_refiner"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_map_projector.py",
+          "name": "target_map_projector"
+        },
+        {
+          "package": "uav_vision",
+          "type": "target_memory.py",
+          "name": "target_memory"
+        },
+        {
+          "package": "uav_vision",
+          "type": "drop_aligner.py",
+          "name": "drop_aligner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "release_permission_arbiter.py",
+          "name": "release_permission_arbiter"
+        },
+        {
+          "package": "uav_mission",
+          "type": "guarded_servo_proxy.py",
+          "name": "guarded_servo_proxy"
+        },
+        {
+          "package": "uav_mission",
+          "type": "mock_raw_servo_server.py",
+          "name": "mock_raw_servo_server"
+        },
+        {
+          "package": "uav_mission",
+          "type": "visual_delivery_audit.py",
+          "name": "visual_delivery_audit"
+        },
+        {
+          "package": "uav_mission",
+          "type": "random_field_spawner.py",
+          "name": "random_field_spawner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "planner_anchor_spawner.py",
+          "name": "planner_anchor_spawner"
+        },
+        {
+          "package": "uav_mission",
+          "type": "gazebo_contact_monitor.py",
+          "name": "gazebo_contact_monitor"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_mission_manager.py",
+          "name": "mission_manager"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_planner_bridge.py",
+          "name": "planner_bridge"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_mission_start_gate.py",
+          "name": "navigation_mission_start_gate"
+        },
+        {
+          "package": "uav_mission",
+          "type": "navigation_vcl06_assertion.py",
+          "name": "navigation_vcl06_assertion"
+        },
+        {
+          "package": "uav_mission",
+          "type": "lio_external_pose.py",
+          "name": "lio_external_pose"
+        },
+        {
+          "package": "tf2_ros",
+          "type": "static_transform_publisher",
+          "name": "mapping_imu_extrinsic"
+        }
+      ],
+      "gate_doors": [
+        {
+          "name": "corridor_entry",
+          "axis": "y",
+          "coordinate": 7.5,
+          "direction": "positive",
+          "route_indices": [
+            3
+          ],
+          "lateral_min": -4.8,
+          "lateral_max": -3.3,
+          "z_min": 0.0,
+          "z_max": 0.7
+        },
+        {
+          "name": "Wall_20",
+          "axis": "x",
+          "coordinate": -1.6,
+          "direction": "positive",
+          "route_indices": [
+            5
+          ],
+          "lateral_min": 7.6,
+          "lateral_max": 8.4,
+          "z_min": 0.0,
+          "z_max": 0.7
+        },
+        {
+          "name": "Wall_22",
+          "axis": "x",
+          "coordinate": 1.6,
+          "direction": "positive",
+          "route_indices": [
+            8
+          ],
+          "lateral_min": 7.6,
+          "lateral_max": 8.4,
+          "z_min": 0.0,
+          "z_max": 0.7
+        }
+      ],
+      "launch_static_pass": true
+    }
+  ],
+  "flight_parameters_identical": true
+}

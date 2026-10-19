@@ -1,0 +1,158 @@
+{
+  "status": "COMPLETE",
+  "pid": 27250,
+  "frozen_head": "7eb94462170d0adce666754ec2547d79a71b29df",
+  "seeds": [
+    31,
+    32,
+    33,
+    34,
+    35
+  ],
+  "results": [
+    {
+      "seed": 31,
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed31_20260910_101159",
+      "status": "FAIL",
+      "exit_code": 1,
+      "checks_passed": 28,
+      "checks_total": 37,
+      "mission_ros_sec": null,
+      "releases": 3,
+      "post_route": 9,
+      "passages": 3,
+      "bag_files": 0,
+      "cleanup_pass": true
+    },
+    {
+      "seed": 32,
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed32_20260910_103344",
+      "status": "PASS",
+      "exit_code": 0,
+      "checks_passed": 37,
+      "checks_total": 37,
+      "mission_ros_sec": 513.573,
+      "releases": 3,
+      "post_route": 9,
+      "passages": 3,
+      "bag_files": 0,
+      "cleanup_pass": true
+    },
+    {
+      "seed": 33,
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147",
+      "status": "FAIL",
+      "exit_code": 1,
+      "checks_passed": 22,
+      "checks_total": 37,
+      "mission_ros_sec": null,
+      "releases": 3,
+      "post_route": 7,
+      "passages": 2,
+      "bag_files": 0,
+      "cleanup_pass": true
+    },
+    {
+      "seed": 34,
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330",
+      "status": "FAIL",
+      "exit_code": 1,
+      "checks_passed": 17,
+      "checks_total": 37,
+      "mission_ros_sec": null,
+      "releases": 2,
+      "post_route": 0,
+      "passages": 0,
+      "bag_files": 0,
+      "cleanup_pass": true
+    },
+    {
+      "seed": 35,
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed35_20260910_120409",
+      "status": "PASS",
+      "exit_code": 0,
+      "checks_passed": 37,
+      "checks_total": 37,
+      "mission_ros_sec": 342.134000001,
+      "releases": 3,
+      "post_route": 9,
+      "passages": 3,
+      "bag_files": 0,
+      "cleanup_pass": true
+    }
+  ],
+  "current": null,
+  "scenario_index": {
+    "31": {
+      "args": {
+        "world": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_31/field.world",
+        "field_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_31/field_config.yaml",
+        "runtime_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_31/experimental_runtime.yaml",
+        "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_31/gate_geometry.yaml"
+      },
+      "scene_json": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_31/scene.json",
+      "field_seed": 31,
+      "scene_seed": 31,
+      "door_seed": 1031,
+      "obstacle_seed": 2031,
+      "door_pattern": "LL"
+    },
+    "32": {
+      "args": {
+        "world": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_32/field.world",
+        "field_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_32/field_config.yaml",
+        "runtime_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_32/experimental_runtime.yaml",
+        "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_32/gate_geometry.yaml"
+      },
+      "scene_json": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_32/scene.json",
+      "field_seed": 32,
+      "scene_seed": 32,
+      "door_seed": 1032,
+      "obstacle_seed": 2032,
+      "door_pattern": "RR"
+    },
+    "33": {
+      "args": {
+        "world": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_33/field.world",
+        "field_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_33/field_config.yaml",
+        "runtime_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_33/experimental_runtime.yaml",
+        "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_33/gate_geometry.yaml"
+      },
+      "scene_json": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_33/scene.json",
+      "field_seed": 33,
+      "scene_seed": 33,
+      "door_seed": 1033,
+      "obstacle_seed": 2033,
+      "door_pattern": "LR"
+    },
+    "34": {
+      "args": {
+        "world": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_34/field.world",
+        "field_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_34/field_config.yaml",
+        "runtime_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_34/experimental_runtime.yaml",
+        "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_34/gate_geometry.yaml"
+      },
+      "scene_json": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_34/scene.json",
+      "field_seed": 34,
+      "scene_seed": 34,
+      "door_seed": 1034,
+      "obstacle_seed": 2034,
+      "door_pattern": "LL"
+    },
+    "35": {
+      "args": {
+        "world": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_35/field.world",
+        "field_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_35/field_config.yaml",
+        "runtime_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_35/experimental_runtime.yaml",
+        "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_35/gate_geometry.yaml"
+      },
+      "scene_json": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/_artifacts/full_random_five_20260910/scenes/seed_35/scene.json",
+      "field_seed": 35,
+      "scene_seed": 35,
+      "door_seed": 1035,
+      "obstacle_seed": 2035,
+      "door_pattern": "RR"
+    }
+  },
+  "distinct_layouts": 5
+}

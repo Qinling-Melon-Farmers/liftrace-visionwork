@@ -1,0 +1,445 @@
+"""Generate all local-Z parameters from one stationary FC reference."""
+from pathlib import Path
+import math,copy,json,yaml,struct
+from uav_mission.landing_posctl_config import validate_landing_posctl, landing_control_parameters, landing_descent_parameters, landing_alignment_mode
+from uav_mission.landing_offboard_config import landing_offboard_parameters
+from uav_mission.drop_height_config import release_heights
+from uav_mission.landing_coordinate_fallback_config import landing_coordinate_fallback_parameters
+
+TRIAL_FOLDERS = {
+    'visual_interrupt': '01_visual_interrupt', 'high_view': '02_high_view_revisit',
+    'landing': '03_h_landing', 'corridor_landing': '04_corridor_landing',
+    'low_multi': '05_low_multi', 'high_priority': '06_high_priority',
+    'memory_only': '07_memory_only', 'full_mission': '08_full_mission',
+    'high_speed_capture': '09_high_speed_capture',
+    'low_coverage_full': '10_low_coverage_full',
+}
+HIGH_MODES = ('high_view', 'high_priority', 'memory_only', 'high_view_full', 'high_speed_capture')
+H_MODES = ('landing', 'high_view_full', 'low_multi_full')
+NO_DROP_MODES = ('landing', 'memory_only', 'high_speed_capture')
+
+def load_trial_settings(root, folder):
+    """03 exercises the current 08 H policy, retaining its own mission/geometry.
+
+    Resolve before measured-site and explicit CLI overrides. Optional H blocks
+    removed from 08 must not survive as stale values in the standalone template.
+    """
+    base = Path(root) / 'deployment/board_trials_4x4'
+    settings = yaml.safe_load((base / folder / 'settings.yaml').read_text())
+    # 初始化最多等待五分钟；不放宽位姿、航向一致性或静止要求。
+    settings.setdefault("initialization_timeout", 300.0)
+    if folder == '10_low_coverage_full':
+        from trial_low_coverage import inherit_full_settings
+        full = yaml.safe_load((base / '08_full_mission/settings.yaml').read_text())
+        return inherit_full_settings(full, settings)
+    if folder != '03_h_landing':
+        return settings
+    full = yaml.safe_load((base / '08_full_mission/settings.yaml').read_text())
+    if not isinstance(settings, dict) or not isinstance(full, dict):
+        raise ValueError('H/full mission settings must be mappings')
+    if any(key not in full for key in ('landing_transit_agl', 'landing_capture_agl')):
+        raise ValueError('08 H policy requires transit and capture heights')
+    validate_landing_posctl(full)
+    def policy(key):
+        return key.startswith('landing_') and key != 'landing_xy'
+    settings = {key: value for key, value in settings.items() if not policy(key)}
+    settings.update({key: copy.deepcopy(value) for key, value in full.items() if policy(key)})
+    return settings
+
+def apply_site_profile(settings, profile):
+    """Merge measured site geometry without changing the module's mission kind."""
+    allowed={'flight_area','search_line_x','compressed_image_topic','high_agl','max_agl',
+             'terminal_hover_agl','auto_start_after_arm','initialization_timeout','obstacle_columns_enabled',
+             'bag_image_hz','bag_image_topic','record_inflated_cloud','record_map_clouds'}
+    if settings['mode'] in H_MODES:
+        allowed.update(('landing_xy', 'landing_handoff_mode', 'landing_handoff_status_topic', 'landing_posctl', 'landing_alignment_mode', 'landing_descent_mode', 'landing_descent_speed_mps', 'landing_offboard', 'landing_coordinate_fallback'))
+    if settings.get('mode') in ('low_multi','low_multi_full'):
+        allowed.update(('search_waypoints_xy', 'landing_xy'))
+    if settings.get('trial_kind') in ('full_mission','low_multi_corridor'):
+        allowed.add('low_agl')
+    if settings.get('trial_kind') in ('corridor_landing','full_mission','low_multi_corridor'):
+        allowed.update(('corridor_waypoints','corridor_geometry','landing_transit_agl','landing_capture_agl'))
+    if settings.get('trial_kind') == 'full_mission':
+        allowed.update(('survey_pattern','landing_transit_agl','landing_capture_agl'))
+    if settings.get('backup_profile') == 'low_coverage_full':
+        allowed.update(('landing_transit_agl','landing_capture_agl','coverage_pattern','coverage_rectangles','coverage_cross_inset','coverage_lane_spacing','coverage_scan_axis','coverage_loop_inset'))
+    if not isinstance(profile,dict) or set(profile)-allowed:
+        raise ValueError('Unsupported site profile key')
+    if settings['mode'] in H_MODES and 'terminal_hover_agl' in profile:
+        raise ValueError('H landing cannot use terminal_hover_agl; preserve visual landing handoff')
+    settings.update(profile)
+    return settings
+
+def mapping_profile(settings):
+    if settings.get('backup_profile') == 'low_coverage_full':
+        return 'coverage'
+    if settings['mode'] in HIGH_MODES:
+        return 'high'
+    return 'corridor' if settings.get('trial_kind') == 'corridor_landing' else 'low'
+
+def flight_geometry(settings):
+    defaults=dict(center_bounds=[-.35,3.4,-1.4,1.4],target_bounds=[-.35,4.,-2.,2.],
+                  search_bounds=[.6,3.2,-1.2,1.2],staging_xy=[.6,.05],
+                  survey_xy=[[1.,-1.],[3.,-1.],[3.,1.],[1.,1.],[1.,-1.]],
+                  map_size=[10.,6.,3.8])
+    custom=settings.get("flight_area",{})
+    if not isinstance(custom,dict) or set(custom)-set(defaults):raise ValueError("Unknown flight_area fields")
+    area=dict(defaults,**custom)
+    if settings.get('mode') == 'high_speed_capture' and any(
+            key in settings for key in ('capture_line_xy','capture_round_trips')):
+        raise ValueError('Capture now uses flight_area staging_xy/survey_xy; remove obsolete line settings')
+    def finite(v):return not isinstance(v,bool) and isinstance(v,(int,float)) and math.isfinite(v)
+    for key in ("center_bounds","target_bounds","search_bounds"):
+        v=area[key]
+        if not isinstance(v,list) or len(v)!=4 or not all(finite(t) for t in v) or v[0]>=v[1] or v[2]>=v[3]:
+            raise ValueError("Invalid flight_area "+key)
+    bounds=area["center_bounds"];target=area["target_bounds"];search=area["search_bounds"]
+    def inside(point,box=bounds):
+        return isinstance(point,(list,tuple)) and len(point)==2 and all(finite(t) for t in point) and box[0]<=point[0]<=box[1] and box[2]<=point[1]<=box[3]
+    if not inside([0.,0.]) or not inside(area["staging_xy"]):raise ValueError("Origin/staging outside flight_area")
+    if settings.get('backup_profile') != 'low_coverage_full' and settings.get('trial_kind') != 'full_mission' and not all(inside(v,target) for v in ([bounds[0],bounds[2]],[bounds[1],bounds[3]])):
+        raise ValueError("target_bounds must contain center_bounds")
+    if not all(inside(v) for v in ([search[0],search[2]],[search[1],search[3]])):raise ValueError("Search bounds outside flight_area")
+    if 'survey_pattern' in settings:
+        if settings['mode'] not in HIGH_MODES:raise ValueError('Survey pattern only applies to high-view modules')
+        from uav_mission.survey_routes import survey_route
+        old=area['survey_xy'];xs=[min(v[0] for v in old),max(v[0] for v in old)]
+        if settings['survey_pattern']=='snake3':xs.insert(1,sum(xs)/2)
+        area['survey_xy']=survey_route(settings['survey_pattern'],xs,min(v[1] for v in old),max(v[1] for v in old),start_high=old[0][1]>sum(v[1] for v in old)/len(old))
+    if (settings.get('backup_profile') == 'low_coverage_full' or settings.get('trial_kind') == 'full_mission') and not all(inside(v,target) for v in ([search[0],search[2]],[search[1],search[3]])):
+        raise ValueError('Search bounds must lie within target_bounds')
+    points=area["survey_xy"]
+    if not isinstance(points,list) or len(points)<(2 if settings.get('mode')=='high_speed_capture' else 3) or any(not inside(v) for v in points):raise ValueError("Survey point outside flight_area")
+    if settings.get('mode')=='high_speed_capture':
+        if any(not (bounds[0]+.3<=p[0]<=bounds[1]-.3 and bounds[2]+.3<=p[1]<=bounds[3]-.3)
+               for p in [area['staging_xy'],*points]):
+            raise ValueError('Capture points require 0.30m inset inside center bounds')
+        # Short survey legs are intentional. Speed acceptance uses measured
+        # moving windows; completing the route does not prove cruise speed.
+    size=area["map_size"]
+    if not isinstance(size,list) or len(size)!=3 or not all(finite(v) and v>0 for v in size):raise ValueError("Invalid map_size")
+    if max(abs(bounds[0]),abs(bounds[1]))+.3>=size[0]/2 or max(abs(bounds[2]),abs(bounds[3]))+.3>=size[1]/2:
+        raise ValueError("Planner map too small for flight_area and initial pose tolerance")
+    return area
+
+def validate_settings(settings):
+    from uav_mission.drop_descent_config import drop_descent_parameters, drop_horizontal_compensation_mode
+    drop_descent_parameters(settings)
+    drop_horizontal_compensation_mode(settings)
+    release_heights(settings)
+    from trial_low_coverage import is_low_coverage, validate_low_coverage, coverage_waypoints
+    backup = is_low_coverage(settings)
+    validate_low_coverage(settings)
+    lead=settings.get('takeoff_z_lead_m',0.)
+    if isinstance(lead,bool) or not isinstance(lead,(int,float)) or not math.isfinite(lead) or not (lead==0 or .4<=lead<=.6):
+        raise ValueError('takeoff_z_lead_m must be 0 or [0.4, 0.6] metres')
+    budget=settings.get('motion_action_timeout',30.)
+    if isinstance(budget,bool) or not isinstance(budget,(int,float)) or not math.isfinite(budget) or not 0<budget<=600:
+        raise ValueError('Invalid motion_action_timeout; expected seconds in (0,600]')
+    if settings.get('mode') not in ('visual_interrupt','low_multi','low_multi_full',*HIGH_MODES,'landing'):
+        raise ValueError('Unknown trial mode')
+    if settings.get('mode')=='low_multi_full' and settings.get('trial_kind')!='low_multi_corridor':
+        raise ValueError('Low multi H mode requires its measured corridor configuration')
+    if settings.get('trial_kind')=='low_multi_corridor' and settings.get('mode')!='low_multi_full':
+        raise ValueError('Low multi corridor/H kind requires low_multi_full mode')
+    if 'landing_handoff_mode' in settings and settings['mode'] not in H_MODES:
+        raise ValueError('landing_handoff_mode only applies to visual H landing')
+    if 'landing_posctl' in settings and settings['mode'] not in H_MODES:
+        raise ValueError('landing_posctl only applies to visual H landing')
+    if 'landing_offboard' in settings and settings['mode'] not in H_MODES:
+        raise ValueError('landing_offboard only applies to visual H landing')
+    if 'landing_alignment_mode' in settings and settings['mode'] not in H_MODES:
+        raise ValueError('landing_alignment_mode only applies to visual H landing')
+    if any(key in settings for key in ('landing_descent_mode', 'landing_descent_speed_mps')) and settings['mode'] not in H_MODES:
+        raise ValueError('landing descent settings only apply to visual H landing')
+    validate_landing_posctl(settings)
+    landing_coordinate_fallback_parameters(settings, external_land=settings['mode'] in H_MODES)
+    if 'landing_handoff_status_topic' in settings:
+        topic = settings['landing_handoff_status_topic']
+        if settings['mode'] not in H_MODES:
+            raise ValueError('landing_handoff_status_topic only applies to visual H landing')
+        if (not isinstance(topic, str) or not topic.startswith('/') or len(topic) < 2
+                or any(not (ch.isascii() and (ch.isalnum() or ch in '/_')) for ch in topic)):
+            raise ValueError('Invalid landing_handoff_status_topic')
+    if settings.get('actuator_mode','mock') not in ('mock','real','none'):
+        raise ValueError('Unknown actuator_mode')
+    if settings.get('actuator_mode')=='real' and settings['mode'] in NO_DROP_MODES:
+        raise ValueError('This module does not permit release')
+    raw=settings.get('raw_servo_service','/legacy/Servo_raw')
+    if not isinstance(raw,str) or not raw.startswith('/') or raw in ('/Servo','/board_trials/Servo','/board_trials/mock_servo'):
+        raise ValueError('raw_servo_service must be an independent absolute hardware service')
+    profile=settings.get('speed_profile','limited')
+    if 'ordinary_waypoint_dwell_enabled' in settings:
+        if settings.get('trial_kind') not in ('full_mission','low_multi_corridor'):
+            raise ValueError('ordinary waypoint dwell switch only applies to 08 full mission')
+        if type(settings['ordinary_waypoint_dwell_enabled']) is not bool:
+            raise ValueError('ordinary_waypoint_dwell_enabled must be boolean')
+    if profile not in ('limited','competition') or (profile=='competition' and settings.get('trial_kind') not in ('full_mission','low_multi_corridor')):
+        raise ValueError('Competition speed profile only applies to 08 full mission')
+    fast=settings['mode']=='high_speed_capture' or profile=='competition'
+    if 'following_speed_profile' in settings:
+        from uav_mission.execution_speed import FollowingSpeed
+        FollowingSpeed(**settings['following_speed_profile'])
+    for key,lo,hi in [('low_agl',1.,1.9 if backup else 1.8),('high_agl',2.,2.8),('landing_transit_agl',.5,1.8),('landing_capture_agl',.5,2.0),('cruise_speed',.1,1.2 if fast else .5),('cruise_acceleration',.1,1.0 if fast else .5)]:
+        v=settings.get(key)
+        if isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(v) or not lo<=v<=hi:
+            raise ValueError('Invalid '+key)
+    if settings['mode']=='high_speed_capture':
+        if settings['cruise_speed'] not in (.5,1.,1.2) or settings.get('high_agl')!=2. or settings.get('max_agl')!=2.:
+            raise ValueError('Capture uses 0.5/1.0/1.2m/s and 2.0m high/cap')
+        if settings.get('terminal_hover_agl')!=.3:
+            raise ValueError('Capture requires 0.30m terminal hover')
+        if settings.get('capture_lighting','unspecified') not in ('normal','dim','unspecified'):
+            raise ValueError('Invalid capture lighting label')
+    if type(settings.get('delivery_count',2)) is not int or not 1<=settings.get('delivery_count',2)<=3:
+        raise ValueError('delivery_count must be 1..3')
+    if type(settings.get('virtual_ceiling_enabled',False)) is not bool:
+        raise ValueError('virtual_ceiling_enabled must be boolean')
+
+    if settings.get('alignment_mode','measured') not in ('measured','legacy_static'):
+        raise ValueError('Unknown alignment_mode')
+    if not 30<=float(settings.get('initialization_timeout',300))<=300:raise ValueError('invalid initialization timeout')
+    if type(settings.get('auto_start_after_arm',False)) is not bool:raise ValueError('invalid auto start')
+    max_agl=settings.get('max_agl',2.9)
+    max_agl_limit=3.2 if settings['mode']=='high_view_full' or backup else 3.0
+    if isinstance(max_agl,bool) or not isinstance(max_agl,(int,float)) or not math.isfinite(max_agl) or not 2.<=max_agl<=max_agl_limit:raise ValueError('invalid max_agl')
+    if settings['high_agl']>max_agl:raise ValueError('high altitude exceeds cap')
+    if 'terminal_hover_agl' in settings and not .25<=settings['terminal_hover_agl']<=.5:raise ValueError('invalid terminal hover')
+    if type(settings.get('obstacle_columns_enabled',True)) is not bool:raise ValueError('invalid obstacle column flag')
+    from trial_motion import motion_options
+    motion_options(settings)
+    area=flight_geometry(settings);cb=area['center_bounds']
+    if settings['mode'] in H_MODES and settings.get('trial_kind') not in ('corridor_landing','full_mission','low_multi_corridor'):
+        landing=settings.get('landing_xy')
+        if (not isinstance(landing,list) or len(landing)!=2 or
+                any(isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(v) for v in landing)):
+            raise ValueError('Fill landing_xy with the measured H center')
+        if not max(.35,cb[0])<=landing[0]<=cb[1] or not cb[2]<=landing[1]<=cb[3]:
+            raise ValueError('Waypoint/H outside configured flight_area center bounds')
+    if settings['mode'] in HIGH_MODES:
+        from uav_mission.high_view_probe import ProbeConfig
+        ProbeConfig(ground_z=0.,high_agl=settings['high_agl'],low_agl=settings['low_agl'],
+                    survey_xy=tuple(tuple(v) for v in area['survey_xy']),
+                    staging_xy=tuple(area['staging_xy']))
+
+    if backup:
+        coverage_waypoints(settings,area)
+    search_min_x=cb[0] if backup else max(.35,cb[0])
+    line=([area['search_bounds'][0],area['search_bounds'][1]] if backup else settings.get('search_line_x',[.6,1.2,1.8,2.4,3.0]))
+    if (not isinstance(line,list) or len(line)<2 or
+            any(isinstance(v,bool) or not isinstance(v,(int,float)) or
+                not math.isfinite(v) or not search_min_x<=v<=cb[1] for v in line) or
+            any(a>=b for a,b in zip(line,line[1:]))):
+        raise ValueError('search_line_x must advance inside flight_area center bounds')
+    if 'search_waypoints_xy' in settings:
+        points=settings['search_waypoints_xy']
+        if settings['mode'] not in ('low_multi','low_multi_full') or not isinstance(points,list) or not 2<=len(points)<=100:
+            raise ValueError('Low multi search requires 2..100 XY waypoints')
+        for v in points:
+            if (not isinstance(v,list) or len(v)!=2 or any(type(n) not in (int,float) or not math.isfinite(n) for n in v)
+                    or not search_min_x<=v[0]<=cb[1] or not cb[2]<=v[1]<=cb[3]):
+                raise ValueError('Low multi search point outside flight_area')
+    if settings.get('trial_kind') not in ('corridor_landing','full_mission','low_multi_corridor'):
+        return
+    points=settings.get('corridor_waypoints')
+    if not isinstance(points,list) or len(points)<2:
+        raise ValueError('Fill corridor_waypoints with at least two measured waypoints; no default route is permitted')
+    landing=settings.get('landing_xy')
+    if not isinstance(landing,list) or len(landing)!=2:
+        raise ValueError('Fill landing_xy with the measured H center')
+    def finite(value):
+        return not isinstance(value,bool) and isinstance(value,(int,float)) and math.isfinite(value)
+    def check_xy(x,y):
+        if not finite(x) or not finite(y) or not max(.35,cb[0])<=x<=cb[1] or not cb[2]<=y<=cb[3]:
+            raise ValueError('Waypoint/H outside configured flight_area center bounds')
+    check_xy(*landing)
+    for point in points:
+        if not isinstance(point,dict) or set(point)-{'x','y','agl'} or 'x' not in point or 'y' not in point:
+            raise ValueError('Each corridor waypoint requires x/y and optional agl')
+        check_xy(point['x'],point['y'])
+        height=point.get('agl',settings['low_agl'])
+        if not finite(height) or not .5<=height<=1.8:
+            raise ValueError('Corridor waypoint agl must be within [0.5,1.8] m')
+
+def generate(root,out,settings,fc_xyz,rig):
+    validate_settings(settings);area=flight_geometry(settings)
+    root=Path(root);out=Path(out);out.mkdir(parents=True,exist_ok=True)
+    x,y,z=map(float,fc_xyz);ground=z-float(rig['fc_ground_clearance']);mode=settings['mode'];high_mode=mode in HIGH_MODES;h_landing=mode in H_MODES;drop_enabled=mode not in NO_DROP_MODES
+    actuator=settings.get('actuator_mode','mock') if drop_enabled else 'none'
+    ceiling_enabled=bool(settings.get('virtual_ceiling_enabled',False))
+    if not all(math.isfinite(v) for v in (x,y,z,ground)) or abs(x)>.3 or abs(y)>.3 or abs(z)>.3:raise ValueError('Unexpected camera_init origin; inspect localization before flight')
+    low=ground+float(settings['low_agl']);high=ground+float(settings['high_agl']);drop=ground+float(settings['drop_agl']);capture=ground+float(settings['landing_capture_agl'])
+    release_min,release_max,permission_min,permission_max=release_heights(settings)
+    # Legacy align_height is float32, recovery_height is double. Use an
+    # exactly representable shared value so equality cannot fail its guard.
+    low=struct.unpack('f',struct.pack('f',low))[0]
+    land_z, handoff_z, posctl_stability = landing_control_parameters(settings, ground, float(rig['fc_ground_clearance']))
+    # 投递按FC离地高度校验；任务坐标Z可为负。H降落的原本地Z检查保留。
+    if not .15<=settings['drop_agl']<=1.0 or land_z<=0.:raise ValueError('Drop AGL or landing local-Z bounds not met')
+    point=lambda a,b,h:[x+a,y+b,h]
+    runtime=yaml.safe_load((root/'docs/verification/fov_landing_inner_20260919/seed_2672/fast_runtime.yaml').read_text())
+    m=runtime['mission'];m.update(home_xy=[x,y],landing_xy=[x+.6,y],approach_altitude=low,return_altitude=low,timeout=600. if mode in ('high_view_full','low_multi_full') else 300.,forced_return_at=510. if mode in ('high_view_full','low_multi_full') else 240.,post_delivery_route_revision='board-'+mode,
+        post_delivery_route=[point(.6,0,low)],post_delivery_parameter_stages=[],early_return_enabled=False,delivery_reserve_per_slot=25.,return_land_reserve=45.,nominal_speed=float(settings['cruise_speed']),motion_action_timeout=float(settings.get('motion_action_timeout',30.)),target_action_timeout=60.)
+    runtime.pop('corridor_speed_schedule',None);runtime.pop('fixed_search_region',None)
+    sx0,sx1,sy0,sy1=area['search_bounds']
+    from trial_low_coverage import is_low_coverage, coverage_waypoints
+    backup=is_low_coverage(settings)
+    runtime['search'].update(min_x=x+sx0,max_x=x+sx1,min_y=y+sy0,max_y=y+sy1,lane_spacing=settings.get('coverage_lane_spacing',1.2) if backup else 1.2,altitude=low)
+    runtime['runtime'].update(start_mode='post_delivery' if mode=='landing' else 'full',mission_id_prefix='board-'+mode)
+    # Do not make reaching a distant, possibly occupied endpoint a prerequisite
+    # for seeing the target in front. Every shorter leg still uses Fast-Planner.
+    line=[point(v,0,low) for v in settings.get('search_line_x',[.6,1.2,1.8,2.4,3.0])]
+    if mode in ('low_multi','low_multi_full') and 'search_waypoints_xy' in settings:
+        line=[point(a,b,low) for a,b in settings['search_waypoints_xy']]
+    if backup:
+        xy,coverage_source=coverage_waypoints(settings,area)
+        line=[point(a,b,low) for a,b in xy]
+    runtime['trial']=dict(mode=mode,coverage_full_mission=backup,waypoints=line,camera_info_topic=settings.get('camera_info_topic','/camera/camera_info'),delivery_count=settings.get('delivery_count',2),actuator_mode=actuator)
+    if backup:
+        runtime['trial'].update(coverage_full_mission=True,backup_profile='low_coverage_full',coverage_route_source=coverage_source)
+        runtime['search']['route_revision']='board-low-coverage-full'
+    if mode in ('low_multi','low_multi_full'):
+        runtime['trial']['corridor_after_delivery']=settings.get('trial_kind')=='low_multi_corridor'
+    if mode=='high_speed_capture':
+        runtime['trial']['capture']=dict(speed=settings['cruise_speed'],lighting=settings.get('capture_lighting','unspecified'),
+            route='flight_area.survey_xy',survey_xy=copy.deepcopy(area['survey_xy']))
+    from uav_mission.navigation_following_config import navigation_following_profile
+    runtime['following_speed_profile']=navigation_following_profile(settings.get('following_speed_profile'))
+    if mode=='landing':
+        # 03 starts directly near H: use 08's final near-H following distance
+        # even on route leg zero. The manager otherwise rewrites it to 1.0 m,
+        # beyond this standalone trial's 0.75 m planner admission limit.
+        runtime['following_speed_profile']['cruise_lead_m']=runtime['following_speed_profile']['corridor_lead_m']
+        hx,hy=settings['landing_xy'];transit=ground+settings['landing_transit_agl']
+        m.update(landing_xy=[x+hx,y+hy],return_altitude=capture,post_delivery_route=[point(max(.6,hx-.7),hy,transit),point(hx,hy,transit),point(hx,hy,capture)])
+    if settings.get('trial_kind') in ('corridor_landing','full_mission','low_multi_corridor'):
+        hx,hy=settings['landing_xy']
+        route=[point(w['x'],w['y'],ground+float(w.get('agl',settings['low_agl']))) for w in settings['corridor_waypoints']]
+        suffix=[point(hx,hy,ground+settings['landing_transit_agl']),point(hx,hy,capture)]
+        for final in suffix:
+            if any(abs(a-b)>1e-6 for a,b in zip(route[-1],final)):route.append(final)
+        m.update(post_delivery_route=route,post_delivery_route_revision='board-'+settings['trial_kind'],landing_xy=[x+hx,y+hy])
+    if mode=='high_view_full':
+        m['post_delivery_parameter_stages']=[dict(after_completed_waypoints=0,parameters={
+            '/fast_planner_node/sdf_map/virtual_ceil_height':(ground+3. if ceiling_enabled else -.1),
+            '/navigation/planner_bridge/execution/arrival_position_tolerance':.12,
+            '/navigation/planner_bridge/execution/arrival_dwell':.8})]
+    bx0,bx1,by0,by1=area['center_bounds'];bounds=[x+bx0,x+bx1,y+by0,y+by1]
+    tx0,tx1,ty0,ty1=area['target_bounds'];target_bounds=[x+tx0,x+tx1,y+ty0,y+ty1]
+    runtime['high_view_probe']=dict(config=dict(ground_z=ground,high_agl=settings['high_agl'],low_agl=settings['low_agl'],staging_xy=[x+area['staging_xy'][0],y+area['staging_xy'][1]],survey_xy=[point(a,b,0)[:2] for a,b in area['survey_xy']],source_key='board-inherited-camera-static-start'),camera_info_topic=settings.get('camera_info_topic','/camera/camera_info'))
+    runtime['high_view_probe']['low_stage_parameters']=[dict(name=key,value=value) for key,value in {'/external_planner_max_command_z':max(ground+1.85,low+.25 if backup else ground+1.85,capture+.1) if h_landing else ground+1.85,'/fast_planner_node/sdf_map/virtual_ceil_height':(ground+2. if ceiling_enabled else -.1),'/fast_planner_node/fsm/goal_adjustment_radius':.15}.items()]
+    runtime['high_view_full']=dict(policy=dict(high_min_agl=max(1.8,settings['high_agl']-.2),high_max_agl=settings['high_agl']+.2,coarse_enabled=True,coarse_min_confidence=.75,coarse_interrupt_min_interval_ns=100000000,coarse_interrupt_max_gap_ns=1000000000,coarse_interrupt_consistency_m=.5,interrupt_refined_classes=[],recheck_observe_seconds=5.,recheck_shift_after_seconds=1.,recheck_shift_radius_m=.5,candidate_min_streak=1,min_interval_ns=100000000,min_span_ns=200000000,max_uncertainty_m=.45,direct_descent=True,descent_radius_m=1.,descent_max_candidates=9,survey_stall_seconds=8.,survey_progress_m=.15,survey_alternative_radius_m=.3),grid=dict(bounds=bounds,resolution=.10,inflation=.25),boundary_policy=dict(enabled=True,bounds=target_bounds))
+    if settings.get('trial_kind')=='full_mission' and settings.get('survey_policy'):
+        from uav_mission.flight_settings import validate_patch
+        patch=validate_patch({'survey_policy':settings['survey_policy']},'08_full_mission')
+        runtime['high_view_full']['policy'].update(patch['survey_policy'])
+    resume_enabled=settings.get('resume_survey_enabled',False)
+    if type(resume_enabled) is not bool:
+        raise ValueError('resume_survey_enabled must be boolean')
+    if resume_enabled and mode not in ('high_priority','high_view_full'):
+        raise ValueError('survey resume is only available for priority/full mission trials')
+    runtime['high_view_full']['policy']['resume_survey_enabled']=resume_enabled
+    if high_mode:
+        from uav_mission.high_view_probe import ProbeConfig
+        from uav_high_view.survey_policy import SurveyPolicy
+        ProbeConfig(**runtime['high_view_probe']['config'])
+        SurveyPolicy(**runtime['high_view_full']['policy'])
+    control=yaml.safe_load((root/'patrol_uav_ws-patrol_planner/src/uav_mission/config/vcl06_horizontal_control.yaml').read_text())
+    control.update(waypoints=[dict(x=x,y=y,z=(ground+settings['landing_transit_agl'] if mode=='landing' else low),yaw=0.,pointmode='Takeoff_point',hover_time=0.)],align_height=low,land_height=land_z,px4_max_distance=.6)
+    control['takeoff_z_lead_m']=float(settings.get('takeoff_z_lead_m',0.))
+    control['switch']['auto_land']=h_landing;control['drop_system'].update(enable_drop=drop_enabled,
+        release_setpoint_height=drop,release_min_height=ground+release_min,height_threshold=ground+release_max)
+    from uav_mission.drop_descent_config import drop_descent_parameters, drop_horizontal_compensation_mode
+    control['drop_system']['descent'] = drop_descent_parameters(settings)
+    control['drop_system']['pre_descent']['mode'] = drop_horizontal_compensation_mode(settings)
+    control['switch']['flag_landing_detect']=1 if h_landing else 0
+    control['uav_vision'].update(recovery_height=low,
+        standard_recovery_setpoint_height=low+.10,cross_recovery_setpoint_height=low+.10,
+        pixel_to_body_matrix=list(rig['pixel_to_body_matrix']),max_movement_distance=.15,
+        drop_metric_scale_enabled=True,drop_ground_z=ground,
+        drop_map_frame=rig['mission_frame'],
+        drop_camera_info_topic=settings.get('camera_info_topic','/camera/camera_info'))
+    # 保留两套实测表：表示 FC 中心到投口的机体系杆臂，FLU 为前、左、上。
+    # 控制器减去经完整机体姿态旋转后的杆臂，不能按固定地图偏移直接相加。
+    control['drop_system'].update(slot_offset_semantics='body_flu_lever_arm', compensated_alignment=True)
+    for key in ('slot_offsets','dynamic_slot_offsets'):
+        if key in rig:control['drop_system'][key]=copy.deepcopy(rig[key])
+    control['external_landing'].update(frame='camera_init',capture_height=capture if h_landing else low,auto_land_height=handoff_z,detections_topic='/uav_vision/detections_mapped' if h_landing else '/board_trials/h_disabled',handoff_mode=settings.get('landing_handoff_mode', 'AUTO.LAND'),handoff_status_topic=settings.get('landing_handoff_status_topic', '/patrol_control/external_landing_handoff'))
+    if posctl_stability is not None:
+        control['external_landing']['posctl'] = posctl_stability
+    control['external_landing']['coordinate_fallback'] = landing_coordinate_fallback_parameters(settings, external_land=h_landing)
+    control['external_landing']['alignment_mode'] = landing_alignment_mode(settings)
+    control['external_landing']['descent'] = landing_descent_parameters(settings)
+    control['external_landing'].update(landing_offboard_parameters(settings, ground, float(rig['fc_ground_clearance'])))
+    overrides={
+        '/fast_planner_node/sdf_map/resolution':.10,'/fast_planner_node/sdf_map/map_size_x':area['map_size'][0],'/fast_planner_node/sdf_map/map_size_y':area['map_size'][1],'/fast_planner_node/sdf_map/map_size_z':area['map_size'][2],
+        '/fast_planner_node/sdf_map/visualization_rate':2.,
+        '/fast_planner_node/sdf_map/local_update_range_x':4.5,'/fast_planner_node/sdf_map/local_update_range_y':3.,'/fast_planner_node/sdf_map/local_update_range_z':3.,
+        '/fast_planner_node/sdf_map/ground_height':ground-.1,'/fast_planner_node/sdf_map/virtual_ceil_height':(ground+3.0 if ceiling_enabled else -.1),
+        '/fast_planner_node/sdf_map/horizontal_avoidance/min_x':bounds[0],'/fast_planner_node/sdf_map/horizontal_avoidance/max_x':bounds[1],'/fast_planner_node/sdf_map/horizontal_avoidance/min_y':bounds[2],'/fast_planner_node/sdf_map/horizontal_avoidance/max_y':bounds[3],
+        '/fast_planner_node/sdf_map/horizontal_avoidance/floor_z':ground+.1,'/fast_planner_node/sdf_map/horizontal_avoidance/obstacle_min_z':ground+.4,
+        # Low visual/H/corridor trials use the successful board's real 3-D map.
+        # Only the tree/high survey trial additionally enforces no-overflight.
+        '/fast_planner_node/sdf_map/horizontal_avoidance/enabled':high_mode and settings.get('obstacle_columns_enabled',True),
+        '/fast_planner_node/sdf_map/search_region/enabled':True,'/fast_planner_node/sdf_map/search_region/min_x':bounds[0],'/fast_planner_node/sdf_map/search_region/max_x':bounds[1],'/fast_planner_node/sdf_map/search_region/min_y':bounds[2],'/fast_planner_node/sdf_map/search_region/max_y':bounds[3],
+        '/fast_planner_node/sdf_map/obstacles_inflation':.25,
+        '/fast_planner_node/sdf_map/obstacles_inflation_up':.20,
+        '/fast_planner_node/sdf_map/obstacles_inflation_down':.10,
+        '/traj_server/traj_server/target_dist':.6,
+        '/external_planner_start_max_distance':(max(.75,min(float(settings['cruise_speed']),1.0)+.25) if mode=='high_speed_capture' else .75),
+        '/external_planner_max_command_z':ground+settings.get('max_agl',2.9),'/navigation/planner_bridge/execution/max_goal_z':ground+settings.get('max_agl',2.9),
+        '/navigation/planner_bridge/execution/arrival_position_tolerance':.12,'/navigation/planner_bridge/execution/arrival_dwell':.8,
+        # Clear a previous module 08 whitelist when reusing the ROS parameter server.
+        '/navigation/planner_bridge/execution/position_only_arrival_goals':[],
+        '/navigation/planner_bridge/execution/position_only_arrival_dwell':.3,
+        '/navigation/planner_bridge/execution/position_only_arrival_dwell_enabled':False,
+        '/navigation/planner_bridge/execution/initial_plan_timeout':12.,
+        '/navigation/planner_bridge/execution/search_initial_plan_timeout':12.,
+        '/fast_planner_node/fsm/liveness_enabled':True,'/fast_planner_node/fsm/server_hold_replan_enabled':True,
+        '/fast_planner_node/fsm/server_hold_seconds':.25,'/fast_planner_node/fsm/server_progress_max_age':.5,
+        '/fast_planner_node/progress/enabled':True,'/traj_server/progress/enabled':True,
+        '/traj_server/traj_server/require_goal_identity':True,
+        '/navigation/planner_bridge/target/recovery_height':low,
+        '/release_permission_arbiter/pose_topic':'/navigation/local_pose','/release_permission_arbiter/min_release_altitude':ground+permission_min,'/release_permission_arbiter/max_release_altitude':ground+permission_max,
+        '/board_trials/ground_z':ground,'/board_trials/fc_on_ground_z':z,'/board_trials/mock_only':actuator=='mock',
+        '/board_trials/actuator_mode':actuator,
+        '/target_map_projector/coarse_navigation_enabled':high_mode,
+        '/target_map_projector/coarse_min_confidence':.75,
+        # Loaded after Phase D's detector YAML in the common application launch.
+        # Standalone H, corridor+H and full-mission LAND use the same fallback.
+        '/landing_detector/landing_enable_h_stroke_fallback':h_landing,
+        '/target_memory/search_confirmation_max_gap_sec':1.0,
+        '/drop_aligner/stable_frames':5,
+    }
+    for namespace,velocity,acceleration in (('manager','max_vel','max_acc'),('search','max_vel','max_acc'),('optimization','max_vel','max_acc'),('bspline','limit_vel','limit_acc')):
+        overrides['/fast_planner_node/'+namespace+'/'+velocity]=float(settings['cruise_speed'])
+        overrides['/fast_planner_node/'+namespace+'/'+acceleration]=float(settings['cruise_acceleration'])
+    if settings.get('speed_profile')=='competition':
+        # Preserve the competition first-command admission distance.
+        overrides['/external_planner_start_max_distance']=1.2
+    # application.launch loads overrides last, after the parent controller's defaults.
+    overrides['/px4_max_distance']=control['px4_max_distance']
+    overrides['/takeoff_z_lead_m']=control['takeoff_z_lead_m']
+    if settings.get('landing_handoff_mode') == 'OFFBOARD':
+        overrides['/navigation_frame_adapter/landing_touchdown_setpoint_topic'] = control['external_landing']['offboard_setpoint_topic']
+    from uav_mission.navigation_recovery_config import recovery_parameters
+    # Trials declare recovery off explicitly, including residual ROS-master parameters.
+    overrides.update(recovery_parameters({},ground))
+    from trial_motion import apply_generated_motion
+    motion_report=apply_generated_motion(runtime,control,overrides,settings,ground)
+    if settings.get('trial_kind') in ('full_mission','low_multi_corridor'):
+        # Module 08 fixed survey/staging/post-delivery goals only. Dynamic revisit,
+        # APPROACH, recovery and landing handoff keep their existing conditions.
+        ordinary_goals=(copy.deepcopy(line) if mode in ('low_multi','low_multi_full') else
+                        [point(*area['staging_xy'],low),point(*area['staging_xy'],high)])
+        if mode not in ('low_multi','low_multi_full'):ordinary_goals.extend(point(a,b,high) for a,b in area['survey_xy'])
+        ordinary_goals.extend(copy.deepcopy(runtime['mission']['post_delivery_route']))
+        overrides['/navigation/planner_bridge/execution/position_only_arrival_goals']=ordinary_goals
+        overrides['/navigation/planner_bridge/execution/position_only_arrival_dwell']=.3
+        overrides['/navigation/planner_bridge/execution/position_only_arrival_dwell_enabled']=settings.get('ordinary_waypoint_dwell_enabled',False)
+    (out/'motion_profile.json').write_text(json.dumps(motion_report,indent=2))
+    (out/'terminal_hover.yaml').write_text(yaml.safe_dump(dict(frame='camera_init',ground_z=ground,hover_agl=settings.get('terminal_hover_agl',.3),max_agl=settings.get('max_agl',2.9),descent_speed=.15)))
+    for name,data in [('runtime.yaml',runtime),('control.yaml',control),('overrides.yaml',overrides),('auto_land.yaml',dict(frame='camera_init',landing_xy=[x+.6,y],cruise_z=low,route_revision='board-'+mode))]:
+        (out/name).write_text(yaml.safe_dump(data,sort_keys=False))
+    reference=dict(mode=mode,mapping_profile=mapping_profile(settings),fc_xyz=[x,y,z],ground_z=ground,low_z=low,high_z=high,drop_z=drop,takeoff_z=control['waypoints'][0]['z'],known_rig=rig,settings=settings)
+    (out/'ground_reference.json').write_text(json.dumps(reference,indent=2));return reference

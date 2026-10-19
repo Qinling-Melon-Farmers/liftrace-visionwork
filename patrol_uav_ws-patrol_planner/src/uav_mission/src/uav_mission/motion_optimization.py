@@ -65,30 +65,51 @@ class MovingRecoveryWindow:
         return self.count>=min_samples and stamp-self.first>=150_000_000
 
 def optimize_post_route(points, options, corridor_points_count, wall_axis, wall_coordinates):
-    """Collapse only explicitly low, collinear corridor relays; retain turns and H suffix.
-    Removed points remain in metadata. The 3-D collision planner owns the whole segment.
+    """Merge ordinary corridor relays, preserving each wall crossing's nearest anchors.
+
+    Protection uses original route indices (including the untouched H suffix), so
+    earlier removals cannot change which visit/anchor belongs to a wall crossing.
+    The 3-D collision planner still owns the whole segment.
     """
     route=[list(p) for p in points]
     original=[p[:] for p in route]
     if not options.enabled: return route,dict(original=original,diagonal_entry=False,removed=[])
     if not route or not 1<=corridor_points_count<=len(route): raise ValueError('invalid corridor prefix')
-    entry=False; removed=[]
-    if (options.diagonal_entry and corridor_points_count>=2 and
-            math.dist(route[0][:2],route[1][:2])<1e-6 and route[0][2]>route[1][2]+.05):
-        removed.append(route.pop(0));corridor_points_count-=1;entry=True
-    # First corridor waypoint must explicitly be a low entrance before any gate wall.
     if wall_axis not in (0,1) or not wall_coordinates: raise ValueError('known door planes required')
     if any(not math.isfinite(w) for w in wall_coordinates):raise ValueError('invalid wall plane')
+    protected=set();crossings=[]
+    for wall in wall_coordinates:
+        before=None;before_side=None;on_wall=[]
+        for index,point in enumerate(original):
+            delta=point[wall_axis]-wall
+            side=0 if abs(delta)<=1e-6 else (1 if delta>0 else -1)
+            if side==0:
+                # Explicit plane points are retained even for a touch/end on a wall.
+                protected.add(index);on_wall.append(index)
+                continue
+            if before is not None and side!=before_side:
+                protected.update((before,index))
+                crossings.append(dict(wall_coordinate=wall,before_original_index=before,
+                                      after_original_index=index,on_wall_original_indices=on_wall[:]))
+            before=index;before_side=side;on_wall=[]
+    indices=list(range(len(route)))
+    entry=False; removed=[]
+    if (options.diagonal_entry and corridor_points_count>=2 and 0 not in protected and
+            math.dist(route[0][:2],route[1][:2])<1e-6 and route[0][2]>route[1][2]+.05):
+        removed.append(route.pop(0));indices.pop(0);corridor_points_count-=1;entry=True
     if options.merge_collinear_relays:
         i=1
         while i<corridor_points_count-1:
             a,b,c=route[i-1:i+2]
             u=[b[j]-a[j] for j in range(3)];v=[c[j]-b[j] for j in range(3)]
             cross=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]]
-            # No vertical segments, no reversal and no corners may disappear.
-            if (max(abs(b[2]-a[2]),abs(c[2]-b[2]))<1e-6 and
+            # No protected anchor, vertical segment, reversal or corner may disappear.
+            if (indices[i] not in protected and
+                    max(abs(b[2]-a[2]),abs(c[2]-b[2]))<1e-6 and
                     sum(t*t for t in cross)<1e-10 and sum(x*y for x,y in zip(u,v))>0):
-                removed.append(route.pop(i));corridor_points_count-=1
+                removed.append(route.pop(i));indices.pop(i);corridor_points_count-=1
             else:i+=1
     return route,dict(original=original,diagonal_entry=entry,removed=removed,
-                      corridor_points_count=corridor_points_count)
+                      corridor_points_count=corridor_points_count,wall_axis=wall_axis,
+                      protected_original_indices=sorted(protected),protected_crossings=crossings,
+                      retained_original_indices=indices)

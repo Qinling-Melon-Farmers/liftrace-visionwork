@@ -1,0 +1,25 @@
+# Latest user correction is 16 cm (the intervening 15 cm recollection was withdrawn).
+# Lengths in metres; FC reference axes follow the ROS navigation body frame.
+measurements:
+  camera_below_fc: 0.16
+  camera_below_lidar_imu: 0.21
+  camera_ground_clearance_when_landed: 0.06
+  aircraft_length_width_height: [0.50, 0.50, 0.37]
+derived:
+  fc_height_when_landed: 0.22
+  lidar_imu_height_when_landed: 0.27
+  fc_to_camera_xyz: [0.0, 0.0, -0.16]
+  fc_to_lidar_imu_xyz: [0.0, 0.0, 0.05]
+  actual_body_z_bounds: [-0.22, 0.15]
+simulation:
+  conservative_length_width_height: [0.55, 0.55, 0.40]
+  conservative_body_z_bounds: [-0.22, 0.18]
+  # This is a collision envelope, not a claim of a real enclosing solid cage.
+  lidar_sees_conservative_proxy: false
+  physical_airframe_dynamics_calibrated: false
+height_reference:
+  # Applies only when local navigation z=0 at the landed FC reference.
+  ground_z_in_landed_fc_frame: -0.22
+  agl_from_local_pose: "local_z - ground_z"
+  # If the estimator uses another origin, ground_z must be transformed with it.
+  alternative_origin_requires_ground_recalibration: true

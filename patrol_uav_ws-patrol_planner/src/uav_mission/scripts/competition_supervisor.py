@@ -4,17 +4,20 @@ import argparse,json
 from pathlib import Path
 import yaml
 from uav_mission.competition_config import validate,generate,apply_overrides
+from uav_mission.landing_offboard_config import apply_landing_override
 from uav_mission.hardware_session import run_session
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('mode',choices=('preview','flight'),help='preview 预览；flight 使用真实受保护投递链')
     p.add_argument('--root',type=Path,required=True)
-    p.add_argument('--site-config',type=Path,required=True,help='现场测量 YAML；不会自动选择测试场地')
+    p.add_argument('--site-config',type=Path,help='场地 YAML；省略使用 deployment/competition/field_10x10_default.yaml')
+    p.add_argument('--flight-config',type=Path,help='飞行前参数覆盖；源场地配置保持')
+    p.add_argument('--landing-config',type=Path,help='可选 H 候选覆盖 YAML；保留所选场地和原默认参数')
     p.add_argument('--model',type=Path)
     p.add_argument('--metadata',type=Path)
     p.add_argument('--motion-optimization',choices=('on','off'),help='显式覆盖运动优化；省略继承 YAML')
-    p.add_argument('--resume-survey',choices=('on','off'),help='显式覆盖高位续扫；省略继承 YAML，与运动优化独立')
+    p.add_argument('--resume-survey',choices=('on','off'),help='Override high survey resume independently; omit to inherit YAML')
     p.add_argument('--obstacle-columns',choices=('on','off'),help='显式覆盖障碍禁越柱；省略继承 YAML，关闭不删除实体障碍')
     p.add_argument('--motion-action-timeout',type=float,help='单个运动动作秒数；省略保留 YAML 或正式默认 90 秒')
     p.add_argument('--check-config',action='store_true',help='只检查配置，绝不启动 ROS')
@@ -24,9 +27,15 @@ def main():
     if any(':=' not in value for value in extra):p.error('unknown arguments: '+str(extra))
     if a.output_dir is not None and not a.check_config:p.error('--output-dir requires --check-config')
     if (a.output_dir is None)!=(a.fc_reference is None):p.error('--output-dir and --fc-reference must be used together')
+    if a.site_config is None:a.site_config=a.root/'deployment/competition/field_10x10_default.yaml'
     a.trial='competition';a.real_release=a.mode=='flight'
     try:
         settings=apply_overrides(yaml.safe_load(a.site_config.read_text()),a.motion_optimization,a.obstacle_columns,a.motion_action_timeout,resume=a.resume_survey)
+        if a.flight_config:
+            from uav_mission.flight_settings import apply_patch
+            settings=apply_patch(settings,yaml.safe_load(a.flight_config.read_text()),'competition')
+        if a.landing_config:
+            settings=apply_landing_override(settings,yaml.safe_load(a.landing_config.read_text()))
         validate(settings,flight=a.mode=='flight' or not a.check_config or a.output_dir is not None)
     except ValueError as error:p.error(str(error))
     cfg=a.root/'patrol_uav_ws-patrol_planner/src/uav_mission/config/competition'

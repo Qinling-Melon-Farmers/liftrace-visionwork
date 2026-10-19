@@ -1,0 +1,26 @@
+boot_s,relative_s,wall_cst_timesync,event,source
+120.913593,-0.010108,2026-10-04T17:53:55.112+08:00,Armed by RC,logged_message
+125.022299,4.098598,2026-10-04T17:53:59.219+08:00,OFFBOARD nav_state=14,vehicle_status_0.csv
+125.891467,4.967766,2026-10-04T17:54:00.088+08:00,Takeoff detected,logged_message
+127.002529,6.078828,2026-10-04T17:54:01.199+08:00,Battery disconnected text; sampled telemetry is separate,logged_message
+127.013297,6.089596,2026-10-04T17:54:01.209+08:00,Failsafe activated text; vehicle_status.failsafe stays false,logged_message
+133.356944,12.433243,2026-10-04T17:54:07.551+08:00,Trajectory NED z -1.8 -> -0.8,trajectory_setpoint_0.csv
+133.363076,12.439375,2026-10-04T17:54:07.557+08:00,Local target thrust z -0.635 -> -0.372,vehicle_local_position_setpoint_0.csv
+133.684941,12.761240,2026-10-04T17:54:07.878+08:00,Motor1 normalized command first reaches 1 after takeoff,actuator_motors_0.csv
+133.782359,12.858658,2026-10-04T17:54:07.976+08:00,Torque/thrust allocation not achieved,control_allocator_status_0.csv
+133.834957,12.911256,2026-10-04T17:54:08.028+08:00,Tilt exceeds 10 degrees,attitude_euler.csv
+133.933860,13.010159,2026-10-04T17:54:08.127+08:00,Tilt exceeds 20 degrees,attitude_euler.csv
+133.971957,13.048256,2026-10-04T17:54:08.165+08:00,RC mode slot requests POSCTL,action_request_0.csv
+133.987305,13.063604,2026-10-04T17:54:08.181+08:00,nav_state becomes POSCTL 2,vehicle_status_0.csv
+134.053415,13.129714,2026-10-04T17:54:08.247+08:00,nav_state becomes MANUAL 0,vehicle_status_0.csv
+134.068522,13.144821,2026-10-04T17:54:08.262+08:00,Minimum measured specific force norm 0.557 m/s2,sensor_combined_0.csv
+134.230518,13.306817,2026-10-04T17:54:08.424+08:00,Maximum tilt 45.396 degrees; no measured full inversion,attitude_euler.csv
+134.252796,13.329095,2026-10-04T17:54:08.446+08:00,Specific force norm peak 145.611 m/s2: strong impact signature,sensor_combined_0.csv
+135.260515,14.336814,2026-10-04T17:54:09.453+08:00,Primary EKF changes 0 -> 1,estimator_selector_status_0.csv
+135.276877,14.353176,2026-10-04T17:54:09.470+08:00,Selected local-position reset counters change; delta_z=-0.0443275,vehicle_local_position_0.csv
+136.217946,15.294245,2026-10-04T17:54:10.410+08:00,Now non-primary EKF0 reports new baro-height reset event,estimator_event_flags_0.csv
+139.575813,18.652112,2026-10-04T17:54:13.767+08:00,RC switch ACTION_KILL request,action_request_0.csv
+139.586350,18.662649,2026-10-04T17:54:13.778+08:00,Kill engaged,logged_message
+139.586399,18.662698,2026-10-04T17:54:13.778+08:00,manual_lockdown true,actuator_armed_0.csv
+139.687233,18.763532,2026-10-04T17:54:13.878+08:00,First logged sample with all four driver outputs zero,actuator_outputs_1.csv
+144.591695,23.667994,2026-10-04T17:54:18.781+08:00,Disarmed by kill-switch,logged_message

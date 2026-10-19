@@ -1,0 +1,17 @@
+{
+  "remote": "https://github.com/sakelier/liftrace-controlwork.git",
+  "branch": "板载代码",
+  "head": "48541a7a8d91a2993711a10b556f7028504c3e1c",
+  "board": "495e9df1ba8178c4edda6a15bf77457dd63aebed",
+  "previous": "48541a7a8d91a2993711a10b556f7028504c3e1c",
+  "scope": "remote source and eight module entry comparison; no flight or simulation",
+  "findings": {
+    "remote_landing_height_order": {
+      "minimal_delivery_test": false,
+      "high_view_priority_search": false,
+      "corridor_waypoint_test": true
+    },
+    "remote_high_uses_research_memory_strategy": false,
+    "local_board_lio_freedom_settings_identical": false
+  }
+}

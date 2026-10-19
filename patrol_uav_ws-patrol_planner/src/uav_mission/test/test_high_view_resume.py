@@ -80,6 +80,31 @@ class ResumeTests(unittest.TestCase):
         self.assertTrue(any(e['stage']=='SURVEY_RESUME_FOUND_MISSING' for e in self.r.events))
         self.assertEqual(self.r.core.committed_slots,0)
 
+    def test_resume_duplicate_ids_of_delivered_classes_keep_searching_missing_bridge(self):
+        self.prepare();self.r.pose=(.5,.5,2.38);self.r.pose_stamp=111.
+        self.map(111.);self.finish(111.);self.map(112.);self.finish(112.)
+        self.r.core.queue.delivered_classes={'panzer','red_cross'}
+        epoch=self.r.catalog.epoch
+        for now in (112.1,112.3):
+            stamp=int(round(now*1e9))
+            hints=[Hint(epoch,Key(i,100000000000),cls,(x,1.),.2,stamp,1.,3)
+                   for i,cls,x in ((10,'panzer',1.),(11,'panzer',1.1),
+                                   (12,'red_cross',3.))]
+            self.r.memory.update(hints,epoch,stamp)
+            self.r.pose_stamp=now;self.map(now)
+            self.r.tick(now,self.r._current_xy)
+            self.assertFalse(self.r._resume_interrupt_hints(now))
+            self.assertEqual(self.r.stage,'SURVEY')
+        for now in (112.5,112.7):
+            stamp=int(round(now*1e9))
+            self.r.memory.update([Hint(epoch,Key(13,100000000000),
+                                      'bridge',(2.,1.),.2,stamp,1.,3)],epoch,stamp)
+            self.r.pose_stamp=now;self.map(now)
+            self.r.tick(now,self.r._current_xy)
+            self.assertEqual(self.r.stage,'SURVEY' if now==112.5 else 'DESCEND')
+        self.assertEqual(self.r.core.committed_slots,0)
+        self.assertTrue(any(e['stage']=='SURVEY_RESUME_FOUND_MISSING' for e in self.r.events))
+
     def test_low_disproof_blocks_same_false_high_location(self):
         self.prepare();self.r.pose=(.5,.5,2.38);self.r.pose_stamp=111.
         self.map(111.);self.finish(111.);self.map(112.);self.finish(112.)

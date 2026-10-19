@@ -1,0 +1,1145 @@
+{
+  "bag": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/flight_debug_0.bag",
+  "bag_start": 1791637586.1186128,
+  "interruption_event_source_seconds": 162.97663593292236,
+  "first_status_receipt": 163.52733063697815,
+  "required_classes": [
+    "bridge",
+    "panzer",
+    "red_cross"
+  ],
+  "class_mapping": {
+    "0": "bridge",
+    "1": "panzer",
+    "2": "pillbox",
+    "3": "tent",
+    "4": "red_cross"
+  },
+  "model_path": "/home/orangepi/liftrace_board_trials_20260928/runtime_models/flight_5cls_20260928_fp16.rknn",
+  "full_probe_json": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/analysis_flight_latest_20261010/class_confusion_probe.json",
+  "original_images_directory": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/analysis_flight_latest_20261010/class_confusion_frames",
+  "review_source_images": [
+    "source_00147.287.jpg",
+    "source_00147.491.jpg",
+    "source_00158.040.jpg"
+  ],
+  "top_hints": {
+    "bridge": {
+      "class_name": "bridge",
+      "key": {
+        "first_seen_ns": 1791637733233574390,
+        "source": "bbox",
+        "target_id": 0
+      },
+      "xy": [
+        -0.06653592485407167,
+        1.0477008161124666
+      ],
+      "last_seen_ns": 1791637733643736124,
+      "evidence_count": 2,
+      "uncertainty_m": 0.45
+    },
+    "panzer": {
+      "class_name": "panzer",
+      "key": {
+        "first_seen_ns": 1791637734179783582,
+        "source": "vision",
+        "target_id": 4
+      },
+      "xy": [
+        1.1393801997074988,
+        -1.2126635652522868
+      ],
+      "last_seen_ns": 1791637748729345321,
+      "evidence_count": 8,
+      "uncertainty_m": 0.20244514950386652
+    },
+    "red_cross": {
+      "class_name": "red_cross",
+      "key": {
+        "first_seen_ns": 1791637748823531866,
+        "source": "bbox",
+        "target_id": 3
+      },
+      "xy": [
+        3.7593252753227864,
+        -0.9354342560124824
+      ],
+      "last_seen_ns": 1791637748990022897,
+      "evidence_count": 2,
+      "uncertainty_m": 0.45
+    }
+  },
+  "interruption_support": {
+    "bridge": [
+      {
+        "distinct_image_stamps": [
+          1791637733233574390,
+          1791637733586191654
+        ],
+        "low_verified": false,
+        "revisit_support_count": 2,
+        "source": "bbox",
+        "source_stamp_ns": 1791637733643736124,
+        "xy": [
+          -0.06653592485407167,
+          1.0477008161124666
+        ]
+      }
+    ],
+    "panzer": [
+      {
+        "distinct_image_stamps": [
+          1791637733353577613,
+          1791637733498773574
+        ],
+        "low_verified": false,
+        "revisit_support_count": 3,
+        "source": "bbox",
+        "source_stamp_ns": 1791637733586191654,
+        "xy": [
+          -0.056240510741410454,
+          1.0430531459232428
+        ]
+      },
+      {
+        "distinct_image_stamps": [
+          1791637734212844610,
+          1791637734382463455
+        ],
+        "low_verified": false,
+        "revisit_support_count": 4,
+        "source": "vision",
+        "source_stamp_ns": 1791637748729345321,
+        "xy": [
+          1.1393801997074988,
+          -1.2126635652522868
+        ]
+      }
+    ],
+    "red_cross": [
+      {
+        "distinct_image_stamps": [
+          1791637748823531866,
+          1791637748990022897
+        ],
+        "low_verified": false,
+        "revisit_support_count": 2,
+        "source": "bbox",
+        "source_stamp_ns": 1791637748990022897,
+        "xy": [
+          3.7593252753227864,
+          -0.9354342560124824
+        ]
+      }
+    ],
+    "tent": [
+      {
+        "distinct_image_stamps": [
+          1791637732788836717,
+          1791637732896294832
+        ],
+        "low_verified": false,
+        "revisit_support_count": 11,
+        "source": "vision",
+        "source_stamp_ns": 1791637733833251237,
+        "xy": [
+          1.678471491383399,
+          0.961982376643164
+        ]
+      }
+    ]
+  },
+  "memory_events": [
+    {
+      "reason": "epoch_or_clock_reset",
+      "time_ns": 1791637724345037568
+    },
+    {
+      "class_name": "bridge",
+      "locations": [
+        [
+          -0.12406338289315488,
+          1.2176583956412095
+        ]
+      ],
+      "reason": "navigation_evidence_conflict",
+      "time_ns": 1791637733328296192
+    },
+    {
+      "class_name": "panzer",
+      "locations": [
+        [
+          -0.12271763299450467,
+          1.2207564216581386
+        ]
+      ],
+      "reason": "navigation_evidence_conflict",
+      "time_ns": 1791637733328296192
+    },
+    {
+      "class_name": "bridge",
+      "reason": "navigation_conflict_resolved",
+      "time_ns": 1791637734621513728
+    },
+    {
+      "class_name": "panzer",
+      "reason": "navigation_conflict_resolved",
+      "time_ns": 1791637734621513728
+    }
+  ],
+  "candidates": [
+    {
+      "id": 1,
+      "class_name": "tent",
+      "first_receipt": 146.20009875297546,
+      "first_confirmed_receipt": 146.71181845664978,
+      "last_valid_before_end": 147.94004106521606,
+      "first_seen": {
+        "secs": 1791637732,
+        "nsecs": 220238447
+      },
+      "last_valid_point": {
+        "x": 1.6824201604251945,
+        "y": 0.9383073349394621,
+        "z": -0.27773900821805003
+      },
+      "last_valid_class_confidence": 0.83984375
+    },
+    {
+      "id": 3,
+      "class_name": "panzer",
+      "first_receipt": 147.27625679969788,
+      "first_confirmed_receipt": 147.5380198955536,
+      "last_valid_before_end": 147.5380198955536,
+      "first_seen": {
+        "secs": 1791637733,
+        "nsecs": 299524784
+      },
+      "last_valid_point": {
+        "x": -0.084721121200417,
+        "y": 1.1092711530533264,
+        "z": -0.27773900821805
+      },
+      "last_valid_class_confidence": 0.7939453125
+    },
+    {
+      "id": 4,
+      "class_name": "panzer",
+      "first_receipt": 148.1516056060791,
+      "first_confirmed_receipt": 148.24298548698425,
+      "last_valid_before_end": 190.8698215484619,
+      "first_seen": {
+        "secs": 1791637734,
+        "nsecs": 179783582
+      },
+      "last_valid_point": {
+        "x": 1.1376101111319465,
+        "y": -1.2196981281092887,
+        "z": -0.27773900821805
+      },
+      "last_valid_class_confidence": 0.9541015625
+    },
+    {
+      "id": 6,
+      "class_name": "red_cross",
+      "first_receipt": 162.97666096687317,
+      "first_confirmed_receipt": 163.08824229240417,
+      "last_valid_before_end": 166.35394096374512,
+      "first_seen": {
+        "secs": 1791637748,
+        "nsecs": 990022897
+      },
+      "last_valid_point": {
+        "x": 3.7490498506889853,
+        "y": -0.9346454391490874,
+        "z": -0.27773900821804987
+      },
+      "last_valid_class_confidence": 0.951171875
+    }
+  ],
+  "bridge_raw_frames": [
+    {
+      "receipt": 147.20850825309753,
+      "source": 147.1149616241455,
+      "confidence": 0.74951171875,
+      "roi": {
+        "x_offset": 868,
+        "y_offset": 595,
+        "height": 120,
+        "width": 156,
+        "do_rectify": false
+      }
+    },
+    {
+      "receipt": 147.25905656814575,
+      "source": 147.18091201782227,
+      "confidence": 0.66162109375,
+      "roi": {
+        "x_offset": 864,
+        "y_offset": 586,
+        "height": 133,
+        "width": 158,
+        "do_rectify": false
+      }
+    },
+    {
+      "receipt": 147.3065893650055,
+      "source": 147.2349648475647,
+      "confidence": 0.5390625,
+      "roi": {
+        "x_offset": 862,
+        "y_offset": 572,
+        "height": 142,
+        "width": 152,
+        "do_rectify": false
+      }
+    },
+    {
+      "receipt": 147.35218787193298,
+      "source": 147.28731083869934,
+      "confidence": 0.50830078125,
+      "roi": {
+        "x_offset": 859,
+        "y_offset": 570,
+        "height": 140,
+        "width": 152,
+        "do_rectify": false
+      }
+    },
+    {
+      "receipt": 147.4005012512207,
+      "source": 147.3247058391571,
+      "confidence": 0.56591796875,
+      "roi": {
+        "x_offset": 858,
+        "y_offset": 566,
+        "height": 142,
+        "width": 154,
+        "do_rectify": false
+      }
+    },
+    {
+      "receipt": 147.56652355194092,
+      "source": 147.46757888793945,
+      "confidence": 0.60205078125,
+      "roi": {
+        "x_offset": 863,
+        "y_offset": 590,
+        "height": 128,
+        "width": 154,
+        "do_rectify": false
+      }
+    },
+    {
+      "receipt": 147.62859177589417,
+      "source": 147.52512335777283,
+      "confidence": 0.6787109375,
+      "roi": {
+        "x_offset": 868,
+        "y_offset": 621,
+        "height": 98,
+        "width": 156,
+        "do_rectify": false
+      }
+    }
+  ],
+  "same_raw_message_overlaps": [
+    {
+      "source_t": 147.1149616241455,
+      "receipt_t": 147.20850825309753,
+      "panzer_conf": 0.6318359375,
+      "bridge_conf": 0.74951171875,
+      "iou": 0.9615779741113623
+    },
+    {
+      "source_t": 147.18091201782227,
+      "receipt_t": 147.25905656814575,
+      "panzer_conf": 0.7939453125,
+      "bridge_conf": 0.66162109375,
+      "iou": 0.9419776627621902
+    },
+    {
+      "source_t": 147.2349648475647,
+      "receipt_t": 147.3065893650055,
+      "panzer_conf": 0.7470703125,
+      "bridge_conf": 0.5390625,
+      "iou": 0.9481221172853064
+    },
+    {
+      "source_t": 147.28731083869934,
+      "receipt_t": 147.35218787193298,
+      "panzer_conf": 0.79931640625,
+      "bridge_conf": 0.50830078125,
+      "iou": 0.9731113956466069
+    },
+    {
+      "source_t": 147.3247058391571,
+      "receipt_t": 147.4005012512207,
+      "panzer_conf": 0.78173828125,
+      "bridge_conf": 0.56591796875,
+      "iou": 0.9544308277662257
+    },
+    {
+      "source_t": 147.46757888793945,
+      "receipt_t": 147.56652355194092,
+      "panzer_conf": 0.8505859375,
+      "bridge_conf": 0.60205078125,
+      "iou": 0.9403630077787382
+    }
+  ],
+  "projection_crosscheck": {
+    "coarse_rows": [
+      {
+        "receipt": 147.2134919166565,
+        "source": 147.1149616241455,
+        "class_name": "panzer",
+        "class_confidence": 0.6318359375,
+        "roi": {
+          "x_offset": 867,
+          "y_offset": 594,
+          "height": 124,
+          "width": 157,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 945.5,
+          "y": 656.0,
+          "z": 0.0
+        },
+        "center_source": "bbox_navigation_only",
+        "map_point": {
+          "x": -0.12271763299450467,
+          "y": 1.2207564216581386,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.2134919166565,
+        "source": 147.1149616241455,
+        "class_name": "bridge",
+        "class_confidence": 0.74951171875,
+        "roi": {
+          "x_offset": 868,
+          "y_offset": 595,
+          "height": 120,
+          "width": 156,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 946.0,
+          "y": 655.0,
+          "z": 0.0
+        },
+        "center_source": "bbox_navigation_only",
+        "map_point": {
+          "x": -0.12406338289315488,
+          "y": 1.2176583956412095,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.2670192718506,
+        "source": 147.18091201782227,
+        "class_name": "panzer",
+        "class_confidence": 0.7939453125,
+        "roi": {
+          "x_offset": 860,
+          "y_offset": 583,
+          "height": 136,
+          "width": 160,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 940.0,
+          "y": 651.0,
+          "z": 0.0
+        },
+        "center_source": "bbox_navigation_only",
+        "map_point": {
+          "x": -0.11991875868176016,
+          "y": 1.2322859471621035,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.2670192718506,
+        "source": 147.18091201782227,
+        "class_name": "bridge",
+        "class_confidence": 0.66162109375,
+        "roi": {
+          "x_offset": 864,
+          "y_offset": 586,
+          "height": 133,
+          "width": 158,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 943.0,
+          "y": 652.5,
+          "z": 0.0
+        },
+        "center_source": "bbox_navigation_only",
+        "map_point": {
+          "x": -0.1288860096341078,
+          "y": 1.2375183901943545,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.31021070480347,
+        "source": 147.2349648475647,
+        "class_name": "panzer",
+        "class_confidence": 0.7470703125,
+        "roi": {
+          "x_offset": 858,
+          "y_offset": 572,
+          "height": 145,
+          "width": 157,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 936.5,
+          "y": 644.5,
+          "z": 0.0
+        },
+        "center_source": "bbox_navigation_only",
+        "map_point": {
+          "x": -0.10995666784571301,
+          "y": 1.2064680442930913,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.3548502922058,
+        "source": 147.28731083869934,
+        "class_name": "panzer",
+        "class_confidence": 0.79931640625,
+        "roi": {
+          "x_offset": 857,
+          "y_offset": 570,
+          "height": 142,
+          "width": 154,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 934.0,
+          "y": 641.0,
+          "z": 0.0
+        },
+        "center_source": "bbox_navigation_only",
+        "map_point": {
+          "x": -0.09438252701849648,
+          "y": 1.1624237935274802,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.40256929397583,
+        "source": 147.3247058391571,
+        "class_name": "panzer",
+        "class_confidence": 0.78173828125,
+        "roi": {
+          "x_offset": 855,
+          "y_offset": 567,
+          "height": 143,
+          "width": 156,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 933.0,
+          "y": 638.5,
+          "z": 0.0
+        },
+        "center_source": "bbox_navigation_only",
+        "map_point": {
+          "x": -0.0809756904234945,
+          "y": 1.119195534024187,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.4586536884308,
+        "source": 147.38016080856323,
+        "class_name": "panzer",
+        "class_confidence": 0.76953125,
+        "roi": {
+          "x_offset": 856,
+          "y_offset": 569,
+          "height": 144,
+          "width": 155,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 933.5,
+          "y": 641.0,
+          "z": 0.0
+        },
+        "center_source": "bbox_navigation_only",
+        "map_point": {
+          "x": -0.07001128407212653,
+          "y": 1.0815813165142536,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.51070594787598,
+        "source": 147.43165349960327,
+        "class_name": "panzer",
+        "class_confidence": 0.73046875,
+        "roi": {
+          "x_offset": 858,
+          "y_offset": 581,
+          "height": 138,
+          "width": 156,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 936.0,
+          "y": 650.0,
+          "z": 0.0
+        },
+        "center_source": "bbox_navigation_only",
+        "map_point": {
+          "x": -0.0637806889286493,
+          "y": 1.0635276427629277,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.59143471717834,
+        "source": 147.46757888793945,
+        "class_name": "panzer",
+        "class_confidence": 0.8505859375,
+        "roi": {
+          "x_offset": 858,
+          "y_offset": 588,
+          "height": 131,
+          "width": 158,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 937.0,
+          "y": 653.5,
+          "z": 0.0
+        },
+        "center_source": "bbox_navigation_only",
+        "map_point": {
+          "x": -0.056240510741410454,
+          "y": 1.0430531459232428,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.59143471717834,
+        "source": 147.46757888793945,
+        "class_name": "bridge",
+        "class_confidence": 0.60205078125,
+        "roi": {
+          "x_offset": 863,
+          "y_offset": 590,
+          "height": 128,
+          "width": 154,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 940.0,
+          "y": 654.0,
+          "z": 0.0
+        },
+        "center_source": "bbox_navigation_only",
+        "map_point": {
+          "x": -0.06487256728564772,
+          "y": 1.0451200436602788,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.66169118881226,
+        "source": 147.52512335777283,
+        "class_name": "bridge",
+        "class_confidence": 0.6787109375,
+        "roi": {
+          "x_offset": 868,
+          "y_offset": 621,
+          "height": 98,
+          "width": 156,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 946.0,
+          "y": 670.0,
+          "z": 0.0
+        },
+        "center_source": "bbox_navigation_only",
+        "map_point": {
+          "x": -0.06653592485407167,
+          "y": 1.0477008161124666,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      }
+    ],
+    "mapped_rows": [
+      {
+        "receipt": 147.24167037010193,
+        "source": 147.1149616241455,
+        "class_name": "bridge",
+        "class_confidence": 0.74951171875,
+        "roi": {
+          "x_offset": 868,
+          "y_offset": 595,
+          "height": 120,
+          "width": 156,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 946.0,
+          "y": 655.0,
+          "z": 0.0
+        },
+        "center_source": "bbox",
+        "map_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "map_frame": "camera_init",
+        "map_valid": false
+      },
+      {
+        "receipt": 147.24167037010193,
+        "source": 147.1149616241455,
+        "class_name": "panzer",
+        "class_confidence": 0.6318359375,
+        "roi": {
+          "x_offset": 867,
+          "y_offset": 594,
+          "height": 124,
+          "width": 157,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 945.1709594726562,
+          "y": 656.5457763671875,
+          "z": 108.71299743652344
+        },
+        "center_source": "circle_geometry",
+        "map_point": {
+          "x": -0.12182001129868081,
+          "y": 1.2224412684283124,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.27240467071533,
+        "source": 147.18091201782227,
+        "class_name": "panzer",
+        "class_confidence": 0.7939453125,
+        "roi": {
+          "x_offset": 860,
+          "y_offset": 583,
+          "height": 136,
+          "width": 160,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 939.763916015625,
+          "y": 645.6595458984375,
+          "z": 108.50334167480469
+        },
+        "center_source": "circle_geometry",
+        "map_point": {
+          "x": -0.11867381495213325,
+          "y": 1.2151472248940949,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.27240467071533,
+        "source": 147.18091201782227,
+        "class_name": "bridge",
+        "class_confidence": 0.66162109375,
+        "roi": {
+          "x_offset": 864,
+          "y_offset": 586,
+          "height": 133,
+          "width": 158,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 943.0,
+          "y": 652.5,
+          "z": 0.0
+        },
+        "center_source": "bbox",
+        "map_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "map_frame": "camera_init",
+        "map_valid": false
+      },
+      {
+        "receipt": 147.3234510421753,
+        "source": 147.2349648475647,
+        "class_name": "panzer",
+        "class_confidence": 0.7470703125,
+        "roi": {
+          "x_offset": 858,
+          "y_offset": 572,
+          "height": 145,
+          "width": 157,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 936.5,
+          "y": 644.5,
+          "z": 0.0
+        },
+        "center_source": "bbox",
+        "map_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "map_frame": "camera_init",
+        "map_valid": false
+      },
+      {
+        "receipt": 147.3234510421753,
+        "source": 147.2349648475647,
+        "class_name": "bridge",
+        "class_confidence": 0.5390625,
+        "roi": {
+          "x_offset": 862,
+          "y_offset": 572,
+          "height": 142,
+          "width": 152,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 936.1471557617188,
+          "y": 637.680419921875,
+          "z": 108.48857116699219
+        },
+        "center_source": "circle_geometry",
+        "map_point": {
+          "x": -0.1082841322515733,
+          "y": 1.1845688528211884,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.3680214881897,
+        "source": 147.28731083869934,
+        "class_name": "panzer",
+        "class_confidence": 0.79931640625,
+        "roi": {
+          "x_offset": 857,
+          "y_offset": 570,
+          "height": 142,
+          "width": 154,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 934.0,
+          "y": 641.0,
+          "z": 0.0
+        },
+        "center_source": "bbox",
+        "map_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "map_frame": "camera_init",
+        "map_valid": false
+      },
+      {
+        "receipt": 147.3680214881897,
+        "source": 147.28731083869934,
+        "class_name": "bridge",
+        "class_confidence": 0.50830078125,
+        "roi": {
+          "x_offset": 859,
+          "y_offset": 570,
+          "height": 140,
+          "width": 152,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 933.2219848632812,
+          "y": 633.9705200195312,
+          "z": 108.09773254394531
+        },
+        "center_source": "circle_geometry",
+        "map_point": {
+          "x": -0.09162973590383006,
+          "y": 1.1399875883110457,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.42613196372986,
+        "source": 147.3247058391571,
+        "class_name": "panzer",
+        "class_confidence": 0.78173828125,
+        "roi": {
+          "x_offset": 855,
+          "y_offset": 567,
+          "height": 143,
+          "width": 156,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 933.0,
+          "y": 638.5,
+          "z": 0.0
+        },
+        "center_source": "bbox",
+        "map_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "map_frame": "camera_init",
+        "map_valid": false
+      },
+      {
+        "receipt": 147.42613196372986,
+        "source": 147.3247058391571,
+        "class_name": "bridge",
+        "class_confidence": 0.56591796875,
+        "roi": {
+          "x_offset": 858,
+          "y_offset": 566,
+          "height": 142,
+          "width": 154,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 933.1821899414062,
+          "y": 631.3976440429688,
+          "z": 107.49031066894531
+        },
+        "center_source": "circle_geometry",
+        "map_point": {
+          "x": -0.0811921119450526,
+          "y": 1.0969266775661035,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.46896195411682,
+        "source": 147.38016080856323,
+        "class_name": "panzer",
+        "class_confidence": 0.76953125,
+        "roi": {
+          "x_offset": 856,
+          "y_offset": 569,
+          "height": 144,
+          "width": 155,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 933.3368530273438,
+          "y": 633.2764282226562,
+          "z": 107.43994140625
+        },
+        "center_source": "circle_geometry",
+        "map_point": {
+          "x": -0.06936395791611727,
+          "y": 1.0575276459473026,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.52543210983276,
+        "source": 147.43165349960327,
+        "class_name": "panzer",
+        "class_confidence": 0.73046875,
+        "roi": {
+          "x_offset": 858,
+          "y_offset": 581,
+          "height": 138,
+          "width": 156,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 936.0789184570312,
+          "y": 645.201416015625,
+          "z": 107.9931869506836
+        },
+        "center_source": "circle_geometry",
+        "map_point": {
+          "x": -0.06399639479384334,
+          "y": 1.0487051599958421,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.66182208061218,
+        "source": 147.52512335777283,
+        "class_name": "bridge",
+        "class_confidence": 0.6787109375,
+        "roi": {
+          "x_offset": 868,
+          "y_offset": 621,
+          "height": 98,
+          "width": 156,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 949.1917724609375,
+          "y": 683.08642578125,
+          "z": 107.06458282470703
+        },
+        "center_source": "circle_geometry",
+        "map_point": {
+          "x": -0.07538471722624307,
+          "y": 1.0885700117579475,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 147.6935691833496,
+        "source": 147.56535816192627,
+        "class_name": "panzer",
+        "class_confidence": 0.51123046875,
+        "roi": {
+          "x_offset": 874,
+          "y_offset": 631,
+          "height": 88,
+          "width": 153,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 951.6946411132812,
+          "y": 693.2724609375,
+          "z": 108.08750915527344
+        },
+        "center_source": "circle_geometry",
+        "map_point": {
+          "x": -0.07225690925157613,
+          "y": 1.0883720303695255,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 148.31414699554443,
+        "source": 147.46757888793945,
+        "class_name": "panzer",
+        "class_confidence": 0.8505859375,
+        "roi": {
+          "x_offset": 858,
+          "y_offset": 588,
+          "height": 131,
+          "width": 158,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 937.3010864257812,
+          "y": 654.9271240234375,
+          "z": 108.30325317382812
+        },
+        "center_source": "circle_geometry",
+        "map_point": {
+          "x": -0.05709197043558911,
+          "y": 1.0475010374879803,
+          "z": -0.27773900821805
+        },
+        "map_frame": "camera_init",
+        "map_valid": true
+      },
+      {
+        "receipt": 148.31414699554443,
+        "source": 147.46757888793945,
+        "class_name": "bridge",
+        "class_confidence": 0.60205078125,
+        "roi": {
+          "x_offset": 863,
+          "y_offset": 590,
+          "height": 128,
+          "width": 154,
+          "do_rectify": false
+        },
+        "center_px": {
+          "x": 940.0,
+          "y": 654.0,
+          "z": 0.0
+        },
+        "center_source": "bbox",
+        "map_point": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "map_frame": "camera_init",
+        "map_valid": false
+      }
+    ]
+  },
+  "validation": {
+    "links_checked": 6,
+    "original_images_in_ignored_analysis": 9,
+    "same_source_same_roi_projection_distance_m": 0.04181617245940139,
+    "top_hint_classes": [
+      "bridge",
+      "panzer",
+      "red_cross"
+    ],
+    "mapping_verified": {
+      "0": "bridge",
+      "1": "panzer",
+      "2": "pillbox",
+      "3": "tent",
+      "4": "red_cross"
+    },
+    "npu_numeric_comparison_performed": false,
+    "physical_pillbox_truth": "User confirmed; source image 147.287 visually reviewed",
+    "runtime_modified": false
+  }
+}

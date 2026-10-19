@@ -1,0 +1,382 @@
+#!/usr/bin/env python3
+"""Board supervisor: never arms; optionally starts the mission after manual arm/hover."""
+import argparse,json,math,os,signal,subprocess,threading,time,shutil
+from pathlib import Path
+from collections import deque
+import numpy as np,yaml
+from trial_config import generate,validate_settings,apply_site_profile,TRIAL_FOLDERS,NO_DROP_MODES,mapping_profile,load_trial_settings
+from trial_bag import TrialBag
+from mapping_startup import PoseAgreement,MapWarmup,VisionReadiness,startup_transport_pending
+
+def main():
+    p=argparse.ArgumentParser();p.add_argument('trial',choices=sorted(TRIAL_FOLDERS));p.add_argument('mode',choices=['preview','flight']);p.add_argument('--root',type=Path,required=True);p.add_argument('--model',type=Path);p.add_argument('--metadata',type=Path);p.add_argument('--check-config',action='store_true');p.add_argument('--site-config',type=Path);p.add_argument('--real-release',action='store_true');p.add_argument('--mapping-startup-config',type=Path);p.add_argument('--capture-speed',type=float,choices=(.5,1.,1.2));p.add_argument('--capture-lighting',choices=('normal','dim','unspecified'));p.add_argument('--motion-optimized',action='store_true');p.add_argument('--survey-pattern',choices=('rectangle','snake2','snake3'))
+    p.add_argument('--coverage-pattern',choices=('lawnmower','nested_rectangles'),help='low_coverage_full route; default lawnmower; rectangles derive from measured bounds unless explicitly supplied')
+    p.add_argument('--coverage-agl',type=float,choices=(1.8,1.9),help='low_coverage_full FC AGL; default 1.8m')
+    p.add_argument('--coverage-lane-spacing',type=float,help='low_coverage_full cross-lane spacing in metres; default 2.6')
+    p.add_argument('--coverage-cross-inset',type=float,help='low_coverage_full cross-scan boundary inset in metres; default 0.6')
+    p.add_argument('--coverage-scan-axis',choices=('x','y'),help='low_coverage_full sweep direction; default y')
+    p.add_argument('--resume-survey',choices=('on','off'),help='Override interrupted survey resume for priority/full mission; omit to inherit settings')
+    p.add_argument('--landing-alignment-mode',choices=('non_vh','vh'),help='H landing only: non_vh keeps ten-frame capture; vh aligns for 1s; descent policy is selected separately')
+    p.add_argument('--speed-profile',choices=('limited','competition'),help='08/low multi: same measured field, explicit planning/following speeds')
+    p.add_argument('--ordinary-waypoint-dwell',choices=('on','off'),help='08 fixed waypoints: on checks position for 0.3s; off advances at position arrival (default)')
+    p.add_argument('--generate-config',type=Path,help='With --check-config: write configuration only, never start ROS')
+    p.add_argument('--reference-fc',type=float,nargs=3,metavar=('X','Y','Z'),help='Stationary reference for offline generation')
+    p.add_argument('--landing-descent-mode',type=int,choices=(1,2,3,4),help='H descent: 1 XYZ, 2 frozen XY + Z ramp, 3 zero XY velocity + Z ramp, 4 OFFBOARD touchdown (requires OFFBOARD handoff)')
+    p.add_argument('--landing-descent-speed-mps',type=float,help='H descent profile speed; default 0.20m/s; mode 4 controller uses landing_offboard.descent_speed separately')
+    p.add_argument('--landing-handoff-mode',choices=('AUTO.LAND','POSCTL','OFFBOARD'),help='OFFBOARD must be paired with descent mode 4')
+    p.add_argument('--landing-config',type=Path,help='Optional small H candidate override YAML; preserves site geometry and defaults')
+    p.add_argument('--flight-config',type=Path,help='Task 2 preflight drop/H parameter override')
+    a=p.parse_args()
+    if a.generate_config and (not a.check_config or a.reference_fc is None):
+        p.error('--generate-config requires --check-config and --reference-fc X Y Z')
+    if a.reference_fc is not None and not a.generate_config:
+        p.error('--reference-fc requires --generate-config')
+    folder=TRIAL_FOLDERS[a.trial]
+    base=a.root/'deployment/board_trials_4x4';settings=load_trial_settings(a.root,folder);rig=yaml.safe_load((base/'common/uav_board_trials/config/known_rig.yaml').read_text())
+    startup=yaml.safe_load((a.mapping_startup_config or base/'common/uav_board_trials/config/mapping_startup.yaml').read_text())
+    agreement=PoseAgreement(startup)
+    vision_ready=VisionReadiness(startup['vision_detection_topics']+[startup['vision_targets_topic']],startup['vision_max_age'])
+    MapWarmup(0.,startup)  # Validate before starting ROS children.
+    for key in ('map_timeout','state_max_age'):
+        if not math.isfinite(float(startup[key])) or float(startup[key])<=0:raise ValueError('invalid mapping startup '+key)
+    if a.site_config is None and a.trial in ('full_mission','low_coverage_full','corridor_landing'):
+        site_name=('site_waypoint_map_20261016.yaml' if a.trial in ('full_mission','corridor_landing') else
+                   'site_nested_rectangles_20261016.yaml' if a.coverage_pattern=='nested_rectangles' else
+                   'site_lawnmower_20261016.yaml')
+        a.site_config=base/folder/site_name
+        if not a.site_config.is_file():
+            p.error('Registered default site config not found: '+str(a.site_config))
+    if a.site_config:
+        profile=yaml.safe_load(a.site_config.read_text()) or {}
+        if a.trial=='low_coverage_full':
+            from trial_low_coverage import normalize_coverage_site
+            try:profile=normalize_coverage_site(profile)
+            except ValueError as error:p.error(str(error))
+        try:apply_site_profile(settings,profile)
+        except ValueError as error:p.error(str(error))
+    from trial_low_coverage import prepare_low_coverage
+    try:prepare_low_coverage(settings,site_provided=a.site_config is not None,height=a.coverage_agl,lane_spacing=a.coverage_lane_spacing,scan_axis=a.coverage_scan_axis,pattern=a.coverage_pattern,cross_inset=a.coverage_cross_inset)
+    except ValueError as error:p.error(str(error))
+    if a.speed_profile is None and a.trial in ('full_mission','low_coverage_full'):
+        a.speed_profile='competition'
+    if a.speed_profile is not None:
+        from trial_speed_profiles import apply_speed_profile
+        try:apply_speed_profile(a.root,settings,a.trial,a.speed_profile)
+        except ValueError as error:p.error(str(error))
+    if a.ordinary_waypoint_dwell is not None:
+        if a.trial not in ('full_mission','low_multi','low_coverage_full'):p.error('--ordinary-waypoint-dwell only applies to full mission/low multi')
+        settings['ordinary_waypoint_dwell_enabled']=a.ordinary_waypoint_dwell=='on'
+    if a.landing_config:
+        if settings['mode'] not in ('landing','high_view_full','low_multi_full'):p.error('--landing-config only applies to visual H landing')
+        from uav_mission.landing_offboard_config import apply_landing_override
+        try:settings=apply_landing_override(settings,yaml.safe_load(a.landing_config.read_text()))
+        except ValueError as error:p.error(str(error))
+    if a.landing_handoff_mode is not None:settings['landing_handoff_mode']=a.landing_handoff_mode
+    if a.landing_descent_mode is not None:settings['landing_descent_mode']=a.landing_descent_mode
+    if a.landing_descent_speed_mps is not None:settings['landing_descent_speed_mps']=a.landing_descent_speed_mps
+    if a.landing_alignment_mode is not None:
+        settings['landing_alignment_mode']=a.landing_alignment_mode
+    if a.flight_config:
+        if a.trial not in ('low_multi','full_mission','low_coverage_full'):p.error('--flight-config only supports task 2 and module 08')
+        from uav_mission.flight_settings import apply_patch
+        try:settings=apply_patch(settings,yaml.safe_load(a.flight_config.read_text()),folder)
+        except ValueError as error:p.error(str(error))
+    if a.capture_speed is not None or a.capture_lighting is not None:
+        if a.trial!='high_speed_capture':p.error('Capture options are only valid for high_speed_capture')
+        if a.capture_speed is not None:settings['cruise_speed']=a.capture_speed
+        if a.capture_lighting is not None:settings['capture_lighting']=a.capture_lighting
+    if a.motion_optimized:
+        motion=settings.get('motion_optimization',{})
+        if not isinstance(motion,dict):p.error('motion_optimization must be an object')
+        settings['motion_optimization']={**motion,'enabled':True}
+    if a.survey_pattern:settings['survey_pattern']=a.survey_pattern
+    if a.resume_survey is not None:
+        if a.trial not in ('high_priority','full_mission'):
+            p.error('--resume-survey is only valid for high_priority/full_mission')
+        settings['resume_survey_enabled']=a.resume_survey=='on'
+    resume=settings.get('resume_survey_enabled',False)
+    if type(resume) is not bool:p.error('resume_survey_enabled must be boolean')
+    if resume and a.trial not in ('high_priority','full_mission'):
+        p.error('survey resume is only available for priority/full mission trials')
+    if settings.get('actuator_mode','mock')!='mock':p.error('settings must default to mock; use --real-release explicitly')
+    if a.real_release and (a.mode!='flight' or settings['mode'] in NO_DROP_MODES):p.error('--real-release requires a delivery flight module')
+    settings['actuator_mode']='real' if a.real_release else ('none' if settings['mode'] in NO_DROP_MODES else 'mock')
+    try:validate_settings(settings)
+    except ValueError as error:p.error(str(error))
+    if a.check_config:
+        from uav_mission.navigation_following_config import navigation_following_profile
+        following=navigation_following_profile(settings.get('following_speed_profile'))
+        result=dict(status='CONFIG_VALID',source='validated_settings',
+            motion_optimization=settings.get('motion_optimization',{}).get('enabled',False),
+            resume_survey=settings.get('resume_survey_enabled',False),
+            generation_ready=True, speed_profile=settings.get('speed_profile','limited'),
+            planning=dict(max_vel=settings['cruise_speed'],max_acc=settings['cruise_acceleration']),
+            initial_distances=(dict(controller_limit_m=.6,traj_target_dist_m=.6,planner_start_max_distance_m=1.2)
+                if settings.get('speed_profile')=='competition' else dict(controller_limit_m=.6,traj_target_dist_m=.6,planner_start_max_distance_m=(max(.75,min(settings['cruise_speed'],1.)+.25) if settings['mode']=='high_speed_capture' else .75))),
+            following=following,
+            corridor=dict(open_lead_m=.6,door_lead_m=.6) if settings.get('corridor_geometry') else None,
+            coverage=(dict(pattern=settings.get('coverage_pattern','lawnmower'),fcu_agl=settings['low_agl'],scan_axis=settings['coverage_scan_axis'],lane_spacing=settings['coverage_lane_spacing'],cross_inset=settings['coverage_cross_inset'],loop_inset=settings['coverage_loop_inset'],normal_route_resume=True) if a.trial=='low_coverage_full' else None),
+            drop_agl=settings['drop_agl'],high_agl=settings['high_agl'],
+            landing_capture_agl=settings['landing_capture_agl'],
+            landing_posctl=settings.get('landing_posctl'), settings=settings)
+        if a.generate_config:
+            generate(a.root,a.generate_config,settings,a.reference_fc,rig)
+            preview_runtime=yaml.safe_load((a.generate_config/'runtime.yaml').read_text())
+            preview_control=yaml.safe_load((a.generate_config/'control.yaml').read_text())
+            preview_overrides=yaml.safe_load((a.generate_config/'overrides.yaml').read_text())
+            result['initial_distances']=dict(controller_limit_m=preview_control['px4_max_distance'],traj_target_dist_m=preview_overrides['/traj_server/traj_server/target_dist'],planner_start_max_distance_m=preview_overrides['/external_planner_start_max_distance'])
+            result.update(source='generated_runtime',following=preview_runtime['following_speed_profile'],corridor=preview_runtime.get('corridor_speed_schedule'))
+            result['preview_reference_fc']=a.reference_fc
+            result['runtime_path']=str(a.generate_config/'runtime.yaml')
+        print('CONFIG_VALID; no ROS nodes started')
+        print(json.dumps(result,ensure_ascii=False))
+        return
+    import rospy,rosnode,tf2_ros
+    from geometry_msgs.msg import PoseStamped
+    from sensor_msgs.msg import CameraInfo,Image,CompressedImage,PointCloud2
+    from mavros_msgs.msg import State,ExtendedState
+    from std_msgs.msg import String
+    from uav_vision.msg import TargetDetectionArray,TargetCandidateArray
+    rospy.init_node('board_trial_supervisor',disable_signals=True)
+    if rospy.get_param('/use_sim_time',False):raise RuntimeError('Board trials refuse /use_sim_time=true; do not run against laptop SITL')
+    existing=set(rosnode.get_node_names())
+    conflicts=existing.intersection({'/laserMapping','/freedom','/patrol_control','/fast_planner_node','/navigation_frame_adapter','/navigation/mission_manager','/target_detector_rknn','/target_detector','/detection_fusion','/target_refiner','/target_map_projector','/target_memory','/cross_detector','/circle_detector','/landing_detector','/drop_aligner','/navigation/planner_bridge','/release_permission_arbiter','/guarded_servo_proxy','/trial_auto_land','/board_mock_servo','/trial_recorder','/trial_journal','/map_camera_alignment','/board_trial_bag'})
+    if conflicts:raise RuntimeError('Stop the old application first: '+','.join(sorted(conflicts)))
+    if '/mavros' not in existing:raise RuntimeError('Start device MAVROS and driver2 first')
+    model=a.model or Path(os.environ.get('UAV_VISION_RKNN_MODEL_PATH',str(a.root/'runtime_models/flight_5cls_new_video_v8_20261011/flight_5cls_new_video_v8_20261011_fp16.rknn')))
+    if not model.is_file():raise RuntimeError('RKNN model not found; set UAV_VISION_RKNN_MODEL_PATH once or use --model')
+    metadata=a.metadata or Path(os.environ.get('UAV_VISION_RKNN_METADATA_PATH',str(a.root/'vision_ws/src/uav_vision/config/flight_5cls_new_video_v8_20261011_metadata.yaml')))
+    if not metadata.is_file():raise RuntimeError('Model metadata not found; use --metadata with matching weights')
+    out=a.root/'logs'/('board_'+a.trial+'_'+time.strftime('%Y%m%d_%H%M%S'));out.mkdir(parents=True,exist_ok=False)
+    if shutil.disk_usage(out).free<2*1024**3:raise RuntimeError('Less than 2GB recording space available')
+    lock=threading.RLock();samples=deque(maxlen=400);lio_samples=deque(maxlen=400);state_rx=[-1e9];state=[None];camera=[None];extended=[None];ever_armed=[False];ever_airborne=[False];image_ref=[None];compressed_rx=[-1e9];end_reason='interrupted_or_error'
+    def pose(msg, destination=samples):
+        with lock:
+            now=rospy.Time.now().to_sec();stamp=msg.header.stamp.to_sec()
+            if msg.header.frame_id!=startup['frame'] or not 0<=now-stamp<=float(startup['pose_max_age']):return
+            q=msg.pose.orientation;norm=sum(v*v for v in (q.x,q.y,q.z,q.w))
+            yaw=math.atan2(2*(q.w*q.z+q.x*q.y),1-2*(q.y*q.y+q.z*q.z))
+            values=(msg.pose.position.x,msg.pose.position.y,msg.pose.position.z,yaw,stamp)
+            if not all(math.isfinite(v) for v in values) or abs(norm-1)>.05:return
+            destination.append(values)
+    def vehicle(msg):
+        with lock:state_rx[0]=time.monotonic();state[0]=msg;ever_armed[0]=ever_armed[0] or msg.armed
+    def extended_state(msg):
+        with lock:
+            extended[0]=msg
+            if msg.landed_state==ExtendedState.LANDED_STATE_IN_AIR and state[0] is not None and state[0].armed:ever_airborne[0]=True
+    subs=[rospy.Subscriber(startup['pose_topic'],PoseStamped,pose,queue_size=1),rospy.Subscriber('/mavros/state',State,vehicle,queue_size=1),rospy.Subscriber(settings.get('camera_info_topic','/camera/camera_info'),CameraInfo,lambda m:camera.__setitem__(0,m),queue_size=1),rospy.Subscriber('/mavros/extended_state',ExtendedState,extended_state,queue_size=1)]
+    subs.append(rospy.Subscriber(settings.get('compressed_image_topic',settings.get('image_topic','/camera/image_raw')+'/compressed'),CompressedImage,lambda m:compressed_rx.__setitem__(0,time.monotonic()),queue_size=1))
+    subs.append(rospy.Subscriber(startup['lio_pose_topic'],PoseStamped,lambda m:pose(m,lio_samples),queue_size=1))
+    subs.append(rospy.Subscriber(settings.get('image_topic','/camera/image_raw'),Image,lambda m:image_ref.__setitem__(0,(m.header.stamp.to_sec(),m.header.frame_id)),queue_size=1,buff_size=8*1024**2))
+    manifest_path=a.root/'DEPLOYMENT_MANIFEST.json'
+    run_metadata=dict(trial=a.trial,mode=a.mode,settings=settings,model_path=str(model),
+        model_bytes=model.stat().st_size,metadata_path=str(metadata),
+        model_metadata=yaml.safe_load(metadata.read_text()),known_rig=rig,mapping_startup=startup,
+        deployment=json.loads(manifest_path.read_text()) if manifest_path.exists() else {})
+    metadata_pub=rospy.Publisher('/board_trials/run_metadata',String,queue_size=1,latch=True)
+    def record_metadata(reference=None):
+        if reference is not None:run_metadata['ground_reference']=reference
+        encoded=json.dumps(run_metadata)
+        (out/'run_metadata.json').write_text(encoded)
+        metadata_pub.publish(String(data=encoded))
+    children=[];files=[];bag=None;mapping_recording=None
+    env=os.environ.copy();env['ROS_LOG_DIR']=str(out/'roslog')
+    def launch(name,args):
+        stream=(out/(name+'.log')).open('w');files.append(stream)
+        child=subprocess.Popen(['roslaunch','uav_board_trials',name+'.launch',*args],env=env,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True);children.append(child);return child
+    def interrupted(*unused):raise KeyboardInterrupt()
+    signal.signal(signal.SIGINT,interrupted);signal.signal(signal.SIGTERM,interrupted)
+    try:
+        if a.mode=='flight':
+            try:
+                from uav_mission.freedom_recording import start_mapping_recording
+                mapping_recording=start_mapping_recording(out,settings,dict(run_metadata,source_root=str(a.root)))
+            except Exception as error:
+                print('MAPPING_RECORDING_WARNING: '+str(error),flush=True)
+        bag=TrialBag(out,settings,env);bag.start();record_metadata()
+        local=launch('localization',['start_mapping:=false','map_frame:='+startup['frame'],'mapping_profile:='+mapping_profile(settings),'alignment_mode:='+settings.get('alignment_mode','measured'),'enable_control_output:='+str(a.mode=='flight').lower(),'body_to_imu_xyz:='+' '.join(map(str,rig['body_to_imu_xyz'])),'imu_to_camera_z:='+str(rig['imu_to_camera_xyz'][2]),'camera_quat_xyzw:='+' '.join(map(str,rig['camera_quat_xyzw'])),
+            'landing_touchdown_setpoint_topic:='+settings.get('landing_offboard', {}).get('setpoint_topic', '/navigation/landing_setpoint_touchdown')])
+        until=time.monotonic()+float(settings.get("initialization_timeout",300));reference=None;last_wait_log=0.
+        while time.monotonic()<until:
+            if mapping_recording:mapping_recording.check()
+            if local.poll() is not None:raise RuntimeError('Localization launch exited; inspect localization.log')
+            with lock:
+                s=state[0];c=camera[0];now=rospy.Time.now().to_sec()
+                v=np.array([v for v in samples if 0<=now-v[4]<=2.0])
+                im=image_ref[0];valid=(s is not None and s.connected and not s.armed and c is not None and c.width>0 and c.K[0]>0 and c.K[4]>0 and len(v)>=30 and im is not None and 0<=rospy.Time.now().to_sec()-im[0]<=1.)
+                disarmed=s is not None and s.connected and not s.armed and time.monotonic()-state_rx[0]<=float(startup['state_max_age'])
+                aligned,alignment=agreement.update(list(samples),list(lio_samples),now,disarmed)
+                valid=valid and aligned and time.monotonic()-compressed_rx[0]<=1.
+                if time.monotonic()-last_wait_log>5:
+                    last_wait_log=time.monotonic();print('INITIALIZING',dict(pose_samples=len(v),camera_info=c is not None,image_seen=im is not None,compressed_fresh=time.monotonic()-compressed_rx[0]<=1.,mapping_alignment=alignment,armed=s.armed if s else None,yaw_deg=float(np.degrees(np.mean(v[:,3]))) if len(v) else None,xyz_span=np.ptp(v[:,:3],axis=0).tolist() if len(v) else None),flush=True)
+                if valid:
+                    if np.max(np.ptp(v[:,:3],axis=0))>.025 or np.ptp(v[:,3])>.04 or abs(float(np.mean(v[:,3])))>.10:valid=False
+                    if v[-1,4]-v[0,4]<1.5 or rospy.Time.now().to_sec()-v[-1,4]>.3:valid=False
+                    if c.header.frame_id!='downward_camera_optical_frame':raise RuntimeError('CameraInfo frame does not match inherited camera optical TF')
+                    if im[1]!=c.header.frame_id:raise RuntimeError('Image and CameraInfo frames differ')
+                if valid:reference=generate(a.root,out,settings,np.median(v[:,:3],axis=0),rig);break
+            time.sleep(.1)
+        if reference is None:raise RuntimeError('No stationary disarmed camera_init reference. Inspect map<->camera_init conversion, initial heading, camera and compressed stream; no manual Z guess was applied')
+        # No FreeDOM process existed during localization convergence. Start a
+        # clean map and require live observations before any application/planner.
+        mapping_start=rospy.Time.now().to_sec();warmup=MapWarmup(mapping_start,startup)
+        def cloud(msg):
+            with lock:
+                warmup.observe(msg.header.stamp.to_sec(),rospy.Time.now().to_sec(),
+                    msg.header.frame_id==startup['frame'] and msg.width*msg.height>0 and bool(msg.data))
+        cloud_sub=rospy.Subscriber(startup['cloud_topic'],PointCloud2,cloud,queue_size=1)
+        mapper=launch('mapping',['mapping_profile:='+mapping_profile(settings),'map_frame:='+startup['frame']])
+        def check_mapping_alignment(allow_pending=False):
+            with lock:
+                s=state[0]
+                ready,detail=agreement.update(list(samples),list(lio_samples),rospy.Time.now().to_sec(),
+                    s is not None and s.connected and not s.armed and time.monotonic()-state_rx[0]<=float(startup['state_max_age']))
+            if not ready:
+                if allow_pending and startup_transport_pending(detail):
+                    rospy.logwarn_throttle(2.,'Startup waiting for fresh stable pose: %s',json.dumps(detail))
+                    return False
+                raise RuntimeError('Mapping initialization lost agreement; stop and rerun from empty map: '+json.dumps(detail))
+            return True
+        until=time.monotonic()+float(startup['map_timeout'])
+        while time.monotonic()<until:
+            if mapping_recording:mapping_recording.check()
+            if any(child.poll() is not None for child in children):raise RuntimeError('Localization/mapping launch exited before map readiness')
+            aligned=check_mapping_alignment(allow_pending=True)
+            if aligned and warmup.ready(rospy.Time.now().to_sec()):break
+            time.sleep(.1)
+        else:raise RuntimeError('No fresh nonempty FreeDOM map after localization convergence; inspect mapping.log')
+        run_metadata['mapping_startup_result']=dict(mapping_started=mapping_start,
+            map_ready=rospy.Time.now().to_sec(),first_cloud=warmup.first,last_cloud=warmup.last,
+            distinct_clouds=warmup.count,alignment=alignment)
+        print('MAPPING_READY',run_metadata['mapping_startup_result'],flush=True)
+        record_metadata(reference)
+        subs[-1].unregister()
+        (out/'camera_info.json').write_text(json.dumps(dict(width=c.width,height=c.height,K=list(c.K),D=list(c.D),frame=c.header.frame_id),indent=2))
+        args=['enable_control_output:='+str(a.mode=='flight').lower(),f'mode:={settings["mode"]}',f'model_path:={model}',f'metadata_path:={metadata}',f'generated_dir:={out}',f'ground_z:={reference["ground_z"]}',f'low_z:={reference["low_z"]}']
+        args+=['cruise_speed:='+str(settings['cruise_speed']),'cruise_acceleration:='+str(settings['cruise_acceleration'])]
+        args+=['image_topic:='+settings.get('image_topic','/camera/image_raw'),'camera_info_topic:='+settings.get('camera_info_topic','/camera/camera_info')]
+        args+=['actuator_mode:='+settings['actuator_mode'],'raw_servo_service:='+settings.get('raw_servo_service','/legacy/Servo_raw')]
+        if a.real_release:
+            rospy.wait_for_service(settings['raw_servo_service'],timeout=10.)
+            import rosservice
+            if rosservice.get_service_type(settings['raw_servo_service'])!='patrol_control/Servo':raise RuntimeError('Unexpected hardware Servo service type')
+        args+=['terminal_hover_enabled:='+str('terminal_hover_agl' in settings).lower(),'max_command_z:='+str(reference['ground_z']+settings.get('max_agl',2.9))]
+        check_mapping_alignment()
+        # Subscribe before launch; do not mistake a latched empty array for a live chain.
+        def visual(topic,msg):
+            with lock:vision_ready.observe(topic,msg.header.stamp.to_sec(),rospy.Time.now().to_sec())
+        vision_subs=[rospy.Subscriber(topic,TargetDetectionArray,lambda msg,t=topic:visual(t,msg),queue_size=1) for topic in startup['vision_detection_topics']]
+        vision_subs.append(rospy.Subscriber(startup['vision_targets_topic'],TargetCandidateArray,lambda msg:visual(startup['vision_targets_topic'],msg),queue_size=1))
+        effective_runtime=yaml.safe_load((out/'runtime.yaml').read_text())
+        effective_control=yaml.safe_load((out/'control.yaml').read_text())
+        effective_overrides=yaml.safe_load((out/'overrides.yaml').read_text())
+        print('CONFIG_EFFECTIVE '+json.dumps(dict(source='generated_runtime',
+            motion_optimization=effective_runtime['motion_optimization']['enabled'],
+            resume_survey=effective_runtime['high_view_full']['policy']['resume_survey_enabled'],
+            speed_profile=settings.get('speed_profile','limited'),
+            planning=dict(max_vel=settings['cruise_speed'],max_acc=settings['cruise_acceleration']),
+            initial_distances=dict(controller_limit_m=effective_control['px4_max_distance'],traj_target_dist_m=effective_overrides['/traj_server/traj_server/target_dist'],planner_start_max_distance_m=effective_overrides['/external_planner_start_max_distance']),
+            following=effective_runtime['following_speed_profile'],
+            corridor=effective_runtime.get('corridor_speed_schedule'),
+            drop_agl=settings['drop_agl'], runtime_path=str(out/'runtime.yaml')),ensure_ascii=False),flush=True)
+        app=launch('application',args)
+        control_rx=[-1e9]
+        control_ready_sub=rospy.Subscriber('/navigation/setpoint_mission',PoseStamped,lambda msg:control_rx.__setitem__(0,time.monotonic()),queue_size=1)
+        ready_until=time.monotonic()+60
+        while time.monotonic()<ready_until:
+            if mapping_recording:mapping_recording.check()
+            if any(child.poll() is not None for child in children):raise RuntimeError('Application failed before model readiness')
+            aligned=check_mapping_alignment(allow_pending=True)
+            if (aligned and not vision_ready.missing(rospy.Time.now().to_sec())
+                    and (a.mode=='preview' or time.monotonic()-control_rx[0]<.5)
+                    and warmup.ready(rospy.Time.now().to_sec())):break
+            time.sleep(.1)
+        # Keep readiness subscriptions alive: unregister may block long enough
+        # to make the already-live control timestamp stale before its check.
+        missing=vision_ready.missing(rospy.Time.now().to_sec())
+        if missing:raise RuntimeError('Vision chain not live; inspect application.log: '+','.join(missing))
+        if a.mode=='flight' and time.monotonic()-control_rx[0]>=.5:raise RuntimeError('Controller setpoints did not become live; inspect patrol_control startup errors')
+        check_mapping_alignment()
+        if not warmup.ready(rospy.Time.now().to_sec()):raise RuntimeError('FreeDOM map stale before READY')
+        print('READY:',out,flush=True)
+        if a.mode=='flight' and settings.get('auto_start_after_arm',False):print('AUTO_SEQUENCE: operator arms AND selects OFFBOARD -> stable takeoff hover -> mission. No automatic arming or mode request.',flush=True)
+        print('Ground/reference and all local-Z limits generated automatically. No arming or mission start was sent.',flush=True)
+        if a.mode=='flight' and not settings.get('auto_start_after_arm',False):print('After local inspection, operator chooses flight mode/arming and calls: rosservice call /navigation/start_mission "{}"',flush=True)
+        mission_rx=[{}]
+        def mission_status(msg):
+            try:mission_rx[0]=json.loads(msg.data)
+            except (ValueError,TypeError):pass
+        mission_sub=rospy.Subscriber('/navigation/mission_status',String,mission_status,queue_size=1)
+        on_ground_since=None;last_status_log=0.
+        auto_enabled=a.mode=='flight' and settings.get('auto_start_after_arm',False)
+        # Full-mission entries share the 08 auto-start hover gate; other trials retain theirs.
+        auto_start_height_tolerance=.3 if a.trial in ('full_mission','low_coverage_full') else .15
+        auto_start_stable_duration=.3 if a.trial in ('full_mission','low_coverage_full') else 1.
+        start_attempted=False;auto_cancelled=False;offboard_seen=False;hover_since=None
+        while not rospy.is_shutdown():
+            if any(c.poll() is not None for c in children):raise RuntimeError('A launch exited; inspect logs')
+            bag.check()
+            if mapping_recording:mapping_recording.check()
+            s=state[0];e=extended[0]
+            if (auto_enabled and s is not None and s.connected and s.armed and not auto_cancelled
+                    and 0<=time.monotonic()-state_rx[0]<float(startup['state_max_age'])):
+                if offboard_seen and s.mode!='OFFBOARD':
+                    auto_cancelled=True
+                    if not start_attempted:
+                        print('AUTO_SEQUENCE_CANCELLED_PILOT_MODE_CHANGE',flush=True)
+                    else:
+                        # This watcher only prevents another start request;
+                        # the bridge decides whether an active LAND handoff
+                        # is expected or an actual manual cancellation.
+                        print('AUTO_START_WATCHER_STOPPED_AFTER_MISSION_START',flush=True)
+                elif s.mode=='OFFBOARD':
+                    offboard_seen=True
+                    with lock:
+                        now=rospy.Time.now().to_sec()
+                        recent=[v for v in samples if 0<=now-v[4]<=1.]
+                    ready=(len(recent)>=10 and now-recent[-1][4]<.3
+                           and abs(recent[-1][2]-reference['takeoff_z'])<auto_start_height_tolerance
+                           and np.max(np.ptp(np.array(recent)[:,:3],axis=0))<.12)
+                    if ready:
+                        hover_since=hover_since or time.monotonic()
+                    else:hover_since=None
+                    if not start_attempted and hover_since is not None and time.monotonic()-hover_since>=auto_start_stable_duration:
+                        start_attempted=True
+                        from std_srvs.srv import Trigger
+                        try:
+                            response=rospy.ServiceProxy('/navigation/start_mission',Trigger)()
+                            print('AUTO_MISSION_START',response.success,response.message,flush=True)
+                        except rospy.ServiceException as error:
+                            print('AUTO_MISSION_START_FAILED_NO_RETRY',str(error),flush=True)
+                else:hover_since=None
+            else:hover_since=None
+            if time.monotonic()-last_status_log>=5.:
+                last_status_log=time.monotonic();status=mission_rx[0]
+                print('FLIGHT_STATUS',dict(mode=s.mode if s else None,armed=s.armed if s else None,
+                    phase=status.get('phase','UNKNOWN'),reason=status.get('reason',status.get('last_reason',''))),flush=True)
+                if a.mode=='flight' and not auto_enabled and status.get('phase')=='IDLE':
+                    print('WAITING_FOR_MANUAL_MISSION_START: flight READY is not route START.',flush=True)
+            done=ever_airborne[0] and s is not None and not s.armed and e is not None and e.landed_state==ExtendedState.LANDED_STATE_ON_GROUND
+            if done:
+                on_ground_since=on_ground_since or time.monotonic()
+                if time.monotonic()-on_ground_since>=3:end_reason='landed_after_flight';break
+            else:on_ground_since=None
+            time.sleep(.2)
+    except KeyboardInterrupt:pass
+    finally:
+        try:
+            for child in reversed(children):
+                if child.poll() is None:
+                    os.killpg(child.pid,signal.SIGINT)
+                    try:child.wait(timeout=25)
+                    except subprocess.TimeoutExpired:os.killpg(child.pid,signal.SIGTERM);child.wait(timeout=10)
+        finally:
+            if mapping_recording:mapping_recording.close()
+            if bag is not None:bag.close()
+            for stream in files:stream.close()
+        s=state[0];e=extended[0]
+        (out/'supervisor_result.json').write_text(json.dumps(dict(end_reason=end_reason,ever_armed=ever_armed[0],ever_airborne=ever_airborne[0],armed=s.armed if s else None,mode=s.mode if s else None,landed_state=e.landed_state if e else None,trial=a.trial,actuator_mode=settings['actuator_mode']),indent=2))
+        print('Trial application stopped; device MAVROS/driver2 left running. Logs:',out,flush=True)
+        subprocess.run([os.environ.get('BOARD_PYTHON','/usr/bin/python3'),str(Path(__file__).with_name('finish_trial.py')),str(out)],check=False)
+if __name__=='__main__':main()

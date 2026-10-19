@@ -52,10 +52,16 @@ bool PWMController::setPolarity(const std::string& polarity) {
 }
 
 bool PWMController::enable() {
+    std::ifstream current(pwmPath_ + "/enable");
+    std::string actual;
+    if ((current >> actual) && actual == "1") return true;
     return writeSysfs(pwmPath_ + "/enable", "1");
 }
 
 bool PWMController::disable() {
+    std::ifstream current(pwmPath_ + "/enable");
+    std::string actual;
+    if ((current >> actual) && actual == "0") return true;
     return writeSysfs(pwmPath_ + "/enable", "0");
 }
 

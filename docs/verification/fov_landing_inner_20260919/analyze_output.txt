@@ -1,0 +1,74 @@
+[
+  {
+    "label": "A_baseline",
+    "status": "PASS",
+    "top3_interrupt_mission_s": 35.168,
+    "third_commit_s": 111.779,
+    "completed_mission_s": 251.667,
+    "milestone_durations_s": {
+      "start_to_third_ack": 111.779,
+      "last_release_recovery": 2.565000000000012,
+      "fast_transfer_to_staging": 11.48699999999998,
+      "staging_descent": 17.601,
+      "corridor_to_H": 95.63300000000001,
+      "H_landing": 12.602000000000004
+    },
+    "corridor_geometry": {
+      "max_agl_m": 0.9928121026359736,
+      "max_combined_tilt_deg": 1.4294415109988712,
+      "samples": 983,
+      "tilt_above15_samples": 0,
+      "cruise_max_combined_tilt_deg": 1.4294415109988712,
+      "max_guard_top_agl_m": 1.17424044375635
+    },
+    "liveness_recovery_requests": 0
+  },
+  {
+    "label": "B_corridor",
+    "status": "PASS",
+    "top3_interrupt_mission_s": 35.041,
+    "third_commit_s": 87.73,
+    "completed_mission_s": 187.733,
+    "milestone_durations_s": {
+      "start_to_third_ack": 87.73,
+      "last_release_recovery": 2.778000000000006,
+      "fast_transfer_to_staging": 11.932999999999993,
+      "staging_descent": 4.861000000000004,
+      "corridor_to_H": 68.326,
+      "H_landing": 12.105000000000018
+    },
+    "corridor_geometry": {
+      "max_agl_m": 1.0617558241872702,
+      "max_combined_tilt_deg": 3.9465501944788643,
+      "samples": 746,
+      "tilt_above15_samples": 0,
+      "cruise_max_combined_tilt_deg": 3.9465501944788643,
+      "max_guard_top_agl_m": 1.243428194267215
+    },
+    "liveness_recovery_requests": 0
+  },
+  {
+    "label": "C_high3",
+    "status": "PASS",
+    "top3_interrupt_mission_s": null,
+    "third_commit_s": 114.217000001,
+    "completed_mission_s": 216.548000001,
+    "milestone_durations_s": {
+      "start_to_third_ack": 114.217000001,
+      "last_release_recovery": 2.3950000000000102,
+      "fast_transfer_to_staging": 13.004999999999995,
+      "staging_descent": 10.109999999999985,
+      "corridor_to_H": 67.47300000000001,
+      "H_landing": 9.347999999999985
+    },
+    "corridor_geometry": {
+      "max_agl_m": 1.0267353063946756,
+      "max_combined_tilt_deg": 3.735270268494369,
+      "samples": 720,
+      "tilt_above15_samples": 0,
+      "cruise_max_combined_tilt_deg": 3.735270268494369,
+      "max_guard_top_agl_m": 1.224304064062872
+    },
+    "liveness_recovery_requests": 0
+  }
+]

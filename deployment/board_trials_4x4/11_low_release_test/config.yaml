@@ -1,0 +1,40 @@
+# 所有高度是 FC 中心 AGL 估计；起点地面基准=初始 FC local Z-静置离地高度。
+frame: map
+mission_frame: camera_init
+fc_ground_clearance: 0.22
+height_agl: 0.60
+descent_agl: 0.45
+release_below_agl: 0.50  # 严格小于；等于此值不能释放。
+climb_speed: 0.15
+horizontal_speed: 0.20
+descent_speed: 0.10
+max_setpoint_lead: 0.15
+arrival_tolerance: 0.08
+arrival_speed: 0.12
+arrival_dwell: 2.0
+hover_seconds: 5.0  # 本专项在前移到位稳定后连续观察5秒；起飞点不额外停5秒。
+waypoint_seconds: 5.0
+pose_max_age: 0.30
+state_max_age: 2.5
+warmup_seconds: 2.0
+ground_stable_seconds: 2.0
+require_fc_ev_yaw_agreement: false
+mission_timeout: 150.0
+max_distance_from_start: 2.0
+max_height_agl: 1.0
+jump_base_m: 0.20
+jump_speed_mps: 1.0
+yaw_jump_deg: 15.0
+profiles:
+  forward: [[1.0, 0.0]]  # 初始机头向前1m，沿原 forward 的 yaw 旋转到 FC local。
+topics:
+  state: /mavros/state
+  pose: /mavros/local_position/pose
+  ev: /mavros/vision_pose/pose
+  odom: /mavros/local_position/odom
+  setpoint: /mavros/setpoint_position/local
+  status: /low_hover_observation/status  # 复用已有诊断录制器订阅。
+raw_service: /legacy/Servo_raw  # 复用已运行的5b真实服务，绝不自行启动驱动。
+service_start_timeout: 8.0
+release_timeout: 3.0
+purpose: temporary_low_release_test_no_target

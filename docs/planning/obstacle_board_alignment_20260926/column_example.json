@@ -1,0 +1,23 @@
+{
+  "example": "synthetic cone + trunk, not field lidar",
+  "tree_height": 1.8,
+  "canopy_base": 0.55,
+  "radius": 0.45,
+  "band_ratios": [
+    0.4,
+    0.6
+  ],
+  "band_nominal_z": [
+    0.96,
+    1.24
+  ],
+  "inflation_xyz": [
+    0.25,
+    0.2,
+    0.1
+  ],
+  "grid": 0.05,
+  "classification_timing": "support_and_middle_ms=0.364225 points=11680",
+  "physical_voxels": 16590,
+  "additional_column_voxels": 14316
+}

@@ -1,0 +1,544 @@
+{
+  "scope": "All five original runs retained locally; videos/bags disabled; large point clouds and ULog not committed",
+  "runs": [
+    {
+      "seed": 31,
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed31_20260910_101159",
+      "file_count": 71,
+      "total_bytes": 99008398,
+      "key_files": [
+        {
+          "path": "gazebo_contact_status.json",
+          "bytes": 1114
+        },
+        {
+          "path": "visual_delivery_audit.json",
+          "bytes": 708761
+        },
+        {
+          "path": "random_field_truth.yaml",
+          "bytes": 1115
+        },
+        {
+          "path": "manifest.yaml",
+          "bytes": 2858
+        },
+        {
+          "path": "rosparams.yaml",
+          "bytes": 30860
+        },
+        {
+          "path": "ros_system_state.json",
+          "bytes": 32252
+        },
+        {
+          "path": "planner_setpoint.csv",
+          "bytes": 364779
+        },
+        {
+          "path": "run.log",
+          "bytes": 2134301
+        },
+        {
+          "path": "truth_pose.csv",
+          "bytes": 556071
+        },
+        {
+          "path": "random_field_status.json",
+          "bytes": 1628
+        },
+        {
+          "path": "mavros_setpoint.csv",
+          "bytes": 308079
+        },
+        {
+          "path": "timeline.txt",
+          "bytes": 10536
+        },
+        {
+          "path": "live_progress.json",
+          "bytes": 1667
+        },
+        {
+          "path": "mavros_pose.csv",
+          "bytes": 474748
+        },
+        {
+          "path": "planner_anchor_status.json",
+          "bytes": 854
+        },
+        {
+          "path": "key_events.jsonl",
+          "bytes": 388792
+        },
+        {
+          "path": "summary.json",
+          "bytes": 6573
+        },
+        {
+          "path": "px4_parameters_readback.json",
+          "bytes": 901
+        },
+        {
+          "path": "red_cross_truth.yaml",
+          "bytes": 158
+        },
+        {
+          "path": "actual_camera_info.json",
+          "bytes": 864
+        },
+        {
+          "path": "gate_status.json",
+          "bytes": 17526
+        },
+        {
+          "path": "lio_pose.csv",
+          "bytes": 353789
+        },
+        {
+          "path": "px4/log/2026-09-10/02_12_10.ulg",
+          "bytes": 79886700
+        }
+      ],
+      "status": "FAIL",
+      "cleanup_pass": true,
+      "frozen_head": "7eb94462170d0adce666754ec2547d79a71b29df"
+    },
+    {
+      "seed": 32,
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed32_20260910_103344",
+      "file_count": 71,
+      "total_bytes": 135423066,
+      "key_files": [
+        {
+          "path": "gazebo_contact_status.json",
+          "bytes": 469
+        },
+        {
+          "path": "visual_delivery_audit.json",
+          "bytes": 755260
+        },
+        {
+          "path": "random_field_truth.yaml",
+          "bytes": 1115
+        },
+        {
+          "path": "manifest.yaml",
+          "bytes": 2858
+        },
+        {
+          "path": "rosparams.yaml",
+          "bytes": 30831
+        },
+        {
+          "path": "ros_system_state.json",
+          "bytes": 32252
+        },
+        {
+          "path": "planner_setpoint.csv",
+          "bytes": 530116
+        },
+        {
+          "path": "run.log",
+          "bytes": 2798097
+        },
+        {
+          "path": "truth_pose.csv",
+          "bytes": 794622
+        },
+        {
+          "path": "random_field_status.json",
+          "bytes": 1628
+        },
+        {
+          "path": "mavros_setpoint.csv",
+          "bytes": 442665
+        },
+        {
+          "path": "timeline.txt",
+          "bytes": 9476
+        },
+        {
+          "path": "live_progress.json",
+          "bytes": 1673
+        },
+        {
+          "path": "mavros_pose.csv",
+          "bytes": 679039
+        },
+        {
+          "path": "planner_anchor_status.json",
+          "bytes": 854
+        },
+        {
+          "path": "key_events.jsonl",
+          "bytes": 624858
+        },
+        {
+          "path": "summary.json",
+          "bytes": 7343
+        },
+        {
+          "path": "px4_parameters_readback.json",
+          "bytes": 901
+        },
+        {
+          "path": "red_cross_truth.yaml",
+          "bytes": 158
+        },
+        {
+          "path": "actual_camera_info.json",
+          "bytes": 864
+        },
+        {
+          "path": "gate_status.json",
+          "bytes": 21475
+        },
+        {
+          "path": "lio_pose.csv",
+          "bytes": 507424
+        },
+        {
+          "path": "px4/log/2026-09-10/02_34_01.ulg",
+          "bytes": 113156933
+        }
+      ],
+      "status": "PASS",
+      "cleanup_pass": true,
+      "frozen_head": "7eb94462170d0adce666754ec2547d79a71b29df"
+    },
+    {
+      "seed": 33,
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed33_20260910_110147",
+      "file_count": 74,
+      "total_bytes": 177170864,
+      "key_files": [
+        {
+          "path": "gazebo_contact_status.json",
+          "bytes": 468
+        },
+        {
+          "path": "visual_delivery_audit.json",
+          "bytes": 763754
+        },
+        {
+          "path": "local_map_failure_2.json",
+          "bytes": 6791214
+        },
+        {
+          "path": "random_field_truth.yaml",
+          "bytes": 1112
+        },
+        {
+          "path": "local_map_failure_1.json",
+          "bytes": 7174276
+        },
+        {
+          "path": "manifest.yaml",
+          "bytes": 2858
+        },
+        {
+          "path": "rosparams.yaml",
+          "bytes": 30846
+        },
+        {
+          "path": "local_map_failure_3.json",
+          "bytes": 6860559
+        },
+        {
+          "path": "ros_system_state.json",
+          "bytes": 32252
+        },
+        {
+          "path": "planner_setpoint.csv",
+          "bytes": 631570
+        },
+        {
+          "path": "run.log",
+          "bytes": 3305260
+        },
+        {
+          "path": "truth_pose.csv",
+          "bytes": 909854
+        },
+        {
+          "path": "random_field_status.json",
+          "bytes": 1628
+        },
+        {
+          "path": "mavros_setpoint.csv",
+          "bytes": 534360
+        },
+        {
+          "path": "timeline.txt",
+          "bytes": 14433
+        },
+        {
+          "path": "live_progress.json",
+          "bytes": 1677
+        },
+        {
+          "path": "mavros_pose.csv",
+          "bytes": 787538
+        },
+        {
+          "path": "planner_anchor_status.json",
+          "bytes": 853
+        },
+        {
+          "path": "key_events.jsonl",
+          "bytes": 663753
+        },
+        {
+          "path": "summary.json",
+          "bytes": 6375
+        },
+        {
+          "path": "px4_parameters_readback.json",
+          "bytes": 901
+        },
+        {
+          "path": "red_cross_truth.yaml",
+          "bytes": 158
+        },
+        {
+          "path": "actual_camera_info.json",
+          "bytes": 864
+        },
+        {
+          "path": "gate_status.json",
+          "bytes": 17397
+        },
+        {
+          "path": "lio_pose.csv",
+          "bytes": 588417
+        },
+        {
+          "path": "px4/log/2026-09-10/03_02_04.ulg",
+          "bytes": 131920116
+        }
+      ],
+      "status": "FAIL",
+      "cleanup_pass": true,
+      "frozen_head": "7eb94462170d0adce666754ec2547d79a71b29df"
+    },
+    {
+      "seed": 34,
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330",
+      "file_count": 74,
+      "total_bytes": 165089365,
+      "key_files": [
+        {
+          "path": "gazebo_contact_status.json",
+          "bytes": 468
+        },
+        {
+          "path": "visual_delivery_audit.json",
+          "bytes": 732364
+        },
+        {
+          "path": "local_map_failure_2.json",
+          "bytes": 2816285
+        },
+        {
+          "path": "random_field_truth.yaml",
+          "bytes": 1112
+        },
+        {
+          "path": "local_map_failure_1.json",
+          "bytes": 2830639
+        },
+        {
+          "path": "manifest.yaml",
+          "bytes": 2858
+        },
+        {
+          "path": "rosparams.yaml",
+          "bytes": 30859
+        },
+        {
+          "path": "local_map_failure_3.json",
+          "bytes": 2814328
+        },
+        {
+          "path": "ros_system_state.json",
+          "bytes": 32252
+        },
+        {
+          "path": "planner_setpoint.csv",
+          "bytes": 535435
+        },
+        {
+          "path": "run.log",
+          "bytes": 3363430
+        },
+        {
+          "path": "truth_pose.csv",
+          "bytes": 933376
+        },
+        {
+          "path": "random_field_status.json",
+          "bytes": 1627
+        },
+        {
+          "path": "mavros_setpoint.csv",
+          "bytes": 450983
+        },
+        {
+          "path": "timeline.txt",
+          "bytes": 22464
+        },
+        {
+          "path": "live_progress.json",
+          "bytes": 1650
+        },
+        {
+          "path": "mavros_pose.csv",
+          "bytes": 797360
+        },
+        {
+          "path": "planner_anchor_status.json",
+          "bytes": 854
+        },
+        {
+          "path": "key_events.jsonl",
+          "bytes": 1163635
+        },
+        {
+          "path": "summary.json",
+          "bytes": 5771
+        },
+        {
+          "path": "px4_parameters_readback.json",
+          "bytes": 901
+        },
+        {
+          "path": "red_cross_truth.yaml",
+          "bytes": 157
+        },
+        {
+          "path": "actual_camera_info.json",
+          "bytes": 864
+        },
+        {
+          "path": "gate_status.json",
+          "bytes": 15554
+        },
+        {
+          "path": "lio_pose.csv",
+          "bytes": 602408
+        },
+        {
+          "path": "px4/log/2026-09-10/03_33_46.ulg",
+          "bytes": 131903209
+        }
+      ],
+      "status": "FAIL",
+      "cleanup_pass": true,
+      "frozen_head": "7eb94462170d0adce666754ec2547d79a71b29df"
+    },
+    {
+      "seed": 35,
+      "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed35_20260910_120409",
+      "file_count": 71,
+      "total_bytes": 96200223,
+      "key_files": [
+        {
+          "path": "gazebo_contact_status.json",
+          "bytes": 468
+        },
+        {
+          "path": "visual_delivery_audit.json",
+          "bytes": 508501
+        },
+        {
+          "path": "random_field_truth.yaml",
+          "bytes": 1116
+        },
+        {
+          "path": "manifest.yaml",
+          "bytes": 2858
+        },
+        {
+          "path": "rosparams.yaml",
+          "bytes": 30828
+        },
+        {
+          "path": "ros_system_state.json",
+          "bytes": 32252
+        },
+        {
+          "path": "planner_setpoint.csv",
+          "bytes": 353176
+        },
+        {
+          "path": "run.log",
+          "bytes": 2132010
+        },
+        {
+          "path": "truth_pose.csv",
+          "bytes": 519328
+        },
+        {
+          "path": "random_field_status.json",
+          "bytes": 1628
+        },
+        {
+          "path": "mavros_setpoint.csv",
+          "bytes": 298658
+        },
+        {
+          "path": "timeline.txt",
+          "bytes": 11938
+        },
+        {
+          "path": "live_progress.json",
+          "bytes": 1675
+        },
+        {
+          "path": "mavros_pose.csv",
+          "bytes": 462555
+        },
+        {
+          "path": "planner_anchor_status.json",
+          "bytes": 853
+        },
+        {
+          "path": "key_events.jsonl",
+          "bytes": 326288
+        },
+        {
+          "path": "summary.json",
+          "bytes": 6394
+        },
+        {
+          "path": "px4_parameters_readback.json",
+          "bytes": 901
+        },
+        {
+          "path": "red_cross_truth.yaml",
+          "bytes": 159
+        },
+        {
+          "path": "actual_camera_info.json",
+          "bytes": 864
+        },
+        {
+          "path": "gate_status.json",
+          "bytes": 16232
+        },
+        {
+          "path": "lio_pose.csv",
+          "bytes": 352378
+        },
+        {
+          "path": "px4/log/2026-09-10/04_04_26.ulg",
+          "bytes": 77334241
+        }
+      ],
+      "status": "PASS",
+      "cleanup_pass": true,
+      "frozen_head": "7eb94462170d0adce666754ec2547d79a71b29df"
+    }
+  ]
+}

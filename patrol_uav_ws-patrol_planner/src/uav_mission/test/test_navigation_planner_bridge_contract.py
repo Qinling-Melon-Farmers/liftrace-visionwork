@@ -45,7 +45,7 @@ class NavigationPlannerBridgeContractTest(unittest.TestCase):
         self.assertEqual(
             publisher_types,
             {"PoseStamped", "NavigationResult", "String",
-             "MissionCommand", "AlignmentTargetContext"})
+             "MissionCommand", "AlignmentTargetContext", "NavigationRecoveryContext"})
         for forbidden in (
                 "Servo", "actuator_pwm", "rospy.ServiceProxy",
                 "/planning/replan", "/mavros/cmd/arming"):

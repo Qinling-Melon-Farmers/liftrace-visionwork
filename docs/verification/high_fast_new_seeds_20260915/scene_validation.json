@@ -1,0 +1,41 @@
+{
+  "python": "/home/xhj/miniconda3/envs/rl_drone/bin/python",
+  "scope": "Static scene + launch expansion only",
+  "cases": [
+    {
+      "seed": 36,
+      "door_pattern": "LL",
+      "trees": 4,
+      "launch_expanded": true,
+      "fast_runtime": true
+    },
+    {
+      "seed": 37,
+      "door_pattern": "LR",
+      "trees": 4,
+      "launch_expanded": true,
+      "fast_runtime": true
+    },
+    {
+      "seed": 38,
+      "door_pattern": "RL",
+      "trees": 4,
+      "launch_expanded": true,
+      "fast_runtime": true
+    },
+    {
+      "seed": 39,
+      "door_pattern": "RR",
+      "trees": 4,
+      "launch_expanded": true,
+      "fast_runtime": true
+    },
+    {
+      "seed": 40,
+      "door_pattern": "LL",
+      "trees": 4,
+      "launch_expanded": true,
+      "fast_runtime": true
+    }
+  ]
+}

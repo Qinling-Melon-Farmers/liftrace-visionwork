@@ -1,0 +1,52 @@
+# sim_run manifest — 自动生成，勿手改
+scene: r2026_seed34_initial_wait20
+start_time: 2026-09-11T14:16:13+08:00
+git_head: d7346c2274b8d60060c4d4a3d9ea10b7b9ea0d1d
+git_status:
+uav_ws: /home/xhj/liftrace-worktrees/r2026-competition-integrated/patrol_uav_ws-patrol_planner
+uav_git_head: d7346c2274b8d60060c4d4a3d9ea10b7b9ea0d1d
+uav_git_status:
+vision_ws: /home/xhj/liftrace-worktrees/r2026-competition-integrated/vision_ws
+vision_git_head: d7346c2274b8d60060c4d4a3d9ea10b7b9ea0d1d
+vision_git_status:
+resolved_uav_mission: /home/xhj/liftrace-worktrees/r2026-competition-integrated/patrol_uav_ws-patrol_planner/src/uav_mission
+resolved_uav_vision: /home/xhj/liftrace-worktrees/r2026-competition-integrated/vision_ws/src/uav_vision
+launch_cmd:
+  - "roslaunch"
+  - "uav_mission"
+  - "navigation_horizontal_search_vcl06.launch"
+  - "target_model_path:=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt"
+  - "field_seed:=34"
+  - "world:=/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330/scenario_inputs/field.world"
+  - "field_config:=/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330/scenario_inputs/field_config.yaml"
+  - "runtime_config:=/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330/scenario_inputs/runtime.yaml"
+  - "gate_geometry_config:=/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330/scenario_inputs/gate_geometry.yaml"
+  - "search_initial_plan_timeout:=20"
+  - "observe_full_trial:=true"
+  - "record_camera_video:=false"
+  - "record_overview_video:=false"
+  - "record_debug:=false"
+  - "gui:=false"
+  - "rviz:=false"
+roslaunch_args:
+  - "roslaunch"
+  - "uav_mission"
+  - "navigation_horizontal_search_vcl06.launch"
+  - "target_model_path:=/home/xhj/liftrace/vision_ws/runs/liftrace_6cls_v5_merged_standard_20260714/weights/best.pt"
+  - "field_seed:=34"
+  - "world:=/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330/scenario_inputs/field.world"
+  - "field_config:=/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330/scenario_inputs/field_config.yaml"
+  - "runtime_config:=/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330/scenario_inputs/runtime.yaml"
+  - "gate_geometry_config:=/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330/scenario_inputs/gate_geometry.yaml"
+  - "search_initial_plan_timeout:=20"
+  - "observe_full_trial:=true"
+  - "record_camera_video:=false"
+  - "record_overview_video:=false"
+  - "record_debug:=false"
+  - "gui:=false"
+  - "rviz:=false"
+require_gate: 1
+exit_code: 0
+end_time: 2026-09-11T14:44:19+08:00
+roslog: archived
+timeline: generated

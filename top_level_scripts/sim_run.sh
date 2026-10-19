@@ -67,8 +67,8 @@ export UAV_WS="${UAV_WS:-${PROJECT_ROOT}/patrol_uav_ws-patrol_planner}"
 # executables from an unrelated development checkout.
 set +u
 source /opt/ros/noetic/setup.bash
-source "${VISION_WS}/devel/setup.bash"
-source "${UAV_WS}/devel/setup.bash" --extend
+source "${VISION_WS}/devel/setup.bash" || exit 66
+source "${UAV_WS}/devel/setup.bash" --extend || exit 66
 set -u
 
 # ---- PX4 + Gazebo 环境（与 launch_toudi3_full_sim.sh 一致，可在调用前覆盖） ----
@@ -90,7 +90,9 @@ fi
 # prepend PROJECT_ROOT copies here: doing so silently mixes an old root tree
 # into a feature-worktree run even after the matching devel spaces are sourced.
 export ROS_PACKAGE_PATH="${VISION_SOURCE_ROOT}:${UAV_SOURCE_ROOT}:/opt/ros/noetic/share:${PX4_ROOT}:${PX4_GAZEBO}${ROS_PACKAGE_PATH:+:${ROS_PACKAGE_PATH}}"
-export GAZEBO_MODEL_PATH="${PX4_GAZEBO}/models${GAZEBO_MODEL_PATH:+:${GAZEBO_MODEL_PATH}}"
+# Nested model:// references in the selected vehicle SDF must resolve from the
+# same vision overlay, not from an unrelated checkout or the online database.
+export GAZEBO_MODEL_PATH="${VISION_SOURCE_ROOT}/uav_vision_eval/models:${PX4_GAZEBO}/models${GAZEBO_MODEL_PATH:+:${GAZEBO_MODEL_PATH}}"
 export GAZEBO_PLUGIN_PATH="${VISION_WS}/devel/lib:${ASTRA_LIB}:${PX4_BUILD}${GAZEBO_PLUGIN_PATH:+:${GAZEBO_PLUGIN_PATH}}"
 export LD_LIBRARY_PATH="${ASTRA_LIB}:${PX4_BUILD}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
@@ -118,10 +120,10 @@ verify_package_owner() {
 }
 
 if [ -d "${UAV_SOURCE_ROOT}/uav_mission" ]; then
-  RESOLVED_UAV_MISSION="$(verify_package_owner uav_mission "${UAV_SOURCE_ROOT}/uav_mission")"
+  RESOLVED_UAV_MISSION="$(verify_package_owner uav_mission "${UAV_SOURCE_ROOT}/uav_mission")" || exit 66
 fi
 if [ -d "${VISION_SOURCE_ROOT}/uav_vision" ]; then
-  RESOLVED_UAV_VISION="$(verify_package_owner uav_vision "${VISION_SOURCE_ROOT}/uav_vision")"
+  RESOLVED_UAV_VISION="$(verify_package_owner uav_vision "${VISION_SOURCE_ROOT}/uav_vision")" || exit 66
 fi
 
 SCENE="${1:-sim}"

@@ -83,6 +83,26 @@ class CoarseTests(unittest.TestCase):
         self.assertIsNone(self.r.reacquired)
         self.assertTrue(all(s.candidate_key is None for s in self.r.core.slots))
 
+    def test_old_bridge_competing_with_nonpreferred_panzer_cannot_complete_top3(self):
+        for now in (101.,101.2):
+            stamp=int(round(now*1e9))
+            self.cue(class_name='panzer',xy=(-.056,1.043),stamp_ns=stamp,now=now)
+            self.cue(class_name='bridge',xy=(-.067,1.048),stamp_ns=stamp,now=now)
+            self.cue(class_name='red_cross',xy=(3.759,-.935),stamp_ns=stamp,now=now)
+        epoch=self.r.catalog.epoch
+        from uav_high_view.core import Hint
+        refined=Hint(epoch,Key(4,100000000000),'panzer',(1.139,-1.213),.2,
+                     101300000000,1.,3)
+        self.r.memory.update([refined],epoch,101300000000)
+        self.finish(103.);active=self.r.core.active_action
+        self.map(104.);self.r.tick(104.,(0.,0.))
+        self.assertEqual(set(self.r._all_top(104.)),self.r.required)
+        self.assertEqual(set(self.r._interrupt_top(104.)),{'panzer','red_cross'})
+        self.assertEqual(self.r.stage,'SURVEY')
+        self.assertIs(self.r.core.active_action,active)
+        self.assertFalse(any(e['stage']=='SURVEY_INTERRUPTED_TOP3' for e in self.r.events))
+        self.assertEqual(self.r.core.committed_slots,0)
+
     def test_explicit_legacy_refined_policy_still_supported(self):
         self.r.policy=replace(self.r.policy,interrupt_refined_classes=('panzer',))
         for t in (101.,101.2):

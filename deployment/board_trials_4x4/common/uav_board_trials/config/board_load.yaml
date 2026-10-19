@@ -1,0 +1,22 @@
+# Board reference: sakelier/liftrace-controlwork, board branch 48541a7.
+# Loaded after sensor calibration and shared FreeDOM defaults, before nodes start.
+feature_extract_enable: true
+point_filter_num: 3
+max_iteration: 3
+filter_size_surf: 0.15
+filter_size_map: 0.15
+cube_side_length: 20.0
+# FAST-LIO moves its cube within 1.5*det_range of an edge. 20 > 3*6;
+# retaining the old 100 m range would move a 20 m cube even at its center.
+mapping/det_range: 6.0
+runtime_pos_log_enable: false
+freedom:
+  sensor:
+    min_z: -1.0
+  map:
+    sub_voxel_size: 0.1
+    voxel_depth: 2
+    block_depth: 5
+    raycast_min_z: -1.0
+    counts_to_free: 6
+    counts_to_revert: 20

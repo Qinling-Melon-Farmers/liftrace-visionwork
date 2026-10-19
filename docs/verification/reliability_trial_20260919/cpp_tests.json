@@ -1,0 +1,96 @@
+{
+  "cases": 18,
+  "failed": 0,
+  "tests": [
+    {
+      "suite": "TrajectoryProgress",
+      "name": "DoesNotJumpToLaterLoopBranch",
+      "failed": false
+    },
+    {
+      "suite": "TrajectoryProgress",
+      "name": "LostTrackingDoesNotSelectEndpoint",
+      "failed": false
+    },
+    {
+      "suite": "TrajectoryProgress",
+      "name": "TightTurnInsideSphereStillHasBoundedArc",
+      "failed": false
+    },
+    {
+      "suite": "TrajectoryProgress",
+      "name": "ProgressIsMonotonicAndIncludesEndpoint",
+      "failed": false
+    },
+    {
+      "suite": "TrajectoryProgress",
+      "name": "Seed36SlowInitialCurveDoesNotTrapProjectionBehindLookahead",
+      "failed": false
+    },
+    {
+      "suite": "MotionWatchdog",
+      "name": "BoundedRecoveryWithoutTrajectoryReset",
+      "failed": false
+    },
+    {
+      "suite": "MotionWatchdog",
+      "name": "DetourAndVerticalMotionCountEvenAwayFromGoal",
+      "failed": false
+    },
+    {
+      "suite": "MotionWatchdog",
+      "name": "IntentionalHoldStaleDataAndClockJumpCannotTrigger",
+      "failed": false
+    },
+    {
+      "suite": "MotionWatchdog",
+      "name": "PoseNoiseDoesNotRenewBudget",
+      "failed": false
+    },
+    {
+      "suite": "PlannerStatusSchema",
+      "name": "StatusValuesRemainStable",
+      "failed": false
+    },
+    {
+      "suite": "PlannerStatusSchema",
+      "name": "ExplicitCorrelationAndTransportHeaderSurviveSerialization",
+      "failed": false
+    },
+    {
+      "suite": "PlannerStatusTracker",
+      "name": "ReplacementCancelsOldGoalBeforeAcceptingNewGoal",
+      "failed": false
+    },
+    {
+      "suite": "PlannerStatusTracker",
+      "name": "EffectiveAdjustmentKeepsSequenceAndFinishClosesActiveGoal",
+      "failed": false
+    },
+    {
+      "suite": "PlannerStatusTracker",
+      "name": "CompletionRequiresActiveFiniteDistanceWithinThreshold",
+      "failed": false
+    },
+    {
+      "suite": "GoalAdjustment",
+      "name": "FindsNearbyFreeCellWithoutChangingHeight",
+      "failed": false
+    },
+    {
+      "suite": "GoalAdjustment",
+      "name": "RepeatedRequestsDoNotAccumulateDisplacement",
+      "failed": false
+    },
+    {
+      "suite": "GoalAdjustment",
+      "name": "DoesNotRelaxMapClearanceOrSelectVerticalShortcut",
+      "failed": false
+    },
+    {
+      "suite": "GoalAdjustment",
+      "name": "HighSurveyUsesLateralGapWhileKeepingHeightAndClearance",
+      "failed": false
+    }
+  ]
+}

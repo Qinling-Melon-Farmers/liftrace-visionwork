@@ -1,0 +1,93 @@
+{
+  "ulog_path": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/board_high_priority_20261003_171424/ulog/px4_log781.ulg",
+  "reset_count": 6,
+  "resets": [
+    {
+      "boot_s": 1086.054034,
+      "counter_before": 3,
+      "counter_after": 4,
+      "enu_dz": 0.07114916294813156,
+      "vision_data_stopped_nearby": [
+        1085.797446
+      ],
+      "reset_hgt_to_ev_nearby": [
+        1086.00485
+      ],
+      "reset_hgt_to_baro_nearby": []
+    },
+    {
+      "boot_s": 1098.458428,
+      "counter_before": 4,
+      "counter_after": 5,
+      "enu_dz": 0.13041245937347412,
+      "vision_data_stopped_nearby": [
+        1098.300515
+      ],
+      "reset_hgt_to_ev_nearby": [
+        1098.399396
+      ],
+      "reset_hgt_to_baro_nearby": []
+    },
+    {
+      "boot_s": 1127.459747,
+      "counter_before": 5,
+      "counter_after": 6,
+      "enu_dz": 0.37644171714782715,
+      "vision_data_stopped_nearby": [
+        1127.291985
+      ],
+      "reset_hgt_to_ev_nearby": [
+        1127.400778
+      ],
+      "reset_hgt_to_baro_nearby": []
+    },
+    {
+      "boot_s": 1136.656004,
+      "counter_before": 6,
+      "counter_after": 7,
+      "enu_dz": 0.524177074432373,
+      "vision_data_stopped_nearby": [
+        1136.49813
+      ],
+      "reset_hgt_to_ev_nearby": [
+        1136.606961
+      ],
+      "reset_hgt_to_baro_nearby": []
+    },
+    {
+      "boot_s": 1234.25656,
+      "counter_before": 7,
+      "counter_after": 8,
+      "enu_dz": 0.2769674062728882,
+      "vision_data_stopped_nearby": [
+        1233.99014
+      ],
+      "reset_hgt_to_ev_nearby": [
+        1234.217277
+      ],
+      "reset_hgt_to_baro_nearby": []
+    },
+    {
+      "boot_s": 1277.361914,
+      "counter_before": 8,
+      "counter_after": 9,
+      "enu_dz": 0.029437899589538574,
+      "vision_data_stopped_nearby": [
+        1277.184287
+      ],
+      "reset_hgt_to_ev_nearby": [
+        1277.332425
+      ],
+      "reset_hgt_to_baro_nearby": []
+    }
+  ],
+  "primary_instance_unique": [
+    1
+  ],
+  "instance_changed_count_unique": [
+    2
+  ],
+  "dropouts": 0,
+  "source_commit_reviewed": "f9ac95c",
+  "report_path": "docs/deployment/board_redeploy_20261001/PX4_JUMP_ULOG_171424_20261003.md"
+}

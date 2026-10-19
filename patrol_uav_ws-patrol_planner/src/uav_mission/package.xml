@@ -91,6 +91,8 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>rosbag</exec_depend>
+  <exec_depend>roslib</exec_depend>
+  <exec_depend>roslz4</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>std_srvs</exec_depend>
@@ -106,6 +108,7 @@
 
   </export>
   <exec_depend>uav_high_view</exec_depend>
+  <exec_depend>navigation_recovery_msgs</exec_depend>
   <exec_depend>topic_tools</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
 </package>

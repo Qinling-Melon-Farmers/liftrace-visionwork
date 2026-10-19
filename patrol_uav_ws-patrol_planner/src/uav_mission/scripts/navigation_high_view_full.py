@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Full high-view strategy on the shared mission/executor chain."""
+"""Full high-view strategy on the original simulation mission/executor chain."""
 import importlib.util
 from pathlib import Path
 import numpy as np

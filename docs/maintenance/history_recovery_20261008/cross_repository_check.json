@@ -1,0 +1,543 @@
+{
+  "checked_at_utc": "2026-10-07T17:16:23.869634+00:00",
+  "scope": "local cat-file and existing ref reads only; no fetch, push, checkout, new tags or bundle mutation",
+  "repositories": [
+    {
+      "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+      "check_path": "/home/xhj/liftrace-controlwork-nav",
+      "checkouts": [
+        "/home/xhj/liftrace-controlwork-nav",
+        "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+        "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+      ]
+    },
+    {
+      "git_common_dir": "/home/xhj/liftrace-sim/.git",
+      "check_path": "/home/xhj/liftrace-sim",
+      "checkouts": [
+        "/home/xhj/liftrace-sim"
+      ]
+    }
+  ],
+  "unavailable_paths": [],
+  "original_missing_in_shared_repo": 12,
+  "found_in_other_repositories": 12,
+  "not_found_in_checked_repositories": 0,
+  "records": [
+    {
+      "commit": "0e2d57a2b0e4ef637bb71095e2e6288580556634",
+      "found_in": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "checkouts": [
+            "/home/xhj/liftrace-controlwork-nav",
+            "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+            "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+          ],
+          "metadata": {
+            "commit": "0e2d57a2b0e4ef637bb71095e2e6288580556634",
+            "author_name": "Qinling-Melon-Farmers",
+            "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "author_date": "2026-09-06T19:24:38+08:00",
+            "committer_name": "Qinling-Melon-Farmers",
+            "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "committer_date": "2026-09-06T19:24:38+08:00",
+            "parents": "957dd371b3a81ee55f029669790bd53b34b5e76a",
+            "subject": "fix: 修正护圈垂直避障余量与逐靶取景高度"
+          },
+          "containing_refs": [
+            "refs/heads/feat/vcl06-local-full-mission",
+            "refs/remotes/fork/feat/vcl06-local-full-mission"
+          ],
+          "direct_refs": []
+        }
+      ],
+      "checked_repositories": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "exists": true
+        },
+        {
+          "git_common_dir": "/home/xhj/liftrace-sim/.git",
+          "check_path": "/home/xhj/liftrace-sim",
+          "exists": false
+        }
+      ]
+    },
+    {
+      "commit": "1928f75fdba6ea0ffcd645f74351d2f6a2b95497",
+      "found_in": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "checkouts": [
+            "/home/xhj/liftrace-controlwork-nav",
+            "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+            "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+          ],
+          "metadata": {
+            "commit": "1928f75fdba6ea0ffcd645f74351d2f6a2b95497",
+            "author_name": "Qinling-Melon-Farmers",
+            "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "author_date": "2026-09-06T01:17:50+08:00",
+            "committer_name": "Qinling-Melon-Farmers",
+            "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "committer_date": "2026-09-06T01:17:50+08:00",
+            "parents": "41e5b3319aac782f0ee491d79d638e56287722e2",
+            "subject": "refactor: 清理正式执行残留并稳定并行构建"
+          },
+          "containing_refs": [
+            "refs/heads/feat/vcl06-local-full-mission",
+            "refs/remotes/fork/feat/vcl06-local-full-mission",
+            "refs/remotes/origin/feat/vcl06-local-full-mission"
+          ],
+          "direct_refs": []
+        }
+      ],
+      "checked_repositories": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "exists": true
+        },
+        {
+          "git_common_dir": "/home/xhj/liftrace-sim/.git",
+          "check_path": "/home/xhj/liftrace-sim",
+          "exists": false
+        }
+      ]
+    },
+    {
+      "commit": "22ddb8af08363bc22e6a45c944a18b4eb3e5aa07",
+      "found_in": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "checkouts": [
+            "/home/xhj/liftrace-controlwork-nav",
+            "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+            "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+          ],
+          "metadata": {
+            "commit": "22ddb8af08363bc22e6a45c944a18b4eb3e5aa07",
+            "author_name": "Qinling-Melon-Farmers",
+            "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "author_date": "2026-09-06T20:32:05+08:00",
+            "committer_name": "Qinling-Melon-Farmers",
+            "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "committer_date": "2026-09-06T20:32:05+08:00",
+            "parents": "5f06918de66fe5aa62a3ce6fc3f286c36ad13ef9",
+            "subject": "fix: 按正装雷达与相机实测间距统一融合建图"
+          },
+          "containing_refs": [
+            "refs/heads/feat/vcl06-local-full-mission",
+            "refs/remotes/fork/feat/vcl06-local-full-mission"
+          ],
+          "direct_refs": []
+        }
+      ],
+      "checked_repositories": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "exists": true
+        },
+        {
+          "git_common_dir": "/home/xhj/liftrace-sim/.git",
+          "check_path": "/home/xhj/liftrace-sim",
+          "exists": false
+        }
+      ]
+    },
+    {
+      "commit": "41e5b3319aac782f0ee491d79d638e56287722e2",
+      "found_in": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "checkouts": [
+            "/home/xhj/liftrace-controlwork-nav",
+            "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+            "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+          ],
+          "metadata": {
+            "commit": "41e5b3319aac782f0ee491d79d638e56287722e2",
+            "author_name": "Qinling-Melon-Farmers",
+            "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "author_date": "2026-09-06T00:11:30+08:00",
+            "committer_name": "Qinling-Melon-Farmers",
+            "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "committer_date": "2026-09-06T00:11:30+08:00",
+            "parents": "b74b9185c74eee24f6d6b76b3ad914ab9a746227",
+            "subject": "docs: 同步视觉最终候选与双仓运行冻结点"
+          },
+          "containing_refs": [
+            "refs/heads/feat/vcl06-local-full-mission",
+            "refs/remotes/fork/feat/vcl06-local-full-mission",
+            "refs/remotes/origin/feat/vcl06-local-full-mission"
+          ],
+          "direct_refs": []
+        }
+      ],
+      "checked_repositories": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "exists": true
+        },
+        {
+          "git_common_dir": "/home/xhj/liftrace-sim/.git",
+          "check_path": "/home/xhj/liftrace-sim",
+          "exists": false
+        }
+      ]
+    },
+    {
+      "commit": "5f06918de66fe5aa62a3ce6fc3f286c36ad13ef9",
+      "found_in": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "checkouts": [
+            "/home/xhj/liftrace-controlwork-nav",
+            "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+            "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+          ],
+          "metadata": {
+            "commit": "5f06918de66fe5aa62a3ce6fc3f286c36ad13ef9",
+            "author_name": "Qinling-Melon-Farmers",
+            "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "author_date": "2026-09-06T20:19:02+08:00",
+            "committer_name": "Qinling-Melon-Farmers",
+            "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "committer_date": "2026-09-06T20:19:02+08:00",
+            "parents": "8009a7c3cb443869c488a9322a8320dd8eed7a8c",
+            "subject": "fix: 消除机架雷达遮挡并恢复气压计联合测高"
+          },
+          "containing_refs": [
+            "refs/heads/feat/vcl06-local-full-mission",
+            "refs/remotes/fork/feat/vcl06-local-full-mission"
+          ],
+          "direct_refs": []
+        }
+      ],
+      "checked_repositories": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "exists": true
+        },
+        {
+          "git_common_dir": "/home/xhj/liftrace-sim/.git",
+          "check_path": "/home/xhj/liftrace-sim",
+          "exists": false
+        }
+      ]
+    },
+    {
+      "commit": "63e838da72e2604530f3db6f609cfdc5322f27f9",
+      "found_in": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "checkouts": [
+            "/home/xhj/liftrace-controlwork-nav",
+            "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+            "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+          ],
+          "metadata": {
+            "commit": "63e838da72e2604530f3db6f609cfdc5322f27f9",
+            "author_name": "Qinling-Melon-Farmers",
+            "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "author_date": "2026-09-06T21:11:31+08:00",
+            "committer_name": "Qinling-Melon-Farmers",
+            "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "committer_date": "2026-09-06T21:11:31+08:00",
+            "parents": "afad81a37a0d7e64f15d2b6850dac932a515cb2f",
+            "subject": "fix: 外部任务自主降落复用现有飞行开关"
+          },
+          "containing_refs": [
+            "refs/heads/feat/vcl06-local-full-mission",
+            "refs/remotes/fork/feat/vcl06-local-full-mission"
+          ],
+          "direct_refs": []
+        }
+      ],
+      "checked_repositories": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "exists": true
+        },
+        {
+          "git_common_dir": "/home/xhj/liftrace-sim/.git",
+          "check_path": "/home/xhj/liftrace-sim",
+          "exists": false
+        }
+      ]
+    },
+    {
+      "commit": "666c880cb5556c36329b580b4db604c293799cbc",
+      "found_in": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "checkouts": [
+            "/home/xhj/liftrace-controlwork-nav",
+            "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+            "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+          ],
+          "metadata": {
+            "commit": "666c880cb5556c36329b580b4db604c293799cbc",
+            "author_name": "Qinling-Melon-Farmers",
+            "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "author_date": "2026-09-06T19:34:58+08:00",
+            "committer_name": "Qinling-Melon-Farmers",
+            "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "committer_date": "2026-09-06T19:34:58+08:00",
+            "parents": "0e2d57a2b0e4ef637bb71095e2e6288580556634",
+            "subject": "fix: 恢复已验证规划动态包络并转入整场验证"
+          },
+          "containing_refs": [
+            "refs/heads/feat/vcl06-local-full-mission",
+            "refs/remotes/fork/feat/vcl06-local-full-mission"
+          ],
+          "direct_refs": []
+        }
+      ],
+      "checked_repositories": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "exists": true
+        },
+        {
+          "git_common_dir": "/home/xhj/liftrace-sim/.git",
+          "check_path": "/home/xhj/liftrace-sim",
+          "exists": false
+        }
+      ]
+    },
+    {
+      "commit": "957dd371b3a81ee55f029669790bd53b34b5e76a",
+      "found_in": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "checkouts": [
+            "/home/xhj/liftrace-controlwork-nav",
+            "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+            "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+          ],
+          "metadata": {
+            "commit": "957dd371b3a81ee55f029669790bd53b34b5e76a",
+            "author_name": "Qinling-Melon-Farmers",
+            "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "author_date": "2026-09-06T19:11:22+08:00",
+            "committer_name": "Qinling-Melon-Farmers",
+            "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "committer_date": "2026-09-06T19:11:22+08:00",
+            "parents": "d883b7357012fcc54339e0fc811faf0ba6510857",
+            "subject": "fix: 约束回弯前视弧长并固定样条端点"
+          },
+          "containing_refs": [
+            "refs/heads/feat/vcl06-local-full-mission",
+            "refs/remotes/fork/feat/vcl06-local-full-mission"
+          ],
+          "direct_refs": []
+        }
+      ],
+      "checked_repositories": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "exists": true
+        },
+        {
+          "git_common_dir": "/home/xhj/liftrace-sim/.git",
+          "check_path": "/home/xhj/liftrace-sim",
+          "exists": false
+        }
+      ]
+    },
+    {
+      "commit": "afad81a37a0d7e64f15d2b6850dac932a515cb2f",
+      "found_in": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "checkouts": [
+            "/home/xhj/liftrace-controlwork-nav",
+            "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+            "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+          ],
+          "metadata": {
+            "commit": "afad81a37a0d7e64f15d2b6850dac932a515cb2f",
+            "author_name": "Qinling-Melon-Farmers",
+            "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "author_date": "2026-09-06T20:47:05+08:00",
+            "committer_name": "Qinling-Melon-Farmers",
+            "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "committer_date": "2026-09-06T20:47:05+08:00",
+            "parents": "22ddb8af08363bc22e6a45c944a18b4eb3e5aa07",
+            "subject": "fix: 使用飞控原生启动入口加载仿真融合参数"
+          },
+          "containing_refs": [
+            "refs/heads/feat/vcl06-local-full-mission",
+            "refs/remotes/fork/feat/vcl06-local-full-mission"
+          ],
+          "direct_refs": []
+        }
+      ],
+      "checked_repositories": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "exists": true
+        },
+        {
+          "git_common_dir": "/home/xhj/liftrace-sim/.git",
+          "check_path": "/home/xhj/liftrace-sim",
+          "exists": false
+        }
+      ]
+    },
+    {
+      "commit": "b69ba72f06281621c5b10e440a3a94f5cf5e4642",
+      "found_in": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "checkouts": [
+            "/home/xhj/liftrace-controlwork-nav",
+            "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+            "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+          ],
+          "metadata": {
+            "commit": "b69ba72f06281621c5b10e440a3a94f5cf5e4642",
+            "author_name": "Qinling-Melon-Farmers",
+            "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "author_date": "2026-09-06T01:44:13+08:00",
+            "committer_name": "Qinling-Melon-Farmers",
+            "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "committer_date": "2026-09-06T01:44:13+08:00",
+            "parents": "1928f75fdba6ea0ffcd645f74351d2f6a2b95497",
+            "subject": "docs: 归档r42整场结果与运行拓扑"
+          },
+          "containing_refs": [
+            "refs/heads/feat/vcl06-local-full-mission",
+            "refs/remotes/fork/feat/vcl06-local-full-mission",
+            "refs/remotes/origin/feat/vcl06-local-full-mission"
+          ],
+          "direct_refs": [
+            "refs/remotes/origin/feat/vcl06-local-full-mission"
+          ]
+        }
+      ],
+      "checked_repositories": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "exists": true
+        },
+        {
+          "git_common_dir": "/home/xhj/liftrace-sim/.git",
+          "check_path": "/home/xhj/liftrace-sim",
+          "exists": false
+        }
+      ]
+    },
+    {
+      "commit": "d883b7357012fcc54339e0fc811faf0ba6510857",
+      "found_in": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "checkouts": [
+            "/home/xhj/liftrace-controlwork-nav",
+            "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+            "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+          ],
+          "metadata": {
+            "commit": "d883b7357012fcc54339e0fc811faf0ba6510857",
+            "author_name": "Qinling-Melon-Farmers",
+            "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "author_date": "2026-09-06T18:58:17+08:00",
+            "committer_name": "Qinling-Melon-Farmers",
+            "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "committer_date": "2026-09-06T18:58:17+08:00",
+            "parents": "3ea0c6f3355af63ec363594f192d4a2ec9278fcb",
+            "subject": "fix: 统一规划执行进度并加入低空水平搜索配置"
+          },
+          "containing_refs": [
+            "refs/heads/feat/vcl06-local-full-mission",
+            "refs/remotes/fork/feat/vcl06-local-full-mission"
+          ],
+          "direct_refs": []
+        }
+      ],
+      "checked_repositories": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "exists": true
+        },
+        {
+          "git_common_dir": "/home/xhj/liftrace-sim/.git",
+          "check_path": "/home/xhj/liftrace-sim",
+          "exists": false
+        }
+      ]
+    },
+    {
+      "commit": "fbaf58b4630ffa21c810636a938a3588d68f0550",
+      "found_in": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "checkouts": [
+            "/home/xhj/liftrace-controlwork-nav",
+            "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+            "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919"
+          ],
+          "metadata": {
+            "commit": "fbaf58b4630ffa21c810636a938a3588d68f0550",
+            "author_name": "Qinling-Melon-Farmers",
+            "author_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "author_date": "2026-09-06T21:26:28+08:00",
+            "committer_name": "Qinling-Melon-Farmers",
+            "committer_email": "xiaohuaijin@mail.nwpu.edu.cn",
+            "committer_date": "2026-09-06T21:26:28+08:00",
+            "parents": "63e838da72e2604530f3db6f609cfdc5322f27f9",
+            "subject": "fix: 近目标连接受阻后继续水平避障搜索"
+          },
+          "containing_refs": [
+            "refs/heads/feat/vcl06-local-full-mission",
+            "refs/remotes/fork/feat/vcl06-local-full-mission"
+          ],
+          "direct_refs": []
+        }
+      ],
+      "checked_repositories": [
+        {
+          "git_common_dir": "/home/xhj/liftrace-controlwork-nav/.git",
+          "check_path": "/home/xhj/liftrace-controlwork-nav",
+          "exists": true
+        },
+        {
+          "git_common_dir": "/home/xhj/liftrace-sim/.git",
+          "check_path": "/home/xhj/liftrace-sim",
+          "exists": false
+        }
+      ]
+    }
+  ],
+  "post_snapshot_main": {
+    "reported_commit": "6cd0207fb5ea669416d01c06d6a1b65eac6730e9",
+    "current_main_at_check": "6cd0207fb5ea669416d01c06d6a1b65eac6730e9",
+    "exists_in_independent_bundle_import": false,
+    "bundle_ref_snapshot_main": "2f405bef1b980fc8ba7b99958185538f660e28ee"
+  }
+}

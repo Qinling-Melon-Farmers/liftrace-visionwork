@@ -1,0 +1,69 @@
+{
+  "memory": {
+    "counts": {
+      "pose_missing": 13,
+      "fc_lio_disagreement": 246,
+      "settling": 27,
+      "pose_stale_or_future": 17,
+      "stable": 656,
+      "vehicle_not_fresh_disarmed": 170
+    },
+    "first_agreement_before_start_s": -87.94312834739685,
+    "stable_intervals": [
+      [
+        -87.94312834739685,
+        -18.088220596313477
+      ]
+    ],
+    "max_yaw_delta": 42.2220064281662,
+    "revocations": [
+      "vehicle_not_fresh_disarmed"
+    ]
+  },
+  "high": {
+    "counts": {
+      "pose_missing": 12,
+      "fc_lio_disagreement": 642,
+      "settling": 128,
+      "pose_stale_or_future": 45,
+      "stable": 467,
+      "vehicle_not_fresh_disarmed": 175
+    },
+    "first_agreement_before_start_s": -79.99456739425659,
+    "stable_intervals": [
+      [
+        -79.99456739425659,
+        -62.13946843147278
+      ],
+      [
+        -60.03712439537048,
+        -50.107033252716064
+      ],
+      [
+        -47.87210440635681,
+        -44.13915729522705
+      ],
+      [
+        -42.00829792022705,
+        -32.238014459609985
+      ],
+      [
+        -29.917614936828613,
+        -23.51872158050537
+      ],
+      [
+        -21.138490438461304,
+        -18.68901228904724
+      ]
+    ],
+    "max_yaw_delta": 118.53960502676391,
+    "revocations": [
+      "pose_stale_or_future",
+      "pose_stale_or_future",
+      "pose_stale_or_future",
+      "pose_stale_or_future",
+      "pose_stale_or_future",
+      "vehicle_not_fresh_disarmed"
+    ]
+  }
+}

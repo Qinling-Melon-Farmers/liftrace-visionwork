@@ -1,0 +1,97 @@
+[
+  {
+    "trial": "visual_interrupt",
+    "pattern": null,
+    "nodes": 19
+  },
+  {
+    "trial": "high_view",
+    "pattern": "rectangle",
+    "nodes": 19
+  },
+  {
+    "trial": "high_view",
+    "pattern": "snake2",
+    "nodes": 19
+  },
+  {
+    "trial": "high_view",
+    "pattern": "snake3",
+    "nodes": 19
+  },
+  {
+    "trial": "landing",
+    "pattern": null,
+    "nodes": 15
+  },
+  {
+    "trial": "corridor_landing",
+    "pattern": null,
+    "nodes": 15
+  },
+  {
+    "trial": "low_multi",
+    "pattern": null,
+    "nodes": 19
+  },
+  {
+    "trial": "high_priority",
+    "pattern": "rectangle",
+    "nodes": 19
+  },
+  {
+    "trial": "high_priority",
+    "pattern": "snake2",
+    "nodes": 19
+  },
+  {
+    "trial": "high_priority",
+    "pattern": "snake3",
+    "nodes": 19
+  },
+  {
+    "trial": "memory_only",
+    "pattern": "rectangle",
+    "nodes": 16
+  },
+  {
+    "trial": "memory_only",
+    "pattern": "snake2",
+    "nodes": 16
+  },
+  {
+    "trial": "memory_only",
+    "pattern": "snake3",
+    "nodes": 16
+  },
+  {
+    "trial": "full_mission",
+    "pattern": "rectangle",
+    "nodes": 18
+  },
+  {
+    "trial": "full_mission",
+    "pattern": "snake2",
+    "nodes": 18
+  },
+  {
+    "trial": "full_mission",
+    "pattern": "snake3",
+    "nodes": 18
+  },
+  {
+    "trial": "high_speed_capture",
+    "pattern": "rectangle",
+    "nodes": 15
+  },
+  {
+    "trial": "high_speed_capture",
+    "pattern": "snake2",
+    "nodes": 15
+  },
+  {
+    "trial": "high_speed_capture",
+    "pattern": "snake3",
+    "nodes": 15
+  }
+]

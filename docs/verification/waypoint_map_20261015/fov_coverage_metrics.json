@@ -1,0 +1,75 @@
+{
+  "fc_agl": 2.6,
+  "lens_agl": 2.44,
+  "footprint_bounds": [
+    -2.163267423644765,
+    2.1076906681379004,
+    -1.330241569201566,
+    1.078850282625126
+  ],
+  "footprint_xy": [
+    4.270958091782665,
+    2.409091851826692
+  ],
+  "point_target": {
+    "domain": [
+      -0.5,
+      7.4,
+      -4.8,
+      4.8
+    ],
+    "area": 75.84,
+    "covered": 73.04140687003037,
+    "uncovered": 2.798593129969632,
+    "coverage_percent": 96.30987192778265
+  },
+  "point_search_center": {
+    "domain": [
+      -0.1,
+      7.05,
+      -4.35,
+      4.35
+    ],
+    "area": 62.20499999999999,
+    "covered": 61.15348963729187,
+    "uncovered": 1.0515103627081217,
+    "coverage_percent": 98.30960475410639
+  },
+  "whole_1m_axis_aligned": {
+    "domain": [
+      0.0,
+      6.9,
+      -4.3,
+      4.3
+    ],
+    "area": 59.34,
+    "covered": 50.942606531014604,
+    "uncovered": 8.397393468985399,
+    "coverage_percent": 85.8486796950027
+  },
+  "whole_1m_sqrt2_envelope": {
+    "domain": [
+      0.20710678118654757,
+      6.6928932188134524,
+      -4.092893218813452,
+      4.092893218813452
+    ],
+    "area": 53.091262658470825,
+    "covered": 41.78898371841912,
+    "uncovered": 11.302278940051707,
+    "coverage_percent": 78.71160267413907
+  },
+  "scope": "Numerical inscribed rectangle from K/D; nominal level fixed yaw, flat floor, continuous travel along every line; no timing/FPS, occlusion, attitude, detector recall or actual flight guarantee.",
+  "central_uncovered_rectangle": {
+    "x": [
+      3.1076906681379004,
+      3.336732576355235
+    ],
+    "y": [
+      -2.421149717374874,
+      2.169758430798434
+    ],
+    "width": 0.22904190821733472,
+    "height": 4.590908148173308
+  }
+}

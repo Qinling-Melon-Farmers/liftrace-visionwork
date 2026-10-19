@@ -66,6 +66,7 @@ public:
                     }
                     // Linearization point: cancel after this point cannot undo
                     // an already admitted physical call and must never retry it.
+                    job->started_at = Clock::now();
                     job->started = true;
                 }
                 DropActionResult result = DropActionResult::kServiceCallFailed;
@@ -82,6 +83,19 @@ public:
             return false;
         }
         return true;
+    }
+
+    bool invocationStarted(std::uint64_t action, int slot) const {
+        if (!job_) return false;
+        std::lock_guard<std::mutex> lock(job_->mutex);
+        return job_->action == action && job_->slot == slot && job_->started;
+    }
+
+    double invocationElapsedSec(std::uint64_t action, int slot) const {
+        if (!job_) return -1.0;
+        std::lock_guard<std::mutex> lock(job_->mutex);
+        if (job_->action != action || job_->slot != slot || !job_->started) return -1.0;
+        return std::chrono::duration<double>(Clock::now() - job_->started_at).count();
     }
 
     bool poll(std::uint64_t action, int slot, Completion* output) {
@@ -146,7 +160,7 @@ private:
         std::mutex mutex;
         std::uint64_t action = 0;
         int slot = 0;
-        Clock::time_point deadline, finished_at;
+        Clock::time_point deadline, finished_at, started_at;
         bool started = false, done = false, cancelled = false;
         bool consumed = false, timed_out = false;
         DropActionResult result = DropActionResult::kServiceCallFailed;

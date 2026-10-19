@@ -15,8 +15,16 @@ waypoint_skipping_index: 0
 land_height: 0.3
 align_height: 1.6
 px4_max_distance: 0.2
+# 起飞专用 Z 领先距离（米），不是速度；0 回退旧通用 3D 限幅。
+# 按用户要求默认关闭；0 使用原通用距离限幅，不代表关闭起飞。
+takeoff_z_lead_m: 0.0
 max_yaw_change: 0.2
 external_landing:
+  descent:
+    mode: 1
+    speed_mps: 0.20
+    max_step_dt_sec: 0.20
+  alignment_mode: non_vh  # vh requires POSCTL and the navigation frame adapter
   frame: camera_init
   detections_topic: /uav_vision/detections_mapped
   capture_height: 1.6
@@ -50,18 +58,48 @@ motion_feedback:
   odom_topic: /mavros/local_position/odom
   twist_frame: child
 drop_system:
-  # 观察高度确认并冻结靶心；槽位补偿与下降并行，不追残缺图像。
+  recover_without_ack: true  # 配置1：调用后等待0.5s恢复；false为配置2：成功ACK后恢复
+  recovery_delay_sec: 0.5  # 仅配置1生效，从客户端调用开始计时，不等待ACK
+  # 从成功进入下降起计时；满20秒不再等待XY/高度，走同身份异步投递许可。
+  # 取消、有效反馈、飞行状态、边界与防重复仍保留；不影响H降落。
+  release_timeout:
+    enabled: true
+    after_sec: 20.0
+  descent:
+    mode: 1  # 1=原XYZ；2=冻结XY+Z轨迹；3=零水平速度；4=冻结XY+VZ加速制动
+    speed_mps: 0.20  # 仅模式2/3使用，Z指令下降速度
+    max_step_dt_sec: 0.20
+    zero_velocity_setpoint_topic: /navigation/drop_setpoint_vertical
+    velocity_setpoint_topic: /navigation/drop_setpoint_velocity
+    velocity_speed_mps: 0.60  # 模式4最高向下速度
+    acceleration_mps2: 0.60
+    braking_mps2: 0.60
+    hold_tolerance_m: 0.015
+  release_height_only: true  # 下降后释放几何仅检查高度；保留任务、反馈及执行许可
+  compensate_before_descent: true
+  pre_descent:
+    mode: 2  # 1=双XY+速度连续停稳；2=当前双XY达标即下降
+    stable_xy_tolerance_m: 0.04  # 模式1：FC及投口均<=4cm
+    xy_tolerance_m: 0.06
+    red_cross_xy_tolerance_m: 0.04
+    max_horizontal_speed_mps: 0.10  # 模式1使用
+    stable_duration_sec: 1.0  # 模式1使用
+    max_odom_age_sec: 0.20
+    max_sample_gap_sec: 0.20
+    min_samples: 3
+  # 在观察高度先对准补偿后的FC目标；冻结后下降，不追残缺图像。
   slot_offset_semantics: body_flu_lever_arm
   compensated_alignment: true
   alignment_feedback_topic: /uav_vision/drop_alignment_feedback
-  # 补偿投递只使用 xy_tolerance_m 和 max_odom_age_sec：当前到位即可调用原许可链。
-  # 高度使用 release_setpoint_height 至 height_threshold 的闭区间，不要求停稳。
+  # release_height_only=true 时，settle 的类别XY门限仅保留兼容，不参与最终释放。
+  # 高度使用 release_min_height 至 height_threshold 的闭区间，不要求停稳。
   # height_tolerance_m、两项速度、stable_duration_sec、max_sample_gap_sec、min_samples
   # 仅兼容保留，不参与补偿投递放行；调这些字段不能改变投递行为。H使用独立配置。
   settle:
-    xy_tolerance_m: 0.04  # FC及投口误差均严格小于4cm，首次当前到位即可
+    xy_tolerance_m: 0.10  # 标准靶末段容差10cm；下降前仍先完成6cm补偿
+    red_cross_xy_tolerance_m: 0.06  # 红十字末段独立6cm；下降前仍4cm
     height_tolerance_m: 0.05
-    max_horizontal_speed_mps: 0.08
+    max_horizontal_speed_mps: 0.05
     max_vertical_speed_mps: 0.10
     stable_duration_sec: 0.30
     max_odom_age_sec: 0.20

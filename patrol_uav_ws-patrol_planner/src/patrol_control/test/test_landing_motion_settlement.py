@@ -17,6 +17,8 @@ from test_external_landing_handoff import PROGRAM, PACKAGE, production_method
 FEEDBACK = r'''
     patrol_control::LandingHandoffStabilityConfig landing_settle_config_, landing_capture_config_;
     patrol_control::LandingHandoffStabilityWindow landing_capture_window_, landing_handoff_window_;
+    patrol_control::LandingHighAlignmentWindow landing_high_alignment_window_;
+    bool highLandingAlignmentReady();
     struct {
         Header header;
         struct { struct { Position position; } pose; } pose;
@@ -56,8 +58,9 @@ LLController hlanding() {
     c.external_landing_handoff_mode_="POSCTL";
     c.external_landing_capture_height_=1.2;
     c.land_height=.35;
-    c.external_landing_auto_land_height_=.37;
-    c.landing_settle_config_.max_horizontal_speed_mps=.08;
+    c.external_landing_auto_land_height_=.40;
+    c.landing_settle_config_.height_tolerance_m=.05;
+    c.landing_settle_config_.max_horizontal_speed_mps=.10;
     c.landing_settle_config_.max_vertical_speed_mps=.10;
     c.landing_settle_config_.stable_duration_sec=.15;
     c.landing_handoff_window_=patrol_control::LandingHandoffStabilityWindow(c.landing_settle_config_);
@@ -105,7 +108,7 @@ int main(int argc, char** argv) {
         assert(c.external_landing_stable_count_==0 && !c.external_landing_alignment_complete_);
     } else if (name=="high_capture_independent_height_tolerance_knowledge") {
         assert(c.landing_capture_config_.height_tolerance_m==.10);
-        assert(c.landing_settle_config_.height_tolerance_m==.02);
+        assert(c.landing_settle_config_.height_tolerance_m==.05);
         for (int i=0;i<5;++i) {
             feedback(c,100+i*.04,1.26);
             assert(c.landingMotionSettled(false,0)==(i==4));
@@ -120,20 +123,22 @@ int main(int argc, char** argv) {
             assert(c.set_mode_client.calls==(i==4 ? 1 : 0));
         }
         assert(c.external_landing_auto_land_requested_);
-    } else if (name=="low_ceiling_lower_bound_xy_and_fast_motion_reject") {
+    } else if (name=="low_height_only_ceiling_lower_bound_and_fast_motion_permits") {
         frozen(c);
-        for (int kind=0;kind<6;++kind) {
+        c.external_landing_auto_land_height_=.50;
+        for (int kind=0;kind<2;++kind) {
             for (int i=0;i<6;++i) {
-                feedback(c,ros::clock+.04,kind==0 ? .371 : (kind==1 ? .329 : .35),
-                    kind==2 ? .051 : 0.,kind==3 ? .081 : 0.,false,
-                    kind==4 ? -.101 : (kind==5 ? .101 : 0.));
+                feedback(c,ros::clock+.04,kind==0 ? .501 : .299,
+                    .20,.30,false,-.8);
                 c.externalLandingTick();
                 assert(c.set_mode_client.calls==0);
             }
         }
         const double start=ros::clock+.04;
         for (int i=0;i<5;++i) {
-            feedback(c,start+i*.04,.35,0.,.079,false,-.099);
+            // Height permits handoff above the former .40 m ceiling even when
+            // XY/speed exceed both old inner and outer horizontal thresholds.
+            feedback(c,start+i*.04,.45,.20,.30,false,-.8);
             c.externalLandingTick();
             assert(c.set_mode_client.calls==(i==4 ? 1 : 0));
         }
@@ -177,6 +182,32 @@ int main(int argc, char** argv) {
             assert(c.patrol_cmd.pose.position.x==1 && c.patrol_cmd.pose.position.y==2);
             assert(c.set_mode_client.calls==(i==4 ? 1 : 0));
         }
+    } else if (name=="high_alignment_requires_full_second_and_strict_speed") {
+        c.external_landing_alignment_mode_="vh";
+        for (int i=0;i<=24;++i) {
+            feedback(c,100+i*.05,1.2,.04,.1); c.externalLandingTick();
+            assert(!c.external_landing_alignment_complete_);
+        }
+        for (int i=0;i<=20;++i) {
+            feedback(c,102+i*.05,1.2,.04,.099); c.externalLandingTick();
+            assert(c.external_landing_alignment_complete_==(i==20));
+        }
+        assert(c.external_landing_aligned_goal_.pose.position.x==1);
+        assert(c.patrol_cmd.pose.position.z==.35);
+    } else if (name=="high_alignment_stale_images_and_invalid_motion_reset") {
+        c.external_landing_alignment_mode_="vh";
+        for (int i=0;i<=30;++i) {
+            feedback(c,100+i*.05,1.2,.02,0.,i==0); c.externalLandingTick();
+            assert(!c.external_landing_alignment_complete_);
+        }
+        for (int i=0;i<20;++i) {
+            feedback(c,102+i*.05,1.2,.02); c.externalLandingTick();
+        }
+        feedback(c,103,1.2,.061); c.externalLandingTick();
+        for (int i=0;i<=20;++i) {
+            feedback(c,103.05+i*.05,1.2,.02); c.externalLandingTick();
+            assert(c.external_landing_alignment_complete_==(i==20));
+        }
     } else { return 2; }
 }
 '''
@@ -190,11 +221,21 @@ class ProductionHSettlementTests(unittest.TestCase):
         stub_start = prefix.index('    SettlementWindowStub landing_capture_window_')
         stub_end = prefix.index('    int external_landing_stable_count_', stub_start)
         prefix = prefix[:stub_start] + FEEDBACK + prefix[stub_end:]
+        prefix = prefix.replace('    SettlementWindowStub landing_high_alignment_window_;\n', '')
+        prefix = prefix.replace('    bool highLandingAlignmentReady() { return false; }\n', '')
+        prefix = '#include "patrol_control/landing_high_alignment.h"\n' + prefix
         prefix = prefix.replace('#include <array>', '#include <array>\n#include <Eigen/Core>\n#include "patrol_control/landing_handoff_stability.h"\nusing patrol_control::LandingHandoffSample;')
-        prefix = prefix.replace('bool isZero() const', 'double toSec() const { return value; }\n    bool isZero() const')
+        prefix = prefix.replace('namespace Eigen { struct Vector3d {}; }\n', '')
+        prefix = prefix.replace('    struct { struct { struct { Position position; } pose; } pose; } motion_odom_;\n', '')
+        prefix = prefix.replace('    bool freshMotion(Eigen::Vector3d*, Eigen::Vector3d*) { return motion_fresh_; }\n', '')
         signatures = (
             'bool LLController::externalLandingMarkFresh(',
             'bool LLController::externalLandingControlReady(',
+            'bool LLController::externalLandingOffboardStateReady(',
+            'bool LLController::externalLandingOffboardDescentReady(',
+            'void LLController::externalLandingOffboardTick(',
+            'void LLController::externalLandingExtendedStateCallback(',
+            'void LLController::publishExternalLandingOffboardSetpoint(',
             'void LLController::externalLandingStateCallback(',
             'void LLController::publishExternalLandingHandoff(',
             'void LLController::clearExternalLandingState(',
@@ -203,6 +244,7 @@ class ProductionHSettlementTests(unittest.TestCase):
             'void LLController::CallLand(',
             'void LLController::missionCommandCallback(',
             'bool LLController::landingMotionSettled(',
+            'bool LLController::highLandingAlignmentReady(',
         )
         methods = '\n'.join(production_method(source, signature) for signature in signatures)
         program = prefix.replace('PRODUCTION_METHODS', methods).replace('PRODUCTION_RUN_POINT_BRANCH', '') + MAIN
@@ -235,10 +277,12 @@ for _case in ('capture_original_ten_fresh_h_and_xy_without_motion_window',
               'capture_stale_h_and_bad_xy_reset_visual_count',
               'high_capture_independent_height_tolerance_knowledge',
               'low_accepts_controlled_descent_after_point_fifteen_seconds',
-              'low_ceiling_lower_bound_xy_and_fast_motion_reject',
+              'low_height_only_ceiling_lower_bound_and_fast_motion_permits',
               'low_duplicate_source_does_not_accumulate_dwell',
               'low_odom_gap_restarts_fresh_feedback_window',
               'low_pending_3ms_keeps_window_without_early_posctl',
+              'high_alignment_requires_full_second_and_strict_speed',
+              'high_alignment_stale_images_and_invalid_motion_reset',
               'latched_h_does_not_follow_cropped_or_missing_images'):
     setattr(ProductionHSettlementTests, 'test_' + _case, _make_case_test(_case))
 

@@ -1,0 +1,22 @@
+{
+  "snapshot": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/fast_speed_pilot32_net_20260914_095034/local_map_failure_1.json",
+  "source_stamp": 35.787,
+  "inflated_stamp": 0.0,
+  "requested_goal": [
+    3.5,
+    5.5,
+    2.38
+  ],
+  "column_cap_z": 1.78,
+  "roi_raw_points": 1,
+  "raw_z": [
+    0.8867529630661011
+  ],
+  "original_high_goal_occupied": true,
+  "real_3d_inflation_goal_occupied": false,
+  "injected_real_high_obstacle_retained": true,
+  "low_layer_occupied_cells_retained": 248,
+  "high_slice_cells_before": 398,
+  "high_slice_real_cells_after": 0,
+  "scope": "Cropped snapshot counterfactual; not full live ESDF replay or flight acceptance"
+}

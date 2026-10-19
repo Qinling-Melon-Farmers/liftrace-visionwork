@@ -1,0 +1,109 @@
+{
+  "same_odom_sample_for_full_quaternion_xy_and_ground_reference_height": true,
+  "verified_motion_rows": 5901,
+  "full_quaternion_order": "x,y,z,w (scipy Rotation, no yaw-only approximation)",
+  "ground_z": -0.27773900821805,
+  "timing": "CSV t = bag receipt time; source_t = same odom header stamp. No separate XY/height latching.",
+  "joint_geometry_samples": 0,
+  "videos": {
+    "camera_raw.mp4": {
+      "full_decode_pass": true,
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "2328"
+          }
+        ],
+        "format": {
+          "duration": "232.800000"
+        }
+      },
+      "encoding": "CPU libx264 for this run"
+    },
+    "camera_annotated.mp4": {
+      "full_decode_pass": true,
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 1080,
+            "nb_frames": "2328"
+          }
+        ],
+        "format": {
+          "duration": "232.800000"
+        }
+      },
+      "encoding": "CPU libx264 for this run"
+    },
+    "trajectory.mp4": {
+      "full_decode_pass": true,
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 1080,
+            "nb_frames": "2328"
+          }
+        ],
+        "format": {
+          "duration": "232.800000"
+        }
+      },
+      "encoding": "CPU libx264 for this run"
+    },
+    "dashboard.mp4": {
+      "full_decode_pass": true,
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080,
+            "nb_frames": "2328"
+          }
+        ],
+        "format": {
+          "duration": "232.800000"
+        }
+      },
+      "encoding": "CPU libx264 for this run"
+    }
+  },
+  "local_links": {
+    "index.html": {
+      "checked": 4,
+      "pass_": true
+    },
+    "focus_player.html": {
+      "checked": 6,
+      "pass_": true
+    }
+  },
+  "original_bag_unchanged": {
+    "size": true,
+    "mtime_ns": true,
+    "ctime_ns": true
+  },
+  "screenshots": {
+    "file": "dashboard_review.jpg",
+    "reviewed_bag_seconds": [
+      158,
+      179.9,
+      191.3,
+      203.5,
+      212.4,
+      223.2
+    ],
+    "visual_review_completed": true
+  }
+}

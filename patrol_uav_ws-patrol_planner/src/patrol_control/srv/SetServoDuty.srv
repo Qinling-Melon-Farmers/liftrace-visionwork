@@ -1,0 +1,13 @@
+# 实机舵机调试服务：设置指定通道的 PWM duty cycle。
+# slot: 1=rear, 2=right, 3=left
+# duty_cycle_ns: PWM 脉宽 (ns)，典型范围 500000~2500000 (0.5ms~2.5ms)
+# 后端会自动执行 disable -> set_duty -> enable -> 短暂等待 -> disable 的安全时序
+# 仅在实机 Orange Pi 5 Plus 硬件上可用，仿真环境下会返回错误
+
+uint8 slot
+uint32 duty_cycle_ns
+bool hold            # true: 输出后保持 enable; false (默认): 完成后 disable
+---
+bool success
+string message
+uint32 actual_duty_ns

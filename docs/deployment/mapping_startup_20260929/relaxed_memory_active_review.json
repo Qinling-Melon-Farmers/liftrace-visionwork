@@ -1,0 +1,107 @@
+{
+  "scope": "sampled coarse observations only; TF age assumed zero; no formal candidate pipeline rerun",
+  "counts": {
+    "coarse_accepted": 42,
+    "coarse_conflict": 103
+  },
+  "stored": [
+    "panzer",
+    "bridge",
+    "red_cross"
+  ],
+  "active": [],
+  "interrupt_eligible": [],
+  "max_active": 1,
+  "max_interrupt_eligible": 1,
+  "first_all_three": null,
+  "support": {
+    "panzer": [
+      {
+        "xy": [
+          2.5111464827170438,
+          0.5591093222033381
+        ],
+        "source": "bbox",
+        "source_stamp_ns": 104980918407,
+        "distinct_image_stamps": [
+          104841085910,
+          104980918407
+        ],
+        "low_verified": false
+      },
+      {
+        "xy": [
+          5.713896660007723,
+          -1.5898230582591828
+        ],
+        "source": "bbox",
+        "source_stamp_ns": 134082173109,
+        "distinct_image_stamps": [
+          133931994438,
+          134082173109
+        ],
+        "low_verified": false
+      }
+    ],
+    "bridge": [
+      {
+        "xy": [
+          2.464109240992633,
+          0.5518442065519997
+        ],
+        "source": "bbox",
+        "source_stamp_ns": 102920836210,
+        "distinct_image_stamps": [
+          102545001745,
+          102920836210
+        ],
+        "low_verified": false
+      },
+      {
+        "xy": [
+          4.740237678926632,
+          1.2676286743925291
+        ],
+        "source": "bbox",
+        "source_stamp_ns": 152779431104,
+        "distinct_image_stamps": [
+          152577374219,
+          152779431104
+        ],
+        "low_verified": false
+      }
+    ],
+    "red_cross": [
+      {
+        "xy": [
+          3.19022437394709,
+          -1.2776063418419734
+        ],
+        "source": "bbox",
+        "source_stamp_ns": 124489648342,
+        "distinct_image_stamps": [
+          124181867599,
+          124489648342
+        ],
+        "low_verified": false
+      },
+      {
+        "xy": [
+          5.77046352868702,
+          -1.7708910479943425
+        ],
+        "source": "bbox",
+        "source_stamp_ns": 123770349264,
+        "distinct_image_stamps": [
+          123770349264
+        ],
+        "low_verified": false
+      }
+    ]
+  },
+  "conflicts": [
+    "red_cross",
+    "panzer",
+    "bridge"
+  ]
+}

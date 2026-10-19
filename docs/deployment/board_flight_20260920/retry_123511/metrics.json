@@ -1,0 +1,81 @@
+{
+  "run": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/logs/visual_flight_review_20260920/board_visual_interrupt_20260920_123511",
+  "task_start": 1789879094.1029277,
+  "abort": 1789879112.068177,
+  "duration_until_abort": 17.96524930000305,
+  "events": {
+    "yolo": {
+      "samples": 83,
+      "nonempty": 4,
+      "classes": {
+        "circle": 1,
+        "red_cross": 3
+      }
+    },
+    "mapped": {
+      "samples": 76,
+      "nonempty": 0,
+      "classes": {}
+    },
+    "memory": {
+      "samples": 67,
+      "nonempty": 67,
+      "classes": {
+        "circle": 67
+      }
+    }
+  },
+  "ground_z": -0.2856403824687004,
+  "last_mission": {
+    "active_command": "",
+    "active_decision_seq": 0,
+    "committed_slots": 0,
+    "last_reason": "candidates_ingested",
+    "manual_start_required": true,
+    "mission_failed": true,
+    "mission_id": "board-visual_interrupt-1789879094-102927684-1",
+    "phase": "ABORTED",
+    "post_delivery_route_complete": false,
+    "post_delivery_route_index": 0,
+    "post_delivery_route_revision": "board-visual_interrupt",
+    "post_delivery_route_size": 1,
+    "profile": "r2026",
+    "route_active_decision_seq": 0,
+    "route_complete": true,
+    "route_index": 2,
+    "slot_status": [
+      "FREE",
+      "FREE",
+      "FREE"
+    ],
+    "start_mode": "full"
+  },
+  "max_x_m": 0.6523162722587585,
+  "max_fc_agl_m": 1.4897482630610466,
+  "planner_goal": [
+    3.00186,
+    -0.0063933,
+    1.11436
+  ],
+  "in_map": 1,
+  "inflated": 1,
+  "goal_adjustment_radius": 0.15,
+  "mock_calls": 0,
+  "screenshots": [
+    {
+      "name": "start",
+      "frame": 486,
+      "record_ros_sec": 1789879095.0847874
+    },
+    {
+      "name": "first_point",
+      "frame": 511,
+      "record_ros_sec": 1789879100.0859988
+    },
+    {
+      "name": "abort",
+      "frame": 568,
+      "record_ros_sec": 1789879111.4840832
+    }
+  ]
+}

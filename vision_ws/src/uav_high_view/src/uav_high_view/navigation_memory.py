@@ -124,11 +124,15 @@ class NavigationMemory:
         # label, without discarding that class's other spatial hypothesis.
         rows=[r for values in self._rows.values() for r in values]
         eligible={}
+        physical={}
         for cls,values in self._rows.items():
             active=[r for r in values if not any(
                 other.hint.class_name!=cls and self._near(r.hint.xy,other.hint.xy)
                 and other.level>r.level for other in rows)]
             if not active:continue
+            # Class ranking cannot resolve labels at another physical place.
+            # Keep nonpreferred active locations in cross-class conflict checks.
+            physical[cls]=active
             strongest=max(r.level for r in active)
             finalists=[r for r in active if r.level==strongest]
             # Two coarse places remain ambiguous, however many frames repeat.
@@ -141,7 +145,7 @@ class NavigationMemory:
                 if any(other.hint.class_name!=cls and
                        (other.hint.key==r.hint.key or self._near(other.hint.xy,r.hint.xy))
                        and other.level==r.level
-                       for others in eligible.values() for other in others):
+                       for others in physical.values() for other in others):
                     self.suspended.add(cls)
         for cls in self.suspended:
             self.conflict_hints[cls]=[r.hint for r in eligible[cls]]

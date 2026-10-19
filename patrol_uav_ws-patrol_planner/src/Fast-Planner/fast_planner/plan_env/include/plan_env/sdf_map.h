@@ -129,6 +129,9 @@ struct MappingData {
   std::vector<double> occupancy_buffer_;
   std::vector<char> occupancy_buffer_neg;
   std::vector<char> occupancy_buffer_inflate_;
+  // Optional provenance for the recovery candidate. Normal occupancy/ESDF
+  // remain authoritative for ordinary planning. This is NOT free-space proof.
+  std::vector<unsigned char> recovery_sources_;
   std::vector<double> distance_buffer_;
   std::vector<double> distance_buffer_neg_;
   std::vector<double> distance_buffer_all_;
@@ -177,6 +180,7 @@ struct MappingData {
 
 class SDFMap {
   friend class KinodynamicSearchFixture;
+  friend class NavigationRecoveryMapFixture;
 public:
   SDFMap() {}
   ~SDFMap() {}
@@ -236,6 +240,13 @@ public:
   Eigen::Vector3d getOrigin();
   int getVoxelNum();
 
+  // OR of physical+necessary inflation (1), extra column (2), boundary (4).
+  // -1: disabled/unavailable/outside the most recent rebuilt patch.
+  int recoverySources(const Eigen::Vector3d& low, const Eigen::Vector3d& high);
+  uint64_t recoveryRevision() const { return recovery_revision_; }
+  ros::Time recoveryStamp() const { return recovery_stamp_; }
+  std::string recoveryFrame() const { return mp_.frame_id_; }
+
   typedef std::shared_ptr<SDFMap> Ptr;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -243,6 +254,12 @@ public:
 private:
   MappingParameters mp_;
   MappingData md_;
+  bool recovery_layers_enabled_ = false;
+  bool recovery_layers_valid_ = false;
+  uint64_t recovery_revision_ = 0;
+  ros::Time recovery_stamp_;
+  Eigen::Vector3d recovery_min_, recovery_max_;
+  double recovery_body_xy_ = -1, recovery_body_up_ = -1, recovery_body_down_ = -1;
 
   template <typename F_get_val, typename F_set_val>
   void fillESDF(F_get_val f_get_val, F_set_val f_set_val, int start, int end, int dim);
@@ -414,6 +431,7 @@ inline double SDFMap::getDistWithGradTrilinear(Eigen::Vector3d pos, Eigen::Vecto
 }
 
 inline void SDFMap::setOccupied(Eigen::Vector3d pos) {
+  recovery_layers_valid_ = false;
   if (!isInMap(pos)) return;
 
   Eigen::Vector3i id;
@@ -424,6 +442,7 @@ inline void SDFMap::setOccupied(Eigen::Vector3d pos) {
 }
 
 inline void SDFMap::setOccupancy(Eigen::Vector3d pos, double occ) {
+  recovery_layers_valid_ = false;
   if (occ != 1 && occ != 0) {
     cout << "occ value error!" << endl;
     return;

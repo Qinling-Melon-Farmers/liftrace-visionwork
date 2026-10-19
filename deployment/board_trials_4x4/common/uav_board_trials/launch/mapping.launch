@@ -1,0 +1,13 @@
+<launch>
+  <arg name="mapping_profile" default="low" />
+  <arg name="map_frame" default="camera_init" />
+  <arg name="sensor_tf_frame" default="mapping_imu" />
+  <include file="$(find freedom)/launch/run_freedom_mid360.launch">
+    <arg name="enable_static_pointcloud_viz" value="false" />
+  </include>
+  <rosparam ns="/freedom" file="$(find uav_mission)/config/competition_freedom.yaml" />
+  <rosparam file="$(find uav_board_trials)/config/board_load.yaml" />
+  <rosparam ns="/freedom" file="$(find uav_board_trials)/config/mapping_$(arg mapping_profile).yaml" />
+  <param name="/freedom/map_tf_frame" value="$(arg map_frame)" />
+  <param name="/freedom/sensor_tf_frame" value="$(arg sensor_tf_frame)" />
+</launch>

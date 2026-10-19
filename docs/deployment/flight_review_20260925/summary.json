@@ -1,0 +1,508 @@
+{
+  "bag_start_unix": 1790331620.192643,
+  "bag_seconds": 109.09630966186523,
+  "initial_fc_z": -0.09111550450325012,
+  "height_note": "local FC z; estimated AGL = z - initial FC z + 0.22m (known rig, not independent range measurement)",
+  "speed_note": "0.5s central position difference in odom frame, based on bag receipt times; not body-frame twist",
+  "twist_frame": "base_link",
+  "rotated_twist_vs_pose_median_abs_error": [
+    0.024680233284040537,
+    0.02491469943175014,
+    0.036577029829661725
+  ],
+  "phases": [
+    {
+      "phase": "Ground",
+      "start": 0,
+      "end": 8.797,
+      "z_min": -0.09199170768260956,
+      "z_max": -0.09057170897722244,
+      "z_median": -0.09118902683258057,
+      "vxy_median": 0.0016509300245686612,
+      "vxy_p95": 0.0030235535254589706,
+      "vxy_max": 0.0036357667330714502,
+      "vz_min": -0.001672682277569032,
+      "vz_max": 0.0012767979165916321
+    },
+    {
+      "phase": "Takeoff / first point",
+      "start": 8.797,
+      "end": 19.624,
+      "z_min": -0.0984206348657608,
+      "z_max": 0.9346697330474854,
+      "z_median": 0.04151851311326027,
+      "vxy_median": 0.04875101635860269,
+      "vxy_p95": 0.4700340487820828,
+      "vxy_max": 0.5404569991300222,
+      "vz_min": -0.011035835049478415,
+      "vz_max": 0.2481824387676202
+    },
+    {
+      "phase": "Forward search",
+      "start": 19.624,
+      "end": 22.725,
+      "z_min": 0.9332331418991089,
+      "z_max": 0.9899212718009949,
+      "z_median": 0.9454160928726196,
+      "vxy_median": 0.8549552357380675,
+      "vxy_p95": 0.9581864323042528,
+      "vxy_max": 0.9756165652063907,
+      "vz_min": -0.028700675308261925,
+      "vz_max": 0.06726356147484669
+    },
+    {
+      "phase": "Approach",
+      "start": 22.725,
+      "end": 26.618,
+      "z_min": 0.9927389621734619,
+      "z_max": 1.1193442344665527,
+      "z_median": 1.1019351482391357,
+      "vxy_median": 0.2018422731362884,
+      "vxy_p95": 0.7305377741888476,
+      "vxy_max": 0.8483746110471699,
+      "vz_min": -0.025263385412347628,
+      "vz_max": 0.10417331020527953
+    },
+    {
+      "phase": "Align / release",
+      "start": 26.618,
+      "end": 41.758,
+      "z_min": 0.22638428211212158,
+      "z_max": 1.1189045906066895,
+      "z_median": 1.0178240537643433,
+      "vxy_median": 0.033215198839276774,
+      "vxy_p95": 0.11624066040195026,
+      "vxy_max": 0.140742867502388,
+      "vz_min": -0.4082246293046836,
+      "vz_max": 0.03300844201301745
+    },
+    {
+      "phase": "Return",
+      "start": 41.758,
+      "end": 49.149,
+      "z_min": 0.17893530428409576,
+      "z_max": 1.048154592514038,
+      "z_median": 0.6325455904006958,
+      "vxy_median": 0.32015208480177476,
+      "vxy_p95": 0.38303069524131533,
+      "vxy_max": 0.39150360210948,
+      "vz_min": -0.14697415971860295,
+      "vz_max": 0.16985886980375986
+    },
+    {
+      "phase": "Landing command",
+      "start": 49.149,
+      "end": 100.799,
+      "z_min": 0.7959141135215759,
+      "z_max": 1.3568657636642456,
+      "z_median": 0.9128834307193756,
+      "vxy_median": 0.07894107186747934,
+      "vxy_p95": 0.19247536633852497,
+      "vxy_max": 0.726318973526063,
+      "vz_min": -0.3786820411045668,
+      "vz_max": 0.7218492417192466
+    },
+    {
+      "phase": "Pilot POSCTL",
+      "start": 100.799,
+      "end": 105.692,
+      "z_min": -0.14103782176971436,
+      "z_max": 0.9199815988540649,
+      "z_median": -0.0638808161020279,
+      "vxy_median": 0.03845458732560219,
+      "vxy_p95": 0.1388339584320511,
+      "vxy_max": 0.16944289493712728,
+      "vz_min": -0.8324275803630731,
+      "vz_max": 0.05801206614240728
+    }
+  ],
+  "events": [
+    {
+      "label": "cross first mapped",
+      "t": 22.378,
+      "x": 1.8987680673599243,
+      "y": -0.0819971039891243,
+      "z": 0.9706653356552124,
+      "vxy": 0.9756165652063907,
+      "vz": 0.049220016202576655
+    },
+    {
+      "label": "cross confirmed",
+      "t": 22.669,
+      "x": 2.1794278621673584,
+      "y": -0.07074941694736481,
+      "z": 0.9869242906570435,
+      "vxy": 0.9136797037560014,
+      "vz": 0.06456686033611558
+    },
+    {
+      "label": "interrupt",
+      "t": 22.725,
+      "x": 2.2324295043945312,
+      "y": -0.06795377284288406,
+      "z": 0.9899212718009949,
+      "vxy": 0.8587274066752728,
+      "vz": 0.06726356147484669
+    },
+    {
+      "label": "alignment accepted",
+      "t": 26.618,
+      "x": 2.1754913330078125,
+      "y": -0.08631594479084015,
+      "z": 1.1000839471817017,
+      "vxy": 0.08947657466798939,
+      "vz": 0.001006424442495213
+    },
+    {
+      "label": "strict context",
+      "t": 39.199,
+      "x": 2.0315985679626465,
+      "y": 0.014576856978237629,
+      "z": 1.0029808282852173,
+      "vxy": 0.047447848288382416,
+      "vz": -0.02556483505813767
+    },
+    {
+      "label": "actuator unavailable",
+      "t": 41.736,
+      "x": 1.974933385848999,
+      "y": -0.07505549490451813,
+      "z": 0.23221775889396667,
+      "vxy": 0.0015536856509843684,
+      "vz": -0.16354725602614434
+    },
+    {
+      "label": "return",
+      "t": 41.758,
+      "x": 1.9750094413757324,
+      "y": -0.07504626363515854,
+      "z": 0.22638428211212158,
+      "vxy": 0.001553721668500535,
+      "vz": -0.1635463161401859
+    },
+    {
+      "label": "panzer mapped rejection",
+      "t": 48.561,
+      "x": 3.9425365924835205,
+      "y": -0.05293498560786247,
+      "z": 1.007367730140686,
+      "vxy": 0.250489908735384,
+      "vz": 0.08880572727854275
+    },
+    {
+      "label": "land",
+      "t": 49.149,
+      "x": 4.053422927856445,
+      "y": -0.03247114643454552,
+      "z": 1.051316738128662,
+      "vxy": 0.13647362867077298,
+      "vz": 0.052308859472930624
+    },
+    {
+      "label": "pilot POSCTL",
+      "t": 100.799,
+      "x": 4.04824686050415,
+      "y": 0.01115854550153017,
+      "z": 0.8827155828475952,
+      "vxy": 0.04670193495179852,
+      "vz": -0.07770754535589308
+    },
+    {
+      "label": "landed",
+      "t": 105.692,
+      "x": 4.211268901824951,
+      "y": 0.12842954695224762,
+      "z": -0.043407537043094635,
+      "vxy": 0.006894996277346501,
+      "vz": 0.029443818287873
+    }
+  ],
+  "panzer_raw": [
+    {
+      "t": 48.57835412025452,
+      "source": "target_detector",
+      "class_confidence": 0.6591796875,
+      "center_px": {
+        "x": 106.5,
+        "y": 411.0,
+        "z": 0.0
+      },
+      "header": {
+        "seq": 509,
+        "stamp": {
+          "secs": 1790331668,
+          "nsecs": 523447513
+        },
+        "frame_id": "downward_camera_optical_frame"
+      }
+    },
+    {
+      "t": 48.73238968849182,
+      "source": "target_detector",
+      "class_confidence": 0.544921875,
+      "center_px": {
+        "x": 113.0,
+        "y": 411.0,
+        "z": 0.0
+      },
+      "header": {
+        "seq": 510,
+        "stamp": {
+          "secs": 1790331668,
+          "nsecs": 612995624
+        },
+        "frame_id": "downward_camera_optical_frame"
+      }
+    },
+    {
+      "t": 49.24023985862732,
+      "source": "target_detector",
+      "class_confidence": 0.95263671875,
+      "center_px": {
+        "x": 151.5,
+        "y": 394.0,
+        "z": 0.0
+      },
+      "header": {
+        "seq": 513,
+        "stamp": {
+          "secs": 1790331668,
+          "nsecs": 982515811
+        },
+        "frame_id": "downward_camera_optical_frame"
+      }
+    }
+  ],
+  "panzer_rejected": [
+    {
+      "t": 48.56142449378967,
+      "topic": "/uav_vision/detections_mapped",
+      "source": "target_map_projector",
+      "header": {
+        "seq": 509,
+        "stamp": {
+          "secs": 1790331668,
+          "nsecs": 523447513
+        },
+        "frame_id": "downward_camera_optical_frame"
+      },
+      "class_name": "panzer",
+      "class_confidence": 0.6591796875,
+      "geometry_confidence": 0.6591796875,
+      "geometry_verified": false,
+      "roi": {
+        "x_offset": 0,
+        "y_offset": 254,
+        "height": 314,
+        "width": 213,
+        "do_rectify": false
+      },
+      "center_px": {
+        "x": 106.5,
+        "y": 411.0,
+        "z": 0.0
+      },
+      "center_refined": false,
+      "center_source": "bbox",
+      "association_valid": false,
+      "reject_reason": "circle_association_missing",
+      "map_valid": false,
+      "map_point": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "map_frame": "camera_init",
+      "map_quality": 0.0,
+      "transform_age_sec": -1.0
+    },
+    {
+      "t": 48.72701358795166,
+      "topic": "/uav_vision/detections_mapped",
+      "source": "target_map_projector",
+      "header": {
+        "seq": 510,
+        "stamp": {
+          "secs": 1790331668,
+          "nsecs": 612995624
+        },
+        "frame_id": "downward_camera_optical_frame"
+      },
+      "class_name": "panzer",
+      "class_confidence": 0.544921875,
+      "geometry_confidence": 0.544921875,
+      "geometry_verified": false,
+      "roi": {
+        "x_offset": 0,
+        "y_offset": 255,
+        "height": 312,
+        "width": 226,
+        "do_rectify": false
+      },
+      "center_px": {
+        "x": 113.0,
+        "y": 411.0,
+        "z": 0.0
+      },
+      "center_refined": false,
+      "center_source": "bbox",
+      "association_valid": false,
+      "reject_reason": "circle_association_missing",
+      "map_valid": false,
+      "map_point": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "map_frame": "camera_init",
+      "map_quality": 0.0,
+      "transform_age_sec": -1.0
+    }
+  ],
+  "align_modes": [
+    {
+      "t": 0.20900893211364746,
+      "mode": "disabled"
+    },
+    {
+      "t": 26.61449146270752,
+      "mode": "drop_cross"
+    },
+    {
+      "t": 42.06025815010071,
+      "mode": "disabled"
+    },
+    {
+      "t": 49.20665383338928,
+      "mode": "landing"
+    }
+  ],
+  "detection_summary": [
+    {
+      "topic": "/uav_vision/detections",
+      "class_name": "circle",
+      "count": 1308,
+      "first_receipt": 22.100735902786255,
+      "first_image": 22.070366859436035,
+      "last_receipt": 98.25582528114319,
+      "map_valid": 0
+    },
+    {
+      "topic": "/uav_vision/detections",
+      "class_name": "panzer",
+      "count": 349,
+      "first_receipt": 48.57835412025452,
+      "first_image": 48.33080458641052,
+      "last_receipt": 102.07477688789368,
+      "map_valid": 0
+    },
+    {
+      "topic": "/uav_vision/detections",
+      "class_name": "red_cross",
+      "count": 798,
+      "first_receipt": 21.853967428207397,
+      "first_image": 21.50907874107361,
+      "last_receipt": 109.05397057533264,
+      "map_valid": 0
+    },
+    {
+      "topic": "/uav_vision/detections_mapped",
+      "class_name": "circle",
+      "count": 107,
+      "first_receipt": 22.66816473007202,
+      "first_image": 22.070366859436035,
+      "last_receipt": 49.09764003753662,
+      "map_valid": 107
+    },
+    {
+      "topic": "/uav_vision/detections_mapped",
+      "class_name": "panzer",
+      "count": 2,
+      "first_receipt": 48.56142449378967,
+      "first_image": 48.33080458641052,
+      "last_receipt": 48.72701358795166,
+      "map_valid": 0
+    },
+    {
+      "topic": "/uav_vision/detections_mapped",
+      "class_name": "red_cross",
+      "count": 145,
+      "first_receipt": 22.377896070480347,
+      "first_image": 22.045613050460815,
+      "last_receipt": 44.445340394973755,
+      "map_valid": 145
+    },
+    {
+      "topic": "/uav_vision/detections_refined",
+      "class_name": "circle",
+      "count": 107,
+      "first_receipt": 22.667073488235474,
+      "first_image": 22.070366859436035,
+      "last_receipt": 49.09447169303894,
+      "map_valid": 0
+    },
+    {
+      "topic": "/uav_vision/detections_refined",
+      "class_name": "panzer",
+      "count": 2,
+      "first_receipt": 48.559455156326294,
+      "first_image": 48.33080458641052,
+      "last_receipt": 48.72136092185974,
+      "map_valid": 0
+    },
+    {
+      "topic": "/uav_vision/detections_refined",
+      "class_name": "red_cross",
+      "count": 145,
+      "first_receipt": 22.3689923286438,
+      "first_image": 22.045613050460815,
+      "last_receipt": 44.44519877433777,
+      "map_valid": 0
+    },
+    {
+      "topic": "/uav_vision/detections_resolved",
+      "class_name": "circle",
+      "count": 107,
+      "first_receipt": 22.66629672050476,
+      "first_image": 22.070366859436035,
+      "last_receipt": 49.09409952163696,
+      "map_valid": 0
+    },
+    {
+      "topic": "/uav_vision/detections_resolved",
+      "class_name": "panzer",
+      "count": 2,
+      "first_receipt": 48.55822205543518,
+      "first_image": 48.33080458641052,
+      "last_receipt": 48.721097469329834,
+      "map_valid": 0
+    },
+    {
+      "topic": "/uav_vision/detections_resolved",
+      "class_name": "red_cross",
+      "count": 145,
+      "first_receipt": 22.36772322654724,
+      "first_image": 22.045613050460815,
+      "last_receipt": 44.445175647735596,
+      "map_valid": 0
+    }
+  ],
+  "candidate_summary": [
+    {
+      "class_name": "circle",
+      "id": 1,
+      "count": 82,
+      "first_receipt": 22.669132471084595,
+      "confirmed_receipt": 22.94689655303955,
+      "last_receipt": 49.02214598655701
+    },
+    {
+      "class_name": "red_cross",
+      "id": 0,
+      "count": 191,
+      "first_receipt": 22.38051676750183,
+      "confirmed_receipt": 22.669132471084595,
+      "last_receipt": 49.02214598655701
+    }
+  ]
+}

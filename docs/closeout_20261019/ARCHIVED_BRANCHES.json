@@ -1,0 +1,194 @@
+[
+  {
+    "repository": "vision",
+    "branch": "feat/board-4x4-vision-trials-local",
+    "commit": "67e626f21f9382102d3d06c2962d0f52b4d3eb11",
+    "archive_tag": "archive/20261019/feat/board-4x4-vision-trials-local"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/coverage-efficiency-research",
+    "commit": "4da9614190834bf2af6b34a6a04d6577a01c875c",
+    "archive_tag": "archive/20261019/feat/coverage-efficiency-research"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/high-view-search-research",
+    "commit": "cefa6b2ae8d69c820b4dcb88b5116a4e0d7b5678",
+    "archive_tag": "archive/20261019/feat/high-view-search-research"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/motion-constraints-20261004",
+    "commit": "d523c53cc5a29f8ec492a2256c2ca2e22e293998",
+    "archive_tag": "archive/20261019/feat/motion-constraints-20261004"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/oblique-aux-proposal-provider",
+    "commit": "3f2e55a020c1b4691d2b04cd4b74d71a046e5648",
+    "archive_tag": "archive/20261019/feat/oblique-aux-proposal-provider"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/r2026-main-integration",
+    "commit": "f3c20641b7ebd5ef83ab906e0eeb388aee6ad721",
+    "archive_tag": "archive/20261019/feat/r2026-main-integration"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vcl05-full-random-deploy",
+    "commit": "ccac51789b561daca8802a89d498154b77804054",
+    "archive_tag": "archive/20261019/feat/vcl05-full-random-deploy"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vcl06-local-full-mission",
+    "commit": "34ce0c34c72ed762ce5984d35595e13d0d57e182",
+    "archive_tag": "archive/20261019/feat/vcl06-local-full-mission"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vdeploy-final-closeout-plan",
+    "commit": "65172469299733faef3ac060a44cf53030039c55",
+    "archive_tag": "archive/20261019/feat/vdeploy-final-closeout-plan"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vsim04-capture-hardening",
+    "commit": "350f26cdba20411ee87cb18df2273ffe2be8194c",
+    "archive_tag": "archive/20261019/feat/vsim04-capture-hardening"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vsim04-capture-sampling-sync",
+    "commit": "2f27a2e7da7ec95f3b15b28d6f0177dfd3a1e8a2",
+    "archive_tag": "archive/20261019/feat/vsim04-capture-sampling-sync"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vsim04-hard-audit",
+    "commit": "b0bf5e6754b4ab3bc60573154e3f580047cb3f0b",
+    "archive_tag": "archive/20261019/feat/vsim04-hard-audit"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vsim04-motion-order-reset",
+    "commit": "00cf14da57017214e0918c48a71776b47f82b4e8",
+    "archive_tag": "archive/20261019/feat/vsim04-motion-order-reset"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vsim04-motion-telemetry",
+    "commit": "7ef97422b70cf38acd174eb3fe9b221725208b30",
+    "archive_tag": "archive/20261019/feat/vsim04-motion-telemetry"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vsim04-navigation-handoff-docs",
+    "commit": "34ef5db06780075212ff3d34295a73b884fa4111",
+    "archive_tag": "archive/20261019/feat/vsim04-navigation-handoff-docs"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vsim04-pillbox-capture",
+    "commit": "959539233a80c64b673d526031d1370058278eb5",
+    "archive_tag": "archive/20261019/feat/vsim04-pillbox-capture"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vsim04-redcross-quality",
+    "commit": "4059b5c90ca7858ed73f544798cb9fd3b9b2a732",
+    "archive_tag": "archive/20261019/feat/vsim04-redcross-quality"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vsim04-redcross-yaw",
+    "commit": "27f97478912b734c56d91b1f541af8ca452a78c4",
+    "archive_tag": "archive/20261019/feat/vsim04-redcross-yaw"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vsim04-repeat-tools",
+    "commit": "ad211eba07f26858bed3c10668911ecb24581df2",
+    "archive_tag": "archive/20261019/feat/vsim04-repeat-tools"
+  },
+  {
+    "repository": "vision",
+    "branch": "feat/vsim04-soak600",
+    "commit": "da04caca4394d5b32c351f92d3056108b85d37c7",
+    "archive_tag": "archive/20261019/feat/vsim04-soak600"
+  },
+  {
+    "repository": "vision",
+    "branch": "fix/board-navigation-frames",
+    "commit": "d55da83d89e46c153b2222c8294c404f654ce548",
+    "archive_tag": "archive/20261019/fix/board-navigation-frames"
+  },
+  {
+    "repository": "vision",
+    "branch": "板端参考分支",
+    "commit": "ce4ba3cdc59a9855e2f05e8d3aee75ba0009fffe",
+    "archive_tag": "archive/20261019/板端参考分支"
+  },
+  {
+    "repository": "navigation",
+    "branch": "feat/drop-height-pixel-scale",
+    "commit": "b9af5d09e3491dfb432b2e837da908ee513ab93b",
+    "archive_tag": "archive/20261019/feat/drop-height-pixel-scale"
+  },
+  {
+    "repository": "navigation",
+    "branch": "feat/freedom-viz-decimation",
+    "commit": "5eec87140e3867abfa48bb8499d5b5e1e0698797",
+    "archive_tag": "archive/20261019/feat/freedom-viz-decimation"
+  },
+  {
+    "repository": "navigation",
+    "branch": "feat/vcl06-contract-profile",
+    "commit": "e29c860f469d3dc4a0193203126cf7de771f821b",
+    "archive_tag": "archive/20261019/feat/vcl06-contract-profile"
+  },
+  {
+    "repository": "navigation",
+    "branch": "feat/vcl06-execution-bridge",
+    "commit": "c12ee0c3d26077d5c778719a9006c8fa6755507b",
+    "archive_tag": "archive/20261019/feat/vcl06-execution-bridge"
+  },
+  {
+    "repository": "navigation",
+    "branch": "feat/vcl06-execution-bridge-review",
+    "commit": "d95377cf0ad4f2e005b26c8a2b9c21c36a2f50ee",
+    "archive_tag": "archive/20261019/feat/vcl06-execution-bridge-review"
+  },
+  {
+    "repository": "navigation",
+    "branch": "feat/vcl06-local-full-mission",
+    "commit": "cfafba7d50b04e93cf594c2adac3685e8ce24b23",
+    "archive_tag": "archive/20261019/feat/vcl06-local-full-mission"
+  },
+  {
+    "repository": "navigation",
+    "branch": "feat/vcl06-manager-runtime",
+    "commit": "a65a616f209bfc7dd4d788ebb36609589cea5418",
+    "archive_tag": "archive/20261019/feat/vcl06-manager-runtime"
+  },
+  {
+    "repository": "navigation",
+    "branch": "feat/vcl06-mission-core",
+    "commit": "9ff8db18ac5e6c7dd352c4b3ed4a00b942fdfd01",
+    "archive_tag": "archive/20261019/feat/vcl06-mission-core"
+  },
+  {
+    "repository": "navigation",
+    "branch": "feat/vcl06-planner-stop-ack",
+    "commit": "c12ee0c3d26077d5c778719a9006c8fa6755507b",
+    "archive_tag": "archive/20261019/feat/vcl06-planner-stop-ack"
+  },
+  {
+    "repository": "navigation",
+    "branch": "feat/vcl06-planner-telemetry",
+    "commit": "022b7636b1661304ce2d47e9368c392adc67997d",
+    "archive_tag": "archive/20261019/feat/vcl06-planner-telemetry"
+  }
+]

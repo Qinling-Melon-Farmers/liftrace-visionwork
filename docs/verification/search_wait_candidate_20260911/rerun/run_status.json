@@ -1,0 +1,11 @@
+{
+  "status": "COMPLETE",
+  "source": "d7346c2274b8d60060c4d4a3d9ea10b7b9ea0d1d",
+  "baseline_run": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_full_random_seed34_20260910_113330",
+  "run_dir": "/home/xhj/liftrace-worktrees/r2026-competition-integrated/logs/r2026_seed34_initial_wait20_20260911_141613",
+  "pid": 4675,
+  "seed": 34,
+  "initial_timeout_s": 20,
+  "exit_code": 0,
+  "gate": "PASS"
+}

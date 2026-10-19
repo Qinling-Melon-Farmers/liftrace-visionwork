@@ -1,0 +1,18 @@
+# 08 正赛速度版；同一现场几何与 FC 高2m，仅提升速度/跟随距离，不代表正赛验收。
+cruise_speed: 1.2
+cruise_acceleration: 1.0
+drop_agl: 0.25  # FC离地目标；释放窗口保持原配置，勿与local Z混用
+release_min_agl: 0.10
+release_max_agl: 0.43
+following_speed_profile:
+  cruise_lead_m: 1.0
+  precision_lead_m: 0.6
+  boundary_lead_m: 0.6
+  low_coverage_lead_m: 0.6
+  corridor_lead_m: 0.6
+motion_optimization:
+  enabled: true
+  # F 正式 MotionOptimization 默认制动模型；规划加速度上限1.0不抬高此假设。
+  braking_speed_mps: 1.2
+  braking_accel_mps2: 0.6
+resume_survey_enabled: true

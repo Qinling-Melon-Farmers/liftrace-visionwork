@@ -1,0 +1,96 @@
+# 任务二独立场地：走廊/H复制模块08当前现场几何，新场地须实测后调整。
+# 搜索沿用原现场前方6米直线；XY可在地图任意编辑，高位survey_xy不参与任务二。
+flight_area:
+  center_bounds:
+  - -0.35
+  - 8.25
+  - -3.75
+  - 2.7
+  target_bounds:
+  - -0.35
+  - 8.5
+  - -4.0
+  - 2.7
+  search_bounds:
+  - 0.4
+  - 6.0
+  - -2.4
+  - 2.7
+  staging_xy:
+  - 0.8
+  - 0.0
+  survey_xy:
+  - - 1.1
+    - -1.5
+  - - 5.0
+    - -1.5
+  - - 5.0
+    - 1.8
+  - - 1.1
+    - 1.8
+  - - 1.1
+    - -1.5
+  map_size:
+  - 18.0
+  - 12.0
+  - 4.0
+search_line_x:
+- 0.6
+- 1.2
+- 1.8
+- 2.4
+- 3.0
+- 3.6
+- 4.2
+- 4.8
+- 5.4
+- 6.0
+compressed_image_topic: /camera/image_raw/compressed
+high_agl: 2.0
+max_agl: 2.3
+auto_start_after_arm: true
+initialization_timeout: 300.0
+obstacle_columns_enabled: false
+landing_xy:
+- 7.7
+- -3.45
+corridor_waypoints:
+- x: 6.5
+  y: 1.9
+  agl: 0.9
+- x: 7.7
+  y: 1.9
+  agl: 0.9
+- x: 7.7
+  y: 1.0
+  agl: 0.9
+- x: 7.7
+  y: -3.45
+  agl: 0.9
+corridor_geometry:
+  wall_axis: 1
+  wall_coordinates:
+  - 0.0
+  - -1.4
+  entry_waypoints: 1
+search_waypoints_xy:
+- - 0.6
+  - 0.0
+- - 1.2
+  - 0.0
+- - 1.8
+  - 0.0
+- - 2.4
+  - 0.0
+- - 3.0
+  - 0.0
+- - 3.6
+  - 0.0
+- - 4.2
+  - 0.0
+- - 4.8
+  - 0.0
+- - 5.4
+  - 0.0
+- - 6.0
+  - 0.0

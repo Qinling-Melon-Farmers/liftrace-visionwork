@@ -1,0 +1,114 @@
+{
+  "scope": "same recorded JPEG frames; extracted production geometry only, not a closed-loop flight",
+  "frames": 464,
+  "windows": {
+    "pre_H": {
+      "seconds": [
+        0,
+        50
+      ],
+      "frames": 230,
+      "old": {
+        "found": 0,
+        "max_consecutive_recorded_frames": 0,
+        "stroke_fallback": 0
+      },
+      "new": {
+        "found": 0,
+        "max_consecutive_recorded_frames": 0,
+        "stroke_fallback": 0
+      }
+    },
+    "approach": {
+      "seconds": [
+        50,
+        61.96
+      ],
+      "frames": 56,
+      "old": {
+        "found": 2,
+        "max_consecutive_recorded_frames": 1,
+        "stroke_fallback": 0
+      },
+      "new": {
+        "found": 28,
+        "max_consecutive_recorded_frames": 28,
+        "stroke_fallback": 3
+      }
+    },
+    "capture": {
+      "seconds": [
+        61.96,
+        85
+      ],
+      "frames": 104,
+      "old": {
+        "found": 17,
+        "max_consecutive_recorded_frames": 3,
+        "stroke_fallback": 0
+      },
+      "new": {
+        "found": 104,
+        "max_consecutive_recorded_frames": 104,
+        "stroke_fallback": 0
+      }
+    },
+    "descent": {
+      "seconds": [
+        85,
+        90
+      ],
+      "frames": 22,
+      "old": {
+        "found": 0,
+        "max_consecutive_recorded_frames": 0,
+        "stroke_fallback": 0
+      },
+      "new": {
+        "found": 14,
+        "max_consecutive_recorded_frames": 14,
+        "stroke_fallback": 8
+      }
+    },
+    "takeover_tail": {
+      "seconds": [
+        90,
+        102
+      ],
+      "frames": 52,
+      "old": {
+        "found": 0,
+        "max_consecutive_recorded_frames": 0,
+        "stroke_fallback": 0
+      },
+      "new": {
+        "found": 1,
+        "max_consecutive_recorded_frames": 1,
+        "stroke_fallback": 1
+      }
+    }
+  },
+  "latency_laptop_ms": {
+    "old": {
+      "p50": 21.3955,
+      "p95": 26.849859999999996
+    },
+    "new": {
+      "p50": 21.02545,
+      "p95": 26.660024999999997
+    }
+  },
+  "shared_capture_centers": {
+    "frames": 17,
+    "median_difference_px": 0.0,
+    "max_difference_px": 0.6802940540678217,
+    "note": "algorithm agreement, not ground-truth error"
+  },
+  "synthetic": {
+    "cases": 60,
+    "positive": 12,
+    "negative": 48,
+    "errors": [],
+    "positive_center_error_max_px": 0.029832867780350235
+  }
+}

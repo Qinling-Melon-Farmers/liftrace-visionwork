@@ -50,6 +50,7 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <depend>sensor_msgs</depend>
+  <depend>mavros_msgs</depend>
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
@@ -85,4 +86,7 @@
     <!-- Other tools can request additional information be placed here -->
 
   </export>
+  <depend>navigation_recovery_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>quadrotor_msgs</depend>
 </package>

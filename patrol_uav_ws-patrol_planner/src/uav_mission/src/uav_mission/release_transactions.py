@@ -6,6 +6,15 @@ RAW_CALL_STARTED = 2
 COMPLETED = 3
 
 
+def invocation_consumes_slot(reason, source):
+    """Explicit no-ACK policy event; never classified as a physical ACK."""
+    prefix = 'patrol_control_invocation:'
+    if reason != 'invocation_consumes_slot_ack_not_required' or not source.startswith(prefix):
+        return False
+    request = source[len(prefix):]
+    return request.isdecimal() and int(request) > 0
+
+
 def stamp_ns(value):
     return int(value.to_nsec()) if hasattr(value, "to_nsec") else (
         int(value.secs) * 1_000_000_000 + int(value.nsecs))

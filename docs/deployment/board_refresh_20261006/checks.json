@@ -1,0 +1,111 @@
+{
+  "build_result.json": {
+    "returncode": 0,
+    "finished": 1791257967.4249115
+  },
+  "snapshot_result.json": {
+    "returncode": 0,
+    "finished": 1791258392.667845
+  },
+  "entry_checks.json": {
+    "site_entry": {
+      "returncode": 0,
+      "tail": "..........\n----------------------------------------------------------------------\nRan 10 tests in 1.419s\n\nOK\n"
+    },
+    "low_hover": {
+      "returncode": 0,
+      "tail": "..............................................\n----------------------------------------------------------------------\nRan 46 tests in 1.936s\n\nOK\n"
+    },
+    "hover_preview": {
+      "returncode": 0,
+      "tail": "max_height_agl\": 1.0,\n    \"jump_base_m\": 0.2,\n    \"jump_speed_mps\": 1.0,\n    \"yaw_jump_deg\": 15.0,\n    \"profiles\": {\n      \"hover\": [],\n      \"forward\": [\n        [\n          0.5,\n          0.0\n        ],\n        [\n          1.0,\n          0.0\n        ],\n        [\n          1.5,\n          0.0\n        ]\n      ],\n      \"square\": [\n        [\n          1.0,\n          0.0\n        ],\n        [\n          1.0,\n          1.0\n        ],\n        [\n          0.0,\n          1.0\n        ],\n        [\n          0.0,\n          0.0\n        ]\n      ]\n    }\n  }\n}\n"
+    },
+    "forward_preview": {
+      "returncode": 0,
+      "tail": "max_height_agl\": 1.0,\n    \"jump_base_m\": 0.2,\n    \"jump_speed_mps\": 1.0,\n    \"yaw_jump_deg\": 15.0,\n    \"profiles\": {\n      \"hover\": [],\n      \"forward\": [\n        [\n          0.5,\n          0.0\n        ],\n        [\n          1.0,\n          0.0\n        ],\n        [\n          1.5,\n          0.0\n        ]\n      ],\n      \"square\": [\n        [\n          1.0,\n          0.0\n        ],\n        [\n          1.0,\n          1.0\n        ],\n        [\n          0.0,\n          1.0\n        ],\n        [\n          0.0,\n          0.0\n        ]\n      ]\n    }\n  }\n}\n"
+    },
+    "square_preview": {
+      "returncode": 0,
+      "tail": "max_height_agl\": 1.0,\n    \"jump_base_m\": 0.2,\n    \"jump_speed_mps\": 1.0,\n    \"yaw_jump_deg\": 15.0,\n    \"profiles\": {\n      \"hover\": [],\n      \"forward\": [\n        [\n          0.5,\n          0.0\n        ],\n        [\n          1.0,\n          0.0\n        ],\n        [\n          1.5,\n          0.0\n        ]\n      ],\n      \"square\": [\n        [\n          1.0,\n          0.0\n        ],\n        [\n          1.0,\n          1.0\n        ],\n        [\n          0.0,\n          1.0\n        ],\n        [\n          0.0,\n          0.0\n        ]\n      ]\n    }\n  }\n}\n"
+    },
+    "route_rectangle": {
+      "returncode": 0,
+      "tail": "CONFIG_VALID; no ROS nodes started\n"
+    },
+    "route_snake2": {
+      "returncode": 0,
+      "tail": "CONFIG_VALID; no ROS nodes started\n"
+    },
+    "route_snake3": {
+      "returncode": 0,
+      "tail": "CONFIG_VALID; no ROS nodes started\n"
+    }
+  },
+  "matching_test": "\u001b[33m[WARN] [1791258392.276022605]: No Effective Points! \n\u001b[0m\n\u001b[33m[WARN] [1791258392.440390555]: No Effective Points! \n\u001b[0m\n\u001b[33m[WARN] [1791258392.454165661]: No Effective Points! \n\u001b[0m\nMulti thread started \nPASS: 10 production matching cases; workers=3; maximum scan=100019; checked vector indexing\nRebuild thread terminated normally\n",
+  "lio_flags": [
+    "CXX_FLAGS = -std=c++14 -O3 -std=c++14 -pthread -std=c++0x -std=c++14 -fexceptions -fopenmp  -g   -std=c++14 -std=c++14",
+    "CXX_DEFINES = -DDISABLE_LIBUSB_1_0 -DDISABLE_PCAP -DDISABLE_PNG -DMP_EN -DMP_PROC_NUM=3 -DROOT_DIR=\\\"/home/orangepi/liftrace_board_trials_20260928/patrol_uav_ws-patrol_planner/src/FAST_LIO/\\\" -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"fast_lio\\\" -Dqh_QHpointer -DvtkRenderingContext2D_AUTOINIT=\"1(vtkRenderingContextOpenGL2)\" -DvtkRenderingCore_AUTOINIT=\"3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL2)\""
+  ],
+  "lio_threads_cache": [
+    "FAST_LIO_MATCH_THREADS:STRING=3"
+  ],
+  "no_started_nodes": {
+    "rosmaster": "",
+    "roslaunch": "",
+    "fastlio_mapping": "",
+    "mavros_node": "",
+    "patrol_control": "",
+    "servo_controller1": ""
+  },
+  "serial_devices": [],
+  "snapshot_default_false": true,
+  "resolved_binary": "fast_lio/PredictionState\n/home/orangepi/liftrace_board_trials_20260928/patrol_uav_ws-patrol_planner/src/FAST_LIO\n\tlinux-vdso.so.1 (0x0000007f88745000)\n\tlibpthread.so.0 => /lib/aarch64-linux-gnu/libpthread.so.0 (0x0000007f7f797000)\n\tlibpcl_filters.so.1.10 => /lib/aarch64-linux-gnu/libpcl_filters.so.1.10 (0x0000007f7efc0000)\n\tlibpcl_segmentation.so.1.10 => /lib/aarch64-linux-gnu/libpcl_segmentation.so.1.10 (0x0000007f7e27c000)\n\tlibpcl_common.so.1.10 => /lib/aarch64-linux-gnu/libpcl_common.so.1.10 (0x0000007f7e1c0000)\n\tlibpcl_io.so.1.10 => /lib/aarch64-linux-gnu/libpcl_io.so.1.10 (0x0000007f7df47000)\n\tlibtf.so => /opt/ros/noetic/lib/libtf.so (0x0000007f7df0c000)\n\tlibroscpp.so => /opt/ros/noetic/lib/libroscpp.so (0x0000007f7dd61000)\n\tlibrosconsole.so => /opt/ros/noetic/lib/librosconsole.so (0x0000007f7dcf1000)\n\tlibroscpp_serialization.so => /opt/ros/noetic/lib/libroscpp_serialization.so (0x0000007f7dcde000)\n\tlibrostime.so => /opt/ros/noetic/lib/librostime.so (0x0000007f7dcaa000)\n\tlibstdc++.so.6 => /lib/aarch64-linux-gnu/libstdc++.so.6 (0x0000007f7dac5000)\n\tlibm.so.6 => /lib/aarch64-linux-gnu/libm.so.6 (0x0000007f7da1a000)\n\tlibgomp.so.1 => /lib/aarch64-linux-gnu/libgomp.so.1 (0x0000007f7d9cc000)\n\tlibgcc_s.so.1 => /lib/aarch64-linux-gnu/libgcc_s.so.1 (0x0000007f7d9a8000)\n\tlibc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000007f7d835000)\n\t/lib/ld-linux-aarch64.so.1 (0x0000007f88715000)\n\tlibpcl_sample_consensus.so.1.10 => /lib/aarch64-linux-gnu/libpcl_sample_consensus.so.1.10 (0x0000007f7cbba000)\n\tlibpcl_search.so.1.10 => /lib/aarch64-linux-gnu/libpcl_search.so.1.10 (0x0000007f7c988000)\n\tlibpcl_kdtree.so.1.10 => /lib/aarch64-linux-gnu/libpcl_kdtree.so.1.10 (0x0000007f7c832000)\n\tlibpcl_octree.so.1.10 => /lib/aarch64-linux-gnu/libpcl_octree.so.1.10 (0x0000007f7c5e1000)\n\tlibpcl_ml.so.1.10 => /lib/aarch64-linux-gnu/libpcl_ml.so.1.10 (0x0000007f7c5b3000)\n\tlibpcl_features.so.1.10 => /lib/aarch64-linux-gnu/libpcl_features.so.1.10 (0x0000007f7a05c000)\n\tliblz4.so.1 => /lib/aarch64-linux-gnu/liblz4.so.1 (0x0000007f7a02e000)\n\tlibboost_filesystem.so.1.71.0 => /lib/aarch64-linux-gnu/libboost_filesystem.so.1.71.0 (0x0000007f7a004000)\n\tlibboost_iostreams.so.1.71.0 => /lib/aarch64-linux-gnu/libboost_iostreams.so.1.71.0 (0x0000007f79fcf000)\n\tlibpcl_io_ply.so.1.10 => /lib/aarch64-linux-gnu/libpcl_io_ply.so.1.10 (0x0000007f79f64000)\n\tlibpng16.so.16 => /lib/aarch64-linux-gnu/libpng16.so.16 (0x0000007f79f20000)\n\tlibvtkIOGeometry-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkIOGeometry-7.1.so.7.1p (0x0000007f79ddc000)\n\tlibvtkIOLegacy-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkIOLegacy-7.1.so.7.1p (0x0000007f79d14000)\n\tlibvtkIOPLY-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkIOPLY-7.1.so.7.1p (0x0000007f79ce8000)\n\tlibusb-1.0.so.0 => /lib/aarch64-linux-gnu/libusb-1.0.so.0 (0x0000007f79cbe000)\n\tlibOpenNI2.so.0 => /lib/libOpenNI2.so.0 (0x0000007f79c4f000)\n\tlibOpenNI.so.0 => /lib/libOpenNI.so.0 (0x0000007f79bc5000)\n\tlibpcap.so.0.8 => /lib/aarch64-linux-gnu/libpcap.so.0.8 (0x0000007f79b70000)\n\tlibvtkIOCore-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkIOCore-7.1.so.7.1p (0x0000007f79aee000)\n\tlibvtkImagingCore-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkImagingCore-7.1.so.7.1p (0x0000007f79912000)\n\tlibvtkIOImage-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkIOImage-7.1.so.7.1p (0x0000007f7976b000)\n\tlibvtkCommonExecutionModel-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkCommonExecutionModel-7.1.so.7.1p (0x0000007f7969e000)\n\tlibvtkCommonDataModel-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkCommonDataModel-7.1.so.7.1p (0x0000007f79316000)\n\tlibvtkCommonCore-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkCommonCore-7.1.so.7.1p (0x0000007f78fee000)\n\tlibtf2_ros.so => /opt/ros/noetic/lib/libtf2_ros.so (0x0000007f78f2d000)\n\tlibtf2.so => /opt/ros/noetic/lib/libtf2.so (0x0000007f78ee6000)\n\tlibxmlrpcpp.so => /opt/ros/noetic/lib/libxmlrpcpp.so (0x0000007f78eb7000)\n\tlibcpp_common.so => /opt/ros/noetic/lib/libcpp_common.so (0x0000007f78e9b000)\n\tlibboost_thread.so.1.71.0 => /lib/aarch64-linux-gnu/libboost_thread.so.1.71.0 (0x0000007f78e60000)\n\tlibboost_chrono.so.1.71.0 => /lib/aarch64-linux-gnu/libboost_chrono.so.1.71.0 (0x0000007f78e42000)\n\tlibrosconsole_log4cxx.so => /opt/ros/noetic/lib/librosconsole_log4cxx.so (0x0000007f78e14000)\n\tlibrosconsole_backend_interface.so => /opt/ros/noetic/lib/librosconsole_backend_interface.so (0x0000007f78e02000)\n\tliblog4cxx.so.10 => /lib/aarch64-linux-gnu/liblog4cxx.so.10 (0x0000007f78c1c000)\n\tlibboost_regex.so.1.71.0 => /lib/aarch64-linux-gnu/libboost_regex.so.1.71.0 (0x0000007f78b25000)\n\tlibdl.so.2 => /lib/aarch64-linux-gnu/libdl.so.2 (0x0000007f78b0f000)\n\tlibz.so.1 => /lib/aarch64-linux-gnu/libz.so.1 (0x0000007f78ae5000)\n\tlibbz2.so.1.0 => /lib/aarch64-linux-gnu/libbz2.so.1.0 (0x0000007f78ac4000)\n\tliblzma.so.5 => /lib/aarch64-linux-gnu/liblzma.so.5 (0x0000007f78a90000)\n\tlibzstd.so.1 => /lib/aarch64-linux-gnu/libzstd.so.1 (0x0000007f789ef000)\n\tlibvtkCommonTransforms-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkCommonTransforms-7.1.so.7.1p (0x0000007f789af000)\n\tlibvtkCommonSystem-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkCommonSystem-7.1.so.7.1p (0x0000007f7898a000)\n\tlibvtksys-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtksys-7.1.so.7.1p (0x0000007f78937000)\n\tlibvtkCommonMisc-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkCommonMisc-7.1.so.7.1p (0x0000007f7890d000)\n\tlibudev.so.1 => /lib/aarch64-linux-gnu/libudev.so.1 (0x0000007f788d3000)\n\tlibjpeg.so.8 => /lib/aarch64-linux-gnu/libjpeg.so.8 (0x0000007f78881000)\n\tlibrt.so.1 => /lib/aarch64-linux-gnu/librt.so.1 (0x0000007f78869000)\n\tlibtinyxml.so.2.6.2 => /lib/aarch64-linux-gnu/libtinyxml.so.2.6.2 (0x0000007f78843000)\n\tlibvtkCommonMath-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkCommonMath-7.1.so.7.1p (0x0000007f78811000)\n\tlibvtkDICOMParser-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkDICOMParser-7.1.so.7.1p (0x0000007f787e9000)\n\tlibvtkmetaio-7.1.so.7.1p => /lib/aarch64-linux-gnu/libvtkmetaio-7.1.so.7.1p (0x0000007f78748000)\n\tlibtiff.so.5 => /lib/aarch64-linux-gnu/libtiff.so.5 (0x0000007f786be000)\n\tlibactionlib.so => /opt/ros/noetic/lib/libactionlib.so (0x0000007f78690000)\n\tlibconsole_bridge.so.0.4 => /lib/aarch64-linux-gnu/libconsole_bridge.so.0.4 (0x0000007f7867b000)\n\tlibapr-1.so.0 => /lib/aarch64-linux-gnu/libapr-1.so.0 (0x0000007f78634000)\n\tlibaprutil-1.so.0 => /lib/aarch64-linux-gnu/libaprutil-1.so.0 (0x0000007f785f8000)\n\tlibicui18n.so.66 => /lib/aarch64-linux-gnu/libicui18n.so.66 (0x0000007f78308000)\n\tlibicuuc.so.66 => /lib/aarch64-linux-gnu/libicuuc.so.66 (0x0000007f7811b000)\n\tlibwebp.so.6 => /lib/aarch64-linux-gnu/libwebp.so.6 (0x0000007f780b8000)\n\tlibjbig.so.0 => /lib/aarch64-linux-gnu/libjbig.so.0 (0x0000007f7809b000)\n\tlibuuid.so.1 => /lib/aarch64-linux-gnu/libuuid.so.1 (0x0000007f78084000)\n\tlibcrypt.so.1 => /lib/aarch64-linux-gnu/libcrypt.so.1 (0x0000007f7803b000)\n\tlibexpat.so.1 => /lib/aarch64-linux-gnu/libexpat.so.1 (0x0000007f78004000)\n\tlibicudata.so.66 => /lib/aarch64-linux-gnu/libicudata.so.66 (0x0000007f76533000)\n",
+  "binary_returncode": 0,
+  "ev_checks": {
+    "ev_preview": {
+      "returncode": 0
+    },
+    "ev_check": {
+      "returncode": 0
+    },
+    "ev_ros": {
+      "returncode": 0
+    },
+    "ev_numeric": {
+      "returncode": 0
+    },
+    "ev_record_preview": {
+      "returncode": 0
+    }
+  },
+  "test_counts": {
+    "board_trials": {
+      "run": 105,
+      "passed": 103,
+      "skipped": 2
+    },
+    "low_hover": {
+      "run": 46,
+      "passed": 46
+    },
+    "site_entry": {
+      "run": 10,
+      "passed": 10
+    },
+    "ev_numeric_arm": {
+      "run": 65,
+      "passed": 64,
+      "skipped": 1
+    },
+    "ev_ros_arm": {
+      "run": 18,
+      "passed": 17,
+      "skipped": 1
+    },
+    "production_matching_arm": {
+      "run": 10,
+      "passed": 10,
+      "workers": 3
+    }
+  }
+}

@@ -1,0 +1,180 @@
+profile:
+  name: r2026
+mission:
+  frame: camera_init
+  candidate_max_age: 0.5
+  transform_max_age: 0.5
+  min_streak: 3
+  max_target_z: 4.0
+  max_attempts: 2
+  retry_cooldown: 20.0
+  timeout: 600.0
+  early_return_enabled: false
+  forced_return_at: 510.0
+  return_land_reserve: 45.0
+  delivery_reserve_per_slot: 25.0
+  path_factor: 1.5
+  nominal_speed: 0.5
+  decision_guard: 15.0
+  approach_altitude: 1.2699999809265137
+  return_altitude: 1.2699999809265137
+  target_action_timeout: 60.0
+  motion_action_timeout: 60.0
+  result_future_tolerance: 0.1
+  home_xy:
+  - 0.0
+  - 0.0
+  post_delivery_yaw: 0.0
+  post_delivery_route_revision: board-full_mission
+  landing_xy:
+  - 2.5
+  - 0.0
+  landing_anchor_tolerance: 0.05
+  post_delivery_route:
+  - - 0.6
+    - 0.0
+    - 0.87
+  - - 1.5
+    - 0.4
+    - 0.87
+  - - 2.5
+    - 0.0
+    - 0.87
+  - - 2.5
+    - 0.0
+    - 1.0699999999999998
+  post_delivery_parameter_stages:
+  - after_completed_waypoints: 0
+    parameters:
+      /fast_planner_node/sdf_map/virtual_ceil_height: -0.1
+      /navigation/planner_bridge/execution/arrival_position_tolerance: 0.12
+      /navigation/planner_bridge/execution/arrival_dwell: 0.8
+search:
+  min_x: 0.6
+  max_x: 3.2
+  min_y: -1.2
+  max_y: 1.2
+  lane_spacing: 1.2
+  altitude: 1.2699999809265137
+  route_revision: r2026-r61-full-search-area
+  max_failures_per_waypoint: 2
+readiness:
+  pose_max_age: 0.5
+  map_max_age: 2.0
+  stamp_future_tolerance: 0.05
+  require_map: true
+runtime:
+  tick_hz: 10.0
+  mission_id_prefix: board-high_view_full
+  start_mode: full
+trial:
+  mode: high_view_full
+  waypoints:
+  - - 0.6
+    - 0.0
+    - 1.2699999809265137
+  - - 1.2
+    - 0.0
+    - 1.2699999809265137
+  - - 1.8
+    - 0.0
+    - 1.2699999809265137
+  - - 2.4
+    - 0.0
+    - 1.2699999809265137
+  - - 3.0
+    - 0.0
+    - 1.2699999809265137
+  camera_info_topic: /camera/camera_info
+  delivery_count: 2
+  actuator_mode: mock
+following_speed_profile:
+  cruise_lead_m: 0.5
+  precision_lead_m: 0.25
+  corridor_lead_m: 0.25
+high_view_probe:
+  config:
+    ground_z: -0.13
+    high_agl: 2.6
+    low_agl: 1.4
+    staging_xy:
+    - 0.6
+    - 0.05
+    survey_xy:
+    - - 1.0
+      - -1.0
+    - - 3.0
+      - -1.0
+    - - 3.0
+      - 1.0
+    - - 1.0
+      - 1.0
+    - - 1.0
+      - -1.0
+    source_key: board-inherited-camera-static-start
+  camera_info_topic: /camera/camera_info
+  low_stage_parameters:
+  - name: /external_planner_max_command_z
+    value: 1.7200000000000002
+  - name: /fast_planner_node/sdf_map/virtual_ceil_height
+    value: -0.1
+  - name: /fast_planner_node/fsm/goal_adjustment_radius
+    value: 0.15
+high_view_full:
+  policy:
+    high_min_agl: 2.4
+    high_max_agl: 2.8000000000000003
+    coarse_enabled: true
+    coarse_min_confidence: 0.6
+    coarse_interrupt_min_interval_ns: 100000000
+    coarse_interrupt_max_gap_ns: 1000000000
+    coarse_interrupt_consistency_m: 0.5
+    interrupt_refined_classes: []
+    recheck_observe_seconds: 5.0
+    recheck_shift_after_seconds: 1.0
+    recheck_shift_radius_m: 0.5
+    candidate_min_streak: 1
+    min_interval_ns: 100000000
+    min_span_ns: 200000000
+    max_uncertainty_m: 0.45
+    direct_descent: true
+    descent_radius_m: 1.0
+    descent_max_candidates: 9
+    survey_stall_seconds: 8.0
+    survey_progress_m: 0.15
+    survey_alternative_radius_m: 0.3
+    resume_survey_enabled: false
+  grid:
+    bounds:
+    - -0.35
+    - 3.4
+    - -1.4
+    - 1.4
+    resolution: 0.1
+    inflation: 0.25
+  boundary_policy:
+    enabled: true
+    bounds:
+    - -0.35
+    - 4.0
+    - -2.0
+    - 2.0
+motion_optimization:
+  enabled: true
+  dynamic_boundary: true
+  moving_recovery: true
+  diagonal_entry: true
+  merge_collinear_relays: true
+  survey_line_weight: 2.0
+  braking_speed_mps: 0.5
+  braking_accel_mps2: 0.35
+  reaction_seconds: 0.3
+  boundary_reserve_m: 0.15
+  recovery_handoff_agl: 0.9
+  recovery_min_ack_seconds: 0.6
+  recovery_max_vz: 0.6
+  recovery_min_samples: 3
+  recovery_max_odom_age: 0.2
+  corridor_max_agl: 1.0
+planner_line_preference:
+  weight: 2.0

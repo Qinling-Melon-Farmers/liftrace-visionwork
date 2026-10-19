@@ -1,0 +1,125 @@
+{
+  "scope": "Geometric approximation from 10Hz truth pose, recorded K/D, installed downward optical transform and camera16cm below FC; no occlusion or actual image detections evaluated.",
+  "rows": [
+    {
+      "seed": 31,
+      "target": "bridge",
+      "estimated_center_in_image_s": 6.723000000000001,
+      "estimated_center_in_central80pct_s": 3.156000000000006,
+      "ever_accepted_hint": true,
+      "usable_at_survey_exit": true
+    },
+    {
+      "seed": 31,
+      "target": "panzer",
+      "estimated_center_in_image_s": 6.009,
+      "estimated_center_in_central80pct_s": 4.056999999999999,
+      "ever_accepted_hint": false,
+      "usable_at_survey_exit": false
+    },
+    {
+      "seed": 31,
+      "target": "red_cross",
+      "estimated_center_in_image_s": 9.963000000000001,
+      "estimated_center_in_central80pct_s": 8.644000000000002,
+      "ever_accepted_hint": true,
+      "usable_at_survey_exit": true
+    },
+    {
+      "seed": 32,
+      "target": "bridge",
+      "estimated_center_in_image_s": 10.213000000000005,
+      "estimated_center_in_central80pct_s": 7.542999999999996,
+      "ever_accepted_hint": true,
+      "usable_at_survey_exit": true
+    },
+    {
+      "seed": 32,
+      "target": "panzer",
+      "estimated_center_in_image_s": 7.3019999999999925,
+      "estimated_center_in_central80pct_s": 6.081999999999994,
+      "ever_accepted_hint": true,
+      "usable_at_survey_exit": true
+    },
+    {
+      "seed": 32,
+      "target": "red_cross",
+      "estimated_center_in_image_s": 13.025000000000006,
+      "estimated_center_in_central80pct_s": 9.27300000000001,
+      "ever_accepted_hint": true,
+      "usable_at_survey_exit": false
+    },
+    {
+      "seed": 33,
+      "target": "bridge",
+      "estimated_center_in_image_s": 3.1560000000000024,
+      "estimated_center_in_central80pct_s": 1.5230000000000032,
+      "ever_accepted_hint": true,
+      "usable_at_survey_exit": true
+    },
+    {
+      "seed": 33,
+      "target": "panzer",
+      "estimated_center_in_image_s": 7.632999999999999,
+      "estimated_center_in_central80pct_s": 6.003999999999998,
+      "ever_accepted_hint": true,
+      "usable_at_survey_exit": true
+    },
+    {
+      "seed": 33,
+      "target": "red_cross",
+      "estimated_center_in_image_s": 9.315999999999995,
+      "estimated_center_in_central80pct_s": 7.064,
+      "ever_accepted_hint": true,
+      "usable_at_survey_exit": true
+    },
+    {
+      "seed": 34,
+      "target": "bridge",
+      "estimated_center_in_image_s": 0.0,
+      "estimated_center_in_central80pct_s": 0.0,
+      "ever_accepted_hint": false,
+      "usable_at_survey_exit": null
+    },
+    {
+      "seed": 34,
+      "target": "panzer",
+      "estimated_center_in_image_s": 89.912,
+      "estimated_center_in_central80pct_s": 89.404,
+      "ever_accepted_hint": false,
+      "usable_at_survey_exit": null
+    },
+    {
+      "seed": 34,
+      "target": "red_cross",
+      "estimated_center_in_image_s": 0.0,
+      "estimated_center_in_central80pct_s": 0.0,
+      "ever_accepted_hint": false,
+      "usable_at_survey_exit": null
+    },
+    {
+      "seed": 35,
+      "target": "bridge",
+      "estimated_center_in_image_s": 1.831000000000003,
+      "estimated_center_in_central80pct_s": 1.2199999999999989,
+      "ever_accepted_hint": true,
+      "usable_at_survey_exit": true
+    },
+    {
+      "seed": 35,
+      "target": "panzer",
+      "estimated_center_in_image_s": 5.6839999999999975,
+      "estimated_center_in_central80pct_s": 4.563000000000002,
+      "ever_accepted_hint": true,
+      "usable_at_survey_exit": true
+    },
+    {
+      "seed": 35,
+      "target": "red_cross",
+      "estimated_center_in_image_s": 6.285000000000004,
+      "estimated_center_in_central80pct_s": 5.782,
+      "ever_accepted_hint": true,
+      "usable_at_survey_exit": true
+    }
+  ]
+}

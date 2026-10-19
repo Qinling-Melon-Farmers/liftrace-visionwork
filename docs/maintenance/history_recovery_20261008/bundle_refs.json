@@ -1,0 +1,644 @@
+[
+  {
+    "ref": "refs/heads/feat/board-4x4-vision-trials-local",
+    "object": "67e626f21f9382102d3d06c2962d0f52b4d3eb11",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/board-deployment-flight-20260920",
+    "object": "fe1332c03d21ed54649b1938a049660d9b623e0a",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/coverage-efficiency-research",
+    "object": "4da9614190834bf2af6b34a6a04d6577a01c875c",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/ev-continuity-20261004",
+    "object": "ec6187613d41605299a02992fe4ae662c25c5eb9",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/high-view-route-speed-20261004",
+    "object": "310b67894dc325c5332609dd9cbfdd910b68ff87",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/high-view-search-research",
+    "object": "cefa6b2ae8d69c820b4dcb88b5116a4e0d7b5678",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/motion-constraints-20261004",
+    "object": "d523c53cc5a29f8ec492a2256c2ca2e22e293998",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/oblique-aux-proposal-provider",
+    "object": "3f2e55a020c1b4691d2b04cd4b74d71a046e5648",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/r2026-competition-integrated",
+    "object": "f79c2a82e727530f42a371dbf30805b310bbaf8f",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/r2026-main-integration",
+    "object": "934be6686f5dd453ffaf7af9247799eac3cf0acf",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vcl05-full-random-deploy",
+    "object": "ccac51789b561daca8802a89d498154b77804054",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vcl06-local-full-mission",
+    "object": "34ce0c34c72ed762ce5984d35595e13d0d57e182",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vdeploy-final-closeout-plan",
+    "object": "65172469299733faef3ac060a44cf53030039c55",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vsim04-capture-hardening",
+    "object": "350f26cdba20411ee87cb18df2273ffe2be8194c",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vsim04-capture-sampling-sync",
+    "object": "2f27a2e7da7ec95f3b15b28d6f0177dfd3a1e8a2",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vsim04-hard-audit",
+    "object": "b0bf5e6754b4ab3bc60573154e3f580047cb3f0b",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vsim04-motion-order-reset",
+    "object": "00cf14da57017214e0918c48a71776b47f82b4e8",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vsim04-motion-telemetry",
+    "object": "7ef97422b70cf38acd174eb3fe9b221725208b30",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vsim04-navigation-handoff-docs",
+    "object": "34ef5db06780075212ff3d34295a73b884fa4111",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vsim04-pillbox-capture",
+    "object": "959539233a80c64b673d526031d1370058278eb5",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vsim04-redcross-quality",
+    "object": "4059b5c90ca7858ed73f544798cb9fd3b9b2a732",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vsim04-redcross-yaw",
+    "object": "27f97478912b734c56d91b1f541af8ca452a78c4",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vsim04-repeat-tools",
+    "object": "ad211eba07f26858bed3c10668911ecb24581df2",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/feat/vsim04-soak600",
+    "object": "da04caca4394d5b32c351f92d3056108b85d37c7",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/fix/board-navigation-frames",
+    "object": "d55da83d89e46c153b2222c8294c404f654ce548",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/main",
+    "object": "2f405bef1b980fc8ba7b99958185538f660e28ee",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/wt/r2026-board-vision-tests",
+    "object": "2f405bef1b980fc8ba7b99958185538f660e28ee",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/heads/板端参考分支",
+    "object": "ce4ba3cdc59a9855e2f05e8d3aee75ba0009fffe",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/original/refs/heads/main",
+    "object": "7e847395961a9f8deebdc93e8b8e6dc7204c587d",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/original/refs/remotes/origin/main",
+    "object": "7e847395961a9f8deebdc93e8b8e6dc7204c587d",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/nav-reference/board",
+    "object": "b2185c8ce28ec01c223a3950437fee56dbadaaa0",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/feat/board-deployment-flight-20260920",
+    "object": "fe1332c03d21ed54649b1938a049660d9b623e0a",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/feat/coverage-efficiency-research",
+    "object": "4da9614190834bf2af6b34a6a04d6577a01c875c",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/feat/ev-continuity-20261004",
+    "object": "ec6187613d41605299a02992fe4ae662c25c5eb9",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/feat/high-view-route-speed-20261004",
+    "object": "310b67894dc325c5332609dd9cbfdd910b68ff87",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/feat/high-view-search-research",
+    "object": "cefa6b2ae8d69c820b4dcb88b5116a4e0d7b5678",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/feat/motion-constraints-20261004",
+    "object": "d523c53cc5a29f8ec492a2256c2ca2e22e293998",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/feat/oblique-aux-proposal-provider",
+    "object": "3f2e55a020c1b4691d2b04cd4b74d71a046e5648",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/feat/r2026-competition-integrated",
+    "object": "f79c2a82e727530f42a371dbf30805b310bbaf8f",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/feat/r2026-main-integration",
+    "object": "4fb5ffcf244cc8b4bafe3b8c95d0e993a25edc33",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/feat/vcl05-full-random-deploy",
+    "object": "ccac51789b561daca8802a89d498154b77804054",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/feat/vcl06-local-full-mission",
+    "object": "34ce0c34c72ed762ce5984d35595e13d0d57e182",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/feat/vdeploy-final-closeout-plan",
+    "object": "65172469299733faef3ac060a44cf53030039c55",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/main",
+    "object": "2f405bef1b980fc8ba7b99958185538f660e28ee",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/最简投递测试",
+    "object": "7ea4df537e0afff4651408c00e30ebe06affdd31",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/remotes/origin/板端参考分支",
+    "object": "ce4ba3cdc59a9855e2f05e8d3aee75ba0009fffe",
+    "peeled": "",
+    "type": "commit"
+  },
+  {
+    "ref": "refs/tags/archive/20261008/high-view-search-research",
+    "object": "3310cd5f48d685b5c9f45c991582321a925898cd",
+    "peeled": "cefa6b2ae8d69c820b4dcb88b5116a4e0d7b5678",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/20261008/motion-constraints-20261004",
+    "object": "bc00c3ba50efc30ec8ba86865ec7c29a670a3f0e",
+    "peeled": "d523c53cc5a29f8ec492a2256c2ca2e22e293998",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/chore/docs-progress-sync",
+    "object": "46afb57d150b110a6378fa27aab6248c0b02c7f9",
+    "peeled": "0a41ee0c1cc696688af7f67a643de5ab88f6e897",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/chore/docs-responsibility-remap",
+    "object": "8a9e661757f870a5627c5f80b01925fb42f63900",
+    "peeled": "2dd1d91f96fb55a66d6f5d189746f163e0aa1829",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/chore/freeze-oblique-camera-exploration",
+    "object": "96c892c23d9ac31f5d0de890557fd32b6dc3290c",
+    "peeled": "9889591a595114ada9a6cfc11233e31e2cbe7c93",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/chore/gate-tagging-convention",
+    "object": "4533d5aed356052838195fcd2c80ecced14d6815",
+    "peeled": "0e69fef0626ca95f835f0db5e88fe6ac69252217",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/chore/local-delivery-check-20260911",
+    "object": "a9ba8118c7cd4bd53a0507aa4f9c17f5d276114e",
+    "peeled": "d55939e51ed12c926e24bbae225d4905c05ffd3c",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/docs/liftrace-sim-upstream",
+    "object": "c113506ffaa26f9416226252cec096ff764f2a2d",
+    "peeled": "9bc376b8c7642fef19a4bb5ff7571a088b5cad76",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/competition-r64-log-only",
+    "object": "7b93a2c389dd314bd86ba860d6d4d252804a56ed",
+    "peeled": "c451c14ce1ff0e6d47f9eaf139a5233651bc6bfa",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/competition-r64-raster-remote",
+    "object": "7509ef0980f1e38aaabef47d1ed12f7dbf12c41b",
+    "peeled": "cefee116b6e4f7468b2a36a5c016239c1cfc7850",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/competition-r64-readiness",
+    "object": "83f5b5f881aef262f82e00e32f97dfe304425545",
+    "peeled": "925e380efff67adb96789ec06232f39b3f0bf300",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/competition-r64-topology-plan",
+    "object": "0c9e4cc3b9a8912e61d912dc4fed9fb13c352232",
+    "peeled": "d076e64ec37709c9adbc526f81a25d6ce5a3a424",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/external-mission-coverage",
+    "object": "0e2156a73bd16b26059407c943421f9ce95d703c",
+    "peeled": "f46d45fbc59822abc497d386ae858a48f5a4e2b4",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/full-random-five-seeds",
+    "object": "59f65285774021ad54ab18fdf2ac5b336c876ec5",
+    "peeled": "f2459e60fe5d313b10236f020d8f60ffc0a4d2d2",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/livox-driver2-integration",
+    "object": "cc4fc62514ff58886f57ac55167d43c7e2ae97ff",
+    "peeled": "86e382d50ffa1d27bce0652ac4d576c73d0bfcec",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/navigation-mission-visual-delivery",
+    "object": "d9c851882e1b025b841af4e93e7b8ef805bbb626",
+    "peeled": "8255aa4400ca1be1cb99c236adcb645861081c49",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/new-vision-coverage-search",
+    "object": "19fd600e6013577b58ca1d7e847ca06f95220237",
+    "peeled": "31b38ad6a4179c5a32672a2968dd245368e1ce99",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/oblique-active-search-stability",
+    "object": "fe37b800c02450e3e77fd78e4ac389bcd2ad4d29",
+    "peeled": "ab6e447a9c984aa4a5a3fc2198c3a53434480fea",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/oblique-camera-search-feasibility",
+    "object": "81a076e1d340318addebce1549ed1ce6dc61351a",
+    "peeled": "b60a4d942ba7081d776bb81c434e18193a486b1b",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/planner-map-20x20x5-sim",
+    "object": "187d7f9aaac8d27b3e98dc932424a0472995f3ac",
+    "peeled": "7c80844c775758437de1dec0a0854950e42dda6b",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/search-planning-wait-bound",
+    "object": "c347cb38cec966c75c7add80d3829e44e0c7fe76",
+    "peeled": "4195ef36c1b01d4d4ad286a4342469a2de420ea8",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vcl04-clean-rerun",
+    "object": "840bd076f75620bdfc7d74acd9c988b200832dd1",
+    "peeled": "af800567a9b9d6f929ec96f981be8b1a6574fed1",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vcl04-r6-bridge",
+    "object": "f8b149aa95efab9afe2b5dc707962ea2477910b3",
+    "peeled": "81090b4aa029d5f96df4b1d864f0e059e6ef7b54",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vcl05-search-delivery-strategy",
+    "object": "d210e57a1258c0c84c273cd7f4f55844fe0bcfde",
+    "peeled": "7419a062f6c26cde8a93aeb1675325ab0bddd85e",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vcl06-execution-integration/local",
+    "object": "384c5442d59efd8c42e4a84d28cec6cebca2b2ca",
+    "peeled": "ad93d364ac7e34e4c58ddf40dce796042ffbfc96",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vcl06-execution-integration/origin",
+    "object": "c8f49795b479689aa18650d0c7ec9a184b51ad60",
+    "peeled": "1a494105064525c29ceb6e51a367f5a0d281ef05",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vcl06-next-integration",
+    "object": "90ab8f8a8d344bda70a9d2ffc9102f20ea0c74f9",
+    "peeled": "8341dd18b67bfb23510223257e2718f0fbd2d875",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vcl06-random-start-gate",
+    "object": "72758b5e7447e5d00b4b9a0a9c32ea456d81b373",
+    "peeled": "2247b10ce53b76f919218b9dd5fdedf9c96c16b1",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vcl06-vision-context",
+    "object": "cab68fa1fa8786628e75101a5064ac819d0153de",
+    "peeled": "37cb2a91106c7c7b35e77aa9caf15b89aef97a20",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vdeploy-camera-extrinsic",
+    "object": "876444d3fd80d5bd1c41988192a8f5185eb65015",
+    "peeled": "f0b1b8be8df7a4ba716ff68b452eb522ef3b0c07",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vsim04-ks2a543-camera-baseline",
+    "object": "25fd3675e92f7c226b62ab41491baf15211ca500",
+    "peeled": "56f06670530b92b6403a5b52069ed4fa20ec5247",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vsim04-navigation-events",
+    "object": "3a5cf4c13a8f739e6c492d0f54a56c0902e983f3",
+    "peeled": "277a0a157c86bddc107dc103421cd68dc6989f95",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vsim04-navigation-handoff-final",
+    "object": "ad24790153e4bc3961b65a7261cd80046b33204e",
+    "peeled": "bdf229693f0747754a3dbda00b38f8aaa339e604",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vsim04-performance-surface",
+    "object": "1e8e64cdb247491efca6582ff56af9373855c85c",
+    "peeled": "d6f4cc372c030558755703464a545e6140821cde",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vsim04-stability",
+    "object": "c38a5a80e775dbf7e758e7e6372524ec75b5bcef",
+    "peeled": "0deeb1ecaa7c3deaba31c4ba3d98e51ca7429fa3",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/feat/vsim04-video-cd-validation",
+    "object": "5cbcf32db4b8558e16f254be12c49bbf6ac477ea",
+    "peeled": "96c47fdf99bbe9f35c9e6d69a294c17dab8fb062",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/archive/recovered-20261008/fix/vcl06-sim-lidar-map-readiness",
+    "object": "4075328e20366a1caaa6eb5f898e0936a77e4193",
+    "peeled": "b83342de6ab5649e57203662910393bd658505f9",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/chore/docs-progress-sync",
+    "object": "cf92f8b43ca0c160f7da318807f06b56c84a5566",
+    "peeled": "b3eed4ad2e423270dfd58ac9df2a26225d650b5a",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/chore/docs-responsibility-remap",
+    "object": "660a860c95a66ba6581820a8631d88d3c9420eb1",
+    "peeled": "9538368a2590305d17cb20c0fa4350ad0fc84331",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/chore/freeze-oblique-camera-mainline",
+    "object": "ed5f6b3769e539f5572922ad18f6031212f2ece9",
+    "peeled": "d83e20730c1b1041f23b93712c46e725fdc57230",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/chore/gate-tagging-convention",
+    "object": "66186db27b7f584700bf0f8348ad33276497d159",
+    "peeled": "8a4502beed3d50a7e26bb6ebe7d63b458724c277",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/chore/planner-map-20x20x5-sim",
+    "object": "269edb7b8bdbbc207e1bbed29c8e03538a8d6a2e",
+    "peeled": "7a0b612dde046402cfcca981472b3a4af17f0780",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/chore/r56-model-assumptions",
+    "object": "38ba14bb152dd664fba9eac9631cbd55ae80c2fc",
+    "peeled": "31d0b2aaa2c5bd9f9554008e42301cfbde666cfa",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/chore/r64-log-only",
+    "object": "ed6d0570919e361b8d3bc4761e69ef29ed9a132c",
+    "peeled": "466174d8dd1533d4aa0e3af6c0f9e1c96aa3ce3b",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/chore/r64-readiness-code-size",
+    "object": "cbb2b619839c8151a9a3492a54db1d95d24d586a",
+    "peeled": "2f405bef1b980fc8ba7b99958185538f660e28ee",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/chore/r64-rqt-raster-remote",
+    "object": "d35fa04dc0d7bc6f07dcf9ecd1318fa454953d2c",
+    "peeled": "d45d4f84406cd876891449a98b8f193325807e59",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/chore/r64-topology-time-plan",
+    "object": "410a2320339e00184c558397c77543bd962e7681",
+    "peeled": "ce63b8dda04c7a87c99bbf633d308bfc80f33065",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/chore/vision-navigation-integration-20260902",
+    "object": "ec2ac12beb6cbfa701c26fa9a8b13554ab157c59",
+    "peeled": "1094db5541e5d57185fb9672560586152b764d23",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/gate/r64-seed11-full",
+    "object": "1a2c3db9de42b5f6eb283af595680db4afd6663e",
+    "peeled": "7f67a68d9acc06ff541a8e2d91de0b22d89aaaba",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/gate/vcl02-newvision-fixed3",
+    "object": "d0740af64aa38dd5837623b73529820ba606ab02",
+    "peeled": "d1f64364ed2f566c66ff662db151f416b35ad9f2",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/gate/vcl03-external-coverage",
+    "object": "651c5049c775cf26078dc99d4019e0db330e8d78",
+    "peeled": "0ad8606211ce74dab740ea2a15629ebd5b09b57b",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/gate/vcl04-clean-rerun",
+    "object": "10b8f0a788bad61173f8d784a34d14fafeb13763",
+    "peeled": "7e626ad93117765d6a76ae67fe70b0d42505f3c8",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/gate/vcl04-r6-bridge",
+    "object": "e620ad7bfe1894d0accf7f2176f86651638fbf71",
+    "peeled": "30bf6fb48d778dbe1645204522d6fc16f7b40612",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/gate/vcl05-search-delivery-strategy",
+    "object": "dacb09c20e77c24071eb08708d593531e0e93430",
+    "peeled": "dc89e18db1a1af179a1cb2bd50b40e5f08728b9e",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/gate/vcl06-r56-full-competition",
+    "object": "d29df63ce2fc960d1e6ea94920ff5fbaa8c3ca38",
+    "peeled": "a8dd207e166d8a42736cb450e748adfdb32cf267",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/sim/r2026-r53-closeout",
+    "object": "4c284b5e6f93ba31f9a62f3fd0853be4a335372a",
+    "peeled": "f20afcc12ca44215c0a54342d1473569e18e1e76",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/sim/r2026-r54-guided-entry",
+    "object": "5c43bd32a953b93766a72afe2d5f74f3bb9ac9b1",
+    "peeled": "19c602d7e4b3c0c1054a2dc5473b51f8f2e07362",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/sim/r2026-r55-bounded-corridor",
+    "object": "acc9156ceccf5051f3da6086193d2008f84c4fd1",
+    "peeled": "fe9e720e781eee4aaa09c622181aec7a21ca48d9",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/sim/r2026-r56-contact-map-pass",
+    "object": "305872b0a9e6f9cd2b51a752ab67d92ae3f55a13",
+    "peeled": "cc899f2bc4816caff9f9059adb0208705476f81b",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/sim/r2026-r57-toudi4-085-pass",
+    "object": "fe69f80ae9dbe7b1bb2970cf5010f46f78925e74",
+    "peeled": "703541505f8dac5f2db7be333eda9c2460ed3d70",
+    "type": "tag"
+  },
+  {
+    "ref": "refs/tags/sim/r2026-r60-low-corridor-pass",
+    "object": "471021cc5d7da945b37506b0f2ba3a22689fc701",
+    "peeled": "9cfb3e56b11af23b4bc764b48e53454b32d015dc",
+    "type": "tag"
+  }
+]

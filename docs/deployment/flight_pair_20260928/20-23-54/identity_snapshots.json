@@ -1,0 +1,164 @@
+{
+  "early": {
+    "t": 20.115630626678467,
+    "stamp": 19.91062331199646,
+    "q": {
+      "header": {
+        "seq": 0,
+        "stamp": {
+          "secs": 1790511854,
+          "nsecs": 510104417
+        },
+        "frame_id": ""
+      },
+      "id": 1,
+      "class_name": "bridge",
+      "class_confidence": 0.84912109375,
+      "geometry_confidence": 0.7899101376533508,
+      "roi": {
+        "x_offset": 824,
+        "y_offset": 365,
+        "height": 172,
+        "width": 166,
+        "do_rectify": false
+      },
+      "center_px": {
+        "x": 908.324462890625,
+        "y": 450.66583251953125,
+        "z": 125.1951904296875
+      },
+      "center_refined": true,
+      "center_source": "circle_geometry",
+      "association_valid": true,
+      "reject_reason": "",
+      "map_valid": true,
+      "map_point": {
+        "x": 2.014604351431495,
+        "y": -1.3159926871196208,
+        "z": -0.21999999999999997
+      },
+      "map_frame": "camera_init",
+      "map_quality": 0.7682873606681824,
+      "transform_age_sec": 9.999999717180685e-10,
+      "state": 2,
+      "observe_count": 4,
+      "consecutive_observe_count": 3,
+      "first_seen": {
+        "secs": 1790511853,
+        "nsecs": 677705287
+      },
+      "last_seen": {
+        "secs": 1790511854,
+        "nsecs": 510104417
+      }
+    }
+  },
+  "low": {
+    "t": 32.68202447891235,
+    "stamp": 32.22657227516174,
+    "q": {
+      "header": {
+        "seq": 0,
+        "stamp": {
+          "secs": 1790511866,
+          "nsecs": 826053380
+        },
+        "frame_id": ""
+      },
+      "id": 1,
+      "class_name": "panzer",
+      "class_confidence": 0.91259765625,
+      "geometry_confidence": 0.8130959272384644,
+      "roi": {
+        "x_offset": 533,
+        "y_offset": 272,
+        "height": 246,
+        "width": 243,
+        "do_rectify": false
+      },
+      "center_px": {
+        "x": 655.5995483398438,
+        "y": 394.60418701171875,
+        "z": 180.7786865234375
+      },
+      "center_refined": true,
+      "center_source": "circle_geometry",
+      "association_valid": true,
+      "reject_reason": "",
+      "map_valid": true,
+      "map_point": {
+        "x": 1.9883573870750728,
+        "y": -1.305045159545923,
+        "z": -0.22000000000000003
+      },
+      "map_frame": "camera_init",
+      "map_quality": 0.7678762674331665,
+      "transform_age_sec": 9.999999717180685e-10,
+      "state": 2,
+      "observe_count": 9,
+      "consecutive_observe_count": 3,
+      "first_seen": {
+        "secs": 1790511853,
+        "nsecs": 677705287
+      },
+      "last_seen": {
+        "secs": 1790511866,
+        "nsecs": 826053380
+      }
+    }
+  },
+  "late": {
+    "t": 128.55233335494995,
+    "stamp": 128.32651495933533,
+    "q": {
+      "header": {
+        "seq": 0,
+        "stamp": {
+          "secs": 1790511962,
+          "nsecs": 925996065
+        },
+        "frame_id": ""
+      },
+      "id": 5,
+      "class_name": "bridge",
+      "class_confidence": 0.91357421875,
+      "geometry_confidence": 0.8356420993804932,
+      "roi": {
+        "x_offset": 944,
+        "y_offset": 259,
+        "height": 180,
+        "width": 172,
+        "do_rectify": false
+      },
+      "center_px": {
+        "x": 1029.2552490234375,
+        "y": 347.9788513183594,
+        "z": 136.29086303710938
+      },
+      "center_refined": true,
+      "center_source": "circle_geometry",
+      "association_valid": true,
+      "reject_reason": "",
+      "map_valid": true,
+      "map_point": {
+        "x": 2.3513449588519397,
+        "y": 1.3248702137003099,
+        "z": -0.22
+      },
+      "map_frame": "camera_init",
+      "map_quality": 0.8283722400665283,
+      "transform_age_sec": 0.0,
+      "state": 2,
+      "observe_count": 3,
+      "consecutive_observe_count": 3,
+      "first_seen": {
+        "secs": 1790511962,
+        "nsecs": 692538738
+      },
+      "last_seen": {
+        "secs": 1790511962,
+        "nsecs": 925996065
+      }
+    }
+  }
+}

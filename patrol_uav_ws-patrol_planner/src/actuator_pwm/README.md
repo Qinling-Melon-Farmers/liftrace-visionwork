@@ -1,92 +1,37 @@
-# Orange Pi 5 现场舵机参考包
+# Orange Pi 5 Plus 舵机配置（2026-10-11）
 
-来源：`orangepi@192.168.3.126:~/liftrace_board_trials_20260928/patrol_uav_ws-patrol_planner/src/actuator_pwm`，实体源码，不依赖其他工程的符号链接。此目录是 5 的接线档案；5 Plus 仍使用其独立参考包，禁止混用。
+本包适配当前 RK3588 OPi 5 Plus，禁止用于 Orange Pi 5。启动时检查机型，按硬件地址解析 pwmchip，不写死编号。
 
-2026-10-07 更新：左仓改用 **PWM3_M0 / Pin15**，三路 pwmchip 编号改为**按硬件地址运行时解析**。
+| req | 舱位 | 40-pin物理针脚 | GPIO | PWM | 地址 | 初始/释放脉宽ms |
+|---|---|---|---|---|---|---|
+| 1 | 后仓 | 16 | GPIO3_B5 | PWM12_M0 | febf0000.pwm | 0.6 / 1.8 |
+| 2 | 右仓 | 7 | GPIO1_D6 | PWM14_M2 | febf0020.pwm | 1.0 / 2.1 |
+| 3 | 左仓 | 18 | GPIO3_B6 | PWM13_M0 | febf0010.pwm | 1.1 / 2.1 |
 
-|槽号|位置|PWM与设备地址|初始/释放脉宽ns|
-|---|---|---|---|
-|1|后仓，现场Pin11标记|febf0020.pwm|1700000 / 2100000（晚间用户指定释放2100µs；锁止不变）|
-|2|右仓，现场Pin7标记|febf0030.pwm|1000000 / 2100000|
-|3|左仓，现场Pin15标记|fd8b0030.pwm（PWM3_M0）|1100000 / 2100000|
+这是新配置要求的接线，不代表实际线缆已核实或移动。针脚为物理编号，不是wPi编号。
+PWM12/PWM13针脚依据当前板子的gpio readall与设备树核对；部分旧官方PWM表针脚有误，Pin14是GND，不能接信号。
+舵机电源按舵机额定电压由独立电源供给；舵机电源GND与板子GND共地（例如Pin6），信号接表中针脚。不得接3.3V针脚供电。
 
-周期 20000000ns、normal 极性、每次脉冲 1 秒。设备地址和三槽映射来自现场源文件；不是根据 5 Plus 源码猜测。未经核对不要在其他机型上使用。
+/boot/orangepiEnv.txt 当前 overlays=pwm12-m0 pwm13-m0 pwm14-m2，三路已存在，不需本次修改或重启。
+2026-10-11只读枚举：后仓pwmchip2、右仓pwmchip4、左仓pwmchip3；编号可变化，代码仍以地址为准。
 
-**表内不再给出 pwmchip 编号**：编号会随设备树叠加层变化，节点与 init_pwm.sh 都在运行时按 device 地址反查。
+周期20ms（50Hz），normal极性，释放脉冲1秒。SlotCalibration.h为脉宽权威；本次保留原代码值，未做5 Plus实物行程标定。
 
-## 左仓为什么以前“初始化不动”
+## 启动
 
-左仓原来是按 `fd8b0010.pwm`（PWM1 / Pin16 / GPIO1_D3）驱动的，但现场左仓舵机实际接在
-**Pin15 = GPIO0_D4 = PWM3_M0 = fd8b0030.pwm**。PWM3 默认在设备树里未启用，
-所以该引脚一直没有波形输出，左仓在启动复位和投放时都不动，而后仓、右仓正常。
+默认 initialize_on_startup=false：只读检查三槽period=20000000、polarity=normal、enable=0及写权限，不输出脉冲；失败不注册服务。
+init_pwm.sh需要sudo，会导出通道并配置PWM，不能视为只读检查。本次未执行。
+initialize_on_startup=true会输出复位脉冲，必须另行确认后用于未装载机构准备。
 
-启用方式：把 `pwm3-m0` 加入 `/boot/orangepiEnv.txt` 的 `overlays` 并重启
-（当前该文件为 `overlays=uart1-m1 wifi-ap6275p pwm15-m2 pwm14-m1 pwm1-m1 pwm3-m0`，
-改动前备份 `/boot/orangepiEnv.txt.before_ground_pwm3_20261007`）。
+roslaunch actuator_pwm launch_all.launch
 
-两个必须知道的连带影响：
+启动入口将Servo重映射为/legacy/Servo_raw（patrol_control/Servo）；对外/Servo由许可代理独占。
+服务成功只表示PWM操作确认，不证明机械投放成功。
+本次只改源码、离线检查和编译，不运行节点、不写PWM、不调用服务。
+旧包已保存于 ~/board_deploy_backups/20261011_actuator_before_5plus/。
 
-1. **pwmchip 编号全部改变**。当前枚举为：后仓 `febf0020.pwm`=pwmchip5、右仓 `febf0030.pwm`=pwmchip6、
-   左仓 `fd8b0030.pwm`=pwmchip2（另有 pwmchip0=`fd8b0010.pwm`、pwmchip1=`fd8b0020.pwm` 背光、
-   pwmchip3=`febd0020.pwm` 背光、pwmchip4=`febf0000.pwm` 风扇）。
-   过去写死的 4/5/0 在此配置下分别指向风扇/后仓/旧左仓，**完全错误**；
-   本包改为按地址解析后，叠加层开与关两种配置都能正确工作。
-2. **恢复旧 `orangepiEnv.txt` 会同时去掉 pwm3-m0**，左仓立即失效，且编号回到旧值。
-   本包仍能按地址正确定位后仓/右仓，但左仓会因 `fd8b0030.pwm` 缺失而拒绝启动（fail-closed）。
+2026-10-14：按用户现场反馈与指定值，1号归位保持1.7ms，释放改2.2ms；2/3号及1秒输出时间保持。尚未编译或执行新脉宽动作。
 
-补回已有的 CheckedPulse 修复：每一步 disable/duty/enable/disable 检查返回；sysfs 写入后读回；
-三槽启动检查全部成功才开放 raw 服务；被动路径退出零写入，执行过写事务才在退出禁用输出；不 unexport；错误返回 False。
-此反馈确认的是 PWM 配置/操作，不是机械位置或实际载荷离机。
+2026-10-14后续：按用户要求1号归位/释放改0.5/1.7ms，已构建pwm_node1；执行归位→等5秒→释放→等5秒→归位，每次输出1秒，PWM读回成功，机械状态由现场确认。
 
-## 服务接口（不可改）
-
-`launch_all.launch` 把节点的 `Servo` 重映射到 **`/legacy/Servo_raw`**，类型 `patrol_control/Servo`
-（`int32 req` → `bool res`）。任务链的对外 `/Servo` 由 `uav_mission` 的 `guarded_servo_proxy`
-独占，只有拿到 `/mission/release_permission` 才会转发到本节点。
-
-因此：
-
-- 必须以 `roslaunch actuator_pwm launch_all.launch` 启动。直接 `rosrun actuator_pwm pwm_node1`
-  不会应用重映射，节点会去抢注 `/Servo`，与许可代理冲突。
-- 地面单测目录 `~/servo_ground_test_pwm3/` 用的是 `/ground_test/Servo`，那是地面测试专用名字，
-  **不要**带进飞行链。
-
-## 启动被动化（2026-10-07）
-
-`~initialize_on_startup` 默认 `false`，launch 同名参数也默认 `false`。
-三槽依次只读检查 `period=20000000`、`polarity=normal`、`enable=0`，
-并检查 period/duty_cycle/polarity/enable 的可写权限。启动不改 duty，不输出脉冲；
-任一读检查、权限、设备地址解析失败即退出，不注册 raw 服务，析构亦不写。
-被动模式不要求 duty=0，保留现有占空值；不会因 duty 保留后仓700000而开启输出。
-C++构造函数的第四参数仅为无硬件测试注入临时 sysfs 根目录，节点使用系统默认根目录。
-
-已装载并机械锁止时必须保持默认 `false`。只有显式设为 `true` 才执行旧的
-逐步返回值检查复位事务（disable/duty0/period/polarity/disable/initial/enable/1s/disable）；
-该选项仅用于非装载的人工机构准备，不能作为装载后的启动或恢复方法。
-后仓锁止值已据现场反馈改为1700000ns，释放值于晚间按用户要求改为2100000ns；左右未改。
-`init_pwm.sh` 原样保留，脚本会配置/写 sysfs，并非被动启动的一部分；
-本次只部署源码并构建，不执行该脚本，不执行节点或任何服务请求。
-
-**当前旧服务PID不重启。** 覆盖源码、编译或修改ROS参数不会把新常量切入当前oldservice；
-默认被动启动和后仓新方向只对下次使用新二进制创建的进程生效。
-当前oldservice仍携带旧后仓释放1700000ns/启动700000ns，不可据此次编译视为已切换。
-
-构建：加载上述环境后执行 `cmake --build patrol_uav_ws-patrol_planner/build --target pwm_node1 -j2`，
-本次只构建该target，不执行整工程构建或服务重启。本包复用当前工程生成的 `patrol_control/Servo`，调用客户端同样需要 source 该工程环境。
-
-## 验证与限制
-
-- 2026-10-03 板端重新编译成功，CheckedPulse 本地故障注入通过；两轮地面未解锁验收使用隔离的合成视觉/对齐证据
-  进入真实 strict arbiter→guarded proxy→本包 PWM，1/2/3 成功，无许可、错槽与重复槽拒绝。
-- 2026-10-07 左仓切到 PWM3_M0（Pin15）并加入设备树叠加层；`pwm3-m0` 生效后
-  `fd8b0030.pwm` 枚举为 pwmchip2，启动复位的三路输出最终均为 disabled，未发送投放请求。
-- 本包尚未在 PWM3_M0 配置下做过完整投放验收；机械作动需要现场观察确认。
-- 本轮没有改变飞行配置、没有改 `patrol_control` 状态机。
-
-## 本补丁本地验证
-
-独立 CMake 只编译 pwm_node1 和 actuator_startup_tests；CTest通过。
-无硬件测试覆盖只读配置/权限检查、默认zero writes、错误配置拒绝、
-显式复位事务与逐步故障、三槽投放常量及checkedPulse故障、生产控制器析构。
-生产控制器仅访问测试临时目录，inotify验证被动构造/启动/失败/析构没有IN_MODIFY，
-并实际观测配置文件读取。未运行实际ROS节点、SSH、PWM或仿真；未做真实释放测试。
+2026-10-14最终参数：用户指定1号归位0.6ms、释放1.8ms用于实机投递；写入SlotCalibration.h权威表，2/3号及1秒输出时长不变。本次不执行机构动作。

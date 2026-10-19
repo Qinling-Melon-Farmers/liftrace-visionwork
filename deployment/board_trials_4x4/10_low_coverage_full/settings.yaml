@@ -1,0 +1,24 @@
+# 牛耕整场备份：投递/H参数在加载时继承模块08，不在这里另存旧副本。
+# 默认加载同目录已登记现场YAML；显式site-config可覆盖，缺文件拒绝启动。
+backup_profile: low_coverage_full
+mode: low_multi_full
+trial_kind: low_multi_corridor
+low_agl: 1.8  # FC离地高度；CLI可选1.8或1.9米
+high_agl: 2.0  # 兼容生成字段，本备份不执行高位搜索
+max_agl: 2.3
+coverage_pattern: lawnmower  # 默认牛耕；nested_rectangles为同高度回字形候选
+coverage_scan_axis: y  # 默认长线沿Y飞，沿X换行；适配当前相机较宽的X视场
+coverage_cross_inset: 0.6  # 仅扫描横向两端内收；沿Y飞时内收X，不改原coverage_bounds
+coverage_lane_spacing: 2.6  # 牛耕横向换行间距，合法范围0.2～3.0米；不保证任意间距全覆盖
+coverage_loop_inset: 1.8  # 回字形独立内收：内框横向内收此值、纵向内收其一半，不随牛耕线距变化
+obstacle_columns_enabled: false  # 仅取消人为向上延伸柱；实体点云和常规膨胀不变
+virtual_ceiling_enabled: false
+drop_agl: 0.25  # 用户明确本备份与08均用此目标；释放窗口仍继承08当前值
+delivery_count: 3
+actuator_mode: mock  # 实投仍须显式--real-release
+corridor_waypoints: []
+landing_xy: null
+
+# 复用08启动等待：现场手动解锁并切OFFBOARD后，待已有位姿窗口合格再启动任务。
+auto_start_after_arm: true
+initialization_timeout: 300.0

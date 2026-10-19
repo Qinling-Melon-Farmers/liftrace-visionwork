@@ -1,0 +1,10 @@
+[
+  {
+    "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/frame2672_A_baseline_20260919_200425",
+    "source": "6f3c795",
+    "status": "STOPPED_AFTER_SEARCH_ACTION_TIMEOUT",
+    "gate_available": false,
+    "comparison_eligible": false,
+    "reason": "Conflict class suspended, low-coverage boundary next-goal planning failed; stopped for requested repair, not a completed baseline"
+  }
+]

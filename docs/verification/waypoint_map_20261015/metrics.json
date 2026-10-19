@@ -1,0 +1,144 @@
+{
+  "source": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/waypoint_map.yaml",
+  "bounds": {
+    "flight_bounds": {
+      "x_min": -0.5,
+      "x_max": 9.5,
+      "y_min": -4.8,
+      "y_max": 4.8,
+      "size_x": 10.0,
+      "size_y": 9.6,
+      "area": 96.0
+    },
+    "search_center_bounds": {
+      "x_min": -0.1,
+      "x_max": 7.05,
+      "y_min": -4.35,
+      "y_max": 4.35,
+      "size_x": 7.1499999999999995,
+      "size_y": 8.7,
+      "area": 62.20499999999999
+    },
+    "target_bounds": {
+      "x_min": -0.5,
+      "x_max": 7.4,
+      "y_min": -4.8,
+      "y_max": 4.8,
+      "size_x": 7.9,
+      "size_y": 9.6,
+      "area": 75.84
+    },
+    "coverage_bounds": {
+      "x_min": 0.4,
+      "x_max": 6.8,
+      "y_min": -4.1,
+      "y_max": 4.1,
+      "size_x": 6.3999999999999995,
+      "size_y": 8.2,
+      "area": 52.47999999999999
+    }
+  },
+  "points": [
+    {
+      "label": "O",
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "label": "S",
+      "x": 0.6,
+      "y": 0.05
+    },
+    {
+      "label": "P1",
+      "x": 1.0,
+      "y": -3.5
+    },
+    {
+      "label": "P2",
+      "x": 5.5,
+      "y": -3.5
+    },
+    {
+      "label": "P3",
+      "x": 5.5,
+      "y": 3.5
+    },
+    {
+      "label": "P4",
+      "x": 1.0,
+      "y": 3.5
+    },
+    {
+      "label": "C1",
+      "x": 6.9,
+      "y": 3.4
+    },
+    {
+      "label": "C2",
+      "x": 8.3,
+      "y": 3.4
+    },
+    {
+      "label": "C3",
+      "x": 8.3,
+      "y": 1.9
+    },
+    {
+      "label": "C4",
+      "x": 8.3,
+      "y": -0.4
+    },
+    {
+      "label": "C5",
+      "x": 8.3,
+      "y": -3.5
+    }
+  ],
+  "landing_xy": [
+    8.3,
+    -3.5
+  ],
+  "survey_segments": [
+    4.5,
+    7.0,
+    4.5,
+    7.0
+  ],
+  "survey_total": 23.0,
+  "corridor_segments": [
+    1.4000000000000004,
+    1.5,
+    2.3,
+    3.1
+  ],
+  "corridor_total": 8.3,
+  "origin_to_staging": 0.6020797289396148,
+  "staging_to_P1": 3.57246413557925,
+  "origin_to_H_direct": 9.007774419910836,
+  "wall_crossings_inferred_not_measured_doors": [
+    {
+      "wall_axis": 1,
+      "wall_coordinate": 1.6,
+      "segment": "C3→C4",
+      "xy": [
+        8.3,
+        1.6
+      ],
+      "distance_before": 0.2999999999999998,
+      "distance_after": 2.0
+    },
+    {
+      "wall_axis": 1,
+      "wall_coordinate": -1.6,
+      "segment": "C4→C5",
+      "xy": [
+        8.3,
+        -1.6
+      ],
+      "distance_before": 1.2000000000000002,
+      "distance_after": 1.9
+    }
+  ],
+  "scope": "Geometric distances from YAML; no real wall width/opening/obstacle positions supplied. Flight bounds are FC constraints, not surveyed physical walls."
+}

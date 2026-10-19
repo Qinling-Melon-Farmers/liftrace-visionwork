@@ -5,6 +5,7 @@ The vision node publishes ReleaseEvidence.  This arbiter adds mission mode,
 vehicle pose, payload sequencing and replay checks, then publishes a short
 lived ReleasePermission.  It never calls an actuator.
 """
+import math
 import os
 import sys
 import threading
@@ -16,7 +17,7 @@ from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Bool, Int8, String
 
 from uav_mission.msg import ReleasePermission, ReleaseResult
-from uav_vision.msg import ReleaseEvidence, ReleaseEvidenceContext, AlignmentTargetContext
+from uav_vision.msg import ReleaseEvidence, ReleaseEvidenceContext, AlignmentTargetContext, DropAlignmentFeedback
 from uav_mission.release_transactions import (
     NOT_STARTED, RAW_CALL_STARTED, COMPLETED, execution_fact, action_identity, result_terminal,
 )
@@ -59,6 +60,10 @@ class ReleasePermissionArbiter:
             rospy.get_param("~require_evidence_context", False))
         self._class_profile = str(
             rospy.get_param("~class_profile", "r2026"))
+        self._descent_timeout_enabled = bool(rospy.get_param(
+            "~descent_timeout_enabled", rospy.get_param("/drop_system/release_timeout/enabled", True)))
+        self._alignment_context = None
+        self._drop_alignment_feedback = None
 
         evidence_topic = rospy.get_param(
             "~evidence_topic", "/uav_vision/release_evidence")
@@ -134,6 +139,9 @@ class ReleasePermissionArbiter:
         rospy.Subscriber(rospy.get_param("~alignment_context_topic",
                          "/uav_vision/alignment_target_context"), AlignmentTargetContext,
                          self._on_alignment_context, queue_size=4)
+        rospy.Subscriber(rospy.get_param("~alignment_feedback_topic", rospy.get_param(
+            "/drop_system/alignment_feedback_topic", "/uav_vision/drop_alignment_feedback")),
+            DropAlignmentFeedback, self._on_drop_alignment_feedback, queue_size=4)
         self._timer = rospy.Timer(
             rospy.Duration(1.0 / max(self._publish_rate, 1.0)),
             self._on_timer)
@@ -180,6 +188,16 @@ class ReleasePermissionArbiter:
 
     def _on_alignment_context(self, msg):
         if msg.active:
+            with self._lock:
+                try:
+                    age = (rospy.Time.now()-msg.header.stamp).to_sec()
+                    if msg.header.stamp.to_sec() <= 0 or not math.isfinite(age) or not 0 <= age <= self._evidence_timeout:
+                        return
+                except (AttributeError, TypeError, ValueError):
+                    return
+                current = getattr(self, "_alignment_context", None)
+                if current is None or msg.header.stamp > current.header.stamp:
+                    self._alignment_context = msg
             return
         key = (str(msg.mission_id), int(msg.decision_seq), int(msg.attempt),
                int(msg.payload_slot), int(msg.semantic_target_id),
@@ -191,6 +209,63 @@ class ReleasePermissionArbiter:
                     c.payload_slot, c.target_id, c.target_first_seen_nsec, c.target_class) == key:
                 self._commitment = None
             self._permission_state_pub.publish(Bool(data=False))
+
+    def _on_drop_alignment_feedback(self, msg):
+        with self._lock:
+            age = (rospy.Time.now()-msg.header.stamp).to_sec()
+            if msg.header.stamp.to_sec() <= 0 or not math.isfinite(age) or not 0 <= age <= .20:
+                return
+            current = getattr(self, "_drop_alignment_feedback", None)
+            if current is None or msg.header.stamp > current.header.stamp:
+                self._drop_alignment_feedback = msg
+
+    def _descent_timeout_source(self, now):
+        """Only a fresh, frozen controller action may bypass release geometry.
+
+        The controller owns the descent clock. This lane never uses ALIGN age,
+        visual heartbeats or a previous action's timeout as release authority.
+        """
+        if not getattr(self, "_descent_timeout_enabled", False) or not self._require_evidence_context:
+            return None
+        c = getattr(self, "_alignment_context", None)
+        f = getattr(self, "_drop_alignment_feedback", None)
+        if c is None or f is None:
+            return None
+        try:
+            if (not c.active or not c.has_target or c.schema_version != 1 or c.command != 2 or
+                    not c.source or not c.mission_id or c.decision_seq <= 0 or
+                    c.class_profile != self._class_profile or c.deadline <= now or
+                    c.align_mode != self._align_mode or c.payload_slot != self._next_slot or
+                    c.align_mode not in MODE_TARGET_CLASS or
+                    c.semantic_target_class not in ("tent", "pillbox", "bridge", "panzer", "red_cross") or
+                    (c.align_mode == "drop_cross") != (c.semantic_target_class == "red_cross") or
+                    c.semantic_target_first_seen.to_nsec() <= 0):
+                return None
+            for stamp, limit in ((c.header.stamp, self._evidence_timeout),
+                                 (f.header.stamp, .20), (f.odom_stamp, .20)):
+                age = (now-stamp).to_sec()
+                if stamp.to_sec() <= 0 or not math.isfinite(age) or not 0 <= age <= limit:
+                    return None
+            if (not f.valid or not f.frozen or f.reason != "descent_timeout_ready" or
+                    not f.header.frame_id or f.header.frame_id != c.target_pose.header.frame_id or
+                    f.observation_stamp.to_sec() <= 0 or f.observation_stamp > now or
+                    not all(math.isfinite(v) and v >= 0 for v in
+                            (f.horizontal_error_m, f.horizontal_speed_mps))):
+                return None
+            fields = ("mission_id", "decision_seq", "attempt", "payload_slot",
+                      "semantic_target_id", "semantic_target_class", "align_mode")
+            if any(getattr(c, name) != getattr(f, name) for name in fields) or \
+                    c.semantic_target_first_seen.to_nsec() != f.semantic_target_first_seen.to_nsec():
+                return None
+            key = (str(c.mission_id), int(c.decision_seq), int(c.attempt), int(c.payload_slot),
+                   int(c.semantic_target_id), c.semantic_target_first_seen.to_nsec(), str(c.semantic_target_class))
+            if key in self._revoked_actions or (c.align_mode, c.semantic_target_id) in self._released_targets:
+                return None
+            return dict(mission_id=c.mission_id, decision_seq=c.decision_seq, attempt=c.attempt,
+                        target_id=c.semantic_target_id, target_class=c.semantic_target_class,
+                        target_first_seen=c.semantic_target_first_seen, evidence_stamp=f.observation_stamp)
+        except (AttributeError, TypeError, ValueError, OverflowError):
+            return None
 
     def _on_result(self, msg):
         with self._lock:
@@ -387,6 +462,16 @@ class ReleasePermissionArbiter:
         if pose_age > self._pose_timeout:
             return False, "stale_vehicle_pose", None
 
+        p = self._pose.pose.position
+        if (not all(math.isfinite(v) for v in (p.x, p.y, p.z)) or
+                (now - self._pose.header.stamp).to_sec() < 0 or
+                (now - self._control_state_stamp).to_sec() < 0):
+            return False, "invalid_vehicle_feedback", None
+
+        timeout_source = self._descent_timeout_source(now)
+        if timeout_source is not None:
+            return True, "descent_timeout_release", timeout_source
+
         current_valid, current_reason, source = \
             self._current_evidence_source(now)
         grant_reason = current_reason
@@ -479,7 +564,8 @@ class ReleasePermissionArbiter:
             if "mission_id" in source:
                 for name in ("mission_id", "decision_seq", "attempt", "target_first_seen"):
                     setattr(msg, name, source[name])
-        if self._require_evidence_context and self._evidence_context is not None:
+        if (self._require_evidence_context and self._evidence_context is not None and
+                reason != "descent_timeout_release"):
             context = self._evidence_context
             msg.mission_id = context.mission_id
             msg.decision_seq = context.decision_seq

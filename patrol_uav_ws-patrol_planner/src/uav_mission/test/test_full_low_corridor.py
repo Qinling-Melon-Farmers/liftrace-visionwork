@@ -79,7 +79,7 @@ class FullLowCorridorTest(unittest.TestCase):
         params = yaml.safe_load((ROOT/'config/horizontal_planner.yaml').read_text())
         self.assertEqual([params['sdf_map/'+k] for k in
                          ('obstacles_inflation','obstacles_inflation_up','obstacles_inflation_down')],
-                         [.25,.20,.10])
+                         [.275,.20,.10])
 
     def test_low_ceiling_only_in_corridor_including_between_doors(self):
         region=CONFIG['post_delivery_gate']['low_height_region']

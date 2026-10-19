@@ -1,4 +1,5 @@
 #include "patrol_control/ReleaseAuthorization.h"
+#include "navigation_recovery_msgs/navigation_recovery_gate.h"
 #include <std_msgs/Empty.h>
 #ifndef _LL_CONTROLLER_NEW_H_
 #define _LL_CONTROLLER_NEW_H_
@@ -8,8 +9,17 @@
 #include "patrol_control/near_wall_align.h"
 #include "patrol_control/drop_slot_geometry.h"
 #include "patrol_control/landing_handoff_stability.h"
+#include "patrol_control/landing_high_alignment.h"
+#include "patrol_control/landing_coordinate_fallback.h"
+#include "patrol_control/drop_pre_descent_stability.h"
+#include "patrol_control/drop_descent_profile.h"
+#include "patrol_control/offboard_landing.h"
+#include "patrol_control/async_landing_disarm.h"
+#include <mavros_msgs/ExtendedState.h>
+#include <mavros_msgs/PositionTarget.h>
 #include <nav_msgs/Odometry.h>
 #include <uav_vision/DropAlignmentFeedback.h>
+#include <patrol_control/ReleaseInvocation.h>
 
 #include <array>
 #include <map>
@@ -121,13 +131,30 @@ private:
     std::string motion_odom_topic_, motion_twist_frame_, compensated_alignment_topic_;
     bool compensated_alignment_enabled_ = true;
     bool compensated_goal_valid_ = false, compensated_goal_frozen_ = false;
+    bool drop_compensate_before_descent_ = true, drop_descent_started_ = false;
+    bool drop_release_height_only_ = true;
+    bool drop_release_timeout_enabled_ = true;
+    double drop_release_timeout_sec_ = 20.0;
+    ros::Time drop_alignment_started_, drop_descent_started_at_, drop_timeout_last_check_;
+    bool drop_timeout_clock_invalid_ = false;
+    DropDescentConfig drop_descent_config_;
+    DropDescentProfile drop_descent_profile_;
+    ros::Publisher drop_vertical_cmd_pub_;
+    ros::Publisher drop_velocity_cmd_pub_;
+    bool dropDescentControlActive() const;
     bool compensated_target_outside_boundary_ = false;
     geometry_msgs::PoseStamped compensated_fc_goal_;
     geometry_msgs::Point compensated_target_center_;
     uav_vision::AlignmentTargetContext compensated_context_;
     ros::Time compensated_observation_stamp_;
     LandingHandoffStabilityConfig drop_settle_config_, landing_settle_config_, landing_capture_config_;
+    double drop_red_cross_xy_tolerance_m_ = 0.04;
     LandingHandoffStabilityWindow drop_capture_window_, drop_release_window_;
+    DropPreDescentStabilityConfig drop_pre_descent_config_;
+    int drop_horizontal_compensation_mode_ = 2;
+    double drop_pre_descent_stable_xy_tolerance_m_ = 0.04;
+    double drop_pre_descent_red_cross_xy_tolerance_m_ = 0.04;
+    DropPreDescentStabilityWindow drop_pre_descent_window_;
     LandingHandoffStabilityWindow landing_capture_window_, landing_handoff_window_;
     void motionOdomCallback(const nav_msgs::Odometry::ConstPtr& msg);
     const char* motionFeedbackStatus() const;
@@ -135,8 +162,11 @@ private:
     bool freshMotion(Eigen::Vector3d* velocity, Eigen::Vector3d* angular,
                      const char** rejection = nullptr) const;
     bool setCompensatedDropTarget(geometry_msgs::PoseStamped* target);
+    double compensatedDropXYTolerance(bool release = true) const;
+    bool compensatedDropTimeoutReady();
     bool compensatedDropSettled(bool release, double* error = nullptr,
-                                double* speed = nullptr);
+                                double* speed = nullptr, bool require_release_height = true);
+    double compensatedDropCommandHeight();
     void publishCompensatedAlignment();
     bool freezeCompensatedDropTarget();
     bool landingMotionSettled(bool handoff, double xy_error);
@@ -162,6 +192,15 @@ private:
     std::string servo_alignment_context_topic_ = "/uav_vision/alignment_target_context";
     void servoAlignmentContextCallback(const uav_vision::AlignmentTargetContext::ConstPtr& msg);
     AsyncServo async_servo_;
+    std::array<AsyncServo, 3> no_ack_servo_workers_;
+    bool drop_recover_without_ack_ = true;
+    double drop_recovery_delay_sec_ = 0.5;
+    bool drop_recovery_started_ = false;
+    uav_vision::AlignmentTargetContext servo_invocation_context_;
+    ros::Publisher release_invocation_pub_;
+    AsyncServo& servoWorkerForSlot(int slot);
+    void beginDropRecoveryWithoutAck();
+    void publishDropInvocation();
     std::uint64_t servo_action_id_ = 1;
     int servo_action_slot_ = 0;
     bool servo_action_attempted_ = false;
@@ -185,6 +224,23 @@ private:
     ros::Subscriber mission_command_sub_;
     ros::Subscriber landing_detections_sub_;
     ros::Subscriber external_landing_state_sub_;
+    ros::Subscriber external_landing_extended_state_sub_;
+    ros::ServiceClient external_landing_disarm_client_;
+    AsyncLandingDisarm external_landing_disarm_worker_;
+    OffboardLandingConfig offboard_landing_config_;
+    OffboardGroundConfirmation offboard_ground_confirmation_;
+    std::string external_landing_extended_state_topic_ = "/mavros/extended_state";
+    std::string external_landing_disarm_service_ = "/mavros/cmd/arming";
+    ros::Time external_landing_last_disarm_attempt_;
+    ros::Time external_landing_disarmed_pending_at_;
+    ros::Publisher external_landing_offboard_setpoint_pub_;
+    std::string external_landing_offboard_setpoint_topic_ = "/navigation/landing_setpoint_touchdown";
+    bool external_landing_offboard_floor_reached_ = false;
+    bool externalLandingOffboardDescentReady();
+    void publishExternalLandingOffboardSetpoint();
+    bool externalLandingOffboardStateReady(const ros::Time& now) const;
+    void externalLandingOffboardTick();
+    void externalLandingExtendedStateCallback(const mavros_msgs::ExtendedState::ConstPtr& msg);
     // 舵机控制发布器
     ros::Publisher servo1_pub_;
     ros::Publisher servo2_pub_;
@@ -244,6 +300,7 @@ private:
 
     float land_height = 0.3;
     float px4_max_distance = 1.2;
+    double takeoff_z_lead_m_ = 0.0;  // Opt-in [0.4, 0.6] m; zero is legacy.
     float max_yaw_change = 0.2;
 
     int waypoint_next = 0;
@@ -283,6 +340,16 @@ private:
     bool external_planner_height_hold_active_ = false;
     geometry_msgs::PoseStamped external_planner_height_hold_;
     std::string external_landing_frame_ = "camera_init";
+    std::string external_landing_alignment_mode_ = "non_vh";
+    LandingCoordinateFallbackConfig landing_coordinate_fallback_config_;
+    LandingCoordinateFallback landing_coordinate_fallback_;
+    bool coordinateLandingFallbackReady();
+    LandingHighAlignmentWindow landing_high_alignment_window_;
+    ros::Publisher landing_vertical_cmd_pub_;
+    // Reuse only the mathematical ramp; H has its own config and transaction.
+    DropDescentConfig landing_descent_config_;
+    DropDescentProfile landing_descent_profile_;
+    bool highLandingAlignmentReady();
     double external_landing_capture_height_ = 0.75;
     double external_landing_watchdog_timeout_sec_ = 120.0;
     double external_landing_mark_max_age_sec_ = 0.5;
@@ -335,6 +402,7 @@ private:
     double drop_height_threshold = 0.2;     // 旧链投递高度阈值（米）
     double drop_position_threshold_ = 0.15; // 旧链投递三维距离阈值（米）
     double drop_release_setpoint_height_ = 0.10; // 投递下降目标高度（米）
+    double drop_release_min_height_ = 0.10; // 独立释放下限；未配置时沿用下降目标
     double external_recovery_height_ = 0.95; // 外部投递恢复交接高度（米）
     double external_standard_recovery_setpoint_height_ = 1.20;
     double external_cross_recovery_setpoint_height_ = 1.15;
@@ -456,6 +524,12 @@ private:
     bool hasFreshDropOffset() const;
     bool hasFreshMissionReleasePermission() const;
     bool hasValidExternalPlannerCommand() const;
+    navigation_recovery_msgs::NavigationRecoveryGate navigation_recovery_gate_;
+    navigation_recovery_msgs::NavigationRecoveryContext navigation_recovery_context_;
+    navigation_recovery_msgs::NavigationRecoveryCommand navigation_recovery_command_;
+    ros::Subscriber navigation_recovery_sub_,navigation_recovery_context_sub_;
+    bool navigation_recovery_active_=false;
+    bool hasValidNavigationRecovery() const;
     void holdExternalPlannerHeight(const char* source, double rejected_z);
     DropReleaseGate currentDropReleaseGate() const;
     void clearUavVisionAlignmentState();

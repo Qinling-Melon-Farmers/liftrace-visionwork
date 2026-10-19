@@ -1,0 +1,21 @@
+<launch>
+  <!-- Observation-only localization: no camera, mapping, planner, mission or servo. -->
+  <arg name="lio_config" default="$(find uav_mission)/config/mid360_hardware.yaml"/>
+  <arg name="board_load" default="$(dirname)/../board_trials_4x4/common/uav_board_trials/config/board_load.yaml"/>
+  <arg name="prediction_state_enabled" default="false"/>
+  <arg name="lio_omp_places" default="{4},{5},{6},{7}"/>
+  <arg name="frame" default="camera_init"/>
+  <arg name="imu_to_body_xyz" default="[0.0, 0.0, -0.05]"/>
+  <rosparam file="$(arg lio_config)"/>
+  <rosparam file="$(arg board_load)"/>
+  <node pkg="fast_lio" type="fastlio_mapping" name="laserMapping" output="screen">
+    <param name="prediction_state_enabled" value="$(arg prediction_state_enabled)"/>
+    <env name="OMP_WAIT_POLICY" value="PASSIVE"/>
+    <env name="OMP_PROC_BIND" value="close"/>
+    <env name="OMP_PLACES" value="$(arg lio_omp_places)"/>
+  </node>
+  <node pkg="uav_mission" type="lio_external_pose.py" name="lio_external_pose" output="screen">
+    <param name="frame" value="$(arg frame)"/>
+    <rosparam param="imu_to_body_xyz" subst_value="true">$(arg imu_to_body_xyz)</rosparam>
+  </node>
+</launch>

@@ -1,0 +1,11 @@
+{
+  "agent_id": "01a129b2-938c-78b0-973b-170523fa50d1",
+  "agent_name": "Feynman",
+  "final": false,
+  "best_pt": "/home/xhj/liftrace/vision_ws/runs/liftrace_5cls_new_video_20261011/candidate/weights/best.pt",
+  "names": ["bridge", "panzer", "pillbox", "tent", "red_cross"],
+  "training_run": "fill with the actual completed training run",
+  "recipe": "path to actual recipe",
+  "source_statistics": "path to dataset/video/source statistics",
+  "test_summary": "path to actual test summary"
+}

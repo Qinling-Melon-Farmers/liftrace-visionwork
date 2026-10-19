@@ -1,0 +1,301 @@
+{
+  "label": "fast_high",
+  "seed": 32,
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_fast_five_seed32_20260915_101502",
+  "status": "FAIL",
+  "reason": "manager_failed",
+  "failed_checks": [
+    "committed_targets_were_selected",
+    "contract_errors_zero",
+    "doors_crossed_in_order",
+    "final_landed_on_ground",
+    "final_vehicle_disarmed",
+    "forced_return_within_limit",
+    "land_success",
+    "landing_align_mode_seen",
+    "landing_h_mark_valid",
+    "manager_complete",
+    "manager_post_delivery_route_matches",
+    "mission_ros_within_limit",
+    "post_delivery_return_goals",
+    "post_delivery_return_sequence",
+    "real_approach_commands",
+    "return_after_deliveries",
+    "return_before_land",
+    "return_home_success",
+    "three_capture_started",
+    "three_recovery_successes",
+    "three_release_commits"
+  ],
+  "start_ros_s": 11.449999999,
+  "observed_end_ros_s": 60.478,
+  "completed_mission_s": null,
+  "landing_transaction_s": null,
+  "observed_duration_s": 49.028000001,
+  "xy_distance_m": 28.506553975621287,
+  "xyz_distance_m": 29.936880739259045,
+  "speed_xy_p95_mps": 0.9071223180768472,
+  "max_fc_agl_m": 2.798383350256845,
+  "releases": [],
+  "gate_metrics": {
+    "approach_command_count": 0,
+    "boundary_violations": 0,
+    "capture_started_count": 0,
+    "decision_count": 7,
+    "door_crossings": [],
+    "height_violations": 0,
+    "landing_align_mode_seen": false,
+    "landing_h_mark_rejections": {},
+    "landing_h_tolerance": 0.35,
+    "landing_xy": [
+      4.2,
+      8.5
+    ],
+    "latest_armed": null,
+    "latest_landed_state": null,
+    "max_observed_height": 2.798383350256845,
+    "mission_ros_sec": null,
+    "mission_wall_sec": null,
+    "planner_goal_publishers": [
+      "/navigation/planner_bridge"
+    ],
+    "pose_samples": 2806,
+    "post_delivery_decision_indices": [],
+    "post_delivery_return_success_count": 0,
+    "post_delivery_route_revision": "r2026-experimental-neutral-wall-goals-v1",
+    "post_delivery_route_size": 9,
+    "recovery_success_count": 0,
+    "release_commit_count": 0,
+    "result_count": 26,
+    "selected_count": 463,
+    "simulation_realtime_factor": null,
+    "unmatched_result_count": 0,
+    "valid_landing_h_mark": null
+  },
+  "collisions": 0,
+  "sample_gap_count": 0,
+  "moving_xy_time_s": 47.573,
+  "nonmoving_xy_time_s": 1.4209999999999994,
+  "moving_sample_threshold_mps": 0.03,
+  "moving_speed_xy_median_mps": 0.781827279819979,
+  "moving_speed_xy_p95_mps": 0.9088166996464483,
+  "high_view_final": {
+    "ascent_verified": true,
+    "catalog_entries": 5,
+    "descent_proposal": null,
+    "done": true,
+    "events": [
+      {
+        "reason": "survey_complete_missing_top3",
+        "stage": "DONE",
+        "success": false,
+        "time": 59.899
+      }
+    ],
+    "failure": "survey_complete_missing_top3",
+    "first_hint_ready": {
+      "bridge": {
+        "evidence_count": 3,
+        "last_seen_ns": 28653000000,
+        "time": 28.685,
+        "uncertainty_m": 0.223030606716498,
+        "xy": [
+          2.358212199432509,
+          0.5166936358449229
+        ]
+      },
+      "panzer": {
+        "evidence_count": 3,
+        "last_seen_ns": 38355000000,
+        "time": 38.394,
+        "uncertainty_m": 0.2024961691454269,
+        "xy": [
+          3.297435014094289,
+          6.119505903589213
+        ]
+      },
+      "red_cross": {
+        "evidence_count": 3,
+        "last_seen_ns": 30759000000,
+        "time": 30.808,
+        "uncertainty_m": 0.20240272854061636,
+        "xy": [
+          4.3164595317784,
+          1.0661789900762313
+        ]
+      }
+    },
+    "low_limits_applied": false,
+    "observation_counts": {
+      "accepted": 219,
+      "candidate:profile_excluded": 2053,
+      "candidate:state_not_confirmed": 80,
+      "candidate:streak_too_short": 2056,
+      "duplicate_or_too_close": 265
+    },
+    "orders": [],
+    "reacquired": null,
+    "reacquisitions": [],
+    "required_classes": [
+      "bridge",
+      "panzer",
+      "red_cross"
+    ],
+    "scope": "HIGH_VIEW_FULL_MISSION",
+    "selected": null,
+    "slots_committed": 0,
+    "stage": "SURVEY",
+    "succeeded": false,
+    "survey_policy": {
+      "candidate_min_streak": 1,
+      "descent_max_candidates": 25,
+      "descent_radius_m": 1.5,
+      "direct_descent": true,
+      "max_uncertainty_m": 0.45,
+      "min_interval_ns": 100000000,
+      "min_span_ns": 200000000
+    },
+    "top_hints": {
+      "bridge": {
+        "class_name": "bridge",
+        "epoch": {
+          "calibration": "installed-camera-1280-v1",
+          "localization": "static-sitl-world",
+          "mission": "vcl06-random-11-450000000-1"
+        },
+        "evidence_count": 8,
+        "key": {
+          "first_seen_ns": 28253000000,
+          "target_id": 2
+        },
+        "last_seen_ns": 35621000000,
+        "role": "REVISIT_HINT_ONLY",
+        "uncertainty_m": 0.21987214351329926,
+        "vote_fraction": 1.0,
+        "xy": [
+          2.45097235265603,
+          0.47142826768108775
+        ]
+      },
+      "panzer": {
+        "class_name": "panzer",
+        "epoch": {
+          "calibration": "installed-camera-1280-v1",
+          "localization": "static-sitl-world",
+          "mission": "vcl06-random-11-450000000-1"
+        },
+        "evidence_count": 8,
+        "key": {
+          "first_seen_ns": 38054000000,
+          "target_id": 5
+        },
+        "last_seen_ns": 43461000000,
+        "role": "REVISIT_HINT_ONLY",
+        "uncertainty_m": 0.20419300677443858,
+        "vote_fraction": 1.0,
+        "xy": [
+          3.3575955804029394,
+          6.200331904972786
+        ]
+      }
+    }
+  },
+  "target_hint_evaluation": {
+    "bridge": {
+      "high_hint_error_m": 0.052473053456493605,
+      "hint_uncertainty_m": 0.21987214351329926,
+      "low_fused_point_error_m": null,
+      "source_age_at_reacquisition_s": null
+    },
+    "panzer": {
+      "high_hint_error_m": 0.10082785053261038,
+      "hint_uncertainty_m": 0.20419300677443858,
+      "low_fused_point_error_m": null,
+      "source_age_at_reacquisition_s": null
+    }
+  },
+  "commit_times": [],
+  "third_commit_s": null,
+  "first_commit_s": null,
+  "xy_distance_to_third_commit_m": null,
+  "armed_ros_s": 3.566,
+  "airborne_ros_s": 4.362,
+  "touchdown_ros_s": null,
+  "disarmed_ros_s": null,
+  "airborne_to_touchdown_s": null,
+  "armed_to_third_commit_s": null,
+  "touchdown_to_disarm_s": null,
+  "high_view_stage_changes": [
+    {
+      "name": "IDLE",
+      "t": 0.0
+    },
+    {
+      "name": "ASCEND",
+      "t": 11.484
+    },
+    {
+      "name": "SURVEY",
+      "t": 14.531
+    }
+  ],
+  "sampled_phase_durations_s": {
+    "SEARCH": 0.0,
+    "ASCEND": 3.0470000000000006,
+    "SURVEY": 45.947
+  },
+  "sampled_phase_changes": [
+    {
+      "t": 11.484,
+      "phase": "SEARCH"
+    },
+    {
+      "t": 11.484,
+      "phase": "ASCEND"
+    },
+    {
+      "t": 14.531,
+      "phase": "SURVEY"
+    }
+  ],
+  "speed_by_phase": {
+    "ASCEND": {
+      "median_mps": 0.05521046758858525,
+      "p95_mps": 0.10744138137182997,
+      "samples": 22
+    },
+    "SURVEY": {
+      "median_mps": 0.8010371638145348,
+      "p95_mps": 0.9162244323087659,
+      "samples": 444
+    }
+  },
+  "following_speed_transitions": [
+    {
+      "t": 11.484,
+      "phase": "CRUISE",
+      "lead_m": 1.0
+    },
+    {
+      "t": 59.917,
+      "phase": "TERMINAL",
+      "lead_m": 0.15
+    }
+  ],
+  "following_speed_stats": {
+    "CRUISE": {
+      "duration_s": 48.433,
+      "moving_samples": 462,
+      "median_mps": 0.7843251266843079,
+      "p95_mps": 0.9094218359213059
+    },
+    "TERMINAL": {
+      "duration_s": 0.5609999999999999,
+      "moving_samples": 5,
+      "median_mps": 0.0562284796907571,
+      "p95_mps": 0.06933825552614022
+    }
+  },
+  "third_commit_to_corridor_entry_s": null,
+  "fast_corridor_transit_s": null
+}

@@ -31,6 +31,10 @@ def production_method(source, signature):
 
 
 PROGRAM = r'''
+#include "patrol_control/offboard_landing.h"
+#include "patrol_control/landing_coordinate_fallback.h"
+#include <functional>
+using namespace patrol_control;
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -47,24 +51,29 @@ PROGRAM = r'''
 #define ROS_WARN(...) ((void)0)
 #define ROS_ERROR(...) ((void)0)
 namespace std_msgs { struct String; }
+namespace mavros_msgs { struct PositionTarget; }
 namespace ros {
 double clock = 100;
 struct Duration { double value; double toSec() const { return value; } };
 struct Time {
     double value;
     explicit Time(double v = 0) : value(v) {}
+    double toSec() const { return value; }
     bool isZero() const { return value == 0; }
     static Time now() { return Time(clock); }
     unsigned long long toNSec() const { return static_cast<unsigned long long>(value*1e9); }
 };
 bool operator==(Time a, Time b) { return a.value == b.value; }
+bool operator<(Time a, Time b) { return a.value < b.value; }
 bool operator<=(Time a, Time b) { return a.value <= b.value; }
 Duration operator-(Time a, Time b) { return Duration{a.value - b.value}; }
 struct Publisher {
     int calls=0;
+    std::vector<double> raw;
     std::vector<std::string> statuses;
     template<typename T> void publish(const T&) {++calls;}
     void publish(const std_msgs::String&);
+    void publish(const mavros_msgs::PositionTarget&);
 };
 }
 struct Header { unsigned int seq=0; ros::Time stamp; std::string frame_id; };
@@ -80,7 +89,20 @@ namespace std_msgs { struct Empty {}; struct Bool { bool data=false; }; struct S
 void ros::Publisher::publish(const std_msgs::String& message) {
     ++calls; statuses.push_back(message.data);
 }
+namespace Eigen { struct Vector3d {}; }
 namespace mavros_msgs {
+struct ExtendedState {
+    using ConstPtr = std::shared_ptr<const ExtendedState>;
+    enum { LANDED_STATE_IN_AIR=2, LANDED_STATE_ON_GROUND=1 };
+    Header header; int landed_state=0;
+};
+struct PositionTarget {
+    enum { FRAME_LOCAL_NED=1, IGNORE_PZ=4, IGNORE_VX=8, IGNORE_VY=16,
+           IGNORE_AFX=64, IGNORE_AFY=128, IGNORE_AFZ=256, IGNORE_YAW_RATE=2048 };
+    Header header; int coordinate_frame=0,type_mask=0; Position position,velocity; double yaw=0;
+};
+struct CommandBool { struct { bool value=true; } request; };
+
 struct State {
     using ConstPtr = std::shared_ptr<const State>;
     Header header; bool connected=false, armed=false; std::string mode;
@@ -89,6 +111,9 @@ struct SetMode {
     struct { std::string custom_mode; } request;
     struct { bool mode_sent=false; } response;
 };
+}
+void ros::Publisher::publish(const mavros_msgs::PositionTarget& msg) {
+    ++calls; raw={double(msg.type_mask), msg.position.x,msg.position.y,msg.position.z,msg.velocity.z,msg.yaw};
 }
 namespace patrol_control {
 struct MissionCommand {
@@ -124,8 +149,32 @@ struct SettlementWindowStub {
     int resets=0;
     void reset() { ++resets; }
 };
+struct DisarmService {
+    std::shared_ptr<int> calls=std::make_shared<int>(0);
+    bool call(mavros_msgs::CommandBool& msg) { assert(!msg.request.value); ++*calls; return true; }
+};
+struct DisarmWorkerStub {
+    int submits=0,cancels=0; bool busy=false;
+    void cancel() { ++cancels; }
+    bool submit(std::function<void()> fn) { if(busy) return false; ++submits; fn(); return true; }
+};
 class LLController {
 public:
+    OffboardLandingConfig offboard_landing_config_;
+    OffboardGroundConfirmation offboard_ground_confirmation_;
+    DisarmWorkerStub external_landing_disarm_worker_;
+    DisarmService external_landing_disarm_client_;
+    ros::Time external_landing_last_disarm_attempt_, external_landing_disarmed_pending_at_;
+    bool external_landing_offboard_floor_reached_=false;
+    bool motion_fresh_=true;
+    struct { struct { struct { Position position; } pose; } pose; } motion_odom_;
+    bool freshMotion(Eigen::Vector3d*, Eigen::Vector3d*) { return motion_fresh_; }
+    bool externalLandingOffboardStateReady(const ros::Time&) const;
+    bool externalLandingOffboardDescentReady();
+    void externalLandingOffboardTick();
+    void externalLandingExtendedStateCallback(const mavros_msgs::ExtendedState::ConstPtr&);
+    void publishExternalLandingOffboardSetpoint();
+    ros::Publisher external_landing_offboard_setpoint_pub_;
     bool external_mission_mode_=true, external_waiting_for_motion_=false;
     bool external_landing_active_=false, external_landing_new_mark_=false;
     bool external_landing_alignment_complete_=false;
@@ -134,6 +183,16 @@ public:
     bool flag_land=false, flag_takeoff_done=true, have_land_mark=false;
     bool have_planner_cmd=false, have_waypoint_mark=false, have_cross_mark=false;
     bool align_ok=false;
+    struct { int mode=1; } landing_descent_config_;
+    SettlementWindowStub landing_descent_profile_;
+    std::string external_landing_alignment_mode_="non_vh";
+    ros::Time drop_alignment_started_, drop_timeout_last_check_;
+    bool drop_timeout_clock_invalid_=false;
+    LandingCoordinateFallbackConfig landing_coordinate_fallback_config_;
+    LandingCoordinateFallback landing_coordinate_fallback_;
+    bool coordinateLandingFallbackReady() { return false; }
+    SettlementWindowStub landing_high_alignment_window_;
+    bool highLandingAlignmentReady() { return false; }
     SettlementWindowStub landing_capture_window_, landing_handoff_window_;
     bool landing_motion_settled_=true;
     int capture_settle_calls_=0, handoff_settle_calls_=0;
@@ -203,6 +262,11 @@ public:
     void missionCommandCallback(const patrol_control::MissionCommand::ConstPtr&);
     void plannercmdCallback(const geometry_msgs::PoseStamped&);
     bool hasValidExternalPlannerCommand() const;
+    // Recovery is not engaged by these H tests; its receiving gate is tested separately.
+    bool navigation_recovery_active_=false;
+    struct { Header header; } navigation_recovery_command_;
+    bool hasValidNavigationRecovery() const { return false; }
+
     void holdExternalPlannerHeight(const char* source, double rejected_z);
     static constexpr double external_planner_height_epsilon_=1e-9;
     bool external_planner_height_hold_active_=false;
@@ -466,9 +530,10 @@ int main(int argc, char** argv) {
         c.uav_pose.pose.position.z=.401; c.externalLandingTick();
         assert(c.set_mode_client.calls==0);
         c.uav_pose.pose.position.z=.35; c.uav_pose.pose.position.x+=.081;
-        c.externalLandingTick(); assert(c.set_mode_client.calls==0);
-        c.uav_pose.pose.position.x-=.081; c.set_mode_client.mode_sent=false;
+        // 当前POSCTL交接只检查高度/反馈窗口，不再加一层XY门槛。
+        c.set_mode_client.mode_sent=false;
         c.externalLandingTick(); assert(c.set_mode_client.calls==1 && !c.flag_land);
+        c.uav_pose.pose.position.x-=.081;
         ros::clock=100.9; c.externalLandingTick(); assert(c.set_mode_client.calls==1);
         c.set_mode_client.mode_sent=true; ros::clock=101; state(c);
         c.externalLandingTick(); assert(c.set_mode_client.calls==2 && c.flag_land);
@@ -672,6 +737,11 @@ class ExternalLandingHandoffTest(unittest.TestCase):
         signatures = (
             'bool LLController::externalLandingMarkFresh(',
             'bool LLController::externalLandingControlReady(',
+            'bool LLController::externalLandingOffboardStateReady(',
+            'bool LLController::externalLandingOffboardDescentReady(',
+            'void LLController::externalLandingOffboardTick(',
+            'void LLController::externalLandingExtendedStateCallback(',
+            'void LLController::publishExternalLandingOffboardSetpoint(',
             'void LLController::externalLandingStateCallback(',
             'void LLController::publishExternalLandingHandoff(',
             'void LLController::clearExternalLandingState(',
@@ -700,7 +770,7 @@ class ExternalLandingHandoffTest(unittest.TestCase):
         subprocess.run([
             'g++', '-std=c++14', '-O0', '-Wall', '-Wextra',
             '-Wno-unused-parameter', '-fsanitize=undefined',
-            '-fno-sanitize-recover=all', str(cpp), '-o', str(cls.binary),
+            '-fno-sanitize-recover=all', '-I', str(PACKAGE / 'include'), str(cpp), '-o', str(cls.binary),
         ], check=True)
 
     def test_repeated_align_cannot_reset_one_servo_action(self):

@@ -1,0 +1,55 @@
+<launch>
+  <!-- Phase D 纯 uav_vision 模式级 mock 回归入口 -->
+  <!-- 用固定检测 + 固定 align_mode 验证：
+       detections -> target_memory -> drop_aligner -> compat_bridge -->
+
+  <arg name="class_name" default="circle" />
+  <arg name="align_mode" default="drop_circle" />
+  <arg name="class_confidence" default="0.95" />
+  <arg name="geometry_confidence" default="0.95" />
+  <arg name="center_x" default="640.0" />
+  <arg name="center_y" default="480.0" />
+  <arg name="radius_px" default="120.0" />
+  <arg name="expect_target_class" default="$(arg class_name)" />
+  <arg name="expect_selected_class" default="" />
+  <arg name="expect_align_mode" default="$(arg align_mode)" />
+  <arg name="expect_yolo_detect" default="Nothing" />
+  <arg name="expect_drop_ready" default="true" />
+  <arg name="expect_cross_status" default="ignore" />
+  <arg name="timeout" default="8.0" />
+
+  <node pkg="uav_vision" type="mock_detection_feeder.py" name="mock_detection_feeder" output="screen">
+    <param name="class_name" value="$(arg class_name)" />
+    <param name="class_confidence" value="$(arg class_confidence)" />
+    <param name="geometry_confidence" value="$(arg geometry_confidence)" />
+    <param name="center_x" value="$(arg center_x)" />
+    <param name="center_y" value="$(arg center_y)" />
+    <param name="radius_px" value="$(arg radius_px)" />
+    <param name="rate" value="10.0" />
+  </node>
+
+  <node pkg="uav_vision" type="mock_align_mode_publisher.py" name="mock_align_mode_publisher" output="screen">
+    <param name="mode" value="$(arg align_mode)" />
+    <param name="rate" value="5.0" />
+  </node>
+
+  <node pkg="uav_vision" type="target_memory.py" name="target_memory" output="screen">
+    <rosparam file="$(find uav_vision)/config/target_memory.yaml"/>
+  </node>
+
+  <node pkg="uav_vision" type="drop_aligner.py" name="drop_aligner" output="screen">
+    <rosparam file="$(find uav_vision)/config/drop_aligner.yaml"/>
+  </node>
+
+  <node pkg="uav_vision" type="detect_compat_bridge.py" name="detect_compat_bridge" output="screen"/>
+
+  <node pkg="uav_vision" type="phase_d_assertion.py" name="phase_d_assertion" output="screen" required="true">
+    <param name="timeout" value="$(arg timeout)" />
+    <param name="expect_target_class" value="$(arg expect_target_class)" />
+    <param name="expect_selected_class" value="$(arg expect_selected_class)" />
+    <param name="expect_align_mode" value="$(arg expect_align_mode)" />
+    <param name="expect_yolo_detect" value="$(arg expect_yolo_detect)" />
+    <param name="expect_drop_ready" value="$(arg expect_drop_ready)" />
+    <param name="expect_cross_status" value="$(arg expect_cross_status)" />
+  </node>
+</launch>

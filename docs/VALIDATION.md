@@ -1,5 +1,7 @@
 # 当前验收结果
 
+2026-09-10全随机五seed已完成：2/5完整PASS、4/5三投、3/5两门和9点投后路线；五组靶板布设合法，seed31降落碰墙、33第二门前规划失败、34搜索耗时导致600秒截尾。算法和参数冻结，未补跑。[完整报告与20张图](verification/full_random_five_20260910/REPORT.md)。本批仍是笔记本SITL，实机验收未新增。
+
 R64最新：seed11完整37/37 PASS，未实机验收；必须同步PX4补丁。R64新包替代旧R62运行源码，十seed原始7/10完整PASS，5/7/8有墙重叠布设，修复后的新布设未重跑矩阵。见[本轮报告](verification/r64_seed11/REPORT.md)和[固件依赖](../deployment/px4_patches/README.md)。下文较早状态按历史记录阅读。
 
 2026-09-09最新：R63完整seed11：三投、三恢复、9个投后航点和两门通过；AUTO.LAND后碰墙，完整Gate FAIL。恢复修复已验证，最后降落仍阻塞。[报告](verification/r63_recovery/REPORT.md)。本轮只跑一次，不追加矩阵，旧包未重新打包。

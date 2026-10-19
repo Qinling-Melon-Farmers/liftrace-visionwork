@@ -1,0 +1,116 @@
+# ROS1 bag 离线回放小工具
+
+输入一个ROS1 `.bag`，生成相机原片、视觉叠加、俯视轨迹动画、多画面汇报视频以及时序报告。无需启动roscore、RViz、飞控或仿真，也不重新运行检测模型。只读取bag；不发布ROS话题或调用服务。
+
+## 快速使用
+
+在Ubuntu20.04/ROS Noetic或对应WSL内解压工具目录，执行：
+
+```bash
+bash run.sh /absolute/path/flight.bag /absolute/path/replay_output --fps 10 --frame map
+```
+
+路径可以含空格，但要加引号。输出使用专门的新目录；再次使用同一输出目录会覆盖本工具同名产物。`--frame`为俯视地图的显示坐标系；本项目一般为map或camera_init。Windows先进入WSL终端再执行即可。
+
+依赖：ROS Noetic的rosbag/Python3、FFmpeg/ffprobe；渲染Python需要NumPy、SciPy、OpenCV。不需要PyTorch、GPU或模型文件。作者笔记本自动使用已有rl_drone环境；其他机器通过环境变量选择已有Python：
+
+```bash
+REPLAY_PYTHON=/path/to/your/env/bin/python bash run.sh flight.bag replay_output
+```
+
+ROS不在默认位置时可设置`ROS_SETUP`；ROS读取解释器可设置`ROS_PYTHON`。不要在系统Python中额外安装ML包。先验证依赖，再运行；本工具不会自动安装软件。
+
+## 编码选择与效率
+
+默认 `--encoder cpu`：保持 FFmpeg/libx264 的 veryfast、CRF 23 配置。相机缩放结果和曲线坐标增加小缓存，向编码器传帧使用 buffer，减少重复缩放、坐标计算和整帧复制。OpenCV 解码、画框、地图、曲线及拼接仍在 CPU 上；NVENC 仅负责 H.264 编码，BGR 到 YUV 转换和传帧也仍有 CPU 开销。
+
+```bash
+# 默认 CPU；未安装 NVIDIA 驱动的机器也适用
+bash run.sh flight.bag replay_output --encoder cpu
+# 显式选择按能力探测 GPU；失败自动回退 CPU
+bash run.sh flight.bag replay_output --encoder auto
+# 要求 NVENC；预检失败直接报错
+bash run.sh flight.bag replay_output --encoder nvenc
+```
+
+`auto`/`nvenc` 会以实际输出尺寸，同时打开三路或四路 FFmpeg/NVENC 会话，每路编码并解码两帧；仅列出编码器或单会话通过不足以算可用。会话占满、驱动缺失等原因会记录到日志及 `summary.json` 的 `encoding` 字段。`auto` 按编码能力选择，不测试谁更快，因此不保证优于 CPU。显式 `cpu` 不做 GPU 预检。NVENC 使用 fast/VBR/CQ 23；它与 CPU 的压缩画质、体积不保证完全一致。
+
+正式编码中途失败会返回非零并标记 `render_status=failed`；不在中途拼接 CPU 视频或把截断文件当作成功。仅全部编码器正常完成且收到预期帧数才将 `.partial.mp4` 晋升为正式视频；失败时保留原始导出图片和诊断信息，可换新输出目录用 CPU 重做。`verify` 用 FFmpeg **一次完整解码**的 progress 帧数，再读取 ffprobe 元数据交叉检查尺寸、帧数和时长，不再用 `ffprobe -count_frames` 重复全片解码。1 倍速重采样、检测匹配与 TF 时效规则保持不变。
+
+2026-10-10，RTX4060 Laptop/WSL 的最新真实 bag 145～170 秒片段（25 秒、10fps、四路各 250 帧）两次对照，渲染耗时中位数如下：
+
+| 版本 | 渲染秒 | 一次完整解码校验秒 |
+|---|---:|---:|
+| 旧版 CPU | 10.722 | 1.542 |
+| 新版 CPU | 9.831 | 1.604 |
+| 新版 NVENC | 11.792 | 1.989 |
+
+此片新版 CPU 渲染耗时约减少 8.3%，仅是两次中位数，**不保证全 bag 或其他机器同样提速**。NVENC 四会话可用，但本次未体现总耗时收益，故默认 CPU。四路首、中、末帧旧/新 CPU 解码后逐像素一致；全部视频完整解码、帧数、尺寸、时长通过。详细结果见仓库根相对路径 `docs/verification/replay_gpu_20261010/REPORT.md`。
+
+`summary.json.timings` 分别记录 CPU 画面生成、传帧/等待、编码器收尾和总渲染耗时；GPU 预检另记 `encoding.probe_seconds`。编码器与 CPU 绘制可重叠，传帧等待包含管道传输、格式转换及编码回压，不能当作纯 GPU 编码时间。
+
+离线 helper/既有契约测试（不启动 ROS）：
+
+```bash
+python -m unittest test_core test_encoder -v
+# 可选：只测短合成片，输出目录必须是新目录
+python test_encoder.py --benchmark /tmp/replay_encoder_short --duration 8
+```
+
+打包时 `bag_replay.py` 必须与新增的 `video_encoder.py` 同目录；`test_encoder.py` 是测试和短合成基准工具，不是运行依赖。
+
+## 产物
+
+| 文件 | 内容 |
+|---|---|
+| index.html | 本地播放器，可切换四种视频 |
+| dashboard.mp4 | 左侧下视与视觉/坐标面板，右侧地图/轨迹与高度速度曲线，1920×1080 |
+| trajectory.mp4 | 俯视实际轨迹、最后记录规划曲线、设定点轨迹、目标与高度速度动画 |
+| camera_annotated.mp4 | 检测框、几何、投影、任务、许可及目标坐标 |
+| camera_raw.mp4 | 原始相机画面，缺相机话题时不生成 |
+| REPORT.md / summary.json | 数据范围、缺失话题、坐标系限制、分类检测/候选计数 |
+| events.csv | 指令、执行结果、投递回执事件 |
+| motion.csv / target_coordinates.csv | 位姿速度与目标坐标逐条记录 |
+| video_frames.csv | 视频帧与原始图像时间映射 |
+| validation.json | FFmpeg完整解码与时长检查结果 |
+| flight_summary.png | 全程轨迹与高度速度总览 |
+
+默认10fps，按bag时长1倍速重采样，绝不把3113张图强行按固定相机帧率播放导致时间缩短。`--fps 15`可增加帧率。无音轨。视频成功校验后只清理本工具导出的临时相机帧；原始bag不动。若准备重复渲染，使用`--keep-frames`。
+
+## 话题兼容
+
+默认适配本项目四套板端专项的视觉、任务、MAVROS、TF、规划Marker和膨胀点云。bag的自定义ROS消息由rosbag内嵌定义读取，无需复制板端整个源码工作区。
+
+不同话题名称用JSON覆盖：
+
+```json
+{"camera":"/camera/image_raw/compressed","odom":"/mavros/local_position/odom","trajectory":"/planning_vis/trajectory","cloud":"/sdf_map/occupancy_inflate"}
+```
+
+```bash
+bash run.sh flight.bag output --topics topics.json
+```
+
+当前相机入口支持CompressedImage，点云支持float32 x/y/z。优先Odometry，缺失时退回PoseStamped。规划曲线使用Marker的LINE_STRIP/LINE_LIST；仅有Bspline而无Marker时暂不重建，报告会说明缺失。缺失视觉或任务话题显示未知，不伪造结果。特别古老的bag可以生成有记录部分的轨迹/相机回放，不保证具备新视觉面板。
+
+## 阅读回放时的含义
+
+- 绿色是类别检测，青色是几何，黄色是地图/精修拒绝，紫色是有效投影。按图像时间戳30ms内离线匹配；不把前一帧框无限留到当前帧。检测器抽帧与相机不同步时会闪框，不能据此认定掉检。
+- 任务状态按录包接收时间；检测框离线回贴到源图像，因此可能先于当时在线任务响应出现。不要用该视频量算未经校正的在线延迟。
+- 坐标显示class、id、XYZ、frame、CURRENT/HISTORY与年龄。CURRENT只表示最近候选仍报告map_valid，不等于已允许投递。HISTORY是最后有效记录位置，不会为没有解算成功的panzer虚构XYZ。
+- TF按记录时间查询，动态TF最多使用0.5秒旧样本，不插值；未知变换会略去地图元素并记录警告，不把不同坐标系强行叠到一起。原坐标文本仍显示原frame。
+- 青色轨迹是定位结果，不是外部真值；粉色是控制设定点，橙色是最后记录的规划Marker。灰色点云是稀疏膨胀图的当前高度±0.3m切片，不能代替精密碰撞距离分析。
+- 高度是显示坐标系Z，非直接测距AGL。速度由0.5秒位置差分得到，定位跳变可能产生尖峰；不要将机体系twist的z分量直接解释成升降速度。
+- 泛化圆环circle不等于装甲车panzer已确认。现有精修会借用圆环中心，同时仍保留circle辅助记录，因此可能出现circle与类别两个ID；这不等于两个可投递靶。selected_target也不等于任务层已接纳该目标。
+- 具体模式以视频中的vision字段为准：landing模式会过滤非H；disabled仍开放搜索感知，不能误读为相机/检测关闭。
+
+## 验证范围
+
+已用2026-09-25 109.10秒实飞bag端到端导出四种视频并检查；通用性测试覆盖时间匹配、静态坐标旋转/逆变换、未知TF及动态过期。另已用2026-09-26 19:12的101.46秒实飞包生成并验证四种回放，报告见`docs/deployment/flight_review_20260926/REPORT.md`（仓库根相对路径）。尚未在队友不同发行版、ROS2或只有原始Image的bag上验收。
+
+分享时可只发`dashboard.mp4`给观看者；发本工具目录给分析者。完整输出目录可连同index.html一起压缩，浏览器本地打开即可。原始bag、data.json及大视频不提交Git。
+
+
+## 顺序分包合并
+
+ROS1环境中执行 `python3 merge_bags.py output.bag part0.bag part1.bag`。输入只读，输出必须不存在；分包须按时间顺序提供。乱序会给出警告，不自动重排消息。不依赖真实飞控或舵机服务。

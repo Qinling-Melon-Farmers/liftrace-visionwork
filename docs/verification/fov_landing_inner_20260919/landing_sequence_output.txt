@@ -1,0 +1,736 @@
+{
+  "label": "A_baseline",
+  "land_command_ros": 250.898,
+  "px4_time_minus_ros_s": -0.005999999999999117,
+  "clock_fit_rmse_m": 0.00019610808069245252,
+  "constant_enu_bias_m": [
+    9.629784561218318e-07,
+    -3.883896803982484e-06,
+    -4.953673966357561e-06
+  ],
+  "first_near_support_ros": 258.973,
+  "min_true_agl_m": 0.22499590114860868,
+  "ros_modes": [
+    {
+      "t": 257.88,
+      "mode": "AUTO.LAND",
+      "armed": true
+    },
+    {
+      "t": 264.878,
+      "mode": "OFFBOARD",
+      "armed": false
+    }
+  ],
+  "contact_events": [],
+  "support_events": [
+    {
+      "details": [
+        {
+          "info": "guard_xy_m=0.550000",
+          "max_depth_m": 9.831110577650844e-06,
+          "normals": [
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ]
+          ],
+          "pair": [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "landing_h::link::collision"
+          ],
+          "positions": [
+            [
+              -0.27500000000037145,
+              -0.27500000000130903,
+              0.00499016888942235
+            ],
+            [
+              -0.2749999999998926,
+              0.27499999999869057,
+              0.004990191943507015
+            ],
+            [
+              0.27500000000010666,
+              0.2749999999982106,
+              0.0049902206063431095
+            ],
+            [
+              0.2749999999996278,
+              -0.275000000001789,
+              0.004990197552258444
+            ]
+          ],
+          "total_force_norm_n": 15.30005400000046
+        }
+      ],
+      "last_ros_stamp": 7.964,
+      "peak_sampled_force_n": 15.30005400000046,
+      "ros_stamp": 0.684
+    },
+    {
+      "details": [
+        {
+          "info": "guard_xy_m=0.500000",
+          "max_depth_m": 0.0001269351348956809,
+          "normals": [
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ]
+          ],
+          "pair": [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "landing_h_clone::link::collision"
+          ],
+          "positions": [
+            [
+              8.233836160370094,
+              -4.452893084750567,
+              0.00487306486510432
+            ],
+            [
+              8.733835730752986,
+              -4.452247094669914,
+              0.004984032156064873
+            ]
+          ],
+          "total_force_norm_n": 118.77077036073537
+        }
+      ],
+      "last_ros_stamp": 258.964,
+      "peak_sampled_force_n": 118.77077036073537,
+      "ros_stamp": 258.921
+    },
+    {
+      "details": [
+        {
+          "info": "guard_xy_m=0.500000",
+          "max_depth_m": 8.025221158477428e-06,
+          "normals": [
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ]
+          ],
+          "pair": [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "landing_h_clone::link::collision"
+          ],
+          "positions": [
+            [
+              8.238879532370477,
+              -4.458545547038972,
+              0.004993934749572217
+            ],
+            [
+              8.238002058940236,
+              -3.9585463170339423,
+              0.004999830202420815
+            ],
+            [
+              8.73800128897614,
+              -3.957668843580537,
+              0.004997870231690122
+            ],
+            [
+              8.738878762406381,
+              -4.457668073585567,
+              0.004991974778841522
+            ]
+          ],
+          "total_force_norm_n": 15.300053999999959
+        }
+      ],
+      "last_ros_stamp": 265.004,
+      "peak_sampled_force_n": 15.300053999999959,
+      "ros_stamp": 260.126
+    }
+  ],
+  "guard_xy_m": 0.5,
+  "land_speed_parameter": 0.25,
+  "px4_land_flags": [
+    {
+      "t": 249.96599999999998,
+      "ground_contact": false,
+      "maybe_landed": false,
+      "landed": false,
+      "in_ground_effect": false,
+      "in_descend": false
+    },
+    {
+      "t": 258.14199999999994,
+      "ground_contact": false,
+      "maybe_landed": false,
+      "landed": false,
+      "in_ground_effect": true,
+      "in_descend": true
+    },
+    {
+      "t": 261.67799999999994,
+      "ground_contact": true,
+      "maybe_landed": false,
+      "landed": false,
+      "in_ground_effect": true,
+      "in_descend": true
+    },
+    {
+      "t": 262.03,
+      "ground_contact": true,
+      "maybe_landed": true,
+      "landed": false,
+      "in_ground_effect": true,
+      "in_descend": true
+    },
+    {
+      "t": 262.366,
+      "ground_contact": true,
+      "maybe_landed": true,
+      "landed": true,
+      "in_ground_effect": true,
+      "in_descend": true
+    },
+    {
+      "t": 264.40599999999995,
+      "ground_contact": true,
+      "maybe_landed": true,
+      "landed": true,
+      "in_ground_effect": false,
+      "in_descend": false
+    }
+  ],
+  "reset_counters_after_startup": {
+    "xy_reset_counter": [
+      2
+    ],
+    "z_reset_counter": [
+      2
+    ],
+    "heading_reset_counter": [
+      1
+    ]
+  }
+}
+last PX4 setpoints {'trajectory_setpoint': [{'t': 263.50199999999995, 'position[0]': -4.182184219360352, 'position[1]': 8.48603630065918, 'position[2]': -0.006288229953497648, 'velocity[0]': -0.0006395986420102417, 'velocity[1]': -0.0008952892967499793, 'velocity[2]': 0.6988484263420105}, {'t': 264.102, 'position[0]': -4.1780171394348145, 'position[1]': 8.488853454589844, 'position[2]': -0.003638054011389613, 'velocity[0]': -0.0007137309876270592, 'velocity[1]': -0.0009321258403360844, 'velocity[2]': 0.6988480687141418}, {'t': 264.70199999999994, 'position[0]': -4.21430778503418, 'position[1]': 8.460651397705078, 'position[2]': -0.07999999821186066, 'velocity[0]': None, 'velocity[1]': None, 'velocity[2]': None}, {'t': 265.294, 'position[0]': -4.21430778503418, 'position[1]': 8.460651397705078, 'position[2]': -0.07999999821186066, 'velocity[0]': None, 'velocity[1]': None, 'velocity[2]': None}], 'vehicle_local_position_setpoint': [{'t': 264.06199999999995, 'x': None, 'y': None, 'z': None, 'vx': None, 'vy': None, 'vz': None}, {'t': 264.566, 'x': None, 'y': None, 'z': None, 'vx': None, 'vy': None, 'vz': None}, {'t': 265.06999999999994, 'x': None, 'y': None, 'z': None, 'vx': None, 'vy': None, 'vz': None}, {'t': 265.366, 'x': None, 'y': None, 'z': None, 'vx': None, 'vy': None, 'vz': None}]}
+{
+  "label": "B_corridor",
+  "land_command_ros": 187.487,
+  "px4_time_minus_ros_s": -0.004999999999999116,
+  "clock_fit_rmse_m": 0.00041782149916802134,
+  "constant_enu_bias_m": [
+    -2.195682431694206e-06,
+    -3.623786230879907e-05,
+    -1.564110124404579e-05
+  ],
+  "first_near_support_ros": 195.151,
+  "min_true_agl_m": 0.22499920253151043,
+  "ros_modes": [
+    {
+      "t": 194.94,
+      "mode": "AUTO.LAND",
+      "armed": true
+    },
+    {
+      "t": 200.932,
+      "mode": "OFFBOARD",
+      "armed": false
+    }
+  ],
+  "contact_events": [],
+  "support_events": [
+    {
+      "details": [
+        {
+          "info": "guard_xy_m=0.550000",
+          "max_depth_m": 9.831110577650844e-06,
+          "normals": [
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ]
+          ],
+          "pair": [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "landing_h::link::collision"
+          ],
+          "positions": [
+            [
+              -0.27500000000037145,
+              -0.27500000000130903,
+              0.00499016888942235
+            ],
+            [
+              -0.2749999999998926,
+              0.27499999999869057,
+              0.004990191943507015
+            ],
+            [
+              0.27500000000010666,
+              0.2749999999982106,
+              0.0049902206063431095
+            ],
+            [
+              0.2749999999996278,
+              -0.275000000001789,
+              0.004990197552258444
+            ]
+          ],
+          "total_force_norm_n": 15.30005400000046
+        }
+      ],
+      "last_ros_stamp": 8.008,
+      "peak_sampled_force_n": 15.30005400000046,
+      "ros_stamp": 0.709
+    },
+    {
+      "details": [
+        {
+          "info": "guard_xy_m=0.500000",
+          "max_depth_m": 0.0002359140905699537,
+          "normals": [
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ]
+          ],
+          "pair": [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "landing_h_clone::link::collision"
+          ],
+          "positions": [
+            [
+              8.298274874408605,
+              -4.487870584871647,
+              0.004933082845712426
+            ],
+            [
+              8.296028113023922,
+              -3.9878756363351684,
+              0.004992254496611124
+            ],
+            [
+              8.796023036412103,
+              -3.985628855063634,
+              0.004823257560328744
+            ],
+            [
+              8.798269797796786,
+              -4.485623803600113,
+              0.004764085909430046
+            ]
+          ],
+          "total_force_norm_n": 0.044258644908584145
+        }
+      ],
+      "last_ros_stamp": 195.188,
+      "peak_sampled_force_n": 0.044258644908584145,
+      "ros_stamp": 195.151
+    },
+    {
+      "details": [
+        {
+          "info": "guard_xy_m=0.500000",
+          "max_depth_m": 1.4180933955417266e-06,
+          "normals": [
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ]
+          ],
+          "pair": [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "landing_h_clone::link::collision"
+          ],
+          "positions": [
+            [
+              8.298605464536664,
+              -4.4881737758082645,
+              0.00499957675606432
+            ],
+            [
+              8.296424081900971,
+              -3.988178534261174,
+              0.004999828002007431
+            ],
+            [
+              8.796419323447134,
+              -3.9859971516249866,
+              0.0049988331525475695
+            ],
+            [
+              8.798600706082825,
+              -4.4859923931720775,
+              0.004998581906604458
+            ]
+          ],
+          "total_force_norm_n": 15.300054000000285
+        }
+      ],
+      "last_ros_stamp": 201.148,
+      "peak_sampled_force_n": 15.300054000000285,
+      "ros_stamp": 195.667
+    }
+  ],
+  "guard_xy_m": 0.5,
+  "land_speed_parameter": 0.25,
+  "px4_land_flags": [
+    {
+      "t": 186.98499999999999,
+      "ground_contact": false,
+      "maybe_landed": false,
+      "landed": false,
+      "in_ground_effect": false,
+      "in_descend": false
+    },
+    {
+      "t": 194.51299999999998,
+      "ground_contact": false,
+      "maybe_landed": false,
+      "landed": false,
+      "in_ground_effect": true,
+      "in_descend": true
+    },
+    {
+      "t": 197.68099999999998,
+      "ground_contact": true,
+      "maybe_landed": false,
+      "landed": false,
+      "in_ground_effect": true,
+      "in_descend": true
+    },
+    {
+      "t": 198.033,
+      "ground_contact": true,
+      "maybe_landed": true,
+      "landed": false,
+      "in_ground_effect": true,
+      "in_descend": true
+    },
+    {
+      "t": 198.369,
+      "ground_contact": true,
+      "maybe_landed": true,
+      "landed": true,
+      "in_ground_effect": true,
+      "in_descend": true
+    },
+    {
+      "t": 200.42499999999998,
+      "ground_contact": true,
+      "maybe_landed": true,
+      "landed": true,
+      "in_ground_effect": false,
+      "in_descend": false
+    }
+  ],
+  "reset_counters_after_startup": {
+    "xy_reset_counter": [
+      2
+    ],
+    "z_reset_counter": [
+      2
+    ],
+    "heading_reset_counter": [
+      1
+    ]
+  }
+}
+last PX4 setpoints {'trajectory_setpoint': [{'t': 199.553, 'position[0]': -4.2523627281188965, 'position[1]': 8.50667953491211, 'position[2]': -0.015215092338621616, 'velocity[0]': 0.00032053576433099806, 'velocity[1]': -2.474445864208974e-05, 'velocity[2]': 0.698848307132721}, {'t': 200.153, 'position[0]': -4.256429195404053, 'position[1]': 8.513137817382812, 'position[2]': 0.0031386814080178738, 'velocity[0]': 0.00047768943477422, 'velocity[1]': -0.00012641485955100507, 'velocity[2]': 0.6988483667373657}, {'t': 200.71699999999998, 'position[0]': -4.24810791015625, 'position[1]': 8.469273567199707, 'position[2]': -0.07999999821186066, 'velocity[0]': None, 'velocity[1]': None, 'velocity[2]': None}, {'t': 201.31699999999998, 'position[0]': -4.24810791015625, 'position[1]': 8.469273567199707, 'position[2]': -0.07999999821186066, 'velocity[0]': None, 'velocity[1]': None, 'velocity[2]': None}], 'vehicle_local_position_setpoint': [{'t': 199.81699999999998, 'x': None, 'y': None, 'z': None, 'vx': None, 'vy': None, 'vz': None}, {'t': 200.41699999999997, 'x': None, 'y': None, 'z': None, 'vx': None, 'vy': None, 'vz': None}, {'t': 201.009, 'x': None, 'y': None, 'z': None, 'vx': None, 'vy': None, 'vz': None}, {'t': 201.313, 'x': None, 'y': None, 'z': None, 'vx': None, 'vy': None, 'vz': None}]}
+{
+  "label": "C_high3",
+  "land_command_ros": 219.226,
+  "px4_time_minus_ros_s": -0.005999999999999117,
+  "clock_fit_rmse_m": 0.0008238449943516812,
+  "constant_enu_bias_m": [
+    -6.5591897858021685e-06,
+    -1.5845626926642908e-05,
+    0.00012756810553683922
+  ],
+  "first_near_support_ros": 224.978,
+  "min_true_agl_m": 0.2248585826590757,
+  "ros_modes": [
+    {
+      "t": 224.14,
+      "mode": "AUTO.LAND",
+      "armed": true
+    },
+    {
+      "t": 230.142,
+      "mode": "OFFBOARD",
+      "armed": false
+    }
+  ],
+  "contact_events": [],
+  "support_events": [
+    {
+      "details": [
+        {
+          "info": "guard_xy_m=0.550000",
+          "max_depth_m": 9.831110577650844e-06,
+          "normals": [
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ]
+          ],
+          "pair": [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "landing_h::link::collision"
+          ],
+          "positions": [
+            [
+              -0.27500000000037145,
+              -0.27500000000130903,
+              0.00499016888942235
+            ],
+            [
+              -0.2749999999998926,
+              0.27499999999869057,
+              0.004990191943507015
+            ],
+            [
+              0.27500000000010666,
+              0.2749999999982106,
+              0.0049902206063431095
+            ],
+            [
+              0.2749999999996278,
+              -0.275000000001789,
+              0.004990197552258444
+            ]
+          ],
+          "total_force_norm_n": 15.30005400000046
+        }
+      ],
+      "last_ros_stamp": 8.368,
+      "peak_sampled_force_n": 15.30005400000046,
+      "ros_stamp": 0.929
+    },
+    {
+      "details": [
+        {
+          "info": "guard_xy_m=0.500000",
+          "max_depth_m": 9.861849313236607e-05,
+          "normals": [
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -0.0,
+              1.0
+            ]
+          ],
+          "pair": [
+            "iris_mid360::iris::base_link::competition_guard_collision",
+            "landing_h_clone::link::collision"
+          ],
+          "positions": [
+            [
+              8.268338309434755,
+              -4.502682175323384,
+              0.0049192924814280385
+            ],
+            [
+              8.268324806364026,
+              -4.00268217582652,
+              0.0049013815068676345
+            ],
+            [
+              8.768324802801015,
+              -4.002668670673073,
+              0.004959524611274677
+            ],
+            [
+              8.768338305871746,
+              -4.502668670169938,
+              0.004977435585835081
+            ]
+          ],
+          "total_force_norm_n": 15.300054000000006
+        }
+      ],
+      "last_ros_stamp": 230.349,
+      "peak_sampled_force_n": 15.300054000000006,
+      "ros_stamp": 224.973
+    }
+  ],
+  "guard_xy_m": 0.5,
+  "land_speed_parameter": 0.25,
+  "px4_land_flags": [
+    {
+      "t": 219.19899999999998,
+      "ground_contact": false,
+      "maybe_landed": false,
+      "landed": false,
+      "in_ground_effect": false,
+      "in_descend": false
+    },
+    {
+      "t": 224.255,
+      "ground_contact": false,
+      "maybe_landed": false,
+      "landed": false,
+      "in_ground_effect": true,
+      "in_descend": true
+    },
+    {
+      "t": 226.719,
+      "ground_contact": true,
+      "maybe_landed": false,
+      "landed": false,
+      "in_ground_effect": true,
+      "in_descend": true
+    },
+    {
+      "t": 227.071,
+      "ground_contact": true,
+      "maybe_landed": true,
+      "landed": false,
+      "in_ground_effect": true,
+      "in_descend": true
+    },
+    {
+      "t": 227.40699999999998,
+      "ground_contact": true,
+      "maybe_landed": true,
+      "landed": true,
+      "in_ground_effect": true,
+      "in_descend": true
+    },
+    {
+      "t": 229.43099999999998,
+      "ground_contact": true,
+      "maybe_landed": true,
+      "landed": true,
+      "in_ground_effect": false,
+      "in_descend": false
+    }
+  ],
+  "reset_counters_after_startup": {
+    "xy_reset_counter": [
+      2
+    ],
+    "z_reset_counter": [
+      2
+    ],
+    "heading_reset_counter": [
+      1
+    ]
+  }
+}
+last PX4 setpoints {'trajectory_setpoint': [{'t': 228.975, 'position[0]': -4.178787708282471, 'position[1]': 8.569955825805664, 'position[2]': 0.07102632522583008, 'velocity[0]': -0.0004020335036329925, 'velocity[1]': 0.0, 'velocity[2]': 0.6994880437850952}, {'t': 229.57899999999998, 'position[0]': -4.245941162109375, 'position[1]': 8.487092971801758, 'position[2]': -0.045174602419137955, 'velocity[0]': None, 'velocity[1]': None, 'velocity[2]': None}, {'t': 230.183, 'position[0]': -4.251715660095215, 'position[1]': 8.479940414428711, 'position[2]': -0.052720434963703156, 'velocity[0]': None, 'velocity[1]': None, 'velocity[2]': None}, {'t': 230.331, 'position[0]': -4.252778053283691, 'position[1]': 8.478778839111328, 'position[2]': -0.053365908563137054, 'velocity[0]': None, 'velocity[1]': None, 'velocity[2]': None}], 'vehicle_local_position_setpoint': [{'t': 229.279, 'x': None, 'y': None, 'z': None, 'vx': None, 'vy': None, 'vz': None}, {'t': 229.783, 'x': None, 'y': None, 'z': None, 'vx': None, 'vy': None, 'vz': None}, {'t': 230.28699999999998, 'x': None, 'y': None, 'z': None, 'vx': None, 'vy': None, 'vz': None}, {'t': 230.38299999999998, 'x': None, 'y': None, 'z': None, 'vx': None, 'vy': None, 'vz': None}]}

@@ -1,0 +1,26 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>9月26日19:12 实飞复盘</title>
+<style>
+body{margin:24px auto;max-width:1440px;padding:0 20px;background:#101820;color:#e9f0f7;font:17px/1.6 system-ui,sans-serif}
+h1{font-size:30px}a{color:#8cd9ff}video,img{width:100%;border-radius:8px}button{border:1px solid #547184;background:#24394a;color:white;padding:10px 14px;margin:5px 4px;border-radius:6px;cursor:pointer}
+.note{padding:16px 20px;background:#1c2c39;border-left:4px solid #7ed7c6;margin:18px 0}.warn{border-left-color:#edb975}
+small{color:#aec1d0}h2{margin-top:32px}
+</style>
+<h1>红十字一投完成；装甲车在返航时才确认</h1>
+<p>2026-09-26 19:12 · 最简直线投递测试 · 101.5秒 / 1倍速 · 原始记录离线回放</p>
+<div class="note">27.87秒红十字槽1释放服务ACK成功，随后恢复搜索。37.53秒航线完成返航；52.53秒装甲车才确认，当前返航阶段不接受新中断。降落旋转后人工接管已由现场确认。</div>
+<video id="v" controls preload="metadata" poster="red_alignment.jpg" src="../../../logs/flight_review_20260926_191221/replay/dashboard.mp4"></video>
+<div id="formats"></div><div id="chapters"></div>
+<p><a href="REPORT.md">完整报告</a> · <a href="metrics.json">精确指标</a> · <a href="../../../logs/flight_review_20260926_191221/replay/dashboard.mp4">下载汇报MP4</a> · <a href="../../../tools/bag_replay/README.md">复用工具说明</a></p>
+<p><small>circle是辅助几何ID，不计作额外投递目标；selected表示视觉认可，不表示任务已接纳。像素框按源图时间回贴，在线任务按录包接收时间显示。坐标为机载估计，无外部落点真值。</small></p>
+<div class="note warn">最新20:52远端代码晚于这次飞行：最简测试改为POSCTL交飞手；默认capture_height=0.10≤auto_land_height=0.15，与启动检查冲突。报告中已单独指出；本轮未修改飞行代码。</div>
+<h2>装甲车两次经过</h2><img src="panzer_two_passes.jpg" alt="去程与返程装甲车检测、圆环精修中心和有效地图位置">
+<h2>高度、速度与候选时序</h2><img src="height_speed_vision.png" alt="全程高度速度偏航和候选形成时序">
+<h2>轨迹与降落记录</h2><img src="trajectory_landing.png" alt="分阶段实际航迹和降落区域轨迹">
+<script>
+const v=document.getElementById('v'),base='../../../logs/flight_review_20260926_191221/replay/';
+for(const [name,label] of [['dashboard','多画面汇报'],['trajectory','轨迹动画'],['camera_annotated','视觉叠加'],['camera_raw','相机原片']]){
+ const b=document.createElement('button');b.textContent=label;b.onclick=()=>{const t=v.currentTime;v.src=base+name+'.mp4';v.addEventListener('loadedmetadata',()=>{v.currentTime=t;v.play().catch(()=>{});},{once:true});};document.getElementById('formats').append(b);}
+for(const [t,label] of [[12.3,'开始前飞'],[15.1,'装甲车单次观测'],[18.7,'红十字确认'],[24.3,'对准承诺'],[27.6,'释放ACK'],[37.3,'主动返航'],[51.8,'装甲车返程确认'],[58.5,'降落交接'],[63.6,'人工接管']]){
+ const b=document.createElement('button');b.textContent=label;b.onclick=()=>{v.currentTime=t;v.play().catch(()=>{});};document.getElementById('chapters').append(b);}
+</script></html>

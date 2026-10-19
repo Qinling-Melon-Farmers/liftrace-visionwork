@@ -1,0 +1,11 @@
+{
+  "run_complete": true,
+  "gate": "PASS37/37",
+  "timeout_parameter_readback": 20,
+  "same_scenario": true,
+  "png_decode_pass": true,
+  "video_count": 0,
+  "bag_count": 0,
+  "cleanup_pass": true,
+  "runs_this_request": 1
+}

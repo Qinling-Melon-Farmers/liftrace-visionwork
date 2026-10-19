@@ -1,0 +1,86 @@
+{
+  "layout_validation": [
+    {
+      "seed": 32,
+      "same_world": true,
+      "same_target_layout": true
+    },
+    {
+      "seed": 34,
+      "same_world": true,
+      "same_target_layout": true
+    }
+  ],
+  "effects": [
+    {
+      "seed": 32,
+      "from_method": "slow_coverage",
+      "to_method": "fast_coverage",
+      "full_gain_pct": 34.06308103940865,
+      "third_gain_pct": 39.244105732068846
+    },
+    {
+      "seed": 32,
+      "from_method": "slow_coverage",
+      "to_method": "slow_high",
+      "full_gain_pct": 33.820083745257215,
+      "third_gain_pct": 55.80983128191597
+    },
+    {
+      "seed": 32,
+      "from_method": "slow_high",
+      "to_method": "fast_high",
+      "full_gain_pct": 35.54077204202832,
+      "third_gain_pct": 41.07353602337867
+    },
+    {
+      "seed": 32,
+      "from_method": "fast_coverage",
+      "to_method": "fast_high",
+      "full_gain_pct": 35.3032204817827,
+      "third_gain_pct": 57.140448404831496
+    },
+    {
+      "seed": 32,
+      "from_method": "slow_coverage",
+      "to_method": "fast_high",
+      "full_gain_pct": 57.340936918960594,
+      "third_gain_pct": 73.96029614913003
+    },
+    {
+      "seed": 34,
+      "from_method": "slow_coverage",
+      "to_method": "fast_coverage",
+      "full_gain_pct": null,
+      "third_gain_pct": null
+    },
+    {
+      "seed": 34,
+      "from_method": "slow_coverage",
+      "to_method": "slow_high",
+      "full_gain_pct": null,
+      "third_gain_pct": 43.16180163897763
+    },
+    {
+      "seed": 34,
+      "from_method": "slow_high",
+      "to_method": "fast_high",
+      "full_gain_pct": 35.79863799907758,
+      "third_gain_pct": 43.33571688703301
+    },
+    {
+      "seed": 34,
+      "from_method": "fast_coverage",
+      "to_method": "fast_high",
+      "full_gain_pct": null,
+      "third_gain_pct": null
+    },
+    {
+      "seed": 34,
+      "from_method": "slow_coverage",
+      "to_method": "fast_high",
+      "full_gain_pct": null,
+      "third_gain_pct": 67.79304236440052
+    }
+  ]
+}

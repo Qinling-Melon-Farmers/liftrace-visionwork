@@ -1,0 +1,24 @@
+{
+  "python": "/home/xhj/miniconda3/envs/rl_drone/bin/python",
+  "cases": [
+    {
+      "seed": 31,
+      "same_historical_world": true,
+      "mission_unchanged_except_speed_stage": true,
+      "full_height_columns": true
+    },
+    {
+      "seed": 32,
+      "same_historical_world": true,
+      "mission_unchanged_except_speed_stage": true,
+      "full_height_columns": true
+    },
+    {
+      "seed": 34,
+      "same_historical_world": true,
+      "mission_unchanged_except_speed_stage": true,
+      "full_height_columns": true
+    }
+  ],
+  "scope": "Static launch expansion only"
+}

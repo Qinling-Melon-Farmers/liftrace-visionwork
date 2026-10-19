@@ -1,0 +1,56 @@
+[
+  {
+    "module": "01_visual_interrupt",
+    "returncode": 0,
+    "stdout": "CONFIG_VALID; no ROS nodes started\n",
+    "stderr": ""
+  },
+  {
+    "module": "02_high_view_revisit",
+    "returncode": 0,
+    "stdout": "CONFIG_VALID; no ROS nodes started\n",
+    "stderr": ""
+  },
+  {
+    "module": "03_h_landing",
+    "returncode": 0,
+    "stdout": "CONFIG_VALID; no ROS nodes started\n",
+    "stderr": ""
+  },
+  {
+    "module": "04_corridor_landing",
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "usage: run_trial.py [-h] --root ROOT [--model MODEL] [--metadata METADATA]\n                    [--check-config] [--site-config SITE_CONFIG]\n                    [--real-release]\n                    [--mapping-startup-config MAPPING_STARTUP_CONFIG]\n                    [--capture-speed {0.5,1.0,1.2}]\n                    [--capture-lighting {normal,dim,unspecified}]\n                    [--motion-optimized]\n                    [--survey-pattern {rectangle,snake2,snake3}]\n                    [--resume-survey {on,off}]\n                    {corridor_landing,full_mission,high_priority,high_speed_capture,high_view,landing,low_multi,memory_only,visual_interrupt}\n                    {preview,flight}\nrun_trial.py: error: Fill corridor_waypoints with at least two measured waypoints; no default route is permitted\n"
+  },
+  {
+    "module": "05_low_multi",
+    "returncode": 0,
+    "stdout": "CONFIG_VALID; no ROS nodes started\n",
+    "stderr": ""
+  },
+  {
+    "module": "06_high_priority",
+    "returncode": 0,
+    "stdout": "CONFIG_VALID; no ROS nodes started\n",
+    "stderr": ""
+  },
+  {
+    "module": "07_memory_only",
+    "returncode": 0,
+    "stdout": "CONFIG_VALID; no ROS nodes started\n",
+    "stderr": ""
+  },
+  {
+    "module": "08_full_mission",
+    "returncode": 2,
+    "stdout": "",
+    "stderr": "usage: run_trial.py [-h] --root ROOT [--model MODEL] [--metadata METADATA]\n                    [--check-config] [--site-config SITE_CONFIG]\n                    [--real-release]\n                    [--mapping-startup-config MAPPING_STARTUP_CONFIG]\n                    [--capture-speed {0.5,1.0,1.2}]\n                    [--capture-lighting {normal,dim,unspecified}]\n                    [--motion-optimized]\n                    [--survey-pattern {rectangle,snake2,snake3}]\n                    [--resume-survey {on,off}]\n                    {corridor_landing,full_mission,high_priority,high_speed_capture,high_view,landing,low_multi,memory_only,visual_interrupt}\n                    {preview,flight}\nrun_trial.py: error: Fill corridor_waypoints with at least two measured waypoints; no default route is permitted\n"
+  },
+  {
+    "module": "09_high_speed_capture",
+    "returncode": 0,
+    "stdout": "CONFIG_VALID; no ROS nodes started\n",
+    "stderr": ""
+  }
+]

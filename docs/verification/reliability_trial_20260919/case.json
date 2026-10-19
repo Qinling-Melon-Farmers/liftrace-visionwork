@@ -1,0 +1,7 @@
+{
+  "seed": 2672,
+  "world": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/reliability_trial_20260919/seed_2672/field.world",
+  "field_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/reliability_trial_20260919/seed_2672/field_config.yaml",
+  "runtime_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/reliability_trial_20260919/seed_2672/runtime.yaml",
+  "gate_geometry_config": "/home/xhj/liftrace-worktrees/r2026-high-view-search/docs/verification/reliability_trial_20260919/seed_2672/gate_geometry.yaml"
+}

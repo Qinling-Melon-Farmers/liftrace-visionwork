@@ -1,0 +1,94 @@
+{
+  "scope": "HIGH_VIEW_SINGLE_REVISIT_NOT_FULL_MISSION",
+  "run": "/home/xhj/liftrace-worktrees/r2026-high-view-search/logs/high_view_dynamic_seed34_id0_20260914_000011",
+  "status": "PASS",
+  "reason": "fresh_low_reacquisition",
+  "mission_observed_seconds": 72.53,
+  "stages": [
+    {
+      "stage": "ASCEND",
+      "start": 11.488,
+      "end": 16.129,
+      "seconds": 4.641000000000002
+    },
+    {
+      "stage": "SURVEY",
+      "start": 16.129,
+      "end": 56.501,
+      "seconds": 40.372
+    },
+    {
+      "stage": "RETURN_COLUMN",
+      "start": 56.501,
+      "end": 73.431,
+      "seconds": 16.93
+    },
+    {
+      "stage": "DESCEND",
+      "start": 73.431,
+      "end": 77.062,
+      "seconds": 3.6310000000000002
+    },
+    {
+      "stage": "REVISIT",
+      "start": 77.062,
+      "end": 83.852,
+      "seconds": 6.790000000000006
+    },
+    {
+      "stage": "REACQUIRE",
+      "start": 83.852,
+      "end": 84.018,
+      "seconds": 0.16599999999999682
+    }
+  ],
+  "truth_xy_distance_m": 19.916879654892398,
+  "max_true_fc_agl": 2.816739823172386,
+  "target_errors": {
+    "high_hint_error_m": 0.11183949625286937,
+    "low_reacquisition_error_m": 0.10494376062053935
+  },
+  "selected": {
+    "class_name": "bridge",
+    "epoch": {
+      "calibration": "installed-camera-1280-v1",
+      "localization": "static-sitl-world",
+      "mission": "vcl06-random-11-465000000-1"
+    },
+    "evidence_count": 8,
+    "key": {
+      "first_seen_ns": 18626000000,
+      "target_id": 0
+    },
+    "last_seen_ns": 37995000000,
+    "role": "REVISIT_HINT_ONLY",
+    "uncertainty_m": 0.202741654766238,
+    "vote_fraction": 1.0,
+    "xy": [
+      -1.7713388620309822,
+      0.19831660315351005
+    ]
+  },
+  "reacquired": {
+    "class_name": "bridge",
+    "hint_delta": 0.007153602757037712,
+    "last_seen_ns": 83973000000,
+    "target_id": 0,
+    "time": 83.991,
+    "xy": [
+      -1.7757445711201543,
+      0.20395253784325623
+    ]
+  },
+  "observation_counts": {
+    "accepted": 81,
+    "candidate:profile_excluded": 1933,
+    "candidate:state_not_confirmed": 448,
+    "candidate:streak_too_short": 993,
+    "duplicate_or_too_close": 306
+  },
+  "collisions": 0,
+  "payload_committed": 0,
+  "low_stage_max_true_fc_agl": 1.4845030110716166,
+  "hint_age_at_reacquisition": 45.978
+}

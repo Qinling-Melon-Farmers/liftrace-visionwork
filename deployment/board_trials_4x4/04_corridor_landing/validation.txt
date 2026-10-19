@@ -1,0 +1,81 @@
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.377s
+
+OK
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.120s
+
+OK
+[
+  {
+    "folder": "01_visual_interrupt",
+    "trial": "visual_interrupt",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "01_visual_interrupt",
+    "trial": "visual_interrupt",
+    "control_output": "true",
+    "nodes": 19,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "02_high_view_revisit",
+    "trial": "high_view",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "FullCircleRuntime",
+    "passed": true
+  },
+  {
+    "folder": "02_high_view_revisit",
+    "trial": "high_view",
+    "control_output": "true",
+    "nodes": 19,
+    "runtime": "FullCircleRuntime",
+    "passed": true
+  },
+  {
+    "folder": "03_h_landing",
+    "trial": "landing",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "03_h_landing",
+    "trial": "landing",
+    "control_output": "true",
+    "nodes": 15,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "04_corridor_landing",
+    "trial": "landing",
+    "control_output": "false",
+    "nodes": 14,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  },
+  {
+    "folder": "04_corridor_landing",
+    "trial": "landing",
+    "control_output": "true",
+    "nodes": 15,
+    "runtime": "SingleDeliveryRuntime",
+    "passed": true
+  }
+]
+usage: run_trial.py [-h] --root ROOT [--model MODEL] [--check-config]
+                    {visual_interrupt,high_view,landing,corridor_landing}
+                    {preview,flight}
+run_trial.py: error: Fill corridor_waypoints with at least two measured waypoints; no default route is permitted
+EMPTY_CORRIDOR_REJECTED_BEFORE_ROS_INIT

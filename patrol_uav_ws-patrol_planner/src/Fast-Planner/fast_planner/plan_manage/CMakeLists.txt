@@ -22,6 +22,8 @@ find_package(catkin REQUIRED COMPONENTS
   traj_utils
   message_generation
   cv_bridge
+  navigation_recovery_msgs
+  mavros_msgs
 )
 
 # Generate messages in the 'msg' folder
@@ -42,7 +44,7 @@ generate_messages(
 # catkin_package(CATKIN_DEPENDS message_runtime)
 catkin_package(
  INCLUDE_DIRS include
- CATKIN_DEPENDS roscpp std_msgs geometry_msgs sensor_msgs plan_env path_searching bspline bspline_opt traj_utils message_runtime
+ CATKIN_DEPENDS roscpp std_msgs geometry_msgs sensor_msgs plan_env path_searching bspline bspline_opt traj_utils message_runtime navigation_recovery_msgs mavros_msgs
 #  DEPENDS system_lib
 )
 
@@ -58,6 +60,7 @@ include_directories(
 add_executable(fast_planner_node
   src/fast_planner_node.cpp 
   src/kino_replan_fsm.cpp
+  src/navigation_recovery.cpp
   src/topo_replan_fsm.cpp
   src/planner_manager.cpp
   )
@@ -70,7 +73,15 @@ add_executable(traj_server src/traj_server.cpp)
 target_link_libraries(traj_server ${catkin_LIBRARIES})
 add_dependencies(traj_server ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
+# Explicit independent verification entry; no default flight launch includes it.
+add_executable(navigation_recovery_mock test/navigation_recovery_mock.cpp)
+catkin_install_python(PROGRAMS scripts/navigation_recovery_fixture.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 if(CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(navigation_recovery_test test/navigation_recovery_test.cpp)
+  if(TARGET navigation_recovery_test)
+    target_link_libraries(navigation_recovery_test ${catkin_LIBRARIES})
+  endif()
   catkin_add_gtest(motion_watchdog_test test/motion_watchdog_test.cpp)
   catkin_add_gtest(server_hold_monitor_test test/server_hold_monitor_test.cpp)
   catkin_add_gtest(goal_adjustment_test test/goal_adjustment_test.cpp)
@@ -81,4 +92,8 @@ if(CATKIN_ENABLE_TESTING)
     add_dependencies(planner_status_schema_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
     target_link_libraries(planner_status_schema_test ${catkin_LIBRARIES})
   endif()
+endif()
+
+if(CATKIN_ENABLE_TESTING)
+  catkin_add_nosetests(test/test_navigation_recovery_velocity.py)
 endif()

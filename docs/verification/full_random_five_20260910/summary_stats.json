@@ -1,0 +1,32 @@
+{
+  "n": 5,
+  "full_pass": 2,
+  "three_drops": 4,
+  "three_recoveries": 4,
+  "nine_route_points": 3,
+  "two_doors": 3,
+  "collision_runs": 1,
+  "legal_scenes": 5,
+  "cleanup_pass": true,
+  "media_file_count": 0,
+  "complete_mission_s": {
+    "n": 2,
+    "min": 342.134000001,
+    "p50": 427.8535000005,
+    "p95": 505.00105000005,
+    "max": 513.573
+  },
+  "route_to_disarm_s": {
+    "n": 2,
+    "min": 188.43099999999998,
+    "p50": 192.56449999999998,
+    "p95": 196.28464999999997,
+    "max": 196.69799999999998
+  },
+  "raw_gate_error_counts": {
+    "actual_collision": 1,
+    "manager_failed": 1,
+    "manager_aborted": 1,
+    "full_trial_mission_timeout": 2
+  }
+}

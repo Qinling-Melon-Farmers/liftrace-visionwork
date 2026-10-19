@@ -1,0 +1,12 @@
+Summary of the previously completed test run; not a new run or full stdout capture.
+Workspace: /home/xhj/liftrace-worktrees/r2026-board-vision-tests
+Command (Windows PowerShell):
+wsl -e bash -c 'cd /home/xhj/liftrace-worktrees/r2026-board-vision-tests && source /home/xhj/miniconda3/etc/profile.d/conda.sh && conda activate rl_drone && PYTHONPATH=patrol_uav_ws-patrol_planner/src/uav_mission/src:patrol_uav_ws-patrol_planner/src/uav_mission/test:vision_ws/src/uav_high_view/src:vision_ws/src/uav_high_view/test python -m unittest -v test_navigation_memory test_high_view_coarse test_high_view_full test_high_view_resume'
+
+Recorded terminal result:
+----------------------------------------------------------------------
+Ran 97 tests in 5.011s
+
+OK
+Exit code: 0
+The two added physical-location conflict regression tests reproduced the bug before the production fix.

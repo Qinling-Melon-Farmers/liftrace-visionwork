@@ -1,0 +1,58 @@
+{
+  "EKF2_EV_CTRL": {
+    "success": true,
+    "value": {
+      "integer": 9,
+      "real": 0.0
+    }
+  },
+  "EKF2_HGT_REF": {
+    "success": true,
+    "value": {
+      "integer": 0,
+      "real": 0.0
+    }
+  },
+  "EKF2_GPS_CTRL": {
+    "success": true,
+    "value": {
+      "integer": 0,
+      "real": 0.0
+    }
+  },
+  "EKF2_BARO_CTRL": {
+    "success": true,
+    "value": {
+      "integer": 1,
+      "real": 0.0
+    }
+  },
+  "EKF2_BARO_NOISE": {
+    "success": true,
+    "value": {
+      "integer": 0,
+      "real": 0.15000000596046448
+    }
+  },
+  "EKF2_EV_DELAY": {
+    "success": true,
+    "value": {
+      "integer": 0,
+      "real": 0.0
+    }
+  },
+  "EKF2_EVP_NOISE": {
+    "success": true,
+    "value": {
+      "integer": 0,
+      "real": 0.10000000149011612
+    }
+  },
+  "EKF2_EVA_NOISE": {
+    "success": true,
+    "value": {
+      "integer": 0,
+      "real": 0.05000000074505806
+    }
+  }
+}

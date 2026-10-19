@@ -1,0 +1,56 @@
+[
+  {
+    "branch": "feat/board-deployment-flight-20260920",
+    "root": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests",
+    "controller_pass": 97,
+    "mission_tests_run": 87,
+    "mission_skip": 0,
+    "note": "91项先通过；另6项授权测试补齐ROS编译环境后通过，无生产代码修改。",
+    "actual_controller_build": true
+  },
+  {
+    "branch": "feat/r2026-competition-integrated",
+    "root": "/home/xhj/liftrace-worktrees/r2026-board-frame-fix",
+    "controller_pass": 97,
+    "mission_tests_run": 87,
+    "mission_skip": 0,
+    "note": "",
+    "actual_controller_build": false
+  },
+  {
+    "branch": "feat/high-view-route-speed-20261004",
+    "root": "/home/xhj/liftrace-worktrees/r2026-high-view-search",
+    "controller_pass": 37,
+    "mission_tests_run": 87,
+    "mission_skip": 3,
+    "note": "旧研究专项尚无独立释放高度窗口，新配置测试跳过相关历史入口，不将其作为当前上板配置。",
+    "actual_controller_build": false
+  },
+  {
+    "branch": "板端参考分支",
+    "root": "/home/xhj/liftrace-controlwork-worktrees/drop-height-board-reference-20261003",
+    "controller_pass": 97,
+    "mission_tests_run": 87,
+    "mission_skip": 0,
+    "note": "",
+    "actual_controller_build": false
+  },
+  {
+    "branch": "feat/high-view-liveness-20260919",
+    "root": "/home/xhj/liftrace-controlwork-worktrees/high-view-liveness-20260919",
+    "controller_pass": 97,
+    "mission_tests_run": 87,
+    "mission_skip": 1,
+    "note": "",
+    "actual_controller_build": false
+  },
+  {
+    "branch": "liftrace_board_trial_20260928",
+    "root": "/home/xhj/liftrace-controlwork-worktrees/board-trial-20260928",
+    "controller_pass": 100,
+    "mission_tests_run": 87,
+    "mission_skip": 0,
+    "note": "首次任务回归遇到共享pycache损坏；隔离pycache后87项通过。",
+    "actual_controller_build": true
+  }
+]

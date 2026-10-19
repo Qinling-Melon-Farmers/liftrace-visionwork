@@ -1,0 +1,779 @@
+{
+  "bag": "/home/xhj/liftrace-worktrees/r2026-board-vision-tests/试飞产物/1015-1501-投递H2D2-H降落vhD2.bag",
+  "bag_start_epoch": 1792047721.0411642,
+  "ground_z": -0.21564697546884418,
+  "actual_settings": {
+    "mode": "high_view_full",
+    "low_agl": 1.4,
+    "high_agl": 2.0,
+    "drop_descent_mode": 2,
+    "drop_horizontal_compensation_mode": 2,
+    "drop_descent_speed_mps": 1.5,
+    "drop_descent_mode4_speed_mps": 0.6,
+    "drop_descent_acceleration_mps2": 0.6,
+    "drop_descent_braking_mps2": 0.6,
+    "drop_descent_hold_tolerance_m": 0.015,
+    "drop_agl": 0.15,
+    "release_min_agl": 0.1,
+    "release_max_agl": 0.45,
+    "landing_transit_agl": 1.0,
+    "landing_capture_agl": 1.2,
+    "landing_xy": [
+      7.7,
+      -3.45
+    ],
+    "cruise_speed": 1.2,
+    "cruise_acceleration": 1.0,
+    "virtual_ceiling_enabled": false,
+    "alignment_mode": "legacy_static",
+    "actuator_mode": "real",
+    "raw_servo_service": "/legacy/Servo_raw",
+    "trial_kind": "full_mission",
+    "corridor_waypoints": [
+      {
+        "x": 6.5,
+        "y": 1.9,
+        "agl": 0.9
+      },
+      {
+        "x": 7.7,
+        "y": 1.9,
+        "agl": 0.9
+      },
+      {
+        "x": 7.7,
+        "y": 1.0,
+        "agl": 0.9
+      },
+      {
+        "x": 7.7,
+        "y": -3.45,
+        "agl": 0.9
+      }
+    ],
+    "motion_optimization": {
+      "enabled": true,
+      "braking_speed_mps": 1.2,
+      "braking_accel_mps2": 0.6
+    },
+    "landing_handoff_mode": "POSCTL",
+    "landing_alignment_mode": "vh",
+    "landing_descent_mode": 2,
+    "landing_descent_speed_mps": 1.0,
+    "motion_action_timeout": 60.0,
+    "ordinary_waypoint_dwell_enabled": false,
+    "landing_posctl": {
+      "target_agl": 0.35,
+      "trigger_agl": 0.5,
+      "xy_tolerance_m": 0.05,
+      "height_tolerance_m": 0.05,
+      "capture_height_tolerance_m": 0.1,
+      "max_horizontal_speed_mps": 0.1,
+      "max_vertical_speed_mps": 0.1,
+      "stable_duration_sec": 0.15,
+      "max_odom_age_sec": 0.2,
+      "max_sample_gap_sec": 0.2,
+      "min_samples": 3
+    },
+    "resume_survey_enabled": true,
+    "takeoff_z_lead_m": 0.0,
+    "flight_area": {
+      "center_bounds": [
+        -0.35,
+        8.25,
+        -3.75,
+        2.7
+      ],
+      "target_bounds": [
+        -0.35,
+        8.5,
+        -4.0,
+        2.7
+      ],
+      "search_bounds": [
+        0.4,
+        5.8,
+        -2.4,
+        2.7
+      ],
+      "staging_xy": [
+        0.8,
+        0.0
+      ],
+      "survey_xy": [
+        [
+          1.1,
+          -1.5
+        ],
+        [
+          5.0,
+          -1.5
+        ],
+        [
+          5.0,
+          1.8
+        ],
+        [
+          1.1,
+          1.8
+        ],
+        [
+          1.1,
+          -1.5
+        ]
+      ],
+      "map_size": [
+        18.0,
+        12.0,
+        4.0
+      ]
+    },
+    "search_line_x": [
+      0.6,
+      1.2,
+      1.8,
+      2.4,
+      3.0,
+      3.6,
+      4.2,
+      4.8,
+      5.4
+    ],
+    "compressed_image_topic": "/camera/image_raw/compressed",
+    "max_agl": 3.2,
+    "auto_start_after_arm": true,
+    "initialization_timeout": 300.0,
+    "obstacle_columns_enabled": true,
+    "corridor_geometry": {
+      "wall_axis": 1,
+      "wall_coordinates": [
+        0.0,
+        -1.4
+      ],
+      "entry_waypoints": 1
+    },
+    "speed_profile": "competition",
+    "following_speed_profile": {
+      "cruise_lead_m": 1.0,
+      "precision_lead_m": 0.6,
+      "boundary_lead_m": 0.6,
+      "low_coverage_lead_m": 0.6,
+      "corridor_lead_m": 0.6
+    }
+  },
+  "ground_reference": {
+    "mode": "high_view_full",
+    "mapping_profile": "high",
+    "fc_xyz": [
+      -0.002943535102531314,
+      -0.0013364903861656785,
+      0.004353024531155825
+    ],
+    "ground_z": -0.21564697546884418,
+    "low_z": 1.184352993965149,
+    "high_z": 1.7843530245311559,
+    "drop_z": -0.06564697546884418,
+    "takeoff_z": 1.184352993965149,
+    "known_rig": {
+      "mission_frame": "camera_init",
+      "mavros_frame": "map",
+      "body_to_imu_xyz": [
+        0.0,
+        0.0,
+        0.05
+      ],
+      "imu_to_camera_xyz": [
+        0.0,
+        0.0,
+        -0.21
+      ],
+      "camera_quat_xyzw": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "pixel_to_body_matrix": [
+        -1.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "fc_ground_clearance": 0.22,
+      "source": "Flight team minimal_delivery_test at fa621262 (camera rotation verified 20260923); slot offsets inherited; AGL uses measured stationary reference",
+      "slot_offsets": [
+        [
+          -0.12,
+          0.0
+        ],
+        [
+          0.0,
+          -0.12
+        ],
+        [
+          0.0,
+          0.12
+        ]
+      ],
+      "dynamic_slot_offsets": [
+        [
+          -0.12,
+          0.0
+        ],
+        [
+          0.0,
+          -0.12
+        ],
+        [
+          0.0,
+          0.12
+        ]
+      ]
+    },
+    "settings": {
+      "mode": "high_view_full",
+      "low_agl": 1.4,
+      "high_agl": 2.0,
+      "drop_descent_mode": 2,
+      "drop_horizontal_compensation_mode": 2,
+      "drop_descent_speed_mps": 1.5,
+      "drop_descent_mode4_speed_mps": 0.6,
+      "drop_descent_acceleration_mps2": 0.6,
+      "drop_descent_braking_mps2": 0.6,
+      "drop_descent_hold_tolerance_m": 0.015,
+      "drop_agl": 0.15,
+      "release_min_agl": 0.1,
+      "release_max_agl": 0.45,
+      "landing_transit_agl": 1.0,
+      "landing_capture_agl": 1.2,
+      "landing_xy": [
+        7.7,
+        -3.45
+      ],
+      "cruise_speed": 1.2,
+      "cruise_acceleration": 1.0,
+      "virtual_ceiling_enabled": false,
+      "alignment_mode": "legacy_static",
+      "actuator_mode": "real",
+      "raw_servo_service": "/legacy/Servo_raw",
+      "trial_kind": "full_mission",
+      "corridor_waypoints": [
+        {
+          "x": 6.5,
+          "y": 1.9,
+          "agl": 0.9
+        },
+        {
+          "x": 7.7,
+          "y": 1.9,
+          "agl": 0.9
+        },
+        {
+          "x": 7.7,
+          "y": 1.0,
+          "agl": 0.9
+        },
+        {
+          "x": 7.7,
+          "y": -3.45,
+          "agl": 0.9
+        }
+      ],
+      "motion_optimization": {
+        "enabled": true,
+        "braking_speed_mps": 1.2,
+        "braking_accel_mps2": 0.6
+      },
+      "landing_handoff_mode": "POSCTL",
+      "landing_alignment_mode": "vh",
+      "landing_descent_mode": 2,
+      "landing_descent_speed_mps": 1.0,
+      "motion_action_timeout": 60.0,
+      "ordinary_waypoint_dwell_enabled": false,
+      "landing_posctl": {
+        "target_agl": 0.35,
+        "trigger_agl": 0.5,
+        "xy_tolerance_m": 0.05,
+        "height_tolerance_m": 0.05,
+        "capture_height_tolerance_m": 0.1,
+        "max_horizontal_speed_mps": 0.1,
+        "max_vertical_speed_mps": 0.1,
+        "stable_duration_sec": 0.15,
+        "max_odom_age_sec": 0.2,
+        "max_sample_gap_sec": 0.2,
+        "min_samples": 3
+      },
+      "resume_survey_enabled": true,
+      "takeoff_z_lead_m": 0.0,
+      "flight_area": {
+        "center_bounds": [
+          -0.35,
+          8.25,
+          -3.75,
+          2.7
+        ],
+        "target_bounds": [
+          -0.35,
+          8.5,
+          -4.0,
+          2.7
+        ],
+        "search_bounds": [
+          0.4,
+          5.8,
+          -2.4,
+          2.7
+        ],
+        "staging_xy": [
+          0.8,
+          0.0
+        ],
+        "survey_xy": [
+          [
+            1.1,
+            -1.5
+          ],
+          [
+            5.0,
+            -1.5
+          ],
+          [
+            5.0,
+            1.8
+          ],
+          [
+            1.1,
+            1.8
+          ],
+          [
+            1.1,
+            -1.5
+          ]
+        ],
+        "map_size": [
+          18.0,
+          12.0,
+          4.0
+        ]
+      },
+      "search_line_x": [
+        0.6,
+        1.2,
+        1.8,
+        2.4,
+        3.0,
+        3.6,
+        4.2,
+        4.8,
+        5.4
+      ],
+      "compressed_image_topic": "/camera/image_raw/compressed",
+      "max_agl": 3.2,
+      "auto_start_after_arm": true,
+      "initialization_timeout": 300.0,
+      "obstacle_columns_enabled": true,
+      "corridor_geometry": {
+        "wall_axis": 1,
+        "wall_coordinates": [
+          0.0,
+          -1.4
+        ],
+        "entry_waypoints": 1
+      },
+      "speed_profile": "competition",
+      "following_speed_profile": {
+        "cruise_lead_m": 1.0,
+        "precision_lead_m": 0.6,
+        "boundary_lead_m": 0.6,
+        "low_coverage_lead_m": 0.6,
+        "corridor_lead_m": 0.6
+      }
+    }
+  },
+  "pilot_posctl_confirmed": true,
+  "vertical_consistency": [
+    {
+      "window": [
+        62,
+        68
+      ],
+      "delta_z": -0.005356550216674805,
+      "pose_average_vz": -0.0009006530065021639,
+      "reported_mean_vz": -0.2366994052297539,
+      "reported_target_mean_vz": -0.25648598273595175
+    },
+    {
+      "window": [
+        70,
+        78
+      ],
+      "delta_z": -0.03272068500518799,
+      "pose_average_vz": -0.004115419524769733,
+      "reported_mean_vz": -0.20116494254519543,
+      "reported_target_mean_vz": -0.204584476351738
+    },
+    {
+      "window": [
+        90,
+        100
+      ],
+      "delta_z": -0.015445470809936523,
+      "pose_average_vz": -0.0015498214498417822,
+      "reported_mean_vz": -0.14661264022191364,
+      "reported_target_mean_vz": -0.14612387299537657
+    },
+    {
+      "window": [
+        112,
+        117
+      ],
+      "delta_z": 0.007998347282409668,
+      "pose_average_vz": 0.0016119580354192072,
+      "reported_mean_vz": -0.0082709237349142,
+      "reported_target_mean_vz": -0.014570665359497071
+    }
+  ],
+  "mission_events": [
+    {
+      "decision_seq": 3,
+      "goal": [
+        1.0970564648974688,
+        -1.5013364903861657
+      ],
+      "stage": "SURVEY_NO_PROGRESS",
+      "time": 1792047790.1866663
+    },
+    {
+      "stage": "SURVEY",
+      "time": 1792047790.1866663
+    },
+    {
+      "scope": "COARSE_PROPOSAL_REQUIRES_3D_PLANNER",
+      "stage": "SURVEY_ALTERNATIVE",
+      "time": 1792047790.1866663,
+      "xy": [
+        1.0970564648974688,
+        -1.2013364903861656
+      ]
+    },
+    {
+      "decision_seq": 4,
+      "goal": [
+        1.0970564648974688,
+        -1.2013364903861656
+      ],
+      "stage": "SURVEY_NO_PROGRESS",
+      "time": 1792047799.8910666
+    },
+    {
+      "goal": [
+        1.0970564648974688,
+        -1.2013364903861656
+      ],
+      "region": [
+        1.0970564648974688,
+        -1.5013364903861657
+      ],
+      "stage": "SURVEY_SKIPPED",
+      "time": 1792047799.8910666
+    },
+    {
+      "failed_regions": [
+        [
+          1.0970564648974688,
+          -1.5013364903861657
+        ]
+      ],
+      "interruption_xy": [
+        3.469041109085083,
+        -0.7099928259849548
+      ],
+      "rejoin_xy": [
+        3.108719112019414,
+        -0.8269302929297176
+      ],
+      "remaining": [
+        [
+          4.997056464897469,
+          -1.5013364903861657,
+          1.7843530245311559
+        ],
+        [
+          4.997056464897469,
+          1.7986635096138344,
+          1.7843530245311559
+        ],
+        [
+          1.0970564648974688,
+          1.7986635096138344,
+          1.7843530245311559
+        ],
+        [
+          1.0970564648974688,
+          -1.5013364903861657,
+          1.7843530245311559
+        ]
+      ],
+      "segment_start": [
+        0.7970564648974687,
+        -0.0013364903861656785
+      ],
+      "stage": "SURVEY_REMAINDER_SAVED",
+      "time": 1792047803.883923
+    },
+    {
+      "decision_seq": 5,
+      "original_deadline": 1792047859.8910666,
+      "stage": "SURVEY_INTERRUPTED_TOP3",
+      "support": {
+        "bridge": [
+          {
+            "distinct_image_stamps": [
+              1792047803656619787,
+              1792047803786002159
+            ],
+            "low_verified": false,
+            "revisit_support_count": 2,
+            "source": "bbox",
+            "source_stamp_ns": 1792047803786002159,
+            "xy": [
+              4.7781739759492865,
+              -1.497357444919753
+            ]
+          }
+        ],
+        "panzer": [
+          {
+            "distinct_image_stamps": [
+              1792047781884026050,
+              1792047782313241243
+            ],
+            "low_verified": false,
+            "revisit_support_count": 2,
+            "source": "bbox",
+            "source_stamp_ns": 1792047782402946472,
+            "xy": [
+              1.814769280663135,
+              -2.503367126899132
+            ]
+          }
+        ],
+        "red_cross": [
+          {
+            "distinct_image_stamps": [
+              1792047778845449686,
+              1792047778998888254
+            ],
+            "low_verified": false,
+            "revisit_support_count": 4,
+            "source": "vision",
+            "source_stamp_ns": 1792047803606139659,
+            "xy": [
+              2.0820695709056958,
+              -0.20071526158581735
+            ]
+          }
+        ]
+      },
+      "time": 1792047803.883923
+    },
+    {
+      "stage": "DESCENT_COLUMN_WITHOUT_FULL_TOUR",
+      "time": 1792047803.883923,
+      "xy": [
+        3.469041109085083,
+        -0.7099928259849548
+      ]
+    },
+    {
+      "retired_seq": 5,
+      "stage": "DESCENT_MOTION_REPLACED",
+      "time": 1792047803.883923
+    },
+    {
+      "stage": "DESCEND",
+      "time": 1792047803.883923
+    },
+    {
+      "boundary_margin_m": 0.3485753809367631,
+      "hint_xy": [
+        2.0820695709056958,
+        -0.20071526158581735
+      ],
+      "stage": "REVISIT_VIEWPOINT",
+      "time": 1792047824.6118507,
+      "uncertainty_m": 0.20742098260067954,
+      "xy": [
+        2.0820695709056958,
+        -0.20071526158581735
+      ]
+    },
+    {
+      "stage": "REVISIT",
+      "time": 1792047824.6118507
+    },
+    {
+      "stage": "REACQUIRE",
+      "time": 1792047830.5268734
+    },
+    {
+      "stage": "DELIVERY",
+      "target": "red_cross",
+      "time": 1792047830.729112
+    }
+  ],
+  "mode_changes": [
+    {
+      "t": 0.007402181625366211,
+      "mode": "MANUAL",
+      "armed": false
+    },
+    {
+      "t": 40.303993940353394,
+      "mode": "MANUAL",
+      "armed": true
+    },
+    {
+      "t": 41.305670976638794,
+      "mode": "MANUAL",
+      "armed": false
+    },
+    {
+      "t": 42.30555987358093,
+      "mode": "MANUAL",
+      "armed": true
+    },
+    {
+      "t": 44.30596303939819,
+      "mode": "OFFBOARD",
+      "armed": true
+    },
+    {
+      "t": 120.30911135673523,
+      "mode": "POSCTL",
+      "armed": true
+    },
+    {
+      "t": 123.31079339981079,
+      "mode": "MANUAL",
+      "armed": true
+    },
+    {
+      "t": 129.30987071990967,
+      "mode": "MANUAL",
+      "armed": false
+    }
+  ],
+  "pillbox_hint_gates": [
+    {
+      "t": 60.93448305130005,
+      "image_t": 60.84286189079285,
+      "cls": "panzer",
+      "confidence": 0.75048828125,
+      "map_xy": [
+        1.7817810718444393,
+        -2.4682554748962104
+      ],
+      "nearby_agl": 2.1377971105091276
+    },
+    {
+      "t": 60.9937162399292,
+      "image_t": 60.883082151412964,
+      "cls": "panzer",
+      "confidence": 0.75927734375,
+      "map_xy": [
+        1.7799167141132175,
+        -2.4762436737167373
+      ],
+      "nearby_agl": 2.1396952800266447
+    },
+    {
+      "t": 61.36227464675903,
+      "image_t": 61.27207708358765,
+      "cls": "panzer",
+      "confidence": 0.826171875,
+      "map_xy": [
+        1.8371280706187836,
+        -2.531247721331882
+      ],
+      "nearby_agl": 2.1805342368595304
+    },
+    {
+      "t": 61.41459679603577,
+      "image_t": 61.321455240249634,
+      "cls": "panzer",
+      "confidence": 0.86376953125,
+      "map_xy": [
+        1.8261570133174807,
+        -2.520328073367928
+      ],
+      "nearby_agl": 2.1855910949222745
+    },
+    {
+      "t": 61.47009825706482,
+      "image_t": 61.36178231239319,
+      "cls": "panzer",
+      "confidence": 0.81103515625,
+      "map_xy": [
+        1.814769280663135,
+        -2.503367126899132
+      ],
+      "nearby_agl": 2.1939855746738615
+    },
+    {
+      "t": 61.79641151428223,
+      "image_t": 61.70932698249817,
+      "cls": "pillbox",
+      "confidence": 0.82470703125,
+      "map_xy": [
+        1.7704907430634935,
+        -2.429595445764303
+      ],
+      "nearby_agl": 2.2145957879535856
+    },
+    {
+      "t": 61.85574769973755,
+      "image_t": 61.76788568496704,
+      "cls": "pillbox",
+      "confidence": 0.90380859375,
+      "map_xy": [
+        1.7674690948779186,
+        -2.4254513418864194
+      ],
+      "nearby_agl": 2.2192809514515104
+    },
+    {
+      "t": 61.9196138381958,
+      "image_t": 61.81463074684143,
+      "cls": "pillbox",
+      "confidence": 0.78466796875,
+      "map_xy": [
+        1.7632755425687532,
+        -2.4203763058691323
+      ],
+      "nearby_agl": 2.2227268151752653
+    },
+    {
+      "t": 61.99388027191162,
+      "image_t": 61.847625970840454,
+      "cls": "pillbox",
+      "confidence": 0.79736328125,
+      "map_xy": [
+        1.7643659328851193,
+        -2.420887147282496
+      ],
+      "nearby_agl": 2.2225589684955778
+    },
+    {
+      "t": 69.80312871932983,
+      "image_t": 69.71722435951233,
+      "cls": "panzer",
+      "confidence": 0.75634765625,
+      "map_xy": [
+        1.8112660737111448,
+        -2.463048685303731
+      ],
+      "nearby_agl": 2.2166514329425993
+    }
+  ]
+}

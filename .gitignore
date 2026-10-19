@@ -11,12 +11,15 @@
 **/logs/
 *.bag
 *.bag.active
+*.ulg
 
 # ---- 大文件：模型权重 / 数据集 / 压缩包 / 点云 ----
 vision_ws/runs/
 vision_ws/test_data/
 runs/
 *.pt
+*.rknn
+/deliverables/
 *.onnx
 *.zip
 *.zip.sha256
@@ -46,6 +49,5 @@ Desktop_patrol_uav_ws-patrol_planner/
 # Generated catkin workspace marker
 **/.catkin_workspace
 
-*.rknn
-
-/deliverables/
+# 外置模型由完整交付包携带，源码Git只保存配套metadata
+/runtime_models/

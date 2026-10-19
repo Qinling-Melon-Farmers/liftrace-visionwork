@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <launch>
   <arg name="enable_control_output" default="false" />
+  <arg name="landing_touchdown_setpoint_topic" default="/navigation/landing_setpoint_touchdown" />
   <arg name="mapping_profile" default="low" />
   <arg name="start_mapping" default="false" />
   <arg name="alignment_mode" default="legacy_static" />
@@ -41,6 +42,7 @@
     <param name="local_frame" value="map" />
     <param name="mission_frame" value="$(arg map_frame)" />
     <param name="enable_setpoints" value="$(arg enable_control_output)" />
+    <param name="landing_touchdown_setpoint_topic" value="$(arg landing_touchdown_setpoint_topic)" />
   </node>
   <node pkg="uav_mission" type="pose_tf_broadcaster.py" name="vision_pose_tf" output="screen">
     <param name="pose_topic" value="/mavros/local_position/pose" />
